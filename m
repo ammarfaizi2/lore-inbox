@@ -1,57 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263657AbUCUOor (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 09:44:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263658AbUCUOor
+	id S263658AbUCUOsP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 09:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263659AbUCUOsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 09:44:47 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:43649 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263657AbUCUOoq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 09:44:46 -0500
-Date: Sun, 21 Mar 2004 09:46:35 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Richard Browning <richard@redline.org.uk>
-cc: Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       linux-kernel@vger.kernel.org,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Subject: Re: ANYONE? Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel
- 2.4.x 2.6.x / Crash/Freeze
-In-Reply-To: <200403201433.40357.richard@redline.org.uk>
-Message-ID: <Pine.LNX.4.53.0403210940380.11483@chaos>
-References: <A6974D8E5F98D511BB910002A50A6647615F4B99@hdsmsx402.hd.intel.com>
- <1079072878.3885.33.camel@dhcppc4> <1079075236.3885.52.camel@dhcppc4>
- <200403201433.40357.richard@redline.org.uk>
+	Sun, 21 Mar 2004 09:48:15 -0500
+Received: from dci.doncaster.on.ca ([66.11.168.194]:50386 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S263658AbUCUOsK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 09:48:10 -0500
+Message-ID: <405DAB2B.6050504@hotmail.com>
+Date: Sun, 21 Mar 2004 09:48:11 -0500
+From: Colin <cwvca_blah@hotmail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: bttv driver no longer works with xawtv
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Mar 2004, Richard Browning wrote:
+I'm trying to use my WinFast TV 2000 XP card with xawtv and all the 
+channels appear fuzzy or are appearing in the wrong spots.  The kernel 
+worked fine with the 2.4 line of kernels but it no longer works properly 
+with the 2.6 line.
 
-> Gents
->
-> Is there anyone in kernelland who is tackling this? I'm currently in the
-> throes of recompiling everything with -march=pentium3 -O2 to see if these
-> simple flags make a difference (as I reiterate, Windoze XP works without
-> problem). I refuse to believe that I will have to use XP in order to get my
-> money's worth. I've always thought anything Doze can do, GNU/Linux does
-> better!
+I'm using Debian sarge (soon to be version 3.1).  I asked the maintainer of 
+the xawtv package about this problem and he insists that the problem is 
+with the driver itself saying that the NTSC frequency table in the driver 
+is wrong.  I'm using version 2.6.4 of the kernel.
 
-I have been using 2.4.24 with SMP and hyperthreading with no
-problems. FYI, the reference to Windows is useless, because
-M$ was unable to make any SMP stuff function without crashes
-since windows 2000/professional, later Windows versions don't
-use your additional CPUs at all, they just report that they
-exist. FYI, see if you can find your CPU resources at all
-in XP!!!  They just don't want you to know!
+I think the card is detected properly:
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Mar 13 10:23:01 raven kernel: bttv: driver version 0.9.12 loaded
+Mar 13 10:23:01 raven kernel: bttv: using 8 buffers with 2080k (520 pages) each
+for capture
+Mar 13 10:23:01 raven kernel: bttv: Bt8xx card found (0).
+Mar 13 10:23:01 raven kernel: bttv0: Bt878 (rev 17) at 0000:02:0a.0, irq: 
+22, la
+tency: 64, mmio: 0xefefe000
+Mar 13 10:23:01 raven kernel: bttv0: detected: Leadtek WinFast TV 2000 
+[card=34]
+, PCI subsystem ID is 107d:6606
+Mar 13 10:23:01 raven kernel: bttv0: using: Leadtek WinFast 2000/ WinFast 
+2000 X
+P [card=34,autodetected]
+Mar 13 10:23:01 raven kernel: bttv0: gpio: en=00000000, out=00000000 
+in=00bf7707
+  [init]
+Mar 13 10:23:01 raven kernel: bttv0: using tuner=5
+Mar 13 10:23:01 raven kernel: bttv0: i2c: checking for MSP34xx @ 0x80... 
+not fou
+nd
+Mar 13 10:23:01 raven kernel: bttv0: i2c: checking for TDA9875 @ 0xb0... 
+not fou
+nd
+Mar 13 10:23:01 raven kernel: bttv0: i2c: checking for TDA7432 @ 0x8a... 
+not fou
+nd
+Mar 13 10:23:01 raven kernel: tuner: chip found at addr 0xc2 i2c-bus bt878 
+#0 [s
+w]
+Mar 13 10:23:01 raven kernel: tuner: type set to 5 (Philips PAL_BG (FI1216 
+and c
+ompatibles)) by bt878 #0 [sw]
+Mar 13 10:23:01 raven kernel: bttv0: registered device video0
+Mar 13 10:23:01 raven kernel: bttv0: registered device vbi0
+Mar 13 10:23:01 raven kernel: bttv0: registered device radio0
+Mar 13 10:23:01 raven kernel: bttv0: PLL: 28636363 => 35468950 .. ok
+Mar 13 10:23:01 raven kernel: bttv0: add subdevice "remote0"
+Mar 13 10:23:01 raven kernel: bttv0: PLL can sleep, using XTAL (28636363).
+Mar 13 10:23:03 raven kernel: bttv0: skipped frame. no signal? high irq 
+latency?
+  [main=29e51000,o_vbi=29e51018,o_field=29f9e000,rc=29f9e01c]
+Mar 13 10:23:05 raven kernel: bttv0: skipped frame. no signal? high irq 
+latency?
+  [main=29e51000,o_vbi=29e51018,o_field=29f9d000,rc=29f9d01c]
+Mar 13 10:23:06 raven last message repeated 2 times
+Mar 13 10:23:07 raven kernel: bttv0: skipped frame. no signal? high irq 
+latency?
+  [main=29e51000,o_vbi=29e51018,o_field=2ac96000,rc=2ac9601c]
+Mar 13 10:23:07 raven kernel: bttv0: skipped frame. no signal? high irq 
+latency?
+  [main=29e51000,o_vbi=29e51018,o_field=2ac96000,rc=2ac9601c]
+Mar 13 10:23:11 raven kernel: bttv0: skipped frame. no signal? high irq 
+latency?
+  [main=29e51000,o_vbi=29e51018,o_field=28151000,rc=2815101c]
+Mar 13 10:23:11 raven last message repeated 3 times
+Mar 13 10:38:06 raven kernel: bttv0: skipped frame. no signal? high irq 
+latency?
+  [main=29e51000,o_vbi=29e51018,o_field=1b1df000,rc=1b1df01c]
+Mar 13 10:38:17 raven kernel: bttv0: skipped frame. no signal? high irq 
+latency?
+  [main=29e51000,o_vbi=29e51018,o_field=23d5f000,rc=23d5f01c]
+Mar 13 10:38:22 raven last message repeated 2 times
+Mar 13 10:38:44 raven kernel: bttv0: skipped frame. no signal? high irq 
+latency?
+  [main=29e51000,o_vbi=29e51018,o_field=20f2f000,rc=20f2f01c]
+...
 

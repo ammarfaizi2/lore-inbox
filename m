@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbUEKUza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUEKU7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbUEKUza (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 16:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUEKUza
+	id S261752AbUEKU7W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 16:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUEKU7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 16:55:30 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:43140 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261830AbUEKUzX (ORCPT
+	Tue, 11 May 2004 16:59:22 -0400
+Received: from smtpq1.home.nl ([213.51.128.196]:34947 "EHLO smtpq1.home.nl")
+	by vger.kernel.org with ESMTP id S261752AbUEKU7V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 16:55:23 -0400
-Date: Tue, 11 May 2004 22:57:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hch@infradead.org, geoff@linux.jf.intel.com, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com
-Subject: Re: [RFC] [PATCH] Performance of del_timer_sync
-Message-ID: <20040511205712.GA7795@elte.hu>
-References: <409FFF3B.3090506@linux.intel.com> <20040511004551.7c7af44d.akpm@osdl.org> <00c001c43786$f1805000$ff0da8c0@amr.corp.intel.com> <20040511121126.73f5fdeb.akpm@osdl.org> <20040511195856.GA4958@elte.hu> <20040511131137.2390ffa8.akpm@osdl.org> <20040511211950.A20071@infradead.org> <20040511132619.7a4fb4cb.akpm@osdl.org> <20040511203236.GA6726@elte.hu> <20040511135538.1f232b79.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040511135538.1f232b79.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 11 May 2004 16:59:21 -0400
+Message-ID: <40A13E48.5050803@keyaccess.nl>
+Date: Tue, 11 May 2004 22:57:44 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dmitry Ivanov <dimss@solutions.lv>
+CC: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>,
+       linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
+       mikeserv@bmts.com
+Subject: Re: linux-2.6.6: ide-disks are shutdown on reboot
+References: <20040511142017.1bc39ce1.vmlinuz386@yahoo.com.ar> <40A133BF.90403@keyaccess.nl> <20040511203628.GA30754@new.solutions.lv>
+In-Reply-To: <20040511203628.GA30754@new.solutions.lv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dmitry Ivanov wrote:
 
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> > > Nah, that's ungrammatical.  del_timer_singleshot means "delete a timer
-> > > in a single-shot manner".
-> > > 
-> > > We have:
-> > > 
-> > > "add a timer"
-> > > "modify a timer"
-> > > "delete a timer"
-> > > "delete a timer synchronously"
-> > > "delete a single-shot timer"
-> > 
-> > hm, indeed. Miraculously, the existing timer API names are correct
-> > grammatically, so we might as well go for del_single_shot_timer() ...
-> > 
+> drivers/ide/ide-disk.c:1707: error: `SYSTEM_RESTART' undeclared
+> (first use in this function)
 > 
-> <anal>del_singleshot_timer_sync</anal>
-> 
-> I vote we leave it up to Ken.  But please, not del_timer_kenneth().
+> I cannot find definition of SYSTEM_RESTART with grep too.
 
-yeah. Ken's got a license to name ;)
+As said, you need this one first:
 
-	Ingo
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108425291909843&w=2
+
+Rene.
+
+

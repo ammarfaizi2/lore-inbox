@@ -1,40 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129097AbQKONUG>; Wed, 15 Nov 2000 08:20:06 -0500
+	id <S129166AbQKON2Q>; Wed, 15 Nov 2000 08:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129061AbQKONT4>; Wed, 15 Nov 2000 08:19:56 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:5176 "EHLO saturn.homenet")
-	by vger.kernel.org with ESMTP id <S129097AbQKONTs>;
-	Wed, 15 Nov 2000 08:19:48 -0500
-Date: Wed, 15 Nov 2000 12:50:16 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
+	id <S129205AbQKON2H>; Wed, 15 Nov 2000 08:28:07 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:57362 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S129166AbQKON1w>; Wed, 15 Nov 2000 08:27:52 -0500
+From: aprasad@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
 To: linux-kernel@vger.kernel.org
-Subject: test11-pre5 _completely_ broken?
-Message-ID: <Pine.LNX.4.21.0011151246390.1567-100000@saturn.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <CA256998.00472EB8.00@d73mta05.au.ibm.com>
+Date: Wed, 15 Nov 2000 18:21:27 +0530
+Subject: keyboard lockup after kdb session
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
-
-The test11-pre5 seems to be unusable:
-
-o starting up vim(1) takes many seconds instead of the usual <<1 second
-
-o trying to strace vim takes even longer
-
-o trying to ltrace vim panics the kernel but kdb is also unusable -- can't
-  decode stack traces etc. Perhaps I'll go back to non-kdb kernel and hope
-  to at least get a decent oops out of it (maybe Linus was right ;)
-
-I will come back with more info. Oh btw, this is on a 4-way Xeon with 6G
-RAM. But my desktop (2xPIII with 1G RAM) works with test11-pre5 just fine
-for ages (since 1am last night), without any problem (of course vim starts
-fast as it should).
-
-Regards,
-Tigran
+Hi,
+I am new to kdb. my keyboard is locked after kdb-session (either by
+generating oops or manual).
+is there any way to restore it without rebooting...
+thanks
+anil
 
 
 -

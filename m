@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131868AbRCXXaV>; Sat, 24 Mar 2001 18:30:21 -0500
+	id <S131886AbRCXXhv>; Sat, 24 Mar 2001 18:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131874AbRCXXaB>; Sat, 24 Mar 2001 18:30:01 -0500
-Received: from inet-smtp3.oracle.com ([205.227.43.23]:30137 "EHLO
-	inet-smtp3.oracle.com") by vger.kernel.org with ESMTP
-	id <S131868AbRCXX3x>; Sat, 24 Mar 2001 18:29:53 -0500
-Message-ID: <3ABD2C2A.7333D132@oracle.com>
-Date: Sun, 25 Mar 2001 00:22:18 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tom Sightler <ttsig@tuxyturvy.com>
-CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        serial-pci-info@lists.sourceforge.net
-Subject: Re: [PATCH] Fix for serial.c to work with Xircom Cardbus Ethernet+Modem
-In-Reply-To: <012301c0b357$3d29cc50$1601a8c0@zeusinc.com> <3ABBD639.12BE1035@oracle.com> <001e01c0b41d$1665de80$1601a8c0@zeusinc.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131887AbRCXXhn>; Sat, 24 Mar 2001 18:37:43 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:13814 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S131886AbRCXXhc>; Sat, 24 Mar 2001 18:37:32 -0500
+Message-Id: <l0313031db6e2def84b96@[192.168.239.101]>
+In-Reply-To: <Pine.LNX.4.33.0103242307520.570-100000@mikeg.weiden.de>
+In-Reply-To: <3ABCE547.DD5E78B9@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Sat, 24 Mar 2001 23:35:07 +0000
+To: Mike Galbraith <mikeg@wen-online.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Sightler wrote:
-> 
-[snip]
-> OK, can you try this patch?  It's very simple, and is probably not the
-> correct fix (the correct fix is probably to add the Xircom card to the
-> supported PCI table), but it works for me.  I'm not sure why the generic pci
-> serial code counts the number of iomem regions and only uses it if it has
-> exactly 0 or 1, but the Xircom has 2 iomem regions so the generic code fails
-> to use it.  The following change relaxes the generic code to allow for up to
-> 2 iomem regions on a PCI serial device.  I have no idea what the side
-> effects would be to this change, but it makes my Xircom work again and that
-> was my goal.  If I can help someone fix this correctly let me know what you
-> need.
+>> While my post didn't give an exact formula, I was quite clear on the
+>>fact that
+>> the system is allowing the caches to overrun memory and cause oom problems.
+>
+>Yes.  A testcase would be good.  It's not happening to everybody nor is
+>it happening under all loads.  (if it were, it'd be long dead)
+>
+>> I'm more than happy to test patches, and I would even be willing to suggest
+>> some algorithms that might help, but I don't know where to stick them in the
+>> code.  Most of the people who have been griping are in a similar position.
+>
+>First step toward killing the critter is to lure him onto open ground.
+>Once there.. well, I've seen some pretty fancy shooting on this list.
 
-[snipped patch]
+My patch already fixes OOM problems caused by overgrown caches/buffers, by
+making sure OOM is not triggered until these buffers have been cannibalised
+down to freepages.high.  If balancing problems still exist, then they
+should be retuned with my patch (or something very like it) in hand, to
+separate one problem from the other.  AFAIK, balancing should now be a
+performance issue rather than a stability issue.
 
-It seems something changed in 2.4.3-pre7 (against which I applied your
- patch) so that it doesn't make a difference. On startup I now get this,
- which I am CC:ing as per printk to serial-pci-info@lists.sourceforge.net
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-Mar 24 23:59:05 princess cardmgr[374]: initializing socket 1
-Mar 24 23:59:05 princess kernel:   got res[10c04000:10c07fff] for resource 6 of PCI device 115d:0103
-Mar 24 23:59:05 princess cardmgr[374]: socket 1: Xircom CBEM56G-100 CardBus 10/100 Ethernet + 56K Modem
-Mar 24 23:59:05 princess kernel: PCI: Enabling device 05:00.1 (0000 -> 0003)
-Mar 24 23:59:05 princess kernel: Redundant entry in serial pci_table.  Please send the output of
-Mar 24 23:59:05 princess kernel: lspci -vv, this message (4445,259,4445,4481)
-Mar 24 23:59:05 princess kernel: and the manufacturer and name of serial board or modem board
-Mar 24 23:59:05 princess kernel: to serial-pci-info@lists.sourceforge.net.
-Mar 24 23:59:05 princess kernel: register_serial(): autoconfig failed
+The key to knowledge is not to rely on people to teach you it.
 
-The card is a Xircom RBEM56G-100, despite what the card advertises.
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
-(in case you wonder, cardmgr is from pcmcia_cs-3.1.25).
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
 
 
-Thanks & ciao,
-
---alessandro      <alessandro.suardi@oracle.com> <asuardi@uninetcom.it>
-
-Linux:  kernel 2.2.19p17/2.4.3p6 glibc-2.2 gcc-2.96-69 binutils-2.11.90.0.1
-Oracle: Oracle8i 8.1.7.0.1 Enterprise Edition for Linux
-motto:  Tell the truth, there's less to remember.

@@ -1,95 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266357AbUIIRVC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUIIRZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266357AbUIIRVC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 13:21:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUIIRVA
+	id S266467AbUIIRZI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 13:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266465AbUIIRZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 13:21:00 -0400
-Received: from holomorphy.com ([207.189.100.168]:43185 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266357AbUIIRUF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 13:20:05 -0400
-Date: Thu, 9 Sep 2004 10:19:54 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Matt Mackall <mpm@selenic.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
-Message-ID: <20040909171954.GW3106@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Anton Blanchard <anton@samba.org>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Paul Mackerras <paulus@samba.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	Matt Mackall <mpm@selenic.com>,
-	"Nakajima, Jun" <jun.nakajima@intel.com>
-References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <16703.60725.153052.169532@cargo.ozlabs.ibm.com> <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com> <20040909154259.GE11358@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Sep 2004 13:25:08 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:64498 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S266425AbUIIRW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 13:22:56 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch][9/9] block: remove bio walking
+Date: Thu, 9 Sep 2004 19:10:57 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>
+References: <200409082127.04331.bzolnier@elka.pw.edu.pl> <200409091628.25304.bzolnier@elka.pw.edu.pl> <20040909155420.D6434@flint.arm.linux.org.uk>
+In-Reply-To: <20040909155420.D6434@flint.arm.linux.org.uk>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040909154259.GE11358@krispykreme>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409091910.57137.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, Zwane Mwaikambo wrote:
->> I think that bit is actually intentional since __preempt_spin_lock is also 
->> marked __sched so that it'll get charged as a scheduling function.
+On Thursday 09 September 2004 16:54, Russell King wrote:
+> On Thu, Sep 09, 2004 at 04:28:25PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > On Thursday 09 September 2004 16:04, Russell King wrote:
+> > > On Thu, Sep 09, 2004 at 03:53:13PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > > > On Thursday 09 September 2004 10:03, Russell King wrote:
+> > > > > On Wed, Sep 08, 2004 at 09:27:04PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > > > > > [patch] block: remove bio walking
+> > > > > > 
+> > > > > > IDE driver was the only user of bio walking code.
+> > > > 
+> > > > was in -bk10 :-(
+> > > > 
+> > > > > The MMC driver also uses this.  Please don't remove.
+> > > > 
+> > > > OK I'll just drop this patch but can't we also use scatterlists in MMC?
+> > > > 
+> > > > The point is that I now think bio walking was a mistake and accessing
+> > > > bios directly from low-level drivers is a layering violation (thus
+> > > > all the added complexity). Moreover with fixed IDE PIO and without
+> > > > bio walking code it should be possible to shrink struct request by
+> > > > removing all "current" entries.
+> > > 
+> > > I'm wondering whether it is legal to map onto SG lists and then do PIO.
+> > > Provided we don't end up using the DMA API and then using PIO to the
+> > > original pages, it should work.
+> > 
+> > Yes, it actually works fine. See the other patches from the patchkit. :-)
+> 
+> Actually, if you've only tested x86, you don't know if it works fine.
+> x86 is a rather benign architecture when it comes to testing whether
+> various interfaces are being used correctly.
 
-On Fri, Sep 10, 2004 at 01:43:00AM +1000, Anton Blanchard wrote:
-> Yeah, its a bit unfortunate. In profiles with preempt on we end up with
-> almost all our ticks inside __preempt_spin_lock and never get to use the
-> nice profile_pc code. I ended up turning preempt off again.
+x86 only
 
-Checking in_lock_functions() (not sure what the name in Zwane's code
-was) for non-leaf functions in get_wchan() in addition to
-in_sched_functions() should do. e.g.
+This forced me into rechecking everything and I found one issue:
+in ide_pio_sector() sg->length should be used instead of sg_dma_len(sg).
 
-Index: mm4-2.6.9-rc1/arch/ppc64/kernel/process.c
-===================================================================
---- mm4-2.6.9-rc1.orig/arch/ppc64/kernel/process.c	2004-09-08 05:46:09.000000000 -0700
-+++ mm4-2.6.9-rc1/arch/ppc64/kernel/process.c	2004-09-09 09:58:47.448326528 -0700
-@@ -555,7 +555,8 @@
- 			return 0;
- 		if (count > 0) {
- 			ip = *(unsigned long *)(sp + 16);
--			if (!in_sched_functions(ip))
-+			if (!in_sched_functions(ip) &&
-+					|| (!count || !in_lock_functions(ip)))
- 				return ip;
- 		}
- 	} while (count++ < 16);
-Index: mm4-2.6.9-rc1/include/linux/spinlock.h
-===================================================================
---- mm4-2.6.9-rc1.orig/include/linux/spinlock.h	2004-09-08 05:46:18.000000000 -0700
-+++ mm4-2.6.9-rc1/include/linux/spinlock.h	2004-09-09 09:57:33.529563888 -0700
-@@ -46,6 +46,7 @@
- 
- #define __lockfunc fastcall __attribute__((section(".lock.text")))
- 
-+int in_lock_functions(unsigned long);
- int __lockfunc _spin_trylock(spinlock_t *lock);
- int __lockfunc _write_trylock(rwlock_t *lock);
- void __lockfunc _spin_lock(spinlock_t *lock);
-Index: mm4-2.6.9-rc1/kernel/spinlock.c
-===================================================================
---- mm4-2.6.9-rc1.orig/kernel/spinlock.c	2004-09-08 05:46:04.000000000 -0700
-+++ mm4-2.6.9-rc1/kernel/spinlock.c	2004-09-09 09:57:10.569054416 -0700
-@@ -11,6 +11,12 @@
- #include <linux/interrupt.h>
- #include <linux/module.h>
- 
-+int in_lock_functions(unsigned long vaddr)
-+{
-+	return vaddr >= (unsigned long)&__lock_text_start
-+			&& vaddr < (unsigned long)&__lock_text_end;
-+}
-+
- int __lockfunc _spin_trylock(spinlock_t *lock)
- {
- 	preempt_disable();
+With this fixed patchkit should work on any arch
+(testing and comments are welcomed of course).
+
+> > > However, using the SG lists does finally provide us with a nice way to
+> > > ensure that we have the right information to finally fix IDE wrt the
+> > > PIO cache issues (dirty cache lines being left in the page cache.)
+> > 
+> > Could you explain the issue a bit more?
+> 
+> Essentially, kernel PIO writes data into the page cache, and that action
+> may leave data in the CPU's caches.  Since the kernels mappings may not
+> be coherent with mappings in userspace, data written to the kernel
+> mappings may remain in the data cache, and stale data would be visible
+> to user space.
+> 
+> There has been talk about using flush_dcache_page() to resolve
+> this issue, but I'm not sure what the outcome was.  Certainly
+> flush_dcache_page() is supposed to be used before the data in the
+> kernels page cache is read or written.
+> 
+> See Documentation/cachetlb.txt for further information on this
+> interface.
+
+Thanks, now I understand the problem.

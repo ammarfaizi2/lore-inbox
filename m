@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbUDEMy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 08:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUDEMy2
+	id S262329AbUDENAm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 09:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUDENAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 08:54:28 -0400
-Received: from news.cistron.nl ([62.216.30.38]:43728 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S262194AbUDEMy1 (ORCPT
+	Mon, 5 Apr 2004 09:00:42 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:62605 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262329AbUDENAl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 08:54:27 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Network issues in 2.6
-Date: Mon, 5 Apr 2004 12:54:26 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <c4rku2$9dh$2@news.cistron.nl>
-References: <002101c41b00$3f0f8c30$1530a8c0@HUSH>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1081169666 9649 62.216.29.200 (5 Apr 2004 12:54:26 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Mon, 5 Apr 2004 09:00:41 -0400
+Date: Mon, 5 Apr 2004 15:00:34 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Patrick Mochel <mochel@osdl.org>, Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Message-ID: <Pine.GSO.4.58.0404051459260.15477@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <002101c41b00$3f0f8c30$1530a8c0@HUSH>,
-Carlos Fernandez Sanz <cfs-lk@nisupu.com> wrote:
->I upgraded from 2.4.22 to 2.6.5 (to test HPT374' support, which BTW, works
->fine).
->
->However, I'm having serious network issues now. The NIC is a 3com 3c905B.
->ifconfig shows this:
->
->eth0      Link encap:Ethernet  HWaddr 00:01:03:27:81:75
->          inet addr:192.168.20.1  Bcast:192.168.20.255  Mask:255.255.255.0
->          UP BROADCAST MULTICAST  MTU:1500  Metric:1
->          RX packets:11241 errors:0 dropped:0 overruns:0 frame:0
->          TX packets:9739 errors:0 dropped:0 overruns:0 carrier:9732
->          collisions:0 txqueuelen:1000
->          RX bytes:2994485 (2.8 Mb)  TX bytes:835146 (815.5 Kb)
->          Interrupt:9 Base address:0xd800
->
->Note that for TX packets, the carrier number is almost the same as the total
->packets.... booting in 2.4.22, there are zero problems.  The only difference
->in the ifconfig, other than that, is that in 2.4.22, I have "RUNNING" in the
->options (but I didn't find how to force that).
 
-Have you tried upgrading your 'ifconfig' ?
+This has been in my tree since a while...
 
-Mike.
+--- linux-2.6.5/drivers/base/platform.c.orig	2004-02-17 13:54:49.000000000 +0100
++++ linux-2.6.x/drivers/base/platform.c	2004-01-15 13:58:12.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * platform.c - platform 'psuedo' bus for legacy devices
++ * platform.c - platform 'pseudo' bus for legacy devices
+  *
+  * Copyright (c) 2002-3 Patrick Mochel
+  * Copyright (c) 2002-3 Open Source Development Labs
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

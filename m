@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUEYEx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264731AbUEYE4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264726AbUEYEx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 00:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264725AbUEYEx3
+	id S264731AbUEYE4T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 00:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264729AbUEYE4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 00:53:29 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:14210
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264668AbUEYEx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 00:53:27 -0400
-Date: Tue, 25 May 2004 06:53:22 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: davidm@hpl.hp.com
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@kvack.org>,
-       linux-mm@kvack.org, Architectures Group <linux-arch@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-Message-ID: <20040525045322.GX29378@dualathlon.random>
-References: <1085369393.15315.28.camel@gaston> <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org> <1085371988.15281.38.camel@gaston> <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org> <1085373839.14969.42.camel@gaston> <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org> <20040525034326.GT29378@dualathlon.random> <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org> <20040525042054.GU29378@dualathlon.random> <16562.52948.981913.814783@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16562.52948.981913.814783@napali.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Tue, 25 May 2004 00:56:19 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:64766 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S264725AbUEYE4P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 00:56:15 -0400
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E57033BC694@exa-atlanta>
+From: "Mukker, Atul" <Atulm@lsil.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Cc: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
+       "'Matthew Wilcox'" <willy@debian.org>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'matt_domsch@dell.com'" <matt_domsch@dell.com>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'paul@wagland.net'" <paul@wagland.net>,
+       "Doelfel, Hardy" <hdoelfel@lsil.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
+       "Prabhakaran, Rajesh" <rajeshpr@lsil.com>,
+       "Jose, Manoj" <Manojj@lsil.com>
+Subject: [ANNOUNCE]: megaraid driver version 2.20.0.rc2
+Date: Tue, 25 May 2004 00:47:58 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 24, 2004 at 09:43:00PM -0700, David Mosberger wrote:
-> >>>>> On Tue, 25 May 2004 06:20:54 +0200, Andrea Arcangeli <andrea@suse.de> said:
-> 
->   Andrea> the only architecture that has the accessed bit in
->   Andrea> _hardware_ via page faults I know is ia64, but I don't know
->   Andrea> if it has a mode to set it without page faults
-> 
-> No, it doesn't.
-> 
->   Andrea> and how it is implementing the accessed bit in linux.
-> 
-> If the "accessed" or "dirty" bits are zero, accessing/writing the
-> page will cause a fault which will be handled in a low-level
-> fault handler.  The Linux version of these handlers simply turn
-> on the respective bit.  See daccess_bit(), iaccess_bit(), and dirty_bit()
-> in arch/ia64/kernel/ivt.S.
+All,
 
-so you mean, this is being set in the arch section before ever reaching
-handle_mm_fault? in such case my fix should work fine for ia64 too.
+We are pleased to announce the megaraid release candidate (since it is still
+in test labs at LSI) for lk 2.6
 
-> Note: I'm on travel and haven't seen the context of this discussion
-> and don't expect to have time to think about this until I return on
-> Thursday.  So if you don't hear from me, it's not because I'm ignoring
-> you... ;-)
+This driver incorporates the inputs from Paul Wagland, James Bottomley, Matt
+Domsch, Christoph Hellwig, Arjan van de Ven, Matthew Wilcox, Marcelo
+Tosatti, and many others on the scsi and kernel lists. As always, the
+feedback is greatly appreciated.
 
-take your time ;) thanks a lot for the above hints about those ivt.S
-functions (though I don't speak ia64 asm very well ;)
+Highlight of this release
+
+1.	Fully qualified PCI identifiers to identify MegaRAID controllers
+2.	PCI shutdown notification routine with hba and devices sync
+3.	Support for random drive deletion
+4.	Fully re-entrant hot-path w/ data structures protected by their
+respective locks. No longer rely on "host_lock". Should boost performance by
+5-10% and hopefully better CPU utilization
+5.	Better abort and reset handling.
+
+The patch for lk 2.6.6 and the driver is available at
+
+ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-2.20.0.rc2/
+
+Thanks
+
+-Atul Mukker
+LSI Logic Corporation

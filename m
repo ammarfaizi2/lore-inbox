@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136072AbRAYUp4>; Thu, 25 Jan 2001 15:45:56 -0500
+	id <S129274AbRAYU5Q>; Thu, 25 Jan 2001 15:57:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129789AbRAYUpi>; Thu, 25 Jan 2001 15:45:38 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:23178 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S136071AbRAYUpZ>;
-	Thu, 25 Jan 2001 15:45:25 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129390AbRAYU5G>; Thu, 25 Jan 2001 15:57:06 -0500
+Received: from mail.myrealbox.com ([192.108.102.201]:61872 "EHLO myrealbox.com")
+	by vger.kernel.org with ESMTP id <S129305AbRAYU4u>;
+	Thu, 25 Jan 2001 15:56:50 -0500
+Message-ID: <006601c08711$4bdfb600$9b2f4189@angelw2k>
+From: "Micah Gorrell" <angelcode@myrealbox.com>
+To: "Tom Sightler" <ttsig@tuxyturvy.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: eepro100 problems in 2.4.0
+Date: Thu, 25 Jan 2001 13:54:37 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <14960.36869.977528.642327@pizda.ninka.net>
-Date: Thu, 25 Jan 2001 12:43:49 -0800 (PST)
-To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
-        andrewm@uow.EDU.AU (Andrew Morton)
-Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
-In-Reply-To: <200101252028.f0PKSJR02124@moisil.dev.hydraweb.com>
-In-Reply-To: <200101251929.WAA10001@ms2.inr.ac.ru>
-	<200101252028.f0PKSJR02124@moisil.dev.hydraweb.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 4.72.3612.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Because of the problems we where having we are no longer using the machine
+with 3 nics.  We are now using a machine with just one and it is going live
+next week.  We do need kernel 2.4 because of the process limits in 2.2.
+Does the 'Enable Power Management (EXPERIMENTAL)' option fix the no
+resources problems?
 
-Ion Badulescu writes:
- > Well, yes and no. It's not quite orthogonal, because normally TCP
- > will never transmit fragmented packets, and it's precisely fragmented
- > packets that make the interesting case with a card that supports
- > hardware TCP/UDP checksums.
+Micah
+___
+The irony is that Bill Gates claims to be making a stable operating system
+and Linus Torvalds claims to be trying to take over the world
+-----Original Message-----
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: "Micah Gorrell" <angelcode@myrealbox.com>;
+<linux-kernel@vger.kernel.org>
+Date: Thursday, January 25, 2001 1:48 PM
+Subject: Re: eepro100 problems in 2.4.0
 
-No it is not the interesting case for such cards.  I have a feeling
-you have no idea what you are talking about or who you are speaking
-to.  Alexey bascially implemented all of the zerocopy stuff in that
-patch, so it's a good bet that he has a good idea what is orthogonal
-or not.
 
- > If the packets are not fragmented, then the card can just verify the
- > checksums and be done with it. However, with fragments, all it can
- > do is report a partial checksum to the driver and let the driver
- > (or the stack) combine those partial checksums into one complete
- > checksum once all fragments have arrived. At least that's what the
- > Starfire card does, maybe the 3com is different. :-)
+> > I have doing some testing with kernel 2.4 and I have had constant
+>problems
+>> with the eepro100 driver.  Under 2.2 it works perfectly but under 2.4 I
+am
+>> unable to use more than one card in a server and when I do use one card I
+>> get errors stating that eth0 reports no recources.  Has anyone else seen
+>> this kind of problem?
+>
+>I had a similar problem with a server that had dual embedded eepro100
+>adapters however selecting the 'Enable Power Management (EXPERIMENTAL)'
+>option for the eepro100 seemed to make the problem go away.  I don't really
+>know why but it might be worth trying if it wasn't already selected.
+>
+>Later,
+>Tom
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>Please read the FAQ at http://www.tux.org/lkml/
+>
+>
 
-On transmit, on transmit, that's all that matters on the hardware side
-with these changes, where the card does the checksumming for us.
-We've supported receive checksum verification from the hardware
-forever, long before these changes.
-
-The only interesting new thing on receive is that we do not linearize
-a fragmented packet before passing it on to UDP etc.  And this has
-nothing to do with what the card can or cannot do, it is purely a
-software issue.
-
- > And, on a related note: what's involved in making a driver
- > zerocopy-aware? I haven't looked too closely to the current patch,
-
-When you look closely at the current patch, you will see exactly what
-is required.  3 hardware drivers are ported there, and are to be used
-as examples.
-
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

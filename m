@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129799AbQLPXMw>; Sat, 16 Dec 2000 18:12:52 -0500
+	id <S129997AbQLPXVn>; Sat, 16 Dec 2000 18:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129997AbQLPXMn>; Sat, 16 Dec 2000 18:12:43 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:7694 "EHLO
+	id <S130561AbQLPXVY>; Sat, 16 Dec 2000 18:21:24 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:9486 "EHLO
 	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129799AbQLPXMZ>; Sat, 16 Dec 2000 18:12:25 -0500
-Date: Sat, 16 Dec 2000 16:41:51 -0600
-To: Dana Lacoste <dana.lacoste@peregrine.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S129997AbQLPXVR>; Sat, 16 Dec 2000 18:21:17 -0500
+Date: Sat, 16 Dec 2000 16:50:37 -0600
+To: Joe deBlaquiere <jadb@redhat.com>
+Cc: Werner Almesberger <Werner.Almesberger@epfl.ch>, ferret@phonewave.net,
+        Alexander Viro <viro@math.psu.edu>, LA Walsh <law@sgi.com>,
+        lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Linus's include file strategy redux
-Message-ID: <20001216164151.J3199@cadcamlab.org>
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com> <91bnoc$vij$2@enterprise.cistron.net> <20001215155741.B4830@ping.be> <01cf01c066ab$036fc030$890216ac@ottawa.loran.com>
+Message-ID: <20001216165037.K3199@cadcamlab.org>
+In-Reply-To: <20001215152137.K599@almesberger.net> <Pine.LNX.3.96.1001215090857.16439A-100000@tarot.mentasm.org> <20001215184644.R573@almesberger.net> <3A3A7F25.2050203@redhat.com> <20001215222707.T573@almesberger.net> <3A3AA21F.4060100@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <01cf01c066ab$036fc030$890216ac@ottawa.loran.com>; from dana.lacoste@peregrine.com on Fri, Dec 15, 2000 at 10:23:44AM -0500
+In-Reply-To: <3A3AA21F.4060100@redhat.com>; from jadb@redhat.com on Fri, Dec 15, 2000 at 04:58:39PM -0600
 From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Dana Lacoste]
-> Essentially, whatever solution is implemented MUST ensure :
-> 
-> 1 - glibc will work properly (the headers in /usr/include/* don't
->     change in an incompatible manner)
-> 
-> 2 - programs that need to compile against the current kernel MUST
->     be able to do so in a quasi-predictable manner.
+[Joe deBlaquiere]
+> might be a good newbie filter... but actually the best thing about it
+> is that the compiler people of the work might make generating a
+> proper cross-toolchain less difficult by one or two magnitudes...
 
-(2) is bogus.  NO program needs to compile against the current kernel
-headers.  The only things that need to compile against the current
-kernel headers are kernel modules and perhaps libc itself.  As I put it
-a few days ago--
+*WHAT*?  How much less difficult could it possibly get?  This is the
+kernel, there is no cross-libc to worry about, so a cross-toolchain is
+already down to a pair of CMMIs[1].
 
-  http://marc.theaimsgroup.com/?l=linux-kernel&m=97658613604208&w=2
-
-So for your external modules, let me suggest the lovely
-/lib/modules/{version}/build/include/.  Recent-ish modutils required.
+I do agree that anyone who can't do *that* should probably be using a
+distro-packaged kernel....
 
 Peter
+
+[1] configure-make-make-install
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

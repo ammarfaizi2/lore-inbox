@@ -1,88 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVBOPFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVBOPFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbVBOPFr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 10:05:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVBOPFr
+	id S261744AbVBOPFe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 10:05:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVBOPFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 10:05:47 -0500
-Received: from styx.suse.cz ([82.119.242.94]:25230 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261745AbVBOPFZ (ORCPT
+	Tue, 15 Feb 2005 10:05:33 -0500
+Received: from vsmtp3alice.tin.it ([212.216.176.143]:44210 "EHLO vsmtp3.tin.it")
+	by vger.kernel.org with ESMTP id S261744AbVBOPFV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 10:05:25 -0500
-Date: Tue, 15 Feb 2005 16:06:06 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: InputML <linux-input@atrey.karlin.mff.cuni.cz>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RCF/RFT] Fix race timer race in gameport-based joystick drivers
-Message-ID: <20050215150606.GA8560@ucw.cz>
-References: <200502150042.32564.dtor_core@ameritech.net> <20050215140501.GF7250@ucw.cz> <d120d500050215065115706773@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d500050215065115706773@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 15 Feb 2005 10:05:21 -0500
+Message-ID: <4212165D.7070105@freemail.it>
+Date: Tue, 15 Feb 2005 16:33:49 +0100
+From: Paolo <scrooge@freemail.it>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
+X-Accept-Language: it, it-it, en-us, en
+MIME-Version: 1.0
+To: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Nforce2 - usb 2.0 bug
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 09:51:52AM -0500, Dmitry Torokhov wrote:
-> On Tue, 15 Feb 2005 15:05:01 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > On Tue, Feb 15, 2005 at 12:42:31AM -0500, Dmitry Torokhov wrote:
-> > > Hi,
-> > >
-> > > There seems to be a race WRT to timer handling in all gameport-based
-> > > joystick drivers. open() and close() methods are used to start and
-> > > stop polling timers on demand but counter and the timer itself is not
-> > > protected in any way so if several clients will try to open/close
-> > > corresponding input device node they could up with timer not running
-> > > at all or running while nobody has the node open. Plus it is possible
-> > > that disconnect will run and free driver structure while timer is running
-> > > on other CPU.
-> > >
-> > > I have moved timer and counter down into gameport structure (I think it
-> > > is ok because on the one hand joysticks are the only users of gameport
-> > > and on the other hand polling timer can be useful to other clients if
-> > > ever writen), and added helper functions to manipulate it:
-> > >
-> > >       - gameport_start_polling(gameport)
-> > >       - gameport_stop_polling(gameport)
-> > >       - gameport_set_poll_handler(gameoirt, handler)
-> > >       - gameport_set_poll_interval(gameport, msecs)
-> > >
-> > > gameport_{start|stop}_poll handler are using spinlock to guarantee that
-> > > timer updated properly. Also, gameport_close deletes (synchronously) timer
-> > > to make sure there is no surprises since gameport_stop_poling does del_timer
-> > > and thus may leave timer scheduled. Timer routine also checks the counter
-> > > and does not restart it if there are no users.
-> > >
-> > > Please let me know what you think.
-> > 
-> > I'm not really sure if I really want to move the polling into the
-> > gameport layer. It's useful, but without it, gameport is considered
-> > strictly a passive device which can't generate callbacks (other than
-> > open/close/connect/disconnect).
-> > 
-> > The new polling interface isn't much simpler than what Linux timers
-> > offer, only it provides additional locking.
-> 
-> Yes, that was the goal. I looked over the drivers and it was either
-> writing the exactly same code 10 times or moving it down.
+Hi all.
+Asking on Irc (thanx riel!), they suggested to write a sort of bug-report.
+I'm using a motherboard Asus A7N8X-Deluxe and the usb modules can't work 
+with USB 2.0 devices (while 1.1 work with no problems).
+The hardware tested is perfectly working on other computers, but with 
+this motherboard the devices are recognized but can't be initialized. 
+I've tried different distros (Gentoo, Debian & Debian based, Slackware, 
+Mandrake ... and even Qnx, FreeBSD).
+Usb 2.0 devices can correctly work if the system is booted using 
+Windows, then software-rebooted in Linux, otherwise, they can't be 
+initialized.
+All the modules are correctly loaded. Usually i don't load uhci_hcd but, 
+even modprobing it, the results don't change.
+Now i'm using a Gentoo with a 2.6.10 kernel release, but i've tried 
+different 2.6.x and 2.4.x kernel versions.
 
-> > Probably protecting open/close calls in gameport.c with a spinlock would
-> > allow to work without explicit locking in the drivers.
-> 
-> Hmm, you got me a bit confused here - open and close in gameport are
-> already (indirectly) serialized with gameport_sem. It is input device
-> open and close in joystick drivers that needs treatment - these are
-> initiated from userspace and weren't hitting gameport code at all. And
-> they need to be protected otherwise the counter and timer will get out
-> of whack.
+My lspci:
 
-Sorry, I was indeed a bit confused - the input open serialization would
-be needed, but still the timer could race.
+*************************************************************************
+*************************************************************************
 
-Thinking more about it I agree with your change. 
+0000:00:00.0 Host bridge: nVidia Corporation nForce2 AGP (different 
+version?) (r
+ev a2)
+0000:00:00.1 RAM memory: nVidia Corporation nForce2 Memory Controller 1 
+(rev a2)
+0000:00:00.2 RAM memory: nVidia Corporation nForce2 Memory Controller 4 
+(rev a2)
+0000:00:00.3 RAM memory: nVidia Corporation nForce2 Memory Controller 3 
+(rev a2)
+0000:00:00.4 RAM memory: nVidia Corporation nForce2 Memory Controller 2 
+(rev a2)
+0000:00:00.5 RAM memory: nVidia Corporation nForce2 Memory Controller 5 
+(rev a2)
+0000:00:01.0 ISA bridge: nVidia Corporation nForce2 ISA Bridge (rev a3)
+0000:00:01.1 SMBus: nVidia Corporation nForce2 SMBus (MCP) (rev a2)
+0000:00:02.0 USB Controller: nVidia Corporation nForce2 USB Controller 
+(rev a3)
+0000:00:02.1 USB Controller: nVidia Corporation nForce2 USB Controller 
+(rev a3)
+0000:00:02.2 USB Controller: nVidia Corporation nForce2 USB Controller 
+(rev a3)
+0000:00:04.0 Ethernet controller: nVidia Corporation nForce2 Ethernet 
+Controller
+ (rev a1)
+0000:00:05.0 Multimedia audio controller: nVidia Corporation nForce 
+MultiMedia a
+udio [Via VT82C686B] (rev a2)
+0000:00:06.0 Multimedia audio controller: nVidia Corporation nForce2 
+AC97 Audio
+Controler (MCP) (rev a1)
+0000:00:08.0 PCI bridge: nVidia Corporation nForce2 External PCI Bridge 
+(rev a3)
+0000:00:09.0 IDE interface: nVidia Corporation nForce2 IDE (rev a2)
+0000:00:0c.0 PCI bridge: nVidia Corporation nForce2 PCI Bridge (rev a3)
+0000:00:0d.0 FireWire (IEEE 1394): nVidia Corporation nForce2 FireWire 
+(IEEE 139
+4) Controller (rev a3)
+0000:00:1e.0 PCI bridge: nVidia Corporation nForce2 AGP (rev a2)
+0000:01:0b.0 RAID bus controller: Silicon Image, Inc. (formerly CMD 
+Technology I
+nc) SiI 3112 [SATALink/SATARaid] Serial ATA Controller (rev 02)
+0000:02:01.0 Ethernet controller: 3Com Corporation 3C920B-EMB Integrated 
+Fast Et
+hernet Controller [Tornado] (rev 40)
+0000:03:00.0 VGA compatible controller: ATI Technologies Inc R300 AD 
+[Radeon 950
+0 Pro]
+0000:03:00.1 Display controller: ATI Technologies Inc R300 AD [Radeon 
+9500 Pro]
+(Secondary)
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+*************************************************************************
+*************************************************************************
+
+The problems are the same, using devfs or udev (with or without hotplug 
+and coldplug).
+The firmware is updated.
+
+Thanks in advance
+Paolo

@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263492AbTCNUir>; Fri, 14 Mar 2003 15:38:47 -0500
+	id <S263495AbTCNUkC>; Fri, 14 Mar 2003 15:40:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263488AbTCNUir>; Fri, 14 Mar 2003 15:38:47 -0500
-Received: from mail5.bluewin.ch ([195.186.1.207]:3788 "EHLO mail5.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S263492AbTCNUiq>;
-	Fri, 14 Mar 2003 15:38:46 -0500
-Date: Fri, 14 Mar 2003 21:49:04 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lars Marowsky-Bree <lmb@suse.de>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-Message-ID: <20030314204904.GA4088@k3.hellgate.ch>
-Mail-Followup-To: "Stephen C. Tweedie" <sct@redhat.com>,
-	Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Lars Marowsky-Bree <lmb@suse.de>, Pavel Machek <pavel@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	vojtech@suse.cz
-References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314115055.GR1211@marowsky-bree.de> <20030314144347.GA8937@work.bitmover.com> <1047658249.29595.34.camel@irongate.swansea.linux.org.uk> <20030314151455.GB8937@work.bitmover.com> <1047658281.2566.101.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1047658281.2566.101.camel@sisko.scot.redhat.com>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.64 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+	id <S263497AbTCNUkC>; Fri, 14 Mar 2003 15:40:02 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:52966 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S263495AbTCNUkA>; Fri, 14 Mar 2003 15:40:00 -0500
+Date: Fri, 14 Mar 2003 21:50:49 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: Ducrot Bruno <poup@poupinou.org>
+Cc: Valdis.Kletnieks@vt.edu, Bongani Hlope <bonganilinux@mweb.co.za>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5 XFree and nvidia geforce.
+In-Reply-To: <20030314194050.GA8814@poup.poupinou.org>
+Message-ID: <Pine.LNX.4.51.0303142148570.15008@dns.toxicfilms.tv>
+References: <3E70086B.6080408@lemur.sytes.net> <20030313201624.GA29107@suse.de>
+ <Pine.LNX.4.51.0303132026210.24455@dns.toxicfilms.tv>
+ <20030313231615.07563914.bonganilinux@mweb.co.za>
+ <200303132155.h2DLtsRU015899@turing-police.cc.vt.edu>
+ <20030314194050.GA8814@poup.poupinou.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Mar 2003 16:11:21 +0000, Stephen C. Tweedie wrote:
-> On Fri, 2003-03-14 at 15:14, Larry McVoy wrote:
-> > [My lawyer said]
->
-> [But my lawyer says]
+> One of the main issue for me (I don't want flame please) is
+> that it kill acpi and/or apm.
+Hmm, just insmoding the drivers kills apm/acpi ?
 
-So much for self-regulation. I don't mind having the odd flamefest, since
-every now and then something good comes out of them that goes beyond the
-entertainment value.
+> BTW, XFree4.3.0 is out, and your GeForce is supported.
+So i've heard. :)
 
-However, I am very concerned about the state of a community that has its
-members turn to their respective lawyers to ask for backup. Not only does
-it reflect badly on our ability to resolve disputes, it also implies that
-there is more than a loose relation between what is legal and what is
-Right(TM), which is BS.
+Regards,
+Maciej
 
-I contend that quoting lawyer advice in a flamewar on a community list
-should automatically invoke Godwin's law, and just to be on the safe side,
-I let it be known that you all sound like a bunch of Nazis. EOT.
-
-Roger

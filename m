@@ -1,88 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264964AbSJPIqS>; Wed, 16 Oct 2002 04:46:18 -0400
+	id <S264962AbSJPIos>; Wed, 16 Oct 2002 04:44:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264975AbSJPIqS>; Wed, 16 Oct 2002 04:46:18 -0400
-Received: from barclay.balt.net ([195.14.162.78]:6831 "EHLO barclay.balt.net")
-	by vger.kernel.org with ESMTP id <S264964AbSJPIqQ>;
-	Wed, 16 Oct 2002 04:46:16 -0400
-Date: Wed, 16 Oct 2002 10:49:08 +0200
-From: Zilvinas Valinskas <zilvinas@gemtek.lt>
-To: linux-kernel@vger.kernel.org
-Subject: sendfile(2) behaviour has changed ?
-Message-ID: <20021016084908.GA770@gemtek.lt>
-Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+	id <S264964AbSJPIor>; Wed, 16 Oct 2002 04:44:47 -0400
+Received: from angband.namesys.com ([212.16.7.85]:23171 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S264962AbSJPIoq>; Wed, 16 Oct 2002 04:44:46 -0400
+Date: Wed, 16 Oct 2002 12:50:37 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Jeff Dike <jdike@karaya.com>
+Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: UML and 2.5.43
+Message-ID: <20021016125037.A6413@namesys.com>
+References: <200210151717.MAA02888@ccure.karaya.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="y0ulUmNC+osPPQO6"
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Attribution: Zilvinas
-X-Url: http://www.gemtek.lt/
+In-Reply-To: <200210151717.MAA02888@ccure.karaya.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+    I noticed that in 2.5.43 ubd does not work anymore until
+    you enable devfs support, since devfs_register is now only
+    return meaningful values if devfs is compiled, otherwise it
+    just returns NULL, and ubd treats this as error. Since UML
+    itself only uses that value for subsequent freeing of devfs node,
+    it is quite safe (returned NULL means nothing should be freed
+    later ;) )
 
-This sample code copies a file using sendfile(2) call works just fine on 
-2.2.x and 2.4.x kernels. On 2.5.x kernels (not sure starting which
-version) it stopped working. Program terminates with EINVAL error. 
+    Probably attached patch is one of the right things to do.
+    As additional bonus it fixes uninitialised variable usage ;)
 
-$ ./sendfile
-sendfile: Invalid argument
+Bye,
+    Oleg
 
-Is this expected behaviour ? that sendfile(2) on 2.5.4x linux kernel requires
-socket as an output fd paramter ? 
-
-Was it ever legal to copy file(s) on filesystem using sendfile(2) ?
-(which was kindda nice feature ... )
-
---y0ulUmNC+osPPQO6
-Content-Type: text/x-csrc; charset=us-ascii
-Content-Disposition: attachment; filename="sendfile.c"
-
-#include <sys/sendfile.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-int main() 
-{
-	int fd_in  = 0;
-	int fd_out = 0;
-	struct stat stat_buf;
-	off_t  offset = 0;
-	ssize_t count = 0;
-
-	if ((fd_in=open("sendfile.c",O_RDONLY))<0)
-	{
-		perror("open");
-		exit(1);
-	}
-	if ((fd_out=open("sendfile.out",O_CREAT|O_TRUNC|O_WRONLY,S_IRWXU))<0)
-	{
-		perror("open");
-		exit(1);
-	}
-
-	if (fstat(fd_in,&stat_buf)) {
-		perror("fstat");
-	}
-
-
-	count = sendfile(fd_out,fd_in,&offset,stat_buf.st_size);
-
-	if (count < 0)
-		perror("sendfile");
-	
-	if (close(fd_in) < 0)
-		perror("close");
-	if (close(fd_out) < 0)
-		perror("close");
-	return 0;
-}
-
-
---y0ulUmNC+osPPQO6--
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.859   -> 1.860  
+#	arch/um/drivers/ubd_kern.c	1.10    -> 1.11   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/16	green@angband.namesys.com	1.860
+# do not look at return values from devfs_register stuff
+# --------------------------------------------
+#
+diff -Nru a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
+--- a/arch/um/drivers/ubd_kern.c	Wed Oct 16 12:41:24 2002
++++ b/arch/um/drivers/ubd_kern.c	Wed Oct 16 12:41:24 2002
+@@ -469,9 +469,7 @@
+ 			      MAJOR_NR, n << UBD_SHIFT,
+ 			      S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP |S_IWGRP,
+ 			      &ubd_blops, NULL);
+- 	if(real == NULL) 
+- 		goto out;
+- 	ubd_dev[n].real = real;
++	ubd_dev[n].real = real;
+ 
+ 	if (fake_major) {
+ 		fake = devfs_register(ubd_fake_dir_handle, name, 
+@@ -479,20 +477,16 @@
+ 				      n << UBD_SHIFT, 
+ 				      S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP |
+ 				      S_IWGRP, &ubd_blops, NULL);
+- 		if(fake == NULL)
+-			goto out_unregister;
+ 
+- 		ubd_dev[n].fake = fake;
++		ubd_dev[n].fake = fake;
+ 		add_disk(fake_disk);
++		
+ 	}
+  
+ 	add_disk(disk);
+ 	make_ide_entries(disk->disk_name);
+ 	return(0);
+ 
+- out_unregister:
+-	devfs_unregister(real);
+-	ubd_dev[n].real = NULL;
+  out:
+ 	return(-1);
+ }
+@@ -700,6 +694,6 @@
+ {
+ 	int n = DEVICE_NR(inode->i_rdev);
+ 	struct ubd *dev = &ubd_dev[n];
+-	int err;
++	int err = -EISDIR;
+ 	if(dev->is_dir == 1)
+ 		goto out;

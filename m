@@ -1,42 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264923AbUF1MWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264924AbUF1M1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264923AbUF1MWP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 08:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264924AbUF1MWP
+	id S264924AbUF1M1U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 08:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264926AbUF1M1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 08:22:15 -0400
-Received: from host-212-158-219-180.bulldogdsl.com ([212.158.219.180]:2957
-	"EHLO aeryn.fluff.org.uk") by vger.kernel.org with ESMTP
-	id S264923AbUF1MWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 08:22:13 -0400
-Date: Mon, 28 Jun 2004 13:22:10 +0100
-From: Ben Dooks <ben@fluff.org.uk>
-To: Deshpande M <pdspartan@yahoo.com>
-Cc: Ben Dooks <ben@mail.home.fluff.org>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel freezes- Init process in console driver
-Message-ID: <20040628122210.GB890@home.fluff.org>
-Reply-To: Ben Dooks <ben@fluff.org.uk>
-References: <20040628120645.GA890@home.fluff.org> <20040628120950.44302.qmail@web90105.mail.scd.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040628120950.44302.qmail@web90105.mail.scd.yahoo.com>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 28 Jun 2004 08:27:20 -0400
+Received: from smtp103.mail.sc5.yahoo.com ([66.163.169.222]:53926 "HELO
+	smtp103.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264924AbUF1M1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 08:27:19 -0400
+Message-ID: <40E00EA4.8060205@yahoo.com.au>
+Date: Mon, 28 Jun 2004 22:27:16 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.7-np2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 05:09:50AM -0700, Deshpande M wrote:
-> I tried with 2.6.4 but the result is same. 
+http://www.kerneltrap.org/~npiggin/2.6.7-np2.gz
 
-2.6.6 (iirc) is the first to carry all the arm modifications
-as standard. It is best to try the latest version before asking
-questions, just in case the problem has been fixed.
+This is against 2.6.7-mm3. I can do one against -bk if anyone would
+like.
 
-If you are still having problems, check the code producing
-the ticks for the system, and check the serial code is working.
+It should fix scheduler problems and compile problems in 2.6.7-np1.
 
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+It contains my CPU scheduler and memory management stuff. If anyone
+is having swapping or interactivity problems, please try it out.

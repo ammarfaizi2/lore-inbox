@@ -1,85 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263890AbTDVWro (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 18:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263892AbTDVWrn
+	id S263892AbTDVWzu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 18:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTDVWzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 18:47:43 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:37905 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S263890AbTDVWrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 18:47:41 -0400
-Date: Tue, 22 Apr 2003 15:59:43 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Greg KH <greg@kroah.com>
-Cc: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net,
-       Linux-usb-users@lists.sourceforge.net
-Subject: Re: [Linux-usb-users] Re: PATCH: some additional unusual_devs-entries for usb-storage-driver, kernel 2.5.68
-Message-ID: <20030422155943.A32297@one-eyed-alien.net>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	=?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>,
-	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-	Linux-usb-users@lists.sourceforge.net
-References: <20030421214805.7de5e4f3.hanno@gmx.de> <20030422213247.GA5076@kroah.com>
+	Tue, 22 Apr 2003 18:55:50 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:6625
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263892AbTDVWzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 18:55:49 -0400
+Subject: Re: nforce2 IDE DMA stopped working (2.4.21-rc1)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Walter Hofmann <nforce2-030422223536-fcf8@secretlab.mine.nu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030422205721.GA1123@secretlab.mine.nu>
+References: <20030422205721.GA1123@secretlab.mine.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051049388.15763.3.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030422213247.GA5076@kroah.com>; from greg@kroah.com on Tue, Apr 22, 2003 at 02:32:47PM -0700
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 22 Apr 2003 23:09:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2003-04-22 at 21:57, Walter Hofmann wrote:
+> Using 2.4.20 I could enable DMA using "hdparm -d1 /dev/hda", but with 
+> 2.4.21-rc1 I get "HDIO_SET_DMA failed: Operation not permitted".
+> This is with a nForce2 chipset.
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You dont appear to have the right drivers included in your kernel build.
+At least the boot has no mentuon of the AMD/Nvidia driver
 
-On Tue, Apr 22, 2003 at 02:32:47PM -0700, Greg KH wrote:
-> Ok, in talking with the usb-storage author, I'll be accepting all
-> unushal_devs.h patches now, as long as they contain the following:
-> 	- a comment above the entry with a email address of someone who
-> 	  has this device that this entry fixes the driver for them.
-> 	  This is to allow us to possibly remove entries at a later time
-> 	  if the core changes, and get a verification that it's ok to do
-> 	  so.
-> 	- a copy of the /proc/bus/usb/devices device entry with the
-> 	  device plugged in and the driver loaded (this should not be in
-> 	  the patch, but in the body of the email.)
-> 	 =20
-> So, if there are any outstanding drivers/usb/storage/unusual_devs.h
-> entries that people have floating around, sent them on!
-
-I want to take a moment publically to thank Greg for doing this, which
-allows me to focus my energies on other parts of the driver.
-
-Matt
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-You suck Stef.
-					-- Greg=20
-User Friendly, 11/29/97
-
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+pcleIjReC7bSPZARAj+FAKDBuzvXjzR5rgxCUWvl3RWhmXYunwCgsyVR
-tDIZL+MJWWETujXJ79YurS4=
-=/iy/
------END PGP SIGNATURE-----
-
---TB36FDmn/VVEgNH/--

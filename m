@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264648AbUJETPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264954AbUJETRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264648AbUJETPk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 15:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUJETPk
+	id S264954AbUJETRR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 15:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUJETRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 15:15:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38321 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263769AbUJETPd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 15:15:33 -0400
-Date: Tue, 5 Oct 2004 20:15:32 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Grant Grundler <iod00d@hp.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Pat Gefre <pfg@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
-Message-ID: <20041005191532.GB16153@parcelfarce.linux.theplanet.co.uk>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C647@scsmsx401.amr.corp.intel.com> <200410050843.44265.jbarnes@engr.sgi.com> <20041005162201.GC18567@cup.hp.com> <20041005174558.GZ16153@parcelfarce.linux.theplanet.co.uk> <20041005191008.GG18567@cup.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041005191008.GG18567@cup.hp.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 5 Oct 2004 15:17:17 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:8578 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263664AbUJETRA convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 15:17:00 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] 2.6 SGI Altix I/O code reorganization
+Date: Tue, 5 Oct 2004 12:16:42 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0221C900@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] 2.6 SGI Altix I/O code reorganization
+Thread-Index: AcSrDa4sRPSz/7svTcGIlp5qXrmJWwAADz4w
+From: "Luck, Tony" <tony.luck@intel.com>
+To: <cngam@sgi.com>, "Matthew Wilcox" <matthew@wil.cx>,
+       "Grant Grundler" <iod00d@hp.com>
+Cc: "Jesse Barnes" <jbarnes@engr.sgi.com>, "Pat Gefre" <pfg@sgi.com>,
+       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 05 Oct 2004 19:16:43.0102 (UTC) FILETIME=[D9416FE0:01C4AB0F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 12:10:08PM -0700, Grant Grundler wrote:
-> > > Maybe rename pci_root_ops to "acpi_pci_ops" would make that clearer.
-> > 
-> > No.  Don't rename it to anything ACPI specific.  It isn't.
-> 
-> I understand raw_pci_ops is not ACPI specific.
-> But pci_root_ops is only used by pci_acpi_scan_root().
+>Yes, after looking at Grant's review/suggestion, we found that we can 
+>actually just use raw_pci_ops.  This will work well for us.  We have 
+>incoorporated this change.  No changes in pci/pci.c needed.
 
-Yes, but if we had other ways of discovering PCI root bridges on ia64,
-we would use it there too.  It's exactly the same as the i386 code which
-has 7 different ways to discover PCI root bridges.
+Good.  Let's try to make some forward progress here.  I'd like
+to see the patches broken into a sequence something like this:
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+1) Add new interfaces to header files to support any new API
+   needed by new files
+2) Create all the new files (plain copies of old files where
+   a move is involved).
+3) Functional changes to copied files.
+4) Whitespace cleanup of copied files.
+5) Point Makefiles to new files
+6) Delete all the old/unused files.
+7) Delete any API in headers that were only used by old files.
+
+We'll need to coordinate with some other maintainrs for
+drivers/pci/hotplug/Kconfig and drivers/scsi/qla1280.c,
+but I'm ok with running all the other parts through the
+ia64 tree.
+
+This follows the usual guidelines of a sequence of steps where
+the system is buildable+usable at each stage.
+
+-Tony

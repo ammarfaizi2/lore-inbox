@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUHGGUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266289AbUHGGcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUHGGUk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 02:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUHGGUk
+	id S266289AbUHGGcU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 02:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267776AbUHGGcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 02:20:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35715 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266275AbUHGGUi (ORCPT
+	Sat, 7 Aug 2004 02:32:20 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:46767 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266289AbUHGGcS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 02:20:38 -0400
-Date: Fri, 6 Aug 2004 23:20:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chris Shoemaker <c.shoemaker@cox.net>
-cc: Gene Heskett <gene.heskett@verizon.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       vda@port.imtp.ilyichevsk.odessa.ua, ak@suse.de,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: Possible dcache BUG
-In-Reply-To: <20040806230924.GA15493@cox.net>
-Message-ID: <Pine.LNX.4.58.0408062304580.24588@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
- <20040806073739.GA6617@elte.hu> <20040806004231.143c8bd2.akpm@osdl.org>
- <200408060751.07605.gene.heskett@verizon.net> <Pine.LNX.4.58.0408060948310.24588@ppc970.osdl.org>
- <20040806230924.GA15493@cox.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 7 Aug 2004 02:32:18 -0400
+Date: Fri, 6 Aug 2004 23:30:01 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: mbligh@aracnet.com, efocht@hpce.nec.com, lse-tech@lists.sourceforge.net,
+       akpm@osdl.org, hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20040806233001.4218ca0c.pj@sgi.com>
+In-Reply-To: <4113A860.4070007@watson.ibm.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<267050000.1091806507@[10.10.2.4]>
+	<4113A860.4070007@watson.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hubertus wrote:
+> As indicated above, this would mean to create a resource controller
+> and assign mask to them, which is not what we have done so far, as
+> our current controllers are more share focused.
 
+Could you explain this a bit?  In particular, the phrases
+"assign mask" and "share focused" went wizzing right on
+past me.
 
-On Fri, 6 Aug 2004, Chris Shoemaker wrote:
-> 
-> I _was_ able to find the attached oops, but I don't think I have the
-> corresponding object files, so I hope the decoding it contains is
-> good enough. 
-
-It's fine.
-
-It oopses on
-
-	inode->i_sb->s_op
-
-where "i_sb" is bad and contains the pointer "0x0b7eebf8" which is 
-definitely not a valid kernel pointer.
-
-There's a few other strange details in your oops report too. One being 
-that the inode pointer (in %ebx, apparently) doesn't show on the stack 
-where I'd expect it to show. Hmm. That might be just a different compiler 
-issue, though.
-
-Anyway, this does look somewhat like the ones Gene is seeing. If I had to 
-guess, I'd guess that either the inode pointer is bad, or it's just stale 
-from an inode that has already been free'd. Most likely because of 
-prune_dcache() having had a corrupt LRU list with a stale/corrupt entry.
-
-That would blow the prefetch theory out of the water. 
-
-		Linus
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

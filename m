@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268505AbUJDTaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268581AbUJDTf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268505AbUJDTaF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 15:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268525AbUJDT1E
+	id S268581AbUJDTf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 15:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268568AbUJDTcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 15:27:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56768 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268515AbUJDTZZ (ORCPT
+	Mon, 4 Oct 2004 15:32:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5053 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268486AbUJDTUY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 15:25:25 -0400
-Date: Mon, 4 Oct 2004 12:23:04 -0700
+	Mon, 4 Oct 2004 15:20:24 -0400
+Date: Mon, 4 Oct 2004 12:18:05 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+To: Stefano Rivoir <s.rivoir@gts.it>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.9-rc3-mm2
-Message-Id: <20041004122304.4f545f3c.akpm@osdl.org>
-In-Reply-To: <200410041634.24937.annabellesgarden@yahoo.de>
-References: <200410041634.24937.annabellesgarden@yahoo.de>
+Message-Id: <20041004121805.2bffcd99.akpm@osdl.org>
+In-Reply-To: <4161462A.5040806@gts.it>
+References: <20041004020207.4f168876.akpm@osdl.org>
+	<4161462A.5040806@gts.it>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,40 +25,71 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+Stefano Rivoir <s.rivoir@gts.it> wrote:
 >
->  EXT3-fs: mounted filesystem with ordered data mode.
->  kjournald starting.  Commit interval 5 seconds
->  Freeing unused kernel memory: 160k freed
->  ------------[ cut here ]------------
->  kernel BUG at /home/ka/kernel/2.6/linux-2.6.9-rc3-mm2/kernel/printk.c:606!
->  invalid operand: 0000 [#1]
->  PREEMPT
->  Modules linked in: nls_iso8859_1 nls_cp437 vfat fat nls_utf8 ntfs ext3 jbd 
->  sym53c8xx scsi_transport_spi sd_mod scsi_mod
->  CPU:    0
->  EIP:    0060:[<c0120a40>]    Not tainted VLI
->  EFLAGS: 00010206   (2.6.9-rc3-mm2)
->  EIP is at acquire_console_sem+0x10/0x40
->  eax: cff3e000   ebx: c037a684   ecx: cff15e70   edx: 00000000
->  esi: c037a680   edi: 00000293   ebp: cff3e000   esp: cff3ff28
->  ds: 007b   es: 007b   ss: 0068
->  Process events/0 (pid: 3, threadinfo=cff3e000 task=cff2ab10)
->  Stack: c020a3bc cff15e68 cff15e70 c037a684 c01306a2 00000000 cff3ff74 00000000
->         cff15e78 cff3e000 cff3e000 cff3e000 00000000 c020a3b0 cff3e000 cff3e000
->         cff15e68 ffffffff ffffffff 00000001 00000000 c011b910 00010000 00000000
->  Call Trace:
->   [<c020a3bc>] console_callback+0xc/0xf0
->   [<c01306a2>] worker_thread+0x222/0x300
->   [<c020a3b0>] console_callback+0x0/0xf0
->   [<c011b910>] default_wake_function+0x0/0x20
->   [<c011b910>] default_wake_function+0x0/0x20
->   [<c0130480>] worker_thread+0x0/0x300
->   [<c013498a>] kthread+0xaa/0xb0
->   [<c01348e0>] kthread+0x0/0xb0
->   [<c0104305>] kernel_thread_helper+0x5/0x10
+> Andrew Morton wrote:
+> 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm2/
+> > 
+> > 
+> > - Hopefully those x86 compile errors are fixed up.
+> > 
+> > - Various fairly minor updates
+> 
+> (#ifdef around is_irq_stack_ptr already applied)
+> 
+> Kernel BUGs at boot time, here is what I see (copied by hand, I hope 
+> Stack and Code hex values are not that important :)):
+> 
+> [...]
+> IP: routing cache hash table of 4096 buckets, 32KBytes
+> kmem_cache_create: Early error in slab ip_fib_hash
+> -----[ cut here ] -----
+> kernel BUG at mm/slab.c:1185!
+> invalid operand: 0000 [#1]
+> PREEMPT
+> Modules linked in:
+> CPU:	0
+> EIP:	0060:[<c01348f6>]	Not tainted VLI
+> EFLAGS: 00010282 (2.6.9-rc3-mm2)
+> EIP is at kmem_cache_create+0x51d/0x53e
+> eax: 00000036  ebx: 00000000  ecx: c02b7f04  edx: 00001d9f
+> esi: 00000000  edi: 000000ff  ebp: c15fe3c0  esp: dff83f30
+> ds: 007b    es: 007b    ss: 0068
+> Process swapper: (pid: 1, threadinfo=dff82000 task=dff815f0)
+> Stack: (stripped, hope you don't need this :)
+> Call trace:
+>   [<>] fib_hash_init+0xd8/0xe2
+>   [<>] ip_fib_init+0xa/0x32
+>   [<>] ip_rt_init+0x1cc/0x2e3
+>   [<>] ip_init+0xf/0x14
+>   [<>] inet_init+0xd0/0x1b3
+>   [<>] do_initcalls+0x27/0xad
+>   [<>] init+0x0/0xf8
+>   [<>] init+0x0/0xf8
+>   [<>] init+0x2a/0xf8
+>   [<>] kernel_thread_helper+0x0/0xb
+>   [<>] kernel_thread_helper+0x5/0xb
 
-You're the second person who is seeing in_interrupt() returning true when
-clearly it should not be doing so.  Ingo, did you do soemthing which might
-have caused this?
+That's odd.  I'd be suspecting that in_interrupt() is falsely returning true.
+
+Can you try this patch, see what it says?
+
+And can you send the .config along?
+
+
+diff -puN mm/slab.c~a mm/slab.c
+--- 25/mm/slab.c~a	2004-10-04 12:16:00.808822288 -0700
++++ 25-akpm/mm/slab.c	2004-10-04 12:17:25.822898184 -0700
+@@ -1180,6 +1180,9 @@ kmem_cache_create (const char *name, siz
+ 		(size < BYTES_PER_WORD) ||
+ 		(size > (1<<MAX_OBJ_ORDER)*PAGE_SIZE) ||
+ 		(dtor && !ctor)) {
++			printk("in_interrupt(): %ld\n", in_interrupt());
++			printk("preempt_count(): %x\n", preempt_count());
++			printk("size: %zd\n", size);
+ 			printk(KERN_ERR "%s: Early error in slab %s\n",
+ 					__FUNCTION__, name);
+ 			BUG();
+_
 

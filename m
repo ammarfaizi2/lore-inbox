@@ -1,269 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263293AbSJTJgu>; Sun, 20 Oct 2002 05:36:50 -0400
+	id <S263362AbSJTJht>; Sun, 20 Oct 2002 05:37:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263283AbSJTJgD>; Sun, 20 Oct 2002 05:36:03 -0400
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:11220 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S263293AbSJTJ3q>;
-	Sun, 20 Oct 2002 05:29:46 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ext2/3 updates for 2.5.44 (9/11): core acl support 3
-From: tytso@mit.edu
-Message-Id: <E183CUx-0007Z6-00@snap.thunk.org>
-Date: Sun, 20 Oct 2002 05:35:51 -0400
+	id <S263270AbSJTJhc>; Sun, 20 Oct 2002 05:37:32 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:16390 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S263362AbSJTJau>; Sun, 20 Oct 2002 05:30:50 -0400
+From: "Helge Hafting" <helgehaf@idb.hist.no>
+Date: Sun, 20 Oct 2002 11:37:18 +0200
+To: bill davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.43 smp bootup crash, more info - probably scsi/raid
+Message-ID: <20021020093718.GA6990@hh.idb.hist.no>
+References: <3DAE605F.3B744FFC@broadpark.no> <3DAE8E90.D3E7CACF@aitel.hist.no> <aos5o9$rt8$1@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aos5o9$rt8$1@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Oct 19, 2002 at 05:45:45PM +0000, bill davidsen wrote:
+> In article <3DAE8E90.D3E7CACF@aitel.hist.no>,
+> Helge Hafting  <helgehaf@aitel.hist.no> wrote:
+[...]
+> | The problem affects both 2.5.43 and 2.5.43-mm2.
+> 
+> Is it an OOPS or just a BUG? I got a BUG until I applied the patch, now
+> my SCSI devices don't actually work, but I don't get an OOPS.
 
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/20	tytso@snap.thunk.org	1.818
-# Port 0.8.50 acl-xattr patch to 2.5 (harmonize header file with SGI/XFS)
-# 
-# This patch provides converts extended attributes passed in from user
-# space to a generic Posix ACL representation.
-# --------------------------------------------
-#
-# fs/Makefile                     |    4 -
-# fs/xattr_acl.c                  |   99 ++++++++++++++++++++++++++++++++++++++++
-# include/linux/posix_acl_xattr.h |   55 ++++++++++++++++++++++
-# include/linux/xattr_acl.h       |   50 ++++++++++++++++++++
-# 4 files changed, 206 insertions(+), 2 deletions(-)
-#
-diff -Nru a/fs/Makefile b/fs/Makefile
---- a/fs/Makefile	Sun Oct 20 04:41:57 2002
-+++ b/fs/Makefile	Sun Oct 20 04:41:57 2002
-@@ -6,7 +6,7 @@
- # 
- 
- export-objs :=	open.o dcache.o buffer.o bio.o inode.o dquot.o mpage.o aio.o \
--                fcntl.o read_write.o dcookies.o mbcache.o
-+                fcntl.o read_write.o dcookies.o mbcache.o xattr_acl.o
- 
- obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
- 		bio.o super.o block_dev.o char_dev.o stat.o exec.o pipe.o \
-@@ -31,7 +31,7 @@
- obj-$(CONFIG_BINFMT_ELF)	+= binfmt_elf.o
- 
- obj-$(CONFIG_FS_MBCACHE)	+= mbcache.o
--obj-$(CONFIG_FS_POSIX_ACL)	+= posix_acl.o
-+obj-$(CONFIG_FS_POSIX_ACL)	+= posix_acl.o xattr_acl.o
- 
- obj-$(CONFIG_QUOTA)		+= dquot.o
- obj-$(CONFIG_QFMT_V1)		+= quota_v1.o
-diff -Nru a/fs/xattr_acl.c b/fs/xattr_acl.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/xattr_acl.c	Sun Oct 20 04:41:57 2002
-@@ -0,0 +1,99 @@
-+/*
-+ * linux/fs/xattr_acl.c
-+ *
-+ * Almost all from linux/fs/ext2/acl.c:
-+ * Copyright (C) 2001 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/fs.h>
-+#include <linux/posix_acl_xattr.h>
-+
-+
-+/*
-+ * Convert from extended attribute to in-memory representation.
-+ */
-+struct posix_acl *
-+posix_acl_from_xattr(const void *value, size_t size)
-+{
-+	posix_acl_xattr_header *header = (posix_acl_xattr_header *)value;
-+	posix_acl_xattr_entry *entry = (posix_acl_xattr_entry *)(header+1), *end;
-+	int count;
-+	struct posix_acl *acl;
-+	struct posix_acl_entry *acl_e;
-+
-+	if (!value)
-+		return NULL;
-+	if (size < sizeof(posix_acl_xattr_header))
-+		 return ERR_PTR(-EINVAL);
-+	if (header->a_version != cpu_to_le32(POSIX_ACL_XATTR_VERSION))
-+		return ERR_PTR(-EINVAL);
-+
-+	count = posix_acl_xattr_count(size);
-+	if (count < 0)
-+		return ERR_PTR(-EINVAL);
-+	if (count == 0)
-+		return NULL;
-+	
-+	acl = posix_acl_alloc(count, GFP_KERNEL);
-+	if (!acl)
-+		return ERR_PTR(-ENOMEM);
-+	acl_e = acl->a_entries;
-+	
-+	for (end = entry + count; entry != end; acl_e++, entry++) {
-+		acl_e->e_tag  = le16_to_cpu(entry->e_tag);
-+		acl_e->e_perm = le16_to_cpu(entry->e_perm);
-+
-+		switch(acl_e->e_tag) {
-+			case ACL_USER_OBJ:
-+			case ACL_GROUP_OBJ:
-+			case ACL_MASK:
-+			case ACL_OTHER:
-+				acl_e->e_id = ACL_UNDEFINED_ID;
-+				break;
-+
-+			case ACL_USER:
-+			case ACL_GROUP:
-+				acl_e->e_id = le32_to_cpu(entry->e_id);
-+				break;
-+
-+			default:
-+				goto fail;
-+		}
-+	}
-+	return acl;
-+
-+fail:
-+	posix_acl_release(acl);
-+	return ERR_PTR(-EINVAL);
-+}
-+EXPORT_SYMBOL (posix_acl_from_xattr);
-+
-+/*
-+ * Convert from in-memory to extended attribute representation.
-+ */
-+int
-+posix_acl_to_xattr(const struct posix_acl *acl, void *buffer, size_t size)
-+{
-+	posix_acl_xattr_header *ext_acl = (posix_acl_xattr_header *)buffer;
-+	posix_acl_xattr_entry *ext_entry = ext_acl->a_entries;
-+	int real_size, n;
-+
-+	real_size = posix_acl_xattr_size(acl->a_count);
-+	if (!buffer)
-+		return real_size;
-+	if (real_size > size)
-+		return -ERANGE;
-+	
-+	ext_acl->a_version = cpu_to_le32(POSIX_ACL_XATTR_VERSION);
-+
-+	for (n=0; n < acl->a_count; n++, ext_entry++) {
-+		ext_entry->e_tag  = cpu_to_le16(acl->a_entries[n].e_tag);
-+		ext_entry->e_perm = cpu_to_le16(acl->a_entries[n].e_perm);
-+		ext_entry->e_id   = cpu_to_le32(acl->a_entries[n].e_id);
-+	}
-+	return real_size;
-+}
-+EXPORT_SYMBOL (posix_acl_to_xattr);
-diff -Nru a/include/linux/posix_acl_xattr.h b/include/linux/posix_acl_xattr.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/posix_acl_xattr.h	Sun Oct 20 04:41:57 2002
-@@ -0,0 +1,55 @@
-+/*
-+  File: linux/posix_acl_xattr.h
-+
-+  Extended attribute system call representation of Access Control Lists.
-+
-+  Copyright (C) 2000 by Andreas Gruenbacher <a.gruenbacher@computer.org>
-+  Copyright (C) 2002 SGI - Silicon Graphics, Inc <linux-xfs@oss.sgi.com>
-+ */
-+#ifndef _POSIX_ACL_XATTR_H
-+#define _POSIX_ACL_XATTR_H
-+
-+#include <linux/posix_acl.h>
-+
-+/* Extended attribute names */
-+#define POSIX_ACL_XATTR_ACCESS	"system.posix_acl_access"
-+#define POSIX_ACL_XATTR_DEFAULT	"system.posix_acl_default"
-+
-+/* Supported ACL a_version fields */
-+#define POSIX_ACL_XATTR_VERSION	0x0002
-+
-+
-+/* An undefined entry e_id value */
-+#define ACL_UNDEFINED_ID	(-1)
-+
-+typedef struct {
-+	__u16			e_tag;
-+	__u16			e_perm;
-+	__u32			e_id;
-+} posix_acl_xattr_entry;
-+
-+typedef struct {
-+	__u32			a_version;
-+	posix_acl_xattr_entry	a_entries[0];
-+} posix_acl_xattr_header;
-+
-+
-+static inline size_t
-+posix_acl_xattr_size(int count)
-+{
-+	return (sizeof(posix_acl_xattr_header) +
-+		(count * sizeof(posix_acl_xattr_entry)));
-+}
-+
-+static inline int
-+posix_acl_xattr_count(size_t size)
-+{
-+	if (size < sizeof(posix_acl_xattr_header))
-+		return -1;
-+	size -= sizeof(posix_acl_xattr_header);
-+	if (size % sizeof(posix_acl_xattr_entry))
-+		return -1;
-+	return size / sizeof(posix_acl_xattr_entry);
-+}
-+
-+#endif	/* _POSIX_ACL_XATTR_H */
-diff -Nru a/include/linux/xattr_acl.h b/include/linux/xattr_acl.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/xattr_acl.h	Sun Oct 20 04:41:57 2002
-@@ -0,0 +1,50 @@
-+/*
-+  File: linux/xattr_acl.h
-+
-+  (extended attribute representation of access control lists)
-+
-+  (C) 2000 Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+*/
-+
-+#ifndef _LINUX_XATTR_ACL_H
-+#define _LINUX_XATTR_ACL_H
-+
-+#include <linux/posix_acl.h>
-+
-+#define XATTR_NAME_ACL_ACCESS	"system.posix_acl_access"
-+#define XATTR_NAME_ACL_DEFAULT	"system.posix_acl_default"
-+
-+#define XATTR_ACL_VERSION	0x0002
-+
-+typedef struct {
-+	__u16		e_tag;
-+	__u16		e_perm;
-+	__u32		e_id;
-+} xattr_acl_entry;
-+
-+typedef struct {
-+	__u32		a_version;
-+	xattr_acl_entry	a_entries[0];
-+} xattr_acl_header;
-+
-+static inline size_t xattr_acl_size(int count)
-+{
-+	return sizeof(xattr_acl_header) + count * sizeof(xattr_acl_entry);
-+}
-+
-+static inline int xattr_acl_count(size_t size)
-+{
-+	if (size < sizeof(xattr_acl_header))
-+		return -1;
-+	size -= sizeof(xattr_acl_header);
-+	if (size % sizeof(xattr_acl_entry))
-+		return -1;
-+	return size / sizeof(xattr_acl_entry);
-+}
-+
-+struct posix_acl * posix_acl_from_xattr(const void *value, size_t size);
-+int posix_acl_to_xattr(const struct posix_acl *acl, void *buffer, size_t size);
-+
-+
-+
-+#endif /* _LINUX_XATTR_ACL_H */
+Hard to say - the first part scrolls off screen immediately, then
+the machine hangs. All I see is the last part of a
+backtrace and a machine that don't respond to anything but the
+reset and power switches. 
+
+This is fixed in 2.5.44 though, there were some known issues with 
+the md driver and vfs.
+
+Helge Hafting
+
+

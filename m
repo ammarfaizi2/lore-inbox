@@ -1,109 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129550AbQJ0E3b>; Fri, 27 Oct 2000 00:29:31 -0400
+	id <S129026AbQJ0Ff4>; Fri, 27 Oct 2000 01:35:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129602AbQJ0E3W>; Fri, 27 Oct 2000 00:29:22 -0400
-Received: from agrashak.cpg.com.au ([138.79.128.10]:59399 "HELO
-	agrashak.cpg.com.au") by vger.kernel.org with SMTP
-	id <S129550AbQJ0E3R>; Fri, 27 Oct 2000 00:29:17 -0400
-Message-ID: <39F904AA.A585C3FF@cpgen.cpg.com.au>
-Date: Fri, 27 Oct 2000 15:29:30 +1100
-From: Grahame Jordan <jordg@cpgen.cpg.com.au>
-Organization: Interim Technology Training Institute
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
+	id <S129030AbQJ0Ffq>; Fri, 27 Oct 2000 01:35:46 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26885 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129026AbQJ0Ffj>; Fri, 27 Oct 2000 01:35:39 -0400
+Date: Thu, 26 Oct 2000 22:35:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrea Arcangeli <andrea@suse.de>, Doug Ledford <dledford@redhat.com>,
+        Gabriel Paubert <paubert@iram.es>, mingo@redhat.com,
+        gareth@valinux.com, linux-kernel@vger.kernel.org
+Subject: Re: missing mxcsr initialization
+In-Reply-To: <E13oxYQ-00041U-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10010262229330.864-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: NFS, Can't get request slot
-Content-Type: multipart/alternative;
- boundary="------------71BB0AD1A92F65F7A6886F87"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------71BB0AD1A92F65F7A6886F87
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Hi,
+On Fri, 27 Oct 2000, Alan Cox wrote:
+> > bitmap is all about, and should be forced to go back to the bad old times
+> > when you had to check the stepping levels etc to figure out what the CPU's
+> > could do.
+> 
+> You still do. In fact your example SEP specifically requires this due to 
+> Intel specification changes in the undocumented=->documented versions
 
-We have /usr mounted over NFS on our workstations  RH6.2
-Server RH 6.2
-nfs-utils-0.1.9.1-1
-Kernel 2.2.16
+NO.
 
-These workstations happily use samba and other services without any
-delays but with NFS they hang in X for up to 15 minutes before NFS come
-back.
-We can ssh into the workstations and use any utility underneath X
-without any problems whilst it is hung in X.
+Go back. Read ym email. Realize that you do this ONCE. At setup time.
 
-We have changed  the Server eepro100 for a 3com 3c95x with no difference
+You can even split SEP into SEPOLD and SEPNEW, and _always_ just test one
+bit. You should not have to test stepping levels in normal use: that
+invariably causes problems when there are more than one CPU that has some
+feature.
 
-according to what has been alluded to in other kernel posts.
+It is insidious. It starts out as something simple like
 
-By the evidence that we have gathered it seems that the Server is not
-taxed too much as samba users are getting files OK etc.  The can't get
-request slot is plaguing many others in different ways.   It looks like
-an NFS issue.   How can this be proven?  Then we can work on the
-problem.
+	if (stepping < 5) {
+		...
+	}
 
-Thanks
+and everybody thinks it is cool. Until somebody notices that it should be
 
---
-Grahame Jordan
-Network Manager
-Interim Technology Training Institute
-  Mobile: +61 3 0408 058 209
-  Phone:  +61 3 9243 2220
-  Fax:    +61 3 9820 2010
-  e-mail: jordg@cpgen.cpg.com.au
-  Transforming the way people work with technology with
-  INTEGRITY LEARNING INNOVATION TEAMWORK PERFORMANCE
+	if (vendor == intel && stepping < 5) {
+		...
+	}
 
+and it appears to work again, until it turns out that Cyrix has the same
+issue, and then it ends up being the test from hell, where different
+vendor tests all clash, and it gets increasingly difficult to add a new
+thing later on sanely. 
 
+In contrast, having the test be
 
---------------71BB0AD1A92F65F7A6886F87
-Content-Type: text/html; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	if (feature & SEPNEW) {
+		...
+	}
 
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-Hi,
-<p>We have /usr mounted over NFS on our workstations&nbsp; RH6.2
-<br>Server RH 6.2
-<br>nfs-utils-0.1.9.1-1
-<br>Kernel 2.2.16
-<p>These workstations happily use samba and other services without any
-<br>delays but with NFS they hang in X for up to 15 minutes before NFS
-come
-<br>back.
-<br>We can ssh into the workstations and use any utility underneath X
-<br>without any problems whilst it is hung in X.
-<p>We have changed&nbsp; the Server eepro100 for a 3com 3c95x with no difference
-<br>according to what has been alluded to in other kernel posts.
-<p>By the evidence that we have gathered it seems that the Server is not
-<br>taxed too much as samba users are getting files OK etc.&nbsp; The can't
-get
-<br>request slot is plaguing many others in different ways.&nbsp;&nbsp;
-It looks like
-<br>an NFS issue.&nbsp;&nbsp; How can this be proven?&nbsp; Then we can
-work on the
-<br>problem.
-<p>Thanks
-<pre>--&nbsp;
-Grahame Jordan
-Network Manager
-Interim Technology Training Institute
-&nbsp; Mobile: +61 3 0408 058 209&nbsp;
-&nbsp; Phone:&nbsp; +61 3 9243 2220
-&nbsp; Fax:&nbsp;&nbsp;&nbsp; +61 3 9820 2010
-&nbsp; e-mail: jordg@cpgen.cpg.com.au
-&nbsp; Transforming the way people work with technology with&nbsp;
-&nbsp; INTEGRITY LEARNING INNOVATION TEAMWORK PERFORMANCE</pre>
-&nbsp;</html>
+your test is simplified, easier to read and understand, AND it is much
+easier to account for different vendors who have different stepping levels
+etc. Especially as some vendors need setup code for the thing to work at
+all, so it's not even stepping levels, it's stepping levels PLUS some
+certain magic sequence that must have been done to initialize the thing.
 
---------------71BB0AD1A92F65F7A6886F87--
+No thank you. We'll just require fixed feature flags. Which can be turned
+on as the features are enabled.
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

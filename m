@@ -1,65 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312482AbSCUUjC>; Thu, 21 Mar 2002 15:39:02 -0500
+	id <S312489AbSCUUim>; Thu, 21 Mar 2002 15:38:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312485AbSCUUix>; Thu, 21 Mar 2002 15:38:53 -0500
-Received: from warande3094.warande.uu.nl ([131.211.123.94]:51042 "EHLO
-	warande3094.warande.uu.nl") by vger.kernel.org with ESMTP
-	id <S312482AbSCUUij>; Thu, 21 Mar 2002 15:38:39 -0500
-Date: Thu, 21 Mar 2002 21:38:35 +0100
-From: Guus Sliepen <guus@warande3094.warande.uu.nl>
-To: Patrick McHardy <kaber@trash.net>
-Cc: linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Updated Equalize patch
-Message-ID: <20020321203835.GT20420@sliepen.warande.net>
-Mail-Followup-To: Guus Sliepen <guus@sliepen.warande.net>,
-	Patrick McHardy <kaber@trash.net>,
-	linux kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C9A4270.56C09FCB@trash.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+mSjbC2tVdWE/Wop"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-oi: oi
+	id <S312488AbSCUUic>; Thu, 21 Mar 2002 15:38:32 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36366 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312482AbSCUUiQ>; Thu, 21 Mar 2002 15:38:16 -0500
+Subject: Re: Bitkeeper licence issues
+To: zippel@linux-m68k.org (Roman Zippel)
+Date: Thu, 21 Mar 2002 20:54:05 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
+        lm@bitmover.com, pavel@ucw.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0203201520280.20018-100000@serv> from "Roman Zippel" at Mar 21, 2002 08:14:19 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16o9ZV-0006EZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> themselves, they just buy it. The interesting point here is that their
+> biggest threat is now a technology which is not really disruptive, but
+> rather a technology they can't buy.
 
---+mSjbC2tVdWE/Wop
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Read the book - buying into the new technology as an old company can 
+actually have dire results when you buy in. It is studied. 
 
-On Thu, Mar 21, 2002 at 09:28:32PM +0100, Patrick McHardy wrote:
+> repeating work. Most development which is moved to india is also the type
+> of development which is most likely to be automated by better tools. So if
+> india just relies on this it will be hit very badly.
 
-> I've updated the equalize patch to apply on 2.4.18.
-> The patch also addresses two race conditions in
-> ip_route_input(..) and ip_route_output_key(..).
-> The rt_hash_table entry is only read locked although elements
-> from the chain can be freed if there is a matching entry with
-> RTCF_EQUALIZE set.
+Read the book 8)
 
-Thank you very much! I've added it to the FTP site. I'd like to know if
-there is anything the patch does that can't be done with the bonding
-module, because otherwise I'd suggest using the latter (it's much
-cleaner and handles all Ethernet protocols).
-
---=20
-Met vriendelijke groet / with kind regards,
-  Guus Sliepen <guus@sliepen.warande.net>
-
---+mSjbC2tVdWE/Wop
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8mkTLAxLow12M2nsRAshAAJ9sNYsn/ktRLBYIaGfAezrZLazd8ACffK1e
-Mb7NFQJAqlib7JJjeTmc0QA=
-=vRZT
------END PGP SIGNATURE-----
-
---+mSjbC2tVdWE/Wop--

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314106AbSEAXSU>; Wed, 1 May 2002 19:18:20 -0400
+	id <S314082AbSEAXYD>; Wed, 1 May 2002 19:24:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314123AbSEAXST>; Wed, 1 May 2002 19:18:19 -0400
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:21923 "EHLO
-	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S314106AbSEAXRw>; Wed, 1 May 2002 19:17:52 -0400
-Date: Wed, 1 May 2002 19:17:15 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre7aa3
-Message-ID: <20020501191715.A26798@rushmore>
+	id <S314123AbSEAXYC>; Wed, 1 May 2002 19:24:02 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:38292 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S314082AbSEAXYB>;
+	Wed, 1 May 2002 19:24:01 -0400
+Date: Wed, 1 May 2002 16:23:43 -0700
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: discontiguous memory platforms
+Message-ID: <20020501232343.GA1214171@sgi.com>
+Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <E171aOa-0001Q6-00@starship> <20020429153500.B28887@dualathlon.random> <E172K9n-0001Yv-00@starship> <20020501042341.G11414@dualathlon.random> <20020501180547.GA1212440@sgi.com> <20020502011750.M11414@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Extended changelog for 2.4.19pre7aa3 at
-http://home.earthlink.net/~rwhron/kernel/andrea/2.4.19pre7aa3.html
+On Thu, May 02, 2002 at 01:17:50AM +0200, Andrea Arcangeli wrote:
+> so ia64 is one of those archs with a ram layout with huge holes in the
+> middle of the ram of the nodes? I'd be curious to know what's the
 
-Another new page is benchmarks on the latest releases from 
-various kernel trees:
-http://home.earthlink.net/~rwhron/kernel/latest.html
+Well, our ia64 platform is at least, but I think there are others.
 
-The "latest" page will get updated very regularly.
-The purpose of the "latest" page isn't to say kernel
-X is better than Y.  It may be useful for people who 
-like to experiment with patches, hunting for what gives 
-a kernel it's edge.  Each kernel excels in different 
-areas.  
+> hardware advantage of designing the ram layout in such a way, compared
+> to all other numa archs that I deal with. Also if you know other archs
+> with huge holes in the middle of the ram of the nodes I'd be curious to
+> know about them too. thanks for the interesting info!
 
-If there are any hunters out there, you may want to
-look at the pages by tree and the big page too.  Some
-of the tests vary between runs, and others are pretty
-consistent.  
+AFAIK, some MIPS platforms (both NUMA and non-NUMA) have memory
+layouts like this too.  I've never done hardware design before, so I'm
+not sure if there's a good reason for such layouts.  Ralf or Daniel
+might be able to shed some more light on that...
 
-Have fun.
--- 
-Randy Hron
-
+Jesse

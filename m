@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268253AbTALHZW>; Sun, 12 Jan 2003 02:25:22 -0500
+	id <S267323AbTALHVN>; Sun, 12 Jan 2003 02:21:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268255AbTALHZW>; Sun, 12 Jan 2003 02:25:22 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:58315 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S268253AbTALHZV>; Sun, 12 Jan 2003 02:25:21 -0500
-Date: Sun, 12 Jan 2003 08:34:06 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: two more oddities with the fs/Kconfig file
-Message-ID: <20030112073406.GM21826@fs.tum.de>
-References: <Pine.LNX.4.44.0301120139010.21998-100000@dell>
+	id <S268248AbTALHVN>; Sun, 12 Jan 2003 02:21:13 -0500
+Received: from are.twiddle.net ([64.81.246.98]:48517 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S267323AbTALHVM>;
+	Sun, 12 Jan 2003 02:21:12 -0500
+Date: Sat, 11 Jan 2003 23:29:39 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Dave Jones <davej@codemonkey.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, arjanv@redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [BK/PATCH] better i386 compiler flags
+Message-ID: <20030111232939.A25494@twiddle.net>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>, arjanv@redhat.com,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+References: <20030111012645.GB24847@gtf.org> <20030112000601.GE25493@codemonkey.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301120139010.21998-100000@dell>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030112000601.GE25493@codemonkey.org.uk>; from davej@codemonkey.org.uk on Sun, Jan 12, 2003 at 12:06:02AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 12, 2003 at 02:07:13AM -0500, Robert P. J. Day wrote:
-> 
->   there are a few options that are categorized as simply
-> "bool", with no following label -- examples being UMSDOS,
-> QUOTACTL, and a couple of others.  without a label on that
-> line, the option is not displayed for selection anywhere
-> on the menu.  is this deliberate?
->...
+On Sun, Jan 12, 2003 at 12:06:02AM +0000, Dave Jones wrote:
+> As a heads up, judging from gcc-patches, it seems that the gcc folks are
+> changing -march over to -mtune at some point soon. I can't fathom the
+> reasoning behind this other than causing a PITA for users.
 
-Yes, this is what was called define_bool in the old kconfig.
+No, -mcpu -> -mtune.  Reason: mcpu means different things
+to different targets, and it's confusing.
 
-E.g.
 
-config QUOTACTL
-        bool
-        depends on XFS_QUOTA || QUOTA
-        default y
-
-says that QUOTACTL is automatically selected if XFS_QUOTA or QUOTA is 
-selected. This is a config option that is never visible to the user 
-configuring the kernel.
-
-> rday
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+r~

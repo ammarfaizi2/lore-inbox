@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263638AbTKRPrX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 10:47:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263662AbTKRPrX
+	id S263434AbTKRPpP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 10:45:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTKRPpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 10:47:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29882 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263638AbTKRPrW (ORCPT
+	Tue, 18 Nov 2003 10:45:15 -0500
+Received: from smtp.dkm.cz ([62.24.64.34]:34055 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S263434AbTKRPpL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 10:47:22 -0500
-Date: Tue, 18 Nov 2003 07:47:04 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-cc: Ingo Molnar <mingo@elte.hu>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH][2.6-mm] Fix 4G/4G X11/vm86 oops
-In-Reply-To: <Pine.LNX.4.53.0311180215040.11537@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.44.0311180743330.14133-100000@home.osdl.org>
+	Tue, 18 Nov 2003 10:45:11 -0500
+From: "Michal Semler (volny.cz)" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: HT enable on BIOS which doesn't supports it?
+Date: Tue, 18 Nov 2003 16:45:02 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311181645.02744.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, in my laptop Acer TravelMate242 I have HT enabled CPU,
 
-On Tue, 18 Nov 2003, Zwane Mwaikambo wrote:
-> 
-> Another note from our avian friends; i seem to have sent a slightly 
-> different dump from the patch, although they do both achieve the same 
-> effect. I shall append it for completeness.
+but when I try start up with SMP or LocalAPIC kernel enabled, kernel freezes 
+during boot time.
 
-Hmm. I don't see anything. However, it's a lot easier to read the
-gcc-generated assembly ("make arch/i386/kernel/vm86.s") than it is to read
-the objdump disassembly.
+Is there any possibility to run HT enabled CPU on my laptop without BIOS 
+support?
 
-It's also a lot easier to see what the assembly language is when giving 
-the
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Celeron(R) CPU 2.40GHz
+stepping        : 9
+cpu MHz         : 2398.001
+cache size      : 128 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat 
+pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 4784.12
 
-	-fno-reorder-blocks
+Thanks a lot
 
-switch to gcc. Without it, modern gcc's tend to have _way_ too many jumps 
-around. But maybe that actually changes the behaviour too.
-
-		Linus
+Michal
 

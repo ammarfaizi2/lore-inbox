@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265980AbUBKRva (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 12:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265984AbUBKRva
+	id S266043AbUBKSSH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 13:18:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266045AbUBKSSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 12:51:30 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:25578 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265980AbUBKRv2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 12:51:28 -0500
-Date: Wed, 11 Feb 2004 09:51:23 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: dsaxena@plexity.net
-Cc: lists@mdiehl.de, linux-kernel@vger.kernel.org
+	Wed, 11 Feb 2004 13:18:07 -0500
+Received: from fed1mtao02.cox.net ([68.6.19.243]:14319 "EHLO
+	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S266043AbUBKSSD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 13:18:03 -0500
+Date: Wed, 11 Feb 2004 11:18:00 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: Martin Diehl <lists@mdiehl.de>
+Cc: Deepak Saxena <dsaxena@plexity.net>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [Patch] dma_sync_to_device
-Message-Id: <20040211095123.2cf7399d.davem@redhat.com>
-In-Reply-To: <20040211163901.GA24446@plexity.net>
-References: <20040211061753.GA22167@plexity.net>
-	<Pine.LNX.4.44.0402110729510.2349-100000@notebook.home.mdiehl.de>
-	<20040211163901.GA24446@plexity.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Message-ID: <20040211111800.A5618@home.com>
+References: <20040211061753.GA22167@plexity.net> <Pine.LNX.4.44.0402110729510.2349-100000@notebook.home.mdiehl.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0402110729510.2349-100000@notebook.home.mdiehl.de>; from lists@mdiehl.de on Wed, Feb 11, 2004 at 07:51:48AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Feb 2004 09:39:01 -0700
-Deepak Saxena <dsaxena@plexity.net> wrote:
+On Wed, Feb 11, 2004 at 07:51:48AM +0100, Martin Diehl wrote:
+> On Tue, 10 Feb 2004, Deepak Saxena wrote:
+> 
+> > > +	pci_dma_sync_to_device_single(dev, dma_handle, size, direction);
+> > 
+> > Maybe I am missunderstanding something, but how is this
+> > any different than simply doing:
+> > 
+> > 	pci_dma_sync_single(dev, dma_handle, size, DMA_TO_DEVICE);
+> 
+> For i386 you are right: the implementation of pci_dma_sync_single and 
+> pci_dma_sync_to_device_single happen to be identical. This is because this 
+> arch is cache-coherent so all we have to do to achieve consistency is 
+> flushing the buffers. However, for other arch's there might be significant 
+> dependency on the direction.
 
-> If pci_dma_sync_single is for FROM_DEVICE only, than the direction
-> parameter should go away from it and the from
-> pci_dma_sync_to_device_single().
+Sure, other non cache coherent arch's that I'm aware of (PPC, ARM, etc.)
+already implement the least expensive cache operations based on the
+direction parameter in pci_dma_sync_single(). On PPC, we do the right
+thing based on each of three valid directions, I don't yet see what
+additional information pci_dma_sync_to_device_single() provides. 
 
-This is wrong.  The direction parameter says what was done by the device/cpu
-for the DMA, this is needed by the port to know how to perform the
-pci_dma_sync_single et al. correctly.
+> The existing pci_dma_sync_single was meant for the FROM_DEVICE direction 
+> only. I agree it's not entirely obvious currently. But making it 
 
-For example, a port may have to do something different for FROM_DEVICE vs.
-TO_DEVICE to properly execute the pci_dma_sync_single() request.
+It's definitely not obvious since DMA-mapping.txt shows it as having
+a direction parameter and makes no claim that it is only for the
+FROM_DEVICE direction.  In addition, all the non-coherent arches I've
+worked on implement all the directions.
 
-MIPS (and seemingly ARM) are probably the best platforms by which to draw up
-the worst case scenerio for the implementation of these things :) and thus
-the optimizations made possible by certain combinations of request+direction.
+> BIDIRECTIONAL would be pretty expensive on some none cache-coherent archs 
+> and the whole point of having separate streaming mappings with dedicated 
+> TO or FROM direction would be void.
+
+BIDIRECTIONAL would be expensive, yes, that's why pci_dma_sync_single()
+implementation use the already present directional information to do
+the right thing.
+
+Maybe we need a clear example.
+
+-Matt

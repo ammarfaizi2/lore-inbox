@@ -1,53 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbUK2XDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbUK2Wnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261866AbUK2XDt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 18:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbUK2XAV
+	id S261851AbUK2Wnb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 17:43:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbUK2WlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 18:00:21 -0500
-Received: from smtp.e7even.com ([83.151.192.5]:55753 "HELO smtp.e7even.com")
-	by vger.kernel.org with SMTP id S261869AbUK2W7o (ORCPT
+	Mon, 29 Nov 2004 17:41:10 -0500
+Received: from colino.net ([213.41.131.56]:38903 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S261851AbUK2WgZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 17:59:44 -0500
-Message-ID: <41ABA9D3.7020602@st-andrews.ac.uk>
-Date: Mon, 29 Nov 2004 22:59:31 +0000
-From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Christian Mayrhuber <christian.mayrhuber@gmx.net>,
-       reiserfs-list@namesys.com, Hans Reiser <reiser@namesys.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: file as a directory
-References: <200411292120.iATLKZxE004233@laptop11.inf.utfsm.cl>
-In-Reply-To: <200411292120.iATLKZxE004233@laptop11.inf.utfsm.cl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 29 Nov 2004 17:36:25 -0500
+Date: Mon, 29 Nov 2004 23:34:35 +0100
+From: Colin Leroy <colin.lkml@colino.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: David Brownell <david-b@pacbell.net>,
+       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
+       Colin Leroy <colin@colino.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [linux-usb-devel] [PATCH] Ohci-hcd: fix endless loop (second
+ take)
+Message-ID: <20041129233435.4e0d125c@jack.colino.net>
+In-Reply-To: <1101767183.15463.17.camel@gaston>
+References: <20041126113021.135e79df@pirandello>
+	<200411260928.18135.david-b@pacbell.net>
+	<20041126183749.1a230af9@jack.colino.net>
+	<200411260957.52971.david-b@pacbell.net>
+	<1101507130.28047.29.camel@gaston>
+	<20041129090406.5fb31933@pirandello>
+	<1101767183.15463.17.camel@gaston>
+X-Mailer: Sylpheed-Claws 0.9.12cvs176.1 (GTK+ 2.4.9; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
+On 30 Nov 2004 at 09h11, Benjamin Herrenschmidt wrote:
 
->Now think about files with other formats, for instance the (in)famous
->sendmail.cf, or less structured stuff like you find in /etc/init.d/, or
->just Postgres databases (with fun stuff like permissions on records and
->fields)... or just people groping in /etc/passwd wanting to find the whole
->entry (not just one field), or perhaps look at the 15th character of the
->entry for John Doe.
->
->This way lies utter madness (what format description should be applied to
->what file this time around?). Plus shove all this garbage into the kernel?!
->  
->
+Hi, 
 
-I was suggesting this idea mainly form XML files, where the tags define 
-the parts clearly.
-In addition, I was suggesting that some of the XPath syntax (normally 
-used for within-XML selection) could be extended above the file level 
-into the file system.
-The problems you mention are all related to non-XML file format issues, 
-which was only a minor comment in parenthesis in my original mail. I am 
-happy to do it only for XML to begin with (and if possible later see if 
-it can be done for SOME non-XML formats).  Peter
+> Hrm... there is some problem in communication here. I asked you which
+> controller out of the 3 OHCIs you have in this machine is the culprit,
+> you give me a list of all of them but without PCI IDs ... From the
+> archive, I think it was USB bus #4 no ? not sure which of these
+> controllers it matches. 
+> 
+> The iBook G4 has actually 3 "Apple" OHCI's in KeyLargo/Intrepid but
+> with 2 of them disabled by the firmware (not wired) plus one NEC USB2
+> controller (which contains 1 EHCI and 2 OHCIs) on the PCI bus. The
+> code managing their sleep process is very different.
+
+Sorry, i was away and had a problem of /proc/bus/usb being empty. As my
+link was on the wireless stick I couldn't reload usb modules. The
+culprit is usb 4-1, I think it would be this one (as the stick is bus
+004 device 001):
+
+Bus 004 Device 001: ID 0000:0000
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB              10.01
+  bDeviceClass            9 Hub
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x0000
+  idProduct          0x0000
+  bcdDevice            6.02
+  iManufacturer           3 Linux 2.6.9 ohci_hcd
+  iProduct                2 NEC Corporation USB (#2)
+  iSerial                 1 0001:10:1b.1
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           25
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0xc0
+      Self Powered
+    MaxPower                0mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         9 Hub
+      bInterfaceSubClass      0
+      bInterfaceProtocol      0
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               none
+        wMaxPacketSize          2
+        bInterval             255
+  Language IDs: (length=4)
+     0409 English(US)
+
+-- 
+Colin

@@ -1,81 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263981AbTJOShN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 14:37:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263961AbTJOSfm
+	id S263998AbTJOSlg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 14:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263940AbTJOS0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 14:35:42 -0400
-Received: from fed1mtao06.cox.net ([68.6.19.125]:64682 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S263983AbTJOSfJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 14:35:09 -0400
-Date: Wed, 15 Oct 2003 11:35:06 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: 3c59x problem with 2.4.6-test[34]
-Message-ID: <20031015183505.GA963@ip68-0-152-218.tc.ph.cox.net>
-References: <20030907212348.GA836@ip68-0-152-218.tc.ph.cox.net> <20030929151827.GB862@ip68-0-152-218.tc.ph.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030929151827.GB862@ip68-0-152-218.tc.ph.cox.net>
-User-Agent: Mutt/1.5.4i
+	Wed, 15 Oct 2003 14:26:33 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:63949 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263922AbTJOSZf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 14:25:35 -0400
+Date: Tue, 14 Oct 2003 13:43:53 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] SMP races in the timer code, timer-fix-2.6.0-test7-A0
+In-Reply-To: <Pine.LNX.4.44.0310132122160.2156-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.56.0310141339220.17642@earth>
+References: <Pine.LNX.4.44.0310132122160.2156-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 08:18:27AM -0700, Tom Rini wrote:
-> On Sun, Sep 07, 2003 at 02:23:48PM -0700, Tom Rini wrote:
-> > Hello.  I've run into an odd problem with the 3c59x driver on
-> > 2.6.0-test[34] (and 2.6.0-test4-mm6).  First, from scripts/ver_linux:
-> > 
-> > If some fields are empty or look unusual you may have an old version.
-> > Compare to the current minimal requirements in Documentation/Changes.
-> >  
-> > Linux opus 2.6.0-test4 #2 SMP Sat Sep 6 20:43:52 MST 2003 i686 GNU/Linux
-> >  
-> > Gnu C                  3.3.2
-> > Gnu make               3.80
-> > util-linux             2.11z
-> > mount                  2.11z
-> > e2fsprogs              1.35-WIP
-> > PPP                    2.4.1
-> > nfs-utils              1.0.5
-> > Linux C Library        2.3.2
-> > Dynamic linker (ldd)   2.3.2
-> > Procps                 3.1.11
-> > Net-tools              1.60
-> > Console-tools          0.2.3
-> > Sh-utils               5.0.90
-> > Modules Loaded         parport_pc lp parport ipt_REJECT iptable_filter ipt_MASQUERADE ip_nat_ftp ip_conntrack_ftp iptable_nat ip_conntrack ip_tables 8250 core soundcore microcode rtc tulip crc32 af_packet 3c59x hid uhci_hcd usbcore ext2
-> > 
-> > and lspci:
-> > 00:00.0 Host bridge: Intel Corp. 440LX/EX - 82443LX/EX Host bridge (rev 03)
-> > 00:01.0 PCI bridge: Intel Corp. 440LX/EX - 82443LX/EX AGP bridge (rev 03)
-> > 00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 01)
-> > 00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-> > 00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-> > 00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 01)
-> > 00:0b.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
-> > 00:0c.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI]
-> > 00:0d.0 SCSI storage controller: LSI Logic / Symbios Logic 53c895 (rev 01)
-> > 00:0e.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)
-> > 00:0f.0 Unknown mass storage controller: Promise Technology, Inc. 20262 (rev 01)
-> > 01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
-> > 
-> > What seems to happen on every other boot (and just rebooting the machine
-> > will 'fix' this) is that when 3c59x is loaded I get:
-> > 3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-> > 0000:00:0e.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xe480. Vers LK1.1.19
-> >   ***WARNING*** No MII transceivers found!
-> > 
-> > and then dhcp never gets an IP.   Virtually all of 2.4 has run just fine
-> > in this particular setup.
-> 
-> This is still a problem with 2.6.0-test6.
 
-And with 2.6.0-test7.
+On Mon, 13 Oct 2003, Linus Torvalds wrote:
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+> since the timer may not even _exist_ any more - the act of running the
+> timer may well have free'd the timer structure, and you're now zeroing
+> memory that may have been re-allocated for something else.
+
+doh, indeed.
+
+i'm happy with the timer->base write ordering fix that addresses the first
+race, it fixes the bug that was actually triggered in RL. The other two
+races are present too but were present in previous incarnations of the
+timer code too. I'll think about them - both rely on racing with timer
+expiry itself - which is more likely to trigger these days because the
+tick is now 1 msec, and kernel virtualization is more common too, which
+can introduce almost arbitrary 'CPU delays' at any point in the kernel.
+
+	Ingo

@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266754AbUFYPL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUFYPSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266754AbUFYPL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 11:11:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266755AbUFYPL0
+	id S266758AbUFYPSz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 11:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266759AbUFYPSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 11:11:26 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:2613 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266754AbUFYPLY (ORCPT
+	Fri, 25 Jun 2004 11:18:55 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:9112 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266758AbUFYPSu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 11:11:24 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 2.6] Altix serial driver
-Date: Fri, 25 Jun 2004 11:10:07 -0400
-User-Agent: KMail/1.6.2
-Cc: Erik Jacobson <erikj@subway.americas.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Pat Gefre <pfg@sgi.com>,
-       linux-kernel@vger.kernel.org
-References: <Pine.SGI.3.96.1040623094239.19458C-100000@fsgi900.americas.sgi.com> <Pine.SGI.4.53.0406242153360.343801@subway.americas.sgi.com> <20040625083130.GA26557@infradead.org>
-In-Reply-To: <20040625083130.GA26557@infradead.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 25 Jun 2004 11:18:50 -0400
+Subject: Re: Merging Nonlinear and Numa style memory hotplug
+From: Dave Hansen <haveblue@us.ibm.com>
+To: shai@ftcon.com
+Cc: "'Yasunori Goto'" <ygoto@us.fujitsu.com>,
+       "'Linux Kernel ML'" <linux-kernel@vger.kernel.org>,
+       "'Linux Hotplug Memory Support'" <lhms-devel@lists.sourceforge.net>,
+       "'Linux-Node-Hotplug'" <lhns-devel@lists.sourceforge.net>,
+       "'linux-mm'" <linux-mm@kvack.org>,
+       "'BRADLEY CHRISTIANSEN [imap]'" <bradc1@us.ibm.com>
+In-Reply-To: <200406250449.BSB05018@ms6.netsolmail.com>
+References: <200406250449.BSB05018@ms6.netsolmail.com>
+Content-Type: text/plain
+Message-Id: <1088141355.3918.1493.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 25 Jun 2004 08:16:47 -0700
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406251110.07383.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, June 25, 2004 4:31 am, Christoph Hellwig wrote:
-> On Thu, Jun 24, 2004 at 10:15:41PM -0500, Erik Jacobson wrote:
-> > Andrew and LKML folks -
-> >
-> > Pat is on vacation and said he wouldn't mind if I posted the latest
-> > version of this patch.
-> >
-> >  - I fixed up Kconfig (x86 problem)
-> >  - I changed SYSFS_ONLY to USE_DYNAMIC_MINOR
->
-> Please kill the ifdef completely.  As long as LANANA hasn't responded you
-> should only use the dyanic nimor, and once it's accepted there's no point
-> in using the dynamico ne anymore.  Also I'd sugges grabbing a whole dyanmic
-> major instead of using a miscdevice so the code both cases is more similar.
+On Thu, 2004-06-24 at 21:49, Shai Fultheim wrote:
+> > > Doesn't this just find the lowest-numbered node's highmem?  Are you sure
+> > > that no NUMA systems have memory at lower physical addresses on
+> > > higher-numbered nodes?  I'm not sure that this is true.
+> 
+> In addition I'm involved in a NUMA-related project that might have
+> zone-normal on other nodes beside node0.  I also think that in some cases it
+> might be useful to have the code above and below in case of AMD machines
+> that have less than 1GB per processor (or at least less than 1GB on the
+> FIRST processor).
 
-But LANANA doesn't assign minors, right?  And Linus hasn't banned those, so 
-the patch to devices.txt should be sufficient, right?  (Please let the answer 
-be yes!)  Moreover, isn't this Andrew's decision as the 2.6 maintainer?
+But, this code is just for i386 processors.  Do you have a NUMA AMD i386
+system?
 
-Thanks,
-Jesse
+> > > Again, I don't see what this loop is used for.  You appear to be trying
+> > > to detect which nodes have lowmem.  Is there currently any x86 NUMA
+> > > architecture that has lowmem on any node but node 0?
+> 
+> As noted above, this is possible, the cost of this code is not much, so I
+> would keep it in.
+
+OK, I'll revise and say that it's impossible for all of the in-tree NUMA
+systems.  I'd heavily encourage you to post your code so that we can
+more easily understand what kind of system you have.  It's very hard to
+analyze impact on systems that we've never seen code for.
+
+In any case, I believe that the original loop should be kept pretty
+close to what is there now:
+
+        for (tmp = 0; tmp < max_low_pfn; tmp++)
+                /*
+                 * Only count reserved RAM pages
+                 */
+                if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
+                        reservedpages++;
+
+If you do, indeed, have non-ram pages between pfns 0 and max_low_pfn,
+I'd suggest doing something like this:
+
+                if (page_is_ram(tmp) && 
+		    node_online(page_to_nid(tmp)) &&
+                    PageReserved(pfn_to_page(tmp)))
+                        reservedpages++;
+
+That's a lot cleaner and more likely to work than replacing the entire
+loop with an ifdef.
+
+-- Dave
+

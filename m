@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267476AbTAVMvB>; Wed, 22 Jan 2003 07:51:01 -0500
+	id <S267469AbTAVMsI>; Wed, 22 Jan 2003 07:48:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267479AbTAVMvB>; Wed, 22 Jan 2003 07:51:01 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:4574 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267476AbTAVMvA>;
-	Wed, 22 Jan 2003 07:51:00 -0500
-Date: Wed, 22 Jan 2003 12:56:28 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Richard Stallman <rms@gnu.org>
-Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>, steve@tuxsoft.com,
-       linux-kernel@vger.kernel.org, brand@eeyore.valparaiso.cl
-Subject: Re: [OFFTOPIC] RMS and reactions to him
-Message-ID: <20030122125628.GA22415@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Richard Stallman <rms@gnu.org>,
-	Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-	steve@tuxsoft.com, linux-kernel@vger.kernel.org,
-	brand@eeyore.valparaiso.cl
-References: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl> <E18bHfV-0002QE-00@fencepost.gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18bHfV-0002QE-00@fencepost.gnu.org>
-User-Agent: Mutt/1.4i
+	id <S267472AbTAVMsI>; Wed, 22 Jan 2003 07:48:08 -0500
+Received: from gherkin.frus.com ([192.158.254.49]:35718 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id <S267469AbTAVMsH>;
+	Wed, 22 Jan 2003 07:48:07 -0500
+Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
+In-Reply-To: <20030122083530.GA20780@suse.de> "from Jens Axboe at Jan 22, 2003
+ 09:35:30 am"
+To: Jens Axboe <axboe@suse.de>
+Date: Wed, 22 Jan 2003 06:57:14 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20030122125714.EEE244EED@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob_Tracy(0000))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 22, 2003 at 04:59:37AM -0500, Richard Stallman wrote:
+Jens Axboe wrote:
+> On Wed, Jan 22 2003, Joerg Schilling wrote:
+> > I thought it's obvious: It is most likely a problem caused by the broken 
+> > bit #defines in the Linux kernel for the SCSI status byte. I assume that
+> > status should be 0x02 instead of 0x01. In addition, I would guess that
+> 
+> Sounds plausible. Patch attached. Anyone care to expand on _why_ these
+> status bytes are shifted one bit?
 
- > We all agree that the proper name for the kernel is "Linux."
- > The disagreement is about the name for the complete system
- > that people use on desktops and servers.
+Possibly related...  I was using SCSI tape to back up my 2.5.59 system
+the other day.  A media error was encountered, but the application (cpio
+in this case) never saw the error and kept on trying to write to the bad
+tape.  Fortunately, I caught it after only 40 MB of associated syslog
+entries had been made.
 
-This being the _kernel_ list, can you now take your rants someplace
-else where it might actually be relevant ?  If your beef is with the
-distros, I'm sure you can do the groundwork to figure out who
-to whine at.
-
-		Dave
+Thanks for the patch.  I can now go back to "unattended" backup mode
+(except for having to change tapes periodically) :-).
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262603AbUKECQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbUKECSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbUKECQs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 21:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbUKECQs
+	id S261669AbUKECSW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 21:18:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbUKECSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 21:16:48 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:18406 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262603AbUKECQh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 21:16:37 -0500
-Date: Thu, 4 Nov 2004 21:16:25 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Chris Wright <chrisw@osdl.org>
-cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: [RFC] [PATCH] [0/6] LSM Stacking
-In-Reply-To: <20041104170555.G2357@build.pdx.osdl.net>
-Message-ID: <Xine.LNX.4.44.0411042057500.21344-100000@thoron.boston.redhat.com>
+	Thu, 4 Nov 2004 21:18:22 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35494 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261669AbUKECSQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 21:18:16 -0500
+Message-ID: <418AE27D.6060609@pobox.com>
+Date: Thu, 04 Nov 2004 21:16:29 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: =?ISO-2022-JP?B?WU9TSElGVUpJIEhpZGVha2kgLyAbJEI1SEYjMVFMQBsoQg==?= 
+	<yoshfuji@linux-ipv6.org>
+CC: davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       akpm@osdl.org
+Subject: Re: IPv6 dead in -bk11
+References: <20041102.225343.06193184.yoshfuji@linux-ipv6.org>	<4187A4E3.8010600@pobox.com>	<20041103.012923.102810732.yoshfuji@linux-ipv6.org> <20041104.012128.51410945.yoshfuji@linux-ipv6.org>
+In-Reply-To: <20041104.012128.51410945.yoshfuji@linux-ipv6.org>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Nov 2004, Chris Wright wrote:
-
-> Understood, although I don't think you'll get SELinux folks to agree
-> that it could be useful in conjuction with other modules like that.
-
-SELinux folks have differing opinions.  Security module stacking would
-obviously be useful for research & development, but there is a question in
-my mind of whether this is justification enough for the feature in a
-mainline kernel.
-
-If it turns out to be generally useful to stack some security modules,
-then it might be better to incorporate their functionality into SELinux
-(or some other single module) so that policy and configuration can be
-managed and analyzed under one system.
-
-Something to keep in mind is that SELinux is a generic access control
-framework specifically designed to allow flexible composition of different
-security models under a centralized security policy.
-
-LSM is a useful framework for implementing different security _systems_,
-but I don't think it's suitable for composition of security models.  
-That's what SELinux is for.
-
-> The real bottom line is that it can't slow anything down for the single
-> module case.
-
-Agreed.
+YOSHIFUJI Hideaki / 吉藤英明 wrote:
+> Sorry, this bug was introduced by my changeset:
+> <http://linux.bkbits.net:8080/linux-2.5/cset@417dca81tJ4RRAxhWTbn0p6hI-1XIQ>.
+> 
+> David, this should fix the issue.
+> Please apply.
+> 
+> D: Don't purge default routes by RA.
+> D:
+> D: Signed-off-by: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+ACK.  This fixed my problem.
+
+Thanks!
+
+	Jeff
 
 

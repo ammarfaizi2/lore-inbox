@@ -1,51 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261561AbRFYTcH>; Mon, 25 Jun 2001 15:32:07 -0400
+	id <S264183AbRFYTiH>; Mon, 25 Jun 2001 15:38:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264183AbRFYTb5>; Mon, 25 Jun 2001 15:31:57 -0400
-Received: from tungsten.btinternet.com ([194.73.73.81]:35510 "EHLO
-	tungsten.btinternet.com") by vger.kernel.org with ESMTP
-	id <S261561AbRFYTbn> convert rfc822-to-8bit; Mon, 25 Jun 2001 15:31:43 -0400
-Date: Mon, 25 Jun 2001 20:33:17 +0000 (GMT)
-From: James Stevenson <mistral@stev.org>
-To: Jeff Dike <jdike@karaya.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: all processes waiting in TASK_UNINTERRUPTIBLE state
-Message-ID: <Pine.LNX.4.30.0106252031240.25982-100000@cyrix.stev.org>
+	id <S265837AbRFYTh6>; Mon, 25 Jun 2001 15:37:58 -0400
+Received: from energy.pdb.sbs.de ([192.109.2.19]:7951 "EHLO energy.pdb.sbs.de")
+	by vger.kernel.org with ESMTP id <S264183AbRFYTht>;
+	Mon, 25 Jun 2001 15:37:49 -0400
+Date: Mon, 25 Jun 2001 21:40:56 +0200 (CEST)
+From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] wrong disk index in /proc/stat
+Message-ID: <Pine.LNX.4.30.0106252133180.13052-100000@biker.pdb.fsc.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi again
+Hi,
 
-i have a stack now an
+I posted this patch already from my home mail account on June 20 (subject:
+disk_index weirdness), but no one seems to have noticed - therefore I
+try again. Those who _have_ noticed the other mail - sorry for bothering).
 
-#0  schedule () at sched.c:536
-#1  0x1002f932 in __wait_on_buffer (bh=0x50eb16e4) at  buffer.c:157
-#2  0x10036f46 in block_read (filp=0x5009787c, buf=0x80c08f0
-	"¤\201", count=8192, ppos=0x5009789c) at
-	/home/mistral/dev/kernel/linux-2.4.5-um9/include/linux/locks.h:20
-#3  0x1002eb4b in sys_read (fd=3, buf=0x80c00f0 "¤\201", count=8192)
-	at read_write.c:133
-#4  0x100fb807 in execute_syscall (regs={regs = {3, 135004400, 8192,
-	1283476480, 0, 3212835652, 4294967258, 43, 43, 0, 0, 3,
-	1074582884, 35, 582, 3212835588, 43}}) at syscall_kern.c:332
-#5  0x100fb926 in syscall_handler (unused=0x0) at
-	syscall_user.c:80
+The disk_index routine erroneously adds 2 to the index of disks on the
+first IDE controller which is wriong in 2.4, because disks are indexed
+by major number now. The patch fixes this and adds support for some more
+major numbers. (To fully benefit, DK_MAX_MAJOR in
+include/linux/kernel_stat.h must be increased).
 
-this should still be on #umldebug on irc.openproject.net
-for the next few ours if anybodys intresting at taking a look though
-gdb via a bot.
+The patch is against plain 2.4.5.
 
-	James
+Regards,
+Martin
 
 -- 
----------------------------------------------
-Web: http://www.stev.org
-Mobile: +44 07779080838
-E-Mail: mistral@stev.org
-  8:30pm  up 2 days, 42 min,  4 users,  load average: 1.00, 0.94, 0.64
+Martin Wilck     <Martin.Wilck@fujitsu-siemens.com>
+FSC EP PS DS1, Paderborn      Tel. +49 5251 8 15113
+
+diff -ru linux-2.4.5/include/linux/genhd.h linux-2.4.5mw/include/linux/genhd.h
+--- linux-2.4.5/include/linux/genhd.h	Tue Mar 27 01:48:11 2001
++++ linux-2.4.5mw/include/linux/genhd.h	Mon Jun 25 14:23:57 2001
+@@ -248,21 +248,30 @@
+ 	unsigned int index;
+
+ 	switch (major) {
+-		case DAC960_MAJOR+0:
+-			index = (minor & 0x00f8) >> 3;
+-			break;
+ 		case SCSI_DISK0_MAJOR:
+ 			index = (minor & 0x00f0) >> 4;
+ 			break;
+ 		case IDE0_MAJOR:	/* same as HD_MAJOR */
+ 		case XT_DISK_MAJOR:
++		case IDE1_MAJOR:
++		case IDE2_MAJOR:
++		case IDE3_MAJOR:
++		case IDE4_MAJOR:
++		case IDE5_MAJOR:
+ 			index = (minor & 0x0040) >> 6;
+ 			break;
+-		case IDE1_MAJOR:
+-			index = ((minor & 0x0040) >> 6) + 2;
++		case SCSI_CDROM_MAJOR:
++			index = minor & 0x000f;
+ 			break;
+ 		default:
+-			return 0;
++			if (major >= SCSI_DISK1_MAJOR && major <= SCSI_DISK7_MAJOR)
++				index = (minor & 0x00f0) >> 4;
++			else if (major >= DAC960_MAJOR && major <= DAC960_MAJOR + 7)
++				index = (minor & 0x00f8) >> 3;
++			else if (major >= IDE6_MAJOR && major <= IDE9_MAJOR)
++				index = (minor & 0x0040) >> 6;
++			else
++				return 0;
+ 	}
+ 	return index;
+ }
+
 

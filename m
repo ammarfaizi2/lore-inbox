@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267281AbTBXROA>; Mon, 24 Feb 2003 12:14:00 -0500
+	id <S267285AbTBXRQK>; Mon, 24 Feb 2003 12:16:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267285AbTBXRN7>; Mon, 24 Feb 2003 12:13:59 -0500
-Received: from inet-mail2.oracle.com ([148.87.2.202]:56277 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S267281AbTBXRN6>; Mon, 24 Feb 2003 12:13:58 -0500
-Message-ID: <6181774.1046107122935.JavaMail.nobody@web54.us.oracle.com>
-Date: Mon, 24 Feb 2003 09:18:42 -0800 (PST)
-From: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
-To: linux-kernel@vger.kernel.org
-Subject: more on the Latitude C640 and IrDA...
-Cc: irda-users@lists.sourceforge.net
+	id <S267289AbTBXRQK>; Mon, 24 Feb 2003 12:16:10 -0500
+Received: from angband.namesys.com ([212.16.7.85]:39555 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S267285AbTBXRQJ>; Mon, 24 Feb 2003 12:16:09 -0500
+Date: Mon, 24 Feb 2003 20:26:19 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@digeo.com>, vs@namesys.com, nikita@namesys.com,
+       jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 iget5_locked port attempt to 2.4 (supposedly fixed NFS version this time)
+Message-ID: <20030224202619.A18641@namesys.com>
+References: <20030220175309.A23616@namesys.com> <20030220154924.7171cbd7.akpm@digeo.com> <20030221220341.A9325@namesys.com> <20030221200440.GA23699@delft.aura.cs.cmu.edu> <20030224132145.A7399@namesys.com> <15962.19783.182617.822504@charged.uio.no> <20030224200323.A18408@namesys.com> <15962.21418.869267.676983@charged.uio.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Mailer: Oracle Webmail Client
+Content-Disposition: inline
+In-Reply-To: <15962.21418.869267.676983@charged.uio.no>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dang. I found out that the chip (SMC LPC47N252) works in both SIR and
- FIR mode with the RedHat 8.0 2.4.18-24.8.0 kernel, while it refuses to work
- in both 2.4.21-pre4 and 2.5 (up to .62 at least).
+Hello!
 
-What I try to do:
+On Mon, Feb 24, 2003 at 06:17:30PM +0100, Trond Myklebust wrote:
+>     >> like that keeps turning the clock backward on the server, then
+>     >> the NFS client has no chance of recognizing which attribute
+>     >> updates are the more recent ones.
+>      > Ok, I stopped ntpd. Will see what will happen. ;) Aha, it died
+>      > already: doread: read: Input/output error
+> Silly question: Are you perhaps testing using the 'soft' mount option?
 
- modprobe irda
- modprobe ircomm
- modprobe smc-ircc
- irattach irda0 -s 1
+Hm. I just mount it as
+mount server:/tmp /mnt -t nfs
+no extra options. So I guess no, I do not have wthis soft stuff.
 
-Reason why it doesn't work ? Well - SIR: no idea. The most I've been able
- to squeeze is a line from irdadump every 10 seconds (instead of a line every
- second or less in "normal" behavior). FIR: smc-ircc says chip reports irq 0.
+>      > How about that "RPC request reserved 1144 but used 4024" alike
+>      > stuff"?
+> Sounds like Neil made another accounting error in the server code
+> 8-). Can you try to check on which type of request it occurs (readdir,
+> read, readlink?).
 
-Relevant IrDA .config stuff, from my 2.4.21-pre4:
+Ok. Will try (I guess I need to do this on latest 2.4 kernel anyway.
+(my nfs server is running 2.4.20)).
 
-[asuardi@incident linux]$ egrep 'IRDA|SIR|FIR' .config
-CONFIG_IRDA=m
-# CONFIG_IRDA_ULTRA is not set
-CONFIG_IRDA_CACHE_LAST_LSAP=y
-CONFIG_IRDA_FAST_RR=y
-CONFIG_IRDA_DEBUG=y
-CONFIG_IRTTY_SIR=m
-CONFIG_IRPORT_SIR=m
-# CONFIG_USB_IRDA is not set
-# CONFIG_NSC_FIR is not set
-# CONFIG_WINBOND_FIR is not set
-# CONFIG_TOSHIBA_FIR is not set
-CONFIG_SMC_IRCC_FIR=m
-# CONFIG_ALI_FIR is not set
-# CONFIG_VLSI_FIR is not set
-
-This same .config worked fine for the SMC chip on my older Latitude
- (though the chip model was different).
-
-
-Will keep digging... but in case anyone has tips, please let me know :)
-
---alessandro
+Bye,
+    Oleg

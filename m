@@ -1,41 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265891AbUFIXXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265957AbUFIX10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265891AbUFIXXG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 19:23:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265919AbUFIXXG
+	id S265957AbUFIX10 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 19:27:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266023AbUFIX10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 19:23:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48352 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265891AbUFIXXD (ORCPT
+	Wed, 9 Jun 2004 19:27:26 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:5012 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265957AbUFIX1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 19:23:03 -0400
-Date: Wed, 9 Jun 2004 16:25:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Clint Byrum <cbyrum@spamaps.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 vm/elevator loading down disks where 2.4 does not
-Message-Id: <20040609162548.63d69b78.akpm@osdl.org>
-In-Reply-To: <1086724300.5467.161.camel@localhost>
-References: <1086724300.5467.161.camel@localhost>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 9 Jun 2004 19:27:16 -0400
+Date: Wed, 09 Jun 2004 16:23:11 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: hannal@us.ibm.com, greg@kroah.com, hpa@zytor.com
+Subject: [PATCH 2.6.7-rc3] Add's class support to msr.c
+Message-ID: <146320000.1086823391@dyn318071bld.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clint Byrum <cbyrum@spamaps.org> wrote:
->
-> When we upgraded one of our production boxes (details below) to 2.6.6,
-> we noticed an immediate loss of 5 - 15 percent efficiency. While these
-> boxes usually had less than 0.5% variation through out the day, this box
-> was consistently doing 10% fewer searches than the others.
-> 
-> Upon investigation, we saw that the 2.6 box was reading from the disk
-> about 5 times as much as 2.4. Iin 2.4 we can almost completely saturate
-> the CPUs; they'll get to 90% of the real CPU's, and 15% of the virtual
-> CPUs. With 2.6, they never get above 60/10 because they are in io-wait
-> state constantly (which, under 2.4, is reported as idle IIRC).
 
-Possibly a memory zone problem.  Could you try booting with "mem=896m" on
-the kernel command line, see how that affects things?
+This patch enables class support in arch/i386/kernel/msr.c. Very simliar
+to cpuid (with the fixes Zwane/Greg made, thanks). 
+
+[root@w-hlinder2 root]# tree /sys/class/msr
+/sys/class/msr
+|-- msr0
+|   `-- dev
+`-- msr1
+    `-- dev
+
+2 directories, 2 files
+
+Please consider for testing/inclusion.
+
+Signed-off-by Hanna Linder <hannal@us.ibm.com>
+
+Thanks.
+
+Hanna Linder
+IBM Linux Technology Center
+-----------
+diff -Nrup linux-2.6.7-rc3/arch/i386/kernel/msr.c linux-2.6.7-rc3p/arch/i386/kernel/msr.c
+--- linux-2.6.7-rc3/arch/i386/kernel/msr.c	2004-06-08 16:49:29.000000000 -0700
++++ linux-2.6.7-rc3p/arch/i386/kernel/msr.c	2004-06-09 15:26:31.000000000 -0700
+@@ -35,12 +35,17 @@
+ #include <linux/smp_lock.h>
+ #include <linux/major.h>
+ #include <linux/fs.h>
++#include <linux/device.h>
++#include <linux/cpu.h>
++#include <linux/notifier.h>
+ 
+ #include <asm/processor.h>
+ #include <asm/msr.h>
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+ 
++static struct class_simple *msr_class;
++
+ /* Note: "err" is handled in a funny way below.  Otherwise one version
+    of gcc or another breaks. */
+ 
+@@ -255,20 +260,82 @@ static struct file_operations msr_fops =
+ 	.open = msr_open,
+ };
+ 
++static int msr_class_simple_device_add(int i)
++{
++	int err = 0;
++	struct class_device *class_err;
++
++	class_err = class_simple_device_add(msr_class, MKDEV(MSR_MAJOR, i), NULL, "msr%d",i);
++	if (IS_ERR(class_err)) 
++		err = PTR_ERR(class_err);
++	return err;
++}
++
++static int __devinit msr_class_cpu_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
++{
++	unsigned int cpu = (unsigned long)hcpu;
++
++	switch (action) {
++	case CPU_ONLINE:
++		msr_class_simple_device_add(cpu);
++		break;
++	case CPU_DEAD:
++		class_simple_device_remove(MKDEV(MSR_MAJOR, cpu));	
++		break;
++	}
++	return NOTIFY_OK;
++}
++
++static struct notifier_block msr_class_cpu_notifier =
++{
++	.notifier_call = msr_class_cpu_callback,
++};
++
+ int __init msr_init(void)
+ {
++	int i, err = 0;
++	i = 0;
++
+ 	if (register_chrdev(MSR_MAJOR, "cpu/msr", &msr_fops)) {
+ 		printk(KERN_ERR "msr: unable to get major %d for msr\n",
+ 		       MSR_MAJOR);
+-		return -EBUSY;
++		err = -EBUSY;
++		goto out;
++	}
++	msr_class = class_simple_create(THIS_MODULE, "msr");
++	if (IS_ERR(msr_class)) {
++		err = PTR_ERR(msr_class);
++		goto out_chrdev;
++	}
++	for_each_online_cpu(i) {
++		err = msr_class_simple_device_add(i);
++		if (err != 0)
++			goto out_class;
+ 	}
++	register_cpu_notifier(&msr_class_cpu_notifier);
+ 
+-	return 0;
++	err = 0;
++	goto out;
++
++	out_class:
++		i = 0;
++		for_each_online_cpu(i)
++			class_simple_device_remove(MKDEV(MSR_MAJOR, i));
++		class_simple_destroy(msr_class);
++	out_chrdev:
++		unregister_chrdev(MSR_MAJOR, "cpu/msr");
++	out:
++		return err;
+ }
+ 
+ void __exit msr_exit(void)
+ {
++	int cpu = 0;
++	for_each_online_cpu(cpu)
++		class_simple_device_remove(MKDEV(MSR_MAJOR, cpu));
++	class_simple_destroy(msr_class);
+ 	unregister_chrdev(MSR_MAJOR, "cpu/msr");
++	unregister_cpu_notifier(&msr_class_cpu_notifier);
+ }
+ 
+ module_init(msr_init);
+

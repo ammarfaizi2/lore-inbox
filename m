@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267357AbSLEQ5E>; Thu, 5 Dec 2002 11:57:04 -0500
+	id <S267350AbSLEQyt>; Thu, 5 Dec 2002 11:54:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267352AbSLEQ4n>; Thu, 5 Dec 2002 11:56:43 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:54479 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267354AbSLEQ43>;
-	Thu, 5 Dec 2002 11:56:29 -0500
-Date: Thu, 5 Dec 2002 17:01:26 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic (sched.c) in 2.4.20
-Message-ID: <20021205170126.GA8913@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-References: <3DEF84D6.2030809@walrond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DEF84D6.2030809@walrond.org>
-User-Agent: Mutt/1.4i
+	id <S267351AbSLEQyt>; Thu, 5 Dec 2002 11:54:49 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3347 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267350AbSLEQyr>; Thu, 5 Dec 2002 11:54:47 -0500
+Date: Thu, 5 Dec 2002 09:03:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: george anzinger <george@mvista.com>
+cc: Jim Houston <jim.houston@ccur.com>,
+       Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
+       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
+       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+In-Reply-To: <3DEF20E2.5AEE3E78@mvista.com>
+Message-ID: <Pine.LNX.4.44.0212050846100.27298-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 04:54:46PM +0000, Andrew Walrond wrote:
- > Happened twice today after upgrading from 2.4.19 yesterday, which worked 
- > just fine for months. Might this be know about, or should I investigate 
- > further?
 
-run the oops through ksymoops and post it here.
 
-		Dave
+On Thu, 5 Dec 2002, george anzinger wrote:
+>
+> I think this covers all the bases.  It builds boots and
+> runs.  I haven't tested nano_sleep to see if it does the
+> right thing yet...
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Well, it definitely doesn't, since at least this test is the wrong way
+around (as well as being against the coding style whitespace rules ;-p):
+
++       if ( ! current_thread_info()->restart_block.fun){
++               return current_thread_info()->restart_block.fun(&parm);
+
+Also, I would suggest against having a NULL pointer, and instead just
+initializing it with a function that sets it to an error return (don't use
+ENOSYS, since the system call _does_ exist, and ENOSYS is what old kernels
+would return if you do it by hand by mistake. I'd suggest -EINTR, since
+that will "DoTheRightThing(tm)" if we somehow get confused).
+
+		Linus
+

@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbQKDBPv>; Fri, 3 Nov 2000 20:15:51 -0500
+	id <S129033AbQKDBZN>; Fri, 3 Nov 2000 20:25:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129066AbQKDBPm>; Fri, 3 Nov 2000 20:15:42 -0500
-Received: from mta05.mail.au.uu.net ([203.2.192.85]:30640 "EHLO
-	mta05.mail.mel.aone.net.au") by vger.kernel.org with ESMTP
-	id <S129033AbQKDBP2>; Fri, 3 Nov 2000 20:15:28 -0500
-Message-ID: <3A0362BD.D6068EDE@valinux.com>
-Date: Sat, 04 Nov 2000 12:13:33 +1100
-From: Gareth Hughes <gareth@valinux.com>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.4.0-test9 i686)
+	id <S129066AbQKDBZE>; Fri, 3 Nov 2000 20:25:04 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:63751 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129033AbQKDBYv>;
+	Fri, 3 Nov 2000 20:24:51 -0500
+Message-ID: <3A036539.57B741C6@mandrakesoft.com>
+Date: Fri, 03 Nov 2000 20:24:09 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Linus Torvalds <torvalds@transmeta.com>, dledford@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: SETFPXREGS fix
-In-Reply-To: <20001103174105.C857@athlon.random> <3A034F28.5DB994F4@valinux.com> <20001104020709.D32767@athlon.random>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: David Ford <david@linux.com>, tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
+In-Reply-To: <E13rqz1-00046G-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+Alan Cox wrote:
 > 
-> On Sat, Nov 04, 2000 at 10:50:00AM +1100, Gareth Hughes wrote:
-> >       if ( HAVE_FXSR ) {
-> >               if ( __copy_from_user( &tsk->thread.i387.fxsave, (void *)buf,
-> >                                       sizeof(struct user_fxsr_struct) ) )
-> >                       return -EFAULT;
-> >               /* bit 6 and 31-16 must be zero for security reasons */
-> >               tsk->thread.i387.fxsave.mxcsr &= 0x0000ffbf;
-> >               return 0;
-> >       }
+> > > Not unless it was fixed in test10 release.  I have a PC LinkSys dual 10/100 and
+> > > 56K card that will kill the machine if you physically pull it out no matter what
+> > > cardctl/module steps are taken.
+> > >
+> > > It uses the ne2k and serial drivers.
+> >
+> > Part of that might be that serial doesn't support hotplug without
+> > patching.
 > 
-> The above doesn't fix the security problem. Put the last byte of the userspace
-> structure on an unmapped page and it will return -EFAULT lefting the invalid
-> mxcsr value that will corrupt the FPU again.
-> 
-> The right version of the above is just in linux mailbox.
-> 
-> The reason I did it more complex at first is because I wanted to go safe,
-> I wasn't sure if somebody could SIGCONT the traced task while we was copying
-> the data so introducing a race where it was still possible to exploit
-> the bug; but as Linus pointed out to me the loop in do_signal prevents that, so
-> we can do only one large copy and then fixup (fixing up also in the -EFAULT
-> case of course).
+> Linksys rings a bell with an outstandng 2.2 lockup on pcmcia. I think this might
+> be a driver bug ?
 
-Yes, we can certainly mask out the mxcsr value in both cases.  I just
-think this makes the code a lot simpler and cleaner as a result - three
-partial copies seems over the top.
+On 2.2.x, possibly.
 
--- Gareth
+On 2.4.x:  1) insert CardBus serial or modem card, that reports itself
+as PCI_CLASS_COMMUNICATION_SERIAL.  2) modprobe serial, it sees and
+registers the PCI serial port.  3) eject card, which serial.c doesn't
+presently notice.  ...
+
+	Jeff
+
+
+-- 
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

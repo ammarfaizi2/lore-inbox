@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264973AbTFQVBT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 17:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264972AbTFQVBT
+	id S264977AbTFQVFU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 17:05:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264979AbTFQVFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 17:01:19 -0400
-Received: from main.gmane.org ([80.91.224.249]:17900 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264971AbTFQVBP (ORCPT
+	Tue, 17 Jun 2003 17:05:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:63961 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264977AbTFQVFQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 17:01:15 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: 2.5.71 compile error on alpha
-Date: 17 Jun 2003 23:20:51 +0200
-Message-ID: <yw1xptlcs8ng.fsf@zaphod.guide>
-References: <3EEE4A14.4090505@g-house.de> <wrpr85te3fa.fsf@hina.wild-wind.fr.eu.org> <3EEF585E.9030404@g-house.de> <yw1xk7bk36hw.fsf@zaphod.guide> <20030617202221.GH6353@lug-owl.de> <3EEF7B20.5030208@g-house.de>
+	Tue, 17 Jun 2003 17:05:16 -0400
+Date: Tue, 17 Jun 2003 14:14:43 -0700 (PDT)
+Message-Id: <20030617.141443.24610277.davem@redhat.com>
+To: girouard@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: patch for common networking error messages
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <OFDF06338E.06BC4D08-ON85256D48.00729284@us.ibm.com>
+References: <OFDF06338E.06BC4D08-ON85256D48.00729284@us.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Kujau <evil@g-house.de> writes:
+   From: Janice Girouard <girouard@us.ibm.com>
+   Date: Tue, 17 Jun 2003 15:57:59 -0500
+   
+   Did I understand:
+   
+   > 1) Chip has a "flow cache", LRU based, managed like routing caches
+   
+   You need the chip to support your technique.
 
-> >>That's typical for the slower Avantis.  Is your's something like 100 MHz?
-> > Well, that's mainly a question of compiler version and the quantity
-> > of
-> > modules you attempt to build...
-> 
-> it's both :-)
-> 
-> lila:~# cat /proc/cpuinfo
-> cpu			: Alpha
-> cpu model		: EV45
-> cpu variation		: 7
-> cpu revision		: 0
-> cpu serial number	:
-> system type		: Avanti
-> system variation	: 0
-> system revision		: 0
-> system serial number	:
-> cycle frequency [Hz]	: 232018561
-> timer frequency [Hz]	: 1024.00
-> page size [bytes]	: 8192
-> phys. address bits	: 34
-> max. addr. space #	: 63
-> BogoMIPS		: 458.36
-> kernel unaligned acc	: 32 (pc=fffffc0000478394,va=fffffc0002dbf176)
+No shit Sherlock.
 
-That's not good.  Do you know what is causing it.
+But it should be noted that the idea can be fully verified in software
+by adding the scheme into the RX processing of some existing ethernet
+driver.
 
-> user unaligned acc	: 0 (pc=0,va=0)
-> platform string		: AlphaStation 255/233
+   Are the vendors picking up on this?
 
-I use one of those for a firewall/router.
+If they're going to ignore my ideas, that's not my problem.
 
-> cpus detected		: 1
+   I still don't see how this gets rid of the copy_to_user space once
+   you've gathered the buffers.  How do you feed the user buffer addresses to
+   the card?
 
+You flip the pages into userspace, ie. you replace the page the user
+currently has with the one the networking buffer is using.
 
--- 
-Måns Rullgård
-mru@users.sf.net
+   What technique are you using?  Is it proprietary?
 
+ROFL!

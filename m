@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317278AbSHBVbx>; Fri, 2 Aug 2002 17:31:53 -0400
+	id <S317326AbSHBVhH>; Fri, 2 Aug 2002 17:37:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317286AbSHBVbw>; Fri, 2 Aug 2002 17:31:52 -0400
-Received: from smtp1.auracom.net ([165.154.140.23]:38596 "EHLO
-	smtp1.auracom.net") by vger.kernel.org with ESMTP
-	id <S317278AbSHBVbw>; Fri, 2 Aug 2002 17:31:52 -0400
-To: root@chaos.analogic.com
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel compiled from source won't read /parts/ of a CD?
-References: <Pine.LNX.3.95.1020801154900.873A-100000@chaos.analogic.com>
-From: Gary Lawrence Murphy <garym@canada.com>
-X-Home-Page: http://www.teledyn.com
-Organization: TCI Business Innovation through Open Source Computing
-Date: 02 Aug 2002 16:36:42 -0400
-Message-ID: <m265yt2e1x.fsf@maya.dyndns.org>
-Reply-To: Gary Lawrence Murphy <garym@canada.com>
-X-Url: http://www.teledyn.com/
-MIME-Version: 1.0
+	id <S317305AbSHBVhH>; Fri, 2 Aug 2002 17:37:07 -0400
+Received: from holomorphy.com ([66.224.33.161]:17859 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317286AbSHBVhG>;
+	Fri, 2 Aug 2002 17:37:06 -0400
+Date: Fri, 2 Aug 2002 14:40:12 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Rmap speedup
+Message-ID: <20020802214012.GJ25038@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@zip.com.au>,
+	Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+References: <E17aiJv-0007cr-00@starship> <3D4AE995.DFD862EF@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <3D4AE995.DFD862EF@zip.com.au>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "R" == Richard B Johnson <root@chaos.analogic.com> writes:
+On Fri, Aug 02, 2002 at 01:20:37PM -0700, Andrew Morton wrote:
+> Sigh.  I have a test which sends the 2.5.30 VM into a five-minute
+> coma and which immediately panics latest -ac with pte_chain oom.
+> Remind me again why all this is worth it?
+> I'll port your stuff to 2.5 over the weekend, let you know...
 
-    R> I had some problem like this. I don't know what caused it
-    R> because it was 'fixed' by a re-boot. I think it was that the
-    R> kernel 'thought' the block-size was wrong for the CD.
+I wrote the test (or is this the one I wrote?), I'll fix it. I've
+already arranged to sleep in the right places.
 
-Glory be, that did fix it -- overnight since I posted this we had a
-power out and this morning the problem is gone.  Who would have thought
-of rebooting a /linux/ machine??!!! :)
 
-Thanks for the tip; if it does ever happen again, I'll also try the
-loopback thing to see if that gives any clues.
-
--- 
-Gary Lawrence Murphy <garym@teledyn.com> TeleDynamics Communications Inc
-Business Innovations Through Open Source Systems: http://www.teledyn.com
-"Computers are useless.  They can only give you answers."(Pablo Picasso)
-
+Cheers,
+Bill

@@ -1,93 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269994AbTHOQZq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 12:25:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269542AbTHOQN1
+	id S270625AbTHOQv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 12:51:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270626AbTHOQup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:13:27 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:59269 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S267274AbTHOQJn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:09:43 -0400
-Date: Fri, 15 Aug 2003 16:20:08 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with framebuffer in 2.6.0-test3
-Message-ID: <20030815142008.GA22123@ping.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Fri, 15 Aug 2003 12:50:45 -0400
+Received: from smtp6.wanadoo.fr ([193.252.22.28]:27110 "EHLO
+	mwinf0302.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S270620AbTHOQtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 12:49:09 -0400
+Message-ID: <3F3D2B96.6060903@wanadoo.fr>
+Date: Fri, 15 Aug 2003 18:51:02 +0000
+From: Philippe Elie <phil.el@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] slab debug vs. L1 alignement
+References: <1060956004.581.13.camel@gaston>
+Content-Type: multipart/mixed;
+ boundary="------------050707090408050907020108"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I compile with framebuffer I get weird results during boot.
+This is a multi-part message in MIME format.
+--------------050707090408050907020108
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-When I use "vga=normal", I get this weird screen during boot.
-It doesn't show any text.  It just lots of coloured pixels.
+Benjamin Herrenschmidt wrote:
+> Currently, when enabling slab debugging, we lose the property of
+> having the objects aligned on a cache line size.
+> 
+> This is, imho, an error, especially if GFP_DMA is passed. Such an
+> object _must_ be cache alined (and it's size rounded to a multiple
+> of the cache line size).
+> 
+> There is a simple performance reason on cache coherent archs, but
+> there's also the fact that it will just _not_ work properly on
+> non cache-coherent archs. Actually, I also have to deal with some
+> old machines who have a SCSI controller who has a problem accessing
+> buffers that aren't aligned on a cache line size boundary.
+> 
+> This is typically causing me trouble in various parts of SCSI which
+> abuses kmalloc(512, GFP_KERNEL | GFP_DMA) for buffers passed to some
+> SCSI commands, typically "utility" commands used to read a disk
+> capacity, read read/write protect flags, some sense buffers, etc...
+> 
+> While I know SCSI shall use the consistent alloc things, it has not
+> been fully fixed yet and kmalloc with GFP_DMA is still valid despite
+> not beeing efficient, so we should make sure in this case, the returned
+> buffer is really suitable for DMA, that is cache aligned.
 
-When I use "vga=0x301" I just get a blank screen during boot.
+Attached untested patch should fix it (vs 2.6.0-test1), I've no
+idea if it's acceptable.
 
-In the init scripts I call fbset to set the proper resolution,
-which work in both cases.
+regards
+Philippe Elie
 
+--------------050707090408050907020108
+Content-Type: text/plain;
+ name="slab1.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="slab1.diff"
 
-Here is part of my .config:
-CONFIG_FB=y
-# CONFIG_FB_CIRRUS is not set
-# CONFIG_FB_PM2 is not set
-# CONFIG_FB_CYBER2000 is not set
-# CONFIG_FB_IMSTT is not set
-CONFIG_FB_VGA16=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_FB_HGA is not set
-# CONFIG_FB_RIVA is not set
-# CONFIG_FB_MATROX is not set
-# CONFIG_FB_RADEON is not set
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_NEOMAGIC is not set
-CONFIG_FB_3DFX=y
-# CONFIG_FB_VOODOO1 is not set
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_FB_PM3 is not set
-# CONFIG_FB_VIRTUAL is not set
+--- mm/slab.c~	2003-07-14 03:36:48.000000000 +0000
++++ mm/slab.c	2003-08-15 18:40:14.000000000 +0000
+@@ -682,7 +682,7 @@
+ 
+ 		sizes->cs_dmacachep = kmem_cache_create(
+ 			names->name_dma, sizes->cs_size,
+-			0, SLAB_CACHE_DMA|SLAB_HWCACHE_ALIGN, NULL, NULL);
++			0, SLAB_CACHE_DMA|SLAB_MUST_HWCACHE_ALIGN, NULL, NULL);
+ 		if (!sizes->cs_dmacachep)
+ 			BUG();
+ 
 
->From dmesg (with vga=0x301)
-Linux version 2.6.0-test3 (root@Q) (gcc version 2.95.3 20010315
-(release)) #6 Mon Aug 11 19:47:08 CEST 2003
-Video mode to be used for restore is 301
-...
-Console: colour dummy device 80x25
-...
-fb: 3Dfx Banshee memory = 16384K
-vesafb: abort, cannot reserve video memory at 0xe6000000
-vesafb: framebuffer at 0xe6000000, mapped to 0xcf802000, size
-16384k
-vesafb: mode is 640x480x8, linelength=640, pages=53
-vesafb: protected mode interface info at c000:7e95
-vesafb: scrolling: redraw
-fb1: VESA VGA frame buffer device
-vga16fb: initializing
-vga16fb: mapped to 0xc00a0000
-fb2: VGA16 VGA frame buffer device
-Console: switching to colour frame buffer device 80x30
-
-
-With vga=normal
-Linux version 2.6.0-test3 (root@Q) (gcc version 2.95.3 20010315
-(release)) #6 Mon Aug 11 19:47:08 CEST 2003
-Aug 11 20:13:45 Q kernel: Video mode to be used for restore is f00
-...
-Console: colour VGA+ 80x25
-...
-fb: 3Dfx Banshee memory = 16384K
-vga16fb: mapped to 0xc00a0000
-fb1: VGA16 VGA frame buffer device
-Console: switching to colour frame buffer device 80x30
-
-
-Kurt
+--------------050707090408050907020108--
 

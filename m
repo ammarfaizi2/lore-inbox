@@ -1,35 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVAXRHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVAXRKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbVAXRHO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 12:07:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVAXRHO
+	id S261339AbVAXRKV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 12:10:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVAXRKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 12:07:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24044 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261151AbVAXREP (ORCPT
+	Mon, 24 Jan 2005 12:10:21 -0500
+Received: from edu.joroinen.fi ([194.89.68.130]:33697 "EHLO edu.joroinen.fi")
+	by vger.kernel.org with ESMTP id S261339AbVAXRKN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 12:04:15 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050124165412.GL31455@parcelfarce.linux.theplanet.co.uk> 
-References: <20050124165412.GL31455@parcelfarce.linux.theplanet.co.uk> 
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-mm@kvack.org,
-       manfred@colorfullife.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make slab use alloc_pages directly 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Mon, 24 Jan 2005 17:03:58 +0000
-Message-ID: <24391.1106586238@redhat.com>
+	Mon, 24 Jan 2005 12:10:13 -0500
+Date: Mon, 24 Jan 2005 19:10:11 +0200
+From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+To: Andres Salomon <dilinger@voxel.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-as1 / 2.4 security-only patchset?
+Message-ID: <20050124171011.GW16286@edu.joroinen.fi>
+References: <1105605448.7316.13.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1105605448.7316.13.camel@localhost>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 13, 2005 at 03:37:28AM -0500, Andres Salomon wrote:
+> Hi,
+> 
+> I'm announcing a new kernel tree; -as.  The goal of this tree is to form
+> a stable base for vendors/distributors to use for their kernels.  In
+> order to do this, I intend to include only security fixes and obvious
+> bugfixes, from various sources.  I do not intend to include driver
+> updates, large subsystem fixes, cleanups, and so on.  Basically, this is
+> what I'd want 2.6.10.1 to contain.
+> 
 
-Matthew Wilcox <matthew@wil.cx> wrote:
+Hi!
 
-> __get_free_pages() calls alloc_pages, finds the page_address() and
-> throws away the struct page *.  Slab then calls virt_to_page to get it
-> back again.  Much more efficient for slab to call alloc_pages itself,
-> as well as making the NUMA and non-NUMA cases more similarr to each other.
+This is good!
 
-Looks reasonable. Should also work in the NOMMU case.
+Is anybody doing the same for 2.4 kernel series? Only security-fixes for vanilla
+2.4 kernels.. that would be nice too. 
 
-David
+-- Pasi Kärkkäinen
+       
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.

@@ -1,97 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVDBXzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVDBXzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbVDBXzW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 18:55:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVDBXzW
+	id S261380AbVDBXzw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 18:55:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVDBXzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 18:55:22 -0500
-Received: from mail.dif.dk ([193.138.115.101]:35748 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261374AbVDBXzI (ORCPT
+	Sat, 2 Apr 2005 18:55:52 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:26474 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261380AbVDBXzn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 18:55:08 -0500
-Date: Sun, 3 Apr 2005 01:57:24 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Yum Rayan <yum.rayan@gmail.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [PATCH] kernel/module.c - fix warning and reduce stack usage -
- reintroduction of mistakenly dropped patch 
-Message-ID: <Pine.LNX.4.62.0504030139090.2525@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 2 Apr 2005 18:55:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=KBBTOA02uWX9lsi3Qcy3e5CfZ37vQP+YWQWi9WISw3snlrvg4sMX09YB9siFeN4GMcBUjkwEhKFZ85IWiiFJE9m8Rqt4WZZ/iK+fUH6f5udGYp7EGFDbPKkY5xynxhaJzHFfxtRkHEx6JLLIPRKaqCZvj5C6OQROyi/8rACdzLU=
+Message-ID: <2a0fbc59050402155521884f9f@mail.gmail.com>
+Date: Sun, 3 Apr 2005 01:55:41 +0200
+From: Julien Wajsberg <julien.wajsberg@gmail.com>
+Reply-To: Julien Wajsberg <julien.wajsberg@gmail.com>
+To: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: How's the nforce4 support in Linux?
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Chuck <chunkeey@web.de>
+In-Reply-To: <bf8a98cafc4141c67d3b4cabfde65ed2@dalecki.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <200503261701.08774.chunkeey@web.de>
+	 <1111850358.8042.34.camel@laptopd505.fenrus.org>
+	 <bf8a98cafc4141c67d3b4cabfde65ed2@dalecki.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mar 26, 2005 7:32 PM, Marcin Dalecki <martin@dalecki.de> wrote:
+> 
+> On 2005-03-26, at 16:19, Arjan van de Ven wrote:
+> 
+> > `
+> >> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> >> hda: dma_intr: error=0x84 { DriveStatusError BadCRC
+> >
+> > BadCRC is 99% sure a cabling issue; either a bad/overheated cable or a
+> > cable used at too high a speed for the cable.
+> 
+> No. It is more likely that the timing programming between the disk and
+> host controller
+> are in a miss-match state. UDMA mode detection can come in to mind too.
+> It makes sense to experiment with hdparm to see if the problem goes
+> away in non
+> Ultra DMA modes.
 
-Hi Andrew,
+Do you mean "multiword dma modes" or "pio modes" ?
 
-Reading your 2.6.12-rc1-mm4 announce text I see
-
-...
--figure-out-who-is-inserting-bogus-modules-warning-fix.patch
-
- Folded into figure-out-who-is-inserting-bogus-modules.patch
-...
-figure-out-who-is-inserting-bogus-modules.patch
-  Figure out who is inserting bogus modules
-...
-
-However, it seems you did *not* roll 
-figure-out-who-is-inserting-bogus-modules-warning-fix.patch into 
-figure-out-who-is-inserting-bogus-modules.patch but instead just dropped 
-the patch.
-
-It also turns out I had a small boundary error (off-by-one) in my original 
-patch which Yum Rayan spotted and fixed in a patch he wrote that also 
-reduces the stack usage of the function (by dynamically allocating the 
-needed mem for 'args' instead of using a static 512 byte array - see the 
-LKML thread with subject "[PATCH] Reduce stack usage in module.c"), so 
-below you'll find an updated patch that reintroduce 
-figure-out-who-is-inserting-bogus-modules-warning-fix.patch on top of 
-2.6.12-rc1-mm4 and includes Yum Rayan's fix for the off-by-one and also 
-adopts his use of kmalloc() instead of large static array.
-
-Yum Rayan's patch does more than what I've included below, I've only 
-included his changes to the who_is_doing_it() function, if you want the 
-rest of his changes then please see the original thread for his full 
-patch.
-
-Here's the updated figure-out-who-is-inserting-bogus-modules-warning-fix.patch
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
---- linux-2.6.12-rc1-mm4-orig/kernel/module.c	2005-03-31 21:20:07.000000000 +0200
-+++ linux-2.6.12-rc1-mm4/kernel/module.c	2005-04-03 01:54:30.000000000 +0200
-@@ -1399,10 +1399,19 @@ static inline void add_kallsyms(struct m
- static void who_is_doing_it(void)
- {
- 	/* Print out all the args. */
--	char args[512];
--	unsigned int i, len = current->mm->arg_end - current->mm->arg_start;
-+	char *args;
-+	unsigned long i, len = current->mm->arg_end - current->mm->arg_start;
- 
--	copy_from_user(args, (void *)current->mm->arg_start, len);
-+	if (len > 512)
-+		len = 512;
-+
-+	args = kmalloc(len + 1, GFP_KERNEL);
-+	if (!args) {
-+		printk(KERN_WARNING "Unable to allocate memory, can't print who's inserting bogus modules\n");
-+		return;
-+	}
-+
-+	len -= copy_from_user(args, (void *)current->mm->arg_start, len);
- 
- 	for (i = 0; i < len; i++) {
- 		if (args[i] == '\0')
-@@ -1410,6 +1419,7 @@ static void who_is_doing_it(void)
- 	}
- 	args[i] = 0;
- 	printk("ARGS: %s\n", args);
-+	kfree(args);
- }
- 
- /* Allocate and load the module: note that size of section 0 is always
-
-
+-- 
+Julien

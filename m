@@ -1,40 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268581AbUH3RFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268565AbUH3RLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268581AbUH3RFk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 13:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268565AbUH3RFj
+	id S268565AbUH3RLT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 13:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268577AbUH3RLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 13:05:39 -0400
-Received: from colin2.muc.de ([193.149.48.15]:6153 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S268580AbUH3RFh (ORCPT
+	Mon, 30 Aug 2004 13:11:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14258 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268565AbUH3RKn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 13:05:37 -0400
-Date: 30 Aug 2004 19:05:35 +0200
-Date: Mon, 30 Aug 2004 19:05:35 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@sgi.com>,
-       paulus@samba.org, davem@davemloft.net, ak@suse.de, wli@holomorphy.com,
-       davem@redhat.com, raybry@sgi.com, benh@kernel.crashing.org,
-       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
-Subject: Re: page fault scalability patch final : i386 tested, x86_64 support added
-Message-ID: <20040830170535.GA38640@muc.de>
-References: <20040828010253.GA50329@muc.de> <20040827183940.33b38bc2.akpm@osdl.org> <16687.59671.869708.795999@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0408272021070.16607@schroedinger.engr.sgi.com> <20040827204241.25da512b.akpm@osdl.org> <Pine.LNX.4.58.0408272121300.16949@schroedinger.engr.sgi.com> <20040827223954.7d021aac.akpm@osdl.org> <Pine.LNX.4.58.0408272256030.17485@schroedinger.engr.sgi.com> <20040827230637.6b3eb2ac.akpm@osdl.org> <20040830170211.GB7718@MAIL.13thfloor.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040830170211.GB7718@MAIL.13thfloor.at>
-User-Agent: Mutt/1.4.1i
+	Mon, 30 Aug 2004 13:10:43 -0400
+Message-ID: <41335F8B.3000207@redhat.com>
+Date: Mon, 30 Aug 2004 13:10:35 -0400
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Marc_Str=E4mke?= <marcstraemke.work@gmx.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem accessing Sandisk CompactFlash Cards (Connected to the
+   IDE bus)
+References: <cgs2c1$ccg$1@sea.gmane.org> <4131DC5D.8060408@redhat.com> <cgsuq2$7cb$1@sea.gmane.org> <41326FE1.2050508@redhat.com> <20040830010712.GC12313@logos.cnet> <cguj7n$gur$1@sea.gmane.org> <41333879.2040902@redhat.com> <cgvi5l$t0d$1@sea.gmane.org>
+In-Reply-To: <cgvi5l$t0d$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 07:02:11PM +0200, Herbert Poetzl wrote:
+Marc Strämke wrote:
+<snip>
+> One thing i did notice when tracing these functions, is that the new 
+> card returns 0x44a in drive->id->config, while the old one returns 
+> 0x848a, according to the manual from 
+> SanDisk(http://www.sandisk.com/pdf/industrial/ProdManualIndustrialGradeATAv2.6.pdf) 
+> Should only be returned in memory mapped(cardbus/pc-card) mode, and not 
+> in True IDE mode, which the card is appearently running, otherwise the 
+> bios couldnt not boot from it, nor would the electrical interface be 
+> compatible (if i get the manual right). That is imo why hdparm -I doesnt 
+> detect the card as beein removable and Compactflash too, i looked as the 
+> sourcode of hdparm, and it seems to read the ATA configuration registers 
+> trough a proc file, and interpret it directly (without intervention of 
+> the kernel).
+> So the data the does return indeed marks it as an ATA harddisk, and not 
+> as a compactflash card, the real question then is why doesnt it work as 
+> a harddisk, which according to the specifications it should? Iam not 
+> really experienced in the ide stuff, so iam not sure what the 
+> CompactFlash detection in linux changes in behaviour.
+> I can get the kernel to report it as a "CFA DISK Drive" in dmesg by 
+> forcing the flags i mentioned before, but the error is exactly the same.
 > 
-> hmm, please correct me, but last time I checked
-> atomic_add_return() wasn't even available for i386
-> for example ...
+Sorry, I've been mixed up here.  I've been focused on the removable flag 
+aspect of this problem.  To level set here:
 
-There is a patch pending to add it.
+1) older SanDisk cards are detected as CFA devices and are working, but 
+not bootable.
+
+2) newer SanDisk cards are detected as ATA disks, and are bootable as 
+such, but do not seem to be operating correctly (the aforementioned ide 
+errors).
 
 
--Andi
+Is this correct?
+
+The first question to answer is, which mode do you want to operate in? 
+(I assume True IDE is what you're after, but just to be sure). 
+According to the Manual you provided the link to, CFA cards select which 
+mode the operate in (CFA or ATA) from poweron based on a sampling of pin 
+0x0E. on the physical interface (from section 3.7 on page 43).   So it 
+seems you have two supposedly identical pieces of hardware that are 
+configuring themselves from poweron in opposing ways based on the 
+electrical characteristics of the same bus pin.  If this is correct, 
+then I would be forced to conclude:
+
+a) the state of that bus pin is fluctuating.
+b) the CompactFlash cards that you have treat that pin differently
+
+Either way, it seems that you have two cards which should be, but are 
+not getting detected/configured in the same way.  That would somewhat 
+suggest to me electrical issues on your bus, which may account for the 
+ide errors you are seeing.
+
+Neil
+> Thx for your help,
+> Marc
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+-- 
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

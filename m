@@ -1,77 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285065AbRLQJoO>; Mon, 17 Dec 2001 04:44:14 -0500
+	id <S285072AbRLQJrO>; Mon, 17 Dec 2001 04:47:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285084AbRLQJoF>; Mon, 17 Dec 2001 04:44:05 -0500
-Received: from mx04.nexgo.de ([151.189.8.80]:30227 "EHLO mx04.nexgo.de")
-	by vger.kernel.org with ESMTP id <S285065AbRLQJn5>;
-	Mon, 17 Dec 2001 04:43:57 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Jan Tim Schueszler <Jan.Tim.Schueszler@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: {Kernel 2.4.17-pre8] kernel-oops
-Date: Mon, 17 Dec 2001 10:41:57 +0000
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01121710415700.00636@erde>
-Content-Transfer-Encoding: 8bit
+	id <S285077AbRLQJrE>; Mon, 17 Dec 2001 04:47:04 -0500
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:41956 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S285072AbRLQJqz>; Mon, 17 Dec 2001 04:46:55 -0500
+Message-Id: <5.1.0.14.2.20011217093040.0319a310@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 17 Dec 2001 09:47:08 +0000
+To: Ville Herva <vherva@niksula.hut.fi>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Ia64 unaligned accesses in ntfs driver
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011217090545.N12063@niksula.cs.hut.fi>
+In-Reply-To: <20011216191325.K12063@niksula.cs.hut.fi>
+ <20011216124328.E21566@niksula.cs.hut.fi>
+ <20011216191325.K12063@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just another kernel-oops with kernel 2.4.17-pre8. It occured while 
-installing a successfully build XServer from CVS-Sources.
+At 07:05 17/12/01, Ville Herva wrote:
+>I get unaligned accesses from these addresses:
+>
+>kernel unaligned access to 0xe00000006fb49719, ip=0xa000000000265050
+>
+>from ksymoops:
+>Adhoc a000000000265050 <[ntfs]ntfs_decompress+d0/320>
+>Adhoc a000000000262d80 <[ntfs]ntfs_decompress_run+2a0/3c0>
+>Adhoc a000000000262ba0 <[ntfs]ntfs_decompress_run+c0/3c0>
+>Adhoc a000000000262d60 <[ntfs]ntfs_decompress_run+280/3c0>
+>
+>Are these dangerous? I gather IA64 port has some kind of handler for these,
+>since they don't oops.
 
-Dec 17 10:32:22 erde kernel:  <1>Unable to handle kernel NULL 
-pointer dereference at virtual address 00000028
-Dec 17 10:32:22 erde kernel: c01571b2
-Dec 17 10:32:22 erde kernel: *pde = 00000000
-Dec 17 10:32:22 erde kernel: Oops: 0000
-Dec 17 10:32:22 erde kernel: CPU:    0
-Dec 17 10:32:22 erde kernel: EIP:    
-0010:[journal_try_to_free_buffers+82/144]    Not tainted
-Dec 17 10:32:22 erde kernel: EFLAGS: 00010207
-Dec 17 10:32:22 erde kernel: eax: 0000004d   ebx: 00000000   ecx: 
-000001d2   edx: 00000000
-Dec 17 10:32:22 erde kernel: esi: c575b340   edi: 00000001   ebp: 
-00000050   esp: cf195e0c
-Dec 17 10:32:22 erde kernel: ds: 0018   es: 0018   ss: 0018
-Dec 17 10:32:22 erde kernel: Process install (pid: 13842, 
-stackpage=cf195000)
-Dec 17 10:32:22 erde kernel: Stack: c1285f80 000001d2 00000004 
-000010e3 00000000 c014f8b2 cfad0200 c1285f80
-Dec 17 10:32:22 erde kernel:        000001d2 c0131dba c1285f80 
-000001d2 c575b340 c1285f80 c0129da2 c1285f80 
-Dec 17 10:32:22 erde kernel:        000001d2 00000020 000001d2 
-00000020 00000006 00000006 cf194000 00000100
-Dec 17 10:32:22 erde kernel: Call Trace: [ext3_releasepage+34/48] 
-[try_to_release_page+42/80] [shrink_cache+450/720] 
-[shrink_caches+86/128] [try_to_free_pages+29/64]
-Dec 17 10:32:22 erde kernel: Code: 8b 5b 28 f6 42 19 02 74 17 8d 44 
-24 10 50 52 e8 0a ff ff ff
+They are at least one of the explanations why the driver would not work on 
+non-intel arch... I gather most other arch don't cope with unaligned 
+accesses. I am surprised those are the only ones you see actually...
 
-Code;  d0d373f1 <END_OF_CODE+3c7bb0/????>
-00000000 <_EIP>:
-Code;  d0d373f1 <END_OF_CODE+3c7bb0/????>
-   0:   8b 5b 28                  mov    0x28(%ebx),%ebx
-Code;  d0d373f4 <END_OF_CODE+3c7bb3/????>
-   3:   f6 42 19 02               testb  $0x2,0x19(%edx)
-Code;  d0d373f8 <END_OF_CODE+3c7bb7/????>
-   7:   74 17                     je     20 <_EIP+0x20> d0d37411 
-<END_OF_CODE+3c7bd0/????>
-Code;  d0d373fa <END_OF_CODE+3c7bb9/????>
-   9:   8d 44 24 10               lea    0x10(%esp,1),%eax
-Code;  d0d373fe <END_OF_CODE+3c7bbd/????>
-   d:   50                        push   %eax
-Code;  d0d373ff <END_OF_CODE+3c7bbe/????>
-   e:   52                        push   %edx
-Code;  d0d37400 <END_OF_CODE+3c7bbf/????>
-   f:   e8 0a ff ff ff            call   ffffff1e <_EIP+0xffffff1e> 
-d0d3730f <END_OF_CODE+3c7ace/????>
+This particular function is not implemented correctly anyway - it will not 
+work on BE arch for example (despite all the endian conversion functions, 
+some of which are wrong AFAIK).
+
+The changes to make the driver clean are too complex and I am not going to 
+bother considering the replacement ntfs driver (ntfs tng available from 
+linux-ntfs cvs on sourceforge) is close to being ready for inclusion into 
+2.5.x (as soon as read support is completed I will submit it, probably 
+sometime in January). If anyone wants to work on the old driver I am happy 
+to take patches. (-;
+
+The new driver should be completely endianness clean and any unaligned 
+accesses will be dealt with as they are identified. I know of a few 
+possible ones which I will need to verify and wrap in the get unaligned 
+macros before release. But for tracking down the rest I will need people to 
+test the driver as I don't have access to any non-ia32 arch to test on 
+myself... I don't think there will be many though as most structures in 
+ntfs have nice alignment guarantees. - The mapping pairs array being a 
+notable difference which is the source of the unaligned accesses you 
+report. The new driver handles them correctly by working on a byte-by-byte 
+basis instead of doing multi-byte accesses, which is the correct way to 
+decompress the mapping pairs array.
+
+Best regards,
+
+Anton
 
 
-1 warning issued.  Results may not be reliable.
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-Don't hesitate to contact me for further information.
-
-Jan Tim Schüszler

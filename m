@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263294AbTJUBDs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 21:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbTJUBDs
+	id S262909AbTJUBP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 21:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbTJUBP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 21:03:48 -0400
-Received: from mra01.ex.eclipse.net.uk ([212.104.129.110]:2024 "EHLO
-	mra01.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S263294AbTJUBDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 21:03:47 -0400
-From: Ian Hastie <ianh@iahastie.clara.net>
+	Mon, 20 Oct 2003 21:15:28 -0400
+Received: from [220.188.34.136] ([220.188.34.136]:13582 "ehlo hhscooter.com")
+	by vger.kernel.org with ESMTP id S262909AbTJUBPY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 21:15:24 -0400
+From: "Zhou Hui" <hhscooter@hhscooter.com>
+Subject: RE:pocket motorcycle
 To: linux-kernel@vger.kernel.org
-Subject: Re: Uncorrectable Error on IDE, significant accumulation
-Date: Tue, 21 Oct 2003 02:03:44 +0100
-User-Agent: KMail/1.5.4
-References: <20031020132705.GA1171@synertronixx3> <20031020215401.GB15563%konsti@ludenkalle.de> <20031020230510.GD15563%konsti@ludenkalle.de>
-In-Reply-To: <20031020230510.GD15563%konsti@ludenkalle.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310210203.45512.ianh@iahastie.local.net>
+Content-Type: text/plain;charset="GB2312"
+Reply-To: hhscooter@hhscooter.com
+Date: Tue, 21 Oct 2003 09:15:27 +0800
+X-Priority: 2
+X-Mailer: FoxMail 4.0 beta 2 [cn]
+Message-Id: <S262909AbTJUBPY/20031021011524Z+18289@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 Oct 2003 00:05, Konstantin Kletschke wrote:
-> The new K7S5A Pro behaves strange.
->
-> When lilo comes up, it gets keyboard input containing of 4-6 lines
-> "t:t:t:t:t:t:t:t:t:t:t:t:"...
-> When hitting backspace whole line gets cleared, enter boots default then.
-> WTF?
-> even with no keyboard plugged in. My first thought was disabling
-> "usb-keyboard support for dos" but... only a usb printer, ethernet and
-> serial modem are plugged in...
+Dear Sir,
 
-Kernel configuration optins aren't going to affect LILO unless it's some 
-strange data being left over from before reboot.  Complete guess, but could 
-it be some kind of BIOS test data that isn't getting cleared?
+Hope you fine!
+ 
+Here we have great honor to recommend you our newest gas scooter:pocket motorcycle
+ 
+ 
+http://www.hhscooter.com/ewhatsnew1.htm
+ 
+ 
+If you are interested in our products, please feel free to contact us for further information.  
 
--- 
-Ian.
+Looking forward to your prompt reply.
 
+Best Wishes!
+
+Yours truly, 
+ 
+
+Zhou Hui
+
+ 
+Website: www.hhscooter.com
+E-mail:hhscooter@hhscooter.com
+Tel   : 86-579-7116817
+Fax  : 86-579-7116817

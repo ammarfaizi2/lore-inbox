@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275093AbTHGCSO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 22:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275094AbTHGCSO
+	id S274982AbTHGCZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 22:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275061AbTHGCZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 22:18:14 -0400
-Received: from imf17aec.mail.bellsouth.net ([205.152.59.65]:26011 "EHLO
-	imf17aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S275093AbTHGCSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 22:18:10 -0400
-From: "J.C. Wren" <jcwren@jcwren.com>
-Reply-To: jcwren@jcwren.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2, compact flash, IDE, and kobject errors
-Date: Wed, 6 Aug 2003 22:18:06 -0400
-User-Agent: KMail/1.5.3
-References: <3F30CFC1.1090205@toxyn.org> <1060209414.1903.7.camel@ibm-c.pdx.osdl.net> <3F31B1A1.7070402@toxyn.org>
-In-Reply-To: <3F31B1A1.7070402@toxyn.org>
+	Wed, 6 Aug 2003 22:25:57 -0400
+Received: from ns.abs-comptech.com ([66.93.61.117]:39908 "EHLO
+	ns.ABS-CompTech.com") by vger.kernel.org with ESMTP id S274982AbTHGCZ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 22:25:56 -0400
+Message-ID: <3F31B8AC.1070102@ABS-CompTech.com>
+Date: Wed, 06 Aug 2003 22:25:48 -0400
+From: "Albert E. Whale, CISSP" <aewhale@ABS-CompTech.com>
+Reply-To: aewhale@No-JunkMail.com
+Organization: ABS Computer Technology, Inc.
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Question - from non-subscriber
+References: <965253710F1@vcnet.vc.cvut.cz>
+In-Reply-To: <965253710F1@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308062218.06159.jcwren@jcwren.com>
+X-SPAM-Checked-by: www.No-JunkMail.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As I've mentioned before, I have an embedded Linux system that has been 
-running 2.2.12, and I'm looking at bringing it up to a modern kernel for some 
-features that we're looking at implementing.  It's a 386EX system, 2MB flash 
-(for BIOS and kernel), 8MB RAM, and a 32MB compact flash card.
 
-WIth both 2.5.69 (last version I attempted), and 2.6.0-test2, when the CF is 
-probed, I would get a message indicating kobject had failed with an EEXISTS 
-error code.  After the the kernel spits out the message about the HD size, 
-I'd get:
 
-	hda: hda1
-	hda: hda1
-	(then the kobject failure and stack trace)
+Petr Vandrovec wrote:
 
-After a lot of printk's, I determine that the kernel is attempting to register 
-the partition or drive twice.  This happens because in fs/partions/check.c, 
-register_disk() calls blkdev_get().  If blkdev_get() sees the media change 
-flag set, he calls rescan_partitions(), which causes the partition to be 
-registered.  After it returns, register_disk() calls add_partition(), which 
-results in the kernel throwing a kobject error that it's already registered.
+>On  6 Aug 03 at 16:59, Albert E. Whale, CISSP wrote:
+>  
+>
+>nwfs can be used for this. ncpfs is for connecting to the live server,
+>and you apparently do not have live server, if I understand it correctly.
+> 
+>
+Yes it appears that I need nwfs to mount this disc.
 
-The solution that I think is correct (the audience LAUGH sign is now lit) is 
-to add a 'hdx=removable' and 'hdx=notremovable' config parameter.  If you are 
-booting from a removable media device, such as a CF card (and certain items 
-like floppies seems to be special cased out, which I'm guessing is why you 
-don't see this on certain media types), this flag would override the 
-removable flag determined by the probe.  And for whatever reason someone 
-might want to, a non-removable device could be marked as removable.
+>What's wrong with installing NetWare and accessing data through netware? 
+>I think that it is simplest way to go. 
+>  
+>
+My intent is to read the Inodes of the Filesystem to recover any lost 
+and or previously deleted data.  My server for this operation is Linux 
+based.  Installing Netware my mount the disc, but I still need to read 
+it via Linux.
 
-I need to clean out a bunch of printks, but if this isn't the totally wrong 
-approach, I'll submit a patch for it.  So far, this patch seems to have fixed 
-my problem.
+>If netware cannot mount the disk, then nwfs will not mount
+>it too. Besides that nwfs is unmaintained - or at least I do not know
+>where updated code lives.
+>                                                Best regards,
+>                                                    Petr Vandrovec
+>                                                    vandrove@vc.cvut.cz
+>                                                  
+>
+Herein lies my problem.  Nwfs is no longer maintained.
 
-One question I do have is that e2fsck seems phenominally slower under 
-2.6.0-test2 than 2.2.12.  It's the same version of e2fsck, so I'm guessing 
-the disk throughput is slower (it's all PIO), but I'm not sure what in the 
-IDE driver could have halfed or one-thirded the disk throughput.  Any 
-thoughts on that would be greatly appreciated.
+-- 
+Albert E. Whale, CISSP
+http://www.abs-comptech.com
+----------------------------------------------------------------------
+ABS Computer Technology, Inc. - ESM, Computer & Networking Specialists
+Sr. Security, Network, and Systems Consultant
+Founding Board of Directors of Pittsburgh FBI - InfraGard
 
-	--John
+
 

@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281439AbRKMNUM>; Tue, 13 Nov 2001 08:20:12 -0500
+	id <S281554AbRKMNXM>; Tue, 13 Nov 2001 08:23:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281526AbRKMNUD>; Tue, 13 Nov 2001 08:20:03 -0500
-Received: from relay.swspn.net.au ([203.87.88.2]:40712 "EHLO
-	relay.ispdr.net.au") by vger.kernel.org with ESMTP
-	id <S281439AbRKMNTx>; Tue, 13 Nov 2001 08:19:53 -0500
-Message-Id: <4.3.2.7.2.20011114002122.0234f648@mail.ispdr.net.au>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Wed, 14 Nov 2001 00:23:40 +1100
-To: linux-kernel@vger.kernel.org
-From: Anthony <aslan@ispdr.net.au>
-Subject: Kernel oops
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S281526AbRKMNWx>; Tue, 13 Nov 2001 08:22:53 -0500
+Received: from t2.redhat.com ([199.183.24.243]:59634 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S281554AbRKMNWq>; Tue, 13 Nov 2001 08:22:46 -0500
+Message-ID: <3BF11EA4.6B1AC755@redhat.com>
+Date: Tue, 13 Nov 2001 13:22:44 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Willi =?iso-8859-1?Q?N=FC=DFer?= <wilhelm.nuesser@sap.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Performance tests 2.4.7 SuSE / Red Hat vs. 2.4.14 (pre8)
+In-Reply-To: <3BF11C21.8090809@sap.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone. Just a quick question: If I've had a "Kernel oops" on an 
-earlier Kernel (like 2.2.19-6.2.12 on RedHat 6.2 for example), would it be 
-worth reporting it to the Powers That Be, and if so, who are the Powers 
-That Be and how can I contact them?
 
+> 4) Our conclusion:
+> 
+> Although we still see some problems with the 2.4.14 based kernel it
+> looks really promising for us. A _stable_ increase of a factor of
+> 10 in memory critical situations is impressive. Especially since our
+> customer tend to steer every system finally into this load region ;-)
 
-----------------------------
-Anthony (aslan@ispdr.net.au)
-----------------------------
-
+Could you please also test the 2.4.9 RH kernel ?

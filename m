@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270400AbTGNMAL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270402AbTGNMAL
+	id S270421AbTGNMDL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 08:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270417AbTGNMDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:00:11 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34436
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S270400AbTGNL7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 07:59:44 -0400
-Date: Mon, 14 Jul 2003 13:13:41 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307141213.h6ECDfCM030830@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, marcelo@conectiva.com
-Subject: PATCH: clear mp bus array properly
+	Mon, 14 Jul 2003 08:03:11 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:21454 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S270565AbTGNMCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:02:15 -0400
+Date: Mon, 14 Jul 2003 14:16:57 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: utimes/futimes/lutimes syscalls
+Message-ID: <20030714121657.GB21817@louise.pinerecords.com>
+References: <3F0F9B0C.10604@redhat.com> <20030711224210.6fee6a73.akpm@osdl.org> <16146.24474.707720.580442@laputa.namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16146.24474.707720.580442@laputa.namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.22-pre5/arch/i386/kernel/mpparse.c linux.22-pre5-ac1/arch/i386/kernel/mpparse.c
---- linux.22-pre5/arch/i386/kernel/mpparse.c	2003-07-14 12:27:32.000000000 +0100
-+++ linux.22-pre5-ac1/arch/i386/kernel/mpparse.c	2003-07-14 12:37:23.000000000 +0100
-@@ -516,7 +519,7 @@
- 	mp_bus_id_to_local = (int *)&bus_data[(max_mp_busses * sizeof(int)) * 2];
- 	mp_bus_id_to_pci_bus = (int *)&bus_data[(max_mp_busses * sizeof(int)) * 3];
- 	mp_irqs = (struct mpc_config_intsrc *)&bus_data[(max_mp_busses * sizeof(int)) * 4];
--	memset(mp_bus_id_to_pci_bus, -1, max_mp_busses);
-+	memset(mp_bus_id_to_pci_bus, -1, max_mp_busses * sizeof(int));
- 
- 	/*
- 	 *	Now process the configuration blocks.
+> [Nikita@Namesys.COM]
+> 
+> so does reiser4.
+
+Speaking of which, when is reiser4 going to be ready?
+
+-- 
+Tomas Szepe <szepe@pinerecords.com>

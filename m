@@ -1,83 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263211AbUDPOKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 10:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbUDPOKZ
+	id S263191AbUDPOR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 10:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbUDPOR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 10:10:25 -0400
-Received: from external2.azuro.com ([212.44.26.44]:50104 "EHLO zinc.azuro.com")
-	by vger.kernel.org with ESMTP id S263211AbUDPOKS (ORCPT
+	Fri, 16 Apr 2004 10:17:27 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:45958 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S263191AbUDPORX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 10:10:18 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-Date: Fri, 16 Apr 2004 15:10:16 +0100
-To: linux-kernel@vger.kernel.org
-Subject: NFS oops with 2.6.4 server / Solaris 2.8 client
-Message-ID: <20040416141016.GA27316@platinum.azuro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Peter Clay <pete@azuro.com>
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Spam detection software, running on the system "zinc", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or block
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  I have this oops with the situation described in the
-	subject, using the Solaris automounter in /net to access the Linux
-	server. This is repeatable. It doesn't always crash the machine, but
-	fairly soon after I end up with all the nfsd processes stuck in 'D'
-	state. What other debugging information would help find this problem?
-	[...] 
-	Content analysis details:   (0.0 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
+	Fri, 16 Apr 2004 10:17:23 -0400
+Subject: Re: [PATCH] sym53c500_cs PCMCIA SCSI driver (new)
+In-Reply-To: <20040416130548.B5080@infradead.org> "from Christoph Hellwig at
+ Apr 16, 2004 01:05:48 pm"
+To: Christoph Hellwig <hch@infradead.org>
+Date: Fri, 16 Apr 2004 09:17:20 -0500 (CDT)
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20040416141720.746ABDBEE@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Hellwig wrote:
+> I've given it a short spin and here's a bunch of comments:
 
-I have this oops with the situation described in the subject, using the Solaris
-automounter in /net to access the Linux server. This is repeatable. It doesn't
-always crash the machine, but fairly soon after I end up with all the nfsd
-processes stuck in 'D' state. What other debugging information would help find
-this problem?
+Thank you for taking the time and trouble to review it.
 
-(output of dmesg follows)
+>  - the split into three source files is supserflous, one file should do it
 
-...
-nfs warning: mount version older than kernel
-RPC request reserved 0 but used 112
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
- printing eip:
-c02a91c0
-*pde = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<c02a91c0>]    Not tainted
-EFLAGS: 00010287
-EIP is at do_tcp_sendpages+0x660/0xbf0
-eax: 00000000   ebx: ddc5cb80   ecx: 00000008   edx: 00000000
-esi: 00000001   edi: cfd0d9c8   ebp: d0632100   esp: dd0dbe34
-ds: 007b   es: 007b   ss: 0068
-Process nfsd (pid: 1366, threadinfo=dd0da000 task=dd100d40)
-Stack: 000000b0 000000d0 c014d61a dd19670c dd0dbe70 c01c7efd d0632110 00000000
-       00000008 00000000 00000000 00000000 000005b4 00007530 00000000 cfd0d800
-       00000008 00000000 c02a97d9 cfd0d800 dd0dbeac 00000000 00000008 00000000
-Call Trace:
- [<c014d61a>] close_private_file+0x2a/0x30
- [<c01c7efd>] nfsd_close+0x1d/0x40
- [<c02a97d9>] tcp_sendpage+0x89/0xa0
- [<c02e8343>] svc_sendto+0x173/0x2b0
- [<c01d0e28>] encode_post_op_attr+0x1c8/0x260
- [<c02e941c>] svc_tcp_sendto+0x6c/0xc0
- [<c02e9bbc>] svc_send+0xbc/0x100
- [<c02eb828>] svcauth_unix_release+0x58/0x60
- [<c02e7858>] svc_process+0x1b8/0x640
- [<c01c43b0>] nfsd+0x190/0x300
- [<c01c4220>] nfsd+0x0/0x300
- [<c0108c49>] kernel_thread_helper+0x5/0xc
+Given that the driver currently supports only PCMCIA implementations,
+I agree.  My thinking was if someone comes up with a host adapter that
+isn't PCMCIA, the SYM53C500.c file is to the sym53c500_cs driver what
+the qlogicfas.c file is to the qlogic_cs driver, that is, core functions
+that could support multiple types of host adapters.  The logic to
+handle the different types of adapters isn't there, and I don't know
+that it ever will be (else, it's probable that someone would have
+written the Linux driver long before now).  However, after baring my
+ignorance to the world and saying I was unaware of non-PCMCIA
+implementations, I found a FreeBSD driver for the NCR 53c500.  Never
+say "never," I guess...  Your opinion counts for much, but you're the
+only person I've heard from.  Is there a consensus I should forget
+about the non-PCMCIA cases?
 
-Code: ff 42 04 8b 83 a8 00 00 00 8b 6c 24 28 8d 04 f0 89 68 10 8d
+>  - please don't use host.h or scsi.h from drivers/scsi/.  The defintions
+>    not present in include/scsi/ are deprecated and shall not be used (the
+>    most prominent example in your driver are the Scsi_<Foo> typedefs that
+>    have been replaced by struct scsi_foo
 
+I caught that in the coding style guidelines (and in the mentioned
+include files), and will fix for the next submission.
+
+>  - the driver doesn't even try to deal with multiple HBAs
+
+Guilty as charged.  Functionally, there's nothing in the driver I
+submitted that wasn't in the original.  Suggestions welcome...  Which
+of the existing PCMCIA SCSI drivers do a proper job of handling
+multiple host adapters in your opinion?  I'll try to adapt that code to
+fit this driver.  If I have to "roll my own" from scratch, I'm probably
+in over my head.
+
+>  - your detection logic could be streamlined a little, e.g. the request/release
+>    resource mess
+
+I'll see what I can do.
+
+Although I touched on it above, by way of apology/explanation, the goal
+for the initial port was to replicate the functionality I already had in
+older kernel versions.  It appears I faithfully replicated the
+deficiencies of the old driver as well :-).  Again, thank you for the
+feedback.
+
+Anyone else have input before I act on the recommendations I've been
+given?  Unless I hear otherwise, I'll start work on the code
+consolidation and removal of dependencies on deprecated include files.
+The detection logic and handling multiple HBAs will take a bit more
+effort...
+
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

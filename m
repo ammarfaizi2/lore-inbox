@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273455AbRIYUCD>; Tue, 25 Sep 2001 16:02:03 -0400
+	id <S273470AbRIYUDn>; Tue, 25 Sep 2001 16:03:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273462AbRIYUBx>; Tue, 25 Sep 2001 16:01:53 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:43535 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S273455AbRIYUBq>; Tue, 25 Sep 2001 16:01:46 -0400
-Message-ID: <3BB0E2B1.6DCCF9DF@zip.com.au>
-Date: Tue, 25 Sep 2001 13:01:53 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
-X-Accept-Language: en
+	id <S273465AbRIYUDe>; Tue, 25 Sep 2001 16:03:34 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:29447 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273464AbRIYUDT>; Tue, 25 Sep 2001 16:03:19 -0400
+Date: Tue, 25 Sep 2001 15:40:23 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: andrea@suse.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Locking comment on shrink_caches()
+In-Reply-To: <20010925.125758.94556009.davem@redhat.com>
+Message-ID: <Pine.LNX.4.21.0109251539150.2193-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Chris Newton <newton@unb.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: excessive interrupts on network cards
-In-Reply-To: <3BB0E01D@webmail1>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Newton wrote:
+
+
+On Tue, 25 Sep 2001, David S. Miller wrote:
+
+>    From: Marcelo Tosatti <marcelo@conectiva.com.br>
+>    Date: Tue, 25 Sep 2001 14:49:40 -0300 (BRT)
+>    
+>    Do you really need to do this ? 
+>    
+>                    if (unlikely(!spin_trylock(&pagecache_lock))) {
+>                            /* we hold the page lock so the page cannot go away from under us */
+>                            spin_unlock(&pagemap_lru_lock);
+>    
+>                            spin_lock(&pagecache_lock);
+>                            spin_lock(&pagemap_lru_lock);
+>                    }
+>    
+>    Have you actually seen bad hold times of pagecache_lock by
+>    shrink_caches() ? 
 > 
-> Hi,
-> 
->   I 'think' the number of interrupts being generated for the network traffic I
-> monitor, is excessive.  Having talked quikly with Donald Becker, he indicated
-> that I should be seeing a little less than the number of RX/TX packets/s on a
-> wire, in terms of interrupts/s.  That, however, is not what I am seeing.  I am
-> seeing 3 times as many interrupts/s as I am seeing packets/s.
-> 
->   I have used three network devices to look at the stream I am monitoring, and
-> it is usually aorund 5K packet/s IN, and 5K out, fed full duplex into a single
-> 3Com 3c982 (2.4.10 kernel reports that anyways).  However, watching:
+> Marcelo, this is needed because of the spin lock ordering rules.
+> The pagecache_lock must be obtained before the pagemap_lru_lock
+> or else deadlock is possible.  The spin_trylock is an optimization.
 
-3c982 is a dual-port server NIC.  Is your card dual-port?  If not, it's probably
-a 3c980, and I goofed :)
+Not, it is not.
 
->  'procinfo -D', reports on the order of 30,000 interrupts per second.
+We can simply lock the pagecachelock and the pagemap_lru_lock at the
+beginning of the cleaning function. page_launder() use to do that.
 
-That does sound rather high.  You should compare the interrupt rate
-with the packet rate from `ifconfig' or /proc/net/dev.
+Thats why I asked Andrea if there was long hold times by shrink_caches().
 
-Normally, 3c59x will show approx three Tx packets per interrupt
-and one Rx packet per interrupt.  It varies with workload, but
-it tends to vary in the "good" direction - at higher packet
-rates, we do more work in a single interrupt and the interrupt-per-packet
-rate falls.

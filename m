@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268745AbTBZRaG>; Wed, 26 Feb 2003 12:30:06 -0500
+	id <S268846AbTBZReu>; Wed, 26 Feb 2003 12:34:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268755AbTBZRaG>; Wed, 26 Feb 2003 12:30:06 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:3201 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268745AbTBZRaE>; Wed, 26 Feb 2003 12:30:04 -0500
-Date: Wed, 26 Feb 2003 12:42:21 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "John W. M. Stevens" <john@betelgeuse.us>
-cc: jpiszcz <jpiszcz@lucidpixels.com>, vishwas@india.hp.com,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Question about DMA and cd burning.
-In-Reply-To: <20030226170814.GA28730@morningstar.nowhere.lie>
-Message-ID: <Pine.LNX.3.95.1030226123821.4476A-100000@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268847AbTBZReu>; Wed, 26 Feb 2003 12:34:50 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:13197 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id <S268846AbTBZRes>;
+	Wed, 26 Feb 2003 12:34:48 -0500
+Date: Wed, 26 Feb 2003 09:20:54 -0800
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org, Jouni Malinen <jkmaline@cc.hut.fi>
+Subject: Re: Invalid compilation without -fno-strict-aliasing
+Message-ID: <20030226172054.GA3731@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <1046233990.1111.45.camel@cube>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1046233990.1111.45.camel@cube>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Feb 2003, John W. M. Stevens wrote:
-
-> On Wed, Feb 26, 2003 at 12:02:13PM -0500, Richard B. Johnson wrote:
-> > 
-> > If you want the best of all worlds, you need to get a good
-> > SCSI Controller and some SCSI disks.
+On Tue, Feb 25, 2003 at 11:33:09PM -0500, Albert Cahalan wrote:
+> Jean Tourrilhes writes:
 > 
-> I'd pay $100 more for a good SCSI CDRW drive!
+> > It looks like a compiler bug to me...
+> > Some users have complained that when the following
+> > code is compiled without the -fno-strict-aliasing,
+> > the order of the write and memcpy is inverted (which
+> > mean a bogus len is mem-copied into the stream).
+> > Code (from linux/include/net/iw_handler.h) :
+> > --------------------------------------------
+> > static inline char *
+> > iwe_stream_add_event(char * stream,  /* Stream of events */
+> >        char * ends,  /* End of stream */
+> >        struct iw_event *iwe, /* Payload */
+> >        int event_len) /* Real size of payload */
+> > {
+> >  /* Check if it's possible */
+> >  if((stream + event_len) < ends) {
+> >   iwe->len = event_len;
+> >   memcpy(stream, (char *) iwe, event_len);
+> >   stream += event_len;
+> >  } return stream;
+> > }
+> > --------------------------------------------
+> > IMHO, the compiler should have enough context to
+> > know that the reordering is dangerous. Any suggestion
+> > to make this simple code more bullet proof is welcomed.
+> >
+> > Have fun...
 > 
-> But they don't seem to be sold any more.  Anybody know where I can
-> still buy a new SCSI CDRW drive?
+> Since (char*) is special, I agree that it's a bug.
+> In any case, a warning sure would be nice!
 > 
-> John S.
+> Now for the fun. Pass iwe->len into this
+> macro before the memcpy, and all should be well.
+> 
+> #define FORCE_TO_MEM(x) asm volatile(""::"r"(&(x)))
+> 
+> Like this:
+> 
+>    iwe->len = event_len;
+>    FORCE_TO_MEM(iwe->len);
+>    memcpy(stream, (char *) iwe, event_len);
 
-I just did a search on "SCSI CD/RW" and came up with 304,000
-entries, the first several being "Plextor" "Plexwriter" (I have
-two of them at home).  Yamaha (I have one of them here at work).
-They seem to be the major SCSI DC/RW vendors..."
+	I'll try that, that sounds absolutely clever (but I only
+understand half of it).
+	Thanks a lot !
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+	Jean

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318913AbSIITCT>; Mon, 9 Sep 2002 15:02:19 -0400
+	id <S318880AbSIIS6q>; Mon, 9 Sep 2002 14:58:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318914AbSIITCS>; Mon, 9 Sep 2002 15:02:18 -0400
-Received: from gzp11.gzp.hu ([212.40.96.53]:28684 "EHLO gzp11.gzp.hu")
-	by vger.kernel.org with ESMTP id <S318913AbSIITCR>;
-	Mon, 9 Sep 2002 15:02:17 -0400
-To: linux-kernel@vger.kernel.org
-From: "Gabor Z. Papp" <gzp@myhost.mynet>
-Subject: Re: Linux 2.5.34
-References: <Pine.LNX.4.33.0209091049180.11925-100000@penguin.transmeta.com>
-User-Agent: tin/1.5.14-20020814 ("Chop Suey!") (UNIX) (Linux/2.4.19 (i686))
-Message-ID: <5b98.3d7cf155.86777@gzp1.gzp.hu>
-Date: Mon, 09 Sep 2002 19:07:01 -0000
+	id <S318887AbSIIS6q>; Mon, 9 Sep 2002 14:58:46 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:4279 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S318880AbSIIS6p>; Mon, 9 Sep 2002 14:58:45 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: <imran.badr@cavium.com>, "'Andrew Morton'" <akpm@digeo.com>
+Subject: Re: Calculating kernel logical address ..
+Date: Mon, 9 Sep 2002 21:06:18 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: <root@chaos.analogic.com>, "'David S. Miller'" <davem@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+References: <01a801c25831$913c5fd0$9e10a8c0@IMRANPC>
+In-Reply-To: <01a801c25831$913c5fd0$9e10a8c0@IMRANPC>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020909190328Z16576-16323+113@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc 2.95.4-cvs
-GNU ld version 2.12.90.0.4 20020408
+On Monday 09 September 2002 20:49, Imran Badr wrote:
+> > You can obtain this info by walking the user's pagetables with
+> > get_user_pages().  That give `struct page' pointers, with which
+> > all things are possible.
+> 
+> >As long as you can be sure they won't spontaneously vanish on you.
+> 
+> >--
+> >Daniel
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> down(&current->mm->mmap_sem) would help.
 
-make[3]: Entering directory `/usr/src/linux-2.5.34/drivers/net/irda'
-  gcc -Wp,-MD,./.irtty.o.d -D__KERNEL__ -I/usr/src/linux-2.5.34/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=irtty   -c -o irtty.o irtty.c
-irtty.c: In function `irtty_cleanup':
-irtty.c:121: called object is not a function
-irtty.c:122: parse error before string constant
-irtty.c: In function `irtty_open':
-irtty.c:229: called object is not a function
-irtty.c:229: parse error before string constant
-irtty.c:248: called object is not a function
-irtty.c:248: parse error before string constant
-irtty.c: In function `irtty_change_speed':
-irtty.c:454: called object is not a function
-irtty.c:455: parse error before string constant
-irtty.c:466: called object is not a function
-irtty.c:466: parse error before string constant
-make[3]: *** [irtty.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5.34/drivers/net/irda'
-make[2]: *** [irda] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5.34/drivers/net'
-make[1]: *** [net] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.34/drivers'
-make: *** [drivers] Error 2
+Not for anon pages, and how do you know whether it's anon or not before
+looking at the page, which may be free by the time you look at it?
+In other words, mm->page_table_lock is the one, because it's required
+for unmapping a pte, and any mapped page will be forced to hold a count
+increment until it gets past that lock.  Without this lock, the results
+of pte_page are unstable.
 
+-- 
+Daniel

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269334AbTHOQfA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 12:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbTHOQNB
+	id S269400AbTHOQe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 12:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269334AbTHOQNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:13:01 -0400
+	Fri, 15 Aug 2003 12:13:04 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:59269 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S269334AbTHOQJb (ORCPT
+	by vger.kernel.org with ESMTP id S269400AbTHOQJc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:09:31 -0400
-Date: Fri, 15 Aug 2003 10:23:38 -0400 (EDT)
-From: war <war@lucidpixels.com>
-X-X-Sender: war@p500
+	Fri, 15 Aug 2003 12:09:32 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Clean Slackware 9.0 Install And...
-Message-ID: <Pine.LNX.4.56.0308151023080.28412@p500>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Jason Lunz <lunz@falooley.org>
+Subject: Re: Input issues - key down with no key up
+Date: Fri, 15 Aug 2003 15:05:00 +0000 (UTC)
+Organization: PBR Streetgang
+Message-ID: <slrnbjptkq.8k7.lunz@absolut.localnet>
+References: <16188.27810.50931.158166@gargle.gargle.HOWL> <20030815094604.B2784@pclin040.win.tue.nl> <20030815105802.GA14836@ucw.cz> <20030815123641.GA7204@win.tue.nl> <20030815124318.GA15478@ucw.cz>
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm out of clues as to what is causing these kernel problems/oopses?
+vojtech@suse.cz said:
+> be doing) PS/2 genre of keyboards. For USB for example you don't get an
+> interrupt and a scancode per keypress. You get the current keyboard
+> state.
 
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000
- printing eip:
-c0110036
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c0110036>]    Not tainted
-EFLAGS: 00210202
-eax: 00008602   ebx: f05e0403   ecx: f05e0004   edx: 00000000
-esi: 000051c0   edi: c02ff230   ebp: f05ebf1c   esp: e7d9bf38
-ds: 0018   es: 0018   ss: 0018
-Process galeon (pid: 11488, stackpage=e7d9b000)
-Stack: f05ea000 e7d9a000 f1862730 e7d9bf6c ee6c51c0 e24b6000 ee6c51c0
-e7d9a000
-       00000000 c035ea00 0007f00c e7d9bf78 055d3ec7 e7d9bfa0 c0114ef2
-e7d9bf78
-       00000000 00000000 0007f00c e7d9a000 c0114e50 e7d9bfac 00000000
-bf3ff7ec
-Call Trace:    [<c0114ef2>] [<c0114e50>] [<c0120262>] [<c0108f13>]
+Then how am I getting infinitely repeating keys with a USB keyboard? I
+recently switched to a kinesis ergo USB keyboard, and I had to disable
+autorepeat in X because I had problems with keys occasionally repeating
+infinitely until I hit something else to make it stop. I haven't tracked
+down whether that's a hardware problem or in software.
 
-Code: 88 1a 5b 5e 0f b6 c4 5f c3 90 55 57 56 53 53 8b 54 24 1c 8b
+Are you aware of that happening with USB keyboards?
+
+Jason
 

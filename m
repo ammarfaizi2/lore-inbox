@@ -1,53 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270210AbTGRLOx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 07:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271532AbTGRLOx
+	id S271532AbTGRLSY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 07:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271609AbTGRLSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 07:14:53 -0400
-Received: from [213.229.38.66] ([213.229.38.66]:65216 "HELO mail.falke.at")
-	by vger.kernel.org with SMTP id S270210AbTGRLOw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 07:14:52 -0400
-Message-ID: <3F17DA1E.5020506@winischhofer.net>
-Date: Fri, 18 Jul 2003 13:29:34 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en, de, de-de, de-at, sv
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: What happened to SiS DRM?!@!
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jul 2003 07:18:24 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:34319 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S271532AbTGRLSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 07:18:22 -0400
+Date: Fri, 18 Jul 2003 12:33:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: torvalds@osdl.org, Gergely Nagy <algernon@gandalph.mad.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [devfs] Use before initialisation in devfs_mk_cdev()
+Message-ID: <20030718123314.A24143@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
+	Gergely Nagy <algernon@gandalph.mad.hu>,
+	linux-kernel@vger.kernel.org
+References: <83he5mm3jt.wl@iluvatar.bonehunter.rulez.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <83he5mm3jt.wl@iluvatar.bonehunter.rulez.org>; from algernon@gandalph.mad.hu on Thu, Jul 17, 2003 at 01:53:42AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 17, 2003 at 01:53:42AM +0200, Gergely Nagy wrote:
+> Hi!
+> 
+> While playing around with implementing my first linux 2.5 module, I
+> stumbled upon a buglet in devfs (though, if used properly, it probably
+> won't surface ever). The problem - as I see it - is that
+> devfs_mk_cdev() first checks the mode passed to it, and if it thinks
+> it is not a char device, it prints a warning and aborts. Now, this
+> printing involves the local variable `buf' (char buf[64]), which is
+> not initialised at that point.
 
-Alan Cox wrote:
- > On Iau, 2003-07-17 at 17:40, nick@acolyte.merseine.nu wrote:
- > > in case my other message got buried.
- > >
- > > is there SiS DRM support in the 2.6.0 kernel ?
- >
- > SiS DRM hasn't been ported to XFree 4.3 as far as I know, nor yet S3
- > or VIA DRM.
+Sorry, my fault.  I had a report on this earlier but didn't submit
+a patch yet.  The same problem also affects devfs_mk_bdev.
 
-Which is not really a good reason for why the SiS DRM module is still 
-missing in 2.6...
-
-The SiS _DRI_ driver has not been ported to Mesa 4 and later (which is 
-why it is disabled in XFree 4.3), but for users of XFree 4.2 and 
-earlier, the _DRM_ module could be of good use. (And at least on Debian, 
-one could install the xlibsmesa3 packages over a 4.3 installation to get 
-DRI working as before.)
-
-Thomas
-
--- 
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net          *** http://www.winischhofer.net/
-twini AT xfree86 DOT org
+Linus, please apply the patch below.
 
 
-
+--- 1.95/fs/devfs/base.c	Fri Jul 11 01:24:00 2003
++++ edited/fs/devfs/base.c	Fri Jul 18 11:36:24 2003
+@@ -1432,12 +1432,6 @@
+ 	va_list args;
+ 	int error, n;
+ 
+-	if (!S_ISBLK(mode)) {
+-		printk(KERN_WARNING "%s: invalide mode (%u) for %s\n",
+-				__FUNCTION__, mode, buf);
+-		return -EINVAL;
+-	}
+-
+ 	va_start(args, fmt);
+ 	n = vsnprintf(buf, 64, fmt, args);
+ 	if (n >= 64 || !buf[0]) {
+@@ -1445,6 +1439,12 @@
+ 				__FUNCTION__);
+ 		return -EINVAL;
+ 	}
++	
++	if (!S_ISBLK(mode)) {
++		printk(KERN_WARNING "%s: invalide mode (%u) for %s\n",
++				__FUNCTION__, mode, buf);
++		return -EINVAL;
++	}
+ 
+ 	de = _devfs_prepare_leaf(&dir, buf, mode);
+ 	if (!de) {
+@@ -1478,17 +1478,17 @@
+ 	va_list args;
+ 	int error, n;
+ 
+-	if (!S_ISCHR(mode)) {
+-		printk(KERN_WARNING "%s: invalide mode (%u) for %s\n",
+-				__FUNCTION__, mode, buf);
+-		return -EINVAL;
+-	}
+-
+ 	va_start(args, fmt);
+ 	n = vsnprintf(buf, 64, fmt, args);
+ 	if (n >= 64 || !buf[0]) {
+ 		printk(KERN_WARNING "%s: invalid format string\n",
+ 				__FUNCTION__);
++		return -EINVAL;
++	}
++
++	if (!S_ISCHR(mode)) {
++		printk(KERN_WARNING "%s: invalide mode (%u) for %s\n",
++				__FUNCTION__, mode, buf);
+ 		return -EINVAL;
+ 	}
+ 

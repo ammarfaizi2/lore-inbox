@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269164AbUJFJgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269165AbUJFJok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269164AbUJFJgl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 05:36:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269166AbUJFJgl
+	id S269165AbUJFJok (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 05:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269170AbUJFJok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 05:36:41 -0400
-Received: from colino.net ([213.41.131.56]:51961 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S269164AbUJFJgj (ORCPT
+	Wed, 6 Oct 2004 05:44:40 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:25782 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S269165AbUJFJoi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 05:36:39 -0400
-Date: Wed, 6 Oct 2004 11:35:41 +0200
-From: Colin Leroy <colin@colino.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "David S.Miller" <davem@davemloft.net>
-Subject: Re: Netconsole & sungem: hang when link down
-Message-ID: <20041006113541.5d395ffa@pirandello>
-In-Reply-To: <1097053738.16741.58.camel@gaston>
-References: <20041006083954.0abefe57@pirandello>
-	<1097050605.21132.17.camel@gaston>
-	<20041006104251.29dcd38c@pirandello>
-	<1097053738.16741.58.camel@gaston>
-X-Mailer: Sylpheed-Claws 0.9.12cvs122.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
+	Wed, 6 Oct 2004 05:44:38 -0400
+Date: Wed, 6 Oct 2004 11:44:37 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, nickpiggin@yahoo.com.au,
+       kenneth.w.chen@intel.com, mingo@redhat.com,
+       linux-kernel@vger.kernel.org, judith@osdl.org
+Subject: Re: new dev model (was Re: Default cache_hot_time value back to 10ms)
+Message-ID: <20041006094437.GA28277@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+	nickpiggin@yahoo.com.au, kenneth.w.chen@intel.com, mingo@redhat.com,
+	linux-kernel@vger.kernel.org, judith@osdl.org
+References: <200410060042.i960gn631637@unix-os.sc.intel.com> <20041005205511.7746625f.akpm@osdl.org> <416374D5.50200@yahoo.com.au> <20041005215116.3b0bd028.akpm@osdl.org> <41637BD5.7090001@yahoo.com.au> <20041005220954.0602fba8.akpm@osdl.org> <416380D7.9020306@yahoo.com.au> <20041005223307.375597ee.akpm@osdl.org> <41638E61.9000004@pobox.com> <20041005233958.522972a9.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041005233958.522972a9.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06 Oct 2004 at 19h10, Benjamin Herrenschmidt wrote:
+On Tue, Oct 05, 2004 at 11:39:58PM -0700, Andrew Morton wrote:
 
-Hi, 
+> I agree - -mm breaks too often.  You wouldn't believe the crap people throw
+> at me :(.   But a lot of problems get fixed this way too.
 
-> Hrm... we have some sort of spinlock debugging, at least on ppc64...
-> BTW, did you have SMP or PREEMPT ? If none of these, then you should
-> not see any spin deadlock...
+Mainline is suffering too - lots of people I know running 2.6 on production
+systems have noted a marked increase in problems, crashes, odd things. 
 
-No, in fact. You're right...
-Indeed, if there was a deadlock, it would also happen when cable is
-plugged in, wouldn't it ? (as sungem outputs "Link is up at xxx..." or
-something when correctly initialized).
+I'd bet you get a lot of people who'd vote for a timeout right now to figure
+out what's going wrong.
 
-> The solution is to look at the code though and find what's wrong :)
+There is the distinct impression that we are going down hill in this series.
+My personal feeling is that this trend started almost immediately after OLS.
 
-I'll try. 
-The called method in the driver when calling 
-  dev_change_flags(ndev, ndev->flags | IFF_UP) from netpoll
-is
-  gem_open(), if I'm not mistaken?
+I can try to gather the general reports I hear from people - it might well
+be that we are not reporting the bugs properly. I'm sitting on a couple of
+odd things myself that need to be written up.
 
-Could some kind of infinite loop happen within gem_link_timer, maybe ?
+Thanks.
 
 -- 
-Colin
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

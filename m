@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262363AbSI2BZS>; Sat, 28 Sep 2002 21:25:18 -0400
+	id <S262365AbSI2B0u>; Sat, 28 Sep 2002 21:26:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262364AbSI2BZS>; Sat, 28 Sep 2002 21:25:18 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16402 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262363AbSI2BZR>; Sat, 28 Sep 2002 21:25:17 -0400
-Date: Sat, 28 Sep 2002 18:31:45 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Jeff Garzik <jgarzik@pobox.com>, Larry Kessler <kessler@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-Subject: Re: v2.6 vs v3.0
-In-Reply-To: <Pine.LNX.4.44.0209280934540.13549-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com>
+	id <S262366AbSI2B0u>; Sat, 28 Sep 2002 21:26:50 -0400
+Received: from packet.digeo.com ([12.110.80.53]:28831 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262365AbSI2B0t>;
+	Sat, 28 Sep 2002 21:26:49 -0400
+Message-ID: <3D96580D.A0F803BC@digeo.com>
+Date: Sat, 28 Sep 2002 18:31:57 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Zach Brown <zab@zabbo.net>
+CC: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: suspect list_empty( {NULL, NULL} )
+References: <20020928205836.C13817@bitchcake.off.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Sep 2002 01:32:01.0384 (UTC) FILETIME=[02571680:01C26758]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 28 Sep 2002, Ingo Molnar wrote:
+Zach Brown wrote:
 > 
-> i consider the VM and IO improvements one of the most important things
-> that happened in the past 5 years - and it's definitely something that
-> users will notice. Finally we have a top-notch VM and IO subsystem (in
-> addition to the already world-class networking subsystem) giving
-> significant improvements both on the desktop and the server - the jump
-> from 2.4 to 2.5 is much larger than from eg. 2.0 to 2.4.
+> A cute list_head debugging patch seems to have found strange list_entry
+> use in vmscan.c in stock 2.5.39.
+> 
+> page_mapping_inuse:
+> 
+>         if (!list_empty(&mapping->i_mmap) || !list_empty(&mapping->i_mmap_shared))
+> 
+> ...
+> (gdb) print *mapping
+> $22 = {host = 0xc03b6e00
 
-Hey, _if_ people actually are universally happy with the VM in the current
-2.5.x tree, I'll happily call the dang thing 5.0 or whatever (just
-kidding, but yeah, that would be a good enough reason to bump the major
-number).
+That's swapper_space.
 
-However, I'll believe that when I see it. Usually people don't complain 
-during a development kernel, because they think they shouldn't, and then 
-when it becomes stable (ie when the version number changes) they are 
-surprised that the behabviour didn't magically improve, and _then_ we get 
-tons of complaints about how bad the VM is under their load.
 
-Am I hapyy with current 2.5.x?  Sure. Are others? Apparently. But does 
-that mean that we have a top-notch VM and we should bump the major number? 
-I wish.
+--- 2.5.39/mm/swap_state.c~swapper_space-state	Sat Sep 28 18:30:45 2002
++++ 2.5.39-akpm/mm/swap_state.c	Sat Sep 28 18:31:26 2002
+@@ -43,6 +43,8 @@ struct address_space swapper_space = {
+ 	.a_ops			= &swap_aops,
+ 	.backing_dev_info	= &swap_backing_dev_info,
+ 	.i_shared_lock		= SPIN_LOCK_UNLOCKED,
++	.i_mmap			= LIST_HEAD_INIT(swapper_space.i_mmap),
++	.i_mmap_shared		= LIST_HEAD_INIT(swapper_space.i_mmap_shared),
+ 	.private_lock		= SPIN_LOCK_UNLOCKED,
+ 	.private_list		= LIST_HEAD_INIT(swapper_space.private_list),
+ };
 
-The block IO cleanups are important, and that was the major thing _I_ 
-personally wanted from the 2.5.x tree when it was opened. I agree with you 
-there. But I don't think they are major-number-material.
-
-Anyway, people who are having VM trouble with the current 2.5.x series, 
-please _complain_, and tell what your workload is. Don't sit silent and 
-make us think we're good to go.. And if Ingo is right, I'll do the 3.0.x 
-thing.
-
-		Linus
-
+.

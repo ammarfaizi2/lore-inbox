@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130669AbQLISQx>; Sat, 9 Dec 2000 13:16:53 -0500
+	id <S129957AbQLISVD>; Sat, 9 Dec 2000 13:21:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131178AbQLISQm>; Sat, 9 Dec 2000 13:16:42 -0500
-Received: from www.wen-online.de ([212.223.88.39]:59408 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S130669AbQLISQj>;
-	Sat, 9 Dec 2000 13:16:39 -0500
-Date: Sat, 9 Dec 2000 18:46:12 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: swapoff/on leak test12-pre7
-Message-ID: <Pine.Linu.4.10.10012091822230.602-100000@mikeg.weiden.de>
+	id <S131178AbQLISUn>; Sat, 9 Dec 2000 13:20:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37901 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129957AbQLISUk>;
+	Sat, 9 Dec 2000 13:20:40 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200012091748.eB9HmaO29722@flint.arm.linux.org.uk>
+Subject: Re: pdev_enable_device no longer used ?
+To: groudier@club-internet.fr (Gérard Roudier)
+Date: Sat, 9 Dec 2000 17:48:36 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de,
+        ink@jurassic.park.msu.ru (Ivan Kokshaysky),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.10.10012091500230.1058-100000@linux.local> from "Gérard Roudier" at Dec 09, 2000 03:26:43 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+=?ISO-8859-1?Q?G=E9rard_Roudier?= writes:
+> As a result, in my opinion:
+> 
+> - A device that requires some non zero cache line size value lower than
+> the right value for a given system and that actually use MWIs must not be
+> supported on that system, unless we know that the bridge does alias MWI to
+> MW. (If such a device can be configured for not using MWI, any value for 
+> the PCI cache line size will not break).
+> 
+> - A driver that blindly shoe-horns some value for the cache-line size must
+> be fixed. Basically, it should not change the value if it is not zero and,
+> at least, warn user if it has changed the value because it was zero.
+> 
+> What are the strong reasons that let some POST softwares not fill properly
+> the cache line size of PCI devices ?
 
-Stumbled over a small leak.. and some funny looking numbers.
+Erm, stupid observation coming up.  Isn't this what the architecture-
+specific 'pcibios_set_master' function is for?  To do any architecture
+specific fiddling with the device.
 
-while true; do swapoff -a; swapon -a; done
-
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 0  0  0      0  73120   4392   7984   0   0     0     0  104    12   0   1  99
- 1  0  0      0  73120   4392   7984  44   0    11     0  117   114   5   8  87
- 1  0  0      0  72676   4392   7984 364   0    91     0  196   824  32  68   0
- 1  0  0      0  72436   4392   7984 360   0    90     0  191   818  43  56   1
- 1  0  0      0  72032   4392   7984 364   0    91     0  192   827  32  68   0
- 1  0  0      0  71564   4392   7984 364   0    91     0  192   824  37  62   1
- 1  0  0      0  71316   4392   7984 360   0    90     1  192   821  37  61   2
- 2  0  0      0  70976   4392   7984 364   0    91     0  192   825  38  61   1
- 1  0  0      0  70580   4392   7984 364   0    91     0  192   825  40  58   2
- 1  0  0      0  70124   4392   7984 364   0    91     0  192   826  36  63   1
- 1  0  0      0  69876   4392   7984 360   0    90     0  191   819  43  54   3
-
- ....
-
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 3  0  0      0   1980    424   5048 380   0    95    16  211   859  33  66   1
- 1  0  0      0   2244    424   5040 372   0    93    28  221   860  39  60   1
- 1  0  0      0   2104    424   5028 376   0    95    26  222   863  32  66   2
- 1  0  0      0   1944    296   4888 376   0    95    18  214   867  39  60   1
- 1  0  0      0   2068    144   4732 320   0    88    18  207   741  29  55  16
- 1  0  0      0   2064    144   4376 368   0    93    18  212   838  33  65   2
- 1  0  0      0   1956    144   4040 364   0    92    10  203   848  30  70   0
- 1  0  1    212   1940    120   4104 180 412    76   186  245   468  17  64  19
- 1  0  1      0   1956    120   3708 192 564    52   255  274   480  18  77   5
- 1  0  1      0   1956    112   3556 184   0    76    70  235   454  19  72   9
- 2  0  1      0   1992    112   3388 212   0    56    98  255   494  28  72   0
- 1  0  1      0   2064    112   3200 220   0    56    91  249   506  19  81   0
- 2  0  1      0   1940    112   2992 204   0    52   107  260   477  24  76   0
- 1  0  2      0   2076    112   2908  84 1580    75   433  209   259  10  61  29
- 1  0  2      0   2064    112   2732 208   0    55    92  247   485  23  74   3
- 1  0  1      0   1880    112   2684 128 1344    45   403  230   326  12  64  24
- 1  0  2      0   2040    112   2548  84 1992    55   543  210   233   7  66  27
- 1  0  1      0   1872    112   2548 172 520    46   220  246   415  20  78   2
- 1  0  1      0   1872    112   2532  16 3012    41   795  211   101   2  71  27
- 0  1  1   1488   1740    104   4020  20 2984    45   794  217   124   2  56  42
- 0  0  0   1268   1804     92   3800   8 2232    19   578  187    76   1  50  50
-
+Surely, writing to the cache line size is not something that a driver
+should be doing, but something that the architecture specific code
+should be doing.  Likewise, fiddling with latency timers without good
+reason (eg, broken latency timers) surely is asking for problems.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

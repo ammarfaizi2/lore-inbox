@@ -1,101 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269766AbUJSU4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267783AbUJSVKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269766AbUJSU4k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 16:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269406AbUJSUvI
+	id S267783AbUJSVKF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 17:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269903AbUJSVBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 16:51:08 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:52399 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S269766AbUJSUrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 16:47:06 -0400
-Message-ID: <41757478.4090402@drdos.com>
-Date: Tue, 19 Oct 2004 14:09:28 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Tue, 19 Oct 2004 17:01:11 -0400
+Received: from pop1.oxfordnetworks.net ([66.231.220.66]:63165 "EHLO
+	pop1.oxfordnetworks.net") by vger.kernel.org with ESMTP
+	id S267760AbUJSUuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 16:50:19 -0400
+Message-ID: <016501c4b61d$3ae50190$6601a8c0@calcutta>
+From: "Jim Greene" <jwgreene@megalink.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem with kernel crash
+Date: Tue, 19 Oct 2004 16:50:12 -0400
 MIME-Version: 1.0
-To: Dax Kelson <dax@gurulabs.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>	 <417550FB.8020404@drdos.com> <1098218286.8675.82.camel@mentorng.gurulabs.com>
-In-Reply-To: <1098218286.8675.82.camel@mentorng.gurulabs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dax Kelson wrote:
+Hi,
+    I am getting a kernel crash on 4 identical PE 2650's running RH AS 3,0 
+and Kernel 2.6.8.1. Each server has  a Perc4/Dc.  Can someone tell me what 
+exactly the problem is?  Thanks
 
->>
->>JFS, XFS, All SMP support in Linux, and RCU.
->>    
->>
-And Numa also.
-
->>    
->>
->
->This isn't SCO code. This goes back to SCO's claims of "control rights"
->over any source code that has been in the same room as UNIX code.
->
->These "control rights" depend on SCOs interpretation of what a 
->derivative work is. This is a contractual dispute, an attempt of SCO to
->reframe what a derivative work is and a big up hill battle for SCO as
->virtually all the parties of original contracts have in their
->declarations not supported SCO claims of "control rights".
->
->Stephen D. Vuksanovich, Scott Nelson, Richard A. McDonough III, Robert
->C. Swanson, Ira Kistenberg, David Frasure, and Geoffrey D. Green.
->
->Four of them are (or were at relevant time periods) AT&T employees.
->
->See: http://www.groklaw.net/article.php?story=20041007032319488
->
->Besides the declarations, there is other items that don't back SCO
->"control rights" claims such as the $echo newletter, and amendment X to
->the contract.
->
->Dax Kelson
->
->
->  
->
-No.  They seem to have some factual concrete evidence IP covered under 
-Employee
-agreements was used and subsequently converted into Linux, and they are 
-very
-confident of this.  From a cursory viewpoint, it looks valid.  I think 
-they have a case
-(having been sued and nailed for the same type of thing by Novell).  
-It's better to remove
-these code areas and make the vendors maintain them as separate patches 
-not in the tree,
-like what happened to intermezzo.  It's low impact for Linux and the 
-other vendors.
-
-XFS, JFS and NUMA are easy ones.
-
-RCU and NUMA are not.  Hey, Novell just handed over their patent 
-portfolio to Linux,
-use their patents for SMP and RCU.  These areas are not trivial to dump 
-out of the kernel.
-If Linux did dump the infringing FS's, it would be a good faith effort 
-to limit SCO's claims.
-
-SMP and RCU look a little tougher to defend.  I remember a Brainshare 
-session at SLC
-where the unixware guys were disclosing this stuff in public sessions.  
-Perhaps Novell
-could go back and publish those Brainshare slides on their website.  So 
-much for claiming
-SMP and RCU are not in the public domain.
-
-Dump the FS's and NUMA guys.  Then you are nearly there for being 
-squeaky clean.
-
-Jeff
-
+Oct 19 15:17:11 pop1 kernel: Unable to handle kernel NULL pointer 
+dereference at virtual address 00000004
+Oct 19 15:17:11 pop1 kernel:  printing eip:
+Oct 19 15:17:11 pop1 kernel: c2825292
+Oct 19 15:17:11 pop1 kernel: *pde = 00003001
+Oct 19 15:17:11 pop1 kernel: Oops: 0002 [#1]
+Oct 19 15:17:11 pop1 kernel: SMP
+Oct 19 15:17:11 pop1 kernel: Modules linked in: md5 ipv6 autofs4 e1000 
+microcode ext3 jbd dm_mod megaraid qla2300 qla2xxx scsi_transport_fc sd_mod 
+scsi_mod
+Oct 19 15:17:11 pop1 kernel: CPU:    2
+Oct 19 15:17:11 pop1 kernel: EIP:    0060:[<c2825292>]    Not tainted
+Oct 19 15:17:11 pop1 kernel: EFLAGS: 00010202   (2.6.8-1.524smp)
+Oct 19 15:17:11 pop1 kernel: EIP is at 
+journal_commit_transaction+0x60f/0x1228 [jbd]
+Oct 19 15:17:11 pop1 kernel: eax: 76ad132c   ebx: 00000000   ecx: c1165780 
+edx: bf1c42fc
+Oct 19 15:17:11 pop1 kernel: esi: c1faac00   edi: 76ad132c   ebp: be1b8300 
+esp: c10e6da0
+Oct 19 15:17:11 pop1 kernel: ds: 007b   es: 007b   ss: 0068
+Oct 19 15:17:11 pop1 kernel: Process kjournald (pid: 223, 
+threadinfo=c10e6000 task=39ee9170)
+Oct 19 15:17:11 pop1 kernel: Stack: 00000000 00000000 00000000 00000000 
+00000000 00000000 3d3cc3bc 0208c50c
+Oct 19 15:17:11 pop1 kernel:        000004bf 0000009c 00000000 00000001 
+00000100 00000083 00008f80 0000009c
+Oct 19 15:17:11 pop1 kernel:        0000009c 02405004 02404ff8 c10e6e1c 
+00000003 04841060 00000000 39ee9170
+Oct 19 15:17:11 pop1 kernel: Call Trace:
+Oct 19 15:17:11 pop1 kernel:  [<0211f0bf>] autoremove_wake_function+0x0/0x2d
+Oct 19 15:17:11 pop1 kernel:  [<0211cd90>] load_balance+0x4b/0x1f9
+Oct 19 15:17:11 pop1 kernel:  [<0211f0bf>] autoremove_wake_function+0x0/0x2d
+Oct 19 15:17:11 pop1 kernel:  [<0211d5c0>] scheduler_tick+0x3b9/0x3c1
+Oct 19 15:17:11 pop1 kernel:  [<c2827f33>] kjournald+0x10d/0x329 [jbd]
+Oct 19 15:17:11 pop1 kernel:  [<0211f0bf>] autoremove_wake_function+0x0/0x2d
+Oct 19 15:17:11 pop1 kernel:  [<0211f0bf>] autoremove_wake_function+0x0/0x2d
+Oct 19 15:17:11 pop1 kernel:  [<0211bfe9>] finish_task_switch+0x6c/0x8c
+Oct 19 15:17:11 pop1 kernel:  [<c2827e20>] commit_timeout+0x0/0x5 [jbd]
+Oct 19 15:17:11 pop1 kernel:  [<c2827e26>] kjournald+0x0/0x329 [jbd]
+Oct 19 15:17:11 pop1 kernel:  [<021041f1>] kernel_thread_helper+0x5/0xb
+Oct 19 15:17:11 pop1 kernel: Code: f0 ff 43 04 8b 03 a8 04 0f 84 9d 00 00 00 
+81 be e8 00 00 00 
 
 

@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266917AbSLDFVW>; Wed, 4 Dec 2002 00:21:22 -0500
+	id <S266936AbSLDGrb>; Wed, 4 Dec 2002 01:47:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266924AbSLDFVW>; Wed, 4 Dec 2002 00:21:22 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:10965 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S266917AbSLDFVW>; Wed, 4 Dec 2002 00:21:22 -0500
-Date: Tue, 3 Dec 2002 21:24:03 -0800
-From: Ben Fennema <bfennema@attbi.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Erlend Aasland <erlend-a@ux.his.no>, bfennema@falcon.csc.calpoly.edu,
-       dave@trylinux.com, linux_udf@hpesjro.fc.hp.com,
+	id <S266938AbSLDGrb>; Wed, 4 Dec 2002 01:47:31 -0500
+Received: from [213.171.53.133] ([213.171.53.133]:5893 "EHLO gulipin.miee.ru")
+	by vger.kernel.org with ESMTP id <S266936AbSLDGra>;
+	Wed, 4 Dec 2002 01:47:30 -0500
+Date: Wed, 4 Dec 2002 09:57:25 +0300
+From: Samium Gromoff <deepfire@ibe.miee.ru>
+Message-Id: <200212040657.gB46vPij005304@ibe.miee.ru>
+To: dmo@osdl.org
+CC: _deepfire@mail.ru, cobra@compuserve.com, alan@lxorguk.ukuu.org.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL PATCH 2.5] get rid of CONFIG_UDF_RW (i386)
-Message-ID: <20021203212403.B19780@attbi.com>
-References: <20021203125120.GA2417@johanna5.ux.his.no> <20021203233744.AA03F2C29E@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021203233744.AA03F2C29E@lists.samba.org>; from rusty@rustcorp.com.au on Wed, Dec 04, 2002 at 10:37:04AM +1100
+In-reply-to: <20021203114201.A32313@acpi.pdx.osdl.net> (message from Dave
+	Olien on Tue, 3 Dec 2002 11:42:01 -0800)
+Subject: Re: DAC960 at 2.5.50
+References: <E18HR1a-0005QL-00@f12.mail.ru> <20021203114201.A32313@acpi.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 10:37:04AM +1100, Rusty Russell wrote:
-> In message <20021203125120.GA2417@johanna5.ux.his.no> you write:
-> > I noticed that CONFIG_UDF_RW is not used anywhere, so I removed it from all
-> > the defconfigs.
-> 
-> But it's used in 2.4.20.  It *looks* like it's on by default in 2.5,
-> but I just want the authors to confirm that the option isn't coming
-> back.
-> 
-> Ben, Dave?
 
-Yup.. It's gone for good.
+> Let me know if you find any problems at all.  I'll try to
+> address them.
 
-Ben
+  Actually the thing (DAC960-PL, one ibm 10k rpm drive) just booted up and
+worked like a charm. Indeed it`s not a hardcore setup, yet i`m happy
+anyway :-)
+
+  Although i`ll keep running 2.4 until alsa isapnp breakage will get fixed up.
+
+  Anyhow thank you for the finally working driver which finally enabled me
+to check bloody 2.5 at home :-)
+
+regards, Samium Gromoff

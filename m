@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129745AbQLORl7>; Fri, 15 Dec 2000 12:41:59 -0500
+	id <S129183AbQLORtB>; Fri, 15 Dec 2000 12:49:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129749AbQLORlt>; Fri, 15 Dec 2000 12:41:49 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:48913 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129745AbQLORlh>; Fri, 15 Dec 2000 12:41:37 -0500
-Date: Fri, 15 Dec 2000 09:10:36 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: test13-pre1 changelog
-In-Reply-To: <20001215083744.O504@opus.bloom.county>
-Message-ID: <Pine.LNX.4.10.10012150909260.2255-100000@penguin.transmeta.com>
+	id <S129289AbQLORsv>; Fri, 15 Dec 2000 12:48:51 -0500
+Received: from ip252.uni-com.net ([205.198.252.252]:26887 "HELO www.nondot.org")
+	by vger.kernel.org with SMTP id <S129183AbQLORsn>;
+	Fri, 15 Dec 2000 12:48:43 -0500
+Date: Fri, 15 Dec 2000 09:54:49 -0600 (CST)
+From: Chris Lattner <sabre@nondot.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <20001214210245.B468@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.21.0012150953050.29507-100000@www.nondot.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 15 Dec 2000, Tom Rini wrote:
-
-> On Thu, Dec 14, 2000 at 03:31:54PM -0800, Linus Torvalds wrote:
->  
-> > I'm hoping that most of the fall-out from switching over exclusively to
-> > the new-style Makefiles will be over in a day or two, at which point
-> > I'll make a pre2 that is worth announcing.
+> > For one of our demos, we ran a file server on a remote linux box (that we 
+> > just had a user account on), mounted it on a kORBit'ized box, and ran
+> > programs on SPARC Solaris that accessed the kORBit'ized linux box's file
+> > syscalls.  If nothing else, it's pretty nifty what you can do in little
+> > code...
 > 
-> Does this mean other arches will have a chance to sync in 2.4.0-test13?
+> Cool!
+> 
+> However, can you do one test for me? Do _heavy_ writes on kORBit-ized
+> box. That might show you some problems. Oh, and try to eat atomic
+> memory by ping -f kORBit-ized box.
 
-Sparc is already sync'ed in my tree, and I'd love for other architectures
-to synch up too (but if it takes a while it's not a major disaster - I
-actually much prefer bugs that cause build failures over other kinds of
-bugs ;).
+I'll give that a try when I get a chance.  :)
 
-		Linus
+> I've always wanted to do this: redirect /dev/dsp from one machine to
+> another. (Like, I have development machine and old 386. I want all
+> programs on devel machine use soundcard from 386. Can you do that?)
+
+Yes.  Definately.  There are probably other ways of doing that... but one
+of the things we implemented was a "generic" character device... and we
+tested it by having a chardev server that basically reads from a
+"local" (to the server) character device, and forward it over CORBA.  So
+this is already implemented!  :)
+
+-Chris
+
+http://www.nondot.org/~sabre/os/
+http://www.nondot.org/MagicStats/
+http://korbit.sourceforge.net/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

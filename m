@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277612AbRJHXcM>; Mon, 8 Oct 2001 19:32:12 -0400
+	id <S277605AbRJHXcc>; Mon, 8 Oct 2001 19:32:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277611AbRJHXcD>; Mon, 8 Oct 2001 19:32:03 -0400
-Received: from spog.gaertner.de ([194.45.135.2]:40976 "EHLO spog.gaertner.de")
-	by vger.kernel.org with ESMTP id <S277605AbRJHXbr>;
-	Mon, 8 Oct 2001 19:31:47 -0400
-From: Joerg Schumacher <schuma@gaertner.de>
-Message-Id: <200110082332.BAA16370@aunt.gaertner.de>
-Subject: PF_PACKET: packets out of order 
-To: linux-kernel@vger.kernel.org
-Date: Tue, 9 Oct 2001 01:32:16 +0200 (MET DST)
-X-NCC-RegID: de.gaertner
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S277607AbRJHXcX>; Mon, 8 Oct 2001 19:32:23 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:30726 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S277611AbRJHXcO>; Mon, 8 Oct 2001 19:32:14 -0400
+Date: Tue, 9 Oct 2001 01:31:59 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: torvalds@transmeta.com
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@conectiva.com.br>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: %u-order allocation failed
+In-Reply-To: <653073165.1002585197@[195.224.237.69]>
+Message-ID: <Pine.LNX.3.96.1011009010928.13677A-100000@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 8 Oct 2001, Alex Bligh - linux-kernel wrote:
 
-NeTraMet v44b10 uses pcap(3) and complains about timestamps jumping 
-backwards.  Looks like a PF_PACKET socket doesn't receive the packets 
-in the correct order.  Some timestamps from a "tcpdump -tt":
+> --On Tuesday, 09 October, 2001 12:21 AM +0200 Mikulas Patocka 
+> <mikulas@artax.karlin.mff.cuni.cz> wrote:
+> 
+> > If you have more than half of virtual space free, you can always find two
+> > consecutive free pages. Period.
+> 
+> Now calculate the probability of not being able to do this in physical
+> space, assuming even page dispersion, and many pages free. You will
+> find it is very small. This may give you a clue as to what the problem
+> actually is.
 
-   RX:  1001465480.175100 [...] 
-   TX:  1001465480.179111 [...] 
-   RX:  1001465480.177315 [...] 
-                   ^^^^^^
-   TX:  1001465480.180514 [...]
-   RX:  1001465480.179706 [...]
-	   
-Some more figures (obtained with a quick hack using libpcap-2001.09.25 
-on two different machines):
+My patch is not providing "very small probability". It is providing _zero_
+probability that fork fails. (assiming that there is more than half
+vmalloc space free).
 
-   2.2.19:
-        stats:    100000 packets received
-                       0 packets dropped
-        good:      90222 packets
-        bad:        9778 packets
-        max delta: 15850 usec
+I'm just tired of this stupid flamewar. 
 
-   2.4.1:
-        stats:    100000 packets received
-                       0 packets dropped
-        good:      99538 packets
-        bad:         462 packets
-        max delta:   471 usec
-    
-Any plans to fix this in the kernel?  
+Linus, what do you think: is it OK if fork randomly fails with very small
+probability or not?
 
+Are you going to accept patch that maps task_struct into virtual space if
+buddy allocator fails or not? 
 
-Regards,
-Joerg 
+Mikulas
 
--- 
- Gaertner Datensysteme                         38114 Braunschweig 
- Joerg Schumacher                              Hamburger Str. 273a
- Tel: 0531-2335555                             Fax: 0531-2335556

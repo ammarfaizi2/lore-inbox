@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVAECQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVAECTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbVAECQw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 21:16:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVAECQw
+	id S262203AbVAECTX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 21:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVAECTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 21:16:52 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:7097 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262198AbVAECQn
+	Tue, 4 Jan 2005 21:19:23 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:34783 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S262203AbVAECTO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 21:16:43 -0500
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Prezeroing V3 [4/4]: Driver for hardware zeroing on Altix
-References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
-	<41C20E3E.3070209@yahoo.com.au>
-	<Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0412231132170.31791@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0412231133130.31791@schroedinger.engr.sgi.com>
-	<Pine.GSO.4.61.0501011123550.27452@waterleaf.sonytel.be>
-	<Pine.LNX.4.58.0501041510430.1536@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0501041515230.1536@schroedinger.engr.sgi.com>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 05 Jan 2005 03:16:39 +0100
-In-Reply-To: <Pine.LNX.4.58.0501041515230.1536@schroedinger.engr.sgi.com> (Christoph
- Lameter's message of "Tue, 4 Jan 2005 15:16:04 -0800 (PST)")
-Message-ID: <m1sm5gd3i0.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Tue, 4 Jan 2005 21:19:14 -0500
+Message-ID: <41DB4E99.3060200@didntduck.org>
+Date: Tue, 04 Jan 2005 21:19:05 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: James Nelson <james4765@cwazy.co.uk>
+CC: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, paulus@samba.org
+Subject: Re: [PATCH 0/7] ppc: remove cli()/sti() from arch/ppc/*
+References: <20050104214048.21749.85722.89116@localhost.localdomain>
+In-Reply-To: <20050104214048.21749.85722.89116@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> writes:
+James Nelson wrote:
+> This series of patches is to remove the last cli()/sti() function calls in arch/ppc.
+> 
+> These are the only instances in active code that grep could find.
 
-> +	/* Check limitations.
-> +		1. System must be running (weird things happen during bootup)
-> +		2. Size >64KB. Smaller requests cause too much bte traffic
-> +	 */
-> +	if (len >= BTE_MAX_XFER || len < 60000 || system_state != SYSTEM_RUNNING)
-> +		return EINVAL;
+Are you sure none of these need real spinlocks instead of just disabling 
+interrupts?
 
-surely return -EINVAL; 
-
-Also have you thought about doing a similar driver for x86/x86-64 using
-cache bypassing stores? 
-
--Andi
+--
+				Brian Gerst

@@ -1,69 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262072AbUKPS1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbUKPS2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262072AbUKPS1S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 13:27:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbUKPS1S
+	id S262073AbUKPS2a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 13:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbUKPS2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 13:27:18 -0500
-Received: from fire.osdl.org ([65.172.181.4]:13216 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262072AbUKPS1N (ORCPT
+	Tue, 16 Nov 2004 13:28:30 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:37539 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262073AbUKPS1Y convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 13:27:13 -0500
-Message-ID: <419A4382.6000800@osdl.org>
-Date: Tue, 16 Nov 2004 10:14:26 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Tue, 16 Nov 2004 13:27:24 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] jffs2: printk arg. type warning
-References: <419906C6.9020709@osdl.org> <1100627479.8191.6985.camel@hades.cambridge.redhat.com>
-In-Reply-To: <1100627479.8191.6985.camel@hades.cambridge.redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------060005040003050401070604"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch] prefer TSC over PM Timer
+Date: Tue, 16 Nov 2004 10:27:05 -0800
+Message-ID: <88056F38E9E48644A0F562A38C64FB60035C613D@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] prefer TSC over PM Timer
+Thread-Index: AcTLfS6ReBtFlnI6SlCqV8B/LtI37wAg5wjg
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "john stultz" <johnstul@us.ibm.com>,
+       "dean gaudet" <dean-list-linux-kernel@arctic.org>
+Cc: "lkml" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 16 Nov 2004 18:27:06.0235 (UTC) FILETIME=[E04114B0:01C4CC09]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060005040003050401070604
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of john stultz
+>Sent: Monday, November 15, 2004 5:38 PM
+>To: dean gaudet
+>Cc: lkml
+>Subject: Re: [patch] prefer TSC over PM Timer
+>
+>On Mon, 2004-11-15 at 16:23, dean gaudet wrote:
+>> i've heard other folks have independently run into this 
+>problem -- in fact 
+>> i see the most recent fc2 kernels already do this.  i'd like 
+>this to be 
+>> accepted into the main kernel though.
+>> 
+>> the x86 PM Timer is an order of magnitude slower than the TSC for 
+>> gettimeofday calls.  i'm seeing 8%+ of the time spent doing 
+>gettimeofday 
+>> in someworkloads... and apparently kernel.org was seeing 80% 
+>of its time 
+>> go to gettimeofday during the fc3-release overload.  PM 
+>timer is also less 
+>> accurate than TSC.
+>> 
 
+I think trying to remove repeated inl()'s in read_pmtmr is a better 
+fix for this issue. As John mentioned in other thread, we should do 
+repeated reads only when something looks broken. Not always.
 
-> '%ud'?
+TSC counter stops couting when the CPU is in deep sleep state. It 
+should be OK to use tsc with Centrinos which support Enhanced Speedstep
+Technology. But, it will have issues with older system that supports 
+Older Speedstep. So, I would say using pm_timer as default is better 
+as that works correctly on most of the systems. 
 
-ergh.  Here it is, corrected.
-
-fix printk argument type warning:
-fs/jffs2/gc.c:832: warning: signed size_t format, different type arg 
-(arg 3)
-
-diffstat:=
-  fs/jffs2/gc.c |    2 +-
-  1 files changed, 1 insertion(+), 1 deletion(-)
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
---------------060005040003050401070604
-Content-Type: text/x-patch;
- name="jffs2_gc_printk.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="jffs2_gc_printk.patch"
-
-diff -Naurp ./fs/jffs2/gc.c~jffs2_gc_printk ./fs/jffs2/gc.c
---- ./fs/jffs2/gc.c~jffs2_gc_printk	2004-11-15 10:02:00.966820400 -0800
-+++ ./fs/jffs2/gc.c	2004-11-15 11:00:29.375461216 -0800
-@@ -828,7 +828,7 @@ static int jffs2_garbage_collect_deletio
- 				continue;
- 			}
- 			if (retlen != rawlen) {
--				printk(KERN_WARNING "jffs2_g_c_deletion_dirent(): Short read (%zd not %zd) reading header from obsolete node at %08x\n",
-+				printk(KERN_WARNING "jffs2_g_c_deletion_dirent(): Short read (%zd not %u) reading header from obsolete node at %08x\n",
- 				       retlen, rawlen, ref_offset(raw));
- 				continue;
- 			}
-
---------------060005040003050401070604--
+Thanks,
+Venki

@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276304AbRI1VJN>; Fri, 28 Sep 2001 17:09:13 -0400
+	id <S276313AbRI1VMd>; Fri, 28 Sep 2001 17:12:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276313AbRI1VJD>; Fri, 28 Sep 2001 17:09:03 -0400
-Received: from [195.184.59.149] ([195.184.59.149]:41740 "EHLO mydomain.com")
-	by vger.kernel.org with ESMTP id <S276304AbRI1VIr>;
-	Fri, 28 Sep 2001 17:08:47 -0400
-Date: Fri, 28 Sep 2001 23:04:57 +0100
-From: MAGIC-XXX <magicxxx@wowmail.com>
-To: MAGIC-XXX@vger.kernel.org
-Subject: SEXSITE NO.1 .. MEGAWEB-SEX !
-Message-Id: <20010928210853Z276304-760+18338@vger.kernel.org>
+	id <S276305AbRI1VMX>; Fri, 28 Sep 2001 17:12:23 -0400
+Received: from tele-post-20.mail.demon.net ([194.217.242.20]:40459 "EHLO
+	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S276314AbRI1VMN>; Fri, 28 Sep 2001 17:12:13 -0400
+Message-ID: <3BB4E6AC.4BA48EF4@dcrdev.demon.co.uk>
+Date: Fri, 28 Sep 2001 22:07:56 +0100
+From: Dan Creswell <dan@dcrdev.demon.co.uk>
+Organization: Empty Hand Systems Ltd
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.9-ac16 + imm module = hard lock
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Ladies & Gentlemen,
+Hi,
 
-Welcome to the GREATEST SEX SHOW on the ENTIRE NET !
+I have a dual pentium III 550Mhz box and a parallel port ZIP-plus drive.
 
-We now offer you to ENTER the world´s No.1 voted SEX-SERVER on the WEB ! 
+Under 2.2.19 SMP, with imm compiled as a module, everything works fine.
 
-By far the largest and most incredible content of LIVE SEX is now served to users WORLDWIDE!
+With 2.4.9-ac16 (plus the swapoff patch) SMP, with imm compiled as a
+module I get a hard lock when I load the module.  It successfully
+determines which mode to use (EPP-32 bit) but, at the point where it
+probes, everything dies.
 
-EVERYTHING is offered 100% ANONOMOUSLY & you don´t need to sign-up or have a creditcard ... The way it should be ! 
+The same kernel 2.4.9-ac16 compiled for uniprocessor with imm compiled
+as a module also works fine.
 
-TO PLUGIN and get access to something you with guarantee NEVER have seen before, use ANY of the servers listed below !
+A quick diff of the 2.2.19 imm source-code and the 2.4.9-ac16 imm
+source-code reveals that the only major difference is the introduction
+of:
 
-Enjoy the BEST!
+spin_unlock_irq(&io_request_lock);
 
-Yours truly,
-MAGIC XXX ENTERTAINMENT
+and
 
-To get EASY ACCESS & PLUGIN to the LARGEST CONTENT SEXSERVER on the NET, use any of the 3 SERVERS listed here: 
+spin_lock_irq(&io_request_lock);
 
+in various places.
 
-1.  http://siam.to/webwire
-2.  http://asian.to/webwire
-3.  http://wonderful.at/webwire
+The parallel port code is compiled into the kernel at build time.
 
+That's all the info I have right now, any thoughts/suggestions/more info
+required?
 
-To get EASY ACCESS & PLUGIN to the LESBIAN IBIZA BABES, use any of the 3 SERVERS listed here:
+Thanks,
 
-
-1.  http://siam.to/sitewire
-2.  http://asian.to/sitewire
-3.  http://stand.at/sitewire
-
-
+Dan.
 
 

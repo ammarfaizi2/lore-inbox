@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131253AbRCMXBB>; Tue, 13 Mar 2001 18:01:01 -0500
+	id <S131239AbRCMWxL>; Tue, 13 Mar 2001 17:53:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131254AbRCMXAw>; Tue, 13 Mar 2001 18:00:52 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:31474 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S131253AbRCMXAe>; Tue, 13 Mar 2001 18:00:34 -0500
-Message-Id: <l0313030cb6d4533aeb8a@[192.168.239.101]>
-In-Reply-To: <Pine.LNX.4.30.0103132154100.12219-100000@dax.joh.cam.ac.uk>
-In-Reply-To: <3AAE778B.8418D1E9@cypress.com>
+	id <S131237AbRCMWxB>; Tue, 13 Mar 2001 17:53:01 -0500
+Received: from ferret.phonewave.net ([208.138.51.183]:42253 "EHLO
+	tarot.mentasm.org") by vger.kernel.org with ESMTP
+	id <S131236AbRCMWwm>; Tue, 13 Mar 2001 17:52:42 -0500
+Date: Tue, 13 Mar 2001 14:51:28 -0800
+To: Pete Toscano <pete.lkml@toscano.org>, David DeGeorge <dld@degeorge.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: APIC  usb MPS 1.4 and the 2.4.2 kernel
+Message-ID: <20010313145128.A15637@ferret.phonewave.net>
+In-Reply-To: <200103130245.f2D2j2J01057@janus.local.degeorge.org> <20010313002513.A1664@bubba.toscano.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 13 Mar 2001 22:59:18 +0000
-To: "James A. Sutherland" <jas88@cam.ac.uk>, Thomas Dodd <ted@cypress.com>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: new generic content schemes popping up everywhere...
-Cc: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010313002513.A1664@bubba.toscano.org>; from pete.lkml@toscano.org on Tue, Mar 13, 2001 at 12:25:13AM -0500
+From: idalton@ferret.phonewave.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Indeed. The whole concept is fatally flawed; probably the biggest
->challenge facing a cracker attacking this system is choosing which of the
->many avenues to start with :-)
->
->1. The drivers. I really like displaying audio and video via my hard
->drive, so I use drivers which do that...
+On Tue, Mar 13, 2001 at 12:25:13AM -0500, Pete Toscano wrote:
+> Well, I can't speak for the consequences of noapic (I've wondered as
+> much myself), but I know that there's been a problem with SMP 2.4
+> kernels (even the 2.4 test kernels) and USB running on VIA chipsets for
+> a while now.  I'm told by the linux-usb maintainers that it's a problem
+> with the PCI IRQ routing for the VIA chipsets, but I've been unable to
+> get anyone who knows about this to do anything (and I've been asking for
+> a while).  Alas, since this stuff is beyond me, I just accept the fact
+> that it'll probably always be broke.
 
-Or you could take the hardware approach.  Hmm, this 8-bit microcontroller
-on an ISA card looks *just* like a SoundBlaster AWE32, but it's got a 2.5"
-HD attached to it.  And this custom piece of hardware which I just plugged
-into my DVI port is a perfect video-capture device, complete with a
-FireWire interface which I can stream into an ordinary Macintosh, or
-digital camcorder.  Combine the two and you can brute-force your way out of
-any copy-protection system under the sun which is intended to run on a
-consumer-level PC.
+I have the same problem with my Triton II dual-pentium 200 system, for
+what it's worth.
 
-Sorry, but these people make me laugh.
+-- Ferret
 
-The small-time pirate can simply copy analogue-to-analogue - it'll be
-slightly off quality but more than good enough for the average Joe (look at
-the number of low-grade 128kbps MP3s out there).  The big-time pirate can
-*always* get hold of enough exotic hardware and/or hackery to get around
-the "protection schemes".  Who loses out?  The ordinary consumer who's paid
-their $$$ like a good citizen.
-
-Strange that I haven't made much use of the DVD capability on my PowerBook.
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
 
 

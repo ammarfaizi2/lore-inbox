@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268228AbTGaUXR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 16:23:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268702AbTGaUXR
+	id S268702AbTGaUdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 16:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268822AbTGaUdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 16:23:17 -0400
-Received: from mail.kroah.org ([65.200.24.183]:51856 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268228AbTGaUXQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 16:23:16 -0400
-Date: Thu, 31 Jul 2003 13:16:59 -0700
-From: Greg KH <greg@kroah.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Charles Lepple <clepple@ghz.cc>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reorganize USB submenu's
-Message-ID: <20030731201659.GA4385@kroah.com>
-References: <20030731101144.32a3f0d7.shemminger@osdl.org> <23979.216.12.38.216.1059672599.squirrel@www.ghz.cc> <20030731125032.785ffba1.shemminger@osdl.org>
+	Thu, 31 Jul 2003 16:33:12 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:39437
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S268702AbTGaUdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 16:33:11 -0400
+Date: Thu, 31 Jul 2003 13:33:09 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2-mm2
+Message-ID: <20030731203309.GB970@matchmail.com>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030730223810.613755b4.akpm@osdl.org> <20030731193741.GA1618@home.woodlands>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030731125032.785ffba1.shemminger@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030731193741.GA1618@home.woodlands>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 12:50:32PM -0700, Stephen Hemminger wrote:
-> 	- USB serial debugging can be enabled if module
+On Fri, Aug 01, 2003 at 01:07:41AM +0530, Apurva Mehta wrote:
+> However, when I did a `rpm --rebuilddb` on mm1 + O11int patches, I
+> still got quite severe skipping toward the end of the 8 min process. I
+> could not repeat the skipping again, even on the same kernel, because
+> I guess there was not much rebuilding to do again..
+> 
+> If there are tools which I can use to produce helpful numbers, please
+> let me know. I will post the required numbers ASAP. 
 
-It can be enabled _only_ if CONFIG_USB_SERIAL=y.  If CONFIG_USB_SERIAL=m
-then the option should not show up, as it becomes a module paramater
-option.  The original code was correct.
-
-> -menu "USB HID Boot Protocol drivers"
-> -	depends on USB!=n && USB_HID!=y
-> -
-
-No, we _really_ want these tucked away where it is hard to find them.
-Almost noone should enable these, but if you really want them, you still
-can.  Putting them into their own sub-menu was deemed the best for this.
-
-thanks,
-
-greg k-h
+rpm is probably doing a lot of fsync() calls, so you'd want a benchmark that
+did similar.  You'd get similar results from a mail server, or client
+running on a bunch of messages too.

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135958AbREGBMD>; Sun, 6 May 2001 21:12:03 -0400
+	id <S135963AbREGBas>; Sun, 6 May 2001 21:30:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135955AbREGBLx>; Sun, 6 May 2001 21:11:53 -0400
-Received: from [64.165.192.135] ([64.165.192.135]:38161 "EHLO
-	server1.skystream.com") by vger.kernel.org with ESMTP
-	id <S135958AbREGBLv>; Sun, 6 May 2001 21:11:51 -0400
-Message-ID: <B25E2E5A003CD311B61E00902778AF2A02044631@SERVER1>
-From: Brian Kuschak <brian.kuschak@skystream.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'bkuschak@yahoo.com'" <bkuschak@yahoo.com>
-Subject: kernel BUG at dcache.h:251
-Date: Sun, 6 May 2001 18:10:19 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S135964AbREGBai>; Sun, 6 May 2001 21:30:38 -0400
+Received: from cabal.darkness.net ([204.56.57.2]:22673 "EHLO
+	cabal.darkness.net") by vger.kernel.org with ESMTP
+	id <S135963AbREGBab>; Sun, 6 May 2001 21:30:31 -0400
+Date: Sun, 6 May 2001 19:30:29 -0600
+From: Jeremy <heffner@darkness.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
+Message-ID: <20010506193029.A25753@bletchley.darkness.net>
+In-Reply-To: <20010505034357.A604@grulic.org.ar> <E14vwN7-0000J4-00@the-village.bc.nu> <20010506222638.B2058@grulic.org.ar>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010506222638.B2058@grulic.org.ar>; from john@grulic.org.ar on Sun, May 06, 2001 at 10:26:38PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running snmpd or httpd overnight causes this oops: (kernel BUG at
-/home/brian/linux/include/linux/dcache.h:251! - in dget() called from
-d_alloc())
-Occasionally I see: de_put: entry net already free! before the oops.
+Have non-production via KT133a, will test :) (tyan mobo, 1.33ghz, tulip eth, an
+idea drive, nothing really exciting, just a fast ath)
 
-I've been able to reliably reproduce the problem in 15 minutes by running
-this instead:
-while /bin/true; do cat /proc/net/* 2>/dev/null > /tmp/junk; done;
+-j
 
-The system fails when trying to open /proc/net/tcp, for example, and finds
-that net has a zero dentry->d_count.
+John R Lenton enlightened recipients with the following on 06May2001:
+> On Sat, May 05, 2001 at 08:20:56AM +0100, Alan Cox wrote:
+> > Dont panic just yet. Manfred's observation could mean we hit chipset specific 
+> > behaviour on prefetches. 
+> 
+> OK - Please let me know when to start.
 
-2.4.3 on a PPC405, with root fs (ext2) on ramdisk.  Any ideas on why this is
-happening?  The system is stable otherwise.
-
-Thanks, Brian
-(Please CC my email address)
-
+-- 
+---------------------------------------------------------------------------
+                          heffner at darkness.net
+                       Darkness Network Engineering
+                   PGP public key available on request
+            My thoughts and opinions represent no one but myself
+---------------------------------------------------------------------------

@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289388AbSA1Ue0>; Mon, 28 Jan 2002 15:34:26 -0500
+	id <S289377AbSA1Uhg>; Mon, 28 Jan 2002 15:37:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289467AbSA1UdW>; Mon, 28 Jan 2002 15:33:22 -0500
-Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:52609 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id <S289398AbSA1UcH>;
-	Mon, 28 Jan 2002 15:32:07 -0500
-Date: Mon, 28 Jan 2002 15:32:10 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH?] Crash in 2.4.17/ptrace
-Message-ID: <20020128153210.A3032@nevyn.them.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S289383AbSA1Uh3>; Mon, 28 Jan 2002 15:37:29 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:18075 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S289467AbSA1UgX>; Mon, 28 Jan 2002 15:36:23 -0500
+Date: Mon, 28 Jan 2002 13:36:12 -0700
+Message-Id: <200201282036.g0SKaCP06267@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Jens Axboe <axboe@suse.de>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] sd-many for 2.4.18-pre7 (uses devfs)
+In-Reply-To: <20020128211836.A14121@suse.de>
+In-Reply-To: <200201280326.g0S3QTt27080@vindaloo.ras.ucalgary.ca>
+	<200201281645.g0SGjZp02300@vindaloo.ras.ucalgary.ca>
+	<20020128180142.A5588@suse.de>
+	<E16VIEc-0000CJ-00@starship.berlin>
+	<20020128211836.A14121@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been debugging frame buffer graphics lately, and encountering a
-very annoying problem.  If the debugee has /dev/fb/0 mapped, and I try
-to print out the contents of a pointer into that buffer, GDB crashes in
-kernel/ptrace.c:access_process_vm.  The problem seems to be that
-get_user_pages returns a NULL page.  Something as simple as this
-prevents the crash:
+Jens Axboe writes:
+> On Mon, Jan 28 2002, Daniel Phillips wrote:
+> > Jens, in my opinion, your constant haranguing of Richard is getting stale, or 
+> > got stale long ago.  I'd prefer not to see such posts on the list.  (I'd 
+> 
+> What on earth are you talking about?! I'm not aware of any
+> 'haranguing' done by me to _anyone_ on this list ever. My mail had a
+> quite valid request -- please conform to the style of the code you
+> are changing. Is that unreasonable to ask? You may not be reading
+> SCSI code, but some of us are. And Richard changed it to do so, end
+> of story.
 
---- 2.4.18-pre7/2.4.18-pre7/kernel/ptrace.c	Fri Dec 21 12:42:04 2001
-+++ 2.4.17/kernel-source-2.4.17/kernel/ptrace.c	Mon Jan 28 15:30:39 2002
-@@ -160,6 +160,18 @@ int access_process_vm(struct task_struct
- 
- 		flush_cache_page(vma, addr);
- 
-+#if 1
-+		if (!page)
-+		{
-+			/* FIXME: Writes? */
-+			if (!write) memset (buf, 0, bytes);
-+			len -= bytes;
-+			buf += bytes;
-+			continue;
-+		}
-+#endif
-+
-+
- 		maddr = kmap(page);
- 		if (write) {
- 			memcpy(maddr + offset, buf, bytes);
+Um, yeah. While I appreciate Daniel's sentiment, I thought Jens'
+comments were fair enough (I *intended* to follow the style, but some
+bits slipped through). As for past harassment, I don't recall any such
+by Jens (unless I've blocked those memories:-). Maybe Daniel is
+thinking of someone else?
 
+				Regards,
 
-Of course, I would much rather be able to see the contents of the
-framebuffer.  Any suggestions?
-
--- 
-Daniel Jacobowitz                           Carnegie Mellon University
-MontaVista Software                         Debian GNU/Linux Developer
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,34 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVBWXYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVBWXc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbVBWXYb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 18:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVBWXYK
+	id S261722AbVBWXc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 18:32:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVBWXcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 18:24:10 -0500
-Received: from fire.osdl.org ([65.172.181.4]:52440 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261689AbVBWXU3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 18:20:29 -0500
-Date: Wed, 23 Feb 2005 15:25:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1
-Message-Id: <20050223152523.552f910a.akpm@osdl.org>
-In-Reply-To: <200502231807.52877.tomlins@cam.org>
-References: <20050223014233.6710fd73.akpm@osdl.org>
-	<200502231807.52877.tomlins@cam.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Feb 2005 18:32:43 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:22252 "EHLO
+	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261686AbVBWXa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 18:30:29 -0500
+Date: Wed, 23 Feb 2005 17:29:24 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: accept() fails with EINTER
+In-reply-to: <3B6CS-3oH-23@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <421D11D4.1060607@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <3B6CS-3oH-23@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson <tomlins@cam.org> wrote:
->
-> It does not seem to be finding the keyboard at all...
+linux-os wrote:
+> 
+> Trying to run an old server with a new kernel. A connection
+> fails with "interrupted system call" as soon as a client
+> attempts to connect. A trap in the code to continue
+> works, but subsequent send() and recv() calls fail in
+> the same way.
+> 
+> Anybody know how to mask that SIGIO (or whatever signal)?
+> Setting signal(SIGIO, SIG_IGN) doesn't do anything useful.
 
-Can you confirm that Linus's tree is OK?  You'd best use the patch
-at http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/ to make sure you
-have the latest stuff.
+Well, knowing what signal it actually is would help.. tried running it 
+in a debugger?

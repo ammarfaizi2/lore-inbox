@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281832AbRKRAJ7>; Sat, 17 Nov 2001 19:09:59 -0500
+	id <S281833AbRKRA1y>; Sat, 17 Nov 2001 19:27:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281833AbRKRAJj>; Sat, 17 Nov 2001 19:09:39 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:30602 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S281832AbRKRAJ1>;
-	Sat, 17 Nov 2001 19:09:27 -0500
-Date: Sat, 17 Nov 2001 19:09:25 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: hari <harisri@bigpond.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.15-pre5 - probably something wrong with /proc/cpuinfo.
-In-Reply-To: <20011118000346Z281221-17408+15574@vger.kernel.org>
-Message-ID: <Pine.GSO.4.21.0111171907190.11475-100000@weyl.math.psu.edu>
+	id <S281834AbRKRA1o>; Sat, 17 Nov 2001 19:27:44 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19553 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S281833AbRKRA1g>; Sat, 17 Nov 2001 19:27:36 -0500
+To: Rock Gordon <rockgordon@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Executing binaries on new filesystem
+In-Reply-To: <20011117221821.66121.qmail@web14809.mail.yahoo.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 17 Nov 2001 17:08:47 -0700
+In-Reply-To: <20011117221821.66121.qmail@web14809.mail.yahoo.com>
+Message-ID: <m1n11l7xf4.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rock Gordon <rockgordon@yahoo.com> writes:
 
+> Hi,
+> 
+> I've written a modest filesystem for fun, it works
+> pretty ok, but when I try to execute binaries from it,
+> bash says "cannot execute binary file" ... If I copy
+> the same binary elsewhere, it executes perfectly.
+> 
+> Does anybody have any clue ?
 
-On Sun, 18 Nov 2001, hari wrote:
+A classic problem is that the filesystem doesn't support
+mmap.  But with more recent kernels I think it would but
+hard not too...
 
-> On a related note redirecting the contents of /proc/cpuinfo using 'cat' 
-> command to a file on my home directory and providing that as an input fixes 
-> the problem. For eg:
-
-Eww...  If anything, that's cat </proc/cpuinfo | while ...,
-but that's quite ugly.  Try the patch I've posted on l-k
-(Subject: [PATCH][CFT] seq_file and lseek).
-
+Eric

@@ -1,92 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129421AbQLOTWO>; Fri, 15 Dec 2000 14:22:14 -0500
+	id <S129521AbQLOTZy>; Fri, 15 Dec 2000 14:25:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129521AbQLOTWF>; Fri, 15 Dec 2000 14:22:05 -0500
-Received: from 216-80-74-178.dsl.enteract.com ([216.80.74.178]:63236 "EHLO
-	kre8tive.org") by vger.kernel.org with ESMTP id <S129421AbQLOTVt>;
-	Fri, 15 Dec 2000 14:21:49 -0500
-Date: Fri, 15 Dec 2000 12:50:15 -0600
-From: mike@kre8tive.org
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: test12 lockups -- need feedback
-Message-ID: <20001215125015.A1259@lingas.basement.bogus>
-Reply-To: mike@kre8tive.org
-In-Reply-To: <00121418523403.16098@eckhard> <20001215194735.K829@nightmaster.csn.tu-chemnitz.de>
+	id <S130897AbQLOTZg>; Fri, 15 Dec 2000 14:25:36 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:28490 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129521AbQLOTZV>; Fri, 15 Dec 2000 14:25:21 -0500
+Date: Fri, 15 Dec 2000 19:54:33 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        Mike Black <mblack@csihq.com>,
+        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 signal.h
+Message-ID: <20001215195433.G17781@inspiron.random>
+In-Reply-To: <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com> <20001215175632.A17781@inspiron.random> <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com> <20001215184325.B17781@inspiron.random> <4.3.2.7.2.20001215185622.025f8740@mail.lauterbach.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001215194735.K829@nightmaster.csn.tu-chemnitz.de>; from ingo.oeser@informatik.tu-chemnitz.de on Fri, Dec 15, 2000 at 07:47:35PM +0100
+In-Reply-To: <4.3.2.7.2.20001215185622.025f8740@mail.lauterbach.com>; from Franz.Sirl-kernel@lauterbach.com on Fri, Dec 15, 2000 at 06:59:24PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 15, 2000 at 06:59:24PM +0100, Franz Sirl wrote:
+> It's required by ISO C, and since that's the standard now, gcc spits out a 
+> warning. Just adding a ; is enough and already done for most stuff in 
+> 2.4.0-test12.
 
-I have a DLink DFE-530TX+ with a RTL8139 and I lock up cold
-every once in a while too.  2.4.0-test12-pre3 is the latest
-kernel I've tried.  The machine is a dual PII450 on a Tyan
-Tiger 100 BX board w/ 128MB.
+I'm not complaining gcc folks, I just dislike the new behaviour in general,
+it's inconsistent.
 
-Locks up cold meaning "It's dead Jim".  Non sysrq facilities
-available and no Oops trail.
+This is wrong:
 
-I don't see the old Becker 8139 driver in the 2.4 tree so
-I don't know if it happens with 2.4 and the old driver.
+x()
+{
 
-I can provide what ever info that is available and would
-be useful.
+	switch (1) {
+	case 0:
+	case 1:
+	case 2:
+	case 3:
+	}
+}
 
-NOTE also: I have an old Dell P133 48MB masquerading machine 
-with 2 of these same boards that Panic's on current 2.4 
-kernels with the "Aieee killing interrupt handler" message
-to the console but doesn't get around to writing the console
-to the log before going toe up.  2.4.0-test12-pre3.  Before
-that I get a bunch of the RxFIFOOwv interrupt sending it
-into the rtl8139_weird_interrupt routine, but it says
-in the driver code that this could be related to CPU speed
-and the machine's a P133.  Should the machine panic though?
+and this is right:
 
-I can't get the console off to the serial port cause the
-ports are dead on this machine for some reason.  The BIOS
-allocates irq 4 to the second of the 8139 cards and neither
-serial port is recognised so I'm not sure how to get any
-major chunk of the Panic info off teh 14" screen.  Note 
-that this machine runs 2.2.18 fine albiet my OnStream 
-drive doesn't function right so maybe the old Becker driver
-does solve some of the problems.  Arg!  =)
+x()
+{
 
--mwe
+	switch (1) {
+	case 0:
+	case 1:
+	case 2:
+	case 3:
+	;
+	}
+}
 
+Why am I required to put a `;' only in the last case and not in all
+the previous ones? Or maybe gcc-latest is forgetting to complain about
+the previous ones ;)
 
-On Fri, Dec 15, 2000 at 07:47:35PM +0100, Ingo Oeser wrote:
-> On Thu, Dec 14, 2000 at 06:52:34PM +0000, Eckhard Jokisch wrote:
-> > Is it possible that there is something wrong with the 8139too driver? 
-> > ( I also use a card with 8139 chip )
-> > Or do you use the "old" rtl8139 ? With that I don't have any problems.
-> > I have an extra machine here where I can do all testing - how can I help?
-> 
-> I have no Realtek-Card and have the same lockup.
-> 
-> I also got a hard lockup (but with Oops) while calling the
-> "vendor CPU init" function during system boot.
-> 
-> This was on Cyrix III.
-> 
-> PS: CC'ed hpa, because he is cpu-detection maintainer and davej,
->    because he added Cyrix III support and might know details ;-)
-> 
-> Regards
-> 
-> Ingo Oeser
+Anyway it's a minor issue, if the standard says so we'll live with it.
 
--- 
-Mike Elmore
-mike@kre8tive.org
+(and it's also getting offtopic...)
 
-"Never confuse activity with accomplishment."
-				-unknown
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

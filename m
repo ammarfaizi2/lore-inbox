@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310259AbSCKRIv>; Mon, 11 Mar 2002 12:08:51 -0500
+	id <S310249AbSCKRKl>; Mon, 11 Mar 2002 12:10:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310256AbSCKRIl>; Mon, 11 Mar 2002 12:08:41 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:20755 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S310255AbSCKRI3>; Mon, 11 Mar 2002 12:08:29 -0500
-Message-ID: <3C8CE48B.1020105@namesys.com>
-Date: Mon, 11 Mar 2002 20:08:27 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S310279AbSCKRKc>; Mon, 11 Mar 2002 12:10:32 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:2179 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S310249AbSCKRKU>; Mon, 11 Mar 2002 12:10:20 -0500
+Date: Mon, 11 Mar 2002 12:12:36 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IDE on linux-2.4.18
+In-Reply-To: <E16kTI9-00016T-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.95.1020311120825.2860A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: elenstev@mesatop.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-In-Reply-To: <Pine.LNX.4.33.0203110508080.17717-100000@mhw.ULib.IUPUI.Edu> <200203111444.HAA11416@tstac.esa.lanl.gov> <3C8CD687.5000608@namesys.com> <200203111540.IAA11492@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole wrote:
+On Mon, 11 Mar 2002, Alan Cox wrote:
 
->On Monday 11 March 2002 09:08 am, Hans Reiser wrote:
->
->
->
->Perhaps others whose VMS experience is more recent than mine can answer this question.
->More generally, if the infrastructure for keeping file versions around is going
->to be generated for other reasons, having the option to have file versions could
->be useful for some people.  I certainly remember people who loved that feature,
->but I wasn't one of them.
->
->Steven
->
->
+> > hda: 20044080 sectors (10263 MB) w/418KiB Cache, CHS=1024/255/63, UDMA(33)
+> > Partition check:
+> >  hda: hda1 hda2 < hda5 hda6 >
+> > hd: unable to get major 3 for hard disk
+> 
+> ^^^^^^^^^^^^^^^^^^
+> 
+> Case dismissed ;)
 
-I don't use CVS for most papers, proposals, etc,, that I write.  If the 
-version control was turned on with something like a chattr, I would use 
-it, and emacs could get rid of that damned ~ file that clutters my ls 
-commands of what should be a listing of only my current version of my 
-home directory without old versions of files being listed (the disk 
-space I don't care about, it is the clutter that annoys.)
+I haven't a clue what you are saying. Every IDE option that is allowed
+is enabled in .config. The IDE drive(s) are found, but you imply, no
+state, that I did something wrong. You state that I haven't enabled
+something? I enabled everything that 'make config` allowed me to
+enable. Now what is it?
 
-Hans
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+	Bill Gates? Who?
 

@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266322AbTAPLFT>; Thu, 16 Jan 2003 06:05:19 -0500
+	id <S266318AbTAPLBW>; Thu, 16 Jan 2003 06:01:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266330AbTAPLFT>; Thu, 16 Jan 2003 06:05:19 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:19905 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266322AbTAPLFS>;
-	Thu, 16 Jan 2003 06:05:18 -0500
-Date: Thu, 16 Jan 2003 12:14:06 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: MB without keyboard controller / USB-only keyboard ?
-Message-ID: <20030116121406.B20652@ucw.cz>
-References: <20030109114247.211f7072.skraw@ithnet.com> <20030109232459.A24656@ucw.cz> <20030116120324.2b97e010.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030116120324.2b97e010.skraw@ithnet.com>; from skraw@ithnet.com on Thu, Jan 16, 2003 at 12:03:24PM +0100
+	id <S266322AbTAPLBW>; Thu, 16 Jan 2003 06:01:22 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:10154 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S266318AbTAPLBV>; Thu, 16 Jan 2003 06:01:21 -0500
+Message-Id: <200301161104.h0GB4IOY011937@eeyore.valparaiso.cl>
+To: DervishD <raul@pleyades.net>
+cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: argv0 revisited... 
+In-Reply-To: Message from DervishD <raul@pleyades.net> 
+   of "Wed, 15 Jan 2003 19:44:55 +0100." <20030115184455.GB47@DervishD> 
+Date: Thu, 16 Jan 2003 12:04:18 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 16, 2003 at 12:03:24PM +0100, Stephan von Krawczynski wrote:
-> On Thu, 9 Jan 2003 23:24:59 +0100
-> Vojtech Pavlik <vojtech@suse.cz> wrote:
-> 
-> > On Thu, Jan 09, 2003 at 11:42:47AM +0100, Stephan von Krawczynski wrote:
-> > > Hello all,
-> > > 
-> > > how do I work with a mb that contains no keyboard controller, but has only
-> > > USB for keyboard and mouse?
-> > > While booting the kernel I get:
-> > > 
-> > > pc_keyb: controller jammed (0xFF)
-> > > 
-> > > (a lot of these :-)
-> > > 
-> > > and afterwards I cannot use the USB keyboard.
-> > > Everything works with a mb that contains a keyboard-controller, but where I
-> > > use a USB keyboard.
-> > 
-> > Get 2.5. ;) It should work without a kbd controller ... you can even
-> > disable it in the kernel config ...
-> 
-> Nice idea, but not acceptable as this setup is for production use, you simply
-> won't do that.
-> It would be helpful if there was a kernel parameter for disabling the
-> keyboard(-check) in 2.4. We found out that disabling it as kernel patch is not
-> the right way, as standard setups with keyboard controller do not work any
-> longer afterwards. This is a setup where user should be able to choose...
-> The box contains a BIOS where I can type around with USB-keyboard, btw.
+DervishD <raul@pleyades.net>
 
-Anyway, did you try 2.5? I just would like to know if the keyboard
-controller is properly not-detected and the system doesn't crash there?
+[No attributions here, sorry]
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> > > welcome. Although I would like a portable solution, any solution that
+> > > works under *any* Linux kernel is welcome...
+> > What about mounting /proc from inside your program? Not a big deal, easy
+> > sollution ... 
+
+>     I don't like it, because it should happen at the very beginning
+> of init. Remember, is not any program, is an init. Should be a more
+> clean way, I suppose :??
+
+If it is init, you do have enough control over the environment to just
+hardcode the executable's name?
+
+In any case, I don't see what you want to acomplish here. Care to enligthen
+us a bit?
+--
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

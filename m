@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315481AbSECACH>; Thu, 2 May 2002 20:02:07 -0400
+	id <S315478AbSECAC4>; Thu, 2 May 2002 20:02:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315480AbSECACF>; Thu, 2 May 2002 20:02:05 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:48135
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315478AbSECABh>; Thu, 2 May 2002 20:01:37 -0400
-Date: Thu, 2 May 2002 17:00:35 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pres and IDE DMA
-In-Reply-To: <E173O5B-0004tW-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10205021659010.2107-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S315482AbSECACy>; Thu, 2 May 2002 20:02:54 -0400
+Received: from horkos.telenet-ops.be ([195.130.132.45]:2534 "EHLO
+	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S315478AbSECACL>; Thu, 2 May 2002 20:02:11 -0400
+Date: Fri, 3 May 2002 02:02:08 +0200
+From: Kurt Roeckx <Q@ping.be>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] UFS compile fix.
+Message-ID: <20020503020208.A6228@ping.be>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOKacYhQ+x31HxR3"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Sorry but it did assign then the XP way, otherwise you would not be able
-to use the legacy address.
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Andre Hedrick
-LAD Storage Consulting Group
+Seems that someone forgot to add some commas in ufs/super.c.
 
-On Thu, 2 May 2002, Alan Cox wrote:
 
-> >   I'm having issues with a Tyan 2720 and post 2.4.18 boards with a 
-> > Maxtor 4G120J6.  Under 2.4.18 I can turn on dma via "hdparm -d 1". 
-> >  Under 2.4.19pre7 I get "HDIO_SET_DMA fail ed: Operation not permitted". 
-> 
-> The BIOS fails to assign the resources
-> 
-> > PS-There is also some issue with a resource conflict that occurs under 
-> > every kernel I've tried.
-> 
-> Yep. Your BIOS didnt assign them.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Kurt
 
+
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ufs.diff"
+
+--- fs/ufs/super.c.bak	Fri May  3 01:53:30 2002
++++ fs/ufs/super.c	Fri May  3 01:53:54 2002
+@@ -663,12 +663,12 @@
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize < 512) {
+-		printk("ufs_read_super: fragment size %u is too small\n"
++		printk("ufs_read_super: fragment size %u is too small\n",
+ 			uspi->s_fsize);
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize > 4096) {
+-		printk("ufs_read_super: fragment size %u is too large\n"
++		printk("ufs_read_super: fragment size %u is too large\n",
+ 			uspi->s_fsize);
+ 		goto failed;
+ 	}
+@@ -678,12 +678,12 @@
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize < 4096) {
+-		printk("ufs_read_super: block size %u is too small\n"
++		printk("ufs_read_super: block size %u is too small\n",
+ 			uspi->s_fsize);
+ 		goto failed;
+ 	}
+ 	if (uspi->s_bsize / uspi->s_fsize > 8) {
+-		printk("ufs_read_super: too many fragments per block (%u)\n"
++		printk("ufs_read_super: too many fragments per block (%u)\n",
+ 			uspi->s_bsize / uspi->s_fsize);
+ 		goto failed;
+ 	}
+
+--BOKacYhQ+x31HxR3--

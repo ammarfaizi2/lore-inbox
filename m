@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbTESVHl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 17:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTESVHl
+	id S262942AbTESVIu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 17:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTESVIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 17:07:41 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:6630 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262912AbTESVHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 17:07:39 -0400
-Date: Mon, 19 May 2003 14:16:54 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jgmyers@netscape.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: aio_poll in 2.6
-Message-Id: <20030519141654.31901ee3.akpm@digeo.com>
-In-Reply-To: <1053373716.29227.27.camel@dhcp22.swansea.linux.org.uk>
-References: <fa.mc7vl0v.u7u2ah@ifi.uio.no>
-	<200305170054.RAA10802@pagarcia.nscp.aoltw.net>
-	<20030516195025.4bf5dd8d.akpm@digeo.com>
-	<200305191938.MAA11946@pagarcia.nscp.aoltw.net>
-	<1053373716.29227.27.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 May 2003 21:20:32.0609 (UTC) FILETIME=[7AFA7D10:01C31E4C]
+	Mon, 19 May 2003 17:08:49 -0400
+Received: from ns.suse.de ([213.95.15.193]:45324 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262942AbTESVIq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 17:08:46 -0400
+To: torvalds@transmeta.com (Linus Torvalds)
+Cc: linux-kernel@vger.kernel.org, plars@austin.ibm.com, akpm@digeo.com
+Subject: Re: [PATCH] Exception trace for i386
+References: <20030519192814.GA975@averell.suse.lists.linux.kernel>
+	<1053377808.588720@palladium.transmeta.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 19 May 2003 23:21:42 +0200
+In-Reply-To: <1053377808.588720@palladium.transmeta.com.suse.lists.linux.kernel>
+Message-ID: <p73k7cmzl7d.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> On Llu, 2003-05-19 at 20:38, John Myers wrote:
-> > Andrew Morton wrote:
-> > > What is the testing status of this?
-> > 
-> > I've beaten on it with my multithreaded test program on a 2-way
-> > Pentium II box.
-> 
-> Can someone beat this code up on an SMP PPC/PPC64 box - that would show
-> up far more than x86 does
-> 
+torvalds@transmeta.com (Linus Torvalds) writes:
 
-I can do that, but would need the test app...
+> Please don't do it this way. For one thing, there are valid uses where
+> you want to enable tracing for just one process. For another, there are
+> actually cases where you may want to trace all page faults, even the
+> ones that don't cause signals - kind of like normal system calls. After
+
+x86-64 has this, (pagefault_trace), but it's usually hidden in a debug
+CONFIG and not too useful in normal operation (because it generates too
+much output), so I didn't port this. At one point I also did a sysctl
+to echo a string into and strcmp the process ->comm against this, 
+but it was a bit ugly so I removed it again.
+
+> all, from a behavioural standpoint, that is what they are: implied
+> system calls.
+> 
+> So I think you want to make it per-process, and expose it as a ptrace
+> thing (imaging seeing all the page faults a process is taking with
+> "strace". Potentially quite useful for performance tuning).
+
+Probably, but that's not the intention of this patch. From my
+experience page fault tracing is too much for printk because it
+produces too much information. It needs some specialized logging
+module that is optimized for high frequency logging like SGI ktrace.
+It could be surely implemented, but I didn't plan to do this work
+currently. If you wanted it I would suggest considering kprobes or dprobes
+instead which allows to define logging macros for such things nicely already.
+
+> I don't think it's ever really valid to expose it as a global option, as
+> some programs use page faults (even the signalling kind) to do their own
+> memory management, and making it a global option just makes it hard to
+> work with such programs.
+
+I especially like it being a global option. It has catched bugs on x86-64 
+that were never noticed before (e.g. subprocesses silently segfaulting 
+that nobody noticed doing the same on i386). Clearly it's an debugging 
+thing and you definitely want an option to turn it off. But having 
+the global option is useful.
+
+Also programs that break with this are much less frequent than you
+probably think.
+
+-Andi

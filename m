@@ -1,82 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVDFOQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVDFOUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262212AbVDFOQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 10:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVDFOQ1
+	id S262213AbVDFOUh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 10:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262214AbVDFOUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 10:16:27 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:1160 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262212AbVDFOQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 10:16:21 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: linux-os@analogic.com, Dave Korn <dave.korn@artimi.com>
-Subject: Re: [BUG mm] "fixed" i386 memcpy inlining buggy
-Date: Wed, 6 Apr 2005 17:16:07 +0300
-User-Agent: KMail/1.5.4
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
-       Jan Hubicka <hubicka@ucw.cz>, Gerold Jury <gerold.ml@inode.at>,
-       jakub@redhat.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       gcc@gcc.gnu.org
-References: <SERRANOEKRuYDlrjbud0000007e@SERRANO.CAM.ARTIMI.COM> <Pine.LNX.4.61.0504060912420.22100@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0504060912420.22100@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Wed, 6 Apr 2005 10:20:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:49097 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262213AbVDFOUa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 10:20:30 -0400
+Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please check)
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
+       vherva@viasys.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
+References: <20050326162801.GA20729@logos.cnet>
+	 <20050328073405.GQ16169@viasys.com> <20050328165501.GR16169@viasys.com>
+	 <16968.40186.628410.152511@cse.unsw.edu.au>
+	 <20050329215207.GE5018@logos.cnet>
+	 <16970.9679.874919.876412@cse.unsw.edu.au>
+	 <20050330115946.GA7331@logos.cnet>
+	 <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504061716.07895.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-Id: <1112797205.3377.16.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 06 Apr 2005 15:20:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 April 2005 16:18, Richard B. Johnson wrote:
-> 
-> Attached is inline ix86 memcpy() plus test code that tests its
-> corner-cases. The in-line code makes no jumps, but uses longword
-> copies, word copies and any spare byte copy. It works at all
-> offsets, doesn't require alignment but would work fastest if
-> both source and destination were longword aligned.
+Hi,
 
-Yours is:
+On Wed, 2005-04-06 at 11:01, Hifumi Hisashi wrote:
 
-        "shr $1, %%ecx\n"       \
-        "pushf\n"               \
-        "shr $1, %%ecx\n"       \
-        "pushf\n"               \   <=== not needed
-        "rep\n"                 \
-        "movsl\n"               \
-        "popf\n"                \   <=== not needed
-        "adcl %%ecx, %%ecx\n"   \
-        "rep\n"                 \
-        "movsw\n"               \
-        "popf\n"                \
-        "adcl %%ecx, %%ecx\n"   \
-        "rep\n"                 \
-        "movsb\n"               \
+>  >Certainly it's normal for a short read/write to imply either error or
+>  >EOF, without the error necessarily needing to be returned explicitly.
+>  >I'm not convinced that the Singleunix language actually requires that,
+>  >but it seems the most obvious and consistent behaviour.
 
-You struggle too much for that movsw.
+> When an O_SYNC flag is set , if commit_write() succeed but 
+> generic_osync_inode() return
+> error due to I/O failure, write() must fail .
 
--mm one (which happen to be mine) is:
+Yes.  But it is conventional to interpret a short write as being a
+failure.  Returning less bytes than were requested in the write
+indicates that the rest failed.  It just doesn't give the exact nature
+of the failure (EIO vs ENOSPC etc.)  For regular files, a short write is
+never permitted unless there are errors of some description.
 
-	"movl %ecx,%4"
-	"shr $2,%ecx"
-        "rep ; movsl"
-        "movl %4,%%ecx"
-        "andl $3,%%ecx"
-        "jz 1ft"     /* pay 2 byte penalty for a chance to skip microcoded rep */
-        "rep ; movsb"
-"1:"
-
-and I can still drop that jz. It is there just to have
-a chance to skip rep movsb, it was measured to be slow
-enough to matter. rep movs are a bit slow to start, on small
-blocks it is measurable.
-
-However, maybe it is even better without jz,
-need to benchmark 'cold path' (i.e. where branch predictor
-have no data to predict it) somehow.
---
-vda
+--Stephen
 

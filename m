@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265429AbTFRRXH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 13:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265430AbTFRRXH
+	id S265454AbTFRRoA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 13:44:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265455AbTFRRoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 13:23:07 -0400
-Received: from daffy.hulpsystems.net ([64.246.21.252]:49056 "EHLO
-	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
-	id S265429AbTFRRXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 13:23:02 -0400
-Subject: Sco vs. IBM
-From: Martin List-Petersen <martin@list-petersen.dk>
+	Wed, 18 Jun 2003 13:44:00 -0400
+Received: from adsl-116-134.38-151.net24.it ([151.38.134.116]:32041 "EHLO
+	mail.hypertrek.info") by vger.kernel.org with ESMTP id S265454AbTFRRn7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 13:43:59 -0400
+Date: Wed, 18 Jun 2003 19:58:02 +0200
+From: Luigi Rosa <kernel@mail.hypertrek.info>
+X-Mailer: The Bat! (v1.63 Beta/11) Personal
+Reply-To: Luigi Rosa <kernel@mail.hypertrek.info>
+Organization: I.N.S.
+X-Priority: 3 (Normal)
+Message-ID: <6119329250.20030618195802@mail.hypertrek.info>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <5.2.0.9.2.20030607044649.00cd4590@pop.gmx.net>
+Subject: Re: Sco vs. IBM
+In-Reply-To: <1055957807.16818.12.camel@loke>
 References: <063301c32c47$ddc792d0$3f00a8c0@witbe>
-	 <063301c32c47$ddc792d0$3f00a8c0@witbe>
-	 <5.2.0.9.2.20030607044649.00cd4590@pop.gmx.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yKDkdY69ALUU8VqTZl0F"
-Organization: 
-Message-Id: <1055957807.16818.12.camel@loke>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 18 Jun 2003 19:36:48 +0200
+ <063301c32c47$ddc792d0$3f00a8c0@witbe>
+ <5.2.0.9.2.20030607044649.00cd4590@pop.gmx.net> <1055957807.16818.12.camel@loke>
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Martin,
 
---=-yKDkdY69ALUU8VqTZl0F
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Wednesday, June 18, 2003, 7:36:48 PM, you wrote:
 
-Ok .. here we got us a few more articles about the stuff going on. A
-friend pointed me at these:
+MLP> Ok .. here we got us a few more articles about the stuff going on. A
+MLP> friend pointed me at these:
 
-Byte.com states: SCO Owns Your Computer=20
-http://www.byte.com/documents/s=3D8276/byt1055784622054/0616_marshall.html
-Comment: read and cry (or not ?) :-/
+I think that this one
 
-On Linux Planet, they try say "SCO Pulls Trigger, Targets Torvald":
-http://www.linuxplanet.com/linuxplanet/newss/4858/1/
+<http://www.forbes.com/2003/06/18/cz_dl_0618linux.html>
 
-However .. more or less it is about the current way people think about
-it.
-
-Regards,
-Martin List-Petersen
-martin at list-petersen dot dk
---
-All things are either sacred or profane.
-The former to ecclesiasts bring gain;
-The latter to the devil appertain.
--- Dumbo Omohundro
+is very illuminating.
 
 
---=-yKDkdY69ALUU8VqTZl0F
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+8KMvzAGaxP8W1ugRAkd2AJ931b+oTieJx3+JpEgk6dhOWB8I9ACdF5dd
-w8tdoh4e70J12MiPkOegR08=
-=7T2R
------END PGP SIGNATURE-----
-
---=-yKDkdY69ALUU8VqTZl0F--
+-- 
+Best regards,
+ Luigi                            mailto:kernel@mail.hypertrek.info
 

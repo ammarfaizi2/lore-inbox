@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263125AbUAMEAU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 23:00:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbUAMEAU
+	id S263523AbUAMEMC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 23:12:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263545AbUAMEMC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 23:00:20 -0500
-Received: from mta03ps.bigpond.com ([144.135.25.157]:39137 "EHLO
-	mta03ps.bigpond.com") by vger.kernel.org with ESMTP id S263125AbUAMEAP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 23:00:15 -0500
-Date: Tue, 13 Jan 2004 14:56:28 +1100
-From: Srihari Vijayaraghavan <harisri@telstra.com>
-Subject: Re: [PROBLEM] ip_conntrack_ftp module oops under 2.6.1-mm2
-To: gandalf@wlug.westbo.se
-Cc: linux-kernel@vger.kernel.org
-Message-id: <77c6a078001a.78001a77c6a0@email.bigpond.com>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.2 HotFix 1.14 (built Oct 29 2003)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Accept-Language: en
+	Mon, 12 Jan 2004 23:12:02 -0500
+Received: from brain.sedal.usyd.edu.au ([129.78.24.68]:62425 "EHLO
+	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
+	id S263523AbUAMEMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 23:12:00 -0500
+Message-ID: <40040983.2090508@sedal.usyd.edu.au>
+Date: Wed, 14 Jan 2004 02:06:43 +1100
+From: sena <auntvini@sedal.usyd.edu.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robin Holt <holt@sgi.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: uid- /proc/loadavg
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Robin,
 
-Hello Martin,
+I tested it again and there is no hanging on as far as the kernel module 
+is concerned.
 
-The check-for-truncated-modules.patch does not appear to be in 2.6.1-mm2.
-
-(That was vanilla 2.6.1 + 2.6.1-mm2.bz2 patch kit)
+What happens is that the other user hosts are getting a message saying 
+that thet there is a message at syslogd@sena
 
 Thanks
-Hari
-harisri@bigpond.com
-                                                                      
+Sena Seneviratne
+Computer Engineering Lab
+Sydney University
 

@@ -1,50 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263494AbTKCXoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 18:44:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTKCXoZ
+	id S263498AbTKCXqa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 18:46:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263500AbTKCXqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 18:44:25 -0500
-Received: from rth.ninka.net ([216.101.162.244]:21633 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S263494AbTKCXoY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 18:44:24 -0500
-Date: Mon, 3 Nov 2003 16:41:16 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: davidm@hpl.hp.com
-Cc: davidm@napali.hpl.hp.com, jes@wildopensource.com,
-       Jamie.Wellnitz@emulex.com, linux-kernel@vger.kernel.org
-Subject: Re: virt_to_page/pci_map_page vs. pci_map_single
-Message-Id: <20031103164116.5793a95e.davem@redhat.com>
-In-Reply-To: <16294.53393.763572.291298@napali.hpl.hp.com>
-References: <20031102181224.GD2149@ma.emulex.com>
-	<yq0wuahan3t.fsf@trained-monkey.org>
-	<20031103125259.GC16690@ma.emulex.com>
-	<yq0sml5a63s.fsf@wildopensource.com>
-	<16294.53393.763572.291298@napali.hpl.hp.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 3 Nov 2003 18:46:30 -0500
+Received: from messenger.kasenna.org ([208.253.201.3]:16393 "EHLO
+	messenger.kasenna.org") by vger.kernel.org with ESMTP
+	id S263498AbTKCXq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 18:46:28 -0500
+Message-ID: <3FA6E8CE.6040208@kasenna.com>
+Date: Mon, 03 Nov 2003 15:46:22 -0800
+From: Shirley Shi <shirley@kasenna.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: All filesystems hang under long periods of heavy load (read and write)
+ on a filesystem
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Nov 2003 14:02:57 -0800
-David Mosberger <davidm@napali.hpl.hp.com> wrote:
+Can anyone know why all filesystems hang under periods of heavy load on 
+one of the filesystem? Once the filesystems hang, any command related to 
+the filesystem, like 'ls', 'cat',etc., will stick forever until re-power 
+cycling the machine.
 
-> >>>>> On 03 Nov 2003 09:17:59 -0500, Jes Sorensen <jes@wildopensource.com> said:
-> 
->   Jes> Hmmm, my brain has gotten ia64ified ;-) It's basically the normal
->   Jes> mappings of the kernel, ie. the kernel text/data/bss segments as well
->   Jes> as anything you do not get back as a dynamic mapping such as
->   Jes> ioremap/vmalloc/kmap.
-> 
-> I don't think it's safe to use virt_to_page() on static kernel
-> addresses (text, data, and bss).  For example, ia64 linux nowadays
-> uses a virtual mapping for the static kernel memory, so it's not part
-> of the identity-mapped segment.
+I kept running the following script to read and write the data on a same 
+filesystem(ext2 or XFS) since we need do some tests for the storage. Is 
+half day, onn the beginning, the system was running well. But after 
+running the script for a long time, such a half day, one day or two 
+days,  all filesystems would get hung, including the root filesystem 
+although I didn't do any heavy load on it. The file(M.1) I used for 
+reading and writing is about 2.5GB.
 
-That's correct and it'll break on sparc64 for similar reasons.
 
-It's also not safe to do virt_to_page() on kernel stack addresses
-either.
+@ total = 115
+while (1)
+  @ cc = 2
+  while ($cc <= $total)
+     dd bs=512k if=/data/M.1 of=/data/M.$cc
+    echo "copying $cc  of   $total..."
+    @ cc = $cc + 1
+  end
+  rm -f  /data/M.*
+end
+
+
+I tried RH8.0 with kernel 2.4.18 and kernel 2.4.21 with XFS and patch 
+rmap15j. I have the same issue running with the two kernels. Basically I 
+have two filesytems configured. One for the root configured with ext3, 
+and another is for the data configured with ext2 or XFS. With either 
+ext2 or XFS, I have the same problem.
+
+I also tried on different Dual CPU machines as follows, but saw the same 
+problem.
+
+- A dual-CPU machine with an on-board 320 SCSI controller(running 
+AIC79XX.o driver) connecting a disk drive as the root system and a 
+MegaRAID 320-4X controller connecting to several disk drives. I created 
+two H/W logical RAID devices and built the data filesystem with the S/W 
+RAID0(/dev/md0).
+- A HP dual-CPU machine with the HP Smart Array 5i connecting to a disk 
+drive as the root system and a 160 SCSI controller connecting with 13 
+disk drives and configured as a S/W RAID0(/dev/md0) the data filesystem.
+- A dual-CPU machine with an on-board 320 SCSI controller(with AIC79XX.o 
+driver) connecting a disk drive as the root system and a FC controller 
+connecting to a RAID storage.
+
+Any comment would be appreciated.
+
+Thanks,
+
+Shirley
+
+

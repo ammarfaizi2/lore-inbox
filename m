@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbUKOEqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbUKOEsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbUKOEqh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 23:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUKOEqg
+	id S261433AbUKOEsn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 23:48:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbUKOEsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 23:46:36 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:5811 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261431AbUKOEqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 23:46:35 -0500
-To: johnpol@2ka.mipt.ru
-Cc: Jan Dittmer <jdittmer@ppp0.net>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-X-Message-Flag: Warning: May contain useful information
-References: <41974A6C.20302@ppp0.net>
-	<20041114230617.5ce14ce9@zanzibar.2ka.mipt.ru>
-	<4197BCEE.1080409@ppp0.net> <1100493835.20731.63.camel@uganda>
-From: Roland Dreier <roland@topspin.com>
-Date: Sun, 14 Nov 2004 20:46:27 -0800
-In-Reply-To: <1100493835.20731.63.camel@uganda> (Evgeniy Polyakov's message
- of "Mon, 15 Nov 2004 07:43:55 +0300")
-Message-ID: <52hdnrpvmk.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Sun, 14 Nov 2004 23:48:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30400 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261433AbUKOEsl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 23:48:41 -0500
+Date: Sun, 14 Nov 2004 20:48:22 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-rc2 doesn't boot
+In-Reply-To: <20041115040710.GA2235@stusta.de>
+Message-ID: <Pine.LNX.4.58.0411142040470.2222@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org>
+ <20041115040710.GA2235@stusta.de>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH] matrox w1: fix integer to pointer conversion warnings
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 15 Nov 2004 04:46:33.0154 (UTC) FILETIME=[14A35A20:01C4CACE]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Evgeniy> So there is no char __iomem, but only void __iomem.
 
-Declaring a pointer as "char __iomem *" is a perfectly good thing to
-do.  __iomem is a type attribute and can be added to just about any
-base type.
 
- - Roland
+On Mon, 15 Nov 2004, Adrian Bunk wrote:
+> io scheduler deadline registered
+> io scheduler cfq registered
+> 
+> ---->  2.6.10-rc2 stops here
+> 
+> loop: loaded (max 8 devices)
+
+Strange. There is not a lot in between those two registrations. The "cfq 
+registered" comes from cfq_init(), and the "loop: loaded" thing comes from 
+loop_init(), and in between them in the link there is just floppy.o.
+
+And I don't see that _any_ of those three has changed. Yes, cfq got an 
+__exit added to its exit function, and floppy got __initdata added, but 
+neither of those should make any difference what-so-ever.
+
+Just for interest, what happens if you disable floppy support? It doesn't 
+look like you have a floppy on that system..
+
+		Linus

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129098AbRBHNbJ>; Thu, 8 Feb 2001 08:31:09 -0500
+	id <S129098AbRBHNgT>; Thu, 8 Feb 2001 08:36:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129486AbRBHNa7>; Thu, 8 Feb 2001 08:30:59 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:26338 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129098AbRBHNan>;
-	Thu, 8 Feb 2001 08:30:43 -0500
-Date: Thu, 8 Feb 2001 13:22:18 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-Message-ID: <20010208132218.E9130@redhat.com>
-In-Reply-To: <20010206230929.K2975@suse.de> <Pine.LNX.4.10.10102061421490.1825-100000@penguin.transmeta.com> <20010208001513.B189@bug.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010208001513.B189@bug.ucw.cz>; from pavel@suse.cz on Thu, Feb 08, 2001 at 12:15:13AM +0100
+	id <S131266AbRBHNf7>; Thu, 8 Feb 2001 08:35:59 -0500
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:36621 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S129486AbRBHNfw>; Thu, 8 Feb 2001 08:35:52 -0500
+Date: Thu, 8 Feb 2001 05:35:31 -0800 (PST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: DNS goofups galore...
+In-Reply-To: <20010208150632.K15688@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.32.0102080529580.19696-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, Feb 08, 2001 at 12:15:13AM +0100, Pavel Machek wrote:
-> 
-> > EAGAIN is _not_ a valid return value for block devices or for regular
-> > files. And in fact it _cannot_ be, because select() is defined to always
-> > return 1 on them - so if a write() were to return EAGAIN, user space would
-> > have nothing to wait on. Busy waiting is evil.
-> 
-> So you consider inability to select() on regular files _feature_?
+	Hello Matti ,
 
-Select might make some sort of sense for sequential access to files,
-and for random access via lseek/read but it makes no sense at all for
-pread and pwrite where select() has no idea _which_ part of the file
-the user is going to want to access next.
+On Thu, 8 Feb 2001, Matti Aarnio wrote:
+ ...snip...
+> Answer to the self-education question above:
+>
+>   The NAME fields in usual BIND systems get appended the current $ORIGIN
+>   string value when the data in the field does not end with a dot:
+>
+>   Wrong:     IN MX 10  11.22.33.44
+>   "Right":   IN MX 10  11.22.33.44.
+    s/"Right"/Wrong/
 
-> How do you write high-performance ftp server without threads if select
-> on regular file always returns "ready"?
+	(in the forward file)
+	Right:				IN MX 10  mymail.mydomain.com.
+	Right:mymail.mydomain.com.	IN A	11.22.33.44
 
-Select can work if the access is sequential, but async IO is a more
-general solution.
+	(in a in-addr.arpa file)
+	Right:44	IN PTR	mymail.mydomain.com.
 
-Cheers,
- Stephen
+>   The second appears at DNS lookup as "IN MX 10 11.22.33.44", which
+>   is the intention aiming to use quite common misfeatures of system
+>   libraries.  THERE IS NO GUARANTEE OF IT WORKING AT NON-UNIX SYSTEMS!
+>   Indeed there is no guarantee of it working at UNIX systems either!
+	True ! .	Hth ,  JimL
+
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

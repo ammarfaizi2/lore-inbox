@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129480AbQLOSjK>; Fri, 15 Dec 2000 13:39:10 -0500
+	id <S130768AbQLOSkA>; Fri, 15 Dec 2000 13:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130701AbQLOSjA>; Fri, 15 Dec 2000 13:39:00 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:57645 "EHLO
-	amsmta01-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129480AbQLOSit>; Fri, 15 Dec 2000 13:38:49 -0500
-Date: Fri, 15 Dec 2000 20:15:41 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: David Weinehall <tao@acc.umu.se>
-cc: Rob Landley <telomerase@yahoo.com>, maddog@valinux.com,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Is there a Linux trademark issue with sun?
-In-Reply-To: <20001215152640.D28783@khan.acc.umu.se>
-Message-ID: <Pine.LNX.4.21.0012152014190.4303-100000@server.serve.me.nl>
+	id <S130701AbQLOSju>; Fri, 15 Dec 2000 13:39:50 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:53764 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130768AbQLOSjo>; Fri, 15 Dec 2000 13:39:44 -0500
+Date: Fri, 15 Dec 2000 10:08:27 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org
+Subject: Re: test13-pre1 changelog
+In-Reply-To: <E146zDX-0001ae-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10012151005330.2255-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> On Fri, Dec 15, 2000 at 12:54:21PM +0100, Igmar Palsenberg wrote:
-> > 
-> > > Heads up everybody.  Scott McNealy has apparently been
-> > > calling Solaris Sun's implementation of Linux. 
-> > > Trademark violation time.
-> > 
-> > It's probably a marketing guy that has no idea about what he is talking
-> > about. I've seen good Linux related stuff come from Sun and I hardly can
-> > imagine that such a person would make this statement.
+
+On Fri, 15 Dec 2000, Alan Cox wrote:
+> > Sparc is already sync'ed in my tree, and I'd love for other architectures
+> > to synch up too (but if it takes a while it's not a major disaster - I
+> > actually much prefer bugs that cause build failures over other kinds of
+> > bugs ;).
 > 
-> Ehrm. If I'm not all wrong, Scott McNealy is the CEO of Sun...
+> So you want drivers/gsc again ? I assumed you dropped it as you didnt want
+> more port code.
 
-Yes, someone also noted that to me. His words sound like those of some
-marketing guy, or some politican (for the Dutch guys : Kok :-))
+I really dropped it because I was getting too many patches, and I don't
+realistically think it's a 2.4.0 issue (neither do you, I bet), so I
+decided that it's not worth it.
 
+By "I'd love for other architectures to synch up" I really only meant the
+Makefile issue - but the hppa thing is pretty much moot as not all of the
+code has made it into the kernel yet, so even if the Makefiles were
+updated it still wouldn't be "ready".
 
+(Looking at the parisc makefiles the changes to update them to new-style
+looks rather small. Not a big issue).
 
-	Igmar
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262807AbSLaJXc>; Tue, 31 Dec 2002 04:23:32 -0500
+	id <S266078AbSLaJZN>; Tue, 31 Dec 2002 04:25:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262808AbSLaJXc>; Tue, 31 Dec 2002 04:23:32 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:10926 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S262807AbSLaJXb>;
-	Tue, 31 Dec 2002 04:23:31 -0500
-Message-ID: <3E116407.6040802@colorfullife.com>
-Date: Tue, 31 Dec 2002 10:31:51 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Oliver Neukum <oliver@neukum.name>
-CC: Muli Ben-Yehuda <mulix@mulix.org>, linux-kernel@vger.kernel.org
-Subject: Re: question on context of kfree_skb()
-References: <3E10C991.4060807@colorfullife.com> <200212310157.06624.oliver@neukum.name>
-In-Reply-To: <200212310157.06624.oliver@neukum.name>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266115AbSLaJZN>; Tue, 31 Dec 2002 04:25:13 -0500
+Received: from are.twiddle.net ([64.81.246.98]:36737 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S266078AbSLaJZM>;
+	Tue, 31 Dec 2002 04:25:12 -0500
+Date: Tue, 31 Dec 2002 01:33:17 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Antonino Daplas <adaplas@pol.net>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [FB PATCH] cfbimgblt isn't 64-bit clean
+Message-ID: <20021231013317.A14112@twiddle.net>
+Mail-Followup-To: Antonino Daplas <adaplas@pol.net>,
+	James Simmons <jsimmons@infradead.org>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0212290027590.14098-100000@phoenix.infradead.org> <1041173861.1013.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1041173861.1013.9.camel@localhost.localdomain>; from adaplas@pol.net on Sun, Dec 29, 2002 at 10:58:43PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
+On Sun, Dec 29, 2002 at 10:58:43PM +0800, Antonino Daplas wrote:
+> Only fast_imageblit() should be affected.  color_imageblit() and
+> slow_imageblit() will not be affected.  
 
->Am Montag, 30. Dezember 2002 23:32 schrieb Manfred Spraul:
->  
->
->>Mulix wrote:
->>    
->>
->>>dev_kfree_skb_any() should be called when you could be either
->>>executing in interrupt context or not.
->>>      
->>>
->>dev_kfree_skb_any() can misdetect the context: You must not use the
->>function if you hold an irq spinlock and you might be running from BH or
->>process context.
->>    
->>
->
->What then shall be used under these circumstances ?
->Could you perhaps summarise the issue ?
->  
->
-When a packet is freed, the upper layers must be notified, for example a 
-user space process could be waiting for socket buffer space. This can 
-happen either immediately, or in the next softirq.
+Indeed.
 
-dev_kfree_skb_irq() is always ok, although slower than the other 
-functions. The packet is unconditionally queued and processed later.
-dev_kfree_skb_any() tries to optimize it a bit: If it thinks that it's 
-save to process it now, then the packet is processed immediately. The 
-autodetection is usually correct, except for the special case I 
-mentioned. Drivers must work around that.
-dev_kfree_skb() always processes the packet immediately. Only permitted 
-from bottom half context or from process context.
+> Or we can change fast_imageblit() to always access the framebuffer
+> memory 32-bits at a time. The attached patch should fix this.
 
---
-    Manfred
+This is probably better than the wholesale conversion to
+32-bits that I did.
 
+For the most part I don't care anymore; I've implemented a
+hardware accelerated version for depth==1 in tgafb.c now.  ;-)
+
+
+r~

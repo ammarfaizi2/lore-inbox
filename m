@@ -1,143 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285783AbSAUNIn>; Mon, 21 Jan 2002 08:08:43 -0500
+	id <S285850AbSAUNRy>; Mon, 21 Jan 2002 08:17:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285850AbSAUNIe>; Mon, 21 Jan 2002 08:08:34 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:59962 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S285783AbSAUNIZ>; Mon, 21 Jan 2002 08:08:25 -0500
-Date: Tue, 22 Jan 2002 00:33:50 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: linux-kernel@vger.kernel.org
-cc: Hein Roehrig <hein@acm.org>, netdev@oss.sgi.com
-Subject: Re: [PATCH][2.2] drivers/net/net_init.c - bounds checking etc
-In-Reply-To: <Pine.LNX.4.05.10201201623240.31943-100000@marina.lowendale.com.au>
-Message-ID: <Pine.LNX.4.05.10201220029140.8853-100000@marina.lowendale.com.au>
+	id <S285935AbSAUNRp>; Mon, 21 Jan 2002 08:17:45 -0500
+Received: from dsl-213-023-039-080.arcor-ip.net ([213.23.39.80]:4487 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S285850AbSAUNRd>;
+	Mon, 21 Jan 2002 08:17:33 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Re: Linux 2.4.18pre3-ac1
+Date: Mon, 21 Jan 2002 14:22:06 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: ebiederm@xmission.com (Eric W. Biederman),
+        Rik van Riel <riel@conectiva.com.br>,
+        Adam Kropelin <akropel1@rochester.rr.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0201140409260.32617-100000@imladris.surriel.com> <E16SVPU-0001dp-00@starship.berlin> <200201210530.g0L5UQu20723@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <200201210530.g0L5UQu20723@vindaloo.ras.ucalgary.ca>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16SeOk-0001gG-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jan 2002, Neale Banks wrote:
-
-> Greetings,
+On January 21, 2002 06:30 am, Richard Gooch wrote:
+> Daniel Phillips writes:
+> > The way I see it, the purpose of lazy page table instantiation is to
+> > overcome objections to the reverse pte mapping vm technique that
+> > have been expressed in the past, namely the slowdown in dup_mmap
+> > inside fork.  I.e., if rmap slows down fork then Linus and Davem are
+> > going to veto it, as they've done in the past, because they feel
+> > that the as-yet-unproven advantages of physically-based vm scanning
+> > doesn't outweigh the easily measurable fork overhead.  Personally, I
+> > think that's debatable, but by eliminating the overhead we eliminate
+> > the objection, and as far as I know, it's the only serious
+> > objection.
 > 
-> Appended patch (against 2.2.21-pre2) addresses:
-> 
-> (1) lack of bounds checking of statically-dimensioned arrays
-> such as *ethdev_index[MAX_ETH_CARDS]
-> 
-> (2) unnecessary initialisation if i in etherdev_get_index()
+> Will lazy page table instantiation speed up fork(2) without rmap?
 
-<sigh>Corrected and tested patch appended.
+Yes.
 
-> I notice also that init_etherdev() can return a NULL pointer.  In earleir
-> 2.2 I found a few ethernet drivers which do not contemplate this
-> possibility.  Presumably this should be cleaned up too?
+> If so, then you've got a problem, because rmap will still be slower
+> than non-rmap. Linus will happily grab any speedup and make that the
+> new baseline against which new schemes are compared :-)
 
-Separate patch for eepro100 to follow.
+Fortunately, rmap and non-rmap will fork at the same speed since in
+each case the work will consist of copying just the page directory and
+incrementing the use counts of up to 1024 page tables.
 
-Regards,
-Neale.
+Page table instantiation, which happens at fault time, will be slower
+for rmap than non-rmap.  However there are offsetting factors that
+suggest the bottom line performance will be very similar in unloaded
+cases, and will favor rmap under heavy load.
 
---- linux-2.2.21-pre2-pristine/drivers/net/net_init.c	Sat Nov  3 03:39:07 2001
-+++ linux-2.2.21-pre2-ntb/drivers/net/net_init.c	Mon Jan 21 22:53:42 2002
-@@ -103,7 +103,12 @@
- 						if (dev->priv) memset(dev->priv, 0, sizeof_priv);
- 						goto found;
- 					}
-+				break;	/* have found a non-initialised slot */
- 			}
-+		if (i>=MAX_ETH_CARDS) {
-+			printk("init_etherdev: FATAL - too many eth devs.\n");
-+			return NULL;
-+		}
- 
- 		alloc_size &= ~3;		/* Round to dword boundary. */
- 
-@@ -223,7 +228,12 @@
- 						if (dev->priv) memset(dev->priv, 0, sizeof_priv);
- 						goto hipfound;
- 					}
-+				break;	/* have found a non-initialised slot */
- 			}
-+		if (i>=MAX_HIP_CARDS) {
-+			printk("init_hippi_dev: FATAL - too many hip devs.\n");
-+			return NULL;
-+		}
- 
- 		alloc_size &= ~3;		/* Round to dword boundary. */
- 
-@@ -269,6 +279,8 @@
- 			break;
- 		}
- 	}
-+	if (i>=MAX_HIP_CARDS)
-+		printk("unregister_hipdev: WARNING - didn't find dev.\n");
- 	rtnl_unlock();
- }
- 
-@@ -468,8 +480,7 @@
- 
- static int etherdev_get_index(struct device *dev)
- {
--	int i=MAX_ETH_CARDS;
--
-+	int i;
- 	for (i = 0; i < MAX_ETH_CARDS; ++i)	{
- 		if (ethdev_index[i] == NULL) {
- 			sprintf(dev->name, "eth%d", i);
-@@ -490,6 +501,8 @@
- 			break;
- 		}
- 	}
-+	if (i>=MAX_ETH_CARDS)
-+		printk("etherdev_put_index: WARNING - didn't find dev.\n");
- }
- 
- int register_netdev(struct device *dev)
-@@ -552,7 +565,12 @@
- 						if (dev->priv) memset(dev->priv, 0, sizeof_priv);
- 						goto trfound;
- 					}
-+				break;	/* have found a non-initialised slot */
- 			}
-+		if (i>=MAX_TR_CARDS) {
-+			printk("init_trdev: FATAL - too many tr devs.\n");
-+			return NULL;
-+		}
- 
- 		alloc_size &= ~3;		/* Round to dword boundary. */
- 		dev = (struct device *)kmalloc(alloc_size, GFP_KERNEL);
-@@ -624,6 +642,8 @@
- 			break;
- 		}
- 	}
-+	if (i>=MAX_TR_CARDS)
-+		printk("tr_freedev: WARNING - didn't find dev.\n");
- }
- 
- int register_trdev(struct device *dev)
-@@ -711,7 +731,12 @@
-                         if (dev->priv) memset(dev->priv, 0, sizeof_priv);
-                         goto fcfound;
-                      }
-+		break;	/* have found a non-initialised slot */
-                }
-+		if (i>=MAX_FC_CARDS) {
-+			printk("init_fcdev: FATAL - too many fc devs.\n");
-+			return NULL;
-+		}
- 
-         alloc_size &= ~3;               /* Round to dword boundary. */
-         dev = (struct device *)kmalloc(alloc_size, GFP_KERNEL);
-@@ -747,6 +772,8 @@
- 			break;
- 		}
- 	}
-+	if (i>=MAX_FC_CARDS)
-+		printk("fc_freedev: WARNING - didn't find dev.\n");
- }
- 
- 
-
+--
+Daniel

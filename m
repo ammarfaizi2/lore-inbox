@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267427AbTALTlB>; Sun, 12 Jan 2003 14:41:01 -0500
+	id <S267426AbTALTig>; Sun, 12 Jan 2003 14:38:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbTALTlB>; Sun, 12 Jan 2003 14:41:01 -0500
-Received: from AMarseille-201-1-1-174.abo.wanadoo.fr ([193.252.38.174]:47217
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S267427AbTALTkz>; Sun, 12 Jan 2003 14:40:55 -0500
-Subject: Re: Linux 2.4.21-pre3-ac4
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	id <S267427AbTALTig>; Sun, 12 Jan 2003 14:38:36 -0500
+Received: from h80ad26bd.async.vt.edu ([128.173.38.189]:7040 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267426AbTALThe>; Sun, 12 Jan 2003 14:37:34 -0500
+Message-Id: <200301121946.h0CJk8WN003802@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1042403235.16288.14.camel@irongate.swansea.linux.org.uk>
-References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
-	 <1042399796.525.215.camel@zion.wanadoo.fr>
-	 <1042403235.16288.14.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042401074.525.219.camel@zion.wanadoo.fr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel And Kenrel Programming (was: Nvidia is a great company) 
+In-Reply-To: Your message of "Sun, 12 Jan 2003 16:45:24 GMT."
+             <1042389923.15051.1.camel@irongate.swansea.linux.org.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0301112346450.2270-100000@bailey.scraps.org> <1042382565.848.11.camel@RobsPC.RobertWilkens.com>
+            <1042389923.15051.1.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 12 Jan 2003 20:51:14 +0100
+Content-Type: multipart/signed; boundary="==_Exmh_1749349547P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 12 Jan 2003 14:46:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 21:27, Alan Cox wrote:
+--==_Exmh_1749349547P
+Content-Type: text/plain; charset=us-ascii
 
-> which currently has two problems Ross found
-> 
-> 1.  The processors or so fast we have to enforce the 400nS delay nowdays
+On Sun, 12 Jan 2003 16:45:24 GMT, Alan Cox said:
+> One thing that has been helpful is the microcode update stuff Intel did, we
+> hit  few bugs that up to date microcode kill off
 
-What about PCI write posting ? How can we enforce the 400ns delay here ?
-I suspect we can't read back from the taskfile registers after writing
-the command. Especially when using DMA, I think I remember Andre telling
-me even tapping alt status might not be safe... So we need to issue
-a read from the same bus path, but not on any taskfile register from
-this channel... hrm... any idea ?
+http://www.urbanmyth.org/microcode/ says that microcode_ctl 1.06 is the
+latest, dated all the way back to 11 Jun 2001.  Is that in fact the most
+recent?  In this industry, I alway worry when "most recent" is 18 months
+old.
 
-> 2.  The code is racey in some situations with a shared IRQ because we
-> may get an IRQ after we set the handler but before we send the command,
-> or implemnted the other way the command can complete before we set the
-> handler.
+Hopefully it's the most recent because no further errata have been found.;)
 
-Yup, that's an old problem indeed.
+-- 
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
 
-Ben.
 
+--==_Exmh_1749349547P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+IcX/cC3lWbTT17ARAs/7AKDZSBKk/qis9yBqkuddTeclu2hLwQCgsFGu
+eVH2nJg17Gf9xTV63zbFE/4=
+=NWyV
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1749349547P--

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262887AbSLML7p>; Fri, 13 Dec 2002 06:59:45 -0500
+	id <S264649AbSLMMM5>; Fri, 13 Dec 2002 07:12:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262821AbSLML6F>; Fri, 13 Dec 2002 06:58:05 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:3588 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262804AbSLML5f>;
-	Fri, 13 Dec 2002 06:57:35 -0500
-Date: Thu, 12 Dec 2002 21:38:23 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
-Subject: ACPI/S3: fix gcc3.2 compatibility
-Message-ID: <20021212203823.GA1511@elf.ucw.cz>
+	id <S264672AbSLMMM5>; Fri, 13 Dec 2002 07:12:57 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:904 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S264649AbSLMMMt>;
+	Fri, 13 Dec 2002 07:12:49 -0500
+Date: Fri, 13 Dec 2002 12:20:17 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Rod Van Meter <Rod.VanMeter@nokia.com>, linux-kernel@vger.kernel.org
+Subject: Re: massive compile failures w/ 2.5.51 on RH8.0
+Message-ID: <20021213122017.GC31187@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	Rod Van Meter <Rod.VanMeter@nokia.com>,
+	linux-kernel@vger.kernel.org
+References: <20021213002750.GB18156@suse.de> <Pine.LNX.4.33L2.0212122140500.21077-100000@dragon.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0212122140500.21077-100000@dragon.pdx.osdl.net>
 User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Dec 12, 2002 at 09:42:39PM -0800, Randy.Dunlap wrote:
 
-gcc3.2 is a bit more pedantic... Please apply,
-								Pavel
+ > and some of these may have patches available for them on lkml.
+ > I know that intermezzo does, from Peter Braam, with a small
+ > follow-up by me, so it's fixable if you want it.  Surely (Rod ;).
 
---- clean/arch/i386/kernel/suspend_asm.S	2002-12-11 23:33:53.000000000 +0100
-+++ linux-swsusp/arch/i386/kernel/suspend_asm.S	2002-12-06 17:52:18.000000000 +0100
-@@ -6,7 +6,7 @@
- #include <asm/segment.h>
- #include <asm/page.h>
- 
--ENTRY(do_magic):
-+ENTRY(do_magic)
- 	pushl %ebx
- 	cmpl $0,8(%esp)
- 	jne .L1450
-@@ -66,7 +66,7 @@
- .L1453:
- 	movl $104,%eax
- 
--	movw %eax, %ds
-+	movw %ax, %ds
- 	movl saved_context_esp, %esp
- 	movl saved_context_ebp, %ebp
- 	movl saved_context_eax, %eax
+>From reading bugzilla #11, it seems even with your additional
+patch intermezzo still has problems..
+
+		Dave
 
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbUDKGe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 02:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbUDKGe6
+	id S262273AbUDKHrr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 03:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbUDKHrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 02:34:58 -0400
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:37268 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S262256AbUDKGe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 02:34:56 -0400
-Date: Sat, 10 Apr 2004 23:34:49 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: stern@rowland.harvard.edu, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
-Subject: Re: Patch for usb-storage in 2.4   [linux-usb-devel]
-Message-ID: <20040411063449.GB12346@one-eyed-alien.net>
-Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
-	stern@rowland.harvard.edu, linux-usb-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
-References: <20040409195943.0dac2f5a.zaitcev@redhat.com> <20040411000957.GA7523@one-eyed-alien.net> <20040410183638.5b177147.zaitcev@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
+	Sun, 11 Apr 2004 03:47:47 -0400
+Received: from server8.totalchoicehosting.com ([216.180.241.250]:42912 "EHLO
+	server8.totalchoicehosting.com") by vger.kernel.org with ESMTP
+	id S262273AbUDKHrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 03:47:46 -0400
+From: Michael Wu <flamingice@sourmilk.net>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] adm8211 driver
+Date: Sun, 11 Apr 2004 03:47:26 -0400
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040410183638.5b177147.zaitcev@redhat.com>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404110347.27632.flamingice@sourmilk.net>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server8.totalchoicehosting.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - sourmilk.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here's a driver for the adm8211 802.11b chipset.
 
---yEPQxsgoJgBvi8ip
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+http://aluminum.sourmilk.net/adm8211/adm8211-20040411.tar.bz2
 
-On Sat, Apr 10, 2004 at 06:36:38PM -0700, Pete Zaitcev wrote:
-> The main test is to put a CD and keyboard on a hub, and hub on a KVM, then
-> flip KVM several times quickly from one blade to another. All hell breaks
-> loose. IIRC, I had four different OOPS and lockup scenarios.
+It's only for 2.6.x kernels, and it's not quite finished yet. It should mostly 
+work for infrastructure and monitor modes, but adhoc and WEP don't work yet. 
+Should work for the average wireless network though.
 
-Now that's interesting.... do you have to have the keyboard and hub on the
-KVM?
+Thanks to Jouni Malinen for starting this driver, Jerritt Collord for telling 
+me about his driver, and David Young for his netbsd driver I used as a 
+reference.
 
-Matt
+Please test and see if it works for you.
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+I'm not subscribed to this list, so please CC.
 
-I say, what are all those naked people doing?
-					-- Big client to Stef
-User Friendly, 12/14/1997
-
---yEPQxsgoJgBvi8ip
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAeOcJIjReC7bSPZARAlZZAJ9CS4jnJgpwTlWv8rVkL+56T/feRQCgucqQ
-ZtzOGDZFwwQrfy/4t1HbJsQ=
-=/9uG
------END PGP SIGNATURE-----
-
---yEPQxsgoJgBvi8ip--
+- Michael Wu

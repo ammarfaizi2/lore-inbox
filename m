@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270512AbTGSUTx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 16:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270522AbTGSUTx
+	id S270522AbTGSUXT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 16:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270526AbTGSUXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 16:19:53 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:5027 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S270512AbTGSUTw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 16:19:52 -0400
-Date: Sat, 19 Jul 2003 22:32:48 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: Miles Lane <miles.lane@comcast.net>
-Cc: linux-kernel@vger.kernel.org, paulus@au.ibm.com, benh@kernel.crashing.org
-Subject: Re: 2.6.0-test1-ac2 -- arch/ppc/platforms/pmac_cpufreq.c:179: `CPUFREQ_ALL_CPUS' undeclared  (first use in this function)
-Message-ID: <20030719203248.GB731@brodo.de>
-References: <200307191244.31830.miles.lane@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307191244.31830.miles.lane@comcast.net>
-User-Agent: Mutt/1.4i
+	Sat, 19 Jul 2003 16:23:19 -0400
+Received: from ws-han1.win-ip.dfn.de ([193.174.75.150]:11394 "EHLO
+	ws-han1.win-ip.dfn.de") by vger.kernel.org with ESMTP
+	id S270522AbTGSUXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 16:23:18 -0400
+Date: Sat, 19 Jul 2003 22:41:03 +0200
+Message-ID: <vines.sxdD+TnO4zA@SZKOM.BFS.DE>
+X-Priority: 3 (Normal)
+To: <linux-kernel@vger.kernel.org>
+From: <WHarms@bfs.de> (Walter Harms)
+Reply-To: <WHarms@bfs.de>
+Subject: alpha; gas & linux 2.6.0-test1
+X-Incognito-SN: 25185
+X-Incognito-Version: 5.1.0.84
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 19, 2003 at 12:44:31PM -0700, Miles Lane wrote:
->   CC      arch/ppc/platforms/pmac_cpufreq.o
-> arch/ppc/platforms/pmac_cpufreq.c: In function `do_set_cpu_speed':
-> arch/ppc/platforms/pmac_cpufreq.c: 179: `CPUFREQ_ALL_CPUS' undeclared (first 
-> 
-> use in this function)
-> 
-> CONFIG_CPU_FREQ=y
-> CONFIG_CPU_FREQ_PROC_INTF=y
-> CONFIG_CPU_FREQ_24_API=y
-> CONFIG_CPU_FREQ_PMAC=y
 
-Intermediate fix [replace CPUFREQ_ALL_CPUS with either 0 or
-smp_processor_id() ] for this is already in Linus' tree, important update
-for the pmac-cpufreq driver is in benh's tree and will hopefully be pushed
-to Linus tree soon.
+hi list,
+i tried to compile linux 2.6.0 unfortunaly the
+GNU assembler version 2.11.90.0.8 (alpha-redhat-linux) using BFD version 2.11.90.0.8
+has a problem:
 
-	Dominik
+  AS      usr/initramfs_data.o
+usr/initramfs_data.S: Assembler messages:
+usr/initramfs_data.S:2: Error: Unknown pseudo-op:  `.incbin'
+make[1]: *** [usr/initramfs_data.o] Fehler 1
+
+I solved that with an upgrade to
+GNU assembler version 2.13 (alphaev56-unknown-linux-gnu) using BFD version 2.13
+
+there is already a check for as < 2.7 perhaps checking for <2.13 would be better :)
+
+walter

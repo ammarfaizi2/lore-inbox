@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263232AbRFRAds>; Sun, 17 Jun 2001 20:33:48 -0400
+	id <S263225AbRFRAgR>; Sun, 17 Jun 2001 20:36:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263228AbRFRAdh>; Sun, 17 Jun 2001 20:33:37 -0400
-Received: from maynard.mail.mindspring.net ([207.69.200.243]:49966 "EHLO
-	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S263225AbRFRAda>; Sun, 17 Jun 2001 20:33:30 -0400
-Subject: Re: [Emu10k1-devel] Re: Buggy emu10k1 drivers.
-From: Robert Love <rml@ufl.edu>
-To: Daniel Bertrand <d.bertrand@ieee.ca>
-Cc: Dylan Griffiths <Dylan_G@bigfoot.com>,
-        emu10k1-devel <emu10k1-devel@opensource.creative.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106171707150.2262-100000@kilrogg>
-In-Reply-To: <Pine.LNX.4.33.0106171707150.2262-100000@kilrogg>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 17 Jun 2001 20:33:25 -0400
-Message-Id: <992824408.3203.7.camel@phantasy>
+	id <S263228AbRFRAgH>; Sun, 17 Jun 2001 20:36:07 -0400
+Received: from line153.ba.psg.sk ([195.80.179.153]:11651 "HELO ivan.doma")
+	by vger.kernel.org with SMTP id <S263225AbRFRAf7>;
+	Sun, 17 Jun 2001 20:35:59 -0400
+Date: Mon, 18 Jun 2001 02:34:59 +0200
+From: Ivan Vadovic <pivo@pobox.sk>
+To: Riley Williams <rhw@MemAlpha.CX>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: any good diff merging utility?
+Message-ID: <20010618023459.C1063@ivan.doma>
+In-Reply-To: <20010618014547.B1063@ivan.doma> <Pine.LNX.4.33.0106180102520.25038-100000@infradead.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.33.0106180102520.25038-100000@infradead.org>; from rhw@MemAlpha.CX on Mon, Jun 18, 2001 at 01:06:54AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Jun 2001 17:25:11 -0700, Daniel Bertrand wrote:
-> On 17 Jun 2001, Robert Love wrote:
-> > if the driver in the kernel is that old, could we try merging a newer
-> > release?  is there any reason why it has not been done yet?
+>  > I like to build kernels with a bunch of patches on top to test
+>  > new stuff. The problem is that it takes a lot of effort to fix
+>  > all the failed hunks during patching that really wouldn't have
+>  > to be failed if only patch was a little more inteligent and
+>  > could merge several patches into one ( if possible) or if could
+>  > take into account already applied patches.
 > 
-> A patch was submitted to Alan in April but appears to have never made it
-> in, I'm not sure what his reason was.
+> The basic problem here is that the "failed hunks" are usually there
+> because of conflicts between the two patches in question, and as a
+> result, they are not as easy to merge automagically as one might at
+> first assume.
 
-can a patch against the latest 2.4-ac be resubmitted to the list and
-alan?  if it again does not get merged, i will take a look at it and
-find what political problems it has.  i use the emu10k1 and would like
-the updated driver.
+Very often the case is that they indeed can be merged automagically.
+For example two patches inserting few lines right after the #include
+lines.
 
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
+patch1:
+@@ 10,1 10,2 @@
+ #include <foo.h>
++#include <1.h>
 
+patch2:
+@@ 10,1 10,2 @@
+ #include <foo.h>
++#include <2.h>
+
+The patch will fail to patch :-). But there is no real conflict between
+the patches.
+ 
+>  > Well, are there any utilities to merge diffs? I couldn't find
+>  > any on freshmeat. So what are you using to stack many patches
+>  > onto the kernel tree? Just manualy modify the diff? I'll try to
+>  > write something more automatic if nothing comes up.
+> 
+> I once came across a utility called "diff3" that was designed to take
+> a patch for one version of a package and create an equivalent patch
+> for another version of the same package, but I haven't been able to
+> find it again since my hard drive crashed.
+
+diff3 comes from gnu diffutils
+<ftp://ftp.gnu.org/gnu/diffutils/diffutils-2.7.tar.gz>. But all it does
+is comparing three FILES for differencies.
+
+Ivan Vadovic

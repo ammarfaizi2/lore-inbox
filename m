@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314087AbSDQIcc>; Wed, 17 Apr 2002 04:32:32 -0400
+	id <S313448AbSDQIim>; Wed, 17 Apr 2002 04:38:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314090AbSDQIcb>; Wed, 17 Apr 2002 04:32:31 -0400
-Received: from mail.sonytel.be ([193.74.243.200]:17044 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S314087AbSDQIca>;
-	Wed, 17 Apr 2002 04:32:30 -0400
-Date: Wed, 17 Apr 2002 10:25:45 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: david.lang@digitalinsight.com, vojtech@suse.cz,
-        dalecki@evision-ventures.com, rgooch@ras.ucalgary.ca,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.8 IDE 36
-In-Reply-To: <20020416.100610.115916272.davem@redhat.com>
-Message-ID: <Pine.GSO.4.21.0204171019530.1258-100000@vervain.sonytel.be>
+	id <S313939AbSDQIim>; Wed, 17 Apr 2002 04:38:42 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:531 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S313448AbSDQIil>;
+	Wed, 17 Apr 2002 04:38:41 -0400
+Message-ID: <3CBD25E2.2050404@evision-ventures.com>
+Date: Wed, 17 Apr 2002 09:36:02 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        David Lang <david.lang@digitalinsight.com>,
+        Vojtech Pavlik <vojtech@suse.cz>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.8 IDE 36
+In-Reply-To: <E16xVSi-0000FN-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Apr 2002, David S. Miller wrote:
->    From: David Lang <david.lang@digitalinsight.com>
->    Date: Tue, 16 Apr 2002 10:09:38 -0700 (PDT)
+Alan Cox wrote:
+>>Doing it with a loopback like interface at a higher level is the much 
+>>saner operation - I understand why Martin removed the byteswap support, 
+>>and agree with it 100%. It just didn't make any sense from a driver 
+>>standpoint.
 > 
->    I could be wrong, it's a 2.1.x kernel that they started with. I thought
->    that was around the time the fix went in.
->    
-> Again, I did the fix 6 years ago, thats pre-2.0.x days
 > 
-> EXT2 has been little-endian only with proper byte-swapping support
-> across all architectures, since that time.
+> We need to support partitioning on loopback devices in that case.
+> 
+> 
+>>The only reason byteswapping exists is a rather historical one: Linux did 
+>>the wrong thing for "insw/outsw" on big-endian architectures at one point 
+>>(it byteswapped the data).
+> 
+> 
+> A small number of other setups people wired the IDE the quick and easy
+> way and their native format is indeed ass backwards - some M68K disks and
+> the Tivo are examples of that. Interworking requires byteswapping and the
+> ability to handle byteswapped partition tables.
 
-On SPARC. M68k followed a bit later. But when I got my CHRP board, ext2 was
-still big endian on (at least some) PPC boxes, so PPC must have been switched
-over in 1997/1998.
-
-I tried to find the exact date of the appearance of the `-s' option of e2fsck
-in the changelog og e2fsprogs, but apparently not all changes are mentioned
-there.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+I said it already multiple times Alan - please note that the byte-swapping code
+for *physically* crosswired systems is *still there*. OK?
 

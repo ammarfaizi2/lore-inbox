@@ -1,64 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131586AbRCOIIK>; Thu, 15 Mar 2001 03:08:10 -0500
+	id <S131644AbRCOIRW>; Thu, 15 Mar 2001 03:17:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131609AbRCOIIA>; Thu, 15 Mar 2001 03:08:00 -0500
-Received: from mail.valinux.com ([198.186.202.175]:20233 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S131586AbRCOIHt>;
-	Thu, 15 Mar 2001 03:07:49 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE poweroff -> hangup
-X-Newsgroups: linux.kernel
-In-Reply-To: <Pine.LNX.4.10.10103142010300.7091-100000@master.linux-ide.org>
-From: chip@valinux.com (Chip Salzenberg)
-In-Reply-To: <00cb01c0acf8$83125ee0$61acd6d2@ninzazrouter>
-Organization: VA Linux Systems
-Message-Id: <E14dSmq-00072K-00@traeki.engr.valinux.com>
-Date: Thu, 15 Mar 2001 00:07:08 -0800
+	id <S131648AbRCOIRQ>; Thu, 15 Mar 2001 03:17:16 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:46857 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S131644AbRCOIRF>; Thu, 15 Mar 2001 03:17:05 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Thu, 15 Mar 2001 19:13:52 +1100
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH]: Only one memory zone for sparc64
+Message-ID: <20010315191352.D1598@linuxcare.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick writes:
->On Thu, 15 Mar 2001, CODEZ wrote:
->> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
->> I have ASUS 440BX/F mb with intel PIIX4 chipset......
->
->All of the 440*X Chipsets using a PIIX4/PIIX4AB/PIIX4EB are broken beyond
->repair.
 
-Well, that may be so; but I get the same error -- *precisely* the same
-error! -- on an SiS motherboard that quite clearly lacks a PIIX4:
+Hi,
 
-  # lspci
-  00:00.0 Host bridge: Silicon Integrated Systems [SiS] 530 Host (rev 02)
-  00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
-  00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev b1)
-  00:01.1 Class ff00: Silicon Integrated Systems [SiS] ACPI
-  00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 11)
-  00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
-  00:0b.0 Ethernet controller: 3Com Corporation 3c900 10BaseT [Boomerang]
-  01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] 6306 3D-AGP (rev a2)
+On sparc64 we dont care about the different memory zones and iterating
+through them all over the place only serves to waste CPU. I suspect this
+would be the case with some other architectures but for the moment I
+have just enabled it for sparc64.
 
-  # lspci -v -s0:0
-  00:00.0 Host bridge: Silicon Integrated Systems [SiS] 530 Host (rev 02)
-        Flags: bus master, medium devsel, latency 32
-        Memory at e0000000 (32-bit, non-prefetchable)
-        Capabilities: [c0] AGP version 2.0
+With this patch I get close to a 1% improvement in dbench on the dual
+ultra60.
 
-  00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0) (prog-if 8a [Master SecP PriP])
-        Subsystem: Silicon Integrated Systems [SiS] SiS5513 EIDE Controller (A,B step)
-        Flags: bus master, fast devsel, latency 128, IRQ 14
-        I/O ports at e400
-        I/O ports at e000
-        I/O ports at d800
-        I/O ports at d400
-        I/O ports at d000
+Anton
 
-So...  Any ideas?
-
-> I will pop a nasty patch to get you through the almost death, but it
-> is nasty and not the preferred unknow solution.
-
-I await your fugly patch with bated breath and baited fishook.
--- 
-Chip Salzenberg    a.k.a.    <chip@valinux.com>
+diff -ru linux/include/linux/mmzone.h linux_work/include/linux/mmzone.h
+--- linux/include/linux/mmzone.h	Thu Mar 15 19:03:47 2001
++++ linux_work/include/linux/mmzone.h	Tue Mar 13 18:46:59 2001
+@@ -63,7 +63,19 @@
+ #define ZONE_DMA		0
+ #define ZONE_NORMAL		1
+ #define ZONE_HIGHMEM		2
++#ifdef __sparc_v9__
++#define MAX_NR_ZONES		1
++#define ZONE_NAMES		{ "DMA" }
++#define ZONE_BALANCE_RATIO	{ 32 }
++#define ZONE_BALANCE_MIN	{ 10 }
++#define ZONE_BALANCE_MAX	{ 255 }
++#else
+ #define MAX_NR_ZONES		3
++#define ZONE_NAMES		{ "DMA", "Normal", "HighMem" }
++#define ZONE_BALANCE_RATIO	{ 32, 128, 128 }
++#define ZONE_BALANCE_MIN	{ 10, 10, 10 }
++#define ZONE_BALANCE_MAX	{ 255, 255, 255 }
++#endif
+ 
+ /*
+  * One allocation request operates on a zonelist. A zonelist
+diff -ru linux/mm/page_alloc.c linux_work/mm/page_alloc.c
+--- linux/mm/page_alloc.c	Mon Mar 12 13:33:02 2001
++++ linux_work/mm/page_alloc.c	Mon Mar 12 13:00:08 2001
+@@ -23,10 +23,10 @@
+ int nr_inactive_dirty_pages;
+ pg_data_t *pgdat_list;
+ 
+-static char *zone_names[MAX_NR_ZONES] = { "DMA", "Normal", "HighMem" };
+-static int zone_balance_ratio[MAX_NR_ZONES] = { 32, 128, 128, };
+-static int zone_balance_min[MAX_NR_ZONES] = { 10 , 10, 10, };
+-static int zone_balance_max[MAX_NR_ZONES] = { 255 , 255, 255, };
++static char *zone_names[MAX_NR_ZONES] = ZONE_NAMES;
++static int zone_balance_ratio[MAX_NR_ZONES] = ZONE_BALANCE_RATIO;
++static int zone_balance_min[MAX_NR_ZONES] = ZONE_BALANCE_MIN;
++static int zone_balance_max[MAX_NR_ZONES] = ZONE_BALANCE_MAX;
+ 
+ struct list_head active_list;
+ struct list_head inactive_dirty_list;

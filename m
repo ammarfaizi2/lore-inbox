@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311059AbSCHThk>; Fri, 8 Mar 2002 14:37:40 -0500
+	id <S311030AbSCHTpq>; Fri, 8 Mar 2002 14:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311066AbSCHThb>; Fri, 8 Mar 2002 14:37:31 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:65279 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S311059AbSCHThZ>; Fri, 8 Mar 2002 14:37:25 -0500
-Date: Fri, 08 Mar 2002 11:36:31 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] stop null ptr deference in __alloc_pages
-Message-ID: <7730000.1015616191@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S311067AbSCHTpg>; Fri, 8 Mar 2002 14:45:36 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:15488 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S311030AbSCHTp0>; Fri, 8 Mar 2002 14:45:26 -0500
+Date: Fri, 8 Mar 2002 14:45:27 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: johan.adolfsson@axis.com
+cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Terje Eggestad <terje.eggestad@scali.com>,
+        Ben Greear <greearb@candelatech.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        george anzinger <george@mvista.com>
+Subject: Re: gettimeofday() system call timing curiosity
+In-Reply-To: <025b01c1c6d4$63c05500$aab270d5@homeip.net>
+Message-ID: <Pine.LNX.3.95.1020308143013.6910A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary: Avoid null ptr defererence in __alloc_pages
-This exists in 2.4. and 2.5
+On Fri, 8 Mar 2002 johan.adolfsson@axis.com wrote:
 
-Configuration: a NUMA (ia32) system which only has highmem 
-on one or more nodes.
+> What happens if you remove the printf/puts and simply counts the number
+> of times the different cases happen?
+> 
 
-Action to create: Try to allocate ZONE_NORMAL memory 
-from a node which only has highmem. What we should do
-is fall back to another node, looking for ZONE_NORMAL
-memory.
+Try it. It doesn't matter. Alan was correct, my computer sucks. However,
+they won't give me a 10 GHz one (yet). Note that although gettimeofday()
+has 1 microsecond resolution, not all the codes are exercised. We get
+something with the granularity of 50 to 190 microseconds. This is
+to be expected. You would need a timer that updates at least twice
+the expected resolution to be able to exercise all the bits, i.e.,
+something with a 2 MHz update-rate, that could be read before it
+changed, or a real 'buzzer' of an ISR at 2 MHz. Before everybody
+argues, a 1 MHz ISR would give you a value that is updated at
+1 microsecond intervals, but now we have to read in asynchronously
+and that's where Shannon (information theory) laws take effect.
 
-In looking at the specified zonelist, we panic because that zonelist
-is NULL. The simple patch below avoids the null deference, and 
-returns failure. alloc_pages will continue looking through the nodes
-until it finds one with some ZONE_NORMAL memory. We actually
-panic at the moment a few lines later when we do,
-classzone->need_balance = 1; thus dereferencing the pointer.
+> Another thought: Isn't it quite common that clock generators has a mode
+> where the frequency differs around the desired frequency to spread the
+> spectrum
+> and easier pass EMC tests?
 
---- linux-2.4.18-memalloc/mm/page_alloc.c.old	Fri Mar  8 18:21:41 2002
-+++ linux-2.4.18-memalloc/mm/page_alloc.c	Fri Mar  8 18:23:27 2002
-@@ -317,6 +317,8 @@
- 
- 	zone = zonelist->zones;
- 	classzone = *zone;
-+	if (classzone == NULL)
-+		return NULL;
- 	min = 1UL << order;
- 	for (;;) {
- 		zone_t *z = *(zone++);
+Actually, I think they just use a junk piezo-resonator instead of a
+quartz crystal. If you try spread-spectrum with a bus-clock, you will
+screw up all the timing so the bus won't work. Think PCI Bus with its
+'reflected-wave' mechanism. If the clock timimg was to change during
+PCI Bus activity, all bets are off.
+
+> Could that be the case with the laptop?
+> /Johan
+> 
+Don't think so.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+	Bill Gates? Who?
 

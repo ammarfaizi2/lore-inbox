@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317215AbSFRBkx>; Mon, 17 Jun 2002 21:40:53 -0400
+	id <S317230AbSFRBqu>; Mon, 17 Jun 2002 21:46:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317230AbSFRBkw>; Mon, 17 Jun 2002 21:40:52 -0400
-Received: from twinlark.arctic.org ([208.44.199.239]:13000 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S317214AbSFRBkw>; Mon, 17 Jun 2002 21:40:52 -0400
-Date: Mon, 17 Jun 2002 18:40:53 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
+	id <S317251AbSFRBqt>; Mon, 17 Jun 2002 21:46:49 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:28662 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S317230AbSFRBqs>; Mon, 17 Jun 2002 21:46:48 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Mon, 17 Jun 2002 19:45:13 -0600
 To: Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: 3x slower file reading oddity
+Message-ID: <20020618014513.GK22427@clusterfs.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	dean gaudet <dean-list-linux-kernel@arctic.org>,
+	linux-kernel@vger.kernel.org
+References: <3D0E7041.860710CA@zip.com.au> <Pine.LNX.4.44.0206171649270.18507-100000@twinlark.arctic.org> <3D0E807C.5D50C17E@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <3D0E807C.5D50C17E@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0206171755450.18507-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jun 2002, Andrew Morton wrote:
+On Jun 17, 2002  17:36 -0700, Andrew Morton wrote:
+> You can probably lessen the seek-rate by accessing the files in the correct
+> order.  Read all the files from a directory before descending into any of
+> its subdirectories.  Can find(1) do that?  You should be able to pretty
+> much achieve disk bandwidth this way - it depends on how bad the inter-
+> and intra-file fragmentation has become.
 
-> dean gaudet wrote:
-> > what if you have a disk array with lots of spindles?  it seems at some
-> > point that you need to give the array or some lower level driver a lot of
-> > i/os to choose from so that it can get better parallelism out of the
-> > hardware.
->
-> mm.  For that particular test, you'd get nice speedups from striping
-> the blockgroups across disks, so each `cat' is probably talking to
-> a different disk.  I don't think I've seen anything like that proposed
-> though.
+Just FYI - "find -depth" will do that, from find(1):
+	-depth Process each directory's contents before the directory itself.
 
-heh, a 128MB stripe?  that'd be huge :)
-
-> You could fork one `cat' per file ;)  (Not so silly, really.  But if
-> you took this approach, you'd need "many" more threads than blockgroups).
-
-i actually tried this first :)  the problem then becomes a fork()
-bottleneck before you run into the disk bottlenecks.  iirc the numbers
-were ~45s for the 1-file-per-cat (for any -Pn, n<=10), ~30s for
-100-files-per-cat (-P1) and ~1m15s for 100-files-per-cat (-P2).
-
-> hmm.  What else?  Physical readahead - read metadata into the block
-> device's pagecache and flip pages from there into directories and
-> files on-demand.  Fat chance of that happening.
-
-one idea i had -- given that the server has a volume manager and you're
-working from a snapshot volume anyhow (only sane way to do backups), it
-might make a lot more sense to use userland ext2/3 libraries to read the
-snapshot block device anyhow.  but this kind of makes me cringe :)
-
--dean
-
-
-
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

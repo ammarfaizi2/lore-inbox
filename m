@@ -1,128 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264103AbUFFUUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUFFUVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264103AbUFFUUs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 16:20:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbUFFUUr
+	id S264113AbUFFUVI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 16:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbUFFUVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 16:20:47 -0400
-Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:10425
-	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
-	id S264103AbUFFUUn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 16:20:43 -0400
-Message-ID: <40C37C99.1050103@freemail.hu>
-Date: Sun, 06 Jun 2004 22:20:41 +0200
-From: Zoltan Boszormenyi <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031114
-X-Accept-Language: hu, en-US
-MIME-Version: 1.0
+	Sun, 6 Jun 2004 16:21:08 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:50317 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264096AbUFFUUz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 16:20:55 -0400
+Message-Id: <200406062020.i56KKOO8016825@zeus.kernel.org>
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	"OFFRE SPECIALE Satisfait ou  =?ISO-8859-1?Q?=20rembours=E9=22?= <fp2004@compaqnet.fr>"
+			^-missing closing '"' in token
+From: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Subject: DEC 2104x driver confusion with 2.6.5+
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: Essayer pendant 10 jours les micros-casque suivant:
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Sun, 6 Jun 2004 22:20:52
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-this afternoon I installed FC2 on an old Pentium 166MMX
-machine that serves as a firewall. I installed RH9 on this
-same machine about 18 month ago, the hard disk died 3 days ago.
+OFFRE SPECIALE Satisfait ou remboursé*
+Essayez pendant 10 jours les articles suivants :
 
-The machine has two identical network card:
+Des micros - casques sans fils et filaires pour mieux s'entendre !
+Pour tous les besoins, tous les goûts et tous les budgets !
 
-# lspci
-00:00.0 Host bridge: Intel Corp. 430TX - 82439TX MTXC (rev 01)
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 01)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 01)
-00:0e.0 VGA compatible controller: S3 Inc. 86c764/765 [Trio32/64/64V+] 
-(rev 54)
-00:0f.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 
-  Tulip Pass 3] (rev 11)
-00:10.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 
-[Tulip Pass 3] (rev 11)
-[root@localhost root]# lspci -n -vvv -s 00:0f.0
-00:0f.0 Class 0200: 1011:0014 (rev 11)
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 96
-         Interrupt: pin A routed to IRQ 10
-         Region 0: I/O ports at fc00
-         Region 1: Memory at fedffc00 (32-bit, non-prefetchable) [size=128]
-[root@localhost root]# lspci -n -vvv -s 00:10.0
-00:10.0 Class 0200: 1011:0014 (rev 11)
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 96
-         Interrupt: pin A routed to IRQ 11
-         Region 0: I/O ports at f880
-         Region 1: Memory at fedff800 (32-bit, non-prefetchable) [size=128]
+GN 2200  mono ou duo
+Micro-Casque filaire monaural
+Mono - écouteur sur oreille droite ou Duo - écouteur sur oreille droite et gauche
+Perche micro articulée souple 
+Microphone à filtrage des bruits ambiants,    
+Ergonomie : Serre-tête réglable  
+Prise de déconnexion rapide  " Quick  deconnect " 
+GARANTIE 2ANS
+ 
+Réf : GN 2200 Mono  Prix 150,00 euros HTC    179,40 euros TTC  Photo sur demande
+Réf : GN 2200 Duo   Prix 166,39 euros HT     199,00 euros TTC  Photo sur demande
 
-There are two problems, the first one is that the OS thinks
-that "tulip.ko" drives the card but it doesn't.
-The same "tulip.o" driver in RH9 (2.4.x) handled this well,
-although I had to manually give the media type since autosense
-did not work.
+Existe en Version Pack
+GN 2250  ensemble GN 2200 et Amplificateur GN 8000 MPA
 
-The second problem is that "de2104x.ko" recognizes the cards
-but autosense does not work, either, and one of the card
-shares its interrupt (IRQ 11) with the onboard USB host.
-The host is flooded with interrupts on IRQ 11 after I load
-de2104x and after some minutes, the kernel disables this IRQ, 
-occasionally I got a lockup, too.
+Réf : GN 2200 Mon + GN 8000 241,64 euros HT 289 euros TTC  Photo sur demande
 
-Fortunately, there is a third driver, "de4x5.ko", which
-can drive these, but only after I do a "modprobe de2104x ;
-rmmod de2104x". Without this, after a clean boot into single
-mode "modprobe de4x5" does not emit any messages.
+CADOVIS Service client  Tel. 01 43 24 60 20 ou 01 43 24 60 90
 
-I finally put
+*************************
 
-alias eth0 de4x5
-alias eth1 de4x5
+GN 9120 Midi 
 
-into /etc/modprobe.conf and modified /etc/rc.d/init.d/network
-so it pulls in and removes de2104x before doing anything.
+Le vrai casque sans fil  
+Portée : 150 mètres 
+Autonomie de conversation : 12 heures 
+Technologie : 1.8 GHz DECT        
+Ergonomie personnalisable : Serre-tête réglable et contour d'oreille
+Compatible avec tout téléphone de bureau
+Prise d'appels à distance avec le levier de décroché à distance  
+( en option GN 1000  99 euros TTC )
+Voyants "En ligne", "Batterie"  -   Réglage volume et tonalité
+Fonction "Secret"  -  Fonction "Conférence" jusqu'à 4 intervenants
 
-I have now these in dmesg:
+GARANTIE 2ANS
 
-...
-de2104x PCI Ethernet driver v0.7 (Mar 17, 2004)
-PCI: Enabling device 0000:00:0f.0 (0004 -> 0007)
-de0: SROM leaf offset 30, default media 10baseT auto
-de0:   media block #0: 10baseT-FD
-de0:   media block #1: BNC
-de0:   media block #2: 10baseT-HD
-divert: allocating divert_blk for eth0
-eth0: 21041 at 0xd0843c00, 00:e0:29:09:84:99, IRQ 10
-PCI: Enabling device 0000:00:10.0 (0004 -> 0007)
-de1: SROM leaf offset 30, default media 10baseT auto
-de1:   media block #0: 10baseT-FD
-de1:   media block #1: BNC
-de1:   media block #2: 10baseT-HD
-divert: allocating divert_blk for eth1
-eth1: 21041 at 0xd08a9800, 00:e0:29:09:84:ab, IRQ 11
-divert: freeing divert_blk for eth0
-divert: freeing divert_blk for eth1
-0000:00:0f.0: DC21041 at 0xfc00, h/w address 00:e0:29:09:84:99,
-       and requires IRQ10 (provided by PCI BIOS).
-de4x5.c:V0.546 2001/02/22 davies@maniac.ultranet.com
-divert: allocating divert_blk for eth0
-0000:00:10.0: DC21041 at 0xf880, h/w address 00:e0:29:09:84:ab,
-       and requires IRQ11 (provided by PCI BIOS).
-de4x5.c:V0.546 2001/02/22 davies@maniac.ultranet.com
-divert: allocating divert_blk for eth1
-eth0: media is TP.
-eth1: media is TP.
-...
+Réf: 9120-Midi Prix 383.78 euros HT  459 euros TTC  Photo sur demande
 
-Hence the subject is driver confusion, I though it worth reporting. :-)
+CADOVIS Service client  Tel. 01 43 24 60 20 ou 01 43 24 60 90
 
-Best regards,
-Zoltán Böszörményi
+
+*************************
+
+GN 4150  Micro-casque filaire et amplificateur
+Perche courte, microphone antibruit
+Serre-tête réglable et contour d'oreille - Ultra léger
+Connexion PC pour applications audio
+Connexion pour téléphone portable - Fonction " secret "
+
+Réf : 4150-04 150,00euros HT  -  179,40euros TTC
+
+CADOVIS Service client 01 43 24 60 90 ou 01 43 20 60 20
+
+*************************
+
+GN 4170 Micro-casque filaire et téléphone analogique
+
+TOUT-EN-UN CASQUE / TÉLÉPHONE
+Téléphone analogique avec :
+o Touche bis
+o Transfert d´appels
+o Mémorisation de numéros
+o Connexion PC et téléphones mobiles
+MICRO-CASQUE
+o Perche courte
+o Microphone omnidirectionnel
+o Serre-tête réglable et contour d´oreille
+
+Réf 4170-04 149,67euros HT - 179,00euros TTC
+
+CADOVIS service client 01 43 24 60 90 ou 01 43 24 60 20
+
+*************************
+
+Oreillette sans fil mains libres pour GSM Technologie Bluetooth :
+
+La communication sans fil pour tous !
+
+JABRA FREESPEAK 250
+ 
+Kit mains-libres Bluetooth.
+10 jours en veille, 8h en conv.
+Livré avec chargeur secteur (200v) et son manuel
+Compatible avec tous les téléphones Bluetooth
+Nous contacter au 01 43 24 60 20 pour plus d'informations 
+Garantie 1AN
+ 
+Réf : JABRA 250 - Prix 132,95 euros HT   159 euros TTC Photo sur demande
+
+CADOVIS Service client  Tel. 01 43 24 60 20 ou 01 43 24 60 90
+
+
+*************************
+
+Essayez  pendant 10 jours le(s) article(s) ci-dessus. Si après 10 jours vous souhaitez nous 
+retourner le(s) article(s) commandé(s), il restera à votre charge une participation de 45 euros HT 
+de frais de traitement et de port de votre commande. Chaque article devra être retourné dans son
+emballage d'origine et en bon état. Offre valable jusqu'au 20 juin 2004 en fonction des stocks disponibles.
+
+Mai 2004 offre valable dans la limite des stocks disponibles.
+
+*************************
+
+Conformément à l'article 34 de la loi Informatique et Liberté du 6 janvier 1978, vous disposez d'un droit d'accès, 
+de modification, de rectification et de suppression des données vous concernant.  
+Pour exercer ce droit contactez-nous annulation5@compaqnet.fr 
+Si ce message vous a causé un quelconque dérangement, nous vous prions de nous en excuser.
+
+
+**************************
+
+
+
+
+
+
+
 

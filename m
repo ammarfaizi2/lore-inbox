@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266263AbUBKXLR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 18:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266267AbUBKXLR
+	id S266064AbUBKX2f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 18:28:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266099AbUBKX2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 18:11:17 -0500
-Received: from ti200710a080-3502.bb.online.no ([80.213.45.174]:8689 "EHLO
-	ford.pronto.tv") by vger.kernel.org with ESMTP id S266263AbUBKXLQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 18:11:16 -0500
-To: Andreas Schwab <schwab@suse.de>
+	Wed, 11 Feb 2004 18:28:33 -0500
+Received: from codepoet.org ([166.70.99.138]:38581 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S266064AbUBKX2c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 18:28:32 -0500
+Date: Wed, 11 Feb 2004 16:28:29 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Mariusz Mazur <mmazur@kernel.pl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: printk and long long
-References: <200402111604.49082.vda@port.imtp.ilyichevsk.odessa.ua>
-	<Pine.LNX.4.44.0402111655170.17933-100000@gaia.cela.pl>
-	<c0e0gr$mcv$1@terminus.zytor.com> <yw1xvfmdwe4s.fsf@kth.se>
-	<je8yj9cl27.fsf@sykes.suse.de>
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Thu, 12 Feb 2004 00:11:09 +0100
-In-Reply-To: <je8yj9cl27.fsf@sykes.suse.de> (Andreas Schwab's message of
- "Wed, 11 Feb 2004 23:23:28 +0100")
-Message-ID: <yw1xn07pw6sy.fsf@kth.se>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.2.0
+Message-ID: <20040211232829.GA15450@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	Mariusz Mazur <mmazur@kernel.pl>, linux-kernel@vger.kernel.org
+References: <200402112339.55593.mmazur@kernel.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402112339.55593.mmazur@kernel.pl>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab <schwab@suse.de> writes:
+On Wed Feb 11, 2004 at 11:39:55PM +0100, Mariusz Mazur wrote:
+> Available at: http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
+> 
+> Changes:
+> - applied changes from 2.6.2 kernel
+> - added an empty linux/compiler.h (I really hate myself for doing this, but 
+> don't have much choice... many apps include it as a workaround for broken 
+> headers that come with linux)
+> - some minor changes... mostly removing duplicate definitons and replacing 
+> them with calls to glibc's headers
 
-> mru@kth.se (Måns Rullgård) writes:
->
->> What is the proper way to deal with printing an int64_t when int64_t
->> can be either long or long long depending on machine?
->
-> PRId64 from <inttypes.h> (replace d with the desired format character).
-> This is for user space, not sure whether that is acceptable for kernel
-> code (<intttypes.h> is not one of the required headers for freestanding
-> implementations).
+Thoughts on adding sanitized include/scsi/ ?
 
-That should work for userspace.  What standard specifies those?
-What about kernel sources?
+ -Erik
 
--- 
-Måns Rullgård
-mru@kth.se
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

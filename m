@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272212AbRI0JXG>; Thu, 27 Sep 2001 05:23:06 -0400
+	id <S272242AbRI0JWf>; Thu, 27 Sep 2001 05:22:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272247AbRI0JW4>; Thu, 27 Sep 2001 05:22:56 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:19725 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S272212AbRI0JWm>;
-	Thu, 27 Sep 2001 05:22:42 -0400
-Date: Thu, 27 Sep 2001 11:20:45 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Bernd Harries <mlbha@gmx.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: __get_free_pages(): is the MEM really mine?
-In-Reply-To: <356.1001580994@www46.gmx.net>
-Message-ID: <Pine.LNX.4.33.0109271117490.4082-100000@localhost.localdomain>
+	id <S272253AbRI0JWZ>; Thu, 27 Sep 2001 05:22:25 -0400
+Received: from hal.grips.com ([62.144.214.40]:53140 "EHLO hal.grips.com")
+	by vger.kernel.org with ESMTP id <S272242AbRI0JWF>;
+	Thu, 27 Sep 2001 05:22:05 -0400
+Message-Id: <200109270922.f8R9MSm11333@hal.grips.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Gerold Jury <gjury@hal.grips.com>
+To: Andrei Lahun <Uman@editec-lotteries.com>, linux-kernel@vger.kernel.org
+Subject: Re: proces stopped in D state for a long time(2.4.10)
+Date: Thu, 27 Sep 2001 11:22:27 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20010927123522.A380@chert.194.133.98.200>
+In-Reply-To: <20010927123522.A380@chert.194.133.98.200>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You are the lucky one.
+dbench 32 results in 32 D state processes for me.
+No disk operation is possible afterwards
+The reset button is the only way out.
 
-another method is to apply the attached patch to 2.4.10, and watch the
-stack traces whether it all happens in the order and places you intended
-it to. Your driver should be the only thing doing order-9 allocations on
-your system.
+(dbench 24 is ok)
 
-	Ingo
+Gerold
 
---- linux/mm/page_alloc.c.orig	Thu Sep 27 11:04:02 2001
-+++ linux/mm/page_alloc.c	Thu Sep 27 11:05:27 2001
-@@ -70,6 +70,10 @@
- 	struct page *base;
- 	zone_t *zone;
-
-+	if (order == 9) {
-+		printk("free_pages order 9 called.\n");
-+		show_stack(NULL);
-+	}
- 	if (page->buffers)
- 		BUG();
- 	if (page->mapping)
-@@ -319,6 +323,10 @@
- 	struct page * page;
- 	int freed;
-
-+	if (order == 9) {
-+		printk("alloc_pages order 9 called.\n");
-+		show_stack(NULL);
-+	}
- 	zone = zonelist->zones;
- 	classzone = *zone;
- 	for (;;) {
-
+On Thursday 27 September 2001 12:35, Andrei Lahun wrote:
+> I had a problems with dvd player(xine) with 2.4.10 when i try to search in
+> movie on of the xine threads stooped in D state for 10-20 second.

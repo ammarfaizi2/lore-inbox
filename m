@@ -1,69 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268271AbUHQOkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268268AbUHQOmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268271AbUHQOkv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 10:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268248AbUHQOkt
+	id S268268AbUHQOmA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 10:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268267AbUHQOl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 10:40:49 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:48059 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S268257AbUHQOkl
+	Tue, 17 Aug 2004 10:41:59 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:16004 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S268257AbUHQOlz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 10:40:41 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 17 Aug 2004 16:22:55 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Duncan Sands <baldrick@free.fr>, linux-kernel@vger.kernel.org
-Subject: Re: Fw: Oops at bttv_risc_packed (2.6.8-rc1)
-Message-ID: <20040817142255.GA18704@bytesex>
-References: <20040804212106.04f19bad.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Aug 2004 10:41:55 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@redhat.com>
+Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
+Date: Tue, 17 Aug 2004 16:40:31 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20040815151346.GA13761@devserv.devel.redhat.com> <200408171512.26568.bzolnier@elka.pw.edu.pl> <20040817140533.GB2019@devserv.devel.redhat.com>
+In-Reply-To: <20040817140533.GB2019@devserv.devel.redhat.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040804212106.04f19bad.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408171640.31986.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> DEBUG_PAGEALLOC
+On Tuesday 17 August 2004 16:05, Alan Cox wrote:
+> > I hate HDIO_SCAN_HWIF and HDIO_UNREGISTER_HWIF and I still think we
+> > should remove them - I waited with such changes for 2.7 but this plan
+> > failed becuase there won't be 2.7 soon. :/
+>
+> Once you have drive and controller hot plug you don't need them. Until then
+> some laptop users rely on them. I'd prefer to ignore the issue (its a
+> privileged code path) until the hotplug is there, or patch it up by
+> allowing unregister only of SCAN_HWIF added hwifs ?
 
-Hmm, amd64 hasn't this one?
-
->  [pg0+543078197/1069322240] bttv_buffer_risc+0x4b5/0x5b0 [bttv]
-
-Looks like the buffer for the risc instructions overflows.  No idea why
-through, the size calculation looks ok.  Can you please apply the debug
-patch below, load bttv with "bttv_debug=1" insmod option and try again?
-
-What app triggers this btw, and which capture parameters (size, format)?
-
-  Gerd
-
-Index: bttv-risc.c
-===================================================================
-RCS file: /home/cvsroot/video4linux/bttv-risc.c,v
-retrieving revision 1.3
-diff -u -p -r1.3 bttv-risc.c
---- bttv-risc.c	6 Jul 2004 07:52:17 -0000	1.3
-+++ bttv-risc.c	17 Aug 2004 14:17:14 -0000
-@@ -55,6 +55,8 @@ bttv_risc_packed(struct bttv *btv, struc
- 	instructions += 2;
- 	if ((rc = btcx_riscmem_alloc(btv->c.pci,risc,instructions*8)) < 0)
- 		return rc;
-+	dprintk("bttv%d: risc packed: bpl %d lines %d instr %d size %d ptr %p\n",
-+		btv->c.nr, bpl, lines, instructions, risc->size, risc->cpu);
- 
- 	/* sync instruction */
- 	rp = risc->cpu;
-@@ -99,8 +101,10 @@ bttv_risc_packed(struct bttv *btv, struc
- 			offset += todo;
- 		}
- 		offset += padding;
-+		dprintk("bttv%d: risc packed:   line %d ptr %p\n",
-+			btv->c.nr, line, rp);
- 	}
--	dprintk("bttv%d: risc planar: %d sglist elems\n", btv->c.nr, (int)(sg-sglist));
-+	dprintk("bttv%d: risc packed: %d sglist elems\n", btv->c.nr, (int)(sg-sglist));
- 
- 	/* save pointer to jmp instruction address */
- 	risc->jmp = rp;
+IMO the correct approach is to remove them as a part of a patch series
+which results in working hot plug support :)

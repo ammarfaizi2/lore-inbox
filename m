@@ -1,47 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265918AbRF1Nwy>; Thu, 28 Jun 2001 09:52:54 -0400
+	id <S265917AbRF1NxE>; Thu, 28 Jun 2001 09:53:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265902AbRF1Nwo>; Thu, 28 Jun 2001 09:52:44 -0400
-Received: from picard.csihq.com ([204.17.222.1]:45953 "EHLO picard.csihq.com")
-	by vger.kernel.org with ESMTP id <S265905AbRF1Nwd>;
-	Thu, 28 Jun 2001 09:52:33 -0400
-Message-ID: <032f01c0ffd9$8bfc2e80$e1de11cc@csihq.com>
-From: "Mike Black" <mblack@csihq.com>
-To: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
-        "raid" <linux-raid@vger.kernel.org>
-In-Reply-To: <02bd01c0ffcf$6a85f150$e1de11cc@csihq.com> <3B3B291A.3DFDA2A4@uow.edu.au>
-Subject: 2.2.6-pre6 ext3 Part II
-Date: Thu, 28 Jun 2001 09:52:18 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S265902AbRF1Nwz>; Thu, 28 Jun 2001 09:52:55 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:38672 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S265917AbRF1Nwi>;
+	Thu, 28 Jun 2001 09:52:38 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: csani@lme.linux.hu
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Error while making 2.4.5 bzImage with CONFIG_MPENTIUMIII=y 
+In-Reply-To: Your message of "Thu, 28 Jun 2001 15:39:54 +0200."
+             <15Fc3N-0004je-00@gate.westel900.hu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 28 Jun 2001 23:52:32 +1000
+Message-ID: <7570.993736352@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to recover from ext3 journal failure....swtiched drive back to ext2
+>time make dep clean bzImage modules moduels_install 2>&1 | tee bzImage.log
 
-Now my fiber channel driver is complaining:
-qlogicfc0: no handle slots, this should not happen.
-hostdata->queue  is 2a, inptr: 74
-And a bunch more (77,79,7b,7d,7e) after which it locks up completely.
-
-This is while the raid5 is resyncing and it's trying to do an e2fsck at the
-same time.
-
-I'm now going to try letting the resync complete before doing the e2fsck.
-
-Looks like I'm just running into cascading problems here...sigh...
-
-________________________________________
-Michael D. Black   Principal Engineer
-mblack@csihq.com  321-676-2923,x203
-http://www.csihq.com  Computer Science Innovations
-http://www.csihq.com/~mike  My home page
-FAX 321-676-2355
+Please read the FAQ at  http://www.tux.org/lkml/, in particular s8-8.
 

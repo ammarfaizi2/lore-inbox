@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264991AbTFQWqL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 18:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbTFQWqL
+	id S264993AbTFQW4R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 18:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbTFQW4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 18:46:11 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:21680 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264991AbTFQWqJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 18:46:09 -0400
-Subject: Re: borked sysfs system devices in 2.5.72
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Dobson <colpatch@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.44.0306171551261.908-100000@cherise>
-References: <Pine.LNX.4.44.0306171551261.908-100000@cherise>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055890701.24452.15.camel@nighthawk>
+	Tue, 17 Jun 2003 18:56:17 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42707 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264993AbTFQW4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 18:56:13 -0400
+Date: Wed, 18 Jun 2003 01:10:01 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/7] dm: Replace __HIGH() and __LOW() macros
+Message-ID: <20030617231000.GH29247@fs.tum.de>
+References: <20030609142946.GA11331@fib011235813.fsnet.co.uk> <20030609143440.GB11331@fib011235813.fsnet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Jun 2003 15:58:21 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030609143440.GB11331@fib011235813.fsnet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-06-17 at 15:54, Patrick Mochel wrote:
-> > Look in subsys_attr_show().  It is being passed a kobject, which is a
-> > member of a "struct sys_device".  We can tell this because I printed out
-> > the address of the sys device in sys_device_register().  A to_subsys()
-> > is being performed on that object, which is wrong, because the kobject
-> > is not a member of a "struct subsystem".
-> 
-> My question was how the hell it was getting there in the first place, and 
-> I see that the type of the object isn't getting set properly, so it 
-> defaults to treat it as a struct subsystem. 
+On Mon, Jun 09, 2003 at 03:34:40PM +0100, Joe Thornber wrote:
+> Replace __HIGH() and __LOW() with max() and min_not_zero().
+> --- diff/drivers/md/dm-table.c	2003-05-21 11:50:15.000000000 +0100
+> +++ source/drivers/md/dm-table.c	2003-06-09 15:04:57.000000000 +0100
+> @@ -78,22 +78,33 @@
+>  	return result;
+>  }
+>  
+> -#define __HIGH(l, r) if (*(l) < (r)) *(l) = (r)
+> -#define __LOW(l, r) if (*(l) == 0 || *(l) > (r)) *(l) = (r)
+> +/*
+> + * Returns the minimum that is _not_ zero, unless both are zero.
+> + */
+> +#define min_not_zero(l, r) (l == 0) ? r : ((r == 0) ? l : min(l, r))
+>...
 
-Stack dump from si_meminfo_node():
-Call Trace:
- [<c0133f39>] si_meminfo_node+0x4d/0x54
- [<c02029ac>] node_read_meminfo+0x1c/0x80
- [<c013385a>] __alloc_pages+0x82/0x2b4
- [<c011c8fb>] release_console_sem+0x9b/0xa4
- [<c0175ead>] subsys_attr_show+0x1d/0x28
- [<c0175f7a>] fill_read_buffer+0x96/0xb4
- [<c01ebf5e>] opost_block+0x18e/0x19c
- [<c01eed92>] pty_write+0x156/0x168
- [<c0154d8c>] do_lookup+0x18/0x8c
- [<c0151a2f>] cp_new_stat64+0xe7/0x100
- [<c017604b>] sysfs_read_file+0x1b/0x3c
- [<c014960c>] vfs_read+0x9c/0xcc
- [<c01497ed>] sys_read+0x31/0x4c
- [<c0108bd7>] syscall_call+0x7/0xb
+Are there potential other users of min_not_zero?
+If yes, shouldn't it go into kernel.h?
 
-
-> Could you please try the following patch, and let me know if it works? 
-
-That fixed it, thanks.  
+cu
+Adrian
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,96 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263182AbTEGN0V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 09:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbTEGN0U
+	id S263195AbTEGNog (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 09:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbTEGNog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 09:26:20 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:2578 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id S263182AbTEGN0T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 09:26:19 -0400
-Date: Wed, 7 May 2003 15:38:50 +0200 (CEST)
-From: venom@sns.it
-To: linux-kernel@vger.kernel.org
-Subject: DRM problem with kernel 2.5.69, XF86 4.3.0 and i810 chipset
-Message-ID: <Pine.LNX.4.43.0305071534110.29394-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 May 2003 09:44:36 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:36043 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S263195AbTEGNof (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 09:44:35 -0400
+Date: Wed, 7 May 2003 15:56:57 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+Message-ID: <20030507135657.GC18177@wohnheim.fh-wedel.de>
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.53.0305070933450.11740@chaos>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 May 2003 09:45:13 -0400, Richard B. Johnson wrote:
+> 
+> You know (I hope) that allocating stuff on the stack is not
+> "bad". In fact, it's the quickest way to allocate data that
+> will automatically go away when the function returns. One
+> just subtracts a value from the stack-pointer and you have
+> the data area. I sure hope that these temporary allocations
+> are not being replaced with kmalloc()/kfree(). If so, the
+> code is badly broken and you are eating my CPU cycles for
+> nothing.
 
-HI,
-afeter upgrading from 2.5.68 to 2.5.69 direct rendering with glx does
-not work anymore with my i810 video card.
-I get this message:
+Agreed, partially. There is the current issue of the kernel stack
+being just 8k in size and no decent mechanism in place to detect a
+stack overflow. And there is (arguably) the future issue of the kernel
+stack shrinking to 4k.
 
-mtrr: base(0x44000000) is not aligned on a size(0x4b0000) boundary
-[drm:i810_unlock] *ERROR* Process 441 using kernel context 0
-agp_allocate_memory: dbd67b60
-agp_allocate_memory: 00000000
-agp_allocate_memory: dbd67a60
+Stuff like intermezzo will break with 4k, no discussion about that.
+Other stuff may or may not work. What I'm trying to do is pave the way
+to shrink the kernel stack during 2.7 sometime.
 
-glx worked fine with 2.5.8 (and still does ;) ).
+If there is large agreement that the kernel stack should not shrink,
+I'll stop this effort any day. But so far, I am under the impression
+that the agreement is to do the shink. Am I wrong?
 
-system is a pentium III 930 Mhz, 512MB RAM 133MHZ,
-on i810 chipset (audio and video card)
-kernel il 2.5.69 compiled with gcc 3.2.33 and binutils 2.13.90.0.18,
-glibc 2.3.2.
+Jörn
 
-agpgart and DRM for i810 are statically compiled into the kernel
-
-lspci -v shows:
-00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and Memory
-Controller Hub (rev 02)
-        Flags: bus master, fast devsel, latency 0
-        Capabilities: [88] #09 [f104]
-
-00:02.0 VGA compatible controller: Intel Corp. 82815 CGC [Chipset Graphics
-Controller] (rev 02) (prog-if 00 [VGA])
-        Subsystem: Compaq Computer Corporation: Unknown device 0034
-        Flags: bus master, 66Mhz, medium devsel, latency 0, IRQ 16
-        Memory at 44000000 (32-bit, prefetchable) [size=64M]
-        Memory at 40300000 (32-bit, non-prefetchable) [size=512K]
-        Capabilities: [dc] Power Management version 2
-
-00:1e.0 PCI bridge: Intel Corp. 82801AA PCI Bridge (rev 02) (prog-if 00 [Normal
-decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=00, secondary=02, subordinate=02, sec-latency=64
-        I/O behind bridge: 00001000-00001fff
-        Memory behind bridge: 40000000-402fffff
-
-00:1f.0 ISA bridge: Intel Corp. 82801AA ISA Bridge (LPC) (rev 02)
-        Flags: bus master, medium devsel, latency 0
-
-00:1f.1 IDE interface: Intel Corp. 82801AA IDE (rev 02) (prog-if 80 [Master])
-        Subsystem: Intel Corp. 82801AA IDE
-        Flags: bus master, medium devsel, latency 0
-        I/O ports at 2460 [size=16]
-
-00:1f.2 USB Controller: Intel Corp. 82801AA USB (rev 02) (prog-if 00 [UHCI])
-        Subsystem: Intel Corp. 82801AA USB
-        Flags: bus master, medium devsel, latency 0, IRQ 19
-        I/O ports at 2440 [size=32]
-
-00:1f.5 Multimedia audio controller: Intel Corp. 82801AA AC'97 Audio (rev 02)
-        Subsystem: Compaq Computer Corporation: Unknown device b1bf
-        Flags: bus master, medium devsel, latency 0, IRQ 17
-        I/O ports at 2000 [size=256]
-        I/O ports at 2400 [size=64]
-
-02:08.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
-        Subsystem: 3Com Corporation 3C905C-TX Fast Etherlink for PC Management
-NIC
-        Flags: bus master, medium devsel, latency 64, IRQ 16
-        I/O ports at 1000 [size=128]
-        Memory at 40000000 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-
-
-Hope this helps
-
-Luigi
-
+-- 
+Time? What's that? Time is only worth what you do with it.
+-- Theo de Raadt

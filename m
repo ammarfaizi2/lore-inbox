@@ -1,68 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287287AbSAXK5y>; Thu, 24 Jan 2002 05:57:54 -0500
+	id <S287244AbSAXLCY>; Thu, 24 Jan 2002 06:02:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287279AbSAXK5f>; Thu, 24 Jan 2002 05:57:35 -0500
-Received: from port-213-20-228-147.reverse.qdsl-home.de ([213.20.228.147]:43268
-	"EHLO drocklinux.dyndns.org") by vger.kernel.org with ESMTP
-	id <S287244AbSAXK5b> convert rfc822-to-8bit; Thu, 24 Jan 2002 05:57:31 -0500
-Date: Thu, 24 Jan 2002 11:56:53 +0100 (CET)
-Message-Id: <20020124.115653.730556705.rene.rebe@gmx.net>
-To: mingo@elte.hu
-Cc: zdenek@smetana.com, linux-kernel@vger.kernel.org
-Subject: Re: Missing changelog to Ingo's J5 scheduler?
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <Pine.LNX.4.33.0201241255240.7900-100000@localhost.localdomain>
-In-Reply-To: <20020124.105517.730550260.rene.rebe@gmx.net>
-	<Pine.LNX.4.33.0201241255240.7900-100000@localhost.localdomain>
-X-Mailer: Mew version 2.1 on XEmacs 21.4.6 (Common Lisp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S287333AbSAXLCQ>; Thu, 24 Jan 2002 06:02:16 -0500
+Received: from relay03.valueweb.net ([216.219.253.237]:48388 "EHLO
+	relay03.valueweb.net") by vger.kernel.org with ESMTP
+	id <S287289AbSAXLCA>; Thu, 24 Jan 2002 06:02:00 -0500
+Message-ID: <3C4FEBB3.16CB46E8@opersys.com>
+Date: Thu, 24 Jan 2002 06:10:43 -0500
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16rthal5-TRACE i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] LTT 0.9.5pre5: S/390, SuperH, autoconf, RTAI, etc.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Missing changelog to Ingo's J5 scheduler?
-Date: Thu, 24 Jan 2002 12:56:09 +0100 (CET)
 
-> 
-> On Thu, 24 Jan 2002, Rene Rebe wrote:
-> 
-> > Yes. -J5 is even better here. With -J4 moving windows arround or doing
-> > other GUI intensive stuff was interactive for a short time (1-2
-> > seconds?) - and then the programm lost all interactivity (with some
-> > unniced gcc in the background ...). With -J5 all applications keep
-> > smoth even with two rebuilds (unniced) of a distribution running!
-> 
-> could you also compare -J5 to -J2? [use the 2.4 patch, or vanilla
-> 2.5.3-pre4 which has J2.]
+LTT 0.9.5pre5 is now out. It contains quite a few enhancements.
+Most importantly, LTT now supports 4 different architectures:
+i386, PPC, S/390 and SuperH.
 
-Ok. After some massive rebooting:
+Adding further ports is only a matter of adding the appropriate
+architecture-specific trace statements for the following types
+of events:
+-System call entry/exit (usually in entry.S)
+-IRQ entry/exit (usually in irq.c)
+-Trap entry/exit (both in the appropriate files in arch/XYZ/kernel,
+such as traps.c, and in arch/XYZ/mm/fault.c where page faults are usually
+handled)
+-Kernel thread creation (process.c)
+-IPC call (syscalls.c)
+and adding the appropriate configuration option in the architecture's
+config.in file.
 
--J2 is worser. starting XFree(+gnome) when three gcc's are running
-take long (> half a minute?). With -J5 X start nearly normal (mostly
-file access time anyway?) Dragging windows arround is nearly
-equal. Although with -J2 i sometimes noticed a really big latency when
-starting vim or man ...
+The following is a summary of changes and comments:
+o S/390 port by Theresa Halloran. I've been told that there are
+some minor issues with the way this has been integrated. They
+should be fixed for pre6.
+o SuperH port by Greg Banks and port update by Andrea Cisternino.
+o Conversion of LTT build system to autoconf by Philippe Gerum.
+o Update of RTAI support to RTAI 24.1.7 (the trace graphs won't
+display correctly, still, but the event sequences can be retrieved
+without a problem).
+o Many bug fixes by Frank Rowand.
+o Addition of "Architecture Variant" property of traces in addition
+to "Architecture Type" (many types of PPCs, ARMs and MIPS' for
+example).
+o Fix for death of visualizer on empty traces.
+o Fix for improper PID display when tracing only one PID.
+o Miscallaneous option parsing fixes for Daemon.
 
-Oh. btw. The -J5 was tested with 2.4.18-pre7; the rest was with
-vanilla-2.4.17 - I hope this doesn't make a performance difference for
-this tests ...
+For a complete description of each of these additions, check out
+the news section of the web site.
 
-> 	Ingo
+It is no longer required to get approval to subscribe to the
+development mailing list. If you're interested to contribute, feel
+free to subscribe.
 
-k33p h4ck1n6
-  René
+I've noticed that LTT is on the 2.5 status list with the "beta"
+branding. I'm not sure how a project's status is evaluated and
+attributed a rating, but LTT having been around since July '99,
+it's been pretty much in the "ready" state for a while. Any thoughts
+are welcomed.
 
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
+As always, LTT can be found on the project's web site:
+http://www.opersys.com/LTT
 
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
+Best regards,
 
-Homepage: http://drocklinux.dyndns.org/rene/
+Karim
 
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

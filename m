@@ -1,91 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272115AbRH2Wia>; Wed, 29 Aug 2001 18:38:30 -0400
+	id <S272118AbRH2Wp3>; Wed, 29 Aug 2001 18:45:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272117AbRH2WiU>; Wed, 29 Aug 2001 18:38:20 -0400
-Received: from [208.48.139.185] ([208.48.139.185]:40579 "HELO
-	forty.greenhydrant.com") by vger.kernel.org with SMTP
-	id <S272115AbRH2WiF>; Wed, 29 Aug 2001 18:38:05 -0400
-Date: Wed, 29 Aug 2001 15:38:18 -0700
-From: David Rees <dbr@greenhydrant.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-        ext3-users@redhat.com
-Subject: Re: kupdated, bdflush and kjournald stuck in D state on RAID1 device (deadlock?)
-Message-ID: <20010829153818.B21590@greenhydrant.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	Andrew Morton <akpm@zip.com.au>, linux-raid@vger.kernel.org,
-	linux-kernel@vger.kernel.org, ext3-users@redhat.com
-In-Reply-To: <20010829131720.A20537@greenhydrant.com> <3B8D54F3.46DC2ABB@zip.com.au>, <3B8D54F3.46DC2ABB@zip.com.au>; <20010829141451.A20968@greenhydrant.com> <3B8D60CF.A1400171@zip.com.au>, <3B8D60CF.A1400171@zip.com.au>; <20010829144016.C20968@greenhydrant.com> <3B8D6BF9.BFFC4505@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B8D6BF9.BFFC4505@zip.com.au>; from akpm@zip.com.au on Wed, Aug 29, 2001 at 03:26:01PM -0700
+	id <S272120AbRH2WpT>; Wed, 29 Aug 2001 18:45:19 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:13356 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S272118AbRH2WpE>; Wed, 29 Aug 2001 18:45:04 -0400
+Date: Wed, 29 Aug 2001 18:45:20 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
+To: <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] blkgetsize64 ioctl
+Message-ID: <Pine.LNX.4.33.0108291840310.28439-100000@toomuch.toronto.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 29, 2001 at 03:26:01PM -0700, Andrew Morton wrote:
-> David Rees wrote:
-> > 
-> > On Wed, Aug 29, 2001 at 02:38:23PM -0700, Andrew Morton wrote:
-> > >
-> > > OK, thanks.  bdflush is stuck in raid1_alloc_r1bh() and
-> > > everything else is blocked by it.  I thought we fixed
-> > > that a couple of months ago :(
-> > >
-> > > Could you send the output of `cat /proc/meminfo'?
-> > >
-> > > > 18239 -bash            wait4
-> > > > 18274 umount /opt      rwsem_down_write_failed
-> > >
-> > > What are we trying to do here?  Is /opt the deadlocked
-> > > filesytem?
-> > 
-> > Yep, /dev/md0 is mounted on /opt.
-> > 
-> 
-> OK, and according to your /proc/meminfo:
-> 
->         total:    used:    free:  shared: buffers:  cached:
-> Mem:  525422592 497364992 28057600        0 133500928 335839232
-> Swap: 1052794880  4710400 1048084480
-> MemTotal:       513108 kB
-> MemFree:         27400 kB
-> MemShared:           0 kB
-> Buffers:        130372 kB
-> Cached:         323368 kB
-> SwapCached:       4600 kB
-> Active:         293704 kB
-> Inact_dirty:    161536 kB
-> Inact_clean:      3100 kB
-> Inact_target:       16 kB
-> HighTotal:           0 kB
-> HighFree:            0 kB
-> LowTotal:       513108 kB
-> LowFree:         27400 kB
-> SwapTotal:     1028120 kB
-> SwapFree:      1023520 kB
-> 
-> it's not an out-of-memory deadlock.
-> 
-> The RAID1 buffer allocation is pretty simple - unless the
-> disk controller has decided to stop delivering interrupts,
-> everything shold just come back to life as physical writes
-> complete.  I assume the hardware is still working OK?
-> 
-> It's a uniprocessor machine, yes?
+Hello,
 
-It is a uniprocessor machine, yes.  The machine is a 1.1GHz Athlon on a Soyo
-motherboard.  This is the first problem we've seen with the machine.
+The patch below reserves an ioctl for getting the size in blocks of a
+device as a long long instead of long as the old ioctl did.  The patch for
+this to e2fsprogs sneaked in a bit too early.  There is a conflict with
+the ia64 get/set sector ioctls, but I that's less common than e2fsprogs.
 
-The machine was and is still working mostly ok.  Since I typed "umount /opt",
-the opt directory doesn't show any contents any more, but before that things
-appear OK.  I can still use fdisk to look at the partition layout of the
-drives in /opt raid1 array.  /proc/mdstat is normal.
+		-ben
 
-There are no other software raid devices on the machine (/ is also ext3 on a
-separate drive/controller).  There are no suspicious messages printed from
-dmesg, either.
+diff -urN /md0/kernels/2.4/v2.4.10-pre2/include/linux/fs.h work-v2.4.10-pre2/include/linux/fs.h
+--- /md0/kernels/2.4/v2.4.10-pre2/include/linux/fs.h	Wed Aug 29 18:28:50 2001
++++ work-v2.4.10-pre2/include/linux/fs.h	Wed Aug 29 18:39:48 2001
+@@ -166,7 +166,7 @@
+ #define BLKROSET   _IO(0x12,93)	/* set device read-only (0 = read-write) */
+ #define BLKROGET   _IO(0x12,94)	/* get read-only status (0 = read_write) */
+ #define BLKRRPART  _IO(0x12,95)	/* re-read partition table */
+-#define BLKGETSIZE _IO(0x12,96)	/* return device size */
++#define BLKGETSIZE _IO(0x12,96)	/* return device size (long *arg) */
+ #define BLKFLSBUF  _IO(0x12,97)	/* flush buffer cache */
+ #define BLKRASET   _IO(0x12,98)	/* Set read ahead for block device */
+ #define BLKRAGET   _IO(0x12,99)	/* get current read ahead setting */
+@@ -182,6 +182,7 @@
+ /* This was here just to show that the number is taken -
+    probably all these _IO(0x12,*) ioctls should be moved to blkpg.h. */
+ #endif
++#define BLKGETSIZE64 _IO(0x12,109)	/* return device size (long long *arg) */
 
--Dave
+
+ #define BMAP_IOCTL 1		/* obsolete - kept for compatibility */
+

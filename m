@@ -1,69 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265256AbSJaSWh>; Thu, 31 Oct 2002 13:22:37 -0500
+	id <S265222AbSJaSUJ>; Thu, 31 Oct 2002 13:20:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265244AbSJaSW0>; Thu, 31 Oct 2002 13:22:26 -0500
-Received: from main.gmane.org ([80.91.224.249]:6366 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S265237AbSJaSVd>;
-	Thu, 31 Oct 2002 13:21:33 -0500
-To: linux-kernel@vger.kernel.org
-X-Injected-Via-Gmane: http://gmane.org/
-Path: not-for-mail
-From: Nicholas Wourms <nwourms@netscape.net>
-Subject: Re: What's left over.
-Date: Thu, 31 Oct 2002 13:28:59 -0500
-Message-ID: <aprsl0$khj$1@main.gmane.org>
-References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com> <Pine.LNX.4.44L.0210310105160.1697-100000@imladris.surriel.com> <20021031062249.GB18007@tapu.f00f.org> <1036046904.1521.74.camel@mentor> <20021031065629.GA19030@tapu.f00f.org>
-Reply-To: nwourms@netscape.net
-NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
+	id <S265234AbSJaSUJ>; Thu, 31 Oct 2002 13:20:09 -0500
+Received: from borg.org ([208.218.135.231]:36736 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S265222AbSJaSTk>;
+	Thu, 31 Oct 2002 13:19:40 -0500
+Date: Thu, 31 Oct 2002 13:26:07 -0500
+From: Kent Borg <kentborg@borg.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Mark Mielke <mark@mark.mielke.cc>, Adrian Bunk <bunk@fs.tum.de>,
+       Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_TINY
+Message-ID: <20021031132607.E21801@borg.org>
+References: <20021030233605.A32411@jaquet.dk> <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de> <20021031011002.GB28191@opus.bloom.county> <20021031053310.GB4780@mark.mielke.cc> <20021031143301.GC28191@opus.bloom.county> <20021031165113.GB8565@mark.mielke.cc> <20021031170420.GA30193@opus.bloom.county>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: main.gmane.org 1036088801 21043 130.127.121.177 (31 Oct 2002 18:26:40 GMT)
-X-Complaints-To: usenet@main.gmane.org
-NNTP-Posting-Date: Thu, 31 Oct 2002 18:26:40 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021031170420.GA30193@opus.bloom.county>; from trini@kernel.crashing.org on Thu, Oct 31, 2002 at 10:04:20AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
+On Thu, Oct 31, 2002 at 10:04:20AM -0700, Tom Rini wrote:
+> In other words, s/CONFIG_TINY/CONFIG_FINE_TUNE, and ask about
+> anything / everything which might want to be tuned up.
 
-> On Wed, Oct 30, 2002 at 11:48:23PM -0700, Dax Kelson wrote:
-> 
->> Technically speaking you can achieve ACL like permissions/behavior
->> using the historical UNIX security model by creating a group EACH
->> time you run into a unique case permission scenario.
-> 
-> I'm not arguing against this... I'm claiming POSIX ACLs are mostly
-> brain-dead and almost worthless (broken by committee pressure and too
-> many people making stupid concessions).
-> 
-> If we must have ACLs, why not do it right?
-> 
->> Without ACLs, if Sally, Joe and Bill need rw access to a file/dir,
->> just create another group with just those three people in.  Over
->> time, of course, this leads to massive group proliferation.  Without
->> Tim Hockin's patch, 32 groups is maximum number of groups a user can
->> be a member of.
-> 
-> How many people actually need this level of complexity?
-> 
-> Why are we adding all this shit and bloat because of perceived
-> problems most people don't have?  What next, some kind of misdesigned
-> in-kernel CryptoAPI?
+Please, no.  Keep this simple.  
 
-Get over it!  If you haven't noticed, CryptoAPI is merged already.  The only 
-bloat ACLs cause is the size of the source tarball.  If your connection is 
-slow or you are out of diskspace, too bad!  I'm sure I'm not the only one 
-who is tired of hearing people whine about "bloat" wrt the sources and 
-demanding that features they don't use be ignored.  No one (non-core) 
-feature will be useful to everyone, that is a given fact.  The point is 
-that while you see no use for it, there are many others out there who do.  
-ACLs are something which have existed in the Solaris/BSD world for a long 
-time now, and people who have admin these boxen find ACLs to be quite 
-useful.
+I don't want a bunch of configs that abstract out everything I might
+want to tamper with to make a small system.  The only way I am going
+to make sense out of them will be to look at the source controlled by
+each anyway.  I would rather search the source for CONFIG_TINY and see
+a single, coherent, and sensible set of concrete changes that make
+things smaller.  Let me mangle and customize from there, it will be
+much easier for me to understand what I am doing.
 
-Cheers,
-Nicholas
+> Then this becomes a truely useful set of options, since as Alan
+> pointed out in one of the earlier CONFIG_TINY threads, his Athlon
+> could benefit from some of these 'tiny' options too.
+
+Certainly, if there are potential config options that would be truly
+useful to general folks, then by all means, yes!, make them separate
+options.  (Isn't that what has been going on all along?)  But let us
+not put in a config for every imaginable tuning and then pretend that
+hiding them behind a CONFIG_FINE_TUNE somehow doesn't make them any
+less a groady mess.  
+
+Isn't there an attempt with the current config process to set up
+dependencies so that any config from "make config" or "make xconfig"
+has a crack at being at least self-consistent, if not otherwise
+sensible?  Won't this CONFIG_FINE_TUNE become a bloating ground for
+every obscure special interest config, related to size or not, whether
+it builds or not, whether it runs of not?  (And be so confusing as to
+still not help me build a tiny kernel?)
+
+If something is worth a config, give it a config.  (And if it isn't,
+don't!)  But not every component of making a tiny system is worth a
+standalone config.  Let me grep for CONFIG_TINY and hack my
+nonstandard things from there.
 
 
+-kb, the Kent who thinks the language in which the kernel is written
+should remain C and not drift toward being the config file.
+
+
+P.S.  This reminds me of not littering the code with type defs that
+reduce to simple types.  Abstraction for abstraction's sake seems
+silly.  Keep it simple.

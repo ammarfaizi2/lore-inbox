@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264923AbTFQUSA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 16:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264926AbTFQUSA
+	id S264926AbTFQUU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 16:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264928AbTFQUU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 16:18:00 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:24025 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264923AbTFQUR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 16:17:59 -0400
-Date: Tue, 17 Jun 2003 13:27:20 -0700 (PDT)
-Message-Id: <20030617.132720.22019247.davem@redhat.com>
-To: janiceg@us.ibm.com
-Cc: jgarzik@pobox.com, shemminger@osdl.org, Valdis.Kletnieks@vt.edu,
-       girouard@us.ibm.com, stekloff@us.ibm.com, lkessler@us.ibm.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, niv@us.ibm.com
-Subject: Re: patch for common networking error messages
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3EEF78F4.2070604@us.ibm.com>
-References: <3EEF7030.6030303@us.ibm.com>
-	<20030617.125040.58438649.davem@redhat.com>
-	<3EEF78F4.2070604@us.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Tue, 17 Jun 2003 16:20:28 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3798 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264926AbTFQUUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 16:20:20 -0400
+Date: Tue, 17 Jun 2003 22:34:07 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jeff Garzik <jgarzik@pobox.com>, Linux NICS <linux.nics@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Linux 2.5.72: ixgb_ethtool: strange SUPPORTED_10000baseT_Full
+Message-ID: <20030617203407.GC29247@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Janice M Girouard <janiceg@us.ibm.com>
-   Date: Tue, 17 Jun 2003 15:24:20 -0500
-   
-   Perhaps if RDMA is  capabilities are added to Linux, then things
-   might be different.
-   
-   So.. when do you think RDMA will show up on Linx?
+<--  snip  -->
 
-RDMA is total junk.
+...
+  CC      drivers/net/ixgb/ixgb_ethtool.o
+drivers/net/ixgb/ixgb_ethtool.c:53:1: warning: "SUPPORTED_10000baseT_Full" redefined
+In file included from drivers/net/ixgb/ixgb.h:60,
+                 from drivers/net/ixgb/ixgb_ethtool.c:30:
+include/linux/ethtool.h:302:1: warning: this is the location of the previous definition
+...
 
-On RX, clever RX buffer management is what we need.
+<--  snip  -->
 
-On TX zerocopy + TSO is more than sufficient and we have
-that today.
+ixgb_ethtool.c says:
+  #define SUPPORTED_10000baseT_Full (1 << 11)
+
+ethtool.h says:
+  #define SUPPORTED_BNC                   (1 << 11)
+  #define SUPPORTED_10000baseT_Full       (1 << 12)
+
+
+The correct solution seems to be to remove the #define from 
+ixgb_ethtool.c ?
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

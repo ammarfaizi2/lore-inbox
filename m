@@ -1,60 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313773AbSGHLYf>; Mon, 8 Jul 2002 07:24:35 -0400
+	id <S316838AbSGHLeh>; Mon, 8 Jul 2002 07:34:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316659AbSGHLYe>; Mon, 8 Jul 2002 07:24:34 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:51963 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S313773AbSGHLYd>; Mon, 8 Jul 2002 07:24:33 -0400
-Date: Mon, 8 Jul 2002 13:27:09 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4 patch] document that cmd64x.c supports the CMD649 and
- CMD680chipsets
-In-Reply-To: <Pine.LNX.4.10.10207071337360.31523-100000@master.linux-ide.org>
-Message-ID: <Pine.NEB.4.44.0207081317290.20908-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S316847AbSGHLeg>; Mon, 8 Jul 2002 07:34:36 -0400
+Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:51401 "EHLO
+	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
+	id <S316838AbSGHLef>; Mon, 8 Jul 2002 07:34:35 -0400
+Message-ID: <180577A42806D61189D30008C7E632E8793976@boca213a.boca.ssc.siemens.com>
+From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+To: "'Ben Greear'" <greearb@candelatech.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Question concerning ifconfig
+Date: Mon, 8 Jul 2002 07:37:08 -0400 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jul 2002, Andre Hedrick wrote:
+Thanks for the quick response, but in the mean time I figured it out through
+trial and error. My driver did not have a set_mac_address method. There must
+have been some sort of default method in 2.2
 
-> CMD680 will be extracted out to siiimage.c as it is a differnet driver
-> with dual transport modes.  I just need to resort patches first.
-
-I suspect this change won't be included in 2.4.19. Since 2.4.19 is a
-stable kernel and the change is pretty easy revertible I hope you don't
-disagree on including my small patch.
-
-
-The typical scenario I've already seen if such a patch was missing is:
-- "My disk is very slow/slower than under Windows."
-- it turns out the disk doesn't use DMA
-- the self-compiled kernel doesn't include the IDE driver for the chipset
-  in the computer because:
-  - "HPT366 chipset support" doesn't sound like the right option for a
-    HPT370
-  - CMD649 isn't listed as a supported chipset
+Jack Bloch
+Siemens Carrier Networks
+e-mail    : jack.bloch@icn.siemens.com
+phone     : (561) 923-6550
 
 
-Compared to the work needed to write the code to support a chipset these
-small documentation updates to Config.in and
-$(TOPDIR)/Documentation/Configure.help are really small - but they are
-important for users to benefit from the driver.
+-----Original Message-----
+From: Ben Greear [mailto:greearb@candelatech.com]
+Sent: Friday, July 05, 2002 1:20 PM
+To: Bloch, Jack
+Cc: 'linux-kernel@vger.kernel.org'
+Subject: Re: Question concerning ifconfig
 
 
-> Cheers,
+Bloch, Jack wrote:
+> I am running a Red Hat 7.2 load (Kernel version 2.4.7-10). I am trying to
+> enter the following command to change the MAC address on my device.
+> 
+> ifconfig ifp0 hw ether A2:A5:A5:01:00:00
+> 
+> ifp0 is my own device which replaces eth0. The system gives me a response
+> "SIOCSIFHWADDR : device or resources busy"
+> The same exact command works on my 2.2.16 Kernel. Any ideas why the error.
+> Please CC me directly in any responses.
 
-cu
-Adrian
+ifconfig ifp0 down
+
+first, then it should work.
+
+Ben
+
+> 
+> Thanks in advance,  
+> 
+> Jack Bloch
+> Siemens Carrier Networks
+> e-mail    : jack.bloch@icn.siemens.com
+> phone     : (561) 923-6550
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
 
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 

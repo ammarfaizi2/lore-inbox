@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266622AbRGJP5C>; Tue, 10 Jul 2001 11:57:02 -0400
+	id <S266620AbRGJP5w>; Tue, 10 Jul 2001 11:57:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266629AbRGJP4w>; Tue, 10 Jul 2001 11:56:52 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:65408 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S266622AbRGJP4d>; Tue, 10 Jul 2001 11:56:33 -0400
-Date: Tue, 10 Jul 2001 11:56:11 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: John Clemens <john@deater.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BIOS, Duron4 specifics...
-In-Reply-To: <Pine.LNX.4.33.0107101121100.13575-100000@pianoman.cluster.toy>
-Message-ID: <Pine.LNX.3.95.1010710115050.16575C-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266629AbRGJP5q>; Tue, 10 Jul 2001 11:57:46 -0400
+Received: from ns.caldera.de ([212.34.180.1]:25801 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S266620AbRGJP53>;
+	Tue, 10 Jul 2001 11:57:29 -0400
+Date: Tue, 10 Jul 2001 17:57:08 +0200
+From: Christoph Hellwig <hch@infradead.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: "Randy.Dunlap" <rddunlap@osdlab.org>, linux-kernel@vger.kernel.org,
+        hpa@zytor.com
+Subject: Re: How many pentium-3 processors does SMP support?
+Message-ID: <20010710175708.A18588@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Chris Wedgwood <cw@f00f.org>, "Randy.Dunlap" <rddunlap@osdlab.org>,
+	linux-kernel@vger.kernel.org, hpa@zytor.com
+In-Reply-To: <20010711022509.C31966@weta.f00f.org> <3B4B1E91.A7D75608@osdlab.org> <20010711035038.A32188@weta.f00f.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010711035038.A32188@weta.f00f.org>; from cw@f00f.org on Wed, Jul 11, 2001 at 03:50:38AM +1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jul 2001, John Clemens wrote:
-
+On Wed, Jul 11, 2001 at 03:50:38AM +1200, Chris Wedgwood wrote:
+> On Tue, Jul 10, 2001 at 08:26:09AM -0700, Randy.Dunlap wrote:
 > 
-> Sorry if this is a little offtopic but I'm stumped...
->
-[SNIPPED...] 
-> Nowhere does it appear to enable SSE or the APIC.  Is there anyway I can
-> get at least UP-APIC working without BIOS help?  I really don't like
-> having 4 things on IRQ11... and how about SSE (fully realizing i'd have
-         ^^^^^^^^^^^^^^^^^
+>     I have heard of some IBM/Sequent patches that modify the
+>     logical vs. physical APIC addressing scheme to make 16-way
+>     systems work.
+> 
+> The Unisys machine is actually four quad-CPU machines with shared
+> memory, dynamically configurable and other neat stuff.
 
-I think you will find that this is a problem with the basic design,
-not the APIC. Just like my COMPAQ Presario 1800, everything on the
-PCI bus shares the same interrupt.
+If it is the Unisys design I mean it is done rather different.
+The design I saw has two central crossbars and attached either CPU
+modules with a GTL+ bus and two CPUs after a L3 cache or a IO
+Module with a few (IIRC 3) PCI busses.
 
-You can recompile the kernel for SMP. This will guarantee that
-the kernel initializes the APIC (at least up to version 2.4.1).
-
-If you find that everything is still on the same IRQ, that's the
-way it is, only one PWB trace going to the devices.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,93 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264925AbUAXODg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 09:03:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266942AbUAXODg
+	id S266941AbUAXONr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 09:13:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266942AbUAXONr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 09:03:36 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:30984 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S264925AbUAXODe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 09:03:34 -0500
-Date: 24 Jan 2004 17:04:54 +0300
-Message-Id: <87oestsard.fsf@mtu-net.ru>
-From: Serge Belyshev <33554432@mtu-net.ru>
-To: Andrew Morton <akpm@osdl.org>
+	Sat, 24 Jan 2004 09:13:47 -0500
+Received: from dp.samba.org ([66.70.73.150]:23474 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266941AbUAXONn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 09:13:43 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] arch/i386/Makefile,scripts/gcc-version.sh,Makefile small fixes
+Subject: [PATCH] Use CPU_UP_PREPARE properly
+Date: Sun, 25 Jan 2004 01:11:46 +1100
+Message-Id: <20040124141358.6EC382C016@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[This patch is against 2.6.2-rc1-mm2]
+Hi Andrew,
 
-arch/i386/Makefile:
-*  omitted $(KBUILD_SRC)/ in script call.
+The cpu hotplug code actually provides two notifiers: CPU_UP_PREPARE
+which preceeds the online and can fail, and CPU_ONLINE which can't.
 
-scripts/gcc-version.sh:
-*  GNU tail no longer supports 'tail -1' syntax.
+Current usage is only done at boot, so this distinction doesn't
+matter, but it's a bad example to set.  This also means that the
+migration threads do not have to be higher priority than the
+others, since they are ready to go before any CPU_ONLINE callbacks
+are done.
 
-Makefile: 
-*  There is no point in adding -funit-at-a-time option because it is
-   enabled by default at levels -Os, -O2 and -O3.
+This patch is experimental but fairly straight foward: I haven't been
+able to test it since extracting it from the hotplug cpu code, so it's
+possible I screwed something up.
 
-*  Consider adding -fweb option:
+Name: Use CPU_UP_PREPARE notifier in sched.c and softirq.c
+Author: Rusty Russell
+Status: Experimental
+Depends: Hotcpu/use-kthread-simple.patch.gz
 
-   vanilla:
-   $ size vmlinux
-      text    data     bss     dec     hex filename
-   3056270  526780  386056 3969106  3c9052 vmlinux
+D: The cpu hotplug code actually provides two notifiers: CPU_UP_PREPARE
+D: which preceeds the online and can fail, and CPU_ONLINE which can't.
+D: 
+D: Current usage is only done at boot, so this distinction doesn't
+D: matter, but it's a bad example to set.  This also means that the
+D: migration threads do not have to be higher priority than the
+D: others, since they are ready to go before any CPU_ONLINE callbacks
+D: are done.
 
-   with -fweb:
-   $ size vmlinux
-      text    data     bss     dec     hex filename
-   3049523  526780  386056 3962359  3c75f7 vmlinux
-
-   Also note 0.1 ... 1.0% speedup in various benchmarks.
-   This option is not enabled by default at -O2 because it
-   (like -fomit-frame-pointer) makes debugging impossible.
-
-diff -urN vanilla-2.6.2-rc1-mm2/arch/i386/Makefile hack/arch/i386/Makefile
---- vanilla-2.6.2-rc1-mm2/arch/i386/Makefile	Sat Jan 24 15:49:56 2004
-+++ hack/arch/i386/Makefile	Sat Jan 24 15:32:13 2004
-@@ -70,7 +70,7 @@
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .19555-linux-2.6.2-rc1-bk1/kernel/sched.c .19555-linux-2.6.2-rc1-bk1.updated/kernel/sched.c
+--- .19555-linux-2.6.2-rc1-bk1/kernel/sched.c	2004-01-24 18:54:51.000000000 +1100
++++ .19555-linux-2.6.2-rc1-bk1.updated/kernel/sched.c	2004-01-24 18:54:52.000000000 +1100
+@@ -2803,29 +2803,36 @@ static int migration_call(struct notifie
+ 	struct task_struct *p;
  
- # -mregparm=3 works ok on gcc-3.0 and later
- #
--GCC_VERSION			:= $(shell $(CONFIG_SHELL) scripts/gcc-version.sh $(CC))
-+GCC_VERSION			:= $(shell $(CONFIG_SHELL) $(KBUILD_SRC)/scripts/gcc-version.sh $(CC))
- cflags-$(CONFIG_REGPARM) 	+= $(shell if [ $(GCC_VERSION) -ge 0300 ] ; then echo "-mregparm=3"; fi ;)
+ 	switch (action) {
+-	case CPU_ONLINE:
++	case CPU_UP_PREPARE:
+ 		p = kthread_create(migration_thread, hcpu, "migration/%d",cpu);
+ 		if (IS_ERR(p))
+ 			return NOTIFY_BAD;
+ 		kthread_bind(p, cpu);
+ 		cpu_rq(cpu)->migration_thread = p;
+-		wake_up_process(p);
+ 		break;
++
++	case CPU_ONLINE:
++		/* Strictly unneccessary, as first user will wake it. */
++		wake_up_process(cpu_rq(cpu)->migration_thread);
++		break;
++
+ 	}
+ 	return NOTIFY_OK;
+ }
  
- CFLAGS += $(cflags-y)
-diff -urN vanilla-2.6.2-rc1-mm2/scripts/gcc-version.sh hack/scripts/gcc-version.sh
---- vanilla-2.6.2-rc1-mm2/scripts/gcc-version.sh	Sat Jan 24 15:49:59 2004
-+++ hack/scripts/gcc-version.sh	Sat Jan 24 15:28:02 2004
-@@ -8,7 +8,7 @@
+-/* Want this before the other threads, so they can use set_cpus_allowed. */
++/* Want this after the other threads, so they can use set_cpus_allowed
++ * from their CPU_OFFLINE callback. */
+ static struct notifier_block __devinitdata migration_notifier = { 
+ 	.notifier_call = migration_call,
+-	.priority = 10,
++	.priority = -10,
+ };
  
- compiler="$*"
- 
--MAJOR=$(echo __GNUC__ | $compiler -E -xc - | tail -1)
--MINOR=$(echo __GNUC_MINOR__ | $compiler -E -xc - | tail -1)
-+MAJOR=$(echo __GNUC__ | $compiler -E -xc - | tail -n 1)
-+MINOR=$(echo __GNUC_MINOR__ | $compiler -E -xc - | tail -n 1)
- printf "%02d%02d\\n" $MAJOR $MINOR
- 
-diff -urN vanilla-2.6.2-rc1-mm2/Makefile hack/Makefile
---- vanilla-2.6.2-rc1-mm2/Makefile	Sat Jan 24 15:49:59 2004
-+++ hack/Makefile	Sat Jan 24 15:51:30 2004
-@@ -435,15 +435,12 @@
- 
- ifndef CONFIG_FRAME_POINTER
- CFLAGS		+= -fomit-frame-pointer
-+CFLAGS		+= $(call check_gcc,-fweb,)
- endif
- 
- ifdef CONFIG_DEBUG_INFO
- CFLAGS		+= -g
- endif
+ __init int migration_init(void)
+ {
++	void *cpu = (void *)(long)smp_processor_id();
+ 	/* Start one for boot CPU. */
+-	migration_call(&migration_notifier, CPU_ONLINE,
+-		       (void *)(long)smp_processor_id());
++	migration_call(&migration_notifier, CPU_UP_PREPARE, cpu);
++	migration_call(&migration_notifier, CPU_ONLINE, cpu);
+ 	register_cpu_notifier(&migration_notifier);
+ 	return 0;
+ }
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .19555-linux-2.6.2-rc1-bk1/kernel/softirq.c .19555-linux-2.6.2-rc1-bk1.updated/kernel/softirq.c
+--- .19555-linux-2.6.2-rc1-bk1/kernel/softirq.c	2004-01-24 18:54:51.000000000 +1100
++++ .19555-linux-2.6.2-rc1-bk1.updated/kernel/softirq.c	2004-01-24 18:54:52.000000000 +1100
+@@ -367,8 +367,11 @@ static int __devinit cpu_callback(struct
+ {
+ 	int hotcpu = (unsigned long)hcpu;
+ 	struct task_struct *p;
 -
--# Enable unit-at-a-time mode when possible. It shrinks the
--# kernel considerably.
--CFLAGS += $(call check_gcc,-funit-at-a-time,)
+-	if (action == CPU_ONLINE) {
++  
++	switch (action) {
++	case CPU_UP_PREPARE:
++		BUG_ON(per_cpu(tasklet_vec, hotcpu).list);
++		BUG_ON(per_cpu(tasklet_hi_vec, hotcpu).list);
+ 		p = kthread_create(ksoftirqd, hcpu, "ksoftirqd/%d", hotcpu);
+ 		if (IS_ERR(p)) {
+ 			printk("ksoftirqd for %i failed\n", hotcpu);
+@@ -376,7 +379,11 @@ static int __devinit cpu_callback(struct
+ 		}
+ 		per_cpu(ksoftirqd, hotcpu) = p;
+ 		kthread_bind(p, hotcpu);
+-		wake_up_process(p);
++  		per_cpu(ksoftirqd, hotcpu) = p;
++ 		break;
++	case CPU_ONLINE:
++		wake_up_process(per_cpu(ksoftirqd, hotcpu));
++		break;
+  	}
+ 	return NOTIFY_OK;
+ }
+@@ -387,7 +394,9 @@ static struct notifier_block __devinitda
  
- # warn about C99 declaration after statement
- CFLAGS += $(call check_gcc,-Wdeclaration-after-statement,)
+ __init int spawn_ksoftirqd(void)
+ {
+-	cpu_callback(&cpu_nfb, CPU_ONLINE, (void *)(long)smp_processor_id());
++	void *cpu = (void *)(long)smp_processor_id();
++	cpu_callback(&cpu_nfb, CPU_UP_PREPARE, cpu);
++	cpu_callback(&cpu_nfb, CPU_ONLINE, cpu);
+ 	register_cpu_notifier(&cpu_nfb);
+ 	return 0;
+ }
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,28 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313318AbSDUBVL>; Sat, 20 Apr 2002 21:21:11 -0400
+	id <S290818AbSDUBim>; Sat, 20 Apr 2002 21:38:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313327AbSDUBVK>; Sat, 20 Apr 2002 21:21:10 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:38855 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S313318AbSDUBVJ>;
-	Sat, 20 Apr 2002 21:21:09 -0400
-Date: Sat, 20 Apr 2002 18:12:19 -0700 (PDT)
-Message-Id: <20020420.181219.29971184.davem@redhat.com>
-To: greearb@candelatech.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: pktgen.c update
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3CC20AED.4000007@candelatech.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S292588AbSDUBil>; Sat, 20 Apr 2002 21:38:41 -0400
+Received: from waste.org ([209.173.204.2]:56740 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S290818AbSDUBil>;
+	Sat, 20 Apr 2002 21:38:41 -0400
+Date: Sat, 20 Apr 2002 20:38:26 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Jeff Garzik <garzik@havoc.gtf.org>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Anton Altaparmakov <aia21@cantab.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+In-Reply-To: <20020420170747.B14186@havoc.gtf.org>
+Message-ID: <Pine.LNX.4.44.0204202032320.10850-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 20 Apr 2002, Jeff Garzik wrote:
 
-Ben, can you submit these pktgen improvements to Robert Olsson,
-the author of pktgen?
+> Which patches are the stealth patches?
 
-He has submitted updates to me recently, and your changes will
-surely collide.
+The ones that say 'pull from here' are pretty opaque and seem to go past
+without much discussion. Off the top of my head, I'd say about
+I've seen about as many bk pushes as pulls but that could be perceptual
+bias.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

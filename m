@@ -1,43 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286258AbRL0M0e>; Thu, 27 Dec 2001 07:26:34 -0500
+	id <S286256AbRL0MZy>; Thu, 27 Dec 2001 07:25:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286257AbRL0M0P>; Thu, 27 Dec 2001 07:26:15 -0500
-Received: from msp-150.man.olsztyn.pl ([213.184.31.150]:6784 "EHLO
-	msp-150.man.olsztyn.pl") by vger.kernel.org with ESMTP
-	id <S286255AbRL0M0K>; Thu, 27 Dec 2001 07:26:10 -0500
-Date: Thu, 27 Dec 2001 13:25:05 +0100
-From: Dominik Mierzejewski <dominik@aaf16.warszawa.sdi.tpnet.pl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2/2.4 Kernel oops/hang right after Calibrating delay loop...
-Message-ID: <20011227122505.GA5445@msp-150.man.olsztyn.pl>
+	id <S286255AbRL0MZn>; Thu, 27 Dec 2001 07:25:43 -0500
+Received: from h55p103-3.delphi.afb.lu.se ([130.235.187.176]:3738 "EHLO gin")
+	by vger.kernel.org with ESMTP id <S286256AbRL0MZa>;
+	Thu, 27 Dec 2001 07:25:30 -0500
+Date: Thu, 27 Dec 2001 13:25:20 +0100
+To: Andrew Morton <akpm@zip.com.au>
+Cc: andersg@0x63.nu, linux-kernel@vger.kernel.org, lvm-devel@sistina.com
+Subject: Re: lvm in 2.5.1
+Message-ID: <20011227122520.GA2194@h55p111.delphi.afb.lu.se>
+In-Reply-To: <20011227084304.GA26255@h55p111.delphi.afb.lu.se> <3C2AEADB.24BEFE94@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <3C2AEADB.24BEFE94@zip.com.au>
 User-Agent: Mutt/1.3.24i
-X-Linux-Registered-User: 134951
-X-Homepage: http://home.elka.pw.edu.pl/~dmierzej/
-X-PGP-Key-Fingerprint: B546 B96A 4258 02EF 5CAB  E867 3CDA 420F 7802 6AFE
+From: andersg@0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list.
-My friend and I are trying to put together an old P133 box as a small
-server, but we can't even boot the kernel.
-We tried booting from RedHat's CDs versions from 6.0 to 7.2 as well as
-with a vanilla 2.4.17 kernel compiled for Pentium with gcc-2.96-98.
-The problem is 100% repeatable and looks as follows:
-(normal boot messages)
-Calibrating delay loop... and here we get different oopses, i.e.
-Unable to handle paging request or General Protection Fault and a few others.
-Often the oops mesage was incomplete, as if the kernel hanged while writing
-it. It is totally random at this point.
+On Thu, Dec 27, 2001 at 01:33:15AM -0800, Andrew Morton wrote:
 
-So, if anyone has _any_ idea where to look for the cause of this problem,
-we'd really appreciate it.
-Could this be a hardware problem?
+> > I'm now running 2.5.1 with lvm. The following patch makes some minor changes
+> > for bio-support and removes allocation of a lv_t on the stack, which made
+> > the stack overflow and gave me something to spend my last 24 hours
+> > debugging.
+> 
+> That's a worry, because an lv_t is only 420 bytes.  If that's triggering
+> a stack overflow then we're way too close.  Think interrupts....
+> 
+> There must be other sources of stack bloat.
+> 
+> lvm_chr_ioctl() calls lvm_do_vg_create(), and it has has another lv_t
+> on the stack.  That's 840 bytes - still not enough.  Maybe lvm_do_vg_create()
+> is calling something which uses lots of stack?  Can't see it.  Odd.
+
+did a calltrace in lvm_do_vg_create and it contains 48 symbols between
+
+Trace; c013c786 <sys_ioctl+16a/184>
+
+and 
+
+Trace; c01a78f8 <lvm_chr_ioctl+2b8/670>
+
+which looks like they comes from an old system call as it just contiains
+lots of unrelated symbols. That would suggest that lvm_char_ioctl allcates a
+big object on the stack that it havn't touched?
+
+Removing these symbols makes the calltrace look like:
+
+>>EIP; c01a8cf2 <lvm_do_vg_create+22/498>   <=====
+Trace; c01a78f8 <lvm_chr_ioctl+2b8/670>
+Trace; c013c786 <sys_ioctl+16a/184>
+Trace; c010856a <system_call+32/38>
+
+not many symbols that could allcate stackspace, lets have a look how they
+allocates:
+
+0x938 <lvm_blk_ioctl>:		   sub    $0x8,%esp
+
+not much... lets have a look at lvm_do_vg_create then:
+
+with my patch:
+0x1830 <lvm_do_vg_create>:	   sub    $0x20,%esp
+
+without my patch:
+0x1830 <lvm_do_vg_create>:	   sub    $0x11c4,%esp
+
+whoa! 0x11c4
+
+thats a LOT! much more than sizeof(lv_t)
+
+> Seems that in various places here you've forgotten to free the lv_t storage
+> on error paths?
+
+of course, how could i forget.. will put together a new patch with that
+fixed in a minute. 
 
 -- 
-"The Universe doesn't give you any points for doing things that are easy."
-        -- Sheridan to Garibaldi in Babylon 5:"The Geometry of Shadows"
-Dominik 'Rathann' Mierzejewski <rathann(at)we.are.one.pl>
+
+//anders/g
+

@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281455AbRKZDvE>; Sun, 25 Nov 2001 22:51:04 -0500
+	id <S281461AbRKZEHO>; Sun, 25 Nov 2001 23:07:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281460AbRKZDuz>; Sun, 25 Nov 2001 22:50:55 -0500
-Received: from ausmac.net ([203.12.68.15]:15270 "HELO ausmac.net")
-	by vger.kernel.org with SMTP id <S281455AbRKZDus>;
-	Sun, 25 Nov 2001 22:50:48 -0500
-Date: Mon, 26 Nov 2001 14:50:43 +1100 (EST)
-From: Grant Bayley <gbayley@ausmac.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: A Documentation suggestion (fwd)
-Message-ID: <Pine.BSO.4.33.0111261450030.28740-100000@ausmac.net>
+	id <S281464AbRKZEHE>; Sun, 25 Nov 2001 23:07:04 -0500
+Received: from [209.1.214.217] ([209.1.214.217]:34566 "EHLO
+	iso2.vistocorporation.com") by vger.kernel.org with ESMTP
+	id <S281461AbRKZEGv> convert rfc822-to-8bit; Sun, 25 Nov 2001 23:06:51 -0500
+Message-ID: <3BE1CB8E0013F650@iso2.vistocorporation.com> (added by
+	    administrator@vistocorporation.com)
+Reply-To: linuxlist@visto.com
+From: "rohit prasad" <linuxlist@visto.com>
+Subject: no inetd.conf file
+Date: Sun, 25 Nov 2001 20:06:58 -0800
+X-Mailer: Visto
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Visto Server
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, 
 
-(I'm not on list due to volume; please reply privately)
+ I have installed 2.4.7 version of the kernel in my machine.
+I am facing a problem with telnet where all connections are refused.
 
----------- Forwarded message ----------
-Date: Mon, 26 Nov 2001 14:44:39 +1100 (EST)
-From: Grant Bayley <gbayley@ausmac.net>
-To: Alan.Cox@linux.org, torvalds@transmeta.com
-Subject: A Documentation suggestion
+ When I grep for telnetd there is no telnetd  running.
+If I try to start it the error reported is ,
 
-Hi Alan, Linus,
+"telnetd:getpeername:socket operation on non-socket"
 
-Just wondering if this is the right place to start...
+I checked for the inetd.conf file it is not present in the /etc directory.
 
-I've been poking around in the Linux Kernel source for some time, and I've
-always been a bit mystified by the layout of the Documentation directory.
-Not so much the contents of it, but wondering why the layout is like it
-is.
+ I want to know does this xinetd.conf file helps or,
+what else could I do to start telnetd.
 
-Now, without further ado, I've describe what I've done about it.
+I have done a "Everything" (All packages) installation of RH7.2 but no inetd.conf
 
->From the top level 00-INDEX file:
----------------------------------
+Thanks ,
+Rohit
 
-This is a brief list of all the files and directories in ./Documentation
-and what they contain.  The layout of this directory closely mirrors
-that of the Linux kernel itself, and should act as an encouragement
-to developers to store documentation about their drivers etc. in
-the appropriate directories.
+ 
 
-Files kept at the top level of the Documentation hierarchy are
-prepended with README- to emphasise the importance of them.
 
-Please try and keep any additional descriptions small enough to fit
-on one line.
-
----------------------------
-
-To have a look at the structure and to grab a tarball of the directory,
-have a squiz here:
-
-	http://orbital.wiretapped.net/linux/
-
-The only changes that have been made to the files themselves is correction of
-a typo in one file and renaming of several others to make the contents of
-the file more obvious from reading the name (ie pci.txt ->
-pci-driver-development.txt, pci.txt -> pci-power-management.txt).
-
-Hoping you'd be interested in using such a Documentation directory layout,
-
-Grant
-
--------------------------------------------------------
-Grant Bayley                         gbayley@ausmac.net
--Admin @ AusMac Archive, Wiretapped.net, 2600 Australia
- www.ausmac.net   www.wiretapped.net   www.2600.org.au
--------------------------------------------------------
+___________________________________________________________________________
+Visit http://www.visto.com.
+Find out  how companies are linking mobile users to the 
+enterprise with Visto.
 

@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131402AbRC0QXd>; Tue, 27 Mar 2001 11:23:33 -0500
+	id <S131408AbRC0Qdn>; Tue, 27 Mar 2001 11:33:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131395AbRC0QXN>; Tue, 27 Mar 2001 11:23:13 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:47679 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S131393AbRC0QXL>; Tue, 27 Mar 2001 11:23:11 -0500
-Date: Mon, 26 Mar 2001 15:26:25 +0100
-From: Stephen Tweedie <sct@redhat.com>
-To: Richard Jerrell <jerrell@missioncriticallinux.com>
-Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@nl.linux.org>,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: [PATCH] mm/memory.c, 2.4.1 : memory leak with swap cache (updated)
-Message-ID: <20010326152625.A1165@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0103221716460.20061-200000@jerrell.lowell.mclinux.com>
-Mime-Version: 1.0
+	id <S131409AbRC0Qdd>; Tue, 27 Mar 2001 11:33:33 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:60432
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S131408AbRC0QdW>; Tue, 27 Mar 2001 11:33:22 -0500
+Date: Tue, 27 Mar 2001 08:32:16 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Promise RAID controller howto?
+In-Reply-To: <99q1g2$air$1@forge.intermeta.de>
+Message-ID: <Pine.LNX.4.10.10103270806300.16125-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0103221716460.20061-200000@jerrell.lowell.mclinux.com>; from jerrell@missioncriticallinux.com on Thu, Mar 22, 2001 at 05:21:46PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 27 Mar 2001, Henning P. Schmiedehausen wrote:
 
-On Thu, Mar 22, 2001 at 05:21:46PM -0500, Richard Jerrell wrote:
-> 2.4.1 has a memory leak (temporary) where anonymous memory pages that have
-> been moved into the swap cache will stick around after their vma has been
-> unmapped by the owning process.  These pages are not free'd in free_pte()
-> because they are still referenced by the page cache.  In addition, if the
-> pages are dirty, they will be written out to the swap device before they
-> are reclaimed even though the owning process no longer will be using the
-> pages.
+> Hi,
 > 
-> free_pte in mm/memory.c has been modified to check to see if the page is
-> only being referenced by the swap cache (and possibly buffers).
+> I know, that this is a FAQ and the Promise RAID controller card is not
+> yet usable as a RAID board under Linux 2.x but is there a way to use
+> the controller just like the UltraATA 100 controller?
 
-But is it worth it?
+It is not a raid board ... it is a raid lie
 
-fork and exit are very hot paths in the kernel, and this patch can force
-a page cache lookup on a large number of pte which wouldn't be looked
-up before.
+> I know, that "input high == UltraATA core, input low = RAID core"
+> according to Andre Hedrick but I really don't care about the RAID
+> core. I want to use this controller to drive JBOD.
 
-The classic case is sendmail or apache, where you can have a parent
-process rapidly forking a large number of children.  If part of the
-parent gets swapped out due to lack of use, then the children all
-inherit swapped ptes and each such page will result in an extra page
-cache lookup in zap_page_range on exit with this change.
+Wrong, if Promise will opensource the signatures then we map the software
+raid against that location and use Linux's soft-raid.
 
-Given that the leak is, as you say, temporary, and that the leak will
-be recovered as soon as we start swapping again, do we really want to
-pollute the fast path for the sake of a bit more speed during
-swapping?
 
-Cheers,
- Stephen
+> Can one do this? The disks need not to be interchangeable to other
+> controllers.  Just be accessible.
+> 
+> 2.2 solutions preferred, 2.4 ok.
+> 
+> 	Regards
+> 		Henning
+> 
+> -- 
+> Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+> INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+> 
+> Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+> D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+

@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVCJTQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262838AbVCJTQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262846AbVCJTQf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 14:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263038AbVCJTLm
+	id S262838AbVCJTQe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 14:16:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbVCJTNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 14:11:42 -0500
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:38557 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262998AbVCJS6Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 13:58:16 -0500
-Message-ID: <00b701c525a3$128c2ac0$6a004b0a@charlemagne>
-From: "Nate Edel" <mramfs@sfchat.org>
-To: "Jason Luo" <abcd.bpmf@gmail.com>,
-       "Arjan van de Ven" <arjan@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <c4b38ec4050310001061c62b9d@mail.gmail.com> <20050310081634.GA29516@taniwha.stupidest.org> <c4b38ec40503100049190d5498@mail.gmail.com> <1110445030.6291.57.camel@laptopd505.fenrus.org>
-Subject: Re: Can I get 200M contiguous physical memory?
-Date: Thu, 10 Mar 2005 10:57:54 -0800
+	Thu, 10 Mar 2005 14:13:08 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:2474 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S262838AbVCJTDz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 14:03:55 -0500
+Message-ID: <42309A0A.4080004@candelatech.com>
+Date: Thu, 10 Mar 2005 11:03:38 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="Windows-1252";
-	reply-type=original
+To: Andi Kleen <ak@muc.de>
+CC: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
+References: <4229E805.3050105@rapidforum.com>	<422BAAC6.6040705@candelatech.com> <422BB548.1020906@rapidforum.com>	<422BC303.9060907@candelatech.com> <422BE33D.5080904@yahoo.com.au>	<422C1D57.9040708@candelatech.com> <422C1EC0.8050106@yahoo.com.au>	<422D468C.7060900@candelatech.com> <422DD5A3.7060202@rapidforum.com>	<422F8A8A.8010606@candelatech.com> <422F8C58.4000809@rapidforum.com>	<422F9259.2010003@candelatech.com> <422F93CE.3060403@rapidforum.com>	<20050309211730.24b4fc93.akpm@osdl.org> <m1is3zvprz.fsf@muc.de>
+In-Reply-To: <m1is3zvprz.fsf@muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Arjan van de Ven" <arjan@infradead.org>
-To: "Jason Luo" <abcd.bpmf@gmail.com>
->> A data acquisition card. In DMA mode, the card need 200M contiguous
->> memory for DMA.
->
-> (or want to reserve memory at the boot commandline and then do really
-> really evil hacks)
+Andi Kleen wrote:
 
-Such as booting the machine with "mem=(real memory - 200)M" and then 
-just doing an ioremap of the top 200M of memory.
+> If he had a lot of RX traffic (it is hard to figure out because his
+> bug reports are more or less useless and mostly consists of rants):
+> The packets are allocated with GFP_ATOMIC and a lot of traffic
+> overwhelms the free memory.
+> 
+> Some drivers work around this by doing the RX ring refill in process
+> context (easier with NAPI), but not all do.
 
-It's not the most elegant way of doing things given that it requires 
-user intervention at boot time, but I'm not sure it counts as a "really 
-evil hack."  Code-wise it's very simple - there's sample code in a 
-couple of the in-RAM MTD(*) drivers you can use as a model. I'm not sure 
-if this method will translate easily to non-x86 platforms if that's an 
-issue.
+I think his traffic is mostly 'send' from his server's perspective.
 
-(* /drivers/mtd/devices/slram.c and /drivers/mtd/devices/mtdram.c ; I'm 
-not sure which of these is more up to date.) 
+He's reading from disk with sendfile too, I believe, so maybe that
+would be consuming lots of pages of memory?
+
+However, in my case, I would definately welcome something that auto-tuned
+the VM to give me lots and lots of GFP_ATOMIC pages.  As it is now, I
+end up setting the /proc/sys/vm/freepages much higher.  Since it appears
+the name has changed and I didn't notice, I guess my script to set
+this has not actually been doing anything useful in the 2.6 kernel series :P
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

@@ -1,288 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318022AbSHVWxh>; Thu, 22 Aug 2002 18:53:37 -0400
+	id <S318027AbSHVWyP>; Thu, 22 Aug 2002 18:54:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318027AbSHVWxh>; Thu, 22 Aug 2002 18:53:37 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:42654 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318022AbSHVWxd>; Thu, 22 Aug 2002 18:53:33 -0400
-Subject: [PATCH] linux-2.4.20-pre4_cyclone-timer_B0
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, marcelo <marcelo@conectiva.com.br>,
-       Wendy Hung <wendyh@us.ibm.com>, Leah Cunningham <leahc@us.ibm.com>,
-       James <jamesclv@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Aug 2002 15:55:59 -0700
-Message-Id: <1030056959.947.742.camel@cog>
-Mime-Version: 1.0
+	id <S318028AbSHVWyO>; Thu, 22 Aug 2002 18:54:14 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:53736 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318027AbSHVWyJ>;
+	Thu, 22 Aug 2002 18:54:09 -0400
+Subject: Performance of 2.4.17-based Kernel vs 2.5.26-based Kernel Under Database
+ Workload
+To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@zip.com.au>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFE708D02D.C1935D57-ON85256C1D.006DDF9E@pok.ibm.com>
+From: "Peter Wong" <wpeter@us.ibm.com>
+Date: Thu, 22 Aug 2002 17:28:47 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.10 SPR# MIAS5B3GZN |June
+ 28, 2002) at 08/22/2002 06:57:59 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All, 
-	Here is my re-synced cyclone-timer patch against 2.4.20-pre4 for use
-with x440 systems. You'll want to grab James Cleverdon's summit patch
-before trying this one. 
 
->From the patch:
-"This options allows you to pass "cyclone" as a boot option to make use
-of a performance counter on the Cyclone chipset for calculating
-do_gettimeofday, greatly improving performance when compared to the PIT
-based method."
+I have compared the performance of 2.4.17 kernel+patches against that
+of 2.5.26 kernel+patches under a very heavy database workload. A
+100 GB database is used and stored on raw devices. The workload
+consists of a sequence of highly complex queries, and is processed
+with a 8-way 700 HMz Pentium III Xeon machine, 4 GB RAM and 2 MB L2
+cache. Six SCSI adapters are used with 120 disks, each of which has
+a capacity of 9.1 GB and a rotational speed of 10K RPM.
 
-All feedback and comments are welcome.
+Details of the kernels:
 
-thanks
--john
+The 2.4.17+ kernel consists of:
+  - 2.4.17 (kernel.org)
+  - bounce buffer patch (Jens Axboe)
+  - IPS patch (Peter Wong)
+  - io_request_lock patch (Jonathan Lahr)
+  - rawvary patch (Badari Pulavarty)
+  - changes to TASK_UNMAPPED_BASE and PAGE_OFFSET to provide
+    more room for the database bufferpool
+
+The 2.5.26+ kernel consists of
+  - 2.5.26 (kernel.org)
+  - direct I/O patch (Andrew Morton, Badari Pulavarty ported it
+                      from 2.5.31)
+  - changes to exec.c (a fix needed to run the benchmark)
+  - changes to TASK_UNMAPPED_BASE to provide more room for the
+    database bufferpool
+
+Based upon the throughput of the workload, there is a 8% improvement
+of 2.5.26+ over 2.4.17+, which indicates that the new 2.5 code
+performs better than the 2.4 code. Indeed, the bounce buffer patch,
+the removal of io_request_lock, and efficient handling of large I/O
+via the bio struct are already incorporated into the 2.5 kernel.
+
+I have not collected lockmeter and kernprof data on 2.5.26+ yet.
+However, I have collected them on the 2.5.25-based kernel. Note
+that the 2.5.25-based kernel achieves about the same performance
+level as the 2.5.26+ kernel.
+
+The lockmeter tool indicates no hot locks, and in fact, there is
+almost no lock contention on the system. By examining one query
+which scans a ~75 GB table and performs simple comparisons, the
+lock spin time is close to 0%. The top lock is used inside the
+IPS interrupt handler routine. The following is a clip of the
+lockmeter result showing the *TOTAL* and do_ipsinstr+0x24.
 
 
-diff -Nru a/Documentation/Configure.help b/Documentation/Configure.help
---- a/Documentation/Configure.help	Thu Aug 22 15:07:46 2002
-+++ b/Documentation/Configure.help	Thu Aug 22 15:07:46 2002
-@@ -252,6 +252,14 @@
-   You will need a new lynxer.elf file to flash your firmware with - send
-   email to Martin.Bligh@us.ibm.com
- 
-+IBM x440 Summit support
-+CONFIG_X86_SUMMIT_NUMA
-+  This option enables support for the IBM x440 and related multi-CEC 
-+  systems based on the Summit chipset. This options allows you to pass
-+  "cyclone" as a boot option to make use of a performance counter on 
-+  the Cyclone chipset for calculating do_gettimeofday, greatly 
-+  improving performance when compared to the PIT based method. 
-+
- IO-APIC support on uniprocessors
- CONFIG_X86_UP_IOAPIC
-   An IO-APIC (I/O Advanced Programmable Interrupt Controller) is an
-diff -Nru a/arch/i386/config.in b/arch/i386/config.in
---- a/arch/i386/config.in	Thu Aug 22 15:07:46 2002
-+++ b/arch/i386/config.in	Thu Aug 22 15:07:46 2002
-@@ -216,12 +216,18 @@
-       define_bool CONFIG_X86_IO_APIC y
-    fi
- else
--   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
-+   bool 'Multi-node NUMA system support' CONFIG_X86_NUMA
-+   if [ "$CONFIG_X86_NUMA" = "y" ]; then
-+      bool '  Multiquad (IBM/Sequent) NUMAQ support' CONFIG_MULTIQUAD
-+      bool '  IBM x440 Summit support' CONFIG_X86_SUMMIT_NUMA
-+   fi
- fi
- 
--bool 'Unsynced TSC support' CONFIG_X86_TSC_DISABLE
--if [ "$CONFIG_X86_TSC_DISABLE" != "y" -a "$CONFIG_X86_HAS_TSC" = "y" ]; then
--   define_bool CONFIG_X86_TSC y
-+if [ "$CONFIG_X86_NUMA" != "y" ]; then
-+   bool 'Unsynced TSC support' CONFIG_X86_TSC_DISABLE
-+   if [ "$CONFIG_X86_TSC_DISABLE" != "y" -a "$CONFIG_X86_HAS_TSC" = "y" ]; then
-+      define_bool CONFIG_X86_TSC y
-+   fi
- fi
- 
- if [ "$CONFIG_SMP" = "y" -a "$CONFIG_X86_CMPXCHG" = "y" ]; then
-diff -Nru a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
---- a/arch/i386/kernel/setup.c	Thu Aug 22 15:07:46 2002
-+++ b/arch/i386/kernel/setup.c	Thu Aug 22 15:07:46 2002
-@@ -1174,7 +1174,7 @@
- 
+SPINLOCKS       HOLD            WAIT
+  UTIL  CON  MEAN(  MAX )   MEAN(  MAX )(% CPU)     TOTAL  NAME
 
- #ifndef CONFIG_X86_TSC
--static int tsc_disable __initdata = 0;
-+int tsc_disable __initdata = 0;
- 
- static int __init notsc_setup(char *str)
- {
-diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
---- a/arch/i386/kernel/time.c	Thu Aug 22 15:07:46 2002
-+++ b/arch/i386/kernel/time.c	Thu Aug 22 15:07:46 2002
-@@ -256,6 +256,140 @@
- 
- static unsigned long (*do_gettimeoffset)(void) = do_slow_gettimeoffset;
- 
-+
-+
-+#ifdef CONFIG_X86_SUMMIT_NUMA
-+
-+#define CYCLONE_CBAR_ADDR 0xFEB00CD0
-+#define CYCLONE_PMCC_OFFSET 0x51A0
-+#define CYCLONE_MPMC_OFFSET 0x51D0
-+#define CYCLONE_MPCS_OFFSET 0x51A8
-+#define CYCLONE_TIMER_FREQ 100000000
-+
-+static int use_cyclone __initdata = 0;
-+extern int tsc_disable;
-+/*XXX - should autodetect*/
-+static int __init cyclone_setup(char *str) 
-+{
-+	tsc_disable = 1;
-+	use_cyclone = 1;
-+	return 1;
-+}
-+__setup("cyclone", cyclone_setup);
-+
-+
-+static u32* cyclone_timer;	/*Cyclone MPMC0 register*/
-+static u32 last_cyclone_timer;
-+
-+static inline void mark_timeoffset_cyclone(void)
-+{
-+	int count;
-+
-+	/*quickly read the cyclone timer*/
-+	if(cyclone_timer)
-+		last_cyclone_timer = cyclone_timer[0];
-+
-+	/*calculate delay_at_last_interrupt*/
-+	spin_lock(&i8253_lock);
-+	outb_p(0x00, 0x43);     /* latch the count ASAP */
-+
-+	count = inb_p(0x40);    /* read the latched count */
-+	count |= inb(0x40) << 8;
-+	spin_unlock(&i8253_lock);
-+
-+	count = ((LATCH-1) - count) * TICK_SIZE;
-+	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
-+}
-+
-+static unsigned long do_gettimeoffset_cyclone(void)
-+{
-+	u32 offset;
-+
-+	if(!cyclone_timer)
-+		return delay_at_last_interrupt;
-+
-+	/* Read the cyclone timer */
-+	offset = cyclone_timer[0];
-+
-+	/* .. relative to previous jiffy*/
-+	offset = offset - last_cyclone_timer;
-+
-+	/*convert cyclone ticks to microseconds*/	
-+	offset = offset/100;	/*XXX slow, can we speed this up?*/
-+
-+	/* our adjusted time offset in microseconds */
-+	return delay_at_last_interrupt + offset;
-+}
-+
-+static void init_cyclone_clock(void)
-+{
-+	u32* reg;	
-+	u32 base;	/*saved cyclone base address*/
-+	u32 pageaddr; /*page that contains cyclone_timer register*/
-+	u32 offset;	/*offset from pageaddr to cyclone_timer register*/
-+
-+	printk(KERN_INFO "Summit chipset: Starting Cyclone Clock.\n");
-+
-+	/*find base address*/
-+	pageaddr = (CYCLONE_CBAR_ADDR)&PAGE_MASK;
-+	offset = (CYCLONE_CBAR_ADDR)&(~PAGE_MASK);
-+	set_fixmap_nocache(FIX_CYCLONE_TIMER, pageaddr);
-+	reg = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
-+	if(!reg){
-+		printk(KERN_ERR "Summit chipset: Could not find valid CBAR register.\n");
-+		return;
-+	}
-+	base = *reg;	
-+	if(!base){
-+		printk(KERN_ERR "Summit chipset: Could not find valid CBAR value.\n");
-+		return;
-+	}
-+	
-+	/*setup PMCC*/
-+	pageaddr = (base + CYCLONE_PMCC_OFFSET)&PAGE_MASK;
-+	offset = (base + CYCLONE_PMCC_OFFSET)&(~PAGE_MASK);
-+	set_fixmap_nocache(FIX_CYCLONE_TIMER, pageaddr);
-+	reg = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
-+	if(!reg){
-+		printk(KERN_ERR "Summit chipset: Could not find valid PMCC register.\n");
-+		return;
-+	}
-+	reg[0] = 0x00000001;
-+
-+	/*setup MPCS*/
-+	pageaddr = (base + CYCLONE_MPCS_OFFSET)&PAGE_MASK;
-+	offset = (base + CYCLONE_MPCS_OFFSET)&(~PAGE_MASK);
-+	set_fixmap_nocache(FIX_CYCLONE_TIMER, pageaddr);
-+	reg = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
-+	if(!reg){
-+		printk(KERN_ERR "Summit chipset: Could not find valid MPCS register.\n");
-+		return;
-+	}
-+	reg[0] = 0x00000001;
-+
-+	/*map in cyclone_timer*/
-+	pageaddr = (base + CYCLONE_MPMC_OFFSET)&PAGE_MASK;
-+	offset = (base + CYCLONE_MPMC_OFFSET)&(~PAGE_MASK);
-+	set_fixmap_nocache(FIX_CYCLONE_TIMER, pageaddr);
-+	cyclone_timer = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
-+	if(!cyclone_timer){
-+		printk(KERN_ERR "Summit chipset: Could not find valid MPMC register.\n");
-+		return;
-+	}
-+
-+	/* Everything looks good, so set do_gettimeoffset*/
-+	do_gettimeoffset = do_gettimeoffset_cyclone;	
-+}
-+
-+#else /*CONFIG_X86_SUMMIT_NUMA*/
-+
-+#define use_cyclone 0
-+static void mark_timeoffset_cyclone(void) {}
-+static unsigned long do_gettimeoffset_cyclone(void) {return 0;}
-+static void init_cyclone_clock(void) {}
-+
-+#endif /*CONFIG_X86_SUMMIT_NUMA*/
-+
- #else
- 
- #define do_gettimeoffset()	do_fast_gettimeoffset()
-@@ -481,8 +615,7 @@
- 	 */
- 	write_lock(&xtime_lock);
- 
--	if (use_tsc)
--	{
-+	if (use_tsc) {
- 		/*
- 		 * It is important that these two operations happen almost at
- 		 * the same time. We do the RDTSC stuff first, since it's
-@@ -508,8 +641,11 @@
- 
- 		count = ((LATCH-1) - count) * TICK_SIZE;
- 		delay_at_last_interrupt = (count + LATCH/2) / LATCH;
--	}
-- 
-+	} else {
-+		if(use_cyclone)
-+			mark_timeoffset_cyclone();
-+ 	}
-+	
- 	do_timer_interrupt(irq, NULL, regs);
- 
- 	write_unlock(&xtime_lock);
-@@ -698,6 +834,9 @@
- 			}
- 		}
- 	}
-+
-+ 	if((!use_tsc) && use_cyclone)
-+		init_cyclone_clock();
- 
- #ifdef CONFIG_VISWS
- 	printk("Starting Cobalt Timer system clock\n");
-diff -Nru a/include/asm-i386/fixmap.h b/include/asm-i386/fixmap.h
---- a/include/asm-i386/fixmap.h	Thu Aug 22 15:07:46 2002
-+++ b/include/asm-i386/fixmap.h	Thu Aug 22 15:07:46 2002
-@@ -64,6 +64,9 @@
- #ifndef CONFIG_X86_F00F_WORKS_OK
- 	FIX_F00F,
- #endif
-+#ifdef CONFIG_X86_SUMMIT_NUMA
-+	FIX_CYCLONE_TIMER, /*cyclone timer register*/
-+#endif 
- #ifdef CONFIG_HIGHMEM
- 	FIX_KMAP_BEGIN,	/* reserved pte's for temporary kernel mappings */
- 	FIX_KMAP_END = FIX_KMAP_BEGIN+(KM_TYPE_NR*NR_CPUS)-1,
+       2.0%  5.3us(8532us)  9.5us( 414us)(0.07%)  65591728  *TOTAL*
+
+15.3% 0.74%   63us( 162us)   10us( 202us)(0.00%)   1326034  do_ipsintr
+                                                            +0x24
+
+All of the other complex queries show a similar lockmeter result.
+
+Using the kernprof tool to examine the same query, do_ipsintr is also
+at the top of the list, but it only consumes a small percentage of
+the total time. The following is a clip of the kernprof result showing
+the top functions.
+
+
+        TOTAL_SAMPLES                  3137055
+        USER [c0125ef0]:               2159334    (68.8%)
+        default_idle [c0105310]:        759032    (24.2%)
+        do_ipsintr [c0213810]:           76169    ( 2.4%)
+        do_softirq [c011b930]:           46244    ( 1.5%)
+        scsi_dispatch_cmd [c01f58b0]:    12937    ( 0.4%)
+
+All of the other complex queries show a similar kernprof result for
+the top functions.
+
+Regards,
+Peter
+
+Peter Wai Yee Wong
+IBM Linux Technology Center, Performance Analysis
+email: wpeter@us.ibm.com
+
 

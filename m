@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129352AbQKRLhl>; Sat, 18 Nov 2000 06:37:41 -0500
+	id <S129219AbQKRMMN>; Sat, 18 Nov 2000 07:12:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130159AbQKRLhc>; Sat, 18 Nov 2000 06:37:32 -0500
-Received: from altrade.nijmegen.inter.nl.net ([193.67.237.6]:20685 "EHLO
-	altrade.nijmegen.inter.nl.net") by vger.kernel.org with ESMTP
-	id <S129352AbQKRLhX>; Sat, 18 Nov 2000 06:37:23 -0500
-Date: Sat, 18 Nov 2000 12:07:15 +0100
-From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org
-Subject: Re: ORACLE and 2.4-test10
-Message-ID: <20001118120715.A6449@iapetus.localdomain>
-In-Reply-To: <3A157E06.37255710@evision-ventures.com> <E13wq1g-0000zo-00@the-village.bc.nu>
+	id <S131578AbQKRMME>; Sat, 18 Nov 2000 07:12:04 -0500
+Received: from 3dyn88.com21.casema.net ([212.64.94.88]:31759 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S129352AbQKRML4>;
+	Sat, 18 Nov 2000 07:11:56 -0500
+Date: Sat, 18 Nov 2000 12:35:36 +0100
+From: Jasper Spaans <jasper@spaans.ds9a.nl>
+To: mingo@redhat.com
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] raid5 fix after xor.c cleanup
+Message-ID: <20001118123536.A5674@spaans.ds9a.nl>
+In-Reply-To: <20001117234144.A14461@spaans.ds9a.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <E13wq1g-0000zo-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Nov 17, 2000 at 06:14:14PM +0000
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001117234144.A14461@spaans.ds9a.nl>; from jasper@spaans.ds9a.nl on Fri, Nov 17, 2000 at 11:41:44PM +0100
+Organization: http://www.insultant.nl/
+X-Copyright: Copyright 2000 C. Jasper Spaans - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2000 at 06:14:14PM +0000, Alan Cox wrote:
-> SHM is resolved but O_SYNC is not yet fixed. You could therefore easily lose
-> your entire database
+On Fri, Nov 17, 2000 at 11:41:44PM +0100, Jasper Spaans wrote:
 
-I assume 2.2.18-pre-latest is ok?
-Some oracle doc still refers to 2.0.34
+> due to the xor.c cleanup in 2.4.0-test11-pre5+, raid5 compiled into the
+> kernel fails when booting, because the calibrate_xor_block function
+> hasn't been called while registering a raid5 volume; this leads to a
+> panic, as no checksumming function has been chosen.
+> 
+> Here's a tiny patch to restore that functionality, can you apply it?
 
+Hmm, next time I'll need to eat my own dogfood -- this patch doesn't work, it
+only compiles. Don't use it.
+
+Regards,
 -- 
-Frank
+Jasper Spaans  <jasper@spaans.ds9a.nl>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,182 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVCIA3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbVCIAeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262419AbVCIA3G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 19:29:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbVCIAZx
+	id S262311AbVCIAeW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 19:34:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbVCHXpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 19:25:53 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:56075 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262222AbVCIAX5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 19:23:57 -0500
-Message-ID: <422E4217.10607@vmware.com>
-Date: Tue, 08 Mar 2005 16:23:51 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
-Subject: i386 / sysenter safety test case
-Content-Type: multipart/mixed;
- boundary="------------020409010601070609020008"
-X-OriginalArrivalTime: 09 Mar 2005 00:23:59.0407 (UTC) FILETIME=[49C3D3F0:01C5243E]
+	Tue, 8 Mar 2005 18:45:17 -0500
+Received: from mail.kroah.org ([69.55.234.183]:34694 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262250AbVCHXkQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 18:40:16 -0500
+Date: Tue, 8 Mar 2005 15:37:07 -0800
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       jt@hpl.hp.com, linux-pcmcia@lists.infradead.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PCMCIA product id strings -> hashes generation at compilation time? [Was: Re: [patch 14/38] pcmcia: id_table for wavelan_cs]
+Message-ID: <20050308233706.GA11454@kroah.com>
+References: <20050308191138.GA16169@isilmar.linta.de> <20050308123426.249fa934.akpm@osdl.org> <20050227161308.GO7351@dominikbrodowski.de> <20050307225355.GB30371@bougret.hpl.hp.com> <20050307230102.GA29779@isilmar.linta.de> <20050307150957.0456dd75.akpm@osdl.org> <20050307232339.GA30057@isilmar.linta.de> <20050308191138.GA16169@isilmar.linta.de> <Pine.LNX.4.58.0503081438040.13251@ppc970.osdl.org> <20050308231636.GA20658@isilmar.linta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050308231636.GA20658@isilmar.linta.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020409010601070609020008
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Mar 09, 2005 at 12:16:36AM +0100, Dominik Brodowski wrote:
+> > Dominik Brodowski <linux@dominikbrodowski.net> wrote:
+> > >
+> > > Most pcmcia devices are matched to drivers using "product ID strings"
+> > >  embedded in the devices' Card Information Structures, as "manufactor ID /
+> > >  card ID" matches are much less reliable. Unfortunately, these strings cannot
+> > >  be passed to userspace for easy userspace-based loading of appropriate
+> > >  modules (MODNAME -- hotplug), so my suggestion is to also store crc32 hashes
+> > >  of the strings in the MODULE_DEVICE_TABLEs, e.g.:
+> > > 
+> > >  PCMCIA_DEVICE_PROD_ID12("LINKSYS", "E-CARD", 0xf7cb0b07, 0x6701da11),
+> > 
+> > What is the difficulty in passing these strings via /sbin/hotplug arguments?
+> 
+> The difficulty is that extracting and evaluating them breaks the wonderful 
+> bus-independent MODNAME implementation for hotplug suggested by Roman Kagan
+> ( http://article.gmane.org/gmane.linux.hotplug.devel/7039 ), and that these
+> strings may contain spaces and other "strange" characters. The latter may be 
+> worked around, but the former cannot. /etc/hotplug/pcmcia.agent looks really
+> clean because of this MODNAME implementation:
 
-Code inspection of entry.S on i386 showed a potential problem - load 
-through segment without verifying "flatness" on the sysenter path.  
-Turns out this code is safe, but only by a thread ..
+I think that MODNAME should be replaced with MODALIAS, but that's a
+different email thread...
 
-ENTRY(sysenter_entry)
-        movl TSS_sysenter_esp0(%esp),%esp
-sysenter_past_esp:
-        sti
-        pushl $(__USER_DS)
-        pushl %ebp
-        pushfl
-        pushl $(__USER_CS)
-        pushl $SYSENTER_RETURN
+Anyway, hashes are icky, I still don't see why using the string as
+module aliases, and fixing up modprobe to handle spaces in module
+aliases wouldn't work out easier.
 
-/*
- * Load the potential sixth argument from user stack.
- * Careful about security.
- */
-        cmpl $__PAGE_OFFSET-3,%ebp
-        jae syscall_fault
-1:      movl (%ebp),%ebp
+thanks,
 
-If it weren't for the fact that %ebp relative addresses default to using 
-the SS segment, we could have loaded through a user segment here to read 
-arbitrary memory (sysenter does nothing to DS segment).  Perhaps this 
-was considered before, but because of the implications, I thought this 
-might be worth annotating in the source.   Also provided a test case.  
-Obviously only works on sysenter capable processors.  Tested on 2.6.8.
-
-Zach Amsden
-zach@vmware.com
-
---------------020409010601070609020008
-Content-Type: text/plain;
- name="sysenter.S"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sysenter.S"
-
-#include <sys/syscall.h>
-
-.text
-.global sysenter_call
-.global sysenter_call_2
-
-/* void sysenter_call(pid_t pid, int signo, short ds, void *addr) */
-
-sysenter_call:
-	push %ebx
-	push %edi
-	push %ebp
-        push %ds
-	movl %esp, %edi
-	movl 20(%esp), %ebx   /* pid */
-	movl 24(%esp), %ecx   /* signo */
-	movl 28(%esp), %ds    /* exploit DS */
-	movl 32(%esp), %ebp
-	movl %ebp, %esp
-        push $sysenter_return
-	push %ecx
-	push %edx
-	subl $16, %ebp
-	push $0xbaadf00d
-	movl $SYS_kill, %eax
-	sysenter
-
-/* vsyscall page will ret to us here */
-sysenter_return:
-        mov %edi, %esp
-	pop %ds
-	pop %ebp
-	pop %edi
-	pop %ebx	
-	ret
-
-sysenter_call_2:
-	push %ebx
-	push %ebp
-	movl 20(%esp), %ebx   /* pid */
-	movl 24(%esp), %ecx   /* signo */
-	movl 28(%esp), %ebp
-	movl $SYS_kill, %eax
-	sysenter
-
-.data
-test: .long 0 
-
---------------020409010601070609020008
-Content-Type: text/plain;
- name="sysenter.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sysenter.c"
-
-/*
- * Copyright (c) 2005, Zachary Amsden (zach@vmware.com)
- * This is licensed under the GPL.
- */
-
-#include <stdio.h>
-#include <signal.h>
-#include <asm/ldt.h>
-#include <asm/segment.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#define __KERNEL__
-#include <asm/page.h>
-
-extern void sysenter_call(pid_t pid, int signo, short ds, void *addr);
-extern void sysenter_call_2(pid_t pid, int signo, void *addr);
-void catch_sig(int signo, struct sigcontext ctx)
-{
-	__asm__ __volatile__("mov %0, %%ds" : : "r" (__USER_DS));
-	printf("interrupted %%ebp = 0x%x\n", ctx.ebp);
-	if (ctx.ebp == 0xbaadf00d)
-		printf("phew\n");
-}
-
-void main(void)
-{
-	struct user_desc desc;
-	short ds;
-	unsigned long addr;
-	unsigned *stack;
-	unsigned long offset;
-
-	stack = (unsigned *)mmap(0, 4096, PROT_EXEC|PROT_READ|PROT_WRITE,
-				 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	stack = &stack[1024];
-	addr = 0xf0000; /* Try to read BIOS */
-	offset = __PAGE_OFFSET-(unsigned)stack+addr+16;
-	signal(SIGUSR1, catch_sig);
-	desc.entry_number = 0;
-	desc.base_addr = offset;
-	desc.limit = 0xffffff;
-	desc.seg_32bit = 1;
-	desc.contents = MODIFY_LDT_CONTENTS_DATA;
-	desc.read_exec_only = 0;
-	desc.limit_in_pages = 1;
-	desc.seg_not_present = 0;
-	desc.useable = 1;
-	if (modify_ldt(1, &desc, sizeof(desc)) != 0) {
-		perror("modify_ldt");
-	}
-	ds = 0x7; /* TI | RPL 3 */
-	sysenter_call(getpid(), SIGUSR1, ds, stack);
-	sysenter_call_2(getpid(), SIGSTOP, __PAGE_OFFSET+4096);
-	printf("not reached - core should show %%eax == -EFAULT\n");
-}
-
---------------020409010601070609020008--
+greg k-h

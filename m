@@ -1,33 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265670AbTAOBLa>; Tue, 14 Jan 2003 20:11:30 -0500
+	id <S265608AbTAOBIN>; Tue, 14 Jan 2003 20:08:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265675AbTAOBLa>; Tue, 14 Jan 2003 20:11:30 -0500
-Received: from sex.inr.ac.ru ([193.233.7.165]:40680 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S265670AbTAOBL3>;
-	Tue, 14 Jan 2003 20:11:29 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200301150119.EAA14364@sex.inr.ac.ru>
-Subject: Re: [RFC] Migrating net/sched to new module interface
-To: zippel@linux-m68k.org (Roman Zippel)
-Date: Wed, 15 Jan 2003 04:19:28 +0300 (MSK)
-Cc: kronos@kronoz.cjb.net, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-In-Reply-To: <3E24A981.1EA03E8B@linux-m68k.org> from "Roman Zippel" at Jan 15, 3 01:21:21 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S265656AbTAOBIN>; Tue, 14 Jan 2003 20:08:13 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:31170 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S265608AbTAOBHm>;
+	Tue, 14 Jan 2003 20:07:42 -0500
+Subject: Re: Unable to boot off kernel built on different machine
+From: Rusty Lynch <rusty@linux.co.intel.com>
+To: Bruce Harada <bharada@coral.ocn.ne.jp>
+Cc: rusty@penguin.co.intel.com, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030115100119.6e8e731f.bharada@coral.ocn.ne.jp>
+References: <200301141938.h0EJcaO8018734@penguin.co.intel.com> 
+	<20030115100119.6e8e731f.bharada@coral.ocn.ne.jp>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Jan 2003 01:15:15 -0800
+Message-Id: <1042535719.3360.2.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+I figured it out.  All I had to do was use 'rdev' to set the root 
+correctly.  Machine 'A' was setting the root as /dev/hda1 and 
+Machine 'B' was setting the root as /dev/hdb1.
 
-> Above scheme is not without problems either, a failing try_module_get()
-> suddenly gets a double meaning. Now it also means that the module might
-> be ready soon, please try again later,
+The kernel README gave me the clue.
 
-... and btw completely useless thing, because each module user already
-has its own means to do serialization of this kind even when used _NOT_
-as module.
+    --rustyl
 
-Somewhat overdone.
+On Tue, 2003-01-14 at 17:01, Bruce Harada wrote:
+> On Tue, 14 Jan 2003 11:38:36 -0800
+> Rusty Lynch <rusty@penguin.co.intel.com> wrote:
+> 
+> > I am having the strange problem (that I suspect is embarrassingly simple)
+> > where I can only boot a kernel built on the same machine.  For example
+> > my setup looks like:
+> > 
+> > * machine 'A' (RH 8.0 P4 system): 
+> >   - contains a 2.5 kernel tree on an exported NFS drive
+> >   - this is the machine where I do all my real work, and
+> >     do not want to run test kernels on
+> > * machine 'B' (RH 8.0 P3 system):
+> >   - mounts the kernel tree on 'A' to make it easy to
+> >     install new kernels on for testing
+> [SNIP]
+> 
+> Check /etc/fstab on machines A and B - what do they contain?
 
-Alexey
+

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265139AbTBOUfa>; Sat, 15 Feb 2003 15:35:30 -0500
+	id <S265174AbTBOUh6>; Sat, 15 Feb 2003 15:37:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265135AbTBOUec>; Sat, 15 Feb 2003 15:34:32 -0500
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:39173 "EHLO
+	id <S265134AbTBOUgm>; Sat, 15 Feb 2003 15:36:42 -0500
+Received: from covert.black-ring.iadfw.net ([209.196.123.142]:40453 "EHLO
 	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id <S265126AbTBOUeY>; Sat, 15 Feb 2003 15:34:24 -0500
-Date: Sat, 15 Feb 2003 14:36:08 -0600
+	id <S265130AbTBOUe1>; Sat, 15 Feb 2003 15:34:27 -0500
+Date: Sat, 15 Feb 2003 14:40:44 -0600
 From: Art Haas <ahaas@airmail.net>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] C99 initializers for drivers/cdrom/cdrom.c
-Message-ID: <20030215203608.GA20146@debian>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] C99 initializers for drivers/md/md.c
+Message-ID: <20030215204044.GD20146@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,116 +21,69 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi.
 
-This patch switches the file to use C99 initializers in an effort to
-improve readability and remove warnings if '-W' is used.
+This patch converts the file to use C99 initializers to improve
+readabillity and remove warnings if '-W' is used.
 
 Art Haas
 
-===== drivers/cdrom/cdrom.c 1.33 vs edited =====
---- 1.33/drivers/cdrom/cdrom.c	Wed Jan  8 06:03:30 2003
-+++ edited/drivers/cdrom/cdrom.c	Sat Feb 15 12:14:19 2003
-@@ -2542,33 +2542,81 @@
+===== drivers/md/md.c 1.135 vs edited =====
+--- 1.135/drivers/md/md.c	Tue Feb 11 16:57:51 2003
++++ edited/drivers/md/md.c	Sat Feb 15 13:20:13 2003
+@@ -83,21 +83,45 @@
+ static struct ctl_table_header *raid_table_header;
  
- /* Place files in /proc/sys/dev/cdrom */
- ctl_table cdrom_table[] = {
--	{DEV_CDROM_INFO, "info", &cdrom_sysctl_settings.info, 
--		CDROM_STR_SIZE, 0444, NULL, &cdrom_sysctl_info},
--	{DEV_CDROM_AUTOCLOSE, "autoclose", &cdrom_sysctl_settings.autoclose,
--		sizeof(int), 0644, NULL, &cdrom_sysctl_handler },
--	{DEV_CDROM_AUTOEJECT, "autoeject", &cdrom_sysctl_settings.autoeject,
--		sizeof(int), 0644, NULL, &cdrom_sysctl_handler },
--	{DEV_CDROM_DEBUG, "debug", &cdrom_sysctl_settings.debug,
--		sizeof(int), 0644, NULL, &cdrom_sysctl_handler },
--	{DEV_CDROM_LOCK, "lock", &cdrom_sysctl_settings.lock,
--		sizeof(int), 0644, NULL, &cdrom_sysctl_handler },
--	{DEV_CDROM_CHECK_MEDIA, "check_media", &cdrom_sysctl_settings.check,
--		sizeof(int), 0644, NULL, &cdrom_sysctl_handler },
+ static ctl_table raid_table[] = {
+-	{DEV_RAID_SPEED_LIMIT_MIN, "speed_limit_min",
+-	 &sysctl_speed_limit_min, sizeof(int), 0644, NULL, &proc_dointvec},
+-	{DEV_RAID_SPEED_LIMIT_MAX, "speed_limit_max",
+-	 &sysctl_speed_limit_max, sizeof(int), 0644, NULL, &proc_dointvec},
 -	{0}
--	};
 +	{
-+		.ctl_name	= DEV_CDROM_INFO,
-+		.procname	= "info",
-+		.data		= &cdrom_sysctl_settings.info, 
-+		.maxlen		= CDROM_STR_SIZE,
-+		.mode		= 0444,
-+		.proc_handler	= &cdrom_sysctl_info,
-+	},
-+	{
-+		.ctl_name	= DEV_CDROM_AUTOCLOSE,
-+		.procname	= "autoclose",
-+		.data		= &cdrom_sysctl_settings.autoclose,
++		.ctl_name	= DEV_RAID_SPEED_LIMIT_MIN,
++		.procname	= "speed_limit_min",
++		.data		= &sysctl_speed_limit_min,
 +		.maxlen		= sizeof(int),
 +		.mode		= 0644,
-+		.proc_handler	= &cdrom_sysctl_handler,
++		.proc_handler	= &proc_dointvec,
 +	},
 +	{
-+		.ctl_name	= DEV_CDROM_AUTOEJECT,
-+		.procname	= "autoeject",
-+		.data		= &cdrom_sysctl_settings.autoeject,
++		.ctl_name	= DEV_RAID_SPEED_LIMIT_MAX,
++		.procname	= "speed_limit_max",
++		.data		= &sysctl_speed_limit_max,
 +		.maxlen		= sizeof(int),
 +		.mode		= 0644,
-+		.proc_handler	= &cdrom_sysctl_handler,
-+	},
-+	{
-+		.ctl_name	= DEV_CDROM_DEBUG,
-+		.procname	= "debug",
-+		.data		= &cdrom_sysctl_settings.debug,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &cdrom_sysctl_handler,
-+	},
-+	{
-+		.ctl_name	= DEV_CDROM_LOCK,
-+		.procname	= "lock",
-+		.data		= &cdrom_sysctl_settings.lock,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &cdrom_sysctl_handler,
-+	},
-+	{
-+		.ctl_name	= DEV_CDROM_CHECK_MEDIA,
-+		.procname	= "check_media",
-+		.data		= &cdrom_sysctl_settings.check,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &cdrom_sysctl_handler
++		.proc_handler	= &proc_dointvec,
 +	},
 +	{ .ctl_name = 0 }
-+};
+ };
  
- ctl_table cdrom_cdrom_table[] = {
--	{DEV_CDROM, "cdrom", NULL, 0, 0555, cdrom_table},
+ static ctl_table raid_dir_table[] = {
+-	{DEV_RAID, "raid", NULL, 0, 0555, raid_table},
 -	{0}
--	};
 +	{
-+		.ctl_name	= DEV_CDROM,
-+		.procname	= "cdrom",
++		.ctl_name	= DEV_RAID,
++		.procname	= "raid",
 +		.maxlen		= 0,
 +		.mode		= 0555,
-+		.child		= cdrom_table,
++		.child		= raid_table,
 +	},
 +	{ .ctl_name = 0 }
-+};
+ };
  
- /* Make sure that /proc/sys/dev is there */
- ctl_table cdrom_root_table[] = {
- #ifdef CONFIG_PROC_FS
--	{CTL_DEV, "dev", NULL, 0, 0555, cdrom_cdrom_table},
+ static ctl_table raid_root_table[] = {
+-	{CTL_DEV, "dev", NULL, 0, 0555, raid_dir_table},
+-	{0}
 +	{
 +		.ctl_name	= CTL_DEV,
 +		.procname	= "dev",
 +		.maxlen		= 0,
 +		.mode		= 0555,
-+		.child		= cdrom_cdrom_table,
++		.proc_handler	= raid_dir_table,
 +	},
- #endif /* CONFIG_PROC_FS */
--	{0}
--	};
 +	{ .ctl_name = 0 }
-+};
- static struct ctl_table_header *cdrom_sysctl_header;
+ };
  
- static void cdrom_sysctl_register(void)
+ static void md_recover_arrays(void);
 -- 
 They that can give up essential liberty to obtain a little temporary safety
 deserve neither liberty nor safety.

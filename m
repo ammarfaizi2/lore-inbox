@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266486AbUHILX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUHIL0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266486AbUHILX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 07:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266485AbUHILX1
+	id S266481AbUHIL0K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 07:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266485AbUHIL0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 07:23:27 -0400
-Received: from cantor.suse.de ([195.135.220.2]:23172 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266481AbUHILXM (ORCPT
+	Mon, 9 Aug 2004 07:26:10 -0400
+Received: from colin2.muc.de ([193.149.48.15]:16657 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S266481AbUHIL0E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 07:23:12 -0400
-Date: Mon, 9 Aug 2004 13:23:08 +0200
-From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mpm@selenic.com
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / x86_64
-Message-Id: <20040809132308.7312656b.ak@suse.de>
-In-Reply-To: <Pine.LNX.4.58.0408080156550.19619@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0408072217170.19619@montezuma.fsmlabs.com>
-	<Pine.LNX.4.58.0408080156550.19619@montezuma.fsmlabs.com>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 9 Aug 2004 07:26:04 -0400
+Date: 9 Aug 2004 13:26:03 +0200
+Date: Mon, 9 Aug 2004 13:26:03 +0200
+From: Andi Kleen <ak@muc.de>
+To: S Vamsikrishna <vamsi_krishna@in.ibm.com>
+Cc: prasanna@in.ibm.com, linux-kernel@vger.kernel.org, shemminger@osdl.org,
+       suparna@in.ibm.com
+Subject: Re: [0/3]kprobes-base-268-rc3.patch
+Message-ID: <20040809112603.GA25663@muc.de>
+References: <OF3CCCD7A9.BF71DED2-ON85256EEB.0006D48C-85256EEB.000CA600@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF3CCCD7A9.BF71DED2-ON85256EEB.0006D48C-85256EEB.000CA600@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Aug 2004 02:08:30 -0400 (EDT)
-Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
-
->  arch/x86_64/Kconfig           |   10 ++++++++++
->  arch/x86_64/lib/Makefile      |    1 +
->  arch/x86_64/lib/spinlock.c    |   38 ++++++++++++++++++++++++++++++++++++++
->  include/asm-x86_64/spinlock.h |   22 ++++++++++++++++++++--
->  4 files changed, 69 insertions(+), 2 deletions(-)
+On Sun, Aug 08, 2004 at 10:23:15PM -0400, S Vamsikrishna wrote:
+> Hi,
 > 
-> Index: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig
-> ===================================================================
-> RCS file: /home/cvsroot/linux-2.6.8-rc3-mm1/arch/x86_64/Kconfig,v
-> retrieving revision 1.1.1.1
-> diff -u -p -B -r1.1.1.1 Kconfig
-> --- linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig	5 Aug 2004 16:37:48 -0000	1.1.1.1
-> +++ linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig	7 Aug 2004 22:47:30 -0000
-> @@ -438,6 +438,16 @@ config DEBUG_SPINLOCK
->  	  best used in conjunction with the NMI watchdog so that spinlock
->  	  deadlocks are also debuggable.
+> A few comments/questions on this patch:
 > 
-> +config COOL_SPINLOCK
-> +	bool "Completely out of line spinlocks"
-> +	depends on SMP
-> +	default y
-> +	help
-> +	  Say Y here to build spinlocks which have common text for contended
-> +	  and uncontended paths. This reduces kernel text size by at least
-> +	  50k on most configurations, plus there is the additional benefit
-> +	  of better cache utilisation.
+> - An unconditional call is added in the do_page_fault hot path. Is this 
+> ok? 
+>   The version of kprobes that hooks directly into the do_page_fault is 
+> better
+>   in the common case of page fault occuring outside of the kprobe handler,
+>   the overhead is only a global variable load and compare. 
 
-I think the 50k number is wrong. I took a look at it and the big 
-difference is only seen when you enable interrupts during spinning, which
-we didn't do before.  If you compare it to the old implementation the
-difference is much less.
+If this should be a problem the notifier can be changed again to do
+a quick check inline if the notifier list is empty or not.
 
-I don't really like the config option. Either it's a good idea
-then it should be done by default without option or it should not be done at all.
+The old notifiers were fully inline, but that was changed later.
 
-Did you do any lock intensive benchmarks that could show a slowdown?
+> 
+> - Would the absence of any locking on the read-side of the notifier chains
+>   cause any problems, especially when it is in a frequently hit place
+>   like the do_page_fault?
 
-> Index: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
-> ===================================================================
-> RCS file: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
-> diff -N linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
-> --- /dev/null	1 Jan 1970 00:00:00 -0000
-> +++ linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c	8 Aug 2004 05:39:04 -0000
-> @@ -0,0 +1,38 @@
-> +#include <linux/module.h>
+The notifiers were intended to not be unloaded originally. But with RCU
+you could unload them anyways
 
-You should make this file assembly only. 
-
+(ok would probably need some depends memory barriers in the notifier
+walk on Alpha, should work everywhere else) 
 
 -Andi

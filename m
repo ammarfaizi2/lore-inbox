@@ -1,103 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270663AbTHFEzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 00:55:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272476AbTHFEzJ
+	id S272801AbTHFFNR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 01:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274870AbTHFFNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 00:55:09 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:33431 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S270663AbTHFEzD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 00:55:03 -0400
-Date: Wed, 6 Aug 2003 10:30:03 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, Dick Streefland <dick.streefland@xs4all.nl>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] autofs4 doesn't expire
-Message-ID: <20030806050003.GB1298@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <4b0c.3f302ca5.93873@altium.nl> <20030805164904.36b5d2cc.akpm@osdl.org> <20030806042853.GA1298@in.ibm.com> <1060144454.18625.5.camel@ixodes.goop.org>
+	Wed, 6 Aug 2003 01:13:17 -0400
+Received: from almesberger.net ([63.105.73.239]:50443 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S272801AbTHFFNQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 01:13:16 -0400
+Date: Wed, 6 Aug 2003 02:13:04 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Nivedita Singhvi <niv@us.ibm.com>,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: TOE brain dump
+Message-ID: <20030806021304.E5798@almesberger.net>
+References: <20030802140444.E5798@almesberger.net> <3F2BF5C7.90400@us.ibm.com> <3F2C0C44.6020002@pobox.com> <20030802184901.G5798@almesberger.net> <m1fzkiwnru.fsf@frodo.biederman.org> <20030804162433.L5798@almesberger.net> <m1u18wuinm.fsf@frodo.biederman.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1060144454.18625.5.camel@ixodes.goop.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <m1u18wuinm.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Tue, Aug 05, 2003 at 11:19:09AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 09:34:14PM -0700, Jeremy Fitzhardinge wrote:
-> On Tue, 2003-08-05 at 21:28, Maneesh Soni wrote:
-> > Sorry, I don't think it is correct. This code is called under dcache_lock,
-> > taken in is_tree_busy(). mntput() calls dput() and which can lead to deadlock.
-> 
-> Urk.  On the other hand, it only calls dput if the refcount drops to
-> zero, which it can't because there's already a reference (hence the -2
-> in is_vfsmnt_tree_busy).
-> 
-> I'm not too keen on releasing dcache lock, since the whole point is to
-> keep the dcache tree stable while we traverse it.
+Eric W. Biederman wrote:
+> MPI is not a transport.  It an interface like the Berkeley sockets
+> layer.
 
-yeah.. that is the problem in release dcache_lock there. How about just
-doing atomic_dec(&vfs->mnt_count) in place of mntput()? This is also ugly,
-but otherwise we have to re-write the entire is_tree_busy() thing.
+Hmm, but doesn't it also unify transport semantics (i.e. chop
+TCP streams into messages), maybe add reliability to transports
+that don't have it, and provide addressing ? Okay, perhaps you
+wouldn't call this a transport in the OSI sense, but it still
+seems to have considerably more functionality than just
+providing an API.
 
-> 
-> > @@ -71,7 +74,8 @@ static int check_vfsmnt(struct vfsmount 
-> >         struct vfsmount *vfs = lookup_mnt(mnt, dentry);
-> >  
-> >         if (vfs && is_vfsmnt_tree_busy(vfs))
-> > -               ret--;
-> > +               ret = 0;
-> 
-> Erm, why?
-> 
+> Mostly I think the that is less true, at least if they can stand the
+> process of severe code review and cleaning up their code.
 
-oh.. it should be ret--. I just copied Andrew's code. Following is the 
-corrected patch
+Hmm, people putting dozens of millions into building clusters
+can't afford to have what is probably their most essential
+infrastructure code reviewed and cleaned up ? Oh dear.
 
+> But of course to get through the peer review process people need
+> to understand what they are doing.
 
- fs/autofs4/expire.c |   15 ++++++++++++---
- 1 files changed, 12 insertions(+), 3 deletions(-)
+A good point :-)
 
-diff -puN fs/autofs4/expire.c~autofs4-vfsmount-fix fs/autofs4/expire.c
---- linux-2.6.0-test2/fs/autofs4/expire.c~autofs4-vfsmount-fix	2003-08-06 09:10:49.000000000 +0530
-+++ linux-2.6.0-test2-maneesh/fs/autofs4/expire.c	2003-08-06 10:25:58.000000000 +0530
-@@ -25,7 +25,10 @@ static inline int is_vfsmnt_tree_busy(st
- 	struct list_head *next;
- 	int count;
- 
--	count = atomic_read(&mnt->mnt_count) - 1;
-+	/* -1 for vfsmount's normal count,
-+	 * -1 for ref taken in lookup_mnt()
-+	 */
-+	count = atomic_read(&mnt->mnt_count) - 1 - 1;
- 
- repeat:
- 	next = this_parent->mnt_mounts.next;
-@@ -70,8 +73,14 @@ static int check_vfsmnt(struct vfsmount 
- 	int ret = dentry->d_mounted;
- 	struct vfsmount *vfs = lookup_mnt(mnt, dentry);
- 
--	if (vfs && is_vfsmnt_tree_busy(vfs))
--		ret--;
-+	if (vfs) {
-+		if (is_vfsmnt_tree_busy(vfs))
-+			ret--;
-+		/* just to reduce ref count taken in lookup_mnt
-+	 	 * cannot call mntput() here
-+	 	 */
-+		atomic_dec(&vfs->mnt_count);
-+	}
- 	DPRINTK(("check_vfsmnt: ret=%d\n", ret));
- 	return ret;
- }
+> So store and forward of packets in a 3 layer switch hierarchy, at 1.3 us
+> per copy.
 
-_
+But your switch could just do cut-through, no ? Or do they
+need to recompute checksums ?
+
+> A lot of the NICs which are used for MPI tend to be smart for two
+> reasons.  1) So they can do source routing. 2) So they can safely
+> export some of their interface to user space, so in the fast path
+> they can bypass the kernel.
+
+The second part could be interesting for TOE, too. Only that
+the interface exported would just be the socket interface.
+
+- Werner
 
 -- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

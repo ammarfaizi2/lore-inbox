@@ -1,135 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283001AbRL1AGx>; Thu, 27 Dec 2001 19:06:53 -0500
+	id <S283267AbRL1AMe>; Thu, 27 Dec 2001 19:12:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283311AbRL1AGn>; Thu, 27 Dec 2001 19:06:43 -0500
-Received: from ezri.xs4all.nl ([194.109.253.9]:62438 "HELO ezri.xs4all.nl")
-	by vger.kernel.org with SMTP id <S283310AbRL1AG1>;
-	Thu, 27 Dec 2001 19:06:27 -0500
-Date: Fri, 28 Dec 2001 01:06:25 +0100 (CET)
-From: Eric Lammerts <eric@lammerts.org>
-To: axboe@suse.de, Stephan von Krawczynski <skraw@ithnet.com>
-cc: Guest section DW <dwguest@win.tue.nl>, James Stevenson <mistral@stev.org>,
-        <jlladono@pie.xtec.es>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Re: 2.4.x kernels, big ide disks and old bios
-In-Reply-To: <200112272304.AAA05151@webserver.ithnet.com>
-Message-ID: <Pine.LNX.4.43.0112280017540.5550-100000@ally.lammerts.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283310AbRL1AMX>; Thu, 27 Dec 2001 19:12:23 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:40953 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S283267AbRL1AMJ>;
+	Thu, 27 Dec 2001 19:12:09 -0500
+Date: Thu, 27 Dec 2001 17:11:30 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Dave Jones <davej@suse.de>, Steven Walter <srwalter@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
+Message-ID: <20011227171130.O12868@lynx.no>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Dave Jones <davej@suse.de>, Steven Walter <srwalter@yahoo.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011227202345.B30930@conectiva.com.br> <Pine.LNX.4.33.0112272332540.15706-100000@Appserv.suse.de> <20011227163130.N12868@lynx.no> <20011227214047.D30930@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011227214047.D30930@conectiva.com.br>; from acme@conectiva.com.br on Thu, Dec 27, 2001 at 09:40:47PM -0200
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Dec 27, 2001  21:40 -0200, Arnaldo Carvalho de Melo wrote:
+> Em Thu, Dec 27, 2001 at 04:31:30PM -0700, Andreas Dilger escreveu:
+> > Well, in the past I had suggested to ESR (and he agreed) that it would
+> > be nice to split up the MAINTAINERS file (and maybe even Configure.help)
+> 
+> this already happens for the net/ directory to some degree, look at
+> net/README, the problem, as with MAINTAINERS, is that is way outdated,
+> listing Alan, for example, as the maintainer for net/core...
 
-On Fri, 28 Dec 2001, Stephan von Krawczynski wrote:
-> I must admit I have still not had a look at it, but on the other hand:
-> if it makes big IDE drives work on old mobo & bios, it may be a good
-> idea to include its intelligence into the kernel, or not?
+Well, if the MAINTAINERS file isn't up-to-date (which I know it isn't,
+see "Remy Card" as ext2 maintainer) then there isn't much that can be
+done by users/developers to submit patches to the right people at all.
+I think part of the problem is Linus' hesitance to be authoritarian and
+add/remove people from the MAINTAINERS list if they don't specifically
+ask for the change (and submit a patch to that effect).
 
-I cleaned up the patch a bit (see below). It now performs the
-SET_MAX command only when needed, and is far less verbose (only
-prints 1 line when unclipping). It applies against 2.4.18pre1 and
-2.5.2pre2.
+Yes, long time readers of l-k know that Dave (and Alexy) is the contact
+for net stuff, and Al is the contact for VFS stuff, but nobody else does.
+Also, how many emails (in addition to my own) were sent to Remy Card for
+ext2 fixes (who is even listed with "Maintained" after his name), yet in
+the entire time I've been working on Linux I have never seen a single
+email from him (in private or public).  Urgh, Remy is also listed in the
+under the ext3 entry, how did _that_ happen Andrew?  MAINTAINERS != CREDITS
 
-I've tested it with a Maxtor 96147U8 (60Gb), Maxtor 98196H8 (80Gb)
-and WDC WD300BB (30Gb) (the last one just for testing, and I had to
-use ibmsetmax instead of setmax to make the drive remember it).
-It also worked with some 2.5" IBM hdd a while back (don't remember
-the exact model).
+Someone (sadly not me) needs to take over MAINTAINERS like ESR took over
+Configure.help and "ping" all of the maintainers that haven't been heard
+from and either do some searching for new email addresses, or delete them
+entirely from the file.  This may ruffle a few feathers, but in the end it
+will just be documenting what "the old boys' network of l-k" already knows
+and does for patch submission today.
 
-Jens, please consider this patch for inclusion into 2.4 and/or 2.5.
-(or should I talk to someone else?)
+Having a heirarchical MAINTAINER file as I proposed also means:
+a) It is closer to the code in question, and _someone_ will be on the hook
+   for the code in that tree, at least until they delegate it elsewhere.
+   The descriptions in the current MAINTAINERS file are sometimes hard to
+   link to specific files if you don't really understand what is going on.
+b) It is easier to update more frequently because there are less chances
+   of patch conflicts (minor issue I know).
+c) It is easier to keep external patchsets, as they can have their own
+   MAINTAINER (and Configure.help) within the tree.
 
-Eric
+As for "interested parties", this could rather easily be handled by adding
+an entry to the MAINTAINER for various parts of the heirarchy which is a
+mailing list (e.g. linux-mm@nl.linux.org in mm/MAINTAINER, linux-scsi@...
+in drivers/scsi/MAINTAINER, etc).  These would also be listed by the
+hypothetical "cclist" tool included with the kernel.
 
-
---- linux/drivers/ide/ide-disk.c.orig	Thu Dec 27 22:19:11 2001
-+++ linux/drivers/ide/ide-disk.c	Fri Dec 28 00:37:36 2001
-@@ -500,6 +500,78 @@
- 			current_capacity(drive));
- }
-
-+
-+/*
-+ * Queries for true maximum capacity of the drive and (if needed) sets
-+ * maximum virtual LBA address accordingly. Also updates drive->*
-+ * settings.
-+ */
-+static void idedisk_unclip(ide_drive_t *drive)
-+{
-+	byte args[7];
-+	unsigned long addr = 0;
-+
-+	if(!(drive->id->command_set_1 & 0x0400)) {
-+		/* drive does not support Host Protected Area feature. */
-+		return;
-+	}
-+
-+	/* create IDE/ATA command request structure */
-+	args[0] = 0xf8; /* READ_NATIVE_MAX - see ATA spec */
-+	args[IDE_FEATURE_OFFSET] = 0x00;
-+	args[IDE_NSECTOR_OFFSET] = 0x00;
-+	args[IDE_SECTOR_OFFSET] = 0x00;
-+	args[IDE_LCYL_OFFSET] = 0x00;
-+	args[IDE_HCYL_OFFSET] = 0x00;
-+	args[IDE_SELECT_OFFSET] = 0x40;
-+
-+	if(ide_wait_cmd_task(drive, args) != 0 || (args[0] & 0x01) != 0) {
-+		/* silently ignore failed command */
-+		return;
-+	}
-+
-+	/* read max LBA value */
-+	addr = ((args[IDE_SELECT_OFFSET] & 0x0f) << 24) |
-+	       (args[IDE_HCYL_OFFSET] << 16) |
-+	       (args[IDE_LCYL_OFFSET] << 8) |
-+	       (args[IDE_SECTOR_OFFSET]);
-+
-+	/* sanity check */
-+	if(addr == 0) return;
-+
-+	if(drive->capacity == (addr + 1)) {
-+		/* no unclipping needed */
-+		return;
-+	}
-+
-+	printk("%s: unclipping drive from %lu sectors to %lu sectors\n",
-+		drive->name, drive->capacity, addr + 1);
-+
-+	/* create IDE/ATA command request structure */
-+	args[0] = 0xf9; /* SET_MAX - see ATA spec */
-+	args[IDE_FEATURE_OFFSET] = 0x00;
-+	args[IDE_NSECTOR_OFFSET] = 0x00;
-+	args[IDE_SECTOR_OFFSET] = addr & 0xff;
-+	args[IDE_LCYL_OFFSET] = (addr >> 8) & 0xff;
-+	args[IDE_HCYL_OFFSET] = (addr >> 16) & 0xff;
-+	args[IDE_SELECT_OFFSET] = ((addr >> 24) & 0x0f) | 0x40;
-+
-+	/* submit command request - if OK, read new max LBA value */
-+	if(ide_wait_cmd_task(drive, args) == 0 && (args[0] & 0x01) == 0) {
-+		addr = ((args[IDE_SELECT_OFFSET] & 0x0f) << 24) |
-+		       (args[IDE_HCYL_OFFSET] << 16) |
-+		       (args[IDE_LCYL_OFFSET] << 8) |
-+		       (args[IDE_SECTOR_OFFSET]);
-+
-+		drive->select.b.lba = 1;
-+		drive->capacity = addr + 1;
-+		drive->cyl = drive->capacity / (drive->head * drive->sect);
-+	} else {
-+		printk("%s: unclipping drive failed\n", drive->name);
-+	}
-+}
-+
-+
- /*
-  * Compute drive->capacity, the full capacity of the drive
-  * Called with drive->id != NULL.
-@@ -518,6 +590,8 @@
- 		drive->select.b.lba = 1;
- 	}
- 	drive->capacity = capacity;
-+
-+	idedisk_unclip(drive);
- }
-
- static unsigned long idedisk_capacity (ide_drive_t  *drive)
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

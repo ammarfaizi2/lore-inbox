@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291122AbSBLS0v>; Tue, 12 Feb 2002 13:26:51 -0500
+	id <S291150AbSBLS2l>; Tue, 12 Feb 2002 13:28:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291150AbSBLS0l>; Tue, 12 Feb 2002 13:26:41 -0500
-Received: from naughty.monkey.org ([204.181.64.8]:45960 "HELO
-	naughty.monkey.org") by vger.kernel.org with SMTP
-	id <S291122AbSBLS03>; Tue, 12 Feb 2002 13:26:29 -0500
-Date: Tue, 12 Feb 2002 13:26:28 -0500 (EST)
-From: Chuck Lever <cel@monkey.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Dave Hansen <haveblue@us.ibm.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove BKL from NFS read/write code + SunRPC...
-In-Reply-To: <15465.21813.120817.244034@charged.uio.no>
-Message-ID: <Pine.BSO.4.33.0202121319010.19594-100000@naughty.monkey.org>
+	id <S291152AbSBLS2b>; Tue, 12 Feb 2002 13:28:31 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:15623 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S291150AbSBLS2Q>; Tue, 12 Feb 2002 13:28:16 -0500
+Date: Tue, 12 Feb 2002 13:26:49 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+In-Reply-To: <E16ageE-0001Te-00@starship.berlin>
+Message-ID: <Pine.LNX.3.96.1020212132406.6082A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-there's also a technical report that describes work we did recently to
-improve write performance, which summarizes the web page Trond listed
-below.  see
+On Tue, 12 Feb 2002, Daniel Phillips wrote:
 
-  http://www.citi.umich.edu/techreports/reports/citi-tr-01-12.pdf
+> We are in violent agreement, I'm not sure where the misunderstanding came from.
+> Yes, the leading idea is to put it in a module.  In fact a patch exists, though
+> it may have issues, it's been a while since I looked at it.
 
-we're publishing a revised version in the June 2002 Usenix technical
-conference proceedings;  if you intend to cite the paper, we'd prefer that
-you cited that one instead.
+> OK, my apologies for misinterpreting your position.
 
-On Tue, 12 Feb 2002, Trond Myklebust wrote:
+Not a problem, and I'm sorry the tone of my previous post was a bit
+abrupt. 
 
-> >>>>> " " == Dave Hansen <haveblue@us.ibm.com> writes:
->
->      > Trond Myklebust wrote:
->     >> The following patch strongly reduces BKL contention within the
->     >> NFS read/write code, and within the generic RPC layer.
->
->      > Do you have any benchmarks which showed BKL contention in the
->      > NFS code?
->      >   I'm not trying to criticize, I think the patch is wonderful.
->      >   I want
->      > to have some more numbers to say, "Look!  The BKL _is_ bad!"
->
-> See Chuck's paper on
->
->   http://www.citi.umich.edu/projects/nfs-perf/results/cel/write-throughput.html
->
->
-> Cheers,
->   Trond
->
-
-	- Chuck Lever
---
-corporate:	<cel@netapp.com>
-personal:	<chucklever@bigfoot.com>
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131224AbQJ1SvK>; Sat, 28 Oct 2000 14:51:10 -0400
+	id <S131231AbQJ1TE1>; Sat, 28 Oct 2000 15:04:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131231AbQJ1SvA>; Sat, 28 Oct 2000 14:51:00 -0400
-Received: from ausxc08.us.dell.com ([143.166.99.216]:19771 "EHLO
-	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
-	id <S131224AbQJ1Sur>; Sat, 28 Oct 2000 14:50:47 -0400
-Message-ID: <CDF99E351003D311A8B0009027457F1403BF982E@ausxmrr501.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: Daniel.Deimert@intermec.com
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: RE: PROBLEM: DELL PERC/Megaraid RAID driver in Linux 2.2.18pre17 
-	hang
-Date: Sat, 28 Oct 2000 13:50:37 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+	id <S131258AbQJ1TER>; Sat, 28 Oct 2000 15:04:17 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:10377 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S131231AbQJ1TEI>;
+	Sat, 28 Oct 2000 15:04:08 -0400
+Date: Sat, 28 Oct 2000 11:49:59 -0700
+Message-Id: <200010281849.LAA07162@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: eger@cc.gatech.edu
+CC: linux-kernel@vger.kernel.org, eger@cc.gatech.edu
+In-Reply-To: <Pine.LNX.4.21.0010281432490.18772-100000@su13.eastnet.gatech.edu>
+	(message from David Eger on Sat, 28 Oct 2000 14:44:03 -0400 (EDT))
+Subject: Re: signal handlers not linked properly in do_fork()?
+In-Reply-To: <Pine.LNX.4.21.0010281432490.18772-100000@su13.eastnet.gatech.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't believe that v1.09 (as in Red Hat Linux 7) has this problem, but
-does have fixes over-and-above 1.07 (particularly, 1.07 and v1.08 touch
-user-space inappropriately, 1.09 fixes).  If PeterJ can't get to it before
-2.2.18final, Alan, would you consider putting in the v1.09 driver?
+   Date: 	Sat, 28 Oct 2000 14:44:03 -0400 (EDT)
+   From: David Eger <eger@cc.gatech.edu>
 
-Thanks,
-Matt
+   I see nowhere else in do_fork() where sig is set, either.  What
+   gives?
+
+fork.c, around line 560:
+*p = *current
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

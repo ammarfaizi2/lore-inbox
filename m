@@ -1,188 +1,295 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273451AbRINTBf>; Fri, 14 Sep 2001 15:01:35 -0400
+	id <S273452AbRINTCy>; Fri, 14 Sep 2001 15:02:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273450AbRINTBZ>; Fri, 14 Sep 2001 15:01:25 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:9123 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S273449AbRINTBJ>;
-	Fri, 14 Sep 2001 15:01:09 -0400
-Date: Fri, 14 Sep 2001 15:01:26 -0400 (EDT)
+	id <S273450AbRINTCg>; Fri, 14 Sep 2001 15:02:36 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:30372 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S273449AbRINTCN>;
+	Fri, 14 Sep 2001 15:02:13 -0400
+Date: Fri, 14 Sep 2001 15:02:31 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] lazy umount (1/4)
-Message-ID: <Pine.GSO.4.21.0109141427070.11172-100000@weyl.math.psu.edu>
+Subject: [PATCH] lazy umount (2/4)
+In-Reply-To: <Pine.GSO.4.21.0109141427070.11172-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0109141502090.11172-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Patch below (and 3 incrementals to it) implement lazy-umount.
+Part 2/4:
+	Added minimal rootfs (read-only root directory - absolute minimum,
+just to have something to go with root vfsmount), Now we have a fixed
+root vfsmount and that allows to kill a lot of special-casing,
 
-Some background: right now umount() does the following
-	* find vfsmount
-	* check if it's busy
-	* detach from mountpoint and drop a reference
-	* mntput() the sucker and return, letting the garbage collection to
-do its job - free vfsmount and possibly deactivate and free superblock.
-
-As the matter of fact, kernel will be quite happy to do the same for busy
-vfsmounts - they will simply float around (not attached to anything)
-until the become non-busy.  At that point they will be freed, etc.
-Situation is analogous to unlinked but still busy files - detaching
-the tree as analog of removing a link and deactivation (put_super()) as
-analog of finally destroying the file.
-
-There are only two things to take care of -
-	a) if we detach a parent we should do it for all children
-	b) we should not mount anything on "floating" vfsmounts.
-Both are obviously staisfied for current code (presence of children
-means that vfsmount is busy and we can't mount on something that
-doesn't exist).
-
-NOTE: default behaviour of umount(2) is not changed.  We have a new
-flag (MNT_DETACH) that tells umount() to be lazy.  If it is absent -
-everything works as usual.
-
-It's _very_ useful in a lot of situations - basically, that's what
-umount -f should have been.  E.g. suppose that /usr is kept busy
-by something (NFS hard mount/hung process/fs bug/whatever).  Right now
-we can't do anything about that - it will keep mountpoint busy.
-umount("/usr", MNT_DETACH) will do the following:
-	a) detach the damned thing from /usr. Nothing is mounted here
-anymore.
-	b) umount /usr/local, etc. - no matter what state /usr is in and
-how badly it's b0rken.
-	c) as soon as that fs becomes not busy it will be deactivated
-(put_super(), etc.)
-	d) if /usr/local wasn't busy - fine, it gets deactivated
-immediately. If it was - no problem, it will be deactivated as soon
-as it isn't busy anymore.
-
-Code got a lot of beating here during the last 4 months - it's very
-convenient when you are doing fs hacking ;-)  Actually I've got into
-a habit of using that instead of normal umount in all cases except
-the shutdown scripts - works just fine (for obvious reasons in case
-of shutdown non-lazy behaviour is precisely what we want).
-
-It had been in -ac since 2.4.8-ac8 (more than three weeks).  Also no
-problems.  Please, apply.  Patch is split into 4 pieces, incremental
-to each other.
-
-Part 1/4:
-	Killed move_vfsmnt(). change_root() does detach_mnt() and attach_mnt()
-by hands.
-
-diff -urN S10-pre9-inode/fs/super.c S10-pre9-move_vfsmnt/fs/super.c
---- S10-pre9-inode/fs/super.c	Fri Sep 14 12:58:45 2001
-+++ S10-pre9-move_vfsmnt/fs/super.c	Fri Sep 14 14:02:32 2001
-@@ -447,37 +447,6 @@
- 	return -ENOENT;
+diff -urN S10-pre9-move_vfsmnt/fs/super.c S10-pre9-root_vfsmnt/fs/super.c
+--- S10-pre9-move_vfsmnt/fs/super.c	Fri Sep 14 14:02:32 2001
++++ S10-pre9-root_vfsmnt/fs/super.c	Fri Sep 14 14:03:34 2001
+@@ -280,6 +280,7 @@
  }
  
--#ifdef CONFIG_BLK_DEV_INITRD
--static void move_vfsmnt(struct vfsmount *mnt,
--			struct nameidata *nd, 
--			const char *dev_name)
--{
--	struct nameidata parent_nd;
--	char *new_devname = NULL;
+ static LIST_HEAD(vfsmntlist);
++static struct vfsmount *root_vfsmnt;
+ 
+ static struct list_head *mount_hashtable;
+ static int hash_mask, hash_bits;
+@@ -346,52 +347,6 @@
+ 	nd->dentry->d_mounted++;
+ }
+ 
+-/**
+- *	add_vfsmnt - add a new mount node
+- *	@nd: location of mountpoint or %NULL if we want a root node
+- *	@root: root of (sub)tree to be mounted
+- *	@dev_name: device name to show in /proc/mounts or %NULL (for "none").
+- *
+- *	This is VFS idea of mount. New node is allocated, bound to a tree
+- *	we are mounting and optionally (OK, usually) registered as mounted
+- *	on a given mountpoint. Returns a pointer to new node or %NULL in
+- *	case of failure.
+- *
+- *	Potential reason for failure (aside of trivial lack of memory) is a
+- *	deleted mountpoint. Caller must hold ->i_zombie on mountpoint
+- *	dentry (if any).
+- */
 -
+-static struct vfsmount *add_vfsmnt(struct dentry *root, const char *dev_name)
+-{
+-	struct vfsmount *mnt;
+-	struct super_block *sb = root->d_inode->i_sb;
+-	char *name;
+-
+-	mnt = alloc_vfsmnt();
+-	if (!mnt)
+-		goto out;
+-
+-	/* It may be NULL, but who cares? */
 -	if (dev_name) {
--		new_devname = kmalloc(strlen(dev_name)+1, GFP_KERNEL);
--		if (new_devname)
--			strcpy(new_devname, dev_name);
+-		name = kmalloc(strlen(dev_name)+1, GFP_KERNEL);
+-		if (name) {
+-			strcpy(name, dev_name);
+-			mnt->mnt_devname = name;
+-		}
 -	}
+-	mnt->mnt_sb = sb;
+-	mnt->mnt_root = dget(root);
+-	mnt->mnt_mountpoint = mnt->mnt_root;
+-	mnt->mnt_parent = mnt;
 -
 -	spin_lock(&dcache_lock);
--	detach_mnt(mnt, &parent_nd);
--	attach_mnt(mnt, nd);
--
--	if (new_devname) {
--		if (mnt->mnt_devname)
--			kfree(mnt->mnt_devname);
--		mnt->mnt_devname = new_devname;
--	}
+-	list_add(&mnt->mnt_list, vfsmntlist.prev);
 -	spin_unlock(&dcache_lock);
+-out:
+-	return mnt;
+-}
 -
--	/* put the old stuff */
+ static struct vfsmount *clone_mnt(struct vfsmount *old, struct dentry *root)
+ {
+ 	char *name = old->mnt_devname;
+@@ -1200,8 +1155,7 @@
+ 		list_del(&mnt->mnt_list);
+ 		spin_unlock(&dcache_lock);
+ 		mntput(mnt);
+-		if (parent_nd.mnt != mnt)
+-			path_release(&parent_nd);
++		path_release(&parent_nd);
+ 		return 0;
+ 	}
+ 	spin_unlock(&dcache_lock);
+@@ -1241,8 +1195,7 @@
+ 	list_del(&mnt->mnt_list);
+ 	spin_unlock(&dcache_lock);
+ 	mntput(mnt);
 -	if (parent_nd.mnt != mnt)
 -		path_release(&parent_nd);
--}
--#endif
--
- static void kill_super(struct super_block *);
++	path_release(&parent_nd);
+ 	return 0;
+ }
  
- void __mntput(struct vfsmount *mnt)
-@@ -1941,8 +1910,13 @@
+@@ -1601,6 +1554,7 @@
+ 
+ void __init mount_root(void)
  {
- 	struct vfsmount *old_rootmnt;
- 	struct nameidata devfs_nd, nd;
-+	struct nameidata parent_nd;
-+	char *new_devname = kmalloc(strlen("/dev/root.old")+1, GFP_KERNEL);
- 	int error = 0;
++	struct nameidata root_nd;
+ 	struct file_system_type * fs_type;
+ 	struct super_block * sb;
+ 	struct vfsmount *vfsmnt;
+@@ -1610,6 +1564,7 @@
+ 	void *handle;
+ 	char path[64];
+ 	int path_start = -1;
++	char *name = "/dev/root";
  
-+	if (new_devname)
-+		strcpy(new_devname, "/dev/root.old");
-+
- 	read_lock(&current->fs->lock);
- 	old_rootmnt = mntget(current->fs->rootmnt);
- 	read_unlock(&current->fs->lock);
-@@ -1959,6 +1933,9 @@
- 		} else 
- 			path_release(&devfs_nd);
+ #ifdef CONFIG_ROOT_NFS
+ 	void *data;
+@@ -1746,13 +1701,26 @@
+ 		fs_type->name,
+ 		(sb->s_flags & MS_RDONLY) ? " readonly" : "");
+ 	if (path_start >= 0) {
++		name = path + path_start;
+ 		devfs_mk_symlink (NULL, "root", DEVFS_FL_DEFAULT,
+-				  path + 5 + path_start, NULL, NULL);
+-		memcpy (path + path_start, "/dev/", 5);
+-		vfsmnt = add_vfsmnt(sb->s_root, path + path_start);
++				  name + 5, NULL, NULL);
++		memcpy (name, "/dev/", 5);
  	}
-+	spin_lock(&dcache_lock);
-+	detach_mnt(old_rootmnt, &parent_nd);
-+	spin_unlock(&dcache_lock);
- 	ROOT_DEV = new_root_dev;
- 	mount_root();
- #if 1
-@@ -1980,9 +1957,18 @@
- 		blivet = blkdev_get(ramdisk, FMODE_READ, 0, BDEV_FS);
- 		printk(KERN_NOTICE "Trying to unmount old root ... ");
+-	else
+-		vfsmnt = add_vfsmnt(sb->s_root, "/dev/root");
++	vfsmnt = alloc_vfsmnt();
++	if (!vfsmnt)
++		panic("VFS: alloc_vfsmnt failed for root fs");
++
++	vfsmnt->mnt_devname = kmalloc(strlen(name)+1, GFP_KERNEL);
++	if (vfsmnt->mnt_devname)
++		strcpy(vfsmnt->mnt_devname, name);
++	vfsmnt->mnt_sb = sb;
++	vfsmnt->mnt_root = dget(sb->s_root);
++
++	root_nd.mnt = root_vfsmnt;
++	root_nd.dentry = root_vfsmnt->mnt_sb->s_root;
++	graft_tree(vfsmnt, &root_nd);
++	mntput(vfsmnt);
++
+ 	/* FIXME: if something will try to umount us right now... */
+ 	if (vfsmnt) {
+ 		set_fs_root(current->fs, vfsmnt, sb->s_root);
+@@ -1761,10 +1729,8 @@
+ 			bdput(bdev); /* sb holds a reference */
+ 		return;
+ 	}
+-	panic("VFS: add_vfsmnt failed for root fs");
+ }
+ 
+-
+ static void chroot_fs_refs(struct dentry *old_root,
+ 			   struct vfsmount *old_rootmnt,
+ 			   struct dentry *new_root,
+@@ -1878,15 +1844,12 @@
+ 	detach_mnt(new_nd.mnt, &parent_nd);
+ 	detach_mnt(root_mnt, &root_parent);
+ 	attach_mnt(root_mnt, &old_nd);
+-	if (root_parent.mnt != root_mnt)
+-		attach_mnt(new_nd.mnt, &root_parent);
++	attach_mnt(new_nd.mnt, &root_parent);
+ 	spin_unlock(&dcache_lock);
+ 	chroot_fs_refs(root,root_mnt,new_nd.dentry,new_nd.mnt);
+ 	error = 0;
+-	if (root_parent.mnt != root_mnt)
+-		path_release(&root_parent);
+-	if (parent_nd.mnt != new_nd.mnt)
+-		path_release(&parent_nd);
++	path_release(&root_parent);
++	path_release(&parent_nd);
+ out2:
+ 	up(&old_nd.dentry->d_inode->i_zombie);
+ 	up(&mount_sem);
+@@ -1959,24 +1922,19 @@
  		if (!blivet) {
--			blivet = do_umount(old_rootmnt, 0);
--			mntput(old_rootmnt);
--			if (!blivet) {
-+			spin_lock(&dcache_lock);
-+			list_del(&old_rootmnt->mnt_list);
-+			if (atomic_read(&old_rootmnt->mnt_count) > 2) {
-+				spin_unlock(&dcache_lock);
-+				mntput(old_rootmnt);
-+				blivet = -EBUSY;
-+			} else {
-+				spin_unlock(&dcache_lock);
-+				mntput(old_rootmnt);
-+				if (parent_nd.mnt != old_rootmnt)
-+					path_release(&parent_nd);
-+				mntput(old_rootmnt);
- 				ioctl_by_bdev(ramdisk, BLKFLSBUF, 0);
- 				printk("okay\n");
- 				error = 0;
-@@ -1991,10 +1977,22 @@
+ 			spin_lock(&dcache_lock);
+ 			list_del(&old_rootmnt->mnt_list);
+-			if (atomic_read(&old_rootmnt->mnt_count) > 2) {
+-				spin_unlock(&dcache_lock);
+-				mntput(old_rootmnt);
+-				blivet = -EBUSY;
+-			} else {
+-				spin_unlock(&dcache_lock);
+-				mntput(old_rootmnt);
+-				if (parent_nd.mnt != old_rootmnt)
+-					path_release(&parent_nd);
+-				mntput(old_rootmnt);
+-				ioctl_by_bdev(ramdisk, BLKFLSBUF, 0);
+-				printk("okay\n");
+-				error = 0;
+-			}
++			spin_unlock(&dcache_lock);
++			mntput(old_rootmnt);
++			mntput(old_rootmnt);
++			blivet = ioctl_by_bdev(ramdisk, BLKFLSBUF, 0);
++			path_release(&parent_nd);
+ 			blkdev_put(ramdisk, BDEV_FS);
  		}
- 		if (blivet)
+-		if (blivet)
++		if (blivet) {
  			printk(KERN_ERR "error %d\n", blivet);
-+		kfree(new_devname);
++		} else  {
++			printk("okay\n");
++			error = 0;
++		}
+ 		kfree(new_devname);
  		return error;
  	}
--	/* FIXME: we should hold i_zombie on nd.dentry */
--	move_vfsmnt(old_rootmnt, &nd, "/dev/root.old");
-+
-+	spin_lock(&dcache_lock);
-+	attach_mnt(old_rootmnt, &nd);
-+	if (new_devname) {
-+		if (old_rootmnt->mnt_devname)
-+			kfree(old_rootmnt->mnt_devname);
-+		old_rootmnt->mnt_devname = new_devname;
-+	}
-+	spin_unlock(&dcache_lock);
-+
-+	/* put the old stuff */
-+	if (parent_nd.mnt != old_rootmnt)
-+		path_release(&parent_nd);
+@@ -1991,8 +1949,7 @@
+ 	spin_unlock(&dcache_lock);
+ 
+ 	/* put the old stuff */
+-	if (parent_nd.mnt != old_rootmnt)
+-		path_release(&parent_nd);
++	path_release(&parent_nd);
  	mntput(old_rootmnt);
  	path_release(&nd);
  	return 0;
+@@ -2000,6 +1957,54 @@
+ 
+ #endif
+ 
++/*
++ * Absolutely minimal fake fs - only empty root directory and nothing else.
++ * In 2.5 we'll use ramfs or tmpfs, but for now it's all we need - just
++ * something to go with root vfsmount.
++ */
++static struct dentry *rootfs_lookup(struct inode *dir, struct dentry *dentry)
++{
++	d_add(dentry, NULL);
++	return NULL;
++}
++static struct file_operations rootfs_dir_operations = {
++	read:		generic_read_dir,
++	readdir:	dcache_readdir,
++};
++static struct inode_operations rootfs_dir_inode_operations = {
++	lookup:		rootfs_lookup,
++};
++static struct super_block *rootfs_read_super(struct super_block * sb, void * data, int silent)
++{
++	struct inode * inode;
++	struct dentry * root;
++	static struct super_operations s_ops = {};
++	sb->s_op = &s_ops;
++	inode = new_inode(sb);
++	if (!inode)
++		return NULL;
++	inode->i_mode = S_IFDIR|0555;
++	inode->i_uid = inode->i_gid = 0;
++	inode->i_op = &rootfs_dir_inode_operations;
++	inode->i_fop = &rootfs_dir_operations;
++	root = d_alloc_root(inode);
++	if (!root) {
++		iput(inode);
++		return NULL;
++	}
++	sb->s_root = root;
++	return sb;
++}
++static DECLARE_FSTYPE(root_fs_type, "rootfs", rootfs_read_super, FS_NOMOUNT);
++
++static void __init init_mount_tree(void)
++{
++	register_filesystem(&root_fs_type);
++	root_vfsmnt = do_kern_mount("rootfs", 0, "rootfs", NULL);
++	if (IS_ERR(root_vfsmnt))
++		panic("can't allocate root vfsmount");
++}
++
+ void __init mnt_init(unsigned long mempages)
+ {
+ 	struct list_head *d;
+@@ -2055,4 +2060,5 @@
+ 		d++;
+ 		i--;
+ 	} while (i);
++	init_mount_tree();
+ }
+
 

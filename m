@@ -1,35 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129778AbQLRGub>; Mon, 18 Dec 2000 01:50:31 -0500
+	id <S129340AbQLRH2S>; Mon, 18 Dec 2000 02:28:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130889AbQLRGuU>; Mon, 18 Dec 2000 01:50:20 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:7946 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129778AbQLRGuH>; Mon, 18 Dec 2000 01:50:07 -0500
-Date: Mon, 18 Dec 2000 00:19:34 -0600
-To: khromy <khromy@lnuxlab.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: unresolved symbols pm_*register ad1848.o
-Message-ID: <20001218001933.B3199@cadcamlab.org>
-In-Reply-To: <20001217220851.A37686@lnuxlab.net> <20001218001634.A3199@cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001218001634.A3199@cadcamlab.org>; from peter@cadcamlab.org on Mon, Dec 18, 2000 at 12:16:34AM -0600
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S129450AbQLRH2J>; Mon, 18 Dec 2000 02:28:09 -0500
+Received: from pop.gmx.net ([194.221.183.20]:47316 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129340AbQLRH1s>;
+	Mon, 18 Dec 2000 02:27:48 -0500
+From: Norbert Breun <nbreun@gmx.de>
+Reply-To: nbreun@gmx.de
+Organization: private
+Date: Mon, 18 Dec 2000 07:54:33 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Cc: f5ibh <f5ibh@db0bm.ampr.org>, linux-kernel@vger.kernel.org
+To: Keith Owens <kaos@ocs.com.au>, nbreun@gmx.de
+In-Reply-To: <1408.977041939@ocs3.ocs-net>
+In-Reply-To: <1408.977041939@ocs3.ocs-net>
+Subject: Re: 2.4.0-test13-pre2, unresolved symbols
+MIME-Version: 1.0
+Message-Id: <00121807453300.00788@nmb>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith,
 
-[Peter Samuelson]
-> Looks like your symbol versions got out of sync, somehow.
+thanks for your hint. The problem seems that all modules (+ directory 
+~/media) under /lib/modules/2.4.0-test13pre3/kernel/drivers/media/  are 
+missing. Make modules_install does not build the directory ~/media and its 
+contents. There were no modules built under /linux/drivers/media/video or 
+~radio.
+BTW: this time I used 2.4.0-test13pre3 + your minipatch ...
 
-Uh, never mind, I didn't notice that pm.c is not listed as exporting
-symbols.  Someone else just posted a patch -- add pm.o to the
-'export-objs' line in kernel/Makefile.
+kind regards
+Norbert
 
-Peter
+
+On Sunday 17 December 2000 09:32, Keith Owens wrote:
+> On Sun, 17 Dec 2000 09:22:04 +0100,
+>
+> Norbert Breun <nbreun@gmx.de> wrote:
+> >having applied your patch below + modutils2.3.23-1 +
+> > kernel2.4.0-test13pre2 all seems to run perfect.
+> >But when starting kwintv  /dev/video is not found. /dev/video is a symling
+> > on /dev/video0 and with kernel kernel2.4.0-test12 there is no problem at
+> > all.
+> >
+> >>can't open /dev/video: Kein passendes Gerät gefunden
+>
+> "No suitable device found", -ENODEV.  The video driver has not been
+> loaded or has not been initialised correctly.  Compare the dmesg output
+>
+> >from 2.4.0-test12 and 0-test13-pre2 to see what is different.  It might
+>
+> be a side effect of Linus's Makefile reordering.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

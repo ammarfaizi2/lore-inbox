@@ -1,144 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbTENGDp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 02:03:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTENGDp
+	id S262036AbTENGGU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 02:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTENGGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 02:03:45 -0400
-Received: from holomorphy.com ([66.224.33.161]:53440 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262073AbTENGDk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 02:03:40 -0400
-Date: Tue, 13 May 2003 23:16:20 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-kernel@vger.kernel.org, axel@pearbough.net
-Subject: Re: drivers/scsi/aic7xxx/aic7xxx_osm.c: warning is error
-Message-ID: <20030514061620.GL8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
-	axel@pearbough.net
-References: <20030514004009.GA20914@neon.pearbough.net> <20030514031826.GB29926@holomorphy.com> <493702704.1052892304@aslan.scsiguy.com>
-Mime-Version: 1.0
+	Wed, 14 May 2003 02:06:20 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:15885 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S262033AbTENGGM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 02:06:12 -0400
+Date: Wed, 14 May 2003 00:18:57 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: ahc_linux_map_seg() compile/style/data corruption fixes
+Message-ID: <498302704.1052893137@aslan.scsiguy.com>
+In-Reply-To: <20030514044934.GC29926@holomorphy.com>
+References: <20030514044934.GC29926@holomorphy.com>
+X-Mailer: Mulberry/3.0.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <493702704.1052892304@aslan.scsiguy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 12:05:04AM -0600, Justin T. Gibbs wrote:
-> I mind.  The replacement code is still wrong.
+> ahc_linux_map_seg() has several style and compile-time issues:
+> 
+> (1) if (sizeof(bus_addr_t) > 4 && ...) linewraps oddly
 
-Let's see.
+See my other email.  Style is a personal issue.  I personally
+think that trying to determine logical groupings by following a
+jagged right column is much harder than following a formatted left
+collumn.  In other words:
 
+if ((*period == 0)
+ || (syncrate->rate == NULL)
+ || ((ahc->features & AHC_ULTRA2) != 0
+  && (syncrate->sxfr_u2 == 0)))
 
->>  	consumed = 1;
->> -	sg->addr = ahc_htole32(addr & 0xFFFFFFFF);
->> +	sg->addr = ahc_htole32(addr & ~0U);
+Visually indicates the logical operator grouping, while this:
 
-On Wed, May 14, 2003 at 12:05:04AM -0600, Justin T. Gibbs wrote:
-> This assumes that an unsigned int is 32bits.  The old code assumed
-> that a long is at least 32bits.  Constants are promoted up to long
-> if they will not fit in an int.
+if ((*period == 0) ||
+    (syncrate->rate == NULL) ||
+    ((ahc->features & AHC_ULTRA2) != 0 &&
+    (syncrate->sxfr_u2 == 0)))
 
-gcc never uses that model; hence it's fine for Linux. unsigned int is
-32-bit on 64-bit and 32-bit, and it's actually guaranteed enough to
-trip up others creating constant initializer bitmasks like
-task->cpus_allowed and for other parts of the kernel to rely on it
-for correctness. ILP64 is not supported by Linux.
+Does not.
 
+The driver is consistent in its use of this style.
 
-On Wed, May 14, 2003 at 12:05:04AM -0600, Justin T. Gibbs wrote:
->>  	scb->platform_data->xfer_len += len;
->> -	if (sizeof(bus_addr_t) > 4
->> -	 && (ahc->flags & AHC_39BIT_ADDRESSING) != 0) {
->> +	if (sizeof(bus_addr_t) > 4 &&
->> +			(ahc->flags & AHC_39BIT_ADDRESSING) != 0) {
+> (2) ~0xFFFFFFFF is always 0; the check for being above 4GB never succeeds
 
-On Wed, May 14, 2003 at 12:05:04AM -0600, Justin T. Gibbs wrote:
-> Superfluous style change.  The original style is intended and you will
-> see that this style is consistently used throughout the driver.
+Yes.
 
-Linux style conformance would be better.
+> (3) 0x100000000 overflows int and hence vanishes, causing a compile error
+> 	on gcc-3.3 and effectively being identical to its replacement here
 
+Actually, it overflows long and causes an error.  It must be promoted
+to ULL.  Yes, this is a C99 thing, but this has been supported by GCC
+for a very long time and much of the kernel already uses it.
 
-> >  		/*
-> > -		 * Due to DAC restrictions, we can't
-> > -		 * cross a 4GB boundary.
-> > +		 * Due to DAC restrictions, we can't cross 4GB boundaries.
-> > +		 * Right shift by 30 to find GB-granularity placement
-> > +		 * without getting tripped up by anal compilers.
-> >  		 */
-> > -		if ((addr ^ (addr + len - 1)) & ~0xFFFFFFFF) {
-> > +		if ((addr >> 30) < 4 && ((addr + len - 1) >> 30) >= 4) {
+> (4) constants describing the upper byte of the length are not used
 
-On Wed, May 14, 2003 at 12:05:04AM -0600, Justin T. Gibbs wrote:
-> What happens if the starting address is 0x00000070XXXXXXXX?  We cannot
-> cross any 4GB boundary in the entire 64bit address space.  The previous
-> code did that with the exception that the constant must be promoted
-> to ULL:
-> 		if ((addr ^ (addr + len - 1)) & 0xFFFFFFFF00000000ULL) {
-> In other words, the high 32bits of the starting and ending address had 
-> better be the same (x ^ x == 0).
+In this function, no.  They are used elsewhere in the driver.  This
+has been corrected in my patch.
 
-The constant is never promoted to ULL by gcc. I've demonstrated that in
-another post.
+> (5) return is a keyword, not a function
 
+I'm fully aware of this.  You are again complaining about style.
 
-> > @@ -764,12 +766,22 @@ ahc_linux_map_seg(struct ahc_softc *ahc,
-> >  			consumed++;
-> >  			next_sg = sg + 1;
-> >  			next_sg->addr = 0;
-> > -			next_len = 0x100000000 - (addr & 0xFFFFFFFF);
-> > +
-> > +			/*
-> > +			 * 2's complement arithmetic assumed.
-> > +			 * We want: 4GB - low 32 bits of addr
-> > +			 * to find the length of the low segment
-> > +			 * and to subtract it out from the high
-> > +			 */
-> > +			next_len = -((uint32_t)addr);
-> >  			len -= next_len;
+> (6) uint32_t used instead of u32 (contrary to Linux conventions)
 
-On Wed, May 14, 2003 at 12:05:04AM -0600, Justin T. Gibbs wrote:
-> This still leaves a bug. next_len and len are reversed.  I also feel
-> that the previous code, if properly promoted, is clearer.  There is no
-> need for a comment and the compiler should do the same truncation as
-> is performed in the above code.
+uint32_t is portable to any C99 compliant system.  u32 is not.  These
+types were chosen to match those used by the driver core.  The driver
+core must compile on systems other than Linux.
 
-It is never promoted. There is also no difference between what
-changed it to and what it did before besides the compile error.
+> (7) it's randomly panicking in a driver; at least complain in a comment
 
+It's not random.  The case that it tests should never happen since Linux
+claims that segments that cross a 4GB boundary will never be presented
+to a PCI driver.
 
->> -			next_len |= ((addr >> 8) + 0x1000000) & 0x7F000000;
->> +
->> +			/* c.f. struct ahc_dma_seg for meaning of high byte */
->> +			next_len |= ((addr >> 8) + AHC_SG_LEN_MASK + 1)
->> +						& AHC_SG_HIGH_ADDR_MASK;
+> This is basically a compilefix for axel@pearbough.net's compile failure,
+> with some added cleanup. (2) should cause data corruption on x440,
+> NUMA-Q, and ES7000 almost every time this is called, so I guess this
+> qualifies as a runtime bugfix too. Oddly, I'm not seeing any even on
+> 64GB NUMA-Q, so it's probably bouncing due to some other bug.
 
-On Wed, May 14, 2003 at 12:05:04AM -0600, Justin T. Gibbs wrote:
-> Using (AHC_SG_LEN_MASK + 1) to mean 4GB >> 8 is not a way to make the
-> code more readable.
-> My patch for these issues follows.  A more formal BK submission will
-> follow tomorrow.
+The driver does not bounce.  The reason you don't see this is because
+Linux is not sending segments that cross a 4GB boundary.
 
-I hadn't the foggiest idea you had that in mind. The best I could
-reverse-engineer it to was the above.
+> For the connoisseur, I've attached before/after disassemblies
+> demonstrating that the if () whose failure is caused by (2) is a very,
+> very, very real problem.
 
+This was obvious from code inspection.
 
-On Wed, May 14, 2003 at 12:05:04AM -0600, Justin T. Gibbs wrote:
-> Comments have indicated since the 2.4.X days that Linux will never allocate
-> segments that cross a 4GB boundary.  If this is truely enforced, then this
-> code can just be removed.  It was only added out of paranoia (hence the
-> printf) while adding high address support to the driver.
+--
+Justin
 
-I've heard the same from others.
-
-All the above defense of my patch aside I don't have any issues with
-your patch to resolve the compile errors and am fine with your
-including it instead of my own.
-
-
--- wli

@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbTJCBvo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 21:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263586AbTJCBvo
+	id S263583AbTJCBvN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 21:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTJCBvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 21:51:44 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:11017 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263584AbTJCBvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 21:51:41 -0400
-Date: Thu, 2 Oct 2003 21:51:34 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: AG <agroz@spe.midco.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5 & test6 cd burning/scheduler/ide-scsi.c bug
-In-Reply-To: <3F7CCEB8.8040803@spe.midco.net>
-Message-ID: <Pine.LNX.4.53.0310022146120.2108@montezuma.fsmlabs.com>
-References: <3F7CCEB8.8040803@spe.midco.net>
+	Thu, 2 Oct 2003 21:51:12 -0400
+Received: from shasta.nbgisp.com ([198.76.39.8]:2310 "EHLO shasta.nbgisp.com")
+	by vger.kernel.org with ESMTP id S263583AbTJCBvJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 21:51:09 -0400
+Reply-To: <paul.brett@planet-lab.org>
+From: "Paul Brett" <paul.brett@planet-lab.org>
+To: <karim@opersys.com>, "'Keir Fraser'" <Keir.Fraser@cl.cam.ac.uk>
+Cc: "'Theodore Ts'o'" <tytso@mit.edu>, <xen-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>,
+       "'Jacques Gelinas'" <jack@solucorp.qc.ca>
+Subject: RE: [Xen-devel] Re: [ANNOUNCE] Xen high-performance x86 virtualization
+Date: Thu, 2 Oct 2003 18:50:05 -0700
+Organization: PlanetLab Support
+Message-ID: <CA95C29D57188841ABB072EA7357C00D02AE7D08@orsmsx402.jf.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+In-Reply-To: <CA95C29D57188841ABB072EA7357C00D02C13377@orsmsx402.jf.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Oct 2003, AG wrote:
+|    -----Original Message-----
+|    From: xen-devel-admin@lists.sourceforge.net 
+|    [mailto:xen-devel-admin@lists.sourceforge.net] On Behalf 
+|    Of Karim Yaghmour
+|    Sent: Thursday, October 02, 2003 11:42 AM
+|    To: Keir Fraser
+|    Cc: Theodore Ts'o; xen-devel@lists.sourceforge.net; 
+|    linux-kernel@vger.kernel.org; Jacques Gelinas
+|    Subject: Re: [Xen-devel] Re: [ANNOUNCE] Xen 
+|    high-performance x86 virtualization
+|    
+|    
+|    
+|    Keir Fraser wrote:
+|    > Full recursion needs full virtualization. Our approach 
+|    offers much
+|    > better performance in the situations where full 
+|    virtualization isn't
+|    > required -- i.e., where it's feasible to distribute a ported OS.
+|    
+|    ... So, thinking aloud here, I'm wondering in what
+|    circumstances I'd prefer using something as architecture 
+|    specific as Xen over something as architecture independent
+|    as Jacques' 
 
-> Hi 
-> 
->  This is my first bug submission, so please have patience with my noobness :)
+And of course, you can always run many vservers inside a single Xen
+domain to get the best of both worlds.
 
-The general consensus is that you should be using the direct ATAPI 
-interface for cd-writing in 2.6. Be sure to get uptodate cdrtools and if 
-you want to use a gui, i hear k3b is able to grok the new interface. 
+Paul Brett
+PlanetLab Support
+Email: paul.brett@planet-lab.org
+Tel No: +1 503 712 4520
 
-You may find the following URL of interest, most notably the "CD 
-Recording" section.
-
-http://www.codemonkey.org.uk/post-halloween-2.5.txt
-
-Good luck

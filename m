@@ -1,73 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311523AbSDIUtr>; Tue, 9 Apr 2002 16:49:47 -0400
+	id <S311572AbSDIUwl>; Tue, 9 Apr 2002 16:52:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311536AbSDIUtq>; Tue, 9 Apr 2002 16:49:46 -0400
-Received: from coltrane.siteprotect.com ([64.26.16.13]:16621 "EHLO
-	coltrane.siteprotect.com") by vger.kernel.org with ESMTP
-	id <S311523AbSDIUtp>; Tue, 9 Apr 2002 16:49:45 -0400
-From: "Rob Hall" <rob@compuplusonline.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.5.7,8-pre2 and USB
-Date: Tue, 9 Apr 2002 16:58:30 -0400
-Message-ID: <BBENIHKKLAMLHIECFJEPMEPKCAAA.rob@compuplusonline.com>
+	id <S311530AbSDIUwk>; Tue, 9 Apr 2002 16:52:40 -0400
+Received: from 109-67-189-66.wo.cpe.charter-ne.com ([66.189.67.109]:10443 "HELO
+	majere.epithna.com") by vger.kernel.org with SMTP
+	id <S311572AbSDIUwM>; Tue, 9 Apr 2002 16:52:12 -0400
+Date: Tue, 9 Apr 2002 16:51:56 -0400 (EDT)
+From: listmail@majere.epithna.com
+To: linux-kernel@vger.kernel.org
+Subject: 0(1)-patch, where did it go?
+Message-ID: <Pine.LNX.4.44.0204091649030.9846-100000@majere.epithna.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20020409133710.A21829@kroah.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was previously running the 2.4.18 kernel... This is the first devel kernel
-I have installed since 2.3.x :) I've noticed that according to dmesg, 2.4.x
-inits USB MUCH later in the boot sequence than 2.5.7 and 8-pre2 do.
+Ok,
+Maybe I am just lost and confused, but I can't see anywhere what has
+happened to this patch....
 
-Thanks
---
-Rob Hall
+Did it get merged when I wasn't looking?  I can't seem to find a record of
+it in the change logs?  It just seems to stop getting updated just before
+2.4.18 release, but I don't see a message about it getting merged....
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Greg KH
-Sent: Tuesday, April 09, 2002 4:37 PM
-To: Rob Hall
-Cc: linux-kernel
-Subject: Re: 2.5.7,8-pre2 and USB
+Could someone please update me?
 
+Is it in 2.4.19 someplace, or  2.5.x?
 
-On Tue, Apr 09, 2002 at 02:00:31PM -0400, Rob Hall wrote:
-> Hi all,
-> 	I'm running a Tyan Tiger Dual Athlon motherboard(S2624). This board has
-an
-> OHCI USB host controller on-board... I recently compiled 2.5.7, only to
-find
-> that the machine halts as soon as the USB HC is detected. Same problem
-arose
-> with 2.5.8-pre2.. Has the location of the USB init been changed? If I
-> recompile the kernel with USB support as modules, and load the appropriate
-> modules via init script, it works perfectly. Just wondering if this has
-been
-> reported by anyone else, and if it is a known issue, what is the cause and
-> is there a patch yet?
-
-Which previous kernel did compiling the usb-ohci driver into the kernel
-successfully
-work for you?
-
-thanks,
-
-greg k-h
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+-Haplo
 

@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266824AbUBRASJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:18:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUBRAPz
+	id S266810AbUBRAJT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 19:09:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266544AbUBRAJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:15:55 -0500
-Received: from dp.samba.org ([66.70.73.150]:1988 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266824AbUBRAOl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:14:41 -0500
-Date: Tue, 17 Feb 2004 18:41:32 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Harald Dunkel <harald.dunkel@t-online.de>
-Cc: coywolf@lovecn.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2: "-" or "_", thats the question
-Message-Id: <20040217184132.541a5a76.rusty@rustcorp.com.au>
-In-Reply-To: <402F42DE.5090308@t-online.de>
-References: <402A887D.7030408@t-online.de>
-	<402EDBA8.4070102@lovecn.org>
-	<402F42DE.5090308@t-online.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 17 Feb 2004 19:09:17 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63693 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266775AbUBRAIn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 19:08:43 -0500
+Date: Wed, 18 Feb 2004 00:08:42 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Cc: Alex Belits <abelits@phobos.illtel.denver.co.us>,
+       Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re:
+Message-ID: <20040218000842.GT8858@parcelfarce.linux.theplanet.co.uk>
+References: <1077021379.6605.42.camel@ulysse.olympe.o2t> <Pine.LNX.4.58.0402171135180.10406@es1840.belits.com> <200402172256.30397.robin.rosenberg.lists@dewire.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402172256.30397.robin.rosenberg.lists@dewire.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Feb 2004 10:58:54 +0100
-Harald Dunkel <harald.dunkel@t-online.de> wrote:
-
-> Coywolf Qi Hunt wrote:
-> > Harald Dunkel wrote:
-> > 
-> >>
-> >> What would be the correct way to get the filename of a
-> >> loaded module? The basename would be sufficient.
-> >>
-> >>
-> > The symbole names used in source code, like function names tend to use 
-> > "_", while the file names use "-" IMHO.
-> > 
+On Tue, Feb 17, 2004 at 10:56:30PM +0100, Robin Rosenberg wrote:
 > 
-> Naturally the symbols in the code use '_', cause for C '-'
-> is not allowed within symbol names.
-> 
-> I am interested in the module file names. 'cat /proc/modules'
-> should return the correct module names, but for some modules
-> (like uhci_hcd vs uhci-hcd.ko) '_' and '-' are messed up.
+> Again users want characters, not bytes. Here up in the north we are among the
+> lucky ones that can still read a partially unlegible file name, because enough many
+> characters are usually just ascii. If a name was encoded in SJIS and you see them
+> interpreted as UTF-8 you'll a a string of pure garbage and you need to ask a bit
+> twiddler for help in decoding it simply becase ASCII characters are not likely to be
+> among the characters.
 
-We canonicalize them at every point: you can use both.
-
-Most users don't want to remember that it's ip_conntrack but uhci-hcd.
-
-Hope that clarifies,
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+What I see is a string of pure garbage _here_.  On l-k.  Large part of that
+garbage obviously coming from kooks with agenda.  Could we please take that
+shite to more appropriate place?  Alt.sex.encodings.byte.byte.byte, whatever.

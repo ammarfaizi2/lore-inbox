@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132976AbQLNUko>; Thu, 14 Dec 2000 15:40:44 -0500
+	id <S132561AbQLNUmy>; Thu, 14 Dec 2000 15:42:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132939AbQLNUke>; Thu, 14 Dec 2000 15:40:34 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:24328 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S133002AbQLNUkT>;
-	Thu, 14 Dec 2000 15:40:19 -0500
-Date: Thu, 14 Dec 2000 21:08:59 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-Cc: Gregoire Favre <greg@ulima.unil.ch>, linux-kernel@vger.kernel.org
-Subject: Re: DVD on Linux
-Message-ID: <20001214210858.B6442@suse.de>
-In-Reply-To: <3A374622.7167CA22@ulima.unil.ch> <Pine.LNX.4.21.0012141148120.10916-100000@sol.compendium-tech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0012141148120.10916-100000@sol.compendium-tech.com>; from kernel@blackhole.compendium-tech.com on Thu, Dec 14, 2000 at 11:48:52AM -0800
+	id <S132654AbQLNUmo>; Thu, 14 Dec 2000 15:42:44 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:13300 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S132951AbQLNUmc>; Thu, 14 Dec 2000 15:42:32 -0500
+Date: Thu, 14 Dec 2000 12:11:31 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: David Riley <oscar@the-rileys.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: test13-pre1 changelog
+In-Reply-To: <3A392852.B9B64C7F@the-rileys.net>
+Message-ID: <Pine.LNX.4.21.0012141210420.10916-100000@sol.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14 2000, Dr. Kelsey Hudson wrote:
-> nope, DVD discs all use UDF.
+On Thu, 14 Dec 2000, David Riley wrote:
 
-Ehh, no that is very untrue. Most data dvd's use bridged iso9660/udf,
-which works fine with Linux iso9660.
+> Did I miss a post from Linus on the list, or is there no posted
+> changelog for test13-pre1?  Nothing's posted at kernel.org yet, either.
+> 
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+I musta missed the post too... But then again I went back and looked for
+it and couldnt find it so...
+
+i'd like to know what changed, anyways :)
+
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

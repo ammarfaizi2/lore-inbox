@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317814AbSFMUGB>; Thu, 13 Jun 2002 16:06:01 -0400
+	id <S317815AbSFMUM6>; Thu, 13 Jun 2002 16:12:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317815AbSFMUGA>; Thu, 13 Jun 2002 16:06:00 -0400
-Received: from mail1.btigate.com ([216.235.160.81]:19617 "HELO
-	mail1.btigate.com") by vger.kernel.org with SMTP id <S317814AbSFMUGA>;
-	Thu, 13 Jun 2002 16:06:00 -0400
-Message-Id: <5.1.0.14.2.20020613150319.00a09360@mail.btinet.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 13 Jun 2002 15:05:53 -0500
-To: linux-kernel@vger.kernel.org
-From: Jim Nelson <jimnelson@btinet.net>
-Subject: Re: Locking CD tray w/o opening device
-In-Reply-To: <1023771645.1519.3.camel@UberGeek>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S317816AbSFMUM5>; Thu, 13 Jun 2002 16:12:57 -0400
+Received: from p50886DD7.dip.t-dialin.net ([80.136.109.215]:26294 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317815AbSFMUM5>; Thu, 13 Jun 2002 16:12:57 -0400
+Date: Thu, 13 Jun 2002 14:12:49 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Thunder from the hill <thunder@ngforever.de>,
+        Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.21: kbuild changes broke filenames with commas
+In-Reply-To: <20020611122144.A3665@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0206131411030.24261-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:00 AM 6/11/02 -0500, you wrote:
->You could echo "1" >/proc/sys/dev/cdrom/lock
->
->If you do this, even when a cd is *not* in the drive it will be locked.
->For information like this, it might be best to open xchat, and head to
->openprojects.net and join #linuxhelp. This is a good question, just
->perhaps  not right for the lkml?
+Hi,
 
+On Tue, 11 Jun 2002, Russell King wrote:
+> > Think big! Think about __future__.
+> 
+> The path to overdesign and excessive featurebloat.
 
-Um, No.  My /proc/sys/dev/cdrom/lock defaults to a 1, and the drive opens 
-when a disc is not present at the touch of the button. 
+Hmmm... You can overdo both sides. OTOH, why do we need IrDA drivers? 
+Featurebloat? Or new processor impls? They're certainly features, required 
+to run the kernel under certain (very limited) conditions. I don't think 
+you would remove them!
 
+Regards,
+Thunder
+-- 
+German attitude becoming        |	Thunder from the hill at ngforever
+rightaway popular:		|
+       "Get outa my way,  	|	free inhabitant not directly
+    for I got a mobile phone!"	|	belonging anywhere
 

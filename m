@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318539AbSIFM0k>; Fri, 6 Sep 2002 08:26:40 -0400
+	id <S316856AbSIFMdg>; Fri, 6 Sep 2002 08:33:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318542AbSIFM0k>; Fri, 6 Sep 2002 08:26:40 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:53709 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S318539AbSIFM0k>; Fri, 6 Sep 2002 08:26:40 -0400
-Date: Fri, 6 Sep 2002 14:53:55 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@mwaikambo.name>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Andreas Dilger <adilger@clusterfs.com>,
-       Peter Surda <shurdeek@panorama.sth.ac.at>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Uptime timer-wrap
-In-Reply-To: <Pine.LNX.3.95.1020906075225.3143A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44.0209061447390.1116-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318542AbSIFMdg>; Fri, 6 Sep 2002 08:33:36 -0400
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:40199 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S316856AbSIFMdg>;
+	Fri, 6 Sep 2002 08:33:36 -0400
+Subject: Re: virtual ethernet adapter?
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Peter Svensson <petersv@psv.nu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209060806490.1994-100000@cheetah.psv.nu>
+References: <Pine.LNX.4.44.0209060806490.1994-100000@cheetah.psv.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 06 Sep 2002 08:34:57 -0400
+Message-Id: <1031315698.28301.12.camel@zaphod>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Sep 2002, Richard B. Johnson wrote:
+from what I can tell, tap just lets a programs use it, but one needs a
+user space app behind it (reading and writing to it).  It doesn't seem
+to have the ability to live on the network like vmware's vmnet stuff
+does, perhaps I'm wrong and was confused by the web page.
 
-> Do you have an idea where to look? I need to prevent the possibility
-> of waiting forever for an event that may never occur, with interrupts
-> disabled, on at least one embedded system. Any wait-forever possibility
-> must be interruptible because any watch-dog timer that re-boots will end
-> up destroying data that must never be lost.
+On Fri, 2002-09-06 at 02:07, Peter Svensson wrote:
+> On 5 Sep 2002, Shaya Potter wrote:
+> 
+> > Is there any open code that is similiar to what vmware provides that
+> > enables one to create virtual ethernet adapters?  I've seen the tap
+> > device, but that's not what I need.
+> 
+> In what way is it not what you need? What do you need? 
+> 
+> Peter
+> --
+> Peter Svensson      ! Pgp key available by finger, fingerprint:
+> <petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+> ------------------------------------------------------------------------
+> Remember, Luke, your source will be with you... always...
+> 
 
-Remove the 'wait forever' (really if you're waiting forever you have a 
-bug anyway, be it hardware or otherwise) and break the entire kernel? Or 
-perhaps sprinkle timeouts in every little crevice of the kernel code.
-
-	Zwane
-
--- 
-function.linuxpower.ca
 

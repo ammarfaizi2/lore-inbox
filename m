@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315430AbSEBVV5>; Thu, 2 May 2002 17:21:57 -0400
+	id <S315429AbSEBVVw>; Thu, 2 May 2002 17:21:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315431AbSEBVV4>; Thu, 2 May 2002 17:21:56 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:49168 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315430AbSEBVVz>; Thu, 2 May 2002 17:21:55 -0400
-Message-ID: <3CD19F19.2030104@evision-ventures.com>
-Date: Thu, 02 May 2002 22:18:33 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
-        linux-kernel@vger.kernel.org
-Subject: Re: IDE hotplug support?
-In-Reply-To: <20020502215833.V31556@unthought.net> <E173N9y-0004k1-00@the-village.bc.nu> <20020502231359.W31556@unthought.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S315430AbSEBVVv>; Thu, 2 May 2002 17:21:51 -0400
+Received: from 213-145-191-71.dd.nextgentel.com ([213.145.191.71]:18473 "EHLO
+	sevilla.gnome.no") by vger.kernel.org with ESMTP id <S315429AbSEBVVu>;
+	Thu, 2 May 2002 17:21:50 -0400
+Subject: Re: 2.4.19pres and IDE DMA
+From: Kjartan Maraas <kmaraas@online.no>
+To: Samuel Flory <sflory@rackable.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <3CD1A469.9040605@rackable.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 02 May 2002 23:21:20 +0200
+Message-Id: <1020374480.3134.1.camel@sevilla.gnome.no>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Jakob Østergaard napisa?:
-> On Thu, May 02, 2002 at 09:26:38PM +0100, Alan Cox wrote:
+tor, 2002-05-02 kl. 22:41 skrev Samuel Flory:
+>   I'm having issues with a Tyan 2720 and post 2.4.18 boards with a 
+> Maxtor 4G120J6.  Under 2.4.18 I can turn on dma via "hdparm -d 1". 
+>  Under 2.4.19pre7 I get "HDIO_SET_DMA fail ed: Operation not permitted". 
+>  On a side note the same thing occurs with the RH 2.4.18-0.13 kernel. 
+>  It appears both kernels merged an ide update from the ac kernel line.
 > 
->>>>=20
->>>>8 x 130MBy/s >>>> PCI bus throughput... I would rather recommend
->>>>a classical RAID controller card for this kind of
->>>>setup.
->>>
->>>Because RAID controllers do not use the PCI bus ???    ;)
->>
->>The raid card transfers the data once, software raid once per device for
->>Raid 1/5 - thats a killer.
-> 
-> 
-> For RAID-1 it's a killer (for writes), I agree.
-> 
-> But I really doubt it would be so horrible for RAID-5 - after all, it's only
-> one extra block (the parity block) for each N-1 blocks written (for an N disk
-> RAID-5).  The penalty should be less, the more disks you have in the array.
-> 
-> But seriously, has anyone out there ever seen a hardware RAID controller with
-> a *sustained* RAID-5 thoughput of more than 60 MB/sec ?   Not that I think it
-> is impossible, but I've never heard about it.  Enlighten me, please, and not
-> with marketing numbers...
+> PS-There is also some issue with a resource conflict that occurs under 
+> every kernel I've tried.
 
+I had the exact same problem myself with a brand new Compaq N600c
+laptop. It was fixed for me by using Andre's patch from
+http://linuxdiskcert.org/
 
-Go to Sun hardware and you will see it quite frequently even on a simple
-E450 equipped with an external RAID box. I saw them frequently enough in
-sar accounts when the system was configured to trash on a swap
-partition, which resided on such a RAID.
-
-64 bit buses win here by a huge margin.
+Cheers
+Kjartan
 

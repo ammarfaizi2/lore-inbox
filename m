@@ -1,70 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264052AbTDOTk6 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 15:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264053AbTDOTk6 
+	id S264048AbTDOTqE (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 15:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264049AbTDOTqE 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 15:40:58 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:16007 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP id S264052AbTDOTkx 
+	Tue, 15 Apr 2003 15:46:04 -0400
+Received: from holomorphy.com ([66.224.33.161]:37511 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264048AbTDOTqC 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 15:40:53 -0400
-Date: Tue, 15 Apr 2003 12:59:23 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [RFC] /sbin/hotplug multiplexor
-To: Robert Love <rml@tech9.net>, "Kevin P. Fleming" <kpfleming@cox.net>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Message-id: <3E9C649B.8080106@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <20030414190032.GA4459@kroah.com>
- <200304142209.56506.oliver@neukum.org> <20030414203328.GA5191@kroah.com>
- <200304142311.01245.oliver@neukum.org> <3E9B2720.7020803@cox.net>
- <1050356754.3664.82.camel@localhost>
+	Tue, 15 Apr 2003 15:46:02 -0400
+Date: Tue, 15 Apr 2003 12:57:32 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: mort@wildopensource.com
+Subject: cpu-2.5.67-1
+Message-ID: <20030415195732.GD12487@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, mort@wildopensource.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2003-04-14 at 17:24, Kevin P. Fleming wrote:
->>Personally, this is one reason why I'd much rather see a daemon-based model 
->>where each interested daemon can "subscribe" to the messages it is interested 
->>in. It's very possible (and likely, i.e. udev) that the steps involved for the 
->>daemon to respond to the hotplug event are so lightweight that creating a 
->>subprocess to handle them would be very wasteful.
+New in this release:
+(1) cpus_complement()				(Martin Hicks)
+(2) cpus_shift_right()				(Martin Hicks)
+(3) cpus_shift_left()				(Martin Hicks)
+(4) cpus_weight()				(Martin Hicks)
+(5) UP micro-optimizations
+(6) NR_CPUS < BITS_PER_LONG micro-optimizations
+(7) IA64 arch support code			(Martin Hicks)
 
-Historically, one of the motivations for the /sbin/hotplug
-approach was to avoid the costs of running Yet Another Daemon
-that's idle almost all the time ... and all it'd do when it
-learns about a new device is fork an easily-customized shell
-script, which normally loads driver modules and runs device
-setup scripts.  (Modprobe does per-driver scripts, which are
-no good for per-device actions, and needs a config file.)
+Martin, if you're wondering, I renamed cpus_inv()/cpus_shr()/cpus_shl()
+to the (slightly) more verbose names so they line up more closely with
+the bitmap_* functions' names. If that's too ugly to live (or whatever)
+I can back it out and go back to your names, possibly backpropagating
+the shorter names to the bitmap_* functions.
 
-Cheaper all around to have the kernel do that; plus, it had
-information that was not otherwise available to daemons.
-Much easier to adopt and evolve shell scripts, too.
+Available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/cpu/
 
-That is, the design center was for medium-weight events that
-always involve starting new processes, and which moreover
-tend not to run often.  How often do you connect a new USB or
-PCI device?  If it takes a full second to react, that's OK;
-and Linux is usually faster than that.  (Windows isn't! :)
+-- wli
 
-I'd certainly agree that some hotplug agents need to be
-talking with daemons.  But I've always thought of them as
-being application-specific ... tell the print server about
-a new printer, for example.  And what you need to tell that
-server seems unlikely to be what you'd tell something that's
-sampling your collection of video or audio streams.
-
-
-Robert Love wrote:
-> See http://www.freedesktop.org/software/dbus/
-
-Looks interesting.
-
-- Dave
-
-
-
+ arch/i386/kernel/apic.c                   |    3 
+ arch/i386/kernel/cpu/proc.c               |    2 
+ arch/i386/kernel/io_apic.c                |   49 ++++++-----
+ arch/i386/kernel/irq.c                    |   43 ++++++---
+ arch/i386/kernel/ldt.c                    |    4 
+ arch/i386/kernel/mpparse.c                |    6 -
+ arch/i386/kernel/reboot.c                 |    2 
+ arch/i386/kernel/smp.c                    |   80 ++++++++++--------
+ arch/i386/kernel/smpboot.c                |   70 ++++++++--------
+ arch/ia64/kernel/iosapic.c                |   11 +-
+ arch/ia64/kernel/irq.c                    |   60 +++++++++----
+ arch/ia64/kernel/palinfo.c                |   10 --
+ arch/ia64/kernel/perfmon.c                |   89 ++++++++++----------
+ arch/ia64/kernel/setup.c                  |    2 
+ arch/ia64/kernel/smp.c                    |    2 
+ arch/ia64/kernel/smpboot.c                |   40 +++++----
+ arch/ia64/kernel/time.c                   |    4 
+ drivers/base/node.c                       |   13 ++
+ include/asm-i386/highmem.h                |    6 +
+ include/asm-i386/mach-default/mach_apic.h |   30 ++++--
+ include/asm-i386/mach-default/mach_ipi.h  |    4 
+ include/asm-i386/mach-numaq/mach_apic.h   |   19 ++--
+ include/asm-i386/mach-numaq/mach_ipi.h    |    9 +-
+ include/asm-i386/mmu_context.h            |    9 --
+ include/asm-i386/mpspec.h                 |    4 
+ include/asm-i386/numaq.h                  |    4 
+ include/asm-i386/smp.h                    |   29 +-----
+ include/asm-i386/topology.h               |   11 +-
+ include/asm-ia64/perfmon.h                |    2 
+ include/asm-ia64/smp.h                    |   22 -----
+ include/linux/bitmap.h                    |  131 ++++++++++++++++++++++++++++++
+ include/linux/cpumask.h                   |  112 +++++++++++++++++++++++++
+ include/linux/init_task.h                 |    2 
+ include/linux/irq.h                       |    2 
+ include/linux/node.h                      |    3 
+ include/linux/rcupdate.h                  |    5 -
+ include/linux/sched.h                     |    7 -
+ include/linux/smp.h                       |    3 
+ kernel/fork.c                             |    2 
+ kernel/module.c                           |    9 +-
+ kernel/rcupdate.c                         |   12 +-
+ kernel/sched.c                            |   56 +++++++-----
+ kernel/softirq.c                          |    7 -
+ kernel/workqueue.c                        |    4 
+ 44 files changed, 663 insertions(+), 331 deletions(-)

@@ -1,113 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293712AbSCKMTx>; Mon, 11 Mar 2002 07:19:53 -0500
+	id <S293716AbSCKMTx>; Mon, 11 Mar 2002 07:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293716AbSCKMTo>; Mon, 11 Mar 2002 07:19:44 -0500
-Received: from [217.79.102.244] ([217.79.102.244]:24827 "EHLO
-	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
-	id <S293712AbSCKMT1>; Mon, 11 Mar 2002 07:19:27 -0500
-Subject: Re: Sun GEM card looses TX on x86 32bit PCI
-From: Beezly <beezly@beezly.org.uk>
-To: davem@redhat.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1015834777.1802.8.camel@monkey>
-In-Reply-To: <1015792619.1801.4.camel@monkey> 
-	<20020310.164350.107967417.davem@redhat.com> 
-	<1015834777.1802.8.camel@monkey>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-wZCzOjG9coMjgJVkbY4s"
-X-Mailer: Evolution/1.0.2 
-Date: 11 Mar 2002 12:19:24 +0000
-Message-Id: <1015849164.2153.3.camel@monkey>
+	id <S293717AbSCKMTn>; Mon, 11 Mar 2002 07:19:43 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:30240 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S293716AbSCKMTa>; Mon, 11 Mar 2002 07:19:30 -0500
+Date: Mon, 11 Mar 2002 13:20:53 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Kurt Garloff <garloff@suse.de>,
+        Linux kernel list <linux-kernel@vger.kernel.org>,
+        "S. Chandra Sekharan" <sekharan@us.ibm.com>
+Subject: Re: [PATCH] Support for assymmetric SMP
+Message-ID: <20020311132053.G10413@dualathlon.random>
+In-Reply-To: <20020311043421.D2346@nbkurt.etpnet.phys.tue.nl> <20020311052954.R8949@dualathlon.random> <20020311122549.I2346@nbkurt.etpnet.phys.tue.nl>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020311122549.I2346@nbkurt.etpnet.phys.tue.nl>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 11, 2002 at 12:25:49PM +0100, Kurt Garloff wrote:
+> Hi Andrea,
+> 
+> On Mon, Mar 11, 2002 at 05:29:54AM +0100, Andrea Arcangeli wrote:
+> > the only problem is if you happen to get the timer irq always in the
+> > same cpu for a few seconds, then the last_tsc_low will wrap around and
+> > gettimeofday will be wrong. And even if you snapshot the full 64bit of the
+> > tsc you'll run into some trouble if the timer irq will be delivered only
+> > to the same cpu for a long time (for example if you use irq bindings).
+> > you'd lose precision and you'll run into the measuration errors of
+> > fast_gettimeoffset_quotient. The right support for asynchronous TSC
+> > handling is a bit more complicated unfortunately.
+> 
+> If your APIC works, your CPUs should get the timer IRQs in alternating order.
 
---=-wZCzOjG9coMjgJVkbY4s
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Maybe I remeber wrong, but AFIK the io-apic isn't required to scale the
+irq load in alternating order, it is perfectly allowed to deliver the
+irq always to the same cpu for several seconds. I know the probability
+for that to happen is low but it can happen.
 
-Hi David,
-
-I managed to run the latest patch, but it appears to Oops when the
-overflow condition occurs. Sadly I was not able to get the output of the
-oops... but it was at exactly the same time that I was run my "test"
-which causes the RX to halt.
-
-On Mon, 2002-03-11 at 08:19, Beezly wrote:
-> Hi David,
->=20
-> On Mon, 2002-03-11 at 00:43, David S. Miller wrote:
-> >=20
-> > What do the kernel logs say when the link is established?
->=20
-> I haven't had chance to apply your most recent patch yet (I have to go
-> to work!), but without the patch...
->=20
-> Mar 10 20:26:48 monkey kernel: sungem.c:v0.96 11/17/01 David S. Miller
-> (davem@redhat.com)
-> Mar 10 20:26:48 monkey kernel: PCI: Enabling device 00:0a.0 (0014 ->
-> 0016)
-> Mar 10 20:26:48 monkey kernel: PCI: Found IRQ 5 for device 00:0a.0
-> Mar 10 20:26:48 monkey kernel: PCI: Sharing IRQ 5 with 00:0b.1
-> Mar 10 20:26:48 monkey kernel: eth0: Sun GEM (PCI) 10/100/1000BaseT
-> Ethernet 00:00:00:00:00:00=20
-> Mar 10 20:26:48 monkey kernel: eth0: Link is up at 1000 Mbps,
-> full-duplex.
-> Mar 10 20:26:48 monkey kernel: eth0: Pause is disabled
-> Mar 10 20:26:48 monkey kernel: eth0: PCS AutoNEG complete.
-> Mar 10 20:26:48 monkey kernel: eth0: PCS link is now up.
-> Mar 10 20:26:48 monkey kernel: eth0: Link is up at 1000 Mbps,
-> full-duplex.
-> Mar 10 20:26:48 monkey kernel: eth0: Pause is disabled
-> Mar 10 20:26:48 monkey kernel: eth0: Link is up at 1000 Mbps,
-> full-duplex.
-> Mar 10 20:26:48 monkey kernel: eth0: Pause is disabled
-> Mar 10 20:26:48 monkey kernel: eth0: Link is up at 1000 Mbps,
-> full-duplex.
-> Mar 10 20:26:48 monkey kernel: eth0: Pause is disabled
-> Mar 10 20:26:48 monkey kernel: eth0: Link is up at 1000 Mbps,
-> full-duplex.
->=20
-> <snip - it does this until the card decides to hang RX>
->=20
-> Mar 10 20:28:53 monkey kernel: eth0: Pause is disabled
-> Mar 10 20:28:54 monkey kernel: eth0: Link is up at 1000 Mbps,
-> full-duplex.
-> Mar 10 20:28:54 monkey kernel: eth0: Pause is disabled
-> Mar 10 20:28:56 monkey kernel: eth0: Link is up at 1000 Mbps,
-> full-duplex.
-> Mar 10 20:28:56 monkey kernel: eth0: Pause is disabled
-> Mar 10 20:28:57 monkey kernel: eth0: Link is up at 1000 Mbps,
-> full-duplex.
-> Mar 10 20:28:57 monkey kernel: eth0: Pause is disabled
-> Mar 10 20:28:57 monkey kernel: eth0: RX MAC fifo overflow
-> smac[03910440].
-> Mar 10 20:28:58 monkey kernel: eth0: Link is up at 1000 Mbps,
-> full-duplex.
-> Mar 10 20:28:58 monkey kernel: eth0: Pause is disabled
-> Mar 10 20:28:59 monkey kernel: eth0: Link is up at 1000 Mbps,
-> full-duplex.
->=20
-> I'll apply the patch today and send you the logs back.
->=20
-> Cheers,
->=20
-> Beezly
-
-
---=-wZCzOjG9coMjgJVkbY4s
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8jKDMXu4ZFsMQjPgRAlU4AJ0dW1hjeSYhmHQ+wdrbA32G8e8E6gCfU6bb
-LQ6tprEbVxrNG3Qcwpjh8bs=
-=Sgcd
------END PGP SIGNATURE-----
-
---=-wZCzOjG9coMjgJVkbY4s--
+Andrea

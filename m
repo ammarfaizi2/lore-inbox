@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265373AbSLHLxY>; Sun, 8 Dec 2002 06:53:24 -0500
+	id <S265396AbSLHL4i>; Sun, 8 Dec 2002 06:56:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265396AbSLHLxY>; Sun, 8 Dec 2002 06:53:24 -0500
-Received: from max.fiasco.org.il ([192.117.122.39]:15374 "HELO
-	latenight.fiasco.org.il") by vger.kernel.org with SMTP
-	id <S265373AbSLHLxX>; Sun, 8 Dec 2002 06:53:23 -0500
-Subject: Re: Dazed and Confused
-From: Gilad Ben-Yossef <gilad@benyossef.com>
-To: Greg Boyce <gboyce@rakis.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.42.0212060948250.7121-100000@egg>
-References: <Pine.LNX.4.42.0212060948250.7121-100000@egg>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 08 Dec 2002 13:59:41 +0200
-Message-Id: <1039348787.15058.6.camel@klendathu.telaviv.sgi.com>
-Mime-Version: 1.0
+	id <S265409AbSLHL4i>; Sun, 8 Dec 2002 06:56:38 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:60135 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S265396AbSLHL4g>;
+	Sun, 8 Dec 2002 06:56:36 -0500
+Date: Sun, 8 Dec 2002 14:23:30 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@digeo.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Christoph Hellwig <hch@sgi.com>,
+       <marcelo@connectiva.com.br.munich.sgi.com>, Robert Love <rml@tech9.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] set_cpus_allowed() for 2.4
+In-Reply-To: <3DEBB4BD.F64B6ADC@digeo.com>
+Message-ID: <Pine.LNX.4.44.0212081406270.2547-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-06 at 16:55, Greg Boyce wrote:
 
-> I have an issue that I've been trying to track down for some time, and I
-> was hoping that someone might be able to provide me with a definitive
-> awnser.
+On Mon, 2 Dec 2002, Andrew Morton wrote:
+
+> I have observed two problems with the new scheduler, both serious IMO:
 > 
-> I work in a company with a large number of Linux machine deployed all
-> around the country, and in some of the machines we've been seeing the
-> following error:
-> 
-> Uhhuh. NMI received. Dazed and confused, but trying to continue
-> You probably have a hardware problem with your RAM chips
+> 1) Changed sched_yield() semantics.  [...]
 
-I have had the exact same error happen a while back on a 2.2.x kernel.
-It did not seem to hurt anything but it made the QA dept. go bonkers so
-I've spent some time chasing it down and found out what caused it back
-then - perhaps the same, or similar, applies to your setup as well:
+we noticed this OpenOffice/StarOffice problem in July, while beta-testing
+RH 8.0. In July Andrea already had another yield implementation in his
+tree, which was addressing an unrelated yield()-related regression. I'd
+like to note here that StarOffice/OpenOffice sucked just as much under
+Andrea's yield() variant as the original (and 2.5) O(1) scheduler variant
+did.
 
-The machines in question were Intel ISP1100 1U servers and for various
-non important reasons I have built the kernel which they were running
-without APM support. Now these machines have 3 small non marked buttons
-on their front - one is the power button, one is the reset button and
-one was a suspend button. 
+So i talked to Andrea, and we agreed in a rough solution that worked
+sufficiently well for OpenOffice and the other regression as well. I
+implemented it and tested it for OpenOffice. You can see (an i suspect
+later incarnation) of that implementation in Andrea's current tree. My
+position back then was that we should not try to move the arguably broken
+2.4 yield() implementation to 2.5.
 
-What I found out was that whenever anyone pressed the "suspend" button
-(usually because they meant to press the power or reset buttons and
-missed) the error in questions was logged. It seems that APM suspend is
-implemented (at least on those machines) as an NMI, and if you compiled
-the kernel sans APM support the NMI handling code simply did not grok
-that specific NMI and thus reported said error, which was otherwise
-harmless.
+So this is the history of O(1) yield().
 
-Hope this helps,
-Gilad.
+fortunately, things have changed since July, since due to NPTL threading
+the architectural need for user-space yield() has decreased significantly
+(NPTL uses futexes, no yielding anywhere), so the only worry is behavioral
+compatibility with LinuxThreads (and other yield() users). I'll forward
+port the new (well, old) yield() semantics to 2.5 as well, which will be
+quite similar to the yield() implementation in Andrea's tree.
 
--- 
- Gilad Ben-Yossef <gilad@benyossef.com> 
- http://benyossef.com 
- "Denial really is a river in Egypt."
+there's another (this time unique) bit implemented by Andrea, a variant of
+giving newly forked children priority in a more subtle way - i'm testing
+this change currently, to see whether it has any positive effect on
+compilation workloads.
+
+does this clarify things?
+
+	Ingo
 

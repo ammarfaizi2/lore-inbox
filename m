@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263275AbTDLOXx (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 10:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTDLOXx (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 10:23:53 -0400
-Received: from [203.197.168.150] ([203.197.168.150]:24338 "HELO
-	mailscanout256k.tataelxsi.co.in") by vger.kernel.org with SMTP
-	id S263275AbTDLOXw (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 10:23:52 -0400
-Message-ID: <3E982404.70106@tataelxsi.co.in>
-Date: Sat, 12 Apr 2003 20:04:44 +0530
-From: "Sriram Narasimhan" <nsri@tataelxsi.co.in>
-Organization: Tata Elxsi
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	id S263277AbTDLOm4 (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 10:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTDLOm4 (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 10:42:56 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:32481 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263277AbTDLOmz (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 10:42:55 -0400
+Date: Sat, 12 Apr 2003 07:54:31 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Antonio Vargas <wind@cocodriloo.com>, "Shaheed R. Haque" <srhaque@iee.org>
+cc: linux-kernel@vger.kernel.org, thockin@isunix.it.ilstu.edu
+Subject: Re: Processor sets (pset) for linux kernel 2.5/2.6?
+Message-ID: <237660000.1050159270@[10.10.2.4]>
+In-Reply-To: <20030412122422.GB9125@wind.cocodriloo.com>
+References: <1050146434.3e97f68300fff@netmail.pipex.net> <20030412122422.GB9125@wind.cocodriloo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problems in kernel memory allocation
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> HT is accounted as a NUMA SMP system with strong memory affinity
+> for his 2 cores, so that when running 2 HT processors (2+2 cores),
+> the tasks are kept preferably on the same HT processor and just bounce
+> cores, since they share the same cache (don't know exactly L1, L2 or
+> both, tough).
 
-I am having problems allocating more than 2.5 MB in the linux kernel.
-I am using Linux 2.4.7-10 RH 7.2 on i386.
+We don't actually do that right now (though it was discussed) - we treat it 
+as flat SMP. Ingo had some patches to share 1 runqueue between each HT pair, 
+which I think is a better plan for this, but we're not seeing much 
+performance improvment from it.
 
-Physical RAM: 64 MB
-
-I tried two methods of allocation, one using kmalloc and other using 
-kmem_cache_alloc. Both of them failed to allocate more than 2.5 MB. 
-(GFP_KERNEL / GFP_ATOMIC operations)
-When I run 'free' I am able to see that the free physical memory is 
-about 4MB and the free buffers/cache is about 52 MB.
-The report is as follows:
-           total       used       free     shared    buffers     cached
-Mem:         62264      57928      4336          0       30152      17768
--/+ buffers/cache:       10008      52256
-Swap:       192772          0     192772
-
-I also found out that the /proc/meminfo had about 43MB of Inact_dirty . 
-Is there any way to forcefully flush the dirty buffers ?
-Why is the allocation consistently failing in about 2.5 or 3MB ?
-Only when the free physical is about 30MB and I start allocating am I 
-able to successfully allocate about 5MB.
-
-Is there a restriction as to how much memory you can allocate in the 
-kernel ?
-
-Sriram
-
-
+M.
 

@@ -1,45 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbTIIU5w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 16:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbTIIU5v
+	id S264423AbTIIU7f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 16:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264418AbTIIU7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 16:57:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43196 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264372AbTIIU5u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 16:57:50 -0400
-Date: Tue, 9 Sep 2003 14:04:31 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Power: call save_state on PCI devices along with suspend
-In-Reply-To: <1063132902.1356.17.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0309091354471.695-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Sep 2003 16:59:34 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27153 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264423AbTIIU7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 16:59:21 -0400
+Date: Tue, 9 Sep 2003 21:59:18 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable data
+Message-ID: <20030909215918.R4216@flint.arm.linux.org.uk>
+Mail-Followup-To: Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20030909204803.N4216@flint.arm.linux.org.uk> <Pine.LNX.4.53.0309091559110.14426@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.53.0309091559110.14426@montezuma.fsmlabs.com>; from zwane@linuxpower.ca on Tue, Sep 09, 2003 at 04:02:58PM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 09, 2003 at 04:02:58PM -0400, Zwane Mwaikambo wrote:
+> On Tue, 9 Sep 2003, Russell King wrote:
+> 
+> > --- orig/drivers/char/watchdog/amd7xx_tco.c	Sat Jun 14 22:33:48 2003
+> > +++ linux/drivers/char/watchdog/amd7xx_tco.c	Tue Sep  9 20:45:16 2003
+> > @@ -294,7 +294,7 @@
+> >  	.fops	= &amdtco_fops
+> >  };
+> >  
+> > -static struct pci_device_id amdtco_pci_tbl[] __initdata = {
+> > +static struct pci_device_id amdtco_pci_tbl[] = {
+> >  	/* AMD 766 PCI_IDs here */
+> >  	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_OPUS_7443, PCI_ANY_ID, PCI_ANY_ID, },
+> >  	{ 0, }
+> 
+> That's not a bug.
+> 
+> > --- orig/drivers/char/watchdog/i810-tco.c	Sun Aug  3 11:21:11 2003
+> > +++ linux/drivers/char/watchdog/i810-tco.c	Tue Sep  9 20:45:16 2003
+> > @@ -301,7 +301,7 @@
+> >   * register a pci_driver, because someone else might one day
+> >   * want to register another driver on the same PCI id.
+> >   */
+> > -static struct pci_device_id i810tco_pci_tbl[] __initdata = {
+> > +static struct pci_device_id i810tco_pci_tbl[] = {
+> >  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AA_0,	PCI_ANY_ID, PCI_ANY_ID, },
+> >  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AB_0,	PCI_ANY_ID, PCI_ANY_ID, },
+> >  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0,	PCI_ANY_ID, PCI_ANY_ID, },
+> 
+> Neither is that.
+> 
+> > --- orig/drivers/char/hw_random.c	Sat Jun 14 22:33:46 2003
+> > +++ linux/drivers/char/hw_random.c	Tue Sep  9 20:45:16 2003
+> > @@ -149,7 +149,7 @@
+> >   * register a pci_driver, because someone else might one day
+> >   * want to register another driver on the same PCI id.
+> >   */
+> > -static struct pci_device_id rng_pci_tbl[] __initdata = {
+> > +static struct pci_device_id rng_pci_tbl[] = {
+> >  	{ 0x1022, 0x7443, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
+> >  	{ 0x1022, 0x746b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
+> 
+> This too
 
-> Don't we want that ? It will help if any driver currently relies on
-> the save_state callback to be called...
+They're all bugs, plain and simple.  The pci device id tables are scanned
+*whenever* a new pci device is inserted into the system, or the appropriate
+numbers are echoed to the "new_id" driver model entry for the driver.
 
-Bah, this patch slipped my mind. How many drivers actually use 
-->save_state()? From a quick look, it looks like: 
+It doesn't matter if the driver doesn't care or not.
 
-1. drivers/ide/pci/sc1200.c
-2. drivers/net/irda/vlsi_ir.c
-3. drivers/scsi/nsp32.c
-4. drivers/serial/8250_pci.c
-
-Of those, only (1) actually does anything interesting. (2) and (3) only 
-print a message, and (4) appears to be trivial to fold into ->suspend(). 
-
-What do you think about just fixing those up? 
-
-
-
-	Pat
-
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279994AbRKDQcg>; Sun, 4 Nov 2001 11:32:36 -0500
+	id <S280017AbRKDQhG>; Sun, 4 Nov 2001 11:37:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279996AbRKDQc1>; Sun, 4 Nov 2001 11:32:27 -0500
-Received: from nic-131-c196-222.mw.mediaone.net ([24.131.196.222]:64776 "EHLO
-	moonweaver.awesomeplay.com") by vger.kernel.org with ESMTP
-	id <S279994AbRKDQcM>; Sun, 4 Nov 2001 11:32:12 -0500
-Subject: Via Reboot and Keyboard
-From: Sean Middleditch <elanthis@awesomeplay.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.100 (Preview Release)
-Date: 04 Nov 2001 11:36:43 -0500
-Message-Id: <1004891803.470.9.camel@stargrazer>
-Mime-Version: 1.0
+	id <S280022AbRKDQg4>; Sun, 4 Nov 2001 11:36:56 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:60936 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S280017AbRKDQgw>;
+	Sun, 4 Nov 2001 11:36:52 -0500
+Date: Sun, 4 Nov 2001 14:36:34 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] vm_swap_full
+In-Reply-To: <20011104152341.A4C289E898@oscar.casa.dyndns.org>
+Message-ID: <Pine.LNX.4.33L.0111041436020.2963-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again all,
+On Sun, 4 Nov 2001, Ed Tomlinson wrote:
 
- On my laptop's VIA82C686 bios, if I reboot with Linux, the machine
-doesn't boot up properly.  It gives me a keyboard error, among other
-things.  This happens with kernel 2.4.7, 2.4.12, and 2.4.13 (which, btw,
-now seems to work fine, tho I haven't tested it much - I think there may
-have been something in the -ac branch that was making it die before).
+> -/* Swap 50% full? Release swapcache more aggressively.. */
+> -#define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
+> +/* Free swap less than inactive pages? Release swapcache more aggressively.. */
+> +#define vm_swap_full() (nr_swap_pages < nr_inactive_pages)
 
- However, on 2.4.9, it works fine.  I reboot, and the computer comes
-back up OK.  Same if I rebooted from WindowsXP.
+> Comments?
 
- How the frick can I debug this one?
+Makes absolutely no sense for systems which have more
+swap than RAM, eg. a 64MB system with 200MB of swap.
 
-Sean Etc.
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

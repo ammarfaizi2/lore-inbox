@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273265AbRIRJiB>; Tue, 18 Sep 2001 05:38:01 -0400
+	id <S273268AbRIRJjb>; Tue, 18 Sep 2001 05:39:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273270AbRIRJhm>; Tue, 18 Sep 2001 05:37:42 -0400
-Received: from colorfullife.com ([216.156.138.34]:55047 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S273265AbRIRJhg>;
-	Tue, 18 Sep 2001 05:37:36 -0400
-Message-ID: <002201c14025$a5b8bdc0$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "Andrea Arcangeli" <andrea@suse.de>
-Cc: "Linus Torvalds" <torvalds@transmeta.com>, <dhowells@redhat.com>,
-        <Ulrich.Weigand@de.ibm.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <001701c13fc2$cda19a90$010411ac@local> <200109172339.f8HNd5W13244@penguin.transmeta.com> <20010918020139.B698@athlon.random> <000901c14014$494f9380$010411ac@local> <20010918095549.T698@athlon.random>
-Subject: Re: Deadlock on the mm->mmap_sem
-Date: Tue, 18 Sep 2001 11:37:55 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S273272AbRIRJjV>; Tue, 18 Sep 2001 05:39:21 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:38256 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S273268AbRIRJjQ>; Tue, 18 Sep 2001 05:39:16 -0400
+Date: Tue, 18 Sep 2001 11:39:38 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+Message-ID: <20010918113938.B2723@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0109171608310.1108-100000@penguin.transmeta.com> <Pine.GSO.4.21.0109180527450.25323-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0109180527450.25323-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Sep 18, 2001 at 05:31:48AM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > IMHO modifying proc_pid_read_maps() is far simpler - I'm not aware
-of
-> > another recursive mmap_sem user.
->
-> if that's the very only place that could be a viable option but OTOH I
-> like to be allowed to use recursion on the read locks as with the
-> spinlocks.
+On Tue, Sep 18, 2001 at 05:31:48AM -0400, Alexander Viro wrote:
+> 
+> 
+> On Mon, 17 Sep 2001, Linus Torvalds wrote:
+> 
+> > This also merges the blkdev in page cache patch, and that will hopefully
+> > make it noticeably easier to do the "do bread() with page cache too", at
+> > which point a lot of the current ugly synchronization issues will go away.
+> 
+> Umm...  Linus, had you actually read through the fs/block_device.c part
+> of that?  It's not just ugly as hell, it's (AFAICS) not hard to oops
+> if you have several inodes sharing major:minor.  ->bd_inode and its
 
-But shouldn't that change wait until 2.5? Especially since another huge
-mm change was just merged?
-proc_pid_read_maps contains further bugs - afaics it it could skip lines
-if PAGE_SIZE > 4096 and a file path is nearly 4096 bytes long.
-I'll post a patch to proc_pid_read_maps - modifying the rw semaphore
-behaviour just asks for trouble.
+can you show an exploit? I cannot reproduce any problem here:
 
---
-    Manfred
+root@athlon:/tmp > cp -a /dev/hda hda.1
+root@athlon:/tmp > cp -a /dev/hda hda.2
+root@athlon:/tmp > cp hda.1 /dev/null & cp hda.2 /dev/null &
+[1] 24981
+[2] 24982
+root@athlon:/tmp > fg
+cp hda.2 /dev/null
 
+root@athlon:/tmp > fg
+cp hda.1 /dev/null
+
+root@athlon:/tmp > 
+
+> treatment are bogus.  Please, read it through and consider reverting -
+> in its current state code is an ugly mess.
+
+what other design solution do you propose rather both inodes sharing the
+i_mapping across the different inodes like I did?
+
+I found more handy to just bump the i_count of the first inode and
+referencing it from the bd_inode, rather than dynamically allocating the
+i_mapping and have a bd_mapping, but if you prefer to dynamically
+allocate the i_mapping rather than using the i_data of the fist inode we
+can change that of course. Not sure what's the mess in the patch you're
+talking about, could you elaborate?
+
+Andrea

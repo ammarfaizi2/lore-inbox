@@ -1,71 +1,231 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314908AbSDVXIM>; Mon, 22 Apr 2002 19:08:12 -0400
+	id <S314907AbSDVXGN>; Mon, 22 Apr 2002 19:06:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314916AbSDVXIL>; Mon, 22 Apr 2002 19:08:11 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:11464 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S314908AbSDVXH4>;
-	Mon, 22 Apr 2002 19:07:56 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S314911AbSDVXGM>; Mon, 22 Apr 2002 19:06:12 -0400
+Received: from AGrenoble-101-1-3-34.abo.wanadoo.fr ([193.253.251.34]:2432 "EHLO
+	elessar.linux-site.net") by vger.kernel.org with ESMTP
+	id <S314907AbSDVXF7>; Mon, 22 Apr 2002 19:05:59 -0400
+Message-ID: <3CC4996D.3090606@wanadoo.fr>
+Date: Tue, 23 Apr 2002 01:14:53 +0200
+From: =?ISO-8859-15?Q?Fran=E7ois_Cami?= <stilgar2k@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15556.38775.439624.762586@argo.ozlabs.ibm.com>
-Date: Tue, 23 Apr 2002 09:06:31 +1000 (EST)
-To: Robert Love <rml@tech9.net>
-Cc: george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: in_interrupt race
-In-Reply-To: <1019512494.1465.5.camel@phantasy>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.19pre7-IDE6 BUG with Promise Ultra66 (was : Re: [patch] ide-2.4.19-p7.all.convert.5.patch)
+In-Reply-To: <Pine.LNX.4.10.10204182123450.17538-100000@master.linux-ide.org>
+Content-Type: multipart/mixed;
+ boundary="------------070901050603060909030304"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love writes:
+This is a multi-part message in MIME format.
+--------------070901050603060909030304
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-> We have two cases: 
-> 
-> (a) we are in an interrupt or softirq, 
-> (b) we are not in an interrupt or softirq. 
-> 
-> If (a), we are not preemptible and thus do _not_ need explicit
-> preemption disabling.
 
-True.
+Hi Andre,
 
-> If (b) we are preemptible, and then it does not matter what happens
-> during this check, since we are not preemptible and the check won't
-> return a false true.
+2.4.19pre7 + Andre's IDE patch version 6 doesn't detect my
+Promise Ultra66 embedded controller at boot.
 
-Huh?  First you say we are preemptible, then you say we are not, in
-the same sentence?
+2.4.19pre7 + IDE5 does work, as does vanilla 2.4.19pre7.
 
-> Now, if we are actually using in_interrupt() as "is this exact CPU
-> processing an interrupt?" we may not get what we want (because we could
-> end up on CPU#2 from #1, and now #1 is indeed in an interrupt).  But
-> that is rarely (if ever?) the point of the call.
-> 
-> The majority, if not all, uses of in_interrupt is to see if you entered
-> the current code from an interrupt.  Like in schedule, "did we enter
-> this function off an interrupt?"  Thus, with or without preemption:
-> 
-> 	if (in_interrupt())
-> 		/* yep! */
-> 
-> will _always_ return false if your current CPU is not in an interrupt. 
+Attached are .config for 2.4.19pre7+IDE6, dmesg output and
+lspci -v -v output for that kernel.
 
-No.  The point is that in_interrupt() asks two separate questions:
-(1) which cpu are we on?  (2) is that cpu in interrupt context?
-If we switch cpus between (1) and (2) then we can get a false positive
-from in_interrupt().
+Apparently lspci is able to detect the Promise controller,
+but it doesn't appear in the kernel at boot, and the drive
+attached to it is unavailable.
 
-> This says nothing of the CPU you may of been on, but then who cares
-> about it?
+Tell me if I did anything wrong...
 
-We don't care about any cpu, what we want to know is whether the
-current thread of execution is in process context or not.  Which is
-why it is bogus for in_interrupt to need to ask which cpu we are on,
-and why the local_bh_count and local_irq_count should go in the
-thread_info struct IMHO.  I am working on that now. :)
+Cheers
 
-Paul.
+Fran=E7ois Cami
+
+--------------070901050603060909030304
+Content-Type: application/octet-stream;
+ name=".config.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename=".config.bz2"
+
+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
+--------------070901050603060909030304
+Content-Type: application/octet-stream;
+ name="dmesg.output.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="dmesg.output.bz2"
+
+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
+--------------070901050603060909030304
+Content-Type: application/octet-stream;
+ name="lspci.output.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="lspci.output.bz2"
+
+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
+--------------070901050603060909030304--
+

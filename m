@@ -1,30 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319224AbSIFQMb>; Fri, 6 Sep 2002 12:12:31 -0400
+	id <S319266AbSIFQIP>; Fri, 6 Sep 2002 12:08:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319155AbSIFQLq>; Fri, 6 Sep 2002 12:11:46 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:26869
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319224AbSIFQLE>; Fri, 6 Sep 2002 12:11:04 -0400
-Subject: Re: VIA82cxxx sound problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jordan Crouse <jordanc@censoft.com>
-Cc: g4465018@pirun.ku.ac.th, linux-kernel@vger.kernel.org
-In-Reply-To: <20020906100008.0bbc9894.jordanc@censoft.com>
-References: <Pine.GSO.4.44.0209061822580.1094-100000@pirun.ku.ac.th>
-	<20020906092705.7a746d39.jordanc@censoft.com>
-	<1031327595.9945.50.camel@irongate.swansea.linux.org.uk> 
-	<20020906100008.0bbc9894.jordanc@censoft.com>
-Content-Type: text/plain
+	id <S319267AbSIFQIO>; Fri, 6 Sep 2002 12:08:14 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:43246 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S319266AbSIFQIO>; Fri, 6 Sep 2002 12:08:14 -0400
+Date: Fri, 06 Sep 2002 09:11:05 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: "David S. Miller" <davem@redhat.com>, hadi@cyberus.ca,
+       tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, niv@us.ibm.com
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+Message-ID: <52305571.1031303463@[10.10.2.3]>
+In-Reply-To: <3D78CBF6.10609@us.ibm.com>
+References: <3D78CBF6.10609@us.ibm.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 06 Sep 2002 17:15:42 +0100
-Message-Id: <1031328942.9945.54.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Though I did have to move to ALSA later on because of issues with the generic AC97 chip on my motherboard, and everything is working great now.  Perhaps you can try that instead?
+> No, no.  Bad Martin!  Throughput didn't drop, "Specweb compliance" 
+> dropped.   Those are two very, very different things.  I've found 
+> that the server can produce a lot more throughput, although it 
+> doesn't have the characteristics that Specweb considers compliant.  
+> Just have Troy enable mod-status and look at the throughput that 
+> Apache tells you that it is giving during a run.  _That_ is real
+> throughput, not number of compliant connections.
 
-ALSA does have -much- better drivers for the via audio. 
+By throughput I meant number of compliant connections, not bandwidth.
+It may well be latency that's going out the window, rather than
+bandwidth. Yes, I should use more precise terms ...
+
+> _And_ NAPI is for receive only, right?  Also, my compliance drop 
+> occurs with the NAPI checkbox disabled.  There is something else 
+> in the new driver that causes our problems.
+
+Not sure about that - I was told once that there were transmission
+completion interrupts as well? What happens to those? Or am I 
+confused again ...
+
+M.
 

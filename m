@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVAPSmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbVAPSoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262565AbVAPSmP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 13:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVAPSmO
+	id S262563AbVAPSoa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 13:44:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVAPSoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 13:42:14 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:37255 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S262562AbVAPSmK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 13:42:10 -0500
-Date: Sun, 16 Jan 2005 13:42:09 -0500
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] shared subtrees
-Message-ID: <20050116184209.GD13624@fieldses.org>
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk> <20050116160213.GB13624@fieldses.org> <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk>
+	Sun, 16 Jan 2005 13:44:30 -0500
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:40717 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262563AbVAPSoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 13:44:24 -0500
+Date: Sun, 16 Jan 2005 19:46:53 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@stimpy.netroedge.com>
+Subject: [PATCH 2.6] I2C: Kill i2c_client.id
+Message-Id: <20050116194653.17c96499.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.6+20040907i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 16, 2005 at 06:06:56PM +0000, Al Viro wrote:
-> On Sun, Jan 16, 2005 at 11:02:13AM -0500, J. Bruce Fields wrote:
-> > On Thu, Jan 13, 2005 at 10:18:51PM +0000, Al Viro wrote:
-> > > 	6. mount --move
-> > > prohibited if what we are moving is in some p-node, otherwise we move
-> > > as usual to intended mountpoint and create copies for everything that
-> > > gets propagation from there (as we would do for rbind).
-> > 
-> > Why this prohibition?
-> 
-> How do you propagate that?  We can weaken that to "in a p-node that
-> owns something or contains more than one vfsmount", but it's not
-> worth the trouble, AFAICS.
+Hi Greg,
 
-I guess I'm not seeing what there is to propagate.  If the vfsmount we
-are moving is mounted under a vfsmount that's in a p-node, then there'd
-be something to propagate, but since the --move doesn't change the
-structure of mounts underneath the moved mountpoint, I wouldn't expect
-any changes to be propagated from it to other mountpoints.
+As discussed earlier on the LKML [1], here comes a patch set killing the
+id member of the i2c_client structure. Let me recap my main reasons for
+doing so:
 
-I must be missing something fundamental....
+1* A client is already uniquely identified by the combination of the
+number of the bus it sits on and the address it is located at on this
+bus.
 
---Bruce Fields
+2* The i2c core doesn't make use of this struct member. Such an id, if
+needed, would thus be private data and as such would belong to the data
+member. In fact, none of the drivers using this field really needs it as
+far as I could see.
+
+Killing that useless struct member will let us save some memory and kill
+some useless code (not much, admittedly).
+
+I will send 5 different patches, to be applied in order, although
+nothing critical will happen if applied in a different order. In each
+patch, most chucks are themselves independent from each other, so if any
+is rejected or delayed for some reason, the rest can still be applied.
+
+(1/5) Stop using i2c_client.id in i2c/chips drivers (mostly hardware
+      monitoring drivers).
+(2/5) Stop using i2c_client.id in media/video drivers.
+(3/5) Stop using i2c_client.id in misc drivers.
+(4/5) Deprecate i2c_client.id.
+(5/5) Documentation update.
+
+Thanks.
+
+[1] http://lkml.org/lkml/2004/12/27/132
+
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

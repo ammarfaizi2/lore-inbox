@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317519AbSGERuQ>; Fri, 5 Jul 2002 13:50:16 -0400
+	id <S317520AbSGER5U>; Fri, 5 Jul 2002 13:57:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317520AbSGERuP>; Fri, 5 Jul 2002 13:50:15 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:45218 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S317519AbSGERuO>;
-	Fri, 5 Jul 2002 13:50:14 -0400
-Date: Fri, 5 Jul 2002 10:47:09 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Greg KH <gregkh@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove BKL from driverfs
-In-Reply-To: <Pine.LNX.4.33.0207051001560.8496-100000@geena.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33.0207051043120.8496-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317521AbSGER5T>; Fri, 5 Jul 2002 13:57:19 -0400
+Received: from h186n1fls24o900.telia.com ([213.66.143.186]:19946 "EHLO
+	oden.fish.net") by vger.kernel.org with ESMTP id <S317520AbSGER5T>;
+	Fri, 5 Jul 2002 13:57:19 -0400
+Date: Fri, 5 Jul 2002 20:01:13 +0200
+From: Voluspa <voluspa@bigfoot.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IBM Desktar disk problem?
+Message-Id: <20020705200113.21be185f.voluspa@bigfoot.com>
+Organization: The Foggy One
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > I see no reason to hold the BKL in your situation.  I replaced it with 
-> > i_sem in some places and just plain removed it in others.  I believe 
-> > that you get all of the protection that you need from dcache_lock in 
-> > the dentry insert and activate.  Can you prove me wrong?
-> 
-> No, and I'm not about to try very hard. It appears that the place you 
-> removed it should be fine. In driverfs_unlink, you replace it with i_sem. 
-> ramfs, which driverfs mimmicks, doesn't hold any lock during unlink. It 
-> seems it could be removed altogether. 
+At 2002-07-05 15:23:39 Daniel Egger <degger@fhm.edu> wrote:
 
-Actually, taking i_sem is completely wrong. Look at vfs_unlink() in 
-fs/namei.c:
+> I've yet to see a <insert your favourite non-IBM harddrive manufacturer
+> here>-drive dying after a few months of use
 
-        down(&dentry->d_inode->i_sem);
-        if (d_mountpoint(dentry))
-                error = -EBUSY;
-        else {
-                error = dir->i_op->unlink(dir, dentry);
-                if (!error)
-                        d_delete(dentry);
-        }
-        up(&dentry->d_inode->i_sem);
+How about a 20 gig Seagate Barracuda ATA II Model ST320420A dying after 1.5 months, and the replacement disk - same model - after 5 months. The supplier blamed my IDE controller (old standard 
+Intel Corp. 82371FB PIIX IDE [Triton I]: chipset revision 2) and refused to replace the second dud.
 
-Then, in driverfs_unlink:
+The 15 gig IBM-DTLA-307015 has worked flawlessly in the same system for a year. Have yet to try TCQ though. Waiting for a "stable" and modern 2.4
 
-	struct inode *inode = dentry->d_inode;
-
-	down(&inode->i_sem);    
-
-
-You didn't test this on file removal did you? A good way to verify that 
-you have most of your bases covered is to plug/unplug a USB device a few 
-times. I learned that one from Greg, and it's caught several bugs.
-
-Anyway, I say that the lock can be removed altogether. Ditto for mknod as 
-well.
-
-	-pat
-
+Regards,
+Mats Johannesson

@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290506AbSAYQac>; Fri, 25 Jan 2002 11:30:32 -0500
+	id <S290715AbSAYQhI>; Fri, 25 Jan 2002 11:37:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290715AbSAYQaW>; Fri, 25 Jan 2002 11:30:22 -0500
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:61199 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S290506AbSAYQaQ>; Fri, 25 Jan 2002 11:30:16 -0500
-From: "" <simon@baydel.com>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 25 Jan 2002 06:31:10 -0000
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: unresolved symbols __udivdi3 and __umoddi3
-Message-ID: <3C50FBAE.26883.8EF8C@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S290718AbSAYQgw>; Fri, 25 Jan 2002 11:36:52 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:62736 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S290715AbSAYQgc>;
+	Fri, 25 Jan 2002 11:36:32 -0500
+Date: Fri, 25 Jan 2002 17:36:23 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: "Marcel Kunath" <kunathma@pilot.msu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Machine Check Exception ?
+Message-Id: <20020125173623.03923d29.skraw@ithnet.com>
+In-Reply-To: <200201251237.g0PCbOR17328@pilot05.cl.msu.edu>
+In-Reply-To: <20020125114718.7af47375.skraw@ithnet.com>
+	<200201251237.g0PCbOR17328@pilot05.cl.msu.edu>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am writing a module and would like to perform arithmetic on long 
-long variables. When I try to do this the module does not load due
-to the unresolved symbols __udivdi3 and __umoddi3. I notice these
-are normally defined in libc. Is there any way I can do this in a 
-kernel module.
+On Fri, 25 Jan 2002 07:37:24 -0500 (EST)
+"Marcel Kunath" <kunathma@pilot.msu.edu> wrote:
 
-Many Thanks
+> Whats the mobo?
 
-Simon.
-__________________________
+I will answer later, it is remote, I have to check out. It is UP, btw.
 
-Simon Haynes - Baydel 
-Phone : 44 (0) 1372 378811
-Email : simon@baydel.com
-__________________________
+> What do you mean the box is dead? Dead or deadly stalled on
+> boot?
+
+It boots and runs for quite a while (weeks), then suddenly freezes and 
+shows this message.
+It does not happen often, but very rarely.
+Has the number any meaning, or is it a goof?
+
+Regards,
+Stephan
+
+> > Hello,
+> >
+> > I get the following message under 2.2.19:
+> >
+> > Message from syslogd@diehard at Thu Jan 24 14:44:49 2002 ...
+> > diehard kernel: CPU 0: Machine Check Exception: 0000000000000004
+> >
+> > and the box is dead.
+> > Can anybody please enlighten me what this means or what a possible
+> > problem behind might be?

@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262768AbSIUSLg>; Sat, 21 Sep 2002 14:11:36 -0400
+	id <S262766AbSIUSQd>; Sat, 21 Sep 2002 14:16:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275931AbSIUSLg>; Sat, 21 Sep 2002 14:11:36 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:60174 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262768AbSIUSLf>;
-	Sat, 21 Sep 2002 14:11:35 -0400
-Date: Sat, 21 Sep 2002 11:16:12 -0700
-From: Greg KH <greg@kroah.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org,
-       hardeneddrivers-discuss@lists.sourceforge.net,
-       cgl_discussion@lists.osdl.org
-Subject: Re: my review of the Device Driver Hardening Design Spec
-Message-ID: <20020921181611.GA28315@kroah.com>
-References: <mailman.1032587460.6299.linux-kernel2news@redhat.com> <200209211251.g8LCpFt23725@devserv.devel.redhat.com>
+	id <S275931AbSIUSQd>; Sat, 21 Sep 2002 14:16:33 -0400
+Received: from moutng.kundenserver.de ([212.227.126.185]:39934 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S262766AbSIUSQc>; Sat, 21 Sep 2002 14:16:32 -0400
+Date: Sat, 21 Sep 2002 20:21:27 +0200
+From: Martin Hermanowski <martin@martin.mh57.net>
+To: linux-kernel@vger.kernel.org
+Subject: UML error message clone failed/new thread failed
+Message-ID: <20020921182127.GK15310@martin.mh57.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
 Content-Disposition: inline
-In-Reply-To: <200209211251.g8LCpFt23725@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 21, 2002 at 08:51:15AM -0400, Pete Zaitcev wrote:
-> 
-> > In summary, I think that a lot of people have spent a lot of time in
-> > creating this document, and the surrounding code that matches this
-> > document.  I really wish that a tiny bit of that effort had gone into
-> > contacting the Linux kernel development community, and asking to work
-> > with them on a project like this.  Due to that not happening, and by
-> > looking at the resultant spec and code, I'm really afraid the majority
-> > of that time and effort will have been wasted.
-> 
-> Eek. They never mentioned any code before now. In fact they
-> explicitly said they weren't going to code before the spec
-> was ready.
 
-Oh, there's lots of code:
-	A "hardened" binary kernel driver:
-		http://unc.dl.sourceforge.net/sourceforge/hardeneddrivers/sampledriver-0.1-1.i386.rpm
-	(um people, why a binary?  Where's the source for this?)
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-	Some header files:
-		http://unc.dl.sourceforge.net/sourceforge/hardeneddrivers/ddhardening_headerfiles.tar.gz
+Hi,
 
-	A bunch of diagnostics code:
-		http://linux-diag.sourceforge.net/code/cpu_affinity-v0.2.1.tar.gz
-		http://linux-diag.sourceforge.net/code/pmem-0.2.1.tar.gz
-		http://linux-diag.sourceforge.net/code/crms-0.1.1.tar.gz
-	
-	And a bunch of resource monitoring code:
-		http://sourceforge.net/project/showfiles.php?group_id=54710
+I got the following log messages inside an user mode linux:
+,----
+| kernel: copy_thread : clone failed - errno = 1
+| kernel: flush_thread : new thread failed, errno = 1
+| kernel: flush_thread : new thread failed, errno = 1
+| kernel: copy_thread : clone failed - errno = 1
+`----
 
-CG people, are you wanting any of this code to be in the main kernel?
-If so, why have you not submitted it to anyone yet?  And why did you
-write any code before the spec was ready if you said you were not going
-to do that?
+No new processes could be started in the uml, but why?
 
-thanks,
+Is this a problem with the process limits of the host linux?
 
-greg k-h
+Regards,
+Martin
+
+--ibTvN161/egqYuK8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9jLimV3BRtc7IW1wRAmSGAJ0UnP3X9ivItxIvdG8gv226V7mJvwCdFeHK
+WQMFKpep8sy8EPCxAryNlhA=
+=t08P
+-----END PGP SIGNATURE-----
+
+--ibTvN161/egqYuK8--

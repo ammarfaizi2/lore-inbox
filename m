@@ -1,87 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261990AbSJIUnj>; Wed, 9 Oct 2002 16:43:39 -0400
+	id <S262009AbSJIUtW>; Wed, 9 Oct 2002 16:49:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262039AbSJIUnj>; Wed, 9 Oct 2002 16:43:39 -0400
-Received: from sitemail3.everyone.net ([216.200.145.37]:61564 "HELO
-	omta01.mta.everyone.net") by vger.kernel.org with SMTP
-	id <S261990AbSJIUni>; Wed, 9 Oct 2002 16:43:38 -0400
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S262021AbSJIUtV>; Wed, 9 Oct 2002 16:49:21 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:53498 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262009AbSJIUtV>; Wed, 9 Oct 2002 16:49:21 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20021009195918.GR26771@phunnypharm.org> 
+References: <20021009195918.GR26771@phunnypharm.org>  <20021009144414.GZ26771@phunnypharm.org> <20021009.045845.87764065.davem@redhat.com> <18079.1034115320@passion.cambridge.redhat.com> <20021008.175153.20269215.davem@redhat.com> <200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net> <7908.1034165878@passion.cambridge.redhat.com> <3DA4392B.8070204@pobox.com> <27367.1034175300@passion.cambridge.redhat.com> <3DA4882A.8000909@pobox.com> 
+To: Ben Collins <bcollins@debian.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: BK kernel commits list 
 Mime-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-Date: Wed, 9 Oct 2002 13:49:20 -0700 (PDT)
-From: Dionysio Calucci <dionysio@vr-zone.com>
-To: linux-kernel@vger.kernel.org
-Subject: bondind 6 NICs
-Reply-To: dionysio@vr-zone.com
-X-Originating-Ip: [213.16.155.15]
-Message-Id: <20021009204920.6F0B74483@sitemail.everyone.net>
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 09 Oct 2002 21:52:52 +0100
+Message-ID: <19506.1034196772@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i achieved in bonding four NICs in every computer, but i cannot bond six NICs. The computer boots OK but it freezes when i start using the network.
-I use a Compex RE100ATX NIC with the 8139too driver. BTW when I use 4 Compex NICs and 2 3COM 905CX-TX-M i can bond 6 NICs. I use the MMIO mode of the above driver. There must be something wrong with the driver.
+
+bcollins@debian.org said:
+>  Without the info concerning the file revs being affected, it's pretty
+> useless for me. I can actually just use that info and pull diffs
+> locally from my repo via sccs.
+
+We can do that. Worst case, someone needs to teach me enough sed to grok 
+the 'bk export -tpatch' output, find the line matching
+'^# This patch contains the following deltas:$' and spew output from that 
+till the first line matching '^#$'. Ideally, there'll be an easier 
+way of getting the info from bitkeeper though.
+
+Oh, and would anyone mind if, after feeding the mail through diffstat and 
+seeing zero lines of change, I aborted sending the mail?
+
+Further criticism of the scripts will only be accepted in diff -u form 
+unless you have an excuse at least as good as having been told personally 
+by Larry that you're not allowed to use BitKeeper.
+
+CVSROOT=:pserver:anoncvs@cvs.infradead.org:/home/cvs
+grep -q $CVSROOT ~/.cvspass || ( echo "$CVSROOT Ay=0=h<Z" >> ~/.cvspass )
+cvs -d $CVSROOT co bkexport
+
+--
+dwmw2
 
 
-cat /proc/ioports
----------------------------------------------------
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-03c0-03df : vga+
-0cf8-0cff : PCI conf1
-5000-500f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-6000-607f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-a000-afff : PCI Bus #01
-  a000-a0ff : ATI Technologies Inc Radeon VE QY
-b400-b41f : VIA Technologies, Inc. UHCI USB
-  b400-b41f : usb-uhci
-b800-b81f : VIA Technologies, Inc. UHCI USB (#2)
-  b800-b81f : usb-uhci
-bc00-bcff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C
-  bc00-bcff : 8139too
-c000-c0ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C (#2)
-  c000-c0ff : 8139too
-c400-c4ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C (#3)
-  c400-c4ff : 8139too
-c800-c8ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C (#4)
-  c800-c8ff : 8139too
-cc00-ccff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C (#5)
-  cc00-ccff : 8139too
-d000-d0ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C (#6)
-  d000-d0ff : 8139too
-d400-d407 : CMD Technology Inc PCI0649
-  d400-d407 : ide0
-d800-d803 : CMD Technology Inc PCI0649
-  d802-d802 : ide0
-dc00-dc07 : CMD Technology Inc PCI0649
-e000-e003 : CMD Technology Inc PCI0649
-e400-e40f : CMD Technology Inc PCI0649
-  e400-e407 : ide0
-  e408-e40f : ide1
-
-cat /proc/interrupts
----------------------------------------------------
-           CPU0       
-  0:     806493          XT-PIC  timer
-  1:       3618          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  8:          1          XT-PIC  rtc
- 10:     153058          XT-PIC  eth1
- 11:     153169          XT-PIC  eth0
- 12:     161560          XT-PIC  PS/2 Mouse
- 14:     153721          XT-PIC  eth2
- 15:     304568          XT-PIC  ide0, usb-uhci, usb-uhci, eth3
-NMI:          0 
-ERR:          0
-
-_____________________________________________________________
-Select your own custom email address for FREE! Get you@yourchoice.com w/No Ads, 6MB, POP & more! http://www.everyone.net/selectmail?campaign=tag

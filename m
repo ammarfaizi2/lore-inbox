@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265146AbTLKQRr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 11:17:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265147AbTLKQRr
+	id S265139AbTLKQPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 11:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265145AbTLKQPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 11:17:47 -0500
-Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:40657 "EHLO
-	links.magenta.com") by vger.kernel.org with ESMTP id S265146AbTLKQRo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 11:17:44 -0500
-Date: Thu, 11 Dec 2003 11:17:41 -0500
-From: moth@magenta.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Linux 2.6.0-test11 only lets me use 1GB out of 2GB ram.
-Message-ID: <20031211111741.H28449@links.magenta.com>
-References: <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <3FD801B3.7080604@wmich.edu> <20031211054111.GX8039@holomorphy.com> <20031211094148.G28449@links.magenta.com> <20031211150011.GF8039@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031211150011.GF8039@holomorphy.com>; from wli@holomorphy.com on Thu, Dec 11, 2003 at 07:00:11AM -0800
+	Thu, 11 Dec 2003 11:15:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59589 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265139AbTLKQPY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 11:15:24 -0500
+Date: Thu, 11 Dec 2003 08:15:18 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org
+Subject: Re: cdrecord hangs my computer
+In-Reply-To: <20031211125608.GG7599@suse.de>
+Message-ID: <Pine.LNX.4.58.0312110807250.2267@home.osdl.org>
+References: <3FD444DD.4080206@torque.net> <20031211125608.GG7599@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 11, 2003 at 07:00:11AM -0800, William Lee Irwin III wrote:
-> You should probably ignore this thread. It's probably not relevant to
+
+
+On Thu, 11 Dec 2003, Jens Axboe wrote:
+>
+> What makes you say that Linux has a block-centric IO architecture? 2.6
+> block io layer is quite happy to do byte-granularity SCSI commands for
 > you.
 
-Ok, thanks.  My mistake.
+Indeed.
 
-> > [In my fantasies, I was thinking that the system came up with only 1GB of
-> > the memory easily usable, and that the lack of support for my hardware
-> > meant that it couldn't be properly reconfigured.  But I recognize that
-> > I haven't spent the time researching this to see if in fact this is
-> > the case.]
-> 
-> Highmem support gets you this on ia32. Other architectures can support it
-> with less overhead.
+I don't think some people really _realize_ how much cleaner and generic
+the generic block layer is compared to SCSI.
 
-Are there docs on this?
+Yes, we call it "block layer" for historical reasons, but the fact is,
+it's a "packet command" layer with knowledge of blocking (ie the merging
+and sorting code has the ability to merge packets that are marked as
+mergeable and fit certain criteria).
 
-> > I am in the process of bringing up an cross compilation environment for
-> > amd64 -- I need to do that anyways -- and I'll try building a real 64
-> > bit kernel to see if that helps any.  If that doesn't, I guess I'll try
-> > a couple 4G highmem kernels (one 64 bit, one 32 bit).  If nothing else,
-> > that will eat up some time...
-> 
-> If you have such a cpu why are you bothering with highmem (or wondering
-> if > 2GB is supported)?
+And the reason it is so much superior to SCSI is that it's designed to be
+generic enough that it doesn't _care_ what the device is. The generic
+block layer can work with MD, with floppy disks, with traditional SCSI
+devices, and it just _works_.
 
-I'm not wondering if > 2GB is supported.  I'm trying to get 2GB
-to work (and I'm having a problem -- perhaps because I believe
-Documentation/memory.txt doesn't cover the issues I'm facing).
+The block layer doesn't have any silly assumptions about what it is
+talking to, although it has some helper functions that are directly aimed
+at a block device that implements a SCSI-like packet command set. But they
+literally are helper functions - the block layer does not force your
+floppy device to pretend that it is some kind of strange SCSI disk when it
+isn't.
 
-I've not yet bothered with highmem, but I will if building a 64 bit
-kernel doesn't get me access to 2GB.
-
-Does that answer your question?
-
-Thanks,
-
--- 
-Raul
+			Linus

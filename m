@@ -1,92 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbRGLWzK>; Thu, 12 Jul 2001 18:55:10 -0400
+	id <S266550AbRGLXnX>; Thu, 12 Jul 2001 19:43:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266416AbRGLWzB>; Thu, 12 Jul 2001 18:55:01 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:20035 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S261173AbRGLWyx>; Thu, 12 Jul 2001 18:54:53 -0400
-Date: Fri, 13 Jul 2001 00:55:01 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: lvm-devel@sistina.com, Andi Kleen <ak@suse.de>,
-        Lance Larsh <llarsh@oracle.com>,
-        Brian Strand <bstrand@switchmanagement.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [lvm-devel] Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
-Message-ID: <20010713005501.J19011@athlon.random>
-In-Reply-To: <20010712114512.J779@athlon.random> <200107121704.f6CH4d6j027383@webber.adilger.int> <20010712201819.C19011@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010712201819.C19011@athlon.random>; from andrea@suse.de on Thu, Jul 12, 2001 at 08:18:19PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S266897AbRGLXnN>; Thu, 12 Jul 2001 19:43:13 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:24334 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S266550AbRGLXnF>; Thu, 12 Jul 2001 19:43:05 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Pavel Machek <pavel@suse.cz>, Dan Maas <dmaas@dcine.com>
+Subject: Re: VM Requirement Document - v0.0
+Date: Fri, 13 Jul 2001 01:46:54 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <fa.jprli0v.qlofoc@ifi.uio.no> <002501c104f4/mnt/sendme701a8c0@morph> <20010709121736.B39@toy.ucw.cz>
+In-Reply-To: <20010709121736.B39@toy.ucw.cz>
+MIME-Version: 1.0
+Message-Id: <0107130146540H.00409@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 12, 2001 at 08:18:19PM +0200, Andrea Arcangeli wrote:
-> On Thu, Jul 12, 2001 at 11:04:39AM -0600, Andreas Dilger wrote:
-> > Note that your current patch is broken by the use of rwsems, because
-> > _pe_lock also protects the _pe_requests list, which you modify under
-> > up_read() (you can't upgrade a read lock to a write lock, AFAIK), so
-> > you always need a write lock whenever you get _pe_lock.  With my changes
-> > there will be very little contention on _pe_lock, as it is off the fast
-> > path and only held for a few asm instructions at a time.
-> 
-> Yes, there's a race condition when people moves PV around, thanks for
-> noticing it.
+On Monday 09 July 2001 14:17, Pavel Machek wrote:
+> > Possibly stupid suggestion... Maybe the interactive/GUI programs
+> > should wake up once in a while and touch a couple of their pages?
+> > Go too far with this and you'll just get in the way of performance,
+> > but I don't think it would hurt to have processes waking up every
+> > couple of minutes and touching glibc, libqt, libgtk, etc so they
+> > stay hot in memory... A very slow incremental "caress" of the
+> > address space could eliminate the
+> > "I-just-logged-in-this-morning-and-dammit-everything-has-been-paged
+> >-out" problem.
+>
+> Ugh... Ouch.... Ugly, indeed.
+>
+> What you might want to do is
+>
+> while true; do
+> cat /usr/lib/libc* > /dev/null; sleep 1m
+> cat /usr/lib/qt* > /dev/null; sleep 1m
+> ...
+> done
+>
+> running on your system...
 
-While merging your patch that was supposed to fix the "race" in my
-patch, I had a closer look and the whole design behind _pe_lock thing
-seems totally broken and it can race since the first place.
+90%+ of what you touch that way is likely to be outside your working 
+set, and only the libraries get pre-loaded, not the application code or 
+data.  An approach where the application 'touches itself' has more 
+chance of producing a genuine improvement in response, but is that 
+really what we want application programmers spending their time 
+writing?  Not to mention the extra code bloat and maintainance overhead.
 
-With the current design of the pe_lock_req logic when you return from
-the ioctl(PE_LOCK) syscall, you never have the guarantee that all the
-in-flight writes are commited to disk, the
-fsync_dev(pe_lock_req.data.lv_dev) is just worthless, there's an huge
-race window between the fsync_dev and the pe_lock_req.lock = LOCK_PE
-where whatever I/O can be started without you fiding it later in the
-_pe_request list. Even despite of that window we don't even wait the
-requests running just after the lock test to complete, the only lock we
-have is in lvm_map, but we should really track which of those bh are
-been committed successfully to the platter before we can actually copy
-the pv under the lvm from userspace.
+Maybe there are a some applications out there - perhaps a database that 
+for some reason needs to minimize its latency - where the effort is 
+worth it, but they're few and far between.  IMHO, only a generic 
+facility in the operating system is going to result in anything that's 
+worth the effort to implement it.
 
-If the logic would been sane, your patch would also been ok
-(besides the C breakage of the missing volatile but we abuse gcc this
-way in other parts of the kernel too after all).
+What would be needed is some kind of memory of swapped out process 
+pages so that after one application terminates some pages of another, 
+possibly idle process could be read back in.  Naturally, this would 
+only be done if the system resources were otherwise unused.  This 
+optimization in the same category as readahead - it serves to reduce 
+latency - but it provides a benefit only in one specific circumstance.  
+On the other hand, the place where it does improve things is highly 
+visible, so I don't know, it might be worth trying some experiments 
+here.  Not now though, a mature, well-understood vm system is a 
+prerequisite.
 
-Your patch just makes much more obvious how the logic cannot be correct,
-since you just do a plain lockless cmpl on a word in a fast path and the
-other end (pe_lock()) will never know what's going on with such request
-any longer.
+Well, I just thought of one relatively simple thing that could be done 
+in the desktop - redraw the screen after a big app exits and the system 
+is otherwise idle.  That at least would page some bitmaps back in and 
+touch some drawing methods.  The responsibility for detecting the 
+relevant condition would lie with the OS and there would be some 
+as-yet-undefined mechanism for notifying the desktop.
 
-Of course the removal of the below crap in your patch was fine too:
+This is firmly in the flight-of-fancy category.  What would be real and 
+worth doing right now is for some application developers to profile 
+their wonderful creations and find out why they're touching so darn 
+much memory.  Who hasn't seen their system go into a frenzy as the 
+result of bringing up a simple configuration dialog in KDE?  Or 
+right-clicking one of the window buttons in Gnome?  It's uncalled for, 
+a little effort on that front would make the restart latency problem 
+mostly go away.
 
--               pe_lock_req = new_lock;
--
--               down(&_pe_lock);
--               pe_lock_req.lock = UNLOCK_PE;
--               up(&_pe_lock);
--
-
-the write of pe_lock_req without a down() was an additional race
-condition too per se, the lvm_map side in beta7 is reading uncoherent
-informations caming from such unlocked copy.
-
-So in short nobody should ever had moved PV around with lvm beta7 with
-writes going on since the first place due various races in beta7.
-
-I think the whole pv_move logic needs to be redesigned and rewritten, if
-you could rewrite it and send patches (possibly also against beta7 if
-a new lvm release is not scheduled shortly) that would be more than
-welcome! At the moment those pv_move races are lower priority for me (I
-think it's not a showstopper even if the user is required to stop the db
-a few seconds while moving PV around to upgrading its hardware), the lvm
-2.4 slowdown during production usage was a showstopper instead but the
-slowdown should be just fixed and that was the first prio.
-
-Maybe I'm missing something. Comments?
-
-Andrea
+--
+Daniel

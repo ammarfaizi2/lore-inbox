@@ -1,81 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbTILSc6 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261800AbTILSc6 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 12 Sep 2003 14:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbTILSbk
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbTILSbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 14:31:40 -0400
-Received: from ivoti.terra.com.br ([200.176.3.20]:51866 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S261807AbTILSbV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 14:31:21 -0400
-Message-ID: <3F621160.5020502@terra.com.br>
-Date: Fri, 12 Sep 2003 15:33:04 -0300
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-MIME-Version: 1.0
-To: Felipe W Damasio <felipewd@terra.com.br>
-Cc: rusty@rustcorp.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kernel/futex.c: Uneeded memory barrier
-References: <3F620E61.4080604@terra.com.br>
-In-Reply-To: <3F620E61.4080604@terra.com.br>
-Content-Type: multipart/mixed;
- boundary="------------020207060203010307060009"
+	Fri, 12 Sep 2003 14:31:50 -0400
+Received: from ns.suse.de ([195.135.220.2]:24204 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261800AbTILSah (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 14:30:37 -0400
+Date: Fri, 12 Sep 2003 20:29:36 +0200
+From: Andi Kleen <ak@suse.de>
+To: jbarnes@sgi.com (Jesse Barnes)
+Cc: thockin@hockin.org, linux-kernel@vger.kernel.org
+Subject: Re: Memory mapped IO vs Port IO
+Message-Id: <20030912202936.2abdaf85.ak@suse.de>
+In-Reply-To: <20030912182430.GA1043@sgi.com>
+References: <20030911192550.7dfaf08c.ak@suse.de.suse.lists.linux.kernel>
+	<1063308053.4430.37.camel@huykhoi.suse.lists.linux.kernel>
+	<20030912162713.GA4852@sgi.com.suse.lists.linux.kernel>
+	<20030912174807.GA629@sgi.com.suse.lists.linux.kernel>
+	<p73y8wtlwf0.fsf@oldwotan.suse.de>
+	<20030912111148.A15308@hockin.org>
+	<20030912182430.GA1043@sgi.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020207060203010307060009
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 12 Sep 2003 11:24:30 -0700
+jbarnes@sgi.com (Jesse Barnes) wrote:
 
-	It is easier to review the patch if you can actually read the patch ;)
+> On Fri, Sep 12, 2003 at 11:11:48AM -0700, Tim Hockin wrote:
+> > On Fri, Sep 12, 2003 at 08:00:03PM +0200, Andi Kleen wrote:
+> > > jbarnes@sgi.com (Jesse Barnes) writes:
+> > > 
+> > > > Ok, Andi asked for benchmarks, so I ran some.  Let this should be a
+> > > > lesson on why you shouldn't use port I/O :)  I ran these on an SGI Altix
+> > > > w/900 MHz McKinley processors.
+> > > > 
+> > > > Just straight calls to the routines (all of these are based on the
+> > > > average of 100 iterations):
+> > > >   writeq(val, reg) time: 64 cycles
+> > > >   outl(val, reg) time: 2126 cycles
+> > >                          ^^^^^
+> > > > 
+> > > > A simple branch:
+> > > >   if (use_mmio)
+> > > > 	writeq(val, reg) time: 132 cycles
+> > > >   else
+> > > > 	outl(val, reg) time: 1990 cycles
+> > >                              ^^^^^
+> > > Something seems to be wrong in your numbers.
+> > > 
+> > > Surely the outl in the if () cannot be faster than the pure outl() ?
+> > 
+> > Also - a perhaps more useful test is a write followed by a read.
+> 
+> Well, someone else will have to run that test.  On Altix, a read() is
+> freakishly expensive, and I'm not really interested in showing everyone
+> how bad it is ;)
 
-Felipe
+I guess the read will be very bad everywhere, and the PIO inl even worse.
 
-Felipe W Damasio wrote:
->     Hi Rusty,
-> 
->     Patch against 2.6-test5.
-> 
->     Kills an unneeded set_current_state after schedule_timeout, since it 
-> already guarantees that the task will be TASK_RUNNING.
-> 
->     Also, when setting the state to TASK_RUNNING, isn't that memory 
-> barrier unneeded? Patch removes this memory barrier too.
-> 
->     If it looks good, please consider applying.
-> 
->     Thanks.
-> 
-> Felipe
-> 
-
---------------020207060203010307060009
-Content-Type: text/plain;
- name="futex-state.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="futex-state.patch"
-
---- linux-2.6.0-test5/kernel/futex.c.orig	2003-09-12 15:14:42.000000000 -0300
-+++ linux-2.6.0-test5/kernel/futex.c	2003-09-12 15:14:56.000000000 -0300
-@@ -381,13 +381,12 @@
- 		 * We were woken already.
- 		 */
- 		spin_unlock(&futex_lock);
--		set_current_state(TASK_RUNNING);
-+		__set_current_state(TASK_RUNNING);
- 		return 0;
- 	}
- 
- 	spin_unlock(&futex_lock);
- 	time = schedule_timeout(time);
--	set_current_state(TASK_RUNNING);
- 
- 	/*
- 	 * NOTE: we don't remove ourselves from the waitqueue because
-
---------------020207060203010307060009--
-
+-Andi

@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278629AbRJSTfT>; Fri, 19 Oct 2001 15:35:19 -0400
+	id <S278642AbRJSUFK>; Fri, 19 Oct 2001 16:05:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278627AbRJSTe7>; Fri, 19 Oct 2001 15:34:59 -0400
-Received: from marine.sonic.net ([208.201.224.37]:16401 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S278625AbRJSTez>;
-	Fri, 19 Oct 2001 15:34:55 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Fri, 19 Oct 2001 12:35:23 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Mike Castle <dalgoda@ix.netcom.com>
-Subject: Re: e2fsck, LVM and 4096-char block problems
-Message-ID: <20011019123523.A10770@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011019132513.F402@turbolinux.com>
-User-Agent: Mutt/1.3.18i
+	id <S278643AbRJSUFB>; Fri, 19 Oct 2001 16:05:01 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:44710 "EHLO
+	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S278642AbRJSUEm>; Fri, 19 Oct 2001 16:04:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: [RFC] New Driver Model for 2.5
+Date: Fri, 19 Oct 2001 22:07:39 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.33.0110191108590.17647-100000@osdlab.pdx.osdl.net> <15uerh-0NbBEeC@fmrl04.sul.t-online.com> <20011019122101.G2467@mikef-linux.matchmail.com>
+In-Reply-To: <20011019122101.G2467@mikef-linux.matchmail.com>
+Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <15uft5-12MXk8C@fmrl04.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 19, 2001 at 01:25:13PM -0600, Andreas Dilger wrote:
-> On Oct 19, 2001  11:59 -0700, Mike Castle wrote:
-> > Using Linus' 2.4.10, unpatched.  (Perhaps I need to patch the LVM stuff ;-)
-> 
-> Very bad combination.  Don't use 2.4.10, don't use stock Linus LVM.
+On Friday 19 October 2001 21:21, you wrote:
+> > For example for harddisks. You usually want them to be mounted in the
+> > same directory.
+> When is /etc/fstab going to support this?
 
-I hadn't built 2.4.12 yet.
+You can use the device ids to provide stable symlinks, then /etc/fstab 
+shouldn't be a problem. Or you rewrite mount to support it. Or you do it in 
+the kernel with a user-space helper: when a new device is connected its ID is 
+sent to some user-space app, and the user-space app then assigns a minor 
+number and devfs name to the node.
 
-What needs to be done to get recent LVM into stock kernel?
+IMHO using the path of a file in /dev to identify a device node does not work 
+in a hotplugging environment. You need this to support existing apps, but the 
+only way to be sure that you always get the same device is to use device IDs. 
+You could encode that device id in the node's path or use the path as a 
+moniker for the device id (the symlink solution does this), but you need to 
+have more information about the device than it's minor number (the X in 
+/dev/lpX).
 
-I feel like it's the 2.2 RAID stuff all over again.
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+> >Or for ethernet adapters:
+> > because each is connected to a different network, so you need to assign
+> > different IP addresses to them.
+> I haven't seen anything assign ethX assign a certain order, except for
+> ordered module loading, and then if there are multiple devices with the
+> same driver, the order is chosen by bus scanning order, or module option.
+
+Ok, but I think no one doubts that it is a bad idea to assign ethX 
+semi-randomly. Basically this is the same problem as with device files, only 
+in a different namespace.
+
+
+> Does anyone know if devfs will, or has any plans to support any of the
+> above features?
+
+The device registry (www.tjansen.de/devreg) patches devfs to allow the things 
+described above though.
+
+bye...
+

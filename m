@@ -1,156 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262465AbTCRPnm>; Tue, 18 Mar 2003 10:43:42 -0500
+	id <S262480AbTCRPkQ>; Tue, 18 Mar 2003 10:40:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262471AbTCRPnm>; Tue, 18 Mar 2003 10:43:42 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:40175 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S262465AbTCRPni>; Tue, 18 Mar 2003 10:43:38 -0500
-Message-ID: <A5974D8E5F98D511BB910002A50A66470580D6D7@hdsmsx103.hd.intel.com>
-From: "Cress, Andrew R" <andrew.r.cress@intel.com>
-To: "'Terry Barnaby'" <terry@beam.ltd.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Reproducible SCSI Error with Adaptec 7902 & ST336607LW
-Date: Tue, 18 Mar 2003 07:58:08 -0800
+	id <S262482AbTCRPkQ>; Tue, 18 Mar 2003 10:40:16 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:44930 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262480AbTCRPkP>;
+	Tue, 18 Mar 2003 10:40:15 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.65-mm1
+References: <20030318031104.13fb34cc.akpm@digeo.com>
+	<87adfs4sqk.fsf@lapper.ihatent.com>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 18 Mar 2003 16:51:11 +0100
+In-Reply-To: <87adfs4sqk.fsf@lapper.ihatent.com>
+Message-ID: <87bs08vfkg.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terry,
+Alexander Hoogerhuis <alexh@ihatent.com> writes:
 
->From your description in (1) below it sounds like the disk firmware did go
-out to lunch.
-Disk firmware is complex, and there are always possibilities that it can
-hang/crash so that it won't respond, especially since a new disk model comes
-out every 9-12 months.  
+> Andrew Morton <akpm@digeo.com> writes:
+> >
+> > [SNIP]
+> >
+> 
+> [SNIP MYSELF]
+>
 
-To get a disk firmware problem escalated you will need to gather some
-evidence:
-  1) The current firmware level (you have this already)
-  2) The mode pages of the drive (you can use sgmode or other tools to
-get/set these)
-     See http://scsirastools.sourceforge.net for sgmode
-     One thing to check, is whether SMART on or off has an effect (page 1c
-0a 88 means completely off).  
-     SMART processing on the drive runs in background on the disk and can
-cause strange errors.
-  3) A SCSI trace of the problem (requires a SCSI analyzer)
-     If you don't have a SCSI analyzer, the bug conditions would have to be
-very well-defined so 
-     that it could be reproduced readily by Seagate.
+Oh well, I've had one hang within 10 minutes of booting, came back and
+the machine was unresponsive (mouse and keyboard under X, unable to
+switch to console). Apart from that I've got two funnies in my boot
+messages:
 
-Hopefully you can devise a workaround by tweaking the disk mode pages, since
-reporting, analyzing, and producing a new disk firmware version would take
-longer.
+PCI: Cannot allocate resource region 0 of device 02:0e.2
 
-Andy
+THe device is my USB hub in the laptop:
 
------Original Message-----
-From: Terry Barnaby [mailto:terry@beam.ltd.uk] 
-Sent: Tuesday, March 18, 2003 4:38 AM
-To: Cress, Andrew R
-Cc: 'Ingo Oeser'; Michael Madore; Justin T. Gibbs;
-linux-kernel@vger.kernel.org
-Subject: Re: Reproducible SCSI Error with Adaptec 7902
+lapper root # lspci -vv -s  02:0e.2
+02:0e.2 USB Controller: NEC Corporation USB 2.0 (rev 02) (prog-if 20 [EHCI])
+        Subsystem: Compaq Computer Corporation: Unknown device 004a
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (4000ns min, 8500ns max), cache line size 20
+        Interrupt: pin C routed to IRQ 10
+        Region 0: Memory at 30000000 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+ 
+And this one when probing for my PCIC:
 
+Intel PCIC probe: PNP <6>pnp: res: The PnP device '00:0f' is already
+active.
 
-Hi Andy,
+And related to the video trouble, I fond this in the bootlog:
 
-We have just updated to the latest driver 1.3.4. This has stopped the
-drive locking up, but we are now getting nasty SCSI error reports
-in /var/log/messages. Will continue to delve into this.
+agpgart: Putting AGP V2 device at 00:00.0 into 1x mode
+agpgart: Putting AGP V2 device at 01:00.0 into 1x mode
 
-However, what ever the fault that triggers our drive to lock-up, the
-drive certainly locks up. It locks up with LED on and will not respond
-to a SCSI bus reset. We need to power cycle the system to get the drive
-working again. We have tried two Seagate ST336607LW drives both exibit
-the same behaviour. It appears to only happen when Linux is running in
-SMP mode and when the drive is running in packetized mode.
+lapper root # lspci
+00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host Bridge (rev 04)
+00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge (rev 04)
 
-So there is certainly the possibility of the Seagate ST336607LW not 
-responding to resets. This may be a firmware fault so we have talked
-to Seagate about the issue. The statement is the result of our direct 
-question:
+With 2.4 I used 4x AGP with X with no hassle.
 
-> I realise that the problem could be due to the Linux SCSI driver, the
-Motherboard SCSI controller, the SCSI lead or the drive. We are used to
-> tracking down such nasty problems. However, I have one firm pointer:
-> 
-> 1. Once the drive is locked up, with its LED on, a SCSI bus reset will
->     not clear the drive. A full poweroff/poweron cycle is needed.
-> 
-> So I ask again, is there a case where the drive will not respond to a
-> SCSI bus reset ? 
-
-Is there any way of getting this information to higher level Seagate 
-support ?
-
-Terry
-
-
-Cress, Andrew R wrote:
-> Ingo,
-> 
-> Our testing with that drive (same firmware, using same aic7902 chipset)
-has
-> not shown any problems like this.  However, we were using a later aic79xx
-> driver versions (1.3.x).  That upgrade should be the first step.
-> 
-> I wouldn't get too excited about the statement by a level-1 Seagate
-support
-> guy, probably just a blanket statement when they want to disclaim
-> responsibility.  
-> 
-> Andy
-> 
-> -----Original Message-----
-> From: Ingo Oeser [mailto:ingo.oeser@informatik.tu-chemnitz.de] 
-> Sent: Saturday, March 15, 2003 8:12 AM
-> To: Terry Barnaby
-> Cc: Michael Madore; Justin T. Gibbs; linux-kernel@vger.kernel.org
-> Subject: Re: Reproducible SCSI Error with Adaptec 7902
-> 
-> 
-> On Fri, Mar 14, 2003 at 04:17:59PM +0000, Terry Barnaby wrote:
-> 
->>The Seagate ST336607LW has firmware: 0004.
->>Seagate have stated to me that this is the latest.
->>They have also stated to me:
->>
->>  Issuing an unrecognized or illegal command to the drive can cause the
->>  drive to go into a hardware fault mode where it will no longer respond,
->>  and may or may not respond to a SCSI BUS reset. It seems, in this case,
->>  the drive will no longer respond to any commands issued by the
->>  controller.
->>
->>Is this "feature" now common on SCSI drives ????
-> 
-> 
-> Could we add a KERN_WARNING printk in sd.c quoting/referencing
-> this message on inquiry detecting this device? 
-> 
-> So sysadmins who are used to SCSI being robust could return the
-> drive to their vendors in exchange to a drive working along the
-> SCSI specs after reading this message.
-> 
-> Thanks in the name of the sysadmins.
-> 
-> Regards
-> 
-> Ingo Oeser
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+mvh,
+A
 
 -- 
-Dr Terry Barnaby                     BEAM Ltd
-Phone: +44 1454 324512               Northavon Business Center, Dean Rd
-Fax:   +44 1454 313172               Yate, Bristol, BS37 5NH, UK
-Email: terry@beam.ltd.uk             Web: www.beam.ltd.uk
-BEAM for: Visually Impaired X-Terminals, Parallel Processing, Software
-                       "Tandems are twice the fun !"
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

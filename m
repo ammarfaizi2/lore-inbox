@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263027AbUENWbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbUENWg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263027AbUENWbv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 18:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUENWbv
+	id S263040AbUENWg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 18:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUENWg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 18:31:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:65434 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263027AbUENWbu (ORCPT
+	Fri, 14 May 2004 18:36:58 -0400
+Received: from mail.kroah.org ([65.200.24.183]:19664 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263040AbUENWg5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 18:31:50 -0400
-Date: Fri, 14 May 2004 15:34:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
-Message-Id: <20040514153407.0879b930.akpm@osdl.org>
-In-Reply-To: <1084571316.31315.35.camel@gaston>
-References: <20040513145640.GA3430@dreamland.darkstar.lan>
-	<1084488901.3021.116.camel@gaston>
-	<20040514164154.GA3852@dreamland.darkstar.lan>
-	<1084571316.31315.35.camel@gaston>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 14 May 2004 18:36:57 -0400
+Date: Fri, 14 May 2004 14:59:27 -0700
+From: Greg KH <greg@kroah.com>
+To: jdgaston@snoqualmie.dp.intel.com
+Cc: linux-kernel@vger.kernel.org, jason.d.gaston@intel.com,
+       steven.carbonari@intel.com, dely.l.sy@intel.com,
+       david.h.patterson@intel.com
+Subject: Re: [PATCH] ICH6/6300ESB i2c support
+Message-ID: <20040514215927.GC16000@kroah.com>
+References: <200405121952.i4CJqNSc009474@snoqualmie.dp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405121952.i4CJqNSc009474@snoqualmie.dp.intel.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->
+On Wed, May 12, 2004 at 12:52:23PM -0700, jdgaston@snoqualmie.dp.intel.com wrote:
 > 
-> > There are 2 arrays at the end of the struct:
-> > 
-> > struct radeon_regs {
-> >         ....
-> >         u32             palette[256];
-> >         u32             palette2[256];
-> > };
-> > 
-> > they take 2KB alone and AFAICS they are not used anywhere. Maybe they
-> > can be removed?
-> 
-> They are the result of some work in progress on my side. I started
-> adding the entire card state to the structure, but never finished.
-> 
-> I'll probably go back on that when I find time though.
+> Please let me know if there are any questions or if there are any
+> changes needed.  Greg k-h, please apply patch if accaptable.
 
-Can we remove them for now?  People's machines are crashing...
+Applied to my trees, thanks.
+
+greg k-h

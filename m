@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132772AbRDURni>; Sat, 21 Apr 2001 13:43:38 -0400
+	id <S132785AbRDUR4b>; Sat, 21 Apr 2001 13:56:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132771AbRDURn2>; Sat, 21 Apr 2001 13:43:28 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:6159 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132772AbRDURnO>; Sat, 21 Apr 2001 13:43:14 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
+	id <S132784AbRDUR4V>; Sat, 21 Apr 2001 13:56:21 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:23311 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S132786AbRDUR4D>;
+	Sat, 21 Apr 2001 13:56:03 -0400
+Date: Sat, 21 Apr 2001 14:51:25 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: try_to_swap_out() deactivating pages w. count > 2
-Date: 21 Apr 2001 10:42:57 -0700
-Organization: A poorly-installed InterNetNews site
-Message-ID: <9bsgr1$hcd$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0104211741020.346-100000@mikeg.weiden.de> <Pine.LNX.4.21.0104211336390.1685-100000@imladris.rielhome.conectiva>
+In-Reply-To: <200104211742.KAA17813@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0104211450560.1685-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.21.0104211336390.1685-100000@imladris.rielhome.conectiva>,
-Rik van Riel  <riel@conectiva.com.br> wrote:
->
->What I _am_ worried about is the fact that we do this to pages with
->a really high page age. These things are in active use and cannot
->be swapped out any time soon, yet we do claim swap space for it ...
+On Sat, 21 Apr 2001, Linus Torvalds wrote:
+> In article <Pine.LNX.4.21.0104211336390.1685-100000@imladris.rielhome.conectiva>,
+> Rik van Riel  <riel@conectiva.com.br> wrote:
+> >
+> >What I _am_ worried about is the fact that we do this to pages with
+> >a really high page age. These things are in active use and cannot
+> >be swapped out any time soon, yet we do claim swap space for it ...
+> 
+> Ehh... And if we didn't do that, then how could they every become less
+> active?
+> 
+> We should _absolutely_ do the swap space reclaiming without looking at
+> the page count.
 
-Ehh... And if we didn't do that, then how could they every become less
-active?
+page->age != page->count
 
-We should _absolutely_ do the swap space reclaiming without looking at
-the page count. If we don't, you will never free those pages, and I have
-a trivial exploit for you that will basically mlock all pages in memory.
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-try_to_swap_out() _absolutely_ does the right thing.  Also note how it
-will need to allocate the swap space backing store only once. 
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
-		Linus

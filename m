@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287134AbSALPzM>; Sat, 12 Jan 2002 10:55:12 -0500
+	id <S287139AbSALQEZ>; Sat, 12 Jan 2002 11:04:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287139AbSALPyx>; Sat, 12 Jan 2002 10:54:53 -0500
-Received: from ns.suse.de ([213.95.15.193]:37127 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287134AbSALPyp>;
-	Sat, 12 Jan 2002 10:54:45 -0500
-Date: Sat, 12 Jan 2002 16:54:43 +0100
-From: Andi Kleen <ak@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org,
-        Manfred Spraul <manfreds@colorfullife.com>
-Subject: Re: Q: behaviour of mlockall(MCL_FUTURE) and VM_GROWSDOWN segments
-Message-ID: <20020112165443.A13179@wotan.suse.de>
-In-Reply-To: <3C3F3C7F.76CCAF76@colorfullife.com.suse.lists.linux.kernel> <3C3F4FC6.97A6A66D@zip.com.au.suse.lists.linux.kernel> <p73r8ow4dd7.fsf@oldwotan.suse.de> <20020112163332.M1482@inspiron.school.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020112163332.M1482@inspiron.school.suse.de>
-User-Agent: Mutt/1.3.22.1i
+	id <S287141AbSALQEO>; Sat, 12 Jan 2002 11:04:14 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:46096 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287139AbSALQDz>;
+	Sat, 12 Jan 2002 11:03:55 -0500
+Date: Sat, 12 Jan 2002 14:03:43 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Writeout in recent kernels/VMs poor compared to last -ac
+In-Reply-To: <009e01c19b7c$463457d0$02c8a8c0@kroptech.com>
+Message-ID: <Pine.LNX.4.33L.0201121403040.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 12, 2002 at 04:33:32PM +0100, Andrea Arcangeli wrote:
-> it doesn't (of course depends "what's the right thing"), and that's why
+On Sat, 12 Jan 2002, Adam Kropelin wrote:
 
-I think it does. Allocating all possible in future allocated pages
-is just not possible for VM_GROWSDOWN, because the stack has really 
-no suitable limit (other than rlimits, which are far too big to
-mlock them) 
+> I recently began regularly transferring large (600 MB+) files to my
+> Linux-based fileserver and have noticed what I would characterize as
+> poor writeout behavior under this load. I've done a bit of comparison
+> testing which may help reveal the problem better.
 
-BTW expand_stack seems to have a small bug: it adds to mm->locked_vm
-the complete offset from last vm_start; if it covers more than one page
-the locked_vm value will be too large. 
+> -ac, on the other hand, is very smooth (still a noticeable
+> oscillation, but far more consistent):
 
-> What the current kernel is doing with page faults, is to fault in only
-> the touched pages, not the pages in between as well, this isn't a
-> security concern because the faulted in pages won't be swapped out, but
-> it may matter for some RT app, OTOH the RT apps would better memset the
-> whole stack they need before assuming they won't get page faults, first
-> of all because of all other kernels out there (this is what I mean with
-> a matter of API).
+Thanks for tracking down this bug.  I'll try to find out what
+is causing it and will attempt to fix this problem.
 
-For the stack they can get minor faults anyways when they allocate new
-stack space below ESP. There is no good way to fix that from the kernel; the 
-application has to preallocate its memory on stack. I think it's reasonable
-if it does the same for holes on the stack. 
+regards,
 
--Andi
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

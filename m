@@ -1,107 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264971AbVBDWYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVBDWLO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264971AbVBDWYf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 17:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264721AbVBDWUs
+	id S261961AbVBDWLO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 17:11:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264657AbVBDWGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 17:20:48 -0500
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:523 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id S263185AbVBDWHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 17:07:16 -0500
-Message-ID: <4203F2DB.9010604@gentoo.org>
-Date: Fri, 04 Feb 2005 22:10:35 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 4 Feb 2005 17:06:30 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:6035 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261295AbVBDVvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 16:51:25 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-pm@osdl.org
-Subject: [-mm PATCH] driver model: PM type conversions in drivers/mmc
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------070000070008090008010708"
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CxBbf-000LZh-BG*jgJT72zYQ8.*
+Subject: Re: [patch] 2.6.11-rc3-mm1: fix swsusp with gcc 3.4
+Date: Fri, 4 Feb 2005 22:51:53 +0100
+User-Agent: KMail/1.7.1
+Cc: Adrian Bunk <bunk@stusta.de>, Pavel Machek <pavel@suse.cz>,
+       linux-kernel@vger.kernel.org
+References: <20050204103350.241a907a.akpm@osdl.org> <20050204201135.GD19408@stusta.de>
+In-Reply-To: <20050204201135.GD19408@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502042251.54316.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070000070008090008010708
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Friday, 4 of February 2005 21:11, Adrian Bunk wrote:
+> On Fri, Feb 04, 2005 at 10:33:50AM -0800, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.11-rc2-mm2:
+> >...
+> > +swsusp-do-not-use-higher-order-memory-allocations-on-suspend.patch
+> > 
+> >  swsusp fix
+> >...
+> 
+> This broke compilation with gcc 3.4:
+[-- snip --]
 
-This fixes PM driver model type checking for drivers/mmc.
-Acked by Pavel Machek.
+BTW, it requires the following bugfix, on top of the Adrian's patch.
 
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
+Greets,
+Rafael
 
---------------070000070008090008010708
-Content-Type: text/x-patch;
- name="mmc-pm-type-safety.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mmc-pm-type-safety.patch"
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/mmc/mmc.c linux-dsd/drivers/mmc/mmc.c
---- linux-2.6.11-rc2-mm2/drivers/mmc/mmc.c	2005-02-02 21:54:17.000000000 +0000
-+++ linux-dsd/drivers/mmc/mmc.c	2005-02-02 21:26:44.000000000 +0000
-@@ -884,7 +884,7 @@ EXPORT_SYMBOL(mmc_free_host);
-  *	@host: mmc host
-  *	@state: suspend mode (PM_SUSPEND_xxx)
-  */
--int mmc_suspend_host(struct mmc_host *host, u32 state)
-+int mmc_suspend_host(struct mmc_host *host, pm_message_t state)
- {
- 	mmc_claim_host(host);
- 	mmc_deselect_cards(host);
-diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/mmc/mmci.c linux-dsd/drivers/mmc/mmci.c
---- linux-2.6.11-rc2-mm2/drivers/mmc/mmci.c	2005-02-02 21:54:17.000000000 +0000
-+++ linux-dsd/drivers/mmc/mmci.c	2005-02-02 21:27:17.000000000 +0000
-@@ -603,7 +603,7 @@ static int mmci_remove(struct amba_devic
+--- linux-2.6.11-rc3-mm1/kernel/power/swsusp.c	2005-02-04 22:33:52.000000000 +0100
++++ new/kernel/power/swsusp.c	2005-02-04 22:32:36.000000000 +0100
+@@ -614,9 +614,9 @@
+ 	struct pbe *pbe;
+ 
+ 	while (pblist) {
+-		pbe = pblist + PB_PAGE_SKIP;
+-		pblist = pbe->next;
++		pbe = (pblist + PB_PAGE_SKIP)->next;
+ 		free_page((unsigned long)pblist);
++		pblist = pbe;
+ 	}
  }
  
- #ifdef CONFIG_PM
--static int mmci_suspend(struct amba_device *dev, u32 state)
-+static int mmci_suspend(struct amba_device *dev, pm_message_t state)
- {
- 	struct mmc_host *mmc = amba_get_drvdata(dev);
- 	int ret = 0;
-diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/mmc/pxamci.c linux-dsd/drivers/mmc/pxamci.c
---- linux-2.6.11-rc2-mm2/drivers/mmc/pxamci.c	2005-02-02 21:54:17.000000000 +0000
-+++ linux-dsd/drivers/mmc/pxamci.c	2005-02-02 21:27:33.000000000 +0000
-@@ -558,7 +558,7 @@ static int pxamci_remove(struct device *
- }
- 
- #ifdef CONFIG_PM
--static int pxamci_suspend(struct device *dev, u32 state, u32 level)
-+static int pxamci_suspend(struct device *dev, pm_message_t state, u32 level)
- {
- 	struct mmc_host *mmc = dev_get_drvdata(dev);
- 	int ret = 0;
-diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/mmc/wbsd.c linux-dsd/drivers/mmc/wbsd.c
---- linux-2.6.11-rc2-mm2/drivers/mmc/wbsd.c	2005-02-02 21:54:17.000000000 +0000
-+++ linux-dsd/drivers/mmc/wbsd.c	2005-02-02 21:28:50.000000000 +0000
-@@ -1563,7 +1563,7 @@ static int wbsd_remove(struct device* de
-  */
- 
- #ifdef CONFIG_PM
--static int wbsd_suspend(struct device *dev, u32 state, u32 level)
-+static int wbsd_suspend(struct device *dev, pm_message_t state, u32 level)
- {
- 	DBGF("Not yet supported\n");
- 
-diff -urNpX dontdiff linux-2.6.11-rc2-mm2/include/linux/mmc/host.h linux-dsd/include/linux/mmc/host.h
---- linux-2.6.11-rc2-mm2/include/linux/mmc/host.h	2004-12-24 21:34:58.000000000 +0000
-+++ linux-dsd/include/linux/mmc/host.h	2005-02-02 21:26:34.000000000 +0000
-@@ -98,7 +98,7 @@ extern void mmc_free_host(struct mmc_hos
- #define mmc_priv(x)	((void *)((x) + 1))
- #define mmc_dev(x)	((x)->dev)
- 
--extern int mmc_suspend_host(struct mmc_host *, u32);
-+extern int mmc_suspend_host(struct mmc_host *, pm_message_t);
- extern int mmc_resume_host(struct mmc_host *);
- 
- extern void mmc_detect_change(struct mmc_host *);
 
---------------070000070008090008010708--
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

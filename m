@@ -1,95 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVDDQ1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVDDQeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVDDQ1h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 12:27:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVDDQ1h
+	id S261275AbVDDQeh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 12:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVDDQec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 12:27:37 -0400
-Received: from relay03.roc.ny.frontiernet.net ([66.133.182.166]:57241 "EHLO
-	relay03.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S261269AbVDDQ1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 12:27:33 -0400
-Subject: Re: Software Suspend on Sony Vaio R505E
-From: Aaron Gaudio <prothonotar@tarnation.dyndns.org>
-Reply-To: prothonotar@tarnation.dyndns.org
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1112580660.5797.23.camel@localhost.localdomain>
-References: <1112580660.5797.23.camel@localhost.localdomain>
-Content-Type: multipart/mixed; boundary="=-/WQD3xlFeoeLlsxd9nbv"
-Date: Mon, 04 Apr 2005 12:27:27 -0400
-Message-Id: <1112632048.5797.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+	Mon, 4 Apr 2005 12:34:32 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:2192 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261272AbVDDQeY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 12:34:24 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: [RFC] PCI bridge driver rewrite
+Date: Mon, 4 Apr 2005 09:33:43 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E50240838EA87@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: [RFC] PCI bridge driver rewrite
+Thread-Index: AcU5NBEd9FjV/4sOTZuEK8UhJAbGLw==
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: <ambx1@neo.rr.com>
+Cc: "Greg KH" <gregkh@suse.de>, <linux-kernel@vger.kernel.org>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 04 Apr 2005 16:33:43.0621 (UTC) FILETIME=[10FFCF50:01C53934]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu Feb 24 2005 - 01:33:38 Adam Belay wrote:
 
---=-/WQD3xlFeoeLlsxd9nbv
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+>The basic flow of the new code is as follows:
+>1.) A standard "driver core" driver binds to a bridge device.
+>2.) When "*probe" is called it sets up the hardware and allocates a
+"struct pci_bus".
+>3.) The "struct pci_bus" is filled with information about the detected
+bridge.
+>4.) The driver then registers the "struct pci_bus" with the PCI Bus
+Class.
+>5.) The PCI Bus Class makes the bridge available to sysfs.
+>6.) It then detects hardware attached to the bridge.
+>7.) Each new PCI bridge device is registered with the driver model.
+>8.) All remaining PCI devices are registered with the driver model.
+>
+>+static void pci_enable_crs(struct pci_dev *dev)
+>+{
+>+ u16 cap, rpctl;
+>+ int rpcap = pci_find_capability(dev, PCI_CAP_ID_EXP);
+>+ if (!rpcap)
+>+ return;
+>+
+>+ pci_read_config_word(dev, rpcap + PCI_CAP_FLAGS, &cap);
+>+ if (((cap & PCI_EXP_FLAGS_TYPE) >> 4) != PCI_EXP_TYPE_ROOT_PORT)
+>+ return;
+>+
+>+ pci_read_config_word(dev, rpcap + PCI_EXP_RTCTL, &rpctl);
+>+ rpctl |= PCI_EXP_RTCTL_CRSSVE;
+>+ pci_write_config_word(dev, rpcap + PCI_EXP_RTCTL, rpctl);
+>+}
 
-Ooops! I selected the wrong file to attach. Here is the proper syslog
-attachment...
+Adam,
 
---=-/WQD3xlFeoeLlsxd9nbv
-Content-Disposition: attachment; filename=suspend_log.txt
-Content-Type: text/plain; name=suspend_log.txt; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+We need to coordinate your work with the PCI Express Port bus driver
+that was accepted into the 2.6.x kernel.  The PCI Express Port Bus
+driver claims all PCI-PCI Bridge's which implements PCI Express
+Capability Structure. Please refer to PCIEBUS-HOWTO.txt for why we
+developed PCI Express Port Bus driver to support PCI Express features.
+Your current patch will claim PCI Express root ports, preventing the PCI
+Express Port bus driver from loading.   Given the many advanced features
+of PCI Express a separate bus driver was required.   Can you change the
+patch so it only loads on standard PCI bridges and not PCI Express
+devices?
 
-/var/log/messages:
-Apr  3 13:07:04 localhost kernel: .swsusp: Restoring Highmem
-Apr  3 13:07:04 localhost kernel: ACPI: PCI interrupt 0000:00:02.0[A] -> GSI 9 (level, low) -> IRQ 9
-Apr  3 13:07:06 localhost kernel: ACPI: PCI interrupt 0000:00:1f.1[A]: no GSI
-Apr  3 13:07:07 localhost kernel: ACPI: PCI interrupt 0000:00:1f.5[B] -> GSI 9 (level, low) -> IRQ 9
-Apr  3 13:07:09 localhost kernel: ACPI: PCI interrupt 0000:02:02.0[A] -> GSI 9 (level, low) -> IRQ 9
-Apr  3 13:07:09 localhost kernel: Restarting tasks... done
-Apr  3 13:07:09 localhost kernel: eth1: New link status: Connected (0001)
-Apr  3 13:07:10 localhost kernel: usb 3-1: USB disconnect, address 2
-Apr  3 13:07:10 localhost kernel: sda : READ CAPACITY failed.
-Apr  3 13:07:10 localhost kernel: sda : status=0, message=00, host=1, driver=00
-Apr  3 13:07:10 localhost kernel: sda : sense not available.
-Apr  3 13:07:10 localhost kernel: sda: Write Protect is off
-Apr  3 13:07:10 localhost kernel: sda: assuming drive cache: write through
-Apr  3 13:07:10 localhost kernel: sda : READ CAPACITY failed.
-Apr  3 13:07:10 localhost kernel: sda : status=0, message=00, host=1, driver=00
-Apr  3 13:07:10 localhost kernel: sda : sense not available.
-Apr  3 13:07:10 localhost kernel: sda: Write Protect is off
-Apr  3 13:07:10 localhost kernel: sda: assuming drive cache: write through
-Apr  3 13:07:10 localhost kernel:  sda:<3>scsi0 (0:0): rejecting I/O to device being removed
-Apr  3 13:07:10 localhost kernel: Buffer I/O error on device sda, logical block 0
-Apr  3 13:07:10 localhost kernel: scsi0 (0:0): rejecting I/O to device being removed
-Apr  3 13:07:10 localhost kernel: Buffer I/O error on device sda, logical block 0
-Apr  3 13:07:10 localhost kernel: scsi0 (0:0): rejecting I/O to device being removed
-Apr  3 13:07:10 localhost kernel: Buffer I/O error on device sda, logical block 0
-Apr  3 13:07:10 localhost kernel:  unable to read partition table
-Apr  3 13:07:10 localhost kernel: usb 3-1: new full speed USB device using uhci_hcd and address 3
-Apr  3 13:07:12 localhost kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Apr  3 13:07:12 localhost kernel: eth1: Tx timeout! ALLOCFID=00c0, TXCOMPLFID=00bf, EVSTAT=808b
-Apr  3 13:07:15 localhost kernel: eth1: New link status: Connected (0001)
-Apr  3 13:07:18 localhost kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Apr  3 13:07:18 localhost kernel: eth1: Tx timeout! ALLOCFID=00c0, TXCOMPLFID=00bf, EVSTAT=808b
-Apr  3 13:07:25 localhost kernel: eth1: New link status: Connected (0001)
-Apr  3 13:07:25 localhost kernel: usb 3-1: 05-wait_for_sys timed out on ep0in
-Apr  3 13:07:25 localhost kernel: usb 3-1: khubd timed out on ep0in
-Apr  3 13:07:26 localhost kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Apr  3 13:07:26 localhost kernel: eth1: Tx timeout! ALLOCFID=00c0, TXCOMPLFID=00bf, EVSTAT=808b
-Apr  3 13:07:30 localhost kernel: usb 3-1: khubd timed out on ep0in
-Apr  3 13:07:30 localhost kernel: usb 3-1: string descriptor 0 read error: -110
-Apr  3 13:07:33 localhost NET: /sbin/dhclient-script : updated /etc/resolv.conf
-Apr  3 13:07:35 localhost kernel: usb 3-1: 05-wait_for_sys timed out on ep0in
-Apr  3 13:07:35 localhost hal.hotplug[8361]: timout(10000 ms) waiting for /devices/pci0000:00/0000:00:1d.2/usb3/3-1/3-1:1.0
-Apr  3 13:07:36 localhost hald[4527]: Timed out waiting for hotplug event 785. Rebasing to 786
-Apr  3 13:07:40 localhost kernel: usb 3-1: khubd timed out on ep0in
-Apr  3 13:07:45 localhost kernel: usb 3-1: khubd timed out on ep0in
-Apr  3 13:07:45 localhost kernel: scsi1 : SCSI emulation for USB Mass Storage devices
-Apr  3 13:07:45 localhost kernel: usb 3-1: 05-wait_for_sys timed out on ep0in
-Apr  3 13:07:55 localhost kernel: usb 3-1: hald timed out on ep0in
-Apr  3 13:08:10 localhost kernel: usb 3-1: hald timed out on ep0in
-Apr  3 13:08:10 localhost kernel: usb 3-1: reset full speed USB device using uhci_hcd and address 3
-Apr  3 13:08:30 localhost kernel: usb 3-1: hald timed out on ep0in
-Apr  3 13:08:35 localhost kernel: scsi: Device offlined - not ready after error recovery: host 1 channel 0 id 0 lun 0
-Apr  3 13:08:40 localhost kernel: usb 3-1: hald timed out on ep0in
-
-
---=-/WQD3xlFeoeLlsxd9nbv--
-
+Thanks,
+Long

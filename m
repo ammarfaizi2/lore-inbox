@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275304AbRIZQeI>; Wed, 26 Sep 2001 12:34:08 -0400
+	id <S275312AbRIZQhS>; Wed, 26 Sep 2001 12:37:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275305AbRIZQd6>; Wed, 26 Sep 2001 12:33:58 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:30697 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S275304AbRIZQdn>;
-	Wed, 26 Sep 2001 12:33:43 -0400
-Message-ID: <3BB2036D.A72C1C25@candelatech.com>
-Date: Wed, 26 Sep 2001 09:33:49 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
-X-Accept-Language: en
+	id <S275309AbRIZQg6>; Wed, 26 Sep 2001 12:36:58 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45828 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S275303AbRIZQgx>; Wed, 26 Sep 2001 12:36:53 -0400
+Subject: Re: Binary only module overview
+To: crispin@wirex.com (Crispin Cowan)
+Date: Wed, 26 Sep 2001 17:36:37 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-security-module@wirex.com,
+        linux-kernel@vger.kernel.org, greg@kroah.com (Greg KH)
+In-Reply-To: <3BB10E8E.10008@wirex.com> from "Crispin Cowan" at Sep 25, 2001 04:09:02 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Steven Rostedt <srostedt@stny.rr.com>
-CC: duwe@informatik.uni-erlangen.de,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mc146818rtc.h for user land programs (2.4.10)
-In-Reply-To: <Pine.LNX.4.33.0109261152100.5923-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15mHfp-0000s6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
+>     * Clause 6: "... You may not impose any further restrictions on the
+>       recipients' exercise of the rights granted herein."
 > 
-> The following patch is for linux-2.4.10
-> This is needed for user land programs to use the
-> mc146818rtc.h header.
-> 
-> --- include/linux/mc146818rtc.h.orig    Wed Sep 26 23:43:00 2001
-> +++ include/linux/mc146818rtc.h Wed Sep 26 23:43:25 2001
-> @@ -16,7 +16,9 @@
->  #include <linux/spinlock.h>            /* spinlock_t */
->  #include <asm/mc146818rtc.h>           /* register access macros */
-> 
-> +#ifdef __KERNEL__
->  extern spinlock_t rtc_lock;            /* serialize CMOS RAM access */
-> +#endif
+> Therefore, any additional constraints people may wish to impose, such as 
+> Greg's comment in security.h, are invalid. When someone receives a copy 
+> of the Linux kernel, the license is pure, vanilla GPL, with no funny 
+> riders.*
 
-I can see arguing with Alan about the inclusion of linux-kernel headers
-in some cases, but I don't see anything in this file that looks like a
-user-space program could use.  Which part of this file do the user
-space programs need?
+Greg's comment states what is already stated by the GPL. It might not suit
+your personal desire, but thats tough. The matter is one of "linking" - in
+a legal not a technical sense and of what is and is not a derivative
+work. If your code is a derivative work of GPL code then the GPL is
+totally clear on the matter.
 
-Ben
-
-
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Alan

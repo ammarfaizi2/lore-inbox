@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310477AbSCBXOr>; Sat, 2 Mar 2002 18:14:47 -0500
+	id <S310482AbSCBXtt>; Sat, 2 Mar 2002 18:49:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310479AbSCBXO0>; Sat, 2 Mar 2002 18:14:26 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64005 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310477AbSCBXOR>; Sat, 2 Mar 2002 18:14:17 -0500
+	id <S310483AbSCBXtj>; Sat, 2 Mar 2002 18:49:39 -0500
+Received: from chmls06.ne.ipsvc.net ([24.147.1.144]:46031 "EHLO
+	chmls06.mediaone.net") by vger.kernel.org with ESMTP
+	id <S310482AbSCBXt3>; Sat, 2 Mar 2002 18:49:29 -0500
+Date: Sat, 2 Mar 2002 18:31:03 -0500
+To: erich@uruk.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Julian Anastasov <ja@ssi.bg>,
+        Szekeres Bela <szekeres@lhsystems.hu>,
+        Daniel Gryniewicz <dang@fprintf.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Network Security hole (was -> Re: arp bug )
-To: ja@ssi.bg (Julian Anastasov)
-Date: Sat, 2 Mar 2002 23:27:16 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), erich@uruk.org,
-        szekeres@lhsystems.hu (Szekeres Bela),
-        dang@fprintf.net (Daniel Gryniewicz),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <Pine.LNX.4.44.0203030035030.9147-100000@u.domain.uli> from "Julian Anastasov" at Mar 03, 2002 12:46:12 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20020302233103.GA3018@pimlott.ne.mediaone.net>
+Mail-Followup-To: erich@uruk.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Julian Anastasov <ja@ssi.bg>, Szekeres Bela <szekeres@lhsystems.hu>,
+	Daniel Gryniewicz <dang@fprintf.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16hG1r-0008Kh-00@the-village.bc.nu> <E16hGAW-0000Rw-00@trillium-hollow.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16hIuK-0000Mv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E16hGAW-0000Rw-00@trillium-hollow.org>
+User-Agent: Mutt/1.3.27i
+From: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > rp_filter is an add on - not exactly default standards behaviour. If you
-> > want to make the case that rp_filter = 2 means apply a both way rule then
-> > I've personally no problem with that argument
+On Sat, Mar 02, 2002 at 12:31:48PM -0800, erich@uruk.org wrote:
+> My general contention is that the system should, by default, behave as
+> non-experts would expect, but this might be a point where we can't
+> agree.
 > 
-> 	The rp_filter value of 2 is not support from Linux and
+> It is, unfortunately, the cardinal rule when designing any usable
+> interfaces.  I reference Donald Norman's "The Design of Everyday
+> Things".  But I digress.
 
-Language confusion - "if you want to make the case" = "if you want to argue
-that a value of rp_filter = 2 should in future (after you implement it) mean
-apply a both way rule - then I agree)
+I must agree with Alan.  Low level technical interfaces should
+behave according to standards, and should follow a consistent logic
+understood by experts in the field (even if it is difficult for the
+beginner).  If people try to push "usability" (and I'm as much a fan
+of that book as you) onto kernel interfaces, we'll wade into a swamp
+and never get out.
 
-I'm glad about your RFC1812 cite btw - the number of problems I've seen with
-one of the distros defaulting to rp_filter = 1 was large.
+Such interfaces need not be exposed to ordinary users.  Indeed, by
+keeping the low-level layer simple and orthogonal, it becomes easier
+to build multiple user-facing layers (for different purposes, or for
+comparison at the same purpose).  I think this principle is much
+more powerful than the one you advance.
 
-Alan
+Andrew

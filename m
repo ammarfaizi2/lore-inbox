@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266062AbRGIAcN>; Sun, 8 Jul 2001 20:32:13 -0400
+	id <S266611AbRGIAid>; Sun, 8 Jul 2001 20:38:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266981AbRGIAcD>; Sun, 8 Jul 2001 20:32:03 -0400
-Received: from hq2.fsmlabs.com ([209.155.42.199]:49926 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S266062AbRGIAbt>;
-	Sun, 8 Jul 2001 20:31:49 -0400
-Date: Sun, 8 Jul 2001 18:28:40 -0600
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: yodaiken@fsmlabs.com, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Why Plan 9 C compilers don't have asm("")
-Message-ID: <20010708182840.A24031@hq2>
+	id <S266691AbRGIAiX>; Sun, 8 Jul 2001 20:38:23 -0400
+Received: from [192.48.153.1] ([192.48.153.1]:1400 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S266611AbRGIAiO>;
+	Sun, 8 Jul 2001 20:38:14 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Jahn Veach - Veachian64" <V64@Galaxy42.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Unresolved symbols in 2.4.6 
+In-Reply-To: Your message of "Sun, 08 Jul 2001 18:52:28 EST."
+             <004c01c10809$0dc310a0$5d910404@molybdenum> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200107090008.f6908Op07251@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.18i
-Organization: FSM Labs
+Date: Mon, 09 Jul 2001 10:37:27 +1000
+Message-ID: <25863.994639047@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 08, 2001 at 08:08:24PM -0400, Pete Zaitcev wrote:
-> Register windows do help some, in that sense ia64 is a big
-> step forward ofver x86.
+On Sun, 8 Jul 2001 18:52:28 -0500, 
+"Jahn Veach - Veachian64" <V64@Galaxy42.com> wrote:
+>nm vmlinux | grep printk
+>
+>c024f44e ? __kstrtab_printk
+>c0254870 ? __ksymtab_printk
+>c0113494 T printk
+>c017c6ec t printk_pnp_dev_id
 
-It seems to me that x86 instruction set has lived long enough to
-become efficient again. Register windows I think are bad. I'd rather
-see a couple of hundred K of 1 cycle memory that the compiler/programmer
-could use. But then I don't like the property "test for 1 year
-and still don't uncover the production case where there is a window
-spill that comes at just the wrong time when the write cache is 
-full, ... - and timing changes by hundreds of microseconds."
+That looks OK.  Just to confirm, when you did depmod -ae, did you
+include -F pointing at the 2.4.6 System.map?  If you omitted -F then it
+used /proc/ksyms on your current kernel, I suspect that this is your
+problem.  The command should be depmod -ae -F 2.4.6/System.map 2.4.6.
+You should not need to issue that command by hand, make modules_install
+does it automatically.
 
->As I read what Linus wrote, he talked
-> about a different thing: inside a procedure you do not
-> know whence you are called, therefore you must start scheduling
-> anew from the first instruction of the procedure; before your
+As for why you panic when you try to mount the root file system, you
+have your SCSI driver and ide-disk as modules, not built into the
+kernel.  If the code to find and mount your root file system is in
+modules then you must use initrd, see the kernel howto.  Unless you
+have a *very* good reason to use initrd - don't.  Build the root
+drivers into the kenrel instead.
 
-This is a hard part for any vliw type machine - if the compiler
-can't figure it out or  if the processor requires a sync point, then
-performance will be terrible.  My understanding is that this is
-just a merced problem, not a ia64 fundamental, but it seems hard.
-As Alan points out, the PIV tries to do better with a trace cache
-so
-    code;call x; code
-is essentially, dynamically inlined by caching
-    code;code of x; code
-if I understand it right and that's pretty cool
-- maybe mckinley will use the same technique if
-the compiler can't figure it out. 
-
-
-Anyway, any processor that does badly on calls is going to be 
-a disaster, the real question is when it's good to use assembler
-escapes.
-
-> You must take into account that early riscs had miniscule dies,
-> for example the first Fujitsu made SPARC had 10,000 gates
-> all told. An alignment to the next instruction wastes hardware,
-> and, perhaps, a clock cycle.
-
-PowerPC has no excuse.
-
-> 
-> -- Pete

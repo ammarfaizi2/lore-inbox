@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291110AbSBSKry>; Tue, 19 Feb 2002 05:47:54 -0500
+	id <S291121AbSBSKtE>; Tue, 19 Feb 2002 05:49:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291117AbSBSKrp>; Tue, 19 Feb 2002 05:47:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:30981 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S291110AbSBSKrd>;
-	Tue, 19 Feb 2002 05:47:33 -0500
-To: Tom Holroyd <tomh@po.crl.go.jp>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-        kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Unknown HZ value! (1908) Assume 1024.
-In-Reply-To: <Pine.LNX.4.44.0202191000030.26361-100000@holly.crl.go.jp>
-X-Yow: Can I have an IMPULSE ITEM instead?
-From: Andreas Schwab <schwab@suse.de>
-Date: Tue, 19 Feb 2002 11:47:30 +0100
-In-Reply-To: <Pine.LNX.4.44.0202191000030.26361-100000@holly.crl.go.jp> (Tom
- Holroyd's message of "Tue, 19 Feb 2002 10:47:34 +0900 (JST)")
-Message-ID: <jeheod929p.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2.50 (ia64-suse-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S291117AbSBSKsz>; Tue, 19 Feb 2002 05:48:55 -0500
+Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:7923 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S291122AbSBSKsn>;
+	Tue, 19 Feb 2002 05:48:43 -0500
+Date: Tue, 19 Feb 2002 03:46:11 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Samium Gromoff <root@ibe.miee.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NE2k driver issue
+Message-ID: <20020219034611.F24428@lynx.adilger.int>
+Mail-Followup-To: Samium Gromoff <root@ibe.miee.ru>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200202191318.g1JDIcm12054@ibe.miee.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200202191318.g1JDIcm12054@ibe.miee.ru>; from root@ibe.miee.ru on Tue, Feb 19, 2002 at 04:18:38PM +0300
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Holroyd <tomh@po.crl.go.jp> writes:
+On Feb 19, 2002  16:18 +0300, Samium Gromoff wrote:
+> With esd started the sound card generated 500-600 interrupts/second,
+> with no esd, it didnt generated interrupts.
 
-|> So what is the 4th value in /proc/stat (procps calls it "other", while
-|> the first 3 are "user", "nice", and "sys")?  According to
-|> linux/fs/proc/proc_misc.c, it is:
-|> 
-|> 	jif * smp_num_cpus - (user + nice + system)
-|> 
-|> formatted with a %lu (the others are just %u).  smp_num_cpus is 1.
-|> Things are declared this way:
-|> 
-|>         unsigned long jif = jiffies;
-|>         unsigned int sum = 0, user = 0, nice = 0, system = 0;
-|> 
-|> So, the problem is that user + nice + system overflows (I'm compiling
-|> with gcc 3.0, BTW).
-|> 
-|> Thanks for the clue; now, how to fix it?
+This is a known problem with esd - it plays "the sound of silence" all
+the time.  This means it is generating interrupts even when you aren't
+listening to anything.
 
-Changing the line to this:
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
- 	jif * smp_num_cpus - user - nice - system
-
-should avoid the overflow.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

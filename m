@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265010AbTFURBq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 13:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbTFURBp
+	id S265209AbTFURXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 13:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbTFURXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 13:01:45 -0400
-Received: from granite.he.net ([216.218.226.66]:3845 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S265010AbTFURBp (ORCPT
+	Sat, 21 Jun 2003 13:23:16 -0400
+Received: from lgsx13.lg.ehu.es ([158.227.2.28]:3804 "EHLO lgsx13.lg.ehu.es")
+	by vger.kernel.org with ESMTP id S265209AbTFURXQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 13:01:45 -0400
-Date: Sat, 21 Jun 2003 10:01:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: oliver@neukum.org, linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [2.5 patch] remove an unused label from kaweth.c
-Message-ID: <20030621170151.GA18384@kroah.com>
-References: <20030621150132.GB23337@fs.tum.de>
+	Sat, 21 Jun 2003 13:23:16 -0400
+Date: Sat, 21 Jun 2003 19:42:29 +0200
+From: Luis Miguel Garcia <ktech@wanadoo.es>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.72{-mm2} and PCMCIA
+Message-Id: <20030621194229.2848de6b.ktech@wanadoo.es>
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030621150132.GB23337@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 21, 2003 at 05:01:32PM +0200, Adrian Bunk wrote:
-> Recent changes to kaweth added an unused label. The following patch 
-> removes it.
-> 
-> I've tested the compilation with 2.5.72-mm2.
+Hello:
 
-Thanks, I already have this fix in my USB tree, and will send it to
-Linus in a few days.
+I have a Sony Vaio laptop and I cannot make my Network PCMCIA card to run.
 
-thanks,
+At startup, Yenta Socket is detected and lights from the ethernet card starts flashing but no network interface appears if I do "ifconfig".
 
-greg k-h
+What must I do to enable network capabilities? Is this a bug?
+
+I can provide dmesg or other necessary things.
+
+Thanks.
+
+Luis Miguel Garcia

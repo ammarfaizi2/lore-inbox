@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132383AbRASPLu>; Fri, 19 Jan 2001 10:11:50 -0500
+	id <S131466AbRASPMk>; Fri, 19 Jan 2001 10:12:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131629AbRASPLj>; Fri, 19 Jan 2001 10:11:39 -0500
-Received: from mail.rd.ilan.net ([216.27.80.130]:21779 "EHLO mail.rd.ilan.net")
-	by vger.kernel.org with ESMTP id <S131466AbRASPLe>;
-	Fri, 19 Jan 2001 10:11:34 -0500
-Message-ID: <3A68591B.417EC21E@holly-springs.nc.us>
-Date: Fri, 19 Jan 2001 10:11:23 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+	id <S131629AbRASPMV>; Fri, 19 Jan 2001 10:12:21 -0500
+Received: from c526559-a.rchdsn1.tx.home.com ([24.0.107.130]:59011 "EHLO
+	ledzep.dyndns.org") by vger.kernel.org with ESMTP
+	id <S131466AbRASPLt>; Fri, 19 Jan 2001 10:11:49 -0500
+Message-ID: <3A685933.5804706A@home.com>
+Date: Fri, 19 Jan 2001 09:11:47 -0600
+From: Jordan <ledzep37@home.com>
+Organization: University of Texas at Dallas - Student
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac9-reiserfs-3.6.25 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Mo McKinlay <mmckinlay@gnu.org>
-CC: Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: named streams, extended attributes, and posix
-In-Reply-To: <Pine.LNX.4.30.0101191455570.2331-100000@nvws005.nv.london>
+To: linux-kernel@vger.kernel.org
+Subject: [Off-Topic] Support For 1 Ghz on Tyan Trinity 400
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mo McKinlay wrote:
+Ok, I looked on their web site and it lists the necessary spec as:
 
-> openstream(file, stream, flags)
-> 
-> Where 'file' should be an fd (although i'm sure the VFS gods will think of
-> plenty of reasons why this is a bad idea, at which point I'll
-> conventiently change my mind ;). Stream is simply the name of the stream,
-> flags are as with open() (O_RDONLY, et al). openstream() then returns an
-> fd which can be read/written/sendfiled/closed as the programmer wishes.
+Board Version:  99P0N
+Board Revision: J (or higher)
 
-I'm not opposed to that, and think it is even a useful idea. Sort of
-like fdopen().
+This is the info for my board:
 
-> Apart from the additional of a new open()-type call, your paper seems to
-> be fairly solid.
+Board Version:  99P0NA
+Board Revision: L
 
-Thanks. I think having the option of the namespace augmentation would be
-useful, in terms of supporting existing filesystems. On NTFS, ":" is not
-a legal filename character anyway. The namespace augmentation suggested
-in the paper would allow filesystems like NTFS to work as they should,
-and all other filesystems to ignore it.
+I have tried emailing the Tyan tech support department about two weeks
+ago and again recently with no response at all except for their
+automated response that sends a FAQ on their products to your email
+addres, does anyone know for sure if the "99P0N" on their web site was a
+typo and they left the A off or if it really was 99P0N but 99P0NA is
+just newer and will also work?  Any help would be greatly appreciated, I
+was going to try and upgrade to a faster PIII and get some RAM while it
+is cheap to do so but do not want to get a processor that will not work
+with my board.  Thanks in advance.
 
--M
+Jordan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

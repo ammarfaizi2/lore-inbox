@@ -1,40 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274217AbRISVzt>; Wed, 19 Sep 2001 17:55:49 -0400
+	id <S274221AbRISV5T>; Wed, 19 Sep 2001 17:57:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274221AbRISVzj>; Wed, 19 Sep 2001 17:55:39 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:52615 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274217AbRISVz1>;
-	Wed, 19 Sep 2001 17:55:27 -0400
-Date: Wed, 19 Sep 2001 14:55:34 -0700 (PDT)
-Message-Id: <20010919.145534.104033668.davem@redhat.com>
-To: ebiederm@xmission.com
-Cc: alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net, rfuller@nsisoftware.com,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: broken VM in 2.4.10-pre9
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <m1elp2g8vd.fsf@frodo.biederman.org>
-In-Reply-To: <E15jnIB-0003gh-00@the-village.bc.nu>
-	<m1elp2g8vd.fsf@frodo.biederman.org>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S274222AbRISV5L>; Wed, 19 Sep 2001 17:57:11 -0400
+Received: from c007-h000.c007.snv.cp.net ([209.228.33.206]:6547 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id <S274221AbRISV4z>;
+	Wed, 19 Sep 2001 17:56:55 -0400
+X-Sent: 19 Sep 2001 21:57:12 GMT
+Message-ID: <3BA912EA.F29B5AD9@distributopia.com>
+Date: Wed, 19 Sep 2001 16:49:30 -0500
+From: "Christopher K. St. John" <cks@distributopia.com>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.0.36 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Davide Libenzi <davidel@xmailserver.org>, Dan Kegel <dank@kegel.com>
+Subject: Re: [PATCH] /dev/epoll update ...
+In-Reply-To: <XFMail.20010919123029.davidel@xmailserver.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: ebiederm@xmission.com (Eric W. Biederman)
-   Date: 19 Sep 2001 15:37:26 -0600
-   
-   That I think is a significant cost.
+Davide Libenzi wrote:
+> 
+> >     - check new_socket_fd for readable, writable, and
+> >       error. if any true, then add new event to
+> >       event queue, as if the state had changed.
+> 
+> No it does't check. It's not needed for how it works.
+> 
 
-My own personal feeling, after having tried to implement a much
-lighter weight scheme involving "anon areas", is that reverse maps or
-something similar should be looked at as a latch ditch effort.
+ Yes, I see that it currently works that way. I'm
+suggesting that it's a needlessly awkward way to work.
+It also results in thousands of spurious syscalls a
+second as servers are forced to double check there
+isn't i/o to be done.
 
-We are tons faster than anyone else in fork/exec/exit precisely
-because we keep track of so little state for anonymous pages.
+ This is frustrating, as the application must ask for
+information that the kernel could have easily provided
+in the first place.
 
-Later,
-David S. Miller
-davem@redhat.com
+ Providing an initial set of events makes application
+programming easier, doesn't appear to add significant
+complexity to the driver (maybe), greatly reduces the
+number of required system calls, and still fits neatly
+into the conceptual api model. It seems like a clear
+win.
+
+
+> I intentionally changed the name to epoll because it
+> works in a different way.
+>
+
+ Am I missing something? I don't think you'd need a
+linear scan of anything, and there wouldn't be any
+changes to the api. Existing code would work exactly
+the same. Etc.
+
+ It's Davide's patch, and if he doesn't like my
+suggestion, I certainly don't expect him to change his
+code. If there's any consensus that the "initial event
+set" behavior is a good thing, I'd be willing to whip
+up a patch to Davide's patch. OTOH, if there's a good
+reason the changes are a bad thing, I don't want to
+confuse the issue with yet-another /dev/poll variant.
+
+ Does anybody else have an opinion?
+
+
+-- 
+Christopher St. John cks@distributopia.com
+DistribuTopia http://www.distributopia.com

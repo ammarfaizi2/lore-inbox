@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131407AbRECPgK>; Thu, 3 May 2001 11:36:10 -0400
+	id <S132054AbRECPiA>; Thu, 3 May 2001 11:38:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131481AbRECPgA>; Thu, 3 May 2001 11:36:00 -0400
-Received: from viper.haque.net ([66.88.179.82]:38025 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S131407AbRECPfs>;
-	Thu, 3 May 2001 11:35:48 -0400
-Date: Thu, 3 May 2001 11:35:44 -0400 (EDT)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: mirabilos <eccesys@topmail.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Whether can we put our company's  linux driver into linux kernel?
-In-Reply-To: <001101c0d3e2$b0620f60$de00a8c0@homeip.net>
-Message-ID: <Pine.LNX.4.33.0105031126500.26209-100000@viper.haque.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131480AbRECPhu>; Thu, 3 May 2001 11:37:50 -0400
+Received: from pcow029o.blueyonder.co.uk ([195.188.53.123]:14346 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S131479AbRECPhg>;
+	Thu, 3 May 2001 11:37:36 -0400
+From: Eric Barton <eric@bartonsoftware.com>
+To: linux-kernel@vger.kernel.org
+Subject: make_pages_present()
+Message-ID: <01a473339150351PCOW029M@blueyonder.co.uk>
+Date: 3 May 2001 16:39:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 May 2001, mirabilos wrote:
 
-> Hmmm is he sure he knows what linux is...?
-> I dunno whether he has understood the concept right,
-> maybe he'll post a WDM driver ;-)
+Can someone tell me if make_pages_present() is always called with
+a page aligned address?  If not, it may not make the last page present...
 
-you complain about wasting bandwidth and you just wasted bandwidth
-making an idiotic comment about a perfectly fine question?
 -- 
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
+                Cheers,
+                        Eric
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+----------------------------------------------------
+|Eric Barton        Barton Software                |
+|9 York Gardens     Tel:    +44 (117) 923 9831     |
+|Clifton            Mobile: +44 (7909) 680 356     |
+|Bristol BS8 4LL    Fax:    call first             |
+|United Kingdom     E-Mail: eric@bartonsoftware.com|
+----------------------------------------------------
 

@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbTJTNUE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 09:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbTJTNUE
+	id S262558AbTJTNa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 09:30:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbTJTNa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 09:20:04 -0400
-Received: from viriato2.servicios.retecal.es ([212.89.0.45]:5810 "EHLO
-	viriato2.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S262291AbTJTNUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 09:20:00 -0400
-Subject: Re: bkcvs and bksvn out of sync (Was: Re: [2.6.0-test7-bk]
-	undefined reference to `NEW_TO_OLD_GID')
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
-To: Manuel Estrada Sainz <ranty@debian.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Ben Collins <bcollins@debian.org>
-In-Reply-To: <20031020002246.GA14808@ranty.pantax.net>
-References: <1065702589.2234.3.camel@debian>
-	 <20031020002246.GA14808@ranty.pantax.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-T8RfGjg3q78AxQEZ3S0u"
-Organization: Hispalinux - http://www.hispalinux.es
-Message-Id: <1066655998.1522.7.camel@debian>
+	Mon, 20 Oct 2003 09:30:27 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:13458 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262558AbTJTNaX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 09:30:23 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 20 Oct 2003 15:27:53 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>, 216547@bugs.debian.org,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] bttv kernel BUG at drivers/media/video/video-buf.c:378!
+Message-ID: <20031020132725.GA28103@bytesex.org>
+References: <E1ABFJd-0000qT-1o@jophur> <20031020121858.GA31030@gondor.apana.org.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 20 Oct 2003 15:19:58 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031020121858.GA31030@gondor.apana.org.au>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 20, 2003 at 10:18:58PM +1000, Herbert Xu wrote:
+> reassign 216547 kernel
+> quit
+> 
+> Hi Gerd:
+> 
+> It looks like the your v4l update two weeks broke bttv.  Here is
+> a crash dump.  videobuf_iolock was passed a vb that has just been
+> filled with zeros.
 
---=-T8RfGjg3q78AxQEZ3S0u
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+> [ BUG in video-buf.c triggered -- oops log cutted ]
 
-El lun, 20-10-2003 a las 02:22, Manuel Estrada Sainz escribi=F3:
+Fix below, please apply,
 
->  Ram=F3n is probably using the bksvn gateway, after investication, it
->  seams that this changeset was not completely commited to bksvn:
+  Gerd
 
-Mmm, I think you are right ;), but it seams was two o more patches in
-this changeset and all of them related to the new NEW_TO_OLD_GID macro.
---=20
-Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
-
---=-T8RfGjg3q78AxQEZ3S0u
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/k+D+RGk68b69cdURArtDAJ9ILp5tlUdHBlkjKUjSTXRQjdsMPwCeOFBX
-zs3jkzUy4ceXve7v4hmz/jE=
-=aYuW
------END PGP SIGNATURE-----
-
---=-T8RfGjg3q78AxQEZ3S0u--
-
+--- linux/drvers/media/video/bttv-driver.c.fix	2003-10-20 12:48:38.000000000 +0200
++++ linux/drvers/media/video/bttv-driver.c	2003-10-20 15:07:24.346278761 +0200
+@@ -2819,6 +2819,7 @@
+ 				up(&fh->cap.lock);
+ 				return POLLERR;
+ 			}
++			fh->cap.read_buf->memory = V4L2_MEMORY_USERPTR;
+ 			field = videobuf_next_field(&fh->cap);
+ 			if (0 != fh->cap.ops->buf_prepare(file,fh->cap.read_buf,field)) {
+ 				up(&fh->cap.lock);

@@ -1,222 +1,447 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262783AbSLPXpn>; Mon, 16 Dec 2002 18:45:43 -0500
+	id <S261401AbSLPXo2>; Mon, 16 Dec 2002 18:44:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262792AbSLPXpn>; Mon, 16 Dec 2002 18:45:43 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:22284 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262783AbSLPXpg>;
-	Mon, 16 Dec 2002 18:45:36 -0500
-Date: Mon, 16 Dec 2002 15:51:11 -0800
+	id <S261529AbSLPXo2>; Mon, 16 Dec 2002 18:44:28 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:21004 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261401AbSLPXoR>;
+	Mon, 16 Dec 2002 18:44:17 -0500
+Date: Mon, 16 Dec 2002 15:49:53 -0800
 From: Greg KH <greg@kroah.com>
 To: marcelo@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [PATCH] PCI Hotplug changes for 2.4.21-pre1
-Message-ID: <20021216235111.GF17214@kroah.com>
-References: <20021216234817.GD17214@kroah.com> <20021216234953.GE17214@kroah.com>
+Subject: [PATCH] PCI Hotplug changes for 2.4.21-pre1
+Message-ID: <20021216234953.GE17214@kroah.com>
+References: <20021216234817.GD17214@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021216234953.GE17214@kroah.com>
+In-Reply-To: <20021216234817.GD17214@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.886, 2002/12/16 11:47:08-08:00, willy@debian.org
+ChangeSet 1.885, 2002/12/16 11:46:55-08:00, willy@debian.org
 
-[PATCH] Convert acpiphp to pci_bus_*() API [2/2]
+[PATCH] Add pci_bus_*() API for 2.4 [1/2]
 
-Convert the acpiphp driver from the pci_*_nodev() API to the pci_bus_*() API.
-This patch is relative to 2.4.21-bk.
+Introduce the pci_bus_(read|write)_config(byte|word|dword) functions from
+Linux 2.5.  Reimplement the pci_(read|write)_config(byte|word|dword)_nodev
+functions as compatibility wrappers.
 
 
-diff -Nru a/drivers/hotplug/acpiphp.h b/drivers/hotplug/acpiphp.h
---- a/drivers/hotplug/acpiphp.h	Mon Dec 16 15:42:46 2002
-+++ b/drivers/hotplug/acpiphp.h	Mon Dec 16 15:42:46 2002
-@@ -173,8 +173,6 @@
- 	/* PCI-to-PCI bridge device */
- 	struct pci_dev *pci_dev;
+diff -Nru a/drivers/hotplug/pci_hotplug.h b/drivers/hotplug/pci_hotplug.h
+--- a/drivers/hotplug/pci_hotplug.h	Mon Dec 16 15:42:52 2002
++++ b/drivers/hotplug/pci_hotplug.h	Mon Dec 16 15:42:52 2002
+@@ -167,6 +167,18 @@
+ 				 struct pci_dev_wrapped *wrapped_dev,
+ 				 struct pci_bus_wrapped *wrapped_parent);
  
--	struct pci_ops *pci_ops;
++int pci_bus_read_config_byte (struct pci_bus *bus, unsigned int devfn, int where, u8 *val);
++int pci_bus_read_config_word (struct pci_bus *bus, unsigned int devfn, int where, u16 *val);
++int pci_bus_read_config_dword (struct pci_bus *bus, unsigned int devfn, int where, u32 *val);
++int pci_bus_write_config_byte(struct pci_bus *bus, unsigned int devfn, int where, u8 val);
++int pci_bus_write_config_word(struct pci_bus *bus, unsigned int devfn, int where, u16 val);
++int pci_bus_write_config_dword(struct pci_bus *bus, unsigned int devfn, int where, u32 val);
++
++/*
++ * Compatibility functions.  Don't use these, use the
++ * pci_bus_*() functions above.
++ */
++
+ extern int pci_read_config_byte_nodev	(struct pci_ops *ops, u8 bus, u8 device,
+ 					 u8 function, int where, u8 *val);
+ extern int pci_read_config_word_nodev	(struct pci_ops *ops, u8 bus, u8 device,
+diff -Nru a/drivers/hotplug/pci_hotplug_util.c b/drivers/hotplug/pci_hotplug_util.c
+--- a/drivers/hotplug/pci_hotplug_util.c	Mon Dec 16 15:42:52 2002
++++ b/drivers/hotplug/pci_hotplug_util.c	Mon Dec 16 15:42:52 2002
+@@ -50,78 +50,58 @@
+ /* local variables */
+ static int debug;
+ 
 -
- 	/* ACPI 2.0 _HPP parameters */
- 	struct hpp_param hpp;
- 
-diff -Nru a/drivers/hotplug/acpiphp_glue.c b/drivers/hotplug/acpiphp_glue.c
---- a/drivers/hotplug/acpiphp_glue.c	Mon Dec 16 15:42:46 2002
-+++ b/drivers/hotplug/acpiphp_glue.c	Mon Dec 16 15:42:46 2002
-@@ -43,7 +43,6 @@
- 
- static void handle_hotplug_event_bridge (acpi_handle, u32, void *);
- static void handle_hotplug_event_func (acpi_handle, u32, void *);
--static struct pci_ops *default_ops;
- 
- /*
-  * initialization & terminatation routines
-@@ -515,7 +514,6 @@
- 	bridge->bus = bus;
- 
- 	bridge->pci_bus = find_pci_bus(&pci_root_buses, bus);
--	bridge->pci_ops = bridge->pci_bus->ops;
- 
- 	bridge->res_lock = SPIN_LOCK_UNLOCKED;
- 
-@@ -592,7 +590,6 @@
- 		kfree(bridge);
- 		return;
- 	}
--	bridge->pci_ops = bridge->pci_bus->ops;
- 
- 	bridge->res_lock = SPIN_LOCK_UNLOCKED;
- 
-@@ -1072,11 +1069,9 @@
- 			if (ACPI_SUCCESS(status) && sta)
- 				break;
- 		} else {
--			pci_read_config_dword_nodev(default_ops,
--						    slot->bridge->bus,
--						    slot->device,
--						    func->function,
--						    PCI_VENDOR_ID, &dvid);
-+			pci_bus_read_config_dword(slot->bridge->pci_bus,
-+					PCI_DEVFN(slot->device, func->function),
-+					PCI_VENDOR_ID, &dvid);
- 			if (dvid != 0xffffffff) {
- 				sta = ACPI_STA_ALL;
- 				break;
-@@ -1204,11 +1199,6 @@
- 	acpi_status status;
- 
- 	if (list_empty(&pci_root_buses))
--		return -1;
+-static int build_dev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, struct pci_dev **pci_dev)
++static int build_dev (struct pci_bus *bus, unsigned int devfn, struct pci_dev **pci_dev)
+ {
+ 	struct pci_dev *my_dev;
+-	struct pci_bus *my_bus;
 -
--	/* set default pci_ops for configuration space operation */
--	default_ops = pci_bus_b(pci_root_buses.next)->ops;
--	if (!default_ops)
- 		return -1;
+-	/* Some validity checks. */
+-	if ((function > 7) ||
+-	    (slot > 31) ||
+-	    (pci_dev == NULL) ||
+-	    (ops == NULL))
+-		return -ENODEV;
  
- 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
-diff -Nru a/drivers/hotplug/acpiphp_pci.c b/drivers/hotplug/acpiphp_pci.c
---- a/drivers/hotplug/acpiphp_pci.c	Mon Dec 16 15:42:46 2002
-+++ b/drivers/hotplug/acpiphp_pci.c	Mon Dec 16 15:42:46 2002
-@@ -58,23 +58,22 @@
- 	int count;
- 	struct acpiphp_bridge *bridge;
- 	struct pci_resource *res;
--	struct pci_ops *ops;
--	int bus, device, function;
-+	struct pci_bus *bus;
-+	int devfn;
+ 	my_dev = kmalloc (sizeof (struct pci_dev), GFP_KERNEL);
+ 	if (!my_dev)
+ 		return -ENOMEM;
+-	my_bus = kmalloc (sizeof (struct pci_bus), GFP_KERNEL);
+-	if (!my_bus) {
+-		kfree (my_dev);
+-		return -ENOMEM;
+-	}
++
+ 	memset(my_dev, 0, sizeof(struct pci_dev));
+-	memset(my_bus, 0, sizeof(struct pci_bus));
  
- 	bridge = func->slot->bridge;
--	bus = bridge->bus;
--	device = func->slot->device;
--	function = func->function;
--	ops = bridge->pci_ops;
-+	bus = bridge->pci_bus;
-+	devfn = PCI_DEVFN(func->slot->device, func->function);
- 
- 	for (count = 0; address[count]; count++) {	/* for 6 BARs */
--		pci_write_config_dword_nodev(ops, bus, device, function, address[count], 0xFFFFFFFF);
--		pci_read_config_dword_nodev(ops, bus, device, function, address[count], &bar);
-+		pci_bus_write_config_dword(bus, devfn, address[count], 0xFFFFFFFF);
-+		pci_bus_read_config_dword(bus, devfn, address[count], &bar);
- 
- 		if (!bar)	/* This BAR is not implemented */
- 			continue;
- 
--		dbg("Device %02x.%02x BAR %d wants %x\n", device, function, count, bar);
-+		dbg("Device %02x.%d BAR %d wants %x\n", PCI_SLOT(devfn),
-+				PCI_FUNC(devfn), count, bar);
- 
- 		if (bar & PCI_BASE_ADDRESS_SPACE_IO) {
- 			/* This is IO */
-@@ -90,10 +89,10 @@
- 
- 			if (!res) {
- 				err("cannot allocate requested io for %02x:%02x.%d len %x\n",
--				    bus, device, function, len);
-+				    bus->number, PCI_SLOT(devfn), PCI_FUNC(devfn), len);
- 				return -1;
- 			}
--			pci_write_config_dword_nodev(ops, bus, device, function, address[count], (u32)res->base);
-+			pci_bus_write_config_dword(bus, devfn, address[count], (u32)res->base);
- 			res->next = func->io_head;
- 			func->io_head = res;
- 
-@@ -113,16 +112,16 @@
- 
- 				if (!res) {
- 					err("cannot allocate requested pfmem for %02x:%02x.%d len %x\n",
--					    bus, device, function, len);
-+					    bus->number, PCI_SLOT(devfn), PCI_FUNC(devfn), len);
- 					return -1;
- 				}
- 
--				pci_write_config_dword_nodev(ops, bus, device, function, address[count], (u32)res->base);
-+				pci_bus_write_config_dword(bus, devfn, address[count], (u32)res->base);
- 
- 				if (bar & PCI_BASE_ADDRESS_MEM_TYPE_64) {	/* takes up another dword */
- 					dbg("inside the pfmem 64 case, count %d\n", count);
- 					count += 1;
--					pci_write_config_dword_nodev(ops, bus, device, function, address[count], (u32)(res->base >> 32));
-+					pci_bus_write_config_dword(bus, devfn, address[count], (u32)(res->base >> 32));
- 				}
- 
- 				res->next = func->p_mem_head;
-@@ -142,17 +141,17 @@
- 
- 				if (!res) {
- 					err("cannot allocate requested pfmem for %02x:%02x.%d len %x\n",
--					    bus, device, function, len);
-+					    bus->number, PCI_SLOT(devfn), PCI_FUNC(devfn), len);
- 					return -1;
- 				}
- 
--				pci_write_config_dword_nodev(ops, bus, device, function, address[count], (u32)res->base);
-+				pci_bus_write_config_dword(bus, devfn, address[count], (u32)res->base);
- 
- 				if (bar & PCI_BASE_ADDRESS_MEM_TYPE_64) {
- 					/* takes up another dword */
- 					dbg("inside mem 64 case, reg. mem, count %d\n", count);
- 					count += 1;
--					pci_write_config_dword_nodev(ops, bus, device, function, address[count], (u32)(res->base >> 32));
-+					pci_bus_write_config_dword(bus, devfn, address[count], (u32)(res->base >> 32));
- 				}
- 
- 				res->next = func->mem_head;
-@@ -163,7 +162,7 @@
- 	}
- 
- 	/* disable expansion rom */
--	pci_write_config_dword_nodev(ops, bus, device, function, PCI_ROM_ADDRESS, 0x00000000);
-+	pci_bus_write_config_dword(bus, devfn, PCI_ROM_ADDRESS, 0x00000000);
- 
+-	my_bus->number = bus;
+-	my_bus->ops = ops;
+-	my_dev->devfn = PCI_DEVFN(slot, function);
+-	my_dev->bus = my_bus;
++	my_dev->devfn = devfn;
++	my_dev->bus = bus;
++	my_dev->sysdata = bus->sysdata;
+ 	*pci_dev = my_dev;
  	return 0;
  }
-@@ -556,9 +555,9 @@
- 	int retval = 0;
- 	int is_multi = 0;
  
--	pci_read_config_byte_nodev(slot->bridge->pci_ops,
--				   slot->bridge->bus, slot->device, 0,
--				   PCI_HEADER_TYPE, &hdr);
-+	pci_bus_read_config_byte(slot->bridge->pci_bus,
-+					PCI_DEVFN(slot->device, 0),
-+					PCI_HEADER_TYPE, &hdr);
+ /**
+- * pci_read_config_byte_nodev - read a byte from a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to read from the pci device
+- * @bus: the bus of the pci device to read from
+- * @slot: the pci slot number of the pci device to read from
+- * @function: the function of the pci device to read from
+- * @where: the location on the pci address space to read from
++ * pci_bus_read_config_byte - read a byte from a pci device
++ * @bus: pointer to the parent bus of the pci device to read from
++ * @devfn: the device / function of the pci device to read from
++ * @where: the location in the pci address space to read from
+  * @value: pointer to where to place the data read
+  *
+  * Like pci_read_config_byte() but works for pci devices that do not have a
+  * pci_dev structure set up yet.
+  * Returns 0 on success.
+  */
+-int pci_read_config_byte_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u8 *value)
++int pci_bus_read_config_byte (struct pci_bus *bus, unsigned int devfn, int where, u8 *value)
+ {
+ 	struct pci_dev *dev = NULL;
+ 	int result;
  
- 	if (hdr & 0x80)
- 		is_multi = 1;
-@@ -566,10 +565,9 @@
- 	list_for_each (l, &slot->funcs) {
- 		func = list_entry(l, struct acpiphp_func, sibling);
- 		if (is_multi || func->function == 0) {
--			pci_read_config_dword_nodev(slot->bridge->pci_ops,
--						    slot->bridge->bus,
--						    slot->device,
--						    func->function,
-+			pci_bus_read_config_dword(slot->bridge->pci_bus,
-+						    PCI_DEVFN(slot->device,
-+								func->function),
- 						    PCI_VENDOR_ID, &dvid);
- 			if (dvid != 0xffffffff) {
- 				retval = init_config_space(func);
+-	dbg("%p, %d, %d, %d, %d, %p\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
++	dbg("%p, %d, %d, %p\n", bus, devfn, where, value);
++	dev = pci_find_slot(bus->number, devfn);
+ 	if (dev) {
+ 		dbg("using native pci_dev\n");
+ 		return pci_read_config_byte (dev, where, value);
+ 	}
+ 	
+-	result = build_dev (ops, bus, slot, function, &dev);
++	result = build_dev(bus, devfn, &dev);
+ 	if (result)
+ 		return result;
+ 	result = pci_read_config_byte(dev, where, value);
+-	kfree (dev->bus);
+ 	kfree (dev);
+ 	return result;
+ }
+ 
+ /**
+- * pci_read_config_word_nodev - read a word from a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to read from the pci device
+- * @bus: the bus of the pci device to read from
+- * @slot: the pci slot number of the pci device to read from
+- * @function: the function of the pci device to read from
++ * pci_bus_read_config_word - read a word from a pci device
++ * @bus: pointer to the parent bus of the pci device to read from
++ * @devfn: the device / function of the pci device to read from
+  * @where: the location on the pci address space to read from
+  * @value: pointer to where to place the data read
+  *
+@@ -129,34 +109,30 @@
+  * pci_dev structure set up yet. 
+  * Returns 0 on success.
+  */
+-int pci_read_config_word_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u16 *value)
++int pci_bus_read_config_word (struct pci_bus *bus, unsigned int devfn, int where, u16 *value)
+ {
+ 	struct pci_dev *dev = NULL;
+ 	int result;
+ 
+-	dbg("%p, %d, %d, %d, %d, %p\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
++	dbg("%p, %d, %d, %p\n", bus, devfn, where, value);
++	dev = pci_find_slot(bus->number, devfn);
+ 	if (dev) {
+ 		dbg("using native pci_dev\n");
+ 		return pci_read_config_word (dev, where, value);
+ 	}
+ 	
+-	result = build_dev (ops, bus, slot, function, &dev);
++	result = build_dev(bus, devfn, &dev);
+ 	if (result)
+ 		return result;
+ 	result = pci_read_config_word(dev, where, value);
+-	kfree (dev->bus);
+ 	kfree (dev);
+ 	return result;
+ }
+ 
+ /**
+- * pci_read_config_dword_nodev - read a dword from a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to read from the pci
+- * device
+- * @bus: the bus of the pci device to read from
+- * @slot: the pci slot number of the pci device to read from
+- * @function: the function of the pci device to read from
++ * pci_bus_read_config_dword - read a dword from a pci device
++ * @bus: pointer to the parent bus of the pci device to read from
++ * @devfn: the device / function of the pci device to read from
+  * @where: the location on the pci address space to read from
+  * @value: pointer to where to place the data read
+  *
+@@ -164,34 +140,30 @@
+  * pci_dev structure set up yet. 
+  * Returns 0 on success.
+  */
+-int pci_read_config_dword_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u32 *value)
++int pci_bus_read_config_dword (struct pci_bus *bus, unsigned int devfn, int where, u32 *value)
+ {
+ 	struct pci_dev *dev = NULL;
+ 	int result;
+ 
+-	dbg("%p, %d, %d, %d, %d, %p\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
++	dbg("%p, %d, %d, %p\n", bus, devfn, where, value);
++	dev = pci_find_slot(bus->number, devfn);
+ 	if (dev) {
+ 		dbg("using native pci_dev\n");
+ 		return pci_read_config_dword (dev, where, value);
+ 	}
+ 	
+-	result = build_dev (ops, bus, slot, function, &dev);
++	result = build_dev(bus, devfn, &dev);
+ 	if (result)
+ 		return result;
+ 	result = pci_read_config_dword(dev, where, value);
+-	kfree (dev->bus);
+ 	kfree (dev);
+ 	return result;
+ }
+ 
+ /**
+- * pci_write_config_byte_nodev - write a byte to a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to write to the pci
+- * device
+- * @bus: the bus of the pci device to write to
+- * @slot: the pci slot number of the pci device to write to
+- * @function: the function of the pci device to write to
++ * pci_bus_write_config_byte - write a byte to a pci device
++ * @bus: pointer to the parent bus of the pci device to read from
++ * @devfn: the device / function of the pci device to read from
+  * @where: the location on the pci address space to write to
+  * @value: the value to write to the pci device
+  *
+@@ -199,34 +171,30 @@
+  * pci_dev structure set up yet. 
+  * Returns 0 on success.
+  */
+-int pci_write_config_byte_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u8 value)
++int pci_bus_write_config_byte (struct pci_bus *bus, unsigned int devfn, int where, u8 value)
+ {
+ 	struct pci_dev *dev = NULL;
+ 	int result;
+ 
+-	dbg("%p, %d, %d, %d, %d, %d\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
++	dbg("%p, %d, %d, %d\n", bus, devfn, where, value);
++	dev = pci_find_slot(bus->number, devfn);
+ 	if (dev) {
+ 		dbg("using native pci_dev\n");
+ 		return pci_write_config_byte (dev, where, value);
+ 	}
+ 	
+-	result = build_dev (ops, bus, slot, function, &dev);
++	result = build_dev(bus, devfn, &dev);
+ 	if (result)
+ 		return result;
+ 	result = pci_write_config_byte(dev, where, value);
+-	kfree (dev->bus);
+ 	kfree (dev);
+ 	return result;
+ }
+ 
+ /**
+- * pci_write_config_word_nodev - write a word to a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to write to the pci
+- * device
+- * @bus: the bus of the pci device to write to
+- * @slot: the pci slot number of the pci device to write to
+- * @function: the function of the pci device to write to
++ * pci_bus_write_config_word - write a word to a pci device
++ * @bus: pointer to the parent bus of the pci device to read from
++ * @devfn: the device / function of the pci device to read from
+  * @where: the location on the pci address space to write to
+  * @value: the value to write to the pci device
+  *
+@@ -234,34 +202,30 @@
+  * pci_dev structure set up yet. 
+  * Returns 0 on success.
+  */
+-int pci_write_config_word_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u16 value)
++int pci_bus_write_config_word (struct pci_bus *bus, unsigned int devfn, int where, u16 value)
+ {
+ 	struct pci_dev *dev = NULL;
+ 	int result;
+ 
+-	dbg("%p, %d, %d, %d, %d, %d\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
++	dbg("%p, %d, %d, %d\n", bus, devfn, where, value);
++	dev = pci_find_slot(bus->number, devfn);
+ 	if (dev) {
+ 		dbg("using native pci_dev\n");
+ 		return pci_write_config_word (dev, where, value);
+ 	}
+ 	
+-	result = build_dev (ops, bus, slot, function, &dev);
++	result = build_dev(bus, devfn, &dev);
+ 	if (result)
+ 		return result;
+ 	result = pci_write_config_word(dev, where, value);
+-	kfree (dev->bus);
+ 	kfree (dev);
+ 	return result;
+ }
+ 
+ /**
+- * pci_write_config_dword_nodev - write a dword to a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to write to the pci
+- * device
+- * @bus: the bus of the pci device to write to
+- * @slot: the pci slot number of the pci device to write to
+- * @function: the function of the pci device to write to
++ * pci_bus_write_config_dword - write a dword to a pci device
++ * @bus: pointer to the parent bus of the pci device to read from
++ * @devfn: the device / function of the pci device to read from
+  * @where: the location on the pci address space to write to
+  * @value: the value to write to the pci device
+  *
+@@ -269,23 +233,22 @@
+  * pci_dev structure set up yet. 
+  * Returns 0 on success.
+  */
+-int pci_write_config_dword_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u32 value)
++int pci_bus_write_config_dword (struct pci_bus *bus, unsigned int devfn, int where, u32 value)
+ {
+ 	struct pci_dev *dev = NULL;
+ 	int result;
+ 
+-	dbg("%p, %d, %d, %d, %d, %d\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
++	dbg("%p, %d, %d, %d\n", bus, devfn, where, value);
++	dev = pci_find_slot(bus->number, devfn);
+ 	if (dev) {
+ 		dbg("using native pci_dev\n");
+ 		return pci_write_config_dword (dev, where, value);
+ 	}
+ 	
+-	result = build_dev (ops, bus, slot, function, &dev);
++	result = build_dev(bus, devfn, &dev);
+ 	if (result)
+ 		return result;
+ 	result = pci_write_config_dword(dev, where, value);
+-	kfree (dev->bus);
+ 	kfree (dev);
+ 	return result;
+ }
+@@ -392,8 +355,98 @@
+ 	return result;
+ }
+ 
++/* Compatibility wrapper functions */
++
++static struct pci_bus *alloc_bus(struct pci_ops *ops, u8 bus_nr)
++{
++	struct pci_bus *bus = kmalloc(sizeof(struct pci_bus), GFP_KERNEL);
++	if (!bus)
++		return NULL;
++	memset(bus, 0, sizeof(struct pci_bus));
++	bus->number = bus_nr;
++	bus->ops = ops;
++	return bus;
++}
++
++int pci_read_config_byte_nodev(struct pci_ops *ops, u8 bus_nr, u8 slot, u8 function, int where, u8 *value)
++{
++	int result;
++	struct pci_bus *bus = alloc_bus(ops, bus_nr);
++	if (!bus)
++		return -ENOMEM;
++	result = pci_bus_read_config_byte(bus, PCI_DEVFN(slot, function),
++						where, value);
++	kfree(bus);
++	return result;
++}
++
++int pci_read_config_word_nodev(struct pci_ops *ops, u8 bus_nr, u8 slot, u8 function, int where, u16 *value)
++{
++	int result;
++	struct pci_bus *bus = alloc_bus(ops, bus_nr);
++	if (!bus)
++		return -ENOMEM;
++	result = pci_bus_read_config_word(bus, PCI_DEVFN(slot, function),
++						where, value);
++	kfree(bus);
++	return result;
++}
++
++int pci_read_config_dword_nodev(struct pci_ops *ops, u8 bus_nr, u8 slot, u8 function, int where, u32 *value)
++{
++	int result;
++	struct pci_bus *bus = alloc_bus(ops, bus_nr);
++	if (!bus)
++		return -ENOMEM;
++	result = pci_bus_read_config_dword(bus, PCI_DEVFN(slot, function),
++						where, value);
++	kfree(bus);
++	return result;
++}
++
++int pci_write_config_byte_nodev(struct pci_ops *ops, u8 bus_nr, u8 slot, u8 function, int where, u8 value)
++{
++	int result;
++	struct pci_bus *bus = alloc_bus(ops, bus_nr);
++	if (!bus)
++		return -ENOMEM;
++	result = pci_bus_write_config_byte(bus, PCI_DEVFN(slot, function),
++						where, value);
++	kfree(bus);
++	return result;
++}
++
++int pci_write_config_word_nodev(struct pci_ops *ops, u8 bus_nr, u8 slot, u8 function, int where, u16 value)
++{
++	int result;
++	struct pci_bus *bus = alloc_bus(ops, bus_nr);
++	if (!bus)
++		return -ENOMEM;
++	result = pci_bus_write_config_word(bus, PCI_DEVFN(slot, function),
++						where, value);
++	kfree(bus);
++	return result;
++}
++
++int pci_write_config_dword_nodev(struct pci_ops *ops, u8 bus_nr, u8 slot, u8 function, int where, u32 value)
++{
++	int result;
++	struct pci_bus *bus = alloc_bus(ops, bus_nr);
++	if (!bus)
++		return -ENOMEM;
++	result = pci_bus_write_config_dword(bus, PCI_DEVFN(slot, function),
++						where, value);
++	kfree(bus);
++	return result;
++}
+ 
+ EXPORT_SYMBOL(pci_visit_dev);
++EXPORT_SYMBOL(pci_bus_read_config_byte);
++EXPORT_SYMBOL(pci_bus_read_config_word);
++EXPORT_SYMBOL(pci_bus_read_config_dword);
++EXPORT_SYMBOL(pci_bus_write_config_byte);
++EXPORT_SYMBOL(pci_bus_write_config_word);
++EXPORT_SYMBOL(pci_bus_write_config_dword);
+ EXPORT_SYMBOL(pci_read_config_byte_nodev);
+ EXPORT_SYMBOL(pci_read_config_word_nodev);
+ EXPORT_SYMBOL(pci_read_config_dword_nodev);

@@ -1,284 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269093AbUIHK27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269096AbUIHKdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269093AbUIHK27 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 06:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269079AbUIHK27
+	id S269096AbUIHKdc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 06:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269094AbUIHKdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 06:28:59 -0400
-Received: from open.hands.com ([195.224.53.39]:24740 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S269093AbUIHK2V (ORCPT
+	Wed, 8 Sep 2004 06:33:32 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:27865 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S269096AbUIHKd0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 06:28:21 -0400
-Date: Wed, 8 Sep 2004 11:39:22 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] to add device+inode check to ipt_owner.c - HACKED UP
-Message-ID: <20040908103922.GD9795@lkcl.net>
-References: <20040908100946.GA9795@lkcl.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="X1bOJ3K7DJ5YkBrT"
-Content-Disposition: inline
-In-Reply-To: <20040908100946.GA9795@lkcl.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+	Wed, 8 Sep 2004 06:33:26 -0400
+Date: Wed, 8 Sep 2004 11:33:23 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [bk pull] DRM: misc patches..
+Message-ID: <Pine.LNX.4.58.0409081132300.14419@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi Linus,
 
-... did i sent a patch?
+These are just some misc matches for the DRM I've had backed up in my queue
+here. It also removes the virt_to_bus.
 
-did i send a patch??  i don't _think_ so *lol* :)
+Please do a
 
-On Wed, Sep 08, 2004 at 11:09:47AM +0100, Luke Kenneth Casson Leighton wrote:
-> dear kernel people,
-> 
-> this is a first pass at attempting to add per-program firewall rule
-> checking to iptables.
+	bk pull bk://drm.bkbits.net/drm-fntbl
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ipt_owner.patch"
+This will include the latest DRM changes and will update the following files:
 
-Index: fs/proc/base.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/linux-2.6/fs/proc/base.c,v
-retrieving revision 1.1.1.9
-diff -u -u -r1.1.1.9 base.c
---- fs/proc/base.c	18 Jun 2004 19:30:20 -0000	1.1.1.9
-+++ fs/proc/base.c	8 Sep 2004 01:09:10 -0000
-@@ -206,11 +206,12 @@
- 	return -ENOENT;
- }
- 
--static int proc_exe_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
-+extern int proc_task_dentry_lookup(struct task_struct *task, struct dentry **dentry, struct vfsmount **mnt);
-+
-+int proc_task_dentry_lookup(struct task_struct *task, struct dentry **dentry, struct vfsmount **mnt)
- {
- 	struct vm_area_struct * vma;
- 	int result = -ENOENT;
--	struct task_struct *task = proc_task(inode);
- 	struct mm_struct * mm = get_task_mm(task);
- 
- 	if (!mm)
-@@ -233,6 +234,11 @@
- 	return result;
- }
- 
-+static int proc_exe_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
-+{
-+	return proc_task_dentry_lookup(proc_task(inode), dentry, mnt);
-+}
-+
- static int proc_cwd_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
- {
- 	struct fs_struct *fs;
-Index: fs/proc/root.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/linux-2.6/fs/proc/root.c,v
-retrieving revision 1.1.1.2
-diff -u -u -r1.1.1.2 root.c
---- fs/proc/root.c	8 Apr 2004 14:13:50 -0000	1.1.1.2
-+++ fs/proc/root.c	8 Sep 2004 01:09:10 -0000
-@@ -147,6 +147,8 @@
- 	.parent		= &proc_root,
- };
- 
-+extern int proc_task_dentry_lookup(struct task_struct *task, struct dentry **dentry, struct vfsmount **mnt);
-+
- #ifdef CONFIG_SYSCTL
- EXPORT_SYMBOL(proc_sys_root);
- #endif
-@@ -159,3 +161,4 @@
- EXPORT_SYMBOL(proc_net);
- EXPORT_SYMBOL(proc_bus);
- EXPORT_SYMBOL(proc_root_driver);
-+EXPORT_SYMBOL(proc_task_dentry_lookup);
-Index: include/linux/netfilter_ipv4/ipt_owner.h
-===================================================================
-RCS file: /cvsroot/selinux/nsa/linux-2.6/include/linux/netfilter_ipv4/ipt_owner.h,v
-retrieving revision 1.1.1.1
-diff -u -u -r1.1.1.1 ipt_owner.h
---- include/linux/netfilter_ipv4/ipt_owner.h	14 Aug 2003 12:09:16 -0000	1.1.1.1
-+++ include/linux/netfilter_ipv4/ipt_owner.h	8 Sep 2004 01:09:14 -0000
-@@ -7,6 +7,9 @@
- #define IPT_OWNER_PID	0x04
- #define IPT_OWNER_SID	0x08
- #define IPT_OWNER_COMM	0x10
-+#define IPT_OWNER_INO	0x20
-+
-+#define IPT_DEVNAME_SZ 80
- 
- struct ipt_owner_info {
-     uid_t uid;
-@@ -14,6 +17,12 @@
-     pid_t pid;
-     pid_t sid;
-     char comm[16];
-+
-+	/* set these as a pair: specify the filesystem, specify the inode */
-+	/* it's the only simple (and unambigous) way to reference a program */
-+	char device[IPT_DEVNAME_SZ];
-+    unsigned long ino;
-+
-     u_int8_t match, invert;	/* flags */
- };
- 
-Index: net/ipv4/netfilter/ipt_owner.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/linux-2.6/net/ipv4/netfilter/ipt_owner.c,v
-retrieving revision 1.1.1.4
-diff -u -u -r1.1.1.4 ipt_owner.c
---- net/ipv4/netfilter/ipt_owner.c	13 May 2004 18:03:23 -0000	1.1.1.4
-+++ net/ipv4/netfilter/ipt_owner.c	8 Sep 2004 01:09:16 -0000
-@@ -11,6 +11,11 @@
- #include <linux/module.h>
- #include <linux/skbuff.h>
- #include <linux/file.h>
-+#include <linux/rwsem.h>
-+#include <linux/mount.h>
-+#include <linux/dcache.h>
-+#include <linux/string.h>
-+#include <linux/sched.h>
- #include <net/sock.h>
- 
- #include <linux/netfilter_ipv4/ipt_owner.h>
-@@ -20,6 +25,117 @@
- MODULE_AUTHOR("Marc Boucher <marc@mbsi.ca>");
- MODULE_DESCRIPTION("iptables owner match");
- 
-+extern int proc_task_dentry_lookup(struct task_struct *task, struct dentry **dentry, struct vfsmount **mnt);
-+
-+static int proc_exe_check(struct task_struct *task,
-+		                  const char *devname, unsigned long i_num)
-+{
-+    int result = -ENOENT;
-+	struct vfsmount *mnt;
-+    struct dentry *dentry;
-+	result = proc_task_dentry_lookup(task, &dentry, &mnt);
-+	if (result != 0)
-+		return result;
-+
-+	if (!dentry->d_inode)
-+		return -ENOENT;
-+	if (dentry->d_inode->i_ino == i_num &&
-+			strncmp(mnt->mnt_devname, devname, IPT_DEVNAME_SZ) == 0)
-+		return 0;
-+	return -ENOENT;
-+}
-+
-+#if 0
-+static int proc_exe_check(struct task_struct *task,
-+		                  const char *devname, unsigned long i_num)
-+{
-+    struct vm_area_struct * vma;
-+    int result = -ENOENT;
-+    struct mm_struct * mm = get_task_mm(task);
-+
-+    if (!mm)
-+        goto out;
-+    down_read(&mm->mmap_sem);
-+    vma = mm->mmap;
-+    while (vma) {
-+        if ((vma->vm_flags & VM_EXECUTABLE) &&
-+            vma->vm_file) {
-+            struct vfsmount *mnt = mntget(vma->vm_file->f_vfsmnt);
-+            struct dentry *dentry = dget(vma->vm_file->f_dentry);
-+			if (!dentry->d_inode)
-+				continue;
-+			if (dentry->d_inode->i_ino == i_num &&
-+					strncmp(mnt->mnt_devname, devname, IPT_DEVNAME_SZ) == 0)
-+				{
-+					result = 0;
-+					break;
-+				}
-+        }
-+        vma = vma->vm_next;
-+    }
-+    up_read(&mm->mmap_sem);
-+    mmput(mm);
-+out:
-+    return result;
-+}
-+#endif
-+
-+static int
-+match_inode(const struct sk_buff *skb, const char *devname, unsigned long i_num)
-+{
-+	struct task_struct *g, *p;
-+	struct files_struct *files;
-+	/*
-+	struct inode *inode;
-+	struct super_block *sb;
-+	struct block_device *bd;
-+	*/
-+	int i;
-+	read_lock(&tasklist_lock);
-+
-+	/* lkcl: these are fairly obvious (just obtuse): hunt for the
-+	 * filesystem device, then its superblock, then the inode is
-+	 * relevant to that superblock, _then_ we can find the inode.
-+	bd = bdget(dev);
-+	if (!bd)
-+		goto out;
-+
-+	sb = get_super(bd);
-+	if (!sb)
-+		goto out;
-+
-+	inode = ilookup(sb, i_num);
-+	if (!inode)
-+		goto out;
-+	 */
-+
-+	read_lock(&tasklist_lock);
-+	do_each_thread(g, p) {
-+
-+		if (proc_exe_check(p, devname, i_num))
-+			continue;
-+
-+		task_lock(p);
-+		files = p->files;
-+		if(files) {
-+			spin_lock(&files->file_lock);
-+			for (i=0; i < files->max_fds; i++) {
-+				if (fcheck_files(files, i) ==
-+				    skb->sk->sk_socket->file) {
-+					spin_unlock(&files->file_lock);
-+					task_unlock(p);
-+					read_unlock(&tasklist_lock);
-+					return 1;
-+				}
-+			}
-+			spin_unlock(&files->file_lock);
-+		}
-+		task_unlock(p);
-+	} while_each_thread(g, p);
-+	read_unlock(&tasklist_lock);
-+	return 0;
-+}
-+
- static int
- match_comm(const struct sk_buff *skb, const char *comm)
- {
-@@ -163,6 +279,12 @@
- 			return 0;
+ drivers/char/drm/Kconfig        |    4 ++--
+ drivers/char/drm/drm_bufs.h     |    3 ---
+ drivers/char/drm/drm_drv.h      |    1 +
+ drivers/char/drm/i915_dma.c     |    9 ++++++++-
+ drivers/char/drm/radeon_state.c |    5 -----
+ 5 files changed, 11 insertions(+), 11 deletions(-)
+
+through these ChangeSets:
+
+<airlied@starflyer.(none)> (04/09/08 1.2060)
+   drm: update Kconfig for r128/radeon
+
+   ATI Rage 128 and Radeon DRM unconditionally depend on PCI
+
+   Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+
+<airlied@starflyer.(none)> (04/09/08 1.2059)
+   Missing ctx_count decrement when releasing driver.
+
+   From: Erdi Chen
+   Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+<airlied@starflyer.(none)> (04/09/08 1.2058)
+   drm: correct i915 packet length calculations
+
+   Correct a couple of packet length calculations.
+
+   From: Keith Whitwell
+   Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+<airlied@starflyer.(none)> (04/09/08 1.2057)
+   We dereference dev->priv a few lines above, meaning we'd
+   oops before we got to this sanity check. As it hasn't
+   triggered in any bug reports I've been able to find, I think
+   it's safe to nuke it.
+
+   Signed-off-by: Dave Jones <davej@redhat.com>
+
+<airlied@starflyer.(none)> (04/09/07 1.2056)
+   drm: remove virt_to_bus
+
+   remove virt_to_bus completely.. will fix up drm to use proper
+   interfaces instead later..
+
+   Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+diff -Nru a/drivers/char/drm/Kconfig b/drivers/char/drm/Kconfig
+--- a/drivers/char/drm/Kconfig	Wed Sep  8 20:29:57 2004
++++ b/drivers/char/drm/Kconfig	Wed Sep  8 20:29:57 2004
+@@ -31,7 +31,7 @@
+
+ config DRM_R128
+ 	tristate "ATI Rage 128"
+-	depends on DRM
++	depends on DRM && PCI
+ 	help
+ 	  Choose this option if you have an ATI Rage 128 graphics card.  If M
+ 	  is selected, the module will be called r128.  AGP support for
+@@ -39,7 +39,7 @@
+
+ config DRM_RADEON
+ 	tristate "ATI Radeon"
+-	depends on DRM
++	depends on DRM && PCI
+ 	help
+ 	  Choose this option if you have an ATI Radeon graphics card.  There
+ 	  are both PCI and AGP versions.  You don't need to choose this to
+diff -Nru a/drivers/char/drm/drm_bufs.h b/drivers/char/drm/drm_bufs.h
+--- a/drivers/char/drm/drm_bufs.h	Wed Sep  8 20:29:57 2004
++++ b/drivers/char/drm/drm_bufs.h	Wed Sep  8 20:29:57 2004
+@@ -659,9 +659,6 @@
+ 			buf->used    = 0;
+ 			buf->offset  = (dma->byte_count + byte_count + offset);
+ 			buf->address = (void *)(page + offset);
+-#ifndef __sparc__
+-			buf->bus_address = virt_to_bus(buf->address);
+-#endif
+ 			buf->next    = NULL;
+ 			buf->waiting = 0;
+ 			buf->pending = 0;
+diff -Nru a/drivers/char/drm/drm_drv.h b/drivers/char/drm/drm_drv.h
+--- a/drivers/char/drm/drm_drv.h	Wed Sep  8 20:29:57 2004
++++ b/drivers/char/drm/drm_drv.h	Wed Sep  8 20:29:57 2004
+@@ -836,6 +836,7 @@
+
+ 				list_del( &pos->head );
+ 				DRM(free)( pos, sizeof(*pos), DRM_MEM_CTXLIST );
++				--dev->ctx_count;
+ 			}
+ 		}
  	}
- 
-+	if(info->match & IPT_OWNER_INO) {
-+		if (!match_inode(skb, info->device, info->ino) ^
-+		    !!(info->invert & IPT_OWNER_INO))
-+			return 0;
-+	}
-+
- 	return 1;
- }
- 
+diff -Nru a/drivers/char/drm/i915_dma.c b/drivers/char/drm/i915_dma.c
+--- a/drivers/char/drm/i915_dma.c	Wed Sep  8 20:29:57 2004
++++ b/drivers/char/drm/i915_dma.c	Wed Sep  8 20:29:57 2004
+@@ -296,7 +296,14 @@
+ 		case 0x1c:
+ 			return 1;
+ 		case 0x1d:
+-			return (cmd & 0xffff) + 2;
++			switch ((cmd>>16)&0xff) {
++			case 0x3:
++				return (cmd & 0x1f) + 2;
++			case 0x4:
++				return (cmd & 0xf) + 2;
++			default:
++				return (cmd & 0xffff) + 2;
++			}
+ 		case 0x1e:
+ 			if (cmd & (1 << 23))
+ 				return (cmd & 0xffff) + 1;
+diff -Nru a/drivers/char/drm/radeon_state.c b/drivers/char/drm/radeon_state.c
+--- a/drivers/char/drm/radeon_state.c	Wed Sep  8 20:29:57 2004
++++ b/drivers/char/drm/radeon_state.c	Wed Sep  8 20:29:57 2004
+@@ -1667,11 +1667,6 @@
 
---X1bOJ3K7DJ5YkBrT--
+ 	LOCK_TEST_WITH_RETURN( dev, filp );
+
+-	if ( !dev_priv ) {
+-		DRM_ERROR( "%s called with no initialization\n", __FUNCTION__ );
+-		return DRM_ERR(EINVAL);
+-	}
+-
+ 	DRM_GET_PRIV_WITH_RETURN( filp_priv, filp );
+
+ 	DRM_COPY_FROM_USER_IOCTL( vertex, (drm_radeon_vertex_t __user *)data,

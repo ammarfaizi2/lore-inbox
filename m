@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312238AbSCRIK4>; Mon, 18 Mar 2002 03:10:56 -0500
+	id <S312235AbSCRIPq>; Mon, 18 Mar 2002 03:15:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312237AbSCRIKr>; Mon, 18 Mar 2002 03:10:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51982 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312232AbSCRIKi>;
-	Mon, 18 Mar 2002 03:10:38 -0500
-Message-ID: <3C95A0DB.40008@mandrakesoft.com>
-Date: Mon, 18 Mar 2002 03:10:03 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S312237AbSCRIPh>; Mon, 18 Mar 2002 03:15:37 -0500
+Received: from pat.uio.no ([129.240.130.16]:31174 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S312235AbSCRIPX>;
+	Mon, 18 Mar 2002 03:15:23 -0500
+To: NIIBE Yutaka <gniibe@m17n.org>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
+In-Reply-To: <shswuwkujx5.fsf@charged.uio.no>
+	<200203110018.BAA11921@webserver.ithnet.com>
+	<15499.64058.442959.241470@charged.uio.no>
+	<200203180707.g2I771Z00657@mule.m17n.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 18 Mar 2002 09:15:06 +0100
+Message-ID: <shs8z8qb8c5.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-To: Joel Becker <jlbec@evilplan.org>
-CC: Anton Altaparmakov <aia21@cam.ac.uk>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: fadvise syscall?
-In-Reply-To: <3C945635.4050101@mandrakesoft.com> <3C945A5A.9673053F@zip.com.au> <3C945D7D.8040703@mandrakesoft.com> <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk> <20020318080531.W4836@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker wrote:
+>>>>> " " == NIIBE Yutaka <gniibe@m17n.org> writes:
 
->Other applications can use this sort of stuff.  DBM could, for
->instance.  So might GIMP.  Etc.  Dynamic hints have real world
->applications.
->
+     > A problem is easily reproducible with user-space nfsd (on ext3,
+     > in my case).  We see the message (say, when installing a
+     > package with dpkg -i):
+     > 	nfs_refresh_inode: inode XXXXXXX mode changed, OOOO to OOOO
+     > Which means, same file handle but different type.
 
-to be fair, fcntl(2) could be used in conjunction with open(2), to do 
-dynamic hints.
+     > FWIW, I'm using the patch attached.  It works for me.
 
-I prefer to separate the hints from other O_xxx flags, though, so 
-posix_fadvise seems to be applicable...
+     > --- linux-2.4.18/fs/nfs/inode.c~ Wed Mar 13 17:56:48 2002
+     > +++ linux-2.4.18.superh/fs/nfs/inode.c Mon Mar 18 13:27:39 2002
+     > @@ -680,8 +680,10 @@ nfs_find_actor(struct inode *inode, unsi
+     >  	if (is_bad_inode(inode))
+     >  		return 0;
+     >  	/* Force an attribute cache update if inode->i_count
+     >  	== 0 */
+     > - if (!atomic_read(&inode->i_count))
+     > + if (!atomic_read(&inode->i_count)) {
+     >  		NFS_CACHEINV(inode);
+     > + inode->i_mode = 0;
+     > +	}
+     >  	return 1;
+     >  }
+ 
+Er... Why?
 
-    Jeff
+If you really want to change something in nfs_find_actor() then the
+following works better w.r.t. init_special_inode() on character
+devices:
 
+        if ((inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT))
+                return 0;
 
+That doesn't fix all the races w.r.t. unfsd though: if someone on the
+server removes a file that you have open for writing and replaces it
+with a new one, you can still corrupt the new file.
 
-
+Cheers,
+  Trond

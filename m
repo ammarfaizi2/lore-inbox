@@ -1,53 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266053AbSLSTb3>; Thu, 19 Dec 2002 14:31:29 -0500
+	id <S265998AbSLST3j>; Thu, 19 Dec 2002 14:29:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266069AbSLSTb3>; Thu, 19 Dec 2002 14:31:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39692 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266053AbSLSTb2>; Thu, 19 Dec 2002 14:31:28 -0500
-Date: Thu, 19 Dec 2002 11:37:06 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: bart@etpmod.phys.tue.nl
-cc: davej@codemonkey.org.uk, <lk@tantalophile.demon.co.uk>,
-       <hpa@transmeta.com>, <terje.eggestad@scali.com>, <drepper@redhat.com>,
-       <matti.aarnio@zmailer.org>, <hugh@veritas.com>, <mingo@elte.hu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <20021219135517.7E78051FB6@gum12.etpnet.phys.tue.nl>
-Message-ID: <Pine.LNX.4.44.0212191134180.2731-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266038AbSLST3j>; Thu, 19 Dec 2002 14:29:39 -0500
+Received: from h-64-105-34-78.SNVACAID.covad.net ([64.105.34.78]:41164 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S265998AbSLST3h>; Thu, 19 Dec 2002 14:29:37 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 19 Dec 2002 11:36:10 -0800
+Message-Id: <200212191936.LAA06204@adam.yggdrasil.com>
+To: mochel@osdl.org
+Subject: RFC: bus_type and device_class merge (or partial merge)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	If there is a more specific mailing list than lkml for discussing
+the generic driver model, please feel free to redirect me.
 
-On Thu, 19 Dec 2002 bart@etpmod.phys.tue.nl wrote:
-> 
-> True, but unless I really don't get it, compatibility of a new static
-> binary with an old kernel is going to break anyway. 
+	I'm thinking about trying to embed struct device_class into
+struct bus_type or perhaps just eliminate the separate struct
+bus_type.  The two structures are almost identical, especially
+considering that device_class.devnum appears not to be used by
+anything.
 
-NO.
+struct bus_type {
+	char			* name;
 
-The current code in 2.5.x is perfectly able to be 100% compatible with 
-binaries even on old kernels. This whole discussion is _totally_ 
-pointless. I solved all the glibc problems early on, and Uli is already 
-happy with the interfaces, and they work fine for old kernels that don't 
-have a clue about the new system call interfaces.
+	struct subsystem	subsys;
+	struct subsystem	drvsubsys;
+	struct subsystem	devsubsys;
+	struct list_head	devices;
+	struct list_head	drivers;
 
-WITHOUT any new magic system calls.
+	int		(*match)(struct device * dev, struct device_driver * drv);
+	struct device * (*add)	(struct device * parent, char * bus_id);
+	int		(*hotplug) (struct device *dev, char **envp, 
+				    int num_envp, char *buffer, int buffer_size);
+};
 
-WITHOUT any stupid SIGSEGV tricks.
+struct device_class {
+	char			* name;
+	u32			devnum;
 
-WITHOUT and silly mmap()'s on magic files.
+	struct subsystem	subsys;
+	struct subsystem	devsubsys;
+	struct subsystem	drvsubsys;
+	struct list_head	drivers;
+	struct list_head	devices;
 
-> My point was that the double-mapped page trick adds no overhead in the
-> case of a static binary, and just one extra mmap in case of a shared
-> binary.
+	int	(*add_device)(struct device *);
+	void	(*remove_device)(struct device *);
+	int	(*hotplug)(struct device *dev, char **envp, 
+			   int num_envp, char *buffer, int buffer_size);
+};
 
-For _zero_ gain.  The jump to the library address has to be indirect 
-anyway, and glibc has several places to put the information without any 
-mmap's or anything like that.
 
-		Linus
+	At first appearance, a bus_type (PCI, USB, etc.) and a
+device_class (network devices, input, block devices), may seem like
+opposite ends of the device driver abstraction, but really I think
+these are basically the same, and, more importantly, there can be many
+layers of these interfaces, and the decision about which are bus_types
+and which are device_classes is causing unnecessary coplexity.  For
+example, SCSI defines both.  SCSI can be a hardware bus, bus it also
+needs device_class so that scsi_debug (and eventually scsi generic) can
+use the struct interface mechanism.
 
+	If you look at the five places where a struct device_class is
+actually defined in 2.5.52, you'll see that either the device_class is
+not referenced by anything else or it has no bus type.  So, there
+seems to be little use of the distinction.
+
+device_class variable   Referenced elsewhere?           bus_type?
+
+cpu_devclass            No                              system_bus_type
+memblk_devclass         No                              system_bus_type
+node_devclass           No                              system_bus_type
+input_devclass          Yes (mousedev, tsdev)           (None)
+shost_devclass          Yes (scsi_debug)                (None)
+
+
+	Also, merging device_class and bus_type could also enable a
+little more consolidation between struct device_interface and struct
+device_driver (as with device_class.devnum, device_interface.devnum
+does not appear to be used currently).
+
+	Anyhow, I think this could shrink the drivers/base a bit and
+make it slightly more understandable.  I'd be interested in knowing if
+anyone else is contemplating or developing this or wants to point out
+issues to watch out for.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

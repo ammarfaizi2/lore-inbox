@@ -1,58 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbVCVIjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262564AbVCVIrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbVCVIjy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 03:39:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVCVIjs
+	id S262564AbVCVIrO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 03:47:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVCVIrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 03:39:48 -0500
-Received: from ctv-217-147-43-176.init.lt ([217.147.43.176]:60849 "EHLO
-	buakaw.homelinux.net") by vger.kernel.org with ESMTP
-	id S262565AbVCVIjp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 03:39:45 -0500
-X-Antivirus-MYDOMAIN-Mail-From: buakaw@buakaw.homelinux.net via buakaw
-X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:1(127.0.0.1):. Processed in 0.622853 secs Process 15051)
-Message-ID: <1297.192.168.0.37.1111480783.squirrel@buakaw.homelinux.net>
-In-Reply-To: <20050321194022.491060c7.akpm@osdl.org>
-References: <1144.192.168.0.37.1111351868.squirrel@buakaw.homelinux.net>
-    <20050321194022.491060c7.akpm@osdl.org>
-Date: Tue, 22 Mar 2005 10:39:43 +0200 (EET)
-Subject: Re: dst cache overflow
-From: buakaw@buakaw.homelinux.net
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4
-MIME-Version: 1.0
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-Importance: Normal
+	Tue, 22 Mar 2005 03:47:14 -0500
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:13451 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S262564AbVCVIrH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 03:47:07 -0500
+Date: Tue, 22 Mar 2005 09:47:01 +0100
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm3: SIS5513 DMA problem (set_drive_speed_status)
+Message-ID: <20050322094701.1d17b401@phoebee>
+In-Reply-To: <20050314211755.5e686c50.akpm@osdl.org>
+References: <20050314161528.575f3a77@phoebee>
+	<20050314211755.5e686c50.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
+ CPU 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
+Mime-Version: 1.0
+Content-Type: multipart/signed;
+ boundary="Signature_Tue__22_Mar_2005_09_47_01_+0100_=0FAmgMoLP_VqaZf";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature_Tue__22_Mar_2005_09_47_01_+0100_=0FAmgMoLP_VqaZf
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-computer's main job is to be router on small LAN with 10 users and  some
-services like qmail, apache, proftpd, shoutcast, squid, and ices on slack
-10.1. Iptables and tc are used to limit  bandwiwdth and the two bandwidthd
- daemons are running on eth0 interface and all the time the cpu is used at
-about 0.4% and additional 12% by ices  when encoding mp3 on demand, and
-the proccess ksoftirqd/0 randomally starts to use 100% of 0 cpu in normal
-situation and one time when the ksoftirqd/0 became crazy i noticed dst
-cache overflow messages in syslog but there are more of thies lines in
-logs  about 5 times in 10 days period
+On Mon, 14 Mar 2005 21:17:55 -0800
+Andrew Morton <akpm@osdl.org> bubbled:
 
-Could you please describe the workload?  What is the computer doing at the
- time, and how is it set up?
+> Martin Zwickel <martin.zwickel@technotrend.de> wrote:
+> >
+> > Hi,
+> >=20
+> > just tried the 2.6.11-mm3 and at boot-time my start scripts try to
+> > enable DMA on my disk (hdparm -m16 -c1 -u1 -X69 /dev/hda).
+> >=20
+> > But while running hdparm, the kernel waits many seconds and gives me
+> > some DMA warnings/errors:
+> >
+> > ...
+> >
+> > hda: set_drive_speed_status: status=3D0xd0 { Busy }
+> >=20
+> > ide: failed opcode was: unknown
+> > hda: dma_timer_expiry: dma status =3D=3D 0x41
+> > hda: DMA timeout error
+> > hda: dma timeout error: status=3D0xd0 { Busy }
+> > ...
+> >=20
+> > That happened also with 2.6.11-rc3 since I thought I should switch
+> > away from my 2.6.8-rc2-mm1 (the best kernel ever ;)).
+>=20
+> Could you please check whether 2.6.11-rc1 does this?  It should be
+> released mid-week.  Thanks.
 
- Thanks.
+ps.: just booted 2.6.12-rc1-mm1 and hdparm works now much better on boot
+     than 2.6.11-mm3. ;)
 
+--=20
+MyExcuse:
+We're upgrading /dev/null
 
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
 
+TechnoTrend AG <http://www.technotrend.de>
 
+--Signature_Tue__22_Mar_2005_09_47_01_+0100_=0FAmgMoLP_VqaZf
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
+iD8DBQFCP9uHmjLYGS7fcG0RApSCAJ40sKRmjYHRE/HqMfNR1djF3m1LtQCfcmzl
+IksENmDtg/4PPljrseZN/oM=
+=K8vS
+-----END PGP SIGNATURE-----
 
-
-
-
-
-
-
+--Signature_Tue__22_Mar_2005_09_47_01_+0100_=0FAmgMoLP_VqaZf--

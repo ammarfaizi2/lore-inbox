@@ -1,74 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271885AbTGYBMm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 21:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271886AbTGYBMm
+	id S271852AbTGYBMc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 21:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271885AbTGYBMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 21:12:42 -0400
-Received: from quechua.inka.de ([193.197.184.2]:61131 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S271885AbTGYBMj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 21:12:39 -0400
-From: Bernd Eckenfels <ecki-lkm@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: why the current kernel config menu layout is a mess
-In-Reply-To: <Pine.LNX.4.53.0307242020140.23200@localhost.localdomain>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.20-xfs (i686))
-Message-Id: <E19frN3-00025I-00@calista.inka.de>
-Date: Fri, 25 Jul 2003 03:27:45 +0200
+	Thu, 24 Jul 2003 21:12:32 -0400
+Received: from adsl-66-159-224-106.dslextreme.com ([66.159.224.106]:33798 "EHLO
+	zork.ruvolo.net") by vger.kernel.org with ESMTP id S271852AbTGYBMb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 21:12:31 -0400
+Date: Thu, 24 Jul 2003 18:27:24 -0700
+From: Chris Ruvolo <chris+lkml@ruvolo.net>
+To: Torrey Hoffman <thoffman@arnor.net>
+Cc: Ben Collins <bcollins@debian.org>, gaxt <gaxt@rogers.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux firewire devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: Firewire
+Message-ID: <20030725012723.GF23196@ruvolo.net>
+Mail-Followup-To: Torrey Hoffman <thoffman@arnor.net>,
+	Ben Collins <bcollins@debian.org>, gaxt <gaxt@rogers.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux firewire devel <linux1394-devel@lists.sourceforge.net>
+References: <3F1FE06A.5030305@rogers.com> <20030724223522.GA23196@ruvolo.net> <20030724223615.GN1512@phunnypharm.org> <20030724230928.GB23196@ruvolo.net> <1059095616.1897.34.camel@torrey.et.myrio.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0hHDr/TIsw4o3iPK"
+Content-Disposition: inline
+In-Reply-To: <1059095616.1897.34.camel@torrey.et.myrio.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.53.0307242020140.23200@localhost.localdomain> you wrote:
->  the suboption "Support for paging of anonymous memory".
->  might this not go under "Processor type and features",
->  where there are other memory-related options?
 
-well, i think it is architecture independend
+--0hHDr/TIsw4o3iPK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> "Power management options"
+On Thu, Jul 24, 2003 at 06:13:37PM -0700, Torrey Hoffman wrote:
+> Sometimes the driver seems to go into an loop of "unsolicted packet
+> received" messages and attempted resets.  Here's what the log looks like
+> when that happens:  (this was on 2.5.75)
+[..]
+> (this sequence repeats until I turn off or unplug the drive.)
 
->    in addition, though, i'm not sure "CPU frequency scaling"
->  belongs here.  it might just as well fit under "Processor type
->  and features", although that may be nit-picking.
+This sounds like what happens to me when I turn on my DV cam.  CPU usage
+goes up to 40% kernel and loops like that until the device goes off.
 
-Power Management and System Configuration
+What hardware do you have?  lspci?
 
-could be a better heading
+Marcello's latest 2.4.22-pre8 updates to rev 1010 of the 1394 modules, so
+I'm curious if I can reproduce this in 2.4 now.
 
-> "Bus options (PCI, PCMCIA, EIAS, MCA, ISA)
-> 
->    if this is for busses, why aren't the other busses here as
->  well?  shouldn't USB be here as well?
+-Chris
 
-I think this is concernd with mainboard's main bus only (i2c is an aux
-mainboard bus and usb, firewire are device busses)
+--0hHDr/TIsw4o3iPK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> "Character devices" (jumping ahead just a bit)
-> "Block devices"
-> "Multiple devices (RAID and LVM)"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Well, if we go along the line of using unix naming, then MD can be moved ot
-block devices, not to filesystems.
+iD8DBQE/IId7KO6EG1hc77ERAutEAJwOhPKJlkjCZIZTkiKXGun9BwmVsQCeMM2H
+BhQoxHGfNEw0S4QmCVqcQpk=
+=gB+c
+-----END PGP SIGNATURE-----
 
-> "Fusion MPT"
-> 
->    hard to believe this deserves its own top-level entry,
->  but i could be wrong.
-
-yes, very strange.
-
-> "IEEE 1394"
->    it's a bus, right?  move it there.
-
-i would suggest to have the section separated into system internal stuff
-(cpu, mainboard bus, management bus, memory, apci, ..) and external
-interfaces (usb, firewire, legacy/serial/, legacy/parallel, legacy/ps2,
-...)
-
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+--0hHDr/TIsw4o3iPK--

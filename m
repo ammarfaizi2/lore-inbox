@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266726AbSKLRzR>; Tue, 12 Nov 2002 12:55:17 -0500
+	id <S266688AbSKLRul>; Tue, 12 Nov 2002 12:50:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266731AbSKLRzR>; Tue, 12 Nov 2002 12:55:17 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:6126 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S266726AbSKLRzQ>; Tue, 12 Nov 2002 12:55:16 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200211121801.gACI1ro25294@devserv.devel.redhat.com>
-Subject: Re: Kill obsolete and  unused suspend/resume code from IDE
-To: pavel@ucw.cz (Pavel Machek)
-Date: Tue, 12 Nov 2002 13:01:53 -0500 (EST)
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org (kernel list),
-       alan@redhat.com
-In-Reply-To: <20021112175154.GA6881@elf.ucw.cz> from "Pavel Machek" at Nov 12, 2002 06:51:54 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S266755AbSKLRuk>; Tue, 12 Nov 2002 12:50:40 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:29171 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S266688AbSKLRui>; Tue, 12 Nov 2002 12:50:38 -0500
+Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC923@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Jamie Lokier'" <lk@tantalophile.demon.co.uk>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       "'mingo@redhat.com'" <mingo@redhat.com>,
+       "'Mark Mielke'" <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
+Subject: RE: Users locking memory using futexes
+Date: Tue, 12 Nov 2002 09:57:18 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This code in ide is obsolete and unused. I have followup patch to
-> integrate IDE into sysfs. Please apply,
 
-The code is not obsolete, it is not unused
+> > Good thing is - I just found out after reading twice - that 
+> FUTEX_FD does
+> > not lock the page in memory, so that is one case less to 
+> worry about. 
+> 
+> Oh yes it does - the page isn't unpinned until wakeup or close.
+> See where it says in futex_fd():
+> 
+> 	page = NULL;
+> out:
+> 	if (page)
+> 		unpin_page(page);
 
-> +	do_idedisk_standby(drive);
->  	if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
->  		if (do_idedisk_flushcache(drive))
->  			printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",
+Bang, bang, bang ... assshoooole [hearing whispers in my ears]. Great point:
+Inaky 0, Jamie 1 - this will teach me to read _three_ times on Monday
+evenings. I am supposed to know all that code by heart ... oh well.
 
-What locking rules are you using here ?
+> Rusty's got a good point about pipe() though.
 
-Linus please reject this patch. Its just getting in the way of actually
-fixing the IDE code properly.
+He does; grumble, grumble ... let's see ... with pipe you have an implicit
+limit that controls you, the number of open files, that you also hit with
+futex_fd() (in ... get_unused_fd()) - so that is covered. OTOH, with just
+futex_wait(), if you are up to use one page per futex you lock on, you are
+also limited by RLIMIT_NPROC for every process you lock on [asides from
+wasting a lot of memory], so looks like there is another roadblock there to
+control it.
+
+Hum ... still I want to try Ingo's approach on the ptes; that is the part I
+was missing [knowing that struct page * is not invariant as the pte number
+... even being as obvious as it is].
+
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
+fault]
+

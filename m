@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268295AbUHXUpt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268315AbUHXUvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268295AbUHXUpt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 16:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268300AbUHXUps
+	id S268315AbUHXUvy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 16:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268316AbUHXUvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 16:45:48 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:25693 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268295AbUHXUpf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 16:45:35 -0400
-Date: Tue, 24 Aug 2004 22:46:11 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Mikael Pettersson <mikpe@csd.uu.se>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Shouldn't kconfig defaults match recommendations in help text?
-Message-ID: <20040824204611.GB26136@mars.ravnborg.org>
-Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
-	Sam Ravnborg <sam@ravnborg.org>, Mikael Pettersson <mikpe@csd.uu.se>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0408232347380.3767@dragon.hygekrogen.localhost> <16683.22576.781038.756277@alkaid.it.uu.se> <Pine.LNX.4.61.0408241859420.2770@dragon.hygekrogen.localhost> <20040824182930.GA7260@mars.ravnborg.org> <Pine.LNX.4.61.0408242129130.2770@dragon.hygekrogen.localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0408242129130.2770@dragon.hygekrogen.localhost>
-User-Agent: Mutt/1.5.6i
+	Tue, 24 Aug 2004 16:51:54 -0400
+Received: from mail.dif.dk ([193.138.115.101]:13007 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S268315AbUHXUvu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 16:51:50 -0400
+Date: Tue, 24 Aug 2004 22:57:25 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Make PERFCTR_VIRTUAL default in Kconfig match recommendation
+ in help text
+Message-ID: <Pine.LNX.4.61.0408242246570.2770@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 09:33:09PM +0200, Jesper Juhl wrote:
-> 
-> Which brings me to another thing regarding configs and defaults - there 
-> does not seem to be much relation between the defaults in the various 
-> Kconfig files and the settings in arch/<foo>/defconfig which puzzles me, 
-> especially since "make defconfig" seems to use the stuff from 
-> arch/<foo>/defconfig and not what's specified in Kconfig...
-> Wouldn't it make sense to update the defconfig's to match the Kconfig's 
-> when I make these changes?
 
-defconfig is only subject for changes by arch-maintainers.
-And defaults provided in Kconfig is mainly valid for i386 anyway -
-so are the Kconfig help text.
+Greetings,
 
-	Sam
+A tiny patch to make PERFCTR_VIRTUAL default to Y to match the 
+recommendation given in the help text. The help has a very clear "Say Y" 
+recommendation and it doesn't make much sense to not enable this currently 
+if PERFCTR is set, so it should default to Y, not N as it does currently.
+
+Patch is against 2.6.8.1-mm4
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+diff -up linux-2.6.8.1-mm4-orig/drivers/perfctr/Kconfig linux-2.6.8.1-mm4/drivers/perfctr/Kconfig
+--- linux-2.6.8.1-mm4-orig/drivers/perfctr/Kconfig	2004-08-24 19:55:27.000000000 +0200
++++ linux-2.6.8.1-mm4/drivers/perfctr/Kconfig	2004-08-24 20:56:37.000000000 +0200
+@@ -40,6 +40,7 @@ config PERFCTR_INIT_TESTS
+ config PERFCTR_VIRTUAL
+ 	bool "Virtual performance counters support"
+ 	depends on PERFCTR
++	default y
+ 	help
+ 	  The processor's performance-monitoring counters are special-purpose
+ 	  global registers. This option adds support for virtual per-process
+
+
+/Jesper
+

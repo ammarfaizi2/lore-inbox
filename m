@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270215AbRHGO35>; Tue, 7 Aug 2001 10:29:57 -0400
+	id <S270221AbRHGOe2>; Tue, 7 Aug 2001 10:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270218AbRHGO3r>; Tue, 7 Aug 2001 10:29:47 -0400
-Received: from acmex.gatech.edu ([130.207.165.22]:27534 "EHLO acmex.gatech.edu")
-	by vger.kernel.org with ESMTP id <S270215AbRHGO3h>;
-	Tue, 7 Aug 2001 10:29:37 -0400
-Message-Id: <5.1.0.14.2.20010807103637.00a88b60@pop.prism.gatech.edu>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 07 Aug 2001 10:37:57 -0400
-To: linux-kernel@vger.kernel.org
-From: David Maynor <david.maynor@oit.gatech.edu>
-Subject: encrypted swap
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S270223AbRHGOeS>; Tue, 7 Aug 2001 10:34:18 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38157 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270221AbRHGOeD>; Tue, 7 Aug 2001 10:34:03 -0400
+Subject: Re: DRM Linux kernel merge (update) needed, soon.
+To: Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=)
+Date: Tue, 7 Aug 2001 15:35:46 +0100 (BST)
+Cc: dri-devel@lists.sourceforge.net (DRI-Devel),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <20010807014029Z270029-28344+2126@vger.kernel.org> from "Dieter =?iso-8859-1?q?N=FCtzel?=" at Aug 07, 2001 03:40:25 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15U7xS-00030p-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >This is nonsense.  Of course the computer can do this.  This is exactly 
-what we
- >already do for TCP sequence numbers, disk UUIDS, and many other things.
- >Granted, we need a little more initial entropy, but the principle has already
- >been established.
+> the Linux kernel DRM stuff need a merge (update), soon.
 
- >Remember that this is not the same as a crypted filesystem in that no user
- >(even root) need ever have any access to the key.  That's important.  Because
- >the swapspace is essentially wiped at powerup, the system can happily gen 
-a new
- >key every boot, crypt away and never let the users know the key at all.
+The XFree DRM needs fixing first. Try running the current XFree 4.1 DRI with
+slab poisoning enabled and its not pretty.
 
-This is a should-if debate, in my opinion. That is, not if you can do it, 
-but should you. Has anybody thought of the performance hit that you would 
-take encrypting your swap?
-
-David Maynor
-
+Alan

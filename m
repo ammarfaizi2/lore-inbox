@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262229AbTCHWG0>; Sat, 8 Mar 2003 17:06:26 -0500
+	id <S262258AbTCHWNm>; Sat, 8 Mar 2003 17:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262239AbTCHWG0>; Sat, 8 Mar 2003 17:06:26 -0500
-Received: from inet-mail2.oracle.com ([148.87.2.202]:54195 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S262229AbTCHWGZ>; Sat, 8 Mar 2003 17:06:25 -0500
-Date: Sat, 8 Mar 2003 14:16:51 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk, akpm@digeo.com,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] register_blkdev
-Message-ID: <20030308221651.GL2835@ca-server1.us.oracle.com>
-References: <UTC200303080057.h280v0o28591.aeb@smtp.cwi.nl> <20030308005333.GF23071@kroah.com> <20030308073407.A24272@infradead.org> <20030308192908.GB26374@kroah.com> <20030308194331.A31291@infradead.org> <20030308214130.GK2835@ca-server1.us.oracle.com> <20030308215239.A782@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030308215239.A782@infradead.org>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.3i
+	id <S262260AbTCHWNm>; Sat, 8 Mar 2003 17:13:42 -0500
+Received: from t2s5.tele2.cz ([213.246.64.40]:49572 "HELO t2s5.tele2.cz")
+	by vger.kernel.org with SMTP id <S262258AbTCHWNl>;
+	Sat, 8 Mar 2003 17:13:41 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Michal Semler <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: very buggy 3DFx framebuffer support!!! :(
+Date: Sat, 8 Mar 2003 23:23:18 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: jsimmons@infradead.org, vandrove@vc.cvut.cz
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E18rmiu-0000ew-00@notas>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 09:52:39PM +0000, Christoph Hellwig wrote:
-> What hack to steal every remaining major?  Remember that Linus already said
-> that there won't be new static majors anyway.
+Hello,
 
-	Having more than one major for disks is a hack.  Already.
+I found out very buggy 3DFx framebuffer support :(
 
-> were do you get this 4000 disks number from?  Every big system in practice
-> is attached to some EMC/LSI/IBM/whatever array anyway that virtualizes
-> away the actual disk.
+when I select nothing when console bootings, I got white background under 
+Tux, rolling up with black background of text. Then everything under Tux has 
+black background and white text, but there, where is tux icon everything on 
+the right side of the icon has still white background
 
-	We've already got systems with 4000 disks attached.  Registered
-with the system, even.  This isn't hiding behind some big array.  They
-are part of the system.  No, it's not on Linux, because Linux can't
-handle it.  But if the system wants to go Linux, Linux has to handle it.
-And 1900 disks wont' cut it *today*.  Never mind 2 years from now.
+when I select in lilo 
+append="video=tdfx:1024x768-24@75"
 
-Joel
+my console gets screws up and I can't see anything under it. X windows but 
+works.
 
--- 
+When I boot computer without append and then call it with fbset -a 
+1024x768-75 things are the same ;( and I still can select Xwindows with alt+f7
 
-Life's Little Instruction Book #80
+Please can anybody fix this?
 
-	"Slow dance"
+Linux 2.4.20 vanilla, gcc 3.0.4, Debian woody 3.0r1, 3DFx card, P3 733 
+Coppermine
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+I don't get linux-kernel, so please if anybody will fix that, send me patches 
+to test, coz some things were made in 2.4.19 and then thing goes worser then 
+before. I wanna comunicate with developers to solve this, coz this bug is in 
+kernel for a long time nonfixed :((
+
+Michal

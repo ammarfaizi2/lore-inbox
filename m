@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbTIMGvy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 02:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbTIMGvy
+	id S262062AbTIMHAP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 03:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTIMHAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 02:51:54 -0400
-Received: from users.linvision.com ([62.58.92.114]:61586 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id S262060AbTIMGvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 02:51:52 -0400
-Date: Sat, 13 Sep 2003 08:51:50 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+	Sat, 13 Sep 2003 03:00:15 -0400
+Received: from angband.namesys.com ([212.16.7.85]:40836 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S262062AbTIMHAL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 03:00:11 -0400
+Date: Sat, 13 Sep 2003 11:00:10 +0400
+From: Oleg Drokin <green@namesys.com>
 To: Kyle Rose <krose+linux-kernel@krose.org>, linux-kernel@vger.kernel.org
 Subject: Re: Large-file corruption. ReiserFS? VFS?
-Message-ID: <20030913085150.B22707@bitwizard.nl>
-References: <87r82noyr9.fsf@nausicaa.krose.org> <20030911144732.S18851@schatzie.adilger.int> <87n0dboxhg.fsf@nausicaa.krose.org> <20030911150017.T18851@schatzie.adilger.int>
+Message-ID: <20030913070010.GA12918@namesys.com>
+References: <87r82noyr9.fsf@nausicaa.krose.org> <20030912153935.GA2693@namesys.com> <20030912175917.GB30584@matchmail.com> <20030912184001.GA9245@namesys.com> <20030912205446.GD30584@matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030911150017.T18851@schatzie.adilger.int>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+In-Reply-To: <20030912205446.GD30584@matchmail.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 03:00:17PM -0600, Andreas Dilger wrote:
-> On Sep 11, 2003  16:56 -0400, Kyle Rose wrote:
-> > > I would guess that mkisofs isn't opening the file with O_LARGEFILE.
-> > > It probably only expected to write 600MB output files.  Purely a
-> > > guess though.
-> > 
-> > Thanks for the suggestion, but it is, in fact, opening with
-> > O_LARGEFILE:
-> > 
-> > open("/mnt/angband/krose/tmp/862839.img", O_WRONLY|O_CREAT|O_TRUNC|O_LARGEFILE, 0666) = 3
-> 
-> True, and O_LARGEFILE would have bit you at 2GB and not 4GB...  If you are
-> doing output redirected from the shell, then it can't be a seek issue
-> either.
+Hello!
 
-... but mkisofs will NOT be seeking, as we commonly burn CDs while
-mkisofs is providing the data through a pipe. 
+On Fri, Sep 12, 2003 at 01:54:46PM -0700, Mike Fedyk wrote:
+> > > > > However, just as the write completed, the beginning of the file became
+> > > > > corrupted.  I considered a 4GB problem to be likely, and re-tested
+> > > > You are absolutely right.
+> > > > Ther is a reiserfs problem that I just found based on your description.
+> > > > The patch below should help. Please confirm that it works for you too.
+> > > > Thanks a lot for the report.
+> > > Yow, I guess large files on reiserfs in 2.6 isn't very common...
+> > Or may be nobody noticed the corruption.
+> Possible.
+> Does this affect 2.4 also?  If not, then that will narrow the possible
+> number of people who could have hit this bug.
 
-		Roger. 
+No, 2.4 is not affected.
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+Bye,
+    Oleg

@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262080AbSJVDuB>; Mon, 21 Oct 2002 23:50:01 -0400
+	id <S262107AbSJVD5v>; Mon, 21 Oct 2002 23:57:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262089AbSJVDuB>; Mon, 21 Oct 2002 23:50:01 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3374 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S262080AbSJVDuA>; Mon, 21 Oct 2002 23:50:00 -0400
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-References: <m1bs5nvo2r.fsf@frodo.biederman.org>
-	<2577017645.1035188509@[10.10.2.3]>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Oct 2002 21:54:21 -0600
-In-Reply-To: <2577017645.1035188509@[10.10.2.3]>
-Message-ID: <m17kgbuo0i.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S262119AbSJVD5v>; Mon, 21 Oct 2002 23:57:51 -0400
+Received: from mnh-1-24.mv.com ([207.22.10.56]:62725 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S262107AbSJVD5u>;
+	Mon, 21 Oct 2002 23:57:50 -0400
+Message-Id: <200210220507.AAA06089@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andi Kleen <ak@muc.de>, john stultz <johnstul@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       george anzinger <george@mvista.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0 
+In-Reply-To: Your message of "Sun, 20 Oct 2002 04:33:21 +0200."
+             <20021020023321.GS23930@dualathlon.random> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Tue, 22 Oct 2002 00:07:16 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
+andrea@suse.de said:
+> yes, this is true for all the syscalls, if that's a problem uml isn't
+> an option for the user in the first place. 
 
-> >> In many cases, this will stop the box from falling over flat on it's 
-> >> face due to ZONE_NORMAL exhaustion (from pte-chains), or even total
-> >> RAM exhaustion (from PTEs). Thus the performance gain is infinite ;-)
-> > 
-> > So why has no one written a pte_chain reaper?  It is perfectly sane
-> > to allocate a swap entry and move an entire pte_chain to the swap
-> > cache.  
-> 
-> I think the underlying subsystem does not easily allow for dynamic regeneration,
-> so it's non-trivial. 
+Not true.  Any marginal increase in performance will make a number of 
+applications fast enough that they become practical in UML.  Since there
+are apps which, to a first order approximation, do nothing but call 
+gettimeofday, they are not usable in UML today, but could become usable if
+UML had vgettimeofday.  I've had complaints about this, so the need is
+definitely there.
 
-We swap pages out all of the time in 2.4.x, and that is all I was suggesting 
-swap out some but not all of the pages, on a very long pte_chain.  And swapping
-out a page is not terribly complex, unless something very drastic has changed.
+> what do you plan to do to make all other syscall faster? 
 
-> wli was looking at doing pagetable reclaim at some point,
-> IIRC.
-> 
-> 
-> IMHO, it's better not to fill memory with crap in the first place than
-> to invent complex methods of managing and shrinking it afterwards. You
-> only get into pathalogical conditions under sharing situation, else 
-> it's limited to about 1% of RAM (bad, but manageable) ... thus providing
-> this sort of sharing nixes the worst of it. Better cache warmth on 
-> switches (for TLB misses), faster fork+exec, etc. are nice side-effects.
+Right now, a UML syscall involves four host context switches and a host
+signal delivery and return.  I'm merging some changes which will reduce
+that to two host context switches and no signals.  Once that's done, I'm
+going to look for more improvements.
 
-I will agree with that if everything works so the sharing happens,
-this is a nice feature.
+> My problem is that mapping user code into the vsyscall fixmap is
+> complex and not very clean at all, breaks various concepts in the mm
+> and last but not the least it is slow
 
-> The ultimate solution is per-object reverse mappings, rather than per
-> page, but that's a 2.7 thingy now.
-???
+Can you explain, in small words, why mapping user code is so horrible?
 
-Last I checked we already had those in 2.4.x, and still in 2.5.x.  The
-list of place the address space is mapped.
-
-Eric
+				Jeff
 

@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVCMDJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262587AbVCMDNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbVCMDJP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 22:09:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVCMDJP
+	id S262587AbVCMDNz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 22:13:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262638AbVCMDNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 22:09:15 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55813 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261727AbVCMDJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 22:09:11 -0500
-Date: Sun, 13 Mar 2005 04:09:10 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: unexport phys_proc_id?
-Message-ID: <20050313030910.GO3814@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 12 Mar 2005 22:13:54 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:3026 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262587AbVCMDNx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 22:13:53 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: AGP bogosities
+Date: Sat, 12 Mar 2005 19:13:05 -0800
+User-Agent: KMail/1.7.2
+Cc: Mike Werner <werner@sgi.com>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <200503111927.04807.werner@sgi.com> <20050312035809.GB8654@redhat.com>
+In-Reply-To: <20050312035809.GB8654@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200503121913.05660.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
+On Friday, March 11, 2005 7:58 pm, Dave Jones wrote:
+>  > sgi-agp.c was sent to Dave about 2 weeks ago. I assumed he was waiting
+>  > for the TIO header files to make it from the ia64 tree into Linus's
+>  > tree.
+>
+> Actually I just got swamped with other stuff, and dropped the ball.
+> I still have the patch in my queue though, so I can push that along.
+>
+> Are those headers in mainline yet ?
 
-more than 2 months ago, you EXPORT_SYMBOL'ed phys_proc_id with the 
-following comment:
+Yeah, I think it's all there now.  Looks like Linus did a pull from ia64 
+recently, so it *should* all build.
 
-   This is needed for the powernow k8 driver to manage AMD dual core systems.
-
-This driver still doesn't use phys_proc_id today.
-
-Is this obsolete and the EXPORT_SYMBOL can be removed again?
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Thanks,
+Jesse

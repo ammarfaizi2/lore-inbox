@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263718AbTDTVqV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 17:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263720AbTDTVqV
+	id S263720AbTDTVxO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 17:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbTDTVxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 17:46:21 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:37853 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263718AbTDTVqS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 17:46:18 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 20 Apr 2003 23:58:18 +0200 (MEST)
-Message-Id: <UTC200304202158.h3KLwIu10935.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [CFT] more kdev_t-ectomy
-Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	Sun, 20 Apr 2003 17:53:14 -0400
+Received: from diale081.ppp.lrz-muenchen.de ([129.187.28.81]:22495 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id S263720AbTDTVxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 17:53:13 -0400
+Subject: 2.5: daemonize() playing tricks with ttys?
+From: Daniel Egger <degger@fhm.edu>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0XmjepjCGN+sml5UaOSJ"
+Organization: 
+Message-Id: <1050875983.899.2.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 20 Apr 2003 23:59:43 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> MKDEV(<constant>,<constant>) is a valid thing, as far as I'm concerned.
 
-Yes. I was tempted to change the first argument of blk_register_region
-into a pair, killing some MKDEV occurrences, but then I noticed that
-almost all are of the form MKDEV(<constant>,<constant>), and that
-is not so bad.
+--=-0XmjepjCGN+sml5UaOSJ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Still, the fact that every single call of blk_register_region
-has a first argument MKDEV(ma,mi) suggests that one might
-consider leaving these parameters separate.
+Hija,
 
-Andries
+I'm trying to spawn new threads from a function called from alloc_uid
+using daemonize () as soon as a new user appears on the system. Somehow=20
+this detaches the original shell from the tty causing an exit not
+only of the child but also it's parent.
 
+A diagram of the situation would lock like this:
 
-[Now that we are talking anyway, let me ask about something.
-You wrote blk_register_region so that subregions override
-superregions. At the bottom there is the full region.
-Was this just a general good idea, or do you have definite
-applications in mind? I ask this mostly because the hash
-lookup becomes more complicated in the general case.
-You may have noticed that I wrote
+getty -> (login of root) bash -> (su to another user) bash ->
+[new thread is spawned] (whatever) -> exit -> getty
 
-static inline int major_to_index(int major)
-{
-        return major % MAX_PROBE_HASH;
-}
-static inline int dev_to_index(dev_t dev)
-{
-        return major_to_index(MAJOR(dev));
-}
+Alternativly, when directly logging in a non-root user:
+getty -> (login of foo) motd -> [hang]
 
-and that is OK for regions with constant major.
-For multimajor regions a hash does not work very well, and
-a tree looks better.]
+How can I daemonize something without disturbing other processes?
+I already tried playing with reparent_to_init and some signal stuff
+as done by other parts of the kernel but to no avail.
+
+--=20
+Servus,
+       Daniel
+
+--=-0XmjepjCGN+sml5UaOSJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+oxhPchlzsq9KoIYRAmYAAKCxxX2XZ2Vcd1oLB/ZWTH0s/h/rcwCcCsJa
+F7ebi5YuROF4/MMGx0LHx/4=
+=z6OT
+-----END PGP SIGNATURE-----
+
+--=-0XmjepjCGN+sml5UaOSJ--
+

@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285087AbRLUUA4>; Fri, 21 Dec 2001 15:00:56 -0500
+	id <S285088AbRLUUFx>; Fri, 21 Dec 2001 15:05:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285088AbRLUUAo>; Fri, 21 Dec 2001 15:00:44 -0500
-Received: from svr3.applink.net ([206.50.88.3]:32271 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S285087AbRLUUAZ>;
-	Fri, 21 Dec 2001 15:00:25 -0500
-Message-Id: <200112212000.fBLK0GSr021423@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: timothy.covell@ashavan.org, esr@thyrsus.com
-Subject: Re: Configure.help editorial policy (H20 and K2B)
-Date: Fri, 21 Dec 2001 13:56:31 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011220143247.A19377@thyrsus.com> <20011220185226.A25080@thyrsus.com> <200112211305.fBLD5WSr019374@svr3.applink.net>
-In-Reply-To: <200112211305.fBLD5WSr019374@svr3.applink.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S285089AbRLUUFn>; Fri, 21 Dec 2001 15:05:43 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:38583 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S285088AbRLUUF0>; Fri, 21 Dec 2001 15:05:26 -0500
+Date: Fri, 21 Dec 2001 13:05:23 -0700
+Message-Id: <200112212005.fBLK5Nf15435@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Gregor Suhr <Gregor@Suhr.home.cs.tu-berlin.de>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: OOPS  at boot in 2.4.17-rc[12]  (kernel BUG at slab.c:815) maybe  devfs
+In-Reply-To: <3C2392EC.6050306@Suhr.home.cs.tu-berlin.de>
+In-Reply-To: <3C210AB9.5000900@suhr.home.cs.tu-berlin.de>
+	<200112202338.fBKNcCI05673@vindaloo.ras.ucalgary.ca>
+	<3C227F0E.E6A9CF76@zip.com.au>
+	<3C23842A.20407@Suhr.home.cs.tu-berlin.de>
+	<200112211926.fBLJQ7814544@vindaloo.ras.ucalgary.ca>
+	<3C2392EC.6050306@Suhr.home.cs.tu-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 December 2001 07:01, Timothy Covell wrote:
-> On Thursday 20 December 2001 17:52, Eric S. Raymond wrote:
-> > David Garfield <garfield@irving.iisd.sra.com>:
-> > > Another option: maybe the choice of KB vs KiB vs KKB should be a
-> > > configuration choice.
->
-> Um, you know, all due repect to Knuth, the God, I think that
-> someof his ideas are downright silly.   Now, my suggestion
-> is different, namely, inserting a 2 in the unit such as "K2B"
-> meaning Kilo (base2) Byte.    It's not like we don't have a
-> precendent from the chemistry and physics fields.
+Gregor Suhr writes:
+> Richard Gooch wrote:
+> 
+> >Gregor Suhr writes:
+> >
+> >>>>
+> >>vgchange -- volume group "vg0" successfully activated
+> >>
+> >>kjournald starting.  Commit interval 5 seconds
+> >>EXT3-fs: mounted filesystem with ordered data mode.
+> >>VFS: Mounted root (ext3 filesystem) readonly.
+> >>devfs: devfs_do_symlink(root): could not append to parent, err: -17
+> >>change_root: old root has d_count=2
+> >>kmem_cache_create: devfsd_event
+> >>
+> >
+> >Now this is useful information! I see what's caused this: the second
+> >mount of devfs (because you're using initrd) is creating the
+> >devfsd_event slab cache again, which is a bug. I've appended a patch
+> >which fixes this. Please test it out and let me know how it goes.
+> >
+> I will try the patch, but it seem to fit only on plain 2.4.17 and not on 
+> my 2.4.17-rc2 (is it right??).
 
-I've changed my mind.   K2B would seem to imply
-2**3 Bytes, which is 8 Bytes.  
+It will be fine on 2.4.17-rc2 as well. The patch is localised to
+devfs, and there are no devfs changes between 2.4.17-rc2 and 2.4.17.
 
-I think that way to solve the issue is to just byte 
-the bullet and stop equating 1024 with K.   It's
-just such an inconsistant and ad hoc hack.
+> >>Code: 0f 0b 5f 8b 13 5d 89 d3 8b 03 89 c2 0f 18 02 81 fb 08 dd 37
+> >> <0>Kernel panic: Attempted to kill init!
+> >>
+> >
+> >Where is the ksymoops decoding of this? It looks like you didn't run
+> >ksymoops on each Oops trace.
+> >
+> It is the same trace as above (now in the last mail), but i thougt I is 
+> better to append a part of the bootlog.
+> As Andrew Morton pointed out the oops happens then devfs trys to create 
+> an second slab cache.
 
-The only truly logical way to do this would be
-to base everything on bits and powers of
-two.  But, since we run out of common prefixes
-at 2**6 (exa), we should just stick to decimal
-and scientific format.    1024 = 2**10.
+Are you sure you mean "then devfs trys...", or perhaps you mean "when
+devfs trys..."? If you actually mean "then", that implies that there
+are two things trying to create a duplicate cache. One of them being
+devfs (which is fixed in the patch I sent you), and the other is some
+random driver. It would be good to know for sure.
 
+				Regards,
 
-
-
-
--- 
-timothy.covell@ashavan.org.
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

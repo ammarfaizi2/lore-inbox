@@ -1,123 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131517AbRAAGW6>; Mon, 1 Jan 2001 01:22:58 -0500
+	id <S130352AbRAAHJC>; Mon, 1 Jan 2001 02:09:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131638AbRAAGWs>; Mon, 1 Jan 2001 01:22:48 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:58278 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S131517AbRAAGWn>; Mon, 1 Jan 2001 01:22:43 -0500
-Date: Sun, 31 Dec 2000 21:52:16 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: faith@valinux.com, linux-kernel@vger.kernel.org
-Subject: Patch(?): linux-2.4.0-prerelease/drivers/char/drm/Makefile libdrm symbol versioning fix
-Message-ID: <20001231215216.A17686@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="FCuugMFkClbJLl1L"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S130389AbRAAHIw>; Mon, 1 Jan 2001 02:08:52 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:1555 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130352AbRAAHIj>;
+	Mon, 1 Jan 2001 02:08:39 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: modutils 2.3.24 is available 
+Date: Mon, 01 Jan 2001 17:38:06 +1100
+Message-ID: <6246.978331086@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---FCuugMFkClbJLl1L
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-	There is a thread in linux-kernel about how somewhere in
-linux-2.4.0-test13-preX, the Makefile for drivers/char/drm started
-building libdrm.a and not versioning the symbols.  I believe the
-following patch fixes the problem, but I have not tried it for the
-nonmodular case.
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.3
 
-	The change is that libdrm.o is built instead of libdrm.a.  This
-object is linked into the kernel if at least one driver that needs it
-is also linked into the kernel.  Otherwise, it is built as a helper
-module which is automatically loaded by modprobe when a module that
-needs it is loaded.  This change takes advantage of the new style
-Makefile rules to achieve this end.  I think it basically is the
-correct approach, although I have not yet tested compilation into
-the kernel.
+patch-modutils-2.3.24.gz        Patch from modutils 2.3.23 to 2.3.24
+modutils-2.3.24.tar.gz          Source tarball, includes RPM spec file
+modutils-2.3.24-1.src.rpm       As above, in SRPM format
+modutils-2.3.24-1.i386.rpm      Compiled with egcs-2.91.66, glibc 2.1.2
+modutils-2.3.24-1.sparc.rpm     Compiled for combined sparc 32/64
+patch-2.4.0-prerelease.gz	Adds persistent data and generic string
+				support to kernel 2.4.0-prerelease.
 
-	Any testing and feedback would be appreciated.
+Changelog extract
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+	* Correct check for empty generic string.
+	* Add alias usbdevfs usbcore.
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="drm.diff"
+Assuming no problems are found in modutils and assuming that kernel
+2.4.0-prerelease is followed by the official 2.4 kernel then this
+version of modutils will be repackaged as modutils 2.4.0.
 
---- linux-2.4.0-prerelease/drivers/char/drm/Makefile	Fri Dec 29 14:07:21 2000
-+++ linux/drivers/char/drm/Makefile	Fri Dec 22 01:50:11 2000
-@@ -44,43 +44,37 @@
- mga-objs   := mga_drv.o   mga_dma.o     mga_context.o  mga_bufs.o  mga_state.o
- i810-objs  := i810_drv.o  i810_dma.o    i810_context.o i810_bufs.o
- 
--obj-$(CONFIG_DRM_GAMMA) += gamma.o
--obj-$(CONFIG_DRM_TDFX)  += tdfx.o
--obj-$(CONFIG_DRM_R128)  += r128.o
--obj-$(CONFIG_DRM_FFB)   += ffb.o
--obj-$(CONFIG_DRM_MGA)   += mga.o
--obj-$(CONFIG_DRM_I810)  += i810.o
-+obj-$(CONFIG_DRM_GAMMA) += gamma.o drmlib.o
-+obj-$(CONFIG_DRM_TDFX)  += tdfx.o drmlib.o
-+obj-$(CONFIG_DRM_R128)  += r128.o drmlib.o
-+obj-$(CONFIG_DRM_FFB)   += ffb.o drmlib.o
-+obj-$(CONFIG_DRM_MGA)   += mga.o drmlib.o
-+obj-$(CONFIG_DRM_I810)  += i810.o drmlib.o
- 
- 
- # When linking into the kernel, link the library just once. 
- # If making modules, we include the library into each module
- 
--ifdef MAKING_MODULES
--  lib = drmlib.a
--else
--  obj-y += drmlib.a
--endif
--
- include $(TOPDIR)/Rules.make
- 
--drmlib.a: $(lib-objs)
-+drmlib.o: $(lib-objs)
- 	rm -f $@
--	$(AR) $(EXTRA_ARFLAGS) rcs $@ $(lib-objs)
-+	$(LD) -r -o $@ $(lib-objs)
- 
--gamma.o: $(gamma-objs) $(lib)
--	$(LD) -r -o $@ $(gamma-objs) $(lib)
-+gamma.o: $(gamma-objs)
-+	$(LD) -r -o $@ $(gamma-objs)
- 
--tdfx.o: $(tdfx-objs) $(lib)
--	$(LD) -r -o $@ $(tdfx-objs) $(lib)
-+tdfx.o: $(tdfx-objs)
-+	$(LD) -r -o $@ $(tdfx-objs)
- 
--mga.o: $(mga-objs) $(lib)
--	$(LD) -r -o $@ $(mga-objs) $(lib)
-+mga.o: $(mga-objs)
-+	$(LD) -r -o $@ $(mga-objs)
- 
--i810.o: $(i810-objs) $(lib)
--	$(LD) -r -o $@ $(i810-objs) $(lib)
-+i810.o: $(i810-objs)
-+	$(LD) -r -o $@ $(i810-objs)
- 
--r128.o: $(r128-objs) $(lib)
--	$(LD) -r -o $@ $(r128-objs) $(lib)
-+r128.o: $(r128-objs)
-+	$(LD) -r -o $@ $(r128-objs)
- 
--ffb.o: $(ffb-objs) $(lib)
--	$(LD) -r -o $@ $(ffb-objs) $(lib)
-+ffb.o: $(ffb-objs)
-+	$(LD) -r -o $@ $(ffb-objs)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.3 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
 
---FCuugMFkClbJLl1L--
+iD8DBQE6UCXNi4UHNye0ZOoRAhaJAKCzYo7GnRf8gr9xFLIiQINO64idjgCeISBw
+kH56mNikV9R9ExZvE6e56Zk=
+=riJL
+-----END PGP SIGNATURE-----
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

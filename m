@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263199AbUD2D6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263225AbUD2EAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263199AbUD2D6p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 23:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUD2D5w
+	id S263225AbUD2EAw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 00:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263188AbUD2D6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 23:57:52 -0400
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:58013 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263173AbUD2D5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 23:57:44 -0400
-Message-ID: <40907AF2.2020501@yahoo.com.au>
-Date: Thu, 29 Apr 2004 13:48:02 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marc Singer <elf@buici.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-References: <409021D3.4060305@fastclick.com> <20040428170106.122fd94e.akpm@osdl.org> <409047E6.5000505@pobox.com> <40904A84.2030307@yahoo.com.au> <20040429005801.GA21978@buici.com>
-In-Reply-To: <20040429005801.GA21978@buici.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Apr 2004 23:58:54 -0400
+Received: from smtp5.wanadoo.fr ([193.252.22.26]:65403 "EHLO
+	mwinf0501.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S263184AbUD2D6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 23:58:40 -0400
+Date: Thu, 29 Apr 2004 06:04:29 +0000
+From: Philippe Elie <phil.el@wanadoo.fr>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 (6/6): oprofile for s390.
+Message-ID: <20040429060429.GE395@zaniah>
+References: <20040428165119.GG2777@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040428165119.GG2777@mschwid3.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Singer wrote:
-> On Thu, Apr 29, 2004 at 10:21:24AM +1000, Nick Piggin wrote:
-> 
->>Anyway, I have a small set of VM patches which attempt to improve
->>this sort of behaviour if anyone is brave enough to try them.
->>Against -mm kernels only I'm afraid (the objrmap work causes some
->>porting difficulty).
-> 
-> 
-> Is this the same patch you wanted me to try?  
-> 
->   Remember, the embedded system where NFS IO was pushing my
->   application out of memory.  Setting swappiness to zero was a
->   temporary fix.
-> 
-> 
+On Wed, 28 Apr 2004 at 18:51 +0000, Martin Schwidefsky wrote:
 
-Yes this is the same patch I wanted you to try. Yes I
-remember your problem!
+> [PATCH] s390: oprofile.
+> 
+> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
+> Add oprofile support for s/390.
 
-Didn't anyone come up with a patch for you to test the
-stale PTE theory? If so, what where the results?
+we ack'ed this on oprofile mail list except:
 
+> --- linux-2.6/arch/s390/kernel/time.c	Wed Apr 28 17:51:14 2004
+
+
+> +#if defined(CONFIG_OPROFILE) || defined(CONFIG_OPROFILE_MODULE)
+
+this must depend on CONFIG_PROFILING ?
+
+> + */
+> +static inline void s390_do_profile(struct pt_regs * regs)
+> +{
+
+regards,
+Phil

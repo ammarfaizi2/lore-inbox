@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266282AbUAGRyw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 12:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUAGRyw
+	id S266265AbUAGSJG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 13:09:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266266AbUAGSJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 12:54:52 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:45192 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S266282AbUAGRyu (ORCPT
+	Wed, 7 Jan 2004 13:09:06 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:21400 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S266265AbUAGSJB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 12:54:50 -0500
-Date: Wed, 7 Jan 2004 09:54:43 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Gabor Burjan <buga@buvoshetes.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.24 ext3 oops
-Message-ID: <20040107175443.GL1882@matchmail.com>
-Mail-Followup-To: Gabor Burjan <buga@buvoshetes.hu>,
-	linux-kernel@vger.kernel.org
-References: <20040107142446.GA12235@odin.sis.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040107142446.GA12235@odin.sis.hu>
-User-Agent: Mutt/1.5.4i
+	Wed, 7 Jan 2004 13:09:01 -0500
+Date: Wed, 7 Jan 2004 19:09:00 +0100 (CET)
+From: Jirka Kosina <jikos@jikos.cz>
+To: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: XFS over 7.7TB LVM partition through NFS
+In-Reply-To: <Pine.LNX.4.58.0401071824120.31032@twin.jikos.cz>
+Message-ID: <Pine.LNX.4.58.0401071907460.31032@twin.jikos.cz>
+References: <Pine.LNX.4.58.0401071824120.31032@twin.jikos.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 03:24:46PM +0100, Gabor Burjan wrote:
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing block in system zone - block = 33204
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing block in system zone - block = 502
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing blocks not in datazone - block = 1073381983, count = 1
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing blocks not in datazone - block = 1073382020, count = 1
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing blocks not in datazone - block = 1045139487, count = 1
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing block in system zone - block = 65786 attempt to access beyond end of device 09:02: rw=0, want=663266300, limit=1465216
-> EXT3-fs error (device md(9,2)): ext3_free_branches: Read failure, inode=123067, block=1239558398
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing blocks not in datazone - block = 759976007, count = 1
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing block in system zone - block = 33188
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing block in system zone - block = 9
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing blocks not in datazone - block = 1071504112, count = 1
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing blocks not in datazone - block = 1070875519, count = 1
-> EXT3-fs error (device md(9,2)): ext3_free_blocks: Freeing blocks not in datazone - block = 1070875519, count = 1
+On Wed, 7 Jan 2004, Jirka Kosina wrote:
 
-You need to run fsck on it.
+> I am experiencing problems with LVM2 XFS partition in 2.6.0 being accessed 
+> over NFS. After exporting the filesystem clients start writing files to 
+> this partition over NFS, and after a short while we get this call trace, 
+> repeating indefinitely on the screen and the machine stops responding 
+> (keyboard, network):
 
-Did it find any errors?
+I am sorry, I have mis-pasted the log, it was not complete - there are two 
+extra lines before the Call Trace ... these two:
 
-> 
-> (see the oops below)
-> 
+Jan  8 01:38:35 storage2 kernel: 0x0: 94 38 73 54 cc 8c c9 be 0c 3e 6b 30 
+4c 9f 54 c5
+Jan  8 01:38:35 storage2 kernel: Filesystem "dm-0": XFS internal error 
+xfs_alloc_read_agf at line 2208 of file fs/xfs/xfs_alloc.c.  Caller 0xc01fab06
 
-But it shouldn't oops...
+Sorry for the inconvience.
 
-Can you reproduce this oops?
-
-> Modules Loaded         ipt_multiport ipt_state ip_conntrack ipt_REJECT iptable_filter ip_tables usbcore
-
-Can you try without iptables?
-
-Mike
+-- 
+JiKos.

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285189AbRLXSFW>; Mon, 24 Dec 2001 13:05:22 -0500
+	id <S285193AbRLXSLC>; Mon, 24 Dec 2001 13:11:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285192AbRLXSFM>; Mon, 24 Dec 2001 13:05:12 -0500
-Received: from gear.torque.net ([204.138.244.1]:41990 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S285189AbRLXSEx>;
-	Mon, 24 Dec 2001 13:04:53 -0500
-Message-ID: <3C276C8F.71C17948@torque.net>
-Date: Mon, 24 Dec 2001 12:57:35 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S285185AbRLXSKx>; Mon, 24 Dec 2001 13:10:53 -0500
+Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:47597 "HELO
+	dardhal") by vger.kernel.org with SMTP id <S285195AbRLXSKk>;
+	Mon, 24 Dec 2001 13:10:40 -0500
+Date: Mon, 24 Dec 2001 19:10:32 +0100
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jdomingo@internautas.org>
 To: linux-kernel@vger.kernel.org
-CC: Stanislav Meduna <stano@meduna.org>
-Subject: Re: IDE CDROM locks the system hard on media error
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: Data sitting and remaining in Send-Q
+Message-ID: <20011224181031.GA7934@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011224180142.E2461@lug-owl.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20011224180142.E2461@lug-owl.de>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am catalogizing my set of CDs and so I have tortured my CD drive
-> with a bunch of less-than-optimal CDs. I had two hard lockups
-> most probably connected to problematic media.
->
-> The last message in log is
->
->  kernel: scsi0: ERROR on channel 0, id 0, lun 0,
->    CDB: Request Sense 00 00 00 40 00 
->  kernel: Current sd0b:00: sense key Medium Error
->  kernel: Additional sense indicates No seek complete
->  kernel:  I/O error: dev 0b:00, sector 504
->  kernel: ISOFS: unable to read i-node block
->
-> Shortly (but not immediately, the kernel tried a bit more to get
-> some data from the drive) after that the system froze - not even
-> SysRq worked.
+On Monday, 24 December 2001, at 18:01:42 +0100,
+Jan-Benedict Glaw wrote:
+
+> I've got some problem with a freshly installed Debian sid system.
+> It's running with 2.4.16, 2.4.17-rc2 and 2.4.17 (the problem
+> appears on all these kernels) and something seems to break ssh.
 > 
-> I am using vanilla 2.4.17, hdc=ide-scsi, my drive is Mitsumi CR-4804TE,
-> motherboard is Abit BP6 SMP, Intel PIIX4 IDE controller.
+I don't know if this has something to do with your problem, but
+bugs.debian.org has a _long_ list of reported bugs for ssh, many of them
+with respect to ssh's X-forwarding.
 
-Does turning off or restricting the DMA mode using either
-one of these help?
-    hdparm -d0 -c1 /dev/hdc 
-    hdparm -d 1 -X 34 /dev/hdc
+My own experience with Debian's ssh is that, sooner or later,
+X-forwarding fails, with Send-Q (or Recv-Q) in the server side
+completely full. The server side was Debian Sid, and client side was
+Debian Woody, and it happened with both a simple xclock and gkrellm (ssh
+remoteserver xclock, ssh remoteserver gkrellm).
 
-Doug Gilbert
+However, interactive shells didn't seem to show this problem.
+
+-- 
+José Luis Domingo López
+Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+ 
+jdomingo AT internautas DOT   org  => Spam at your own risk
 

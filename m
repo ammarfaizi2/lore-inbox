@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbUCEMTm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 07:19:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbUCEMTm
+	id S262570AbUCEMWa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 07:22:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbUCEMWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 07:19:42 -0500
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:30215 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id S262543AbUCEMTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 07:19:40 -0500
-Date: Fri, 5 Mar 2004 09:18:19 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@dmt.cyclades
-To: Johnny Strom <jonny.strom@netikka.fi>
-cc: linux-kernel@vger.kernel.org, <jr@xor.at>
-Subject: Re: Multiple oopses with 2.4.25
-In-Reply-To: <40463DD9.1040200@netikka.fi>
-Message-ID: <Pine.LNX.4.44.0403050914450.2678-100000@dmt.cyclades>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Mar 2004 07:22:30 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:24791 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262570AbUCEMWA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 07:22:00 -0500
+Date: Fri, 5 Mar 2004 13:21:51 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Colin Leroy <colin@colino.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6 ide-cd DMA ripping
+Message-ID: <20040305122151.GL10923@suse.de>
+References: <20040304152840.GL2708@suse.de> <20040305130803.0c01ee83@jack.colino.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040305130803.0c01ee83@jack.colino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 3 Mar 2004, Johnny Strom wrote:
-
+On Fri, Mar 05 2004, Colin Leroy wrote:
+> Hi,
 > 
-> Hi
+> >I'd appreciate people giving this a test spin. Patch is against
+> >2.6.4-rc1 (well current BK, actually).
 > 
-> It seems that I have the same problem as in this
-> mail:
-> 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0403.0/0635.html
-> 
-> 
-> I also get multiple oopse's with 2.4.25 plus the latest
-> ipsec kernel patch form http://www.freeswan.org/.
-> 
-> I have to reset the computer to get it working again,
-> below is the oopse's:
+> Works (on ppc, ibook G4 here). It's indeed faster. But, it breaks direct 
+> output to dsp (as in `cdparanoia 1 /dev/dsp`). 
 
-Dear fellows,
+How do you know it works, then? cdparanoia should receive identical
+data, otherwise it sounds like it doesn't work.
 
-I have seen similar reports. 
+Dump a track without the patch, repeat with the patch, and compare the
+images.
 
-Can you find out which kernel does not exhibit the behaviour with the same
-freeswan/grsec patches ?
+(BTW, please cc recipients on lkml. At least to me, otherwise I may not
+see your message for days).
 
+-- 
+Jens Axboe
 

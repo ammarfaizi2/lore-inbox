@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbTHYQ6G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 12:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbTHYQ6G
+	id S261795AbTHYRBO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 13:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTHYRA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 12:58:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47849 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261960AbTHYQ6A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 12:58:00 -0400
-Date: Mon, 25 Aug 2003 09:53:09 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4: where is /proc/acpi/sleep?
-Message-Id: <20030825095309.142c9f2f.rddunlap@osdl.org>
-In-Reply-To: <1061640857.709.1.camel@teapot.felipe-alfaro.com>
-References: <1061640857.709.1.camel@teapot.felipe-alfaro.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Aug 2003 13:00:27 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:61057 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S262023AbTHYQ6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 12:58:13 -0400
+Date: Mon, 25 Aug 2003 13:53:44 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Luca Montecchiani <luca.montecchiani@teamfab.it>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.22 released
+Message-ID: <Pine.LNX.4.55L.0308251346060.12395@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Aug 2003 14:14:18 +0200 Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
 
-| Hi!
-| 
-| I can't suspend (or software suspend) my laptop since I can't find
-| /proc/acpi/sleep anymore while running 2.6.0-test4. How can I suspend to
-| S3 or S4?
+> Matthias Andree wrote:
+> > On Mon, 25 Aug 2003, Marcelo Tosatti wrote:
+> >
+> >
+> >>- 2.4.22-rc4 was released as 2.4.22 with no changes.
+> >
+> >
+>> What are the plans for 2.4.23? XFS merge perhaps <hint>?
 
-Comments in the BK changesets say:
+> What about the two IDE patch from Erik B. Andersen ?
 
-[acpi] Remove procfs sleep interface.
+> [PATCH] Backport recent IDE updates, take 2
+> [PATCH] Fix cdrom error handling in 2.4
 
-Use /sys/power/state instead.
-
-
---
-~Randy   [mantra:  Always include kernel version.]
-"Everything is relative."
+The latter is already in 2.4.22. Ill take a look at the backport IDE
+updates later on.

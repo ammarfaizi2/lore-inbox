@@ -1,63 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264650AbUGBQEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264660AbUGBQIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264650AbUGBQEP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 12:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbUGBQEP
+	id S264660AbUGBQIy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 12:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUGBQIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 12:04:15 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:28217 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S264650AbUGBQEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 12:04:13 -0400
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Tom L Nguyen <tom.l.nguyen@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: MSI to memory?
-X-Message-Flag: Warning: May contain useful information
-References: <200407011215.59723.bjorn.helgaas@hp.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Fri, 02 Jul 2004 09:04:12 -0700
-In-Reply-To: <200407011215.59723.bjorn.helgaas@hp.com> (Bjorn Helgaas's
- message of "Thu, 1 Jul 2004 12:15:59 -0600")
-Message-ID: <52isd68kg3.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
+	Fri, 2 Jul 2004 12:08:54 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:52912 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264660AbUGBQIv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 12:08:51 -0400
+Date: Fri, 2 Jul 2004 21:48:16 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Cc: linux-osdl@osdl.org
+Subject: Re: [PATCH 13/22] Fix writeback page range to use exact limits
+Message-ID: <20040702161816.GC3450@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20040702130030.GA4256@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 02 Jul 2004 16:04:12.0476 (UTC) FILETIME=[374D87C0:01C4604E]
+Content-Disposition: inline
+In-Reply-To: <20040702130030.GA4256@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bjorn> The conventional use of MSI is for a PCI adapter to
-    Bjorn> generate processor interrupts by writing to a local APIC.
-    Bjorn> But I've seen some things that lead me to believe it would
-    Bjorn> also allow an adapter to write to things other than a local
-    Bjorn> APIC, i.e., to memory.
+On Fri, Jul 02, 2004 at 06:30:30PM +0530, Suparna Bhattacharya wrote:
+> The patchset contains modifications and fixes to the AIO core
+> to support the full retry model, an implementation of AIO
+> support for buffered filesystem AIO reads and O_SYNC writes
+> (the latter courtesy O_SYNC speedup changes from Andrew Morton),
+> an implementation of AIO reads and writes to pipes (from
+> Chris Mason) and AIO poll (again from Chris Mason).
+> 
+> Full retry infrastructure and fixes
+> [1] aio-retry.patch
+> [2] 4g4g-aio-hang-fix.patch
+> [3] aio-retry-elevated-refcount.patch
+> [4] aio-splice-runlist.patch
+> 
+> FS AIO read
+> [5] aio-wait-page.patch
+> [6] aio-fs_read.patch
+> [7] aio-upfront-readahead.patch
+> 
+> AIO for pipes
+> [8] aio-cancel-fix.patch
+> [9] aio-read-immediate.patch
+> [10] aio-pipe.patch
+> [11] aio-context-switch.patch
+> 
+> Concurrent O_SYNC write speedups using radix-tree walks
+> [12] writepages-range.patch
+> [13] fix-writeback-range.patch
 
-    Bjorn> If so, is that a useful capability that should be exposed
-    Bjorn> through the Linux MSI interface?
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+-------------------------------------------------------------
 
-MSI does allow an adapter to write messages to any arbitrary PCI
-address (under the control of the host software).  It's not clear to
-me that write to anywhere other than a special interrupt generation
-address is that useful.
+From: Suparna Bhattacharya
 
-It is true that the current Linux MSI code is quite Intel-specific,
-hard-coding Intel addresses and message contents.  At some point, if
-I'm able to get documentation on interesting hardware, I would like to
-try and move the generation of addresses/messages to arch-specific
-code so that Linux can support more general PCI hosts.
+wait_on_page_writeback_range shouldn't wait for pages beyond the
+specified range. Ideally, the radix-tree-lookup could accept an
+end_index parameter so that it doesn't return the extra pages
+in the first place, but for now we just add a few extra checks
+to skip such pages.
 
-Unfortunately, it seems that at least the current HyperTransport PCI-X
-tunnels used on Opteron systems do not support MSI (based on my quick
-reading of the documentation).  The only hardware I have access to
-that supports MSI is the PowerPC 440GP, and I'm not sure how
-interesting that is.
 
-I assume that future PCI Express chipsets for Opteron will support
-MSI, and hopefully documentation will be available (or manufacturers
-will write Linux support).
+ filemap.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
 
-Does anyone know if there are any ppc64 systems that support MSI?
-
-Thanks,
-  Roland
+--- aio/mm/filemap.c	2004-06-18 09:24:19.169471216 -0700
++++ fix-writeback-range/mm/filemap.c	2004-06-18 13:56:24.786600168 -0700
+@@ -190,7 +190,8 @@ static int wait_on_page_writeback_range(
+ 
+ 	pagevec_init(&pvec, 0);
+ 	index = start;
+-	while ((nr_pages = pagevec_lookup_tag(&pvec, mapping, &index,
++	while ((index <= end) && 
++			(nr_pages = pagevec_lookup_tag(&pvec, mapping, &index,
+ 			PAGECACHE_TAG_WRITEBACK,
+ 			min(end - index, (pgoff_t)PAGEVEC_SIZE-1) + 1))) {
+ 		unsigned i;
+@@ -198,6 +199,10 @@ static int wait_on_page_writeback_range(
+ 		for (i = 0; i < nr_pages; i++) {
+ 			struct page *page = pvec.pages[i];
+ 
++			/* until radix tree lookup accepts end_index */
++			if (page->index > end) {
++				continue;
++			}
+ 			wait_on_page_writeback(page);
+ 			if (PageError(page))
+ 				ret = -EIO;

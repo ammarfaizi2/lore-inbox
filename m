@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287231AbSACMjb>; Thu, 3 Jan 2002 07:39:31 -0500
+	id <S287237AbSACMnv>; Thu, 3 Jan 2002 07:43:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287229AbSACMjV>; Thu, 3 Jan 2002 07:39:21 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:13073 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S287231AbSACMjO>; Thu, 3 Jan 2002 07:39:14 -0500
-Date: Thu, 3 Jan 2002 13:39:12 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: cs@zip.com.au, Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Dave Jones <davej@suse.de>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020103133912.B17280@suse.cz>
-In-Reply-To: <20020103144904.A644@zapff.research.canon.com.au> <E16M75s-0008Bz-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16M75s-0008Bz-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 03, 2002 at 12:35:36PM +0000
+	id <S287238AbSACMnm>; Thu, 3 Jan 2002 07:43:42 -0500
+Received: from tahallah.demon.co.uk ([158.152.175.193]:27140 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S287237AbSACMnf>; Thu, 3 Jan 2002 07:43:35 -0500
+Date: Thu, 3 Jan 2002 12:41:54 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Timothy Covell <timothy.covell@ashavan.org>
+cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: Changing KB, MB, and GB to KiB, MiB, and GiB
+ =?iso-8859-1?q?in Configure=2Ehelp=2E?=
+In-Reply-To: <200201021920.g02JKmSr021504@svr3.applink.net>
+Message-ID: <Pine.LNX.4.33.0201031240410.3559-100000@tahallah.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 03, 2002 at 12:35:36PM +0000, Alan Cox wrote:
+On Wed, 2 Jan 2002, Timothy Covell wrote:
 
-> > Further, binaries which grovel in /dev/kmem tend to have to be kept in sync
-> > with the kernel; in-kernel code is fundamentally in sync.
-> 
-> Disagree. Its reading BIOS tables not poking at kernel internals
+> Of course, most of you Europeans can thank the Americans for creating
+> the decimal monetary system as you enjoy your new Euros.  (I still
+> wish they had settled on calling them Ecu, it just sounds cooler.
+> Just my two ecus.)
 
-It's still not very nice for userspace apps to touch hardware directly,
-even if it's just BIOS memory ...
+It was pointed out ecu in German means something quite rude, hence euro
+was accepted by all member countries. I like euro better.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+An eye for an eye makes the whole world blind.
+	- Ghandi.
+
+http://www.tahallah.demon.co.uk (updated)
+

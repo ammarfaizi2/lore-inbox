@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264420AbTDKQYN (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTDKQYN (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 12:24:13 -0400
-Received: from smtp02.web.de ([217.72.192.151]:21519 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S264420AbTDKQYM (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 12:24:12 -0400
-From: Michael Buesch <freesoftwaredeveloper@web.de>
-To: war@lucidpixels.com
-Subject: Re: Question regarding Intel i845 chipset.
-Date: Fri, 11 Apr 2003 18:35:29 +0200
-User-Agent: KMail/1.5
-References: <20030411160420.21571.qmail@lucidpixels.com>
-In-Reply-To: <20030411160420.21571.qmail@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
+	id S261177AbTDKQck (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbTDKQck (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 12:32:40 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:11656 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261177AbTDKQci (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 12:32:38 -0400
+Date: Fri, 11 Apr 2003 12:46:27 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Sriram Narasimhan <nsri@tataelxsi.co.in>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Tasklet doubt!
+In-Reply-To: <3E96EAF5.4060609@tataelxsi.co.in>
+Message-ID: <Pine.LNX.4.53.0304111242210.8834@chaos>
+References: <3E96EAF5.4060609@tataelxsi.co.in>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304111835.29434.freesoftwaredeveloper@web.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 April 2003 18:04, war@lucidpixels.com wrote:
-> Is IO-APIC broken on the Intel 845 chipset?
+On Fri, 11 Apr 2003, Sriram Narasimhan wrote:
 
-I'm running it without problems.
+> Hello,
+>
+> How much of memory can be allocated from a tasklet ? [ kmalloc
+> (GFP_ATOMIC) ].
+>
+> I was able to allocate upto 2.5 MB. But I would like to allocate upto
+> 8MB. Is this possible?
+>
+> The physical RAM limit is 64 MB. I am running 2.4.7-10 RH 7.2 on i386.
+>
+> Any suggestions or pointers could be very helpful.
+>
+> Thank you.
+> Regards,
+> Sriram
 
-Regards
-Michael Buesch.
+Maybe you do not have to dynamically allocate memory? You
+can allocate kmalloc(GFP_KERNEL) during initialization
+and only free it when you remove a module. That way, it's
+always there. Such RAM is still okay for interrupts because
+kernel RAM is never swapped out. You only need GFP_ATOMIC for
+stuff allocated and freed when the interrupts are off like
+in ISRs.
 
--- 
-My homepage: http://www.8ung.at/tuxsoft
-fighting for peace is like fu**ing for virginity
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

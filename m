@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270031AbRHQJxD>; Fri, 17 Aug 2001 05:53:03 -0400
+	id <S270025AbRHQJ6D>; Fri, 17 Aug 2001 05:58:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270025AbRHQJwx>; Fri, 17 Aug 2001 05:52:53 -0400
-Received: from cnxt10002.conexant.com ([198.62.10.2]:56424 "EHLO
-	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
-	id <S270031AbRHQJwn>; Fri, 17 Aug 2001 05:52:43 -0400
-Date: Fri, 17 Aug 2001 11:52:15 +0200 (CEST)
-From: <rui.p.m.sousa@clix.pt>
-X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
-To: Krishnakumar B <kitty@cs.wustl.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Bass & Treble no longer work with emu10k1 on Linux-2.4.9
-In-Reply-To: <15228.22838.327612.439034@samba.doc.wustl.edu>
-Message-ID: <Pine.LNX.4.33.0108171149120.9296-100000@sophia-sousar2.nice.mindspeed.com>
+	id <S270042AbRHQJ5x>; Fri, 17 Aug 2001 05:57:53 -0400
+Received: from picard.csihq.com ([204.17.222.1]:21423 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S270025AbRHQJ5h>;
+	Fri, 17 Aug 2001 05:57:37 -0400
+Message-ID: <001f01c12702$f5fd98a0$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Recommended change
+Date: Fri, 17 Aug 2001 05:57:01 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Aug 2001, Krishnakumar B wrote:
+I upgraded to e2fsprog-1.23 and LInux 2.4.8 yesterday and saw this:
 
-> Hi,
->
-> I upgraded my kernel to Linux-2.4.9. Bass & Treble controls no longer work
-> (I don't see any entry in any of the mixer utils that I have) with my
-> SoundBlaster Live! card.
+Aug 16 08:58:20 yeti kernel: md: fsck.ext3(pid 207) used obsolete MD ioctl,
+upgrade your software to use new ictls.
 
-You need new user space tools to get this going. They are available at:
+Do you suppose we could change the printk line to actually output the ioctl
+that was requested?
 
-http://opensource.creative.com/dist.html
+i.e.:
 
-> It works fine with Linux-2.4.8-ac3 which is the
-> latest -ac series that I have tried. gmix shows TriTech TR????? whereas it
-> used to show Creative SoundBlaster Live! previously.
+/usr/src/linux/drivers/md/md.c
 
-This is normal. Your card has a TriTech ac97 codec.
+                default:
+                        printk(KERN_WARNING "md: %s(pid %d) used obsolete MD
+ioctl(%d), upgrade your software to use new ictls.\n", current->comm,
+current->pid, cmd);
 
-> Any help is appreciated.
+Might help debugging this stuff a little easier.
 
-Rui Sousa
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
 

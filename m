@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVBHQ63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVBHRBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261578AbVBHQ63 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 11:58:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVBHQ61
+	id S261585AbVBHRBx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 12:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVBHRBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 11:58:27 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:17822 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261578AbVBHQ4m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 11:56:42 -0500
-Date: Tue, 8 Feb 2005 17:56:34 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Julien TINNES <julien.tinnes@francetelecom.com>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Message-ID: <20050208165634.GB9903@elte.hu>
-References: <42080689.15768.1B0C5E5F@localhost> <42093CC7.5086.1FC83D3E@localhost> <20050208134156.GA5017@elte.hu> <4208CBDA.5010903@francetelecom.REMOVE.com>
+	Tue, 8 Feb 2005 12:01:53 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:55200 "EHLO
+	mail.bitmover.com") by vger.kernel.org with ESMTP id S261585AbVBHRBR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 12:01:17 -0500
+Date: Tue, 8 Feb 2005 09:01:10 -0800
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Stelian Pop <stelian@popies.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050208170110.GC14505@bitmover.com>
+Mail-Followup-To: lm@bitmover.com, Jon Smirl <jonsmirl@gmail.com>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org
+References: <20050203220059.GD5028@deep-space-9.dsnet> <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com> <Pine.LNX.4.61.0502060025020.6118@scrub.home> <20050206173910.GB24160@bitmover.com> <Pine.LNX.4.61.0502061859000.30794@scrub.home> <20050207021030.GA25673@bitmover.com> <Pine.LNX.4.61.0502071516100.30794@scrub.home> <9e47339105020807585a5c4fc@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4208CBDA.5010903@francetelecom.REMOVE.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <9e47339105020807585a5c4fc@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: lm@bitmover.com (Larry McVoy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Roman, if you want this so bad why don't you just pay Larry for the
+> three month's work? It's just not reasonable to ask someone to do work
+> for free that the only purpose of is to help someone clone their
+> system. 
 
-* Julien TINNES <julien.tinnes.NOSPAM@francetelecom.REMOVE.com> wrote:
+That's an interesting idea, thanks, but we'd need both money and a new 
+hire.  There is an opportunity cost with using up an engineer and we're
+swamped with work.  As I've said before, if you really like this sort of 
+stuff we'd like to hire you.  Yeah, it's not as politically correct as
+working on 100% GPLed source, I can't help that, but it is technically 
+challenging, far more so than most people realize and that makes it
+fun.
 
-> But if you consider code injection as in your previous post:
-> 
-> >btw., do you consider PaX as a 100% sure solution against 'code
-> >injection' attacks (meaning that the attacker wants to execute an
-> >arbitrary piece of code, and assuming the attacked application has a
-> >stack overflow)? I.e. does PaX avoid all such attacks in a guaranteed
-> >way?
-> 
-> then the answer to your question is no because a stack overflow
-> usually allows two things: injection of new code, and execution flow
-> redirection. While the former is prevented, the later is not and the
-> attacker could use chaining techniques as in [1] to execute "arbitrary
-> code" (but not directly as an arbitrary, newly injected sequence of
-> opcodes). Address space obfuscation (address space layout
-> randomization is one way) is making it harder (but not impossible,
-> esp. if you don't have anything preventing the attacker from
-> bruteforcing...) to use existing code.
-
-precisely my point (see my previous, very long post).
-
-obviously it's not us who defines what 'code injection' is but the laws
-of physics and the laws of computer science. Restricting to the native
-CPU's machine code format may cover an important special-case, but it
-will prevent arbitrary code execution just as much as a house that has a
-locked door but an open window, where the owner defines "burglary" as
-"the bad guy tries to open the door". Correct in a sense, but not secure
-in guaranteed way :-|
-
-	Ingo
+If we get a new hire from the kernel list I'll stick the changeset markers
+into the CVS tree so you can group the patches, I can see where that
+might be helpful for debugging.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

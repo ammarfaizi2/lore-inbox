@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263490AbTKWWYf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 17:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbTKWWYf
+	id S263485AbTKWWVI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 17:21:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTKWWVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 17:24:35 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:16005 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263490AbTKWWYe (ORCPT
+	Sun, 23 Nov 2003 17:21:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:9125 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263485AbTKWWVF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 17:24:34 -0500
-Message-ID: <3FC13382.3060701@colorfullife.com>
-Date: Sun, 23 Nov 2003 23:24:02 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>
-CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Fix locking in input
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 23 Nov 2003 17:21:05 -0500
+Date: Sun, 23 Nov 2003 14:27:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH][2.6-mm] __kunmap/oprofile final link failure
+Message-Id: <20031123142715.170109f5.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.53.0311211811040.2498@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.53.0311211811040.2498@montezuma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul wrote:
-
->Pavel Machek writes:
+Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
 >
->> input uses "volatile signed char" as a shared variable between normal
->> and interrupt threads (look at _sendbyte()). Thats bad idea, this
->> switches it to atomic_t.
->
->This change looks unnecessary to me - we aren't trying to increment or
->decrement the variable, just set it and read it.  Reading and writing
->individual bytes is atomic on any platform we care about.
->  
->
-I think one platform (early ARM?) cannot access bytes directly, and 
-implement the access with read 16-bit, change 8-bit, write back 16 bit. 
-Reading/writing pointers or longs is atomic.
+>  arch/i386/kernel/built-in.o(.text+0x927): In function `__switch_to':
+>  arch/i386/kernel/process.c:564: undefined reference to 
+>  `__kunmap_atomic_type'
+>  arch/i386/kernel/built-in.o(.text+0x92e):arch/i386/kernel/process.c:565: 
+>  undefined reference to `__kunmap_atomic_type'
+>  arch/i386/kernel/built-in.o(.text+0x939):arch/i386/kernel/process.c:566: 
+>  undefined reference to `__kmap_atomic'
+>  arch/i386/kernel/built-in.o(.text+0x944):arch/i386/kernel/process.c:567: 
+>  undefined reference to `__kmap_atomic'
+>  arch/i386/kernel/built-in.o(.text+0x94e):arch/i386/kernel/process.c:572: 
+>  undefined reference to `__kmap_atomic_vaddr'
+>  arch/i386/oprofile/built-in.o(.text+0x171a): In function 
+>  `oprofile_reset_stats':
+>  include/asm/bitops.h:251: undefined reference to `cpu_possible_map'
+>  arch/i386/oprofile/built-in.o(.text+0x179e): In function 
+>  `oprofile_create_stats_files':
+>  include/asm/bitops.h:251: undefined reference to `cpu_possible_map'
+> 
+>  Test compiled with NR_CPUS = 4, 64 and !CONFIG_SMP on i386
 
-Pavel: Do you know that atomic_set and atomic_read aren't memory barriers?
-I.e.
-
--	psmouse->ack = 0;
-+	atomic_set(&psmouse->ack, 0);
- 	psmouse->acking = 1;
-
-It's not guaranteed that all cpus will see psmouse->ack=0 before psmouse->acking=1. And adding the required memory barriers usually makes the code completely unreadable, thus I usually give up and switch to a spinlock.
-
---
-	Manfred
-
-
-
+OK, there's just way too much compile breakage from the cpu_possible()
+changes.  I'll drop them - something which does less reorganisation in the
+headers is needed.
 

@@ -1,37 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266173AbUHAVFj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266176AbUHAVKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266173AbUHAVFj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 17:05:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266176AbUHAVFi
+	id S266176AbUHAVKl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 17:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266177AbUHAVKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 17:05:38 -0400
-Received: from ozlabs.org ([203.10.76.45]:25815 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S266173AbUHAVFf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 17:05:35 -0400
-Date: Mon, 2 Aug 2004 07:00:25 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use for_each_cpu
-Message-ID: <20040801210025.GK30253@krispykreme>
-References: <20040801060144.GI30253@krispykreme> <20040731230859.138ba584.akpm@osdl.org> <20040801072711.GJ30253@krispykreme> <20040801004708.6fa9f6f8.akpm@osdl.org>
+	Sun, 1 Aug 2004 17:10:41 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:13462 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266176AbUHAVKj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 17:10:39 -0400
+Date: Sun, 1 Aug 2004 23:11:46 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, rmk-lkml@arm.linux.org.uk
+Subject: Re: 2.6.8-rc2-mm1
+Message-ID: <20040801211146.GA7954@mars.ravnborg.org>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	rmk-lkml@arm.linux.org.uk
+References: <20040728020444.4dca7e23.akpm@osdl.org> <20040801023655.GN2334@holomorphy.com> <20040801010532.37966eda.akpm@osdl.org> <20040801123334.GR2334@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040801004708.6fa9f6f8.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <20040801123334.GR2334@holomorphy.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> yup ;) It's only six lines, and it follows the same pattern as is used in,
-> say, page_alloc_cpu_notify().  Doing the same thing the same way in
-> multiple places is to be preferred, yes?
+On Sun, Aug 01, 2004 at 05:33:34AM -0700, William Lee Irwin III wrote:
+> William Lee Irwin III <wli@holomorphy.com> wrote:
+> >> There's trouble here with the link checking; it pukes all over
+> >> sparc32's btfixup stuff. Not entirely sure what the proper form of a
+> >> solution is.
+> 
+> On Sun, Aug 01, 2004 at 01:05:32AM -0700, Andrew Morton wrote:
+> > Do you mean the "check vmlinux for undefined symbols" thing?
+> > That's proving to be a royal pain, although rmk's arguments for needing it
+> > are good.  Could you find a way of fixing it up?
+> 
+> I may need core help. The executable is postprocessed by a program in
+> arch/sparc/boot/ and so some kind of hook to give it a chance to
+> properly fix up the symbol table (which I'll have to add afresh), for
+> instance, an extra stage of .tmp_vmlinux*, seems to be needed.
 
-If the data structure contains allocated memory, like per cpu pages I
-agree. But for percpu stuff that is straight stats (eg nr_running), I
-thought the aim was to just total all all possible cpus. bh_accounting
-is another one that falls into this group.
+Took a look at this and atm compiling a sparc tool-chain to try it out.
+What about moving the check added by rmk to kallsyms.c?
+This would remove the extra pass on vmlinux which is for no use for
+most people anyway. On the other hand an error could go unpassed
+because we (for now) do not do the kallsyms stuff if not configured in.
 
-Anton
+We could make the kallsyms run independent on the configuration, but
+only link in the symbols if required to do so.
+This would also allow us to have architecture specific final-linking
+rules in one place if sparc needs special rules.
+Today kallsyms already knows about 'SDA_BASE*_' only valid for ppc.
+
+wli - can you post the output of a failing sparc compile?
+
+	Sam

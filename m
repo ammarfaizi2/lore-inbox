@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265391AbUAPPlV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 10:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265413AbUAPPlV
+	id S265339AbUAPPjD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 10:39:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265352AbUAPPjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 10:41:21 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:28322
-	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
-	id S265391AbUAPPlT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 10:41:19 -0500
-Message-ID: <400805E5.9070808@tmr.com>
-Date: Fri, 16 Jan 2004 10:40:21 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>,
-       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: smp dead lock of io_request_lock/queue_lock patch
-References: <1d6yN-6HH-17@gated-at.bofh.it> <1dasC-5Ww-5@gated-at.bofh.it> <1ejkf-724-13@gated-at.bofh.it> <1elvB-Jt-25@gated-at.bofh.it>
-In-Reply-To: <1elvB-Jt-25@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jan 2004 10:39:03 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:34948 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S265339AbUAPPjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 10:39:00 -0500
+Date: Fri, 16 Jan 2004 15:46:46 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200401161546.i0GFkkpa002053@81-2-122-30.bradfords.org.uk>
+To: Jonathan Kamens <jik@kamens.brookline.ma.us>, linux-kernel@vger.kernel.org
+In-Reply-To: <16392.734.505550.6731@jik.kamens.brookline.ma.us>
+References: <16368.20794.147453.255239@jik.kamens.brookline.ma.us>
+ <16389.63781.783923.930112@jik.kamens.brookline.ma.us>
+ <16391.24288.194579.471295@jik.kamens.brookline.ma.us>
+ <200401160747.i0G7ln1I000368@81-2-122-30.bradfords.org.uk>
+ <16392.734.505550.6731@jik.kamens.brookline.ma.us>
+Subject: Re: Updated on UDMA BadCRC errors + subsequent problems (was: Is it safe to ignore UDMA BadCRC errors?)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
-> On Thu, 2004-01-15 at 12:01, Bill Davidsen wrote:
-
->>"not in a released kernel..." Do I read this right? That you have a fix 
->>for a critical bug and it hasn't been pushed to customers yet?
+Quote from Jonathan Kamens <jik@kamens.brookline.ma.us>:
+> John Bradford writes:
+>  > Quote from Jonathan Kamens <jik@kamens.brookline.ma.us>:
+>  > > ... hde: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+>  > > ... hde: drive_cmd: error=0x04 { DriveStatusError }
+>  > 
+>  > The drive doesn't seem to understand the command it was sent.
 > 
-> 
-> No, you don't read this right.  We have a fix for a correctness issue
-> that has almost 0% chance of ever triggering in real life, has exactly 0
-> bug reports of it ever happening, and which has been integrated into our
-> tree.  Obviously, we always push new kernels to all of our customers
-> every time we have this situation, or about twice a day...
+> I'm not sure what this means, but assuming that it's going to happen
+> again at some point,
 
-I actually had in mind a notification so customers would know it was 
-there if they actually see a similar problem, and a way to get the fix 
-if needed. Since a patch was posted, I assume that's it's not quite as 
-unlikely as you seem to imply.
+Maybe not - the most common cause I've seen for that message in the logs is trying to access S.M.A.R.T. information when S.M.A.R.T. is disabled.
 
-We have two copies of RHEL-3.0 in-house, and I have a budget line item 
-to upgrade 38 servers from RH-8.0 this year. Since they are all SMP/SCSI 
-I think my concern with this bug, and the bug notification process in 
-general is germane. I don't want to apply fixes for problems I don't 
-have, but I want to know what fixes are out there so if I have a similar 
-problem I can apply the fix(es) which might be related before spending a 
-lot of time chasing the problem.
+I.E. the error should be reproducable with:
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+# smartctl -d /dev/hda
+# smartctl -a /dev/hda
+
+Are you sure you weren't trying to get S.M.A.R.T. info from the drive at the time the error was logged?
+
+John.

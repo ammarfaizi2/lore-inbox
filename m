@@ -1,224 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266798AbUBET0e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 14:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUBET0e
+	id S266807AbUBET0w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 14:26:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUBET0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 14:26:34 -0500
-Received: from lgsx13.lg.ehu.es ([158.227.2.28]:51601 "EHLO lgsx13.lg.ehu.es")
-	by vger.kernel.org with ESMTP id S266798AbUBET0F (ORCPT
+	Thu, 5 Feb 2004 14:26:52 -0500
+Received: from gw0.infiniconsys.com ([65.219.193.226]:24837 "EHLO
+	mail.infiniconsys.com") by vger.kernel.org with ESMTP
+	id S266807AbUBET0U convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 14:26:05 -0500
-Message-ID: <402298C7.5050405@wanadoo.es>
-Date: Thu, 05 Feb 2004 20:25:59 +0100
-From: =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031206 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Thu, 5 Feb 2004 14:26:20 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: akpm@digeo.com, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, a.verweij@student.tudelft.nl
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Date: Thu, 5 Feb 2004 14:26:19 -0500
+Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96BF@mercury.infiniconsys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Thread-Index: AcPsGjVG9LMkXfbHTmW9mkOBO5uEEQAAQZCw
+From: "Tillier, Fabian" <ftillier@infiniconsys.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: <greg@kroah.com>, <sean.hefty@intel.com>, <linux-kernel@vger.kernel.org>,
+       <hozer@hozed.org>, <woody@co.intel.com>, <bill.magro@intel.com>,
+       <woody@jf.intel.com>, <infiniband-general@lists.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(sorry with my sucking english)
+Randy,
 
-ok, let me know if you know for me to test something with this newer mm 
-kernels.
+All issues are in include/asm-x86/atomic.h
 
-by the way, yes, I'm experiencing the lockups. Not with heavy io, but 
-almost when I boot and enter X. The system gets completly frozzened and 
-the HD led keps on. When I reboot with a sane kernel, I found several 
-files from my /home directory are deleted or filled with garbage.
+Comments as to the useful range of an atomic_t for x86 states 24-bits
+atomic_add is a void.  It should return the incremented value.
+atomic_sub is a void.  It should return the decremented value.
+atomic_inc is a void.  It should return the incremented value.
+atomic_dec is a void.  It should return the decremented value.
 
-Now, I patch each kernel I use with the two patches Andrew sent to me 
-and I'm having no problems.
+There is no atomic exchange.  include/asm-x86/system.h does provide a
+compare exchange, but it takes an extra size parameter.
 
-Actually i'm running 2.6.2-ck1 + nforce-patches and the temperature of 
-the system is 55º while idle, and 631 while compiling (only cpu fan, no 
-case fans). I don't know if it's high (some people reported high 
-temperatures with this patches) but it runs very well this way.
+Do note that for non x86 architectures, the component library atomic
+abstraction is all #define to the Linux provided functions.  Only x86
+needed help because of i386 backwards compatibility which is not a goal
+of the InfiniBand project.
 
-If you want for me to test some patches or something, please drop me a note.
+Hope that helps.
 
-Thanks a lot...
+- Fab
 
-Luis Miguel García
+-----Original Message-----
+From: Randy.Dunlap [mailto:rddunlap@osdl.org] 
+Sent: Thursday, February 05, 2004 10:53 AM
+To: Tillier, Fabian
+Cc: greg@kroah.com; sean.hefty@intel.com; linux-kernel@vger.kernel.org;
+hozer@hozed.org; woody@co.intel.com; bill.magro@intel.com;
+woody@jf.intel.com; infiniband-general@lists.sourceforge.net
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
+theLinux kernel
 
-P.S.: by the way, why am I getting strage "arabesque" characters when I 
-reply to your emails? Perhaps something with wrong encoding?
+On Thu, 5 Feb 2004 13:31:45 -0500 "Tillier, Fabian"
+<ftillier@infiniconsys.com> wrote:
 
->This is interesting, I will test it myself later on. At one point Len
->admitted to owning "foreign hardware :p" so maybe this could get resolved.
->
->Personally I haven't tried kernels with newer forcedeth drivers, because I
->can no longer explicitely set the power state of the NIC to D3. The
->machine complains about irqs (new debugging code since forcedeth v.20 or
->so) and will not powerdown.
->
->On another note, have you noticed lockups of your system with heavy io?
->Think of fsck'ing, burning cdroms, du on large dirs etc? Maybe it is
->helpful to set up a list of boards and document what works or doesn't work
->with which kernel. For instance the lockups with heavy io seem to be
->resolved here if I leave APIC from my kernel.
->
->Arjen
->
->On Thu, 5 Feb 2004, [ISO-8859-15] Luis Miguel Garc?a wrote:
->
->  
->
->>> Hi:
->>>
->>> Since Andrew Morton picked up latest acpi bk updates, nforce motherboards have problems, mainly with ethernet adapters. Reporters say that with acpi=off, the problm gets fixed, so we think the problem could be acpi. Some more useful info:
->>>
->>>
->>>
->>> On Tue, 3 Feb 2004, [ISO-8859-1] Luis Miguel Garc?a wrote:
->>>
->>>
->>    
->>
->>>>> >> When I try to boot with latest mm series (such as actual rc3-mm1 or
->>>>> >> rc2-mm2), my nforce ethernet device doesn't works. It worked in the past
->>>>> >> with the forcedeth reverse engineered driver but now it keeps for 30 or
->>>>> >> more seconds halted (at boot) and then the network device dosn't run.
->>>>> >>
->>>>> >> Here is the dmesg of rc3-mm1. Do you want for me to test something? Thanks!
->>>>> >>
->>>>> >> P.S.:   The ACPI related messages are larger that in rc3.
->>>>        
->>>>
->>>> >
->>>> >
->>>      
->>>
->>>
->>> My e100 on an nforce2 won't work in rc3-mm1.
->>> The "acpi=off" boot parameter makes it go.
->>>
->>>
->>> And for the record, I can boot with that kernel and save one dmesg for you if you want. Only send me a request and I'll send it to you.
->>>
->>> P.S.: Sent any messages you want directly to me as i'm not subscribed to acpi-devel.
->>>
->>> Thanks,
->>>
->>> Luis Miguel Garc?a
->>>
->>>
->>>
->>>
->>>
->>    
->>
->>>> >Which part of nforce support are you talking about luis?
->>>      
->>>
->>>
->>    
->>
->>>> >On Thu, 5 Feb 2004, Andrew Morton wrote:
->>>      
->>>
->>>
->>>
->>    
->>
->>>>> >> Luis Miguel Garc?a <ktech@wanadoo.es> wrote:
->>>>        
->>>>
->>>> >
->>>> >
->>>      
->>>
->>>>>>> >>> >
->>>>>>> >>> > Andrew Morton wrote:
->>>>>>> >>> >
->>>>>>            
->>>>>>
->>>>> >>
->>>>> >>
->>>>        
->>>>
->>>>>>>>> >>>> > >
->>>>>>>>                
->>>>>>>>
->>>>>> >>>
->>>>>> >>>
->>>>>          
->>>>>
->>>>>>>>>>> >>>>> > >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-mm1/
->>>>>>>>>>> >>>>> > >>
->>>>>>>>>>> >>>>> > >>
->>>>>>>>>>> >>>>> > >>
->>>>>>>>>>> >>>>> > >> - Merged some page reclaim fixes from Nick and Nikita.  These yield some
->>>>>>>>>>> >>>>> > >>  performance improvements in low memory and heavy paging situations.
->>>>>>>>>>> >>>>> > >>
->>>>>>>>>>> >>>>> > >>
->>>>>>>>>>                    
->>>>>>>>>>
->>>>>>> >>>>
->>>>>>> >>>>
->>>>>>> >>> >
->>>>>>> >>> > Andrew, do you know if this acpi pull down has nforce support fixed?
->>>>>>            
->>>>>>
->>>>> >>
->>>>> >>
->>>>> >>
->>>>> >> It doesn't appear that way.
->>>>> >>
->>>>        
->>>>
->>>> >
->>>> >
->>>      
->>>
->>>>>>> >>> > Or perhaps it's even unnotified to the acpi team?
->>>>>>            
->>>>>>
->>>>> >>
->>>>> >>
->>>>> >>
->>>>> >> I do not know.  Sending them a bugzilla ID would help, if such a thing exists.
->>>>> >>
->>>>> >>
->>>>> >>
->>>>> >> -------------------------------------------------------
->>>>> >> The SF.Net email is sponsored by EclipseCon 2004
->>>>> >> Premiere Conference on Open Tools Development and Integration
->>>>> >> See the breadth of Eclipse activity. February 3-5 in Anaheim, CA.
->>>>> >> http://www.eclipsecon.org/osdn
->>>>> >> _______________________________________________
->>>>> >> Acpi-devel mailing list
->>>>> >> Acpi-devel@lists.sourceforge.net
->>>>> >> https://lists.sourceforge.net/lists/listinfo/acpi-devel
->>>>> >>
->>>>> >>
->>>>        
->>>>
->>>> >
->>>> >
->>>      
->>>
->>>
->>>
->>> -------------------------------------------------------
->>> The SF.Net email is sponsored by EclipseCon 2004
->>> Premiere Conference on Open Tools Development and Integration
->>> See the breadth of Eclipse activity. February 3-5 in Anaheim, CA.
->>> http://www.eclipsecon.org/osdn
->>> _______________________________________________
->>> Acpi-devel mailing list
->>> Acpi-devel@lists.sourceforge.net
->>> https://lists.sourceforge.net/lists/listinfo/acpi-devel
->>>
->>    
->>
->
->
->  
->
+| Greg,
+| 
+| The atomic operation abstraction is there because atomic support has
+| different prototypes between x86 and IA64 (at least it did when it was
+| written), with some of the x86 functions not returning values while
+the
+| IA64 ones did.  Further, comments in the x86 code base indicated that
+| only 24-bits are actually valid (probably from some i386 limitation
+that
+| is no longer relevant).  Thus, the implementation of atomic operations
+| for the x86 processor architecture fails a build (via #error) if
+you're
+| targeting an i386 processor, and provides the same semantics
+independent
+| of processor architecture.
+| 
+| To answer your broader question, the reason to have abstraction is to
+| facilitate portability.  I'm not just talking about portability
+between
+| different operating systems, but even portability between different
+| versions of Linux distributions and kernels.  Differences between
+Linux
+| distributions and kernel versions can be handled in a single place,
+| avoiding the need to pepper the rest of the code base with #ifdefs.
+| This results in more readable and maintainable code for the rest of
+the
+| project by concentrating platform specific issues to the abstraction
+| layer.
+
+Besides Greg's comments:
+
+Can (will) you provide specific examples of these differences/problems?
+They need to be quashed.
+
+Thanks.
+
+| Are you suggesting that if there is any abstraction, the code will
+never
+| be accepted?  Or rather that the abstraction better be correct?  I'm
+| hoping for the latter, however please clarify.
+| 
+| - Fab
+| 
+| -----Original Message-----
+| From: Greg KH [mailto:greg@kroah.com] 
+| Sent: Thursday, February 05, 2004 10:10 AM
+| To: Hefty, Sean; linux-kernel@vger.kernel.org
+| Cc: Troy Benjegerdes; Woodruff, Robert J; Magro, Bill; Woodruff,
+Robert
+| J; infiniband-general@lists.sourceforge.net
+| Subject: Re: [Infiniband-general] Getting an Infiniband access layer
+in
+| the linux kernel
+| 
+| On Thu, Feb 05, 2004 at 10:01:13AM -0800, Hefty, Sean wrote:
+| > As an FYI, the code is available for download on bitkeeper at
+| > http://infiniband.bkbits.net/iba.  We're still working on providing
+a
+| > tarball and patch for 2.6, but if you would like to see the code
+now,
+| it
+| > is available.
+| 
+| Oh, I've seen that code, and still feel ill after looking at some of
+| it...
+| 
+| Come on, implementing your own spinlocks (and getting it wrong) and
+| atomit_t?  Why in the world would you _ever_ want to do that.
+| 
+| That code needs a _lot_ of cleanup to make it into the kernel tree.
+| 
+| Good luck,
+| 
+| greg k-h
+
+
+--
+~Randy
+kernel-janitors project:  http://janitor.kernelnewbies.org/

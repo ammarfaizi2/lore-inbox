@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262307AbVAZOVC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVAZOVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262307AbVAZOVC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 09:21:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbVAZOVC
+	id S262308AbVAZOVe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 09:21:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVAZOVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 09:21:02 -0500
-Received: from speedy.student.utwente.nl ([130.89.163.131]:29059 "EHLO
-	speedy.student.utwente.nl") by vger.kernel.org with ESMTP
-	id S262307AbVAZOU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 09:20:59 -0500
-Date: Wed, 26 Jan 2005 15:20:54 +0100
-From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
-To: Shawn Starr <shawn.starr@rogers.com>, Greg KH <greg@kroah.com>,
-       Aurelien Jarno <aurelien@aurel32.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11-rc2] I2C: lm80 driver improvement (From Aurelien)
-Message-ID: <20050126142054.GC23182@speedy.student.utwente.nl>
-Mail-Followup-To: Shawn Starr <shawn.starr@rogers.com>,
-	Greg KH <greg@kroah.com>, Aurelien Jarno <aurelien@aurel32.net>,
-	linux-kernel@vger.kernel.org
-References: <200501260249.23583.shawn.starr@rogers.com> <20050126140509.GB23182@speedy.student.utwente.nl>
-Mime-Version: 1.0
+	Wed, 26 Jan 2005 09:21:34 -0500
+Received: from mail.joq.us ([67.65.12.105]:25220 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262308AbVAZOVb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 09:21:31 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Peter Williams <pwil3058@bigpond.net.au>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D7
+References: <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
+	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
+	<87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>
+	<20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu>
+	<41F6C5CE.9050303@bigpond.net.au> <41F6C797.80403@bigpond.net.au>
+	<20050126100846.GB8720@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Wed, 26 Jan 2005 08:22:08 -0600
+In-Reply-To: <20050126100846.GB8720@elte.hu> (Ingo Molnar's message of "Wed,
+ 26 Jan 2005 11:08:46 +0100")
+Message-ID: <87pszsnucv.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050126140509.GB23182@speedy.student.utwente.nl>
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 03:05:09PM +0100, I wrote:
-> BTW, can anyone tell me why the uints in this parameter list are declared as
-> 'unsigned' and not as 'unsigned int'?
-$ find /usr/src/linux/ -name \*.c |xargs grep unsigned\ [^icsl] |wc -l
-3151
+Ingo Molnar <mingo@elte.hu> writes:
 
-- Gives himself a good smack on the head -
+> (My current thinking is that the default RT_CPU rlimit should be 0.)
 
-Sorry about that. I suppose it's just used a lot as a shorthand for 'unsigned
-int', which is used a lot more in the kernel (the above command finds 22656
-occurrences). On a sidenote, however, wouldn't it be nice for things like this
-to be consistent throughout the kernel? Don't think I have an opinion on this,
-because I don't, but I'd like to see those of the ones who do.
+How about a kernel .config option allowing us to easily compile in a
+different default?
 
-    Sytse
+That should tide over most of the audio users for the next 6 months or
+so until we get userspace tools from the various distributions.
+-- 
+  joq

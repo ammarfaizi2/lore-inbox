@@ -1,25 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310271AbSCGKUq>; Thu, 7 Mar 2002 05:20:46 -0500
+	id <S310272AbSCGKU4>; Thu, 7 Mar 2002 05:20:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310274AbSCGKUQ>; Thu, 7 Mar 2002 05:20:16 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:40198 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S310271AbSCGKUE>;
-	Thu, 7 Mar 2002 05:20:04 -0500
-Date: Wed, 6 Mar 2002 23:13:05 +0100
+	id <S310274AbSCGKUr>; Thu, 7 Mar 2002 05:20:47 -0500
+Received: from smtp4.vol.cz ([195.250.128.43]:45062 "EHLO majordomo.vol.cz")
+	by vger.kernel.org with ESMTP id <S310272AbSCGKUK>;
+	Thu, 7 Mar 2002 05:20:10 -0500
+Date: Wed, 6 Mar 2002 23:21:50 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Larry McVoy <lm@work.bitmover.com>, Kent Borg <kentborg@borg.org>,
-        Troy Benjegerdes <hozer@drgw.net>,
-        The Open Source Club at The Ohio State University 
-	<opensource-admin@cis.ohio-state.edu>,
-        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-Message-ID: <20020306221305.GA370@elf.ucw.cz>
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305163809.D1682@altus.drgw.net> <20020305165123.V12235@work.bitmover.com> <20020306095434.B6599@borg.org> <20020306085646.F15303@work.bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Woodhouse <dwmw2@infradead.org>, Jeff Dike <jdike@karaya.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Benjamin LaHaise <bcrl@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+Message-ID: <20020306222149.GC370@elf.ucw.cz>
+In-Reply-To: <505.1015411792@redhat.com> <E16iecJ-0007Nn-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020306085646.F15303@work.bitmover.com>
+In-Reply-To: <E16iecJ-0007Nn-00@the-village.bc.nu>
 User-Agent: Mutt/1.3.27i
 X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,24 +26,22 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > I also dislike the irony of BK being proprietary.  Sure, they might
-> > have an enlightened and generous attitude not, but PGP used to be
-> > free, then it became kinda free and then it became orphaned.  Luckily
-> > GPG came along, luckily PGP didn't have a monoploy on our history.
+> > You say 'at once'. Does UML somehow give pages back to the host when they're 
+> > freed, so the pages that are no longer used by UML can be discarded by the 
+> > host instead of getting swapped?
 > 
-> PGP didn't have a business model, we do, and part of our business model
-> is to give it away to some of the world.  It's a good business model,
-> BK is dramatically better because the PPC team used it and Cort went
-> through all sorts of stuff as BK improved.  BK would easily be a
-> year
+> Doesn't seem to but it looks like madvise might be enough to make that
+> happen. That BTW is an issue for more than UML - it has a bearing on
+> running lots of Linux instances on any supervisor/virtualising system
+> like S/390
 
-So you basically give bk for free because it is good for you. What if
-it will stop being good for you ten years from now?
+I just imagined hardware which supports freeing memory -- just do not
+refresh it any more to conserve power ;-))).
 
-Also it would be nice to apt-get install bk, but your license probably
-means we'll not see it in debian any time soon. (Should check, but do
-other vendors distribute bk?)
+Granted, it would probably only make sense in big chunks, like 2MB or
+so... It might make sense for a PDA...
 									Pavel
+
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
 no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

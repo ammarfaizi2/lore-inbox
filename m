@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282876AbRK0Iup>; Tue, 27 Nov 2001 03:50:45 -0500
+	id <S282873AbRK0ItF>; Tue, 27 Nov 2001 03:49:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282880AbRK0Iud>; Tue, 27 Nov 2001 03:50:33 -0500
-Received: from web9207.mail.yahoo.com ([216.136.129.40]:61714 "HELO
-	web9207.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S282876AbRK0Itf>; Tue, 27 Nov 2001 03:49:35 -0500
-Message-ID: <20011127084934.11076.qmail@web9207.mail.yahoo.com>
-Date: Tue, 27 Nov 2001 00:49:34 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: 2.4.16 alsa 0.5.12 mixer ioctl problem
-To: riesen@synopsys.com, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S282879AbRK0Isz>; Tue, 27 Nov 2001 03:48:55 -0500
+Received: from queen.bee.lk ([203.143.12.182]:48544 "EHLO queen.bee.lk")
+	by vger.kernel.org with ESMTP id <S282873AbRK0Isu>;
+	Tue, 27 Nov 2001 03:48:50 -0500
+Date: Tue, 27 Nov 2001 14:45:39 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: Andreas Jaeger <aj@suse.de>
+Cc: Anuradha Ratnaweera <anuradha@gnu.org>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.16
+Message-ID: <20011127144539.A23943@bee.lk>
+In-Reply-To: <20011127083530.A13584@bee.lk> <Pine.LNX.4.33L.0111270551210.4079-100000@imladris.surriel.com> <20011127135847.A22859@bee.lk> <ho1yik39hv.fsf@gee.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <ho1yik39hv.fsf@gee.suse.de>; from aj@suse.de on Tue, Nov 27, 2001 at 09:26:20AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah, they changed/broke (depending on your point of view) the file fs/proc/inode.c in the kernel
-source.
-You're the third person to post about this problem.
+On Tue, Nov 27, 2001 at 09:26:20AM +0100, Andreas Jaeger wrote:
+> Anuradha Ratnaweera <anuradha@gnu.org> writes:
+>
+> > It is still not okey to include even _small_ changes, because it is hard to
+> > define what small is.  Although we are sure that is is going to break,
+> > Murphey's laws may get in ...;)
+> 
+> It's Marcelo deciding what it's ok and what not.
 
-There's a work-around for the problem. (I'm currently running ALSA 0.9beta9, so the file contents
-may not exactly match up): in the ALSA driver source, edit the file kernel/info.c. Look for the
-following lines
+I wrote about what is ok to _me_...;)  There is no such thing called an
+absolute "ok".
 
-if (p) {
-	snd_info_device_entry_prepare(p,entry);
-#ifdef LINUX_2_3
-	p->proc_fops = &snd_fops;
-#else
-	p->ops = &snd_info_device_inode_operations;
-#endif
-	} else {
-		up(&info_mutex);
-		snd_info_free_entry(entry);
-		return NULL;
-	}
-}
+> I've got the impression from these threads about maintaince on lkml that a
+> number of people try to force something on Marcelo without giving him a
+> chance to find his own way of doing it.  I trust Marcelo that he'll do the
+> right thing.
 
-they should be near line 890 or so.
+So do I, and probably many others who have posted on this topic.
 
-Next, comment out the line 
-	p->proc_fops = &snd_fops;
+Cheers,
 
-Rebuild. Everything should work now.
+Anuradha
 
-Hope this helps.
--Alex
+-- 
 
-Alex Reisen wrote
-Hi, all
+Debian GNU/Linux (kernel 2.4.13)
 
-just tried to compile the mentioned alsa drivers under 2.4.16. Mixer doesnt work, yes. It
-compiles, installs, loads. And
-any program trying to open mixer (through libasound) get EINVAL.
+One should always be in love.  That is the reason one should never marry.
+		-- Oscar Wilde
 
-All is compiled with gcc-2.95.3,
-single CPU, with APIC (is any sense to enable it on
-uniprocessors?).
-
-Does anybody know what to do about it?
-
--alex
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
-http://geocities.yahoo.com/ps/info1

@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVCKRjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVCKRm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVCKRjs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 12:39:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVCKRjs
+	id S261231AbVCKRm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 12:42:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVCKRm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 12:39:48 -0500
-Received: from fire.osdl.org ([65.172.181.4]:13525 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261237AbVCKRiP (ORCPT
+	Fri, 11 Mar 2005 12:42:56 -0500
+Received: from fire.osdl.org ([65.172.181.4]:23255 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261234AbVCKRmq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 12:38:15 -0500
-Date: Fri, 11 Mar 2005 09:38:08 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.11.2
-Message-ID: <20050311173808.GZ28536@shell0.pdx.osdl.net>
-References: <20050309083923.GA20461@kroah.com> <m3acpa9qta.fsf@defiant.localdomain>
+	Fri, 11 Mar 2005 12:42:46 -0500
+Date: Fri, 11 Mar 2005 09:37:24 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "leo.yuriev.ru" <leo@yuriev.ru>
+Cc: Lennert Buytenhek <buytenh@wantstofly.org>,
+       Patrick McHardy <kaber@trash.net>, jamal <hadi@cyberus.ca>,
+       Ben Greear <greearb@candelatech.com>, <netdev@oss.sgi.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] updated, ethernet-bridge: update skb->priority in case
+ forwarded frame has VLAN-header
+Message-ID: <20050311093724.6c8b6a6d@dxpl.pdx.osdl.net>
+In-Reply-To: <914610115.20050311172022@yuriev.ru>
+References: <914610115.20050311172022@yuriev.ru>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed-Claws 1.0.1 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3acpa9qta.fsf@defiant.localdomain>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Krzysztof Halasa (khc@pm.waw.pl) wrote:
-> Another patch for 2.6.11.x: already in main tree, fixes kernel panic
-> on receive with WAN cards based on Hitachi SCA/SCA-II: N2, C101,
-> PCI200SYN.
-> Also a documentation change fixing user-panic can-t-find-required-software
-> failure (just the same patch as in mainline) :-)
+On Fri, 11 Mar 2005 17:20:22 +0300
+Leo Yuriev <leo@yuriev.ru> wrote:
 
-We are not accepting documentation fixes.  Could you please send just
-the panic fix to stable@kernel.org (cc lkml)?  And add Signed-off-by...
+> Kernel 2.6 (2.6.11)
+> 
+> When ethernet-bridge forward a packet and such ethernet-frame has
+> VLAN-tag, bridge should update skb->prioriry for properly QoS
+> handling. This small patch does this.
+> 
+> Based upon discussion during last week I added pskb_may_pull()
+> checking and simple mapping from 802.1p/user_priority to skb->priority.
+> 
+> Patch-by: Leo Yuriev <leo@yuriev.ru>
 
-thanks,
--chris
+Do this as an ebtables module please.

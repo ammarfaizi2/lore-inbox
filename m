@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261433AbSLCNRn>; Tue, 3 Dec 2002 08:17:43 -0500
+	id <S261418AbSLCN1x>; Tue, 3 Dec 2002 08:27:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbSLCNRn>; Tue, 3 Dec 2002 08:17:43 -0500
-Received: from johanna5.ux.his.no ([152.94.1.25]:30380 "EHLO
-	johanna5.ux.his.no") by vger.kernel.org with ESMTP
-	id <S261433AbSLCNRm>; Tue, 3 Dec 2002 08:17:42 -0500
-Date: Tue, 3 Dec 2002 14:25:08 +0100
-From: Erlend Aasland <erlend-a@ux.his.no>
-To: Trivial Patch Monkey <trivial@rustcorp.com.au>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       discuss@x86-64.org
-Subject: [TRIVIAL PATCH 2.5] get rid of CONFIG_UDF_RW (x86-64)
-Message-ID: <20021203132508.GL2417@johanna5.ux.his.no>
-References: <20021203125120.GA2417@johanna5.ux.his.no>
+	id <S261446AbSLCN1w>; Tue, 3 Dec 2002 08:27:52 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:32949 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261418AbSLCN1t>;
+	Tue, 3 Dec 2002 08:27:49 -0500
+Date: Tue, 3 Dec 2002 13:32:50 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Richard B. Tilley  (Brad)" <rtilley@vt.edu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Test tools
+Message-ID: <20021203133250.GE30431@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Richard B. Tilley  (Brad)" <rtilley@vt.edu>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <1038920650.972.33.camel@oubop4.bursar.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021203125120.GA2417@johanna5.ux.his.no>
+In-Reply-To: <1038920650.972.33.camel@oubop4.bursar.vt.edu>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove unused CONFIG_UDF_RW from x86-64 defconfig
+On Tue, Dec 03, 2002 at 08:04:10AM -0500, Richard B. Tilley  (Brad) wrote:
+ > Where can one find programs to comparison test or stress test beta
+ > kernels?
 
-Regards,
-	Erlend Aasland
+linux test project - http://ltp.sf.net
 
-diff -urN linux-2.5.50/arch/x86_64/defconfig linux-2.5.50-eaa/arch/x86_64/defconfig
---- linux-2.5.50/arch/x86_64/defconfig	Tue Oct 22 00:13:59 2002
-+++ linux-2.5.50-eaa/arch/x86_64/defconfig	Tue Dec  3 00:48:05 2002
-@@ -594,7 +594,6 @@
- CONFIG_EXT2_FS=y
- # CONFIG_SYSV_FS is not set
- # CONFIG_UDF_FS is not set
--# CONFIG_UDF_RW is not set
- # CONFIG_UFS_FS is not set
- # CONFIG_UFS_FS_WRITE is not set
- # CONFIG_XFS_FS is not set
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

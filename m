@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267616AbTALXNZ>; Sun, 12 Jan 2003 18:13:25 -0500
+	id <S267637AbTALX1t>; Sun, 12 Jan 2003 18:27:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267638AbTALXLT>; Sun, 12 Jan 2003 18:11:19 -0500
-Received: from h80ad2762.async.vt.edu ([128.173.39.98]:13184 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267616AbTALXI4>; Sun, 12 Jan 2003 18:08:56 -0500
-Message-Id: <200301122316.h0CNGmkr003807@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
-Cc: jochen@jochen.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.55, PCI, PCMCIA, XIRCOM] 
-In-Reply-To: Your message of "Sun, 12 Jan 2003 14:58:39 PST."
-             <1755778.1042412319026.JavaMail.nobody@web55.us.oracle.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <1755778.1042412319026.JavaMail.nobody@web55.us.oracle.com>
+	id <S267638AbTALX1q>; Sun, 12 Jan 2003 18:27:46 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:11532 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267637AbTALX1n>; Sun, 12 Jan 2003 18:27:43 -0500
+Date: Mon, 13 Jan 2003 00:36:30 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Honest does not pay here ...
+Message-ID: <20030112233630.GB29758@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200301041809.KAA06893@adam.yggdrasil.com> <avaa2r$ggr$1@forge.intermeta.de> <3E18B76B.8050803@cox.net> <avae9i$gv1$1@forge.intermeta.de> <3E18CC4D.1020604@cox.net> <20030106234116.GH10752@merlin.emma.line.org> <3E1A1A2C.2000409@walrond.org> <20030107012429.GA12944@merlin.emma.line.org> <ave8su$u17$1@forge.intermeta.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1721357872P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 12 Jan 2003 18:16:48 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ave8su$u17$1@forge.intermeta.de>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1721357872P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 07 Jan 2003, Henning P. Schmiedehausen wrote:
 
-On Sun, 12 Jan 2003 14:58:39 PST, Alessandro Suardi said:
-> > On Fri, 10 Jan 2003 20:00:31 +0100, Jochen Hein said:
-> > > > - and I've seen a report it causes an OOPS
-> > > > on 2.5.53.  I've not tried it on post-52, but I had a -54 kernel OOPS
+> Matthias Andree <matthias.andree@gmx.de> writes:
 > 
-> Guess the report was mine :) note for readers, this is bug 134
->  in the 2.5 kernel bug database at http://bugme.osdl.org .
+> >> Until the manufacturers start providing good quality supported drivers 
+> >> for their hardware, binary or source, linux will stay exactly where it 
+> >> is now; a server room tool and a hobbyists playground.
 > 
-> > > > right around that point in bootup (right after IDE and somewhere in PCI
-> > > > init).  Haven't chased that one at all...
-> > if it OOPSes without my patch, then it's somebody else's problem.  
+> >> I for one think thats a real shame
 > 
-> No, it did oops only with the patch.
+> >Only that you can't trust in the el-cheapo vendors claiming Linux
+> >support, and an independent certification is needed (not only for Linux,
+> >for the *BSDs as well). Without a trusted certification, some crooks may
+> >try to claim Linux support and it won't quite work out.
+> 
+> http://www.cs.helsinki.fi/linux/linux-kernel/2001-35/0559.html
+> 
+> Dated 5. September 2001.
 
-My *original* patch (the one that just moved 2 lines) plus the 2-liner
-by Zwane Mwaikambo to fix the DMA patch is working for me.  I know Zwane's
-patch is already in Bitkeeper, I don't think we've ever resolved the "right"
-solution for mine....
--- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
+Close, but I hadn't meant signing in mind, but something like "we write
+we support Linux" when they only have 2.0 binary-only modules. I want
+the term "Linux compatible" to be certified, not soft- or hardware per
+se. Signing drivers is difficult, because of the said problems, and
+because a faithful and trustworthy vendor then has to have his stuff
+re-certified over and over.
 
+I you happened to read the German c't magazine 1/2003 about RAID
+hardware and Linux, or the 2/2003 edition about TV cards, then look at
+the pertinent sections to know what I mean.
 
---==_Exmh_-1721357872P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+IfdgcC3lWbTT17ARAtiwAJ9zr6PJkluFp5+ffEP/PZGqpnX4vwCg6hoW
-O3zhb/Av0h8+3Fm7ReeD82E=
-=MmJS
------END PGP SIGNATURE-----
-
---==_Exmh_-1721357872P--
+The other thing (Linus labs) is already there: module tainting...

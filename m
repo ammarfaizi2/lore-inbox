@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277666AbRJRKBO>; Thu, 18 Oct 2001 06:01:14 -0400
+	id <S277667AbRJRKMz>; Thu, 18 Oct 2001 06:12:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277667AbRJRKAz>; Thu, 18 Oct 2001 06:00:55 -0400
-Received: from mail.loewe-komp.de ([62.156.155.230]:37391 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S277666AbRJRKAk>; Thu, 18 Oct 2001 06:00:40 -0400
-Message-ID: <3BCEA924.14415870@loewe-komp.de>
-Date: Thu, 18 Oct 2001 12:04:20 +0200
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: LOEWE. Hannover
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: nfsfh.c:nfsd_findparent lookup("..") failure fix in 2.4.4 - xfs related?
+	id <S277686AbRJRKMo>; Thu, 18 Oct 2001 06:12:44 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:54390 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277667AbRJRKMf>; Thu, 18 Oct 2001 06:12:35 -0400
+Date: Thu, 18 Oct 2001 12:06:14 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Chip Salzenberg <chip@pobox.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.13pre3aa1: expand_fdset() may use invalid pointer
+Message-ID: <20011018120614.K12055@athlon.random>
+In-Reply-To: <20011017113245.A3849@perlsupport.com> <20011017204204.C2380@athlon.random> <20011018121124.L11266@in.ibm.com> <20011018102226.I12055@athlon.random> <20011018151828.M11266@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011018151828.M11266@in.ibm.com>; from maneesh@in.ibm.com on Thu, Oct 18, 2001 at 03:18:28PM +0530
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following diff was made in 2.4.4.
- 
-diff -u --recursive --new-file v2.4.4/linux/fs/nfsd/nfsfh.c linux/fs/nfsd/nfsfh.c
---- v2.4.4/linux/fs/nfsd/nfsfh.c        Fri Feb  9 11:29:44 2001
-+++ linux/fs/nfsd/nfsfh.c       Sat May 19 17:47:55 2001
-@@ -244,6 +245,11 @@
-         */
-        pdentry = child->d_inode->i_op->lookup(child->d_inode, tdentry);
-        d_drop(tdentry); /* we never want ".." hashed */
-+       if (!pdentry && tdentry->d_inode == NULL) {
-+               /* File system cannot find ".." ... sad but possible */
-+               dput(tdentry);
-+               pdentry = ERR_PTR(-EINVAL);
-+       }
+On Thu, Oct 18, 2001 at 03:18:28PM +0530, Maneesh Soni wrote:
+> We also thought of embedding rcu head in the files_struct, but that was ruled
 
+Ah, that's what I had in mind while writing my last email, I thought the
+rcu_head and the parameters to the call_rcu were living in the
+files_struct. I should have better checked the code. In short
+rcu_fd_array and friend are just artificial structs dynamically
+allocated just for the purpose of the rcu freeing of the memory. This
+has the advantage of also saving some byte during production, and of
+course my suggestion to take rcu_head at the end of the struct was in
+turn flawed as well, it's not going to make a real difference since the
+rcu_head will be used during call_rcu anyways and the rcu freeing path
+has to be a very uncommon path in first place.
 
-Umh. How is it possible to have a valid dentry which has no parent?
-Even "/.." is linked to "/."
+> out as we are not freeing the entire files_struct but a couple of fields in
+> it. So it may happen that before the callback for one files_struct is processed 
+> we queue another one for the same files_struct.
 
-Is this xfs related? At least it was triggered on 2.4.3-xfs with
-exported xfs filesystems.
+I see, the dynamic allocation of the rcu_fd_array and friend solve the
+multiple call_rcu on the same files_struct problem very cleanly.
+
+Ok, so please forget my last email, your last patch looks fine. Thanks!
+
+Andrea

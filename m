@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267943AbRG0RR3>; Fri, 27 Jul 2001 13:17:29 -0400
+	id <S268900AbRG0RSL>; Fri, 27 Jul 2001 13:18:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268885AbRG0RRK>; Fri, 27 Jul 2001 13:17:10 -0400
-Received: from ntt-connection.daiwausa.com ([210.175.188.3]:56621 "EHLO
-	ead42.ead.dsa.com") by vger.kernel.org with ESMTP
-	id <S267943AbRG0RQv>; Fri, 27 Jul 2001 13:16:51 -0400
-Date: Fri, 27 Jul 2001 13:16:46 -0400
-From: "Bill Rugolsky Jr." <rugolsky@ead.dsa.com>
-To: Lawrence Greenfield <leg+@andrew.cmu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010727131646.A16145@ead45>
-In-Reply-To: <20010726174844.W17244@emma1.emma.line.org> <E15PnTJ-0003z0-00@the-village.bc.nu> <9jpftj$356$1@penguin.transmeta.com> <20010726095452.L27780@work.bitmover.com>, <20010726095452.L27780@work.bitmover.com> <996167751.209473.2263.nullmailer@bozar.algorithm.com.au> <3B60EDD3.2CE54732@zip.com.au> <200107271624.f6RGOu8U010566@acap-dev.nas.cmu.edu>
-Mime-Version: 1.0
+	id <S268894AbRG0RSB>; Fri, 27 Jul 2001 13:18:01 -0400
+Received: from congress199.linuxsymposium.org ([209.151.18.199]:37637 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S268885AbRG0RRv>;
+	Fri, 27 Jul 2001 13:17:51 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200107271715.f6RHFea24226@lynx.adilger.int>
+Subject: Re: Strane remount behaviour with ext3-2.4-0.9.4
+To: sean@uncarved.com (Sean Hunter)
+Date: Fri, 27 Jul 2001 11:15:39 -0600 (MDT)
+Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20010727104049.B6311@uncarved.com> from "Sean Hunter" at Jul 27, 2001 10:40:49 AM
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <200107271624.f6RGOu8U010566@acap-dev.nas.cmu.edu>; from leg+@andrew.cmu.edu on Fri, Jul 27, 2001 at 12:24:56PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Fri, Jul 27, 2001 at 12:24:56PM -0400, Lawrence Greenfield wrote:
-> I love it when I see things like:  "No, Linus is right and the MTA
-> guys are just wrong."
+Sean writes:
+> servers.  Since the server in question is a farily security-sensitive box, my
+> /usr partition is mounted read only except when I remount rw to install
+> packages.
+
+If it is a security-sensitive box, you need to at least use data=ordered or
+data=journal.  Using data=writeback allows the possibility that after a crash
+one user might be able to read data from deleted files of another user (note
+that reiserfs currently only runs the equivalent of data=writeback).
+
+> When I try to remount it r/w I get a log message saying:
+> Jul 27 09:54:29 henry kernel: EXT3-fs: cannot change data mode on remount
 > 
-> This sort of attitude is just ridiculous.  Unix had a defined set of
-> semantics.  This might have been stupid semantics, but it had them.
-> Then journalling filesystems, softupdates, and Linux async updates
-> came along and destroyed those semantics, preventing those of us who
-> want to write reliable applications using the filesystem from doing
-> so.  At least Oracle doesn't change the definition of COMMIT.
+> ...even if I give the full mount option list (including data=writeback) with
+> the remount instruction.
 
-First off, would you care to quote chapter and verse of these
-"defined semantics" ?   Do you mean the BSD source?
+You _could_ leave out the data=writeback from /etc/fstab (default is ordered),
+and you will be able to remount OK.  Also, Andrew made a patch which allowed
+you to specify the data= mode on remount, as long it is the same. 
 
-Traditional FFS/UFS achieves "safety" at a terrible cost to
-performance.  I can barely stand the wait to untar XFree86 on Solaris8
-on a PII-333, even with UFS logging -- I'd rather use my Pentium 166
-laptop running Linux!  ext2 solved this performance issue many years
-ago by recognizing that the FFS metadata scheme was not really safe
-either; instead the intelligence was put into e2fsck, and where
-necessary, the applications.  (Do I hear faint echoes of the
-"lint" v. "cc" design criterion ... ?)
+> I can, however, remount it as ext2 read-write, but when I try to remount as
+> ext3 (even read only) I get the same problem.
 
-The infrastructure is now in place to solve these problems in ext3,
-without imposing a least-common-denominator approach that degrades
-overall system performance.  In these instances "Linus is right" when
-he notes that (1) the proposed immediate solution does not really solve
-the problem, and (2) once in there, developers will rely on its precise
-semantics, making them difficult to get right later on, and providing
-no incentive to do so.  In many such instances "undefined" behavior is
-the best intermediate solution.
+You can't change filesystem types via remount (ext2 and ext3 are different
+filesystem drivers).  In the future, you might be able to use the ext3
+driver to mount a filesystem in totally unjournaled (ext2) mode.
 
-As one can see from the "gkernel-commit" traffic, Andrew Morton has
-not only taken away useful information from this thread, he's already
-halfway to a solution, in just a day, because  Matthias Andree took
-the time to describe the functional requirements instead of just
-whining that "it's not like BSD."
- 
-> Thus why all reasonably paranoid MTAs and other mail programs say "use
-> chattr +S on ext2"---we need ordered metadata writes.
-
-And that's precisely the type of thing we want -- unused features should
-not impact the rest of the system.
- 
-Regards,
-
-   Bill Rugolsky
-
+Cheers, Andreas
+-- 
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/

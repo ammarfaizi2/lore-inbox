@@ -1,55 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbQLWEft>; Fri, 22 Dec 2000 23:35:49 -0500
+	id <S129534AbQLWEzY>; Fri, 22 Dec 2000 23:55:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129534AbQLWEfk>; Fri, 22 Dec 2000 23:35:40 -0500
-Received: from NS2.pcscs.com ([207.96.110.42]:53770 "EHLO linux01.pcscs.com")
-	by vger.kernel.org with ESMTP id <S129383AbQLWEfZ>;
-	Fri, 22 Dec 2000 23:35:25 -0500
-Message-ID: <002b01c06c95$7c24fe60$2b6e60cf@pcscs.com>
-From: "Charles Wilkins" <chas@pcscs.com>
-To: "Andrzej Krzysztofowicz" <kufel!ankry@green.mif.pg.gda.pl>
-Cc: "Linux Raid mailing list" <linux-raid@vger.kernel.org>,
-        "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200012222224.XAA02297@kufel.dom>
-Subject: Re: Fw: max number of ide controllers?
-Date: Fri, 22 Dec 2000 23:04:45 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129595AbQLWEzN>; Fri, 22 Dec 2000 23:55:13 -0500
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:41488 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S129534AbQLWEzB>; Fri, 22 Dec 2000 23:55:01 -0500
+Date: Sat, 23 Dec 2000 05:22:32 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: The NSA's Security-Enhanced Linux (fwd)
+Message-ID: <20001223052232.N17117@garloff.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3A439833.C64D493A@storm.ca> <E149X6e-000525-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="Z1OTrj3C7qypP14j"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E149X6e-000525-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 22, 2000 at 06:39:49PM +0000
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is what worked.
 
-append="ide6=0x168,0x36e,10"
+--Z1OTrj3C7qypP14j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks all for your help.
+Hi,
 
-Merry Christmas : )
+On Fri, Dec 22, 2000 at 06:39:49PM +0000, Alan Cox wrote:
+> > These folks are good at what they do and the code is GPL.
+> > It is worth starting to consider whether this code, or code
+> > from one of the other security-enhancement projects, should
+> > be included in the standard kernel for 2.6 or 3.0.
+>=20
+> I think this is a good point. Its actually a nice testimonial for free=20
+> software that its finally got the NSA contributing code in a way that eve=
+ryone
+> benefits from and which may help cut down computer crime beyond governmen=
+t.
+> (and which of course actually is part of the NSA's real job)
 
-> > Charles Wilkins writes:
-> > > I have ide.2.2.18.1209.patch applied. The kernel is 2.2.18.
-> > > So what is the answer? 4 controllers max or 10 for my kernel?
-> > 
-> > 10 controllers if you have the IDE patches applied.  4 otherwise.
-> 
-> Look the source Luck ...
-> 
-> 2.2.18 ide.c:
-> 
-> static const byte       ide_hwif_to_major[] = {IDE0_MAJOR, IDE1_MAJOR,
-> IDE2_MAJOR, IDE3_MAJOR, IDE4_MAJOR, IDE5_MAJOR };
-> 
-> 6 otherwise
-> 
-> Andrzej
+I wonder how their approach compares to the RSBAC stuff, though.
+The RSBAC (by Amon Ott) has all the infrastructure available to have
+policy based access control; whenever an access decision has to be
+taken, a call via some interface is made to a module, which then
+takes the decision ... Just like PAM in userspace.
+http://www.rsbac.org/
 
+I think it's a good approach and I think, it has gone much further
+than the NSA stuff. I'd prefer to have RSBAC merged in 2.5.
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, FRG                               SCSI, Security
+
+--Z1OTrj3C7qypP14j
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6RCiIxmLh6hyYd04RAoE2AJ0fciGawOFgaCLPi5XtHx0on3Lx7QCfR+X8
+Qolbk94MyuKAVMZJY7eLuC0=
+=7tPP
+-----END PGP SIGNATURE-----
+
+--Z1OTrj3C7qypP14j--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

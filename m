@@ -1,55 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbUBWB2c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 20:28:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUBWB22
+	id S261703AbUBWBdx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 20:33:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbUBWBdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 20:28:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36233 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261772AbUBWB2L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 20:28:11 -0500
-Date: Sun, 22 Feb 2004 17:28:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alexander Atanasov <alex@ssi.bg>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] runtime PM deadlock
-Message-Id: <20040222172849.76633696.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402221908540.13861@mars.home.zaxl.net>
-References: <Pine.LNX.4.58.0402221908540.13861@mars.home.zaxl.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 22 Feb 2004 20:33:53 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:31826 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S261703AbUBWBdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 20:33:47 -0500
+Subject: RE: Cisco vpnclient prevents proper shutdown starting with 2.6.2
+From: Patrick Toal <ptoal@cisco.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1077500017.1746.13.camel@ptoal-pc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 22 Feb 2004 20:33:38 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Atanasov <alex@ssi.bg> wrote:
->
-> 	Hello,
-> 
-> 	echo -n 3 > /sys/.../power/state; echo -n 2 > /sys/.../power/state
-> 
-> 	dpm_runtime_suspend holds dpm_sem and calls
-> dpm_runtime_resume which deadlocks, instead
-> directly call runtime_resume.
-> 
-> -- 
-> have fun,
-> alex
-> 
-> ===== drivers/base/power/runtime.c 1.2 vs edited =====
-> --- 1.2/drivers/base/power/runtime.c	Wed Aug 20 09:23:32 2003
-> +++ edited/drivers/base/power/runtime.c	Sun Feb 22 18:26:42 2004
-> @@ -51,7 +51,7 @@
->  		goto Done;
-> 
->  	if (dev->power.power_state)
-> -		dpm_runtime_resume(dev);
-> +		runtime_resume(dev);
-> 
->  	if (!(error = suspend_device(dev,state)))
->  		dev->power.power_state = state;
+Sid Boyce wrote:
+> I tried using this client with up to 2.6.1-mm5 and ended up with Dead
+> processes for cvpnd and vpnclient, nothing else was affected, went
+> back to 2.4.x kernel.
+> Regards
+> Sid
 
-heh, that's been there since day one.   Thanks.
+Sid, et al. 
+
+First, before anyone starts deluging me with questions, you should know
+that even though my details say Cisco, I am an SE in the field, _not_ a
+developer.  Second, please reply to me off-list, as I do not subscribe
+to the LK list.  
+
+That being said, I think I've tracked this down to a recent change in
+the net/core/dev.c file.  I reversed the patch to
+register_netdevice_notifier below, and the vpnclient now works fine. 
+This is called by the handle_vpnup routine in interceptor.c of the
+vpnclient kernel module.
+
+I am _not_ a kernel developer, nor do I spend the majority of my time
+programming, so I haven't been able to figure out _why_ these changes
+cause the module to freeze.  I'd be interested if anyone could tell me
+the answer to that question. :-)
+
+Regards,
+Patrick
+
+@@ -946,11 +996,29 @@
+  *     The notifier passed is linked into the kernel structures and must
+  *     not be reused until it has been unregistered. A negative errno code
+  *     is returned on a failure.
++ *
++ *     When registered all registration and up events are replayed
++ *     to the new notifier to allow device to have a race free
++ *     view of the network device list.
+  */
+ 
+ int register_netdevice_notifier(struct notifier_block *nb)
+ {
+-       return notifier_chain_register(&netdev_chain, nb);
++       struct net_device *dev;
++       int err;
++
++       rtnl_lock();
++       err = notifier_chain_register(&netdev_chain, nb);
++       if (!err) {
++               for (dev = dev_base; dev; dev = dev->next) {
++                       nb->notifier_call(nb, NETDEV_REGISTER, dev);
++
++                       if (dev->flags & IFF_UP)
++                               nb->notifier_call(nb, NETDEV_UP, dev);
++               }
++       }
++       rtnl_unlock();
++       return err;
+ }
+ 
+ /**
+
+
+-- 
+Patrick J. Toal, Systems Engineer, CCCS
+Cisco Systems Canada Co.
+181 Bay Street, Bay Wellington Tower, Suite 3400
+Toronto, Ontario, Canada M5J 2T3
+Phone: 416-306-7735     Pager: 1-800-682-4726
 

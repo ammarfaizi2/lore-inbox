@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129213AbQKIGKy>; Thu, 9 Nov 2000 01:10:54 -0500
+	id <S129057AbQKIGxh>; Thu, 9 Nov 2000 01:53:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129231AbQKIGKn>; Thu, 9 Nov 2000 01:10:43 -0500
-Received: from nifty.blue-labs.org ([208.179.0.193]:31528 "EHLO
-	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S129213AbQKIGKd>; Thu, 9 Nov 2000 01:10:33 -0500
-Message-ID: <3A0A38DB.F5D63F6D@linux.com>
-Date: Wed, 08 Nov 2000 21:40:43 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>, Greg KH <greg@wirex.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [bug] usb-uhci locks up on boot half the time
-In-Reply-To: <3427.973738139@kao2.melbourne.sgi.com>
-Content-Type: multipart/mixed;
- boundary="------------B01C18D3DC7D19C977BB351B"
+	id <S129231AbQKIGx1>; Thu, 9 Nov 2000 01:53:27 -0500
+Received: from saw.sw.com.sg ([203.120.9.98]:668 "HELO saw.sw.com.sg")
+	by vger.kernel.org with SMTP id <S129057AbQKIGxI>;
+	Thu, 9 Nov 2000 01:53:08 -0500
+Message-ID: <20001109145301.A16021@saw.sw.com.sg>
+Date: Thu, 9 Nov 2000 14:53:01 +0800
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: rmlynch@best.com, linux-kernel@vger.kernel.org
+Subject: Re: Spew from test11-pre1
+In-Reply-To: <3A09EC6F.C87A7729@best.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <3A09EC6F.C87A7729@best.com>; from "Robert Lynch" on Wed, Nov 08, 2000 at 04:14:39PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------B01C18D3DC7D19C977BB351B
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hello,
 
-> The NMI oopser for UP only trips in when the cpu is spinning.  If the
-> cpu is in a halt state then NMI does not run.  But in a halt state you
-> should be able to activate kdb via the pause key.  The only time you
-> cannot get kdb via pause is if interrupts are disabled (but then the
-> cpu should be spinning and NMI should kick in) or if the cpu or
-> motherboard is totally wedged.
+On Wed, Nov 08, 2000 at 04:14:39PM -0800, Robert Lynch wrote:
+> No oops, but right after I installed test11-pre1, then tried to
+> access a Windows box as a VNC client, this message started
+> getting continuously dumped by syslog:
+> ===
+> ...
+> Nov  8 15:32:01 ives kernel: eth0: card reports no RX buffers.
+> Nov  8 15:32:04 ives kernel: eth0: card reports no resources.
+[snip]
+> ===                  
+> Doing a Yahoo search it seems this was previously reported
+> eepro100 bug, which appears to have resurfaced.
 
-just a quick followup while i'm working at it.  the hardware is totally
-hung, nothing gets to it, keyboard, serial, or nmi.
+It have never been finally fixed.
+I'm working on a "next-generation workaround" right now.
 
-being there are a lot of usb functions, does anyone have some suggested
-breakpoints?
-
--d
-
---
-"The difference between 'involvement' and 'commitment' is like an
-eggs-and-ham breakfast: the chicken was 'involved' - the pig was
-'committed'."
-
-
-
---------------B01C18D3DC7D19C977BB351B
-Content-Type: text/x-vcard; charset=us-ascii;
- name="david.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for David Ford
-Content-Disposition: attachment;
- filename="david.vcf"
-
-begin:vcard 
-n:Ford;David
-x-mozilla-html:TRUE
-adr:;;;;;;
-version:2.1
-email;internet:david@kalifornia.com
-title:Blue Labs Developer
-x-mozilla-cpt:;14688
-fn:David Ford
-end:vcard
-
---------------B01C18D3DC7D19C977BB351B--
-
+Best regards
+					Andrey V.
+					Savochkin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269771AbUJAMh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269773AbUJAMiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269771AbUJAMh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 08:37:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269773AbUJAMh4
+	id S269773AbUJAMiu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 08:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269775AbUJAMit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 08:37:56 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:63192 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S269771AbUJAMhm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 08:37:42 -0400
-Date: Fri, 1 Oct 2004 14:37:12 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Arvind Kalyan <arvy@cse.kongu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OS Virtualization
-Message-ID: <20041001123712.GD4072@admingilde.org>
-Mail-Followup-To: Arvind Kalyan <arvy@cse.kongu.edu>,
-	linux-kernel@vger.kernel.org
-References: <49219.172.16.42.200.1096629426.kourier@172.16.42.200>
+	Fri, 1 Oct 2004 08:38:49 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:58513 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269773AbUJAMim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 08:38:42 -0400
+Subject: Re: new locking in change_termios breaks USB serial drivers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Al Borchers <alborchers@steinerpoint.com>
+Cc: linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <415D3408.8070201@steinerpoint.com>
+References: <415D3408.8070201@steinerpoint.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1096630567.21871.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tEFtbjk+mNEviIIX"
-Content-Disposition: inline
-In-Reply-To: <49219.172.16.42.200.1096629426.kourier@172.16.42.200>
-User-Agent: Mutt/1.3.28i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 01 Oct 2004 12:36:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2004-10-01 at 11:40, Al Borchers wrote:
+> Unfortunately, many USB serial drivers' set_termios functions
+> send an urb to change the termios settings and sleep waiting for
+> it to complete.
+> 
+> I just looked quickly, but it seems belkin_sa.c, digi_acceleport.c,
+> ftdi_sio.c, io_ti.c, kl5usb105.c, mct_u232.c, pl2303.c, and whiteheat.c
+> all sleep in their set_termios functions.
+> 
+> If this locking in change_termios() stays, we are going to have to
+> fix set_termios in all of these drivers.  I am updating io_ti.c right
+> now.
 
---tEFtbjk+mNEviIIX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+How much of a problem is this, would it make more sense to make the
+termios locking also include a semaphore to serialize driver side events
+and not the spin lock ?
 
-hi :)
+We need some kind of locking there otherwise multiple parallel termios
+setters resulting in truely strange occurences because driver authors
+don't think about 64 parallel executions of ->change_termios()
 
-On Fri, Oct 01, 2004 at 04:47:06PM +0530, Arvind Kalyan wrote:
-> My intentions are to give control to both the kernels to directly control
-> the hardware and do "context switch" between those two based on
-> time-slice.
+I can switch the lock around if you want.
 
-Have a look at Xen: http://www.cl.cam.ac.uk/Research/SRG/netos/xen/
-They don't really allow direct hardware manipulation but use drivers
-of their own.
+Alan
 
---=20
-Martin Waitz
-
---tEFtbjk+mNEviIIX
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBXU93j/Eaxd/oD7IRAtwGAJ9mIZx/spunpilIoomGnslnCKOppACfTTnX
-d+Tl1q/FAT1BnaldwHFmIk0=
-=RqUW
------END PGP SIGNATURE-----
-
---tEFtbjk+mNEviIIX--

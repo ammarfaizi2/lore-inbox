@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272509AbTGaPPo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 11:15:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272518AbTGaPOD
+	id S272501AbTGaPX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 11:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272524AbTGaPX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 11:14:03 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:34176 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S272502AbTGaPMe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 11:12:34 -0400
-Date: Thu, 31 Jul 2003 16:12:26 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Emulating i486 on i386 (was: TSCs are a no-no on i386)
-Message-ID: <20030731151226.GG6410@mail.jlokier.co.uk>
-References: <20030730181006.GB21734@fs.tum.de> <20030730183033.GA970@matchmail.com> <20030730184529.GE21734@fs.tum.de> <1059595260.10447.6.camel@dhcp22.swansea.linux.org.uk> <20030730203318.GH1873@lug-owl.de> <20030731002230.GE22991@fs.tum.de> <20030731062252.GM1873@lug-owl.de> <20030731071719.GA26249@alpha.home.local> <20030731113838.GU1873@lug-owl.de> <1059652268.16608.8.camel@dhcp22.swansea.linux.org.uk>
+	Thu, 31 Jul 2003 11:23:56 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:10451 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S272538AbTGaPWa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 11:22:30 -0400
+Date: Thu, 31 Jul 2003 17:22:21 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "Miller, Mike (OS Dev)" <mike.miller@hp.com>,
+       "Marcelo Tosatti (E-mail)" <marcelo@conectiva.com.br>,
+       "Lkml (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: cciss updates for 2.4.22
+Message-ID: <20030731152221.GE22104@suse.de>
+References: <D4CFB69C345C394284E4B78B876C1CF104052AC9@cceexc23.americas.cpqcorp.net> <3F292478.6040504@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1059652268.16608.8.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3F292478.6040504@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Iau, 2003-07-31 at 12:38, Jan-Benedict Glaw wrote:
-> > Thanks for that. In the meantime, I've started to give a try to the
-> > userspace version (using a LD_PRELOAD lib). My current Problem:
-> > 
-> > amtus:~/sigill_catcher# LD_PRELOAD=./libsigill.so ls
-> > sigill.c:_init():69: sigill started, sigaction() = 0
-> > build.sh  intercept.h  libsigill.so  run.sh  sigill.c  sigill.o
-> > amtus:~/sigill_catcher# LD_PRELOAD=./libsigill.so apt-get update
-> > Illegal instruction
-> > 
-> > See? It's loaded at the "ls" call, but it seems to be not loaded for
-> > apt-get.
+On Thu, Jul 31 2003, Jeff Garzik wrote:
+> Miller, Mike (OS Dev) wrote:
+> >The attached tarball contains 2 patches. The first is an author change for 
+> >the cciss driver. The second resolves an issue when sharing IRQs with 
+> >another controller. The patches have been built & tested against 
+> >2.4.22-pre9. They can be installed in any order.
+> >More to come.
 > 
-> Remember you need to overload signal setting functions like sigaction.
-> My guess is apt decided to disable your signal and you didnt stop it
+> 
+> Mike, you should consider sending one-patch-per-email.  This makes it 
+> much easier for Marcelo to use standard scripts to quickly and easily 
+> apply your patches.
 
-An application might install its own SIGILL handler to emulate or trap
-_other_ instructions.  To do it properly, you have to chain the handlers.
+Agree on that, a tar'ed collection of patches is hard to easily review.
+Mike, try attaching them next time. I know your mailer eats inlines, but
+attachments ought to work fine.
 
-Not sure how to do this, when you get to the stage of two LD_PRELOAD
-libraries each wanting to overload sigaction.
-
--- Jamie
+-- 
+Jens Axboe
 

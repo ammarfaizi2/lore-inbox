@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267532AbUHTARU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267548AbUHTBRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267532AbUHTARU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 20:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267538AbUHTARU
+	id S267548AbUHTBRz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 21:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUHTBRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 20:17:20 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:11451 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267532AbUHTARS (ORCPT
+	Thu, 19 Aug 2004 21:17:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4830 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267548AbUHTBRx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 20:17:18 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: paulmck@us.ibm.com
-Subject: Re: kernbench on 512p
-Date: Thu, 19 Aug 2004 20:16:10 -0400
-User-Agent: KMail/1.6.2
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, hawkes@sgi.com,
-       linux-kernel@vger.kernel.org, wli@holomorphy.com
-References: <200408191216.33667.jbarnes@engr.sgi.com> <200408191724.04422.jbarnes@engr.sgi.com> <20040819233837.GA2723@us.ibm.com>
-In-Reply-To: <20040819233837.GA2723@us.ibm.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 19 Aug 2004 21:17:53 -0400
+Date: Thu, 19 Aug 2004 18:16:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nathan Lynch <nathanl@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org, vatsa@in.ibm.com, rusty@rustcorp.com.au,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.8.1-mm2
+Message-Id: <20040819181603.700a9a0e.akpm@osdl.org>
+In-Reply-To: <1092964083.4946.7.camel@biclops.private.network>
+References: <20040819014204.2d412e9b.akpm@osdl.org>
+	<1092964083.4946.7.camel@biclops.private.network>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408192016.10064.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, August 19, 2004 7:38 pm, Paul E. McKenney wrote:
-> > 41.4% 58.6%    0%  rcu_state
-> > 61.3% 38.7%    0%    __rcu_process_callbacks+0x260
-> > 41.4% 58.6%    0%    rcu_check_quiescent_state+0xf0
-> >
-> > So it looks like the dcache lock is the biggest problem on this system
-> > with this load.  And although the rcu stuff has improved tremendously for
-> > this system, it's still highly contended.
+Nathan Lynch <nathanl@austin.ibm.com> wrote:
 >
-> Was this run using all of Manfred's RCU patches?  If not, it would be
-> interesting to see what you get with full RCU_HUGE patchset.
+> > +dont-sleep-after-were-out-of-task-list.patch
+> > 
+> >  CPU hotplug race fix
+> 
+> I don't mean to be a pain, but this patch does not fix the bug I
+> reported.
 
-So that stuff isn't in 2.6.8.1-mm1?  What I tested was pretty close to a stock 
-version of that tree.  Where can I grab a version of that patchset that 
-applies to a recent kernel?
+OK.
 
-Thanks,
-Jesse
+>  It is still occurring on i386 and ppc64 (and proc_pid_flush
+> now generates lots of might_sleep warnings).
+> ...
+> Hopefully, I should have time to perform a bisection search this
+> weekend.
+
+The might_sleep() warnings are due to our adding a might_sleep() check to a
+place where we've _always_ been illegally sleeping.  So a bisection search
+won't tell you anything on that front.
+
+The "kernel BUG in migration_call at kernel/sched.c:4044!" is due to one of
+the scheduler patches.  I thought Ingo and Rusty had a handle on that one.
+

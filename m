@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272506AbRH3VtR>; Thu, 30 Aug 2001 17:49:17 -0400
+	id <S272497AbRH3Vr1>; Thu, 30 Aug 2001 17:47:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272498AbRH3VtC>; Thu, 30 Aug 2001 17:49:02 -0400
-Received: from t2.redhat.com ([199.183.24.243]:3319 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S272505AbRH3VsC>; Thu, 30 Aug 2001 17:48:02 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200108302132.f7ULWt221345@oboe.it.uc3m.es> 
-In-Reply-To: <200108302132.f7ULWt221345@oboe.it.uc3m.es> 
-To: ptb@it.uc3m.es
-Cc: "Herbert Rosmanith" <herp@wildsau.idv-edu.uni-linz.ac.at>,
-        linux-kernel@vger.kernel.org, dhowells@cambridge.redhat.com
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war 
+	id <S272498AbRH3VrJ>; Thu, 30 Aug 2001 17:47:09 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:21695 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S272493AbRH3Vqs>;
+	Thu, 30 Aug 2001 17:46:48 -0400
+Date: Thu, 30 Aug 2001 23:47:00 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Graham Murray <graham@barnowl.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+Message-ID: <20010830234659.B14715@khan.acc.umu.se>
+In-Reply-To: <Pine.LNX.4.33.0108292018380.1062-100000@penguin.transmeta.com> <20010830165447Z16272-32385+540@humbolt.nl.linux.org> <m266b51c5c.fsf@barnowl.demon.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 30 Aug 2001 22:47:49 +0100
-Message-ID: <11528.999208069@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <m266b51c5c.fsf@barnowl.demon.co.uk>; from graham@barnowl.demon.co.uk on Thu, Aug 30, 2001 at 09:16:47PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 30, 2001 at 09:16:47PM +0000, Graham Murray wrote:
+> Daniel Phillips <phillips@bonn-fries.net> writes:
+> 
+> > More than anything, it shows that education is needed, not macro patch-ups.
+> > We have exactly the same issues with < and >, should we introduce 
+> > three-argument macros to replace them?
+> 
+> Would it not have been much more "obvious" if the rules for
+> unsigned/signed integer comparisons (irrespective of the widths
+> involved) were
+> 
+> 1) If the signed element is negative then it is always less than the
+>    unsigned element.
+> 
+> 2) If the unsigned element is greater than then maximum positive value
+>    expressible by the signed one then it is always greater.
+> 
+> 3) Only if both values are positive and within the range of the
+>    smaller element are the actual values compared. 
 
-ptb@it.uc3m.es said:
-> Now I think of it, I suppose
->     unsafe_min_or_max_at_line_##__LINE__()
-> will definitely evoke a meaningful link error.
-
-Unfortunately, there's no guarantee that it won't emit a reference to that 
-symbol even if the test for mismatching arguments can be proved at compile 
-time to always evaluate to false.
-
-Code which relies on "if(0) __call_nonexistent_function();" actually compiling 
-is just broken.
-
-You'd have thought we'd have learned by now to stop relying on the observed 
-current behaviour of gcc and start trying to get it right, wouldn't you?
-
-The answer in this case is that gcc can't safely do what we require for this
-and for other compile-time checks, until something like David's
-__builtin_ct_assertion() is added.
-
---
-dwmw2
+Possibly, but changing the C specification is not really an option here...
 
 
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

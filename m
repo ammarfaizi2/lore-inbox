@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266604AbUHQTDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUHQTHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266604AbUHQTDY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 15:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUHQTDX
+	id S266613AbUHQTHz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 15:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268359AbUHQTHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 15:03:23 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:32781 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S266604AbUHQTBg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 15:01:36 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
+	Tue, 17 Aug 2004 15:07:55 -0400
+Received: from outbound05.telus.net ([199.185.220.224]:3045 "EHLO
+	priv-edtnes40.telusplanet.net") by vger.kernel.org with ESMTP
+	id S266613AbUHQTHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 15:07:42 -0400
+From: Shaun Jackman <sjackman@telus.net>
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Subject: Re: Hang after "BIOS data check successful" with DVI
+Date: Tue, 17 Aug 2004 12:07:53 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <E82D6B0981@vcnet.vc.cvut.cz>
+In-Reply-To: <E82D6B0981@vcnet.vc.cvut.cz>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH][linux-usb-devel] Early USB handoff
-Date: Tue, 17 Aug 2004 12:01:36 -0700
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B3015B6A39@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][linux-usb-devel] Early USB handoff
-Thread-Index: AcSEY71XHVwLbbniQvutwIa4sXVRngAJcN2w
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: "Alan Stern" <stern@rowland.harvard.edu>
-Cc: "Pete Zaitcev" <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>, <alan@lxorguk.ukuu.org.uk>
-X-OriginalArrivalTime: 17 Aug 2004 19:01:36.0031 (UTC) FILETIME=[9E5BA2F0:01C4848C]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408171207.53962.sjackman@telus.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->You could reorder and simplify slightly the code for handing off a UHCI
->controller.  It's safer to disable PIRQD, SMI#, and legacy 
->support first
->and then turn off the interrupt enable bits, all before stopping the
->controller.  You could even reset the controller rather than 
->just stopping
->it (although you might also want to avoid the 60ms delay this 
->requires).  
->Take a look at reset_hc() in drivers/usb/host/uhci-hcd.c and 
->see what you
->think.
+On Tue August 17, 2004 03h57, Petr Vandrovec wrote:
+> On 16 Aug 04 at 16:55, Shaun Jackman wrote:
+> > When I have a DVI display plugged into my Matrox G550 video card the
+> > boot process hangs at "BIOS data check successful". I am running Linux
+> > kernel 2.6.6. This problem does not affect Linux kernel 2.4.26. If I
+> > boot without the DVI display plugged in, I can plug it in after the
+> > boot process and the display works.
+> 
+> Try disabling CONFIG_VIDEO_SELECT and/or comment out call to store_edid
+> in arch/i386/boot/video.S. Also which bootloader you use? From
+> quick glance at bootloaders, grub1 seems to set %sp to 0x9000, while 
+> LILO to 0x0800. And I think that 2048 byte stack (plus something already 
+> allocated by loader) might be too small for DDC call, as MGA BIOS first
+> creates EDID copy on stack...
+>                                            Best regards,
+>                                                 Petr Vandrovec
 
-Reset would simplify the code, but also make boot time longer :( I'd
-rather sacrifice the code in this case. Actually, it was reset that had
-been done in original patch for UHCI and I think was taken from
-reset_hc(). Moreover, if one can detect that UHCI has been initialized
-in the BIOS already, and just halt it - 60ms reset delay can be avoided
-at boot time in the driver as well. 
-Not sure about reoder though.
+I tried removing the call to store_edid and that does indeed fix my
+problem!
 
-Aleks.
+Many thanks!
+Shaun
+

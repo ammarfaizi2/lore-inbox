@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264228AbUDNOFE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 10:05:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbUDNOFE
+	id S264229AbUDNOMv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 10:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbUDNOMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 10:05:04 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:61607 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S264228AbUDNOE7
+	Wed, 14 Apr 2004 10:12:51 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44769 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264229AbUDNOMu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 10:04:59 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Oliver Neukum <oliver@neukum.org>, Greg KH <greg@kroah.com>
-Subject: Re: [linux-usb-devel] [PATCH 8/9] USB usbfs: missing lock in proc_getdriver
-Date: Wed, 14 Apr 2004 16:04:57 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Frederic Detienne <fd@cisco.com>
-References: <200404141247.24227.baldrick@free.fr> <200404141337.28631.baldrick@free.fr> <200404141529.06710.oliver@neukum.org>
-In-Reply-To: <200404141529.06710.oliver@neukum.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Apr 2004 10:12:50 -0400
+Date: Wed, 14 Apr 2004 15:12:45 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: linux-kernel@vger.kernel.org, rth@twiddle.net, spyro@f2s.com,
+       rmk@arm.linux.org.uk, davidm@hpl.hp.com, paulus@au.ibm.com,
+       benh@kernel.crashing.org, jes@trained-monkey.org, ralf@gnu.org,
+       matthew@wil.cx, davem@redhat.com, wesolows@foobazco.org,
+       jdike@karaya.com, ak@suse.de
+Subject: Re: [PATCH] sort out CLOCK_TICK_RATE usage, 2nd try  [0/3]
+Message-ID: <20040414141245.GC18329@parcelfarce.linux.theplanet.co.uk>
+References: <20040412075519.A5198@Marvin.DL8BCU.ampr.org> <20040413215833.A7047@Marvin.DL8BCU.ampr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404141604.57716.baldrick@free.fr>
+In-Reply-To: <20040413215833.A7047@Marvin.DL8BCU.ampr.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Oliver,
+On Tue, Apr 13, 2004 at 09:58:33PM +0000, Thorsten Kranzkowski wrote:
+> Arch maintainers please have a look whether I got the constants right or
+> if your architecture has a PIC or speaker at all.
 
-> I expect it to rarely matter, but it might matter now and then. It's
-> just a question of hygiene. If you are using a temporary buffer I'd
-> like to see it used to full advantage. So either drop the lock or do
-> a direct copy. I'd prefer the first option your patch implemented.
+parisc certainly doesn't.  i'd start by making this change for alpha,
+x86 and x86_64 and make the PC speaker depend on (ALPHA || X86 || X86_64)
+then other arches can take it from there if they want to supoprt the
+pc speaker.
 
-I agree.  Greg, please consider applying the updated patch:
-
---- gregkh-2.6/drivers/usb/core/devio.c.orig	2004-04-14 16:02:44.000000000 +0200
-+++ gregkh-2.6/drivers/usb/core/devio.c	2004-04-14 16:03:12.000000000 +0200
-@@ -702,13 +708,15 @@
- 		return -EFAULT;
- 	if ((ret = findintfif(ps->dev, gd.interface)) < 0)
- 		return ret;
-+	down_read(&usb_bus_type.subsys.rwsem);
- 	interface = ps->dev->actconfig->interface[ret];
--	if (!interface->dev.driver)
-+	if (!interface || !interface->dev.driver) {
-+		up_read(&usb_bus_type.subsys.rwsem);
- 		return -ENODATA;
-+	}
- 	strncpy(gd.driver, interface->dev.driver->name, sizeof(gd.driver));
--	if (copy_to_user(arg, &gd, sizeof(gd)))
--		return -EFAULT;
--	return 0;
-+	up_read(&usb_bus_type.subsys.rwsem);
-+	return copy_to_user(arg, &gd, sizeof(gd)) ? -EFAULT : 0;
- }
- 
- static int proc_connectinfo(struct dev_state *ps, void __user *arg)
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

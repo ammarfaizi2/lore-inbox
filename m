@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTG3Jub (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 05:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbTG3Jub
+	id S269509AbTG3KPj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 06:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270007AbTG3KPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 05:50:31 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:34575 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262123AbTG3Jub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 05:50:31 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] O11int for interactivity
-Date: Wed, 30 Jul 2003 11:45:45 +0200
-User-Agent: KMail/1.5.2
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200307301038.49869.kernel@kolivas.org> <200307301040.38858.m.c.p@wolk-project.de> <1059557903.3f27920f97d4a@kolivas.org>
-In-Reply-To: <1059557903.3f27920f97d4a@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jul 2003 06:15:39 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:13207 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S269661AbTG3KPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 06:15:38 -0400
+Date: Wed, 30 Jul 2003 12:15:18 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Bas Mevissen <ml@basmevissen.nl>
+Cc: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: module-init-tools don't support gzipped modules.
+Message-ID: <20030730101518.GL4279@louise.pinerecords.com>
+References: <20030730062245.382c5dad.vmlinuz386@yahoo.com.ar> <3F2799B3.3020109@basmevissen.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307301145.45929.m.c.p@wolk-project.de>
+In-Reply-To: <3F2799B3.3020109@basmevissen.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 July 2003 11:38, Con Kolivas wrote:
+> [ml@basmevissen.nl]
+> 
+> >The possibility of compressing the modules is interesting, like for
+> >example in cases of construction of small systems or initrd.
+> 
+> In both cases, you might use a compressed file system. Maybe you better 
+> try to save memory and disk space by compressing less critical stuff 
+> than kernel modules.
 
-Hi Con,
+It's a valid feature request nonetheless.
 
-> > Maybe we need both: VM fixups (we need them anyway!) and O(1) fixups so
-> > that also my machine will be happy ;)
-> The obvious question still needs to be asked here. How does vanilla compare
-> to vanilla +O11.1?
-Sorry, haven't had the time this night to test that also. I was a bit sad ;)
-I'll report vanilla+O11.1int at friday. I don't have time earlier.
-
-ciao, Marc
-
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

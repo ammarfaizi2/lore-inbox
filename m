@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267960AbRG0Rjj>; Fri, 27 Jul 2001 13:39:39 -0400
+	id <S268905AbRG0Rka>; Fri, 27 Jul 2001 13:40:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268905AbRG0Rj3>; Fri, 27 Jul 2001 13:39:29 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25610 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267960AbRG0RjV>; Fri, 27 Jul 2001 13:39:21 -0400
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-To: vherva@mail.niksula.cs.hut.fi (Ville Herva)
-Date: Fri, 27 Jul 2001 18:40:32 +0100 (BST)
-Cc: kmacy@netapp.com (Kip Macy), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (kernel)
-In-Reply-To: <20010727202950.I1503@niksula.cs.hut.fi> from "Ville Herva" at Jul 27, 2001 08:29:50 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268908AbRG0RkT>; Fri, 27 Jul 2001 13:40:19 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62259 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S268905AbRG0RkN>; Fri, 27 Jul 2001 13:40:13 -0400
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+Cc: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: TYan K7 Thunder: AMD-760 MP support
+In-Reply-To: <3B614BDB.BE13848B@randomlogic.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 27 Jul 2001 11:34:13 -0600
+In-Reply-To: <3B614BDB.BE13848B@randomlogic.com>
+Message-ID: <m18zhae0oa.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15QBbE-00068M-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> After fresh boot to the default RH71 kernel (2.4.2-2 or whatever it is) on
-> console (no X running):
-> 
-> > diff -Naur /usr/src/linux.rh-default /usr/src/linux-2.4.4 > diff
-> zsh: killed diff
-> 
-> > dmesg | tail
-> kernel: out of memory, killed process n (xfs)
-> kernel: out of memory, killed process n (diff)
-> 
-> Phew.
+"Paul G. Allen" <pgallen@randomlogic.com> writes:
+ 
+> Do the newer kernel releases support the 760 MP chipset? Will they
+> anytime soon? (If not I will see if I can put it in myself.)
 
-No argument on that one. I'm still seeing it in vanilla 2.4.6 as well but
-2.4.7 is looking a lot better. 
+There is better support in 2.4.7 (especially IDE) but there is not complete
+support.  
+
+I don't know of anyone planning on finishing up any the pieces so feel free.
+
+Eric

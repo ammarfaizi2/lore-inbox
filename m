@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310825AbSCRNoq>; Mon, 18 Mar 2002 08:44:46 -0500
+	id <S310835AbSCRNoZ>; Mon, 18 Mar 2002 08:44:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310828AbSCRNog>; Mon, 18 Mar 2002 08:44:36 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:18194 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S310825AbSCRNoX>; Mon, 18 Mar 2002 08:44:23 -0500
-Message-ID: <3C95EEE6.7070608@evision-ventures.com>
-Date: Mon, 18 Mar 2002 14:43:02 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S310828AbSCRNoP>; Mon, 18 Mar 2002 08:44:15 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:7955 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S310825AbSCRNoK>; Mon, 18 Mar 2002 08:44:10 -0500
+Message-Id: <200203181341.g2IDfbq28679@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Dave Jones <davej@suse.de>
+Subject: Re: [-ENOCOMPILE] ataraid as module in linux-2.5.7-pre2
+Date: Mon, 18 Mar 2002 15:41:10 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200203180938.g2I9c1q27846@Port.imtp.ilyichevsk.odessa.ua> <20020318142240.D3025@suse.de>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Roberto Nibali <ratz@drugphish.ch>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Question about the ide related ioctl's BLK* in 2.5.7-pre1 kernel
-In-Reply-To: <3C9007F5.1000003@drugphish.ch> <3C900A11.55BA4B32@zip.com.au> <3C905894.90407@drugphish.ch> <3C905B9D.A1E3ACF6@zip.com.au> <3C9091D6.6030301@evision-ventures.com> <3C910262.6010107@drugphish.ch> <3C95EB96.9020803@evision-ventures.com> <20020318133457.GJ28106@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Mon, Mar 18 2002, Martin Dalecki wrote:
-> [BLKRAGET etc]
-> 
->>BTW> It's quite propably right now, that I will just reintroduce them
->>myself and give them the semantics of the multi-write hardware settings,
->>just to fix the multi write PIO problem :-).
-> 
-> 
-> What would that fix?
-> 
-> I've still got the multi-write fixes pending, out tomorrow I hope. Other
-> stuff keeps getting in the way. I haven't forgotten :-)
+On 18 March 2002 11:22, Dave Jones wrote:
+> On Mon, Mar 18, 2002 at 11:37:33AM -0200, Denis Vlasenko wrote:
+>  > gcc -D__KERNEL__ -I/.share/usr/src/linux-2.5.7-pre2/include -Wall
+>  > -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+>  > -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+>  > -march=i386 -DMODULE -DMODVERSIONS -include
+>  > /.share/usr/src/linux-2.5.7-pre2/include/linux/modversions.h
+>  > -DKBUILD_BASENAME=ataraid  -DEXPORT_SYMTAB -c ataraid.c
+>
+>  Yup, this, the Raid5 report, and a few other non-compiling bits
+>  are logged at http://www.codemonkey.org.uk/Linux-2.5.html
+>
+>  If there's no change in those files between pre's, re-reporting
+>  the same non-compile errors probably isn't going to get them fixed
+>  any quicker 8-)
 
-I think that it would make the write operation atomic in respect
-to the BIO chunk write order. Or please have a look at
-the following piece of cr... code from ide-taskfile.c:
+I didn't mean "hey it's broken, _fix _them _for _me_".
+I don't use any of these things, I'll disable them in .config
+and that's all.
 
-	/* (ks/hs): See task_mulin_intr */
-	msect = drive->mult_count;
-	nsect = rq->current_nr_sectors;
-	if (nsect > msect)
-		nsect = msect;
-
-	pBuf = ide_map_rq(rq, &flags);
-	DTF("Multiwrite: %p, nsect: %d , rq->current_nr_sectors: %ld\n",
-		pBuf, nsect, rq->current_nr_sectors);
-	drive->io_32bit = 0;
-	taskfile_output_data(drive, pBuf, nsect * SECTOR_WORDS);
-	ide_unmap_rq(rq, pBuf, &flags);
-	drive->io_32bit = io_32bit;
-	
-
-in esp. the nsect versus msect games whould go away and
-if we have current_nr_sectors > drive->mult_count, we
-are not going to write everything in one operation as it stands...
-The above just *feels* to me like something that should
-be pushed one layer upwards, since the sematics it has fits
-quite nicely into what the ioctl in question should be about.
-
-Plase note that I'm just speculating and feels free to correct me
-if I'm entierly mistaken for some reason.
-
-Please note as well that this is more about extending then
-about fixing.
-
+Should I restrain from posting compile errors for 2.5?
+--
+vda

@@ -1,70 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132549AbRC1U5F>; Wed, 28 Mar 2001 15:57:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132437AbRC1U4k>; Wed, 28 Mar 2001 15:56:40 -0500
-Received: from mailgw.prontomail.com ([216.163.180.10]:5970 "EHLO c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP id <S132552AbRC1U4P>; Wed, 28 Mar 2001 15:56:15 -0500
-Message-ID: <3AC24EB6.1F0DD551@mvista.com>
-Date: Wed, 28 Mar 2001 12:51:02 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132561AbRC1VIo>; Wed, 28 Mar 2001 16:08:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132163AbRC1VIf>; Wed, 28 Mar 2001 16:08:35 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:36875 "EHLO mail.stock-world.de") by vger.kernel.org with ESMTP id <S132557AbRC1VIT>; Wed, 28 Mar 2001 16:08:19 -0500
+Message-ID: <3AC24FA2.8D7EB82@evision-ventures.com>
+Date: Wed, 28 Mar 2001 22:54:58 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-To: Dipankar Sarma <dipankar@sequent.com>
-CC: nigel@nrg.org, linux-kernel@vger.kernel.org, mckenney@sequent.com
-Subject: Re: [PATCH for 2.5] preemptible kernel
-References: <16074.985137800@kao2.melbourne.sgi.com> <Pine.LNX.4.05.10103201920410.26853-100000@cosmic.nrg.org> <3AC1BAD3.BBBD97E1@sequent.com>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+References: <Pine.LNX.4.31.0103271028280.24734-100000@penguin.transmeta.com> <3AC0E9ED.3324F697@transmeta.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar Sarma wrote:
+"H. Peter Anvin" wrote:
 > 
-> Nigel Gamble wrote:
+> This is my opinion on the issue.  Short summary: "I'm sick of the
+> administrative burden associated with keeping dev_t dense."
+> 
+> Linus Torvalds wrote:
 > >
-> > On Wed, 21 Mar 2001, Keith Owens wrote:
-> > > I misread the code, but the idea is still correct.  Add a preemption
-> > > depth counter to each cpu, when you schedule and the depth is zero then
-> > > you know that the cpu is no longer holding any references to quiesced
-> > > structures.
+> > And let's take a look at /dev. Do a "ls -l /dev" and think about it. Every
+> > device needs a unique number. Do you ever envision seeing that "ls -l"
+> > taking about 500 billion years to complete? I don't. I don't think you do.
+> > But that's how ludicrous a 64-bit device number is.
 > >
-> > A task that has been preempted is on the run queue and can be
-> > rescheduled on a different CPU, so I can't see how a per-CPU counter
-> > would work.  It seems to me that you would need a per run queue
-> > counter, like the example I gave in a previous posting.
 > 
-> Also, a task could be preempted and then rescheduled on the same cpu
-> making
-> the depth counter 0 (right ?), but it could still be holding references
-> to data
-> structures to be updated using synchronize_kernel(). There seems to be
-> two
-> approaches to tackle preemption -
+> That's how ludicrous a *dense* 64-bit device number is.  I have to say I
+> disagree with you that sparse number spaces are a bad idea.  The
+> IPv4->IPv6 transition people have looked at the issues of number spaces
+> and how much harder they get to keep dense when the size of the
+> numberspace grows, because your lookup operation becomes so much more
+> painful.  Any time you have to take a larger number space and squeeze it
+> into a smaller number space, you get some serious pain.
 > 
-> 1. Disable pre-emption during the time when references to data
-> structures
-> updated using such Two-phase updates are held.
+> Part of the reason we haven't -- quite -- run out of 8-bit majors yet is
+> because I have been an absolute *bastard* with registrants lately.  It
+> would cut down on my workload if I could assign majors without worrying
+> too much about whether or not that particular driver is really going to
+> be made public.
+> 
+> 64 bits is obviously excessive, but I really don't feel comfortable
+> saying that only 12 bits of major is sufficient.  16 I would buy, but I
+> don't think 16 bits of minor is sufficient.  Given that, it seems to me
+> -- especially since dev_t isn't exactly the most accessed data type in
+> the universe -- that the conceptual simplicity of keeping the major and
+> minor separate in individual 32-bit words really is just as well.  YES,
+> it's overengineering, but the cost is very small; the cost of
+> underengineering is having to go through yet another painful transition.
+> Unfortunately, the Linux community seems to have some serious problems
+> with getting system-wide transitions to happen, especially the ones that
+> involve ABI changes.  This needs to be taken into account.
+> 
+>         -hpa
 
-Doesn't this fly in the face of the whole Two-phase system?  It seems to
-me that the point was to not require any locks.  Preemption disable IS a
-lock.  Not as strong as some, but a lock none the less.
-> 
-> Pros: easy to implement using a flag (ctx_sw_off() ?)
-> Cons: not so easy to use since critical sections need to be clearly
-> identified and interfaces defined. also affects preemptive behavior.
-> 
-> 2. In synchronize_kernel(), distinguish between "natural" and preemptive
-> schedules() and ignore preemptive ones.
-> 
-> Pros: easy to use
-> Cons: Not so easy to implement. Also a low priority task that keeps
-> getting
-> preempted often can affect update side performance significantly.
+Then just tell me please why the PCI name space is just 32 bit?
 
-Actually is is fairly easy to distinguish the two (see TASK_PREEMPTED in
-state).  Don't you also have to have some sort of task flag that
-indicates that the task is one that needs to sync?  Something that gets
-set when it enters the area of interest and cleared when it hits the
-sync point?  
+Majros are for drivers Minors are for device driver instances 
+(yes linux does split minors in a stiupid way by forexample
+using the same major for IDE disks and ide CD-ROM, which are in
+fact compleatly different devices just sharing driver code...
+(Dirrerent block sizes, different interface protokoll and so on....)
 
-George
+
+Those are the reaons solaris is using a split 24/12 (Major/Minor)
+and they don't have our problems here.
+
+> 
+> --
+> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+> "Unix gives you enough rope to shoot yourself in the foot."
+> http://www.zytor.com/~hpa/puzzle.txt
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+- phone: +49 214 8656 283
+- job:   eVision-Ventures AG, LEV .de (MY OPINIONS ARE MY OWN!)
+- langs: de_DE.ISO8859-1, en_US, pl_PL.ISO8859-2, last ressort:
+ru_RU.KOI8-R

@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263390AbTIBA1H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 20:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbTIBA1H
+	id S263387AbTIBA0l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 20:26:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263390AbTIBA0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 20:27:07 -0400
-Received: from lpbproductions.com ([68.98.208.147]:51081 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S263390AbTIBA1D convert rfc822-to-8bit
+	Mon, 1 Sep 2003 20:26:41 -0400
+Received: from terminus.zytor.com ([63.209.29.3]:52621 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S263387AbTIBA0k
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 20:27:03 -0400
-From: Matt Heler <lkml@lpbproductions.com>
-To: "H. Peter Anvin" <hpa@zytor.com>, Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: -mm patches on www.kernel.org ?
-Date: Mon, 1 Sep 2003 17:28:42 -0700
-User-Agent: KMail/1.5.9
-Cc: Wes Janzen <superchkn@sbcglobal.net>,
-       Maciej Soltysiak <solt@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-References: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv> <20030901225339.GH31760@matchmail.com> <3F53DEE1.5000709@zytor.com>
-In-Reply-To: <3F53DEE1.5000709@zytor.com>
+	Mon, 1 Sep 2003 20:26:40 -0400
+Message-ID: <3F53E3AB.7070604@zytor.com>
+Date: Mon, 01 Sep 2003 17:26:19 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en, sv, es, fr
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309011728.44977.lkml@lpbproductions.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: mfedyk@matchmail.com, superchkn@sbcglobal.net, solt@dns.toxicfilms.tv,
+       linux-kernel@vger.kernel.org, webmaster@kernel.org
+Subject: Re: -mm patches on www.kernel.org ?
+References: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv>	<20030901211108.GE31760@matchmail.com>	<3F53B937.10103@sbcglobal.net>	<20030901225339.GH31760@matchmail.com>	<3F53DEE1.5000709@zytor.com> <20030901171435.1ef05cc8.akpm@osdl.org>
+In-Reply-To: <20030901171435.1ef05cc8.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andrew Morton wrote:
 
-What are you smoking ?? It's a single patch .. that you can apply on top of 
-the 2.6 tree, SINGLE..  And why can't it be done ? the ac tree and dj tree 
-were done.
+> 
+> Well I always have a full rollup there, such as
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm4/2.6.0-test4-mm4.gz
+> 
+> Is that what you mean?
+> 
+> (It would be good to add -aa patchsets too).
+ >
 
-On Monday 01 September 2003 05:05 pm, H. Peter Anvin wrote:
-> Mike Fedyk wrote:
-> > On Mon, Sep 01, 2003 at 04:25:11PM -0500, Wes Janzen wrote:
-> >>I think he's saying, why not put a link to the mm kernels from the
-> >>www.kernel.org homepage, just like the ac kernels...  At least that's
-> >>how I read it.
-> >
-> > Ok, then I can agree with that.
->
-> Can't do it.  The -mm kernels aren't a single patch, they're patch sets,
-> and they won't work with the system that we have set up.  If akpm wants
-> to make a unified patch for each patch set in addition to the set itself
-> then it can be done.
->
-> 	-hpa
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+I might be able to do this.  However, please understand, everyone, that 
+having to write individual scripts for each kernel author is turning 
+into a horrible pain in the ass.  I think the only sane way to do this 
+is to come up with a standard directory layout for specific user patches.
 
-iD8DBQE/U+Q8leY/n9G/oZ8RAlEeAJ9s9FrA9HxBx7Kbc44miHIF+U9TygCfSq/Z
-vXsQes2WI1dJ2lbKN5ikPyI=
-=e/1K
------END PGP SIGNATURE-----
+	-hpa
+

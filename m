@@ -1,72 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262245AbTEEOKd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 10:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbTEEOKd
+	id S262249AbTEEOPw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 10:15:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbTEEOPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 10:10:33 -0400
-Received: from ns.suse.de ([213.95.15.193]:30734 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262245AbTEEOKb (ORCPT
+	Mon, 5 May 2003 10:15:52 -0400
+Received: from imap.gmx.net ([213.165.65.60]:31265 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262249AbTEEOPv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 10:10:31 -0400
-Date: Mon, 5 May 2003 16:23:00 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, kai@tp1.ruhr-uni-bochum.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: ISDN massive packet drops while DVD burn/verify
-Message-ID: <20030505142300.GC28010@pingi3.kke.suse.de>
-Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, kai@tp1.ruhr-uni-bochum.de,
-	linux-kernel@vger.kernel.org
-References: <20030416151221.71d099ba.skraw@ithnet.com> <Pine.LNX.4.44.0304161056430.5477-100000@chaos.physics.uiowa.edu> <20030419193848.0811bd90.skraw@ithnet.com> <1050789691.3955.17.camel@dhcp22.swansea.linux.org.uk> <20030420181812.44844175.skraw@ithnet.com>
-Mime-Version: 1.0
+	Mon, 5 May 2003 10:15:51 -0400
+Message-ID: <3EB674F7.8060807@gmx.net>
+Date: Mon, 05 May 2003 16:28:08 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Terje Eggestad <terje.eggestad@scali.com>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: The disappearing sys_call_table export.
+References: <1052122784.2821.4.camel@pc-16.office.scali.no> <20030505092324.A13336@infradead.org> <1052127216.2821.51.camel@pc-16.office.scali.no> <20030505112531.B16914@infradead.org> <1052133798.2821.122.camel@pc-16.office.scali.no> <20030505135211.A21658@infradead.org> <1052142082.2821.169.camel@pc-16.office.scali.no> <20030505144353.B23483@infradead.org> <1052142626.2821.173.camel@pc-16.office.scali.no> <20030505145519.A23727@infradead.org>
+In-Reply-To: <20030505145519.A23727@infradead.org>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030420181812.44844175.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.4.20-4GB i686
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephan,
-
-On Sun, Apr 20, 2003 at 06:18:12PM +0200, Stephan von Krawczynski wrote:
-> On 19 Apr 2003 23:01:32 +0100
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Christoph Hellwig wrote:
+> On Mon, May 05, 2003 at 03:50:26PM +0200, Terje Eggestad wrote:
 > 
-> > On Sad, 2003-04-19 at 18:38, Stephan von Krawczynski wrote:
-> > > I don't buy that explanation. Reason is simple: during this all network
-> > > connections work flawlessly, and they do have quite a lot of interrupts
-> > > compared to ISDN. ISDN is so slow and has so few interrupts that it is
-> > > quite unlikely in a SMP-beyond-GHz-limit box that you loose some. The
-> > > ancient hardware days are long gone ...
-> > 
-> > I'd suggest buying his explanation, because he's right. You are
-> > confusing quantity and latency.
+>>"Do you acknowledge a legitimate need to have syscall hooks?"
 > 
-> Sorry Alan, "been there, done that"
-> I made ISDN work on just about anything that you would call an OS on sometimes
-> quite ancient hardware (compared to nowadays), and I really cannot imagine that
-> the combined (though sometimes confusing) efforts of you, Andre, Pavel, name-one
-> on IDE made a dual 1.4 GHz PIII slower (responding) than a M68k 7,14 MHz with a
-> polling IDE interface - which happens to be the slowest thing I ever did ISDN
-> programming on _flawlessly_.
-> 
+> No.
 
-No Alan and Kai are right.
+LSM?
 
-The problem with the Infineon ISDN chips is that the fifos are small and so IRQ 
-latency is relativ critical. 32 or 64 bytes are only 4/8 ms, and if one of these
-32 Byte is dropped, the complete frame is lost. Modern ethernet cards allways
-have fifos for multiple complete frames, so that such things don't happen here.
 
-You can try to use HFC based ISDN cards (e.g. Conrad: ISDN TA 128K) the
-fifos are much bigger (7.5kB) so at least 4 complete 1500 byte frames can be 
-handled without segmentation. That increase the IRQ latency a lot (~900 ms).
+Regards,
+Carl-Daniel
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development

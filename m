@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbTKOO2u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 09:28:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbTKOO2t
+	id S261788AbTKOPIp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 10:08:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbTKOPIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 09:28:49 -0500
-Received: from virtual.netsystem.pl ([212.244.34.149]:20937 "HELO
-	virtual.netsystem.pl") by vger.kernel.org with SMTP id S261825AbTKOO2n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 09:28:43 -0500
-Message-ID: <xedd80z6m$i$w$$-$$t@s2j3.x8>
-From: "Alvin Yazzie" <a80dh7bgil@hotmail.com>
-Reply-To: "Alvin Yazzie" <a80dh7bgil@hotmail.com>
-To: linux-kernel-owner@vger.kernel.org
-Cc: <linux-kernel@vger.kernel.org>, <linux-msdos@vger.kernel.org>,
-       <linux-net@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-       <linux-serial@vger.kernel.org>
-Subject: re: blind date a
-Date: Sun, 16 Nov 03 07:24:23 GMT
-X-Mailer: Internet Mail Service (5.5.2650.21)
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="F72E.3532EF11D0DF4BFFDBF"
-X-Priority: 3
-X-MSMail-Priority: Normal
+	Sat, 15 Nov 2003 10:08:45 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:30088 "EHLO
+	catnet.kabel.utwente.nl") by vger.kernel.org with ESMTP
+	id S261788AbTKOPIo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 10:08:44 -0500
+Date: Sat, 15 Nov 2003 16:08:42 +0100
+From: Wilmer van der Gaast <lintux@lintux.cx>
+To: linux-kernel@vger.kernel.org
+Subject: Configuration help texts for IPsec
+Message-ID: <20031115150841.GA4854@gaast.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
+Content-Disposition: inline
+X-Operating-System: Linux 2.4.22-ac4 on a i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---F72E.3532EF11D0DF4BFFDBF
-Content-Type: text/plain;
+--jI8keyz6grp/JLjh
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Dear Subscriber:
+Hi,
 
-There are 2 users interested in your profile.
+In the 2.6 kernel configuration, the help texts for all the
+IPsec-related options say "Say Y unless you know what you are doing.".
+Looks fine for people who applied the IPsec patch to a kernel which
+comes without it, but now that it's in stock, it's probably not very
+useful to force all users to use IPsec.
 
-Click here to confirm or reschedule your dates:
-http://lookingforablinddate.com/confirm/?oc=3D50797159
-
-
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
+Just FYI,
 
 
-take-off
-http://lookingforablinddate.com/remove/?oc=3D50797159
+Wilmer van der Gaast.
 
-nbbraylqblprq
+--=20
++-------- .''`.     - -- ---+  +        - -- --- ---- ----- ------+
+| lintux : :'  :  lintux.cx |  | OSS Programmer   www.bitlbee.org |
+|   at   `. `~'  debian.org |  | www.algoritme.nl   www.lintux.cx |
++--- -- -  ` ---------------+  +------ ----- ---- --- -- -        +
 
---F72E.3532EF11D0DF4BFFDBF--
+--jI8keyz6grp/JLjh
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE/tkF5eYWXmuMwQFERAre+AKCRiihC1sg/MBXRjOilFhfRR7ixMgCgmd88
+TugMoW0YcHmVkCbsINw49GM=
+=q0NU
+-----END PGP SIGNATURE-----
+
+--jI8keyz6grp/JLjh--

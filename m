@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129248AbQK2Aci>; Tue, 28 Nov 2000 19:32:38 -0500
+        id <S129228AbQK2Ae2>; Tue, 28 Nov 2000 19:34:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129267AbQK2Ac2>; Tue, 28 Nov 2000 19:32:28 -0500
-Received: from gl177a.Glassen.BoNet.AC ([212.217.128.37]:23313 "HELO
-        findus.dhs.org") by vger.kernel.org with SMTP id <S129248AbQK2AcX>;
-        Tue, 28 Nov 2000 19:32:23 -0500
-Message-ID: <3A244792.5FABBE38@findus.dhs.org>
-Date: Wed, 29 Nov 2000 01:02:26 +0100
-From: Petter Sundlöf <odd@findus.dhs.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes [solved]
+        id <S129267AbQK2AeS>; Tue, 28 Nov 2000 19:34:18 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:32277 "EHLO
+        penguin.e-mind.com") by vger.kernel.org with ESMTP
+        id <S129228AbQK2AeQ>; Tue, 28 Nov 2000 19:34:16 -0500
+Date: Wed, 29 Nov 2000 01:04:16 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: John Kennedy <jk@csuchico.edu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] blindingly stupid 2.2 VM bug
+Message-ID: <20001129010416.J14675@athlon.random>
+In-Reply-To: <20001119100100.A54301@niksula.cs.hut.fi> <Pine.LNX.4.21.0011201135590.4587-100000@duckman.distro.conectiva> <20001124152831.A5696@valinux.com> <20001125145701.A12719@athlon.random> <20001128150235.A7323@north.csuchico.edu> <20001129002009.I14675@athlon.random> <20001128153615.E7323@north.csuchico.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20001128153615.E7323@north.csuchico.edu>; from jk@csuchico.edu on Tue, Nov 28, 2000 at 03:36:15PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to some nice people in #NVIDIA I found what seems to be a
-solution; compile with processor type as "K6". No segfaults, lost
-terminfo or disabled consoles.
+On Tue, Nov 28, 2000 at 03:36:15PM -0800, John Kennedy wrote:
+>   No, it is all ext3fs stuff that is touching the same areas your
 
-So are there issues with the K7 processor code? Bleh, never mind, I have
-no idea what I am talking about.
+Ok this now makes sense. I ported VM-global-7 on top of ext3 right now
+but it's untested:
 
-Original bug report: http://findus.dhs.org/~odd/nvidia.txt
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre18/VM-global-2.2.18pre18-7-against-ext3-0.0.3b-1.bz2
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271064AbTHCH26 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 03:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271065AbTHCH25
+	id S271094AbTHCHbT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 03:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271116AbTHCHbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 03:28:57 -0400
-Received: from lorien.emufarm.org ([66.93.131.57]:15827 "EHLO
-	lorien.emufarm.org") by vger.kernel.org with ESMTP id S271064AbTHCH2q
+	Sun, 3 Aug 2003 03:31:19 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:59410 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S271094AbTHCHbS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 03:28:46 -0400
-Date: Sun, 3 Aug 2003 00:28:38 -0700
-From: Danek Duvall <duvall@emufarm.org>
-To: Eugene Teo <eugene.teo@eugeneteo.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test2-mm3
-Message-ID: <20030803072838.GG10284@lorien.emufarm.org>
-Mail-Followup-To: Danek Duvall <duvall@emufarm.org>,
-	Eugene Teo <eugene.teo@eugeneteo.net>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030802152202.7d5a6ad1.akpm@osdl.org> <20030803070542.GF10284@lorien.emufarm.org> <20030803071520.GA1044@eugeneteo.net>
+	Sun, 3 Aug 2003 03:31:18 -0400
+Date: Sun, 3 Aug 2003 09:31:15 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Ruben Puettmann <ruben@puettmann.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI Error with 2.4.20-pre10 on ibm thinkpad
+Message-ID: <20030803073115.GC679@alpha.home.local>
+References: <20030803002438.GA15097@puettmann.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030803071520.GA1044@eugeneteo.net>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030803002438.GA15097@puettmann.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 03, 2003 at 03:15:20PM +0800, Eugene Teo wrote:
+Hi !
 
-> does your logs say that network is not functioning, yet syslog seems
-> to be running all these while? did you use a radeontool to "off" your
-> lcd screen? fyi, I am using Fujitsu E-7010.
+On Sun, Aug 03, 2003 at 02:24:38AM +0200, Ruben Puettmann wrote:
+> Local APIC disabled by BIOS -- reenabling.
+> Found and enabled local APIC!
 
-There's nothing in my logs at all, so there's no way to tell what, if
-anything, survived the resume.  I'm not using radeontool; I hadn't even
-been aware of it until now.
+ACPI on my VAIO was a bit jerky until I disabled local APIC. It now seems to
+work OK. BTW, this notebook would never reboot with local APIC ON ! The BIOS
+cannot access the hard disk anymore.
 
-Danek
+Even if they're not the same systems, perhaps you should try to disable APIC
+on your thinkpad ?
+
+Cheers,
+Willy
+

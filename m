@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbUKRCzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUKRC4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbUKRCzN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 21:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbUKRCzN
+	id S262380AbUKRC4s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 21:56:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbUKRC4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 21:55:13 -0500
-Received: from pool-151-203-245-3.bos.east.verizon.net ([151.203.245.3]:20996
-	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S262374AbUKRCzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 21:55:09 -0500
-Message-Id: <200411180508.iAI58iQ3007886@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+	Wed, 17 Nov 2004 21:56:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51674 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262380AbUKRC42 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 21:56:28 -0500
+Date: Wed, 17 Nov 2004 18:56:04 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-cc: Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Keir.Fraser@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [patch 2] Xen core patch : arch_free_page return value 
-In-Reply-To: Your message of "Thu, 18 Nov 2004 01:19:15 GMT."
-             <E1CUaxA-0006Fa-00@mta1.cl.cam.ac.uk> 
-References: <E1CUaxA-0006Fa-00@mta1.cl.cam.ac.uk> 
+Cc: linux-kernel@vger.kernel.org, Ian.Pratt@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [patch 1] Xen core patch : ptep_establish_new
+Message-Id: <20041117185604.216b9a6a.akpm@osdl.org>
+In-Reply-To: <E1CUZVj-00052O-00@mta1.cl.cam.ac.uk>
+References: <E1CUZVj-00052O-00@mta1.cl.cam.ac.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 18 Nov 2004 00:08:44 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian.Pratt@cl.cam.ac.uk said:
-> Pages that have been allocated by our custom allocators get passed
-> into standard linux subsystems where we get no control over how
-> they're freed. We want the normal page ref counting etc to happen as
-> per normal, we just want to intercept the final free so that we can
-> return it to our allocator rather than the standard one.
+Ian Pratt <Ian.Pratt@cl.cam.ac.uk> wrote:
+>
+> diff -Nurp pristine-linux-2.6.9/include/asm-generic/pgtable.h tmp-linux-2.6.9-xen.patch/include/asm-generic/pgtable.h
+>  --- pristine-linux-2.6.9/include/asm-generic/pgtable.h	2004-10-18 22:53:46.000000000 +0100
+>  +++ tmp-linux-2.6.9-xen.patch/include/asm-generic/pgtable.h	2004-11-04 23:27:24.000000000 +0000
+>  @@ -42,6 +42,13 @@ do {				  					  \
+>   } while (0)
+>   #endif
 
-I have to agree with Dave - this is just a wierd solution.  I added 
-arch_free_page to do arch-specific, invisible-to-the-generic-kernel things.
-My intent may not be the be-all and end-all for this, but I think the semantics
-you want to add to it are not that reasonable.
-
-My gut reaction (without knowing your problem in any detail) would be that 
-you need too add some more structure to whatever mechanism you have
-so that the pages land in your allocator automatically, like a slab or a new
-zone or something.
-
-
-				Jeff
-
+This patch is mangled and doesn't apply.

@@ -1,81 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265134AbTBBH0P>; Sun, 2 Feb 2003 02:26:15 -0500
+	id <S265135AbTBBH2d>; Sun, 2 Feb 2003 02:28:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265135AbTBBH0P>; Sun, 2 Feb 2003 02:26:15 -0500
-Received: from mail.mtroyal.ab.ca ([142.109.10.24]:49858 "EHLO
-	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S265134AbTBBH0O>; Sun, 2 Feb 2003 02:26:14 -0500
-Date: Sun, 2 Feb 2003 00:35:42 -0700 (MST)
-From: James Bourne <jbourne@mtroyal.ab.ca>
-To: Venkat Raghu <venkatraghu2002@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: fibre channel driver
-In-Reply-To: <20030131222954.18430.qmail@web40005.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.51.0302020032440.6018@skuld.mtroyal.ab.ca>
-References: <20030131222954.18430.qmail@web40005.mail.yahoo.com>
+	id <S265139AbTBBH2d>; Sun, 2 Feb 2003 02:28:33 -0500
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:44432 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S265135AbTBBH2b>;
+	Sun, 2 Feb 2003 02:28:31 -0500
+Message-ID: <3E3CCADA.6080308@candelatech.com>
+Date: Sat, 01 Feb 2003 23:38:02 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: problems achieving decent throughput with latency.
+Content-Type: multipart/mixed;
+ boundary="------------070604080407070409070209"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Jan 2003, Venkat Raghu wrote:
+This is a multi-part message in MIME format.
+--------------070604080407070409070209
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Hi,
-> 
-> I want to know if there is any fibrechannel driver 
-> in linux kernel. If yes please point me to the source
-> and any links to it. What about qlogic fibre channel
-> driver. Is it part of linux community also, if so 
-> where can I get it.
+I am testing my latency-insertion tool, and I notice that tcp will not use
+all of the available bandwidth if there is any significant amount of latency
+on the wire.
 
-I'm unsure about community drivers but...
+For example, with 25ms latency in both directions, I see about 8Mbps
+bi-directional throughput.
 
-qlogic does have driver source available on their site for the qla2200 and
-qla2300 which does include fail over code.  The 6.03 is
-also supported under Red Hat AS2.1 and Suse 7.? or 8 by EMC, perhaps
-even using RH 7.? at sometime in the near future.
+If I lower that to 15ms, I see 12Mbps bi-directional throughput.
 
-I have tried it and it does work very well, although the timeout for
-failover is hard coded and there may be an issue with tape drives if
-failover is enabled...  I'll know more about that later this coming week.
+I see 27Mbps at 5ms.
 
-REgards
-James Bourne
-> 
-> 
-> Please mail me at venkatraghu2002@yahoo.com.
-> Regards
-> Raghu
-> 
-> 
-> __________________________________________________
-> Do you Yahoo!?
-> Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-> http://mailplus.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Here is the /proc/net/tcp output at 5ms latency.
+
+machine demo2
+   13: 050302AC:80EB 070302AC:80EB 01 0005900C:0002012E 01:00000016 00000000     0        0 578943 3 c6628a80 22 4 1 45 -1
+
+machine demo1
+   11: 070302AC:80EB 050302AC:80EB 01 00010DDB:00000000 01:00000014 00000000     0        0 513094 3 c62c5080 21 4 1 45 -1
+
+
+Any ideas why it is so slow at the higher latencies?  Any other info
+I can gather to help determine the cause?
+
+(UDP does not experience this slowdown, so I believe my latency
+insertion tool is working as designed, but it's always possible it is
+to blame...)
+
 
 -- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
 
-"There are only 10 types of people in this world: those who
-understand binary and those who don't."
+--------------070604080407070409070209
+Content-Type: message/rfc822;
+ name="problems achieving decent throughput with latency."
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="problems achieving decent throughput with latency."
+
+Message-ID: <3E3C466D.7030602@candelatech.com>
+Date: Sat, 01 Feb 2003 14:13:01 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
+Subject: problems achieving decent throughput with latency.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+<div class="moz-text-flowed" style="font-family: -moz-fixed">I am testing my latency-insertion tool, and I notice that tcp will not use
+all of the available bandwidth if there is any significant amount of latency
+on the wire.
+
+For example, with 25ms latency in both directions, I see about 8Mbps
+bi-directional throughput.
+
+If I lower that to 15ms, I see 12Mbps bi-directional throughput.
+
+I see 27Mbps at 5ms.
+
+Here is the /proc/net/tcp output at 5ms latency.
+
+machine demo2
+   13: 050302AC:80EB 070302AC:80EB 01 0005900C:0002012E 01:00000016 00000000     0        0 578943 3 c6628a80 22 4 1 45 -1
+
+machine demo1
+   11: 070302AC:80EB 050302AC:80EB 01 00010DDB:00000000 01:00000014 00000000     0        0 513094 3 c62c5080 21 4 1 45 -1
+
+
+Any ideas why it is so slow at the higher latencies?  Any other info
+I can gather to help determine the cause?
+
+(UDP does not experience this slowdown, so I believe my latency
+insertion tool is working as designed, but it's always possible it is
+to blame...)
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+
+</div>
+--------------070604080407070409070209--
 

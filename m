@@ -1,61 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVBYWqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262791AbVBYWtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262787AbVBYWqk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 17:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbVBYWqk
+	id S262791AbVBYWtX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 17:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbVBYWtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 17:46:40 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:48886 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262787AbVBYWqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 17:46:37 -0500
-Message-ID: <421FAACB.4080207@acm.org>
-Date: Fri, 25 Feb 2005 16:46:35 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] I2C patch 2 - break up the SMBus formatting
-References: <421E62DD.5030608@acm.org> <20050225214439.GC27270@kroah.com>
-In-Reply-To: <20050225214439.GC27270@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Feb 2005 17:49:22 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:8715 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262793AbVBYWso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 17:48:44 -0500
+Date: Fri, 25 Feb 2005 23:48:39 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: [2.6 patch] drivers/char/mxser.c cleanups
+Message-ID: <20050225224839.GH3311@stusta.de>
+References: <20050224233842.GU8651@stusta.de> <200502251043.14792.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502251043.14792.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Fri, Feb 25, 2005 at 10:43:14AM +0200, Denis Vlasenko wrote:
+> On Friday 25 February 2005 01:38, Adrian Bunk wrote:
+> >...
+> > -unsigned int Gmoxa_uart_id[UART_TYPE_NUM] = {
+> > +static unsigned int Gmoxa_uart_id[UART_TYPE_NUM] = {
+> >  	MOXA_MUST_MU150_HWID,
+> >  	MOXA_MUST_MU860_HWID
+> >  };
+> 
+> You can add 'const' too.
 
->On Thu, Feb 24, 2005 at 05:27:25PM -0600, Corey Minyard wrote:
->  
->
->>+
->>+	/* It's wierd, but we use a usecount to track if an q entry is
->>+	   in use and when it should be reported back to the user. */
->>+	atomic_t usecount;
->>    
->>
->
->Please use a kref here instead of rolling your own.
->  
->
-There's a trick I'm playing to avoid having to use a lock on the normal 
-entry_put() case.  It let's the entry_get() routine detect that the 
-object is about to be destroyed.  You can't do it with the current kref, 
-but you could easily extend kref to allow it.  It's simple to implement, 
-but the documentation on how to use it will be 10 times larger than the 
-code :).
 
-I'll work on a patch to kref to add that, if you don't mind.
+Thanks for this suggestion.
 
->Oh, and can you cc: your patches to the sensors mailing list so the
->other i2c developers are aware of them and can comment?  I'll stick with
->just applying your first patch for now.
->  
->
-certainly.
+Updated patch:
 
-thanks
 
--Corey
+<--  snip  -->
+
+
+This patch contains the following cleanups:
+- make two needlessly global structs static const
+- remove the unused global function SDS_PORT8_DTR
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ drivers/char/mxser.c |   21 ++-------------------
+ 1 files changed, 2 insertions(+), 19 deletions(-)
+
+--- linux-2.6.11-rc2-mm2-full/drivers/char/mxser.c.old	2005-01-31 13:20:44.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/mxser.c	2005-01-31 13:22:07.000000000 +0100
+@@ -179,7 +179,7 @@
+ 
+ #define UART_TYPE_NUM	2
+ 
+-unsigned int Gmoxa_uart_id[UART_TYPE_NUM] = {
++static const unsigned int Gmoxa_uart_id[UART_TYPE_NUM] = {
+ 	MOXA_MUST_MU150_HWID,
+ 	MOXA_MUST_MU860_HWID
+ };
+@@ -197,7 +197,7 @@
+ 	long max_baud;
+ };
+ 
+-struct mxpciuart_info Gpci_uart_info[UART_INFO_NUM] = {
++static const struct mxpciuart_info Gpci_uart_info[UART_INFO_NUM] = {
+ 	{MOXA_OTHER_UART, 16, 16, 16, 14, 14, 1, 921600L},
+ 	{MOXA_MUST_MU150_HWID, 64, 64, 64, 48, 48, 16, 230400L},
+ 	{MOXA_MUST_MU860_HWID, 128, 128, 128, 96, 96, 32, 921600L}
+@@ -3174,22 +3174,5 @@
+ 	outb(0x00, port + 4);
+ }
+ 
+-// added by James 03-05-2004.
+-// for secure device server:
+-// stat = 1, the port8 DTR is set to ON.
+-// stat = 0, the port8 DTR is set to OFF.
+-void SDS_PORT8_DTR(int stat)
+-{
+-	int _sds_oldmcr;
+-	_sds_oldmcr = inb(mxvar_table[7].base + UART_MCR);	// get old MCR
+-	if (stat == 1) {
+-		outb(_sds_oldmcr | 0x01, mxvar_table[7].base + UART_MCR);	// set DTR ON
+-	}
+-	if (stat == 0) {
+-		outb(_sds_oldmcr & 0xfe, mxvar_table[7].base + UART_MCR);	// set DTR OFF
+-	}
+-	return;
+-}
+-
+ module_init(mxser_module_init);
+ module_exit(mxser_module_exit);
+
+

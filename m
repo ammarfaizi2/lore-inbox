@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270832AbTGVO2j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 10:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270850AbTGVO2j
+	id S270847AbTGVO3S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 10:29:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270850AbTGVO3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 10:28:39 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:27619 "EHLO
-	genius.impure.org.uk") by vger.kernel.org with ESMTP
-	id S270832AbTGVO2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 10:28:37 -0400
-Date: Tue, 22 Jul 2003 15:42:53 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Dominik Brodowski <linux@brodo.de>
-Cc: textshell@neutronstar.dyndns.org, linux-kernel@vger.kernel.org,
-       Henrik Persson <nix@syndicalist.net>
-Subject: Re: 2.6.0-test1: CPUFreq not working, can't find sysfs interface
-Message-ID: <20030722144253.GA32119@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Dominik Brodowski <linux@brodo.de>,
-	textshell@neutronstar.dyndns.org, linux-kernel@vger.kernel.org,
-	Henrik Persson <nix@syndicalist.net>
-References: <20030720150243.GJ2331@neutronstar.dyndns.org> <200307201745.h6KHjcHt095999@sirius.nix.badanka.com> <20030720211246.GK2331@neutronstar.dyndns.org> <20030722120811.GD1160@brodo.de> <20030722141839.GD7517@neutronstar.dyndns.org> <20030722142353.GA1301@brodo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030722142353.GA1301@brodo.de>
-User-Agent: Mutt/1.5.4i
+	Tue, 22 Jul 2003 10:29:18 -0400
+Received: from ip252-142.choiceonecom.com ([216.47.252.142]:23301 "EHLO
+	explorer.reliacomp.net") by vger.kernel.org with ESMTP
+	id S270847AbTGVO3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 10:29:12 -0400
+Message-ID: <3F1D4DBA.4010700@cendatsys.com>
+Date: Tue, 22 Jul 2003 09:44:10 -0500
+From: Edward King <edk@cendatsys.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "John V. Martinez" <jvm@snarkhunter.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
+References: <3F1C54A8.5020404@snarkhunter.com>
+In-Reply-To: <3F1C54A8.5020404@snarkhunter.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 04:23:53PM +0200, Dominik Brodowski wrote:
- > On Tue, Jul 22, 2003 at 04:18:39PM +0200, textshell@neutronstar.dyndns.org wrote:
- > > So it seems to me that the BIOS doesn't have the tables for my Athlon
- > > model/stepping. I tried to get a new bios from hp, but it didn't change anything
- > > relevant (they changed something in the PSTs but did not add a new one for my
- > > processor)
- > Indeed, that's the BUG().
+John:
 
-Can you also mail the output of dmidecode, and the model of the laptop.
-This is a 'beat up BIOS vendor' case, which AMD are actively trying to do.
-I'll forward the info on to the right people..
+Quick fix to the problem is remove devfs -- it appears that the devfs 
+code doesn't like to have the raid layered on top of it, and it loses 
+interrupts.
 
+I've got two systems now running 4 200GB WD's connected to a single 
+promise card (ATA100/TX2)  with the booting drive (a 5th drive) attached 
+to the motherboard.  The raid works flawlessly and is fast -- I imagine 
+there'd be a speedup by keeping all the drives as master (with 2 pdc's) 
+and it would be more robust, but those aren't issues.
 
- > > I think it would be a good thing to display a Message explaining why powernow
- > > isn't working to the user in the case that no relevant PST is found.
- > Patch appended at the end.
+Hope this helps -- I'll post this to the mailing list to help anyone 
+else with this problem.
 
-Looks fine. I'll apply it when I get back from KS/OLS.
- 
- > > I very much would like to have a way to override (or add to) the bios provided
- > > values.
- > AFAIK, Dave Jones will add support to override the BIOS-provided tables.
+- Ed
 
-There's been some sysfs discussion with Pat in the last few days
-(not specifically cpufreq related, but its going to become easier
- to add this aparently..).
+John V. Martinez wrote:
 
-		Dave
+> Hi Ed,
+>
+> I found a linux-kernel post you made back in March about problems 
+> running two Promise IDE controllers in the same system. I have a 
+> similar configuration, (and a similar problem,) and I was wondering if 
+> you ever found a solution, or if one of the more recent 2.4.21-foo 
+> kernels solved it for you.
+>
+> (I have two Promise ATA-100/TX2 (20268 chip) controllers, and I have 
+> one 200GB WD drive as a single master on each channel. The two 
+> controllers are sharing interrupts with othwer cards, but not with 
+> each other. I can access each disk individually, but when I tried to 
+> make them work hard: mkraid a RAID5 array using these four drives, the 
+> system freezes HARD until I hit the big red button. [Then it reboots, 
+> spots the raid superblock, tries to rebuild my RAID5 array, and 
+> freezes again, until I get a clue and unplug the drives in question 
+> while powered down :^))
+>
+> Anyway, if you have any more insight into this problem than you did in 
+> March, and care to share, I'd be much obliged.
+>
+> Cheers,
+>
+> -(-- John
+
 

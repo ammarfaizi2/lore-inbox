@@ -1,96 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314705AbSEVVue>; Wed, 22 May 2002 17:50:34 -0400
+	id <S315235AbSEVVzL>; Wed, 22 May 2002 17:55:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315162AbSEVVud>; Wed, 22 May 2002 17:50:33 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:42912 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S314705AbSEVVuc>;
-	Wed, 22 May 2002 17:50:32 -0400
-Subject: [PATCH] 2.4.19-pre8 get_pid() hang fix again
-From: Paul Larson <plars@austin.ibm.com>
-To: Marcelo Tosati <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 22 May 2002 16:46:50 -0500
-Message-Id: <1022104010.3429.20.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
+	id <S315162AbSEVVzK>; Wed, 22 May 2002 17:55:10 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:55952 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S314835AbSEVVzJ>;
+	Wed, 22 May 2002 17:55:09 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@zip.com.au>
+Subject: 2.5.17 & ext3 & sard patches
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Wed, 22 May 2002 23:55:04 +0200
+In-Reply-To: <3CE93FAF.642F3E60@zip.com.au> (Andrew Morton's message of
+ "Mon, 20 May 2002 11:25:51 -0700")
+Message-ID: <87vg9f4zlz.fsf_-_@atlas.iskon.hr>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo, I originally submitted this patch against 2.4.18-rc2 and I
-noticed that it has not been picked up yet.  I've repatched it against
-2.4.19-pre8 and retested it.  This is to fix the problem where if you
-run out of available pids, get_pid will cause a hang as it loops forever
-through the tasks to try to find an available pid that doesn't exist.
+Andrew Morton <akpm@zip.com.au> writes:
+>
+> I'll do a bit more ext3 testing than I have been - I run
+> ext3 on my test box as a "stable base" while I develop stuff
+> against ext2 on test partitions, and I haven't observed any
+> problems.  So I guess I need to spend more time testing
+> ext3 this week.
+>
 
-Thanks,
-Paul Larson
+Thank you Andrew! 2.5.17 runs great at least in writeback and journal
+modes of ext3. I did lots of testing and I can't break it.
 
---- linux-2.4.19-pre8/kernel/fork.c	Mon May 20 10:55:14 2002
-+++ linux-getpid/kernel/fork.c	Wed May 22 16:07:29 2002
-@@ -21,6 +21,7 @@
- #include <linux/completion.h>
- #include <linux/namespace.h>
- #include <linux/personality.h>
-+#include <linux/compiler.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -86,12 +87,13 @@
- {
- 	static int next_safe = PID_MAX;
- 	struct task_struct *p;
--	int pid;
-+	int pid, beginpid;
- 
- 	if (flags & CLONE_PID)
- 		return current->pid;
- 
- 	spin_lock(&lastpid_lock);
-+	beginpid = last_pid;
- 	if((++last_pid) & 0xffff8000) {
- 		last_pid = 300;		/* Skip daemons etc. */
- 		goto inside;
-@@ -111,12 +113,16 @@
- 						last_pid = 300;
- 					next_safe = PID_MAX;
- 				}
-+				if(unlikely(last_pid == beginpid))
-+					goto nomorepids;
- 				goto repeat;
- 			}
- 			if(p->pid > last_pid && next_safe > p->pid)
- 				next_safe = p->pid;
- 			if(p->pgrp > last_pid && next_safe > p->pgrp)
- 				next_safe = p->pgrp;
-+			if(p->tgid > last_pid && next_safe > p->tgid)
-+				next_safe = p->tgid;
- 			if(p->session > last_pid && next_safe > p->session)
- 				next_safe = p->session;
- 		}
-@@ -126,6 +132,11 @@
- 	spin_unlock(&lastpid_lock);
- 
- 	return pid;
-+
-+nomorepids:
-+	read_unlock(&tasklist_lock);
-+	spin_unlock(&lastpid_lock);
-+	return 0;
- }
- 
- static inline int dup_mmap(struct mm_struct * mm)
-@@ -624,6 +635,8 @@
- 
- 	copy_flags(clone_flags, p);
- 	p->pid = get_pid(clone_flags);
-+	if (p->pid == 0 && current->pid != 0)
-+		goto bad_fork_cleanup;
- 
- 	p->run_list.next = NULL;
- 	p->run_list.prev = NULL;
+BTW, for interesting parties, there is a fresh sard patch for 2.5.17
+at the standard place: http://linux.inet.hr/
 
-
-
+Enjoy and don't push your disks close to 100% busy, they need some
+rest, too. :)
+-- 
+Zlatko

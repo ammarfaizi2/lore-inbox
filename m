@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131791AbQLVDlO>; Thu, 21 Dec 2000 22:41:14 -0500
+	id <S131134AbQLVELV>; Thu, 21 Dec 2000 23:11:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131819AbQLVDlE>; Thu, 21 Dec 2000 22:41:04 -0500
-Received: from [204.244.205.25] ([204.244.205.25]:10088 "HELO post.gateone.com")
-	by vger.kernel.org with SMTP id <S131791AbQLVDlA>;
-	Thu, 21 Dec 2000 22:41:00 -0500
-From: Michael Peddemors <michael@linuxmagic.com>
-Organization: Wizard Internet Services
-To: "David S. Miller" <davem@redhat.com>, kernel@pineview.net
-Subject: Re: No more DoS
-Date: Thu, 21 Dec 2000 20:20:06 -0800
-X-Mailer: KMail [version 1.1.95.0]
-Content-Type: text/plain
+	id <S131199AbQLVELL>; Thu, 21 Dec 2000 23:11:11 -0500
+Received: from mako.theneteffect.com ([63.97.58.10]:63246 "EHLO
+	mako.theneteffect.com") by vger.kernel.org with ESMTP
+	id <S131134AbQLVEK5>; Thu, 21 Dec 2000 23:10:57 -0500
+From: Mitch Adair <mitch@theneteffect.com>
+Message-Id: <200012220340.VAA14005@mako.theneteffect.com>
+Subject: Re: Linux 2.2.19pre3
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Thu, 21 Dec 2000 21:40:17 -0600 (CST)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <977453684.3a42c2744fbb7@ppro.pineview.net> <200012220200.SAA05057@pizda.ninka.net>
-In-Reply-To: <200012220200.SAA05057@pizda.ninka.net>
+In-Reply-To: <E149GRm-0003sX-00@the-village.bc.nu> from "Alan Cox" at Dec 22, 2000 12:52:32 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Message-Id: <0012212020061G.24471@mistress>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Furthermore, it also cannot work because it makes retransmissions
-> of the SYN/ACK very non-workable.  I suppose his TCP stack just hacks
-> around this by just waiting for the original client SYN to get
-> retransmitted or something like this.  I question whether that can
-> even work reliably.
+> 2.2.19pre3
+[snip]
+> o	Optimise kernel compiler detect, kgcc before	(Peter Samuelson)
+> 	gcc272 also
 
-Be interesting to see his response, but in truth, do we care if it gets 
-retransmitted?? When it does, it does...
+I get an endless stream of this:
 
-> I think not holding onto any state for an incoming SYN is nothing but
-> a dream in any serious modern TCP implementation.  It can be reduced,
-> but not eliminated.  The former is what most modern stacks have done
-> to fight these problems.
+kgcc:gcc272:cc:gcc: not found
+kgcc:gcc272:cc:gcc: not found
+/bin/sh: -D__KERNEL__: command not found
+/bin/sh: -D__KERNEL__: command not found
+/bin/sh: -D__KERNEL__: command not found
+/bin/sh: -D__KERNEL__: command not found
 
-A dream, maybe .... but hey so were most things that we now take for granted..
-Worth kicking around a bit tho...  
 
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-Unix Administration - WebSite Hosting
-Network Services - Programming
-Wizard Internet Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604) 589-0037 Beautiful British Columbia, Canada
---------------------------------------------------------
+I think the Makefile optimisation needs to be (cut-n-paste):
+
+--- Makefile~   Thu Dec 21 21:35:39 2000
++++ Makefile    Thu Dec 21 21:35:54 2000
+@@ -28,7 +28,7 @@
+ #      gcc272 for Debian
+ #      otherwise 'cc'
+ #
+-CCFOUND :=$(shell $(CONFIG_SHELL) scripts/kwhich kgcc gcc272 cc gcc)
++CCFOUND :=$(shell $(CONFIG_SHELL) scripts/kwhich kgcc:gcc272:cc:gcc)
+ ## Faster, but requires GNU make 3.78, which postdates Linux 2.2.0
+ ##CC   =$(if $(CROSS_COMPILE),$(CROSS_COMPILE)gcc,$(CCFOUND)) -D__KERNEL__ -I$(HPATH)
+ CC     =$(shell if [ -n "$(CROSS_COMPILE)" ]; then echo $(CROSS_COMPILE)gcc; else echo $(CCFOUND); fi) \
+
+
+	M
+(what's the old saying - the first rule of optimization is don't or
+something like that... ;)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

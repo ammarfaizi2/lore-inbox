@@ -1,56 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263211AbRE2FAy>; Tue, 29 May 2001 01:00:54 -0400
+	id <S263212AbRE2FCE>; Tue, 29 May 2001 01:02:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263212AbRE2FAo>; Tue, 29 May 2001 01:00:44 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:7138 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S263211AbRE2FAb>;
-	Tue, 29 May 2001 01:00:31 -0400
-Message-ID: <3B1327D5.6484E61E@mandrakesoft.com>
-Date: Tue, 29 May 2001 00:38:45 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
-X-Accept-Language: en
+	id <S263213AbRE2FBy>; Tue, 29 May 2001 01:01:54 -0400
+Received: from smtp7vepub.gte.net ([206.46.170.28]:19314 "EHLO
+	smtp7ve.mailsrvcs.net") by vger.kernel.org with ESMTP
+	id <S263212AbRE2FBn>; Tue, 29 May 2001 01:01:43 -0400
+From: George France <france@handhelds.org>
+Date: Tue, 29 May 2001 01:00:56 -0400
+X-Mailer: KMail [version 1.1.99]
+Content-Type: Multipart/Mixed;
+  charset="us-ascii";
+  boundary="------------Boundary-00=_K9Z2BDND6KIOQG0U6064"
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jay Thorne <Yohimbe@userfriendly.org>
+To: Keith Owens <kaos@ocs.com.au>
+In-Reply-To: <4172.991093202@ocs3.ocs-net>
+In-Reply-To: <4172.991093202@ocs3.ocs-net>
+Subject: Re: PATCH - ksymoops on Alpha - 2.4.5-ac3
 MIME-Version: 1.0
-To: Jakob =?iso-8859-1?Q?=D8stergaard?= <jakob@unthought.net>
-Cc: safemode <safemode@voicenet.com>, "G. Hugh Song" <ghsong@kjist.ac.kr>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Plain 2.4.5 VM...
-In-Reply-To: <200105290232.f4T2W9m00876@bellini.kjist.ac.kr> <20010529061039.D29962@unthought.net> <01052900260800.29037@psuedomode>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Message-Id: <01052901005607.17841@shadowfax.middleearth>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tuesday 29 May 2001 00:10, Jakob Østergaard wrote:
-> 
-> > > > Mem: 381608K av, 248504K used, 133104K free, 0K shrd, 192K
-> > > > buff
-> > > > Swap: 255608K av, 255608K used, 0K free 215744K
-> > > > cached
-> > > >
-> > > > Vanilla 2.4.5 VM.
-> 
-> > It's not a bug.  It's a feature.  It only breaks systems that are run with
-> > "too little" swap, and the only difference from 2.2 till now is, that the
-> > definition of "too little" changed.
 
-I am surprised as many people as this are missing,
+--------------Boundary-00=_K9Z2BDND6KIOQG0U6064
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 
-* when you have an active process using ~300M of VM, in a ~380M machine,
-2/3 of the machine's RAM should -not- be soaked up by cache
+> George France <france@handhelds.org> wrote:
+> >Here is a trivial patch that will make ksymoops work again on Alpha.
 
-* when you have an active process using ~300M of VM, in a ~380M machine,
-swap should not be full while there is 133M of RAM available.
+Cleaner patch.
 
-The above quoted is top output, taken during the several minutes where
-cc1plus process was ~300M in size.  Similar numbers existed before and
-after my cut-n-paste, so this was not transient behavior.
+diff -urN linux-2.4.5-ac3-orig/arch/alpha/kernel/traps.c 
+linux-2.4.5/arch/alpha/kernel/traps.c
+--- linux-2.4.5-ac3-orig/arch/alpha/kernel/traps.c	Thu May 24 17:24:37 2001
++++ linux-2.4.5/arch/alpha/kernel/traps.c	Tue May 29 00:42:40 2001
+@@ -286,17 +286,11 @@
+ 			continue;
+ 		if (tmp >= (unsigned long) &_etext)
+ 			continue;
+-		/*
+-		 * Assume that only the low 24-bits of a kernel text address
+-		 * is interesting.
+-		 */
+-		printk("%6x%c", (int)tmp & 0xffffff, (++i % 11) ? ' ' : '\n');
+-#if 0
++		printk("%lx%c", tmp, ' ');
+ 		if (i > 40) {
+ 			printk(" ...");
+ 			break;
+ 		}
+-#endif
+ 	}
+ 	printk("\n");
+ }
 
-I can assure you, these are bugs not features :)
 
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+>
+> Thanks for that.  Now if you can just persuade the Alpha people to
+> print the 'Code:' line in the same format as other architectures then
+> ksymoops can decode the instructions as well.  If Alpha wants to
+> include its own instruction decoder as well then that is up to them but
+> I would appreciate a standard 'Code:' line being printed first.
+
+Could you send me an oops with the standard 'Code:' line? 
+
+Best Regards,
+
+
+--George
+--------------Boundary-00=_K9Z2BDND6KIOQG0U6064
+Content-Type: text/english;
+  name="patch-ksymoops"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch-ksymoops"
+
+ZGlmZiAtdXJOIGxpbnV4LTIuNC41LWFjMy1vcmlnL2FyY2gvYWxwaGEva2VybmVsL3RyYXBzLmMg
+bGludXgtMi40LjUvYXJjaC9hbHBoYS9rZXJuZWwvdHJhcHMuYwotLS0gbGludXgtMi40LjUtYWMz
+LW9yaWcvYXJjaC9hbHBoYS9rZXJuZWwvdHJhcHMuYwlUaHUgTWF5IDI0IDE3OjI0OjM3IDIwMDEK
+KysrIGxpbnV4LTIuNC41L2FyY2gvYWxwaGEva2VybmVsL3RyYXBzLmMJVHVlIE1heSAyOSAwMDo0
+Mjo0MCAyMDAxCkBAIC0yODYsMTcgKzI4NiwxMSBAQAogCQkJY29udGludWU7CiAJCWlmICh0bXAg
+Pj0gKHVuc2lnbmVkIGxvbmcpICZfZXRleHQpCiAJCQljb250aW51ZTsKLQkJLyoKLQkJICogQXNz
+dW1lIHRoYXQgb25seSB0aGUgbG93IDI0LWJpdHMgb2YgYSBrZXJuZWwgdGV4dCBhZGRyZXNzCi0J
+CSAqIGlzIGludGVyZXN0aW5nLgotCQkgKi8KLQkJcHJpbnRrKCIlNnglYyIsIChpbnQpdG1wICYg
+MHhmZmZmZmYsICgrK2kgJSAxMSkgPyAnICcgOiAnXG4nKTsKLSNpZiAwCisJCXByaW50aygiJWx4
+JWMiLCB0bXAsICcgJyk7CiAJCWlmIChpID4gNDApIHsKIAkJCXByaW50aygiIC4uLiIpOwogCQkJ
+YnJlYWs7CiAJCX0KLSNlbmRpZgogCX0KIAlwcmludGsoIlxuIik7CiB9Cg==
+
+--------------Boundary-00=_K9Z2BDND6KIOQG0U6064--

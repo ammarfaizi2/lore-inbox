@@ -1,58 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315760AbSG1MPy>; Sun, 28 Jul 2002 08:15:54 -0400
+	id <S315870AbSG1MiR>; Sun, 28 Jul 2002 08:38:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315783AbSG1MPy>; Sun, 28 Jul 2002 08:15:54 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:65294 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315760AbSG1MPx>; Sun, 28 Jul 2002 08:15:53 -0400
-Date: Sun, 28 Jul 2002 14:18:28 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] automatic initcalls 
-In-Reply-To: <20020728033359.7B2A2444C@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0207281358070.28515-100000@serv>
+	id <S315988AbSG1MiR>; Sun, 28 Jul 2002 08:38:17 -0400
+Received: from mail3.alphalink.com.au ([202.161.124.59]:64119 "EHLO
+	mail3.alphalink.com.au") by vger.kernel.org with ESMTP
+	id <S315870AbSG1MiQ>; Sun, 28 Jul 2002 08:38:16 -0400
+Message-ID: <3D43E623.B8496CB5@alphalink.com.au>
+Date: Sun, 28 Jul 2002 22:40:03 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd.
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pete Zaitcev <zaitcev@redhat.com>,
+       Michael Elizabeth Chastain <mec@shout.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Patch for xconfig
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+G'day,
 
-On Sun, 28 Jul 2002, Rusty Russell wrote:
-
-> > - I only look at modules which contain an initcall
-> > - I only order initcalls of level 6 and 7
+Pete Zaitcev wrote:
+> 
+> My customers complain that using certain canned configurations
+> xconfig does not work (naturally, it works with defconfig).
+> A problem that I am trying to fix is that it can refuse to
+> quit with something like "Variable CONSTANT_M does not exist".
+> The necessary "global" is indeed missing.
 >
-> You don't seem to handle the ordering of initcalls within a module
-> though: see net/ipv4/netfilter/ip_conntrack.o for an example of
-> multiple inits which would be much better as separate initcalls.
+> Can someone knowledgeable (like Chastain) have a look at
+> the attached patch?
 
-Actually I'm most interested in ordering "module_init()" and you can have
-only one of them per module or how do you want to implement multiple
-initcalls per module?
+I don't claim to be knowledgeable, but I can confirm that this is a
+real bug and the patch fixes it.  Here is the patch re-jigged to apply
+cleanly to 2.5.29.
 
-> Especially since you don't cover any of the really interesting cases.
-> Maybe if you could slowly extend it to cover the rest?  (Hah, I
-> know!).
+diff -ruN --exclude-from=dontdiff linux-2.5.29-orig/scripts/tkgen.c linux-2.5.29/scripts/tkgen.c
+--- linux-2.5.29-orig/scripts/tkgen.c	Sun Jul 28 22:34:05 2002
++++ linux-2.5.29/scripts/tkgen.c	Sun Jul 28 22:32:23 2002
+@@ -625,6 +625,7 @@
+ 		if ( ! vartable[i].global_written )
+ 		{
+ 		    global( vartable[i].name );
++		    vartable[i].global_written = 1;
+ 		}
+ 		printf( "\t" );
+ 	    }
+@@ -696,6 +697,19 @@
+ 	    }
+ 	    break;
+ 	}
++    }
++
++    /*
++     * Generate global declarations for the dependency chain (e.g. CONSTANT_M).
++     */
++    for ( tmp = cfg->depend; tmp; tmp = tmp->next )
++    {
++       int i = get_varnum( tmp->name );
++       if ( ! vartable[i].global_written )
++       {
++           global( vartable[i].name );
++           vartable[i].global_written = 1;
++       }
+     }
+ 
+     /*
 
-I wouldn't mind if the remaining initcalls are converted to explicit
-dependencies, but it's possible to sort automatically everything that can
-be built as modules.
 
-> > +init/generated-initcalls.c: .allinit.defs
-> > +	set -e; echo '#include <linux/init.h>' > $@; \
-> > +	sed -n < $< "s,^T ,,p" | sort > .defined.all; \
->
-> I think you mean something like:
->
-> 	sed -n "s,^T ,,p" < $<
-
-Isn't that the same?
-
-bye, Roman
-
+Greg.
+-- 
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.

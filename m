@@ -1,34 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263435AbUALWj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 17:39:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbUALWj7
+	id S266245AbUALWZU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 17:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265632AbUALWZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 17:39:59 -0500
-Received: from mail.ccur.com ([208.248.32.212]:63239 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S263435AbUALWj6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 17:39:58 -0500
-Date: Mon, 12 Jan 2004 17:39:49 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: hch@infradead.org, schwab@suse.de, paulus@samba.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: seperator error in __mask_snprintf_len
-Message-ID: <20040112223949.GA13398@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20040108051111.4ae36b58.pj@sgi.com> <16381.57040.576175.977969@cargo.ozlabs.ibm.com> <20040109064619.35c487ec.pj@sgi.com> <je1xq9duhc.fsf@sykes.suse.de> <20040109152533.A25396@infradead.org> <20040109092309.42bb6049.pj@sgi.com> <20040112000923.GA2743@tsunami.ccur.com> <20040112134112.2dd0ec42.pj@sgi.com> <20040112220024.GA12748@tsunami.ccur.com> <20040112142839.3dbda2d0.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040112142839.3dbda2d0.pj@sgi.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 12 Jan 2004 17:25:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2209 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266276AbUALWZJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 17:25:09 -0500
+Message-ID: <40031EB1.5030705@pobox.com>
+Date: Mon, 12 Jan 2004 17:24:49 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: Andreas Haumer <andreas@xss.co.at>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: [2.4 patch] disallow modular CONFIG_COMX
+References: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet> <3FF2EAB3.1090001@xss.co.at> <20040111013043.GY25089@fs.tum.de>
+In-Reply-To: <20040111013043.GY25089@fs.tum.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> snprintf-like calls should behave like snprintf calls, no fancier.
+Adrian Bunk wrote:
+> On Wed, Dec 31, 2003 at 04:26:43PM +0100, Andreas Haumer wrote:
+> 
+>>...
+>>Hi!
+> 
+> 
+> Hi Andreas!
+> 
+> 
+>>...
+>>Here's a first report:
+>>...
+>>*) Unresolved symbol in kernel/drivers/net/wan/comx.o: proc_get_inode
+>>...
+> 
+> 
+> CONFIG_COMX=m always gave an unresolved symbol in kernel 2.4, and it
+> seems noone is interested in properly fixing it.
+> 
+> The patch below disallows a modular CONFIG_COMX.
 
-You are correct.
--- 
-"Money can buy bandwidth, but latency is forever" -- John Mashey
-Joe
+I agree with the intent...
+
+At this point, I am tempted to simply comment it out of the Config.in, 
+and let interested parties backport bug fixes and crap from 2.6 if they 
+would like.  The driver has had obvious bugs for a while...
+
+	Jeff
+
+
+

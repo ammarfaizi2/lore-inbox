@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266646AbUBQV7f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:59:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266639AbUBQV7d
+	id S266675AbUBQVzx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:55:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266654AbUBQVx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:59:33 -0500
-Received: from ln33.neoplus.adsl.tpnet.pl ([83.30.25.33]:32906 "EHLO
-	uran.kolkowski.no-ip.org") by vger.kernel.org with ESMTP
-	id S266719AbUBQV6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:58:23 -0500
-Date: Tue, 17 Feb 2004 22:57:38 +0100
-From: Damian Kolkowski <damian@kolkowski.no-ip.org>
-To: Kronos <kronos@kronoz.cjb.net>
-Cc: linux-kernel@vger.kernel.org,
-       Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
-Subject: Re: Radeonfb problem
-Message-ID: <20040217215738.ALLYOURBASEAREBELONGTOUS.B9706@kolkowski.no-ip.org>
-Mail-Followup-To: Kronos <kronos@kronoz.cjb.net>,
-	linux-kernel@vger.kernel.org,
-	Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
-References: <200402172008.39887.vergata@stud.fbi.fh-darmstadt.de> <20040217203604.GA19110@dreamland.darkstar.lan> <20040217211120.ALLYOURBASEAREBELONGTOUS.A8392@kolkowski.no-ip.org> <20040217213441.GA22103@dreamland.darkstar.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040217213441.GA22103@dreamland.darkstar.lan>
-X-GPG-Key: 0xB2C5DE03 (http://kolkowski.no-ip.org/damian.asc x-hkp://wwwkeys.eu.pgp.net)
-X-Girl: 1 will be enough!
-X-Age: 24 (1980.09.27 - libra)
-X-IM: JID:damian@kolkowski.no-ip.org ICQ:59367544 GG:88988
-X-Operating-System: Slackware GNU/Linux, kernel 2.4.25-rc3, up  8:27
-User-Agent: Mutt/1.5.4i
+	Tue, 17 Feb 2004 16:53:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64482 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266651AbUBQVtG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 16:49:06 -0500
+Date: Tue, 17 Feb 2004 13:48:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Alex Belits <abelits@phobos.illtel.denver.co.us>,
+       Marc Lehmann <pcg@schmorp.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re:
+ JFS default behavior)
+In-Reply-To: <20040217210919.GG24311@mail.shareable.org>
+Message-ID: <Pine.LNX.4.58.0402171347420.2154@home.osdl.org>
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca>
+ <200402150006.23177.robin.rosenberg.lists@dewire.com>
+ <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk>
+ <200402150107.26277.robin.rosenberg.lists@dewire.com>
+ <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de>
+ <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <20040216200321.GB17015@schmorp.de>
+ <Pine.LNX.4.58.0402161603420.10177@sm1420.belits.com>
+ <20040217210919.GG24311@mail.shareable.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Kronos <kronos@kronoz.cjb.net> [2004-02-17 22:51]:
-> > 2.6.3-rc4 with new radeonfb looks better, but in lilo.con append for radeonfb
-> > wont work.
+
+
+On Tue, 17 Feb 2004, Jamie Lokier wrote:
 > 
-> What do you mean? What are passing to the kernel?
+> >   I can point at the example of this "solution" that happened years ago
+> > when UCS-2 was all the rage, and it got hardcoded and enforced by NTFS
+> > and everything that handles it. Who is laughing about that decision now?
+> 
+> We are all laughing ;)
 
-For example:
+Crying. Sadly, when MS makes a whopper of a mistake (and they do it all 
+too often), we're left having to work with the resulting breakage.
 
-append = "video=radeon:1024x768-32@100" works for 2.4.x
-append = "video=radeonfb:1024x768-32@100 works for 2.6.x
+I suspect most samba developers are already technically insane (*).
 
-but for new radeonfb _radeonfb_ in append won't work, my screean start with
-small res on 36 Hz ;-) So I need to use fbset.
+		Linus
 
-Besides don't use 2.6.x even on desktop, that was only a test with new
-radeonfb from Ben H.
-
--- 
-# Damian *dEiMoS* Ko³kowski # http://kolkowski.no-ip.org/ #
+(*) Of course, since many of them are Australians, you can't tell.

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280663AbRKSTw6>; Mon, 19 Nov 2001 14:52:58 -0500
+	id <S280674AbRKSTxs>; Mon, 19 Nov 2001 14:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280674AbRKSTwi>; Mon, 19 Nov 2001 14:52:38 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:28428 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S280663AbRKSTwg>;
-	Mon, 19 Nov 2001 14:52:36 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200111191952.WAA21731@ms2.inr.ac.ru>
-Subject: Re: more tcpdumpinfo for nfs3 problem: aix-server --- linux 2.4.15pre5 client
-To: trond.myklebust@fys.uio.no
-Date: Mon, 19 Nov 2001 22:52:28 +0300 (MSK)
-Cc: b.lammering@science-computing.de, linux-kernel@vger.kernel.org
-In-Reply-To: <15353.23941.858943.218040@charged.uio.no> from "Trond Myklebust" at Nov 19, 1 08:29:09 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S280676AbRKSTxk>; Mon, 19 Nov 2001 14:53:40 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.21]:19554 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S280674AbRKSTxY>; Mon, 19 Nov 2001 14:53:24 -0500
+Date: Mon, 19 Nov 2001 20:53:16 +0100
+From: Jeroen Vreeken <pe1rxq@amsat.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bug in sock.c
+Message-ID: <20011119205316.I604@jeroen.pe1rxq.ampr.org>
+In-Reply-To: <20011119181106.A604@jeroen.pe1rxq.ampr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20011119181106.A604@jeroen.pe1rxq.ampr.org>; from pe1rxq@amsat.org on Mon, Nov 19, 2001 at 18:11:07 +0100
+X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+This patch is so popular that some people requested it again but this time
+inline :)
 
-> The problem is that when EAGAIN is returned by sendmsg,
+So here it is again:
 
-BTW this is already problem. UDP should not hit EAGAIN case, if the
-predicate is right.
+--- linux-2.4.13/net/core/sock.c        Fri Nov 15 21:12:38 2001
++++ linux/net/core/sock.c       Fri Nov 16 20:53:55 2001
+@@ -81,6 +81,7 @@
+  *             Andi Kleen      :       Fix write_space callback
+  *             Chris Evans     :       Security fixes - signedness again
+  *             Arnaldo C. Melo :       cleanups, use skb_queue_purge
++ *             Jeroen Vreeken  :       Add check for sk->dead in
+sock_def_write_space
+  *
+  * To Fix:
+  *
+@@ -1130,7 +1131,7 @@
+        /* Do not wake up a writer until he can make "significant"
+         * progress.  --DaveM
+         */
+-       if((atomic_read(&sk->wmem_alloc) << 1) <= sk->sndbuf) {
++       if(!sk->dead && (atomic_read(&sk->wmem_alloc) << 1) <= sk->sndbuf)
+{
+                if (sk->sleep && waitqueue_active(sk->sleep))
+                        wake_up_interruptible(sk->sleep);
 
 
-> requests), and then reactivate it as soon as sock_wspace() reports
-> that the available free buffer space is large enough to fit the next
-> request.
-
-sock_wspace() is OK. sock_writable() is bad.
-
-
-> released and that sock_wspace() does indeed reflect more or less the
-> maximum message size for which there is free buffer space (I allow a
-> couple of kilobytes for extra padding)
-
-Do not economize. :-) The longer you wait the less you scheduled.
-We used to wait for half of sndbuf to be freed.
-
-
->						 then the current UDP code
-> should be correct and race-free.
-
-BTW recently I was reported it deadlocks on some spinlock...
-
-Alexey

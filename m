@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264992AbSKRXEl>; Mon, 18 Nov 2002 18:04:41 -0500
+	id <S264944AbSKRXAV>; Mon, 18 Nov 2002 18:00:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264940AbSKRXEh>; Mon, 18 Nov 2002 18:04:37 -0500
-Received: from packet.digeo.com ([12.110.80.53]:53973 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264950AbSKRXCs>;
-	Mon, 18 Nov 2002 18:02:48 -0500
-Message-ID: <3DD97336.40326A65@digeo.com>
-Date: Mon, 18 Nov 2002 15:09:42 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S264940AbSKRXAV>; Mon, 18 Nov 2002 18:00:21 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:20361 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265012AbSKRXAP>; Mon, 18 Nov 2002 18:00:15 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 18 Nov 2002 15:07:40 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Grant Taylor <gtaylor+lkml_cjiia111802@picante.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+In-Reply-To: <200211182204.gAIM47mU030748@habanero.picante.com>
+Message-ID: <Pine.LNX.4.44.0211181505320.979-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, rml@tech9.net, riel@surriel.com,
-       Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: unusual scheduling performance
-References: <20021118081854.GJ23425@holomorphy.com> <705474709.1037608454@[10.10.2.3]> <20021118165316.GK23425@holomorphy.com> <3DD92914.1060301@us.ibm.com> <20021118201748.GL23425@holomorphy.com> <3DD96EE6.1080603@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Nov 2002 23:09:42.0359 (UTC) FILETIME=[93C08670:01C28F57]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> 
-> As Andrew suggested, I put a dump_stack() in rwsem_down_write_failed().
-> 
-> This was actually in a 2.5.47 bk snapshot, so it has eventpoll in it.
+On Mon, 18 Nov 2002, Grant Taylor wrote:
 
-So printk("hey!\n") would have worked.  Looks like it would have
-talked to you, too...
+> Ulrich Drepper writes:
+>
+> >> epoll does hook f_op->poll() and hence uses the asm/poll.h bits.
+>
+> > It does today. We are talking about "you promise that this will be
+> > the case ever after or we'll cut your head off".
+> > [...]
+> > it is not you who has to deal with the fallout of a change when it
+>
+> Maybe Davide wouldn't, but *I* do; my project at work runs over epoll,
+> and interface changes would require rework by me.
+>
+> Sensible interface changes in the future won't bother me.  I don't
+> expect anything in the future nearly as earth-shattering as this
+> current driver/ioctl->syscall transition.
 
-> kksymoops is broken, so:
-> dmesg | tail -20 | sort | uniq | ksymoops -m /boot/System.map
-> 
-> Trace; c01c5757 <rwsem_down_write_failed+27/170>
-> Trace; c01220c6 <update_wall_time+16/50>
-> Trace; c01223ee <do_timer+2e/c0>
-> Trace; c0166bd3 <.text.lock.eventpoll+6/f3>
-> Trace; c0146568 <__fput+18/c0>
-> Trace; c010ae9a <handle_IRQ_event+2a/60>
-> Trace; c0144a05 <filp_close+85/b0>
-> Trace; c0144a8d <sys_close+5d/70>
-> Trace; c0108fab <syscall_call+7/b>
-> 
+epoll basically born now, and IMHO is very important to get the interface
+stable right now. Later changes will be a real pain in the *ss. So I'm
+gradually more convinced to have epoll to have its own bits and data
+structure.
 
-So it would appear that eventpoll_release() is the problem.
-How odd.  You're not actually _using_ epoll there, are you?
+
+
+
+- Davide
+
+

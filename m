@@ -1,78 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263002AbRE1JDR>; Mon, 28 May 2001 05:03:17 -0400
+	id <S263025AbRE1KWY>; Mon, 28 May 2001 06:22:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263003AbRE1JDH>; Mon, 28 May 2001 05:03:07 -0400
-Received: from noc242.toshiba-eng.co.jp ([210.254.22.242]:43403 "EHLO
-	noc4.toshiba-eng.co.jp") by vger.kernel.org with ESMTP
-	id <S263002AbRE1JDE>; Mon, 28 May 2001 05:03:04 -0400
-Date: Mon, 28 May 2001 18:02:54 +0900
-From: Masaru Kawashima <masaruk@gol.com>
-To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+	id <S263026AbRE1KWN>; Mon, 28 May 2001 06:22:13 -0400
+Received: from unthought.net ([212.97.129.24]:63890 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S263025AbRE1KWF>;
+	Mon, 28 May 2001 06:22:05 -0400
+Date: Mon, 28 May 2001 12:22:03 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: "Antwerpen, Oliver" <Antwerpen@netsquare.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: initrd oops; still happens with 2.4.5ac2
-Message-Id: <20010528180254.380908d8.masaruk@gol.com>
-In-Reply-To: <20010528102551.N11981@niksula.cs.hut.fi>
-In-Reply-To: <20010526225825.A31713@lightning.swansea.linux.org.uk>
-	<20010527192650.H11981@niksula.cs.hut.fi>
-	<20010528001220.M11981@niksula.cs.hut.fi>
-	<20010528102551.N11981@niksula.cs.hut.fi>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.7; i686-pc-linux-gnu)
+Subject: Re: Dual Athlon Performance
+Message-ID: <20010528122203.B29962@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	"Antwerpen, Oliver" <Antwerpen@netsquare.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <9DD550E9A9B0D411A16700D0B7E38BA438385A@mail.degrp.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <9DD550E9A9B0D411A16700D0B7E38BA438385A@mail.degrp.org>; from Antwerpen@netsquare.org on Mon, May 28, 2001 at 08:44:22AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 May 2001 10:25:51 +0300
-Ville Herva <vherva@mail.niksula.cs.hut.fi> wrote:
-> The oops call trace seems to be the same as in 
+On Mon, May 28, 2001 at 08:44:22AM +0200, Antwerpen, Oliver wrote:
+> Moin,
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=99079948404775&w=2
+> I have a DualAthlon System here (2xAthlon 1.2GHz, 256MB RAM, icp-vortex
+> 6513RS/128MB, 3*9.1GB/10k HD, Dual 3com980 NIC) which runs really fine with
+> kernel 2.4.4 and as far as I can see now with 2.4.5.
+> Now I am interested in comparing this system's performance to others. Can
+> someone here give me a hand on how to do this best?
 > 
-> Any ideas?
+> And, if there are any special things (compilers, tools, ?) that I should
+> use, please point me to...
 
-Did you try the patch posted by Go Taniguchi <go@turbolinux.co.jp>?
-Following is the copy of his message and the patch itself.
+Please see the Beowulf mailing list (www.beowulf.org) - a dual athlon system
+was tested there about a month ago, and various tests were collected and run.
 
---
-Masaru Kawashima
+That system was not a final release, and AMD later expressed that they were
+unhappy about the results being publicized, since they would most likely not
+reflect the actual performance of dual athlons once released in a "final"
+version.
 
-=====================================================================
-From: Go Taniguchi <go@turbolinux.co.jp>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH]initrd unmount problem
-Date: 	Mon, 28 May 2001 13:26:20 +0900
-Sender: linux-kernel-owner@vger.kernel.org
-Organization: Turbolinx Inc.
-X-Mailer: Mozilla 4.75 [ja] (X11; U; Linux 2.2.18-10 i686)
+It would be very interesting to see your results if you can re-run the tests
+done by Robert G. Brown on the Beowulf mailing list.
 
-Hi,
-
-It seems that ioctl_by_bdev() in fs/block_dev.c has a problem.
-When initrd is unmounted it can cause OOPS. 
-This problem occurs in recent ac patches.
-May be vanilla too.
-
-change_root() in fs/super.c calls ioctl_by_bdev() in
-fs/block_dev.c which does not set inode_fake.i_bdev.
-
-But ioctl of ramdisk (rd_ioctl() in rd.c) accesses to
-i_bdev->bd_openers of the inode and which causes OOPS.
-
-I attach the patch.
-
-- GO!
-
---- linux/fs/block_dev.c.orig	Mon May 28 12:40:12 2001
-+++ linux/fs/block_dev.c	Mon May 28 12:40:12 2001
-@@ -602,6 +602,7 @@
- 	if (!bdev->bd_op->ioctl)
- 		return -EINVAL;
- 	inode_fake.i_rdev=rdev;
-+	inode_fake.i_bdev=bdev;
- 	init_waitqueue_head(&inode_fake.i_wait);
- 	set_fs(KERNEL_DS);
- 	res = bdev->bd_op->ioctl(&inode_fake, NULL, cmd, arg);
-
-
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270487AbTGVKbT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 06:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270493AbTGVKbT
+	id S270625AbTGVKoK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 06:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270637AbTGVKoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 06:31:19 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:32221 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S270487AbTGVKbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 06:31:18 -0400
-Date: Tue, 22 Jul 2003 11:09:37 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Catalin BOIE <util@deuroconsult.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB flash disk on 2 machines exclusiv
-Message-ID: <20030722110937.P639@nightmaster.csn.tu-chemnitz.de>
-References: <Pine.LNX.4.53.0307221026120.2214@hosting.rdsbv.ro>
-Mime-Version: 1.0
+	Tue, 22 Jul 2003 06:44:10 -0400
+Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:14790
+	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id S270625AbTGVKoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 06:44:09 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.53.0307221026120.2214@hosting.rdsbv.ro>; from util@deuroconsult.ro on Tue, Jul 22, 2003 at 10:31:15AM +0300
-X-Spam-Score: -5.0 (-----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19euez-0003D8-00*HesRnILJBjE*
+Content-Transfer-Encoding: 7bit
+Message-ID: <16157.6400.38828.602041@wombat.chubb.wattle.id.au>
+Date: Tue, 22 Jul 2003 20:59:12 +1000
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test1: Laptop runs hot, short battery life
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Catalin,
 
-On Tue, Jul 22, 2003 at 10:31:15AM +0300, Catalin BOIE wrote:
-> The disk is recognized by both machines as sda1.
-> 
-> I do a mkreiserfs /dev/sda1, mount it and everything works on machine 1.
-> If I go to machine 2, the kernel cannot recognise a valid reiserfs on the
-> flash. If I do a mkreiserfs, I can work with it, but when I move to
-> machine 1, same problem (reiserfs not recognized).
+Hi,
+	Under recent 2.5 kernels, my laptop runs a lot hotter than
+under 2.4.20 -- the fans seem to go continuously, the disc never
+powers down, and consequently battery life is around half what it is
+with 2.4.20.
 
-Did you try other file systems? Does it work with other Linux
-file systems like ext2 or ext3? Does it work with VFAT?
+I'm using XFS, mounted with the	`noatime' option, and a 5-minute
+xfs_sync value, in both cases.
 
-Please try these to tell, whether it's FS specific.
+The laptop has ACPI only, no APM.  On battery, the processor (a 2GHz
+Pentium 4) is dropped to 1GHz and put into ACPI C3 state.
 
-Thanks & Regards
+Does anyone have any ideas about what's changed, and how it can be
+fixed to get better battery life again?   Maybe XFS is
+syncing its logs more often, or something.
 
-Ingo Oeser, just trying to be helpful
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories,   all slightly different.

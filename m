@@ -1,99 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265828AbUA0UGP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 15:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265830AbUA0UGP
+	id S265765AbUA0UAH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 15:00:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265778AbUA0UAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 15:06:15 -0500
-Received: from mail.timesys.com ([65.117.135.102]:55927 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S265828AbUA0UGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 15:06:11 -0500
-Message-ID: <4016C477.4070505@timesys.com>
-Date: Tue, 27 Jan 2004 15:05:11 -0500
-From: Pratik Solanki <pratik.solanki@timesys.com>
-Organization: TimeSys Corporation
-User-Agent: Mozilla Thunderbird 0.5a (X11/20040118)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: u_int32_t causes cross-compile problems [PATCH]
-Content-Type: multipart/mixed;
- boundary="------------040108000808050306070308"
-X-OriginalArrivalTime: 27 Jan 2004 20:00:18.0781 (UTC) FILETIME=[303960D0:01C3E510]
+	Tue, 27 Jan 2004 15:00:06 -0500
+Received: from ns.suse.de ([195.135.220.2]:26575 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265765AbUA0UAC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 15:00:02 -0500
+Date: Tue, 27 Jan 2004 20:57:13 +0100
+From: Andi Kleen <ak@suse.de>
+To: dada1 <dada1@cosmosbay.com>
+Cc: linux-kernel@vger.kernel.org, aj@suse.de
+Subject: Re: linux-2.6.1 x86_64 : STACK_TOP and text/data
+Message-Id: <20040127205713.33ea65ee.ak@suse.de>
+In-Reply-To: <4016BFD4.2040407@cosmosbay.com>
+References: <OFCE30A640.024A04A1-ONC1256E28.003023EA-C1256E28.0030BF4E@de.ibm.com.suse.lists.linux.kernel>
+	<40162E9A.1080005@cosmosbay.com.suse.lists.linux.kernel>
+	<p73k73dfdvs.fsf@nielsen.suse.de>
+	<4016B493.9050404@cosmosbay.com>
+	<20040127202930.6c29bbcf.ak@suse.de>
+	<4016BFD4.2040407@cosmosbay.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040108000808050306070308
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 27 Jan 2004 20:45:24 +0100
+dada1 <dada1@cosmosbay.com> wrote:
 
-I came across this C standards issue while cross-compiling the Linux 
-kernel with gcc on Solaris. The file gen_crc32table.c uses the 
-non-standard type u_int32_t. It's possible that the host machine's 
-sys/types.h does not define u_int32_t. The attached patch replaces 
-u_int32_t with the POSIX standard uint32_t and includes POSIX inttypes.h 
-instead of sys/types.h.
+> Another thing I noticed in last glibc CVS (nptl)
+> 
+> Thread stacks are also allocated in the 1GB quadrant :
+> 
+> nptl/sysdeps/x86_64/pthreaddef.h
+> /* We prefer to have the stack allocated in the low 4GB since this
+>    allows faster context switches.  */      
+> #define ARCH_MAP_FLAGS MAP_32BIT 
+> 
+> Is this really true ?
+> Is memory allocated in the low 4GB is faster on x86_64  (64bit kernel, 
+> 64 bit user prog ?)
 
-Please CC me when replying.
+That only applies to areas referenced set by set_thread_area() and
+referenced by segment registers.  For pointers <4GB it can use a faster method at 
+context switch.
 
-Pratik.
+They probably do that because they put the thread local data at the 
+bottom of the stack and it has to be referenced using %gs.
+They should use a fallback if the MAP_32BIT allocation fails.
 
---------------040108000808050306070308
-Content-Type: text/plain;
- name="gen_crc32table.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="gen_crc32table.patch"
+I suspect they would be better off if they allocated the thread local
+data separately. The 2.4 kernel used to do the same, but switched to 
+separate allocation because this gives better cache colouring
+(stacks tend to be aligned too much and use only parts of the cache) 
 
-===== lib/gen_crc32table.c 1.1 vs edited =====
---- 1.1/lib/gen_crc32table.c	Sun Nov 24 04:58:41 2002
-+++ edited/lib/gen_crc32table.c	Fri Jan 23 11:06:00 2004
-@@ -1,14 +1,14 @@
- #include <stdio.h>
- #include "crc32defs.h"
--#include <sys/types.h>
-+#include <inttypes.h>
- 
- #define ENTRIES_PER_LINE 4
- 
- #define LE_TABLE_SIZE (1 << CRC_LE_BITS)
- #define BE_TABLE_SIZE (1 << CRC_BE_BITS)
- 
--static u_int32_t crc32table_le[LE_TABLE_SIZE];
--static u_int32_t crc32table_be[BE_TABLE_SIZE];
-+static uint32_t crc32table_le[LE_TABLE_SIZE];
-+static uint32_t crc32table_be[BE_TABLE_SIZE];
- 
- /**
-  * crc32init_le() - allocate and initialize LE table data
-@@ -20,7 +20,7 @@
- static void crc32init_le(void)
- {
- 	unsigned i, j;
--	u_int32_t crc = 1;
-+	uint32_t crc = 1;
- 
- 	crc32table_le[0] = 0;
- 
-@@ -37,7 +37,7 @@
- static void crc32init_be(void)
- {
- 	unsigned i, j;
--	u_int32_t crc = 0x80000000;
-+	uint32_t crc = 0x80000000;
- 
- 	crc32table_be[0] = 0;
- 
-@@ -48,7 +48,7 @@
- 	}
- }
- 
--static void output_table(u_int32_t table[], int len, char *trans)
-+static void output_table(uint32_t table[], int len, char *trans)
- {
- 	int i;
- 
+MAP_32BIT only allocates in the first 2GB BTW, it's really MAP_31BIT.
 
---------------040108000808050306070308--
+-Andi

@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268347AbTBYUaN>; Tue, 25 Feb 2003 15:30:13 -0500
+	id <S268325AbTBYU1p>; Tue, 25 Feb 2003 15:27:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268346AbTBYU3z>; Tue, 25 Feb 2003 15:29:55 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:56708 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S268339AbTBYU2Q>; Tue, 25 Feb 2003 15:28:16 -0500
-Date: Tue, 25 Feb 2003 17:38:35 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What's up with pre5?
-In-Reply-To: <20030224143729.GG27646@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.53L.0302251738170.16726@freak.distro.conectiva>
-References: <20030224143729.GG27646@louise.pinerecords.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268322AbTBYU0T>; Tue, 25 Feb 2003 15:26:19 -0500
+Received: from vena.lwn.net ([206.168.112.25]:40654 "HELO eklektix.com")
+	by vger.kernel.org with SMTP id <S268315AbTBYUY3>;
+	Tue, 25 Feb 2003 15:24:29 -0500
+Message-ID: <20030225203444.30004.qmail@eklektix.com>
+To: randy.dunlap@verizon.net
+Subject: Re: [RFC] seq_file_howto
+cc: linux-kernel@vger.kernel.org
+From: Jonathan Corbet <corbet@lwn.net>
+Date: Tue, 25 Feb 2003 13:34:44 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> acme prodded me into doing this a few weeks (or months?) ago.
+> It still needs some additional info for using single_open()
+> and single_release(), but I'd like to get some comments on it
+> and then add it to linux/Documentation/filesystems/ or post it
+> on the web somewhere, like kernelnewbies.org.
 
-On Mon, 24 Feb 2003, Tomas Szepe wrote:
+Gee...I did one too, including a simple sample module which shows how it
+all works; see http://lwn.net/Articles/22355/.  It's part of the larger
+"driver porting" series at http://lwn.net/Articles/driver-porting/; there's
+a dozen articles there now, most of which have passed out of the
+subscription period and are freely available.
 
-> It's been 4 weeks since 2.4.21-pre4 went out and the pre4->current
-> diff is over 3 megabytes.  Anything special holding off -pre5?
->
-> I wouldn't be surprised if Alan had 100+ patches queued up
-> to be merged after a new tag release.
+jon
 
-I'm very late yes. I will release it today or tomorrow.
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

@@ -1,107 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261347AbSJQKnz>; Thu, 17 Oct 2002 06:43:55 -0400
+	id <S261340AbSJQKlQ>; Thu, 17 Oct 2002 06:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261352AbSJQKne>; Thu, 17 Oct 2002 06:43:34 -0400
-Received: from edu.joroinen.fi ([195.156.135.125]:41998 "HELO edu.joroinen.fi")
-	by vger.kernel.org with SMTP id <S261347AbSJQKmT> convert rfc822-to-8bit;
-	Thu, 17 Oct 2002 06:42:19 -0400
-Date: Thu, 17 Oct 2002 13:48:17 +0300 (EEST)
-From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
-X-X-Sender: pk@edu.joroinen.fi
-To: "G.de-With" <G.de-With@herts.ac.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: I/O performance test
-In-Reply-To: <3DAE89B1.F58E90C3@herts.ac.uk>
-Message-ID: <Pine.LNX.4.44.0210171342560.5519-100000@edu.joroinen.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S261345AbSJQKk3>; Thu, 17 Oct 2002 06:40:29 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30471 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261347AbSJQKje>; Thu, 17 Oct 2002 06:39:34 -0400
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@transmeta.com>
+From: Russell King <rmk@arm.linux.org.uk>
+Subject: [PATCH] 2.5.43-menuconfig
+Message-Id: <E18289h-0007tu-00@flint.arm.linux.org.uk>
+Date: Thu, 17 Oct 2002 11:45:29 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch appears not to be in 2.5.43, but applies cleanly.
 
-On Thu, 17 Oct 2002, G.de-With wrote:
+This patch fixes a failure case in menuconfig which can occur if a kernel
+tree is configured on one architecture with menuconfig, and then attempted
+to be reconfigured on another architecture.
 
-> Hello
->
-> Since a month we have a LINUX BEOWULF cluster, the clusters contains 7
-> P4 dual processor 2GHz computers, with 8Gb of RAM per machine. For our
-> network we have used Gigabit ethernet. On our cluster we are running RH
-> 7.2, with Linux 2.4.19.
->
-> These are some of the hardware specs:
->
-> - Dual Intel Xeon 2.GHz, 512 cache 400 MHz FSB
-> - 8 Gb ECC DDR
-> - Fujitsu 72Gb 10.000 rpm Ultra 160 SCA HDD SCSI HARDDISK
->
-> The problem we have with our cluster is as follows. When running large
-> scientific simulations the computer performance gradually goes down as
-> the I/O activity is increasing. At some point the response of the
-> computer is so poor that we have to kill the simulation. In a worst case
-> when the simulation was running overnight the computer hangs and a reset
-> of the computer is necessary. Nevertheless, even when we manage to kill
-> the simulation in time the computer remains very slow and a reboot is
-> necessary to regain full computer power.
->
-> My first suspicion was that the computer simply started swapping, but
-> there is no swap space being used, instead free RAM memory is still
-> apparent
-> (between 5-10%) and only 90% of the RAM is in use whereby 50% is cached
-> and another 50% is in usage. In addition the cpu usage is very low as
-> well.
->
-> To investigate the I/O performance I installed an I/O performance
-> benchmark program called bonnie++. The first test I performed was a
-> single bonnie++ -s 16096 instance.
->
-> # bonnie++ -s 16096
->
-> Unfortunately, as a result of running bonnie++ the computer started to
-> slow down till it finally hang. All the symptoms I discover with
-> bonnie++ are identical to what I experience when running our scientific
-> calculations.
->
-> In order to improve the I/O performance I have add some patches to the
-> kernel, including the patch for 00_block-highmem-all-19-1, to avoid
-> bounce buffers. Unfortunately none of the patches let to any improvement
-> in the I/O performance.
->
-> I don't think the machine should be behaving like this. I certainly
-> expect some slowdowns with that much IO, but the computer should still
-> be reasonably responsive, particularly because no system or user files
-> that need to be accessed are on that channel of the SCSI controller.
->
-> As a sort of a desperate move I did two other test in addition which
-> could be of use to the understanding of the problem:
->
-> - I removed 6Gb from the server and run the test bonnie++ -s 16096
-> succesfully with 2Gb of RAM.
-> - I placed an IDE disk 40Gb and run the test bonnie++ -s 16096 with 8Gb
-> of RAM succesfully.
->
->
-> Any advice on approaching this problem would be appreciated.
->
+The kernel detects that the binary can't be run on the second architecture
+and correctly returns the appropriate error code.  However, the Menuconfig
+script ignores this error and retries endlessly, appearing to hang.
 
-I'm not expert on this, but I would try with -aa patches for 2.4.19
-kernel. They work really well for me, and are stable, and also perform
-better than vanilla 2.4.19.
+This patch makes menuconfig display a message and exit rather than
+endlessly looping.
 
-2.4.19rc5aa1 applies cleanly to 2.4.19 final (because rc5 and final are
-the same kernel).
+ scripts/Menuconfig |   20 ++++++++++++++++++++
+ 1 files changed, 20 insertions
 
--aa patches are available from kernel.org mirrors
-(people/andrea/kernels/v2.4/2.4.19rc5aa1.bz2)
-
-
-- Pasi Kärkkäinen
-
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+diff -ur orig/scripts/Menuconfig linux/scripts/Menuconfig
+--- orig/scripts/Menuconfig	Sat Oct 12 10:02:17 2002
++++ linux/scripts/Menuconfig	Sat Oct 12 10:45:13 2002
+@@ -909,6 +909,26 @@
+ 			cleanup
+ 			exit 139
+ 			;;
++		126|127)
++			stty sane
++			clear
++			cat << EOM
++
++There seems to be a problem with the lxdialog companion utility which is
++built prior to running Menuconfig.  lxdialog could not be found, or could
++not be executed.  This can be caused when lxdialog has been built for a
++different architecture.
++
++You should rebuild lxdialog.  This can be done by moving to the
++/usr/src/linux/scripts/lxdialog directory and issuing the "make clean all"
++command.
++
++If the problem persists, you may email the maintainer <mec@shout.net> or
++post a message to <linux-kernel@vger.kernel.org> for additional assistance. 
++
++EOM
++			cleanup
++			exit 1
+ 		esac
+ 	done
+ }
 

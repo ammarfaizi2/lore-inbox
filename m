@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291798AbSBNR23>; Thu, 14 Feb 2002 12:28:29 -0500
+	id <S291801AbSBNRj3>; Thu, 14 Feb 2002 12:39:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291800AbSBNR2U>; Thu, 14 Feb 2002 12:28:20 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:41645 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S291798AbSBNR2M>;
-	Thu, 14 Feb 2002 12:28:12 -0500
-Date: Thu, 14 Feb 2002 09:27:46 -0800
-From: kravetz@us.ibm.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: bug/code cleanup for O(1)-K3
-Message-ID: <20020214092746.A1195@w-mikek2.des.beaverton.ibm.com>
+	id <S291802AbSBNRjT>; Thu, 14 Feb 2002 12:39:19 -0500
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:49169 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S291801AbSBNRjP>; Thu, 14 Feb 2002 12:39:15 -0500
+Date: Thu, 14 Feb 2002 16:12:25 +0000
+From: Nick Craig-Wood <ncw@axis.demon.co.uk>
+To: Harald Welte <laforge@gnumonks.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org
+Subject: Re: 2.4.18-pre9: iptables screwed?
+Message-ID: <20020214161225.A2867@axis.demon.co.uk>
+In-Reply-To: <a3vjts$r7l$1@cesium.transmeta.com> <20020208094649.J26676@sunbeam.de.gnumonks.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020208094649.J26676@sunbeam.de.gnumonks.org>; from laforge@gnumonks.org on Fri, Feb 08, 2002 at 09:46:49AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the K3 version of the O(1) scheduler for 2.4.17 there is
-either a bug or an opportunity for some code cleanup.  At
-the beginning of the load_balance() routine we set the local
-variable 'nr_running' and use this variable to calculate the
-value of 'imbalance'.  After this the variable is not used,
-even though we go to the trouble of passing it to
-double_lock_balance() so that it can be possibly be recomputed.
-Note the code:
+On Fri, Feb 08, 2002 at 09:46:49AM +0100, Harald Welte wrote:
+> On Thu, Feb 07, 2002 at 08:24:28PM -0800, H. Peter Anvin wrote:
+> > I get the following error with iptables on 2.4.18-pre9:
+> > 
+> > sudo iptables-restore < /etc/sysconfig/iptables
+> > iptables-restore: libiptc/libip4tc.c:384: do_check: Assertion
+> > `h->info.valid_hooks == (1 << 0 | 1 << 3)' failed.
+> > Abort (core dumped)
 
-        imbalance = (max_load - nr_running) / 2;
+I've noticed this too.
 
-        /* It needs an at least ~25% imbalance to trigger balancing. */
-        if (!idle && (imbalance < (max_load + 3)/4))
-                return;
+Specifically it is fine with 2.4.17 but broken with 2.4.18-pre7-ac2
 
-        nr_running = double_lock_balance(this_rq, busiest, this_cpu, idle, nr_running);
-        /*
-         * Make sure nothing changed since we checked the
-         * runqueue length.
-         */
-        if (busiest->nr_running <= this_rq->nr_running + 1)
-                goto out_unlock;
+I use the mangle table to set the TOS for a few things but it gives
+this error :-
 
+  iptables -t mangle -A add-tos -p tcp --dport ssh -m tos --tos Minimize-Delay
 
-In the last if statement above, I suspect we want to compare
-'busiest->nr_running' to the local variable nr_running (as was
-done in previous versions of the code).  If this is not the
-case, then we can simplify double_lock_balance() and make it
-return a void.
+  iptables: libiptc/libip4tc.c:384: do_check: Assertion `h->info.valid_hooks == (1 << 0 | 1 << 3)' failed.
 
-P.S. I've only been working with the 2.4.17 version of the patch,
-but I assume the code is the same in other versions.
+> Could you please tell me, what iptables version are you using? 
+> (btw: please follow-up to netfilter-devel@lists.samba.org)
+
+This is using Redhat 7.2 iptables v1.2.4 from the redhat package
+iptables-1.2.4-2.
+
+Apologies if this info is too late but I didn't see a followup to
+lkml.
+
 -- 
-Mike
+Nick Craig-Wood
+ncw@axis.demon.co.uk

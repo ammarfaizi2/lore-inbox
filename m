@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbULUREU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbULURHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbULUREU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 12:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbULUREU
+	id S261807AbULURHe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 12:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbULURHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 12:04:20 -0500
-Received: from mail.kroah.org ([69.55.234.183]:18575 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261806AbULURES (ORCPT
+	Tue, 21 Dec 2004 12:07:32 -0500
+Received: from mail.kroah.org ([69.55.234.183]:53904 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261807AbULURH1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 12:04:18 -0500
-Date: Tue, 21 Dec 2004 09:04:03 -0800
+	Tue, 21 Dec 2004 12:07:27 -0500
+Date: Tue, 21 Dec 2004 09:05:28 -0800
 From: Greg KH <greg@kroah.com>
-To: Stephen Warren <SWarren@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "Oops" in 2.6.9 SCSI w/ usb-storage & multi-LUN
-Message-ID: <20041221170403.GA1459@kroah.com>
-References: <DBFABB80F7FD3143A911F9E6CFD477B003CE0CC2@hqemmail02.nvidia.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>, willy@debian.org,
+       benh@kernel.crashing.org
+Subject: Re: [PATCH] add PCI API to sysfs
+Message-ID: <20041221170528.GB1459@kroah.com>
+References: <200412201450.47952.jbarnes@engr.sgi.com> <20041220225817.GA21404@kroah.com> <200412201501.12575.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B003CE0CC2@hqemmail02.nvidia.com>
+In-Reply-To: <200412201501.12575.jbarnes@engr.sgi.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 05:23:44PM -0800, Stephen Warren wrote:
-> I've tried both test application under 2.6.10-rc3, and everything seems
-> to work fine on that kernel. I see there were a lot of USB changes in
-> 2.6.10.
+On Mon, Dec 20, 2004 at 03:01:12PM -0800, Jesse Barnes wrote:
+> > What happens if mmap is not set?  oops...
+> 
+> Yeah, I mentioned that in "things to do" at the bottom, but I'm really looking 
+> for an "ack, this is a sane way to go" before I sink much more time into it.
 
-2.6.10 isn't released yet :)
+I think this is a sane way to go.
 
-> Does anyone know what change from 2.6.10 fixed this specific issue. Is
-> it something that's easy to isolate and back-port to 2.6.9?
+How about sending me a patch just to add the mmap support to binary
+sysfs files now?  I'll be glad to add that to my trees.
 
-Lots of different scsi and usb changes probably helped fix this.  I
-suggest just going through the different patches and trying to narrow it
-down if you really need to backport this.
+Then you can work on the pci stuff over time.
 
-Good luck,
+Sound good?
+
+thanks,
 
 greg k-h

@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266574AbUHIOEC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266580AbUHIOFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266574AbUHIOEC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 10:04:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUHIOEC
+	id S266580AbUHIOFc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 10:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUHIOFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 10:04:02 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:11465 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266574AbUHIOEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 10:04:00 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: eric@lammerts.org, James Bottomley <James.Bottomley@SteelEye.com>,
-       axboe@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408091224.i79COp69009736@burner.fokus.fraunhofer.de>
-References: <200408091224.i79COp69009736@burner.fokus.fraunhofer.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092056464.14152.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 09 Aug 2004 14:01:06 +0100
+	Mon, 9 Aug 2004 10:05:32 -0400
+Received: from mail.dif.dk ([193.138.115.101]:48012 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S266580AbUHIOFT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 10:05:19 -0400
+Date: Mon, 9 Aug 2004 16:03:26 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Sudheer Vutukuru <sudheer.vutukuru@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: About e1000 driver
+In-Reply-To: <55ee29e00408090502cde5bed@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0408091602230.6716@jjulnx.backbone.dif.dk>
+References: <55ee29e00408090502cde5bed@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-09 at 13:24, Joerg Schilling wrote:
-> On Linux, it is impossible to run cdrecord without root privilleges.
-> Make cdrecord suid root, it has been audited....
+On Mon, 9 Aug 2004, Sudheer Vutukuru wrote:
 
-Wrong. Although in part that is a bug in the kernel urgently needing
-a fix.
-
-> On Solaris, there is ACLs, RBAC & getppriv() / setppriv()
+> Hi all,
 > 
-> http://docs.sun.com/db/doc/816-5167/6mbb2jaeu?a=expand
+> I want some explanation of e1000 driver
+> can any one give some links..
+> 
+>From the comment at the top of drivers/net/e100.c : 
 
-and Linux has capabilities, ACLs and SELinux rulesets which can
-also be used to manage this. I can give the cd burner a role that 
-permits it certain things.
+ *      References:
+ *              Intel 8255x 10/100 Mbps Ethernet Controller Family,
+ *              Open Source Software Developers Manual,
+ *              http://sourceforge.net/projects/e1000
 
-Alan
+
+/Jesper Juhl
+
 

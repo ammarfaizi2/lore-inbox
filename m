@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290770AbSBLFui>; Tue, 12 Feb 2002 00:50:38 -0500
+	id <S290783AbSBLF56>; Tue, 12 Feb 2002 00:57:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290782AbSBLFu3>; Tue, 12 Feb 2002 00:50:29 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:47828 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S290770AbSBLFuU>;
-	Tue, 12 Feb 2002 00:50:20 -0500
-From: David Mosberger <davidm@hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15464.44308.466416.233260@napali.hpl.hp.com>
-Date: Mon, 11 Feb 2002 21:50:12 -0800
+	id <S290784AbSBLF5s>; Tue, 12 Feb 2002 00:57:48 -0500
+Received: from are.twiddle.net ([64.81.246.98]:31877 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S290783AbSBLF5i>;
+	Tue, 12 Feb 2002 00:57:38 -0500
+Date: Mon, 11 Feb 2002 21:57:35 -0800
+From: Richard Henderson <rth@twiddle.net>
 To: "David S. Miller" <davem@redhat.com>
-Cc: rth@twiddle.net, davidm@hpl.hp.com, anton@samba.org,
-        linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Cc: davidm@hpl.hp.com, anton@samba.org, linux-kernel@vger.kernel.org,
+        zippel@linux-m68k.org
 Subject: Re: thread_info implementation
-In-Reply-To: <20020211.213248.48398226.davem@redhat.com>
-In-Reply-To: <20020211.192334.123921982.davem@redhat.com>
-	<15464.36074.246502.582895@napali.hpl.hp.com>
-	<20020211212644.A20387@twiddle.net>
-	<20020211.213248.48398226.davem@redhat.com>
-X-Mailer: VM 7.00 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Message-ID: <20020211215735.B20458@twiddle.net>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com,
+	anton@samba.org, linux-kernel@vger.kernel.org,
+	zippel@linux-m68k.org
+In-Reply-To: <20020211.192334.123921982.davem@redhat.com> <15464.36074.246502.582895@napali.hpl.hp.com> <20020211212644.A20387@twiddle.net> <20020211.213248.48398226.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020211.213248.48398226.davem@redhat.com>; from davem@redhat.com on Mon, Feb 11, 2002 at 09:32:48PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 11 Feb 2002 21:32:48 -0800 (PST), "David S. Miller" <davem@redhat.com> said:
+On Mon, Feb 11, 2002 at 09:32:48PM -0800, David S. Miller wrote:
+> BTW, your "4 issue" comments assume the cpu can do 4 non-FPU
+> instructions per cycle, most I am aware of cannot and I think ia64
+> even falls into the "cannot" category.  Doesn't it?
 
-  DaveM> BTW, your "4 issue" comments assume the cpu can do 4 non-FPU
-  DaveM> instructions per cycle, most I am aware of cannot and I think ia64
-  DaveM> even falls into the "cannot" category.  Doesn't it?
+ia64 and alpha ev6 can do this easily.  They both have
+four integer pipelines.
 
-Itanium can certainly issue 5 non-fp instructions per cycle (not very
-common, but possible).  4-issue is easy.
 
-	--david
+r~

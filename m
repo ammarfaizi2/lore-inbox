@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261339AbSIZP7D>; Thu, 26 Sep 2002 11:59:03 -0400
+	id <S261330AbSIZPtn>; Thu, 26 Sep 2002 11:49:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261340AbSIZP7D>; Thu, 26 Sep 2002 11:59:03 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:28401 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S261339AbSIZP7C>;
-	Thu, 26 Sep 2002 11:59:02 -0400
-From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linus Torvalds" <torvalds@transmeta.com>,
-       "Andre Hedrick" <andre@linux-ide.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Jens Axboe" <axboe@suse.de>
-Subject: Re: [PATCH] fix ide-iops for big endian archs
-Date: Thu, 26 Sep 2002 18:04:11 +0200
-Message-Id: <20020926160411.27876@192.168.4.1>
-In-Reply-To: <1033053111.1269.33.camel@irongate.swansea.linux.org.uk>
-References: <1033053111.1269.33.camel@irongate.swansea.linux.org.uk>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S261335AbSIZPtn>; Thu, 26 Sep 2002 11:49:43 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:51710 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261330AbSIZPtm>;
+	Thu, 26 Sep 2002 11:49:42 -0400
+Date: Thu, 26 Sep 2002 08:54:45 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] deadline io scheduler
+Message-ID: <20020926085445.A22321@eng2.beaverton.ibm.com>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>,
+	Andrew Morton <akpm@digeo.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20020925172024.GH15479@suse.de> <3D92A61E.40BFF2D0@digeo.com> <20020926064455.GC12862@suse.de> <20020926065951.GD12862@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020926065951.GD12862@suse.de>; from axboe@suse.de on Thu, Sep 26, 2002 at 08:59:51AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> properly on BE, further cleanup of the iops is pending, I'm waiting
->> for Alan own experiments before I push again my own that remove
->> all "p" iops and all of the {IN,OUT}{BYTE,WORD,LONG} macros.
->
->Thats true in current -ac. I killed the _p crap. Nobody uses it, the
->switching for handling it is bogus anyway. If anyone has such broken
->code they can implement ide-iops-speak-slowly-after-the-tone.c
+On Thu, Sep 26, 2002 at 08:59:51AM +0200, Jens Axboe wrote:
+> On Thu, Sep 26 2002, Jens Axboe wrote:
+> BTW, for SCSI, it would be nice to first convert more drivers to use the
+> block level queued tagging. That would provide us with a much better
+> means to control starvation properly on SCSI as well.
+> 
+> -- 
+> Jens Axboe
 
-Ok, I finally went and looked at your tree for real and I see
-the cleanup is actually there, good :)
+I haven't look closely at the block tagging, but for the FCP protocol,
+there are no tags, just the type of queueing to use (task attributes)
+- like ordered, head of queue, untagged, and some others. The tagging
+is normally done on the adapter itself (FCP2 protocol AFAIK). Does this
+mean block level queued tagging can't help FCP?
 
-So now, let's see how to get rid of those CONFIG_PPC, either by
-having everybody define iobarrier_*() or having {read,write}s{b,w,l},
-I just started a new thread on the list just about that.
+Maybe the same for iSCSI, other protocols, and pseudo adapters -
+usb, ide, and raid adapters.
 
-Jens: can you look into merging -ac's iops change to 2.5 ? That
-would fix it.
-
-Ben.
-
+-- Patrick Mansfield

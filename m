@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314080AbSEAWxh>; Wed, 1 May 2002 18:53:37 -0400
+	id <S314081AbSEAWyV>; Wed, 1 May 2002 18:54:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314081AbSEAWxg>; Wed, 1 May 2002 18:53:36 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3091 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314080AbSEAWxg>; Wed, 1 May 2002 18:53:36 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] alternative API for raw devices
-Date: 1 May 2002 15:52:25 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <aaprj9$nqv$1@cesium.transmeta.com>
-In-Reply-To: <Pine.GSO.4.21.0205011555450.12640-100000@weyl.math.psu.edu>
+	id <S314082AbSEAWyU>; Wed, 1 May 2002 18:54:20 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:23308 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S314081AbSEAWyQ>;
+	Wed, 1 May 2002 18:54:16 -0400
+Date: Wed, 1 May 2002 18:45:15 -0400 (EDT)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+cc: <torvalds@transmeta.com>, <fdavis@si.rr.com>
+Subject: [PATCH] 2.5.12 drivers/ide/pdcadma.c
+Message-ID: <Pine.LNX.4.33.0205011837010.7159-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.GSO.4.21.0205011555450.12640-100000@weyl.math.psu.edu>
-By author:    Alexander Viro <viro@math.psu.edu>
-In newsgroup: linux.dev.kernel
-> 
-> 	* it's _not_ a character device - stat() will give you S_IFREG.
-> 	  To check that <foo> is a new-style raw device call statfs(2) and
-> 	  compare .f_type with rawfs magic (0x726177).  It doesn't conflict
-> 	  with existing check for raw devices (stat(), check that it's
-> 	  a character device and compare major with RAW_MAJOR), so existing
-> 	  software can be taught to check for raw devices in
-> 	  backwards-compatible way.
-> 
+Hello all,
+ This patch addresses the following error :
 
-I really don't know if it's a good idea for this to be S_IFREG, which
-software has a reasonable expecation to behave like a normal file,
-which a raw device *definitely* doesn't.
+pdcadma.c: In function `pdcadma_dmaproc`
+pdcadma.c:69: too few arguments to function `ide_dmaproc`
+make[3]: *** [pdcadma.o] Error 1
 
-I would really like things like this as well as a lot of the
-zero-length magic files in /proc to be S_ISCHR with i_rdev ==
-MK_DEV(0,0) (the latter to let user space know that this isn't a
-standard device node.)
+Its missing the "struct request * " argument, which I set to NULL
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Please review for inclusion. 
+
+Regards,
+Frank
+
+--- drivers/ide/pdcadma.c.old	Mon Apr 15 20:57:57 2002
++++ drivers/ide/pdcadma.c	Wed May  1 18:35:12 2002
+@@ -66,7 +66,7 @@
+ 		default:
+ 			break;
+ 	}
+-	return ide_dmaproc(func, drive);	/* use standard DMA stuff */
++	return ide_dmaproc(func, drive, NULL);	/* use standard DMA stuff */
+ }
+ #endif /* CONFIG_BLK_DEV_IDEDMA */
+ 
+

@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264029AbTFKCgm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 22:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTFKCgm
+	id S264030AbTFKCqb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 22:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264042AbTFKCqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 22:36:42 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:20526 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S264029AbTFKCgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 22:36:41 -0400
-Date: Tue, 10 Jun 2003 19:50:05 -0700
-From: Frank Cusack <fcusack@fcusack.com>
+	Tue, 10 Jun 2003 22:46:31 -0400
+Received: from pat.uio.no ([129.240.130.16]:26330 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S264030AbTFKCqa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 22:46:30 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16102.39728.70064.966844@charged.uio.no>
+Date: Wed, 11 Jun 2003 05:00:00 +0200
 To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, torvalds@transmeta.com,
+Cc: Frank Cusack <fcusack@fcusack.com>, torvalds@transmeta.com,
        marcelo@conectiva.com.br, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode number mismatch)
-Message-ID: <20030610195005.C18623@google.com>
-References: <20030603165438.A24791@google.com> <shswug2sz5x.fsf@charged.uio.no> <20030604142047.C24603@google.com> <16094.25720.895263.4398@charged.uio.no> <20030609065141.A9781@google.com> <20030611005425.GA6754@parcelfarce.linux.theplanet.co.uk> <16102.36078.894833.262461@charged.uio.no> <20030611022754.GC6754@parcelfarce.linux.theplanet.co.uk> <20030610194333.B18623@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030610194333.B18623@google.com>; from fcusack@fcusack.com on Tue, Jun 10, 2003 at 07:43:33PM -0700
+In-Reply-To: <20030611022754.GC6754@parcelfarce.linux.theplanet.co.uk>
+References: <20030603165438.A24791@google.com>
+	<shswug2sz5x.fsf@charged.uio.no>
+	<20030604142047.C24603@google.com>
+	<16094.25720.895263.4398@charged.uio.no>
+	<20030609065141.A9781@google.com>
+	<20030611005425.GA6754@parcelfarce.linux.theplanet.co.uk>
+	<16102.36078.894833.262461@charged.uio.no>
+	<20030611022754.GC6754@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 10, 2003 at 07:43:33PM -0700, Frank Cusack wrote:
-> On Wed, Jun 11, 2003 at 03:27:54AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> >  The real problem is different: what happens if I take
-> > silly-renamed file and rename it away?  You suddenly get ->dir and
-> > ->dentry if your nfs_unlinkdata having nothing to do with each other.
+>>>>> " " == viro  <viro@parcelfarce.linux.theplanet.co.uk> writes:
 
-Wow, it's clear to me now :-) that this is another place I'm seeing NFS
-problems.
+     > Aliasing could be dealt with.  They would have the same inode,
+     > so it's easy to detect.
 
-> You could disallow rename if DCACHE_NFSFS_RENAMED is set.  That would
-...
+I suppose we could... Is the procedure that nfs_lookup() should first
+rehash the dropped dentry, then return it instead of NULL?
 
-> OK, where else besides rename would the dentry change?
+     > The real problem is different: what happens if I take
+     > silly-renamed file and rename it away?  You suddenly get ->dir
+     > and ->dentry if your nfs_unlinkdata having nothing to do with
+     > each other.
 
-I can answer this myself: link.  (Is that correct?)  Anywhere else?
+->dir is the important one here, as it provides the filehandle. We
+only use ->dentry in order to give us a name/string for the
+NFSPROC_REMOVE call.
 
-/fc
+     > AFAICS, dcache will not get into inconsistent state, but it
+     > will have very little to do with state of server...
+
+But that's the best we can do in any scenario. NFS does not ever give
+you a guarantee that someone won't screw things up on the server, nor
+does it give you any failsafe mechanism for detecting it.
+That's why operation atomicity is such an issue with the current
+kernel, and is why I'm so eager to push the intent patches into 2.6.
+
+Sure sillyrename fails miserably in the atomicity department. There's
+bugger all we can do about that: if you are suggesting we should rely
+on some sort of revalidation before we unlink, then that's just as
+race prone as what we have now.
+
+Cheers,
+  Trond

@@ -1,51 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269390AbUJFTI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269405AbUJFTOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269390AbUJFTI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 15:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269392AbUJFTI4
+	id S269405AbUJFTOV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 15:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269399AbUJFTOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 15:08:56 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:35500 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S269390AbUJFTIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 15:08:55 -0400
-Date: Wed, 6 Oct 2004 21:08:56 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Gianni Tedesco <gianni@scaramanga.co.uk>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Message-ID: <20041006190856.GE10153@wohnheim.fh-wedel.de>
-References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <1097087850.27683.3.camel@sherbert>
+	Wed, 6 Oct 2004 15:14:07 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:8383 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269398AbUJFTN4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 15:13:56 -0400
+Subject: (patch 1/3) lsm: add control over /proc/<pid> visibility
+From: Serge Hallyn <serue@us.ibm.com>
+To: akpm@osdl.org, Chris Wright <chrisw@osdl.org>,
+       linux-kernel@vger.kernel.org
+Cc: serue@us.ibm.com
+Content-Type: text/plain
+Message-Id: <1097094103.6939.5.camel@serge.austin.ibm.com>
 Mime-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <1097087850.27683.3.camel@sherbert>
-User-Agent: Mutt/1.3.28i
-Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Rcpt-To: gianni@scaramanga.co.uk, akpm@osdl.org, linux-kernel@vger.kernel.org
-X-SA-Exim-Mail-From: joern@wohnheim.fh-wedel.de
-X-SA-Exim-Version: 3.1 (built Son Feb 22 10:54:36 CET 2004)
-X-SA-Exim-Scanned: Yes
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 06 Oct 2004 15:21:44 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 October 2004 19:37:30 +0100, Gianni Tedesco wrote:
-> 
-> BTW. What happens if /dev/console or /dev/null are regular files?
 
-Interesting point.  Any readers (init, some/all of it's children) will
-read until one reaches EOF, all writers will flood it 'til it's full.
-If there was an IOUAC (international obfuscated unix abuse contest),
-you could use this for IPC, maybe.
+Attached is a patch which introduces a new LSM hook,
+security_task_lookup. This hook allows an LSM to mediate visibility of
+/proc/<pid> on a per-pid level.  The bsdjail lsm which will be sent
+next is a user of this hook.
 
-> I don't see any check for this. I didn't think Linux imposed any
-> namespace layout/ownership/permission requirements.
+Please apply.
 
-Anyone able to turn /dev/console into a regular file can already do
-much worse things.  Don't think it's a security issue.
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 
-Jörn
+diff -Nrup linux-2.6.9-rc3-bk6/fs/proc/base.c
+linux-2.6.9-rc3-bk6-jail/fs/proc/base.c
+--- linux-2.6.9-rc3-bk6/fs/proc/base.c	2004-10-06 10:07:55.000000000
+-0500
++++ linux-2.6.9-rc3-bk6-jail/fs/proc/base.c	2004-10-06
+10:51:04.000000000 -0500
+@@ -1683,6 +1683,8 @@ static int get_tgid_list(int index, unsi
+ 		int tgid = p->pid;
+ 		if (!pid_alive(p))
+ 			continue;
++		if (security_task_lookup(p))
++			continue;
+ 		if (--index >= 0)
+ 			continue;
+ 		tgids[nr_tgids] = tgid;
+diff -Nrup linux-2.6.9-rc3-bk6/include/linux/security.h
+linux-2.6.9-rc3-bk6-jail/include/linux/security.h
+--- linux-2.6.9-rc3-bk6/include/linux/security.h	2004-08-14
+00:37:30.000000000 -0500
++++ linux-2.6.9-rc3-bk6-jail/include/linux/security.h	2004-10-06
+10:51:04.000000000 -0500
+@@ -627,6 +627,11 @@ struct swap_info_struct;
+  * 	Set the security attributes in @p->security for a kernel thread
+that
+  * 	is being reparented to the init task.
+  *	@p contains the task_struct for the kernel thread.
++ * @task_lookup:
++ *	Check permission to see the /proc/<pid> entry for process @p.
++ *	@p contains the task_struct for task <pid> which is being looked
++ *	up under /proc
++ *	return 0 if permission is granted.
+  * @task_to_inode:
+  * 	Set the security attributes for an inode based on an associated
+task's
+  * 	security attributes, e.g. for /proc/pid inodes.
+@@ -1152,6 +1157,7 @@ struct security_operations {
+ 			   unsigned long arg3, unsigned long arg4,
+ 			   unsigned long arg5);
+ 	void (*task_reparent_to_init) (struct task_struct * p);
++	int (*task_lookup)(struct task_struct *p);
+ 	void (*task_to_inode)(struct task_struct *p, struct inode *inode);
+ 
+ 	int (*ipc_permission) (struct kern_ipc_perm * ipcp, short flag);
+@@ -1751,6 +1757,11 @@ static inline void security_task_reparen
+ 	security_ops->task_reparent_to_init (p);
+ }
+ 
++static inline int security_task_lookup(struct task_struct *p)
++{
++	return security_ops->task_lookup(p);
++}
++
+ static inline void security_task_to_inode(struct task_struct *p, struct
+inode *inode)
+ {
+ 	security_ops->task_to_inode(p, inode);
+@@ -2386,6 +2397,11 @@ static inline void security_task_reparen
+ 	cap_task_reparent_to_init (p);
+ }
+ 
++static inline int security_task_lookup(struct task_struct *p)
++{
++	return 0;
++}
++
+ static inline void security_task_to_inode(struct task_struct *p, struct
+inode *inode)
+ { }
+ 
+diff -Nrup linux-2.6.9-rc3-bk6/security/dummy.c
+linux-2.6.9-rc3-bk6-jail/security/dummy.c
+--- linux-2.6.9-rc3-bk6/security/dummy.c	2004-10-06 10:11:29.000000000
+-0500
++++ linux-2.6.9-rc3-bk6-jail/security/dummy.c	2004-10-06
+10:51:04.000000000 -0500
+@@ -616,6 +616,11 @@ static void dummy_task_reparent_to_init 
+ 	return;
+ }
+ 
++static int dummy_task_lookup(struct task_struct *p)
++{
++	return 0;
++}
++
+ static void dummy_task_to_inode(struct task_struct *p, struct inode
+*inode)
+ { }
+ 
+@@ -978,6 +983,7 @@ void security_fixup_ops (struct security
+ 	set_to_dummy_if_null(ops, task_kill);
+ 	set_to_dummy_if_null(ops, task_prctl);
+ 	set_to_dummy_if_null(ops, task_reparent_to_init);
++ 	set_to_dummy_if_null(ops, task_lookup);
+  	set_to_dummy_if_null(ops, task_to_inode);
+ 	set_to_dummy_if_null(ops, ipc_permission);
+ 	set_to_dummy_if_null(ops, msg_msg_alloc_security);
 
--- 
-Simplicity is prerequisite for reliability.
--- Edsger W. Dijkstra
+

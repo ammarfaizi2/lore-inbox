@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289056AbSAZKjc>; Sat, 26 Jan 2002 05:39:32 -0500
+	id <S276424AbSAZKvr>; Sat, 26 Jan 2002 05:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289057AbSAZKjW>; Sat, 26 Jan 2002 05:39:22 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:15371 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S289056AbSAZKjK>;
-	Sat, 26 Jan 2002 05:39:10 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: brendan.simon@bigpond.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: touch commands in Makefiles 
-In-Reply-To: Your message of "Fri, 25 Jan 2002 16:54:39 +1100."
-             <3C50F31F.1090302@bigpond.com> 
+	id <S279798AbSAZKvh>; Sat, 26 Jan 2002 05:51:37 -0500
+Received: from vega.digitel2002.hu ([213.163.0.181]:61928 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S276424AbSAZKv1>; Sat, 26 Jan 2002 05:51:27 -0500
+Date: Sat, 26 Jan 2002 11:51:22 +0100
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: booleans and the kernel
+Message-ID: <20020126105121.GA18223@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <3C513CD8.B75B5C42@aitel.hist.no> <20020126030841.C5730@kushida.apsleyroad.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 26 Jan 2002 21:38:58 +1100
-Message-ID: <20898.1012041538@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020126030841.C5730@kushida.apsleyroad.org>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: vega Linux 2.4.17 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jan 2002 16:54:39 +1100, 
-Brendan J Simon <brendan.simon@bigpond.com> wrote:
->Why are header file touched in Makefiles ?
+On Sat, Jan 26, 2002 at 03:08:41AM +0000, Jamie Lokier wrote:
+> Helge Hafting wrote:
+> > Why would anyone want to write   if (X==false) or if (X==true) ?
+> > It is the "beginner's mistake" way of writing code.  Then people learn,
+> > and write if (X) or if (!X).  Comparing to true/false is silly.
+> > Nobody writes  if ( (a==b) == true) so why do it in the simpler cases?
+> 
+> I usually without the == in these cases:
+> 
+>   if (pointer)  // test for non-0.
+>   if (condition)
+>   if (condition-valued-variable)
+> 
+> but not in these (although I am not very consistent):
 
-To handle the two level dependencies on CONFIG options.  bar.c depends
-on foo.h which depends on CONFIG_BLIP.  Change CONFIG_BLIP and the
-Makefiles touch foo.h which in turn recompiles bar.c.
+Khmmm please enlighten me ...
 
-Yes, it sucks with source repositories.  Which is why kbuild 2.5
-completely removes this "feature", with kbuild 2.5 you can build from a
-read only file system.
+>   if (X == true && ptr && *ptr > 1)
 
->You then tell it which files you intend to modify and it 
->will check those files out as read-write to the local sandbox.
+Why? Simply use for example type 'char' as boolean value. Let's say
+0 means false and other value is true.
 
-Even easier with kbuild 2.5, it has shadow trees.  You keep the base
-read only, copy the files to modify to a separate tree and kbuild 2.5
-logically merges all the files.
+So:
 
-http://sourceforge.net/projects/kbuild/
+if (x) printf("true");
 
+or
+
+if (!x) printf("false");
+
+Why do you want to overcomplicate?
+
+Even:
+
+x=a>b;
+if (x) printf("A is greater than B");
+
+ONE thing which is best in C is the less strictly type rules eg you
+can use 'char' to store eg c='A' or c=2.
+Hey guys, C was designed to write an OS it's not something other ...
+
+- Gábor

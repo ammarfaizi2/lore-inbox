@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264480AbTDXW3v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 18:29:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbTDXW3v
+	id S264174AbTDXWas (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 18:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263692AbTDXWas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 18:29:51 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:26760 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264480AbTDXW3u
+	Thu, 24 Apr 2003 18:30:48 -0400
+Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:14340 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S264174AbTDXWaq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 18:29:50 -0400
-Date: Thu, 24 Apr 2003 23:41:55 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Timothy Miller <miller@techsource.com>,
-       Andreas Jellinghaus <aj@dungeon.inka.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp!
-Message-ID: <20030424224155.GB31179@mail.jlokier.co.uk>
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030424083730.5F79A2127F@dungeon.inka.de> <20030424085913.GH28253@mail.jlokier.co.uk> <3EA804A8.8070608@techsource.com> <1051209350.4004.6.camel@dhcp22.swansea.linux.org.uk> <20030424192941.E1425@almesberger.net>
+	Thu, 24 Apr 2003 18:30:46 -0400
+Date: Fri, 25 Apr 2003 00:43:02 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: linux-kernel@vger.kernel.org
+Cc: sp@osb.hu
+Subject: Re: [PATCH 2.4] dmi_ident made public
+Message-Id: <20030425004302.058bcc40.khali@linux-fr.org>
+In-Reply-To: <1051209098.4005.4.camel@dhcp22.swansea.linux.org.uk>
+References: <20030424184759.5f7b3323.khali@linux-fr.org>
+	<1051209098.4005.4.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030424192941.E1425@almesberger.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
-> Just like most vendors instinctively default to closed source.
 
-Quite.  Businesses instinctively do what they believe is in their best
-interests, and sometimes it is important to have constraints which
-cause businesses to function in our mutual best interest, which
-businesses are often not well placed to perceive.
+> > Here is a simple patch for the 2.4 kernel series that makes
+> > dmi_ident (as defined in arch/i386/kernel/dmi_scan.c) public.
+> 
+> The dmi scanner is __init, its gone after boot. The DMI tables on some
+> platforms may also have gone. What you actually want I suspect is a
+> way to register multiple DMI tables for boot time scanning to set
+> further flags in the dmi properties post scan.
 
-> It's also worth to keep in mind that such decisions are frequently
-> taken by people with very different agendas, e.g. if "protected by
-> DRM" is perceived to appeal to analysts, shareholders or potential
-> shareholders, it may quickly become policy in many companies, just
-> like patents did.
+I never intended to call any function in dmi_scan from outside. I know
+this stuff is __init, and what would be the point in rescanning the same
+table again anyway? No, what I want is to make dmi_ident, which is the
+array containing the results of the dmi scan, to be available to
+everyone. Take a look at the previously sent patch, I think it's quite
+straightforward.
 
-In this regard, analysts, shareholders, consumers etc. are just like
-business, acting in their own percieved best interest.
+I'm not sure I understand well what you mean with "register multible DMI
+tables", so it's probably not what I want ;)
 
-Change the rules against the status quo and they all complain, but it
-is just change and they also all adapt to it.  That is business too.
+Let me know if I really missed something.
 
--- Jamie
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

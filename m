@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263790AbUDOGMM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 02:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263828AbUDOGMM
+	id S263818AbUDOGXd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 02:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbUDOGXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 02:12:12 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:57539 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263790AbUDOGMJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 02:12:09 -0400
-Date: Thu, 15 Apr 2004 02:12:29 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
-       "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [PATCH] conditionalize some boring buffer_head checks
-In-Reply-To: <20040414213336.GC30663@havoc.gtf.org>
-Message-ID: <Pine.LNX.4.58.0404150206270.18930@montezuma.fsmlabs.com>
-References: <407CEB91.1080503@pobox.com> <20040414005832.083de325.akpm@osdl.org>
- <20040414010240.0e9f4115.akpm@osdl.org> <407CF201.408@pobox.com>
- <20040414011653.22c690d9.akpm@osdl.org> <407CFFF9.5010500@pobox.com>
- <20040414212539.GE1175@waste.org> <20040414213336.GC30663@havoc.gtf.org>
+	Thu, 15 Apr 2004 02:23:33 -0400
+Received: from citrine.spiritone.com ([216.99.193.133]:8367 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S263832AbUDOGXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 02:23:33 -0400
+Date: Wed, 14 Apr 2004 23:23:23 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       Andrea Arcangeli <andrea@suse.de>
+cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+Message-ID: <35840000.1082010202@[10.10.2.4]>
+In-Reply-To: <Pine.GSO.4.58.0404142323160.21462@sapphire.engin.umich.edu>
+References: <Pine.LNX.4.44.0404122006050.10504-100000@localhost.localdomain><Pine.LNX.4.58.0404121531580.15512@red.engin.umich.edu> <69200000.1081804458@flay><Pine.LNX.4.58.0404141616530.25848@rust.engin.umich.edu><20040415000529.GX2150@dualathlon.random> <Pine.GSO.4.58.0404142323160.21462@sapphire.engin.umich.edu>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Apr 2004, Jeff Garzik wrote:
+> Wherease my solution will allow multiple modifications at the same
+> time (if possible) with only one pageout routine at a time. I chose
+> this solution because Martin's SDET took big hit in common cases of
+> adding and removing vmas from the i_mmap{_shared} data structure.
 
-> On Wed, Apr 14, 2004 at 04:25:39PM -0500, Matt Mackall wrote:
-> > Sticking this in arch/*/Kconfig seems silly (as does much of the
-> > duplication in said files). Can we stick this and other debug bits
-> > under the kallsyms option in init/Kconfig instead? Or alternately move
-> > debugging bits into their own file that gets included as appropriate.
->
-> I would rather have an arch/generic/Kconfig.debug file that gets
-> included.  init/Kconfig may be generic, but its name hardly implies its
-> purpose as used.
->
-> There are clearly two classes of debug options, one arch-specific, and
-> one not.
+FYI, even without prio-tree, I get a 12% boost from converting i_shared_sem
+into a spinlock. I'll try doing the same on top of prio-tree next.
 
-This sounds like lib/Kconfig
+M.
+

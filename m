@@ -1,100 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbTLAA2D (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 19:28:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTLAA2D
+	id S262161AbTLAAUV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 19:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbTLAAUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 19:28:03 -0500
-Received: from pop.gmx.net ([213.165.64.20]:19608 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262324AbTLAA17 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 19:27:59 -0500
-Date: Mon, 1 Dec 2003 01:27:58 +0100 (MET)
-From: "john smith" <john.smith77@gmx.net>
-To: manfred@colorfullife.com
-Cc: linux-kernel@vger.kernel.org
+	Sun, 30 Nov 2003 19:20:21 -0500
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:41721 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id S262161AbTLAAUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 19:20:17 -0500
+Date: Sun, 30 Nov 2003 19:18:23 -0500 (EST)
+From: Mike Gorse <mgorse@mgorse.dhs.org>
+To: linux-kernel@vger.kernel.org
+Subject: Oops w/sysfs when closing a disconnected usb serial device
+Message-ID: <Pine.LNX.4.58.0311301900110.32493@mgorse.dhs.org>
 MIME-Version: 1.0
-Subject: Re: Kernel modul licensing issues
-X-Priority: 3 (Normal)
-X-Authenticated: #21322809
-Message-ID: <21620.1070238478@www5.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Manfred
+With 2.6.0-test11, I get a panic if I disconnect a USB serial device with
+a fd open on it and then close the fd.  When the device is disconnected,
+usb_disconnect calls usb_disable_device, which calls device_del, which
+calls kobject_del, which removes the device's sysfs directory.  If a user
+space program has the tts device open, then kobject_cleanup and
+destroy_serial do not get called until the device is closed, but by then
+the kobject_del call to the interface has caused the tty device's sysfs
+directory to be nuked from under it.  Eventually sysfs_remove_dir is
+called and eventually calls simple_rmdir with a dentry with a NULL
+d_inode, causing an oops.  I can make the Oops go away with the following
+patch:
 
-Thanks for your reply.
+--- fs/sysfs/dir.c.orig	2003-11-30 18:59:34.395284712 -0500
++++ fs/sysfs/dir.c	2003-11-30 18:59:50.944768808 -0500
+@@ -83,7 +83,7 @@
+ 	struct dentry * parent = dget(d->d_parent);
+ 	down(&parent->d_inode->i_sem);
+ 	d_delete(d);
+-	simple_rmdir(parent->d_inode,d);
++	if (d->d_inode) simple_rmdir(parent->d_inode,d);
+ 
+ 	pr_debug(" o %s removing done (%d)\n",d->d_name.name,
+ 		 atomic_read(&d->d_count));
 
-You wrote:
-> Wrong mailing list.
-> You must find a lawyer, and he'll answer your questions.
-
-Of course, the company I'm working for will contact their
-lawyers before releasing anything for linux. The reason
-because I'm asking here is to get an idea of your attitude
-regarding binary kernel modules in this specific scenario
-and your interpretation of the GPL in my case.
-I'd be glad if we can support linux but if it's not possible
-due to unclear legal interpretations of the GPL we certainly
-won't.
-
-> RCU is a patented algorithm - mention that to your lawyer.
-> Your creation must not be derived from the kernel
-> (because creating derived works is  an exclusive right of
-> the copyright owner, and you don't have and won't 
-> get a permission), and it must not infringe the RCU patents.
-
-Thanks for this information. I guess we can live without rcu.
-
-> You have written an algorithm module that is tightly coupled to the 
-> Linux kernel, and you think it's not derived from the kernel, correct? 
-> As a non-lawyer, it'd say that's wrong.
-
-Well, the algorithm has been developped totally independent from
-linux. It also works under other OS's without any adjustments apart
-from alloc and locking stuff.
-
-The fact that it receives kernel data as input IMO does not make it
-tightly coupled to the linux kernel since the algorithm does not even
-know or care what it receives as input (at least as far as kernel data
-is concerned). It basically considers kernel data: char[]
-
-> "Derived work" is a legal term, your lawyer might be able to figure out 
-> if your combination is a derived work.
-
-As you stated later the interpretation differs from country to country
-and though I'm no lawyer (and haven't talked to one myself yet regarding
-this issue) I very much doubt that the interpretation is that clear even
-for a "fixed" country.
-
-> The drivers that are more or less accepted as not-derived run on 
-> multiple operating systems - e.g. the nvidia ethernet driver uses the 
-> same source code for Windows and Linux, and nvlib.o works on Linux
-> and FreeBSD.
-
-Well, the same holds for the algorithm module since it simply does not
-need any kernel support apart from alloc and locking (as I already 
-stated). Only the frontend is different from OS to OS.
-
-I'd appreciate it very much if you and others contribute their opinion
-to this topic. Basically, I believe that if we're not allowed to release
-the algorithm as binary kernel module then you'd surely find a
-reason why nvidia and others in fact also infringe the GPL.
-
-Regards,
-
-John
-
--- 
-Neu bei GMX: Preissenkung für MMS-Versand und FreeMMS!
-
-Ideal für alle, die gerne MMS verschicken:
-25 FreeMMS/Monat mit GMX TopMail.
-http://www.gmx.net/de/cgi/produktemail
-
-+++ GMX - die erste Adresse für Mail, Message, More! +++
-
+-- Michael Gorse / AIM:linvortex / http://mgorse.home.dhs.org --

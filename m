@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283303AbRK2QPA>; Thu, 29 Nov 2001 11:15:00 -0500
+	id <S283302AbRK2QTA>; Thu, 29 Nov 2001 11:19:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283294AbRK2QOm>; Thu, 29 Nov 2001 11:14:42 -0500
-Received: from abasin.nj.nec.com ([138.15.150.16]:40722 "HELO
-	abasin.nj.nec.com") by vger.kernel.org with SMTP id <S283292AbRK2QOW>;
-	Thu, 29 Nov 2001 11:14:22 -0500
-From: Sven Heinicke <sven@research.nj.nec.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15366.24278.890864.315442@abasin.nj.nec.com>
-Date: Thu, 29 Nov 2001 11:14:14 -0500 (EST)
-To: Nathan Poznick <poznick@conwaycorp.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16 freezed up with eepro100 module
-In-Reply-To: <20011129095107.A17457@conwaycorp.net>
-In-Reply-To: <15366.21354.879039.718967@abasin.nj.nec.com>
-	<20011129095107.A17457@conwaycorp.net>
-X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+	id <S283306AbRK2QSw>; Thu, 29 Nov 2001 11:18:52 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:13987 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S283302AbRK2QSi>; Thu, 29 Nov 2001 11:18:38 -0500
+Date: Thu, 29 Nov 2001 18:18:17 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: =?iso-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@loewe-komp.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: e2compr on 2.4
+Message-ID: <20011129181817.A31769@niksula.cs.hut.fi>
+In-Reply-To: <3C0656A4.93D3B1F5@loewe-komp.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C0656A4.93D3B1F5@loewe-komp.de>; from pwaechtler@loewe-komp.de on Thu, Nov 29, 2001 at 04:39:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Poznick writes:
- > Thus spake Sven Heinicke:
- > > 
- > > The 2.4.16 kernel finally makes my clients happy with memory
- > > management.  The systems that froz up is a Dell of some sort or other
- > > with two 1Ghz Pentium IIIs and 4G of memory.  But, now I seems to be
- > > having ethernet problems.  With and eepro100 card:
- > 
- > I've encountered the same problem, with the same hardware setup (I
- > believe it's a Dell 2400, or something like that), on 2.4.14+xfs.  For
- > me it didn't lock up the entire machine however, it only seemed to
- > kill the network - I was able to reboot the machine cleanly once I got
- > to the console. (message from yesterday with the subject 'failed
- > assertion in tcp.c')  I too, am open to suggestions :-)
- > 
+On Thu, Nov 29, 2001 at 04:39:16PM +0100, you [Peter Wächtler] claimed:
+> Hi,
+> 
+> browsing through the archives I read a discussion in February 2000
+> about e2compr and integrating it into 2.3^H4
+> 
+> Is anyone working on it or willing to help?
 
-I suspect that I would of been able to reboot it if I was at work in
-the middle of the night.  I am unable to try older kernels as until
-2.4.16 I had memory issues.  The process that was doing so much eth0
-is ran for like 3 days before the freeze.
+Well, at early 2.3 times, Riley Williams announced he'd be willing
+to take the maintainership as Peter Moulder (who did good job btw) 
+had said he had no more time to do it. There was talk about porting it
+to 2.3:
 
-   Sven
+http://marc.theaimsgroup.com/?l=linux-kernel&m=94985828506070&w=2
+                                                                                
+Then on October, Pierre Peiffer asked for directorions to port e2compr to        
+2.4, and people like Eric Biederman replied. See: 
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100209862820677&w=2
+
+(I have stared at the code long enough to know I'm not up to the task        
+(that was when I tracked down a lock up bug that happened with samba, and       
+Peter later fixed.) ;)
+
+That said, it would be cool if e2compr would be ported to 2.[45].
+
+
+-- v --
+
+v@iki.fi

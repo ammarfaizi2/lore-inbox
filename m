@@ -1,48 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264143AbTFPSem (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 14:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTFPScM
+	id S264173AbTFPSiL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 14:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTFPSiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 14:32:12 -0400
-Received: from devil.servak.biz ([209.124.81.2]:12723 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S264127AbTFPS3r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 14:29:47 -0400
-Subject: Re: [OOPS] 2.5.70-bk15: RadeonFB dies at boot, and is undocumented
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Greg KH <greg@kroah.com>
-Cc: ajoshi@kernel.crashing.org, James Simmons <jsimmons@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030614000306.GA2563@kroah.com>
-References: <1055546532.1256.19.camel@torrey.et.myrio.com>
-	 <20030614000306.GA2563@kroah.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055788952.1187.1.camel@torrey.et.myrio.com>
+	Mon, 16 Jun 2003 14:38:06 -0400
+Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:11501
+	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S264173AbTFPSfm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 14:35:42 -0400
+Date: Sun, 15 Jun 2003 20:59:38 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: Peter Enderborg <pme@hyglo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vmware strange scheduling priority
+Message-ID: <20030615185938.GA7689@wind.cocodriloo.com>
+References: <3EEE0EEA.9080208@hyglo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Jun 2003 11:42:33 -0700
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - arnor.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EEE0EEA.9080208@hyglo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-13 at 17:03, Greg KH wrote:
-> On Fri, Jun 13, 2003 at 04:22:13PM -0700, Torrey Hoffman wrote:
-> > With the Radeon framebuffer driver compiled in, 2.5.70-bk15 oopses very
-> > early during the boot process.  The oops is visible in text mode but
-> > scrolls off the screen.  (I really need to set up a serial console!)
+On Mon, Jun 16, 2003 at 08:39:38PM +0200, Peter Enderborg wrote:
+> Im playing with vmware 4.0 workstation. And it do some strange 
+> things.
+> I start vmware with nice and I got this:
+> 26499 pme       19  19 95980  93M 95020 R N    12 32.6 24.8   8:55 
+> vmware-vmx
+> 26439 pme       19  19  8416 8008  7692 R N     8  3.2  2.0   2:02 
+> vmware-vmx
+> 26492 pme        6 -10 95980  93M 95020 R <    12  2.6 24.8   0:34 
+> vmware-vmx
+> 26409 pme       19  19  4900 3916  2484 S N     0  1.0  1.0   0:29 
+> vmware
+> 26433 pme        5 -10  8416 8008  7692 S <     8  0.5  2.0   0:29 
+> vmware-vmx
+> 26493 pme        5 -10  8056 7268  6988 S <     0  0.5  1.8   0:20 
+> vmware-mks
+> 26495 pme        9   0 67672  65M 66888 S       0  0.2 17.4   0:11 
+> vmware-vmx
 > 
-> Try a later -bk version, -bk17 fixes this I think, but to be safe, use
-> -bk18
+> 
+> It have changed the prioority to -10 for some of its own tasks. How 
+> can that be done? Its a non suid binary started
+> by a normal user. It's very ugly, but Im more intressted in how it 
+> can be done.
+> The kernel is a 2.4.20.
 
-Thanks, yes, this is fixed now (tested 2.5.71-bk2).
+pure guessing here...
+vmware relies on having kernel modules instaled.. perhaps
+the do an ioctl to enter the module and then they spin
+off some threads with nice -10 from inside?
+ 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Torrey Hoffman <thoffman@arnor.net>
+winden/network
+
+In fact, this is all you need to know to be
+a Caveman Database Programmer:
+
+A relational database is a big spreadsheet
+that several people can update simultaneously. 
 

@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267696AbUHEN5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267698AbUHEN54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267696AbUHEN5z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 09:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267698AbUHENzT
+	id S267698AbUHEN54 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 09:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267695AbUHENyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:55:19 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:15317 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267694AbUHENx3 (ORCPT
+	Thu, 5 Aug 2004 09:54:55 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:10991 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267699AbUHENyB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 09:53:29 -0400
-Date: Thu, 5 Aug 2004 12:34:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org,
-       Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
-Message-ID: <20040805103409.GA20171@elte.hu>
-References: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407>
+	Thu, 5 Aug 2004 09:54:01 -0400
+Message-ID: <d577e56904080506542334347c@mail.gmail.com>
+Date: Thu, 5 Aug 2004 09:54:01 -0400
+From: Patrick McFarland <diablod3@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.8-rc3
+Cc: arjanv@redhat.com, "J. Bruce Fields" <bfields@fieldses.org>,
+       James Morris <jmorris@redhat.com>,
+       Jari Ruusu <jariruusu@users.sourceforge.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>,
+       Fruhwirth Clemens <clemens@endorphin.org>
+In-Reply-To: <Pine.LNX.4.58.0408041130530.24588@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <4110FB0E.230CE613@users.sourceforge.net> 
+ <Xine.LNX.4.44.0408041156310.9291-100000@dhcp83-76.boston.redhat.com> 
+ <20040804161046.GD19282@fieldses.org> <1091636850.2792.19.camel@laptop.fenrus.com>
+ <d577e56904080411192f17e508@mail.gmail.com> <Pine.LNX.4.58.0408041130530.24588@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 4 Aug 2004 11:45:12 -0700 (PDT), Linus Torvalds
+<torvalds@osdl.org> wrote:
+> Side note: Jari Ruusu has himself been distributing the code he now
+> objects to as part of his own linux kernel loop-aes patches. From the
+> loop-aes README:
+> 
+>         Copyright 2001,2002,2003,2004 by Jari Ruusu.
+>         Redistribution of this file is permitted under the GNU Public License.
+> 
+> But the original x86 assembler code that is part of that loop-aes patch
+> was copyright Dr Brian Gladman, and was NOT originally under the GPL, so
+> it was Jari Ruusu who originally did something very suspect from a
+> copyright angle. Now he claims he never wanted to GPL it, but the fact is,
+> he's been distributing kernel patches with the code for a long time, and
+> claiming it is GPL'd.
+> 
+> So then David and James wanted to include it into the kernel as part of
+> the standard encryption layer, and I said no, since I felt the copyright
+> wasn't clear. So James asked Dr Gladman for permission to dual-license
+> under the GPL, and got it. So I was happy.
+> 
+> Now Jari Ruusu comes along and starts complaining about things.
 
-* Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
+So, I'm confused. David, James, and Brian all have GPL code, and Jari
+has distributed his code with other GPL code (1) and labled his own
+code as GPL (2) even though hes complaining about it (3) being in the
+kernel without his permission, right?
 
-> Fusyn aims to provide primitives to solve a bunch of gaps in POSIX
-> compliance related to mutexes, conditional variables and semaphores,
-> POSIX Advanced real-time support as well as adding mutex robustness
-> (to dying owners) and deep deadlock checking.
+1) Doesn't this make his code GPL as well?
+2) If #1 doesn't, doesn't this?
+3) If #1 or #2 make his code GPL, then he isn't allowed to revoke our
+right to use GPL code written by him, right?
 
-the sched.c bits look clean enough.
+If I've missed something, please tell me. Im also confused why anyone
+_wouldn't_ want their code in the kernel; I consider it a great honor
+to have a patch accepted with my code in it, etc.
 
-i like the generic concept - keeping the userspace fast-path for
-lock/unlock, like for futexes, and registering/unregistering a lock via
-the kernel.
-
-but, couldnt there be more sharing between futex.c and fusyn.c? In
-particular on the API side, why arent all these ops done as an extension
-to sys_futex()? That would keep the glibc part much simpler (and more
-compatible) as well. You'd still get all the glory of implementing true
-priority inheritance and advanced RT-locking for Linux :-)
-
-or are the two interfaces way too different?
-
-	Ingo
+-- 
+Patrick "Diablo-D3" McFarland || diablod3@gmail.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
+all be running around in darkened rooms, munching magic pills and listening to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989

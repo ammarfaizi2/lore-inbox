@@ -1,29 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVAYUzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbVAYU6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbVAYUzX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 15:55:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbVAYUzW
+	id S262140AbVAYU6J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 15:58:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVAYU4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 15:55:22 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:41705 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S262118AbVAYUwH (ORCPT
+	Tue, 25 Jan 2005 15:56:14 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:6890 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S262128AbVAYUzE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:52:07 -0500
-Date: Wed, 26 Jan 2005 00:14:43 +0300
+	Tue, 25 Jan 2005 15:55:04 -0500
+Date: Wed, 26 Jan 2005 00:17:34 +0300
 From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: dtor_core@ameritech.net
-Cc: dmitry.torokhov@gmail.com, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org
+To: J_rn Engel <joern@wohnheim.fh-wedel.de>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       greg@kroah.com, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.11-rc2-mm1
-Message-ID: <20050126001443.7f91bbbb@zanzibar.2ka.mipt.ru>
-In-Reply-To: <d120d5000501250811295c298e@mail.gmail.com>
+Message-ID: <20050126001734.34297f5b@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050125182110.GA23317@wohnheim.fh-wedel.de>
 References: <20050124021516.5d1ee686.akpm@osdl.org>
 	<20050125125323.GA19055@infradead.org>
 	<1106662284.5257.53.camel@uganda>
 	<20050125142356.GA20206@infradead.org>
 	<1106666690.5257.97.camel@uganda>
-	<d120d5000501250811295c298e@mail.gmail.com>
+	<58cb370e050125073464befe4@mail.gmail.com>
+	<1106669087.5257.100.camel@uganda>
+	<20050125182110.GA23317@wohnheim.fh-wedel.de>
 Reply-To: johnpol@2ka.mipt.ru
 Organization: MIPT
 X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
@@ -33,73 +35,50 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jan 2005 11:11:42 -0500
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+On Tue, 25 Jan 2005 19:21:10 +0100
+J_rn Engel <joern@wohnheim.fh-wedel.de> wrote:
 
-> On Tue, 25 Jan 2005 18:24:50 +0300, Evgeniy Polyakov
-> <johnpol@2ka.mipt.ru> wrote:
-> > On Tue, 2005-01-25 at 14:23 +0000, Christoph Hellwig wrote:
-> > > > > +static void pc8736x_fini(void)
-> > > > > +{
-> > > > > + sc_del_sc_dev(&pc8736x_dev);
-> > > > > +
-> > > > > + while (atomic_read(&pc8736x_dev.refcnt)) {
-> > > > > +         printk(KERN_INFO "Waiting for %s to became free: refcnt=%d.\n",
-> > > > > +                         pc8736x_dev.name, atomic_read(&pc8736x_dev.refcnt));
-> > > > > +
-> > > > > +         set_current_state(TASK_INTERRUPTIBLE);
-> > > > > +         schedule_timeout(HZ);
-> > > > > +
-> > > > > +         if (current->flags & PF_FREEZE)
-> > > > > +                 refrigerator(PF_FREEZE);
-> > > > > +
-> > > > > +         if (signal_pending(current))
-> > > > > +                 flush_signals(current);
-> > > > > + }
-> > > > > +}
-> > > > >
-> > > > > And who gurantess this won't deadlock?  Please use a dynamically allocated
-> > > > > driver model device and it's refcounting, thanks.
-> > > >
-> > > > Sigh.
-> > > >
-> > > > Christoph, please read the code before doing such comments.
-> > > > I very respect your review and opinion, but only until you respect
-> > > > others.
-> > >
-> > > The code above pretty much means you can keep rmmod stalled forever.
+> On Tue, 25 January 2005 19:04:47 +0300, Evgeniy Polyakov wrote:
+> > On Tue, 2005-01-25 at 16:34 +0100, Bartlomiej Zolnierkiewicz wrote:
 > > 
-> > Yes, and it is better than removing module whose structures are in use.
-> > SuperIO core is asynchronous in it's nature, one can use logical device
-> > through superio core and remove it's module on other CPU, above loop
-> > will wait untill all reference counters are dropped.
+> > > Ugh, now think about that:
+> > > 
+> > > CPU0     CPU1
+> > > place1:   place2:
+> > > lock a      lock b
+> > > < guess what happens here :-) >
+> > > lock b      lock a
+> > > ...             ...
+> > 
+> > :) he-he, such place are in add and remove routings, and they can not be
+> > run simultaneously
+> > in different CPUs.
 > 
-> I have a slightly different concern - the superio is a completely new
-> subsystem and it should be integtrated with the driver model
-> ("superio" bus?). Right now it looks like it is reimplementing most of
-> the abstractions (device lists, driver lists, matching, probing).
-> Moving to driver model significatntly affects lifetime rules for the
-> objects, etc. etc. and will definitely not allow code such as above.
+> Makes my toenails curl.  Something fun I might write someday is a
+> statical (dead-)lock checker.  The design is very simple:
 > 
-> It would be nice it we get things right from the start.
+> o Annotate code with the lock that could be taken.
+> o Whenever getting a lock B, write down something like "A->B" for
+>   every lock A we already have.
+> o Create a graph from the locking hierarchy obtained above.
+> o Look for cycles.
+> 
+> A cycle-free graph means that the code is deadlock-free.  In the
+> above, the graph surely has cycles.  You could argue that the checker
+> should be smarter, but then again - why should it?  Is there a
+> compelling reason why locking schemes as outlined above actually make
+> the code better?
 
-bus model is not good here - we need bus in each logical device and
-bus in each superio chip(or at least second case).
-Each bus bus have some crosslinking to devices in other buses, 
-and each new device
-must be checked in each bus and probably added to each device...
-
-It is not like I see it.
-
-Consider folowing example: 
-each device from set A belongs to each device from set B.
-n <-> n, it is not the case when one bus can handle all features.
-
-That is why I did not use driver model there.
-It is specific design feature, which is proven to work.
+That will catch only simple cases - for the whole picture you need
+to run graph generator from all allowed code pathes, but that
+will require knowledge of the tested system, so it will not and 
+actually can not be absolutely generic.
  
+> J_rn
+> 
 > -- 
-> Dmitry
+> It does not matter how slowly you go, so long as you do not stop.
+> -- Confucius
 
 
 	Evgeniy Polyakov

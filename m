@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266866AbUBFWES (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 17:04:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266478AbUBFWER
+	id S266936AbUBFWUM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 17:20:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266954AbUBFWUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 17:04:17 -0500
-Received: from mail-08.iinet.net.au ([203.59.3.40]:40644 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S266866AbUBFWCu
+	Fri, 6 Feb 2004 17:20:12 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8064 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266936AbUBFWUF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 17:02:50 -0500
-Message-ID: <40240F07.9060105@cyberone.com.au>
-Date: Sat, 07 Feb 2004 09:02:47 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Fri, 6 Feb 2004 17:20:05 -0500
+Date: Fri, 6 Feb 2004 17:20:10 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Charles Cazabon <linux@discworld.dyndns.org>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FATAL: Kernel too old
+In-Reply-To: <20040206152943.B26348@discworld.dyndns.org>
+Message-ID: <Pine.LNX.4.53.0402061718030.917@chaos>
+References: <Pine.LNX.4.53.0402061550440.681@chaos> <20040206152943.B26348@discworld.dyndns.org>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Rick Lindsley <ricklind@us.ibm.com>, Anton Blanchard <anton@samba.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
-Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
-References: <200402061815.i16IFhY07073@owlet.beaverton.ibm.com> <207100000.1076092771@flay>
-In-Reply-To: <207100000.1076092771@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 6 Feb 2004, Charles Cazabon wrote:
 
-
-Martin J. Bligh wrote:
-
->>    Good stuff, I just gave the patch a spin and things seem a little
->>    calmer. However Im still seeing a lot of balancing going on within a
->>    node.
->>
->>This is a clearly recognizable edge case, so I'll try drawing this up on
->>some paper and see if I can suggest another patch.  There's no good reason
->>to move one lone process from a particular processor to another idle one.
->>
->>But it also approaches a question that's come up before:  if you have 2
->>tasks on processor A and 1 on processor B, do you move one from A to B?
->>One argument is that the two tasks on A will take twice as long as
->>the one on B if you do nothing.  But another says that bouncing a task
->>around can't correct the overall imbalance and so is wasteful.  I know
->>of benchmarks where both behaviors are considered important.  Thoughts?
->>
+> Richard B. Johnson <root@chaos.analogic.com> wrote:
+> >
+> > Script started on Fri Feb  6 15:44:32 2004
+> > # rlogin -l johnson quark
+> > ATAL: kernel too old
+> > # rlogin -l johnson quark
+> > ATAL: kernel too old
 >
->It's the classic fairness vs throughput thing we've argued about before.
->Most workloads don't have that static a number of processes, but it 
->probably does need to do it if the imbalance is persistent ... but much
->more reluctantly than normal balancing. See the patch I sent out a bit
->earlier to test it - that may be *too* extreme in the other direction,
->but it should confirm what's going on, at least.
+> I saw something similar at a customer's site, when someone rooted the box and
+> replaced the default login shell with a rootkitted/backdoored one in a newer
+> executable format not supported by the old kernel.
 >
+> > I crashed it and it rebooted fine, little fsck activity, with
+> > nothing in any logs that shows there was any problem whatsoever.
 >
+> Did the problem go away with a reboot?
 
-Yep. I've argued for fairness here, and that is presently what
-we get. Between nodes the threshold should probably be higher
-though.
+Sure. And if you can 'root' that machine, you are really
+good! It isn't even visible to most of the company internally!
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

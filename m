@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285474AbRLGT3j>; Fri, 7 Dec 2001 14:29:39 -0500
+	id <S285477AbRLGToZ>; Fri, 7 Dec 2001 14:44:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285479AbRLGT3c>; Fri, 7 Dec 2001 14:29:32 -0500
-Received: from bitmover.com ([192.132.92.2]:64145 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S285474AbRLGT2i>;
-	Fri, 7 Dec 2001 14:28:38 -0500
-Date: Fri, 7 Dec 2001 11:28:37 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Dana Lacoste <dana.lacoste@peregrine.com>
-Cc: "'Larry McVoy'" <lm@bitmover.com>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description
-Message-ID: <20011207112837.R27589@work.bitmover.com>
-Mail-Followup-To: Dana Lacoste <dana.lacoste@peregrine.com>,
-	'Larry McVoy' <lm@bitmover.com>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B29B8@OTTONEXC1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B29B8@OTTONEXC1>; from dana.lacoste@peregrine.com on Fri, Dec 07, 2001 at 11:14:13AM -0800
+	id <S285478AbRLGToF>; Fri, 7 Dec 2001 14:44:05 -0500
+Received: from dsl-213-023-043-071.arcor-ip.net ([213.23.43.71]:56587 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S285477AbRLGToB>;
+	Fri, 7 Dec 2001 14:44:01 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
+Date: Fri, 7 Dec 2001 20:46:01 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Ragnar =?iso-8859-1?q?Kj=F8rstad?= <reiserfs@ragnark.vestdata.no>,
+        Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <E16CP0X-0000uE-00@starship.berlin> <3C110B3F.D94DDE62@zip.com.au>
+In-Reply-To: <3C110B3F.D94DDE62@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16CQwl-0000vL-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 07, 2001 at 11:14:13AM -0800, Dana Lacoste wrote:
-> Man you guys are NUTS.
-
-I resemble that remark :-)
-
-> > Did you even consider that this is virtually identical to the problem
-> > that a network of workstations or servers has?  Did it occur 
-> > to you that
-> > people have solved this problem in many different ways?  Or 
-> > did you just
-> > want to piss into the wind and enjoy the spray?
+On December 7, 2001 07:32 pm, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > 
+> > Because Ext2 packs multiple entries onto a single inode table block, the
+> > major effect is not due to lack of readahead but to partially processed
+> > inode table blocks being evicted.
 > 
-> I may be a total tool here, but this question is really bugging me :
+> Inode and directory lookups are satisfied direct from the icache/dcache,
+> and the underlying fs is not informed of a lookup, which confuses the VM.
 > 
-> What, if any, advantages does your proposal have over (say) a Beowulf
-> cluster?  Why does having the cluster in one box seem a better solution
-> than having a Beowulf type cluster with a shared Network filesystem?
+> Possibly, implementing a d_revalidate() method which touches the
+> underlying block/page when a lookup occurs would help.
 
-Because I can mmap the same data across cluster nodes and get at it using
-hardware, so a cache miss is a cache miss regardless of which node I'm
-on, and it takes ~200 nanoseconds.  With a network based cluster, those
-times go up about a factor of 10,000 or so.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Very interesting point, the same thing happens with file index blocks vs page 
+cache accesses.  You're suggesting we need some kind of mechanism for 
+propagating hits on cache items, either back to the underlying data or the 
+information used to regenerate the cache items.
+
+On the other hand, having the underlying itable blocks get evicted can be 
+looked at as a feature, not a bug - it reduces double storage, allowing more 
+total items in cache.
+
+There's also a subtle mechanism at work here - if any of the icache items on 
+an itable block gets evicted, then recreated before the itable block is 
+evicted, we *will* get an access hit on the itable block and grandma won't 
+have to sell the farm (I made that last part up).
+
+--
+Daniel
+
+

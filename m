@@ -1,87 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129965AbQLLVz0>; Tue, 12 Dec 2000 16:55:26 -0500
+	id <S129906AbQLLWAS>; Tue, 12 Dec 2000 17:00:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129998AbQLLVzQ>; Tue, 12 Dec 2000 16:55:16 -0500
-Received: from ip252.uni-com.net ([205.198.252.252]:31237 "HELO www.nondot.org")
-	by vger.kernel.org with SMTP id <S129965AbQLLVzE>;
-	Tue, 12 Dec 2000 16:55:04 -0500
-Date: Tue, 12 Dec 2000 17:26:26 -0600 (CST)
-From: Chris Lattner <sabre@nondot.org>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: Ben Ford <ben@kalifornia.com>, linux-kernel@vger.kernel.org,
-        orbit-list@gnome.org, korbit-cvs@lists.sourceforge.net
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <3A31BC6D.1CFB5221@haque.net>
-Message-ID: <Pine.LNX.4.21.0012121719180.20891-100000@www.nondot.org>
+	id <S129998AbQLLWAJ>; Tue, 12 Dec 2000 17:00:09 -0500
+Received: from front1.grolier.fr ([194.158.96.51]:12416 "EHLO
+	front1.grolier.fr") by vger.kernel.org with ESMTP
+	id <S129906AbQLLV7x> convert rfc822-to-8bit; Tue, 12 Dec 2000 16:59:53 -0500
+Date: Tue, 12 Dec 2000 21:28:18 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: "David S. Miller" <davem@redhat.com>
+cc: mj@suse.cz, lk@tantalophile.demon.co.uk, davej@suse.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: pdev_enable_device no longer used ?
+In-Reply-To: <200012122014.MAA05129@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.10.10012122106020.1501-100000@linux.local>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 9 Dec 2000, Mohammad A. Haque wrote:
 
-> It was just an example. Basically, you'd be able to do in with just
-> about any language that has ORBit bindings.
+On Tue, 12 Dec 2000, David S. Miller wrote:
+
+>    Date: Tue, 12 Dec 2000 20:17:21 +0100 (CET)
+>    From: Gérard Roudier <groudier@club-internet.fr>
 > 
-> Ben Ford wrote:
-> > Why would you *ever* want to write a device driver in perl???
+>    On Mon, 11 Dec 2000, David S. Miller wrote:
 > 
-
-Precisely... but also, there could be a case where perl would make
-sense.  Consider an FTP filesystem.  There performance is not dictated by
-the speed of the language, it's limited by bandwidth.  It could make sense
-to write your almighty FTPfs like this:
-
-1. Prototype it in Perl, get all the bugs out.
-2. Rewrite in C in userspace, get all the bugs out.
-3. recompile/relink in kernel space with no source modifications
-4. ship product.  :)
-
-The great thing that kORBit buys you is insulation of kernel space from
-the drivers that are running... kinda like a microkernel.  I'm not going
-to start a flamewar here about Linux and microkernels, but when doing
-initial development work for a driver, the test/crash/reboot/fsck cycle is
-a real pain (okay, maybe journalling helps a little, but you get the
-idea).  What we're offering goes more like this:
-
-1. Boot kernel
-2. Install corbafs module for example
-3. Start test filesystem in user space
-4. mount test user space filesystem
-5. test it, oh crap, it segfaulted.
-6. CorbaFS gets exceptions trying to communicate to server, which it
-relays to the kernel as -errno conditions.
-7. You safely unmount corbafs
-8. fix your bug
-9. goto step #2.
-
-Which is arguably nicer.  :)
-
-The whole idea is that a bastard driver shouldn't take your kernel down if
-you know it to be unreliable... if you trust the driver, then by all
-means, don't use kORBit.  Also, kORBit is useful when you don't WANT
-something in the kernel... and I won't bring up the whole user level
-filesystem debate again... :)
-
--Chris
-
-http://www.nondot.org/~sabre/os/
-http://korbit.sourceforge.net/
-
-> -- 
+>    > Tell me one valid use of this information first :-)
 > 
-> =====================================================================
-> Mohammad A. Haque                              http://www.haque.net/ 
->                                                mhaque@haque.net
+>    SCRIPTS. Have a look into my kind :-) response to Martin.
 > 
->   "Alcohol and calculus don't mix.             Project Lead
->    Don't drink and derive." --Unknown          http://wm.themes.org/
->                                                batmanppc@themes.org
-> =====================================================================
+> Ok, this I understand.
 > 
+>    > b) If you wish to interpret the BAR values and use them from a BUS
+>    >    perspective somehow, you still need to go through some interface
+>    >    because you cannot assume what even the hw BAR values mean.
+>    >    This is precisely the kind of interface I am suggesting.
+> 
+>    The BAR values make FULL sense on the BUS.
+> 
+> I am saying there may be systems where it does not make any sense,
+> f.e. actually used bits of BAR depend upon whether CPU, or DEVICE on
+> that bus, or DEVICE on some other bus make the access.
+>
+> Forget all the PCI specifications, it is irrelevant here.  All your
+> PCI expertiece means nothing, nor mine.  People build dumb machines
+> with "PCI implementations" and we need to handle them.
 
+Even the dumbest PCI implementation will keep with BAR relevance. Reason
+is that PCI devices are using BAR values and corresponding size to make
+decision about claiming or not a transaction as target.
+You can be as dump as you want with PCI, but not that much. :-)
+
+>    I will wait for your .txt file that describes your idea. Your
+>    documentation about the new DMA mapping had been extremally useful.
+>    Let me thank you again for it.
+> 
+> It requires no .txt file :-), 
+
+No problems, a ".text" file would also fit just fine. :-)
+
+> it will just be formalization of
+> existing bus_to_dvma_whatever hack :-) Specify PDEV (device) and
+> RESNUM (which I/O or MEM resource for that device), returns either
+> error or address as seen by BUS that PDEV is on.  You may offset
+> this return value as desired, up to the size of that resource.
+> 
+> I could make a more elaborate interface (add new parameter,
+> PDEV_MASTER which is device which wishes to access area described by
+> PDEV+RESNUM), allowing full PCI peer-to-peer setup, as described by
+> someone else in another email of this thread.  This version would have
+> an error return, since there will be peer2peer situations on some
+> systems which cannot be made.  But I feel this is inappropriate until
+> 2.5.x, others can disagree.
+
+I saw the proposal.
+
+Btw, unlike the person, that proposed it, that will be able to test
+peer-to-peer unability only, my current machine will allow to test
+peer-to-peer ability only between 2 different PCI BUSes. :-)
+
+For now, my intention is to encapsulate the right interface as seen from
+my brain device in macros and forget about it until a new interface will
+be provided. I will first implement it on SYM-2 and backport changes to
+sym53c8xx later. And since I need the new major driver version to be
+tested on non-Intel platforms, this will make full synergy for the
+testings. :-)
+
+Bye,
+  Gérard.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,83 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270350AbTGRUIF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 16:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270352AbTGRUIF
+	id S270352AbTGRUM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 16:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270359AbTGRUM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 16:08:05 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58844 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270350AbTGRUIA (ORCPT
+	Fri, 18 Jul 2003 16:12:27 -0400
+Received: from mail.gmx.de ([213.165.64.20]:42406 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S270352AbTGRUM0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 16:08:00 -0400
-Date: Fri, 18 Jul 2003 13:15:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: Software suspend testing in 2.6.0-test1
-Message-Id: <20030718131527.7cf4ca5e.akpm@osdl.org>
-In-Reply-To: <m2oezrppxo.fsf@telia.com>
-References: <m2wueh2axz.fsf@telia.com>
-	<20030717200039.GA227@elf.ucw.cz>
-	<20030717130906.0717b30d.akpm@osdl.org>
-	<m2d6g8cg06.fsf@telia.com>
-	<20030718032433.4b6b9281.akpm@osdl.org>
-	<20030718152205.GA407@elf.ucw.cz>
-	<m2el0nvnhm.fsf@telia.com>
-	<20030718094542.07b2685a.akpm@osdl.org>
-	<m2oezrppxo.fsf@telia.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 18 Jul 2003 16:12:26 -0400
+Message-Id: <5.2.1.1.2.20030718221052.01a88eb8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Fri, 18 Jul 2003 22:31:40 +0200
+To: Davide Libenzi <davidel@xmailserver.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O6int for interactivity 
+Cc: Valdis.Kletnieks@vt.edu,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.55.0307181038450.5608@bigblue.dev.mcafeelabs.co
+ m>
+References: <200307181739.h6IHdFq3006996@turing-police.cc.vt.edu>
+ <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
+ <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
+ <200307170030.25934.kernel@kolivas.org>
+ <200307170030.25934.kernel@kolivas.org>
+ <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
+ <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
+ <5.2.1.1.2.20030718174433.01b12878@pop.gmx.net>
+ <Pine.LNX.4.55.0307180951050.5608@bigblue.dev.mcafeelabs.com>
+ <Pine.LNX.4.55.0307181004200.5608@bigblue.dev.mcafeelabs.com>
+ <200307181739.h6IHdFq3006996@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
+At 12:31 PM 7/18/2003 -0700, Davide Libenzi wrote:
+>On Fri, 18 Jul 2003 Valdis.Kletnieks@vt.edu wrote:
 >
-> The patch below works, but doesn't really solve anything, because it
-> is just as slow as the original code.
+> > On Fri, 18 Jul 2003 10:05:05 PDT, Davide Libenzi said:
+> > > On Fri, 18 Jul 2003, Davide Libenzi wrote:
+> > >
+> > > > control them. It is right to apply uncontrolled unfairness to userspace
+> > > > tasks though.
+> > >
+> > > s/It is right/It is not right/
+> >
+> > OK.. but is it right to apply *controlled* unfairness to userspace?
+>
+>I'm sorry to say that guys, but I'm afraid it's what we have to do. We did
+>not think about it when this scheduler was dropped inside 2.5 sadly. The
+>interactivity concept is based on the fact that a particular class of
+>tasks characterized by certain sleep->burn patterns are never expired and
+>eventually, only oscillate between two (pretty high) priorities. Without
+>applying a global CPU throttle for interactive tasks, you can create a
+>small set of processes (like irman does) that hit the coded sleep->burn
+>pattern and that make everything is running with priority lower than the
+>lower of the two of the oscillation range, to almost completely starve.
+>Controlled unfairness would mean throttling the CPU time we reserve to
+>interactive tasks so that we always reserve a minimum time to non
+>interactive processes.
 
-That's OK - it's a step in the right direction.
+I'd like to find a way to prevent that instead.  There's got to be a way.
 
-> This is not surprising because
-> it is still balance_pgdat() that does the page freeing, the only
-> difference being that it is now called from kswapd which is woken up
-> by the alloc_page() call.
+It's easy to prevent irman type things from starving others permanently (i 
+call this active starvation, or wakeup starvation), and this does something 
+fairly similar to what you're talking about.  Just crawl down the queue 
+heads looking for the oldest task periodically instead of always taking the 
+highest queue.  You can do that very fast, and it does prevent active 
+starvation.
 
-Yup.  Probaby we should not be throttling kswapd if it is making good
-progress, but this needs broad testing and thought.  Something like this,
-untested:
-
-
---- 25/mm/vmscan.c~less-kswapd-throttling	Thu Jul 17 15:35:09 2003
-+++ 25-akpm/mm/vmscan.c	Thu Jul 17 15:35:12 2003
-@@ -930,7 +930,8 @@ static int balance_pgdat(pg_data_t *pgda
- 		}
- 		if (all_zones_ok)
- 			break;
--		blk_congestion_wait(WRITE, HZ/10);
-+		if (to_free)
-+			blk_congestion_wait(WRITE, HZ/10);
- 	}
- 	return nr_pages - to_free;
- }
-
-
-> Note that I had to use HZ/5 in free_some_memory() or else the loop
-> would terminate too early. The main problem seems to be that
-> balance_pgdat() is too slow when freeing memory. The function can fail
-> to free memory in the inner loop either because the disk is congested
-> or because too few pages are scanned, but in both cases the function
-> calls blk_congestion_wait(), and in the second case the disk may be
-> idle and then blk_congestion_wait() doesn't return until the timeout
-> expires.
-
-hm, perhaps because kswapd is throttled rather than doing work.
-
-Try the above change, see if you still need the extended timeout in
-free_some_memory().
-
-Also, play around with using __GFP_WAIT|__GFP_HIGH|__GFP_NORETRY rather
-than GFP_ATOMIC.
-
+         -Mike 
 

@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266842AbSLUJJo>; Sat, 21 Dec 2002 04:09:44 -0500
+	id <S266848AbSLUJTu>; Sat, 21 Dec 2002 04:19:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266844AbSLUJJo>; Sat, 21 Dec 2002 04:09:44 -0500
-Received: from tornado.reub.net ([203.29.67.170]:5047 "HELO tornado.reub.net")
-	by vger.kernel.org with SMTP id <S266842AbSLUJJn>;
-	Sat, 21 Dec 2002 04:09:43 -0500
-Message-Id: <5.2.0.9.2.20021221201604.03a16110@tornado.reub.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Sat, 21 Dec 2002 20:17:42 +1100
-To: linux-kernel@vger.kernel.org
-From: Reuben Farrelly <reuben-linux@reub.net>
-Subject: Re: 2.4.20-aa and LARGE Squid process -> SIGSEGV
-In-Reply-To: <20021221090642.GD31070@charite.de>
-References: <5.2.0.9.2.20021221191530.02ade850@tornado.reub.net>
- <20021221001334.GA7996@werewolf.able.es>
- <20021220114837.GC13591@charite.de>
- <20021220223754.GA10139@werewolf.able.es>
- <20021220225733.GE31070@charite.de>
- <20021221001334.GA7996@werewolf.able.es>
- <5.2.0.9.2.20021221191530.02ade850@tornado.reub.net>
+	id <S266851AbSLUJTu>; Sat, 21 Dec 2002 04:19:50 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23300 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266848AbSLUJTt>; Sat, 21 Dec 2002 04:19:49 -0500
+Date: Sat, 21 Dec 2002 09:27:44 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Antonino Daplas <adaplas@pol.net>
+Cc: James Simmons <jsimmons@infradead.org>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] [PATCH] fix endian problem in color_imageblit
+Message-ID: <20021221092744.A23531@flint.arm.linux.org.uk>
+Mail-Followup-To: Antonino Daplas <adaplas@pol.net>,
+	James Simmons <jsimmons@infradead.org>,
+	Paul Mackerras <paulus@samba.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44.0212201932150.6471-100000@phoenix.infradead.org> <1040442194.1294.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1040442194.1294.9.camel@localhost.localdomain>; from adaplas@pol.net on Sat, Dec 21, 2002 at 11:45:44AM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Forwarded for the purposes of continuity, Robert is not on lkml]
+On Sat, Dec 21, 2002 at 11:45:44AM +0800, Antonino Daplas wrote:
+> The pseudopalette will only matter for truecolor and directcolor as the
+> rest of the visuals bypasses the pseudopalette.  Typecasting to
+> "unsigned long" rather than "u32" is also safer (even for bpp16) since
+> in 64-bit machines, the drawing functions use fb_writeq instead of
+> fb_writel.
 
+Erm, what does the size of the drawing functions have to do with the
+size of the pseudo palette.  The pseudo palette is only there to encode
+the pixel values for the 16 console colours.
 
->Subject: Re: 2.4.20-aa and LARGE Squid process -> SIGSEGV
->From: Robert Collins <robertc@squid-cache.org>
->To: Reuben Farrelly <reuben-linux@reub.net>
->Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
->X-Mailer: Ximian Evolution 1.0.8
->Date: 21 Dec 2002 20:12:21 +1100
->
->On Sat, 2002-12-21 at 20:06, Ralf Hildebrandt wrote:
-> > * Reuben Farrelly <reuben-linux@reub.net>:
-> >
-> > > No, squid is not br0ken in this fashion.  If squid cannot be allocated
-> > > enough memory by the system, it logs a message and _dies_.  Relevant 
-> files
-> > > to look at in your squid source are squid/lib/util.c for xcalloc() and
-> > > xmalloc().
-> >
-> > Why can't squid allocate more than 1GB on a system with 2GB RAM?
->
->In general, it can.
->Folk run it with up to 2Gb with no special options on linux, all the
->time.
->
->Have you tried asking on the *right* list?
->Or running it under gdb?
->Or getting a stacktrace?
->
->SEGSIGV does *not* mean out of memory, you *may* have hit a genuine bug,
->but it *not* due to squid handling a failed malloc wrongly.
->
->Rob
+This means that a 64-bit pseudo palette would only be useful if you have
+a graphics card that supports > 32bpp, otherwise a 32-bit pseudo palette
+is perfectly adequate, even if you are using fb_writeq.
+
+(note that fbcon doesn't support > 32bpp, so we will only ever look at
+the first 32 bits, and having it be 64-bit would just be a needless
+waste of space imho.)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

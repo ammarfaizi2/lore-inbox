@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270749AbTHLQU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 12:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270816AbTHLQU6
+	id S270929AbTHLQdS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 12:33:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270931AbTHLQdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 12:20:58 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:13206 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270749AbTHLQUz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 12:20:55 -0400
-Subject: Re: Requested FAQ addition - Mandrake and partial-i686 platforms
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Brandon Stewart <rbrandonstewart@yahoo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F38FE5B.1030102@yahoo.com>
-References: <3F38FE5B.1030102@yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1060705037.12532.49.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 12 Aug 2003 12:33:18 -0400
+Received: from waste.org ([209.173.204.2]:37764 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S270929AbTHLQdO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 12:33:14 -0400
+Date: Tue, 12 Aug 2003 11:33:11 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jon Burgess <mplayer@jburgess.uklinux.net>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Netconsole debugging tool for 2.6
+Message-ID: <20030812163311.GL31810@waste.org>
+References: <3F38F5EC.2060003@jburgess.uklinux.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 Aug 2003 17:17:18 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F38F5EC.2060003@jburgess.uklinux.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-08-12 at 15:48, Brandon Stewart wrote:
-> Apparently, there is an issue with glibc on versions less than 2.3.1-15 
-> (and maybe others), where it mistakenly treats CPUs as full i686 
-> compliant when they only execute a subset of the i686 instructions
+On Tue, Aug 12, 2003 at 03:13:00PM +0100, Jon Burgess wrote:
+> Matt Mackall wrote:
+> > I've decided to take a stab at resurrecting Ingo's netconsole patch.
+> 
+> Is this different from the netdump patch which RedHat include in their 
+> kernel?
+> 
+> The RH kernel patch is at
+> http://www.kernelnewbies.org/kernels/rh9/SOURCES/linux-2.4.18-netdump.patch
 
-VIA C3 has the full set of i686 required instructions. The whole story
-is a lot more complex
+Ahh, so that's what's become of it.
 
-gcc i686 mode outputs cmov instruction sequences without checking cmov
-is present at runtime. So gcc "i686" is actually "i686 and a bit". It
-actually doesn't really make sense to do a true i686 mode without cmov
-either.
+Theirs:
+- does crashdumps
+- does syslog without levels
+- has hooks for receive
 
-Red Hat's rpm knows about this so I'm suprised the Mandrake one gets it
-wrong and installs arch=686 packages without checking for cmov.
+Mine:
+- works in 2.6
+- has non-appalling configuration
+- works as a built-in and is available earlier in boot
+- does syslog with levels (haven't posted this though)
 
+
+-- 
+Matt Mackall : http://www.selenic.com : of or relating to the moon

@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129150AbQKVT5R>; Wed, 22 Nov 2000 14:57:17 -0500
+        id <S129150AbQKVUV1>; Wed, 22 Nov 2000 15:21:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129688AbQKVT5H>; Wed, 22 Nov 2000 14:57:07 -0500
-Received: from cx425802-a.blvue1.ne.home.com ([24.0.54.216]:21000 "EHLO
-        wr5z.localdomain") by vger.kernel.org with ESMTP id <S129150AbQKVT46>;
-        Wed, 22 Nov 2000 14:56:58 -0500
-Date: Wed, 22 Nov 2000 13:26:50 -0600 (CST)
-From: Thomas Molina <tmolina@home.com>
+        id <S129415AbQKVUVQ>; Wed, 22 Nov 2000 15:21:16 -0500
+Received: from www.stusoftdatasystems.ltd.uk ([62.49.252.3]:9862 "EHLO
+        juliet.localnet") by vger.kernel.org with ESMTP id <S129150AbQKVUVK>;
+        Wed, 22 Nov 2000 15:21:10 -0500
+Message-ID: <00e801c054bd$738fa600$fdfea8c0@localnet>
+Reply-To: "Andrew Stubbs" <andrews@stusoft.com>
+From: "Andrew Stubbs" <andrews@stusoft.com>
 To: <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: modutils 2.3.21 is available
-In-Reply-To: <3A1C19E6.D9000430@linux.com>
-Message-ID: <Pine.LNX.4.30.0011221325070.4614-100000@wr5z.localdomain>
+Subject: Broken link in configure help
+Date: Wed, 22 Nov 2000 19:50:21 -0000
+Organization: Stusoft Data Systems
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000, David Ford wrote:
+The link inside configure help for ip tunneling
+"http://anchor.cs.binghamton.edu/~mobileip/LJ/index.html"
+appears to be non-existent
 
-> > >       * Remove compile warnings in xstrcat.
-> > >       * snprintf cleanups.
-> > >       * Set safemode when uid != euid.
-> > >       * Strip quotes from shell responses.
-> >         + add RedHat ism's with a --rhc (red hat compatible) -i -m (-F)
-> >
-> > RedHat kind of is the standard in the commercial world in the US.
->
-> I don't think it's necessary or appropriate to taylor things for a particular
-> distribution even if it may unfortunately be 'standard' for some people.
-
-Zackerly.  My system will certainly look like a RedHat system; it's
-based on one.  However (particularly with regards to kernels and
-modules), I can almost guarantee it won't react like a RedHat system.
+Andrew
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

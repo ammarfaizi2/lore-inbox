@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291298AbSBNKCF>; Thu, 14 Feb 2002 05:02:05 -0500
+	id <S291355AbSBNKDz>; Thu, 14 Feb 2002 05:03:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291383AbSBNKBz>; Thu, 14 Feb 2002 05:01:55 -0500
-Received: from gwyn.tux.org ([207.96.122.8]:23971 "EHLO gwyn.tux.org")
-	by vger.kernel.org with ESMTP id <S291355AbSBNKBq>;
-	Thu, 14 Feb 2002 05:01:46 -0500
-Date: Thu, 14 Feb 2002 05:01:45 -0500
-From: Timothy Ball <timball@tux.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: /proc/bus/pnp wierdness in 2.4.18-pre8-mjc
-Message-ID: <20020214100145.GA22545@gwyn.tux.org>
-Mime-Version: 1.0
+	id <S291397AbSBNKDk>; Thu, 14 Feb 2002 05:03:40 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48655 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291355AbSBNKCd>;
+	Thu, 14 Feb 2002 05:02:33 -0500
+Message-ID: <3C6B8B01.E0A3B194@zip.com.au>
+Date: Thu, 14 Feb 2002 02:01:37 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: lkml <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [patch] compile fixes
+In-Reply-To: <3C6A2F86.E5C322D4@zip.com.au> <Pine.NEB.4.44.0202141036020.25879-100000@mimas.fachschaften.tu-muenchen.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.0i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So this is a neat trick: 
+Adrian Bunk wrote:
+> 
+> On Wed, 13 Feb 2002, Andrew Morton wrote:
+> 
+> > This patch should fix all the remaining .text.exit problems
+> > which have resulted from recent binutils changes.   For all
+> > files which are accessible to an x86 build.
+> >...
+> 
+> Thanks for your work, I tried to compile non-modular 2.4.18-pre9 with this
+> patch and as much as possible enabled. The .text.exit errors are now gone
+> with one exception:
+> 
+> drivers/char/char.o(.data+0xacf4): undefined reference to `local symbols
+> in discarded section .text.exit'
+> 
 
---snip--snip--snip--
-timball@delillo {44}$ uname -a
-Linux delillo 2.4.18-pre8-mjc #1 Tue Feb 12 00:26:33 EST 2002 i586
-unknown
-timball@delillo {45}$ pwd
-/proc/bus
-timball@delillo {46}$ ls -lai
-total 0
-   4131 dr-xr-xr-x    6 root     root            0 Feb 14 04:50 ./
-      1 dr-xr-xr-x   66 root     root            0 Feb 14 04:31 ../
-   4500 dr-xr-xr-x    4 root     root            0 Feb 14 04:58 pccard/
-   4384 dr-xr-xr-x    3 root     root            0 Feb 14 04:58 pci/
-   4459 dr-xr-xr-x    3 root     root            0 Feb 14 04:58 pnp/
-   4459 dr-xr-xr-x    3 root     root            0 Feb 14 04:58 pnp/
-timball@delillo {47}$ ls
-pccard/  pci/  pnp/  pnp/
---snip--snip--snip--
+Well that's odd.  Perhaps something is configured differently.
+Please do this:
 
-I'll be running a new -rc1 kernel by later this morning... I'll see if
-it goes away, but I assume it's an out by one error. If it's still there
-I'll hope to post more info.
+	make bzImage
 
---timball
+Near the end of the build, see the line 
 
--- 
-	GPG key available on pgpkeys.mit.edu
-pub  1024D/511FBD54 2001-07-23 Timothy Lu Hu Ball <timball@tux.org>
-Key fingerprint = B579 29B0 F6C8 C7AA 3840  E053 FE02 BB97 511F BD54
+	ld -m elf_i386 -T  <lots of .o files> -o vmlinux
+
+delete all the .o files which appear that command line.
+
+Now, run
+
+ld -m elf_i386 -T arch/i386/vmlinux.lds $(find . -name '*.o') 2> /tmp/1
+
+Now, go through all the junk in /tmp/1 and search for the text "discarded".
+It will mention a filename.   That's the info we want.
+
+
+Thanks.
+
+
+-

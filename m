@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310185AbSB1X1A>; Thu, 28 Feb 2002 18:27:00 -0500
+	id <S310199AbSB1Xa4>; Thu, 28 Feb 2002 18:30:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310208AbSB1XZF>; Thu, 28 Feb 2002 18:25:05 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:36242 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S310201AbSB1XWZ>;
-	Thu, 28 Feb 2002 18:22:25 -0500
-Date: Thu, 28 Feb 2002 15:20:03 -0800 (PST)
-Message-Id: <20020228.152003.17593481.davem@redhat.com>
-To: christopher.leech@intel.com
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: hardware VLAN acceleration
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <BD9B60A108C4D511AAA10002A50708F22C1452@orsmsx118.jf.intel.com>
-In-Reply-To: <BD9B60A108C4D511AAA10002A50708F22C1452@orsmsx118.jf.intel.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S293698AbSB1X2q>; Thu, 28 Feb 2002 18:28:46 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:6833 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S310203AbSB1XXC>; Thu, 28 Feb 2002 18:23:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.org>
+To: "Hua Zhong" <hzhong@cisco.com>, <root@chaos.analogic.com>
+Subject: Re: question about running program from a RAM disk
+Date: Thu, 28 Feb 2002 23:55:30 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.95.1020228170705.2670A-100000@chaos.analogic.com> <01bc01c1c0a6$a3c315e0$bb3147ab@amer.cisco.com>
+In-Reply-To: <01bc01c1c0a6$a3c315e0$bb3147ab@amer.cisco.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <16gZsW-0lGD9kC@fmrl01.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Leech, Christopher" <christopher.leech@intel.com>
-   Date: Thu, 28 Feb 2002 15:17:54 -0800
+On Thursday 28 February 2002 23:24, Hua Zhong wrote:
+> In the final system we are going to turn off swap. I had dreamed that Linux
+> could directly use the page frame on the RAM disk instead of doing another
+> copy :-)
+>
+> Thanks for the reply
 
-      
-   > The group is still valid, groups are never destroyed by the VLAN layer
-   > once they are created.
-   
-   Unless the 802.1q code is built as a module.  It looks to me like if you
-   unregistered the virtual interface and unload the 802.1q module, if another
-   tagged packet is received tg3 will still call vlan_hwaccel_rx and deref
-   tp->vlgrp which now points to who knows what.
-   
-Any time VLAN groups exist, the VLAN module should not be unloadable.
+You could use ramfs, which does so for sure.
+I am actually not sure about the ramdisk code.
 
-This is a hokey area of how the VLAN layer works and I intend
-to fix it.
+	Regards
+		Oliver

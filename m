@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266240AbUARLxo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 06:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266354AbUARLxo
+	id S261411AbUARMVB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 07:21:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUARMVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 06:53:44 -0500
-Received: from smtp.sys.beep.pl ([195.245.198.13]:48146 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S266240AbUARLxn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 06:53:43 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: [PATCH] fix/improve modular IDE (Re: [PATCH] modular IDE for 2.6.1 ugly but working fix)
-Date: Sun, 18 Jan 2004 12:52:49 +0100
-User-Agent: KMail/1.5.94
-Cc: Sam Ravnborg <sam@ravnborg.org>, Witold Krecicki <adasi@kernel.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200401171313.52545.adasi@kernel.pl> <20040117153830.GA3009@mars.ravnborg.org> <200401171702.35705.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200401171702.35705.bzolnier@elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200401181252.49861.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+	Sun, 18 Jan 2004 07:21:01 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:33504 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261411AbUARMU7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 07:20:59 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 18 Jan 2004 13:20:51 +0100 (MET)
+Message-Id: <UTC200401181220.i0ICKpx05161.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, der.eremit@email.de
+Subject: Re: Making MO drive work with ide-cd
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia sob 17. stycznia 2004 17:02, Bartlomiej Zolnierkiewicz napisa³:
-> On Saturday 17 of January 2004 16:38, Sam Ravnborg wrote:
-> > > +ide-core-objs += ide.o ide-default.o ide-io.o ide-iops.o ide-lib.o \
-> > > +	ide-probe.o ide-taskfile.o
-> >
-> > It would be more consistent to use "ide-core-y" since this is
-> > what the following lines are expanded to.
-> >
-> > > +
-> > > +ide-core-$(CONFIG_BLK_DEV_CMD640)	+= pci/cmd640.o
-> >
-> > Like this line.
->
-> Yep, thanks!
-Could you send updated patch so we could test it?
+    From der.eremit@email.de  Sun Jan 18 02:16:30 2004
+    From: Pascal Schmidt <der.eremit@email.de>
 
-Also would be nice if ide-detect name was used instead of ide-generic so it 
-will be consistent with 2.4 naming.
+    > By some coincidence I got hold of an MO drive today. Under 2.4.21
+    > and 2.6.1 using ide-scsi all seems to work at first sight.
 
-ps. patch by Witold Krecicki works for other drivers - I've seen it working - 
-but it's hacky anyway.
--- 
-Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
+    For me, it doesn't work at all with ide-scsi in 2.6. 2.4 is fine
+    in that regard.
+
+    Please fill the whole disk and then reread and compare via ide-scsi.
+    That never worked for me in 2.6 using ide-scsi, but it does work
+    with the patch in -mm.
+
+Yes, you are right. Yesterday night I tried a small amount of I/O,
+and that worked fine, but today the kernel couldn't cope with a diff
+between two 640MB trees.
+Unable to handle kernel paging request at virtual address 6b6b6b6b.
+Followed by a bad kernel crash (vanilla 2.6.1).
+
+OK. So, just like the rumours said already, ide-scsi is badly broken.
+
+Since small amounts of I/O work - a race somewhere? bad locking?
+
+    > With ide-cd I get errors only.
+    > Not surprising: ide-cd expects a CD so sends READ_TOC and
+    > gets "illegal request / invalid command" back.
+    > The appropriate command is READ CAPACITY.
+
+    There is a patch by me with some rework by Jens Axboe in -mm that
+    corrects this situation. It hasn't seen much testing, though.
+
+OK, will find that and try later.
+
+    By the way, what hardware sector size does your MO use? I have
+    only tested my patch with 2048 byte sector size - everything else
+    is unlikely to work with ide-cd...
+
+It uses media with 512-byte and media with 2048-byte sectors.
+     
+    > Are there cases where ide-cd is useful?
+    > Should we retarget ide_optical to ide-scsi?
+
+    I agree that the situation in mainline as it is now is undesirable,
+    only mounting prewritten discs read-only works.
+
+Yes. We must find out what is wrong in ide-scsi and fix it.
+
+Andries
+

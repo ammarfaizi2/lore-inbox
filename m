@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUIPEFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267455AbUIPEI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267449AbUIPEFl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 00:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267455AbUIPEFk
+	id S267455AbUIPEI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 00:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267457AbUIPEI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 00:05:40 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:29137 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S267449AbUIPEFh (ORCPT
+	Thu, 16 Sep 2004 00:08:56 -0400
+Received: from mail.kroah.org ([69.55.234.183]:49563 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267455AbUIPEIy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 00:05:37 -0400
-Date: Thu, 16 Sep 2004 14:05:18 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: LinuxPPC developers mailing lists have moved
-Message-Id: <20040916140518.5d675fd5.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 16 Sep 2004 00:08:54 -0400
+Date: Wed, 15 Sep 2004 21:08:21 -0700
+From: Greg KH <greg@kroah.com>
+To: Robert Love <rml@novell.com>, Tim Hockin <thockin@hockin.org>,
+       Kay Sievers <kay.sievers@vrfy.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel sysfs events layer
+Message-ID: <20040916040820.GA5395@kroah.com>
+References: <20040915203133.GA18812@hockin.org> <1095280414.23385.108.camel@betsy.boston.ximian.com> <20040915204754.GA19625@hockin.org> <1095281358.23385.109.camel@betsy.boston.ximian.com> <20040915205643.GA19875@hockin.org> <20040915212322.GB25840@kroah.com> <1095283589.23385.117.camel@betsy.boston.ximian.com> <20040915213419.GA21899@hockin.org> <1095284320.23385.123.camel@betsy.boston.ximian.com> <20040916012104.GA21832@MAIL.13thfloor.at>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Thu__16_Sep_2004_14_05_18_+1000_oHOEvuJxNsqpjr8D"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040916012104.GA21832@MAIL.13thfloor.at>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__16_Sep_2004_14_05_18_+1000_oHOEvuJxNsqpjr8D
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Thu, Sep 16, 2004 at 03:21:04AM +0200, Herbert Poetzl wrote:
+> On Wed, Sep 15, 2004 at 05:38:39PM -0400, Robert Love wrote:
+> > On Wed, 2004-09-15 at 14:34 -0700, Tim Hockin wrote:
+> > 
+> > > It's a can of worms, is what it is.  And I'm not sure what a good fix
+> > > would be.  Would it just be enough to send a generic "mount-table changed"
+> > > event, and let userspace figure out the rest?
+> > 
+> > "Can of worms" is a tough description for something that there is no
+> > practical security issue for, just a lot of hand waving.  No one even
+> > uses name spaces.
+> 
+> ah, sorry, that is wrong, we (linux-vserver)
+> _do_ use namespaces extensively, and probably 
+> other 'jail' solutions will use it too ...
 
-Hi all,
+Great.  So, how do you handle the /sbin/hotplug call today?  How would
+you want to handle this kevent notifier?
 
-Just to let those who don't know that the mailing lists for
-Linux on PPC developers have moved.  They are now hosted on
-ozlabs.org.  The current lists are:
+thanks,
 
-	linuxppc-dev	For all developers of Linux on PPC hardware (explictly
-			including embedded hardware)
-	linuxppc64-dev	For all developers of Linux on 64 bit PPC hardware
-
-To subscribe, please point your favourite web browser at
-http://ozlabs.org/mailman/listinfo/
-
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Thu__16_Sep_2004_14_05_18_+1000_oHOEvuJxNsqpjr8D
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBSRED4CJfqux9a+8RArSrAJ43YP4p5i5ETb35DGI1g0bUAr3R9gCfZq8h
-wi5XkEFmGWfiJGb+hrz8c18=
-=ieev
------END PGP SIGNATURE-----
-
---Signature=_Thu__16_Sep_2004_14_05_18_+1000_oHOEvuJxNsqpjr8D--
+greg k-h

@@ -1,84 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbVCOANa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbVCOANc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262144AbVCOANa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 19:13:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVCOAMm
+	id S262146AbVCOANc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 19:13:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVCOALu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 19:12:42 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:43725 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262144AbVCOAIt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 19:08:49 -0500
-Date: Mon, 14 Mar 2005 16:07:31 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich.Windl@rz.uni-regensburg.de, linux@dominikbrodowski.de,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max <masbock@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A3)
-In-Reply-To: <1110590655.30498.327.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0503141602460.15032@schroedinger.engr.sgi.com>
-References: <1110590655.30498.327.camel@cog.beaverton.ibm.com>
+	Mon, 14 Mar 2005 19:11:50 -0500
+Received: from c7ns3.center7.com ([216.250.142.14]:12242 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S262151AbVCOAJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 19:09:50 -0500
+Message-ID: <42362527.6010005@utah-nac.org>
+Date: Mon, 14 Mar 2005 16:58:31 -0700
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Devices/Partitions over 2TB
+References: <200503141644.j2EGiVh0000022634@mudpuddle.cs.wustl.edu> <d14vc7$8cu$2@news.cistron.nl>
+In-Reply-To: <d14vc7$8cu$2@news.cistron.nl>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+You have to ignore the partition table contents for ending cylinder. Use 
+the following instead. You also
+have to write your own FS or modify the partition code in Linux or you 
+won't be able to use the storage. This
+config option listed in the previous post only enables 64 bit LBA 
+addressing, it does not fix the busted fdisk program
+or the problems you will see with the partition tables.
 
-On Fri, 11 Mar 2005, john stultz wrote:
+i.e.
 
-> +/* get_lowres_timestamp():
-> + *	Returns a low res timestamp.
-> + *	(ie: the value of system_time as  calculated at
-> + *	the last invocation of timeofday_periodic_hook() )
-> + */
-> +nsec_t get_lowres_timestamp(void)
-> +{
-> +	nsec_t ret;
-> +	unsigned long seq;
-> +	do {
-> +		seq = read_seqbegin(&system_time_lock);
-> +
-> +		/* quickly grab system_time*/
-> +		ret = system_time;
-> +
-> +	} while (read_seqretry(&system_time_lock, seq));
-> +
-> +	return ret;
-> +}
+SystemDisk[j]->BytesPerSector = bdev_hardsect_size(bdev);
+SystemDisk[j]->driveSectors = (LONGLONG)bdev->bd_disk->capacity;
+SystemDisk[j]->driveSize = (LONGLONG)
+((LONGLONG)bdev->bd_disk->capacity *
+SystemDisk[j]->BytesPerSector);
+SystemDisk[j]->max_sg_elements = bio_get_nr_vecs(bdev);
 
-On 64 bit platforms this could simply be a macro accessing "system time".
+the bd_disk->capacity reports the actual drive size, but fdisk ignores it.
 
-> +/* do_gettimeofday():
-> + *	Returns the time of day
-> + */
-> +void do_gettimeofday(struct timeval *tv)
-> +{
-> +	nsec_t wall, sys;
-> +	unsigned long seq;
-> +
-> +	/* atomically read wall and sys time */
-> +	do {
-> +		seq = read_seqbegin(&system_time_lock);
-> +
-> +		wall = wall_time_offset;
-> +		sys = __monotonic_clock();
-> +
-> +	} while (read_seqretry(&system_time_lock, seq));
-> +
-> +	/* add them and convert to timeval */
-> +	*tv = ns2timeval(wall+sys);
-> +}
-> +EXPORT_SYMBOL(do_gettimeofday);
+Good Luck.
 
-Good.
+Jeff
+
+
+Miquel van Smoorenburg wrote:
+
+>In article <200503141644.j2EGiVh0000022634@mudpuddle.cs.wustl.edu>,
+>Berkley Shands  <berkley@cs.wustl.edu> wrote:
+>  
+>
+>>I have not found any documentation of efforts to overcome the 2TB
+>>partition limit,
+>>    
+>>
+>
+>config LBD
+>        bool "Support for Large Block Devices"
+>        depends on X86 || MIPS32 || PPC32 || ARCH_S390_31 || SUPERH
+>        help
+>          Say Y here if you want to attach large (bigger than 2TB) discs to
+>          your machine, or if you want to have a raid or loopback device
+>          bigger than 2TB.  Otherwise say N.
+>
+>Mike.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 

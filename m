@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVBRQZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVBRQ24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbVBRQZo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 11:25:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVBRQZo
+	id S261393AbVBRQ24 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 11:28:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVBRQ24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 11:25:44 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:34508 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261393AbVBRQZh (ORCPT
+	Fri, 18 Feb 2005 11:28:56 -0500
+Received: from thunk.org ([69.25.196.29]:53183 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261393AbVBRQ2d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 11:25:37 -0500
-Date: Fri, 18 Feb 2005 08:25:18 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: raybry@sgi.com, ak@suse.de, ak@muc.de, raybry@austin.rr.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
- II
-Message-Id: <20050218082518.03f46371.pj@sgi.com>
-In-Reply-To: <20050218130232.GB13953@wotan.suse.de>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
-	<m1vf8yf2nu.fsf@muc.de>
-	<42114279.5070202@sgi.com>
-	<20050215121404.GB25815@muc.de>
-	<421241A2.8040407@sgi.com>
-	<20050215214831.GC7345@wotan.suse.de>
-	<4212C1A9.1050903@sgi.com>
-	<20050217235437.GA31591@wotan.suse.de>
-	<4215A992.80400@sgi.com>
-	<20050218130232.GB13953@wotan.suse.de>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 18 Feb 2005 11:28:33 -0500
+Date: Fri, 18 Feb 2005 11:27:29 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Sean <seanlkml@sympatico.ca>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Chris Friesen <cfriesen@nortel.com>, "d.c" <aradorlinux@yahoo.es>,
+       cs@tequila.co.jp, galibert@pobox.com, kernel@crazytrain.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK] upgrade will be needed
+Message-ID: <20050218162729.GA5839@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Sean <seanlkml@sympatico.ca>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Chris Friesen <cfriesen@nortel.com>, "d.c" <aradorlinux@yahoo.es>,
+	cs@tequila.co.jp, galibert@pobox.com, kernel@crazytrain.com,
+	linux-kernel@vger.kernel.org
+References: <seanlkml@sympatico.ca> <4912.10.10.10.24.1108675441.squirrel@linux1> <200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl> <1451.10.10.10.24.1108713140.squirrel@linux1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1451.10.10.10.24.1108713140.squirrel@linux1>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi wrote:
-> Problem is what happens
-> when some memory is in some other node due to memory pressure fallbacks.
-> Your scheme would not migrate this memory at all. 
+On Fri, Feb 18, 2005 at 02:52:20AM -0500, Sean wrote:
+> There are ways that the tools could coexist and work together better than
+> they do today. If people would stop acting like BK was in jeopardy of
+> being taken away from them and realize that others just want the ability
+> to use their tools of choice too.
 
-The arrays of old and new nodes handle this fine.
-Include that 'other node' in the array of old nodes,
-and the corresponding new node, where those pages
-should migrate, in the array of new nodes.
+If you truly believe that BK would be able to add the value that it
+does to the kernel development process by using some other SCM as the
+master SCM, with BK being "underneath", as you proposed earlier, then
+you do not understand why BK is fundamentally better than the current
+open source SCM systems that are out there.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+And people *can* use the tools of their choice today.  They can use
+CVS, and diff+patch, and suffer with all of the limitations that those
+tools have today.  And for people who are doing stuff around the
+periphery, quilt is often really the best tool for them.  
+
+> > Linus clearly considered not just his /own/ workflow, but the workflow
+> > for the /whole/ kernel development community. In fact, BK was designed
+> 
+> Well, the /whole/ community isn't yet included, that's what we're talking
+> about.
+
+If it's about the whole ***kernel*** development community, then it's
+pretty clear that the current system works quite well.  All of the
+complaints have been coming primarily from SCM hackers, it seems, and
+not people who truly need the power of more powerful than downloading
+the bk snapshots, using the CVS export tree, and in the case where
+they need to look at the changes in a single changeset bkbits.net.  
+
+The "cost" of using BK seems to be primarily more theoretical, and
+ideological, than real.  It's always seems to be about someone
+kvetching that they want to use SVN and get finely grained changsets
+through SVN, and they can't.  But how often does that happen, and
+what's so painful of getting the finely grained changeset through
+bkbits.net?  Not very.  So at the end of the day, it finally boils
+down to being all about ideology, doesn't it?
+
+Once again proving that Linus, as is often the case, was right all
+along.
+
+						- Ted

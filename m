@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268417AbTCCHZT>; Mon, 3 Mar 2003 02:25:19 -0500
+	id <S268405AbTCCHcO>; Mon, 3 Mar 2003 02:32:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268422AbTCCHZS>; Mon, 3 Mar 2003 02:25:18 -0500
-Received: from [203.199.140.162] ([203.199.140.162]:25103 "EHLO
-	calvin.codito.co.in") by vger.kernel.org with ESMTP
-	id <S268417AbTCCHZR>; Mon, 3 Mar 2003 02:25:17 -0500
-From: Amit Shah <shahamit@gmx.net>
-To: Matthew Wilcox <willy@debian.org>
-Subject: Re: [PATCH] taskqueue to workqueue update for riscom8 driver
-Date: Mon, 3 Mar 2003 13:05:22 +0530
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <20030302043804.A17185@parcelfarce.linux.theplanet.co.uk> <200303021751.01224.shahamit@gmx.net> <20030302163427.C7301@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20030302163427.C7301@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S268400AbTCCHcO>; Mon, 3 Mar 2003 02:32:14 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:63236 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S268405AbTCCHcN>; Mon, 3 Mar 2003 02:32:13 -0500
+Date: Mon, 3 Mar 2003 07:42:38 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5][CHECKER] i2c-core locking
+Message-ID: <20030303074238.A23510@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50.0303022325400.25240-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200303031305.22854.shahamit@gmx.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.50.0303022325400.25240-100000@montezuma.mastecende.com>; from zwane@linuxpower.ca on Sun, Mar 02, 2003 at 11:26:29PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 Mar 2003 22:04, Matthew Wilcox wrote:
-> So it only compiles on UP.  Not terribly interesting.
->
-> BTW, I wouldn't necessarily expect it to work.  Work queues run in
-> process context; the code you replaced ran in bottom half context.
-> If you're going to do this kind of lame hack, it should be converted
-> to a tasklet, not a work queue.
+On Sun, Mar 02, 2003 at 11:26:29PM -0500, Zwane Mwaikambo wrote:
+> This one looks like it wasn't dropping the driver mutex on some exit 
+> paths.
 
-A simple grep for cli() in drivers/char reveals that many of those drivers 
-still use cli(), which means even they haven't yet been converted to the new 
-framework.
-
-As for the patch, other drivers, like cyclades, for example, too have been 
-modified in the same manner.... on digging, I found that the original patch 
-that converted the taskqueues to workqueues had also done it the same way.
-
-Amit.
-
--- 
-Amit Shah
-http://amitshah.nav.to/
-
-The most exciting phrase to hear in science, the one that heralds new
-discoveries, is not "Eureka!" (I found it!) but "That's funny ..."
-                -- Isaac Asimov
+Please leave this as-is for now.  lm_sensors CVS has replaced the two
+with a single semaphore and I plan to bring their changes over to
+mainline soon.
 

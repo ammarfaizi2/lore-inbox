@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbUENN5D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUENOGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbUENN5D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 09:57:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUENN5D
+	id S261159AbUENOGb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 10:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUENOGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 09:57:03 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:10113 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261425AbUENN5A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 09:57:00 -0400
-Date: Fri, 14 May 2004 09:55:32 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: tristian radford <tristian2003@msn.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel bugs with Nvidia drivers
-In-Reply-To: <BAY5-F8jRveQLTFhL8x000163dd@hotmail.com>
-Message-ID: <Pine.LNX.4.53.0405140953580.4678@chaos>
-References: <BAY5-F8jRveQLTFhL8x000163dd@hotmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 May 2004 10:06:31 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:56806 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261159AbUENOGa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 10:06:30 -0400
+Date: Fri, 14 May 2004 16:06:22 +0200 (MEST)
+Message-Id: <200405141406.i4EE6MkD018375@alkaid.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr-2.7.2 released
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 May 2004, tristian radford wrote:
+Version 2.7.2 of perfctr, the Linux performance
+monitoring counters driver, is now available at the usual
+place: http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-> I have picked up a majour bug in kernel 2.6 regerding the Nvidia graphic
-> drivers which are cousing my screen to go funny when I halt my machine
-> making the terminal to go dodgy but I can still work around it.
-> It looks like somthing from a old sinclair spectrum when the tape is loading
-> or a moron who tried to use a 1024x768 resoultion under a 14" monitor (my
-> monitor is 15"!)
->
+This version changes the user/kernel interface from ioctl()s
+to syscalls. Requested by Andrew Morton (2.6-mm kernel maintainer).
 
-It's not a kernel bug. It's a Nvida bug. Please contact them. They
-make the driver that has secret code so nobody can help find what
-part of their stuff is screwing up.
+This breaks compatibility with perfctr-2.6 user-space code,
+so don't even think about using this except for testing.
+It also only works in the 2.6.6 and 2.6.6-mm2 kernels.
 
+The new user-space syscall() wrappers only work with certain
+gcc versions and gcc options: x86 without -fPIC and ppc
+with gcc-3.2 work, while x86 with -fPIC, x86_64, and ppc
+with gcc-3.4.0 don't. This will be fixed in the next release.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Version 2.7.2, 2004-05-14
+- Changes for submission to 2.6.6-mm kernel. Replaced
+  ioctl() interface by new syscall (by request, not choice).
+  Eliminated module support and backwards compatibility.
+  Many other cleanups.
 
-
+/ Mikael Pettersson

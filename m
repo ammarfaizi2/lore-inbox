@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283226AbRK2NsW>; Thu, 29 Nov 2001 08:48:22 -0500
+	id <S283228AbRK2NvC>; Thu, 29 Nov 2001 08:51:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283227AbRK2NsN>; Thu, 29 Nov 2001 08:48:13 -0500
-Received: from [212.111.50.98] ([212.111.50.98]:13984 "EHLO
-	shami.gointernet.co.uk") by vger.kernel.org with ESMTP
-	id <S283226AbRK2Nr7>; Thu, 29 Nov 2001 08:47:59 -0500
-Message-ID: <3C063CB9.8E6CC90C@gointernet.co.uk>
-Date: Thu, 29 Nov 2001 13:48:41 +0000
-From: Eugenio Mastroviti <eugeniom@gointernet.co.uk>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-64GB-SMP i686)
-X-Accept-Language: en
+	id <S283230AbRK2Nux>; Thu, 29 Nov 2001 08:50:53 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:516 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S283228AbRK2Nur>;
+	Thu, 29 Nov 2001 08:50:47 -0500
+Date: Thu, 29 Nov 2001 11:50:25 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: lkml <linux-kernel@vger.kernel.org>, <lwn@lwn.net>
+Subject: Re: Linux 2.4.16 
+In-Reply-To: <200111291239.fATCd0oB015329@pincoya.inf.utfsm.cl>
+Message-ID: <Pine.LNX.4.33L.0111291150080.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: i2o and Promise SuperTrak SX6000 ata raid controller
-In-Reply-To: <3C0624C3.E7A6809A@writeme.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Mueller wrote:
+On Thu, 29 Nov 2001, Horst von Brand wrote:
+> Rik van Riel <riel@conectiva.com.br> said:
+> > On Thu, 29 Nov 2001, Anuradha Ratnaweera wrote:
+> >
+> > > Just few cents, though.
+> >
+> > If everybody contributing their few cents would pay up,
+> > we kernel hackers would be rich by now ;)
+>
+> I doubt it. There are way too many of them around for this to work out ;->
 
-> I have, of course, switched the controller mode to 'other OS' and the
-> controller is being recognized by the system. Everything is fine as long
-> as I use kernel 2.4.4, the raid array is being recognized and working.
+Yeah, but look at the opinion vs. contribution ratio ;)
 
-On the same note, does anybody know whether a basic "i2o-HOWTO" exists
-and where it can be found?
-
-Thanks
-
-Eugenio (going mad with an AMI Megaraid)
-
+Rik
 -- 
-Q:  How do you play religious roulette?
-A:  You stand around in a circle and blaspheme and see who gets struck
-    by lightning first.
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

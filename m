@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbUJaMCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbUJaMCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbUJaMCF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 07:02:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbUJaL7L
+	id S261175AbUJaMCt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 07:02:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbUJaMCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 06:59:11 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:35003 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261596AbUJaL6m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 06:58:42 -0500
-Date: Sun, 31 Oct 2004 12:58:38 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 breaks NVidia module, cannot start X.
-Message-ID: <Pine.LNX.4.53.0410311254360.2766@yvahk01.tjqt.qr>
+	Sun, 31 Oct 2004 07:02:21 -0500
+Received: from amsfep18-int.chello.nl ([213.46.243.13]:59993 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261539AbUJaL7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 06:59:07 -0500
+Date: Sun, 31 Oct 2004 12:58:58 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 517] M68k: Disable SERIO_I8042, except on Q40/Q60
+In-Reply-To: <20041031101425.GA1343@ucw.cz>
+Message-ID: <Pine.LNX.4.61.0410311256520.18354@anakin>
+References: <200410311003.i9VA3f6H009703@anakin.of.borg> <20041031101425.GA1343@ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 31 Oct 2004, Vojtech Pavlik wrote:
+> On Sun, Oct 31, 2004 at 11:03:41AM +0100, Geert Uytterhoeven wrote:
+> 
+> > M68k: Disable SERIO_I8042, except on Q40/Q60
+> 
+> I thought Q40 uses the q40kbd.c driver and shouldn't need i8042 either?
 
-On Tue, 19 Oct 2004, Jesse Stockall wrote:
-> On Tue, 2004-10-19 at 10:42, Justin Piszcz wrote:
->> nvidia: Unknown symbol __VMALLOC_RESERVE
->> nvidia: Unknown symbol __VMALLOC_RESERVE
->
-> Try
-> http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-ck1/patches/nvidia_compat.diff
-> Jesse
+Bummer. I got confused by Q40 having an i8042-alike controller, but
+you're right that it uses a different driver (and no Q40 guy complained).
 
-Wow, I'm wondering. The kernel-of-the-day from SUSE (20040929, 20041023
-and 20041028) (2.6.8 + 2.6.9-rc2 IIRC) do not even have unsigned int
-__VMALLOC_RESERVE in arch/i386/mm/init.c.
+Here's an updated patch:
 
-More surprisingly, there is not any VMALLOC thing in the NV sources:
+M68k: Disable SERIO_I8042
 
-12:56 io:../src/nv # pwd
-/usr/src/NV/NVIDIA-Linux-x86-1.0-4496-pkg0/usr/src/nv
-12:56 io:../src/nv # grep VMALLOC_RES *
-12:56 io:../src/nv # cd /usr/src/NV6/NVIDIA-Linux-x86-1.0-6111-pkg1/usr/src/nv/
-12:56 io:../src/nv # grep VMALLOC_RES *
-12:56 io:../src/nv #
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-So it's not in the 4496 (which I use, due to speed problems with 5xxx and
-6xxx in the past) and neither in the 6111.
+--- linux-2.6.10-rc1/drivers/input/serio/Kconfig	2004-09-30 12:53:37.000000000 +0200
++++ linux-m68k-2.6.10-rc1/drivers/input/serio/Kconfig	2004-10-27 23:16:43.000000000 +0200
+@@ -20,7 +20,7 @@ config SERIO_I8042
+ 	tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
+ 	default y
+ 	select SERIO
+-	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST)
++	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && !M68K
+ 	---help---
+ 	  i8042 is the chip over which the standard AT keyboard and PS/2
+ 	  mouse are connected to the computer. If you use these devices,
 
-I'm puzzled, comments welcome.
+Gr{oetje,eeting}s,
 
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263257AbSJCLMK>; Thu, 3 Oct 2002 07:12:10 -0400
+	id <S263236AbSJCLNV>; Thu, 3 Oct 2002 07:13:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263251AbSJCLMJ>; Thu, 3 Oct 2002 07:12:09 -0400
-Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:61573 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S263419AbSJCLME> convert rfc822-to-8bit;
-	Thu, 3 Oct 2002 07:12:04 -0400
+	id <S263235AbSJCLNV>; Thu, 3 Oct 2002 07:13:21 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:7604 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S263234AbSJCLNU> convert rfc822-to-8bit; Thu, 3 Oct 2002 07:13:20 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <hps@intermeta.de>, <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1055) - Licensed Version
+Date: Thu, 3 Oct 2002 04:18:36 -0700
+In-Reply-To: <anh7es$mpl$1@forge.intermeta.de>
+Subject: Re: Sequence of IP fragment packets on the wire
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: jbradford@dial.pipex.com
-Subject: Re: RAID backup
-Date: Thu, 3 Oct 2002 13:27:35 +0200
-User-Agent: KMail/1.4.1
-Cc: jakob@unthought.net, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org
-References: <200210031120.g93BKLqK000216@darkstar.example.net>
-In-Reply-To: <200210031120.g93BKLqK000216@darkstar.example.net>
-MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200210031327.35046.roy@karlsbakk.net>
+Message-ID: <20021003111847.AAA15244@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sorry
 
-wrong answer
-wrong mail
-oops
+On Thu, 3 Oct 2002 10:51:08 +0000 (UTC), Henning P. Schmiedehausen wrote:
 
-On Thursday 03 October 2002 13:20, jbradford@dial.pipex.com wrote:
-> Might it not be a good idea to DD the raw contents of each disk to a tape
-> drive, just incase you fubar the array?  It would be time consuming, but at
-> least you could restore your data in the event that it gets corrupted.
+>as far as I can see, Linux sends out fragmented IP packets
+>"butt-first":
+>(where the first packet is actually the fragmented 2nd part of the
+>second packet).
 >
-> John.
+>This confuses at least one firewall appliance.
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
+	I'm afraid that this firewall appliance is fundamentally broken. Nothing you 
+can do to Linux can fix this fundamental breakage. I can give further 
+examples, analogies, and argumentation, but it really should be obvious that 
+IP, fundamentally, does not guarantee any particular reception order and 
+anything that assumes it does cannot be fixed except by changing the 
+assumption.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+	This is as bad as a TCP application that assumes one 'read' call will return 
+an entire line or command. You cannot push the problem elsewhere.
+
+	DS
+
 

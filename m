@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267272AbUHIVVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267238AbUHIVY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267272AbUHIVVn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 17:21:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267250AbUHIVQ7
+	id S267238AbUHIVY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 17:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267264AbUHIVYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 17:16:59 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:50445 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267238AbUHIVQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 17:16:22 -0400
-Date: Mon, 9 Aug 2004 22:16:20 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-ia64@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, grif@cs.ucr.edu,
-       linux-kernel@vger.kernel.org
+	Mon, 9 Aug 2004 17:24:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24031 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267232AbUHIVV7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 17:21:59 -0400
+Date: Mon, 9 Aug 2004 14:20:12 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: hch@infradead.org, bjorn.helgaas@hp.com, akpm@osdl.org, ehm@cris.com,
+       grif@cs.ucr.edu, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] QLogic ISP2x00: remove needless busyloop
-Message-ID: <20040809221620.B10454@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, grif@cs.ucr.edu,
-	linux-kernel@vger.kernel.org
-References: <200408091252.58547.bjorn.helgaas@hp.com> <200408091419.20029.bjorn.helgaas@hp.com> <20040809212147.A9919@infradead.org> <200408091508.27773.bjorn.helgaas@hp.com>
+Message-Id: <20040809142012.23dc22af.davem@redhat.com>
+In-Reply-To: <20040809221529.A10454@infradead.org>
+References: <200408091252.58547.bjorn.helgaas@hp.com>
+	<20040809210335.A9711@infradead.org>
+	<20040809141155.0c94b8c4.davem@redhat.com>
+	<20040809221529.A10454@infradead.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200408091508.27773.bjorn.helgaas@hp.com>; from bjorn.helgaas@hp.com on Mon, Aug 09, 2004 at 03:08:27PM -0600
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09, 2004 at 03:08:27PM -0600, Bjorn Helgaas wrote:
-> > > In general, I think if a driver is in the tree, it should be fair
-> > > game for bugfixes.  In fact, I see you did the most recent one to
-> > > qlogicfc :-)
-> > 
-> > That wasn't a bugfix, look harder.
+On Mon, 9 Aug 2004 22:15:29 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
+
+> On Mon, Aug 09, 2004 at 02:11:55PM -0700, David S. Miller wrote:
+> > You could remove the qlogicfc driver if you really wanted, by providing
+> > a config option that would provide qlogicfc compatible device numbering
+> > in the qla2xxx driver.
 > 
-> My apologies.  I should have written "if a driver is in the
-> tree, it should be fair game to improve it."
+> It's called CONFIG_DEVFS.  disable this config option (it's marked OBSOLETE anyway)
+> and your device names are the same.
 
-I don't object to the patch.  But it was a _very_ _strong_ _hint_ that you
-did something wrong if the patch actually matters for you.
-
+I wish to do 2.4.x and 2.6.x development on the same system.
+Is this such a foreign concept for you?

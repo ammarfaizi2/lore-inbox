@@ -1,38 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132904AbRDEOgI>; Thu, 5 Apr 2001 10:36:08 -0400
+	id <S132906AbRDEOgi>; Thu, 5 Apr 2001 10:36:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132906AbRDEOf7>; Thu, 5 Apr 2001 10:35:59 -0400
-Received: from highland.isltd.insignia.com ([195.217.222.20]:21510 "EHLO
-	highland.isltd.insignia.com") by vger.kernel.org with ESMTP
-	id <S132904AbRDEOfk>; Thu, 5 Apr 2001 10:35:40 -0400
-Message-ID: <3ACC82C9.F1C046CE@insignia.com>
-Date: Thu, 05 Apr 2001 15:35:53 +0100
-From: Stephen Thomas <stephen.thomas@insignia.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S132908AbRDEOg3>; Thu, 5 Apr 2001 10:36:29 -0400
+Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:54793 "EHLO
+	the.jukie.net") by vger.kernel.org with ESMTP id <S132906AbRDEOgT>;
+	Thu, 5 Apr 2001 10:36:19 -0400
+Date: Thu, 5 Apr 2001 10:35:00 -0400 (EDT)
+From: Bart Trojanowski <bart@jukie.net>
 To: Joseph Carter <knghtbrd@debian.org>
-CC: Bart Trojanowski <bart@jukie.net>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
 Subject: Re: asm/unistd.h
 In-Reply-To: <20010405072628.C22001@debian.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.30.0104051031210.13496-100000@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joseph Carter wrote:
+On Thu, 5 Apr 2001, Joseph Carter wrote:
+
+> On Thu, Apr 05, 2001 at 09:06:20AM -0400, Bart Trojanowski wrote:
+> > So you ask: "why not just use a { ... } to define a macro".  I don't
+> > remember the case for this but I know it's there.  It has to do with a
+> > complicated if/else structure where a simple {} breaks.
+>
 > This doesn't follow in my mind.  I can't think of a case where a { ... }
 > would fail, but a do { ... } while (0) would succeed.  The former would
 > also save a few keystrokes.
 
-#define FOO(x) { wibble(x); wobble((x)+1);}
+Tim Waugh already stated this one:
 
-   if (something)
-      FOO(23);
-   else            /* Compile goes crump here. */
-      another_thing();
+#define foo(x) { do_something(x) }
+
+if( condition )
+  foo(x);
+else
+  foo(y);
+
+would produce
+
+if( condition )
+  { do_something(x) };
+else
+  { do_something(y) };
+
+note the semi-colon at the end of {.*}.
+
+This is bad because it forces you to use the foo macro knowing it's a
+macro and not a function.
+
+So you say I will use it like this:
+
+if( condition )
+  foo(x)
+else
+  foo(y)
+
+That's just great for this case, but now imagine that on some other
+architecture doing foo(x) takes many many lines with recursion and all.
+You don't want that to be in a macro so you make a function.  And you get
+many many compiler errors on thsi new platform.
+
+Cheers,
+Bart.
+
+-- 
+	WebSig: http://www.jukie.net/~bart/sig/
 
 
-Stephen Thomas

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278800AbRJZRnA>; Fri, 26 Oct 2001 13:43:00 -0400
+	id <S278797AbRJZSQW>; Fri, 26 Oct 2001 14:16:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278795AbRJZRmv>; Fri, 26 Oct 2001 13:42:51 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:43004 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S278797AbRJZRmk>; Fri, 26 Oct 2001 13:42:40 -0400
-Message-ID: <3BD9AE9D.53D53936@resilience.com>
-Date: Fri, 26 Oct 2001 11:42:37 -0700
-From: Jeff Golds <jgolds@resilience.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.12-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Deadlock with linux kernel
-In-Reply-To: <Pine.LNX.4.33L.0110261537170.22127-100000@duckman.distro.conectiva>
+	id <S278807AbRJZSQL>; Fri, 26 Oct 2001 14:16:11 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:1779 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S278797AbRJZSQF>; Fri, 26 Oct 2001 14:16:05 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 26 Oct 2001 12:16:28 -0600
+To: Alex Larsson <alexl@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dnotify semantics
+Message-ID: <20011026121628.O23590@turbolinux.com>
+Mail-Followup-To: Alex Larsson <alexl@redhat.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0110261139190.10309-100000@mjc.meridian.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110261139190.10309-100000@mjc.meridian.redhat.com>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Fri, 26 Oct 2001, Jeff Golds wrote:
-> 
-> > I've been having this problem since 2.4.6 and just attributed it to VM
-> > issues.  However, I've been trying all the latest kernels (2.4.9-acXX,
-> > 2.4.10-acXX, 2.4.12-acXX and 2.4.13) and am still getting a deadlock
-> > scenario someplace.  In fact, my system hung up in about 2 minutes after
-> > booting the 2.4.13 kernel.
-> 
-> Since your system hangs just after boot, while you still
-> have free ram and tons of swap, in kernels with 3 different
-> VM subsystems ... I'm pretty sure this isn't a VM problem.
+On Oct 26, 2001  11:48 -0400, Alex Larsson wrote:
+> Currently when monitoring a directory using dnotify you get notifications 
+> whenever some file in the directory changes, or is added/removed. But when 
+> the directory itself is changed (i.e. chmoded) you don't get any notification.
 
-No, it only hung just after boot one time.  However, I was doing a
-kernel build when it hung (I was trying to make a new kernel to try out
-as I had just rebooted).
+So, monitor the parent of the directory in question for attribute changes.
 
-Most times, the machine will stay up for a day or two then lock during a
-kernel build.
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
--Jeff
-
--- 
-Jeff Golds
-Sr. Software Engineer
-jgolds@resilience.com

@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268060AbUHWXCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUHWWrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268060AbUHWXCO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 19:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268000AbUHWW4P
+	id S267904AbUHWWrg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 18:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268128AbUHWWrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 18:56:15 -0400
-Received: from nika.frontier.iarc.uaf.edu ([137.229.94.16]:63361 "EHLO
-	nika.frontier.iarc.uaf.edu") by vger.kernel.org with ESMTP
-	id S267989AbUHWWy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 18:54:28 -0400
-Date: Mon, 23 Aug 2004 14:54:26 -0800
-From: Christopher Swingley <cswingle@iarc.uaf.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Oops during mkfs, SMP Opteron, 2.6.8.1 / -mm4
-Message-ID: <20040823225426.GE2519@iarc.uaf.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040823181204.GB2519@iarc.uaf.edu>
+	Mon, 23 Aug 2004 18:47:23 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:36489 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267705AbUHWWlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 18:41:20 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P8
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040823210151.GA10949@elte.hu>
+References: <20040816040515.GA13665@elte.hu>
+	 <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu>
+	 <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net>
+	 <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu>
+	 <20040820133031.GA13105@elte.hu> <20040820195540.GA31798@elte.hu>
+	 <20040821140501.GA4189@elte.hu>  <20040823210151.GA10949@elte.hu>
+Content-Type: text/plain
+Message-Id: <1093300882.826.28.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040823181204.GB2519@iarc.uaf.edu>
-X-gpg-fingerprint: B96C 58DC 0643 F8FE C9D0  8F55 1542 1A4F 0698 252E
-X-gpg-key: [http://www.frontier.iarc.uaf.edu/~cswingle/gnupgkey.asc]
-X-URL: [http://www.frontier.iarc.uaf.edu/~cswingle/]
-X-Editor: VIM [http://www.vim.org]
-X-message-flag: Consider Linux: fast, reliable, secure & free!
-User-Agent: Mutt/1.5.6+20040803i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 23 Aug 2004 18:41:23 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again,
+On Mon, 2004-08-23 at 17:01, Ingo Molnar wrote:
+> i've uploaded the -P8 patch:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P8
+> 
+> Changes since -P8:
+> 
+>  - fixes the DRI/DRM latency in radeon (and other drivers). The concept 
+>    was investigated/tested by Dave Airlie.
+> 
+>  - reduce netdev_max_backlog to 8 (Mark H Johnson)
+> 
 
-* Christopher Swingley <cswingle@iarc.uaf.edu> [2004-Aug-23 10:12 AKDT]:
-> Unable to handle kernel paging request at 0000000000200e6f RIP:
-> <ffffffff80157081>{kmem_getpages+129}
-> PML4 1fdcd9067 PGD 1fe351067 PMD 0
-> Oops: 0000 [1] SMP
-> CPU 1
-> Modules linked in: 8139too mii crc32 tg3
-> Pid: 1719, comm: mkfs.ext3 Not tainted 2.6.8.1
+Should this fix the 500+ usec latency I saw in rt_garbage_collect?  This
+one took a while to occur (overnight).
 
-I know it's bad form to reply to one's own posting, but I suspect that 
-more information is probably useful here.
-
-Since posting this, I've tried a single processor version of the 2.6.8.1 
-kernel (even though it's a dual Opteron) and I didn't get the oops.  
-I've also tried an SMP kernel without CONFIG_K8_NUMA, and the oops also 
-disappears.
-
-So the issue appears to be related to the K8_NUMA stuff, and I'll 
-continue on with a non-NUMA SMP 2.6.8.1 and see if the system stays up 
-and running.
-
-Thanks,
-
-Chris
--- 
-Christopher S. Swingley          email: cswingle@iarc.uaf.edu (work)
-Intl. Arctic Research Center            cswingle@gmail.com (personal)
-University of Alaska Fairbanks   www.frontier.iarc.uaf.edu/~cswingle/
+Lee
 

@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbTFRASe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 20:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265030AbTFRASe
+	id S265030AbTFRATW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 20:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbTFRATW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 20:18:34 -0400
-Received: from [198.184.232.17] ([198.184.232.17]:2689 "EHLO
-	swordfish.capgemini.hu") by vger.kernel.org with ESMTP
-	id S265029AbTFRASd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 20:18:33 -0400
-Date: Wed, 18 Jun 2003 02:33:14 +0200
-From: Nagy Gabor <linux42@freemail.c3.hu>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.70 module autoloading problem
-Message-ID: <20030618003314.GC2413@swordfish.capgemini.hu>
-References: <20030606141710.GA254@swordfish.capgemini.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030606141710.GA254@swordfish.capgemini.hu>
-User-Agent: Mutt/1.3.28i
+	Tue, 17 Jun 2003 20:19:22 -0400
+Received: from smtp-out.comcast.net ([24.153.64.115]:21201 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S265030AbTFRATN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 20:19:13 -0400
+Date: Tue, 17 Jun 2003 20:30:23 -0400
+From: rmoser <mlmoser@comcast.net>
+Subject: How do I make this thing stop laging?  Reboot?  Sounds like  Windows!
+To: linux-kernel@vger.kernel.org
+Message-id: <200306172030230870.01C9900F@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03-Jun-06 16:17, Nagy Gabor wrote:
-> Hi!
-> 
-> I wanted to test 2.5, and so I did with 2.5.67 first, then with 2.5.70
-> 
-> I have installed  the module-init-tools 0.9.11-1 debian package, and now
-> some of my modules work automatically under 2.5 too, others don't get
-> autoloaded.
-> 
-> I don't know if this is a bug in the kernel (kmod), or just something has
-> changed so much without warning, that it breaks other things.
+Figured this one out.  I had the issue where xmms was skipping a
+lot and my system was lagging wasy too much.  Rebooted to fix it
+(WTF?!) whenever it happened.  Couldn't understand why.  Hard disk
+light flashing, but no programs that read from the HDD all that much
+(xmms doesn't do it THAT much).
 
-I have changed kmod.c to print every module name it tries to load.
-I noted that it tried to load char-major-10-1 (psaux), and isofs, and
-that kmod did not print the message when accessing /dev/input/mousr
+I got rid of htdig.  It stopped.
 
-Regards,
-G
+So I ran GIMP recently and caused it again.  Clicked in the wrong
+place and BOOM!  Gradient needs too much RAM and CPU and time.
+Killed gimp.  Suddenly, my system is lagging.
+
+Ten minutes later I get the brains to run top.  It seems I have about
+50 MB in swap, and 54 MB free memory.  So I wait ten minutes more.
+
+No change.
+
+% swapoff -a; swapon -a
+
+Fixes all my problems.
+
+Now this long story shows something:  The kernel appears to be unable
+to intelligently pull swap back into RAM.  What gives?
+
+I'm poking around in linux/mm and can't find the code to control this.  I
+want to make it swap back in any page that it reads, even if it has to
+swap out another page (preferably one which hasn't been used for very
+long).  Also, a more aggressive thing, kswapd should have freepages.max
+in there, to force it to pull in pages from swap aggressively if there's a lot
+of free RAM and a lot of swap used.
+
+Uhh, I'm lost... how does this stuff work?  I'm... really lost.  Should I be
+doing this?  Tell me where to start maybe?
+
+--Bluefox Icy
+

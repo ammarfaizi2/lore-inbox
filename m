@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268723AbUILNoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268724AbUILNsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268723AbUILNoP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 09:44:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268724AbUILNoP
+	id S268724AbUILNsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 09:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268726AbUILNsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 09:44:15 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:33708 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S268723AbUILNoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 09:44:08 -0400
-Date: Sun, 12 Sep 2004 17:44:12 +0200
-From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
-Organization: Privat.
-To: Chris Siebenmann <cks@utcc.utoronto.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <41446ECC.nailNA21Y93K@pluto.uni-freiburg.de>
-References: <04Sep10.170341edt.41989@gpu.utcc.utoronto.ca>
-In-Reply-To: <04Sep10.170341edt.41989@gpu.utcc.utoronto.ca>
-User-Agent: nail 11.7pre 9/10/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 12 Sep 2004 09:48:16 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:11276 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S268724AbUILNsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 09:48:08 -0400
+Date: Sun, 12 Sep 2004 15:44:29 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.4.28-pre3] I2C driver core gcc-3.4 fixes
+Message-Id: <20040912154429.0f9b228b.khali@linux-fr.org>
+In-Reply-To: <200409121125.i8CBPUNI015192@harpo.it.uu.se>
+References: <200409121125.i8CBPUNI015192@harpo.it.uu.se>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Siebenmann <cks@utcc.utoronto.ca> wrote:
+> This patch fixes gcc-3.4 cast-as-lvalue warnings in the 2.4.28-pre3
+> kernel's I2C driver core. The i2c-core.c change is from the 2.6
+> kernel, the i2c-proc.c changes are new since the 2.6 code is
+> different.
+> (...)
+> --- linux-2.4.28-pre3/drivers/i2c/i2c-proc.c.~1~	2004-02-18 15:16:22.000000000 +0100
+> +++ linux-2.4.28-pre3/drivers/i2c/i2c-proc.c	2004-09-12 01:56:20.000000000 +0200
+> (...)
+> @@ -287,7 +287,7 @@
+>  			if(copy_to_user(buffer, BUF, buflen))
+>  				return -EFAULT;
+>  			curbufsize += buflen;
+> -			(char *) buffer += buflen;
+> +			buffer += buflen;
+>  		}
+>  	*lenp = curbufsize;
+>  	filp->f_pos += curbufsize;
 
->  I believe that this approach clashes violently with Hans Reiser's
-> goals for reiser4, which I believe plans to have every regular file
-> also have a stream component (for through-filesystem access to the
-> stat data, if nothing else). Many of the other visions on exhibit in
-> the thread seem to be almost as expansive, envisioning such streamed
-> files used widely for various sorts of content annotation in places
-> such as GNOME/KDE.
+Looks like arithmetics on void* to me, so while removing a warning you
+add a different one. Same for all other "fixes" later in the patch.
 
-Although some individuals did tell about their 'visions' in this thread,
-there were serious arguments against their use for anything else except
-specialities like CIFS support. Many people do just not care about most
-of the 'visions'.
+It doesn't look to me like you are fixing the code, only hiding the
+warnings. I am not really confident you aren't breaking things while
+doing this.
 
->  I believe Linus Torvald's 'openat()' approach would maintain POSIX
-> compatability, because it doesn't change the POSIX-visible namespace.
+After a quick look at the code I'd say that the buffer-like parameters
+involved should be declared as char* instead of void* in the first
+place, which would effectively make all further casts unnecessary, and
+still work exactly as before.
 
-But it has the serious problem that handling a S_IFREG file in just the
-usual manner will lead to silent data loss. Even with all POSIX issues
-left aside, this seems hardly acceptable to me.
+Thanks.
 
-> [This is a separate issue to whether it would work better this way,
->  or whether it can be POSIX compliant without this. Hans Reiser at least
->  seems to not care very much about POSIX compliance for things like this,
->  so this sort of argument is unlikely to make him change his activities.]
-
-As long as POSIX is only violated by some patch, people can ignore this
-problem by just not applying it. Such will be possible even if Reiser4 is
-integrated in the future; lack of POSIX conformance for FAT filesystems is
-also not much of an issue.
-
-The interesting point is that future VFS changes do not lead to POSIX
-violations.
-
-	Gunnar
+-- 
+Jean "Khali" Delvare
+http://khali.linux-fr.org/

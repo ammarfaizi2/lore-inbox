@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbTHTRg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 13:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbTHTRg6
+	id S262105AbTHTRot (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 13:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbTHTRot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 13:36:58 -0400
-Received: from 213-0-201-211.dialup.nuria.telefonica-data.net ([213.0.201.211]:53134
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S262112AbTHTRg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 13:36:56 -0400
-Date: Wed, 20 Aug 2003 19:36:39 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Connection tracking for IPSec
-Message-ID: <20030820173639.GA4436@localhost>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
-References: <1061378568.668.9.camel@teapot.felipe-alfaro.com> <1061381498.4210.16.camel@chtephan.cs.pocnet.net> <1061389376.3804.16.camel@teapot.felipe-alfaro.com> <1061391227.5558.2.camel@chtephan.cs.pocnet.net>
-Mime-Version: 1.0
+	Wed, 20 Aug 2003 13:44:49 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:39145
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S262105AbTHTRos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 13:44:48 -0400
+Message-ID: <3F43B34D.5020503@redhat.com>
+Date: Wed, 20 Aug 2003 10:43:41 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030731 Thunderbird/0.2a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NFS regression in 2.6
+References: <3F4268C1.9040608@redhat.com> <shszni499e9.fsf@charged.uio.no>
+In-Reply-To: <shszni499e9.fsf@charged.uio.no>
+X-Enigmail-Version: 0.81.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1061391227.5558.2.camel@chtephan.cs.pocnet.net>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 20 August 2003, at 16:53:47 +0200,
-Christophe Saout wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> These packets should get reinjected into the netfilter mechanism after
-> decryption and should pass the rules before getting encrypted.
-> 
-I don't know if this is possible or even desireable, but if you want to
-have an answer from the people who cares and works most on Linux's net
-support, you should at least Cc: linux-net@vger.kernel.org, where Linux
-network development occurs.
+Trond Myklebust wrote:
 
-Regards,
+> There are known bugs in the way we handle readdirplus. That's why it
+> only hits NFSv3. Does the following patch fix it?
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test3-mm2)
+As Andries suspected, no change.  The test still fails.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/Q7NN2ijCOnn/RHQRAmudAKCzj93j8Ih/4jOXP1IcllvTQyAJUQCgmRy0
+sJ3FOh4gd6tWLZEV1N75jek=
+=p2xm
+-----END PGP SIGNATURE-----
+

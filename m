@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267186AbUH3Fma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267312AbUH3F4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267186AbUH3Fma (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 01:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267330AbUH3Fma
+	id S267312AbUH3F4X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 01:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267330AbUH3F4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 01:42:30 -0400
-Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:58125
-	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
-	id S267186AbUH3Fm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 01:42:26 -0400
-Date: Sun, 29 Aug 2004 22:42:21 -0700
-From: Brad Boyer <flar@allandria.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Hans Reiser <reiser@namesys.com>, flx@msu.ru, Paul Jackson <pj@sgi.com>,
-       riel@redhat.com, ninja@slaphack.com, diegocg@teleline.es,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       jra@samba.org, hch@lst.de,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040830054221.GA30247@pants.nu>
-References: <4132205A.9080505@namesys.com> <20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk> <20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk> <41323751.5000607@namesys.com> <20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org> <1093821430.8099.49.camel@lade.trondhjem.org> <Pine.LNX.4.58.0408291641070.2295@ppc970.osdl.org> <1093830135.8099.181.camel@lade.trondhjem.org> <Pine.LNX.4.58.0408291919450.2295@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408291919450.2295@ppc970.osdl.org>
-User-Agent: Mutt/1.3.28i
+	Mon, 30 Aug 2004 01:56:23 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:28118 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S267312AbUH3F4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 01:56:20 -0400
+From: jmerkey@comcast.net
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: alan@lxorguk.ukuu.org.uk, wli@holomorphy.com, roland@topspin.com,
+       linux-kernel@vger.kernel.org, jmerkey@drdos.com
+Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
+Date: Mon, 30 Aug 2004 05:56:17 +0000
+Message-Id: <083020040556.26446.4132C1810009E19F0000674E2200751150970A059D0A0306@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
+X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 07:31:49PM -0700, Linus Torvalds wrote:
-> On Sun, 29 Aug 2004, Trond Myklebust wrote:
-> > >  - how to actually test this out in practice (ie getting reiser4 to do the
-> > >    proper thing wrt the VFS layer, but preferably _also_ having another
-> > >    filesystem like NFSv4 or cifs that actually uses this and shows what
-> > >    the problems are).
-> > 
-> > As I said, NFSv4 can be made ready pretty quickly: Bruce is already
-> > finishing up the xattr implementation.
+
+
+
+
+> What kernel version?  I can't even find usb_read_device() in 2.6.9-rc1.
 > 
-> Do we have any servers that implement it? I think NFSv4 might be a good 
-> test-case if so.
+> BTW, as someone else requested, please teach your mail client to wrap
+> lines around column 70-72.  Thanks.
+> 
+> ~Randy
 
-I know the mention of it in the past has brought up ridicule, but
-netatalk requires some level of multi-stream support in the export
-to the client, and currently just emulates it on the server side
-by hiding the extra files in various directories. It should be
-possible to modify it to use named streams/attributes for the
-extra data. If that happens, it would be nice if hfs and hfsplus
-could export the data so it could be used. The view exported by
-netatalk does match the internal structure of hfs, after all.
+linux-2.6.8.1.tar.gz
 
-(For those of you that aren't familiar with the Macintosh, a Mac
-style filesystem has two peer streams, data and resource. They
-are each a seekable bytestream, and are actually at the same
-level inside the filesystem. In addition, there is a large set
-of fixed length attributes stored, such as the file type info
-and icon position. In addition, hfsplus also supports full
-named streams and arbitrary metadata, tho that isn't used much.)
+static ssize_t usb_device_read(struct file *file, 
+                                                         char __user *buf, 
+                                                         size_t nbytes, 
+                                                         loff_t *ppos)
+{
+        struct list_head *buslist;
+        struct usb_bus *bus;
+        ssize_t ret, total_written = 0;
+        loff_t skip_bytes = *ppos;
+                                                                                
+        if (*ppos < 0)
+                return -EINVAL;
+        if (nbytes <= 0)
+                return 0;
+        if (!access_ok(VERIFY_WRITE, buf, nbytes))
+                return -EFAULT;
+                                                                                
+        /* enumerate busses */
+        down (&usb_bus_list_lock);
+        for (buslist = usb_bus_list.next; 
+               buslist != &usb_bus_list; 
+               buslist = buslist->next) {
+                /* print devices for this bus */
+                bus = list_entry(buslist, struct usb_bus, 
+                                             bus_list);
+                /* print devices for this bus */
+                bus = list_entry(buslist, struct usb_bus, 
+                                             bus_list);
+                                                                                
+                /* recurse through all children of the root hub */
+                if (!bus->root_hub)
+                        continue;
 
-	Brad Boyer
-	flar@allandria.com
+// IT BARFS RIGHT HERE -->
+                down(&bus->root_hub->serialize);
 
+Jeff
+
+P.S.  I am using my comcast account which
+is not as good as MUTT -- line wrap settings
+since it is web based.  
+drdos.com gets rejected
+so I am typing less characters/line. :-)

@@ -1,91 +1,87 @@
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S266994AbTBHNB7>; Sat, 8 Feb 2003 08:01:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S266996AbTBHNB7>; Sat, 8 Feb 2003 08:01:59 -0500
-Received: from smtp3.libero.it ([193.70.192.127]:3543 "EHLO smtp3.libero.it") by vger.kernel.org with ESMTP id <S266994AbTBHNB5> convert rfc822-to-8bit; Sat, 8 Feb 2003 08:01:57 -0500
-Date: Sat,  8 Feb 2003 14:11:33 +0100
-Message-Id: <H9ZRB9$04F4CFD820B772FE9CDAB35FBC9A5D09@libero.it>
-Subject: =?iso-8859-1?Q?FROM_PRINCE_CHARLES?=
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S267875AbTBVLGX>; Sat, 22 Feb 2003 06:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S267877AbTBVLGW>; Sat, 22 Feb 2003 06:06:22 -0500
+Received: from [217.78.76.157] ([217.78.76.157]:1028 "HELO localhst619.com") by vger.kernel.org with SMTP id <S267875AbTBVLGV> convert rfc822-to-8bit; Sat, 22 Feb 2003 06:06:21 -0500
+From: "MRS CEDIA ESTRADA" <estrada_11@linuxmail.org>
+Reply-To: estrada71@phantomemail.com
+To: linux-kernel@vger.kernel.org
+Date: Sat, 22 Feb 2003 00:13:50 +0100
+Subject: MRS CEDIA ESTRADA
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-From: "=?iso-8859-1?Q?prince=5Fch@libero.it?=" <prince_ch@libero.it>
-To: "=?iso-8859-1?Q?prince=5Fch?=" <prince_ch@libero.it>
-X-XaM3-API-Version: 3.2 R29 (B54 pl1)
-X-type: 0
-X-SenderIP: 213.136.99.68
+Message-Id: <20030222110621Z267875-29901+894@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
 X-Envelope-To: </home/ralf/ralf> (uid 501)
 Original-Recipient: rfc822;ralf@linux-mips.org
 
-CÔTE D'IVOIRE
+Dear Sir, 
 
-ATTN : DIRECTOR / C.E.O
+My name is CEDIA D.ESTRADA,The wife of Mr. JOSEPH 
+ESTRADA, the former President of Philippines located 
+in the South East Asia. 
 
-Dear Sir,
+My husband was recently impeached from office by a 
+backed uprising of mass demonstrators and the Senate. 
 
-I am well confident of your capability of executing
-this business for the mutual benefit of our both
-families, believing that you will not expose or betray
-the trust and confident I am about to repose on you.
+My husband is presently in jail and facing trial on 
+charges of corruption, embezzlement, and the 
+mysterious 
 
-I am contacting you with the greatest delight and
-personal respect. I am PRINCE CHARLES TARAWALLY, the
-first son of Bridgedier Robert Tarawally the chief
-Commander of the Revolutionary United Front (RUF) of
-the Republic of Sierra-Leone who was arrested recently
-by the United Nation Peace keeping force, due to the
-role to push out the incumbent elected President
-Tejan Kabbah out of office as reported on the cable
-Network News ( CNN) and by the British Broadcasting
-Corporation ( BBC).
+charge of plunder which might lead to death sentence. 
+The present government is forcing my husband out of 
+manila to avoid demonstration by his supporter. 
 
-Two days before my father was arrested he confided in
-me and ordered me to go to his underground safe and moved
-out immediately with the deposit agreement he made with a
-Bank in Abidjan where he deposited the cash sum of
-US$30,000,000 (Thirty million United States Dollars) which
-some rebels under his command looted when they captured the
-Gold/Diamond Mining Corporation in Mende town of
-SierraLeone.
+During my husband's regime as president of Philippine, 
+I realized some reasonable amount of money from 
+various deals that I successfully executed. I have 
+plans to invest this money for my children's future on real 
+estate and industrial production. My husband is not 
+aware of this because I wish to do it secretly for 
+now. 
 
-I successfully smuggled out of the country to Abidjan,
-Côte d'Ivoire with the help of some rebels loyal to my
-father and have gone to the Bank with the
-deposit agreement to confirm the depopsit myself and
-also I have been granted political stay by the
-gorvernment of Côte d'Ivoire.
+Before my husband was impeached, I secretly siphoned 
+the sum of $30,000,000 million USD 
+(Thirty million United states dollars) out of 
+Philippines and deposited the money with a security 
+firm that transports valuable goods and consignments 
+through diplomatic means. I also declared that the 
+consignment was solid gold and my foreign business 
+partner owned it. 
 
-Now, I want you to stand as my late Father foreign
-partner, I plead to use your name for the transfer
-of the consignments Bank Account as my
-late Father's business partner. Remember to keep this
-transaction secret. Immediately you show your interest
-on this, other information will be given to you.
+I am contacting you because I want you to go to the 
+security company and claim the money on my behalf 
+since I have declared that the consignment belong to 
+my foreign business partner. You shall also be 
+required to assist me in investment in your country. 
 
-I am now seeking for your direct assistance to front
-you as the owner of the consignment and lift the
-fund out of this country to your base for
-onward profitable investment wihich necessitated my
-contacting you.
+I hope to trust you as a God fearing person who will 
+not sit on this money when you claim it, rather assist me 
+properly, I expect you to declare what percentage of 
+the total money you will take for your assistance. 
 
-We are to open a non residential bank account here in
-Abidjan in your name through which the fund will be
-remitting from to your bank account abroad and your
-reward for this noble assistance is under negociable.
+When I receive your positive response I will let you 
+know where the security company is 
+and the payment pin code to claim the money which is 
+very important. 
 
-Further detail will be made known to you on
-confirmation of your interest to assist me towards
-this project. Contact me through e-mail address
-prince_ch@libero.it
+For now, let all our communication is by e-mail 
+because my line are right now connected to the 
+Philippines Telecommunication Network services. Please 
 
-Expecting your immediate response.
+also send me your telephone and fax number. 
 
-Yours faithfully.
+I will ask my son contact you to give you more details 
+on after i have received a responce from you.
 
-PRINCE CHARLES TARAWALLY
+Thank you and God bless you and family. 
 
-For the Tarawally's family.
+
+MRS CEDIA ESTRADA 
+
+
+
 
 

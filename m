@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVBGTEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVBGTJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVBGTEW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 14:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVBGTBT
+	id S261247AbVBGTJE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 14:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVBGTJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 14:01:19 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51087 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261233AbVBGTAg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 14:00:36 -0500
-Date: Mon, 7 Feb 2005 11:00:42 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: linux-net@vger.kernel.org, lartc@mailman.ds9a.nl,
-       linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] iproute2 - 2.6.10-050207
-Message-ID: <20050207110042.166752a3@dxpl.pdx.osdl.net>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed-Claws 1.0.0 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Mon, 7 Feb 2005 14:09:03 -0500
+Received: from kludge.physics.uiowa.edu ([128.255.33.129]:40708 "EHLO
+	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S261247AbVBGTGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 14:06:12 -0500
+Date: Mon, 7 Feb 2005 13:05:41 -0600
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org, petero2@telia.com
+Subject: Re: [ATTN: Dmitry Torokhov] About the trackpad and 2.6.11-rc[23] but not -rc1
+Message-ID: <20050207190541.GB12024@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
+	petero2@telia.com
+References: <20050207154326.GA13539@digitasaru.net> <d120d50005020708512bb09e0@mail.gmail.com> <20050207180950.GA12024@digitasaru.net> <d120d50005020710591181fe69@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d50005020710591181fe69@mail.gmail.com>
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update to iproute2 utilities, mostly bug fixes. Only new functionality is
-integration of the ability to derive netem distribution table from experimental
-data; simple port from NISTnet.
+>From Dmitry Torokhov on Monday, 07 February, 2005:
+>On Mon, 7 Feb 2005 12:09:50 -0600, Joseph Pingenot
+><trelane@digitasaru.net> wrote:
+>> From Dmitry Torokhov on Monday, 07 February, 2005:
+>> >Nonetheless it would be nice to see the data stream from the touchpad
+>> >to see why our ALPS support does not work quite right. Could you
+>> >please try booting with "log_buf_len=131072 i8042.debug=1", and
+>> >working the touchpad a bit. then send me the output of "dmesg -s
+>> >131072" (or just /var/log/messages).
+>> dmesg output, non-mouse output trimmed (for obvious reasons, if you think
+>>  about it ;) is attached.
+>I am sorry, I was not clear enough. I'd like to see -rc2 (the broken
+>one), complete with bootup process, so we will see why it can't
+>synchronize at all. (I of course don't need keyboard data of anything
+>that has been typed after boot).
 
-Download from http://developer.osdl.org/dev/iproute2/download/iproute2-050207.tar.gz
+They're both broken in about the same way, iirc.  Is there something special
+  in -rc2 that's not in -rc3?
 
-[Mads Martin Joergensen]
-	Don't mix address families when flushing	
-
-[Jean-Marc Ranger]
-	Need to call getline() with null for first usage
-	Don't overwrite const arg
-
-[Stephen Hemminger]
-	Add experimental distribution
-	Validate classid is not too large to cause loss of bits.
+-Joseph
 
 -- 
-Stephen Hemminger	<shemminger@osdl.org>
+Joseph===============================================trelane@digitasaru.net
+      Graduate Student in Physics, Freelance Free Software Developer

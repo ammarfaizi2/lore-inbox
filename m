@@ -1,82 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264124AbTE3Vxc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 17:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264134AbTE3Vxb
+	id S264007AbTE3WNL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 18:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264008AbTE3WNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 17:53:31 -0400
-Received: from ip-86-245.evc.net ([212.95.86.245]:58502 "EHLO hal9003.1g6.biz")
-	by vger.kernel.org with ESMTP id S264124AbTE3Vx2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 17:53:28 -0400
-From: Nicolas <linux@1g6.biz>
-To: celestar@t-online.de (Frank Victor Fischer), linux-kernel@vger.kernel.org
-Subject: Re: Hit BUG() in 2.5.70 in mm/slab.c:979
-Date: Sat, 31 May 2003 00:08:17 +0200
-User-Agent: KMail/1.5
-References: <1054321005.2063.8.camel@darkstar.fischer.homeip.net>
-In-Reply-To: <1054321005.2063.8.camel@darkstar.fischer.homeip.net>
-Organization: 1G6
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
+	Fri, 30 May 2003 18:13:11 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:19627 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264007AbTE3WNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 18:13:10 -0400
+Date: Sat, 31 May 2003 00:26:30 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
+Message-ID: <20030530222630.GF3308@wohnheim.fh-wedel.de>
+References: <20030530212013.GE3308@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0305301431390.2671-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200305310008.17299.linux@1g6.biz>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0305301431390.2671-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 30 May 2003 14:38:07 -0700, Linus Torvalds wrote:
+> On Fri, 30 May 2003, Jörn Engel wrote:
+> > 
+> > How about an all or nothing approach?  If you really want to get rid
+> > of K&R, change indentation as well, rip out some of the rather
+> > tasteless macros (ZEXPORT, ZEXPORTVA, ZEXTERN, FAR, ...) and so on.
+> 
+> I'd love to, but I suspect we lack the motivation to do so, and there 
+> aren't any obvious upsides. Yes, the code is ugly, but it's also fairly 
+> stable so people seldom need to look at it.
 
-Maybe interesting for someone,
+Well, since I'm currently working on the zlib anyway...
 
-I have many slabs, and what we have in common is
-e100 and I have an saa7134 (TV card too) all other is different
-But I don't use my tv card at all.
-I remember there is two differrents e100 drivers which one do you use ?
-e100 one or eepro100 one ?, personally I use the e100 one.
+> The motivation for doing the ANSI-fication is just that there is now a 
+> sanity checker tool that will complain loudly about bad typing, and since 
+> I wrote it and I hate old-style K&R sources, it doesn't parse them. 
 
-Regards.
+Sounds nice.  Did I miss it on lkml, or haven't you made it public
+yet?
 
-Nicolas.
+> I wouldn't mind syncing more, but one reason _against_ syncing the zlib 
+> sources have been the ugliness of them. Is there any reason for the 
+> K&R'ness any more, or the strange allocators?
 
+The allocaters could be useful when lots of zlibs are fighting over
+scarce memory, at least when operating in userspace.  K&R and
+indentation seem to be personal style (inflate and deflate also have a
+different style, when you look closely).  FAR, uInt and friends should
+be portability wrappers, there was even a turboc bugfix in the code
+before 1.1.4.
 
+Who knows, the performance might even slightly improve after shaving
+off some of the useless wrappers.
 
-Le Vendredi 30 Mai 2003 20:56, Frank Victor Fischer a écrit :
-> Hey people,
-> I hit a BUG() when testing a 2.5.70 kernel in mm/slab.c, line 979.
-> I thought someone might want to know.
->
-> System is:
->
-> AMD Thunderbird 1000,
-> VIA KT133 chipset
-> 512 MB SDR SDRAM
->
-> Other installed hardware:
-> BT848 video capture device
-> SB Live! Platinum EMU10k1
-> Etherexpress Pro 100
-> Promise UDMA 100 IDE controller, 20265 (no devices connected)
-> GeForce 2 MX VGA card.
->
-> hda: Maxtor 53073U6
-> hdb: IBM-DCAA-33610
-> hdc: HL-DT-ST SCE-8480B (CDRW)
-> hdd: CREATIVEDVD6630E
->
-> Used gcc: 2.95.3
-> root file system: ext3
->
-> floppy disk :)
->
-> I am no member of the list, so for any more information, please contact
-> me on celestar@t-online.de thanks
->
-> Victor
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Jörn
 
+-- 
+Geld macht nicht glücklich.
+Glück macht nicht satt.

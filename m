@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVABWnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVABWn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVABWnc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 17:43:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVABWnc
+	id S261304AbVABWn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 17:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVABWn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 17:43:32 -0500
-Received: from imf21aec.mail.bellsouth.net ([205.152.59.69]:43727 "EHLO
-	imf21aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261309AbVABWnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 17:43:24 -0500
-Date: Sun, 2 Jan 2005 17:36:50 -0500
-From: David Meybohm <dmeybohmlkml@bellsouth.net>
-To: Andi Kleen <ak@muc.de>
-Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] disallow modular capabilities
-Message-ID: <20050102223650.GA5818@localhost>
-Mail-Followup-To: Andi Kleen <ak@muc.de>, Christoph Hellwig <hch@lst.de>,
-	linux-kernel@vger.kernel.org
-References: <20050102200032.GA8623@lst.de> <m1mzvry3sf.fsf@muc.de> <20050102203005.GA9491@lst.de> <m1is6fy2vm.fsf@muc.de>
+	Sun, 2 Jan 2005 17:43:27 -0500
+Received: from h80ad2465.async.vt.edu ([128.173.36.101]:33469 "EHLO
+	h80ad2465.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261304AbVABWnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 17:43:23 -0500
+Message-Id: <200501022243.j02MhANg004075@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: 7eggert@gmx.de
+Cc: Andy Lutomirski <luto@myrealbox.com>, linux-kernel@vger.kernel.org
+Subject: Re: the umount() saga for regular linux desktop users 
+In-Reply-To: Your message of "Sun, 02 Jan 2005 13:38:29 +0100."
+             <E1Cl509-0000TI-00@be1.7eggert.dyndns.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <fa.iji5lco.m6nrs@ifi.uio.no> <fa.fv0gsro.143iuho@ifi.uio.no>
+            <E1Cl509-0000TI-00@be1.7eggert.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1is6fy2vm.fsf@muc.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+Content-Type: multipart/signed; boundary="==_Exmh_445324364P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 02 Jan 2005 17:43:10 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 02, 2005 at 09:47:41PM +0100, Andi Kleen wrote:
-> Christoph Hellwig <hch@lst.de> writes:
-> >
-> > At least Debian currently inserts the capabilities module on boot.
-> 
-> That is fine as long as they control all code executed before
-> that module loading.  And if they do not it is their own fault
-> and they have to fix that in user space or compile the capability in.
-> Unix policy is to not stop root from doing stupid things because
-> that would also stop him from doing clever things.
+--==_Exmh_445324364P
+Content-Type: text/plain; charset=us-ascii
 
-But if the module system creates security holes in the security system,
-shouldn't that be avoided?  Isn't this is a fundamental problem because
-the new security module that is being loaded has no idea what state all
-processes are in when the module gets loaded?
+On Sun, 02 Jan 2005 13:38:29 +0100, Bodo Eggert said:
 
-What do you think about only allowing init to load LSM modules i.e.
-check in {mod,}register_security that current->pid == 1.  Then init can
-load the policy from some file in /etc changeable by the administrator
-before starting any other processes.  Then you don't have to recompile
-the kernel to change policies, but you still need to reboot and can't
-get into funky states.
+> Maybe it's possible to extend the semantics of umount -l to change all
+> cwds under that mountpoint to be deleted directories which will no
+> longer cause the mountpoint to be busy (e.g. by redirecting them to a
+> special inode on initramfs). Most applications can cope with that (if
+> not, they're buggy),
 
-Dave
+You mean that a program is *buggy* if it does:
+
+	cwd("/home/user");
+	/* do some stuff while we get our cwd ripped out from under us */
+	file = open("./.mycconfrc");
+
+and expects the file to be opened in /home/user???
+
+--==_Exmh_445324364P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFB2Hj+cC3lWbTT17ARAnVwAKCT6h3UiBujMisfiYGPWMiHSXiJQACbBiBs
+YIUTi5z4cBnG5q5HQ5zbHK0=
+=c6R/
+-----END PGP SIGNATURE-----
+
+--==_Exmh_445324364P--

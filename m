@@ -1,97 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbULBPgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbULBPjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbULBPgW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 10:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbULBPgW
+	id S261648AbULBPjt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 10:39:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbULBPjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 10:36:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55944 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261644AbULBPgP (ORCPT
+	Thu, 2 Dec 2004 10:39:48 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:9426 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261648AbULBPjn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 10:36:15 -0500
-Date: Thu, 2 Dec 2004 07:35:49 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pekka Enberg <penberg@gmail.com>
-cc: Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
-       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       hch@infradead.org, linux-kernel@vger.kernel.org,
-       libc-hacker@sources.redhat.com, penberg@cs.helsinki.fi
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-In-Reply-To: <84144f020412020129e5d0566@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0412020727370.22796@ppc970.osdl.org>
-References: <19865.1101395592@redhat.com>  <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
-  <oract0thnj.fsf@livre.redhat.lsd.ic.unicamp.br> 
- <Pine.LNX.4.58.0411291458040.22796@ppc970.osdl.org> 
- <oris7nrq0h.fsf@livre.redhat.lsd.ic.unicamp.br> 
- <Pine.LNX.4.58.0411301413260.22796@ppc970.osdl.org> 
- <or4qj7rllv.fsf@livre.redhat.lsd.ic.unicamp.br> 
- <Pine.LNX.4.58.0411301505580.22796@ppc970.osdl.org> 
- <orvfbllsbe.fsf@livre.redhat.lsd.ic.unicamp.br> 
- <Pine.LNX.4.58.0412011948450.22796@ppc970.osdl.org> <84144f020412020129e5d0566@mail.gmail.com>
+	Thu, 2 Dec 2004 10:39:43 -0500
+Date: Thu, 2 Dec 2004 16:39:25 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.29-pre1] radeonfb: don't try to ioreamp the entire
+ VRAM [was: Re: [Linux-fbdev-devel] why does radeonfb work fine in 2.6, but
+ not in 2.4.29-pre1?]
+In-Reply-To: <20041202152801.GA8868@dreamland.darkstar.lan>
+Message-ID: <Pine.GSO.4.61.0412021634540.11183@waterleaf.sonytel.be>
+References: <20041128184606.GA2537@middle.of.nowhere>
+ <20041201161455.GA14817@dreamland.darkstar.lan>
+ <Pine.GSO.4.61.0412011724010.26820@waterleaf.sonytel.be>
+ <20041201203711.GA21008@dreamland.darkstar.lan>
+ <Pine.GSO.4.61.0412012221420.2595@waterleaf.sonytel.be>
+ <20041202152801.GA8868@dreamland.darkstar.lan>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 2 Dec 2004, Pekka Enberg wrote:
+On Thu, 2 Dec 2004, Kronos wrote:
+> Il Wed, Dec 01, 2004 at 10:25:38PM +0100, Geert Uytterhoeven ha scritto: 
+> > On Wed, 1 Dec 2004, Kronos wrote:
+> > > Il Wed, Dec 01, 2004 at 05:25:52PM +0100, Geert Uytterhoeven ha scritto: 
+> > > > > Make fb layer aware of the difference between the ioremap()'ed VRAM and
+> > > > > total available VRAM.
+> > > > > smem_len in struct fb_fix_screeninfo still contains the amount of
+> > > > > physical VRAM (reported to userspace via FBIOGET_FSCREENINFO ioctl) and
+> > > > > the new field mapped_vram contains the amount of VRAM actually
+> > > > > ioremap()'ed by drivers (used in read/write/mmap operations).
+> > > > > Since there was unused padding at the end of struct fb_fix_screeninfo
+> > > > > binary compatibility with userspace utilities is retained.
+> > > > > If mapped_vram is not set it's assumed that the entire framebuffer is
+> > > > > mapped, thus other drivers are unaffected by this patch.
+> > > > > 
+> > > > > The patch has been tested by Jurriaan <thunder7@xs4all.nl>.
+> > > > > 
+> > > > > Signed-off-by: Luca Tettamanti <kronos@people.it>
+> > > > > 
+> > > > > --- a/include/linux/fb.h	2004-11-30 18:30:08.000000000 +0100
+> > > > > +++ b/include/linux/fb.h	2004-11-30 18:33:00.000000000 +0100
+> > > > > @@ -126,7 +126,8 @@
+> > > > >  					/* (physical address) */
+> > > > >  	__u32 mmio_len;			/* Length of Memory Mapped I/O  */
+> > > > >  	__u32 accel;			/* Type of acceleration available */
+> > > > > -	__u16 reserved[3];		/* Reserved for future compatibility */
+> > > > > +	__u32 mapped_vram;		/* Amount of ioremap()'ed VRAM */
+> > > > > +	__u16 reserved[1];		/* Reserved for future compatibility */
+> > > > >  };
+> > > > 
+> > > > I don't really like this patch. mapped_vram doesn't matter for user space at
+> > > > all, so it does not belong to fb_fix_screeninfo.
+> > > 
+> > > Hmm, it looked sensible to me since it's the max amount of data that
+> > > userspace can read (or write) from /dev/fb%d.
+> > 
+> > That's not really a user space limitation, but a kernel `bug'.
+> > 
+> > I.e. it could be solved in the kernel if larger ioremap()s would be allowed, or
+> > if some sliding window mapping would be used. User space shouldn't need to know
+> > about this.
 > 
-> How is a class interface different from an external API?
-
-It's different from an external API exactly because it's not "external". 
-
-I dunno about you, but the (admittedly few) explicitly object-oriented 
-projects I've seen from the inside, the class interface is something that 
-you consider internal to your project, and are willing to change.
-
-In Linux, the VFS layer comes pretty close: it's really very much about
-object-oriented programming, except the implementation is explicit rather
-than left up to the programmer. And we have very explicit rules on how
-you're supposed to do things: some are even _documented_ (oh, horrors) in
-Documentation/filesystems/vfs.txt.
-
-And yes, in this kind of environment I actually think "contract" makes 
-some kind of sense, because it is an internal thing that _has_ come out of 
-agreement on both sides, and where changes need to be agreed upon by both 
-user and definition. It's not an a-priori interface, it's something where 
-both sides are intimately involved.
-
-> I think Alexandre's definition has in fact originated from the "Design
-> by Contract" cult. And it's all pretty simple stuff:
+> I see you point, but users see that their video board does not work if
+> the system has 1GB (or more) of RAM and they aren't happy.
+> With current VM split (ie. 1GB/3GB) and with that much RAM there's no
+> space left to map the entire FB. And AFAIK VM hacking in 2.4 is not
+> doable (not that I would be able to do it ;)
 > 
->   - You need to call a function in a certain way (precondition). The
->     caller fills this part
->     of the contract. Now the caller can _expect_ something from the
->     function (see below).
->   - The function does what it has promised to do and optionally
->     returns some values
->     (postcondition). The callee fills this part of the contract.
->   - The function expects some parts of the system state to remain stable during
->     execution (invariants). In the kernel, you use BUG_ON for these btw.
+> > > Putting mapped_vram in fb_info would be acceptable?
+> > 
+> > That would make sure this stays in-kernel, but my other reasoning stays the
+> > same: it's some kind of kernel bug.
 > 
-> So there's nothing new here really. However, if your _tools_ support
-> Design by Contract, you can be explicit about this and enforce the
-> 'contract' during compile-time or run-time.
+> What about this one:
 > 
-> And I think you're already doing this with your "require spinlock to
-> be taken" sparse thingy...
-
-Yes. And I think it makes sense _internally_ for a project. 
-
-But pretty much by definition, that's not an ABI. That's an "internal 
-interfaces" kind of thing.
-
-> On Wed, Linus Torvalds wrote:
-> > IOW, I don't find your arguments or your language usage in the least
-> > convincing. But hey, I did all my CS stuff outside of the US, whatever.
 > 
-> I don't think it's an US thing. At the university you did your CS
-> stuff, we (well at least I) use the term 'contract' pretty much the
-> same way Alexandre does...
+> Make fb layer aware of the difference between the ioremap()'ed VRAM and
+> total available VRAM.
+> smem_len in struct fb_fix_screeninfo contains the amount of physical
+> VRAM (reported to userspace via FBIOGET_FSCREENINFO ioctl) while the new
+> field mapped_vram in struct fb_info contains the amount of VRAM actually
+> ioremap()'ed by drivers (used in read/write/mmap operations).
+> If mapped_vram is not set it's assumed that the entire framebuffer is
+> mapped, thus other drivers are unaffected by this patch.
 
-It may also be a new thing. Dammit, when I started, we had USCD Pascal,
-and we were happy. None of this OO stuff ;)
+Looks OK at first sight.
 
-		Linus
+> --- a/include/linux/fb.h	2004-11-30 18:30:08.000000000 +0100
+> +++ b/include/linux/fb.h	2004-12-02 14:20:50.000000000 +0100
+> @@ -323,6 +323,7 @@
+>     struct fb_cmap cmap;                 /* Current cmap */
+>     struct fb_ops *fbops;
+>     char *screen_base;                   /* Virtual address */
+> +   unsigned int mapped_vram;		/* ioremap()'ed VRAM */
+
+But perhaps you want to make this unsigned long? I don't think it'll take long
+before we'll see graphics cards with 4 GiB or more memory, and it would be good
+if 64-bit platforms could take advantage of them.
+
+Oh no, we already have __u32 smem_len in struct fb_fix_screeninfo :-(
+So you can forget my comment about 64-bit above...
+
+Hence, you best make it `u32' (this is kernel internal) for consistency.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

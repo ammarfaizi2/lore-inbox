@@ -1,55 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270075AbRHSGJR>; Sun, 19 Aug 2001 02:09:17 -0400
+	id <S270118AbRHSGZL>; Sun, 19 Aug 2001 02:25:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270076AbRHSGJH>; Sun, 19 Aug 2001 02:09:07 -0400
-Received: from web10403.mail.yahoo.com ([216.136.130.95]:61191 "HELO
-	web10403.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S270075AbRHSGIx>; Sun, 19 Aug 2001 02:08:53 -0400
-Message-ID: <20010819060907.86161.qmail@web10403.mail.yahoo.com>
-Date: Sun, 19 Aug 2001 16:09:07 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: gcc-3.0 with 2.2.x ?
-To: kernel <linux-kernel@vger.kernel.org>
+	id <S270131AbRHSGZC>; Sun, 19 Aug 2001 02:25:02 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:24594 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S270118AbRHSGY5>;
+	Sun, 19 Aug 2001 02:24:57 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200108190624.f7J6Owg174702@saturn.cs.uml.edu>
+Subject: Re: [PATCH] processes with shared vm
+To: te@scali.no (Terje Eggestad)
+Date: Sun, 19 Aug 2001 02:24:58 -0400 (EDT)
+Cc: michael@optusnet.com.au, terje.eggestad@scali.no (Terje Eggestad),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0108181530030.6444-100000@elin.scali.no> from "Terje Eggestad" at Aug 18, 2001 04:15:17 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Terje Eggestad writes:
+> On 17 Aug 2001 michael@optusnet.com.au wrote:
 
-I can use gcc-3.0 to compile 2.4.8-ac7 but can not do
-that with 2.2.19
+>> Why not just print out the address of the 'mm_struct'?
+>>
+>> That lets 'ps' treat the address as a cookie, and
+>> thus count the number of occurences of each vm.
 
-The error message is
+No, I won't make 'ps' do that. Ever wonder why 'ps' doesn't
+sort processes by default? It isn't OK to suck up lots of
+memory or reparse the files. This is bad for performance and
+causes extra trouble when a kernel bug causes /proc/42/status to
+freeze the 'ps' process.
 
-/home/linux/include/linux/signal.h:205: warning:
-deprecated use of label at end of compound statement
-sched.c: At top level:
-sched.c:52: conflicting types for `xtime'
-/home/linux/include/linux/sched.h:508: previous
-declaration of `xtime'
-sched.c: In function `schedule':
-sched.c:739: warning: deprecated use of label at end
-of compound statement
-make[2]: *** [sched.o] Error 1
-make[2]: Leaving directory `/home/linux/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/home/linux/kernel'
-make: *** [_dir_kernel] Error 2
+Also your proposal would require 'ps' to _always_ read the
+data for _every_ process in the system.
 
-so I would like to know if there is any patches to
-2.2.19 to make it friendlier with gcc-3.0. In the mean
-time I am going to see sched.c and sched.h and try to
-make it work :-)
+> Not a bad idea, One reason is that I've an inate distrust of using
+> addresses as anything remotely useful. BTW, do you want the tag in hex
+> or dec??
 
-thanks
+Either... hex is nice I guess.
 
+> keep in mind 32 and  64 bit machines, it must actually be a 64 bit!
 
-=====
-S.KIEU
+Nah, this gets you enough:   (unsigned)(ptr_to_mm>>sizeof(long))
 
-_____________________________________________________________________________
-http://shopping.yahoo.com.au - Father's Day Shopping
-- Find the perfect gift for your Dad for Father's Day
+> What I really wanted was a list of pids of the clones.
+> ps/top/gtop could then use it as an exclude list for futher processing...
+
+Nope. This is not enough for sane thread support in 'ps'.
+Information is lost across the kernel-user boundry. It would
+be relatively easy for the kernel to provide a /proc directory
+listing that groups processes by mm_struct. Without this, 'ps'
+would have to regenerate the lost information in an inefficient
+way.
+
+BTW, 'ps' is now here:  http://procps.sourceforge.net/
+
+> Trouble is that returning more than 4kb in a file in proc is a pain,
+> and there is no guarantee that someone make will not a 1000 clones.
+> ref the recent problem with maps exceeding 4kb.
+> 
+> (I might be paranoid, you get ~170 (1024/6) pids in 1kb, assuming 16bit
+> pid.
+
+Yes, one has to assume that some cracker or sicko will do that.
+
+> using the lowest pid seems a good compromise.
+
+The PID may wrap.
+
+> I still think the overhead is neglible.
+> What's the upper practial limit of procs ~64k? (more like 4k.)
+
+On an SSI cluster, way more I'd guess.
+
+> How many instructions to tranvers the task list and test mm_struct
+> pointer for equality? O(10) per task.? assuming all clones we're talking
+> about ~650k instructions, and with 100mips machines (with 64k task, that's
+> slow1) thats 1/200 second overhead every time you do cat
+> /proc/[0-9]*/status. I can live with that.
+
+You also dirty the cache and suffer load misses.

@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129798AbRA2XdP>; Mon, 29 Jan 2001 18:33:15 -0500
+	id <S130335AbRA2XgP>; Mon, 29 Jan 2001 18:36:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130866AbRA2XdF>; Mon, 29 Jan 2001 18:33:05 -0500
-Received: from smtp6.mindspring.com ([207.69.200.110]:64786 "EHLO
-	smtp6.mindspring.com") by vger.kernel.org with ESMTP
-	id <S129798AbRA2Xcy>; Mon, 29 Jan 2001 18:32:54 -0500
-Date: Mon, 29 Jan 2001 17:32:41 -0600
-From: Matthew Fredrickson <matt@frednet.dyndns.org>
-To: Adrian Bridgett <adrian.bridgett@iname.com>, linux-kernel@vger.kernel.org
-Subject: Re: PPP/Modem connection problems starting somewhere between 2.2.14(maybe 15) and 2.2.18
-Message-ID: <20010129173240.A15297@frednet.dyndns.org>
-In-Reply-To: <20010124173038.A23669@frednet.dyndns.org> <20010128194828.A13179@wyvern>
+	id <S130599AbRA2XgF>; Mon, 29 Jan 2001 18:36:05 -0500
+Received: from h24-67-108-36.cg.shawcable.net ([24.67.108.36]:384 "EHLO
+	ogah.cgma1.ab.wave.home.com") by vger.kernel.org with ESMTP
+	id <S130335AbRA2Xfz>; Mon, 29 Jan 2001 18:35:55 -0500
+Date: Mon, 29 Jan 2001 16:33:21 -0700
+From: Harold Oga <ogah@home.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.1-pre11
+Message-ID: <20010129163321.B642@ogah.cgma1.ab.wave.home.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10101281020540.3850-100000@penguin.transmeta.com> <E14NB8r-000063-00@roos.tartu-labor> <20010129032637.A642@ogah.cgma1.ab.wave.home.com> <87g0i2lj9r.fsf@ondrej.office.globe.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <20010128194828.A13179@wyvern>; from adrian.bridgett@iname.com on Sun, Jan 28, 2001 at 07:48:29PM +0000
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <87g0i2lj9r.fsf@ondrej.office.globe.cz>; from ondrej@globe.cz on Mon, Jan 29, 2001 at 11:55:44AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 28, 2001 at 07:48:29PM +0000, Adrian Bridgett wrote:
-> On Wed, Jan 24, 2001 at 17:30:38 -0600 (+0000), Matthew Fredrickson wrote:
-> > I'm not positive if this is a bug, I'm only able to confirm this from one
-> > other source.  Somewhere between (I can't remember exactly which kernel my
-> > server started on) ~2.2.14(or 15) and 2.2.18 my ppp connection
-> > periodically hangs and I have to restart the connection.  My situation is
-> [snip]
-> 
-> Ditto.  Using evil winmodem here and Debian (ppp-2.4.0f-1).  2.2.19pre3 at
-> the moment but it's been happening for a while.  Things seemed better when I
-> turned on default-asyncmap, however it still occasionally goes belly up
-> (almost _always_ when scping files out (uploading Debian packages)).  Last
-> time I checked it also happend with my 28.8k USB modem (a normal modem, that
-> one).
-> 
-> I've found a magic fix and when I've got time I'll try and burrow though the
-> pppd source to try and find out why.  The magic fix? Turn on recording in
-> pppd (i.e. add "record /tmp/foo"  to /etc/ppp/options).  I'd be interested
-> if it fixes it for you.
+On Mon, Jan 29, 2001 at 11:55:44AM +0100, Ondrej Sury wrote:
+>Harold Oga <ogah@home.com> writes:
+>
+>> Hi,
+>>    I'm seeing similar problems with my system on 2.4.1-pre10.  This is an
+>> AMD Thunderbird 900, MSI K7T Pro2-A mobo w/VIA KT133 chipset, UP, ide/scsi
+>> mix.  2.4.1-pre10 works fine if I don't configure ACPI.  I'll try to
+>> narrow down when this problem started showing up later today, as I
+>> initially moved from 2.4.1-pre3 straight to 2.4.1-pre10.
+>
+>It's something between pre9 and pre10, and probably it's VIA chipset
+>problem.
+Hi,
+   Ok, it appears that I have 2.4.1-pre10 working properly again.  Looks
+like the changes Andy made to the acpi_idle stuff was the problem.  I made
+the change Andy suggested on the acpi list, namely commenting out the line
+"pm_idle = acpi_idle;" at the bottom of /usr/src/linux/drivers/acpi/cpu.c,
+which seems to fix the problem.
 
-Just put it in, will see if it helps any.  FWIW, my modem is a USR
-ISA 56k, and had been rock solid until around there.  My friend also had
-the same issues, and before we'd talked to each other about it, we'd both
-assumed that possibly the modem might be failing.  After finding that we
-both had troubles, and around the same "kernel time frame", we knew that
-something must have happened in the kernel that either broke something
-with the PPP or the kernel end of it.  Thanks for responding.
+This patch makes it clear what I did:
+--- linux/drivers/acpi/cpu.c.orig       Mon Jan 29 15:19:21 2001
++++ linux/drivers/acpi/cpu.c    Mon Jan 29 15:22:14 2001
+@@ -329,12 +329,5 @@
+        acpi_pm_timer_init();
 
+
+-#ifdef CONFIG_SMP
+-       if (smp_num_cpus == 1)
+-               pm_idle = acpi_idle;
+-#else
+-       pm_idle = acpi_idle;
+-#endif
+-
+        return 0;
+ }
+
+-Harold  
 -- 
-Matthew Fredrickson AIM MatthewFredricks
-ICQ 13923212 matt@NOSPAMfredricknet.net 
-http://www.fredricknet.net/~matt/
-"Everything is relative"
+"Life sucks, deal with it!"
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbTKNPUw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 10:20:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTKNPUw
+	id S262730AbTKNP2e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 10:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTKNP2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 10:20:52 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:45728 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S262725AbTKNPUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 10:20:50 -0500
-Date: Fri, 14 Nov 2003 07:20:42 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 1540] New: Error removing USB Flash hard drive
-Message-ID: <5100000.1068823242@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Fri, 14 Nov 2003 10:28:34 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:42423
+	"EHLO x30.random") by vger.kernel.org with ESMTP id S262730AbTKNP2d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 10:28:33 -0500
+Date: Fri, 14 Nov 2003 16:28:05 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Larry McVoy <lm@work.bitmover.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       Davide Libenzi <davidel@xmailserver.org>, Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+Message-ID: <20031114152805.GC6733@x30.random>
+References: <3FAFD1E5.5070309@zytor.com> <Pine.LNX.4.44.0311101004150.2097-100000@bigblue.dev.mdolabs.com> <20031110183722.GE6834@x30.random> <3FAFE22B.3030108@zytor.com> <20031110193101.GF6834@x30.random> <20031114051300.GA3466@pimlott.net> <20031114140124.GQ1649@x30.random> <20031114145332.GA30711@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20031114145332.GA30711@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1540
+On Fri, Nov 14, 2003 at 06:53:33AM -0800, Larry McVoy wrote:
+> Rsync coherence is your problem, there is nothing I can do about that,
+> I don't admin kernel.org.  Peter has a login on kernel.bkbits.net and
+> we can coordinate so he gets a coherent snapshot.  It's trivial, he
+> could sync the data to kernel.org at 2PM and we update the data at 2AM,
+> I tend to think that there won't be any coherency problems.
 
-           Summary: Error removing USB Flash hard drive
-    Kernel Version: 2.6.0-test9-mm2
-            Status: NEW
-          Severity: normal
-             Owner: akpm@digeo.com
-         Submitter: bunnadik@musikhuset.org
-
-
-Distribution:Mandrake 9.2-rc1
-Hardware Environment:Dell Optiplex G1
-Software Environment:
-Problem Description:When removing the flash drive (after umount) I get a:
-Badness in atomic_dec_and_test at include/asm/atomic.h:150
-Call Trace:
- [<c0243b21>] kobject_put+0x71/0x80
- [<c88d9f9f>] scsi_remove_host+0x5f/0x80 [scsi_mod]
- [<c88cf978>] storage_disconnect+0x38/0x48 [usb_storage]
- [<c02c8ad8>] usb_unbind_interface+0x78/0x80
- [<c0285236>] device_release_driver+0x66/0x70
- [<c0285375>] bus_remove_device+0x55/0xa0
- [<c028423d>] device_del+0x5d/0xa0
- [<c02cf320>] usb_disable_device+0x70/0xb0
- [<c02c9656>] usb_disconnect+0x96/0xf0
- [<c02cbeff>] hub_port_connect_change+0x32f/0x340
- [<c02cb7da>] hub_port_status+0x3a/0xb0
- [<c02cc246>] hub_events+0x336/0x3a0
- [<c02cc2e5>] hub_thread+0x35/0xf0
- [<c0344b72>] ret_from_fork+0x6/0x14
- [<c011b2b0>] default_wake_function+0x0/0x30
- [<c02cc2b0>] hub_thread+0x0/0xf0
- [<c0109299>] kernel_thread_helper+0x5/0xc
-
-Steps to reproduce:
-Mount flash drive, add some files, umount, remove from computer
-
-Note:Happens _probably_ under Linus' tree as well. Don't have time to check
-right now.
-
-
+if we know rsync.kernel.org is getting the update at 2PM we can safely
+fetch it from kernel.org at 2AM. It's not very robust and it would be
+hard to enforce it with the mirrors, but it should work and it's much
+better than nothing ;).

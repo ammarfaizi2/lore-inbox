@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262904AbUCJXH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 18:07:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbUCJXDC
+	id S262864AbUCJXOb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 18:14:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUCJXNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 18:03:02 -0500
-Received: from mail.kroah.org ([65.200.24.183]:23771 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262881AbUCJW6F (ORCPT
+	Wed, 10 Mar 2004 18:13:23 -0500
+Received: from alt.aurema.com ([203.217.18.57]:18825 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S262872AbUCJXLI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 17:58:05 -0500
-Date: Wed, 10 Mar 2004 14:51:14 -0800
-From: Greg KH <greg@kroah.com>
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 021 release
-Message-ID: <20040310225114.GD24336@kroah.com>
-References: <20040303000957.GA11755@kroah.com> <404F1085.5080808@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <404F1085.5080808@gmx.de>
-User-Agent: Mutt/1.5.6i
+	Wed, 10 Mar 2004 18:11:08 -0500
+Message-ID: <404FA078.7010001@aurema.com>
+Date: Thu, 11 Mar 2004 10:10:48 +1100
+From: Peter Williams <peterw@aurema.com>
+Organization: Aurema Pty Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: David Ford <david+challenge-response@blue-labs.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
+       "Godbole, Amarendra (GE Consumer & Industrial)" 
+	<Amarendra.Godbole@ge.com>
+Subject: Re: [OT] Re: (0 == foo), rather than (foo == 0)
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com>	<20040310100215.1b707504.rddunlap@osdl.org>	<Pine.LNX.4.53.0403101324120.18709@chaos>	<404F6375.3080500@blue-labs.org> <Pine.LNX.4.53.0403101416001.20251@chaos>
+In-Reply-To: <Pine.LNX.4.53.0403101416001.20251@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10, 2004 at 01:56:37PM +0100, Prakash K. Cheemplavam wrote:
-> Hi,
+Richard B. Johnson wrote:
+> On Wed, 10 Mar 2004, David Ford wrote:
 > 
-> I have a problem with udev and my ZIP drive (using latest mm based kernel):
 > 
-> When I insert a zip the /dev for the partition doesn't get created (ie 
-> hdd4, fdisk shows it though).
+>>Richard B. Johnson wrote:
+>>
+>>
+>>>People who develop kernel code also know what a line-warp is.
+>>>They put a '\n' "[Enter] key" in their text every so-often,
+>>>maybe every 70 to 79 characters...
+>>>
+>>>
+>>
+>>*thinks back to that 40
+>>character screen wrap
+>>that everyone used to
+>>hound everyone else
+>>for*
+>>
+>>Really, your mail reading software should be capable of wrapping things
+>>by itself, we really have progressed from yesteryear.
+>>
 > 
-> What is the problem?
 > 
-> 1) ATAPI Floppy lacks sysfs support?
-> 2) I need to write some sort of rule?
-> 3) Problem of udev?
-> 4) something else?
+> No. You can set your screen size to anything. If you have a very
+> high resolution screen, perhaps even 400 columns. If you are
+> sending mail to somebody, you need to make sure it fits on
+> their page, not your page.
 
-Do you have udev creating all partitions for your hdd device?  That
-sounds like the option that you need to use.
+My mail program (netscape) (when so configured) automatically wraps 
+lines (at a specified width - I use 72) for me by inserting new line 
+characters when it sends the message.  It also wraps lines while I'm 
+editing but without the new line characters so that when I delete some 
+characters or insert some new ones in the middle of a paragraph I don't 
+have to reformat the paragraph. I like this feature and assume that any 
+reasonably modern mail program provides the same feature.  So what's all 
+the fuss about?
 
-thanks,
+Peter
+-- 
+Dr Peter Williams, Chief Scientist                peterw@aurema.com
+Aurema Pty Limited                                Tel:+61 2 9698 2322
+PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
+79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
 
-greg k-h

@@ -1,37 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272215AbRHWE2j>; Thu, 23 Aug 2001 00:28:39 -0400
+	id <S272216AbRHWE3t>; Thu, 23 Aug 2001 00:29:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272216AbRHWE2T>; Thu, 23 Aug 2001 00:28:19 -0400
-Received: from pD903C758.dip.t-dialin.net ([217.3.199.88]:22914 "EHLO
-	no-maam.dyndns.org") by vger.kernel.org with ESMTP
-	id <S272215AbRHWE2P>; Thu, 23 Aug 2001 00:28:15 -0400
-Date: Wed, 22 Aug 2001 16:43:14 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Writing oops-messages to floppy or disk
-Message-ID: <20010822164314.B31151@no-maam.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
-From: erik.tews@gmx.net (Erik Tews)
+	id <S272217AbRHWE3j>; Thu, 23 Aug 2001 00:29:39 -0400
+Received: from femail30.sdc1.sfba.home.com ([24.254.60.20]:59585 "EHLO
+	femail30.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S272216AbRHWE3d>; Thu, 23 Aug 2001 00:29:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: Ion Badulescu <ionut@cs.columbia.edu>
+Subject: Re: [PATCH,RFC] make ide-scsi more selective
+Date: Wed, 22 Aug 2001 21:29:08 -0700
+X-Mailer: KMail [version 1.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108222350170.18397-100000@age.cs.columbia.edu>
+In-Reply-To: <Pine.LNX.4.33.0108222350170.18397-100000@age.cs.columbia.edu>
+MIME-Version: 1.0
+Message-Id: <01082221284000.00178@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Wednesday 22 August 2001 08:54 pm, Ion Badulescu wrote:
+> On Wed, 22 Aug 2001, Nicholas Knight wrote:
+> > Could you elaborate on this? I almost never use modules for my
+> > primary desktop system, SCSI emulation support and SCSI generic
+> > driver were both compiled in, and I had "hdc=ide-scsi" and later also
+> > tried "hdc=scsi" and
+>
+> Well, hdc=ide-scsi is for 2.2 and hdc=scsi is for 2.4. Yup, yet another
+> of those gratuitious incompatibilities.
 
-Some days ago, I had the problem that the isdn-router in our school
-crashed (was a problem with mppp, I am currently talking with the
-isdn-guys). I had a oops-message on my screen. My kernel has had
-magic-sysrq-support. So I needed this message somewhere to give it so
-ksymoops. The only solution I had was typing it into my laptop by hand.
+tried both, neither worked, even with SCSI CD-ROM support enabled
 
-So I would like to know if there is a solution to tell the kernel to
-write the current screen (or the oops-message) to floppy (bypassing the
-filesystem, just raw write, reading it back with dd if=/dev/fd0, of=-)
-The only option I have with ksymoops is syncing my filesystems, but most
-time, the kernel freezes before syslogd is able to write it to the
-filesystem. Or an other solution to get the message to resistant memory.
+>
+> > I was unable to read from it with any device, /dev/sr0 /dev/sda
+> > /dev/scd0 were all dead-ends, but I was able to WRITE just fine... I
+> > just don't want to reboot every time I want to write to the drive,
+> > nor reboot when I want to READ from it.
+>
+> I'm not sure why this is happening for you, my CDR drive works for both
+> reading and writing using the ide-scsi driver. But it's a known fact
+> that ide-scsi is not perfect, so that could explain it.
 
-Typing the message by hand into my laptop is a bad thing, because it
-takes a lot of time, and during this time, the system is down.
+I've gotten the impression that ide-scsi isn't perfect :)
+
+>
+> > Disabling ATAPI CD-ROM support, and enabling SCSI CD-ROM (along with
+> > SCSI emulation support and SCSI generic support) worked, and now I
+> > just access both my CD-RW drive and my DVD-ROM drive through /dev/sr0
+> > and /dev/sr1.
+>
+> So now you're saying it *does* work with ide-scsi? I'm utterly
+> confused...
+
+I'll be more specific:
+
+I've used this in 2.4.8 and 2.4.8-ac9 to read from my IDE/ATAPI CD-RW 
+drive while also using it to write to
+I now have IDE/ATAPI CD-ROM support DISABLED in the ATA/* menu
+SCSI emulation is ENABLED in the ATA/* menu
+SCSI CD-ROM support is ENABLED in the SCSI menu
+SCSI Generic is ENABLED in the SCSI menu
+I do not have any parameters (such as hdX=scsi or ide-scsi) being passed 
+to the kernel except those for my SB16 card, which doesn't have any 
+devices hooked to its IDE port.
+
+this appears at kernel boot:
+SCSI subsystem driver Revision: 1.00
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: PLEXTOR   Model: CD-R   PX-W1610A  Rev: 1.00
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: PIONEER   Model: DVD-ROM DVD-113   Rev: 1.08
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+Attached scsi CD-ROM sr1 at scsi0, channel 0, id 1, lun 0
+sr0: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+Uniform CD-ROM driver Revision: 3.12
+sr1: scsi3-mmc drive: 0x/0x cd/rw xa/form2 cdda tray
+
+using 0,0,0 works for cdrecord, and using /dev/sr0 to mount discs in my 
+CD-RW drive and /dev/sr1
+using /dev/hdc and /dev/hdd does NOT work now
+
+Without this setup, I've been unable to read from my CD-RW drive while 
+it's also setup to write to with SCSI generic.
+
+>
+> > My primary concern here is other users who haven't figured this out,
+> > I know at least one ATAPI/IDE CD-R(W) in Linux HOWTO tells the user
+> > that they'll have to use two seperate kernel images, one to allow
+> > reading from their drive and the other for writing, infact that was
+> > my original method.
+>
+> Nope. Ide-scsi should be fine for both reading and writing.
+
+didn't for me

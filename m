@@ -1,90 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291177AbSBLVAs>; Tue, 12 Feb 2002 16:00:48 -0500
+	id <S291174AbSBLVLW>; Tue, 12 Feb 2002 16:11:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291179AbSBLVAj>; Tue, 12 Feb 2002 16:00:39 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:30504 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S291177AbSBLVA0>; Tue, 12 Feb 2002 16:00:26 -0500
-Date: Wed, 13 Feb 2002 08:27:29 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Tulip oddity under 2.2.19 - possible bug?
-In-Reply-To: <200202120033.g1C0X2b10435@wave.physics.adelaide.edu.au>
-Message-ID: <Pine.LNX.4.05.10202130808030.19878-100000@marina.lowendale.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291179AbSBLVLN>; Tue, 12 Feb 2002 16:11:13 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:37202 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S291174AbSBLVK7>;
+	Tue, 12 Feb 2002 16:10:59 -0500
+Date: Tue, 12 Feb 2002 14:06:24 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Padraig Brady <padraig@antefacto.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+Message-ID: <20020212140624.R9826@lynx.turbolabs.com>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	Padraig Brady <padraig@antefacto.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C695035.6040902@antefacto.com> <Pine.LNX.3.96.1020212132711.6082B-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.96.1020212132711.6082B-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Tue, Feb 12, 2002 at 01:32:11PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Feb 2002, Jonathan Woithe wrote:
-
-> In recent times I have encounted an oddity while using a tulip-based NIC
-> under 2.2.19.  I am wondering whether it's associated with a known issue or
-> whether it's indicating a hardware fault of some description.
-
-Per chance, would this be a NetGear card?
-
-> The kernel is the stock Linus 2.2.19 (as supplied in Slackware 8.0).
+On Feb 12, 2002  13:32 -0500, Bill Davidsen wrote:
+> On Tue, 12 Feb 2002, Padraig Brady wrote:
+> > I'd go for tacking it on at the end of the bzImage. Advantages would be
+> > that it can be read even when the kernel isn't loaded, and also there
+> > is no danger of loading a module in another kernel.
 > 
-> The arrangement: there are two machines conected with a crossed UTP cable. 
-> One is the Linux box and the other is an NT4 box.  Both have identical NICs
-> based on the Tulip chip (DEC 21041).
-> 
-> The symptoms: if both PCs are powered up simultaneously everything comes up
-> fine - communication on the network proceeds normally.  If the NT box is for
-> some reason reset (without the Linux box going down), the network connection
-> is not re-established successfully once NT comes back up again.  Trying to
-> ping the NT box causes the "tx/rx" led on the back of the linux NIC to
-> blink, but nothing is sent back from the NT box.  Interestingly enough,
-> ifconfig reports some carrier errors in the fault condition.  Rebooting the
-> NT4 box doesn't fix the problem; however, doing
->   ifconfig eth0 down
->   ifconfig eth0 up
-> on the Linux box does fix the problem.
+> There are several problems with that:
+> 1 - built into the kernel it is compressed and needs a tool to read
+> 2 - the reason kernels are compressed is to make them fit in small boot
+>     media, so adding something to the image is not to be done lightly.
+> 3 - modules are NOT compressed, and can be read with the strings command.
+> 4 - other files in the modules directory are pure text and if the config
+>     was just text it could be read with `cat.'
 
-Sounds similar to an old "known" problem.  In my case, arp wasn't
-succeeding - debug by Keith Owens found that under some circumstances
-sending an arp query resulted in a copy of the outgoing packet appearing
-in the Rx ring/buffer (and not the reply, which was sniffed on the wire).
-After much poking and sniffing, the conclusion of "bug on the card" was
-looking highly likely.
+My thought on this is to make it a tristate [y/m/n] and have it print
+output via /dev/kconfig or similar.  There could be a dep_bool which
+keeps it in-core, or puts it in an init function which is discarded
+after boot.  If you don't want to have it at all, you turn it off.
+If you want it in the kernel, but not in memory all the time, it can
+be in an init function (maybe printk'ing it before startup is done?).
+It can be in a module and you can get the original plain-text config
+back with "cat /dev/kconfig" and if it is a module it will be auto-loaded
+from wherever it is.
 
-If it's this bug, you should be able to work around it by any of:
+You can also extract it from an uncompressed kernel (vmlinux) or the
+module with "strings <file> | grep '[A-Z]*=[ym]$'".  It is simple
+enough to search for the gzip magic (1f 8b 08 00 at about 16-18kB)
+in a zImage or bzImage, and then pipe it to gunzip and strings as above.
 
-(a) as above, downing and upping the interface
-(b) switch the interface in and out of promisc mode
-(c) pre-setting a static arp entry (on the Linux box).
+The reason you need all of these config options (which don't end up
+making the code much more complex) is because, for example, if you
+are netbooting your kernel, you do not have access to any external
+data or even the original kernel image on that system.  If it is in-memory
+you use 15kB of RAM (5kB in the compressed image) for a fully-configured
+vendor kernel, but you have the config options for THIS kernel and not
+any "maybe it is right, maybe not" external file.
 
-and possibly:
+If it is a module, you can "cat /dev/kconfig > .config" to get a valid
+config file, as long as you are sure this is the right module (maybe
+modversions would help a bit, maybe not, or you could explicitly have
+the kernel version string compiled into the module and compare it).
 
-(d) connect the Tulip to a switch (instead of "shared" media, like a hub).
-
-> If the network isn't connected when the Linux box is booted, a similar
-> problem occurs - once the network cable is connected the linux box needs the
-> above ifconfig cycle to be run before the network connection is
-> successfully established.
-
-It may simply get back to a race as to which box arps first.  E.g. IIRC
-'doze configured with a static IP address will (as a sanity check) arp for
-its own address on bootup - this may be enough to prime the Linux arp
-cache and avoid the problem.
-
-[...]
-> During or after the fault condition nothing is written to any log files to
-> indicate a problem.
-
-"Undetected errors are handled as if no error had occured" :-(
-
-Does "arp -n" show an "incomplete" entry for the relevant IP address?
-
-> Is this a known issue with a workaround available, or is it indicative of a
-> hardware error?
-
-Possibly both ;-)  I'd be really interested if you come up with any
-"clean" fix/workaround.
-
-HTH,
-Neale.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

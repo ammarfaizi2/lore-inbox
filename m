@@ -1,80 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVC0ATU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVC0AYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVC0ATU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 19:19:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVC0ATU
+	id S261367AbVC0AYI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 19:24:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVC0AYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 19:19:20 -0500
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:32231 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261371AbVC0ATN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 19:19:13 -0500
-Subject: [PATCH] Fix preemption off of irq context on x86-64 with
-	PREEMPT_BKL
-From: Christophe Saout <christophe@saout.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <1111778785.14840.13.camel@leto.cs.pocnet.net>
-References: <20050324044114.5aa5b166.akpm@osdl.org>
-	 <1111778785.14840.13.camel@leto.cs.pocnet.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-V5VGUtGxFNBksizjpzBA"
-Date: Sun, 27 Mar 2005 01:19:06 +0100
-Message-Id: <1111882746.32348.6.camel@leto.cs.pocnet.net>
+	Sat, 26 Mar 2005 19:24:08 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:15355 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261367AbVC0AYC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 19:24:02 -0500
+Subject: Re: [Ext2-devel] Re: OOM problems on 2.6.12-rc1 with many fsx tests
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de, mjbligh@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <1111788665.21169.54.camel@dyn318077bld.beaverton.ibm.com>
+References: <20050315204413.GF20253@csail.mit.edu>
+	 <20050316003134.GY7699@opteron.random>
+	 <20050316040435.39533675.akpm@osdl.org>
+	 <20050316183701.GB21597@opteron.random>
+	 <1111607584.5786.55.camel@localhost.localdomain>
+	 <20050325135630.28cd492c.akpm@osdl.org>
+	 <1111788665.21169.54.camel@dyn318077bld.beaverton.ibm.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Sat, 26 Mar 2005 16:23:58 -0800
+Message-Id: <1111883038.3633.9.camel@dyn318043bld.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-03-25 at 14:11 -0800, Badari Pulavarty wrote:
+> On Fri, 2005-03-25 at 13:56, Andrew Morton wrote:
+> > Mingming Cao <cmm@us.ibm.com> wrote:
+> > >
+> > > I run into OOM problem again on 2.6.12-rc1. I run some(20) fsx tests on
+> > > 2.6.12-rc1 kernel(and 2.6.11-mm4) on ext3 filesystem, after about 10
+> > > hours the system hit OOM, and OOM keep killing processes one by one. I
+> > > could reproduce this problem very constantly on a 2 way PIII 700MHZ with
+> > > 512MB RAM. Also the problem could be reproduced on running the same test
+> > > on reiser fs.
+> > > 
+> > > The fsx command is:
+> > > 
+> > > ./fsx -c 10 -n -r 4096 -w 4096 /mnt/test/foo1 &
+> > 
+> > I was able to reproduce this on ext3.  Seven instances of the above leaked
+> > 10-15MB over 10 hours.  All of it permanently stuck on the LRU.
+> > 
+> > I'll continue to poke at it - see what kernel it started with, which
+> > filesystems it affects, whether it happens on UP&&!PREEMPT, etc.  Not a
+> > quick process.
+> 
+> I reproduced *similar* issue with 2.6.11. The reason I say similar, is
+> there is no OOM kill, but very low free memory and machine doesn't
+> respond at all. (I booted my machine with 256M memory and ran 20 copies
+> of fsx on ext3).
+> 
+> 
 
---=-V5VGUtGxFNBksizjpzBA
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yes, I re-run the same test on 2.6.11 for 24 hours, like Badari see on
+his machine, my machine did not go to OOM on 2.6.11,still alive, but
+memory is very low(only 5M free). Killed all fsx and umount the ext3
+filesystem did not bring back much memory. I will going to rerun the
+tests without the mapped read/write to see what happen.
 
-Hi,
-
-> x86_64-fix-config_preempt.patch
->   x86_64: Fix CONFIG_PREEMPT
-
-This patch causes another bug to show up some lines below with
-CONFIG_PREEMPT_BKL. schedule releases the BKL which it shouldn't do.
-
-Call preempt_schedule_irq instead (like for i386). This seems to fix the
-easily reproducible filesystem errors I've seen (with reiserfs, which
-heavily relies on the BKL).
-
-Signed-off-by: Christophe Saout <christophe@saout.de>
-
---- linux-2.6.12-rc1-mm2.orig/arch/x86_64/kernel/entry.S	2005-03-24 17:32:2=
-2.000000000 +0100
-+++ linux-2.6.12-rc1-mm2/arch/x86_64/kernel/entry.S	2005-03-26 23:40:30.000=
-000000 +0100
-@@ -517,12 +517,7 @@
- 	jnc  retint_restore_args
- 	bt   $9,EFLAGS-ARGOFFSET(%rsp)	/* interrupts off? */
- 	jnc  retint_restore_args
--	movl $PREEMPT_ACTIVE,threadinfo_preempt_count(%rcx)
--	sti
--	call schedule
--	cli
--	GET_THREAD_INFO(%rcx)
--	movl $0,threadinfo_preempt_count(%rcx)=20
-+	call preempt_schedule_irq
- 	jmp exit_intr
- #endif=09
- 	CFI_ENDPROC
-
-
---=-V5VGUtGxFNBksizjpzBA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCRfv6ZCYBcts5dM0RAgf4AJ45APs3unr6B1LpLka0WDzSmP6yhACfcCFz
-djlt+BPU3bdA5r9saPgPsTc=
-=En3l
------END PGP SIGNATURE-----
-
---=-V5VGUtGxFNBksizjpzBA--
 

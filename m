@@ -1,100 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129718AbRAXUhO>; Wed, 24 Jan 2001 15:37:14 -0500
+	id <S129763AbRAXUme>; Wed, 24 Jan 2001 15:42:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129742AbRAXUhE>; Wed, 24 Jan 2001 15:37:04 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:48280 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129718AbRAXUgu>;
-	Wed, 24 Jan 2001 15:36:50 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129742AbRAXUmZ>; Wed, 24 Jan 2001 15:42:25 -0500
+Received: from cmn2.cmn.net ([206.168.145.10]:5718 "EHLO cmn2.cmn.net")
+	by vger.kernel.org with ESMTP id <S129763AbRAXUmI>;
+	Wed, 24 Jan 2001 15:42:08 -0500
+Message-ID: <3A6F3E05.4090409@valinux.com>
+Date: Wed, 24 Jan 2001 13:41:41 -0700
+From: Jeff Hartmann <jhartmann@valinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Timur Tabi <ttabi@interactivesi.com>
+CC: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>,
+        Linux MM mailing list <linux-mm@kvack.org>
+Subject: Re: Page Attribute Table (PAT) support?
+In-Reply-To: <20010124174824Z129401-18594+948@vger.kernel.org> <20010124203012Z129444-18594+1042@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <14959.15438.827521.926281@pizda.ninka.net>
-Date: Wed, 24 Jan 2001 12:34:22 -0800 (PST)
-To: Leif Sawyer <lsawyer@gci.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error compiling for sparc64
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA31503515856@berkeley.gci.com>
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA31503515856@berkeley.gci.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Timur Tabi wrote:
 
-Wrong, your one-line fix may make it build correctly but it
-will not produce working quota 32-bit syscall code there.
+> ** Reply to message from Jeff Hartmann <jhartmann@valinux.com> on Wed, 24 Jan
+> 2001 11:45:43 -0700
+> 
+> 
+> 
+>> I'm actually writing support for the PAT as we speak.  I already have 
+>> working code for PAT setup.  Just having a parameter for ioremap is not 
+>> enough, unfortunately.  According to the Intel Architecture Software 
+>> Developer's Manual we have to remove all mappings of the page that are 
+>> cached.
+> 
+> 
+> For our specific purposes, that's not important.  We already flush the cache
+> before we create uncached regions (via ioremap_nocache).  I understand that as a
+> general Linux feature, you can't ignore cache incoherency, but I don't think
+> it's a hard requirement.
 
-Someone needs to fixup the conversion code, I don't have time to track
-the AC series (it actually duplicates a lot of networking stuff I just
-pushed to Linus and ended up in 2.4.1-pre10) which means it likely
-won't be fixed until Linus takes those quota code changes.
+Actually you can't ignore it or the processor will have a heart attack 
+if the cached page mapping is used even speculatively.  I've done some 
+experimenting, if the page is mapped cached in one place, and UCWC in 
+another, things will not work.  Its extremely likely the processor will 
+cease to function.  Its not like having cached and uncached mappings of 
+a page (which does work on the Intel processors, we use that feature in 
+the agpgart and the DRM in fact.)  When you mark a page UCWC, you better 
+have removed all cached mappings or your asking for REAL trouble.
 
-Please stick to 2.4.1-preX on sparc64, and if using 2.4.1-pre10 please
-apply this patch to get a clean build :-)
+-Jeff
 
-Later,
-David S. Miller
-davem@redhat.com
-
---- ./arch/sparc/kernel/signal.c.~1~	Tue Nov 28 08:33:08 2000
-+++ ./arch/sparc/kernel/signal.c	Wed Jan 24 10:06:14 2001
-@@ -28,9 +28,6 @@
- 
- #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
- 
--asmlinkage int sys_wait4(pid_t pid, unsigned long *stat_addr,
--			 int options, unsigned long *ru);
--
- extern void fpsave(unsigned long *fpregs, unsigned long *fsr,
- 		   void *fpqueue, unsigned long *fpqdepth);
- extern void fpload(unsigned long *fpregs, unsigned long *fsr);
---- ./arch/sparc/kernel/sys_sunos.c.~1~	Tue Nov 28 08:33:08 2000
-+++ ./arch/sparc/kernel/sys_sunos.c	Wed Jan 24 10:06:21 2001
-@@ -834,7 +834,6 @@
- }
- 
- /* So stupid... */
--extern asmlinkage int sys_wait4(pid_t, unsigned int *, int, struct rusage *);
- asmlinkage int sunos_wait4(pid_t pid, unsigned int *stat_addr, int options, struct rusage *ru)
- {
- 	int ret;
---- ./arch/sparc64/kernel/signal.c.~1~	Tue Nov 28 08:33:08 2000
-+++ ./arch/sparc64/kernel/signal.c	Wed Jan 24 10:05:52 2001
-@@ -31,9 +31,6 @@
- 
- #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
- 
--asmlinkage int sys_wait4(pid_t pid, unsigned long *stat_addr,
--			 int options, unsigned long *ru);
--
- asmlinkage int do_signal(sigset_t *oldset, struct pt_regs * regs,
- 			 unsigned long orig_o0, int ret_from_syscall);
- 
---- ./arch/sparc64/kernel/signal32.c.~1~	Tue Nov 28 08:33:08 2000
-+++ ./arch/sparc64/kernel/signal32.c	Wed Jan 24 10:05:57 2001
-@@ -29,9 +29,6 @@
- 
- #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
- 
--asmlinkage int sys_wait4(pid_t pid, unsigned long *stat_addr,
--			 int options, unsigned long *ru);
--
- asmlinkage int do_signal32(sigset_t *oldset, struct pt_regs *regs,
- 			 unsigned long orig_o0, int ret_from_syscall);
- 
---- ./arch/sparc64/kernel/sys_sparc32.c.~1~	Wed Dec 13 08:34:55 2000
-+++ ./arch/sparc64/kernel/sys_sparc32.c	Wed Jan 24 10:06:06 2001
-@@ -1794,9 +1794,6 @@
- 	return err;
- }
- 
--extern asmlinkage int sys_wait4(pid_t pid,unsigned int * stat_addr,
--				int options, struct rusage * ru);
--
- asmlinkage int sys32_wait4(__kernel_pid_t32 pid, unsigned int *stat_addr, int options, struct rusage32 *ru)
- {
- 	if (!ru)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

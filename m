@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVAMVK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbVAMVK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbVAMVK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 16:10:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVAMVIi
+	id S261697AbVAMVK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 16:10:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVAMVIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 16:08:38 -0500
-Received: from mail.joq.us ([67.65.12.105]:29110 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261519AbVAMVDm (ORCPT
+	Thu, 13 Jan 2005 16:08:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:6635 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261688AbVAMVES (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 16:03:42 -0500
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
-       Lee Revell <rlrevell@joe-job.com>, Matt Mackall <mpm@selenic.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <20050111214152.GA17943@devserv.devel.redhat.com>
-	<200501112251.j0BMp9iZ006964@localhost.localdomain>
-	<20050111150556.S10567@build.pdx.osdl.net>
-	<87y8ezzake.fsf@sulphur.joq.us>
-	<20050112074906.GB5735@devserv.devel.redhat.com>
-	<87oefuma3c.fsf@sulphur.joq.us>
-	<20050113072802.GB13195@devserv.devel.redhat.com>
-From: "Jack O'Quin" <joq@io.com>
-Date: Thu, 13 Jan 2005 15:04:26 -0600
-In-Reply-To: <20050113072802.GB13195@devserv.devel.redhat.com> (Arjan van de
- Ven's message of "Thu, 13 Jan 2005 08:28:02 +0100")
-Message-ID: <878y6x9h2d.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Thu, 13 Jan 2005 16:04:18 -0500
+Date: Thu, 13 Jan 2005 13:03:22 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Dave Jones <davej@redhat.com>, Marek Habersack <grendel@caudium.net>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+In-Reply-To: <1105644461.4644.102.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0501131255590.2310@ppc970.osdl.org>
+References: <20050112094807.K24171@build.pdx.osdl.net> 
+ <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>  <20050112185133.GA10687@kroah.com>
+  <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>  <20050112161227.GF32024@logos.cnet>
+  <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>  <20050112174203.GA691@logos.cnet>
+  <1105627541.4624.24.camel@localhost.localdomain>  <20050113194246.GC24970@beowulf.thanes.org>
+  <20050113200308.GC3555@redhat.com>  <Pine.LNX.4.58.0501131206340.2310@ppc970.osdl.org>
+ <1105644461.4644.102.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->> > On Tue, Jan 11, 2005 at 07:43:29PM -0600, Jack O'Quin wrote:
->> >> Arjan just means crashing the system which forces reboot to run
->> >> fsck.
 
->> Arjan van de Ven <arjanv@redhat.com> writes:
->> > I actually meant data corruption.
+On Thu, 13 Jan 2005, Alan Cox wrote:
+> 
+> I'm all for an open list too. Its currently called linux-kernel. Its
+> full of such reports, and most of them are about new code or trivial
+> holes where secrecy is pointless. Having an open linux-security list so
+> they don't get missed as the grsecurity stuff did (and until I got fed
+> up of waiting the coverity stuff did) would help because it would make
+> sure that it didn't get buried in the noise.
 
-> On Wed, Jan 12, 2005 at 06:44:23PM -0600, Jack O'Quin wrote:
->> Are you concerned about something different from the "normal" risk of
->> data corruption when the kernel panics or someone trips over the power
->> cord?
+Yes. But I know people send private emails because they don't want to 
+create a scare, so I think we actually have several levels of lists:
 
-Arjan van de Ven <arjanv@redhat.com> writes:
-> yes; the "normal" risk is time limited, eg the kernel will wait at most 30
-> seconds before writing back your dirty data, 5 seconds for ext3 actually.
-> With the "RT-abuse" hang, this 30 second thing goes on hold (because it's
-> done from those kernel threads that cause you those hickups in sound :-) and
-> you can starve a far longer period of time.. which may well mean a far
-> larger dataset not hitting the disk.
+ - totally open: linux-kernel, or an alternative with lower noise
 
-Ah, good point.
+   We've kind of got this, but things get lost in the noise, and "white 
+   hat" people don't like feeling guilty about announcing things.
 
-Just thinking about this naively, I come up with two scenarios:
+ - no embargo, no rules, but "private" in the sense that it's supposed to 
+   be for kernel developers only or at least people who won't take 
+   advantage of it.
 
-  (1) SMP -- RT thread hangs one CPU.  Kernel threads can still run on
-  other processors.  Rest of system continues running (degraded) until
-  more RT threads hang the remaining CPUs at which time we end up
-  with...
+   _I_ think this is the one that makes sense. No hard rules, but private 
+   enough that people won't feel _guilty_ about reporting problems. Right 
+   now I sometimes get private email from people who don't want to point
+   out some local DoS or similar, and that can certainly get lost in the
+   flow.
 
-  (2) UP -- RT thread hangs the last remaining CPU.  Kernel threads
-  can't run.  User processes can no longer write data to FS.
+ - _short_ embargo, for kernel-only. I obviously believe that vendor-sec 
+   is whoring itself for security firms and vendors. I believe there would 
+   be a place for something with stricter rules on disclosure.
 
-(Probably, this simplistic analysis misses some other, more subtle,
-factors.)
+ - vendor-sec. The place where you can play any kind of games you want.
 
-RT threads should not do FS writes of their own.  But, a badly broken
-or malicious one could, I suppose.  So, that might provide a mechanism
-for losing more data than usual.  Is that what you had in mind?
--- 
-  joq
+It's not a black-and-white thing. I refuse to believe that most security 
+problems are found by people without any morals. I believe that somewhere 
+in the middle is where most people feel most comfortable.
+
+		Linus

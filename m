@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265525AbSKAAmI>; Thu, 31 Oct 2002 19:42:08 -0500
+	id <S265472AbSKAAj7>; Thu, 31 Oct 2002 19:39:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265533AbSKAAli>; Thu, 31 Oct 2002 19:41:38 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:1152 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S265525AbSKAAke>;
-	Thu, 31 Oct 2002 19:40:34 -0500
-Date: Thu, 31 Oct 2002 17:46:22 -0800
-From: Bob Miller <rem@osdl.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.45] Export blkdev_ioctl for raw block driver.
-Message-ID: <20021031174622.A1185@doc.pdx.osdl.net>
-References: <20021031165719.A26498@doc.pdx.osdl.net> <Pine.GSO.4.21.0210311909010.16688-100000@weyl.math.psu.edu> <20021031172007.A28402@doc.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S265517AbSKAAj6>; Thu, 31 Oct 2002 19:39:58 -0500
+Received: from marcie.netcarrier.net ([216.178.72.21]:63498 "HELO
+	marcie.netcarrier.net") by vger.kernel.org with SMTP
+	id <S265472AbSKAAjp>; Thu, 31 Oct 2002 19:39:45 -0500
+Message-ID: <3DC1D022.79085722@compuserve.com>
+Date: Thu, 31 Oct 2002 19:51:46 -0500
+From: Kevin Brosius <cobra@compuserve.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16-4GB i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kernel <linux-kernel@vger.kernel.org>, Hans Reiser <reiser@namesys.com>
+Subject: Re: Reiser vs EXT3
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021031172007.A28402@doc.pdx.osdl.net>; from rem@osdl.org on Thu, Oct 31, 2002 at 05:20:07PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 05:20:07PM -0800, Bob Miller wrote:
-> On Thu, Oct 31, 2002 at 07:11:19PM -0500, Alexander Viro wrote:
-
-Stuff deleted...
-
-> > Why not use ioctl_by_bdev() in the first place?  (and yes, it's very likely
-> > my fault - I hadn't realized that raw.c went modular at some point).
-> Didn't know about ioctl_by_bdev()... I'll make a patch that converts
-> the raw driver to call it instead of blkdev_ioctl().
+> David C. Hansen wrote:
 > 
+> >On Thu, 2002-10-31 at 13:51, Hans Reiser wrote:
+> >  
+> >
+> >>If you want to talk about 2.6 then you should talk about reiser4 not 
+> >>reiserfs v3, and reiser4 is 7.6 times the write performance of ext3 for 
+> >>30 copies of the linux kernel source code using modern IDE drives and 
+> >>modern processors on a dual-CPU box, so I don't think any amount of 
+> >>improved scalability will make ext3 competitive with reiser4 for 
+> >>performance usages.  
+> >>
+> >>We haven't had anyone test performance using RAID yet for reiser4, that 
+> >>could be fun.
+> >>    
+> >>
+> >
+> >I have a 14-drive hardware RAID array on an 8-proc box.  Is that the
+> >kind of thing you want testing on?  If you want to send me some testing
+> >scripts, I'll run them.  
+> >
+> >  
+> >
+> Yes, that would be cool.
+> 
+> Green, please respond to this email with details for him.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.869   -> 1.870  
-#	  drivers/char/raw.c	1.23    -> 1.24   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/31	rem@doc.pdx.osdl.net	1.870
-# Changed raw driver to call ioctl_by_bdev() instead of
-# blkdev_ioctl() so that it will build as a module.
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/raw.c b/drivers/char/raw.c
---- a/drivers/char/raw.c	Thu Oct 31 17:34:56 2002
-+++ b/drivers/char/raw.c	Thu Oct 31 17:34:56 2002
-@@ -95,7 +95,7 @@
- {
- 	struct block_device *bdev = filp->private_data;
- 
--	return blkdev_ioctl(bdev->bd_inode, NULL, command, arg);
-+	return ioctl_by_bdev(bdev, command, arg);
- }
- 
- /*
+
+I have access to a 3 drive hw RAID system with dual processors if you'd
+like some more testing.  Do you have info on recommended stripe sizes
+vs. performance for Reiser using RAID?
+
 -- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+Kevin

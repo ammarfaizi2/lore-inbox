@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262247AbULMMpC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbULMMtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262247AbULMMpC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 07:45:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbULMMpC
+	id S262246AbULMMtT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 07:49:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbULMMtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 07:45:02 -0500
-Received: from postman1.arcor-online.net ([151.189.20.156]:44190 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S262247AbULMMov
+	Mon, 13 Dec 2004 07:49:18 -0500
+Received: from macedonia.mhl.tuc.gr ([147.27.3.60]:26815 "HELO
+	macedonia.mhl.tuc.gr") by vger.kernel.org with SMTP id S262246AbULMMsw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 07:44:51 -0500
-Date: Mon, 13 Dec 2004 13:44:26 +0100
-From: Juergen Quade <quade@hsnr.de>
-To: Zhenyu Wu <y030729@njupt.edu.cn>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: about kernel_thread!
-Message-ID: <20041213124426.GA4157@hsnr.de>
-References: <302943559.21891@njupt.edu.cn>
+	Mon, 13 Dec 2004 07:48:52 -0500
+Subject: Re: PCI interrupt lost
+From: Dimitris Lampridis <labis@mhl.tuc.gr>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1102941933.3415.14.camel@naousa.mhl.tuc.gr>
+References: <1102941933.3415.14.camel@naousa.mhl.tuc.gr>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lkB8L3PWTk+xC/ECooic"
+Date: Mon, 13 Dec 2004 14:48:49 +0200
+Message-Id: <1102942129.3415.18.camel@naousa.mhl.tuc.gr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <302943559.21891@njupt.edu.cn>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13, 2004 at 09:12:39PM +0800, Zhenyu Wu wrote:
-> Hello, 
-> 
-> I have some confusions on kernel_thread, so I want to get help.
-> 
-> I want to create a thread in a loadable module, then I used the function
-> kernel_thread() in init_module(). Of course, the thread was created, but when I
-> remove the module there are errors. I think it is because of the thread I have
-> created that have not been killed. So, how can I kill this thread when I remove
-> the module?
 
-You can find sample-code here:
-http://ezs.kr.hsnr.de/TreiberBuch/Download/TreiberEntwickeln2004261/6-9-kthread.c
+--=-lkB8L3PWTk+xC/ECooic
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-       Juergen.
+I forgot to ask a final thing:
+What is the proper way of configuring my INT pin on the Host Controller?
+I can choose:
+level/edge triggered
+high/low   active
+I've been told that PCI interrupts are level trig. active low. Is this
+true? I've seen another driver initialize to level trig. active high!
+(not that I haven't tried all the 4 cases anyway...)
+
+Thanx again,
+--=20
+Dimitris Lampridis <labis@mhl.tuc.gr>
+
+--=-lkB8L3PWTk+xC/ECooic
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBvY+vgMArLfy6HHMRAs9CAJ91Ew0SbdfNWLkb+fV6agR17naPwACfRRGN
+9N4ACiIfpGaJb2yWbDSADcY=
+=14CJ
+-----END PGP SIGNATURE-----
+
+--=-lkB8L3PWTk+xC/ECooic--
+

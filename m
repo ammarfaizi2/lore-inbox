@@ -1,241 +1,178 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264848AbSKJMML>; Sun, 10 Nov 2002 07:12:11 -0500
+	id <S264838AbSKJMGb>; Sun, 10 Nov 2002 07:06:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264850AbSKJMML>; Sun, 10 Nov 2002 07:12:11 -0500
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:41940 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S264848AbSKJMMH>; Sun, 10 Nov 2002 07:12:07 -0500
-Date: Sun, 10 Nov 2002 12:19:06 +0000
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.46 / Asus A7M266 - spontaneous reboots
-Message-ID: <20021110121906.GA457@berserk.demon.co.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Peter Horton <pdh@berserk.demon.co.uk>
+	id <S264848AbSKJMGb>; Sun, 10 Nov 2002 07:06:31 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:1698 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S264838AbSKJMG0>;
+	Sun, 10 Nov 2002 07:06:26 -0500
+Message-ID: <3DCE421F.8000802@colorfullife.com>
+Date: Sun, 10 Nov 2002 12:25:19 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Davide Libenzi <davidel@xmailserver.org>
+Subject: [RFC,PATCH] poll cleanups 1/3
+Content-Type: multipart/mixed;
+ boundary="------------050905010103040001020202"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just started testing 2.5.46 and am not getting very far. After
-about five minutes of use the system spontaneously reboots.
+This is a multi-part message in MIME format.
+--------------050905010103040001020202
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Asus A7M266, Athlon XP2000, 512MB RAM, all partitions mounted as EXT2.
+Change 1:
+Davide added a 'queue' variable into the poll_table, to indicate that no 
+wait queue operations should happen.
+This is not needed: setting the poll table to NULL achieves the same 
+effect, and is used by select/poll to implement syscalls with a 0 timeout.
 
-Kernel config follows (ACPI is included but disabled from the kernel
-command line). The only modules loaded are the sound and network
-modules.
+Patch vs 2.5.46, untested.
 
-2.4.19 works fine on this box.
+--
+    Manfred
 
-P.
+--------------050905010103040001020202
+Content-Type: text/plain;
+ name="patch-poll-1-NULL"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-poll-1-NULL"
 
---x--x--x--x--x--x--
+// $Header$
+// Kernel Version:
+//  VERSION = 2
+//  PATCHLEVEL = 5
+//  SUBLEVEL = 46
+//  EXTRAVERSION =
+--- 2.5/include/linux/poll.h	2002-11-10 11:54:59.000000000 +0100
++++ build-2.5/include/linux/poll.h	2002-11-10 11:57:39.000000000 +0100
+@@ -13,7 +13,6 @@
+ struct poll_table_page;
+ 
+ typedef struct poll_table_struct {
+-	int queue;
+ 	void *priv;
+ 	void (*qproc)(void *, wait_queue_head_t *);
+ 	int error;
+@@ -30,18 +29,16 @@
+ 
+ static inline void poll_initwait(poll_table* pt)
+ {
+-	pt->queue = 1;
+ 	pt->qproc = NULL;
+ 	pt->priv = NULL;
+ 	pt->error = 0;
+ 	pt->table = NULL;
+ }
+ 
+-static inline void poll_initwait_ex(poll_table* pt, int queue,
++static inline void poll_initwait_ex(poll_table* pt,
+ 				    void (*qproc)(void *, wait_queue_head_t *),
+ 				    void *priv)
+ {
+-	pt->queue = queue;
+ 	pt->qproc = qproc;
+ 	pt->priv = priv;
+ 	pt->error = 0;
+--- 2.5/fs/select.c	2002-11-10 11:54:59.000000000 +0100
++++ build-2.5/fs/select.c	2002-11-10 11:58:24.000000000 +0100
+@@ -77,9 +77,6 @@
+ {
+ 	struct poll_table_page *table = p->table;
+ 
+-	if (!p->queue)
+-		return;
+-
+ 	if (p->qproc) {
+ 		p->qproc(p->priv, wait_address);
+ 		return;
+--- 2.5/fs/eventpoll.c	2002-11-10 11:54:59.000000000 +0100
++++ build-2.5/fs/eventpoll.c	2002-11-10 11:57:17.000000000 +0100
+@@ -828,7 +828,7 @@
+ 	}
+ 
+ 	/* Attach the item to the poll hooks */
+-	poll_initwait_ex(&pt, 1, ep_ptable_queue_proc, dpi);
++	poll_initwait_ex(&pt, ep_ptable_queue_proc, dpi);
+ 	revents = tfile->f_op->poll(tfile, &pt);
+ 	poll_freewait(&pt);
+ 
+@@ -854,25 +854,14 @@
+ 
+ 
+ /*
+- * Returns the current events of the given file. It uses the special
+- * poll table initialization to avoid any poll queue insertion.
++ * Returns the current events of the given file.
+  */
+ static unsigned int ep_get_file_events(struct file *file)
+ {
+ 	unsigned int revents;
+-	poll_table pt;
+ 
+-	/*
+-	 * This is a special poll table initialization that will
+-	 * make poll_wait() to not perform any wait queue insertion when
+-	 * called by file->f_op->poll(). This is a fast way to retrieve
+-	 * file events with perform any queue insertion, hence saving CPU cycles.
+-	 */
+-	poll_initwait_ex(&pt, 0, NULL, NULL);
+-
+-	revents = file->f_op->poll(file, &pt);
++	revents = file->f_op->poll(file, NULL);
+ 
+-	poll_freewait(&pt);
+ 	return revents;
+ }
+ 
+@@ -1056,15 +1045,6 @@
+ 	unsigned long flags;
+ 	struct list_head *lsthead = &ep->rdllist;
+ 	struct pollfd eventbuf[EP_EVENT_BUFF_SIZE];
+-	poll_table pt;
+-
+-	/*
+-	 * This is a special poll table initialization that will
+-	 * make poll_wait() to not perform any wait queue insertion when
+-	 * called by file->f_op->poll(). This is a fast way to retrieve
+-	 * file events with perform any queue insertion, hence saving CPU cycles.
+-	 */
+-	poll_initwait_ex(&pt, 0, NULL, NULL);
+ 
+ 	write_lock_irqsave(&ep->lock, flags);
+ 
+@@ -1075,7 +1055,7 @@
+ 		EP_LIST_DEL(&dpi->rdllink);
+ 
+ 		/* Fetch event bits from the signaled file */
+-		revents = dpi->file->f_op->poll(dpi->file, &pt);
++		revents = dpi->file->f_op->poll(dpi->file, NULL);
+ 
+ 		if (revents & dpi->pfd.events) {
+ 			eventbuf[ebufcnt] = dpi->pfd;
+@@ -1091,7 +1071,6 @@
+ 				write_unlock_irqrestore(&ep->lock, flags);
+ 				if (__copy_to_user(&events[eventcnt], eventbuf,
+ 						   ebufcnt * sizeof(struct pollfd))) {
+-					poll_freewait(&pt);
+ 					return -EFAULT;
+ 				}
+ 				eventcnt += ebufcnt;
+@@ -1111,8 +1090,6 @@
+ 			eventcnt += ebufcnt;
+ 	}
+ 
+-	poll_freewait(&pt);
+-
+ 	return eventcnt;
+ }
+ 
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_SWAP=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-
-CONFIG_EXPERIMENTAL=y
-
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-
-CONFIG_MODULES=y
-CONFIG_KMOD=y
-
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_MCE=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_PC_SUPERIO=y
-CONFIG_PARPORT_1284=y
+--------------050905010103040001020202--
 
 
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=8192
-
-CONFIG_IDE=y
-
-CONFIG_BLK_DEV_IDE=y
-
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDESCSI=m
-
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-
-CONFIG_SCSI=m
-
-CONFIG_BLK_DEV_SD=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=m
-
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-
-CONFIG_IPV6_SCTP__=y
-
-CONFIG_NETDEVICES=y
-
-CONFIG_NET_ETHERNET=y
-
-CONFIG_NET_PCI=y
-CONFIG_EEPRO100=m
-CONFIG_NE2K_PCI=m
-CONFIG_8139TOO=m
-CONFIG_VIA_RHINE=m
-
-CONFIG_INPUT=y
-
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-
-CONFIG_SERIAL_8250=y
-
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-
-CONFIG_I2C=m
-CONFIG_I2C_ALGOBIT=m
-
-CONFIG_AGP=m
-CONFIG_AGP_AMD=y
-CONFIG_DRM=y
-CONFIG_DRM_RADEON=m
-
-CONFIG_AUTOFS4_FS=m
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_UDF_FS=m
-CONFIG_UDF_RW=y
-
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_TCP=y
-CONFIG_SUNRPC=m
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-
-CONFIG_NLS_DEFAULT="iso8859-1"
-
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-
-CONFIG_SOUND=m
-
-CONFIG_SND=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-
-CONFIG_SND_ENS1371=m
-
-CONFIG_USB=m
-
-CONFIG_USB_STORAGE=m
-CONFIG_USB_STORAGE_DATAFAB=y
-CONFIG_USB_STORAGE_DPCM=y
-CONFIG_USB_STORAGE_SDDR09=y
-CONFIG_USB_STORAGE_JUMPSHOT=y
-
-CONFIG_USB_SERIAL=m
-CONFIG_USB_SERIAL_GENERIC=y
-CONFIG_USB_SERIAL_FTDI_SIO=m
-
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_KALLSYMS=y
-
-CONFIG_SECURITY_CAPABILITIES=y
-
-CONFIG_X86_BIOS_REBOOT=y

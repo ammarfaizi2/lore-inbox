@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVC0B3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVC0BsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbVC0B3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 20:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVC0B3Z
+	id S261582AbVC0BsP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 20:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVC0BsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 20:29:25 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:53463 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261499AbVC0B3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 20:29:20 -0500
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-From: Lee Revell <rlrevell@joe-job.com>
-To: Aaron Gyes <floam@sh.nu>
+	Sat, 26 Mar 2005 20:48:15 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:27656 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261582AbVC0BsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 20:48:10 -0500
+Date: Sun, 27 Mar 2005 03:48:08 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1111886147.1495.3.camel@localhost>
-References: <1111886147.1495.3.camel@localhost>
-Content-Type: text/plain
-Date: Sat, 26 Mar 2005 20:29:19 -0500
-Message-Id: <1111886959.1312.19.camel@mindpipe>
+Subject: [2.6 patch] i386/x86_64 early_printk.c: make early_serial_base static
+Message-ID: <20050327014808.GH3237@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-03-26 at 17:15 -0800, Aaron Gyes wrote:
-> > So, the fact that someone else is doing something illegal, makes it
-> > acceptable for you to do the same thing? Please, talk to a lawyer
-> > about
-> > this issue if you have _any_ questions.
-> 
-> How is what they are doing illegal? How it is even "bad"? They obviously
-> can't give up their IP.
+This patch makes a needlessly global variable static.
 
-Many kernel developers feel that when people use their GPL'ed Linux code
-with the binary drivers they are giving up their IP to Nvidia.  That
-argument is no less valid than Nvidia's.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Only a lawyer can answer the first question, and AFAIK there is not much
-precedent in the area so it's especially important to get legal advice.
-One would think Nvidia and ATI got the green light from their lawyers
-before releasing the binary drivers, so who knows.
+---
 
-Lee
+This patch was already sent on:
+- 20 Mar 2005
+
+--- linux-2.6.11-mm4-full/arch/x86_64/kernel/early_printk.c.old	2005-03-20 19:46:41.000000000 +0100
++++ linux-2.6.11-mm4-full/arch/x86_64/kernel/early_printk.c	2005-03-20 19:46:49.000000000 +0100
+@@ -60,7 +60,7 @@
+ 
+ /* Serial functions loosely based on a similar package from Klaus P. Gerlicher */ 
+ 
+-int early_serial_base = 0x3f8;  /* ttyS0 */ 
++static int early_serial_base = 0x3f8;  /* ttyS0 */ 
+ 
+ #define XMTRDY          0x20
+ 
 

@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292748AbSBZT0V>; Tue, 26 Feb 2002 14:26:21 -0500
+	id <S292751AbSBZT1P>; Tue, 26 Feb 2002 14:27:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292749AbSBZT0L>; Tue, 26 Feb 2002 14:26:11 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:28891 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S292748AbSBZT0D>; Tue, 26 Feb 2002 14:26:03 -0500
-Message-Id: <200202261838.LAA23194@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Vojtech Pavlik <vojtech@ucw.cz>
-Subject: [PATCH] 2.5.5-dj1, small fix in drivers/input/gameport/Config.in
-Date: Tue, 26 Feb 2002 12:24:15 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S292752AbSBZT1B>; Tue, 26 Feb 2002 14:27:01 -0500
+Received: from mail.cogenit.fr ([195.68.53.173]:5030 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S292751AbSBZT0t>;
+	Tue, 26 Feb 2002 14:26:49 -0500
+Date: Tue, 26 Feb 2002 20:26:39 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Tulika Pradhan <tulikapradhan@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: frame relay on linux
+Message-ID: <20020226202639.A17865@fafner.intra.cogenit.fr>
+In-Reply-To: <LAW2-F51Hprp5yLZ86B00000eef@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <LAW2-F51Hprp5yLZ86B00000eef@hotmail.com>; from tulikapradhan@hotmail.com on Tue, Feb 26, 2002 at 12:47:12PM +0000
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While looking through the Config.in files in 2.5.5-dj1 for missing
-help texts in Config.help, I found that in drivers/input/gameport
-we have both CONFIG_GAMEPORT_EMU10K1 and CONFIG_INPUT_EMU10K1,
-and perhaps only one of these is needed.
+Tulika Pradhan <tulikapradhan@hotmail.com> :
+[...]
+> i want to develop frame relay stack for linux. what is the procedure if i 
+> want to add this effort to the standard linux code and future versions.
+> this would be different from the rfc1490 that is currently implemented in 
+> linux. i would like to develop fr on linux - pvc and svc implementing Q.922 
+> core and Q.933 for signalling.
 
-Here is a snippet from the drivers/input/gameport/Makefile:
+Krzysztof Halasa's recent work may be an useful framework. Search last
+month archive for "HDLC".
 
-obj-$(CONFIG_GAMEPORT_CS614X)   += cs614x.o
-obj-$(CONFIG_GAMEPORT_EMU10K1)  += emu10k1-gp.o
-obj-$(CONFIG_GAMEPORT_FM801)    += fm801-gp.o
-
-There is no help text for CONFIG_INPUT_EMU10K1, but there is
-one for CONFIG_GAMEPORT_EMU10K1 in drivers/input/gameport/Config.help.
-However, drivers/input/gameport/Config.in prompts for a setting for
-CONFIG_INPUT_EMU10K1.
-
-The following micro-patch is proposed:
-
-Steven
-
---- linux-2.5.5-dj1/drivers/input/gameport/Config.in.orig       Tue Feb 26 12:01:38 2002
-+++ linux-2.5.5-dj1/drivers/input/gameport/Config.in    Tue Feb 26 12:02:09 2002
-@@ -13,7 +13,7 @@
-
- dep_tristate '  Classic ISA and PnP gameport support' CONFIG_GAMEPORT_NS558 $CONFIG_GAMEPORT
- dep_tristate '  PDPI Lightning 4 gamecard support' CONFIG_GAMEPORT_L4 $CONFIG_GAMEPORT
--dep_tristate '  SB Live and Audigy gameport support' CONFIG_INPUT_EMU10K1 $CONFIG_GAMEPORT
-+dep_tristate '  SB Live and Audigy gameport support' CONFIG_GAMEPORT_EMU10K1 $CONFIG_GAMEPORT
- dep_tristate '  Aureal Vortex and Vortex 2 gameport support' CONFIG_GAMEPORT_VORTEX $CONFIG_GAMEPORT
- dep_tristate '  ForteMedia FM801 gameport support' CONFIG_GAMEPORT_FM801 $CONFIG_GAMEPORT
- dep_tristate '  Crystal SoundFusion  gameport support' CONFIG_GAMEPORT_CS461x $CONFIG_GAMEPORT
+-- 
+Ueimor

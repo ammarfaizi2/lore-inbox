@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133020AbRARVN3>; Thu, 18 Jan 2001 16:13:29 -0500
+	id <S135590AbRARVTT>; Thu, 18 Jan 2001 16:19:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135669AbRARVNT>; Thu, 18 Jan 2001 16:13:19 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:43529 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S133020AbRARVNI>;
-	Thu, 18 Jan 2001 16:13:08 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200101182112.f0ILCmZ113705@saturn.cs.uml.edu>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Thu, 18 Jan 2001 16:12:48 -0500 (EST)
-Cc: hch@ns.caldera.de (Christoph Hellwig),
-        riel@conectiva.com.br (Rik van Riel), mingo@elte.hu,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101171659160.10878-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 17, 2001 05:13:31 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S135756AbRARVTJ>; Thu, 18 Jan 2001 16:19:09 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:25698 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135190AbRARVS5>; Thu, 18 Jan 2001 16:18:57 -0500
+Date: Thu, 18 Jan 2001 22:14:11 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Rick Jones <raj@cup.hp.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+Message-ID: <20010118221411.H28276@athlon.random>
+In-Reply-To: <Pine.LNX.4.30.0101182041240.1009-100000@elte.hu> <Pine.LNX.4.10.10101181146190.18387-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10101181146190.18387-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jan 18, 2001 at 11:52:33AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> struct kiovec2 {
->> 	int             nbufs;          /* Kiobufs actually referenced */
->> 	int             array_len;      /* Space in the allocated lists */
->> 	struct kiobuf * bufs;
->
-> Any reason for array_len?
->
-> Why not just 
+On Thu, Jan 18, 2001 at 11:52:33AM -0800, Linus Torvalds wrote:
+> On Thu, 18 Jan 2001, Ingo Molnar wrote:
+> > 
+> > i believe a network-conscious application should use MSG_MORE - that has
+> > no system-call overhead.
 > 
-> 	int nbufs,
-> 	struct kiobuf *bufs;
->
-> Remember: simplicity is a virtue. 
->
-> Simplicity is also what makes it usable for people who do NOT want to have
-> huge overhead.
->
->> 	unsigned int    locked : 1;     /* If set, pages has been locked */
->
-> Remove this. I don't think it's valid to lock the pages. Who wants to use
-> this anyway?
->
->> 	/* Always embed enough struct pages for 64k of IO */
->> 	struct kiobuf * buf_array[KIO_STATIC_PAGES];	 
->
-> Kill kill kill kill. 
->
-> If somebody wants to embed a kiovec into their own data structure, THEY
-> can decide to add their own buffers etc. A fundamental data structure
-> should _never_ make assumptions like this.
+> I think Andrea was thinking more of the case of the anonymous IO
+> generator, and having the "controller" program thgat keeps the socket
+> always in CORK mode, but uses SIOCPUSH when it doesn't know what teh
+> future access patterns will be. 
 
-What about getting rid of both that and the pointer, and just
-hanging that data on the end as a variable length array?
+Yes. Your one is an example where TCP_CORK is necessary to make sure not to
+send small packets and where instead MSG_MORE can't help.
 
-struct kiovec2{
-  int nbufs;
-  /* ... */
-  struct kiobuf[0];
-}
+> Basically, it could use SIOCPUSH whenever its request queue is empty,
+> instead of uncorking (and re-corking when the next request comes in).
+
+Exactly.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

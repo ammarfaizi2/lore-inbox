@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUIVH3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUIVHae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUIVH3f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 03:29:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUIVH3f
+	id S261239AbUIVHae (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 03:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUIVHae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 03:29:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38596 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261232AbUIVH31
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 03:29:27 -0400
-Date: Wed, 22 Sep 2004 08:29:25 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mingming Cao <cmm@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] ext3_new_inode() failure case fix
-Message-ID: <20040922072925.GH23987@parcelfarce.linux.theplanet.co.uk>
-References: <200409071302.i87D2Dus030892@sisko.scot.redhat.com> <1095815041.1637.32926.camel@w-ming2.beaverton.ibm.com> <20040921230124.368e469c.akpm@osdl.org>
+	Wed, 22 Sep 2004 03:30:34 -0400
+Received: from styx.suse.cz ([82.119.242.94]:37514 "EHLO shadow.suse.cz")
+	by vger.kernel.org with ESMTP id S261239AbUIVHa0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 03:30:26 -0400
+Date: Wed, 22 Sep 2004 09:30:48 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] New input patches
+Message-ID: <20040922073048.GB5116@ucw.cz>
+References: <200409162358.27678.dtor_core@ameritech.net> <20040921121040.GA1603@ucw.cz> <200409210815.34509.dtor_core@ameritech.net> <200409220212.23110.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040921230124.368e469c.akpm@osdl.org>
+In-Reply-To: <200409220212.23110.dtor_core@ameritech.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 21, 2004 at 11:01:24PM -0700, Andrew Morton wrote:
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> >
-> > While I am studying ext3_new_inode() failure code paths, I found the
-> > inode->i_nlink is not cleared to 0 in the first failure path. But it is
-> > cleared to 0 in the second failure path(fail to allocate disk quota). I
-> > think it should be cleared in both cases, because later when
-> > generic_drop_inode() is called by iput(), i_nlink is checked to decide
-> > whether to call generic_delete_inode(). Currently it is calling
-> > generic_forget_inode().
+On Wed, Sep 22, 2004 at 02:12:23AM -0500, Dmitry Torokhov wrote:
+> On Tuesday 21 September 2004 08:15 am, Dmitry Torokhov wrote:
+> > On Tuesday 21 September 2004 07:10 am, Vojtech Pavlik wrote:
+> 
+> > > So the condition needs to be inverted. However, it's not necessary at
+> > > all, since the input layer will not pass the RAW events when the MSC_RAW
+> > > bit is not set.
 > > 
-> > Also the reference to the inode bitmap buffer head should be dropped on
-> > the failure path too.
+> > I see, my bad. I will drop that bit.
+> > 
+> > Thanks for the comments!
+> > 
 > 
-> That reference already is dropped:
+> Vojtech,
 > 
-> > --- linux-2.6.9-rc1-mm5/fs/ext3/ialloc.c~ext3_new_inode_failure_case_fix	2004-09-22 00:18:18.196012520 -0700
-> > +++ linux-2.6.9-rc1-mm5-ming/fs/ext3/ialloc.c	2004-09-22 00:19:20.063607216 -0700
-> > @@ -622,7 +622,9 @@ got:
-> >  fail:
-> >  	ext3_std_error(sb, err);
-> >  out:
-> > +	inode->i_nlink = 0;
-> >  	iput(inode);
-> > +	brelse(bitmap_bh);
-> >  	ret = ERR_PTR(err);
-> >  really_out:
-> >  	brelse(bitmap_bh);
+> I have fixed the aforementioned bug and re-diffed the patches against your
+> latest tree. Please do:
 > 
->         ^ here
+> 	bk pull bk://dtor.bkbits.net/input
 > 
-> So I'll drop that part of the patch.
+> Thanks!
+ 
+Done.
 
-Drop it completely - we do *NOT* want ->delete_inode() to be called until
-we had done allocation (and set sane ->i_ino, while we are at it).  And
-that's exactly the difference between places that bail to fail2 and places
-that bail to out.
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

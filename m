@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132562AbRDWXKF>; Mon, 23 Apr 2001 19:10:05 -0400
+	id <S132540AbRDWXVz>; Mon, 23 Apr 2001 19:21:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132571AbRDWXJE>; Mon, 23 Apr 2001 19:09:04 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:35726 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S132551AbRDWXIA>;
-	Mon, 23 Apr 2001 19:08:00 -0400
-Date: Mon, 23 Apr 2001 19:07:54 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Christoph Rohland <cr@sap.com>,
-        "David L. Parsley" <parsley@linuxjedi.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hundreds of mount --bind mountpoints?
-In-Reply-To: <200104232249.f3NMnI126351@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0104231852520.4968-100000@weyl.math.psu.edu>
+	id <S132574AbRDWXUH>; Mon, 23 Apr 2001 19:20:07 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11017 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132537AbRDWXQX>; Mon, 23 Apr 2001 19:16:23 -0400
+Subject: Re: i810_audio broken?
+To: pawel.worach@mysun.com
+Date: Tue, 24 Apr 2001 00:17:54 +0100 (BST)
+Cc: chmouel@mandrakesoft.com (Chmouel Boudjnah),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3829d3430e.3430e3829d@mysun.com> from "Pawel Worach" at Apr 24, 2001 12:39:23 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14rpaf-0000lN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Ok building mpg123 without eSound worked for me too,
+> so guess this is not a Linux kernel issue, sorry for this.
 
+Excellent.
 
-On Mon, 23 Apr 2001, Richard Gooch wrote:
+> eSound sux?
 
-> - keep a separate VFSinode and FSinode slab cache
-
-Yup.
-
-> - allocate an enlarged VFSinode that contains the FSinode at the end,
->   with the generic pointer in the VFSinode part pointing to FSinode
->   part.
-
-Please, don't. It would help with bloat only if you allocated these
-beasts separately for each fs and then you end up with _many_ allocators
-that can generate pointer to struct inode. 
-
-"One type - one allocator" is a good rule - violating it turns into major
-PITA couple of years down the road 9 times out of 10.
+esound has very broken rate conversion support (it converts the audio but rather
+damages it on the way). Gnome is moving towards using the KDE arts daemon which
+currently seems to get it right.
 

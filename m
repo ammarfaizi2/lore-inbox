@@ -1,68 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270740AbTHATAc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 15:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270926AbTHATAc
+	id S271217AbTHATPR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 15:15:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270875AbTHATPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 15:00:32 -0400
-Received: from adsl-216-158-28-251.cust.oldcity.dca.net ([216.158.28.251]:16521
-	"EHLO fukurou.paranoiacs.org") by vger.kernel.org with ESMTP
-	id S270740AbTHATAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 15:00:31 -0400
-Date: Fri, 1 Aug 2003 14:45:43 -0400
-From: Ben Slusky <sluskyb@paranoiacs.org>
-To: Andries.Brouwer@cwi.nl
-Cc: fvw@var.cx, linux-kernel@vger.kernel.org, linux-crypto@nl.linux.org
-Subject: Re: 2.6.0-test2+Util-linux/cryptoapi
-Message-ID: <20030801184543.GA15828@fukurou.paranoiacs.org>
-Mail-Followup-To: Andries.Brouwer@cwi.nl, fvw@var.cx,
-	linux-kernel@vger.kernel.org, linux-crypto@nl.linux.org
-References: <UTC200307310941.h6V9fP204094.aeb@smtp.cwi.nl>
+	Fri, 1 Aug 2003 15:15:17 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:53167 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S272985AbTHATPJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 15:15:09 -0400
+Date: Fri, 1 Aug 2003 21:15:04 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Michael Hunold <hunold@convergence.de>
+Subject: [PATCH] Re: request_firmware() private workqueue
+Message-ID: <20030801191504.GA32044@ranty.pantax.net>
+Reply-To: ranty@debian.org
+References: <3F1BD157.4090509@convergence.de> <20030726101818.GA25104@ranty.pantax.net> <20030726155952.GA23335@ranty.pantax.net> <3F268C84.6060004@convergence.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="i9LlY+UWpKt15+FH"
 Content-Disposition: inline
-In-Reply-To: <UTC200307310941.h6V9fP204094.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3F268C84.6060004@convergence.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jul 2003 11:41:25 +0200, Andries.Brouwer@cwi.nl wrote:
-> The patches I got were maximal, too much junk.
-> So I went for a minimal version instead.
+
+--i9LlY+UWpKt15+FH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, Jul 29, 2003 at 05:02:28PM +0200, Michael Hunold wrote:
+> Hello Manuel,
 > 
-> It is usable (when the kernel part is stable, which it isn't today)
-> but mount/losetup may well acquire a few options before it is
-> conveniently usable.
+> I've applied your patches
+> - request_firmware_own-workqueue.diff
+> - sysfs-bin-unbreak.diff
+> 
+> and it's working very well for the av7110 DVB driver.
+> 
+> I hope that these patches are applied to the mainline kernel soon, so 
+> the other DVB drivers which need binary firmware blobs (namely 
+> dvb-ttusb-dec, dvb-ttusb-budget and one frontend driver) can be ported.
+> 
+> This will get rid of the av7110 firmware in the kernel and the ugly 
+> config hacks to get the other drivers working.
 
-Can we discuss those options now? I find the latest losetup to be
-completely unusable, tho' I appreciate the effort that's gone into it
-so far.
+ In it's current form request_firmware_async() sleeps way too long on
+ the system's shared workqueue, which make it unresponsive until the
+ firmware load finishes or gets canceled.
 
-Firstly, are the other key size choices (128-bit, 192-bit) gone for
-good? If so then I'll need to redo this entire hard disk (which currently
-uses 128-bit AES) before I can test 2.6 on my laptop.
+ The attached patch makes it use it's own workqueue, please apply.
 
-Secondly, there's the issue of passphrase hashing. I agree with the
-decision to cut it out of losetup, but where do we put it now? Andries
-has suggested an external program, but this isn't as simple as it sounds.
-To get this working would require a new way of reading the passphrase,
-since the hashed passphrase might contain a newline, or a null. Maybe
-change the semantics of the -p option, so that:
+ Have a nice day
 
-	losetup -e aes /dev/loop/10 /home/sluskyb/testloop
+ 	Manuel
 
-will work when I give it the passphrase "foobar", but also
-
-	pwhash -h sha1 |losetup -e aes -k 128 -p 0 /dev/loop/0 \
-		/dev/discs/disc0/part3
-
-will read exactly 16 bytes of (probably) non-printable chars and use
-that as the key.
-
-Questions? Comments? Flames?
+ PS: the sysfs issue is handled in a separate email.
 
 -- 
-Ben Slusky                      | A free society is a society
-sluskyb@paranoiacs.org          | where it is safe to be
-sluskyb@stwing.org              | unpopular.
-PGP keyID ADA44B3B              |               -Adlai Stevenson
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.
+
+--i9LlY+UWpKt15+FH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="request_firmware_own-workqueue.diff"
+
+Index: drivers/base/firmware_class.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/base/firmware_class.c,v
+retrieving revision 1.3
+diff -u -r1.3 drivers/base/firmware_class.c
+--- drivers/base/firmware_class.c	4 Jul 2003 02:21:18 -0000	1.3
++++ drivers/base/firmware_class.c	26 Jul 2003 08:38:07 -0000
+@@ -22,6 +22,8 @@
+ MODULE_LICENSE("GPL");
+ 
+ static int loading_timeout = 10;	/* In seconds */
++static struct workqueue_struct *firmware_wq;
++
+ 
+ struct firmware_priv {
+ 	char fw_id[FIRMWARE_NAME_MAX];
+@@ -467,7 +469,7 @@
+ 	};
+ 	INIT_WORK(&fw_work->work, request_firmware_work_func, fw_work);
+ 
+-	schedule_work(&fw_work->work);
++	queue_work(firmware_wq, &fw_work->work);
+ 	return 0;
+ }
+ 
+@@ -485,12 +487,20 @@
+ 		       __FUNCTION__);
+ 		class_unregister(&firmware_class);
+ 	}
++	firmware_wq = create_workqueue("firmware");
++	if (!firmware_wq) {
++		printk(KERN_ERR "%s: create_workqueue failed\n", __FUNCTION__);
++		class_remove_file(&firmware_class, &class_attr_timeout);
++		class_unregister(&firmware_class);
++		error = -EIO;
++	}
+ 	return error;
+ 
+ }
+ static void __exit
+ firmware_class_exit(void)
+ {
++	destroy_workqueue(firmware_wq);
+ 	class_remove_file(&firmware_class, &class_attr_timeout);
+ 	class_unregister(&firmware_class);
+ }
+
+--i9LlY+UWpKt15+FH--

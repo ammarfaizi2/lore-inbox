@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbTEUQJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 12:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTEUQJ5
+	id S262192AbTEUQSd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 12:18:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbTEUQSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 12:09:57 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:27892 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262179AbTEUQJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 12:09:56 -0400
-Date: Wed, 21 May 2003 09:25:36 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Cliff White <cliffw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: re-aim - 2.5.69, -mm6
-Message-Id: <20030521092536.1e04edd1.akpm@digeo.com>
-In-Reply-To: <200305202021.h4KKLUT32174@mail.osdl.org>
-References: <20030520125140.16f5cb46.akpm@digeo.com>
-	<200305202021.h4KKLUT32174@mail.osdl.org>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 21 May 2003 12:18:33 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:8452 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262192AbTEUQSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 12:18:32 -0400
+Subject: Re: userspace irq balancer
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 May 2003 16:22:57.0836 (UTC) FILETIME=[3D87D6C0:01C31FB5]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 21 May 2003 11:31:30 -0500
+Message-Id: <1053534694.1681.10.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cliff White <cliffw@osdl.org> wrote:
->
-> The two runs are done like this -> (4 cpu machine)
->  ./reaim -s4 -x -t -i4 -f workfile.new_dbase -r3 -b -lstp.config -> for the 
->  maxjobs convergence
->  ./reaim -s4 -q -t -i4 -f workfile.new_dbase -r3 -b -lstp.config -> for the 
->  'quick' convergence
-> 
->  stp.config has the poolsizes and path for disk directories:
->  FILESIZE 80k
->  POOLSIZE 1024k
->  DISKDIR /mnt/disk1
->  DISKDIR /mnt/disk2
->  DISKDIR /mnt/disk3
->  DISKDIR /mnt/disk4
+I'm interested in using this for voyager.  However, I have a problem in
+that voyager may have CPUs that can't accept interrupts (this is global
+on voyager, but may be per-interrupt on NUMA like systems).  I think
+before we move to a userspace solution, some thought about how to cope
+with this is needed.
 
-Well I spent a few hours running this on the quad xeon (aic7xxx).
+I have several suggestions:
 
-There were no hangs, and there was no appreciable performance difference
-between 2.5.69, 2.6.69-mm7++ with AS and 2.5.69-mm7++ with deadline.
+1. Place the masks into /proc/irq/<n>/smp_affinity at start of day and
+have the userspace irqbalancer take this as the maximal mask
 
-Please confirm that the hang only happened with the anticipatory scheduler?
+2. Have a separate file /proc/irq/<n>/mask(?) to expose the mask always
 
-It could require a particular device driver to reproduce.  Please see if
-you can generate that sysrq-T output.  Also if you can try a different
-device driver sometime that would be interesting.  There seem to be several
-alternate ISP drivers around - the feral driver perhaps, and the new one in
-the linux-scsi tree.
+3. Some other method...
+
+Comments would be welcome
+
+James
+
 

@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129455AbQKONKB>; Wed, 15 Nov 2000 08:10:01 -0500
+	id <S129205AbQKONOc>; Wed, 15 Nov 2000 08:14:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129729AbQKONJw>; Wed, 15 Nov 2000 08:09:52 -0500
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:8176 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S129455AbQKONJl> convert rfc822-to-8bit; Wed, 15 Nov 2000 08:09:41 -0500
-From: schwidefsky@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: linux-kernel@vger.kernel.org
-Message-ID: <C1256998.004585F4.00@d12mta07.de.ibm.com>
-Date: Wed, 15 Nov 2000 13:39:13 +0100
-Subject: Memory management bug
-Mime-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-transfer-encoding: 8BIT
+	id <S129514AbQKONOW>; Wed, 15 Nov 2000 08:14:22 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:37725 "EHLO
+	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129205AbQKONOI>; Wed, 15 Nov 2000 08:14:08 -0500
+Date: Wed, 15 Nov 2000 14:51:45 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: Ian Grant <Ian.Grant@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
+        mingo@elte.hu
+Subject: Re: RAID modules and CONFIG_AUTODETECT_RAID
+In-Reply-To: <20001115030752.K18203@wire.cadcamlab.org>
+Message-ID: <Pine.LNX.4.21.0011151450120.31966-100000@server.serve.me.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 15 Nov 2000, Peter Samuelson wrote:
+
+> 
+> [Ian Grant]
+> > In 2.2.x we were able to build a kernel with RAID modules and have it
+> > autodetect RAID partitions at boot time - so we could use raid root
+> > partitions.
+> 
+> Really?  Funny, because IIRC RAID autodetection does not even exist in
+> 2.2.x kernels.  Perhaps you are referring to vendor-patched kernels --
+> some distributions ship 2.2 kernels with RAID patches applied.
+
+I call the CONFIG_MD_BOOT option a RAID autodetection :)
+
+> > In 2.40 the configuration option CONFIG_AUTODETECT_RAID is explicitly
+> > disabled unless at least one RAID module is built into the kernel.  I
+> > presume there is a good reason for this and that it's not just a
+> > mistake.
+> 
+> What would be the point?  Autodetection is only needed for mounting the
+> root filesystem.  After root is mounted, you can use raidtools.
+
+Please notice the 'filesystem'. I needed to put /boot on a non-RAID
+partition, else it was a nogo.
+
+> Peter
 
 
-I think I spotted a problem in the memory management of some (all?)
-architectures in 2.4.0-test10.  At the moment I am fighting with the 64bit
-backend for the new S/390 machines. I experienced infinite loops in
-do_check_pgt_cache because pgtable_cache_size indicated that a lot of pages
-are in the quicklists but the pgd/pmd/pte quicklists have been empty (NULL
-pointers). After some trickery with some special hardware feature (storage
-keys) I found out that empty_bad_pmd_table and empty_bad_pte_table have
-been put to the page table quicklists multiple(!) times. It is already a
-bug that these two arrays are inserted into the quicklist at all but the
-second insertation destroys the quicklists. I solved this problem by
-inserting checks for the special entries in  the free_xxx_fast routines,
-here is a sample for the i386 free_pte_fast:
-
-diff -u -r1.5 pgalloc.h
---- include/asm-i386/pgalloc.h  2000/11/02 10:14:51     1.5
-+++ include/asm-i386/pgalloc.h  2000/11/15 12:27:58
-@@ -80,8 +80,11 @@
-        return (pte_t *)ret;
- }
-
-+extern pte_t empty_bad_pte_table[];
- extern __inline__ void free_pte_fast(pte_t *pte)
- {
-+       if (pte == empty_bad_pte_table)
-+               return;
-        *(unsigned long *)pte = (unsigned long) pte_quicklist;
-        pte_quicklist = (unsigned long *) pte;
-        pgtable_cache_size++;
-
-I still get the "__alloc_pages: 2-order allocation failed." error messages
-but at least the machine doesn't go into infinite loops anymore. Could
-someone with more experience with the other architectures verify that my
-observation is true?
-
-blue skies,
-   Martin
-
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
-
+	Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

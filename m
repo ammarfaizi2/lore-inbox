@@ -1,58 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264534AbUAVP16 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 10:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264901AbUAVP15
+	id S266385AbUAVSfj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 13:35:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266332AbUAVSfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 10:27:57 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:28558 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264534AbUAVP1u
+	Thu, 22 Jan 2004 13:35:39 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:1411 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266395AbUAVSf2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 10:27:50 -0500
-In-Reply-To: <20040122150713.GC15271@stop.crashing.org>
-References: <20040120172708.GN13454@stop.crashing.org> <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org> <20040121192128.GV13454@stop.crashing.org> <400F0759.5070309@mvista.com> <20040122150713.GC15271@stop.crashing.org>
-Mime-Version: 1.0 (Apple Message framework v609)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <30216351-4CEF-11D8-A2A1-000A95A0560C@us.ibm.com>
-Content-Transfer-Encoding: 7bit
-Cc: KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       George Anzinger <george@mvista.com>,
-       Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
-       "Amit S. Kale" <amitkale@emsyssoft.com>
-From: Hollis Blanchard <hollisb@us.ibm.com>
-Subject: Re: PPC KGDB changes and some help?
-Date: Thu, 22 Jan 2004 09:25:19 -0600
-To: Tom Rini <trini@kernel.crashing.org>
-X-Mailer: Apple Mail (2.609)
+	Thu, 22 Jan 2004 13:35:28 -0500
+Date: Fri, 23 Jan 2004 07:38:13 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: Re: PATCH: Export console functions for use by Software Suspend	nice
+ display
+In-reply-to: <20040122082438.GV21151@parcelfarce.linux.theplanet.co.uk>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1074796577.12771.81.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-f63NAanTw/MOnCbE/QTW";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <1074757083.1943.37.camel@laptop-linux>
+ <20040122082438.GV21151@parcelfarce.linux.theplanet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 22, 2004, at 9:07 AM, Tom Rini wrote:
->
-> On Wed, Jan 21, 2004 at 03:12:25PM -0800, George Anzinger wrote:
->
->> A question I have been meaning to ask:  Why is the arch/common 
->> connection
->> via a structure of addresses instead of just calls?  I seems to me 
->> that
->> just calling is a far cleaner way to do things here.  All the struct 
->> seems
->> to offer is a way to change the backend on the fly.  I don't thing we 
->> ever
->> want to do that.  Am I missing something?
->
-> I imagine it's a style thing.  I don't have a preference either way.
 
-I think we in PPC land have gotten used to that "style" because we have 
-one kernel that supports different "platforms", i.e. it selects the 
-appropriate code at runtime as George says. In general that's a little 
-bit slower and a little bit bigger.
+--=-f63NAanTw/MOnCbE/QTW
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Unless you need to choose among PPC KGDB functions at runtime, which I 
-don't think you do, you don't need it...
+Hi.
 
--- 
-Hollis Blanchard
-IBM Linux Technology Center
+I'm not sure that write is what I want. At the very least, it will make
+the code harder to read and maintain. Here's a small portion of what I'm
+currently doing:
+
+/* Print version */
+posn[0] =3D (unsigned char) (0);
+posn[1] =3D (unsigned char) (video_num_lines);
+putconsxy(suspend_console, posn);
+cond_console_print(swsusp_version, strlen(swsusp_version));
+=20
+/* Print header */
+posn[0] =3D (unsigned char) ((video_num_columns - 29) / 2);
+posn[1] =3D (unsigned char) ((video_num_lines / 3) -4);
+putconsxy(suspend_console, posn);
+=20
+The output looks something like this:
+-----
+
+
+              S U S P E N D    T O    D I S K
+
+
+        Writing caches...
+        [--------        120/640MB             ]
+
+
+
+
+
+
+
+2.0-rc4
+-----
+
+Bootsplash is also supported, so there's an even nicer version :>
+
+Regards,
+
+Nigel
+
+On Thu, 2004-01-22 at 21:24, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
+> On Thu, Jan 22, 2004 at 09:12:00PM +1300, Nigel Cunningham wrote:
+> > Hi.
+> >=20
+> > Here's a second patch; this exports gotoxy, reset_terminal, hide_cursor=
+,
+> > getconsxy and putconsxy for use in Software Suspend's nice display.
+>=20
+> Why don't you open /dev/console on rootfs and use write(2)?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
+n
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--=20
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
+
+--=-f63NAanTw/MOnCbE/QTW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAEBggVfpQGcyBBWkRAmOKAKCD+u8lJAa07Vj5gDIsgpu1DDQ88ACgkBIH
+5YEhVwA9N1ItE46evdNyCzo=
+=jeS4
+-----END PGP SIGNATURE-----
+
+--=-f63NAanTw/MOnCbE/QTW--
 

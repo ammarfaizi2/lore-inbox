@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262943AbVCDTVy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262995AbVCDT3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262943AbVCDTVy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 14:21:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263026AbVCDTSG
+	id S262995AbVCDT3v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 14:29:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263026AbVCDT2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 14:18:06 -0500
-Received: from chaos.sr.unh.edu ([132.177.249.105]:59619 "EHLO
-	chaos.sr.unh.edu") by vger.kernel.org with ESMTP id S263004AbVCDTMk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 14:12:40 -0500
-Date: Fri, 4 Mar 2005 14:11:13 -0500 (EST)
-From: Kai Germaschewski <kai.germaschewski@unh.edu>
-X-X-Sender: kai@chaos.sr.unh.edu
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       <kai@germaschewski.name>, Sam Ravnborg <sam@ravnborg.org>,
-       Vincent Vanackere <vincent.vanackere@gmail.com>,
-       <keenanpepper@gmail.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
-In-Reply-To: <1109931797.28203.2.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0503041403470.15777-100000@chaos.sr.unh.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Mar 2005 14:28:06 -0500
+Received: from mail.kroah.org ([69.55.234.183]:36833 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263016AbVCDTOm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 14:14:42 -0500
+Date: Fri, 4 Mar 2005 11:14:29 -0800
+From: Greg KH <greg@kroah.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com, davem@davemloft.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050304191429.GA30241@kroah.com>
+References: <20050303151752.00527ae7.akpm@osdl.org> <1109894511.21781.73.camel@localhost.localdomain> <20050303182820.46bd07a5.akpm@osdl.org> <1109933804.26799.11.camel@localhost.localdomain> <20050304032820.7e3cb06c.akpm@osdl.org> <1109940685.26799.18.camel@localhost.localdomain> <Pine.LNX.4.58.0503040959030.25732@ppc970.osdl.org> <Pine.LNX.4.58.0503041020130.25732@ppc970.osdl.org> <20050304183804.GB29857@kroah.com> <4228B02A.8010202@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4228B02A.8010202@osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Mar 2005, Rusty Russell wrote:
-
-> On Wed, 2005-03-02 at 15:00 +0100, Adrian Bunk wrote:
-> > Why doesn't an EXPORT_SYMBOL create a reference?
+On Fri, Mar 04, 2005 at 10:59:54AM -0800, Randy.Dunlap wrote:
 > 
-> It does: EXPORT_SYMBOL(x) drops the address of "x", including
-> __attribute_used__, in the __ksymtab section.
+> Can/will/should it also include *required* (showstopper) build fixes,
+> if there are any of those?
 
-Well, the problem is that this is still an internal reference in the same 
-object file. So ld looks into the lib .a archive, determines that none of 
-the symbols in that object file are needed to resolve a reference and 
-drops the entire .o file. Doing so, it drops the __ksymtab section as 
-well, which otherwise would be used by the kernel to look up that symbol. 
+I think so, the ppc fix is such a thing.  But not for things marked
+CONFIG_BROKEN :)
 
-So it drops the reference and the referencee ;), which is normally fine -- 
-no unresolved symbols occur. Unfortunately, the kernel really needs to 
-know the contents of the __ksymtab sections to correctly export those 
-symbols, but it doesn't reference it in any explicit way.
+thanks,
 
-I don't think there's an easy fix, except for not putting such objects 
-into an archive/lib, but to link them directly.
-
---Kai
-
-
-
+greg k-h

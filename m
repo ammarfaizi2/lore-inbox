@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267542AbRHKNMG>; Sat, 11 Aug 2001 09:12:06 -0400
+	id <S266982AbRHKNQg>; Sat, 11 Aug 2001 09:16:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267579AbRHKNLr>; Sat, 11 Aug 2001 09:11:47 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18951 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267542AbRHKNLo>; Sat, 11 Aug 2001 09:11:44 -0400
-Subject: Re: VM nuisance
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Sat, 11 Aug 2001 14:13:58 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9l272e$7eo$1@cesium.transmeta.com> from "H. Peter Anvin" at Aug 10, 2001 07:59:26 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S267579AbRHKNQ0>; Sat, 11 Aug 2001 09:16:26 -0400
+Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:32321 "EHLO
+	cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S266982AbRHKNQP>; Sat, 11 Aug 2001 09:16:15 -0400
+Date: Sat, 11 Aug 2001 14:16:24 +0100 (BST)
+From: Peter Oliver <p.d.oliver@mavit.freeserve.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: problem compiling 2.4.8 with emu10k1
+Message-ID: <Pine.LNX.4.30.0108111251020.859-100000@froglet.mavit.dnsalias.org>
+X-No-Archive: yes
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15VYaU-0002aw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Followup to:  <Pine.LNX.4.33L.0108102347050.3530-100000@imladris.rielhome.conectiva>
-> By author:    Rik van Riel <riel@conectiva.com.br>
-> In newsgroup: linux.dev.kernel
-> >
-> > I haven't got the faintest idea how to come up with an OOM
-> > killer which does the right thing for everybody.
-> 
-> Basically because there is no such thing?
+I'm unable to compile kernel 2.4.8 with emu10k1 sound support enabled as a
+module. My compiler is egcs-2.91.66, and my binutils is 2.9.1.0.23. I get
+the following errors at the 'make modules' stage:
 
-And also because 
+ld -m elf_i386  -r -o emu10k1.o audio.o cardmi.o cardmo.o cardwi.o
+cardwo.o ecard.o efxmgr.o emuadxmg.o hwaccess.o irqmgr.o joystick.o main.o
+midi.o mixer.o passthrough.o recmgr.o timer.o voicemgr.o
+main.o(.modinfo+0x40): multiple definition of `__module_author'
+joystick.o(.modinfo+0x80): first defined here
+ld: Warning: size of symbol `__module_author' changed from 67 to 81 in
+main.o
+main.o(.modinfo+0xa0): multiple definition of `__module_description'
+joystick.o(.modinfo+0xe0): first defined here
+ld: Warning: size of symbol `__module_description' changed from 83 to 96
+in main.o
+main.o: In function `init_module':
+main.o(.text+0x1a70): multiple definition of `init_module'
+joystick.o(.text+0x2d0): first defined here
+main.o: In function `cleanup_module':
+main.o(.text+0x1ab0): multiple definition of `cleanup_module'
+joystick.o(.text+0x310): first defined here
+make[3]: *** [emu10k1.o] Error 1
+make[3]: Leaving directory `/home/mavit/linux/drivers/sound/emu10k1'
+make[2]: *** [_modsubdir_emu10k1] Error 2
+make[2]: Leaving directory `/home/mavit/linux/drivers/sound'
+make[1]: *** [_modsubdir_sound] Error 2
+make[1]: Leaving directory `/home/mavit/linux/drivers'
+make: *** [_mod_drivers] Error 2
 
--	people mix OOM and thrashing handling up - when they are logically
-	seperated questions.
+If I choose to build emu10k1 not as a module, my kernel compiles, boots,
+and uses sound fine.
 
--	The 2.4 VM goes completely gaga under high load. Its beautiful under
-	light loads, there nobody can touch it, but when you actually really
-	need it - splat. 
+I could build 2.4.6's emu10k1 support as a module without problems.
+
+Incidentally, I downloaded a source snapshot from
+http://opensource.creative.com/ a couple of weeks ago, and was able to
+build that into a module without difficulty.
+
+I'm not subscribed to the list, so if you need any further information
+you'll need to CC me.
+
+-- 
+Peter Oliver
 
 
-So people either need to get an OOM when they are not but in fact might
-thrash, or the box thrashes so hard it makes insufficient progress to
-actually get out of memory.
-
-OOM is also very hard to get right without reservations tracking in kernel
-for the journalling file systems and other similar stuff. To an extent
-thrash handling also wants RSS limits.

@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318166AbSHIGf6>; Fri, 9 Aug 2002 02:35:58 -0400
+	id <S318167AbSHIGp6>; Fri, 9 Aug 2002 02:45:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318167AbSHIGf6>; Fri, 9 Aug 2002 02:35:58 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:53999 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S318166AbSHIGf5>; Fri, 9 Aug 2002 02:35:57 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 9 Aug 2002 00:37:25 -0600
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 journal/IDE problems ?
-Message-ID: <20020809063725.GB12482@clusterfs.com>
-Mail-Followup-To: Bill Huey <billh@gnuppy.monkey.org>,
-	linux-kernel@vger.kernel.org
-References: <20020809040456.GA786@gnuppy.monkey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020809040456.GA786@gnuppy.monkey.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S318168AbSHIGp5>; Fri, 9 Aug 2002 02:45:57 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:50445 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S318167AbSHIGp5>; Fri, 9 Aug 2002 02:45:57 -0400
+Message-ID: <3D5364C2.9030106@evision.ag>
+Date: Fri, 09 Aug 2002 08:44:18 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pdc20265 problem.
+References: <Pine.LNX.4.10.10208081052270.25573-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 08, 2002  21:04 -0700, Bill Huey wrote:
-> What's going on with this ?
+Uz.ytkownik Andre Hedrick napisa?:
+> Because I can not get a FSCKING PATCH past any of the Lead Penquins.
 > 
-> I get:
-> EXT3-fs error (device ide0(3,5)): ext3_free_blocks: bit already cleared for block 753210
-> :
-> :
-> EXT3-fs error (device ide0(3,5)): ext3_free_blocks: bit already cleared for block 753273
-> ext3_free_blocks: aborting transaction: Journal has aborted in __ext3_journal_get_undo_access<2>EXT3-fs error (device ide0(3,5)) in ext3_free_blocks: Journal has aborted
+> /src/linux-2.5.4-pristine/drivers/ide/ide-pci.c
+> #ifdef CONFIG_PDC202XX_FORCE
+>         {DEVID_PDC20265,"PDC20265",     PCI_PDC202XX,   ATA66_PDC202XX,
+> INIT_PDC202XX,  NULL,           {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+> ON_BOARD,
+> 48 },
+> #else /* !CONFIG_PDC202XX_FORCE */
+>         {DEVID_PDC20265,"PDC20265",     PCI_PDC202XX,   ATA66_PDC202XX,
+> INIT_PDC202XX,  NULL,           {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+> OFF_BOARD,
+> 48 },
+> #endif
+> 
+> But since there is the option to compile off-board as bootable, it is a
+> noop.  I have not been able to directly add code or update any kernel
+> first hand since the change in 2.5.3 and my exit of Linux Development at
+> 2.5.5.  So I really don't give a damn.
+> 
+> But what I do know is people bug me for patches and updates and ask me to
+> fix 2.5.XX on a regular bases.  Nobody takes my patches but man when crap
+> hits the fan they come running for me to put it right again.
 
-Looks like you got a block of zeros from disk when it should have been a
-block bitmap, or your filesystem is otherwise corrupted.  You need to do
-a full fsck on this filesystem.
-
-As for cause, I have no idea.  IDE DMA, IDE cables, memory, kernel bug...
-
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Bullshit. First you have to send patches out at all before they can be
+accepted or rejected. As far as I'm concerned I never saw anything from
+him.
 

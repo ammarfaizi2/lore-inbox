@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbQLOTqZ>; Fri, 15 Dec 2000 14:46:25 -0500
+	id <S129183AbQLOTtF>; Fri, 15 Dec 2000 14:49:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129692AbQLOTqQ>; Fri, 15 Dec 2000 14:46:16 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42249 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129413AbQLOTqD>; Fri, 15 Dec 2000 14:46:03 -0500
-Subject: Re: [lkml]Re: VM problems still in 2.2.18
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Fri, 15 Dec 2000 19:17:47 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jjs@toyota.com (J Sloan),
-        linux-kernel@vger.kernel.org (Linux kernel)
-In-Reply-To: <20001215200906.H17781@inspiron.random> from "Andrea Arcangeli" at Dec 15, 2000 08:09:06 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129345AbQLOTs4>; Fri, 15 Dec 2000 14:48:56 -0500
+Received: from runyon.cygnus.com ([205.180.230.5]:36862 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S129183AbQLOTsq>;
+	Fri, 15 Dec 2000 14:48:46 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 signal.h
+In-Reply-To: <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com>
+	<20001215175632.A17781@inspiron.random>
+	<Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com>
+	<20001215184325.B17781@inspiron.random>
+	<4.3.2.7.2.20001215185622.025f8740@mail.lauterbach.com>
+	<20001215195433.G17781@inspiron.random>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 15 Dec 2000 11:18:35 -0800
+In-Reply-To: Andrea Arcangeli's message of "Fri, 15 Dec 2000 19:54:33 +0100"
+Message-ID: <m3hf45ze5w.fsf@otr.mynet.cygnus.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1470MY-0001ib-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now we know when we can block so we can run f_ops->write ourselfs that's also
-> more efficient in terms of both performance and also memory pressure during
-> swap of course.
+Andrea Arcangeli <andrea@suse.de> writes:
 
-Yep
+> x()
+> {
+> 
+> 	switch (1) {
+> 	case 0:
+> 	case 1:
+> 	case 2:
+> 	case 3:
+> 	;
+> 	}
+> }
+> 
+> Why am I required to put a `;' only in the last case and not in all
+> the previous ones? Or maybe gcc-latest is forgetting to complain about
+> the previous ones ;)
 
-> As said reiserfs AFIK didn't need any change, so only VFS is using
-> fs_down/fs_up from the point of view of reiserfs.
+Your C language knowledge seems to have holes.  It must be possible to
+have more than one label for a statement.  Look through the kernel
+sources, there are definitely cases where this is needed.
 
-Ok. Im not keen on adding fs_down but it does look like the right bandage
-(and a nice speed up) for 2.2. 
-
-I hate that kind of bug
-
+-- 
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

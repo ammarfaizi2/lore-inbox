@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267116AbSK2SKH>; Fri, 29 Nov 2002 13:10:07 -0500
+	id <S267117AbSK2SQq>; Fri, 29 Nov 2002 13:16:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267117AbSK2SKH>; Fri, 29 Nov 2002 13:10:07 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:38647 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267116AbSK2SKG>; Fri, 29 Nov 2002 13:10:06 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200211291817.gATIHPV15997@devserv.devel.redhat.com>
-Subject: Linux 2.2.23
-To: linux-kernel@vger.kernel.org
-Date: Fri, 29 Nov 2002 13:17:25 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267119AbSK2SQq>; Fri, 29 Nov 2002 13:16:46 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:33200 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S267117AbSK2SQq>;
+	Fri, 29 Nov 2002 13:16:46 -0500
+Message-ID: <3DE7B0C2.7050301@colorfullife.com>
+Date: Fri, 29 Nov 2002 19:24:02 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Georg Nikodym <georgn@somanetworks.com>, linux-kernel@vger.kernel.org
+Subject: Re: v2.4.19-rmk4 slab.c: /proc/slabinfo uses broken instead of slab
+ labels
+References: <3DE699EC.9060600@colorfullife.com> <20021128224028.F27234@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.2.23
-	No change from 2.2.23-rc2
+Russell King wrote:
 
-2.2.23-rc2
-o	Backport NT iret denial of service bugfix    (Marc-Christian Petersen)
+>On Thu, Nov 28, 2002 at 11:34:20PM +0100, Manfred Spraul wrote:
+>  
+>
+>>On i386, it's possible to skip set_fs() and use __get_user() - but 
+>>that's i386 specific. For example the i386 oops code uses that.
+>>    
+>>
+>
+>That isn't actually an x86 specific feature - it is a requirement across
+>all architectures that get_user() and friends can access kernel areas
+>after set_fs(get_ds())
+>  
+>
+It's i386 specific that
+    __get_user().
+is equivalent to
+    set_fs(KERNEL_DS)
+    get_user()
+arch/i386/kernel/traps.c uses that in the fault code.
 
-2.2.23-rc1
-o	Gameport support for ALi 5451			(Pascal Schmidt)
-	| Just missing PCI idents
-o	IP options IPOPT_END padding fix		(Jeff DeFouw)
-o	Make APM check more paranoid			(Solar Designer)
-o	Sanity check ixj requests as in 2.4		(Solar Designer)
-o	Fix printk warning in fat			(Solar Designer)
-o	Fix other print warnings in 2.2.22		(Solar Designer)
-o	ISDN multichannel ppp locking fix		(Herbert Xu)
-o	Fix sx driver compiled into kernel case		(Martin Pool)
-o	Backport ipfw sleep in spinlock in firewall	(James Morris)
-o	Update dmi_scan code to match 2.4/2.5		(Jean Delvare)
-o	Make agp debugging printk clearer		(Neale Banks)
+Portable code must use set_fs()/get_user(), i386 specific code can 
+continue to use __get_user().
 
-2.2.22
-o	Fix HDLC bugs causing kernel printk warns	(Pavel)
+--
+    Manfred
 
-2.2.22-rc3
-o	3ware IDE raid small update			(Adam Radford)
-o	Fix incorrect comments				(Solar Designer)
-o	Sanity check in isdn 				(Solar Designer)
-o	Type fixes for usb				(Solar Designer)
-o	Vmalloc corner case fix 			(Dave Miller)
-
-2.2.22-rc2
-o	Fix isofs over loopback problems		(Balazs Takacs)
-o	Backport 2.4 shutdown/reset SIGIO from 2.4	(Julian Anastasov)
-o	Fix error reporting in OOM cases		(Julian Anastasov)
-o	List a 2.2 maintainer in MAINTAINERS		(Keith Owens)
-o	Set atime on AF_UNIX sockets			(Solar Designer)
-o	Restore SPARC MD boot configuration		(Tomas Szepe)
-o	Multiple further sign/overflow fixes		(Solar Designer)
-o	Fix ov511 'vfree in interrupt'			(Mark McClelland)
-
-2.2.22-rc1
-o	Backport 2.4 neighbour sending fix		(Chris Friesen)
-o	Fix a sign handling slackness in apm		(Silvio Cesare)
-o	Fix a sign handling error in rio500		(Silvio Cesare)
-o	Indent depca ready for cleanups			(me)
-o	Update VIA C3 recognition			(Diego Rodriguez)
-o	Fix a sysctl handling bug			(MIYOSHI Kazuto)
-o	Fix a netlink error handling bug in ipfw	(Alexander Atanasov)
-o	3ware IDE RAID update				(Adam Radford)
-o	Note ioctl clash on 0x5402			(Pavel Machek)
-o	Typo fix					(Dan Aloni)
-o	Update Riley's contact info			(Riley Williams)
-o	Alpha ptrace fixes				(Solar Designer)
-o	Multiple security fix backports			(Solar Designer)

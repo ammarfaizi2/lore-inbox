@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261807AbREPHYN>; Wed, 16 May 2001 03:24:13 -0400
+	id <S261809AbREPHYN>; Wed, 16 May 2001 03:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261810AbREPHXy>; Wed, 16 May 2001 03:23:54 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:61968 "EHLO
+	id <S261807AbREPHXx>; Wed, 16 May 2001 03:23:53 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:61712 "EHLO
 	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261809AbREPHXq>; Wed, 16 May 2001 03:23:46 -0400
-Date: 16 May 2001 09:11:00 +0200
+	id <S261808AbREPHXq>; Wed, 16 May 2001 03:23:46 -0400
+Date: 16 May 2001 09:05:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <80x0jOtXw-B@khms.westfalen.de>
-In-Reply-To: <3B01A044.F72BFDD1@transmeta.com>
+Message-ID: <80x0j1hHw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.10.10105151448150.22038-100000@www.transvirtual.com>
 Subject: Re: LANANA: To Pending Device Number Registrants
 X-Mailer: CrossPoint v3.12d.kh6 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.LNX.4.10.10105151424161.22038-100000@www.transvirtual.com> <3B01A044.F72BFDD1@transmeta.com>
+In-Reply-To: <20010515174339.A5599@sventech.com> <Pine.LNX.4.10.10105151448150.22038-100000@www.transvirtual.com>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hpa@transmeta.com (H. Peter Anvin)  wrote on 15.05.01 in <3B01A044.F72BFDD1@transmeta.com>:
+jsimmons@transvirtual.com (James Simmons)  wrote on 15.05.01 in <Pine.LNX.4.10.10105151448150.22038-100000@www.transvirtual.com>:
 
-> Personally, I would also like to see network devices manifest in the
-> filesystem namespace like everything else.
+> > > I couldn't agree with you more. It gives me headaches at work. One note,
+> > > their is a except to the eth0 thing. USB to USB networking. It uses
+> > > usb0, etc. I personally which they use eth0.
+> >
+> > USB to USB networking cables aren't ethernet.
+>
+> I'm talking about a wireless connection. ipaq USB cradle to PC.
 
-Yes.
+I don't know about USB, but I do know about PPP.
 
-Can we have a meta-rule?
+The point is, Ethernet is *different* from PPP. The frame formats are  
+different, even the protocols (aside from IP) are different.
 
-*Every* by-name kernel interface should have a filesystem variant.
+It's similar to the difference between serial and parallel ports. Sure,  
+for some things, they're the same - but for others, they really aren't,  
+and that's why it makes sense to call the one ttyS0 and the other lp0.
 
-That is, if there's a kernel interface where you give the kernel a string  
-to identify an in-kernel object, there should be some place in the file  
-system (after mounting any prerequisites) that will respond to a path  
-ending in that name.
+Similar for eth0 vs. ppp0.
 
-That doesn't necessarily mean the parent will be a readable directory -  
-that would, of course, be preferrable, but if enumerating all objects is a  
-problem, then dropping this requirement is much preferrable to not having  
-a pathname.
+Yes, both are network interfaces. But no, you don't do ARP on ppp0, for  
+example (you do LCP instead, and it does different stuff, too).
 
 MfG Kai

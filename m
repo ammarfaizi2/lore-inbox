@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316824AbSFVBbX>; Fri, 21 Jun 2002 21:31:23 -0400
+	id <S316822AbSFVBXi>; Fri, 21 Jun 2002 21:23:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316825AbSFVBbW>; Fri, 21 Jun 2002 21:31:22 -0400
-Received: from daimi.au.dk ([130.225.16.1]:43399 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S316824AbSFVBbV>;
-	Fri, 21 Jun 2002 21:31:21 -0400
-Message-ID: <3D13D365.A39B1F38@daimi.au.dk>
-Date: Sat, 22 Jun 2002 03:31:17 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Subject: Re: [RFC] [PATCH] tsc_disable_B2 with "soft" rdtsc
-References: <1024613272.5184.176.camel@cog>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S316823AbSFVBXh>; Fri, 21 Jun 2002 21:23:37 -0400
+Received: from bitmover.com ([192.132.92.2]:4323 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S316822AbSFVBXg>;
+	Fri, 21 Jun 2002 21:23:36 -0400
+Date: Fri, 21 Jun 2002 18:23:37 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Cc: Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux, the microkernel (was Re: latest linus-2.5 BK broken)
+Message-ID: <20020621182337.T23670@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+	Daniel Phillips <phillips@arcor.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <E17LUyA-0001wU-00@starship> <200206220107.g5M17AXp028825@sleipnir.valparaiso.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200206220107.g5M17AXp028825@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Fri, Jun 21, 2002 at 09:07:10PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> 
-> Hello all,
-> 
->         Here is my next rev of the tsc-disable patch. This one corrects a
-> Configure.in typo (Caught by Gabriel Paubert), and probably more
-> controversial, implements a soft rdtsc instruction via do_gettimeofday.
-> 
-> This avoids the earlier "box won't boot" problems with i686 optimized
-> glibc's that called rdtsc. The rdtsc instruction will now be caught, and
-> faked returning to the user program the same value of gettimeofday. Yes,
-> its pretty hackish, but it works, albeit slowly.
+On Fri, Jun 21, 2002 at 09:07:10PM -0400, Horst von Brand wrote:
+> Right. If they had designed it for 4/8 CPUs from the start, they would
+> surely have gotten it dead wrong. Just to find out how wrong around now...
 
-+#ifdef CONFIG_X86_NUMA
-+       /* "soft" rdtsc implementation */
-+       if(!cpu_has_tsc)
-+       {
-+               char rdtsc_inst[2] = {0x0f, 0x31}; /*rdtsc opcode*/
-+               char* inst_ptr = (char*)regs->eip;
-+               if((inst_ptr[0] == rdtsc_inst[0])
-+                       &&(inst_ptr[1] == rdtsc_inst[1])){
+I couldn't disagree more.  The reason that all the SMP threaded OS's start
+to suck is that managers say "Yeah, one CPU is good but how about 2?"  Then
+a year goes by and then they say "Yeah, 2 CPUs are good but how about 4?".
+Etc.  So the system is never designed, it is hacked.  It's no wonder they
+suck.
 
-Any particular reason for puting the opcode in an
-array and verify against that instead of just
-verifying inst_ptr[i] against the constants?
+My point has always been that if you were told up front that you needed to
+hit 2 orders of magnitude more CPUs than you have today, the design you'd
+end up with would be very different than the "just hack it some more to get
+2x more CPUs".  
 
-+                       struct timeval tv;
-+                       do_gettimeofday(&tv);
-+                       regs->eax = tv.tv_usec;
-+                       regs->edx = tv.tv_sec;
+The interesting thing is to look at the ways you'd deal with a 1024 processors
+and then work backwards to see how you scale it down to 1.  There is NO WAY
+to scale a fine grain threaded system which works on a 1024 system down to
+a 1 CPU system, those are profoundly different.  
 
-Looks like the soft tsc is going to be jumping
-rather than runing. It is going to be increasing
-at a constat rate most of the time, but will make
-a big jump ahead every second. Couldn't the jump
-easilly be made a lot smaller by using:
-   regs->eax = tv.tv_usec<<2;
-
-Of course this is not completely accurate either,
-are we willing to pay the price for a more
-accurate version?
-
-+                       regs->eip += 2; /*= size of opcode*/
-+                       return;
-+               }
-+       }
-+#endif
-
+I think you could take the OS cluster idea and scale it up as well as down.
+Scaling down is really important, Linux works well in the embedded space,
+that is probably the greatest financial success story that Linux has, let's
+not screw it up.
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

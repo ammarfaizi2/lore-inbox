@@ -1,115 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262913AbTAEGVR>; Sun, 5 Jan 2003 01:21:17 -0500
+	id <S263280AbTAEGYk>; Sun, 5 Jan 2003 01:24:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263280AbTAEGVR>; Sun, 5 Jan 2003 01:21:17 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:64585 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S262913AbTAEGVP>;
-	Sun, 5 Jan 2003 01:21:15 -0500
+	id <S263291AbTAEGYk>; Sun, 5 Jan 2003 01:24:40 -0500
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:38976 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S263280AbTAEGYj>;
+	Sun, 5 Jan 2003 01:24:39 -0500
 From: <Hell.Surfers@cwctv.net>
-To: andrew@indranet.co.nz, matan@svgalib.org, linux-kernel@vger.kernel.org
-Date: Sun, 5 Jan 2003 06:28:50 +0000
-Subject: RE: Gauntlet Set NOW!
+To: andre@pyxtechnologies.com, mark@justirc.net, linux-kernel@vger.kernel.org
+Date: Sun, 5 Jan 2003 06:32:16 +0000
+Subject: RE: Gauntlet Set NOW! -if youve written something for the kernel and you  dont want andres binary say no...
 MIME-Version: 1.0
 X-Mailer: Liberate TVMail 2.6
 Content-Type: multipart/mixed;
- boundary="1041748130223"
-Message-ID: <044b01826060513DTVMAIL10@smtp.cwctv.net>
+ boundary="1041748336936"
+Message-ID: <07bb90429060513DTVMAIL8@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1041748130223
+--1041748336936
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-I do not count GPL programs on top of a proprietary bios because the bios is firmware AND NOT TECHNICALLY SOFTWARE.
+Spoke like a true politician, please clarify.
 
 Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
 
-On 	Sun, 05 Jan 2003 08:43:02 +1300 	Andrew McGregor <andrew@indranet.co.nz> wrote:
+On 	Sat, 4 Jan 2003 22:18:49 -0800 (PST) 	Andre Hedrick <andre@pyxtechnologies.com> wrote:
 
---1041748130223
+--1041748336936
 Content-Type: message/rfc822
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
 Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Sat, 4 Jan 2003 19:44:11 +0000
+	 Sun, 5 Jan 2003 06:20:52 +0000
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261333AbTADTeu>; Sat, 4 Jan 2003 14:34:50 -0500
+	id <S263333AbTAEGLM>; Sun, 5 Jan 2003 01:11:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261337AbTADTeu>; Sat, 4 Jan 2003 14:34:50 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:5334 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S261333AbTADTet>; Sat, 4 Jan 2003 14:34:49 -0500
-Received: from localhost.localdomain (enso.acheron.indranet.co.nz [192.168.1.1])
-	by mail.acheron.indranet.co.nz (8.11.2/8.11.2) with ESMTP id h04Jg6Q28313;
-	Sun, 5 Jan 2003 08:42:07 +1300
-Date: Sun, 05 Jan 2003 08:43:02 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Matan Ziv-Av <matan@svgalib.org>
+	id <S263342AbTAEGLL>; Sun, 5 Jan 2003 01:11:11 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:30473
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S263333AbTAEGLL>; Sun, 5 Jan 2003 01:11:11 -0500
+Received: from localhost (andre@localhost)
+	by master.linux-ide.org (8.9.3/8.9.3) with ESMTP id WAA18112;
+	Sat, 4 Jan 2003 22:18:49 -0800
+Date: Sat, 4 Jan 2003 22:18:49 -0800 (PST)
+From: Andre Hedrick <andre@pyxtechnologies.com>
+X-Sender: andre@master.linux-ide.org
+To: Mark Rutherford <mark@justirc.net>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Gauntlet Set NOW!
-Message-ID: <570510000.1041709382@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.21_heb2.09.0301042115010.5981-100000@matan.home>
-References: <Pine.LNX.4.21_heb2.09.0301042115010.5981-100000@matan.home>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+Subject: Re: Gauntlet Set NOW! -if youve written something for the kernel
+ and you  dont want andres binary say no...
+In-Reply-To: <3E17C63C.F2640D9D@justirc.net>
+Message-ID: <Pine.LNX.4.10.10301042213140.421-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-Which is all nice and good, but trying to do this in order to suspend a 
-laptop is going to result in vastly more code, and you just can't get the 
-documentation.
+On Sun, 5 Jan 2003, Mark Rutherford wrote:
 
-After all, the vendor gave you the code with the hardware in this case, so 
-it's not as if you can possibly not have a license for it :-)
+> I dont recall reading that Andre was making his drivers binary only.
+> Please, correct me if im wrong.
 
-Andrew
+I tried to state and question the position the copyright holders other
+than myself, where they stand on the issue of the precedence they are LGPL
+as is the module interface and the associated API's
 
---On Saturday, January 04, 2003 21:31:38 +0200 Matan Ziv-Av 
-<matan@svgalib.org> wrote:
+If the position results in being LGPL, initially I will be shipping a
+binary only product in order to recover all of my expenses.  I have on the
+whiteboard a possible schedule for ERL=0 release date, tied to this
+answer.
 
-> On Sat, 4 Jan 2003, Andrew McGregor wrote:
->
->> Or else find that the NV3x has some stonking quick CPU embedded, and apps
->> talk GLX to it...
->>
->> Strange how noone objects to APM BIOS calls or ACPI.
->
-> Actually, I object to this.
-> On my via 686a, the advice on this list for getting the power saving was
-> to use ACPI (after setting some bits in PCI config space). But lvcool
-> program showed how to do this without proprietary programs, and I
-> adapted it to bit of kernel code:
->
+If the position returns against my ability to recover my investment, I
+will change platforms for the product.
 
-<snip>
+Regards,
 
->
-> And I don't need to run any proprietary code during normal system run. I
-> still need to use BIOS to boot and to poweroff the system, but
-> that will be solved as well.
->
->
-> --
-> Matan Ziv-Av.                         matan@svgalib.org
->
->
->
-
+Andre Hedrick, CTO & Founder 
+iSCSI Software Solutions Provider
+http://www.PyXTechnologies.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
---1041748130223--
+--1041748336936--
 
 

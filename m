@@ -1,85 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbUKNVzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbUKNWEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbUKNVzz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 16:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbUKNVzy
+	id S261354AbUKNWEk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 17:04:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUKNWEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 16:55:54 -0500
-Received: from linux.us.dell.com ([143.166.224.162]:31334 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S261352AbUKNVzg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 16:55:36 -0500
-Date: Sun, 14 Nov 2004 15:55:21 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Christian Kujau <evil@g-house.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Oops in 2.6.10-rc1 (almost solved)
-Message-ID: <20041114215521.GA9717@lists.us.dell.com>
-References: <200411122248_MC3-1-8E97-BFE5@compuserve.com> <20041113142835.GA9109@lists.us.dell.com> <20041114025814.GA20342@lists.us.dell.com> <4197B9D9.9010806@g-house.de>
+	Sun, 14 Nov 2004 17:04:40 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:13321 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S261354AbUKNWEh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 17:04:37 -0500
+Date: Sun, 14 Nov 2004 23:04:31 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Chris Spiegel <lkml@happyjack.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops with loop devices on 2.6.9
+Message-ID: <20041114220431.GA20151@pclin040.win.tue.nl>
+References: <20041112104934.GA1711@midgard.comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4197B9D9.9010806@g-house.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20041112104934.GA1711@midgard.comcast.net>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 14, 2004 at 09:02:33PM +0100, Christian Kujau wrote:
-> > Not ready for Linus yet, and you'll need to re-apply the previous
-> > edd.S patch which is now reverted in Linus's tree.  As your BIOS
+On Fri, Nov 12, 2004 at 02:49:34AM -0800, Chris Spiegel wrote:
+
+>   While playing around with loop mounts on kernel 2.6.9 I managed to get
+> a kernel panic.  After messing around with it I can reproduce the
+> problem reliably.  The sequence I came up with to cause the problem:
 > 
-> i've applied the patch to a pristine 2.6.10-rc1, so the (currently
-> reverted) EDD change is still there. tell me, if the patch had to be
-> applied to sth. else.
+> mount -o loop /dev/loop/0 /mnt
+> mount -o loop /dev/loop/1 /mnt
+> mount -o loop /dev/loop/2 /mnt
+> mount /dev/loop/0 /mnt -t ext2
 > 
-> but for now i have to say, that it still oopses:
-> 
-> http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/dmesg-2.6.10-rc1_edd-2.txt
+> Unable to handle kernel paging request at virtual address 98858a6f
+>  printing eip:
+> c011345a
+> *pde = 00000000
+> Oops: 0000 [#1]
+> SMP
+> Modules linked in:
+> CPU     0
+> EIP     0060:[<c011345a>]    Not tainted VLI
+> EFLAGS  00010083   (2.6.9)
+> EIP is at do_page_fault+0x99/0x599
+> eax: c9100000   ebx: 65642f3c   ecx: 0000007b   edx: f7d4858b
+> esi: 00000000   edi: c01133c1   ebp: 988589ff   esp: c9100108
+> ds: 007b   es: 007b   ss: 0068
+> Unable to handle kernel NULL pointer dereference at virtual address 00000070
+>  printing eip:
+> c011345a
+> *pde = 00000000
 
-OK, the patch below (which Linus applied to his tree yesterday) should
-fix the oopses.
- 
-> BIOS EDD facility v0.16 2004-Jun-25, 16 devices found
+I do not see precisely the same - but I do not use devfs.
+What happens for me is: the "mount -o loop /dev/loop0 /mnt"
+takes the first unused loop device, /dev/loop0, and then
+does "losetup /dev/loop0 /dev/loop0", and then does mount.
+But there is a loop in the loop devices and the kernel dies in
+infinite recursion.
 
-but the patch to edd.S doesn't resolve that EDD believes you've got 16
-devices (I would expect it to report 2, as you have only 2 disks).
+The easiest fix is saying "don't do that then".
+But, on the other hand, maybe it is reasonable to add a check.
+Hope to send a patch later this evening.
 
-Thanks for the quick testing.  Back to the drawing board though for
-this second part.
-
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
-===== drivers/firmware/edd.c 1.30 vs edited =====
---- 1.30/drivers/firmware/edd.c	2004-06-29 09:44:48 -05:00
-+++ edited/drivers/firmware/edd.c	2004-11-13 07:56:00 -06:00
-@@ -70,7 +70,7 @@
- static int edd_dev_is_type(struct edd_device *edev, const char *type);
- static struct pci_dev *edd_get_pci_dev(struct edd_device *edev);
- 
--static struct edd_device *edd_devices[EDDMAXNR];
-+static struct edd_device *edd_devices[EDD_MBR_SIG_MAX];
- 
- #define EDD_DEVICE_ATTR(_name,_mode,_show,_test) \
- struct edd_attribute edd_attr_##_name = { 	\
-@@ -728,9 +728,9 @@
- 
- static inline int edd_num_devices(void)
- {
--	return min_t(unsigned char,
--		     max_t(unsigned char, edd.edd_info_nr, edd.mbr_signature_nr),
--		     max_t(unsigned char, EDD_MBR_SIG_MAX, EDDMAXNR));
-+	return max_t(unsigned char,
-+		     min_t(unsigned char, EDD_MBR_SIG_MAX, edd.mbr_signature_nr),
-+		     min_t(unsigned char, EDDMAXNR, edd.edd_info_nr));
- }
- 
- /**
+Andries

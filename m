@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130336AbRCFKl0>; Tue, 6 Mar 2001 05:41:26 -0500
+	id <S130383AbRCFKv1>; Tue, 6 Mar 2001 05:51:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130383AbRCFKlR>; Tue, 6 Mar 2001 05:41:17 -0500
-Received: from ns.suse.de ([213.95.15.193]:59908 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130336AbRCFKlM>;
-	Tue, 6 Mar 2001 05:41:12 -0500
-To: Paul Flinders <paul@dawa.demon.co.uk>
-Cc: Paul Flinders <P.Flinders@ftel.co.uk>, Jeff Mcadams <jeffm@iglou.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        John Kodis <kodis@mail630.gsfc.nasa.gov>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org, bug-bash@gnu.org
+	id <S130389AbRCFKvR>; Tue, 6 Mar 2001 05:51:17 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:6148 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S130383AbRCFKvC>;
+	Tue, 6 Mar 2001 05:51:02 -0500
+Message-ID: <20010305231331.L180@bug.ucw.cz>
+Date: Mon, 5 Mar 2001 23:13:31 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Erik Hensema <erik@hensema.xs4all.nl>,
+        "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org, bug-bash@gnu.org
 Subject: Re: binfmt_script and ^M
-In-Reply-To: <20010305095512.A30787@tux.gsfc.nasa.gov>
-	<Pine.LNX.4.21.0103051224450.5591-100000@imladris.rielhome.conectiva>
-	<20010305105943.A25964@iglou.com> <3AA3BC4E.FA794103@ftel.co.uk>
-	<jeae70m97e.fsf@hawking.suse.de> <3AA3EEDF.D0547D4@dawa.demon.co.uk>
-X-Yow: Oh my GOD -- the SUN just fell into YANKEE STADIUM!!
-From: Andreas Schwab <schwab@suse.de>
-Date: 06 Mar 2001 11:41:09 +0100
-In-Reply-To: <3AA3EEDF.D0547D4@dawa.demon.co.uk>
-Message-ID: <jeae6zkwmy.fsf@hawking.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.99
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <m3k8648i94.fsf@appel.lilypond.org> <Pine.LNX.3.95.1010305083112.8719A-100000@chaos.analogic.com> <20010305173749.C16345@hensema.xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010305173749.C16345@hensema.xs4all.nl>; from Erik Hensema on Mon, Mar 05, 2001 at 05:37:49PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Flinders <paul@dawa.demon.co.uk> writes:
+Hi!
 
-|> Andreas Schwab wrote:
-|> 
-|> > This [isspace('\r') == 1] has no significance here.  The right thing to
-|> 
-|> > look at is $IFS, which does not contain \r by default.  The shell only splits
-|> 
-|> > words by "IFS whitespace", and the kernel should be consistent with it:
-|> >
-|> > $ echo -e 'ls foo\r' | sh
-|> > ls: foo: No such file or directory
-|> 
-|> The problem with that argument is that #!<interpreter> can be applied
-|> to more than just shells which understand $IFS, so which environment
-|> variable does the kernel pick?
+> > Somebody must have missed the boat entirely. Unix does not, never
+> > has, and never will end a text line with '\r'. It's Microsoft junk
+> > that does that, a throwback to CP/M, a throwback to MDS/200.
+> 
+> Yes, _we_ all know that. However, it's not really intuitive to the user
+> getting a 'No such file or directory' on a script he just created. Bash
+> doesn't say:
+> bash: testscript: Script interpreter not found
+> but bash says:
+> bash: testscript: No such file or directory
+> 
+> Maybe we should create a new errno: EINTERPRETER or something like that and
+> let the kernel return that instead of ENOENT.
 
-The kernel should use the same default value of IFS as the Bourne shell,
-ie. the same value you'll get with /bin/sh -c 'echo "$IFS"'.  This is
-independent of any settings in the environment.
-
-|> It's a difficult one - logically white space should terminate the interpreter
-
-No, IFS-whitespace delimits arguments in the Bourne shell.
-
-Andreas.
+Agreen, EINTEPRETTER would be very nice, plus maybe EDYNLINKER. We
+already have 'level 3 stopped', so this should not hurt :-)).
+								Pavel
 
 -- 
-Andreas Schwab                                  "And now for something
-SuSE Labs                                        completely different."
-Andreas.Schwab@suse.de
-SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

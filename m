@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268582AbUJTRIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268750AbUJTRNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268582AbUJTRIg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 13:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268701AbUJTRIT
+	id S268750AbUJTRNa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 13:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268701AbUJTRIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 13:08:19 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:28544 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S268702AbUJTRHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 13:07:20 -0400
-Date: Wed, 20 Oct 2004 19:08:02 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Timothy Miller <miller@techsource.com>, Hugh Dickins <hugh@veritas.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-Message-ID: <20041020170802.GB24619@dualathlon.random>
-References: <593560000.1094826651@[10.10.2.4]> <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain> <20040910151538.GA24434@devserv.devel.redhat.com> <20040910152852.GC15643@x30.random> <20040910153421.GD24434@devserv.devel.redhat.com> <41768858.8070709@techsource.com> <20041020153521.GB21556@devserv.devel.redhat.com> <1098290345.1429.65.camel@krustophenia.net> <20041020165050.GA24619@dualathlon.random> <1098291315.1429.79.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 20 Oct 2004 13:08:54 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:39860 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S268565AbUJTRHA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 13:07:00 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [ACPI] RE: PATCH/RFC: driver model/pmcore wakeup hooks (1/4)
+Date: Wed, 20 Oct 2004 10:02:57 -0700
+User-Agent: KMail/1.6.2
+Cc: acpi-devel@lists.sourceforge.net, "Li, Shaohua" <shaohua.li@intel.com>,
+       "Brown, Len" <len.brown@intel.com>, "Pavel Machek" <pavel@ucw.cz>,
+       <linux-kernel@vger.kernel.org>
+References: <16A54BF5D6E14E4D916CE26C9AD3057559A042@pdsmsx402.ccr.corp.intel.com> <200410192251.14740.dtor_core@ameritech.net>
+In-Reply-To: <200410192251.14740.dtor_core@ameritech.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1098291315.1429.79.camel@krustophenia.net>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410201002.58172.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 12:55:17PM -0400, Lee Revell wrote:
-> This was not my point, I agree that the two have nothing to do with each
-> other.  But if a hardirq handler runs for 3ms then no user code can run
-> for 3ms.  Therefore this is a problem if our goal for desktop response
-> is 1ms.
+On Tuesday 19 October 2004 20:51, Dmitry Torokhov wrote:
+> On Tuesday 19 October 2004 04:11 am, Li, Shaohua wrote:
+> > A final solution is device core adds an ACPI layer. That is we can link
+> > ACPI device and physical device. This way, the PCI device can know which
+> > ACPI is linked with it, so the PCI API can use specific ACPI method. 
 
-I sure agree it's a problem, but not always userspace code needs to run
-for the user not to notice. With ring buffers in the kernel for playback
-all you need is a nested irq for the user not to notice skips.
+The driver model core has platform_notify hooks for device add/remove,
+and ACPI should kick in that way ... they might well need tweaks though.
+
+
+> > You are right, we currently haven't a method to reach the goal. To match
+> > a physical device and ACPI device, we need to know the ACPI device's
+> > _ADR and bus.
+> > I have a toy to link the PCI device and ACPI device, and some PCI
+> > function can use _SxD method and _PSx method to get some information for
+> > suspend/resume.
+> > 
+> 
+> The only caveat is that PCI core should not depend on ACPI because it is not
+> available on all platforms, not all world is x86.
+
+RIght!  Maybe something like:
+
+	int pci_enable_wake(pci_dev, on_or_off) {
+		...
+		if (dev->platform_data)
+			platform_enable_wake(dev, on_or_off)
+		...
+	}
+
+That'd call an acpi_enable_wake().  I guess OpenBoot would
+do its thing, and embedded boards could do all kinds of stuff.
+
+- Dave

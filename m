@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbTEVPkY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 11:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbTEVPkY
+	id S262028AbTEVPm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 11:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbTEVPm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 11:40:24 -0400
-Received: from holomorphy.com ([66.224.33.161]:29580 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261968AbTEVPkX (ORCPT
+	Thu, 22 May 2003 11:42:29 -0400
+Received: from holomorphy.com ([66.224.33.161]:31372 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262028AbTEVPm0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 11:40:23 -0400
-Date: Thu, 22 May 2003 08:53:20 -0700
+	Thu, 22 May 2003 11:42:26 -0400
+Date: Thu, 22 May 2003 08:55:17 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: akpm@digeo.com
+To: jgarzik@pobox.com
 Cc: linux-kernel@vger.kernel.org
-Subject: arch/i386/kernel/mpparse.c warning fixes
-Message-ID: <20030522155320.GP29926@holomorphy.com>
+Subject: tulip warning fix
+Message-ID: <20030522155517.GR29926@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	akpm@digeo.com, linux-kernel@vger.kernel.org
+	jgarzik@pobox.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,24 +25,19 @@ User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -prauN mm8-2.5.69-1/arch/i386/kernel/mpparse.c mm8-2.5.69-2/arch/i386/kernel/mpparse.c
---- mm8-2.5.69-1/arch/i386/kernel/mpparse.c	2003-05-22 04:54:48.000000000 -0700
-+++ mm8-2.5.69-2/arch/i386/kernel/mpparse.c	2003-05-22 08:06:13.000000000 -0700
-@@ -171,7 +171,7 @@ void __init MP_processor_info (struct mp
- 
- 	num_processors++;
- 
--	if (m->mpc_apicid > MAX_APICS) {
-+	if (MAX_APICS - m->mpc_apicid <= 0) {
- 		printk(KERN_WARNING "Processor #%d INVALID. (Max ID: %d).\n",
- 			m->mpc_apicid, MAX_APICS);
- 		--num_processors;
-@@ -803,7 +803,7 @@ void __init mp_register_lapic (
- 	struct mpc_config_processor processor;
- 	int			boot_cpu = 0;
- 	
--	if (id >= MAX_APICS) {
-+	if (MAX_APICS - id <= 0) {
- 		printk(KERN_WARNING "Processor #%d invalid (max %d)\n",
- 			id, MAX_APICS);
- 		return;
+diff -prauN mm8-2.5.69-1/drivers/net/tulip/interrupt.c mm8-2.5.69-2/drivers/net/tulip/interrupt.c
+--- mm8-2.5.69-1/drivers/net/tulip/interrupt.c	2003-05-04 16:53:08.000000000 -0700
++++ mm8-2.5.69-2/drivers/net/tulip/interrupt.c	2003-05-22 07:55:19.000000000 -0700
+@@ -194,10 +194,10 @@ static int tulip_rx(struct net_device *d
+ 				if (tp->rx_buffers[entry].mapping !=
+ 				    le32_to_cpu(tp->rx_ring[entry].buffer1)) {
+ 					printk(KERN_ERR "%s: Internal fault: The skbuff addresses "
+-					       "do not match in tulip_rx: %08x vs. %08x %p / %p.\n",
++					       "do not match in tulip_rx: %08x vs. %Lx %p / %p.\n",
+ 					       dev->name,
+ 					       le32_to_cpu(tp->rx_ring[entry].buffer1),
+-					       tp->rx_buffers[entry].mapping,
++					       (u64)tp->rx_buffers[entry].mapping,
+ 					       skb->head, temp);
+ 				}
+ #endif

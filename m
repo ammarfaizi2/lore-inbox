@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbUENSIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUENSI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbUENSIE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 14:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUENSIE
+	id S261988AbUENSI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 14:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbUENSI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 14:08:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17356 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262020AbUENSH7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 14:07:59 -0400
-Date: Fri, 14 May 2004 11:07:52 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andy Lutomirski <luto@stanford.edu>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Andy Lutomirski <luto@myrealbox.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, olaf+list.linux-kernel@olafdietsche.de,
-       Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH] capabilites, take 2
-Message-ID: <20040514110752.U21045@build.pdx.osdl.net>
-References: <fa.dt4cg55.jnqvr5@ifi.uio.no> <fa.mu5rj3d.24gtbp@ifi.uio.no> <40A4EC72.2020209@myrealbox.com> <1084550518.17741.134.camel@moss-spartans.epoch.ncsc.mil> <40A4F163.6090802@stanford.edu>
+	Fri, 14 May 2004 14:08:57 -0400
+Received: from fed1rmmtao01.cox.net ([68.230.241.38]:50900 "EHLO
+	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S261988AbUENSIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 14:08:53 -0400
+Date: Fri, 14 May 2004 11:07:06 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: PATCH][4/7] perfctr-2.7.2 for 2.6.6-mm2: PowerPC
+Message-ID: <20040514180706.GR2196@smtp.west.cox.net>
+References: <200405141411.i4EEBdvW018419@alkaid.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <40A4F163.6090802@stanford.edu>; from luto@stanford.edu on Fri, May 14, 2004 at 09:18:43AM -0700
+In-Reply-To: <200405141411.i4EEBdvW018419@alkaid.it.uu.se>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andy Lutomirski (luto@stanford.edu) wrote:
-> Stephen Smalley wrote:
-> > On Fri, 2004-05-14 at 11:57, Andy Lutomirski wrote:
-> > > Thanks -- turning brain back on, SELinux is obviously better than any
-> > > fine-grained capability scheme I can imagine.
-> > > 
-> > > So unless anyone convinces me you're wrong, I'll stick with just
-> > > fixing up capabilities to work without making them finer-grained.
-> > 
-> > Great, thanks.  Fixing capabilities to work is definitely useful and
-> > desirable.  Significantly expanding them in any manner is a poor use of
-> > limited resources, IMHO; I'd much rather see people work on applying
-> > SELinux to the problem and solving it more effectively for the future.
-> 
-> Does this mean I should trash my 'maximum' mask?
-> 
-> (I like 'cap -c = sftp-server' so it can't try to run setuid/fP apps.)
-> OTOH, since SELinux accomplishes this better, it may not be worth the
-> effort.
+On Fri, May 14, 2004 at 04:11:39PM +0200, Mikael Pettersson wrote:
 
-Let's just get back to the simplest task.  Allow execve() to do smth.
-reasonable with capabilities.
+> perfctr-2.7.2 for 2.6.6-mm2, part 4/7:
+[snip]
+> --- linux-2.6.6-mm2/drivers/perfctr/ppc.c	1970-01-01 01:00:00.000000000 +0100
+[snip]
+> +#define SPRN_MMCR0	0x3B8	/* 604 and up */
+[snip]
+> +#define MMCR2_RESERVED		(MMCR2_SMCNTEN | MMCR2_SMINTEN | MMCR2__RESERVED)
 
-thanks,
--chris
+All of these belong in <asm-ppc/reg.h>.
+
+[snip]
+ +static int __init generic_init(void)
+> +{
+> +	static char generic_name[] __initdata = "PowerPC 60x/7xx/74xx";
+> +	unsigned int features;
+> +	enum pll_type pll_type;
+> +	unsigned int pvr;
+> +
+> +	features = PERFCTR_FEATURE_RDTSC | PERFCTR_FEATURE_RDPMC;
+> +	pvr = mfspr(SPRN_PVR);
+> +	switch( PVR_VER(pvr) ) {
+> +	case 0x0004: /* 604 */
+> +		pm_type = PM_604;
+> +		pll_type = PLL_NONE;
+> +		features = PERFCTR_FEATURE_RDTSC;
+> +		break;
+
+This should all be done with cputable bits I would think.
+arch/ppc/kernel/cputable.c and include/asm-ppc/cputable.h
+(CPU_FTR_PERFCTR_PLL_{NONE,604e,...) and then
+if (cur_cpu_spec[i]->cpu_features & CPU_FTR_PERFCTL_PLL_NONE)
+  pll_type = PLL_NONE
+
+Or might that be bigger, code wise, in the end?
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Tom Rini
+http://gate.crashing.org/~trini/

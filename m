@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268473AbTCFWyj>; Thu, 6 Mar 2003 17:54:39 -0500
+	id <S268487AbTCFWy4>; Thu, 6 Mar 2003 17:54:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268485AbTCFWyj>; Thu, 6 Mar 2003 17:54:39 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:36008
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268473AbTCFWyi>; Thu, 6 Mar 2003 17:54:38 -0500
-Subject: Re: Linux 2.5.64-ac1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Steven Cole <elenstev@mesatop.com>, Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, aeb@cwi.nl
-In-Reply-To: <20030306225823.GA2764@win.tue.nl>
-References: <200303061915.h26JFAP06033@devserv.devel.redhat.com>
-	 <1046985881.4992.99.camel@spc9.esa.lanl.gov>
-	 <1046991076.17715.129.camel@irongate.swansea.linux.org.uk>
-	 <20030306225823.GA2764@win.tue.nl>
+	id <S268492AbTCFWy4>; Thu, 6 Mar 2003 17:54:56 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:48132
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S268487AbTCFWyy>; Thu, 6 Mar 2003 17:54:54 -0500
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+From: Robert Love <rml@tech9.net>
+To: "Dimitrie O. Paun" <dimi@intelliware.ca>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Ingo Molnar <mingo@elte.hu>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0303061725330.23356-100000@dimi.dssd.ca>
+References: <Pine.LNX.4.44.0303061725330.23356-100000@dimi.dssd.ca>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1046995826.18158.138.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1046991923.715.64.camel@phantasy.awol.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 07 Mar 2003 00:10:27 +0000
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 06 Mar 2003 18:05:23 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 22:58, Andries Brouwer wrote:
-> On Thu, Mar 06, 2003 at 10:51:16PM +0000, Alan Cox wrote:
-> > On Thu, 2003-03-06 at 21:24, Steven Cole wrote:
-> > > I backed out the same partitions stuff as before, and 2.5.64-ac1 boots
-> > > fine.  This is the resulting diff.
-> > 
-> > Backing it out isnt an option in the end, it has to get fixed 8(
-> 
-> Usually I try to follow partition and geometry stuff, but this
-> is a discussion I missed.  What is wrong?
+On Thu, 2003-03-06 at 17:31, Dimitrie O. Paun wrote:
 
-I've got a bug somewhere in the ide_xlate stuff I restored because some
-people do need it. The bug is in my code not in the partition stuff
-though.
+> Right, being able to control this interactivity knob programmatically
+> seems like a useful thing. That way, the window manager can boost the
+> interactivity of the foreground window for example. It does seem that
+> figuring out that something is interactive in the scheduler is tough,
+> there is just not enough information, whereas a higher layer may know
+> this for a fact. I guess this reduces my argument to just keeping the 
+> interactivity setting separate from priority.
+
+No no no.  Martin's point shows exactly that nothing but the kernel can
+ever know whether a task is I/O or CPU bound.  What is bash?  Is it
+interactive (when you are typing into it) or CPU bound (when its running
+a script or doing other junk)?
+
+Only the kernel knows exactly the sleep patterns of tasks, which is
+essentially whether or not a task is interactive.
+
+Finally, the windows manager idea is bad.  The foreground window may
+have dependencies elsewhere, and giving it a boost only partially solves
+the problem.
+
+I think with Linus's patch, the problem is solved, because we boost both
+I/O-bound tasks and tasks that help I/O bound tasks.
+
+	Robert Love
 

@@ -1,101 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273421AbRIRTZF>; Tue, 18 Sep 2001 15:25:05 -0400
+	id <S273415AbRIRTYZ>; Tue, 18 Sep 2001 15:24:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273419AbRIRTYq>; Tue, 18 Sep 2001 15:24:46 -0400
-Received: from forge.redmondlinux.org ([209.81.49.42]:64742 "EHLO
-	forge.redmondlinux.org") by vger.kernel.org with ESMTP
-	id <S273418AbRIRTYl>; Tue, 18 Sep 2001 15:24:41 -0400
-Message-ID: <3BA79F09.9060509@cheek.com>
-Date: Tue, 18 Sep 2001 12:22:49 -0700
-From: Joseph Cheek <joseph@cheek.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Steven Walter <srwalter@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ide-]scsi timeouts while writing cdrom
-In-Reply-To: <Pine.LNX.4.10.10109142131030.28176-100000@forge.redmondlinux.org> <20010915122542.A23825@hapablap.dyn.dhs.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S273418AbRIRTYP>; Tue, 18 Sep 2001 15:24:15 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:41714
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S273415AbRIRTYJ>; Tue, 18 Sep 2001 15:24:09 -0400
+Date: Tue, 18 Sep 2001 12:24:22 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Define conflict between ext3 and raid patches against 2.2.19
+Message-ID: <20010918122422.B6861@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010916155835.C24067@mikef-linux.matchmail.com> <15271.11056.810538.66237@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15271.11056.810538.66237@notabene.cse.unsw.edu.au>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cool, i turned off DMA on both cd's and it works now!  i still get 
-timeouts but not enough to crash the system.
+ On Tue, Sep 18, 2001 at 09:08:32PM +1000, Neil Brown wrote:
+> On Sunday September 16, mfedyk@matchmail.com wrote:
+> > Hi,
+> > 
+> > I'm trying to setup a 2.2 kernel that I can use for comparison to the latest
+> > 2.4 kernels I've been testing, but I came accross a little problem with the
+> > patches I've been trying to combine.
+> > 
+> > I've already applied:
+> > ide.2.2.19.05042001.patch
+> > linux-2.2.19.kdb.diff
+> > linux-2.2.19.ext3.diff
+> > 
+> > And now I'm trying to apply raid-2.2.19-A1, and I get one reject in
+> > include/linux/fs.h.
+> 
+> You should be aware that ext3 (and other journalling filesystems) do
+> not work reliably over RAID1 or RAID5 in 2.2.  Inparticular, you can
+> get problems when the array is rebuilding/resyncing.
+> 
+> But if you only plan to use ext3 with raid0 or linear, you should be
+> fine.
+> 
 
-Steven Walter wrote:
+Crap.
 
->With what drive chipset is this?
->
->In any event, try doing an 'hdparm -d0 /dev/hdd' and see if that fixes
->it.  That will turn off DMA on the CD-RW, which is probably causing the
->trouble.  If not, see if turning off DMA on /all/ the drives fixes it.
->
->I had a problem similar to this on my system, with an AMD-751 ide
->controller.  To fix it, all I had to do was turn on CONFIG_EXPERIMENTAL
->and then "AMD Viper ATA-66 Override (WIP)".  After that, the problem
->went away.
->
->On Fri, Sep 14, 2001 at 09:36:26PM -0700, Joseph Cheek wrote:
->
->>hello all,
->>
->>my shiny new cdrw hangs the system when i try to burn a cdrom.  i've got a
->>a completely IDE system.  hda and hdb are hard drives while hdc is a
->>standard cdrom and hdd is a cdrw.
->>
->>while burning cdrecord writes a couple of tracks and then the whole system
->>freezes [i need to hard power off].  i can blank cdrw's in the drive just
->>fine, however.  i'm running 2.4.9-ac10 SMP [on a single-proc system] and
->>all partitions are ext3.  ide-scsi is loaded as a module at boot.
->>
->>here's what /var/log/messages shows:
->>
->>Sep 14 21:12:45 sanfrancisco kernel: scsi : aborting command due to
->>timeout : pid 0, scsi0, channel 0, id 1, lun 0 0x00 00 00 00 00 00
->>Sep 14 21:12:54 sanfrancisco kernel: Device not ready.  Make sure there is
->>a disc in the drive.
->>Sep 14 21:12:55 sanfrancisco last message repeated 2 times
->>Sep 14 21:13:20 sanfrancisco kernel: hdb: timeout waiting for DMA
->>Sep 14 21:13:20 sanfrancisco kernel: ide_dmaproc: chipset supported
->>ide_dma_timeout func only: 14
->>Sep 14 21:13:26 sanfrancisco kernel: scsi : aborting command due to
->>timeout : pid 0, scsi0, channel 0, id 1, lun 0 0x43 00 00 00 00 00 00 00
->>0c 00
->>Sep 14 21:13:37 sanfrancisco kernel: scsi : aborting command due to
->>timeout : pid 0, scsi0, channel 0, id 0, lun 0 0x2a 00 00 00 05 92 00 00
->>1f 00
->>Sep 14 21:13:37 sanfrancisco kernel: hdc: timeout waiting for DMA
->>Sep 14 21:13:37 sanfrancisco kernel: ide_dmaproc: chipset supported
->>ide_dma_timeout func only: 14
->>Sep 14 21:13:37 sanfrancisco kernel: hdd: status timeout: status=0xd8 {
->>Busy }
->>Sep 14 21:13:37 sanfrancisco kernel: hdd: DMA disabled
->>Sep 14 21:13:37 sanfrancisco kernel: hdd: drive not ready for command
->>Sep 14 21:13:41 sanfrancisco kernel: hdd: ATAPI reset complete
->>Sep 14 21:13:41 sanfrancisco kernel: hdd: irq timeout: status=0xd0 { Busy
->>}
->>Sep 14 21:13:42 sanfrancisco kernel: hdd: ATAPI reset complete
->>Sep 14 21:13:42 sanfrancisco kernel: hdd: irq timeout: status=0x80 { Busy
->>}
->>Sep 14 21:13:42 sanfrancisco kernel: scsi0 channel 0 : resetting for
->>second half of retries.
->>Sep 14 21:13:42 sanfrancisco kernel: SCSI bus is being reset for host 0
->>channel 0.
->>
->>any guesses?
->>
->>thanks!
->>
->>joe
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
->
+I was just about to test ext3 on a raid1 with 2.2.20pre.  Everything else
+I've tried has worked great.
 
+As it looks, this probably won't be fixed in 2.2, especially since the raid
+patch won't be merged into 2.2 (as stated by Alan).
 
+I'll just have to test 2.4 harder now.  2.4.x-ac has been pretty good
+concerning swap usage, and performance on my workstations.  I hope 2.4.10
+will merge those improvements.
+
+Mike

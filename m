@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281307AbRKPLa2>; Fri, 16 Nov 2001 06:30:28 -0500
+	id <S281308AbRKPLeS>; Fri, 16 Nov 2001 06:34:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281309AbRKPLaS>; Fri, 16 Nov 2001 06:30:18 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:53521 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S281307AbRKPLaK>; Fri, 16 Nov 2001 06:30:10 -0500
-Message-ID: <3BF4F6A6.10163203@evision-ventures.com>
-Date: Fri, 16 Nov 2001 12:21:10 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision.ag
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: __get_free_pages but no get_free_pages?
-In-Reply-To: <20011115233528.A7496@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281309AbRKPLeI>; Fri, 16 Nov 2001 06:34:08 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:25094 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S281308AbRKPLdy>; Fri, 16 Nov 2001 06:33:54 -0500
+Date: Fri, 16 Nov 2001 12:33:49 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: infinite loop in 3c509 driver IRQ loop?
+Message-ID: <20011116123349.A25438@emma1.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011116114902.K5520@emma1.emma.line.org> <E164gpo-0003fJ-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <E164gpo-0003fJ-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> 
-> Hi!
-> 
-> free_pages() exists.
-> __get_free_pages() exists.
-> get_free_pages() does not. Why? What's the reason get_free_pages
-> always has two underscores at the beggining?
+On Fri, 16 Nov 2001, Alan Cox wrote:
 
-That's purposedly so to discourage the usage of it, since this
-function should be considered as an "implementation detail" I think.
+> It means the card kept having work left to do - eg because it was under
+> extreme load at that point. Its not neccessarily a bug - did the box then
+> recover ?
 
-> --
-> STOP THE WAR! Someone killed innocent Americans. That does not give
-> U.S. right to kill people in Afganistan.
+Yes, it did. The LAN (twisted pair cabling, 16 bit prefix) contains
+several hundred Windows workstations alongside some Linux boxes (in the
+same collision domain, that is), so the machine may have been under
+severe broadcast load as is common for Windows machines to toss out.
 
-That where not just Americans who died there.
-The best way to stop a war is sometimes just to win it fast.
+-- 
+Matthias Andree
+
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

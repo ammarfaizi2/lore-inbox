@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132670AbRDKUCA>; Wed, 11 Apr 2001 16:02:00 -0400
+	id <S132681AbRDKUGv>; Wed, 11 Apr 2001 16:06:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132681AbRDKUBu>; Wed, 11 Apr 2001 16:01:50 -0400
-Received: from colorfullife.com ([216.156.138.34]:50703 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S132670AbRDKUBd>;
-	Wed, 11 Apr 2001 16:01:33 -0400
-Message-ID: <001801c0c2c2$489f3050$5517fea9@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: <Imran.Patel@nokia.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: skb allocation problems (More Brain damage!)
-Date: Wed, 11 Apr 2001 22:02:00 +0200
+	id <S132697AbRDKUGl>; Wed, 11 Apr 2001 16:06:41 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:6928 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S132681AbRDKUGb>;
+	Wed, 11 Apr 2001 16:06:31 -0400
+Date: Wed, 11 Apr 2001 17:06:24 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 module development mailing list needed?  [Fwd: Linux Security
+ Module Interface]
+In-Reply-To: <3AD48F4F.1000800@megapathdsl.net>
+Message-ID: <Pine.LNX.4.21.0104111702450.25737-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> it is very hard to imagine the scenario which can lead to this...
-> I will try your suggestion..
+On Wed, 11 Apr 2001, Miles Lane wrote:
+> Matti Aarnio wrote:
 
-Perhaps a problem with the csum assembler implementations? Which cpu
-type do you optimize for, and which cpu is installed?
+> > 	Proper place to do this discussion is linux-kernel@vger.kernel.org
+> 
+> It sounds good in theory.  In practice, though, almost all of the
+> design discussions have been occuring in private e-mail.
 
-Btw, are you overclocking anything?
+Actually, I tried to setup a mailing list (linux-future@nl.linux.org)
+for discussions about future ideas for Linux, etc...
 
+In practice most discussions just came back to linux-kernel or to
+subsystem lists every once in a while. If you feel you want to
+ramble about long-term ideas or random OS ideas you think might be
+cool to have in Linux sometime in the future, feel free to use that
+list I made (it's still around), but most serious discussion will
+end up here sooner or later ...
+
+regards,
+
+Rik
 --
-    Manfred
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-
-
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

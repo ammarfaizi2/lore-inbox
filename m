@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbUFCKFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUFCKN2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbUFCKFh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 06:05:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUFCKFh
+	id S263003AbUFCKN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 06:13:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUFCKN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 06:05:37 -0400
-Received: from dialpool3-11.dial.tijd.com ([62.112.12.11]:12928 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S263088AbUFCKFW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 06:05:22 -0400
-From: Jan De Luyck <lkml@kcore.org>
+	Thu, 3 Jun 2004 06:13:28 -0400
+Received: from adsl-67-118-43-14.dsl.renocs.pacbell.net ([67.118.43.14]:32898
+	"EHLO mail.clouddancer.com") by vger.kernel.org with ESMTP
+	id S263003AbUFCKNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 06:13:05 -0400
+From: Klink <colonel@clouddancer.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.6] ICH5 SATA problems
-Date: Thu, 3 Jun 2004 12:05:11 +0200
-User-Agent: KMail/1.6.2
-Cc: Erik Steffl <steffl@bigfoot.com>
-References: <200406030642.16890.lkml@kcore.org> <40BEC11F.8070605@bigfoot.com>
-In-Reply-To: <40BEC11F.8070605@bigfoot.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406031205.12426.lkml@kcore.org>
+Subject: 2.6.7-rc2-mm1 lost gigabit ethernet config
+Reply-To: colonel@clouddancer.com
+Message-Id: <20040603101304.3A38D229DE4@phoenix.clouddancer.com>
+Date: Thu,  3 Jun 2004 03:13:04 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 June 2004 08:11, Erik Steffl wrote:
-> Jan De Luyck wrote:
-> > Hello List,
-> >
-> > A friend of mine is trying to get both SATA and PATA working together on
-> > his Siemens box. The bios has a bunch of settings concering sata/pata,
-> > being:
-> > - SATA Standard (which is bootable by the bios). When this is selected,
-> > another setting is available * Sata 1/2 only
-> > 	* sata 1/2 + pata 3/4
-> > 	* pata 1/2 + sata 1/2
->
->    which kernel are you using and what are the sata related settings?
 
-The kernel involved is 2.6.6 (as noted in the subject), vanilla.
->
->    I have intel D865PERL with same sata controller as your friend, using
-> kernel 2.6.5, sata configured as scsi:
->
-> CONFIG_SCSI=y
-> CONFIG_SCSI_SATA=y
-> CONFIG_SCSI_ATA_PIIX=y
+Running "make oldconfig" on a .config from 2.6.6-mm4 in the
+2.6.7-rc2-mm1 directory results in loss of gigabit ethernet config
+vars
 
-Same configuration options are on.
+2.6.6-mm4 .config:
 
->    with 2.4.x kernels you might need some patches, the first 2.4.x
-> kernel  I know supports SATA is 2.4.21-ac4, plus you (your friend) need
-> libata5 patches for SATA disks over 137GB.
+# Ethernet (10 or 100Mbit)
+#
+# CONFIG_NET_ETHERNET is not set
 
-He's going to insert 200gb maxtor drives - is this patch needed for 2.6.6 too?
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+CONFIG_E1000=y
+# CONFIG_E1000_NAPI is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_R8169 is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_TIGON3 is not set
 
-Thx.
+#
+# Ethernet (10000 Mbit)
+#
+# CONFIG_IXGB is not set
+# CONFIG_S2IO is not set
 
-Jan
+#
+------------------------------------------------------------------
 
--- 
-Reality is for people who lack imagination.
+2.6.7-rc2-mm1 .config
+
+#
+# Ethernet (10 or 100Mbit)
+#
+# CONFIG_NET_ETHERNET is not set
+
+#
+# Gigabit Ethernet (1000/10000 Mbit)
+#
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+
+------------------------------------------------------------------
+
+It seems to be because of the merger of 1000/10000 MBit and not the
+patching.
+
+

@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRAUUjL>; Sun, 21 Jan 2001 15:39:11 -0500
+	id <S129444AbRAUUuH>; Sun, 21 Jan 2001 15:50:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129444AbRAUUjB>; Sun, 21 Jan 2001 15:39:01 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:50376 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S129413AbRAUUiv>; Sun, 21 Jan 2001 15:38:51 -0500
-Date: Sun, 21 Jan 2001 21:38:26 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: more via-rhine problems.
-In-Reply-To: <Pine.LNX.4.31.0101181343550.824-100000@asdf.capslock.lan>
-Message-ID: <Pine.LNX.4.30.0101211909030.11993-100000@cola.teststation.com>
+	id <S130138AbRAUUt4>; Sun, 21 Jan 2001 15:49:56 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:54532
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129444AbRAUUtr>; Sun, 21 Jan 2001 15:49:47 -0500
+Date: Sun, 21 Jan 2001 12:49:40 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Mike Galbraith <mikeg@wen-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: [preview] Latest AMD & VIA IDE drivers with UDMA100 support
+In-Reply-To: <20010121173251.B1073@suse.cz>
+Message-ID: <Pine.LNX.4.10.10101211247580.3779-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Mike A. Harris wrote:
+On Sun, 21 Jan 2001, Vojtech Pavlik wrote:
 
-> I now believe that it is indeed caused by booting to windows 98
-> (by accident).  ;o)
+> On Sun, Jan 21, 2001 at 01:42:41PM +0100, Mike Galbraith wrote:
+> > On Sun, 21 Jan 2001, Vojtech Pavlik wrote:
+> > 
+> > > On Sat, Jan 20, 2001 at 02:57:07PM -0800, Andre Hedrick wrote:
+> > > 
+> > > > chipset ---\
+> > > >             |
+> > > >             \---------IDC-header
+> > > > 
+> > > > chipset ---+
+> > > >            |
+> > > >            +----------IDC-header
+> > > > 
+> > > > These are nearly the same but the corners cause bounce and iCRC's
+> > 
+> > I don't see how anyone can influence risetime falltime or impedance
+> > matching [1] issues via software timing changes.
+> > 
+> > (the top drawing is what you see on a poorly designed board.. long
+> > rise/fall times often cause worse problems than [slight] ringing)
+> > 
+> > > Well, there are other ways the motherboard maker can screw up the
+> > > traces, and often this happens:
+> > > 
+> > > chipset --------\
+> > >                 |
+> > > chipset ------\ |
+> > >               | \------ header
+> > >               \-------- header
+> > > 
+> > 
+> > Can you compensate for these things (to any degree?) in software?
+> 
+> Not really. Slowing the data rate down is in my opinion the only way to
+> compensate for this. Btw, the chipset only controls the write data rate
+> with UDMA. The read rate is controlled by the drive.
+> 
+> > 1.  Only a software guy would call it 'bounce'.. sounds funny ;-)
 
-Don't do that then :)
+Er...I help design some of the hardware and the rules, so I do more than
+just software.  So does 'echo' or 'reflections'sound better than 'bounce'?
 
-> Doesn't matter if a driver is installed in win or not as I've
-> tried both.  Just booting win at all causes the card to go
-> berzerk next boot.  Must be something missing from the card init
-> code that should be resetting something on the card at init time,
-> but which is set by default on power on.
+Cheers,
 
-I can't reproduce this, but I only have a 1106:3043 (DFE-530TX revA1) and
-tested this on a rather old P133.
-
-I tested 2.2.19pre and not 2.2.18+becker1.08, the biggest difference is
-the detection code so maybe that could be worth trying. 2.4 is again a
-little bit different ...
-
-You could try playing with bios settings. And dumping register contents
-from a working and non-working setup, for example:
-
-% via-diag -aaeemm
-  (ftp://ftp.scyld.com/pub/diag/via-diag.c)
-
-% lspci -vvxxx -d 1106:3065
-
-Maybe CONFIG_PCI_QUIRKS helps?
-
-/Urban
+Andre Hedrick
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264815AbTAASi1>; Wed, 1 Jan 2003 13:38:27 -0500
+	id <S264818AbTAASr7>; Wed, 1 Jan 2003 13:47:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264818AbTAASi1>; Wed, 1 Jan 2003 13:38:27 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:10184 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264815AbTAASi0>; Wed, 1 Jan 2003 13:38:26 -0500
-Date: Wed, 1 Jan 2003 19:46:32 +0100
-From: Daniel Golle <daniel@exil.afraid.org>
-To: linux-kernel@vger.kernel.org
-Subject: Problems radeonfb, again...
-Message-ID: <20030101184632.GC8173@osama.exil.afraid.org>
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset=ISO-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 2.0.4
-X-MailScanner: Found to be clean
+	id <S265058AbTAASr7>; Wed, 1 Jan 2003 13:47:59 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:53989 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S264818AbTAASr6>;
+	Wed, 1 Jan 2003 13:47:58 -0500
+Date: Wed, 1 Jan 2003 10:53:24 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: John Bradford <john@grabjohn.com>
+cc: Bill Davidsen <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix os release detection in module-init-tools-0.9.6
+In-Reply-To: <200301011623.h01GN8Lw001696@darkstar.example.net>
+Message-ID: <Pine.LNX.4.33L2.0301011048490.20796-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running an ATI OEM (Xelo) Radeon 8500 with a NEC MultiSync 1535VI 
-panel connected via DVI-D. X runs well with the latest fglrx driver 
-from ATI as well as with the OpenSource radeon driver. When booting, 
-the framebuffer does not initialize (see below). With older versions of 
-ATI's driver (fglr200) I also had problems with the 
-panel-size-detection, too: I had to start X 3 to 10 times before it 
-started fine. Once running, there were no further probs.
-Is there a possebility to skip the auto-detection of the panel size at 
-boot time by setting it manual (via bootparams or compiling it into the 
-kernel)?
+On Wed, 1 Jan 2003, John Bradford wrote:
 
---- Kernel output ---
-radeonfb: ref_clk=2700, ref_div=12, xclk=25000 from BIOS
-radeonfb: panel ID string: ªhé²^D
-radeonfb: detected DFP panel size from BIOS: 1x0
-radeonfb: Failed to detect DFP panel size
----------------------
+| > > | Um, you read the .config, which hopefully is stored somewhere.
+| > > | (Although you could resurrect the /proc/config patch which goes around
+| > > | every so often).  There are many things you can't tell by reading
+| > > | /proc/ksyms.
+| > >
+| > > Right, the .config file is the answer.  And there are at least 2
+| > > patch solutions for it, the /proc/config that Rusty mentioned, or
+| > > the in-kernel config that Khalid Aziz and others from HP did along
+| > > with me, and it's in 2.4.recent-ac or 2.5.recent-dcl or 2.5.recent-cgl.
+| >
+| > It would be useful to have a few global options perhaps included in /proc
+| > (or wherever) on all kernels. By global I mean those which affect the
+| > entire kernel, like preempt or smp, rather than driver options. We already
+| > note 'tainted,' so this is not a totally new idea. It would seem that most
+| > of the processor options could fall in this class, MCE, IOAPIC, etc.
+| >
+| > If the aim is to speed stability, putting any of the "whole config"
+| > options in and defaulted on might be a step toward that.
+|
+| Having all of the config options in a /proc/config file would be a
+| great help for people using my new bug database, because it would
+| allow them to upload the .config for their current kernel even if it
+| is not one they have compiled themselves.
 
-thank you and excuse my poor english...
-yours
-  -Daniel
+It seems that we still differ that putting them in /proc
+is required.  I don't see a hard requirement for that as long
+as the vmlinu[xz] or bzImage etc. file contains the config
+strings, which is what the other mentioned patch does.
+
+They are still affixed to a particular file, and they can be
+pulled from it whether it's the running kernel or not.
+Putting them in /proc wastes RAM and is undesirable, at least
+on small systems and most embedded platforms.
+However, that patch does also contain an option for putting
+the config entries in /proc.  :)
+
+| At the moment, the facility to search for bugs via the config options
+| that cause them is only useful for people who are compiling their own
+| kernel.
+
+-- 
+~Randy
+

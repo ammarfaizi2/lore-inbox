@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269892AbUICW3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269969AbUICWfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269892AbUICW3a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 18:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269961AbUICW32
+	id S269969AbUICWfV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 18:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269954AbUICWfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 18:29:28 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:7351 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S269892AbUICW27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 18:28:59 -0400
-Date: Fri, 3 Sep 2004 23:28:31 +0100
-From: Dave Jones <davej@redhat.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: hpt366 ptr use before NULL check.
-Message-ID: <20040903222831.GA29492@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20040903211546.GY26419@redhat.com> <20040903215332.GA7812@redhat.com> <200409040017.08272.bzolnier@elka.pw.edu.pl>
+	Fri, 3 Sep 2004 18:35:21 -0400
+Received: from [216.70.31.95] ([216.70.31.95]:1682 "HELO
+	rock.mm-interactive.com") by vger.kernel.org with SMTP
+	id S269879AbUICWe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 18:34:59 -0400
+Date: Fri, 3 Sep 2004 17:34:58 -0500
+From: Thor Kooda <tkooda-patch-kernel@devsec.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.8.1 crypto: tea.c xtea_encrypt should use XTEA_DELTA
+Message-ID: <20040903223458.GD18362@rock>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409040017.08272.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 04, 2004 at 12:17:07AM +0200, Bartlomiej Zolnierkiewicz wrote:
- > 
- > bogus, hwif can't be NULL
- > please remove checks instead
+Patch for crypto/tea.c, added in 2.6.8-rc1:
+
+xtea_encrypt() should use XTEA_DELTA instead of TEA_DELTA.
+
+Signed-off-by: Thor Kooda <tkooda-patch-kernel@devsec.org>
+
+-- 
+Thor Kooda
+tkooda-patch-kernel@devsec.org
 
 
-As you wish.
-
-
-Signed-off-by: Dave Jones <davej@redhat.com>
-
---- latest-FC2/drivers/ide/pci/hpt366.c~	2004-09-03 23:26:29.092342152 +0100
-+++ latest-FC2/drivers/ide/pci/hpt366.c	2004-09-03 23:27:28.249348920 +0100
-@@ -777,9 +777,6 @@
- 	u8 reg59h = 0, reset	= (hwif->channel) ? 0x80 : 0x40;
- 	u8 regXXh = 0, state_reg= (hwif->channel) ? 0x57 : 0x53;
+--- linux-2.6.8.1.orig/crypto/tea.c     Sat Aug 14 05:56:25 2004
++++ linux-2.6.8.1/crypto/tea.c  Fri Sep  3 17:34:06 2004
+@@ -154,7 +154,7 @@
  
--	if (!hwif)
--		return -EINVAL;
--
- //	hwif->bus_state = state;
- 
- 	pci_read_config_byte(dev, 0x59, &reg59h);
-@@ -813,9 +810,6 @@
- 	u8 tristate = 0, resetmask = 0, bus_reg = 0;
- 	u16 tri_reg;
- 
--	if (!hwif)
--		return -EINVAL;
--
- 	hwif->bus_state = state;
- 
- 	if (hwif->channel) { 
+        while (sum != limit) {
+                y += (z << 4 ^ z >> 5) + (z ^ sum) + ctx->KEY[sum&3]; 
+-               sum += TEA_DELTA;
++               sum += XTEA_DELTA;
+                z += (y << 4 ^ y >> 5) + (y ^ sum) + ctx->KEY[sum>>11 &3]; 
+        }
+        

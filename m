@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315603AbSECIgn>; Fri, 3 May 2002 04:36:43 -0400
+	id <S315601AbSECIg1>; Fri, 3 May 2002 04:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315604AbSECIgm>; Fri, 3 May 2002 04:36:42 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:44979 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315603AbSECIgl>;
-	Fri, 3 May 2002 04:36:41 -0400
-Date: Fri, 3 May 2002 04:36:41 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S315603AbSECIg0>; Fri, 3 May 2002 04:36:26 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:54543 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S315601AbSECIg0>; Fri, 3 May 2002 04:36:26 -0400
+X-mailer: xrn 8.03-beta-26
+From: pmenage@ensim.com
 Subject: Re: [PATCH] missing checks in exec_permission_light()
-In-Reply-To: <20020503080356.GB232@elf.ucw.cz>
-Message-ID: <Pine.GSO.4.21.0205030432050.18432-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+X-Newsgroups: 
+In-Reply-To: <0C01A29FBAE24448A792F5C68F5EA47D27C6C7@nasdaq.ms.ensim.com>
+Message-Id: <E173YXz-0004wl-00@pmenage-dt.ensim.com>
+Date: Fri, 03 May 2002 01:36:11 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <0C01A29FBAE24448A792F5C68F5EA47D27C6C7@nasdaq.ms.ensim.com>,
+you write:
+>Hi!
+>
+>> +	if (S_ISDIR(inode->i_mode) && capable(CAP_DAC_READ_SEARCH))
+>> +		return 0;
+>
+>Is this right? This means that root can do cat /, no? That does not
+>seem like expected behaviour.
+>									Pavel
 
+exec_permission_lite() is only used for MAY_EXEC checks.
 
-On Fri, 3 May 2002, Pavel Machek wrote:
-
-> Hi!
-> 
-> > +	if (S_ISDIR(inode->i_mode) && capable(CAP_DAC_READ_SEARCH))
-> > +		return 0;
-> 
-> Is this right? This means that root can do cat /, no? That does not
-> seem like expected behaviour.
-
-1) it's permission(..., MAY_EXEC)
-2) in any case, root _can_ open "/" with O_RDONLY.  Always could.  That's
-what you do for ls /, after all - open(2) followed by getdents(2).  Now,
-read(2) will fail (check what ->read() for directories is set to), but
-that has nothing to permission checks.
-
+Paul

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318057AbSGRM6i>; Thu, 18 Jul 2002 08:58:38 -0400
+	id <S318049AbSGRNOP>; Thu, 18 Jul 2002 09:14:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318061AbSGRM6i>; Thu, 18 Jul 2002 08:58:38 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:6901 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318057AbSGRM6h>; Thu, 18 Jul 2002 08:58:37 -0400
-Subject: Re: Asus P4B533 and resource conflict on IDE
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Halliwell <spike1@cyberspace.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200207181245.IAA14216@grex.cyberspace.org>
-References: <200207181245.IAA14216@grex.cyberspace.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 18 Jul 2002 15:12:02 +0100
-Message-Id: <1027001522.8154.15.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318050AbSGRNOO>; Thu, 18 Jul 2002 09:14:14 -0400
+Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:62980 "EHLO
+	Midgard.attbi.com") by vger.kernel.org with ESMTP
+	id <S318049AbSGRNOO> convert rfc822-to-8bit; Thu, 18 Jul 2002 09:14:14 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
+Subject: Re: 2.4.18 is not SMP friendly
+Date: Thu, 18 Jul 2002 08:17:12 -0500
+User-Agent: KMail/1.4.2
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207180817.12217.kelledin+LKML@skarpsey.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-07-18 at 13:45, Andrew Halliwell wrote:
-> The P4B533 has the intel 801DB IDE controller (stated as supported in rc1)
-> but in every 2.4 kernel I've seen so far, this appears in the bootup.
-> 
-> Uniform Multi-Platform E-IDE driver Revision: 6.31
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> PCI_IDE: unknown IDE controller on PCI bus 00 device f9, VID=8086, DID=24cb
-> PCI: Device 00:1f.1 not available because of resource collisions
-> PCI_IDE: (ide_setup_pci_device:) Could not enable device
+On Thursday 18 July 2002 08:45 am, Alan Cox wrote:
+> On Thu, 2002-07-18 at 11:51, devik wrote:
+> > I someone here running 2.4.18 on PII SMP successfully ?
+>
+> PPro in my case but yes. 2.4.18 ought to be pretty solid
+> except for some annoying bugs you'll only hit if you use
+> smbfs.
 
-Blame your BIOS vendor
+I, too, am running a dual PPro box on 2.4.18.  It's been solid
+from the get-go.
 
-The -ac tree has workarounds for the BIOS forgetting to set up the chip.
-Let me know if rc1-ac7 works for you 
+By the way, what are these bugs with smbfs?  I haven't hit them
+on my dual ppro box, probably because the box never runs as a
+samba client (just a samba server).
 
+--
+Kelledin
+"If a server crashes in a server farm and no one pings it, does
+it still cost four figures to fix?"

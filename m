@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283293AbRK2QFU>; Thu, 29 Nov 2001 11:05:20 -0500
+	id <S283286AbRK2QDe>; Thu, 29 Nov 2001 11:03:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283291AbRK2QFK>; Thu, 29 Nov 2001 11:05:10 -0500
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:49320 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S283288AbRK2QFD>; Thu, 29 Nov 2001 11:05:03 -0500
-Message-ID: <3C065C0A.7050809@antefacto.com>
-Date: Thu, 29 Nov 2001 16:02:18 +0000
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S283288AbRK2QDV>; Thu, 29 Nov 2001 11:03:21 -0500
+Received: from www.soccerchix.org ([64.23.60.113]:8711 "EHLO
+	gib.soccerchix.org") by vger.kernel.org with ESMTP
+	id <S283286AbRK2QDO>; Thu, 29 Nov 2001 11:03:14 -0500
+Date: Thu, 29 Nov 2001 10:43:13 -0500 (EST)
+From: Blue Lang <blue@b-side.org>
+To: war war <war@starband.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.4.16 & Heavy I/O
+In-Reply-To: <B7F1F9B7DE30EDF47ADB4F8F44CAC84B@war.starband.net>
+Message-ID: <Pine.LNX.4.30.0111291039310.15947-100000@gib.soccerchix.org>
 MIME-Version: 1.0
-To: Wayne Scott <wscott@bitmover.com>, jmd@turbogeek.org
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Extraneous whitespace removal?
-In-Reply-To: <20011129.094040.124092017.wscott@bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wayne Scott wrote:
 
-> From: Jeremy M. Dolan <jmd@turbogeek.org>
-> 
->>Pluses:
->> - clean up messy whitespace
->> - cut precious picoseconds off compile time
->> - cut kernel tree by 200k (+/- alot)
->>
->>Minuses:
->> - adds 3.8M bzip2 or 4.7M gzip to next diff
->>
-> 
-> As someone who has spend a lot of time working on version control and
-> file merging, let be tell you the big minus you missed. 
-> 
-> After this patch go into the Linux kernel, everyone who is maintaining
-> a set of patches in parallel with the main kernel has a lot of extra
-> work resolving the conflicts caused by this change.
+Wild guesses follow..
 
+On Thu, 29 Nov 2001, war war wrote:
 
-Which is why 2.5.1 is the only time it can go in.
-It would save 140K compressed (bz2) which kernel.org
-would probably appreciate, but it's probably too late
-already so the next best is always do it for subsequent patches.
-Perhaps their should be a patch_pp script that does runs
-both Lindent and strip_ws? Actually Alan Cox mentioned to
-me that pine had a bug where it stripped whitespace at end
-of lines :-) can't depend on that though.
+> In essence, the 'tar' command is finished, however, 30-60 seconds
+> after it has finished, it is actually still decompressing the data to
+> the file on the disk.
 
-Padraig.
+It's probably writing it from RAM to disk. 60 seconds seems like a looong
+time, tho. What does iostat -x tell ya during the time when tar is
+finished and the disk is still going?
+
+> On Solaris, when I untar a file, the disk stops grinding when the tar
+> process is finished, and the system is totally usuable.
+
+You can mount your filesystem synchronously..
+
+-- 
+   Blue Lang, editor, b-side.org                     http://www.b-side.org
+   2315 McMullan Circle, Raleigh, North Carolina, 27608       919 835 1540
 

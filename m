@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288484AbSANAk6>; Sun, 13 Jan 2002 19:40:58 -0500
+	id <S288455AbSANAj6>; Sun, 13 Jan 2002 19:39:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288460AbSANAkA>; Sun, 13 Jan 2002 19:40:00 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9485 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288449AbSANAjk>; Sun, 13 Jan 2002 19:39:40 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: skraw@ithnet.com (Stephan von Krawczynski)
-Date: Mon, 14 Jan 2002 00:50:54 +0000 (GMT)
-Cc: zippel@linux-m68k.org (Roman Zippel), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        rml@tech9.net (Robert Love), ken@canit.se (Kenneth Johansson),
-        arjan@fenrus.demon.nl, landley@trommello.org (Rob Landley),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200201140033.BAA04292@webserver.ithnet.com> from "Stephan von Krawczynski" at Jan 14, 2002 01:33:02 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S288463AbSANAjk>; Sun, 13 Jan 2002 19:39:40 -0500
+Received: from cj379137-a.indpdnce1.mo.home.com ([24.179.182.153]:49156 "EHLO
+	ns.brink.cx") by vger.kernel.org with ESMTP id <S288460AbSANAja>;
+	Sun, 13 Jan 2002 19:39:30 -0500
+From: Andrew Brink <abrink@ns.brink.cx>
+Date: Sun, 13 Jan 2002 18:39:07 -0600
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Getting Out of Memory errors at random intervals.
+Message-ID: <20020114003907.GB1406@ns.brink.cx>
+In-Reply-To: <20020114003032.GA1356@ns.brink.cx> <E16PvF5-0008Vb-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16PvKx-00005L-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E16PvF5-0008Vb-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Tell me honestly that the idea behind this patch is not _crap_. You   
-> can only make this basic idea work if you patch a tremendous lot of   
-> those conditional_schedules() through the kernel. We already saw it   
-> starting off in some graphics drivers, network drivers. Why not just  
-> all of it? You will not be far away in the end from the 'round 4000 I 
-> already stated in earlier post.                                       
+On second thought, I went and reviewed some logs.
 
-There are very few places you need to touch to get a massive benefit. Most
-of the kernel already behaves extremely well.
+Happened a lot on one box around 8ish.
 
-> So I understand you agree somehow with me in the answer to "what idea 
-> is really better?"...                                                 
-
-Do you want a clean simple solution or complex elegance ? For 2.4 I definitely
-favour clean and simple. For 2.5 its an open debate
+On Mon, Jan 14, 2002 at 12:44:51AM +0000, Alan Cox wrote:
+> > *Shrug* I've done some experimenting with this, having a lab (30 people)
+> > all hit the site at the same time. Holds it fine most the time.  Usually
+> > the OOM's come during the middle of the night.
+> 
+> About 4am by any chance ?

@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272071AbTG1CEV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 22:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272404AbTG1CDK
+	id S272624AbTG1CJs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 22:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272634AbTG1CJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 22:03:10 -0400
-Received: from smtp016.mail.yahoo.com ([216.136.174.113]:33290 "HELO
-	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S272071AbTG1CCK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 22:02:10 -0400
-From: Marino Fernandez <mjferna@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Memory runs out fast with 2.6.0-test2 (and test1)
-Date: Sun, 27 Jul 2003 21:17:23 -0500
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Jul 2003 22:09:37 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:38343 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272624AbTG1CHr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 22:07:47 -0400
+Date: Sun, 27 Jul 2003 19:22:49 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Voicu Liviu <pacman@mscc.huji.ac.il>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: where are the sources :-)
+Message-ID: <20030728022249.GA19583@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Voicu Liviu <pacman@mscc.huji.ac.il>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3F240AA1.70403@mscc.huji.ac.il> <Pine.LNX.4.44.0307271026001.3400-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307272117.23398.mjferna@yahoo.com>
+In-Reply-To: <Pine.LNX.4.44.0307271026001.3400-100000@home.osdl.org>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Everything works OK in my system... my only gripe is that I run out of memory 
-quickly. I have a Fujitsu C-7651 Lifebook laptop, Pentium III, 512 Mb Ram, 
-300 Mb swap.
+On Sun, Jul 27, 2003 at 10:27:04AM -0700, Linus Torvalds wrote:
+> They are there on master.kernel.org now, but might take a while to
+> percolate out the door. The BK trees are already updated, except for
+> kernel.bkbits.net that seems to have been off the net the last 36 hours.
 
-When I start up (with KDE) I've alredy used 300 megs of ram. The if I open 
-mozilla, and view some phostos with kuickshow, thats it, I use 700 Megs of 
-physical and virtual memory...
-
-Looking at ps aux shows that 5% goes to each of the 5 mozilla processes, 3% 
-for this, 2% for that... It is all accounted for in different ways. It is 
-just that running under 2.4.21, with the same programs I very rarely use my 
-swap memory, let alone use all my physical and swap memory.
-
-PS
-I had the same issue with test1.
-
-PPS
-Could it be that I am doing something stupid when I configure the kernel... 
-This is what I have in my config file.. may be config_nohighmem?:
-
-# Processor type and features
-#
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_MICROCODE=m
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-CONFIG_NOHIGHMEM=y
-CONFIG_MATH_EMULATION=y
-CONFIG_MTRR=y
-
-
-
+It's back, it got moved to a new colo, needed more bandwidth.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262316AbSI1UFS>; Sat, 28 Sep 2002 16:05:18 -0400
+	id <S262318AbSI1UIW>; Sat, 28 Sep 2002 16:08:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262317AbSI1UFS>; Sat, 28 Sep 2002 16:05:18 -0400
-Received: from isis.cs3-inc.com ([207.224.119.73]:41974 "EHLO isis.cs3-inc.com")
-	by vger.kernel.org with ESMTP id <S262316AbSI1UFS>;
-	Sat, 28 Sep 2002 16:05:18 -0400
-Date: Sat, 28 Sep 2002 13:10:28 -0700
-Message-Id: <200209282010.g8SKASL01208@isis.cs3-inc.com>
-From: don-temp5298413@isis.cs3-inc.com (Don Cohen)
+	id <S262319AbSI1UIW>; Sat, 28 Sep 2002 16:08:22 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:54276 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S262318AbSI1UIV>; Sat, 28 Sep 2002 16:08:21 -0400
+Date: Sat, 28 Sep 2002 21:13:08 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
 To: linux-kernel@vger.kernel.org
-Subject: reading /proc files larger than one buffer
+Subject: 2.5.39 kmem_cache bug
+Message-ID: <20020928201308.GA59189@compsoc.man.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-If you follow the directions in Documentation/DocBook/procfs-guide.tmpl
-then your file read will not work correctly unless the whole file is
-read in one call.
+kmem_cache_destroy() is falsely reporting
+"kmem_cache_destroy: Can't free all objects" in 2.5.39. I have
+verified my code was freeing all allocated items correctly.
 
-After examining (and experimenting with) fs/proc/generic.c I now see
-what you have to do: in addition to writing bytes in the page
-parameter, setting eof as appropriate and returning the number of
-bytes written, you also need to do:
- *start = page;
-At minimum the documentation should be corrected.
+Reverting this chunk :
 
-Actually I think this is a bug in proc_file_read.
-The problem seems to be in this code, executed after the read function:
+-                       list_add(&slabp->list, &cachep->slabs_free);
++/*                     list_add(&slabp->list, &cachep->slabs_free);            */
++                       if (unlikely(list_empty(&cachep->slabs_partial)))
++                               list_add(&slabp->list, &cachep->slabs_partial);
++                       else
++                               kmem_slab_destroy(cachep, slabp);
 
-               if (!start) {
-                        /*
-                         * For proc files that are less than 4k
-                         */
-                        start = page + *ppos;
-                        n -= *ppos;
-                        if (n <= 0)
-                                break;
-                        if (n > count)
-                                n = count;
-                }
- 
-Can anyone explain what it's supposed to do?
-What does it have to do with files < 4k ?
+and the problem goes away. I haven't investigated why.
 
-The addition of "*start = page;" both sets start to the correct value
-and avoids executing the problematic code above.
-[Note: The "start" in your read function is actually the address of
-the "start" in proc_file_read.]
+This is with CONFIG_SMP, !CONFIG_PREEMPT
 
-Therefore I think that code should be
+regards
+john
 
-               if (!start) start=page;
-
-The current code normally works for the first read because *ppos is 0.
-Otherwise:
-- start is given the wrong value (should be page)
-- n is the number of bytes read, and it makes no sense to reduce that
- by ppos, which is the file position at which you were supposed to
- start reading.  
-
-The behavior I saw was that on the second buffer count and ppos were 
-both 512 (asked to read bytes 512-1023).  My function returned 512,
-so n was set to 0, which was then interpreted as eof.
-
-Please cc me on replies.
+-- 
+"When your name is Winner, that's it. You don't need a nickname."
+	- Loser Lane

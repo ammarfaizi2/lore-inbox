@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbQLBD4b>; Fri, 1 Dec 2000 22:56:31 -0500
+	id <S129379AbQLBEUz>; Fri, 1 Dec 2000 23:20:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129379AbQLBD4V>; Fri, 1 Dec 2000 22:56:21 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:7685 "EHLO
+	id <S129408AbQLBEUp>; Fri, 1 Dec 2000 23:20:45 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:9221 "EHLO
 	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129370AbQLBD4O>; Fri, 1 Dec 2000 22:56:14 -0500
-Date: Fri, 1 Dec 2000 21:22:22 -0600
-To: Jamie Manley <jamie@homebrewcomputing.com>
-Cc: John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre24 and drm/agpgart static?
-Message-ID: <20001201212222.D25464@wire.cadcamlab.org>
-In-Reply-To: <20001129203752.A15218@homebrewcomputing.com> <Pine.LNX.4.21.0012011450270.1317-100000@mrworry.compsoc.man.ac.uk> <20001201175153.B11780@homebrewcomputing.com>
+	id <S129379AbQLBEUf>; Fri, 1 Dec 2000 23:20:35 -0500
+Date: Fri, 1 Dec 2000 21:44:15 -0600
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
+Cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Fasttrak100 questions...
+Message-ID: <20001201214415.E25464@wire.cadcamlab.org>
+In-Reply-To: <8voa7g$d1r$1@forge.tanstaafl.de> <Pine.LNX.4.21.0011291152500.5109-100000@sol.compendium-tech.com> <20001129210830.J17523@forge.tanstaafl.de> <20001129165236.A9536@vger.timpanogas.org> <3A266EE7.4C734350@nortelnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001201175153.B11780@homebrewcomputing.com>; from jamie@homebrewcomputing.com on Fri, Dec 01, 2000 at 05:51:53PM -0800
+In-Reply-To: <3A266EE7.4C734350@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Thu, Nov 30, 2000 at 10:14:47AM -0500
 From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Jamie Manley]
-> Yes, modversions was enabled.  Should that be affecting the build of
-> the kernel proper?
+[Christopher Friesen]
+> I think you should re-read the GPL.  You only have to provide source
+> to people to whome you have distributed your new binaries, and you
+> only have to provide that source if you are asked for it.
 
-The bug you ran into is that MODVERSIONS messes up the
-'get_module_symbol' function, which is a sort of "optional dependency"
-mechanism used by a few modules such as DRI (in this case: DRI needs to
-be able to use the facilities of agpgart, but should also work
-*without* agpgart present, since many systems have PCI video cards).
+Oh, and you have to provide the complete text of the GPL as well, and
+for that you do *not* have a "only if they ask for it" clause.
 
-MODVERSIONS is ugly and gross for any number of reasons, but the
-get_module_symbol problem is quite localized -- AGP/DRI, MTD and maybe
-one or two other subsystems.  In any case it has been replaced by a
-much better inter-module registration system in 2.4.
+Or so it seems to some people, like RMS.  See this week's DWN: there is
+a nice long discussion in debian-devel about this.  Apparently RMS
+demands that all GPL'd Debian binary packages include a copy -- it is
+not enough that the Debian base system already has a copy and that all
+GPL'd source tarballs include a copy.
+
+I do not agree with this interpretation, because it would mean that any
+GPL'd file that can possibly be independently downloaded (such as a .c
+file from a CVS server) must include that same 17k document.
+
+...But just so everyone knows: according to RMS, every file on your FTP
+server that you provide under the GPL v2 must include a copy of the
+GPL.  (Easy enough to do with tar files, harder for other formats, and
+never mind the wasted bandwidth.)  Having the GPL in a separate file on
+your site does not count, apparently.
 
 Peter
 -

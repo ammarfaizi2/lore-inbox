@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbRAKWXN>; Thu, 11 Jan 2001 17:23:13 -0500
+	id <S129965AbRAKWXb>; Thu, 11 Jan 2001 17:23:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130011AbRAKWXD>; Thu, 11 Jan 2001 17:23:03 -0500
-Received: from mail.enternet.hu ([62.112.192.6]:5638 "EHLO mail.enternet.hu")
-	by vger.kernel.org with ESMTP id <S129631AbRAKWWs>;
-	Thu, 11 Jan 2001 17:22:48 -0500
-Date: Thu, 11 Jan 2001 23:22:35 +0100 (CET)
-From: Takacs Sandor <taki@enternet.hu>
-To: Jens Petersohn <jkp@mccoy.penguinpowered.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Ingo's RAID patch for 2.2.18 final?
-In-Reply-To: <200101112136.PAA07626@mccoy.penguinpowered.com>
-Message-ID: <Pine.LNX.4.21.0101112321400.10955-100000@mail.enternet.hu>
+	id <S131070AbRAKWXN>; Thu, 11 Jan 2001 17:23:13 -0500
+Received: from mail.rd.ilan.net ([216.27.80.130]:30478 "EHLO mail.rd.ilan.net")
+	by vger.kernel.org with ESMTP id <S129896AbRAKWW6>;
+	Thu, 11 Jan 2001 17:22:58 -0500
+Message-ID: <3A5E323C.D7C08C0A@holly-springs.nc.us>
+Date: Thu, 11 Jan 2001 17:22:52 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: named streams, extended attributes, and posix
+In-Reply-To: <3A5E10F5.716F83B7@holly-springs.nc.us>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jan 2001, Jens Petersohn wrote:
+CORRECTION:
 
-> My appologies if this has been asked before. I'm looking for
-> Ingo Molnar's RAID patch for 2.2.18-final. I tried applying A2, but
-> it has a number of conflicts in raid1.c which I cannot resolve in
-> my meager spare time.
-
-I tried to apply it. If I finish it I will send the patch to mingo :)
-
--- 
-Takika
-
+> existing, widely-deployed filesystems (e.g., NFS, XFS, BeFS, HFS, etc.),
+NTFS-------------------------------------------^
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

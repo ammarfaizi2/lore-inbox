@@ -1,84 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262895AbTCUDUv>; Thu, 20 Mar 2003 22:20:51 -0500
+	id <S262969AbTCUEAq>; Thu, 20 Mar 2003 23:00:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262969AbTCUDUv>; Thu, 20 Mar 2003 22:20:51 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:44162 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262895AbTCUDUu>; Thu, 20 Mar 2003 22:20:50 -0500
-Date: Thu, 20 Mar 2003 19:31:45 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 478] New: reiserfs panics overnight during running cron jobs due to slab corruption.
-Message-ID: <15330000.1048217505@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S263085AbTCUEAq>; Thu, 20 Mar 2003 23:00:46 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64408 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262969AbTCUEAq>;
+	Thu, 20 Mar 2003 23:00:46 -0500
+Message-ID: <3E7A910B.7070806@pobox.com>
+Date: Thu, 20 Mar 2003 23:11:55 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Osamu Tomita <tomita@cinet.co.jp>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2.5.65-ac1] Support PC-9800 subarchitecture (9/14) NIC
+References: <20030321022850.GA1767@yuzuki.cinet.co.jp> <20030321025132.GI1847@yuzuki.cinet.co.jp>
+In-Reply-To: <20030321025132.GI1847@yuzuki.cinet.co.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you for your patience and tenacity, and for listening to comments 
+from Linux kernel developers.
 
-http://bugme.osdl.org/show_bug.cgi?id=478
-
-           Summary: reiserfs panics overnight during running cron jobs due
-                    to slab corruption.
-    Kernel Version: 2.5.65
-            Status: NEW
-          Severity: blocking
-             Owner: reiserfs-dev@namesys.com
-         Submitter: davej@codemonkey.org.uk
-
-
-Box panics overnight during running cron jobs due to slab corruption.
-
-Mar 20 06:41:07 mesh kernel: Unable to handle kernel paging request at virtual
-address 20b8c080
-Mar 20 06:41:07 mesh kernel:  printing eip:
-Mar 20 06:41:07 mesh kernel: c01538b4
-Mar 20 06:41:07 mesh kernel: *pde = 00000000
-Mar 20 06:41:07 mesh kernel: Oops: 0002
-Mar 20 06:41:07 mesh kernel: CPU:    0
-Mar 20 06:41:07 mesh kernel: EIP:    0060:[<c01538b4>]    Not tainted
-Mar 20 06:41:07 mesh kernel: EFLAGS: 00010012
-Mar 20 06:41:07 mesh kernel: EIP is at cache_flusharray+0x104/0x450
-Mar 20 06:41:07 mesh kernel: eax: c1eea020   ebx: 00000006   ecx: c49e621c  
-edx: 20b8c080
-Mar 20 06:41:07 mesh kernel: esi: c49e6000   edi: c11bd788   ebp: c11c3dc0  
-esp: c11c3d88
-Mar 20 06:41:07 mesh kernel: ds: 007b   es: 007b   ss: 0068
-Mar 20 06:41:07 mesh kernel: Process kswapd0 (pid: 6, threadinfo=c11c2000
-task=c11c1980)
-Mar 20 06:41:07 mesh kernel: Stack: c11d656c c6bb2000 c11c3e18 c11c2000 c05ac7c0
-00000800 c6129040 c11bd7a4
-Mar 20 06:41:07 mesh kernel:        c11bd794 c11d32f8 00000010 00000800 c1792040
-c179221c c11c3df0 c0154121
-Mar 20 06:41:07 mesh kernel:        c11bd788 c11d32e8 0000006b c1792000 c0280dfd
-c11d32e8 00000292 c1792254
-Mar 20 06:41:07 mesh kernel: Call Trace:
-Mar 20 06:41:07 mesh kernel:  [<c0154121>] kmem_cache_free+0x1f1/0x2c0
-Mar 20 06:41:07 mesh kernel:  [<c0280dfd>] reiserfs_destroy_inode+0x1d/0x30
-Mar 20 06:41:07 mesh kernel:  [<c0280dfd>] reiserfs_destroy_inode+0x1d/0x30
-Mar 20 06:41:07 mesh kernel:  [<c0194846>] destroy_inode+0x36/0x60
-Mar 20 06:41:07 mesh kernel:  [<c0194bfc>] dispose_list+0x4c/0x1f0
-Mar 20 06:41:07 mesh kernel:  [<c01952e0>] prune_icache+0x190/0x480
-Mar 20 06:41:07 mesh kernel:  [<c01955f8>] shrink_icache_memory+0x28/0x30
-Mar 20 06:41:07 mesh kernel:  [<c015724f>] shrink_slab+0x11f/0x170
-Mar 20 06:41:07 mesh kernel:  [<c0158d1e>] balance_pgdat+0x12e/0x180
-Mar 20 06:41:07 mesh kernel:  [<c0158e5d>] kswapd+0xed/0xf0
-Mar 20 06:41:07 mesh kernel:  [<c0124ad0>] autoremove_wake_function+0x0/0x50
-Mar 20 06:41:07 mesh kernel:  [<c010a2e6>] ret_from_fork+0x6/0x20
-Mar 20 06:41:07 mesh kernel:  [<c0124ad0>] autoremove_wake_function+0x0/0x50
-Mar 20 06:41:07 mesh kernel:  [<c0158d70>] kswapd+0x0/0xf0
-Mar 20 06:41:07 mesh kernel:  [<c01075fd>] kernel_thread_helper+0x5/0x18
-Mar 20 06:41:07 mesh kernel:
-Mar 20 06:41:07 mesh kernel: Code: 89 02 31 d2 8b 46 0c 29 c1 89 c8 f7 77 30 89
-c1 8b 46 14 89
-Mar 20 06:41:07 mesh kernel:  <6>note: kswapd0[6] exited with preempt_count 1
-Mar 20 06:41:07 mesh kernel: mm/slab.c:1647: spin_lock(mm/slab.c:c11bd7c8)
-already locked by mm/slab.c/1775
-
-http://www.codemonkey.org.uk/cruft/oops.txt has the full log.
+Looks good, patch applied.
 

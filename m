@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316542AbSFDIZC>; Tue, 4 Jun 2002 04:25:02 -0400
+	id <S316567AbSFDIfs>; Tue, 4 Jun 2002 04:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316545AbSFDIZB>; Tue, 4 Jun 2002 04:25:01 -0400
-Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:4561 "EHLO
-	ntserver2.geodepth.com") by vger.kernel.org with ESMTP
-	id <S316542AbSFDIZB>; Tue, 4 Jun 2002 04:25:01 -0400
-Message-ID: <EE83E551E08D1D43AD52D50B9F5110927E7A1B@ntserver2>
-From: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
-To: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: Atomic operations
-Date: Tue, 4 Jun 2002 11:23:28 +0200 
+	id <S316568AbSFDIfr>; Tue, 4 Jun 2002 04:35:47 -0400
+Received: from mail.medav.de ([213.95.12.190]:9491 "HELO mail.medav.de")
+	by vger.kernel.org with SMTP id <S316567AbSFDIfq> convert rfc822-to-8bit;
+	Tue, 4 Jun 2002 04:35:46 -0400
+From: "Daniela Engert" <dani@ngrt.de>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+        "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: "Andre Hedrick" <andre@serialata.org>,
+        "lkml" <linux-kernel@vger.kernel.org>, "Pawel Kot" <pkot@linuxnews.pl>
+Date: Tue, 04 Jun 2002 10:35:49 +0200 (CDT)
+Reply-To: "Daniela Engert" <dani@ngrt.de>
+X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.05
+In-Reply-To: <1023149710.6773.82.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: Another -pre
+Message-Id: <20020604073255.E96B8C7A@mail.medav.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 04 Jun 2002 01:15:10 +0100, Alan Cox wrote:
 
-Thanks a lot for your help to all of you...
+>On Mon, 2002-06-03 at 15:55, Marcelo Tosatti wrote:
+>> On Mon, 3 Jun 2002, Pawel Kot wrote:
+>> 
+>> > On Mon, 3 Jun 2002, Marcelo Tosatti wrote:
+>> >
+>> > > Due to some missing network fixes and -ac merge, I'll release another -pre
+>> > > later today.
+>> > >
+>> > > -rc should be out by the end of the week.
+>> >
+>> > Would you please consider merging some IDE updates before releasing
+>> > 2.4.19? Current version remains unusable for me.
+>> > See http://marc.theaimsgroup.com/?l=linux-kernel&m=102277249800423&w=2
+>> > and followers for more detailes.
+>> 
 
-The last thing, I want to make sure of, is that the following type of code:
+>With the current code I've got these items on my list I class as
+>problematic.
 
-int atomic_xadd(int i, atomic_t *v)
-{
-	int ret;
-	__asm__(LOCK "xaddl %1,%0"
-		: "=m" (v->counter), "=r" (ret)
-		: "0" (v->counter), "1" (i));
-	return ret;
-}
+>1 Weird corruption report with AMD chipset in PIO mode
+>1 NULL pointer crash report on SiS chipset
+>2 Intel 845G issues (PIO only, incorrect BIOS setup)
+>1 set of requested Promise changes 
 
-is less efficient than this one:
+>The 845G and Promise ones are present in both. The AMD one is utterly
+>weird and I'm still looking at the SiS one.
 
-int atomic_xadd(int i, atomic_t *v)
-{
-	asm volatile(LOCK "xaddl %1,%0"
-		: "+m" (v->counter), "+r" (i));
-	return i;
-}
+Just for reference: my machine at home has a SiS645DX (ATA/133) plus a
+Promise PDC20268 (ATA/100). The latest SUSE distribution (2.4.18 based)
+falls flat on its face, the IDE drivers fail to handle both IDE
+controllers.
 
-The reason for it is that the first one is more easy to read (at least for
-me as a beginner). 
+Andre's patches supposedly fix the Promise issue, but the SiS problem
+is still unresolved in Linux.
 
-Thanks again for your precious comments.
-Best,
-Giga
+Ciao,
+  Dani
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Daniela Engert, systems engineer at MEDAV GmbH
+Gräfenberger Str. 34, 91080 Uttenreuth, Germany
+Phone ++49-9131-583-348, Fax ++49-9131-583-11
+
+

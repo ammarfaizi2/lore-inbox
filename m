@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267449AbTBXS3N>; Mon, 24 Feb 2003 13:29:13 -0500
+	id <S267310AbTBXSXa>; Mon, 24 Feb 2003 13:23:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267289AbTBXS1u>; Mon, 24 Feb 2003 13:27:50 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:65157 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S267315AbTBXS1k>; Mon, 24 Feb 2003 13:27:40 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 24 Feb 2003 10:44:52 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Larry McVoy <lm@bitmover.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-In-Reply-To: <20030224065826.GA5665@work.bitmover.com>
-Message-ID: <Pine.LNX.4.50.0302241034100.1900-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.44.0302221417120.2686-100000@coffee.psychology.mcmaster.ca>
- <1510000.1045942974@[10.10.2.4]> <20030222195642.GI1407@work.bitmover.com>
- <2080000.1045947731@[10.10.2.4]> <20030222231552.GA31268@work.bitmover.com>
- <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com>
- <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com>
+	id <S267443AbTBXSWM>; Mon, 24 Feb 2003 13:22:12 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:16799 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267310AbTBXSUI>; Mon, 24 Feb 2003 13:20:08 -0500
+Date: Mon, 24 Feb 2003 10:30:17 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 400] New: Highpoint 370 triggers sleeping from illegal context
+ debug code.
+Message-ID: <18160000.1046111417@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Feb 2003, Larry McVoy wrote:
+http://bugme.osdl.org/show_bug.cgi?id=400
 
-> > Because I don't see why I should waste my time running benchmarks just to
-> > prove you wrong. I don't respect you that much, and it seems the
-> > maintainers don't either. When you become somebody with the stature in the
-> > Linux community of, say, Linus or Andrew I'd be prepared to spend a lot
-> > more time running benchmarks on any concerns you might have.
->
-> Who cares if you respect me, what does that have to do with proper
-> engineering?   Do you think that I'm the only person who wants to see
-> numbers?  You think Linus doesn't care about this?  Maybe you missed
-> the whole IA32 vs IA64 instruction cache thread.  It sure sounded like
-> he cares.  How about Alan?  He stepped up and pointed out that less
-> is more.  How about Mark?  He knows a thing or two about the topic?
-> In fact, I think you'd be hard pressed to find anyone who wouldn't be
-> interested in seeing the cache effects of a patch.
->
-> People care about performance, both scaling up and scaling down.  A lot of
-> performance changes are measured poorly, in a way that makes the changes
-> look good but doesn't expose the hidden costs of the change.  What I'm
-> saying is that those sorts of measurements screwed over performance in
-> the past, why are you trying to repeat old mistakes?
-
-Larry, how many times this kind of discussions went on during the last
-years ? I think you should remember pretty well because it was always you
-on that side of the river pushing back "Barbarians" with your UP sword.
-The point is that people ( expecially young ) like to dig where other
-failed, it's normal. It's attractive like honey for bears. Let them try,
-many they will fail, but chances are that someone will succeed making it
-worth the try. And trust Linus, that is more on your wavelength than on
-the huge scalabity one.
+           Summary: Highpoint 370 triggers sleeping from illegal context
+                    debug code.
+    Kernel Version: 2.5.62
+            Status: NEW
+          Severity: normal
+             Owner: alan@lxorguk.ukuu.org.uk
+         Submitter: davej@codemonkey.org.uk
 
 
-
-- Davide
+Debug: sleeping function called from illegal context at mm/slab.c:1617
+Call Trace:
+ [<c0145512>] kmalloc+0xd4/0xe3
+ [<c018fa23>] proc_create+0x87/0xec
+ [<c018fbba>] proc_mkdir+0x2b/0x67
+ [<c010c66f>] register_irq_proc+0x7e/0xc4
+ [<c010c413>] setup_irq+0x132/0x165
+ [<c03149b8>] ide_intr+0x0/0x2e1
+ [<c010bc25>] request_irq+0x9b/0xce
+ [<c0316075>] init_irq+0x188/0x526
+ [<c03149b8>] ide_intr+0x0/0x2e1
+ [<c031659f>] alloc_disks+0x9c/0x119
+ [<c031686f>] hwif_init+0xe3/0x27b
+ [<c0315d8f>] probe_hwif_init+0x2c/0x78
+ [<c0328c1c>] ide_setup_pci_device+0x4e/0x74
+ [<c0312108>] hpt366_init_one+0x32/0x38
+ [<c01050a1>] init+0x64/0x192
+ [<c010503d>] init+0x0/0x192
+ [<c010737d>] kernel_thread_helper+0x5/0xb
 

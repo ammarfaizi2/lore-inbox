@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265426AbTFWWQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 18:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265420AbTFWWQP
+	id S265374AbTFWWMF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 18:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbTFWWME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 18:16:15 -0400
-Received: from cmsrelay02.mx.net ([165.212.11.111]:32996 "HELO
-	cmsrelay02.mx.net") by vger.kernel.org with SMTP id S265394AbTFWWPJ convert rfc822-to-8bit
+	Mon, 23 Jun 2003 18:12:04 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60902 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265420AbTFWWJG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 18:15:09 -0400
-X-USANET-Auth: 165.212.8.11    AUTO bradtilley@usa.net uwdvg001.cms.usa.net
-Date: Mon, 23 Jun 2003 18:29:13 -0400
-From: Brad Tilley <bradtilley@usa.net>
-To: <root@mauve.demon.co.uk>, "Brad Tilley" <bradtilley@usa.net>
-Subject: Re: [Re: OS Fails to Load]
-CC: <linux-kernel@vger.kernel.org>
-X-Mailer: USANET web-mailer (CM.0402.5.6)
+	Mon, 23 Jun 2003 18:09:06 -0400
+Date: Mon, 23 Jun 2003 23:23:11 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Marek Michalkiewicz <marekm@amelek.gda.pl>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] MS-6368L ACPI IRQ problem still in 2.4.21
+Message-ID: <20030623222311.GD25982@parcelfarce.linux.theplanet.co.uk>
+References: <20030623221541.GA8096@alf.amelek.gda.pl>
 Mime-Version: 1.0
-Message-ID: <098HFwwdN8704S01.1056407353@uwdvg001.cms.usa.net>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030623221541.GA8096@alf.amelek.gda.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, it's the monkeys crawling out of the drives ;)... I mean that it hangs at
-that point in the loading process and does not go any further. For example,
-once the machine arrives at 'Mounting Local Filesystems' it hangs (proceeds no
-further) and requires a power cycle. Is that clear enough?
+On Tue, Jun 24, 2003 at 12:15:41AM +0200, Marek Michalkiewicz wrote:
+> long time ago I noticed a problem with the ACPI IRQ not working
+> if it is _not_ shared with some other PCI IRQ.  The problem still
+> exists in the 2.4.21 kernel, confirmed on two machines with the
+> MSI MS-6368L motherboard (VIA PLE133 chipset).
 
-root@mauve.demon.co.uk wrote:
-> > 
-> > Hello,
-> > 
-> > 50% of the time when I boot RH Linux 9 (2.4.20-18.9) the OS fails to load.
-The
-> > failure usually occurs during a period of intense disk activity such as
-> > 'finding module dependencies' or 'mounting local filesystems'. I can
-reproduce
-> > this error with the most recent RH kernel and the kernel that the distro
-> > originally shipped with and 2.4.21 from Kernel.org built using RH's
-config
-> > files. Usually after 4-5 power cycles, the OS loads OK and the machine
-runs
-> > fine once it gets going.
-> 
-> Fails? 
-> Monkeys flying out of the disk drive, an oops, ...?
-> 
-> 
+Have you patched 2.4.21 with the latest ACPI patch, or is this vanilla
+2.4.21?
 
-
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

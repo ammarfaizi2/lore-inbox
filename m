@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUHDIRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUHDIcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUHDIRa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 04:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUHDIRa
+	id S261682AbUHDIcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 04:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUHDIcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 04:17:30 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:38326 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261232AbUHDIR3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 04:17:29 -0400
-Message-ID: <41109B96.4040400@free.fr>
-Date: Wed, 04 Aug 2004 10:17:26 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040618
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Li, Shaohua" <shaohua.li@intel.com>
-Cc: Greg KH <greg@kroah.com>, phil@netroedge.com,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Small fix to make i2c-viapro.c work on ASUS A7V with ACPI enabled
-References: <B44D37711ED29844BEA67908EAF36F037BB96A@pdsmsx401.ccr.corp.intel.com>
-In-Reply-To: <B44D37711ED29844BEA67908EAF36F037BB96A@pdsmsx401.ccr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Aug 2004 04:32:15 -0400
+Received: from adsl-233-225.38-151.net24.it ([151.38.225.233]:11783 "EHLO
+	gateway.milesteg.arr") by vger.kernel.org with ESMTP
+	id S261300AbUHDIcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 04:32:10 -0400
+Date: Wed, 4 Aug 2004 10:32:08 +0200
+From: Daniele Venzano <webvenza@libero.it>
+To: Jean Francois Martinez <jfm512@free.fr>
+Cc: Daniele Venzano <webvenza@libero.it>, linux-kernel@vger.kernel.org
+Subject: Re: Integrated ethernet on SiS chipset doesn't work
+Message-ID: <20040804083208.GE18272@gateway.milesteg.arr>
+Mail-Followup-To: Jean Francois Martinez <jfm512@free.fr>,
+	Daniele Venzano <webvenza@libero.it>, linux-kernel@vger.kernel.org
+References: <1089480939.2779.22.camel@agnes> <Pine.LNX.4.53.0407102141560.5590@chaos> <1089538014.4690.32.camel@agnes> <20040711101608.GB10738@picchio.gall.it> <1091130156.2912.17.camel@agnes>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091130156.2912.17.camel@agnes>
+X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.26-grsec
+X-Copyright: Forwarding or publishing without permission is prohibited.
+X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
+X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Li, Shaohua wrote:
-> Hi,
-> I have made a patch for this issue. It's at http://bugme.osdl.org/show_bug.cgi?id=3049
+On Thu, Jul 29, 2004 at 09:42:36PM +0200, Jean Francois Martinez wrote:
+> Here is the interesting part of his dmesg, after reloading the
+> sis900 driver.  We can see that the card
+> indentifies a VIA transceiver at address 1 but instead uses the 
+> (inexistent) one at address 31.
 
-Nice to know a working patch has been proposed already (alltough not yet 
-included in 2.6.8-rc2-mm2 and thus not _really_ fixed). I tested the 
-(bugme.osdl.org) proposed patch  and I confirm it works well also on my 
-similar but not identical motherboard.
+> eth0: VIA 6103 PHY transceiver found at address 1.
+...
+> eth0: Unknown PHY transceiver found at address 31.
+> eth0: Using transceiver found at address 31 as default
+> eth0: SiS 900 PCI Fast Ethernet at 0xe800, IRQ 11, 00:0c:76:68:a9:89.
 
-When I see the amount of diverses/stupids anwers I've seen on the 
-lm-sensors support page for this same problem on many ASUS A7XXX 
-motherboard (http://www2.lm-sensors.nu/~lm78/support.html), I'm glad I 
-posted on LKML even with a wrong/hacked fix to get the good one.
+This behaviuor should be corrected in tha latest kernels (mm or bk) by
+the patches available here:
+http://teg.homeunix.org/sis900.html
 
-Thanks Shaohua,
+If all fails this patch should work just fine:
+http://teg.homeunix.org/download/kpatches/sis900-list-phy-ids.diff
+But is just for that particular case.
 
---eric
+
+-- 
+-----------------------------
+Daniele Venzano
+Web: http://teg.homeunix.org
+

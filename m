@@ -1,42 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266795AbTBGWgF>; Fri, 7 Feb 2003 17:36:05 -0500
+	id <S266765AbTBGWeT>; Fri, 7 Feb 2003 17:34:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266796AbTBGWgF>; Fri, 7 Feb 2003 17:36:05 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:4312 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S266795AbTBGWgE>;
-	Fri, 7 Feb 2003 17:36:04 -0500
-Subject: [PATCH][Trvial 2.5.59] rtc.c is requesting more ioports then it
-	really uses
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: p_gortmaker@yahoo.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Feb 2003 14:40:55 -0800
-Message-Id: <1044657656.1132.19.camel@vmhack>
+	id <S266772AbTBGWeT>; Fri, 7 Feb 2003 17:34:19 -0500
+Received: from th24.opsion.fr ([62.39.122.34]:45062 "HELO th24.opsion.fr")
+	by vger.kernel.org with SMTP id <S266765AbTBGWeR>;
+	Fri, 7 Feb 2003 17:34:17 -0500
+Message-Id: <5.2.0.9.2.20030207233027.00c438e8@pop3.ibelgique.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 07 Feb 2003 23:44:57 +0100
+To: linux-kernel@vger.kernel.org
+From: Laurent Grawet <laurent.grawet@ibelgique.com>
+Subject: Re: kernel 2.4.x + via-based kt266 mobo = IDE cdr ...
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I need to enable a device that talks to port 0x79h, but for some
-reason the rtc is requesting move bytes then it really uses.  Here
-is a patch that makes the rtc only request what it uses.
+Hi Andre,
 
-    --rustyl
+I have exactly the same problem/symptoms like several other users !
+Here is a interesting report that has been made on Viaarena Linux forum by 
+Dam. This bring us useful information and better understanding of the 
+situation :
 
---- drivers/char/rtc.c.orig	2003-02-07 14:35:31.000000000 -0800
-+++ drivers/char/rtc.c	2003-02-07 13:25:45.000000000 -0800
-@@ -47,7 +47,7 @@
- 
- #define RTC_VERSION		"1.11"
- 
--#define RTC_IO_EXTENT	0x10	/* Only really two ports, but...	*/
-+#define RTC_IO_EXTENT	0x2
- 
- /*
-  *	Note that *all* calls to CMOS_READ and CMOS_WRITE are done with
+http://forums.viaarena.com/messageview.cfm?catid=28&threadid=28308&STARTPAGE=1
+
+--------- SNIP
+
+  Thursday, February 06, 2003 9:56 PM
 
 
+Hi there.
+
+One more guy with the same problem. But I've got a kind of solution, but it 
+is not a good one.
+
+Using cdda2wav, you can use the -n option to tell cdda2wav the number of 
+sector to read at a time.
+I'm able to rip a cd using -n 1 . I can go up to -n 15 then it start hdc: 
+lost interrupt ... Problem is that
+performance is not great at -n 1.
+
+I once contacted the cdrdao author, Andreas, and talk with him about this 
+prog. I ended editing cdrdao sources
+to try to reduce the number of sector read at a time to 1 (same as for 
+cdda2wav). Problem disappeared but
+performance were unacceptable.
+
+Also there is the option to not write the rip to a file (for debugging 
+purpose), using -N. Using that
+option, I no more experience problem, but of course, I don't rip anything.
+
+So it seemed to me that the problem is related to writing to a disk while 
+ripping. So I tried cdda2wav with -N and
+at the same time launched a cp -R /usr/src/linux /tmp. Everything happened 
+correctly, slowly but without lost interrupts.
+
+I think this is more of a kernel bug then a bios bug (why would it work 
+under windows ?). Searching lkml gives many
+results with people with this problem, but no solutions.
+
+I think we should start bother people on the lkml.
+
+---------- SNIP
+
+ > I think we should start bother people on the lkml.
+Well, this has just been done Dam   :-)
+
+Exactly the same behaviour here...
+
+Could Linux Guru's help us ?
+We have this problem for too long time...
+
+Thanks,
+
+Laurent
+
+** Please, CC me your answer to LKML **
+
+
+-- 
+| Laurent Grawet
+| ON1MGL
+|
+| [e-mail]
+|    Home...... mailto:laurent.grawet@ibelgique.com
+|               mailto:on1mgl@ibelgique.com
+|    Office.... mailto:laurent.grawet@fundp.ac.be
+|
+| [ax25]
+|               on1mgl@on0cha.#clr.ht.bel.eu
+
+_____________________________________________________________________
+Envie de discuter en "live" avec vos amis ? Télécharger MSN Messenger
+http://www.ifrance.com/_reloc/m la 1ère messagerie instantanée de France
 

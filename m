@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283860AbRLRE2b>; Mon, 17 Dec 2001 23:28:31 -0500
+	id <S284017AbRLRE3W>; Mon, 17 Dec 2001 23:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284038AbRLRE2W>; Mon, 17 Dec 2001 23:28:22 -0500
-Received: from mx2.port.ru ([194.67.57.12]:38151 "EHLO smtp2.port.ru")
-	by vger.kernel.org with ESMTP id <S284017AbRLRE2Q>;
-	Mon, 17 Dec 2001 23:28:16 -0500
-Date: Tue, 18 Dec 2001 07:26:56 +0300
-From: Dmitry Volkoff <vdb@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unfreeable buffer/cache problem in 2.4.17-rc1 still there
-Message-ID: <20011218072656.D1841@localhost>
-In-Reply-To: <20011216223909.A230@localhost> <01121715011208.02146@manta>
-Mime-Version: 1.0
+	id <S285130AbRLRE3M>; Mon, 17 Dec 2001 23:29:12 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:1950 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S284017AbRLRE26>; Mon, 17 Dec 2001 23:28:58 -0500
+To: Zameer.Ahmed@gs.com ("Ahmed, Zameer")
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Turning off nagle algorithm in 2.2.x and 2.4.x kernels?
+In-Reply-To: <FBC7494738B7D411BD7F00902798761908BFF190@gsny49e.ny.fw.gs.com>
+From: Andi Kleen <ak@muc.de>
+Date: 18 Dec 2001 05:27:49 +0100
+In-Reply-To: Zameer.Ahmed@gs.com's message of "Mon, 17 Dec 2001 21:06:14 +0000 (UTC)"
+Message-ID: <m3bsgxup8a.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01121715011208.02146@manta>; from vda@port.imtp.ilyichevsk.odessa.ua on Mon, Dec 17, 2001 at 03:01:12PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 03:01:12PM -0200, vda wrote:
-> >     if (r == -1) {
-> >       printf("unable to write\n");
-> >       close(fd);
-> >       return;
-> >     }
-> >     close(fd);
-> >     sleep(1);
-> >   }
-> > }
-> > // end test.c
+Zameer.Ahmed@gs.com ("Ahmed, Zameer") writes:
+
+> Hi,
+> 	Is there a way to turn off nagle compression in the kernel for 2.2.x
+> and 2.4.x kernels? For the same custom app used under Solaris and Linux.
+> Turning off nagle algorithm boosted perf on Solaris, I tried commenting out
 > 
-> I removed sleep(1). Is it needed?
->
-
-Yes, you need it in order to see the memory leakage.
- 
-> After 10000+ runs of this proggy swap usage isn't changed on 2.4.17-pre7.
-> top reports constant 2304K of swap usage.
-
-I know. You'll notice this effect only after 1000000+ runs.
-Try it again with sleep(1).
-
-> --
-> vda
+> #bool 'IP: Disable NAGLE algorithm (normally enabled)' CONFIG_TCP_NAGLE_OF
 > 
+> from the net/ipv4/Config.in 2.2.19 kernel and still the degradation in
+> network performance for packts in midsize persists
+> I tried the 2.4.16 kernel. This gave me very slight improvement, but not
+> quite what is expected.
 
--- 
+Read the tcp(7) manpage.  Enabling the TCP_NODELAY socket option disables
+nagle per socket. The Config option is a noop and hasn't done anything for
+a long time.
 
-    DV
+-Andi
+

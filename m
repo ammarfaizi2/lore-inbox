@@ -1,64 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbTLIVsg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 16:48:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTLIVsg
+	id S262251AbTLIV6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 16:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTLIV6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 16:48:36 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:62876 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261733AbTLIVsc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 16:48:32 -0500
-Date: Tue, 9 Dec 2003 13:48:15 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Larry McVoy <lm@bitmover.com>, cliff white <cliffw@osdl.org>,
-       hannal@us.ibm.com, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Amy Graf <amy@work.bitmover.com>
-Subject: Re: [Lse-tech] Re: Minutes from OSDL talk at LSE call today
-Message-ID: <20031209214815.GA32633@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Larry McVoy <lm@bitmover.com>, cliff white <cliffw@osdl.org>,
-	hannal@us.ibm.com, lse-tech@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org, Amy Graf <amy@work.bitmover.com>
-References: <189470000.1070500829@w-hlinder> <20031204033535.GA2370@work.bitmover.com> <20031204134517.0c7a4ec4.cliffw@osdl.org> <20031204234454.GA15799@work.bitmover.com> <Pine.LNX.4.58.0312091625560.2313@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312091625560.2313@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4i
+	Tue, 9 Dec 2003 16:58:24 -0500
+Received: from ida.rowland.org ([192.131.102.52]:32516 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S262251AbTLIV6W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 16:58:22 -0500
+Date: Tue, 9 Dec 2003 16:58:18 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Duncan Sands <baldrick@free.fr>
+cc: David Brownell <david-b@pacbell.net>, Vince <fuzzy77@free.fr>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, <mfedyk@matchmail.com>,
+       <zwane@holomorphy.com>, <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+In-Reply-To: <200312092212.51627.baldrick@free.fr>
+Message-ID: <Pine.LNX.4.44L0.0312091638140.7053-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 09, 2003 at 04:26:45PM -0500, Zwane Mwaikambo wrote:
-> On Thu, 4 Dec 2003, Larry McVoy wrote:
-> 
-> > > The first is triggers. The Mozilla tinderbox is driven by triggers from
-> > > CVS commits.  I believe that triggers are resevered for the commercial
-> > > version of BK.
-> >
-> > That's not true.  Trigger support is identical in both versions.
-> 
-> Perhaps the FAQ may need updating then;
-> 
-> http://www.bitkeeper.com/Documentation.FAQS.Event.html
+On Tue, 9 Dec 2003, Duncan Sands wrote:
 
-Indeed.
+> > > EIP is at hcd_pci_release+0x19/0x20 [usbcore]
+> 
+> > I don't understand this stack dump.  The EIP address is _after the end_ of
+> > hcd_pci_release, as you can see from the fact that the following code is
+> > nothing but a long string of NOPs.
+> 
+> Hi Alan, I'm not sure what you mean.  0x19/0x20 seems to be inside the code
+> to me :)  On my machine, this is what it corresponds to:
+> 
+> static void hcd_pci_release(struct usb_bus *bus)
+> {
+>    0:   55                      push   %ebp
+>    1:   89 e5                   mov    %esp,%ebp
+>    3:   83 ec 04                sub    $0x4,%esp
+>         struct usb_hcd *hcd = bus->hcpriv;
+>    6:   8b 45 08                mov    0x8(%ebp),%eax
+>    9:   8b 50 30                mov    0x30(%eax),%edx
+> 
+>         if (hcd)
+>    c:   85 d2                   test   %edx,%edx
+>    e:   74 0c                   je     1c <hcd_pci_release+0x1c>
+>                 hcd->driver->hcd_free(hcd);
+>   10:   8b 82 38 01 00 00       mov    0x138(%edx),%eax
+>   16:   89 14 24                mov    %edx,(%esp,1)
+>   19:   ff 50 28                call   *0x28(%eax)      <= HERE
+> }
+>   1c:   c9                      leave
+>   1d:   c3                      ret
+>   1e:   89 f6                   mov    %esi,%esi
+> 
+> So if Vince's disassembly is the same, the problem is that
+> hcd->driver or hcd->driver->hcd_free is stuffed.
 
-It's worth pointing out that triggers in open source trees are quite a bit
-more dangerous than in controlled environment.  Carl-Daniel's boss made
-quite a fuss over the fact that triggers are just programs that are run
-and can be used to cause all sorts of problems if people were malicious.
+Clearly that compiler is different from mine.  On my machine the "ret"  
+opcode is at offset 0x16, not 0x1d.  Also, I guess the display of the code
+bytes in stack dumps got changed at some point; now it shows values both
+before and after the EIP location (it used to show just the values after
+EIP).  Okay, that clears that up.
 
-I've toyed with the idea of disabling triggers in openlogging trees
-because of this.  I'm neutral on the topic, it's not like triggers
-are some huge money maker that we need to reserve for the commercial
-version.  If the general feeling is that triggers are useful and people
-will take responsibility for policing their own repos then we'll leave
-them in.  On the other hand, if someone putting a nasty trigger into
-your tree somehow becomes the fault of BitMover because we provided the
-infrastructure then out they go in the next release.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+The oops occurring where it did means that hcd->driver->hcd_free is not a
+valid function pointer, even though hcd->driver appears to point to actual
+data.  So it's not a data access through a null pointer; it's a call to an
+unmapped (possibly null) location.
+
+It's not at all clear how that could happen.  Those pointers are located
+in static data in the HCD modules.  It doesn't seem likely that the
+pointer was overwritten.  The only other possibility I can think of is
+that the module was already unloaded.  But that's not possible since you
+were holding a reference to a device on that bus.
+
+Maybe the answer is that hcd->driver is messed up but for some reason 
+still points to actual data.  I can't imagine why that would happen 
+either.
+
+Alan Stern
+

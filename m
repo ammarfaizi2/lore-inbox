@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135985AbRAMAsu>; Fri, 12 Jan 2001 19:48:50 -0500
+	id <S135994AbRAMAta>; Fri, 12 Jan 2001 19:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136029AbRAMAsk>; Fri, 12 Jan 2001 19:48:40 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:4110 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S135985AbRAMAsa>;
-	Fri, 12 Jan 2001 19:48:30 -0500
-Date: Sat, 13 Jan 2001 01:48:07 +0100
-From: Frank de Lange <frank@unternet.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, dwmw2@infradead.org,
-        linux-kernel@vger.kernel.org, mingo@elte.hu
+	id <S135954AbRAMAtU>; Fri, 12 Jan 2001 19:49:20 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44816 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136029AbRAMAtG>; Fri, 12 Jan 2001 19:49:06 -0500
+Date: Fri, 12 Jan 2001 16:48:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
-Message-ID: <20010113014807.B29757@unternet.org>
-In-Reply-To: <E14HDjY-0005Ei-00@the-village.bc.nu> <Pine.LNX.4.10.10101121635590.8097-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10101121635590.8097-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 12, 2001 at 04:36:33PM -0800
+In-Reply-To: <E14HEn2-0005M6-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10101121645290.8097-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 04:36:33PM -0800, Linus Torvalds wrote:
-> It may well not be disable_irq() that is buggy. In fact, there's good
-> reason to believe that it's a hardware problem.
 
-I am inclined to believe it IS a hardware problem... If disable_irq were buggy,
-wouldn't the problem occur more frequently in other irq-heavy areas? A quick
-count shows that disable_irq* is used in 84 sourcefiles in the driver/*
-directory. This includes drivers which generate many interrupts in a short
-timeframe (like ide).
 
-Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+On Sat, 13 Jan 2001, Alan Cox wrote:
+
+> > 	interrupt_handler()
+> > 	{
+> > 		status = readl(dev->status);
+> > 		if (status & MY_IRQ_DISABLE)
+> > 			return;
+> 
+> Unfortunately on the 8390 the IRQ statud register is on page 0. The code
+> on the other CPU might not be on page 0. That means we can't even safely
+> check if there is an irq pending or clear it down (bad news on ne2k-pci)
+> without getting that lock.
+
+Alan.
+
+THINK.
+
+The "synchronous channel" can be _memory_. I just used the above as an
+example of using a synchronous channel to make sure that the asynchronous
+buses aren't screwing us.
+
+You only need one bit of synchronous information. The example used the
+very same bit that the irq flag on the device is anyway - which works on a
+lot of devices simply because they need to read the status flags anyway
+in order to handle the interrupt.
+
+But if you have problems with that, just use an atomic flag off
+"dev->private" instead. Big deal.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

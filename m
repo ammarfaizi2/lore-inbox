@@ -1,90 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318915AbSHMC73>; Mon, 12 Aug 2002 22:59:29 -0400
+	id <S318914AbSHMC7P>; Mon, 12 Aug 2002 22:59:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318916AbSHMC72>; Mon, 12 Aug 2002 22:59:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42763 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318915AbSHMC71>;
-	Mon, 12 Aug 2002 22:59:27 -0400
-Message-ID: <3D587955.B0FEB77C@zip.com.au>
-Date: Mon, 12 Aug 2002 20:13:25 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S318915AbSHMC7P>; Mon, 12 Aug 2002 22:59:15 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19717 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S318914AbSHMC7O>; Mon, 12 Aug 2002 22:59:14 -0400
+Date: Mon, 12 Aug 2002 22:56:53 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Peter Klotz <peter.klotz@aon.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 and 2.4.20-pre1 don't boot
+In-Reply-To: <000501c24230$8a29bdd0$8c00000a@sledgehammer>
+Message-ID: <Pine.LNX.3.96.1020812225422.7583B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org
-Subject: Re: pte_chain leak in rmap code (2.5.31)
-References: <Pine.LNX.4.44.0208121942371.25611-100000@dad.molina> <Pine.LNX.4.44L.0208122208510.23404-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+On Mon, 12 Aug 2002, Peter Klotz wrote:
+
+> Up to 2.4.19-rc1 my system worked fine but 2.4.19 and 2.4.20-pre1 produce
+> the following message at startup:
 > 
-> On Mon, 12 Aug 2002, Thomas Molina wrote:
-> > On Mon, 12 Aug 2002, Rik van Riel wrote:
-> > > On Mon, 12 Aug 2002, Christian Ehrhardt wrote:
-> > >
-> > > > Note the strange use of continue and break which both achieve the same!
-> > > > What was meant to happen (judging from rmap-13c) is that we break
-> > > Excellent hunting!   Thank you!
-> > Any chance this is the cause of the following?
-> 
-> Yes, quite possible.
-> 
+> Mounting root filesystem
+> ide-floppy driver 0.99.newide
+> kmod: failed to exec /sbin/modprobe -s -k ide-cd, errno = 2
+> hda: driver not present
+> mount: error 6 mounting ext3
+> pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
+> Freeing unused kernel memory: 108k freed
+> Kernel panic: No init found. Try passing init= option to kernel.
 
-Well Adam reported it against the patched version, in which
-is appears that I accidentally fixed that bug.  So we may
-yet have a problem:
+If you have multiple controllers one possible source is that the
+controllers are being identified in the wrong order. This is an
+enhancement in 2.4.19.
 
-	for (pc = start; pc; pc = next_pc) {
-		int i;
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-		next_pc = pc->next;
-		if (next_pc)
-			prefetch(next_pc);
-		for (i = 0; i < NRPTE; i++) {
-			pte_t *p = pc->ptes[i];
-
-			if (!p)
-				continue;
-			if (victim_i == -1) 
-				victim_i = i;
-
-			switch (try_to_unmap_one(page, p)) {
-			case SWAP_SUCCESS:
-				/*
-				 * Release a slot.  If we're releasing the
-				 * first pte in the first pte_chain then
-				 * pc->ptes[i] and start->ptes[victim_i] both
-				 * refer to the same thing.  It works out.
-				 */
-				pc->ptes[i] = start->ptes[victim_i];
-				start->ptes[victim_i] = NULL;
-				dec_page_state(nr_reverse_maps);
-				victim_i++;
-				if (victim_i == NRPTE) {
-					page->pte.chain = start->next;
-					pte_chain_free(start);
-					start = page->pte.chain;
-					victim_i = 0;
-				}
-				break;
-			case SWAP_AGAIN:
-				/* Skip this pte, remembering status. */
-				ret = SWAP_AGAIN;
-				continue;
-			case SWAP_FAIL:
-				ret = SWAP_FAIL;
-				goto out;
-			case SWAP_ERROR:
-				ret = SWAP_ERROR;
-				goto out;
-			}
-		}
-	}
-out:
-	return ret;
-}

@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVCHAG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVCHAGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbVCHAG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 19:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVCHAC6
+	id S261288AbVCHAGz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 19:06:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVCHADS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 19:02:58 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:52980 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262002AbVCGX7j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 18:59:39 -0500
-Subject: Re: [PATCH] 0/2 Buddy allocator with placement policy (Version 9)
-	+ prezeroing (Version 4)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050307193938.0935EE594@skynet.csn.ul.ie>
-References: <20050307193938.0935EE594@skynet.csn.ul.ie>
-Content-Type: text/plain
-Date: Mon, 07 Mar 2005 15:59:26 -0800
-Message-Id: <1110239966.6446.66.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Mon, 7 Mar 2005 19:03:18 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34777 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261996AbVCGX56 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 18:57:58 -0500
+Message-ID: <422CEA86.5090202@sgi.com>
+Date: Mon, 07 Mar 2005 15:57:58 -0800
+From: Jay Lan <jlan@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: zh-tw, en-us, en, zh-cn, zh-hk
+MIME-Version: 1.0
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+CC: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Kaigai Kohei <kaigai@ak.jp.nec.com>, jbarnes@sgi.com
+Subject: Re: [PATCH 2.6.11-rc4-mm1] end-of-proces handling for acct-csa
+References: <421EA8FF.1050906@sgi.com>  <20050224204646.704680e9.akpm@osdl.org>  <1109314660.1738.206.camel@frecb000711.frec.bull.fr>  <42236979.5030702@sgi.com>  <1109662409.8594.50.camel@frecb000711.frec.bull.fr>  <4224AF3D.3010803@sgi.com> <1109749735.8422.104.camel@frecb000711.frec.bull.fr> <Pine.LNX.4.53.0503050726090.31083@gockel.physik3.uni-rostock.de>
+In-Reply-To: <Pine.LNX.4.53.0503050726090.31083@gockel.physik3.uni-rostock.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-07 at 19:39 +0000, Mel Gorman wrote:
-> The placement policy patch should now be more Hotplug-friendly and I
-> would like to hear from the Hotplug people if they have more
-> requirements of this patch.
+The patch i propose is tiny, simple and straight forward. It
+touches only one file and leaves the CSA code in a  configurable
+loadable module. It broke nobody's code and it does not need to
+redesign existing BSD kernel code and utilities.
 
-It looks like most of what we need is there already.  There are two
-things that come to mind.  We'll likely need some modifications that
-will deal with committing memory areas that are larger than MAX_ORDER to
-the different allocation pools.  That's because a hotplug area (memory
-section) might be larger than a single MAX_ORDER area, and each section
-may need to be limited to a single allocation type.
+If we are to merge the code, there are some detailed discussion
+needed to happen on implementation deail. We are talking about
+supporting two different internal formats by one piece of code.
+We need to maintain BSD acct format because BSD utilities count
+on it.
 
-The other thing is that we'll probably have to be a lot more strict
-about how the allocations fall back.  Some users will probably prefer to
-kill an application rather than let a kernel allocation fall back into a
-user memory area.
+If we are to combine two formats into one, we then need to
+modify BSD utilies to understand the new format. How about
+the backwards compatibility?
 
-But, those are things that can be relatively easily grafted on to your
-current code.  I'm not horribly concerned about that, and merging
-something like that is months and months away.
+Now this is really an overkill. All i asked for was only
+adding a few lines to acct.c.
 
-BTW, I wrote some requirements about how these section divisions might
-be dealt with.  Note that this is a completely hotplug-centric view of
-the whole problem, I didn't discern between reclaimable and
-unreclaimable kernel memory as your patch does.  This is probably waaaay
-more than you wanted to hear, but I thought I'd share anyway. :)
+Thanks,
+  - jay
 
-> There are 2 kinds of sections: user and kernel.  The traditional 
-> ZONE_HIGHMEM is full of user sections (except for vmalloc).  Any
-> section which has slab pages or any kernel caller to alloc_pages() is
-> a kernel section.
+
+Tim Schmielau wrote:
+> On Wed, 2 Mar 2005, Guillaume Thouvenin wrote:
 > 
-> Some properties of these sections:
-> a. User sections are easily removed.
-> b. Kernel sections are hard to remove. (considered impossible)
-> c. User sections may *NOT* be used for kernel pages if all user
->    sections are full. (but, see f.)
-> d. Kernel sections may be used for user pages if all user sections are
->    full.
-> e. A transition from a kernel section to a user section is hard, and
->    requires that it be empty of all kernel users.
-> f. A transition from a user section to a kernel section is easy.
->    (although easy, this should be avoided because it's hard to turn it
->    _back_ into a user section)
-
--- Dave
+> 
+>>Is it possible to merge BSD and CSA? I mean with CSA, there is a part
+>>that does per-process accounting. For exemple in the
+>>linux-2.6.9.acct_mm.patch the two functions update_mem_hiwater() and
+>>csa_update_integrals() update fields in the current (and parent)
+>>process. So maybe you can improve the BSD per-process accounting or
+>>maybe CSA can replace the BSD per-process accounting?
+> 
+> 
+> Yes, that was also my preferred direction - make CSA able to also write
+> BSD acct format, and replace the existing BSD accounting with CSA.
+> However it seems this will still increase the amount of kernel code quite 
+> a bit.
+> 
+> Sorry for not going into any details, I have to leave right now and will 
+> be offline for two weeks.
+> 
+> Tim
 

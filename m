@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272215AbTHDUE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 16:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272221AbTHDUEn
+	id S272168AbTHDUJh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 16:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272222AbTHDUJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 16:04:43 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:23989 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S272215AbTHDUCw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 16:02:52 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Werner Almesberger <werner@almesberger.net>
+	Mon, 4 Aug 2003 16:09:37 -0400
+Received: from almesberger.net ([63.105.73.239]:34309 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S272168AbTHDUJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 16:09:33 -0400
+Date: Mon, 4 Aug 2003 17:09:21 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: David Lang <david.lang@digitalinsight.com>
 Cc: "Ihar 'Philips' Filipau" <filia@softhome.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Mon, 4 Aug 2003 13:01:02 -0700 (PDT)
 Subject: Re: TOE brain dump
-In-Reply-To: <20030804165649.N5798@almesberger.net>
-Message-ID: <Pine.LNX.4.44.0308041259220.7534-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030804170921.O5798@almesberger.net>
+References: <20030804165649.N5798@almesberger.net> <Pine.LNX.4.44.0308041259220.7534-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308041259220.7534-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Mon, Aug 04, 2003 at 01:01:02PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003, Werner Almesberger wrote:
+David Lang wrote:
+> I would think that it's much more difficult to run NUMA across different
+> types of CPU's
 
-> David Lang wrote:
-> > also how many of the standard kernel features could you turn off?
->
-> You don't turn them off - you just don't run them. What I'm
-> suggesting is not a separate system that runs a stripped-down
-> Linux kernel, but rather a device that looks like another
-> node in a NUMA system.
->
-> There might be a point in completely excluding subsystems
-> that will never be used on that NIC anyway, but that's already
-> an optimization.
+I'd view this as a new and interesting challenge :-) Besides,
+if one would use Alan's idea, and just use an amd64, or such,
+the CPUs wouldn't be all that different in the end.
 
-I would think that it's much more difficult to run NUMA across different
-types of CPU's then it would be to run a seperate kernel on the NIC.
+One added benefit of using similar CPUs would be that also
+bits of user space (e.g. a copy loop) could migrate to the
+NIC.
 
-I'm thinking clustering instead of single-system-image.
+> then it would be to run a seperate kernel on the NIC.
 
-David Lang
+Yes, but that separate kernel would need new administrative
+interfaces, and things like route changes would be difficult
+to handle. (That is, if you still want this to appear as a
+single system to user space.) It would certainly be better
+that running a completely proprietary solution, but you still
+get a few nasty problems.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

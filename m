@@ -1,51 +1,669 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264999AbTFQXBw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 19:01:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265000AbTFQXBw
+	id S265000AbTFQXDp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 19:03:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264998AbTFQXDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 19:01:52 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:62873 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S264999AbTFQXBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 19:01:51 -0400
-Date: Tue, 17 Jun 2003 20:13:22 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [BK PATCH] 2.4 ACPI update
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A1E6@orsmsx401.jf.intel.com>
-Message-ID: <Pine.LNX.4.55L.0306172009520.31986@freak.distro.conectiva>
-References: <F760B14C9561B941B89469F59BA3A84725A1E6@orsmsx401.jf.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Jun 2003 19:03:45 -0400
+Received: from lsanca2-ar27-4-46-141-054.lsanca2.dsl-verizon.net ([4.46.141.54]:384
+	"EHLO BL4ST") by vger.kernel.org with ESMTP id S265000AbTFQXDF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 19:03:05 -0400
+Date: Tue, 17 Jun 2003 16:16:49 -0700
+From: Eric Wong <eric@yhbt.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Logitech PS/2++ updates
+Message-ID: <20030617231649.GA2494@BL4ST>
+References: <20030614233909.GA17706@BL4ST> <20030615103908.B29763@ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="sdtB3X0nJg68CQEu"
+Content-Disposition: inline
+In-Reply-To: <20030615103908.B29763@ucw.cz>
+Organization: Tire Smokers Anonymous
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 12 Mar 2003, Grover, Andrew wrote:
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Hi Marcelo,
->
-> I'd like to try again to get you to merge in the latest ACPI change into
-> 2.4. I know it's a big patch but the identical code has been in 2.5 all
-> along. BitKeeper has been a big help in allowing me to maintain such a
-> big patch for so long, but the fact is that getting this in 2.4 would
-> make my life and other maintainers' lives much easier.
->
-> The ACPI code in 2.4 is very old and buggy. Even though the current code
-> is not flawless, it is much much improved. Its inclusion would not
-> affect anything at all for people who don't explicitly configure in ACPI
-> support.
+Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Sat, Jun 14, 2003 at 04:39:09PM -0700, Eric Wong wrote:
+> > Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > > On Tue, Mar 25, 2003 at 06:55:38PM -0800, Eric Wong wrote:
+> 
+> Ok. How about these two patches against 2.5.71? Your changes are merged
+> into the second one.
 
-Andrew,
+Took a few days to find that little PS/2 adapter that came with my
+mouse, moving sucks :(
 
-I've changed my mind with respect to the ACPI merge in 2.4.22.
+Two errors I fixed:
+1. ps2pp_detect_model needs the *param argument
+2. ps2pp_set_smartscroll only works after the Magic Knock has inititialized it
+3. Unrelated to PS2++, remove the CONFIG_MOUSE_PS2_SYNAPTICS check in
+synaptics.h since it's enabled by default.
 
-I'm willing to do it in .22 timeline.
+I've updated the patch and rediffed against 2.5.72, see attachment.
 
-I feel its better if we do the merge in separate parts, not in a huge
-patch.
+-- 
+Eric Wong
 
-What you think ?
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="clean72MX.diff"
+
+diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/Kconfig linux-2.5.72-np2/drivers/input/mouse/Kconfig
+--- linux-2.5.72-vanilla/drivers/input/mouse/Kconfig	2003-06-17 13:33:51.000000000 -0700
++++ linux-2.5.72-np2/drivers/input/mouse/Kconfig	2003-06-17 14:02:31.000000000 -0700
+@@ -19,7 +19,7 @@ config MOUSE_PS2
+ 	  Say Y here if you have a PS/2 mouse connected to your system. This
+ 	  includes the standard 2 or 3-button PS/2 mouse, as well as PS/2
+ 	  mice with wheels and extra buttons, Microsoft, Logitech or Genius
+-	  compatible.
++	  compatible. Support for Synaptics TouchPads is also included.
+ 
+ 	  If unsure, say Y.
+ 
+@@ -28,19 +28,6 @@ config MOUSE_PS2
+ 	  The module will be called psmouse. If you want to compile it as a
+ 	  module, say M here and read <file:Documentation/modules.txt>.
+ 
+-config MOUSE_PS2_SYNAPTICS
+-	bool "Synaptics TouchPad"
+-	default n
+-	depends on INPUT && INPUT_MOUSE && SERIO && MOUSE_PS2
+-	---help---
+-	  Say Y here if you have a Synaptics TouchPad connected to your system.
+-	  This touchpad is found on many modern laptop computers.
+-	  Note that you also need a user space driver to interpret the data
+-	  generated by the kernel. A compatible driver for XFree86 is available
+-	  from http://...
+-
+-	  If unsure, say Y.
+-
+ config MOUSE_SERIAL
+ 	tristate "Serial mouse"
+ 	depends on INPUT && INPUT_MOUSE && SERIO
+diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/Makefile linux-2.5.72-np2/drivers/input/mouse/Makefile
+--- linux-2.5.72-vanilla/drivers/input/mouse/Makefile	2003-06-17 13:33:51.000000000 -0700
++++ linux-2.5.72-np2/drivers/input/mouse/Makefile	2003-06-17 14:02:31.000000000 -0700
+@@ -14,7 +14,4 @@ obj-$(CONFIG_MOUSE_PC9800)	+= 98busmouse
+ obj-$(CONFIG_MOUSE_PS2)		+= psmouse.o
+ obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
+ 
+-psmouse-objs  := psmouse-base.o
+-ifeq ($(CONFIG_MOUSE_PS2_SYNAPTICS),y)
+-        psmouse-objs += synaptics.o
+-endif
++psmouse-objs  := psmouse-base.o logips2pp.o synaptics.o
+diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/logips2pp.c linux-2.5.72-np2/drivers/input/mouse/logips2pp.c
+--- linux-2.5.72-vanilla/drivers/input/mouse/logips2pp.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.5.72-np2/drivers/input/mouse/logips2pp.c	2003-06-17 16:00:19.000000000 -0700
+@@ -0,0 +1,228 @@
++/*
++ * Logitech PS/2++ mouse driver
++ *
++ * Copyright (c) 1999-2003 Vojtech Pavlik <vojtech@suse.cz>
++ * Copyright (c) 2003 Eric Wong <eric@yhbt.net>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#include <linux/input.h>
++#include "psmouse.h"
++#include "logips2pp.h"
++
++/*
++ * Process a PS2++ or PS2T++ packet.
++ */
++
++void ps2pp_process_packet(struct psmouse *psmouse)
++{
++	struct input_dev *dev = &psmouse->dev;
++        unsigned char *packet = psmouse->packet;
++
++	if ((packet[0] & 0x48) == 0x48 && (packet[1] & 0x02) == 0x02) {
++
++		switch ((packet[1] >> 4) | (packet[0] & 0x30)) {
++
++			case 0x0d: /* Mouse extra info */
++
++				input_report_rel(dev, packet[2] & 0x80 ? REL_HWHEEL : REL_WHEEL,
++					(int) (packet[2] & 8) - (int) (packet[2] & 7));
++				input_report_key(dev, BTN_SIDE, (packet[2] >> 4) & 1);
++				input_report_key(dev, BTN_EXTRA, (packet[2] >> 5) & 1);
++
++				break;
++
++			case 0x0e: /* buttons 4, 5, 6, 7, 8, 9, 10 info */
++
++				input_report_key(dev, BTN_SIDE, (packet[2]) & 1);
++				input_report_key(dev, BTN_EXTRA, (packet[2] >> 1) & 1);
++				input_report_key(dev, BTN_BACK, (packet[2] >> 3) & 1);
++				input_report_key(dev, BTN_FORWARD, (packet[2] >> 4) & 1);
++				input_report_key(dev, BTN_TASK, (packet[2] >> 2) & 1);
++
++				break;
++
++			case 0x0f: /* TouchPad extra info */
++
++				input_report_rel(dev, packet[2] & 0x08 ? REL_HWHEEL : REL_WHEEL,
++					(int) ((packet[2] >> 4) & 8) - (int) ((packet[2] >> 4) & 7));
++				packet[0] = packet[2] | 0x08;
++				break;
++
++#ifdef DEBUG
++			default:
++				printk(KERN_WARNING "psmouse.c: Received PS2++ packet #%x, but don't know how to handle.\n",
++					(packet[1] >> 4) | (packet[0] & 0x30));
++#endif
++		}
++
++		packet[0] &= 0x0f;
++		packet[1] = 0;
++		packet[2] = 0;
++
++	}
++}
++
++/*
++ * ps2pp_cmd() sends a PS2++ command, sliced into two bit
++ * pieces through the SETRES command. This is needed to send extended
++ * commands to mice on notebooks that try to understand the PS/2 protocol
++ * Ugly.
++ */
++
++static int ps2pp_cmd(struct psmouse *psmouse, unsigned char *param, unsigned char command)
++{
++	unsigned char d;
++	int i;
++
++	if (psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11))
++		return -1;
++
++	for (i = 6; i >= 0; i -= 2) {
++		d = (command >> i) & 3;
++		if(psmouse_command(psmouse, &d, PSMOUSE_CMD_SETRES))
++			return -1;
++	}
++
++	if (psmouse_command(psmouse, param, PSMOUSE_CMD_POLL))
++		return -1;
++
++	return 0;
++}
++
++/*
++ * SmartScroll / CruiseControl for some newer Logitech mice Defaults to
++ * enabled if we do nothing to it. Of course I put this in because I want it
++ * disabled :P
++ * 1 - enabled (if previously disabled, also default)
++ * 0/2 - disabled 
++ */
++
++static void ps2pp_set_smartscroll(struct psmouse *psmouse)
++{
++	unsigned char param[4];
++
++	ps2pp_cmd(psmouse, param, 0x32);
++
++	param[0] = 0;
++	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++
++	if (psmouse_smartscroll == 1) 
++		param[0] = 1;
++	else
++	if (psmouse_smartscroll > 2)
++		return;
++
++	/* else leave param[0] == 0 to disable */
++	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++}
++
++/*
++ * Support 800 dpi resolution _only_ if the user wants it (there are good
++ * reasons to not use it even if the mouse supports it, and of course there are
++ * also good reasons to use it, let the user decide).
++ */
++
++void ps2pp_set_800dpi(struct psmouse *psmouse)
++{
++	unsigned char param = 3;
++	psmouse_command(psmouse, NULL, PSMOUSE_CMD_SETSCALE11);
++	psmouse_command(psmouse, NULL, PSMOUSE_CMD_SETSCALE11);
++	psmouse_command(psmouse, NULL, PSMOUSE_CMD_SETSCALE11);
++	psmouse_command(psmouse, &param, PSMOUSE_CMD_SETRES);
++}
++
++/*
++ * Detect the exact model and features of a PS2++ or PS2T++ Logitech mouse or
++ * touchpad.
++ */
++
++int ps2pp_detect_model(struct psmouse *psmouse, unsigned char *param)
++{
++	int i;
++	static int logitech_4btn[] = { 12, 40, 41, 42, 43, 52, 73, 80, -1 };
++	static int logitech_wheel[] = { 52, 53, 75, 76, 80, 81, 83, 88, 112, -1 };
++	static int logitech_ps2pp[] = { 12, 13, 40, 41, 42, 43, 50, 51, 52, 53, 73, 75,
++						76, 80, 81, 83, 88, 96, 97, 112, -1 };
++	static int logitech_mx[] = { 112, -1 };
++
++	psmouse->vendor = "Logitech";
++	psmouse->model = ((param[0] >> 4) & 0x07) | ((param[0] << 3) & 0x78);
++
++	if (param[1] < 3)
++		clear_bit(BTN_MIDDLE, psmouse->dev.keybit);
++	if (param[1] < 2)
++		clear_bit(BTN_RIGHT, psmouse->dev.keybit);
++
++	psmouse->type = PSMOUSE_PS2;
++
++	for (i = 0; logitech_ps2pp[i] != -1; i++)
++		if (logitech_ps2pp[i] == psmouse->model)
++			psmouse->type = PSMOUSE_PS2PP;
++
++	if (psmouse->type == PSMOUSE_PS2PP) {
++
++		for (i = 0; logitech_4btn[i] != -1; i++)
++			if (logitech_4btn[i] == psmouse->model)
++				set_bit(BTN_SIDE, psmouse->dev.keybit);
++
++		for (i = 0; logitech_wheel[i] != -1; i++)
++			if (logitech_wheel[i] == psmouse->model) {
++				set_bit(REL_WHEEL, psmouse->dev.relbit);
++				psmouse->name = "Wheel Mouse";
++			}
++
++		for (i = 0; logitech_mx[i] != -1; i++)
++			if (logitech_mx[i]  == psmouse->model) {
++				set_bit(BTN_SIDE, psmouse->dev.keybit);
++				set_bit(BTN_EXTRA, psmouse->dev.keybit);
++				set_bit(BTN_BACK, psmouse->dev.keybit);
++				set_bit(BTN_FORWARD, psmouse->dev.keybit);
++				set_bit(BTN_TASK, psmouse->dev.keybit);
++				psmouse->name = "MX Mouse";
++			}
++
++/*
++ * Do Logitech PS2++ / PS2T++ magic init.
++ */
++
++		if (psmouse->model == 97) { /* TouchPad 3 */
++
++			set_bit(REL_WHEEL, psmouse->dev.relbit);
++			set_bit(REL_HWHEEL, psmouse->dev.relbit);
++
++			param[0] = 0x11; param[1] = 0x04; param[2] = 0x68; /* Unprotect RAM */
++			psmouse_command(psmouse, param, 0x30d1);
++			param[0] = 0x11; param[1] = 0x05; param[2] = 0x0b; /* Enable features */
++			psmouse_command(psmouse, param, 0x30d1);
++			param[0] = 0x11; param[1] = 0x09; param[2] = 0xc3; /* Enable PS2++ */
++			psmouse_command(psmouse, param, 0x30d1);
++
++			param[0] = 0;
++			if (!psmouse_command(psmouse, param, 0x13d1) &&
++				param[0] == 0x06 && param[1] == 0x00 && param[2] == 0x14) {
++				psmouse->name = "TouchPad 3";
++				return PSMOUSE_PS2TPP;
++			}
++
++		} else {
++			param[0] = param[1] = param[2] = 0;
++
++			ps2pp_cmd(psmouse, param, 0x39); /* Magic knock */
++			ps2pp_cmd(psmouse, param, 0xDB);
++
++			ps2pp_set_smartscroll(psmouse);
++
++			if ((param[0] & 0x78) == 0x48 && (param[1] & 0xf3) == 0xc2 &&
++				(param[2] & 3) == ((param[1] >> 2) & 3))
++					return PSMOUSE_PS2PP;
++		}
++	}
++
++	return 0;
++}
+diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/logips2pp.h linux-2.5.72-np2/drivers/input/mouse/logips2pp.h
+--- linux-2.5.72-vanilla/drivers/input/mouse/logips2pp.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.5.72-np2/drivers/input/mouse/logips2pp.h	2003-06-17 14:04:02.000000000 -0700
+@@ -0,0 +1,17 @@
++/*
++ * Logitech PS/2++ mouse driver header
++ *
++ * Copyright (c) 2003 Vojtech Pavlik <vojtech@suse.cz>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#ifndef _LOGIPS2PP_H
++#define _LOGIPS2PP_H
++struct psmouse;
++void ps2pp_process_packet(struct psmouse *psmouse);
++void ps2pp_set_800dpi(struct psmouse *psmouse);
++int ps2pp_detect_model(struct psmouse *psmouse, unsigned char *param);
++#endif
+diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/psmouse-base.c linux-2.5.72-np2/drivers/input/mouse/psmouse-base.c
+--- linux-2.5.72-vanilla/drivers/input/mouse/psmouse-base.c	2003-06-17 13:33:51.000000000 -0700
++++ linux-2.5.72-np2/drivers/input/mouse/psmouse-base.c	2003-06-17 14:04:19.000000000 -0700
+@@ -19,13 +19,23 @@
+ #include <linux/init.h>
+ #include "psmouse.h"
+ #include "synaptics.h"
++#include "logips2pp.h"
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
+ MODULE_DESCRIPTION("PS/2 mouse driver");
+ MODULE_PARM(psmouse_noext, "1i");
++MODULE_PARM_DESC(psmouse_noext, "Disable any protocol extensions. Useful for KVM switches.");
++MODULE_PARM(psmouse_resolution, "i");
++MODULE_PARM_DESC(psmouse_resolution, "Resolution, in dpi.");
++MODULE_PARM(psmouse_smartscroll, "i");
++MODULE_PARM_DESC(psmouse_smartscroll, "Logitech Smartscroll autorepeat, 1 = enabled (default), 0 = disabled.");
+ MODULE_LICENSE("GPL");
+ 
++#define PSMOUSE_LOGITECH_SMARTSCROLL	1
++
+ static int psmouse_noext;
++int psmouse_resolution;
++int psmouse_smartscroll = PSMOUSE_LOGITECH_SMARTSCROLL;
+ 
+ static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "Synaptics"};
+ 
+@@ -45,43 +55,8 @@ static void psmouse_process_packet(struc
+  * The PS2++ protocol is a little bit complex
+  */
+ 
+-	if (psmouse->type == PSMOUSE_PS2PP || psmouse->type == PSMOUSE_PS2TPP) {
+-
+-		if ((packet[0] & 0x40) == 0x40 && abs((int)packet[1] - (((int)packet[0] & 0x10) << 4)) > 191 ) {
+-
+-			switch (((packet[1] >> 4) & 0x03) | ((packet[0] >> 2) & 0x0c)) {
+-
+-			case 1: /* Mouse extra info */
+-
+-				input_report_rel(dev, packet[2] & 0x80 ? REL_HWHEEL : REL_WHEEL,
+-					(int) (packet[2] & 8) - (int) (packet[2] & 7));
+-				input_report_key(dev, BTN_SIDE, (packet[2] >> 4) & 1);
+-				input_report_key(dev, BTN_EXTRA, (packet[2] >> 5) & 1);
+-					
+-				break;
+-
+-			case 3: /* TouchPad extra info */
+-
+-				input_report_rel(dev, packet[2] & 0x08 ? REL_HWHEEL : REL_WHEEL,
+-					(int) ((packet[2] >> 4) & 8) - (int) ((packet[2] >> 4) & 7));
+-				packet[0] = packet[2] | 0x08;
+-
+-				break;
+-
+-#ifdef DEBUG
+-			default:
+-				printk(KERN_WARNING "psmouse.c: Received PS2++ packet #%x, but don't know how to handle.\n",
+-					((packet[1] >> 4) & 0x03) | ((packet[0] >> 2) & 0x0c));
+-#endif
+-
+-			}
+-
+-		packet[0] &= 0x0f;
+-		packet[1] = 0;
+-		packet[2] = 0;
+-
+-		}
+-	}
++	if (psmouse->type == PSMOUSE_PS2PP || psmouse->type == PSMOUSE_PS2TPP)
++		ps2pp_process_packet(psmouse);
+ 
+ /*
+  * Scroll wheel on IntelliMice, scroll buttons on NetMice
+@@ -259,33 +234,6 @@ int psmouse_command(struct psmouse *psmo
+ }
+ 
+ /*
+- * psmouse_ps2pp_cmd() sends a PS2++ command, sliced into two bit
+- * pieces through the SETRES command. This is needed to send extended
+- * commands to mice on notebooks that try to understand the PS/2 protocol
+- * Ugly.
+- */
+-
+-static int psmouse_ps2pp_cmd(struct psmouse *psmouse, unsigned char *param, unsigned char command)
+-{
+-	unsigned char d;
+-	int i;
+-
+-	if (psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11))
+-		return -1;
+-
+-	for (i = 6; i >= 0; i -= 2) {
+-		d = (command >> i) & 3;
+-		if(psmouse_command(psmouse, &d, PSMOUSE_CMD_SETRES))
+-			return -1;
+-	}
+-
+-	if (psmouse_command(psmouse, param, PSMOUSE_CMD_POLL))
+-		return -1;
+-
+-	return 0;
+-}
+-
+-/*
+  * psmouse_extensions() probes for any extensions to the basic PS/2 protocol
+  * the mouse may have.
+  */
+@@ -353,73 +301,13 @@ static int psmouse_extensions(struct psm
+ 	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+ 	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+ 	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
++	param[1] = 0;
+ 	psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
+ 
+ 	if (param[1]) {
+-
+-		int i;
+-		static int logitech_4btn[] = { 12, 40, 41, 42, 43, 52, 73, 80, -1 };
+-		static int logitech_wheel[] = { 52, 53, 75, 76, 80, 81, 83, 88, -1 };
+-		static int logitech_ps2pp[] = { 12, 13, 40, 41, 42, 43, 50, 51, 52, 53, 73, 75,
+-							76, 80, 81, 83, 88, 96, 97, -1 };
+-		psmouse->vendor = "Logitech";
+-		psmouse->model = ((param[0] >> 4) & 0x07) | ((param[0] << 3) & 0x78);
+-
+-		if (param[1] < 3)
+-			clear_bit(BTN_MIDDLE, psmouse->dev.keybit);
+-		if (param[1] < 2)
+-			clear_bit(BTN_RIGHT, psmouse->dev.keybit);
+-
+-		psmouse->type = PSMOUSE_PS2;
+-
+-		for (i = 0; logitech_ps2pp[i] != -1; i++)
+-			if (logitech_ps2pp[i] == psmouse->model)
+-				psmouse->type = PSMOUSE_PS2PP;
+-
+-		if (psmouse->type == PSMOUSE_PS2PP) {
+-
+-			for (i = 0; logitech_4btn[i] != -1; i++)
+-				if (logitech_4btn[i] == psmouse->model)
+-					set_bit(BTN_SIDE, psmouse->dev.keybit);
+-
+-			for (i = 0; logitech_wheel[i] != -1; i++)
+-				if (logitech_wheel[i] == psmouse->model) {
+-					set_bit(REL_WHEEL, psmouse->dev.relbit);
+-					psmouse->name = "Wheel Mouse";
+-				}
+-
+-/*
+- * Do Logitech PS2++ / PS2T++ magic init.
+- */
+-
+-			if (psmouse->model == 97) { /* TouchPad 3 */
+-
+-				set_bit(REL_WHEEL, psmouse->dev.relbit);
+-				set_bit(REL_HWHEEL, psmouse->dev.relbit);
+-
+-				param[0] = 0x11; param[1] = 0x04; param[2] = 0x68; /* Unprotect RAM */
+-				psmouse_command(psmouse, param, 0x30d1);
+-				param[0] = 0x11; param[1] = 0x05; param[2] = 0x0b; /* Enable features */
+-				psmouse_command(psmouse, param, 0x30d1);
+-				param[0] = 0x11; param[1] = 0x09; param[2] = 0xc3; /* Enable PS2++ */
+-				psmouse_command(psmouse, param, 0x30d1);
+-
+-				param[0] = 0;
+-				if (!psmouse_command(psmouse, param, 0x13d1) &&
+-					param[0] == 0x06 && param[1] == 0x00 && param[2] == 0x14)
+-					return PSMOUSE_PS2TPP;
+-
+-			} else {
+-				param[0] = param[1] = param[2] = 0;
+-
+-				psmouse_ps2pp_cmd(psmouse, param, 0x39); /* Magic knock */
+-				psmouse_ps2pp_cmd(psmouse, param, 0xDB);
+-
+-				if ((param[0] & 0x78) == 0x48 && (param[1] & 0xf3) == 0xc2 &&
+-					(param[2] & 3) == ((param[1] >> 2) & 3))
+-						return PSMOUSE_PS2PP;
+-			}
+-		}
++		int type = ps2pp_detect_model(psmouse, param);
++		if (type)
++			return type;
+ 	}
+ 
+ /*
+@@ -508,6 +396,31 @@ static int psmouse_probe(struct psmouse 
+ }
+ 
+ /*
++ * Here we set the mouse resolution.
++ */
++
++static void psmouse_set_resolution(struct psmouse *psmouse)
++{
++	unsigned char param[1];
++
++	if (psmouse->type == PSMOUSE_PS2PP && psmouse_resolution > 400) {
++		ps2pp_set_800dpi(psmouse);
++		return;
++	}
++
++	if (!psmouse_resolution || psmouse_resolution >= 200)
++		param[0] = 3;
++	else if (psmouse_resolution >= 100)
++		param[0] = 2;
++	else if (psmouse_resolution >= 50)
++		param[0] = 1;
++	else if (psmouse_resolution)
++		param[0] = 0;
++
++        psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++}
++
++/*
+  * psmouse_initialize() initializes the mouse to a sane state.
+  */
+ 
+@@ -519,7 +432,6 @@ static void psmouse_initialize(struct ps
+  * We set the mouse report rate to a highest possible value.
+  * We try 100 first in case mouse fails to set 200.
+  */
+-
+ 	param[0] = 100;
+ 	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRATE);
+ 
+@@ -530,8 +442,7 @@ static void psmouse_initialize(struct ps
+  * We also set the resolution and scaling.
+  */
+ 
+-	param[0] = 3;
+-	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++	psmouse_set_resolution(psmouse);
+ 	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+ 
+ /*
+@@ -638,12 +549,28 @@ static struct serio_dev psmouse_dev = {
+ };
+ 
+ #ifndef MODULE
+-static int __init psmouse_setup(char *str)
++static int __init psmouse_noext_setup(char *str)
+ {
+ 	psmouse_noext = 1;
+ 	return 1;
+ }
+-__setup("psmouse_noext", psmouse_setup);
++
++static int __init psmouse_resolution_setup(char *str)
++{
++	get_option(&str, &psmouse_resolution);
++	return 1;
++}
++
++static int __init psmouse_smartscroll_setup(char *str)
++{
++	get_option(&str, &psmouse_smartscroll);
++	return 1;
++}
++
++__setup("psmouse_noext", psmouse_noext_setup);
++__setup("psmouse_res=", psmouse_resolution_setup);
++__setup("psmouse_sms=", psmouse_smartscroll_setup);
++
+ #endif
+ 
+ int __init psmouse_init(void)
+diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/psmouse.h linux-2.5.72-np2/drivers/input/mouse/psmouse.h
+--- linux-2.5.72-vanilla/drivers/input/mouse/psmouse.h	2003-06-17 13:33:51.000000000 -0700
++++ linux-2.5.72-np2/drivers/input/mouse/psmouse.h	2003-06-17 14:02:31.000000000 -0700
+@@ -46,4 +46,6 @@ struct psmouse {
+ 
+ int psmouse_command(struct psmouse *psmouse, unsigned char *param, int command);
+ 
++extern int psmouse_smartscroll;
++
+ #endif /* _PSMOUSE_H */
+diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/synaptics.h linux-2.5.72-np2/drivers/input/mouse/synaptics.h
+--- linux-2.5.72-vanilla/drivers/input/mouse/synaptics.h	2003-06-17 13:33:51.000000000 -0700
++++ linux-2.5.72-np2/drivers/input/mouse/synaptics.h	2003-06-17 14:03:26.000000000 -0700
+@@ -9,21 +9,10 @@
+ #ifndef _SYNAPTICS_H
+ #define _SYNAPTICS_H
+ 
+-#ifdef CONFIG_MOUSE_PS2_SYNAPTICS
+-
+ extern void synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs);
+ extern int synaptics_init(struct psmouse *psmouse);
+ extern void synaptics_disconnect(struct psmouse *psmouse);
+ 
+-#else
+-
+-static inline void synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs) {}
+-static inline int synaptics_init(struct psmouse *psmouse) { return -1; }
+-static inline void synaptics_disconnect(struct psmouse *psmouse) {}
+-
+-#endif
+-
+-
+ /* synaptics queries */
+ #define SYN_QUE_IDENTIFY		0x00
+ #define SYN_QUE_MODES			0x01
+diff -ruNp linux-2.5.72-vanilla/include/linux/input.h linux-2.5.72-np2/include/linux/input.h
+--- linux-2.5.72-vanilla/include/linux/input.h	2003-06-17 13:33:51.000000000 -0700
++++ linux-2.5.72-np2/include/linux/input.h	2003-06-17 14:02:31.000000000 -0700
+@@ -358,6 +358,7 @@ struct input_absinfo {
+ #define BTN_EXTRA		0x114
+ #define BTN_FORWARD		0x115
+ #define BTN_BACK		0x116
++#define BTN_TASK		0x117
+ 
+ #define BTN_JOYSTICK		0x120
+ #define BTN_TRIGGER		0x120
+
+--sdtB3X0nJg68CQEu--

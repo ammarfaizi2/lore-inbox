@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316227AbSEQOB1>; Fri, 17 May 2002 10:01:27 -0400
+	id <S316226AbSEQOCq>; Fri, 17 May 2002 10:02:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316228AbSEQOB0>; Fri, 17 May 2002 10:01:26 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:48909 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S316227AbSEQOBY>;
-	Fri, 17 May 2002 10:01:24 -0400
-Date: Fri, 17 May 2002 15:01:18 +0100 (IST)
-From: Mel <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S316229AbSEQOCp>; Fri, 17 May 2002 10:02:45 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:61340 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316226AbSEQOCn>;
+	Fri, 17 May 2002 10:02:43 -0400
+Date: Fri, 17 May 2002 06:49:21 -0700 (PDT)
+Message-Id: <20020517.064921.80183164.davem@redhat.com>
+To: dipankar@in.ibm.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Page replacement documentation
-In-Reply-To: <E178h81-0006OV-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0205171457580.6514-100000@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: 16-CPU #s for lockfree rtcache (rt_rcu)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020517192116.G12631@in.ibm.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 May 2002, Alan Cox wrote:
+   From: Dipankar Sarma <dipankar@in.ibm.com>
+   Date: Fri, 17 May 2002 19:21:16 +0530
+   
+   2.5.3 : ip_route_output_key [c01bab8c]: 12166
+   2.5.3+rt_rcu : ip_route_output_key [c01bb084]: 6027
+   
+Thanks for doing the testing.  Are you able to do this
+test on some 4 or 8 processor non-NUMA system?
 
-> > +     ----------------------------------------------------------------------
-> > +
-> > +     This document was translated from LATEX by HEVEA.
->
-> If you switched it into DocBook format then the kernel shipped tools
-> will generate a document from it including html/pdf/ps etc as well as
-> being able to embed stuff
->
+Basically halfing the profile hits for this function
+is wonderful and I'd love to see how much of this translates to a
+non-NUMA system.
 
-I'll look into it. I find DocBook very verbose to write in at the moment
-and much prefer LaTeX but I'm guessing I won't have a lot of choice in the
-matter when I release the rest of the documentation if anyone else is
-going to build on it.
+   I have seen moderately significant profile counts
+   for ip_route_input() in preliminary webserver benchmark runs.
+   It is not however clear to me that bucket lock cache line
+   bouncing is the reason behind it. That one needs more investigation.
 
-> > +/*
-> > + * shink_cache - Shrinks buffer caches in a zone
-> > + * nr_pages: Helps determine if process information needs to be sweapped
->
-> You've not tested these. They should start
->
-
-In this case, it was deliberate. I didn't want shrink_cache to be
-advertised on the kernel-doc because it's not a function people outside of
-vmscan.c should be calling so did not see the point in having it picked
-up.
-
--- 
-			Mel Gorman
-
+This is where most of the routing heavy work is done on
+a web server, so this doesn't surprise me.  Once packet
+is input and routed, we have destination and just grab a reference to
+and use it for output back to that remote host.

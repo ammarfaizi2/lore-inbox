@@ -1,141 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264257AbTDJXlf (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264259AbTDJXlf (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 19:41:35 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:18195 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S264257AbTDJXlc (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 19:41:32 -0400
-Date: Fri, 11 Apr 2003 01:53:07 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: James Bottomley <James.Bottomley@steeleye.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit kdev_t - just for playing
-In-Reply-To: <1049988660.1998.100.camel@mulgrave>
-Message-ID: <Pine.LNX.4.44.0304102029430.5042-100000@serv>
-References: <1049913637.1993.73.camel@mulgrave>  <Pine.LNX.4.44.0304092202570.5042-100000@serv>
- <1049941189.4467.186.camel@mulgrave>  <Pine.LNX.4.44.0304101033500.5042-100000@serv>
- <1049988660.1998.100.camel@mulgrave>
+	id S264255AbTDJXoU (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264259AbTDJXoU (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 19:44:20 -0400
+Received: from mail1.3par.com ([66.126.187.159]:34294 "EHLO mail.3pardata.com")
+	by vger.kernel.org with ESMTP id S264255AbTDJXoR (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 19:44:17 -0400
+Date: Thu, 10 Apr 2003 16:55:40 -0700 (PDT)
+From: Castor Fu <castor@3pardata.com>
+X-X-Sender: <castor@marais>
+To: <linux-kernel@vger.kernel.org>
+Subject: OOPS in ext3 kjournald -- 2.4.18
+Message-ID: <Pine.LNX.4.33.0304101633300.12792-100000@marais>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+We recently had a kernel OOPS accessing an ext3 filesystem using
+kjournald on a system running 2.4.18 + our drivers.  We haven't seen this particular
+OOPS before, and wanted to see if it was a known problem.
 
-On 10 Apr 2003, James Bottomley wrote:
+System: Dual processor Pentium-III
 
-> > If you want to use only a single SCSI major, won't it change the device 
-> > numbers?
-> 
-> They will collapse down to a single major, yes.  No application should
-> be relying on knowing the device number, though (and if you are trying
-> to argue that they do, you must see that in that scenario dynamic
-> mapping is a total failure).  Once /dev is rebuilt, no-one will know. 
-> Depending on whether people still dual boot 2.4 and 2.5, someone may
-> also come up with a compatibility layer, but one is not required.
+Thanks to LKCD, I've looked through the  buffer_head structure which looks
+corrupted, but I haven't figured out why.  Suggestions are welcoe.
 
-So we do break compatibility! Wow, it really took quite some time until 
-someone confirmed this...
-The problem now is that unfortunately programs do know about the device 
-number (e.g. MAKEDEV, scsidev), these programs will be broken and have to 
-be "fixed" so that they now have to change their behaviour depending on 
-the kernel version.
-This change will make it even more difficult for people to try a new 
-kernel. I would say there are more people which use more than 16 disks 
-than people who need more than 128 disks, but the former have to pay now 
-for the latter?
-OTOH it is possible to keep all device numbers below 0x10000 constant and 
-start allocating dynamic device numbers from above 0x10000. This won't 
-change anything for the current users and only people who want to go 
-beyond the current limits have to update their tools (what they have to do 
-in either case).
+    Thanks!
+    Castor Fu
+    castor@3pardata.com
 
-> > Changes in these area require kernel policy, exactly like dynamic device 
-> > numbers. If you want to maintain compatibility, you likely require user 
-> > space support, exactly like dynamic device numbers. So why don't we even 
-> > consider dynamic device numbers, especially as they have the promise of 
-> > the simpler long term solution. The required kernel changes are certainly 
-> > not more complex than the patches Andries got merged and still wants to 
-> > get merged. If you actually look at the character device patches I posted, 
-> > they already allow simple cleanups for 2.6.
-> 
-> Ah, OK, this may be the misunderstanding.  Kernel dev_t can be expanded
-> without any change to the current naming policy.  The only change is the
-> numbering in /dev, which is simple.
+Traceback:
 
-The current numbering matches the naming, 0x0301 is /dev/hda1, 0x0802 is 
-/dev/sda2 and 0x4103 is /dev/sdq3, the proposed patch does change the 
-numbering _and_ naming policy.
+     #3 [52457e2c] page_fault (via error_code) at 401070fc
+        EAX: 00002085  EBX: 00000003  ECX: 00000001  EDX: 00000001  EBP: 52457e2c
+        DS:  0018      ESI: 00000009  ES:  0018      EDI: 00007000
+        CS:  0010      EIP: 4013a323  ERR: ffffffff  EFLAGS: 00010202
+     #4 [52457e2c] get_hash_table+115 at 4013a323
+        (7000, 2085, 1000, 52a6b600, 5f8b2bb0)
+     #5 [52457e4c] getblk at 4013ab8c
+        (7000, 2085, 1000)
+     #6 [52457e6c] journal_get_descriptor_buffer at 4016bd20
+        (52a6b600)
+     #7 [52457fc4] journal_commit_transaction at 40168d79
+        (52a6b600)
+     #8 [52457fec] kjournald at 4016b646
+        (52a6b600)
+     #9 [521c7dd8] kernel_thread at 40105690
+        (0, 0, 0)
 
-> > OTOH if you only need a 
-> > solution for scsi now, it should be rather simple to expand scsidev.
-> > If you can live with dynamic device names (what scsi currently has), it's 
-> > a simple shell script to generate the device nodes.
-> 
-> But, as I've said before, not simpler than expanding kernel dev_t.
+    crash> p *$bh
+    $10 = {
+      b_next = 0x1, b_blocknr = 8325, b_size = 28672, b_list = 26594, b_dev =
+      28672, b_count = {
+        counter = 0
+      }, b_rdev = 28672, b_state = 25, b_flushtime = 0, b_next_free = 0x0,
+      b_prev_free = 0x0, b_this_page = 0x52923f20, b_reqnext = 0x0, b_pprev
+      = 0x418238a4, b_data = 0x47435000 "@;9\230", b_page = 0x411d0d40,
+      b_end_io = 0x40168720 <journal_end_buffer_io_sync>, b_private = 0x0,
+      b_rsector = 66600,
+      b_wait = { lock = { lock = 1 },
+    task_list = { next = 0x52923f6c, prev = 0x52923f6c } },
+    b_inode = 0x0, b_inode_buffers = { next = 0x0, prev = 0x0 }
+    }
 
-This may be true in the kernel, but you move all the compatibility 
-problems into user space and so we just added another ugly emulation 
-layer.
+b_next, b_size, and probably b_list are all corrupted.  We can compare the buffer
+structures with that of the previous page:
 
-> > If you want to have thousands of disk, you need some kind of user support 
-> > anyway, but I get surprisingly little answers, about how people want to 
-> > actually manage that much devices? All I hear is "we want them and we 
-> > want them now!", this makes it difficult to actually answer the question, 
-> > how kernel should support this. In the kernel it's simpler to keep this 
-> > dynamic, scsi does that already anyway. How will user space find these 
-> > devices? Will it continue to scan thousands of nodes in /dev or will it 
-> > just use the information already easily available via sysfs?
-> 
-> :-)
-> 
-> You take me back a decade to the "thirty two bits is enough for"
-> everybody and "why would an application want more than 640k of memory"
-> 
-> Operating systems which impose arbitrary limits on their users, or
-> demand cast iron justification before adding features tend to be at a
-> competitive disadvantage.
+    crash> x /24x $bh
+    0x52923f20:     0x00000001      0x00002085      0x67e27000      0x00007000
+    0x52923f30:     0x00000000      0x00007000      0x00000019      0x00000000
+    0x52923f40:     0x00000000      0x00000000      0x52923f20      0x00000000
+    0x52923f50:     0x418238a4      0x47435000      0x411d0d40      0x40168720
+    0x52923f60:     0x00000000      0x00010428      0x00000001      0x52923f6c
+    0x52923f70:     0x52923f6c      0x00000000      0x00000000      0x00000000
 
-Splitting the device number into major and minor is such an arbitrary 
-limit as well. If user space wants this it can do so, but it makes no 
-sense in the kernel.
+    crash> x /24x 0x52923e60
+    0x52923e60:     0x00000000      0x00002084      0x00001000      0x00007000
+    0x52923e70:     0x00000000      0x00007000      0x00000019      0x0018c78b
+    0x52923e80:     0x00000000      0x00000000      0x52923e60      0x00000000
+    0x52923e90:     0x41823084      0x4730c000      0x411cc300      0x40168720
+    0x52923ea0:     0x00000000      0x00010420      0x00000001      0x52923eac
+    0x52923eb0:     0x52923eac      0x00000000      0x57c7bdb8      0x57c7bdb8
 
-> However, if you want an example of how it works today, consider
-> clustering tools:  They have to identify the same piece of shared
-> storage as it gets passed around a cluster.  The way we do it (for a few
-> hundred discs) is to get the SCSI WWN from all the discs (via sg, then
-> map sg<->sd).  Our application policy is to use the WWN to identify the
-> device and a number for the partition.  Other cluster tools use the
-> volume label, still others use the LVM UUID.
-> 
-> The point is that none of these applications cares whether the kernel
-> uses dynamic or static, all they need to do is be able to identify all
-> the devices in the system.
-
-You cannot really compare the device number with other disk ids, because 
-the device number is a purely local and dynamic number, while the other 
-ids are global and static.
-
-> > I know I'm asking a lot of annoying questions,
-> 
-> I wouldn't characterise the questions like that.  Not listening to the
-> answers now...
-
-Oh, I do listen, you can be sure of that, but what am I supposed to so, 
-when it even takes weeks to get a clear answer about something simple as 
-compatibility? When I ask questions, I get evading answers, when I say 
-it's broken, I get silence, what else can I do?
-
-> As far as SCSI is concerned, the complete solution has already been
-> presented for the expansion of kernel dev_t, no such complete solution
-> has been presented for dynamic devices.  That constitutes a real
-> advantage to dev_t expansion in my book.
-
-Producing a patch isn't that difficult, but I'd rather be interested, if 
-there is even interest in such a patch? I already got not a single comment 
-about the last patch.
-
-bye, Roman
 

@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTJDJcM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 05:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbTJDJcM
+	id S261966AbTJDJcU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 05:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJDJcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 05:32:12 -0400
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:23751 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261965AbTJDJcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 05:32:11 -0400
-From: Ingo Oeser <ioe-lists@rameria.de>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: mlockall and mmap of IO devices don't mix
-Date: Sat, 4 Oct 2003 11:29:25 +0200
-User-Agent: KMail/1.5.4
-Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org, riel@redhat.com,
-       andrea@suse.de, Andrew Morton <akpm@osdl.org>
-References: <20031003214411.GA25802@rudolph.ccur.com> <20031003172727.3d2b6cb2.akpm@osdl.org> <20031003224727.2f6956b5.davem@redhat.com>
-In-Reply-To: <20031003224727.2f6956b5.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Oct 2003 05:32:20 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1041 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261966AbTJDJcS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 05:32:18 -0400
+Date: Sat, 4 Oct 2003 10:32:10 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: error configuring for ARCH=arm
+Message-ID: <20031004103209.B18928@flint.arm.linux.org.uk>
+Mail-Followup-To: "Robert P. J. Day" <rpjday@mindspring.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0310040522400.687-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310041129.25813.ioe-lists@rameria.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0310040522400.687-100000@localhost.localdomain>; from rpjday@mindspring.com on Sat, Oct 04, 2003 at 05:24:56AM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 04 October 2003 07:47, David S. Miller wrote:
-> On Fri, 3 Oct 2003 17:27:27 -0700
->
-> Andrew Morton <akpm@osdl.org> wrote:
-> > Maybe it's best to not overload VM_RESERVED in this manner, but to always
-> > mark /dev/mem as VM_IO.
->
-> Just in cast is isn't clear, it should be defined that anything
-> that sets VM_IO on an mmap() area should prefill the page tables
-> as a side effect of such a mmap() request.
->
-> Then things like mlockall() have simple semantics on VM_IO area, they
-> end up being a nop.
+On Sat, Oct 04, 2003 at 05:24:56AM -0400, Robert P. J. Day wrote:
+>   as a first attempt in building a cross-compile toolchain
+> for my ARM-based sharp zaurus, i started with a clean 2.6.0-bk5
+> source tree and ran:
+> 
+> $ make ARCH=arm xconfig
+> make[1]: `scripts/fixdep' is up to date.
+> scripts/kconfig/qconf arch/arm/Kconfig
+> file net/bluetooth/Kconfig already scanned?
+> make[1]: *** [xconfig] Error 1
+> make: *** [xconfig] Error 2
 
-It should be already, but the check in get_user_pages() looks wrong and
-will only disallow VM_IO if you provide space for an page array.
-It should be unconditional and we are done, because follow_pages will
-never be called with such vmas.
+To get this working, delete the line in arch/arm/Kconfig.  However,
+please note that the Zaurus people /appear/ to have no interest in
+merging their changes upstream, so you won't be able to use
+anything other than the stuff provided by the Zaurus specific site(s).
 
-Putting this check for "forbidden VMAs" into follow_pages is also a good
-decision, if follow_pages() is called by strange callers not knowing the
-limitations. kernel/futex.c is such an user, which don't check these in
-the fast path (does it like wait on hardware triggered futexes there?).
-
-It might be good to add VM_RESERVED check to get_user_pages(), too.
-These pages are available anyway, so never need to be considered from
-its users.
-
-Regards
-
-Ingo Oeser
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                      2.6 Serial core

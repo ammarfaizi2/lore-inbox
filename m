@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129586AbRBFRv4>; Tue, 6 Feb 2001 12:51:56 -0500
+	id <S129177AbRBFRz0>; Tue, 6 Feb 2001 12:55:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129671AbRBFRvq>; Tue, 6 Feb 2001 12:51:46 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:6660 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129586AbRBFRvd>;
-	Tue, 6 Feb 2001 12:51:33 -0500
-Message-ID: <20010206164049.L1412@bug.ucw.cz>
-Date: Tue, 6 Feb 2001 16:40:49 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: andrew.grover@intel.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Better battery info/status files
-In-Reply-To: <20010202155341.A149@bug.ucw.cz> <200102032322.f13NMZp438329@saturn.cs.uml.edu>
+	id <S129706AbRBFRzQ>; Tue, 6 Feb 2001 12:55:16 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:10625 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S129177AbRBFRzI>; Tue, 6 Feb 2001 12:55:08 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010206173437.A19836@redhat.com> 
+In-Reply-To: <20010206173437.A19836@redhat.com>  <200102061424.PAA32284@hell.wii.ericsson.net> <E14Q9U2-0005gX-00@the-village.bc.nu> 
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Anders Eriksson <aer-list@mailandnews.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: sync & asyck i/o 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <200102032322.f13NMZp438329@saturn.cs.uml.edu>; from Albert D. Cahalan on Sat, Feb 03, 2001 at 06:22:34PM -0500
+Date: Tue, 06 Feb 2001 17:54:41 +0000
+Message-ID: <19450.981482081@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > This fixes units, and makes format tag: value. Please apply.
-> 
-> The units seem to vary. I suggest using fundamental SI units.
-> That would be meters, kilograms, seconds, and maybe a very
-> few others -- my memory fails me on this.
-> 
-> Power meter applets will be eternally buggy if you force them
-> to deal with units that change. In fact there is no reason to
-> print the units if you always use the fundamental units.
+sct@redhat.com said:
+>  Linux will obey that if it possibly can: only in cases where the
+> hardware is actively lying about when the data has hit disk will the
+> guarantee break down. 
 
-Problem is that _hardware_ wants to talk us two different units.
+Do we attempt to ask SCSI disks nicely to flush their write caches in this 
+situation? cf. http://www.danbbs.dk/~dino/SCSI/SCSI2-09.html#9.2.18
 
-Sometimes it wants to tell us watts.
+Or do we instruct all SCSI disks not to do write caching in the first place?
 
-Sometimes hw wants to tell us volts and ampers.
+--
+dwmw2
 
-I believe kernel should not do any translation. [It is _not_ trivial
--- if battery voltage changes with time.]
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,165 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267985AbUIPL25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267978AbUIPLbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267985AbUIPL25 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 07:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267973AbUIPL25
+	id S267978AbUIPLbr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 07:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267971AbUIPL3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 07:28:57 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:14303 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267961AbUIPL14 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 07:27:56 -0400
-Date: Thu, 16 Sep 2004 12:27:52 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK pull] [DRM] latest DRM patches..
-Message-ID: <Pine.LNX.4.58.0409161226180.17566@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Sep 2004 07:29:22 -0400
+Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:41869 "EHLO
+	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
+	id S267957AbUIPL2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 07:28:04 -0400
+Subject: Re: [PATCH] Suspend2 Merge: Driver model patches 0/2
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040916111852.GC5467@elf.ucw.cz>
+References: <1095332314.3855.157.camel@laptop.cunninghams>
+	 <20040916111852.GC5467@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1095334173.3324.200.camel@laptop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 16 Sep 2004 21:29:34 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-Hi Linus,
+On Thu, 2004-09-16 at 21:18, Pavel Machek wrote:
+> Hi!
+> 
+> > Here are two patches for the driver model, which have been in use in
+> > suspend2 for around a month.
+> > 
+> > The first provides support for keeping part of the device tree alive
+> > while suspending the remainder. This is accomplished by abstracting the
+> > dpm_active, dpm_off and dpm_irq lists into a new struct partial device
+> 
+> I believe this is wrong approach.
+> 
+> For atomic snapshot to work, all devices need to be stopped. If your
+> video card does DMA, it needs to be stopped. So all drivers need to
+> know, you can not just exclude part of tree.
 
-Please do a
+Sorry. Perhaps I wasn't clear enough. I do suspend these devices. But I
+do it later:
 
-	bk pull bk://drm.bkbits.net/drm-2.6
+Suspend all other drivers.
+Write pageset 2 (page cache).
+Suspend used drivers.
+Make atomic copy.
+Resume used drivers.
+Write pageset 1 (atomic copy)
+Suspend used drivers.
+Power down all.
 
-This will include the latest DRM changes and will update the following files:
+And vice versa at resume time.
 
- drivers/char/drm/drm_drv.h      |   11 +++++++----
- drivers/char/drm/drm_os_linux.h |    4 ++--
- drivers/char/drm/drm_scatter.h  |    2 +-
- drivers/char/drm/i830_irq.c     |    4 ++--
- 4 files changed, 12 insertions(+), 9 deletions(-)
+> Now, you probably do not want disks to spin down and you want your
+> screen unblanked (as an optimalization/speedup). Patch for keeping
+> disk up is allready in -mm. Patch for keeping radeonfb up looks like
+> this, and is pending, too.
 
-through these ChangeSets:
+Mm. Don't forget i8xx and the gazillion other drivers there :>. I see
+this is using the SYSTEM_SNAPSHOT value. Do those changes look like
+being merged to Linus soon?
 
-<airlied@starflyer.(none)> (04/09/16 1.1904)
-   drm: use set_current_state instead of direct assignment
+Regards,
 
-   Suggested-by: Nishanth Aravamudan <nacc@us.ibm.com>
-   Approved-by: Dave Airlie <airlied@linux.ie>
+Nigel
 
-<airlied@starflyer.(none)> (04/09/16 1.1903)
-   drm: add pci_enable_device
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-   Add pci_enable_device for any PCI device we want to use.
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 
-   From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-   Approved-by: David Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (04/09/16 1.1902)
-   drm: fix bug introduced in the macro removal
-
-   This caused issues with a PCI radeon card.
-
-   From: Jon Smirl
-   Approved-by: Dave Airlie <airlied@linux.ie>
-
-diff -Nru a/drivers/char/drm/drm_drv.h b/drivers/char/drm/drm_drv.h
---- a/drivers/char/drm/drm_drv.h	Thu Sep 16 21:24:25 2004
-+++ b/drivers/char/drm/drm_drv.h	Thu Sep 16 21:24:25 2004
-@@ -480,6 +480,9 @@
- 	if (DRM(numdevs) >= MAX_DEVICES)
- 		return -ENODEV;
-
-+	if ((retcode=pci_enable_device(pdev)))
-+		return retcode;
-+
- 	dev = &(DRM(device)[DRM(numdevs)]);
-
- 	memset( (void *)dev, 0, sizeof(*dev) );
-@@ -785,7 +788,7 @@
-
- 		add_wait_queue( &dev->lock.lock_queue, &entry );
- 		for (;;) {
--			current->state = TASK_INTERRUPTIBLE;
-+			set_current_state(TASK_INTERRUPTIBLE);
- 			if ( !dev->lock.hw_lock ) {
- 				/* Device has been unregistered */
- 				retcode = -EINTR;
-@@ -805,7 +808,7 @@
- 				break;
- 			}
- 		}
--		current->state = TASK_RUNNING;
-+		set_current_state(TASK_RUNNING);
- 		remove_wait_queue( &dev->lock.lock_queue, &entry );
- 		if( !retcode ) {
- 			if (dev->fn_tbl.release)
-@@ -985,7 +988,7 @@
-
- 	add_wait_queue( &dev->lock.lock_queue, &entry );
- 	for (;;) {
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 		if ( !dev->lock.hw_lock ) {
- 			/* Device has been unregistered */
- 			ret = -EINTR;
-@@ -1006,7 +1009,7 @@
- 			break;
- 		}
- 	}
--	current->state = TASK_RUNNING;
-+	set_current_state(TASK_RUNNING);
- 	remove_wait_queue( &dev->lock.lock_queue, &entry );
-
- 	sigemptyset( &dev->sigmask );
-diff -Nru a/drivers/char/drm/drm_os_linux.h b/drivers/char/drm/drm_os_linux.h
---- a/drivers/char/drm/drm_os_linux.h	Thu Sep 16 21:24:25 2004
-+++ b/drivers/char/drm/drm_os_linux.h	Thu Sep 16 21:24:25 2004
-@@ -134,7 +134,7 @@
- 	add_wait_queue(&(queue), &entry);			\
- 								\
- 	for (;;) {						\
--		current->state = TASK_INTERRUPTIBLE;		\
-+		set_current_state(TASK_INTERRUPTIBLE);		\
- 		if (condition)					\
- 			break;					\
- 		if (time_after_eq(jiffies, end)) {		\
-@@ -147,7 +147,7 @@
- 			break;					\
- 		}						\
- 	}							\
--	current->state = TASK_RUNNING;				\
-+	set_current_state(TASK_RUNNING);				\
- 	remove_wait_queue(&(queue), &entry);			\
- } while (0)
-
-diff -Nru a/drivers/char/drm/drm_scatter.h b/drivers/char/drm/drm_scatter.h
---- a/drivers/char/drm/drm_scatter.h	Thu Sep 16 21:24:25 2004
-+++ b/drivers/char/drm/drm_scatter.h	Thu Sep 16 21:24:25 2004
-@@ -73,7 +73,7 @@
-
- 	DRM_DEBUG( "%s\n", __FUNCTION__ );
-
--	if (drm_core_check_feature(dev, DRIVER_SG))
-+	if (!drm_core_check_feature(dev, DRIVER_SG))
- 		return -EINVAL;
-
- 	if ( dev->sg )
-diff -Nru a/drivers/char/drm/i830_irq.c b/drivers/char/drm/i830_irq.c
---- a/drivers/char/drm/i830_irq.c	Thu Sep 16 21:24:25 2004
-+++ b/drivers/char/drm/i830_irq.c	Thu Sep 16 21:24:25 2004
-@@ -92,7 +92,7 @@
- 	add_wait_queue(&dev_priv->irq_queue, &entry);
-
- 	for (;;) {
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 	   	if (atomic_read(&dev_priv->irq_received) >= irq_nr)
- 		   break;
- 		if((signed)(end - jiffies) <= 0) {
-@@ -112,7 +112,7 @@
- 		}
- 	}
-
--	current->state = TASK_RUNNING;
-+	set_current_state(TASK_RUNNING);
- 	remove_wait_queue(&dev_priv->irq_queue, &entry);
- 	return ret;
- }

@@ -1,69 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315416AbSGYRMj>; Thu, 25 Jul 2002 13:12:39 -0400
+	id <S315431AbSGYRTQ>; Thu, 25 Jul 2002 13:19:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315431AbSGYRMj>; Thu, 25 Jul 2002 13:12:39 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:62635 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S315416AbSGYRMi>; Thu, 25 Jul 2002 13:12:38 -0400
-Date: Thu, 25 Jul 2002 18:15:37 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 'select' failure or signal should not update timeout
-Message-ID: <20020725181537.A11324@kushida.apsleyroad.org>
-References: <Pine.LNX.4.33.0207241142320.2117-100000@penguin.transmeta.com> <m1eldrix4f.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m1eldrix4f.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Thu, Jul 25, 2002 at 10:35:28AM -0600
+	id <S315449AbSGYRTQ>; Thu, 25 Jul 2002 13:19:16 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:34567 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S315431AbSGYRTP>;
+	Thu, 25 Jul 2002 13:19:15 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: dalecki@evision.ag
+Date: Thu, 25 Jul 2002 19:22:14 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: IDE lockups with 2.5.28...
+CC: lkml <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <218BBF1744@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> When we have a cpu load average < 1, it is trivial to increase the
-> timer granularity to something resembling the gettimeofday resolution 
-> simply by internally doing gettimeofday when schedule is called, and
-> adding those processes that have just become runnable to the run
-> queue.  To get the most out of this the idle task would need to busy
-> wait looking for timer events, when we have an event scheduled before
-> the next timer tick.
+Martin,
+   can you explain what local_irq_disable() in do_request in
+drivers/ide/ide.c should guard against? There is dozen (all unless I 
+missed something) of paths which do not local_irq_enable(), and neither 
+does the caller...
 
-Unfortunately, this does not help "soft real-time" tasks like the
-hypothetical video game with a compile running in the background.  That
-needs to preempt lower priority tasks somehow.
+And what you meant with (endless) loop in ide_do_request?
 
-Ideally, because they don't use much CPU but do want to run on time, it
-should be possible to run those programs using non-real-time priority,
-and they would run on time simply because they always have a high
-dynamic priority.
+And where do_request() callers obtain channel lock so that do_request()
+can release and reacquire it?
 
-To be fair, although 100Hz timer resolution wasn't good enough even for
-a simple "snake" video game with no other load (the eye detects the time
-variance as an apparent velocity variance), 1000Hz is probably fine.
+My problem is that fsck reliable dies between 79.6 and 81% of its
+run - on UP machine with SMP kernel:
 
-> The goal is twofold, to remove the need for user space applications to
-> busy wait, so sometimes the system can get something done another
-> process is waiting, and to increase the internal kernel timer
-> granularity to the point where user space doesn't care anymore.  With
-> the only timer we sleep past the desired time is when the kernel
-> decides there is some higher priority task to run.
+NMI detected lockup on CPU0 ...
 
-What will happen if the timer granularity remains at 1000Hz when
-loadavg > 1 is that time-sensitive interactive apps will still busy wait
-for the remainder of a tick.  _But_, if we can define select() or similar
-semantics to mean, as Linus suggested, "wait until at most TIME", then
-it becomes possible to avoid the busy wait at low loads (paradoxically).
+Stack trace: do_request + 315/924
+             do_ide_request
+             generic_unplug_device
+             blk_run_queues
+             do_page_cache_readahead
+             page_cache_readahead
+             do_generic_file_read
+             generic_file_read
+             file_read_actor
+             vfs_read
+             sys_read
 
-> The most interesting use I have seen is a high performance local area
-> data transfer utility, that would do short sleeps in between sending
-> packets to avoid pushing the switch to the point where it would drop
-> packets.  But it was perfectly fine if a new packet came in before it
-> was done waiting for the old packet to go out the wire.
+do_request+315 is clear_bit(IDE_BUSY, channel->active) at line 606.
 
-That's the sort of thing I work on :)  The resolution required of a
-packet shaper is measured in 10s of microseconds, though, so I just
-accept that user space must busy wait _all_ the time the link isn't idle.
+The do_ide_request()'s loop
 
--- Jamie
+while (!test_and_set_bit(IDE_BUSY, ch->active)) {
+  do_request(ch)
+}
+
+looks very suspicious to me - it will loop here until the end of world,
+as there is nothing in queue, so do_request() will always exit
+with IDE_BUSY cleared.
+
+Next question is: with this stack trace, where you obtained ch->lock,
+so that do_request() can do call to spin_unlock(ch->lock) ? It looks
+to me like that I should get 'unlocking unlocked spinlock' with
+appropriate debug.
+
+What (probably) happened is that hardware finished request before 
+spin_lock_irq(ch->lock) (at line 749) was executed, we quit with
+IDE_BUSY cleared, and it was last thing we did... Maybe I should
+go back to IDE-98?
+                                            Thanks,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

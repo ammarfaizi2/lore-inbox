@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129849AbRBWUFV>; Fri, 23 Feb 2001 15:05:21 -0500
+	id <S144124AbRBWUkF>; Fri, 23 Feb 2001 15:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129975AbRBWUFL>; Fri, 23 Feb 2001 15:05:11 -0500
-Received: from pipt.oz.cc.utah.edu ([155.99.2.7]:22927 "EHLO
-	pipt.oz.cc.utah.edu") by vger.kernel.org with ESMTP
-	id <S129849AbRBWUE5>; Fri, 23 Feb 2001 15:04:57 -0500
-Date: Fri, 23 Feb 2001 13:04:49 -0700 (MST)
-From: james rich <james.rich@m.cc.utah.edu>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: TESTERS PLEASE - improvements to knfsd for 2.4.2
-In-Reply-To: <20010223185349.G7589@emma1.emma.line.org>
-Message-ID: <Pine.GSO.4.05.10102231302480.15426-100000@pipt.oz.cc.utah.edu>
+	id <S129669AbRBWUc1>; Fri, 23 Feb 2001 15:32:27 -0500
+Received: from UX4.SP.CS.CMU.EDU ([128.2.198.104]:57932 "HELO
+	ux4.sp.cs.cmu.edu") by vger.kernel.org with SMTP id <S129394AbRBWUcR>;
+	Fri, 23 Feb 2001 15:32:17 -0500
+Message-ID: <3A96C858.5C8FB714@cs.cmu.edu>
+Date: Fri, 23 Feb 2001 15:30:16 -0500
+From: Sourav Ghosh <sourav@cs.cmu.edu>
+Organization: Carnegie Mellon University
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.15-timesys-u-16Jan01 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: creation of sock 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Feb 2001, Matthias Andree wrote:
+Hello,
 
-> On Thu, 22 Feb 2001, Henning P. Schmiedehausen wrote:
-> 
-> > neilb@cse.unsw.edu.au (Neil Brown) writes:
-> > 
-> > Oh, please not again a stable kernel series with NFS problems, we're
-> > locked in for ages. 2.2 was bad enough up to 2.2.18. We have ReiserFS
-> > in 2.4.1 (and not in 2.4.0), could we _please_ get NFS-exportable
-> > ReiserFS in 2.4.4 or 2.4.5?
-> 
-> 2.2.18 is still broken, won't play NFSv3 games with FreeBSD clients.
-> Neil has posted a patch here which fixes this.
-> 
-> And, ReiserFS messes NFSv3 up, I'm currently switching all my boxes back
-> to ext2, because I'm really pissed. And if these NFS annoyances
-> continue, it might be about time to try FreeBSD or NetBSD. Journalling
-> file systems which hide their files away for maintainer incompetence and
-> uncoordinated patching around don't buy us anything except continued
-> "don't use Linux as NFS server" reputation.
+I'm using linux 2.2.15 kernel on redhat.
+I have added some variables (pointers) on "sock" data structure.
+I was initializing them to NULL in sk_alloc() function.
 
-If you need journaled file systems and NFS I have been using XFS and it
-seems to be fine when exported over NFS (Yes I know it isn't in the main
-kernel - hopefully that changes soon).
+But it seems some sock structures are allocated for TCP bypassing this
+sk_alloc() and due to this my added pointers are not initialized to NULL
+all the time.
 
-James Rich
-james.rich@m.cc.utah.edu
+Can anyone tell me which function is being called for generating sock
+for TCP connections ( I guess for a aprticular TCP packet type, not for
+all, as I'm getting into this problem intermittently, esp., when I try
+access some specified website from my PC) ?
+
+Thanks
+--
+Sourav
 

@@ -1,81 +1,83 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315513AbSEMDGM>; Sun, 12 May 2002 23:06:12 -0400
+	id <S315523AbSEMDUm>; Sun, 12 May 2002 23:20:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315514AbSEMDGL>; Sun, 12 May 2002 23:06:11 -0400
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:33732 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S315513AbSEMDGL>; Sun, 12 May 2002 23:06:11 -0400
-Message-ID: <3CDF2C7C.7090203@linuxhq.com>
-Date: Sun, 12 May 2002 23:01:16 -0400
-From: John Weber <john.weber@linuxhq.com>
-Organization: Linux Headquarters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S315525AbSEMDUl>; Sun, 12 May 2002 23:20:41 -0400
+Received: from ruckus.brouhaha.com ([209.185.79.17]:11757 "HELO brouhaha.com")
+	by vger.kernel.org with SMTP id <S315523AbSEMDUk>;
+	Sun, 12 May 2002 23:20:40 -0400
+Date: 13 May 2002 03:20:37 -0000
+Message-ID: <20020513032037.10708.qmail@brouhaha.com>
+From: eric@brouhaha.com
 To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Unofficial but Supported Kernel Patches
-In-Reply-To: <Pine.LNX.4.33L2.0205121935000.18593-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: patch to acenic driver for Farallon PN9100-T Gigabit Ethernet (copper)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Mon, 13 May 2002, Tomas Szepe wrote:
-> 
-> | > [Randy.Dunlap <rddunlap@osdl.org>, May-12 2002, Sun, 16:32 -0700]
-> | >
-> | > What I would like is for someone to maintain a set of
-> | > "required" patches to each new kernel --
-> | > "required" here meaning "these patches are needed for kernel
-> | > x.y.z to build or boot cleanly."
-> | >
-> | > The patchsets would contain only compile/link fixes and
-> | > critical logic fixes to release and pre-release kernels.
-> |
-> | Do you mean something even more
-> | "select fault_and_patch from kernel group by release;" than
-> | http://www.codemonkey.org.uk/Linux-2.5.html
-> | ?
-> 
-> That might be what I suggested, except that I can't find it
-> there... That's a status/TODO list.
-> 
+I recently got some Farallon Netline PN9100-T cards.  They appear to be
+the copper equivalent of the fibre PN9000-SX, which Linux supports, and
+use the same Alteon chipset.  These cards were quite pricey when new,
+but are now obsolete and widely available inexpensively at clearance
+sales.  Note that Farallon is now part of Proxim.  Their web page for
+this card is:
+    http://www.proxim.com/products/all/netlinecard/pn9100t/index.html
 
-Right now I maintain a kernel tree on linuxhq to which I apply all of 
-the patches posted on the kernel mailing list (without filtering at 
-all).  I don't think this was very useful, so I was thinking about 
-simply providing a list of all maintained (but currently not applied) 
-patches -- things like Rik van Riel's VM, and perhaps put up all of the 
-patches being developed by Universities and other research institutions 
-willing to share their stuff.
+The acenic driver didn't claim the card because it uses the Alteon vendor
+ID with the device ID 0x00fa.  After adding those IDs to the table and
+switch statement, I was pleased to find that the card works.  (At 100 Mbps,
+I don't yet have a gigabit switch so I can't test that.)
 
-I didn't think providing patches needed to compile would be very useful, 
-  because it seems that many people do this already (most notably, Alan 
-Cox does this for Marcelo, and Dave Jones does this for Linus).
+Below find a trivial patch against the 2.4.18 kernel to add support for
+this card.  Since it only adds new vendor/device ID support, this patch
+should work (with only minor alterations if any) on other kernel
+versions.
 
-I inherited linuxhq.com and would like to make it into something more 
-useful.  Since kernelnewbies does such a wonderful job catering to the 
-newbies, I figured that linuxhq needed a new niche (and I needed 
-something funner to do with my time).  So please let me know what types 
-of things you kernel folk would like to see but have no time to do 
-themselves, and I can accomodate.
+Eric Smith
 
-Some ideas:
 
-[1] Performance Measurements.  (Though I would need some help from the 
-kernel community to identify which suites are the most useful to run the 
-kernels against).
-
-[2] Kernel Programming Documentation.  This would mostly document the 
-kernel API, and important kernel data structures, as well as "good 
-habits" in kernel development -- like "don't use virt_to_bus use 
-blah,blah,blah".  Information like this might be useful to kernel 
-janitors.  (This probably exists already).
-
-[3] Necessary patches for each release.
-
-I will do any and maybe all things that folks find useful...
-other suggestions also welcome.
-
+--- linux/drivers/net/acenic.c.orig	Fri May 10 14:47:26 2002
++++ linux/drivers/net/acenic.c	Sun May 12 13:56:04 2002
+@@ -114,6 +114,10 @@
+ #ifndef PCI_DEVICE_ID_FARALLON_PN9000SX
+ #define PCI_DEVICE_ID_FARALLON_PN9000SX	0x1a
+ #endif
++#ifndef PCI_DEVICE_ID_FARALLON_PN9100T
++#define PCI_DEVICE_ID_FARALLON_PN9100T  0xfa
++#endif
++
+ #ifndef PCI_VENDOR_ID_SGI
+ #define PCI_VENDOR_ID_SGI		0x10a9
+ #endif
+@@ -138,6 +142,9 @@
+ 	 */
+ 	{ PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_FARALLON_PN9000SX,
+ 	  PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_NETWORK_ETHERNET << 8, 0xffff00, },
++	{ PCI_VENDOR_ID_ALTEON, PCI_DEVICE_ID_FARALLON_PN9100T,
++	  PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_NETWORK_ETHERNET << 8, 0xffff00, },
++
+ 	{ PCI_VENDOR_ID_SGI, PCI_DEVICE_ID_SGI_ACENIC,
+ 	  PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_NETWORK_ETHERNET << 8, 0xffff00, },
+ 	{ }
+@@ -603,6 +610,8 @@
+ 		 */
+ 		    !((pdev->vendor == PCI_VENDOR_ID_DEC) &&
+ 		      (pdev->device == PCI_DEVICE_ID_FARALLON_PN9000SX)) &&
++		    !((pdev->vendor == PCI_VENDOR_ID_ALTEON) &&
++		      (pdev->device == PCI_DEVICE_ID_FARALLON_PN9100T)) &&
+ 		    !((pdev->vendor == PCI_VENDOR_ID_SGI) &&
+ 		      (pdev->device == PCI_DEVICE_ID_SGI_ACENIC)))
+ 			continue;
+@@ -701,6 +710,13 @@
+ 
+ 		switch(pdev->vendor) {
+ 		case PCI_VENDOR_ID_ALTEON:
++			if (pdev->device == PCI_DEVICE_ID_FARALLON_PN9100T) {
++				strncpy(ap->name, "Farallon PN9100-T "
++					"Gigabit Ethernet", sizeof (ap->name));
++				printk(KERN_INFO "%s: Farallon PN9100-T ",
++				       dev->name);
++				break;
++			}
+ 			strncpy(ap->name, "AceNIC Gigabit Ethernet",
+ 				sizeof (ap->name));
+ 			printk(KERN_INFO "%s: Alteon AceNIC ", dev->name);

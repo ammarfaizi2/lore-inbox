@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270727AbTGRI6V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 04:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271264AbTGRI6V
+	id S271264AbTGRJF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 05:05:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271315AbTGRJF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 04:58:21 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:61895 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S270727AbTGRI6U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 04:58:20 -0400
-Date: Fri, 18 Jul 2003 11:12:52 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Pavel Machek <pavel@ucw.cz>, torvalds@transmeta.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Make CONFIG_ACPI_SLEEP independend on CONFIG_SOFTWARE_SUSPEND
-Message-ID: <20030718091252.GA280@elf.ucw.cz>
-References: <20030717211258.GA10221@elf.ucw.cz> <Pine.LNX.4.33.0307171959270.876-200000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0307171959270.876-200000@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Fri, 18 Jul 2003 05:05:56 -0400
+Received: from mta8.srv.hcvlny.cv.net ([167.206.5.23]:51925 "EHLO
+	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S271264AbTGRJFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 05:05:55 -0400
+Date: Fri, 18 Jul 2003 05:18:23 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: [PATCH][2.6] Fix "sleeping function called from illegal context" from
+ Bugzilla bug # 641
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <200307180510.02780.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+User-Agent: KMail/1.5.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > This separates CONFIG_ACPI_SLEEP and CONFIG_SOFTWARE_SUSPEND. That
-> > should end the user confusion. It also updates obsolete docs, and
-> > makes code less noisy. Please apply,
-> 
-> Alright, I applied the initial patch to make those config options 
-> independent, though with a slightly different take on it. 
-> 
-> I moved kernel/suspend.c to drivers/power/swsusp.c and extracted the 
-> process suspension code to drivers/power/process.c. This removes the 
-> #ifdef from swsusp.c. (drivers/power/process.c is compiled when CONFIG_PM 
-> is set and drivers/power/swsusp.c only when CONFIG_SOFTWARE_SUSPEND is 
-> set). 
+http://bugme.osdl.org/show_bug.cgi?id=641
 
-I do not really like the placement; process suspension is not really a
-device driver. What about kernel/power/*.c, instead?
+Debug: sleeping function called from illegal context at include/asm/semaphore.h:
+119
+Call Trace:
+ [<c011dadf>] __might_sleep+0x5f/0x80
+ [<e325c3f6>] +0x40a/0x574 [snd_emux_synth]
+ [<e3258b4a>] lock_preset+0x1ca/0x290 [snd_emux_synth]
+ [<e325c3f6>] +0x40a/0x574 [snd_emux_synth]
+ [<e325aaaf>] snd_soundfont_search_zone+0x2f/0xf0 [snd_emux_synth]
+ [<e0911f10>] snd_timer_s_function+0x0/0x20 [snd_timer]
+ [<e3256830>] get_zone+0x70/0x90 [snd_emux_synth]
+ [<e3254632>] snd_emux_note_on+0xf2/0x4a0 [snd_emux_synth]
+ [<c010c263>] do_IRQ+0x233/0x370
+ [<e325eec0>] emux_ops+0x0/0x20 [snd_emux_synth]
+ [<e09090f6>] +0xf6/0x3c0 [snd_seq_midi_emul]
+ [<c014b0eb>] check_poison_obj+0x3b/0x190
+ [<c02aefb4>] kfree_skbmem+0x64/0x70
+ [<e3257293>] snd_emux_event_input+0x63/0xa0 [snd_emux_synth]
+ [<e325eec0>] emux_ops+0x0/0x20 [snd_emux_synth]
+ [<e3241657>] snd_seq_deliver_single_event+0x147/0x1b0 [snd_seq]
+ [<e3241965>] snd_seq_deliver_event+0x45/0xb0 [snd_seq]
+ [<e3241a9a>] snd_seq_dispatch_event+0xca/0x1b0 [snd_seq]
+ [<c011165a>] do_gettimeofday+0x1a/0x90
+ [<e3247335>] snd_seq_check_queue+0x245/0x500 [snd_seq]
+ [<c016b19b>] do_sync_read+0x8b/0xc0
+ [<e09113fd>] snd_timer_interrupt+0x48d/0x610 [snd_timer]
+ [<c02ab029>] sock_poll+0x29/0x40
 
-Otherwise it looks good.
-								Pavel
+Josef "Jeff" Sipek
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+- --
+Research, n.:
+  Consider Columbus:
+    He didn't know where he was going.
+    When he got there he didn't know where he was.
+    When he got back he didn't know where he had been.
+    And he did it all on someone else's money.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/F7tjwFP0+seVj/4RAndtAJ47MlLqZIEyiYhti0Ub9zjw9G5TlwCfeO8a
+U68C2Wswc2N4VJHljEPBfaY=
+=VqQH
+-----END PGP SIGNATURE-----
+

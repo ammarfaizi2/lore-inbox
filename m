@@ -1,90 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265113AbRFUTAK>; Thu, 21 Jun 2001 15:00:10 -0400
+	id <S265119AbRFUTEm>; Thu, 21 Jun 2001 15:04:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265111AbRFUTAA>; Thu, 21 Jun 2001 15:00:00 -0400
-Received: from helene.ethz.ch ([129.132.63.50]:37136 "EHLO astro.phys.ethz.ch")
-	by vger.kernel.org with ESMTP id <S265110AbRFUS7q>;
-	Thu, 21 Jun 2001 14:59:46 -0400
-Message-ID: <3B324410.A1D4DD5E@astro.phys.ethz.ch>
-Date: Thu, 21 Jun 2001 20:59:28 +0200
-From: Marc Audard <audard@astro.phys.ethz.ch>
-Organization: Laboratory for Astrophysics, PSI & Institute of Astronomy, ETHZ
-X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S265117AbRFUTEa>; Thu, 21 Jun 2001 15:04:30 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:62221 "EHLO
+	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S265116AbRFUTET>; Thu, 21 Jun 2001 15:04:19 -0400
+Date: 21 Jun 2001 21:14:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-CC: Marc Audard <audard@astro.phys.ethz.ch>
-Subject: Bad bridge mapping problem: PCMCIA card not started
+Message-ID: <83JvUAC1w-B@khms.westfalen.de>
+In-Reply-To: <3B32280A.ADC08780@efore.fi>
+Subject: Re: temperature standard - global config option?
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <OFE74ECCAE.A9CB9437-ON80256A72.0045BC45@portsmouth.uk.ibm.com> <3B32280A.ADC08780@efore.fi>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+lauri.tischler@efore.fi (Lauri Tischler)  wrote on 21.06.01 in <3B32280A.ADC08780@efore.fi>:
 
-I hope that I post this at the right place. There was
-no answer at various other places. Please CC me for
-any reply.
+> Richard J Moore wrote:
+> >
+> > > 59.42886726469 ±2°C is obviously ludicrous, even if that's
+> > > what my calculator gives me.  I should instead write 59 ±2°C, since
+> >
+> > So, if I follow you argument then shouldn't you be writing 58 ±2°C or
+> > should it be 60 ±2°C ?
+>
+> What it means is that whatever dingus measured the temperature, reported
+> the temperature as 59C.
 
-I would like to know if the problem I encounter can be
-fixed:
+Well, maybe. And maybe it reported the temperature as "76 units", where a  
+unit is approximately 0.69°C, and zero units are approximately 6.99°C, and  
+we happen to know the accuracy is 3 units.
 
-I upgraded the system memory from 192 MB to 512 MB.
-The system clearly detected the upgrade and linux booted.
-However, at the cardmgr step, cardmgr complains not
-finding an entry in /proc/devices for pcmcia (which is
-correct). I checked with /var/log/syslog and apparently
-the problem appears before, because of a bridge mapping problem.
+(That makes out to 59.43 ±2.07°C, or 57.36 to 61.50°C, whereas 59 ±2°C  
+works out to 57.00 to 61.00°C - they do overlap, but they're not the same.  
+Now you might not care - but then again, you might care.)
 
-
-
-in syslog:
-
-kernel: Linux PCMCIA Card Services 3.1.25
-kernel:  kernel build: 2.4.3-20mdk #1 Sun Apr 15 23:03:10 CEST 2001
-kernel:   options: [pci] [cardbus] [apm]
-kernel: Intel PCIC probe: PCI: Found IRQ 11 for device 00:03.0
-kernel: PCI: The same IRQ used for device 00:03.1
-kernel: PCI: The same IRQ used for device 00:07.2
-kernel:
-kernel:  Bad bridge mapping at 0x17ff0000!
-kernel: not found
-kernel: ds: no socket drivers loaded
-
-This problem occurs with 256+64,256+128,256+256, but not 192 or
-256 MB. The Multifunction Card I have is the 
-XIRCOM Realport Ethernet 10/100-56K, known as REM56-100BTX
-
-
-With 192 MB (when it's OK), the syslog message goes like this:
-
-
-
-kernel: Linux PCMCIA Card Services 3.1.25
-kernel:  kernel build: 2.4.3-20mdk #1 Sun Apr 15 23:03:10 CEST 2001
-kernel:   options: [pci] [cardbus] [apm]
-kernel: Intel PCIC probe: PCI: Found IRQ 11 for device 00:03.0
-kernel: PCI: The same IRQ used for device 00:03.1
-kernel: PCI: The same IRQ used for device 00:07.2
-kernel: PCI: Found IRQ 11 for device 00:03.1
-kernel: PCI: The same IRQ used for device 00:03.1
-kernel: PCI: The same IRQ used for device 00:07.2
-kernel: 
-kernel:  TI 1420 rev 00 PCI-to-Cardbus at slot 00:03, mem 0x10000000
-kernel:    hos opts [0]: [ring] [serial pci & irq] [pci irq 11] [lat 32/32] [bus 2/5]
-kernel:    hos opts [1]: [ring] [serial pci & irq] [pci irq 11] [lat 32/32] [bus 6/9]
-kernel: spurious 8259A interrupt: IRQ7
-kernel:    ISA irqs (scanned) = 3,4,7,10 PCI status changes
-kernel: cs: memory probe 0xa0000000-0xa0ffffff: clean
-kernel: xirc2ps_cs.c 1.31 1998/12/09 19:32:55 (dd9jn+kvh)
-kernel: cs: IO probe 0x0100-0x04ff: excluding 0x378-0x37f
-
-etc...
-
-
-Thanks for any help,
-
-	Regards,
-
-		Marc
+MfG Kai

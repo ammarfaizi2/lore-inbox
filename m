@@ -1,54 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbTJAQgq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 12:36:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTJAQdz
+	id S261515AbTJAQ4n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 12:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbTJAQ4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 12:33:55 -0400
-Received: from mailwasher.lanl.gov ([192.16.0.25]:13719 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S262444AbTJAQVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 12:21:17 -0400
-Subject: [PATCH] [TRIVIAL 11/12] 2.6.0-test6-bk remove reference to
-	modules.txt in sound/oss/Kconfig
-From: Steven Cole <elenstev@mesatop.com>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Content-Type: text/plain
-Organization: 
-Message-Id: <1065025212.1995.2423.camel@spc9.esa.lanl.gov>
+	Wed, 1 Oct 2003 12:56:43 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:15328 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261515AbTJAQ4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 12:56:41 -0400
+Date: Wed, 1 Oct 2003 18:56:37 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: linux-current: atkbd.c: Unknown key pressed
+Message-ID: <20031001165637.GA16565@stud.uni-erlangen.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 01 Oct 2003 10:20:12 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-URL: http://wwwcip.informatik.uni-erlangen.de/~sithglan/
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the reference to Documentation/modules.txt,
-which has been removed.  The patch was made against the current
-2.6-bk tree.
+Hi Vojtech,
+I have a Sun type 5 keyboard connected via a selfbuild sun to pc
+keyboard converter connected to my PS/2 port. I am running a kernel
+compiled from the Linux current bitkeeper repostory.
 
-Steven
+When I press some buttons on my sun type 5 keyboard I get the following
+in the kern.log:
 
---- 2.6-bk-current/sound/oss/Kconfig	2003-09-30 21:11:08.000000000 -0600
-+++ linux/sound/oss/Kconfig	2003-09-30 22:26:12.000000000 -0600
-@@ -17,10 +17,8 @@
- 	  don't need this driver as most TV cards handle sound with a short
- 	  cable from the TV card to your sound card's line-in.
- 
--	  This driver is available as a module called btaudio ( = code
--	  which can be inserted in and removed from the running kernel
--	  whenever you want). If you want to compile it as a module, say M
--	  here and read <file:Documentation/modules.txt>.
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called btaudio.
- 
- config SOUND_CMPCI
- 	tristate "C-Media PCI (CMI8338/8738)"
+SunAudioLowerVolume:
+Oct  1 18:36:59 excalibur kernel: atkbd.c: Unknown key pressed (translated set 2, code 0x57, data 0x6e, on isa0060/serio0).
 
+SunAudioRaiseVolume:
+Oct  1 18:38:09 excalibur kernel: atkbd.c: Unknown key pressed (translated set 2, code 0x48, data 0x6c, on isa0060/serio0).
 
+Anykey:
+Oct  1 18:38:38 excalibur kernel: atkbd.c: Unknown key pressed (translated set 2, code 0x40, data 0x6b, on isa0060/serio0).
 
+Again:
+Oct  1 18:38:53 excalibur kernel: atkbd.c: Unknown key pressed (translated set 2, code 0x19, data 0x71, on isa0060/serio0).
 
+Props:
+Oct  1 18:39:05 excalibur kernel: atkbd.c: Unknown key pressed (translated set 2, code 0x39, data 0x72, on isa0060/serio0).
 
+Copy:
+Oct  1 18:39:24 excalibur kernel: atkbd.c: Unknown key pressed (translated set 2, code 0x5c, data 0x75, on isa0060/serio0).
 
+Open:
+Oct  1 18:39:38 excalibur kernel: atkbd.c: Unknown key pressed (translated set 2, code 0x5f, data 0x76, on isa0060/serio0).
 
+Compose:
+Oct  1 18:40:00 excalibur kernel: atkbd.c: Unknown key pressed (translated set 2, code 0x2f, data 0x5d, on isa0060/serio0).
+
+all other keys work, but Help has a different key code (keycode 247):
+
+Old keycodes:
+
+keycode 93  = SunAudioMute
+keycode 101 = Multi_key
+keycode 113 = Mode_switch
+keycode 118 = SunAudioLowerVolume
+keycode 116 = SunAudioRaiseVolume
+keycode 120 = SunStop
+keycode 121 = Redo
+keycode 122 = SunProps
+keycode 123 = SunUndo
+keycode 124 = SunFront
+keycode 125 = SunCopy
+keycode 126 = SunOpen
+keycode 127 = SunPaste
+keycode 128 = SunFind
+keycode 129 = SunCut
+keycode 130 = Help
+
+An other thing I noticed, is that MAGIC SYSRQ is now working with my
+Sunkeyboard (it wasn't working with linux-stable).
+
+Greetings,
+	Thomas

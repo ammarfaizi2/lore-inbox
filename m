@@ -1,42 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266284AbUHCONj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUHCONo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266284AbUHCONj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 10:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUHCONj
+	id S266481AbUHCONo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 10:13:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUHCONo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 10:13:39 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:49164 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S266284AbUHCONi (ORCPT
+	Tue, 3 Aug 2004 10:13:44 -0400
+Received: from mail.gmx.net ([213.165.64.20]:25568 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266481AbUHCONj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 10:13:38 -0400
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@altium.nl (Dick Streefland)
-Organization: Altium BV
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-References: <410F481C.9090408@bio.ifi.lmu.de>
-From: spam@altium.nl (Dick Streefland)
-Subject: Re: NFS-mounted, read-only /dev unusable in 2.6
-Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <64bf.410f9d6f.62af@altium.nl>
-Date: Tue, 03 Aug 2004 14:13:03 -0000
+	Tue, 3 Aug 2004 10:13:39 -0400
+X-Authenticated: #4512188
+Message-ID: <410F9D94.8050302@gmx.de>
+Date: Tue, 03 Aug 2004 16:13:40 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040710)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: "Barry K. Nathan" <barryn@pobox.com>,
+       Steve Snyder <swsnyder@insightbb.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HIGHMEM4G config for 1GB RAM on desktop?
+References: <200408021602.34320.swsnyder@insightbb.com> <20040802220521.GA2179@ip68-4-98-123.oc.oc.cox.net> <20040803133034.GM23504@suse.de>
+In-Reply-To: <20040803133034.GM23504@suse.de>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Steiner <fsteiner-mail@bio.ifi.lmu.de> wrote:
-| Or is there any other way to get an initial console or
-| output any messages from an init script if one boots via nfsroot
-| and  / (and thus, /dev) is only exported read-only from the
-| server?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-You can boot with a ramdisk as root, initialized with an initrd, and
-then perform all NFS mounts manually in the init script. You can use
-pivot_root to switch to an NFS root to get rid of the ramdisk.
+Jens Axboe wrote:
+| On Mon, Aug 02 2004, Barry K. Nathan wrote:
+|
+|>On Mon, Aug 02, 2004 at 04:02:34PM -0500, Steve Snyder wrote:
+|>
+|>>There seems to be a controversy about the use of the CONFIG_HIGHMEM4G
+|>>kernel configuration.  After reading many posts on the subject, I still
+|>>don't know which setting is best for me.
+|>
+|>On my own desktop system with 1GB RAM, any highmem slowdown seems to be
+|>outweighed by the fact that more disk data stays cached in RAM (so I hit
+|>the disk much less often).
+|
+|
+| There's also the option of moving the mapping only slightly, so that all
+| of the 1G fits in low memory. That's the best option for 1G desktop
+| machines, imho. Changing PAGE_OFFSET from 0xc0000000 to 0xb0000000 would
+| probably be enough.
+|
+| Then you can have your cake and eat it too.
 
--- 
-Dick Streefland                      ////                      Altium BV
-dick.streefland@altium.nl           (@ @)          http://www.altium.com
---------------------------------oOO--(_)--OOo---------------------------
+This works nicely for me. I wonder why this doesn't become standard
+behaviour in kernel. At least a lot of people would be happy about it.
 
+Prakash
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBD52UxU2n/+9+t5gRArjwAKDhLKcV2C42O++Eqd7yFOQoURtoxgCgyt/m
+5dDyjJtoF7WDzelrGzk7MGM=
+=fdFY
+-----END PGP SIGNATURE-----

@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267351AbSKPUf4>; Sat, 16 Nov 2002 15:35:56 -0500
+	id <S267358AbSKPUuk>; Sat, 16 Nov 2002 15:50:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267354AbSKPUfz>; Sat, 16 Nov 2002 15:35:55 -0500
-Received: from almesberger.net ([63.105.73.239]:16143 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S267351AbSKPUfz>; Sat, 16 Nov 2002 15:35:55 -0500
-Date: Sat, 16 Nov 2002 17:42:44 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lan based kgdb
-Message-ID: <20021116174244.J1407@almesberger.net>
-References: <3DD5591E.A3D0506D@efi.com> <334960000.1037397999@flay> <ar3op8$f20$1@penguin.transmeta.com> <20021115222430.GA1877@tahoe.alcove-fr> <ar4h11$g7n$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ar4h11$g7n$1@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 16, 2002 at 04:19:45AM +0000
+	id <S267360AbSKPUuk>; Sat, 16 Nov 2002 15:50:40 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51473 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267358AbSKPUui>;
+	Sat, 16 Nov 2002 15:50:38 -0500
+Message-ID: <3DD6B120.7030906@pobox.com>
+Date: Sat, 16 Nov 2002 15:57:04 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mzyngier@freesurf.fr
+CC: Andries.Brouwer@cwi.nl, aebr@win.tue.nl, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, willy@debian.org
+Subject: Re: [PATCH] sysfs stuff for eisa bus [1/3]
+References: <UTC200211161343.gAGDhQI15309.aeb@smtp.cwi.nl> <wrp8yztedb0.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <UTC200211161343.gAGDhQI15309.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> And I suspect you're better off losing packets (very rarely over any
-> normal local network) if that means that your debugger needs only
-> minimal support. You can always re-type.
+Marc Zyngier wrote:
 
-Of course, if your virtual LAN has several machines that all think
-that congestion control only makes sense in a WAN setting, loss may
-get quite common :-) I still have fond memories of shared Ethernet
-melting down under the load of dozens of diskless clients rebooting
-after some problem hit the cluster ...
+> >>>>>"AB" == Andries Brouwer  writes:
+> AB>     From: Alan Cox
+> AB>     I think a ".ids" file list is valuable. It can be used for 
+> things like
+> AB>     EISA card identification obviously but it also has a big value for
+> AB>     "lseisa" "lspnp" and friends (and hopefully when someone fixes the
+> AB>     device model "lsdev").
+>
+> AB> Yes, lists are fine, but not in the kernel source.
+>
+> Ok, I'll remove it, and will put it somewhere else.
 
-Loss recovery doesn't have to be painful, and it can still be real
-time. When sending, include the packet sequence number, and the
-sequence number of the earliest packet buffered. Buffer up to N
-packets after sending. Packets older than current_sequence-N drop
-off the buffer and cannot be recovered. Receiver can request
-retransmission of specific buffered packets. Retransmitted packets
-carry an up to date earliest packet buffered sequence number.
 
-This way, it's up to the receiver to decide what to do with lost
-packets, e.g. request retransmission, and wait up to a certain
-deadline, just flag the loss and proceed, of maybe flag the loss,
-request retransmission, and when receiving the missing packet,
-redraw the output.
+Unfortunately, I respectfully disagree with Andries.  Until 
+drivers/pci/pci.ids list is removed from the kernel source, I think we 
+are best served by modelling EISA on PCI as much as is reasonable.
 
-Congestion control would be very good to have, though. As soon as
-you put something on IP, it's almost guaranteed to eventually end
-up crossing a WAN.
+> Does someone have something to say about the code itself, specially
+> about the hacked drivers ? I haven't heard anything about it yet...
 
-Crazy idea: maybe one could combine the ideas from MCORE and RT
-Linux: use a dispatcher for basic system resources (interrupts,
-etc.), and run two kernels. One of them would just run the
-debugger and serve its communication needs. That would leave
-things still relatively close to hardware (unlike just using
-UML).
 
-- Werner
+Well, I'm in favor of the patch.  Did Alan Cox have any special 
+comments?  There isn't any special reason for the following, but I just 
+have a general feeling that a thumbs up/thumbs down from him would be 
+nice.  Alan?  Matthew Wilcox might be another good opinion to ping, 
+because IIRC he occasionally runs into EISA in his rumblings too...
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+	Jeff, who would also like to see "sysfs stuff for MCA" too :)
+
+
+

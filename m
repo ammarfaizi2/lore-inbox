@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133067AbREHSMJ>; Tue, 8 May 2001 14:12:09 -0400
+	id <S133084AbREHSPj>; Tue, 8 May 2001 14:15:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133040AbREHSL7>; Tue, 8 May 2001 14:11:59 -0400
-Received: from relay.freedom.net ([207.107.115.209]:26891 "HELO
-	relay.freedom.net") by vger.kernel.org with SMTP id <S133062AbREHSL5>;
-	Tue, 8 May 2001 14:11:57 -0400
-X-Freedom-Envelope-Sig: linux-kernel@vger.kernel.org AQHIyBoVSEV6fqLNUl/zQRTpKiDLgMFiBekAEvgaqHsCqinr95Krr69b
-Date: Tue, 08 May 2001 12:11:26 -0600
-Old-From: cacook@freedom.net
+	id <S133062AbREHSPa>; Tue, 8 May 2001 14:15:30 -0400
+Received: from www.topmail.de ([212.255.16.226]:61832 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S133040AbREHSPZ>;
+	Tue, 8 May 2001 14:15:25 -0400
+Message-ID: <003a01c0d7ea$d9969f20$de00a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Keith Owens" <kaos@melbourne.sgi.com>, <kdb@oss.sgi.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <23270.989323782@ocs3.ocs-net>
+Subject: Re: kdb wishlist
+Date: Tue, 8 May 2001 18:15:13 -0000
+Organization: eccesys.net Linux development
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Ben Fennema <bfennema@ix.netcom.com>, linux-kernel@vger.kernel.org
-Subject: Re: write to dvd ram
-In-Reply-To: <91FD33983070D21188A10008C728176C09421202@LDMS6003> <20010508145400Z132655-406+505@vger.kernel.org> <20010508100129.19740@dragon.linux.ix.netcom.com> <20010508195030.J505@suse.de>
-Content-Type: text/plain; charset = "us-ascii" 
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-From: cacook@freedom.net
-Message-Id: <20010508181158Z133062-406+575@vger.kernel.org>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, I'll try it.  Didn't get the prior response.
---
-C.
+> * Change kdb invocation key from ^A to ^X^X^X within 3 seconds.  ^A is
+>   used by emacs, bash, minicom etc.
 
-The best way out is always through.
-      - Robert Frost  A Servant to Servants, 1914
+Why not Alt-SysRq-D (like Debug) or so?
 
+> * Command history.  Handle up/down/left/right/delete keys.  Each
+>   kdba_io routine is responsible for recognising the arch specific
+>   keys, with a common history and editting routine.
 
+yes!
 
-Jens Axboe wrote:
+> * Clean up repeating commands.  Pressing enter at the kdb prompt
+>   repeats the previous command, no matter what the previous command
+>   was.  Some commands it makes no sense to repeat (bp in particular),
+>   for other commands you want to repeat the command but without the
+>   parameter (md in particular).
 
-> On Tue, May 08 2001, Ben Fennema wrote:
-> > > The log is:
-> > > Apr 15 20:58:27 hydra kernel: UDF-fs INFO UDF 0.9.1 (2000/02/29) Mounting
-> > > volume 'UDF Volume', timestamp 2001/03/02 11:55 (1e98)
-> >
-> > At the very least, run 0.9.3 from sourceforce (or the cvs version) and
-> > see if it works any better.
->
-> I was just about to say the same thing, 0.9.3 works well for me. In fact
-> so well, that I made a patch to bring 2.4.5-pre1 UDF up to date with
-> current CVS earlier this afternoon (hint hint, Ben :-).
->
-> *.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.5-pre1/
->
-> udf-0.9.3-2.4.5p1-1.bz2
->
-> --
-> Jens Axboe
+Should be configurable. Sometimes I accidentally hit enter or do it
+just to do something...
 
-
-
+-mirabilos
+-- 
+EA F0 FF 00 F0 #$@%CARRIER LOST
 

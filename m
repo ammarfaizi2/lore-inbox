@@ -1,99 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262404AbVAUPx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVAUPyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262404AbVAUPx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 10:53:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbVAUPx4
+	id S262399AbVAUPyS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 10:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbVAUPyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 10:53:56 -0500
-Received: from occmta04a.terra.com.mx ([200.53.64.60]:9710 "EHLO
-	emailcluster.terra.com.mx") by vger.kernel.org with ESMTP
-	id S262395AbVAUPxg convert rfc822-to-8bit (ORCPT
+	Fri, 21 Jan 2005 10:54:10 -0500
+Received: from pat.uio.no ([129.240.130.16]:34442 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262399AbVAUPxg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 21 Jan 2005 10:53:36 -0500
-Date: Fri, 21 Jan 2005 07:43:48 -0800
-Message-ID: <41E5B2290001095C@occmta04a.terra.com.mx>
-From: scotlandlotteryclaim@terra.com.mx
-Subject: NOTICE OF CLAIM
-To: scotlandlotteryclaim@terra.com.mx
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Subject: Re: knfsd and append-only attribute:  "operation not permitted"
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: "Aaron D.Ball" <adb@bdi.com>, reiserfs-list@namesys.com,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1106318654.3200.38.camel@tribesman.namesys.com>
+References: <8381054C-6B13-11D9-BFA6-000D933B35AA@bdi.com>
+	 <1106318654.3200.38.camel@tribesman.namesys.com>
+Content-Type: text/plain
+Date: Fri, 21 Jan 2005 10:53:07 -0500
+Message-Id: <1106322787.30627.5.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0.05, required 12,
+	autolearn=disabled, FORGED_RCVD_HELO 0.05)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SCOTLAND INTERNATIONAL LOTTERY PROMOTIONS.
-NOVEMBER/DECEMBER YEAR ENDING DRAW.
-FS.9081- EDINBURGH- SCOTLAND. 
+fr den 21.01.2005 Klokka 17:44 (+0300) skreiv Vladimir Saveliev:
+> Hello
+> 
+> On Thu, 2005-01-20 at 21:45, Aaron D.Ball wrote:
+> > When I use the kernel-based NFS server to export directories on 
+> > ReiserFS that have the append-only attribute set, I can't access the 
+> > files from the client machines at all:  for example, "ls" returns 
+> > "operation not permitted".  Is this a known bug?  Is there a good 
+> > workaround?
+> > 
+> 
+> It looks like the problem is not in reiserfs, but in nfsd.
+> fs/nfsd/vfs.c:nfsd_open() refuses to open append only files.
 
+Append-only is an unsupported concept in the all existing revisions of
+the NFS protocol. In fact, NFS has no support for append writes at all:
+they have to be emulated by the clients.
 
-Attn.
-Entry No.STL/19051663/SLT. 
+Cheers,
+  Trond
 
-RE:Your Scotland Lottery Winning Claim Notice.
-
-We are pleased to inform you, today the 21th of January, 2005. The result
-of the long awaited draw of the November/December year ending 2004 Scotland
-international lottery draw promo, held on the 10th of December,2004.
-
-Your were entered as a dependent participant with entry No.STL/19051663/SLT
-on batch No. GY/19KC, your email address attached to Ticket No.01200366980010
-that draw the lucky number which automatically qualified and! won in the
-first category of group 4. With participating entries standing at 125,000,000.00
-(One Hundred and Twenty-Five Million people) that were selected in the multi-computer
-ballot system, from names and email users across the globe.
-
-Consequently, you have been approved for a cash prize claim totaling the
-sum of 500,000.00 (Five Hundred Thousand Euros) in credit to claim file
-No.AR500/1281/05. This is from a total cash prize claim of 50,000,000.00
-(Fifty Million Euros) shared among 100 winners in the final category.
-Your claim is drawn in the Africa/Oceania Regional Claim Center alongside
-three other lucky winners in group 4 and the regional claim officer is Sir
-Matrem Andrew Woodgate.You are requested, to contact your regional claim
-officer with a copy of this winning notice, with the following:
-
-(i). A valid ID ( In form of an international passport or a state driver
-license.
-(ii).And a letter of Introduction.
-
-You will be required to appear in person at the lotto paying house in the
-UK for your cash prize collect ion or provide verifiable banking details
-for claim transfer or a valid postal details for cheque as the case may
-be, two weeks from the date of this winning notice.
-
-The Scotland Lotto board been mindful of the wide surge of Internet scam
-and other ill Internet practices, in conjunction with the Scotland intelligence
-bureau request all documents verified. While the lotto board reserve the
-legal right to void any claim not followed by due process and in accordance
-with stipulated rules.
-
-You may contact your regional claim office as indicated below:
-Sir Matrem Andrew Woodgate  ( matremwoodgate@yahoo.it) Tel. + 234 80 3572
-0497.
-Finally, should you have any change in address/contact you are required
-to inform your regional claim officer earliest.
-
-Congratulations! from our staff and thank you for been part of the Scotland
-Lotto program.
-
-Yours sincerely,
-
-Mrs. Jane Allan Smith.
-Head of Promotions,
-Scotland Lotto.
-
-Warning! THIS LOTTO WINNING NOTICE IS STRICTLY FOR THE RECIPIENT OF THIS
-MAILBOX ONLY, IF YOU BU ANY MEANS NOT THE OWNER OF THIS BOX PLEASE CONTACT
-OUR HOME OFFICE OR Mrs. Jane Allan Smith.
-
-
-___________________________________________________________________________
-Con Terra MAIL obtienes 6MB de espacio además de bloqueo ANTISPAM
-http://terramail.terra.com.mx/TerraMail/
-Acceso a Internet 3 x 1, desde ¡$179 pesos al mes! 
-http://www.terra.com.mx/acceso/suscribete/
-Encuentra los mejores productos y precios increibles!!
-Aprovecha nuestra promoción a 12 pagos sin intereses con Banamex y Bancomer
-http://www.decompras.com/
-
-
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

@@ -1,81 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264513AbSIQUpE>; Tue, 17 Sep 2002 16:45:04 -0400
+	id <S264512AbSIQUne>; Tue, 17 Sep 2002 16:43:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264520AbSIQUpE>; Tue, 17 Sep 2002 16:45:04 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:41093 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264513AbSIQUpC>;
-	Tue, 17 Sep 2002 16:45:02 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [Lse-tech] Hyperthreading performance on 2.4.19 and 2.5.32
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFC9812D06.E7590486-ON85256C37.00713B16@pok.ibm.com>
-From: "Duc Vianney" <dvianney@us.ibm.com>
-Date: Tue, 17 Sep 2002 15:49:45 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
- 09/17/2002 04:49:47 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S264513AbSIQUne>; Tue, 17 Sep 2002 16:43:34 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:899 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264512AbSIQUne>;
+	Tue, 17 Sep 2002 16:43:34 -0400
+Date: Tue, 17 Sep 2002 13:39:33 -0700 (PDT)
+Message-Id: <20020917.133933.69057655.davem@redhat.com>
+To: johnstul@us.ibm.com
+Cc: anton.wilson@camotion.com, linux-kernel@vger.kernel.org
+Subject: Re: do_gettimeofday vs. rdtsc in the scheduler
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1032294559.22815.180.camel@cog>
+References: <200209172020.g8HKKPF13227@eng2.beaverton.ibm.com>
+	<1032294559.22815.180.camel@cog>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: john stultz <johnstul@us.ibm.com>
+   Date: 17 Sep 2002 13:29:18 -0700
+   
+   Some NUMA boxes do not have synced TSC, so on those systems your
+   code won't work.
 
+It would have been really nice if x86 had specified a "system tick"
+register that incremented based upon the system bus cycles and thus
+were immune the processor rates.
 
->What happened to the -38% degradation you found? That seems to have
->fallen off the results list for some reason ... did you fix it, or is it
-still >there?
-
-Martin ... Thanks for pointing it out.
-The -38% degradation was seen on Sync Random Disk Writes, Sync
-Sequential Disk Writes, and Sync Disk Copies observed from the
-AIM9 bencmark running in Single User test mode. The degradation
-is still there and I will investigate it later when we have the
-hardware resource back.
-
-Thanks ... Duc.
-
-
-
-"Martin J. Bligh" <mbligh@aracnet.com>@lists.sourceforge.net on 09/17/2002
-03:05:35 PM
-
-Sent by:    lse-tech-admin@lists.sourceforge.net
-
-
-To:    Duc Vianney/Austin/IBM@IBMUS, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-cc:
-Subject:    Re: [Lse-tech] Hyperthreading performance on 2.4.19 and 2.5.32
-
-
-
-> Benchmarks. For multithreaded benchmarks: chat, dbench and tbench.
-> Summary of results. The results on Linux kernel 2.4.19 show HT might
-> improve multithreaded application by as much as 30%. On kernel 2.5.32,
-> HT may provide speed-up as high as 60%.
-
-What happened to the -38% degradation you found? That seems to have
-fallen off the results list for some reason ... did you fix it, or is it
-still there?
-
-M.
-
-
-
-
--------------------------------------------------------
-This SF.NET email is sponsored by: AMD - Your access to the experts
-on Hammer Technology! Open Source & Linux Developers, register now
-for the AMD Developer Symposium. Code: EX8664
-http://www.developwithamd.com/developerlab
-_______________________________________________
-Lse-tech mailing list
-Lse-tech@lists.sourceforge.net
- https://lists.sourceforge.net/lists/listinfo/lse-tech
-
-
-
-
+I foresee lots of patches coming which basically are "how does this
+x86 system provide a stable synchronized tick source".

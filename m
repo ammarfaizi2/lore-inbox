@@ -1,52 +1,248 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbUL1Hd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbUL1Hd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbUL1Hd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 02:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbUL1HYJ
+	id S261759AbUL1Hd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 02:33:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbUL1HXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 02:24:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60617 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262105AbUL1GCq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 01:02:46 -0500
-Date: Tue, 28 Dec 2004 01:01:48 -0500
-From: Dave Jones <davej@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "David S. Miller" <davem@davemloft.net>, Patrick McHardy <kaber@trash.net>,
-       torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: PATCH: kmalloc packet slab
-Message-ID: <20041228060148.GB5481@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Patrick McHardy <kaber@trash.net>, torvalds@osdl.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	netdev@oss.sgi.com
-References: <1104156983.20944.25.camel@localhost.localdomain> <41D043AC.2070203@trash.net> <20041227142350.1cf444fe.davem@davemloft.net> <1104195085.20898.62.camel@localhost.localdomain>
+	Tue, 28 Dec 2004 02:23:42 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:49490 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262102AbUL1F7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 00:59:09 -0500
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       openib-general@openib.org
+In-Reply-To: <200412272151.zeKZJPoIEBr55elh@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Mon, 27 Dec 2004 21:51:19 -0800
+Message-Id: <200412272151.S29WkrmlJifc5kHZ@topspin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1104195085.20898.62.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+To: davem@davemloft.net
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][v5][23/24] Add InfiniBand Documentation files
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 28 Dec 2004 05:51:20.0876 (UTC) FILETIME=[41A9E6C0:01C4ECA1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 28, 2004 at 12:51:28AM +0000, Alan Cox wrote:
- > On Llu, 2004-12-27 at 22:23, David S. Miller wrote:
- > > If we are really going to do something like this, it should
- > > be calculated properly and be determined per-interface
- > > type as netdevs are registered.
- > 
- > Fine by me, I'm just going through plausible looking changes in the Red
- > Hat tree. You might want to slightly injure someone internally until
- > they drop that too 8)
+Add files to Documentation/infiniband that describe the tree under
+/sys/class/infiniband, the IPoIB driver and the userspace MAD access driver.
 
-Internal injuries unnecessary. Regardless of outcome of this patch,
-Fedora will pick up whatever happens upstream instead of carrying
-this any longer. This and a few other patches have been stagnating
-in our tree for far longer than they should have been.
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-		Dave
+
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/Documentation/infiniband/ipoib.txt	2004-12-27 21:48:28.484773367 -0800
+@@ -0,0 +1,56 @@
++IP OVER INFINIBAND
++
++  The ib_ipoib driver is an implementation of the IP over InfiniBand
++  protocol as specified by the latest Internet-Drafts issued by the
++  IETF ipoib working group.  It is a "native" implementation in the
++  sense of setting the interface type to ARPHRD_INFINIBAND and the
++  hardware address length to 20 (earlier proprietary implementations
++  masqueraded to the kernel as ethernet interfaces).
++
++Partitions and P_Keys
++
++  When the IPoIB driver is loaded, it creates one interface for each
++  port using the P_Key at index 0.  To create an interface with a
++  different P_Key, write the desired P_Key into the main interface's
++  /sys/class/net/<intf name>/create_child file.  For example:
++
++    echo 0x8001 > /sys/class/net/ib0/create_child
++
++  This will create an interface named ib0.8001 with P_Key 0x8001.  To
++  remove a subinterface, use the "delete_child" file:
++
++    echo 0x8001 > /sys/class/net/ib0/delete_child
++
++  The P_Key for any interface is given by the "pkey" file, and the
++  main interface for a subinterface is in "parent."
++
++Debugging Information
++
++  By compiling the IPoIB driver with CONFIG_INFINIBAND_IPOIB_DEBUG set
++  to 'y', tracing messages are compiled into the driver.  They are
++  turned on by setting the module parameters debug_level and
++  mcast_debug_level to 1.  These parameters can be controlled at
++  runtime through files in /sys/module/ib_ipoib/.
++
++  CONFIG_INFINIBAND_IPOIB_DEBUG also enables the "ipoib_debugfs"
++  virtual filesystem.  By mounting this filesystem, for example with
++
++    mkdir -p /ipoib_debugfs
++    mount -t ipoib_debugfs none /ipoib_debufs
++
++  it is possible to get statistics about multicast groups from the
++  files /ipoib_debugfs/ib0_mcg and so on.
++
++  The performance impact of this option is negligible, so it
++  is safe to enable this option with debug_level set to 0 for normal
++  operation.
++
++  CONFIG_INFINIBAND_IPOIB_DEBUG_DATA enables even more debug output in
++  the data path when data_debug_level is set to 1.  However, even with
++  the output disabled, enabling this configuration option will affect
++  performance, because it adds tests to the fast path.
++
++References
++
++  IETF IP over InfiniBand (ipoib) Working Group
++    http://ietf.org/html.charters/ipoib-charter.html
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/Documentation/infiniband/sysfs.txt	2004-12-27 21:48:28.513769099 -0800
+@@ -0,0 +1,64 @@
++SYSFS FILES
++
++  For each InfiniBand device, the InfiniBand drivers create the
++  following files under /sys/class/infiniband/<device name>:
++
++    node_guid      - Node GUID
++    sys_image_guid - System image GUID
++
++  In addition, there is a "ports" subdirectory, with one subdirectory
++  for each port.  For example, if mthca0 is a 2-port HCA, there will
++  be two directories:
++
++    /sys/class/infiniband/mthca0/ports/1
++    /sys/class/infiniband/mthca0/ports/2
++
++  (A switch will only have a single "0" subdirectory for switch port
++  0; no subdirectory is created for normal switch ports)
++
++  In each port subdirectory, the following files are created:
++
++    cap_mask       - Port capability mask
++    lid            - Port LID
++    lid_mask_count - Port LID mask count
++    rate           - Port data rate (active width * active speed)
++    sm_lid         - Subnet manager LID for port's subnet
++    sm_sl          - Subnet manager SL for port's subnet
++    state          - Port state (DOWN, INIT, ARMED, ACTIVE or ACTIVE_DEFER)
++
++  There is also a "counters" subdirectory, with files
++
++    VL15_dropped
++    excessive_buffer_overrun_errors
++    link_downed
++    link_error_recovery
++    local_link_integrity_errors
++    port_rcv_constraint_errors
++    port_rcv_data
++    port_rcv_errors
++    port_rcv_packets
++    port_rcv_remote_physical_errors
++    port_rcv_switch_relay_errors
++    port_xmit_constraint_errors
++    port_xmit_data
++    port_xmit_discards
++    port_xmit_packets
++    symbol_error
++
++  Each of these files contains the corresponding value from the port's
++  Performance Management PortCounters attribute, as described in
++  section 16.1.3.5 of the InfiniBand Architecture Specification.
++
++  The "pkeys" and "gids" subdirectories contain one file for each
++  entry in the port's P_Key or GID table respectively.  For example,
++  ports/1/pkeys/10 contains the value at index 10 in port 1's P_Key
++  table.
++
++MTHCA
++
++  The Mellanox HCA driver also creates the files:
++
++    hw_rev   - Hardware revision number
++    fw_ver   - Firmware version
++    hca_type - HCA type: "MT23108", "MT25208 (MT23108 compat mode)",
++               or "MT25208"
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/Documentation/infiniband/user_mad.txt	2004-12-27 21:48:28.543764684 -0800
+@@ -0,0 +1,81 @@
++USERSPACE MAD ACCESS
++
++Device files
++
++  Each port of each InfiniBand device has a "umad" device attached.
++  For example, a two-port HCA will have two devices, while a switch
++  will have one device (for switch port 0).
++
++Creating MAD agents
++
++  A MAD agent can be created by filling in a struct ib_user_mad_reg_req
++  and then calling the IB_USER_MAD_REGISTER_AGENT ioctl on a file
++  descriptor for the appropriate device file.  If the registration
++  request succeeds, a 32-bit id will be returned in the structure.
++  For example:
++
++	struct ib_user_mad_reg_req req = { /* ... */ };
++	ret = ioctl(fd, IB_USER_MAD_REGISTER_AGENT, (char *) &req);
++        if (!ret)
++		my_agent = req.id;
++	else
++		perror("agent register");
++
++  Agents can be unregistered with the IB_USER_MAD_UNREGISTER_AGENT
++  ioctl.  Also, all agents registered through a file descriptor will
++  be unregistered when the descriptor is closed.
++
++Receiving MADs
++
++  MADs are received using read().  The buffer passed to read() must be
++  large enough to hold at least one struct ib_user_mad.  For example:
++
++	struct ib_user_mad mad;
++	ret = read(fd, &mad, sizeof mad);
++	if (ret != sizeof mad)
++		perror("read");
++
++  In addition to the actual MAD contents, the other struct ib_user_mad
++  fields will be filled in with information on the received MAD.  For
++  example, the remote LID will be in mad.lid.
++
++  If a send times out, a receive will be generated with mad.status set
++  to ETIMEDOUT.  Otherwise when a MAD has been successfully received,
++  mad.status will be 0.
++
++  poll()/select() may be used to wait until a MAD can be read.
++
++Sending MADs
++
++  MADs are sent using write().  The agent ID for sending should be
++  filled into the id field of the MAD, the destination LID should be
++  filled into the lid field, and so on.  For example:
++
++	struct ib_user_mad mad;
++
++	/* fill in mad.data */
++
++	mad.id  = my_agent;	/* req.id from agent registration */
++	mad.lid = my_dest;	/* in network byte order... */
++	/* etc. */
++
++	ret = write(fd, &mad, sizeof mad);
++	if (ret != sizeof mad)
++		perror("write");
++
++/dev files
++
++  To create the appropriate character device files automatically with
++  udev, a rule like
++
++    KERNEL="umad*", NAME="infiniband/%k"
++
++  can be used.  This will create a device node named
++
++    /dev/infiniband/umad0
++
++  for the first port, and so on.  The InfiniBand device and port
++  associated with this device can be determined from the files
++
++    /sys/class/infiniband_mad/umad0/ibdev
++    /sys/class/infiniband_mad/umad0/port
 

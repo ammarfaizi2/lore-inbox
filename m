@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263327AbTC2AWe>; Fri, 28 Mar 2003 19:22:34 -0500
+	id <S263365AbTC2Afk>; Fri, 28 Mar 2003 19:35:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263328AbTC2AWe>; Fri, 28 Mar 2003 19:22:34 -0500
-Received: from mail2.efi.com ([192.68.228.89]:45072 "HELO
-	fcexgw02.efi.internal") by vger.kernel.org with SMTP
-	id <S263327AbTC2AWd>; Fri, 28 Mar 2003 19:22:33 -0500
-Message-ID: <3E84EA29.BEB27DB6@efi.com>
-Date: Fri, 28 Mar 2003 16:34:49 -0800
-From: Kallol Biswas <kallol.biswas@efi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: netchip's net2280 usb 2.0 device
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263368AbTC2Afj>; Fri, 28 Mar 2003 19:35:39 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:7343 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S263365AbTC2Afh>; Fri, 28 Mar 2003 19:35:37 -0500
+Message-Id: <200303290046.h2T0kp35027188@deviant.impure.org.uk>
+Date: Sat, 29 Mar 2003 00:46:36 +0000
+To: torvalds@transmeta.com
+From: davej@codemonkey.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: fix up newer x86 cpuinfo flags.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-     We have been using the net2280 chip (usb 2.0) as a usb target
-printer device. We have been seeing data corruption problems
-during a bulk out transfer when data is taken out the device
-quite slow.  The corruption size is only 4 bytes suggesting
-a device problem. Is anyone using this chip and has anyone
-encountered similar problem?
+According to Intel document 24161823.pdf[*] page 18, 'tm2' is misdefined.
+Its bit 7 not, bit 8. Also add the missing 'EST' (Enhanced Speedstep Technology)
+bit, and use the correct Intel terminology for the context ID bit.
 
-Is there any other 2.0 usb chip that can be used as a target mode
-device?
+[*] http://www.intel.com/design/xeon/applnots/241618.htm
 
-
-Kallol
-
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/arch/i386/kernel/cpu/proc.c linux-2.5/arch/i386/kernel/cpu/proc.c
+--- bk-linus/arch/i386/kernel/cpu/proc.c	2003-03-15 19:33:58.000000000 +0000
++++ linux-2.5/arch/i386/kernel/cpu/proc.c	2003-03-28 12:10:26.000000000 +0000
+@@ -44,8 +44,8 @@ static int show_cpuinfo(struct seq_file 
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 
+ 		/* Intel-defined (#2) */
+-		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, NULL,
+-		"tm2", NULL, "cnxt_id", NULL, NULL, NULL, NULL, NULL,
++		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "tm2",
++		"est", NULL, "cid", NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 

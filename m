@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVBQIHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVBQIJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbVBQIHv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 03:07:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVBQIHv
+	id S262179AbVBQIJo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 03:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbVBQIJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 03:07:51 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:51419 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262117AbVBQIHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 03:07:46 -0500
-Subject: Re: Swsusp, resume and kernel versions
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200502170038.30033.dtor_core@ameritech.net>
-References: <200502162346.26143.dtor_core@ameritech.net>
-	 <1108617332.4471.33.camel@desktop.cunningham.myip.net.au>
-	 <200502170038.30033.dtor_core@ameritech.net>
-Content-Type: text/plain
-Message-Id: <1108627778.4471.54.camel@desktop.cunningham.myip.net.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 17 Feb 2005 19:09:38 +1100
+	Thu, 17 Feb 2005 03:09:44 -0500
+Received: from nabe.tequila.jp ([211.14.136.221]:35515 "HELO nabe.tequila.jp")
+	by vger.kernel.org with SMTP id S262179AbVBQIJ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 03:09:27 -0500
+Message-ID: <42145128.4030202@tequila.co.jp>
+Date: Thu, 17 Feb 2005 17:09:12 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220 Thunderbird/1.0 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+CC: Olivier Galibert <galibert@pobox.com>, kernel@crazytrain.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK] upgrade will be needed
+References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <7579f7fb0502141017f5738d1@mail.gmail.com> <20050214185624.GA16029@bitmover.com> <1108469967.3862.21.camel@crazytrain> <42131637.2070801@tequila.co.jp> <20050216154321.GB34621@dspnet.fr.eu.org> <4213E141.5040407@tequila.co.jp> <e9d587a22ff0b23ccbb6fa112377dbee@e18.physik.tu-muenchen.de>
+In-Reply-To: <e9d587a22ff0b23ccbb6fa112377dbee@e18.physik.tu-muenchen.de>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Thu, 2005-02-17 at 16:38, Dmitry Torokhov wrote:
-> On Thursday 17 February 2005 00:15, Nigel Cunningham wrote:
-> > On Thu, 2005-02-17 at 15:46, Dmitry Torokhov wrote:
-> > > But I think there is one pretty severe issue present - even if swsusp
-> > > is not enabled kernel should check if there is an image in swap and
-> > > erase it. Today I has somewhat unpleasant experience - after suspending
-> > > I accidentially loaded a vendor kernel. I was in hurry and decided that
-> > > resume just failed for some reason so I did couple of things and left
-> > > the box running. In the evening I realized that I am running vendor kernel
-> > > and decided to reboot into my devel. version. What I did not expect is for
-> > > the kernel to find a valid suspend image and restore it. As you might
-> > > imagine messed up my disk somewhat.
-> > > 
-> > > Any chance this can be done?
-> > 
-> > One of my suspend2 users had the same thing yesterday. Unfortunately
-> > there's no easy way for us to detect that another kernel has been
-> > booted.
-> 
-> What do you mean? I thought it already compares signatures of the booting
-> kernel and suspend image. Just wipe it out if it does not match, or, even
-> better, just stop if signature does not match unless one boots with
-> "nosuspend". This way even if I start booting wrong image I have a chance
-> to select right one and avoid fsck.
+On 02/17/2005 04:55 PM, Roland Kuhn wrote:
 
-That would work if the alternate kernel is suspend-enabled. Suspend2
-handles that case nicely and I'm sure swsusp will handle it as well
-(although exactly what it does, I'm not sure. It used to panic IIRC).
+> That said, it would of course be possible to improve the internal
+> workflow of our emperor penguin if he used subversion, but the
+> collaboration with others could not benefit the way it does with a
+> changeset-based approach.
 
-If the mistakenly booted kernel isn't suspend enabled, however, you need
-a more generic method of removing the image, such as mkswapping the
-storage device. This is what I was speaking of.
+Question is then, what about keeping a main trunk with the vanialle
+release, and each dev has its own branch. now at a certain point you
+have to merge them. Now where is the difference between a central rep
+and a de-central one.
+At day X, patches from Andrew's tree have to go to Linus tree and from
+his tree into the new vanialla kernel. right?
+Somehow I can't see the difference here.
 
-Regards,
+> Linux kernel development is hard _and_ sexy :-)
 
-Nigel
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
+at least something :D
 
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
+- --
+[ Clemens Schwaighofer                      -----=====:::::~ ]
+[ TBWA\ && TEQUILA\ Japan IT Group                           ]
+[                6-17-2 Ginza Chuo-ku, Tokyo 104-0061, JAPAN ]
+[ Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343 ]
+[ http://www.tequila.co.jp        http://www.tbwajapan.co.jp ]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFCFFEojBz/yQjBxz8RAs5rAKC1i4RuDxyi3hjnRDfcjCYyRTGbNQCgsRgc
+ErnefDIDGimPjjXa8cALBQc=
+=lWQ8
+-----END PGP SIGNATURE-----

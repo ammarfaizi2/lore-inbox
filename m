@@ -1,84 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264896AbUE0Rb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264706AbUE0Rik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264896AbUE0Rb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 13:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264706AbUE0RbX
+	id S264706AbUE0Rik (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 13:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUE0Rik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 13:31:23 -0400
-Received: from outmx012.isp.belgacom.be ([195.238.3.70]:48785 "EHLO
-	outmx012.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S264896AbUE0RbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 13:31:09 -0400
-Subject: [2.6.7-rc1-mm1] lp int copy_to_user replaced
-From: FabF <fabian.frederick@skynet.be>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-fcTncJAOiDiQ0e/btH3/"
-Message-Id: <1085679127.2070.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 27 May 2004 19:32:08 +0200
+	Thu, 27 May 2004 13:38:40 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:54925 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264706AbUE0Rii
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 13:38:38 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Subject: Re: AMD64: IDE performance woes
+Date: Thu, 27 May 2004 19:40:27 +0200
+User-Agent: KMail/1.5.3
+References: <1085678259.3374.7.camel@hostmaster.org>
+In-Reply-To: <1085678259.3374.7.camel@hostmaster.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405271940.27702.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 27 of May 2004 19:17, Thomas Zehetbauer wrote:
+> It seems that IDE performance is severely degraded on AMD64:
+>
+> hdparm -t timings
+> 2.4.25/i386:  54.13MB/s
+> 2.6.6/x86_64: 31.4MB/s
+>
+> Board is a Tyan Thunder K8W s2885 with an AMD8111 controller
+> IDE device parameters are the same (hdparm -a8 -c1 -d1 -m16 -u1)
 
---=-fcTncJAOiDiQ0e/btH3/
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Can you try with -a8 removed?
 
-Andrew,
-
-	Here's a patch to have standard __put_user for integer transfers in lp
-driver.Is it correct ?
-
-Regards,
-FabF
-
---=-fcTncJAOiDiQ0e/btH3/
-Content-Disposition: attachment; filename=lp1.diff
-Content-Type: text/x-patch; name=lp1.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -Naur orig/drivers/char/lp.c edited/drivers/char/lp.c
---- orig/drivers/char/lp.c	2004-05-10 04:31:58.000000000 +0200
-+++ edited/drivers/char/lp.c	2004-05-27 19:28:12.581860488 +0200
-@@ -31,6 +31,8 @@
-  * Obsoleted and removed all the lowlevel stuff implemented in the last
-  * month to use the IEEE1284 functions (that handle the _new_ compatibilty
-  * mode fine).
-+ *
-+ * 27-MAY-2004  Replace int copy_to_user with put_user (Fabian Frederick)
-  */
- 
- /* This driver should, in theory, work with any parallel port that has an
-@@ -603,16 +605,14 @@
- 			return -EINVAL;
- 			break;
- 		case LPGETIRQ:
--			if (copy_to_user((int *) arg, &LP_IRQ(minor),
--					sizeof(int)))
-+			if (__put_user(LP_IRQ(minor), (int *) arg))
- 				return -EFAULT;
- 			break;
- 		case LPGETSTATUS:
- 			lp_claim_parport_or_block (&lp_table[minor]);
- 			status = r_str(minor);
- 			lp_release_parport (&lp_table[minor]);
--
--			if (copy_to_user((int *) arg, &status, sizeof(int)))
-+			if (__put_user(status, (int *) arg))
- 				return -EFAULT;
- 			break;
- 		case LPRESET:
-@@ -630,7 +630,7 @@
- #endif
-  		case LPGETFLAGS:
-  			status = LP_F(minor);
--			if (copy_to_user((int *) arg, &status, sizeof(int)))
-+			if (__put_user(status, (int *) arg))
- 				return -EFAULT;
- 			break;
- 
-
---=-fcTncJAOiDiQ0e/btH3/--
+> Tom
 

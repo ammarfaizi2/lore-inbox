@@ -1,61 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317521AbSHYULt>; Sun, 25 Aug 2002 16:11:49 -0400
+	id <S317488AbSHYUIW>; Sun, 25 Aug 2002 16:08:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317525AbSHYULt>; Sun, 25 Aug 2002 16:11:49 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27642 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317521AbSHYULs>; Sun, 25 Aug 2002 16:11:48 -0400
-Date: Sun, 25 Aug 2002 22:15:57 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Alan Cox <alan@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre4-ac1
-In-Reply-To: <200208231046.g7NAk2914276@devserv.devel.redhat.com>
-Message-ID: <Pine.NEB.4.44.0208252214030.2879-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S317489AbSHYUIV>; Sun, 25 Aug 2002 16:08:21 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:2798 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317488AbSHYUIU>;
+	Sun, 25 Aug 2002 16:08:20 -0400
+Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization
+To: jamal <hadi@cyberus.ca>
+Cc: linux-kernel@vger.kernel.org, "Mala Anand" <manand@us.ibm.com>,
+       netdev@oss.sgi.com, Robert Olsson <Robert.Olsson@data.slu.se>
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF7A029023.8004C095-ON87256C20.005B4894@boulder.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Sun, 25 Aug 2002 15:12:06 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 08/25/2002 02:12:08 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
 
-the inclusion of linux/ide.h in hd.c causes the following compile error:
+Jamal wrote ..
 
-<--  snip  -->
+>Could you please at least cc netdev on networking related issues?
+>It says so in the kernel FAQ.
+>I swore back around 95 to join lk only when Linux gets a IDE maintainer
+>who is not insane. Hasnt happened yet.
 
-...
-gcc -D__KERNEL__
--I/home/bunk/linux/kernel-2.4/linux-2.4.19-full-nohotplug/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=k6  -I../ -nostdinc -iwithprefix
-include -DKBUILD_BASENAME=hd  -c -o hd.o hd.c
-hd.c:88: conflicting types for `recal_intr'
-/home/bunk/linux/kernel-2.4/linux-2.4.19-full-nohotplug/include/linux/ide.h:1496:
-previous declaration of `recal_intr'
-hd.c: In function `dump_status':
-hd.c:181: `QUEUE_EMPTY' undeclared (first use in this function)
-hd.c:181: (Each undeclared identifier is reported only once
-hd.c:181: for each function it appears in.)
-hd.c:181: `CURRENT' undeclared (first use in this function)
-hd.c:179: warning: `devc' might be used uninitialized in this function
-hd.c: In function `hd_out':
-hd.c:294: `DEVICE_INTR' undeclared (first use in this function)
-hd.c:294: `TIMEOUT_VALUE' undeclared (first use in this function)
-...
-make[4]: *** [hd.o] Error 1
-make[4]: Leaving directory
-`/home/bunk/linux/kernel-2.4/linux-2.4.19-full-nohotplug/drivers/ide/legacy'
+ Yes I will, it is a mistake from my part,
 
-<--  snip  -->
+>Can you repeat your tests with the hotlist turned off (i.e set to 0)?
 
-cu
-Adrian
+ Even if I turned the hot list, the slab allocator has a per cpu array of
+objects. In this case it keeps by default 60 objects and hot list keeps
+126 objects. So there may be a difference. I will try this.
 
--- 
+ This skb init work is the result of my probing in to the slab cache work.
+Read
+my posting on slab cache:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102773718023056&w=2
+This work triggered the skb init patch. To quantify the effect of bouncing
+the objects between cpus, I choose skb to measure. And it turns out that
+the
+limited cpu array is not the culprit in this case, it is how the objects
+are
+allocated in one cpu and freed in another cpu is what causing the bouncing
+of objects between cpus.
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+>Also if you would be doing tests on NAPI please either copy us or netdev;
+>it is not nice to read weeks after you post.
+
+ Yes I will.
+
+>Also Robert and i did a few tests and we did find skb recycling (based on
+>a patch from Robert a few years back) was infact giving perfomance
+>improvements of upto 15% over regular slab.
+>Did you test with that patch for the e1000 he pointed you at?
+>I repeated the tests (around June/July) with the tulip with input rates of
+>a few 100K packets/sec and noticed a improvement over regular NAPI by
+>about 10%. Theres one bug on the tulip which we are chasing that
+>might be related to tulips alignment requirements;
+
+Yes I got the patch from Robert and I am planning on testing the patch. My
+understanding is that skbs are recylced in other operating systems as well
+to
+improve performance. And it particularly helps in architectures where pci
+mapping is expensive and when skbs are recycled, remapping is eliminated. I
+think the skbinit patch and recycling skbs are mutually exclusive.
+Recycling
+skbs will reduce the number of times we hit alloc_skb and __kfree_skb.
+
+>The idea of only freeing on the same CPU a skb allocated is free with
+>the e1000 NAPI driver style but not in the tulip NAPI  where a txmit
+>interupt might happen on a different CPU. The skb recycler patch only
+>recylces if allocation and freeing are happening on the same CPU;
+>otherwise we let the slab take the hit. On the tulip this happens about
+>50% of the time.
+ So skbinit patch will help the other case.
+
+Regards,
+    Mala
+
+
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   http://www-124.ibm.com/developerworks/opensource/linuxperf
+   http://www-124.ibm.com/developerworks/projects/linuxperf
+   Phone:838-8088; Tie-line:678-8088
+
+
+
+
+
 

@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbTIKQbk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 12:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbTIKQbj
+	id S261394AbTIKQ3u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 12:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbTIKQ3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 12:31:39 -0400
-Received: from ns.suse.de ([195.135.220.2]:31184 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261372AbTIKQbi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 12:31:38 -0400
-Date: Thu, 11 Sep 2003 18:31:36 +0200
-From: Andi Kleen <ak@suse.de>
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory mapped IO vs Port IO
-Message-Id: <20030911183136.01dfeb53.ak@suse.de>
-In-Reply-To: <20030911162504.GL21596@parcelfarce.linux.theplanet.co.uk>
-References: <20030911160116.GI21596@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel>
-	<p73oexri9kx.fsf@oldwotan.suse.de>
-	<20030911162504.GL21596@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 11 Sep 2003 12:29:50 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:42641 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261394AbTIKQ3t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 12:29:49 -0400
+Date: Thu, 11 Sep 2003 17:29:06 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, Ulrich Drepper <drepper@redhat.com>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Andrew Morton <akpm@osdl.org>, Stephen Hemminger <shemminger@osdl.org>,
+       torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>,
+       davem@redhat.com
+Subject: Re: [PATCH] Re: today's futex changes
+Message-ID: <20030911162906.GB29532@mail.jlokier.co.uk>
+References: <20030910113929.GA21945@mail.jlokier.co.uk> <20030911011647.ACB302C21F@lists.samba.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030911011647.ACB302C21F@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Sep 2003 17:25:04 +0100
-Matthew Wilcox <willy@debian.org> wrote:
-
-> On Thu, Sep 11, 2003 at 06:17:02PM +0200, Andi Kleen wrote:
-> > The overhead of checking for PIO vs mmio at runtime in the drivers
-> > should be completely in the noise on any non ancient CPU (both MMIO
-> > and PIO typically take hundreds or thousands of CPU cycles for the bus
-> > access, having an dynamic function call or an if before that is makes
-> > no difference at all)
+Rusty Russell wrote:
+> > No, I never use that style, except in futex.c to go along with the
+> > style that was already there!  I use Emacs with comments in red-orange :) 
 > 
-> That's not true for MMIO writes which are posted.  They should take
-> no longer than a memory write.  For MMIO reads and PIO reads & writes,
-> you are, of course, correct.
+> I'll submit a trivial patch to condense them again: it's an Ingo-ism.
+> Comments in my parts of the code are less, um, verbose 8)
 
-Even a memory write is tens to hundres of cycles.
+Oh, the verbosity is definitely me, only the formatting is Ingo-ism :)
 
--Andi
-
+-- Jamie

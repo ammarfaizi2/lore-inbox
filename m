@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266809AbTADKfV>; Sat, 4 Jan 2003 05:35:21 -0500
+	id <S266841AbTADKhK>; Sat, 4 Jan 2003 05:37:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266810AbTADKfV>; Sat, 4 Jan 2003 05:35:21 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:44757 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S266809AbTADKfU>; Sat, 4 Jan 2003 05:35:20 -0500
-Date: Sat, 04 Jan 2003 23:42:37 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Hell.Surfers@cwctv.net, andre@linux-ide.org, ryan@michonline.com,
-       linux-kernel@vger.kernel.org
-Subject: RE: Gauntlet Set NOW!
-Message-ID: <143640000.1041676957@localhost.localdomain>
-In-Reply-To: <0258a1111100413DTVMAIL11@smtp.cwctv.net>
-References: <0258a1111100413DTVMAIL11@smtp.cwctv.net>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S266837AbTADKhK>; Sat, 4 Jan 2003 05:37:10 -0500
+Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:19106 "EHLO
+	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S266840AbTADKhJ>; Sat, 4 Jan 2003 05:37:09 -0500
+Subject: Re: odd phenomenon.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030103103816.GA2567@codemonkey.org.uk>
+References: <20030103103816.GA2567@codemonkey.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041677313.642.2.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 04 Jan 2003 11:48:33 +0100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Welcome to the kill file, Mr Troll.
+On Fri, 2003-01-03 at 11:38, Dave Jones wrote:
+> Something strange I've noticed on all recent 2.4 and 2.5 kernels.
+> 
+> If I start galeon whilst I've got a bk pull in operation, the
+> galeon process starts, opens its window, and then dies instantly.
+> Starting it a second time works.
+> 
+> Its not OOM, as theres plenty of free RAM, and half gig of free (unused) swap.
+> 
+> It's almost 100% reproducable here.  Only seen it do it on this box
+> though which is a P4 with HT, so it could be SMP related..
 
-For your edification, it *is* done.  Frequently.  Probably even in the 
-settop box you're posting with.
+Happens all the time here too (ppc32), and did so for ages, with 2.4
+(didn't specifically notice it with 2.5 yet, but I rarely use galeon
+when testing 2.5 ;)
 
---On Saturday, January 04, 2003 10:12:49 +0000 Hell.Surfers@cwctv.net wrote:
+Typically happens with any kind of intense disk activity slowing down
+galeon's launch process. (Not only bk, but also for example updatedb
+running in the background).
 
-> Sounds like a jumped up PIC chip, cant think why isnt done yet.
->
-> Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
->
-> On Sat, 4 Jan 2003 02:07:27 -0800 (PST) Andre Hedrick
-> <andre@linux-ide.org> wrote:
+I'm currently running galeon 1.2.6 (happened with all earlier versions
+at least).
+
+Ben.
+
+
 
 

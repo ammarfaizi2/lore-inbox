@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265742AbTGDDtE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 23:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265753AbTGDDtE
+	id S265766AbTGDD6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 23:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265771AbTGDD6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 23:49:04 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:26268 "EHLO
-	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
-	id S265742AbTGDDtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 23:49:02 -0400
-Message-ID: <3F04FD21.4090709@blue-labs.org>
-Date: Fri, 04 Jul 2003 00:05:53 -0400
-From: David Ford <david+powerix@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030702
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: laptop w/ external keyboard misprint FYI
-References: <3EFC7716.8050804@blue-labs.org> <20030703090317.A24322@ucw.cz>
-In-Reply-To: <20030703090317.A24322@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 3 Jul 2003 23:58:16 -0400
+Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:17797 "EHLO
+	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S265766AbTGDD6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 23:58:09 -0400
+Subject: Re: 2.5.74-mm1 and Con Kolivas' CPU scheduler work
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: "ismail (cartman) donmez" <kde@myrealbox.com>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307041229.06238.kernel@kolivas.org>
+References: <200307031936.34458.kde@myrealbox.com>
+	 <200307040949.18588.kernel@kolivas.org>
+	 <1057284551.1725.8.camel@iso-8590-lx.zeusinc.com>
+	 <200307041229.06238.kernel@kolivas.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057291914.5681.11.camel@iso-8590-lx.zeusinc.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 Jul 2003 00:11:55 -0400
 Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.3, required 10,
+	AWL, EMAIL_ATTRIBUTION, IN_REP_TO, REFERENCES, SPAM_PHRASE_02_03)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well...I'm typing on the keyboard right now :)
+On Thu, 2003-07-03 at 22:29, Con Kolivas wrote:
+> Ah yes I believe I know this issue. The problem is the parent spinning madly 
+> waiting for the child and it is the parent that starves the child. While this 
+> is not a fix, if you can reproduce the problem can you try changing 
+> CHILD_PENALTY in kernel/sched.c from 50 to 100 and see if that makes the 
+> problem go away? I mentioned this hidden in a thread a while ago, and am 
+> trying to get a reasonable fix.
 
-Any info I can give that can help?
+Well, perhaps I spoke too soon about this particular issues.  I have
+just compiled 2.5.74-mm1 and it seems to be much better behaved that my
+previous kernel (2.5.72-mm2).  I can no longer reproduce the issue with
+this new kernel but the problem is easily reproducible with my older
+kernel.  Does 2.5.74-mm1 have a recent version of your patches (I know
+it has some variation of your patches but you've been cracking them out
+pretty quick lately).  I've run testing with my horror cases of
+Crossover Plugin and multiple Crossover Office applications running
+simultaneously and all programs seem responsive, these cases caused all
+kinds of audio skipping and pauses on the system before.
 
-David
+I'm still running some other tests that seem to be showing some
+strangeness but I need to do some more test on both kernels before I
+really reports them.
 
-Vojtech Pavlik wrote:
+Thanks for your hard work on these issues, for my workload things seem
+to be getting quite a bit better.
 
->On Fri, Jun 27, 2003 at 12:55:50PM -0400, David Ford wrote:
->
->  
->
->>Kernel 2.5.73, first time I've used an external keyboard
->>
->>When I plug my external Logitech keyboard into my laptop, (shared 
->>keyboard/mouse port), dmesg output indicates a generic mouse was 
->>attached instead of a keyboard.  The keyboard works, it's just the dmesg 
->>info that's inaccurate.
->>
->>Keyboard plugged in:
->>input: PS/2 Generic Mouse on isa0060/serio1
->>
->>Mouse plugged in:
->>input: PS/2 Logitech Mouse on isa0060/serio1
->>    
->>
->
->Honestly, I don't think this is possible. If your keyboard is detected
->as a mouse, it cannot work a a keyboard. Though maybe your
->keyboard/mouse controller BIOS may be playing tricks on us.
->
->  
->
+Later,
+Tom
+
 

@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbUL0Op6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbUL0OtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbUL0Op6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 09:45:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbUL0Op6
+	id S261746AbUL0OtS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 09:49:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbUL0OtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 09:45:58 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:57894 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261737AbUL0Opz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 09:45:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=EJqOsGFbjoTa3BMy1Tg8pZW0XrbBYLLzJjNG6C9GWYfik/DFjIzHsIpYXfUBBhY8bRuAO6Fmuh6ZwCvnf8qzPeX00khQ2IqS5H9TTTcL1BdBwA+6jAig64YrGiNPNOlx5CDHbcSycJehI5OkTD+Maw+fGfumj2lPRG2lrvg95rw=
-Message-ID: <8783be660412270645717b89d1@mail.gmail.com>
-Date: Mon, 27 Dec 2004 09:45:54 -0500
-From: Ross Biro <ross.biro@gmail.com>
-Reply-To: Ross Biro <ross.biro@gmail.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: Re: Linux 2.6.10-ac1
-Cc: Andreas Steinmetz <ast@domdv.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <58cb370e041226174019e75e23@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Dec 2004 09:49:18 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:31131 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261746AbUL0OtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 09:49:16 -0500
+Subject: RE: the patch of restore-pci-config-space-on-resume break S1 on
+	ASUS2400 NE
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+       "Brown, Len" <len.brown@intel.com>,
+       "Li, Shaohua" <shaohua.li@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net, "Fu, Michael" <michael.fu@intel.com>
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F8406A26924@pdsmsx403>
+References: <3ACA40606221794F80A5670F0AF15F8406A26924@pdsmsx403>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <1104103881.16545.2.camel@localhost.localdomain>
-	 <58cb370e04122616577e1bd33@mail.gmail.com> <41CF649E.20409@domdv.de>
-	 <58cb370e041226174019e75e23@mail.gmail.com>
+Message-Id: <1104155089.20693.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 27 Dec 2004 13:44:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Dec 2004 02:40:45 +0100, Bartlomiej Zolnierkiewicz
-<bzolnier@gmail.com> wrote:
-> On Mon, 27 Dec 2004 02:25:50 +0100, Andreas Steinmetz <ast@domdv.de> wrote:
-> > Bartlomiej Zolnierkiewicz wrote:
-> > > What do you need 'serialize' option for?
-> 
-> No, I want them to fix the problem - whenever it is - ide or apic code. :)
+On Llu, 2004-12-27 at 10:14, Yu, Luming wrote:
+>  Actually, the kernel (after removing restore-pci-config-space-on-resume patch) with option "ide=nodma" 
+> can work with S1 suspend/resume without any hang so far.
+>   So my suggestion for IDE driver is to disable DMA before entering S1, and enable
+> DMA after resuming from S1 if DMA was enabled.  I need help from IDE guys to confirm it.
 
-And what do you want them to do when the problem is in hardware?
+The IDE layer has no problem doing this, although it raises interesting
+questions about why it would be neccessary. 
 
-    Ross

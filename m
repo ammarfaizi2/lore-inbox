@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbUDCXRe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 18:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbUDCXRe
+	id S262040AbUDCX1S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 18:27:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUDCX1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 18:17:34 -0500
-Received: from opersys.com ([64.40.108.71]:2567 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262035AbUDCXRd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 18:17:33 -0500
-Message-ID: <406F476D.8050002@opersys.com>
-Date: Sat, 03 Apr 2004 18:23:25 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Amit <khandelw@cs.fsu.edu>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.4.16
-References: <1080849830.91ac1e3f85274@system.cs.fsu.edu>	<406C79E4.1060700@opersys.com> <1081012426.5c22c66499b13@system.cs.fsu.edu>	<406F21CB.8070908@opersys.com> <1081026049.f64d5288b5aaa@system.cs.fsu.edu> <406F2851.6050304@opersys.com> <003b01c419d0$67e59e50$af7aa8c0@VALUED65BAD02C>
-In-Reply-To: <003b01c419d0$67e59e50$af7aa8c0@VALUED65BAD02C>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Apr 2004 18:27:18 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:54721
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262040AbUDCX1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 18:27:16 -0500
+Date: Sun, 4 Apr 2004 01:27:17 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hch@infradead.org, hugh@veritas.com, vrajesh@umich.edu,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040403232717.GO2307@dualathlon.random>
+References: <20040402001535.GG18585@dualathlon.random> <Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain> <20040402011627.GK18585@dualathlon.random> <20040401173649.22f734cd.akpm@osdl.org> <20040402020022.GN18585@dualathlon.random> <20040402104334.A871@infradead.org> <20040402164634.GF21341@dualathlon.random> <20040403174043.GK2307@dualathlon.random> <20040403120227.398268aa.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040403120227.398268aa.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 03, 2004 at 12:02:27PM -0800, Andrew Morton wrote:
+> It might be better to switch over to address masking in get_user_pages()
+> and just dump all the compound page logic.  I don't immediately see how the
 
-Amit wrote:
->    The patches got installed smoothly however, like in linux-2.4.19 this
-> time the "Kernel Tracing" option didn't come up when I did "make xconfig". I
-> copied the CONFIG_TRACE=m from my .config of linux-2.4.19. I hope this is
-> correct.
+I'm all for it, this is how the 2.4 get_user_pages deals with bigpages
+too, I've never enjoyed the compound thing.
 
-No, this isn't the right way.
+> get_user_pages() caller can subsequently do put_page() against the correct
+> pageframe, but I assume you worked that out?
 
-You need to enable relayfs support in "File Systems"->"Pseudo filesystems",
-then you will be able to select "General setup"->"Linux Trace Toolkit support".
+see this patch:
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.23aa2/9910_shm-largepage-18.gz
 
+it's a two liner fix in follow_page:
+
+@@ -439,6 +457,8 @@ static struct page * follow_page(struct
+        pmd = pmd_offset(pgd, address);
+        if (pmd_none(*pmd))
+                goto out;
++       if (pmd_bigpage(*pmd))
++               return __pmd_page(*pmd) + (address & BIGPAGE_MASK) / PAGE_SIZE;
+
+
+the BIGPAGE_MASK will never expose anything but the page->private to the
+get_user_pages code, and handle_mm_fault takes care of doing the page
+faults properly using larepages and pmds if the vma is marked
+VM_BIGPAGE.
+
+rawio on largepages has been a must-have feature (especially on >=32G)
+for more than one year, definitely no need of compound slowdown for that.
+
+Still I would like to understand what's wrong in Christoph's ppc machine
+before dumping the whole compound thing.

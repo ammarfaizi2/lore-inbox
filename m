@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262426AbVBCAYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbVBCAYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262426AbVBCAYc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 19:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbVBCAWp
+	id S262550AbVBCAYd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 19:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbVBCAW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 19:22:45 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:22997 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262395AbVBCAUP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 19:20:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=dwpSc6mbbJM/uNmjpW9L2O+crE2ld9MnyQj0R1qB3Ws95Whp2tSMDNsNuIIfgQ06olGXznb4227bBQAXlVRnsspoC9sj9yGSAWWeek+blXu8j8LLPEYuFqdUBYKDUfAzz0v97YyML02rd2LitTJBtC0wSDC9ww0bUeIc4QlKV88=
-Message-ID: <58cb370e050202162041f9b92@mail.gmail.com>
-Date: Thu, 3 Feb 2005 01:20:15 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <tj@home-tj.org>
-Subject: Re: [PATCH 2.6.11-rc2 04/29] ide: cleanup piix
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <20050202024611.GE621@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050202024017.GA621@htj.dyndns.org>
-	 <20050202024611.GE621@htj.dyndns.org>
+	Wed, 2 Feb 2005 19:22:56 -0500
+Received: from scl-ims.phoenix.com ([216.148.212.222]:39700 "EHLO
+	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S262387AbVBCARW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 19:17:22 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: 
+Date: Wed, 2 Feb 2005 16:17:13 -0800
+Message-ID: <5F106036E3D97448B673ED7AA8B2B6B301B3CD73@scl-exch2k.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Index: AcUJhbUALjZV+UneR3CNdQxAkkXgCg==
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: <stern@rowland.harvard.edu>, <mdharm-usb@one-eyed-alien.net>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 03 Feb 2005 00:17:17.0080 (UTC) FILETIME=[B7EA1980:01C50985]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005 11:46:11 +0900, Tejun Heo <tj@home-tj.org> wrote:
-> > 04_ide_cleanup_piix.patch
-> >
-> >       In drivers/ide/pci/piix.[hc], init_setup_piix() is defined and
-> >       used but only one init_setup function is defined and no
-> >       demultiplexing is done using init_setup callback.  As other
-> >       drivers call ide_setup_pci_device() directly in such cases,
-> >       this patch removes init_setup_piix() and makes piix_init_one()
-> >       call ide_setup_pci_device() directly.
-> 
-> Signed-off-by: Tejun Heo <tj@home-tj.org>
+Hi Matt, Alan, 
 
-applied
+  Could you please tell me (link would do) why it makes default
+delay_use=5 
+really necessary (from the patch below)?
+https://lists.one-eyed-alien.net/pipermail/usb-storage/2004-August/00074
+7.html
+
+It makes USB boot really painfull and slow :(
+
+  I understand there should be a good reason for it. I've tried to find
+an answer in 
+archives, without much success though.
+
+Thanks,
+Aleks.

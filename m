@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262461AbVCBWJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVCBWON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262461AbVCBWJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 17:09:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVCBWIQ
+	id S262502AbVCBWON (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:14:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262498AbVCBWLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 17:08:16 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25081 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262440AbVCBV6y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 16:58:54 -0500
-Message-ID: <42263719.7030004@mvista.com>
-Date: Wed, 02 Mar 2005 13:58:49 -0800
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org, linux-pm@osdl.org
-Subject: Re: [linux-pm] [PATCH] Custom power states for non-ACPI systems
-References: <20050302020306.GA5724@slurryseal.ddns.mvista.com> <20050302085619.GA1364@elf.ucw.cz>
-In-Reply-To: <20050302085619.GA1364@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Mar 2005 17:11:23 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9617 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262501AbVCBWJW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 17:09:22 -0500
+Date: Wed, 2 Mar 2005 23:05:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: paul.devriendt@amd.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on battery power)
+Message-ID: <20050302220537.GD1616@elf.ucw.cz>
+References: <200502252237.04110.rjw@sisk.pl> <20050227170253.GH1441@elf.ucw.cz> <200502271919.45767.rjw@sisk.pl> <200503022250.12823.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503022250.12823.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+Hi!
+
+> > > It sounds to me like we run at 2GHz from batteries at resume time, and
+> > > that causes bad things (tm),
+> [-- snip --]
 > 
+> It seems that we write to the BIOS while moving the image, at least on my box,
+> which is quite not correct, IMO.
+...
+> At the same time, from powernow-k8, I got this:
 > 
->>Advertise custom sets of system power states for non-ACPI systems.
->>Currently, /sys/power/state shows and accepts a static set of choices
->>that are not necessarily meaningful on all platforms (for example,
->>suspend-to-disk is an option even on diskless embedded systems, and the
->>meaning of standby vs. suspend-to-mem is not well-defined on
->>non-ACPI-systems).  This patch allows the platform to register power
->>states with meaningful names that correspond to the platform's
->>conventions (for example, "big sleep" and "deep sleep" on TI OMAP), and
->>only those states that make sense for the platform.
+> powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.00.09e)
+> powernow-k8: found PSB header at 0xffff8100000fbb10
 > 
+> where ffff8100000fbb10 is the (virtual) address containing the PSB header
+> (ie a part of the BIOS).  Hence, the PSB gets overwritten during resume (as
+> well as some other BIOS stuff, it seems).
 > 
-> Maybe this is a bit overdone?
-> 
-> Of course you can have suspend-to-disk on most embedded systems; CF
-> flash card looks just like disk, and you should be able to suspend to
-> it.
+> IMO this may lead to unexpected results, like the mysterious reboots during
+> resume.
 
-It's possible (on those with CF/PCMCIA etc.), although due to various 
-problems with things like flash size, write speed, and wear leveling 
-it's not very common to do so (I've seen two vendors abandon plans for 
-this, but no doubt somebody does do it) -- that's why I'd like to have 
-the particular platform register the capability if it happens to have 
-it, but no, not a big deal.
+Well, I always thought that ROM-BIOS is expected to
+be... well... read-only? Can you really write to your BIOS? [I know
+about Flash-BIOSen, but they are certainly not writable by "normal"
+write.] Plus we should overwrite it with same values...
 
-> If OMAP has "big sleep" and "deep sleep", why not simply map them to
-> "standby" and "suspend-to-ram"?
-
-In fact that's more or less what happens (or will happen once drivers 
-like USB stop looking for PM_SUSPEND_MEM, etc.).  There are other 
-platforms with more than 2 sleep states (say, XScale PXA27x), so this 
-will start to get a bit problematic.  And it seens so easy to truly 
-handle the platform's states instead of pretending ACPI S1/S3/S4 are the 
-only methods to suspend any system.
-
-If it's preferable, how about replacing the /sys/power/state "standby" 
-and "mem" values  to "sleep", and have a /sys/power/sleep attribute that 
-tells the methods of sleep available for the platform, much like 
-suspend-to-disk methods are handled today?  So the sleep attribute would 
-handle "standby" and "mem" for ACPI systems, and other values for 
-non-ACPI systems.  Thanks,
-
-
+Anyway, IMO bios should be marked as reserved (and we should not be
+touching reserved pages). Can you verify that your BIOS is properly
+marked reserved? [Ccing l-k, this might be interesting.]
+								Pavel
 -- 
-Todd
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

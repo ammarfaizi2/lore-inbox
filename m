@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315459AbSEMBKD>; Sun, 12 May 2002 21:10:03 -0400
+	id <S315433AbSEMBZM>; Sun, 12 May 2002 21:25:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315463AbSEMBKC>; Sun, 12 May 2002 21:10:02 -0400
-Received: from loisexc2.loislaw.com ([12.5.234.240]:13068 "EHLO
-	loisexc2.loislaw.com") by vger.kernel.org with ESMTP
-	id <S315459AbSEMBKA>; Sun, 12 May 2002 21:10:00 -0400
-Message-ID: <4188788C3E1BD411AA60009027E92DFD0962E252@loisexc2.loislaw.com>
-From: "Rose, Billy" <wrose@loislaw.com>
-To: "'Linus Torvalds'" <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S315448AbSEMBZM>; Sun, 12 May 2002 21:25:12 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:22912 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S315433AbSEMBZK>; Sun, 12 May 2002 21:25:10 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 12 May 2002 18:34:53 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "Rose, Billy" <wrose@loislaw.com>
+cc: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: RE: Segfault hidden in list.h
-Date: Sun, 12 May 2002 20:10:03 -0500
+In-Reply-To: <4188788C3E1BD411AA60009027E92DFD0962E251@loisexc2.loislaw.com>
+Message-ID: <Pine.LNX.4.44.0205121823530.995-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I stand corrected. I guess my philosophy is for the long sought after
-"prefect world" example...
+On Sun, 12 May 2002, Rose, Billy wrote:
 
-Cheers :)
+> The code inside of __list_add:
+>
+> next->prev = new;
+> new->next = next;
+> new->prev = prev;
+> pre-next = new;
+>
+> needs to be altered to:
+>
+> new->prev = prev;
+> new->next = next;
+> next->prev = new;
+> prev->next = new;
 
-Billy Rose 
-wrose@loislaw.com
+you need a wmb also :
 
-> -----Original Message-----
-> From: Linus Torvalds [mailto:torvalds@transmeta.com]
-> Sent: Sunday, May 12, 2002 7:59 PM
-> To: Rose, Billy
-> Cc: Kernel Mailing List
-> Subject: Re: Segfault hidden in list.h
-> 
-> 
-> 
-> 
-> On Sun, 12 May 2002, Rose, Billy wrote:
-> >
-> > If something is accessing the list in reverse at the time 
-> of insertion and
-> > "next->prev = new;" has been executed, there exists a 
-> moment when new->prev
-> 
-> No.
-> 
-> If the coder doesn't lock his data structures, it doesn't 
-> matter _what_
-> order we execute the list modifications in - different 
-> architectures will
-> do different thing with inter-CPU memory ordering, and trying to order
-> memory accesses on a source level is futile.
-> 
-> 		Linus
-> 
+new->prev = prev;
+new->next = next;
+wmb
+next->prev = new;
+prev->next = new;
+
+
+
+
+- Davide
+
+
+
+

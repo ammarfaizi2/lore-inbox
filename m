@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286825AbSBKDF0>; Sun, 10 Feb 2002 22:05:26 -0500
+	id <S286904AbSBKDPZ>; Sun, 10 Feb 2002 22:15:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286904AbSBKDFQ>; Sun, 10 Feb 2002 22:05:16 -0500
-Received: from ip68-3-104-241.ph.ph.cox.net ([68.3.104.241]:57581 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S286825AbSBKDFL>;
-	Sun, 10 Feb 2002 22:05:11 -0500
-Message-ID: <3C6734E0.2070807@candelatech.com>
-Date: Sun, 10 Feb 2002 20:05:04 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Netwinder forsale?
-In-Reply-To: <20020210164149.E7975@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S286934AbSBKDPQ>; Sun, 10 Feb 2002 22:15:16 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:54546 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S286904AbSBKDPH>;
+	Sun, 10 Feb 2002 22:15:07 -0500
+Date: Sun, 10 Feb 2002 19:11:41 -0800
+From: Greg KH <greg@kroah.com>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Linux-2.5.4-pre6 uhci.c compile fix
+Message-ID: <20020211031141.GC8836@kroah.com>
+In-Reply-To: <3C672E62.702FFB3C@delusion.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C672E62.702FFB3C@delusion.de>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sun, 13 Jan 2002 23:38:51 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Consider a cerfcube: www.cerfcube.com.
-
-I've had quite an easy time with it...and they ship a
-cross-compiler toolchain with it.  Just be wary of the
-boot loader options like 'eraseflash', it really will,
-with no remorse :)
-
-Larry McVoy wrote:
-
-> Folks, I'm trying to track down hardware so we can support BK on the
-> StrongARM.  If anyone has one or two Netwinders sitting gathering dust,
-> could you contact me privately and let me know what you want for them.
-> And does anyone know where Sam Menhat (spelling?) ended up?  I'll bet
-> he knows where there are some of these.
+On Mon, Feb 11, 2002 at 03:37:22AM +0100, Udo A. Steinberg wrote:
 > 
-> Thanks in advance.
+> Hi Linus, Greg,
 > 
+> The attached patch fixes a trivial compiler warning in uhci.c:
 
+I've asked Johannes about this warning, and he said he'd fix it, so I'd
+prefer you to send your patch to him first.
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+thanks,
 
-
+greg k-h

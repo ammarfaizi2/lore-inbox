@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293283AbSCOV1D>; Fri, 15 Mar 2002 16:27:03 -0500
+	id <S293288AbSCOV3N>; Fri, 15 Mar 2002 16:29:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293288AbSCOV04>; Fri, 15 Mar 2002 16:26:56 -0500
-Received: from users.ccur.com ([208.248.32.211]:61832 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id <S293283AbSCOV0f>;
-	Fri, 15 Mar 2002 16:26:35 -0500
+	id <S293306AbSCOV3D>; Fri, 15 Mar 2002 16:29:03 -0500
+Received: from users.ccur.com ([208.248.32.211]:5003 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id <S293289AbSCOV2s>;
+	Fri, 15 Mar 2002 16:28:48 -0500
 From: jak@rudolph.ccur.com (Joe Korty)
-Message-Id: <200203152125.VAA27707@rudolph.ccur.com>
+Message-Id: <200203152126.VAA27719@rudolph.ccur.com>
 Subject: Re: [PATCH] 2.4.18 scheduler bugs
-To: mingo@elte.hu
-Date: Fri, 15 Mar 2002 16:25:35 -0500 (EST)
-Cc: joe.korty@ccur.com (Joe Korty), marcelo@conectiva.com.br (Marcelo Tosatti),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Fri, 15 Mar 2002 16:26:59 -0500 (EST)
+Cc: joe.korty@ccur.com, marcelo@conectiva.com.br, mingo@elte.hu,
+        alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
 Reply-To: joe.korty@ccur.com (Joe Korty)
-In-Reply-To: <Pine.LNX.4.44.0203152053001.21386-100000@elte.hu> from "Ingo Molnar" at Mar 15, 2002 08:55:52 PM
+In-Reply-To: <E16lzQW-0004j4-00@the-village.bc.nu> from "Alan Cox" at Mar 15, 2002 09:39:52 PM
 X-Mailer: ELM [version 2.5 PL0b1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,20 +23,19 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> - reschedule_idle() - smp_send_reschedule when setting idle's need_resched
+>> - ksoftirqd() - change daemon nice(2) value from 19 to -19.
 >> 
->>     Idle tasks nowdays don't spin waiting for need->resched to change,
->>     they sleep on a halt insn instead.  Therefore any setting of
->>     need->resched on an idle task running on a remote CPU should be
->>     accompanied by a cross-processor interrupt.
+>>     SoftIRQ servicing was less important than the most lowly of batch
+>>     tasks.  This patch makes it more important than all but the realtime
+>>     tasks.
 > 
-> this is broken as well. Check out the idle=poll feature i wrote some time
-> ago.
+> Bad idea - the right fix to this is to stop using ksoftirqd so readily
+> under load. If it bales after 20 iterations life is good. As shipped life
+> is bad.
+> 
+> Once ksoftirq triggers its because we are seriously overloaded (or without
+> fixing its use slightly randomly). In that case we want other stuff to
+> do work before we potentially unleash the next flood.
 
-The idle=poll stuff is a hack.  I'd like my idle cpus to sleep and still
-have them wake up the moment work for them becomes available.  I see no
-reason why an idle cpu should be forced to remain idle until the next
-tick, nor why fixing that should be considered `broken'.
-
+That certainly makes sense.  Thanks.
 Joe
-

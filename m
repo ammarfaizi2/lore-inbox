@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261823AbTCTTWN>; Thu, 20 Mar 2003 14:22:13 -0500
+	id <S261808AbTCTTSt>; Thu, 20 Mar 2003 14:18:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261829AbTCTTWN>; Thu, 20 Mar 2003 14:22:13 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:6660 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261823AbTCTTWM>;
-	Thu, 20 Mar 2003 14:22:12 -0500
-Date: Thu, 20 Mar 2003 20:32:13 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, ak@suse.de
-Subject: Re: share COMPATIBLE_IOCTL()s across architectures
-Message-ID: <20030320193212.GA312@elf.ucw.cz>
-References: <20030319232157.GA13415@elf.ucw.cz> <20030319.160130.112180221.davem@redhat.com>
+	id <S261817AbTCTTSt>; Thu, 20 Mar 2003 14:18:49 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:5589 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S261808AbTCTTSs>;
+	Thu, 20 Mar 2003 14:18:48 -0500
+Date: Thu, 20 Mar 2003 14:29:44 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Yaroslav Popovitch <yp@sot.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ptrace bug fix is not working!!!
+Message-ID: <20030320192943.GE8256@gtf.org>
+References: <Pine.LNX.4.44.0303202114350.30893-301000@ares.sot.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030319.160130.112180221.davem@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.44.0303202114350.30893-301000@ares.sot.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
->    This patche moves common COMPATIBLE_IOCTLs to
->    include/linux/compat_ioctl.h, enabling pretty nice cleanups:
+On Thu, Mar 20, 2003 at 09:23:28PM +0200, Yaroslav Popovitch wrote:
+> Hi! I applied Alan Cox's patches for ptrace bug. But system is still 
+> exploitable.
 > 
-> Please be careful.  For anything non-trivial there can be major
-> differences between compat layers.
+> I used my own kernel-2.4.19 with patch for 2.4.19 kernel. It does not 
+> helped. Then I took vanilla 2.4.20 kernel from www.kernel.org and applied 
+> patch for 2.4.20 kernel. System is still exploitable.
 
-I'm trying to be carefull. How common are ioctls that are
-COMPATIBLE_IOCTL(foo) on one arch, but not on another? So far I tried
-to decide, and mostly decided that one architecture was simply
-missing...
+Can you verify that you are clearing the setuid bit that gets set, when
+the exploit is run?  IIRC, you must manually do that to verify that your
+system is indeed no longer exploitable.
 
-> I say this now because eventually I want this compat stuff
-> to support multiple-compilations, using some COMPAT_NAME(foo)
-> macro scheme and some Makefile hackery.
+	Jeff
 
-Well, if I'm a little more carefull, all I will change will be order
-of fields in that ioctl32_start table. Should I aim for that?
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+
+
+

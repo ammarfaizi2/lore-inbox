@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312899AbSDPMNX>; Tue, 16 Apr 2002 08:13:23 -0400
+	id <S313302AbSDPM2T>; Tue, 16 Apr 2002 08:28:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312943AbSDPMNW>; Tue, 16 Apr 2002 08:13:22 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:49131 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S312899AbSDPMNW>; Tue, 16 Apr 2002 08:13:22 -0400
-Date: Tue, 16 Apr 2002 14:10:34 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Robin Johnson <robbat2@fermi.orbis-terrarum.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Incremental Patch Building Script
-In-Reply-To: <Pine.LNX.4.43.0204160302250.3657-200000@fermi.orbis-terrarum.net>
-Message-ID: <Pine.NEB.4.44.0204161404310.12986-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313322AbSDPM2S>; Tue, 16 Apr 2002 08:28:18 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:44556 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S313302AbSDPM2R>;
+	Tue, 16 Apr 2002 08:28:17 -0400
+Date: Tue, 16 Apr 2002 14:28:01 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE TCQ #4
+Message-ID: <20020416122801.GB1097@suse.de>
+In-Reply-To: <27670700DF5@vcnet.vc.cvut.cz> <20020416102501.GG17043@suse.de> <3CBC04A5.1040201@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Apr 2002, Robin Johnson wrote:
+On Tue, Apr 16 2002, Martin Dalecki wrote:
+> Jens Axboe wrote:
+> 
+> 
+> >yes this looks like a silly problem. the fix should be to have
+> >ata_ar_get() set ATA_AR_RETURN in ar_flags:
+> >
+> >        if (!list_empty(&drive->free_req)) {
+> >                ar = list_ata_entry(drive->free_req.next);
+> >                list_del(&ar->ar_queue);
+> >                ata_ar_init(drive, ar);
+> >                ar->ar_flags |= ATA_AR_RETURN;
+> >        }
+> >
+> >and then only have ata_ar_put() readd it to the list when it is set:
+> >
+> >static inline void ata_ar_put(ide_drive_t *drive, struct ata_request
+> >*ar)
+> >{
+> >        if (ar->ar_flags & ATA_AR_RETURN)
+> >                list_add(&ar->ar_queue, &drive->free_req);
+> >	...
+> >
+> >Then you can also remove the ata_ar_put() conditional in
+> >ide_end_drive_cmd(), just call ata_ar_put() unconditionally.
+> 
+> Well something similar is already in IDE 37... I have just
+> invented a flag ATA_AR_STATIC which get's set in ide_raw_taskfile
+> ata_ar_put ich then checking for if (!(ar->ar_flags & ATA_AR_STATIC))...
+> 
+> It has the desired effect in practice.
 
-> Hi,
->
-> I have written a script to build incremental patches, as found on
-> bzimage.org previously. I have written this so that other people will find
-> it easier to roll their own incremental patches to use.
->
-> Comments/Suggestions on improvement welcome
-
-There's already interdiff from Tim Waugh's patchutils [1] that makes
-incremental diffs between patches. And interdiff doesn't need the source
-the patches are against (IOW: to make an incremental patch between two
-kernel -pre patches you don't need any kernel sources). It's pretty
-simple:
-
-  interdiff -z patch-2.4.19-pre6.gz patch-2.4.19-pre7.gz > mydiff
-
-> Please CC me, as I am not subscribed to the list.
->
-> Thanks.
-
-cu
-Adrian
-
-[1] http://cyberelk.net/tim/data/patchutils/
-
+sure, just used ATA_AR_RETURN since it was there already. I'm not
+particularly fond of that name though, and ATA_AR_STATIC isn't too good
+either imo. how about ATA_AR_POOL? with the same semantics as
+ATA_AR_RETURN, ie return to pool if flag is set.
 
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
+Jens Axboe
 

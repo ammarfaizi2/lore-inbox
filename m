@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275907AbTHOLLy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 07:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275908AbTHOLLx
+	id S275898AbTHOLHj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 07:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275899AbTHOLHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 07:11:53 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:2500 "EHLO
-	antoli.gallimedina.net") by vger.kernel.org with ESMTP
-	id S275905AbTHOLLu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 07:11:50 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: 2.6.0: Bad udp checksum in loopback interface
-Date: Fri, 15 Aug 2003 13:11:48 +0200
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Aug 2003 07:07:39 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:6839 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S275898AbTHOLHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 07:07:37 -0400
+Date: Fri, 15 Aug 2003 12:07:00 +0100
+From: Dave Jones <davej@redhat.com>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Via KT400 agpgart issues
+Message-ID: <20030815110700.GE22433@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Mark Watts <m.watts@eris.qinetiq.com>, linux-kernel@vger.kernel.org
+References: <200308141025.12747.m.watts@eris.qinetiq.com> <20030814184838.GB10901@redhat.com> <200308150859.03617.m.watts@eris.qinetiq.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308151311.48831.gallir@uib.es>
+In-Reply-To: <200308150859.03617.m.watts@eris.qinetiq.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tcpdump -v shows bad udp checksum in the loopback interface. But I'm not sure 
-if the packets is discarded or the error is ignored.
+On Fri, Aug 15, 2003 at 08:59:03AM +0100, Mark Watts wrote:
 
-ponti:~# tcpdump -i lo -n -v
+ > I thought the KT400 chipset (at least) had been backported to 2.4.21 ?
 
-ponti:~# dig @192.168.0.3 gallimedina.net
+Only for AGP2.x mode.
 
-13:02:12.360728 192.168.0.3.32827 > 192.168.0.3.53: [bad udp cksum 5e6d!]  
-35220+ A? gallimedina.net. (33) (DF) [ttl 0] (id 0, len 61)
-13:02:12.364470 192.168.0.3.53 > 192.168.0.3.32827:  35220* 1/1/1 
-gallimedina.net. A 192.168.0.10 (85) (DF) [ttl 0] (id 12492, len 113)
+ > I'm not experiancing any technical problems. The nvidia /proc interfaces are 
+ > reporting that I'm running at agp 8x
 
-ponti:~# dig @127.0.0.1 gallimedina.net
+if its using its own agpgart routines, maybe. If it isn't, it's broken,
+or lying.
 
+ > , and I have full hardware acceleration 
+ > enough to play games like Unreal Tournament 2003 quite fast (~50fps), its 
+ > just that agpgart cant find my aperature size...
 
-13:03:53.299883 127.0.0.1.32827 > 127.0.0.1.53: [bad udp cksum 167d!]  32901+ 
-A? gallimedina.net. (33) (DF) [ttl 0] (id 0, len 61)
-13:03:53.303448 127.0.0.1.53 > 127.0.0.1.32827:  32901* 1/1/1 gallimedina.net. 
-A 192.168.0.10 (85) (DF) [ttl 0] (id 7725, len 113)
+which happens when agpgart tries to read the AGP2.x size, when the
+chipset is in 3.x mode.
 
+ > I just tried my vendors (mandrake) 2.4.22 kernel and I get exactly the same 
+ > output.
 
+No vendor that I know of has backported the AGP3 support it its
+entirity. The closest to a backport so far is the trainwreck that
+is the ATI FireGL drivers.
 
-This machine has a bridge, but I also tried in another one with netcat (nc -l 
--u localhost -p 2000 and nc -u localhost 2000)
-
-antoli:~# tcpdump -i lo -n -v
-tcpdump: listening on lo
-13:09:04.125385 127.0.0.1.32890 > 127.0.0.1.2000: [bad udp cksum 5a0!] udp 14 
-(DF) [ttl 0] (id 32006, len 42)
-13:09:12.472940 127.0.0.1.2000 > 127.0.0.1.32890: [bad udp cksum 837!] udp 7 
-(DF) [ttl 0] (id 34086, len 35)
-
-
-I saw the short message does arrive to the listening netcat, but tcpdump still 
-gives the bad udp error message.
-
-Regards,
+		Dave
 
 -- 
-  ricardo galli       GPG id C8114D34
-  http://mnm.uib.es/~gallir/
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,175 +1,1034 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316576AbSHJDXS>; Fri, 9 Aug 2002 23:23:18 -0400
+	id <S316574AbSHJDVa>; Fri, 9 Aug 2002 23:21:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316578AbSHJDXS>; Fri, 9 Aug 2002 23:23:18 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:18634 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S316576AbSHJDXQ>; Fri, 9 Aug 2002 23:23:16 -0400
-Message-ID: <25282B06EFB8D31198BF00508B66D4FA03EA570F@fmsmsx114.fm.intel.com>
+	id <S316576AbSHJDVa>; Fri, 9 Aug 2002 23:21:30 -0400
+Received: from hdfdns02.hd.intel.com ([192.52.58.11]:29647 "EHLO
+	mail2.hd.intel.com") by vger.kernel.org with ESMTP
+	id <S316574AbSHJDVV>; Fri, 9 Aug 2002 23:21:21 -0400
+Message-ID: <25282B06EFB8D31198BF00508B66D4FA03EA570E@fmsmsx114.fm.intel.com>
 From: "Seth, Rohit" <rohit.seth@intel.com>
-To: "Seth, Rohit" <rohit.seth@intel.com>, "'Andrew Morton'" <akpm@zip.com.au>,
-       "'Linus Torvalds'" <torvalds@transmeta.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+To: "'Andrew Morton'" <akpm@zip.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: RE: large page patch (fwd) (fwd) ==>hugetlb page patch
-Date: Fri, 9 Aug 2002 20:26:52 -0700 
+Date: Fri, 9 Aug 2002 20:24:52 -0700 
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C2401D.C55311A0"
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Attached is the updated Large Page (now onwards called hugetlb page) patch.
+This is basically the upport from original 2.4.18.  I've tried to
+incorporate some of the comments that have been made on the mailing list so
+far.  
 
-------_=_NextPart_000_01C2401D.C55311A0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Though the config option is still named CONFIG_LARGE_PAGE, but there are lot
+of other pieces that I've started renaming as "hugetlb"  Eventually
+CONFIG_LARGE_PAGE will be changed to CONFIG_HUGETLB_PAGE.  Following are the
+fixes/changes from the previous (2.4.18) patch:
 
-Forgot to do the attachment with my last mail (just in case the malier is
-doing autoformatting).  Here is the patch as an attachment.
+1) Only two system calls (Instead of 4 that were there in earlier patch).
+These are 
+sys_alloc_hugepages(int key, unsigned long addr, unsigned long len, int
+prot, int flag)
+and
+sys_free_hugepages(unsigned long addr)
+
+Key will be equal to zero if  user wants these huge pages as private.  A
+positive int value will be used for unrelated apps to share the same
+physcial huge pages.
+
+2) munmap skips over the hugetlb regions (that is this function will not
+unmap the huge tlb regions)
+
+3) mprotect and mremap will return error if they happen to be touching
+hugetlb region
+
+4) /proc/sys/kernel/numhugepages: A positive value written to this will set
+the configured hugepage pool to that updated value.  Though I have also left
+the provision so that negative values just decrease the current configured
+hugetlb pool by that amount.
+
+5) There are couple of upport changes for 2.5.30
 
 
-
-------_=_NextPart_000_01C2401D.C55311A0
-Content-Type: application/octet-stream;
-	name="patch.2.5.30.ZIP"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="patch.2.5.30.ZIP"
-
-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
-
-------_=_NextPart_000_01C2401D.C55311A0--
+diff -Naru linux-2.5.30.org/arch/i386/config.in
+linux-2.5.30.lp/arch/i386/config.in
+--- linux-2.5.30.org/arch/i386/config.in	Thu Aug  1 14:16:18 2002
++++ linux-2.5.30.lp/arch/i386/config.in	Thu Aug  8 19:08:29 2002
+@@ -153,6 +153,8 @@
+    define_bool CONFIG_X86_OOSTORE y
+ fi
+ 
++bool 'IA-32 Large Page Support (if available on processor)'
+CONFIG_LARGE_PAGE
++
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ bool 'Preemptible Kernel' CONFIG_PREEMPT
+ if [ "$CONFIG_SMP" != "y" ]; then
+diff -Naru linux-2.5.30.org/arch/i386/kernel/entry.S
+linux-2.5.30.lp/arch/i386/kernel/entry.S
+--- linux-2.5.30.org/arch/i386/kernel/entry.S	Thu Aug  1 14:16:15 2002
++++ linux-2.5.30.lp/arch/i386/kernel/entry.S	Fri Aug  9 15:06:39 2002
+@@ -753,6 +753,8 @@
+ 	.long sys_sched_setaffinity
+ 	.long sys_sched_getaffinity
+ 	.long sys_set_thread_area
++	.long sys_alloc_hugepages
++	.long sys_free_hugepages /* 245 */
+ 
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long sys_ni_syscall
+diff -Naru linux-2.5.30.org/arch/i386/kernel/sys_i386.c
+linux-2.5.30.lp/arch/i386/kernel/sys_i386.c
+--- linux-2.5.30.org/arch/i386/kernel/sys_i386.c	Thu Aug  1 14:16:22
+2002
++++ linux-2.5.30.lp/arch/i386/kernel/sys_i386.c	Fri Aug  9 19:55:28 2002
+@@ -246,3 +246,83 @@
+ 
+ 	return error;
+ }
++
++#ifdef CONFIG_LARGE_PAGE
++#define LPAGE_ALIGN(x)  (((unsigned long)x + (LPAGE_SIZE -1)) & LPAGE_MASK)
++extern long     sys_munmap(unsigned long, size_t);
++/* get_addr function gets the currently unused virtaul range in
++ * current process's address space.  It returns the LARGE_PAGE_SIZE
++ * aligned address (in cases of success).  Other kernel generic
++ * routines only could gurantee that allocated address is PAGE_SIZSE
+aligned.
++ */
++unsigned long
++get_addr(unsigned long addr, unsigned long len)
++{
++	struct vm_area_struct   *vma;
++	if (addr) {
++		addr = LPAGE_ALIGN(addr);
++		vma = find_vma(current->mm, addr);
++		if (((TASK_SIZE - len) >= addr) &&
++				(!vma || addr + len <= vma->vm_start))
++			goto found_addr;
++	}
++	addr = LPAGE_ALIGN(TASK_UNMAPPED_BASE);
++	for (vma = find_vma(current->mm, addr); ; vma = vma->vm_next) {
++		if (TASK_SIZE - len < addr)
++			return -ENOMEM;
++		if (!vma || ((addr + len) < vma->vm_start))
++			goto found_addr;
++		addr = vma->vm_end;
++	}
++found_addr:
++	addr = LPAGE_ALIGN(addr);
++	return addr;
++}
++
++asmlinkage unsigned long
++sys_alloc_hugepages(int key, unsigned long addr, unsigned long len, int
+prot, int flag)
++{
++	unsigned long   raddr;
++	int     retval;
++	extern int alloc_hugetlb_pages(int, unsigned long *, unsigned long,
+int, int);
++	if (!(cpu_has_pse))
++		return -EINVAL;
++	if (key < 0)
++		return -EINVAL;
++	if (len & (LPAGE_SIZE - 1))
++		return -EINVAL;
++	raddr = get_addr(addr, len);
++	if (raddr == -ENOMEM)
++		return raddr;
++	retval = alloc_hugetlb_pages(key, &raddr, len, prot, flag);
++	if (retval < 0)
++		return (unsigned long) retval;
++	return raddr;
++}
++
++asmlinkage int
++sys_free_hugepages(unsigned long addr)
++{
++	struct vm_area_struct   *vma;
++	extern int free_hugepages(struct vm_area_struct *);
++
++	vma = find_vma(current->mm, addr);
++	if ((!vma) || (!is_vm_hugetlb_page(vma)) || (vma->vm_start!=addr))
++		return -EINVAL;
++	return free_hugepages(vma);
++}
++
++#else
++
++asmlinkage unsigned long
++sys_alloc_hugepages(int key, unsigned long addr, size_t len, int prot, int
+flag)
++{
++	return -ENOSYS;
++}
++asmlinkage int
++sys_free_hugepages(unsigned long addr)
++{
++	return -ENOSYS;
++}
++
++#endif
+diff -Naru linux-2.5.30.org/arch/i386/mm/Makefile
+linux-2.5.30.lp/arch/i386/mm/Makefile
+--- linux-2.5.30.org/arch/i386/mm/Makefile	Thu Aug  1 14:16:15 2002
++++ linux-2.5.30.lp/arch/i386/mm/Makefile	Thu Aug  8 18:37:27 2002
+@@ -11,5 +11,6 @@
+ 
+ obj-y	 := init.o pgtable.o fault.o ioremap.o extable.o pageattr.o 
+ export-objs := pageattr.o
++obj-$(CONFIG_LARGE_PAGE) += lpage.o
+ 
+ include $(TOPDIR)/Rules.make
+diff -Naru linux-2.5.30.org/arch/i386/mm/init.c
+linux-2.5.30.lp/arch/i386/mm/init.c
+--- linux-2.5.30.org/arch/i386/mm/init.c	Thu Aug  1 14:16:13 2002
++++ linux-2.5.30.lp/arch/i386/mm/init.c	Fri Aug  9 14:59:11 2002
+@@ -406,6 +406,13 @@
+ 	}
+ }
+ 	
++#ifdef CONFIG_LARGE_PAGE
++long    lpagemem = 0;
++int     lp_max;
++long    lpzone_pages;
++extern struct   list_head lpage_freelist;
++#endif
++
+ void __init mem_init(void)
+ {
+ 	extern int ppro_with_ram_bug(void);
+@@ -472,6 +479,30 @@
+ #ifndef CONFIG_SMP
+ 	zap_low_mappings();
+ #endif
++#ifdef CONFIG_LARGE_PAGE
++	{
++		long	i, j;
++		struct	page	*page, *map;
++		/*For now reserve quarter for large_pages.*/
++		lpzone_pages = (max_low_pfn >> ((LPAGE_SHIFT - PAGE_SHIFT) +
+2)) ;
++		/*Will make this kernel command line. */
++		INIT_LIST_HEAD(&lpage_freelist);
++		for (i=0; i<lpzone_pages; i++) {
++			page = alloc_pages(GFP_ATOMIC, HUGETLB_PAGE_ORDER);
++			if (page == NULL)
++				break;
++			map = page;
++			for (j=0; j<(LPAGE_SIZE/PAGE_SIZE); j++) {
++				SetPageReserved(map);
++				map++;
++			}
++			list_add(&page->list, &lpage_freelist);
++		}
++		printk("Total Large_page memory pages allocated %ld\n", i);
++		lpzone_pages = lpagemem = i;
++		lp_max = i;
++	}
++#endif
+ }
+ 
+ #if CONFIG_X86_PAE
+diff -Naru linux-2.5.30.org/arch/i386/mm/lpage.c
+linux-2.5.30.lp/arch/i386/mm/lpage.c
+--- linux-2.5.30.org/arch/i386/mm/lpage.c	Wed Dec 31 16:00:00 1969
++++ linux-2.5.30.lp/arch/i386/mm/lpage.c	Fri Aug  9 19:54:48 2002
+@@ -0,0 +1,516 @@
++/*
++ * IA-32 Large Page Support for Kernel.
++ *
++ * Copyright (C) 2002, Rohit Seth <rohit.seth@intel.com>
++ */
++
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/devfs_fs_kernel.h>
++#include <linux/fs.h>
++#include <linux/mm.h>
++#include <linux/file.h>
++#include <linux/swap.h>
++#include <linux/pagemap.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/slab.h>
++
++#include <asm/uaccess.h>
++#include <asm/mman.h>
++
++static struct vm_operations_struct	hugetlb_vm_ops;
++struct list_head 			lpage_freelist;
++spinlock_t				lpage_lock = SPIN_LOCK_UNLOCKED;
++extern	long 				lpagemem;
++
++void zap_hugetlb_resources(struct vm_area_struct *);
++
++#define MAX_ID 	32
++struct lpkey {
++	struct inode *in;
++	int			key;
++} lpk[MAX_ID];
++
++static struct inode *
++find_key_inode(int key)
++{
++	int				i;
++
++	for (i=0; i<MAX_ID; i++) {
++		if (lpk[i].key == key) 
++			return (lpk[i].in);
++	}
++	return NULL;
++}
++static struct page *
++alloc_hugetlb_page(void)
++{
++	struct list_head	*curr, *head;
++	struct page			*page;
++
++	spin_lock(&lpage_lock);
++
++	head = &lpage_freelist;
++	curr = head->next;
++
++	if (curr == head)  {
++		spin_unlock(&lpage_lock);
++		return NULL;
++	}
++	page = list_entry(curr, struct page, list);
++	list_del(curr);
++	lpagemem--;
++	spin_unlock(&lpage_lock);
++	set_page_count(page, 1);
++	memset(page_address(page), 0, LPAGE_SIZE);
++	return page;
++}
++
++static void
++free_hugetlb_page(struct page *page)
++{
++	if ((page->mapping != NULL) && (page_count(page) == 2)) {
++		struct inode *inode = page->mapping->host;
++		int 	i;
++
++		lru_cache_del(page);
++		remove_inode_page(page);
++		set_page_count(page, 1);
++		if ((inode->i_size -= LPAGE_SIZE) == 0) {
++			for (i=0;i<MAX_ID;i++)
++				if (lpk[i].key == inode->i_ino) {
++					lpk[i].key = 0;
++					break;
++			}
++			kfree(inode);
++		}
++	}
++	if (put_page_testzero(page)) {
++		spin_lock(&lpage_lock);
++		list_add(&page->list, &lpage_freelist);
++		lpagemem++;
++		spin_unlock(&lpage_lock);
++	}
++}
++
++static pte_t *
++huge_pte_alloc(struct mm_struct *mm, unsigned long addr)
++{
++	pgd_t			*pgd;
++	pmd_t			*pmd = NULL;
++
++	pgd = pgd_offset(mm, addr);
++	pmd = pmd_alloc(mm, pgd, addr);
++	return (pte_t *)pmd;
++}
++
++static pte_t *
++huge_pte_offset(struct mm_struct *mm, unsigned long addr)
++{
++	pgd_t			*pgd;
++	pmd_t			*pmd = NULL;
++	
++	pgd =pgd_offset(mm, addr);
++	pmd = pmd_offset(pgd, addr);
++	return (pte_t *)pmd;
++}
++
++#define mk_pte_huge(entry) {entry.pte_low |= (_PAGE_PRESENT | _PAGE_PSE);}
++	
++static void
++set_huge_pte(struct mm_struct *mm, struct vm_area_struct *vma, struct page
+*page, pte_t *page_table, int write_access)
++{
++	pte_t           entry;
++
++	mm->rss += (LPAGE_SIZE/PAGE_SIZE);
++	if (write_access) {
++		entry = pte_mkwrite(pte_mkdirty(mk_pte(page,
+vma->vm_page_prot)));
++	} else
++		entry = pte_wrprotect(mk_pte(page, vma->vm_page_prot));
++	entry = pte_mkyoung(entry);
++	mk_pte_huge(entry);
++	set_pte(page_table, entry);
++	return;
++}
++
++static int
++anon_get_lpage(struct mm_struct *mm, struct vm_area_struct *vma, int
+write_access, pte_t *page_table)
++{
++	struct	page *page;
++
++	page = alloc_hugetlb_page();
++	if (page == NULL) 
++		return -1;
++	set_huge_pte(mm, vma, page, page_table, write_access);
++	return 1;
++}
++
++int
++make_hugetlb_pages_present(unsigned long addr, unsigned long end, int
+flags)
++{
++	int write;
++	struct mm_struct *mm = current->mm;
++	struct vm_area_struct * vma;
++	pte_t	*pte;
++
++	vma = find_vma(mm, addr);
++	if (!vma)
++		goto out_error1;
++
++	write = (vma->vm_flags & VM_WRITE) != 0;
++	if ((vma->vm_end - vma->vm_start) & (LPAGE_SIZE-1))
++		goto out_error1;
++	spin_lock(&mm->page_table_lock);
++	do {    
++		pte = huge_pte_alloc(mm, addr);
++		if ((pte) && (pte_none(*pte))) {
++			if (anon_get_lpage(mm, vma, 
++				write ? VM_WRITE : VM_READ, pte) == -1)
++				goto out_error;
++		} else
++			goto out_error;
++		addr += LPAGE_SIZE;
++	} while (addr < end); 
++	spin_unlock(&mm->page_table_lock);
++	vma->vm_flags |= (VM_HUGETLB | VM_RESERVED);
++	if (flags & MAP_PRIVATE )
++		vma->vm_flags |= VM_DONTCOPY;
++	vma->vm_ops = &hugetlb_vm_ops;
++	return 0;
++out_error: /*Error case, remove the partial lp_resources. */
++	if (addr > vma->vm_start) { 
++	   	vma->vm_end = addr ;
++	   	zap_hugetlb_resources(vma);
++	   	vma->vm_end = end;
++	}
++	spin_unlock(&mm->page_table_lock);
++out_error1:
++	return -1;
++}
++
++int
++copy_hugetlb_page_range(struct mm_struct *dst, struct mm_struct *src,
+struct vm_area_struct *vma)
++{
++	pte_t *src_pte, *dst_pte, entry;
++	struct page 	*ptepage;
++	unsigned long addr = vma->vm_start;
++	unsigned long end = vma->vm_end;
++
++		while (addr < end) {
++			dst_pte = huge_pte_alloc(dst, addr);
++			if (!dst_pte)
++				goto nomem;
++			src_pte = huge_pte_offset(src, addr);
++			entry = *src_pte;
++			ptepage = pte_page(entry);
++			get_page(ptepage);
++			set_pte(dst_pte, entry);
++			dst->rss += (LPAGE_SIZE/PAGE_SIZE);
++			addr += LPAGE_SIZE; 
++		}
++    return 0;
++
++nomem:
++    return -ENOMEM;
++}
++int
++follow_hugetlb_page(struct mm_struct *mm, struct vm_area_struct *vma,
+struct page **pages, struct vm_area_struct **vmas, unsigned long *st, int
+*length, int i)
++{
++	pte_t			*ptep, pte;
++	unsigned long	start = *st;
++	unsigned long	pstart;
++	int				len = *length;
++	struct page		*page;
++
++	do {
++		pstart = start;
++		ptep = huge_pte_offset(mm, start);
++		pte = *ptep;
++
++back1:
++		page = pte_page(pte);
++		if (pages) {
++			page += ((start & ~LPAGE_MASK) >> PAGE_SHIFT);
++			pages[i] = page;
++			page_cache_get(page);
++		}
++		if (vmas)
++			vmas[i] = vma;
++		i++;
++		len--;
++		start += PAGE_SIZE;
++		if (((start & LPAGE_MASK) == pstart) && len && (start <
+vma->vm_end))
++			goto back1;
++	} while (len && start < vma->vm_end);
++	*length = len;
++	*st = start;
++	return i;
++}
++
++void
++zap_hugetlb_resources(struct vm_area_struct *mpnt)
++{
++	struct mm_struct *mm = mpnt->vm_mm;
++	unsigned long 	len, addr, end;
++	pte_t			*ptep;
++	struct page		*page;
++
++	addr = mpnt->vm_start;
++	end = mpnt->vm_end;
++	len = end - addr;
++	do {
++		ptep = huge_pte_offset(mm, addr);
++		page = pte_page(*ptep);
++		pte_clear(ptep);
++		free_hugetlb_page(page);
++		addr += LPAGE_SIZE;
++	} while (addr < end);
++	mm->rss -= (len >> PAGE_SHIFT);
++	mpnt->vm_ops = NULL;
++}
++
++static void
++unlink_vma(struct vm_area_struct *mpnt)
++{
++	struct mm_struct *mm = current->mm;
++	struct vm_area_struct	*vma;
++
++	vma = mm->mmap;
++	if (vma == mpnt) {
++		mm->mmap = vma->vm_next;
++	}
++	else {
++		while (vma->vm_next != mpnt) {
++			vma = vma->vm_next;
++		}
++		vma->vm_next = mpnt->vm_next;
++	}
++	rb_erase(&mpnt->vm_rb, &mm->mm_rb);
++	mm->mmap_cache = NULL;
++	mm->map_count--;
++}
++
++int
++free_hugepages(struct vm_area_struct *mpnt)
++{
++	struct mm_struct *mm = current->mm;
++
++	unlink_vma(mpnt);
++	spin_lock(&mm->page_table_lock);
++	zap_hugetlb_resources(mpnt);
++	spin_unlock(&mm->page_table_lock);
++	kmem_cache_free(vm_area_cachep, mpnt);
++	return 1;
++}
++
++static struct inode *
++set_new_inode(unsigned long len, int prot, int flag, int key)
++{
++	struct inode	*inode;
++	int	i;
++
++	for (i=0; i<MAX_ID; i++) {
++		if (lpk[i].key == 0)
++			break;
++	}
++	if (i == MAX_ID)
++		return NULL;
++	inode = kmalloc(sizeof(struct inode), GFP_ATOMIC);
++	if (inode == NULL)
++		return NULL;
++	
++	memset(inode, 0, sizeof(struct inode));
++	INIT_LIST_HEAD(&inode->i_hash);
++	inode->i_mapping = &inode->i_data;
++	inode->i_mapping->host = inode;
++	INIT_LIST_HEAD(&inode->i_data.clean_pages);
++	INIT_LIST_HEAD(&inode->i_data.dirty_pages);
++	INIT_LIST_HEAD(&inode->i_data.locked_pages);
++	INIT_LIST_HEAD(&inode->i_data.io_pages);
++	INIT_LIST_HEAD(&inode->i_dentry);
++	INIT_LIST_HEAD(&inode->i_devices);
++	sema_init(&inode->i_sem, 1);
++	INIT_RADIX_TREE(&inode->i_data.page_tree, GFP_ATOMIC);
++	rwlock_init(&inode->i_data.page_lock);
++	INIT_LIST_HEAD(&inode->i_data.private_list);
++	spin_lock_init(&inode->i_data.private_lock);
++	INIT_LIST_HEAD(&inode->i_data.i_mmap);
++	INIT_LIST_HEAD(&inode->i_data.i_mmap_shared);
++	spin_lock_init(&inode->i_data.i_shared_lock);
++	inode->i_ino = (unsigned long)key;
++
++	lpk[i].key = key;
++	lpk[i].in = inode;
++	inode->i_uid = current->fsuid;
++	inode->i_gid = current->fsgid;
++	inode->i_mode = prot;
++	inode->i_size = len;
++	return inode;
++}
++
++static int
++check_size_prot(struct inode *inode, unsigned long len, int prot, int flag)
++{
++	if (inode->i_uid != current->fsuid)
++		return -1;
++	if (inode->i_gid != current->fsgid)
++		return -1;
++	if (inode->i_size != len)
++		return -1;
++	return 0;
++}
++
++static int
++alloc_shared_hugetlb_pages(int key, unsigned long *raddr, unsigned long
+len, int prot, int flag)
++{
++	struct	mm_struct		*mm = current->mm;
++	struct	vm_area_struct	*vma;
++	struct	inode			*inode;
++	struct	address_space	*mapping;
++	struct	page			*page;
++	unsigned long 			addr = *raddr;
++	int		idx;
++	int 	retval = -ENOMEM;
++
++	if (len & (LPAGE_SIZE -1))
++		return -EINVAL;
++
++	inode = find_key_inode(key);
++	if (inode == NULL) {
++		if (!(flag & IPC_CREAT))
++			return -ENOENT;
++		inode = set_new_inode(len, prot, flag, key);
++		if (inode == NULL) 
++			return -ENOMEM;
++	}
++	else
++		if (check_size_prot(inode, len, prot, flag) < 0)
++			return -EINVAL;
++	mapping = inode->i_mapping;
++
++	addr = do_mmap_pgoff(NULL, addr, len, (unsigned long)prot, 
++			MAP_FIXED|MAP_PRIVATE | MAP_ANONYMOUS, 0);
++	if (IS_ERR((void *)addr)) 
++		return -ENOMEM; 
++
++	vma = find_vma(mm, addr);
++	if (!vma)
++		return -EINVAL;
++	
++	*raddr = addr;
++	spin_lock(&mm->page_table_lock);
++	do {
++		pte_t * pte = huge_pte_alloc(mm, addr);
++		if ((pte) && (pte_none(*pte))) {
++			idx = (addr - vma->vm_start) >> LPAGE_SHIFT;
++			page = find_get_page(mapping, idx);
++			if (page == NULL) {
++				page = alloc_hugetlb_page();	
++				if (page == NULL) 
++					goto out;	
++				add_to_page_cache(page, mapping, idx);
++			}
++			set_huge_pte(mm, vma, page, pte, (vma->vm_flags &
+VM_WRITE));
++		} else 
++			goto out;
++		addr += LPAGE_SIZE;
++	} while (addr < vma->vm_end); 
++	retval = 0;
++	vma->vm_flags |= (VM_HUGETLB | VM_RESERVED);
++	vma->vm_ops = &hugetlb_vm_ops;
++	spin_unlock(&mm->page_table_lock);
++	return retval;
++out:
++	if (addr > vma->vm_start) {
++		raddr = vma->vm_end;
++		vma->vm_end = addr;
++		zap_hugetlb_resources(vma);
++		vma->vm_end = raddr;
++	}
++	spin_unlock(&mm->page_table_lock);
++	return retval;
++}
++
++static int
++alloc_private_hugetlb_pages(int key, unsigned long *raddr, unsigned long
+len, int prot, int flag)
++{
++	unsigned long addr = *raddr;
++
++	addr = do_mmap_pgoff(NULL, addr, len, prot,
+MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, 0);
++	if (IS_ERR((void *)addr)) 
++		return -ENOMEM; 
++	if (addr & (LPAGE_SIZE -1)) { /*Should not happen. */
++		sys_munmap(addr, len);
++		return -ENOMEM;
++	}
++	if (make_hugetlb_pages_present(addr, (addr+len), flag) < 0) {
++		sys_munmap(addr, len);
++		return -ENOMEM;
++	}
++	*raddr = addr;
++	return 0;
++}
++
++int
++alloc_hugetlb_pages(int key, unsigned long *raddr, unsigned long len, int
+prot, int flag)
++{
++	if (key > 0) 
++		return alloc_shared_hugetlb_pages(key, raddr, len, prot,
+flag);
++	else
++		return alloc_private_hugetlb_pages(key, raddr, len, prot,
+flag);
++}
++
++int
++set_hugetlb_page_size(int count)
++{
++	int j, lcount;
++	struct page     *page, *map;
++	extern long        lpzone_pages;
++	extern struct list_head lpage_freelist;
++
++	if (count < 0)
++		lcount = count;
++	else 
++		lcount = count - lpzone_pages;
++
++	if (lcount > 0) {/*Increase the mem size. */
++		while (lcount--) {
++			page = alloc_pages(GFP_ATOMIC, HUGETLB_PAGE_ORDER);
++			if (page == NULL)
++				break;
++			map = page;
++			for (j=0; j<(LPAGE_SIZE/PAGE_SIZE); j++) {
++				SetPageReserved(map);
++				map++;
++			}
++			spin_lock(&lpage_lock);
++			list_add(&page->list, &lpage_freelist);
++			lpagemem++;
++			lpzone_pages++;
++			spin_unlock(&lpage_lock);
++		}
++		return (int)lpzone_pages;
++	}
++	/*Shrink the memory size. */
++	while (lcount++) {
++		page = alloc_hugetlb_page();
++		if (page == NULL)
++			break;
++		spin_lock(&lpage_lock);
++		lpzone_pages--;
++		spin_unlock(&lpage_lock);
++		map = page;
++		for (j=0; j<(LPAGE_SIZE/PAGE_SIZE); j++) {
++			ClearPageReserved(map);
++			map++;
++		}
++		__free_pages(page, HUGETLB_PAGE_ORDER);
++	}
++	return (int)lpzone_pages;
++}
++static struct vm_operations_struct	hugetlb_vm_ops = {
++	close: zap_hugetlb_resources,
++};
+diff -Naru linux-2.5.30.org/fs/proc/array.c linux-2.5.30.lp/fs/proc/array.c
+--- linux-2.5.30.org/fs/proc/array.c	Thu Aug  1 14:16:28 2002
++++ linux-2.5.30.lp/fs/proc/array.c	Fri Aug  9 16:01:55 2002
+@@ -487,7 +487,18 @@
+ 		while (vma) {
+ 			pgd_t *pgd = pgd_offset(mm, vma->vm_start);
+ 			int pages = 0, shared = 0, dirty = 0, total = 0;
++			if (is_vm_hugetlb_page(vma)) {
++				int num_pages = ((vma->vm_end -
+vma->vm_start)/PAGE_SIZE);
+ 
++				resident += num_pages;
++				if (!(vma->vm_flags & VM_DONTCOPY))
++					share += num_pages;
++				if (vma->vm_flags & VM_WRITE)
++					dt += num_pages;
++				drs += num_pages;
++				vma = vma->vm_next;
++				continue;
++			}
+ 			statm_pgd_range(pgd, vma->vm_start, vma->vm_end,
+&pages, &shared, &dirty, &total);
+ 			resident += pages;
+ 			share += shared;
+diff -Naru linux-2.5.30.org/fs/proc/proc_misc.c
+linux-2.5.30.lp/fs/proc/proc_misc.c
+--- linux-2.5.30.org/fs/proc/proc_misc.c	Thu Aug  1 14:16:08 2002
++++ linux-2.5.30.lp/fs/proc/proc_misc.c	Thu Aug  8 18:32:22 2002
+@@ -186,6 +186,15 @@
+ 		ps.nr_reverse_maps
+ 		);
+ 
++#ifdef CONFIG_LARGE_PAGE
++	{
++		extern  unsigned long lpagemem, lpzone_pages;
++		len += sprintf(page+len,"Total # of LargePages:
+%8lu\t\tAvailable: %8lu\n"
++				"LargePageSize: %8lu(0x%xKB)\n",
++				lpzone_pages, lpagemem, LPAGE_SIZE,
+(LPAGE_SIZE/1024));
++	}
++
++#endif
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ #undef K
+ }
+diff -Naru linux-2.5.30.org/include/asm-i386/page.h
+linux-2.5.30.lp/include/asm-i386/page.h
+--- linux-2.5.30.org/include/asm-i386/page.h	Thu Aug  1 14:16:10 2002
++++ linux-2.5.30.lp/include/asm-i386/page.h	Fri Aug  9 14:48:38 2002
+@@ -44,14 +44,22 @@
+ typedef struct { unsigned long long pmd; } pmd_t;
+ typedef struct { unsigned long long pgd; } pgd_t;
+ #define pte_val(x)	((x).pte_low | ((unsigned long long)(x).pte_high <<
+32))
++#define LPAGE_SHIFT	21
+ #else
+ typedef struct { unsigned long pte_low; } pte_t;
+ typedef struct { unsigned long pmd; } pmd_t;
+ typedef struct { unsigned long pgd; } pgd_t;
+ #define pte_val(x)	((x).pte_low)
++#define LPAGE_SHIFT	22
+ #endif
+ #define PTE_MASK	PAGE_MASK
+ 
++#ifdef CONFIG_LARGE_PAGE
++#define LPAGE_SIZE	((1UL) << LPAGE_SHIFT)
++#define LPAGE_MASK	(~(LPAGE_SIZE - 1))
++#define HUGETLB_PAGE_ORDER	(LPAGE_SHIFT - PAGE_SHIFT)
++#endif
++
+ typedef struct { unsigned long pgprot; } pgprot_t;
+ 
+ #define pmd_val(x)	((x).pmd)
+diff -Naru linux-2.5.30.org/include/linux/mm.h
+linux-2.5.30.lp/include/linux/mm.h
+--- linux-2.5.30.org/include/linux/mm.h	Thu Aug  1 14:16:04 2002
++++ linux-2.5.30.lp/include/linux/mm.h	Fri Aug  9 13:54:32 2002
+@@ -104,6 +104,7 @@
+ #define VM_DONTEXPAND	0x00040000	/* Cannot expand with mremap() */
+ #define VM_RESERVED	0x00080000	/* Don't unmap it from swap_out */
+ #define VM_ACCOUNT	0x00100000	/* Is a VM accounted object */
++#define VM_HUGETLB	0x00200000	/* Large_Page VM */
+ 
+ #define VM_STACK_FLAGS	(0x00000100 | VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT)
+ 
+@@ -360,6 +361,17 @@
+ int __set_page_dirty_buffers(struct page *page);
+ int __set_page_dirty_nobuffers(struct page *page);
+ 
++#ifdef CONFIG_LARGE_PAGE
++#define is_vm_hugetlb_page(vma) (vma->vm_flags & VM_HUGETLB)
++extern int copy_hugetlb_page_range(struct mm_struct *, struct mm_struct *,
+struct vm_area_struct *);
++extern int follow_hugetlb_page(struct mm_struct *, struct vm_area_struct *,
+struct page **, struct vm_area_struct **, unsigned long *, int *, int);
++#else
++#define is_vm_hugetlb_page(vma) (0)
++#define follow_hugetlb_page(mm, vma, pages, vmas, start, len, i) (0)
++#define copy_hugetlb_page_range(dst, src, vma) (0)
++#endif
++
++
+ /*
+  * If the mapping doesn't provide a set_page_dirty a_op, then
+  * just fall through and assume that it wants buffer_heads.
+diff -Naru linux-2.5.30.org/include/linux/mmzone.h
+linux-2.5.30.lp/include/linux/mmzone.h
+--- linux-2.5.30.org/include/linux/mmzone.h	Thu Aug  1 14:16:02 2002
++++ linux-2.5.30.lp/include/linux/mmzone.h	Thu Aug  8 18:13:21 2002
+@@ -14,7 +14,7 @@
+  */
+ 
+ #ifndef CONFIG_FORCE_MAX_ZONEORDER
+-#define MAX_ORDER 10
++#define MAX_ORDER 15
+ #else
+ #define MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER
+ #endif
+diff -Naru linux-2.5.30.org/include/linux/sysctl.h
+linux-2.5.30.lp/include/linux/sysctl.h
+--- linux-2.5.30.org/include/linux/sysctl.h	Thu Aug  1 14:16:02 2002
++++ linux-2.5.30.lp/include/linux/sysctl.h	Fri Aug  9 14:24:59 2002
+@@ -127,6 +127,7 @@
+ 	KERN_CORE_USES_PID=52,		/* int: use core or core.%pid */
+ 	KERN_TAINTED=53,	/* int: various kernel tainted flags */
+ 	KERN_CADPID=54,		/* int: PID of the process to notify on CAD
+*/
++	KERN_HUGETLB_PAGE_NUM=55, /* int: Number of Huge Pages currently
+configured. */
+ };
+ 
+ 
+diff -Naru linux-2.5.30.org/kernel/sysctl.c linux-2.5.30.lp/kernel/sysctl.c
+--- linux-2.5.30.org/kernel/sysctl.c	Thu Aug  1 14:16:07 2002
++++ linux-2.5.30.lp/kernel/sysctl.c	Fri Aug  9 17:33:17 2002
+@@ -97,6 +97,11 @@
+ extern int acct_parm[];
+ #endif
+ 
++#ifdef CONFIG_LARGE_PAGE
++extern	int	lp_max;
++extern	int	set_hugetlb_page_size(int);
++#endif
++
+ static int parse_table(int *, int, void *, size_t *, void *, size_t,
+ 		       ctl_table *, void **);
+ static int proc_doutsstring(ctl_table *table, int write, struct file *filp,
+@@ -255,6 +260,10 @@
+ 	{KERN_S390_USER_DEBUG_LOGGING,"userprocess_debug",
+ 	 &sysctl_userprocess_debug,sizeof(int),0644,NULL,&proc_dointvec},
+ #endif
++#ifdef CONFIG_LARGE_PAGE
++	 {KERN_HUGETLB_PAGE_NUM, "numhugepages", &lp_max, sizeof(int), 0644,
+NULL, 
++	  &proc_dointvec},
++#endif
+ 	{0}
+ };
+ 
+@@ -894,6 +903,10 @@
+ 				val = -val;
+ 			buffer += len;
+ 			left -= len;
++#ifdef CONFIG_LARGE_PAGE
++			if (i == &lp_max)
++				val = set_hugetlb_page_size(val);
++#endif
+ 			switch(op) {
+ 			case OP_SET:	*i = val; break;
+ 			case OP_AND:	*i &= val; break;
+diff -Naru linux-2.5.30.org/mm/memory.c linux-2.5.30.lp/mm/memory.c
+--- linux-2.5.30.org/mm/memory.c	Thu Aug  1 14:16:23 2002
++++ linux-2.5.30.lp/mm/memory.c	Fri Aug  9 13:57:33 2002
+@@ -208,6 +208,9 @@
+ 	unsigned long end = vma->vm_end;
+ 	unsigned long cow = (vma->vm_flags & (VM_SHARED | VM_MAYWRITE)) ==
+VM_MAYWRITE;
+ 
++	if (is_vm_hugetlb_page(vma))
++		return copy_hugetlb_page_range(dst, src, vma);
++
+ 	src_pgd = pgd_offset(src, address)-1;
+ 	dst_pgd = pgd_offset(dst, address)-1;
+ 
+@@ -506,6 +509,10 @@
+ 		if ( !vma || !(flags & vma->vm_flags) )
+ 			return i ? : -EFAULT;
+ 
++		if (is_vm_hugetlb_page(vma)) {
++			i += follow_hugetlb_page(mm, vma, pages, vmas,
+&start, &len, i);
++			continue;
++		}
+ 		spin_lock(&mm->page_table_lock);
+ 		do {
+ 			struct page *map;
+diff -Naru linux-2.5.30.org/mm/mmap.c linux-2.5.30.lp/mm/mmap.c
+--- linux-2.5.30.org/mm/mmap.c	Thu Aug  1 14:16:05 2002
++++ linux-2.5.30.lp/mm/mmap.c	Fri Aug  9 19:49:34 2002
+@@ -987,10 +987,12 @@
+ 	touched = NULL;
+ 	do {
+ 		struct vm_area_struct *next = mpnt->vm_next;
+-		mpnt->vm_next = touched;
+-		touched = mpnt;
+-		mm->map_count--;
+-		rb_erase(&mpnt->vm_rb, &mm->mm_rb);
++		if (!(is_vm_hugetlb_page(mpnt))) {
++			mpnt->vm_next = touched;
++			touched = mpnt;
++			mm->map_count--;
++			rb_erase(&mpnt->vm_rb, &mm->mm_rb);
++		}
+ 		mpnt = next;
+ 	} while (mpnt && mpnt->vm_start < end);
+ 	*npp = mpnt;
+@@ -1229,7 +1231,10 @@
+ 			vm_unacct_memory((end - start) >> PAGE_SHIFT);
+ 
+ 		mm->map_count--;
+-		unmap_page_range(tlb, mpnt, start, end);
++		if (!(is_vm_hugetlb_page(mpnt)))
++			unmap_page_range(tlb, mpnt, start, end);
++		else
++			mpnt->vm_ops->close(mpnt);
+ 		mpnt = mpnt->vm_next;
+ 	}
+ 
+diff -Naru linux-2.5.30.org/mm/mprotect.c linux-2.5.30.lp/mm/mprotect.c
+--- linux-2.5.30.org/mm/mprotect.c	Thu Aug  1 14:16:21 2002
++++ linux-2.5.30.lp/mm/mprotect.c	Fri Aug  9 13:49:29 2002
+@@ -321,6 +321,11 @@
+ 
+ 		/* Here we know that  vma->vm_start <= nstart < vma->vm_end.
+*/
+ 
++		if (is_vm_hugetlb_page(vma)) {
++			error = -EACCES;
++			goto out;
++		}
++
+ 		newflags = prot | (vma->vm_flags & ~(PROT_READ | PROT_WRITE
+| PROT_EXEC));
+ 		if ((newflags & ~(newflags >> 4)) & 0xf) {
+ 			error = -EACCES;
+diff -Naru linux-2.5.30.org/mm/mremap.c linux-2.5.30.lp/mm/mremap.c
+--- linux-2.5.30.org/mm/mremap.c	Thu Aug  1 14:16:27 2002
++++ linux-2.5.30.lp/mm/mremap.c	Fri Aug  9 13:49:12 2002
+@@ -311,6 +311,10 @@
+ 	vma = find_vma(current->mm, addr);
+ 	if (!vma || vma->vm_start > addr)
+ 		goto out;
++	if (is_vm_hugetlb_page(vma)) {
++		ret = -EINVAL;
++		goto out;
++	}
+ 	/* We can't remap across vm area boundaries */
+ 	if (old_len > vma->vm_end - addr)
+ 		goto out;

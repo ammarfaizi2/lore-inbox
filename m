@@ -1,56 +1,220 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVAHAzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVAHBJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbVAHAzn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 19:55:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVAHAzn
+	id S261727AbVAHBJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 20:09:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVAHBJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 19:55:43 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:40886 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261690AbVAHAzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 19:55:35 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: ncunningham@linuxmail.org
-Subject: Re: 2.6.10-mm2: swsusp regression
-Date: Sat, 8 Jan 2005 01:56:05 +0100
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050106002240.00ac4611.akpm@osdl.org> <200501071345.39847.rjw@sisk.pl> <1105135940.2488.39.camel@desktop.cunninghams>
-In-Reply-To: <1105135940.2488.39.camel@desktop.cunninghams>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jan 2005 20:09:09 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:23819 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261727AbVAHBIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 20:08:54 -0500
+Date: Sat, 8 Jan 2005 02:08:50 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: samba@samba.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove outdated smbfs ChangeLog (fwd)
+Message-ID: <20050108010850.GK14108@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200501080156.06145.rjw@sisk.pl>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 7 of January 2005 23:12, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Fri, 2005-01-07 at 23:45, Rafael J. Wysocki wrote:
-> > > ..so... could you go through sysdev_register()s, one by one,
-> > > commenting them to see which one causes the regression? That driver
-> > > then needs to be fixed.
-> > > 
-> > > Go after mtrr and time in first places.
-> > 
-> > OK, but it'll take some time.
-> 
-> There's an MTRR fix in the -overloaded ck patches. Perhaps it is what
-> you're after. (Or perhaps it's already included :>)
-> 
-> http://kem.p.lodz.pl/~peter/cko/fixes/2.6.10-cko1-swsusp_fix.patch
+The patch forwarded below still applies against 2.6.10-mm2.
 
-Thanks for pointing it out.  I have adapted this patch to -mm2, but 
-unfortunately it does not fix the issue.  Still searching. ;-)
+Please apply.
 
-Greets,
-RJW
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+
+Date:	Sun, 19 Dec 2004 14:58:37 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: samba@samba.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove outdated smbfs ChangeLog
+
+The patch below removes an outdated samba ChangeLog file.
+
+
+diffstat output:
+ fs/smbfs/ChangeLog |  160 ---------------------------------------------
+ 1 files changed, 160 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc3-mm1-full/fs/smbfs/ChangeLog	2004-10-18 23:54:55.000000000 +0200
++++ /dev/null	2004-11-25 03:16:25.000000000 +0100
+@@ -1,160 +0,0 @@
+-ChangeLog for smbfs.
+-
+-2002-04-19 John Newbigin <jn@it.swin.edu.au>
+-
+-	* Implementation of CIFS Extensions for UNIX systems, including soft
+-	  and hard links.
+-
+-2001-08-03 Urban Widmark <urban@teststation.com>
+-
+-	* *.c: Unicode support
+-
+-2001-08-23 Jochen Dolze <dolze@epcnet.de>
+-
+-	* proc.c: Correct rsize/wsize computation for readX/writeX
+-
+-2001-0?-?? Urban Widmark <urban@teststation.com>
+-
+-	* *.c: Add LFS
+-	* *.c: Move to a "driver" style handling of different servertypes.
+-	       (Not all operations are done this way. yet.)
+-2001-12-31 René Scharfe <l.s.r@web.de>
+-
+-	* inode.c: added smb_show_options to show mount options in /proc/mounts
+-	* inode.c, getopt.c, getopt.h: merged flag and has_arg in struct option
+-	* inode.c: use S_IRWXUGO where appropriate
+-
+-2001-12-22 Urban Widmark <urban@teststation.com>
+-
+-	* file.c, proc.c: Fix problems triggered by the "fsx test"
+-
+-2001-09-17 Urban Widmark <urban@teststation.com>
+-
+-	* proc.c: Use 4096 (was 512) as the blocksize for better write
+-	  performance (patch originally by Jan Kratochvil)
+-	* proc.c: Skip disconnect smb, allows umount on unreachable servers.
+-	* proc.c: Go back to the interruptible sleep as reconnects seem to
+-	  handle it now.
+-	* *.c: use autogenerated and private proto.h
+-
+-2000-11-22 Igor Zhbanov <bsg@uniyar.ac.ru>
+-
+-	* proc.c: fixed date_unix2dos for dates earlier than 01/01/1980
+-	  and date_dos2unix for date==0 (from 2.2)
+-
+-2001-07-13 Rob Radez <rob@osinvestor.com>
+-
+-	* proc.c: make smb_errno return negative error values
+-
+-2001-07-09 Jochen Dolze <dolze@epcnet.de>
+-
+-	* inode.c: smb_statfs always returned success.
+-	* proc.c, ioctl.c: Allow smbmount to signal failure to reconnect with
+-	  a NULL argument to SMB_IOC_NEWCONN (speeds up error detection).
+-	* proc.c: Add some of the missing error codes to smb_errno
+-
+-2001-06-12 Urban Widmark <urban@teststation.com>
+-
+-	* proc.c: replace the win95-flush fix with smb_seek, when needed.
+-	* proc.c: readdir 'lastname' bug (NetApp dir listing fix)
+-
+-2001-05-08 Urban Widmark <urban@teststation.com>
+-
+-	* inode.c: Fix for changes on the server side not being detected
+-	  properly. Must always drop cached pages when updating an inode with
+-	  new size.
+-
+-2001-05-05 Urban Widmark <urban@teststation.com>
+-
+-	* file.c, proc.c: Drop SMB_F_LOCALWRITE to detect changes made on
+-	  both server and client, using flush with to force win9x to remember
+-	  the right filesize.
+-
+-2001-04-25 René Scharfe <l.s.r@web.de>
+-
+-	* inode.c: Don't clear s_flags and allow ro mounts
+-
+-2001-04-21 Urban Widmark <urban@teststation.com>
+-
+-	* dir.c, proc.c: replace tests on conn_pid with tests on state to
+-	  fix smbmount reconnect on smb_retry timeout and up the timeout to 30s.
+-	* proc.c: smb_newconn must have the server locked while updating it.
+-	* inode.c, proc.c: need flush after truncate on some servers (win9x)
+-	* file.c: add call to send SMBflush on fsync
+-	  (as suggested by Jochen Dolze <dolze@epcnet.de>)
+-
+-2001-03-06 Urban Widmark <urban@teststation.com>
+-
+-	* cache.c: d_add on hashed dentries corrupts d_hash list and
+-	  causes loops in d_lookup. Inherited bug. :)
+-	* inode.c: tail -f fix for non-readonly opened files
+-	  (related to the smb_proc_open change).
+-	* inode.c: tail -f fix for fast size changes with the same mtime.
+-
+-2001-03-02 Michael Kockelkorn <m.kockelkorn@biodata.com>
+-
+-	* proc.c: fix smb_proc_open to allow open being called more than once
+-	  with different modes (O_RDONLY -> O_WRONLY) without closing.
+-
+-2001-02-10 Urban Widmark <urban@teststation.com>
+-
+-	* dir.c, cache.c: replace non-bigmem safe cache with cache code
+-	  from ncpfs and fix some other bigmem bugs in smbfs.
+-	* inode.c: root dentry not properly initialized
+-	* proc.c, sock.c: adjust max parameters & max data to follow max_xmit
+-	  lots of servers were having find_next trouble with this.
+-	* proc.c: use documented write method of truncating (NetApp fix)
+-
+-2000-08-14 Urban Widmark <urban@svenskatest.se>
+-
+-	* dir.c: support case sensitive shares
+-	* inode.c: ascii mount options
+-	* proc.c: check length of paths to avoid buffer overflow
+-	* proc.c: don't do interruptable_sleep in smb_retry to avoid signal
+-	  problem/race.
+-	* proc.c: O_RDONLY & smb_revalidate_inode fix (tail -f)
+-	* proc.c: add nls support
+-	* sock.c: attempt to fix smb_data_callback (avoid infinite loop)
+-
+-2000-07-25 Urban Widmark <urban@svenskatest.se>
+-
+-	* proc.c: fix 3 places where bad server responses could cause an Oops.
+-
+-2000-07-15 Urban Widmark <urban@svenskatest.se>
+-
+-	* *.c: more debug (%.*s) & indent fixes
+-
+-2000-06-24: Matt Maynard <matthewm@corel.com>
+-
+-	* dir.c: dentry->d_inode->i_mtime isn't updated for all servers
+-	  (NT?) and all operations (mv oldfile.txt newfile.txt) Removed for
+-	  less efficient but better working directory cache.
+-	* proc.c: included aDIR smbclient fix for renaming directories on
+-	  OS/2 servers (win95/98?) (orig by John Janosik)
+-
+-2000-07-01 Urban Widmark <urban@svenskatest.se>
+-
+-	* *.c: replace ugly #ifdef's with less ugly debug macros.
+-
+-2000-01-03 Christian Groessler <cpg@aladdin.de>
+-
+-	* proc.c: added posix semantics for unlink
+-
+-1999-11-16 Andrew Tridgell
+-
+-	* proc.c: use level 260 for most conns, or level 1 for <NT1
+-	* proc.c: don't sleep every time with win95 on a FINDNEXT
+-	* proc.c: fixed loop_count bug
+-	* proc.c: got rid of resume_key
+-
+-[there are a few missing here :) ]
+-
+-1997-09-28 Riccardo Facchetti
+-
+-	* proc.c: Fixed smb_d_path [now smb_build_path()] to be non-recursive
+-
+-1996-06-28 Yuri Per
+-
+-	* proc.c: Fixed long file name support (smb_proc_readdir_long)
+-
+-You are in the wrong end for adding new entries. New entries at the top.
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133018AbRDSThA>; Thu, 19 Apr 2001 15:37:00 -0400
+	id <S133024AbRDSTjX>; Thu, 19 Apr 2001 15:39:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133066AbRDSTgu>; Thu, 19 Apr 2001 15:36:50 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16911 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133018AbRDSTgc>; Thu, 19 Apr 2001 15:36:32 -0400
-Subject: Re: light weight user level semaphores
-To: drepper@cygnus.com
-Date: Thu, 19 Apr 2001 20:35:59 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        viro@math.psu.edu (Alexander Viro),
-        abramo@alsa-project.org (Abramo Bagnara), alonz@nolaviz.org (Alon Ziv),
-        linux-kernel@vger.kernel.org (Kernel Mailing List),
-        mkravetz@sequent.com (Mike Kravetz)
-In-Reply-To: <m3ofts3d4k.fsf@otr.mynet.cygnus.com> from "Ulrich Drepper" at Apr 19, 2001 12:26:03 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S133066AbRDSTjF>; Thu, 19 Apr 2001 15:39:05 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:38662 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S133024AbRDSThE>;
+	Thu, 19 Apr 2001 15:37:04 -0400
+To: AJ Lewis <lewis@sistina.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        linux-openlvm@nl.linux.org, Arjan van de Ven <arjanv@redhat.com>,
+        Jens Axboe <axboe@suse.de>, Martin Kasper Petersen <mkp@linuxcare.com>,
+        riel@conectiva.com.br, linux-lvm@sistina.com
+Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
+In-Reply-To: <20010419132927.D10345@sistina.com> <E14qJhd-0007oR-00@the-village.bc.nu> <20010419142400.E10345@sistina.com>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 19 Apr 2001 21:35:51 +0200
+In-Reply-To: AJ Lewis's message of "Thu, 19 Apr 2001 14:24:00 -0500"
+Message-ID: <d3d7a8u1go.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14qKDi-0007sy-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I fail to see how this works across processes.  How can you generate a
-> file descriptor for this pipe in a second process which simply shares
-> some memory with the first one?  The first process is passive: no file
-> descriptor passing must be necessary.
+>>>>> ">" == AJ Lewis <lewis@sistina.com> writes:
 
-mknod foo p. Or use sockets (although AF_UNIX sockets are higher latency)
-Thats why I suggested using flock - its name based. Whether you mkstemp()
-stuff and pass it around isnt something I care about
+>> Hmm...i guess there is a communication issue here.  It sounds like
+>> the message that our ML server was sending was misleading.  We were
+>> not rejecting mail because of content.  The ML server was rejecting
+>> it because the address was not subscribed.  Our idea was that we
+>> don't want spam.  If it's completely unmoderated, then we will get
+>> a *lot* of spam.
 
-Files give you permissions for free too
+The mail states it's been forwarded to the moderator, yes I just got
+one. Thats another issue here, Cc'ing a closed mailing list when
+posting to an open list like linux-kernel is rude (but thats just a
+minor issue in this discussion).
 
-> Note that semaphores need not always be shared between processes.
-> This is a property the user has to choose.  So the implementation can
-> be easier in the normal intra-process case.
+>> Did anyone bother to e-mail the list admins?  Perhaps it was too
+>> difficult to figure out who to mail about this, but I know for a
+>> fact that Rik van Riel and Jens Axboe could post to
+>> linux-lvm@sistina.com.  It would have been nice if they had
+>> mentioned something to us.
 
-So you have unix file permissions on them ?
+I know that Jens posted to linux-lvm-admin two days ago and didn't get
+a response.
 
+>> The openlvm list is open to existing LVM hackers too..
 
+>> True, but it seems silly to duplicate the load if it's not
+>> necessary.
+
+Right now there is no load because the postings aren't getting
+through at all.
+
+Jes

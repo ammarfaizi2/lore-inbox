@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbTEKQSm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 12:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbTEKQSm
+	id S261753AbTEKQWv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 12:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTEKQWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 12:18:42 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:41178 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261752AbTEKQSl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 12:18:41 -0400
-Date: Sun, 11 May 2003 12:20:08 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Shane Shrybman <shrybman@sympatico.ca>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Graphs of 2.5.69-mm3 Contest data
-In-Reply-To: <1052669485.2418.32.camel@mars.goatskin.org>
-Message-ID: <Pine.LNX.4.50.0305111218190.15337-100000@montezuma.mastecende.com>
-References: <1052669485.2418.32.camel@mars.goatskin.org>
+	Sun, 11 May 2003 12:22:51 -0400
+Received: from siaag2af.compuserve.com ([149.174.40.136]:55204 "EHLO
+	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
+	id S261753AbTEKQWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 12:22:50 -0400
+Date: Sun, 11 May 2003 12:32:46 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: The disappearing sys_call_table export.
+To: "arjanv@redhat.com" <arjanv@redhat.com>
+Cc: Ahmed Masud <masud@googgun.com>, Yoav Weiss <ml-lkml@unpatched.org>,
+       Terje Eggestad <terje.eggestad@scali.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <200305111234_MC3-1-3865-CD21@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 May 2003, Shane Shrybman wrote:
+arjanv wrote:
 
-> I have put up a few graphs of Con's latest Contest benchmarks.
+> examle: pseudocode for the unlink syscall
 > 
-> Time vs. Kernel version
-> 
-> http://zeke.yi.org/linux/graph/contest/contest_2.5.69-mm3.php
+> long your_wrapped_syscall(char *userfilename)
+> {
+>     char kernelpointer[something];
+>     copy_from_user(kernelpointer, usefilename, ...);
+>     audit_log(kernelpointer);
+>     return original_syscall(userfilename);
+> }
 
-404
 
-> LCPU% vs. kernel version
-> 
-> http://zeke.yi.org/linux/graph/contest/contest_lcpu_2.5.69-mm3.php
+  That code has another hole that nobody else has mentioned
+yet: I can fill the audit log by trying to delete nonexistent files,
+and if accused of trying to mount a DOS attack on the audit trail
+I can reasonably claim that it was all an accident...
 
-Perhaps a histogram is more suited for this kind of graph?
+  How about:
 
-Thanks,
-	Zwane
--- 
-function.linuxpower.ca
+long wrapped_unlink(char *userfilename)
+{
+        char name1[len], name2[len];
+        long ret;
+
+        copy_from_user(name1, userfilename, ...);
+        ret = original_unlink(userfilename);
+        copy_from_user(name2, userfilename, ...);
+
+        if (strncmp(name1, name2, len))
+                audit_log(name1, name2, UNLINK_NAME_CHANGED);
+        if (ret == 0 && AUDIT_SUCCESS)
+                audit_log(name1, name2, UNLINK_SUCCEEDED);
+        if (ret == -EPERM && AUDIT_FAILURE)
+                audit_log(name1, name2, UNLINK_FAILED);
+
+        return ret;
+}

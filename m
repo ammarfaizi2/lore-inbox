@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264655AbUGIJmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264584AbUGIJpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264655AbUGIJmd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 05:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUGIJmd
+	id S264584AbUGIJpG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 05:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbUGIJpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 05:42:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10906 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264655AbUGIJmW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 05:42:22 -0400
-Date: Fri, 9 Jul 2004 02:41:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stefano Rivoir <s.rivoir@gts.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm7
-Message-Id: <20040709024112.7ef44d1d.akpm@osdl.org>
-In-Reply-To: <40EE5418.2040000@gts.it>
-References: <20040708235025.5f8436b7.akpm@osdl.org>
-	<40EE5418.2040000@gts.it>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jul 2004 05:45:05 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:57005 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S264584AbUGIJoy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 05:44:54 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: GCC 3.4 and broken inlining.
+Date: Fri, 9 Jul 2004 11:43:30 +0200
+User-Agent: KMail/1.6.2
+References: <2fFzK-3Zz-23@gated-at.bofh.it> <1089349003.4861.17.camel@nigel-laptop.wpcb.org.au> <20040709054657.GA52213@muc.de>
+In-Reply-To: <20040709054657.GA52213@muc.de>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200407091143.41955.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefano Rivoir <s.rivoir@gts.it> wrote:
->
->  Andrew Morton wrote:
-> 
->  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm7/
-> 
->  Still hangs on boot, like -mm5 did,
-> 
->     1. just after the ide0 recognition, last lines are:
-> 
->  hda: QSI CD-RW/DVD-ROM SBW-242, ATAPI CD/DVD-ROM drive
->  Using anticipatory io scheduler
->  ide0 at 0x1f0-0x1f7, 0x3f6 on irq14
-> 
->     2. just after the ACPI processor module insert, last line is
-> 
->  ACPI: Processor [CPU0] (supports C1, C2, C3, 8 throttling states)
-> 
->  2.6.7-bk20 runs fine instead.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Does the `acpi=off' boot option help?
+Quoting Andi Kleen <ak@muc.de>:
+> It's too bad that i386 doesn't enable -funit-at-a-time, that improves
+> the inlining heuristics greatly.
 
-Could you please try reverting bk-acpi.patch?
+- From the gcc manpage:
+
+- -O2 turns on all optimization flags specified by -O. It 
+also turns on the following optimization flags: -fforce-mem 
+- -foptimize-sibling-calls -fstrength-reduce -fcse-follow-jumps 
+- -fcse-skip-blocks -frerun-cse-after-loop -frerun-loop-opt 
+- -fgcse -fgcse-lm -fgcse-sm -fgcse-las -fdelete-null-pointer-checks 
+- -fexpensive-optimizations -fregmove -fschedule-insns 
+- -fschedule-insns2 -fsched-interblock -fsched-spec -fcaller-saves 
+- -fpeephole2 -freorder-blocks -freorder-functions -fstrict-aliasing 
+- -funit-at-a-time -falign-functions -falign-jumps -falign-loops 
+^^^^^^^^^^^^^^^^
+- -falign-labels -fcrossjumping 
+
+Do I miss something?
+
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA7mjJFGK1OIvVOP4RAuXyAJ0fM5x1jqCZGkzO2jfl42CaNLgJJwCdGZQW
+3rUgM3svqyWb8JaCavWAkhg=
+=3LeQ
+-----END PGP SIGNATURE-----

@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271228AbTHCSB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 14:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271230AbTHCSB2
+	id S270848AbTHCSF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 14:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271223AbTHCSF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 14:01:28 -0400
-Received: from dm4-166.slc.aros.net ([66.219.220.166]:61635 "EHLO cyprus")
-	by vger.kernel.org with ESMTP id S271228AbTHCSB1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 14:01:27 -0400
-Message-ID: <3F2D4DF4.3030901@aros.net>
-Date: Sun, 03 Aug 2003 12:01:24 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test2 froze while installing j2sdk-1.4.2 with netbeans (low
- on details)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Aug 2003 14:05:58 -0400
+Received: from almesberger.net ([63.105.73.239]:5136 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S270848AbTHCSF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 14:05:56 -0400
+Date: Sun, 3 Aug 2003 15:05:37 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Alan Shih <alan@storlinksemi.com>, Ben Greear <greearb@candelatech.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Nivedita Singhvi <niv@us.ibm.com>,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: TOE brain dump
+Message-ID: <20030803150537.C10280@almesberger.net>
+References: <ODEIIOAOPGGCDIKEOPILKEKKDAAA.alan@storlinksemi.com> <Pine.LNX.4.44.0308030120150.24695-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308030120150.24695-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Sun, Aug 03, 2003 at 01:25:48AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ran into a system lock up while running 2.6.0-test2 kernel and 
-j2sdk-1.4.2-nb-3.5-bin-linux.bin (the latest Sun Java standard kit 
-installer with netbeans and run as root). I'm sorry I don't have real 
-details. I'm not at liberty to retry the java installer right now. But 
-basically the system froze - no mouse movement, no caps-lock light 
-toggling, no ctrl-alt-backspace (to shutdown X), no ctrl-alt-delete (to 
-reboot), no ctrl-alt-fX (to switch to another console). If someone else 
-encounters this then maybe at least the info can be used to better 
-identify a pattern (like when this first started showing up).
+David Lang wrote:
+> do you really want the processor on the card to be tunning
+> apache/NFS/Samba/etc ?
 
+If it runs a Linux kernel, that's not a problem. Whether you
+actually want to do this or not, becomes an entirely separate
+issue.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,37 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269454AbUICAWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269411AbUICAQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269454AbUICAWE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 20:22:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269443AbUICAUu
+	id S269411AbUICAQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 20:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269395AbUICAPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 20:20:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49792 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269430AbUICATd (ORCPT
+	Thu, 2 Sep 2004 20:15:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33511 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269412AbUICAGQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 20:19:33 -0400
-Date: Thu, 2 Sep 2004 17:18:41 -0700 (PDT)
+	Thu, 2 Sep 2004 20:06:16 -0400
+Date: Thu, 2 Sep 2004 17:06:12 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: David Masover <ninja@slaphack.com>
-cc: viro@parcelfarce.linux.theplanet.co.uk,
-       Frank van Maarseveen <frankvm@xs4all.nl>,
-       Dave Kleikamp <shaggy@austin.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-In-Reply-To: <4137B5F5.8000402@slaphack.com>
-Message-ID: <Pine.LNX.4.58.0409021717220.2295@ppc970.osdl.org>
-References: <20040826150202.GE5733@mail.shareable.org>
- <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org>
- <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
- <1094118362.4847.23.camel@localhost.localdomain> <20040902203854.GA4801@janus>
- <1094160994.31499.19.camel@shaggy.austin.ibm.com> <20040902214806.GA5272@janus>
- <20040902220027.GD23987@parcelfarce.linux.theplanet.co.uk>
- <4137B5F5.8000402@slaphack.com>
+To: Zwane Mwaikambo <zwane@fsmlabs.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH][1/8] Arch agnostic completely out of line locks / generic
+In-Reply-To: <Pine.LNX.4.58.0409021208310.4481@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.58.0409021703440.2295@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0409021208310.4481@montezuma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -39,15 +26,20 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 2 Sep 2004, David Masover wrote:
-> 
-> reiser4 kernel will contain knowledge of fs type contained in a file.
+On Thu, 2 Sep 2004, Zwane Mwaikambo wrote:
+> +
+> +#define __lockfunc fastcall __attribute__((section(".spinlock.text")))
+> +
+> +int __lockfunc _spin_trylock(spinlock_t *lock)
+...
 
-That's a disaster, btw.
+> +int _spin_trylock(spinlock_t *lock);
 
-There is no one "fs type" of a file. Files have at _least_ one type
-(bytestream), but most have more. Which is why automatically doing the
-right thing (in the sense you seem to want) in kernel space is simply not
-possible.
+This is horribly horribly wrong.
 
-			Linus
+The function is a fastcall function, and it needs to be declared that way, 
+otherwise the callers will use the wrong semantics for calling.
+
+This can't have worked.
+
+		Linus

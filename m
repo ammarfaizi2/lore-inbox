@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbVAHHMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVAHHMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261922AbVAHHMY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 02:12:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVAHHJi
+	id S261952AbVAHHMX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 02:12:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVAHHLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 02:09:38 -0500
-Received: from mail.kroah.org ([69.55.234.183]:12678 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261922AbVAHFsp convert rfc822-to-8bit
+	Sat, 8 Jan 2005 02:11:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:61061 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261893AbVAHFsb convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:45 -0500
+	Sat, 8 Jan 2005 00:48:31 -0500
 Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <11051632662286@kroah.com>
+In-Reply-To: <11051632662439@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Fri, 7 Jan 2005 21:47:46 -0800
-Message-Id: <11051632662439@kroah.com>
+Message-Id: <11051632663258@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
@@ -22,288 +22,190 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.446.24, 2004/12/15 16:36:14-08:00, david-b@pacbell.net
+ChangeSet 1.1938.446.25, 2004/12/15 16:37:08-08:00, david-b@pacbell.net
 
-[PATCH] USB: EHCI and HCD API updates (12/15)
+[PATCH] USB: OHCI and HCD API changes (13/15)
 
-Updates the EHCI HCD to match API updates.  This includes both new
+Updates the OHCI HCD to match API updates.  This includes both new
 changes (struct hcd_dev gone) and older ones (endpoints now properly
-enabled/disabled, so "re"init paths aren't needed).  Hmm, the ISO
-stuff could avoid that lookup now too.
+enabled/disabled, so "re"init paths aren't needed).
 
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/usb/host/ehci-hcd.c   |   20 ++++++++------------
- drivers/usb/host/ehci-q.c     |   33 ++++++---------------------------
- drivers/usb/host/ehci-sched.c |   33 ++++++++++++++-------------------
- drivers/usb/host/ehci.h       |    3 ++-
- 4 files changed, 30 insertions(+), 59 deletions(-)
+ drivers/usb/host/ohci-hcd.c |   23 ++++++++--------------
+ drivers/usb/host/ohci-q.c   |   46 +++++++++++++++++++-------------------------
+ 2 files changed, 29 insertions(+), 40 deletions(-)
 
 
-diff -Nru a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
---- a/drivers/usb/host/ehci-hcd.c	2005-01-07 15:48:28 -08:00
-+++ b/drivers/usb/host/ehci-hcd.c	2005-01-07 15:48:28 -08:00
-@@ -895,6 +895,7 @@
+diff -Nru a/drivers/usb/host/ohci-hcd.c b/drivers/usb/host/ohci-hcd.c
+--- a/drivers/usb/host/ohci-hcd.c	2005-01-07 15:48:16 -08:00
++++ b/drivers/usb/host/ohci-hcd.c	2005-01-07 15:48:16 -08:00
+@@ -165,6 +165,7 @@
   */
- static int ehci_urb_enqueue (
+ static int ohci_urb_enqueue (
  	struct usb_hcd	*hcd,
 +	struct usb_host_endpoint *ep,
  	struct urb	*urb,
  	int		mem_flags
  ) {
-@@ -909,12 +910,12 @@
- 	default:
- 		if (!qh_urb_transaction (ehci, urb, &qtd_list, mem_flags))
- 			return -ENOMEM;
--		return submit_async (ehci, urb, &qtd_list, mem_flags);
-+		return submit_async (ehci, ep, urb, &qtd_list, mem_flags);
+@@ -181,7 +182,7 @@
+ #endif
+ 	
+ 	/* every endpoint has a ed, locate and maybe (re)initialize it */
+-	if (! (ed = ed_get (ohci, urb->dev, pipe, urb->interval)))
++	if (! (ed = ed_get (ohci, ep, urb->dev, pipe, urb->interval)))
+ 		return -ENOMEM;
  
- 	case PIPE_INTERRUPT:
- 		if (!qh_urb_transaction (ehci, urb, &qtd_list, mem_flags))
- 			return -ENOMEM;
--		return intr_submit (ehci, urb, &qtd_list, mem_flags);
-+		return intr_submit (ehci, ep, urb, &qtd_list, mem_flags);
- 
- 	case PIPE_ISOCHRONOUS:
- 		if (urb->dev->speed == USB_SPEED_HIGH)
-@@ -1014,23 +1015,18 @@
- // bulk qh holds the data toggle
+ 	/* for the private part of the URB we need the number of TDs (size) */
+@@ -338,26 +339,21 @@
+  */
  
  static void
--ehci_endpoint_disable (struct usb_hcd *hcd, struct hcd_dev *dev, int ep)
-+ehci_endpoint_disable (struct usb_hcd *hcd, struct usb_host_endpoint *ep)
+-ohci_endpoint_disable (struct usb_hcd *hcd, struct hcd_dev *dev, int ep)
++ohci_endpoint_disable (struct usb_hcd *hcd, struct usb_host_endpoint *ep)
  {
- 	struct ehci_hcd		*ehci = hcd_to_ehci (hcd);
--	int			epnum;
+ 	struct ohci_hcd		*ohci = hcd_to_ohci (hcd);
+-	int			epnum = ep & USB_ENDPOINT_NUMBER_MASK;
  	unsigned long		flags;
- 	struct ehci_qh		*qh, *tmp;
+-	struct ed		*ed;
++	struct ed		*ed = ep->hcpriv;
+ 	unsigned		limit = 1000;
  
  	/* ASSERT:  any requests/urbs are being unlinked */
  	/* ASSERT:  nobody can be submitting urbs for this any more */
  
--	epnum = ep & USB_ENDPOINT_NUMBER_MASK;
--	if (epnum != 0 && (ep & USB_DIR_IN))
--		epnum |= 0x10;
--
- rescan:
- 	spin_lock_irqsave (&ehci->lock, flags);
--	qh = (struct ehci_qh *) dev->ep [epnum];
-+	qh = ep->hcpriv;
- 	if (!qh)
- 		goto done;
+-	epnum <<= 1;
+-	if (epnum != 0 && !(ep & USB_DIR_IN))
+-		epnum |= 1;
++	if (!ed)
++		return;
  
-@@ -1072,12 +1068,12 @@
+ rescan:
+ 	spin_lock_irqsave (&ohci->lock, flags);
+-	ed = dev->ep [epnum];
+-	if (!ed)
+-		goto done;
+ 
+ 	if (!HCD_IS_RUNNING (ohci->hcd.state)) {
+ sanitize:
+@@ -387,14 +383,13 @@
  		/* caller was supposed to have unlinked any requests;
- 		 * that's not our job.  just leak this memory.
+ 		 * that's not our job.  can't recover; must leak ed.
  		 */
--		ehci_err (ehci, "qh %p (#%d) state %d%s\n",
--			qh, epnum, qh->qh_state,
-+		ehci_err (ehci, "qh %p (#%02x) state %d%s\n",
-+			qh, ep->desc.bEndpointAddress, qh->qh_state,
- 			list_empty (&qh->qtd_list) ? "" : "(has tds)");
+-		ohci_err (ohci, "leak ed %p (#%d) state %d%s\n",
+-			ed, epnum, ed->state,
++		ohci_err (ohci, "leak ed %p (#%02x) state %d%s\n",
++			ed, ep->desc.bEndpointAddress, ed->state,
+ 			list_empty (&ed->td_list) ? "" : " (has tds)");
+ 		td_free (ohci, ed->dummy);
  		break;
  	}
--	dev->ep[epnum] = NULL;
+-	dev->ep [epnum] = NULL;
+-done:
 +	ep->hcpriv = NULL;
- done:
- 	spin_unlock_irqrestore (&ehci->lock, flags);
+ 	spin_unlock_irqrestore (&ohci->lock, flags);
  	return;
-diff -Nru a/drivers/usb/host/ehci-q.c b/drivers/usb/host/ehci-q.c
---- a/drivers/usb/host/ehci-q.c	2005-01-07 15:48:28 -08:00
-+++ b/drivers/usb/host/ehci-q.c	2005-01-07 15:48:28 -08:00
-@@ -832,26 +832,8 @@
- 			qtd = list_entry (qtd_list->next, struct ehci_qtd,
- 					qtd_list);
+ }
+diff -Nru a/drivers/usb/host/ohci-q.c b/drivers/usb/host/ohci-q.c
+--- a/drivers/usb/host/ohci-q.c	2005-01-07 15:48:16 -08:00
++++ b/drivers/usb/host/ohci-q.c	2005-01-07 15:48:16 -08:00
+@@ -386,37 +386,30 @@
+ /*-------------------------------------------------------------------------*/
  
--		/* control qh may need patching after enumeration */
-+		/* control qh may need patching ... */
- 		if (unlikely (epnum == 0)) {
--			/* set_address changes the address */
--			if ((qh->hw_info1 & QH_ADDR_MASK) == 0)
--				qh->hw_info1 |= cpu_to_le32 (
--						usb_pipedevice (urb->pipe));
--
--			/* for full speed, ep0 maxpacket can grow */
--			else if (!(qh->hw_info1
--					& __constant_cpu_to_le32 (0x3 << 12))) {
--				u32	info, max;
--
--				info = le32_to_cpu (qh->hw_info1);
--				max = urb->dev->descriptor.bMaxPacketSize0;
--				if (max > (0x07ff & (info >> 16))) {
--					info &= ~(0x07ff << 16);
--					info |= max << 16;
--					qh->hw_info1 = cpu_to_le32 (info);
--				}
--			}
- 
-                         /* usb_reset_device() briefly reverts to address 0 */
-                         if (usb_pipedevice (urb->pipe) == 0)
-@@ -908,33 +890,30 @@
- static int
- submit_async (
- 	struct ehci_hcd		*ehci,
+ /* get and maybe (re)init an endpoint. init _should_ be done only as part
+- * of usb_set_configuration() or usb_set_interface() ... but the USB stack
+- * isn't very stateful, so we re-init whenever the HC isn't looking.
++ * of enumeration, usb_set_configuration() or usb_set_interface().
+  */
+ static struct ed *ed_get (
+ 	struct ohci_hcd		*ohci,
 +	struct usb_host_endpoint *ep,
- 	struct urb		*urb,
- 	struct list_head	*qtd_list,
- 	int			mem_flags
+ 	struct usb_device	*udev,
+ 	unsigned int		pipe,
+ 	int			interval
  ) {
- 	struct ehci_qtd		*qtd;
--	struct hcd_dev		*dev;
- 	int			epnum;
- 	unsigned long		flags;
- 	struct ehci_qh		*qh = NULL;
- 
- 	qtd = list_entry (qtd_list->next, struct ehci_qtd, qtd_list);
--	dev = (struct hcd_dev *)urb->dev->hcpriv;
--	epnum = usb_pipeendpoint (urb->pipe);
--	if (usb_pipein (urb->pipe) && !usb_pipecontrol (urb->pipe))
--		epnum |= 0x10;
-+	epnum = ep->desc.bEndpointAddress;
- 
- #ifdef EHCI_URB_TRACE
- 	ehci_dbg (ehci,
- 		"%s %s urb %p ep%d%s len %d, qtd %p [qh %p]\n",
- 		__FUNCTION__, urb->dev->devpath, urb,
--		epnum & 0x0f, usb_pipein (urb->pipe) ? "in" : "out",
-+		epnum & 0x0f, (epnum & USB_DIR_IN) ? "in" : "out",
- 		urb->transfer_buffer_length,
--		qtd, dev ? dev->ep [epnum] : (void *)~0);
-+		qtd, ep->hcpriv);
- #endif
- 
- 	spin_lock_irqsave (&ehci->lock, flags);
--	qh = qh_append_tds (ehci, urb, qtd_list, epnum, &dev->ep [epnum]);
-+	qh = qh_append_tds (ehci, urb, qtd_list, epnum, &ep->hcpriv);
- 
- 	/* Control/bulk operations through TTs don't need scheduling,
- 	 * the HC and TT handle it when the TT has a buffer ready.
-diff -Nru a/drivers/usb/host/ehci-sched.c b/drivers/usb/host/ehci-sched.c
---- a/drivers/usb/host/ehci-sched.c	2005-01-07 15:48:28 -08:00
-+++ b/drivers/usb/host/ehci-sched.c	2005-01-07 15:48:28 -08:00
-@@ -525,6 +525,7 @@
- 
- static int intr_submit (
- 	struct ehci_hcd		*ehci,
-+	struct usb_host_endpoint *ep,
- 	struct urb		*urb,
- 	struct list_head	*qtd_list,
- 	int			mem_flags
-@@ -532,23 +533,17 @@
- 	unsigned		epnum;
- 	unsigned long		flags;
- 	struct ehci_qh		*qh;
--	struct hcd_dev		*dev;
--	int			is_input;
- 	int			status = 0;
- 	struct list_head	empty;
- 
- 	/* get endpoint and transfer/schedule data */
--	epnum = usb_pipeendpoint (urb->pipe);
--	is_input = usb_pipein (urb->pipe);
--	if (is_input)
--		epnum |= 0x10;
-+	epnum = ep->desc.bEndpointAddress;
- 
- 	spin_lock_irqsave (&ehci->lock, flags);
--	dev = (struct hcd_dev *)urb->dev->hcpriv;
- 
- 	/* get qh and force any scheduling errors */
- 	INIT_LIST_HEAD (&empty);
--	qh = qh_append_tds (ehci, urb, &empty, epnum, &dev->ep [epnum]);
-+	qh = qh_append_tds (ehci, urb, &empty, epnum, &ep->hcpriv);
- 	if (qh == 0) {
- 		status = -ENOMEM;
- 		goto done;
-@@ -559,7 +554,7 @@
- 	}
- 
- 	/* then queue the urb's tds to the qh */
--	qh = qh_append_tds (ehci, urb, qtd_list, epnum, &dev->ep [epnum]);
-+	qh = qh_append_tds (ehci, urb, qtd_list, epnum, &ep->hcpriv);
- 	BUG_ON (qh == 0);
- 
- 	/* ... update usbfs periodic stats */
-@@ -689,7 +684,6 @@
- 	 */
- 	if (stream->refcount == 1) {
- 		int		is_in;
--		struct hcd_dev	*dev = stream->udev->hcpriv;
- 
- 		// BUG_ON (!list_empty(&stream->td_list));
- 
-@@ -719,7 +713,7 @@
- 
- 		is_in = (stream->bEndpointAddress & USB_DIR_IN) ? 0x10 : 0;
- 		stream->bEndpointAddress &= 0x0f;
--		dev->ep[is_in + stream->bEndpointAddress] = NULL;
-+		stream->ep->hcpriv = NULL;
- 
- 		if (stream->rescheduled) {
- 			ehci_info (ehci, "ep%d%s-iso rescheduled "
-@@ -746,24 +740,25 @@
- iso_stream_find (struct ehci_hcd *ehci, struct urb *urb)
- {
- 	unsigned		epnum;
--	struct hcd_dev		*dev;
- 	struct ehci_iso_stream	*stream;
-+	struct usb_host_endpoint *ep;
+-	int			is_out = !usb_pipein (pipe);
+-	int			type = usb_pipetype (pipe);
+-	struct hcd_dev		*dev = (struct hcd_dev *) udev->hcpriv;
+ 	struct ed		*ed; 
+-	unsigned		ep;
  	unsigned long		flags;
  
- 	epnum = usb_pipeendpoint (urb->pipe);
- 	if (usb_pipein(urb->pipe))
--		epnum += 0x10;
-+		ep = urb->dev->ep_in[epnum];
-+	else
-+		ep = urb->dev->ep_out[epnum];
- 
- 	spin_lock_irqsave (&ehci->lock, flags);
+-	ep = usb_pipeendpoint (pipe) << 1;
+-	if (type != PIPE_CONTROL && is_out)
+-		ep |= 1;
 -
--	dev = (struct hcd_dev *)urb->dev->hcpriv;
--	stream = dev->ep [epnum];
-+	stream = ep->hcpriv;
+ 	spin_lock_irqsave (&ohci->lock, flags);
  
- 	if (unlikely (stream == 0)) {
- 		stream = iso_stream_alloc(GFP_ATOMIC);
- 		if (likely (stream != 0)) {
- 			/* dev->ep owns the initial refcount */
--			dev->ep[epnum] = stream;
-+			ep->hcpriv = stream;
-+			stream->ep = ep;
- 			iso_stream_init(stream, urb->dev, urb->pipe,
- 					urb->interval);
+-	if (!(ed = dev->ep [ep])) {
++	if (!(ed = ep->hcpriv)) {
+ 		struct td	*td;
++		int		is_out;
++		u32		info;
+ 
+ 		ed = ed_alloc (ohci, GFP_ATOMIC);
+ 		if (!ed) {
+ 			/* out of memory */
+ 			goto done;
  		}
-@@ -771,8 +766,8 @@
- 	/* if dev->ep [epnum] is a QH, info1.maxpacket is nonzero */
- 	} else if (unlikely (stream->hw_info1 != 0)) {
- 		ehci_dbg (ehci, "dev %s ep%d%s, not iso??\n",
--			urb->dev->devpath, epnum & 0x0f,
--			(epnum & 0x10) ? "in" : "out");
-+			urb->dev->devpath, epnum,
-+			usb_pipein(urb->pipe) ? "in" : "out");
- 		stream = NULL;
+-		dev->ep [ep] = ed;
+ 
+   		/* dummy td; end of td list for ed */
+ 		td = td_alloc (ohci, GFP_ATOMIC);
+@@ -430,38 +423,39 @@
+ 		ed->hwTailP = cpu_to_hc32 (ohci, td->td_dma);
+ 		ed->hwHeadP = ed->hwTailP;	/* ED_C, ED_H zeroed */
+ 		ed->state = ED_IDLE;
+-		ed->type = type;
+-	}
+ 
+-	/* NOTE: only ep0 currently needs this "re"init logic, during
+-	 * enumeration (after set_address).
+-	 */
+-  	if (ed->state == ED_IDLE) {
+-		u32	info;
++		is_out = !(ep->desc.bEndpointAddress & USB_DIR_IN);
+ 
++		/* FIXME usbcore changes dev->devnum before SET_ADDRESS
++		 * suceeds ... otherwise we wouldn't need "pipe".
++		 */
+ 		info = usb_pipedevice (pipe);
+-		info |= (ep >> 1) << 7;
+-		info |= usb_maxpacket (udev, pipe, is_out) << 16;
++		ed->type = usb_pipetype(pipe);
++
++		info |= (ep->desc.bEndpointAddress & ~USB_DIR_IN) << 7;
++		info |= ep->desc.wMaxPacketSize << 16;
+ 		if (udev->speed == USB_SPEED_LOW)
+ 			info |= ED_LOWSPEED;
+ 		/* only control transfers store pids in tds */
+-		if (type != PIPE_CONTROL) {
++		if (ed->type != PIPE_CONTROL) {
+ 			info |= is_out ? ED_OUT : ED_IN;
+-			if (type != PIPE_BULK) {
++			if (ed->type != PIPE_BULK) {
+ 				/* periodic transfers... */
+-				if (type == PIPE_ISOCHRONOUS)
++				if (ed->type == PIPE_ISOCHRONOUS)
+ 					info |= ED_ISO;
+ 				else if (interval > 32)	/* iso can be bigger */
+ 					interval = 32;
+ 				ed->interval = interval;
+ 				ed->load = usb_calc_bus_time (
+ 					udev->speed, !is_out,
+-					type == PIPE_ISOCHRONOUS,
+-					usb_maxpacket (udev, pipe, is_out))
++					ed->type == PIPE_ISOCHRONOUS,
++					ep->desc.wMaxPacketSize)
+ 						/ 1000;
+ 			}
+ 		}
+ 		ed->hwINFO = cpu_to_hc32(ohci, info);
++
++		ep->hcpriv = ed;
  	}
  
-diff -Nru a/drivers/usb/host/ehci.h b/drivers/usb/host/ehci.h
---- a/drivers/usb/host/ehci.h	2005-01-07 15:48:28 -08:00
-+++ b/drivers/usb/host/ehci.h	2005-01-07 15:48:28 -08:00
-@@ -36,7 +36,7 @@
- 
- /* ehci_hcd->lock guards shared data against other CPUs:
-  *   ehci_hcd:	async, reclaim, periodic (and shadow), ...
-- *   hcd_dev:	ep[]
-+ *   usb_host_endpoint: hcpriv
-  *   ehci_qh:	qh_next, qtd_list
-  *   ehci_qtd:	qtd_list
-  *
-@@ -430,6 +430,7 @@
- 	struct list_head	td_list;	/* queued itds/sitds */
- 	struct list_head	free_list;	/* list of unused itds/sitds */
- 	struct usb_device	*udev;
-+ 	struct usb_host_endpoint *ep;
- 
- 	/* output of (re)scheduling */
- 	unsigned long		start;		/* jiffies */
+ done:
 

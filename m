@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277176AbRKGJZu>; Wed, 7 Nov 2001 04:25:50 -0500
+	id <S278042AbRKGJdx>; Wed, 7 Nov 2001 04:33:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277722AbRKGJZl>; Wed, 7 Nov 2001 04:25:41 -0500
-Received: from [212.18.232.186] ([212.18.232.186]:19462 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S277176AbRKGJZc>; Wed, 7 Nov 2001 04:25:32 -0500
-Date: Wed, 7 Nov 2001 09:24:15 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Kurt Roeckx <Q@ping.be>
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Riley Williams <rhw@MemAlpha.cx>, Pavel Machek <pavel@suse.cz>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-Message-ID: <20011107092415.A24654@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.21.0111062347080.16087-100000@Consulate.UFP.CX> <812671195.1005093860@[195.224.237.69]> <20011107020137.A1887@ping.be>
+	id <S278239AbRKGJdm>; Wed, 7 Nov 2001 04:33:42 -0500
+Received: from lilac.csi.cam.ac.uk ([131.111.8.44]:28647 "EHLO
+	lilac.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S278042AbRKGJdc>; Wed, 7 Nov 2001 04:33:32 -0500
+Date: Wed, 7 Nov 2001 09:33:18 +0000
+From: Christophe Rhodes <csr21@cam.ac.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: rth@twiddle.net, linux-kernel@vger.kernel.org
+Subject: Re: SPARC and SA_SIGINFO signal handling
+Message-ID: <20011107093318.A11078@cam.ac.uk>
+In-Reply-To: <20011031094342.A27520@cam.ac.uk> <20011031.021131.74751566.davem@redhat.com> <20011103115900.B5984@twiddle.net> <20011103.155422.74749787.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011107020137.A1887@ping.be>; from Q@ping.be on Wed, Nov 07, 2001 at 02:01:37AM +0100
+In-Reply-To: <20011103.155422.74749787.davem@redhat.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 02:01:37AM +0100, Kurt Roeckx wrote:
-> On Wed, Nov 07, 2001 at 12:44:21AM -0000, Alex Bligh - linux-kernel wrote:
-> > --On Wednesday, 07 November, 2001 12:00 AM +0000 Riley Williams 
-> > <rhw@MemAlpha.cx> wrote:
-> > 
-> > >  2. The kernel makes no internal reference to the /dev/rtc driver,
-> > >     and it is left to userland tools to sync to the RTC on boot,
-> > >     and at other times as required.
-> > 
-> > I think the kernel should set the machine time to the RTC time
-> > as an initializer on boot. Other than that, I agree.
+On Sat, Nov 03, 2001 at 03:54:22PM -0800, David S. Miller wrote:
+>    From: Richard Henderson <rth@twiddle.net>
+>    Date: Sat, 3 Nov 2001 11:59:00 -0800
 > 
-> Which is something you do from userspace.
+>    On Wed, Oct 31, 2001 at 02:11:31AM -0800, David S. Miller wrote:
+>    > The "register contents and so on" are in the sigcontext.
+>    > We don't use ucontext on sparc32.
+>    
+>    In other words, you don't support SA_SIGINFO at all.
+>    
+> Is it required?  All the information that thing provides is
+> determinable via other methods.
 
-One problem with that approach is the things in kernel that need to be
-initialised to a random value, such that on two consecutive boots, the
-values are different.  Currently, that's NFS XIDs.  As Linux currently
-stands, running on some embedded machines where there is no real time
-clock, you can hit the possibility of file corruption if you happen to
-reboot the machine twice in within two minutes - non-Linux NFS servers
-could well be longer.
+Sorry for the late response (I've been away); "required" is perhaps
+putting it strongly, because as you say the information is there,
+somewhere. However, it would be nice to have, as standardized, that
+the third argument to the sa_sigaction handler be castable to a
+ucontext_t, as this would make porting signal-handling code between
+Linux flavours much easier.
 
-With your proposed change, you'd be inflicting that pain on all NFS root
-machines, even ones with RTCs, so may I suggest that if you're thinking
-about removing the RTC stuff that you also think of a way of solving this
-problem at the same time?
+Cheers,
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Christophe
+-- 
+Jesus College, Cambridge, CB5 8BL                           +44 1223 510 299
+http://www-jcsu.jesus.cam.ac.uk/~csr21/                  (defun pling-dollar 
+(str schar arg) (first (last +))) (make-dispatch-macro-character #\! t)
+(set-dispatch-macro-character #\! #\$ #'pling-dollar)

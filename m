@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVCMUgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVCMUmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbVCMUgP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 15:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVCMUgP
+	id S261448AbVCMUmv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 15:42:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVCMUmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 15:36:15 -0500
-Received: from waste.org ([216.27.176.166]:34750 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261447AbVCMUgI (ORCPT
+	Sun, 13 Mar 2005 15:42:51 -0500
+Received: from pat.uio.no ([129.240.130.16]:2225 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261448AbVCMUmt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 15:36:08 -0500
-Date: Sun, 13 Mar 2005 12:36:04 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: zippel@linux-m68k.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Serious problems with HFS+
-Message-ID: <20050313203604.GF3163@waste.org>
+	Sun, 13 Mar 2005 15:42:49 -0500
+Subject: Re: [CHECKER] inconsistent NFS stat cache (NFS on ext3, 2.6.11)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Junfeng Yang <yjf@stanford.edu>, nfs@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, mc@cs.Stanford.EDU
+In-Reply-To: <20050313200412.GA21521@nevyn.them.org>
+References: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU>
+	 <1110690267.24123.7.camel@lade.trondhjem.org>
+	 <20050313200412.GA21521@nevyn.them.org>
+Content-Type: text/plain
+Date: Sun, 13 Mar 2005 15:42:29 -0500
+Message-Id: <1110746550.23876.8.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed a few problems with HFS+ support in recent kernels on
-another user's machine running Ubuntu (Warty) running
-2.6.8.1-3-powerpc. I'm not in a position to extensively test or fix
-either of these problem because of the fs tools situation so I'm just
-passing this on.
+su den 13.03.2005 Klokka 15:04 (-0500) skreiv Daniel Jacobowitz:
 
-First, it reports inappropriate blocks to stat(2). It uses 4096 byte
-blocks rather than 512 byte blocks which stat callers are expecting.
-This seriously confuses du(1) (and me, for a bit). Looks like it may
-be forgetting to set s_blocksize_bits.
+> I can't find any documentation about this, but it seems like the same
+> problem that has been causing me headaches lately; when I replace glibc
+> from the server side of an nfsroot, the client has a couple of
+> variously wrong reads before it sees the new files.  If it breaks NFS
+> so badly, why is it the default for the Linux NFS server?
 
-Second, if an HFS+ filesystem mounted via Firewire or USB becomes
-detached, the filesystem appears to continue working just fine. I can
-find on the entire tree, despite memory pressure. I can even create
-new files that continue to appear in directory listings! Writes to
-such files succeed (they're async, of course) and the typical app is
-none the wiser. It's only when apps attempt to read later that they
-encounter problems. It turns out that various apps including scp
-ignore IO errors on read and silently copy zero-filled files to the
-destination. So I got this report as "why aren't the pictures I took
-off my camera visible on my website?"
+No, that's a very different issue: you are violating the NFS cache
+consistency rules if you are changing a file that is being held open by
+other machines.
+The correct way to do the above is to use GNU install with the '-b'
+option: that will rename the version of glibc that is in use, and then
+install the new glibc in a different inode.
 
-This is obviously a really nasty failure mode. At the very least, open
-of new files should fail with -EIO. Preferably the fs should force a
-read-only remount on IO errors. Given that the vast majority of HFS+
-filesystems Linux is likely to be used with are on hotpluggable media,
-I think this FS should be marked EXPERIMENTAL until such integrity
-problems are addressed.
-
-Having the whole directory tree seemingly pinned in memory is probably
-something that wants addressing as well.
-
+Cheers,
+  Trond
 -- 
-Mathematics is the supreme nostalgia of our time.
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

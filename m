@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315428AbSESWe7>; Sun, 19 May 2002 18:34:59 -0400
+	id <S315476AbSESWtk>; Sun, 19 May 2002 18:49:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315479AbSESWe6>; Sun, 19 May 2002 18:34:58 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:27587 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S315428AbSESWe4>;
-	Sun, 19 May 2002 18:34:56 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 20 May 2002 00:34:55 +0200 (MEST)
-Message-Id: <UTC200205192234.g4JMYtZ24518.aeb@smtp.cwi.nl>
-To: dalecki@evision-ventures.com
-Subject: [PATCH] HPT366 again
-Cc: linux-kernel@vger.kernel.org
+	id <S315479AbSESWtj>; Sun, 19 May 2002 18:49:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53254 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315476AbSESWti>;
+	Sun, 19 May 2002 18:49:38 -0400
+Message-ID: <3CE82CDD.21A125DA@zip.com.au>
+Date: Sun, 19 May 2002 15:53:17 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andreas Dilger <adilger@clusterfs.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/15] larger b_size, and misc fixlets
+In-Reply-To: <3CE7FF89.16AF9B93@zip.com.au> <20020519221532.GE26598@turbolinux.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Martin,
+Andreas Dilger wrote:
+> 
+> On May 19, 2002  12:39 -0700, Andrew Morton wrote:
+> > - make the printk in buffer_io_error() sector_t-aware.
+> > =====================================
+> > --- 2.5.16/fs/buffer.c~sector_t-printing      Sun May 19 11:49:47 2002
+> > +++ 2.5.16-akpm/fs/buffer.c   Sun May 19 12:02:57 2002
+> > @@ -179,8 +179,8 @@ __clear_page_buffers(struct page *page)
+> >
+> >  static void buffer_io_error(struct buffer_head *bh)
+> >  {
+> > -     printk(KERN_ERR "Buffer I/O error on device %s, logical block %ld\n",
+> > -                     bdevname(bh->b_bdev), bh->b_blocknr);
+> > +     printk(KERN_ERR "Buffer I/O error on device %s, logical block %Ld\n",
+> > +                     bdevname(bh->b_bdev), (u64)bh->b_blocknr);
+> >  }
+> 
+> Not that I'm a 64-bit system user/developer, but it is my understanding
+> that u64 == long on a 64-bit platform, so your cast to u64 does not
+> actually change the type of b_blocknr as far as printk is concerned.
+> You would need to cast it to unsigned long long instead.
+> 
 
-Earlier this evening I wanted to test my new usb-storage code,
-but saw that both IDE and USB are broken for me under 2.5.16.
-The IDE part must be familiar to you, we had this conversation
-already once.
+Yes, I suppose so.  That more closely matches what "%L" does.
 
-With CONFIG_BLK_DEV_IDEDMA_PCI and CONFIG_BLK_DEV_HPT366, that is,
-when hpt366.c is compiled in, my 2.5.16 kernel hangs at boot,
-trying to read the partition table from a disk that hangs off
-an off-board HPT366.
-
-Without these options, that is, without hpt366.c, this board and
-the disks hanging off it are not seen at all.
-The below patch makes them visible again in the latter case.
-
-Andries
-
---- ide-pci.c~	Sat May 18 16:25:57 2002
-+++ ide-pci.c	Mon May 20 00:18:24 2002
-@@ -764,7 +764,7 @@
- 		vendor: PCI_VENDOR_ID_INTEL,
- 		device: PCI_DEVICE_ID_INTEL_82371MX,
- 		enablebits: {{0x6D,0x80,0x80}, {0x00,0x00,0x00}},
--		bootable: ON_BOARD, 0,
-+		bootable: ON_BOARD,
- 		flags: ATA_F_NODMA
- 	},
- 	{
-@@ -790,6 +790,13 @@
- 		device: PCI_DEVICE_ID_VIA_82C561,
- 		bootable: ON_BOARD,
- 		flags: ATA_F_NOADMA
-+	},
-+	{
-+		vendor: PCI_VENDOR_ID_TTI,
-+		device: PCI_DEVICE_ID_TTI_HPT366,
-+		bootable: OFF_BOARD,
-+		extra: 240,
-+		flags: ATA_F_IRQ | ATA_F_HPTHACK
- 	}
- };
- 
+-

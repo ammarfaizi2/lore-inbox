@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262240AbSJVGI6>; Tue, 22 Oct 2002 02:08:58 -0400
+	id <S262266AbSJVGPD>; Tue, 22 Oct 2002 02:15:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262244AbSJVGI6>; Tue, 22 Oct 2002 02:08:58 -0400
-Received: from pc132.utati.net ([216.143.22.132]:49792 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S262240AbSJVGI6> convert rfc822-to-8bit; Tue, 22 Oct 2002 02:08:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: Christoph Hellwig <hch@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: Listmaster request: Blacklist rms@gnu.org
-Date: Mon, 21 Oct 2002 20:15:06 -0500
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <20021021190205.A25380@infradead.org> <Pine.LNX.4.44.0210212014300.338-100000@serv> <20021021193255.A26486@infradead.org>
-In-Reply-To: <20021021193255.A26486@infradead.org>
+	id <S262273AbSJVGPC>; Tue, 22 Oct 2002 02:15:02 -0400
+Received: from packet.digeo.com ([12.110.80.53]:43943 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262266AbSJVGPB>;
+	Tue, 22 Oct 2002 02:15:01 -0400
+Message-ID: <3DB4EE4E.88311B7B@digeo.com>
+Date: Mon, 21 Oct 2002 23:21:02 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210212015.06793.landley@trommello.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Rik van Riel <riel@conectiva.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm mailing list <linux-mm@kvack.org>
+Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
+References: <3DB4D20A.8A579516@digeo.com> <2629107186.1035240598@[10.10.2.3]>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Oct 2002 06:21:03.0289 (UTC) FILETIME=[326C0A90:01C27993]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 October 2002 13:32, Christoph Hellwig wrote:
-> On Mon, Oct 21, 2002 at 08:16:15PM +0200, Roman Zippel wrote:
-> > Hi,
+"Martin J. Bligh" wrote:
+> 
+> > Oh it's reproduceable OK.  Just run
 > >
-> > On Mon, 21 Oct 2002, Christoph Hellwig wrote:
-> > > Well, _he_ started that thread, and the only posts to his list ever
-> > > where to start such threads.
-> >
-> > No, he didn't. He just made the mistake to choose another subject.
->
-> HE started the original thread, and he changed the subject to get
-> out of the blocking.
+> >       make-teeny-files 7 7
+> 
+> Excellent - thanks for that ... will try it.
 
-"Maaaa!  He started it!"
+When it goes stupid, you can then run and kill some big memory-hog
+to force reclaim of lots of highmem pages.   Once you've done that,
+you can watch the inode cache fall away as the inodes which used
+to have pagecache become reclaimable.
+ 
+> > Maybe you didn't cat /dev/sda2 for long enough?
+> 
+> Well, it's a multi-gigabyte partition. IIRC, I just ran it until
+> it died with "input/output error" ... which I assumed at the time
+> was the end of the partition, but it should be able to find that
+> without error, so maybe it just ran out of ZONE_NORMAL ;-)
 
-:P
+Oh.  Well it should have just hit eof.  Maybe you have a dud
+sector and it terminated early.
 
-And here I thought that particular flamewar started back on October 4:
+> > Perhaps we need to multiply the slab cache scanning pressure by the
+> > slab occupancy.  That's simple to do.
+> 
+> That'd make a lot of sense (to me, at least). I presume you mean
+> occupancy on a per-slab basis, not global.
 
-http://lists.insecure.org/lists/linux-kernel/2002/Oct/1518.html
+It's already performing slab cache scanning proportional to
+the size of the slab. Multiplied by the rate of page scanning.
 
-Rob
-
+But I'm thinking that this linear pressure isn't right
+at either end of the scale, so it needs to become nonlinear - even
+less pressure when there's little slab, and more pressure when
+there's a lot.  So multiply the slab scanning ratio by
+amount_of_slab/amount_of_normal_zone.   Maybe.

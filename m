@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbTJECp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 22:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbTJECp7
+	id S262950AbTJECni (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 22:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbTJECnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 22:45:59 -0400
-Received: from janus.zeusinc.com ([205.242.242.161]:13899 "EHLO
-	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
-	id S262953AbTJECp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 22:45:57 -0400
-Subject: Re: Problems caused by scheduler tweaks in 2.6.0-test6?
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200310041950.44011.kernel@kolivas.org>
-References: <1065188297.2660.17.camel@iso-8590-lx.zeusinc.com>
-	 <3F7E8EC0.7080008@cyberone.com.au>  <200310041950.44011.kernel@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1065321924.2725.26.camel@iso-8590-lx.zeusinc.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
-Date: Sat, 04 Oct 2003 22:45:25 -0400
+	Sat, 4 Oct 2003 22:43:37 -0400
+Received: from dyn-ctb-210-9-241-202.webone.com.au ([210.9.241.202]:13574 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S262950AbTJECng
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 22:43:36 -0400
+Message-ID: <3F7F8546.1030903@cyberone.com.au>
+Date: Sun, 05 Oct 2003 12:43:18 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: alexander.riesen@synopsys.COM
+CC: "Randy.Dunlap" <rddunlap@osdl.org>, willy@debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: must-fix list reconciliation
+References: <3F7D3F37.1060005@cyberone.com.au> <20031003113437.GL24824@parcelfarce.linux.theplanet.co.uk> <20031003083640.61dcf517.rddunlap@osdl.org> <3F7DFE52.9010400@cyberone.com.au> <20031003160224.6737b593.rddunlap@osdl.org> <3F7E03E3.1090005@cyberone.com.au> <20031003161855.3c20f2b5.rddunlap@osdl.org> <3F7E06C2.30600@cyberone.com.au> <20031004095415.GB2475@Synopsys.COM>
+In-Reply-To: <20031004095415.GB2475@Synopsys.COM>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Please send a rundown of what top shows during these occurrences, and please 
-> define "hangs". I can't see how the scheduler tweaks can bring the machine 
-> down.
-> 
-> Con
 
-I'm not sure exactly how to get the output from top when running VMware
-fullscreen, does it have a way to dump the output to text?  Would
-another tool provide you with valuable output?
+Alex Riesen wrote:
 
-As far as the Wine/Outlook 2000 issue, I don't know how the scheduler
-changes cause this, and for the longest time I never really thought that
-was it, I always assumed that it was something else different between
-the main and the -mm tree.  However, I'm basically 100% sure that it's
-the cause now because I tested with stock -test6 and then applied Nick's
-patches for -test6 (which back out your changes) and the problem goes
-away.
+>Nick Piggin, Sat, Oct 04, 2003 01:31:14 +0200:
+>
+>>Well I can be the editor. I obviously would need people to send me updates.
+>>
+>>
+>
+>assuming they don't send you updates, what will you do?
+>Can you monitor lkml on regular basis?
+>
+>
 
-Hang means that the program simply will never exit, not that the whole
-system hangs or anything.  When you exit Outlook it synchronizes the
-mailbox before it exits and the closes down the connection.  The program
-hangs with a "Please wait while Outlook exits" message a this never goes
-away.  It's 100% repeatable with your scheduler tweaks, and never
-happens with Nick's patches.  What can I provide for that issue?  Top
-output shows the process sleeping, not using any CPU.  I can kill the
-process and it will exit.
-
-I guess my concern is that I seem to run into a lot of issues that I
-consider bad behavior.  I've outlined the issues with Acrobat to you
-before and you stated that you had profiled it.  Well this is something
-I use almost every day and with these scheduler tweaks it becomes almost
-unusable.  With Nicks patches, or even stock -test5 it works great.
-
-Basically for me these tweaks significantly degrade three major programs
-that I use to do work related activities (VMware, Acrobat, and to some
-extent Crossover Office).  I'll be glad to help where I can, tell me
-what information would help you.
-
-Later,
-Tom
+Well yeah, but often people don't say "this change fixes this". But things
+gradually get fixed. I can get every entry assigned a name, and ask them
+how its going from time to time.
 
 

@@ -1,1917 +1,1890 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263018AbVCDTlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263038AbVCDTsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263018AbVCDTlS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 14:41:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbVCDTlS
+	id S263038AbVCDTsW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 14:48:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVCDTrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 14:41:18 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:58242 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S263022AbVCDTRn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 14:17:43 -0500
-Subject: [patch] inotify for 2.6.11-mm1
-From: Robert Love <rml@novell.com>
-To: akpm@osdl.org
-Cc: John McCutchan <ttb@tentacle.dhs.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1109961444.10313.13.camel@betsy.boston.ximian.com>
-References: <1109961444.10313.13.camel@betsy.boston.ximian.com>
-Content-Type: text/plain
-Date: Fri, 04 Mar 2005 14:11:34 -0500
-Message-Id: <1109963494.10313.32.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Mar 2005 14:47:55 -0500
+Received: from mail.dif.dk ([193.138.115.101]:35491 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S263004AbVCDTWn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 14:22:43 -0500
+Date: Fri, 4 Mar 2005 20:23:31 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Steve French <sfrench@us.ibm.com>
+Cc: samba-technical <samba-technical@lists.samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Luca Tettamanti <kronos@kronoz.cjb.net>,
+       Domen Puncer <domen@coderock.org>
+Subject: [PATCH] whitespace cleanups for fs/cifs/file.c
+Message-ID: <Pine.LNX.4.62.0503041807060.2794@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-04 at 13:37 -0500, Robert Love wrote:
 
-Hey, Andrew.
+Hi Steve,
 
-> I greatly reworked much of the data structures and their interactions,
-> to lay the groundwork for sanitizing the locking.  I then, I hope,
-> sanitized the locking.  It looks right, I am happy.  Comments welcome.
-> I surely could of missed something.  Maybe even something big.
-> 
-> But, regardless, this release is a huge jump from the previous, fixing
-> all known issues and greatly improving the locking.
+A while back I submitted a previous version of this patch and got a bunch 
+of good feedback from people on LKML and elsewhere. I believe I cleaned up 
+the issues they reported and I've now updated the patch for 2.6.11 and 
+resubmit it to you for potential inclusion.
 
-Attached is inotify, replacing the current version of inotify in 2.6-mm.
-The patch is diffed against 2.6.11-mm1, modulo the two inotify patches
-already in-tree.
+A lot of the changes are arguably a matter of style and preference, but 
+since several different styles are used in the code I've tried to at least 
+make it consistent. There should be no actual impact on the generated 
+object file from this, merely changes to make it more readable to the 
+human eye, more grep friendly, and slightly more adherent to the 80chars 
+pr line rule... I never got a clear ACK/NACK from you on this patch, but I 
+see that a few of the changes in the previous version are in 2.6.11 - it 
+would be nice if you could send me an ack/nack on this one, if you don't 
+want these changes I might as well drop it. I've cut this patch on top of 
+the one I send a few hours ago with the fix for the copy_to_user warning, 
+hope that's OK.
 
-I'd like to start moving forward on this, the locking is greatly
-improved, resolve any new issues, etc.
+There are still some cleanups to be made in fs/cifs/file.c . There are 
+some unnessesary casts that can go the way of the Dodo (I believe Domen 
+Puncer is working on those - need a hand there Domen?), and there are also 
+a lot of unnesssary  if (foo) kfree(foo);  constructs - since kfree() 
+deals fine with NULL pointers, a lot of those can go as well. I've not 
+included such changes in this patch to nut mix things up and keep this one 
+about whitespace changes only, but if you are interrested in such further 
+cleanups I'll get to work and submit patches to you.
 
-Please, apply.
 
-Your humble servant,
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-	Robert Love
-
-
-inotify!
-
-inotify is intended to correct the deficiencies of dnotify, particularly
-its inability to scale and its terrible user interface:
-
-        * dnotify requires the opening of one fd per each directory
-          that you intend to watch. This quickly results in too many
-          open files and pins removable media, preventing unmount.
-        * dnotify is directory-based. You only learn about changes to
-          directories. Sure, a change to a file in a directory affects
-          the directory, but you are then forced to keep a cache of
-          stat structures.
-        * dnotify's interface to user-space is awful.  Signals?
-
-inotify provides a more usable, simple, powerful solution to file change
-notification:
-
-        * inotify's interface is a device node, not SIGIO.  You open a 
-          single fd to the device node, which is select()-able.
-        * inotify has an event that says "the filesystem that the item
-          you were watching is on was unmounted."
-        * inotify can watch directories or files.
-	* inotify supports much finer grained events.
-
-Inotify is currently used by Beagle (a desktop search infrastructure)
-and Gamin (a FAM replacement).
-
-Signed-off-by: Robert Love <rml@novell.com>
-
- fs/Kconfig                 |   13 
- fs/Makefile                |    1 
- fs/attr.c                  |   33 -
- fs/compat.c                |   14 
- fs/file_table.c            |    4 
- fs/inode.c                 |    4 
- fs/inotify.c               | 1013 +++++++++++++++++++++++++++++++++++++++++++++
- fs/namei.c                 |   38 -
- fs/open.c                  |    9 
- fs/read_write.c            |   24 -
- fs/super.c                 |    2 
- include/linux/fs.h         |    8 
- include/linux/fsnotify.h   |  235 ++++++++++
- include/linux/inotify.h    |  113 +++++
- include/linux/sched.h      |    2 
- kernel/user.c              |    2 
- 18 files changed, 1453 insertions(+), 62 deletions(-)
-
-diff -urN linux-2.6.11-mm1/fs/attr.c linux/fs/attr.c
---- linux-2.6.11-mm1/fs/attr.c	2005-03-04 14:06:21.732297568 -0500
-+++ linux/fs/attr.c	2005-03-04 13:27:05.560490128 -0500
-@@ -10,7 +10,7 @@
- #include <linux/mm.h>
- #include <linux/string.h>
- #include <linux/smp_lock.h>
--#include <linux/dnotify.h>
-+#include <linux/fsnotify.h>
- #include <linux/fcntl.h>
- #include <linux/quotaops.h>
- #include <linux/security.h>
-@@ -107,31 +107,8 @@
- out:
- 	return error;
- }
--
- EXPORT_SYMBOL(inode_setattr);
+--- linux-2.6.11/fs/cifs/file.c.juhl1	2005-03-04 17:51:59.000000000 +0100
++++ linux-2.6.11/fs/cifs/file.c	2005-03-04 18:04:03.000000000 +0100
+@@ -37,8 +37,7 @@
  
--int setattr_mask(unsigned int ia_valid)
--{
--	unsigned long dn_mask = 0;
--
--	if (ia_valid & ATTR_UID)
--		dn_mask |= DN_ATTRIB;
--	if (ia_valid & ATTR_GID)
--		dn_mask |= DN_ATTRIB;
--	if (ia_valid & ATTR_SIZE)
--		dn_mask |= DN_MODIFY;
--	/* both times implies a utime(s) call */
--	if ((ia_valid & (ATTR_ATIME|ATTR_MTIME)) == (ATTR_ATIME|ATTR_MTIME))
--		dn_mask |= DN_ATTRIB;
--	else if (ia_valid & ATTR_ATIME)
--		dn_mask |= DN_ACCESS;
--	else if (ia_valid & ATTR_MTIME)
--		dn_mask |= DN_MODIFY;
--	if (ia_valid & ATTR_MODE)
--		dn_mask |= DN_ATTRIB;
--	return dn_mask;
--}
--
- int notify_change(struct dentry * dentry, struct iattr * attr)
+ extern int cifs_readdir2(struct file *file, void *direntry, filldir_t filldir); /* BB removeme BB */
+ 
+-int
+-cifs_open(struct inode *inode, struct file *file)
++int cifs_open(struct inode *inode, struct file *file)
  {
- 	struct inode *inode = dentry->d_inode;
-@@ -194,11 +171,9 @@
- 	if (ia_valid & ATTR_SIZE)
- 		up_write(&dentry->d_inode->i_alloc_sem);
+ 	int rc = -EACCES;
+ 	int xid, oplock;
+@@ -46,12 +45,12 @@ cifs_open(struct inode *inode, struct fi
+ 	struct cifsTconInfo *pTcon;
+ 	struct cifsFileInfo *pCifsFile;
+ 	struct cifsInodeInfo *pCifsInode;
+-	struct list_head * tmp;
++	struct list_head *tmp;
+ 	char *full_path = NULL;
+ 	int desiredAccess = 0x20197;
+ 	int disposition;
+ 	__u16 netfid;
+-	FILE_ALL_INFO * buf = NULL;
++	FILE_ALL_INFO *buf = NULL;
  
--	if (!error) {
--		unsigned long dn_mask = setattr_mask(ia_valid);
--		if (dn_mask)
--			dnotify_parent(dentry, dn_mask);
--	}
-+	if (!error)
-+		fsnotify_change(dentry, ia_valid);
-+
- 	return error;
- }
+ 	xid = GetXid();
  
-diff -urN linux-2.6.11-mm1/fs/compat.c linux/fs/compat.c
---- linux-2.6.11-mm1/fs/compat.c	2005-03-04 14:06:21.734297264 -0500
-+++ linux/fs/compat.c	2005-03-04 13:27:05.562489824 -0500
-@@ -36,7 +36,7 @@
- #include <linux/ctype.h>
- #include <linux/module.h>
- #include <linux/dirent.h>
--#include <linux/dnotify.h>
-+#include <linux/fsnotify.h>
- #include <linux/highuid.h>
- #include <linux/sunrpc/svc.h>
- #include <linux/nfsd/nfsd.h>
-@@ -1233,9 +1233,15 @@
- out:
- 	if (iov != iovstack)
- 		kfree(iov);
--	if ((ret + (type == READ)) > 0)
--		dnotify_parent(file->f_dentry,
--				(type == READ) ? DN_ACCESS : DN_MODIFY);
-+	if ((ret + (type == READ)) > 0) {
-+		struct dentry *dentry = file->f_dentry;
-+		if (type == READ)
-+			fsnotify_access(dentry, dentry->d_inode,
-+					dentry->d_name.name);
-+		else
-+			fsnotify_modify(dentry, dentry->d_inode,
-+					dentry->d_name.name);
-+	}
- 	return ret;
- }
- 
-diff -urN linux-2.6.11-mm1/fs/file_table.c linux/fs/file_table.c
---- linux-2.6.11-mm1/fs/file_table.c	2005-03-04 14:06:21.734297264 -0500
-+++ linux/fs/file_table.c	2005-03-04 13:27:05.563489672 -0500
-@@ -16,6 +16,7 @@
- #include <linux/eventpoll.h>
- #include <linux/mount.h>
- #include <linux/cdev.h>
-+#include <linux/fsnotify.h>
- 
- /* sysctl tunables... */
- struct files_stat_struct files_stat = {
-@@ -122,6 +123,9 @@
- 	struct vfsmount *mnt = file->f_vfsmnt;
- 	struct inode *inode = dentry->d_inode;
- 
-+
-+	fsnotify_close(dentry, inode, file->f_mode, dentry->d_name.name);
-+
- 	might_sleep();
- 	/*
- 	 * The function eventpoll_release() should be the first called
-diff -urN linux-2.6.11-mm1/fs/inode.c linux/fs/inode.c
---- linux-2.6.11-mm1/fs/inode.c	2005-03-04 14:06:21.737296808 -0500
-+++ linux/fs/inode.c	2005-03-04 13:27:05.565489368 -0500
-@@ -132,6 +132,10 @@
- #ifdef CONFIG_QUOTA
- 		memset(&inode->i_dquot, 0, sizeof(inode->i_dquot));
- #endif
-+#ifdef CONFIG_INOTIFY
-+		INIT_LIST_HEAD(&inode->inotify_watches);
-+		spin_lock_init(&inode->inotify_lock);
-+#endif
- 		inode->i_pipe = NULL;
- 		inode->i_bdev = NULL;
- 		inode->i_cdev = NULL;
-diff -urN linux-2.6.11-mm1/fs/inotify.c linux/fs/inotify.c
---- linux-2.6.11-mm1/fs/inotify.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux/fs/inotify.c	2005-03-04 13:27:05.568488912 -0500
-@@ -0,0 +1,1013 @@
-+/*
-+ * fs/inotify.c - inode-based file event notifications
-+ *
-+ * Authors:
-+ *	John McCutchan	<ttb@tentacle.dhs.org>
-+ *	Robert Love	<rml@novell.com>
-+ *
-+ * Copyright (C) 2005 John McCutchan
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; either version 2, or (at your option) any
-+ * later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/spinlock.h>
-+#include <linux/idr.h>
-+#include <linux/slab.h>
-+#include <linux/fs.h>
-+#include <linux/namei.h>
-+#include <linux/poll.h>
-+#include <linux/device.h>
-+#include <linux/miscdevice.h>
-+#include <linux/init.h>
-+#include <linux/list.h>
-+#include <linux/writeback.h>
-+#include <linux/inotify.h>
-+
-+#include <asm/ioctls.h>
-+
-+static atomic_t inotify_cookie;
-+
-+static kmem_cache_t *watch_cachep;
-+static kmem_cache_t *event_cachep;
-+
-+static int max_user_devices;
-+static int max_user_watches;
-+static unsigned int max_queued_events;
-+
-+/*
-+ * Lock ordering:
-+ *
-+ * inode_lock (used to safely walk inode_in_use list)
-+ *   inode->inotify_lock (protects inotify->inotify_watches and watches->i_list)
-+ *     inotify_dev->lock (protects inotify_device and watches->d_list)
-+ */
-+
-+/*
-+ * Lifetimes of the three main data structures -- inotify_device, inode, and
-+ * inotify_watch -- are managed by reference count.
-+ *
-+ * inotify_device: Lifetime is from open until release.  Additional references
-+ * can bump the count via get_inotify_dev() and drop the count via
-+ * put_inotify_dev().
-+ *
-+ * inotify_watch: Lifetime is from create_watch() to destory_watch().
-+ * Additional references can bump the count via get_inotify_watch() and drop
-+ * the count via put_inotify_watch().
-+ *
-+ * inode: Pinned so long as the inode is associated with a watch, from
-+ * create_watch() to put_inotify_watch().
-+ */
-+
-+/*
-+ * struct inotify_device - represents an open instance of an inotify device
-+ *
-+ * This structure is protected by 'lock'.
-+ */
-+struct inotify_device {
-+	wait_queue_head_t 	wq;		/* wait queue for i/o */
-+	struct idr		idr;		/* idr mapping wd -> watch */
-+	struct list_head 	events;		/* list of queued events */
-+	struct list_head	watches;	/* list of watches */
-+	spinlock_t		lock;		/* protects this bad boy */
-+	atomic_t		count;		/* reference count */
-+	struct user_struct	*user;		/* user who opened this dev */
-+	unsigned int		queue_size;	/* size of the queue (bytes) */
-+	unsigned int		event_count;	/* number of pending events */
-+	unsigned int		max_events;	/* maximum number of events */
-+};
-+
-+/*
-+ * struct inotify_kernel_event - An intofiy event, originating from a watch and
-+ * queued for user-space.  A list of these is attached to each instance of the
-+ * device.  In read(), this list is walked and all events that can fit in the
-+ * buffer are returned.
-+ *
-+ * Protected by dev->lock of the device in which we are queued.
-+ */
-+struct inotify_kernel_event {
-+	struct inotify_event	event;	/* the user-space event */
-+	struct list_head        list;	/* entry in inotify_device's list */
-+	char			*name;	/* filename, if any */
-+};
-+
-+/*
-+ * struct inotify_watch - represents a watch request on a specific inode
-+ *
-+ * d_list is protected by dev->lock of the associated dev->watches.
-+ * i_list and mask are protected by inode->inotify_lock of the associated inode.
-+ * dev, inode, and wd are never written to once the watch is created.
-+ */
-+struct inotify_watch {
-+	struct list_head	d_list;	/* entry in inotify_device's list */
-+	struct list_head	i_list;	/* entry in inode's list */
-+	atomic_t		count;	/* reference count */
-+	struct inotify_device	*dev;	/* associated device */
-+	struct inode		*inode;	/* associated inode */	
-+	s32 			wd;	/* watch descriptor */
-+	u32			mask;	/* event mask for this watch */
-+};
-+
-+static ssize_t show_max_queued_events(struct class_device *class, char *buf)
-+{
-+	return sprintf(buf, "%d\n", max_queued_events);
-+}
-+
-+static ssize_t store_max_queued_events(struct class_device *class,
-+				       const char *buf, size_t count)
-+{
-+	unsigned int max;
-+
-+	if (sscanf(buf, "%u", &max) > 0 && max > 0) {
-+		max_queued_events = max;
-+		return strlen(buf);
-+	}
-+	return -EINVAL;
-+}
-+
-+static ssize_t show_max_user_devices(struct class_device *class, char *buf)
-+{
-+	return sprintf(buf, "%d\n", max_user_devices);
-+}
-+
-+static ssize_t store_max_user_devices(struct class_device *class,
-+				      const char *buf, size_t count)
-+{
-+	int max;
-+
-+	if (sscanf(buf, "%d", &max) > 0 && max > 0) {
-+		max_user_devices = max;
-+		return strlen(buf);
-+	}
-+	return -EINVAL;
-+}
-+
-+static ssize_t show_max_user_watches(struct class_device *class, char *buf)
-+{
-+	return sprintf(buf, "%d\n", max_user_watches);
-+}
-+
-+static ssize_t store_max_user_watches(struct class_device *class,
-+				      const char *buf, size_t count)
-+{
-+	int max;
-+
-+	if (sscanf(buf, "%d", &max) > 0 && max > 0) {
-+		max_user_watches = max;
-+		return strlen(buf);
-+	}
-+	return -EINVAL;
-+}
-+
-+static CLASS_DEVICE_ATTR(max_queued_events, S_IRUGO | S_IWUSR,
-+			 show_max_queued_events, store_max_queued_events);
-+static CLASS_DEVICE_ATTR(max_user_devices, S_IRUGO | S_IWUSR,
-+			 show_max_user_devices, store_max_user_devices);
-+static CLASS_DEVICE_ATTR(max_user_watches, S_IRUGO | S_IWUSR,
-+			 show_max_user_watches, store_max_user_watches);
-+
-+static inline void get_inotify_dev(struct inotify_device *dev)
-+{
-+	atomic_inc(&dev->count);
-+}
-+
-+static inline void put_inotify_dev(struct inotify_device *dev)
-+{
-+	if (atomic_dec_and_test(&dev->count)) {
-+		atomic_dec(&dev->user->inotify_devs);
-+		free_uid(dev->user);		
-+		kfree(dev);
-+	}
-+}
-+
-+static inline void get_inotify_watch(struct inotify_watch *watch)
-+{
-+	atomic_inc(&watch->count);
-+}
-+
-+static inline void put_inotify_watch(struct inotify_watch *watch)
-+{
-+	if (atomic_dec_and_test(&watch->count)) {
-+		put_inotify_dev(watch->dev);
-+		iput(watch->inode);		
-+		kmem_cache_free(watch_cachep, watch);
-+	}
-+}
-+
-+/*
-+ * kernel_event - create a new kernel event with the given parameters
-+ */
-+static struct inotify_kernel_event * kernel_event(s32 wd, u32 mask, u32 cookie,
-+						  const char *name)
-+{
-+	struct inotify_kernel_event *kevent;
-+
-+	/* XXX: optimally, we should use GFP_KERNEL */
-+	kevent = kmem_cache_alloc(event_cachep, GFP_ATOMIC);
-+	if (unlikely(!kevent))
-+		return NULL;
-+
-+	/* we hand this out to user-space, so zero it just in case */
-+	memset(&kevent->event, 0, sizeof(struct inotify_event));
-+
-+	kevent->event.wd = wd;
-+	kevent->event.mask = mask;
-+	kevent->event.cookie = cookie;
-+
-+	INIT_LIST_HEAD(&kevent->list);
-+
-+	if (name) {
-+		size_t len, rem, event_size = sizeof(struct inotify_event);
-+
-+		/*
-+		 * We need to pad the filename so as to properly align an
-+		 * array of inotify_event structures.  Because the structure is
-+		 * small and the common case is a small filename, we just round
-+		 * up to the next multiple of the structure's sizeof.  This is
-+		 * simple and safe for all architectures.
-+		 */
-+		len = strlen(name) + 1;
-+		rem = event_size - len;
-+		if (len > event_size) {
-+			rem = event_size - (len % event_size);
-+			if (len % event_size == 0)
-+				rem = 0;
-+		}
-+		len += rem;
-+
-+		/* XXX: optimally, we should use GFP_KERNEL */
-+		kevent->name = kmalloc(len, GFP_ATOMIC);
-+		if (unlikely(!kevent->name)) {
-+			kmem_cache_free(event_cachep, kevent);
-+			return NULL;
-+		}
-+		memset(kevent->name, 0, len);
-+		strncpy(kevent->name, name, strlen(name));
-+		kevent->event.len = len;
-+	} else {
-+		kevent->event.len = 0;
-+		kevent->name = NULL;
-+	}
-+
-+	return kevent;
-+}
-+
-+/*
-+ * inotify_dev_get_event - return the next event in the given dev's queue
-+ *
-+ * Caller must hold dev->lock.
-+ */
-+static inline struct inotify_kernel_event *
-+inotify_dev_get_event(struct inotify_device *dev)
-+{
-+	return list_entry(dev->events.next, struct inotify_kernel_event, list);
-+}
-+
-+/*
-+ * inotify_dev_queue_event - add a new event to the given device
-+ *
-+ * Caller must hold dev->lock.
-+ */
-+static void inotify_dev_queue_event(struct inotify_device *dev,
-+				    struct inotify_watch *watch, u32 mask,
-+				    u32 cookie, const char *name)
-+{
-+	struct inotify_kernel_event *kevent, *last;
-+
-+	/* coalescing: drop this event if it is a dupe of the previous */
-+	last = inotify_dev_get_event(dev);
-+	if (dev->event_count && last->event.mask == mask &&
-+			last->event.wd == watch->wd) {
-+		const char *lastname = last->name;
-+
-+		if (!name && !lastname)
-+			return;
-+		if (name && lastname && !strcmp(lastname, name))
-+			return;
-+	}
-+
-+	/*
-+	 * The queue has already overflowed and we have already sent the
-+	 * Q_OVERFLOW event.
-+	 */
-+	if (unlikely(dev->event_count > dev->max_events))
-+		return;
-+
-+	/* if the queue overflows, we need to notify user space */
-+	if (unlikely(dev->event_count == dev->max_events))
-+		kevent = kernel_event(-1, IN_Q_OVERFLOW, cookie, NULL);
-+	else
-+		kevent = kernel_event(watch->wd, mask, cookie, name);
-+
-+	if (unlikely(!kevent))
-+		return;
-+
-+	/* queue the event and wake up anyone waiting */
-+	dev->event_count++;
-+	dev->queue_size += sizeof(struct inotify_event) + kevent->event.len;
-+	list_add_tail(&kevent->list, &dev->events);
-+	wake_up_interruptible(&dev->wq);
-+}
-+
-+static inline int inotify_dev_has_events(struct inotify_device *dev)
-+{
-+	return !list_empty(&dev->events);
-+}
-+
-+/*
-+ * remove_kevent - cleans up and ultimately frees the given kevent
-+ */
-+static void remove_kevent(struct inotify_device *dev,
-+			  struct inotify_kernel_event *kevent)
-+{
-+	BUG_ON(!dev);
-+	BUG_ON(!kevent);
-+
-+	list_del(&kevent->list);
-+
-+	dev->event_count--;
-+	dev->queue_size -= sizeof(struct inotify_event) + kevent->event.len;	
-+
-+	if (kevent->name)
-+		kfree(kevent->name);
-+	kmem_cache_free(event_cachep, kevent);
-+}
-+
-+/*
-+ * inotify_dev_event_dequeue - destroy an event on the given device
-+ *
-+ * Caller must hold dev->lock.
-+ */
-+static void inotify_dev_event_dequeue(struct inotify_device *dev)
-+{
-+	if (inotify_dev_has_events(dev)) {
-+		struct inotify_kernel_event *kevent;
-+		kevent = inotify_dev_get_event(dev);
-+		remove_kevent(dev, kevent);
-+	}
-+}
-+
-+/*
-+ * inotify_dev_get_wd - returns the next WD for use by the given dev
-+ *
-+ * Grabs dev->lock.  This function can sleep.
-+ */
-+static int inotify_dev_get_wd(struct inotify_device *dev,
-+			     struct inotify_watch *watch)
-+{
-+	int ret;
-+
-+repeat:
-+	if (unlikely(!idr_pre_get(&dev->idr, GFP_KERNEL)))
-+		return -ENOSPC;
-+	spin_lock(&dev->lock);
-+	ret = idr_get_new(&dev->idr, watch, &watch->wd);
-+	spin_unlock(&dev->lock);
-+	if (ret == -EAGAIN) /* more memory is required, try again */
-+		goto repeat;
-+	else if (ret)       /* the idr is full! */
-+		return -ENOSPC;
-+
-+	return 0;
-+}
-+
-+/*
-+ * create_watch - creates a watch on the given device.
-+ *
-+ * Calls inotify_dev_get_wd(), so it both grabs dev->lock and may sleep.
-+ * Both 'dev' and 'inode' (by way of nameidata) need to be pinned.
-+ */
-+static struct inotify_watch *create_watch(struct inotify_device *dev,
-+					  u32 mask, struct inode *inode)
-+{
-+	struct inotify_watch *watch;
-+
-+	if (atomic_read(&dev->user->inotify_watches) >= max_user_watches)
-+		return NULL;
-+
-+	watch = kmem_cache_alloc(watch_cachep, GFP_KERNEL);
-+	if (unlikely(!watch))
-+		return NULL;
-+
-+	if (unlikely(inotify_dev_get_wd(dev, watch))) {
-+		kmem_cache_free(watch_cachep, watch);
-+		return NULL;
-+	}
-+
-+	watch->mask = mask;
-+	atomic_set(&watch->count, 0);
-+	INIT_LIST_HEAD(&watch->d_list);
-+	INIT_LIST_HEAD(&watch->i_list);
-+
-+	/* save a reference to device and bump the count to make it official */
-+	get_inotify_dev(dev);
-+	watch->dev = dev;
-+
-+	/*
-+	 * Save a reference to the inode and bump the ref count to make it
-+	 * official.  We hold a reference to nameidata, which makes this safe.
-+	 */
-+	watch->inode = inode;	
-+	spin_lock(&inode_lock);
-+	__iget(inode);
-+	spin_unlock(&inode_lock);
-+
-+	/* bump our own count, corresponding to our entry in dev->watches */
-+	get_inotify_watch(watch);
-+
-+	atomic_inc(&dev->user->inotify_watches);	
-+
-+	return watch;
-+}
-+
-+/*
-+ * inotify_find_dev - find the watch associated with the given inode and dev
-+ *
-+ * Callers must hold inode->inotify_lock.
-+ */
-+static struct inotify_watch *inode_find_dev(struct inode *inode,
-+					    struct inotify_device *dev)
-+{
-+	struct inotify_watch *watch;
-+
-+	list_for_each_entry(watch, &inode->inotify_watches, i_list) {
-+		if (watch->dev == dev)
-+			return watch;
-+	}
-+
-+	return NULL;
-+}
-+
-+/*
-+ * inotify_dev_is_watching_inode - is this device watching this inode?
-+ *
-+ * Requires 'dev' and 'inode' to both be pinned and dev->lock be held.
-+ */
-+static inline int inotify_dev_is_watching_inode(struct inotify_device *dev,
-+						struct inode *inode)
-+{
-+	struct inotify_watch *watch;
-+
-+	list_for_each_entry(watch, &dev->watches, d_list) {
-+		if (watch->inode == inode)
-+			return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * remove_watch_no_event - remove_watch() without the IN_IGNORED event.
-+ */
-+static void remove_watch_no_event(struct inotify_watch *watch,
-+				  struct inotify_device *dev)
-+{
-+	BUG_ON(!dev);
-+	BUG_ON(!watch);
-+
-+	list_del(&watch->i_list);
-+	list_del(&watch->d_list);
-+
-+	atomic_dec(&dev->user->inotify_watches);
-+	idr_remove(&dev->idr, watch->wd);
-+	put_inotify_watch(watch);
-+}
-+
-+/*
-+ * remove_watch - Remove a watch from both the device and the inode.  Sends
-+ * the IN_IGNORED event to the given device signifying that the inode is no
-+ * longer watched.
-+ *
-+ * Callers must hold both inode->inotify_lock and dev->lock.  We drop a
-+ * reference to the inode before returning.
-+ */
-+static void remove_watch(struct inotify_watch *watch,
-+			 struct inotify_device *dev)
-+{
-+	inotify_dev_queue_event(dev, watch, IN_IGNORED, 0, NULL);
-+	remove_watch_no_event(watch, dev);
-+}
-+
-+/* Kernel API */
-+
-+/**
-+ * inotify_inode_queue_event - queue an event to all watches on this inode
-+ * @inode: inode event is originating from
-+ * @mask: event mask describing this event
-+ * @cookie: cookie for synchronization, or zero
-+ * @name: filename, if any
-+ */
-+void inotify_inode_queue_event(struct inode *inode, u32 mask, u32 cookie,
-+			       const char *name)
-+{
-+	struct inotify_watch *watch;
-+
-+	spin_lock(&inode->inotify_lock);
-+	list_for_each_entry(watch, &inode->inotify_watches, i_list) {
-+		if (watch->mask & mask) {
-+			struct inotify_device *dev = watch->dev;
-+			spin_lock(&dev->lock);
-+			inotify_dev_queue_event(dev, watch, mask, cookie, name);
-+			spin_unlock(&dev->lock);
-+		}
-+	}
-+	spin_unlock(&inode->inotify_lock);
-+}
-+EXPORT_SYMBOL_GPL(inotify_inode_queue_event);
-+
-+/**
-+ * inotify_dentry_parent_queue_event - queue an event to a dentry's parent
-+ * @dentry: the dentry in question, we queue against this dentry's parent
-+ * @mask: event mask describing this event
-+ * @cookie: cookie for synchronization, or zero
-+ * @name: filename, if any
-+ */
-+void inotify_dentry_parent_queue_event(struct dentry *dentry, u32 mask,
-+				       u32 cookie, const char *name)
-+{
-+	struct dentry *parent;
-+	struct inode *inode;
-+
-+	spin_lock(&dentry->d_lock);
-+	parent = dentry->d_parent;
-+	inode = parent->d_inode;
-+	if (!list_empty(&inode->inotify_watches)) {
-+		dget(parent);
-+		spin_unlock(&dentry->d_lock);
-+		inotify_inode_queue_event(inode, mask, cookie, name);
-+		dput(parent);
-+	} else
-+		spin_unlock(&dentry->d_lock);
-+}
-+EXPORT_SYMBOL_GPL(inotify_dentry_parent_queue_event);
-+
-+/**
-+ * inotify_get_cookie - return a unique cookie for use in synchronizing events
-+ *
-+ * Returns the unique cookie.
-+ */
-+u32 inotify_get_cookie(void)
-+{
-+	return atomic_inc_return(&inotify_cookie);
-+}
-+EXPORT_SYMBOL_GPL(inotify_get_cookie);
-+
-+/**
-+ * inotify_super_block_umount - process watches on an unmounted fs
-+ * @sb: the super_block of the filesystem in question
-+ */
-+void inotify_super_block_umount(struct super_block *sb)
-+{
-+	struct inode *inode;
-+
-+	/* Walk the list of inodes and find those on this superblock */
-+	spin_lock(&inode_lock);
-+	list_for_each_entry(inode, &inode_in_use, i_list) {
-+		struct inotify_watch *watch, *next;
-+		struct list_head *watches;
-+
-+		if (inode->i_sb != sb)
-+			continue;
-+
-+		/* for each watch, send IN_UNMOUNT and then remove it */
-+		spin_lock(&inode->inotify_lock);
-+		watches = &inode->inotify_watches;
-+		list_for_each_entry_safe(watch, next, watches, i_list) {
-+			struct inotify_device *dev = watch->dev;
-+			spin_lock(&dev->lock);
-+			inotify_dev_queue_event(dev, watch, IN_UNMOUNT,0,NULL);
-+			remove_watch(watch, dev);
-+			spin_unlock(&dev->lock);
-+		}
-+		spin_unlock(&inode->inotify_lock);
-+	}
-+	spin_unlock(&inode_lock);
-+}
-+EXPORT_SYMBOL_GPL(inotify_super_block_umount);
-+
-+/**
-+ * inotify_inode_is_dead - an inode has been deleted, cleanup any watches
-+ * @inode: inode that is about to be removed
-+ */
-+void inotify_inode_is_dead(struct inode *inode)
-+{
-+	struct inotify_watch *watch, *next;
-+
-+	spin_lock(&inode->inotify_lock);
-+	list_for_each_entry_safe(watch, next, &inode->inotify_watches, i_list) {
-+		struct inotify_device *dev = watch->dev;
-+		spin_lock(&dev->lock);
-+		remove_watch(watch, dev);
-+		spin_unlock(&dev->lock);
-+	}
-+	spin_unlock(&inode->inotify_lock);
-+}
-+EXPORT_SYMBOL_GPL(inotify_inode_is_dead);
-+
-+/* Device Interface */
-+
-+static unsigned int inotify_poll(struct file *file, poll_table *wait)
-+{
-+        struct inotify_device *dev;
-+	int ret = 0;
-+
-+        dev = file->private_data;
-+	get_inotify_dev(dev);
-+
-+	poll_wait(file, &dev->wq, wait);
-+	spin_lock(&dev->lock);
-+        if (inotify_dev_has_events(dev))
-+                ret = POLLIN | POLLRDNORM;
-+	spin_unlock(&dev->lock);
-+
-+	put_inotify_dev(dev);
-+        return ret;
-+}
-+
-+static ssize_t inotify_read(struct file *file, char __user *buf,
-+			    size_t count, loff_t *pos)
-+{
-+	size_t event_size;
-+	struct inotify_device *dev;
-+	char __user *start;
-+	int ret;
-+	DEFINE_WAIT(wait);
-+
-+	start = buf;
-+	dev = file->private_data;
-+
-+	/* we only hand out full inotify events */
-+	event_size = sizeof(struct inotify_event);
-+	if (count < event_size)
-+		return 0;
-+
-+	while (1) {
-+		int events;
-+
-+		prepare_to_wait(&dev->wq, &wait, TASK_INTERRUPTIBLE);
-+
-+		spin_lock(&dev->lock);
-+		events = inotify_dev_has_events(dev);
-+		spin_unlock(&dev->lock);
-+		if (events) {
-+			ret = 0;
-+			break;
-+		}
-+
-+		if (file->f_flags & O_NONBLOCK) {
-+			ret = -EAGAIN;
-+			break;
-+		}
-+
-+		if (signal_pending(current)) {
-+			ret = -EINTR;
-+			break;
-+		}
-+
-+		schedule();
-+	}
-+
-+	finish_wait(&dev->wq, &wait);
-+	if (ret)
-+		return ret;
-+
-+	while (1) {
-+		struct inotify_kernel_event *kevent;
-+
-+		spin_lock(&dev->lock);
-+		if (!inotify_dev_has_events(dev)) {
-+			spin_unlock(&dev->lock);
-+			break;
-+		}
-+		kevent = inotify_dev_get_event(dev);
-+		if (event_size + kevent->event.len > count) {
-+			spin_unlock(&dev->lock);
-+			break;
-+		}
-+		list_del_init(&kevent->list);
-+		spin_unlock(&dev->lock);
-+
-+		if (copy_to_user(buf, &kevent->event, event_size)) {
-+			/* put the event back on the queue */
-+			spin_lock(&dev->lock);
-+			list_add(&kevent->list, &dev->events);
-+			spin_unlock(&dev->lock);
-+			return -EFAULT;
-+		}
-+		buf += event_size;
-+		count -= event_size;
-+
-+		if (kevent->name) {
-+			if (copy_to_user(buf, kevent->name, kevent->event.len)){
-+				/* put the event back on the queue */
-+				spin_lock(&dev->lock);
-+				list_add(&kevent->list, &dev->events);
-+				spin_unlock(&dev->lock);
-+				return -EFAULT;
-+			}
-+			buf += kevent->event.len;
-+			count -= kevent->event.len;
-+		}
-+
-+		/*
-+		 * We made it here, so the event was copied to the user.  It is
-+		 * already removed from the event list, just free it.
-+		 */
-+		spin_lock(&dev->lock);
-+		remove_kevent(dev, kevent);
-+		spin_unlock(&dev->lock);
-+	}
-+
-+	return buf - start;
-+}
-+
-+static int inotify_open(struct inode *inode, struct file *file)
-+{
-+	struct inotify_device *dev;
-+	struct user_struct *user;
-+	int ret;
-+
-+	user = get_uid(current->user);
-+
-+	if (unlikely(atomic_read(&user->inotify_devs) >= max_user_devices)) {
-+		ret = -EMFILE;
-+		goto out_err;
-+	}
-+
-+	dev = kmalloc(sizeof(struct inotify_device), GFP_KERNEL);
-+	if (unlikely(!dev)) {
-+		ret = -ENOMEM;
-+		goto out_err;
-+	}
-+
-+	idr_init(&dev->idr);
-+	INIT_LIST_HEAD(&dev->events);
-+	INIT_LIST_HEAD(&dev->watches);
-+	init_waitqueue_head(&dev->wq);
-+	spin_lock_init(&dev->lock);
-+
-+	dev->event_count = 0;
-+	dev->queue_size = 0;
-+	dev->max_events = max_queued_events;
-+	dev->user = user;
-+	atomic_set(&dev->count, 0);
-+
-+	get_inotify_dev(dev);
-+	atomic_inc(&current->user->inotify_devs);
-+
-+	file->private_data = dev;
-+
-+	return 0;
-+out_err:
-+	free_uid(current->user);
-+	return ret;
-+}
-+
-+static int inotify_release(struct inode *inode, struct file *file)
-+{
-+	struct inotify_device *dev;	
-+
-+	dev = file->private_data;
-+	BUG_ON(!dev);
-+
-+	/*
-+	 * Destroy all of the watches on this device.  Unfortunately, not very
-+	 * pretty.  We cannot do a simple iteration over the list, because we
-+	 * do not know the inode until we iterate to the watch.  But we need to
-+	 * hold inode->inotify_lock before dev->lock.  The following works.
-+	 */
-+	while (1) {
-+		struct inotify_watch *watch;		
-+		struct list_head *watches;
-+		struct inode *inode;
-+
-+		spin_lock(&dev->lock);
-+		watches = &dev->watches;
-+		if (list_empty(watches)) {
-+			spin_unlock(&dev->lock);
-+			break;
-+		}
-+		watch = list_entry(watches->next, struct inotify_watch, d_list);
-+		get_inotify_watch(watch);
-+		spin_unlock(&dev->lock);
-+
-+		inode = watch->inode;
-+		spin_lock(&inode->inotify_lock);
-+		spin_lock(&dev->lock);
-+		remove_watch_no_event(watch, dev);
-+		spin_unlock(&dev->lock);
-+		spin_unlock(&inode->inotify_lock);
-+		put_inotify_watch(watch);
-+	}
-+
-+	/* destroy all of the events on this device */
-+	spin_lock(&dev->lock);
-+	while (inotify_dev_has_events(dev))
-+		inotify_dev_event_dequeue(dev);
-+	spin_unlock(&dev->lock);
-+
-+	/* free this device: the put matching the get in inotify_open() */
-+	put_inotify_dev(dev);
-+
-+	return 0;
-+}
-+
-+static int inotify_add_watch(struct inotify_device *dev,
-+			     struct inotify_watch_request *request)
-+{
-+	struct inode *inode;
-+	struct inotify_watch *watch, *old;
-+	struct nameidata nd;
-+	int ret;
-+
-+	ret = __user_walk(request->name, LOOKUP_FOLLOW, &nd);
-+	if (unlikely(ret))
-+		return ret;
-+
-+	/* you can only watch an inode if you have read permissions on it */
-+	ret = permission(nd.dentry->d_inode, MAY_READ, NULL);
-+	if (unlikely(ret))
-+		goto nd_out;
-+
-+	/* inode is held in place by a reference on nd */
-+	inode = nd.dentry->d_inode;
-+
-+	/*
-+	 * Handle the case of re-adding a watch on an (inode,dev) pair that we
-+	 * are already watching.  We just update the mask and return its wd.
-+	 */
-+	spin_lock(&inode->inotify_lock);
-+	spin_lock(&dev->lock);	
-+	old = inode_find_dev(inode, dev);
-+	if (unlikely(old)) {
-+		old->mask = request->mask;
-+		ret = old->wd;
-+		spin_unlock(&dev->lock);		
-+		spin_unlock(&inode->inotify_lock);
-+		goto nd_out;
-+	}
-+	spin_unlock(&dev->lock);	
-+	spin_unlock(&inode->inotify_lock);
-+
-+	/*
-+	 * We do this lockless, for both scalability and so we can allocate
-+	 * with GFP_KERNEL.  But that means we can race here and add this watch
-+	 * twice.  We fix up that case below, by again checking for the watch
-+	 * after we reacquire the locks.
-+	 */
-+	watch = create_watch(dev, request->mask, inode);
-+	if (unlikely(!watch)) {
-+		ret = -ENOSPC;
-+		goto nd_out;
-+	}
-+
-+	spin_lock(&inode->inotify_lock);
-+	spin_lock(&dev->lock);	
-+	old = inode_find_dev(inode, dev);
-+	if (unlikely(old)) {
-+		/* We raced!  Destroy this watch and return. */
-+		put_inotify_watch(watch);
-+		ret = -EBUSY;
-+	} else {
-+		/* Add the watch to the device's and the inode's list */
-+		list_add(&watch->d_list, &dev->watches);
-+		list_add(&watch->i_list, &inode->inotify_watches);
-+		ret = watch->wd;
-+	}
-+	spin_unlock(&dev->lock);	
-+	spin_unlock(&inode->inotify_lock);
-+
-+nd_out:
-+	path_release(&nd);
-+
-+	return ret;
-+}
-+
-+/*
-+ * inotify_ignore - handle the INOTIFY_IGNORE ioctl, asking that a given wd be
-+ * removed from the device.
-+ */
-+static int inotify_ignore(struct inotify_device *dev, s32 wd)
-+{
-+	struct inotify_watch *watch;
-+	struct inode *inode;
-+
-+	spin_lock(&dev->lock);
-+	watch = idr_find(&dev->idr, wd);
-+	spin_unlock(&dev->lock);
-+
-+	if (unlikely(!watch))
-+		return -EINVAL;
-+
-+	inode = watch->inode;
-+	spin_lock(&inode->inotify_lock);
-+	spin_lock(&dev->lock);
-+	remove_watch(watch, dev);
-+	spin_unlock(&dev->lock);
-+	spin_unlock(&inode->inotify_lock);
-+
-+	return 0;
-+}
-+
-+static int inotify_ioctl(struct inode *ip, struct file *file, unsigned int cmd,
-+			 unsigned long arg)
-+{
-+	struct inotify_device *dev;
-+	struct inotify_watch_request request;
-+	void __user *p;
-+	int ret = -ENOTTY;
-+	s32 wd;
-+
-+	dev = file->private_data;
-+	p = (void __user *) arg;
-+
-+	get_inotify_dev(dev);
-+
-+	switch (cmd) {
-+	case INOTIFY_WATCH:
-+		if (unlikely(copy_from_user(&request, p, sizeof (request)))) {
-+			ret = -EFAULT;
-+			break;
-+		}
-+		ret = inotify_add_watch(dev, &request);
-+		break;
-+	case INOTIFY_IGNORE:
-+		if (unlikely(copy_from_user(&wd, p, sizeof (wd)))) {
-+			ret = -EFAULT;
-+			break;
-+		}
-+		ret = inotify_ignore(dev, wd);
-+		break;
-+	case FIONREAD:
-+		ret = put_user(dev->queue_size, (int __user *) p);
-+		break;
-+	}
-+
-+	put_inotify_dev(dev);
-+
-+	return ret;
-+}
-+
-+static struct file_operations inotify_fops = {
-+	.owner		= THIS_MODULE,
-+	.poll		= inotify_poll,
-+	.read		= inotify_read,
-+	.open		= inotify_open,
-+	.release	= inotify_release,
-+	.ioctl		= inotify_ioctl,
-+};
-+
-+static struct miscdevice inotify_device = {
-+	.minor  = MISC_DYNAMIC_MINOR,
-+	.name	= "inotify",
-+	.fops	= &inotify_fops,
-+};
-+
-+/*
-+ * inotify_init - Our initialization function.  Note that we cannnot return
-+ * error because we have compiled-in VFS hooks.  So an (unlikely) failure here
-+ * must result in panic().
-+ */
-+static int __init inotify_init(void)
-+{
-+	struct class_device *class;
-+	int ret;
-+
-+	ret = misc_register(&inotify_device);
-+	if (unlikely(ret))
-+		panic("inotify: misc_register returned %d\n", ret);
-+
-+	max_queued_events = 512;
-+	max_user_devices = 64;
-+	max_user_watches = 16384;
-+
-+	class = inotify_device.class;
-+	class_device_create_file(class, &class_device_attr_max_queued_events);
-+	class_device_create_file(class, &class_device_attr_max_user_devices);
-+	class_device_create_file(class, &class_device_attr_max_user_watches);
-+
-+	atomic_set(&inotify_cookie, 0);
-+
-+	watch_cachep = kmem_cache_create("inotify_watch_cache",
-+					 sizeof(struct inotify_watch),
-+					 0, SLAB_PANIC, NULL, NULL);
-+	event_cachep = kmem_cache_create("inotify_event_cache",
-+					 sizeof(struct inotify_kernel_event),
-+					 0, SLAB_PANIC, NULL, NULL);
-+
-+	printk(KERN_INFO "inotify device minor=%d\n", inotify_device.minor);
-+
-+	return 0;
-+}
-+
-+module_init(inotify_init);
-diff -urN linux-2.6.11-mm1/fs/Kconfig linux/fs/Kconfig
---- linux-2.6.11-mm1/fs/Kconfig	2005-03-04 13:23:55.609367088 -0500
-+++ linux/fs/Kconfig	2005-03-04 13:27:05.570488608 -0500
-@@ -344,6 +344,19 @@
- 	  If you don't know whether you need it, then you don't need it:
- 	  answer N.
- 
-+config INOTIFY
-+	bool "Inotify file change notification support"
-+	default y
-+	---help---
-+	  Say Y here to enable inotify support and the /dev/inotify character
-+	  device.  Inotify is a file change notification system and a
-+	  replacement for dnotify.  Inotify fixes numerous shortcomings in
-+	  dnotify and introduces several new features.  It allows monitoring
-+	  of both files and directories via a single open fd.  Multiple file
-+	  events are supported.
-+	  
-+	  If unsure, say Y.
-+
- config QUOTA
- 	bool "Quota support"
- 	help
-diff -urN linux-2.6.11-mm1/fs/Makefile linux/fs/Makefile
---- linux-2.6.11-mm1/fs/Makefile	2005-03-04 13:23:55.616366024 -0500
-+++ linux/fs/Makefile	2005-03-04 13:27:05.571488456 -0500
-@@ -11,6 +11,7 @@
- 		attr.o bad_inode.o file.o filesystems.o namespace.o aio.o \
- 		seq_file.o xattr.o libfs.o fs-writeback.o mpage.o direct-io.o \
- 
-+obj-$(CONFIG_INOTIFY)           += inotify.o
- obj-$(CONFIG_EPOLL)		+= eventpoll.o
- obj-$(CONFIG_COMPAT)		+= compat.o
- 
-diff -urN linux-2.6.11-mm1/fs/namei.c linux/fs/namei.c
---- linux-2.6.11-mm1/fs/namei.c	2005-03-04 14:06:21.750294832 -0500
-+++ linux/fs/namei.c	2005-03-04 13:27:05.574488000 -0500
-@@ -21,7 +21,7 @@
- #include <linux/namei.h>
- #include <linux/quotaops.h>
- #include <linux/pagemap.h>
--#include <linux/dnotify.h>
-+#include <linux/fsnotify.h>
- #include <linux/smp_lock.h>
- #include <linux/personality.h>
- #include <linux/security.h>
-@@ -1261,7 +1261,7 @@
- 	DQUOT_INIT(dir);
- 	error = dir->i_op->create(dir, dentry, mode, nd);
- 	if (!error) {
--		inode_dir_notify(dir, DN_CREATE);
-+		fsnotify_create(dir, dentry->d_name.name);
- 		security_inode_post_create(dir, dentry, mode);
- 	}
- 	return error;
-@@ -1566,7 +1566,7 @@
- 	DQUOT_INIT(dir);
- 	error = dir->i_op->mknod(dir, dentry, mode, dev);
- 	if (!error) {
--		inode_dir_notify(dir, DN_CREATE);
-+		fsnotify_create(dir, dentry->d_name.name);
- 		security_inode_post_mknod(dir, dentry, mode, dev);
- 	}
- 	return error;
-@@ -1639,7 +1639,7 @@
- 	DQUOT_INIT(dir);
- 	error = dir->i_op->mkdir(dir, dentry, mode);
- 	if (!error) {
--		inode_dir_notify(dir, DN_CREATE);
-+		fsnotify_mkdir(dir, dentry->d_name.name);
- 		security_inode_post_mkdir(dir,dentry, mode);
- 	}
- 	return error;
-@@ -1729,10 +1729,8 @@
+@@ -63,7 +62,7 @@ cifs_open(struct inode *inode, struct fi
+ 		pCifsInode = CIFS_I(file->f_dentry->d_inode);
+ 		read_lock(&GlobalSMBSeslock);
+ 		list_for_each(tmp, &pCifsInode->openFileList) {            
+-			pCifsFile = list_entry(tmp,struct cifsFileInfo, flist);           
++			pCifsFile = list_entry(tmp, struct cifsFileInfo, flist);           
+ 			if((pCifsFile->pfile == NULL)&& (pCifsFile->pid == current->tgid)){
+ 			/* mode set in cifs_create */
+ 				pCifsFile->pfile = file; /* needed for writepage */
+@@ -72,25 +71,25 @@ cifs_open(struct inode *inode, struct fi
+ 			}
+ 		}
+ 		read_unlock(&GlobalSMBSeslock);
+-		if(file->private_data != NULL) {
++		if (file->private_data != NULL) {
+ 			rc = 0;
+ 			FreeXid(xid);
+ 			return rc;
+ 		} else {
+-			if(file->f_flags & O_EXCL)
+-				cERROR(1,("could not find file instance for new file %p ",file));
++			if (file->f_flags & O_EXCL)
++				cERROR(1, ("could not find file instance for new file %p ", file));
  		}
  	}
- 	up(&dentry->d_inode->i_sem);
--	if (!error) {
--		inode_dir_notify(dir, DN_DELETE);
--		d_delete(dentry);
--	}
-+	if (!error)
-+		fsnotify_rmdir(dentry, dentry->d_inode, dir);
- 	dput(dentry);
  
- 	return error;
-@@ -1802,10 +1800,9 @@
- 	up(&dentry->d_inode->i_sem);
- 
- 	/* We don't d_delete() NFS sillyrenamed files--they still exist. */
--	if (!error && !(dentry->d_flags & DCACHE_NFSFS_RENAMED)) {
--		d_delete(dentry);
--		inode_dir_notify(dir, DN_DELETE);
--	}
-+	if (!error && !(dentry->d_flags & DCACHE_NFSFS_RENAMED))
-+		fsnotify_unlink(dentry->d_inode, dir, dentry);
-+
- 	return error;
- }
- 
-@@ -1879,7 +1876,7 @@
- 	DQUOT_INIT(dir);
- 	error = dir->i_op->symlink(dir, dentry, oldname);
- 	if (!error) {
--		inode_dir_notify(dir, DN_CREATE);
-+		fsnotify_create(dir, dentry->d_name.name);
- 		security_inode_post_symlink(dir, dentry, oldname);
+ 	down(&inode->i_sb->s_vfs_rename_sem);
+ 	full_path = build_path_from_dentry(file->f_dentry);
+ 	up(&inode->i_sb->s_vfs_rename_sem);
+-	if(full_path == NULL) {
++	if (full_path == NULL) {
+ 		FreeXid(xid);
+ 		return -ENOMEM;
  	}
- 	return error;
-@@ -1952,7 +1949,7 @@
- 	error = dir->i_op->link(old_dentry, dir, new_dentry);
- 	up(&old_dentry->d_inode->i_sem);
- 	if (!error) {
--		inode_dir_notify(dir, DN_CREATE);
-+		fsnotify_create(dir, new_dentry->d_name.name);
- 		security_inode_post_link(old_dentry, dir, new_dentry);
- 	}
- 	return error;
-@@ -2116,6 +2113,7 @@
- {
- 	int error;
- 	int is_dir = S_ISDIR(old_dentry->d_inode->i_mode);
-+	char *old_name;
  
- 	if (old_dentry->d_inode == new_dentry->d_inode)
-  		return 0;
-@@ -2137,18 +2135,18 @@
- 	DQUOT_INIT(old_dir);
- 	DQUOT_INIT(new_dir);
+-	cFYI(1, (" inode = 0x%p file flags are 0x%x for %s", inode, file->f_flags,full_path));
++	cFYI(1, (" inode = 0x%p file flags are 0x%x for %s", inode, file->f_flags, full_path));
+ 	if ((file->f_flags & O_ACCMODE) == O_RDONLY)
+ 		desiredAccess = GENERIC_READ;
+ 	else if ((file->f_flags & O_ACCMODE) == O_WRONLY)
+@@ -126,11 +125,11 @@ cifs_open(struct inode *inode, struct fi
+  *	 O_FASYNC, O_NOFOLLOW, O_NONBLOCK need further investigation
+  *********************************************************************/
  
-+	old_name = fsnotify_oldname_init(old_dentry);
-+
- 	if (is_dir)
- 		error = vfs_rename_dir(old_dir,old_dentry,new_dir,new_dentry);
+-	if((file->f_flags & (O_CREAT | O_EXCL)) == (O_CREAT | O_EXCL))
++	if ((file->f_flags & (O_CREAT | O_EXCL)) == (O_CREAT | O_EXCL))
+ 		disposition = FILE_CREATE;
+-	else if((file->f_flags & (O_CREAT | O_TRUNC)) == (O_CREAT | O_TRUNC))
++	else if ((file->f_flags & (O_CREAT | O_TRUNC)) == (O_CREAT | O_TRUNC))
+ 		disposition = FILE_OVERWRITE_IF;
+-	else if((file->f_flags & O_CREAT) == O_CREAT)
++	else if ((file->f_flags & O_CREAT) == O_CREAT)
+ 		disposition = FILE_OPEN_IF;
  	else
- 		error = vfs_rename_other(old_dir,old_dentry,new_dir,new_dentry);
- 	if (!error) {
--		if (old_dir == new_dir)
--			inode_dir_notify(old_dir, DN_RENAME);
--		else {
--			inode_dir_notify(old_dir, DN_DELETE);
--			inode_dir_notify(new_dir, DN_CREATE);
--		}
-+		const char *new_name = old_dentry->d_name.name;
-+		fsnotify_move(old_dir, new_dir, old_name, new_name);
- 	}
-+	fsnotify_oldname_free(old_name);
-+
- 	return error;
+ 		disposition = FILE_OPEN;
+@@ -149,8 +148,8 @@ cifs_open(struct inode *inode, struct fi
+ 	/* BB we can not do this if this is the second open of a file 
+ 	and the first handle has writebehind data, we might be 
+ 	able to simply do a filemap_fdatawrite/filemap_fdatawait first */
+-	buf = kmalloc(sizeof(FILE_ALL_INFO),GFP_KERNEL);
+-	if(buf== NULL) {
++	buf = kmalloc(sizeof(FILE_ALL_INFO), GFP_KERNEL);
++	if (buf == NULL) {
+ 		if (full_path)
+ 			kfree(full_path);
+ 		FreeXid(xid);
+@@ -163,48 +162,48 @@ cifs_open(struct inode *inode, struct fi
+ 		cFYI(1, ("oplock: %d ", oplock));	
+ 	} else {
+ 		file->private_data =
+-			kmalloc(sizeof (struct cifsFileInfo), GFP_KERNEL);
++			kmalloc(sizeof(struct cifsFileInfo), GFP_KERNEL);
+ 		if (file->private_data) {
+ 			memset(file->private_data, 0, sizeof(struct cifsFileInfo));
+-			pCifsFile = (struct cifsFileInfo *) file->private_data;
++			pCifsFile = (struct cifsFileInfo *)file->private_data;
+ 			pCifsFile->netfid = netfid;
+ 			pCifsFile->pid = current->tgid;
+ 			init_MUTEX(&pCifsFile->fh_sem);
+ 			pCifsFile->pfile = file; /* needed for writepage */
+ 			pCifsFile->pInode = inode;
+ 			pCifsFile->invalidHandle = FALSE;
+-			pCifsFile->closePend     = FALSE;
++			pCifsFile->closePend = FALSE;
+ 			write_lock(&file->f_owner.lock);
+ 			write_lock(&GlobalSMBSeslock);
+-			list_add(&pCifsFile->tlist,&pTcon->openFileList);
++			list_add(&pCifsFile->tlist, &pTcon->openFileList);
+ 			pCifsInode = CIFS_I(file->f_dentry->d_inode);
+-			if(pCifsInode) {
++			if (pCifsInode) {
+ 				/* want handles we can use to read with first */
+ 				/* in the list so we do not have to walk the */
+ 				/* list to search for one in prepare_write */
+ 				if ((file->f_flags & O_ACCMODE) == O_WRONLY) {
+-					list_add_tail(&pCifsFile->flist,&pCifsInode->openFileList);
++					list_add_tail(&pCifsFile->flist, &pCifsInode->openFileList);
+ 				} else {
+-					list_add(&pCifsFile->flist,&pCifsInode->openFileList);
++					list_add(&pCifsFile->flist, &pCifsInode->openFileList);
+ 				}
+ 				write_unlock(&GlobalSMBSeslock);
+ 				write_unlock(&file->f_owner.lock);
+-				if(pCifsInode->clientCanCacheRead) {
++				if (pCifsInode->clientCanCacheRead) {
+ 					/* we have the inode open somewhere else
+ 					   no need to discard cache data */
+ 				} else {
+-					if(buf) {
++					if (buf) {
+ 					/* BB need same check in cifs_create too? */
+ 
+ 					/* if not oplocked, invalidate inode pages if mtime 
+ 					   or file size changed */
+ 						struct timespec temp;
+ 						temp = cifs_NTtimeToUnix(le64_to_cpu(buf->LastWriteTime));
+-						if(timespec_equal(&file->f_dentry->d_inode->i_mtime,&temp) && 
++						if (timespec_equal(&file->f_dentry->d_inode->i_mtime,&temp) && 
+ 							(file->f_dentry->d_inode->i_size == (loff_t)le64_to_cpu(buf->EndOfFile))) {
+-							cFYI(1,("inode unchanged on server"));
++							cFYI(1, ("inode unchanged on server"));
+ 						} else {
+-							if(file->f_dentry->d_inode->i_mapping) {
++							if (file->f_dentry->d_inode->i_mapping) {
+ 							/* BB no need to lock inode until after invalidate*/
+ 							/* since namei code should already have it locked?*/
+ 								filemap_fdatawrite(file->f_dentry->d_inode->i_mapping);
+@@ -217,22 +216,22 @@ cifs_open(struct inode *inode, struct fi
+ 				}
+ 				if (pTcon->ses->capabilities & CAP_UNIX)
+ 					rc = cifs_get_inode_info_unix(&file->f_dentry->d_inode,
+-						full_path, inode->i_sb,xid);
++						full_path, inode->i_sb, xid);
+ 				else
+ 					rc = cifs_get_inode_info(&file->f_dentry->d_inode,
+-						full_path, buf, inode->i_sb,xid);
++						full_path, buf, inode->i_sb, xid);
+ 
+-				if((oplock & 0xF) == OPLOCK_EXCLUSIVE) {
++				if ((oplock & 0xF) == OPLOCK_EXCLUSIVE) {
+ 					pCifsInode->clientCanCacheAll = TRUE;
+ 					pCifsInode->clientCanCacheRead = TRUE;
+-					cFYI(1,("Exclusive Oplock granted on inode %p",file->f_dentry->d_inode));
+-				} else if((oplock & 0xF) == OPLOCK_READ)
++					cFYI(1, ("Exclusive Oplock granted on inode %p", file->f_dentry->d_inode));
++				} else if ((oplock & 0xF) == OPLOCK_READ)
+ 					pCifsInode->clientCanCacheRead = TRUE;
+ 			} else {
+ 				write_unlock(&GlobalSMBSeslock);
+ 				write_unlock(&file->f_owner.lock);
+ 			}
+-			if(oplock & CIFS_CREATE_ACTION) {           
++			if (oplock & CIFS_CREATE_ACTION) {           
+ 				/* time to set mode which we can not set earlier due
+ 				 to problems creating new read-only files */
+ 				if (cifs_sb->tcon->ses->capabilities & CAP_UNIX)                
+@@ -260,7 +259,7 @@ cifs_open(struct inode *inode, struct fi
+ 
+ /* Try to reaquire byte range locks that were released when session */
+ /* to server was lost */
+-static int cifs_relock_file(struct cifsFileInfo * cifsFile)
++static int cifs_relock_file(struct cifsFileInfo *cifsFile)
+ {
+ 	int rc = 0;
+ 
+@@ -269,7 +268,8 @@ static int cifs_relock_file(struct cifsF
+ 	return rc;
  }
  
-diff -urN linux-2.6.11-mm1/fs/open.c linux/fs/open.c
---- linux-2.6.11-mm1/fs/open.c	2005-03-04 14:06:21.751294680 -0500
-+++ linux/fs/open.c	2005-03-04 13:27:05.576487696 -0500
-@@ -10,7 +10,7 @@
- #include <linux/file.h>
- #include <linux/smp_lock.h>
- #include <linux/quotaops.h>
--#include <linux/dnotify.h>
-+#include <linux/fsnotify.h>
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/tty.h>
-@@ -944,9 +944,14 @@
- 		fd = get_unused_fd();
- 		if (fd >= 0) {
- 			struct file *f = filp_open(tmp, flags, mode);
-+			struct dentry *dentry;
-+
- 			error = PTR_ERR(f);
- 			if (IS_ERR(f))
- 				goto out_error;
-+			dentry = f->f_dentry;
-+			fsnotify_open(dentry, dentry->d_inode,
-+				      dentry->d_name.name);
- 			fd_install(fd, f);
- 		}
- out:
-@@ -998,7 +1003,7 @@
- 			retval = err;
+-static int cifs_reopen_file(struct inode *inode, struct file *file, int can_flush)
++static int 
++cifs_reopen_file(struct inode *inode, struct file *file, int can_flush)
+ {
+ 	int rc = -EACCES;
+ 	int xid, oplock;
+@@ -285,21 +285,21 @@ static int cifs_reopen_file(struct inode
+ 	if(inode == NULL)
+ 		return -EBADF;
+ 	if (file->private_data) {
+-		pCifsFile = (struct cifsFileInfo *) file->private_data;
++		pCifsFile = (struct cifsFileInfo *)file->private_data;
+ 	} else
+ 		return -EBADF;
+ 
+ 	xid = GetXid();
+ 	down(&pCifsFile->fh_sem);
+-	if(pCifsFile->invalidHandle == FALSE) {
++	if (pCifsFile->invalidHandle == FALSE) {
+ 		up(&pCifsFile->fh_sem);
+ 		FreeXid(xid);
+ 		return 0;
  	}
  
--	dnotify_flush(filp, id);
-+	fsnotify_flush(filp, id);
- 	locks_remove_posix(filp, id);
- 	fput(filp);
- 	return retval;
-diff -urN linux-2.6.11-mm1/fs/read_write.c linux/fs/read_write.c
---- linux-2.6.11-mm1/fs/read_write.c	2005-03-04 14:06:21.753294376 -0500
-+++ linux/fs/read_write.c	2005-03-04 13:27:05.577487544 -0500
-@@ -10,7 +10,7 @@
- #include <linux/file.h>
- #include <linux/uio.h>
- #include <linux/smp_lock.h>
--#include <linux/dnotify.h>
-+#include <linux/fsnotify.h>
- #include <linux/security.h>
- #include <linux/module.h>
- #include <linux/syscalls.h>
-@@ -239,7 +239,10 @@
- 			else
- 				ret = do_sync_read(file, buf, count, pos);
- 			if (ret > 0) {
--				dnotify_parent(file->f_dentry, DN_ACCESS);
-+				struct dentry *dentry = file->f_dentry;
-+				struct inode *inode = dentry->d_inode;
-+				fsnotify_access(dentry, inode,
-+						dentry->d_name.name);
- 				current->rchar += ret;
+-	if(file->f_dentry == NULL) {
++	if (file->f_dentry == NULL) {
+ 		up(&pCifsFile->fh_sem);
+-		cFYI(1,("failed file reopen, no valid name if dentry freed"));
++		cFYI(1, ("failed file reopen, no valid name if dentry freed"));
+ 		FreeXid(xid);
+ 		return -EBADF;
+ 	}
+@@ -310,7 +310,7 @@ those that already have the rename sem c
+ to get called and if the server was down that means we end up here,
+ and we can never tell if the caller already has the rename_sem */
+ 	full_path = build_path_from_dentry(file->f_dentry);
+-	if(full_path == NULL) {
++	if (full_path == NULL) {
+ 		up(&pCifsFile->fh_sem);
+ 		FreeXid(xid);
+ 		return -ENOMEM;
+@@ -340,8 +340,8 @@ and we can never tell if the caller alre
+ 	 and server version of file size can be stale. If we 
+ 	 knew for sure that inode was not dirty locally we could do this */
+ 
+-/*	buf = kmalloc(sizeof(FILE_ALL_INFO),GFP_KERNEL);
+-	if(buf==0) {
++/*	buf = kmalloc(sizeof(FILE_ALL_INFO), GFP_KERNEL);
++	if (!buf) {
+ 		up(&pCifsFile->fh_sem);
+ 		if (full_path)
+ 			kfree(full_path);
+@@ -359,8 +359,8 @@ and we can never tell if the caller alre
+ 		pCifsFile->invalidHandle = FALSE;
+ 		up(&pCifsFile->fh_sem);
+ 		pCifsInode = CIFS_I(inode);
+-		if(pCifsInode) {
+-			if(can_flush) {
++		if (pCifsInode) {
++			if (can_flush) {
+ 				filemap_fdatawrite(inode->i_mapping);
+ 				filemap_fdatawait(inode->i_mapping);
+ 			/* temporarily disable caching while we
+@@ -379,11 +379,11 @@ and we can never tell if the caller alre
+ 			invalidate the current end of file on the server
+ 			we can not go to the server to get the new
+ 			inod info */
+-			if((oplock & 0xF) == OPLOCK_EXCLUSIVE) {
++			if ((oplock & 0xF) == OPLOCK_EXCLUSIVE) {
+ 				pCifsInode->clientCanCacheAll =  TRUE;
+ 				pCifsInode->clientCanCacheRead = TRUE;
+-				cFYI(1,("Exclusive Oplock granted on inode %p",file->f_dentry->d_inode));
+-			} else if((oplock & 0xF) == OPLOCK_READ) {
++				cFYI(1, ("Exclusive Oplock granted on inode %p", file->f_dentry->d_inode));
++			} else if ((oplock & 0xF) == OPLOCK_READ) {
+ 				pCifsInode->clientCanCacheRead = TRUE;
+ 				pCifsInode->clientCanCacheAll =  FALSE;
+ 			} else {
+@@ -400,15 +400,14 @@ and we can never tell if the caller alre
+ 	return rc;
+ }
+ 
+-int
+-cifs_close(struct inode *inode, struct file *file)
++int cifs_close(struct inode *inode, struct file *file)
+ {
+ 	int rc = 0;
+ 	int xid;
+ 	struct cifs_sb_info *cifs_sb;
+ 	struct cifsTconInfo *pTcon;
+ 	struct cifsFileInfo *pSMBFile =
+-		(struct cifsFileInfo *) file->private_data;
++		(struct cifsFileInfo *)file->private_data;
+ 
+ 	xid = GetXid();
+ 
+@@ -417,7 +416,7 @@ cifs_close(struct inode *inode, struct f
+ 	if (pSMBFile) {
+ 		pSMBFile->closePend    = TRUE;
+ 		write_lock(&file->f_owner.lock);
+-		if(pTcon) {
++		if (pTcon) {
+ 			/* no sense reconnecting to close a file that is
+ 				already closed */
+ 			if (pTcon->tidStatus != CifsNeedReconnect) {
+@@ -429,34 +428,33 @@ cifs_close(struct inode *inode, struct f
+ 		list_del(&pSMBFile->flist);
+ 		list_del(&pSMBFile->tlist);
+ 		write_unlock(&file->f_owner.lock);
+-		if(pSMBFile->search_resume_name)
++		if (pSMBFile->search_resume_name)
+ 			kfree(pSMBFile->search_resume_name);
+ 		kfree(file->private_data);
+ 		file->private_data = NULL;
+ 	} else
+ 		rc = -EBADF;
+ 
+-	if(list_empty(&(CIFS_I(inode)->openFileList))) {
+-		cFYI(1,("closing last open instance for inode %p",inode));
++	if (list_empty(&(CIFS_I(inode)->openFileList))) {
++		cFYI(1, ("closing last open instance for inode %p", inode));
+ 		/* if the file is not open we do not know if we can cache
+ 		info on this inode, much less write behind and read ahead */
+ 		CIFS_I(inode)->clientCanCacheRead = FALSE;
+ 		CIFS_I(inode)->clientCanCacheAll  = FALSE;
+ 	}
+-	if((rc ==0) && CIFS_I(inode)->write_behind_rc)
++	if ((rc == 0) && CIFS_I(inode)->write_behind_rc)
+ 		rc = CIFS_I(inode)->write_behind_rc;
+ 	FreeXid(xid);
+ 	return rc;
+ }
+ 
+-int
+-cifs_closedir(struct inode *inode, struct file *file)
++int cifs_closedir(struct inode *inode, struct file *file)
+ {
+ 	int rc = 0;
+ 	int xid;
+ 	struct cifsFileInfo *pCFileStruct =
+-	    (struct cifsFileInfo *) file->private_data;
+-	char * ptmp;
++	    (struct cifsFileInfo *)file->private_data;
++	char *ptmp;
+ 
+ 	cFYI(1, ("Closedir inode = 0x%p with ", inode));
+ 
+@@ -464,27 +462,27 @@ cifs_closedir(struct inode *inode, struc
+ 
+ 	if (pCFileStruct) {
+ 		struct cifsTconInfo *pTcon;
+-		struct cifs_sb_info * cifs_sb = CIFS_SB(file->f_dentry->d_sb);
++		struct cifs_sb_info *cifs_sb = CIFS_SB(file->f_dentry->d_sb);
+ 
+ 		pTcon = cifs_sb->tcon;
+ 
+ 		cFYI(1, ("Freeing private data in close dir"));
+-		if(pCFileStruct->srch_inf.endOfSearch == FALSE) {
++		if (pCFileStruct->srch_inf.endOfSearch == FALSE) {
+ 			pCFileStruct->invalidHandle = TRUE;
+ 			rc = CIFSFindClose(xid, pTcon, pCFileStruct->netfid);
+-			cFYI(1,("Closing uncompleted readdir with rc %d",rc));
++			cFYI(1, ("Closing uncompleted readdir with rc %d", rc));
+ 			/* not much we can do if it fails anywway, ignore rc */
+ 			rc = 0;
+ 		}
+ 		ptmp = pCFileStruct->srch_inf.ntwrk_buf_start;
+-		if(ptmp) {
+-			cFYI(1,("freeing smb buf in srch struct in closedir")); /* BB removeme BB */
++		if (ptmp) {
++			cFYI(1, ("freeing smb buf in srch struct in closedir")); /* BB removeme BB */
+ 			pCFileStruct->srch_inf.ntwrk_buf_start = NULL;
+ 			cifs_buf_release(ptmp);
+ 		}
+ 		ptmp = pCFileStruct->search_resume_name;
+-		if(ptmp) {
+-			cFYI(1,("freeing resume name in closedir")); /* BB removeme BB */
++		if (ptmp) {
++			cFYI(1, ("freeing resume name in closedir")); /* BB removeme BB */
+ 			pCFileStruct->search_resume_name = NULL;
+ 			kfree(ptmp);
+ 		}
+@@ -496,8 +494,7 @@ cifs_closedir(struct inode *inode, struc
+ 	return rc;
+ }
+ 
+-int
+-cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
++int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
+ {
+ 	int rc, xid;
+ 	__u32 lockType = LOCKING_ANDX_LARGE_FILES;
+@@ -531,7 +528,7 @@ cifs_lock(struct file *file, int cmd, st
+ 	if (pfLock->fl_flags & FL_LEASE)
+ 		cFYI(1, ("Lease on file - not implemented yet"));
+ 	if (pfLock->fl_flags & (~(FL_POSIX | FL_FLOCK | FL_SLEEP | FL_ACCESS | FL_LEASE)))
+-		cFYI(1, ("Unknown lock flags 0x%x",pfLock->fl_flags));
++		cFYI(1, ("Unknown lock flags 0x%x", pfLock->fl_flags));
+ 
+ 	if (pfLock->fl_type == F_WRLCK) {
+ 		cFYI(1, ("F_WRLCK "));
+@@ -563,7 +560,7 @@ cifs_lock(struct file *file, int cmd, st
+ 
+ 	if (IS_GETLK(cmd)) {
+ 		rc = CIFSSMBLock(xid, pTcon,
+-				 ((struct cifsFileInfo *) file->
++				 ((struct cifsFileInfo *)file->
+ 				  private_data)->netfid,
+ 				 length,
+ 				 pfLock->fl_start, 0, 1, lockType,
+@@ -604,8 +601,8 @@ cifs_lock(struct file *file, int cmd, st
+ }
+ 
+ ssize_t
+-cifs_user_write(struct file * file, const char __user * write_data,
+-	   size_t write_size, loff_t * poffset)
++cifs_user_write(struct file *file, const char __user *write_data,
++		size_t write_size, loff_t *poffset)
+ {
+ 	int rc = 0;
+ 	unsigned int bytes_written = 0;
+@@ -613,13 +610,13 @@ cifs_user_write(struct file * file, cons
+ 	struct cifs_sb_info *cifs_sb;
+ 	struct cifsTconInfo *pTcon;
+ 	int xid, long_op;
+-	struct cifsFileInfo * open_file;
++	struct cifsFileInfo *open_file;
+ 
+-	if(file->f_dentry == NULL)
++	if (file->f_dentry == NULL)
+ 		return -EBADF;
+ 
+ 	cifs_sb = CIFS_SB(file->f_dentry->d_sb);
+-	if(cifs_sb == NULL) {
++	if (cifs_sb == NULL) {
+ 		return -EBADF;
+ 	}
+ 	pTcon = cifs_sb->tcon;
+@@ -648,8 +645,8 @@ cifs_user_write(struct file * file, cons
+ 	for (total_written = 0; write_size > total_written;
+ 	     total_written += bytes_written) {
+ 		rc = -EAGAIN;
+-		while(rc == -EAGAIN) {
+-			if(file->private_data == NULL) {
++		while (rc == -EAGAIN) {
++			if (file->private_data == NULL) {
+ 				/* file has been closed on us */
+ 				FreeXid(xid);
+ 			/* if we have gotten here we have written some data
+@@ -657,7 +654,7 @@ cifs_user_write(struct file * file, cons
+ 			while we blocked so return what we managed to write */
+ 				return total_written;
+ 			} 
+-			if(open_file->closePend) {
++			if (open_file->closePend) {
+ 				FreeXid(xid);
+ 				if(total_written)
+ 					return total_written;
+@@ -665,7 +662,7 @@ cifs_user_write(struct file * file, cons
+ 					return -EBADF;
  			}
- 			current->syscr++;
-@@ -287,7 +290,10 @@
- 			else
- 				ret = do_sync_write(file, buf, count, pos);
- 			if (ret > 0) {
--				dnotify_parent(file->f_dentry, DN_MODIFY);
-+				struct dentry *dentry = file->f_dentry;
-+				struct inode *inode = dentry->d_inode;
-+				fsnotify_modify(dentry, inode,
-+						dentry->d_name.name);
- 				current->wchar += ret;
+ 			if (open_file->invalidHandle) {
+-				if((file->f_dentry == NULL) ||
++				if ((file->f_dentry == NULL) ||
+ 				   (file->f_dentry->d_inode == NULL)) {
+ 					FreeXid(xid);
+ 					return total_written;
+@@ -675,7 +672,7 @@ cifs_user_write(struct file * file, cons
+ 				reopen_file not to flush data to server now */
+ 				rc = cifs_reopen_file(file->f_dentry->d_inode,
+ 					file,FALSE);
+-				if(rc != 0)
++				if (rc != 0)
+ 					break;
  			}
- 			current->syscw++;
-@@ -523,9 +529,15 @@
- out:
- 	if (iov != iovstack)
- 		kfree(iov);
--	if ((ret + (type == READ)) > 0)
--		dnotify_parent(file->f_dentry,
--				(type == READ) ? DN_ACCESS : DN_MODIFY);
-+	if ((ret + (type == READ)) > 0) {
-+		struct dentry *dentry = file->f_dentry;
-+		struct inode *inode = dentry->d_inode;
-+
-+		if (type == READ)
-+			fsnotify_access(dentry, inode, dentry->d_name.name);
-+		else
-+			fsnotify_modify(dentry, inode, dentry->d_name.name);
-+	}
- 	return ret;
- Efault:
- 	ret = -EFAULT;
-diff -urN linux-2.6.11-mm1/fs/super.c linux/fs/super.c
---- linux-2.6.11-mm1/fs/super.c	2005-03-04 14:06:21.754294224 -0500
-+++ linux/fs/super.c	2005-03-04 13:27:05.578487392 -0500
-@@ -36,6 +36,7 @@
- #include <linux/vfs.h>
- #include <linux/writeback.h>		/* for the emergency remount stuff */
- #include <linux/idr.h>
-+#include <linux/fsnotify.h>
- #include <linux/kobject.h>
- #include <asm/uaccess.h>
  
-@@ -229,6 +230,7 @@
+@@ -692,13 +689,14 @@ cifs_user_write(struct file * file, cons
+ 				FreeXid(xid);
+ 				return rc;
+ 			}
+-		} else
++		} else {
+ 			*poffset += bytes_written;
++		}
+ 		long_op = FALSE; /* subsequent writes fast - 15 seconds is plenty */
+ 	}
  
- 	if (root) {
- 		sb->s_root = NULL;
-+		fsnotify_sb_umount(sb);
- 		shrink_dcache_parent(root);
- 		shrink_dcache_anon(&sb->s_anon);
- 		dput(root);
-diff -urN linux-2.6.11-mm1/include/linux/fs.h linux/include/linux/fs.h
---- linux-2.6.11-mm1/include/linux/fs.h	2005-03-04 14:06:21.755294072 -0500
-+++ linux/include/linux/fs.h	2005-03-04 13:27:05.581486936 -0500
-@@ -223,6 +223,7 @@
- struct kstatfs;
- struct vm_area_struct;
- struct vfsmount;
-+struct inotify_inode_data;
+ #ifdef CONFIG_CIFS_STATS
+-	if(total_written > 0) {
++	if (total_written > 0) {
+ 		atomic_inc(&pTcon->num_writes);
+ 		spin_lock(&pTcon->stat_lock);
+ 		pTcon->bytes_written += total_written;
+@@ -707,8 +705,8 @@ cifs_user_write(struct file * file, cons
+ #endif		
  
- /* Used to be a macro which just called the function, now just a function */
- extern void update_atime (struct inode *);
-@@ -473,6 +474,11 @@
- 	struct dnotify_struct	*i_dnotify; /* for directory notifications */
+ 	/* since the write may have blocked check these pointers again */
+-	if(file->f_dentry) {
+-		if(file->f_dentry->d_inode) {
++	if (file->f_dentry) {
++		if (file->f_dentry->d_inode) {
+ 			struct inode *inode = file->f_dentry->d_inode;
+ 			inode->i_ctime = inode->i_mtime =
+ 				current_fs_time(inode->i_sb);
+@@ -724,8 +722,8 @@ cifs_user_write(struct file * file, cons
+ }
+ 
+ static ssize_t
+-cifs_write(struct file * file, const char *write_data,
+-	   size_t write_size, loff_t * poffset)
++cifs_write(struct file *file, const char *write_data,
++	   size_t write_size, loff_t *poffset)
+ {
+ 	int rc = 0;
+ 	unsigned int bytes_written = 0;
+@@ -733,29 +731,29 @@ cifs_write(struct file * file, const cha
+ 	struct cifs_sb_info *cifs_sb;
+ 	struct cifsTconInfo *pTcon;
+ 	int xid, long_op;
+-	struct cifsFileInfo * open_file;
++	struct cifsFileInfo *open_file;
+ 
+-	if(file->f_dentry == NULL)
++	if (file->f_dentry == NULL)
+ 		return -EBADF;
+ 
+ 	cifs_sb = CIFS_SB(file->f_dentry->d_sb);
+-	if(cifs_sb == NULL) {
++	if (cifs_sb == NULL) {
+ 		return -EBADF;
+ 	}
+ 	pTcon = cifs_sb->tcon;
+ 
+-	/*cFYI(1,
++	/* cFYI(1,
+ 	   (" write %d bytes to offset %lld of %s", write_size,
+ 	   *poffset, file->f_dentry->d_name.name)); */
+ 
+ 	if (file->private_data == NULL) {
+ 		return -EBADF;
+ 	} else {
+-		open_file = (struct cifsFileInfo *) file->private_data;
++		open_file = (struct cifsFileInfo *)file->private_data;
+ 	}
+ 	
+ 	xid = GetXid();
+-	if(file->f_dentry->d_inode == NULL) {
++	if (file->f_dentry->d_inode == NULL) {
+ 		FreeXid(xid);
+ 		return -EBADF;
+ 	}
+@@ -768,8 +766,8 @@ cifs_write(struct file * file, const cha
+ 	for (total_written = 0; write_size > total_written;
+ 	     total_written += bytes_written) {
+ 		rc = -EAGAIN;
+-		while(rc == -EAGAIN) {
+-			if(file->private_data == NULL) {
++		while (rc == -EAGAIN) {
++			if (file->private_data == NULL) {
+ 				/* file has been closed on us */
+ 				FreeXid(xid);
+ 			/* if we have gotten here we have written some data
+@@ -777,7 +775,7 @@ cifs_write(struct file * file, const cha
+ 			while we blocked so return what we managed to write */
+ 				return total_written;
+ 			} 
+-			if(open_file->closePend) {
++			if (open_file->closePend) {
+ 				FreeXid(xid);
+ 				if(total_written)
+ 					return total_written;
+@@ -785,7 +783,7 @@ cifs_write(struct file * file, const cha
+ 					return -EBADF;
+ 			}
+ 			if (open_file->invalidHandle) {
+-				if((file->f_dentry == NULL) ||
++				if ((file->f_dentry == NULL) ||
+ 				   (file->f_dentry->d_inode == NULL)) {
+ 					FreeXid(xid);
+ 					return total_written;
+@@ -794,8 +792,8 @@ cifs_write(struct file * file, const cha
+ 				 filemap_fdatawait from here so tell
+ 				reopen_file not to flush data to server now */
+ 				rc = cifs_reopen_file(file->f_dentry->d_inode,
+-					file,FALSE);
+-				if(rc != 0)
++					file, FALSE);
++				if (rc)
+ 					break;
+ 			}
+ 
+@@ -812,8 +810,9 @@ cifs_write(struct file * file, const cha
+ 				FreeXid(xid);
+ 				return rc;
+ 			}
+-		} else
++		} else {
+ 			*poffset += bytes_written;
++		}
+ 		long_op = FALSE; /* subsequent writes fast - 15 seconds is plenty */
+ 	}
+ 
+@@ -827,8 +826,8 @@ cifs_write(struct file * file, const cha
+ #endif		
+ 
+ 	/* since the write may have blocked check these pointers again */
+-	if(file->f_dentry) {
+-		if(file->f_dentry->d_inode) {
++	if (file->f_dentry) {
++		if (file->f_dentry->d_inode) {
+ 			file->f_dentry->d_inode->i_ctime = file->f_dentry->d_inode->i_mtime =
+ 				CURRENT_TIME;
+ 			if (total_written > 0) {
+@@ -843,11 +842,11 @@ cifs_write(struct file * file, const cha
+ }
+ 
+ static int
+-cifs_partialpagewrite(struct page *page,unsigned from, unsigned to)
++cifs_partialpagewrite(struct page *page, unsigned from, unsigned to)
+ {
+ 	struct address_space *mapping = page->mapping;
+ 	loff_t offset = (loff_t)page->index << PAGE_CACHE_SHIFT;
+-	char * write_data;
++	char *write_data;
+ 	int rc = -EFAULT;
+ 	int bytes_written = 0;
+ 	struct cifs_sb_info *cifs_sb;
+@@ -860,7 +859,7 @@ cifs_partialpagewrite(struct page *page,
+ 
+ 	if (!mapping) {
+ 		return -EFAULT;
+-	} else if(!mapping->host) {
++	} else if (!mapping->host) {
+ 		return -EFAULT;
+ 	}
+ 
+@@ -872,19 +871,19 @@ cifs_partialpagewrite(struct page *page,
+ 	write_data = kmap(page);
+ 	write_data += from;
+ 
+-	if((to > PAGE_CACHE_SIZE) || (from > to)) {
++	if ((to > PAGE_CACHE_SIZE) || (from > to)) {
+ 		kunmap(page);
+ 		return -EIO;
+ 	}
+ 
+ 	/* racing with truncate? */
+-	if(offset > mapping->host->i_size) {
++	if (offset > mapping->host->i_size) {
+ 		kunmap(page);
+ 		return 0; /* don't care */
+ 	}
+ 
+ 	/* check to make sure that we are not extending the file */
+-	if(mapping->host->i_size - offset < (loff_t)to)
++	if (mapping->host->i_size - offset < (loff_t)to)
+ 		to = (unsigned)(mapping->host->i_size - offset); 
+ 		
+ 
+@@ -892,11 +891,11 @@ cifs_partialpagewrite(struct page *page,
+ 	read_lock(&GlobalSMBSeslock); 
+ 	/* BB we should start at the end */
+ 	list_for_each_safe(tmp, tmp1, &cifsInode->openFileList) {            
+-		open_file = list_entry(tmp,struct cifsFileInfo, flist);
+-		if(open_file->closePend)
++		open_file = list_entry(tmp, struct cifsFileInfo, flist);
++		if (open_file->closePend)
+ 			continue;
+ 		/* We check if file is open for writing first */
+-		if((open_file->pfile) && 
++		if ((open_file->pfile) && 
+ 		   ((open_file->pfile->f_flags & O_RDWR) || 
+ 			(open_file->pfile->f_flags & O_WRONLY))) {
+ 			read_unlock(&GlobalSMBSeslock);
+@@ -907,8 +906,8 @@ cifs_partialpagewrite(struct page *page,
+ 			inode->i_atime = inode->i_mtime = current_fs_time(inode->i_sb);
+ 			if ((bytes_written > 0) && (offset)) {
+ 				rc = 0;
+-			} else if(bytes_written < 0) {
+-				if(rc == -EBADF) {
++			} else if (bytes_written < 0) {
++				if (rc == -EBADF) {
+ 				/* have seen a case in which
+ 				kernel seemed to have closed/freed a file
+ 				even with writes active so we might as well
+@@ -922,14 +921,14 @@ cifs_partialpagewrite(struct page *page,
+ 				and tried to write to it we are done, no
+ 				sense continuing to loop looking for another */
+ 		}
+-		if(tmp->next == NULL) {
+-			cFYI(1,("File instance %p removed",tmp));
++		if (tmp->next == NULL) {
++			cFYI(1, ("File instance %p removed", tmp));
+ 			break;
+ 		}
+ 	}
+ 	read_unlock(&GlobalSMBSeslock);
+-	if(open_file == NULL) {
+-		cFYI(1,("No writeable filehandles for inode"));
++	if (open_file == NULL) {
++		cFYI(1, ("No writeable filehandles for inode"));
+ 		rc = -EIO;
+ 	}
+ 
+@@ -951,8 +950,7 @@ cifs_writepages(struct address_space *ma
+ }
  #endif
  
-+#ifdef CONFIG_INOTIFY
-+	struct list_head	inotify_watches;  /* watches on this inode */
-+	spinlock_t		inotify_lock;  /* protects the watches list */
-+#endif
-+
- 	unsigned long		i_state;
- 	unsigned long		dirtied_when;	/* jiffies of first dirtying */
+-static int
+-cifs_writepage(struct page* page, struct writeback_control *wbc)
++static int cifs_writepage(struct page *page, struct writeback_control *wbc)
+ {
+ 	int rc = -EFAULT;
+ 	int xid;
+@@ -961,10 +959,10 @@ cifs_writepage(struct page* page, struct
+ /* BB add check for wbc flags */
+ 	page_cache_get(page);
+         if (!PageUptodate(page)) {
+-		cFYI(1,("ppw - page not up to date"));
++		cFYI(1, ("ppw - page not up to date"));
+ 	}
+ 	
+-	rc = cifs_partialpagewrite(page,0,PAGE_CACHE_SIZE);
++	rc = cifs_partialpagewrite(page, 0, PAGE_CACHE_SIZE);
+ 	SetPageUptodate(page); /* BB add check for error and Clearuptodate? */
+ 	unlock_page(page);
+ 	page_cache_release(page);	
+@@ -980,10 +978,10 @@ cifs_commit_write(struct file *file, str
+ 	int rc = 0;
+ 	struct inode *inode = page->mapping->host;
+ 	loff_t position = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
+-	char * page_data;
++	char *page_data;
  
-@@ -1368,7 +1374,7 @@
- extern int do_remount_sb(struct super_block *sb, int flags,
- 			 void *data, int force);
- extern sector_t bmap(struct inode *, sector_t);
--extern int setattr_mask(unsigned int);
-+extern void setattr_mask(unsigned int, int *, u32 *);
- extern int notify_change(struct dentry *, struct iattr *);
- extern int permission(struct inode *, int, struct nameidata *);
- extern int generic_permission(struct inode *, int,
-diff -urN linux-2.6.11-mm1/include/linux/fsnotify.h linux/include/linux/fsnotify.h
---- linux-2.6.11-mm1/include/linux/fsnotify.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux/include/linux/fsnotify.h	2005-03-04 13:27:05.583486632 -0500
-@@ -0,0 +1,235 @@
-+#ifndef _LINUX_FS_NOTIFY_H
-+#define _LINUX_FS_NOTIFY_H
-+
-+/*
-+ * include/linux/fs_notify.h - generic hooks for filesystem notification, to
-+ * reduce in-source duplication from both dnotify and inotify.
-+ *
-+ * We don't compile any of this away in some complicated menagerie of ifdefs.
-+ * Instead, we rely on the code inside to optimize away as needed.
-+ *
-+ * (C) Copyright 2005 Robert Love
-+ */
-+
-+#ifdef __KERNEL__
-+
-+#include <linux/dnotify.h>
-+#include <linux/inotify.h>
-+
-+/*
-+ * fsnotify_move - file old_name at old_dir was moved to new_name at new_dir
-+ */
-+static inline void fsnotify_move(struct inode *old_dir, struct inode *new_dir,
-+				 const char *old_name, const char *new_name)
-+{
-+	u32 cookie;
-+
-+	if (old_dir == new_dir)
-+		inode_dir_notify(old_dir, DN_RENAME);
-+	else {
-+		inode_dir_notify(old_dir, DN_DELETE);
-+		inode_dir_notify(new_dir, DN_CREATE);
-+	}
-+
-+	cookie = inotify_get_cookie();
-+
-+	inotify_inode_queue_event(old_dir, IN_MOVED_FROM, cookie, old_name);
-+	inotify_inode_queue_event(new_dir, IN_MOVED_TO, cookie, new_name);
-+}
-+
-+/*
-+ * fsnotify_unlink - file was unlinked
-+ */
-+static inline void fsnotify_unlink(struct inode *inode, struct inode *dir,
-+				   struct dentry *dentry)
-+{
-+	inode_dir_notify(dir, DN_DELETE);
-+	inotify_inode_queue_event(dir, IN_DELETE_FILE, 0, dentry->d_name.name);
-+	inotify_inode_queue_event(inode, IN_DELETE_SELF, 0, NULL);
-+
-+	inotify_inode_is_dead(inode);
-+	d_delete(dentry);
-+}
-+
-+/*
-+ * fsnotify_rmdir - directory was removed
-+ */
-+static inline void fsnotify_rmdir(struct dentry *dentry, struct inode *inode,
-+				  struct inode *dir)
-+{
-+	inode_dir_notify(dir, DN_DELETE);
-+	inotify_inode_queue_event(dir, IN_DELETE_SUBDIR,0,dentry->d_name.name);
-+	inotify_inode_queue_event(inode, IN_DELETE_SELF, 0, NULL);
-+
-+	inotify_inode_is_dead(inode);
-+	d_delete(dentry);
-+}
-+
-+/*
-+ * fsnotify_create - filename was linked in
-+ */
-+static inline void fsnotify_create(struct inode *inode, const char *filename)
-+{
-+	inode_dir_notify(inode, DN_CREATE);
-+	inotify_inode_queue_event(inode, IN_CREATE_FILE, 0, filename);
-+}
-+
-+/*
-+ * fsnotify_mkdir - directory 'name' was created
-+ */
-+static inline void fsnotify_mkdir(struct inode *inode, const char *name)
-+{
-+	inode_dir_notify(inode, DN_CREATE);
-+	inotify_inode_queue_event(inode, IN_CREATE_SUBDIR, 0, name);
-+}
-+
-+/*
-+ * fsnotify_access - file was read
-+ */
-+static inline void fsnotify_access(struct dentry *dentry, struct inode *inode,
-+				   const char *filename)
-+{
-+	dnotify_parent(dentry, DN_ACCESS);
-+	inotify_dentry_parent_queue_event(dentry, IN_ACCESS, 0,
-+					  dentry->d_name.name);
-+	inotify_inode_queue_event(inode, IN_ACCESS, 0, NULL);
-+}
-+
-+/*
-+ * fsnotify_modify - file was modified
-+ */
-+static inline void fsnotify_modify(struct dentry *dentry, struct inode *inode,
-+				   const char *filename)
-+{
-+	dnotify_parent(dentry, DN_MODIFY);
-+	inotify_dentry_parent_queue_event(dentry, IN_MODIFY, 0, filename);
-+	inotify_inode_queue_event(inode, IN_MODIFY, 0, NULL);
-+}
-+
-+/*
-+ * fsnotify_open - file was opened
-+ */
-+static inline void fsnotify_open(struct dentry *dentry, struct inode *inode,
-+				 const char *filename)
-+{
-+	inotify_inode_queue_event(inode, IN_OPEN, 0, NULL);
-+	inotify_dentry_parent_queue_event(dentry, IN_OPEN, 0, filename);
-+}
-+
-+/*
-+ * fsnotify_close - file was closed
-+ */
-+static inline void fsnotify_close(struct dentry *dentry, struct inode *inode,
-+				  mode_t mode, const char *filename)
-+{
-+	u32 mask;
-+
-+	mask = (mode & FMODE_WRITE) ? IN_CLOSE_WRITE : IN_CLOSE_NOWRITE;
-+	inotify_dentry_parent_queue_event(dentry, mask, 0, filename);
-+	inotify_inode_queue_event(inode, mask, 0, NULL);
-+}
-+
-+/*
-+ * fsnotify_change - notify_change event.  file was modified and/or metadata
-+ * was changed.
-+ */
-+static inline void fsnotify_change(struct dentry *dentry, unsigned int ia_valid)
-+{
-+	int dn_mask = 0;
-+	u32 in_mask = 0;
-+
-+	if (ia_valid & ATTR_UID) {
-+		in_mask |= IN_ATTRIB;
-+		dn_mask |= DN_ATTRIB;
-+	}
-+	if (ia_valid & ATTR_GID) {
-+		in_mask |= IN_ATTRIB;
-+		dn_mask |= DN_ATTRIB;
-+	}
-+	if (ia_valid & ATTR_SIZE) {
-+		in_mask |= IN_MODIFY;
-+		dn_mask |= DN_MODIFY;
-+	}
-+	/* both times implies a utime(s) call */
-+	if ((ia_valid & (ATTR_ATIME | ATTR_MTIME)) == (ATTR_ATIME | ATTR_MTIME))
-+	{
-+		in_mask |= IN_ATTRIB;
-+		dn_mask |= DN_ATTRIB;
-+	} else if (ia_valid & ATTR_ATIME) {
-+		in_mask |= IN_ACCESS;
-+		dn_mask |= DN_ACCESS;
-+	} else if (ia_valid & ATTR_MTIME) {
-+		in_mask |= IN_MODIFY;
-+		dn_mask |= DN_MODIFY;
-+	}
-+	if (ia_valid & ATTR_MODE) {
-+		in_mask |= IN_ATTRIB;
-+		dn_mask |= DN_ATTRIB;
-+	}
-+
-+	if (dn_mask)
-+		dnotify_parent(dentry, dn_mask);
-+	if (in_mask) {
-+		inotify_inode_queue_event(dentry->d_inode, in_mask, 0, NULL);
-+		inotify_dentry_parent_queue_event(dentry, in_mask, 0,
-+						  dentry->d_name.name);
-+	}
-+}
-+
-+/*
-+ * fsnotify_sb_umount - filesystem unmount
-+ */
-+static inline void fsnotify_sb_umount(struct super_block *sb)
-+{
-+	inotify_super_block_umount(sb);
-+}
-+
-+/*
-+ * fsnotify_flush - flush time!
-+ */
-+static inline void fsnotify_flush(struct file *filp, fl_owner_t id)
-+{
-+	dnotify_flush(filp, id);
-+}
-+
-+#ifdef CONFIG_INOTIFY	/* inotify helpers */
-+
-+/*
-+ * fsnotify_oldname_init - save off the old filename before we change it
-+ *
-+ * this could be kstrdup if only we could add that to lib/string.c
-+ */
-+static inline char *fsnotify_oldname_init(struct dentry *old_dentry)
-+{
-+	char *old_name;
-+
-+	old_name = kmalloc(strlen(old_dentry->d_name.name) + 1, GFP_KERNEL);
-+	if (old_name)
-+		strcpy(old_name, old_dentry->d_name.name);
-+	return old_name;
-+}
-+
-+/*
-+ * fsnotify_oldname_free - free the name we got from fsnotify_oldname_init
-+ */
-+static inline void fsnotify_oldname_free(const char *old_name)
-+{
-+	kfree(old_name);
-+}
-+
-+#else	/* CONFIG_INOTIFY */
-+
-+static inline char *fsnotify_oldname_init(struct dentry *old_dentry)
-+{
-+	return NULL;
-+}
-+
-+static inline void fsnotify_oldname_free(const char *old_name)
-+{
-+}
-+
-+#endif	/* ! CONFIG_INOTIFY */
-+
-+#endif	/* __KERNEL__ */
-+
-+#endif	/* _LINUX_FS_NOTIFY_H */
-diff -urN linux-2.6.11-mm1/include/linux/inotify.h linux/include/linux/inotify.h
---- linux-2.6.11-mm1/include/linux/inotify.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux/include/linux/inotify.h	2005-03-04 13:27:05.584486480 -0500
-@@ -0,0 +1,113 @@
-+/*
-+ * Inode based directory notification for Linux
-+ *
-+ * Copyright (C) 2005 John McCutchan
-+ */
-+
-+#ifndef _LINUX_INOTIFY_H
-+#define _LINUX_INOTIFY_H
-+
-+#include <linux/types.h>
-+#include <linux/limits.h>
-+
-+/*
-+ * struct inotify_event - structure read from the inotify device for each event
-+ *
-+ * When you are watching a directory, you will receive the filename for events
-+ * such as IN_CREATE, IN_DELETE, IN_OPEN, IN_CLOSE, ..., relative to the wd.
-+ */
-+struct inotify_event {
-+	__s32		wd;		/* watch descriptor */
-+	__u32		mask;		/* watch mask */
-+	__u32		cookie;		/* cookie to synchronize two events */
-+	size_t		len;		/* length (including nulls) of name */
-+	char		name[0];	/* stub for possible name */
-+};
-+
-+/*
-+ * struct inotify_watch_request - represents a watch request
-+ *
-+ * Pass to the inotify device via the INOTIFY_WATCH ioctl
-+ */
-+struct inotify_watch_request {
-+	char		*name;		/* filename name */
-+	__u32		mask;		/* event mask */
-+};
-+
-+/* the following are legal, implemented events */
-+#define IN_ACCESS		0x00000001	/* File was accessed */
-+#define IN_MODIFY		0x00000002	/* File was modified */
-+#define IN_ATTRIB		0x00000004	/* File changed attributes */
-+#define IN_CLOSE_WRITE		0x00000008	/* Writtable file was closed */
-+#define IN_CLOSE_NOWRITE	0x00000010	/* Unwrittable file closed */
-+#define IN_OPEN			0x00000020	/* File was opened */
-+#define IN_MOVED_FROM		0x00000040	/* File was moved from X */
-+#define IN_MOVED_TO		0x00000080	/* File was moved to Y */
-+#define IN_DELETE_SUBDIR	0x00000100	/* Subdir was deleted */ 
-+#define IN_DELETE_FILE		0x00000200	/* Subfile was deleted */
-+#define IN_CREATE_SUBDIR	0x00000400	/* Subdir was created */
-+#define IN_CREATE_FILE		0x00000800	/* Subfile was created */
-+#define IN_DELETE_SELF		0x00001000	/* Self was deleted */
-+#define IN_UNMOUNT		0x00002000	/* Backing fs was unmounted */
-+#define IN_Q_OVERFLOW		0x00004000	/* Event queued overflowed */
-+#define IN_IGNORED		0x00008000	/* File was ignored */
-+
-+/* special flags */
-+#define IN_ALL_EVENTS		0xffffffff	/* All the events */
-+#define IN_CLOSE		(IN_CLOSE_WRITE | IN_CLOSE_NOWRITE)
-+
-+#define INOTIFY_IOCTL_MAGIC	'Q'
-+#define INOTIFY_IOCTL_MAXNR	2
-+
-+#define INOTIFY_WATCH  		_IOR(INOTIFY_IOCTL_MAGIC, 1, struct inotify_watch_request)
-+#define INOTIFY_IGNORE 		_IOR(INOTIFY_IOCTL_MAGIC, 2, int)
-+
-+#ifdef __KERNEL__
-+
-+#include <linux/dcache.h>
-+#include <linux/fs.h>
-+#include <linux/config.h>
-+#include <asm/atomic.h>
-+
-+#ifdef CONFIG_INOTIFY
-+
-+extern void inotify_inode_queue_event(struct inode *, __u32, __u32,
-+				      const char *);
-+extern void inotify_dentry_parent_queue_event(struct dentry *, __u32, __u32,
-+					      const char *);
-+extern void inotify_super_block_umount(struct super_block *);
-+extern void inotify_inode_is_dead(struct inode *);
-+extern u32 inotify_get_cookie(void);
-+
-+#else
-+
-+static inline void inotify_inode_queue_event(struct inode *inode,
-+					     __u32 mask, __u32 cookie,
-+					     const char *filename)
-+{
-+}
-+
-+static inline void inotify_dentry_parent_queue_event(struct dentry *dentry,
-+						     __u32 mask, __u32 cookie,
-+						     const char *filename)
-+{
-+}
-+
-+static inline void inotify_super_block_umount(struct super_block *sb)
-+{
-+}
-+
-+static inline void inotify_inode_is_dead(struct inode *inode)
-+{
-+}
-+
-+static inline u32 inotify_get_cookie(void)
-+{
-+	return 0;
-+}
-+
-+#endif	/* CONFIG_INOTIFY */
-+
-+#endif	/* __KERNEL __ */
-+
-+#endif	/* _LINUX_INOTIFY_H */
-diff -urN linux-2.6.11-mm1/include/linux/sched.h linux/include/linux/sched.h
---- linux-2.6.11-mm1/include/linux/sched.h	2005-03-04 14:06:21.766292400 -0500
-+++ linux/include/linux/sched.h	2005-03-04 13:27:05.586486176 -0500
-@@ -411,6 +411,8 @@
- 	atomic_t processes;	/* How many processes does this user have? */
- 	atomic_t files;		/* How many open files does this user have? */
- 	atomic_t sigpending;	/* How many pending signals does this user have? */
-+	atomic_t inotify_watches;	/* How many inotify watches does this user have? */
-+	atomic_t inotify_devs;	/* How many inotify devs does this user have opened? */
- 	/* protected by mq_lock	*/
- 	unsigned long mq_bytes;	/* How many bytes can be allocated to mqueue? */
- 	unsigned long locked_shm; /* How many pages of mlocked shm ? */
-diff -urN linux-2.6.11-mm1/kernel/user.c linux/kernel/user.c
---- linux-2.6.11-mm1/kernel/user.c	2005-03-04 14:06:21.766292400 -0500
-+++ linux/kernel/user.c	2005-03-04 13:27:05.588485872 -0500
-@@ -120,6 +120,8 @@
- 		atomic_set(&new->processes, 0);
- 		atomic_set(&new->files, 0);
- 		atomic_set(&new->sigpending, 0);
-+		atomic_set(&new->inotify_watches, 0);
-+		atomic_set(&new->inotify_devs, 0);
+ 	xid = GetXid();
+-	cFYI(1,("commit write for page %p up to position %lld for %d",page,position,to));
++	cFYI(1, ("commit write for page %p up to position %lld for %d", page, position, to));
+ 	if (position > inode->i_size){
+ 		i_size_write(inode, position);
+ 		/*if (file->private_data == NULL) {
+@@ -992,31 +990,31 @@ cifs_commit_write(struct file *file, str
+ 			open_file = (struct cifsFileInfo *)file->private_data;
+ 			cifs_sb = CIFS_SB(inode->i_sb);
+ 			rc = -EAGAIN;
+-			while(rc == -EAGAIN) {
+-				if((open_file->invalidHandle) && 
+-				  (!open_file->closePend)) {
+-					rc = cifs_reopen_file(file->f_dentry->d_inode,file);
+-					if(rc != 0)
++			while (rc == -EAGAIN) {
++				if ((open_file->invalidHandle) && 
++				   (!open_file->closePend)) {
++					rc = cifs_reopen_file(file->f_dentry->d_inode, file);
++					if (rc != 0)
+ 						break;
+ 				}
+-				if(!open_file->closePend) {
++				if (!open_file->closePend) {
+ 					rc = CIFSSMBSetFileSize(xid, cifs_sb->tcon, 
+ 						position, open_file->netfid,
+-						open_file->pid,FALSE);
++						open_file->pid, FALSE);
+ 				} else {
+ 					rc = -EBADF;
+ 					break;
+ 				}
+ 			}
+-			cFYI(1,(" SetEOF (commit write) rc = %d",rc));
++			cFYI(1, (" SetEOF (commit write) rc = %d", rc));
+ 		}*/
+ 	}
+ 	if (!PageUptodate(page)) {
+ 		position =  ((loff_t)page->index << PAGE_CACHE_SHIFT) + offset;
+ 		/* can not rely on (or let) writepage write this data */
+-		if(to < offset) {
+-			cFYI(1,("Illegal offsets, can not copy from %d to %d",
+-				offset,to));
++		if (to < offset) {
++			cFYI(1, ("Illegal offsets, can not copy from %d to %d",
++				offset, to));
+ 			FreeXid(xid);
+ 			return rc;
+ 		}
+@@ -1024,12 +1022,12 @@ cifs_commit_write(struct file *file, str
+ 		partialpage_write since in this function
+ 		the file handle is known which we might as well
+ 		leverage */
+-		/* BB check if anything else missing out of ppw */
+-		/* such as updating last write time */
++		/* BB check if anything else missing out of ppw
++		   such as updating last write time */
+ 		page_data = kmap(page);
+-		rc = cifs_write(file, page_data+offset,to-offset,
++		rc = cifs_write(file, page_data+offset, to-offset,
+                                         &position);
+-		if(rc > 0)
++		if (rc > 0)
+ 			rc = 0;
+ 		/* else if rc < 0 should we set writebehind rc? */
+ 		kunmap(page);
+@@ -1041,12 +1039,11 @@ cifs_commit_write(struct file *file, str
+ 	return rc;
+ }
  
- 		new->mq_bytes = 0;
- 		new->locked_shm = 0;
+-int
+-cifs_fsync(struct file *file, struct dentry *dentry, int datasync)
++int cifs_fsync(struct file *file, struct dentry *dentry, int datasync)
+ {
+ 	int xid;
+ 	int rc = 0;
+-	struct inode * inode = file->f_dentry->d_inode;
++	struct inode *inode = file->f_dentry->d_inode;
+ 
+ 	xid = GetXid();
+ 
+@@ -1054,14 +1051,13 @@ cifs_fsync(struct file *file, struct den
+ 		dentry->d_name.name, datasync));
+ 	
+ 	rc = filemap_fdatawrite(inode->i_mapping);
+-	if(rc == 0)
++	if (rc == 0)
+ 		CIFS_I(inode)->write_behind_rc = 0;
+ 	FreeXid(xid);
+ 	return rc;
+ }
+ 
+-/* static int
+-cifs_sync_page(struct page *page)
++/* static int cifs_sync_page(struct page *page)
+ {
+ 	struct address_space *mapping;
+ 	struct inode *inode;
+@@ -1069,7 +1065,7 @@ cifs_sync_page(struct page *page)
+ 	unsigned int rpages = 0;
+ 	int rc = 0;
+ 
+-	cFYI(1,("sync page %p",page));
++	cFYI(1, ("sync page %p", page));
+ 	mapping = page->mapping;
+ 	if (!mapping)
+ 		return 0;
+@@ -1094,31 +1090,30 @@ cifs_sync_page(struct page *page)
+  */
+ int cifs_flush(struct file *file)
+ {
+-	struct inode * inode = file->f_dentry->d_inode;
++	struct inode *inode = file->f_dentry->d_inode;
+ 	int rc = 0;
+ 
+-	/* Rather than do the steps manually: */
+-	/* lock the inode for writing */
+-	/* loop through pages looking for write behind data (dirty pages) */
+-	/* coalesce into contiguous 16K (or smaller) chunks to write to server */
+-	/* send to server (prefer in parallel) */
+-	/* deal with writebehind errors */
+-	/* unlock inode for writing */
+-	/* filemapfdatawrite appears easier for the time being */
++	/* Rather than do the steps manually:
++	   lock the inode for writing
++	   loop through pages looking for write behind data (dirty pages)
++	   coalesce into contiguous 16K (or smaller) chunks to write to server
++	   send to server (prefer in parallel)
++	   deal with writebehind errors
++	   unlock inode for writing
++	   filemapfdatawrite appears easier for the time being */
+ 
+ 	rc = filemap_fdatawrite(inode->i_mapping);
+-	if(rc == 0) /* reset wb rc if we were able to write out dirty pages */
++	if (rc == 0) /* reset wb rc if we were able to write out dirty pages */
+ 		CIFS_I(inode)->write_behind_rc = 0;
+ 		
+-	cFYI(1,("Flush inode %p file %p rc %d",inode,file,rc));
++	cFYI(1, ("Flush inode %p file %p rc %d", inode, file, rc));
+ 
+ 	return rc;
+ }
+ 
+-
+ ssize_t
+-cifs_user_read(struct file * file, char __user *read_data, size_t read_size,
+-	  loff_t * poffset)
++cifs_user_read(struct file *file, char __user *read_data, size_t read_size,
++	  loff_t *poffset)
+ {
+ 	int rc = -EACCES;
+ 	unsigned int bytes_read = 0;
+@@ -1127,10 +1122,10 @@ cifs_user_read(struct file * file, char 
+ 	struct cifs_sb_info *cifs_sb;
+ 	struct cifsTconInfo *pTcon;
+ 	int xid;
+-	struct cifsFileInfo * open_file;
+-	char * smb_read_data;
+-	char __user * current_offset;
+-	struct smb_com_read_rsp * pSMBr;
++	struct cifsFileInfo *open_file;
++	char *smb_read_data;
++	char __user *current_offset;
++	struct smb_com_read_rsp *pSMBr;
+ 
+ 	xid = GetXid();
+ 	cifs_sb = CIFS_SB(file->f_dentry->d_sb);
+@@ -1146,17 +1141,17 @@ cifs_user_read(struct file * file, char 
+ 		cFYI(1,("attempting read on write only file instance"));
+ 	}
+ 
+-	for (total_read = 0,current_offset=read_data; read_size > total_read;
+-				total_read += bytes_read,current_offset+=bytes_read) {
++	for (total_read = 0, current_offset = read_data; read_size > total_read;
++			total_read += bytes_read, current_offset += bytes_read) {
+ 		unsigned residue;
+-		current_read_size = min_t(const int,read_size - total_read,cifs_sb->rsize);
++		current_read_size = min_t(const int, read_size - total_read, cifs_sb->rsize);
+ 		rc = -EAGAIN;
+ 		smb_read_data = NULL;
+ 		while(rc == -EAGAIN) {
+ 			if ((open_file->invalidHandle) && (!open_file->closePend)) {
+ 				rc = cifs_reopen_file(file->f_dentry->d_inode,
+ 					file,TRUE);
+-				if(rc != 0)
++				if (rc != 0)
+ 					break;
+ 			}
+ 
+@@ -1200,8 +1195,8 @@ cifs_user_read(struct file * file, char 
+ }
+ 
+ static ssize_t
+-cifs_read(struct file * file, char *read_data, size_t read_size,
+-	  loff_t * poffset)
++cifs_read(struct file *file, char *read_data, size_t read_size,
++	  loff_t *poffset)
+ {
+ 	int rc = -EACCES;
+ 	unsigned int bytes_read = 0;
+@@ -1210,7 +1205,7 @@ cifs_read(struct file * file, char *read
+ 	struct cifs_sb_info *cifs_sb;
+ 	struct cifsTconInfo *pTcon;
+ 	int xid;
+-	char * current_offset;
++	char *current_offset;
+ 	struct cifsFileInfo * open_file;
+ 
+ 	xid = GetXid();
+@@ -1223,19 +1218,19 @@ cifs_read(struct file * file, char *read
+ 	}
+ 	open_file = (struct cifsFileInfo *)file->private_data;
+ 
+-	if((file->f_flags & O_ACCMODE) == O_WRONLY) {
+-		cFYI(1,("attempting read on write only file instance"));
++	if ((file->f_flags & O_ACCMODE) == O_WRONLY) {
++		cFYI(1, ("attempting read on write only file instance"));
+ 	}
+ 
+-	for (total_read = 0,current_offset=read_data; read_size > total_read;
+-				total_read += bytes_read,current_offset+=bytes_read) {
+-		current_read_size = min_t(const int,read_size - total_read,cifs_sb->rsize);
++	for (total_read = 0, current_offset = read_data; read_size > total_read;
++			total_read += bytes_read, current_offset += bytes_read) {
++		current_read_size = min_t(const int, read_size - total_read, cifs_sb->rsize);
+ 		rc = -EAGAIN;
+-		while(rc == -EAGAIN) {
++		while (rc == -EAGAIN) {
+ 			if ((open_file->invalidHandle) && (!open_file->closePend)) {
+ 				rc = cifs_reopen_file(file->f_dentry->d_inode,
+ 					file,TRUE);
+-				if(rc != 0)
++				if (rc != 0)
+ 					break;
+ 			}
+ 
+@@ -1265,13 +1260,13 @@ cifs_read(struct file * file, char *read
+ 	return total_read;
+ }
+ 
+-int cifs_file_mmap(struct file * file, struct vm_area_struct * vma)
++int cifs_file_mmap(struct file *file, struct vm_area_struct *vma)
+ {
+-	struct dentry * dentry = file->f_dentry;
+-	int	rc, xid;
++	struct dentry *dentry = file->f_dentry;
++	int rc, xid;
+ 
+ #ifdef CIFS_EXPERIMENTAL   /* BB fixme reenable when cifs_read_wrapper fixed */
+-	if(dentry->d_sb) {
++	if (dentry->d_sb) {
+ 		struct cifs_sb_info *cifs_sb;
+ 		cifs_sb = CIFS_SB(sb);
+ 		if(cifs_sb != NULL) {
+@@ -1284,7 +1279,7 @@ int cifs_file_mmap(struct file * file, s
+ 	xid = GetXid();
+ 	rc = cifs_revalidate(dentry);
+ 	if (rc) {
+-		cFYI(1,("Validation prior to mmap failed, error=%d", rc));
++		cFYI(1, ("Validation prior to mmap failed, error=%d", rc));
+ 		FreeXid(xid);
+ 		return rc;
+ 	}
+@@ -1293,15 +1288,15 @@ int cifs_file_mmap(struct file * file, s
+ 	return rc;
+ }
+ 
+-static void cifs_copy_cache_pages(struct address_space *mapping, 
+-		struct list_head *pages, int bytes_read, 
+-		char *data,struct pagevec * plru_pvec)
++static void
++cifs_copy_cache_pages(struct address_space *mapping, struct list_head *pages,
++		      int bytes_read, char *data, struct pagevec *plru_pvec)
+ {
+ 	struct page *page;
+-	char * target;
++	char *target;
+ 
+ 	while (bytes_read > 0) {
+-		if(list_empty(pages))
++		if (list_empty(pages))
+ 			break;
+ 
+ 		page = list_entry(pages->prev, struct page, lru);
+@@ -1309,16 +1304,16 @@ static void cifs_copy_cache_pages(struct
+ 
+ 		if (add_to_page_cache(page, mapping, page->index, GFP_KERNEL)) {
+ 			page_cache_release(page);
+-			cFYI(1,("Add page cache failed"));
++			cFYI(1, ("Add page cache failed"));
+ 			continue;
+ 		}
+ 
+ 		target = kmap_atomic(page,KM_USER0);
+ 
+-		if(PAGE_CACHE_SIZE > bytes_read) {
+-			memcpy(target,data,bytes_read);
++		if (PAGE_CACHE_SIZE > bytes_read) {
++			memcpy(target, data, bytes_read);
+ 			/* zero the tail end of this partial page */
+-			memset(target+bytes_read,0,PAGE_CACHE_SIZE-bytes_read);
++			memset(target + bytes_read, 0, PAGE_CACHE_SIZE - bytes_read);
+ 			bytes_read = 0;
+ 		} else {
+ 			memcpy(target,data,PAGE_CACHE_SIZE);
+@@ -1336,7 +1331,6 @@ static void cifs_copy_cache_pages(struct
+ 	return;
+ }
+ 
+-
+ static int
+ cifs_readpages(struct file *file, struct address_space *mapping,
+ 		struct list_head *page_list, unsigned num_pages)
+@@ -1344,15 +1338,15 @@ cifs_readpages(struct file *file, struct
+ 	int rc = -EACCES;
+ 	int xid;
+ 	loff_t offset;
+-	struct page * page;
++	struct page *page;
+ 	struct cifs_sb_info *cifs_sb;
+ 	struct cifsTconInfo *pTcon;
+ 	int bytes_read = 0;
+-	unsigned int read_size,i;
+-	char * smb_read_data = NULL;
+-	struct smb_com_read_rsp * pSMBr;
++	unsigned int read_size, i;
++	char *smb_read_data = NULL;
++	struct smb_com_read_rsp *pSMBr;
+ 	struct pagevec lru_pvec;
+-	struct cifsFileInfo * open_file;
++	struct cifsFileInfo *open_file;
+ 
+ 	xid = GetXid();
+ 	if (file->private_data == NULL) {
+@@ -1365,12 +1359,12 @@ cifs_readpages(struct file *file, struct
+ 
+ 	pagevec_init(&lru_pvec, 0);
+ 
+-	for(i = 0;i<num_pages;) {
++	for(i = 0; i < num_pages; ) {
+ 		unsigned contig_pages;
+-		struct page * tmp_page;
++		struct page *tmp_page;
+ 		unsigned long expected_index;
+ 
+-		if(list_empty(page_list)) {
++		if (list_empty(page_list)) {
+ 			break;
+ 		}
+ 		page = list_entry(page_list->prev, struct page, lru);
+@@ -1380,14 +1374,14 @@ cifs_readpages(struct file *file, struct
+ 		contig_pages = 0;
+ 		expected_index = list_entry(page_list->prev,struct page,lru)->index;
+ 		list_for_each_entry_reverse(tmp_page,page_list,lru) {
+-			if(tmp_page->index == expected_index) {
++			if (tmp_page->index == expected_index) {
+ 				contig_pages++;
+ 				expected_index++;
+ 			} else {
+ 				break; 
+ 			}
+ 		}
+-		if(contig_pages + i >  num_pages) {
++		if (contig_pages + i >  num_pages) {
+ 			contig_pages = num_pages - i;
+ 		}
+ 
+@@ -1395,14 +1389,14 @@ cifs_readpages(struct file *file, struct
+ 
+ 		read_size = contig_pages * PAGE_CACHE_SIZE;
+ 		/* Read size needs to be in multiples of one page */
+-		read_size = min_t(const unsigned int,read_size,cifs_sb->rsize & PAGE_CACHE_MASK);
++		read_size = min_t(const unsigned int, read_size, cifs_sb->rsize & PAGE_CACHE_MASK);
+ 
+ 		rc = -EAGAIN;
+-		while(rc == -EAGAIN) {
++		while (rc == -EAGAIN) {
+ 			if ((open_file->invalidHandle) && (!open_file->closePend)) {
+ 				rc = cifs_reopen_file(file->f_dentry->d_inode,
+ 					file, TRUE);
+-				if(rc != 0)
++				if (rc != 0)
+ 					break;
+ 			}
+ 
+@@ -1411,15 +1405,15 @@ cifs_readpages(struct file *file, struct
+ 				read_size, offset,
+ 				&bytes_read, &smb_read_data);
+ 			/* BB need to check return code here */
+-			if(rc== -EAGAIN) {
+-				if(smb_read_data) {
++			if (rc== -EAGAIN) {
++				if (smb_read_data) {
+ 					cifs_buf_release(smb_read_data);
+ 					smb_read_data = NULL;
+ 				}
+ 			}
+ 		}
+ 		if ((rc < 0) || (smb_read_data == NULL)) {
+-			cFYI(1,("Read error in readpages: %d",rc));
++			cFYI(1, ("Read error in readpages: %d", rc));
+ 			/* clean up remaing pages off list */
+ 			while (!list_empty(page_list) && (i < num_pages)) {
+ 				page = list_entry(page_list->prev, struct page, lru);
+@@ -1440,7 +1434,7 @@ cifs_readpages(struct file *file, struct
+ 			pTcon->bytes_read += bytes_read;
+ 			spin_unlock(&pTcon->stat_lock);
+ #endif
+-			if((int)(bytes_read & PAGE_CACHE_MASK) != bytes_read) {
++			if ((int)(bytes_read & PAGE_CACHE_MASK) != bytes_read) {
+ 				i++; /* account for partial page */
+ 
+ 				/* server copy of file can have smaller size than client */
+@@ -1455,7 +1449,8 @@ cifs_readpages(struct file *file, struct
+ 				break; */
+ 			}
+ 		} else {
+-			cFYI(1,("No bytes read (%d) at offset %lld . Cleaning remaining pages from readahead list",bytes_read,offset)); 
++			cFYI(1, ("No bytes read (%d) at offset %lld . Cleaning remaining pages from readahead list", 
++				bytes_read, offset)); 
+ 			/* BB turn off caching and do new lookup on file size at server? */
+ 			while (!list_empty(page_list) && (i < num_pages)) {
+ 				page = list_entry(page_list->prev, struct page, lru);
+@@ -1464,7 +1459,7 @@ cifs_readpages(struct file *file, struct
+ 			}
+ 			break;
+ 		}
+-		if(smb_read_data) {
++		if (smb_read_data) {
+ 			cifs_buf_release(smb_read_data);
+ 			smb_read_data = NULL;
+ 		}
+@@ -1474,7 +1469,7 @@ cifs_readpages(struct file *file, struct
+ 	pagevec_lru_add(&lru_pvec);
+ 
+ /* need to free smb_read_data buf before exit */
+-	if(smb_read_data) {
++	if (smb_read_data) {
+ 		cifs_buf_release(smb_read_data);
+ 		smb_read_data = NULL;
+ 	} 
+@@ -1483,7 +1478,8 @@ cifs_readpages(struct file *file, struct
+ 	return rc;
+ }
+ 
+-static int cifs_readpage_worker(struct file *file, struct page *page, loff_t * poffset)
++static int 
++cifs_readpage_worker(struct file *file, struct page *page, loff_t *poffset)
+ {
+ 	char * read_data;
+ 	int rc;
+@@ -1497,7 +1493,7 @@ static int cifs_readpage_worker(struct f
+ 	if (rc < 0)
+ 		goto io_error;
+ 	else {
+-		cFYI(1,("Bytes read %d ",rc));
++		cFYI(1, ("Bytes read %d ", rc));
+ 	}
+                                                                                                                            
+ 	file->f_dentry->d_inode->i_atime =
+@@ -1516,8 +1512,7 @@ io_error:
+ 	return rc;
+ }
+ 
+-static int
+-cifs_readpage(struct file *file, struct page *page)
++static int cifs_readpage(struct file *file, struct page *page)
+ {
+ 	loff_t offset = (loff_t)page->index << PAGE_CACHE_SHIFT;
+ 	int rc = -EACCES;
+@@ -1530,9 +1525,9 @@ cifs_readpage(struct file *file, struct 
+ 		return -EBADF;
+ 	}
+ 
+-	cFYI(1,("readpage %p at offset %d 0x%x\n",page,(int)offset,(int)offset));
++	cFYI(1, ("readpage %p at offset %d 0x%x\n", page, (int)offset, (int)offset));
+ 
+-	rc = cifs_readpage_worker(file,page,&offset);
++	rc = cifs_readpage_worker(file, page, &offset);
+ 
+ 	unlock_page(page);
+ 
+@@ -1547,34 +1542,34 @@ cifs_readpage(struct file *file, struct 
+    but this is tricky to do without racing with writebehind
+    page caching in the current Linux kernel design */
+    
+-int is_size_safe_to_change(struct cifsInodeInfo * cifsInode)
++int is_size_safe_to_change(struct cifsInodeInfo *cifsInode)
+ {
+ 	struct list_head *tmp;
+ 	struct list_head *tmp1;
+ 	struct cifsFileInfo *open_file = NULL;
+ 	int rc = TRUE;
+ 
+-	if(cifsInode == NULL)
++	if (cifsInode == NULL)
+ 		return rc;
+ 
+ 	read_lock(&GlobalSMBSeslock); 
+ 	list_for_each_safe(tmp, tmp1, &cifsInode->openFileList) {            
+-		open_file = list_entry(tmp,struct cifsFileInfo, flist);
+-		if(open_file == NULL)
++		open_file = list_entry(tmp, struct cifsFileInfo, flist);
++		if (open_file == NULL)
+ 			break;
+-		if(open_file->closePend)
++		if (open_file->closePend)
+ 			continue;
+ 	/* We check if file is open for writing,   
+ 	BB we could supplement this with a check to see if file size
+ 	changes have been flushed to server - ie inode metadata dirty */
+-		if((open_file->pfile) && 
+-	   ((open_file->pfile->f_flags & O_RDWR) || 
+-		(open_file->pfile->f_flags & O_WRONLY))) {
++		if ((open_file->pfile) && 
++		   ((open_file->pfile->f_flags & O_RDWR) || 
++		   (open_file->pfile->f_flags & O_WRONLY))) {
+ 			 rc = FALSE;
+ 			 break;
+ 		}
+-		if(tmp->next == NULL) {
+-			cFYI(1,("File instance %p removed",tmp));
++		if (tmp->next == NULL) {
++			cFYI(1, ("File instance %p removed", tmp));
+ 			break;
+ 		}
+ 	}
+@@ -1582,10 +1577,9 @@ int is_size_safe_to_change(struct cifsIn
+ 	return rc;
+ }
+ 
+-
+ void
+-fill_in_inode(struct inode *tmp_inode,
+-	      FILE_DIRECTORY_INFO * pfindData, int *pobject_type)
++fill_in_inode(struct inode *tmp_inode, FILE_DIRECTORY_INFO *pfindData, 
++	      int *pobject_type)
+ {
+ 	struct cifsInodeInfo *cifsInfo = CIFS_I(tmp_inode);
+ 	struct cifs_sb_info *cifs_sb = CIFS_SB(tmp_inode->i_sb);
+@@ -1606,8 +1600,8 @@ fill_in_inode(struct inode *tmp_inode,
+ 	/* treat dos attribute of read-only as read-only mode bit e.g. 555? */
+ 	/* 2767 perms - indicate mandatory locking */
+ 		/* BB fill in uid and gid here? with help from winbind? 
+-			or retrieve from NTFS stream extended attribute */
+-	if(atomic_read(&cifsInfo->inUse) == 0) {
++		   or retrieve from NTFS stream extended attribute */
++	if (atomic_read(&cifsInfo->inUse) == 0) {
+ 		tmp_inode->i_uid = cifs_sb->mnt_uid;
+ 		tmp_inode->i_gid = cifs_sb->mnt_gid;
+ 		/* set default mode. will override for dirs below */
+@@ -1636,11 +1630,11 @@ fill_in_inode(struct inode *tmp_inode,
+ 	}/* could add code here - to validate if device or weird share type? */
+ 
+ 	/* can not fill in nlink here as in qpathinfo version and Unx search */
+-	if(atomic_read(&cifsInfo->inUse) == 0) {
++	if (atomic_read(&cifsInfo->inUse) == 0) {
+ 		atomic_set(&cifsInfo->inUse,1);
+ 	}
+ 
+-	if(is_size_safe_to_change(cifsInfo)) {
++	if (is_size_safe_to_change(cifsInfo)) {
+ 		/* can not safely change the file size here if the 
+ 		client is writing to it due to potential races */
+ 		i_size_write(tmp_inode,end_of_file);
+@@ -1676,8 +1670,8 @@ fill_in_inode(struct inode *tmp_inode,
+ }
+ 
+ void
+-unix_fill_in_inode(struct inode *tmp_inode,
+-		   FILE_UNIX_INFO * pfindData, int *pobject_type)
++unix_fill_in_inode(struct inode *tmp_inode, FILE_UNIX_INFO *pfindData,
++		   int *pobject_type)
+ {
+ 	struct cifsInodeInfo *cifsInfo = CIFS_I(tmp_inode);
+ 	__u32 type = le32_to_cpu(pfindData->Type);
+@@ -1726,10 +1720,10 @@ unix_fill_in_inode(struct inode *tmp_ino
+ 	tmp_inode->i_nlink = le64_to_cpu(pfindData->Nlinks);
+ 
+ 
+-	if(is_size_safe_to_change(cifsInfo)) {
++	if (is_size_safe_to_change(cifsInfo)) {
+ 		/* can not safely change the file size here if the 
+ 		client is writing to it due to potential races */
+-		i_size_write(tmp_inode,end_of_file);
++		i_size_write(tmp_inode, end_of_file);
+ 
+ 	/* 512 bytes (2**9) is the fake blocksize that must be used */
+ 	/* for this calculation, not the real blocksize */
+@@ -1777,24 +1771,24 @@ construct_dentry(struct qstr *qstring, s
+ 		cFYI(0, (" existing dentry with inode 0x%p", tmp_dentry->d_inode));
+ 		*ptmp_inode = tmp_dentry->d_inode;
+ 		/* BB overwrite the old name? i.e. tmp_dentry->d_name and tmp_dentry->d_name.len ?? */
+-		if(*ptmp_inode == NULL) {
++		if (*ptmp_inode == NULL) {
+ 	                *ptmp_inode = new_inode(file->f_dentry->d_sb);
+-			if(*ptmp_inode == NULL)
++			if (*ptmp_inode == NULL)
+ 				return rc;
+ 			rc = 1;
+ 			d_instantiate(tmp_dentry, *ptmp_inode);
+ 		}
+ 	} else {
+ 		tmp_dentry = d_alloc(file->f_dentry, qstring);
+-		if(tmp_dentry == NULL) {
+-			cERROR(1,("Failed allocating dentry"));
++		if (tmp_dentry == NULL) {
++			cERROR(1, ("Failed allocating dentry"));
+ 			*ptmp_inode = NULL;
+ 			return rc;
+ 		}
+ 			
+ 		*ptmp_inode = new_inode(file->f_dentry->d_sb);
+ 		tmp_dentry->d_op = &cifs_dentry_ops;
+-		if(*ptmp_inode == NULL)
++		if (*ptmp_inode == NULL)
+ 			return rc;
+ 		rc = 1;
+ 		d_instantiate(tmp_dentry, *ptmp_inode);
+@@ -1806,9 +1800,10 @@ construct_dentry(struct qstr *qstring, s
+ 	return rc; 
+ }
+ 
+-static void reset_resume_key(struct file * dir_file, 
+-				unsigned char * filename, 
+-				unsigned int len,int Unicode,struct nls_table * nls_tab) {
++static void 
++reset_resume_key(struct file *dir_file, unsigned char *filename,
++		 unsigned int len, int Unicode, struct nls_table *nls_tab)
++{
+ 	struct cifsFileInfo *cifsFile;
+ 
+ 	cifsFile = (struct cifsFileInfo *)dir_file->private_data;
+@@ -1818,47 +1813,45 @@ static void reset_resume_key(struct file
+ 		kfree(cifsFile->search_resume_name);
+ 	}
+ 
+-	if(Unicode) 
++	if (Unicode) 
+ 		len *= 2;
+-	cifsFile->resume_name_length = len;
+ 
++	cifsFile->resume_name_length = len;
+ 	cifsFile->search_resume_name = 
+ 		kmalloc(cifsFile->resume_name_length, GFP_KERNEL);
+ 
+ 	if(cifsFile->search_resume_name == NULL) {
+-		cERROR(1,("failed new resume key allocate, length %d",
++		cERROR(1, ("failed new resume key allocate, length %d",
+ 				  cifsFile->resume_name_length));
+ 		return;
+ 	}
+-	if(Unicode)
+-		cifs_strtoUCS((wchar_t *) cifsFile->search_resume_name,
++	if (Unicode)
++		cifs_strtoUCS((wchar_t *)cifsFile->search_resume_name,
+ 			filename, len, nls_tab);
+ 	else
+ 		memcpy(cifsFile->search_resume_name, filename, 
+ 		   cifsFile->resume_name_length);
+-	cFYI(1,("Reset resume key to: %s with len %d",filename,len));
++	cFYI(1, ("Reset resume key to: %s with len %d", filename, len));
+ 	return;
+ }
+ 
+-
+-
+ static int
+-cifs_filldir(struct qstr *pqstring, FILE_DIRECTORY_INFO * pfindData,
++cifs_filldir(struct qstr *pqstring, FILE_DIRECTORY_INFO *pfindData,
+ 	     struct file *file, filldir_t filldir, void *direntry)
+ {
+ 	struct inode *tmp_inode;
+ 	struct dentry *tmp_dentry;
+-	int object_type,rc;
++	int object_type, rc;
+ 
+ 	pqstring->name = pfindData->FileName;
+ 	/* pqstring->len is already set by caller */
+ 
+ 	rc = construct_dentry(pqstring, file, &tmp_inode, &tmp_dentry);
+-	if((tmp_inode == NULL) || (tmp_dentry == NULL)) {
++	if ((tmp_inode == NULL) || (tmp_dentry == NULL)) {
+ 		return -ENOMEM;
+ 	}
+ 	fill_in_inode(tmp_inode, pfindData, &object_type);
+-	if(rc) {
++	if (rc) {
+ 		/* We have no reliable way to get inode numbers
+ 		from servers w/o Unix extensions yet so we can not set
+ 		i_ino from pfindData yet */
+@@ -1868,19 +1861,18 @@ cifs_filldir(struct qstr *pqstring, FILE
+ 	} /* else if inode number changed do we rehash it? */
+ 	rc = filldir(direntry, pfindData->FileName, pqstring->len, file->f_pos,
+ 		tmp_inode->i_ino, object_type);
+-	if(rc) {
++	if (rc) {
+ 		/* due to readdir error we need to recalculate resume 
+ 		key so next readdir will restart on right entry */
+-		cFYI(1,("Error %d on filldir of %s",rc ,pfindData->FileName));
++		cFYI(1, ("Error %d on filldir of %s", rc, pfindData->FileName));
+ 	}
+ 	dput(tmp_dentry);
+ 	return rc;
+ }
+ 
+ static int
+-cifs_filldir_unix(struct qstr *pqstring,
+-		  FILE_UNIX_INFO * pUnixFindData, struct file *file,
+-		  filldir_t filldir, void *direntry)
++cifs_filldir_unix(struct qstr *pqstring, FILE_UNIX_INFO *pUnixFindData, 
++		  struct file *file, filldir_t filldir, void *direntry)
+ {
+ 	struct inode *tmp_inode;
+ 	struct dentry *tmp_dentry;
+@@ -1890,13 +1882,13 @@ cifs_filldir_unix(struct qstr *pqstring,
+ 	pqstring->len = strnlen(pUnixFindData->FileName, MAX_PATHCONF);
+ 
+ 	rc = construct_dentry(pqstring, file, &tmp_inode, &tmp_dentry);
+-	if((tmp_inode == NULL) || (tmp_dentry == NULL)) {
++	if ((tmp_inode == NULL) || (tmp_dentry == NULL)) {
+ 		return -ENOMEM;
+ 	} 
+-	if(rc) {
++	if (rc) {
+ 		struct cifs_sb_info *cifs_sb = CIFS_SB(tmp_inode->i_sb);
+ 
+-		if(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM) {
++		if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM) {
+ 			tmp_inode->i_ino = 
+ 				(unsigned long)pUnixFindData->UniqueId;
+ 		}
+@@ -1905,17 +1897,16 @@ cifs_filldir_unix(struct qstr *pqstring,
+ 	unix_fill_in_inode(tmp_inode, pUnixFindData, &object_type);
+ 	rc = filldir(direntry, pUnixFindData->FileName, pqstring->len,
+ 		file->f_pos, tmp_inode->i_ino, object_type);
+-	if(rc) {
++	if (rc) {
+ 		/* due to readdir error we need to recalculate resume 
+ 			key so next readdir will restart on right entry */
+-		cFYI(1,("Error %d on filldir of %s",rc ,pUnixFindData->FileName));
++		cFYI(1, ("Error %d on filldir of %s", rc, pUnixFindData->FileName));
+ 	}
+ 	dput(tmp_dentry);
+ 	return rc;
+ }
+ 
+-int
+-cifs_readdir(struct file *file, void *direntry, filldir_t filldir)
++int cifs_readdir(struct file *file, void *direntry, filldir_t filldir)
+ {
+ 	int rc = 0;
+ 	int xid;
+@@ -1937,14 +1928,14 @@ cifs_readdir(struct file *file, void *di
+ 
+ 
+     /* BB removeme begin */
+-	if(!experimEnabled)
+-		return cifs_readdir2(file,direntry,filldir);
++	if (!experimEnabled)
++		return cifs_readdir2(file, direntry, filldir);
+     /* BB removeme end */
+ 
+ 
+ 	xid = GetXid();
+ 
+-	if(file->f_dentry == NULL) {
++	if (file->f_dentry == NULL) {
+ 		rc = -EIO;
+ 		FreeXid(xid);
+ 		return rc;
+@@ -1952,14 +1943,14 @@ cifs_readdir(struct file *file, void *di
+ 	cifs_sb = CIFS_SB(file->f_dentry->d_sb);
+ 	pTcon = cifs_sb->tcon;
+ 	bufsize = pTcon->ses->server->maxBuf - MAX_CIFS_HDR_SIZE;
+-	if(bufsize > CIFSMaxBufSize) {
++	if (bufsize > CIFSMaxBufSize) {
+ 		rc = -EIO;
+ 		FreeXid(xid);
+ 		return rc;
+ 	}
+ 	data = kmalloc(bufsize, GFP_KERNEL);
+-	pfindData = (FILE_DIRECTORY_INFO *) data;
+-	if(data == NULL) {
++	pfindData = (FILE_DIRECTORY_INFO *)data;
++	if (data == NULL) {
+ 		rc = -ENOMEM;
+ 		FreeXid(xid);
+ 		return rc;
+@@ -1968,14 +1959,14 @@ cifs_readdir(struct file *file, void *di
+ 	full_path = build_wildcard_path_from_dentry(file->f_dentry);
+ 	up(&file->f_dentry->d_sb->s_vfs_rename_sem);
+ 
+-	if(full_path == NULL) {
++	if (full_path == NULL) {
+ 		kfree(data);
+ 		FreeXid(xid);
+ 		return -ENOMEM;
+ 	}
+ 	cFYI(1, ("Full path: %s start at: %lld ", full_path, file->f_pos));
+ 
+-	switch ((int) file->f_pos) {
++	switch ((int)file->f_pos) {
+ 	case 0:
+ 		if (filldir(direntry, ".", 1, file->f_pos,
+ 		     file->f_dentry->d_inode->i_ino, DT_DIR) < 0) {
+@@ -1995,7 +1986,7 @@ cifs_readdir(struct file *file, void *di
+ 	case 2:
+ 		if (file->private_data != NULL) {
+ 			cifsFile =
+-				(struct cifsFileInfo *) file->private_data;
++				(struct cifsFileInfo *)file->private_data;
+ 			if (cifsFile->srch_inf.endOfSearch) {
+ 				if(cifsFile->srch_inf.emptyDir) {
+ 					cFYI(1, ("End of search, empty dir"));
+@@ -2006,7 +1997,7 @@ cifs_readdir(struct file *file, void *di
+ 				cifsFile->invalidHandle = TRUE;
+ 				CIFSFindClose(xid, pTcon, cifsFile->netfid);
+ 			}
+-			if(cifsFile->search_resume_name) {
++			if (cifsFile->search_resume_name) {
+ 				kfree(cifsFile->search_resume_name);
+ 				cifsFile->search_resume_name = NULL;
+ 			}
+@@ -2021,9 +2012,9 @@ cifs_readdir(struct file *file, void *di
+ 		if (rc == 0) {
+ 			__u16 count = le16_to_cpu(findParms.SearchCount);
+ 			searchHandle = findParms.SearchHandle;
+-			if(file->private_data == NULL)
++			if (file->private_data == NULL)
+ 				file->private_data =
+-					kmalloc(sizeof(struct cifsFileInfo),GFP_KERNEL);
++					kmalloc(sizeof(struct cifsFileInfo), GFP_KERNEL);
+ 			if (file->private_data) {
+ 				memset(file->private_data, 0,
+ 				       sizeof (struct cifsFileInfo));
+@@ -2039,30 +2030,30 @@ cifs_readdir(struct file *file, void *di
+ 
+ 			renew_parental_timestamps(file->f_dentry);
+ 			lastFindData = 
+-				(FILE_DIRECTORY_INFO *) ((char *) pfindData + 
++				(FILE_DIRECTORY_INFO *)((char *) pfindData + 
+ 					le16_to_cpu(findParms.LastNameOffset));
+-			if((char *)lastFindData > (char *)pfindData + bufsize) {
+-				cFYI(1,("last search entry past end of packet"));
++			if ((char *)lastFindData > (char *)pfindData + bufsize) {
++				cFYI(1, ("last search entry past end of packet"));
+ 				rc = -EIO;
+ 				break;
+ 			}
+ 			/* Offset of resume key same for levels 257 and 514 */
+ 			cifsFile->srch_inf.resume_key = lastFindData->FileIndex;
+-			if(UnixSearch == FALSE) {
++			if (UnixSearch == FALSE) {
+ 				cifsFile->resume_name_length = 
+ 					le32_to_cpu(lastFindData->FileNameLength);
+-				if(cifsFile->resume_name_length > bufsize - 64) {
+-					cFYI(1,("Illegal resume file name length %d",
++				if (cifsFile->resume_name_length > bufsize - 64) {
++					cFYI(1, ("Illegal resume file name length %d",
+ 						cifsFile->resume_name_length));
+ 					rc = -ENOMEM;
+ 					break;
+ 				}
+ 				cifsFile->search_resume_name = 
+ 					kmalloc(cifsFile->resume_name_length, GFP_KERNEL);
+-				cFYI(1,("Last file: %s with name %d bytes long",
++				cFYI(1, ("Last file: %s with name %d bytes long",
+ 					lastFindData->FileName,
+ 					cifsFile->resume_name_length));
+-				if(cifsFile->search_resume_name == NULL) {
++				if (cifsFile->search_resume_name == NULL) {
+ 					rc = -ENOMEM;
+ 					break;
+ 				}
+@@ -2072,30 +2063,30 @@ cifs_readdir(struct file *file, void *di
+ 			} else {
+ 				pfindDataUnix = (FILE_UNIX_INFO *)lastFindData;
+ 				if (Unicode == TRUE) {
+-					for(i=0;(pfindDataUnix->FileName[i] 
++					for(i = 0; (pfindDataUnix->FileName[i] 
+ 						    | pfindDataUnix->FileName[i+1]);
+-						i+=2) {
+-						if(i > bufsize-64)
++						i += 2) {
++						if (i > bufsize - 64)
+ 							break;
+ 					}
+ 					cifsFile->resume_name_length = i + 2;
+ 				} else {
+ 					cifsFile->resume_name_length = 
+ 						strnlen(pfindDataUnix->FileName,
+-							bufsize-63);
++							bufsize - 63);
+ 				}
+-				if(cifsFile->resume_name_length > bufsize - 64) {
+-					cFYI(1,("Illegal resume file name length %d",
++				if (cifsFile->resume_name_length > bufsize - 64) {
++					cFYI(1, ("Illegal resume file name length %d",
+ 						cifsFile->resume_name_length));
+ 					rc = -ENOMEM;
+ 					break;
+ 				}
+ 				cifsFile->search_resume_name = 
+ 					kmalloc(cifsFile->resume_name_length, GFP_KERNEL);
+-				cFYI(1,("Last file: %s with name %d bytes long",
++				cFYI(1, ("Last file: %s with name %d bytes long",
+ 					pfindDataUnix->FileName,
+ 					cifsFile->resume_name_length));
+-				if(cifsFile->search_resume_name == NULL) {
++				if (cifsFile->search_resume_name == NULL) {
+ 					rc = -ENOMEM;
+ 					break;
+ 				}
+@@ -2129,7 +2120,7 @@ cifs_readdir(struct file *file, void *di
+ 							/* do not end search if
+ 								kernel not ready to take
+ 								remaining entries yet */
+-							reset_resume_key(file, pfindData->FileName,qstring.len,
++							reset_resume_key(file, pfindData->FileName, qstring.len,
+ 								Unicode, cifs_sb->local_nls);
+ 							findParms.EndofSearch = 0;
+ 							break;
+@@ -2138,7 +2129,7 @@ cifs_readdir(struct file *file, void *di
+ 					}
+ 				} else {	/* UnixSearch */
+ 					pfindDataUnix =
+-					    (FILE_UNIX_INFO *) pfindData;
++					    (FILE_UNIX_INFO *)pfindData;
+ 					if (Unicode == TRUE)
+ 						qstring.len =
+ 							cifs_strfromUCS_le
+@@ -2160,7 +2151,7 @@ cifs_readdir(struct file *file, void *di
+ 						    FileName[0] != '.')
+ 						|| (pfindDataUnix->
+ 						    FileName[1] != '.'))) {
+-						if(cifs_filldir_unix(&qstring,
++						if (cifs_filldir_unix(&qstring,
+ 								  pfindDataUnix,
+ 								  file,
+ 								  filldir,
+@@ -2170,7 +2161,7 @@ cifs_readdir(struct file *file, void *di
+ 								remaining entries yet */
+ 							findParms.EndofSearch = 0;
+ 							reset_resume_key(file, pfindDataUnix->FileName,
+-								qstring.len,Unicode,cifs_sb->local_nls);
++								qstring.len, Unicode, cifs_sb->local_nls);
+ 							break;
+ 						}
+ 						file->f_pos++;
+@@ -2215,7 +2206,7 @@ cifs_readdir(struct file *file, void *di
+ 				cifsFile->resume_name_length,
+ 				cifsFile->srch_inf.resume_key,
+ 				&Unicode, &UnixSearch);
+-			cFYI(1,("Count: %d  End: %d ",
++			cFYI(1, ("Count: %d  End: %d ",
+ 			      le16_to_cpu(findNextParms.SearchCount),
+ 			      le16_to_cpu(findNextParms.EndofSearch)));
+ 			if ((rc == 0) && (findNextParms.SearchCount != 0)) {
+@@ -2224,8 +2215,8 @@ cifs_readdir(struct file *file, void *di
+ 				lastFindData = 
+ 					(FILE_DIRECTORY_INFO *) ((char *) pfindData 
+ 					+ le16_to_cpu(findNextParms.LastNameOffset));
+-				if((char *)lastFindData > (char *)pfindData + bufsize) {
+-					cFYI(1,("last search entry past end of packet"));
++				if ((char *)lastFindData > (char *)pfindData + bufsize) {
++					cFYI(1, ("last search entry past end of packet"));
+ 					rc = -EIO;
+ 					break;
+ 				}
+@@ -2235,8 +2226,8 @@ cifs_readdir(struct file *file, void *di
+ 				if(UnixSearch == FALSE) {
+ 					cifsFile->resume_name_length = 
+ 						le32_to_cpu(lastFindData->FileNameLength);
+-					if(cifsFile->resume_name_length > bufsize - 64) {
+-						cFYI(1,("Illegal resume file name length %d",
++					if (cifsFile->resume_name_length > bufsize - 64) {
++						cFYI(1, ("Illegal resume file name length %d",
+ 							cifsFile->resume_name_length));
+ 						rc = -ENOMEM;
+ 						break;
+@@ -2244,14 +2235,14 @@ cifs_readdir(struct file *file, void *di
+ 					/* Free the memory allocated by previous findfirst 
+ 					or findnext call - we can not reuse the memory since
+ 					the resume name may not be same string length */
+-					if(cifsFile->search_resume_name)
++					if (cifsFile->search_resume_name)
+ 						kfree(cifsFile->search_resume_name);
+ 					cifsFile->search_resume_name = 
+ 						kmalloc(cifsFile->resume_name_length, GFP_KERNEL);
+-					cFYI(1,("Last file: %s with name %d bytes long",
++					cFYI(1, ("Last file: %s with name %d bytes long",
+ 						lastFindData->FileName,
+ 						cifsFile->resume_name_length));
+-					if(cifsFile->search_resume_name == NULL) {
++					if (cifsFile->search_resume_name == NULL) {
+ 						rc = -ENOMEM;
+ 						break;
+ 					}
+@@ -2262,10 +2253,10 @@ cifs_readdir(struct file *file, void *di
+ 				} else {
+ 					pfindDataUnix = (FILE_UNIX_INFO *)lastFindData;
+ 					if (Unicode == TRUE) {
+-						for(i=0;(pfindDataUnix->FileName[i] 
++						for (i=0; (pfindDataUnix->FileName[i] 
+ 								| pfindDataUnix->FileName[i+1]);
+-							i+=2) {
+-							if(i > bufsize-64)
++							i += 2) {
++							if (i > bufsize - 64)
+ 								break;
+ 						}
+ 						cifsFile->resume_name_length = i + 2;
+@@ -2275,8 +2266,8 @@ cifs_readdir(struct file *file, void *di
+ 							 FileName,
+ 							 MAX_PATHCONF);
+ 					}
+-					if(cifsFile->resume_name_length > bufsize - 64) {
+-						cFYI(1,("Illegal resume file name length %d",
++					if (cifsFile->resume_name_length > bufsize - 64) {
++						cFYI(1, ("Illegal resume file name length %d",
+ 								cifsFile->resume_name_length));
+ 						rc = -ENOMEM;
+ 						break;
+@@ -2284,14 +2275,14 @@ cifs_readdir(struct file *file, void *di
+ 					/* Free the memory allocated by previous findfirst 
+ 					or findnext call - we can not reuse the memory since
+ 					the resume name may not be same string length */
+-					if(cifsFile->search_resume_name)
++					if (cifsFile->search_resume_name)
+ 						kfree(cifsFile->search_resume_name);
+ 					cifsFile->search_resume_name = 
+ 						kmalloc(cifsFile->resume_name_length, GFP_KERNEL);
+-					cFYI(1,("fnext last file: %s with name %d bytes long",
++					cFYI(1, ("fnext last file: %s with name %d bytes long",
+ 						pfindDataUnix->FileName,
+ 						cifsFile->resume_name_length));
+-					if(cifsFile->search_resume_name == NULL) {
++					if (cifsFile->search_resume_name == NULL) {
+ 						rc = -ENOMEM;
+ 						break;
+ 					}
+@@ -2370,8 +2361,8 @@ cifs_readdir(struct file *file, void *di
+ 								kernel not ready to take
+ 								remaining entries yet */
+ 								findNextParms.EndofSearch = 0;
+-								reset_resume_key(file, pfindDataUnix->FileName,qstring.len,
+-									Unicode,cifs_sb->local_nls);
++								reset_resume_key(file, pfindDataUnix->FileName, qstring.len,
++									Unicode, cifs_sb->local_nls);
+ 								break;
+ 							}
+ 							file->f_pos++;
+@@ -2396,16 +2387,18 @@ cifs_readdir(struct file *file, void *di
+ 		kfree(data);
+ 	if (full_path)
+ 		kfree(full_path);
+-	FreeXid(xid);
+ 
++	FreeXid(xid);
+ 	return rc;
+ }
+-int cifs_prepare_write(struct file *file, struct page *page,
+-			unsigned from, unsigned to)
++
++int 
++cifs_prepare_write(struct file *file, struct page *page, unsigned from, 
++		   unsigned to)
+ {
+ 	int rc = 0;
+         loff_t offset = (loff_t)page->index << PAGE_CACHE_SHIFT;
+-	cFYI(1,("prepare write for page %p from %d to %d",page,from,to));
++	cFYI(1, ("prepare write for page %p from %d to %d",page,from,to));
+ 	if (!PageUptodate(page)) {
+ 	/*	if (to - from != PAGE_CACHE_SIZE) {
+ 			void *kaddr = kmap_atomic(page, KM_USER0);
+@@ -2416,12 +2409,12 @@ int cifs_prepare_write(struct file *file
+ 		} */
+ 		/* If we are writing a full page it will be up to date,
+ 		no need to read from the server */
+-		if((to==PAGE_CACHE_SIZE) && (from == 0))
++		if ((to == PAGE_CACHE_SIZE) && (from == 0))
+ 			SetPageUptodate(page);
+ 
+ 		/* might as well read a page, it is fast enough */
+-		if((file->f_flags & O_ACCMODE) != O_WRONLY) {
+-			rc = cifs_readpage_worker(file,page,&offset);
++		if ((file->f_flags & O_ACCMODE) != O_WRONLY) {
++			rc = cifs_readpage_worker(file, page, &offset);
+ 		} else {
+ 		/* should we try using another
+ 		file handle if there is one - how would we lock it
+@@ -2434,7 +2427,6 @@ int cifs_prepare_write(struct file *file
+ 	return 0;
+ }
+ 
+-
+ struct address_space_operations cifs_addr_ops = {
+ 	.readpage = cifs_readpage,
+ 	.readpages = cifs_readpages,
 
 

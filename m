@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262170AbRE1Q2i>; Mon, 28 May 2001 12:28:38 -0400
+	id <S263093AbRE1QmW>; Mon, 28 May 2001 12:42:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263093AbRE1Q22>; Mon, 28 May 2001 12:28:28 -0400
-Received: from cr545978-a.nmkt1.on.wave.home.com ([24.112.25.43]:62729 "HELO
-	saturn.tlug.org") by vger.kernel.org with SMTP id <S262170AbRE1Q2T>;
-	Mon, 28 May 2001 12:28:19 -0400
-Date: Mon, 28 May 2001 12:28:18 -0400
-From: Mike Frisch <mfrisch@saturn.tlug.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Status of ALi MAGiK 1 support in 2.4.?
-Message-ID: <20010528122818.B32232@saturn.tlug.org>
-Mail-Followup-To: Mike Frisch <mfrisch@saturn.tlug.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010528175712.B18955@pua.nirvana> <E154Pha-0003Gr-00@the-village.bc.nu>
+	id <S263099AbRE1QmM>; Mon, 28 May 2001 12:42:12 -0400
+Received: from gw-yyz.somanetworks.com ([216.126.67.39]:49878 "EHLO
+	somanetworks.com") by vger.kernel.org with ESMTP id <S263093AbRE1Ql6>;
+	Mon, 28 May 2001 12:41:58 -0400
+Date: Mon, 28 May 2001 12:41:57 -0400
+From: Mark Frazer <mark@somanetworks.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Documentation/kernel-docs.txt
+Message-ID: <20010528124157.C30332@somanetworks.com>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010528122601.A945@somanetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E154Pha-0003Gr-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, May 28, 2001 at 05:17:06PM +0100
+In-Reply-To: <20010528122601.A945@somanetworks.com>; from mark@somanetworks.com on Mon, May 28, 2001 at 12:26:01PM -0400
+Organization: Detectable, well, not really
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 28, 2001 at 05:17:06PM +0100, Alan Cox wrote:
-> > So it seems that only AMD and ALi are left with Socket A chipsets (SiS 735 is
-> > yet to come). And the ALi MAGiK 1 has a good feature/cost ratio and is being
-> > reported as very stable (although perhaps not very fast).
-> > 
-> > So having been burned in the recent past with VIAs KT133A/686B and Linux, I
-> > hope that I can get an ALi MAGiK 1 board and rest in peace ...
-> 
-> It would be interesting to know how well the ALi stuff behaves. They've
-> certainly been helpful in the Linux world, indeed they did the ALi parts
-> of the trident sound driver themselves, including full 5.1 audio out and also
-> chunks of the alim15x3 (IDE) driver
+Oops, that was wrong.  The proper patch is:
 
-If there is anything in particular (benchmarks or stress tests) I can
-help with in this regard, please let me know.  I am not a kernel hacker,
-but a competent Linux user and programmer.  I am not afraid to get my
-hands dirty.
+--- Documentation/kernel-docs.txt.old   Mon May 28 12:06:43 2001
++++ Documentation/kernel-docs.txt       Mon May 28 12:37:26 2001
+@@ -333,7 +333,8 @@
+        
+      * Title: "The Kernel Hacking HOWTO"
+        Author: Various Talented People, and Rusty.
+-       URL: http://www.samba.org/~netfilter/kernel-hacking-HOWTO.html
++       URL: http://netfilter.gnumonks.org/unreliable-guides/kernel-hacking/
++               lk-hacking-guide.html
+        Keywords: HOWTO, kernel contexts, deadlock, locking, modules,
+        symbols, return conventions.
+        Description: From the Introduction: "Please understand that I
+@@ -393,9 +394,8 @@
+        
+      * Title: "Linux Kernel Locking HOWTO"
+        Author: Various Talented People, and Rusty.
+-       URL:
+-       http://netfilter.kernelnotes.org/unreliable-guides/kernel-locking-
+-       HOWTO.html
++       URL: http://netfilter.gnumonks.org/unreliable-guides/kernel-locking/
++               lklockingguide.html
+        Keywords: locks, locking, spinlock, semaphore, atomic, race
+        condition, bottom halves, tasklets, softirqs.
+        Description: The title says it all: document describing the
+

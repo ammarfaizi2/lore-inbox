@@ -1,46 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbULaWgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbULaWlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbULaWgs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 17:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbULaWgs
+	id S262161AbULaWlw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 17:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbULaWlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 17:36:48 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:12550 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S262163AbULaWgr (ORCPT
+	Fri, 31 Dec 2004 17:41:52 -0500
+Received: from mout2.freenet.de ([194.97.50.155]:31910 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S262161AbULaWlt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 17:36:47 -0500
-Message-ID: <41D5D478.2080902@domdv.de>
-Date: Fri, 31 Dec 2004 23:36:40 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: markus reichelt <ml@bitfalle.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re:[OT]  PROJECT STRAIT GATE: Vigil for Peace, Sunday
-References: <D4B16B8F.F13879F@straitgateministry.org> <20041231223029.GA4896@dantooine>
-In-Reply-To: <20041231223029.GA4896@dantooine>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 31 Dec 2004 17:41:49 -0500
+Date: Fri, 31 Dec 2004 23:41:46 +0100
+From: Michelle Konzack <linux4michelle@freenet.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Questions about the CMD640 and RZ1000 bugfix support options
+Message-ID: <20041231224146.GF31223@freenet.de>
+References: <41D5D206.1040107@mathematica.scientia.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NYEXl3WhqsXurSTm"
+Content-Disposition: inline
+In-Reply-To: <41D5D206.1040107@mathematica.scientia.net>
+X-Message-Flag: Improper configuration of Outlook is a breeding ground for viruses. Please take care your Client is configured correctly. Greetings Michelle.
+X-Disclaimer-DE: Eine weitere Verwendung oder die Veroeffentlichung dieser Mail oder dieser Mailadresse ist nur mit der Einwilligung des Autors gestattet.
+Organisation: Michelle's Selbstgebrautes
+X-Operating-System: Linux samba3.private 2.4.27-1-386
+X-Uptime: 23:39:57 up 11 days, 22:32,  4 users,  load average: 1.32, 1.67, 1.30
+X-Homepage: http://www.debian.tamay-dogan.homelinux.net/
+User-Agent: Mutt/1.5.6+20040907i
+X-Warning: freenet.de is listed at abuse.rfc-ignorant.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-markus reichelt wrote:
-> 
->>>COME HOLD UP A SIGN AND HELP ANSWER QUESTIONS FROM PASSERSBY
-> 
-> 
-> all I will say is this:
-> 
-> make bzImage, not war
-> 
 
-<evil grin (by AC/DC)>
-beating around the bush!
-</evin grin>
+--NYEXl3WhqsXurSTm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-(And that's my one and only OT post for this year)
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Am 2004-12-31 23:26:14, schrieb Christoph Anton Mitterer:
+> Hi.
+
+> CONFIG_BLK_DEV_CMD640        CMD640 chipset bugfix/support
+> CONFIG_BLK_DEV_RZ1000        RZ1000 chipset bugfix/support
+
+> 2) Can some help me to find out if my system has one of those two=20
+> chipsets. This might be a dumb question but I'm not sure if=20
+> CMD640/RZ1000 are only some little IDE controller chipsets or if they=20
+> were some kind of Southbridge/Nortbridge.
+> If got a Epox 8KTA2 mainboard (having VIA VT82C686A/B chipset).
+
+The CMD640 and RZ1000 are realy old...
+I think it wat the time around P1 or something like this.
+
+Forget it. - You do not need it.
+
+> Thanks in advance!
+>=20
+> Greetings,
+> Christoph Anton Mitterer.
+
+Greetings
+Michelle
+
+--=20
+Linux-User #280138 with the Linux Counter, http://counter.li.org/=20
+Michelle Konzack   Apt. 917                  ICQ #328449886
+                   50, rue de Soultz         MSM LinuxMichi
+0033/3/88452356    67100 Strasbourg/France   IRC #Debian (irc.icq.com)
+
+--NYEXl3WhqsXurSTm
+Content-Type: application/pgp-signature; name="signature.pgp"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFB1dWqC0FPBMSS+BIRAmkZAJ9S5csW3Euibs6P1Lm2BXGmNXoP1wCfdsmA
+XIk7XVHsqxaKvizFqr0bVgE=
+=nMS0
+-----END PGP SIGNATURE-----
+
+--NYEXl3WhqsXurSTm--

@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264743AbSLQGMS>; Tue, 17 Dec 2002 01:12:18 -0500
+	id <S264706AbSLQGJj>; Tue, 17 Dec 2002 01:09:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264748AbSLQGMS>; Tue, 17 Dec 2002 01:12:18 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:37896 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S264743AbSLQGMQ>; Tue, 17 Dec 2002 01:12:16 -0500
-Message-Id: <200212170614.gBH6ELs15888@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "J.A. Magallon" <jamagallon@able.es>,
-       Scott Robert Ladd <scott@coyotegulch.com>
-Subject: Re: HT Benchmarks (was: /proc/cpuinfo and hyperthreading)
-Date: Tue, 17 Dec 2002 09:03:38 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <FKEAJLBKJCGBDJJIPJLJAEOLDLAA.scott@coyotegulch.com> <20021216232755.GA3750@werewolf.able.es>
-In-Reply-To: <20021216232755.GA3750@werewolf.able.es>
+	id <S264715AbSLQGJj>; Tue, 17 Dec 2002 01:09:39 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18707 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264706AbSLQGJh>; Tue, 17 Dec 2002 01:09:37 -0500
+Date: Mon, 16 Dec 2002 22:18:27 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+       <hpa@transmeta.com>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0212162211110.1810-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 December 2002 21:27, J.A. Magallon wrote:
-> On 2002.12.17 Scott Robert Ladd wrote:
-> [...]
->
-> From what I can see, HT provides a 0-15% increase in performance,
-> depending
->
-> >heavily on the type of code being run. In other words, HT helps, but
-> > it is *no* substitute for true multiple processors. And it is ONLY
-> > of value when an SMP kernel is in use.
->
-> What I don't like is that Intel sells it like the best thing since
-> sliced bread, and get a money for it, see the price of Xeons compared
-> to normal P4s...
 
-What did you expect? They are making processors for money, and have
-to push the sales.
 
-As to HT, it's definitely a good thing. Multiple CPUs on a chip is
-a logical step. HT in P4 is rather weak, but future processors will
-likely have more advanced cores.
+On Mon, 16 Dec 2002, Linus Torvalds wrote:
+>
+> For gettimeofday(), the results on my P4 are:
+>
+> 	sysenter:	1280.425844 cycles
+> 	int/iret:	2415.698224 cycles
+> 			1135.272380 cycles diff
+> 	factor 1.886637
+>
+> ie sysenter makes that system call almost twice as fast.
 
-I never heard about HT from AMD camp. I'm curious what they do. ;)
---
-vda
+Final comparison for the evening: a PIII looks very different, since the
+system call overhead is much smaller to begin with. On a PIII, the above
+ends up looking like
+
+   gettimeofday() testing:
+	sysenter:	561.697236 cycles
+	int/iret:	686.170463 cycles
+			124.473227 cycles diff
+	factor 1.221602
+
+ie the speedup is much less because the original int/iret numbers aren't
+nearly as embarrassing as the P4 ones. It's still a win, though.
+
+		Linus
+

@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271938AbRHVGEh>; Wed, 22 Aug 2001 02:04:37 -0400
+	id <S271939AbRHVGH6>; Wed, 22 Aug 2001 02:07:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271939AbRHVGE1>; Wed, 22 Aug 2001 02:04:27 -0400
-Received: from ns.cablesurf.de ([195.206.131.193]:63184 "EHLO ns.cablesurf.de")
-	by vger.kernel.org with ESMTP id <S271938AbRHVGEY>;
-	Wed, 22 Aug 2001 02:04:24 -0400
-Message-Id: <200108220615.IAA16563@ns.cablesurf.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Qlogic/FC firmware
-Date: Wed, 22 Aug 2001 08:04:56 +0200
-X-Mailer: KMail [version 1.3]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15ZKNa-0000UE-00@the-village.bc.nu>
-In-Reply-To: <E15ZKNa-0000UE-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S271940AbRHVGHr>; Wed, 22 Aug 2001 02:07:47 -0400
+Received: from [200.222.202.37] ([200.222.202.37]:18824 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id <S271939AbRHVGHd>; Wed, 22 Aug 2001 02:07:33 -0400
+Date: Wed, 22 Aug 2001 03:08:07 -0300
+From: =?unknown-8bit?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Will 2.6 require Python for any configuration ? (CML2)
+Message-ID: <20010822030807.N120@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.19i
+X-Mailer: Mutt/1.3.19i - Linux 2.4.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Oh for the love of God, will you people stop drooling over the fucking
-> > GPL? It's *firmware*... it's just a bunch of bits.  It's *not* a program
-> > the kernel executes.  It's just data. (__init_data to be exact.)
->
-> Look, if its not distributable then its no good to anyone.
+Am I the only one afraid that the Python requirement can turn
+into a problem ? You can develop anything on Linux without
+Python. I'd compare Python to Tcl - you only install it to
+waste space, develop, or run applications that use it. Perl
+is very different. It's required by GNU Automake and more.
 
-Are you allowed to distribute an initrd that contains it, build from it and 
-GNU tools ?
+I'm really surprised by the fact that nobody noticed what a
+nightmare 2.6 will be with such a requirement. You can't
+expect everybody to install something that's of no use for
+most.
 
-	Regards
-		Oliver
+My intention isn't to diminish the importance of CML2 and the
+hard and volunteer work of Eric S. Raymond. I just can't
+consider Python a requirement to configure the build process
+of a Kernel.
+
+Please, consider using the actual setup if Python isn't
+installed.
+
+PS: I install Python at home to use a single application.
+BTW, I compiled Python and... the curses module isn't enabled
+by default. You have to edit Setup. Another possible problem
+for menuconfig.
+
+-- 
+0@pervalidus.{net, {dyndns.}org} Tel: 55-21-2717-2399 (Niterói-RJ BR)

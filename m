@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264980AbTFQWef (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 18:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTFQWef
+	id S264987AbTFQWiK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 18:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTFQWiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 18:34:35 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16651 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264980AbTFQWee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 18:34:34 -0400
-Date: Tue, 17 Jun 2003 23:48:27 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: davidm@hpl.hp.com, Riley Williams <Riley@Williams.Name>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] input: Fix CLOCK_TICK_RATE usage ...  [8/13]
-Message-ID: <20030617234827.K32632@flint.arm.linux.org.uk>
-Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>, davidm@hpl.hp.com,
-	Riley Williams <Riley@Williams.Name>, linux-kernel@vger.kernel.org
-References: <16110.4883.885590.597687@napali.hpl.hp.com> <BKEGKPICNAKILKJKMHCAEEOAEFAA.Riley@Williams.Name> <16111.37901.389610.100530@napali.hpl.hp.com> <20030618002146.A20956@ucw.cz> <16111.38768.926655.731251@napali.hpl.hp.com> <20030618004233.B21001@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030618004233.B21001@ucw.cz>; from vojtech@suse.cz on Wed, Jun 18, 2003 at 12:42:33AM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Tue, 17 Jun 2003 18:38:10 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:53450 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264987AbTFQWiC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 18:38:02 -0400
+Date: Tue, 17 Jun 2003 15:54:04 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Dobson <colpatch@us.ibm.com>
+Subject: Re: borked sysfs system devices in 2.5.72
+In-Reply-To: <1055889108.24196.11.camel@nighthawk>
+Message-ID: <Pine.LNX.4.44.0306171551261.908-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 18, 2003 at 12:42:33AM +0200, Vojtech Pavlik wrote:
-> an arch-dependent #define is needed. I don't care about the location
-> (timex.h indeed seems inappropriate, maybe the right location is
-> pcspkr.c ...), or the name, but something needs to be done so that the
-> beeps have the same sound the same on all archs.
 
-This may be something to aspire to, but I don't think its achievable
-given the nature of PC hardware.  Some "PC speakers" are actually
-buzzers in some cases rather than real loudspeakers which give a
-squark rather than a beep.
+> Look in subsys_attr_show().  It is being passed a kobject, which is a
+> member of a "struct sys_device".  We can tell this because I printed out
+> the address of the sys device in sys_device_register().  A to_subsys()
+> is being performed on that object, which is wrong, because the kobject
+> is not a member of a "struct subsystem".
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+My question was how the hell it was getting there in the first place, and 
+I see that the type of the object isn't getting set properly, so it 
+defaults to treat it as a struct subsystem. 
+
+Could you please try the following patch, and let me know if it works? 
+
+Thanks,
+
+
+	-pat
+
+===== drivers/base/sys.c 1.25 vs edited =====
+--- 1.25/drivers/base/sys.c	Mon Jun 16 10:07:04 2003
++++ edited/drivers/base/sys.c	Tue Jun 17 15:50:48 2003
+@@ -170,6 +172,9 @@
+ 
+ 	/* Make sure the kset is set */
+ 	sysdev->kobj.kset = &cls->kset;
++
++	/* But make sure we point to the right type for sysfs translation */
++	sysdev->kobj.ktype = &ktype_sysdev;
+ 
+ 	/* set the kobject name */
+ 	snprintf(sysdev->kobj.name,KOBJ_NAME_LEN,"%s%d",
 

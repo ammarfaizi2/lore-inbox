@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVBHNmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVBHOOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbVBHNmS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 08:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVBHNmS
+	id S261533AbVBHOOz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 09:14:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVBHOOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 08:42:18 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:6863 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261530AbVBHNmO (ORCPT
+	Tue, 8 Feb 2005 09:14:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19386 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261533AbVBHOOw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 08:42:14 -0500
-Date: Tue, 8 Feb 2005 14:41:56 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: pageexec@freemail.hu
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Message-ID: <20050208134156.GA5017@elte.hu>
-References: <42080689.15768.1B0C5E5F@localhost> <42093CC7.5086.1FC83D3E@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42093CC7.5086.1FC83D3E@localhost>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 8 Feb 2005 09:14:52 -0500
+Date: Tue, 8 Feb 2005 09:14:35 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Fruhwirth Clemens <clemens@endorphin.org>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <michal@logix.cz>, "David S. Miller" <davem@davemloft.net>,
+       "Adam J. Richter" <adam@yggdrasil.com>
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to crypto_tfm
+In-Reply-To: <1107431261.15236.29.camel@ghanima>
+Message-ID: <Xine.LNX.4.44.0502080910370.31986-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 3 Feb 2005, Fruhwirth Clemens wrote:
 
-* pageexec@freemail.hu <pageexec@freemail.hu> wrote:
-
-> > btw., do you consider PaX as a 100% sure solution against 'code
-> > injection' attacks (meaning that the attacker wants to execute an
-> > arbitrary piece of code, and assuming the attacked application has a
-> > stack overflow)? I.e. does PaX avoid all such attacks in a guaranteed
-> > way?
+> First attempt:
 > 
-> your question is answered in http://pax.grsecurity.net/docs/pax.txt
-> that i suggested you to read over a year ago. the short answer is that
-> it's not only about stack overflows but any kind of memory corruption
-> bugs, and you need both a properly configured kernel (for PaX/i386
-> that would be SEGMEXEC/MPROTECT/NOELFRELOCS) and an access control
-> system (to take care of the file system and file mappings) and a
-> properly prepared userland (e.g., no text relocations in ELF
-> executables/libs, which is a good thing anyway).
+> static inline int scatterwalk_needscratch(struct scatter_walk *walk, int
+> nbytes) {
+>        return ((nbytes) <= (walk)->len_this_page &&
+>                (((unsigned long)(walk)->data) & (PAGE_CACHE_SIZE - 1)) +
+> (nbytes) <= PAGE_CACHE_SIZE);
+> }
+> 
+> While trying to improve this unreadable monster I noticed, that 
+> (((unsigned long)(walk)->data) & (PAGE_CACHE_SIZE - 1)) is always equal
+> to walk->offset. walk->data and walk->offset always grows together (see
+> scatterwalk_copychunks), and when the bitwise AND-ing of walk->data with
+> PAGE_CACHE_SIZE-1 would result walk->offset to be zero, in just that
+> moment, walk->offset is set zero (see scatterwalk_pagedone). So, better:
+> 
+> static inline int scatterwalk_needscratch(struct scatter_walk *walk, int
+> nbytes) 
+> {
+> 	return (nbytes <= walk->len_this_page &&
+> 		(nbytes + walk->offset) <= PAGE_CACHE_SIZE);
+> }
+> 
 
-i'm just curious, assuming that all those conditions are true, do you
-consider PaX a 100% sure solution against 'code injection' attacks?
-(assuming that the above PaX and access-control feature implementations
-are correct.) Do you think the upstream kernel could/should integrate it
-as a solution against code injection attacks?
+This appears to be correct.  Adam (cc'd) did some work on this code, and
+may have some further observations.
 
-	Ingo
+> Looks nicer, right? But in fact, it's redundant. walk->offset is never
+> intended to grow bigger than PAGE_CACHE_SIZE, and further it's illegal
+> to hand cryptoapi a scatterlist, where sg->offset is greater than
+> PAGE_CACHE_SIZE (I presume this from the calculations in
+> scatterwalk_start). Are these two conclusions correct, James? 
+
+Yes, passing in an offset beyond the page size is wrong.
+
+Also, I don't know why PAGE_CACHE_SIZE is being used here instead of
+PAGE_SIZE.  Even though they're always the same now, I would suggest
+changing all occurrences to PAGE_SIZE.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+
+

@@ -1,118 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUKIRpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbUKISFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbUKIRpg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 12:45:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbUKIRoR
+	id S261597AbUKISFU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 13:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbUKISFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 12:44:17 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:40857 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261597AbUKIRnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 12:43:52 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: Synchronization primitives in UML (was: Re: [uml-devel] Re: [patch 09/20] uml: use SIG_IGN for empty sighandler)
-Date: Tue, 9 Nov 2004 18:44:35 +0100
-User-Agent: KMail/1.7.1
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       cw@f00f.org
-References: <200411052036.55541.blaisorblade_spam@yahoo.it> <20041106051306.GA3038@ccure.user-mode-linux.org>
-In-Reply-To: <20041106051306.GA3038@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2838420.DOhiRIlsz9";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411091844.44218.blaisorblade_spam@yahoo.it>
+	Tue, 9 Nov 2004 13:05:20 -0500
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:2236 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S261597AbUKISFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 13:05:12 -0500
+Date: Tue, 09 Nov 2004 13:04:49 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: insmod module-loading errors, Linux-2.6.9
+In-reply-to: <Pine.LNX.4.61.0411090745160.11563@chaos.analogic.com>
+To: linux-os@analogic.com
+Cc: Valdis.Kletnieks@vt.edu, Colin Leroy <colin.lkml@colino.net>,
+       Linux kernel <linux-kernel@vger.kernel.org>, rusty@rustcorp.com.au
+Message-id: <419106C1.40809@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <200411090000.iA900Obi004485@turing-police.cc.vt.edu>
+ <Pine.LNX.4.61.0411090745160.11563@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2838420.DOhiRIlsz9
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Saturday 06 November 2004 06:13, Jeff Dike wrote:
-> On Fri, Nov 05, 2004 at 08:36:55PM +0100, Blaisorblade wrote:
-> > Also, why shouldn't sigprocmask be restartable with the -ERESTART*
-> > mechanism?
+linux-os wrote:
+> On Mon, 8 Nov 2004 Valdis.Kletnieks@vt.edu wrote:
+> 
+>> On Mon, 08 Nov 2004 12:52:18 EST, linux-os said:
+>>
+>>> There are certainly work-arounds for problems that shouldn't
+>>> exist at all. So, every time I do something to a kernel, I
+>>> have to change whatever the EXTRAVERSION field is?  Then, when
+>>> a customer demands that the kernel version be exactly the
+>>> same that was shipped with Fedora or whatever, I'm screwed.
+>>
+>>
+>> If you didn't have the foresight to keep that kernel version around,
+>> there isn't much we can do to help you.  Yes, this may mean you have
+>> a big bunch of /usr/src/linux-2.6.* directories.
+>>
+> 
+> Wrong. Whoever put the module-loading code INSIDE the kernel,
+> for POLITICAL reasons, created a new POLICY.
+> 
 
-> Err, that was pause, not sigprocmask.  sigprocmask just switches the sign=
-al
-> mask.
-Ok, I saw it able to return EINTR, so I thought you wanted it to bounce bac=
-k=20
-there (I wasn't understanding the purpose of the code anyway, now with your=
-=20
-help it's clear).
-> pause is what sits there and waits for something to happen.
+No.  Version information is still stripped in module-init-tools in
+_userspace_ for modprobe --force.  The fact that insmod doesn't support
+'-f' is probably an oversight and Rusty would likely accept a patch.
 
-> > Wouldn't your kludge break?
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
-> What kludge?
-[...]
-> You're seeing races where there aren't any.  SIGWINCH is only possible wh=
-en
-> it gets a controlling tty, which happens after the sigprocmask.
-When writing this I was still thinking to sigprocmask() getting SIGWINCH, n=
-ot=20
-pause. So obviously I said nonsense.
-
-I also understand now what all this is for. When I have time for this, I'll=
- at=20
-least copy and paste your mail into a comment, with any needed adjustment.
-
-=46or the semaphore issue, I have some ideas (like using futexes) which nee=
-d to=20
-be developed a bit:
-
-1) I want to create a semaphore API in os_*.
-2) It will be able to use socketpairs.
-3) It will be able to use futexes, if they are non-persistant and usable=20
-without too much issues (the same way we are going to support Async I/O).
-4) It will be used first by the code which could really benefit from the=20
-performance increase.
-5) It won't use persistant objects.
-
-Any comment on these issues? Also, apart TT context switching, is there any=
-=20
-other performance-sensitive use of semaphores, which would benefit from usi=
-ng=20
-futexes?
-
-About this:
-> A more basic issue is the interface.
-
-> What I have now is the mapping=20
->  open <-> create
->  read <-> down
->  write <-> up
->  close <-> destroy
-> which is way simpler and cleaner than semget, semop, and ??? (I can't
-> figure out how to destroy one of these things).
-
-Yes, semget and friends are uglier.
-
-But don't think that the current nested code is simple to read - three=20
-semaphores at a time, without a clear name, are not the clearer code on the=
-=20
-world.
-=2D-=20
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-
---nextPart2838420.DOhiRIlsz9
-Content-Type: application/pgp-signature
-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQBBkQIMqH9OHC+5NscRApIMAJ9RsNvhtfSrqg9lQ8402Dg8AE8nDwCfVTzN
-ukGiHqSqG1c9ReTQR4OoOrY=
-=a5+Q
+iD8DBQFBkQbBdQs4kOxk3/MRArfFAJ9So6d7pRXqAgkuGj9XhsELsrymdgCfZs+x
+Yz1bhTMbZkD35dbd8CEk+vk=
+=kAgK
 -----END PGP SIGNATURE-----
-
---nextPart2838420.DOhiRIlsz9--
-

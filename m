@@ -1,96 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbULCDQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbULCDUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbULCDQN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 22:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbULCDQN
+	id S261910AbULCDUi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 22:20:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbULCDUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 22:16:13 -0500
-Received: from [61.48.52.229] ([61.48.52.229]:40423 "EHLO adam.yggdrasil.com")
-	by vger.kernel.org with ESMTP id S261392AbULCDPl (ORCPT
+	Thu, 2 Dec 2004 22:20:38 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:32142 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261910AbULCDUZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 22:15:41 -0500
-Date: Thu, 2 Dec 2004 19:06:07 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200412030306.iB3367V03088@adam.yggdrasil.com>
-To: maneesh@in.ibm.com
-Subject: [Fake patch 2.6.10-rc2-bk15] Hide sysfs_dirent definition
-Cc: akpm@osdl.org, chrisw@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+	Thu, 2 Dec 2004 22:20:25 -0500
+Date: Fri, 3 Dec 2004 04:20:25 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: do_posix_clock_monotonic_gettime() returns negative nsec
+Message-ID: <20041203032024.GA29553@mail.13thfloor.at>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20041203020357.GA28468@mail.13thfloor.at> <20041202190823.4f287617.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041202190823.4f287617.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	struct sysfs_dirent is only used internally within fs/sysfs/,
-as are the legals for sysfs_dirent.s_type.  The following patch
-moves these definitions from the public include/linux/sysfs.h to
-the private fs/sysfs/sysfs.h, which is consistent with other
-definitions for internal use within sysfs, such as struct
-sysfs_symlink.
+On Thu, Dec 02, 2004 at 07:08:23PM -0800, Andrew Morton wrote:
+> Herbert Poetzl <herbert@13thfloor.at> wrote:
+> >
+> > 
+> > Hi Folks!
+> > 
+> > recent kernels (tested 2.6.10-rc2 and 2.6.10-rc2-bk15)
+> > produce funny output in /proc/uptime like this:
+> > 
+> > 	# cat /proc/uptime
+> > 	  12.4294967218 9.05
+> > 	# cat /proc/uptime
+> > 	  13.4294967251 10.33
+> > 	# cat /proc/uptime
+> > 	  14.4294967295 11.73
+> > 
+> > a short investigation of the issue, ended at
+> > do_posix_clock_monotonic_gettime() which can (and 
+> > often does) return negative nsec values (within
+> > one second), so while the actual 'time' returned
+> > is correct, some parts of the kernel assume that
+> > those part is within the range (0 - NSEC_PER_SEC)
+> > 
+> >         len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
+> >                         (unsigned long) uptime.tv_sec,
+> >                         (uptime.tv_nsec / (NSEC_PER_SEC / 100)),
+> > 
+> > as the function itself corrects overflows, it would
+> > make sense to me to correct underflows too, for 
+> > example with the following patch:
+> > 
+> > --- ./kernel/posix-timers.c.orig	2004-11-19 21:11:05.000000000 +0100
+> > +++ ./kernel/posix-timers.c	2004-12-03 02:23:56.000000000 +0100
+> > @@ -1208,7 +1208,10 @@ int do_posix_clock_monotonic_gettime(str
+> >  	tp->tv_sec += wall_to_mono.tv_sec;
+> >  	tp->tv_nsec += wall_to_mono.tv_nsec;
+> >  
+> > -	if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
+> > +	if (tp->tv_nsec < 0) {
+> > +		tp->tv_nsec += NSEC_PER_SEC;
+> > +		tp->tv_sec--;
+> > +	} else if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
+> >  		tp->tv_nsec -= NSEC_PER_SEC;
+> >  		tp->tv_sec++;
+> >  	}
+> 
+> Doesn't this imply that do_posix_clock_monotonic_gettime_parts() is
+> returning a negative tv_nsec?
 
-	This patch makes it clearer that there are no external
-dependencies on struct sysfs_dirent, and it also eliminates the
-massive recompiles that I had to do every time I would change
-something in sysfs_dirent.
+nope, not necessarily, because after that ...
 
-	Note that this is a fake patch generated against a
-pristine 2.6.10-rc2-bk15 tree, because my tree has some other
-changes in it that overlap.  So, please test this patch.  It
-should produce exactly the same binaries as before.  If the
-patch seems OK, I would appreciate it if this patch could
-be forwarded for integration into the stock kernels.
+        tp->tv_sec += wall_to_mono.tv_sec;
+        tp->tv_nsec += wall_to_mono.tv_nsec;
 
-                    __     ______________
-Adam J. Richter        \ /
-adam@yggdrasil.com      | g g d r a s i l
+might add a negative value, which explains the
+underflow ...
 
+and if you look closer:
 
-diff -ur linux-2.6.10-rc2-bk15/fs/sysfs/sysfs.h linux/fs/sysfs/sysfs.h
---- linux-2.6.10-rc2-bk15/fs/sysfs/sysfs.h	2004-11-17 18:59:13.000000000 +0800
-+++ linux/fs/sysfs/sysfs.h	2004-12-03 11:01:25.000000000 +0800
-@@ -1,3 +1,20 @@
-+struct sysfs_dirent {
-+	atomic_t		s_count;
-+	struct list_head	s_sibling;
-+	struct list_head	s_children;
-+	void 			* s_element;
-+	int			s_type;
-+	umode_t			s_mode;
-+	struct dentry		* s_dentry;
-+};
-+
-+#define SYSFS_ROOT		0x0001
-+#define SYSFS_DIR		0x0002
-+#define SYSFS_KOBJ_ATTR 	0x0004
-+#define SYSFS_KOBJ_BIN_ATTR	0x0008
-+#define SYSFS_KOBJ_LINK 	0x0020
-+#define SYSFS_NOT_PINNED	(SYSFS_KOBJ_ATTR | SYSFS_KOBJ_BIN_ATTR | SYSFS_KOBJ_LINK)
-+
- 
- extern struct vfsmount * sysfs_mount;
- 
-diff -ur linux-2.6.10-rc2-bk15/include/linux/sysfs.h linux/include/linux/sysfs.h
---- linux-2.6.10-rc2-bk15/include/linux/sysfs.h	2004-11-17 18:59:17.000000000 +0800
-+++ linux/include/linux/sysfs.h	2004-12-03 11:01:46.000000000 +0800
-@@ -59,23 +59,6 @@
- 	ssize_t	(*store)(struct kobject *,struct attribute *,const char *, size_t);
- };
- 
--struct sysfs_dirent {
--	atomic_t		s_count;
--	struct list_head	s_sibling;
--	struct list_head	s_children;
--	void 			* s_element;
--	int			s_type;
--	umode_t			s_mode;
--	struct dentry		* s_dentry;
--};
--
--#define SYSFS_ROOT		0x0001
--#define SYSFS_DIR		0x0002
--#define SYSFS_KOBJ_ATTR 	0x0004
--#define SYSFS_KOBJ_BIN_ATTR	0x0008
--#define SYSFS_KOBJ_LINK 	0x0020
--#define SYSFS_NOT_PINNED	(SYSFS_KOBJ_ATTR | SYSFS_KOBJ_BIN_ATTR | SYSFS_KOBJ_LINK)
--
- #ifdef CONFIG_SYSFS
- 
- extern int
+	xtime.tv_sec = get_cmos_time();
+        wall_to_monotonic.tv_sec = -xtime.tv_sec;
+        xtime.tv_nsec = (INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ);
+        wall_to_monotonic.tv_nsec = -xtime.tv_nsec;
+
+#define INITIAL_JIFFIES ((unsigned long)(unsigned int) (-300*HZ))
+
+which might need a fix too ... but that's a 
+different story ...
+
+> If so, that would point back at getnstimeofday().  What is your setting of
+> CONFIG_TIME_INTERPOLATION?
+
+# grep TIME .config
+# CONFIG_HPET_TIMER is not set
+# CONFIG_HANGCHECK_TIMER is not set
+
+best,
+Herbert
+

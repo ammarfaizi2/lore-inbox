@@ -1,63 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265937AbUBPWRW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 17:17:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265940AbUBPWRW
+	id S265961AbUBPWlY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 17:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265967AbUBPWlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 17:17:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12760 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265937AbUBPWRP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 17:17:15 -0500
-Date: Mon, 16 Feb 2004 14:17:12 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: stty utf8
-In-Reply-To: <20040216220356.GC18853@mail.shareable.org>
-Message-ID: <Pine.LNX.4.58.0402161413550.30742@home.osdl.org>
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca>
- <200402150006.23177.robin.rosenberg.lists@dewire.com>
- <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk>
- <200402150107.26277.robin.rosenberg.lists@dewire.com>
- <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216150501.GC16658@mail.shareable.org>
- <20040216220356.GC18853@mail.shareable.org>
+	Mon, 16 Feb 2004 17:41:24 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:57539 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265961AbUBPWlN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 17:41:13 -0500
+Date: Mon, 16 Feb 2004 17:40:54 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, lhcs-devel@lists.sourceforge.net,
+       Pavel Machek <pavel@ucw.cz>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH][2.6-mm] split drain_local_pages
+Message-ID: <Pine.LNX.4.58.0402161720390.11793@montezuma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+CPU hotplug core needs to pass a cpu parameter to drain_local_pages, it's
+safe to call __drain_local_pages if the cpu being drained is offline. The
+semantics for drain_local_pages do not change.
 
+Index: linux-2.6.3-rc3-mm1/mm/page_alloc.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.3-rc3-mm1/mm/page_alloc.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 page_alloc.c
+--- linux-2.6.3-rc3-mm1/mm/page_alloc.c	16 Feb 2004 20:42:50 -0000	1.1.1.1
++++ linux-2.6.3-rc3-mm1/mm/page_alloc.c	16 Feb 2004 21:58:19 -0000
+@@ -414,19 +414,19 @@ int is_head_of_free_region(struct page *
+ }
 
-On Mon, 16 Feb 2004, Jamie Lokier wrote:
-> 
-> I little thought and an experiment later, and I discovered:
-> 
-> When you edit a line with the kernel's terminal line editor, when you
-> press the Delete key, it writes backspace-space-backspace and removes
-> one byte from the input.  That fails to do the right thing on UTF-8
-> terminals.
+ /*
+- * Spill all of this CPU's per-cpu pages back into the buddy allocator.
++ * drain_local_pages helper, this is only safe to use when the cpu
++ * being drained isn't currently online.
+  */
+-void drain_local_pages(void)
++
++void __drain_local_pages(int cpu)
+ {
+-	unsigned long flags;
+ 	struct zone *zone;
+ 	int i;
+-
+-	local_irq_save(flags);
++
+ 	for_each_zone(zone) {
+ 		struct per_cpu_pageset *pset;
 
-Yes. I looked at that a year ago, and it should be pretty easy to make the 
-backspace code look more like the "delete word" code - except the "word" 
-is just a utf character.
+-		pset = &zone->pageset[smp_processor_id()];
++		pset = &zone->pageset[cpu];
+ 		for (i = 0; i < ARRAY_SIZE(pset->pcp); i++) {
+ 			struct per_cpu_pages *pcp;
 
-(Btw, that's one of the things I like about UTF-8, and shows how _well_ 
-designed it is - it's trivial to find the beginning of a UTF-8 character, 
-even when just doing a stupid scan backwards).
+@@ -435,7 +435,19 @@ void drain_local_pages(void)
+ 						&pcp->list, 0);
+ 		}
+ 	}
+-	local_irq_restore(flags);
++}
++
++/*
++ * Spill all of this CPU's per-cpu pages back into the buddy allocator.
++ */
++
++void drain_local_pages(void)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	__drain_local_pages(smp_processor_id());
++	local_irq_restore(flags);
+ }
+ #endif /* CONFIG_PM */
 
-I didn't care enough to really bother fixing it - the fact is, that people 
-who care about UTF-8 tend to have to be in graphics mode anyway, and there 
-is something to be said for keeping the text console simple even if it 
-means it lacks functionality.
-
-But if somebody cares more than I do (hint, hint ;), I do think it should 
-be fixed.
-
-> There is no fancy environment setting which corrects this problem.
-> The kernel needs to know it's dealing with a UTF-8 terminal for basic
-> line editing to work.
-
-Yes. And I'd happily take patches for it.
-
-		Linus
+@@ -1574,7 +1586,7 @@ static int page_alloc_cpu_notify(struct
+ 		count = &per_cpu(nr_pagecache_local, cpu);
+ 		atomic_add(*count, &nr_pagecache);
+ 		*count = 0;
+-		drain_local_pages(cpu);
++		__drain_local_pages(cpu);
+ 	}
+ 	return NOTIFY_OK;
+ }

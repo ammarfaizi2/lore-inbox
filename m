@@ -1,93 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUCaVnD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 16:43:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbUCaVlP
+	id S262618AbUCaVkj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 16:40:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUCaVij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 16:41:15 -0500
-Received: from ithilien.qualcomm.com ([129.46.51.59]:59025 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id S262605AbUCaVja convert rfc822-to-8bit (ORCPT
+	Wed, 31 Mar 2004 16:38:39 -0500
+Received: from pop.gmx.de ([213.165.64.20]:35233 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262547AbUCaViM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 16:39:30 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
+	Wed, 31 Mar 2004 16:38:12 -0500
+X-Authenticated: #1045983
+From: Helge Deller <deller@gmx.de>
+To: Len Brown <len.brown@intel.com>
+Subject: Re: Linux 2.6.5-rc3 - ALI15X3, irq 15: nobody cared! / Disabling IRQ #15
+Date: Wed, 31 Mar 2004 23:38:05 +0200
+User-Agent: KMail/1.6.51
+Cc: linux-kernel@vger.kernel.org
+References: <A6974D8E5F98D511BB910002A50A6647615F6E02@hdsmsx402.hd.intel.com> <1080753945.21276.4.camel@dhcppc4>
+In-Reply-To: <1080753945.21276.4.camel@dhcppc4>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: kernel BUG at kernel/timer.c:370!
-Date: Wed, 31 Mar 2004 13:39:13 -0800
-Message-ID: <0320111483D8B84AAAB437215BBDA526847F7F@NAEX01.na.qualcomm.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kernel BUG at kernel/timer.c:370!
-Thread-Index: AcQXWxx80Xzu4s4NQICLh1VZefaWNgADWH2g
-From: "Craig, Dave" <dwcraig@qualcomm.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <list@noduck.net>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 31 Mar 2004 21:39:14.0602 (UTC) FILETIME=[9CAFC8A0:01C41768]
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403312338.05557.deller@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sure thing.
-
-7ecb001b A __crc___per_cpu_offset
-c033a510 r __kcrctab___per_cpu_offset
-c033c462 r __kstrtab___per_cpu_offset
-c03366c4 r __ksymtab___per_cpu_offset
-c040bd90 A __per_cpu_end
-c040c020 B __per_cpu_offset
-c04090a0 A __per_cpu_start
-
-It is a dual processor and the processors are hyperthreaded.
-
-	Dave
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Andrew Morton
-Sent: Wednesday, March 31, 2004 11:52 AM
-To: Craig, Dave
-Cc: list@noduck.net; linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at kernel/timer.c:370!
-
-"Craig, Dave" <dwcraig@qualcomm.com> wrote:
->
-> cascade: c1a1d5e0 != c1a0d5e0
->  hander=c028ee8d (igmp_ifc_timer_expire+0x0/0x3e)
->  Call Trace:
->   [<c012ca73>] cascade+0x79/0xa1
->   [<c028ee8d>] igmp_ifc_timer_expire+0x0/0x3e
->   [<c012d0b3>] run_timer_softirq+0x159/0x1c9
->   [<c012899d>] do_softirq+0xc9/0xcb
->   [<c0119c46>] smp_apic_timer_interrupt+0xd8/0x140
->   [<c0108c09>] default_idle+0x0/0x32
->   [<c010bab2>] apic_timer_interrupt+0x1a/0x20
->   [<c0108c09>] default_idle+0x0/0x32
->   [<c0108c36>] default_idle+0x2d/0x32
->   [<c0108cb4>] cpu_idle+0x3a/0x43
->   [<c0105000>] rest_init+0x0/0x68
->   [<c039c89f>] start_kernel+0x1b7/0x209
->   [<c039c427>] unknown_bootoption+0x0/0x124
+On Wednesday 31 March 2004 19:25, Len Brown wrote:
+> On Tue, 2004-03-30 at 14:40, Helge Deller wrote:
+> > IBM R30 Laptop, ALI15X3 IDE onboard chip, internal IDE harddisk &
+> > CDROM gives
+> >  irq 15: nobody cared!
+> >  ....
+> >  Disabling IRQ #15
 > 
->  Here is the result.  I am doing a lot of IPv4 multicast.
+> Did 2.6.5-rc2 work okay?
 
-There's only a single bit difference between the expected and actual
-timer->base value.  So either your machine has flakey memory or the
-percpu
-data area happened to be separated by 64k.
+yes.
+ 
+> Nothing ACPI jumps out at me here, but if you boot with acpi=off
+> or pci=noacpi and the problem goes away, then let me know.
 
-Is the machine SMP?  If so can you please run
+2.6.5-rc2 is OK,
+2.5.6-rc3 is broken,
+2.5.6-rc3 pci=noacpi is OK,
+2.5.6-rc3 acpi=off is OK
 
-	nm vmliunx | grep __per_cpu
-
-and send the output?
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Helge

@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265546AbRFVWQ4>; Fri, 22 Jun 2001 18:16:56 -0400
+	id <S265545AbRFVWVH>; Fri, 22 Jun 2001 18:21:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265545AbRFVWQq>; Fri, 22 Jun 2001 18:16:46 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24334 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265541AbRFVWQa>; Fri, 22 Jun 2001 18:16:30 -0400
-Subject: Re: ACPI + Promise IDE = disk corruption :-(((
-To: proski@gnu.org (Pavel Roskin)
-Date: Fri, 22 Jun 2001 23:16:01 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0106221635230.1575-100000@vesta.nine.com> from "Pavel Roskin" at Jun 22, 2001 05:07:02 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S265549AbRFVWU5>; Fri, 22 Jun 2001 18:20:57 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:57232 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S265545AbRFVWUl>;
+	Fri, 22 Jun 2001 18:20:41 -0400
+Message-ID: <XFMail.20010622152354.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15DZDd-0004Fq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20010622175944.A6968@gruyere.muc.suse.de>
+Date: Fri, 22 Jun 2001 15:23:54 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: About I/O callbacks ...
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I enabled ACPI in 2.4.5-ac17 (2.4.5-ac16 works fine with the same config
-> except ACPI). When I booted I saw a message
 
-> I hit reset hoping to boot the system with "acpi=no-idle", but GRUB
-> couldn't load stage2, which resides on the root partition (reiserfs).
+On 22-Jun-2001 Andi Kleen wrote:
+> On Fri, Jun 22, 2001 at 08:55:00AM -0700, Davide Libenzi wrote:
+>> I know about rt signals and SIGIO :) but I can't see how You can queue
+>> signals :
+>> 
+>> current->sig->action[..]
+>> 
+>> The action field is an array so if more than one I/O notification is fired
+>> before the SIGIO is delivered, You'll deliver only the last one.
+>> Am I missing something ?
+> 
+> Yes. Realtime signals (>=SIGRTMIN) get queued in current->pending.
 
-I've seen several people report ACPI eats disks. ACPI is incredibly complex
-badly designed crud. My advice is never use ACPI. This incidentally appears
-to be the advice Microsoft give people too - they tell people to disable
-ACPI as one of the first steps to diagnosing strange crashes in machines
+An issue with rt signal is the limited number of this resource that
+will force you to have a mapping  fd ==> coroutine  but this should not be a
+big problem using  hash( fd ) = fd
 
-ACPI is over complex, new technology. The BIOS stuff is new (and frequently
-wrong), the kernel stuff is new (and has plenty of known bugs) and the 
-combination is a recipe for disaster.
 
-I've been discussing with a few folk about doing an alternative mini acpi
-subset so that Linux can be booted on most 'ACPI only' hardware without 
-using all the ACPI junk
 
-Alan
+
+
+- Davide
 

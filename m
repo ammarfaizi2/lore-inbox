@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268927AbRHBNBq>; Thu, 2 Aug 2001 09:01:46 -0400
+	id <S268919AbRHBNFG>; Thu, 2 Aug 2001 09:05:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268925AbRHBNBg>; Thu, 2 Aug 2001 09:01:36 -0400
-Received: from ha1.rdc2.nsw.optushome.com.au ([203.164.2.50]:30343 "EHLO
-	mss.rdc2.nsw.optushome.com.au") by vger.kernel.org with ESMTP
-	id <S268919AbRHBNB3>; Thu, 2 Aug 2001 09:01:29 -0400
-From: Manfred Bartz <mbartz@optushome.com.au>
-Message-ID: <20010802103447.992.qmail@optushome.com.au>
+	id <S268924AbRHBNE4>; Thu, 2 Aug 2001 09:04:56 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:31076 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S268919AbRHBNEm>; Thu, 2 Aug 2001 09:04:42 -0400
+Date: Thu, 2 Aug 2001 15:05:29 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: setsockopt(..,SO_RCVBUF,..) sets wrong value
-Organization: yes
-Date: 02 Aug 2001 20:34:47 +1000
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+Cc: jeremy@classic.engr.sgi.com
+Subject: o_direct-11 and blkdev-pagecache-8
+Message-ID: <20010802150529.A24436@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I do a setsockopt(..,SO_RCVBUF,..) and then read the value back
-with getsockopt(), the reported value is exactly twice of what I set.
+Here the latest release against 2.4.8pre3.
 
-Running the same code on Solaris and on DEC UNIX reports back the
-exact size I set.
+For the blkdev-pagecache I decreased performance going to 1k I/O
+granularity to provide total backwards compatibility, otherwise it was
+not possible to read the last bytes of the device if the size of the
+device was not a multiple of 4k and there's no way to work around that
+without intensive changes :(, this in turn means the doing O_DIRECT on
+the blkdevice now has a constraint of 1k I/O granularity on the
+read/write API (not anymore the more restrictive 4k granularity).
 
-Looking at the code it seems that the  *2  should not be there:
+The O_DIRECT patch includes a one liner I got from the GFS folks to
+update the i_size of the inode correctly.
 
->From /usr/src/linux/net/core/sock.c:
+They must be applyed in order:
 
-int sock_setsockopt(...
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.8pre3/o_direct-11
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.8pre3/blkdev-pagecache-8
 
-		case SO_SNDBUF:
+Now it would be nice to have a patch incremental to those so that rawio
+also uses the preallocated per-file iobuf (note: the preallocation
+should happen in the rawio layer, not in the vfs like we just do with
+the generic O_DIRECT).
 
-			sk->sndbuf = max(val*2,SOCK_MIN_SNDBUF);
-
-		case SO_RCVBUF:
-			/* FIXME: is this lower bound the right one? */
-			sk->rcvbuf = max(val*2,SOCK_MIN_RCVBUF);
-			break;
-
-
--- 
-Manfred Bartz
+Andrea

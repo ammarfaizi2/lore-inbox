@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285114AbRLUURn>; Fri, 21 Dec 2001 15:17:43 -0500
+	id <S286540AbRLUUZD>; Fri, 21 Dec 2001 15:25:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285127AbRLUURe>; Fri, 21 Dec 2001 15:17:34 -0500
-Received: from 64-60-75-69-cust.telepacific.net ([64.60.75.69]:27653 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP
-	id <S285114AbRLUURS>; Fri, 21 Dec 2001 15:17:18 -0500
-Message-ID: <3C23988D.47A96760@ixiacom.com>
-Date: Fri, 21 Dec 2001 12:16:13 -0800
-From: Dan Kegel <dkegel@ixiacom.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-dan i686)
-X-Accept-Language: en
+	id <S285129AbRLUUY4>; Fri, 21 Dec 2001 15:24:56 -0500
+Received: from kaboom.dsl.xmission.com ([166.70.87.226]:47528 "EHLO
+	mail.oobleck.net") by vger.kernel.org with ESMTP id <S285128AbRLUUYp>;
+	Fri, 21 Dec 2001 15:24:45 -0500
+Date: Fri, 21 Dec 2001 13:24:44 -0700 (MST)
+From: Chris Ricker <kaboom@gatech.edu>
+Reply-To: World Domination Now! <linux-kernel@vger.kernel.org>
+To: World Domination Now! <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help editorial policy
+In-Reply-To: <200112211937.fBLJbkSr021293@svr3.applink.net>
+Message-ID: <Pine.LNX.4.33.0112211313160.30646-100000@verdande.oobleck.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: re: Linux 2.4.17
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo wrote:
+On Fri, 21 Dec 2001, Timothy Covell wrote:
 
-> Well, 
 > 
-> Here it is... 
+> On Friday 21 December 2001 13:12, David Weinehall wrote:
+> [snip]
 > 
+> > Whatever the choice ends up being, KB is always incorrect, unless you
+> > intend to specify some strange formula where the number of bytes (B)
+> > combined with the temperature in Kelvin (K) has anything to do with
+> > things.
+> >
+> >
+> >
+> > /David Weinehall
 > 
-> final:
-> 
-> - Fix more loopback deadlocks                   (Andrea Arcangeli)
-> - Make Alpha with Nautilus chipset and
->   Irongate chipset configuration compile
->   correctly                                     (Michal Jaegermann)
-> 
-> rc2: 
-> 
-> - Fix potential oops with via-rhine             (Andrew Morton)
-> - sysvfs: mark inodes as bad in case of read 
-> ...
+> The way the metric prefixes work is that multiplicative prefixes are
+> capitalized and divisional prefixes are in lower case.
 
-Um, what happened to the idea of 'no changes between the last
-release candidate and final'?
+Nonsense.  Some of what you're calling multiplicative prefixes (as if they
+weren't *all* multiplicative ;-) are capitalized, and others are not.  kilo
+(10^3) is k, hecto (10^2) is h, and deca (10^1) is da, for example.  See
+<http://www.bipm.fr/enus/6_Publications/si/si-brochure.html> for the
+official guidelines (page 23 if you read English, and page 28 if you read
+French).
 
-I'm disappointed; I thought we were entering a new era of
-release discipline in the stable kernel. 
+More relevant to the whole Configure.help discussion, if you want to
+pedantic, official SI guidelines also state on the same page that:
 
-- Dan
+"These SI prefixes refer strictly to powers of 10.  They should not be used 
+to indicate powers of 2 (for example, one kilobit represents 1000 bits and 
+not 1024 bits)."
+
+later,
+chris
+

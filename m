@@ -1,88 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264444AbUGMBDF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUGMBLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264444AbUGMBDF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 21:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbUGMBDF
+	id S261857AbUGMBLG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 21:11:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUGMBLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 21:03:05 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57284 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264444AbUGMBCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 21:02:44 -0400
-Date: Tue, 13 Jul 2004 03:02:40 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, aoliva@redhat.com,
-       ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
-Subject: [updated 2.6 patch] #define inline as __attribute__((always_inline)) also for gcc >= 3.4
-Message-ID: <20040713010239.GG4701@fs.tum.de>
-References: <2fG2F-4qK-3@gated-at.bofh.it> <20040711013218.414941ce.akpm@osdl.org> <20040711115039.GD4701@fs.tum.de> <200407111501.21769.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200407111501.21769.arnd@arndb.de>
-User-Agent: Mutt/1.5.6i
+	Mon, 12 Jul 2004 21:11:06 -0400
+Received: from out014pub.verizon.net ([206.46.170.46]:56520 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S261857AbUGMBLE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 21:11:04 -0400
+Message-Id: <200407130111.i6D1B2oo003715@localhost.localdomain>
+To: Con Kolivas <kernel@kolivas.org>
+cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       florin@sgi.com
+Subject: Re: desktop and multimedia as an afterthought? 
+In-reply-to: Your message of "Tue, 13 Jul 2004 10:18:08 +1000."
+             <cone.1089677888.268686.12958.502@pc.kolivas.org> 
+Date: Mon, 12 Jul 2004 21:11:02 -0400
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [141.151.61.237] at Mon, 12 Jul 2004 20:11:03 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 11, 2004 at 03:01:18PM +0200, Arnd Bergmann wrote:
-> On Sonntag, 11. Juli 2004 13:50, Adrian Bunk wrote:
-> > -#if __GNUC_MINOR__ >= 1  && __GNUC_MINOR__ < 4
-> > +#if __GNUC_MINOR__ >= 1
-> >  # define inline                __inline__ __attribute__((always_inline))
-> >  # define __inline__    __inline__ __attribute__((always_inline))
-> >  # define __inline      __inline__ __attribute__((always_inline))
-> 
-> While we're there, shouldn't this really be the following?
-> 
-> # define inline          inline   __attribute__((always_inline))
-> # define __inline__    __inline__ __attribute__((always_inline))
-> # define __inline      __inline   __attribute__((always_inline))
-> 
-> I find it somewhat annoying that the preprocessor expands every "inline"
-> to "__inline__ __attribute__((always_inline)) __attribute__((always_inline))"
-> in the current code.
+>Please dont start a low level flamewar over this. Latency is firmly on the 
+>agenda and under consideration for the mainline kernel now. 
 
-Sounds like a good idea.
+Yes, and I apologize for that intemperate post from me. Quite
+unnecessary and utterly unhelpful. It just irks me to be told "you're
+late to the party" when we were told "the party can happen without
+you". Nothing more than that. Its great to see that people *do* care
+about this stuff. Sorry for the noise.
 
-Updated patch below.
-
-> 	Arnd <><
-
-<--  snip  -->
-
-[patch] #define inline as __attribute__((always_inline)) also for gcc >= 3.4
-
-
-Rationale:
-- if gcc 3.4 can't inline a function marked as "inline" that's a
-  strong hint that further investigation is required
-- I strongly prefer a compile error over a potential runtime problem
-
-
-Additionally, it changes all #define's to expand to the correct
-{,__}inline{,__} (suggested by Arnd Bergmann <arnd@arndb.de>).
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.7-mm7-full-gcc3.4/include/linux/compiler-gcc3.h.old	2004-07-13 02:56:53.000000000 +0200
-+++ linux-2.6.7-mm7-full-gcc3.4/include/linux/compiler-gcc3.h	2004-07-13 02:58:03.000000000 +0200
-@@ -3,10 +3,10 @@
- /* These definitions are for GCC v3.x.  */
- #include <linux/compiler-gcc.h>
- 
--#if __GNUC_MINOR__ >= 1  && __GNUC_MINOR__ < 4
--# define inline		__inline__ __attribute__((always_inline))
--# define __inline__	__inline__ __attribute__((always_inline))
--# define __inline	__inline__ __attribute__((always_inline))
-+#if __GNUC_MINOR__ >= 1
-+# define inline		inline		__attribute__((always_inline))
-+# define __inline__	__inline__	__attribute__((always_inline))
-+# define __inline	__inline	__attribute__((always_inline))
- #endif
- 
- #if __GNUC_MINOR__ > 0
-
-
+--p

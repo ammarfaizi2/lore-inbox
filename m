@@ -1,73 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319293AbSIKTOT>; Wed, 11 Sep 2002 15:14:19 -0400
+	id <S319299AbSIKTOA>; Wed, 11 Sep 2002 15:14:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319295AbSIKTOT>; Wed, 11 Sep 2002 15:14:19 -0400
-Received: from dsl-213-023-021-043.arcor-ip.net ([213.23.21.43]:1770 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S319293AbSIKTOR>;
-	Wed, 11 Sep 2002 15:14:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Oliver Neukum <oliver@neukum.name>, Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [RFC] Raceless module interface
-Date: Wed, 11 Sep 2002 21:20:53 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Alexander Viro <viro@math.psu.edu>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0209101201280.8911-100000@serv> <E17pCKQ-0007Sz-00@starship> <200209112053.52426.oliver@neukum.name>
-In-Reply-To: <200209112053.52426.oliver@neukum.name>
+	id <S319300AbSIKTOA>; Wed, 11 Sep 2002 15:14:00 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:27526 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S319299AbSIKTN7>; Wed, 11 Sep 2002 15:13:59 -0400
+Date: Wed, 11 Sep 2002 15:21:37 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Oliver Neukum <oliver@neukum.name>
+cc: Xuan Baldauf <xuan--reiserfs@baldauf.org>,
+       Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Heuristic readahead for filesystems
+In-Reply-To: <200209112104.41987.oliver@neukum.name>
+Message-ID: <Pine.LNX.3.95.1020911151848.32205A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17pD2j-0007TM-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 September 2002 20:53, Oliver Neukum wrote:
-> > Now there's the question "if this is such a great approach, why not make
-> > all modules work this way, not just filesystems?".  Easy: the magic
-> > scheduling approach impacts the scheduler, however lightly, and worse,
-> > we cannot put an upper bound on the time needed for
+On Wed, 11 Sep 2002, Oliver Neukum wrote:
+
+> Am Mittwoch, 11. September 2002 20:43 schrieb Xuan Baldauf:
 > 
-> You are in principle describing RCU. These guys seem to have solved the
-> problem.
-
-Eh, how about that, and it was obvious to me.  I wonder what that 
-means, if anything.  (No, I never knew anything about RCU other
-than the name.)  Anyway, in case I sound too snippy here, here's
-a hearty thanks to IBM for contributing that IP to Linux without
-a fuss.
-
-> > magic_wait_for_quiescence to complete.  So the try_count approach is
-> > preferable, where it works.
+> > > Please correct me, if I am wrong, but wouldn't read() block ?
+> >
+> > AFAIK, "man open" tells
+> >
+> > [...]
+> >       int open(const char *pathname, int flags);
+> > [...]
+> >        O_NONBLOCK or O_NDELAY
+> >                The file is opened in non-blocking mode. Neither the open
+> > nor any __subsequent__ operations  on  the  file  descriptor
+> >                which is returned will cause the calling process to wait.
+> > [...]
+> >
+> > So read won't block if the file has been opened with O_NONBLOCK.
 > 
-> But the try_count approach hurts every user of the defined interfaces,
-> even if modules are not used.
+> Well, so the man page tells you. The kernel sources tell otherwise, unless
+> I am badly mistaken.
+> 
+> > > Aio should be able to do it. But even that want help you with the stat
+> > > data.
+> >
+> > Aio would help me announcing stat() usage for the future?
+> 
+> No, it won't. But it would solve the issue of reading ahead.
+> Stating needs a kernel implementation of 'stat ahead'
+> -
 
-Well, it works great for filesystems, which is my point.  And I'll
-bet beer that somebody out there will find another application
-where it works well.  It's all about choice, and the thing about
-the proposed interface is, it gives you the flexibility to make
-that choice.  The fact that it's also the simplest interface is
-just nice.
+I think this is discussed in the future. Write-ahead is the
+next problem solved. ?;)
 
-> Is the impact on the scheduler limited
-> to the time magic_wait_for_quiescence is running.
-> If so, the approach looks superior.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 
-It definitely is not superior for filesystem modules.  However,
-"damm good" would be a nice level of functionality to aim for.
-The more we come to rely on virtual filesystem, the more we care
-that the load/unload procedure should be reliable and fast.
-Don't forget that point about not being able to put an upper
-bound on the time required to complete the magic wait.
-
-Are you hinting that we only need, and only ever will need, one
-mechanism here, so the module doesn't need to return a result
-from cleanup_module?  If so then I should add that we don't just
-have varying requirements for cleanup style between modules, but
-other problems, such as single modules that support multiple
-services, which are common in the pcmcia world.
-
--- 
-Daniel

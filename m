@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285189AbRLFUsk>; Thu, 6 Dec 2001 15:48:40 -0500
+	id <S284211AbRLFUuQ>; Thu, 6 Dec 2001 15:50:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284248AbRLFUrF>; Thu, 6 Dec 2001 15:47:05 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:22417 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S285179AbRLFUqL>; Thu, 6 Dec 2001 15:46:11 -0500
-Date: 06 Dec 2001 22:14:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8EK0hWIHw-B@khms.westfalen.de>
-In-Reply-To: <20011206173455.104b6a02.skraw@ithnet.com>
-Subject: Re: Loadable drivers [was SMP/cc Cluster description ]
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
+	id <S284248AbRLFUsn>; Thu, 6 Dec 2001 15:48:43 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:9477 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S284211AbRLFUrd>; Thu, 6 Dec 2001 15:47:33 -0500
+Message-ID: <3C0FD955.4510B738@zip.com.au>
+Date: Thu, 06 Dec 2001 12:47:17 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Greg Hennessy <gsh@cox.rr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: horrible disk thorughput on itanium
+In-Reply-To: <20011206110713.A8404@cox.rr.com>
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <E16BjQJ-0005EA-00@trillium-hollow.org> <20011205212844.451f8781.skraw@ithnet.com> <E16BjQJ-0005EA-00@trillium-hollow.org> <20011206173455.104b6a02.skraw@ithnet.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-skraw@ithnet.com (Stephan von Krawczynski)  wrote on 06.12.01 in <20011206173455.104b6a02.skraw@ithnet.com>:
+Greg Hennessy wrote:
+> 
+> ...
+> Hydra is the itanium, leo is the 32 bit machine. The character io of
+> hydra is a factor of 10 slower than that of leo. Is this more likely a
+> kernel issue, or a glibc issue? Both machiness run standard redhat
+> 7.1, and 2.4.9-12smp kernels.
+> 
 
-> I have learned something over the recent years: I guess RMS pointed in the
-> right direction. I _don't_ think binary drivers are ok. I want to control my
-> environment, and don't let _anybody_ control it _for_ me. And if something
-> goes wrong, I have a look. And if I am too dumb, I can ask somebody who
-> isn't. And there may be a lot of those.
+The character I/O part of bonnie++ writes a single character at a time,
+via stdio.  It's more a test of your C library than of the kernel.
 
-And it is absolutely amazing what you *can* do, if you have the soure,  
-what you never expected to be able to do, but because you *do* have the  
-source, you just *have* to look at the problem area ... and poof! there's  
-something that certainly doesn't look right, maybe if you just try to  
-change this little bit ...
+The fact that you get the same throughput on each platform with
+the block I/O part of the test indicates that the hardware and
+kernel are OK, but the C library is broken.
 
-And thus you learn something new which you wouldn't even have tried with  
-closed source.
+Not sure how to diagnose this.  Probably you should write a
+simple five-line stdio-based test program, see if that exhibits
+the same behaviour, then fiddle with setvbuf().
 
-It's not only this. I remember when I first tried to get PPP to work - no,  
-wait, back then it was SLIP. (Slightly before Linux 1.0, I think.) It just  
-wouldn't work, and I had no idea why. Obviously I was doing something  
-wrong, but what?
-
-So I looked at the relevant kernel part. Still rather unclear, but the  
-data has to go through *here* ... now suppose I insert a printk there, and  
-one there, and then reboot and retry and watch syslog ... aha! (Well,  
-actually, it took me several passes, and I don't remember what the problem  
-turned out to be except it wasn't a kernel bug.)
-
-MfG Kai
+-

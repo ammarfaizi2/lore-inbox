@@ -1,91 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265673AbUA0UYU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 15:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265677AbUA0UYU
+	id S265657AbUA0UYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 15:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265673AbUA0UYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 15:24:20 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:64395 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265673AbUA0UYL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 15:24:11 -0500
-Date: Tue, 27 Jan 2004 17:46:58 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.25-pre7
-In-Reply-To: <20040126165421.679327f0.rusty@rustcorp.com.au>
-Message-ID: <Pine.LNX.4.58L.0401271745490.11421@logos.cnet>
-References: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet>
- <20040126165421.679327f0.rusty@rustcorp.com.au>
+	Tue, 27 Jan 2004 15:24:09 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:54987 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S265657AbUA0UYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 15:24:04 -0500
+Message-ID: <4016C8B6.6070704@grupopie.com>
+Date: Tue, 27 Jan 2004 20:23:18 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: GrupoPIE
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: joe.korty@ccur.com
+Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] volatile may be needed in rwsem
+References: <20040127191155.GA12128@tsunami.ccur.com> <23376.1075231180@redhat.com> <20040127194343.GA12763@tsunami.ccur.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joe Korty wrote:
 
+> On Tue, Jan 27, 2004 at 07:19:40PM +0000, David Howells wrote:
+> 
+>>>'flags' should be declared volatile as rwsem_down_failed_common() spins
+>>>waiting for this to change.  Untested.
+>>>
+>>Is it though? Does this fix an error?
+>>
+>>The thing is, we make a function call inside of the loop:
+>>
+>>	/* wait to be given the lock */
+>>	for (;;) {
+>>		if (!waiter->flags)
+>>			break;
+>>		schedule();
+>>		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+>>	}
+>>
+>>Which might preclude that need. I'm not entirely sure, though... it's one of
+>>those compiler black magic things.
+>>
+>>I suppose it can't hurt...
+>>
+>>David
+>>
+> 
+> Hi David,
+> I misspoke.  The potentially failing spin is in __down_write and
+> __down_read in lib/rwsem-spinlock.c, not in rwsem_down_failed_common.
+> 
+> The problem is is that 'flags' is on the callee's stack and is thus
+> subject to be optimized out of the loop if the compiler is smart enough
+> to discover that it is on the stack.  Apparently gcc is not yet smart
+> enough but that doesn't mean it won't be so soon.
+> 
 
-On Mon, 26 Jan 2004, Rusty Russell wrote:
+It seems to me that the compiler did the right thing and was smart enough, 
+because after the function did:
 
-> On Fri, 23 Jan 2004 16:58:24 -0200 (BRST)
-> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
-> > Here goes -pre number 7 of 2.4.25 series.
->
-> Any chance of the forward-compatible module_param patch?
->
-> Name: 2.4 module_param Forward Compatibility Macros
-> Author: Rusty Russell
-> Status: Tested on 2.5.24-pre6
-> Version: 2.4
->
-> D: Simple uses of module_param() (implemented in 2.6) can be mapped
-> D: onto the old MODULE_PARM macros.
-> D:
-> D: New code should use module_param() because:
-> D: 1) Types are checked,
-> D: 2) Existence of parameters are checked,
-> D: 3) Customized types are possible [1]
-> D: 4) Customized set/get routines are possible [1]
-> D: 5) Parameters appear as boot params with prefix "<modname>." [1]
-> D: 6) Optional viewing and control through sysfs [2]
-> D:
-> D: [1] Not for 2.4 compatibility macros
-> D: [2] Not in 2.6.1 or 2.4, and only if third arg non-zero.
->
-> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25425-linux-2.4.25-pre6/include/linux/moduleparam.h .25425-linux-2.4.25-pre6.updated/include/linux/moduleparam.h
-> --- .25425-linux-2.4.25-pre6/include/linux/moduleparam.h	1970-01-01 10:00:00.000000000 +1000
-> +++ .25425-linux-2.4.25-pre6.updated/include/linux/moduleparam.h	2004-01-21 14:24:41.000000000 +1100
-> @@ -0,0 +1,25 @@
-> +#ifndef _LINUX_MODULE_PARAMS_H
-> +#define _LINUX_MODULE_PARAMS_H
-> +/* Macros for (very simple) module parameter compatibility with 2.6. */
-> +#include <linux/module.h>
-> +
-> +/* type is byte, short, ushort, int, uint, long, ulong, bool. (2.6
-> +   has more, but they are not supported).  perm is permissions when
-> +   it appears in sysfs: 0 means doens't appear, 0444 means read-only
-> +   by everyone, 0644 means changable dynamically by root, etc.  name
-> +   must be in scope (unlike MODULE_PARM).
-> +*/
-> +#define module_param(name, type, perm)					     \
-> +	static inline void *__check_existence_##name(void) { return &name; } \
-> +	MODULE_PARM(name, _MODULE_PARM_STRING_ ## type)
-> +
-> +#define _MODULE_PARM_STRING_byte "b"
-> +#define _MODULE_PARM_STRING_short "h"
-> +#define _MODULE_PARM_STRING_ushort "h"
-> +#define _MODULE_PARM_STRING_int "i"
-> +#define _MODULE_PARM_STRING_uint "i"
-> +#define _MODULE_PARM_STRING_long "l"
-> +#define _MODULE_PARM_STRING_ulong "l"
-> +#define _MODULE_PARM_STRING_bool "i"
-> +
-> +#endif /* _LINUX_MODULE_PARAM_TYPES_H */
+list_add_tail(&waiter.list,&sem->wait_list);
 
-Hi Rusty,
+it "published" the address of the structure, so the compiler can no longer 
+assume that no outside function will have access to it.
 
-I think it is suitable. Will apply.
+So even if the compiler was extremely smart, it would have to do the same thing.
 
-Thank you.
+If you told no one where your structure is, how could it be modified outside 
+your function, and how could you expect "waiter.flags" to be modified while 
+inside the loop anyway (even if it was volatile)?
+
+IMHO the code is correct.
+
+-- 
+Paulo Marques - www.grupopie.com
+"In a world without walls and fences who needs windows and gates?"
+

@@ -1,55 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264157AbTEGSIp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 14:08:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264158AbTEGSIp
+	id S264158AbTEGSML (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 14:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264161AbTEGSML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 14:08:45 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:56965
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S264157AbTEGSIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 14:08:43 -0400
-Message-ID: <3EB94E8F.2080001@redhat.com>
-Date: Wed, 07 May 2003 11:21:03 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030506
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
-CC: Eric Piel <Eric.Piel@Bull.Net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: DELAYTIMER_MAX is defined
-References: <3EB7E3DA.C50258A9@Bull.Net> <3EB81719.3050705@mvista.com> <3EB8B5EA.BD5D1C19@Bull.Net> <3EB8BA67.4060708@redhat.com> <3EB8F54C.CC5488F0@Bull.Net> <3EB92023.2000906@mvista.com>
-In-Reply-To: <3EB92023.2000906@mvista.com>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 7 May 2003 14:12:11 -0400
+Received: from pop.gmx.de ([213.165.65.60]:806 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264158AbTEGSMJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 14:12:09 -0400
+Message-Id: <5.2.0.9.2.20030507202455.02610e88@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Wed, 07 May 2003 20:28:59 +0200
+To: linux-kernel@vger.kernel.org
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [RFC] 2.5.X semaphore starvation fix^H^H^Hwork-around
+In-Reply-To: <5.2.0.9.2.20030507122702.00caf640@wen-online.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+At 01:00 PM 5/7/2003 +0200, Mike Galbraith wrote:
+>If you try the attached...
 
-george anzinger wrote:
+don't.  The idea works, but the implementation is buggy.  Under extreme 
+load, it'll croak.
+(not that anyone was interested anyway)
 
-> This, of course, also says that we should not only limit the value of
-> overrun, but also do something different when it happens.
-
-That's legitimate and in this case we perhaps should publish this lower
-value since it can be limiting.  Since real work is involved in having
-higher values this constiutes another possible DoS in the code and has
-to be resolved.
-
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+uU6P2ijCOnn/RHQRAralAJ43h7EBj8sqm2QmmdTGXwBiAL9LUQCgignS
-Lu4ITL+4lDmZXoK0BR8UFLU=
-=DKUl
------END PGP SIGNATURE-----
+         -Mike
 

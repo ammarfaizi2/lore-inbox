@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276912AbRJCIRA>; Wed, 3 Oct 2001 04:17:00 -0400
+	id <S276914AbRJCI2W>; Wed, 3 Oct 2001 04:28:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276911AbRJCIQt>; Wed, 3 Oct 2001 04:16:49 -0400
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:25223 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S276910AbRJCIQi>; Wed, 3 Oct 2001 04:16:38 -0400
-Date: Wed, 3 Oct 2001 09:17:02 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Modutils 2.5 change, start running this command now
-Message-ID: <20011003091702.B1175@flint.arm.linux.org.uk>
-In-Reply-To: <31135.1002083784@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <31135.1002083784@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Wed, Oct 03, 2001 at 02:36:24PM +1000
+	id <S276915AbRJCI2M>; Wed, 3 Oct 2001 04:28:12 -0400
+Received: from web10406.mail.yahoo.com ([216.136.130.98]:60167 "HELO
+	web10406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S276914AbRJCI15>; Wed, 3 Oct 2001 04:27:57 -0400
+Message-ID: <20011003082825.82430.qmail@web10406.mail.yahoo.com>
+Date: Wed, 3 Oct 2001 18:28:25 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Is there a bug in 2.4.x that gcc-3.0.1 trigger it?
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 03, 2001 at 02:36:24PM +1000, Keith Owens wrote:
-> Either export the required symbols
-> (remember to add the .o file to export-objs in the Makefile) or add
-> EXPORT_NO_SYMBOLS; somewhere in the module (no change to Makefile).
-> 
->  objdump -h `modprobe -l` | \
->  awk '/file format/{file = $1}/__ksymtab/{file = ""}/\.comment/ && file != "" {print file}'
 
-Sorry, your awk script is buggy - it doesn't take note of __ksymtab
-after .comment:
+Hi,
 
-# objdump -h /lib/modules/2.4.9-ac17/kernel/drivers/acorn/scsi/acornscsi_mod.o
+Further to my last post about linux-2.4.9-acx and
+2.4.9 up, the problem is if the kernel compiled with
+gcc-3.0.1 and run Limewire (a java program) the system
+gave segmentation fault. If re-run for the second
+time, the system quickly reboots itself. (any other
+programs seem to be normal even some simple java
+program, not relating or using the internet is running
+as normal, I test many applets in mozilla, but if I
+test for example the chat applet from yahoo site, it
+hangs (not self-reboot)
 
-/lib/modules/2.4.9-ac17/kernel/drivers/acorn/scsi/acornscsi_mod.o:     file format elf32-littlearm
+I think there is some code in these kernel causing the
+bug. Strange enough that if I use communicator 4.7
+(and its built in java VM, no problem when running
+applet chat.yahoo.com).
 
-Sections:
-Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         0000466c  00000000  00000000  00000034  2**2
-                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
-  1 .rodata       00000de6  00000000  00000000  000046a0  2**2
-                  CONTENTS, ALLOC, LOAD, READONLY, DATA
-  2 .modinfo      00000028  00000000  00000000  00005488  2**2
-                  CONTENTS, ALLOC, LOAD, READONLY, DATA
-  3 .data         000000bc  00000000  00000000  000054b0  2**2
-                  CONTENTS, ALLOC, LOAD, RELOC, DATA
-  4 .bss          0000008c  00000000  00000000  0000556c  2**2
-                  ALLOC
-  5 .comment      00000026  00000000  00000000  0000556c  2**0
-                  CONTENTS, READONLY
-  6 __ksymtab     00000000  00000000  00000000  00005592  2**0
-                  CONTENTS, READONLY
+Today I made 2.2.19 kernel with gcc-3.0.1 and untill
+now everything is ok. Limewire runs as normal.
+
+I hope that some one would discover what is wrong with
+2.4.9x or where to blame the problem . in my computer
+(intel celeron 400Mh) gcc-3.0.1 generates code that is
+faster than gcc-2.95.3.
+
+Cheers,
 
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 
+
+
+=====
+S.KIEU
+
+http://travel.yahoo.com.au - Yahoo! Travel
+- Got Itchy feet? Get inspired!

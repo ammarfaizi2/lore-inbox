@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289699AbSAWGAo>; Wed, 23 Jan 2002 01:00:44 -0500
+	id <S289671AbSAWGFy>; Wed, 23 Jan 2002 01:05:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289697AbSAWGAf>; Wed, 23 Jan 2002 01:00:35 -0500
-Received: from [202.135.142.196] ([202.135.142.196]:58380 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S289699AbSAWGAX>; Wed, 23 Jan 2002 01:00:23 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Anton Blanchard <anton@samba.org>
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] One-liner typo 2.5.3-pre3 in ppc/kernel/idle.c 
-In-Reply-To: Your message of "Wed, 23 Jan 2002 16:31:18 +1100."
-             <20020123053118.GB14366@krispykreme> 
-Date: Wed, 23 Jan 2002 17:00:25 +1100
-Message-Id: <E16TGSQ-0000sN-00@wagner.rustcorp.com.au>
+	id <S289711AbSAWGFo>; Wed, 23 Jan 2002 01:05:44 -0500
+Received: from [202.54.26.202] ([202.54.26.202]:49102 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S289671AbSAWGFe>;
+	Wed, 23 Jan 2002 01:05:34 -0500
+X-Lotus-FromDomain: HSS
+From: gspujar@hss.hns.com
+To: linux-kernel@vger.kernel.org
+cc: achowdhry@hss.hns.com
+Message-ID: <65256B4A.0021662F.00@sandesh.hss.hns.com>
+Date: Wed, 23 Jan 2002 11:38:35 +0530
+Subject: file system unmount
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020123053118.GB14366@krispykreme> you write:
-> We atomically grab the current value of need_resched and replace it with
-> -1. The -1 tells the scheduler that we are busy looping and it doesnt need
-> to send an IPI to force a reschedule.
 
-Yes, but the replacment loop was completely wrong.  Sure, with my
-patch this optimization isn't there, but at least it will work as
-designed...
 
-Cheers!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+Hi,
+I am using softdog in my application. One of the problems I am facing is,
+when the system comes up after the reboot forced by softdog, file system gets
+corrupted and fsck has to check. Some times fsck fails to force check the file
+system and
+the system enters in to run level 1, leading to manual intervention.
+
+Any idea how to unmount the file system before the system is rebooted by
+softdog, so
+that system always comes up properly without manual intervention.
+
+Thanks
+-Girish
+
+
+
+"DISCLAIMER: This message is proprietary to Hughes Software Systmes Limited
+(HSS) and is intended solely for the use of the individual  to whom it is
+addressed. It may contain  privileged or confidential information  and should
+not be circulated or used for any purpose other than for what it is intended.If
+you have received this message in error, please notify the originator
+immediately. If you are not the intended recipient, you are notified that you
+are strictly prohibited from using, copying, altering, or disclosing the
+contents of this message. HSS accepts no responsibility for loss or damage
+arising from the use of the information transimitted by this email including
+damage from virus."
+
+
+
+
+

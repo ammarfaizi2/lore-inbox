@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265286AbUGBBEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265778AbUGBBYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265286AbUGBBEY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 21:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265778AbUGBBEY
+	id S265778AbUGBBYc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 21:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265515AbUGBBYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 21:04:24 -0400
-Received: from mail.shareable.org ([81.29.64.88]:23726 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S265286AbUGBBET
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 21:04:19 -0400
-Date: Fri, 2 Jul 2004 02:03:49 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Keith M. Wesolowski" <wesolows@foobazco.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       sparclinux@vger.kernel.org
-Subject: A question about PROT_NONE on Sun4c 32-bit Sparc
-Message-ID: <20040702010349.GF8950@mail.shareable.org>
-References: <20040630030503.GA25149@mail.shareable.org>
+	Thu, 1 Jul 2004 21:24:32 -0400
+Received: from ozlabs.org ([203.10.76.45]:45231 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265778AbUGBBYa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 21:24:30 -0400
+Date: Fri, 2 Jul 2004 11:20:12 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [BUG] hugetlb MAP_PRIVATE mapping vs /dev/zero
+Message-ID: <20040702012012.GC5937@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <40E43BDE.85C5D670@tv-sign.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040630030503.GA25149@mail.shareable.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <40E43BDE.85C5D670@tv-sign.ru>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Keith,
+On Thu, Jul 01, 2004 at 08:29:18PM +0400, Oleg Nesterov wrote:
+> Hello.
+> 
+> Hugetlbfs mmap with MAP_PRIVATE becomes MAP_SHARED
+> silently, but vma->vm_flags have no VM_SHARED bit.
+> I think it make sense to forbid MAP_PRIVATE in
+> hugetlbfs_file_mmap() because it may confuse user
+> space applications. But the real bug is that reading
+> from /dev/zero into hugetlb will do:
+> 
+> read_zero()
+> 	read_zero_pagealigned()
+> 		if (vma->vm_flags & VM_SHARED)
+> 			break;	// OK if MAP_PRIVATE
+> 		zap_page_range();
+> 		zeromap_page_range();
+> 
+> We can fix hugetlbfs_file_mmap() or read_zero_pagealigned()
+> or both.
 
-David Miller suggested I ask you specifically about the Sun4 & Sun4c
-32-bit Sparc ports of Linux.  He's confirmed a bug in the SRMMU 32-bit
-Sparc port, and I just wanted you to confirm it isn't in the other
-32-bit Sparc ports.
+Err... surely we need to fix both, yes?
 
-I would like to know if the Sun4 and Sun4c ports have the same bug.
-I'm guessing not, but it's not clear to me from the code.
-
-In linux-2.6.5/include/asm-sparc/pgtsun4.h (pgtsun4c.h is similar):
-
-#define _SUN4C_PAGE_VALID        0x80000000
-#define _SUN4C_PAGE_SILENT_READ  0x80000000   /* synonym */
-#define _SUN4C_PAGE_DIRTY        0x40000000
-#define _SUN4C_PAGE_SILENT_WRITE 0x40000000   /* synonym */
-...
-#define _SUN4C_PAGE_READ         0x00800000   /* implemented in software */
-#define _SUN4C_PAGE_WRITE        0x00400000   /* implemented in software */
-#define _SUN4C_PAGE_ACCESSED     0x00200000   /* implemented in software */
-#define _SUN4C_PAGE_MODIFIED     0x00100000   /* implemented in software */
-...
-#define _SUN4C_READABLE		(_SUN4C_PAGE_READ|_SUN4C_PAGE_SILENT_READ|\
-				 _SUN4C_PAGE_ACCESSED)
-#define _SUN4C_WRITEABLE	(_SUN4C_PAGE_WRITE|_SUN4C_PAGE_SILENT_WRITE|\
-				 _SUN4C_PAGE_MODIFIED)
-...
-#define SUN4C_PAGE_NONE		__pgprot(_SUN4C_PAGE_PRESENT)
-#define SUN4C_PAGE_SHARED	__pgprot(_SUN4C_PAGE_PRESENT|_SUN4C_READABLE|\
-					 _SUN4C_PAGE_WRITE)
-#define SUN4C_PAGE_READONLY	__pgprot(_SUN4C_PAGE_PRESENT|_SUN4C_READABLE)
-
-SUN4C_PAGE_NONE corresponds to PROT_NONE mmap memory protection.
-
-The question is whether PROT_NONE pages are readable by the _kernel_.
-I.e. whether write() would successfully read from those pages.
-
->From the names of the above macros, I'm guessing not.  There's nothing
-to indicate that they would be.  I just wanted you to confirm, thanks.
-
-(In the SRMMU 32-Sparc version, PROT_NONE pages _are_ readable in the
-kernel, because of the way they are implemented by making them
-priveleged pages.)
-
-(By the way, as the sun4 files don't contain a definition of
-_SUN4_PAGE_FILE or pgoff_to_pte, but the sun4c one do, I guess the
-sun4 sub-architecture doesn't build in 2.6 but sun4c does?)
-
-Thanks,
--- Jamie
+-- 
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbRBXVrf>; Sat, 24 Feb 2001 16:47:35 -0500
+	id <S129635AbRBXVzP>; Sat, 24 Feb 2001 16:55:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129627AbRBXVrZ>; Sat, 24 Feb 2001 16:47:25 -0500
-Received: from smtp-rt-5.wanadoo.fr ([193.252.19.159]:15815 "EHLO
-	caroubier.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S129631AbRBXVrM>; Sat, 24 Feb 2001 16:47:12 -0500
-Message-ID: <3A982B87.3040201@wanadoo.fr>
-Date: Sat, 24 Feb 2001 22:45:43 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Organization: Home PC
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
-X-Accept-Language: en, fr-fr
+	id <S129636AbRBXVzG>; Sat, 24 Feb 2001 16:55:06 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49668 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129635AbRBXVyz>; Sat, 24 Feb 2001 16:54:55 -0500
+Subject: Re: Core dumps for threads
+To: n0ano@valinux.com (Don Dugger)
+Date: Sat, 24 Feb 2001 21:57:44 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010224134523.O26109@valinux.com> from "Don Dugger" at Feb 24, 2001 01:45:23 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: jeisen@mindspring.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Odd network problems
-In-Reply-To: <Pine.LNX.4.21.0102241235310.30688-100000@dominia>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14WmhG-0000Yj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Eisenstein wrote:
+> Can anyone explain why this test is in routine `do_coredump'
+> in file `fs/exec.c' in the 2.4.0 kernel?
+> 
+>     if (!current->dumpable || atomic_read(&current->mm->mm_users) != 1)
+> 	goto fail;
+> 
+> The only thing the test on `mm_users' seems to be doing is stopping
+> a thread process from dumping core.  What's the rationale for this?
 
-
-> Here is a partial list of sites that I have had problems with. Note that
-> once I find one of these sites, it is consistantly unreachable, even with
-> sites found months ago.
-
-i had a try with Linux-2.4.2 Mozilla 0.8
-> www.codewarrioru.com
-time out answer (pingable however)
-
-> www.backwire.com
-connection refused with ECN.
-echo '0' > tcp_ecn makes it reachable. Mozilla sucks (CPU99%) and does
-not display the page in a reasonable time (maybe a problem i have with
-java and glibc-2.2.2)
-
-> www.counterpane.com
-no problem with this one.
-
-> www.zip2it.com
-un-resolved (could it be www.zip2.com)
-
-
--- 
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+The I/O to dump the core would race other changes on the mm. The right fix
+is probably to copy the mm (as fork does) then dump the copy.
 

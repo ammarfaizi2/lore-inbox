@@ -1,38 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUF1G3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264692AbUF1Ghn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUF1G3h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 02:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbUF1G3h
+	id S264692AbUF1Ghn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 02:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264705AbUF1Ghn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 02:29:37 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:58262 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264704AbUF1G3b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 02:29:31 -0400
-Date: Sun, 27 Jun 2004 23:29:12 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, rusty@rustcorp.com.au
-Subject: Re: [PATCH] __alloc_bootmem_node should not panic when it fails
-Message-ID: <20040628062912.GA4391@taniwha.stupidest.org>
-References: <20040627052747.GG23589@krispykreme> <200406270827.28310.ioe-lkml@rameria.de> <20040627222803.GH23589@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040627222803.GH23589@krispykreme>
+	Mon, 28 Jun 2004 02:37:43 -0400
+Received: from gizmo10bw.bigpond.com ([144.140.70.20]:45021 "HELO
+	gizmo10bw.bigpond.com") by vger.kernel.org with SMTP
+	id S264692AbUF1Ghj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 02:37:39 -0400
+Message-ID: <40DFBCAD.7020403@bigpond.net.au>
+Date: Mon, 28 Jun 2004 16:37:33 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
+Subject: [PATCH] CPU scheduler evaluation tool
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 08:28:03AM +1000, Anton Blanchard wrote:
+To facilitate the comparative evaluation of alternative CPU schedulers a 
+patch that allows the run time selection of CPU scheduler between 
+version 7.7 of Con Kolivas's staircase scheduler ("sc") and the priority 
+based scheduler with interactive and throughput bonuses ("pb") has been 
+created.  This patch is available for download at:
 
-> Unfortunately nodes without memory is relatively common on ppc64,
-> and I believe x86-64. From a ppc64 perspective Im fine with best
-> effort, perhaps someone from the heavily NUMA camp (ia64?) could
-> comment.
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_hydra_FULL-v1.2?download>
 
-Does anyone make ia64 NUMA hardware where you can have memory-less
-nodes?
+The file /proc/sys/kernel/cpusched/mode has been added to those provided 
+by the "pb" to control which of the schedulers is in control.  The 
+string "sc" is used to select the staircase scheduler and "pb" to select 
+the priority based scheduler described above.  The staircase scheduler 
+control parameters "compute" and "interactive" have been moved into 
+/proc/sys/kernel/cpusched along with the "pb" scheduler control 
+parameters.  The scheduler starts in the "sc" mode. A primitive 
+Glade/PyGTK GUI that provides the ability to switch between schedulers 
+and to control scheduler parameters is available at:
 
+<http://prdownloads.sourceforge.net/cpuse/gcpuctl_hydra-1.0.tar.gz?download>
 
-  --cw
+This GUI should also work with a standard version of Con Kolivas's 
+staircase scheduler as well as the version based on my single priority 
+array patch:
+
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_sc_FULL-v1.2?download>
+
+and the basic priority based scheduler:
+
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_pb_FULL-v1.2?download>
+
+and, for those so inclined, these patches broken into smaller parts for 
+easier digestion are available at:
+
+<https://sourceforge.net/projects/cpuse/>
+
+An entitlement based "eb" scheduler will be added to the selection 
+available in the near future.
+
+Controls:
+
+base_promotion_interval -- (milliseconds) controls the interval between 
+successive promotions (is multiplied by the number of active tasks on 
+the CPU in question) NB no promotion occurs if there are less than 2 
+active tasks
+
+time_slice -- (milliseconds) the size of the time slice (i.e. how long 
+it will be allowed to hold the CPU before it is kicked off to allow 
+other tasks a chance to run) that is allocated to a task when it becomes 
+active or finishes a time slice.  (min is 1 millisec and max is 1 second).
+
+max_ia_bonus -- (a value between 0 and 10) that determines the maximum 
+interactive bonus that a task can acquire
+
+initial_ia_bonus -- (a value between 0 and 10) that determines the 
+initial interactive bonus that a newly forked task will be given.  This 
+value will be capped by the max_ia_bonus.
+
+ia_threshold  -- (parts per thousand) is the sleep to (sleep + on_cpu) 
+ratio above which a task will have its interactive bonus increased 
+asymptotically towards the maximum
+
+cpu_hog_threshold  -- (parts per thousand) is the usage rate above which 
+a task will be considered a CPU hog and start to lose interactive bonus 
+points if it has any
+
+max_tpt_bonus -- (a value between 0 and 9) that determines the maximum 
+throughput bonus that tasks may be awarded
+
+log_at_exit - (0 or 1) turns off/on the logging of tasks' scheduling 
+statistics at exit.  This feature is useful for determining the 
+scheduling characteristics of relatively short lived tasks that run as 
+part of some larger job such as a kernel build where trying to get time 
+series data is impractical.
+
+compute -- (0 or 1) turn on/off the staircase schedulers "compute" switch
+
+interactive -- (0 or 1) turn on/off the staircase schedulers 
+"interactive" mode
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
+

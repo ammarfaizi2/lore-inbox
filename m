@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136424AbRAZSeE>; Fri, 26 Jan 2001 13:34:04 -0500
+	id <S130701AbRAZScE>; Fri, 26 Jan 2001 13:32:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136441AbRAZSdy>; Fri, 26 Jan 2001 13:33:54 -0500
-Received: from quechua.inka.de ([212.227.14.2]:11050 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S136424AbRAZSdu>;
-	Fri, 26 Jan 2001 13:33:50 -0500
+	id <S131894AbRAZSbz>; Fri, 26 Jan 2001 13:31:55 -0500
+Received: from web112.mail.yahoo.com ([205.180.60.82]:25357 "HELO
+	web112.yahoomail.com") by vger.kernel.org with SMTP
+	id <S130701AbRAZSbl>; Fri, 26 Jan 2001 13:31:41 -0500
+Message-ID: <20010126183140.17534.qmail@web112.yahoomail.com>
+Date: Fri, 26 Jan 2001 10:31:40 -0800 (PST)
+From: Paul Powell <moloch16@yahoo.com>
+Subject: Undoing chroot?
 To: linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-In-Reply-To: <14961.25754.449497.640325@pizda.ninka.net> <Pine.SOL.4.21.0101261351150.11126-100000@red.csi.cam.ac.uk> <20010126151138.B6331@pcep-jamie.cern.ch>
-Organization: private Linux site, southern Germany
-Date: Fri, 26 Jan 2001 19:19:23 +0100
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14MDT5-0001Am-00@g212.hadiko.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I was not suggesting ignoring these. OTOH, there is no reason to treat an
-> > RST packet as "go away and never ever send traffic to this host again" -
-> > i.e. trying another TCP connection, this time with ECN disabled, would be
-> > acceptable.
-> 
-> Using a different source port number, even.
+Hello,
 
-But that has to be done on the application level, which means we need a
-socket option to not use ECN. It is not acceptable that the kernel changes
-the port number of a socket which already has one, or any application which
-uses getsockname() on the connecting socket will horribly break.[1]
+I have a linux bootable CD which executes a custom
+init.  The job of init is to figure out on which
+device the CD is located.  After finding the CD, init
+mounts the device and executes a CHROOT to set the
+root directory to the CD.
 
-Olaf
+After I'm done I'd like to umount the CD and then
+eject it by sending an IOCTL eject command.  But since
+I executed a CHROOT I can't umount the CD, umount
+complains that the device is busy.
 
-[1] and this means any application using libsocks5, so nobody tell me "no
-sane application does need this".
+So how do you reverse a CHROOT?
+
+BTW, I use an initrd image and init is a C program,
+not a script.
+
+Thanks
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - Buy the things you want at great prices. 
+http://auctions.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

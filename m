@@ -1,189 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbTEVPXN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 11:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTEVPXN
+	id S262001AbTEVP0K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 11:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbTEVP0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 11:23:13 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:38859 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S261960AbTEVPXG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 11:23:06 -0400
-Date: Thu, 22 May 2003 17:36:00 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sysfs variable size files, lost dget, ...
-Message-ID: <20030522153600.GA15982@ranty.ddts.net>
-Reply-To: ranty@debian.org
-References: <20030521145817.GA15960@ranty.ddts.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="vkogqOf2sHV7VnPd"
-Content-Disposition: inline
-In-Reply-To: <20030521145817.GA15960@ranty.ddts.net>
-User-Agent: Mutt/1.5.4i
+	Thu, 22 May 2003 11:26:10 -0400
+Received: from greenie.frogspace.net ([64.6.248.2]:5019 "EHLO
+	greenie.frogspace.net") by vger.kernel.org with ESMTP
+	id S262001AbTEVP0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 11:26:05 -0400
+Date: Thu, 22 May 2003 08:39:04 -0700 (PDT)
+From: Peter <cogwepeter@cogweb.net>
+X-X-Sender: cogwepeter@greenie.frogspace.net
+To: linux-kernel@vger.kernel.org
+Subject: DMA gone on ALI 1533
+Message-ID: <Pine.LNX.4.44.0305220837470.23179-100000@greenie.frogspace.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The 2.5.69 kernel kicks butt -- Debian is now releasing a version in sid
+and it runs stable on my vpr matrix 205A laptop. What works: nfs, samba,
+v4l, the nVidia driver (patched), everything I've tested so far. And sound
+-- the ALSA sound is great (headphone jack still dead). ACPI now detects
+my battery, and I'm working on software suspend.
 
-On Wed, May 21, 2003 at 04:58:17PM +0200, Manuel Estrada Sainz wrote:
->  Hi,
-> 
->  While working on request_firmware() interface, I found some trouble
->  with sysfs and Greg said that you are the one to send this patches:
-> 
->   - sysfs-bin-flexible-size.diff:
-> 	Make dynamically sized files possible.  And return the right
-> 	value on successful write.
-> 
->   - sysfs-bin-lost-dget.diff:
-> 	I was having trouble when calling request_firmware() from a work
-> 	queue, and after a little investigations it seams that this dget
-> 	got lost along the way. Adding it back fixed the issue.
-> 	Or am I causing a dentry leak now?
-> 
->   - sysfs-bin-header.diff:
-> 	I guess that I am the first user of sysfs's binary interface :-)
-> 
->  Thanks
-> 
->  	Manuel
+The ALI chipset (1671 northbridge, 1533 ISA bridge, 5229 IDE interface,
+7101 bridge) gives me DMA 33 with 2.4.20:
 
- You can ignore those patches, the dynamic size stuff would fail badly
- when handling more than PAGE_SIZE data :-(
+    hda: 78140160 sectors (40008 MB) w/1768KiB Cache, CHS=4864/255/63, UDMA(33)
 
- Updated patches attached.
+but no dma with 2.5.69.  Timing buffered disk reads now come in at
+3.17MB/s -- in 2.4.20 I get 19.88 MB/sec. hdparm gives part number
+IC25N040ATCS04-0, a Travelstar 40GN, which I believe supports a 100MHz
+bus. The "idebus=66" never made a difference afaict.
 
- Thanks
+Aside from the slower harddrive (see details below), I've had no issues
+with this kernel.
 
- 	Manuel
+Is there a workaround for the dma, or something I'm missing? Incidentally,
+it would be handy to have a bit more information in dmesg, along the lines
+of the 2.4 kernel -- chipset, dma and bus speed per drive.
+
+Cheers,
+Peter
 
 
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="sysfs-bin-flexible-size.diff"
 
-diff --exclude=CVS -urN linux-2.5.orig/fs/sysfs/bin.c linux-2.5.mine/fs/sysfs/bin.c
---- linux-2.5.orig/fs/sysfs/bin.c	2003-05-17 20:44:03.000000000 +0200
-+++ linux-2.5.mine/fs/sysfs/bin.c	2003-05-22 16:52:42.000000000 +0200
-@@ -30,10 +30,15 @@
- 	loff_t offs = *off;
- 	int ret;
+dmesg 2.5.69:
+
+Kernel command line: root=/dev/hda5 ro hdc=scsi idebus=66 resume=/dev/hda6
+ide_setup: hdc=scsi
+ide_setup: idebus=66
+No local APIC present or hardware disabled
+
+PCI: PCI BIOS revision 2.10 entry at 0xfd88e, last bus=1
+PCI: Using configuration type 1
  
--	if (offs > size)
--		return 0;
--	if (offs + count > size)
--		count = size - offs;
-+	if (count > PAGE_SIZE)
-+		count = PAGE_SIZE;
-+
-+	if (size) {
-+		if (offs > size)
-+			return 0;
-+		if (offs + count > size)
-+			count = size - offs;
-+	}
- 
- 	ret = fill_read(dentry, buffer, offs, count);
- 	if (ret < 0) 
-@@ -41,7 +46,7 @@
- 	count = ret;
- 
- 	ret = -EFAULT;
--	if (copy_to_user(userbuf, buffer + offs, count) != 0)
-+	if (copy_to_user(userbuf, buffer, count) != 0)
- 		goto Done;
- 
- 	*off = offs + count;
-@@ -69,19 +74,23 @@
- 	loff_t offs = *off;
- 	int ret;
- 
--	if (offs > size)
--		return 0;
--	if (offs + count > size)
--		count = size - offs;
-+	if (count > PAGE_SIZE)
-+		count = PAGE_SIZE;
-+	if (size) {
-+		if (offs > size)
-+			return 0;
-+		if (offs + count > size)
-+			count = size - offs;
-+	}
- 
- 	ret = -EFAULT;
--	if (copy_from_user(buffer + offs, userbuf, count))
-+	if (copy_from_user(buffer, userbuf, count))
- 		goto Done;
- 
- 	count = flush_write(dentry, buffer, offs, count);
- 	if (count > 0)
- 		*off = offs + count;
--	ret = 0;
-+	ret = count;
-  Done:
- 	return ret;
- }
-@@ -102,7 +111,7 @@
- 		goto Done;
- 
- 	error = -ENOMEM;
--	file->private_data = kmalloc(attr->size, GFP_KERNEL);
-+	file->private_data = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!file->private_data)
- 		goto Done;
- 
+PCI: Using ACPI for IRQ routing
+PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="sysfs-bin-header.diff"
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 66MHz system bus speed for PIO modes
+hda: IC25N040ATCS04-0, ATA DISK drive
+hdc: MATSHITACD-RW CW-8121, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: host protected area => 1
+hda: 78140160 sectors (40008 MB) w/1768KiB Cache, CHS=77520/16/63
+ hda: hda1 hda2 < hda5 hda6 hda7 > hda3 hda4
+ide-cd: passing drive hdc to ide-scsi emulation.
 
-diff --exclude=CVS -urN linux-2.5.orig/include/linux/sysfs.h linux-2.5.mine/include/linux/sysfs.h
---- linux-2.5.orig/include/linux/sysfs.h	2003-05-21 17:38:39.000000000 +0200
-+++ linux-2.5.mine/include/linux/sysfs.h	2003-05-21 10:22:08.000000000 +0200
-@@ -23,6 +23,9 @@
- 	ssize_t (*write)(struct kobject *, char *, loff_t, size_t);
- };
- 
-+int sysfs_create_bin_file(struct kobject * kobj, struct bin_attribute * attr);
-+int sysfs_remove_bin_file(struct kobject * kobj, struct bin_attribute * attr);
-+
- struct sysfs_ops {
- 	ssize_t	(*show)(struct kobject *, struct attribute *,char *);
- 	ssize_t	(*store)(struct kobject *,struct attribute *,const char *, size_t);
+hdparm -i claims to be using dma5:
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="sysfs-bin-lost-dget.diff"
+hdparm -i /dev/hda
 
-diff --exclude=CVS -urN linux-2.5.orig/fs/sysfs/inode.c linux-2.5.mine/fs/sysfs/inode.c
---- linux-2.5.orig/fs/sysfs/inode.c	2003-05-17 20:44:03.000000000 +0200
-+++ linux-2.5.mine/fs/sysfs/inode.c	2003-05-22 16:53:59.000000000 +0200
-@@ -60,9 +60,10 @@
-  Proceed:
- 	if (init)
- 		error = init(inode);
--	if (!error)
-+	if (!error) {
- 		d_instantiate(dentry, inode);
--	else
-+		dget(dentry); /* Extra count - pin the dentry in core */
-+	} else
- 		iput(inode);
-  Done:
- 	return error;
+/dev/hda:
 
---vkogqOf2sHV7VnPd--
+ Model=IC25N040ATCS04-0, FwRev=CA4OA71A, SerialNo=CSH405DCLW5UVB
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=1768kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=78140160
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
+ AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-5 T13 1321D revision 3:  2 3 4 5
+
+In contrast, hdparm /dev/hda claims dma is off:
+
+# hdparm /dev/hda
+
+/dev/hda:
+ multcount    =  0 (off)
+ IO_support   =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    = 256 (on)
+ geometry     = 11984/16/63, sectors = 78140160, start = 0
+
+The disk read speed in 2.5.69 indicates dma is off:
+
+# hdparm -tT /dev/hda
+
+/dev/hda:
+ Timing buffer-cache reads:   128 MB in  0.46 seconds =280.74 MB/sec
+ Timing buffered disk reads:  64 MB in 20.18 seconds =  3.17 MB/sec
+
+# cat kernel-2.5.69.config | grep DMA
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_IEEE1394_SBP2_PHYS_DMA is not set
+
+Here's what 2.4.20 produces:
+
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 66MHz system bus speed for PIO modes
+ALI15X3: IDE controller on PCI bus 00 dev 80
+PCI: No IRQ known for interrupt pin A of device 00:10.0.
+ALI15X3: chipset revision 196
+ALI15X3: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x1840-0x1847, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x1848-0x184f, BIOS settings: hdc:pio, hdd:pio
+hda: IC25N040ATCS04-0, ATA DISK drive
+hdc: MATSHITACD-RW CW-8121, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+blk: queue c0335ee4, I/O limit 4095Mb (mask 0xffffffff)
+hda: 78140160 sectors (40008 MB) w/1768KiB Cache, CHS=4864/255/63, UDMA(33)
+
+Disk information under 2.4.20 -- claims to be using dma2:
+
+Model=IC25N040ATCS04-0, FwRev=CA4OA71A, SerialNo=CSH405DCLW5UVB
+Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+BuffType=DualPortCache, BuffSize=1768kB, MaxMultSect=16, MultSect=16
+CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=78140160
+IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+PIO modes: pio0 pio1 pio2 pio3 pio4
+DMA modes: mdma0 mdma1 mdma2
+UDMA modes: udma0 udma1 *udma2 udma3 udma4 udma5
+AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
+Drive conforms to: ATA/ATAPI-5 T13 1321D revision 3: 2 3 4 5
+
+This fits with the disk read speed:
+
+Timing buffer-cache reads: 128 MB in 0.44 seconds =290.91 MB/sec
+Timing buffered disk reads: 64 MB in 3.22 seconds = 19.88 MB/sec
+
+cat kernel-2.4.20-5-5.config | grep DMA
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_BLK_DEV_IDEDMA_TIMEOUT is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+CONFIG_BLK_DEV_ADMA=y
+# CONFIG_HPT34X_AUTODMA is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+# CONFIG_SCSI_EATA_DMA is not set
+# CONFIG_IEEE1394_SBP2_PHYS_DMA is not set
+# CONFIG_SOUND_DMAP is not set
+
+
+
+

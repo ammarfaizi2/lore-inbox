@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVCQV5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVCQWHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVCQV5X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 16:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbVCQV5W
+	id S261248AbVCQWHs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 17:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVCQWHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 16:57:22 -0500
-Received: from fire.osdl.org ([65.172.181.4]:54936 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261229AbVCQVyR (ORCPT
+	Thu, 17 Mar 2005 17:07:48 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:43673 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261248AbVCQWHn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 16:54:17 -0500
-Date: Thu, 17 Mar 2005 13:54:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Abhinkar, Sameer" <sameer.abhinkar@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: KGDB question
-Message-Id: <20050317135417.6cee8336.akpm@osdl.org>
-In-Reply-To: <D30E01168D637641AA9D3667F3BB741603F9125F@orsmsx403.amr.corp.intel.com>
-References: <D30E01168D637641AA9D3667F3BB741603F9125F@orsmsx403.amr.corp.intel.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 17 Mar 2005 17:07:43 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: johnpol@2ka.mipt.ru
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+Date: Thu, 17 Mar 2005 14:05:54 -0800
+User-Agent: KMail/1.7.2
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Jay Lan <jlan@engr.sgi.com>, Erich Focht <efocht@hpce.nec.com>,
+       Ram <linuxram@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>, Greg KH <greg@kroah.com>
+References: <1111050243.306.107.camel@frecb000711.frec.bull.fr> <200503170856.57893.jbarnes@engr.sgi.com> <20050318003857.4600af78@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050318003857.4600af78@zanzibar.2ka.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503171405.55095.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Abhinkar, Sameer" <sameer.abhinkar@intel.com> wrote:
->
-> Are there any patches or hooks
-> available to enable KGDB for linux-2.6.11.2? 
+On Thursday, March 17, 2005 1:38 pm, Evgeniy Polyakov wrote:
+> The most significant part there - is requirement to store
+> u32 seq in each CPU's cache and thus flush cacheline +
+> invalidate/get from mem on each other cpus
+> each time it is accessed, which is a big price.
 
-kgdb patches are maintained in -mm kernels.
+Same thing has to happen with the lock.  To put it simply, writing global 
+variables from multiple CPUs with anything other than very low frequency is 
+bad.
 
-Patches are in 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm1/broken-out/*kgdb*
+> It is totally Guillaume's work - so he decides,
+> I would recomend per cpu counters and processor's
+> id in each message.
+> And of course userspace should take care of misordered
+> messages.
+> I personally prefer such mechanism.
 
-And the patch application order is described in
+Yep, I agree.  Hopefully Guillaume will too :)
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm1/patch-series
+Jesse

@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273992AbRJDJEl>; Thu, 4 Oct 2001 05:04:41 -0400
+	id <S274964AbRJDJYs>; Thu, 4 Oct 2001 05:24:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273789AbRJDJEb>; Thu, 4 Oct 2001 05:04:31 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:43529 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S274209AbRJDJET>; Thu, 4 Oct 2001 05:04:19 -0400
-Message-ID: <3BBC2603.7C1327AC@idb.hist.no>
-Date: Thu, 04 Oct 2001 11:04:03 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.11-pre2 i686)
-X-Accept-Language: no, en
+	id <S274209AbRJDJYj>; Thu, 4 Oct 2001 05:24:39 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:42505 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S274964AbRJDJYZ>;
+	Thu, 4 Oct 2001 05:24:25 -0400
+Date: Thu, 4 Oct 2001 11:22:32 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: BALBIR SINGH <balbir.singh@wipro.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <3BBC29A4.7080209@wipro.com>
+Message-ID: <Pine.LNX.4.33.0110041119060.5309-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Ian Thompson <ithompso@stargateip.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How can I jump to non-linux address space?
-In-Reply-To: <NFBBIBIEHMPDJNKCIKOBEEGJCAAA.ithompso@stargateip.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Thompson wrote:
-> 
-> Hi all,
-> 
-> I'm sorry if this is off-topic, but I wasn't sure where else to ask...
-> 
-> My kernel is running from RAM, and I want to jump to an address in ROM
-> (which unfortunately, the kernel doesn't seem to know anything about).  I
 
-The kernel can get to know - all you need is code that maps the
-ROM address range into some available virtual address range.
-Look at device driver code - they do such mapping for ROM and/or
-memory-based io regions.
+On Thu, 4 Oct 2001, BALBIR SINGH wrote:
 
-> don't plan on trying to resume the kernel after doing this.  However, I'm
-> getting a prefetch abort.  If I try and load the data, I get a similar
-> error: "Unable to handle kernel paging request at virtual address 00003000"
-> where 0x3000 is the ROM address I'm trying to jump to / load from.  How can
-> I pass execution to this address?  Do I have to turn off the MMU?  
+> Ingo, is it possible to provide an interface (optional interface) to
+> drivers, so that they can decide how many interrupts are too much.
 
-How to set up the cpu before jumping to a ROM that won't return
-can be tricky indeed.  This depends on what that ROM code expect!
+well, it existed, and i can add it back - i dont have any strong feelings
+either.
 
-Do that ROM code work when the MMU has remapped its adresses so it
-appears at some adress completely different from the bus address?  (only
-if it contains relative jumps only - no absolute addresses.) Does
-it work with 4G segments?  Does it work at all in protected mode,
-with all interrupts routed to the linux kernel instead of the bios?
-Does this code expect to find something (data, device interfaces,
-vga memory) at certain addresses?  If so, this must be mapped too.
-For linux moves all this around.
+> Drivers who feel that they should go in for interrupt mitigation have
+> the option of deciding to go for it.
 
-In practise, existing ROM's tend to assume that the machine is
-in a state close to what the bios initializes it to,
-with 64k segments, no MMU, and a lot of assumptions about
-how interrupts and hw devices are set up.  _All_ of these
-assumptions break after you start linux, and resetting 
-everything is so hard that it is usually done by
-running the bios cold boot code.
+in those cases the 'irq overload' code should not trigger. It's not the
+rate of interrupts that matters, it's the amount of time we spend in irq
+contexts. The code counts the number of times we 'interrupt and interrupt
+context'. Interrupting an irq-context is a sign of irq overload. The code
+goes into 'overload mode' (and disables that particular interrupt source
+for the rest of the current timer tick) only if more than 97% of all
+interrupts from that source 'interrupt and irq context'. (ie. irq load is
+really high.) As any statistical method it has some inaccuracy, but
+'statistically' it gets things right.
 
-Helge Hafting
+	Ingo
+

@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319032AbSHFJkG>; Tue, 6 Aug 2002 05:40:06 -0400
+	id <S319034AbSHFJle>; Tue, 6 Aug 2002 05:41:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319033AbSHFJkG>; Tue, 6 Aug 2002 05:40:06 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:27144 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S319032AbSHFJkG>; Tue, 6 Aug 2002 05:40:06 -0400
-Date: Tue, 6 Aug 2002 10:43:42 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: arnd@bergmann-dalldorf.de
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] 15/18 better pte invalidation
-Message-ID: <20020806104342.A16600@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	arnd@bergmann-dalldorf.de,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>
-References: <200208051830.50713.arndb@de.ibm.com> <200208051954.55546.arndb@de.ibm.com> <20020805180103.A16035@infradead.org> <200208061305.17296.arndb@de.ibm.com>
+	id <S319035AbSHFJld>; Tue, 6 Aug 2002 05:41:33 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:15357 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S319034AbSHFJlb>; Tue, 6 Aug 2002 05:41:31 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [RESEND] [RESEND] [RESEND] [PATCH] Trivial JFFS2 oops fix.
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208061305.17296.arndb@de.ibm.com>; from arndb@de.ibm.com on Tue, Aug 06, 2002 at 01:05:17PM +0200
+Date: Tue, 06 Aug 2002 10:45:04 +0100
+Message-ID: <11297.1028627104@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 06, 2002 at 01:05:17PM +0200, Arnd Bergmann wrote:
-> > Otherwise please try to get all this in 2.5 first, it's a major VM change.
-> Right. I guess this one falls more in the category "If anyone wants to build
-> an s390 2.4.19 kernel, use this patch, because it's what we have tested at 
-> IBM".
 
-Umm.  2.4.19 _does_ build on S/390.  By getting in a truckload of patches
-that update everything to IBM's latest & greatest that just require a few
-unacceptable / not yet acceptable intrusive core changes you break that.
+Index: fs/jffs2/scan.c
+===================================================================
+RCS file: /home/cvs/mtd/fs/jffs2/scan.c,v
+retrieving revision 1.51.2.2
+retrieving revision 1.51.2.3
+diff -u -p -r1.51.2.2 -r1.51.2.3
+--- fs/jffs2/scan.c	23 Feb 2002 13:34:31 -0000	1.51.2.2
++++ fs/jffs2/scan.c	25 Jul 2002 20:49:06 -0000	1.51.2.3
+@@ -31,7 +31,7 @@
+  * provisions above, a recipient may use your version of this file
+  * under either the RHEPL or the GPL.
+  *
+- * $Id: scan.c,v 1.51.2.2 2002/02/23 13:34:31 dwmw2 Exp $
++ * $Id: scan.c,v 1.51.2.3 2002/07/25 20:49:06 dwmw2 Exp $
+  *
+  */
+ #include <linux/kernel.h>
+@@ -256,6 +256,16 @@ static int jffs2_scan_eraseblock (struct
+ 		if (hdr_crc != node.hdr_crc) {
+ 			noisy_printk(&noise, "jffs2_scan_eraseblock(): Node at 0x%08x {0x%04x, 0x%04x, 0x%08x) has invalid CRC 0x%08x (calculated 0x%08x)\n",
+ 				     ofs, node.magic, node.nodetype, node.totlen, node.hdr_crc, hdr_crc);
++			DIRTY_SPACE(4);
++			ofs += 4;
++			continue;
++		}
++
++		if (ofs + node.totlen > jeb->offset + c->sector_size) {
++			/* Eep. Node goes over the end of the erase block. */
++			printk(KERN_WARNING "Node at 0x%08x with length 0x%08x would run over the end of the erase block\n",
++			       ofs, node.totlen);
++			printk(KERN_WARNING "Perhaps the file system was created with the wrong erase size?\n");
+ 			DIRTY_SPACE(4);
+ 			ofs += 4;
+ 			continue;
 
-You probably don't care a lot, but people trying to test S/390 compatiblity
-on Hercules (or a Multiprise in the basement..) really want to compile
-kernels out-of-the-box.
+
+--
+dwmw2
+
 

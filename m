@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317918AbSHHT7f>; Thu, 8 Aug 2002 15:59:35 -0400
+	id <S317907AbSHHUBZ>; Thu, 8 Aug 2002 16:01:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317960AbSHHT7f>; Thu, 8 Aug 2002 15:59:35 -0400
-Received: from ns.suse.de ([213.95.15.193]:9222 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317918AbSHHT7f>;
-	Thu, 8 Aug 2002 15:59:35 -0400
-Date: Thu, 8 Aug 2002 22:03:17 +0200
-From: Andi Kleen <ak@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Peter Samuelson <peter@cadcamlab.org>, Andi Kleen <ak@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       linux-kbuild@lists.sourceforge.net
-Subject: Re: 64bit clean drivers was Re: Linux 2.4.20-pre1
-Message-ID: <20020808220317.A14531@wotan.suse.de>
-References: <20020808151432.GD380@cadcamlab.org> <Pine.LNX.4.44.0208082119520.8911-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208082119520.8911-100000@serv>
-User-Agent: Mutt/1.3.22.1i
+	id <S317935AbSHHUBY>; Thu, 8 Aug 2002 16:01:24 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:64775 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S317907AbSHHUBX>; Thu, 8 Aug 2002 16:01:23 -0400
+Date: Thu, 8 Aug 2002 17:04:42 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: daily 2.5 BK snapshots
+In-Reply-To: <3D52CC12.9090909@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44L.0208081703260.2589-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 08, 2002 at 09:23:30PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Thu, 8 Aug 2002, Peter Samuelson wrote:
-> 
-> > The real solution (imo) is to add !$CONFIG_FOO support to the config
-> > language.  Fortunately this is quite easy.  What do you people think?
-> > I didn't do xconfig or config-language.txt but I can if desired.
-> 
-> I think it would help a lot if you first update the latter and somehow
-> describe what the negation in this context is supposed to mean.
+On Thu, 8 Aug 2002, Jeff Garzik wrote:
 
-dependency is met when the symbol is not defined.
+> Since Linus does not do pre-patches anymore, he mentioned some time ago
+> it would be nice if somebody created an automated BK snapshot process to
+> make BK changes accessible between kernel releases.  I've done that.
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/snap/2.5/
 
-What's the problem with the definition ?
+> Questions and comments welcome.
 
--Andi
+Heh, I've had something vaguely like this on NL.linux.org:
+
+ftp://ftp.nl.linux.org/pub/linux/bk2patch/
+
+Every 3 hours it creates a unidiff between the latest
+tagged version and the head of the bk tree, for both 2.5
+and 2.4.
+
+cheers,
+
+Rik
+-- 
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268149AbUH1ECM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266568AbUH1EYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268149AbUH1ECM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 00:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268156AbUH1ECM
+	id S266568AbUH1EYr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 00:24:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268166AbUH1EYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 00:02:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2966 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268149AbUH1ECK (ORCPT
+	Sat, 28 Aug 2004 00:24:47 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24543 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266568AbUH1EYn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 00:02:10 -0400
-Date: Fri, 27 Aug 2004 20:57:24 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Pat LaVarre <p.lavarre@ieee.org>
-Cc: usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org,
-       jgarzik@redhat.com
-Subject: Re: [usb-storage] drivers/block/ub.c #6
-Message-Id: <20040827205724.64a3c99f@lembas.zaitcev.lan>
-In-Reply-To: <1093645959.8006.219.camel@patlinux.iomegacorp.com>
-References: <20040730035120.30abd121@lembas.zaitcev.lan>
-	<1093640531.8006.68.
-	camel@patlinux.iomegacorp.com>
-	<1093645959.8006.219.camel@patlinux.iomegacorp.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Aug 2004 00:24:43 -0400
+Date: Fri, 27 Aug 2004 21:24:32 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andrew Morton <akpm@osdl.org>
+cc: paulus@samba.org, ak@muc.de, davem@davemloft.net, ak@suse.de,
+       wli@holomorphy.com, davem@redhat.com, raybry@sgi.com,
+       benh@kernel.crashing.org, manfred@colorfullife.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       vrajesh@umich.edu, hugh@veritas.com
+Subject: Re: page fault scalability patch final : i386 tested, x86_64 support
+ added
+In-Reply-To: <20040827204241.25da512b.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0408272121300.16949@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
+ <20040816143903.GY11200@holomorphy.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
+ <20040827233602.GB1024@wotan.suse.de> <Pine.LNX.4.58.0408271717400.15597@schroedinger.engr.sgi.com>
+ <20040827172337.638275c3.davem@davemloft.net> <20040827173641.5cfb79f6.akpm@osdl.org>
+ <20040828010253.GA50329@muc.de> <20040827183940.33b38bc2.akpm@osdl.org>
+ <16687.59671.869708.795999@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.58.0408272021070.16607@schroedinger.engr.sgi.com>
+ <20040827204241.25da512b.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Aug 2004 16:32:39 -0600
-Pat LaVarre <p.lavarre@ieee.org> wrote:
+On Fri, 27 Aug 2004, Andrew Morton wrote:
 
-> Looks to me like we have ub.ko taking over just x 08 06 50, rather than
-> all of the x 08 (06|05|02) 50 = bInterfaceClass ...SubClass ...Protocol
-> considered generic by MSFT?
-> 
-> http://www.microsoft.com/whdc/device/storage/usbfaq.mspx
-> agrees Flash should be x 08 06 50 but gives no clear guidance to the
-> rest of us.
-> 
-> I remember we invented x 08 06 50 to be the one tuple to rule them all,
-> to move the determination of PDT (peripheral device type) etc. back into
-> op x12 "INQUIRY" where it belongs, ...
+> Christoph Lameter <clameter@sgi.com> wrote:
+> >
+> >  So I think the move to atomic for rss acceptable?
+>
+> Short-term, yes.  Longer term (within 12 months), no - 50-bit addresses on
+> power5 will cause it to overflow.
 
-I'll look at non-bulk once we have something useable by common folks
-and Fedora ships ub, but not before. All my devices use Bulk. But also,
-UFI has to come first. Only then, perhaps, I'll look at CB and CBI.
+I would expect the page size to rise as well. On IA64 we already have
+16KB-64KB pages corresponding to 256TB - 1PB. Having to manage a couple of
+billion pages could be a significant performance impact. Better increase
+the page size.
 
-> Of course the world may yet contain advocates of connecting HDD/FDD as
-> bInterfaceSubClass = x05 "SFF 8070" = Compaq LS-120 or connecting DVD/CD
-> as x02 "SFF 8020" = read-only CD.
-
-I don't have any plans for 8070 and 8020i. I promise to look at patches
-if someone submits any. However, in my experience, 8070 devices are fickle.
-They may be better off left to usb-storage forever, with its richer
-infrastructure.
-
--- Pete
+I still would also like to see atomic64_t. I think there was a patch
+posted to linux-ia64 a couple of months back introducing atomic64_t but it
+was rejected since it would not be supportable on other arches.

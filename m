@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262792AbSJaSEd>; Thu, 31 Oct 2002 13:04:33 -0500
+	id <S265280AbSJaSZx>; Thu, 31 Oct 2002 13:25:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262712AbSJaSEd>; Thu, 31 Oct 2002 13:04:33 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:53966 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262792AbSJaSEa> convert rfc822-to-8bit; Thu, 31 Oct 2002 13:04:30 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: reiser4 [0/8] overview
-Date: Thu, 31 Oct 2002 19:10:48 +0100
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Nikita Danilov <Nikita@Namesys.COM>
-X-PRIORITY: 2 (High)
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210311910.48774.m.c.p@wolk-project.de>
+	id <S265272AbSJaSYv>; Thu, 31 Oct 2002 13:24:51 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:33414 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265270AbSJaSYn>; Thu, 31 Oct 2002 13:24:43 -0500
+Subject: Re: What's left over.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+In-Reply-To: <3DC171FF.5000803@nortelnetworks.com>
+References: <Pine.LNX.4.44.0210310918260.1410-100000@penguin.transmeta.com>
+	 <3DC171FF.5000803@nortelnetworks.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 31 Oct 2002 18:50:36 +0000
+Message-Id: <1036090236.8575.90.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nikita,
+On Thu, 2002-10-31 at 18:10, Chris Friesen wrote:
+> > To me this says "LKCD is stupid". Which means that I'm not going to apply 
+> > it, and I'm going to need some real reason to do so - ie being proven 
+> > wrong in the field.
+> 
+> How do you deal with netdump when your network driver is what caused the 
+> crash?
 
-> This message starts set of 8 patches against your current BK tree to
-> include reiser4.
-> Changes to the core code are fairly small and trivial: mostly function
-> exports, plus one patch to share ->journal_info pointer with Ext3.
-> All patches are available at http://namesys.com/snapshots/2002.10.31/,
-> they can be applied in any order.
-
-> Utilities, including mkfs.reiser4 are available at
-> http://namesys.com/snapshots/2002.10.31/reiser4progs-0.1.0.tar.gz
+Netdump drives the system itself. Any dump driver has to as it cant
+assume the system is in a remotely sane state
 
 
-Forbidden
-
-You don't have permission to access 
-/snapshots/2002.10.31/reiser4progs-0.1.0.tar.gz on this server.
-
-Apache/1.3.23 Server at thebsh.namesys.com Port 80
-
-The directory itself does _not_ contain any reiserfs progs.
-
-ciao, Marc

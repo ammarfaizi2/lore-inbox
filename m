@@ -1,29 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293720AbSCETAD>; Tue, 5 Mar 2002 14:00:03 -0500
+	id <S293742AbSCETQr>; Tue, 5 Mar 2002 14:16:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293734AbSCES7x>; Tue, 5 Mar 2002 13:59:53 -0500
-Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:55465 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S293720AbSCES7l>;
-	Tue, 5 Mar 2002 13:59:41 -0500
-Date: Tue, 5 Mar 2002 18:57:47 GMT
-Message-Id: <200203051857.g25Ivl627158@fenrus.demon.nl>
-From: arjan@fenrus.demon.nl
-To: Brian S Queen <bqueen@nas.nasa.gov>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: dnotify for kernel 2.2
-In-Reply-To: <200203051845.KAA16326@marcy.nas.nasa.gov>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-21 (i586))
+	id <S293736AbSCETQl>; Tue, 5 Mar 2002 14:16:41 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:9227 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S293734AbSCETQW>; Tue, 5 Mar 2002 14:16:22 -0500
+Date: Tue, 5 Mar 2002 15:09:21 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andries.Brouwer@cwi.nl
+Cc: jurgen@pophost.eunet.be, linux-kernel@vger.kernel.org, kraxel@bytesex.org
+Subject: Re: [patch] Re: 2.4.19-pre2: ufs problems
+In-Reply-To: <UTC200203040035.AAA137549.aeb@cwi.nl>
+Message-ID: <Pine.LNX.4.21.0203051509120.16292-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200203051845.KAA16326@marcy.nas.nasa.gov> you wrote:
-> I have been going through the trouble of adding dnotify to our 2.2
-> kernel because we don't want to switch to 2.4 yet. I wonder:
-> 
-> How many folks are interested in dnotify for 2.2?
-> 
-> Is it a really bad idea?
 
-Does the 2.4 version actually work ?
+
+
+On Mon, 4 Mar 2002 Andries.Brouwer@cwi.nl wrote:
+
+> Both Gerd Knorr and Jurgen Philippaerts complain about
+> problems mounting an ufs filesystem, one for BSD, the
+> other for Solaris.
+> The reason is the patch fragment in patch-2.4.19-pre2:
+> 
+> --- linux.orig/fs/ufs/super.c   Thu Feb 28 18:24:57 2002
+> +++ linux/fs/ufs/super.c        Wed Feb 27 20:34:30 2002
+> @@ -597,7 +597,11 @@
+>         }
+> 
+>  again:
+> -       set_blocksize (sb->s_dev, block_size);
+> +       if (!set_blocksize (sb->s_dev, block_size)) {
+> +               printk(KERN_ERR "UFS: failed to set blocksize\n");
+> +               goto failed;
+> +       }
+> +
+>         sb->s_blocksize = block_size;
+> 
+>         /*
+> 
+> Indeed, set_blocksize returns 0 when all is well.
+> Thus, this change will always cause a failure.
+
+Fixed in my tree.
+
+Thanks 
+

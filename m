@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129923AbRBZULZ>; Mon, 26 Feb 2001 15:11:25 -0500
+	id <S129945AbRBZUMZ>; Mon, 26 Feb 2001 15:12:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129937AbRBZULQ>; Mon, 26 Feb 2001 15:11:16 -0500
-Received: from mail1.atl.bellsouth.net ([205.152.0.28]:30605 "EHLO
-	mail1.atl.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S129923AbRBZULE>; Mon, 26 Feb 2001 15:11:04 -0500
-Message-ID: <3A9AB84C.A17D20AE@mandrakesoft.com>
-Date: Mon, 26 Feb 2001 15:10:52 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: pat@isis.co.za, linux-kernel@vger.kernel.org, Alan@redhat.com
-Subject: Re: PROBLEM: Network hanging - Tulip driver with Netgear (Lite-On)
-In-Reply-To: <3A9A30C7.3C62E34@colorfullife.com>
+	id <S129961AbRBZUMQ>; Mon, 26 Feb 2001 15:12:16 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:28475 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S129945AbRBZUL4>;
+	Mon, 26 Feb 2001 15:11:56 -0500
+Message-ID: <20010226211150.A17477@win.tue.nl>
+Date: Mon, 26 Feb 2001 21:11:50 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+        Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org,
+        aeb@cwi.nl
+Subject: Re: partition table: chs question
+In-Reply-To: <20010225163534.A12566@dungeon.inka.de> <20010225224729.A16353@win.tue.nl> <002201c09f87$5ce75640$f6976dcf@nwfs> <20010226041156.A16707@win.tue.nl> <20010226112407.C23495@vger.timpanogas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010226112407.C23495@vger.timpanogas.org>; from Jeff V. Merkey on Mon, Feb 26, 2001 at 11:24:07AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> 
-> I think I found the bug:
-> 
-> Someone (Jeff?) removed the line
-> 
->         tp->advertising[phy_idx++] = reg4;
-> 
-> from tulip/tulip_core.c
-> 
-> pnic_check_duplex uses that variable :-(
-> 
-> There are 2 workarounds:
-> 
-> * change pnic_check_duplex:
-> s/tp->advertising[0]/tp->mii_advertise/g
-> 
-> * remove the new mii_advertise variable and replace it with
-> 'tp->advertising[i]'.
+On Mon, Feb 26, 2001 at 11:24:07AM -0700, Jeff V. Merkey wrote:
+> On Mon, Feb 26, 2001 at 04:11:56AM +0100, Guest section DW wrote:
 
-mii_advertise is what MII is currently advertising on the current
-media.  tp->advertising is per-phy, on the other hand.
+> > (See http://www.win.tue.nl/~aeb/partitions/partition_types-1.html )
+> > Are types 57 and 77, labeled "VNDI Partition", actually in use?
+> 
+> No.  They are not.  65, and 77 are the ones in use.  Novell was using 
+> 67 for Wolf Mountain, but for NSS, they are exclusively using 69.
 
-Pat, Manfred, in pnic_check_duplex, make this change:
-> -        negotiated = mii_reg5 & tp->advertising[0];
-> +        negotiated = mii_reg5 & tulip_mdio_read(dev, tp->phys[0], 4);
+Wait! 57 and 77 are not in use, but 65 and 77 are?
+(Is the second 77 a typo for 66 or 67?)
 
-and let me know how it goes.  I'm tempted to just remove
-tp->advertising[] altogether.
+A lot of partition IDs are attributed to Novell.
+64 (Netware 286) and 65 (Netware 386) are well established, and
+you tell me 66 is Netware SMS, 67 is Wolf Mountain and 69 is Netware NSS.
+But also 51 and 68 occur in reports. Do you know anything about those?
 
-	Jeff
-
-
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+Andries

@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266490AbUGULOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266202AbUGULTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266490AbUGULOL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 07:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266463AbUGULOL
+	id S266202AbUGULTk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 07:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266463AbUGULTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 07:14:11 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:43450 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266490AbUGULOI (ORCPT
+	Wed, 21 Jul 2004 07:19:40 -0400
+Received: from pD9EB1635.dip.t-dialin.net ([217.235.22.53]:40837 "EHLO
+	undata.org") by vger.kernel.org with ESMTP id S266202AbUGULTj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 07:14:08 -0400
-Date: Wed, 21 Jul 2004 10:52:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-audio-dev@music.columbia.edu,
-       arjanv@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040721085246.GA19393@elte.hu>
-References: <1089673014.10777.42.camel@mindpipe> <20040712163141.31ef1ad6.akpm@osdl.org> <1089677823.10777.64.camel@mindpipe> <20040712174639.38c7cf48.akpm@osdl.org> <20040719102954.GA5491@elte.hu> <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu>
+	Wed, 21 Jul 2004 07:19:39 -0400
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary	Kernel
+	Preemption Patch
+From: Thomas Charbonnel <thomas@undata.org>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: "The Linux Audio Developers' Mailing List" 
+	<linux-audio-dev@music.columbia.edu>,
+       rlrevell@joe-job.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040721125352.7e8e95a1@mango.fruits.de>
+References: <20040712163141.31ef1ad6.akpm@osdl.org>
+	 <1090306769.22521.32.camel@mindpipe> <20040720071136.GA28696@elte.hu>
+	 <200407202011.20558.musical_snake@gmx.de>
+	 <1090353405.28175.21.camel@mindpipe> <40FDAF86.10104@gardena.net>
+	 <1090369957.841.14.camel@mindpipe>
+	 <20040721125352.7e8e95a1@mango.fruits.de>
+Content-Type: text/plain
+Message-Id: <1090408695.5179.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040721082218.GA19013@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 21 Jul 2004 13:18:15 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Florian Schmidt wrote :
+> Hi,
+> 
+> interesting that you mention the Xserver. I use a dual graphics card setup atm [Nvidia GF3 TI and some matrox pci card]. The nvidia card seems to work flawlessly even with HW accelleration [i use nvidias evil binary only drivers]. The matrox card OTH disturbs the soundcard severely. Whenever i have activity on my second monitor i get sound artefacts in jack's output [no cracklling, it's rather as if the volume is set to 0 for short moments and then back to normal]. There's a certain chance that this artefact produces an xrun. I suppose it's because the card is on the pci bus.
+> 
+> I figured it's maybe an irq issue problem, but whatever slot i put the gfx card in - it made no difference [btw: how do i find out which resources this card uses? it is not shown by /proc/interrupts]. I also tried putting the soundcard in many different slots to maybe get it on higher prio irq, but it always gets irq 5 [according to /proc/interrupts]..
+> 
+> Should i try a different 2nd gfx card? Should i avoid pci gfx cards at all costs? Will i just have to live w/o second monitor?  How do i find out which hw resources X is really using?
+> 
+> Florian Schmidt
 
-> below i've also attached a softirq.c patch against 2.6.8-rc2 that does
-> unconditional deferring. (this patch is of course not intended to be
-> merged upstream as-is, since normally we want to process softirqs
-> right after the irq context.)
+You could try to adjust the pci latency timer value of your graphic card
+and sound card, see this link for a paper on the subject by Daniel
+Robbins :
+http://www-106.ibm.com/developerworks/library/l-hw2.html
 
-i've got a more complete patch against vanilla 2.6.8-rc2:
+Thomas
 
- http://redhat.com/~mingo/voluntary-preempt/defer-softirqs-2.6.8-rc2-A2
 
-which introduces the following tunable:
-
-    /proc/sys/kernel/defer_softirqs  (default: 0)
-
-this, if enabled, causes all softirqs to be processed within ksoftirqd,
-and it also breaks out of the softirq loop if preemption of ksoftirqd
-has been triggered by a higher-prio task.
-
-I've also added this additional break-out to the -H6 patch of
-voluntary-preempt:
-
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-H6
-
-it's enabled by default.
-
-	Ingo

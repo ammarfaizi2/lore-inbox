@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbTCEXGy>; Wed, 5 Mar 2003 18:06:54 -0500
+	id <S262821AbTCEXNB>; Wed, 5 Mar 2003 18:13:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262821AbTCEXGy>; Wed, 5 Mar 2003 18:06:54 -0500
-Received: from as1-4-7.bn.g.bonet.se ([194.236.61.89]:41604 "HELO cucumelo.org")
-	by vger.kernel.org with SMTP id <S261427AbTCEXGx>;
-	Wed, 5 Mar 2003 18:06:53 -0500
-Message-ID: <3E66947F.4040800@hostmobility.com>
-Date: Thu, 06 Mar 2003 01:21:19 +0100
-From: Benny Sjostrand <benny@hostmobility.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020918
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.20 Minolta F300, yet another unusual usb-storage device
- ID
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S261857AbTCEXNB>; Wed, 5 Mar 2003 18:13:01 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:30141 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262821AbTCEXNA>;
+	Wed, 5 Mar 2003 18:13:00 -0500
+Date: Wed, 05 Mar 2003 15:03:44 -0800 (PST)
+Message-Id: <20030305.150344.50145701.davem@redhat.com>
+To: Rod.VanMeter@nokia.com
+Cc: bunk@fs.tum.de, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Chaotic structure of the net headers?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1046905834.17778.400.camel@localhost.localdomain>
+References: <20030305225441.GO20423@fs.tum.de>
+	<1046905834.17778.400.camel@localhost.localdomain>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i guess this one is easy, just adds another Vendor and Manufacturer ID 
-for the usb-storage,  the Minolta F300 digital camera.
+   From: Rod Van Meter <Rod.VanMeter@nokia.com>
+   Date: 05 Mar 2003 15:10:35 -0800
+   
+   Does it make sense to have two forms, one kernel, one user?  I haven't
+   e.g. followed the desired include chain.  If we wanted to merge the
+   uses, the former form and include location would probably have to be
+   used.
+   
+   I've been looking into this.  There are a *few* things missing from the
+   2292 support.  AFAICT, it's just a handful of functions/macros for
+   manipulating option headers that need to be added.
 
---- drivers/usb/storage/unusual_devs.h.orig     Thu Mar  6 01:15:56 2003
-+++ drivers/usb/storage/unusual_devs.h  Thu Mar  6 01:16:01 2003
-@@ -368,6 +368,12 @@
-                US_SC_SCSI, US_PR_BULK, NULL,
-                US_FL_START_STOP ),
- 
-+UNUSUAL_DEV( 0x0686, 0x4011, 0x0001, 0x0001,
-+                "Minolta",
-+                "Dimage F300",
-+                US_SC_SCSI, US_PR_BULK, NULL,
-+                US_FL_START_STOP ),
-+
- UNUSUAL_DEV(  0x0693, 0x0002, 0x0100, 0x0100,
-                "Hagiwara",
-                "FlashGate SmartMedia",
+Actually forget all my comments, GLIBC headers are where
+the advanced socket API requirements for headers should
+be applied.
 
+And since this is only used in the kernel, there is no need
+for the NEXTHDR_* if it trully just duplicates the IPPROTO_*
+defines.
+
+I'm willing to accept a cleanup patch of this nature, sure.

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272314AbTHDXYa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 19:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272315AbTHDXY3
+	id S272307AbTHDXXv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 19:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272309AbTHDXXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 19:24:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:5545 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272314AbTHDXY0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 19:24:26 -0400
-Date: Mon, 4 Aug 2003 16:25:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stan Benoit <sab7@mail.ptd.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel panic linux-2.6.0-test2
-Message-Id: <20030804162546.69a16efa.akpm@osdl.org>
-In-Reply-To: <20030804225407.GA270@mail.ptd.net>
-References: <20030804225407.GA270@mail.ptd.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Aug 2003 19:23:50 -0400
+Received: from mta7.srv.hcvlny.cv.net ([167.206.5.22]:7571 "EHLO
+	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S272307AbTHDXXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 19:23:41 -0400
+Date: Mon, 04 Aug 2003 19:23:27 -0400
+From: Josef Jeff Sipek <jeffpc@optonline.net>
+Subject: [PATCH][TRIVIAL][2.6] Bugzilla bug # 267 - ver_linux script fails to
+ give module-init-tools version
+To: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <200308041923.27329.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.5.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stan Benoit <sab7@mail.ptd.net> wrote:
->
-> I'm planning on putting up a small web page to post logs,
->  .config files, results of test's on 2.6.0xxxx perhaps that
->  might help you all. 
+This patch fixes the scripts/ver_linux script, which did not report any version for module-init-tools
+when using module-init-tools. If modutils were used, it printed out the version. In both cases, the
+effect was not wanted. (If modutils are used, nothing should be printed out.)
 
-The .config is what we'd be needing.
+Josef "Jeff" Sipek
 
-Also please test a more recent kernel, such as
+--- linux-2.6.0-test2-vanilla/scripts/ver_linux	2003-07-27 13:04:06.000000000 -0400
++++ linux-2.6.0-test2-used/scripts/ver_linux	2003-08-04 19:09:51.000000000 -0400
+@@ -28,7 +28,7 @@
+ 
+ mount --version | awk -F\- '{print "mount                 ", $NF}'
+ 
+-depmod -V  2>&1 | grep version | awk 'NR==1 {print "module-init-tools     ",$NF}'
++depmod -V  2>&1 | grep "module-init-tools" | awk 'NR==1 {print "module-init-tools     ",$NF}'
+ 
+ tune2fs 2>&1 | grep "^tune2fs" | sed 's/,//' |  awk \
+ 'NR==1 {print "e2fsprogs             ", $2}'
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test2/2.6.0-test2-mm4
-
-or
-
-ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots
-
-There have been init-section fixes and a big sound update since
-test2.

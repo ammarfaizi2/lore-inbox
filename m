@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265270AbUENNN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265272AbUENNT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265270AbUENNN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 09:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265272AbUENNN4
+	id S265272AbUENNT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 09:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUENNT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 09:13:56 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:21967 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265270AbUENNNx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 09:13:53 -0400
-Date: Fri, 14 May 2004 15:11:00 +0200 (MEST)
-From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: ata_piix: port disabled.  ignoring.
-Message-ID: <Pine.GSO.4.58.0405141453020.27660@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 May 2004 09:19:28 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:25104 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265272AbUENNT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 09:19:26 -0400
+Date: Fri, 14 May 2004 14:19:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Fruhwirth Clemens <clemens-dated-1085404045.d167@endorphin.org>
+Cc: linux-kernel@vger.kernel.org, Christophe Saout <christophe@saout.de>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       James Morris <jmorris@redhat.com>
+Subject: Re: [PATCH] AES i586 optimized, regparm fixed
+Message-ID: <20040514141923.A24264@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Fruhwirth Clemens <clemens-dated-1085404045.d167@endorphin.org>,
+	linux-kernel@vger.kernel.org,
+	Christophe Saout <christophe@saout.de>,
+	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+	James Morris <jmorris@redhat.com>
+References: <20040514130724.GA8081@ghanima.endorphin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040514130724.GA8081@ghanima.endorphin.org>; from clemens-dated-1085404045.d167@endorphin.org on Fri, May 14, 2004 at 03:07:24PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Jeff,
+On Fri, May 14, 2004 at 03:07:24PM +0200, Fruhwirth Clemens wrote:
+> The patch posted yesterday has had an issue with CONFIG_REGPARM. The
+> following patch corrects this issue and works for both cases
+> CONFIG_REGPARM=y||n. Thanks to Christophe Saout, who pointed out the
+> solution almost instantly. The patch does not apply Christophe's patch, but
+> rather forces the interface back to regparm(0).
 
-I'm trying to install Linux on a SATA disk in a Dell PowerEdge 750, which has
-an Intel 82875P chipset with an Intel 6300ESB SATA Storage Controller.
+We usually use asmlinkage instead of __attribute__((regparm(0))).  while
+it's not nessecary for x86-specific code to abstract this out it at least
+looks cleaner.  BTW, is the assembly code shared with some other project?
+If not it might be a good idea to kill the ifdefs in there.
 
-I managed to do the actual installation by booting from a Knoppix 3.4 CD (using
-kernel 2.4.26 or 2.6.5 (apparently SATA drivers were not included), doesn't
-matter much) in an external USB CD-ROM driver, and installing Debian testing
-using FAI (Fully Automatic Installation). It took a while because the SATA
-drive was used in backwards compatiblity mode without DMA, but it succeeded.
-
-The kernel I installed was kernel-image-2.6.5-1-686-smp from Debian, which has
-SATA support included. But when I want to boot it, I get (manual copy):
-
-| ata1: PATA max UDMA/33 cmd 0x1F0 ctl 0x3F6 bmdma 0xFEA0 irq 14
-| ata1: port disabled. ignoring.
-
-I don't care, no PATA devices attached.
-
-| ata2: SATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xFEA8 irq 15
-| ata2: port disabled. ignoring.
-
-Bad, the Maxtor 6Y080M0 I want to boot from is there :-(
-
-And after that it tries the normal IDE driver, which of course fails with:
-
-| ide0: I/O resource 0x1F0-0x1F7 not free
-
-I looked at ata_piix.c, and apparently the driver decides whether a port is
-disabled by checking a bit in PCI config space, so this looks like a BIOS setup
-problem to me. But the BIOS has the first SATA port enabled (`AUTO', and it
-does see a 80 GB disk there), while the PATA and second SATA ports are marked
-`OFF'.
-
-Just to be sure, I also tried acpi=off and pci=noacpi, but no avail.
-
-Do you have a clue? Would it help to try 2.6.6?
-
-Thanks for all suggestions!
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- Sony Network and Software Technology Center Europe (NSCE)
-Geert.Uytterhoeven@sonycom.com ------- The Corporate Village, Da Vincilaan 7-D1
-Voice +32-2-7008453 Fax +32-2-7008622 ---------------- B-1935 Zaventem, Belgium

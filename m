@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288045AbSACAIO>; Wed, 2 Jan 2002 19:08:14 -0500
+	id <S288058AbSACAJ5>; Wed, 2 Jan 2002 19:09:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288062AbSACAG7>; Wed, 2 Jan 2002 19:06:59 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22544 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288057AbSACAGm>; Wed, 2 Jan 2002 19:06:42 -0500
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-To: harald.holzer@eunet.at (Harald Holzer)
-Date: Thu, 3 Jan 2002 00:16:53 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
-        wookie@osdl.org (Timothy D. Witham)
-In-Reply-To: <1010015450.15492.19.camel@hh2.hhhome.at> from "Harald Holzer" at Jan 03, 2002 12:50:50 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S287976AbSACAIS>; Wed, 2 Jan 2002 19:08:18 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:7296 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S288033AbSACAHu>;
+	Wed, 2 Jan 2002 19:07:50 -0500
+Date: Wed, 02 Jan 2002 16:06:41 -0800 (PST)
+Message-Id: <20020102.160641.92584044.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: garzik@havoc.gtf.org, manfred@colorfullife.com, klink@clouddancer.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E16Izg0-0008Bm-00@the-village.bc.nu>
+In-Reply-To: <20011225141441.A14941@havoc.gtf.org>
+	<E16Izg0-0008Bm-00@the-village.bc.nu>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16LvZ0-0006CX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 16GB ram, 269,424kB reserved
-> 32GB ram, 532,080kB reserved, usable low mem: 352 MB
-> 64GB ram ?? 
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: Tue, 25 Dec 2001 22:03:59 +0000 (GMT)
+   
+   > required DaveM made it unconditional...  I think the checkin comment was
+   > something along the lines of "make it unconditional unless Alan
+   > complains about kernel bloat" :)
+   
+   And I did complain. "Red Hat needs XYZ so we make it mandatory" is not an
+   appropriate approach to a problem.
 
-64Gb basically you can forget
+[ Just got back from British Columbia... ]
 
-> Which function does the reserved memory fulfill ?
-> Is it all for paging ?
+No you did not complain.  I asked you specifically if it was ok, and
+your response was that turning netlink/rtnetlink on by default was
+fine with you.
 
-A lot of it is the page structs (64bytes per page - which really should be
-nearer the 32 some rival Unix OS's achieve on x86)
+It has zilch to do with redhat anything, in fact I had to ask vendors
+first if they could still fit the kernel on their boot disks if I
+added ~5K of object code to kernels with networking enabled.
+
+It has everything to do with iproute2 and tcp_diag using it.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

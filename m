@@ -1,112 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbUA3Pdw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 10:33:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUA3Pdw
+	id S261877AbUA3PsG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 10:48:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbUA3PsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 10:33:52 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:21691 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S261799AbUA3Pdq
+	Fri, 30 Jan 2004 10:48:06 -0500
+Received: from natsmtp01.rzone.de ([81.169.145.166]:16266 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S261877AbUA3PsE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 10:33:46 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: Catalin BOIE <util@deuroconsult.ro>
-Subject: Re: 2.6.2-rc2 Interactivity problems with SMP + HT
-Date: Fri, 30 Jan 2004 10:33:43 -0500
-User-Agent: KMail/1.6
-Cc: "Robert M. Hyatt" <hyatt@cis.uab.edu>,
-       Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org,
-       linux-smp@vger.kernel.org
-References: <Pine.LNX.4.44.0401290901510.21120-100000@crafty.cis.uab.edu> <Pine.LNX.4.58.0401300919520.8217@hosting.rdsbv.ro>
-In-Reply-To: <Pine.LNX.4.58.0401300919520.8217@hosting.rdsbv.ro>
+	Fri, 30 Jan 2004 10:48:04 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: James Morris <jmorris@redhat.com>
+Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch pentium3,4
+Date: Fri, 30 Jan 2004 16:43:13 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, R CHAN <rspchan@starhub.net.sg>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200401301033.43909.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.53.166] at Fri, 30 Jan 2004 09:33:44 -0600
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200401301643.13477.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 January 2004 02:25, Catalin BOIE wrote:
->On Thu, 29 Jan 2004, Robert M. Hyatt wrote:
->> It might be some IDE disk I/O that results from flushing buffers
->> or whatever.  I don't see this on my SCSI boxes, but I have seen
->> an IDE box get sluggish at times due to I/O.
->
->It is possible.
->vmstat shows a lot of writes when this happen.
->Seems that even reads hangs.
->I remember tat I was in pine and I tried to save a small file (under
-> 1k) and it took 5-7 seconds to do it.
->
-I'm having similar problems with kmail on the later kernels. Sometimes 
-it works just fine, and in the middle of typing a nessage it can get 
-laggy as hell, cursor motions with the arrow keys are down to 1 space 
-a second, and gkrellm is saying the user apps are at 100% cpu.  
-Screen redraws for a page up or page down might take 3 or 4 seconds.
-Or it can get over it. (sometimes)
+James Morris wrote:
+> Have you noticed if this happens for any of the other crypto algorithms?
 
->> On Thu, 29 Jan 2004, Nick Piggin
->>
->> wrote:
->> > Catalin BOIE wrote:
->> > >Hello!
->> > >
->> > >First, thank you very much for the effort you put for Linux!
->> > >
->> > >I have a Intel motherboard with SATA (2 Maxtor disks).
->> > >CPUs: 2 x 2.4GHz PIV HT = 4 processors (2 virtual)
->> > >1 GB RAM.
->> > >
->> > >Load: postgresql and apache. Very low load (3-4 clients).
->> > >
->> > >RAID: Yes, soft RAID1 between the 2 disks.
->> > >
->> > >I have times when the console freeze for 3-4 seconds!
->> > >2.6.0-test11 had the same problem (maybe longer times).
->> > >2.6.1-rc2 worked good in this respect but crashed after 2 days.
->> > > :( 2.6.2-rc2 is back with the delay.
->> > >
->> > >Do you know why this can happen?
->> >
->> > There haven't been many scheduler changes there recently so
->> > maybe its something else.
->> >
->> > But you could try the latest -mm kernels. They have some
->> > Hyperthreading work in them (you need to enable
->> > CONFIG_SCHED_SMT).
->> >
->> > -
->> > To unsubscribe from this list: send the line "unsubscribe
->> > linux-smp" in the body of a message to majordomo@vger.kernel.org
->> > More majordomo info at 
->> > http://vger.kernel.org/majordomo-info.html
->>
->> --
->> Robert M. Hyatt, Ph.D.          Computer and Information Sciences
->> hyatt@uab.edu                   University of Alabama at
->> Birmingham (205) 934-2213                  136A Campbell Hall
->> (205) 934-5473 FAX              Birmingham, AL 35294-1170
->
->---
->Catalin(ux) BOIE
->catab@deuroconsult.ro
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Just as a reminder, there is still an issue with extreme stack usage
+of some of the algorithms, depending on compiler version and
+flags.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty: soap,
-ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+The worst I have seen was around 16kb for twofish_setkey on 64 bit
+s390 with gcc-3.1 (iirc). Right now, I get up to 4kb for this
+function with gcc-3.3.1, which probably works but is definitely
+a bad sign. I've seen this as well on other architectures (iirc
+on x86_64), but not as severe.
+
+Other algorithms are bad as well, these are the top scores from
+Jörn Engel's checkstack.pl (s390 64bit 2.6.1 gcc-3.3.1):
+
+0x00000a twofish_setkey:           lay    %r15,-3960(%r15)
+0x0026fc aes_decrypt:              lay    %r15,-1168(%r15)
+0x000c0c aes_encrypt:              lay    %r15,-1000(%r15)
+0x00000e sha512_transform:         lay    %r15,-936(%r15)
+0x001292 test_deflate:             lay    %r15,-784(%r15)
+0x0028a2 cast6_decrypt:            lay    %r15,-696(%r15)
+0x00d1a0 twofish_encrypt:          lay    %r15,-664(%r15)
+0x001b34 setkey:                   lay    %r15,-656(%r15)
+0x00e2b0 twofish_decrypt:          lay    %r15,-624(%r15)
+0x000c9e cast6_encrypt:            lay    %r15,-600(%r15)
+0x000014 sha1_transform:           lay    %r15,-504(%r15)
+                                                 ^
+		This is the stack size   --------|
+
+       Arnd <><
+

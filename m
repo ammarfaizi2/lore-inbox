@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263299AbTLSPGp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 10:06:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTLSPGo
+	id S263269AbTLSPN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 10:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263290AbTLSPN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 10:06:44 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:48042 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S263299AbTLSPGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 10:06:43 -0500
-Date: Fri, 19 Dec 2003 07:06:18 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Nick Piggin <piggin@cyberone.com.au>, Ingo Molnar <mingo@redhat.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Anton Blanchard <anton@samba.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
-Subject: Re: [PATCH] improve rwsem scalability (was Re: [CFT][RFC] HT scheduler)
-Message-ID: <35510000.1071846377@[10.10.2.4]>
-In-Reply-To: <3FE2E67A.70809@cyberone.com.au>
-References: <20031208155904.GF19412@krispykreme> <3FD50456.3050003@cyberone.com.au> <20031209001412.GG19412@krispykreme> <3FD7F1B9.5080100@cyberone.com.au> <3FD81BA4.8070602@cyberone.com.au> <3FD8317B.4060207@cyberone.com.au> <20031211115222.GC8039@holomorphy.com> <3FD86C70.5000408@cyberone.com.au> <20031211132301.GD8039@holomorphy.com> <3FD8715F.9070304@cyberone.com.au> <20031211133207.GE8039@holomorphy.com> <3FD88D93.3000909@cyberone.com.au> <3FD91F5D.30005@cyberone.com.au> <Pine.LNX.4.58.0312120440400.14103@devserv.devel.redhat.com> <3FDA5842.9090109@cyberone.com.au> <3FDBB261.5010208@cyberone.com.au> <3FDFE95C.9050901@cyberone.com.au> <3FE2E67A.70809@cyberone.com.au>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 Dec 2003 10:13:27 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:63164 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263269AbTLSPNZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 10:13:25 -0500
+Subject: [PATCH] Reduce SELinux check on KDSKBENT/SENT ioctls
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1071846793.10242.45.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Fri, 19 Dec 2003 10:13:13 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> What do you think? Is there any other sorts of benchmarks I should try?
->> The improvement I think is significant, although volanomark is quite
->> erratic and doesn't show it well.
->> 
->> I don't see any problem with moving the wakeups out of the rwsem's 
->> spinlock.
->> 
-> 
-> Actually my implementation does have a race because list_del_init isn't
-> atomic. Shouldn't be difficult to fix if anyone cares about it... otherwise
-> I won't bother.
+This patch against 2.6.0 reduces the full capability check in the
+SELinux module for the KDSKBENT/SENT ioctls to only check the
+corresponding SELinux permission, avoiding a change to the Linux
+permissions model for these operations.  Please apply, or let me know if
+you'd like this resubmitted later.  Thanks.
 
-If you can fix it up, I'll get people here to do some more testing on the
-patch on other benchmarks, etc.
+ security/selinux/hooks.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 
-M.
+Index: linux-2.6/security/selinux/hooks.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
+retrieving revision 1.75
+diff -u -r1.75 hooks.c
+--- linux-2.6/security/selinux/hooks.c	9 Oct 2003 13:03:45 -0000	1.75
++++ linux-2.6/security/selinux/hooks.c	21 Oct 2003 13:08:53 -0000
+@@ -1992,8 +1992,7 @@
+ 
+ 	        case KDSKBENT:
+ 	        case KDSKBSENT:
+-		  	if (!capable(CAP_SYS_TTY_CONFIG))
+-				error = -EPERM;
++			error = task_has_capability(current,CAP_SYS_TTY_CONFIG);
+ 			break;
+ 
+ 		/* default case assumes that the command will go
+
+
+  
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

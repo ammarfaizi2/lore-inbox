@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131306AbRACWFi>; Wed, 3 Jan 2001 17:05:38 -0500
+	id <S131192AbRACWGS>; Wed, 3 Jan 2001 17:06:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131305AbRACWF2>; Wed, 3 Jan 2001 17:05:28 -0500
-Received: from pm4-1-c0-73.apex.net ([209.250.32.88]:7944 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S131192AbRACWFQ>; Wed, 3 Jan 2001 17:05:16 -0500
-Date: Wed, 3 Jan 2001 16:05:28 -0600
-From: Steven Walter <srwalter@yahoo.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] prevention of syscalls from writable segments, breaking bug exploits
-Message-ID: <20010103160528.B13576@hapablap.dyn.dhs.org>
-Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0101032259550.20246-100000@callisto.yi.org> <Pine.GSO.4.21.0101031648250.17363-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0101031648250.17363-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Jan 03, 2001 at 04:54:38PM -0500
+	id <S131354AbRACWGJ>; Wed, 3 Jan 2001 17:06:09 -0500
+Received: from dialin41.pg3-nt.dusseldorf.nikoma.de ([213.54.98.41]:18670 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S130111AbRACWF4>; Wed, 3 Jan 2001 17:05:56 -0500
+Date: Wed, 3 Jan 2001 23:06:36 +0100 (CET)
+From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Gerold Jury <geroldj@grips.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>, <dl8bcu@gmx.net>,
+        <Maik.Zumstrull@gmx.de>
+Subject: Re: Happy new year^H^H^H^Hkernel..
+In-Reply-To: <m17l4cjzig.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.30.0101032201290.8073-100000@vaio>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2001 at 04:54:38PM -0500, Alexander Viro wrote:
-> On Wed, 3 Jan 2001, Dan Aloni wrote:
-> 
-> > It is known that most remote exploits use the fact that stacks are
-> > executable (in i386, at least).
-> > 
-> > On Linux, they use INT 80 system calls to execute functions in the kernel
-> > as root, when the stack is smashed as a result of a buffer overflow bug in
-> > various server software.
-> > 
-> > This preliminary, small patch prevents execution of system calls which
-> > were executed from a writable segment. It was tested and seems to work,
-> > without breaking anything. It also reports of such calls by using printk.
-> 
-> Get real. Attacker can set whatever registers he needs and jump to one
-> of the many instances of int 0x80 in libc. There goes your protection.
-> 
-> Win: 0
-> Loss: cost of find_vma() (and down(&mm->mmap_sem), BTW) on every system
-> call.
-> 
-> And the reason to apply that patch would be...?
+On 3 Jan 2001, Eric W. Biederman wrote:
 
-Should be a moot point, anyway, as x86 has a seperate stack for each
-priviledge level.  Even if the kernel somehow tried to execute code in a
-lower priviledge segment (stack or otherwise) shouldn't a GPF get
-generated?
--- 
--Steven
-"Voters decide nothing.  Vote counters decide everything."
-				-Joseph Stalin
+> Kai Germaschewski <kai@thphy.uni-duesseldorf.de> writes:
+>
+> > I think the problem was that we relied on divert_if being initialized to
+> > zero automatically, which didn't happen because it was not declared static
+> > and therefore not in .bss (*is this true?*).
+>
+> All variables with static storage (not with static scope) if not explicitly
+> initialized are placed in the bss segment.  In particular this
+> means that adding/removing a static changes nothing.
+
+The patch is right, the explanation was wrong. Sorry, I didn't CC l-k when
+I found what was really going on. Other source files used a global
+initialized variable "divert_if" as well, so this became the same one as
+the one referenced in isdn_common.c.  That's why it wasn't zero, it was
+explicitly initialized elsewhere. However, making divert_if static in
+isdn_common.c fixes the problem, because now it's really local to this
+file and therefore initialized to NULL.
+
+--Kai
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

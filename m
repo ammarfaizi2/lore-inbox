@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132728AbRC2OF3>; Thu, 29 Mar 2001 09:05:29 -0500
+	id <S132736AbRC2OWK>; Thu, 29 Mar 2001 09:22:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132729AbRC2OFT>; Thu, 29 Mar 2001 09:05:19 -0500
-Received: from ox.rmplc.co.uk ([194.238.48.39]:20053 "EHLO ox.rmplc.co.uk")
-	by vger.kernel.org with ESMTP id <S132728AbRC2OFB>;
-	Thu, 29 Mar 2001 09:05:01 -0500
-X-WebMail-UserID: wrightg@edgegrove.herts.sch.uk
-Date: Thu, 29 Mar 2001 15:08:20 +0100
-From: George Wright <wrightg@edgegrove.herts.sch.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-EXP32-SerialNo: 00002300
-Subject: Newbie to Kernel Development
-Message-ID: <3ABC229A@swan.rmplc.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebMail (Hydra) SMTP v3.51.06
+	id <S132734AbRC2OWA>; Thu, 29 Mar 2001 09:22:00 -0500
+Received: from bacchus.veritas.com ([204.177.156.37]:43685 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S132733AbRC2OVp>; Thu, 29 Mar 2001 09:21:45 -0500
+Date: Thu, 29 Mar 2001 15:20:45 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+   "David S. Miller" <davem@redhat.com>,
+   Jakub Jellinek <jj@sunsite.ms.mff.cuni.cz>, linux-kernel@vger.kernel.org
+Subject: [PATCH] sparc64 module_map dont vfree
+In-Reply-To: <Pine.LNX.4.21.0103022135140.1440-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0103291510060.1167-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+sparc64 has a module_map() modelled on vmalloc(), but using a separate
+modvmlist of areas.  After allocating an area, if the call to allocate
+the pages and map them in fails, it needs to free that area: which at
+present it's trying to do by calling vfree() - but that searches vmlist
+not modvmlist.  It should be calling its own module_unmap() instead.
+Patch below against 2.4.2-ac28 or 2.4.3-pre8.
 
-I am a newbie to Linux Kernel Development, with a very basic knowledge of C, 
-and an OK knowledge of C++/Qt.
+Hugh
 
-I was wondering if the people on this list could help me with my learning of 
-C, and help me and bring me up to Kernel Developer status.
-
-Looking through the source code, there are a lot of "printk"s. I believe that 
-this is an alternative to printf because printf was unsuitable for this 
-purpose, and that it was written by Linus Torvalds, but I don't see why 
-printf's not adequate.
-
-I also would like to know about the Linux security model, as well as what 
-ELF/a.out is.
-
-Many thanks,
-
-George
-
---
-
-Only wimps use tape backup: _real_    | George Wright - Edge Grove School - Age 13
-men just upload their important stuff |
-on ftp and let the rest of the world  | Work:    wrightg@edgegrove.herts.sch.uk
-mirror it - Linus Torvalds            | Home:    georsoc@attglobal.net
-                                      | Play:    georsoc@navaho.net
- _    _                               | Obsolete: geowr445@email.com
-('>  <')   the lesser-spotted         |           geowr445@mail.com
-/_\  /_\     penguin (TUX!)           |
-w w  w w                              | Website:  http://homepage.ntlworld.com/
-                                      |                        eric.rsoc/George
+--- 2.4.2-ac28/arch/sparc64/mm/modutil.c	Mon Feb 19 03:49:54 2001
++++ linux/arch/sparc64/mm/modutil.c	Wed Mar 28 14:31:49 2001
+@@ -59,7 +59,7 @@
+ 	*p = area;
+ 
+ 	if (vmalloc_area_pages(VMALLOC_VMADDR(addr), size, GFP_KERNEL, PAGE_KERNEL)) {
+-		vfree(addr);
++		module_unmap(addr);
+ 		return NULL;
+ 	}
+ 	return addr;
 

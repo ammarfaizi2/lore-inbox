@@ -1,42 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262234AbRENDac>; Sun, 13 May 2001 23:30:32 -0400
+	id <S262240AbRENDnt>; Sun, 13 May 2001 23:43:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262240AbRENDaW>; Sun, 13 May 2001 23:30:22 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:55728 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262234AbRENDaL>;
-	Sun, 13 May 2001 23:30:11 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S262244AbRENDnk>; Sun, 13 May 2001 23:43:40 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:54278 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S262240AbRENDne>;
+	Sun, 13 May 2001 23:43:34 -0400
+Date: Mon, 14 May 2001 00:43:26 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] balance_dirty_state() fix
+Message-ID: <Pine.LNX.4.21.0105140039300.4671-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15103.20768.588746.495042@pizda.ninka.net>
-Date: Sun, 13 May 2001 20:29:36 -0700 (PDT)
-To: kuznet@ms2.inr.ac.ru
-Cc: mike_phillips@urscorp.com, linux-kernel@vger.kernel.org
-Subject: Re: skb->truesize > sk->rcvbuf == Dropped packets
-In-Reply-To: <200105131834.WAA28023@ms2.inr.ac.ru>
-In-Reply-To: <15089.61095.23597.82875@pizda.ninka.net>
-	<200105131834.WAA28023@ms2.inr.ac.ru>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
 
-kuznet@ms2.inr.ac.ru writes:
- > >  > Any suggestions on heuristics for this ? 
- > 
- > Not to set rcvbuf to ridiculously low values. The best variant is not
- > to touch SO_*BUF options at all.
+The following patch fixes a problem where bdflush eats too
+much cpu time without getting work done; the problem is that
+calls to page_launder() don't achieve anything in the short
+term and may not even achieve anything long-term because we
+may just be short on inactive pages.
 
-Hmmm... I don't see how not touching buffer values can solve his
-problem at all.  His MTU is really HUGE, and in this case 300 byte
-packet eats 10k or so space in receive buffer.
+In both of these cases it's better to just let bdflush stop
+eating CPU and have the system do something useful instead.
+Please apply.
 
-I doubt our buffer size tuning algorithms can cope with this.
+regards,
 
-Really, copy threshold in driver just must be choosen carefully.
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-Later,
-David S. Miller
-davem@redhat.com
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+
+
+--- linux-2.4.4/fs/buffer.c.orig	Mon May 14 00:36:15 2001
++++ linux-2.4.4/fs/buffer.c	Mon May 14 00:36:28 2001
+@@ -1034,7 +1034,6 @@
+ int balance_dirty_state(kdev_t dev)
+ {
+ 	unsigned long dirty, tot, hard_dirty_limit, soft_dirty_limit;
+-	int shortage;
+ 
+ 	dirty = size_buffers_type[BUF_DIRTY] >> PAGE_SHIFT;
+ 	tot = nr_free_buffer_pages();
+@@ -1049,16 +1048,6 @@
+ 			return 1;
+ 		return 0;
+ 	}
+-
+-	/*
+-	 * If we are about to get low on free pages and
+-	 * cleaning the inactive_dirty pages would help
+-	 * fix this, wake up bdflush.
+-	 */
+-	shortage = free_shortage();
+-	if (shortage && nr_inactive_dirty_pages > shortage &&
+-			nr_inactive_dirty_pages > freepages.high)
+-		return 0;
+ 
+ 	return -1;
+ }
+

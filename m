@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261367AbSJHWQf>; Tue, 8 Oct 2002 18:16:35 -0400
+	id <S261494AbSJHWNr>; Tue, 8 Oct 2002 18:13:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261526AbSJHWQM>; Tue, 8 Oct 2002 18:16:12 -0400
-Received: from pop017pub.verizon.net ([206.46.170.210]:31474 "EHLO
-	pop017.verizon.net") by vger.kernel.org with ESMTP
-	id <S261367AbSJHWOa>; Tue, 8 Oct 2002 18:14:30 -0400
-Message-Id: <200210082216.g98MG1ab000672@pool-141-150-241-241.delv.east.verizon.net>
-Date: Tue, 8 Oct 2002 18:15:59 -0400
-From: Skip Ford <skip.ford@verizon.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: David Woodhouse <dwmw2@infradead.org>, Skip Ford <skip.ford@verizon.net>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-References: <8973.1034111628@passion.cambridge.redhat.com> <Pine.LNX.4.44L.0210081906180.22735-100000@imladris.surriel.com>
+	id <S261429AbSJHWMO>; Tue, 8 Oct 2002 18:12:14 -0400
+Received: from thunk.org ([140.239.227.29]:708 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S261427AbSJHWLf>;
+	Tue, 8 Oct 2002 18:11:35 -0400
+Date: Tue, 8 Oct 2002 18:17:10 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] [RFC] [PATCH 3/4] Add extended attributes to ext2/3
+Message-ID: <20021008221710.GA9842@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
+	ext2-devel@lists.sourceforge.net
+References: <E17yymK-00021n-00@think.thunk.org> <20021008195322.A14585@infradead.org> <200210082114.00576.agruen@suse.de> <20021008202038.A15692@infradead.org> <20021008214143.O2717@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44L.0210081906180.22735-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Oct 08, 2002 at 07:06:41PM -0300
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop017.verizon.net from [141.150.241.241] at Tue, 8 Oct 2002 17:20:06 -0500
+In-Reply-To: <20021008214143.O2717@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> On Tue, 8 Oct 2002, David Woodhouse wrote:
-> > skip.ford@verizon.net said:
-> > >  I sort of had vger in mind, but I could set up a crude read-only list
-> > > of some sort if need be on my dynamic IP line.
-> >
-> > If a list is set up on vger I'll feed the patches to it.
+On Tue, Oct 08, 2002 at 09:41:43PM +0100, Stephen C. Tweedie wrote:
 > 
-> If the vger admins are busy I have no problem setting up a
-> linux-patches list on nl.linux.org.
+> On Tue, Oct 08, 2002 at 08:20:38PM +0100, Christoph Hellwig wrote:
+> > On Tue, Oct 08, 2002 at 09:14:00PM +0200, Andreas Gruenbacher wrote:
+> > > Users might just fill up all xattr space leaving no space for ACLs (or 
+> > > similar). If user xattrs are disabled this can no longer occur, so some 
+> > > administrators might be happy to have a choice.
+> > 
+> > Umm, that's why we have quota..
+> 
+> It's the per-inode extended attribute space that's at risk here,
+> quotas don't help.
 
-Just to clarify here, I suggested a linux-commits style list (patches
-Linus has applied) and Alan suggested a linux-patches list (patches
-submitted to Linus.)
+Well, how about this as a compromise?  We define a new superblock
+field which reserves a certain amount of space in the EA block for
+"system" attributes.  The default will be zero, but if we want to
+reserve space for the ACL, we can do that by adjusting the superblock
+field.  (I'll add support into tune2fs for that purpose.)
 
-I like the cset diffs because I can see patches Linus has applied that
-weren't posted.  If a linux-patches list is created (and people use it)
-then a commits list isn't as useful.
+I'll then remove the CONFIG #ifdef's and the user_xattr mount options.
+(I hate having too many mount options, and this sort of thing should
+be a per-filesystem run-time decision, not a compile-time option.)
 
--- 
-Skip
+Andreas, does that sound good to you?
+
+						- Ted
+

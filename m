@@ -1,57 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129572AbQK0SIq>; Mon, 27 Nov 2000 13:08:46 -0500
+        id <S129525AbQK0SJQ>; Mon, 27 Nov 2000 13:09:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129645AbQK0SIg>; Mon, 27 Nov 2000 13:08:36 -0500
-Received: from sneaker.sch.bme.hu ([152.66.226.5]:32267 "EHLO
-        sneaker.sch.bme.hu") by vger.kernel.org with ESMTP
-        id <S129572AbQK0SIV>; Mon, 27 Nov 2000 13:08:21 -0500
-Date: Mon, 27 Nov 2000 18:37:48 +0100 (CET)
-From: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PROBLEM: crashing kernels
-In-Reply-To: <Pine.GSO.3.96.1001127182529.13774T-100000@delta.ds2.pg.gda.pl>
-Message-ID: <Pine.LNX.3.96.1001127183433.9692E-100000@sneaker.sch.bme.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S129645AbQK0SJI>; Mon, 27 Nov 2000 13:09:08 -0500
+Received: from ife.ee.ethz.ch ([129.132.29.2]:63473 "EHLO ife.ee.ethz.ch")
+        by vger.kernel.org with ESMTP id <S129525AbQK0SI4>;
+        Mon, 27 Nov 2000 13:08:56 -0500
+Date: Mon, 27 Nov 2000 18:38:52 +0100 (MET)
+From: Thomas Sailer <sailer@ife.ee.ethz.ch>
+Message-Id: <200011271738.eARHcqM05977@eldrich.ee.ethz.ch>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH]: 2.4.0-testx: ac97_codec
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In the current ac97_codec, computation of attenuation values may overflow
+the register width, thus resulting in maximum volume when minimum was requested.
+This patch adds overflow checks and limitations.
 
-> > How could an APIC 'forget' how to deliver the interrupts? Could this mean
-> > a problem with the mainboard, or with the CPU?
-> 
->  Do you have an USB host controller in your system?  If so, could you
-> please send me an output of `/sbin/lspci' and the contents of
-> /proc/interrupts?  I wonder if this might be the reason...
+Tom
 
-Nope, we also disabled all unneeded periferies, like serial and parallel
-ports.
-
-But maybe the /proc/interrupts could be usefull:
-           CPU0       CPU1       
-  0:     413111          0          XT-PIC  timer
-  1:        687          0          XT-PIC  keyboard
-  2:          0          0          XT-PIC  cascade
-  7:     751660          0          XT-PIC  eth1
- 10:    7377626          0          XT-PIC  eth0
- 11:     238981          0          XT-PIC  Mylex AcceleRAID 352, aic7xxx, aic7xxx
- 13:          1          0          XT-PIC  fpu
- 14:         10          0          XT-PIC  ide0
-NMI:          0
-ERR:          0
-
-This is how it looks like, since we have the apic disabled. I've tried to
-avoid that the Mylex and the Adaptec (aic7xxx) get the same irq, but the
-bios was too lame on these things :(
-
-+--------------------------------------------+
-| Nagy Attila                                |
-|   mailto:mrbig@sneaker.sch.bme.hu          |
-+--------------------------------------------+
-
+--- ac97_codec.c.orig	Thu Nov 23 13:13:13 2000
++++ ac97_codec.c	Thu Nov 23 13:20:01 2000
+@@ -284,6 +284,10 @@
+ 			if (oss_channel == SOUND_MIXER_IGAIN) {
+ 				right = (right * mh->scale) / 100;
+ 				left = (left * mh->scale) / 100;
++				if (right >= mh->scale)
++					right = mh->scale-1;
++				if (left >= mh->scale)
++					left = mh->scale-1;
+ 			} else {
+ 				/* these may have 5 or 6 bit resolution */
+ 				if (oss_channel == SOUND_MIXER_VOLUME ||
+@@ -294,27 +298,49 @@
+ 
+ 				right = ((100 - right) * scale) / 100;
+ 				left = ((100 - left) * scale) / 100;
+-			}			
++				if (right >= scale)
++					right = scale-1;
++				if (left >= scale)
++					left = scale-1;
++			}
+ 			val = (left << 8) | right;
+ 		}
+ 	} else if (oss_channel == SOUND_MIXER_BASS) {
+ 		val = codec->codec_read(codec , mh->offset) & ~0x0f00;
+-		val |= ((((100 - left) * mh->scale) / 100) << 8) & 0x0e00;
++		left = ((100 - left) * mh->scale) / 100;
++		if (left >= mh->scale)
++			left = mh->scale-1;
++		val |= (left << 8) & 0x0e00;
+ 	} else if (oss_channel == SOUND_MIXER_TREBLE) {
+ 		val = codec->codec_read(codec , mh->offset) & ~0x000f;
+-		val |= (((100 - left) * mh->scale) / 100) & 0x000e;
++		left = ((100 - left) * mh->scale) / 100;
++		if (left >= mh->scale)
++			left = mh->scale-1;
++		val |= left & 0x000e;
+ 	} else if(left == 0) {
+ 		val = AC97_MUTE;
+ 	} else if (oss_channel == SOUND_MIXER_SPEAKER) {
+-		val = (((100 - left) * mh->scale) / 100) << 1;
++		left = ((100 - left) * mh->scale) / 100;
++		if (left >= mh->scale)
++			left = mh->scale-1;
++		val = left << 1;
+ 	} else if (oss_channel == SOUND_MIXER_PHONEIN) {
+-		val = (((100 - left) * mh->scale) / 100);
++		left = ((100 - left) * mh->scale) / 100;
++		if (left >= mh->scale)
++			left = mh->scale-1;
++		val = left;
+ 	} else if (oss_channel == SOUND_MIXER_PHONEOUT) {
+ 		scale = (1 << codec->bit_resolution);
+-		val = (((100 - left) * scale) / 100);
++		left = ((100 - left) * scale) / 100;
++		if (left >= mh->scale)
++			left = mh->scale-1;
++		val = left;
+ 	} else if (oss_channel == SOUND_MIXER_MIC) {
+ 		val = codec->codec_read(codec , mh->offset) & ~0x801f;
+-		val |= (((100 - left) * mh->scale) / 100);
++		left = ((100 - left) * mh->scale) / 100;
++		if (left >= mh->scale)
++			left = mh->scale-1;
++		val |= left;
+ 		/*  the low bit is optional in the tone sliders and masking
+ 		    it lets us avoid the 0xf 'bypass'.. */
+ 	}
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

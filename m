@@ -1,71 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbTDEAVt (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 19:21:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbTDEAVt (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 19:21:49 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:41034 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S261528AbTDEAVT (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 19:21:19 -0500
-Date: Fri, 4 Apr 2003 16:31:54 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: objrmap and vmtruncate
-Message-Id: <20030404163154.77f19d9e.akpm@digeo.com>
-In-Reply-To: <20030405000352.GF16293@dualathlon.random>
-References: <Pine.LNX.4.44.0304041453160.1708-100000@localhost.localdomain>
-	<20030404105417.3a8c22cc.akpm@digeo.com>
-	<20030404214547.GB16293@dualathlon.random>
-	<20030404150744.7e213331.akpm@digeo.com>
-	<20030405000352.GF16293@dualathlon.random>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S261521AbTDEAUx (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 19:20:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTDEAUx (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 19:20:53 -0500
+Received: from siaab1aa.compuserve.com ([149.174.40.1]:54937 "EHLO
+	siaab1aa.compuserve.com") by vger.kernel.org with ESMTP
+	id S261521AbTDEAUs (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 19:20:48 -0500
+Date: Fri, 4 Apr 2003 19:29:57 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [PATCH] New cpu macro and i386 cleanup
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304041931_MC3-1-3308-9B07@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Apr 2003 00:32:43.0204 (UTC) FILETIME=[DF28E840:01C2FB0A]
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> the worst part IMHO is that it screwup the vma making the vma->vm_file
-> totally wrong for the pages in the vma.
-
-Not sure what you mean here.  All pages in the vma are backed by the file at
-vm_file.  It is vm_pgoff which is meaningless.
-
-As for your other concerns: yes, I hear you.  I suspect something will have
-to give.  Ingo has a better feel for the problems which this code is solving
-and hopefully he can comment.
-
-Perhaps it is useful to itemise the prblems which we're trying to solve here:
-
-- ZONE_NORMAL consumption by pte_chains
-
-  Solved by objrmap and presumably page clustering.
-
-- ZONE_NORMAL consumption by VMAs
-
-  Solved by remap_file_pages.  Neither objrmap nor page clustering will
-  help here.
-
-- pte_chain setup and teardown CPU cost.
-
-  objrmap does not seem to help.  Page clustering might, but is unlikely to
-  be enabled on the machines which actually care about the overhead.
-
-- get_unmapped_area() search complexity.
-
-  Solved by remap_file_pages and by as-yet unimplemented algorithmic rework.
-
-- pagefault frequency and TLB invalidation cost.
-
-  Solved by MAP_POPULATE, could also be solved by MAP_PREFAULT (but it's
-  not really a demonstrated problem).
-
-Anything else?
+ This annoyed me just enough to try and fix it.  I'd
+fix all the rest but I know how annoyed people get at
+massive changes:
 
 
-So looking at the above, remap_file_pages() actually has pretty good
-coverage.
+diff -u --exclude-from=/home/me/.exclude -r linux-2.5.66-ref/include/linux/smp.h linux-2.5.66-uni/include/linux/smp.h
+--- linux-2.5.66-ref/include/linux/smp.h	Tue Mar  4 22:29:21 2003
++++ linux-2.5.66-uni/include/linux/smp.h	Sat Mar 29 15:05:56 2003
+@ -134,6 +134,8 @
+ }
+ #endif /* !SMP */
+ 
++#define is_current_cpu(cpu)	((cpu) == smp_processor_id())
++
+ #define get_cpu()		({ preempt_disable(); smp_processor_id(); })
+ #define put_cpu()		preempt_enable()
+ #define put_cpu_no_resched()	preempt_enable_no_resched()
+diff -u --exclude-from=/home/me/.exclude -r linux-2.5.66-ref/arch/i386/kernel/cpuid.c linux-2.5.66-uni/arch/i386/kernel/cpuid.c
+--- linux-2.5.66-ref/arch/i386/kernel/cpuid.c	Sat Mar 29 09:16:32 2003
++++ linux-2.5.66-uni/arch/i386/kernel/cpuid.c	Fri Apr  4 18:45:19 2003
+@ -56,7 +56,7 @
+ {
+   struct cpuid_command *cmd = (struct cpuid_command *) cmd_block;
+   
+-  if ( cmd->cpu == smp_processor_id() )
++  if ( is_current_cpu(cmd->cpu) )
+     cpuid(cmd->reg, &cmd->data[0], &cmd->data[1], &cmd->data[2], &cmd->data[3]);
+ }
+ 
+@ -65,7 +65,7 @
+   struct cpuid_command cmd;
+   
+   preempt_disable();
+-  if ( cpu == smp_processor_id() ) {
++  if ( is_current_cpu(cpu) ) {
+     cpuid(reg, &data[0], &data[1], &data[2], &data[3]);
+   } else {
+     cmd.cpu  = cpu;
+diff -u --exclude-from=/home/me/.exclude -r linux-2.5.66-ref/arch/i386/kernel/msr.c linux-2.5.66-uni/arch/i386/kernel/msr.c
+--- linux-2.5.66-ref/arch/i386/kernel/msr.c	Sat Mar 29 09:16:32 2003
++++ linux-2.5.66-uni/arch/i386/kernel/msr.c	Fri Apr  4 18:47:27 2003
+@ -100,7 +100,7 @
+ {
+   struct msr_command *cmd = (struct msr_command *) cmd_block;
+   
+-  if ( cmd->cpu == smp_processor_id() )
++  if ( is_current_cpu(cmd->cpu) )
+     cmd->err = wrmsr_eio(cmd->reg, cmd->data[0], cmd->data[1]);
+ }
+ 
+@ -108,7 +108,7 @
+ {
+   struct msr_command *cmd = (struct msr_command *) cmd_block;
+   
+-  if ( cmd->cpu == smp_processor_id() )
++  if ( is_current_cpu(cmd->cpu) )
+     cmd->err = rdmsr_eio(cmd->reg, &cmd->data[0], &cmd->data[1]);
+ }
+ 
+@ -118,7 +118,7 @
+   int ret;
+ 
+   preempt_disable();
+-  if ( cpu == smp_processor_id() ) {
++  if ( is_current_cpu(cpu) ) {
+     ret = wrmsr_eio(reg, eax, edx);
+     preempt_enable();
+     return ret;
+@ -138,7 +138,7 @
+ {
+   struct msr_command cmd;
+ 
+-  if ( cpu == smp_processor_id() ) {
++  if ( is_current_cpu(cpu) ) {
+     return rdmsr_eio(reg, eax, edx);
+   } else {
+     cmd.cpu = cpu;
 
+--
+ Chuck
+ I am not a number!

@@ -1,42 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbULNPwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbULNPz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbULNPwY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 10:52:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbULNPwY
+	id S261527AbULNPz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 10:55:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbULNPz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 10:52:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63142 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261289AbULNPwX (ORCPT
+	Tue, 14 Dec 2004 10:55:57 -0500
+Received: from relay01.pair.com ([209.68.5.15]:51725 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S261527AbULNPzu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 10:52:23 -0500
-Date: Tue, 14 Dec 2004 07:52:06 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Harald Welte <laforge@netfilter.org>
-cc: Andries Brouwer <aebr@win.tue.nl>, Patrick McHardy <kaber@trash.net>,
-       akpm@osdl.org, Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       coreteam@netfilter.org, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [netfilter-core] [PATCH] no __initdata in netfilter?
-In-Reply-To: <20041214130041.GU22577@sunbeam.de.gnumonks.org>
-Message-ID: <Pine.LNX.4.58.0412140750230.3279@ppc970.osdl.org>
-References: <20041114013724.GA21219@apps.cwi.nl> <41970FAD.6010501@trash.net>
- <20041114112610.GB8680@pclin040.win.tue.nl> <20041214130041.GU22577@sunbeam.de.gnumonks.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Dec 2004 10:55:50 -0500
+X-pair-Authenticated: 66.134.112.218
+Subject: Re: [ACPI] [ACPI][2.6.10-rc3][SUSPEND] S3 mode - Cannot resume
+	from PCI devices
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Shawn Starr <shawn.starr@rogers.com>, linux-kernel@vger.kernel.org,
+       Len Brown <len.brown@intel.com>, acpi-devel@lists.sourceforge.net
+In-Reply-To: <20041214110648.GA2291@elf.ucw.cz>
+References: <200412100315.21725.shawn.starr@rogers.com>
+	 <20041214110648.GA2291@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 14 Dec 2004 10:55:17 -0500
+Message-Id: <1103039717.10857.53.camel@athena.fprintf.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 14 Dec 2004, Harald Welte wrote:
+On Tue, 2004-12-14 at 12:06 +0100, Pavel Machek wrote:
+> Hi!
 > 
-> Pleaes pull out that change again and submit one that adds a comment, or
-> alternatively pick up the (incremental) change attached to this mail.  I
-> hope this makes your checker not spit any warnings.
+> > I have netconsole configured I can see kernel messages on a remote machine, but when I suspend the laptop it goes into S3.
+> > I am unable to capture the (oops) the laptop when bringing it out of S3. It remains in a half suspended-unsuspended state.
+> > (the crescent moon LED is solidly on, video is back on (can see the 'Back to C!' string), cannot use sysctl key combos, 
+> > netconsole doesn't display the output since no PCI devices resume (the video is AGP onboard).
+> > 
+> > Is there any way I can capture this output somehow? I don't think even serial would work (it would be a USB to serial converter which would be PCI)
+> > or even trying to get this to print to lp0 since the laptop is totally unresponsive in its state.
+> > 
+> > I booted into single and sh for init, mounted /proc /sys and with no kernel modules it would fail to resume after suspending.
+> > 
+> > This isn't a nice regression.
+> 
+> So what was the last kernel where it worked?
+> 										Pavel
+> 
 
-You guys are the ones that should do the work, and go through the proper 
-channels. Do the comment, and go through Davem etc. I personally think 
-that Andries' patch did the right thing, but hey, whatever. But asking 
-_him_ to do something he disagrees with is just silly.
+For me, 2.6.9-rc4.  I've tried every -rc and -mm since, and it cannot
+resume.  (I get no video on resume, even with 2.6.9-rc4, until X
+resumes, so I get no information what-so-ever, just a dead box.  That's
+why I haven't reported this before.)
 
-		Linus
+I have a Dell Inspiron 8600 (Centrino) with the nvidia card.
+
+2.6.9-rc4 suspends and resumes fine, both to memory and disk.  Since
+then, nothing has resumed from suspend-to-ram, but occasional versions
+(such as 10-rc3-mm1) resumes from suspend-to-disk.
+
+I can give any information that people want.
+
+Daniel

@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbUKUUr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbUKUUth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbUKUUr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 15:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUKUUr7
+	id S261792AbUKUUth (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 15:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbUKUUtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 15:47:59 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33031 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261710AbUKUUr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 15:47:58 -0500
-Date: Sun, 21 Nov 2004 20:47:52 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [2.6 patch] cyber2000fb.c: misc cleanups
-Message-ID: <20041121204752.A23300@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
-	linux-fbdev-devel@lists.sourceforge.net
-References: <20041121153614.GR2829@stusta.de>
+	Sun, 21 Nov 2004 15:49:08 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:37314 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261775AbUKUUsd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 15:48:33 -0500
+Date: Sun, 21 Nov 2004 22:50:59 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
+Message-ID: <20041121215059.GA7571@elte.hu>
+References: <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <419D13D3.8020409@stud.feec.vutbr.cz> <20041119100541.GA28243@elte.hu> <1100873472.4051.31.camel@localhost.localdomain> <419E288E.8010408@cybsft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041121153614.GR2829@stusta.de>; from bunk@stusta.de on Sun, Nov 21, 2004 at 04:36:14PM +0100
+In-Reply-To: <419E288E.8010408@cybsft.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 21, 2004 at 04:36:14PM +0100, Adrian Bunk wrote:
-> The patch below ncludes the following cleanups for 
-> drivers/video/cyber2000fb.c:
-> - remove five EXPORT_SYMBOL'ed but completely unused functions
-> - make some needlessly global code static
 
-These are used by the video capture code which isn't merged, but is
-used by people.  Rejected.
+* K.R. Foley <kr@cybsft.com> wrote:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+> >Looking into this, it is because the e100 uses a shared interrupt.  On
+> >setup (see drivers/net/e100.c: e100_up) it disables the irq that it will
+> >use, and then calls request_irq which calls setup_irq which zeros out
+> >the depth of the irq if it is not shared.  So if the e100 is the first
+> >to be loaded, then you get this message. 
+
+> Actually I think it shouldn't call either enable or disable because it
+> is shared (or allowed to be shared). After creating a patch myself to
+> fix this I realized that it had already been fixed in the newest
+> version of the driver on sourceforge. Anyway if you are interested in
+> this fix temporarily, here it is.
+
+i've included this in my tree, will drop it once -mm merges the
+sourceforge e100 driver.
+
+	Ingo

@@ -1,614 +1,1183 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270867AbTG0XaA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 19:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270539AbTG0XaA
+	id S270814AbTG0X3C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 19:29:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270539AbTG0X3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 19:30:00 -0400
+	Sun, 27 Jul 2003 19:29:01 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:14071 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S273018AbTG0XDM (ORCPT
+	by vger.kernel.org with ESMTP id S273019AbTG0XDM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 27 Jul 2003 19:03:12 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: acpi-devel@lists.sourceforge.net, Andew Grover <andrew.grover@intel.com>,
-       lkml <linux-kernel@vger.kernel.org>, torvalds@osdl.org
-Subject: [PATCH] ACPI patch which fixes all my IRQ problems on nforce2
-Date: Sun, 27 Jul 2003 20:16:56 +0100
-User-Agent: KMail/1.5.2
-Cc: ollo.diab@gmx.de, Marcelo Penna Guerra <eu@marcelopenna.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_oUCJ/+gD0XmJ84e"
-Message-Id: <200307272016.56573.adq_dvb@lidskialf.net>
+Date: Sun, 27 Jul 2003 20:59:40 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307271959.h6RJxeEd029557@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: PATCH: docs for updated sk98 from vendor
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-00=_oUCJ/+gD0XmJ84e
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hi, this patch fixes all ACPI problems on the nforce2 chipset for me. 
-
-Here is the feature list:
-
-1) Make IO-APIC use correct polarity/mode settings from ACPI.
-
-2) Detect  buggy ACPI code when setting IRQ routing -- warn the user and 
-attempt to fallback to non-ACPI configuration.
-
-3) Add /proc/irq/io_apic so that the contents of the IO-APIC can be seen on a 
-live system.
-
-4) Fix potential problem in pci_link.c
-
-The current ACPI code does this:
-a) Scan for all PCI Link devices
-b) Allocate an IRQ to each link device.
-c) Setup PCI Routing table entries.
-
-This is error-prone. In my BIOS, there is one set of Link devices for PIC mode 
-and one set for APIC mode. In the AML code however, they both talk to the 
-*same* hardware on the board.
-
-So by luck, the PIC-mode link devices are set up first, then the APIC ones. If 
-this order was reversed, the IRQs in APIC mode would be completely wrong.
-
-This patch changes the code so that it only allocates IRQs to link devices 
-while setting up the PCI routing table entries, so only the PIC or APIC ones 
-will be set up as appropriate. 
-
-5) Boot-enabled IRQs cannot be relied upon.
-
-Although the _CRS method in my ACPI does return the correct IRQ, this is NOT 
-necessarily what the hardware is set to. The patch forces every link device 
-IRQ to be set at least once.
-
-This _may_ break ACPI IRQ routing on the Toshiba 5005-S504  (I hope I have 
-managed to support it though). Can someone check please? Quote from 
-pci_link.c:
-         * Note that we don't validate that the current IRQ (_CRS) exists
-         * within the possible IRQs (_PRS): we blindly assume that whatever
-         * IRQ a boot-enabled Link device is set to is the correct one.
-         * (Required to support systems such as the Toshiba 5005-S504.)
-
---Boundary-00=_oUCJ/+gD0XmJ84e
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="linux-2.5.75-acpi-irqparams-final3.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="linux-2.5.75-acpi-irqparams-final3.patch"
-
---- linux-2.5.75.orig/arch/i386/kernel/io_apic.c	2003-07-10 21:07:34.000000000 +0100
-+++ linux-2.5.75/arch/i386/kernel/io_apic.c	2003-07-27 19:18:54.000000000 +0100
-@@ -1544,6 +1544,142 @@
- 	printk(KERN_DEBUG "... PIC ELCR: %04x\n", v);
- }
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/Documentation/networking/00-INDEX linux-2.6.0-test2-ac1/Documentation/networking/00-INDEX
+--- linux-2.6.0-test2/Documentation/networking/00-INDEX	2003-07-10 21:12:59.000000000 +0100
++++ linux-2.6.0-test2-ac1/Documentation/networking/00-INDEX	2003-07-23 15:59:57.000000000 +0100
+@@ -97,7 +97,8 @@
+ sis900.txt
+ 	- SiS 900/7016 Fast Ethernet device driver info.
+ sk98lin.txt
+-	- SysKonnect SK-NET (SK-98xx) Gigabit Ethernet driver info.
++	- Marvell Yukon Chipset / SysKonnect SK-98xx compliant Gigabit
++	  Ethernet Adapter family driver info
+ skfp.txt
+ 	- SysKonnect FDDI (SK-5xxx, Compaq Netelligent) driver info.
+ smc9.txt
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/Documentation/networking/sk98lin.txt linux-2.6.0-test2-ac1/Documentation/networking/sk98lin.txt
+--- linux-2.6.0-test2/Documentation/networking/sk98lin.txt	2003-07-10 21:12:10.000000000 +0100
++++ linux-2.6.0-test2-ac1/Documentation/networking/sk98lin.txt	2003-07-23 15:59:57.000000000 +0100
+@@ -1,120 +1,161 @@
+-(C)Copyright 1999-2001 SysKonnect GmbH.
++(C)Copyright 1999-2003 Marvell(R).
+ All rights reserved
+ ===========================================================================
  
-+int io_apic_irq_read_proc (char *page, char **start, off_t off,
-+   			   int count, int *eof, void *data)
-+{
-+	int apic, i;
-+	union IO_APIC_reg_00 reg_00;
-+	union IO_APIC_reg_01 reg_01;
-+	union IO_APIC_reg_02 reg_02;
-+	union IO_APIC_reg_03 reg_03;
-+	unsigned long flags;
-+        char* start_page;     
-+   
-+        start_page = page;
-+ 	page += sprintf(page, "number of MP IRQ sources: %d.\n", mp_irq_entries);
-+	for (i = 0; i < nr_ioapics; i++)
-+		page += sprintf(page, "number of IO-APIC #%d registers: %d.\n",
-+		       mp_ioapics[i].mpc_apicid, nr_ioapic_registers[i]);
+-sk98lin.txt created 28-May-2001
++sk98lin.txt created 18-Jul-2003
+ 
+-Readme File for sk98lin v4.06
+-SK-NET Gigabit Ethernet PCI driver for LINUX
++Readme File for sk98lin v6.14
++Marvell Yukon/SysKonnect SK-98xx Gigabit Ethernet Adapter family driver for LINUX
+ 
+ This file contains
+-(1) OVERVIEW
+-(2) REQUIRED FILES
+-(3) INSTALLATION
+-(4) INCLUSION OF ADAPTER AT SYSTEM START
+-(5) DRIVER PARAMETERS
+-(6) LARGE FRAME SUPPORT
+-(7) TROUBLESHOOTING
+-(8) HISTORY
++ 1  Overview
++ 2  Required Files
++ 3  Installation
++    3.1  Driver Installation
++    3.2  Inclusion of adapter at system start
++ 4  Driver Parameters
++    4.1  Per-Port Parameters
++    4.2  Adapter Parameters
++ 5  Large Frame Support
++ 6  VLAN and Link Aggregation Support (IEEE 802.1, 802.1q, 802.3ad)
++ 7  Troubleshooting
++ 8  History
+ 
+ ===========================================================================
+ 
+ 
+-(1) OVERVIEW
+-============
++1  Overview
++===========
+ 
+-The sk98lin driver supports the SysKonnect SK-NET Gigabit Ethernet
+-Adapter SK-98xx family on Linux 2.2.x and above.
+-It has been tested with Linux on Intel/x86 machines.
+-From v3.02 on, the driver is integrated in the linux kernel source.
++The sk98lin driver supports the Marvell Yukon and SysKonnect 
++SK-98xx/SK-95xx compliant Gigabit Ethernet Adapter on Linux. It has 
++been tested with Linux on Intel/x86 machines.
+ ***
+ 
+ 
+-(2) REQUIRED FILES
+-==================
++2  Required Files
++=================
+ 
+ The linux kernel source.
+ No additional files required.
+ ***
+ 
+ 
+-(3) INSTALLATION
+-================
++3  Installation
++===============
 +
-+	for (apic = 0; apic < nr_ioapics; apic++) {
++It is recommended to download the latest version of the driver from the 
++SysKonnect web site www.syskonnect.com. If you have downloaded the latest
++driver, the Linux kernel has to be patched before the driver can be 
++installed. For details on how to patch a Linux kernel, refer to the 
++patch.txt file.
 +
-+	spin_lock_irqsave(&ioapic_lock, flags);
-+	reg_00.raw = io_apic_read(apic, 0);
-+	reg_01.raw = io_apic_read(apic, 1);
-+	if (reg_01.bits.version >= 0x10)
-+		reg_02.raw = io_apic_read(apic, 2);
-+	if (reg_01.bits.version >= 0x20)
-+		reg_03.raw = io_apic_read(apic, 3);
-+	spin_unlock_irqrestore(&ioapic_lock, flags);
-+
-+	page += sprintf(page, "IO APIC #%d......\n", mp_ioapics[apic].mpc_apicid);
-+	page += sprintf(page, ".... register #00: %08X\n", reg_00.raw);
-+	page += sprintf(page, ".......    : physical APIC id: %02X\n", reg_00.bits.ID);
-+	page += sprintf(page, ".......    : Delivery Type: %X\n", reg_00.bits.delivery_type);
-+	page += sprintf(page, ".......    : LTS          : %X\n", reg_00.bits.LTS);
-+	if (reg_00.bits.ID >= APIC_BROADCAST_ID)
-+		page += sprintf(page, "UNEXPECTED_IO_APIC\n");
-+	if (reg_00.bits.__reserved_1 || reg_00.bits.__reserved_2)
-+		page += sprintf(page, "UNEXPECTED_IO_APIC\n");	     
-+
-+	page += sprintf(page, ".... register #01: %08X\n", reg_01.raw);
-+	page += sprintf(page, ".......     : max redirection entries: %04X\n", reg_01.bits.entries);
-+	if (	(reg_01.bits.entries != 0x0f) && /* older (Neptune) boards */
-+		(reg_01.bits.entries != 0x17) && /* typical ISA+PCI boards */
-+		(reg_01.bits.entries != 0x1b) && /* Compaq Proliant boards */
-+		(reg_01.bits.entries != 0x1f) && /* dual Xeon boards */
-+		(reg_01.bits.entries != 0x22) && /* bigger Xeon boards */
-+		(reg_01.bits.entries != 0x2E) &&
-+		(reg_01.bits.entries != 0x3F)
-+	)
-+		page += sprintf(page, "UNEXPECTED_IO_APIC\n");	     
-+
-+	page += sprintf(page, ".......     : PRQ implemented: %X\n", reg_01.bits.PRQ);
-+	page += sprintf(page, ".......     : IO APIC version: %04X\n", reg_01.bits.version);
-+	if (	(reg_01.bits.version != 0x01) && /* 82489DX IO-APICs */
-+		(reg_01.bits.version != 0x10) && /* oldest IO-APICs */
-+		(reg_01.bits.version != 0x11) && /* Pentium/Pro IO-APICs */
-+		(reg_01.bits.version != 0x13) && /* Xeon IO-APICs */
-+		(reg_01.bits.version != 0x20)    /* Intel P64H (82806 AA) */
-+	)
-+		page += sprintf(page, "UNEXPECTED_IO_APIC\n");
-+	if (reg_01.bits.__reserved_1 || reg_01.bits.__reserved_2)
-+		page += sprintf(page, "UNEXPECTED_IO_APIC\n");
-+
-+	/*
-+	 * Some Intel chipsets with IO APIC VERSION of 0x1? don't have reg_02,
-+	 * but the value of reg_02 is read as the previous read register
-+	 * value, so ignore it if reg_02 == reg_01.
-+	 */
-+	if (reg_01.bits.version >= 0x10 && reg_02.raw != reg_01.raw) {
-+		page += sprintf(page, ".... register #02: %08X\n", reg_02.raw);
-+		page += sprintf(page, ".......     : arbitration: %02X\n", reg_02.bits.arbitration);
-+		if (reg_02.bits.__reserved_1 || reg_02.bits.__reserved_2)
-+	     		page += sprintf(page, "UNEXPECTED_IO_APIC\n");
-+	}
-+
-+	/*
-+	 * Some Intel chipsets with IO APIC VERSION of 0x2? don't have reg_02
-+	 * or reg_03, but the value of reg_0[23] is read as the previous read
-+	 * register value, so ignore it if reg_03 == reg_0[12].
-+	 */
-+	if (reg_01.bits.version >= 0x20 && reg_03.raw != reg_02.raw &&
-+	    reg_03.raw != reg_01.raw) {
-+		page += sprintf(page, ".... register #03: %08X\n", reg_03.raw);
-+		page += sprintf(page, ".......     : Boot DT    : %X\n", reg_03.bits.boot_DT);
-+		if (reg_03.bits.__reserved_1)
-+	     		page += sprintf(page, "UNEXPECTED_IO_APIC\n");
-+	}
-+
-+	page += sprintf(page, ".... IRQ redirection table:\n");
-+
-+	page += sprintf(page, " NR Log Phy Mask Trig IRR Pol"
-+			  " Stat Dest Deli Vect:   \n");
-+
-+	for (i = 0; i <= reg_01.bits.entries; i++) {
-+		struct IO_APIC_route_entry entry;
-+
-+		spin_lock_irqsave(&ioapic_lock, flags);
-+		*(((int *)&entry)+0) = io_apic_read(apic, 0x10+i*2);
-+		*(((int *)&entry)+1) = io_apic_read(apic, 0x11+i*2);
-+		spin_unlock_irqrestore(&ioapic_lock, flags);
-+
-+		page += sprintf(page, " %02x %03X %02X  ",
-+			i,
-+			entry.dest.logical.logical_dest,
-+			entry.dest.physical.physical_dest
-+		);
-+
-+		page += sprintf(page, "%1d    %1d    %1d   %1d   %1d    %1d    %1d    %02X\n",
-+			entry.mask,
-+			entry.trigger,
-+			entry.irr,
-+			entry.polarity,
-+			entry.delivery_status,
-+			entry.dest_mode,
-+			entry.delivery_mode,
-+			entry.vector
-+		);
-+	}
-+	}
-+	page += sprintf(page, "IRQ to pin mappings:\n");
-+	for (i = 0; i < NR_IRQS; i++) {
-+		struct irq_pin_list *entry = irq_2_pin + i;
-+		if (entry->pin < 0)
-+			continue;
-+		page += sprintf(page, "IRQ%d ", i);
-+		for (;;) {
-+			page += sprintf(page, "-> %d:0x%x", entry->apic, entry->pin);
-+			if (!entry->next)
-+				break;
-+			entry = irq_2_pin + entry->next;
-+		}
-+		page += sprintf(page, "\n");
-+	}
-+
-+	return page - start_page;
-+}
-+
- static void __init enable_IO_APIC(void)
- {
- 	union IO_APIC_reg_01 reg_01;
-@@ -2313,7 +2449,7 @@
- }
++3.1  Driver Installation
++------------------------
  
+ The following steps describe the actions that are required to install
+ the driver and to start it manually. These steps should be carried
+ out for the initial driver setup. Once confirmed to be ok, they can
+-be included in the system start which is described in the next
+-chapter.
++be included in the system start.
  
--int io_apic_set_pci_routing (int ioapic, int pin, int irq)
-+int io_apic_set_pci_routing (int ioapic, int pin, int irq, int edge_level, int active_high_low)
- {
- 	struct IO_APIC_route_entry entry;
- 	unsigned long flags;
-@@ -2335,19 +2471,23 @@
- 	entry.delivery_mode = INT_DELIVERY_MODE;
- 	entry.dest_mode = INT_DEST_MODE;
- 	entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
--	entry.mask = 1;					 /* Disabled (masked) */
--	entry.trigger = 1;				   /* Level sensitive */
--	entry.polarity = 1;					/* Low active */
-+	entry.trigger = edge_level;
-+	entry.polarity = active_high_low;
-+	entry.mask  = 1;
- 
- 	add_pin_to_irq(irq, ioapic, pin);
- 
- 	entry.vector = assign_irq_vector(irq);
- 
- 	printk(KERN_DEBUG "IOAPIC[%d]: Set PCI routing entry (%d-%d -> 0x%x -> "
--		"IRQ %d)\n", ioapic, 
--		mp_ioapics[ioapic].mpc_apicid, pin, entry.vector, irq);
-+		"IRQ %d Mode:%i Active:%i)\n", ioapic, 
-+		mp_ioapics[ioapic].mpc_apicid, pin, entry.vector, irq, edge_level, active_high_low);
- 
-+	if (edge_level) {
- 	irq_desc[irq].handler = &ioapic_level_irq_type;
-+	} else {
-+		irq_desc[irq].handler = &ioapic_edge_irq_type;
-+	}
- 
- 	set_intr_gate(entry.vector, interrupt[irq]);
- 
---- linux-2.5.75.orig/arch/i386/kernel/mpparse.c	2003-07-10 21:06:59.000000000 +0100
-+++ linux-2.5.75/arch/i386/kernel/mpparse.c	2003-07-27 19:18:54.000000000 +0100
-@@ -1065,7 +1065,7 @@
- 
- 	ioapic_pin = irq - mp_ioapic_routing[ioapic].irq_start;
- 
--	io_apic_set_pci_routing(ioapic, ioapic_pin, irq);
-+	io_apic_set_pci_routing(ioapic, ioapic_pin, irq, 1, 1); // Active low, edge triggered
- }
- 
- #endif /*CONFIG_ACPI_HT_ONLY*/
-@@ -1080,6 +1080,8 @@
- 	int			ioapic_pin = 0;
- 	int			irq = 0;
- 	int			idx, bit = 0;
-+	int			edge_level = 0;
-+	int			active_high_low = 0;
- 
- 	/*
- 	 * Parsing through the PCI Interrupt Routing Table (PRT) and program
-@@ -1090,12 +1092,16 @@
- 
- 		/* Need to get irq for dynamic entry */
- 		if (entry->link.handle) {
--			irq = acpi_pci_link_get_irq(entry->link.handle, entry->link.index);
-+			irq = acpi_pci_link_get_irq(entry->link.handle, entry->link.index, &edge_level, &active_high_low);
- 			if (!irq)
- 				continue;
- 		}
--		else
-+		else {
-+			/* Hardwired IRQ. Assume PCI standard settings */
- 			irq = entry->link.index;
-+			edge_level = 1;
-+			active_high_low = 1;
-+		}
- 
- 		/* Don't set up the ACPI SCI because it's already set up */
- 		if (acpi_fadt.sci_int == irq)
-@@ -1130,7 +1136,7 @@
- 
- 		mp_ioapic_routing[ioapic].pin_programmed[idx] |= (1<<bit);
- 
--		if (!io_apic_set_pci_routing(ioapic, ioapic_pin, irq))
-+		if (!io_apic_set_pci_routing(ioapic, ioapic_pin, irq, edge_level, active_high_low))
- 			entry->irq = irq;
- 
- 		printk(KERN_DEBUG "%02x:%02x:%02x[%c] -> %d-%d -> IRQ %d\n",
-@@ -1140,6 +1146,9 @@
- 			entry->irq);
- 	}
- 	
-+
-+        
-+   
- 	return;
- }
- 
---- linux-2.5.75.orig/arch/i386/kernel/irq.c	2003-07-10 21:04:50.000000000 +0100
-+++ linux-2.5.75/arch/i386/kernel/irq.c	2003-07-27 19:18:54.000000000 +0100
-@@ -1028,6 +1028,13 @@
- 
- unsigned long prof_cpu_mask = -1;
- 
-+#ifdef CONFIG_X86_IO_APIC
-+static struct proc_dir_entry * io_apic_irq_entry;
-+
-+extern int io_apic_irq_read_proc (char *page, char **start, off_t off,
-+   			          int count, int *eof, void *data);
-+#endif  
-+
- void init_irq_proc (void)
- {
- 	struct proc_dir_entry *entry;
-@@ -1052,5 +1059,24 @@
- 	 */
- 	for (i = 0; i < NR_IRQS; i++)
- 		register_irq_proc(i);
-+   
-+#ifdef CONFIG_X86_IO_APIC
-+        if (smp_found_config) {
-+                if (!skip_ioapic_setup && nr_ioapics) {
-+	                struct proc_dir_entry* entry;
-+	   
-+		        /* create /proc/irq/io_apic */
-+		        entry = create_proc_entry("io_apic", 0400, root_irq_dir);
-+
-+		        if (entry) {
-+			        entry->nlink = 1;
-+			        entry->read_proc = io_apic_irq_read_proc;
-+		        }
-+
-+		        io_apic_irq_entry = entry;
-+		}
-+   
-+	}   
-+#endif	
- }
- 
---- linux-2.5.75.orig/drivers/acpi/pci_irq.c	2003-07-10 21:08:54.000000000 +0100
-+++ linux-2.5.75/drivers/acpi/pci_irq.c	2003-07-27 19:18:54.000000000 +0100
-@@ -249,7 +249,7 @@
- 	}
- 
- 	if (!entry->irq && entry->link.handle) {
--		entry->irq = acpi_pci_link_get_irq(entry->link.handle, entry->link.index);
-+		entry->irq = acpi_pci_link_get_irq(entry->link.handle, entry->link.index, NULL, NULL);
- 		if (!entry->irq) {
- 			ACPI_DEBUG_PRINT((ACPI_DB_WARN, "Invalid IRQ link routing entry\n"));
- 			return_VALUE(0);
-@@ -389,7 +389,9 @@
- 	}
- 
- 	/* Make sure all link devices have a valid IRQ. */
--	acpi_pci_link_check();
-+	if (acpi_pci_link_check()) {
-+		return_VALUE(-ENODEV);
-+	}
- 
- #ifdef CONFIG_X86_IO_APIC
- 	/* Program IOAPICs using data from PRT entries. */
---- linux-2.5.75.orig/drivers/acpi/pci_link.c	2003-07-27 19:56:49.000000000 +0100
-+++ linux-2.5.75/drivers/acpi/pci_link.c	2003-07-27 19:54:53.000000000 +0100
-@@ -69,6 +69,9 @@
- 
- struct acpi_pci_link_irq {
- 	u8			active;			/* Current IRQ */
-+	u8			edge_level;		/* All IRQs */
-+	u8			active_high_low;	/* All IRQs */
-+	u8			setonboot;
- 	u8			possible_count;
- 	u8			possible[ACPI_PCI_LINK_MAX_POSSIBLE];
- };
-@@ -118,6 +121,8 @@
- 			link->irq.possible[i] = p->interrupts[i];
- 			link->irq.possible_count++;
- 		}
-+		link->irq.edge_level = p->edge_level;
-+		link->irq.active_high_low = p->active_high_low;
- 		break;
- 	}
- 	case ACPI_RSTYPE_EXT_IRQ:
-@@ -136,6 +141,8 @@
- 			link->irq.possible[i] = p->interrupts[i];
- 			link->irq.possible_count++;
- 		}
-+		link->irq.edge_level = p->edge_level;
-+		link->irq.active_high_low = p->active_high_low;
- 		break;
- 	}
- 	default:
-@@ -264,7 +271,6 @@
- 	 * IRQ a boot-enabled Link device is set to is the correct one.
- 	 * (Required to support systems such as the Toshiba 5005-S504.)
- 	 */
+-NOTE 1: You must have 'root' access to the system to perform
+-        the following tasks.
+-NOTE 2:	IMPORTANT: In case of problems, please read the section
+-	"Troubleshooting" below.
 -
- 	link->irq.active = irq;
+-1) The driver can either be integrated into the kernel or it can
+-   be compiled as a module.
+-   Select the appropriate option during the kernel configuration.
+-   For use as a module, your kernel must have
+-   'loadable module support' enabled.
+-   For automatic driver start, you also need 'Kernel module loader'
+-   enabled.
+-   Configure those options, build and install the new kernel. If you
+-   choose to use the driver as a module, do "make modules" and
+-   "make modules_install".
+-   Reboot your system.
+-
+-2) Load the module manually by entering:
+-       modprobe sk98lin
+-   If the SysKonnect SK-98xx adapter is installed in your
+-   computer and you have a /proc filesystem, running the command
+-   'more /proc/net/dev' should produce an output containing a
+-   line with the following format:
+-       eth0:    0    0 ...
+-   which means that your adapter has been found and initialized.
++NOTE 1: To perform the following tasks you need 'root' access.
++
++NOTE 2: In case of problems, please read the section "Troubleshooting" 
++        below.
++
++The driver can either be integrated into the kernel or it can be compiled 
++as a module. Select the appropriate option during the kernel 
++configuration.
++
++Compile/use the driver as a module
++----------------------------------
++To compile the driver, go to the directory /usr/src/linux and
++execute the command "make menuconfig" or "make xconfig" and proceed as 
++follows:
++
++To integrate the driver permanently into the kernel, proceed as follows:
++
++1. Select the menu "Network device support" and then "Ethernet(1000Mbit)"
++2. Mark "Marvell Yukon/SysKonnect SK-98xx/SK-95xx Gigabit Ethernet Adapter 
++   support" with (*) 
++3. Build a new kernel when the configuration of the above options is 
++   finished.
++4. Install the new kernel.
++5. Reboot your system.
++
++To use the driver as a module, proceed as follows:
++
++1. Enable 'loadable module support' in the kernel.
++2. For automatic driver start, enable the 'Kernel module loader'.
++3. Select the menu "Network device support" and then "Ethernet(1000Mbit)"
++4. Mark "Marvell Yukon/SysKonnect SK-98xx/SK-95xx Gigabit Ethernet Adapter 
++   support" with (M)
++5. Execute the command "make modules".
++6. Execute the command "make modules_install".
++   The appropiate modules will be installed.
++7. Reboot your system.
++
++
++Load the module manually
++------------------------
++To load the module manually, proceed as follows:
++
++1. Enter "modprobe sk98lin".
++2. If a Marvell Yukon or SysKonnect SK-98xx adapter is installed in 
++   your computer and you have a /proc file system, execute the command:
++   "ls /proc/net/sk98lin/" 
++   This should produce an output containing a line with the following 
++   format:
++   eth0   eth1  ...
++   which indicates that your adapter has been found and initialized.
+    
+-   NOTE 1: If you have more than one SysKonnect SK-98xx adapter, the
+-           adapters will be listed as 'eth0', 'eth1', 'eth2', etc.
+-           For each adapter, repeat the steps 3) and 4).
+-   NOTE 2: If you have other Ethernet adapters installed,
+-           your SysKonnect SK-98xx adapter can be mapped to 'eth1' or
+-	   'eth2' ...
+-	   The module installation message (in system logfile or
+-	   on console, depending on /etc/syslog.conf) prints a line
+-	   for each adapter that is found, containing the
+-	   corresponding 'ethX'.
++   NOTE 1: If you have more than one Marvell Yukon or SysKonnect SK-98xx 
++           adapter installed, the adapters will be listed as 'eth0', 
++                   'eth1', 'eth2', etc.
++                   For each adapter, repeat steps 3 and 4 below.
++
++   NOTE 2: If you have other Ethernet adapters installed, your Marvell
++           Yukon or SysKonnect SK-98xx adapter will be mapped to the 
++                   next available number, e.g. 'eth1'. The mapping is executed 
++                   automatically.
++           The module installation message (displayed either in a system
++           log file or on the console) prints a line for each adapter 
++           found containing the corresponding 'ethX'.
  
- 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Link at IRQ %d \n", link->irq.active));
-@@ -294,6 +300,8 @@
- 	if (!link || !irq)
- 		return_VALUE(-EINVAL);
+-3) Select an IP address and assign it to the respective adapter by
++3. Select an IP address and assign it to the respective adapter by 
+    entering:
+-       ifconfig eth0 <ip-address>
+-   This causes the adapter to connect to the ethernet. The solitary
+-   yellow LED at the adapter is now active, the link status LED of
+-   the primary port is on and the link status LED of the secondary
+-   port (on dual port adapters) is blinking (only if the laters are
+-   connected to a switch or hub).
+-   You will also get a status message on the console saying
+-   "ethX: network connection up using port Y" and indicating
+-   the selected connection parameters.
++   ifconfig eth0 <ip-address>
++   With this command, the adapter is connected to the Ethernet. 
+    
++   SK-98xx Gigabit Ethernet Server Adapters: The yellow LED on the adapter 
++   is now active, the link status LED of the primary port is active and 
++   the link status LED of the secondary port (on dual port adapters) is 
++   blinking (if the ports are connected to a switch or hub).
++   SK-98xx V2.0 Gigabit Ethernet Adapters: The link status LED is active.
++   In addition, you will receive a status message on the console stating
++   "ethX: network connection up using port Y" and showing the selected 
++   connection parameters (x stands for the ethernet device number 
++   (0,1,2, etc), y stands for the port name (A or B)).
++
+    NOTE: If you are in doubt about IP addresses, ask your network
+          administrator for assistance.
++  
++4. Your adapter should now be fully operational.
++   Use 'ping <otherstation>' to verify the connection to other computers 
++   on your network.
++5. To check the adapter configuration view /proc/net/sk98lin/[devicename].
++   For example by executing:    
++   "cat /proc/net/sk98lin/eth0" 
++
++Unload the module
++-----------------
++To stop and unload the driver modules, proceed as follows:
  
-+	/* We don't check irqs the first time round */
-+	if (link->irq.setonboot) {
- 	/* See if we're already at the target IRQ. */
- 	if (irq == link->irq.active)
- 		return_VALUE(0);
-@@ -307,16 +315,18 @@
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Target IRQ %d invalid\n", irq));
- 		return_VALUE(-EINVAL);
- 	}
-+	}
+-4) Your adapter should now be fully operational.
+-   Use 'ping <otherstation>' to verify the connection to other
+-   computers on your network.
+-   By viewing /proc/net/sk98lin/[devicename], you can check some 
+-   information regarding to the adapter configuration.
+-
+-
+-5) The driver module can be stopped and unloaded using the following
+-   commands:
+-       ifconfig eth0 down
+-       rmmod sk98lin
+-***
+-
++1. Execute the command "ifconfig eth0 down".
++2. Execute the command "rmmod sk98lin".
  
- 	memset(&resource, 0, sizeof(resource));
+-(4) INCLUSION OF ADAPTER AT SYSTEM START
+-========================================
++3.2  Inclusion of adapter at system start
++-----------------------------------------
  
--	/* NOTE: PCI interrupts are always level / active_low / shared. */
-+	/* NOTE: PCI interrupts are always level / active_low / shared. But not all
-+	   interrupts > 15 are PCI interrupts. Rely on the ACPI IRQ definition for 
-+	   parameters */
- 	if (irq <= 15) {
- 		resource.res.id = ACPI_RSTYPE_IRQ;
- 		resource.res.length = sizeof(struct acpi_resource);
--		resource.res.data.irq.edge_level = ACPI_LEVEL_SENSITIVE;
--		resource.res.data.irq.active_high_low = ACPI_ACTIVE_LOW;
--		resource.res.data.irq.shared_exclusive = ACPI_SHARED;
-+		resource.res.data.irq.edge_level = link->irq.edge_level;
-+		resource.res.data.irq.active_high_low = link->irq.active_high_low;
- 		resource.res.data.irq.number_of_interrupts = 1;
- 		resource.res.data.irq.interrupts[0] = irq;
- 	}
-@@ -324,15 +334,15 @@
- 		resource.res.id = ACPI_RSTYPE_EXT_IRQ;
- 		resource.res.length = sizeof(struct acpi_resource);
- 		resource.res.data.extended_irq.producer_consumer = ACPI_CONSUMER;
--		resource.res.data.extended_irq.edge_level = ACPI_LEVEL_SENSITIVE;
--		resource.res.data.extended_irq.active_high_low = ACPI_ACTIVE_LOW;
--		resource.res.data.extended_irq.shared_exclusive = ACPI_SHARED;
-+		resource.res.data.extended_irq.edge_level = link->irq.edge_level;
-+		resource.res.data.extended_irq.active_high_low = link->irq.active_high_low;
- 		resource.res.data.extended_irq.number_of_interrupts = 1;
- 		resource.res.data.extended_irq.interrupts[0] = irq;
- 		/* ignore resource_source, it's optional */
- 	}
- 	resource.end.id = ACPI_RSTYPE_END_TAG;
+ Since a large number of different Linux distributions are 
+ available, we are unable to describe a general installation procedure
+@@ -122,41 +163,45 @@
+ Because the driver is now integrated in the kernel, installation should
+ be easy, using the standard mechanism of your distribution.
+ Refer to the distribution's manual for installation of ethernet adapters.
++
+ ***
  
-+	/* Attempt to set the resource */
- 	status = acpi_set_current_resources(link->handle, &buffer);
- 	if (ACPI_FAILURE(status)) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Error evaluating _SRS\n"));
-@@ -355,11 +365,13 @@
- 	if (result) {
- 		return_VALUE(result);
- 	}
++4  Driver Parameters
++====================
+ 
+-(5) DRIVER PARAMETERS
+-=====================
++Parameters can be set at the command line after the module has been 
++loaded with the command 'modprobe'.
++In some distributions, the configuration tools are able to pass parameters
++to the driver module.
+ 
+-Parameters can be set at the command line while loading the
+-module with 'modprobe'. The configuration tools of some distributions
+-can also give parameters to the driver module.
+ If you use the kernel module loader, you can set driver parameters
+ in the file /etc/modules.conf (or old name: /etc/conf.modules).
+-Insert a line of the form:
+-
+-options sk98lin ...
++To set the driver parameters in this file, proceed as follows:
+ 
+-For "...", use the same syntax as described below for the command
+-line parameters of modprobe.
+-You either have to reboot your computer or unload and reload
+-the driver to activate the new parameters.
+-The syntax of the driver parameters is:
+-
+-modprobe sk98lin parameter=value1[,value2[,value3...]]
+-
+-value1 is for the first adapter, value2 for the second one etc.
+-All Parameters are case sensitive, so write them exactly as
+-shown below.
+-
+-Sample: Suppose you have two adapters. You want to set AutoNegotiation
+-	on Port A of the first adapter to ON and on Port A of the
+-	second adapter to OFF.
+-	You also want to set DuplexCapabilities on Port A of the first
+-	adapter to FULL and on Port A of the second adapter to HALF.
+-	You must enter:
++1. Insert a line of the form :
++   options sk98lin ...
++   For "...", the same syntax is required as described for the command
++   line paramaters of modprobe below.
++2. To activate the new parameters, either reboot your computer
++   or 
++   unload and reload the driver.
++   The syntax of the driver parameters is:
++
++        modprobe sk98lin parameter=value1[,value2[,value3...]]
++
++   where value1 refers to the first adapter, value2 to the second etc.
++
++NOTE: All parameters are case sensitive. Write them exactly as shown 
++      below.
++
++Example:
++Suppose you have two adapters. You want to set auto-negotiation
++on the first adapter to ON and on the second adapter to OFF.
++You also want to set DuplexCapabilities on the first adapter
++to FULL, and on the second adapter to HALF.
++Then, you must enter:
+ 
+-	modprobe sk98lin AutoNeg_A=On,Off DupCap_A=Full,Half
++        modprobe sk98lin AutoNeg=On,Off DupCap=Full,Half
+ 
+ NOTE: The number of adapters that can be configured this way is
+       limited in the driver (file skge.c, constant SK_MAX_CARD_PARAM).
+@@ -164,357 +209,571 @@
+       more adapters, adjust this and recompile.
+ 
+ 
+-5.1 Per-Port Parameters
+------------------------
+-Those setting are available for each port on the adapter.
++4.1  Per-Port Parameters
++------------------------
++
++These settings are available for each port on the adapter.
+ In the following description, '?' stands for the port for
+ which you set the parameter (A or B).
+ 
+-- Auto Negotiation
+-  Parameter:	AutoNeg_?
+-  Values:	On, Off, Sense
+-  Default:	Sense
++Speed
++-----
++Parameter:    Speed_?
++Values:       10, 100, 1000, Auto
++Default:      Auto
++
++This parameter is used to set the speed capabilities. It is only valid 
++for the SK-98xx V2.0 copper adapters.
++Usually, the speed is negotiated between the two ports during link 
++establishment. If this fails, a port can be forced to a specific setting
++with this parameter.
++
++Auto-Negotiation
++----------------
++Parameter:    AutoNeg_?
++Values:       On, Off, Sense
++Default:      On
+   
+-  The "Sense"-mode finds out automatically whether the link
+-  partner supports autonegotiation or not.
++The "Sense"-mode automatically detects whether the link partner supports
++auto-negotiation or not.
+ 
+-- Duplex Capabilities
+-  Parameter:	DupCap_?
+-  Values:	Half, Full, Both
+-  Default:	Both
+-
+-  This parameters is relevant only if autonegotiation for
+-  this port is not "Sense". If autonegotiation is "On", all
+-  three values are possible. If it is "Off", only "Full" and
+-  "Half" are allowed.
+-  It is useful if your link partner does not support all
+-  possible combinations.
+-
+-- Flow Control
+-  Parameter:	FlowCtrl_?
+-  Values:	Sym, SymOrRem, LocSend, None
+-  Default:	SymOrRem
+-
+-  This parameter can be used to set the flow control capabilities
+-  that the port reports during autonegotiation.
+-  The meaning of the different modes is:
+--- Sym = Symetric: both link partners are allowed to send PAUSE frames
+--- SymOrRem = SymetricOrRemote: both or only remote partner are allowed
+-   to send PAUSE frames
+--- LocSend = LocalSend: only local link partner is allowed to send
+-   PAUSE frames
+--- None: no link partner is allowed to send PAUSE frames
++Duplex Capabilities
++-------------------
++Parameter:    DupCap_?
++Values:       Half, Full, Both
++Default:      Both
++
++This parameters is only relevant if auto-negotiation for this port is 
++not set to "Sense". If auto-negotiation is set to "On", all three values
++are possible. If it is set to "Off", only "Full" and "Half" are allowed.
++This parameter is usefull if your link partner does not support all
++possible combinations.
++
++Flow Control
++------------
++Parameter:    FlowCtrl_?
++Values:       Sym, SymOrRem, LocSend, None
++Default:      SymOrRem
++
++This parameter can be used to set the flow control capabilities the 
++port reports during auto-negotiation. It can be set for each port 
++individually.
++Possible modes:
++   -- Sym      = Symetric: both link partners are allowed to send 
++                  PAUSE frames
++   -- SymOrRem = SymetricOrRemote: both or only remote partner 
++                  are allowed to send PAUSE frames
++   -- LocSend  = LocalSend: only local link partner is allowed 
++                  to send PAUSE frames
++   -- None     = no link partner is allowed to send PAUSE frames
+   
+-  NOTE: This parameter is ignored if autonegotiation is set to "Off".
++NOTE: This parameter is ignored if auto-negotiation is set to "Off".
+ 
+-- Role in Master-Slave-Negotiation (1000Base-T only).
+-  Parameter:    Role_?
+-  Values:       Auto, Master, Slave
+-  Default:      Auto
+-  
+-  This parameter is only valid for the SK-9821 and SK-9822 adapters.
+-  For two 1000Base-T ports to communicate, one must take the role as
+-  master (providing timing information), while the other must be slave.
+-  Normally, this is negotiated between the two ports during link 
+-  establishment. If this should ever fail, you can force a port to a
+-  specific setting with this parameter.
+-  
++Role in Master-Slave-Negotiation (1000Base-T only)
++--------------------------------------------------
++Parameter:    Role_?
++Values:       Auto, Master, Slave
++Default:      Auto
++
++This parameter is only valid for the SK-9821 and SK-9822 adapters.
++For two 1000Base-T ports to communicate, one must take the role of the
++master (providing timing information), while the other must be the 
++slave. Usually, this is negotiated between the two ports during link 
++establishment. If this fails, a port can be forced to a specific setting
++with this parameter.
+ 
+-5.2 Per-Adapter Parameters
+---------------------------
+ 
+-- Preferred Port
+-  Parameter:	PrefPort
+-  Values:	A, B
+-  Default:	A
+-
+-  This is used to force the preferred port to A or B (on two-port NICs).
+-  The preferred port is the one that is used if both are detected as
+-  fully functional.
+-
+-- RLMT (Redundant Link Management Technology) Mode
+-  Parameter:	RlmtMode
+-  Values:	CheckLinkState,CheckLocalPort, CheckSeg, DualNet
+-  Default:	CheckLinkState
+-
+-  RLMT (the driver part that decides which port to use) knows three
+-  ways of checking if a port is available for use:
+-
+--- CheckLinkState = Check link state only: RLMT uses the link state
+-   reported by the adapter hardware for each individual port to determine
+-   whether a port can be used for all network traffic or not.
+-
+--- CheckLocalPort - Check other port on adapter: RLMT sends test frames
+-   from each port to each other port and checks if they are received by
+-   the other port, respectively. Thus, the ports must be connected to the
+-   network such that LLC test frames can be exchanged between them
+-   (i.e. there must be no routers between the ports).
+-
+--- CheckSeg - Check other port and segmentation: RLMT checks the other port
+-   and in addition requests information from the Gigabit Ethernet
+-   switch next to each port to see if the network is segmented between
+-   the ports. Thus, this mode is only to be used if you have Gigabit
+-   Ethernet switches installed in your network that have been configured
+-   to use the Spanning Tree protocol.
+-
+--- DualNet - Both ports A and B are used as separate devices at the same
+-   time. So if you have a dual port adapter, port A will show up as eth0
+-   and port B as eth1. Both ports can be used independend with distinct
+-   IP addresses.
+-   The preferred port setting is not used. Rlmt is turned off.
+-   
++4.2  Adapter Parameters
++-----------------------
+ 
+-  NOTE: The modes CheckLocalPort and CheckSeg are meant to operate in
+-        configurations where a network path between the ports on one
+-        adapter exists. Especially, they are not designed to work where
+-        adapters are connected back-to-back.
++Connection Type
++---------------
++Parameter:    ConType
++Values:       Auto, 100FD, 100HD, 10FD, 10HD
++Default:      Auto
++
++The parameter 'ConType' is a combination of all five per-port parameters
++within one single parameter. This simplifies the configuration of both ports
++of an adapter card! The different values of this variable reflect the most 
++meaningful combinations of port parameters.
++
++The following table shows the values of 'ConType' and the corresponding
++combinations of the per-port parameters:
++
++    ConType   |  DupCap   AutoNeg   FlowCtrl   Role             Speed
++    ----------+------------------------------------------------------
++    Auto      |  Both     On        SymOrRem   Auto             Auto
++    100FD     |  Full     Off       None       Auto (ignored)   100
++    100HD     |  Half     Off       None       Auto (ignored)   100
++    10FD      |  Full     Off       None       Auto (ignored)   10
++    10HD      |  Half     Off       None       Auto (ignored)   10
++
++Stating any other port parameter together with this 'ConType' variable
++will result in a merged configuration of those settings. This due to 
++the fact, that the per-port parameters (e.g. Speed_? ) have a higher
++priority than the combined variable 'ConType'.
++
++NOTE: This parameter is always used on both ports of the adapter card.
++
++Interrupt Moderation
++--------------------
++Parameter:    Moderation
++Values:       None, Static, Dynamic
++Default:      None
++
++Interrupt moderation is employed to limit the maxmimum number of interrupts
++the driver has to serve. That is, one or more interrupts (which indicate any
++transmit or receive packet to be processed) are queued until the driver 
++processes them. When queued interrupts are to be served, is determined by the
++'IntsPerSec' parameter, which is explained later below.
++
++Possible modes:
++
++   -- None - No interrupt moderation is applied on the adapter card. 
++      Therefore, each transmit or receive interrupt is served immediately
++      as soon as it appears on the interrupt line of the adapter card.
++
++   -- Static - Interrupt moderation is applied on the adapter card. 
++      All transmit and receive interrupts are queued until a complete
++      moderation interval ends. If such a moderation interval ends, all
++      queued interrupts are processed in one big bunch without any delay.
++      The term 'static' reflects the fact, that interrupt moderation is
++      always enabled, regardless how much network load is currently 
++      passing via a particular interface. In addition, the duration of
++      the moderation interval has a fixed length that never changes while
++      the driver is operational.
++
++   -- Dynamic - Interrupt moderation might be applied on the adapter card,
++      depending on the load of the system. If the driver detects that the
++      system load is too high, the driver tries to shield the system against 
++      too much network load by enabling interrupt moderation. If - at a later
++      time - the CPU utilizaton decreases again (or if the network load is 
++      negligible) the interrupt moderation will automatically be disabled.
++
++Interrupt moderation should be used when the driver has to handle one or more
++interfaces with a high network load, which - as a consequence - leads also to a
++high CPU utilization. When moderation is applied in such high network load 
++situations, CPU load might be reduced by 20-30%.
++
++NOTE: The drawback of using interrupt moderation is an increase of the round-
++trip-time (RTT), due to the queueing and serving of interrupts at dedicated
++moderation times.
++
++Interrupts per second
++---------------------
++Parameter:    IntsPerSec
++Values:       30...40000 (interrupts per second)
++Default:      2000
++
++This parameter is only used, if either static or dynamic interrupt moderation
++is used on a network adapter card. Using this paramter if no moderation is
++applied, will lead to no action performed.
++
++This parameter determines the length of any interrupt moderation interval. 
++Assuming that static interrupt moderation is to be used, an 'IntsPerSec' 
++parameter value of 2000 will lead to an interrupt moderation interval of
++500 microseconds. 
++
++NOTE: The duration of the moderation interval is to be chosen with care.
++At first glance, selecting a very long duration (e.g. only 100 interrupts per 
++second) seems to be meaningful, but the increase of packet-processing delay 
++is tremendous. On the other hand, selecting a very short moderation time might
++compensate the use of any moderation being applied.
++
++
++Preferred Port
++--------------
++Parameter:    PrefPort
++Values:       A, B
++Default:      A
++
++This is used to force the preferred port to A or B (on dual-port network 
++adapters). The preferred port is the one that is used if both are detected
++as fully functional.
++
++RLMT Mode (Redundant Link Management Technology)
++------------------------------------------------
++Parameter:    RlmtMode
++Values:       CheckLinkState,CheckLocalPort, CheckSeg, DualNet
++Default:      CheckLinkState
++
++RLMT monitors the status of the port. If the link of the active port 
++fails, RLMT switches immediately to the standby link. The virtual link is 
++maintained as long as at least one 'physical' link is up. 
++
++Possible modes:
++
++   -- CheckLinkState - Check link state only: RLMT uses the link state
++      reported by the adapter hardware for each individual port to 
++      determine whether a port can be used for all network traffic or 
++      not.
++
++   -- CheckLocalPort - In this mode, RLMT monitors the network path 
++      between the two ports of an adapter by regularly exchanging packets
++      between them. This mode requires a network configuration in which 
++      the two ports are able to "see" each other (i.e. there must not be 
++      any router between the ports).
++
++   -- CheckSeg - Check local port and segmentation: This mode supports the
++      same functions as the CheckLocalPort mode and additionally checks 
++      network segmentation between the ports. Therefore, this mode is only
++      to be used if Gigabit Ethernet switches are installed on the network
++      that have been configured to use the Spanning Tree protocol. 
++
++   -- DualNet - In this mode, ports A and B are used as separate devices. 
++      If you have a dual port adapter, port A will be configured as eth0 
++      and port B as eth1. Both ports can be used independently with 
++      distinct IP addresses. The preferred port setting is not used. 
++      RLMT is turned off.
 +   
- 	if (link->irq.active != irq) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, 
- 			"Attempt to enable at IRQ %d resulted in IRQ %d\n", 
- 			irq, link->irq.active));
- 		link->irq.active = 0;
-+		acpi_ut_evaluate_object (link->handle, "_DIS", 0, NULL);	   
- 		return_VALUE(-ENODEV);
- 	}
++NOTE: RLMT modes CLP and CLPSS are designed to operate in configurations 
++      where a network path between the ports on one adapter exists. 
++      Moreover, they are not designed to work where adapters are connected
++      back-to-back.
+ ***
  
-@@ -407,7 +419,7 @@
- 	ACPI_FUNCTION_TRACE("acpi_pci_link_check");
  
- 	/*
--	 * Pass #1: Update penalties to facilitate IRQ balancing.
-+	 * Update penalties to facilitate IRQ balancing.
- 	 */
- 	list_for_each(node, &acpi_link.entries) {
+-(6) LARGE FRAME SUPPORT
+-=======================
++5  Large Frame Support
++======================
  
-@@ -428,22 +440,19 @@
- 		}
- 	}
- 
--	/*
--	 * Pass #2: Enable boot-disabled Links at 'best' IRQ.
--	 */
--	list_for_each(node, &acpi_link.entries) {
--		int		irq = 0;
--		int		i = 0;
-+	return_VALUE(0);
-+}
- 
--		link = list_entry(node, struct acpi_pci_link, node);
--		if (!link || !link->irq.possible_count) {
--			ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid link context\n"));
--			continue;
--		}
-+static int acpi_pci_link_allocate(struct acpi_pci_link* link) {
-+	int irq;
-+	int i;
- 
--		if (link->irq.active)
--			continue;
-+	if (link->irq.setonboot)
-+		return_VALUE(0);
- 
-+	if (link->irq.active) {
-+		irq = link->irq.active;
-+	} else {
- 		irq = link->irq.possible[0];
- 
- 		/* 
-@@ -454,17 +463,22 @@
- 			if (acpi_irq_penalty[irq] > acpi_irq_penalty[link->irq.possible[i]])
- 				irq = link->irq.possible[i];
- 		}
-+	}
- 
--		/* Enable the link device at this IRQ. */
--		acpi_pci_link_set(link, irq);
+-Large frames (also called jumbo frames) are now supported by the
+-driver. This can result in a greatly improved throughput if
+-transferring large amounts of data.
+-To enable large frames, set the MTU (maximum transfer unit)
+-of the interface to the value you wish (up to 9000). The command
+-for this is:
+-  ifconfig eth0 mtu 9000
++The driver supports large frames (also called jumbo frames). Using large 
++frames can result in an improved throughput if transferring large amounts 
++of data.
++To enable large frames, set the MTU (maximum transfer unit) of the 
++interface to the desired value (up to 9000), execute the following 
++command:
++      ifconfig eth0 mtu 9000
+ This will only work if you have two adapters connected back-to-back
+-or if you use a switch that supports large frames. When using a
+-switch, it should be configured to allow large frames, without
+-autonegotiating for them.
+-The setting must be done on all adapters that can be reached by
+-the large frames. If one adapter is not set to receive large frames,
+-it will simply drop them.
 -
-+	/* Attempt to enable the link device at this IRQ. */
-+	if (acpi_pci_link_set(link, irq)) {
-+		printk(PREFIX "Unable to set IRQ for %s [%s] (likely buggy ACPI BIOS). Aborting ACPI-based IRQ routing. Try pci=noacpi or acpi=off\n",
-+			acpi_device_name(link->device),
-+			acpi_device_bid(link->device));
-+		return_VALUE(-ENODEV);
-+	} else {
- 		acpi_irq_penalty[link->irq.active] += 100;
+-You can switch back to the standard ethernet frame size with:
+-  ifconfig eth0 mtu 1500
++or if you use a switch that supports large frames. When using a switch, 
++it should be configured to allow large frames and auto-negotiation should  
++be set to OFF. The setting must be configured on all adapters that can be 
++reached by the large frames. If one adapter is not set to receive large 
++frames, it will simply drop them.
++
++You can switch back to the standard ethernet frame size by executing the 
++following command:
++      ifconfig eth0 mtu 1500
+ 
+-To make this setting persitent, add a script with the 'ifconfig'
+-line to the system startup sequence (named something like "S99sk98lin"
++To permanently configure this setting, add a script with the 'ifconfig' 
++line to the system startup sequence (named something like "S99sk98lin" 
+ in /etc/rc.d/rc2.d).
+ ***
+ 
+ 
+-(7) TROUBLESHOOTING
+-===================
++6  VLAN and Link Aggregation Support (IEEE 802.1, 802.1q, 802.3ad)
++==================================================================
++
++The Marvell Yukon/SysKonnect Linux drivers are able to support VLAN and 
++Link Aggregation according to IEEE standards 802.1, 802.1q, and 802.3ad. 
++These features are only available after installation of open source 
++modules available on the Internet:
++For VLAN go to: http://scry.wanfear.com/~greear/vlan.html
++For Link Aggregation go to: http://www.st.rim.or.jp/~yumo
++
++NOTE: SysKonnect GmbH does not offer any support for these open source 
++      modules and does not take the responsibility for any kind of 
++      failures or problems arising in connection with these modules.
++
++NOTE: Configuring Link Aggregation on a SysKonnect dual link adapter may 
++      cause problems when unloading the driver.
++
++
++7  Troubleshooting
++==================
++
++If any problems occur during the installation process, check the 
++following list:
+ 
+-If you run into problems during installation, check those items:
+ 
+ Problem:  The SK-98xx adapter can not be found by the driver.
+-Reason:   Look in /proc/pci for the following entry:
++Solution: In /proc/pci search for the following entry:
+              'Ethernet controller: SysKonnect SK-98xx ...'
+-	  If this entry exists, then the SK-98xx adapter has been
+-	  found by the system and should be able to be used.
+-	  If this entry does not exist or if the file '/proc/pci'
+-	  is not there, then you may have a hardware problem or PCI
+-	  support may not be enabled in your kernel.
+-	  The adapter can be checked using the diagnostic program
+-	  which is available from the SysKonnect web site:
+-	      www.syskonnect.de
+-	  Some COMPAQ machines have a problem with PCI under
+-	  Linux. This is described in the 'PCI howto' document
+-	  (included in some distributions or available from the
+-	  www, e.g. at 'www.linux.org'). This might be fixed in the
+-	  2.2.x kernel series (I've not tested it).
 -
- 		printk(PREFIX "%s [%s] enabled at IRQ %d\n", 
- 			acpi_device_name(link->device),
- 			acpi_device_bid(link->device), link->irq.active);
- 	}
+-Problem:  Programs such as 'ifconfig' or 'route' can not be found or
+-          you get an error message 'Operation not permitted'.
+-Reason:   You are not logged in as user 'root'. Logout and 
+-          login as root or change to root via 'su'.
+-
+-Problem:  Using the command 'ping <address>', you get a message
+-          "ping: sendto: Network is unreachable".
+-Reason:   Your route is not set up correct.
+-	  If you are using RedHat, you probably forgot
+-	  to set up the route in 'network configuration'.
+-	  Check the existing routes with the 'route' command
+-	  and check if there is an entry for 'eth0' and if
+-	  it is correct.
+-
+-Problem:  The driver can be started, the adapter is connected
+-          to the network, but you can not receive or transmit
+-          any packet; e.g. 'ping' does not work.
+-Reason:   You have an incorrect route in your routing table.
+-          Check the routing table with the command 'route' and
+-	  read the manual pages about route ('man route').
+-NOTE:	  Although the 2.2.x kernel versions generate the routing
+-	  entry automatically, you may have problems of this kind
+-	  here, too. We found a case where the driver started correct
+-	  at system boot, but after removing and reloading the driver,
+-	  the route of the adapter's network pointed to the 'dummy0'
+-	  device and had to be corrected manually.
+-	  
+-Problem:  You want to use your computer as a router between
+-          multiple IP subnetworks (using multiple adapters), but
+-	  you can not reach computers in other subnetworks.
+-Reason:   Either the router's kernel is not configured for IP
+-	  forwarding or there is a problem with the routing table
+-	  and gateway configuration in at least one of the
+-	  computers.
+-
+-Problem:  At the start of the driver, you get an error message:
+-	  "eth0: -- ERROR --
+-	   Class: internal Software error
+-	   Nr: 0xcc
+-	   Msg: SkGeInitPort() cannot init running ports"
+-Reason:	  You are using a driver compiled for single processor
+-	  machines on an multiprocessor machine with SMP (Symetric
+-	  MultiProcessor) kernel.
+-	  Configure your kernel appropriate and recompile the kernel or
+-	  the modules.
++          If this entry exists, the SK-98xx or SK-98xx V2.0 adapter has 
++          been found by the system and should be operational.
++          If this entry does not exist or if the file '/proc/pci' is not 
++          found, there may be a hardware problem or the PCI support may 
++          not be enabled in your kernel.
++          The adapter can be checked using the diagnostics program which 
++          is available on the SysKonnect web site:
++          www.syskonnect.com
++          
++          Some COMPAQ machines have problems dealing with PCI under Linux.
++          Linux. This problem is described in the 'PCI howto' document
++          (included in some distributions or available from the
++          web, e.g. at 'www.linux.org'). 
++
++
++Problem:  Programs such as 'ifconfig' or 'route' can not be found or the 
++          error message 'Operation not permitted' is displayed.
++Reason:   You are not logged in as user 'root'.
++Solution: Logout and login as 'root' or change to 'root' via 'su'.
++
++
++Problem:  Upon use of the command 'ping <address>' the message
++          "ping: sendto: Network is unreachable" is displayed.
++Reason:   Your route is not set correctly.
++Solution: If you are using RedHat, you probably forgot to set up the 
++          route in the 'network configuration'.
++          Check the existing routes with the 'route' command and check 
++          if an entry for 'eth0' exists, and if so, if it is set correctly.
++
++
++Problem:  The driver can be started, the adapter is connected to the 
++          network, but you cannot receive or transmit any packets; 
++          e.g. 'ping' does not work.
++Reason:   There is an incorrect route in your routing table.
++Solution: Check the routing table with the command 'route' and read the 
++          manual help pages dealing with routes (enter 'man route').
++
++NOTE: Although the 2.2.x kernel versions generate the routing entry 
++      automatically, problems of this kind may occur here as well. We've 
++      come across a situation in which the driver started correctly at 
++      system start, but after the driver has been removed and reloaded,
++      the route of the adapter's network pointed to the 'dummy0'device 
++      and had to be corrected manually.
++
++
++Problem:  Your computer should act as a router between multiple 
++          IP subnetworks (using multiple adapters), but computers in 
++          other subnetworks cannot be reached.
++Reason:   Either the router's kernel is not configured for IP forwarding 
++          or the routing table and gateway configuration of at least one 
++          computer is not working.
++
++Problem:  Upon driver start, the following error message is displayed:
++          "eth0: -- ERROR --
++          Class: internal Software error
++          Nr:    0xcc
++          Msg:   SkGeInitPort() cannot init running ports"
++Reason:   You are using a driver compiled for single processor machines 
++          on a multiprocessor machine with SMP (Symetric MultiProcessor) 
++          kernel.
++Solution: Configure your kernel appropriately and recompile the kernel or
++          the modules.
++
++
  
-+	link->irq.setonboot = 1;
- 	return_VALUE(0);
- }
+ If your problem is not listed here, please contact SysKonnect's technical
+ support for help (linux@syskonnect.de).
+-When contacting our technical support, please ensure that the
+-following information is available:
+-- System Manufacturer and Model
+-- Boards in your system
++When contacting our technical support, please ensure that the following 
++information is available:
++- System Manufacturer and HW Informations (CPU, Memory... )
++- PCI-Boards in your system
+ - Distribution
+ - Kernel version
++- Driver version
+ ***
  
-@@ -472,7 +486,9 @@
- int
- acpi_pci_link_get_irq (
- 	acpi_handle		handle,
--	int			index)
-+	int			index,
-+	int*			edge_level,
-+	int*			active_high_low)
- {
- 	int                     result = 0;
- 	struct acpi_device	*device = NULL;
-@@ -498,11 +514,17 @@
- 		return_VALUE(0);
- 	}
++8  History
++==========
  
-+	if (acpi_pci_link_allocate(link)) {
-+		return -ENODEV;
-+	}
-+	   
- 	if (!link->irq.active) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Link disabled\n"));
- 		return_VALUE(0);
- 	}
+-(8) HISTORY
+-===========
++VERSION 6.14
++New Features:
++- None
++Problems fixed: 
++- Fix: memory leak when sending short padded frames 
++- Fix: helptext for menuconfig in kernel 2.6 updated
++- Fix: PNMI_READ defines retrieve correct amount of bytes
++Known limitations:
++- None
  
-+	if (edge_level) *edge_level = link->irq.edge_level;
-+	if (active_high_low) *active_high_low = link->irq.active_high_low;
- 	return_VALUE(link->irq.active);
- }
+-VERSION 4.02 (In-Kernel version)
++VERSION 6.13
+ New Features:
+-- Add Kernel 2.4 changes
++- New parameter ConType combining different per-port parameters
++Problems fixed:
++- Fix: change of MTU-size without warning (bugreport #10721)
++- Fix: HW checksumming when Kernel 2.5/2.6 corrected
++- Fix: Padding of small packets (<60 bytes) not 0xaa, but 0x00 instead
++- Fix: Minor edits corrected 
++- Fix: Obsolete function SetQueueSize() removed
++- Fix: Removed proprietary defines - used defines from skgehw.h instead
+ Known limitations:
+ - None
  
---- linux-2.5.75.orig/include/acpi/acpi_drivers.h	2003-07-10 21:12:26.000000000 +0100
-+++ linux-2.5.75/include/acpi/acpi_drivers.h	2003-07-27 19:18:54.000000000 +0100
-@@ -60,7 +60,7 @@
- /* ACPI PCI Interrupt Link (pci_link.c) */
+-VERSION 4.01 (In-Kernel version)
++VERSION 6.12
++New Features:
++- enabling/disabling checksum
+ Problems fixed:
+-- Full statistics support for DualNet mode
++- Fix: KLM load/unload using new refcount interface for Kernel 2.5/2.6
+ Known limitations:
+ - None
  
- int acpi_pci_link_check (void);
--int acpi_pci_link_get_irq (acpi_handle handle, int index);
-+int acpi_pci_link_get_irq (acpi_handle handle, int index, int* edge_level, int* active_high_low);
+-VERSION 4.00 (In-Kernel version)
++VERSION 6.11 (In-Kernel version)
++New Features:
++- Support for Kernel 2.5/2.6
++- Support for new IO-control MIB data structure
++- New SkOsGetTime function
+ Problems fixed:
+-- Memory leak found 
++- Fix: Race condition with broken LM80 chip
++- Fix: Common modules update (#10803, #10768, #10767)
++- Fix: Dim, ProcFS, Isr, Module Support changes for Kernel 2.5/2.6
++Known limitations:
++- None
++
++VERSION 6.10
+ New Features:
+-- Proc filesystem integration
+-- DualNet functionality integrated
+-- Rlmt networks added
++- none
++Problems fixed:
++- Fix: Race condition with padded frames
+ Known limitations:
+-- statistics partially incorrect in DualNet mode
++- None
  
- /* ACPI PCI Interrupt Routing (pci_irq.c) */
+-VERSION 3.04 (In-Kernel version)
++VERSION 6.09
++New Features:
++- none
+ Problems fixed:
+-- Driver start failed on UltraSPARC
+-- Rx checksum calculation for big endian machines did not work
+-- Jumbo frames were counted as input-errors in netstat
++- Fix: Disabled HW Error IRQ on 32-bit Yukon if sensor IRQ occurs
++- Fix: Delay race condition with some server machines
++Known limitations:
++- None
  
---- linux-2.5.75.orig/include/asm-i386/io_apic.h	2003-07-10 21:12:15.000000000 +0100
-+++ linux-2.5.75/include/asm-i386/io_apic.h	2003-07-27 19:18:54.000000000 +0100
-@@ -170,7 +170,7 @@
- extern int io_apic_get_unique_id (int ioapic, int apic_id);
- extern int io_apic_get_version (int ioapic);
- extern int io_apic_get_redir_entries (int ioapic);
--extern int io_apic_set_pci_routing (int ioapic, int pin, int irq);
-+extern int io_apic_set_pci_routing (int ioapic, int pin, int irq, int edge_level, int active_high_low);
- #endif /*CONFIG_ACPI_BOOT*/
+-VERSION 3.03 (Standalone version)
++VERSION 6.08
++New Features:
++- Add: Dynamic Interrupt moderation
++- Add: Blink mode verification
++- Fix: CSUM changes
+ Problems fixed:
+-- Compilation did not find script "printver.sh" if "." not in PATH
++- Fix: CSUM changes
+ Known limitations:
+ - None
  
- #else  /* !CONFIG_X86_IO_APIC */
-
---Boundary-00=_oUCJ/+gD0XmJ84e--
-
+-VERSION 3.02 (In-Kernel version)
++VERSION 6.04 - 6.07
++New Features:
++- Common modules update
+ Problems fixed:
++- none
++Known limitations:
+ - None
++
++VERSION 6.03
+ New Features:
+-- Integration in Linux kernel source (2.2.14 and 2.3.29) 
++- Common modules update
++Problems fixed:
++- Remove useless init_module/cleanup_module forward declarations
+ Known limitations:
+ - None
+ 
+-VERSION 3.01
++VERSION 6.02 (In-Kernel version)
++New Features:
++- Common modules update
+ Problems fixed:
++- Boot message cleanup
++Known limitations:
+ - None
++
++VERSION 6.00 (In-Kernel version)
+ New Features:
+-- Full source release
++- Support for SK-98xx V2.0 adapters
++- Support for gmac
++- Support for kernel 2.4.x and kernel 2.2.x
++- Zerocopy support for kernel 2.4.x with sendfile()
++- Support for scatter-gather functionality with sendfile()
++- Speed support for SK-98xx V2.0 adapters
++- New ProcFs entries
++- New module parameters
++Problems fixed:
++- ProcFS initialization
++- csum packet error
++- Ierror/crc counter error (#10767)
++- rx_too_long counter error (#10751)
+ Known limitations:
+ - None
+ 
+-VERSION 3.00
++VERSION 4.11
++New Features:
++- none
+ Problems fixed:
++- Error statistic counter fix (#10620)
++- RLMT-Fixes (#10659, #10639, #10650)
++- LM80 sensor initialization fix (#10623)
++- SK-CSUM memory fixes (#10610).
++Known limitations:
+ - None
++
++VERSION 4.10
+ New Features:
+-- Support for 1000Base-T adapters (SK-9821 and SK-9822)
++- New ProcFs entries
++Problems fixed:
++- Corrected some printk's
+ Known limitations:
+ - None
+ 
+-VERSION 1.07
++VERSION 4.09
++New Features:
++- IFF_RUNNING support (link status)
++- New ProcFs entries
+ Problems fixed:
+-- RlmtMode parameter value strings were wrong (#10437)
+-- Driver sent too many RLMT frames (#10439)
+-- Driver did not recognize network segmentation (#10440)
+-- RLMT switched too often on segmented network (#10441)
++- too long counters
++- too short counters
++- Kernel error compilation
+ Known limitations:
+ - None
+-
+-VERSION 1.06
++ 
++VERSION 4.06 (In-Kernel version)
++Problems fixed:
++- MTU init problems
++ 
++VERSION 4.04
+ Problems fixed:
+-- System panic'ed after some time when running with 
+-  RlmtMode=CheckOtherLink or RlmtMode=CheckSeg (#10421)
+-  Panic message: "Kernel panic: skput: over ... dev: eth0"
+-- Driver did not switch back to default port when connected
+-  back-to-back (#10422).
+-Changes:
+-- RlmtMode parameter names have changed
+-New features:
+-- There is now a version for ALPHA processors
++- removed VLAN error messages
++
++VERSION 4.02 (In-Kernel version)
++New Features:
++- Add Kernel 2.4 changes
+ Known limitations:
+ - None
+ 
+-VERSION 1.05
++VERSION 4.01 (In-Kernel version)
+ Problems fixed:
+-- Driver failed to load on kernels with version information
+-  for module symbols enabled
++- Full statistics support for DualNet mode
+ Known limitations:
+ - None
+ 
+-VERSION 1.04
++VERSION 4.00 (In-Kernel version)
+ Problems fixed:
+-- Large frame support does work now (no autonegotiation
+-  support for large frames, just manually selectable)
++- Memory leak found 
+ New Features:
+-- Receive checksumming in hardware
+-- Performance optimizations
+-  Some numbers (on two PII-400 machines, back-to-back):
+-  netpipe: 300 MBit/sec, with large frames: 470 MBit/sec
+-  ttcp:  38 MByte/sec, with large frames: 60 MByte/sec
+-  ttcp (UDP send): 66 MByte/sec, with large frames: 106 MByte/sec
++- Proc filesystem integration
++- DualNet functionality integrated
++- Rlmt networks added
++Known limitations:
++- statistics partially incorrect in DualNet mode
++
++VERSION 3.04 (In-Kernel version)
++Problems fixed:
++- Driver start failed on UltraSPARC
++- Rx checksum calculation for big endian machines did not work
++- Jumbo frames were counted as input-errors in netstat
++
++VERSION 3.03 (Standalone version)
++Problems fixed:
++- Compilation did not find script "printver.sh" if "." not in PATH
+ Known limitations:
+ - None
+ 
+-VERSION 1.03
++VERSION 3.02 (In-Kernel version)
+ Problems fixed:
+-- Unloading with "rmmod" caused segmentation fault (#10415)
+-- The link LED flickered from time to time, if no link was
+-  established (#10402)
+-- Installation problems with RedHat 6.0 (#10409)
++- None
+ New Features:
+-- Connection state output at "network connection up"
++- Integration in Linux kernel source (2.2.14 and 2.3.29) 
+ Known limitations:
+ - None
+ 
+-VERSION 1.02
++VERSION 3.01
+ Problems fixed:
+-- Failed with multiple adapters
+-- Failed with Single Port adapters
+-- Startup string was only displayed if adapter found
+-- No link could be established on certain switches when the switches were
+-  rebooted. (#10377)
++- None
++New Features:
++- Full source release
+ Known limitations:
+-- Segmentation fault at "rmmod" with kernel 2.2.3 on some machines
++- None
+ 
+-VERSION 1.01
++VERSION 3.00
+ Problems fixed:
+-- Sensor status was not set back to 'ok' after 'warning/error'. (#10386)
+-Changes:
+-- improved parallelism in driver
+-
+-VERSION 1.00
++- None
++New Features:
++- Support for 1000Base-T adapters (SK-9821 and SK-9822)
+ Known limitations:
+-- not tested with all kernel versions (I don't have that much time :-)
+-- only x86 version available (if you need others, ask for it)
+-- source code not completely available
+-
+-***End of Readme File***
++- None
+ 
+ 
++***End of Readme File***

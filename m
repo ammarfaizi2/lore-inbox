@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283418AbRK2WNJ>; Thu, 29 Nov 2001 17:13:09 -0500
+	id <S283422AbRK2Wdu>; Thu, 29 Nov 2001 17:33:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283421AbRK2WM6>; Thu, 29 Nov 2001 17:12:58 -0500
-Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:35592 "EHLO
-	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id <S283418AbRK2WMu>; Thu, 29 Nov 2001 17:12:50 -0500
-Message-Id: <200111292212.fATMCoo08605@enterprise.bidmc.harvard.edu>
-Content-Type: text/plain; charset=US-ASCII
-From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16: hda9: attempt to access beyond end of device
-Date: Thu, 29 Nov 2001 17:12:47 -0500
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011129225814.A464@fmi.uni-passau.de>
-In-Reply-To: <20011129225814.A464@fmi.uni-passau.de>
+	id <S283421AbRK2Wdk>; Thu, 29 Nov 2001 17:33:40 -0500
+Received: from postfix1-2.free.fr ([213.228.0.130]:12510 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S283422AbRK2Wd0> convert rfc822-to-8bit; Thu, 29 Nov 2001 17:33:26 -0500
+Date: Thu, 29 Nov 2001 20:40:06 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <matthias@winterdrache.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: sym53c875: reading /proc causes SCSI parity error
+In-Reply-To: <20011128.144925.94842859.davem@redhat.com>
+Message-ID: <20011129203311.F2019-100000@gerard>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 November 2001 04:58 pm, M G Berberich wrote:
-> Partition boundary problem in 2.4.16 ?!
-> I just tried to make a mke2fs on my /dev/hda9 and mke2fs with kernel
-> 2.4.16 and it failed with a partial write. /var/log/messages says:
 
-I have a similar problem with /dev/sda9.  Booting 2.4.11...16 results in a 
-partition not found error (as reported by fsck).  Going back to 2.4.10ac10, 
-fdisk tells me that the partition ID for sda9 is 0x0000 which is corrupt, and 
-will be fixed on a write.  I do the write, and sda9 is still invisible.  
 
-Delete and recreate the partition with the exact same cylinder values, and 
-the partition comes back, but is unmountable and un-fsck-able.
+On Wed, 28 Nov 2001, David S. Miller wrote:
 
-Examining raw hex data from other partitions, I find that the ext2 label 
-string (as set with the -L flag to mke2fs) occurs at offset 02160 (octal) 
-into the raw partition.  But on /dev/sda9, it is occurring at 01160 instead - 
-off by one 512 byte sector.  Foo.  2.4.16 has not made my day.
+>    From: Gérard Roudier <groudier@free.fr>
+>    Date: Wed, 28 Nov 2001 20:51:01 +0100 (CET)
+>
+>    On Wed, 28 Nov 2001, David S. Miller wrote:
+>
+>    > Why not just put some bitmap pointer into the pci device
+>    > struct.  If it is non-NULL, it specifies PCI config space
+>    > areas which have side-effects.
+>
+>    Or a simple offset beyond which reading data isn't desirable for
+>    whatever reasons.
+>
+> I do not think that is sufficient.
+>
+> I have seen chips where only one single PCI config space word would
+> trigger problems, and it was due to a hw bug.  The "offset beyond"
+> scheme would not allow to cover this case.
 
-Kris
+OK. I ignored that such weirdness existed.
+
+  Gérard.
+

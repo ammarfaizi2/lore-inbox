@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVCYInY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVCYI5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbVCYInY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 03:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVCYInY
+	id S261548AbVCYI5L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 03:57:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVCYI5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 03:43:24 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:30047 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261549AbVCYInW (ORCPT
+	Fri, 25 Mar 2005 03:57:11 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13276 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261548AbVCYI5I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 03:43:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=GXWZZH3FEZPv+2Y3TLHbMB5K189h/CvWApYE1i8Axp6SJoGNiltskdSiIig7vhWWGlm/0czzoVAMzr16/urIunWhzyXknbM+v5aIN+/7wfyXLdQWL7i752PxzpNgFDnuGzYc3PHMDEix1x6meySHQP9Q6nkkvZlvDn2iHB+ZXU4=
-Message-ID: <21d7e99705032500434957cd97@mail.gmail.com>
-Date: Fri, 25 Mar 2005 19:43:21 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: 2.6.12-rc1-mm2: crash in drm_agp_init
+	Fri, 25 Mar 2005 03:57:08 -0500
+Date: Fri, 25 Mar 2005 09:53:09 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Airlie <airlied@gmail.com>
 Cc: kernel list <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <20050325083035.GA1335@elf.ucw.cz>
+Subject: Re: 2.6.12-rc1-mm2: crash in drm_agp_init
+Message-ID: <20050325085306.GA1366@elf.ucw.cz>
+References: <20050325083035.GA1335@elf.ucw.cz> <21d7e99705032500434957cd97@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <20050325083035.GA1335@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <21d7e99705032500434957cd97@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
+
+> > ..with -rc1-mm2 I get crash during bootup, in some function called
+> > from drm_agp_init. I'm turned off CONFIG_AGP for now, and machine now
+> > boots as expected.
 > 
-> ..with -rc1-mm2 I get crash during bootup, in some function called
-> from drm_agp_init. I'm turned off CONFIG_AGP for now, and machine now
-> boots as expected.
+> try -mm3 we had a bit of a patch clash between myself, Davej and
+> Adrian, I think -mm3 has all the fixes in it ..
 
-try -mm3 we had a bit of a patch clash between myself, Davej and
-Adrian, I think -mm3 has all the fixes in it ..
-
-Dave.
+Thanks for the info and sorry for the noise. (Why does -mm2 kernel have
+tendency to appear within hour from me downloading -mm1? It happened
+two times now...)
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

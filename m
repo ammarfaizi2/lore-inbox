@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbUFCNih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263645AbUFCNpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbUFCNih (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 09:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263616AbUFCNih
+	id S263645AbUFCNpt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 09:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbUFCNpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 09:38:37 -0400
-Received: from mail.tmr.com ([216.238.38.203]:30478 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261904AbUFCNig (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 09:38:36 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: why swap at all?
-Date: Thu, 03 Jun 2004 09:38:56 -0400
-Organization: TMR Associates, Inc
-Message-ID: <c9n9dj$ppd$1@gatekeeper.tmr.com>
-References: <5D3C2276FD64424297729EB733ED1F7606242C53@email1.mitretek.org> <20040527124145.GD22648@holomorphy.com>
+	Thu, 3 Jun 2004 09:45:49 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:42203 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263645AbUFCNps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 09:45:48 -0400
+Date: Thu, 3 Jun 2004 15:44:41 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Paul Clements <paul.clements@steeleye.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] nbd: fix device names
+Message-ID: <20040603134440.GC3915@openzaurus.ucw.cz>
+References: <4034FDD0.33BC57AF@SteelEye.com> <40BC8C49.4020602@steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1086269684 26413 192.168.12.100 (3 Jun 2004 13:34:44 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <20040527124145.GD22648@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40BC8C49.4020602@steeleye.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Thu, May 27, 2004 at 08:31:26AM -0400, Piszcz, Justin Michael wrote:
-> 
->>If I have 16GB of ram should I use swap?
->>Would swap cause the machine to slow down?
-> 
-> 
-> Yes. You want swap so you can physically relocate anonymous pages in the
-> rare case one ends up somewhere it could cause memory pressure against
-> allocations that can only be satisfied by a restricted range of memory.
+Hi!
 
-It would seem that the o/s has enough information to separate pages into 
-  categories such as 'part of a program,' 'unwritten user write() data,' 
-'user read() data sequential," 'user read data random' (read after seek) 
-and the like. It would be nice if admins could do tuning on how the o/s 
-weights giving these memory. The swappiness tuner is certainly a start, 
-in practice it does help with atypical loads.
+> It seems more appropriate to call the devices "nbX" rather than 
+> "nbdX",
+> since that's what the device nodes are actually named.
 
-And Nick's latest stuff against 2.6.7-rc1-mm1 certainly seems to work 
-very well on my little 96MB slow box with a few dozen windows open. I 
-would call it the best I've run on this box, ever.
+> @@ -713,7 +753,7 @@ static int __init nbd_init(void)
+>  		disk->fops = &nbd_fops;
+>  		disk->private_data = &nbd_dev[i];
+>  		disk->flags |= GENHD_FL_SUPPRESS_PARTITION_INFO;
+> -		sprintf(disk->disk_name, "nbd%d", i);
+> +		sprintf(disk->disk_name, "nb%d", i);
+>  		sprintf(disk->devfs_name, "nbd/%d", i);
+
+You might want to fix devfs name, too.
 
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

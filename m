@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbTIPQqW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 12:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbTIPQqW
+	id S261966AbTIPQsR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 12:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbTIPQsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 12:46:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:6870 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261858AbTIPQqV (ORCPT
+	Tue, 16 Sep 2003 12:48:17 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:11816 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S261966AbTIPQsP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 12:46:21 -0400
-Date: Tue, 16 Sep 2003 09:53:27 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Ramon Casellas <casellas@infres.enst.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Bug/Oops Power Management with linux-2.6.0-test5-mm2
-In-Reply-To: <Pine.SOL.4.40.0309161819150.7029-100000@gervaise.enst.fr>
-Message-ID: <Pine.LNX.4.44.0309160949140.26788-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Sep 2003 12:48:15 -0400
+Date: Tue, 16 Sep 2003 09:47:57 -0700
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Clean up MAX_NR_NODES/NUMNODES/etc. [5/5]
+Message-ID: <20030916164757.GA17359@sgi.com>
+Mail-Followup-To: Matthew Dobson <colpatch@us.ibm.com>,
+	linux-kernel@vger.kernel.org
+References: <20030910153601.36219ed8.akpm@osdl.org> <41000000.1063237600@flay> <20030911000303.GA20329@sgi.com> <3F6659DF.1090508@us.ibm.com> <3F665B5B.3000409@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F665B5B.3000409@us.ibm.com>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 15, 2003 at 05:37:47PM -0700, Matthew Dobson wrote:
+> Matthew Dobson wrote:
+> >Ok, I made an attempt to clean up this mess quite a while ago (2.5.47), 
+> >but that patch is utterly useless now.  At Martin's urging I've created 
+> >a new series of patches to resolve this.
+> >
+> >01 - Make sure MAX_NUMNODES is defined in one and only one place. Remove 
+> >superfluous definitions.  Instead of defining MAX_NUMNODES in 
+> >asm/numnodes.h, we define NODES_SHIFT there.  Then in linux/mmzone.h we 
+> >turn that NODES_SHIFT value into MAX_NUMNODES.
+> >
+> >02 - Remove MAX_NR_NODES.  This value is only used in a couple of 
+> >places, and it's incorrectly used in all those places as far as I can 
+> >tell.  Replace with MAX_NUMNODES.  Create MAX_NODES_SHIFT and use this 
+> >value to check NODES_SHIFT is appropriate.  A possible future patch 
+> >should make MAX_NODES_SHIFT vary based on 32 vs. 64 bit archs.
+> >
+> >03 - Fix up the sh arch.  sh defined NR_NODES, change sh to use standard 
+> >MAX_NUMNODES instead.
+> >
+> >04 - Fix up the arm arch.  This needs to be reviewed.  Relatively 
+> >straightforward replacement of NR_NODES with standard MAX_NUMNODES.
+> >
+> >05 - Fix up the ia64 arch.  This *definitely* needs to be reviewed. This 
+> >code made my head hurt.  I think I may have gotten it right. Totally 
+> >untested.
 
-> When suspending to mem, actually it "looks like" it suspends. The only
-> thing is that the LCD stays "light grey" (yep, I know it is not a
-> technical description... :). In order to resume, I have to press the
-> thinkpad power button (tap it, if I hold it for several seconds, it just
-> powers off). When resuming, there must be a problem with interrumpts (NIC
-> and Trackpoint stop working). So, it is not "immediate"
-
-Ok, that's almost expected behavior. 
-
-I cannot explain why the LCD stays on, besides the fact that something on 
-the ACPI side of things is not working correctly. Though, it appears to be 
-performing the entire suspend/resume cycle.
-
-Drivers are still an issue. The current work around is to try removing all 
-modules before suspending. There is also an issue with reinitializing the 
-ACPI IRQ routing links, which will be addressed shortly. 
-
-> pmdisk is not supported with high- or discontig-mem.
-
-> (1 Gb RAM)
-> 
-> In both cases, when suspending to disk, it returns immediately.
-
-Sorry, I missed that line in the logs before. You need HIGHMEM enabled to 
-support the full 1GB of RAM, but the suspend-to-disk code is not prepared 
-to handle high pages yet. It will be addressed, but probably not for 
-another few weeks. 
+Can you send me a patch that contains everything (or just the generic
+code plus the ia64 stuff)?  The stuff you posted looks good, and I'd
+like to test ia64, but I have to merge your patch into the latest
+discontig stuff I've been working on to do so.
 
 Thanks,
-
-
-	Pat
-
+Jesse

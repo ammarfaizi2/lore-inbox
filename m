@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135250AbREESi2>; Sat, 5 May 2001 14:38:28 -0400
+	id <S135242AbREESct>; Sat, 5 May 2001 14:32:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135248AbREESiT>; Sat, 5 May 2001 14:38:19 -0400
-Received: from tomts13.bellnexxia.net ([209.226.175.34]:13307 "EHLO
-	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S135250AbREESiE>; Sat, 5 May 2001 14:38:04 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.4-ac5; hpt370 & new dma setup
-Date: Sat, 5 May 2001 14:37:53 -0400
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01050514375300.14219@oscar>
-Content-Transfer-Encoding: 7BIT
+	id <S135248AbREESci>; Sat, 5 May 2001 14:32:38 -0400
+Received: from [24.93.67.54] ([24.93.67.54]:11279 "EHLO mail7.nc.rr.com")
+	by vger.kernel.org with ESMTP id <S135242AbREEScV>;
+	Sat, 5 May 2001 14:32:21 -0400
+Subject: Re: Could clock granularity be increased????
+From: Sam Coles <sam@bcinet.net>
+To: shreenivasa H V <shreenihv@usa.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010505175314.7785.qmail@nwcst288.netaddress.usa.net>
+In-Reply-To: <20010505175314.7785.qmail@nwcst288.netaddress.usa.net>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 05 May 2001 14:34:14 -0400
+Message-Id: <989087664.885.0.camel@sam>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thunder7@xs4all.nl wrote:
+Will editing include/asm/param.h not do the trick?
 
-> On Fri, May 04, 2001 at 11:24:58PM +0100, Alan Cox wrote:
->> 
->> ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
->> 
->> Intermediate diffs are available from
->> 
->> http://www.bzimage.org
->> 
->> Please test this code **carefully** if using an HPT366/370 IDE controller as
->> there are driver changes there. Otherwise its mostly just catching up with
->> the bugfixes.
->> 
->> 2.4.4-ac5
->> o	Fix DMA setup on hpt366/370			(Tim Hockin)
-> 
-> I see definite changes; on heavy disk-access I got the following:
-> 
-> hdg: timeout waiting for dma
-> ide_dmaproc: chipset supported ide_dma_timeout func only:14
-> hdg: irq timeout: status = 0x58 { DriveReady SeekComplete DataRequest}
-> 
-> this was repeated several times, and ide3 was being reset, but the
-> kernel hung anyway after 5 minutes of waiting.
-> 
-> I must have an unlucky set of hardware (via chipset VP6 board, Live!,
-> ibm drives).
+Sam
 
-Funny I have had the same problem with 2.4.4 only with a pdc20267 (reported
-to lkml with topic '[BUG] pdc20267 and dma timeouts')  Is there some problem 
-with resets on ide2/3?
+On 05 May 2001 12:53:14 -0500, shreenivasa H V wrote:
+> Hi,
+> 
+> Is there any way I could use a clock granularity of less than 10ms if I need
+> to do some hacking of the kernel TCP code? Ideally I would require the
+> interval of the order of 10-100 microseconds. 
+> thanks,
+> shreeni.
+> 
+> ____________________________________________________________________
+> Get free email and a permanent address at http://www.netaddress.com/?N=1
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-TIA
-Ed Tomlinson <tomlins@cam.org>
-
-Ed Tomlinson

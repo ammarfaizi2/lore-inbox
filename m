@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbTEZUVh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 16:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTEZUVh
+	id S262219AbTEZUXM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 16:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbTEZUXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 16:21:37 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:23814 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S262211AbTEZUVg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 16:21:36 -0400
-Date: Mon, 26 May 2003 22:34:43 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Paulo Andre'" <fscked@iol.pt>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [RFC] [PATCH] Add 'make' with no target as preferred build command
-Message-ID: <20030526203443.GA1209@mars.ravnborg.org>
-Mail-Followup-To: Paulo Andre' <fscked@iol.pt>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
-References: <20030526182907.108fd71e.fscked@iol.pt>
+	Mon, 26 May 2003 16:23:12 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:61191 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262219AbTEZUXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 16:23:11 -0400
+Subject: Re: [BK PATCHES] add ata scsi driver
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0305261317520.12186-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0305261317520.12186-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 26 May 2003 16:36:18 -0400
+Message-Id: <1053981380.1768.203.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030526182907.108fd71e.fscked@iol.pt>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 26, 2003 at 06:29:07PM +0100, Paulo Andre' wrote:
-> Hello,
+On Mon, 2003-05-26 at 16:27, Linus Torvalds wrote:
+> Talking about tagged queueing - does the SCSI layer still remove the
+> request from the request list when it starts executing it?
+
+That's a block layer requirement (blk_queue_start_tag does the dequeue).
+But yes, for untagged requests, we still dequeue them manually.
+
+> At least historically that's a major mistake, and generates a crappy 
+> elevator, because it removes information from the block layer about where 
+> the disk is (or is going to be).
 > 
-> It seems for 2.5/2.6 'make' is the preferred command for building the
-> kernel tree (also stated in davej's 2.6 "what to expect" document). That
-> scenario however isn't even presented when the user finishes the kernel
-> configuration. This is a simple patch to scripts/kconfig/mconf.c which
-> tackles that, perhaps not in the best fashion but certainly in the
-> simplest.
+> I know Andrew thinks that SCSI tagged queuing is a bunch of crap, and he 
+> has the latency numbers to prove it. He blames the SCSI disks themselves, 
+> but I think it might be the fact that SCSI makes it impossible to make a 
+> fair queuing algorithm for higher levels by hiding information.
+> 
+> Has anybody looked at just removing the request at command _completion_ 
+> time instead? That's what IDE does, and it's the _right_ thing to do.
 
-If we really want this boilerplate text then bzImage should not be
-present. It is i386 centric.
-Revised patch below. Also made it a bit more readable by wrapping
-a long line.
+Well...I could do it, but since it only applies to untagged devices
+(which is really tapes and some CD-ROMs nowadays), I'm not sure it would
+be worth the effort.
 
-Roman Zippel cc:ed as he is the kconfig maintainer.
+> I'd hate for SATA to pick up these kinds of mistakes from the SCSI layer.
 
-	Sam
+The elevator is based on linear head movements.  I'm not sure its
+optimal to figure out a way to leave all the executing tagged requests
+in the queue, is it?  They can be spread out all over the disc with no
+idea which one the disc is currently executing.
 
-===== scripts/kconfig/mconf.c 1.5 vs edited =====
---- 1.5/scripts/kconfig/mconf.c	Sat Mar 15 18:25:55 2003
-+++ edited/scripts/kconfig/mconf.c	Mon May 26 22:30:47 2003
-@@ -780,10 +780,12 @@
- 		conf_write(NULL);
- 		printf("\n\n"
- 			"*** End of Linux kernel configuration.\n"
--			"*** Check the top-level Makefile for additional configuration.\n"
--			"*** Next, you may run 'make bzImage', 'make bzdisk', or 'make install'.\n\n");
-+			"*** Execute 'make' to build the kernel"
-+		        " or try 'make help'.\n\n");
- 	} else
--		printf("\n\nYour kernel configuration changes were NOT saved.\n\n");
-+		printf("\n\n"
-+			"*** Your kernel configuration changes were NOT saved."
-+			"\n\n");
- 
- 	return 0;
- }
+James
+
+

@@ -1,48 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263616AbUEGPPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263641AbUEGPOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263616AbUEGPPM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 11:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263653AbUEGPPM
+	id S263641AbUEGPOq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 11:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263653AbUEGPOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 11:15:12 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:25103 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263616AbUEGPPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 11:15:07 -0400
-Date: Fri, 7 May 2004 16:14:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: James Morris <jmorris@redhat.com>
-Cc: "David S. Miller" <davem@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH][SELINUX] 2/2 sock_create_lite()
-Message-ID: <20040507161455.A31114@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Morris <jmorris@redhat.com>,
-	"David S. Miller" <davem@redhat.com>,
-	Stephen Smalley <sds@epoch.ncsc.mil>,
-	Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-	netdev@oss.sgi.com, selinux@tycho.nsa.gov
-References: <Xine.LNX.4.44.0405071043540.21372@thoron.boston.redhat.com> <Xine.LNX.4.44.0405071056300.21372-100000@thoron.boston.redhat.com>
+	Fri, 7 May 2004 11:14:46 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:20953 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263641AbUEGPOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 11:14:39 -0400
+Date: Fri, 7 May 2004 16:13:17 +0100
+From: Dave Jones <davej@redhat.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Paul Jakma <paul@clubi.ie>, Valdis.Kletnieks@vt.edu,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Message-ID: <20040507151317.GA15823@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Arjan van de Ven <arjanv@redhat.com>, Paul Jakma <paul@clubi.ie>,
+	Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net> <200405051822.i45IM2uT018573@turing-police.cc.vt.edu> <20040505215136.GA8070@wohnheim.fh-wedel.de> <200405061518.i46FIAY2016476@turing-police.cc.vt.edu> <1083858033.3844.6.camel@laptop.fenrus.com> <Pine.LNX.4.58.0405070136010.1979@fogarty.jakma.org> <20040507065105.GA10600@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Xine.LNX.4.44.0405071056300.21372-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Fri, May 07, 2004 at 11:06:04AM -0400
+In-Reply-To: <20040507065105.GA10600@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 07, 2004 at 11:06:04AM -0400, James Morris wrote:
-> This patch adds a function sock_create_lite(), deprecating kernel-wide use
-> of sock_alloc(), which has been made static to net/socket.c.
+On Fri, May 07, 2004 at 08:51:05AM +0200, Arjan van de Ven wrote:
+ > 
+ > On Fri, May 07, 2004 at 01:37:54AM +0100, Paul Jakma wrote:
+ > > On Thu, 6 May 2004, Arjan van de Ven wrote:
+ > > 
+ > > > Ok I don't want to start a flamewar but... Do we want to hold linux
+ > > > back until all binary only module vendors have caught up ??
+ > > 
+ > > What about normal linux modules though? Eg, NFS (most likely):
+ > > 
+ > > 	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=121804
+ > 
+ > NFSv4 has a > 1Kb stack user; Dave Jones has a fix pending for that...
 
-We're in the stable series and removing exported APIs there shoudn't happen.
-Given that sock_alloc() is actually okay for every normal use I don't think
-there's enough reason to remove it from the API.
+Hmm, this one maybe?
+ 
+		Dave
 
-> +int sock_create_lite(int family, int type, int protocol, struct socket **res)
-
-Should probably be called __sock_create according to linux naming rules.
-Also I guess you should actually call it from sock_create instead of
-duplicating the code.
-
+--- linux-2.6.5/net/sunrpc/auth_gss/auth_gss.c~	2004-05-05 13:34:31.000000000 +0100
++++ linux-2.6.5/net/sunrpc/auth_gss/auth_gss.c	2004-05-05 13:33:05.000000000 +0100
+@@ -429,10 +429,8 @@ gss_pipe_upcall(struct file *filp, struc
+ static ssize_t
+ gss_pipe_downcall(struct file *filp, const char *src, size_t mlen)
+ {
+-	char buf[1024];
+ 	struct xdr_netobj obj = {
+ 		.len	= mlen,
+-		.data	= buf,
+ 	};
+ 	struct inode *inode = filp->f_dentry->d_inode;
+ 	struct rpc_inode *rpci = RPC_I(inode);
+@@ -448,11 +446,19 @@ gss_pipe_downcall(struct file *filp, con
+ 	int err;
+ 	int gss_err;
+ 
+-	if (mlen > sizeof(buf))
++	obj.data = kmalloc(1024, GFP_KERNEL);
++	if (!obj.data)
++		return -ENOMEM;
++
++	if (mlen > 1024) {
++		kfree (obj.data);
+ 		return -ENOSPC;
+-	left = copy_from_user(buf, src, mlen);
+-	if (left)
++	}
++	left = copy_from_user(obj.data, src, mlen);
++	if (left) {
++		kfree (obj.data);
+ 		return -EFAULT;
++	}
+ 	clnt = rpci->private;
+ 	atomic_inc(&clnt->cl_users);
+ 	auth = clnt->cl_auth;
+@@ -477,12 +483,14 @@ gss_pipe_downcall(struct file *filp, con
+ 	} else
+ 		spin_unlock(&gss_auth->lock);
+ 	rpc_release_client(clnt);
++	kfree (obj.data);
+ 	return mlen;
+ err:
+ 	if (ctx)
+ 		gss_destroy_ctx(ctx);
+ 	rpc_release_client(clnt);
+ 	dprintk("RPC: gss_pipe_downcall returning %d\n", err);
++	kfree (obj.data);
+ 	return err;
+ }
+ 

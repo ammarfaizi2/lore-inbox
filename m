@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbUEWLQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbUEWLkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbUEWLQg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 07:16:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbUEWLQg
+	id S262585AbUEWLkH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 07:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUEWLkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 07:16:36 -0400
-Received: from canuck.infradead.org ([205.233.217.7]:15876 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262547AbUEWLQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 07:16:35 -0400
-Date: Sun, 23 May 2004 07:16:22 -0400
-From: hch@infradead.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Leonardo Macchia <leo@bononia.it>, 250477@bugs.debian.org,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bug#250477: kernel-source-2.4.26: Lots of debug in RAID5
-Message-ID: <20040523111622.GA24817@infradead.org>
-Mail-Followup-To: hch@infradead.org,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Leonardo Macchia <leo@bononia.it>, 250477@bugs.debian.org,
-	Neil Brown <neilb@cse.unsw.edu.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040523085801.2878013C002@nomade.ciram.unibo.it> <20040523105351.GB19402@gondor.apana.org.au>
-Mime-Version: 1.0
+	Sun, 23 May 2004 07:40:07 -0400
+Received: from zero.aec.at ([193.170.194.10]:18181 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S262585AbUEWLkE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 07:40:04 -0400
+To: ebiederm@xmission.com (Eric W. Biederman)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm5
+References: <1YAd2-6Th-13@gated-at.bofh.it> <1YPF4-2hJ-11@gated-at.bofh.it>
+	<1YPOI-2nq-1@gated-at.bofh.it> <1YRdQ-3pu-5@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 23 May 2004 13:39:59 +0200
+In-Reply-To: <1YRdQ-3pu-5@gated-at.bofh.it> (Eric W. Biederman's message of
+ "Sun, 23 May 2004 04:50:06 +0200")
+Message-ID: <m3r7tbtlrk.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040523105351.GB19402@gondor.apana.org.au>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 23, 2004 at 08:53:51PM +1000, Herbert Xu wrote:
-> > --- kernel-source-2.4.26/drivers/md/raid5.c	2003-08-30 06:01:38.000000000 +0000
-> > +++ kernel-source-2.4.26-nodebug/drivers/md/raid5.c	2004-05-23 08:54:36.000000000 +0000
-> > @@ -282,7 +282,7 @@
-> >  				}
-> >  
-> >  				if (conf->buffer_size != size) {
-> > -					printk("raid5: switching cache buffer size, %d --> %d\n", oldsize, size);
-> > +					PRINTK("raid5: switching cache buffer size, %d --> %d\n", oldsize, size);
-> >  					shrink_stripe_cache(conf);
-> >  					if (size==0) BUG();
-> >  					conf->buffer_size = size;
-> 
-> Thanks for the patch.  This does indeed look like a typo.
-> 
-> Hi Neil, does this patch look OK to you?
+ebiederm@xmission.com (Eric W. Biederman) writes:
 
-No, this was rejected a few times already.  The problem is that XFS
-uses differen I/O sizes for the log and other I/O which makes raid
-performance suck really badly.  The real fix is to use the v2 XFS log
-format when using software raid5.
+> Currently I know of a safe version that will work on x86 on processors
+> with sse support.   And I how to generate 64bit I/O cycles with using
+> mmx or x87 registers,  but don't know if I can write code that touches
+> the FPU registers that is interrupt safe.
+
+As long as you save/restore cr0 and the FPU registers and do clts
+interrupts are not a problem.  In fact interrupts are even easier that
+process context, where you need preempt_disable().
+
+-Andi
 

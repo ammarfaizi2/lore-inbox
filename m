@@ -1,28 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267198AbSKPB5c>; Fri, 15 Nov 2002 20:57:32 -0500
+	id <S267200AbSKPB5g>; Fri, 15 Nov 2002 20:57:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267200AbSKPB5c>; Fri, 15 Nov 2002 20:57:32 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:10258 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S267198AbSKPB5b>;
-	Fri, 15 Nov 2002 20:57:31 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-rc2 
-In-reply-to: Your message of "Fri, 15 Nov 2002 13:10:07 -0200."
-             <Pine.LNX.4.44L.0211151309400.11268-100000@freak.distro.conectiva> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 16 Nov 2002 13:04:02 +1100
-Message-ID: <7883.1037412242@ocs3.intra.ocs.com.au>
+	id <S267202AbSKPB5g>; Fri, 15 Nov 2002 20:57:36 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:11914 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267200AbSKPB5f>;
+	Fri, 15 Nov 2002 20:57:35 -0500
+Date: Fri, 15 Nov 2002 18:03:46 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Arun Sharma <arun.sharma@intel.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Reserving "special" port numbers in the kernel ?
+In-Reply-To: <u65uyb82a.fsf@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.33L2.0211151802520.6746-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Nov 2002 13:10:07 -0200 (BRST), 
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
->So here goes -rc2, fixing the lcall DoS.
+On 15 Nov 2002, Arun Sharma wrote:
 
-No obvious changes that affect kdb, so unless somebody reports
-problems, use kdb-v2.5-2.4.20-rc1 with -rc2.
+| rddunlap@osdl.org ("Randy.Dunlap") writes:
+|
+| > Look in arch/i386/kernel/setup.c (in 2.4.19):
+| >
+| > There is this array:
+| >   struct resource standard_io_resources[] = ...
+| > that you could add to; you could even make the addition a CONFIG_ option.
+|
+| That's reserving I/O ports. Are you suggesting that we create an
+| analogous array for IP ports ?
+
+Nope.  Sorry, I read too much into "port".  :(
+or maybe too much port.
+
+-- 
+~Randy
+  "I read part of it all the way through." -- Samuel Goldwyn
 

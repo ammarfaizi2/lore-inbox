@@ -1,45 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130770AbQLLUZC>; Tue, 12 Dec 2000 15:25:02 -0500
+	id <S131953AbQLLU1L>; Tue, 12 Dec 2000 15:27:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131123AbQLLUYv>; Tue, 12 Dec 2000 15:24:51 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:29452 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S130770AbQLLUYk>;
-	Tue, 12 Dec 2000 15:24:40 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200012121953.WAA29123@ms2.inr.ac.ru>
-Subject: Re: Bad behavior of recv on already closed sockets.
-To: dyp@perchine.com (Denis Perchine)
-Date: Tue, 12 Dec 2000 22:53:58 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <0012121838460H.18833@dyp.perchine.com> from "Denis Perchine" at Dec 12, 0 06:38:46 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S131956AbQLLU1B>; Tue, 12 Dec 2000 15:27:01 -0500
+Received: from front6.grolier.fr ([194.158.96.56]:52727 "EHLO
+	front6.grolier.fr") by vger.kernel.org with ESMTP
+	id <S131953AbQLLU0z> convert rfc822-to-8bit; Tue, 12 Dec 2000 15:26:55 -0500
+Date: Tue, 12 Dec 2000 19:56:07 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: Martin Mares <mj@suse.cz>
+cc: "David S. Miller" <davem@redhat.com>, lk@tantalophile.demon.co.uk,
+        davej@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: pdev_enable_device no longer used ?
+In-Reply-To: <20001212001612.A14150@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.10.10012121925590.1345-100000@linux.local>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> > It would be better to understand the issue f.e. trying to restore
-> > the history of this descriptor.
+
+On Tue, 12 Dec 2000, Martin Mares wrote:
+
+> Hello!
 > 
-> How to do this? I mean what should I do to provide you with more information?
+> > It is the bar cookies in pci dev structure that are insane, in my opinion.
+> > 
+> > If a driver needs BARs values, it needs actual BARs values and not some
+> > stinking cookies. What a driver can do with BAR cookies other than using
+> > them as band-aid for dubiously designed kernel interface.
+> 
+> If a driver wants to know the BAR values, it can pick them up in the configuration
+> space itself. The problem is that these values mean absolutely nothing outside
 
-I do not know exactly. It depends on curcumstances, frequency 
-of the stalls and... your luck. 8)
+The return value makes FULL sense on the BUS on which _real_ PCI
+transactions will happen for old SYMBIOS devices and will hint recent ones
+about using internal cycles instead (that are PCI 2.2 compliants) for
+accessing the on chip-RAM.
 
-Usually in such cases I ask to start from gathering single huge
-binary tcpdump (tcpdump -i lo -b ip -w big.dump port 3994)
-until the problem happens. Then you cut of it the problematic session
-with tcpdump again (tcpdump -n -vvv -r big.dump port 2994 and port 5432).
-Then we will have at least picture at network side.
+As seen from the BUS and thus from the PCI device, all the opaque
+inventions of O/Ses are just irrelevant sci-fi.
 
-If after this we will not understand what happened then tracing
-at application level. It is more complicated and depends mostly
-on particular application. strace is too promiscuous as rule
-and does not work well with intensively forking applications.
+By the way, the hack that used bus_dvma_to_mem() from the BAR cookies is
+not from me, but from David S. Miller. This will be fixed as you suggest.
 
-Alexey
+> the bus the device resides on. There exist zillions of translating bridges
+> and no driver except for the driver for the particular bridge should ever
+> assume anything about them.
+
+You seem to know well PCI but, in my opinion, you still have to learn much
+about it and about what reality is.
+
+You should repeat hundred times:
+
+    "It is not Gérard neither the sym driver that wants to know about
+     BARs"
+
+But,
+
+    "They are these damned PCI specifications that based everything on 
+     actual BUS address comparators and the NCR/SYMBIOS ingenieers 
+     that based memory related SCRIPTS instructions on actual adresses
+     as seen from the BUS, and btw, as suggested by the specifications."
+
+
+> The values in pci_dev->resource[] are not some random cookies, they are
+> genuine physical addresses as seen by the CPU and as accepted by ioremap().
+
+These cookies are confusing a lot and useless given a correct design of
+related kernel interfaces. There is plenty of room in the pcidev structure
+for private informations that would have avoided these stupid cookies.
+
+In fact, these cookies are still there for historical reasons when
+MMIO-capable PCI device driver(s) had to use vremap() on actual BAR
+addresses. This only worked on Intel.
+
+  Gérard.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

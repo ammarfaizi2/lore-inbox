@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261383AbSIZPWu>; Thu, 26 Sep 2002 11:22:50 -0400
+	id <S261390AbSIZP2Q>; Thu, 26 Sep 2002 11:28:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261385AbSIZPWu>; Thu, 26 Sep 2002 11:22:50 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:53259 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S261383AbSIZPWt>; Thu, 26 Sep 2002 11:22:49 -0400
-Date: Fri, 27 Sep 2002 01:27:41 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: "David S. Miller" <davem@redhat.com>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <nf@hipac.org>,
-       <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification for
- Netfilter
-In-Reply-To: <20020925.224001.99456805.davem@redhat.com>
-Message-ID: <Mutt.LNX.4.44.0209270122570.12511-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261391AbSIZP2Q>; Thu, 26 Sep 2002 11:28:16 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:58800 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261390AbSIZP2P>;
+	Thu, 26 Sep 2002 11:28:15 -0400
+Date: Thu, 26 Sep 2002 16:34:10 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: 20020912161258.A9056@informatics.muni.cz, linux-kernel@vger.kernel.org,
+       Mark Hahn <hahn@physics.mcmaster.ca>, kernel@street-vision.com,
+       Petr Konecny <pekon@informatics.muni.cz>,
+       "Bruno A. Crespo" <bruno@conectatv.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: AMD 768 erratum 10 (solved: AMD 760MPX DMA lockup)
+Message-ID: <20020926153410.GA4381@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	20020912161258.A9056@informatics.muni.cz,
+	linux-kernel@vger.kernel.org, Mark Hahn <hahn@physics.mcmaster.ca>,
+	kernel@street-vision.com, Petr Konecny <pekon@informatics.muni.cz>,
+	"Bruno A. Crespo" <bruno@conectatv.com>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+References: <20020925132422.GC14381@fi.muni.cz> <1033052890.1269.28.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1033052890.1269.28.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Sep 2002, David S. Miller wrote:
+On Thu, Sep 26, 2002 at 04:08:10PM +0100, Alan Cox wrote:
+ > Looks like the obvious fix is to simply disable the APIC on all such
+ > systems
 
-> If you have things that must happen in a sequence to flow through
-> your path properly, that's where the "stackable" bit comes in.  You
-> do that one bit, skb->dst = dst_pop(skb->dst), then your caller
-> will pass the packet on to skb->dst->{output,input}().
-> 
-> Is it clearer now the kind of things you'll be able to do?
-> 
+Converting a *lot* of MP systems to UP due to an errata
+that only occurs with no PS/2 mouse seems a bit extreme.
+Can we safely probe the PS2 port to see if its empty or not
+and do a runtime APIC/SMP disable really early in the boot ?
 
-So, this could be used for generic network layer encapsulation, and be 
-used for GRE tunnels, SIT etc. without the kinds of kludges currently in 
-use?  Sounds nice.
+		Dave
 
-
-- James
 -- 
-James Morris
-<jmorris@intercode.com.au>
-
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

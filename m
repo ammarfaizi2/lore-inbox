@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316408AbSG3UPg>; Tue, 30 Jul 2002 16:15:36 -0400
+	id <S316342AbSG3UOO>; Tue, 30 Jul 2002 16:14:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316430AbSG3UPg>; Tue, 30 Jul 2002 16:15:36 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:34514 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316408AbSG3UPd>;
-	Tue, 30 Jul 2002 16:15:33 -0400
-Date: Tue, 30 Jul 2002 22:18:52 +0200
+	id <S316390AbSG3UOO>; Tue, 30 Jul 2002 16:14:14 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:30162 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316342AbSG3UON>;
+	Tue, 30 Jul 2002 16:14:13 -0400
+Date: Tue, 30 Jul 2002 22:17:22 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
 To: Vojtech Pavlik <vojtech@suse.cz>
 Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
        linuxconsole-dev@lists.sourceforge.net
-Subject: [patch] Remove superfluous code that snuck back in PPC merge
-Message-ID: <20020730221852.B22761@ucw.cz>
-References: <20020730122638.A11153@ucw.cz> <20020730122918.A11248@ucw.cz> <20020730152255.A20071@ucw.cz> <20020730152342.B20071@ucw.cz> <20020730221722.A22761@ucw.cz>
+Subject: [patch] Fix suspend of the kseriod thread
+Message-ID: <20020730221722.A22761@ucw.cz>
+References: <20020730122638.A11153@ucw.cz> <20020730122918.A11248@ucw.cz> <20020730152255.A20071@ucw.cz> <20020730152342.B20071@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020730221722.A22761@ucw.cz>; from vojtech@suse.cz on Tue, Jul 30, 2002 at 10:17:22PM +0200
+In-Reply-To: <20020730152342.B20071@ucw.cz>; from vojtech@suse.cz on Tue, Jul 30, 2002 at 03:23:42PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -29,69 +29,49 @@ You can import this changeset into BK by piping this whole message to:
 
 ===================================================================
 
-ChangeSet@1.531, 2002-07-30 22:04:17+02:00, Franz.Sirl@lauterbach.com
-  Hi Vojtech,
-  some superflous keyboard stuff came back with the last PPC merge
-  to Linus. This patch fixes that. Please apply.
+ChangeSet@1.530, 2002-07-30 21:52:03+02:00, pavel@suse.cz
+  Move sleep_on() above refrigerator so that the kseriod thread
+  in serio.c doesn't exit on suspend because of a pending signal.
 
- lopec_setup.c |   13 -------------
- 1 files changed, 13 deletions(-)
+ serio.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -Nru a/arch/ppc/platforms/lopec_setup.c b/arch/ppc/platforms/lopec_setup.c
---- a/arch/ppc/platforms/lopec_setup.c	Tue Jul 30 22:17:44 2002
-+++ b/arch/ppc/platforms/lopec_setup.c	Tue Jul 30 22:17:44 2002
-@@ -34,14 +34,9 @@
- #include <asm/mpc10x.h>
- #include <asm/hw_irq.h>
- #include <asm/prep_nvram.h>
--#include <asm/keyboard.h>
+diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+--- a/drivers/input/serio/serio.c	Tue Jul 30 22:15:57 2002
++++ b/drivers/input/serio/serio.c	Tue Jul 30 22:15:57 2002
+@@ -95,9 +95,9 @@
  
- extern char saved_command_line[];
- extern void lopec_find_bridges(void);
--extern int pckbd_translate(unsigned char scancode, unsigned char *keycode,
--		char raw_mode);
--extern char pckbd_unexpected_up(unsigned char keycode);
--extern unsigned char pckbd_sysrq_xlate[128];
+ 	do {
+ 		serio_handle_events();
++		interruptible_sleep_on(&serio_wait); 
+ 		if (current->flags & PF_FREEZE)
+ 			refrigerator(PF_IOTHREAD);
+-		interruptible_sleep_on(&serio_wait); 
+ 	} while (!signal_pending(current));
  
- /*
-  * Define all of the IRQ senses and polarities.  Taken from the
-@@ -384,14 +379,6 @@
- 	ppc_md.find_end_of_memory = lopec_find_end_of_memory;
- 	ppc_md.setup_io_mappings = lopec_map_io;
- 
--#ifdef CONFIG_VT
--	ppc_md.kbd_translate = pckbd_translate;
--	ppc_md.kbd_unexpected_up = pckbd_unexpected_up;
--#ifdef CONFIG_MAGIC_SYSRQ
--	ppc_md.ppc_kbd_sysrq_xlate = pckbd_sysrq_xlate;
--#endif /* CONFIG_MAGIC_SYSRQ */
--#endif /* CONFIG_VT */
-- 
- 	ppc_md.time_init = todc_time_init;
- 	ppc_md.set_rtc_time = todc_set_rtc_time;
- 	ppc_md.get_rtc_time = todc_get_rtc_time;
+ 	printk(KERN_DEBUG "serio: kseriod exiting");
 
 ===================================================================
 
 This BitKeeper patch contains the following changesets:
-1.531
+1.530
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch22903
-M'XL(`&CT1CT``]5486_3,!#]7/^*D_9Q-/'%3M)6*BILP"0F476,K\AQW"74
-MJ2/;Z=8J/QZOA56`T#:$D$@BV3[[WEW>>\D)7#ME)X.W5JQWT55M-3F!"^/\
-M9*!%YY4MA*PB:9H07A@3PG%E&A5OS!>O9!47J[A>MYTG87\NO*Q@HZR;##!B
-M#Q&_;=5DL'CS[OKRU8*0Z13.*K&^45?*PW1*O+$;H4LW$[[29AWYT(IKE!?W
-M9?N'HWU":1+N%'-&TZS'C/*\EU@B"HZJI`D?99RT8J/TS'5.17+W<W;(Q'&:
-M4-:S/,M3<@X8I0R!)C'-8T8A22:43S`_I6%"X<C*[$<VX!1A2,EK^+O-GQ$)
-M%S5\.I#[(JQ<(!M<URJ[U*9SL%+;P@A;@O/=<@E2A.W0U`IN:Q^8KA1HX3S,
-MYV?0*'NC`H0W<%FO.Q?!QZIVT.XU6=9WRH7SPD<PUTHX!:)M]38B[X&-^"@G
-M\Z-*9/C,BQ`J*'D9:G6Z<S,?<$QT6$1FIT41!GO3"QL<U+8R;K7P2V,;%VO3
-M*OG9*=^UD?S&&E+$!%/L&4MPW)>295B6DLNDR)*4_UZE)Q8(DH21(^\SRCC?
-M._2QS'OC_I.W^U[%B:80S\#-DXR.$%G`33,VWEL=?W4Z?]SI%(;(_@.K'XT>
-MP)YH]8/@'V!H;_=/L.[\4>W_X',X9SD@.><(/,Q'.8R./TQ9*;ER73,MTIR/
--QV-)O@+`_N;.E04`````
+begin 664 bkpatch22848
+M'XL(`/WS1CT``[64:V_:,!2&/^-?<:1*VZJ*Q,Z5,#%U:W?3-@U1]3,RSH&X
+MA!C9#JQ5?OR<E-&UT^BN2619;W)>G^/SQ$=P:5`/>V\TKVZ\"ZE+<@3OE+'#
+M7LEKBWK&1>$)M7+R1"DG^X5:H;]15Q9%X<^6OJS6M27N_9A;4<`&M1GVF!?N
+M%7N]QF%O\OKMY<>7$T)&(S@K>+7`"[0P&A&K](:7N3GEMBA5Y5F7BEFAY>VR
+MS?[3)J`T<'?,TI#&2<,2&J6-8#EC/&*8TR`:)!'9)79J:H.>N'D8[V)9R+(P
+M;,)!2F-R#LR+0PHT\&GJNTG`AG$PI.$)=2.%-=]@^<T,3ACT*7D%_S;E,R+@
+MD]H@F!)Q/575LV/@LU;0.-=R@9J[!<$HL`6W;D!8NJ9)E;NY1IZ[>%E!)WD"
+M<H6F>FH!OT@+RNFU66.5PPP%=W6`F@.'5I'5`HQ<5+STR`<(TR2-R?BN-Z3_
+MFQ<AE%/RXI'=R;5L$?%%P;5_I:Z-E6+I[Y+_;L<B2N.&1DF6-"[Q>);A/!^D
+M#)'?;\K>L./PUNB^7=OS+';3QOG&24?@@:#'F?S[$O:8VJTLY:*P7BVVOU9,
+M$`6,15&T*Z8%./L!7_I3?-E_QM=A-E?Z`+JWR#ZDU'GL.&U9["K[#'V][1Z'
+MUOA0Q_Z`U/=9"HST>K)R9YRNUU;.2ISN?\`GG?-TRZ4]?@[DG+F]9'=GG"A0
+4+$V]&L48\T'(./D**"&1[T@%````
 `
 end
 

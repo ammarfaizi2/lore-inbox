@@ -1,26 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264837AbSJPDaw>; Tue, 15 Oct 2002 23:30:52 -0400
+	id <S264836AbSJPDic>; Tue, 15 Oct 2002 23:38:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264839AbSJPDaw>; Tue, 15 Oct 2002 23:30:52 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:31370 "HELO
+	id <S264839AbSJPDib>; Tue, 15 Oct 2002 23:38:31 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:49546 "HELO
 	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S264837AbSJPDav>; Tue, 15 Oct 2002 23:30:51 -0400
+	id <S264836AbSJPDib>; Tue, 15 Oct 2002 23:38:31 -0400
 From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Date: Wed, 16 Oct 2002 13:36:34 +1000
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Date: Wed, 16 Oct 2002 13:44:04 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15788.57026.234504.747098@notabene.cse.unsw.edu.au>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: nfs-server slowdown in 2.4.20-pre10 with client 2.2.19
-In-Reply-To: message from Stephan von Krawczynski on Tuesday October 15
-References: <20021013172138.0e394d96.skraw@ithnet.com>
-	<15785.64463.490494.526616@notabene.cse.unsw.edu.au>
-	<20021014045410.4721c209.skraw@ithnet.com>
-	<15786.15416.668502.225074@notabene.cse.unsw.edu.au>
-	<20021015194538.10f54ef3.skraw@ithnet.com>
+Message-ID: <15788.57476.858253.961941@notabene.cse.unsw.edu.au>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: [PATCH] zerocopy NFS for 2.5.36
+In-Reply-To: message from Hirokazu Takahashi on Monday October 14
+References: <20020918.171431.24608688.taka@valinux.co.jp>
+	<15786.23306.84580.323313@notabene.cse.unsw.edu.au>
+	<20021014.210144.74732842.taka@valinux.co.jp>
 X-Mailer: VM 7.07 under Emacs 20.7.2
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
@@ -28,31 +26,31 @@ X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday October 15, skraw@ithnet.com wrote:
-> On Mon, 14 Oct 2002 13:38:32 +1000
-> Neil Brown <neilb@cse.unsw.edu.au> wrote:
+On Monday October 14, taka@valinux.co.jp wrote:
+> >  I'm bit I'm not very sure about is the 'shadowsock' patch for having
+> >  several xmit sockets, one per CPU.  What sort of speedup do you get
+> >  from this?  How important is it really?
 > 
-> Hello Neil,
-> hello Trond,
+> It's not so important.
 > 
-> > This night I will try to reduce rsize/wsize from the current 8192 down to
-> > 1024 as suggested by Jeff.
+> davem> Personally, it seems rather essential for scalability on SMP.
 > 
-> Ok. The result is: it is again way slower. I was not even capable to transfer 5
-> GB within 18 hours, that's when I shot the thing down.
-> Anything else I can test?
+> Yes.
+> It will be effective on large scale SMP machines as all kNFSd shares
+> one NFS port. A udp socket can't send data on each CPU at the same
+> time while MSG_MORE/UDP_CORK options are set.
+> The UDP socket have to block any other requests during making a UDP frame.
+> 
 
-All I can suggest is a binary search among the patches that comprise
-the difference between pre9 and pre10 to see when the problem comes
-in.
+After thinking about this some more, I suspect it would have to be
+quite large scale SMP to get much contention.
+The only contention on the udp socket is, as you say, assembling a udp
+frame, and it would be surprised if that takes a substantial faction
+of the time to handle a request.
 
-There are about 40 patches, so about 6 test runs  should find the
-culprit.
-
-I tried to extract them from bk and have put the 40 patches at:
-
-  http://www.cse.unsw.edu.au/~neilb/pre10/
-
-There is a p-all.tgz  that contains them all.
+Presumably on a sufficiently large SMP machine that this became an
+issue, there would be multiple NICs.  Maybe it would make sense to
+have one udp socket for each NIC.  Would that make sense? or work?
+It feels to me to be cleaner than one for each CPU.
 
 NeilBrown

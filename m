@@ -1,88 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267801AbUHZIYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267806AbUHZI06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267801AbUHZIYP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 04:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267806AbUHZIYO
+	id S267806AbUHZI06 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 04:26:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUHZI06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 04:24:14 -0400
-Received: from mail.linicks.net ([217.204.244.146]:53252 "EHLO
-	Linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S267801AbUHZIYJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 04:24:09 -0400
-From: Nick Warne <nick@linicks.net>
-Subject: CD drive packet command errors.
-Date: Thu, 26 Aug 2004 09:24:04 +0100
-User-Agent: KMail/1.6.2
-To: linux-kernel@vger.kernel.org
+	Thu, 26 Aug 2004 04:26:58 -0400
+Received: from mail.gmx.net ([213.165.64.20]:8132 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267806AbUHZI0x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 04:26:53 -0400
+X-Authenticated: #4512188
+Message-ID: <412D9ECA.9090608@gmx.de>
+Date: Thu, 26 Aug 2004 10:26:50 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040815)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] V-5.0.1 Single Priority Array O(1) CPU Scheduler Evaluation
+References: <412AAC1D.5050104@bigpond.net.au> <412C53D6.3040202@bigpond.net.au> <412C789D.2050303@gmx.de> <412D2C5D.4070206@bigpond.net.au>
+In-Reply-To: <412D2C5D.4070206@bigpond.net.au>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408260924.04424.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I have a strange problem here, and after 2 days trying everything I can't
-seem to resolve.
+Peter Williams wrote:
+| Prakash K. Cheemplavam wrote:
+|
+|> -----BEGIN PGP SIGNED MESSAGE-----
+|> Hash: SHA1
+|>
+|> Peter Williams wrote:
+|> | Now available for 2.6.9-rc1:
+|> |
+|> | ZAPHOD:
+|> |
+|>
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.9-rc1-spa_zaphod_FULL-v5.0.1?download>
 
-Running Slackware 10 - with handrolled 2.4.27 kernel.
+|>
+|>
+|> |
+|> |
+|> | HYDRA:
+|> |
+|>
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.9-rc1-spa_hydra_FULL-v5.0.1?download>
 
-/dev/hdc ==
+|>
+|>
+|> |
+|> |
+|> | Others at <https://sourceforge.net/projects/cpuse/>
+|> |
+|> | Peter
+|>
+|> Hie, could you provide me link which explans in detail, but yet easy to
+|> read, how those schedulers work?
+|
+|
+| Unfortunately, no documentation is available yet.  I've replied
+| separately (because of its size) with a description of the schedulers
+| and will use that reply as a basis for some on line documentation.  In
+| the meanwhile if others are interested I can send them a copy of the
+| description.
 
-ATAPI CD-ROM, with removable media
-        Model Number:       R/RW 8x4x32
-        Serial Number:      4VO5045DM02453
-        Firmware Revision:  2,0
+Thanks. Give me some time to go through it. ;-) I hope you don't mind if
+I possibly still have some dumb questions...
 
+Prakash
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-/dev/hdd ==
-
-ATAPI CD-ROM, with removable media
-        Model Number:       CRD-8520B
-        Serial Number:      2000/05/08
-        Firmware Revision:  1.00
-
-dmesg:
-
-Aug 22 13:00:59 linuxamd kernel: hdc: R/RW 8x4x32, ATAPI CD/DVD-ROM drive
-Aug 22 13:00:59 linuxamd kernel: hdd: CRD-8520B, ATAPI CD/DVD-ROM drive
-
-Aug 22 13:00:59 linuxamd kernel: hdd: attached ide-cdrom driver.
-
-Aug 22 13:00:59 linuxamd kernel: hdc: attached ide-scsi driver.
-Aug 22 13:00:59 linuxamd kernel:   Vendor: IDE-CD    Model: R/RW 8x4x32
-Rev:  2,0
-Aug 22 13:00:59 linuxamd kernel:   Type:   CD-ROM
-ANSI SCSI revision: 02
-
-
-
-/dev/hdc I use the scsi emulation with boot append="hdc=ide-scsi"
-/dev/cdrom -> /dev/hdd
-
-The /dev/hdc writer is fine, and functions perfectly.
-
-But with the normal cd drive on /dev/hdd, any time I open KFM, or do a
-mount/umount from console, I get this in syslogs:
-
-Aug 25 15:53:33 linuxamd kernel: hdd: packet command error: status=0x51
-{ DriveReady SeekComplete Error }
-Aug 25 15:53:33 linuxamd kernel: hdd: packet command error: error=0xa0
-
-But the drive will mount OK, and all works as it should.  Just these logs
-all the time.
-
-I have changed cables, I have turned off dma on hdd, I have messed with DMA
-and PIO modes - tried everything.
-
-Has anybody any ideas whatever causes this?
-
-TIA,
-
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+iD8DBQFBLZ7KxU2n/+9+t5gRAgy6AJ4mvPHomRUe9glUQnuApH6wvmXgmACgtcQR
+FusQQdQnSnu44nmYT1ihI/Y=
+=KHgH
+-----END PGP SIGNATURE-----

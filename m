@@ -1,93 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262741AbSI1IWz>; Sat, 28 Sep 2002 04:22:55 -0400
+	id <S262747AbSI1Imh>; Sat, 28 Sep 2002 04:42:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262743AbSI1IWz>; Sat, 28 Sep 2002 04:22:55 -0400
-Received: from h108-129-61.datawire.net ([207.61.129.108]:11972 "EHLO
-	mail.datawire.net") by vger.kernel.org with ESMTP
-	id <S262741AbSI1IWy> convert rfc822-to-8bit; Sat, 28 Sep 2002 04:22:54 -0400
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
+	id <S262748AbSI1Imh>; Sat, 28 Sep 2002 04:42:37 -0400
+Received: from pool-151-197-234-248.phil.east.verizon.net ([151.197.234.248]:35566
+	"EHLO ingchai.lan") by vger.kernel.org with ESMTP
+	id <S262747AbSI1Imf>; Sat, 28 Sep 2002 04:42:35 -0400
+Date: Sat, 28 Sep 2002 04:48:35 -0500
+From: Steve Lion <s.lion@verizon.net>
 To: linux-kernel@vger.kernel.org
-Subject: [PROBLEM] 2.5.39 - might_sleep() exception - ACPI/APIC, UML compile issues on MP 2000+
-Date: Sat, 28 Sep 2002 04:28:23 -0400
-User-Agent: KMail/1.4.6
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Subject: 2.4.20-pre7-ac3+preempt Oops
+Message-ID: <20020928094835.GA570@localnet.sytes.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="gBBFr7Ir9EOA20Yy"
 Content-Disposition: inline
-Message-Id: <200209280428.23572.spstarr@sh0n.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-System info:
 
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller (rev 11)
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP Bridge
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 04)
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 04)
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
-00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 04)
-01:05.0 VGA compatible controller: ATI Technologies Inc Radeon 7500 QW
-02:04.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
-02:05.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC [Python-T] (rev 78)
-02:08.0 USB Controller: NEC Corporation USB (rev 41)
-02:08.1 USB Controller: NEC Corporation USB (rev 41)	
-02:08.2 USB Controller: NEC Corporation USB 2.0 (rev 02)
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-1) Kernel  on boot up yet lets me continue using system (In 2.5.39 right now).
+Got this Oops while ripping a cd.  I've attached the Oops ran though
+ksymoops.  If any other info is needed, let me know and I will give it.
 
->From code: mm/slab.c
-=============
+-SL
 
-static inline void * __kmem_cache_alloc (kmem_cache_t *cachep, int flags)
-{
-        unsigned long save_flags;
-        void* objp;
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=Oops
 
-        if (flags & __GFP_WAIT)
-                might_sleep(); <---------------
+ksymoops 2.4.6 on i586 2.4.20-pre7-ac3.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.20-pre7-ac3/ (default)
+     -m /boot/System.map-2.4.20-pre7-ac3 (default)
 
-Error from dmesg:
-===========
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-Sep 28 04:05:42 unknown kernel: Sleeping function called from illegal context at slab.c:1374
-Sep 28 04:05:42 unknown kernel: dffc9ecc c0135c1c c0317f1a 0000055e 04000000 04000000 c024b160 dfe1a2c0
-Sep 28 04:05:42 unknown kernel:        c010995f c15070c0 000001d0 0000055e 04000000 dfe1a2c0 c03ff840 dfe1a2c0
-Sep 28 04:05:42 unknown kernel:        c0243696 0000000e c024b160 04000000 c03ff850 dfe1a2c0 00000001 c03ff850
-Sep 28 04:05:42 unknown kernel: Call Trace:
-Sep 28 04:05:42 unknown kernel:  [__kmem_cache_alloc+268/288]__kmem_cache_alloc+0x10c/0x120
-Sep 28 04:05:42 unknown kernel:  [ide_intr+0/384]ide_intr+0x0/0x180
-Sep 28 04:05:42 unknown kernel:  [request_irq+111/224]request_irq+0x6f/0xe0
-Sep 28 04:05:42 unknown kernel:  [init_irq+310/896]init_irq+0x136/0x380
-Sep 28 04:05:42 unknown kernel:  [ide_intr+0/384]ide_intr+0x0/0x180
-Sep 28 04:05:42 unknown kernel:  [hwif_init+216/608]hwif_init+0xd8/0x260
-Sep 28 04:05:42 unknown kernel:  [probe_hwif_init+45/128]probe_hwif_init+0x2d/0x80
-Sep 28 04:05:42 unknown kernel:  [ide_setup_pci_device+80/128]ide_setup_pci_device+0x50/0x80
-Sep 28 04:05:42 unknown kernel:  [init+58/368]init+0x3a/0x170
-Sep 28 04:05:42 unknown kernel:  [init+0/368]init+0x0/0x170
-Sep 28 04:05:42 unknown kernel:  [kernel_thread_helper+5/20]kernel_thread_helper+0x5/0x14
-
-2) Kernel compile errors with ACPI disabled.
-
-arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux
-arch/i386/kernel/built-in.o: In function `MP_processor_info':
-arch/i386/kernel/built-in.o(.text.init+0x4a00): undefined reference to `Dprintk'
-arch/i386/kernel/built-in.o(.text.init+0x4a20): undefined reference to `Dprintk'
-arch/i386/kernel/built-in.o(.text.init+0x4a31): undefined reference to `Dprintk'
-arch/i386/kernel/built-in.o(.text.init+0x4a45): undefined reference to `Dprintk'
-arch/i386/kernel/built-in.o(.text.init+0x4a59): undefined reference to `Dprintk'
-arch/i386/kernel/built-in.o(.text.init+0x4a6d): more undefined references to `Dprintk' follow
-make: *** [.tmp_vmlinux] Error 1
+Unable to handle kernel paging request at virtual address 2a3af4db
+c0117250
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0117250>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: ffa29829   ebx: 00000000   ecx: c0238000   edx: c0238000
+esi: d2318001   edi: 000001b2   ebp: c0238000   esp: d2319edc
+ds: 0018   es: 0018   ss: 0018
+Process bash (pid: 360, stackpage=d2319000)
+Stack: d2318000 c14ec220 d2319f40 d2318000 c0117577 d2318000 d2318000 d2319f40 
+       00000001 c011c1c1 00000001 00000001 d52b2084 00000001 d2319fc4 c0106b5f 
+       00000001 00000001 d2319f40 d2318000 00000000 ffffffff bffffa7c d2319f40 
+Call Trace:    [<c0117577>] [<c011c1c1>] [<c0106b5f>] [<c0144dc9>] [<c011d9af>]
+  [<c01061a7>] [<c0106d04>]
+Code: ff 85 db 74 17 6a 01 6a 01 57 e8 dd 58 00 00 6a 01 6a 12 57 
 
 
-3) Compile errors with UML:
+>>EIP; c0117250 <exit_notify+260/2ac>   <=====
 
-In file included from sched.c:19:
-/usr/src/linux-2.5.39/include/linux/mm.h:165: parse error before "pte_addr_t"
-/usr/src/linux-2.5.39/include/linux/mm.h:165: warning: no semicolon at end of struct or union
-/usr/src/linux-2.5.39/include/linux/mm.h:165: warning: no semicolon at end of struct or union
-/usr/src/linux-2.5.39/include/linux/mm.h:166: warning: type defaults to `int' in declaration of `pte'
+>>ecx; c0238000 <init_task_union+0/2000>
+>>edx; c0238000 <init_task_union+0/2000>
+>>esi; d2318001 <_end+1207cb6d/18575bcc>
+>>ebp; c0238000 <init_task_union+0/2000>
+>>esp; d2319edc <_end+1207ea48/18575bcc>
 
-Shawn ;/
+Trace; c0117577 <do_exit+2db/2f0>
+Trace; c011c1c1 <sig_exit+a9/ac>
+Trace; c0106b5f <do_signal+20b/27c>
+Trace; c0144dc9 <dput+19/184>
+Trace; c011d9af <sys_rt_sigaction+8f/ec>
+Trace; c01061a7 <sys_sigreturn+cb/f4>
+Trace; c0106d04 <signal_return+14/20>
+
+Code;  c0117250 <exit_notify+260/2ac>
+00000000 <_EIP>:
+Code;  c0117250 <exit_notify+260/2ac>   <=====
+   0:   ff 85 db 74 17 6a         incl   0x6a1774db(%ebp)   <=====
+Code;  c0117256 <exit_notify+266/2ac>
+   6:   01 6a 01                  add    %ebp,0x1(%edx)
+Code;  c0117259 <exit_notify+269/2ac>
+   9:   57                        push   %edi
+Code;  c011725a <exit_notify+26a/2ac>
+   a:   e8 dd 58 00 00            call   58ec <_EIP+0x58ec> c011cb3c <kill_pg+0/20>
+Code;  c011725f <exit_notify+26f/2ac>
+   f:   6a 01                     push   $0x1
+Code;  c0117261 <exit_notify+271/2ac>
+  11:   6a 12                     push   $0x12
+Code;  c0117263 <exit_notify+273/2ac>
+  13:   57                        push   %edi
+
+
+1 warning issued.  Results may not be reliable.
+
+--gBBFr7Ir9EOA20Yy--

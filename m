@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270345AbTHLNyr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 09:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270346AbTHLNyr
+	id S270325AbTHLNv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 09:51:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270342AbTHLNv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 09:54:47 -0400
-Received: from werbeagentur-aufwind.com ([217.160.128.76]:14307 "EHLO
-	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
-	id S270345AbTHLNyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 09:54:46 -0400
-Date: Tue, 12 Aug 2003 15:54:38 +0200
-From: Christophe Saout <christophe@saout.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6-mm] Fix 64-bit kdev_t /sys/<dev>/<partition>/dev format: %04x -> %u:%u
-Message-ID: <20030812135438.GA4157@chtephan.cs.pocnet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Aug 2003 09:51:28 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:22546 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S270325AbTHLNv1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 09:51:27 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: Matthew Peters <matthew@greycloaklabs.ca>
+Subject: Re: PROBLEM: kswapd and toshiba libretto 50ct
+Date: Tue, 12 Aug 2003 21:50:37 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0308120622050.11089-100000@gateway.greycloaklabs.ca>
+In-Reply-To: <Pine.LNX.4.44.0308120622050.11089-100000@gateway.greycloaklabs.ca>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Message-Id: <200308122150.37582.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tuesday 12 August 2003 21:24, Matthew Peters wrote:
+> i have managed to resolder that pin, the kernel detects a clock speed of
+> 75mhz again. The 2.4 kernels still don't work though. I've tried using
+> both a modular build and one with everything tailored to the system.
+>
+> I don't have the oops message on hand, but i can get it if required. As
+> always, i can't check it on the hardware itself.
+>
+> Thanks in advance,
+>     Matthew
 
-The 64-bit kdev_t patch forgot to change part_dev_read in
-fs/partitions/check.c to return the device in the new %u:%u format in
-sysfs.
+Please check
+ - selected processor type: Pentium-Classic
+ - compiled with gcc295 or equivalent
+ - Leave frame buffers out
+ - put only minimal drivers (including serial port and console on serial port)
 
-cat /sys/block/hda/hda5/dev should return 3:5 instead of 0305
+If it still does not work, please get the oops via serial console, run
+it through ksymoops, without it is not much we can do.
 
-This small patch adds this:
+Regards
+Michael
 
-diff -Nur linux.orig/fs/partitions/check.c linux/fs/partitions/check.c
---- linux.orig/fs/partitions/check.c	2003-08-12 15:27:55.000000000 +0200
-+++ linux/fs/partitions/check.c	2003-08-12 15:46:15.855390848 +0200
-@@ -223,9 +223,8 @@
- static ssize_t part_dev_read(struct hd_struct * p, char *page)
- {
- 	struct gendisk *disk = container_of(p->kobj.parent,struct gendisk,kobj);
--	int part = p->partno;
--	dev_t base = MKDEV(disk->major, disk->first_minor); 
--	return sprintf(page, "%04x\n", (unsigned)(base + part));
-+	dev_t dev = MKDEV(disk->major, disk->first_minor + p->partno); 
-+	return print_dev_t(page, dev);
- }
- static ssize_t part_start_read(struct hd_struct * p, char *page)
- {
 
---
-Christophe Saout <christophe@saout.de>
-Please avoid sending me Word or PowerPoint attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
+-- 
+Powered by linux-2.6. Compiled with gcc-2.95-3 - mature and rock solid
+
+2.4/2.6 kernel testing: ACPI PCI interrupt routing, PCI IRQ sharing, swsusp
+2.6 kernel testing:     PCMCIA yenta_socket, Suspend to RAM with ACPI S1-S3
+
+More info on swsusp: http://sourceforge.net/projects/swsusp/
+

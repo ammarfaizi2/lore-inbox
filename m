@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268059AbUI1WBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268065AbUI1WDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268059AbUI1WBM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 18:01:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268060AbUI1WBM
+	id S268065AbUI1WDa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 18:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268060AbUI1WD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 18:01:12 -0400
-Received: from mail.kroah.org ([69.55.234.183]:29355 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268059AbUI1WBK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 18:01:10 -0400
-Date: Tue, 28 Sep 2004 14:56:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/2] [RESEND] kobject: add HOTPLUG_ENV_VAR
-Message-ID: <20040928215620.GA13816@kroah.com>
-References: <1096302710971@topspin.com> <10963027102899@topspin.com> <20040927131014.695b8212.pj@sgi.com> <52fz53e526.fsf@topspin.com> <20040927234333.7cceff47.pj@sgi.com> <52mzzacsyk.fsf@topspin.com> <20040928090032.292d12e8.pj@sgi.com> <52wtyebcde.fsf@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Sep 2004 18:03:29 -0400
+Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:32660 "HELO
+	lpbproductions.com") by vger.kernel.org with SMTP id S268065AbUI1WBk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 18:01:40 -0400
+From: Matt Heler <lkml@lpbproductions.com>
+Reply-To: lkml@lpbproductions.com
+To: "Rui Nuno Capela" <rncbc@rncbc.org>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm4-S7
+Date: Tue, 28 Sep 2004 15:01:36 -0700
+User-Agent: KMail/1.7
+Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       "Lee Revell" <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>
+References: <1094683020.1362.219.camel@krustophenia.net> <32791.192.168.1.5.1096405439.squirrel@192.168.1.5> <32901.192.168.1.5.1096408010.squirrel@192.168.1.5>
+In-Reply-To: <32901.192.168.1.5.1096408010.squirrel@192.168.1.5>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <52wtyebcde.fsf@topspin.com>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200409281501.40580.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 09:13:17AM -0700, Roland Dreier wrote:
->     Paul> Perhaps - but perhaps also I've shown you ways to use a
->     Paul> function with fewer non-const variables.
-> 
-> Yeah, you've convinced me.  I'll reroll my patches.
+This is due in part b/c of the patches andrew merged that changed 
+remap_page_range to remap_pfn_range. 
 
-Ok, I've thrown away your old ones :)
-
-thanks,
-
-greg k-h
+On Tuesday 28 September 2004 2:46 pm, Rui Nuno Capela wrote:
+> This is another quirk on -mm4 I have found: I have a couple of outsider
+> modules, both related to webcams, that fail on modprobe wrt same missing
+> kernel symbol:
+>
+> w9968cf: Unknown symbol remap_page_range
+> spca50x: Unknown symbol remap_page_range
+>
+> CU

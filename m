@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUJRMJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUJRMUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266362AbUJRMJk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 08:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUJRMJk
+	id S266386AbUJRMUc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 08:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266427AbUJRMUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 08:09:40 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:49842 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S266362AbUJRMJM
+	Mon, 18 Oct 2004 08:20:31 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:1420 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S266386AbUJRMUU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 08:09:12 -0400
-From: Paul Slootman <paul+nospam@wurtel.net>
-Subject: Re: 2.6.9-rc3 and rc4 (and final): parallel printer has gone
-Date: Mon, 18 Oct 2004 12:09:11 +0000 (UTC)
-Organization: Wurtelization
-Message-ID: <cl0bp7$ku9$1@news.cistron.nl>
-References: <200410171218.23232.T.Maguin@web.de> <200410171924.25845.T.Maguin@web.de>
-X-Trace: ncc1701.cistron.net 1098101351 21449 195.64.88.114 (18 Oct 2004 12:09:11 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-To: linux-kernel@vger.kernel.org
+	Mon, 18 Oct 2004 08:20:20 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 18 Oct 2004 14:10:33 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: linux-fbdev-devel@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       penguinppc-team@lists.penguinppc.org
+Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
+Message-ID: <20041018121033.GB5106@bytesex>
+References: <416E6ADC.3007.294DF20D@localhost> <87d5zkqj8h.fsf@bytesex.org> <Pine.GSO.4.61.0410151437050.10040@waterleaf.sonytel.be> <87y8i8p1jq.fsf@bytesex.org> <20041017120728.GC10532@admingilde.org> <20041018083632.GE3065@bytesex> <20041018113929.GB3618@admingilde.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041018113929.GB3618@admingilde.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Maguin  <T.Maguin@web.de> wrote:
->
->With kernel 2.6.9-rc4-mm1 the parallel printer is visible again.
+On Mon, Oct 18, 2004 at 01:39:29PM +0200, Martin Waitz wrote:
+> hi :)
+> 
+> > Whenever writing to the gfx memory before finishing the initialization
+> > is harmless or not probably depends on the hardware, I'd better not
+> > count on it ...
+> 
+> when the application tries to access the framebuffer memory then
+> the driver is asked to map the corresponding page.
 
-Ah, good to know.
-My parallel port had also disappeared, also with 2.6.9-final.
-I get the message:
-	lp: driver loaded but no devices found
+On first access only, and even that only if the driver doesn't map the
+pages at mmap() time already.  Not a single fb driver seems to map the
+pages lazy today, grepping in drivers/video for nopage handles shows
+nothing.  I'm not sure you can actually do that for iomem mappings.
 
-In /proc/ioports there is a line:
-	0378-037a : winbond parport
+  Gerd
 
-
-Paul Slootman
-
+-- 
+return -ENOSIG;

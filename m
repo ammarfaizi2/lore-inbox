@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265154AbTLRODD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 09:03:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbTLRODD
+	id S265191AbTLRO1O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 09:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265193AbTLRO1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 09:03:03 -0500
-Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:18818
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S265154AbTLROCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 09:02:47 -0500
-Date: Thu, 18 Dec 2003 09:01:56 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Witukind <witukind@nsbm.kicks-ass.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Where is ethernet bridging gone in 2.6.0-test11-mm1?
-In-Reply-To: <20031218133634.3b559760.witukind@nsbm.kicks-ass.org>
-Message-ID: <Pine.LNX.4.58.0312180900481.1710@montezuma.fsmlabs.com>
-References: <20031218133634.3b559760.witukind@nsbm.kicks-ass.org>
+	Thu, 18 Dec 2003 09:27:13 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:1187 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265191AbTLRO1H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 09:27:07 -0500
+Date: Thu, 18 Dec 2003 12:11:53 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Frank van Maarseveen <frankvm@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 Oops in journal_try_to_free_buffers (fwd)
+In-Reply-To: <20031218131659.GA28450@iapetus.localdomain>
+Message-ID: <Pine.LNX.4.44.0312181209540.14081-100000@logos.cnet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Dec 2003, Witukind wrote:
 
-> I can't find the options to enable that anymore... test6 has them :(
+Have you tried the memtest86? 
 
-Device Drivers -> Networking Support -> Networking Options -> 802.1d Ethernet Bridging
+I really dont see any suspicious change which could cause it from .22 to 
+23. Ill keep looking though.
+
+Stephen Tweedie suggested it might be a memory corruption, but it seems 
+you already tried the memtest86 yes?
+

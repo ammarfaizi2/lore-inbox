@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264182AbUDWTLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263572AbUDWTMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264182AbUDWTLO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 15:11:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264590AbUDWTLO
+	id S263572AbUDWTMR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 15:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264590AbUDWTMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 15:11:14 -0400
-Received: from outmx014.isp.belgacom.be ([195.238.2.69]:62184 "EHLO
-	outmx014.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S264182AbUDWTLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 15:11:12 -0400
-Subject: [FIX 2.6.6-rc2-mm1] Use DOS_EXTENDED_PARTITION
-From: FabF <Fabian.Frederick@skynet.be>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-cPKJbQ7gesKtKO3uRSdx"
-Message-Id: <1082747725.6319.14.camel@bluerhyme.real3>
+	Fri, 23 Apr 2004 15:12:17 -0400
+Received: from smtpout.mac.com ([17.250.248.44]:30919 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S263572AbUDWTML (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 15:12:11 -0400
+Subject: Re: [PATCH] coredump - as root not only if euid switched
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@mac.com>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton OSDL <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <1082734536.3450.682.camel@cube>
+References: <1082734536.3450.682.camel@cube>
+Content-Type: text/plain
+Message-Id: <1082747589.2710.100.camel@picklock.adams.family>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 23 Apr 2004 21:15:26 +0200
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx014.isp.belgacom.be)
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 23 Apr 2004 21:14:37 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Fr, 2004-04-23 um 17.35 schrieb Albert Cahalan:
+> > While it's more secure to not dump core at all if the
+> > program has switched euid, it's also very unpractical.
+> > Since only programs started from root, being setuid
+> > root or have CAP_SETUID it's far more practical to
+> > dump as root.root mode 600. This is the bahavior 
+> > of Solaris.
+> 
+> Solaris can keep their security holes.
+> 
 
---=-cPKJbQ7gesKtKO3uRSdx
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I checked (older) versions on
 
-Andrew,
+HP-UX, True64, AiX, MacOsX
 
-	Here's a fix in partition manager to use DOS_EXTENDED_PARTITION rather
-than 'not often self-explanatory' 4 & 5. 
+HP-UX didn't dump core on a seteuid 0->n prog
+Aix,MacOsX and True64 dumped core with ownership of user
+I could check Irix
 
-Regards,
-Fabian
+> Consider a setuid core dump on removable media which
+> is user-controlled.
+> 
 
---=-cPKJbQ7gesKtKO3uRSdx
-Content-Disposition: attachment; filename=dosextended1.diff
-Content-Type: text/x-patch; name=dosextended1.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+boot into rescue system...
 
-diff -Naur orig/fs/partitions/msdos.c edited/fs/partitions/msdos.c
---- orig/fs/partitions/msdos.c	2004-04-04 05:37:24.000000000 +0200
-+++ edited/fs/partitions/msdos.c	2004-04-23 21:03:50.000000000 +0200
-@@ -407,8 +407,8 @@
- 	 * On the second pass look inside *BSD, Unixware and Solaris partitions.
- 	 */
- 
--	state->next = 5;
--	for (slot = 1 ; slot <= 4 ; slot++, p++) {
-+	state->next = DOS_EXTENDED_PARTITION;
-+	for (slot = 1 ; slot < DOS_EXTENDED_PARTITION ; slot++, p++) {
- 		u32 start = START_SECT(p)*sector_size;
- 		u32 size = NR_SECTS(p)*sector_size;
- 		if (!size)
-@@ -435,7 +435,7 @@
- 
- 	/* second pass - output for each on a separate line */
- 	p = (struct partition *) (0x1be + data);
--	for (slot = 1 ; slot <= 4 ; slot++, p++) {
-+	for (slot = 1 ; slot < DOS_EXTENDED_PARTITION ; slot++, p++) {
- 		unsigned char id = SYS_IND(p);
- 		int n;
- 
+> Also consider filesystems that don't store full security
+> data, like vfat and smb/cifs.
+> 
+> Core dumps to remote filesystems are a problem in
+> general, because the server might not implement the
+> type of security you expect it to implement.
+> 
 
---=-cPKJbQ7gesKtKO3uRSdx--
+mkdir /var/cores
+chmod a+rwx,o+t /var/cores
+echo /var/cores/%e.core.%p > /proc/sys/kernel/core_pattern
+
+> 
+> Here's a better idea: add a sysctl for insecure core
+> dumps. When set, dump all cores as root.root mode 444.
+> Ignore directory permissions when doing so, so that
+> forcing dumps into a MacOS-style /cores directory does
+> not require that users be able to access it normally.
+> This lets appropriately authorized users debug setuid
+> apps and get support for them without adding security
+> holes like Solaris has.
+
+It's tunable via coreadm
+
+troll, troll
+
 

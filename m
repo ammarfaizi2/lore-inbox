@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVAGPS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVAGPUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVAGPS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 10:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVAGPS7
+	id S261453AbVAGPUh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 10:20:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVAGPUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 10:18:59 -0500
-Received: from boa.mtg-marinetechnik.de ([62.153.155.10]:43246 "EHLO
-	cascabel.mtg-marinetechnik.de") by vger.kernel.org with ESMTP
-	id S261452AbVAGPS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 10:18:56 -0500
-Message-ID: <41DEA855.90702@mtg-marinetechnik.de>
-Date: Fri, 07 Jan 2005 16:18:45 +0100
-From: Richard Ems <Richard.Ems@mtg-marinetechnik.de>
-Organization: MTG Marinetechnik GmbH
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en, de, es
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, Hubert Mantel <mantel@suse.de>
-References: <41DD6F67.6070303@mtg-marinetechnik.de> <20050106173052.GW4597@dualathlon.random>
-In-Reply-To: <20050106173052.GW4597@dualathlon.random>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Subject: Re: [PROBLEM] Badness in out_of_memory (Plain)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 7 Jan 2005 10:20:37 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:65127 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261453AbVAGPUY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 10:20:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=db6m8xcy3Wo4iZOtnCdyZ3ygjl5+eLUvzlujIX10g4zdOhWRYt6OqJ1em8sITavFgciHCcLV2p+2CIFRmj6wA8piS3pnZSbLy89cfEqwn47NPeDq+ys+0TIyLWwhhgTA1eWEcIvtXFmQwLS9yjYfZZ8hW0KgenqXxiZDnUZ6dQo=
+Message-ID: <d120d50005010707204463492@mail.gmail.com>
+Date: Fri, 7 Jan 2005 10:20:22 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Roey Katz <roey@sdf.lonestar.org>
+Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.NEB.4.61.0501071336010.23626@sdf.lonestar.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
+	 <200501052316.48443.dtor_core@ameritech.net>
+	 <Pine.NEB.4.61.0501070405170.2840@sdf.lonestar.org>
+	 <200501070045.24639.dtor_core@ameritech.net>
+	 <Pine.NEB.4.61.0501071336010.23626@sdf.lonestar.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+Ok, so the timeouts are here even with good version. Hmm...
 
-> This is a warning only (2.6.9 had the swap token breakage that triggered
-> suprious oom kills, so the warning was meant to get more info), can you
-> try with the kernel of the day?
-> 
-> 	http://ftp.suse.com/pub/projects/kernel/kotd/9.2-i386/SL92_BRANCH
-> 
-> It has my latest oom fixes that I recently posted to l-k and it should
-> be very reliable for the first time in oom-killer terms.
+Ok, one thing is that in -bk3 I moved i8042 initialization earlier,
+could you try reversing the fragment below (it is cut and paste so
+patch won't work, you'll have to move that line manually). And touch
+i8042.c to force rebuild.
 
-I tried it and it is working ok, when memory and swap become full 
-processes are being killed very fast and the system becomes responsive 
-again.
-
-Do you want me to do some specific test and send you some results?
-
-Thanks, Richard
-
+If this does not work try disabling psmouse - does it help with the keyboard?
 
 -- 
-Richard Ems
-Tel: +49 40 65803 312
-Fax: +49 40 65803 392
-Richard.Ems@mtg-marinetechnik.de
+Dmitry
 
-MTG Marinetechnik GmbH - Wandsbeker Königstr. 62 - D 22041 Hamburg
-
-GF Dipl.-Ing. Ullrich Keil
-Handelsregister: Abt. B Nr. 11 500 - Amtsgericht Hamburg Abt. 66
-USt.-IdNr.: DE 1186 70571
-
+--- a/drivers/Makefile  2004-09-07 23:33:07 -07:00
++++ b/drivers/Makefile  2004-09-13 03:28:52 -07:00
+@@ -16,6 +16,9 @@
+ # char/ comes before serial/ etc so that the VT console is the boot-time
+ # default.
+ obj-y                          += char/
++# we also need input/serio early so serio bus is initialized by the time
++# serial drivers start registering their serio ports
++obj-$(CONFIG_SERIO)            += input/serio/
+ obj-y                          += serial/
+ obj-$(CONFIG_PARPORT)          += parport/
+ obj-y                          += base/ block/ misc/ net/ media/
+@@ -40,7 +43,6 @@
+ obj-$(CONFIG_USB_GADGET)       += usb/gadget/
+ obj-$(CONFIG_INPUT)            += input/
+ obj-$(CONFIG_GAMEPORT)         += input/gameport/
+-obj-$(CONFIG_SERIO)            += input/serio/
+ obj-$(CONFIG_I2O)              += message/
+ obj-$(CONFIG_I2C)              += i2c/
+ obj-$(CONFIG_W1)               += w1/

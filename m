@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292917AbSBQKUj>; Sun, 17 Feb 2002 05:20:39 -0500
+	id <S292627AbSBQAGZ>; Sat, 16 Feb 2002 19:06:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292918AbSBQKUa>; Sun, 17 Feb 2002 05:20:30 -0500
-Received: from holomorphy.com ([216.36.33.161]:3715 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S292917AbSBQKUV>;
-	Sun, 17 Feb 2002 05:20:21 -0500
-Date: Sun, 17 Feb 2002 02:20:13 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
+	id <S292628AbSBQAGP>; Sat, 16 Feb 2002 19:06:15 -0500
+Received: from pD9E6B262.dip.t-dialin.net ([217.230.178.98]:18563 "EHLO
+	fefe.de") by vger.kernel.org with ESMTP id <S292627AbSBQAGH>;
+	Sat, 16 Feb 2002 19:06:07 -0500
+Date: Sun, 17 Feb 2002 01:05:58 +0100
+From: Felix von Leitner <usenet-20020216@fefe.de>
 To: linux-kernel@vger.kernel.org
-Cc: riel@surriel.com
-Subject: [PATCH] [rmap] upper limit on wait table size
-Message-ID: <20020217102013.GG832@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, riel@surriel.com
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020217000558.GC9701@fefe.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020215171952.D15406@thyrsus.com> <Pine.LNX.4.44.0202151902070.16872-100000@xanadu.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: attachment; filename="waitq_bound.patch"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0202151902070.16872-100000@xanadu.home>
 User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Long-term Linux VM development
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.201   ->        
-#	     mm/page_alloc.c	1.60    -> 1.61   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/02/17	wli@holomorphy.com	1.202
-# Set upper limits on the maximum number of waitqueue table entries.
-# --------------------------------------------
-#
-diff -Nru a/mm/page_alloc.c b/mm/page_alloc.c
---- a/mm/page_alloc.c	Sun Feb 17 02:15:31 2002
-+++ b/mm/page_alloc.c	Sun Feb 17 02:15:31 2002
-@@ -825,6 +825,22 @@
- 	while(size < pages)
- 		size <<= 1;
- 
-+	/*
-+	 * 16384 blocked kernel threads seems like a reasonable
-+	 * number and this throttles the growth of the wait table
-+	 * to something bounded above by something resembling
-+	 * approximately the maximum number of kernel threads
-+	 * expected. This limit will trigger at 16K*4K*256 = 16GB
-+	 * on i386. The hard upper bound for i386 is then
-+	 * 16K*12B = 192KB, which is large but acceptable. For
-+	 * uniprocessor machines 4096 threads is a more likely
-+	 * number. i386 UP triggers this at 4GB for a 48KB table.
-+	 */
-+	if (NR_CPUS > 1)
-+		size = min(size, 16384UL);
-+	else
-+		size = min(size, 4096UL);
-+
- 	return size;
- }
- 
+Thus spake Nicolas Pitre (nico@cam.org):
+> As a bonus to further stimulate acceptance of CML2, make it work with the
+> tools that most people already have i.e. Python 1.5.
+
+I don't have python.  Any version of python.
+
+And I refuse to use software that forces me to install an ugly
+monstrosity like python.  Integrating python in the build process is
+like integrating IE into Windows.  It may please the stupid masses who
+use Red Hat anyway and don't care what happens when they click their
+mouse button, but it's conceptually bad for the OS and the kernel so far
+went to great lengths to not depend on external bloat.  It is a good
+thing to minimize dependencies!  If you can't do it in C and /bin/sh,
+then please step aside and let someone handle the job who is up to it.
+
+So far this looks like you are on one hell of an ego trip.
+
+Felix

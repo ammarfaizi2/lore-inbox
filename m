@@ -1,86 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313200AbSC1RyY>; Thu, 28 Mar 2002 12:54:24 -0500
+	id <S313201AbSC1R4G>; Thu, 28 Mar 2002 12:56:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313196AbSC1RyV>; Thu, 28 Mar 2002 12:54:21 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:3200 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S313197AbSC1RyM>;
-	Thu, 28 Mar 2002 12:54:12 -0500
-Date: Thu, 28 Mar 2002 09:53:52 -0800
-From: Bob Miller <rem@osdl.org>
-To: Adam Kropelin <akropel1@rochester.rr.com>, davej@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.7-dj2] Compile Error
-Message-ID: <20020328095352.A6291@doc.pdx.osdl.net>
-In-Reply-To: <200203281216.32590@xsebbi.de> <00c801c1d655$d8e75cd0$02c8a8c0@kroptech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S313198AbSC1Rzz>; Thu, 28 Mar 2002 12:55:55 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:65164 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S313199AbSC1Rzm>; Thu, 28 Mar 2002 12:55:42 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 28 Mar 2002 10:01:15 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.7 IDE 27
+In-Reply-To: <3CA2E2E4.4070603@evision-ventures.com>
+Message-ID: <Pine.LNX.4.44.0203280959520.1460-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 28, 2002 at 07:41:14AM -0500, Adam Kropelin wrote:
-> ----- Original Message -----
-> From: "Sebastian Roth" <xsebbi@gmx.de>
-> To: <linux-kernel@vger.kernel.org>
-> Sent: Thursday, March 28, 2002 6:17 AM
-> Subject: [2.5.7-dj2] Compile Error
-> 
-> 
-> > Hi there,
-> >
-> > make bzImage says:
-> > make[1]: Entering directory `/usr/src/linux-2.5-dj/kernel'
-> > make all_targets
-> > make[2]: Entering directory `/usr/src/linux-2.5-dj/kernel'
-> > gcc -D__KERNEL__ -I/usr/src/linux-2.5-dj/include -Wall
-> > -Wstrict-prototypes -Wno-
-> > trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
-> > -pipe -mpref
-> > erred-stack-boundary=2 -march=i686 -malign-functions=4
-> > -DKBUILD_BASENAME=acct
-> >   -c -o acct.o acct.c
-> > acct.c:235: parse error before `do'
-> > acct.c:378: parse error before `do'
-> > acct.c:384: parse error before `&'
-> 
-> <snip>
-> 
-> I'm a "me too" on this.
-> 
-> I see some discussion a few days ago where Grega Fajdiga had the same problem on
-> stock 2.5.7. There didn't seem to be a resolution other than Bob Miller saying:
-> 
-> > You have CONFIG_BSD_PROCESS_ACCT not set
-> > but the compile errors you're getting are for code in acct.c that
-> > will only compile if CONFIG_BSD_PROCESS_ACCT is SET.
-> 
-> Same is true here except stock 2.5.7 *does* compile and -dj2 does not. Same
-> config modulo symbol differences.
-> 
-> Downloaded multiple times, made mrproper, etc.
-> 
-> Failing .config for -dj2 is below.
-> 
-> --Adam
-> 
-> CONFIG_X86=y
+On Thu, 28 Mar 2002, Martin Dalecki wrote:
 
-Stuff deleted...
+> Thu Mar 21 03:17:48 CET 2002 ide-clean-27
+>
+> - Make for less terse error messages in ide-tape.c.
+>
+> - Replaced all timecomparisions done by hand with all the proper timer_after()
+>    commands.
+>
+> - Remove the drive niec1 mechanisms alltogether. There are several reasons for
+>    this:
 
-In looking at kernel/acct.c it looks like someone tried to change acct.c
-to no longer conditionally compile based on CONFIG_BSD_PROCESS_ACCT.
-The problem is that other files that conditionally compile with
-CONFIG_BSD_PROCESS_ACCT (include/linux/acct.h and others) where not changed.
+I did not have the time to test it Martin but looking at the code i'm
+pretty confident that this is the cause of the ide_set_handler()/timer
+problem on my box ...
 
-So if you build with CONFIG_BSD_PROCESS_ACCT not set you're build will
-break.  I'm in the process of generating a patch that will make acct.c
-again conditionally compile based on CONFIG_BSD_PROCESS_ACCT.  This
-should be done in a little bit and I'll post.
 
-Dave, where did you get the patch for acct.c?
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+
+- Davide
+
+

@@ -1,115 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282870AbRK0I3f>; Tue, 27 Nov 2001 03:29:35 -0500
+	id <S282874AbRK0Iaf>; Tue, 27 Nov 2001 03:30:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282868AbRK0I3Q>; Tue, 27 Nov 2001 03:29:16 -0500
-Received: from sunfish.linuxis.net ([64.71.162.66]:43463 "HELO
-	sunfish.linuxis.net") by vger.kernel.org with SMTP
-	id <S282873AbRK0I3L>; Tue, 27 Nov 2001 03:29:11 -0500
-Date: Tue, 27 Nov 2001 00:25:05 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DMA problem (?) w/ 2.4.6-xfs and ServerWorks OSB4 Chipset
-Message-ID: <20011127002505.V252@flounder.net>
-In-Reply-To: <20011113023029.A15075@flounder.net> <E163bNB-0000pS-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E163bNB-0000pS-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.21i
-Mail-Copies-To: never
-X-Delivery-Agent: TMDA v0.41/Python 2.1.1 (sunos5)
-From: "Adam McKenna" <adam-dated-1007281507.c7177f@flounder.net>
+	id <S282868AbRK0Ia0>; Tue, 27 Nov 2001 03:30:26 -0500
+Received: from [213.237.118.153] ([213.237.118.153]:8320 "EHLO Princess")
+	by vger.kernel.org with ESMTP id <S282873AbRK0IaK>;
+	Tue, 27 Nov 2001 03:30:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Allan Sandfeld <linux@sneulv.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+Date: Tue, 27 Nov 2001 09:28:50 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.40.0111261216500.88-100000@rc.priv.hereintown.net> <20011126161802.A8398@xi.linuxpower.cx> <3C034889.6040000@oracle.com>
+In-Reply-To: <3C034889.6040000@oracle.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E168dbm-0000Jr-00@Princess>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 13, 2001 at 11:04:57AM +0000, Alan Cox wrote:
-> > I am having problems with both UDMA and Multiword DMA.  The problem doesn't
-> > go away unless I disable CONFIG_IDEDMA_PCI_AUTO.
-> > 
-> > I don't know if there is actual FS corruption with MWord DMA, but there is
-> > definitely a "hang" for a few seconds accompanied by a DMA error.
-> 
-> I've no other reports from MWDMA other than the usual "CDROM that doesnt
-> handle DMA" things
+On Tuesday 27 November 2001 09:02, Svein Erik Brostigen wrote:
+>
+> What really scares me is not so much the way the kernels are numbered as
+> the way features gets added to
+> the kernels.
+> Internally in Oracle we do not add new features to a release number,
+> just bug-fixes.
+> Hence 2.4.0 is the base release of the 2.4.x kernel series. the minor
+> x-number should just indicate a bug-fix
+> release. Thus, no new features should get added to the 2.4 kernel with
+> this numbering schema.
+> If you really want to add features into the 2.4.x kernel, you also need
+> to extend the numbering schema.
+> I.e 2.4.0.x wil then be the bug-fix releases and  2.4.1.x will have new
+> features.
+> This makes it easier to maintain and to understand what is happening
+> between the various releases.
+>
+> As far as I can understand, today, new features are added to a released
+> kernel without any sensible numbering scheme
+> identifying this fact. I don't know if a 2.4.10 kernel contains the same
+> features as 2.4.16 with the only difference beeing bug-fixes
+> or if there have been added new features. By using a numbering scheme
+> that is consistent across both development and
+> production kernels, it is easier to identify the features in a kernel.
+>
+The problem is that for kernels new features _are_ bug-fixes. Like the new 
+vm, work-around for discovered bugs in hardware, etc., etc. 
+I an way what should't be done in a -rc release is new fixing features, but 
+only the fixing _of_ features. ;-)
 
-ops01:~# hdparm -Ii /dev/hda
-
-/dev/hda:
-
- Model=IBM-DTLA-307075, FwRev=TXAOA50C, SerialNo=YSDYSG5S166
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
- BuffType=3(DualPortCache), BuffSize=1916kB, MaxMultSect=16, MultSect=16
- DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=150136560
- tDMA={min:120,rec:120}, DMA modes: mword0 mword1 *mword2
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4
- UDMA modes: mode0 mode1 mode2 mode3 mode4 mode5
-
-
- Model=BI-MTDAL3-7070 5                        , FwRev=XTOA5AC0,
-SerialNo=        Y DSSY5G1S66
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
- BuffType=3(DualPortCache), BuffSize=1916kB, MaxMultSect=16, MultSect=16
- DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=150136560
- tDMA={min:120,rec:120}, DMA modes: mword0 mword1 *mword2
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4
- UDMA modes: mode0 mode1 mode2 mode3 mode4 mode5
-
-ops01:~# hdparm -Ii /dev/hdb
-
-/dev/hdb:
-
- Model=Maxtor 4W100H6, FwRev=AAH01310, SerialNo=W6H2JCRC
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=16
- DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=0
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=195711264
- tDMA={min:120,rec:120}, DMA modes: mword0 mword1 *mword2
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
- UDMA modes: mode0 mode1 mode2 mode3 mode4 mode5
-
-
- Model=aMtxro4 1W006H                          , FwRev=AA0H3101,
-SerialNo=6W2HCJCR
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=16
- DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=0
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=195711264
- tDMA={min:120,rec:120}, DMA modes: mword0 mword1 *mword2
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
- UDMA modes: mode0 mode1 mode2 mode3 mode4 mode5
-
-Here is a sample of the I/O errors:
-
-hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-hda: read_intr: error=0x40 { UncorrectableError }, LBAsect=15220172,
-sector=1548794
-end_request: I/O error, dev 03:05 (hda), sector 1548794
-hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-hda: read_intr: error=0x40 { UncorrectableError }, LBAsect=15220173,
-sector=1548795
-end_request: I/O error, dev 03:05 (hda), sector 1548795
-hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-hda: read_intr: error=0x40 { UncorrectableError }, LBAsect=15220174,
-sector=1548796
-end_request: I/O error, dev 03:05 (hda), sector 1548796
-hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-hda: read_intr: error=0x40 { UncorrectableError }, LBAsect=15220175,
-sector=1548797
-end_request: I/O error, dev 03:05 (hda), sector 1548797
-hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-hda: read_intr: error=0x40 { UncorrectableError }, LBAsect=15220176,
-sector=1548798
-end_request: I/O error, dev 03:05 (hda), sector 1548798
-
---Adam
-
--- 
-Adam McKenna <adam@flounder.net>   | GPG: 17A4 11F7 5E7E C2E7 08AA
-http://flounder.net/publickey.html |      38B0 05D0 8BF7 2C6D 110A

@@ -1,89 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbTJNHkX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 03:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbTJNHkX
+	id S261946AbTJNIAu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 04:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTJNIAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 03:40:23 -0400
-Received: from users.linvision.com ([62.58.92.114]:62869 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262201AbTJNHkV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 03:40:21 -0400
-Date: Tue, 14 Oct 2003 09:40:20 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: John Bradford <john@grabjohn.com>
-Cc: Wes Janzen <superchkn@sbcglobal.net>,
-       Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Norman Diamond <ndiamond@wta.att.ne.jp>, linux-kernel@vger.kernel.org
-Subject: Re: Why are bad disk sectors numbered strangely, and what happens to them?
-Message-ID: <20031014074020.GC13117@bitwizard.nl>
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net> <200310140721.h9E7LmNE000682@81-2-122-30.bradfords.org.uk>
+	Tue, 14 Oct 2003 04:00:50 -0400
+Received: from ns.schottelius.org ([213.146.113.242]:34706 "HELO
+	flapp.schottelius.org") by vger.kernel.org with SMTP
+	id S261946AbTJNIAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 04:00:47 -0400
+Date: Tue, 14 Oct 2003 09:57:43 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Andre Tomt <andre@tomt.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org, underley@underley.eu.org
+Subject: Re: [BUG] 2.6.0test7 & test4: tun.o (devfs)
+Message-ID: <20031014075743.GA30368@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	Andre Tomt <andre@tomt.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-net@vger.kernel.org, underley@underley.eu.org
+References: <20031013214835.GA8006@schottelius.org> <1066118003.482.5.camel@slurv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
 Content-Disposition: inline
-In-Reply-To: <200310140721.h9E7LmNE000682@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.3.28i
-Organization: BitWizard.nl
+In-Reply-To: <1066118003.482.5.camel@slurv>
+X-MSMail-Priority: gibbet nicht.
+X-Mailer: cat << EOF | netcat mailhost 110
+Organization: http://nerd-hosting.net/
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux flapp 2.6.0-test7
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 14, 2003 at 08:21:48AM +0100, John Bradford wrote:
-> > >
-> > >Also, you can use the "badblocks" program. 
-> > >  
-> > >
-> > I think he's using reiserfs on the partition, which ASFAIK doesn't 
-> > support marking bad sectors without some work.  I tend to agree with 
-> > namesys when they suggest just getting a new drive if it has used up all 
-> > of its extra sectors.  In my experience (admittedly limited), any drive 
-> > which runs out of extra sectors starts to go bad in a hurry.
-> 
-> I fail to see the point of this discussion.  What is the point in
-> marking sectors bad at the filesystem level, when the drive is
-> supposed to be doing it at the firmware level?
 
-I'm not sure in what cases a drive will remap a sector. Manufacturers
-are not publishing this.
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So if you get a read-error (showing you that some of your data was just
-lost!), you could just rewrite that sector and hope for the drive to
-remap it. Well, you just lost some of your data. Maybe it was part of a
-file you got from a CD. Fine. Easy to replace. Maybe it was part of your
-CD-collection-backup. Fine. Easy to replace. Maybe it was part of your
-thesis document. Oops. Difficult to replace.
+Andre Tomt [Tue, Oct 14, 2003 at 09:53:24AM +0200]:
+> On Mon, 2003-10-13 at 23:48, Nico Schottelius wrote:
+> > Hello!
+> >=20
+> > When loading tun.o in test7 and test4 it does not create /dev/net/tun.
+> > I am not familar with the devfs_create_device() call, so I cannot
+> > currently see what's wrong where. But I think tun.o should create the d=
+evice..
+>=20
+> It creates /dev/misc/net/tun, IIRC.
 
-> The drive is probably full of unusable areas, which are correctly
-> identified and not used by the firmware.  One more is detected, and
-> the firmware doesn't cope with it.  Suddenly we are getting
-> suggestions to work around that in the filesystem.
+*shameonme*
+hit me twice.
 
-Right. Support for bad sectors is really easy to build into a
-filesystem. If Reiserfs doesn't (yet) support it, another reason not 
-to use Reiserfs. 
+but why is it not found in /dev/net/tun?
 
-You create a file called something like ".badblocks" in the root
-directory. If as a filesystem you get to know of a bad block, just
-allocate it towards that file. Next it pays to make the file invisble
-from userspace. (otherwise "tar backups" would try to read it!). 
+Nico
 
-This is usually done by just allocating an inodenumber for it, and
-telling  fsck about it, to prevent it being linked into lost+found 
-on the first fsck.... 
+--=20
+quote:   there are two time a day you should do nothing: before 12 and afte=
+r 12
+         (Nico Schottelius after writin' a very senseless email)
+cmd:     echo God bless America | sed 's/.*\(A.*\)$/Why \1?/'
+pgp:     new id: 0x8D0E27A4 | ftp.schottelius.org/pub/family/nico/pgp-key.n=
+ew
+url:     http://nerd-hosting.net - domains for nerds (from a nerd)
 
-> The drive may well have been developing faults regularly through it's
-> entire lifetime, and you haven't noticed.  Now you have noticed and
-> want to work around the problem, but why wouldn't the drive continue
-> it's 'natural decay', and assuming it does, why would it be able to
-> re-map future bad blocks, but not this one?
+--7AUc2qLy4jB3hD7Z
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-On the other hand, I once bumped my knee against the bottom of the table
-that my computer was on. That was the exact moment that one of my
-sectors went bad. So now I know the cause, and want to remap the sector. 
-No gradual decay. 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-			Roger. 
+iD8DBQE/i6x3zGnTqo0OJ6QRAh+9AKDOD5S1LVCqptOhg4K6S3eumUutRwCfbVr/
+qIwK6qvNA/mAnGarlLp9eU0=
+=GcfX
+-----END PGP SIGNATURE-----
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+--7AUc2qLy4jB3hD7Z--

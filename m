@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271895AbRIJVuI>; Mon, 10 Sep 2001 17:50:08 -0400
+	id <S271974AbRIJV6T>; Mon, 10 Sep 2001 17:58:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271888AbRIJVt6>; Mon, 10 Sep 2001 17:49:58 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:59153 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S271923AbRIJVto>; Mon, 10 Sep 2001 17:49:44 -0400
-Message-Id: <200109102150.f8ALo3Ou027394@pincoya.inf.utfsm.cl>
-To: haiquy@yahoo.com (=?iso-8859-1?q?Steve=20Kieu?=)
-Cc: linux-kernel@vger.kernel.org (kernel)
-Subject: Re: Problem with i810 chipset 
-In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
-   of "Mon, 10 Sep 2001 14:40:54 +0100." <E15gRJ0-0000fk-00@the-village.bc.nu> 
-Date: Mon, 10 Sep 2001 17:50:03 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S271966AbRIJV6J>; Mon, 10 Sep 2001 17:58:09 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:38159 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S271974AbRIJV55>; Mon, 10 Sep 2001 17:57:57 -0400
+Date: Mon, 10 Sep 2001 23:57:25 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Raghava Raju <vraghava_raju@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: Kernel stack....
+Message-ID: <20010910235725.C797@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010910214741.19309.qmail@web20008.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010910214741.19309.qmail@web20008.mail.yahoo.com>; from vraghava_raju@yahoo.com on Mon, Sep 10, 2001 at 02:47:41PM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> said:
-> In-Reply-To: <20010910050525.97814.qmail@web10408.mail.yahoo.com> from "=?iso-8
->      ***859-1?q?Steve=20Kieu?=" at Sep 10, 2001 03:05:25 PM
-       
-> > System: i810 graphic chipset, intel celeron 400Mhz;
-> > 128 Mb ram. Lucent software modem using lt-modem
-> > driver version 5-99b
+On Mon, Sep 10, 2001 at 02:47:41PM -0700, Raghava Raju wrote:
+>       1) I want to know what exactly is the structure
+> of kernel stack. Is it some thing like bss,data,text?
+> 
+>       2) I want to access kernel stack(in kernel
+> mode). So I am using  kernel stack pointer provided in
+> thread_struct. So how to access different areas(.i.e 
+> data,text)  in kernel stack.
 
-> Please report problems with binary only drivers to the driver vendor,
-> it could be any kind of incompatibility and as we have no source only they
-> can help you.
+I think you got a wrong understanding of the stack. The stack has no
+separate bss, data, and text sections, it's just a stack of function
+arguments, local variables, and return addresses.
 
-Check out the latest driver at http://www.heby.de somewhere. If that
-doesn't help, bitch at Lucent.
+Accessing the stack works automatically: call a function, and the
+function paramaters and the return address are pushed on the stack.
+Unless you have a *very* good reason, there is no need to manipulate
+the stack directly in kernel mode.
+
+
+Erik
+
+PS: Please don't cross post between the kernelniewbes and linux-kernel
+  lists, use only one of them next time (kernelnewbies is good for this
+  kind of questions).
+
 -- 
-Dr. Horst H. von Brand                Usuario #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

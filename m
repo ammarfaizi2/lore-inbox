@@ -1,48 +1,392 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264121AbTEJNqc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 09:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264125AbTEJNqc
+	id S264116AbTEJNp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 09:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264121AbTEJNp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 09:46:32 -0400
-Received: from dclient217-162-28-172.hispeed.ch ([217.162.28.172]:8466 "EHLO
-	homegate.delouw.ch") by vger.kernel.org with ESMTP id S264121AbTEJNqa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 09:46:30 -0400
-Message-ID: <3EBCFCDB.8030505@delouw.ch>
-Date: Sat, 10 May 2003 15:21:31 +0200
-From: Luc de Louw <luc@delouw.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: de-ch, zh, en-us, ro, eu, fr-fr, da, ru, pt, hu, en
-MIME-Version: 1.0
+	Sat, 10 May 2003 09:45:28 -0400
+Received: from mx0.gmx.net ([213.165.64.100]:7497 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id S264116AbTEJNpU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 09:45:20 -0400
+Date: Sat, 10 May 2003 15:57:55 +0200 (MEST)
+From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCHLET] for typo in reiserfs in 2.4.21-rc2
-References: <3EBCD7F0.3040700@delouw.ch>
-In-Reply-To: <3EBCD7F0.3040700@delouw.ch>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Subject: 2.5.69 strange high tone on DELL Inspiron 8100
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0007628267@gmx.net
+X-Authenticated-IP: [217.224.149.62]
+Message-ID: <1405.1052575075@www9.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luc de Louw wrote:
-> Hi,
-> 
-> I found a small typo in fs/reiserfs/do_balan.c which makes in unable to 
-> compile the reiserfs module.
+linux-2.5.69 (problem encountered since 2.5.67) 
+DELL Inspiron 8100 
+  - Pentium3-M 
+  - ESS Maestro3 
+  - Intel chipset 
+  - builtin eepro100 
+  - builtin lucent winmodem (not used) 
+  - builtin nVidia GeForce2 Go (yes happens without nvdia.com driver too) 
+  - BIOS A15 
+ 
+using vanilla Debian GNU/Linux sid without incorporation of 
+Debian's kernel-package mechanism. 
+ 
+ever since I've run ALSA's snddevices script to create the needed /dev 
+entries the laptop creates a permanent low-volume high tone (beep-like, 
+but definitely not sounding like a normal pc-speaker). 
+ 
+didn't happen with 2.5.x prior to running snddevices script and also 
+doesn't happen with 2.4.x. 
+ 
+* I am not saying that this behaviour is ALSA related * 
+*       just telling how it came into existence       * 
+ 
+first I thought it has to be the "beep on init" issue Zach Brown also 
+noted in the TODO-list in OSS maestro3.c. Zach told me to contact ALSA 
+list or Takashi Iwai directly. I took the shortcut and tried to find 
+out whether this could be ALSA maestro3.c (based off OSS maestro3.c) 
+related and after some mailing with Takashi he concluded that it 
+doesn't look like an ALSA problem. 
+ 
+now I tried again with 2.5.69 and also with a modified 2.5.69 that 
+is basically ALSA CVS copied over vanilla 2.5.69. 
+without luck and while searching for an answer in #kernelnewbies 
+William Lee "wli" Irwin III advised me to fire off a report to LKML. 
+ 
+description of the strange sound: 
+  - high tone 
+  - permanent 
+  - happens before loading ALSA modules 
+  - as I didn't DEBUG I couldn't see at which log-message (dmesg) the 
+    beep starts 
+  - seems to come and go with HDD activity 
+ 
+* I am not in a position to say that this is a bug in the kernel * 
+*                     it just seems so to me                     * 
+ 
+thanks in advance for any helpful reply 
+ 
+.config (be warned about gmx.de webmailer signature at the end): 
+ 
+ 
+CONFIG_X86=y 
+CONFIG_MMU=y 
+CONFIG_UID16=y 
+CONFIG_GENERIC_ISA_DMA=y 
+ 
+CONFIG_EXPERIMENTAL=y 
+ 
+CONFIG_SWAP=y 
+CONFIG_SYSVIPC=y 
+CONFIG_BSD_PROCESS_ACCT=y 
+CONFIG_SYSCTL=y 
+CONFIG_LOG_BUF_SHIFT=14 
+ 
+CONFIG_MODULES=y 
+CONFIG_MODULE_UNLOAD=y 
+CONFIG_MODULE_FORCE_UNLOAD=y 
+CONFIG_OBSOLETE_MODPARM=y 
+CONFIG_KMOD=y 
+ 
+CONFIG_X86_PC=y 
+CONFIG_MPENTIUMIII=y 
+CONFIG_X86_CMPXCHG=y 
+CONFIG_X86_XADD=y 
+CONFIG_X86_L1_CACHE_SHIFT=5 
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y 
+CONFIG_X86_WP_WORKS_OK=y 
+CONFIG_X86_INVLPG=y 
+CONFIG_X86_BSWAP=y 
+CONFIG_X86_POPAD_OK=y 
+CONFIG_X86_GOOD_APIC=y 
+CONFIG_X86_INTEL_USERCOPY=y 
+CONFIG_X86_USE_PPRO_CHECKSUM=y 
+CONFIG_PREEMPT=y 
+CONFIG_X86_TSC=y 
+CONFIG_X86_MCE=y 
+CONFIG_I8K=y 
+CONFIG_MICROCODE=y 
+CONFIG_X86_MSR=y 
+CONFIG_X86_CPUID=y 
+CONFIG_NOHIGHMEM=y 
+CONFIG_MTRR=y 
+CONFIG_HAVE_DEC_LOCK=y 
+ 
+CONFIG_PM=y 
+ 
+CONFIG_APM=y 
+CONFIG_APM_DO_ENABLE=y 
+CONFIG_APM_CPU_IDLE=y 
+CONFIG_APM_DISPLAY_BLANK=y 
+CONFIG_APM_REAL_MODE_POWER_OFF=y 
+ 
+CONFIG_CPU_FREQ=y 
+CONFIG_CPU_FREQ_TABLE=y 
+ 
+CONFIG_X86_SPEEDSTEP=y 
+ 
+CONFIG_PCI=y 
+CONFIG_PCI_GOANY=y 
+CONFIG_PCI_BIOS=y 
+CONFIG_PCI_DIRECT=y 
+CONFIG_PCI_LEGACY_PROC=y 
+CONFIG_PCI_NAMES=y 
+CONFIG_ISA=y 
+CONFIG_HOTPLUG=y 
+ 
+CONFIG_PCMCIA=m 
+CONFIG_CARDBUS=y 
+CONFIG_I82365=m 
+CONFIG_PCMCIA_PROBE=y 
+ 
+ 
+CONFIG_KCORE_ELF=y 
+CONFIG_BINFMT_AOUT=m 
+CONFIG_BINFMT_ELF=y 
+CONFIG_BINFMT_MISC=m 
+ 
+CONFIG_BLK_DEV_FD=y 
+CONFIG_BLK_DEV_LOOP=m 
+CONFIG_BLK_DEV_RAM=m 
+CONFIG_BLK_DEV_RAM_SIZE=4096 
+ 
+CONFIG_IDE=y 
+ 
+CONFIG_BLK_DEV_IDE=y 
+ 
+CONFIG_BLK_DEV_IDEDISK=y 
+CONFIG_IDEDISK_MULTI_MODE=y 
+CONFIG_BLK_DEV_IDESCSI=y 
+ 
+CONFIG_BLK_DEV_IDEPCI=y 
+CONFIG_IDEPCI_SHARE_IRQ=y 
+CONFIG_BLK_DEV_IDEDMA_PCI=y 
+CONFIG_IDEDMA_PCI_AUTO=y 
+CONFIG_BLK_DEV_IDEDMA=y 
+CONFIG_BLK_DEV_ADMA=y 
+CONFIG_BLK_DEV_PIIX=y 
+CONFIG_IDEDMA_AUTO=y 
+CONFIG_BLK_DEV_IDE_MODES=y 
+ 
+CONFIG_SCSI=y 
+ 
+CONFIG_BLK_DEV_SD=y 
+CONFIG_BLK_DEV_SR=y 
+CONFIG_CHR_DEV_SG=y 
+ 
+CONFIG_SCSI_CONSTANTS=y 
+ 
+CONFIG_NET=y 
+ 
+CONFIG_PACKET=y 
+CONFIG_NETFILTER=y 
+CONFIG_UNIX=y 
+CONFIG_INET=y 
+CONFIG_IP_MULTICAST=y 
+CONFIG_INET_AH=y 
+CONFIG_INET_ESP=y 
+CONFIG_INET_IPCOMP=y 
+ 
+CONFIG_IP_NF_CONNTRACK=y 
+CONFIG_IP_NF_FTP=y 
+CONFIG_IP_NF_IRC=y 
+CONFIG_IP_NF_TFTP=y 
+CONFIG_IP_NF_AMANDA=y 
+CONFIG_IP_NF_IPTABLES=y 
+CONFIG_IP_NF_MATCH_LIMIT=y 
+CONFIG_IP_NF_MATCH_MAC=y 
+CONFIG_IP_NF_MATCH_PKTTYPE=y 
+CONFIG_IP_NF_MATCH_MARK=y 
+CONFIG_IP_NF_MATCH_MULTIPORT=y 
+CONFIG_IP_NF_MATCH_TOS=y 
+CONFIG_IP_NF_MATCH_ECN=y 
+CONFIG_IP_NF_MATCH_DSCP=y 
+CONFIG_IP_NF_MATCH_AH_ESP=y 
+CONFIG_IP_NF_MATCH_LENGTH=y 
+CONFIG_IP_NF_MATCH_TTL=y 
+CONFIG_IP_NF_MATCH_HELPER=y 
+CONFIG_IP_NF_MATCH_STATE=y 
+CONFIG_IP_NF_MATCH_CONNTRACK=y 
+CONFIG_IP_NF_FILTER=y 
+CONFIG_IP_NF_NAT=y 
+CONFIG_IP_NF_NAT_NEEDED=y 
+CONFIG_IP_NF_TARGET_MASQUERADE=y 
+CONFIG_IP_NF_TARGET_REDIRECT=y 
+CONFIG_IP_NF_NAT_LOCAL=y 
+CONFIG_IP_NF_NAT_IRC=y 
+CONFIG_IP_NF_NAT_FTP=y 
+CONFIG_IP_NF_NAT_TFTP=y 
+CONFIG_IP_NF_NAT_AMANDA=y 
+CONFIG_IP_NF_MANGLE=y 
+CONFIG_IP_NF_TARGET_TOS=y 
+CONFIG_IP_NF_TARGET_ECN=y 
+CONFIG_IP_NF_TARGET_DSCP=y 
+CONFIG_IP_NF_TARGET_MARK=y 
+CONFIG_IP_NF_TARGET_LOG=y 
+CONFIG_IP_NF_TARGET_ULOG=y 
+CONFIG_IP_NF_ARPTABLES=y 
+CONFIG_IP_NF_ARPFILTER=y 
+ 
+CONFIG_IPV6_SCTP__=y 
+ 
+CONFIG_NETDEVICES=y 
+ 
+CONFIG_DUMMY=m 
+ 
+CONFIG_NET_ETHERNET=y 
+ 
+CONFIG_NET_PCI=y 
+CONFIG_EEPRO100=m 
+ 
+CONFIG_NET_RADIO=y 
+ 
+CONFIG_HERMES=m 
+CONFIG_PLX_HERMES=m 
+CONFIG_PCI_HERMES=m 
+ 
+CONFIG_PCMCIA_HERMES=m 
+CONFIG_NET_WIRELESS=y 
+ 
+CONFIG_INPUT=y 
+ 
+CONFIG_INPUT_MOUSEDEV=y 
+CONFIG_INPUT_MOUSEDEV_PSAUX=y 
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024 
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768 
+ 
+CONFIG_SOUND_GAMEPORT=y 
+CONFIG_SERIO=y 
+CONFIG_SERIO_I8042=y 
+CONFIG_SERIO_SERPORT=y 
+ 
+CONFIG_INPUT_KEYBOARD=y 
+CONFIG_KEYBOARD_ATKBD=y 
+CONFIG_INPUT_MOUSE=y 
+CONFIG_MOUSE_PS2=y 
+ 
+CONFIG_VT=y 
+CONFIG_VT_CONSOLE=y 
+CONFIG_HW_CONSOLE=y 
+ 
+CONFIG_UNIX98_PTYS=y 
+CONFIG_UNIX98_PTY_COUNT=256 
+ 
+CONFIG_NVRAM=y 
+CONFIG_RTC=y 
+ 
+CONFIG_EXT2_FS=y 
+CONFIG_EXT3_FS=y 
+CONFIG_EXT3_FS_XATTR=y 
+CONFIG_EXT3_FS_POSIX_ACL=y 
+CONFIG_JBD=y 
+CONFIG_FS_MBCACHE=y 
+CONFIG_FS_POSIX_ACL=y 
+ 
+CONFIG_ISO9660_FS=m 
+CONFIG_JOLIET=y 
+CONFIG_ZISOFS=y 
+CONFIG_ZISOFS_FS=m 
+CONFIG_UDF_FS=m 
+ 
+CONFIG_FAT_FS=m 
+CONFIG_MSDOS_FS=m 
+CONFIG_VFAT_FS=m 
+CONFIG_NTFS_FS=m 
+ 
+CONFIG_PROC_FS=y 
+CONFIG_DEVPTS_FS=y 
+CONFIG_TMPFS=y 
+CONFIG_RAMFS=y 
+ 
+CONFIG_PARTITION_ADVANCED=y 
+CONFIG_MSDOS_PARTITION=y 
+CONFIG_NLS=y 
+ 
+CONFIG_NLS_DEFAULT="iso8859-1" 
+CONFIG_NLS_CODEPAGE_437=m 
+CONFIG_NLS_CODEPAGE_737=m 
+CONFIG_NLS_CODEPAGE_775=m 
+CONFIG_NLS_CODEPAGE_850=m 
+CONFIG_NLS_CODEPAGE_852=m 
+CONFIG_NLS_CODEPAGE_855=m 
+CONFIG_NLS_CODEPAGE_857=m 
+CONFIG_NLS_CODEPAGE_860=m 
+CONFIG_NLS_CODEPAGE_861=m 
+CONFIG_NLS_CODEPAGE_862=m 
+CONFIG_NLS_CODEPAGE_863=m 
+CONFIG_NLS_CODEPAGE_864=m 
+CONFIG_NLS_CODEPAGE_865=m 
+CONFIG_NLS_CODEPAGE_866=m 
+CONFIG_NLS_CODEPAGE_869=m 
+CONFIG_NLS_CODEPAGE_936=m 
+CONFIG_NLS_CODEPAGE_950=m 
+CONFIG_NLS_CODEPAGE_932=m 
+CONFIG_NLS_CODEPAGE_949=m 
+CONFIG_NLS_CODEPAGE_874=m 
+CONFIG_NLS_ISO8859_8=m 
+CONFIG_NLS_CODEPAGE_1250=m 
+CONFIG_NLS_CODEPAGE_1251=m 
+CONFIG_NLS_ISO8859_1=m 
+CONFIG_NLS_ISO8859_2=m 
+CONFIG_NLS_ISO8859_3=m 
+CONFIG_NLS_ISO8859_4=m 
+CONFIG_NLS_ISO8859_5=m 
+CONFIG_NLS_ISO8859_6=m 
+CONFIG_NLS_ISO8859_7=m 
+CONFIG_NLS_ISO8859_9=m 
+CONFIG_NLS_ISO8859_13=m 
+CONFIG_NLS_ISO8859_14=m 
+CONFIG_NLS_ISO8859_15=m 
+CONFIG_NLS_KOI8_R=m 
+CONFIG_NLS_KOI8_U=m 
+CONFIG_NLS_UTF8=m 
+ 
+CONFIG_VIDEO_SELECT=y 
+ 
+CONFIG_VGA_CONSOLE=y 
+CONFIG_DUMMY_CONSOLE=y 
+ 
+CONFIG_SOUND=m 
+ 
+CONFIG_SND=m 
+CONFIG_SND_OSSEMUL=y 
+CONFIG_SND_MIXER_OSS=m 
+CONFIG_SND_PCM_OSS=m 
+CONFIG_SND_RTCTIMER=m 
+ 
+CONFIG_SND_MAESTRO3=m 
+ 
+CONFIG_KALLSYMS=y 
+ 
+CONFIG_CRYPTO=y 
+CONFIG_CRYPTO_HMAC=y 
+CONFIG_CRYPTO_NULL=y 
+CONFIG_CRYPTO_MD4=y 
+CONFIG_CRYPTO_MD5=y 
+CONFIG_CRYPTO_SHA1=y 
+CONFIG_CRYPTO_SHA256=y 
+CONFIG_CRYPTO_SHA512=y 
+CONFIG_CRYPTO_DES=y 
+CONFIG_CRYPTO_BLOWFISH=y 
+CONFIG_CRYPTO_TWOFISH=y 
+CONFIG_CRYPTO_SERPENT=y 
+CONFIG_CRYPTO_AES=y 
+CONFIG_CRYPTO_DEFLATE=y 
+CONFIG_CRYPTO_TEST=y 
+ 
+CONFIG_CRC32=y 
+CONFIG_ZLIB_INFLATE=y 
+CONFIG_ZLIB_DEFLATE=y 
+CONFIG_X86_BIOS_REBOOT=y 
 
-Please ignore the previous mail.
-
-I obviousely had problems with my system, the IDE-driver included in the 
-SuSE kernel corrupted parts of my filesystems.
-
-After rebooting I was able to apply the patch again, and then the typo 
-was gone...
-
-Now I got a stable kernel :-)
-
-Sorry for the confusion....
-
-rgds
-
-Luc
+-- 
++++ GMX - Mail, Messaging & more  http://www.gmx.net +++
+Bitte lächeln! Fotogalerie online mit GMX ohne eigene Homepage!
 

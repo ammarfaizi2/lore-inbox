@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131607AbRCXHyW>; Sat, 24 Mar 2001 02:54:22 -0500
+	id <S131609AbRCXIqG>; Sat, 24 Mar 2001 03:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131609AbRCXHyM>; Sat, 24 Mar 2001 02:54:12 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:59284 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S131607AbRCXHyB>; Sat, 24 Mar 2001 02:54:01 -0500
-Message-ID: <3ABC5220.37C41DCE@redhat.com>
-Date: Sat, 24 Mar 2001 02:52:00 -0500
-From: Doug Ledford <dledford@redhat.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
-X-Accept-Language: en
+	id <S131610AbRCXIp4>; Sat, 24 Mar 2001 03:45:56 -0500
+Received: from relay03.cablecom.net ([62.2.33.103]:10765 "EHLO
+	relay03.cablecom.net") by vger.kernel.org with ESMTP
+	id <S131609AbRCXIps>; Sat, 24 Mar 2001 03:45:48 -0500
+Message-ID: <3ABC5E89.FB6A2C89@bluewin.ch>
+Date: Sat, 24 Mar 2001 09:44:58 +0100
+From: Otto Wyss <otto.wyss@bluewin.ch>
+Reply-To: otto.wyss@bluewin.ch
+X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
+X-Accept-Language: de,en
 MIME-Version: 1.0
-To: "James A. Sutherland" <jas88@cam.ac.uk>
-CC: Guest section DW <dwguest@win.tue.nl>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <Pine.LNX.4.30.0103231721480.4103-100000@dax.joh.cam.ac.uk>
+To: David Ford <david@blue-labs.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux should better cope with power failure
+In-Reply-To: <3ABB6B82.62293CAD@uni-mb.si> <3ABBA400.2AEC97E8@bluewin.ch> <3ABBD11D.FE20FB69@blue-labs.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"James A. Sutherland" wrote:
-> On Thu, 22 Mar 2001, Guest section DW wrote:
-> > (I think 2.4.0.)
-> >
-> > Clearly, Linux cannot be reliable if any process can be killed
-> > at any moment.
+> No, the correct answer is if you want a reliable recovery then run your disks
+> in non write buffered mode.  I.e. turn on sync in fstab.
 > 
-> What on earth did you expect to happen when the process exceeded the
-> machine's capabilities? Using more than all the resources fails. There
-> isn't an alternative.
+You probably haven't tried to use sync or you would have noticed the
+performace penalty. I think nobody really considers sync an alternative.
 
-You might be successful in convincing myself or Andries of this as soon as the
-oom killer only kills things when the system is really out of memory.  Right
-now, it's not really an oom killer, it's more like an "I'm Too Lazy To Free Up
-Some More Pages So Now You Die" (ITLTFUSMPSNYD) killer.
-
--- 
-
- Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-      Please check my web site for aic7xxx updates/answers before
-                      e-mailing me about problems
+O. Wyss

@@ -1,98 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbVCNSio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVCNSle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbVCNSio (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 13:38:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVCNShV
+	id S261698AbVCNSle (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 13:41:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVCNSgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 13:37:21 -0500
-Received: from mail1.azairenet.com ([66.92.223.4]:19028 "EHLO
-	dsl092-223-002.sfo1.dsl.speakeasy.net") by vger.kernel.org with ESMTP
-	id S261663AbVCNSgQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 13:36:16 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
+	Mon, 14 Mar 2005 13:36:38 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:47337 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261680AbVCNSfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 13:35:44 -0500
+Date: Mon, 14 Mar 2005 12:35:15 -0600
+From: Greg Howard <ghoward@sgi.com>
+X-X-Sender: ghoward@gallifrey.americas.sgi.com
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+cc: domen@coderock.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       nacc@us.ibm.com
+Subject: Re: [patch 01/14] char/snsc: reorder set_current_state() and
+ add_wait_queue()
+In-Reply-To: <200503140945.44323.jbarnes@engr.sgi.com>
+Message-ID: <Pine.SGI.4.58.0503141226440.106301@gallifrey.americas.sgi.com>
+References: <20050306223616.C82751EC90@trashy.coderock.org>
+ <200503140945.44323.jbarnes@engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: fsck error on flashcard with ext2 filesystem
-Date: Mon, 14 Mar 2005 10:36:11 -0800
-Message-ID: <C8E1D942CB394746BE5CFEB7D97610E741EA71@bart.corp.azairenet.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: fsck error on flashcard with ext2 filesystem
-Thread-Index: AcUofFFQZCJFh3VRT+WpMsxxeiZLLAAR9qBg
-From: "Santosh Gupta" <Santosh.Gupta@AzaireNet.com>
-To: "Jan Kara" <jack@suse.cz>
-Cc: <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jan,
-	Please see comments inline.
 
+On Mon, 14 Mar 2005, Jesse Barnes wrote:
 
-> 	Although "sync" doesnt seem to make any difference to fsck output, 
-> "blockdev --flushbufs" fixes the issue. 
-> 
-> Still wondering why the flushing of buffer behavior is different on a 
-> system with normal harddisk (Redhat 7.2 with 2.4.26 kernel ) as compared
->  to a system with flashcard (CoreLinux with 2.4.26 kernel) although the 
-> system parameters/daemons are the same. I dont have to do sync or 
-> blockdev --flushbufs on standard system. Any ideas?
-  Hmm, are the kernels really vanilla kernels without any patches?
-Anyway the problem was that on the system with flashcard old data were
-still kept in the cache for userspace (userspace uses cache independent from
-the one filesystem uses), so it could be anything starting by different
-amount of memory and ending at a different timing/command sequence
-whatever...
+> On Sunday, March 6, 2005 2:36 pm, domen@coderock.org wrote:
+> > Any comments would be, as always, appreciated.
+>
+> I don't have a problem with this change, but the maintainer probably should
+> have been Cc'd.  Greg, does this change look ok to you?  Note that it's
+> already been committed to the upstream tree, so if it's a bad change we'll
+> need to have the cset excluded or something.
 
-<santosh>
-Its NOT a vanilla kernel. I patched it with some local ppp and crypto patch, 
-turned on couple of kernel options and nothing else.
-The same patched kernel works fine (as described earlier in mail) on a 
-normal Redhat 7.2 box.
-</santosh>
+I think it's safe enough.  Since interrupts are off at this point,
+I don't think the order of the two functions actually matters (i.e.
+we couldn't have received a signal until the call to
+spin_unlock_irqrestore() anyway).
 
-> I was using fsck with "-n" option which doesnt executes the command, just
-> shows what would be done. I thought it would be harmless.
-  Ok, that won't harm the filesystem but you can still see errors which
-are not on the filesystem (because of the cache issues).
-
-> -----Original Message-----
-> From: Jan Kara [mailto:jack@suse.cz]
-> Sent: Friday, March 11, 2005 6:37 AM
-> To: Santosh Gupta
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: fsck error on flashcard with ext2 filesystem
-> 
-> 
->   Hello,
-> 
->   just a reminder for the next time - please keep the lines length under 80
-> characters.
-> 
-> > Detailed Description
-> > -----------------------------
-> > I am using Core Linux system on flashcard. Its another minimal linux
-> > distribution. Root filesystem is cramfs and a rw partition on flash is
-> > ext2. The system is always shutdown properly and initial fsck upon
-> > bootup shows no error. But if I delete a file on flash card and run
-> > fsck, it gives error in fsck. On umount and mounting again (or
-> > reboot), fsck shows no problem. Issuing "sync" command doesnt make any
-> > difference.
-> > Why is the disk not getting updated with filesystem metadata even
-> > after I wait for so long?
->   Hmm, it may be a cache aliasing issue (anyway doing fsck on a mounted
-> filesystem is asking for a trouble and basically nobody promisses any
-> result). But you may try doing something like:
->   sync; blockdev --flushbufs
-> 
-> before a fsck.
-> 
-
-								Honza
-
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Thanks - Greg

@@ -1,59 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUJCOje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267961AbUJCPdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265697AbUJCOje (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 10:39:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267826AbUJCOje
+	id S267961AbUJCPdT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 11:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267554AbUJCPdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 10:39:34 -0400
-Received: from jade.aracnet.com ([216.99.193.136]:45465 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S265697AbUJCOjc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 10:39:32 -0400
-Date: Sun, 03 Oct 2004 07:36:46 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Peter Williams <pwil3058@bigpond.net.au>,
-       Hubertus Franke <frankeh@watson.ibm.com>
-cc: dipankar@in.ibm.com, Paul Jackson <pj@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       efocht@hpce.nec.com, lse-tech@lists.sourceforge.net, hch@infradead.org,
-       steiner@sgi.com, jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-ID: <821020000.1096814205@[10.10.2.4]>
-In-Reply-To: <415F37F9.6060002@bigpond.net.au>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20040805190500.3c8fb361.pj@sgi.com> <247790000.1091762644@[10.10.2.4]> <200408061730.06175.efocht@hpce.nec.com> <20040806231013.2b6c44df.pj@sgi.com> <411685D6.5040405@watson.ibm.com> <20041001164118.45b75e17.akpm@osdl.org> <20041001230644.39b551af.pj@sgi.com> <20041002145521.GA8868@in.ibm.com> <415ED3E3.6050008@watson.ibm.com> <415F37F9.6060002@bigpond.net.au>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 3 Oct 2004 11:33:19 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:64741 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267974AbUJCPdP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 11:33:15 -0400
+Message-ID: <9e4733910410030833e8a6683@mail.gmail.com>
+Date: Sun, 3 Oct 2004 11:33:14 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Dave Airlie <airlied@linux.ie>
+Subject: Re: Merging DRM and fbdev
+Cc: dri-devel@lists.sf.net, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0410030824280.2325@skynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+References: <9e47339104100220553c57624a@mail.gmail.com>
+	 <Pine.LNX.4.58.0410030824280.2325@skynet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The O(1) scheduler today does not know about cpumem sets. It operates
->> on the level of affinity masks to adhere to the constraints specified 
->> based on cpu masks.
-> 
-> This is where I see the need for "CPU sets".  I.e. as a 
-> replacement/modification to the CPU affinity mechanism basically adding 
-> an extra level of abstraction to make it easier to use for implementing 
-> the type of isolation that people seem to want.  I say this because, 
-> strictly speaking and as you imply, the current affinity mechanism is 
-> sufficient to provide that isolation BUT it would be a huge pain to 
-> implement.
+Resource reservations are not the central problem with merging fbdev
+and drm. The central problem is that both card specific drivers
+initialize the hardware, program it in conflicting ways, allocate the
+video memory differently, etc. Moving to a single card specific driver
+lets me fix that.
 
-The way cpusets uses the current cpus_allowed mechanism is, to me, the most
-worrying thing about it. Frankly, the cpus_allowed thing is kind of tacked
-onto the existing scheduler, and not at all integrated into it, and doesn't
-work well if you use it heavily (eg bind all the processes to a few CPUs,
-and watch the rest of the system kill itself). 
+In the final form both the VGA scheme and my code provide shared
+resource reservation code. The main difference between the schemes is
+that the VGA scheme allows multiple independent card drivers while
+mine only allow a single merged one.
 
-Matt had proposed having a separate sched_domain tree for each cpuset, which
-made a lot of sense, but seemed harder to do in practice because "exclusive"
-in cpusets doesn't really mean exclusive at all. Even if we don't have 
-separate sched_domain trees, cpusets could be the top level in the master 
-tree, I think.
+Multiple card drivers in the past has resulted in conflicting
+programming of the hardware. I suppose we could write a bunch of rules
+about how to share the hardware but that seems like a lot of
+complicated work. The radeon has over 200 registers that would need
+rules for what settings are allowed. It's a lot easier to simply merge
+20K of radeonfb  driver into the radeondrm and eliminate this error
+prone process.
 
-M.
+If we could all just concentrate on fixing the radeondrm driver we
+could build a complete driver for the radeon cards instead of the ten
+half finished ones we have today. Once we get a complete driver the
+incentive for people to write new ones will be gone.
 
+The two models look like this:
+
+vga - attached to hardware
+   radeon-drm
+      drm - library
+   radeon-fb
+      fb - library
+         fbcon - library
+
+My model....
+
+radeon - attached to hardware
+   drm - library
+   fb - library
+      fbcon - library
+
+vga - independent driver, there is only one VGA device even if
+multiple radeons. This driver is responsible for secondary card
+resets.
+
+In the first model radeon-drm and radeon-fb can run independently.
+This requires duplication of the initialization code. Since the are
+separate drivers they can and do have completely different models for
+programming the hardware. At VT switch time the drivers have to
+save/restore state.
+
+In the second model it is not required that a driver support both fb
+and drm. Something like cyber2000 does have to link in drm since it
+has no use for it.
+
+A complaint in the second model might be that the radeon driver is
+120K. If some embedded system is really, really tight on RAM and they
+are embedding a radeon but don't want to use its advanced abilities,
+there is nothing stopping someone from splitting the radeon driver up
+into pieces. I will happily take the patch. Doing this is probably a
+week's worth of coding and testing to get maybe 50K memory savings.
+Simplest way to do this is to add IFDEFs to remove drm support from
+the merged radeon driver.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,107 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318058AbSIESbu>; Thu, 5 Sep 2002 14:31:50 -0400
+	id <S318076AbSIESe5>; Thu, 5 Sep 2002 14:34:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318059AbSIESbu>; Thu, 5 Sep 2002 14:31:50 -0400
-Received: from crack.them.org ([65.125.64.184]:3588 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S318058AbSIESbr>;
-	Thu, 5 Sep 2002 14:31:47 -0400
-Date: Thu, 5 Sep 2002 14:36:09 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] ptrace-fix-2.5.33-A1
-Message-ID: <20020905183609.GA26898@nevyn.them.org>
-Mail-Followup-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-	Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0209051728490.18985-100000@localhost.localdomain> <874rd4cqki.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <874rd4cqki.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.5.1i
+	id <S318080AbSIESe5>; Thu, 5 Sep 2002 14:34:57 -0400
+Received: from dsl-213-023-039-222.arcor-ip.net ([213.23.39.222]:36776 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318076AbSIESez>;
+	Thu, 5 Sep 2002 14:34:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: Race in shrink_cache
+Date: Thu, 5 Sep 2002 20:41:36 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <E17mooe-00064m-00@starship> <E17mr4K-000660-00@starship> <3D770D77.BF85645E@zip.com.au>
+In-Reply-To: <3D770D77.BF85645E@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17n1ZQ-00069v-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll reply to the rest of this in a moment, but one thing at a time...
+On Thursday 05 September 2002 09:53, Andrew Morton wrote:
+> Not having to bump page counts when moving pages from the LRU into a private
+> list would be nice.
 
-On Fri, Sep 06, 2002 at 02:08:13AM +0900, OGAWA Hirofumi wrote:
-> Ingo Molnar <mingo@elte.hu> writes:
-> 
-> > Linus,
-> > 
-> > the attached patch (against BK-curr) collects two ptrace related fixes:  
-> > first it undoes Ogawa's change (so various uses of ptrace works again),
-> > plus it adds Daniel's suggested fix that allows a parent to PTRACE_ATTACH
-> > to a child it forked. (this also fixes the incorrect BUG_ON() assert
-> > Ogawa's patch was intended to fix in the first place.)
-> > 
-> > i've tested various ptrace uses and they appear to work just fine.
-> > 
-> > (Daniel, let us know if you can still see anything questionable in this
-> > area - or if the ptrace list could be managed in a cleaner way.)
+I'm not sure what your intended application is here.  It's easy enough to 
+change the lru state bit to a scalar, the transitions of which are protected 
+naturally by the lru lock.  This gives you N partitions of the lru list 
+(times M zones) and page_cache_release does the right thing for all of them.
 
+On the other hand, if what you want is a private list that page_cache_release 
+doesn't act on automatically, all you have to do is set the lru state to zero,
+leave the page count incremented and move to the private list.  You then take
+explicit responsibility for freeing the page or moving it back onto a 
+mainstream lru list.
 
-> in sys_wait4()
-> 
-> +				} else {
-> +					if (p->ptrace) {
-> +						write_lock_irq(&tasklist_lock);
-> +						ptrace_unlink(p);
-> +						write_unlock_irq(&tasklist_lock);
-> +					}
->  					release_task(p);
-> +				}
-> 
-> Umm, why needed this? If ->real_parent == ->parent, it's real
-> child. So this child don't use ->ptrace_list.
+An example of an application of the latter technique is a short delay list to 
+(finally) implement the use-once concept properly.  A newly instantiated page 
+goes onto the hot end of this list instead of the inactive list as it does 
+now, and after a short delay dependent on the allocation activity in the 
+system, is moved either to the (per zone) active or inactive list, depending 
+on whether it was referenced.  Thus the use-once list is not per-zone and 
+removal from it is always explicit.  So it's not like the other lru lists, 
+even though it uses the same link field.
 
-You're right, we just need to clear p->ptrace.  And there was a problem
-with debugged detached tasks.  Ingo, does this look right to you?  It
-passes my testing.  Handle unlinking in release_task instead of at both
-call sites, since they both need it.
+While I'm meandering here, I'll mention that the above approach finally makes 
+use-once work properly for swap pages, which always had the problem that we 
+couldn't detect the second, activating reference (and this was fudged by 
+always marking a swapped-in page as referenced, i.e., kludging away the 
+mechanism).  It also solves the problem of detecting clustered references, 
+such as reading through a page a byte at a time, which should only count as a 
+single reference.  Right now we do a stupid hack that works in a lot of 
+cases, but fails in enough cases to be annoying, all in the name of trying to 
+get by without implementing a dedicated list.
 
-===== exit.c 1.45 vs edited =====
-*** /tmp/exit.c-1.45-26998	Mon Sep  2 01:15:09 2002
---- exit.c	Thu Sep  5 14:23:32 2002
-*************** static void release_task(struct task_str
-*** 66,71 ****
---- 66,76 ----
-  	atomic_dec(&p->user->processes);
-  	security_ops->task_free_security(p);
-  	free_uid(p->user);
-+ 	if (unlikely(p->ptrace)) {
-+ 		write_lock_irq(&tasklist_lock);
-+ 		ptrace_unlink(p);
-+ 		write_unlock_irq(&tasklist_lock);
-+ 	}
-  	BUG_ON(!list_empty(&p->ptrace_list) || !list_empty(&p->ptrace_children));
-  	unhash_process(p);
-  
-===== ptrace.c 1.16 vs edited =====
-*** /tmp/ptrace.c-1.16-26998	Mon Aug 19 14:12:27 2002
---- ptrace.c	Thu Sep  5 14:18:05 2002
-*************** void __ptrace_link(task_t *child, task_t
-*** 29,35 ****
-  	if (!list_empty(&child->ptrace_list))
-  		BUG();
-  	if (child->parent == new_parent)
-! 		BUG();
-  	list_add(&child->ptrace_list, &child->parent->ptrace_children);
-  	REMOVE_LINKS(child);
-  	child->parent = new_parent;
---- 29,35 ----
-  	if (!list_empty(&child->ptrace_list))
-  		BUG();
-  	if (child->parent == new_parent)
-! 		return;
-  	list_add(&child->ptrace_list, &child->parent->ptrace_children);
-  	REMOVE_LINKS(child);
-  	child->parent = new_parent;
-
+Readahead on the other hand needs to be handled with dedicated per-zone lru 
+lists, so that we can conveniently and accurately claw back readahead that 
+happens to have gone too far ahead.  So this is an example of the first kind 
+of usage.  Once read, a readahead page moves to the used-once queue, and from 
+there either to the inactive or active queue as above.
 
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Daniel

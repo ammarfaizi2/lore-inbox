@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292866AbSCKUbv>; Mon, 11 Mar 2002 15:31:51 -0500
+	id <S292730AbSCKUlB>; Mon, 11 Mar 2002 15:41:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292873AbSCKUbl>; Mon, 11 Mar 2002 15:31:41 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14604 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292866AbSCKUba>;
-	Mon, 11 Mar 2002 15:31:30 -0500
-Message-ID: <3C8D140F.7030507@mandrakesoft.com>
-Date: Mon, 11 Mar 2002 15:31:11 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
-MIME-Version: 1.0
-To: vda@port.imtp.ilyichevsk.odessa.ua
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        trivial@rustcorp.com.au
-Subject: Re: [PATCH] Trivial compile fix
-In-Reply-To: <200203111408.g2BE8pq05486@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S292883AbSCKUkv>; Mon, 11 Mar 2002 15:40:51 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:37504
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S292730AbSCKUkp>; Mon, 11 Mar 2002 15:40:45 -0500
+Date: Mon, 11 Mar 2002 13:39:47 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Benjamin LaHaise <bcrl@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [bkpatch] do_mmap cleanup
+Message-ID: <20020311203947.GA735@opus.bloom.county>
+In-Reply-To: <20020308185350.E12425@redhat.com> <20020311120818.A38@toy.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020311120818.A38@toy.ucw.cz>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-
->--- linux-2.5.6-pre2/drivers/net/8139cp.c.orig	Mon Mar 11 13:17:59 2002
->+++ linux-2.5.6-pre2/drivers/net/8139cp.c	Mon Mar 11 15:44:48 2002
->@@ -47,7 +47,6 @@
-> #define DRV_VERSION		"0.0.7"
-> #define DRV_RELDATE		"Feb 27, 2002"
+On Mon, Mar 11, 2002 at 12:08:18PM +0000, Pavel Machek wrote:
+> Hi!
 > 
->-
-> #include <linux/module.h>
-> #include <linux/kernel.h>
-> #include <linux/netdevice.h>
->@@ -59,6 +58,7 @@
-> #include <linux/mii.h>
-> #include <asm/io.h>
-> #include <asm/uaccess.h>
->+#include <linux/crc32.h>
->
-Please CC the maintainer (me) on such patches.  Also, don't remove blank 
-lines I put in there to make the code look nice... :)
+> > Below is a vm cleanup that can be pulled from bk://bcrlbits.bk.net/vm-2.5 .
+> > The bulk of the patch is moving the down/up_write on mmap_sem into do_mmap 
+> > and removing that from all the callers.  The patch also includes a fix for 
+> > do_mmap which caused mapping of the last page in the address space to fail.
+> 
+> Was not that a workaround for CPU bugs?
 
-    Jeff
+In generic code, I'd hope not.
 
-
-
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,65 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbUJZQ0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbUJZQ2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbUJZQ0P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 12:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbUJZQ0P
+	id S261332AbUJZQ2H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 12:28:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbUJZQ2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 12:26:15 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:5545 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S261329AbUJZQZ5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 12:25:57 -0400
-Date: Tue, 26 Oct 2004 18:22:44 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-Message-ID: <20041026162244.GA7739@thundrix.ch>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org> <20041023030356.GA5005@animx.eu.org> <20041024133333.GA16901@hh.idb.hist.no> <20041025232654.GC30574@thundrix.ch> <Pine.GSO.4.61.0410261310350.19019@waterleaf.sonytel.be>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.61.0410261310350.19019@waterleaf.sonytel.be>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+	Tue, 26 Oct 2004 12:28:06 -0400
+Received: from mail.dif.dk ([193.138.115.101]:18838 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261332AbUJZQ1Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 12:27:24 -0400
+Date: Tue, 26 Oct 2004 18:35:35 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Timothy Miller <miller@techsource.com>
+Cc: pbecke <pbecke@javagear.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+In-Reply-To: <417E70D2.2010302@techsource.com>
+Message-ID: <Pine.LNX.4.61.0410261827430.3252@dragon.hygekrogen.localhost>
+References: <6.1.2.0.1.20041026082223.0231edd8@mail.javagear.com>
+ <417E70D2.2010302@techsource.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 26 Oct 2004, Timothy Miller wrote:
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> 
+> pbecke wrote:
+> > In general an open source video card is a great idea, however, I am a bit
+> > concerned about your plans to keep the FPGA code secret.  I realize that
+> > your company wants to make a profit, 
+> 
+> And that is the POINT here.  The question isn't whether or not we can become a
+> charity and give away all of our IP.  The question is whether or not it's
+> possible to sell open-source-friendly products.  Designing and manufacturing
+> hardware is EXPENSIVE.  Especially at the volumes I expect.
+> 
+> > but in keeping with the spirit of open source, it seems that it would be a
+> > good idea to not only open up the driver development, but also to open up
+> > the FPGA code.  The great power of open source is that it allows a developer
+> > to tweak the implementation.
+> 
+> What you're asking for is excessive.  Even Stallman agrees that people should
+> be able to profit from their work.  Opening the source to this chip would be
+> good for you and for every other company that wants to copy it, but it would
+> not be good for Tech Source.  Tech Source is a business with a profit motive.
+> Will will not engage in something that costs us more money than it makes or
+> diverts us from something more profitable.
+> 
+> You're allowing your lofty free software ideals to get in the way of what is
+> reasonable and practical.  I believe in freedom, which is why I started this
+> project.  But make no mistake in thinking that I'm trying to waste the time
+> and money of my employer.
+> 
 
-Salut,
-
-On Tue, Oct 26, 2004 at 01:11:12PM +0200, Geert Uytterhoeven wrote:
-> > 6.8.1 is the current X.Org release  that we did because 6.8 turned out
-> > to have a nasty idiot bug.
->=20
-> What a coincidence: use s/X11R/2./ to convert from X11 to Linux :-)
-
-Yes,  and it  was even  around  the same  time, just  some days  later
-IIRC. And the culprit was a TLA: it was XPM, not NFS.
-
-			    Tonnerre
+I'd say a card with open source drivers and access to detailed
+documentation from a company that's willing to work with the Open Source
+Software community is a very big first step, and a massive improvement on
+the current state of affairs. If we could just get that as a start, then I
+for one would be thrilled.
 
 
---2fHTh5uZTiUOsy+g
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+> > Perhaps, rather than a single company defining the functionality with input
+> > from the open source community, it makes more sense for the open source
+> > community to define the standard, and then any company could work from the
+> > standard created by the open source community.
+> 
+> As I've said before, if people want to give us a design, we'll manufacture it!
+> 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
+I know very little about graphics card hardware so I have no idea if this 
+is interresting or not, but in case you haven't heard of Manticore I 
+thought I'd provide a link : http://icculus.org/manticore/
 
-iD8DBQFBfnnT/4bL7ovhw40RAuO2AJ9qEpiy584PcJ6564t0QS/MZjPlMwCePui8
-pIHGpior1mTgZS/tYc470oo=
-=CwS3
------END PGP SIGNATURE-----
 
---2fHTh5uZTiUOsy+g--

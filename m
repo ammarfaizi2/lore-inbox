@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315630AbSETBZZ>; Sun, 19 May 2002 21:25:25 -0400
+	id <S315629AbSETBfo>; Sun, 19 May 2002 21:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315631AbSETBZY>; Sun, 19 May 2002 21:25:24 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57093 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315630AbSETBZW>; Sun, 19 May 2002 21:25:22 -0400
-Date: Sun, 19 May 2002 18:25:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.16
-In-Reply-To: <15592.19630.175916.291284@argo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.44.0205191820100.20628-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315679AbSETBfn>; Sun, 19 May 2002 21:35:43 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:48399 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S315629AbSETBfm>; Sun, 19 May 2002 21:35:42 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: AUDIT of 2.5.15 copy_to/from_user 
+In-Reply-To: Your message of "Sun, 19 May 2002 12:44:30 +0100."
+             <E179P70-0003dg-00@the-village.bc.nu> 
+Date: Mon, 20 May 2002 11:38:32 +1000
+Message-Id: <E179c88-0004HH-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <E179P70-0003dg-00@the-village.bc.nu> you write:
+> Looking at 2.4.1x which has the same signal code
+> 
+> > arch/i386/kernel/signal.c:37:		return __copy_to_user(to, from,
+ sizeof(siginfo_t));
+> 
+> not a bug
 
+Disagree.  May not cause problems at the moment, but a function which
+does:
 
-On Mon, 20 May 2002, Paul Mackerras wrote:
->
-> My only comment at this stage is that I would like to have the address
-> passed to tlb_remove_page, as it used to be, so that I can find and
-> clear the PTEs in the MMU hash table efficiently when the buffer in
-> the mmu_gather_t fills up, before freeing the pages.
+	if (!access_ok (VERIFY_WRITE, to, sizeof(siginfo_t)))
+		return -EFAULT;
+	if (from->si_code < 0)
+		return __copy_to_user(to, from, sizeof(siginfo_t));
 
-Sure enough, but you need to keep in mind that x86 (and others) want to
-use the generic support even for pages that don't have virtual addresses,
-ie the page directories etc. So that argues for splitting up the existing
-"tlb_remove_page()" into something like
-
-	tlb_remove_tlb_entry(tlb_gather_t *tlb, struct page *page, unsigned long address)
-	{
-		tlb_flush_mapping(tlb, page, address);
-		tlb->freed++;
-		tlb_remove_page(tlb,page);
-	}
-
-	tlb_remove_page(tlb_gather_t *tlb, tlb)
-	{
-		.. add the page to the pages[] array ..
-	}
-
-where PPC would have the "tlb_flush_mapping()" thing, and something like
-x86 or a regular TLB would just define it to be a no-op.
-
-		Linus
-
+Is clearly wrong,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

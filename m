@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262590AbTE2UFb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 16:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTE2UFa
+	id S262598AbTE2UKG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 16:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbTE2UKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 16:05:30 -0400
-Received: from uk134.internetdsl.tpnet.pl ([80.55.140.134]:39172 "EHLO
-	cyborg.podlas36.one.pl") by vger.kernel.org with ESMTP
-	id S262590AbTE2UFY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 16:05:24 -0400
-From: Krzysiek Taraszka <dzimi@pld.org.pl>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>
-Subject: Re: -rc7   Re: Linux 2.4.21-rc6
-Date: Thu, 29 May 2003 22:18:38 +0200
-User-Agent: KMail/1.5.1
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva> <Pine.LNX.4.55L.0305291609580.14835@freak.distro.conectiva> <200305292156.51618.dzimi@pld.org.pl>
-In-Reply-To: <200305292156.51618.dzimi@pld.org.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200305292218.38127.dzimi@pld.org.pl>
+	Thu, 29 May 2003 16:10:06 -0400
+Received: from smtp-out-01.utu.fi ([130.232.202.171]:60810 "EHLO
+	smtp-out-01.utu.fi") by vger.kernel.org with ESMTP id S262598AbTE2UKF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 16:10:05 -0400
+Date: Thu, 29 May 2003 23:23:22 +0300
+From: =?iso-8859-1?Q?Tero_J=E4nk=E4?= <tesaja@utu.fi>
+Subject: Generic PCI IDE Chipset Support in 2.4.21-rc6
+To: linux-kernel@vger.kernel.org
+Message-id: <20030529202322.GA6441@tron.yok.utu.fi>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
+Content-disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia czw 29. maja 2003 21:56, Krzysiek Taraszka napisa³:
-> Dnia czw 29. maja 2003 21:11, Marcelo Tosatti napisa³:
-> > On Thu, 29 May 2003, Georg Nikodym wrote:
-> > > On Wed, 28 May 2003 21:55:39 -0300 (BRT)
-> > >
-> > > Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
-> > > > Here goes -rc6. I've decided to delay 2.4.21 a bit and try Andrew's
-> > > > fix for the IO stalls/deadlocks.
-> > >
-> > > While others may be dubious about the efficacy of this patch, I've been
-> > > running -rc6 on my laptop now since sometime last night and have seen
-> > > nothing odd.
-> > >
-> > > In case anybody cares, I'm using both ide and a ieee1394 (for a large
-> > > external drive [which implies scsi]) and I do a _lot_ of big work with
-> > > BK so I was seeing the problem within hours previously.
-> >
-> > Great!
-> >
-> > -rc7 will have to be released due to some problems :(
->
-> hmm, seems to ide modules and others are broken. Im looking for reason why
+A possible bug here. At least a 'bug' in the documentation if nothing else.
 
-hmm, for IDE subsystem the ide-proc.o was't made for CONFIG_BLK_DEV_IDE=m ...
-anyone goes to fix it ? or shall I prepare and send here my own patch ?
+In menuconfig there are the following two entries:
+
+[*]   PCI IDE chipset support
+[ ]     Generic PCI IDE Chipset Support (NEW)
+
+The help (?) for "PCI IDE chipset support" in menuconfig shows:
+
+CONFIG_BLK_DEV_IDEPCI:
+
+Say Y here for PCI systems which use IDE drive(s).
+This option helps the IDE driver to automatically detect and
+configure all PCI-based IDE interfaces in your system.
+
+
+However in Documentation/Configure.help it says about CONFIG_BLK_DEV_IDEPCI:
+
+Generic PCI IDE chipset support
+CONFIG_BLK_DEV_IDEPCI
+  Say Y here for PCI systems which use IDE drive(s).
+  This option helps the IDE driver to automatically detect and
+  configure all PCI-based IDE interfaces in your system.
+
+
+Notice the first line, "Generic PCI IDE chipset support", and this was
+supposed to be help for "PCI IDE chipset support" (at least if menuconfig is
+to be trusted).
+
+There is no help (?) available for "Generic PCI IDE Chipset Support" at all
+in menuconfig. And no references to CONFIG_BLK_DEV_GENERIC in
+Documentation/Configure.help.
+
+What is the purpose of "Generic PCI IDE Chipset Support" (CONFIG_BLK_DEV_GENERIC)?
+When should it be enabled and when not?
+
+When upgrading from 2.4.20, CONFIG_BLK_DEV_GENERIC is disabled by default,
+even though CONFIG_BLK_DEV_IDEPCI is enabled. Is this how it should be?
+
+I'd appreciate if any responses are cc:ed to me, since I'm not in the lkml.
 
 -- 
-Krzysiek Taraszka			(dzimi@pld.org.pl)
-http://cyborg.kernel.pl/~dzimi/
+Tero Jänkä

@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288494AbSANAqs>; Sun, 13 Jan 2002 19:46:48 -0500
+	id <S288531AbSANAs3>; Sun, 13 Jan 2002 19:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288499AbSANAql>; Sun, 13 Jan 2002 19:46:41 -0500
-Received: from cj379137-a.indpdnce1.mo.home.com ([24.179.182.153]:52740 "EHLO
-	ns.brink.cx") by vger.kernel.org with ESMTP id <S288494AbSANAp4>;
-	Sun, 13 Jan 2002 19:45:56 -0500
-From: Andrew Brink <abrink@ns.brink.cx>
-Date: Sun, 13 Jan 2002 18:45:28 -0600
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Getting Out of Memory errors at random intervals.
-Message-ID: <20020114004528.GA1534@ns.brink.cx>
-In-Reply-To: <20020114003907.GB1406@ns.brink.cx> <E16PvMS-00005i-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16PvMS-00005i-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.24i
+	id <S288528AbSANAsY>; Sun, 13 Jan 2002 19:48:24 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29191 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S288502AbSANArH>; Sun, 13 Jan 2002 19:47:07 -0500
+Date: Sun, 13 Jan 2002 19:46:54 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <20020108142117.F3221@inspiron.school.suse.de>
+Message-ID: <Pine.LNX.3.96.1020113193700.17441G-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Will do. However, might be a while, since this isn't reproducable on
-demand.
+On Tue, 8 Jan 2002, Andrea Arcangeli wrote:
 
-On Mon, Jan 14, 2002 at 12:52:28AM +0000, Alan Cox wrote:
-> > On Mon, Jan 14, 2002 at 12:44:51AM +0000, Alan Cox wrote:
-> > > > *Shrug* I've done some experimenting with this, having a lab (30 people)
-> > > > all hit the site at the same time. Holds it fine most the time.  Usually
-> > > > the OOM's come during the middle of the night.
-> > > 
-> > > About 4am by any chance ?
-> > 
-> > On second thought, I went and reviewed some logs.
-> > Happened a lot on one box around 8ish.
-> > 
-> 
-> Ok. Let me know how trying the other things work (also the list). I'm sure
-> Andrea, Marcelo and Rik all want to look at these cases
+> I'm not against preemption (I can see the benefits about the mean
+> latency for real time DSP) but the claims about preemption making the
+> kernel faster doesn't make sense to me. more frequent scheduling,
+> overhead of branches in the locks (you've to conditional_schedule after
+> the last preemption lock is released and the cachelines for the per-cpu
+> preemption locks) and the other preemption stuff can only make the
+> kernel slower.  Furthmore for multimedia playback any sane kernel out
+> there with lowlatency fixes applied will work as well as a preemption
+> kernel that pays for all the preemption overhead.
+
+I'm not sure I have seen claims that it makes the kernel faster, but it
+sure makes the latency lower, and improves performance for systems doing a
+lot of network activity (DNS servers) with anything else going on in the
+systems, such as daily reports and backups.
+
+I will try the low latency kernel stuff, but I think intrinsically that if
+you want to service the incoming requests quickly you have to dispatch to
+them quickly, not at the end of a time slice. Preempt is a way to avoid
+having to play with RT processes, and I think it's desirable in general as
+an option where the load will benefit from such behaviour.
+
+I'm not sure it "competes" with low latency, since many of the thing LL is
+doing are "good things" in general.
+
+Finally, I doubt that any of this will address my biggest problem with
+Linux, which is that as memory gets cheap a program doing significant disk
+writing can get buffers VERY full (perhaps a while CD worth) before the
+kernel decides to do the write, at which point the system becomes
+non-responsive for seconds at a time while the disk light comes on and
+stays on. That's another problem, and I did play with some patches this
+weekend without making myself really happy :-( Another topic,
+unfortunately.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

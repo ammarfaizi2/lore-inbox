@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130340AbQKWVoD>; Thu, 23 Nov 2000 16:44:03 -0500
+        id <S130327AbQKWVoE>; Thu, 23 Nov 2000 16:44:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129295AbQKWVnz>; Thu, 23 Nov 2000 16:43:55 -0500
-Received: from 213-120-138-133.btconnect.com ([213.120.138.133]:38155 "EHLO
-        penguin.homenet") by vger.kernel.org with ESMTP id <S130327AbQKWVUG>;
-        Thu, 23 Nov 2000 16:20:06 -0500
-Date: Thu, 23 Nov 2000 20:51:42 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Neil Brown <neilb@cse.unsw.edu.au>, "Mohammad A. Haque" <mhaque@haque.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-In-Reply-To: <Pine.GSO.4.21.0011231205550.11219-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0011232049210.2321-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S130343AbQKWVnz>; Thu, 23 Nov 2000 16:43:55 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:41741 "EHLO zmailer.org")
+        by vger.kernel.org with ESMTP id <S130361AbQKWV3K>;
+        Thu, 23 Nov 2000 16:29:10 -0500
+Date: Thu, 23 Nov 2000 22:59:00 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: {PATCH} isofs stuff
+Message-ID: <20001123225900.E28963@mea-ext.zmailer.org>
+In-Reply-To: <20001123205731.A26914@gruyere.muc.suse.de> <Pine.LNX.4.10.10011231235170.1338-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10011231235170.1338-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Nov 23, 2000 at 12:38:55PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alexander,
+On Thu, Nov 23, 2000 at 12:38:55PM -0800, Linus Torvalds wrote:
+... 
+> In fact, almost all filesystems do this at some point. ext2 does it for
+> directories too, for some very similar reasons that isofs does. See
+> fs/ext2/dir.c:
+> 
+> 	blk = (filp->f_pos) >> EXT2_BLOCK_SIZE_BITS(sb);
+> 
+> (and don't ask me about the extraneous parenthesis. I bet some LISP
+> programmer felt alone and decided to make it a bit more homey).
+> 
+> 		Linus
 
-I am "hammering" an ext2 filesystem with all sorts (bonnies, make -j8
-bzImage, cp -a dir1 dir2 + all these over localhost NFSv3) for a while and
-so far it survives. The system is 2way SMP with 1G RAM.
+   Propably some programmer has been bitten once too many times with
+   C's operator precedence rules, which only affect more complicated
+   expressions -- and thus are used rarely, and not remembered well.
+   (Or perhaps rememberance is felt to be weak, and parenthesis solve it.)
 
-However, I can't say that _without_ your patch the above did _not_
-survive. The corruptions usually come from real useful work and not from
-articfical tests (unfortunately)....
-
-Regards,
-Tigran
-
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

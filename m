@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265374AbTF1UAu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 16:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265375AbTF1UAu
+	id S265387AbTF1UT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 16:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265392AbTF1UT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 16:00:50 -0400
-Received: from front2.netvisao.pt ([213.228.128.57]:28868 "HELO
-	front2.netvisao.pt") by vger.kernel.org with SMTP id S265374AbTF1UAu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 16:00:50 -0400
-Date: Sat, 28 Jun 2003 21:15:05 +0100
+	Sat, 28 Jun 2003 16:19:56 -0400
+Received: from [163.118.102.59] ([163.118.102.59]:53632 "EHLO
+	mail.drunkencodepoets.com") by vger.kernel.org with ESMTP
+	id S265387AbTF1UTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 16:19:55 -0400
+Date: Sat, 28 Jun 2003 16:26:56 -0400
+From: pat erley <paterley@drunkencodepoets.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Asus CD-S520/A kernel I/O error
-Message-ID: <20030628201505.GA10194@deneb>
+Cc: Con Kolivas <kernel@kolivas.org>
+Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
+Message-Id: <20030628162656.06e7e046.paterley@drunkencodepoets.com>
+In-Reply-To: <200306281516.12975.kernel@kolivas.org>
+References: <200306281516.12975.kernel@kolivas.org>
+Organization: drunkencodepoets.com
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Marco Ferra <marcoferra@netvisao.pt>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You were right once more.  I was using the cdrecord version 1.10 shiped
-with Debian 3.0 (woody).  After compiling the latest
-cdrtools-2.00.3.tar.gz and grasping the manpage I could see the -raw96r
-option.  Now the final test is to burn the cd.  But I'm sure that all be
-fine.
+I made a small error when I sent Con a piece of magic I wrote up to help the sleep period.  
 
-Once again I can't thank you enough.  This 'strange' error have been killing
-my brain cells all day.
+what it says right now:
 
-My best regards, Marco.
+/kernel/sched.c around line 325
+
+
+sleep_period = (sleep_period *
+	17 * sleep_period / ((17 * sleep_period / (5 * tau) + 2) * 5 * tau));
+----------------------------------------------------------^
+
+it should be:
+
+sleep_period = (sleep_period *
+	17 * sleep_period / ((17 * sleep_period / (5 * tau + 2)) * 5 * tau));
+--------------------------------------------------------------^
+
+stupid parenthesis.
+
+a little background.  what this essentially is is a taylor approximation of the function ln(66x+1) normalized.  ln(66x+1) happens to do a great job oas a weighting function on the range of 0 to 1, and because the input only happens to range from 0 to 1, only 2 terms were needed to do a 'good enough' job.
+
+Pat
+-- 

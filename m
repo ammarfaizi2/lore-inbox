@@ -1,75 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbVCPEqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbVCPEww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262517AbVCPEqA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 23:46:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262518AbVCPEp7
+	id S262242AbVCPEww (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 23:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262512AbVCPEww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 23:45:59 -0500
-Received: from sccrmhc14.comcast.net ([204.127.202.59]:7144 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262517AbVCPEpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 23:45:31 -0500
-Subject: Re: [PATCH][RFC] /proc umask and gid [was: Make /proc/<pid>
-	chmod'able]
-From: Albert Cahalan <albert@users.sf.net>
-To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com, 7eggert@gmx.de
-In-Reply-To: <20050316023923.GA27736@lsrfire.ath.cx>
-References: <1110771251.1967.84.camel@cube>
-	 <20050316023923.GA27736@lsrfire.ath.cx>
-Content-Type: text/plain
-Date: Tue, 15 Mar 2005 23:31:14 -0500
-Message-Id: <1110947475.1967.280.camel@cube>
+	Tue, 15 Mar 2005 23:52:52 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:687 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S262242AbVCPEws (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 23:52:48 -0500
+Subject: Re: [11/many] acrypto: crypto_main.c
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
+       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <42370C51.4060607@osdl.org>
+References: <11102278541439@2ka.mipt.ru>  <42370C51.4060607@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ckyjvCmldo65UejVWKqu"
+Organization: MIPT
+Date: Wed, 16 Mar 2005 07:58:16 +0300
+Message-Id: <1110949096.30729.61.camel@uganda>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Wed, 16 Mar 2005 07:51:27 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-16 at 03:39 +0100, Rene Scharfe wrote:
-> So, I gather from the feedback I've got that chmod'able /proc/<pid>
-> would be a bit over the top. 8-)  While providing the easiest and most
-> intuitive user interface for changing the permissions on those
-> directories, it is overkill.  Paul is right when he says that such a
-> feature should be turned on or off for all sessions at once, and that's
-> it.
-> 
-> My patch had at least one other problem: the contents of eac
-> /proc/<pid> directory became chmod'able, too, which was not intended.
-> 
-> Instead of fixing it up I took two steps back, dusted off the umask
-> kernel parameter patch and added the "special gid" feature I mentioned.
-> 
-> Without the new kernel parameters behaviour is unchanged.  Add
-> proc.umask=077 and all /proc/<pid> will get a permission mode of 500.
-> This breaks pstree (no output), as Bodo already noted, because this
-> program needs access to /proc/1.  It also breaks w -- it shows the
-> correct number of users but it lists XXXXX even for sessions owned
-> by the user running it.
-> 
-> Use proc.umask=007 and proc.gid=50 instead and all /proc/<pid> dirs
-> will have a mode of 550 and their group attribute will be set to 50
-> (that's "staff" on my Debian system).  Pstree will work for all members
-> of that special group (just like top, ps and w -- which also show
-> everything in that case).  Normal users will still have a restricted
-> view.
-> 
-> Albert, would you take fixes for w even though you despise the feature
-> that makes them necessary?
 
-I will take patches if they are not too messy and they do not
-cause tools to report garbage output. For example, I do not
-wish to have tools reporting -1, 0, or uninitialized data in
-place of correct data.
+--=-ckyjvCmldo65UejVWKqu
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Distinct controls for the various files could be useful.
-I might want to make /proc/*/cmdline be public, or make
-/proc/*/maps be private. This is particularly helpful if
-a low-security file is added for bare-bones ps operation.
+On Tue, 2005-03-15 at 08:24 -0800, Randy.Dunlap wrote:
+> Evgeniy Polyakov wrote:
+> > --- /tmp/empty/crypto_main.c	1970-01-01 03:00:00.000000000 +0300
+> > +++ ./acrypto/crypto_main.c	2005-03-07 20:35:36.000000000 +0300
+> > @@ -0,0 +1,374 @@
+> > +/*
+> > + * 	crypto_main.c
+> > + *
+> > + * Copyright (c) 2004 Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> > + *=20
+> > + */
+>=20
+> > +struct crypto_session *crypto_session_alloc(struct crypto_session_init=
+ializer *ci, struct crypto_data *d)
+> > +{
+> > +	struct crypto_session *s;
+> > +
+> > +	s =3D crypto_session_create(ci, d);
+> > +	if (!s)
+> > +		return NULL;
+> > +
+> > +	crypto_session_add(s);
+> > +
+> > +	return s;
+> > +}
+> > +
+> > +
+>=20
+> > +EXPORT_SYMBOL(crypto_session_alloc);
+> Why is this one not _GPL ??  It calls _create() and _add().
 
-You might make a special exception for built-in kernel tasks
-and init.
+It is not allowed to control _create() and _add() methods, only call
+them "atomically"
+(without gap between functions where new route can be created).
+So I export only that one functin as non-GPL-only for anyone
+who wants to use asynchronous crypto in simple mode.
+More powerfull control requires GPL.
 
+> > +EXPORT_SYMBOL_GPL(crypto_session_create);
+> > +EXPORT_SYMBOL_GPL(crypto_session_add);
+> > +EXPORT_SYMBOL_GPL(crypto_session_dequeue_route);
+>=20
+>=20
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-ckyjvCmldo65UejVWKqu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCN7zoIKTPhE+8wY0RAhQ/AKCDr0/snv6CD4AKfqgadvDW2d4pbwCfa/Pf
+tt7OjhK3IfhofpxKgnTVab8=
+=QwDF
+-----END PGP SIGNATURE-----
+
+--=-ckyjvCmldo65UejVWKqu--
 

@@ -1,260 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268809AbTCBFAc>; Sun, 2 Mar 2003 00:00:32 -0500
+	id <S269006AbTCBFx2>; Sun, 2 Mar 2003 00:53:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268874AbTCBFAc>; Sun, 2 Mar 2003 00:00:32 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:9231 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S268809AbTCBFA2>; Sun, 2 Mar 2003 00:00:28 -0500
-Date: Sun, 2 Mar 2003 00:10:10 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: andrea@e-mind.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: BitBucket: GPL-ed BitKeeper clone
-Message-ID: <20030302051010.GB22169@phunnypharm.org>
-References: <20030226200208.GA392@elf.ucw.cz> <20030302050420.GA22169@phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="dTy3Mrz/UPE2dbVg"
-Content-Disposition: inline
-In-Reply-To: <20030302050420.GA22169@phunnypharm.org>
-User-Agent: Mutt/1.5.3i
+	id <S268958AbTCBFx1>; Sun, 2 Mar 2003 00:53:27 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:15870 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S267499AbTCBFxZ>; Sun, 2 Mar 2003 00:53:25 -0500
+Message-ID: <3E619E97.8010508@nortelnetworks.com>
+Date: Sun, 02 Mar 2003 01:03:03 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: jamal <hadi@cyberus.ca>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org
+Subject: Re: anyone ever done multicast AF_UNIX sockets?
+References: <3E5E7081.6020704@nortelnetworks.com> <20030228083009.Y53276@shell.cyberus.ca> <3E5F748E.2080605@nortelnetworks.com> <20030228212309.C57212@shell.cyberus.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jamal wrote:
+> Did you also measure throughput?
 
---dTy3Mrz/UPE2dbVg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+No.  lmbench doesn't appear to test UDP socket local throughput.
 
-On Sun, Mar 02, 2003 at 12:04:20AM -0500, Ben Collins wrote:
-> On Wed, Feb 26, 2003 at 09:02:12PM +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > I've created little project for read-only (for now ;-) bitkeeper
-> > clone. It is available at www.sf.net/projects/bitbucket (no tar balls,
-> > just get it fresh from CVS).
-> 
-> In case it may be of some help, here's a script that is the result of my
-> own reverse engineering of the bitkeeper SCCS files. It can output a
-> diff, almost exactly the same as BitKeeper's gnupatch output from a
-> BitKeeper repo.
+> You are overlooking the flexibility that already exists in IP based
+> transports as an advantage; the fact that you can make them
+> distributed instead of localized with a simple addressing change
+> is a very powerful abstraction.
 
+True.  On the other hand, the same could be said about unicast IP 
+sockets vs unix sockets.  Unix sockets exist for a reason, and I'm 
+simply proposing to extend them.
 
-Might aswell supply my hacked sccsdiff script aswell.
+>>From
+>>userspace, multicast unix would be *simple* to use, as in totally
+>>transparent.
+
+> You could implement the abstraction in user space as a library today by
+> having some server that muxes to several registered clients.
+
+This is what we have now, though with a suboptimal solution (we 
+inherited it from another group).  The disadvantage with this is that it 
+adds a send/schedule/receive iteration.  If you have a small number of 
+listeners this can have a large effect percentage-wise on your messaging 
+cost.  The kernel approach also cuts the number of syscalls required by 
+a factor of two compared to the server-based approach.
+
+> So whats the addressing scheme for multicast unix? Would it be a
+> reserved path?
+
+Actually I was thinking it could be arbitrary, with a flag in the unix 
+part of struct sock saying that it was actually a multicast address. 
+The api would be something like the IP multicast one, where you get and 
+bind a normal socket and then use setsockopt to attach yourself to one 
+or more of multicast addresses.  A given address could be multicast or 
+not, but they would reside in the same namespace and would collide as 
+currently happens.  The only way to create a multicast address would be 
+the setsockopt call--if the address doesn't already exist a socket would 
+be created by the kernel and bound to the desired address.
+
+To see if its feasable I've actually coded up a proof-of-concept that 
+seems to do fairly well. I tested it with a process sending an 8-byte 
+packet containing a timestamp to three listeners, who checked the time 
+on receipt and printed out the difference.
+
+For comparison I have two different userspace implementations, one with 
+a server process (very simple for test purposes) and the other using an 
+mmap'd file to store which process is listening to what messages.
+
+The timings (in usec) for the delays to each of the listeners were as 
+follows on my duron 750:
+
+userspace server:     104 133 153
+userspace no server:   72 111 138
+kernelspace:           60  91 113
+
+As you can see, the kernelspace code is the fastest and since its in the 
+kernel it can be written to avoid being scheduled out while holding 
+locks which is hard to avoid with the no-server userspace option.
+
+If this sounds at all interesting I would be glad to post a patch so you 
+could shoot holes in it, otherwise I'll continue working on it privately.
+
+Chris
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 
---dTy3Mrz/UPE2dbVg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=sccsdiff
-
-#! /bin/sh
-
-# This file is part of CSSC.
-# # Generated automatically from sccsdiff.sh.in by configure.
-
-# Usage:
-# sccsdiff [-p] -rsid -rsid [diff-options] s.filename
-#
-
-# $Id: sccsdiff.sh.in,v 1.9 2001/11/25 16:01:38 james_youngman Exp $
-# LOG   $Log: sccsdiff.sh.in,v $
-# LOG   Revision 1.9  2001/11/25 16:01:38  james_youngman
-# LOG   Corrected a syntax error.
-# LOG
-# LOG   Revision 1.8  2001/11/25 14:27:54  james_youngman
-# LOG   fixed Debian  Bug#120080: sccs sccsdiff doesn't work (sccsdiff assumes /usr/sccs symlink exists)
-# LOG
-# LOG   Revision 1.7  1998/03/10 00:22:00  james
-# LOG   Support for filenames containing spaces.
-# LOG
-# LOG   Revision 1.6  1998/03/09 23:25:00  james
-# LOG   Bug report from Richard Polton: IRIX's pr(1) requires a space between
-# LOG   the "-h" and its argument.
-# LOG
-# LOG   Revision 1.5  1998/02/09 21:00:19  james
-# LOG   Patch from Maurice O'Donnell <mod@tfn.com>: pass "-e" to sed before
-# LOG   the sed commands.
-# LOG
-# LOG   Revision 1.4  1998/01/24 14:15:13  james
-# LOG   SCCS compatibility fix -- When "get" fails, exit with value 1, not 2.
-# LOG
-# LOG   Revision 1.3  1997/12/19 20:40:35  james
-# LOG   Modified version of sccsdiff arrived from Richard Polton; took the
-# LOG   ideas onboard for a rewrite of sccsdiff.
-# LOG
-# LOG   Revision 1.2  1997/05/04 14:52:02  james
-# LOG   Have to enclose the version string in single rather than double
-# LOG   quotes, to protect the dollar signs from shell expansion.
-# LOG
-# LOG   Revision 1.1  1997/05/04 14:49:22  james
-# LOG   Initial revision
-
-# Values substituted by configure:-
-pr=/usr/bin/pr			   # The location of the   pr(1) command:
-diff=/usr/bin/diff # The location of the diff(1) command:
-
-# Find the "get" command.  The last value tested is "get", and 
-# that's what we use if we can't find get in any other location.
-if test x$get = x
-then
-    # The CSSC Makefile performs a sed substitution on the next line.
-    for get in "/usr/local/libexec/cssc/get" /usr/sccs/get get
-    do
-	if [ -x "$get" ]
-	then
-	    break
-	fi
-    done
-fi
-
-version='$Revision: 1.9 $ $State: Exp $'
-usage() {
-cat <<EOF
-$0 [-p] -rsid -rsid [diff-options] s.filename [s.secondfile...]
-EOF
-}
-
-use_pr=false
-first_sid=
-second_sid=
-diff_options=
-sccs_files=
-
-while test $# -gt 0
-do
-	case $1 in 
-	    --help)
-		usage
-		exit 0
-		;;
-	    --version)
-		echo "$version"
-		exit 0
-		;;
-	    -p) use_pr=true 
-		shift
-		;;
-	    -r*)      
-		if test x$first_sid = x
-		then
-		    first_sid=$1
-		else
-		    if test x$second_sid = x
-		    then
-			second_sid=$1
-		    else
-			exec >&2
-			usage
-			echo "Too many -r options."
-			exit 1
-		    fi
-		fi
-		shift
-		;;
-	    -*)
-		diff_options="${diff_options} $1"
-		shift
-		;;
-	    *)  
-		# That is an SCCS file, leave it and everything 
-		# following it in $*.
-		break
-		;;
-	esac
-done
-
-# Show what we got...
-## echo "use_pr=" $use_pr
-## echo "first SID=" $first_sid
-## echo "second SID=" $second_sid
-## echo "diff options=" $diff_options
-## echo "SCCS files=" $*
-## echo \$\# = $#
-
-if test x$second_sid = x
-then
-    exec >&2
-    echo Two SIDs must be specified with the -r option.
-    usage
-    exit 1
-fi
-
-
-# Remove the leading "-r" from $first_sid and $second_sid
-# so that we can echo the correct string as the header line
-# introducing the diff.
-first_sid=`echo   $first_sid | sed -e 's/^-r//' `
-second_sid=`echo $second_sid | sed -e 's/^-r//' `
-
-getprefix=/tmp/get.$$.
-g1="${getprefix}${first_sid}"
-g2="${getprefix}${second_sid}"
-dfile=${getprefix}d${first_sid}${second_sid}
-
-while test $# -gt 0
-do
-    rm -f "$g1" "$g2" "$dfile"
-    sccsfile="$1"
-    shift 
-
-    header="$sccsfile: $first_sid vs. $second_sid"
-
-    if test $first_sid = 1 -o $first_sid = 1.0; then
-	touch "${g1}"
-    else
-	${get:-get} -r$first_sid -s -k "-G${g1}" "${sccsfile}" || {
-	    exec >&2
-	    echo "Failed to get version $first_sid from $sccsfile"
-	    exit 1
-	}
-    fi
-    if test $second_sid = 1 -o $second_sid = 1.0; then
-	touch "${g2}"
-    else
-	${get:-get} -r$second_sid -s -k "-G${g2}" "${sccsfile}" || {
-	    rm -f "$g1"
-	    exec >&2
-	    echo "Failed to get version $second_sid from $sccsfile"
-	    exit 1
-        }
-    fi
-
-    # in case noclobber is set...
-    rm -f "$dfile"
-
-    # Ignore return value of diff since it just tells us
-    # if the two files are different.
-    "$diff" $diff_options "$g1" "$g2" > "$dfile"
-    if test -f "$dfile" 
-    then				  # Output file exists.
-        if test -s "$dfile" 
-        then				  # Output file is not empty.
-	    if $use_pr
-	    then
-		$pr -h "$header"        < $dfile  
-	    else
-		echo $header
-		cat "$dfile"
-	    fi
-        else				  # Output file is empty.
-	    echo No differences.
-	fi
-    else				  # No output file at all!
-        echo "$diff produced no output file." >&2
-        exit 2
-    fi
-done					  # Loop over all named SCCS files.
-rm -f "$g1" "$g2" "$dfile"
-exit 0
-
-# Local Variables:
-# Mode: shell
-# End:
-
-
---dTy3Mrz/UPE2dbVg--

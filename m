@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287436AbSAPUTI>; Wed, 16 Jan 2002 15:19:08 -0500
+	id <S287425AbSAPURh>; Wed, 16 Jan 2002 15:17:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287440AbSAPUS7>; Wed, 16 Jan 2002 15:18:59 -0500
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:22773 "HELO
-	dardhal") by vger.kernel.org with SMTP id <S287436AbSAPUSo>;
-	Wed, 16 Jan 2002 15:18:44 -0500
-Date: Wed, 16 Jan 2002 21:11:17 +0100
-From: Jose Luis Domingo Lopez <jdomingo@internautas.org>
+	id <S287436AbSAPUR1>; Wed, 16 Jan 2002 15:17:27 -0500
+Received: from UX3.SP.CS.CMU.EDU ([128.2.198.103]:21105 "HELO
+	ux3.sp.cs.cmu.edu") by vger.kernel.org with SMTP id <S287425AbSAPURY>;
+	Wed, 16 Jan 2002 15:17:24 -0500
+Subject: Re: multithreading  on a multiprocessor system ( a bit OT )
+From: Justin Carlson <justincarlson@cmu.edu>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Rik spreading bullshit about VM
-Message-ID: <20020116201116.GB4518@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020116200459.E835@athlon.random>
+In-Reply-To: <3C45D95C.7000402@student.uni-kl.de>
+In-Reply-To: <3C45D95C.7000402@student.uni-kl.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-71eFP1xpZ+3cUOAXxsuU"
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 16 Jan 2002 15:16:44 -0500
+Message-Id: <1011212204.314.3.camel@gs256.sp.cs.cmu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020116200459.E835@athlon.random>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 16 January 2002, at 20:04:59 +0100,
-Andrea Arcangeli wrote:
 
-> I read here:
-> 
-> 	http://linux.html.it/articoli/rik_van_riel_ita1.htm
-> 
-I'm not a programmer. I'm not a kernel hacker. I don't like _very_
-valuable people wasting their time reading messages like mine. I give
-credit to all of you (Andrea, Rik, Linus, Alan and everyine else), and
-sincerely thank you for your hard and good work. I don't try to start or
-give fuel to a flame war.
+--=-71eFP1xpZ+3cUOAXxsuU
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-But, Andrea, sometimes people like me _feel_ that bugs supposedly related
-to your VM implementation, and reported in this list, go without your
-attention. I'm completely sure you read all bug reports, and work
-"off-line" to solve them (-aa seems to be where they live). I am not of
-those who like talking a lot, but would be very nice (and it will sure
-decrease repeated bug reports and neverending threads about known
-problems) to sometimes answer some bug reports.
+On Wed, 2002-01-16 at 14:49, R. Sinoradzki wrote:
+> O.K my question:
+> Consider two modern processors that share some data and a lock.
+> The lock may be implemented with something like an atomic test-and-set
+> instruction. Now processor 'A' acquires the lock and works with the data.
+> Processor 'B' also wants to access the data, but internally reorders it's
+> instructions because the instructions seem independent from each other.
+> So 'B' might access the data without having the lock.
+> If it's a single processor system, reordering instructions in a way that
+> ensures that it looks 'as if' everything has been executed in the right o=
+rder
+> might be easy, but in a multiprocessor system 'A' doesn't know 'B's state=
+.
 
-I try to keep in sync with the list, and it's very difficult to find
-if those "corner cases" your VM seem to still suffer under are solved in
-your three, known but not solved, solved and merged, solved and sent to
-Marcelo, etc.
+Then you've got a bug.  Modern implementations that do SMP provide some
+way of placing barriers around speculative execution structures to make
+sure you don't, say, go out and read some memory location that changes
+state in a device because that's an OK speculative action to take.
 
-In short, is more a feeling of believing that no one cares about the few
-problems that still exist than "objective unstability" of the VM. 
+Can't really comment on x86, as I'm not very good with it, but taking
+for example MIPS and Alpha, in addition to the ll-sc ops, there are a
+sync and mb instructions, respectively, which provide a method for
+assuring that previous operations have become visible in terms of
+general machine state before going on.
 
-Just my 0.02.
+-Justin
 
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo AT internautas DOT   org  => Spam at your own risk
+--=-71eFP1xpZ+3cUOAXxsuU
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8Rd+s47Lg4cGgb74RAnxeAJ42+wPvabJmfNf4wOHD/fPNra8XRgCcD4TC
+cRNyj0fjHwjkUn23Vkl1fQQ=
+=BWIY
+-----END PGP SIGNATURE-----
+
+--=-71eFP1xpZ+3cUOAXxsuU--
 

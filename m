@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130460AbQLOS1s>; Fri, 15 Dec 2000 13:27:48 -0500
+	id <S129669AbQLOSaS>; Fri, 15 Dec 2000 13:30:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130464AbQLOS1i>; Fri, 15 Dec 2000 13:27:38 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:21477 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S130460AbQLOS1U>; Fri, 15 Dec 2000 13:27:20 -0500
-Date: Fri, 15 Dec 2000 19:56:11 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: ferret@phonewave.net
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-        Dana Lacoste <dana.lacoste@peregrine.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Linus's include file strategy redux
-Message-ID: <20001215195611.L829@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <FBF96516CD5@vcnet.vc.cvut.cz> <Pine.LNX.3.96.1001215093002.16439B-100000@tarot.mentasm.org>
+	id <S130131AbQLOSaI>; Fri, 15 Dec 2000 13:30:08 -0500
+Received: from linuxpc1.lauterbach.com ([194.195.165.177]:12811 "HELO
+	linuxpc1.lauterbach.com") by vger.kernel.org with SMTP
+	id <S129669AbQLOS36>; Fri, 15 Dec 2000 13:29:58 -0500
+Message-Id: <4.3.2.7.2.20001215185622.025f8740@mail.lauterbach.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Fri, 15 Dec 2000 18:59:24 +0100
+To: Andrea Arcangeli <andrea@suse.de>
+From: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
+Subject: Re: 2.2.18 signal.h
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        Mike Black <mblack@csihq.com>,
+        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20001215184325.B17781@inspiron.random>
+In-Reply-To: <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com>
+ <20001215175632.A17781@inspiron.random>
+ <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.3.96.1001215093002.16439B-100000@tarot.mentasm.org>; from ferret@phonewave.net on Fri, Dec 15, 2000 at 09:31:57AM -0800
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2000 at 09:31:57AM -0800, ferret@phonewave.net wrote:
-> > Maybe you did not notice, but for months we have
-> > /lib/modules/`uname -r`/build/include, which points to kernel headers,
-> > and which should be used for compiling out-of-tree kernel modules
-> > (i.e. latest vmware uses this).
-> 
-> This symlink really should be a copy instead, because the finished kernel
-> may be installed on a machine that does not have kernel source installed
-> on it. Dangling symlinks are BAD.
+At 18:43 15.12.00, Andrea Arcangeli wrote:
+>On Fri, Dec 15, 2000 at 12:07:55PM -0500, Richard B. Johnson wrote:
+> > Current code makes perfect sense if you put a 'break;' after the last
+>
+>Current code makes perfect sense also without the break. I guess that's a
+>strict check to try to catch bugs, but calling it "deprecated" is wrong, it
+>should only say "warning: make sure that's not a bug" (when -Wall is enabled).
 
-But if you compile for another machine, this copy is bad. It also
-takes to much time and space to create this copy.
+It's required by ISO C, and since that's the standard now, gcc spits out a 
+warning. Just adding a ; is enough and already done for most stuff in 
+2.4.0-test12.
 
-I really disagree here.
+Franz.
 
-Regards
-
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

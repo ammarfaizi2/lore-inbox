@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316955AbSEWRFE>; Thu, 23 May 2002 13:05:04 -0400
+	id <S316958AbSEWRFQ>; Thu, 23 May 2002 13:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316958AbSEWRFD>; Thu, 23 May 2002 13:05:03 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37385 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316955AbSEWRFC>; Thu, 23 May 2002 13:05:02 -0400
-Date: Thu, 23 May 2002 18:04:53 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ian Molton <spyro@armlinux.org>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-Subject: Re: RFC - named loop devices...
-Message-ID: <20020523180453.E29960@flint.arm.linux.org.uk>
-In-Reply-To: <20020521015517.609d5516.spyro@armlinux.org> <200205211409.g4LE9HY31513@Port.imtp.ilyichevsk.odessa.ua> <20020523180105.141af04b.spyro@armlinux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S316960AbSEWRFP>; Thu, 23 May 2002 13:05:15 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45842 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316958AbSEWRFN>; Thu, 23 May 2002 13:05:13 -0400
+Date: Thu, 23 May 2002 10:03:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jan Kara <jack@suse.cz>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nathan Scott <nathans@sgi.com>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Quota patches
+In-Reply-To: <20020523091626.GA8683@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.44.0205231002460.1006-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 23, 2002 at 06:01:05PM +0100, Ian Molton wrote:
-> On Tue, 21 May 2002 17:11:34 -0200
-> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
-> 
-> > > I was wondering if a solution to this would be to introduce 'named'
-> > > loopback devices.
-> 
-> > Have no time to think about this now, but will test any patches -
-> > I want /etc/mtab -> /proc/mounts to become standard practice
-> 
-> me too. :-)
-
-/proc/mounts and /etc/mtab contain different information.  /etc/mtab can
-contain what ever information a user space app needs.  /proc/mount can't.
-See the following as a perfect example, specifically the automount and
-NFS entries.
-
-Also, remember that mount uses /etc/mtab to perform synchronisation
-between two concurrent mount requests for the same device/resource.
-
-/etc/mtab:
-
-/dev/hda3 / ext2 rw,noatime 0 0
-proc /proc proc rw 0 0
-pts /dev/pts devpts rw,gid=5,mode=620 0 0
-/dev/hda4 /usr ext2 rw,noatime 0 0
-/dev/hda5 /var ext2 rw,noatime 0 0
-/dev/hda7 /usr/src ext2 rw 0 0
-/dev/hda1 /mnt/adfs adfs rw,gid=501,ownmask=770,othmask=077 0 0
-automount(pid440) /net/flint autofs rw,fd=5,pgrp=440,minproto=2,maxproto=3 0 0
-automount(pid474) /net/sturm autofs rw,fd=5,pgrp=474,minproto=2,maxproto=3 0 0
-automount(pid504) /net/tika autofs rw,fd=5,pgrp=504,minproto=2,maxproto=3 0 0
-flint:/home/users /net/flint/users nfs rw,rsize=4096,wsize=4096,timeo=10,retrans=4,addr=195.xx.xxx.xx 0 0
-tika:/usr/src/v2.5 /net/tika/v2.5 nfs rw,rsize=4096,wsize=4096,timeo=10,retrans=4,addr=195.xx.xxx.xx 0 0
-
-/proc/mounts:
-
-/dev/root / ext2 rw,noatime 0 0
-/proc /proc proc rw 0 0
-pts /dev/pts devpts rw 0 0
-/dev/hda4 /usr ext2 rw,noatime 0 0
-/dev/hda5 /var ext2 rw,noatime 0 0
-/dev/hda7 /usr/src ext2 rw 0 0
-/dev/hda1 /mnt/adfs adfs rw 0 0
-automount(pid440) /net/flint autofs rw 0 0
-automount(pid474) /net/sturm autofs rw 0 0
-automount(pid504) /net/tika autofs rw 0 0
-flint:/home/users /net/flint/users nfs rw,v2,rsize=4096,wsize=4096,hard,udp,lock,addr=flint 0 0
-tika:/usr/src/v2.5 /net/tika/v2.5 nfs rw,v2,rsize=4096,wsize=4096,hard,udp,lock,addr=tika 0 0
 
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+On Thu, 23 May 2002, Jan Kara wrote:
+> > Doesn't let me select both ?
+>   Yes. Only one of compatible interfaces is allowed. The reason is
+> mainly due to QUOTAON. Both V1 and V2 interfaces used Q_QUOTAON
+> to turn quotas on (looking back I admit it was stupid but it happened).
+> So now we would have to recognize which quota file was actually given
+> to us and turn on proper quota format - and I dislike such magic in
+> kernel.. especially when it's not needed. When user has really old
+> quota tools (<=2.00) he will turn on V1 interface. If he has newer tools
+> (<3.05) he has to decide depending on format he wants to use...
+
+This makes me pretty certain we just do not want to have the backwards-
+compatibility layer in 2.5.x
+
+Are there _any_ reasons to use the old stuff, if the fix is just to
+upgrade to a newer quota tool?
+
+		Linus
 

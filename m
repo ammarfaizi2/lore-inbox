@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274014AbRIVGqI>; Sat, 22 Sep 2001 02:46:08 -0400
+	id <S273504AbRIVHH5>; Sat, 22 Sep 2001 03:07:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274162AbRIVGps>; Sat, 22 Sep 2001 02:45:48 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:24978 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S274014AbRIVGph>;
-	Sat, 22 Sep 2001 02:45:37 -0400
-Message-ID: <3BAC335E.121E5E98@candelatech.com>
-Date: Fri, 21 Sep 2001 23:44:46 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
-X-Accept-Language: en
+	id <S274195AbRIVHHr>; Sat, 22 Sep 2001 03:07:47 -0400
+Received: from [24.254.60.21] ([24.254.60.21]:37620 "EHLO
+	femail31.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S273504AbRIVHH3>; Sat, 22 Sep 2001 03:07:29 -0400
+Date: Sat, 22 Sep 2001 03:04:25 -0400 (EDT)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@zod.capslock.lan>
+To: Stephane Brossier <stephane.brossier@sun.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: [1.] X session randomly crashes because of kernel
+ problem.
+In-Reply-To: <3BA56490.FD898C70@sun.com>
+Message-ID: <Pine.LNX.4.33.0109220259410.25731-100000@zod.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+X-Spam-To: uce@ftc.gov
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-To: Colin Frank <kernel@osafo.com>
-CC: Abe Hayhurst <abe@avidsublimation.net>, linux-kernel@vger.kernel.org
-Subject: Re: Best gigabit card for linux
-In-Reply-To: <001a01c13fed$ef3806f0$6c01a8c0@ABEPC> <3BAC153A.4060700@osafo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Colin Frank wrote:
-> 
-> In the following test. I was able to achieve close to 40 MegaBytes
-> per second using the packet engines Hamachi driver.
-> 
-> http://www.linuxcare.com/labs/sol-val/3w-esc6800-web.epl
-> Test done with:
->     Packet engines Hamachi card
->     3ware escalade 6800
->     2.2.16 kernel.
->     Cisco 6500
->     10 - 20 client machines each with eepro100 cards
-> 
-> Colin...
+On Sun, 16 Sep 2001, Stephane Brossier wrote:
 
-I've had good luck with the Netgear GA620, and it's very cheap
-too...  I was testing on the 2.4.3 kernel and RH 7.0.  It worked
-w/out problem.
+>Sep 16 19:13:59 129 modprobe: modprobe: Can't locate module binfmt-0000
+>Sep 16 19:13:59 129 modprobe: modprobe: Can't locate module binfmt-0000
+>Sep 16 19:13:59 129 kernel: [drm:r128_do_wait_for_fifo] *ERROR*
+>r128_do_wait_for_fifo failed!
 
-It's a fiber NIC.
+There is a patch which fixes problems such as this.  IIRC, it was
+included in the upstream Linus kernel somewhere in April or
+later.  If you're using XFree86 4.0.3, you'll probably want to
+upgrade to a later kernel, or patch it with the r128 patch.  You
+can get this patch from:
 
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+ftp://people.redhat.com/mharris/patches/linux-r128-drm.patch.bz2
+
+I'd offer to change your mind for you, but I don't have a fresh diaper.
+                   -- Leah to pro-spammer in news.admin.net-abuse.email
+

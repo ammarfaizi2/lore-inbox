@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265872AbTATPS6>; Mon, 20 Jan 2003 10:18:58 -0500
+	id <S266010AbTATPXm>; Mon, 20 Jan 2003 10:23:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265998AbTATPS5>; Mon, 20 Jan 2003 10:18:57 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:9171 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S265872AbTATPS5>; Mon, 20 Jan 2003 10:18:57 -0500
-Message-ID: <4245685.1043076182626.JavaMail.nobody@web54.us.oracle.com>
-Date: Mon, 20 Jan 2003 07:23:02 -0800 (PST)
-From: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
-To: mikpe@csd.uu.se
-Subject: Re: "Latitude with broken BIOS" ?
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Mailer: Oracle Webmail Client
+	id <S265998AbTATPXm>; Mon, 20 Jan 2003 10:23:42 -0500
+Received: from [213.243.76.32] ([213.243.76.32]:15309 "EHLO emax.ru")
+	by vger.kernel.org with ESMTP id <S266064AbTATPXl>;
+	Mon, 20 Jan 2003 10:23:41 -0500
+Date: Mon, 20 Jan 2003 18:32:31 +0300
+From: "Andrey V. Ignatov" <andrey@emax.ru>
+X-Mailer: The Bat! (v1.61) Business
+Reply-To: "Andrey V. Ignatov" <andrey@emax.ru>
+X-Priority: 3 (Normal)
+Message-ID: <62115845787.20030120183231@emax.ru>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: Incorrect CPUs (Xeon 1.8 with HT) frequency ?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
+I think that kernel detect my CPUs not correctly. I have box with dual
+Xeon CPU 1.80GHz and HT feature. Kernel successfully found all 4
+virtual CPUs but frequency of each CPUs is incorrect as I mean.
+My system build on Intel® E7500 chipset.
+I try kernels : 2.4.20 & 2.4.21-pre3...
+Output from /proc/cpuinfo (for each processor the same):
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Xeon(TM) CPU 1.80GHz
+stepping        : 7
+cpu MHz         : 798.659
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 1592.52
 
-> Alessandro Suardi wrote:
->
-> > > Your P4-based Latitude probably has a different BIOS than the buggy
-> > > P3-based ones, and it may work better. Try commenting out the
-> > > local_apic_kills_bios entry for "Dell Latitude" at around line 692
-> > > in arch/i386/kernel/dmi_scan.c and rebuild the kernel. If it
-> > 
-> > (ahem) I had tried that in 2.5.58 already ;)
-> > 
-> > However I rebuilt 2.5.59 with that change, and I'm not going further:
-> > 
-> >  No local APIC present or hardware disabled
->
-> Ah, your P4 needs another patch. Edit arch/i386/kernel/apic.c, function
-> detect_init_APIC(), at line 631, and remove the "&& cpu_has_apic" after
-> the "boot_cpu_data.x86 == 15" test. (Or check if your BIOS can be set up
-> to boot with the local APIC enabled.)
->
-> /Mikael
-
-The BIOS doesn't seem to have any such option... and the code change
- does exactly what you imagined - pull the power cord, instant hang.
-
-It seems even BIOS A05 of the C640 is legitimately blacklisted :(
+P.S.
+Please CC's to me because I am not list subscriber.
 
 
-Thanks, ciao,
-
---alessandro

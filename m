@@ -1,255 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262941AbTCSHDe>; Wed, 19 Mar 2003 02:03:34 -0500
+	id <S262938AbTCSHNk>; Wed, 19 Mar 2003 02:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262943AbTCSHDe>; Wed, 19 Mar 2003 02:03:34 -0500
-Received: from [202.54.110.230] ([202.54.110.230]:45578 "EHLO
-	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
-	id <S262941AbTCSHD0>; Wed, 19 Mar 2003 02:03:26 -0500
-Message-ID: <E04CF3F88ACBD5119EFE00508BBB2121082D8201@exch-01.noida.hcltech.com>
-From: "Hemanshu Kanji Bhadra, Noida" <hemanshub@noida.hcltech.com>
-To: linux-kernel@vger.kernel.org
-Subject: writting kernel modules on redhat 7.3 linux kernel 2.4.18-3
-Date: Wed, 19 Mar 2003 12:37:08 +0530
+	id <S262939AbTCSHNk>; Wed, 19 Mar 2003 02:13:40 -0500
+Received: from pacific.moreton.com.au ([203.143.238.4]:24330 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S262938AbTCSHNi>; Wed, 19 Mar 2003 02:13:38 -0500
+Message-ID: <3E781B75.6080206@snapgear.com>
+Date: Wed, 19 Mar 2003 17:25:41 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: micklweiss@gmx.net, linux-kernel@vger.kernel.org
+Subject: Re:  Linux on 16-bit processors
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
 
-I want to write a simple kernel module, this is the following 2 files i used
-when i try to compile 2nd file i get many errors in proc_fs.h 
+Hi Mick,
 
-any help will be appreciated,
+> I'm interested on running Linux on some less powerful, cheaper 16 bit
+> systems. I would like to know if there is a slimmed down version of the kernel (any
+> version 2.2+) that can run on 16-bit CPUs. I know that linux "requires" a
+> 32-bit CPU, but I know that it has run on less. I'm interested in any arch -
+> really. 
+> I can't seem to find a slimmed down version of the kernel. Any projects out
+> there? Something with decent performance would be cool too. :o)
 
-thanks in advance.
-- hemanshu
-
-
-
-/*                                                     
- * $Id: hello.c,v 1.10 2001/07/17 10:30:02 rubini Exp $ 
- */                                                    
-#define MODULE
-#include <linux/module.h>
-
-/*                                                        
- * These lines, although not shown in the book,           
- * are needed to make hello.c run properly even when      
- * your kernel has version support enabled                
- */                                                       
-                                                          
-int init_module(void)      { printk("<1>Hello, world\n"); return 0; }
-void cleanup_module(void)  { printk("<1>Goodbye cruel world\n"); } 
+You want uClinux, http://www.uclinux.org.
 
 
-however if i using the following code for writing /proc modules I get many
-compile errors.
+> I'm not apart of the list, so if you could pleace CC: any replies to this
+> e-mail (micklweiss@gmx.net) that would be great.
+> 
+> I asked before at a local user group (southflorida embedded user group)..
+> and this is what info they got me. I just cut-n-pasted.
+> 
+> <cut>
+> 
+> To: Mick Weiss
+> From: "wblake@emsys.net" <wblake@emsys.net>
+> 
+> glad to help. you have interesting research.
+> Most handhelds these days are 32 bit processors, even pagers. Mostly some
+> ARM variant especially Intel StrongArm.
 
-have a look at the code :-
-
-/*
- * helloworld_proc_module v1.1 3/11/03
- * www.embeddedlinuxinterfacing.com
- *
- * The original location of this code is
- * http://www.embeddedlinuxinterfacing.com/chapters/07/
- * helloworld_proc_module.c
- *
- * Copyright (C) 2001 by Craig Hollabaugh
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Library General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this program; if not, write to the
- * Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
-
-/* v1.1 changed the variable name buffer to page in proc_write function, 
- * use of term buffer was confusing to students.
- */ 
-
-/*
- * helloworld_proc_module.c is based on procfs_example.c by Erik Mouw.
- * For more information, please see The Linux Kernel Procfs Guide,
- * http://kernelnewbies.org/documents/kdoc/procfs-guide/lkprocfsguide.html
- */
-
-/* helloworld_proc_module
- * helloworld_proc_module demonstrates the use of a /proc directory entry.
- * The init function, init_helloworld, creates /proc/helloworld and
- * populates its data, read_proc, write_proc and owner fields. The exit
- * function, cleanup_helloworld, removes the /proc/helloworld entry.
- * The proc_read function, proc_read_helloworld, is called whenever
- * a file read operation occurs on /proc/helloworld. The
- * proc_write function, proc_write_helloworld, is called whenever a file
- * file write operation occurs on /proc/helloworld.
- *
- * To demonstrate read and write operations, this module uses data
- * structure called helloworld_data containing a char field called value.
- * Read and write operations on /proc/helloworld manipulate
- * helloworld_data->value. The init function sets value = 'Default'.
- */
+Allmost all Palm's use a Motorola 68k varient (either
+68328, 68EZ328 or 68VZ328). These have no MMU.
 
 
-/*
-gcc -O2 -D__KERNEL__ -DMODULE -I/usr/src/linux/include -c
-helloworld_proc_module.c -o helloworld_proc_module.o
+> The main obstacle to running Linux on smaller (cheaper) CPUs seems to be an
+> MMU which Linux and most Unixes expect.
 
-arm-linux-gcc -O2 -D__KERNEL__ -DMODULE -I/usr/src/arm-linux/include -c
-helloworld_proc_module.c -o /tftpboot/arm-rootfs/helloworld_proc_module.o
-*/
-
-
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/init.h>
-#include <linux/proc_fs.h>
-#include <asm/uaccess.h>
-
-#define MODULE_VERSION "1.0"
-#define MODULE_NAME "helloworld proc module"
-
-/* this is how long our data->value char array can be */
-#define HW_LEN 8
-
-struct helloworld_data_t {
-  char value[HW_LEN + 1];
-};
-
-static struct proc_dir_entry *helloworld_file;
-
-struct helloworld_data_t helloworld_data;
-
-/* proc_read - proc_read_helloworld
- * proc_read_helloworld is the callback function that the kernel calls when
- * there's a read file operation on the /proc file (for example,
- * cat /proc/helloworld). The file's data pointer (&helloworld_data) is
- * passed in the data parameter. You first cast it to the helloworld_data_t
- * structure. This proc_read function then uses the sprintf function to
- * create a string that is pointed to by the page pointer. The function then
- * returns the length of page. Because helloworld_data->value is set to
- * "Default", the command cat /proc/helloworld should return
- * helloworld Default
- */
-static int proc_read_helloworld(char *page, char **start, off_t off,
-                                int count, int *eof, void *data)
-{
-  int len;
-
-/* cast the void pointer of data to helloworld_data_t*/
-  struct helloworld_data_t *helloworld_data=(struct helloworld_data_t
-*)data;
-
-/* use sprintf to fill the page array with a string */
-  len = sprintf(page, "helloworld %s\n", helloworld_data->value);
-
-  return len;
-}
+Nope. That is what uClinux is all about. Running Linux without
+an MMU. We have been doing it for years. First supported on
+kernels in the linux-2.0.x range. Most people using 2.4.x these
+days, or now uClinux is part of standard linux, it is in all
+the latest 2.5.x kernels.
 
 
-/* proc_write - proc_write_helloworld
- * proc_write_helloworld is the callback function that the kernel calls 
- * when there's a write file operation on the /proc file, (for example,
- * echo test > /proc/helloworld). The file's data pointer
- * (&helloworld_data) is passed in the data parameter. You first cast it to
- * the helloworld_data_t structure. The page parameter points to the
- * incoming data. You use the copy_from_user function to copy the page 
- * contents to the data->value field. Before you do that, though, you check
- * the page length, which is stored in count to ensure that you don't
- * overrun the length of data->value. This function then returns the length
- * of the data copied.
- */
-static int proc_write_helloworld(struct file *file, const char *page,
-                                 unsigned long count, void *data)
-{
-  int len;
+[snip]
+> Lineo supports processors in the following specific architectures: 
+> 
+> 32 bit with memory management 
+> 32 bit without memory management 
+> 16 bit/ 16 bit DSP 
+> 8 bit processor/ 8 bit controller 
+> 
+> and uclinux is a whopping $200 (its whopping when your just messing with it
+> on your spare time ;), plus I'm not sure how its licenced (GPL?).
 
-/* cast the void pointer of data to helloworld_data_t*/
-  struct helloworld_data_t *helloworld_data=(struct helloworld_data_t
-*)data;
+Well this is most certainly wrong. uClinux is free. It is just
+a set of patches against standard linux kernels, so it is,
+offcourse, covered by the GPL. You can get all the code at
+www.uclinux.org or under cvs at cvs.uclinux.org
 
-/* do a range checking, don't overflow buffers in kernel modules */
-  if(count > HW_LEN)
-    len = HW_LEN;
-  else
-    len = count;
+Lots of MMUless processors support, including Motorola 68000/683xx
+and ColdFire varients, ARM7TDMI cores (from Atmel, Conexant, Samsung,
+NetSilicon, etc), NEC v850, Sparc LEON, Intel i960, Hitachi H8/300,
+MIPS (MMUless varients, for example from Brecis), FPGA soft cores
+(like Altera NIOS, OpenCores OpenRISC, etc).
 
-/* use the copy_from_user function to copy page data to
- * to our helloworld_data->value */
-  if(copy_from_user(helloworld_data->value, page, len)) {
-    return -EFAULT;
-  }
-
-/* zero terminate helloworld_data->value */
-  helloworld_data->value[len] = '\0';
-
-  return len;
-}
-
-/* init - init_helloworld
- * init_helloworld creates the /proc/helloworld entry file and obtains its
- * pointer called helloworld_file. The helloworld_file fields, data,
- * read_proc, write_proc and owner, are filled.  init_helloworld completes
- * by writing an entry to the system log using printk.
- */
-static int __init init_helloworld(void)
-{
-  int rv = 0;
-
-/* Create the proc entry and make it readable and writeable by all - 0666 */
-  helloworld_file = create_proc_entry("helloworld", 0666, NULL);
-  if(helloworld_file == NULL) {
-    return -ENOMEM;
-  }
-
-/* set the default value of our data to Default. This way a read operation
-on
- * /proc/helloworld will return something. */
-  strcpy(helloworld_data.value, "Default");
-
-/* Set helloworld_file fields */
-  helloworld_file->data = &helloworld_data;
-  helloworld_file->read_proc = &proc_read_helloworld;
-  helloworld_file->write_proc = &proc_write_helloworld;
-  helloworld_file->owner = THIS_MODULE;
-
-/* everything initialized */
-  printk(KERN_INFO "%s %s initialized\n",MODULE_NAME, MODULE_VERSION);
-  return 0;
-}
-
-/* exit - cleanup_helloworld
- * cleanup_helloworld removes the /proc file entry helloworld and
- * prints a message to the system log.
- */
-static void __exit cleanup_helloworld(void)
-{
-  remove_proc_entry("helloworld", NULL);
-
-  printk(KERN_INFO "%s %s removed\n", MODULE_NAME, MODULE_VERSION);
-}
+Regards
+Greg
 
 
-/* here are the compiler macros for module operation */
-module_init(init_helloworld);
-module_exit(cleanup_helloworld);
 
-MODULE_AUTHOR("Craig Hollabaugh");
-MODULE_DESCRIPTION("helloworld proc module");
-MODULE_LICENSE("GPL");
 
-EXPORT_NO_SYMBOLS;
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:   gerg@uclinux.org
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 

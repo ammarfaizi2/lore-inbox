@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262642AbVCJBzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262694AbVCJBzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262642AbVCJBzr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 20:55:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbVCJBzU
+	id S262694AbVCJBzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 20:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVCJBRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:55:20 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:48012 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262444AbVCJBvb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 20:51:31 -0500
-Message-ID: <422FA817.4060400@ca.ibm.com>
-Date: Wed, 09 Mar 2005 19:51:19 -0600
-From: Omkhar Arasaratnam <iamroot@ca.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: tgall@us.ibm.com, antonb@au1.ibm.com
-Subject: [BUG] 2.6.11- sym53c8xx Broken on pp64
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Mar 2005 20:17:11 -0500
+Received: from mail.kroah.org ([69.55.234.183]:52895 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262623AbVCJAm3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 19:42:29 -0500
+Date: Wed, 9 Mar 2005 16:24:44 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] debugfs fixes for 2.6.11
+Message-ID: <20050310002444.GA32153@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems with 2.6.11 the sym53c8xx kernel module incorrectly identifies the
-cache being misconfigured on a p630 (ppc64, POWER4+). 2.6.9 correctly
-brings up this adaptor as does AIX with absolutely no indication of a
-misconfigured cache.
+Hi,
 
-Doing a simple diff I see ALOT of changes between 2.6.9 and 2.6.11
-pertaining to this module. Any ideas?
+Here are two debugfs fixes.  They have been in the -mm releases for a
+while.
 
-O
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/2.6.11/debugfs
+
+Individual patches will follow, sent to the linux-kernel list.
+
+thanks,
+
+greg k-h
+
+ fs/debugfs/file.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+-----
+
+
+Greg Kroah-Hartman:
+  o debugfs: fix bool built-in type
+  o debufs: make built in types add a \n to their output
 

@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264361AbRFGIEA>; Thu, 7 Jun 2001 04:04:00 -0400
+	id <S264363AbRFGIMr>; Thu, 7 Jun 2001 04:12:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264360AbRFGIDr>; Thu, 7 Jun 2001 04:03:47 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52524 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S264361AbRFGIDa>; Thu, 7 Jun 2001 04:03:30 -0400
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Derek Glidden <dglidden@illusionary.com>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
+	id <S264364AbRFGIM2>; Thu, 7 Jun 2001 04:12:28 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:22021 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264363AbRFGIMR>; Thu, 7 Jun 2001 04:12:17 -0400
+Date: Thu, 7 Jun 2001 01:11:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.LNX.4.33.0106070926400.6078-100000@mikeg.weiden.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Jun 2001 01:59:44 -0600
-In-Reply-To: <Pine.LNX.4.33.0106070926400.6078-100000@mikeg.weiden.de>
-Message-ID: <m1y9r44t5b.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+In-Reply-To: <m13d9c68j5.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.21.0106070109210.5128-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith <mikeg@wen-online.de> writes:
 
-> On 7 Jun 2001, Eric W. Biederman wrote:
+On 7 Jun 2001, Eric W. Biederman wrote:
+
+> torvalds@transmeta.com (Linus Torvalds) writes:
+> > 
+> > Somebody interested in trying the above add? And looking for other more
+> > obvious bandaid fixes.  It won't "fix" swapoff per se, but it might make
+> > it bearable and bring it to the 2.2.x levels. 
 > 
-> > Does this improve the swapoff speed or just allow other programs to
-> > run at the same time?  If it is still slow under that kind of load it
-> > would be interesting to know what is taking up all time.
-> >
-> > If it is no longer slow a patch should be made and sent to Linus.
+> At little bit.  The one really bad behavior of not letting any other
+> processes run seems to be fixed with an explicit:
+> if (need_resched) {
+>         schedule();
+> }
 > 
-> No, it only cures the freeze.  The other appears to be the slow code
-> pointed out by Andrew Morton being tickled by dead swap pages.
+> What I can't figure out is why this is necessary.  Because we should
+> be sleeping in alloc_pages if nowhere else.
 
-O.k.  I think I'm ready to nominate the dead swap pages for the big
-2.4.x VM bug award.  So we are burning cpu cycles in sys_swapoff
-instead of being IO bound?  Just wanting to understand this the cheap way :)
+No - I suspect that we're not actually doing all that much IO at all, and
+the real reason for the lock-up is just that the current algorithm is so
+bad that when it starts to act exponentially worse it really _is_ taking
+minutes of CPU time following pointers and generally not being very nice
+on the CPU cache etc..
 
-Eric
+The bulk of the work is walking the process page tables thousands and
+thousands of times. Expensive.
+
+> If this is going on I think we need to look at our delayed
+> deallocation policy a little more carefully.
+
+Agreed. I already talked in private with some people about just
+re-visiting the issue of the lazy de-allocation. It has nice properties,
+but it certainly appears as if the nasty cases just plain outweigh the
+advantages.
+
+		Linus
+

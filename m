@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbUEVOdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbUEVOgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbUEVOdT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 10:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUEVOdT
+	id S261418AbUEVOgr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 10:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUEVOgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 10:33:19 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:40869 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261396AbUEVOdS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 10:33:18 -0400
-Date: Sat, 22 May 2004 16:32:14 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ioctl number 0xF3
-Message-ID: <20040522163214.A32228@electric-eye.fr.zoreil.com>
-References: <40AF42B3.8060107@winischhofer.net> <1085228451.14486.0.camel@laptop.fenrus.com> <40AF4A13.4020005@winischhofer.net> <20040522125108.GB4589@devserv.devel.redhat.com> <40AF55AF.2020506@winischhofer.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <40AF55AF.2020506@winischhofer.net>; from thomas@winischhofer.net on Sat, May 22, 2004 at 03:29:19PM +0200
-X-Organisation: Land of Sunshine Inc.
+	Sat, 22 May 2004 10:36:47 -0400
+Received: from lakermmtao10.cox.net ([68.230.240.29]:38637 "EHLO
+	lakermmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S261418AbUEVOgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 10:36:37 -0400
+Message-ID: <32847.192.168.0.243.1085236590.squirrel@webmail.rtwsecurenet.com>
+Date: Sat, 22 May 2004 09:36:30 -0500 (CDT)
+Subject: 2.6 high CPU utilization with multimedia apps {Scanned}
+From: rettw@rtwnetwork.com
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
+X-rtwnetwork.com-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Winischhofer <thomas@winischhofer.net> :
-[...]
-> Don't get me wrong.. did you ever write a driver for graphics hardware? 
+Hello:
 
-He can surely tell when an egg stinks. However Arjan is not a chicken.
+I have noticed and have read several reports on the net
+regarding CPU utilization differences (top displays) when
+running multimedia apps on 2.6 versus late 2.4 kernels. 
+2.6 running xine/mplayer/vlc etc uses 2-4 times more CPU
+than 2.4.24 running the very same applications/media. 
+Some of the CPU appears tied up in the "X" process (I am
+using the xvideo extension), the rest in the app itself. 
+I have seen this on every machine I have tested 2.6 on,
+all with 2Ghz+ CPUs.  I have tested 2.6.4, 2.6.5, 2.6.6
+vanilla kernels from kernel.org
 
-[...]
-> Is 64 out of, what's that, 65536 too much to ask? Well, I could live 
-> with 32 as well...
+Is this by design?  It seems strange that these apps
+should use so much more CPU power, and honestly it could
+make older platforms less capable of playing some media
+types than they could before 2.6 without issues.
 
-Reserving a generous ioctl range without any clear interface will make
-some people nervous. If you can not specify the interface now, try to
-separate the generic/specific part of it and use sub-ioctl for the really
-scary things as it will make the future life easier.
+No one on the X lists, or the lists for the apps
+themselves has any input on this, so I figured I would ask
+at the source.
 
-If you have some pointers to the existing code, that may help too.
+Thanks,
 
---
-Ueimor
+Rett Walters
+
+Please CC me directly, as I am not subscribed to the list.

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263215AbTDGDS5 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263216AbTDGDS5 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:18:57 -0400
-Received: from dp.samba.org ([66.70.73.150]:25029 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263215AbTDGDSz (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 23:18:55 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S263216AbTDGDXp (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263217AbTDGDXp (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:23:45 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:16900
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S263216AbTDGDXo 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 23:23:44 -0400
+Subject: Re: 2.5.66-bk12 causes "rpm" errors
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: rpjday@mindspring.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030406202926.762754ea.akpm@digeo.com>
+References: <20030406183234.1e8abd7f.akpm@digeo.com>
+	 <Pine.LNX.4.44.0304062200570.1604-100000@localhost.localdomain>
+	 <20030406182815.65dd9304.akpm@digeo.com> <1049685316.894.5.camel@localhost>
+	 <20030406202926.762754ea.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049686511.894.10.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 06 Apr 2003 23:35:11 -0400
 Content-Transfer-Encoding: 7bit
-Message-ID: <16016.57974.167579.753484@argo.ozlabs.ibm.com>
-Date: Mon, 7 Apr 2003 12:29:10 +1000
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Fabrice Bellard <fabrice.bellard@free.fr>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Qemu support for PPC
-In-Reply-To: <20030407024858.C32422C014@lists.samba.org>
-References: <20030407024858.C32422C014@lists.samba.org>
-X-Mailer: VM 7.14 under Emacs 21.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell writes:
+On Sun, 2003-04-06 at 23:29, Andrew Morton wrote:
 
-> Paul, is this OK?
+> But that's a different error.  Robert (Day) reported:
 > 
-> I'd like it in 2.4.21 if possible.
+>  rpmdb: unable to join the environment
+>  error: db4 error(11) from dbenv->open: Resource temporarily unavailable
+>  error: cannot open Packages index using db3 - Resource temporarily unavailable (11)
+>  error: cannot open Packages database in /var/lib/rpm
+> 
+> but then again, there's no way in which the patch which we're discussing
+> could cause EAGAIN.
 
-Looks good, I'd like it too.
+Oh, sorry for not mentioning. I see both... I think it depends whether a
+previous error left a stale lock around.  Its the same problem, trust
+me.
 
-Just one comment: 
+> Has anyone straced a failing rpm command?
 
-> +Kernel support for Linux/Intel ELF binaries
-> +CONFIG_X86_EMU
-> +  Say Y here if you want to be able to execute Linux/Intel ELF
-> +  binaries just like native binaries on your PPC machine. For
-> +  this to work, you need to have /usr/gnemul/x86-linux populated
-> +  with Intel libraries. etc.
-> +
-> +  You may answer M to compile the emulation support as a module and
-> +  later load the module when you want to use a Linux/Intel binary. The
-> +  module will be called x86emu.o.  If unsure, say Y.
-> +
+I sent one out...
 
-This should say that you need qemu as well, and it should probably
-include the URL to Fabrice's qemu web page.
+	Robert Love
 
-Paul.

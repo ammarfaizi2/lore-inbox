@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318138AbSFTHL2>; Thu, 20 Jun 2002 03:11:28 -0400
+	id <S318139AbSFTHNe>; Thu, 20 Jun 2002 03:13:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318136AbSFTHL1>; Thu, 20 Jun 2002 03:11:27 -0400
-Received: from test.inspired.net.au ([216.122.33.55]:34245 "EHLO
-	test.inspired.net.au") by vger.kernel.org with ESMTP
-	id <S318135AbSFTHLZ>; Thu, 20 Jun 2002 03:11:25 -0400
-Message-Id: <200206200711.RAA10165@thucydides.inspired.net.au>
+	id <S318137AbSFTHNd>; Thu, 20 Jun 2002 03:13:33 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:49633 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318136AbSFTHNc>;
+	Thu, 20 Jun 2002 03:13:32 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Thu, 20 Jun 2002 17:09:44 +1000
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] /proc/scsi/map
-In-Reply-To: <Pine.LNX.4.33.0206192149410.2638-100000@penguin.transmeta.com>
-References: <20020620004442.GA19824@gum01m.etpnet.phys.tue.nl>
-	<Pine.LNX.4.33.0206192149410.2638-100000@penguin.transmeta.com>
-X-Mailer: VM 7.07 under Emacs 21.2.90.3
-From: "Martin Schwenke" <martin@meltin.net>
-Reply-To: "Martin Schwenke" <martin@meltin.net>
-X-Music: john_butler_trio / three / money
+Message-ID: <15633.32924.291406.335371@napali.hpl.hp.com>
+Date: Thu, 20 Jun 2002 00:13:32 -0700
+To: Manik Raina <manik@cisco.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Re: [Trivial Patch] : (2.5 latest) More __builtin_expect() cleanup in favour 
+ of likely/unlikely
+In-Reply-To: <3D117C53.2B4F7C53@cisco.com>
+References: <3D117C53.2B4F7C53@cisco.com>
+X-Mailer: VM 7.03 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Linus" == Linus Torvalds <torvalds@transmeta.com> writes:
+>>>>> On Wed, 19 Jun 2002 23:55:15 -0700, Manik Raina <manik@cisco.com> said:
 
-    Linus> Can't you add the SCSI devices to the device tree, and be
-    Linus> done with it? 
+  Manik> Copying Rusty as well.
 
-Do you mean the /devices tree or the Open Firmware (OF) device-tree
-(as in IEEE Std 1275).  I suspect that you mean the former, but...
+In the future, please cc linux-ia64@linuxia64.org for ia64-specific patches.
 
-    Linus> [...]
+  Manik> Changed files in the include/asm-ia64 directory to get rid of
+  Manik> __builtin_expect() in favour of likely/unlikely.
 
-    Linus> All fixed at least to _some_ degree by giving the most
-    Linus> complete address we can, ie something like
+The patch looks fine to me.
 
-    Linus> 	/devices/root/pci0/00:02.0/02:1f.0/03:07.0
+Thanks,
 
-That looks similar, but not identical to an Open Firmware node for a
-SCSI device:
-
-  device-tree/pci@3fff5e09000/pci@b,6/scsi@1,1/sd/...
-
-Why not use the structure of, and a subset of the capabilities of, an
-OF device-tree for building /devices?  It's a little more verbose, but
-it's a standard and it fits the current problem pretty well.
-
-I've been working on some hardware inventory stuff at IBM that uses an
-augmented OF device-tree (as a directory tree in userspace) to keep
-track of useful stuff...
-
-peace & happiness,
-martin
+	--david

@@ -1,58 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318229AbSGWW1z>; Tue, 23 Jul 2002 18:27:55 -0400
+	id <S318219AbSGWWhY>; Tue, 23 Jul 2002 18:37:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318230AbSGWW1y>; Tue, 23 Jul 2002 18:27:54 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53258 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S318229AbSGWW1y>; Tue, 23 Jul 2002 18:27:54 -0400
-Date: Tue, 23 Jul 2002 18:25:19 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: venom@sns.it, Robert Sinko <RSinko@island.com>,
-       "'Hubbard, Dwight'" <DHubbard@midamerican.com>, Matt_Domsch@Dell.com,
-       linux-kernel@vger.kernel.org
-Subject: RE: Wrong CPU count
-In-Reply-To: <Pine.LNX.3.95.1020719082245.159A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.3.96.1020723182031.2194F-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318222AbSGWWhY>; Tue, 23 Jul 2002 18:37:24 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:26432 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S318219AbSGWWhW>; Tue, 23 Jul 2002 18:37:22 -0400
+Date: Wed, 24 Jul 2002 00:41:17 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Johannes Erdfelt <johannes@erdfelt.com>,
+       Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19rc2aa1 VM too aggressive?
+Message-ID: <20020723224117.GP1117@dualathlon.random>
+References: <20020719170359.E28941@sventech.com> <Pine.LNX.4.33.0207191722260.6698-100000@coffee.psychology.mcmaster.ca> <20020719174521.F28941@sventech.com> <20020723194826.GH1117@dualathlon.random> <1027455756.11109.7.camel@dell_ss3.pdx.osdl.net> <20020723203326.GJ1117@dualathlon.random> <1027460087.14636.102.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1027460087.14636.102.camel@dell_ss3.pdx.osdl.net>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jul 2002, Richard B. Johnson wrote:
-
-> On Fri, 19 Jul 2002 venom@sns.it wrote:
+On Tue, Jul 23, 2002 at 02:34:46PM -0700, Stephen Hemminger wrote:
+> On Tue, 2002-07-23 at 13:33, Andrea Arcangeli wrote:
 > 
-> > 
-> > yes, as bios option.
-> > 
-> > On my point of view it would be interesting to verify is hyperthreading is
-> > really usefull or not.
-> > 
+> > some seldom swapout is ok, the strange thing are those small
+> > swapins/swapouts. I also assume it's writing using write(2), not with
+> > map_shared+msync.
 > 
-> It would be interesting to determine if "hyperthreading" in the CPU 
-> actually exists. It may just be an artifact of dual instruction units,
-> actually a defect (perhaps harmless), that is hyped as a feature.
+> I am using ben's lahaise new AIO which effectively maps the pages in
+> before the i/o. Using normal I/O I don't see swapping, the cached peaks
+> at about .827028
 
-Clearly not, it requires another set of registers including instruction
-counter.
- 
-> For instance, it has long been known that if a CPU were to have as
-> many instruction units as possible instruction branches, program
-> jumps upon logical conditions would not slow the machine down. The
-> hardware just continues using the instruction unit that contains the
-> correct program-flow while the others are re-loaded.
+sorry I thought you were using 2.4.19rc3aa1, -ac reintroduces a number
+of vm bugs with the rmap vm that I fixed some age ago, plus it
+underperformns in many areas, and about async-io I'm not shipping it.
+You should report this to Alan and Ben. I'm interested only about
+problems that can be reproduced with mainline and -aa, thanks.
 
-That is not correct, it certainly can slow the machine down. Speculative
-execution is used, but it's not free, since it requires fetching
-instructions not used through a limited bandwidth to memory. Much on this
-in comp.arch, there is a tradeoff between avoiding stalls and causing
-them, separate branch target cache, etc. Details probably a lot better to
-be discussed there. 
+> > can you try:
+> > 
+> > 	echo 1000 >/proc/sys/vm/vm_mapped_ratio
+> 
+> That file does not exist in 2.4.19rc3ac3
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+yes I misunderstood the kernel version.
 
+> bash-2.05$ ls /proc/sys/vm 
+> bdflush  max_map_count  min-readahead      page-cluster
+> kswapd   max-readahead  overcommit_memory  pagetable_cache
+> > 
+> > I also wonder if you've quite some amount of mapped address space durign
+> > the benchmark. In such case there's no trivial way around it, the vm
+> > will constantly found tons of mapped address space, and it will trigger
+> > some swapouts, however the swapins shouldn't happen so fast in such
+> > case.
+> The AIO will pin some space, but the upper bound should be 
+> 	NIO(16) * Record Size(64k) = 1 Meg
+> 
+> 
+> > In any case the sysctl will allow you to tune for your workload.
+> > 
+> > Andrea
+> 
+
+
+Andrea

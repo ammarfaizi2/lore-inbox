@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbTJJF1F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 01:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbTJJF1F
+	id S262443AbTJJFg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 01:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTJJFg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 01:27:05 -0400
-Received: from pat.uio.no ([129.240.130.16]:57744 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262344AbTJJF1D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 01:27:03 -0400
+	Fri, 10 Oct 2003 01:36:28 -0400
+Received: from ns1.triode.net.au ([202.147.124.1]:42706 "EHLO
+	iggy.triode.net.au") by vger.kernel.org with ESMTP id S262419AbTJJFgZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 01:36:25 -0400
+Message-ID: <3F864525.3040009@torque.net>
+Date: Fri, 10 Oct 2003 15:35:33 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, es-es, es
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Chris Friesen <chris_friesen@sympatico.ca>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: problems with scsi disk, scsi generic, and compact flash reader
+References: <3F860227.3040909@sympatico.ca>
+In-Reply-To: <3F860227.3040909@sympatico.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16262.17185.757790.524584@charged.uio.no>
-Date: Fri, 10 Oct 2003 01:26:57 -0400
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: statfs() / statvfs() syscall ballsup...
-In-Reply-To: <20031010044909.GB26379@mail.shareable.org>
-References: <Pine.LNX.4.44.0310091525200.20936-100000@home.osdl.org>
-	<3F85ED01.8020207@redhat.com>
-	<20031010002248.GE7665@parcelfarce.linux.theplanet.co.uk>
-	<20031010044909.GB26379@mail.shareable.org>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Jamie Lokier <jamie@shareable.org> writes:
+Chris Friesen wrote:
+> 
+> I have a 2.6.0-test6 kernel with the jumpshot card reader.  I can
+> compile the generic scsi driver no problem, and when I insert the flash
+> card I get the following log entry:
+> 
+> Oct  9 20:33:30 doug kernel: hub 2-1:1.0: new USB device on port 2,
+> assigned address 4
+> Oct  9 20:33:30 doug kernel: scsi1 : SCSI emulation for USB Mass Storage
+> devices
+> Oct  9 20:33:30 doug kernel:   Vendor: Lexar     Model: Jumpshot USB CF
+>   Rev: 0001
+> Oct  9 20:33:30 doug kernel:   Type:   Direct-Access
+>   ANSI SCSI revision: 02
+> Oct  9 20:33:30 doug kernel: Attached scsi generic sg1 at scsi1, channel
+> 0, id 0, lun 0,  type 0
+> 
+> 
+> When I try and load the sd_mod module, that terminal just simply freezes
+> and I can't break out.  Similarly, if I compile scsi disk support right
+> into the kernel, it sits forever at boot time. 
 
-     >     - are dnotify / lease / lock reliable indicators on this filesystem?
-     >       (i.e. dnotify is reliable on all local filesystems, but
-     >       not over any of the remote ones AFAIK).
+Chris,
+The compact flash probably doesn't like a MODE SENSE
+command it is being sent by the sd driver. When sd is
+a module then if your other (pseudo) terminals are alive
+after 'modprobe sd_mod' locks up then perhaps you could
+try 'ps -eo cmd,wchan' on another terminal and report
+the result for that modprobe.
 
-Belongs in fcntl()... Just return ENOLCK if someone tries to set a
-lease or a directory notification on an NFS file...
+Some patches went into sd recently (and more are being discussed)
+to lower the MODE SENSE traffic during sd initialization. There
+is a very wide range of devices that use the scsi command set
+and there is no easy way to know during scan/initialization
+how well a device will handle some commands (scsi_level ??).
 
-     >     - is stat() reliable (local filesystems and many remote) or
-     >       potentially out of date without open/close (NFS due to
-     >       attribute cacheing)
+Another thing you could do is fetch sg3_utils from
+http://www.torque.net/sg and report the result of
+'sg_modes -a /dev/sg1'. That will report the MODE SENSE
+commands the device claims to support. [BTW Run 'sg_modes'
+before you try to 'modprobe sd_mod'.]
 
-There are many possible cache consistency models out there. Consider
-for instance AFS connected/disconnected modes, NFSv4 delegations or
-CIFS shares. How are you going to distinguish between them all and
-how do you propose that applications make use of this information?
+Doug Gilbert
 
-Cheers,
-  Trond
+
+

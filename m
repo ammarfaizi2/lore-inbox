@@ -1,99 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUFDUuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266005AbUFDUyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265996AbUFDUuv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 16:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266011AbUFDUuv
+	id S266005AbUFDUyR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 16:54:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266004AbUFDUyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 16:50:51 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:12038 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S265996AbUFDUsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 16:48:37 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: keyboard problem with 2.6.6
-Date: Fri, 4 Jun 2004 23:48:07 +0300
-User-Agent: KMail/1.5.4
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
-References: <200406041817.i54IHFgZ004530@eeyore.valparaiso.cl> <200406042233.41441.vda@port.imtp.ilyichevsk.odessa.ua> <200406041950.i54JocXW026316@turing-police.cc.vt.edu>
-In-Reply-To: <200406041950.i54JocXW026316@turing-police.cc.vt.edu>
+	Fri, 4 Jun 2004 16:54:16 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:44212 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266021AbUFDUxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 16:53:31 -0400
+Message-ID: <40C0E144.9070107@acm.org>
+Date: Fri, 04 Jun 2004 15:53:24 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406042348.07011.vda@port.imtp.ilyichevsk.odessa.ua>
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: ipmi compile failure
+References: <Pine.GSO.4.58.0404152013240.10525@waterleaf.sonytel.be>
+In-Reply-To: <Pine.GSO.4.58.0404152013240.10525@waterleaf.sonytel.be>
+Content-Type: multipart/mixed;
+ boundary="------------010503020907000005040801"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 June 2004 22:50, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 04 Jun 2004 22:33:41 +0300, Denis Vlasenko said:
-> > Using shell scripts instead of 'standard' init etc is
-> > way more configurable. As an example, my current setup
-> > at home:
-> >
-> > My kernel params are:
+This is a multi-part message in MIME format.
+--------------010503020907000005040801
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+I believe the given defines should always be defined.  The attached 
+patch should fix these problems.
+
+-Corey
+
+Geert Uytterhoeven wrote:
+
+>	Hi Corey,
 >
-> Yes. Those are *YOUR* config setup parameters, that happen to work with
-> *your* specific configuration when everything is operational. Some
-> problems:
+>While compiling drivers/char/ipmi/ipmi_si_intf.c in 2.6.6-rc1 on m68k, I
+>noticed a missing include (needed for disable_irq_nosync() and enable_irq()):
+>
+>--- linux-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c.orig	2004-04-15 11:44:09.000000000 +0200
+>+++ linux-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c	2004-04-15 20:18:51.000000000 +0200
+>@@ -51,6 +51,7 @@
+> #include <linux/list.h>
+> #include <linux/pci.h>
+> #include <linux/ioport.h>
+>+#include <linux/irq.h>
+> #ifdef CONFIG_HIGH_RES_TIMERS
+> #include <linux/hrtime.h>
+> # if defined(schedule_next_int)
+>
+>Furthermore none of CONFIG_ACPI_INTERPETER, CONFIG_X86, and CONFIG_PCI were
+>set, and thus IPMI_MEM_ADDR_SPACE and IPMI_IO_ADDR_SPACE are not defined, but
+>they are used:
+>
+>|   CC      drivers/char/ipmi/ipmi_si_intf.o
+>| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c: In function `try_init_port':
+>| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c:1011: warning: implicit declaration of function `is_new_interface'
+>| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c:1011: `IPMI_IO_ADDR_SPACE' undeclared (first use in this function)
+>| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c:1011: (Each undeclared identifier is reported only once
+>| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c:1011: for each function it appears in.)
+>| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c: In function `try_init_mem':
+>| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c:1087: `IPMI_MEM_ADDR_SPACE' undeclared (first use in this function)
+>| make[3]: *** [drivers/char/ipmi/ipmi_si_intf.o] Error 1
+>
+>Either something is wrong with the #ifdef logic, or that driver should be
+>disabled completely on non-supported architectures.
+>
+>Gr{oetje,eeting}s,
+>
+>	
+>
 
-In *any* setup, kernelspace or userspace, it's typically possible
-to find some silly way to break boot sequence. Unplugging
-keyboard and removing (unneded for server) videocard are my
-favorites ;)
 
-> 1) Not all the world uses initrd....
+--------------010503020907000005040801
+Content-Type: text/plain;
+ name="linux-ipmi-defines.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-ipmi-defines.diff"
 
-I stayed away from it too, but I always knew I'll need it sooner
-or later.
+--- linux-v31/drivers/char/ipmi/ipmi_si_intf.c	2004-03-04 14:24:49.000000000 -0600
++++ linux/drivers/char/ipmi/ipmi_si_intf.c	2004-06-04 15:48:23.000000000 -0500
+@@ -51,6 +51,7 @@
+ #include <linux/list.h>
+ #include <linux/pci.h>
+ #include <linux/ioport.h>
++#include <linux/irq.h>
+ #ifdef CONFIG_HIGH_RES_TIMERS
+ #include <linux/hrtime.h>
+ # if defined(schedule_next_int)
+@@ -904,10 +905,10 @@
+ 		 " has an interrupt.  Otherwise, set it to zero or leave"
+ 		 " it blank.");
+ 
+-
+-#if defined(CONFIG_ACPI_INTERPETER) || defined(CONFIG_X86) || defined(CONFIG_PCI)
+ #define IPMI_MEM_ADDR_SPACE 1
+ #define IPMI_IO_ADDR_SPACE  2
++
++#if defined(CONFIG_ACPI_INTERPETER) || defined(CONFIG_X86) || defined(CONFIG_PCI)
+ static int is_new_interface(int intf, u8 addr_space, unsigned long base_addr)
+ {
+ 	int i;
 
-> 2) I hope your /script/mount_root will Do The Right Thing if the mount
-> fails because it needs an fsck, for example.  Answering those 'y' and 'n'
-> prompts can be a problem if your keyboard isn't working yet..
-
-My init scripts are (trying to) recover from any failure.
-They ignore non-fatal error conditions.
-I'll fix your fsck example like this: make script check
-FSCK_ACTION env var for N (never do fsck), ASK (ask user
-if serious trouble), and AUTO (fix automagically without
-user). Set FSCK_ACTION as needed per box via kernel command line.
-
-Fixing/tailoring init written in C is harder (more time-consuming).
-
-Fixing/tailoring kernel bootstrap sequence is harder still.
-As an example, NFS boot. How can you force your ethernet into,
-say, 100 Mbit FDX _before_ kernel do DHCP thing via ip= kernel
-parameter?
-
-That's one of reasons why moving to userspace might be a good idea.
-
-> 3) Bonus points if you can explain how to, *without* a working keyboard, 
-> modify that /linuxrc on your initrd to deal with the situation where your
-> keyboard setup is wrong (think "booting with borrowed keyboard because your
-> usual one just suffered a carbonated caffeine overdose")...
-
-I just did that yesterday when I needed to make USB keyboard to
-work on my box, first time ever for me. I let it boot, ssh'ed in,
-and built new kernel. I could modify my initrd too, but that wasn't
-needed.
-
-> There's a *BASIC* bootstrapping problem here - if you move "initialize and
-> handle the keyboard" into userspace, you then *require* that a
-> significantly larger chunk of userspace be operational in order to be able
-> to even type at the machine.  If you're trying to recover a *broken*
-> userspace, it gets a lot harder.
-
-Bootstrapping problem exist no matter how you are bootstrapping.
-
-When something is broken, difficulty of repairs cannot be estimated
-that simple. I don't think "you are using intird -> fixing will be hard"
-always holds true.
-
-BTW, in my case, booting my box was not just hard, it was impossible.
-It had broken PS2 ports. I needed to "only" enter BIOS setup and tell
-it to ignore keyboard errors on boot, but I couldn't enter it
-without keyboard! But I digress...
---
-vda
+--------------010503020907000005040801--
 

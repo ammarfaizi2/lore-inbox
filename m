@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268714AbUIBRLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268207AbUIBR0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268714AbUIBRLn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 13:11:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268738AbUIBRLn
+	id S268207AbUIBR0m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 13:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268316AbUIBR0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 13:11:43 -0400
-Received: from gate.perex.cz ([82.113.61.162]:34980 "EHLO mail.perex.cz")
-	by vger.kernel.org with ESMTP id S268714AbUIBRLl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 13:11:41 -0400
-Date: Thu, 2 Sep 2004 18:59:42 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@d74.suse.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Takashi Iwai <tiwai@suse.de>, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
-In-Reply-To: <20040831185656.GA27854@elte.hu>
-Message-ID: <Pine.LNX.4.58.0409021859070.2498@d74.suse.de>
-References: <OF923A124A.1D8E364E-ON86256F01.0053F7B2-86256F01.0053F7D7@raytheon.com>
- <1093972819.5403.8.camel@krustophenia.net> <1093975773.5403.21.camel@krustophenia.net>
- <s5hk6vfywab.wl@alsa2.suse.de> <20040831185656.GA27854@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Sep 2004 13:26:42 -0400
+Received: from smtp.terra.es ([213.4.129.129]:10962 "EHLO tsmtp6.mail.isp")
+	by vger.kernel.org with ESMTP id S268207AbUIBR0l convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 13:26:41 -0400
+Date: Thu, 2 Sep 2004 19:20:58 +0200
+From: Diego Calleja <diegocg@teleline.es>
+To: Bill Huey (hui) <bhuey@lnxw.com>
+Cc: jgarzik@pobox.com, bhuey@lnxw.com, torvalds@osdl.org, tmv@comcast.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Userspace file systems & MKs (Re: silent semantic changes with
+ reiser4)
+Message-Id: <20040902192058.64f3ee03.diegocg@teleline.es>
+In-Reply-To: <20040831205211.GA23395@nietzsche.lynx.com>
+References: <20040826053200.GU31237@waste.org>
+	<20040826075348.GT1284@nysv.org>
+	<20040826163234.GA9047@delft.aura.cs.cmu.edu>
+	<Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org>
+	<20040831033950.GA32404@zero>
+	<Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org>
+	<413400B6.6040807@pobox.com>
+	<20040831053055.GA8654@nietzsche.lynx.com>
+	<4134131D.6050001@pobox.com>
+	<20040831155613.2b25df1e.diegocg@teleline.es>
+	<20040831205211.GA23395@nietzsche.lynx.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Aug 2004, Ingo Molnar wrote:
+El Tue, 31 Aug 2004 13:52:11 -0700 Bill Huey (hui) <bhuey@lnxw.com> escribió:
 
-> > > Ugh.  Please remove alsa-devel from any followups, as they seem to have
-> > > inadvertently enabled moderation.
-> > 
-> > IIRC, recently the moderation was disabled, so this should be no
-> > longer problem.
-> 
-> FYI, i still got 'your mail awaits moderation' messages just 2 minutes
-> ago.
+> As you can see the numbers are very fast for a general purpose system
+> like that. Add that with their XIO framework for data propagation and
 
-Sorry, still one button was checked wrongly. Now it's definitely 
-corrected.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+For the syscall case, I remember that they would be able to "batch" syscalls,
+so this framework could have even better performance in some cases.
+The good thing is that they didn't do it just for the sake of doing it
+(like microkernel people) but to achieve their goals (SSI, etc)

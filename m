@@ -1,28 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266138AbRGLPsE>; Thu, 12 Jul 2001 11:48:04 -0400
+	id <S266130AbRGLPrn>; Thu, 12 Jul 2001 11:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266135AbRGLPry>; Thu, 12 Jul 2001 11:47:54 -0400
-Received: from [207.213.212.4] ([207.213.212.4]:27833 "EHLO geos.coastside.net")
-	by vger.kernel.org with ESMTP id <S266132AbRGLPrp>;
-	Thu, 12 Jul 2001 11:47:45 -0400
-Mime-Version: 1.0
-Message-Id: <p0510030ab773762c2548@[207.213.214.37]>
-In-Reply-To: <6845.994929684@redhat.com>
-In-Reply-To: <6845.994929684@redhat.com>
-Date: Thu, 12 Jul 2001 08:46:34 -0700
-To: David Woodhouse <dwmw2@infradead.org>, torvalds@transmeta.com
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [PATCH] Pedantry.
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S266132AbRGLPre>; Thu, 12 Jul 2001 11:47:34 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:49608 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S266130AbRGLPrT>; Thu, 12 Jul 2001 11:47:19 -0400
+Date: Thu, 12 Jul 2001 16:48:31 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] locking comment on do_wp_page()
+Message-ID: <Pine.LNX.4.21.0107121643090.1934-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:21 AM +0100 2001-07-12, David Woodhouse wrote:
->AFAIK "Uncompressing" is not a real word even in American.
+Comment on locking in do_wp_page() is out of date: copy do_swap_page().
 
-Sure it is, on the grounds of established usage, and on the grounds 
-of reasonable analogies (undo, unwrap, &c).
--- 
-/Jonathan Lundell.
+Hugh
+
+--- linux-2.4.7-pre6/mm/memory.c	Wed Jul 11 11:23:29 2001
++++ linux/mm/memory.c	Thu Jul 12 16:24:55 2001
+@@ -888,8 +888,7 @@
+  * change only once the write actually happens. This avoids a few races,
+  * and potentially makes it more efficient.
+  *
+- * We enter with the page table read-lock held, and need to exit without
+- * it.
++ * We hold the mm semaphore and the page_table_lock on entry and exit.
+  */
+ static int do_wp_page(struct mm_struct *mm, struct vm_area_struct * vma,
+ 	unsigned long address, pte_t *page_table, pte_t pte)
+

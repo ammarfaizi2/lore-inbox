@@ -1,75 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264962AbTBCKGT>; Mon, 3 Feb 2003 05:06:19 -0500
+	id <S265285AbTBCKQf>; Mon, 3 Feb 2003 05:16:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265285AbTBCKGT>; Mon, 3 Feb 2003 05:06:19 -0500
-Received: from matrix.roma2.infn.it ([141.108.255.2]:42444 "EHLO
-	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
-	id <S264962AbTBCKGS>; Mon, 3 Feb 2003 05:06:18 -0500
-From: Emiliano Gabrielli <Emiliano.Gabrielli@roma2.infn.it>
-Organization: INFN
-To: rbisping@mindspring.com
-Subject: Re: yenta-cardbus IRQ0
-Date: Mon, 3 Feb 2003 11:16:36 +0100
-User-Agent: KMail/1.5
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <E18eXoy-0000iL-00@tisch.mail.mindspring.net> <32788.62.98.209.28.1044095590.squirrel@webmail.roma2.infn.it> <E18f9lN-0001RE-00@granger.mail.mindspring.net>
-In-Reply-To: <E18f9lN-0001RE-00@granger.mail.mindspring.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200302031116.37035.gabrielli@roma2.infn.it>
+	id <S265305AbTBCKQf>; Mon, 3 Feb 2003 05:16:35 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:40202 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S265285AbTBCKQe>;
+	Mon, 3 Feb 2003 05:16:34 -0500
+Date: Mon, 3 Feb 2003 11:25:48 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: 2.4.21-pre4: tg3 driver problems with shared interrupts
+Message-Id: <20030203112548.357c2bb9.skraw@ithnet.com>
+In-Reply-To: <3E3D6367.9090907@pobox.com>
+References: <20030202161837.010bed14.skraw@ithnet.com>
+	<3E3D4C08.2030300@pobox.com>
+	<20030202185205.261a45ce.skraw@ithnet.com>
+	<3E3D6367.9090907@pobox.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03:16, domenica 2 febbraio 2003, Robert Bisping wrote:
+On Sun, 02 Feb 2003 13:28:55 -0500
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
-> > >> last month and it keeps coming up with IRQ0 and telling me it cant
-> > >> find a  irq for pin A. what would be causing this and how do I correct
-> > >> it i have  already tried APCI and it does not work on my laptop so
-> > >> that is no help. I  have compiled SMP into the kernel though I dont
-> > >> have a dual processor (of  course) to gain the added functionality. I
-> > >> have recompiled my kernel about  150 times with different setting
-> > >> hoping it might just be a conflict in the  kernel with no luck.  I
-> > >> looked at the yenta driver it's self and noticed that  it accepts IRQ0
-> > >> as a valid irq but that appears to mean no irq at all. which  config
-> > >> file would i use to force it to set a irq?
-> > >>
-> > >> > Thanx for any assistanc you might give
-> > >>
-> > >> plz send an lspci -vv -xxx -s *your dev*
-> > >>
-> > >> what kernel are you using ?
-> > >
-> > > i am using 2.4.18 and here is lspci
-> >
-> > uhmm, 1th try to upgrade to a newer one, then I experienced the same
-> > problem with a custom board... the problem was triggered by the Base
-> > Address too high:
-> >
-> >   Region 0: Memory at 10812000 (32-bit, non-prefetchable) [size=4K]
-> >
-> > moving id_sel (in the PCI core of the board) in order to obtain a lower
-> > bar all worked.
-> >
-> >
-> > BTW, has anybody there ever heared about such a costraint in the PCI
-> > specification ?? Why I got this strange behaviour ???
->
-> ok, can you give me some more specifics? i.e how do i do that or what
-> howto/man etc. (not the kernel part the id_sel part) thanx
+> > To make sure I will let it stress-test overnight and send you the results
+> > in about 15 hours from now on. If everything does fine I will redo with
+> > ide2,ide3 on same interrupt, too. Just to see what happens with these
+> > Promise things...
 
-I think you can't do that if you are not able to put your hand in the HW.
-There's nothing you can do from linux, that I know...
+Hi Jeff,
 
-You can take a look to the PCI specification, but i don't think it will aid 
-you so much...  
+I can tell you for sure now that your tg3 driver does very well in shared
+interrupt config:
+(eth2 is tg3)
+
+           CPU0       
+  0:    6052783          XT-PIC  timer
+  1:       8618          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:        581          XT-PIC  EMU10K1
+  7:       6842          XT-PIC  HiSax
+  9:   30245790          XT-PIC  aic7xxx, aic7xxx, eth0, eth1, eth2
+ 11:    7324397          XT-PIC  ide2, ide3
+ 12:     196375          XT-PIC  PS/2 Mouse
+ 15:          2          XT-PIC  ide1
+NMI:          0 
+LOC:          0 
+ERR:         52
+MIS:          0
+
+
+Though I don't exactly know what "ERR:" means in this context the machine is
+alive and performing well.
+Now I go again for the Promise stuff ...
 
 -- 
-Emiliano Gabrielli
-
-dip. di Fisica
-2° Università di Roma "Tor Vergata"
-
+Regards,
+Stephan

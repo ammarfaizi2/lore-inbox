@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbTDXHpj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 03:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTDXHpj
+	id S261722AbTDXHrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 03:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbTDXHrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 03:45:39 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:53262 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S261605AbTDXHpS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 03:45:18 -0400
-Subject: Re: [PATCH] 2.5.68-bk1 crash in devfs_remove() for defpts files
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051169958.3604.2619.camel@workshop.saharact.lan>
-References: <Pine.LNX.4.55.0304211338540.1491@marabou.research.att.com>
-	 <20030421195555.A28583@lst.de> <20030421195847.A28684@lst.de>
-	 <Pine.LNX.4.55.0304211451110.1798@marabou.research.att.com>
-	 <20030421210020.A29421@lst.de>
-	 <Pine.LNX.4.55.0304211539350.2462@marabou.research.att.com>
-	 <20030421215637.A30019@lst.de>
-	 <Pine.LNX.4.55.0304211630230.2599@marabou.research.att.com>
-	 <1050957875.1224.2.camel@flat41>
-	 <1051169958.3604.2619.camel@workshop.saharact.lan>
-Content-Type: text/plain
-Organization: K4 labs
-Message-Id: <1051171042.1104.11.camel@flat41>
+	Thu, 24 Apr 2003 03:47:08 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39698 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261722AbTDXHpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 03:45:51 -0400
+Date: Thu, 24 Apr 2003 08:57:56 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: DevilKin-LKML <devilkin-lkml@blindguardian.org>
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.67 - 2.5.68] Hangs on pcmcia yenta_socket initialisation
+Message-ID: <20030424085756.A9597@flint.arm.linux.org.uk>
+Mail-Followup-To: DevilKin-LKML <devilkin-lkml@blindguardian.org>,
+	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <200304230747.27579.devilkin-lkml@blindguardian.org> <200304232050.41230.devilkin-lkml@blindguardian.org> <20030423204341.A19573@flint.arm.linux.org.uk> <200304240940.21553.devilkin-lkml@blindguardian.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 24 Apr 2003 08:57:22 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200304240940.21553.devilkin-lkml@blindguardian.org>; from devilkin-lkml@blindguardian.org on Thu, Apr 24, 2003 at 09:40:18AM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-04-24 at 08:39, Martin Schlemmer wrote:
-> On Mon, 2003-04-21 at 22:44, Grzegorz Jaskiewicz wrote:
+On Thu, Apr 24, 2003 at 09:40:18AM +0200, DevilKin-LKML wrote:
+> I have a Maestro3 in the laptop (which is also why the module is loaded), but 
+> I never unload it once it's loaded at bootup...
 > 
-> > to use devfs only, it is funny but fe to open /dev/sound/* you need to
-> > be root, or chmod it manually before use. (i've got seperate
-> > /etc/init.d/chdevfsmod file to do that)
-> > 
-> 
-> Add to /etc/devfsd.conf:
-> 
-> -----------------------------
-> REGISTER        sound/.*     PERMISSIONS root.audio 660
-> REGISTER        snd/.*       PERMISSIONS root.audio 660
-> -----------------------------
+> Anything else I can try?
 
-
-Well, if you will read my post - i am trying to use _ONLY_ devfs,
-without any demons. Those demons are provided just to keep backward
-compatbility (at least this is my opinion) and can be used without them.
-
-i don't like personaly any ideas about udevfs and others. We should get
-rid of min/maj nr of each device becouse each single program uses device
-by name indeed ! Having just devfs solves many problems and is very good
-thing. But, again - without any userspace demons.
-
-Linus was always trying kernel as simple as it is possible, well - imho
-devfs is just one step forward to make it even simpler but without
-removing any of it functionality.
-
- 
+Maybe looking in /sysfs/bus/pci/drivers before inserting the card
+(this may cause an oops as well - if so, it confirms my suspicion.)
 
 -- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 labs
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

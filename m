@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267661AbUJJAIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267769AbUJJAKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267661AbUJJAIi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 20:08:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267765AbUJJAIi
+	id S267769AbUJJAKm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 20:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUJJAKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 20:08:38 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:51676 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267661AbUJJAIZ (ORCPT
+	Sat, 9 Oct 2004 20:10:42 -0400
+Received: from gate.crashing.org ([63.228.1.57]:1460 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267769AbUJJAKY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 20:08:25 -0400
-Date: Sat, 9 Oct 2004 17:05:12 -0700
-From: Paul Jackson <pj@sgi.com>
-To: colpatch@us.ibm.com
-Cc: frankeh@watson.ibm.com, ricklind@us.ibm.com, mbligh@aracnet.com,
-       Simon.Derr@bull.net, pwil3058@bigpond.net.au, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] Re: [PATCH] cpusets - big numa cpu and memory
- placement
-Message-Id: <20041009170512.5edf0b7e.pj@sgi.com>
-In-Reply-To: <1097283613.6470.146.camel@arrakis>
-References: <20041007015107.53d191d4.pj@sgi.com>
-	<200410071053.i97ArLnQ011548@owlet.beaverton.ibm.com>
-	<20041007072842.2bafc320.pj@sgi.com>
-	<4165A31E.4070905@watson.ibm.com>
-	<20041008061426.6a84748c.pj@sgi.com>
-	<4166B569.60408@watson.ibm.com>
-	<20041008112319.63b694de.pj@sgi.com>
-	<1097283613.6470.146.camel@arrakis>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 9 Oct 2004 20:10:24 -0400
+Subject: Re: [PATCH]: pbook apm_emu.c fix remaining time when charging
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097352701.3483.12.camel@localhost>
+References: <1097352701.3483.12.camel@localhost>
+Content-Type: text/plain
+Message-Id: <1097366985.5591.16.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 10 Oct 2004 10:09:46 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew writes:
-> > CKRM aspires to be both a general purpose resource management framework
-> > and the embodiment of fair share scheduling.
+On Sun, 2004-10-10 at 06:11, Soeren Sonnenburg wrote:
+> Hi,
 > 
-> I think your missing something here.  CKRM, as I understand it, aspires
-> to be a general purpose resource management framework.  To that point I
-> will accede.  But the second part, about CKRM being the embodiment of
-> fair share scheduling, is secondary.
+> this should make /proc/apm 
+> 
+> a) display the remaining time until the battery is fully charged and
+> b) when the system is on AC but the battery is not getting charged 0 is
+> displayed as remaining time.
+> 
+> Please comment/apply,
+> Soeren
 
-Ok - you may well be right that CKRM does not aspire to be the embodiment
-of fair share scheduling.  But doesn't it embody a fair share sheduler
-(and no other such policy) as a matter of current implementation fact?
+                if (amperage < 0) {
++                       /* when less than 100mA are used the machine must be on AC and as it is 
++                          not charging the battery is only slightly self decharging and thus full be definition */
++                       if (amperage < 100) {
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+There must be something wrong in the above...
+
++                                       time_units = (charge * 59) / (amperage * -1);
++                               else
++                                       time_units = (charge * 16440) / (amperage * -60);
+
+Can you make sure also that amperage is never 0 ?
+
+Ben.
+
+

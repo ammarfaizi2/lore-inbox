@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312681AbSDAWoT>; Mon, 1 Apr 2002 17:44:19 -0500
+	id <S312680AbSDAWpt>; Mon, 1 Apr 2002 17:45:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312680AbSDAWoK>; Mon, 1 Apr 2002 17:44:10 -0500
-Received: from as1-4-7.bn.g.bonet.se ([194.236.61.89]:55214 "HELO cucumelo.org")
-	by vger.kernel.org with SMTP id <S312681AbSDAWnw>;
-	Mon, 1 Apr 2002 17:43:52 -0500
-Message-ID: <3CA8E3CF.5060508@cucumelo.org>
-Date: Tue, 02 Apr 2002 00:48:47 +0200
-From: Benny Sjostrand <gorm@cucumelo.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020326
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux needs new leadership.
-In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312684AbSDAWp3>; Mon, 1 Apr 2002 17:45:29 -0500
+Received: from [194.106.46.201] ([194.106.46.201]:43075 "EHLO
+	asus.verdurin.priv") by vger.kernel.org with ESMTP
+	id <S312680AbSDAWp1>; Mon, 1 Apr 2002 17:45:27 -0500
+Date: Mon, 1 Apr 2002 23:45:14 +0100
+From: Adam Huffman <bloch@verdurin.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Oops in emu10k1 driver
+Message-ID: <20020401224514.GC2718@asus.verdurin.priv>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020401215107.GA28180@asus.verdurin.priv> <E16sAU4-0000gd-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->
->You have until the end of April 1, 23:59 Pacific Time to submit your
->nominations to the list. The most nominated person will become the leader
->of kernel development. I will examine the list of nominations and,
->
-So, 23:59 is getting closer some countries around the world, i dont 
-think changing
-the leader attacks the right problem. What's needed is to change to the 
-project
-model, course there to many hackers that produces to much code, we need 
-more administrative
-people for organisation purposes,  and using a project model like 
-"PROPS" would
-be perfect for future Linux kernel development.
+On Mon, 01 Apr 2002, Alan Cox wrote:
 
-if it's not to late, then i'll nominate Bill Gates as future kernel 
-development leader.
+> > VMware died when I put an audio CD into my DVD drive.  I wouldn't have
+> > mentioned it here but for the fact that there was an Oops and when
+> > decoded it pointed to the emu10k1 driver:
+> 
+> Yes but we don't know what vmware has been doing. Please try the same thing
+> a few times without vmware running
+> 
+> > kernel BUG at audio.c:1474!
+> > invalid operand: 0000
+> 
+> 
+> This one does look like a real bug in the emu10k driver, rather than a
+> vmware caused funny
 
-/gorm@cucumelo.org
-
-PS. you dont know what PROPS is? just never take a job where they stands 
-for PROPS if you
-      think you are a hacker.
-
+Haven't been able to reproduce it with the VMware modules removed.

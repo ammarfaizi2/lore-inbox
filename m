@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268955AbRG3Pl7>; Mon, 30 Jul 2001 11:41:59 -0400
+	id <S268975AbRG3Ppt>; Mon, 30 Jul 2001 11:45:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268975AbRG3Plj>; Mon, 30 Jul 2001 11:41:39 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:61196 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S268955AbRG3Ple>; Mon, 30 Jul 2001 11:41:34 -0400
-Message-ID: <3B65818D.13AA5A1D@zip.com.au>
-Date: Tue, 31 Jul 2001 01:47:25 +1000
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+	id <S268980AbRG3Pp3>; Mon, 30 Jul 2001 11:45:29 -0400
+Received: from gateway.wvi.com ([204.119.27.10]:30369 "HELO gateway.wvi.com")
+	by vger.kernel.org with SMTP id <S268975AbRG3Pp2>;
+	Mon, 30 Jul 2001 11:45:28 -0400
+Message-ID: <3B658117.873A1907@wvi.com>
+Date: Mon, 30 Jul 2001 08:45:26 -0700
+From: Jim Potter <jrp@wvi.com>
+X-Mailer: Mozilla 4.75 (Macintosh; U; PPC)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: Hans Reiser <reiser@namesys.com>,
-        Joshua Schmidlkofer <menion@srci.iwpsd.org>,
-        kernel <linux-kernel@vger.kernel.org>,
-        "Gryaznova E." <grev@namesys.botik.ru>,
-        "Vladimir V. Saveliev" <monstr@namesys.com>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <272900000.996506656@tiny>
-Content-Type: text/plain; charset=us-ascii
+To: God <atm@sdk.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Test mail :: DO NOT FSKING OPEN THE ATTACHMENT
+In-Reply-To: <Pine.LNX.4.21.0107292148250.8270-100000@scotch.homeip.net>
+Content-Type: text/plain; charset=us-ascii; x-mac-type="54455854"; x-mac-creator="4D4F5353"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Chris Mason wrote:
-> 
-> On Saturday, July 28, 2001 03:28:05 AM +1000 Andrew Morton
-> <akpm@zip.com.au> wrote:
-> 
-> [ patch to trigger data writes before commit in reiserfs ]
-> 
-> >
-> > There's no disruption to disk format - it just simulates
-> > the user typing `sync' at the right time.  I think the
-> > concept is sound, and I'm sure Chris can find a more efficient
-> > way...
-> 
-> Well, its gets points for simplicity ;-)
+I opened it up just fine in my gzip app, saw that it was most likely another
+one of those windows viruses, and tossed it out.  Can't run it anyway -- I'm
+a Mac / Linux shop.  Sorry about what happened to all those lemmings,
+though.  Hehe.
 
-Well, I tried system("/bin/sync"); but that didn't link.
+> Incase someone was stupid enough to open the attachment, and run the exe,
+> DON'T DO IT.
+>
+> <McAfee>
+> /Music.exe
+>         Found the W32/Music@M trojan !!!
+> </McAfee>
 
-> What I think we need is for commit_write to put new buffers a per super
-> list of new buffers, and then the journal code can flush that list on
-> commit.
+--
+Sincerely,
 
-whee.  Now there's an idea - If the fs keeps track of all its inodes
-then you can traverse those and flush out the i_dirty_buffers ring
-on each one.
+Jim Potter
+45th Parallel Processing
+jrp@wvi.com
 
-writepage() output is a problem, but that never sits well with
-journalling.  I guess one could do fdatasync/fdatawait against
-the same list of inodes.
 
-> Since all the filesystems already mark things BH_New, it seems a good
-> choice to let commit_write look for BH_New buffers and put them on this new
-> list.  But, the only place BH_New seems to get cleared right now is
-> unmap_buffer, which only gets called from block_flushpage.
-> 
-> Is there any reason we can't just clear BH_New before writing the buffer
-> out?  It looks like a bug to leave it set the way we do now.
-
-I think it can be cleared as soon as the get_block() caller has looked at
-it, actually.  test_and_clear_bit.  The lifecycle of the various buffer_head
-fields is exhasperatingly fluffy.
-
-I'd be reluctant to add another eight bytes to buffer_head though.
-It's 96 now, which is a nice number.  b_inode can go - it's just
-a boolean.  b_size and b_list can be crunched into a single byte..
-
-How about just doing it via the inodes?
-
--

@@ -1,164 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266809AbUBRAOV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:14:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266824AbUBRAOU
+	id S266855AbUBRATK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 19:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUBRASn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:14:20 -0500
-Received: from gate.crashing.org ([63.228.1.57]:3236 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266809AbUBRAOC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:14:02 -0500
-Subject: Re: Radeonfb problem
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
-Cc: Damian Kolkowski <damian@kolkowski.no-ip.org>,
-       Kronos <kronos@kronoz.cjb.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200402180102.42276.vergata@stud.fbi.fh-darmstadt.de>
-References: <200402172008.39887.vergata@stud.fbi.fh-darmstadt.de>
-	 <20040217215738.ALLYOURBASEAREBELONGTOUS.B9706@kolkowski.no-ip.org>
-	 <1077056532.1076.27.camel@gaston>
-	 <200402180102.42276.vergata@stud.fbi.fh-darmstadt.de>
-Content-Type: text/plain
-Message-Id: <1077063096.1076.69.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 18 Feb 2004 11:11:36 +1100
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Feb 2004 19:18:43 -0500
+Received: from mail.inter-page.com ([12.5.23.93]:14605 "EHLO
+	mail.inter-page.com") by vger.kernel.org with ESMTP id S266855AbUBRAQ3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 19:16:29 -0500
+From: "Robert White" <rwhite@casabyte.com>
+To: <tridge@samba.org>, <linux-kernel@vger.kernel.org>
+Cc: "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       "'Al Viro'" <viro@parcelfarce.linux.theplanet.co.uk>,
+       "'Neil Brown'" <neilb@cse.unsw.edu.au>
+Subject: RE: UTF-8 and case-insensitivity
+Date: Tue, 17 Feb 2004 16:16:11 -0800
+Organization: Casabyte, Inc.
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAABSIByOpdrUqd8yc+ZmEhqQEAAAAA@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <16433.38038.881005.468116@samba.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-18 at 11:02, Sergio Vergata wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Well, just build 2.6.3-rc4 and the problem still exists.
-> 
-> I tried also booting with commandline parameter and reduced the size to 
-> 1280x1024 and 1024x768 both works fine for me 
-> 
-> The dmesg output, from booting without any parameter,  autodetection of the 
-> displaysize works fine.
+OK, so I wrote the below, but then in the summary I realized that there was
+a significant factor that doesn't fit in with the rest of the post.  Case
+insensitivity, and more generally locale equivalence rules, is a security
+nightmare.  Consider the number of different file names that "su" could map
+to if you apply case insensitivity (4) and/or worse yet the various accents
+and umlats (?,etc) that sort-equivalent for "u" in some locales.  The user
+types "su" and runs "S(u-umlat)" etc. 
 
-I'm getting mixed up in all the reports, especially since you are
-replying to Damian, but I don't think you have the same problem.
+====
 
-So please, do a short summary of the problem, include full context
-information in your email.
+In point of fact (ok in point of "technically abstract truth"), it is a "bad
+thing" that Windows (and seemingly only Windows these days) is case
+insensitive.  It is sometimes said that windows is really an application and
+not an OS.  If you ignore the occasionally snide *way* it is said you can
+find some technical truth to the matter.
 
-> Sergio
-> 
-> ....
-> radeonfb_pci_register BEGIN
-> PCI: Found IRQ 6 for device 0000:01:00.0
-> PCI: Sharing IRQ 6 with 0000:00:1d.0
-> PCI: Sharing IRQ 6 with 0000:02:00.0
-> PCI: Sharing IRQ 6 with 0000:02:01.0
-> radeonfb: probed DDR SGRAM 65536k videoram
-> radeonfb: mapped 16384k videoram
-> radeonfb: Invalid ROM signature 0 should be 0xaa55
-> radeonfb: Retreived PLL infos from BIOS
-> radeonfb: Reference=27.00 MHz (RefDiv=12) Memory=252.00 Mhz, System=200.00 MHz
-> 1 chips in connector info
->  - chip 1 has 2 connectors
->   * connector 0 of type 2 (CRT) : 2300
->   * connector 1 of type 4 (DVI-D) : 4201
-> Starting monitor auto detection...
-> Non-DDC laptop panel detected
-> radeonfb: Monitor 1 type LCD found
-> radeonfb: Monitor 2 type no found
-> radeonfb: panel ID string: SXGA+ Single (85MHz)    
-> radeonfb: detected LVDS panel size from BIOS: 1400x1050
-> BIOS provided panel power delay: 1000
-> radeondb: BIOS provided dividers will be used
-> ref_divider = 6
-> post_divider = 2
-> fbk_divider = 4c
-> Scanning BIOS table ...
->  320 x 350
->  320 x 400
->  320 x 400
->  320 x 480
->  400 x 600
->  512 x 384
->  640 x 350
->  640 x 400
->  640 x 475
->  640 x 480
->  800 x 600
->  1024 x 768
->  1152 x 864
->  1280 x 1024
->  1400 x 1050
-> Found panel in BIOS table:
->   hblank: 200
->   hOver_plus: 72
->   hSync_width: 40
->   vblank: 12
->   vOver_plus: 2
->   vSync_width: 1
->   clock: 8496
-> Setting up default mode based on panel info
-> radeonfb: Power Management enabled for Mobility chipsets
-> radeonfb: ATI Radeon Lf  DDR SGRAM 64 MB
-> radeonfb_pci_register END
-> SBF: Simple Boot Flag extension found and enabled.
-> SBF: Setting boot flags 0x1
-> Machine check exception polling timer started.
-> speedstep-centrino: found "Intel(R) Pentium(R) M processor 1600MHz": max 
-> frequency: 1600000kHz
-> ikconfig 0.7 with /proc/config*
-> Initializing Cryptographic API
-> isapnp: Scanning for PnP cards...
-> isapnp: No Plug & Play device found
-> hStart = 1472, hEnd = 1512, hTotal = 1600
-> vStart = 1052, vEnd = 1053, vTotal = 1062
-> h_total_disp = 0xae00c7	   hsync_strt_wid = 0x505ba
-> v_total_disp = 0x4190425	   vsync_strt_wid = 0x1041b
-> pixclock = 11770
-> freq = 8496
-> lvds_gen_cntl: 003dffa1
-> Console: switching to colour frame buffer device 175x65
-> ...
-> 
-> On Tuesday 17 February 2004 23:22, Benjamin Herrenschmidt wrote:
-> > On Wed, 2004-02-18 at 08:57, Damian Kolkowski wrote:
-> > > * Kronos <kronos@kronoz.cjb.net> [2004-02-17 22:51]:
-> > > > > 2.6.3-rc4 with new radeonfb looks better, but in lilo.con append for
-> > > > > radeonfb wont work.
-> > > >
-> > > > What do you mean? What are passing to the kernel?
-> > >
-> > > For example:
-> > >
-> > > append = "video=radeon:1024x768-32@100" works for 2.4.x
-> > > append = "video=radeonfb:1024x768-32@100 works for 2.6.x
-> > >
-> > > but for new radeonfb _radeonfb_ in append won't work, my screean start
-> > > with small res on 36 Hz ;-) So I need to use fbset.
-> > >
-> > > Besides don't use 2.6.x even on desktop, that was only a test with new
-> > > radeonfb from Ben H.
-> >
-> > Ugh ? Send me a dmesg log at boot please without any command
-> > line. radeonfb should set your display to the native panel size
-> > by default
-> >
-> > Ben.
-> 
-> - --
-> Microsoft is to operating systems & security ....
->              .... what McDonalds is to gourmet cooking
-> 
-> PGP-Key http://vergata.it/GPG/F17FDB2F.asc
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.4 (GNU/Linux)
-> 
-> iD8DBQFAMqueVP5w5vF/2y8RAl1cAKDbvE0+Rw5IlzaLBIQOTbFdhtN+cACgxvYi
-> NagkT2Buid3GhhQQdyNwfk4=
-> =veYH
-> -----END PGP SIGNATURE-----
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In point of fact the entire windows application space has a singular active
+locale at any one time and there is a well-defined but horrible layer of
+indirection where "long names" like "My Documents" become "real names" like
+"MYDOCU~1".  Essentially every windows file name is subject to a
+double-indirect file name translation.  The first pass is the strcasecmp()
+locale-dependent traversal of the "long name" list.  The second is the
+strcasecmp() frozen-locale-spec-dependent traversal of (US Latin?) 8.3 file
+naming standard list of media elements (files/directories).
+
+In point of fact, Windows is *not* "properly" case insensitive at the file
+system level.  Use "dir /x" more often on your windows box to relive the
+experience.  The "real" file names are mangled to good old 8.3 uppercase
+internally(1).  You don't usually have to think about this, but if you have
+ever lost the long-to-short file name mapping on a drive you know the hell
+that ensues.  (see also iso9660.)
+
+So the application file naming interface wedge thingy (in windows) creates
+and maintains the mixed case names as an illusion.  It just happens to be an
+illusion planted so deeply in the application space that it appears to be
+coming up from the "operating system level".
+
+OK, as time has moved on, some later versions of later file systems *may* (I
+honestly don't know) have modified the double-indirection model, but if they
+have, they must have done so in a guaranteed-to-look-the-same way.  Either
+way it ends up being quite costly.
+
+Further, the model only really works because a DOS (and therefore windows)
+based program invariably and individually takes responsibility for doing all
+sorts of tasks like wildcard expansions (etc) in the application space
+(often "free" through comctl32.dll).  [This tends to be foreign to Linux
+(UNIX) programmers where shells and such do the expansion.]
+
+The line is then blurred further by the subsequent steady creep of
+wildcarding and file selection back into common DLLs.  (more comctl32.dll
+and friends.)
+
+The thing is, to match this ersatz "functionality" on a system where more
+than one locale may be used at the same time, you end up with a kind of
+Cartesian product of user locales and filesystem native locales.  The cost
+could get extreme and can only really be amortized if Linux were to declare
+our own 8.3 style pronouncement for the character classes used for the
+"real" file name storage (etc).
+
+Late stage case insensitivity isn't that hard to put in a linux application,
+just crack open your file selection dialog boxes and have them use
+strcasecmp() in all their select/sort logic.  Also then replace open() with
+CaseOpen() which does a find/search operation before daring to creat().
+That is, in every practical way, how Windows handles these problems.  It
+just happens in some fairly interesting and hard-to-predict places depending
+on context.
+
+It is easier, IMHO, to bring the users into the 20th century (let alone the
+21st 8-) by making them mean what they say (if they deign to step out from
+behind their GUIs).
+
+So what was I saying... Oh yea...
+
+-- Single Locale storage standard required to prevent multiplicative cost.
+-- Not that hard to fake case insensitivity "when necessary".
+-- Cheaper in CPU/Space to mix case.
+-- Native file names in native locales simplifies administration and
+expectations. (not elaborated above, but true.)
+-- Case insensitivity and locale equivalence leads to uncertainties about
+what/which file may be intended in a given context, which could often lead
+to exploitable error.
+
+
+Rob.
+
+(1) The actual truth is a tad uglier than this, the media can have the 8.3
+names stored in interesting ways, but essentially a "toupper()" is done on
+every file name as it is retrieved and processed.  This cuts out a lot of
+possibilities and leads to a lot of "tildes of shame" in even some of the
+more harmless seeming name conflicts.
+
+
+
 

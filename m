@@ -1,90 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269900AbTHFQPt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 12:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269958AbTHFQPt
+	id S269967AbTHFQLO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 12:11:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269978AbTHFQLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 12:15:49 -0400
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:43649 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S269900AbTHFQPq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 12:15:46 -0400
-Date: Wed, 6 Aug 2003 11:42:25 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Misha Nasledov <misha@nasledov.com>, Andrew Morton <akpm@osdl.org>,
-       Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5/2.6 PCMCIA Issues
-Message-ID: <20030806114225.GI13275@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Misha Nasledov <misha@nasledov.com>, Andrew Morton <akpm@osdl.org>,
-	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <20030804232204.GA21763@nasledov.com> <20030805144453.A8914@flint.arm.linux.org.uk> <20030806045627.GA1625@nasledov.com> <200308060559.h765xhI05860@mail.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308060559.h765xhI05860@mail.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 6 Aug 2003 12:11:14 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:32379 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S269967AbTHFQLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 12:11:10 -0400
+Message-ID: <3F3128A4.8030305@RedHat.com>
+Date: Wed, 06 Aug 2003 12:11:16 -0400
+From: Steve Dickson <SteveD@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [NFS] [PATCH] kNFSd: Fixes a problem with inode clean up for vxfs
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 10:59:43PM -0700, OSDL wrote:
-> Misha Nasledov wrote:
-> > 
-> > I am attaching the dmesg output after booting 2.6.0-test2; this does
-> > not include the insertion of the Orinoco card as the console freezes
-> > immediately after the event. I inspected my logs after a reboot and
-> > there were no messages whatsoever regarding the event of the insertion
-> > of the Orinoco card.
-> 
-> Can you try with PnP and the i82365 support _disabled_. I find this sequence
-> very suspicious:
-> 
->         Intel PCIC probe: PNP <6>pnp: Device 00:17 activated.
->         invalid resources ?
->         pnp: Device 00:17 disabled.
->         not found.
+This a patch I've received from Veritas. Supposedly they have
+already submitted this but I can't seem to find it in any 2.4 trees..
 
-Here's a quick fix that will at least correct the i82365 probing.  It will
-be interesting to see what effect it has on these other problems.  Note
-that this driver needs some work with check_region etc.
+Does anybody recognize this and are there any known issues with it?
 
-[PCMCIA] Fix PnP Probing in i82365.c
-pnp_x_valid returns 1 if valid.  Therefore we should be using !pnp_port_valid.
-Also cleans up some formatting issues.
-
---- a/drivers/pcmcia/i82365.c	2003-07-27 17:08:32.000000000 +0000
-+++ b/drivers/pcmcia/i82365.c	2003-08-06 11:18:21.000000000 +0000
-@@ -795,16 +795,14 @@
-
- 	    if (pnp_device_attach(dev) < 0)
- 	    	continue;
--
--	    printk("PNP ");
--
-+
- 	    if (pnp_activate_dev(dev) < 0) {
- 		printk("activate failed\n");
- 		pnp_device_detach(dev);
- 		break;
- 	    }
-
--	    if (pnp_port_valid(dev, 0)) {
-+	    if (!pnp_port_valid(dev, 0)) {
- 		printk("invalid resources ?\n");
- 		pnp_device_detach(dev);
- 		break;
+The Problem: The nfsd_findparent creates a dentry using d_alloc_root. 
+The d_op
+vector pointer in this dentry is not initialized. Hence filesystems that 
+supply
+the vector have a problem. nfs exports of such filesystems do not work
+correctly under memory pressure.  vxfs, vfat, ntfs are amongst the 
+filesystems
+affected by the bug.  Need redhat to fix nfsd code in their kernels. 
+Ideally
+a kernel needs to ask a filesystem to setup a d_op vector.  An entry point
+into a filesystem for doing this job doesn't exist. We can work around the
+problem by copying d_op vector pointer from the child of the dentry, whose
+d_op vector is correct.
 
 
-> 
-> and I bet it messes up some of the register state that the yenta probe had
-> just set up.
-> 
-> You should try with just CONFIG_YENTA - the 82365 stuff is for the old
-> 16-bit only controllers.
-> 
->                 Linus
+The Patch:
 
-Thanks,
-Adam
+--- ./fs/nfsd/nfsfh.c.diff      Wed Jul  2 13:17:35 2003
++++ ./fs/nfsd/nfsfh.c   Tue Jul 29 04:45:43 2003
+@@ -303,6 +303,7 @@ struct dentry *nfsd_findparent(struct de
+                       if (pdentry) {
+                               igrab(tdentry->d_inode);
+                               pdentry->d_flags |= 
+DCACHE_NFSD_DISCONNECTED;
++                              pdentry->d_op = child->d_op;
+                       }
+               }
+               if (pdentry == NULL)
+
+SteveD.
+
+

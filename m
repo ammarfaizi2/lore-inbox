@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264173AbRFNXNk>; Thu, 14 Jun 2001 19:13:40 -0400
+	id <S264177AbRFNX24>; Thu, 14 Jun 2001 19:28:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264183AbRFNXNb>; Thu, 14 Jun 2001 19:13:31 -0400
-Received: from [213.96.124.18] ([213.96.124.18]:57581 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S264172AbRFNXNP>;
-	Thu, 14 Jun 2001 19:13:15 -0400
-Date: Fri, 15 Jun 2001 01:14:16 +0000
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jldomingo@crosswinds.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.2.19 -> 80% Packet Loss
-Message-ID: <20010615011415.A5210@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.33.0106141325210.20189-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.18i
+	id <S264183AbRFNX2p>; Thu, 14 Jun 2001 19:28:45 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:37509 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S264177AbRFNX2c>;
+	Thu, 14 Jun 2001 19:28:32 -0400
+Message-ID: <3B294898.CEFE387F@candelatech.com>
+Date: Thu, 14 Jun 2001 16:28:24 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: questions about link-level loopback, PF_PACKET and ETH_P_LOOP
+In-Reply-To: <3B2926A3.C3B65EBB@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 14 June 2001, at 14:17:11 -0700,
-chuckw@altaserv.net wrote:
-
+Christopher Friesen wrote:
 > 
-> 1. When pinging a machine using kernel 2.2.19 I consistently get an 80%
-> packet loss when doing a ping -f with a packet size of 64590 or higher.
+> I'm attempting to write a piece of code that will validate the physical ethernet
+> link from a NIC to the nearest router/hub/switch.  What I'd like to do is to
+> send out an ethernet packet addressed to me, bounce it off the
+> hub/switch/router, and then read it back in.  This is all at the ethernet layer.
 > 
-What happens here is (under kernel 2.2.19):
-ping -f -s 49092 localhost -->>   0 % packet loss
-ping -f -s 49093 localhost -->> 100 % packet loss
 
-Maybe this has something to do with fragmentation of IP packets to fit in
-the underlying protocol's MTU (3929 in my loopback device).
+No properly configured ethernet hub or router will return you the
+same packet you sent.  You can get some of this information out of the
+drivers though, as their hardware knows the link state, at least the
+physical layer.
 
-When pinging from the network, it is expected to get an increasing number
-of lost packets due to collisions in the medium. Moreover, IP
-fragmentation, encapsulation and reassembly can be a reason for lost
-packets, but is clear that what you get is quite strange :)
+Check out Becker's mii-diag program.  There are some options
+in it to dump out all kinds of neat information about the drivers
+and link condition.
 
-What I have noticed is that pinging from the network with large packet
-sizes (for example, ping -s 55000 destinationIP), causes the ping program
-to sometimes dump a echo_reply packet to stdout with the following message:
+> The nitty-gritty on this is that I have a machine that has two NICs but only one
+> IP address.  I want to do some kind of packet loopback at the ethernet layer to
+> verify that my NIC transceiver is working properly.
 
-55008 bytes from 192.168.1.10: icmp_seq=8 ttl=255 time=145.9 ms
-wrong data byte #190 should be 0xbe but was 0x3e
+Ping your switch.  Or use something like ethernet channel bonding.
 
-And some other times I get ping results with interesting patterns:
+If both ports are up, then you should be able to send a pkt
+from one NIC with your other NICs MAC in it, and the switch should deliver
+that pkt to your other NIC.  However, if you don't receive the packet, you
+cannot determine which one of your links/NICs is bad without going to
+a third party (which I suggest should be your switch itself).
 
-55008 bytes from 192.168.1.10: icmp_seq=45 ttl=255 time=1155.6 ms
-55008 bytes from 192.168.1.10: icmp_seq=46 ttl=255 time=143.3 ms
-55008 bytes from 192.168.1.10: icmp_seq=47 ttl=255 time=1155.2 ms
-55008 bytes from 192.168.1.10: icmp_seq=48 ttl=255 time=143.8 ms
-
-
-On a slower box, I get the following (kernel 2.4.4):
-ping -f -s 32293 localhost -->>   0 % packet loss
-ping -f -s 32294 localhost -->> 100 % packet loss
-
-I've no idea what this could mean.
-
---
-José Luis Domingo López
-Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
-
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261710AbSJQOPK>; Thu, 17 Oct 2002 10:15:10 -0400
+	id <S261703AbSJQONv>; Thu, 17 Oct 2002 10:13:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261720AbSJQOPK>; Thu, 17 Oct 2002 10:15:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23823 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261710AbSJQOPJ>;
-	Thu, 17 Oct 2002 10:15:09 -0400
-Message-ID: <3DAEC758.5040209@pobox.com>
-Date: Thu, 17 Oct 2002 10:21:12 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261727AbSJQONv>; Thu, 17 Oct 2002 10:13:51 -0400
+Received: from ext-nj2gw-2.online-age.net ([216.35.73.164]:3783 "EHLO
+	ext-nj2gw-2.online-age.net") by vger.kernel.org with ESMTP
+	id <S261703AbSJQONu>; Thu, 17 Oct 2002 10:13:50 -0400
+Message-ID: <A9713061F01AD411B0F700D0B746CA6802FC1513@vacho6misge.cho.ge.com>
+From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
+To: "'Patrick Jennings'" <jennings@red-river.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: RE: Userland ISRs
+Date: Thu, 17 Oct 2002 10:19:20 -0400
 MIME-Version: 1.0
-To: Andrey Panin <pazke@orbita1.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][TRIVIAL] de2104x.c missing __devexit_p in 2.5.43
-References: <20021017070332.GB304@pazke.ipt>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Panin wrote:
-> diff -urN -X /usr/share/dontdiff linux-vanilla/drivers/net/tulip/de2104x.c linux/drivers/net/tulip/de2104x.c
-> --- linux-vanilla/drivers/net/tulip/de2104x.c	Sun Sep  1 02:04:53 2002
-> +++ linux/drivers/net/tulip/de2104x.c	Thu Oct 17 04:10:19 2002
-> @@ -2216,7 +2216,7 @@
->  	.name		= DRV_NAME,
->  	.id_table	= de_pci_tbl,
->  	.probe		= de_init_one,
-> -	.remove		= de_remove_one,
-> +	.remove		= __devexit_p(de_remove_one),
->  #ifdef CONFIG_PM
->  	.suspend	= de_suspend,
->  	.resume		= de_resume,
 
+> This all works well and good, execpt when the isr bit is already true when
+> isrs are enabled.  Then as soon as they are enabled the isr routine gets
+> called, before the sleep has got a chance to get set up.  Any ideas around
+> this?
 
-alas, it is incorrect, as no one hotplugs this hardware.
+http://www.xml.com/ldd/chapter/book/ch09.html
 
-	Jeff
-
-
-
+Read the section about going to sleep without races.
+I think you'll find the solution there.

@@ -1,79 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUEVPLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUEVPO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUEVPLq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 11:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUEVPLq
+	id S261551AbUEVPO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 11:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUEVPO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 11:11:46 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:37089 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261474AbUEVPLo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 11:11:44 -0400
-Date: Sat, 22 May 2004 08:11:36 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: herbert@gondor.apana.org.au
-Subject: [Bug 2748] New: Missing locks in video1394_ioctl
-Message-ID: <7560000.1085238696@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sat, 22 May 2004 11:14:29 -0400
+Received: from elektron.ikp.physik.tu-darmstadt.de ([130.83.24.72]:15878 "EHLO
+	elektron.ikp.physik.tu-darmstadt.de") by vger.kernel.org with ESMTP
+	id S261551AbUEVPO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 11:14:26 -0400
+From: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <16559.28240.860047.83057@hertz.ikp.physik.tu-darmstadt.de>
+Date: Sat, 22 May 2004 17:14:24 +0200
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rfc: test whether a device has a partition table
+In-Reply-To: <20040522125633.GA4777@apps.cwi.nl>
+References: <16559.14090.6623.563810@hertz.ikp.physik.tu-darmstadt.de>
+	<20040522125633.GA4777@apps.cwi.nl>
+X-Mailer: VM 7.07 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=2748
-
-           Summary: Missing locks in video1394_ioctl
-    Kernel Version: 2.6.6
-            Status: NEW
-          Severity: normal
-             Owner: bcollins@debian.org
-         Submitter: herbert@gondor.apana.org.au
+>>>>> "Andries" == Andries Brouwer <Andries.Brouwer@cwi.nl> writes:
 
 
-This bug was reported at http://bugs.debian.org/248996.
+    Andries> What do you mean by "floppy as second partition"?
 
-The last few messages are:
-
-video1394_0: Iso receive DMA: 8 buffers of size 614400 allocated for a frame sis
-video1394_0: iso context 1 listen on channel 0
-video1394_0: Waking up iso dma ctx=1
-video1394_0: Buffer 3 is already used
-video1394_0: Iso context 1 stop talking on channel 0
-NMI Watchdog detected LOCKUP on CPU1, eip c02920f0, registers:
-CPU:    1
-EIP:    0060:[<c02920f0>]    Not tainted
-EFLAGS: 00200086   (2.6.6-1-686-smp)
-EIP is at .text.lock.sched+0x34/0xa4
-eax: 00000000   ebx: f3106000   ecx: c1813be0   edx: f3106000
-esi: f3c49edc   edi: 00200286   ebp: f3107ed0   esp: f3107ea4
-ds: 007b   es: 007b   ss: 0068
-Process Simulation_trac (pid: 2218, threadinfo=f3106000 task=f77ba0d0)
-Stack: 00000000 f77ba0d0 c011bb60 f3c49ee0 f3c49ee0 c01b48c2 f3107f44 bf5ffa84
-       f3106000 f3c49e48 f3106000 00200297 f8aafbcd f77f7a20 00000001 00000000
-       f77ba0d0 c011bb60 00000000 00000000 f77515b8 f77ba5f4 f3107fc4 f3c49edc
-Call Trace:
- [<c011bb60>] default_wake_function+0x0/0x20
- [<c01b48c2>] copy_from_user+0x42/0x70
- [<f8aafbcd>] video1394_ioctl+0xacd/0x1070 [video1394]
- [<c011bb60>] default_wake_function+0x0/0x20
- [<c010dc66>] convert_fxsr_from_user+0x26/0xf0
- [<c01e4f8e>] tty_write+0x19e/0x2f0
- [<c01eab80>] write_chan+0x0/0x230
- [<c015d7b7>] vfs_write+0x107/0x160
- [<c0171c08>] sys_ioctl+0x148/0x2d0
- [<c0102313>] huft_build+0x1d3/0x540
- [<c010621b>] syscall_call+0x7/0xb
- [<c0102313>] huft_build+0x1d3/0x540
-                                                                               
-                                                                               
-                  
-Code: 80 3e 00 7e f9 e9 9e fb ff ff f3 90 80 3e 00 7e f9 e9 11 fc
-console shuts up ...
-
-So it looks like someone did a WAIT/POLL BUFFER which sleeps without holding a
-lock on d, and then someone did a UNLISTEN/UNTALK CHANNEL, which frees d...
+Sorry, I mean as second device realized in the stick. On my R50 Laptop
+without a floppy drive, when the USB stick is plugged in, it appears as
+Floppy "A:" in the boot process.
 
 
+    >> Find appended a patch that does the 0x00/0x80 "boot flag"
+    >> checks. Please discuss and consider for inclusion into the kernel.
+
+    >> +#define BOOT_IND(p) (get_unaligned(&p->boot_ind)) #define SYS_IND(p)
+    >> (get_unaligned(&p->sys_ind))
+
+    Andries> Hmm. get_unaligned() for a single byte?  I see no reason for
+    Andries> these two macros.  Also, it is a good habit to parenthesize
+    Andries> macro parameters.
+
+I must admit that I didn't dig deeper what "get_unaligned" really means. From
+what you tell, I understand that the macro is not needed, and the compare
+would do if ((&p->sys_ind != 0x80) && (&p->sys_ind != 0x0)) should work too.
+
+    >> + /* + Some consistancy check for a valid partition table
+
+...
+    Andries> I have no objections.
+
+    Andries> Does it in your case suffice to check for 0 / 0x80 only
+    Andries> (without testing nr_bootable)?
+
+Yes, the test for 0x80/0 is sufficant. Testing nr_bootable was only paranoid...
+
+    Andries> I would prefer to omit that test, until there is at least one
+    Andries> person who shows a boot sector where it is needed.
+
+Find appeneded the revised patch.
+
+-- 
+Uwe Bonnes                bon@elektron.ikp.physik.tu-darmstadt.de
+
+Institut fuer Kernphysik  Schlossgartenstrasse 9  64289 Darmstadt
+--------- Tel. 06151 162516 -------- Fax. 06151 164321 ----------
+--- linux-2.6.6/fs/partitions/msdos-sav.c	2004-05-10 04:32:52.000000000 +0200
++++ linux-2.6.6/fs/partitions/msdos.c	2004-05-22 17:14:08.000000000 +0200
+@@ -389,6 +389,17 @@
+ 		put_dev_sector(sect);
+ 		return 0;
+ 	}
++
++	/* 
++	   Some consistancy check for a valid partition table
++	   Boot indicator must either be 0x80 or 0x0 on all primary partitions
++	*/
++ 	p = (struct partition *) (data + 0x1be);
++	for (slot = 1 ; slot <= 4 ; slot++, p++) {
++	  if ( (p->boot_ind != 0x80) &&  (p->boot_ind!= 0x0))
++	    return 0;
++	}
++
+ 	p = (struct partition *) (data + 0x1be);
+ #ifdef CONFIG_EFI_PARTITION
+ 	for (slot = 1 ; slot <= 4 ; slot++, p++) {

@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264997AbSJWNyF>; Wed, 23 Oct 2002 09:54:05 -0400
+	id <S265004AbSJWN5q>; Wed, 23 Oct 2002 09:57:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265004AbSJWNyF>; Wed, 23 Oct 2002 09:54:05 -0400
-Received: from max.fiasco.org.il ([192.117.122.39]:35596 "HELO
-	latenight.fiasco.org.il") by vger.kernel.org with SMTP
-	id <S264997AbSJWNyE>; Wed, 23 Oct 2002 09:54:04 -0400
-Subject: Re: One for the Security Guru's
-From: Gilad Ben-ossef <gilad@benyossef.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1035380716.4323.50.camel@irongate.swansea.linux.org.uk>
-References: <20021023130251.GF25422@rdlg.net> 
-	<1035380716.4323.50.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
+	id <S265008AbSJWN5q>; Wed, 23 Oct 2002 09:57:46 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:48596 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S265004AbSJWN5p>; Wed, 23 Oct 2002 09:57:45 -0400
+Message-ID: <3DB6AC40.20007@nortelnetworks.com>
+Date: Wed, 23 Oct 2002 10:03:44 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Slavcho Nikolov <snikolov@okena.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: feature request - why not make netif_rx() a pointer?
+References: <20021023003959.GA23155@bougret.hpl.hp.com> <004c01c27a99$927b8a30$800a140a@SLNW2K>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 23 Oct 2002 15:59:02 +0200
-Message-Id: <1035381547.4182.65.camel@klendathu.telaviv.sgi.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-23 at 15:45, Alan Cox wrote:
-> On Wed, 2002-10-23 at 14:02, Robert L. Harris wrote:
-> >   The consultants aparantly told the company admins that kernel modules
-> > were a massive security hole and extremely easy targets for root kits.
-> > As a result every machine has a 100% monolithic kernel, some of them
-> > ranging to 1.9Meg in filesize.  This of course provides some other
-> > sticky points such as how to do a kernel boot image
-> 
-> Modules make no difference to security. If I can add a module I can swap
-> the kernel and reboot the box, or I can patch the kernel. In fact I can
-> load modules into module-less kernels its just a bit harder.
+Slavcho Nikolov wrote:
 
-IMHO the security risks associated with modules is not the potential for
-getting higher permissions but rather that having the loadable module
-capability makes it *easier* to hide your code and actions once you're
-in because what you would want to do is change the running kernel to
-hide your actions and loadable modules makes it easier to dynamically
-change a running kernel in general (DUH! :-). In short - LKM support
-doesn't open any doors; It does makes it slightly easier to stay
-invisible once you're in. 
 
-There are, again IMHO, much simpler things that I'm willing to bet
-company X isn't doing (because no one is doing them) that would help
-much more to security then disabling LKM support. For example - when you
-download a new update of a kernel (or any program for that matter)
-source/patch (or binary package) from the net do you check the GPG
-signature validity? I would be VERY surprised if you answer 'yes'...
-:-))
+> As for GPL, I hope that commercial enterprises be allowed to utilize
+> business models
+> which do not necessarily consist in providing services around free software.
+> The more replaceable hooks you provide to filesystems and network stacks,
+> the better.
 
-Gilad.
+I don't think you understand the nature of the GPL and linux development.
+
+The kernel developers do not have any obligation to anything other than 
+technical excellence.  You're getting a highly optimized operating 
+system *at no financial cost*.  In return, the community requires that 
+certain types of modifications be made publicly available.
+
+If you want to replace the messaging code, make a GPL'd kernel patch and 
+make it available to your clients (of course they can then publish it 
+all over the place if they so desire).  If those terms are not 
+acceptable, there's always BSD.
+
+Chris
 
 
 
-> 
-> Alan
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

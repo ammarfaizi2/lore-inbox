@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265249AbUGCUhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265253AbUGCUrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265249AbUGCUhG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 16:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265255AbUGCUhG
+	id S265253AbUGCUrL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 16:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265255AbUGCUrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 16:37:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57306 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265249AbUGCUhD (ORCPT
+	Sat, 3 Jul 2004 16:47:11 -0400
+Received: from gprs214-161.eurotel.cz ([160.218.214.161]:53377 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265253AbUGCUrG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 16:37:03 -0400
-Date: Sat, 3 Jul 2004 13:35:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, olaf+list.linux-kernel@olafdietsche.de
-Subject: Re: procfs permissions on 2.6.x
-Message-Id: <20040703133556.44b70d60.akpm@osdl.org>
-In-Reply-To: <20040703202541.GA11398@infradead.org>
-References: <20040703202242.GA31656@MAIL.13thfloor.at>
-	<20040703202541.GA11398@infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 3 Jul 2004 16:47:06 -0400
+Date: Sat, 3 Jul 2004 22:46:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Erik Rigtorp <erik@rigtorp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel/power/swsusp.c
+Message-ID: <20040703204647.GE31892@elf.ucw.cz>
+References: <20040703172843.GA7274@linux.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040703172843.GA7274@linux.nu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Sat, Jul 03, 2004 at 10:22:42PM +0200, Herbert Poetzl wrote:
-> > 
-> > Hi Andrew!
-> > 
-> > stumbled over the following detail ...
-> > 
-> > usually when somebody tries to modify an inode,
-> > notify_change() calls inode_change_ok() to verify
-> > the user's permissions ... now it seems that
-> > somewhere around 2.5.41, a patch similar to this
-> > one was included into the mainline, and remained
-> > almost unmodified ...
-> > 
-> > http://www.uwsg.iu.edu/hypermail/linux/kernel/0210.1/1002.html
-> > 
-> > this probably unintentionally circumvents the 
-> > inode_change_ok() check, so that now any user
-> > can modify inodes of the procfs. 
-> > 
-> > example:
-> > 
-> >   $ chmod a-rwx /proc/cmdline
-> > 
-> > the following patch hopefully fixes this, so
-> > please consider for inclusion ...
-> 
-> Actually the patch you reference above looks extremly bogus and should just
-> be reverted instead.
+Hi!
 
-Why is it "extremely bogus"?  I assume Olaf had a reason for wanting chmod
-on procfs files?
+> Swsusp allocates a vt before it nows if it will need it. This interferes
+> with bootsplash. Here is a patch that moves the pm_prepare_console() call
+> so that its only executed if swsusp finds a valid image to resume.
 
+You are moving it inside function that should have no business doing
+this... Would something like this work better? [hand-edited, apply by
+hand; untested].
+
+BTW is bootsplash actually used by suse and/or redhat? Suse certainly
+has some splashscreen... Perhaps some splash support into swsusp (as
+an add on) would be good idea, but it would be good to only code it
+once.
+								Pavel
+
+--- clean/kernel/power/swsusp.c	2004-06-22 12:36:47.000000000 +0200
++++ linux/kernel/power/swsusp.c	2004-07-03 22:40:47.000000000 +0200
+@@ -1190,9 +1190,6 @@
+ 	}
+ 	MDELAY(1000);
+ 
+-	if (pm_prepare_console())
+-		printk("swsusp: Can't allocate a console... proceeding\n");
+-
+ 	if (!resume_file[0] && resume_status == RESUME_SPECIFIED) {
+ 		printk( "suspension device unspecified\n" );
+ 		return -EINVAL;
+@@ -1201,12 +1198,17 @@
+ 	printk( "resuming from %s\n", resume_file);
+ 	if (read_suspend_image(resume_file, 0))
+ 		goto read_failure;
++
++	if (pm_prepare_console())
++		printk("swsusp: Can't allocate a console... proceeding\n");
++
+	device_suspend(4);
+ 	do_magic(1);
+ 	panic("This never returns");
+ 
+ read_failure:
+-	pm_restore_console();
+ 	return 0;
+ }
+ 
+
+
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

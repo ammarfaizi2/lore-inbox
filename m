@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292981AbSCIXsK>; Sat, 9 Mar 2002 18:48:10 -0500
+	id <S292986AbSCJAEN>; Sat, 9 Mar 2002 19:04:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292982AbSCIXsB>; Sat, 9 Mar 2002 18:48:01 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:9569 "EHLO
+	id <S292987AbSCJAEE>; Sat, 9 Mar 2002 19:04:04 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:24096 "EHLO
 	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S292981AbSCIXrz>; Sat, 9 Mar 2002 18:47:55 -0500
-Message-ID: <3C8A9ECF.F8BB8575@ngforever.de>
-Date: Sat, 09 Mar 2002 16:46:23 -0700
+	id <S292986AbSCJADu>; Sat, 9 Mar 2002 19:03:50 -0500
+Message-ID: <3C8AA2D7.5953DA31@ngforever.de>
+Date: Sat, 09 Mar 2002 17:03:35 -0700
 From: Thunder from the hill <thunder@ngforever.de>
 Organization: The LuckyNet Administration
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.8-26mdk i586)
@@ -22,36 +22,32 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seiichi Nakashima wrote:
-> 
-> Hi.
-> 
+Hi,
+
 > I update to linux-2.2.20 + patch-2.2.21-pre4.
 > before I used linux-2.2.20 + patch-2.2.21-pre3, and worked fine.
 > linux-2.2.21-pre4 is normal end to patch, compile and install, but bootup failuer.
 > 
 > these messages displayed on console, and hung up.
-> 
-> ===== messaged start =====
-> Uncompressing Linux... Ok, booting the kernel.
-> Linux version 2.2.21pre4 (root@homesv) (gcc version 2.95.3 20010315 (release)) #
-> 1 Sun Mar 10 07:31:33 JST 2002
-> USER-provided physical RAM map:
->  USER: 000a0000 @ 00000000 (usable)
->  USER: 05efd000 @ 00100000 (usable)
-> Detected 400916 kHz processor.
-> Console: colour VGA+ 80x25
-> Calibrating delay loop... 799.53 BogoMIPS
-> Memory: 95824k/98292k abailable (816k kernel code, 412k reserved, 1180k data, 60k init)
-> Dentry hash table entries: 16384 (order 5, 128k)
-> Buffer cache hash table entries: 131072 (order 7, 512k)
-> Page cache hash table entries: 32768 (order 5, 128k)
-> CPU: L1 I cache: 16K, L1 D cache: 16K
-> Intel machine check architecture supported.
-> ===== messages end =====
+> ...
 
-I remember this was the one-and-zero stuff from last evening or
-whenever. Can someone remember? It was just some 0 which had to be 1.
+ok, just to forward the patches:
+>diff -ruN linux-2.2.21-pre3/arch/i386/kernel/bluesmoke.c linux-2.2.21-pre4/arch/i386/kernel/bluesmoke.c
+>--- linux-2.2.21-pre3/arch/i386/kernel/bluesmoke.c	Sun Mar  3 23:20:11 2002
+>+++ linux-2.2.21-pre4/arch/i386/kernel/bluesmoke.c	Sat Mar  9 03:58:57 2002
+>@@ -165,7 +164,7 @@
+> if(l&(1<<8))
+> wrmsr(0x17b, 0xffffffff, 0xffffffff);
+> banks = l&0xff;
+>-	for(i=1;i<banks;i++)
+>+	for(i=0;i<banks;i++)
+> {
+> wrmsr(0x400+4*i, 0xffffffff, 0xffffffff); 
+> }
+>
+> Same here. s/i=0/i=1/ i the for() and my PII boots again.
+
+Thunder
 -- 
 begin-base64 755 -
 IyEgL3Vzci9iaW4vcGVybApteSAgICAgJHNheWluZyA9CSMgVGhlIHNjcmlw

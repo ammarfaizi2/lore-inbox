@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319170AbSHNBjB>; Tue, 13 Aug 2002 21:39:01 -0400
+	id <S319171AbSHNBqp>; Tue, 13 Aug 2002 21:46:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319172AbSHNBjB>; Tue, 13 Aug 2002 21:39:01 -0400
-Received: from surf.cadcamlab.org ([156.26.20.182]:42377 "EHLO
-	surf.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S319170AbSHNBjA>; Tue, 13 Aug 2002 21:39:00 -0400
-Date: Tue, 13 Aug 2002 20:42:41 -0500
-To: Greg Banks <gnb@alphalink.com.au>
-Cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [patch] config language dep_* enhancements
-Message-ID: <20020814014241.GK761@cadcamlab.org>
-References: <3D587483.1C459694@alphalink.com.au> <Pine.LNX.4.44.0208131306040.6035-100000@chaos.physics.uiowa.edu> <20020813204829.GJ761@cadcamlab.org> <3D59B212.DC24E231@alphalink.com.au>
+	id <S319172AbSHNBqp>; Tue, 13 Aug 2002 21:46:45 -0400
+Received: from pina.terra.com.br ([200.176.3.17]:45778 "EHLO pina.terra.com.br")
+	by vger.kernel.org with ESMTP id <S319171AbSHNBqo>;
+	Tue, 13 Aug 2002 21:46:44 -0400
+Date: Tue, 13 Aug 2002 22:50:32 -0300
+From: Christian Reis <kiko@async.com.br>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: eepro100@scyld.com, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [NFS] General network slowness on SIS 530 with eepro100
+Message-ID: <20020813225032.A17293@blackjesus.async.com.br>
+References: <20020813212923.L2219@blackjesus.async.com.br> <shs1y92p7ho.fsf@charged.uio.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D59B212.DC24E231@alphalink.com.au>
-User-Agent: Mutt/1.4i
-From: Peter Samuelson <peter@cadcamlab.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <shs1y92p7ho.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Wed, Aug 14, 2002 at 03:13:55AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 14, 2002 at 03:13:55AM +0200, Trond Myklebust wrote:
+> >>>>> " " == Christian Reis <kiko@async.com.br> writes:
+> 
+>      > Helle there,
+> 
+>      > I've been, for the past days, setting up a fairly big diskless
+>      > network based on Linux. I've chosen to use 2.4.19 as the kernel
+>      > because there were some hardware requirements, and for most of
+>      > the newer boxes, it runs fine. However, for three of the older
+>      > boxes, we have had some pretty odd performance and stability
+>      > issues. This message is about the latest one, which is an ASUS
+>      > P5S-B (has the infamous SIS 530 chipset) on an intel eepro100
+>      > card. Details:
+> 
+> Is all this NFS over UDP? If so, numbers should not really have
+> changed in 2.4.19 ( - yes my patchset changes things, but stock 2.4.19
+> should not be too different w.r.t 2.4.18)
+> 
+> Are you able to determine where in the 2.4.19-pre series the
+> performance dies?
 
-  [I wrote]
-> > sed '/dep_/s/ \$CONFIG_/ CONFIG_/g' is quite effective.  In any
-> > case it is not hard to support both syntaxes - once the transition
-> > is complete,
+Yes, it is over UDP. (Should I try TCP?)
 
-[Greg Banks]
-> Does "complete" mean all the ports have also made the change and
-> been merged back?
+Well, to be honest, I just set the network up, and I only tried two
+kernels: 2.4.19 kosher and 2.4.19 with nfs-all. I haven't experimented
+swapping kernels because I've been a bit singleminded that it's
+something to do with the hardware setup.
 
-Either that, or, Linus gets tired of seeing mixed syntax in his tree,
-does the 'sed' himself, and removes the compatibility parsing.  Linus
-has never been afraid to force the hand of a port maintainer.
-Remember what happened to the old-style Rules.make syntax just before
-2.4 went gold.
+I can try using an older kernel to see if it helps. 2.4.18 is a good
+idea? Let me try and I'll post you back.
 
-Actually I suspect it would be more like the C99 thing: after the new
-syntax is added, we start doing [TRIVIAL] patches to clean out the
-old, and eventually once that is done we have the option of removing
-the old syntax or leaving it in as a known oddity.  I'd favor removing
-it, but people who maintain exarboralities for both 2.4 and 2.6 would
-not thank me.
+(BTW: Your patches *do* solve a problem I have: it makes client nfs
+locking actually work; before them I had some serious issues with
+locking under high network load. Not anymore. The flock() patch is also
+essential for running sendmail on the diskless stations --- before it I
+was forced to use tmpfs for /var/spool/mqueue.)
 
-> I don't think it's good policy to have the $ and non-$ cases
-> behaving differently if we can avoid it.
-
-A good reason to excise the $ case from the tree at first opportunity.
-Sure, it would cause complaints from people getting too many .rejs
-from personal trees.  But dang it, it's just one line of sed.  (Or
-'ed' / 'perl -wpi' for in situ editing, depending on whether or not
-you're Al Viro.)
-
-> I'm more concerned about subtle dependencies on execution order
-> resulting from misuse of conditionals.
-
-Yeah, that's the real reason 'n'!='' is Considered Harmful (and warned
-about in the docs even now).
-
-Peter
+Take care,
+--
+Christian Reis, Senior Engineer, Async Open Source, Brazil.
+http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL

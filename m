@@ -1,77 +1,238 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315286AbSDWR7q>; Tue, 23 Apr 2002 13:59:46 -0400
+	id <S315297AbSDWSCP>; Tue, 23 Apr 2002 14:02:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315289AbSDWR7p>; Tue, 23 Apr 2002 13:59:45 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:31174 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S315286AbSDWR7o>; Tue, 23 Apr 2002 13:59:44 -0400
-Message-ID: <3CC59F98.C82E694B@austin.ibm.com>
-Date: Tue, 23 Apr 2002 12:53:28 -0500
-From: James L Peterson <peterson@austin.ibm.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-31 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: paulus@samba.org
-CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: PowerPC Linux and PCI
-In-Reply-To: <OF8A238806.80D1511C-ON87256B75.00773B75@boulder.ibm.com>
-		<20020307220318.GA4664@haven>
-		<3CC08DFF.787F6E54@austin.ibm.com>
-		<20020419.143839.15920500.davem@redhat.com>
-		<15553.12447.849592.261245@argo.ozlabs.ibm.com>
-		<3CC41AC6.BD8E32E4@austin.ibm.com> <15557.5295.921549.964163@argo.ozlabs.ibm.com>
+	id <S315298AbSDWSCO>; Tue, 23 Apr 2002 14:02:14 -0400
+Received: from [192.82.208.96] ([192.82.208.96]:44459 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S315297AbSDWSCL>;
+	Tue, 23 Apr 2002 14:02:11 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] 2.4.19-pre7 correct inter-directory .h dependencies
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Mon, 22 Apr 2002 18:40:42 +1000
+Message-ID: <1099.1019464842@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras wrote:
+There are three long standing design problems in kbuild 2.4 when
+handling timestamps on header files.  Originally they were not much of
+an issue but recent source changes have made the problems severe enough
+to require fixing.
 
-> > Little-endian dword:
-> >
-> >           3    2      1    0
-> >          80  86    71 11
->
-> So we have byte[0] = 0x11, byte[1] = 0x71, byte[2] = 86, byte[3] =
-> 0x80, right?  If we read individual bytes we will get the same results
-> on a little-endian or a big-endian platform.
->
-> On a little endian platform, pci_read_config_dword will return
-> 0x80867111, since byte 0 is the least-significant byte.  Thus we have
-> vendor id = 0x7111 and device-id = 0x8086.
->
-> On a big-endian platform a 32-bit read will return 0x11718680 (since
-> byte 0 is the most significant byte), and pci_read_config_dword will
-> byte-swap that to 0x80867111.  Thus we once again have vendor id =
-> 0x7111 and device-id = 0x8086.
->
+Some background for those who do not live and breath kbuild code (I
+need a life ;)
 
-Actually, in our case, the first dword was 0x80867111 (little-endian),
-so when we read the first dword, we got 0x80867111 (big-endian),
-since we were reading a dword, not individual bytes. If we read the
-individual bytes, we do get the right bytes, but the PCI subsystem
-returns the same bytes to us for either a little-endian or big-endian
-dword read, since it doesn't know if the processor is big-endian
-or little-endian  (The PowerPC can be both, or different processors
-on the same bus can be different at the same time).
+make dep builds a .depend file in each directory to describe the
+dependencies between source files, headers and config options - in this
+directory.  There is also a global .hdepend that covers all of the
+include directories.  When make recurses into each directory, it reads
+.hdepend plus the local .depend file.  The idea is to detect config
+changes that affect headers and update their timestamps which in turn
+will recompile the sources.
+
+The problems are :-
+
+(1) There is an undocumented assumption that local headers are only
+    used by sources in the same directory.  .depend only changes the
+    timestamps on local files, not on files read from other
+    directories.  .hdepend is meant to catch global headers but more
+    and more subsystems are defining local headers that are accessed
+    from multiple directories.
+
+    Particular examples are scsi.h (accessed from sub directories under
+    drivers/scsi and even from directories completely outside the scsi
+    subtree) and acpi headers (especially now that ia64 has backported
+    the 2.5 acpi code into 2.4).  Any code with #include "../header" or
+    -I ../somedir is being bitten by this problem.
+
+    When a source depends on a header in another directory, you cannot
+    guarantee cross directory timestamp integrity with the current
+    code, especially with parallel make.  Sources are not being
+    recompiled when they should be.  A second (third, fourth) build
+    will usually pick up the files that were skipped the first time,
+    but who does that?  The result is an inconsistent kernel, make
+    mrproper will fix it but that is so Microsoft ...
+
+(2) Nested local headers and local headers that depend on config
+    options may not even be updated when the subordinate files change.
+    make only looks at the targets if there is a chain from .o -> .c ->
+    .h in the same directory as the local header.
+
+    When a subsystem has its own include directory and no sources in
+    that directory, there is nothing to trip the timestamp checks so
+    changes to nested headers or configs are ignored.  2.5 acpi hits
+    this.  Change drivers/acpi/acconfig.h and nothing gets recompiled.
+
+(3) make does not recognise that ../../drivers/scsi/scsi.h and
+    drivers/scsi/scsi.h are the same file (yes, we have source that
+    does that).  This breaks the dependency graph, make does not notice
+    changes until you run the build a second time.
 
 
-> Doesn't the fact that people have been successfully using PCI devices
-> in PowerPC machines since 1995 or 1996 suggest to you that it might be
-> your understanding that is faulty rather than the code? :)
+This patch converts the unreliable per directory fiddling with header
+timestamps into a single global header pass at the start of make
+bzImage modules.  This gets all the header timestamps correct before
+looking at any code.  As a bonus, it reduces the number of compiles on
+the second build run.  mkdep output is standardized to overcome problem
+3.
 
-Well, when you have new hardware, a new compiler (with known bugs),
-and a new processor chip, the fact that it works for others doesn't mean
-that it's right.  It hardly seems wise to assume there are no problems
-left
-in the software.  My original question was "How can this work (since it
-clearly must be working) when it does not appear to be correct?"
-It's not as if the code is clearly documented that it depends upon the
-PCI hardware knowing if it should return big-endian or little-endian
-data.
+Even with this patch, 2.5 (and 2.4 ia64) acpi/include is still a
+problem, changes to nested headers and config options are not detected
+in acpi.  That is due to yet another bug which I will follow up with
+the acpi developers.
 
-jim
+Needless to say, none of this is a problem for kbuild 2.5, all of this
+is a 2.4 problem.
 
-
+Index: 19-pre7.1/scripts/mkdep.c
+--- 19-pre7.1/scripts/mkdep.c Mon, 17 Sep 2001 11:13:57 +1000 kaos (linux-2.4/12_mkdep.c 1.1.2.2 644)
++++ 19-pre7.1(w)/scripts/mkdep.c Mon, 22 Apr 2002 15:25:53 +1000 kaos (linux-2.4/12_mkdep.c 1.1.2.2 644)
+@@ -48,6 +48,8 @@
+ char __depname[512] = "\n\t@touch ";
+ #define depname (__depname+9)
+ int hasdep;
++char cwd[PATH_MAX];
++int lcwd;
+ 
+ struct path_struct {
+ 	int len;
+@@ -202,8 +204,22 @@ void handle_include(int start, const cha
+ 		memcpy(path->buffer+path->len, name, len);
+ 		path->buffer[path->len+len] = '\0';
+ 		if (access(path->buffer, F_OK) == 0) {
++			int l = lcwd + strlen(path->buffer);
++			char name2[l+2], *p;
++			if (path->buffer[0] == '/') {
++				memcpy(name2, path->buffer, l+1);
++			}
++			else {
++				memcpy(name2, cwd, lcwd);
++				name2[lcwd] = '/';
++				memcpy(name2+lcwd+1, path->buffer, path->len+len+1);
++			}
++			while ((p = strstr(name2, "/../"))) {
++				*p = '\0';
++				strcpy(strrchr(name2, '/'), p+3);
++			}
+ 			do_depname();
+-			printf(" \\\n   %s", path->buffer);
++			printf(" \\\n   %s", name2);
+ 			return;
+ 		}
+ 	}
+@@ -585,6 +601,12 @@ int main(int argc, char **argv)
+ 		return 1;
+ 	}
+ 
++	if (!getcwd(cwd, sizeof(cwd))) {
++		fprintf(stderr, "mkdep: getcwd() failed %m\n");
++		return 1;
++	}
++	lcwd = strlen(cwd);
++
+ 	add_path(".");		/* for #include "..." */
+ 
+ 	while (++argv, --argc > 0) {
+Index: 19-pre7.1/Rules.make
+--- 19-pre7.1/Rules.make Tue, 16 Apr 2002 15:54:34 +1000 kaos (linux-2.4/T/c/47_Rules.make 1.1.2.2.3.4 644)
++++ 19-pre7.1(w)/Rules.make Mon, 22 Apr 2002 12:05:39 +1000 kaos (linux-2.4/T/c/47_Rules.make 1.1.2.2.3.4 644)
+@@ -291,10 +291,6 @@ ifneq ($(wildcard .depend),)
+ include .depend
+ endif
+ 
+-ifneq ($(wildcard $(TOPDIR)/.hdepend),)
+-include $(TOPDIR)/.hdepend
+-endif
+-
+ #
+ # Find files whose flags have changed and force recompilation.
+ # For safety, this works in the converse direction:
+Index: 19-pre7.1/Makefile
+--- 19-pre7.1/Makefile Tue, 16 Apr 2002 15:54:34 +1000 kaos (linux-2.4/T/c/50_Makefile 1.1.2.15.1.2.2.25.2.2.1.17.1.4.1.29.1.40.1.21 644)
++++ 19-pre7.1(w)/Makefile Mon, 22 Apr 2002 17:20:00 +1000 kaos (linux-2.4/T/c/50_Makefile 1.1.2.15.1.2.2.25.2.2.1.17.1.4.1.29.1.40.1.21 644)
+@@ -40,10 +40,11 @@ DEPMOD		= /sbin/depmod
+ MODFLAGS	= -DMODULE
+ CFLAGS_KERNEL	=
+ PERL		= perl
++AWK		= awk
+ 
+ export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
+ 	CONFIG_SHELL TOPDIR HPATH HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
+-	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE MAKEFILES GENKSYMS MODFLAGS PERL
++	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE MAKEFILES GENKSYMS MODFLAGS PERL AWK
+ 
+ all:	do-it-all
+ 
+@@ -314,7 +315,7 @@ include/config/MARKER: scripts/split-inc
+ 
+ linuxsubdirs: $(patsubst %, _dir_%, $(SUBDIRS))
+ 
+-$(patsubst %, _dir_%, $(SUBDIRS)) : dummy include/linux/version.h include/config/MARKER
++$(patsubst %, _dir_%, $(SUBDIRS)) : dummy include/linux/version.h .tmp_include_depends
+ 	$(MAKE) CFLAGS="$(CFLAGS) $(CFLAGS_KERNEL)" -C $(patsubst _dir_%, %, $@)
+ 
+ $(TOPDIR)/include/linux/version.h: include/linux/version.h
+@@ -350,13 +351,13 @@ include/linux/version.h: ./Makefile
+ 
+ comma	:= ,
+ 
+-init/version.o: init/version.c include/linux/compile.h include/config/MARKER
++init/version.o: init/version.c include/linux/compile.h .tmp_include_depends
+ 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) -DUTS_MACHINE='"$(ARCH)"' -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o init/version.o init/version.c
+ 
+-init/main.o: init/main.c include/config/MARKER
++init/main.o: init/main.c .tmp_include_depends
+ 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $*.o $<
+ 
+-init/do_mounts.o: init/do_mounts.c include/config/MARKER
++init/do_mounts.o: init/do_mounts.c .tmp_include_depends
+ 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $*.o $<
+ 
+ fs lib mm ipc kernel drivers net: dummy
+@@ -383,7 +384,7 @@ endif
+ modules: $(patsubst %, _mod_%, $(SUBDIRS))
+ 
+ .PHONY: $(patsubst %, _mod_%, $(SUBDIRS))
+-$(patsubst %, _mod_%, $(SUBDIRS)) : include/linux/version.h include/config/MARKER
++$(patsubst %, _mod_%, $(SUBDIRS)) : include/linux/version.h .tmp_include_depends
+ 	$(MAKE) -C $(patsubst _mod_%, %, $@) CFLAGS="$(CFLAGS) $(MODFLAGS)" MAKING_MODULES=1 modules
+ 
+ .PHONY: modules_install
+@@ -488,6 +489,13 @@ dep-files: scripts/mkdep archdep include
+ ifdef CONFIG_MODVERSIONS
+ 	$(MAKE) update-modverfile
+ endif
++	(find $(TOPDIR) \( -name .depend -o -name .hdepend \) -print | xargs $(AWK) -f scripts/include_deps) > .tmp_include_depends
++	sed -ne 's/^\([^ ].*\):.*/  \1 \\/p' .tmp_include_depends > .tmp_include_depends_1
++	(echo ""; echo "all: \\"; cat .tmp_include_depends_1; echo "") >> .tmp_include_depends
++	rm .tmp_include_depends_1
++
++.tmp_include_depends: include/config/MARKER dummy
++	$(MAKE) -r -f .tmp_include_depends all
+ 
+ ifdef CONFIG_MODVERSIONS
+ MODVERFILE := $(TOPDIR)/include/linux/modversions.h
+Index: 19-pre7.1/scripts/include_deps
+--- 19-pre7.1/scripts/include_deps Mon, 22 Apr 2002 17:51:33 +1000 kaos ()
++++ 19-pre7.1(w)/scripts/include_deps Mon, 22 Apr 2002 15:27:08 +1000 kaos (linux-2.4/s/g/34_include_de  644)
+@@ -0,0 +1,15 @@
++# Read the .depend files, extract the dependencies for .h targets, convert
++# relative names to absolute and write the result to stdout.  It is part of
++# building the global .h dependency graph for kbuild 2.4.  KAO
++
++/^[^ 	]/		{ copy = 0; fn = "/error/"; }
++/^[^ 	][^ ]*\.h:/	{ copy = 1; fn = FILENAME; sub(/\.depend/, "", fn); }
++!copy			{ next; }
++			{
++			  indent = $0; sub(/[^ 	].*/, "", indent);
++			  if ($1 != "" && $1 !~ /^[@$\/\\]/) { $1 = fn $1 };
++			  if ($2 != "" && $2 !~ /^[@$\/\\]/) { $2 = fn $2 };
++			  $1 = $1;	# ensure $0 is rebuilt
++			  $0 = indent $0;
++			  print;
++			}
 

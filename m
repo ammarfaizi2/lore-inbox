@@ -1,60 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263697AbUAYFbI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 00:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbUAYFbI
+	id S263618AbUAYF0X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 00:26:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbUAYF0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 00:31:08 -0500
-Received: from colo.lackof.org ([198.49.126.79]:22247 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S263646AbUAYFbD (ORCPT
+	Sun, 25 Jan 2004 00:26:23 -0500
+Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.224]:40947 "EHLO
+	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S263618AbUAYF0V convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 00:31:03 -0500
-Date: Sat, 24 Jan 2004 22:31:01 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH] 2.6.1 tg3 DMA engine test failure
-Message-ID: <20040125053101.GA19244@colo.lackof.org>
-References: <20040124013614.GB1310@colo.lackof.org> <20040123.210023.74723544.davem@redhat.com> <20040124073032.GA7265@colo.lackof.org> <20040123.233241.59493446.davem@redhat.com> <4012E071.2080704@pobox.com> <20040125014859.GD16272@colo.lackof.org> <40132199.9090200@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40132199.9090200@pobox.com>
-User-Agent: Mutt/1.3.28i
-X-Home-Page: http://www.parisc-linux.org/
+	Sun, 25 Jan 2004 00:26:21 -0500
+Date: Sun, 25 Jan 2004 00:26:26 -0500
+From: Huw Rogers <count0@localnet.com>
+To: linux-kernel@vger.kernel.org, linux-laptop@mobilix.org
+Subject: 2.6.2-rc1 / ACPI sleep / irqbalance / kirqd / pentium 4 HT problems on Uniwill N258SA0
+Message-Id: <20040124233749.5637.COUNT0@localnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Becky! ver. 2.07.04 [en]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 24, 2004 at 08:53:29PM -0500, Jeff Garzik wrote:
-> Hey, feel free to address as many issues as you would like!  :)
+Uniwill N258SA0 (http://www.uniwill.com/Product/N258SA0/N258SA0.html) aka
+Hypersonic Aviator NX6, Fujitsu-Siemens AMILO D 1840 Widescreen, etc.).
+SiS 648FX chipset, SiS 900 Ethercard, AMI BIOS, ATI  AV350/M10 128Mb.
+My machine: Hyperthreaded P4 2.8GHz, .5Gb PC3200 RAM.
 
-:^)
+Installed Fedora. Upgraded to 2.6.2-rc1 per
+http://thomer.com/linux/migrate-to-2.6.html.
 
-I'll try to keep it at "One at a Time".
-I muddy the waters enough as it is.
+Applied kernel patches:
+- SiS AGP (http://lkml.org/lkml/2004/1/20/233)
+  (needed to run ATI's 3.7 fglrx drivers on the SiS/M10 combo)
+- ACPI 20031203 (http://acpi.sourceforge.net/)
 
+All good, but ACPI sleep doesn't work and neither does userland IRQ
+balancing with Arjan's irqbalance (http://people.redhat.com/arjanv/irqbalance/),
+a standard part of the Fedora install.
 
-> >BTW, next on the horizon is removing FTQ reset.
-> >I'm told the FTQ reset is NOT performed by the Tru64 (Alpha/Unix) driver
-> >and Broadcom is testing that with the next release of bcm5700 now.
-> 
-> We just went through this with Broadcom, when David applied fixes 
-> related to ASF...  rather than what Broadcom is _testing_, though, I'm 
-> more interested to know if GRC resets FTQ's according to the hardware 
-> engineers?
+irqbalance just locks up the machine totally, hard power-off needed, no
+traces in the logs. Probably some issue (race?) with it writing to
+/proc/irq/X/smp_affinity. And how is irqbalance supposed to play with
+kirqd anyway? Grepping this list and others doesn't give any kind of an
+answer. But disabling it gives all interrupts to cpu0 (looking at
+/proc/interrupts). kirqd apparently only balances between CPU packages,
+not between HT siblings (info gleaned from this list).
 
-email from "Wed Jan 21" says:
-"FTQ stands for Flow Through Queue and they are used to connect different
-state machines. It turns out that it should also be unnecessary to reset
-the FTQs as they get reset during GRC reset. While the FTQ reset itself
-is harmless, we recently discovered that it created a race condition
-with ASF firmware...."
+Anyway, sleep/suspend/standby functionality (important to most laptop
+users, need to close the lid and go): This checkin to
+kernel/power/main.c seems to disable suspend with SMP (!?):
 
-I don't know more than that. "should also" probably isn't as
-conclusive as you would like and it's now third hand.
-But you probably know who to ask at Broadcom...
+--- 1.3/kernel/power/main.c	Sat Jan 24 20:44:47 2004
++++ 1.4/kernel/power/main.c	Sat Jan 24 20:44:47 2004
+@@ -172,6 +172,12 @@
+ 	if (down_trylock(&pm_sem))
+ 		return -EBUSY;
+ 
++	/* Suspend is hard to get right on SMP. */
++	if (num_online_cpus() != 1) {
++		error = -EPERM;
++		goto Unlock;
++	}
++
+ 	if ((error = suspend_prepare(state)))
+ 		goto Unlock;
 
-hth,
-grant
+... which, given the prevalence of hyperthreaded CPUs on laptops, is
+fighting a trend. I backed out the above with a #if 0 then tried echo -n
+1>/proc/acpi/sleep again. This time I got:
+
+Stopping tasks: ===================================================================
+ stopping tasks failed (1 tasks remaining)
+Restarting tasks...<6> Strange, kirqd not stopped
+ done
+
+kirqd just wouldn't stop.
+
+Tried booting with acpi=off and apm=smp to force APM, then ran
+apm --suspend, but it put the machine into a LCD blanked state it
+couldn't get out of without another hard power cycle.
+
+Questions: Why does irqbalance lock up the machine and how is it
+supposed to collaborate with kirqd? How is ACPI suspend supposed to work
+on any recent laptop if SMP is barred? Why doesn't kirqd stop when asked
+to by ACPI suspend once that restriction is bypassed?
+
+A lot of effort is going into swsusp/pmdisk - but a lot of laptop users
+prefer S1 to S4, as it's faster and more reliable. It'd be nice to see a
+simpler "spin down the hard drive, reduce CPU clock speed to a minimum,
+and power down display/ether/wireless/usb/PCMCIA" working ahead of
+hibernation.
+

@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263372AbTDVTRk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 15:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbTDVTRj
+	id S263369AbTDVTQr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 15:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263372AbTDVTQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 15:17:39 -0400
-Received: from home.linuxhacker.ru ([194.67.236.68]:62359 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S263372AbTDVTRh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 15:17:37 -0400
-Date: Tue, 22 Apr 2003 23:29:05 +0400
-From: Oleg Drokin <green@linuxhacker.ru>
-To: alan@redhat.com, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: [2.4] Memleak in Essential RoadRunner HIPPI board driver (resend)
-Message-ID: <20030422192905.GA7293@linuxhacker.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 22 Apr 2003 15:16:47 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:58785 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S263369AbTDVTQq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 15:16:46 -0400
+Message-ID: <3EA59949.6040104@free.fr>
+Date: Tue, 22 Apr 2003 21:34:33 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc1 : aic7xxx deadlock on boot on my machine
+References: <3EA4FF4C.2030702@free.fr>	 <200304221036.19274.m.c.p@wolk-project.de> <1051020692.14881.12.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1051020692.14881.12.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Alan Cox wrote:
+> On Maw, 2003-04-22 at 09:36, Marc-Christian Petersen wrote:
+> 
+>>>So I hope, it will be updated in rc2...
+>>
+>>I'll _bet_ that the new well good code from Justin won't make it into 2.4 
+>>earlier than 2.4.22-pre1.
+> 
+> 
+> Its not the good code that worries me - its what bits of it turn out to
+> be buggy
 
-  I got no reply on the first try. Also the patch is not present neither
-  in current 2.4 bk nor in 2.4.21-pre7-ac2, so I am resending.
+On the other hand, probably mainy/every server with  dual scsi cards 
+(one for 160 Mbps and other for slow devices as tape, cdrom, ...) will 
+probably not boot with actual good blessed code :-)
 
------ Forwarded message from Oleg Drokin <green@linuxhacker.ru> -----
+Never mind :
+	1) I have warned and done my debugging duty by sending a kdbg backtrace,
+	2) I suggested a possible fix,
+	3) I have a solution for myself,
 
-Date: Wed, 12 Mar 2003 22:08:46 +0300
-From: Oleg Drokin <green@linuxhacker.ru>
-To: alan@redhat.com, linux-kernel@vger.kernel.org, Jes.Sorensen@cern.ch
-Subject: [2.4] Memleak in Essential RoadRunner HIPPI board driver
-User-Agent: Mutt/1.4i
 
-Hello!
 
-   There is memleak on error exit path. Seems there was some confusion
-   in the mind of whoever added that zeroing statement.
-   The patch is trivial, 2.5 is not affected.
-   Found with help of smatch + enhanced unfree script
+-- 
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
 
-Bye,
-    Oleg
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
 
-===== drivers/net/rrunner.c 1.6 vs edited =====
---- 1.6/drivers/net/rrunner.c	Thu Feb 28 16:57:24 2002
-+++ edited/drivers/net/rrunner.c	Wed Mar 12 22:05:15 2003
-@@ -1216,7 +1216,6 @@
- 
- 	rrpriv->info = kmalloc(sizeof(struct rr_info), GFP_KERNEL);
- 	if (!rrpriv->info){
--		rrpriv->rx_ctrl = NULL;
- 		ecode = -ENOMEM;
- 		goto error;
- 	}
-
------ End forwarded message -----

@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286654AbRL1BgW>; Thu, 27 Dec 2001 20:36:22 -0500
+	id <S286662AbRL1Bhw>; Thu, 27 Dec 2001 20:37:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286653AbRL1BgO>; Thu, 27 Dec 2001 20:36:14 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:54278 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S286649AbRL1BgD>;
-	Thu, 27 Dec 2001 20:36:03 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Larry McVoy <lm@bitmover.com>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, Dave Jones <davej@suse.de>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>,
+	id <S286660AbRL1Bhh>; Thu, 27 Dec 2001 20:37:37 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:3728 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S286649AbRL1BhW>; Thu, 27 Dec 2001 20:37:22 -0500
+Date: Thu, 27 Dec 2001 18:36:54 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Dave Jones <davej@suse.de>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>,
         Linus Torvalds <torvalds@transmeta.com>,
         Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: State of the new config & build system 
-In-Reply-To: Your message of "Thu, 27 Dec 2001 17:15:45 -0800."
-             <20011227171545.T25698@work.bitmover.com> 
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: State of the new config & build system
+Message-ID: <20011228013654.GK712@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20011227195738.A26889@thyrsus.com> <Pine.LNX.4.33.0112280219090.18346-100000@Appserv.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 28 Dec 2001 12:35:50 +1100
-Message-ID: <18619.1009503350@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0112280219090.18346-100000@Appserv.suse.de>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001 17:15:45 -0800, 
-Larry McVoy <lm@bitmover.com> wrote:
->[talking about kbuild 2.5 speed]
->Then it does seem reasonable to ask that the new one is at least as fast
->as the old one.
+On Fri, Dec 28, 2001 at 02:22:01AM +0100, Dave Jones wrote:
+> On Thu, 27 Dec 2001, Eric S. Raymond wrote:
+> 
+> > That is such an unutterably horrible concept that the very tentacles
+> > of Cthulhu himself must twitch in dread at the thought.  The last thing
+> > anyone sane wants to do is have to maintain two parallel build systems
+> > at the same time.
+> 
+> Funny, I could have sworn I read this was Keith's intention at least
+> for a few pre's. Maybe I misinterpreted his intentions.
 
-kbuild 2.4 is fast but inaccurate, kbuild 2.5 is slower but accurate.
-Pick one.
+I think Keith wanted a very small time window tho (~24 hrs, barring big
+supprises).  But if we're going to be worried about the build time,
+kbuild-2.5 and cml2 aren't co-dependant, yes?  I know kbuild-2.5 works
+w/o cml2, and last I tried (ages ago admitedly) cml2 didn't need
+kbuild-2.5.  So we could, in theory dump cml1 quickly but leave the old
+Makefiles for a bit longer.  Or if Keith thinks he can start on the
+speed problems soon, just plod along for a few releases. :)
 
-I am sure that I can speed up kbuild 2.5 with a rewrite of the core
-code but I am staying on stable code to send to Linus.
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

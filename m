@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318133AbSG2Xlf>; Mon, 29 Jul 2002 19:41:35 -0400
+	id <S318140AbSG2Xmp>; Mon, 29 Jul 2002 19:42:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318138AbSG2Xlf>; Mon, 29 Jul 2002 19:41:35 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:18464 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S318133AbSG2Xle>; Mon, 29 Jul 2002 19:41:34 -0400
-Date: Tue, 30 Jul 2002 01:45:58 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Theurer <habanero@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Linux 2.4.19-rc3 (hyperthreading)
-Message-ID: <20020729234558.GM1201@dualathlon.random>
-References: <200207291454.30076.habanero@us.ibm.com> <1027978122.4050.22.camel@irongate.swansea.linux.org.uk> <20020729203840.GA1201@dualathlon.random>
+	id <S318141AbSG2Xmp>; Mon, 29 Jul 2002 19:42:45 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:501 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S318140AbSG2Xmo>; Mon, 29 Jul 2002 19:42:44 -0400
+Date: Mon, 29 Jul 2002 17:44:10 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Jan Hudec <bulb@ucw.cz>, linux-fsdevel@sd3.mailbank.com,
+       linux-kernel@vger.kernel.org, "Peter J. Braam" <braam@clusterfs.com>
+Subject: Re: Race in open(O_CREAT|O_EXCL) and network filesystem
+Message-ID: <20020729234410.GD3077@clusterfs.com>
+Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
+	Jan Hudec <bulb@ucw.cz>, linux-fsdevel@sd3.mailbank.com,
+	linux-kernel@vger.kernel.org,
+	"Peter J. Braam" <braam@clusterfs.com>
+References: <20020728165256.GA4631@vagabond> <15685.11287.43065.570783@notabene.cse.unsw.edu.au> <20020729150211.GC3077@clusterfs.com> <15685.51699.423140.374908@notabene.cse.unsw.edu.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020729203840.GA1201@dualathlon.random>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <15685.51699.423140.374908@notabene.cse.unsw.edu.au>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29, 2002 at 10:38:40PM +0200, Andrea Arcangeli wrote:
-> On Mon, Jul 29, 2002 at 10:28:42PM +0100, Alan Cox wrote:
-> > On Mon, 2002-07-29 at 20:54, Andrew Theurer wrote:
-> > > I would caution against having hyperthreading on by default in the 2.4.19 
-> > > release.  I am seeing a significant degrade in network workloads on P4 with 
-> > > hyperthreading on.  On 2.4.19-pre10, I get 788 Mbps on NetBench, but on 
-> > > 2.4.19-rc1 (and probably rc3, should know in an hour), I get 690 Mbps.  It is 
-> > > clearly a hyperthreading/interrupt routing issue.  On this system (4 x P4), 
-> > 
-> > Quite possibly. I've just merged the O(1) scheduler load balancing fixes
-> > for the hyperthreading stuff, rc3 uses the old scheduler so that isnt
+On Jul 30, 2002  09:04 +1000, Neil Brown wrote:
+> On Monday July 29, adilger@clusterfs.com wrote:
+> > The intent-based lookup code is available as part of the Lustre CVS.
+> > See lustre/patches/patch-2.4.18 at the SF lustre project.  There are
+> > a couple of other changes in the patch that are unrelated to intents,
+> > but those are fairly obvious (i.e. ext3/jbd changes, some exports, etc).
 > 
-> btw, please make sure to merge my patch, the original one had several
-> severe bugs.
+> Thanks.  I've found it.  I might have a read through some time.
+> Is there any plan (or likelyhood) for this getting into 2.5?
 
-and the new one had a bug too :). Please merge the fix I posted to l-k
-too thanks.
+Well, we plan to submit it for 2.5, but no work has been done in that
+direction yet.  I believe Peter has an agreement-in-principle with Al
+on this, but I don't think Al has seen the code yet.  We want to make
+sure that we don't need any major changes before it is submit it.  So
+far the current patch is working well for us.
 
-Andrea
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
+

@@ -1,84 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbUAaLlH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 06:41:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUAaLlH
+	id S264538AbUAaLmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 06:42:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbUAaLmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 06:41:07 -0500
-Received: from spc1-leed3-6-0-cust58.leed.broadband.ntl.com ([80.7.68.58]:3062
-	"EHLO arthur.pjc.net") by vger.kernel.org with ESMTP
-	id S264537AbUAaLlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 06:41:03 -0500
-Date: Sat, 31 Jan 2004 11:41:01 +0000
-From: Patrick Caulfield <pcaulfie@redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Steve@ChyGwyn.com
-Subject: Re: [PATCH] 1/2 DECnet fix SDF_WILD
-Message-ID: <20040131114101.GA3224@tykepenguin.com>
-References: <20040126113106.GB21366@tykepenguin.com> <20040130124348.40c5c014.davem@redhat.com>
+	Sat, 31 Jan 2004 06:42:24 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:14976 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264538AbUAaLmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 06:42:22 -0500
+Date: Thu, 22 Jan 2004 21:43:48 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michael Frank <mhf@linuxmail.org>
+Subject: Re: swusp acpi
+Message-ID: <20040122204348.GA1327@openzaurus.ucw.cz>
+References: <200401211143.51585.tuxakka@yahoo.co.uk> <20040122003212.GC300@elf.ucw.cz> <1074735908.1405.85.camel@laptop-linux> <20040122101555.GA200@elf.ucw.cz> <20040122102254.A17786@flint.arm.linux.org.uk> <20040122102655.GC200@elf.ucw.cz> <1074794904.12773.72.camel@laptop-linux>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="PNTmBPCT7hxwcZjr"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040130124348.40c5c014.davem@redhat.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <1074794904.12773.72.camel@laptop-linux>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
+> Michael Frank has done a patch giving 2.4 PM support for serial ports
+> (my serial console now works flawlessly). Perhaps it could be ported to
+> 2.6 and the driver model...
 
-On Fri, Jan 30, 2004 at 12:43:48PM -0800, David S. Miller wrote:
-> On Mon, 26 Jan 2004 11:31:06 +0000
-> Patrick Caulfield <patrick@tykepenguin.com> wrote:
+That would certainly be good thing (tm).
+
 > 
-> > This patch fixes the operation of SDF_WILD sockets on Linux 2.6.0/1
-> > (they don't currently work at all).
+> Nigel
 > 
-> Please resubmit your patches as attachments or somehow otherwise
-> teach your email client not to turn tabs into spaces as this corrupts
-> your patches.
+> On Thu, 2004-01-22 at 23:26, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > Not only serial console... Noone wrote serial port support.
+> > > 
+> > > Incorrect.  I never merged the changes because it's rather too hacky.
+> > 
+> > Who wrote them? Do you have that patch somewhere?
+> > 								Pavel
+> -- 
+> My work on Software Suspend is graciously brought to you by
+> LinuxFund.org.
 
-Sorry about that. Here are both patches attached (and in -p1 format this time
-too)
-
-patrick
 
 
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: attachment; filename=decnet-patch1
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-diff -u linux-2.6.1.orig/net/decnet/af_decnet.c linux-2.6.1/net/decnet/af_decnet.c
---- linux-2.6.1.orig/net/decnet/af_decnet.c	2004-01-31 11:33:22.000000000 +0000
-+++ linux-2.6.1/net/decnet/af_decnet.c	2004-01-31 11:34:30.000000000 +0000
-@@ -163,7 +163,7 @@
- 	struct dn_scp *scp = DN_SK(sk);
- 
- 	if (scp->addr.sdn_flags & SDF_WILD)
--		return hlist_empty(&dn_wild_sk) ? NULL : &dn_wild_sk;
-+		return hlist_empty(&dn_wild_sk) ? &dn_wild_sk : NULL;
- 
- 	return &dn_sk_hash[scp->addrloc & DN_SK_HASH_MASK];
- }
-
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: attachment; filename=decnet-patch2
-
-diff -u linux-2.6.1.orig/net/decnet/dn_route.c linux-2.6.1/net/decnet/dn_route.c
---- linux-2.6.1.orig/net/decnet/dn_route.c	2003-12-18 02:59:42.000000000 +0000
-+++ linux-2.6.1/net/decnet/dn_route.c	2004-01-31 11:34:38.000000000 +0000
-@@ -1720,7 +1720,8 @@
- 
- static void dn_rt_cache_seq_stop(struct seq_file *seq, void *v)
- {
--	rcu_read_unlock();
-+	if (v)
-+		rcu_read_unlock();
- }
- 
- static int dn_rt_cache_seq_show(struct seq_file *seq, void *v)
-
---PNTmBPCT7hxwcZjr--

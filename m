@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263800AbUECRGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263798AbUECRMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263800AbUECRGg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 13:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbUECRGg
+	id S263798AbUECRMc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 13:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263799AbUECRMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 13:06:36 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:39086 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S263800AbUECRGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 13:06:34 -0400
-Message-ID: <40967C3C.9040108@namesys.com>
-Date: Mon, 03 May 2004 10:07:08 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steve Lord <lord@xfs.org>
-CC: Justin Piszcz <jpiszcz@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Journaling File Sstem Question
-References: <BAY18-F4FXfyY0QUUBP00002758@hotmail.com> <4095B242.2060001@xfs.org>
-In-Reply-To: <4095B242.2060001@xfs.org>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 3 May 2004 13:12:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61369 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263798AbUECRMa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 13:12:30 -0400
+Date: Mon, 3 May 2004 10:05:07 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: rusty@rustcorp.com.au, zwane@arm.linux.org.uk, ak@suse.de
+Subject: missing last symbol in /proc/kallsyms
+Message-Id: <20040503100507.4e6b9d86.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Lord wrote:
+(2.6.5)
 
-> Justin Piszcz wrote:
->
->> Concerning JFS vs REISERFS vs XFS...
->>
->> Which would one use for stability?
->>
->> I realize XFS has been in use probably longer than the other two on 
->> SGI's, but in Linux it was only recently merged into the 2.4.xx kernel.
->>
->> However, ReiserFS has been in the 2.4 kernel since the early 2.4.x 
->> series, JFS on the other hand is somewhere in the middle.
->
->
-> XFS was out there for a couple of years before it was merged. XFS was
-> out there before reiserfs was merged, we first released against 2.3.43
-> from my memory.
+I want to see _einittext as the last (non-module) symbol in
+/proc/kallsyms.
 
-Sorry to quibble, but ReiserFS was out there from before ReiserFS was 
-merged also...;-) and well before 2.3.43....
+_einittext should be the last kernel image symbol listed in
+/proc/kallsyms AFAICT (just before module symbols begin).
 
->
-> There is a timeline here:
->
-> http://oss.sgi.com/projects/xfs/news.html
->
-> XFS went a lot of places before it went into the 2.4 kernel, it has been
-> in 2.6 for over a year for starters.
+It (_einittext) is the last symbol listed in my
+.tmp_kallsyms2.S file, but for some reason, it's not listed
+in /proc/kallsyms.  I've beat my head on it for a little
+while, so I'm hoping that someone else can see the problem.
+(Zwane has also looked at it a bit.)
 
-XFS is a great filesystem.
+I modified scripts/kallsyms.c to print one more symbol at the
+end of its list and to increase kallsyms_num_syms by 1, and
+that does enable _einittext to be printed in /proc/kallsyms
+(and the added symbol is not printed).
+
+Without that change, the end of my /proc/kallsyms file contains:
+c04e71d0 t af_unix_init
+c04e7260 t packet_init
+
+and the end of the corresponding .tmp_kallsyms2.S file contains:
+        .byte 0x00
+        .asciz  "af_unix_init"
+        .byte 0x00
+        .asciz  "packet_init"
+        .byte 0x00
+        .asciz  "_einittext"
+
+Where is the off-by-1?  I want my _einittext.
+
+--
+~Randy
+(Again.  Sometimes I think ln -s /usr/src/linux/.config .signature) -- akpm

@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVBKMCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVBKMJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbVBKMCW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 07:02:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVBKMCW
+	id S262125AbVBKMJw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 07:09:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbVBKMJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 07:02:22 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:35847 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262122AbVBKMCT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 07:02:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=TchAqgFAalbQMVk03j2LeBSQYijRkTr2J16wcJbqzBk6m86aCwm1QzVf5LUfZQPL1P+NpeDpHguAdN4TqKpGR1orJeVoMSHllpqdvMWj+eMNIfB3q0v180ABDW9PQ6SwPeuQfzGo225BS6Q1BVTDj6CvsPwO6QyByXAVZ1v/mak=
-Message-ID: <84144f02050211040253e33dab@mail.gmail.com>
-Date: Fri, 11 Feb 2005 14:02:19 +0200
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Stelian Pop <stelian@popies.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
-       Jean Delvare <khali@linux-fr.org>, Pekka Enberg <penberg@gmail.com>
-Subject: Re: [PATCH, new ACPI driver] new sony_acpi driver
-In-Reply-To: <20050211113636.GI3263@crusoe.alcove-fr>
+	Fri, 11 Feb 2005 07:09:52 -0500
+Received: from B3114.karlshof.wh.tu-darmstadt.de ([130.83.219.14]:30366 "HELO
+	B3114.karlshof.wh.tu-darmstadt.de") by vger.kernel.org with SMTP
+	id S262125AbVBKMJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 07:09:50 -0500
+Subject: Re: [linux-dvb-maintainer] DVB at76c651.c driver seems to be dead
+	code
+From: Andreas Oberritter <obi@linuxtv.org>
+To: Holger Waechtler <holger@qanu.de>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-dvb-maintainer@linuxtv.org,
+       linux-kernel@vger.kernel.org, Linux-dvb <Linux-dvb@linuxtv.org>
+In-Reply-To: <420C7C83.4070309@qanu.de>
+References: <20050210235605.GN2958@stusta.de>  <420C7C83.4070309@qanu.de>
+Content-Type: text/plain
+Date: Fri, 11 Feb 2005 13:11:08 +0100
+Message-Id: <1108123869.3535.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-References: <20050210161809.GK3493@crusoe.alcove-fr>
-	 <20050211113636.GI3263@crusoe.alcove-fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Feb 2005 12:36:37 +0100, Stelian Pop <stelian@popies.net> wrote:
-> +static int __init sony_acpi_add(struct acpi_device *device)
-> +{
-> +       acpi_status status = AE_OK;
-> +       struct sony_snc *snc = NULL;
-> +       int result;
-> +
-> +       snc = kmalloc(sizeof(struct sony_snc), GFP_KERNEL);
-> +       if (!snc)
-> +               return -ENOMEM;
-> +       memset(snc, 0, sizeof(struct sony_snc));
+On Fri, 2005-02-11 at 10:36 +0100, Holger Waechtler wrote:
+> Adrian Bunk wrote:
+> 
+> >I didn't find any way how the drivers/media/dvb/frontends/at76c651.c 
+> >driver would do anything inside kernel 2.6.11-rc3-mm2. All it does is to 
+> >EXPORT_SYMBOL a function at76c651_attach that isn't used anywhere.
+> >
+> >Is a patch to remove this driver OK or did I miss anything?
+> >  
+> >
+> 
+> no, please let it there. This driver is the GPL'd part of the dbox2 
+> driver which is not part of the official kernel tree.
 
-Nitpick: use kcalloc() instead of kmalloc() and memset().
+(Actually all dbox2 drivers are GPL-licensed, you can get them at
+cvs.tuxbox.org)
 
-                                 Pekka
+> Since frontend and demod drivers are reusable elsewhere and mainstream 
+> hardware that makes use of this demodulator may show up every week it's 
+> just stupid to remove this code as long we know it is working and 
+> continously tested by the dbox2 folks.
+> 
+> Instead it may make sense to move the dbox2 sources into the mainstream 
+> source tree. Andreas, what do you think?
+
+It has been a long term goal since months, but I don't have the time for
+it now. We are still waiting for mpc8xx to become stable in 2.6.
+
+Regards,
+Andreas
+

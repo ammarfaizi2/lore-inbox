@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbTDMVne (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 17:43:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTDMVne (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 17:43:34 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:39690
+	id S262001AbTDMVpa (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 17:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTDMVpa (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 17:45:30 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:44554
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S261899AbTDMVnd 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 17:43:33 -0400
+	with ESMTP id S262001AbTDMVp3 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 17:45:29 -0400
 Subject: Re: Preempt on PowerPC/SMP appears to leak memory
 From: Robert Love <rml@tech9.net>
 To: David Brown <dave@codewhore.org>
@@ -15,25 +15,25 @@ In-Reply-To: <20030412152951.GA10367@codewhore.org>
 References: <20030412152951.GA10367@codewhore.org>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1050270927.767.4.camel@localhost>
+Message-Id: <1050271044.767.7.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 13 Apr 2003 17:55:27 -0400
+Date: 13 Apr 2003 17:57:24 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sat, 2003-04-12 at 11:29, David Brown wrote:
 
-> Before I debug/trace any further, I'm curious as to whether or not
-> preempt is known to work on PowerPC in SMP mode. If it's supposed to,
-> I'd be happy to capture any data that may help.
+> I recently applied the preempt-kernel-rml-2.4.21-pre1-1.patch from
+> kernel.org to BenH's stable tree from rsync.penguinppc.org.
 
-It should work OK.  The memory leak is certainly unexpected.
+Oh, one other thing.  An updated patch for 2.4.20 is up:
 
-Someone else has reported a similar leak on x86... so you are not
-alone.  It might be a bug in the 2.4.20 kernel itself.  Think you can
-track down what is leaking?
+http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/preempt-kernel-rml-2.4.20-2.patch
+
+It has a couple fixes for proper protection of per-CPU data, including
+some PPC-specific ones.
 
 	Robert Love
 

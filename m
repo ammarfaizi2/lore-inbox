@@ -1,87 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268288AbTBMUsP>; Thu, 13 Feb 2003 15:48:15 -0500
+	id <S268285AbTBMUu2>; Thu, 13 Feb 2003 15:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268289AbTBMUsP>; Thu, 13 Feb 2003 15:48:15 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:900 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S268288AbTBMUsO>; Thu, 13 Feb 2003 15:48:14 -0500
-Message-Id: <200302132057.h1DKvxFT010317@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6 02/09/2003 with nmh-1.0.4+dev
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 352] New: Unneccessary includes of linux/version.h 
-In-Reply-To: Your message of "Thu, 13 Feb 2003 12:13:08 PST."
-             <23800000.1045167188@[10.10.2.4]> 
-From: Valdis.Kletnieks@vt.edu
-References: <23800000.1045167188@[10.10.2.4]>
+	id <S268289AbTBMUu2>; Thu, 13 Feb 2003 15:50:28 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:29854 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S268285AbTBMUu0>;
+	Thu, 13 Feb 2003 15:50:26 -0500
+Date: Thu, 13 Feb 2003 20:56:08 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.60-bk pdflush oops.
+Message-ID: <20030213205608.GB24109@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1875858588P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 13 Feb 2003 15:57:59 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1875858588P
-Content-Type: text/plain; charset=us-ascii
+Bitkeeper pull from ~5 hrs ago.
 
-On Thu, 13 Feb 2003 12:13:08 PST, "Martin J. Bligh" <mbligh@aracnet.com>  said:
+Something went splat just after booting.
+I think this may have happened as I mounted an NFS mount.
+Hard to tell, but the box booted at 20:30, this happened
+at 20:37, and I started NFS testing at 20:40 which was
+when I noticed it.
 
-> There appears to be a large number of kernel files (267) that #include 
-> <linux/version.h>, but do not use any of the three things defined in it.
-> This  causes these files to be needlessly(I think) recompiled during a
-> kernel rebuild  if only the version.h file changes. Would a patch to remove
-> these extra  includes be accepted? 
-> 
-> Here is the list (generated with a script, so it could be wrong..)
+Feb 13 20:37:41 mesh kernel:  printing eip:
+Feb 13 20:37:41 mesh kernel: c012e276
+Feb 13 20:37:41 mesh kernel: Oops: 0002
+Feb 13 20:37:41 mesh kernel: CPU:    0
+Feb 13 20:37:41 mesh kernel: EIP:    0060:[<c012e276>]    Not tainted
+Feb 13 20:37:41 mesh kernel: EFLAGS: 00010046
+Feb 13 20:37:41 mesh kernel: EIP is at mod_timer+0x96/0x7e0
+Feb 13 20:37:41 mesh kernel: eax: 00000000   ebx: c0147440   ecx: 00000007   edx: 00001388
+Feb 13 20:37:41 mesh kernel: esi: 850fc085   edi: c06436c0   ebp: c11c7ed0   esp: c11c7ea0
+Feb 13 20:37:41 mesh kernel: ds: 007b   es: 007b   ss: 0068
+Feb 13 20:37:41 mesh kernel: Process pdflush (pid: 5, threadinfo=c11c6000 task=c113d980)
+Feb 13 20:37:41 mesh kernel: Stack: c11c7ec0 c0146229 c11c7f04 00000000 00000080 c0147320 c11c7ee4 00000000 
+Feb 13 20:37:41 mesh kernel:        00000297 000733cf c11c7ee4 00000000 c11c7f90 c0147426 c06436c0 000733cf 
+Feb 13 20:37:41 mesh kernel:        0006ab17 00000000 00000000 c11c7ee0 00000000 00000001 00000000 00000001 
+Feb 13 20:37:41 mesh kernel: Call Trace:
+Feb 13 20:37:41 mesh kernel:  [<c0146229>] __get_page_state+0x29/0x90
+Feb 13 20:37:41 mesh kernel:  [<c0147320>] wb_kupdate+0x0/0x120
+Feb 13 20:37:41 mesh kernel:  [<c0147426>] wb_kupdate+0x106/0x120
+Feb 13 20:37:41 mesh kernel:  [<c0147320>] wb_kupdate+0x0/0x120
+Feb 13 20:37:41 mesh kernel:  [<c0147cf9>] __pdflush+0x259/0x5b0
+Feb 13 20:37:41 mesh kernel:  [<c011e5fc>] schedule_tail+0x9c/0xe0
+Feb 13 20:37:41 mesh kernel:  [<c0107d98>] __switch_to+0x148/0x150
+Feb 13 20:37:41 mesh kernel:  [<c0148050>] pdflush+0x0/0x20
+Feb 13 20:37:41 mesh kernel:  [<c0148061>] pdflush+0x11/0x20
+Feb 13 20:37:41 mesh kernel:  [<c0147320>] wb_kupdate+0x0/0x120
+Feb 13 20:37:41 mesh kernel:  [<c01075cd>] kernel_thread_helper+0x5/0x18
+Feb 13 20:37:41 mesh kernel: 
+Feb 13 20:37:41 mesh kernel: Code: 1c 52 fb 50 c0 c7 47 20 e1 00 00 00 8d b4 26 00 00 00 00 8d 
+Feb 13 20:37:41 mesh kernel:  <6>note: pdflush[5] exited with preempt_count 1
 
-Did your script include tracing of second-order effects?
 
-The following reference one of the 3 version.h variables but don't include
-linux/version.h themselves:
+Looking back through the logs, this also this bizarre snippet during boot:-
 
-include/linux/coda.h
-include/linux/compile.h
-include/linux/cyclomx.h
-include/linux/istallion.h
-include/linux/mtd/cfi.h
-include/linux/netfilter_ipv4/ipchains_core.h
-include/linux/serialP.h
-include/linux/stallion.h
-include/linux/videodev2.h
-include/net/irda/vlsi_ir.h
+Feb 13 20:30:24 mesh kernel: Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Feb 13 20:30:24 mesh kernel: Call Trace:
+Feb 13 20:30:24 mesh kernel:  [<c014a8b4>] kmem_cache_alloc+0x134/0x140
+Feb 13 20:30:24 mesh kernel:  [<c014916f>] kmem_cache_create+0xbf/0x5a0
+Feb 13 20:30:24 mesh kernel:  [<c0105000>] _stext+0x0/0x30
+Feb 13 20:30:24 mesh kernel: 
+Feb 13 20:30:24 mesh kernel: Dentry cache hash table entries: 16384 (order: 5, 131072 bytes)
 
+Looks like part of 'something', but the other bit is nowhere to be seen. Odd.
 
-So for instance, the ipchains_core.h may explain these files in your list:
+		Dave
 
-/net/ipv4/netfilter/ip_conntrack_core.c
-/net/ipv4/netfilter/ip_nat_core.c
-/net/ipv4/netfilter/ip_nat_helper.c
-/net/ipv4/netfilter/ipt_ULOG.c
-/net/ipv4/netfilter/ip_nat_rule.c
-/net/ipv4/netfilter/ip_conntrack_standalone.c
-/net/ipv4/netfilter/ip_nat_standalone.c
-/net/ipv4/netfilter/ip_fw_compat_masq.c
-
-because *somebody* needs to include version.h.
-
-So a patch may be needed, but it should add the #include to the .h file while
-cleaning up the .c files.  On the other hand, I'll let somebody who understands
-the kernel build system better than I comment on what happens to dependencies
-and whether the files that *appear* to be gratuitously rebuilt in fact do need
-to be rebuilt....
-
---==_Exmh_1875858588P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+TAbWcC3lWbTT17ARAtGtAJ4sUIoHoAl9LJu6lyWQrcDP6E4BVgCeIoDS
-eTcF752DWSN/OUxL30oxsRs=
-=UgVw
------END PGP SIGNATURE-----
-
---==_Exmh_1875858588P--
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

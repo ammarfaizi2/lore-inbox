@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136662AbREARK6>; Tue, 1 May 2001 13:10:58 -0400
+	id <S136667AbREARL3>; Tue, 1 May 2001 13:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136666AbREARKk>; Tue, 1 May 2001 13:10:40 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:305 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S136662AbREARK1>; Tue, 1 May 2001 13:10:27 -0400
-Date: Tue, 1 May 2001 19:09:42 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: kuznet@ms2.inr.ac.ru
-Cc: davem@redhat.com, ralf@nyren.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4: Kernel crash, possibly tcp related
-Message-ID: <20010501190942.B31373@athlon.random>
-In-Reply-To: <20010501124756.B805@athlon.random> <200105011644.UAA32621@ms2.inr.ac.ru>
-Mime-Version: 1.0
+	id <S136665AbREARLT>; Tue, 1 May 2001 13:11:19 -0400
+Received: from pyongsan.compgen.com ([158.155.0.1]:3091 "EHLO
+	panmunjom.compgen.com") by vger.kernel.org with ESMTP
+	id <S136664AbREARLJ>; Tue, 1 May 2001 13:11:09 -0400
+From: "Eric Z. Ayers" <Eric.Ayers@intec-telecom-systems.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200105011644.UAA32621@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Tue, May 01, 2001 at 08:44:52PM +0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-ID: <15086.60620.745722.345084@gargle.gargle.HOWL>
+Date: Tue, 1 May 2001 13:05:16 -0400 (EDT)
+To: Doug Ledford <dledford@redhat.com>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+        "Roets, Chris" <Chris.Roets@compaq.com>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: Linux Cluster using shared scsi
+In-Reply-To: <3AEEDFFC.409D8271@redhat.com>
+In-Reply-To: <200105011445.KAA01117@localhost.localdomain>
+	<3AEEDFFC.409D8271@redhat.com>
+X-Mailer: VM 6.72 under 21.1 (patch 8) "Bryce Canyon" XEmacs Lucid
+Reply-To: Eric.Ayers@intec-telecom-systems.com
+X-Face: (3Y\Z;G!Ce[Q\WBgGFLgcaL%v[kJ'@9s`Qn1<)EEL5tSW7IDvX[{APQ5]eY}uF}%qbD[-@N
+ !5]S!%o0*DbAB?~o%tca^?3@zU~"fQ@MTiClP>w%`Y8oG&6|:>2F=bhnf2>bPedqw-.T>U-BaI`F>1
+ QY@?oGJ0.lV?b@0HgvaOt>=0,/@,=(kE"J++vO?K"3ve@,"sunF0HnU|h&|:}%|P6%BohO_*mAHJ#g
+ EHc;_'bXG|kCLMSF`:/O_F0fuJ:j2^C\NJ(:$izN@mbXQo(IL,<P@2U+(Z`@>BO.7<]wT?:5.A<$C
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 01, 2001 at 08:44:52PM +0400, kuznet@ms2.inr.ac.ru wrote:
-> Hello!
-> 
-> > this is the strict fix:
-> 
-> Andrea, you caught the problem!
-> 
-> The fix is not right though (it is equivalent to straight
-> tp->send_head=NULL, as you noticed. It also corrupts queue in
-> an opposite manner.) Right fix is appended.
-> 
-> Explanation: in do_fault we must undo effect of enqueueing new segment
-> in the case the segment remained empty. tp->send_head points to
-> the first unsent skb in queue and it is NULL when and only when
-> all the skbs are already sent. (Invariant is: tp->send_head==NULL ||
-> tp->send_head->seq == tp->snd_nxt)
-> I crapped this case except for the case when queue is completely empty,
-> so that the last sent skb was accounted in packets_out twice...
+Doug Ledford writes:
+(James Bottomley commented about the need for SCSI reservation kernel patches)
+ > 
+ > I agree.  It's something that needs fixed in general, your software needs it
+ > as well, and I've written (about 80% done at this point) some open source
+ > software geared towards getting/holding reservations that also requires the
+ > same kernel patches (plus one more to be fully functional, an ioctl to allow a
+ > SCSI reservation to do a forced reboot of a machine).  I'll be releasing that
+ > package in the short term (once I get back from my vacation anyway).
+ > 
 
-I understsand the explanation but I don't think my patch is wrong, I
-think it's simpler and faster instead.
+Hello Doug,
 
-My argument is very simple, if send_head points to skb and skb->len is
-zero and we are running in such slow path, it is obvious the send_head
-_was_ NULL when we entered the critical section, so it's perfectly fine
-to set send_head back to null and to unlink the skb as the only actions
-to undo the skb_entail. That's all. I don't see how my patch can fail.
-If I'm missing something I'd love a further explanation indeed. Thanks!
+Does this package also tell the kernel to "re-establish" a
+reservation for all devices after a bus reset, or at least inform a
+user level program?  Finding out when there has been a bus reset has
+been a stumbling block for me.
 
-> 
-> Damn, what a silly mistake was it... shame.
-> 
-> Alexey
-> 
-> 
-> --- ../vger3-010426/linux/net/ipv4/tcp.c	Wed Apr 25 21:02:18 2001
-> +++ linux/net/ipv4/tcp.c	Tue May  1 20:38:44 2001
-> @@ -1185,7 +1187,7 @@
->  	if (skb->len==0) {
->  		if (tp->send_head == skb) {
->  			tp->send_head = skb->prev;
-> -			if (tp->send_head == (struct sk_buff*)&sk->write_queue)
-> +			if (TCP_SKB_CB(skb)->seq == tp->snd_nxt)
->  				tp->send_head = NULL;
->  		}
->  		__skb_unlink(skb, skb->list);
-
-
-Andrea
+-Eric.
+--
+Eric Z. Ayers				              Lead Software Engineer
+Phone:  +1 404-705-2864                    Computer Generation, Incorporated
+Fax:    +1 404-705-2805                     an Intec Telecom Systems Company
+Web:    http://www.intec-telecom-systems.com/
+Email:  eric.ayers@intec-telecom-systems.com
+Postal: Bldg G 4th Floor, 5775 Peachtree-Dunwoody Rd, Atlanta, GA 30342 USA

@@ -1,145 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264671AbTE1QmK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 12:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264796AbTE1QmK
+	id S264796AbTE1Qqw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 12:46:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264799AbTE1Qqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 12:42:10 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:8133 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264671AbTE1QmH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 12:42:07 -0400
-Subject: Re: Linux 2.5.70
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1054071760.2289.150.camel@cherrypit.pdx.osdl.net>
-References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com>
-	 <1054071760.2289.150.camel@cherrypit.pdx.osdl.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054144512.16778.7.camel@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 28 May 2003 10:55:12 -0700
+	Wed, 28 May 2003 12:46:52 -0400
+Received: from ophelia.ess.nec.de ([193.141.139.8]:28321 "EHLO
+	ophelia.hpce.nec.com") by vger.kernel.org with ESMTP
+	id S264796AbTE1Qqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 12:46:51 -0400
+From: Erich Focht <efocht@hpce.nec.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [Lse-tech] Node affine NUMA scheduler extension
+Date: Wed, 28 May 2003 19:02:35 +0200
+User-Agent: KMail/1.5.1
+Cc: Andi Kleen <ak@suse.de>, LSE <lse-tech@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200305271031.55554.efocht@hpce.nec.com> <200305272328.27269.efocht@hpce.nec.com> <2640000.1054072312@[10.10.2.4]>
+In-Reply-To: <2640000.1054072312@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305281902.35511.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry.  There was a translation error in the last batch of numbers I
-sent out.  We actually went from 1567 warnings in a full allmodconfig
-build to 1366 warning (down 201 warnings!).
+On Tuesday 27 May 2003 23:51, Martin J. Bligh wrote:
+> > Do you think of something like:
+> >
+> ># define CAN_MIGRATE_TASK(p,rq,this_cpu)				\
+> > 	(HOMENODE_UNSET(p) &&					\ //<--
+> > 	 (jiffies - (p)->last_run > cache_decay_ticks) &&	\
+> > 		!task_running(rq, p) &&				\
+> > 		((p)->cpus_allowed & (1UL << (this_cpu))))
+> >
+...
+>
+> My instinct would tell me the first expression should be ||, not &&
+> but I'm not 100% sure. 
 
+You're right.
 
+> And is this restricted to just clones? Doesn't
+> seem to be, unless that's implicit in homenode_unset?
 
-          bzImage       bzImage        modules
-        (defconfig)  (allmodconfig) (allmodconfig)
+Hmmm... That's actually the difficult issue with fork vs. clone and
+migrating or not. When you clone a small task, you'd usually like to
+keep it on the same node. If it's a big task and fault-in a lot of
+memory, it could make sense to let it migrate to another node. For
+forked tasks it's the same, you mighthave some more COW memory
+movement but after that you'll usually be happy if the child went away
+from the parent's node if it is a long-running child. Not so for a
+short running child. The current compromise:
+- start children (no matter whether forked or cloned) on the same CPU
+- allow other CPUs to steal freshly forked children by reducing the
+cache affinity until the first steal/migration
+- ok with chidren who exec soon, they might exec before anyone can
+steal them, drop all the pages and find anew life on the optimal node
 
-2.5.70  7 warnings    10 warnings   1366 warnings
-        0 errors       0 errors       57 errors
+This way exec'd tasks get properly baklanced, forked/cloned ones get a
+better start than in the current scheduler. I'll post a patch on top
+of the node affine scheduler doing this in 1-2 days.
 
-2.5.69  7 warnings    11 warnings   1567 warnings
-        0 errors       0 errors       57 errors
+Regards,
+Erich
 
-2.5.68  7 warnings    11 warnings   1975 warnings
-        0 errors       6 errors       60 errors
-
-2.5.67  8 warnings    12 warnings   2136 warnings
-        0 errors       6 errors       89 errros
-
-John
-
-
-On Tue, 2003-05-27 at 14:42, John Cherry wrote:
-> ompile statistics: 2.5.70
-> Compiler: gcc 3.2.2
-> Script: http://www.osdl.org/archive/cherry/stability/compregress.sh
-> 
->           bzImage       bzImage        modules
->         (defconfig)  (allmodconfig) (allmodconfig)
-> 
-> 2.5.70  7 warnings    10 warnings   1366 warnings
->         0 errors       0 errors       57 errors
-> 
-> 2.5.69  7 warnings    11 warnings   1366 warnings
->         0 errors       0 errors       57 errors
-> 
-> 2.5.68  7 warnings    11 warnings   1975 warnings
->         0 errors       6 errors       60 errors
-> 
-> 2.5.67  8 warnings    12 warnings   2136 warnings
->         0 errors       6 errors       89 errros
-> 
-> 
-> Compile statistics have been for kernel releases from 2.5.46 to 2.5.70
-> at: www.osdl.org/archive/cherry/stability
-> 
-> Failure summary:
-> 
->    drivers/block: 2 warnings, 1 errors
->    drivers/char: 237 warnings, 4 errors
->    drivers/isdn: 237 warnings, 8 errors
->    drivers/media: 102 warnings, 5 errors
->    drivers/mtd: 31 warnings, 1 errors
->    drivers/net: 336 warnings, 6 errors
->    drivers/scsi/aic7xxx: 0 warnings, 1 errors
->    drivers/video/i810: 3 warnings, 4 errors
->    drivers/video/matrox: 3 warnings, 10 errors
->    drivers/video: 81 warnings, 17 errors
->    sound/oss: 49 warnings, 3 errors
->    sound: 5 warnings, 3 errors
-> 
-> 
-> Warning summary:
-> 
-> 
->    drivers/atm: 36 warnings, 0 errors
->    drivers/cdrom: 25 warnings, 0 errors
->    drivers/hotplug: 1 warnings, 0 errors
->    drivers/i2c: 3 warnings, 0 errors
->    drivers/ide: 32 warnings, 0 errors
->    drivers/md: 2 warnings, 0 errors
->    drivers/message: 1 warnings, 0 errors
->    drivers/pcmcia: 3 warnings, 0 errors
->    drivers/scsi/aacraid: 1 warnings, 0 errors
->    drivers/scsi/pcmcia: 4 warnings, 0 errors
->    drivers/scsi/sym53c8xx_2: 1 warnings, 0 errors
->    drivers/serial: 1 warnings, 0 errors
->    drivers/telephony: 10 warnings, 0 errors
->    drivers/usb: 13 warnings, 0 errors
->    drivers/video/aty: 4 warnings, 0 errors
->    drivers/video/sis: 3 warnings, 0 errors
->    fs/afs: 1 warnings, 0 errors
->    fs/cifs: 1 warnings, 0 errors
->    fs/intermezzo: 1 warnings, 0 errors
->    fs/lockd: 4 warnings, 0 errors
->    fs/nfsd: 2 warnings, 0 errors
->    fs/smbfs: 2 warnings, 0 errors
->    net: 30 warnings, 0 errors
->    security: 2 warnings, 0 errors
->    sound/isa: 3 warnings, 0 errors
->    sound/pci: 1 warnings, 0 errors
->    sound/usb: 2 warnings, 0 errors
-> 
-> 
-> 
-> Other stability-related links:
->    OSDL Stability page:
->        http://osdl.org/projects/26lnxstblztn/results/
->    Nightly linux-2.5 bk build:
->        www.osdl.org/archive/cherry/stability/linus-tree/running.txt
->    2.5 porting items:
->        www.osdl.org/archive/cherry/stability/linus-tree/port_items.txt
->    2.5 porting items history:
->        www.osdl.org/archive/cherry/stability/linus-tree/port_history.txt
-> 
-> John
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 

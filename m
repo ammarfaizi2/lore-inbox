@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130962AbRBQM2c>; Sat, 17 Feb 2001 07:28:32 -0500
+	id <S129747AbRBQMgz>; Sat, 17 Feb 2001 07:36:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131004AbRBQM2W>; Sat, 17 Feb 2001 07:28:22 -0500
-Received: from [132.69.253.254] ([132.69.253.254]:31758 "HELO
-	vipe.technion.ac.il") by vger.kernel.org with SMTP
-	id <S130962AbRBQM2G>; Sat, 17 Feb 2001 07:28:06 -0500
-Date: Sat, 17 Feb 2001 14:20:03 +0200 (IST)
-From: Igor Yanover <yanover@vipe.technion.ac.il>
-To: linux-kernel@vger.kernel.org
-Subject: More on IO-APIC trouble
-Message-ID: <Pine.LNX.4.10.10102171401540.7724-100000@vipe.technion.ac.il>
+	id <S129136AbRBQMgp>; Sat, 17 Feb 2001 07:36:45 -0500
+Received: from beamer.mchh.siemens.de ([194.138.158.163]:2737 "EHLO
+	beamer.mchh.siemens.de") by vger.kernel.org with ESMTP
+	id <S129781AbRBQMgf>; Sat, 17 Feb 2001 07:36:35 -0500
+From: "Thomas Widmann" <thomas.widmann@icn.siemens.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: SMP: bind process to cpu
+Date: Sat, 17 Feb 2001 13:36:33 +0100
+Message-ID: <BGEDIODHBENLENEMBEPAEEDFCAAA.thomas.widmann@icn.siemens.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Recently I came across two more things, that are possibly related to
-IO-APIC problems:
-1)http://xfree86.org/pipermail/xpert/2001January/004751.html
-    Someone with SMP that has problem with interrupt delivery (stuck
-interrupt). Only in SMP mode and this is not NE2000 related.
-2)http://developer.intel.com/software/idap/media/pdf/copy.pdf ( Page 8
-footer)
-   It turns out, that there's an errata in early Pentium III revisions,
-that could corrupt data written to IO-APIC. ( Only if SSE write is
-followed by an APIC write)
-                                    Igor
+Hi,
 
+I run an 3*XEON 550MHz Primergy with 2GB of RAM.
+On this machine, i have compiled kernel 2.4.0SMP.
+
+Is it possible to bind a process to a specific
+cpu on this SMP machine (process affinity) ?
+
+I there something like pset ?
+
+Thanks in advance
+
+Regards
+Widmann Thomas
+Siemens AG - Munich

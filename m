@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279927AbRKBCDI>; Thu, 1 Nov 2001 21:03:08 -0500
+	id <S279939AbRKBCRA>; Thu, 1 Nov 2001 21:17:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279928AbRKBCC6>; Thu, 1 Nov 2001 21:02:58 -0500
-Received: from zok.sgi.com ([204.94.215.101]:17372 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S279927AbRKBCCu>;
-	Thu, 1 Nov 2001 21:02:50 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: FORT David <popo.enlighted@free.fr>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Oops on 2.4.13 
-In-Reply-To: Your message of "Fri, 02 Nov 2001 01:52:32 CDT."
-             <3BE242B0.1010400@free.fr> 
+	id <S279940AbRKBCQt>; Thu, 1 Nov 2001 21:16:49 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:786 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S279939AbRKBCQk>; Thu, 1 Nov 2001 21:16:40 -0500
+Date: Fri, 2 Nov 2001 13:20:14 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Tim Jansen <tim@tjansen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+Message-Id: <20011102132014.41f2d90a.rusty@rustcorp.com.au>
+In-Reply-To: <15zGYm-1gibkeC@fmrl05.sul.t-online.com>
+In-Reply-To: <E15zF9H-0000NL-00@wagner>
+	<15zGYm-1gibkeC@fmrl05.sul.t-online.com>
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 02 Nov 2001 13:02:40 +1100
-Message-ID: <3358.1004666560@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 02 Nov 2001 01:52:32 -0500, 
-FORT David <popo.enlighted@free.fr> wrote:
->Keith Owens wrote:
->>modinfo `modprobe -l` | sed -ne '/^filename/h; /^license.*none/{g;p;}'
->>lists all modules without a license, please report so it can be fixed.
+On Thu, 1 Nov 2001 13:06:00 +0100
+Tim Jansen <tim@tjansen.de> wrote:
 
-/lib/modules/2.4.13/kernel/... modules without license, from David Fort.
+> On Thursday 01 November 2001 11:32, Rusty Russell wrote:
+> > I believe that rewriting /proc (and /proc/sys should simply die) is a
+> > better solution than extending the interface, or avoiding it
+> > altogether by using a new filesystem.
+> 
+> I am currently working on something like this, too. It's using Patrick 
+> Mochel's driverfs patch 
+> (http://www.kernel.org/pub/linux/kernel/people/mochel/device/driverfs.diff-1030) 
+> as a base and adds the functionality of the extensions that I did to proc fs 
+> for my device registry patch 
+> (http://www.tjansen.de/devreg/proc_ov-2.4.7.diff).
 
-drivers/block/loop.o - has MODULE_LICENSE("GPL") in -AC tree
-drivers/media/video/cpia.o - in -AC tree
-drivers/media/video/cpia_usb.o - in -AC tree
-drivers/media/video/mod_quickcam.o - add on module, contact the maintainers
-drivers/net/pppoe.o - in -AC tree
-drivers/net/pppox.o - in -AC tree
-drivers/video/matrox/matroxfb_crtc2.o - no license, needs patch
-drivers/video/matrox/matroxfb_g450.o - no license, needs patch
-drivers/video/matrox/matroxfb_maven.o - no license, needs patch
-drivers/video/matrox/matroxfb_misc.o - no license, needs patch
-fs/coda/coda.o - no license, needs patch
-fs/msdos/msdos.o - no license, needs patch
-fs/nfs/nfs.o - in -AC tree
-fs/nls/nls_big5.o - no license, needs patch
-fs/nls/nls_cp936.o - no license, needs patch
-fs/nls/nls_cp950.o - no license, needs patch
-fs/nls/nls_gb2312.o - no license, needs patch
-fs/nls/nls_iso8859-1.o - no license, needs patch
-fs/nls/nls_iso8859-15.o - no license, needs patch
-fs/nls/nls_iso8859-2.o - no license, needs patch
-fs/nls/nls_iso8859-4.o - no license, needs patch
-fs/nls/nls_utf8.o - no license, needs patch
-fs/vfat/vfat.o - no license, needs patch
-net/khttpd/khttpd.o - no license, needs patch
-net/netlink/netlink_dev.o - no license, needs patch
+Hi Tim!
 
+	Firstly: obviously, I think that work on /proc is a worthy and excellent
+thing to be doing: everyone has been complaining about it since its introduction
+(for good reason).
+
+	I'm not sure about such explicit typing: see my patch (the existing types are
+only for convenience: you can trivially supply your own).  I agree with the
+"one file, one value" idea.  I also went for dynamic directories for those who
+don't want to continually register/deregister.
+
+I suggest you read my patch 8)
+Rusty.

@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272323AbTHEAsw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 20:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272324AbTHEAsw
+	id S272316AbTHEAwB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 20:52:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272327AbTHEAwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 20:48:52 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30683 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272323AbTHEAsv (ORCPT
+	Mon, 4 Aug 2003 20:52:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12766 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272316AbTHEAvE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 20:48:51 -0400
-Date: Mon, 4 Aug 2003 17:53:43 -0700 (PDT)
+	Mon, 4 Aug 2003 20:51:04 -0400
+Date: Mon, 4 Aug 2003 17:55:56 -0700 (PDT)
 From: Patrick Mochel <mochel@osdl.org>
 X-X-Sender: mochel@cherise
 To: Pavel Machek <pavel@ucw.cz>
 cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PM] Split SOFTWARE_SUSPEND and ACPI_SLEEP
-In-Reply-To: <20030726223958.GA473@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0308041752180.23977-100000@cherise>
+Subject: Re: [PM] Fix up wrong comments
+In-Reply-To: <20030726225344.GA510@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0308041754510.23977-100000@cherise>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Splits two config options to avoid user confusion. Patrick already has
-> better version of that patch in his tree, and probably wants to avoid
-> applying this.
+> This fixes add wrong comments, and adds comment about pitfalls of
+> calling BIOS.
 
-Correct, I opted for my version, which moves kernel/suspend.c to 
-kernel/power/swsusp.c, and moves the refrigerator code to process.c in 
-that directory.
+I didn't apply this, because I would rather see it described in a piece of
+real documentation (Documentation/swsusp.txt or e.g.
+Documentation/power/video.txt) and explained as much as possible.
 
-I have patches available, and will be posting them shortly. 
-
+Thanks,
 
 	-pat
 

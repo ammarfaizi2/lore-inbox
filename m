@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262776AbTC0CEk>; Wed, 26 Mar 2003 21:04:40 -0500
+	id <S262780AbTC0CQX>; Wed, 26 Mar 2003 21:16:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbTC0CEk>; Wed, 26 Mar 2003 21:04:40 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:27120 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S262776AbTC0CEk>; Wed, 26 Mar 2003 21:04:40 -0500
-Date: Wed, 26 Mar 2003 18:14:09 -0800
-From: Chris Wright <chris@wirex.com>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: setfs[ug]id syscall return value and include/linux/security.h question
-Message-ID: <20030326181409.B20611@figure1.int.wirex.com>
-Mail-Followup-To: Jakub Jelinek <jakub@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <20030326181509.Q13397@devserv.devel.redhat.com>
+	id <S262784AbTC0CQX>; Wed, 26 Mar 2003 21:16:23 -0500
+Received: from adsl-67-121-155-183.dsl.pltn13.pacbell.net ([67.121.155.183]:13280
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id <S262780AbTC0CQW>; Wed, 26 Mar 2003 21:16:22 -0500
+Date: Wed, 26 Mar 2003 18:27:32 -0800
+To: James Simmons <jsimmons@infradead.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [REPRODUCABLE BUGS] Linux 2.5.66
+Message-ID: <20030327022732.GA2867@triplehelix.org>
+References: <1048722582.2039.11.camel@rohan.arnor.net> <Pine.LNX.4.44.0303270019050.25001-100000@phoenix.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030326181509.Q13397@devserv.devel.redhat.com>; from jakub@redhat.com on Wed, Mar 26, 2003 at 06:15:09PM -0500
+In-Reply-To: <Pine.LNX.4.44.0303270019050.25001-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jakub Jelinek (jakub@redhat.com) wrote:
-> Hi!
-> 
-> Before include/linux/security.h was added, setfsuid/setfsgid always returned
-> old_fsuid, no matter if the fsuid was actually changed or not.
-> With the default security ops it seems to do the same, because both
-> security_task_setuid and security_task_post_setuid return 0, but these are
-> hooks which seem to return 0 on success, -errno on failure, so if some
-> non-default security hook is installed and ever returns -errno
-> in setfsuid/setfsgid, -errno will be returned from the syscall instead
-> of the expected old_fsuid. This makes it hard to distinguish uids
-> 0xfffff001 .. 0xffffffff from errors of security hooks.
-> Shouldn't sys_setfsuid/sys_setfsgid be changed:
 
-Yes, thanks for the patch.  I'll apply this to the LSM tree and push to
-Linus with the next batch of changes.  It's unfortunate that the
-sys_setfs[ug]id interface can't report an error.
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+While we're on the framebuffer bug train, James, do you know of
+this bug with radeonfb:
+
+My 2.5 kernel boots. Some initial boot text with ACPI and such is
+scrolled on the screen, this is before radeonfb has taken over and
+switched the screen size. But this is usually instant.
+
+Right after the switch there is a lot of random characters in
+varying colors at the top of the screen below the penguin. The
+first legible boot message I see is this:
+
+	"Console: switching to colour framebuffer device 128x48"
+
+(not verbatim)
+
+The junk quickly scrolls off into the sunset and has no adverse
+effects on the following boot messages.
+
+It does not help to tell lilo to use 1024x768x16 by default.
+(vga=3D791)
+
+This is a minor bug, but the same thing works fine in the 2.4
+radeonfb.
+
+Regards
+Josh
+
+--=20
+New PGP public key: 0x27AFC3EE
+
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+gmGUT2bz5yevw+4RAofdAJ4kIdAYzxrHAjhW5IyOb411N/eFQgCgxkm6
+Vjn5XL66TYBzSe7dtOooiOQ=
+=ny+/
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--

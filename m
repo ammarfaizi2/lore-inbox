@@ -1,84 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277933AbRJITgo>; Tue, 9 Oct 2001 15:36:44 -0400
+	id <S277937AbRJITlO>; Tue, 9 Oct 2001 15:41:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277931AbRJITgZ>; Tue, 9 Oct 2001 15:36:25 -0400
-Received: from mail.spylog.com ([194.67.35.220]:26549 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S277932AbRJITgN>;
-	Tue, 9 Oct 2001 15:36:13 -0400
-Date: Tue, 9 Oct 2001 23:32:40 +0400
+	id <S277936AbRJITlF>; Tue, 9 Oct 2001 15:41:05 -0400
+Received: from mail.spylog.com ([194.67.35.220]:30389 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S277931AbRJITku>;
+	Tue, 9 Oct 2001 15:40:50 -0400
+Date: Tue, 9 Oct 2001 23:37:19 +0400
 From: "Oleg A. Yurlov" <kris@spylog.com>
 X-Mailer: The Bat! (v1.53d)
 Reply-To: "Oleg A. Yurlov" <kris@spylog.com>
 Organization: SpyLOG Ltd.
 X-Priority: 3 (Normal)
-Message-ID: <129371054468.20011009233240@spylog.com>
-To: =?ISO-8859-1?B?SmFrb2Ig2HN0ZXJnYWFyZA==?= <jakob@unthought.net>
+Message-ID: <8371332758.20011009233719@spylog.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
 Cc: linux-kernel@vger.kernel.org, admin@spylog.com
 Subject: Re[2]: RAID sync
-In-Reply-To: <20011002071949.B5302@unthought.net>
+In-Reply-To: <15298.13864.971940.46509@notabene.cse.unsw.edu.au>
 In-Reply-To: <1101445461994.20011001182753@spylog.com>
- <20011002071949.B5302@unthought.net>
+ <15298.13864.971940.46509@notabene.cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-        Hi, Jakob and all,
+        Hi, Neil,
 
-Tuesday, October 02, 2001, 9:19:49 AM, you wrote:
+Tuesday, October 09, 2001, 3:26:32 AM, you wrote:
 
-JØ> On Mon, Oct 01, 2001 at 06:27:53PM +0400, Oleg A. Yurlov wrote:
->> 
->>         Privet :-)
->> 
 >>         Kernel 2.4.6.SuSE-4GB-SMP, 2 CPU, 2Gb RAM, 4 HDD SCSI, M/B Intel L440GX.
 >> Messages from dmesg:
->> 
-JØ> ...
->> md: sdc2 [events: 0000001e](write) sdc2's sb offset: 15815872
->> md: considering sdb2 ...
->> md:  adding sdb2 ...
->> md:  adding sda2 ...
->> md: created md0
->> md: bind<sda2,1>
->> md: bind<sdb2,2>
->> md: running: <sdb2><sda2>
+NB> snip
 >> md: now!
 >> md: sdb2's event counter: 0000001c
 >> md: sda2's event counter: 0000001d
->> md: superblock update time inconsistency -- using the most recent one
->> md: freshest: sda2
->> md0: max total readahead window set to 508k
->> md0: 1 data-disks, max readahead per data-disk: 508k
->> raid1: device sdb2 operational as mirror 1
->> raid1: device sda2 operational as mirror 0
->> raid1: raid set md0 active with 2 out of 2 mirrors
->> md: updating md0 RAID superblock on device
->> md: sdb2 [events: 0000001e](write) sdb2's sb offset: 15815872
->> md: sda2 [events: 0000001e](write) sda2's sb offset: 15815872
->> md: ... autorun DONE.
->> 
+NB> snip
 >>         Why RAID do not start synchronization ? It is normal ?
 
-JØ> Doesn't it ?
+NB> Yes.
+NB> A difference of 1 in the event counters isn't considered enough to
+NB> treat on of them as old, and presumably the newest one (sda2) was
+NB> marked clean.
+NB> This could happen if the array was shut down cleanly, the new super
+NB> block (with the dirty bit cleared) was written to sda2, but the new
+NB> superblock was NOT written to sdb2 for some reason.  In this situation
+NB> there is no need to resync the array.
 
-        Really.
+NB> Could this be what happened in your case?
 
-JØ> Try "cat /proc/mdstat"
+        Server  is  slow  die  (error in VM, server lost procfs) and rebooted by
+'reboot -f'... I don't know what happen with RAID in this case.
 
-JØ> Synchronization is a background operation - your array is functional
-JØ> immediately.
-
-        No,  synchronization  not  started,  /proc/mdstat  say  that  RAID is Ok
-([UU]). /proc/mdstat checked immediately after booting.
-
-JØ> (this behaviour was changed from the really really old RAID code in unpatched
-JØ>  2.2 to standard 2.4)
-
-        Neil already has given some explanations...
+NB> NeilBrown
 
 --
 Oleg A. Yurlov aka Kris Werewolf, SysAdmin      OAY100-RIPN

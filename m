@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286911AbRL1OL3>; Fri, 28 Dec 2001 09:11:29 -0500
+	id <S286918AbRL1OR2>; Fri, 28 Dec 2001 09:17:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286912AbRL1OLT>; Fri, 28 Dec 2001 09:11:19 -0500
-Received: from [217.7.64.198] ([217.7.64.198]:32164 "EHLO mx1.net4u.de")
-	by vger.kernel.org with ESMTP id <S286911AbRL1OLF>;
-	Fri, 28 Dec 2001 09:11:05 -0500
-Message-Id: <200112281411.fBSEB3419310@mx1.net4u.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Ernst Herzberg <earny@net4u.de>
-Reply-To: earny@net4u.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 with acpi on a Laptop
-Date: Fri, 28 Dec 2001 15:11:02 +0100
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <200112272151.fBRLpe415377@mx1.net4u.de>
-In-Reply-To: <200112272151.fBRLpe415377@mx1.net4u.de>
-Cc: Juergen Sauer <jojo@automatix.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S286917AbRL1ORS>; Fri, 28 Dec 2001 09:17:18 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:8461 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S286918AbRL1ORN>;
+	Fri, 28 Dec 2001 09:17:13 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lm@bitmover.com (Larry McVoy), esr@thyrsus.com (Eric S. Raymond),
+        davej@suse.de (Dave Jones), esr@snark.thyrsus.com (Eric S. Raymond),
+        torvalds@transmeta.com (Linus Torvalds),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: State of the new config & build system 
+In-Reply-To: Your message of "Fri, 28 Dec 2001 14:14:37 -0000."
+             <E16JxmP-0000Yo-00@the-village.bc.nu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 29 Dec 2001 01:16:57 +1100
+Message-ID: <4481.1009549017@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 27. December 2001 22:51, Ernst Herzberg wrote:
-> Hi,
+On Fri, 28 Dec 2001 14:14:37 +0000 (GMT), 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> Ah, OK, I get it.  Hey, would it help to have a dbm interface compat 
+>> library which uses mmap instead of building the db in brk() space?
 >
->> i've got a Gericom m6-t Laptop, and i try to install Linux on it
->> (suse-7.3). With kernel 2.4.16 every works fine, but the internal
->> tulip-adaper and sound. Analyses shows, that there are something going
->> wrong with the irq-routing tables. I tried to install the acpi.sf.net on
->> this kernel, but that does'n work. With 2.4.17 i can see the first time
->> /proc/acpi, but the laptop will overheat after about 10 minutes. PCMCIA is
->> also not working, if there is a card sticking in a slot, the PC will die
->> without any errormessage (Starting kernel PCMCIA (using scheme: SuSE)). Any
->> idea? The Laptop has in the moment a direct internet-connecton with a fixed
->> ip-address (with 2.4.16 and 2.4.10 over a PCMCIA-Card).
+>mmap for db file seems to be slower. For basic db hash usage and raw speed
+>nothing seems to touch tdb (Tridge's db hack). Its also portable code which
+>is important since the tool has to be built on the compiling host.
 
+lm sent me the bk mdbm code but I will look at tdb as well.  Four
+acronyms in one sentance, I must be a phb :).
 
-> What about claiming your customer rights waranties and let the gericom 
-> service fix their stuff or return the junk ?
+>Personally I've always considered make dep good enough. Its trying to solve
+>the extra .5% that probably can be solved by careful use of make clean when
+>CML realises a critical rule changed (SMP etc)
 
-> mfG
->         Jojo
-> -- 
+http://prdownloads.sourceforge.net/kbuild/kbuild-2.5-history.tar.bz2
+Especially makefile-2.5_make_dep.html, 9 reasons why make dep is broken
+as designed.  Some are fixable in the current system, others are
+inherently unfixable.  I skipped that page when I did my presentation
+at the 2.5 developer's conference.
 
-Yes, i've called gericom, and there are willing to do that. But i am not 
-shure, that the problem is only on gericom site. With kernel 2.4.16 and all 
-acpi patches applied the kernel doesn't create the /proc/acpi directory, but 
-the cpu-fan keeps running when the kernel is booted. PCMCIA ist working 
-without problems. With kernel 2.4.17 /proc/acpi is created, but the fan stops 
-during kernel boot and will never be powered on again. That can damage the 
-hardware. 
-
-So why does the kernel power off the fan? If there is a userspace deamon 
-needed to power on the fan, it is not possible to run the machine in level 1, 
-or a longer installation like suse will never be possible;-) 
-
-Even to track the problems is hard to do: You have only about 5 minutes time 
-after boot....
-
-<Earny>

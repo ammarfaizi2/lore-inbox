@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267979AbUHEVIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267990AbUHEVKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267979AbUHEVIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 17:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267992AbUHEVEm
+	id S267990AbUHEVKd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 17:10:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267991AbUHEVEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 17:04:42 -0400
-Received: from dialin-212-144-167-187.arcor-ip.net ([212.144.167.187]:48031
-	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S267979AbUHEVDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 17:03:37 -0400
-In-Reply-To: <20040805175204.EFE2E38BAB@mail.mplayerhq.hu>
-References: <20040805175204.EFE2E38BAB@mail.mplayerhq.hu>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-19--384041663"
-Message-Id: <DC2BA108-E722-11D8-A704-000A958E35DC@fhm.edu>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Daniel Egger <degger@fhm.edu>
-Subject: Re: how to read /proc/net/arp properly?
-Date: Thu, 5 Aug 2004 23:03:11 +0200
-To: Arpi <arpi@thot.banki.hu>
-X-Pgp-Agent: GPGMail 1.0.2
-X-Mailer: Apple Mail (2.618)
+	Thu, 5 Aug 2004 17:04:20 -0400
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:9378 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S267990AbUHEVDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 17:03:41 -0400
+Date: Thu, 5 Aug 2004 14:03:03 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Olaf Hering <olh@suse.de>, Giuliano Pochini <pochini@shiny.it>,
+       kumar.gala@freescale.com, tnt@246tNt.com,
+       linuxppc-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH][PPC32] Makefile cleanups and gcc-3.4+binutils-2.14 c
+Message-ID: <20040805140303.B14159@home.com>
+References: <XFMail.20040729100549.pochini@shiny.it> <20040729144347.GE16468@smtp.west.cox.net> <20040730205901.4d4181f4.pochini@shiny.it> <20040730190731.GQ16468@smtp.west.cox.net> <20040730224828.0f06e37a.pochini@shiny.it> <20040730210318.GS16468@smtp.west.cox.net> <20040805141257.GA14826@suse.de> <20040805165410.GA555@smtp.west.cox.net> <20040805180025.GA20390@suse.de> <20040805181425.GD555@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040805181425.GD555@smtp.west.cox.net>; from trini@kernel.crashing.org on Thu, Aug 05, 2004 at 11:14:25AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 05, 2004 at 11:14:25AM -0700, Tom Rini wrote:
+> 
+> On Thu, Aug 05, 2004 at 08:00:25PM +0200, Olaf Hering wrote:
+> >  On Thu, Aug 05, Tom Rini wrote:
+> >
+> > > On Thu, Aug 05, 2004 at 04:12:57PM +0200, Olaf Hering wrote:
+> > > >  On Fri, Jul 30, Tom Rini wrote:
+> > > >
+> > > > >
+> > > > > +aflags-$(CONFIG_PPC64BRIDGE)	+= -mppc64bridge
+> > > >
+> > > > this should be -Wa,-mppc64bridge for some reasons.
+> > >
+> > > That, er, doesn't make sense.  The assembler needs -Wa,?
+> >
+> > This makes g5 32bit happy. aflags- is used with 'gcc $options', not for as
+> > I'm not sure if the other aflags- should stay.
+> 
+> I mistook AFLAGS for being always invoked with gas, which is not the
+> case.  Lets do the following:
+> 
+> Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
---Apple-Mail-19--384041663
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+This fixed the build problems (unrecognized -m405) with a PPC440 native
+toolchain.
 
-On 05.08.2004, at 19:52, Arpi wrote:
-
-> comments? ideas?
-
-Watch ARP requests on the network as they come in and react
-accordingly?
-
-Servus,
-       Daniel
-
---Apple-Mail-19--384041663
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iQEVAwUBQRKgjzBkNMiD99JrAQJ+Twf/c1y0kGxiHhc200ifWacm5GwCtymcfDTR
-z5P5UouPJEKyHkh/AWJOhrDdZ5U7zY7adrjsVVp0+8vkHm4Mi1bfioADGsuOwhXZ
-CWbeFW9Udvj9Z5XdJv2Rk1chISg6i13COTTzQwZ1owmjYn8Z0oyFwLcWgNDxWQXL
-jtREpPh6WCKs4pwgcr+c87j6FlMfWdjOtip41MepQKpVG743XK0zcN9hU2wOkx3B
-aLT1D1CsSaTPOHaiUOnpRHBv7drJm4X1t3nXfSwxbIeRFzHqdOOHYLX4V3FPVw5l
-f1SdYKC807LXHR/RxJfnoZo2+13iftVIrRqGPdPca1fJnSl3UA4s+A==
-=gqwm
------END PGP SIGNATURE-----
-
---Apple-Mail-19--384041663--
-
+-Matt

@@ -1,74 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbTILSZV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 14:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTILSWw
+	id S261831AbTILSgz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 14:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbTILSfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 14:22:52 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16324 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261841AbTILSWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 14:22:23 -0400
-Date: Fri, 12 Sep 2003 20:22:16 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       akpm@osdl.org, richard.brunner@amd.com, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-ID: <20030912182216.GK27368@fs.tum.de>
-References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com> <20030911012708.GD3134@wotan.suse.de> <20030910184414.7850be57.akpm@osdl.org> <20030911014716.GG3134@wotan.suse.de> <3F60837D.7000209@pobox.com> <20030911162634.64438c7d.ak@suse.de> <3F6087FC.7090508@pobox.com> <m1vfrxlxol.fsf@ebiederm.dsl.xmission.com> <20030912195606.24e73086.ak@suse.de> <3F62098F.9030300@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F62098F.9030300@pobox.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 12 Sep 2003 14:35:48 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:10984 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S261809AbTILSeF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 14:34:05 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Date: Fri, 12 Sep 2003 20:33:24 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Another keyboard woes with 2.6.0...
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <2F284368A@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 01:59:43PM -0400, Jeff Garzik wrote:
-> Andi Kleen wrote:
-> >The main reason I'm really against this is that currently the P4 kernels 
-> >work
-> >fine on Athlon. Just when is_prefetch is not integrated in them there will 
-> >be an mysterious oops once every three months in the kernel in prefetch
-> >on Athlon.
+On 12 Sep 03 at 13:45, Zwane Mwaikambo wrote:
+
+> On Fri, 12 Sep 2003, Petr Vandrovec wrote:
 > 
+> >    I have MicroStar MS-9211 box with connected to the KVM switch
+> > MasterView CS-1016, which is connected to the some Chicony
+> > keyboard. 2.4.x kernel works without problem, but when 2.6.0
+> > starts, immediately after input device driver is initialized it starts
+> > thinking that F7 key is held down, and it stays that way until
+> > I hit some other key to stop autorepeat... What debugging I
+> > can do for you to get rid of screen full of '^[[18~' ? /bin/login
+> > continuously complains about username being too long :-(
 > 
-> Booting a P4 kernel _without_ CONFIG_X86_GENERIC on an Athlon would be a 
-> user bug.
+> Hi Petr,
+>     I have the same problem with an Avocent SwitchView and Keytronic 
+> keyboard, although it doesn't sound as bad as your problem. Occasionally 
+> some keys just repeat until i press another key. I'm not quite sure what 
+> kind of information Vojtech would like. The machine is 440BX based and 
+> kernel is 2.6.0-test3-mm1
 
-But even CONFIG_X86_GENERIC doesn't do what you expect. A kernel 
-compiled for Athlon wouldn't run on a Pentium 4 even with 
-CONFIG_X86_GENERIC.
-
-Quoting arch/i386/Kconfig in -test5:
-
-<--  snip  -->
-
-config X86_USE_3DNOW
-        bool
-        depends on MCYRIXIII || MK7
-        default y
-
-<--  snip  -->
-
-My patch in the mail
-
-  RFC: [2.6 patch] better i386 CPU selection
-
-tries to solve these problem with a different approach (the user selects 
-all CPUs he wants to support).
-
-> 	Jeff
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Andries is already gathering info for this one. This problem (missed
+key release) happens to me on all systems I have (Athlon + via, P3 + i440BX,
+P4 + 845...), most often when I do alt+right-arrow for walking through
+consoles (and for Andries: hitting key stops this, otherwise it 
+endlessly switches all VTs around, and while kernel thinks that key
+is down, keyboard actually does not generate any IRQs, so keyboard knows
+that all keys are released).
+                                                Petr
+                                                
 

@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267939AbUHaMAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268045AbUHaMEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267939AbUHaMAU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 08:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268043AbUHaMAU
+	id S268045AbUHaMEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 08:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268055AbUHaMEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 08:00:20 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:2695 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267939AbUHaMAQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 08:00:16 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Tom Vier <tmv@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org>
-References: <20040825163225.4441cfdd.akpm@osdl.org>
-	 <20040825233739.GP10907@legion.cup.hp.com>
-	 <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy>
-	 <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy>
-	 <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org>
-	 <20040826163234.GA9047@delft.aura.cs.cmu.edu>
-	 <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org>
-	 <20040831033950.GA32404@zero>
-	 <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093949876.32682.1.camel@localhost.localdomain>
+	Tue, 31 Aug 2004 08:04:25 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:61903 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268045AbUHaMET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 08:04:19 -0400
+Date: Tue, 31 Aug 2004 14:04:14 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, Paolo Ornati <ornati@fastwebnet.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.9-rc1-mm2: tdfxfb_lib causes compile error
+Message-ID: <20040831120414.GD3466@fs.tum.de>
+References: <20040830235426.441f5b51.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 31 Aug 2004 11:57:58 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040830235426.441f5b51.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-08-31 at 05:08, Linus Torvalds wrote:
-> > What about microkernels? They do tcp in userspace.
+On Mon, Aug 30, 2004 at 11:54:26PM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.9-rc1-mm1:
+>...
+> +tdfx-linkage-fix.patch
 > 
-> No they don't. They do TCP in a separate address space from user space, 
-> that just also happens to be separate from the "microkernel address 
-> space".
+>  fbdev driver fix
+>...
 
-Several do TCP in user space. The only thing you need in kernel for
-TCP/IP is enough decode to decide who gets the packet. Even some non
-microkernel embedded OS's do this in order to keep kernel size down.
+This might result in object files being included twice both directly and 
+via tdfxfb_lib, resulting in compile errors like the following:
 
-Alan
+<--  snip  -->
+
+...
+  LD      drivers/video/built-in.o
+drivers/video/tdfxfb_lib.o(.text+0x0): In function `cfb_imageblit':
+: multiple definition of `cfb_imageblit'
+drivers/video/cfbimgblt.o(.text+0x0): first defined here
+make[2]: *** [drivers/video/built-in.o] Error 1
+
+<--  snip  -->
+
+
+Please replace tdfx-linkage-fix.patch with the following patch:
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.9-rc1-mm1-full/drivers/video/Makefile.old	2004-08-28 10:41:30.000000000 +0200
++++ linux-2.6.9-rc1-mm1-full/drivers/video/Makefile	2004-08-28 10:46:20.000000000 +0200
+@@ -35,6 +35,9 @@
+ obj-$(CONFIG_FB_GBE)              += gbefb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
+ obj-$(CONFIG_FB_SGIVW)            += sgivwfb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
+ obj-$(CONFIG_FB_3DFX)             += tdfxfb.o cfbimgblt.o
++ifneq ($(CONFIG_FB_3DFX_ACCEL),y)
++  obj-$(CONFIG_FB_3DFX)           += cfbfillrect.o cfbcopyarea.o
++endif
+ obj-$(CONFIG_FB_MAC)              += macfb.o macmodes.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o 
+ obj-$(CONFIG_FB_HP300)            += hpfb.o cfbfillrect.o cfbimgblt.o
+ obj-$(CONFIG_FB_OF)               += offb.o cfbfillrect.o cfbimgblt.o cfbcopyarea.o
 

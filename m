@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265916AbUFTSdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUFTT1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265916AbUFTSdN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 14:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265893AbUFTSdM
+	id S263085AbUFTT1U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 15:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUFTT1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 14:33:12 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:54478 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S263824AbUFTSdI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 14:33:08 -0400
-Date: Sun, 20 Jun 2004 14:33:06 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH 455] Mac Sonic Ethernet
-Message-ID: <20040620183306.GB26036@havoc.gtf.org>
-References: <200406201726.i5KHQIVW001520@anakin.of.borg>
+	Sun, 20 Jun 2004 15:27:20 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:19691 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263085AbUFTT1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 15:27:18 -0400
+Subject: Re: DMA API issues
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Ian Molton <spyro@f2s.com>, rmk+lkml@arm.linux.org.uk, david-b@pacbell.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
+       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
+In-Reply-To: <200406202002.47025.oliver@neukum.org>
+References: <1087584769.2134.119.camel@mulgrave>
+	<20040620165042.393f2756.spyro@f2s.com>
+	<1087750024.11222.81.camel@mulgrave>  <200406202002.47025.oliver@neukum.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 20 Jun 2004 14:27:01 -0500
+Message-Id: <1087759622.10858.97.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406201726.i5KHQIVW001520@anakin.of.borg>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 20, 2004 at 07:26:18PM +0200, Geert Uytterhoeven wrote:
-> Mac Sonic Ethernet: Kill duplicate `MODULE_LICENSE("GPL");' (already defined in
-> included sonic.c) which causes a compile failure
+On Sun, 2004-06-20 at 13:02, Oliver Neukum wrote:
+> > The DMA API is about allowing devices to transact directly with memory
+> > behind the memory controller, it's an API that essentially allows the
+> > I/O controller and memory controller to communicate without CPU
+> > intervention.  This is still possible through the hypervisor, so the
+> > iSeries currently fully implements the DMA API.
 > 
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Then what's the problem?
 
-ACK
+If you look at the diagram, you'll see that the OHCI memory isn't behind
+the memory controller...
+
+James
+
+

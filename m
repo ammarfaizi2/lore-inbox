@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264411AbTLBWRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 17:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264418AbTLBWQi
+	id S264414AbTLBWQT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 17:16:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264415AbTLBWQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 17:16:38 -0500
-Received: from mail6.bluewin.ch ([195.186.4.229]:60053 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id S264416AbTLBWQb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 17:16:31 -0500
-From: Raffaele Sandrini <rasa@gmx.ch>
+	Tue, 2 Dec 2003 17:16:19 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:47624 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264414AbTLBWQR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 17:16:17 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: System clock and speedstepping
-Date: Tue, 2 Dec 2003 23:16:21 +0100
-User-Agent: KMail/1.5.4
-References: <200311261943.38002.rasa@gmx.ch> <1070318452.23568.577.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1070318452.23568.577.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312022316.21477.rasa@gmx.ch>
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: libata in 2.4.24?
+Date: 2 Dec 2003 22:05:09 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bqj2al$dmc$1@gatekeeper.tmr.com>
+References: <3FCB4506.8080305@wanadoo.es> <Pine.LNX.4.44.0312011209000.13692-100000@logos.cnet>
+X-Trace: gatekeeper.tmr.com 1070402709 14028 192.168.12.62 (2 Dec 2003 22:05:09 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 01 December 2003 23:40, john stultz wrote:
->
-> The "sane timesource" is the PIT (programmable interval timer). The TSC
-> is the Time-Stamp-Counter which is basically a cycle counter on the cpu.
-> If you want to boot using the PIT instead of the TSC, you can override
-> the default time source by using  "clock=pit" as a boot option. However
-> hopefully the problem can be fixed by adjusting the cpufreq code. As I
-> don't have any such hardware, would you be interested in testing
-> possible patches?
->
-> thanks
-> -john
->
+In article <Pine.LNX.4.44.0312011209000.13692-100000@logos.cnet>,
+Marcelo Tosatti  <marcelo.tosatti@cyclades.com> wrote:
+| 
+| 
+| On Mon, 1 Dec 2003, Xose Vazquez Perez wrote:
+| 
+| > Marcelo Tosatti wrote:
+| > 
+| > > On Sat, 29 Nov 2003, Marcelo Tosatti wrote:
+| > >>
+| > >> I'm happy to include it in 2.4 when Jeff thinks its stable enough for a 
+| > >> stable series. ;)
+| > 
+| > > I thought a bit more about this issue and I have a different opinion now.
+| > >
+| > > 2.6 is getting more and more stable and already includes libata --- users 
+| > > who need it should use 2.6.
+| > 
+| > Does it mean that 2.4.x is going to freeze, and only critical and security
+| > patches are going to be applied ?
+| 
+| Yes this will happen in the near future.
+| 
+| I still might accept some "non critical" modifications (which is btw, not
+| an objective defition) to 2.4.24, but for 2.4.25 that will be the rule.
 
-Im willing to solve it another way: There is a patch around (included in the 
-mm paches) for the kernel wich introduces a ACPI timer (timesource). As im 
-successfully using ACPI here ill switch over to it. A collegue of mine (who 
-had equal problems) reportet that this driver solves the problem completly.
+I hope you will continue to allow changes like new drivers and the
+like, there are many things in 2.6 which are not only not working but
+unlikely to ever be fixed because they are "old technology" and have
+been replaced by more interesting and less functional alternatives, but
+which are highly useful for people who have to use what is available in
+terms of hardware.
 
-About your patches: I would surely test your patches... i think its necessray 
-to have a good bug less standard implementation  of the timesource.
+That's "what the client/boss what's to provide" as well as "what the
+individual can afford." It's not just hobby stuff or old PCs being used,
+there are people selling laptops with ACPI more disfunctional than the
+Simpsons. Suspend via APM works fine, though.
 
-BTW: The time screw was huge. Especially if i ran programms wich needed all 
-the recources avalible (while(1){}).
-
-cheers,
-Raffaele
+Unless a miracle occurs it will take as long for 2.6 to be really stable
+and fully functional as it did for 2.[024]. When it goes out in distros
+and gets abused by users for a while the sharp corners will be broken off.
 -- 
-Raffaele Sandrini <rasa@gmx.ch>
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,74 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265971AbUBJQMg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 11:12:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUBJQMf
+	id S265995AbUBJQ30 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 11:29:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbUBJQ3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 11:12:35 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:7394 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265971AbUBJQM2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 11:12:28 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.3-rc2
-Date: Tue, 10 Feb 2004 17:17:14 +0100
-User-Agent: KMail/1.5.3
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org> <Pine.GSO.4.58.0402101352320.2261@waterleaf.sonytel.be> <200402101558.59344.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200402101558.59344.bzolnier@elka.pw.edu.pl>
+	Tue, 10 Feb 2004 11:29:25 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:5337 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265995AbUBJQ3Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 11:29:24 -0500
+Date: Tue, 10 Feb 2004 17:29:15 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Greg KH <greg@kroah.com>
+cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dmapool (was: Re: Linux 2.6.3-rc2)
+In-Reply-To: <20040210162259.GA26620@kroah.com>
+Message-ID: <Pine.GSO.4.58.0402101727130.2261@waterleaf.sonytel.be>
+References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org>
+ <Pine.GSO.4.58.0402101424250.2261@waterleaf.sonytel.be>
+ <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be> <20040210145558.A4684@infradead.org>
+ <20040210162259.GA26620@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402101717.14934.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Feb 2004, Greg KH wrote:
+> On Tue, Feb 10, 2004 at 02:55:58PM +0000, Christoph Hellwig wrote:
+> > On Tue, Feb 10, 2004 at 03:32:47PM +0100, Geert Uytterhoeven wrote:
+> > > This patch seems to fix the problem (all offending platforms include
+> > > <asm/generic.h> if CONFIG_PCI only):
+> >
+> > Umm, no the whole point of the dmapool is that it's not pci-dependent.
+> > Just fix your arch to have proper stub dma_ routines.  There were at
+> > least two headsups during 2.5 and 2.6-test that this will be required.
+>
+> Exactly.  Why is your arch including a header file that you can't build?
 
-> It fails with `unterminated `#if' conditional'.
+It's included if CONFIG_PCI is enabled (for the few m68k platforms that do have
+PCI). In that case everything should work fine (fingers crossed).
 
-Please pass me brown paper bag...
+> How about dropping this into your arch if you can't use the
+> include/asm-generic/dma-mapping.h file.  Or I can add it as
+> include/asm-generic/dma-mapping-broken.h and you can repoint your arch
+> to use it.  Which would be easier for you?
 
-[PATCH] fix build for CONFIG_BLK_DEV_IDEDMA=n
+Since others may need it as well, include/asm-generic/dma-mapping-broken.h
+should be fine.
 
-"fix duplication of DMA {black,white}list in icside.c" patch broke it.
+Let's see what the sparc guys have to comment...
 
-Noticed by Geert Uytterhoeven <geert@linux-m68k.org>.
+Gr{oetje,eeting}s,
 
- linux-2.6.3-rc2-root/include/linux/ide.h |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+						Geert
 
-diff -puN include/linux/ide.h~ide_release_dma_fix include/linux/ide.h
---- linux-2.6.3-rc2/include/linux/ide.h~ide_release_dma_fix	2004-02-10 16:30:48.085986376 +0100
-+++ linux-2.6.3-rc2-root/include/linux/ide.h	2004-02-10 16:35:38.959766840 +0100
-@@ -1626,6 +1626,7 @@ extern int __ide_dma_count(ide_drive_t *
- extern int __ide_dma_verbose(ide_drive_t *);
- extern int __ide_dma_lostirq(ide_drive_t *);
- extern int __ide_dma_timeout(ide_drive_t *);
-+#endif /* CONFIG_BLK_DEV_IDEDMA_PCI */
- 
- #ifdef CONFIG_BLK_DEV_IDE_TCQ
- extern int __ide_dma_queued_on(ide_drive_t *drive);
-@@ -1634,13 +1635,12 @@ extern ide_startstop_t __ide_dma_queued_
- extern ide_startstop_t __ide_dma_queued_write(ide_drive_t *drive);
- extern ide_startstop_t __ide_dma_queued_start(ide_drive_t *drive);
- #endif
-+#endif /* CONFIG_BLK_DEV_IDEDMA */
- 
--#else
-+#ifndef CONFIG_BLK_DEV_IDEDMA_PCI
- static inline void ide_release_dma(ide_hwif_t *drive) {;}
- #endif
- 
--#endif /* CONFIG_BLK_DEV_IDEDMA */
--
- extern int ide_hwif_request_regions(ide_hwif_t *hwif);
- extern void ide_hwif_release_regions(ide_hwif_t* hwif);
- extern void ide_unregister (unsigned int index);
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-_
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

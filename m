@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbUL1Vmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbUL1VvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbUL1Vmu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 16:42:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUL1Vmu
+	id S261261AbUL1VvD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 16:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUL1VvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 16:42:50 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:56746 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261247AbUL1Vmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 16:42:49 -0500
-Subject: Re: Real-time rw-locks (Re: [patch] Real-Time Preemption,
-	-RT-2.6.10-rc2-mm3-V0.7.32-15)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Steven Rostedt <rostedt@kihontech.com>, Ingo Molnar <mingo@elte.hu>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
-       Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Florian Schmidt <mista.tapas@gmx.net>, Shane Shrybman <shrybman@aei.ca>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-In-Reply-To: <Pine.OSF.4.05.10412271655270.18818-100000@da410.ifa.au.dk>
-References: <Pine.OSF.4.05.10412271655270.18818-100000@da410.ifa.au.dk>
-Content-Type: text/plain
-Date: Tue, 28 Dec 2004 16:42:44 -0500
-Message-Id: <1104270164.20714.31.camel@krustophenia.net>
+	Tue, 28 Dec 2004 16:51:03 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:12837 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261261AbUL1VvA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 16:51:00 -0500
+Date: Tue, 28 Dec 2004 22:52:28 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, kai@germaschewski.name,
+       sam@ravnborg.org
+Subject: Re: [PATCH] make kernelrelease
+Message-ID: <20041228215228.GB21591@mars.ravnborg.org>
+Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>, kai@germaschewski.name,
+	sam@ravnborg.org
+References: <20041221002815.GD28322@waste.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041221002815.GD28322@waste.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-27 at 17:23 +0100, Esben Nielsen wrote:
-> I am afraid NVidia cards and preempt realtime is far in the future :-(
+On Mon, Dec 20, 2004 at 04:28:15PM -0800, Matt Mackall wrote:
+> This patch makes it easy to programmatically get at the kernel
+> makefile's idea of the kernel version from external scripts and
+> makefiles with something like V=`make kernelrelease`.
+> 
+> Alternatives include parsing Makefile (errorprone and broken by things
+> like localversion) and running the C preprocessor on version.h (which
+> requires a) building version.h somewhere and b) is really ugly).
+> 
+> Index: l/Makefile
+> ===================================================================
+> --- l.orig/Makefile	2004-12-20 16:08:11.746716000 -0800
+> +++ l/Makefile	2004-12-20 16:18:25.036696000 -0800
+> @@ -1187,6 +1187,9 @@
+>  	$(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
+>  	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)
+>  
+> +kernelrelease:
+> +	@echo $(KERNELRELEASE)
+> +
+>  # FIXME Should go into a make.lib or something 
+>  # ===========================================================================
 
-Not necessarily.  I am sure many of Nvidia's potential customers want to
-do high end simulation and that requires an RT capable OS and good
-graphics hardware.  If many people end up using RT preempt for high end
-simulator applications, like several who have posted on this list, then
-it seems like it would a good fit.
+Applied - thanks.
 
-Lee
-
+	Sam

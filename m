@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261530AbSLCPLP>; Tue, 3 Dec 2002 10:11:15 -0500
+	id <S261587AbSLCPJK>; Tue, 3 Dec 2002 10:09:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261568AbSLCPLP>; Tue, 3 Dec 2002 10:11:15 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:43785 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261530AbSLCPLO>;
-	Tue, 3 Dec 2002 10:11:14 -0500
-Date: Tue, 3 Dec 2002 08:18:54 -0800
-From: Greg KH <greg@kroah.com>
-To: Romain Lievin <rlievin@free.fr>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tiglusb
-Message-ID: <20021203161854.GE20844@kroah.com>
-References: <20021202204517.GA9161@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021202204517.GA9161@free.fr>
-User-Agent: Mutt/1.4i
+	id <S261593AbSLCPJK>; Tue, 3 Dec 2002 10:09:10 -0500
+Received: from adsl-64-175-232-238.dsl.sntc01.pacbell.net ([64.175.232.238]:12596
+	"EHLO linux.local") by vger.kernel.org with ESMTP
+	id <S261587AbSLCPJJ> convert rfc822-to-8bit; Tue, 3 Dec 2002 10:09:09 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Dragan Stancevic <visitor@xalien.org>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [RFC] LSM fix for stupid "empty" functions
+Date: Tue, 3 Dec 2002 07:14:08 -0800
+User-Agent: KMail/1.4.3
+Cc: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+References: <20021201083056.GJ679@kroah.com> <200212021837.52312.visitor@xalien.org> <20021203160141.GA20844@kroah.com>
+In-Reply-To: <20021203160141.GA20844@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212030714.08456.visitor@xalien.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 02, 2002 at 09:45:17PM +0100, Romain Lievin wrote:
-> Hi Greg,
-> 
-> I have a patch against 2.4.20 for syncing modifications done on the 2.5.50 to 
-> the 2.4.20. Can I send it to you ?
-> 
-> I have also another patch on 2.5.50 (clean-up).
+On Tuesday 03 December 2002 08:01, Greg KH wrote:
+> On Mon, Dec 02, 2002 at 06:37:52PM -0800, Dragan Stancevic wrote:
+> > not that I am trying to be a PITA but where did you get the information
+> > that initialized variables live in .bss?
+>
+> I was incorrect, as was pointed out to me about 15 minutes after sending
+> that email :)
 
-Feel free to send them all to me.
 
-thanks,
+Oh sorry, I didn't catch that, 13000 emails unread.
 
-greg k-h
+-- 
+Peace can only come as a natural consequence
+of universal enlightenment. -Dr. Nikola Tesla

@@ -1,82 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265212AbUBOVxi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 16:53:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbUBOVxf
+	id S265207AbUBOVwV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 16:52:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUBOVwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 16:53:35 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.120]:63392 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S265212AbUBOVxc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 16:53:32 -0500
-Message-ID: <402FEAD4.8020602@myrealbox.com>
-Date: Sun, 15 Feb 2004 13:55:32 -0800
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
+	Sun, 15 Feb 2004 16:52:21 -0500
+Received: from [217.7.64.198] ([217.7.64.198]:45190 "EHLO mx1.net4u.de")
+	by vger.kernel.org with ESMTP id S265207AbUBOVwT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 16:52:19 -0500
+From: Ernst Herzberg <earny@net4u.de>
+Reply-To: earny@net4u.de
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.3-rc3
+Date: Sun, 15 Feb 2004 22:52:17 +0100
+User-Agent: KMail/1.6
+Cc: Peter Osterlund <petero2@telia.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org> <200402152052.50596.earny@net4u.de> <m28yj42jcm.fsf@p4.localdomain>
+In-Reply-To: <m28yj42jcm.fsf@p4.localdomain>
 MIME-Version: 1.0
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BUG] usblp_write spins forever after an error
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200402152252.17301.earny@net4u.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently cancelled a print job with the printer's cancel function, and the 
-CUPS backend got stuck in usblp_write (using 100% CPU and not responding to 
-signals).
-
-The printer is a Kyocera Mita FS-1900 (which has some other problems with the 
-linux USB code: usblp_check_status often times out, even though the printer is 
-bidirectional -- but that's a whole different issue).
-
-It looks like the problem is that the write failed, so wcomplete got set
-to 1 and the status is nonzero.  This case appears to be mishandled in usblp.c:
-
-         while (writecount < count) {
-                 if (!usblp->wcomplete) {
-			[... not reaching this code]
-                 }
-
-                 down (&usblp->sem);
-                 if (!usblp->present) {
-                         up (&usblp->sem);
-                         return -ENODEV;
-                 }
-                 if (usblp->writeurb->status != 0) {
-
-			[ check status? ]
-
-                         schedule ();
-                         continue; <-- problem
-                 }
-
-After the write fails, the current code keeps checking the same status, and 
-never checks for signals or fails.  I'm not sure what the right fix is, but it 
-might be something like this:
-
---- ./usblp.c.orig      2004-02-15 06:27:29.176169752 -0800
-+++ ./usblp.c   2004-02-15 06:29:40.137260640 -0800
-@@ -645,13 +645,11 @@
-                                 err = usblp->writeurb->status;
-                         } else
-                                 err = usblp_check_status(usblp, err);
--                       up (&usblp->sem);
-
--                       /* if the fault was due to disconnect, let khubd's
--                        * call to usblp_disconnect() grab usblp->sem ...
--                        */
--                       schedule ();
--                       continue;
-+                       writecount += usblp->writeurb->transfer_buffer_length;
-+                       up (&usblp->sem);
-+                       count = writecount ? writecount : err;
-+                       break;
-                 }
-
-                 writecount += usblp->writeurb->transfer_buffer_length;
+On Sonntag, 15. Februar 2004 21:11, Peter Osterlund wrote:
+> Ernst Herzberg <earny@net4u.de> writes:
+> > Compile warnings with new driver:
+> >
+> > [...]
+> > drivers/video/aty/radeon_base.c: In function
+> > `radeon_probe_pll_params': drivers/video/aty/radeon_base.c:474:
+> > warning: `xtal' might be used uninitialized in this function
+>
+> This looks like a real bug. I guess the patch below fixes it, but I
+> can't test it because that code is not executed on my hardware. (And I
+> doubt it will fix your problem.)
+>
+> --- linux/drivers/video/aty/radeon_base.c.old	2004-02-15
+> 21:06:02.000000000 +0100 +++
+> linux/drivers/video/aty/radeon_base.c	2004-02-15 20:57:22.000000000
+> +0100 @@ -566,8 +566,9 @@
+>  		break;
+>  	}
+>
+> -	do_div(vclk, 1000);
+> -	xtal = (xtal * denom) / num;
+> +	vclk *= denom;
+> +	do_div(vclk, 1000 * num);
+> +	xtal = vclk;
+>
+>  	if ((xtal > 26900) && (xtal < 27100))
+>  		xtal = 2700;
+>
+> > drivers/video/aty/radeon_base.c: In function `radeon_screen_blank':
+> > drivers/video/aty/radeon_base.c:944: warning: `val2' might be used
+> > uninitialized in this function drivers/video/aty/radeon_base.c: In
+> > function `radeonfb_setcolreg': drivers/video/aty/radeon_base.c:1025:
+> > warning: `vclk_cntl' might be used uninitialized in this function CC  
+> >    net/sunrpc/timer.o
+> > drivers/video/aty/radeon_base.c: In function `radeon_calc_pll_regs':
+> > drivers/video/aty/radeon_base.c:1319: warning: `pll_output_freq' might
+> > be used uninitialized in this function
+>
+> I think these warnings are harmless.
 
 
---Andy
+This patch does not help, the console is still blank. The monitor shows:
 
-Please CC me -- I'm not subscribed.
+H. Freq 63.98 kHz
+V. Freq 60.00 HZ
+Pixel Clock 107.98 Mhz
+Resolution 1280x1024
+Belinea101705
+
+.. but with a black screen...
+
+~Earny

@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131205AbRDXVTY>; Tue, 24 Apr 2001 17:19:24 -0400
+	id <S131233AbRDXVk5>; Tue, 24 Apr 2001 17:40:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131233AbRDXVTP>; Tue, 24 Apr 2001 17:19:15 -0400
-Received: from [64.64.109.142] ([64.64.109.142]:10513 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S131205AbRDXVTJ>; Tue, 24 Apr 2001 17:19:09 -0400
-Message-ID: <3AE5EDAC.AF06F124@didntduck.org>
-Date: Tue, 24 Apr 2001 17:18:36 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S131317AbRDXVkq>; Tue, 24 Apr 2001 17:40:46 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61454 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131233AbRDXVkc>; Tue, 24 Apr 2001 17:40:32 -0400
+Subject: Re: BUG: USB/Reboot
+To: swarm@warpcore.provalue.net (Collectively Unconscious)
+Date: Tue, 24 Apr 2001 22:41:45 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10104241447250.26265-100000@warpcore.provalue.net> from "Collectively Unconscious" at Apr 24, 2001 02:49:00 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Steven Walter <srwalter@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] properly detect ActionTec modem of 
- PCI_CLASS_COMMUNICATION_OTHER
-In-Reply-To: <20010424160310.A338@hapablap.dyn.dhs.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14sAZB-00030T-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Walter wrote:
-> 
-> This patch allows the serial driver to properly detect and set up the
-> ActionTec PCI modem.  This modem has a PCI class of COMMUNICATION_OTHER,
-> which is why this modem is not otherwise detected.
-> 
-> Any suggestions on the patch are welcome.  Thanks
+> If USB is disabled on a server works MB reboots hang in 2.2.x
 
-A small suggestion:  Vendor/device id are sufficient to identify the
-device.  You can change PCI_CLASS_COMMUNICATION_OTHER << 8 to 0.
+In almost all cases a hang after Linux reboots the system and it not coming
+back to the BIOS is a BIOS bug.
 
---
-
-				Brian Gerst
+You can confirm this by asking the kernel to do a real bios reboot with
+the reboot= option

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280306AbRKEHsx>; Mon, 5 Nov 2001 02:48:53 -0500
+	id <S280314AbRKEHxX>; Mon, 5 Nov 2001 02:53:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280314AbRKEHsn>; Mon, 5 Nov 2001 02:48:43 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:45707 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S280306AbRKEHsX>; Mon, 5 Nov 2001 02:48:23 -0500
-Date: Mon, 5 Nov 2001 09:48:16 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext2 directory index, updated
-Message-ID: <20011105094816.E26218@niksula.cs.hut.fi>
-In-Reply-To: <20011104022659Z16995-4784+750@humbolt.nl.linux.org> <m3hesatcgq.fsf@borg.borderworlds.dk> <20011105014225Z17055-18972+38@humbolt.nl.linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011105014225Z17055-18972+38@humbolt.nl.linux.org>; from phillips@bonn-fries.net on Mon, Nov 05, 2001 at 02:43:28AM +0100
+	id <S280321AbRKEHxN>; Mon, 5 Nov 2001 02:53:13 -0500
+Received: from ns1.crl.go.jp ([133.243.3.1]:11205 "EHLO ns1.crl.go.jp")
+	by vger.kernel.org with ESMTP id <S280317AbRKEHxC>;
+	Mon, 5 Nov 2001 02:53:02 -0500
+Date: Mon, 5 Nov 2001 16:52:57 +0900 (JST)
+From: Tom Holroyd <tomh@po.crl.go.jp>
+To: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.4.14-pre6 freeze mounting ext2 diskette
+Message-ID: <Pine.LNX.4.30.0111051652300.5751-100000@holly.crl.go.jp>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 05, 2001 at 02:43:28AM +0100, you [Daniel Phillips] claimed:
->
-> Which kernel are you using?  From 2.4.10 on ext2 has an accelerator in 
-> ext2_find_entry - it caches the last lookup position.  I'm wondering how that 
-> affects this case.
+I just booted 2.4.14-pre6 and tried to mount a diskette with an ext2
+filesystem on it.  /var/log/messages reported loading the correct
+version of the module (floppy.o) and then it froze hard.  Left the disk
+spinning.
 
-Is that the same optimization Ted T'so implemented for ext3 around 0.9.10? I
-thought it hadn't been ported the ext2...
+kernel: FDC 0 is a post-1991 82077
+<freeze>
 
-BTW, I assume the ext2 dir index patch is roughly equivalent to FreeBSD
-dirhash and the the other patch resembles theFreeBSD dirperf patch?
-Have you looked at them? [http://www.osnews.com/story.php?news_id=153]
+Works fine under 2.4.12.  There was no fs damage.
+/proc/ioports in 2.4.12 says:
 
+  000003f0-000003f5 : floppy
+  000003f7-000003f7 : floppy DIR
 
--- v --
+/etc/fstab entry:
+/dev/fd0        /mnt/floppy     ext2    defaults,noauto,user    0 0
 
-v@iki.fi
+Alpha, gcc-3.0.1 compiled (so is 2.4.12).
+

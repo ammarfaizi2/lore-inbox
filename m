@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293242AbSDCUmK>; Wed, 3 Apr 2002 15:42:10 -0500
+	id <S291401AbSDCVGl>; Wed, 3 Apr 2002 16:06:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291401AbSDCUmB>; Wed, 3 Apr 2002 15:42:01 -0500
-Received: from mailgw.aecom.yu.edu ([129.98.1.16]:8076 "EHLO
-	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP
-	id <S312393AbSDCUlt>; Wed, 3 Apr 2002 15:41:49 -0500
-Mime-Version: 1.0
-Message-Id: <a0510030bb8d1193e3a25@[129.98.91.150]>
-In-Reply-To: <3CAB551E.95990FBB@zip.com.au>
-Date: Wed, 3 Apr 2002 15:41:49 -0500
-To: linux-kernel@vger.kernel.org
-From: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: Re: Mount corrupts an ext2 filesystem on a RAM disk
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S293276AbSDCVGa>; Wed, 3 Apr 2002 16:06:30 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21766 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291401AbSDCVGW>; Wed, 3 Apr 2002 16:06:22 -0500
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+To: tigran@aivazian.fsnet.co.uk (Tigran Aivazian)
+Date: Wed, 3 Apr 2002 22:22:00 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andrea@suse.de (Andrea Arcangeli),
+        arjanv@redhat.com (Arjan van de Ven), hugh@veritas.com (Hugh Dickins),
+        mingo@redhat.com (Ingo Molnar),
+        stelian.pop@fr.alcove.com (Stelian Pop), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0204032051530.1163-100000@einstein.homenet> from "Tigran Aivazian" at Apr 03, 2002 09:05:58 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16ssCe-0004Xj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for your reply.
+> is wrong somewhere. Then perhaps we could even refine the API to have
+> 
+> EXPORT_SYMBOL_FRIENDS(sym,list_of_friends)
+> 
+> where only "friends" can use the symbol and even then only if they first
+> call (an exported function):
 
->It works for me.
+Swap "friends" from people to code then its interesting
 
-You left out a *crucial* step. "cd" into the mounted ramdisk 
-directory. This step is what does the damage.
+eg I'd love to be able to do
+	EXPORT_SYMBOL_TO(sym, "i2o*.o");
 
-I have sent the files directly to Andrew.
--- 
+for the i2o code and know that nobody is going to try and use those routines
+for non i2o stuff thinking "that looks handy".
 
-Maurice Volaski, mvolaski@aecom.yu.edu
-Computing Support, Rose F. Kennedy Center
-Albert Einstein College of Medicine of Yeshiva University
+I'm not sure if its that managable, _INTERNAL works for a lot of things from
+my point of view. Knowing what is and isnt claimed to be an interface helps
+so much. Complicating it seems to have few extra payoffs

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129933AbQKXI6U>; Fri, 24 Nov 2000 03:58:20 -0500
+        id <S129582AbQKXJDm>; Fri, 24 Nov 2000 04:03:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129453AbQKXI6K>; Fri, 24 Nov 2000 03:58:10 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:34513 "EHLO
-        fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-        id <S129933AbQKXI55>; Fri, 24 Nov 2000 03:57:57 -0500
-From: kumon@flab.fujitsu.co.jp
-Date: Fri, 24 Nov 2000 17:27:41 +0900
-Message-Id: <200011240827.RAA13070@asami.proc.flab.fujitsu.co.jp>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
-Subject: Re: gcc 2.95.2 is buggy
-In-Reply-To: <20001124001051.D8881@wire.cadcamlab.org>
-In-Reply-To: <UTC200011240157.CAA140709.aeb@aak.cwi.nl>
-        <20001124171014.A26050@metastasis.f00f.org>
-        <20001124001051.D8881@wire.cadcamlab.org>
-Reply-To: kumon@flab.fujitsu.co.jp
-Cc: kumon@flab.fujitsu.co.jp
-X-Mailer: Handmade Mailer version 1.0
+        id <S129971AbQKXJDb>; Fri, 24 Nov 2000 04:03:31 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:50696 "HELO mail.ocs.com.au")
+        by vger.kernel.org with SMTP id <S129582AbQKXJDS>;
+        Fri, 24 Nov 2000 04:03:18 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Pekka Savola <pekkas@netcore.fi>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Raising MAX_UNITS in net drivers oopses kernel reproducibly 
+In-Reply-To: Your message of "Thu, 23 Nov 2000 23:09:18 +0200."
+             <Pine.LNX.4.30.0011232253350.21863-100000@netcore.fi> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 24 Nov 2000 19:33:03 +1100
+Message-ID: <966.975054783@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson writes:
- > [Chris Wedgwood]
- > > taking away -O2 is a 'fix' for now... not a very good one though.
- > 
- > Not if you want function inlining to work.  The kernel *won't compile*
- > without optimization.
+On Thu, 23 Nov 2000 23:09:18 +0200 (EET), 
+Pekka Savola <pekkas@netcore.fi> wrote:
+>EIP:    0010:[de4x5:de4x5_probe+24259/37172]
+>Note! EIP shows de4x5 for some reason.  Please note that de4x5 driver
 
-Using -O1 still works, at least for the demo program.
+Because klogd tried to convert the oops and made a complete mess of it.
+Always start klogd as "klogd -x" and run the oops through ksymoops
+instead of letting the horribly broken klogd stamp on the report.
 
---
-Computer Systems Laboratory, Fujitsu Labs.
-kumon@flab.fujitsu.co.jp
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

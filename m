@@ -1,162 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbQJZTmb>; Thu, 26 Oct 2000 15:42:31 -0400
+	id <S129121AbQJZTxs>; Thu, 26 Oct 2000 15:53:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129121AbQJZTmL>; Thu, 26 Oct 2000 15:42:11 -0400
-Received: from gw.atria.com ([192.88.237.2]:2820 "EHLO gw.atria.com")
-	by vger.kernel.org with ESMTP id <S129057AbQJZTmF>;
-	Thu, 26 Oct 2000 15:42:05 -0400
-Message-Id: <200010261942.PAA17381@cryolite.atria.com>
-Date: Thu, 26 Oct 2000 15:42:13 -0400 (EDT)
-From: William Taber <wtaber@rational.com>
-Reply-To: William Taber <wtaber@rational.com>
-Subject: [PATCH] 2.2.x Fixes for stackable filesystems
-To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: 74V9aVn8wEitfgPMT7RwnQ==
-X-Mailer: dtmail 1.3.0 @(#)CDE Version 1.3.4p_5 SunOS 5.7 sun4u sparc 
+	id <S129505AbQJZTxi>; Thu, 26 Oct 2000 15:53:38 -0400
+Received: from gwyn.tux.org ([207.96.122.8]:13756 "EHLO gwyn.tux.org")
+	by vger.kernel.org with ESMTP id <S129121AbQJZTxZ>;
+	Thu, 26 Oct 2000 15:53:25 -0400
+Date: Thu, 26 Oct 2000 15:53:23 -0400
+From: Timothy Ball <timball@tux.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: VM-global-2.2.18pre17-7
+Message-ID: <20001026155323.E12432@gwyn.tux.org>
+In-Reply-To: <Pine.LNX.4.21.0010251633080.3324-100000@freak.distro.conectiva> <39F84B64.5935C12@ovh.net> <39F8566D.51561CB3@profmakx.de> <39F85A09.DA88452F@ovh.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.7i
+In-Reply-To: <39F85A09.DA88452F@ovh.net>; from oles@ovh.net on Thu, Oct 26, 2000 at 06:21:29PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, Alan,
+On Thu, Oct 26, 2000 at 06:21:29PM +0200, octave klaba wrote:
+> 
+> 
+> > > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
+> > let me guess: intel eepro100 or similar??
+> yeap
+> 
+> 00:02.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 08)
+>         Subsystem: Asustek Computer, Inc.: Unknown device 1043
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 8 min, 56 max, 64 set, cache line size 08
+>         Interrupt: pin A routed to IRQ 20
+>         Region 0: Memory at fd000000 (32-bit, non-prefetchable)
+>         Region 1: I/O ports at d800
+>         Region 2: Memory at fc800000 (32-bit, non-prefetchable)
+>         Capabilities: <available only to root>
+> 
+> > Well known problem with that one. dont know if its fully fixed ... With
+> > 2.4.0-test9-pre3 it doesnt happen on my machine ...
+> we have 1-2 servers running 2.4.0-test9 and we got this error ...
 
-I am proposing this patch for inclusion in the 2.2.x tree.  (Whether it goes
-into 2.2.18 or 2.2.19 is your call.)  We have run this successfully with
-2.2.14 through 2.2.17.
+I get similar eth0 hangs using a 3c59x. Though outside of rebooting I
+have no clue how to get networking going again.
 
-Our kernel patches help stacking file systems work properly in two
-areas:
+--timball
 
-* dentry reference count fixes when files are opened by init_private_file()
-* file reference count fixes for stacking filesystems mmap().
-
-1. In some cases, stacking file systems which do no data translation may
-want to substitute another dentry/inode at the time of a file open.  If
-they do that, the dentry reference counts will get mishandled by some
-callers of init_private_file().  Our changes make init_private_file()
-take a dentry reference itself, and free it only if an error occurs on
-the file open.  This leaves the file open routine free to swap the
-dentry with another one.  All callers of the file system open routine
-must dget() the dentry before putting it into the file structure prior
-to calling the open routine.  Callers of init_private_file() must dput()
-the file's dentry when they are done with the file.
-
-2. In the mmap case, stacking file systems which do no data translation
-probably want to substitute the underlying file system's file pointer,
-so that paging operations are handled directly by the underlying file
-system.  The call into the file system's mmap() must be allowed to set
-the VM area's file pointer, so that it can effect this swap.  Our change
-to the VM system is to set the VMA's file pointer only if the specific
-mmap() routine did not set it.
-
-Thanks,
-
-Will Taber
-
-+---------------------------------------------------------------------+
-| Will Taber                                                          |
-| Software Engineer, CMBU                 E-mail  wtaber@rational.com |
-| Rational Software Corporation           Phone:  781-676-2436        |
-| 20 Maguire Road, Lexington, Mass. 02421                             |
-+---------------------------------------------------------------------+
-
-
-diff -Naur linux.clean.2.2.14/fs/exec.c linux/fs/exec.c
---- linux.clean.2.2.14/fs/exec.c	Tue Oct 26 20:53:42 1999
-+++ linux/fs/exec.c	Wed Sep 13 09:51:09 2000
-@@ -136,7 +136,7 @@
- 			goto out_fd;
- 		f->f_flags = mode;
- 		f->f_mode = (mode+1) & O_ACCMODE;
--		f->f_dentry = dentry;
-+		f->f_dentry = dget(dentry);
- 		f->f_pos = 0;
- 		f->f_reada = 0;
- 		f->f_op = inode->i_op->default_file_ops;
-@@ -146,11 +146,11 @@
- 				goto out_filp;
- 		}
- 		fd_install(fd, f);
--		dget(dentry);
- 	}
- 	return fd;
- 
- out_filp:
-+        dput(dentry);
- 	if (error > 0)
- 		error = -EIO;
- 	put_filp(f);
-@@ -371,6 +371,7 @@
- close_readexec:
- 	if (file.f_op->release)
- 		file.f_op->release(inode,&file);
-+        dput(file.f_dentry);
- end_readexec:
- 	return result;
- }
-diff -Naur linux.clean.2.2.14/fs/file_table.c linux/fs/file_table.c
---- linux.clean.2.2.14/fs/file_table.c	Tue Jan  4 13:12:23 2000
-+++ linux/fs/file_table.c	Wed Sep 13 09:51:09 2000
-@@ -117,16 +117,20 @@
-  */
- int init_private_file(struct file *filp, struct dentry *dentry, int mode)
- {
-+	int err;
- 	memset(filp, 0, sizeof(*filp));
- 	filp->f_mode   = mode;
- 	filp->f_count  = 1;
--	filp->f_dentry = dentry;
-+	filp->f_dentry = dget(dentry);
- 	filp->f_uid    = current->fsuid;
- 	filp->f_gid    = current->fsgid;
- 	filp->f_op     = dentry->d_inode->i_op->default_file_ops;
--	if (filp->f_op->open)
--		return filp->f_op->open(dentry->d_inode, filp);
--	else
-+	if (filp->f_op->open) {
-+		err = filp->f_op->open(dentry->d_inode, filp);
-+                if (err)
-+                    dput(dentry);
-+		return err;
-+        } else
- 		return 0;
- }
- 
-diff -Naur linux.clean.2.2.14/fs/nfsd/nfsfh.c linux/fs/nfsd/nfsfh.c
---- linux.clean.2.2.14/fs/nfsd/nfsfh.c	Tue Sep 12 17:08:27 2000
-+++ linux/fs/nfsd/nfsfh.c	Wed Sep 13 09:51:09 2000
-@@ -396,6 +396,7 @@
- out_close:
- 	if (file.f_op->release)
- 		file.f_op->release(dir, &file);
-+        dput(file.f_dentry);
- out:
- 	return error;
- }
-diff -Naur linux.clean.2.2.14/mm/mmap.c linux/mm/mmap.c
---- linux.clean.2.2.14/mm/mmap.c	Tue Jan  4 13:12:26 2000
-+++ linux/mm/mmap.c	Wed Sep 13 09:51:09 2000
-@@ -321,8 +321,14 @@
- 			file->f_dentry->d_inode->i_writecount++;
- 		if (error)
- 			goto unmap_and_free_vma;
--		vma->vm_file = file;
--		file->f_count++;
-+                if (vma->vm_file == NULL) {
-+                    /*
-+                     * underlying FS may have attached it differently--only
-+                     * attach it if they didn't.
-+                     */
-+                    vma->vm_file = file;
-+                    file->f_count++;
-+                }
- 	}
- 
- 	/*
-
-
+-- 
+	Send mail with subject "send pgp key" for public key.
+pub  1024R/CFF85605 1999-06-10 Timothy L. Ball <timball@sheergenius.com>
+     Key fingerprint = 8A 8E 64 D6 21 C0 90 29  9F D6 1E DC F8 18 CB CD
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

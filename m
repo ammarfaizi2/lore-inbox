@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266717AbTAAEGs>; Tue, 31 Dec 2002 23:06:48 -0500
+	id <S266763AbTAAELq>; Tue, 31 Dec 2002 23:11:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266763AbTAAEGs>; Tue, 31 Dec 2002 23:06:48 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:16295 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S266717AbTAAEGr>; Tue, 31 Dec 2002 23:06:47 -0500
-Message-ID: <3E126B33.7000807@iku-ag.de>
-Date: Wed, 01 Jan 2003 05:14:43 +0100
-From: Kurt Huwig <k.huwig@iku-ag.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Oops with 2.4.20 when accessing SVCDs
-References: <3E11B976.3010306@iku-ag.de> <200301010150.13274.m.c.p@wolk-project.de>
-In-Reply-To: <3E11B976.3010306@iku-ag.de>
-X-Enigmail-Version: 0.70.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266797AbTAAELq>; Tue, 31 Dec 2002 23:11:46 -0500
+Received: from codepoet.org ([166.70.99.138]:62138 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S266763AbTAAELp>;
+	Tue, 31 Dec 2002 23:11:45 -0500
+Date: Tue, 31 Dec 2002 21:20:14 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Hell.Surfers@cwctv.net
+Cc: scott@coyotegulch.com, linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Message-ID: <20030101042014.GA5578@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Hell.Surfers@cwctv.net, scott@coyotegulch.com,
+	linux-kernel@vger.kernel.org
+References: <0aebf3510030113DTVMAIL9@smtp.cwctv.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0aebf3510030113DTVMAIL9@smtp.cwctv.net>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed Jan 01, 2003 at 03:13:00AM +0000, Hell.Surfers@cwctv.net wrote:
+> no Nvidias drivers arent like coal because coal is useful for fires, 
 
-Marc-Christian Petersen wrote:
+Nvidia cards are also quite useful for fires.  Just take 
+off the heat sink.  ;-)
 
-| On Tuesday 31 December 2002 16:36, Kurt Huwig wrote:
-|
-|> I got the attached oops when copying a file from a SVCD using
-|> cdfs-0.5c I mounted a SVCD using mount -t cdfs /dev/cdbrenner
-|> /cdbrenner using the cdfs driver from
-|> http://www.elis.rug.ac.be/~ronsse/cdfs/cdfs.html
-|
-| Can you reproduce this w/o cdfs? I've heard alot of problems with
-| cdfs is oopsing and crashing with recent kernels so this might be a
-| problem of cdfs, not the kernel itself.
+ -Erik
 
-Without cdfs, I don't know how to access SVCDs ;-) Images of "normal"
-CDs work fine.
-
-Kurt
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+EmsyTDL5CJndlGgRAly0AKDiYdySKrd9BjjvyraEbnCSoj5KOACfdNx8
-HXytM2/pTawxXZeKyWcurcA=
-=Yp1F
------END PGP SIGNATURE-----
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266100AbSKWATE>; Fri, 22 Nov 2002 19:19:04 -0500
+	id <S266735AbSKWA1Y>; Fri, 22 Nov 2002 19:27:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266210AbSKWATE>; Fri, 22 Nov 2002 19:19:04 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:28617 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S266100AbSKWATD>; Fri, 22 Nov 2002 19:19:03 -0500
-Message-ID: <000c01c29286$ea808780$94d40a0a@amr.corp.intel.com>
-From: "Rusty Lynch" <rusty@linux.co.intel.com>
-To: "SLion" <s.lion@verizon.net>, <linux-kernel@vger.kernel.org>
-References: <20021123000823.GA11439@ingchai.lan>
-Subject: Re: 2.5.49 bk 
-Date: Fri, 22 Nov 2002 16:26:07 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S266736AbSKWA1X>; Fri, 22 Nov 2002 19:27:23 -0500
+Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:46996 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S266735AbSKWA1W>; Fri, 22 Nov 2002 19:27:22 -0500
+Date: Sat, 23 Nov 2002 01:34:28 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.49
+Message-Id: <20021123013428.6d7a9549.us15@os.inf.tu-dresden.de>
+In-Reply-To: <Pine.LNX.4.44.0211221351040.1763-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0211221351040.1763-100000@penguin.transmeta.com>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.8.5claws179 (GTK+ 1.2.10; Linux 2.5.49)
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.DkBWcU,'+OoNGv"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got drivers/char/watchdog/Kconfig in my pull
+--=.DkBWcU,'+OoNGv
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Are you sure you don't need to bk get the file?
+On Fri, 22 Nov 2002 13:55:08 -0800 (PST) Linus Torvalds (LT) wrote:
 
-    -rustyl
------ Original Message -----
-From: "SLion" <s.lion@verizon.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Friday, November 22, 2002 4:08 PM
-Subject: 2.5.49 bk
+LT> Summary of changes from v2.5.48 to v2.5.49
+LT> ============================================
+
+[...]
+
+Hello,
+
+Someone already reported the problem for 2.5.48, and it's still present in
+2.5.49:
+
+SCSI subsystem driver Revision: 1.00
+ERROR: SCSI host `ide-scsi' has no error handling
+ERROR: This is not a safe way to run your SCSI host
+ERROR: The error handling must be added to this driver
+Call Trace:
+ [<c026e193>] scsi_register+0x2e3/0x2f0
+ [<c0210aff>] bus_add_driver+0xaf/0xd0
+ [<c0275882>] idescsi_detect+0x22/0x80
+ [<c026e1d3>] scsi_register_host+0x33/0xd0
+ [<c010507a>] init+0x3a/0x160
+ [<c0105040>] init+0x0/0x160
+ [<c010713d>] kernel_thread_helper+0x5/0x18
 
 
-> Just pulled 2.5.49 and get the following while doing menuconfig.
->
->   gcc  -o scripts/lxdialog/lxdialog scripts/lxdialog/checklist.o
->   scripts/lxdialog/menubox.o scripts/lxdialog/textbox.o
->   scripts/lxdialog/yesno.o scripts/lxdialog/inputbox.o
->   scripts/lxdialog/util.o scripts/lxdialog/lxdialog.o
->   scripts/lxdialog/msgbox.o -lncurses
->   ./scripts/kconfig/mconf arch/i386/Kconfig
->   drivers/char/Kconfig:640: can't open file
->   "drivers/char/watchdog/Kconfig"
->   make: *** [menuconfig] Error 1
->
-> Looks like something got lost here.
->
-> -SL
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Regards,
+-Udo.
 
+--=.DkBWcU,'+OoNGv
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE93s0XnhRzXSM7nSkRAoROAJ95gyarovTntg+dPDis9wYWbpBDSQCfWt8r
+jAaRKMDLNNQIxvsx2gHVBo8=
+=jHw0
+-----END PGP SIGNATURE-----
+
+--=.DkBWcU,'+OoNGv--

@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264970AbRFZPFg>; Tue, 26 Jun 2001 11:05:36 -0400
+	id <S264967AbRFZPE4>; Tue, 26 Jun 2001 11:04:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264971AbRFZPFH>; Tue, 26 Jun 2001 11:05:07 -0400
-Received: from [203.143.19.4] ([203.143.19.4]:50442 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S264970AbRFZPE7>;
-	Tue, 26 Jun 2001 11:04:59 -0400
-Date: Tue, 26 Jun 2001 21:04:12 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+	id <S264970AbRFZPEq>; Tue, 26 Jun 2001 11:04:46 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27399 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264967AbRFZPEh>; Tue, 26 Jun 2001 11:04:37 -0400
+Subject: Re: Problems with 2.4.5ac1[78]
+To: mccramer@s.netic.de (Meino Christian Cramer)
+Date: Tue, 26 Jun 2001 16:04:22 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 and gcc v3 final
-Message-ID: <20010626210412.B366@bee.lk>
-In-Reply-To: <200106241733.f5OHXpW2000565@sleipnir.valparaiso.cl> <20010626004149.A3310@storm.local>
-Mime-Version: 1.0
+In-Reply-To: <20010626161854G.mccramer@s.netic.de> from "Meino Christian Cramer" at Jun 26, 2001 04:18:54 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010626004149.A3310@storm.local>; from andreas.bombe@munich.netsurf.de on Tue, Jun 26, 2001 at 12:41:49AM +0200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15EuO6-0003dz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 26, 2001 at 12:41:49AM +0200, Andreas Bombe wrote:
+>  I tried to compile linux-2.4.5ac17 with processor type "Athlon"
+>  settings.
 > 
-> But the first example contains three newlines, the second just one.  A
-> thing to keep in mind when going around fixing these multi line strings,
-> explicit newlines have to be added.
+>  Compilation/Install was successful. But boot produces dozens of
+>  "unresolved symbols" if trying to insmod any of the modules.
+> 
+>  Not one module was insmodded successfully.
 
-Some code contains very long lines (around 150 characters per line) and others
-tend to limit lines to 72-80 lines.
-
-And strings have been broken in the middle _just_ to keep the lines short, and
-sometimes without caring about the additional newline. In such cases, either,
-the lines should be merged or a backslash should be added to the end(s) of the
-line(s).
-
-Please refer to my patch (GCC v3 warning fixes #1) for examples.
-
-Anuradha
-
--- 
-
-Debian GNU/Linux (kernel 2.4.6-pre5)
-
-Journalism is literature in a hurry.
-		-- Matthew Arnold
+Sounds like your build wasnt clean. Save your .config file and make distclean
+is sometimes needed when changing SMP or CPU types - yes its a bug in the
+config setup really
 

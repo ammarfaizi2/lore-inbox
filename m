@@ -1,90 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVBOMqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVBOMrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbVBOMqc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 07:46:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVBOMqc
+	id S261703AbVBOMrY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 07:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVBOMrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 07:46:32 -0500
-Received: from alog0129.analogic.com ([208.224.220.144]:3456 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261702AbVBOMqZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 07:46:25 -0500
-Date: Tue, 15 Feb 2005 07:45:32 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: kernel <kernel@crazytrain.com>
-cc: Larry McVoy <lm@bitmover.com>, Matthew Jacob <lydianconcepts@gmail.com>,
-       Jeff Sipek <jeffpc@optonline.net>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed
-In-Reply-To: <1108469967.3862.21.camel@crazytrain>
-Message-ID: <Pine.LNX.4.61.0502150732110.9562@chaos.analogic.com>
-References: <20050214020802.GA3047@bitmover.com>  <58cb370e05021404081e53f458@mail.gmail.com>
-  <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com>
-  <7579f7fb0502141017f5738d1@mail.gmail.com>  <20050214185624.GA16029@bitmover.com>
- <1108469967.3862.21.camel@crazytrain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 15 Feb 2005 07:47:23 -0500
+Received: from gate.crashing.org ([63.228.1.57]:47494 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261703AbVBOMrF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 07:47:05 -0500
+Subject: Re: Radeon FB troubles with recent kernels
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Vincent C Jones <vcjones@networkingunlimited.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, mpm@selenic.com
+In-Reply-To: <20050215031441.EFABE1DDFE@X31.nui.nul>
+References: <20050215031441.EFABE1DDFE@X31.nui.nul>
+Content-Type: text/plain
+Date: Tue, 15 Feb 2005 23:46:18 +1100
+Message-Id: <1108471578.1905.12.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Feb 2005, kernel wrote:
+On Mon, 2005-02-14 at 22:14 -0500, Vincent C Jones wrote:
+> In article <3xVku-kH-15@gated-at.bofh.it> you write:
+> >On my Thinkpad T30 with a Radeon Mobility M7 LW, I get interesting
+> >console video corruption if I start GDM, switch back to text mode,
+> >then stop it again. X is Xfree86 from Debian/unstable or X.org 6.8.2.
+> >
+> >The corruption shows up whenever the console scrolls after X has been
+> >shut down and manifests as horizontal lines spaced about 4 pixel rows
+> >apart containing contents recognizable as the X display. Switch from
+> >vt1 to vt2 and back or visual bell clears things back to normal, but
+> >corruption will reappear on the next scroll.
+> >
+> >This has appeared in at least 2.6.11-rc3-mm2 and rc4.
+> 
+> On my Thinkpad X31 with a Radeon Mobility M6 LY I see a major
+> regression going from 2.6.11-rc3 to rc4. With rc-4, the frame
+> buffer console (using "video=radeonfb:1024x768-24@60") comes up as
+> 640x480 expanded to 1024x768. The inability of ACPI suspend to turn
+> off the backlight also returns. Using rc-3, frame buffer console
+> works fine and suspend/resume appears to work reliably without
+> needing radeontool to turn off the backlight (as long as I do it
+> from X.org X).
 
-> On Mon, 2005-02-14 at 13:56, Larry McVoy wrote:
->
->> All we are trying to do is
->>
->>     1.  Provide the open source community with a useful tool.
->>     2.  Prevent that from turning into the open source community
->>         creating a clone of our tool.
->>
->
-> lol
->
->
->
->> I agree that this sucks, having a license that restricts your creativity
->> is very annoying.  On the other hand, you don't have to agree to it.
->
->
-> Just catching up on this thread.  I guess I'm ultimately surprised that
-> the developers here don't create a system *they* like with *their*
-> knowledge and skillsets.
->
-> With all of the complaining about BK you'd think there'd be an equal
-> alternative.
->
-> For everyone not liking Larry nor BK, why don't you use that as
-> inspiration to develop together a better app with terms more agreeable?
-> Surely that would put a bit of vinegar in his p*ss, wouldn't it?
->
-> -fd
+Ok, so, about half of users are reporting an improvement, and half are
+reporting a regression... this is getting nasty...
 
-I have two questions for Larry.
+As far as the mode is concerned, can you send me a complete dmesg log
+with the radeonfb debug output enabled in your .config ?
 
-(1) If I use BK for company source-code development (purchased
-product, I didn't buy it, the company did and they require
-me to use it for my work) and I go to work for another company
-that also uses BK, your license says I can't use BK at the other
-company, which means that I can't work there.
+Now, regarding backlight and suspend, it's a more complicated problem.
+So far, I managed to "isolate" the issue to the type of flat panel
+connected to the chip. In some cases, it seems, the panel uses an
+inverted signal to drive the backlight. So depending on the type of
+panel, a given bit of code will work ... or not.
 
-This is unlawful. How do you intend to enforce this?
+I'm in contact with ATI to try to figure out how to get some proper
+infos about the backlight from the BIOS (if possible at all), and some
+other folks are working on adapting my power management code to various
+model of thinkpads.
 
-(2) If I use BK and I decide that I don't want to do business with
-you or the courts say that I have to return the software, will my
-source-code still be usable with, perhaps CVS? In other words
-do I need BK to retrieve my company's intellectual property?
+Unfortunately, I can't promise a version of radeonfb that will fix
+everything for everybody by 2.6.11... there are still a few "gray areas"
+in there, that I'm trying to clear up, hopefully ATI will provide me
+with the proper infos soon...
 
-Note that there is a little company (was a big company until
-the lawsuit), that used VOBS (container files) to store source-
-code. Seems that when the license expired, the users couldn't get
-their source code out. There was a lawsuit. Company lost
-(of course). Seems you can't hold somebody's intellectual
-property for ransom, at least in the United States.
+Ben.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+

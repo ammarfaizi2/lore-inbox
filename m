@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261584AbSKCDoL>; Sat, 2 Nov 2002 22:44:11 -0500
+	id <S261587AbSKCDvy>; Sat, 2 Nov 2002 22:51:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261585AbSKCDoL>; Sat, 2 Nov 2002 22:44:11 -0500
-Received: from waste.org ([209.173.204.2]:9184 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S261584AbSKCDoK>;
-	Sat, 2 Nov 2002 22:44:10 -0500
-Date: Sat, 2 Nov 2002 21:50:17 -0600
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>,
-       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       davej@suse.de
-Subject: Re: Filesystem Capabilities in 2.6?
-Message-ID: <20021103035017.GD18884@waste.org>
-References: <Pine.GSO.4.21.0211022114280.25010-100000@steklov.math.psu.edu> <Pine.LNX.4.44.0211021922280.2354-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211021922280.2354-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.28i
+	id <S261590AbSKCDvy>; Sat, 2 Nov 2002 22:51:54 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:2793 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP
+	id <S261587AbSKCDvx>; Sat, 2 Nov 2002 22:51:53 -0500
+Date: Sat, 02 Nov 2002 21:57:49 -0500
+From: Akira Tsukamoto <at541@columbia.edu>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH] 2/2 2.5.45 cleanup & add original copy_ro/from_user
+Cc: linux-kernel@vger.kernel.org, Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <3DC3A9C0.7979C276@digeo.com>
+References: <20021102025838.220E.AT541@columbia.edu> <3DC3A9C0.7979C276@digeo.com>
+Message-Id: <20021102214537.379A.AT541@columbia.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.05.06
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at out002.verizon.net from [138.89.32.225] at Sat, 2 Nov 2002 21:58:17 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02, 2002 at 07:23:11PM -0800, Linus Torvalds wrote:
-> 
-> On Sat, 2 Nov 2002, Alexander Viro wrote:
-> >
-> > 	<shrug> that can be done without doing anything to filesystem.
-> > Namely, turn current "nosuid" of vfsmount into a mask of capabilities.
-> > Then use bindings instead of links.
-> 
-> I like that idea. It's very explicit, and clearly name-based, and we do
-> have 99% of the support for it already.
+On Sat, 02 Nov 2002 02:32:32 -0800
+Andrew Morton <akpm@digeo.com> mentioned:
+> I'd prefer that we have these functions in .c, and laid out with
+> a minimum of C tricks.  Because more work needs to be done on the
+> memory copy functions, and doing that in header files is a pain.
 
-Bindings are cool, but once you start talking about doing a lot of
-them, they're rather ungainly due to not actually being persisted on
-the filesystem, no? 
+Personally I don't mind adding everything in .h or .c.
+I just used the convention what string.h and string-486.h doing.
+Isn't it confusing that adding everything in .c also?
 
-A better approach is to just make a user-space capabilities-wrapper
-that's setuid, drops capabilities quickly and safely and calls the
-real app. Something like:
 
-# mv ping ping.real
-# chmod -s ping.real
-# mkcapwrap +net_raw ping.real
-# chmod +s ping
-# showcapwrap ping
-invokes /bin/ping
-grants net_raw
-#
-
-No fs magic, no persistence issues, all user-space.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

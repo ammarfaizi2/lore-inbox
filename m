@@ -1,61 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261607AbSJFN3w>; Sun, 6 Oct 2002 09:29:52 -0400
+	id <S261610AbSJFNZq>; Sun, 6 Oct 2002 09:25:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261611AbSJFN3w>; Sun, 6 Oct 2002 09:29:52 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:16082 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261607AbSJFN3v>;
-	Sun, 6 Oct 2002 09:29:51 -0400
-Date: Sun, 6 Oct 2002 15:46:29 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-In-Reply-To: <20021005112552.A9032@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0210061528560.6780-100000@localhost.localdomain>
+	id <S261612AbSJFNZq>; Sun, 6 Oct 2002 09:25:46 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:44675 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261610AbSJFNZo>;
+	Sun, 6 Oct 2002 09:25:44 -0400
+Message-ID: <3DA03B17.8010501@colorfullife.com>
+Date: Sun, 06 Oct 2002 15:31:03 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Murray J. Root" <murrayr@brain.org>, linux-kernel@vger.kernel.org,
+       Andre Hedrick <andre@linux-ide.org>
+Subject: Re: 2.5.40-ac4  kernel BUG at slab.c:1477!
+Content-Type: multipart/mixed;
+ boundary="------------060404060705070704070208"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060404060705070704070208
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, 4 Oct 2002, Larry McVoy wrote:
+ > This happens at random during boot when loading modules.
+ > About half of the time ide-scsi works fine.
+ > The system continues to boot after the BUG with /dev/hdc unaccessible.
 
-> The clause is specifically designed to target those companies which
-> produce or sell commercial SCM systems. [...] The open source developers
-> have nothing to worry about.
+from mm/slab.c:
 
-and:
+1475 if (xchg((unsigned long *)objp, RED_MAGIC1) != RED_MAGIC2)
+1476     /* Either write before start, or a double free. */
+1477     BUG();
 
-On Sat, 5 Oct 2002, Larry McVoy wrote:
+You run an uniprocessor kernel, with slab debugging enabled, and the 
+red-zoning test notices a write before the beginning of the buffer 
+during scsi_probe_and_add_lun, with ide-scsi.
 
-> > Larry, I develop for the Subversion project. Does that mean my license
-> > to use bitkeeper is revoked?
-> 
-> Yes.  It has been since we shipped that license or when you started
-> working on Subversion, whichever came last.
+Andre: Do you know if ide-scsi makes any assumptions about memory 
+alignment of the input buffers? With slab debugging disabled, the 
+alignment is 32 or 64 bytes, with debugging enabled, it's just 4 byte 
+[actually sizeof(void*)] aligned.
 
+Murray, could you apply the attached patch? It dumps the redzone value 
+during scsi_probe_and_add_lun. Hopefully this will help to find who 
+corrupts the buffers.
 
-this kind of sudden change in Larry's written opinion within 24 hours is
-that makes this whole issue dangerous. Fact is that Larry is free to
-license his product under fair or unfair terms - it's his. While we
-already gave BK/BM tons of feedback, free beta-testing and free publicity,
-all we have is this volatile promise that the binary bits of BK are going
-to remain licensed - and with every day it will be harder and harder to
-move the repository.
+--
+	Manfred
 
-what happens if Linux merges some sort of kernel based versioned
-filesystem, eg. something similar to what ClearCase does today? Will the
-license suddenly change to 'as long as you do not work on the versioned-FS
-kernel subsystem'? Or isnt this already a violation of the current
-license?
+--------------060404060705070704070208
+Content-Type: text/plain;
+ name="patch-scsi-debug"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-scsi-debug"
 
-this is why i'd rather want to have an iron-clad legal way out first, and
-not have to rely on nonbinding promises done on public lists. I'm sure
-Larry understands this position, he has exactly the same position when
-trying to protect his business against hordes of freebies.
+--- 2.5/drivers/scsi/scsi_scan.c	Sun Sep 22 06:25:17 2002
++++ build-2.5/drivers/scsi/scsi_scan.c	Sun Oct  6 14:21:58 2002
+@@ -1526,8 +1526,9 @@
+ 			      GFP_DMA : 0);
+ 	if (scsi_result == NULL)
+ 		goto alloc_failed;
+-
++printk(KERN_INFO"scsi_result: %p, start %lxh.\n",scsi_result, ((unsigned long*)scsi_result)[-1]);
+ 	scsi_probe_lun(sreq, scsi_result, &bflags);
++printk(KERN_INFO"scsi_result: %p, start %lxh.\n",scsi_result, ((unsigned long*)scsi_result)[-1]);
+ 	if (sreq->sr_result)
+ 		res = SCSI_SCAN_NO_RESPONSE;
+ 	else {
+@@ -1550,8 +1551,10 @@
+ 					" no device added\n"));
+ 			res = SCSI_SCAN_TARGET_PRESENT;
+ 		} else {
++printk(KERN_INFO"scsi_result: %p, start %lxh.\n",scsi_result, ((unsigned long*)scsi_result)[-1]);
+ 			res = scsi_add_lun(sdevscan, &sdev, sreq, scsi_result,
+ 					   &bflags);
++printk(KERN_INFO"scsi_result: %p, start %lxh.\n",scsi_result, ((unsigned long*)scsi_result)[-1]);
+ 			if (res == SCSI_SCAN_LUN_PRESENT) {
+ 				BUG_ON(sdev == NULL);
+ 				if ((bflags & BLIST_KEY) != 0) {
+@@ -1574,9 +1577,13 @@
+ 			}
+ 		}
+ 	}
++printk(KERN_INFO"scsi_result: %p, start %lxh.\n",scsi_result, ((unsigned long*)scsi_result)[-1]);
+ 	kfree(scsi_result);
++printk(KERN_INFO"after kfree\n");
+ 	scsi_release_request(sreq);
++printk(KERN_INFO"after release_request\n");
+ 	scsi_release_commandblocks(sdevscan);
++printk(KERN_INFO"after release_commandblocks\n");
+ 	return res;
+ 
+ alloc_failed:
 
-	Ingo
+--------------060404060705070704070208--
 

@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265947AbTAKI4k>; Sat, 11 Jan 2003 03:56:40 -0500
+	id <S265995AbTAKJD7>; Sat, 11 Jan 2003 04:03:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265995AbTAKI4k>; Sat, 11 Jan 2003 03:56:40 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:64971 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id <S265947AbTAKI4j>; Sat, 11 Jan 2003 03:56:39 -0500
-Date: Sat, 11 Jan 2003 10:05:25 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+	id <S266295AbTAKJD7>; Sat, 11 Jan 2003 04:03:59 -0500
+Received: from tool9.argh.org ([193.41.144.5]:20203 "EHLO toolnine.argh.org")
+	by vger.kernel.org with ESMTP id <S265995AbTAKJD6>;
+	Sat, 11 Jan 2003 04:03:58 -0500
+Date: Sat, 11 Jan 2003 11:12:42 +0100
+From: Alexander Koch <efraim@clues.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-pre3-ac3
-Message-ID: <20030111090525.GD19960@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030110202250.GA1405@brodo.de> <200301110137.h0B1bQV21956@devserv.devel.redhat.com>
+Subject: getting my serial ports back? ;-)
+Message-ID: <20030111101241.GA3589@clues.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200301110137.h0B1bQV21956@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox <alan@redhat.com>:
-> > > 
-> > > Linux 2.4.21pre3-ac3
-> > > o	Natsemi Geode/Cyrix MediaGX cpufreq support	(Dominik Brodowski)
-> > Actually, this has been Hiroshi Miura's and Zwane Mwaikambo's work.
-> 
-> My apologies
+What do I have to do to get my serial ports back?
 
-Anyway. I tried this kernel last night and kept the machine running
-until this morning. No crash, no oops. Better than ac2 :)
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-When the government outlaws cryptography, bayl pevzvanyf jvyy unir
-cevinpl. 
+devfs: v1.22 (20021013) Richard Gooch (rgooch@atnf.csiro.au)
+devfs: boot_options: 0x1
+pnp: the driver 'serial' has been registered
+pnp: pnp: match found with the PnP device '00:0f' and the driver 'serial'
+pnp: the device '00:0f' has been activated
+devfs_register(tts/2): could not append to parent, err: -17
+tts/2 at I/O 0x3e8 (irq = 4) is a 16550A
+pnp: pnp: match found with the PnP device '00:10' and the driver 'serial'
+pnp: the device '00:10' has been activated
+devfs_register(tts/3): could not append to parent, err: -17
+tts/3 at I/O 0x2e8 (irq = 3) is a 16550A
+
+Effectively as my mouse is on the serial port and it
+obviously does not work in gpm or with X directly.
+
+ttyS0: LSR safety check engaged!
+ttyS0: LSR safety check engaged!
+ttyS0: LSR safety check engaged!
+ttyS1: LSR safety check engaged!
+ttyS1: LSR safety check engaged!
+ttyS1: LSR safety check engaged!
+
+That's coming from gpm startup, at least one of it, although
+I have /dev/tts/0 in my gpm.conf... Ah, it's hardcoded in the
+binary, it seems (doing a strings on it).
+
+Anyway, does anyone have a clue as to why my serial modules
+are not working any longer since 2.5.53 (and neither 2.5.55)?
+I am not missing it much for X but at least gpm is a good
+thing.
+
+Thanks,
+Alexander
 

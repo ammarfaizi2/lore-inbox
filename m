@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276766AbRJQNqj>; Wed, 17 Oct 2001 09:46:39 -0400
+	id <S276720AbRJQNt7>; Wed, 17 Oct 2001 09:49:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276720AbRJQNqa>; Wed, 17 Oct 2001 09:46:30 -0400
-Received: from fe030.worldonline.dk ([212.54.64.197]:42762 "HELO
-	fe030.worldonline.dk") by vger.kernel.org with SMTP
-	id <S276682AbRJQNqR>; Wed, 17 Oct 2001 09:46:17 -0400
-Message-ID: <3BCD89FA.6050209@eisenstein.dk>
-Date: Wed, 17 Oct 2001 15:39:06 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-Organization: Eisenstein
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en
+	id <S276840AbRJQNtt>; Wed, 17 Oct 2001 09:49:49 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:33296 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S276720AbRJQNti>; Wed, 17 Oct 2001 09:49:38 -0400
+Message-ID: <3BCD8D4F.B26684B@loewe-komp.de>
+Date: Wed, 17 Oct 2001 15:53:19 +0200
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Re: console_loglevel is broken on ia64
-In-Reply-To: <2784.1003325102@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Steve Lord <lord@sgi.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: NFS related Oops in 2.4.[39]-xfs
+In-Reply-To: <200110170928.f9H9SsP07618@jen.americas.sgi.com> <3BCD8AC5.8FD733BC@loewe-komp.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-
-> kernel/printk.c has this abomination.
+Peter Wächtler wrote:
 > 
-> /* Keep together for sysctl support */
-> int console_loglevel = DEFAULT_CONSOLE_LOGLEVEL;
-> int default_message_loglevel = DEFAULT_MESSAGE_LOGLEVEL;
-> int minimum_console_loglevel = MINIMUM_CONSOLE_LOGLEVEL;
-> int default_console_loglevel = DEFAULT_CONSOLE_LOGLEVEL;
+> Steve Lord wrote:
+> >
+> > Where did you get your kernel (the 2.4.9 version that is) this problem
+> > sounds familiar, but I am pretty sure we fixed this case in XFS somewhere
+> > between 2.4.3 and 2.4.9.
+> >
 > 
-> sysctl assumes that the 4 variables occupy contiguous storage.  They
-> don't on ia64, console_loglevel is separate from the other variables.
+> The following diff was made in 2.4.4.
 > 
->   echo 6 4 1 7 > /proc/sys/kernel/printk
->   
-> on ia64 overwrites console_loglevel and the next 3 integers, whatever
-> they happen to be.  On 2.4.12 it corrupts console_sem, other ia64
-> kernels will corrupt different data.
+> diff -u --recursive --new-file v2.4.4/linux/fs/nfsd/nfsfh.c linux/fs/nfsd/nfsfh.c
+> --- v2.4.4/linux/fs/nfsd/nfsfh.c        Fri Feb  9 11:29:44 2001
+> +++ linux/fs/nfsd/nfsfh.c       Sat May 19 17:47:55 2001
+> @@ -244,6 +245,11 @@
+>          */
+>         pdentry = child->d_inode->i_op->lookup(child->d_inode, tdentry);
+>         d_drop(tdentry); /* we never want ".." hashed */
+> +       if (!pdentry && tdentry->d_inode == NULL) {
+> +               /* File system cannot find ".." ... sad but possible */
+> +               dput(tdentry);
+> +               pdentry = ERR_PTR(-EINVAL);
+> +       }
 > 
-> Does anybody fancy a small project to clean up these variables?
+> But it would not prevent the code path 2.4.3-xfs hit.
+> pdentry is !=NULL and tdentry->d_inode is always NULL after d_alloc():611
+> 
 
-I would like to give it a try. Seems like a good little project for one 
-who is trying to learn his way around the kernel :)  It will probably 
-take me a lot longer than one of the experienced kernel hackers and 
-would probably not be perfect on the first try, but I'm willing to 
-invest some time in it.
-
-
-Best regards,
-Jesper Juhl
-
-
-
+Damn. pdentry IS NULL.
+Sorry, the patch would prevent the crash.

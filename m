@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262825AbUC2LYd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 06:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbUC2LYd
+	id S262819AbUC2L3q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 06:29:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbUC2L3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 06:24:33 -0500
-Received: from ns.suse.de ([195.135.220.2]:10719 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262825AbUC2LYa (ORCPT
+	Mon, 29 Mar 2004 06:29:46 -0500
+Received: from smtp1.freeserve.com ([193.252.22.158]:17971 "EHLO
+	mwinf3001.me.freeserve.com") by vger.kernel.org with ESMTP
+	id S262819AbUC2L3m convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 06:24:30 -0500
-Date: Mon, 29 Mar 2004 08:01:50 +0200
-From: Andi Kleen <ak@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: mingo@elte.hu, jun.nakajima@intel.com, ricklind@us.ibm.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
-       mbligh@aracnet.com
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups,
- sched-2.6.5-rc2-mm2-A3
-Message-Id: <20040329080150.4b8fd8ef.ak@suse.de>
-In-Reply-To: <4068066C.507@yahoo.com.au>
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com>
-	<20040325154011.GB30175@wotan.suse.de>
-	<20040325190944.GB12383@elte.hu>
-	<20040325162121.5942df4f.ak@suse.de>
-	<20040325193913.GA14024@elte.hu>
-	<20040325203032.GA15663@elte.hu>
-	<20040329084531.GB29458@wotan.suse.de>
-	<4068066C.507@yahoo.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 29 Mar 2004 06:29:42 -0500
+Message-ID: <26889266.1080559781017.JavaMail.www@wwinf3002>
+From: tigran@aivazian.fsnet.co.uk
+Reply-To: tigran@aivazian.fsnet.co.uk
+To: Marco Baan <marco@freebsd.nl>
+Subject: Re: failure to mount root fs
+Cc: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Originating-IP: [62.172.234.2]
+Date: Mon, 29 Mar 2004 13:29:41 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Mar 2004 21:20:12 +1000
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Hi Macro,
 
-> > 
-> > I ported it by hand to the -mm4 scheduler now and tested it. While
-> > it works marginally better than the standard -mm scheduler 
-> > (you get 1 1/2 the bandwidth of one CPU instead of one) it's still
-> > still much worse than the optimum of nearly 4 CPUs archived by
-> > 2.4 or the standard scheduler.
-> > 
-> 
+You wrote:
 
-Sorry ignore this report - I just found out I booted the wrong
-kernel by mistake. Currently retesting, also with the proposed change
-to only use a single scheduling domain.
+> VFS: Unable to mount root fs on unknown-block(0,0)
+> ...
+> kernel /boot/bzImage-2.6.4 ro root=LABEL=/
 
--Andi
+The "LABEL=/" is the attempt to mount root filesystem by label, so you can 
+move it to another disk. I find these "clever" things not mature yet and always replace it by an explicit device name (and don't move/replace root disk):
+
+kernel /boot/bzImage-2.6.4 ro root=/dev/hda2
+
+(this assumes that your root fs is on /dev/hda2, change it appropriately to match your situation)
+
+Kind regards
+Tigran
+Freeserve AnyTime - HALF PRICE for the first 3 months - Save £7.50 a month 
+www.freeserve.com/anytime

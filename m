@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269047AbRHBPvk>; Thu, 2 Aug 2001 11:51:40 -0400
+	id <S269014AbRHBQEK>; Thu, 2 Aug 2001 12:04:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269070AbRHBPva>; Thu, 2 Aug 2001 11:51:30 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:2064 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S269047AbRHBPvY>; Thu, 2 Aug 2001 11:51:24 -0400
-From: Nikita Danilov <NikitaDanilov@Yahoo.COM>
+	id <S269021AbRHBQEA>; Thu, 2 Aug 2001 12:04:00 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:58815 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S269014AbRHBQD4>; Thu, 2 Aug 2001 12:03:56 -0400
+Date: Thu, 2 Aug 2001 17:05:07 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Chris Vandomelen <chrisv@b0rked.dhs.org>,
+        Nerijus Baliunas <nerijus@users.sourceforge.net>,
+        Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Re[2]: cannot copy files larger than 40 MB from CD
+In-Reply-To: <E15SKBL-0000qt-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0108021657540.6526-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15209.30415.639463.761819@beta.namesys.com>
-Date: Thu, 2 Aug 2001 19:50:39 +0400
-To: Linus Torvalds <Torvalds@Transmeta.COM>
-CC: Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH]: reiserfs: E-extern-inline-copy_key.patch
-X-Mailer: VM 6.89 under 21.1 (patch 8) "Bryce Canyon" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Linus,
+On Thu, 2 Aug 2001, Alan Cox wrote:
+> egcs-1.1.2 aka kgcc wont build 2.4.7 it seems. gcc 2.96 >= 2.96.75 or so is
+> just fine, gcc 2.95-2/3 is fine, gcc 3.0 seems to be doing the right thing
 
-this patch suppresses warnings during reiserfs compilation in
-2.4.8-pre3: include/linux/reiserfs_fs.h contains both definition and
-declaration of copy_key(). 2.4.8-pre3 changed "extern inline" to "static
-inline" in definition, and so it mismatches declaration. Patch just
-removes declaration.
+I've seen no problem running 2.4.7 built with egcs-1.1.2 2.91.66:
+which part of it is believed not to build or to build wrongly?
+(arch/i386/kernel/traps.c errors were identified as old binutils.)
 
-Please apply.
+Hugh
 
-[lkml: please CC me, I am not subscribed.]
-
-Nikita.
-diff -rup linux-2.4.8-pre3/include/linux/reiserfs_fs.h linux-2.4.8-pre3.patched/include/linux/reiserfs_fs.h
---- linux-2.4.8-pre3/include/linux/reiserfs_fs.h	Wed Aug  1 21:07:39 2001
-+++ linux-2.4.8-pre3.patched/include/linux/reiserfs_fs.h	Wed Aug  1 22:32:54 2001
-@@ -1652,7 +1652,6 @@ int reiserfs_convert_objectid_map_v1(str
- 
- /* stree.c */
- int B_IS_IN_TREE(struct buffer_head *);
--extern inline void copy_key (void * to, void * from);
- extern inline void copy_short_key (void * to, void * from);
- extern inline void copy_item_head(void * p_v_to, void * p_v_from);
- 

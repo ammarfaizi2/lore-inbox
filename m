@@ -1,82 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314459AbSHMK0T>; Tue, 13 Aug 2002 06:26:19 -0400
+	id <S314529AbSHMK20>; Tue, 13 Aug 2002 06:28:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314529AbSHMK0T>; Tue, 13 Aug 2002 06:26:19 -0400
-Received: from 212.68.254.82.brutele.be ([212.68.254.82]:25219 "EHLO stargate")
-	by vger.kernel.org with ESMTP id <S314459AbSHMK0S>;
-	Tue, 13 Aug 2002 06:26:18 -0400
-Date: Tue, 13 Aug 2002 12:30:24 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre2 compile error
-Message-ID: <20020813103024.GD31522@stargate.lan>
-References: <20020813053113.GC398@hendrix> <Pine.NEB.4.44.0208131028030.14606-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.NEB.4.44.0208131028030.14606-100000@mimas.fachschaften.tu-muenchen.de>
-User-Agent: Mutt/1.4i
+	id <S314546AbSHMK20>; Tue, 13 Aug 2002 06:28:26 -0400
+Received: from rj.sgi.com ([192.82.208.96]:49315 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S314529AbSHMK2Z>;
+	Tue, 13 Aug 2002 06:28:25 -0400
+Message-ID: <3D58E053.7FE5630E@alphalink.com.au>
+Date: Tue, 13 Aug 2002 20:32:51 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd.
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org.com>
+CC: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
+References: <Pine.LNX.4.44.0208131111460.8911-100000@serv>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-are you sure about the patch ?
+Roman Zippel wrote:
+> 
+> On Tue, 13 Aug 2002, Greg Banks wrote:
+> 
+> > The problem is deciding what the original rules were supposed to mean, and
+> > then reproducing that behaviour exactly in the new language.  The alternative
+> > is fixing the problems as we convert, but then we end up with CML2 and the
+> > "there's no way to verify the rulebase is the same" argument.
+> 
+> My only requirement is that the resulting rulebase is usable and roughly
+> the same, some small bugs are IMO acceptable.
 
-best regards
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101387128818052&w=2
 
-On mar, 13 aoû 2002, Adrian Bunk wrote:
-> On Tue, 13 Aug 2002, Chad Young wrote:
-> 
-> > any idea what causes these errors?
-> >
-> > make[3]: Entering directory
-> > `/home/skidley/kernel/linux-2.4.20-pre2/fs/partitions'
-> > gcc -D__KERNEL__ -I/home/skidley/kernel/linux-2.4.20-pre2/include -Wall
-> > -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> > -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
-> > -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include
-> > -DKBUILD_BASENAME=check  -DEXPORT_SYMTAB -c check.c
-> > check.c: In function `devfs_register_disc':
-> > check.c:328: structure has no member named `number'
-> > check.c:329: structure has no member named `number'
-> > check.c: In function `devfs_register_partitions':
-> > check.c:361: structure has no member named `number'
-> >...
-> 
-> The following patch made by Christoph Hellwig fixes it:
-> 
-> 
-> --- linux-2.4.20-bk-20020810/include/linux/genhd.h	Sat Aug 10 14:37:16 2002
-> +++ linux/include/linux/genhd.h	Mon Aug 12 23:40:37 2002
-> @@ -62,7 +62,9 @@ struct hd_struct {
->  	unsigned long start_sect;
->  	unsigned long nr_sects;
->  	devfs_handle_t de;              /* primary (master) devfs entry  */
-> -
-> +#ifdef CONFIG_DEVFS_FS
-> +	int number;
-> +#endif /* CONFIG_DEVFS_FS */
->  #ifdef CONFIG_BLK_STATS
->  	/* Performance stats: */
->  	unsigned int ios_in_flight;
-> 
-> cu
-> Adrian
-> 
-> -- 
-> 
-> You only think this is a free country. Like the US the UK spends a lot of
-> time explaining its a free country because its a police state.
-> 								Alan Cox
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> CML2 has more problems than this. 
 
+Agreed.  I was just pointing out that one of the many objections to CML2
+would also apply to any new language which wasn't provably mappable from
+CML1.
+
+> It's a very flexible but also very
+> complex language, which makes it hard to use. It was also not very wise to
+> create a complete new and different rulebase, which made it very hard to
+> compare both.
+
+Nor was it wise to use Python, and less so to insist on a cutting edge
+version of Python, nor to throw away all the user interfaces, etc etc.
+And don't even get me started on pickling and freezing.  Its very easy
+to be wise in hindsight; let's use that wisdom to do better this time.
+
+Greg.
 -- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-Web : www.linux-mons.be	 "Linux Is Not UniX !!!"
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.

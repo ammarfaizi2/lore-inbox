@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265791AbSLNS2y>; Sat, 14 Dec 2002 13:28:54 -0500
+	id <S265786AbSLNSex>; Sat, 14 Dec 2002 13:34:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265797AbSLNS2y>; Sat, 14 Dec 2002 13:28:54 -0500
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:62082
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S265791AbSLNS2x>; Sat, 14 Dec 2002 13:28:53 -0500
-Subject: Re: Intel P6 vs P7 system call performance
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Mike Dresser <mdresser_l@windsormachine.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20021214100125.GA30545@suse.de>
-References: <Pine.LNX.4.33.0212132319280.29293-100000@router.windsormachine.com>
-	 <Pine.LNX.4.33.0212132345040.12319-100000@router.windsormachine.com>
-	 <20021214100125.GA30545@suse.de>
-Content-Type: text/plain
+	id <S265797AbSLNSex>; Sat, 14 Dec 2002 13:34:53 -0500
+Received: from packet.digeo.com ([12.110.80.53]:42682 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265786AbSLNSew>;
+	Sat, 14 Dec 2002 13:34:52 -0500
+Message-ID: <3DFB7B9E.FC404B6B@digeo.com>
+Date: Sat, 14 Dec 2002 10:42:38 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Oleg Drokin <green@namesys.com>
+CC: Hans Reiser <reiser@namesys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK][PATCH] ReiserFS CPU and memory bandwidth efficient large writes
+References: <3DFA2D4F.3010301@namesys.com> <3DFA53DA.DE6788C1@digeo.com> <20021214162108.A3452@namesys.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1039890995.17062.1.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 14 Dec 2002 12:36:35 -0600
+X-OriginalArrivalTime: 14 Dec 2002 18:42:38.0725 (UTC) FILETIME=[93A98350:01C2A3A0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-12-14 at 04:01, Dave Jones wrote:
-> On Fri, Dec 13, 2002 at 11:53:51PM -0500, Mike Dresser wrote:
->  > On Fri, 13 Dec 2002, Mike Dresser wrote:
->  > 
->  > > The single P4/2.53 in another machine can haul down in 3m17s
->  > >
->  > Amend that to 2m19s, forgot to kill a background backup that was moving
->  > files around at about 20 meg a second.
-
-
-
-> Note that there are more factors at play than raw cpu speed in a
-> kernel compile. Your time here is slightly faster than my 2.8Ghz P4-HT for
-> example.  My guess is you have faster disk(s) than I do, as most of
-> the time mine seems to be waiting for something to do.
-
-An easy way to level the playing field would be to use /dev/shm to build
-your kernel in. That way it's all in memory. If you've got a maching
-with 512M, then it's easily accomplished.
-
-> *note also that this is compiling stock 2.4.20 with default configuration.
-> The minute you change any options, we're comparings apples to oranges.
+Oleg Drokin wrote:
 > 
-> 		Dave
+> Hello!
+> 
+> On Fri, Dec 13, 2002 at 01:40:42PM -0800, Andrew Morton wrote:
+> 
+> > This seems wrong.  This could be a newly-allocated pagecache page.  It is not
+> > yet fully uptodate.  If (say) the subsequent copy_from_user gets a fault then
+> > it appears that this now-uptodate pagecache page will leak uninitialised stuff?
+> 
+> Ok, after all I think we do not need this uptodate stuff at all.
+
+Well that certainly simplifies things.
+ 
+> Find below the patch that address all the issues you've brought.
+> It is on top of previous one.
+> Do you think it is ok now?
+
+I addresses the things I noticed and raised, thanks.  Except for the
+stack-space use.  People are waving around 4k-stack patches, and we
+do need to be careful there.

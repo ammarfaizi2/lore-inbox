@@ -1,98 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVCNKIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVCNKNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVCNKIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 05:08:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbVCNKIY
+	id S262102AbVCNKNK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 05:13:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVCNKNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 05:08:24 -0500
-Received: from fire.osdl.org ([65.172.181.4]:62415 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261428AbVCNKHu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 05:07:50 -0500
-Date: Mon, 14 Mar 2005 02:02:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Richter <thor@math.TU-Berlin.DE>
-Cc: linux-kernel@vger.kernel.org,
-       "Steven R. Brudenell" <steven@brudenell.name>
-Subject: Re: Fw: [Bugme-new] [Bug 4334] New: kernel support for netmos
- 9835/9735 crippled since 2.6.9
-Message-Id: <20050314020245.130b2d70.akpm@osdl.org>
-In-Reply-To: <200503140930.KAA08568@mersenne.math.tu-berlin.de>
-References: <20050313123754.78ab76a0.akpm@osdl.org>
-	<200503140930.KAA08568@mersenne.math.tu-berlin.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Mar 2005 05:13:10 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:63900 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262102AbVCNKLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 05:11:03 -0500
+Date: Mon, 14 Mar 2005 05:10:50 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+In-Reply-To: <Pine.LNX.4.58.0503140427560.697@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0503140509170.697@localhost.localdomain>
+References: <20050204100347.GA13186@elte.hu>  <1108789704.8411.9.camel@krustophenia.net>
+  <Pine.LNX.4.58.0503100323370.14016@localhost.localdomain> 
+ <Pine.LNX.4.58.0503100447150.14016@localhost.localdomain> 
+ <20050311095747.GA21820@elte.hu>  <Pine.LNX.4.58.0503110508360.19798@localhost.localdomain>
+  <20050311101740.GA23120@elte.hu>  <Pine.LNX.4.58.0503110521390.19798@localhost.localdomain>
+  <20050311024322.690eb3a9.akpm@osdl.org>  <Pine.LNX.4.58.0503110754240.19798@localhost.localdomain>
+  <20050311153817.GA32020@elte.hu>  <Pine.LNX.4.58.0503111440190.22043@localhost.localdomain>
+  <1110574019.19093.23.camel@mindpipe> <1110578809.19661.2.camel@mindpipe>
+ <Pine.LNX.4.58.0503140214360.697@localhost.localdomain>
+ <Pine.LNX.4.58.0503140427560.697@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Richter <thor@math.TU-Berlin.DE> wrote:
+
+
+On Mon, 14 Mar 2005, Steven Rostedt wrote:
 >
-> 
-> Hi Andrew,
->  
-> > I'm inclined to simply revert that change.
-> 
-> In case the mentioned lines do cause problems, please do not hesitate
-> to remove them. As the comments indicate, the patch was completely
-> untested as I haven't had the cards available. However, please ensure
-> that the parallel port remains available for the 9835/9735 in case
-> they are removed from the parport module. Their references should be
-> removed *only* from parport_pc, not from the PCI name database.
-> 
+> I just downloaded -40 and applied my patch, compiled it with
+> PREEMPT_DESKTOP and data=ordered, ran it and everything seems OK, except
+> I'm getting the following...
+>
+> BUG: Unable to handle kernel NULL pointer dereference at virtual address
+> 00000000
+>  printing eip:
+> c0213438
+> *pde = 00000000
 
-OK.  Like this?
+[snip]
 
-Steven, do you agree?
+>
+>
+> I'll see if this happens without the patch, and if so, then I'll look into
+> this further.
+>
 
-diff -puN drivers/parport/parport_pc.c~parport_pc-revert-netmos-patch drivers/parport/parport_pc.c
---- 25/drivers/parport/parport_pc.c~parport_pc-revert-netmos-patch	2005-03-14 01:55:52.000000000 -0800
-+++ 25-akpm/drivers/parport/parport_pc.c	2005-03-14 01:59:32.000000000 -0800
-@@ -2738,8 +2738,6 @@ enum parport_pc_pci_cards {
- 	netmos_9855,
- 	netmos_9735,
- 	netmos_9835,
--	netmos_9755,
--	netmos_9715
- };
- 
- 
-@@ -2813,10 +2811,8 @@ static struct parport_pc_pci {
- 	/* netmos_9805 */               { 1, { { 0, -1 }, } }, /* untested */
- 	/* netmos_9815 */               { 2, { { 0, -1 }, { 2, -1 }, } }, /* untested */
- 	/* netmos_9855 */               { 2, { { 0, -1 }, { 2, -1 }, } }, /* untested */
--	/* netmos_9735 */               { 1, { { 2, 3 }, } },  /* untested */
--	/* netmos_9835 */               { 1, { { 2, 3 }, } },  /* untested */
--        /* netmos_9755 */               { 2, { { 0, 1 }, { 2, 3 },} }, /* untested */
--        /* netmos_9715 */               { 2, { { 0, 1 }, { 2, 3 },} }, /* untested */
-+	/* netmos_9735 */		{ 1, { { 2, 3 }, } },
-+	/* netmos_9835 */		{ 1, { { 2, 3 }, } },
- };
- 
- static struct pci_device_id parport_pc_pci_tbl[] = {
-@@ -2899,10 +2895,6 @@ static struct pci_device_id parport_pc_p
- 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, netmos_9735 },
- 	{ PCI_VENDOR_ID_NETMOS, PCI_DEVICE_ID_NETMOS_9835,
- 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, netmos_9835 },
--	{ PCI_VENDOR_ID_NETMOS, PCI_DEVICE_ID_NETMOS_9755,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, netmos_9755 },
--	{ PCI_VENDOR_ID_NETMOS, PCI_DEVICE_ID_NETMOS_9715,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, netmos_9715 },
- 	{ 0, } /* terminate list */
- };
- MODULE_DEVICE_TABLE(pci,parport_pc_pci_tbl);
-diff -puN include/linux/pci_ids.h~parport_pc-revert-netmos-patch include/linux/pci_ids.h
---- 25/include/linux/pci_ids.h~parport_pc-revert-netmos-patch	2005-03-14 01:55:52.000000000 -0800
-+++ 25-akpm/include/linux/pci_ids.h	2005-03-14 01:55:52.000000000 -0800
-@@ -2530,8 +2530,6 @@
- #define PCI_DEVICE_ID_NETMOS_9815	0x9815
- #define PCI_DEVICE_ID_NETMOS_9835	0x9835
- #define PCI_DEVICE_ID_NETMOS_9855	0x9855
--#define PCI_DEVICE_ID_NETMOS_9755	0x9755
--#define PCI_DEVICE_ID_NETMOS_9715	0x9715
- 
- #define PCI_SUBVENDOR_ID_EXSYS		0xd84d
- #define PCI_SUBDEVICE_ID_EXSYS_4014	0x4014
-_
+Well, I took out my patch and this bug didn't happen, so I guess it's may
+fault!  OK, I'll dig into it further.
+
+-- Steve
 

@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUEFRlC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbUEFRm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUEFRlC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 13:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUEFRlC
+	id S261706AbUEFRm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 13:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUEFRm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 13:41:02 -0400
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:32006 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261706AbUEFRk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 13:40:58 -0400
-Date: Thu, 6 May 2004 19:41:28 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Greg KH <greg@kroah.com>
-Cc: imorgan@webcon.ca, helpdeskie@bencastricum.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5 Sensors & USB problems
-Message-Id: <20040506194128.50a37d13.khali@linux-fr.org>
-In-Reply-To: <20040504203738.GJ24802@kroah.com>
-References: <1081349796.407416a4c3739@imp.gcu.info>
-	<Pine.LNX.4.58.0404171756400.11374@dark.webcon.ca>
-	<Pine.LNX.4.58.0404171944160.11425@dark.webcon.ca>
-	<20040418075140.6c118202.khali@linux-fr.org>
-	<20040504203738.GJ24802@kroah.com>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 6 May 2004 13:42:27 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:21351 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261706AbUEFRmU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 13:42:20 -0400
+Date: Thu, 6 May 2004 19:48:13 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org, 4Front Technologies <dev@opensound.com>,
+       Hannu Savolainen <hannu@opensound.com>, Andrew Morton <akpm@osdl.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: What is needed to build an external module
+Message-ID: <20040506174813.GA2387@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	4Front Technologies <dev@opensound.com>,
+	Hannu Savolainen <hannu@opensound.com>,
+	Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's not due to the complexity, it's just due to the fact that I
-> haven't gotten around to doing it yet :)
+In a private mail Dev Mazumdar suggested to create a system for 
+building external modules without the necessity to have the
+full kernel source available.
 
-OK, I should have stopped guessing and have taken a look to the code
-instead.
+I decided to take this to LKML since it may be a questions
+other people had.
 
-> Patches to fix this are gladly welcome if the current situation really
-> bothers people.  No userspace tools should have a problem with the way
-> things are right now.  If they do have problems, please let me know.
+The reason why one must use the kbuild infrastructure when 
+building external modules are the CONFIG choices that either
+impact gcc options or the include files.
+If a seperate system for buiding modules were made that
+part should be copied over for each and every change, and only
+one particular version of the 'building external modules' would
+be compatible with a given kernel version. So having a 
+seperate system is a no-go.
 
-You're right, there is no problem, at least no in "production"
-environments. The only place where it is somewhat confusing (for
-newcomers at least) is when probing the busses in the first time, or for
-developers testing bus drivers (but those know what is happening).
+What one should realize what is actually needed to build an
+external module.
+A full copy of:
+root of kernel src
+include/
+scripts/
+and a copy of the Makefile for the selected architecture.
+Thats all needed to build a well behaving external module.
+This could very well be what a distribution places in
+/lib/modules/linux-<version>/build
+and not a full kernel tree.
 
-At any rate, it is definitely better now than when device and
-corresponding adapter could have different numbers. Of course it would
-be better if device numbers were reused, but I'm not annoyed enough to
-take a look right now either ;)
+Hope this clarifies,
 
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+	Sam

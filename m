@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267435AbUI0XIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267424AbUI0XK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267435AbUI0XIS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 19:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUI0XIS
+	id S267424AbUI0XK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 19:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267447AbUI0XK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 19:08:18 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:34446 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267435AbUI0XHW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 19:07:22 -0400
-Message-ID: <35fb2e5904092716077e744882@mail.gmail.com>
-Date: Tue, 28 Sep 2004 00:07:19 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, jonathan@jonmasters.org,
-       Lars Marowsky-Bree <lmb@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Thomas Habets <thomas@habets.pp.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
-In-Reply-To: <20040927171253.GA9728@MAIL.13thfloor.at>
+	Mon, 27 Sep 2004 19:10:58 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:15689 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S267438AbUI0XJG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 19:09:06 -0400
+Subject: Re: 2.6.9-rc2-mm4 e100 enable_irq unbalanced from
+From: Paul Fulghum <paulkf@microgate.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1096326028l.5222l.0l@werewolf.able.es>
+References: <1096313095.2601.20.camel@deimos.microgate.com>
+	 <1096326028l.5222l.0l@werewolf.able.es>
+Content-Type: text/plain
+Message-Id: <1096326541.5963.2.camel@at2.pipehead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 27 Sep 2004 18:09:01 -0500
 Content-Transfer-Encoding: 7bit
-References: <200409230123.30858.thomas@habets.pp.se>
-	 <20040923234520.GA7303@pclin040.win.tue.nl>
-	 <1096031971.9791.26.camel@localhost.localdomain>
-	 <200409242158.40054.thomas@habets.pp.se>
-	 <1096060549.10797.10.camel@localhost.localdomain>
-	 <20040927104120.GA30364@logos.cnet>
-	 <20040927125441.GG3934@marowsky-bree.de>
-	 <35fb2e590409270612524c5fb9@mail.gmail.com>
-	 <20040927133554.GD30956@logos.cnet>
-	 <20040927171253.GA9728@MAIL.13thfloor.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Sep 2004 19:12:53 +0200, Herbert Poetzl <herbert@13thfloor.at> wrote:
+On Mon, 2004-09-27 at 18:00, J.A. Magallon wrote:
+> Just a 'me-too', with a slightly different oops:
 
-> I'm no friend of the 'extend swap idea' so don't
-> get me wrong, but userspace can just reduce the
-> cases where you get out-of-swap, without support
-> from the kernel side (via some userspace helper)
+Can you try the following patch please?
 
-I was just thinking it might be a suitable approach for some of the
-distros to take when running on a machine with plenty of disk that for
-whatever reason runs at risk of rolling over and dying - better to
-take up some additional disk space than to have some critical server
-process killed. It's not pretty but then neither is the oom killer,
-and this might reduce some of that pain.
+-- 
+Paul Fulghum
+paulkf@microgate.com
 
-Jon.
+
+--- a/drivers/net/e100.c        2004-09-27 09:57:35.000000000 -0500
++++ b/drivers/net/e100.c        2004-09-27 16:00:12.115482112 -0500
+@@ -1675,9 +1675,6 @@
+ 
+        if((err = e100_rx_alloc_list(nic)))
+                return err;
+-
+-       disable_irq(nic->pdev->irq);
+-
+        if((err = e100_alloc_cbs(nic)))
+                goto err_rx_clean_list;
+        if((err = e100_hw_init(nic)))
+@@ -1689,7 +1686,6 @@
+                nic->netdev->name, nic->netdev)))
+                goto err_no_irq;
+        e100_enable_irq(nic);
+-       enable_irq(nic->pdev->irq);
+        netif_wake_queue(nic->netdev);
+        return 0;
+ 
+@@ -1700,7 +1696,6 @@
+ err_rx_clean_list:
+        e100_rx_clean_list(nic);
+ 
+-       enable_irq(nic->pdev->irq);
+        return err;
+ }
+ 
+

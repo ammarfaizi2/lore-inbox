@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316047AbSFLWww>; Wed, 12 Jun 2002 18:52:52 -0400
+	id <S317354AbSFLWxb>; Wed, 12 Jun 2002 18:53:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317353AbSFLWwv>; Wed, 12 Jun 2002 18:52:51 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:8927 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316047AbSFLWwt>; Wed, 12 Jun 2002 18:52:49 -0400
-Date: Thu, 13 Jun 2002 00:52:38 +0200
-From: Andi Kleen <ak@muc.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] pageattr update
-Message-ID: <20020613005238.A17700@averell>
-In-Reply-To: <20020612010443.B1350@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S317361AbSFLWxa>; Wed, 12 Jun 2002 18:53:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45828 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317354AbSFLWx1>;
+	Wed, 12 Jun 2002 18:53:27 -0400
+Message-ID: <3D07D022.5030106@mandrakesoft.com>
+Date: Wed, 12 Jun 2002 18:50:10 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/00200205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jt@hpl.hp.com
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Re : ANN: Linux 2.2 driver compatibility toolkit
+In-Reply-To: <20020610174050.A21783@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 12, 2002 at 07:04:43AM +0200, Benjamin LaHaise wrote:
-> Below are some updates to the pageattr patch you posted earlier.  The 
-> first set of changes were to add change_page_attrs in several paths 
-> where the AGP and DRM code would allocate a page and then call 
-> ioremap_nocache on it to create an uncachable mapping.  Secondly, I 
+Jean Tourrilhes wrote:
+> Jeff Garzik wrote :
+> 
+>>Don't load your drivers up with 2.2.x compatibility junk.  Write a 2.4.x 
+>>driver... and use this toolkit to make it work under 2.2.
+> 
+> 
+> 	Actually, wouldn't it be better to have people writting 2.5.X
+> driver and having your toolkit enabling them for 2.4.X and 2.2.X ?
 
-I don't think these changes are needed. The GART tables itself have no physical
-alias and the CPU AFAIK deals fine with virtual aliases.
+Sure, that would be fine too.
 
-> removed the #ifdef __i386__ around the change_page_attr hook, and 
-> instead put dummy macros in the headers for the various other archs.  
-> There was a race in pageattr.c that would make the P4 unhappy, so I 
-> moved the pte page free to after the tlb flush.  The tlb flush was 
+The main user demand has been for 2.4.x drivers on 2.2.x.  If there is 
+demand for 2.0.x driver support or, what you describe, 2.5.x driver 
+support on 2.[24].x, that's a good direction to head towards.  I haven't 
+seen any requests for that from driver authors yet.
 
-I had already fixed that, but thanks.
+> 	Also, have you looked at the Pcmcia package, David Hinds has a
+> pretty complete compatibility toolkit going back to 1.2.X, and used by
+> many Pcmcia drivers (it's actually pretty amazing to see all those
+> Pcmcia drivers working regardless). Maybe you could propose David a
+> merge of the two (you get some more code and some more userbase).
+> 	Yes, of course, NIH...
 
-> not flushing global pages, so I replaced the code with a call to 
-> flush_tlb_all() to do the job.  Lastly, since the top page of the 
-> page tables on x86 is unique to each mm and contains copies of the 
-> pmd entries in non-PAE mode, I added a function to walk all mms via 
-> the mmlist to update the pmds before the tlb flush.
 
-Urks. last version was only tested on PAE @)
+I am sadly guilty of "NIH" in several cases, but actually this is not 
+one of them :)  I think that kcompat24 provides a bit more of a complete 
+compatibility package than the other solutions.  So, I would like to 
+borrow code from pcmcia and other sources to make this toolkit even 
+better.  (patches accepted! :))
 
-Will release a new version tomorrow.
+	Jeff
 
--Andi
+

@@ -1,94 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbUARRPR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 12:15:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbUARRPR
+	id S261967AbUARRSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 12:18:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbUARRSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 12:15:17 -0500
-Received: from red-corpb4-7-68.telnor.net ([200.76.246.68]:24543 "EHLO
-	pubserv01.bajawireless.net") by vger.kernel.org with ESMTP
-	id S262153AbUARRPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 12:15:09 -0500
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEPBJJAA.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKKEPBJJAA.davids@webmaster.com>
-Subject: Re: License question
-To: David Schwartz <davids@webmaster.com>
-Message-ID: <opr1zelegnq5eh14@localhost>
-From: Misshielle Wong <mwl@bajoo.net>
-Content-Type: text/plain; format=flowed; charset=utf-8
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Date: Sun, 18 Jan 2004 09:23:28 -0800
-User-Agent: Opera7.23/Linux M2 build 518
+	Sun, 18 Jan 2004 12:18:16 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:12991 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262052AbUARRSL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 12:18:11 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 18 Jan 2004 18:18:05 +0100 (MET)
+Message-Id: <UTC200401181718.i0IHI5F26519.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, der.eremit@email.de
+Subject: Re: Making MO drive work with ide-cd
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+    From: Pascal Schmidt <der.eremit@email.de>
 
-On Sat, 17 Jan 2004 14:06:32 -0800, David Schwartz <davids@webmaster.com> 
-wrote:
+    >> There is a patch by me with some rework by Jens Axboe in -mm that
+    >> corrects this situation. It hasn't seen much testing, though.
 
->
->
->> > Is it possile to include in the kernel distro some code with this
->> > BSD-style license ?
->
->> Let me see
->
-> 	Yes, in general. No, not this license.
->
+    > OK, will find that and try later.
 
-Hahaha
+Hmm. Looked at it. But it cannot help. All it does is move
+cdrom_read_capacity().
 
->> > - Redistributions of source code must retain the above copyright
->> > notice, this list of conditions and the following disclaimers.
->
-> 	Sorry, that's an "additional restriction" not permitted under the GPL.
->
+But ide-cd remains fundamentally broken for disks.
+It sends cdrom commands, and they fail, and it does not do
+disk things that are needed. First of all, we need partitions,
+but ide-cd.c puts g->minors = 1.
 
-This is no restriction. This here just asks for copyright notice and 
-conditions to NOT be removed, which is perfectly fine. Section 6 never 
-overrides this. Section 6 asks not to restrict rights, and above clause 
-does not restrict rights.
+Don't know whether Jens really wants to bend ide-cd.c until
+it also handles disks, but it smells like a hack.
 
->> > - Redistributions in binary form must reproduce the above copyright
->> > notice, this list of conditions and the following disclaimers in the
->> > documentation and/or other materials provided with the distribution.
->
-> 	I believe this is an additional restriction as well.
-
-I find perfectly fine. Is just a request to include the copyright notice 
-and conditions along with the binary. Section 2, clause c does not 
-override. Does not infringe Section 6 either. What is the problem?
-
->
->> Mmmm... I think yes. Code in kernel must be licensed GPL. Above allow
->> sublicense so ok
->
-> 	They allow sublicensing, but the sublicense can't remove the additional 
-> restriction. See section 6 of the GPL.
->
-> 	To make this license GPL compatible, the two restrictions above would 
-> have to be modified to be identical to, or a proper subset of, section 2 
-> clauses b and c of the GPL.
->
-
-Hahaha, those are no restrictions, so no problem. Summarizing this 
-license, it ends up like this: "Copyright bla bla bla. Keep 'em goddamn 
-copyrights and disclaimer or else you have no rights to copy, modify, 
-sublicense, redistribute, sublicense bla bla bla. Software provided 'as 
-is'. Clear?"
-
-GPL is ok with that.
-
-
-> 	DS
->
->
->
-
-
-
--- 
-Using M2, Opera's revolutionary e-mail client: http://www.opera.com/m2/
+Andries

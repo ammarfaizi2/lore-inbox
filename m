@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVAFMMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262758AbVAFMNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbVAFMMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 07:12:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVAFMMQ
+	id S262758AbVAFMNt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 07:13:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVAFMNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 07:12:16 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:37126 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262750AbVAFMMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 07:12:10 -0500
-Subject: Re: SCSI aic7xxx driver: Initialization Failure over a kdump reboot
-From: Arjan van de Ven <arjan@infradead.org>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       linux scsi <linux-scsi@vger.kernel.org>
-In-Reply-To: <1105014959.2688.296.camel@2fwv946.in.ibm.com>
-References: <1105014959.2688.296.camel@2fwv946.in.ibm.com>
-Content-Type: text/plain
-Date: Thu, 06 Jan 2005 13:12:03 +0100
-Message-Id: <1105013524.4468.3.camel@laptopd505.fenrus.org>
+	Thu, 6 Jan 2005 07:13:48 -0500
+Received: from mail.convergence.de ([212.227.36.84]:36029 "EHLO
+	email.convergence2.de") by vger.kernel.org with ESMTP
+	id S262758AbVAFMNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 07:13:40 -0500
+Date: Thu, 6 Jan 2005 13:13:47 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Arne Ahrend <aahrend@web.de>
+Cc: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: Re: [linux-dvb-maintainer] Re: PATCH: DVB bt8xx in 2.6.10
+Message-ID: <20050106121347.GA12696@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Arne Ahrend <aahrend@web.de>, linux-dvb-maintainer@linuxtv.org,
+	linux-kernel@vger.kernel.org
+References: <20050104175043.6a8fd195.aahrend@web.de> <20050104181153.GA1416@linuxtv.org> <20050106122409.195100bb.aahrend@web.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050106122409.195100bb.aahrend@web.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-06 at 18:05 +0530, Vivek Goyal wrote:
+Arne Ahrend wrote:
+> Johannes Stezenbach <js@linuxtv.org> wrote:
+> > This approach has been discussed on the linux-dvb list and was rejected
+> > because of the huge #ifdef mess it creates (you just touched bt8xx, it's
+> > even worse for saa7146 based cards). The frontend drivers are
+> > tiny so I think you can afford to load some that aren't actually
+> > used by your hardware.
 > 
-> In my machine Adaptec SCSI controller is not managing any devices. It
-> is
-> a lonely controller.
-> 
+> Ok, point acknowledged. The following tiny bit of cosmetic might
+> be of interest anyway.
 
-looks like the following is happening:
-the controller wants to send an irq (probably from previous life)
-then suddenly the driver gets loaded
-* which registers an irq handler
-* which does pci_enable_device()
-and .. the irq goes through. 
-the irq handler just is not yet expecting this irq, so
-returns "uh dunno not mine"
-the kernel then decides to disable the irq on the apic level
-and then the driver DOES need an irq during init
-... which never happens.
+Yeah. Patch comitted to linuxtv.org CVS.
 
-
-
-
+Thanks,
+Johannes

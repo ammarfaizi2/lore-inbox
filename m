@@ -1,76 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131476AbRCNR3i>; Wed, 14 Mar 2001 12:29:38 -0500
+	id <S131482AbRCNR3I>; Wed, 14 Mar 2001 12:29:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131478AbRCNR32>; Wed, 14 Mar 2001 12:29:28 -0500
-Received: from imladris.infradead.org ([194.205.184.45]:31245 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S131476AbRCNR3G>;
-	Wed, 14 Mar 2001 12:29:06 -0500
-Date: Wed, 14 Mar 2001 17:28:05 +0000 (GMT)
-From: Riley Williams <rhw@MemAlpha.CX>
-To: <Andries.Brouwer@cwi.nl>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, <seberino@spawar.navy.mil>
-Subject: Re: [PATCH] Improved version reporting
-In-Reply-To: <UTC200103141601.RAA189084.aeb@vlet.cwi.nl>
-Message-ID: <Pine.LNX.4.30.0103141718380.6366-100000@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131480AbRCNR3A>; Wed, 14 Mar 2001 12:29:00 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:50428 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S131476AbRCNR2p>; Wed, 14 Mar 2001 12:28:45 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200103141726.f2EHQoj09856@webber.adilger.int>
+Subject: Re: (struct dentry *)->vfsmnt;
+In-Reply-To: <Pine.GSO.4.21.0103140146590.2506-100000@weyl.math.psu.edu> from
+ Alexander Viro at "Mar 14, 2001 01:50:41 am"
+To: Alexander Viro <viro@math.psu.edu>
+Date: Wed, 14 Mar 2001 10:26:50 -0700 (MST)
+CC: Andreas Dilger <adilger@turbolinux.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>,
+        Linux FS development list <linux-fsdevel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andries.
+Al writes:
+> On Tue, 13 Mar 2001, Andreas Dilger wrote:
+> 
+> > On AIX, it is possible to import a volume group, and it automatically
+> > builds /etc/fstab entries from information stored in the fs.  Having the
+> > "last mounted on" would have the mount point info, and of course LVM
+> > would hold the device names.
+> 
+> Wait a minute. What happens if you bring /home from one box to another,
+> that already has /home? Corrupted /etc/fstab?
 
- >> -o  util-linux             2.10o                   # fdformat --version
- >> +o  util-linux         #   2.10o        # fdformat --version
+The AIX vgimport will not corrupt /etc/fstab with duplicate mounts, nor for
+that matter with duplicate LV names (AIX has a single namespace for all LVs).
+If a conflict is found with an LV name, a new name like "lv01" is used (the
+LV names are not that important anyways).  I'm not sure what would
+happen with a duplicate mount point (whether it would pick a new name, or
+simply leave it out of /etc/fstab), but it isn't too hard to think of
+easy ways to fix this (e.g. /home01 or /mnt/vgname/home or whatever).
 
- > Looking at fdformat to get the util-linux version is perhaps not
- > the most reliable way - some people have fdformat from fd-utils
- > or so.
+It was really useful (i.e. easy to manage) to be able to move a bunch of
+disks (making a whole volume group) from one system to another, import it,
+and then not have to mount each filesystem to figure out what the contents
+are before editing /etc/fstab to set up the correct mount point.  In 99.9%
+of the cases, the mountpoints were correct.  I don't think you can ever
+have a system that is 100% correct all of the time.
 
-{Shrug} That's the command that was in both Documentation/Changes and
-in scripts/ver_linux and I just left what was already there, as shown
-by your quote. Somebody MUCH more knowledgable than me regarding
-kernel requirements can sort that out.
+For AIX, the base filesystems in the rootvg (/, /usr, /var, /tmp, /home,
+/boot, and swap) all moved as a single unit (sometimes /home was moved
+out for systems that served lots of users).  For data or application
+specific filesystems, the normal practise was to put them into their own
+volume group for backup, failover, etc.  This made it easy to upgrade
+systems, or move a critical application to another server in case of
+hardware problems (whether manual or via HA auto failover).
 
- > Using mount --version would be better - I am not aware of any
- > other mount distribution.
+> Let me put it that way: I don't understand why (if it is useful at all)
+> it is done in the fs. Looks like a wrong level...
 
-RedHat distribute mount separately from util-linux and I wouldnae be
-surprised if others do the same...
+For the same reason that the UUID and LABEL are stored in the superblock:
+you want this infomation kept with the filesystem and not anywhere else,
+otherwise it will quickly get out-of-date.  Wherever you mounted the
+filesystem last is where it would be mounted if you import the VG on
+another system.  You can obviously edit /etc/fstab afterwards if it is
+wrong, and then remount the filesystem(s), and this will store the
+correct mountpoint into the filesystem for the next vgimport.
 
- >> +In addition, it is wise to ensure that the following packages are at least
- >> +at the versions suggested below, although these may not be required,
- >> +depending on the exact configuration of your system:
- >> +
- >> +o  Console Tools      #   0.3.3        # loadkeys -V
- >> +o  Mount              #   2.10e        # mount --version
-
- > Concerning mount:
- >
- > (i) the version mentioned is too old,
-
-Probably. As stated, that's what's currently installed here, and I
-havenae the foggiest whether any of them need upgrading as there's
-nothing I've been able to find to say what the minimum version is.
-
- > (ii) mount is in util-linux.
-
-Not on RedHat systems.
-
- > Conclusion: the mount line should be deleted entirely.
-
-Maybe, but that's not for me to decide. Whoever wrote ver_linux
-obviously thought it important.
-
- > Concerning Console Tools: maybe kbd-1.05 is uniformly better.
- > I am not aware of any reason to recommend the use of console-tools.
-
-Neither am I. The ver_linux script has lines for determining the
-versions for both Console Tools and Kbd but on EVERY system I've
-tried, including Slackware, RedHat, Debian, Caldera, and SuSE based
-ones, the line for determining Kbd versiondoesnae work. I've just
-included the line that worked, and ignored the Kbd one as I can see no
-point including something that doesnae work.
-
-Best wishes from Riley.
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270966AbTGPR3s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270996AbTGPR2M
+	id S270981AbTGPR3r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270994AbTGPR22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:28:12 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:50140 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S270966AbTGPR1r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:27:47 -0400
-Date: Wed, 16 Jul 2003 10:42:55 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: lse-tech@lists.sourceforge.net
-cc: linux-kernel@vger.kernel.org
-Subject: OLS Linux Scalability Effort BOF agenda
-Message-ID: <66100000.1058377375@w-hlinder>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 16 Jul 2003 13:28:28 -0400
+Received: from Mail1.kontent.de ([81.88.34.36]:39058 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S270989AbTGPRPK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:15:10 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Greg KH <greg@kroah.com>, Fredrik Tolf <fredrik@dolda2000.cjb.net>
+Subject: Re: Input layer demand loading
+Date: Wed, 16 Jul 2003 19:28:35 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <200307131839.49112.fredrik@dolda2000.cjb.net> <200307161457.42862.fredrik@dolda2000.cjb.net> <20030716162639.GB7513@kroah.com>
+In-Reply-To: <20030716162639.GB7513@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200307161928.35476.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Here is the first draft of the agenda for the LSE BOF at OLS 
-(8pm on Thursday after the IBM banquet). If we run out of time 
-I will set up a bar BOF. If you want to add anything to this 
-agenda please let me know.
+> True, but then if you try to open the port, you will only get the base
+> joydev.o module loaded, not the gameport driver, which is what you
+> _really_ want to have loaded, right?
+> 
+> So there really isn't much benifit to doing this, sorry.
 
-See you in Ottawa.
+Why? It could work the way PCMCIA SCSI works.
+Cardmgr loads the LLDD, but sd, sg, etc. are loaded
+on demand.
 
-Hanna
-
------
-
-I. NUMA CPU Scheduling - John Hawkes and many others
-
-II. Storage Scaling - Paul McKenney
-
-III. LSE direction and web site  - Hanna Linder 
+	Regards
+		Oliver
 

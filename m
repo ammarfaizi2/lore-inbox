@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbTD1STp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 14:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbTD1STp
+	id S261250AbTD1SYG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 14:24:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbTD1SYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 14:19:45 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:22235 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261239AbTD1STo
+	Mon, 28 Apr 2003 14:24:06 -0400
+Received: from mail03.agrinet.ch ([212.28.134.125]:20228 "EHLO
+	mail03.agrinet.ch") by vger.kernel.org with ESMTP id S261250AbTD1SYF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 14:19:44 -0400
-To: davidm@hpl.hp.com
-cc: Andi Kleen <ak@suse.de>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Dave Hansen <haveblue@us.ibm.com>, Henti Smith <bain@tcsn.co.za>,
-       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       Riley Williams <Riley@williams.name>
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [Lse-tech] Re: maximum possible memory limit .. 
-In-reply-to: Your message of Mon, 28 Apr 2003 10:53:53 PDT.
-             <16045.27313.369493.99346@napali.hpl.hp.com> 
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <22244.1051554664.1@us.ibm.com>
-Date: Mon, 28 Apr 2003 11:31:04 -0700
-Message-Id: <E19ADP6-0005mq-00@w-gerrit2>
+	Mon, 28 Apr 2003 14:24:05 -0400
+Date: Mon, 28 Apr 2003 20:36:11 +0200
+From: Andreas Tscharner <starfire@dplanet.ch>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: USB mouse with EHCI module
+Message-Id: <20030428203611.1307000b.starfire@dplanet.ch>
+Organization: No Such Penguin
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary=".5X.i_=.vsYYPvAD"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Apr 2003 10:53:53 PDT, David Mosberger wrote:
-> >>>>> On Mon, 28 Apr 2003 19:13:53 +0200, Andi Kleen <ak@suse.de> said:
-> 
->   >> Cool. Sorry to be pestering about the 64-bit limits, but can we
->   >> really use 2^64 bytes of memory on ia64/ppc64/x86-64 etc.?
->   >> (AFAIK, 64-bit arches don't suffer from a small ZONE_LOWMEM.)
-> 
->   Andi> No. The hardware have far smaller physical limits.
-> 
->   Andi> Current AMD64 CPUs are limited to 40bit physical, 48bit virtal
->   Andi> (the virtual limit per process in the current Linux kernel is
->   Andi> 39bits)
-> 
->   Andi> Itanium 2 afaik support a bit more 50bits (51 or 52, I forgot)
->   Andi> physical, probably more virtual.
-> 
-> Itanium 2 supports all 64 virtual address bits and 50 physical bits
-> (in what way is "1024 times more" "a bit more"? ;-).
-> 
-> 	--david
+--.5X.i_=.vsYYPvAD
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-0x400 is just one more bit, albeit slid around a byte or two.  ;)
+Hello World,
 
-gerrit
+My new USB mouse (Logitech MouseMan Traveler) does not work correctly
+with the EHCI module. The button in the middle (the scroll wheel
+actually) does not work with EHCI while it does with UHCI.
+
+Kernel 2.4.20 on a Debian GNU/Linux
+
+Best regards
+	Andreas
+-- 
+Andreas Tscharner                                  starfire@dplanet.ch
+----------------------------------------------------------------------
+"Programming today is a race between software engineers striving to
+build bigger and better idiot-proof programs, and the Universe trying
+to produce bigger and better idiots. So far, the Universe is winning."
+                                                          -- Rich Cook 
+
+--.5X.i_=.vsYYPvAD
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+rXSkd6icl+PTsS8RAlhKAJwI7lkfGDIZD8F8xY83E5vqqBYTLgCeLg6v
+H6sSyf+107+y35pyggOhLKY=
+=/WTh
+-----END PGP SIGNATURE-----
+
+--.5X.i_=.vsYYPvAD--

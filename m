@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316856AbSH0T0C>; Tue, 27 Aug 2002 15:26:02 -0400
+	id <S313628AbSH0TYc>; Tue, 27 Aug 2002 15:24:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316860AbSH0T0C>; Tue, 27 Aug 2002 15:26:02 -0400
-Received: from mail.gmx.de ([213.165.64.20]:25278 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S316856AbSH0T0B>;
-	Tue, 27 Aug 2002 15:26:01 -0400
-From: Felix Seeger <felix.seeger@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: USB mouse problem, kernel panic on startup in 2.4.19
-Date: Tue, 27 Aug 2002 21:30:11 +0200
-User-Agent: KMail/1.4.6
-References: <200208272011.51691.felix.seeger@gmx.de> <200208272023.52351.felix.seeger@gmx.de> <20020827183119.GB23700@kroah.com>
-In-Reply-To: <20020827183119.GB23700@kroah.com>
-Cc: Greg KH <greg@kroah.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200208272130.14728.felix.seeger@gmx.de>
+	id <S316838AbSH0TYc>; Tue, 27 Aug 2002 15:24:32 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:52234 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S313628AbSH0TYa>;
+	Tue, 27 Aug 2002 15:24:30 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200208271928.g7RJSgu12515@oboe.it.uc3m.es>
+Subject: Re: block device/VM question
+In-Reply-To: <Pine.LNX.4.44.0208271308190.3234-100000@hawkeye.luckynet.adm> from
+ Thunder from the hill at "Aug 27, 2002 01:13:37 pm"
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Date: Tue, 27 Aug 2002 21:28:42 +0200 (MET DST)
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+"A month of sundays ago Thunder from the hill wrote:"
+> > And for the O_DIRECT flag we seem to do alloc_kiovec(1, &f->f_iobuf).
+> 
+> Perhaps we should go biovec here?
+> 
+> For you, if you can stand it you can even go directly into the dio stuff 
+> from direct-io.c. You'll just need to know what to do. Or you fill your 
+> information into some underway function.
 
-No, sorry. Doesn't help.
-Is that a patch for 2.4.20-pre4 ? I am using 2.4.19.
+Yes, the 2.5.31 code looks much much simpler. But you encouraged me to
+look at 2.4.19 by pointing out that there has been support since 2.4.10,
+so that's what I'm looking at!
 
-Oh, the shift and the numlock leds are blinking.
+I'm sure I'm just missing a couple of methods in some struct.  I'll test
+a few on the way home in the train.  Things look good, just no methods to
+do the work when the O_DIRECT flag is set. So I get EINVAL on every
+read/write access.
 
-thanks
-have fun
-Felix
+I'm getting the hang of it. At every open of the device I look at the
+file pointer that they're opening and check to see if it has an iobuff
+field set. If not, I set it (and the O_DIRECT flag if necessary).
+At every release of the device, I look at the file they're releasing
+and if it has an iobuff field, I free it. I guess I should set a
+flag to say "I did it", but for the moment, I guess it's only me
+in the driver doing it. Kernel programming would be so much easier
+if there were an explanation of what things were for :-).
 
-Am Dienstag, 27. August 2002 20:31 schrieb Greg KH:
-> On Tue, Aug 27, 2002 at 08:23:47PM +0200, Felix Seeger wrote:
-> > Kernel BUG at usb-ohci.h:464!
->
-> Can you try the patch at:
-> 	http://www.kernel.org/pub/linux/kernel/people/gregkh/usb/2.4/usb-usb-ohci-
->2.4.20-pre4.patch and let us know if it fixes this problem or not?
->
-> thanks,
->
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+I'll trace what happens in the generic_read() /write() stuff. They'll
+be usiing the iobuf there.
 
-iD8DBQE9a9NGS0DOrvdnsewRAkIQAJ4zXvVDstvM6UHcYktCP+dSfISNTgCffJ+q
-fyBgD16M6Dkdpmfazv7PTis=
-=e+kq
------END PGP SIGNATURE-----
+Thanks.
 
+Peter

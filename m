@@ -1,77 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319402AbSIFVjw>; Fri, 6 Sep 2002 17:39:52 -0400
+	id <S319403AbSIFVpR>; Fri, 6 Sep 2002 17:45:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319403AbSIFVjw>; Fri, 6 Sep 2002 17:39:52 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:12827 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S319402AbSIFVjv>;
-	Fri, 6 Sep 2002 17:39:51 -0400
-From: <Hell.Surfers@cwctv.net>
-To: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
-Date: Fri, 6 Sep 2002 22:44:05 +0100
-Subject: RE:Re: RE:Re: ide drive dying?
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1031348645489"
-Message-ID: <0ca071743210692DTVMAIL10@smtp.cwctv.net>
+	id <S319404AbSIFVpR>; Fri, 6 Sep 2002 17:45:17 -0400
+Received: from vulcan.americom.com ([208.187.207.195]:17398 "HELO
+	solo.americom.com") by vger.kernel.org with SMTP id <S319403AbSIFVpQ>;
+	Fri, 6 Sep 2002 17:45:16 -0400
+Date: 6 Sep 2002 21:49:54 -0000
+Message-ID: <20020906214954.26037.qmail@solo.americom.com>
+To: nw@codon.com
+From: jeff@AmeriCom.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux SMP kernel bug with > 512M ram
+Reply-To: jeff@AmeriCom.com
+References: <005a01c255ec$89be7b40$d281f6cc@WEASEL> <fa.hqf5vev.1u6g19e@ifi.uio.no> <fa.hqeru5v.1v6u3h8@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Its a VIA motherboard, and I found the problem:
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=47160
+Thanks for the help.
 
---1031348645489
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Regards,
 
-well 9x is unreliable anyway..
-
+Jeffrey Moss
+jeff@americom.com
 
 
-On 	Fri, 6 Sep 2002 22:45:55 +0100 (BST) 	jbradford@dial.pipex.com wrote:
 
---1031348645489
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Fri, 6 Sep 2002 22:38:37 +0100
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319401AbSIFVdm>; Fri, 6 Sep 2002 17:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319402AbSIFVdm>; Fri, 6 Sep 2002 17:33:42 -0400
-Received: from 62-190-219-182.pdu.pipex.net ([62.190.219.182]:35078 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S319401AbSIFVdm>; Fri, 6 Sep 2002 17:33:42 -0400
-Received: (from root@localhost)
-	by darkstar.example.net (8.12.4/8.12.4) id g86LjtkE005975
-	for linux-kernel@vger.kernel.org; Fri, 6 Sep 2002 22:45:55 +0100
-From: jbradford@dial.pipex.com
-Message-Id: <200209062145.g86LjtkE005975@darkstar.example.net>
-Subject: Re: RE:Re: ide drive dying?
-To: linux-kernel@vger.kernel.org
-Date: Fri, 6 Sep 2002 22:45:55 +0100 (BST)
-In-Reply-To: <1031346090.10612.90.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Sep 06, 2002 10:01:29 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
-
-> > Is a drive you cant rely on worth having?
+> Message-ID: <005a01c255ec$89be7b40$d281f6cc@WEASEL>
+> From: "Steve Wolfe" <nw@codon.com>
+> To: <jeff@AmeriCom.com>
+> References: <fa.hqf5vev.1u6g19e@ifi.uio.no> <fa.hqeru5v.1v6u3h8@ifi.uio.no>
+> Subject: Re: Linux SMP kernel bug with > 512M ram
+> Date: Fri, 6 Sep 2002 15:29:29 -0600
+> MIME-Version: 1.0
 > 
-> Thats up to the owner. There are lots of uses for such drives - /tmp,
-> swap, in a raid array, etc
+> 
 
-...primary Windows partition :-)
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1031348645489--
-
+> 
+> > I don't think its chipset or memory, the machines that crash have
+> different brand
+> > motherboards with different chipsets, I ran docmem for 24 hours on each
+> stick of ram
+> > and found no errors. The ram worked fine in my WindowsXP machine, and it
+> works fine
+> > when I use the non-smp kernel, and/or when I take the ram down to 2
+> sticks (512
+> > meg). I'm posting here because I believe I have narrowed it down to a
+> bug in the
+> > kernel.
+> 
+>    I've also been bit in the rear-end by memory bugs, and I can assure
+> you, they can be devilish to find.  First, rather than running a memory
+> test on each individual stick, you MUST run the memory test on the actual
+> system, with the actual RAM.  Often times, weird, bizarre errors crop up
+> in certain combinations and not in others.
+> 
+>   It's also a little difficult to convince people that it's a bug in the
+> kernel, when there is an incredibly number of people who run SMP kernels
+> with >512 MB.  I maintain a decent number of such machines, and have seen
+> absolutely *zero* problems of similar natures that weren't traced back to
+> defective or incompatible hardware.
+> 
+>    I'm curious - what kinds of motherboards are you using, and what kinds
+> of RAM?  What kind of memory timings are specified in the BIOS?
+> 
+> steve
+> 
+> 
 

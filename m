@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129470AbRBLQxi>; Mon, 12 Feb 2001 11:53:38 -0500
+	id <S129620AbRBLQ42>; Mon, 12 Feb 2001 11:56:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129372AbRBLQx2>; Mon, 12 Feb 2001 11:53:28 -0500
-Received: from [209.81.55.2] ([209.81.55.2]:7942 "EHLO cyclades.com")
-	by vger.kernel.org with ESMTP id <S129470AbRBLQxI>;
-	Mon, 12 Feb 2001 11:53:08 -0500
-Date: Mon, 12 Feb 2001 08:53:06 -0800 (PST)
-From: Ivan Passos <lists@cyclades.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: LILO and serial speeds over 9600
-In-Reply-To: <Pine.LNX.4.10.10102120741290.3761-100000@main.cyclades.com>
-Message-ID: <Pine.LNX.4.10.10102120849580.3761-100000@main.cyclades.com>
+	id <S129793AbRBLQ4S>; Mon, 12 Feb 2001 11:56:18 -0500
+Received: from srv01s4.cas.org ([134.243.50.9]:13549 "EHLO srv01.cas.org")
+	by vger.kernel.org with ESMTP id <S129650AbRBLQ4I>;
+	Mon, 12 Feb 2001 11:56:08 -0500
+From: Mike Harrold <mharrold@cas.org>
+Message-Id: <200102121656.LAA17900@mah21awu.cas.org>
+Subject: Re: lkml subject line
+To: bruce@ask.ne.jp (Bruce Harada)
+Date: Mon, 12 Feb 2001 11:56:00 -0500 (EST)
+Cc: mharrold@cas.org (Mike Harrold), linux-kernel@vger.kernel.org
+In-Reply-To: <20010213014814.7d7f7d33.bruce@ask.ne.jp> from "Bruce Harada" at Feb 13, 2001 01:48:14 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 12 Feb 2001, Ivan Passos wrote:
 > 
-> I'd like to have a LILO version that supports higher serial speeds than
-> 9600bps. Questions:
-> - Is there a version that already does that?
+> On Mon, 12 Feb 2001 10:25:47 -0500 (EST)
+> Mike Harrold <mharrold@cas.org> wrote:
+> > > dwguest@win.tue.nl said:
+> > > The advantages can all be gained without that disadvantage by just
+> > learning 
+> > > to filter mail on other headers instead of the subject line.
+> > 
+> > Assuming your mail reader can do that (and no, I can't change my mail
+> > reader).
+> 
+> Use procmail, that's what it's there for (and it won't affect your mail
+> reader, as long as you're using something reasonably sensible). I filter
+> on Sender.
 
-To answer one of my own questions: my current LILO version does support
-speeds up to 38400bps. I didn't try it before because the _man page_ said
-it supported up to 9600 (and I believed in it :), but after checking
-LILO's Changelog, I found that support for speeds up to 38400 is available
-for a long time now. I tested it running at 38400 and it works.
+Maybe I don't *want* the LKML messages in a seperate folder.
+Maybe I just want to identify them at a pinch in my inbox?
+Maybe my employer doesn't allow me to install additional software anyway?
 
-Since I still want to add support for speeds up to 115200, the other two
-questions are still up (see below):
-
-> - If not, do I need to change just LILO to do that, or do I need to change
->   the kernel as well (I don't think I'd need to do that too, as the serial 
->   console kernel code does support up to 115.2Kbps, but it doesn't hurt to 
->   ask ... ;) ??
-> - Does another bootloader (e.g. GRUB) support serial speeds higher than
->   9600bps?? If so, which one(s)??
-
-I'd really appreciate any help.
-
-Later,
-Ivan
-
+/Mike
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,82 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261392AbSJCS0S>; Thu, 3 Oct 2002 14:26:18 -0400
+	id <S261450AbSJCS2o>; Thu, 3 Oct 2002 14:28:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261398AbSJCS0S>; Thu, 3 Oct 2002 14:26:18 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:55718 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261392AbSJCS0R>; Thu, 3 Oct 2002 14:26:17 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Andreas Pfaller <apfaller@yahoo.com.au>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: linux-2.4.20-pre8-ac3: NFS performance regression
-Date: Thu, 3 Oct 2002 20:32:37 +0200
-User-Agent: KMail/1.4.3
+	id <S261488AbSJCS2o>; Thu, 3 Oct 2002 14:28:44 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:8399 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261450AbSJCS2m>;
+	Thu, 3 Oct 2002 14:28:42 -0400
+Date: Thu, 3 Oct 2002 20:44:09 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Kristian Hogsberg <hogsberg@users.sourceforge.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
+In-Reply-To: <m37kh1vo9d.fsf@DK300KRH.bang-olufsen.dk>
+Message-ID: <Pine.LNX.4.44.0210032028130.2113-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200210032024.47664.apfaller@yahoo.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While trying to get the onboard HPT372 working on a new motherboard
-(Epox 8k5a2+ - KT333/VT8235) i tried successfully 2.4.20-pre8-ac3.
-2.4.19 could read the fs on the HPT372 without any problem at full
-media speed but could not write to it at all. I can provide details
-if necessary. I did not use any of the raid stuff.
 
-However I noticed a significant NFS performance drop with
-2.4.20-pre8-ac3. Other network throughput is not affected.
+On 1 Oct 2002, Kristian Hogsberg wrote:
 
-Server: P-II 300, cheap RTL8139C, 2.4.19 (nearly vanilla).
-Client: Athlon 2000+, onboard via-rhine.
+> I read through your patch and I think it looks great.  I'm one of the
+> ieee1394 maintainers, and we also a have a worker thread mechanism in
+> the ieee1394 subsystem, which could (and will, I'm going to look into
+> this) be replaced by your work queue stuff.  We use the thread for
+> reading configuration information from ieee1394 devices.  This work
+> isn't very performance critical, but the reason we dont just use keventd
+> is that we don't want to stall keventd while reading this information.  
+> So, my point is, that in this case (I'm sure there are more situations
+> like this, usb has a similar worker thread, khubd), the per-cpu worker
+> thread is overkill, and it would be sufficient with just one thread,
+> running on all cpus.  So maybe this could be an option to
+> create_workqueue()?  Either create a cpu-bound thread for each cpu, or
+> create one thread that can run on all cpus.
 
-### Client with linux-2.4.19 ###
+i understand your point, and i really tried to get this problem solved
+prior sending the multiple-workers patch, but it's not really doable
+without major kludges. Is it really a problem on SMP boxes to have a few
+more kernel threads? Those boxes are supposed to have enough RAM.
 
-[diavolo inferno-l2#> bonnie -s 1500 -S 100 -y -u
-Bonnie 1.3: File './Bonnie.976', size: 1572864000, volumes: 1
-Writing with putc_unlocked()...done:  10328 kB/s  10.5 %CPU
-Rewriting...                   done:   4280 kB/s   3.2 %CPU
-Writing intelligently...       done:  10319 kB/s   3.8 %CPU
-Reading with getc_unlocked()...done:  10436 kB/s  14.3 %CPU
-Reading intelligently...       done:  10712 kB/s   2.8 %CPU
-Seeker 1...Seeker 2...Seeker 3...start 'em...done...done...done...
-              ---Sequential Output (sync)----- ---Sequential Input-- --Rnd Seek-
-              -CharUnlk- --Block--- -Rewrite-- -CharUnlk- --Block--- --00k (03)-
-Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU   /sec %CPU
-diavol 1*1500 10328 10.5 10319  3.8  4280  3.2 10436 14.3 10712  2.8    9.3  3.0
+the only other way would be to introduce 1) runtime overhead [this sucks]
+or 2) to split the API into per-CPU and global ones. [this isnt too good
+either i think.]
 
-# ftp transfer
-1072458941 bytes received in 01:37 (10.53 MB/s)
+there is enough flexibility internally - eg. we can in the future do
+better load-balancing (if the XFS people will ever notice any problems in
+this area), because right now the load-balancing is the simplest and
+fastest variant: purely per-CPU. [in theory we could look at other CPU's
+worker queues and queue there if they are empty or much shorter than this
+CPU's worker queue.]
 
+I also kept open the possibility of introducing multiple worker threads
+per CPU in the future. But having a single-threaded an per-CPU behavior in
+a single API looks quite hard.
 
-### Client with linux-2.4.20-pre8-ac3 ###
+we could perhaps do the following, add a single branch to the queue_work()
+fastpath:
 
-[diavolo inferno-l2#> bonnie -s 1500 -S 100 -y -u
-Bonnie 1.3: File './Bonnie.987', size: 1572864000, volumes: 1
-Writing with putc_unlocked()...done:   7356 kB/s   7.6 %CPU
-Rewriting...                   done:   3168 kB/s   1.3 %CPU
-Writing intelligently...       done:   6939 kB/s   1.7 %CPU
-Reading with getc_unlocked()...done:   7389 kB/s   7.0 %CPU
-Reading intelligently...       done:   7722 kB/s   2.1 %CPU
-Seeker 1...Seeker 3...Seeker 2...start 'em...done...done...done...
-              ---Sequential Output (sync)----- ---Sequential Input-- --Rnd Seek-
-              -CharUnlk- --Block--- -Rewrite-- -CharUnlk- --Block--- --00k (03)-
-Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU   /sec %CPU
-diavol 1*1500  7356  7.6  6939  1.7  3168  1.3  7389  7.0  7722  2.1    9.9  3.8
+	if (!cwq->thread)
+		cwq = wq->cpu_wq;
 
-[diavolo inferno-l2#> cat /proc/mounts | grep l2
-inferno:/mnt/l2 /mnt/inferno-l2 nfs rw,v3,rsize=8192,wsize=8192,hard,intr,udp,lock,addr=inferno 0 0
+and the single-thread queue variant would thus fall back to using a single
+queue only. Plus some sort of new variant could be used:
 
-# ftp transfer
-1072458941 bytes received in 01:35 (10.69 MB/s)
+	struct workqueue_struct *create_single_workqueue(char *name);
 
-Cheers,
-Andreas
+[or a 'flags' argument to create_workqueue();]
 
-PS: Does a patch for only the HPT372 problem exist for 2.4.19? I get
-somewhat nervous running an pre-ac kernel on a machine intended for
-production use.
+The runtime thing looks slightly ugly, but i think it's acceptable. Has
+anyone any better idea?
 
+> Another minor comment: why do you kmalloc() the workqueue_t?  Wouldn't
+> it be more flexible to allow the user to provide a pointer to a
+> pre-allocated workqueue_t structure, e.g.:
+> 
+>         static workqueue_t aio_wq;
+> 
+>         [...]
+> 
+>                	create_workqueue(&aio_wq, "aio");
 
+yes, but every creation/destruction use of workqueues is in some sort of
+init/shutdown very-slow-path, so efficiency is not a factor. But clarity
+of the code is a factor, and in the dynamic allocation case it's much
+cleaner to have this:
+
+	wq = create_workqueue("worker");
+	if (!wq)
+		goto error;
+
+than:
+
+	wq = kmalloc(sizeof(*wq), GFP_KERNEL);
+	if (!wq)
+		goto error;
+	if (create_workqueue(wq, "worker")) {
+		kfree(w);
+		goto error;
+	}
+
+[and we might even switch to a workqueue SLAB cache internally anytime.]
+
+	Ingo
 

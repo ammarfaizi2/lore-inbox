@@ -1,38 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267277AbTBDPhW>; Tue, 4 Feb 2003 10:37:22 -0500
+	id <S267280AbTBDPiJ>; Tue, 4 Feb 2003 10:38:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267280AbTBDPhW>; Tue, 4 Feb 2003 10:37:22 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:5770 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267277AbTBDPhV>; Tue, 4 Feb 2003 10:37:21 -0500
-Date: Tue, 04 Feb 2003 07:46:45 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Bryan Andersen <bryan@bogonomicon.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: gcc 2.95 vs 3.21 performance
-Message-ID: <171670000.1044373604@[10.10.2.4]>
-In-Reply-To: <3E3F8DE6.708@bogonomicon.net>
-References: <Pine.LNX.3.95.1030203182417.7651A-100000@chaos.analogic.com>
- <200302040656.h146uJs10531@Port.imtp.ilyichevsk.odessa.ua>
- <3E3F8DE6.708@bogonomicon.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S267281AbTBDPiJ>; Tue, 4 Feb 2003 10:38:09 -0500
+Received: from B5b4a.pppool.de ([213.7.91.74]:26074 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S267280AbTBDPiE>; Tue, 4 Feb 2003 10:38:04 -0500
+Subject: Re: CPU throttling??
+From: Daniel Egger <degger@fhm.edu>
+To: Valdis.Kletnieks@vt.edu
+Cc: Matt Reppert <arashi@arashi.yi.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200302031924.h13JO9a0026095@turing-police.cc.vt.edu>
+References: <200302031713.h13HD2K8000181@darkstar.example.net>
+	 <200302031857.h13IvHa0025735@turing-police.cc.vt.edu>
+	 <20030203131456.34c04df8.arashi@arashi.yi.org>
+	 <200302031924.h13JO9a0026095@turing-police.cc.vt.edu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-y1GlG7ZumchtiuG+wM5N"
+Organization: 
+Message-Id: <1044369243.24397.12.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 04 Feb 2003 15:34:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Personal opinion here but I know it is also held by many developers I
-> know and work with.  I'd rather have a compiler that produces correct and
-> fast code but ran slow than one that produces slow or bad code and runs
-> fast.  Remember compilation is done far less often than run time
-> execution.  
 
-Yeah, I'd make that tradeoff too, but gcc 3.2 doesn't give me that.
-People keep saying it does, but I see no real evidence of it.
-Show me the money.
+--=-y1GlG7ZumchtiuG+wM5N
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-M.
+Am Mon, 2003-02-03 um 20.24 schrieb Valdis.Kletnieks@vt.edu:
+
+> I knew that.  The question I asked was whether halted at 700Mhz takes mor=
+e
+> power than halted at 400Mhz...=20
+
+PowerPC CPUs will shut down unneeded units. There's no such things as a
+"hlt" instruction. The natural way to slow down the CPU causing more
+sparetime to shut down single units is to throttle the dispatching of
+instructions for which there's are flags in the control register set.
+
+I've no idea where the frequency scaling should happen but it either
+needs some hardware clock control or it's the mentioned dispatch
+throttling. In case of the former there'd be some powersave effects
+because the power drawn by a CPU is direct proportional to the
+frequency. In the latter case the difference between an automatically=20
+sleeping 700Mhz and a throttled 700Mhz cpu at "400Mhz" should be pretty
+small, in case the cpu is mostly idle.
+
+--=20
+Servus,
+       Daniel
+
+--=-y1GlG7ZumchtiuG+wM5N
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+P89bchlzsq9KoIYRAoV3AKCHZwjTSmFgmV2uuu4tECBV4kjsYwCfVen+
+FKmdhn8kMK+vuYCf10tXPzM=
+=WsJN
+-----END PGP SIGNATURE-----
+
+--=-y1GlG7ZumchtiuG+wM5N--
+

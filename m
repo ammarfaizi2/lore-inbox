@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbTEUXbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 19:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTEUXbI
+	id S262363AbTEUXho (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 19:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbTEUXhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 19:31:08 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:3545 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262358AbTEUXbI (ORCPT
+	Wed, 21 May 2003 19:37:43 -0400
+Received: from [212.97.163.22] ([212.97.163.22]:65509 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S262363AbTEUXhn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 19:31:08 -0400
-Date: Wed, 21 May 2003 16:42:26 -0700 (PDT)
-Message-Id: <20030521.164226.23023899.davem@redhat.com>
-To: kmannth@us.ibm.com
-Cc: zwane@linuxpower.ca, mbligh@aracnet.com, habanero@us.ibm.com,
-       haveblue@us.ibm.com, wli@holomorphy.com, arjanv@redhat.com,
-       pbadari@us.ibm.com, linux-kernel@vger.kernel.org, gh@us.ibm.com,
-       johnstul@us.ltcfwd.linux.ibm, jamesclv@us.ibm.com, akpm@digeo.com
-Subject: Re: userspace irq balancerB 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1053560371.19335.4725.camel@dyn9-47-17-180.beaverton.ibm.com>
-References: <1053541725.16886.4711.camel@dyn9-47-17-180.beaverton.ibm.com>
-	<1053560371.19335.4725.camel@dyn9-47-17-180.beaverton.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Wed, 21 May 2003 19:37:43 -0400
+Date: Thu, 22 May 2003 01:50:33 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Shared crc32 for 2.4.
+Message-ID: <20030521235033.GA2470@werewolf.able.es>
+References: <1053193432.9218.13.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1053193432.9218.13.camel@imladris.demon.co.uk>; from dwmw2@infradead.org on Sat, May 17, 2003 at 19:43:53 +0200
+X-Mailer: Balsa 2.0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Keith Mannthey <kmannth@us.ibm.com>
-   Date: 21 May 2003 16:39:29 -0700
 
-     For example a user would have to know that cpus 1,2,9,10 were
-   on the same cluster not (1,2,3,4) as you would expect.
-   
-Nothing prevents us from exporting these mappings to userspace.
-Just like we can export a "possible mask" for each interrupt
-source.
+On 05.17, David Woodhouse wrote:
+> This has been needed for a long time... please pull from
+> master.kernel.org:/home/dwmw2/BK/crc32-2.4 or apply the GNU patch below.
+> 
+> I can resend for 2.4.22-pre1 if you prefer, but it's been working in 2.5
+> and in various other 2.4 trees for a while now so I'm sending it now
+> anyway.
+> 
+
+This works if crc32.o is compiled as a module, but does not work if it is
+built into the kernel. For example, crc32_le symbol does not appear
+in System.map nor vmlinux.
+For me, it failed with 8390.o ans 8139too.o. But just because they are the
+only drivers needing crc32 that I build.
+
+TIA
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.21-rc2-jam1 (gcc 3.2.3 (Mandrake Linux 9.2 3.2.3-1mdk))

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314484AbSELP0X>; Sun, 12 May 2002 11:26:23 -0400
+	id <S314562AbSELP4F>; Sun, 12 May 2002 11:56:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314545AbSELP0W>; Sun, 12 May 2002 11:26:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2822 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314484AbSELP0W>;
-	Sun, 12 May 2002 11:26:22 -0400
-Message-ID: <3CDE894D.6020002@mandrakesoft.com>
-Date: Sun, 12 May 2002 11:25:01 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
-X-Accept-Language: en-us, en
+	id <S314546AbSELP4E>; Sun, 12 May 2002 11:56:04 -0400
+Received: from urtica.linuxnews.pl ([217.67.200.130]:6662 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S314458AbSELP4E>; Sun, 12 May 2002 11:56:04 -0400
+Date: Sun, 12 May 2002 17:55:57 +0200 (CEST)
+From: Pawel Kot <pkot@linuxnews.pl>
+To: <mcp@linux-systeme.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] NTFS 2.0.7a for Linux 2.4.18
+In-Reply-To: <Pine.LNX.3.96.1020512040757.27097A-100000@fps>
+Message-ID: <Pine.LNX.4.33.0205121752350.493-100000@urtica.linuxnews.pl>
 MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-CC: davej@suse.de, madkiss@madkiss.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Trivial bugfix in 3c509.c
-In-Reply-To: <200205120116.DAA26360@harpo.it.uu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
+Hi Marc,
 
->Dave & Martin,
->
->I noticed you guys included Kasper Dupont's patch in your
->2.5.15 patch kits:
->
->>With 3c509 compiled in kernel calling ifup after lots of
->>diskaccess causes an Oops.
->>
->>read_eeprom was incorrectly marked as __init. This patch
->>applies against 2.4.19-pre8-ac1 and maybee also 2.4.19-pre8:
->>
->
->Note that 2.4.19-pre8-ac1 has a newer version of 3c509.c than
->either 2.4.19-pre8 vanilla or 2.5.15, and it's only the newer
->version that calls read_eeprom() from non-__init code.
->This patch is not needed for 2.5.15.
->
->(The only calls to read_eeprom() in 2.5.15 are from el3_probe(),
->which is __init.)
->
+On Sun, 12 May 2002 mcp@linux-systeme.de wrote:
 
-Nevertheless, I applied it to both, because I want to sync up both 
-copies as much as possible.
+> Yes, 2.4.18 + preempt and some other additional stuff.
+> NTFS is a Module, happs with/without selecting debug feature in kernel
+> config.
 
-    Jeff
+Preemption is adressed with 2.0.7b patch I just released. It should
+compile cleanly and it seems to run as stable as with vanilla 2.4.18.
+I tested it with 2.4.18-4 rml's patch (and nothing else).
 
+Download as usually from:
+http://linux-ntfs.sf.net/downloads.html
 
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
 

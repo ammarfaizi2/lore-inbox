@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbUL1CvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbUL1CyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262025AbUL1CvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 21:51:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbUL1CvJ
+	id S262026AbUL1CyN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 21:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbUL1CyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 21:51:09 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:51621
+	Mon, 27 Dec 2004 21:54:13 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:56485
 	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262025AbUL1CvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 21:51:01 -0500
-Date: Mon, 27 Dec 2004 18:46:17 -0800
+	id S262026AbUL1CyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 21:54:10 -0500
+Date: Mon, 27 Dec 2004 18:49:23 -0800
 From: "David S. Miller" <davem@davemloft.net>
 To: Adrian Bunk <bunk@stusta.de>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove unused
-Message-Id: <20041227184617.4444fae4.davem@davemloft.net>
-In-Reply-To: <20041212195047.GH22324@stusta.de>
-References: <20041212195047.GH22324@stusta.de>
+Cc: acme@conectiva.com.br, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] net/802/: some cleanups
+Message-Id: <20041227184923.5b26f5a0.davem@davemloft.net>
+In-Reply-To: <20041212201115.GU22324@stusta.de>
+References: <20041212201115.GU22324@stusta.de>
 X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
 X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
@@ -25,10 +25,14 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Dec 2004 20:50:47 +0100
+On Sun, 12 Dec 2004 21:11:15 +0100
 Adrian Bunk <bunk@stusta.de> wrote:
 
-> I wasn't able to find any usage of this file (it seems the 
-> EXPORT_SYMBOL's were moved away, but deleting the filw was forgotten).
+> The patch below contains the following cleanups:
+> - make some needlessly global code static
+> - net/802/hippi.c: remove the unused global function hippi_net_init
+> - net/8021q/vlan.c: remove the global variable vlan_default_dev_flags
+>                     that was never changed
+> - drivers/net/net_init.c: remove four unneeded #include's
 
-Applied, thanks.
+drivers/net/net_init.c no longer exists in the source tree :)

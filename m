@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319144AbSHFPFh>; Tue, 6 Aug 2002 11:05:37 -0400
+	id <S319151AbSHFPIG>; Tue, 6 Aug 2002 11:08:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319145AbSHFPFh>; Tue, 6 Aug 2002 11:05:37 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:35770 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319144AbSHFPFh>;
-	Tue, 6 Aug 2002 11:05:37 -0400
-Date: Tue, 06 Aug 2002 08:06:12 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, colpatch@us.ibm.com
-Subject: Re: [PATCH] NUMA-Q xquad_portio declaration
-Message-ID: <1245189818.1028621171@[10.10.2.3]>
-In-Reply-To: <1028649942.18130.172.camel@irongate.swansea.linux.org.uk>
-References: <1028649942.18130.172.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S319149AbSHFPIG>; Tue, 6 Aug 2002 11:08:06 -0400
+Received: from daimi.au.dk ([130.225.16.1]:12700 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S319151AbSHFPIF>;
+	Tue, 6 Aug 2002 11:08:05 -0400
+Message-ID: <3D4FE721.666808AE@daimi.au.dk>
+Date: Tue, 06 Aug 2002 17:11:29 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: "David S. Miller" <davem@redhat.com>, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL] Warn users about machines with non-working WP bit
+References: <3D4FD736.DA443B4B@daimi.au.dk>		<20020806.065652.12285252.davem@redhat.com>		<3D4FDA23.90CAB62F@daimi.au.dk> <20020806.070535.24871584.davem@redhat.com> <3D4FDCDB.744EE7C9@daimi.au.dk> <3D4FDEF3.8070207@colorfullife.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> This patch is from Matt Dobson. It corrects the definition of
->> >> xquad_portio, getting rid of a compile warning.
->> > 
->> > Marcelo - I have a much cleaner change for this.
->> 
->> Can you publish it? ;-)
+Manfred Spraul wrote:
 > 
-> I did - its in -ac4 
+> But how many 80386 Linux systems that run the 2.4 kernel exist?
 
-The STANDALONE thing? I'm not convinced that's really any cleaner,
-it makes even more of a mess of io.h than there was already (though
-we could consider that a lost cause ;-)). 
+I don't know. I don't have any myself.
 
-What's your objection to just throwing in a defn of xquad_portio?
-A preference for burying the messy stuff in header files? Seems to
-me that as you have to define STANDALONE now, the point is moot.
-
-M.
-
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razrep@daimi.au.dk
+or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk

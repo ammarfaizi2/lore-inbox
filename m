@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130895AbQLLSaT>; Tue, 12 Dec 2000 13:30:19 -0500
+	id <S131453AbQLLStk>; Tue, 12 Dec 2000 13:49:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131059AbQLLSaK>; Tue, 12 Dec 2000 13:30:10 -0500
-Received: from laurin.munich.netsurf.de ([194.64.166.1]:29173 "EHLO
-	laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
-	id <S130895AbQLLS3z>; Tue, 12 Dec 2000 13:29:55 -0500
-Date: Tue, 12 Dec 2000 18:13:39 +0100
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: how to capture long oops w/o having second machine
-Message-ID: <20001212181339.F2602@storm.local>
-Mail-Followup-To: "Mohammad A. Haque" <mhaque@haque.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A3623C6.B2499D4D@haque.net> <Pine.LNX.4.30.0012120929270.6172-100000@viper.haque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0012120929270.6172-100000@viper.haque.net>; from mhaque@haque.net on Tue, Dec 12, 2000 at 09:34:30AM -0500
-From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+	id <S131493AbQLLSta>; Tue, 12 Dec 2000 13:49:30 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:60434 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S131453AbQLLStM>; Tue, 12 Dec 2000 13:49:12 -0500
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+Date: Tue, 12 Dec 2000 11:18:26 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <E145Xy6-0008HA-00@the-village.bc.nu>
+In-Reply-To: <E145Xy6-0008HA-00@the-village.bc.nu>
+Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
+MIME-Version: 1.0
+Message-Id: <00121211182600.11576@spc.esa.lanl.gov>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2000 at 09:34:30AM -0500, Mohammad A. Haque wrote:
-> Someone gave me a really awesome idea about possibly using a palm pilot
-> to capture the oops. Anyone know if it will be a problem using
-> /dev/ttyUSB0 as the serial port?
+On Monday 11 December 2000 11:46, Alan Cox wrote:
+>
+> Its an interesting demo that 2.4 has some performance problems since 2.2
+> is slower than 2.0 although nowdays not much.
 
-The driver itself has to provide support for serial console.  If the USB
-serial driver doesn't (I don't know) it won't work.  Check the config
-options for USB serial, if it doesn't offer an option for console on USB
-serial port then you're out of luck.
+Results for SMP 2.2.18 vs SMP 2.4.0-test12 are in.
+I repeated my earlier tests on a much faster dual P-III machine.
 
-Unless the USB serial driver in some strange way hooks into the standard
-serial driver, but then someone more knowledgeable should answer that
-question.
+Executive summary: SMP 2.4.0 is 2% faster than SMP 2.2.18.
 
--- 
- Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
-http://home.pages.de/~andreas.bombe/    http://linux1394.sourceforge.net/
+Although I made the following changes in the test procedure, these
+tests for 2.2.18 and 2.4.0-test12 were held under identical conditions.
+
+I used make -j3 bzImage for these tests on this SMP machine.
+The test machine is a dual P-III (733 Mhz), 256MB, IDE.
+
+I ran X and KDE 2.0 during the tests to provide a greater though
+reproducable load on the tested kernel.  
+
+The 2.2.18 kernel used was the final 2.2.18.
+
+The 2.4.0-test12 is still 2.4.0-test12-pre7 since test12(final)
+does not yet build with reiserfs. Team Reiser is working on this.
+
+Here are the numbers I got.  Again, three runs each were done.
+Task: make -j3 bzImage for 2.4.0-test12-pre7 kernel tree.
+Numbers are seconds to build.
+
+ 1       2       3      ave.
+143     143     143     143     Running 2.2.18 SMP
+140     140     140     140     Running 2.4.0-test12-pre7 SMP
+
+The numbers are very repeatable, as you can see.
+
+This time, 2.4.0-test12 wins by 2%.  Recounts can be performed
+by anyone, anytime.
+
+Steven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

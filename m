@@ -1,44 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310625AbSCHAio>; Thu, 7 Mar 2002 19:38:44 -0500
+	id <S310628AbSCHAnz>; Thu, 7 Mar 2002 19:43:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310628AbSCHAie>; Thu, 7 Mar 2002 19:38:34 -0500
-Received: from codepoet.org ([166.70.14.212]:47594 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S310625AbSCHAi1>;
-	Thu, 7 Mar 2002 19:38:27 -0500
-Date: Thu, 7 Mar 2002 17:38:27 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Jonathan A. George" <JGeorge@greshamstorage.com>,
-        linux-kernel@vger.kernel.org
+	id <S310629AbSCHAno>; Thu, 7 Mar 2002 19:43:44 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:9226 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S310628AbSCHAne>;
+	Thu, 7 Mar 2002 19:43:34 -0500
+Date: Thu, 7 Mar 2002 21:43:17 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Jonathan A. George" <JGeorge@greshamstorage.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
-Message-ID: <20020308003827.GA8348@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Rik van Riel <riel@conectiva.com.br>,
-	"Jonathan A. George" <JGeorge@greshamstorage.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C87FD12.8060800@greshamstorage.com> <Pine.LNX.4.44L.0203072057510.2181-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0203072057510.2181-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.4.18-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+In-Reply-To: <3C8805EC.3000602@greshamstorage.com>
+Message-ID: <Pine.LNX.4.44L.0203072137530.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Mar 07, 2002 at 08:59:47PM -0300, Rik van Riel wrote:
-> 5) ability to exchange changesets by email
+On Thu, 7 Mar 2002, Jonathan A. George wrote:
+> Rik van Riel wrote:
 
-6) Ability to do sane archival and renaming of directories.
-    CVS doesn't even know what a directory is.
-7) Support for archiving symlinks, device special files, fifos,
-    etc.
+> >1) working merges
+>
+> Can you be more specific?
 
- -Erik
+You do a merge of a particular piece of code once.
+After that the SCM remembers that this merge was done
+already and doesn't ask me to do it again when I move
+my code base to the next official kernel version.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+> >2) atomic checkins of entire patches, fast tags
+>
+> I was thinking about something like automatically tagged globally
+> descrete patch sets.  It would then be fairly simple to create a tool
+> that simply scanned, merged, and checked in that patch as a set.  Is
+> something like this what you have in mind?
+
+Yes, but doing this with the CVS storage as back-end
+would just be too slow.  Also, the CVS model wouldn't
+be able to easily clean out the tree afterwards if a
+checkin is interrupted halfway through.
+
+> >3) graphical 2-way merging tool like bitkeeper has
+> >   (this might not seem essential to people who have
+> >   never used it, but it has saved me many many hours)
+>
+> Would having something like VIM or Emacs display a patch diff with
+> providing keystroke level merge and unmerge get toward helpful for
+> something like this, or is the need too complex to address that way?
+
+That would work, but you really need to try bitkeeper's
+graphical 2-way merge tool (or even a screenshot) to see
+how powerful such a simple thing can (and should) be.
+
+> >4) distributed repositories
+>
+> Can you be more specific?  (i.e. are you looking for merging,
+> syncronization, or copies?  In other words what do you need that CVS +
+> rsync are unacceptable for?)
+
+I'm looking for the ability to make changes to my local tree while
+away from the internet.
+
+I want to be able to make a branch for some new VM stuff while I'm
+sitting on an airplane, without needing to "register" the branch
+with the SCM daemon on Linus's personal workstation.
+
+Another thing to consider here is that you'll have dozens, if not
+hundreds, of people creating branches to their tree simultaneously.
+How would you ever convince rsync to merge those ?
+
+regards,
+
+Rik
+-- 
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

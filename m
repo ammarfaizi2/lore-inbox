@@ -1,26 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290469AbSAQVPU>; Thu, 17 Jan 2002 16:15:20 -0500
+	id <S290470AbSAQVQU>; Thu, 17 Jan 2002 16:16:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290467AbSAQVPE>; Thu, 17 Jan 2002 16:15:04 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:58251 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290466AbSAQVN5>;
-	Thu, 17 Jan 2002 16:13:57 -0500
-Date: Thu, 17 Jan 2002 13:12:46 -0800 (PST)
-Message-Id: <20020117.131246.55833023.davem@redhat.com>
-To: elenstev@mesatop.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3-pre1 build error and possible fix for
- net/ipv4/netfilter/ip_fw_compat_redir.c
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200201171609.JAA25941@tstac.esa.lanl.gov>
-In-Reply-To: <200201171609.JAA25941@tstac.esa.lanl.gov>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S290467AbSAQVQO>; Thu, 17 Jan 2002 16:16:14 -0500
+Received: from pat.uio.no ([129.240.130.16]:17906 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S290466AbSAQVPL>;
+	Thu, 17 Jan 2002 16:15:11 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15431.16084.190369.177282@charged.uio.no>
+Date: Thu, 17 Jan 2002 22:15:00 +0100
+To: marcelo@conectiva.com.br
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-pre4 bonding driver...
+In-Reply-To: <200201162351.AAA24092@webserver.ithnet.com>
+In-Reply-To: <15430.2169.508178.665820@charged.uio.no>
+	<200201162351.AAA24092@webserver.ithnet.com>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Yes, this is the fix I've already sent to Linus.
+Marcelo,
+
+ Is this code from linux-2.4.18-pre4/drivers/net/bonding.c safe?
+
+static int bond_close(struct net_device *master)
+{
+       write_lock_irqsave(&bond->lock, flags);
+<snip>
+       bond_release_all(master);
+
+       write_unlock_irqrestore(&bond->lock, flags);
+
+AFAICS 'bond_release_all()' calls a bunch of lower level networking
+functions some of which do sleep. It does nothing to release the
+bond->lock when this occurs.
+
+Cheers,
+  Trond

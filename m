@@ -1,50 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261742AbSLQATo>; Mon, 16 Dec 2002 19:19:44 -0500
+	id <S261829AbSLQATw>; Mon, 16 Dec 2002 19:19:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261829AbSLQATo>; Mon, 16 Dec 2002 19:19:44 -0500
-Received: from dp.samba.org ([66.70.73.150]:57783 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261742AbSLQATn>;
-	Mon, 16 Dec 2002 19:19:43 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: vamsi@in.ibm.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] module-init-tools 0.9.3, rmmod modules with '-' 
-In-reply-to: Your message of "Mon, 16 Dec 2002 18:39:58 CDT."
-             <Pine.LNX.4.50.0212161831340.1804-100000@montezuma.mastecende.com> 
-Date: Tue, 17 Dec 2002 11:17:05 +1100
-Message-Id: <20021217002740.598D32C05B@lists.samba.org>
+	id <S261857AbSLQATw>; Mon, 16 Dec 2002 19:19:52 -0500
+Received: from patan.Sun.COM ([192.18.98.43]:14789 "EHLO patan.sun.com")
+	by vger.kernel.org with ESMTP id <S261829AbSLQATu>;
+	Mon, 16 Dec 2002 19:19:50 -0500
+From: Timothy Hockin <th122948@scl2.sfbay.sun.com>
+Message-Id: <200212170027.gBH0RfH26636@scl2.sfbay.sun.com>
+Subject: [BK SUMMARY] nix NGROUPS limit - re-send again
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Mon, 16 Dec 2002 16:27:41 -0800 (PST)
+Reply-To: thockin@sun.com
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.50.0212161831340.1804-100000@montezuma.mastecende.com> y
-ou write:
-> On Tue, 17 Dec 2002, Rusty Russell wrote:
-> 
-> > How did you get a module which has - in its name?  The build system
-> > *should* turn them into _'s.
-> 
-> ALSA modules?
-> 
-> -rw-r--r--    1 root     root       170125 Dec 15 00:10 snd-mixer-oss.ko
-> -rw-r--r--    1 root     root       143685 Dec 15 00:10 snd-mpu401-uart.ko
-> -rw-r--r--    1 root     root       312564 Dec 15 00:10 snd-opl3-lib.ko
-> -rw-r--r--    1 root     root       194307 Dec 15 00:10 snd-opl3sa2.ko
-> -rw-r--r--    1 root     root       612512 Dec 15 00:10 snd-opl3-synth.ko
-> -rw-r--r--    1 root     root      1160272 Dec 15 00:10 snd-pcm.ko
-> 
-> But they do get converted when we load ie snd-pcm turns into snd_pcm
+Linus,
 
-Yes, the filenames are unchanged.  But if you modprobe snd-mixer-oss,
-you'll see snd_mixer_oss in /proc/modules.  But rmmod "snd-mixer-oss"
-works as expected.  Basically, the kernel and tools see them as
-equivalent: anything else is a bug, please report.
+This patch removes the hard NGROUPS limit.  It has been in use in a similar
+form on our systems for some time.  I've sent it several times, and not heard
+anything back from you.  I've had no complaints from anyone about this version
+of the patch.
 
-BTW, this was done for (1) simplicity, (2) so KBUILD_MODNAME can be
-used to construct identifiers, and (3) so parameters when the module
-is built-in have a consistent name.
+There is a small change needed for glibc, and I will send that patch to the
+glibc people when this gets pulled.
 
-Hope that clarifies!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Unlike some prior versions of this patch, I have changed qsort() to a simple
+non-recursive sort.  Several people indicated that this change would solve
+their objections.  I have also changed the behavior of sys_setgroups to use an
+inline array of gid_t for small sets of groups.  Larger sets of groups use
+kmalloc, and very large sets use vmalloc.  This has turned up a big speed
+increase for the (admittedly stupid) test of setgroups() in a loop with random
+data and sets of 1-32 items, repeated hundreds of thousands of times, as well
+as the tests of setgroups with random set sizes between 1 and 10000.
+
+Lastly, this does not fixup all the architectures.  I have or will soon have
+other patchsets for that, which need to be reviewed by arch maintainers.
+
+Tim
+
+
+
+
+Please do a
+
+	bk pull http://suncobalt.bkbits.net/ngroups-2.5
+
+This will update the following files:
+
+ fs/nfsd/auth.c                 |   11 +--
+ fs/proc/array.c                |    2 
+ include/asm-i386/param.h       |    4 -
+ include/linux/init_task.h      |    1 
+ include/linux/kernel.h         |    3 
+ include/linux/limits.h         |    3 
+ include/linux/sched.h          |    6 +
+ include/linux/sunrpc/svcauth.h |    3 
+ kernel/exit.c                  |    7 +
+ kernel/fork.c                  |    7 +
+ kernel/sys.c                   |  145 ++++++++++++++++++++++++++++++++++-------
+ kernel/uid16.c                 |   64 +++++++++++++-----
+ lib/Makefile                   |    4 -
+ lib/bsearch.c                  |   49 +++++++++++++
+ net/sunrpc/svcauth_unix.c      |    4 -
+ 15 files changed, 257 insertions(+), 56 deletions(-)
+
+through these ChangeSets (diffs in separate email):
+
+<thockin@freakshow.cobalt.com> (02/12/16 1.888)
+   Remove the limit of 32 groups.  We now have a per-task, dynamic array of
+   groups, which is kept sorted and refcounted.  If the task has less than 32 
+   groups, we behave like older kernels and use an inline array.
+   
+   This ChangeSet incorporates all the core functionality. but does not fixup
+   all the incorrect architecture usages of groups.  That will follow.
+

@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319359AbSIKVks>; Wed, 11 Sep 2002 17:40:48 -0400
+	id <S319352AbSIKVj0>; Wed, 11 Sep 2002 17:39:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319361AbSIKVks>; Wed, 11 Sep 2002 17:40:48 -0400
-Received: from dsl-213-023-021-043.arcor-ip.net ([213.23.21.43]:9965 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S319359AbSIKVkr>;
-	Wed, 11 Sep 2002 17:40:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Subject: Re: [RFC] Raceless module interface
-Date: Wed, 11 Sep 2002 23:47:45 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Oliver Neukum <oliver@neukum.name>, Roman Zippel <zippel@linux-m68k.org>,
-       Alexander Viro <viro@math.psu.edu>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0209101201280.8911-100000@serv> <E17pEpj-0007Up-00@starship> <20020911222614.A12614@kushida.apsleyroad.org>
-In-Reply-To: <20020911222614.A12614@kushida.apsleyroad.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17pFKr-0007V7-00@starship>
+	id <S319359AbSIKVj0>; Wed, 11 Sep 2002 17:39:26 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:18173
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319352AbSIKVjZ>; Wed, 11 Sep 2002 17:39:25 -0400
+Subject: Re: Killing/balancing processes when overcommited
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jim Sibley <jlsibley@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, riel@conectiva.com.br, ltc@linux.ibm.com,
+       Troy Reed <tdreed@us.ibm.com>
+In-Reply-To: <OFA28F240F.93209971-ON88256C31.005E5F03@boulder.ibm.com>
+References: <OFA28F240F.93209971-ON88256C31.005E5F03@boulder.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 11 Sep 2002 22:44:24 +0100
+Message-Id: <1031780664.2994.21.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 September 2002 23:26, Jamie Lokier wrote:
-> Daniel Phillips wrote:
-> > Really, that's not so, there are limits.  30 seconds?  Whatever.  
-> > Remember, during this time the service provided by the module is
-> > unavailable, so this is denial-of-service land.  You could of
-> > course put in extra code to abort the unload process on demand,
-> > but, hmm, it probably wouldn't work ;-)
-> 
-> If you're going to do it right, you should fix that denial-of-service by
-> waiting until the module has finished unloading and then demand-loading
-> the module again.
+On Wed, 2002-09-11 at 19:08, Jim Sibley wrote:
+> I have run into a situation in a multi-user Linux environment that when
+> memory is exhausted, random things happen. The best case is that the
+> "offending" user's task is killed. Just as likely, another user's task is
 
-That doesn't make the DoS go away, it just makes it a little
-harder to trigger.  Anyway, one thing we could do if the rest
-of the module mechanism is up to it, is know that somebody is
-trying to reactivate a module that has just returned from
-module_cleanup(), and immediately reactivate it instead of
-freeing it, hoping to save some disk activity - if this turns
-out to be a real problem, that is.  The null solution is likely
-the winner here.
+The best case is that you don't allow overcommit. 2.4 supports that in
+the Red Hat and -ac trees. Robert Love forward ported the changes to
+2.5.x. There is an outstanding need to add an additional "root factor"
+so root can get some memory other people cannot, but otherwise it seems
+to work well
 
-> Ideally, those periodic "rmmod -a" calls should _never_ cause a
-> denial-of-service.
-
-Goodness no.  By the way, nobody has asked me how rmmod -a is
-to be implemented.  Oh well.
-
--- 
-Daniel

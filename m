@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbULEVH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbULEVMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbULEVH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 16:07:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbULEVHs
+	id S261394AbULEVMr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 16:12:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbULEVMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 16:07:48 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:41234 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261394AbULEVHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 16:07:35 -0500
-Date: Sun, 5 Dec 2004 22:14:43 +0100
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Helge Hafting <helge.hafting@hist.no>, Andrew Morton <akpm@osdl.org>,
-       andrea@suse.de, marcelo.tosatti@cyclades.com,
-       LKML <linux-kernel@vger.kernel.org>, nickpiggin@yahoo.com.au
-Subject: Re: [PATCH] oom killer (Core)
-Message-ID: <20041205211443.GA31731@hh.idb.hist.no>
-References: <20041202164725.GB32635@dualathlon.random> <20041202085518.58e0e8eb.akpm@osdl.org> <20041202180823.GD32635@dualathlon.random> <1102013716.13353.226.camel@tglx.tec.linutronix.de> <20041202110729.57deaf02.akpm@osdl.org> <1102014493.13353.239.camel@tglx.tec.linutronix.de> <20041202112208.34150647.akpm@osdl.org> <1102015450.13353.245.camel@tglx.tec.linutronix.de> <41B07B1E.8050503@hist.no> <1102108823.13353.267.camel@tglx.tec.linutronix.de>
+	Sun, 5 Dec 2004 16:12:47 -0500
+Received: from gprs215-105.eurotel.cz ([160.218.215.105]:27520 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261394AbULEVMo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 16:12:44 -0500
+Date: Sun, 5 Dec 2004 22:12:31 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] Add support to resume swsusp from initrd
+Message-ID: <20041205211230.GC1012@elf.ucw.cz>
+References: <1102279686.9384.22.camel@tyrosine>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1102108823.13353.267.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1102279686.9384.22.camel@tyrosine>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
-From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 03, 2004 at 10:20:22PM +0100, Thomas Gleixner wrote:
-> On Fri, 2004-12-03 at 15:41 +0100, Helge Hafting wrote:
-> > The case of OOM killed sshd is fixable without touching the kernel:
-> > Make sure sshd is started from init, init will then restart sshd whenever
-> > it quits for some reason.  This will get you your essential sshd back
-> > assuming the machine is still running and the OOM killer managed
-> > to free up some memory by killing some other processes.
-> > 
-> > One might still wish for better OOM behaviour, but it is a case
-> > where something has to give.
-> > 
+Hi!
+
+> These two patches do two things:
 > 
-> Hey, are you kidding ?
+> 1) The first removes __init declarations from swsusp code
+> 2) The second allows for the resume device to be set from userspace (ie,
+> without having to use name_to_dev_t) and also allows for resumes to be
+> triggered from userspace.
 > 
-Please don't misunderstand.  I'm not saing that 2.6 is fine,
-only that there is a way to automatically restart a sshd accidentally 
-killed by the OOM killer.  This could probably save you some of those
-trips, if you keep experimenting with 2.6.
-
-> 2.4 lets me not in, because the fork of sshd fails. How do you fix this
-> with changing the userspace ?
+> A /sys/power/resume file is added. Doing
 > 
-Fork failing is another issue than a killed sshd.  It is usually fixed
-by using ulimit so a buggy process simply cant fork off way too
-many children. (Or use up too much memory.)
+> echo -n "set 03:02" >/sys/power/resume
 
-> 2.6 oom is plain buggy
+I'd prefer not to have this one. Is it actually usefull? Then resume
+could be triggered by echo -n "03:02" > /sys/power/resume...
+
+> will set /dev/hda2 as the resume device. 
 > 
-Quite possible, but be aware that these things can happen with 2.4 too.
-It is possible to get 2.4 into a shortage where fork fails,
-you should use ulimit anyway to avoid that.  Also, having
-a sshd that is restarted by "init" is a good idea anyway
-on such a remote machine.  2.4 might not kill sshd by kernel bug, but
-who knows what some future exploit or future bug could do. 
+> echo -n "resume 03:02" >/sys/power/resume
+> 
+> will attempt a resume from /dev/hda2. Patches are against
+> 2.6.10-rc3.
 
-> I have no problem to help myself, but I want to get this fixed in a
-> reliable way which meets the comment in oom_kill.c: "least surprise"
+Nice way to loose your data :-). [Note note note -- I'm not going to
+merge it before my bigdiff goes to mainline, so expect to rediff it
+when 2.6.10 is out. I can generate the big diff if you want to test it
+now.]
 
-I too want a well-behaved OOM killer.  Workarounds are available though,
-until this happens.
+You really need to make sure that userland processes are stopped
+before swsusp-resume is started. You should do freeze_process(). Then
+resume process depends on having enough memory available, so you
+probably want to free_some_memory() and warn in documentation about
+the fact.
 
-Helge Hafting
+Ugh, and you really should document "list of bad ideas with resume
+from userspace". It is extremely easy to shoot yourself into the foot
+with this one.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315536AbSFOUsY>; Sat, 15 Jun 2002 16:48:24 -0400
+	id <S315544AbSFOVBi>; Sat, 15 Jun 2002 17:01:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315539AbSFOUsX>; Sat, 15 Jun 2002 16:48:23 -0400
-Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:23824 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S315536AbSFOUsX>; Sat, 15 Jun 2002 16:48:23 -0400
-Subject: Hot swap IDE/CompactFlash - safe?
-To: linux-kernel@vger.kernel.org
-Date: Sat, 15 Jun 2002 22:48:15 +0200 (CEST)
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17JKT1-0005ws-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+	id <S315546AbSFOVBh>; Sat, 15 Jun 2002 17:01:37 -0400
+Received: from holomorphy.com ([66.224.33.161]:21419 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315540AbSFOVBg>;
+	Sat, 15 Jun 2002 17:01:36 -0400
+Date: Sat, 15 Jun 2002 14:00:47 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: rwhron@earthlink.net
+Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21 IDE 91
+Message-ID: <20020615210047.GL22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	rwhron@earthlink.net, akpm@zip.com.au, linux-kernel@vger.kernel.org
+In-Reply-To: <20020615210009.GA32730@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At some point in the past, akpm wrote:
+>> Does this patch get the throughput back?
 
-I searched the web for some information about this, and found that
-generally this is not recommended, hardware can be damaged, etc.
-But, this was mainly about disks (possible damage if +12V power is
-applied before +5V, etc.) - my question is not about disks.
+On Sat, Jun 15, 2002 at 05:00:09PM -0400, rwhron@earthlink.net wrote:
+> That makes all the difference to dbench.  Throughput
+> for dbench 128 up over 40% compared to vanilla 2.5.21.
 
-How about a CompactFlash card (which looks like a small IDE disk
-to the system) in a CF-IDE adapter?  (not CF-PCMCIA - has connectors
-for 40-pin IDE ribbon cable and power, a slot for inserting a CF
-card, and is mounted like a 3.5-inch floppy drive in a desktop PC)
+How does it do against the prior 2.5 kernels?
 
-I've read that CF cards themselves are designed for hot-swapping
-(when not reading or writing, such a card draws very little power,
-so it doesn't short the bus lines to ground like disks can do),
-so the question is, is this safe with the Linux IDE drivers?
-There should be some way to tell the kernel that a device was
-connected to the bus, and later that it will be disconnected.
 
-Thanks,
-Marek
-
+Cheers,
+Bill

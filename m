@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264088AbTFTSWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 14:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTFTSWZ
+	id S264087AbTFTSWH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 14:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbTFTSWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 14:22:25 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:29232 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S264088AbTFTSWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 14:22:22 -0400
-Message-ID: <3EF353B9.6050303@myrealbox.com>
-Date: Fri, 20 Jun 2003 14:34:33 -0400
-From: Nicholas Wourms <nwourms@myrealbox.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 MultiZilla/v1.1.20
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Disconnect <kernel@gotontheinter.net>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] to "Disable Trackpad while typing" patch
-References: <200306201818.40805.torsten.foertsch@gmx.net> <1056128080.17756.38.camel@slappy>
-X-Enigmail-Version: 0.75.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jun 2003 14:22:07 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:50419 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264087AbTFTSWE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 14:22:04 -0400
+Date: Fri, 20 Jun 2003 11:35:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Albert Cahalan <albert.cahalan@ccur.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI changes and fixes for 2.5.72
+Message-ID: <20030620183544.GA12561@kroah.com>
+References: <1056123842.986.60.camel@albertc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1056123842.986.60.camel@albertc>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Disconnect wrote:
-> Is this a patch against a patch (instead of against modified pc_keyb.c)
-> or did the mailer just chew it up badly?
+On Fri, Jun 20, 2003 at 11:44:02AM -0400, Albert Cahalan wrote:
+> Greg writes:
 > 
->>Hash: SHA1
->>
->>see http://marc.theaimsgroup.com/?l=linux-kernel&m=105182586512456&w=2
->>
-[SNIP]
->>
->>- --- drivers/char/pc_keyb.c.orig	2003-06-20 08:10:41.000000000 +0000
->>+++ drivers/char/pc_keyb.c	2003-06-20 15:45:01.000000000 +0000
->>@@ -18,6 +18,9 @@
->>  * notebooks with a PS/2 trackpad.
->>  * Hans-Georg Thien <1682-600@onlinehome.de> 2003-04-30.
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > [PATCH] PCI: Unconfuse /proc
+> >
+> > If we are to cope with multiple domains with clashing PCI bus
+> > numbers, we must refrain from creating two directories of the
+> > same name in /proc/bus/pci.  This is one solution to the
+> > problem; busses with a non-zero domain number get it prepended.
+> >
+> > Alternative solutions include cowardly refusing to create
+> > non-domain-zero bus directories, refusing to create directories
+> > with clashing names, and sticking our heads in the sand and
+> > pretending the problem doesn't exist.
+> 
+> Please don't do this. It's gross. As long as we have
+> the bus number mangling, stuff can stay as it is.
+> When the bus number mangling goes, the old-style
+> entries can go as well. I'm working on a patch that
+> makes the old-style entries be symlinks like this:
+> 
+> ../../pci%d/bus%d/dev%d/fn%d/config-space
 
-Hi,
+Symlinks from what to that new file?  Have the result from 'tree' to
+show what you are considering?
 
-Based on this hunk in the diff, I'd assume that it is a patch against 
-the patch mentioned in that url.
+And until we have such a change, the patch from Matthew is needed, so it
+should stay.
 
-Cheers,
-Nicholas
+thanks,
 
+greg k-h

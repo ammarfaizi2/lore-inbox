@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266143AbTLIVOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 16:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266145AbTLIVOY
+	id S266136AbTLIVHy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 16:07:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbTLIVHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 16:14:24 -0500
-Received: from jib.isi.edu ([128.9.128.193]:49284 "EHLO jib.isi.edu")
-	by vger.kernel.org with ESMTP id S266143AbTLIVNe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 16:13:34 -0500
-Date: Tue, 9 Dec 2003 13:46:04 -0800
-From: Craig Milo Rogers <rogers@isi.edu>
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031209214604.GA4542@isi.edu>
-References: <3FCDE5CA.2543.3E4EE6AA@localhost> <3FCED34B.5050309@opersys.com> <1070669311.8421.35.camel@imladris.demon.co.uk> <3FD4C9C8.6040709@opersys.com> <br5b54$nbj$1@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <br5b54$nbj$1@gatekeeper.tmr.com>
-User-Agent: Mutt/1.5.4i
+	Tue, 9 Dec 2003 16:07:54 -0500
+Received: from hibernia.jakma.org ([213.79.33.168]:46988 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S266136AbTLIVHx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 16:07:53 -0500
+Date: Tue, 9 Dec 2003 21:07:49 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Joe Thornber <thornber@sistina.com>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Device-mapper submission for 2.4
+In-Reply-To: <20031209143412.GI472@reti>
+Message-ID: <Pine.LNX.4.56.0312092106280.30298@fogarty.jakma.org>
+References: <20031209134551.GG472@reti> <Pine.LNX.4.44.0312091206490.1289-100000@logos.cnet>
+ <20031209143412.GI472@reti>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03.12.09, bill davidsen wrote:
-> In article <3FD4C9C8.6040709@opersys.com>,
-> Karim Yaghmour  <karim@opersys.com> wrote:
-> | I didn't exactly specify how the interfacing would be done because that's
-> | besides the point I'm trying to make (in fact, it's the later part of my
-> | email which was most important). But here's two other ways to do it just
-> | for the sake of discussion:
-> | a) Hard-wired assembly in the driver that calls on the appropriate address
-> | with the proper structure offsets etc. No headers used here.
-> 
-> Well, the addresses and offset specs came from *somewhere*, and I would
-> love to hear someone argue that they "just seemed like good values," or
-> that reading the header file and then using absolute numbers isn't
-> derivative.
+On Tue, 9 Dec 2003, Joe Thornber wrote:
 
-	INAL.  Observable facts (such as absolute numbers) aren't
-derivative (in the U.S.) because there's no "creativity"***.  See the
-famous court decision (... web search ...)  "Feist Publications
-v. Rural Telephone Serv. Co.", for example.  Of course, the DCMA (or
-other fell beasts) may have superseded that legal doctrine.
+> Sort of, but please take into account the fact that the LVM1 driver
+> has bugs (particularly on the failure paths), and EVMS and other
+> volume managers dont use the LVM1 driver.  The snapshot target
+> (which I didn't include in the core patches) is hugely better
+> performance wise.
 
-					Craig Milo Rogers
+Would this be of any aid to 2.4 users to transition to DM, so that
+they can then easily test 2.6 and boot back to 2.4 if needs be?
 
-*** This raises the possibility that structured numbers might be
-    copyrightable.
+If so, my vote would be for it to be included in 2.4.
+
+> - Joe
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+"The Right Honorable Gentleman is indebted to his memory for his jests
+and to his imagination for his facts."
+		-- Sheridan

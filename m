@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318345AbSHKUIc>; Sun, 11 Aug 2002 16:08:32 -0400
+	id <S318349AbSHKUQD>; Sun, 11 Aug 2002 16:16:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318347AbSHKUIc>; Sun, 11 Aug 2002 16:08:32 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:46284 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S318345AbSHKUIc>; Sun, 11 Aug 2002 16:08:32 -0400
-Date: Sun, 11 Aug 2002 21:10:24 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+	id <S318350AbSHKUQD>; Sun, 11 Aug 2002 16:16:03 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:52752 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S318349AbSHKUQC>; Sun, 11 Aug 2002 16:16:02 -0400
+Message-ID: <3D56C6A4.5010604@namesys.com>
+Date: Mon, 12 Aug 2002 00:18:44 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Paul Larson <plars@austin.ibm.com>,
-       Hubertus Franke <frankeh@us.ibm.com>,
-       Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
-       Andrew Morton <akpm@zip.com.au>, andrea@suse.de,
-       Dave Jones <davej@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-Message-ID: <20020811211024.C3206@kushida.apsleyroad.org>
-References: <20020810182317.A306@kushida.apsleyroad.org> <Pine.LNX.4.44.0208101132490.2197-100000@home.transmeta.com> <20020810194813.D306@kushida.apsleyroad.org> <1029098474.16236.58.camel@irongate.swansea.linux.org.uk> <20020811205847.A3206@kushida.apsleyroad.org> <1029101038.16424.74.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1029101038.16424.74.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sun, Aug 11, 2002 at 10:23:58PM +0100
+CC: Christoph Hellwig <hch@infradead.org>,
+       Hans Reiser <reiser@bitshadow.namesys.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK] [PATCH] reiserfs changeset 7 of 7 to include into 2.4 tree
+References: <200208091636.g79GadA9007889@bitshadow.namesys.com> 	<20020809183850.A17407@infradead.org> <1029097261.16421.45.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Alan Cox wrote:
-> > So, in general, the way to detect hard links requires both objects to be
-> > open at the same time?  I was sure it was enough to stat(), and check
-> > (st1.st_ino == st2.st_ino && st1.st_dev == st2.st_dev).
-> > 
-> > Admittedly, one of the object could be renamed or deleted in that time
-> > so it's not 100% reliable on changing filesystems.
-> 
-> Hence you need both open at the same time. 
 
-... unless you know that what you're looking at isn't changing, or you
-only guarantee correct results for parts of the filesystem which don't
-change (`tar', `find' etc.)
+>On Fri, 2002-08-09 at 18:38, Christoph Hellwig wrote:
+>  
+>
+>>Are you sure you want to have a new block allocator in the stable series
+>>before it has been added to 2.5?
+>>    
+>>
+>
+>Thats what I was also wondering. It seems like its an experimental
+>update rather than a bug fix so ought to be 2.5 stuff
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+The non-default mount options are experimental, and the options to have 
+things revert to old behaviour play it safe just in case.
 
-Again, /proc is exempt! :)
+I understand why all of you are doubtful about it going into 2.4, it is 
+not that you are crazy, but my closeness to the code makes me think it 
+is stable enough that it should go in.  Also remember that we have an 
+extensive test suite, we have been benchmarking variations on this code 
+for months, and I frankly don't think that 2.5 insertion will get it 
+enough testing to be instructive to us.
 
--- Jamie
+-- 
+Hans
+
+
+

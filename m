@@ -1,41 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267118AbSKXB1q>; Sat, 23 Nov 2002 20:27:46 -0500
+	id <S267119AbSKXBlP>; Sat, 23 Nov 2002 20:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267119AbSKXB1q>; Sat, 23 Nov 2002 20:27:46 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:59407 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S267118AbSKXB1p>; Sat, 23 Nov 2002 20:27:45 -0500
-Date: Sun, 24 Nov 2002 01:34:51 +0000
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: New module loader makes kernel debugging much harder
-Message-ID: <20021124013451.GB58002@compsoc.man.ac.uk>
-References: <20021124010617.GA58002@compsoc.man.ac.uk> <25797.1038100726@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <25797.1038100726@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *18Flfg-000Fql-00*zHDPCChVdZI* (Manchester Computing, University of Manchester)
+	id <S267121AbSKXBlP>; Sat, 23 Nov 2002 20:41:15 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:21510 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267119AbSKXBlO>; Sat, 23 Nov 2002 20:41:14 -0500
+Date: Sun, 24 Nov 2002 02:48:23 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Petr Baudis <pasky@ucw.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [kconfig] Direct use of lxdialog routines by menuconfig
+ (resent,v2)
+In-Reply-To: <20021123095040.GY25628@pasky.ji.cz>
+Message-ID: <Pine.LNX.4.44.0211240159240.2113-100000@serv>
+References: <20021123095040.GY25628@pasky.ji.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 24, 2002 at 12:18:46PM +1100, Keith Owens wrote:
+Hi,
 
-> How do you know if the sections are "simply mapped"?  The module loader
-> could assign different sections to different mappings, there is no
-> guarantee that they are contiguous.  They were contiguous using the 2.4
-> module loader but only because the syscall only allowed for a single
-> area.  The new loader can assign sections anywhere it likes.
+On Sat, 23 Nov 2002, Petr Baudis wrote:
 
-Mmmm, good point. So I will need full section info too. And some
-userspace changes to cope with such ...
+>   this patch (against 2.5.49) cleans up interaction between kconfig's mconf
+> (menuconfig frontend) and lxdialog. Its commandline interface (called
+> imaginatively lxdialog) no longer exists, instead a huge .o is packed from the
+> lxdialog objects and the relevant functions are called directly from mconf.
 
-thanks
-john
--- 
-Khendon's Law: If the same point is made twice by the same person,
-the thread is over.
+It didn't apply cleanly, I had one reject from menubox.c, which I had to 
+apply manually.
+Anyway, some minor comments about the code:
+
+> +struct dialog_list_item *items[16384]; /* FIXME: This ought to be dynamic. */
+> +int item_no;
+> +
+
+These should be static.
+
+> -static void cprint_init(void)
+> +static void cinit(void)
+
+You can join this with cdone(), they are always called together.
+
+> +	if (!item_no)
+> +		cmake();
+
+This could be "if (!items[item_no]) cmake()" to allocate the data as 
+needed. Increment item_no after you done, this avoids also all the 
+"item_no - 1" as index.
+
+> -static int cprint(const char *fmt, ...)
+> +static int cprint_tag(const char *fmt, ...)
+>  {
+>  	va_list ap;
+>  	int res;
+>  
+> -	*argptr++ = bufptr;
+> +	if (!item_no)
+> +		cmake();
+>  	va_start(ap, fmt);
+> -	res = vsprintf(bufptr, fmt, ap);
+> +	res = vsnprintf(items[item_no - 1]->tag, 32, fmt, ap);
+>  	va_end(ap);
+> -	bufptr += res;
+> -	*bufptr++ = 0;
+>  
+>  	return res;
+>  }
+
+Could you change the tag field of dialog_list_item into a "char type" and 
+a void pointer? I don't really see a reason to convert them from/into 
+strings anymore.
+
+> -	sa.sa_handler = winch_handler;
+> -	sigemptyset(&sa.sa_mask);
+> -	sa.sa_flags = SA_RESTART;
+> -	sigaction(SIGWINCH, &sa, NULL);
+
+Could you please add this one back and just reinitialize curses? (I 
+actually liked the new resize feature. :) )
+
+BTW just add the other patch to this one, it's not that important to keep 
+it separate.
+
+bye, Roman
+

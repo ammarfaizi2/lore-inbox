@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265274AbSJRR1G>; Fri, 18 Oct 2002 13:27:06 -0400
+	id <S265243AbSJRRVD>; Fri, 18 Oct 2002 13:21:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265318AbSJRR1F>; Fri, 18 Oct 2002 13:27:05 -0400
-Received: from gateway.cinet.co.jp ([210.166.75.129]:45841 "EHLO
+	id <S265336AbSJRRVD>; Fri, 18 Oct 2002 13:21:03 -0400
+Received: from gateway.cinet.co.jp ([210.166.75.129]:35345 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S265274AbSJRQvv>; Fri, 18 Oct 2002 12:51:51 -0400
-Date: Sat, 19 Oct 2002 01:56:59 +0900
+	id <S265243AbSJRQvU>; Fri, 18 Oct 2002 12:51:20 -0400
+Date: Sat, 19 Oct 2002 01:56:25 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCHSET 25/25] add support for PC-9800 architecture (video)
-Message-ID: <20021019015659.A1660@precia.cinet.co.jp>
+Subject: [PATCHSET 2/25] add support for PC-9800 architecture (boot)
+Message-ID: <20021019015625.A1522@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,1211 +19,2536 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part 26/26 of patchset for add support NEC PC-9800 architecture,
+This is part 2/26 of patchset for add support NEC PC-9800 architecture,
 against 2.5.43.
 
 Summary:
- New driver support for PC-9800 standard text console.
+ boot related modules
+  - adapted to BIOS spec. differences.
 
 diffstat:
- drivers/video/gdccon.c |  963 +++++++++++++++++++++++++++++++++++++++++++++++++
- include/asm-i386/gdc.h |  225 +++++++++++
- 2 files changed, 1188 insertions(+)
+ arch/i386/boot98/Makefile               |   93 +++
+ arch/i386/boot98/bootsect.S             |  397 +++++++++++++
+ arch/i386/boot98/compressed/Makefile    |   30 +
+ arch/i386/boot98/compressed/head.S      |  128 ++++
+ arch/i386/boot98/compressed/misc.c      |  375 ++++++++++++
+ arch/i386/boot98/compressed/vmlinux.scr |    9 
+ arch/i386/boot98/install.sh             |   40 +
+ arch/i386/boot98/setup.S                |  950 ++++++++++++++++++++++++++++++++
+ arch/i386/boot98/tools/build.c          |  188 ++++++
+ arch/i386/boot98/video.S                |  262 ++++++++
+ 10 files changed, 2472 insertions(+)
 
 patch:
-diff -urN linux/drivers/video/gdccon.c linux98/drivers/video/gdccon.c
---- linux/drivers/video/gdccon.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/video/gdccon.c	Sun Sep  8 19:09:48 2002
-@@ -0,0 +1,963 @@
+diff -urN linux/arch/i386/boot98/Makefile linux98/arch/i386/boot98/Makefile
+--- linux/arch/i386/boot98/Makefile	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/boot98/Makefile	Tue Oct  8 10:55:59 2002
+@@ -0,0 +1,93 @@
++#
++# arch/i386/boot/Makefile
++#
++# This file is subject to the terms and conditions of the GNU General Public
++# License.  See the file "COPYING" in the main directory of this archive
++# for more details.
++#
++# Copyright (C) 1994 by Linus Torvalds
++#
++
++# ROOT_DEV specifies the default root-device when making the image.
++# This can be either FLOPPY, CURRENT, /dev/xxxx or empty, in which case
++# the default of FLOPPY is used by 'build'.
++
++ROOT_DEV := CURRENT
++
++# If you want to preset the SVGA mode, uncomment the next line and
++# set SVGA_MODE to whatever number you want.
++# Set it to -DSVGA_MODE=NORMAL_VGA if you just want the EGA/VGA mode.
++# The number is the same as you would ordinarily press at bootup.
++
++SVGA_MODE := -DSVGA_MODE=NORMAL_VGA
++
++# If you want the RAM disk device, define this to be the size in blocks.
++
++#RAMDISK := -DRAMDISK=512
++
++EXTRA_TARGETS	:= vmlinux.bin bootsect bootsect.o \
++		   setup setup.o zImage bzImage
++
++host-progs	:= tools/build
++
++# 	Default
++
++boot: bzImage
++
++include $(TOPDIR)/Rules.make
++
++# ---------------------------------------------------------------------------
++
++$(obj)/zImage:  IMAGE_OFFSET := 0x1000
++$(obj)/zImage:  EXTRA_AFLAGS := -traditional $(SVGA_MODE) $(RAMDISK)
++$(obj)/bzImage: IMAGE_OFFSET := 0x100000
++$(obj)/bzImage: EXTRA_AFLAGS := -traditional $(SVGA_MODE) $(RAMDISK) -D__BIG_KERNEL__
++$(obj)/bzImage: BUILDFLAGS   := -b
++
++quiet_cmd_image = BUILD   $(echo_target)
++cmd_image = $(obj)/tools/build $(BUILDFLAGS) $(obj)/bootsect $(obj)/setup \
++	    $(obj)/vmlinux.bin $(ROOT_DEV) > $@
++
++$(obj)/zImage $(obj)/bzImage: $(obj)/bootsect $(obj)/setup \
++			      $(obj)/vmlinux.bin $(obj)/tools/build FORCE
++	$(call if_changed,image)
++
++$(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
++	$(call if_changed,objcopy)
++
++LDFLAGS_bootsect := -Ttext 0x0 -s --oformat binary
++LDFLAGS_setup	 := -Ttext 0x0 -s --oformat binary -e begtext
++
++$(obj)/setup $(obj)/bootsect: %: %.o FORCE
++	$(call if_changed,ld)
++
++$(obj)/compressed/vmlinux: FORCE
++	+@$(call descend,$(obj)/compressed,IMAGE_OFFSET=$(IMAGE_OFFSET) \
++		$(obj)/compressed/vmlinux)
++
++
++zdisk: $(BOOTIMAGE)
++	dd bs=8192 if=$(BOOTIMAGE) of=/dev/fd0
++
++zlilo: $(BOOTIMAGE)
++	if [ -f $(INSTALL_PATH)/vmlinuz ]; then mv $(INSTALL_PATH)/vmlinuz $(INSTALL_PATH)/vmlinuz.old; fi
++	if [ -f $(INSTALL_PATH)/System.map ]; then mv $(INSTALL_PATH)/System.map $(INSTALL_PATH)/System.old; fi
++	cat $(BOOTIMAGE) > $(INSTALL_PATH)/vmlinuz
++	cp System.map $(INSTALL_PATH)/
++	if [ -x /sbin/lilo ]; then /sbin/lilo; else /etc/lilo/install; fi
++
++install: $(BOOTIMAGE)
++	sh $(src)/install.sh $(KERNELRELEASE) $(BOOTIMAGE) System.map "$(INSTALL_PATH)"
++
++clean:
++	@echo 'Cleaning up (boot)'
++	@rm -f $(host-progs) $(EXTRA_TARGETS)
++	+@$(call descend,$(obj)/compressed) clean
++
++archhelp:
++	@echo  '* bzImage	- Compressed kernel image (arch/$(ARCH)/boot/bzImage)'
++	@echo  '  install	- Install kernel using'
++	@echo  '                  (your) ~/bin/installkernel or'
++	@echo  '                  (distribution) /sbin/installkernel or'
++	@echo  '        	  install to $$(INSTALL_PATH) and run lilo'
++
+diff -urN linux/arch/i386/boot98/bootsect.S linux98/arch/i386/boot98/bootsect.S
+--- linux/arch/i386/boot98/bootsect.S	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/boot98/bootsect.S	Wed May 22 09:13:46 2002
+@@ -0,0 +1,397 @@
++/*	
++ *	bootsect.S - boot sector for NEC PC-9800 series
++ *
++ *	Linux/98 project at Kyoto University Microcomputer Club (KMC)
++ *		    FUJITA Norimasa, TAKAI Kousuke  1997-1998
++ *	rewritten by TAKAI Kousuke (as86 -> gas), Nov 1999
++ *
++ * Based on:
++ *	bootsect.S		Copyright (C) 1991, 1992 Linus Torvalds
++ *	modified by Drew Eckhardt
++ *	modified by Bruce Evans (bde)
++ *
++ * bootsect.S is loaded at 0x1FC00 or 0x1FE00 by the bios-startup routines,
++ * and moves itself out of the way to address 0x90000, and jumps there.
++ *
++ * It then loads 'setup' directly after itself (0x90200), and the system
++ * at 0x10000, using BIOS interrupts. 
++ *
++ * NOTE! currently system is at most (8*65536-4096) bytes long. This should 
++ * be no problem, even in the future. I want to keep it simple. This 508 kB
++ * kernel size should be enough, especially as this doesn't contain the
++ * buffer cache as in minix (and especially now that the kernel is 
++ * compressed :-)
++ *
++ * The loader has been made as simple as possible, and continuous
++ * read errors will result in a unbreakable loop. Reboot by hand. It
++ * loads pretty fast by getting whole tracks at a time whenever possible.
++ */
++
++#include <linux/config.h>		/* for CONFIG_ROOT_RDONLY */
++#include <asm/boot.h>
++
++SETUPSECTS	= 4			/* default nr of setup-sectors */
++BOOTSEG		= 0x1FC0		/* original address of boot-sector */
++INITSEG		= DEF_INITSEG		/* we move boot here - out of the way */
++SETUPSEG	= DEF_SETUPSEG		/* setup starts here */
++SYSSEG		= DEF_SYSSEG		/* system loaded at 0x10000 (65536) */
++SYSSIZE		= DEF_SYSSIZE		/* system size: # of 16-byte clicks */
++					/* to be loaded */
++ROOT_DEV	= 0 			/* ROOT_DEV is now written by "build" */
++SWAP_DEV	= 0			/* SWAP_DEV is now written by "build" */
++
++#ifndef SVGA_MODE
++#define SVGA_MODE ASK_VGA
++#endif
++
++#ifndef RAMDISK
++#define RAMDISK 0
++#endif 
++
++#ifndef ROOT_RDONLY
++#define ROOT_RDONLY 1
++#endif
++
++/* normal/hireso text VRAM segments */
++#define NORMAL_TEXT	0xa000
++#define HIRESO_TEXT	0xe000
++
++/* bios work area addresses */
++#define EXPMMSZ		0x0401
++#define BIOS_FLAG	0x0501
++#define	DISK_BOOT	0x0584
++
++.code16
++.text
++
++.global _start
++_start:
++
++#if 0 /* hook for debugger, harmless unless BIOS is fussy (old HP) */
++	int	$0x3
++#endif
++	jmp	real_start
++	.ascii	"Linux 98"
++	.word	0
++real_start:
++	xorw	%di, %di		/* %di = 0 */
++	movw	%di, %ss		/* %ss = 0 */
++	movw	$0x03F0, %sp
++	pushw	%cx			/* for hint */
++
++	movw	$0x0A00, %ax		/* normal mode defaults (80x25) */
++
++	testb	$0x08, %ss:BIOS_FLAG	/* check hi-reso bit */
++	jnz	set_crt_mode
 +/*
-+ * linux/drivers/video/gdccon.c
-+ * Low level GDC based console driver for NEC PC-9800 series
++ * Hi-Reso (high-resolution) machine.
 + *
-+ * Created 24 Dec 1998 by Linux/98 project
++ * Some hi-reso machines have no RAMs on bank 8/A (0x080000 - 0x0BFFFF).
++ * On such machines we get two RAM banks from top of protect menory and
++ * map them on bank 8/A.
++ * These work-around must be done before moving myself on INITSEG (0x090000-).
++ */
++	movw	$(HIRESO_TEXT >> 8), %cs:(vram + 1)	/* text VRAM segment */
++
++	/* set memory window */
++	movb	$0x08, %al
++	outb	%al, $0x91		/* map native RAM (if any) */
++	movb	$0x0A, %al
++	outb	%al, $0x93
++
++	/* check bank ram A */
++	pushw	$0xA500
++	popw	%ds
++	movw	(%di), %cx		/* %si == 0 from entry */
++	notw	%cx
++	movw	%cx, (%di)
++
++	movw	$0x43F, %dx		/* cache flush for 486 and up. */
++	movb	$0xA0, %al
++	outb	%al, %dx
++	
++	cmpw	%cx, (%di)
++	je	hireso_done
++
++	/* 
++	 * Write test failed; we have no native RAM on 080000h - 0BFFFFh.
++	 * Take 256KB of RAM from top of protected memory.
++	 */
++	movb	%ss:EXPMMSZ, %al
++	subb	$2, %al			/* reduce 2 x 128KB */
++	movb	%al, %ss:EXPMMSZ
++	addb	%al, %al
++	addb	$0x10, %al
++	outb	%al, $0x91
++	addb	$2, %al
++	outb	%al, $0x93
++
++hireso_done:
++	movb	$0x10, %al		/* CRT mode 80x31, %ah still 0Ah */
++
++set_crt_mode:
++	int	$0x18			/* set CRT mode */
++
++	movb	$0x0C, %ah		/* turn on text displaying */
++	int	$0x18
++
++	xorw	%dx, %dx		/* position cursor to home */
++	movb	$0x13, %ah
++	int	$0x18
++
++	movb	$0x11, %ah		/* turn cursor displaying on */
++	int	$0x18
++
++	/* move 1 kilobytes from [BOOTSEG:0000h] to [INITSEG:0000h] */
++	cld
++	xorw	%si, %si
++	pushw	$INITSEG
++	popw	%es
++	movw	$512, %cx		/* %di == 0 from entry */
++	rep
++	cs
++	movsw
++
++	ljmp	$INITSEG, $go
++
++go:
++	pushw	%cs
++	popw	%ds		/* %ds = %cs */
++
++	popw	%dx		/* %dh = saved %ch passed from BIOS */
++	movb	%ss:DISK_BOOT, %al
++	andb	$0xf0, %al	/* %al = Device Address */
++	movb	$18, %ch	/* 18 secs/track,  512 b/sec (1440 KB) */
++	cmpb	$0x30, %al
++	je	try512
++	cmpb	$0x90, %al	/* 1 MB I/F, 1 MB floppy */
++	je	try1.2M
++	cmpb	$0xf0, %al	/* 640 KB I/F, 1 MB floppy */
++	je	try1.2M
++	movb	$9, %ch		/*  9 secs/track,  512 b/sec ( 720 KB) */
++	cmpb	$0x10, %al	/* 1 MB I/F, 640 KB floppy */
++	je	try512
++	cmpb	$0x70, %al	/* 640 KB I/F, 640 KB floppy */
++	jne	error		/* unknown device? */
++
++	/* XXX: Does it make sense to support 8 secs/track, 512 b/sec 
++		(640 KB) floppy? */
++
++try512:	movb	$2, %cl		/* 512 b/sec */
++lasttry:call	tryload
++/*
++ * Display error message and halt
++ */
++error:	movw	$error_msg, %si
++	call	print
++wait_reboot:
++	movb	$0x0, %ah
++	int	$0x18			/* wait keyboard input */
++1:	movb	$0, %al
++	outb	%al, $0xF0		/* reset CPU */
++	jmp	1b			/* just in case... */
++
++try1.2M:cmpb	$2, %dh
++	je	try2HC
++	movw	$0x0803, %cx	/*  8 secs/track, 1024 b/sec (1232 KB) */
++	call	tryload
++	movb	$15, %ch	/* 15 secs/track,  512 b/sec (1200 KB) */
++	jmp	try512
++try2HC:	movw	$0x0F02, %cx	/* 15 secs/track,  512 b/sec (1200 KB) */
++	call	tryload
++	movw	$0x0803, %cx	/*  8 secs/track, 1024 b/sec (1232 KB) */
++	jmp	lasttry
++
++/*
++ * Try to load SETUP and SYSTEM provided geometry information in %cx.
++ * This routine *will not* return on successful load...
++ */
++tryload:
++	movw	%cx, sectlen
++	movb	%ss:DISK_BOOT, %al
++	movb	$0x7, %ah		/* recalibrate the drive */
++	int	$0x1b
++	jc	error			/* recalibration should succeed */
++
++	/*
++	 * Load SETUP into memory. It is assumed that SETUP fits into
++	 * first cylinder (2 tracks, 9KB on 2DD, 15-18KB on 2HD).
++	 */
++	movb	$0, %bl
++	movb	setup_sects, %bh
++	incb	%bh
++	shlw	%bx			/* %bx = (setup_sects + 1) * 512 */
++	movw	$128, %bp
++	shlw	%cl, %bp		/* %bp = <sector size> */
++	subw	%bp, %bx		/* length to load */
++	movw	$0x0002, %dx		/* head 0, sector 2 */
++	movb	%cl, %ch		/* `N' for sector address */
++	movb	$0, %cl			/* cylinder 0 */
++	pushw	%cs
++	popw	%es			/* %es = %cs (= INITSEG) */
++	movb	$0xd6, %ah		/* read, multi-track, MFM */
++	int	$0x1b			/* load it! */
++	jc	read_error
++
++	movw	$loading_msg, %si
++	call	print
++
++	movw	$SYSSEG, %ax
++	movw	%ax, %es		/* %es = SYSSEG */
++
++/*
++ * This routine loads the system at address 0x10000, making sure
++ * no 64kB boundaries are crossed. We try to load it as fast as
++ * possible, loading whole tracks whenever we can.
 + *
-+ * based on:
-+ * linux/drivers/video/vgacon.c in Linux 2.1.131 by Geert Uytterhoeven
-+ * linux/char/gdc.c in Linux/98 2.1.57 by Linux/98 project
-+ * linux/char/console.c in Linux/98 2.1.57 by Linux/98 project
++ * in:	es - starting address segment (normally 0x1000)
++ */
++	movb	%ch, %cl
++	addb	$7, %cl			/* %cl = log2 <sector_size> */
++	shrw	%cl, %bx		/* %bx = # of phys. sectors in SETUP */
++	addb	%bl, %dl		/* %dl = start sector # of SYSTEM */
++	decb	%dl			/* %dl is 0-based in below loop */
++
++rp_read_newseg:
++	xorw	%bp, %bp		/* = starting address within segment */
++#ifdef __BIG_KERNEL__
++	bootsect_kludge = 0x220		/* 0x200 (size of bootsector) + 0x20 (offset */
++	lcall	*bootsect_kludge	/* of bootsect_kludge in setup.S */
++#else
++	movw	%es, %ax
++	subw	$SYSSEG, %ax
++#endif
++	cmpw	syssize, %ax
++	ja	boot			/* done! */
++
++rp_read:
++	movb	sectors, %al
++	addb	%al, %al
++	movb	%al, %ch		/* # of sectors on both surface */
++	subb	%dl, %al		/* # of sectors left on this track */
++	movb	$0, %ah
++	shlw	%cl, %ax		/* # of bytes left on this track */
++	movw	%ax, %bx		/* transfer length */
++	addw	%bp, %ax		/* cross 64K boundary? */
++	jnc	1f			/* ok. */
++	jz	1f			/* also ok. */
++	/*
++	 * Oops, we are crossing 64K boundary...
++	 * Adjust transfer length to make transfer fit in the boundary.
++	 *
++	 * Note: sector size is assumed to be a measure of 65536.
++	 */
++	xorw	%bx, %bx
++	subw	%bp, %bx
++1:	pushw	%dx
++	movw	$dot_msg, %si		/* give progress message */
++	call	print
++	xchgw	%ax, %dx
++	movb	$0, %ah
++	divb	sectors
++	xchgb	%al, %ah
++	xchgw	%ax, %dx		/* %dh = head # / %dl = sector # */
++	incb	%dl			/* fix %dl to 1-based */
++	pushw	%cx
++	movw	cylinder, %cx
++	movb	$0xd6, %ah		/* read, multi-track, seek, MFM */
++	movb	%ss:DISK_BOOT, %al
++	int	$0x1b
++	popw	%cx
++	popw	%dx
++	jc	read_error
++	movw	%bx, %ax		/* # of bytes just read */
++	shrw	%cl, %ax		/* %ax = # of sectors just read */
++	addb	%al, %dl		/* advance sector # */
++	cmpb	%ch, %dl		/* %ch = # of sectors/cylinder */
++	jb	2f
++	incb	cylinder		/* next cylinder */
++	xorb	%dl, %dl		/* sector 0 */
++2:	addw	%bx, %bp		/* advance offset pointer */
++	jnc	rp_read
++	/* offset pointer wrapped; advance segment pointer. */
++	movw	%es, %ax
++	addw	$0x1000, %ax
++	movw	%ax, %es
++	jmp	rp_read_newseg
++
++read_error:
++	ret
++
++boot:	movw	%cs, %ax		/* = INITSEG */
++	/* movw	%ax, %ds */
++	movw	%ax, %ss
++	movw	$0x4000, %sp		/* 0x4000 is arbitrary value >=
++					 * length of bootsect + length of
++					 * setup + room for stack;
++					 * PC-9800 never have BIOS workareas
++					 * on high memory.
++					 */
++/*
++ * After that we check which root-device to use. If the device is
++ * not defined, /dev/fd0 (2, 0) will be used.
++ */
++	cmpw	$0, root_dev
++	jne	3f
++	movb	$2, root_dev+1
++3:
++
++/*
++ * After that (everything loaded), we jump to the setup-routine
++ * loaded directly after the bootblock:
++ */
++	ljmp	$SETUPSEG, $0
++
++/*
++ * Subroutine for print string on console.
++ *	%cs:%si	- pointer to message
++ */
++print:
++	pushaw
++	pushw	%ds
++	pushw	%es
++	pushw	%cs
++	popw	%ds
++	lesw	curpos, %di		/* %es:%di = current text VRAM addr. */
++1:	xorw	%ax, %ax
++	lodsb
++	testb	%al, %al
++	jz	2f			/* end of string */
++	stosw					/* character code */
++	movb	$0xE1, %es:0x2000-2(%di)	/* character attribute */
++	jmp	1b
++2:	movw	%di, %dx
++	movb	$0x13, %ah
++	int	$0x18			/* move cursor to current point */
++	popw	%es
++	popw	%ds
++	popaw
++	ret
++
++loading_msg:
++	.string	"Loading"
++dot_msg:
++	.string	"."
++error_msg:
++	.string	"Read Error!"
++
++	.org	490
++
++curpos:	.word	160		/* current cursor position */
++vram:	.word	NORMAL_TEXT	/* text VRAM segment */
++
++cylinder:	.byte	0	/* current cylinder (lower byte)	*/
++sectlen:	.byte	0	/* (log2 of <sector size>) - 7		*/
++sectors:	.byte	0x0F	/* default is 2HD (15 sector/track)	*/
++
++# XXX: This is a fairly snug fit.
++
++.org 497
++setup_sects:	.byte SETUPSECTS
++root_flags:	.word ROOT_RDONLY
++syssize:	.word SYSSIZE
++swap_dev:	.word SWAP_DEV
++ram_size:	.word RAMDISK
++vid_mode:	.word SVGA_MODE
++root_dev:	.word ROOT_DEV
++boot_flag:	.word 0xAA55
+diff -urN linux/arch/i386/boot98/compressed/Makefile linux98/arch/i386/boot98/compressed/Makefile
+--- linux/arch/i386/boot98/compressed/Makefile	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/boot98/compressed/Makefile	Tue Oct  8 10:55:59 2002
+@@ -0,0 +1,30 @@
++#
++# linux/arch/i386/boot/compressed/Makefile
++#
++# create a compressed vmlinux image from the original vmlinux
++#
++
++EXTRA_TARGETS	:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o
++EXTRA_AFLAGS	:= -traditional
++
++include $(TOPDIR)/Rules.make
++
++LDFLAGS_vmlinux := -Ttext $(IMAGE_OFFSET) -e startup_32
++
++$(obj)/vmlinux: $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o FORCE
++	$(call if_changed,ld)
++
++$(obj)/vmlinux.bin: vmlinux FORCE
++	$(call if_changed,objcopy)
++
++$(obj)/vmlinux.bin.gz: $(obj)/vmlinux.bin FORCE
++	$(call if_changed,gzip)
++
++LDFLAGS_piggy.o := -r --format binary --oformat elf32-i386 -T
++
++$(obj)/piggy.o: $(obj)/vmlinux.scr $(obj)/vmlinux.bin.gz FORCE
++	$(call if_changed,ld)
++
++clean:
++	@echo 'Cleaning up (boot/compressed)'
++	@rm -f $(EXTRA_TARGETS)
+diff -urN linux/arch/i386/boot98/compressed/head.S linux98/arch/i386/boot98/compressed/head.S
+--- linux/arch/i386/boot98/compressed/head.S	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/boot98/compressed/head.S	Tue Oct  1 16:07:40 2002
+@@ -0,0 +1,128 @@
++/*
++ *  linux/boot/head.S
++ *
++ *  Copyright (C) 1991, 1992, 1993  Linus Torvalds
 + */
 +
 +/*
-+#define GDCCON_DEBUG_MEMFUNCS
-+#define VRAM_OVERRUN_DEBUG
-+*/
++ *  head.S contains the 32-bit startup code.
++ *
++ * NOTE!!! Startup happens at absolute address 0x00001000, which is also where
++ * the page directory will exist. The startup code will be overwritten by
++ * the page directory. [According to comments etc elsewhere on a compressed
++ * kernel it will end up at 0x1000 + 1Mb I hope so as I assume this. - AC]
++ *
++ * Page 0 is deliberately kept safe, since System Management Mode code in 
++ * laptops may need to access the BIOS data stored there.  This is also
++ * useful for future device drivers that either access the BIOS via VM86 
++ * mode.
++ */
 +
-+#ifdef VRAM_OVERRUN_DEBUG
-+# define NEED_UNMAP_PHYSPAGE
-+#endif
++/*
++ * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
++ */
++.text
 +
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/sched.h>
-+#include <linux/fs.h>
-+#include <linux/kernel.h>
++#include <linux/linkage.h>
++#include <asm/segment.h>
++
++	.globl startup_32
++	
++startup_32:
++	cld
++	cli
++	movl $(__KERNEL_DS),%eax
++	movl %eax,%ds
++	movl %eax,%es
++	movl %eax,%fs
++	movl %eax,%gs
++
++	lss stack_start,%esp
++	xorl %eax,%eax
++1:	incl %eax		# check that A20 really IS enabled
++	movl %eax,0x000000	# loop forever if it isn't
++	cmpl %eax,0x100000
++	je 1b
++
++/*
++ * Initialize eflags.  Some BIOS's leave bits like NT set.  This would
++ * confuse the debugger if this code is traced.
++ * XXX - best to initialize before switching to protected mode.
++ */
++	pushl $0
++	popfl
++/*
++ * Clear BSS
++ */
++	xorl %eax,%eax
++	movl $_edata,%edi
++	movl $_end,%ecx
++	subl %edi,%ecx
++	cld
++	rep
++	stosb
++/*
++ * Do the decompression, and jump to the new kernel..
++ */
++	subl $16,%esp	# place for structure on the stack
++	movl %esp,%eax
++	pushl %esi	# real mode pointer as second arg
++	pushl %eax	# address of structure as first arg
++	call decompress_kernel
++	orl  %eax,%eax 
++	jnz  3f
++	popl %esi	# discard address
++	popl %esi	# real mode pointer
++	xorl %ebx,%ebx
++	ljmp $(__KERNEL_CS), $0x100000
++
++/*
++ * We come here, if we were loaded high.
++ * We need to move the move-in-place routine down to 0x1000
++ * and then start it with the buffer addresses in registers,
++ * which we got from the stack.
++ */
++3:
++	movl $move_routine_start,%esi
++	movl $0x1000,%edi
++	movl $move_routine_end,%ecx
++	subl %esi,%ecx
++	addl $3,%ecx
++	shrl $2,%ecx
++	cld
++	rep
++	movsl
++
++	popl %esi	# discard the address
++	popl %ebx	# real mode pointer
++	popl %esi	# low_buffer_start
++	popl %ecx	# lcount
++	popl %edx	# high_buffer_start
++	popl %eax	# hcount
++	movl $0x100000,%edi
++	cli		# make sure we don't get interrupted
++	ljmp $(__KERNEL_CS), $0x1000 # and jump to the move routine
++
++/*
++ * Routine (template) for moving the decompressed kernel in place,
++ * if we were high loaded. This _must_ PIC-code !
++ */
++move_routine_start:
++	movl %ecx,%ebp
++	shrl $2,%ecx
++	rep
++	movsl
++	movl %ebp,%ecx
++	andl $3,%ecx
++	rep
++	movsb
++	movl %edx,%esi
++	movl %eax,%ecx	# NOTE: rep movsb won't move if %ecx == 0
++	addl $3,%ecx
++	shrl $2,%ecx
++	rep
++	movsl
++	movl %ebx,%esi	# Restore setup pointer
++	xorl %ebx,%ebx
++	ljmp $(__KERNEL_CS), $0x100000
++move_routine_end:
+diff -urN linux/arch/i386/boot98/compressed/misc.c linux98/arch/i386/boot98/compressed/misc.c
+--- linux/arch/i386/boot98/compressed/misc.c	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/boot98/compressed/misc.c	Sat Oct 12 14:26:29 2002
+@@ -0,0 +1,375 @@
++/*
++ * misc.c
++ * 
++ * This is a collection of several routines from gzip-1.0.3 
++ * adapted for Linux.
++ *
++ * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
++ * puts by Nick Holloway 1993, better puts by Martin Mares 1995
++ * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
++ */
++
++#include <linux/linkage.h>
++#include <linux/vmalloc.h>
 +#include <linux/tty.h>
-+#include <linux/console.h>
-+#include <linux/console_struct.h>
-+#include <linux/string.h>
-+#include <linux/kd.h>
-+#include <linux/slab.h>
-+#include <linux/vt_kern.h>
-+#include <linux/selection.h>
-+#include <linux/spinlock.h>
-+#include <linux/ioport.h>
-+#include <linux/init.h>
-+
 +#include <asm/io.h>
-+#include <asm/pc9800.h>
-+
-+#ifdef VRAM_OVERRUN_DEBUG
-+# include <asm/pc9800_debug.h>
++#ifdef STANDARD_MEMORY_BIOS_CALL
++#undef STANDARD_MEMORY_BIOS_CALL
 +#endif
-+
-+static spinlock_t gdc_lock = SPIN_LOCK_UNLOCKED;
-+
-+static struct resource gdc_console_resource[3] = {
-+    {"GDC (master)", 0x60, 0x6e, IORESOURCE98_SPARSE},
-+    {"crtc", 0x70, 0x7a, IORESOURCE98_SPARSE},
-+    {"GDC (slave)", 0xa0, 0xa6, IORESOURCE98_SPARSE},
-+};
-+
-+#define BLANK 0x0020
-+#define BLANK_ATTR 0x00e1
-+
-+/* GDC/GGDC port# */
-+#define GDC_COMMAND 0x62
-+#define GDC_PARAM 0x60
-+#define GDC_STAT 0x60
-+#define GDC_DATA 0x62
-+
-+#define MODE_FF1	(0x0068)	/* mode F/F register 1 */
-+
-+#define  MODE_FF1_ATR_SEL	(0x00)	/* 0: vertical line 1: 8001 graphic */
-+#define  MODE_FF1_GRAPHIC_MODE	(0x02)	/* 0: color 1: mono */
-+#define  MODE_FF1_COLUMN_WIDTH	(0x04)	/* 0: 80col 1: 40col */
-+#define  MODE_FF1_FONT_SEL	(0x06)	/* 0: 6x8 1: 7x13 */
-+#define  MODE_FF1_GRP_MODE	(0x08)	/* 0: display odd-y raster 1: not */
-+#define  MODE_FF1_KAC_MODE	(0x0a)	/* 0: code access 1: dot access */
-+#define  MODE_FF1_NVMW_PERMIT	(0x0c)	/* 0: protect 1: permit */
-+#define  MODE_FF1_DISP_ENABLE	(0x0e)	/* 0: enable 1: disable */
-+
-+#define GGDC_COMMAND 0xa2
-+#define GGDC_PARAM 0xa0
-+#define GGDC_STAT 0xa0
-+#define GGDC_DATA 0xa2
-+
-+/* GDC status */
-+#define GDC_DATA_READY		(1 << 0)
-+#define GDC_FIFO_FULL		(1 << 1)
-+#define GDC_FIFO_EMPTY		(1 << 2)
-+#define GGDC_FIFO_EMPTY		GDC_FIFO_EMPTY
-+#define GDC_DRAWING		(1 << 3)
-+#define GDC_DMA_EXECUTE		(1 << 4)	/* nonsense on 98 */
-+#define GDC_VERTICAL_SYNC	(1 << 5)
-+#define GDC_HORIZONTAL_BLANK	(1 << 6)
-+#define GDC_LIGHTPEN_DETECT	(1 << 7)	/* nonsense on 98 */
-+
-+#define ATTR_G		(1U << 7)
-+#define ATTR_R		(1U << 6)
-+#define ATTR_B		(1U << 5)
-+#define ATTR_GRAPHIC	(1U << 4)
-+#define ATTR_VERTBAR	ATTR_GRAPHIC	/* vertical bar */
-+#define ATTR_UNDERLINE	(1U << 3)
-+#define ATTR_REVERSE	(1U << 2)
-+#define ATTR_BLINK	(1U << 1)
-+#define ATTR_NOSECRET	(1U << 0)
-+#define AMASK_NOCOLOR	(ATTR_GRAPHIC | ATTR_UNDERLINE | ATTR_REVERSE \
-+			 | ATTR_BLINK | ATTR_NOSECRET)
 +
 +/*
-+ *  Interface used by the world
-+ */
-+static const char *gdccon_startup(void);
-+static void gdccon_init(struct vc_data *c, int init);
-+static void gdccon_deinit(struct vc_data *c);
-+static void gdccon_cursor(struct vc_data *c, int mode);
-+static int gdccon_switch(struct vc_data *c);
-+static int gdccon_blank(struct vc_data *c, int blank);
-+static int gdccon_scrolldelta(struct vc_data *c, int lines);
-+static int gdccon_set_origin(struct vc_data *c);
-+static void gdccon_save_screen(struct vc_data *c);
-+static int gdccon_scroll(struct vc_data *c, int t, int b, int dir, int lines);
-+static u8 gdccon_build_attr(struct vc_data *c, u8 color, u8 intensity, u8 blink, u8 underline, u8 reverse);
-+static void gdccon_invert_region(struct vc_data *c, u16 *p, int count);
-+static unsigned long gdccon_uni_pagedir[2];
-+
-+/* Description of the hardware situation */
-+static unsigned long   gdc_vram_base;		/* Base of video memory */
-+static unsigned long   gdc_vram_end;		/* End of video memory */
-+static unsigned int    gdc_video_num_columns = 80;
-+						/* Number of text columns */
-+static unsigned int    gdc_video_num_lines = 25;
-+						/* Number of text lines */
-+static int	       gdc_can_do_color = 1;	/* Do we support colors? */
-+static unsigned char   gdc_video_type;		/* Card type */
-+static unsigned char   gdc_hardscroll_enabled;
-+static unsigned char   gdc_hardscroll_user_enable = 1;
-+static int	       gdc_vesa_blanked = 0;
-+static unsigned int    gdc_rolled_over = 0;
-+
-+#define DISP_FREQ_AUTO 0
-+#define DISP_FREQ_25k  1
-+#define DISP_FREQ_31k  2
-+
-+static unsigned int    gdc_disp_freq = DISP_FREQ_AUTO;
-+
-+#define gdc_attr_offset(x) ((typeof(x))((unsigned long)(x)+0x2000))
-+
-+#define	gdc_outb(val, port)	outb_p((val), (port))
-+#define	gdc_inb(port)		inb_p(port)
-+
-+#define __gdc_write_command(cmd)	gdc_outb((cmd), GDC_COMMAND)
-+#define __gdc_write_param(param)	gdc_outb((param), GDC_PARAM)
-+
-+static const char * __init gdccon_startup(void)
-+{
-+	const char *display_desc = NULL;
-+	unsigned long hdots = gdc_video_num_lines * 16;
-+
-+	while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
-+	while (!(inb_p(GGDC_STAT) & GDC_FIFO_EMPTY));
-+	spin_lock_irq(&gdc_lock);	
-+	outb_p(0x0c, GDC_COMMAND);	/* STOP */
-+	outb_p(0x0c, GGDC_COMMAND);	/* STOP */
-+	if (PC9800_9821_P() && gdc_disp_freq == DISP_FREQ_AUTO) {
-+		if (gdc_video_num_lines >= 30 || (inb(0x9a8) & 0x01)) {
-+			gdc_disp_freq = DISP_FREQ_31k;
-+		}
-+	}
-+
-+	if (PC9800_9821_P() && gdc_disp_freq == DISP_FREQ_31k) {
-+		outb_p(0x01, 0x9a8);   /* 31.47KHz */
-+		outb_p(0x0e, GDC_COMMAND);  /* SYNC, DE deny */
-+		outb_p(0x00, GDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
-+		outb_p(0x4e, GDC_PARAM);  /* C/R = 78 (80 chars) */
-+		outb_p(0x4b, GDC_PARAM);  /* VSL = 2(3) ; HS = 11 */
-+		outb_p(0x0c, GDC_PARAM);  /* HFP = 3    ; VSH = 0(VS=2) */
-+		outb_p(0x03, GDC_PARAM);  /* DS, PH = 0 ; HBP = 3 */
-+		outb_p(0x06, GDC_PARAM);  /* VH, VL = 0 ; VFP = 6 */
-+		outb_p(hdots & 0xff, GDC_PARAM);  /* LFL */
-+		outb_p(0x94 | ((hdots >> 8) & 0x03), GDC_PARAM);
-+						/* VBP = 37   ; LFH */
-+		outb_p(0x47, GDC_COMMAND);  /* PITCH */
-+		outb_p(0x50, GDC_PARAM);
-+
-+		outb_p(0x70, GDC_COMMAND);  /* SCROLL */
-+		outb_p(0x00, GDC_PARAM);
-+		outb_p(0x00, GDC_PARAM);
-+		outb_p((hdots << 4) & 0xf0, GDC_PARAM);  /* SL1=592 (0x250) */
-+		outb_p((hdots >> 4) & 0x3f, GDC_PARAM);
-+
-+		outb_p(0x0e, GGDC_COMMAND);  /* SYNC, DE deny */
-+		outb_p(0x00, GGDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
-+		outb_p(0x4e, GGDC_PARAM);  /* C/R = 78 (80 chars) */
-+		outb_p(0x4b, GGDC_PARAM);  /* VSL = 2(3) ; HS = 11 */
-+		outb_p(0x0c, GGDC_PARAM);  /* HFP = 3    ; VSH = 0(VS=2) */
-+		outb_p(0x03, GGDC_PARAM);  /* DS, PH = 0 ; HBP = 3 */
-+		outb_p(0x06, GGDC_PARAM);  /* VH, VL = 0 ; VFP = 6 */
-+		outb_p(hdots & 0xff, GGDC_PARAM);  /* LFL */
-+		outb_p(0x94 | ((hdots >> 8) & 0x03), GGDC_PARAM);
-+						/* VBP = 37   ; LFH */
-+	} else {
-+		outb_p(0x00, 0x9a8);   /* 24.83 KHz */
-+		outb_p(0x0e, GDC_COMMAND);  /* SYNC, DE deny */
-+		outb_p(0x00, GDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
-+		outb_p(0x4e, GDC_PARAM);  /* C/R = 78 (80 chars) */
-+		outb_p(0x07, GDC_PARAM);  /* VSL = 0(3) ; HS = 7 */
-+		outb_p(0x25, GDC_PARAM);  /* HFP = 9    ; VSH = 1(VS=8) */
-+		outb_p(0x07, GDC_PARAM);  /* DS, PH = 0 ; HBP = 7 */
-+		outb_p(0x07, GDC_PARAM);  /* VH, VL = 0 ; VFP = 7 */
-+		outb_p(hdots & 0xff, GDC_PARAM);  /* LFL */
-+		outb_p(0x64 | ((hdots >> 8) & 0x03), GDC_PARAM);
-+						/* VBP = 25   ; LFH */
-+		outb_p(0x47, GDC_COMMAND);  /* PITCH */
-+		outb_p(0x50, GDC_PARAM);
-+
-+		outb_p(0x70, GDC_COMMAND);  /* SCROLL */
-+		outb_p(0x00, GDC_PARAM);
-+		outb_p(0x00, GDC_PARAM);
-+		outb_p((hdots << 4) & 0xf0, GDC_PARAM);  /* SL1=592 (0x250) */
-+		outb_p((hdots >> 4) & 0x3f, GDC_PARAM);
-+
-+		outb_p(0x0e, GGDC_COMMAND);  /* SYNC */
-+		outb_p(0x00, GGDC_PARAM);
-+		outb_p(0x4e, GGDC_PARAM);
-+		outb_p(0x07, GGDC_PARAM);
-+		outb_p(0x25, GGDC_PARAM);
-+		outb_p(0x07, GGDC_PARAM);
-+		outb_p(0x07, GGDC_PARAM);
-+		outb_p(hdots & 0xff, GGDC_PARAM);  /* LFL */
-+		outb_p(0x64 | ((hdots >> 8) & 0x03), GGDC_PARAM);
-+						/* VBP = 25   ; LFH */
-+	}
-+
-+	outb_p(0x47, GGDC_COMMAND);  /* PITCH */ 
-+	outb_p(0x28, GGDC_PARAM);
-+
-+	outb_p(0x0d, GDC_COMMAND);	/* START */
-+	outb_p(0x0d, GGDC_COMMAND);	/* START */
-+	spin_unlock_irq(&gdc_lock);	
-+
-+	gdc_vram_base = (unsigned long)phys_to_virt(0xa0000);
-+	/* Last few bytes of text VRAM area are for NVRAM. */
-+	gdc_vram_end = gdc_vram_base + 0x1fe0;
-+
-+	if (!PC9800_HIGHRESO_P()) {
-+		gdc_video_type = VIDEO_TYPE_98NORMAL;
-+		display_desc = "NEC PC-9800 Normal";
-+	} else {
-+		gdc_video_type = VIDEO_TYPE_98HIRESO;
-+		display_desc = "NEC PC-9800 High Resolution";
-+	}
-+
-+	gdc_hardscroll_enabled = gdc_hardscroll_user_enable;
-+	
-+	request_resource(&ioport_resource, &gdc_console_resource[0]);
-+	request_resource(&ioport_resource, &gdc_console_resource[1]);
-+	request_resource(&ioport_resource, &gdc_console_resource[2]);
-+
-+	return display_desc;
-+}
-+
-+#ifdef VRAM_OVERRUN_DEBUG
-+static int __init gdccon_setup_trap(void)
-+{
-+	/*
-+	 * Trap scr_mem{move,set,...} overrun by unmapping memory page.
-+	 * If kernel hits these pages, page fault are triggered and
-+	 * then kernel forces oops.
-+	 */
-+	unmap_physpage(GDC_MAP_MEM(0x9f000));
-+	unmap_physpage(GDC_MAP_MEM(0xa6000));
-+
-+	printk(KERN_DEBUG "gdccon: overrun trap code activated\n");
-+	return 0;
-+}
-+
-+/*
-+ * Call gdccon_setup_trap() while normal driver setup, as gdccon_startup()
-+ * may be called while bootup temporary page table is in use. (Is this true?)
-+ */
-+__initcall (gdccon_setup_trap);
-+#endif
-+
-+static void gdccon_init(struct vc_data *c, int init)
-+{
-+	unsigned long p;
-+	
-+	/* We cannot be loaded as a module, therefore init is always 1 */
-+	c->vc_can_do_color = gdc_can_do_color;
-+	c->vc_cols = gdc_video_num_columns;
-+	c->vc_rows = gdc_video_num_lines;
-+	c->vc_complement_mask = ATTR_REVERSE;
-+	p = *c->vc_uni_pagedir_loc;
-+	if (c->vc_uni_pagedir_loc == &c->vc_uni_pagedir
-+	    || !--c->vc_uni_pagedir_loc[1])
-+		con_free_unimap(c->vc_num);
-+
-+	c->vc_uni_pagedir_loc = gdccon_uni_pagedir;
-+#ifdef PC9800_GDCCON_DEBUG
-+	printk(KERN_DEBUG "%s: #%u: %scolor, %ux%u, uni %p\n",
-+		__FUNCTION__, c->vc_num, "!" + !!c->vc_can_do_color,
-+		c->vc_cols, c->vc_rows, c->vc_uni_pagedir_loc);
-+#endif
-+	gdccon_uni_pagedir[1]++;
-+	if (!gdccon_uni_pagedir[0] && p)
-+		con_set_default_unimap(c->vc_num);
-+}
-+
-+static inline void gdc_set_mem_top(struct vc_data *c)
-+{
-+	unsigned long flags;
-+	unsigned long origin = (c->vc_visible_origin - gdc_vram_base) / 2;
-+
-+	spin_lock_irqsave(&gdc_lock, flags);
-+	while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
-+	__gdc_write_command(0x70);			/* SCROLL */
-+	__gdc_write_param(origin);			/* SAD1 (L) */
-+	__gdc_write_param((origin >> 8) & 0x1f);	/* SAD1 (H) */
-+	spin_unlock_irqrestore(&gdc_lock, flags);
-+}
-+
-+static void gdccon_deinit(struct vc_data *c)
-+{
-+	/* When closing the last console, reset video origin */
-+	if (!--gdccon_uni_pagedir[1]) {
-+		c->vc_visible_origin = gdc_vram_base;
-+		gdc_set_mem_top(c);
-+		con_free_unimap(c->vc_num);
-+	}
-+
-+	c->vc_uni_pagedir_loc = &c->vc_uni_pagedir;
-+	con_set_default_unimap(c->vc_num);
-+}
-+
-+#if 0
-+/* Translate ANSI terminal color code to GDC color code.  */
-+#define BGR_TO_GRB(bgr)	((((bgr) & 4) >> 2) | (((bgr) & 3) << 1))
-+#else
-+#define RGB_TO_GRB(rgb)	((((rgb) & 4) >> 1) | (((rgb) & 2) << 1) | ((rgb) & 1))
-+#endif
-+
-+static const u8 gdccon_color_table[] = {
-+#define C(color)	((RGB_TO_GRB (color) << 5) | ATTR_NOSECRET)
-+	C(0), C(1), C(2), C(3), C(4), C(5), C(6), C(7)
-+#undef C
-+};
-+
-+static u8 gdccon_build_attr(struct vc_data *c, u8 color, u8 intensity, u8 blink, u8 underline, u8 reverse)
-+{
-+	u8 attr = gdccon_color_table[color & 0x07];
-+
-+	if (!gdc_can_do_color)
-+		attr = (intensity == 0 ? 0x61
-+			: intensity == 2 ? 0xe1 : 0xa1);
-+
-+	if (underline)
-+		attr |= 0x08;
-+
-+	/* ignore intensity */
-+#if 0
-+	if(intensity == 0)
-+		;
-+	else if (intensity == 2)
-+		attr |= 0x10; /* virtical line */
-+#else
-+	if (intensity == 0) {
-+		if (attr == c->vc_def_attr)
-+			attr = c->vc_half_attr;
-+		else
-+			attr |= c->vc_half_attr & AMASK_NOCOLOR;
-+	} else if (intensity == 2) {
-+		if (attr == c->vc_def_attr)
-+			attr = c->vc_bold_attr;
-+		else
-+			attr |= c->vc_bold_attr & AMASK_NOCOLOR;
-+	}
-+#endif
-+	if (reverse)
-+		attr |= ATTR_REVERSE;
-+
-+	if ((color & 0x07) == 0) {	/* foreground color == black */
-+		/* Fake background color by reversed character
-+		   as GDC cannot set background color.  */
-+		attr |= gdccon_color_table[(color >> 4) & 0x07];
-+		attr ^= ATTR_REVERSE;
-+	}
-+
-+	if (blink)
-+		attr |= ATTR_BLINK;
-+
-+	return attr;
-+}
-+
-+static void gdccon_invert_region(struct vc_data *c, u16 *p, int count)
-+{
-+	while (count--) {
-+		u16 a = scr_readw(gdc_attr_offset(p));
-+
-+		a ^= ATTR_REVERSE;
-+		scr_writew(a, gdc_attr_offset(p));
-+		p++;
-+	}
-+}
-+
-+static u8 gdc_csrform_lr = 15;			/* Lines/Row */
-+static u16 gdc_csrform_bl_bd = ((12 << 6)	/* BLinking Rate */
-+				| (0 << 5));	/* Blinking Disable */
-+
-+static inline void gdc_hide_cursor(void)
-+{
-+    __gdc_write_command(0x4b);		/* CSRFORM */
-+    __gdc_write_param(gdc_csrform_lr);	/* CS = 0, CE = 0, L/R = ? */
-+}
-+
-+static inline void gdc_show_cursor(int cursor_start, int cursor_finish)
-+{
-+    __gdc_write_command(0x4b);		/* CSRFORM */
-+    __gdc_write_param(0x80 | gdc_csrform_lr);		/* CS = 1 */
-+    __gdc_write_param(cursor_start | gdc_csrform_bl_bd);
-+    __gdc_write_param((cursor_finish << 3) | (gdc_csrform_bl_bd >> 8));
-+}
-+
-+static void gdccon_cursor(struct vc_data *c, int mode)
-+{
-+    unsigned long flags;
-+    u16 ead;
-+
-+    if (c->vc_origin != c->vc_visible_origin)
-+	gdccon_scrolldelta(c, 0);
-+
-+    spin_lock_irqsave(&gdc_lock, flags);
-+    while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
-+    spin_unlock_irqrestore(&gdc_lock, flags);
-+    switch (mode) {
-+	case CM_ERASE:
-+	    gdc_hide_cursor();
-+	    break;
-+
-+	case CM_MOVE:
-+	case CM_DRAW:
-+	    switch (c->vc_cursor_type & 0x0f) {
-+		case CUR_UNDERLINE:
-+		    gdc_show_cursor(14, 15);	/* XXX font height */
-+		    break;
-+
-+		case CUR_TWO_THIRDS:
-+		    gdc_show_cursor(5, 15);	/* XXX */
-+		    break;
-+
-+		case CUR_LOWER_THIRD:
-+		    gdc_show_cursor(11, 15);	/* XXX */
-+		    break;
-+
-+		case CUR_LOWER_HALF:
-+		    gdc_show_cursor(8, 15);	/* XXX */
-+		    break;
-+
-+		case CUR_NONE:
-+		    gdc_hide_cursor();
-+		    break;
-+
-+          	default:
-+		    gdc_show_cursor(0, 15);	/* XXX */
-+		    break;
-+	    }
-+
-+	    spin_lock_irqsave(&gdc_lock, flags);
-+	    __gdc_write_command(0x49);		/* CSRW */
-+	    ead = (c->vc_pos - gdc_vram_base) >> 1;
-+	    __gdc_write_param(ead);
-+	    __gdc_write_param((ead >> 8) & 0x1f);
-+	    spin_unlock_irqrestore(&gdc_lock, flags);
-+	    break;
-+    }
-+
-+}
-+
-+static int gdccon_switch(struct vc_data *c)
-+{
-+	/*
-+	 * We need to save screen size here as it's the only way
-+	 * we can spot the screen has been resized and we need to
-+	 * set size of freshly allocated screens ourselves.
-+	 */
-+	gdc_video_num_columns = c->vc_cols;
-+	gdc_video_num_lines = c->vc_rows;
-+#if 0
-+	printk(KERN_DEBUG
-+		"%s: c=%p {origin=%#x, screenbuf=%#x, screenbuf_size=%u\n",
-+		__FUNCTION__, c,
-+		c->vc_origin, c->vc_screenbuf, c->vc_screenbuf_size);
-+#endif
-+	if (c->vc_origin != (unsigned long)c->vc_screenbuf
-+	    && gdc_vram_base <= c->vc_origin && c->vc_origin < gdc_vram_end) {
-+		scr_memcpyw_to((u16 *)c->vc_origin,
-+				(u16 *)c->vc_screenbuf,
-+				c->vc_screenbuf_size);
-+		scr_memcpyw_to((u16 *)gdc_attr_offset(c->vc_origin),
-+				(u16 *)((char *)c->vc_screenbuf
-+					 + c->vc_screenbuf_size),
-+				c->vc_screenbuf_size);
-+	} else
-+		printk(KERN_WARNING
-+			"gdccon: switch (vc #%d) called on origin=%lx\n",
-+			c->vc_num, c->vc_origin);
-+
-+	return 0;	/* Redrawing not needed */
-+}
-+
-+static int gdccon_set_palette(struct vc_data *c, unsigned char *table)
-+{
-+	return -EINVAL;
-+}
-+
-+#define RELAY0		0x01
-+#define RELAY0_GDC	0x00
-+#define RELAY0_ACCEL	0x01
-+#define RELAY1		0x02
-+#define RELAY1_INTERNAL	0x00
-+#define RELAY1_EXTERNAL	0x02
-+#define IO_RELAY	0x0fac
-+#define IO_DPMS		0x09a2
-+static unsigned char relay_mode = RELAY0_GDC | RELAY1_INTERNAL;
-+
-+static void gdc_vesa_blank(int mode)
-+{
-+    unsigned char stat;
-+
-+    spin_lock_irq(&gdc_lock);
-+
-+    relay_mode = inb_p(IO_RELAY);
-+    if ((relay_mode & (RELAY0 | RELAY1)) != (RELAY0_GDC | RELAY1_INTERNAL)) {
-+#ifdef CONFIG_DONTTOUCHRELAY
-+	spin_unlock_irq(&gdc_lock);
-+	return;
-+#else
-+	outb_p((relay_mode & ~(RELAY0 | RELAY1)) |
-+	       RELAY0_GDC | RELAY1_INTERNAL , IO_RELAY);
-+#endif
-+    }
-+
-+    if (mode & VESA_VSYNC_SUSPEND) {
-+	stat = inb_p(IO_DPMS);
-+	outb_p(stat | 0x80, IO_DPMS);
-+    }
-+    if (mode & VESA_HSYNC_SUSPEND) {
-+	stat = inb_p(IO_DPMS);
-+	outb_p(stat | 0x40, IO_DPMS);
-+    }
-+
-+    spin_unlock_irq(&gdc_lock);
-+}
-+
-+static void gdc_vesa_unblank(void)
-+{
-+    unsigned char stat;
-+
-+#ifdef CONFIG_DONTTOUCHRELAY
-+    if (relay_mode & (RELAY0 | RELAY1))
-+	return;
-+#endif
-+
-+    spin_lock_irq(&gdc_lock);
-+
-+    stat = inb_p(0x09a2);
-+    outb_p(stat & ~0xc0, IO_DPMS);
-+    if (relay_mode & (RELAY0 | RELAY1))
-+	outb_p(relay_mode, IO_RELAY);
-+
-+    spin_unlock_irq(&gdc_lock);
-+}
-+
-+static int gdccon_blank(struct vc_data *c, int blank)
-+{
-+	switch (blank) {
-+	case 0:				/* Unblank */
-+		if (gdc_vesa_blanked) {
-+			gdc_vesa_unblank();
-+			gdc_vesa_blanked = 0;
-+		}
-+
-+		outb(MODE_FF1_DISP_ENABLE | 1, MODE_FF1);
-+
-+		/* Tell console.c that it need not to restore the screen */
-+		return 0;
-+
-+	case 1:				/* Normal blanking */
-+		/* Disable displaying */
-+		outb(MODE_FF1_DISP_ENABLE | 0, MODE_FF1);
-+
-+		/* Tell console.c that it need not to reset origin */
-+		return 0;
-+
-+	case -1:			/* Entering graphic mode */
-+		return 1;
-+
-+	default:			/* VESA blanking */
-+		if (gdc_video_type == VIDEO_TYPE_98NORMAL
-+		    || gdc_video_type == VIDEO_TYPE_9840
-+		    || gdc_video_type == VIDEO_TYPE_98HIRESO) {
-+			gdc_vesa_blank(blank - 1);
-+			gdc_vesa_blanked = blank;
-+		}
-+
-+		return 0;
-+	}
-+}
-+
-+static int gdccon_font_op(struct vc_data *c, struct console_font_op *op)
-+{
-+	return -ENOSYS;
-+}
-+
-+/*
-+#define PC9800_GDCCON_DEBUG 1
-+*/
-+
-+static int gdccon_scrolldelta(struct vc_data *c, int lines)
-+{
-+#ifdef PC9800_GDCCON_DEBUG
-+	printk("gdccon_scrolldelta: lines=%d", lines);
-+#endif
-+
-+	if (!lines)			/* Turn scrollback off */
-+		c->vc_visible_origin = c->vc_origin;
-+	else {
-+		int vram_size = gdc_vram_end - gdc_vram_base;
-+		int margin = c->vc_size_row /* * 4 */;
-+		int ul, we, p, st;
-+
-+#ifdef PC9800_GDCCON_DEBUG
-+		printk(", gdc_vram_base=0x%lx, gdc_vram_end=0x%lx",
-+			__pa(gdc_vram_base), __pa(gdc_vram_end));
-+		printk(", vram_size=%d, margin=%d", vram_size, margin);
-+		printk(", c->vc_origin=0x%lx, c->vc_visible_origin=0x%lx, "
-+			"c->vc_scr_end=0x%lx", __pa(c->vc_origin),
-+			__pa(c->vc_visible_origin), __pa(c->vc_scr_end));
-+		printk(", c->vc_size_row=%u, gdc_rolled_over=%u",
-+			c->vc_size_row, gdc_rolled_over);
-+#endif
-+		if (gdc_rolled_over > c->vc_scr_end - gdc_vram_base + margin) {
-+			ul = c->vc_scr_end - gdc_vram_base;
-+			we = gdc_rolled_over + c->vc_size_row;
-+		} else {
-+			ul = 0;
-+			we = vram_size;
-+		}
-+
-+		p = (c->vc_visible_origin - gdc_vram_base - ul + we)
-+			% we + lines * c->vc_size_row;
-+		st = (c->vc_origin - gdc_vram_base - ul + we) % we;
-+#ifdef PC9800_GDCCON_DEBUG
-+		printk(", ul=%d, we=%d", ul, we);
-+		printk(", p=%d, st=%d", p, st);
-+#endif
-+		if (p < margin)
-+			p = 0;
-+
-+		if (p > st - margin)
-+			p = st;
-+#ifdef PC9800_GDCCON_DEBUG
-+		printk(", p(new)=%d", p);
-+#endif
-+		c->vc_visible_origin = gdc_vram_base + (p + ul) % we;
-+	}
-+
-+	gdc_set_mem_top(c);
-+#ifdef PC9800_GDCCON_DEBUG
-+	printk(", c->vc_visible_origin(new)=0x%lx, done.\n",
-+		__pa(c->vc_visible_origin));
-+#endif
-+	return 1;
-+}
-+
-+#undef PC9800_GDCCON_DEBUG
-+
-+static int gdccon_set_origin(struct vc_data *c)
-+{
-+#ifdef PC9800_GDCCON_DEBUG
-+	printk(KERN_DEBUG "%s: c=%p, console_blanked=%d\n",
-+		__FUNCTION__, c, console_blanked);
-+#endif
-+#if 0 /* It is now Ok to write to blanked screens,
-+	 since output from video controller is cut off */
-+	if (console_blanked)	/* We are writing to blanked screens */
-+		return 0;
-+#endif
-+
-+	c->vc_origin = c->vc_visible_origin = gdc_vram_base;
-+	gdc_set_mem_top(c);
-+	gdc_rolled_over = 0;
-+	return 1;
-+}
-+
-+static void gdccon_save_screen(struct vc_data *c)
-+{
-+	static int gdc_bootup_console = 0;
-+
-+	if (!gdc_bootup_console) {
-+		/* This is a gross hack, but here is the only place we can
-+		 * set bootup console parameters without messing up generic
-+		 * console initialization routines.
-+		 */
-+		gdc_bootup_console = 1;
-+		c->vc_x = ORIG_X;
-+		c->vc_y = ORIG_Y;
-+	}
-+
-+	scr_memcpyw_from((u16 *)c->vc_screenbuf,
-+				(u16 *)c->vc_origin, c->vc_screenbuf_size);
-+	scr_memcpyw_from((u16 *)((char *)c->vc_screenbuf + c->vc_screenbuf_size), (u16 *)gdc_attr_offset(c->vc_origin), c->vc_screenbuf_size);
-+}
-+
-+static int gdccon_scroll(struct vc_data *c, int t, int b, int dir, int lines)
-+{
-+	unsigned long oldo;
-+	unsigned int delta;
-+
-+	if (t || b != c->vc_rows)
-+		return 0;
-+
-+	if (c->vc_origin != c->vc_visible_origin)
-+		gdccon_scrolldelta(c, 0);
-+
-+	if (!gdc_hardscroll_enabled || lines >= c->vc_rows / 2)
-+		return 0;
-+
-+	oldo = c->vc_origin;
-+	delta = lines * c->vc_size_row;
-+	if (dir == SM_UP) {
-+		if (c->vc_scr_end + delta >= gdc_vram_end) {
-+			scr_memcpyw((u16 *)gdc_vram_base,
-+				    (u16 *)(oldo + delta),
-+				    c->vc_screenbuf_size - delta);
-+			scr_memcpyw((u16 *)gdc_attr_offset(gdc_vram_base),
-+				    (u16 *)gdc_attr_offset(oldo + delta),
-+				    c->vc_screenbuf_size - delta);
-+			c->vc_origin = gdc_vram_base;
-+			gdc_rolled_over = oldo - gdc_vram_base;
-+		} else
-+			c->vc_origin += delta;
-+
-+		scr_memsetw((u16 *)(c->vc_origin + c->vc_screenbuf_size - delta), c->vc_video_erase_char, delta);
-+		scr_memsetw((u16 *)gdc_attr_offset(c->vc_origin + c->vc_screenbuf_size - delta), c->vc_video_erase_attr, delta);
-+	} else {
-+		if (oldo - delta < gdc_vram_base) {
-+#if 0
-+			printk(KERN_DEBUG
-+				"gdc_vram_base = %#lx, gdc_vram_end = %#lx\n",
-+				gdc_vram_base, gdc_vram_end);
-+#endif
-+			scr_memmovew((u16 *)(gdc_vram_end - c->vc_screenbuf_size + delta),
-+				     (u16 *)oldo,
-+				     c->vc_screenbuf_size - delta);
-+			scr_memmovew((u16 *)gdc_attr_offset(gdc_vram_end - c->vc_screenbuf_size + delta),
-+				     (u16 *)gdc_attr_offset(oldo),
-+				     c->vc_screenbuf_size - delta);
-+			c->vc_origin = gdc_vram_end - c->vc_screenbuf_size;
-+			gdc_rolled_over = 0;
-+		} else
-+			c->vc_origin -= delta;
-+
-+		c->vc_scr_end = c->vc_origin + c->vc_screenbuf_size;
-+#if 0
-+		printk(KERN_DEBUG "scr_memsetw(%p, %#x, %u)\n",
-+			c->vc_origin, c->vc_video_erase_char, delta);
-+#endif
-+		scr_memsetw((u16 *)(c->vc_origin), c->vc_video_erase_char,
-+				delta);
-+#if 0
-+		printk(KERN_DEBUG "scr_memsetw(%p, %#x, %u)\n",
-+			gdc_attr_offset(c->vc_origin), c->vc_video_erase_attr,
-+			delta);
-+#endif
-+		scr_memsetw((u16 *)gdc_attr_offset(c->vc_origin),
-+				c->vc_video_erase_attr, delta);
-+	}
-+
-+	c->vc_scr_end = c->vc_origin + c->vc_screenbuf_size;
-+	c->vc_visible_origin = c->vc_origin;
-+	gdc_set_mem_top(c);
-+	c->vc_pos = (c->vc_pos - oldo) + c->vc_origin;
-+	return 1;
-+}
-+
-+static int gdccon_setterm_command(struct vc_data *c)
-+{
-+	switch (c->vc_par[0]) {
-+	case 1: /* set attr for underline mode */
-+		if (c->vc_npar < 2) {
-+			if (c->vc_par[1] < 16)
-+				c->vc_ul_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
-+		} else {
-+			if (c->vc_par[2] < 256)
-+				c->vc_ul_attr = c->vc_par[2];
-+		}
-+
-+		if (c->vc_underline)
-+			goto update_attr;
-+
-+		return 1;
-+
-+	case 2:	/* set attr for half intensity mode */
-+		if (c->vc_npar < 2) {
-+			if (c->vc_par[1] < 16)
-+				c->vc_half_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
-+		}
-+		else {
-+			if (c->vc_par[2] < 256)
-+				c->vc_half_attr = c->vc_par[2];
-+		}
-+
-+		if (c->vc_intensity == 0)
-+			goto update_attr;
-+
-+		return 1;
-+
-+	case 3: /* set color for bold mode */
-+		if (c->vc_npar < 2) {
-+			if (c->vc_par[1] < 16)
-+				c->vc_bold_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
-+		} else {
-+			if (c->vc_par[2] < 256)
-+				c->vc_bold_attr = c->vc_par[2];
-+		}
-+
-+		if (c->vc_intensity == 2)
-+			goto update_attr;
-+
-+		return 1;
-+	}
-+
-+	return 0;
-+
-+update_attr:
-+	c->vc_attr = gdccon_build_attr(c,
-+					c->vc_color, c->vc_intensity,
-+					c->vc_blink, c->vc_underline,
-+					c->vc_reverse);
-+	return 1;
-+}
-+
-+/*
-+ *  The console `switch' structure for the GDC based console
++ * gzip declarations
 + */
 +
-+static int gdccon_dummy(struct vc_data *c)
++#define OF(args)  args
++#define STATIC static
++
++#undef memset
++#undef memcpy
++
++/*
++ * Why do we do this? Don't ask me..
++ *
++ * Incomprehensible are the ways of bootloaders.
++ */
++static void* memset(void *, int, size_t);
++static void* memcpy(void *, __const void *, size_t);
++#define memzero(s, n)     memset ((s), 0, (n))
++
++typedef unsigned char  uch;
++typedef unsigned short ush;
++typedef unsigned long  ulg;
++
++#define WSIZE 0x8000		/* Window size must be at least 32k, */
++				/* and a power of two */
++
++static uch *inbuf;	     /* input buffer */
++static uch window[WSIZE];    /* Sliding window buffer */
++
++static unsigned insize = 0;  /* valid bytes in inbuf */
++static unsigned inptr = 0;   /* index of next byte to be processed in inbuf */
++static unsigned outcnt = 0;  /* bytes in output buffer */
++
++/* gzip flag byte */
++#define ASCII_FLAG   0x01 /* bit 0 set: file probably ASCII text */
++#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
++#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
++#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
++#define COMMENT      0x10 /* bit 4 set: file comment present */
++#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
++#define RESERVED     0xC0 /* bit 6,7:   reserved */
++
++#define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
++		
++/* Diagnostic functions */
++#ifdef DEBUG
++#  define Assert(cond,msg) {if(!(cond)) error(msg);}
++#  define Trace(x) fprintf x
++#  define Tracev(x) {if (verbose) fprintf x ;}
++#  define Tracevv(x) {if (verbose>1) fprintf x ;}
++#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
++#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
++#else
++#  define Assert(cond,msg)
++#  define Trace(x)
++#  define Tracev(x)
++#  define Tracevv(x)
++#  define Tracec(c,x)
++#  define Tracecv(c,x)
++#endif
++
++static int  fill_inbuf(void);
++static void flush_window(void);
++static void error(char *m);
++static void gzip_mark(void **);
++static void gzip_release(void **);
++  
++/*
++ * This is set up by the setup-routine at boot-time
++ */
++static unsigned char *real_mode; /* Pointer to real-mode data */
++
++#define EXT_MEM_K   (*(unsigned short *)(real_mode + 0x2))
++#ifndef STANDARD_MEMORY_BIOS_CALL
++#define ALT_MEM_K   (*(unsigned long *)(real_mode + 0x1e0))
++#endif
++#define SCREEN_INFO (*(struct screen_info *)(real_mode+0))
++
++extern char input_data[];
++extern int input_len;
++
++static long bytes_out = 0;
++static uch *output_data;
++static unsigned long output_ptr = 0;
++
++static void *malloc(int size);
++static void free(void *where);
++
++static void puts(const char *);
++
++extern int end;
++static long free_mem_ptr = (long)&end;
++static long free_mem_end_ptr;
++
++#define INPLACE_MOVE_ROUTINE  0x1000
++#define LOW_BUFFER_START      0x2000
++#define LOW_BUFFER_MAX       0x90000
++#define HEAP_SIZE             0x3000
++static unsigned int low_buffer_end, low_buffer_size;
++static int high_loaded =0;
++static uch *high_buffer_start /* = (uch *)(((ulg)&end) + HEAP_SIZE)*/;
++
++static char *vidmem = (char *)0xa0000;
++static int lines, cols;
++
++#ifdef CONFIG_X86_NUMAQ
++static void * xquad_portio = NULL;
++#endif
++
++#include "../../../../lib/inflate.c"
++
++static void *malloc(int size)
 +{
-+	return 0;
++	void *p;
++
++	if (size <0) error("Malloc error\n");
++	if (free_mem_ptr <= 0) error("Memory error\n");
++
++	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
++
++	p = (void *)free_mem_ptr;
++	free_mem_ptr += size;
++
++	if (free_mem_ptr >= free_mem_end_ptr)
++		error("\nOut of memory\n");
++
++	return p;
 +}
 +
-+#define DUMMY (void *) gdccon_dummy
++static void free(void *where)
++{	/* Don't care */
++}
 +
-+const struct consw gdc_con = {
-+	.con_startup =		gdccon_startup,
-+	.con_init =		gdccon_init,
-+	.con_deinit =		gdccon_deinit,
-+	.con_clear =		DUMMY,
-+	.con_putc =		DUMMY,
-+	.con_putcs =		DUMMY,
-+	.con_cursor =		gdccon_cursor,
-+	.con_scroll =		gdccon_scroll,
-+	.con_bmove =		DUMMY,
-+	.con_switch =		gdccon_switch,
-+	.con_blank =		gdccon_blank,
-+	.con_font_op =		gdccon_font_op,
-+	.con_set_palette =	gdccon_set_palette,
-+	.con_scrolldelta =	gdccon_scrolldelta,
-+	.con_set_origin =	gdccon_set_origin,
-+	.con_save_screen =	gdccon_save_screen,
-+	.con_build_attr =	gdccon_build_attr,
-+	.con_invert_region =	gdccon_invert_region,
-+	.con_setterm_command =	gdccon_setterm_command
-+};
++static void gzip_mark(void **ptr)
++{
++	*ptr = (void *) free_mem_ptr;
++}
 +
-+#ifdef GDCCON_DEBUG_MEMFUNCS
-+void gdccon_check_address(const void *start, size_t len,
-+			   const char *name, const char *function,
-+			   const char *file, unsigned int lineno)
++static void gzip_release(void **ptr)
++{
++	free_mem_ptr = (long) *ptr;
++}
++ 
++static void scroll(void)
 +{
 +	int i;
-+	static int inhibit;
 +
-+	if (inhibit)
-+		return;
-+
-+	if (gdc_vram_base <= (unsigned long)start
-+	    && (unsigned long)start + len <= gdc_vram_end + 0x2000)
-+		return;
-+
-+	for (i = 0; i < MAX_NR_CONSOLES; i++)
-+		if (vc_cons[i].d
-+		    && (void *)vc_cons[i].d->vc_screenbuf <= start
-+		    && start + len <= ((void *)vc_cons[i].d->vc_screenbuf
-+				       + vc_cons[i].d->vc_screenbuf_size * 2))
-+			return;
-+
-+	inhibit = 1;
-+	if (function)
-+		printk(KERN_WARNING "gdccon: In function `%s'\n", function);
-+
-+	if (file)
-+		printk(KERN_WARNING "gdccon: %s:%u", file, lineno);
-+	else
-+		printk(KERN_WARNING "gdccon");
-+
-+	printk(": %s address out of range (%p+%u)\nStack: ",
-+		name, start, len);
-+	show_stack(NULL);
-+	printk("\n");
-+	inhibit = 0;
++	memcpy ( vidmem, vidmem + cols * 2, ( lines - 1 ) * cols * 2 );
++	for ( i = ( lines - 1 ) * cols * 2; i < lines * cols * 2; i += 2 )
++		vidmem[i] = ' ';
 +}
-+#endif
 +
-+static int __init gdc_setup(char *str)
++static void puts(const char *s)
 +{
-+	unsigned long tmp_ulong;
-+	char *opt, *orig_opt, *endp;
++	int x,y,pos;
++	char c;
 +
-+	while ((opt = strsep(&str, ",")) != NULL) {
-+		int force = 0;
++	x = SCREEN_INFO.orig_x;
++	y = SCREEN_INFO.orig_y;
 +
-+		orig_opt = opt;
-+		if (!strncmp(opt, "force", 5)) {
-+			force = 1;
-+			opt += 5;
++	while ( ( c = *s++ ) != '\0' ) {
++		if ( c == '\n' ) {
++			x = 0;
++			if ( ++y >= lines ) {
++				scroll();
++				y--;
++			}
++		} else {
++			vidmem [ ( x + cols * y ) * 2 ] = c; 
++			if ( ++x >= cols ) {
++				x = 0;
++				if ( ++y >= lines ) {
++					scroll();
++					y--;
++				}
++			}
 +		}
-+
-+		if (!strcmp(opt, "mono"))
-+			gdc_can_do_color = 0;
-+		else if ((tmp_ulong = simple_strtoul(opt, &endp, 0)) > 0) {
-+			if (!strcmp(endp, "lines")
-+			    || (!strcmp(endp, "linesforce") && (force == 1))) {
-+				if (!force
-+				    && (tmp_ulong < 20
-+					|| (!PC9800_9821_P()
-+					    && 25 < tmp_ulong)
-+					|| 37 < tmp_ulong))
-+					printk(KERN_ERR
-+						"gdccon: %d is out of bound"
-+						" for number of lines\n",
-+						(int)tmp_ulong);
-+				else
-+					gdc_video_num_lines = tmp_ulong;
-+			} else if (!strcmp(endp, "kHz")) {
-+				if (tmp_ulong == 24 || tmp_ulong == 25)
-+					gdc_disp_freq = DISP_FREQ_25k;
-+				else
-+					printk(KERN_ERR "gdccon: `%s' ignored\n",
-+						orig_opt);
-+			} else
-+				printk(KERN_ERR "gdccon: unknown option `%s'\n",
-+					orig_opt);
-+		} else
-+			printk(KERN_ERR "gdccon: unknown option `%s'\n",
-+				orig_opt);
 +	}
 +
-+	return 1; 
++	SCREEN_INFO.orig_x = x;
++	SCREEN_INFO.orig_y = y;
++
++	pos = x + cols * y;	/* Update cursor position */
++	while (!(inb_p(0x60) & 4));
++	outb_p(0x49, 0x62);
++	outb_p(pos & 0xff, 0x60);
++	outb_p((pos >> 8) & 0xff, 0x60);
 +}
 +
-+__setup("gdccon=", gdc_setup);
-+
-+/*
-+ * We will follow Linus's indenting style...
-+ *
-+ * Local variables:
-+ * c-basic-offset: 8
-+ * End:
++static void* memset(void* s, int c, size_t n)
++{
++	int i;
++	char *ss = (char*)s;
++
++	for (i=0;i<n;i++) ss[i] = c;
++	return s;
++}
++
++static void* memcpy(void* __dest, __const void* __src,
++			    size_t __n)
++{
++	int i;
++	char *d = (char *)__dest, *s = (char *)__src;
++
++	for (i=0;i<__n;i++) d[i] = s[i];
++	return __dest;
++}
++
++/* ===========================================================================
++ * Fill the input buffer. This is called only when the buffer is empty
++ * and at least one byte is really needed.
 + */
-diff -urN linux/include/asm-i386/gdc.h linux98/include/asm-i386/gdc.h
---- linux/include/asm-i386/gdc.h	Thu Jan  1 09:00:00 1970
-+++ linux98/include/asm-i386/gdc.h	Sun Aug 19 14:13:09 2001
-@@ -0,0 +1,225 @@
-+/*
-+ *  gdc.h - macro & inline functions for accessing GDC text-VRAM
-+ *
-+ *  Copyright (C) 1997-2000   KITAGAWA Takurou,
-+ *			      UGAWA Tomoharu,
-+ *			      TAKAI Kosuke
-+ *			      (Linux/98 Project)
++static int fill_inbuf(void)
++{
++	if (insize != 0) {
++		error("ran out of input data\n");
++	}
++
++	inbuf = input_data;
++	insize = input_len;
++	inptr = 1;
++	return inbuf[0];
++}
++
++/* ===========================================================================
++ * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * (Used for the decompressed data only.)
 + */
-+#ifndef _LINUX_ASM_GDC_H_
-+#define _LINUX_ASM_GDC_H_
++static void flush_window_low(void)
++{
++    ulg c = crc;         /* temporary variable */
++    unsigned n;
++    uch *in, *out, ch;
++    
++    in = window;
++    out = &output_data[output_ptr]; 
++    for (n = 0; n < outcnt; n++) {
++	    ch = *out++ = *in++;
++	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
++    }
++    crc = c;
++    bytes_out += (ulg)outcnt;
++    output_ptr += (ulg)outcnt;
++    outcnt = 0;
++}
++
++static void flush_window_high(void)
++{
++    ulg c = crc;         /* temporary variable */
++    unsigned n;
++    uch *in,  ch;
++    in = window;
++    for (n = 0; n < outcnt; n++) {
++	ch = *output_data++ = *in++;
++	if ((ulg)output_data == low_buffer_end) output_data=high_buffer_start;
++	c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
++    }
++    crc = c;
++    bytes_out += (ulg)outcnt;
++    outcnt = 0;
++}
++
++static void flush_window(void)
++{
++	if (high_loaded) flush_window_high();
++	else flush_window_low();
++}
++
++static void error(char *x)
++{
++	puts("\n\n");
++	puts(x);
++	puts("\n\n -- System halted");
++
++	while(1);	/* Halt */
++}
++
++#define STACK_SIZE (4096)
++
++long user_stack [STACK_SIZE];
++
++struct {
++	long * a;
++	short b;
++	} stack_start = { & user_stack [STACK_SIZE] , __KERNEL_DS };
++
++static void setup_normal_output_buffer(void)
++{
++#ifdef STANDARD_MEMORY_BIOS_CALL
++	if (EXT_MEM_K < 1024) error("Less than 2MB of memory.\n");
++#else
++	if ((ALT_MEM_K > EXT_MEM_K ? ALT_MEM_K : EXT_MEM_K) < 1024) error("Less than 2MB of memory.\n");
++#endif
++	output_data = (char *)0x100000; /* Points to 1M */
++	free_mem_end_ptr = (long)real_mode;
++}
++
++struct moveparams {
++	uch *low_buffer_start;  int lcount;
++	uch *high_buffer_start; int hcount;
++};
++
++static void setup_output_buffer_if_we_run_high(struct moveparams *mv)
++{
++	high_buffer_start = (uch *)(((ulg)&end) + HEAP_SIZE);
++#ifdef STANDARD_MEMORY_BIOS_CALL
++	if (EXT_MEM_K < (3*1024)) error("Less than 4MB of memory.\n");
++#else
++	if ((ALT_MEM_K > EXT_MEM_K ? ALT_MEM_K : EXT_MEM_K) < (3*1024)) error("Less than 4MB of memory.\n");
++#endif	
++	mv->low_buffer_start = output_data = (char *)LOW_BUFFER_START;
++	low_buffer_end = ((unsigned int)real_mode > LOW_BUFFER_MAX
++	  ? LOW_BUFFER_MAX : (unsigned int)real_mode) & ~0xfff;
++	low_buffer_size = low_buffer_end - LOW_BUFFER_START;
++	high_loaded = 1;
++	free_mem_end_ptr = (long)high_buffer_start;
++	if ( (0x100000 + low_buffer_size) > ((ulg)high_buffer_start)) {
++		high_buffer_start = (uch *)(0x100000 + low_buffer_size);
++		mv->hcount = 0; /* say: we need not to move high_buffer */
++	}
++	else mv->hcount = -1;
++	mv->high_buffer_start = high_buffer_start;
++}
++
++static void close_output_buffer_if_we_run_high(struct moveparams *mv)
++{
++	if (bytes_out > low_buffer_size) {
++		mv->lcount = low_buffer_size;
++		if (mv->hcount)
++			mv->hcount = bytes_out - low_buffer_size;
++	} else {
++		mv->lcount = bytes_out;
++		mv->hcount = 0;
++	}
++}
++
++
++asmlinkage int decompress_kernel(struct moveparams *mv, void *rmode)
++{
++	real_mode = rmode;
++
++	vidmem = (char *)(((unsigned int)SCREEN_INFO.orig_video_page) << 4);
++
++	lines = SCREEN_INFO.orig_video_lines;
++	cols = SCREEN_INFO.orig_video_cols;
++
++	if (free_mem_ptr < 0x100000) setup_normal_output_buffer();
++	else setup_output_buffer_if_we_run_high(mv);
++
++	makecrc();
++	puts("Uncompressing Linux... ");
++	gunzip();
++	puts("Ok, booting the kernel.\n");
++	if (high_loaded) close_output_buffer_if_we_run_high(mv);
++	return high_loaded;
++}
+diff -urN linux/arch/i386/boot98/compressed/vmlinux.scr linux98/arch/i386/boot98/compressed/vmlinux.scr
+--- linux/arch/i386/boot98/compressed/vmlinux.scr	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/boot98/compressed/vmlinux.scr	Tue Oct  1 16:07:40 2002
+@@ -0,0 +1,9 @@
++SECTIONS
++{
++  .data : { 
++	input_len = .;
++	LONG(input_data_end - input_data) input_data = .; 
++	*(.data) 
++	input_data_end = .; 
++	}
++}
+diff -urN linux/arch/i386/boot98/install.sh linux98/arch/i386/boot98/install.sh
+--- linux/arch/i386/boot98/install.sh	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/boot98/install.sh	Tue Oct  1 16:07:35 2002
+@@ -0,0 +1,40 @@
++#!/bin/sh
++#
++# arch/i386/boot/install.sh
++#
++# This file is subject to the terms and conditions of the GNU General Public
++# License.  See the file "COPYING" in the main directory of this archive
++# for more details.
++#
++# Copyright (C) 1995 by Linus Torvalds
++#
++# Adapted from code in arch/i386/boot/Makefile by H. Peter Anvin
++#
++# "make install" script for i386 architecture
++#
++# Arguments:
++#   $1 - kernel version
++#   $2 - kernel image file
++#   $3 - kernel map file
++#   $4 - default install path (blank if root directory)
++#
++
++# User may have a custom install script
++
++if [ -x ~/bin/installkernel ]; then exec ~/bin/installkernel "$@"; fi
++if [ -x /sbin/installkernel ]; then exec /sbin/installkernel "$@"; fi
++
++# Default install - same as make zlilo
++
++if [ -f $4/vmlinuz ]; then
++	mv $4/vmlinuz $4/vmlinuz.old
++fi
++
++if [ -f $4/System.map ]; then
++	mv $4/System.map $4/System.old
++fi
++
++cat $2 > $4/vmlinuz
++cp $3 $4/System.map
++
++if [ -x /sbin/lilo ]; then /sbin/lilo; else /etc/lilo/install; fi
+diff -urN linux/arch/i386/boot98/setup.S linux98/arch/i386/boot98/setup.S
+--- linux/arch/i386/boot98/setup.S	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/boot98/setup.S	Fri Aug 30 17:06:33 2002
+@@ -0,0 +1,950 @@
++/*
++ *	setup.S		Copyright (C) 1991, 1992 Linus Torvalds
++ *
++ * setup.s is responsible for getting the system data from the BIOS,
++ * and putting them into the appropriate places in system memory.
++ * both setup.s and system has been loaded by the bootblock.
++ *
++ * This code asks the bios for memory/disk/other parameters, and
++ * puts them in a "safe" place: 0x90000-0x901FF, ie where the
++ * boot-block used to be. It is then up to the protected mode
++ * system to read them from there before the area is overwritten
++ * for buffer-blocks.
++ *
++ * Move PS/2 aux init code to psaux.c
++ * (troyer@saifr00.cfsat.Honeywell.COM) 03Oct92
++ *
++ * some changes and additional features by Christoph Niemann,
++ * March 1993/June 1994 (Christoph.Niemann@linux.org)
++ *
++ * add APM BIOS checking by Stephen Rothwell, May 1994
++ * (sfr@canb.auug.org.au)
++ *
++ * High load stuff, initrd support and position independency
++ * by Hans Lermen & Werner Almesberger, February 1996
++ * <lermen@elserv.ffm.fgan.de>, <almesber@lrc.epfl.ch>
++ *
++ * Video handling moved to video.S by Martin Mares, March 1996
++ * <mj@k332.feld.cvut.cz>
++ *
++ * Extended memory detection scheme retwiddled by orc@pell.chi.il.us (david
++ * parsons) to avoid loadlin confusion, July 1997
++ *
++ * Transcribed from Intel (as86) -> AT&T (gas) by Chris Noe, May 1999.
++ * <stiker@northlink.com>
++ *
++ * Fix to work around buggy BIOSes which dont use carry bit correctly
++ * and/or report extended memory in CX/DX for e801h memory size detection 
++ * call.  As a result the kernel got wrong figures.  The int15/e801h docs
++ * from Ralf Brown interrupt list seem to indicate AX/BX should be used
++ * anyway.  So to avoid breaking many machines (presumably there was a reason
++ * to orginally use CX/DX instead of AX/BX), we do a kludge to see
++ * if CX/DX have been changed in the e801 call and if so use AX/BX .
++ * Michael Miller, April 2001 <michaelm@mjmm.org>
++ *
++ * New A20 code ported from SYSLINUX by H. Peter Anvin. AMD Elan bugfixes
++ * by Robert Schwebel, December 2001 <robert@schwebel.de>
++ *
++ * Heavily modified for NEC PC-9800 series by Kyoto University Microcomputer
++ * Club (KMC) Linux/98 project <seraphim@kmc.kyoto-u.ac.jp>, 1997-1999
++ */
 +
 +#include <linux/config.h>
++#include <asm/segment.h>
++#include <linux/version.h>
++#include <linux/compile.h>
++#include <asm/boot.h>
++#include <asm/e820.h>
++#include <asm/page.h>
++	
++/* Signature words to ensure LILO loaded us right */
++#define SIG1	0xAA55
++#define SIG2	0x5A5A
 +
-+#define GDC_MAP_MEM(x) (unsigned long)phys_to_virt(x)
++#define HIRESO_TEXT	0xe000
++#define NORMAL_TEXT	0xa000
 +
-+#define gdc_readb(x) (*(x))
-+#define gdc_writeb(x,y) (*(y) = (x))
++#define BIOS_FLAG2	0x0400
++#define BIOS_FLAG5	0x0458
++#define RDISK_EQUIP	0x0488
++#define BIOS_FLAG	0x0501
++#define KB_SHFT_STS	0x053a
++#define DISK_EQUIP	0x055c
 +
-+#define VT_BUF_HAVE_RW
-+#define scr_writew(val, addr)	(*(volatile __u16 *)(addr) = (val))
-+#define scr_readw(addr)		(*(volatile __u16 *)(addr))
++INITSEG  = DEF_INITSEG		# 0x9000, we move boot here, out of the way
++SYSSEG   = DEF_SYSSEG		# 0x1000, system loaded at 0x10000 (65536).
++SETUPSEG = DEF_SETUPSEG		# 0x9020, this is the current segment
++				# ... and the former contents of CS
 +
-+#define VT_BUF_HAVE_MEMSETW
-+extern inline void
-+scr_memsetw(u16 *s, u16 c, unsigned int count)
-+{
-+#ifdef CONFIG_GDC_32BITACCESS
-+	__asm__ __volatile__ ("shr%L1 %1
-+	jz 2f
-+" /*	cld	kernel code now assumes DF = 0 any time */ "\
-+	test%L0 %3,%0
-+	jz 1f
-+	stos%W2
-+	dec%L1 %1
-+1:	shr%L1 %1
-+	rep
-+	stos%L2
-+	jnc 2f
-+	stos%W2
-+	rep
-+	stos%W2
-+2:"
-+			      : "=D"(s), "=c"(count)
-+			      : "a"((((u32) c) << 16) | c), "g"(2),
-+			        "0"(s), "1"(count));
++DELTA_INITSEG = SETUPSEG - INITSEG	# 0x0020
++
++.code16
++.globl begtext, begdata, begbss, endtext, enddata, endbss
++
++.text
++begtext:
++.data
++begdata:
++.bss
++begbss:
++.text
++
++start:
++	jmp	trampoline
++
++# This is the setup header, and it must start at %cs:2 (old 0x9020:2)
++
++		.ascii	"HdrS"		# header signature
++		.word	0x0203		# header version number (>= 0x0105)
++					# or else old loadlin-1.5 will fail)
++realmode_swtch:	.word	0, 0		# default_switch, SETUPSEG
++start_sys_seg:	.word	SYSSEG
++		.word	kernel_version	# pointing to kernel version string
++					# above section of header is compatible
++					# with loadlin-1.5 (header v1.5). Don't
++					# change it.
++
++type_of_loader:	.byte	0		# = 0, old one (LILO, Loadlin,
++					#      Bootlin, SYSLX, bootsect...)
++					# See Documentation/i386/boot.txt for
++					# assigned ids
++	
++# flags, unused bits must be zero (RFU) bit within loadflags
++loadflags:
++LOADED_HIGH	= 1			# If set, the kernel is loaded high
++CAN_USE_HEAP	= 0x80			# If set, the loader also has set
++					# heap_end_ptr to tell how much
++					# space behind setup.S can be used for
++					# heap purposes.
++					# Only the loader knows what is free
++#ifndef __BIG_KERNEL__
++		.byte	0
 +#else
-+	__asm__ __volatile__ ("rep\n\tstosw"
-+			      : "=D"(s), "=c"(count)
-+			      : "0"(s), "1"(count / 2), "a"(c));
-+#endif	
-+}
-+
-+#define VT_BUF_HAVE_MEMCPYW
-+extern inline void
-+scr_memcpyw(u16 *d, u16 *s, unsigned int count)
-+{
-+#if 1 /* def CONFIG_GDC_32BITACCESS */
-+	__asm__ __volatile__ ("shr%L2 %2
-+	jz 2f
-+" /*	cld	*/ "\
-+	test%L0 %3,%0
-+	jz 1f
-+	movs%W0
-+	dec%L2 %2
-+1:	shr%L2 %2
-+	rep
-+	movs%L0
-+	jnc 2f
-+	movs%W0
-+2:"
-+			      : "=D"(d), "=S"(s), "=c"(count)
-+			      : "g"(2), "0"(d), "1"(s), "2"(count));
-+#else
-+	__asm__ __volatile__ ("rep\n\tmovsw"
-+			      : "=D"(d), "=S"(s), "=c"(count)
-+			      : "0"(d), "1"(s), "2"(count / 2));
-+#endif
-+}
-+
-+extern inline void
-+scr_memrcpyw(u16 *d, u16 *s, unsigned int count)
-+{
-+#if 1 /* def CONFIG_GDC_32BITACCESS */
-+	u16 tmp;
-+
-+	__asm__ __volatile__ ("shr%L3 %3
-+	jz 2f
-+	std
-+	lea%L1 -4(%1,%3,2),%1
-+	lea%L2 -4(%2,%3,2),%2
-+	test%L1 %4,%1
-+	jz 1f
-+	mov%W0 2(%2),%0
-+	sub%L2 %4,%2
-+	dec%L3 %3
-+	mov%W0 %0,2(%1)
-+	sub%L1 %4,%1
-+1:	shr%L3 %3
-+	rep
-+	movs%L0
-+	jnc 3f
-+	mov%W0 2(%2),%0
-+	mov%W0 %0,2(%1)
-+3:	cld
-+2:"
-+			      : "=r"(tmp), "=D"(d), "=S"(s), "=c"(count)
-+			      : "g"(2), "1"(d), "2"(s), "3"(count));
-+#else
-+	__asm__ __volatile__ ("std\n\trep\n\tmovsw\n\tcld"
-+			      : "=D"(d), "=S"(s), "=c"(count)
-+			      : "0"((void *) d + count - 2),
-+			        "1"((void *) s + count - 2), "2"(count / 2));
-+#endif	
-+}
-+
-+#define VT_BUF_HAVE_MEMMOVEW
-+extern inline void
-+scr_memmovew(u16 *d, u16 *s, unsigned int count)
-+{
-+	if (d > s)
-+		scr_memrcpyw(d, s, count);
-+	else
-+		scr_memcpyw(d, s, count);
-+}	
-+
-+#define VT_BUF_HAVE_MEMCPYF
-+extern inline void
-+scr_memcpyw_from(u16 *d, u16 *s, unsigned int count)
-+{
-+#ifdef CONFIG_GDC_32BITACCESS
-+	/* VRAM is quite slow, so we align source pointer (%esi)
-+	   to double-word alignment. */
-+	__asm__ __volatile__ ("shr%L2 %2
-+	jz 2f
-+" /*	cld	*/ "\
-+	test%L0 %3,%0
-+	jz 1f
-+	movs%W0
-+	dec%L2 %2
-+1:	shr%L2 %2
-+	rep
-+	movs%L0
-+	jnc 2f
-+	movs%W0
-+2:"
-+			      : "=D"(d), "=S"(s), "=c"(count)
-+			      : "g"(2), "0"(d), "1"(s), "2"(count));
-+#else
-+	__asm__ __volatile__ ("rep\n\tmovsw"
-+			      : "=D"(d), "=S"(s), "=c"(count)
-+			      : "0"(d), "1"(s), "2"(count / 2));
-+#endif
-+}
-+
-+#ifdef CONFIG_GDC_32BITACCESS
-+# define scr_memcpyw_to	scr_memcpyw
-+#else
-+# define scr_memcpyw_to scr_memcpyw_from
++		.byte	LOADED_HIGH
 +#endif
 +
-+/* #define GDCCON_DEBUG_MEMFUNCS */
-+#ifdef GDCCON_DEBUG_MEMFUNCS
++setup_move_size: .word  0x8000		# size to move, when setup is not
++					# loaded at 0x90000. We will move setup 
++					# to 0x90000 then just before jumping
++					# into the kernel. However, only the
++					# loader knows how much data behind
++					# us also needs to be loaded.
 +
-+extern void gdccon_check_address(const void *, size_t, const char *,
-+				  const char *, const char *, unsigned int);
++code32_start:				# here loaders can put a different
++					# start address for 32-bit code.
++#ifndef __BIG_KERNEL__
++		.long	0x1000		#   0x1000 = default for zImage
++#else
++		.long	0x100000	# 0x100000 = default for big kernel
++#endif
 +
-+#undef scr_writew
-+#define scr_writew(val, addr)	({					\
-+	__u16 *_p_ = (void *)(addr);					\
-+	gdccon_check_address(_p_, 2, "destination",			\
-+			      "scr_writew", __FILE__, __LINE__);	\
-+	*(volatile __u16 *)_p_ = (val);					\
-+})
++ramdisk_image:	.long	0		# address of loaded ramdisk image
++					# Here the loader puts the 32-bit
++					# address where it loaded the image.
++					# This only will be read by the kernel.
 +
-+#undef scr_readw
-+#define scr_readw(addr)	({					\
-+	__u16 *_p_ = (void *)(addr);				\
-+	gdccon_check_address(_p_, 2, "source",			\
-+			      "scr_readw", __FILE__, __LINE__);	\
-+	*(volatile __u16 *)_p_;					\
-+})
++ramdisk_size:	.long	0		# its size in bytes
 +
-+#define scr_memsetw(dest, ch, count)	({				\
-+	__u16 *_dest_ = (dest);						\
-+	size_t _count_ = (count);					\
-+	gdccon_check_address(_dest_, _count_, "destitnation",		\
-+			      "scr_memsetw", __FILE__, __LINE__);	\
-+	scr_memsetw(_dest_, (ch), _count_);				\
-+})
++bootsect_kludge:
++		.word  bootsect_helper, SETUPSEG
 +
-+#define scr_memcpyw(dest, src, count)	({				\
-+	__u16 *_dest_ = (dest);						\
-+	__u16 *_src_ = (src);						\
-+	size_t _count_ = (count);					\
-+	gdccon_check_address(_dest_, _count_, "destitnation",		\
-+			      "scr_memcpyw", __FILE__, __LINE__);	\
-+	gdccon_check_address(_src_, _count_, "source",			\
-+			      "scr_memcpyw", __FILE__, __LINE__);	\
-+	scr_memcpyw(_dest_, _src_, _count_);				\
-+})
++heap_end_ptr:	.word	modelist+1024	# (Header version 0x0201 or later)
++					# space from here (exclusive) down to
++					# end of setup code can be used by setup
++					# for local heap purposes.
 +
-+#define scr_memmovew(dest, src, count)	({				\
-+	__u16 *_dest_ = (dest);						\
-+	__u16 *_src_ = (src);						\
-+	size_t _count_ = (count);					\
-+	gdccon_check_address(_dest_, _count_, "destitnation",		\
-+			      "scr_memmovew", __FILE__, __LINE__);	\
-+	gdccon_check_address(_src_, _count_, "source",			\
-+			      "scr_memmovew", __FILE__, __LINE__);	\
-+	scr_memmovew(_dest_, _src_, _count_);				\
-+})
++pad1:		.word	0
++cmd_line_ptr:	.long 0			# (Header version 0x0202 or later)
++					# If nonzero, a 32-bit pointer
++					# to the kernel command line.
++					# The command line should be
++					# located between the start of
++					# setup and the end of low
++					# memory (0xa0000), or it may
++					# get overwritten before it
++					# gets read.  If this field is
++					# used, there is no longer
++					# anything magical about the
++					# 0x90000 segment; the setup
++					# can be located anywhere in
++					# low memory 0x10000 or higher.
 +
-+#define scr_memcpyw_from(dest, src, count)	({			\
-+	__u16 *_dest_ = (dest);						\
-+	__u16 *_src_ = (src);						\
-+	size_t _count_ = (count);					\
-+	gdccon_check_address(_dest_, _count_, "destitnation",		\
-+			      "scr_memcpyw_from", __FILE__, __LINE__);	\
-+	gdccon_check_address(_src_, _count_, "source",			\
-+			      "scr_memcpyw_from", __FILE__, __LINE__);	\
-+	scr_memcpyw_from(_dest_, _src_, _count_);			\
-+})
-+#endif /* GDCCON_DEBUG_MEMFUNCS */
++ramdisk_max:	.long __MAXMEM-1	# (Header version 0x0203 or later)
++					# The highest safe address for
++					# the contents of an initrd
 +
-+#endif /* _LINUX_ASM_GDC_H_ */
++trampoline:	call	start_of_setup
++		.space	1024
++# End of setup header #####################################################
++
++start_of_setup:
++# Set %ds = %cs, we know that SETUPSEG = %cs at this point
++	movw	%cs, %ax		# aka SETUPSEG
++	movw	%ax, %ds
++# Check signature at end of setup
++	cmpw	$SIG1, setup_sig1
++	jne	bad_sig
++
++	cmpw	$SIG2, setup_sig2
++	jne	bad_sig
++
++	jmp	good_sig1
++
++# Routine to print asciiz string at ds:si
++prtstr:
++	lodsb
++	andb	%al, %al
++	jz	fin
++
++	call	prtchr
++	jmp	prtstr
++
++fin:	ret
++
++no_sig_mess: .string	"No setup signature found ..."
++
++good_sig1:
++	jmp	good_sig
++
++# We now have to find the rest of the setup code/data
++bad_sig:
++	movw	%cs, %ax			# SETUPSEG
++	subw	$DELTA_INITSEG, %ax		# INITSEG
++	movw	%ax, %ds
++	xorb	%bh, %bh
++	movb	(497), %bl			# get setup sect from bootsect
++	subw	$4, %bx				# LILO loads 4 sectors of setup
++	shlw	$8, %bx				# convert to words (1sect=2^8 words)
++	movw	%bx, %cx
++	shrw	$3, %bx				# convert to segment
++	addw	$SYSSEG, %bx
++	movw	%bx, %cs:start_sys_seg
++# Move rest of setup code/data to here
++	movw	$2048, %di			# four sectors loaded by LILO
++	subw	%si, %si
++	pushw	%cs
++	popw	%es
++	movw	$SYSSEG, %ax
++	movw	%ax, %ds
++	rep
++	movsw
++	movw	%cs, %ax			# aka SETUPSEG
++	movw	%ax, %ds
++	cmpw	$SIG1, setup_sig1
++	jne	no_sig
++
++	cmpw	$SIG2, setup_sig2
++	jne	no_sig
++
++	jmp	good_sig
++
++no_sig:
++	lea	no_sig_mess, %si
++	call	prtstr
++
++no_sig_loop:
++	hlt
++	jmp	no_sig_loop
++
++good_sig:
++	movw	%cs, %ax			# aka SETUPSEG
++	subw	$DELTA_INITSEG, %ax 		# aka INITSEG
++	movw	%ax, %ds
++# Check if an old loader tries to load a big-kernel
++	testb	$LOADED_HIGH, %cs:loadflags	# Do we have a big kernel?
++	jz	loader_ok			# No, no danger for old loaders.
++
++	cmpb	$0, %cs:type_of_loader 		# Do we have a loader that
++						# can deal with us?
++	jnz	loader_ok			# Yes, continue.
++
++	pushw	%cs				# No, we have an old loader,
++	popw	%ds				# die. 
++	lea	loader_panic_mess, %si
++	call	prtstr
++
++	jmp	no_sig_loop
++
++loader_panic_mess: .string "Wrong loader, giving up..."
++
++loader_ok:
++# Get memory size (extended mem, kB)
++
++# On PC-9800, memory size detection is done completely in 32-bit
++# kernel initialize code (kernel/setup.c).
++	pushw	%es
++	xorl	%eax, %eax
++	movw	%ax, %es
++	movb	%al, (E820NR)		# PC-9800 has no E820
++	movb	%es:(0x401), %al
++	shll	$7, %eax
++	addw	$1024, %ax
++	movw	%ax, (2)
++	movl	%eax, (0x1e0)
++	movw	%es:(0x594), %ax
++	shll	$10, %eax
++	addl	%eax, (0x1e0)
++	popw	%es
++
++# Check for video adapter and its parameters and allow the
++# user to browse video modes.
++	call	video				# NOTE: we need %ds pointing
++						# to bootsector
++
++# Get text video mode
++	movb	$0x0B, %ah
++	int	$0x18		# CRT mode sense
++	movw	$(20 << 8) + 40, %cx
++	testb	$0x10, %al
++	jnz	3f
++	movb	$20, %ch
++	testb	$0x01, %al
++	jnz	1f
++	movb	$25, %ch
++	jmp	1f
++3:	# If bit 4 was 1, it means either 1) 31 lines for hi-reso mode,
++	# or 2) 30 lines for PC-9821.
++	movb	$31, %ch	# hireso mode value
++	pushw	$0
++	popw	%es
++	testb	$0x08, %es:BIOS_FLAG
++	jnz	1f
++	movb	$30, %ch
++1:	# Now we got # of rows in %ch
++	movb	%ch, (14)
++
++	testb	$0x02, %al
++	jnz	2f
++	movb	$80, %cl
++2:	# Now we got # of columns in %cl
++	movb	%cl, (7)
++
++	# Next, get horizontal frequency if supported
++	movw	$0x3100, %ax
++	int	$0x18		# Call CRT bios
++	movb	%al, (6)	# If 31h is unsupported, %al remains 0
++
++# Get hd0-3 data...
++	pushw	%ds				# aka INITSEG
++	popw	%es
++	xorw	%ax, %ax
++	movw	%ax, %ds
++	cld
++	movw	$0x0080, %di
++	movb	DISK_EQUIP+1, %ah
++	movb	$0x80, %al
++
++get_hd_info:
++	shrb	%ah
++	pushw	%ax
++	jnc	1f
++	movb	$0x84, %ah
++	int	$0x1b
++	jnc	2f				# Success
++1:	xorw	%cx, %cx			# `0 cylinders' means no drive
++2:	# Attention! Work area (drive_info) is arranged for PC-9800.
++	movw	%cx, %ax			# # of cylinders
++	stosw
++	movw	%dx, %ax			# # of sectors / # of heads
++	stosw
++	movw	%bx, %ax			# sector size in bytes
++	stosw
++	popw	%ax
++	incb	%al
++	cmpb	$0x84, %al
++	jb	get_hd_info
++
++# Get fd data...
++	movw	DISK_EQUIP, %ax
++	andw	$0xf00f, %ax
++	orb	%al, %ah
++	movb	RDISK_EQUIP, %al
++	notb	%al
++	andb	%al, %ah			# ignore all `RAM drive'
++
++	movb	$0x30, %al
++
++get_fd_info:
++	shrb	%ah
++	pushw	%ax
++	jnc	1f
++	movb	$0xc4, %ah
++	int	$0x1b
++	movb	%ah, %al
++	andb	$4, %al				# 1.44MB support flag
++	shrb	%al
++	addb	$2, %al				# %al = 2 (1.2MB) or 4 (1.44MB)
++	jmp	2f
++1:	movb	$0, %al				# no drive
++2:	stosb
++	popw	%ax
++	incb	%al
++	testb	$0x04, %al
++	jz	get_fd_info
++
++	addb	$(0xb0 - 0x34), %al
++	jnc	get_fd_info			# check FDs on 640KB I/F
++
++	pushw	%es
++	popw	%ds				# %ds got bootsector again
++#if 0
++	mov	$0, (0x1ff)			# default is no pointing device
++#endif
++
++#if defined(CONFIG_APM) || defined(CONFIG_APM_MODULE)
++# Then check for an APM BIOS...
++						# %ds points to the bootsector
++	movw	$0, 0x40			# version = 0 means no APM BIOS
++	movw	$0x09a00, %ax			# APM BIOS installation check
++	xorw	%bx, %bx
++	int	$0x1f
++	jc	done_apm_bios			# Nope, no APM BIOS
++
++	cmpw	$0x0504d, %bx			# Check for "PM" signature
++	jne	done_apm_bios			# No signature, no APM BIOS
++
++	testb	$0x02, %cl			# Is 32 bit supported?
++	je	done_apm_bios			# No 32-bit, no (good) APM BIOS
++
++	movw	$0x09a04, %ax			# Disconnect first just in case
++	xorw	%bx, %bx
++	int	$0x1f				# ignore return code
++	movw	$0x09a03, %ax			# 32 bit connect
++	xorl	%ebx, %ebx
++	int	$0x1f
++	jc	no_32_apm_bios			# Ack, error.
++
++	movw	%ax,  (66)			# BIOS code segment
++	movl	%ebx, (68)			# BIOS entry point offset
++	movw	%cx,  (72)			# BIOS 16 bit code segment
++	movw	%dx,  (74)			# BIOS data segment
++	movl	%esi, (78)			# BIOS code segment length
++	movw	%di,  (82)			# BIOS data segment length
++# Redo the installation check as the 32 bit connect
++# modifies the flags returned on some BIOSs
++	movw	$0x09a00, %ax			# APM BIOS installation check
++	xorw	%bx, %bx
++	int	$0x1f
++	jc	apm_disconnect			# error -> shouldn't happen
++
++	cmpw	$0x0504d, %bx			# check for "PM" signature
++	jne	apm_disconnect			# no sig -> shouldn't happen
++
++	movw	%ax, (64)			# record the APM BIOS version
++	movw	%cx, (76)			# and flags
++	jmp	done_apm_bios
++
++apm_disconnect:					# Tidy up
++	movw	$0x09a04, %ax			# Disconnect
++	xorw	%bx, %bx
++	int	$0x1f				# ignore return code
++
++	jmp	done_apm_bios
++
++no_32_apm_bios:
++	andw	$0xfffd, (76)			# remove 32 bit support bit
++done_apm_bios:
++#endif
++
++# Pass cursor position to kernel...
++	movw	%cs:cursor_address, %ax
++	shrw	%ax		# cursor_address is 2 bytes unit
++	movb	$80, %cl
++	divb	%cl
++	xchgb	%al, %ah	# (0) = %al = X, (1) = %ah = Y
++	movw	%ax, (0)
++
++#if 0
++	movw	$msg_cpos, %si
++	call	prtstr_cs
++	call	prthex
++	call	prtstr_cs
++	movw	%ds, %ax
++	call	prthex
++	call	prtstr_cs
++	movb	$0x11, %ah
++	int	$0x18
++	movb	$0, %ah
++	int	$0x18
++	.section .rodata, "a"
++msg_cpos:	.string	"Cursor position: 0x"
++		.string	", %ds:0x"
++		.string	"\r\n"
++	.previous
++#endif
++
++# Now we want to move to protected mode ...
++	cmpw	$0, %cs:realmode_swtch
++	jz	rmodeswtch_normal
++
++	lcall	*%cs:realmode_swtch
++
++	jmp	rmodeswtch_end
++
++rmodeswtch_normal:
++        pushw	%cs
++	call	default_switch
++
++rmodeswtch_end:
++# we get the code32 start address and modify the below 'jmpi'
++# (loader may have changed it)
++	movl	%cs:code32_start, %eax
++	movl	%eax, %cs:code32
++
++# Now we move the system to its rightful place ... but we check if we have a
++# big-kernel. In that case we *must* not move it ...
++	testb	$LOADED_HIGH, %cs:loadflags
++	jz	do_move0			# .. then we have a normal low
++						# loaded zImage
++						# .. or else we have a high
++						# loaded bzImage
++	jmp	end_move			# ... and we skip moving
++
++do_move0:
++	movw	$0x100, %ax			# start of destination segment
++	movw	%cs, %bp			# aka SETUPSEG
++	subw	$DELTA_INITSEG, %bp		# aka INITSEG
++	movw	%cs:start_sys_seg, %bx		# start of source segment
++	cld
++do_move:
++	movw	%ax, %es			# destination segment
++	incb	%ah				# instead of add ax,#0x100
++	movw	%bx, %ds			# source segment
++	addw	$0x100, %bx
++	subw	%di, %di
++	subw	%si, %si
++	movw 	$0x800, %cx
++	rep
++	movsw
++	cmpw	%bp, %bx			# assume start_sys_seg > 0x200,
++						# so we will perhaps read one
++						# page more than needed, but
++						# never overwrite INITSEG
++						# because destination is a
++						# minimum one page below source
++	jb	do_move
++
++end_move:
++# then we load the segment descriptors
++	movw	%cs, %ax			# aka SETUPSEG
++	movw	%ax, %ds
++               
++# Check whether we need to be downward compatible with version <=201
++	cmpl	$0, cmd_line_ptr
++	jne	end_move_self		# loader uses version >=202 features
++	cmpb	$0x20, type_of_loader
++	je	end_move_self		# bootsect loader, we know of it
++ 
++# Boot loader doesnt support boot protocol version 2.02.
++# If we have our code not at 0x90000, we need to move it there now.
++# We also then need to move the params behind it (commandline)
++# Because we would overwrite the code on the current IP, we move
++# it in two steps, jumping high after the first one.
++	movw	%cs, %ax
++	cmpw	$SETUPSEG, %ax
++	je	end_move_self
++
++	cli					# make sure we really have
++						# interrupts disabled !
++						# because after this the stack
++						# should not be used
++	subw	$DELTA_INITSEG, %ax		# aka INITSEG
++	movw	%ss, %dx
++	cmpw	%ax, %dx
++	jb	move_self_1
++
++	addw	$INITSEG, %dx
++	subw	%ax, %dx			# this will go into %ss after
++						# the move
++move_self_1:
++	movw	%ax, %ds
++	movw	$INITSEG, %ax			# real INITSEG
++	movw	%ax, %es
++	movw	%cs:setup_move_size, %cx
++	std					# we have to move up, so we use
++						# direction down because the
++						# areas may overlap
++	movw	%cx, %di
++	decw	%di
++	movw	%di, %si
++	subw	$move_self_here+0x200, %cx
++	rep
++	movsb
++	ljmp	$SETUPSEG, $move_self_here
++
++move_self_here:
++	movw	$move_self_here+0x200, %cx
++	rep
++	movsb
++	movw	$SETUPSEG, %ax
++	movw	%ax, %ds
++	movw	%dx, %ss
++
++end_move_self:					# now we are at the right place
++	lidt	idt_48				# load idt with 0,0
++	xorl	%eax, %eax			# Compute gdt_base
++	movw	%ds, %ax			# (Convert %ds:gdt to a linear ptr)
++	shll	$4, %eax
++	addl	$gdt, %eax
++	movl	%eax, (gdt_48+2)
++	lgdt	gdt_48				# load gdt with whatever is
++						# appropriate
++
++# that was painless, now we enable A20
++
++	outb	%al, $0xf2			# A20 on
++	movb	$0x02, %al
++	outb	%al, $0xf6			# also A20 on; making ITF's
++						# way our model
++
++	# PC-9800 seems to enable A20 at the moment of `outb';
++	# so we don't wait unlike IBM PCs (see ../setup.S).
++
++# enable DMA to access memory over 0x100000 (1MB).
++
++	movw	$0x439, %dx
++	inb	%dx, %al
++	andb	$(~4), %al
++	outb	%al, %dx
++
++# Set DMA to increment its bank address automatically at 16MB boundary.
++# Initial setting is 64KB boundary mode so that we can't run DMA crossing
++# physical address 0xXXXXFFFF.
++
++	movb	$0x0c, %al
++	outb	%al, $0x29			# ch. 0
++	movb	$0x0d, %al
++	outb	%al, $0x29			# ch. 1
++	movb	$0x0e, %al
++	outb	%al, $0x29			# ch. 2
++	movb	$0x0f, %al
++	outb	%al, $0x29			# ch. 3
++	movb	$0x50, %al
++	outb	%al, $0x11			# reinitialize DMAC
++
++# make sure any possible coprocessor is properly reset..
++	movb	$0, %al
++	outb	%al, $0xf8
++	outb	%al, $0x5f			# delay
++
++# well, that went ok, I hope. Now we mask all interrupts - the rest
++# is done in init_IRQ().
++	movb	$0xFF, %al			# mask all interrupts for now
++	outb	%al, $0x0A
++	outb	%al, $0x5f			# delay
++	
++	movb	$0x7F, %al			# mask all irq's but irq7 which
++	outb	%al, $0x02			# is cascaded
++
++# Well, that certainly wasn't fun :-(. Hopefully it works, and we don't
++# need no steenking BIOS anyway (except for the initial loading :-).
++# The BIOS-routine wants lots of unnecessary data, and it's less
++# "interesting" anyway. This is how REAL programmers do it.
++#
++# Well, now's the time to actually move into protected mode. To make
++# things as simple as possible, we do no register set-up or anything,
++# we let the gnu-compiled 32-bit programs do that. We just jump to
++# absolute address 0x1000 (or the loader supplied one),
++# in 32-bit protected mode.
++#
++# Note that the short jump isn't strictly needed, although there are
++# reasons why it might be a good idea. It won't hurt in any case.
++	movw	$1, %ax				# protected mode (PE) bit
++	lmsw	%ax				# This is it!
++	jmp	flush_instr
++
++flush_instr:
++	xorw	%bx, %bx			# Flag to indicate a boot
++	xorl	%esi, %esi			# Pointer to real-mode code
++	movw	%cs, %si
++	subw	$DELTA_INITSEG, %si
++	shll	$4, %esi			# Convert to 32-bit pointer
++# NOTE: For high loaded big kernels we need a
++#	jmpi    0x100000,__KERNEL_CS
++#
++#	but we yet haven't reloaded the CS register, so the default size 
++#	of the target offset still is 16 bit.
++#       However, using an operand prefix (0x66), the CPU will properly
++#	take our 48 bit far pointer. (INTeL 80386 Programmer's Reference
++#	Manual, Mixing 16-bit and 32-bit code, page 16-6)
++
++	.byte 0x66, 0xea			# prefix + jmpi-opcode
++code32:	.long	0x1000				# will be set to 0x100000
++						# for big kernels
++	.word	__KERNEL_CS
++
++# Here's a bunch of information about your current kernel..
++kernel_version:	.ascii	UTS_RELEASE
++		.ascii	" ("
++		.ascii	LINUX_COMPILE_BY
++		.ascii	"@"
++		.ascii	LINUX_COMPILE_HOST
++		.ascii	") "
++		.ascii	UTS_VERSION
++		.byte	0
++
++# This is the default real mode switch routine.
++# to be called just before protected mode transition
++default_switch:
++	cli					# no interrupts allowed !
++	outb	%al, $0x50			# disable NMI for bootup
++						# sequence
++	lret
++
++# This routine only gets called, if we get loaded by the simple
++# bootsect loader _and_ have a bzImage to load.
++# Because there is no place left in the 512 bytes of the boot sector,
++# we must emigrate to code space here.
++bootsect_helper:
++	cmpw	$0, %cs:bootsect_es
++	jnz	bootsect_second
++
++	movb	$0x20, %cs:type_of_loader
++	movw	%es, %ax
++	shrw	$4, %ax
++	movb	%ah, %cs:bootsect_src_base+2
++	movw	%es, %ax
++	movw	%ax, %cs:bootsect_es
++	subw	$SYSSEG, %ax
++	lret					# nothing else to do for now
++
++bootsect_second:
++	pushw	%bx
++	pushw	%cx
++	pushw	%si
++	pushw	%di
++	testw	%bp, %bp			# 64K full ?
++	jne	bootsect_ex
++
++	xorw	%cx, %cx			# zero means full 64K
++	pushw	%cs
++	popw	%es
++	movw	$bootsect_gdt, %bx
++	xorw	%si, %si			# source address
++	xorw	%di, %di			# destination address
++	movb	$0x90, %ah
++	int	$0x1f
++	jc	bootsect_panic			# this, if INT1F fails
++
++	movw	%cs:bootsect_es, %es		# we reset %es to always point
++	incb	%cs:bootsect_dst_base+2		# to 0x10000
++bootsect_ex:
++	movb	%cs:bootsect_dst_base+2, %ah
++	shlb	$4, %ah				# we now have the number of
++						# moved frames in %ax
++	xorb	%al, %al
++	popw	%di
++	popw	%si
++	popw	%cx
++	popw	%bx
++	lret
++
++bootsect_gdt:
++	.word	0, 0, 0, 0
++	.word	0, 0, 0, 0
++
++bootsect_src:
++	.word	0xffff
++
++bootsect_src_base:
++	.byte	0x00, 0x00, 0x01		# base = 0x010000
++	.byte	0x93				# typbyte
++	.word	0				# limit16,base24 =0
++
++bootsect_dst:
++	.word	0xffff
++
++bootsect_dst_base:
++	.byte	0x00, 0x00, 0x10		# base = 0x100000
++	.byte	0x93				# typbyte
++	.word	0				# limit16,base24 =0
++	.word	0, 0, 0, 0			# BIOS CS
++	.word	0, 0, 0, 0			# BIOS DS
++
++bootsect_es:
++	.word	0
++
++bootsect_panic:
++	pushw	%cs
++	popw	%ds
++	cld
++	leaw	bootsect_panic_mess, %si
++	call	prtstr
++
++bootsect_panic_loop:
++	jmp	bootsect_panic_loop
++
++bootsect_panic_mess:
++	.string	"INT1F refuses to access high mem, giving up."
++
++# This routine prints one character (in %al) on console.
++# PC-9800 doesn't have BIOS-function to do it like IBM PC's INT 10h - 0Eh,
++# so we hardcode `prtchr' subroutine here.
++prtchr:
++	pushaw
++	pushw	%es
++	cmpb	$0, %cs:prtchr_initialized
++	jnz	prtchr_ok
++	xorw	%cx, %cx
++	movw	%cx, %es
++	testb	$0x8, %es:BIOS_FLAG
++	jz	1f
++	movb	$(HIRESO_TEXT >> 8), %cs:cursor_address+3
++	movw	$(80 * 31 * 2), %cs:max_cursor_offset
++1:	pushw	%ax
++	call	get_cursor_position
++	movw	%ax, %cs:cursor_address
++	popw	%ax
++	movb	$1, %cs:prtchr_initialized
++prtchr_ok:
++	lesw	%cs:cursor_address, %di
++	movw	$160, %bx
++	movb	$0, %ah
++	cmpb	$13, %al
++	je	do_cr
++	cmpb	$10, %al
++	je	do_lf
++
++	# normal (printable) character
++	stosw
++	movb	$0xe1, %es:0x2000-2(%di)
++	jmp	1f
++
++do_cr:	movw	%di, %ax
++	divb	%bl				# %al = Y, %ah = X * 2
++	mulb	%bl
++	movw	%ax, %dx
++	jmp	2f
++
++do_lf:	addw	%bx, %di
++1:	movw	%cs:max_cursor_offset, %cx
++	cmpw	%cx, %di
++	movw	%di, %dx
++	jb	2f
++	# cursor reaches bottom of screen; scroll it
++	subw	%bx, %dx
++	xorw	%di, %di
++	movw	%bx, %si
++	cld
++	subw	%bx, %cx
++	shrw	%cx
++	pushw	%cx
++	rep; es; movsw
++	movb	$32, %al			# clear bottom line characters
++	movb	$80, %cl
++	rep; stosw
++	movw	$0x2000, %di
++	popw	%cx
++	leaw	(%bx,%di), %si
++	rep; es; movsw
++	movb	$0xe1, %al			# clear bottom line attributes
++	movb	$80, %cl
++	rep; stosw
++2:	movw	%dx, %cs:cursor_address
++	movb	$0x13, %ah			# move cursor to right position
++	int	$0x18
++	popw	%es
++	popaw
++	ret
++
++cursor_address:
++	.word	0
++	.word	NORMAL_TEXT
++max_cursor_offset:
++	.word	80 * 25 * 2			# for normal 80x25 mode
++
++# putstr may called without running through start_of_setup (via bootsect_panic)
++# so we should initialize ourselves on demand.
++prtchr_initialized:
++	.byte	0
++
++# This routine queries GDC (graphic display controller) for current cursor
++# position. Cursor position is returned in %ax (CPU offset address).
++get_cursor_position:
++1:	inb	$0x60, %al
++	outb	%al, $0x5f			# delay
++	outb	%al, $0x5f			# delay
++	testb	$0x04, %al			# Is FIFO empty?
++	jz	1b				# no -> wait until empty
++
++	movb	$0xe0, %al			# CSRR command
++	outb	%al, $0x62			# command write
++	outb	%al, $0x5f			# delay
++	outb	%al, $0x5f			# delay
++
++2:	inb	$0x60, %al
++	outb	%al, $0x5f			# delay
++	outb	%al, $0x5f			# delay
++	testb	$0x01, %al			# Is DATA READY?
++	jz	2b				# no -> wait until ready
++
++	inb	$0x62, %al			# read xAD (L)
++	outb	%al, $0x5f			# delay
++	outb	%al, $0x5f			# delay
++	movb	%al, %ah
++	inb	$0x62, %al			# read xAD (H)
++	outb	%al, $0x5f			# delay
++	outb	%al, $0x5f			# delay
++	xchgb	%al, %ah			# correct byte order
++	pushw	%ax
++	inb	$0x62, %al			# read yAD (L)
++	outb	%al, $0x5f			# delay
++	outb	%al, $0x5f			# delay
++	inb	$0x62, %al			# read yAD (M)
++	outb	%al, $0x5f			# delay
++	outb	%al, $0x5f			# delay
++	inb	$0x62, %al			# read yAD (H)
++						# yAD is not our interest,
++						# so discard it.
++	popw	%ax
++	addw	%ax, %ax			# convert to CPU address
++	ret
++
++# Descriptor tables
++#
++# NOTE: if you think the GDT is large, you can make it smaller by just
++# defining the KERNEL_CS and KERNEL_DS entries and shifting the gdt
++# address down by GDT_ENTRY_KERNEL_CS*8. This puts bogus entries into
++# the GDT, but those wont be used so it's not a problem.
++#
++gdt:
++	.fill GDT_ENTRY_KERNEL_CS,8,0
++
++	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
++	.word	0				# base address = 0
++	.word	0x9A00				# code read/exec
++	.word	0x00CF				# granularity = 4096, 386
++						#  (+5th nibble of limit)
++
++	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
++	.word	0				# base address = 0
++	.word	0x9200				# data read/write
++	.word	0x00CF				# granularity = 4096, 386
++						#  (+5th nibble of limit)
++idt_48:
++	.word	0				# idt limit = 0
++	.word	0, 0				# idt base = 0L
++gdt_48:
++	.word	GDT_ENTRY_KERNEL_CS*8 + 16 - 1	# gdt limit
++
++	.word	0, 0				# gdt base (filled in later)
++
++# Include video setup & detection code
++
++#include "video.S"
++
++# Setup signature -- must be last
++setup_sig1:	.word	SIG1
++setup_sig2:	.word	SIG2
++
++# After this point, there is some free space which is used by the video mode
++# handling code to store the temporary mode table (not used by the kernel).
++
++modelist:
++
++.text
++endtext:
++.data
++enddata:
++.bss
++endbss:
+diff -urN linux/arch/i386/boot98/tools/build.c linux98/arch/i386/boot98/tools/build.c
+--- linux/arch/i386/boot98/tools/build.c	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/boot98/tools/build.c	Tue Oct  8 13:22:50 2002
+@@ -0,0 +1,188 @@
++/*
++ *  $Id: build.c,v 1.5 1997/05/19 12:29:58 mj Exp $
++ *
++ *  Copyright (C) 1991, 1992  Linus Torvalds
++ *  Copyright (C) 1997 Martin Mares
++ */
++
++/*
++ * This file builds a disk-image from three different files:
++ *
++ * - bootsect: exactly 512 bytes of 8086 machine code, loads the rest
++ * - setup: 8086 machine code, sets up system parm
++ * - system: 80386 code for actual system
++ *
++ * It does some checking that all files are of the correct type, and
++ * just writes the result to stdout, removing headers and padding to
++ * the right amount. It also writes some system data to stderr.
++ */
++
++/*
++ * Changes by tytso to allow root device specification
++ * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
++ * Cross compiling fixes by Gertjan van Wingerde, July 1996
++ * Rewritten by Martin Mares, April 1997
++ */
++
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <stdarg.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/sysmacros.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <asm/boot.h>
++
++typedef unsigned char byte;
++typedef unsigned short word;
++typedef unsigned long u32;
++
++#define DEFAULT_MAJOR_ROOT 0
++#define DEFAULT_MINOR_ROOT 0
++
++/* Minimal number of setup sectors (see also bootsect.S) */
++#define SETUP_SECTS 4
++
++byte buf[1024];
++int fd;
++int is_big_kernel;
++
++void die(const char * str, ...)
++{
++	va_list args;
++	va_start(args, str);
++	vfprintf(stderr, str, args);
++	fputc('\n', stderr);
++	exit(1);
++}
++
++void file_open(const char *name)
++{
++	if ((fd = open(name, O_RDONLY, 0)) < 0)
++		die("Unable to open `%s': %m", name);
++}
++
++void usage(void)
++{
++	die("Usage: build [-b] bootsect setup system [rootdev] [> image]");
++}
++
++int main(int argc, char ** argv)
++{
++	unsigned int i, c, sz, setup_sectors;
++	u32 sys_size;
++	byte major_root, minor_root;
++	struct stat sb;
++
++	if (argc > 2 && !strcmp(argv[1], "-b"))
++	  {
++	    is_big_kernel = 1;
++	    argc--, argv++;
++	  }
++	if ((argc < 4) || (argc > 5))
++		usage();
++	if (argc > 4) {
++		if (!strcmp(argv[4], "CURRENT")) {
++			if (stat("/", &sb)) {
++				perror("/");
++				die("Couldn't stat /");
++			}
++			major_root = major(sb.st_dev);
++			minor_root = minor(sb.st_dev);
++		} else if (strcmp(argv[4], "FLOPPY")) {
++			if (stat(argv[4], &sb)) {
++				perror(argv[4]);
++				die("Couldn't stat root device.");
++			}
++			major_root = major(sb.st_rdev);
++			minor_root = minor(sb.st_rdev);
++		} else {
++			major_root = 0;
++			minor_root = 0;
++		}
++	} else {
++		major_root = DEFAULT_MAJOR_ROOT;
++		minor_root = DEFAULT_MINOR_ROOT;
++	}
++	fprintf(stderr, "Root device is (%d, %d)\n", major_root, minor_root);
++
++	file_open(argv[1]);
++	i = read(fd, buf, sizeof(buf));
++	fprintf(stderr,"Boot sector %d bytes.\n",i);
++	if (i != 512)
++		die("Boot block must be exactly 512 bytes");
++	if (buf[510] != 0x55 || buf[511] != 0xaa)
++		die("Boot block hasn't got boot flag (0xAA55)");
++	buf[508] = minor_root;
++	buf[509] = major_root;
++	if (write(1, buf, 512) != 512)
++		die("Write call failed");
++	close (fd);
++
++	file_open(argv[2]);				    /* Copy the setup code */
++	for (i=0 ; (c=read(fd, buf, sizeof(buf)))>0 ; i+=c )
++		if (write(1, buf, c) != c)
++			die("Write call failed");
++	if (c != 0)
++		die("read-error on `setup'");
++	close (fd);
++
++	setup_sectors = (i + 511) / 512;	/* Pad unused space with zeros */
++	if (!(setup_sectors & 1))
++		setup_sectors++;    /* setup_sectors must be odd on NEC PC-9800 */
++	fprintf(stderr, "Setup is %d bytes.\n", i);
++	memset(buf, 0, sizeof(buf));
++	while (i < setup_sectors * 512) {
++		c = setup_sectors * 512 - i;
++		if (c > sizeof(buf))
++			c = sizeof(buf);
++		if (write(1, buf, c) != c)
++			die("Write call failed");
++		i += c;
++	}
++
++	file_open(argv[3]);
++	if (fstat (fd, &sb))
++		die("Unable to stat `%s': %m", argv[3]);
++	sz = sb.st_size;
++	fprintf (stderr, "System is %d kB\n", sz/1024);
++	sys_size = (sz + 15) / 16;
++	/* 0x28000*16 = 2.5 MB, conservative estimate for the current maximum */
++	if (sys_size > (is_big_kernel ? 0x28000 : DEF_SYSSIZE))
++		die("System is too big. Try using %smodules.",
++			is_big_kernel ? "" : "bzImage or ");
++	if (sys_size > 0xefff)
++		fprintf(stderr,"warning: kernel is too big for standalone boot "
++		    "from floppy\n");
++	while (sz > 0) {
++		int l, n;
++
++		l = (sz > sizeof(buf)) ? sizeof(buf) : sz;
++		if ((n=read(fd, buf, l)) != l) {
++			if (n < 0)
++				die("Error reading %s: %m", argv[3]);
++			else
++				die("%s: Unexpected EOF", argv[3]);
++		}
++		if (write(1, buf, l) != l)
++			die("Write failed");
++		sz -= l;
++	}
++	close(fd);
++
++	if (lseek(1, 497, SEEK_SET) != 497)		    /* Write sizes to the bootsector */
++		die("Output: seek failed");
++	buf[0] = setup_sectors;
++	if (write(1, buf, 1) != 1)
++		die("Write of setup sector count failed");
++	if (lseek(1, 500, SEEK_SET) != 500)
++		die("Output: seek failed");
++	buf[0] = (sys_size & 0xff);
++	buf[1] = ((sys_size >> 8) & 0xff);
++	if (write(1, buf, 2) != 2)
++		die("Write of image length failed");
++
++	return 0;					    /* Everything is OK */
++}
+diff -urN linux/arch/i386/boot98/video.S linux98/arch/i386/boot98/video.S
+--- linux/arch/i386/boot98/video.S	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/boot98/video.S	Fri Aug 17 21:50:16 2001
+@@ -0,0 +1,262 @@
++/*	video.S
++ *
++ *  Video mode setup, etc. for NEC PC-9800 series.
++ *
++ *  Copyright (C) 1997,98,99  Linux/98 project  <seraphim@kmc.kyoto-u.ac.jp>
++ *
++ *  Based on the video.S for IBM PC:
++ *	copyright (C) Martin Mares <mj@atrey.karlin.mff.cuni.cz>
++ */
++
++/* Positions of various video parameters passed to the kernel */
++/* (see also include/linux/tty.h) */
++#define PARAM_CURSOR_POS	0x00
++#define PARAM_VIDEO_PAGE	0x04
++#define PARAM_VIDEO_MODE	0x06
++#define PARAM_VIDEO_COLS	0x07
++#define PARAM_VIDEO_EGA_BX	0x0a
++#define PARAM_VIDEO_LINES	0x0e
++#define PARAM_HAVE_VGA		0x0f
++#define PARAM_FONT_POINTS	0x10
++
++#define PARAM_VIDEO98_COMPAT	0x0a
++#define PARAM_VIDEO98_HIRESO	0x0b
++#define PARAM_VIDEO98_MACHTYPE	0x0c
++#define PARAM_VIDEO98_LINES	0x0e
++#define PARAM_VIDEO98_COLS	0x0f
++
++# PARAM_LFB_* and PARAM_VESAPM_* are unused on PC-9800.
++
++# This is the main entry point called by setup.S
++# %ds *must* be pointing to the bootsector
++video:	xorw	%ax, %ax
++	movw	%ax, %es			# %es = 0
++
++	movb	%es:BIOS_FLAG, %al
++	movb	%al, PARAM_VIDEO_MODE
++
++	movb	$0, PARAM_VIDEO98_HIRESO	# 0 = normal
++	movw	$NORMAL_TEXT, PARAM_VIDEO_PAGE
++	testb	$0x8, %al
++	movw	$(80 * 256 + 25), %ax
++	jz	1f
++	# hireso machine.
++	movb	$1, PARAM_VIDEO98_HIRESO	# !0 = hi-reso
++	movb	$(HIRESO_TEXT >> 8), PARAM_VIDEO_PAGE + 1
++	movw	$(80 * 256 + 31), %ax
++1:	movw	%ax, PARAM_VIDEO98_LINES	# also sets VIDEO98_COLS
++
++	movb	$0xc0, %ch			# 400-line graphic mode
++	movb	$0x42, %ah
++	int	$0x18
++
++	movw	$80, PARAM_VIDEO_COLS
++
++	movw	$msg_probing, %si
++	call	prtstr_cs
++
++# Check vendor from font pattern of `A'...
++
++1:	inb	$0x60, %al			# wait V-sync
++	testb	$0x20, %al
++	jnz	1b
++2:	inb	$0x60, %al
++	testb	$0x20, %al
++	jz	2b
++
++	movb	$0x00, %al			# select font of `A'
++	outb	%al, $0xa1
++	movb	$0x41, %al
++	outb	%al, $0xa3
++
++	movw	$8, %cx
++	movw	PARAM_VIDEO_PAGE, %ax
++	cmpw	$NORMAL_TEXT, %ax
++	je	3f
++	movb	$24, %cl			# for hi-reso machine
++3:	addw	$0x400, %ax			# %ax = CG window segment
++	pushw	%ds
++	movw	%ax, %ds
++	xorw	%dx, %dx			# get sum of `A' pattern...
++	xorw	%si, %si
++4:	lodsw
++	addw	%ax, %dx
++	loop	4b
++	popw	%ds
++
++	movw	%dx, %ax
++	movw	$msg_nec, %si
++	xorw	%bx, %bx			# vendor info will go into %bx
++	testb	$8, %es:BIOS_FLAG
++	jnz	check_hireso_vendor
++	cmpw	$0xc7f8, %ax
++	je	5f
++	jmp	6f
++check_hireso_vendor:
++	cmpw	$0x9639, %ax			# XXX: NOT VERIFIED!!!
++	je	5f
++6:	incw	%bx				# compatible machine
++	movw	$msg_compat, %si
++5:	movb	%bl, PARAM_VIDEO98_COMPAT
++	call	prtstr_cs
++
++	movw	$msg_fontdata, %si
++	call	prtstr_cs			# " (CG sum of A = 0x"
++	movw	%dx, %ax
++	call	prthex
++	call	prtstr_cs			# ") PC-98"
++
++	movb	$'0', %al
++	pushw	%ds
++	pushw	$0xf8e8
++	popw	%ds
++	cmpw	$0x2198, (0)
++	popw	%ds
++	jne	7f
++	movb	$'2', %al
++7:	call	prtchr
++	call	prtstr_cs			# "1 "
++
++	movb	$0, PARAM_VIDEO98_MACHTYPE
++#if 0	/* XXX - This check is bogus? [0000:BIOS_FLAG2]-bit7 does NOT
++		 indicate whether it is a note machine, but merely indicates
++		 whether it has ``RAM drive''. */
++# check note machine
++	testb	$0x80, %es:BIOS_FLAG2
++	jnz	is_note
++	pushw	%ds
++	pushw	$0xfd80
++	popw	%ds
++	movb	(4), %al
++	popw	%ds
++	cmpb	$0x20, %al			# EPSON note A
++	je	epson_note
++	cmpb	$0x22, %al			# EPSON note W
++	je	epson_note
++	cmpb	$0x27, %al			# EPSON note AE
++	je	epson_note
++	cmpb	$0x2a, %al			# EPSON note WR
++	jne	note_done
++epson_note:
++	movb	$1, PARAM_VIDEO98_MACHTYPE
++	movw	$msg_note, %si
++	call	prtstr_cs
++note_done:
++#endif
++	
++# print h98 ? (only NEC)
++	cmpb	$0, PARAM_VIDEO98_COMPAT
++	jnz	8f				# not NEC -> not H98
++
++	testb	$0x80, %es:BIOS_FLAG5
++	jz	8f				# have NESA bus -> H98
++	movw	$msg_h98, %si
++	call	prtstr_cs
++	orb	$2, PARAM_VIDEO98_MACHTYPE
++8:	testb	$0x40, %es:BIOS_FLAG5
++	jz	9f
++	movw	$msg_gs, %si
++	call	prtstr_cs			# only prints it :-)
++9:
++	movw	$msg_normal, %si		# "normal"
++	testb	$0x8, %es:BIOS_FLAG
++	jz	1f
++	movw	$msg_hireso, %si
++1:	call	prtstr_cs
++
++	movw	$msg_sysclk, %si
++	call	prtstr_cs
++	movb	$'5', %al
++	testb	$0x80, %es:BIOS_FLAG
++	jz	2f
++	movb	$'8', %al
++2:	call	prtchr
++	call	prtstr_cs
++
++#if 0
++	testb	$0x40, %es:(0x45c)
++	jz	no_30line			# no 30-line support
++
++	movb	%es:KB_SHFT_STS, %al
++	testb	$0x01, %al			# is SHIFT key pressed?
++	jz	no_30line
++
++	testb	$0x10, %al			# is CTRL key pressed?
++	jnz	line40
++
++	# switch to 30-line mode
++	movb	$30, PARAM_VIDEO98_LINES
++	movw	$msg_30line, %si
++	jmp	3f
++
++line40:
++	movb	$37, PARAM_VIDEO98_LINES
++	movw	$40, PARAM_VIDEO_LINES
++	movw	$msg_40line, %si
++3:	call	prtstr_cs
++
++	movb	$0x32, %bh
++	movw	$0x300c, %ax
++	int	$0x18				# switch video mode
++	movb	$0x0c, %ah
++	int	$0x18				# turn on text plane
++	movw	%cs:cursor_address, %dx
++	movb	$0x13, %ah
++	int	$0x18				# move cursor to correct place
++	mov	$0x11, %ah
++	int	$0x18				# turn on text plane
++
++	call	prtstr_cs			# "Ok.\r\n"
++no_30line:
++#endif
++	ret
++
++prtstr_cs:
++	pushw	%ds
++	pushw	%cs
++	popw	%ds
++	call	prtstr
++	popw	%ds
++	ret
++
++# prthex is for debugging purposes, and prints %ax in hexadecimal.
++prthex:	pushw	%cx
++	movw	$4, %cx
++1:	rolw	$4, %ax
++	pushw	%ax
++	andb	$0xf, %al
++	cmpb	$10, %al
++	sbbb	$0x69, %al
++	das
++	call	prtchr
++	popw	%ax
++	loop	1b
++	popw	%cx
++	ret
++
++msg_probing:	.string	"Probing machine: "
++
++msg_nec:	.string	"NEC"
++msg_compat:	.string	"compatible"
++
++msg_fontdata:	.string	" (CG sum of A = 0x"
++		.string	") PC-98"
++		.string	"1 "
++
++msg_gs:		.string	"(GS) "
++msg_h98:	.string	"(H98) "
++
++msg_normal:	.string	"normal"
++msg_hireso:	.string	"Hi-reso"
++
++msg_sysclk:	.string	" mode, system clock "
++		.string	"MHz\r\n"
++
++#if 0
++msg_40line:	# cpp will concat following lines, so the assembler can deal.
++		.ascii	"\
++Video mode will be adjusted to 37-line (so-called ``40-line'') mode later.\r\n\
++THIS MODE MAY DAMAGE YOUR MONITOR PHYSICALLY. USE AT YOUR OWN RISK.\r\n"
++msg_30line:	.string	"Switching video mode to 30-line (640x480) mode... "
++		.string	"Ok.\r\n"
++#endif

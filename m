@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbTEZRtq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTEZRtq
+	id S261928AbTEZRuf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTEZRuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:49:46 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:58129 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S261969AbTEZRtf (ORCPT
+	Mon, 26 May 2003 13:50:35 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:58641 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S261968AbTEZRtv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:49:35 -0400
+	Mon, 26 May 2003 13:49:51 -0400
 Subject: OUPS 2.5.69-bk19 sonypi irq 11: nobody cared!
 From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
 To: stelian@popies.net
 Cc: lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Organization: K4 labs
-Message-Id: <1053971417.1968.11.camel@nalesnik.localhost>
+Message-Id: <1053971418.2003.13.camel@nalesnik.localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.4 
-Date: 26 May 2003 18:50:19 +0100
+Date: 26 May 2003 18:50:36 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org

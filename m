@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbTJAAEc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 20:04:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbTJAAEb
+	id S261801AbTI3XwG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 19:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbTI3Xuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 20:04:31 -0400
-Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:63697 "EHLO
-	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S261840AbTJAACG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 20:02:06 -0400
-Subject: Re: 2.6.0-test6: more __init bugs
-From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F795001.9020104@mvista.com>
-References: <1064955628.5734.229.camel@dooby.cs.berkeley.edu> 
-	<3F795001.9020104@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 30 Sep 2003 17:02:03 -0700
-Message-Id: <1064966523.5734.246.camel@dooby.cs.berkeley.edu>
+	Tue, 30 Sep 2003 19:50:39 -0400
+Received: from mail.kroah.org ([65.200.24.183]:63719 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261797AbTI3Xuc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 19:50:32 -0400
+Date: Tue, 30 Sep 2003 16:32:51 -0700
+From: Greg KH <greg@kroah.com>
+To: Xose Vazquez Perez <xose@wanadoo.es>
+Cc: netdev@oss.sgi.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] pci.ids for e1000
+Message-ID: <20030930233251.GA21422@kroah.com>
+References: <3F621965.4070106@wanadoo.es>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F621965.4070106@wanadoo.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-30 at 02:42, Corey Minyard wrote:
-> This is not actually a bug, but it may be bad style (and thus could lead 
-> to a bug).  It is possible that something that uses IPMI can do some 
-> IPMI things before IPMI is initialized.  This can only happen during 
-> initialization, though.  Thus the check; once IPMI is initialized the 
-> function will never be called.
+On Fri, Sep 12, 2003 at 09:07:17PM +0200, Xose Vazquez Perez wrote:
+> Jeff Garzik wrote:
 > 
-> What's the opinion on this?  Should I just force IPMI users to 
-> initialize after IPMI?
+> > The general idea is to keep 2.4, 2.6, and pciids.sf.net in sync.
+> 
+> is there sync between 2.4, 2.6, and pciids.sf.net ?  ;-)
+> 
+> Linus and Marcelo should not accept patches against pci.ids,
+> all updates should go to pciids.sf.net. And every X time
+> to do a sync with 2.4 and 2.6.
 
-Thanks for looking at it.  Would it be reasonable to fail if a client
-tries to use the ipmi interface before it is initialized?  That would be
-a simple change, e.g.:
+I'd love to see a volunteer to try to sync these files up and routinely
+send updates to the pci maintainers of the different kernel trees.
 
-if (!initialized)
-       return -ENODEV;
+Anyone?
 
-Best,
-Rob
+I also agree with David, it's completly acceptable for drivers to add
+their ids to this file when they are added to the kernel tree.
 
+thanks,
 
+greg k-h

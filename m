@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272859AbRIGVrC>; Fri, 7 Sep 2001 17:47:02 -0400
+	id <S272867AbRIGVpC>; Fri, 7 Sep 2001 17:45:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272857AbRIGVqw>; Fri, 7 Sep 2001 17:46:52 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:21769 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S272859AbRIGVqq>; Fri, 7 Sep 2001 17:46:46 -0400
-Message-ID: <3B994057.CA799CC3@zip.com.au>
-Date: Fri, 07 Sep 2001 14:47:03 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@ufl.edu>
-CC: lkml <linux-kernel@vger.kernel.org>,
-        "ext3-users@redhat.com" <ext3-users@redhat.com>
-Subject: Re: ext3-2.4-0.9.9
-In-Reply-To: <3B991346.7393E7AF@zip.com.au>,
-		<3B991346.7393E7AF@zip.com.au> <999897902.839.3.camel@phantasy>
+	id <S272862AbRIGVox>; Fri, 7 Sep 2001 17:44:53 -0400
+Received: from pirx.hexapodia.org ([208.42.114.113]:41485 "HELO
+	pirx.hexapodia.org") by vger.kernel.org with SMTP
+	id <S272857AbRIGVog>; Fri, 7 Sep 2001 17:44:36 -0400
+Date: Fri, 7 Sep 2001 16:44:56 -0500
+From: Andy Isaacson <adi@hexapodia.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB IRQ routing problems on Via Apollo Pro 133A
+Message-ID: <20010907164456.A27672@hexapodia.org>
+In-Reply-To: <20010906004520.A2891@hexapodia.org> <20010906202536.A11264@middle.of.nowhere> <20010907154129.B9370@hexapodia.org> <20010907135703.D25421@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010907135703.D25421@kroah.com>; from greg@kroah.com on Fri, Sep 07, 2001 at 01:57:03PM -0700
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Fri, Sep 07, 2001 at 01:57:03PM -0700, Greg KH wrote:
+> On Fri, Sep 07, 2001 at 03:41:29PM -0500, Andy Isaacson wrote:
+> > Booting a non-APIC kernel makes it work, of course.
+> > 
+> > The system is a Tyan Tiger 133A, Via Apollo Pro 133A chipset, SMP,
+> > currently running 2.4.9.  Complete dmesg, lspci -vvvvxxxx, and
+> > /proc/interrupts are at
+> > http://web.hexapodia.org/~adi/straum/usb/
 > 
-> For reference, I am using 2.4.9-ac9 + ext3-0.9.9 + dir_speedup +
-> kpreempt with no problem.  I have my root mounted as ext3, type ordered,
-> with a local journal.
-> 
-> I don't have any data points on performance gains, but I would be happy
-> to provide any if you specify what.  Everything feels good.
+> That's the only solution to enable the on board USB controller for this
+> motherboard, sorry.  If you can't live with noapic mode, spend $20 for
+> a PCI USB controller.
 
-OK, thanks.
+Are you claiming that the USB controller IRQ line isn't routed to the
+APIC?  If so, I'm curious as to any evidence you can provide to that
+effect.
 
-> I see no reason not to merge this into Alan's tree.  At least
-> ext3-0.9.9, but the directory speedup seems reasonable enough too.
+I'd appreciate a pointer to any discussion or whatnot.  URL?  Or even a
+suggestion for where to search?  I think I've looked pretty
+thoroughly...
 
-Well, it's a fairly large diff, so it's best to not force it onto
-people until volunteer testers have had a week or so to try it out.
+But looking at noapic mode a bit more closely, it appears likely that I
+can survive with its limitations, so thanks for the tip!
 
--
+-andy

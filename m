@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130093AbRBASiV>; Thu, 1 Feb 2001 13:38:21 -0500
+	id <S129730AbRBASlM>; Thu, 1 Feb 2001 13:41:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129730AbRBASiL>; Thu, 1 Feb 2001 13:38:11 -0500
-Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:9931 "HELO
-	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S130601AbRBASiE>; Thu, 1 Feb 2001 13:38:04 -0500
-Message-ID: <FEEBE78C8360D411ACFD00D0B747797188097A@xsj02.sjs.agilent.com>
-From: hiren_mehta@agilent.com
-To: linux-kernel@vger.kernel.org
-Subject: problem with devfsd compilation
-Date: Thu, 1 Feb 2001 11:37:59 -0700 
+	id <S130866AbRBASlC>; Thu, 1 Feb 2001 13:41:02 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:12528 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129730AbRBASkn>; Thu, 1 Feb 2001 13:40:43 -0500
+Date: Thu, 1 Feb 2001 16:39:32 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Christoph Hellwig <hch@caldera.de>, "Stephen C. Tweedie" <sct@redhat.com>,
+        bsuparna@in.ibm.com, linux-kernel@vger.kernel.org,
+        kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+ /notify + callback chains
+In-Reply-To: <E14OOQ2-0004nq-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0102011637420.1321-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 1 Feb 2001, Alan Cox wrote:
 
-I am trying to compile devfsd on my system running RedHat linux 7.0
-(kernel 2.2.16-22). I get the error "RTLD_NEXT" undefined. I am not
-sure where this symbol is defined. Is there anything that I am missing 
-on my system. 
+> > Now one could say: just let the networkers use their own kind of buffers
+> > (and that's exactly what is done in the zerocopy patches), but that again leds
+> > to inefficient buffer passing and ungeneric IO handling.
 
-Also, I applied the devfs patch to the kernel, installed the new
-kernel, modified lilo.conf, ran lilo and rebooted the system
-with the  option "devfs=nomount". The system is able to mount
-the root file system in readonly mode. But after that when
-it tries to do fsck to the root file system before mounting 
-it in "rw" mode, it fails. Looks like devfs seems to be
-having a problem with my /etc/fstab. My /etc/fstab has device names
-specified in the "LABEL=.." format. Does devfs understand LABEL=..
-format ?
+	[snip]
+> It is quite possible that the right thing to do is to do
+> conversions in the cases it happens.
 
-Any help is appreciated.
+OTOH, somehow a zero-copy system which converts the zero-copy
+metadata every time the buffer is handed to another subsystem
+just doesn't sound right ...
 
--hiren
+(well, maybe it _is_, but it looks quite inefficient at first
+glance)
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

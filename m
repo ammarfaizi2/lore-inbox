@@ -1,95 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbUL0XOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbUL0XSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbUL0XOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 18:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbUL0XOY
+	id S261892AbUL0XSU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 18:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUL0XSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 18:14:24 -0500
-Received: from gateway.penguincomputing.com ([64.243.132.186]:64728 "EHLO
-	inside.penguincomputing.com") by vger.kernel.org with ESMTP
-	id S261996AbUL0XAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 18:00:55 -0500
-Message-ID: <41D0942B.8020109@penguincomputing.com>
-Date: Mon, 27 Dec 2004 15:00:59 -0800
-From: Philip Pokorny <ppokorny@penguincomputing.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LM Sensors <sensors@Stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-CC: Greg KH <greg@kroah.com>
-Subject: Re: [RFC] I2C: Remove the i2c_client id field
-References: <20041227230402.272fafd0.khali@linux-fr.org>
-In-Reply-To: <20041227230402.272fafd0.khali@linux-fr.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Dec 2004 18:18:20 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:21798 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261892AbUL0XSQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 18:18:16 -0500
+Date: Tue, 28 Dec 2004 00:19:34 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Georg Prenner <georg.prenner@aon.at>, linux-kernel@vger.kernel.org
+Subject: Re: make errors (make clean, make menuconfig) make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
+Message-ID: <20041227231934.GA9251@mars.ravnborg.org>
+Mail-Followup-To: Georg Prenner <georg.prenner@aon.at>,
+	linux-kernel@vger.kernel.org
+References: <41D08472.6010404@aon.at> <20041227224833.GA8206@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041227224833.GA8206@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So only the drives I wrote use the ID in a meaningful way?
+On Mon, Dec 27, 2004 at 11:48:33PM +0100, Sam Ravnborg wrote:
+> > I am having a problem when executing "make menuconfig" on my fresh 
+> > extracted 2.6.10 kernel.
+> > 
+> > The error message is like this:
+> > 
+> > make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
+> > make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
+> > make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
+> > make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
+...
 
-What do you propose to replace the ID value in the debug messages with? 
- Ideally it would be the things you mention that uniquely identify the 
-chip in question (bus number and address)
+It is the following code snippet that causes the troubles:
+---
+outputmakefile:
+        $(Q)if /usr/bin/env test ! $(srctree) -ef $(objtree); then \
+        $(CONFIG_SHELL) $(srctree)/scripts/mkmakefile
+---
 
-How hard are those values to get at?  Do we have to chase possibly NULL 
-pointers?
+I've now tried differents way to reproduce the error without luck.
+You are the second person reporting this - and I assumed from fitst
+poster this was a symlink issue. But I cannot reporduce it here.
 
-:v)
+One person coul not locate /usr/bin/env - but that did not trigger
+anythin renaming that file to something else.
 
-Jean Delvare wrote:
+Could you please drop a mail with full log what you do before seeing
+this bug.
 
->Hi Greg, hi all,
->
->While porting various hardware monitoring drivers to Linux 2.6 and
->otherwise working on i2c drivers in 2.6, I found that the i2c_client
->structure has an "id" field (of type int) which is mostly unused. I am
->not exactly sure why it was introduced in the first place, and since the
->i2c subsystem code was significantly reworked since, it might not
->actually matter.
->
->Most hardware monitoring drivers allocate a unique (per driver) id
->through an incremented static global variable, and never use it. Some
->(lm85 and most notably adm1026) use the value in debug messages. I saw
->various video drivers appending the id value to the client name between
->square brackets, while others would set the id field to -1 and then
->leave it alone. The i2c core itself doesn't use this field.
->
->Using this field to identify a client doesn't make much sense to me, for
->the following reasons:
->
->1* A client is already uniquely identified by the combination of the
->number of the bus it sits on and the address it is located at on this
->bus.
->
->2* With the implementation described above, the id will possibly change
->depending on which i2c bus drivers are loaded and the order they were
->loaded in. As a consequence, you can't rely on its value from
->user-space, and its usability in kernel-space isn't obvious either.
->
->3* As a matter of fact, no driver in the kernel tree uses this field
->except for debugging (and even then with no obvious benefit), with only
->a few exceptions where I could easily change the code so it wouldn't
->need this field anymore.
->
->Thus, I propose that we simply get rid of this field, so as to save some
->memory space and kill some useless code. If anyone really ever needs to
->carry some sort of id attached to an i2c_client structure, this is
->private data and can be added to whatever structure the data field is
->pointing to for this particular driver.
->
->Unless someone objects with valid reasons, I am going to send patches to
->kill the i2c_client id field. I have everything ready, but don't know
->exactly how I should send them. The difficulty comes from the relatively
->large number of affected drivers (50) and the fact that they spread over
->very different subsystems (the big ones are i2c and media/video, plus
->half a dozen drivers in acorn/char, macintoch and sound).
->
->Greg, can you tell me if you would take such a patch, and how I would
->have to split it for you to accept it?
->
->Thanks,
->  
->
-
+	Sam
 

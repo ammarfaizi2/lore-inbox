@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266085AbUGZVMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265946AbUGZVNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266085AbUGZVMY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 17:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUGZU5y
+	id S265946AbUGZVNz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 17:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUGZVMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 16:57:54 -0400
-Received: from [66.35.79.110] ([66.35.79.110]:38574 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S266081AbUGZUqf (ORCPT
+	Mon, 26 Jul 2004 17:12:39 -0400
+Received: from thunk.org ([140.239.227.29]:7066 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S266075AbUGZVEz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 16:46:35 -0400
-Date: Mon, 26 Jul 2004 13:44:57 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: Greg KH <greg@kroah.com>
-Cc: Oliver Neukum <oliver@neukum.org>, Robert Love <rml@ximian.com>,
-       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       Andrew Morton <akpm@osdl.org>, cw@f00f.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel events layer
-Message-ID: <20040726204457.GA10970@hockin.org>
-References: <F989B1573A3A644BAB3920FBECA4D25A6EBFB5@orsmsx407> <1090853403.1973.11.camel@localhost> <20040726161221.GC17449@kroah.com> <200407262013.33454.oliver@neukum.org> <20040726190305.GA19498@kroah.com>
+	Mon, 26 Jul 2004 17:04:55 -0400
+Date: Mon, 26 Jul 2004 15:57:16 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: ext3 and SPEC SFS Run rules.
+Message-ID: <20040726195716.GB8144@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040726000313.3fbf8403.akpm@osdl.org> <Pine.LNX.4.44.0407261010400.32233-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040726190305.GA19498@kroah.com>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <Pine.LNX.4.44.0407261010400.32233-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 26, 2004 at 03:03:05PM -0400, Greg KH wrote:
-> > On a related note, is this supposed to supersede the current hotplug
-> > mechanism?
+On Mon, Jul 26, 2004 at 10:12:01AM +0100, Tigran Aivazian wrote:
+> On Mon, 26 Jul 2004, Andrew Morton wrote:
+> > ext3 should be fully syncing data and metadata for both fsync() and O_SYNC
+> > writes in all three journalling modes.  If not, that's a big bug.
 > 
-> No, it will not.  At the most, it will report the same information to
-> make it easier for userspace programs who want to get the other
-> event information, also get the hotplug stuff through the same
-> interface, reducing their complexity.
-> 
-> So the existing hotplug interface is not going away at all.  Do not even
-> begin to think that :)
+> Ok, so, can I conclude that you are therefore saying that ext3 (with 
+> default mount options) is compliant with SPEC SFS Run rules wrt NFS 
+> protocol requirements:
 
-What about flipping it around and using either hotplug or a hotplug-like
-mechanism for these events?
+This is up to the NFS server, not to the underlying filesystem.  It
+would be insane for every single local write() to have mandatory
+O_SYNC semantics, even if it is required by the NFS protocol.  
 
-It solves the issue of events being dropped when there is no listening
-daemon...
+In modern Linux implementations of the NFS server, you can specify
+whether or not the synchronization semantics as demanded by the NFS
+protocol, or whether the more relaxed async writebacks are done.
+Obviously, this has some pretty serious performance vs robustness
+implications.
 
-These are not going to be high-traffic messages, right, so the overhead is
-negligible...
+						- Ted

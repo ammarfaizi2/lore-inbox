@@ -1,100 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267534AbRGZCF0>; Wed, 25 Jul 2001 22:05:26 -0400
+	id <S267524AbRGZCFG>; Wed, 25 Jul 2001 22:05:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267541AbRGZCFR>; Wed, 25 Jul 2001 22:05:17 -0400
-Received: from mail.myrio.com ([63.109.146.2]:14322 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S267534AbRGZCFH>;
-	Wed, 25 Jul 2001 22:05:07 -0400
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0214A6C7@mail0.myrio.com>
-From: Nat Ersoz <nat.ersoz@myrio.com>
+	id <S267534AbRGZCE4>; Wed, 25 Jul 2001 22:04:56 -0400
+Received: from e24.nc.us.ibm.com ([32.97.136.230]:15572 "EHLO
+	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267524AbRGZCEw>; Wed, 25 Jul 2001 22:04:52 -0400
+Importance: Normal
+Subject: Subtleties of the 0.0.0.0 netmask (inet_ifa_match)
 To: linux-kernel@vger.kernel.org
-Subject: IGMP join/leave time variability
-Date: Wed, 25 Jul 2001 19:04:32 -0700
+X-Mailer: Lotus Notes Release 5.0.3  March 21, 2000
+Message-ID: <OFDE143062.D41C03AC-ON85256A95.000B439D@raleigh.ibm.com>
+From: "Allen Lau" <pflau@us.ibm.com>
+Date: Wed, 25 Jul 2001 22:04:31 -0400
+X-MIMETrack: Serialize by Router on D04NMS38/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 07/25/2001 10:04:57 PM
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Greetings,
+Hi,
 
-I'm encountering time variability with IGMP joins and leaves.  I'm working
-with the 2.2.19 kernel.  I've placed gettimeofday() printf's within the user
-space program and do_gettimeofday() printk's within the ethernet driver.
+This is a load balancing specific question. We configure load balancer IP addresses (which are regular
+addresses like 10.1.1.1) on the loopback interface with 0.0.0.0 netmask. The purpose is to receive
+clients requests with those address, and for routing to ignore them when sending the replies.
 
-So far, what I've found is typical of this captured data:
+  o Does addresses with 0.0.0.0 netmask have scope RT_SCOPE_NOWHERE?
+  o and does it imply that routing would never route to them?
 
---- user space timestamps
-996133011.376224 +UserCloseSource		
-996133011.377821 -UserCloseSource
-996133011.378296 +UserOpenSource: 224.0.17.103:2001
-    calls:
-         socket()
-         setsockopt(REUSEADDR)
-         bind()
-         setsockopt(IP_ADD_MEMBERSHIP)
-996133011.379933 -UserOpenSource: 224.0.17.103:2001: result=0
+We also configure load balancer IP address with 255.255.255.255 netmask which should not match any
+route entry except the host entry itself within the box.
 
----- tcpdump output:
-00:36:43.335501 > stb_nat.et.myrio.com > 224.0.17.104: igmp nreport
-224.0.17.104 [ttl 1]
-00:36:45.245501 > stb_nat.et.myrio.com > 224.0.17.104: igmp nreport
-224.0.17.104 [ttl 1]
-00:36:51.376707 > stb_nat.et.myrio.com > all-routers.mcast.net: igmp leave
-224.0.17.104 [ttl 1]
-00:36:52.275523 > stb_nat.et.myrio.com > 224.0.17.103: igmp nreport
-224.0.17.103 [ttl 1]
-00:36:53.705502 > stb_nat.et.myrio.com > 224.0.17.103: igmp nreport
-224.0.17.103 [ttl 1]
-00:37:02.495500 > stb_nat.et.myrio.com > 224.0.17.103: igmp nreport
-224.0.17.103 [ttl 1]
+  o Are there subtle differences between 0.0.0.0 and 255.255.255.255 netmasks?
 
----- ethernet driver timestamps (natsemi.o, modified)
-Jul 26 00:36:35 stb_nat kernel: eth0: Add Multicast  996132995.817524
-Jul 26 00:36:35 stb_nat kernel: ^I1.0.94.0.0.1
-Jul 26 00:36:35 stb_nat kernel: eth0: Add Multicast  996132995.819686
-Jul 26 00:36:35 stb_nat kernel: 1.0.94.0.17.104
-Jul 26 00:36:35 stb_nat kernel: 1.0.94.0.0.1
+The inet_ifa_match function seems to be wrong with 0.0.0.0 netmask.  Who uses it?
 
-==== Some notes:
-1. The user space socket() calls take less than 4mS to complete.
-2. The ethernet multicast filter gets set very quickly: less than 2 mS.
-3. Tcpdump reports that the time between this leave and join is 900 mS for
-this particular transaction.  We have correlated tcpdump's results with
-actual traffic on the ethernet wire using a network analyzer and found
-tcpdump to be accurate.
+extern __inline__ int inet_ifa_match(u32 addr, struct in_ifaddr *ifa)
+{
+        return !((addr^ifa->ifa_address)&ifa->ifa_mask);
+}
 
-==== Linux 2.2.19 code:
-I have dug into code and it seems that the function igmp_group_added(),
-found in linux/net/ipv4/igmp.c, is where things really happen.  The function
-igmp_start_timer() gets called with a IGMP_Initial_Report_Delay value of
-(1*HZ).    From what I can tell, this amounts to up to 1 second of delay
-depending on what net_random() returns in igmp_start_timer() - which agrees
-with our measurements of IGMP joins varying from "very short" delays to
-something a bit over a second.
+The 0.0.0.0 netmask matches everything! For example:
+        addr=9.9.9.9  ifa_address=10.1.1.1  ifa_mask=0.0.0.0          inet_ifa_match=1
+        addr=9.9.9.9  ifa_address=10.1.1.1  ifa_mask=255.255.255.255  inet_ifa_match=0
 
-==== Questions:
-For our application, it would be desireable to have the leave/join occur
-ASAP with respect to the user mode calls.
-1. What would be the harm if I set IGMP_Initial_Report_Delay to something
-very small like 5 to 10 (jiffies)?  No need for net_random() I'de expect in
-that case?
-2. I'm guessing that modifying igmp_start_timer() to call
-igmp_timer_expire() directly is not a good idea, since the timers provide
-race condition safeness. (?)
+Will there be any routing problems if we use the 0.0.0.0 netmask?
 
-Thanks for wading through this.  I looked at the 2.4.3 igmp.c code and
-noticed that its somewhat similar.  Right now our app is at 2.2.19 however.
+Thanks for any info.
+Allen Lau
 
-Thanks for any help and thoughts you may offer.
 
-Nat
-
-________________________________________
-Nat Ersoz             Myrio Corporation  
-nat.ersoz@myrio.com                      
-Phone: 425.897.7278   Fax:425.897.5600   
-3500 Carillon Point   Kirkland, WA 98033

@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132999AbRDRDyP>; Tue, 17 Apr 2001 23:54:15 -0400
+	id <S132998AbRDRELu>; Wed, 18 Apr 2001 00:11:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133000AbRDRDyF>; Tue, 17 Apr 2001 23:54:05 -0400
-Received: from [24.93.67.55] ([24.93.67.55]:33284 "EHLO mail8.triad.rr.com")
-	by vger.kernel.org with ESMTP id <S132999AbRDRDxz>;
-	Tue, 17 Apr 2001 23:53:55 -0400
-Message-ID: <3ADD1067.5090801@triad.rr.com>
-Date: Tue, 17 Apr 2001 23:56:23 -0400
-From: Ghadi Shayban <ghad@triad.rr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ac9 i686; en-US; rv:0.8.1+) Gecko/20010417
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: rw-semaphore regression in 2.4.4-pre4
-In-Reply-To: <3ADD07D7.80806@triad.rr.com> <3ADD08B9.EA6D6AD4@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S133000AbRDRELj>; Wed, 18 Apr 2001 00:11:39 -0400
+Received: from rmx441-mta.mail.com ([165.251.48.44]:26101 "EHLO
+	rmx441-mta.mail.com") by vger.kernel.org with ESMTP
+	id <S132998AbRDREL0>; Wed, 18 Apr 2001 00:11:26 -0400
+Message-ID: <382711968.987567085284.JavaMail.root@web114-wra.mail.com>
+Date: Wed, 18 Apr 2001 00:11:20 -0400 (EDT)
+From: Frank Davis <fdavis112@juno.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.3-ac9: af_wanpipe.o unresolved symbols
+CC: alan@lxorguk.ukuu.org.uk
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Mailer: mail.com
+X-Originating-IP: 151.201.242.241
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Hello,
+    During the last stage of make modules_install on 2.4.3-ac9, I received the following:
+depmod: *** Unresolved symbols in /lib/modules/2.4.3-ac9/kernel/net/wanrouter/af_wanpipe.o
+depmod: wanpipe_mark_bh
+depmod: wanpipe_queue_tq
+depmod: wanpipe_find_card
 
-> Ghadi Shayban wrote:
-> 
->>Processes, most easily mozilla, get stuck in the "D" state in
->>2.4.4-pre4.  I don't believe this was fixed in pre2 but now it happens
->>again.      Also, just a minor error, but 2.4.4-pre4 modules are put in
->>the 2.4.3 directory.  The version number was probably accidentally left
->>the same.
->>
-> 
-> Linus is good about rememeber to change the version these days.  This
-> sounds like a patch/install error on your side...
-> 
-> --- v2.4.3/linux/Makefile       Thu Mar 29 20:13:15 2001
-> +++ linux/Makefile      Fri Apr 13 20:26:46 2001
-> @@ -1,7 +1,7 @@
->  VERSION = 2
->  PATCHLEVEL = 4
-> -SUBLEVEL = 3
-> -EXTRAVERSION =
-> +SUBLEVEL = 4
-> +EXTRAVERSION =-pre4
+Regards,
+Frank
 
+The previous build steps seemed to work without problems:
+make mrproper; make config;make dep;make clean;make bzImage;make modules
 
-I'm very silly.... Let me retest rw-semaphores with the patch "properly" 
-applied before I open my mouth.  Sorry for the bother.
-
-Ghadi
 

@@ -1,79 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbTFBOEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 10:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbTFBOEJ
+	id S262352AbTFBOMK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 10:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbTFBOMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 10:04:09 -0400
-Received: from amiel.mardelplata.sinectis.com.ar ([216.244.221.2]:18450 "EHLO
-	amiel.mardelplata.sinectis.com.ar") by vger.kernel.org with ESMTP
-	id S262341AbTFBOEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 10:04:07 -0400
-From: =?iso-8859-1?Q?Agust=EDn?= Herrera <aherrera@datafull.com>
-To: linux-kernel@vger.kernel.org
-Cc: dgilbert@interlog.com
-Subject: Re: Problems with scsi emulation
-References: <3EDAD8AA.50503@interlog.com>
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset=ISO-8859-1
+	Mon, 2 Jun 2003 10:12:09 -0400
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:49414 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262352AbTFBOMG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 10:12:06 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: maneesh@in.ibm.com
+Subject: Re: [2.5.70] possible problem with /dev/diskstats
+Date: Mon, 2 Jun 2003 16:19:32 +0200
+User-Agent: KMail/1.5.2
+References: <200306010035.58957.fsdeveloper@yahoo.de> <20030602051030.GB1256@in.ibm.com>
+In-Reply-To: <20030602051030.GB1256@in.ibm.com>
+Cc: Rick Lindsley <ricklind@us.ibm.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 2.0.6
-X-Mutt-Fcc: file:///home/agustin/mail/sentbox
-Date: Tue, 13 Jan 1970 03:22:13 -0300
-Message-Id: <1054563475.0@localhost.localdomain>
+Message-Id: <200306021619.43005.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > I'm using a customized 2.4.20 kernel (red hat 9) with
-> > scsi emulation, scsi  cdrom & scsi generic support
-> > options enabled in .config and hdx-ide-scsi in
-> > lilo.conf. apps as cdrecord or cdrdao take up all my
-> > cpu time (I have a duron 1.1 gz, kt133, 192mb sdram,
-> > 30 gb 5400 rpm hd). in windows (with dma enabled) Nero d
-> > oesn't take up any (or almost) cpu time...
-> > is this an issue of the linux-kernel or a configuration
-> > problem?
-> 
-> Due to many problems with DMA locking up on ATAPI writers
-> earlier in the lk 2.4 series, Linux takes a very
-> conservative approach and turns off DMA.
-> It can be turned back on with:
->  # hdparm -d 1 /dev/hdb
-> assuming your cdwriter is found at /dev/hdb (even
-> though the ide-scsi driver "owns" that device
-> and you address it as /dev/scd0 ). You can get
-> faster DMA modes with the addition of the "-X"
-> switch in hdparm but that should not be necessary.
-> 
-Doug:
+On Monday 02 June 2003 07:10, Maneesh Soni wrote:
+> On Sat, May 31, 2003 at 10:40:21PM +0000, Michael Buesch wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > Hi.
+> >
+> > I've just played around with my server (that has actualy no load)
+> > and I recognized something strange in /dev/diskstats.
+> >
+> > Documentation/iostats.txt says about diskstats:
+> > [SNIP]
+> > Field  9 -- # of I/Os currently in progress
+> >     The only field that should go to zero. Incremented as requests are
+> >     given to appropriate request_queue_t and decremented as they finish.
+> > [SNIP]
+> >
+> > But here is a cat /proc/diskstats:
+> >    1    0 ram0 0 0 0 0 0 0 0 0 0 0 0
+> >    1    1 ram1 0 0 0 0 0 0 0 0 0 0 0
+> >    1    2 ram2 0 0 0 0 0 0 0 0 0 0 0
+> >    1    3 ram3 0 0 0 0 0 0 0 0 0 0 0
+> >    1    4 ram4 0 0 0 0 0 0 0 0 0 0 0
+> >    1    5 ram5 0 0 0 0 0 0 0 0 0 0 0
+> >    1    6 ram6 0 0 0 0 0 0 0 0 0 0 0
+> >    1    7 ram7 0 0 0 0 0 0 0 0 0 0 0
+> >    1    8 ram8 0 0 0 0 0 0 0 0 0 0 0
+> >    1    9 ram9 0 0 0 0 0 0 0 0 0 0 0
+> >    1   10 ram10 0 0 0 0 0 0 0 0 0 0 0
+> >    1   11 ram11 0 0 0 0 0 0 0 0 0 0 0
+> >    1   12 ram12 0 0 0 0 0 0 0 0 0 0 0
+> >    1   13 ram13 0 0 0 0 0 0 0 0 0 0 0
+> >    1   14 ram14 0 0 0 0 0 0 0 0 0 0 0
+> >    1   15 ram15 0 0 0 0 0 0 0 0 0 0 0
+>
+> Rick,
+>
+> ramdisk stats are also always zero whether you do any IO or not. Any idea
+> where this can be corrected.
 
-I've tried that, but it doesn't make any difference.
+Hmm, yes, I've had /var on ram0 in this example, but it doesn't show
+any statistics for it.
 
-I've been able to do ficticious tweaks on /dev/hdc and hdd like, for 
-example, activating dma mode 5 -which is virually impossible for a 
-cdrom drive. Actually, as I'd disabled ide/atapi-cdrom support in the 
-kernel I guess that /dev/hdc & hdd point to 'nowhere'. Anyway, with 
-hdparm optimizations or without them processor time consumption remains 
-at a 70 - 90 % so, clearly, I haven't made any progress.
+> Thanks
+> Maneesh
 
-The only interface for cdrom drives that i've enabled in the kernel is 
-scsi (to be able to record and rip w/ cdrdao). I guess that the 
-inability to use dma is related to that because my ide hard disks seem 
-to be using it w/o problems (and obviously I'm not using scsi with 
-them). Nevertheless, I can't set up a multcount higher than 8, which is 
-really surprising because the ide chipset and the drives are quite new.
+- -- 
+Regards Michael Büsch
+http://www.8ung.at/tuxsoft
+ 16:17:13 up 20 min,  1 user,  load average: 1.00, 0.97, 0.74
 
-So I repeat my enquiry, Is all this a question configuration or of a 
-kernel upgrade? I've already tried the latter, but, as far as I could 
-appreciate, the current nvidia 'accelerated' drivers (1.0-4363) for my 
-geforce2 didn't work with the 2.5 kernel (more precisely 2.5.69) I'd 
-compiled. Once more, is this incompatibility a current issue of these 
-kernels? In case it were an configuration error I would certainly do 
-the upgrade because 2.5 kernel series seem to have many advantages, as 
-for example, the inclusion of the alsa sound drivers.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Agustín Herrera
+iD8DBQE+21z+oxoigfggmSgRAvqPAJ9ZXw2Rrk1FZQovWUu58xQlNEareACeLVoo
+ZVw22gyiSz3ehXdtxaK+LlM=
+=Rw7M
+-----END PGP SIGNATURE-----
 
-PD: I've changed my adress to aherrera@datafull.com
+

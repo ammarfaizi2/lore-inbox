@@ -1,111 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbUJYKkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbUJYKsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbUJYKkl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 06:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbUJYKkl
+	id S261751AbUJYKsi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 06:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbUJYKsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 06:40:41 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:19130 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261750AbUJYKjS (ORCPT
+	Mon, 25 Oct 2004 06:48:38 -0400
+Received: from lucidpixels.com ([66.45.37.187]:3971 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S261751AbUJYKsf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 06:39:18 -0400
-Date: Mon, 25 Oct 2004 12:40:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Mon, 25 Oct 2004 06:48:35 -0400
+Date: Mon, 25 Oct 2004 06:48:34 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
 To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-Subject: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-Message-ID: <20041025104023.GA1960@elte.hu>
-References: <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041022175633.GA1864@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+cc: akpm@osdl.org
+Subject: Kernel 2.6.9 Page Allocation Failures w/TSO+rollup.patch 
+Message-ID: <Pine.LNX.4.61.0410250645540.9868@p500>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I guess people who get this should just stick with 2.6.8.1?
 
-i have released the -V0 Real-Time Preemption patch, which can be
-downloaded from:
+$ dmesg
+nfsd: page allocation failure. order:0, mode:0x20
+  [<c013923c>] __alloc_pages+0x21c/0x350
+  [<c0139388>] __get_free_pages+0x18/0x40
+  [<c013c9ef>] kmem_getpages+0x1f/0xc0
+  [<c013d730>] cache_grow+0xc0/0x1a0
+  [<c013d9db>] cache_alloc_refill+0x1cb/0x210
+  [<c013de41>] __kmalloc+0x71/0x80
+  [<c036f583>] alloc_skb+0x53/0x100
+  [<c031fb18>] e1000_alloc_rx_buffers+0x48/0xf0
+  [<c031f81e>] e1000_clean_rx_irq+0x18e/0x440
+  [<c0106a2f>] handle_IRQ_event+0x6f/0x80
+  [<c031f3fb>] e1000_clean+0x5b/0x100
+  [<c0375c0a>] net_rx_action+0x6a/0xf0
+  [<c011daa1>] __do_softirq+0x41/0x90
+  [<c011db17>] do_softirq+0x27/0x30
+  [<c0106ebc>] do_IRQ+0x10c/0x130
+  [<c01049c8>] common_interrupt+0x18/0x20
+  [<c013007b>] simplify_symbols+0x5b/0x110
+  [<c014019a>] shrink_list+0x30a/0x4b0
+  [<c01404a3>] shrink_cache+0x163/0x380
+  [<c0140c42>] shrink_zone+0xa2/0xd0
+  [<c0140cc3>] shrink_caches+0x53/0x70
+  [<c0140d8f>] try_to_free_pages+0xaf/0x1b0
+  [<c0139287>] __alloc_pages+0x267/0x350
+  [<c0136763>] generic_file_buffered_write+0x123/0x660
+  [<c013918b>] __alloc_pages+0x16b/0x350
+  [<c013d557>] alloc_slabmgmt+0x57/0x70
+  [<c027c156>] xfs_trans_unlocked_item+0x56/0x60
+  [<c02929cf>] xfs_write+0x78f/0xc00
+  [<c028de01>] linvfs_writev+0x101/0x140
+  [<c0116c60>] autoremove_wake_function+0x0/0x60
+  [<c02a5e52>] copy_from_user+0x42/0x70
+  [<c01542fa>] do_readv_writev+0x28a/0x2b0
+  [<c028dfe0>] linvfs_open+0x0/0x90
+  [<c01049c8>] common_interrupt+0x18/0x20
+  [<c0153bc0>] do_sync_write+0x0/0x110
+  [<c028e03a>] linvfs_open+0x5a/0x90
+  [<c0152da2>] dentry_open+0xd2/0x270
+  [<c01543d8>] vfs_writev+0x58/0x60
+  [<c01caf26>] nfsd_write+0xf6/0x390
+  [<c01049c8>] common_interrupt+0x18/0x20
+  [<c01d33bb>] nfsd3_proc_write+0xbb/0x120
+  [<c01c66c3>] nfsd_dispatch+0xa3/0x250
+  [<c041f4e1>] svc_process+0x6e1/0x7f0
+  [<c01c6463>] nfsd+0x203/0x3c0
+  [<c01c6260>] nfsd+0x0/0x3c0
+  [<c010207d>] kernel_thread_helper+0x5/0x18
 
-  http://redhat.com/~mingo/realtime-preempt/
+I am not sure what else to do except stay with 2.6.8.1 as it did not have 
+these problems.
 
-NOTE: this is a highly experimental release, a more experimental one
-than -U10.3.
 
-the big change in the '-V' series of the patchset is that i have
-converted the last couple of non-preemptible kernel subsystems to
-fully-preemptible mutex-based locking. These subsystems are:
-
- - the SLAB allocator
- - the buddy page allocator
- - waitqueue handling
- - soft-timer subsystem
- - security/selinux
- - workqueues
- - the random driver
-
-this is probably the last 'big leap forward' in terms of the scope of
-the patch. (having reached the ultimate scope: it now encompasses
-everything ;)
-
-But as an inevitable result of this big leap it will likely break in a
-couple of places. Unfortunately these subsystems were largely
-interdependent so it's an all-or-nothing step with not much middle
-ground between the locking done in -U10.3 and in -V0.
-
-another result of these changes is that the number of critical sections
-in -V0 is roughly 30% of that in -U10.3. Now we only have the scheduler
-and very lowlevel IRQ-hardware locks as raw spinlocks. (plus the lone
-holdout vga_lock - which i will probably make a mutex too in the near
-future)
-
-[ NOTE: there's one known bug in this release: selinux on one of my
-testsystems broke, it hangs during bootup. With CONFIG_SECURITY disabled
-it works fine. I'm working on the fix. So please keep CONFIG_SECURITY
-disabled for the time being. ]
-
-other changes in -V0:
-
- - build fixes: more driver fixes from Thomas Gleixner
-
- - crash fix: fixed a bug found by Thomas Gleixner: rwsem runtime
-   initialization was racy.
-
- - deadlock fix: fixed lockup bug caused by __schedule clearing
-   PREEMPT_ACTIVE. The need_resched loop is now outside of __schedule(). 
-   This might solve lockups/slowdowns reported by some people.
-
- - latency fix: made keventd SCHED_FIFO - this could fix the mouse
-   related delays reported by a number of people.
-
- - latency fix: fixed SMP lock-break mechanism of mutexes.
-
- - usability feature: hard-interrupts get decreasing SCHED_FIFO priority
-   starting at prio 49 and stopping at prio 25. This should give a good
-   default.
-
- - debug feature: implemented SysRq-D to show the list of tasks with
-   locks blocked on, if RW_SEM_DEADLOCK_DETECTION is enabled.
-
-to create a -V0 tree from scratch, the patching order is:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
- + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.6.9-mm1/2.6.9-mm1.bz2
- + http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-mm1-V0
-
-	Ingo

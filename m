@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263547AbTDTI3y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 04:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263548AbTDTI3y
+	id S263549AbTDTJrS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 05:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263551AbTDTJrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 04:29:54 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:34542 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263547AbTDTI3x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 04:29:53 -0400
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Florian Weimer <fw@deneb.enyo.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1050789745.3961.19.camel@dhcp22.swansea.linux.org.uk>
-References: <20030419180421.0f59e75b.skraw@ithnet.com>
-	 <87lly6flrz.fsf@deneb.enyo.de>
-	 <1050789745.3961.19.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Qp5loyMlFJkdyZS7xtxx"
-Organization: Red Hat, Inc.
-Message-Id: <1050828106.1412.7.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 20 Apr 2003 10:41:46 +0200
+	Sun, 20 Apr 2003 05:47:18 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:4534 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S263549AbTDTJrR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 05:47:17 -0400
+Date: Sun, 20 Apr 2003 11:58:30 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Shachar Shemesh <lkml@shemesh.biz>
+cc: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK->CVS, kernel.bkbits.net
+In-Reply-To: <3EA24CF8.5080609@shemesh.biz>
+Message-ID: <Pine.GSO.4.21.0304201157280.14680-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 20 Apr 2003, Shachar Shemesh wrote:
+> Ben Collins wrote:
+> >I hate asking this on top of the work you already provide, but would it
+> >be possible to allow rsync access to the repo itself? I have atleast 6
+> >computers on my LAN where I keep source trees (2.4 and 2.5), and it
+> >would be much less b/w on my metered T1 and on your link aswell if I
+> >could rsync one main "mirror" of the cvs repo and then point all my
+> >machines at it.
+> >
+> There is a better tool (for this particular task), called "cvsup". It 
+> does a wonderful job of keeping cvs repositories in synch. I realize I 
+> just asked for a THIRD tool, so it should only go in if the admins are 
+> willing to take care of it.
+> 
+> The idea is that it uses the full duplexity of the channel to get client 
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> side information about the repository on that end while downloading 
+> changes, thus increasing the effective bandwidth. It only falls back to 
 
---=-Qp5loyMlFJkdyZS7xtxx
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+What does this mean for asymmetric links (ADSL or cable)?
 
-On Sun, 2003-04-20 at 00:02, Alan Cox wrote:
-> On Sad, 2003-04-19 at 18:18, Florian Weimer wrote:
-> > Stephan von Krawczynski <skraw@ithnet.com> writes:
-> >=20
-> > > Most I came across have only small problems (few dead sectors),
-> >=20
-> > IDE disks automatically remap defective sectors, so you won't see any
-> > of them unless the disk is already quite broken.
->=20
-> You will if it writes and fails to read back. The disk can't invent a
-> sector that is gone.=20
+Gr{oetje,eeting}s,
 
-but linux can if you use an raid1 mirror... maybe we should teach the md
-layer to write back the data from the other disk on a "bad sector"
-error.
+						Geert
 
---=-Qp5loyMlFJkdyZS7xtxx
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-iD8DBQA+ol1JxULwo51rQBIRAtbIAJ9RMl+WJqWfM0d07tlghGNvEM8D0QCeLC8u
-Re63l4ITwRY1l9zRuADzO0s=
-=Bq9a
------END PGP SIGNATURE-----
-
---=-Qp5loyMlFJkdyZS7xtxx--

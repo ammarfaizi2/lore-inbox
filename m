@@ -1,161 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbUCJQBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 11:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbUCJQBQ
+	id S262675AbUCJQEW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 11:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbUCJQEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 11:01:16 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:34768 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262673AbUCJQBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 11:01:09 -0500
-Message-ID: <404F3BC3.2090906@acm.org>
-Date: Wed, 10 Mar 2004 10:01:07 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
+	Wed, 10 Mar 2004 11:04:22 -0500
+Received: from rtp-iport-2.cisco.com ([64.102.122.149]:4996 "EHLO
+	rtp-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S262675AbUCJQEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 11:04:20 -0500
+To: Jouni Malinen <jkmaline@cc.hut.fi>
+Cc: James Morris <jmorris@redhat.com>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Crypto API and keyed non-HMAC digest algorithms / Michael MIC
+References: <yquj7jxuudvn.fsf@chaapala-lnx2.cisco.com>
+	<Xine.LNX.4.44.0403091532020.27586-100000@thoron.boston.redhat.com>
+	<20040310034014.GA3739@jm.kir.nu>
+From: Clay Haapala <chaapala@cisco.com>
+Organization: Cisco Systems, Inc. SRBU
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEXl5ufMrp3a4OLr6ujO
+ lXzChGmsblZzRzjF1+ErFRAz+KIaAAACVElEQVR4nG3TQW/aMBQAYC9IO88dguyWUomqt0DQ
+ do7koO22SXFQb6uE7XIMKrFya+mhPk8D43+79+wMyrp3gnx59nvxMxmNEnIWycgH+U9E55CO
+ rkZJ8hYipbXTdfcvQK/Xy6JF2zqI+qpbjZAszSDG2oXYp0FI5mOqbAeuDtLBdeuO8fNVxkzr
+ E9jklKEgQWsppYYf9v4IE3i/4RiVRPneQTpoXSM8QA7un3QZQ2cl54wXIH7VDwEmrdOiZBgF
+ V5BiLwLM4B3BS0ZpB24d4IvzW+QIc7/JIcAQIadF2eeUzn3FAa6xWFYUotjIRmLB7vEvCC4t
+ VAugpTrC2FleLBm2wVnlAc7Dl2u5L1UozgWCjTxMW+vb4GVVFhWWFSCdKmgDMhaNFoxL3bSH
+ rc/Irn1/RcWlh+UqNgHeNwishJ1L6LCpjdmGz76RmFGyuSwLgLUxJhyUlLA7fHMpeSGVPsFA
+ wqtK4voI8RE+I3DsDpfamSNMpIBTKrF1yIpPMA0AzQPU5gSwCTyC/aEAtX4NM6gLM3CCziBT
+ jRR+StQ/AA8a7AMuwxn0YAmcRKnVGwDRiOcw3uMWlajgAJsAPbw4OIpwrH3/vdq9B7hpl7GD
+ w61A4PxwSqyH9J25gePnYdqhYjjZ5s6QCb3bwvOLJWPBFvCvWVDSthYmcff44IcacOUOt1Yv
+ yGCF1+twuQtQCPjzZIaK/Lrx9+6b7TKEdXTwgz8R+uJv5K1jOcWMnO7NJ3v/QlprnzP1deUe
+ 8j4CpVE82MRj4j5SHGDnfvul8uGwjqNnpf4Ak4pzJDIy3lkAAAAASUVORK5CYII=
+Date: Wed, 10 Mar 2004 10:04:15 -0600
+In-Reply-To: <20040310034014.GA3739@jm.kir.nu> (Jouni Malinen's message of
+ "Tue, 9 Mar 2004 19:40:14 -0800")
+Message-ID: <yqujbrn4wuww.fsf@chaapala-lnx2.cisco.com>
+User-Agent: Gnus/5.110001 (No Gnus v0.1) XEmacs/21.5 (celeriac, linux)
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Davis, Todd C" <todd.c.davis@intel.com>
-Subject: Re: 2.6.4-rc2-mm1: IPMI_SMB doesnt compile
-References: <20040307223221.0f2db02e.akpm@osdl.org> <20040309013917.GH14833@fs.tum.de>
-In-Reply-To: <20040309013917.GH14833@fs.tum.de>
-Content-Type: multipart/mixed;
- boundary="------------050509040001070001080109"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050509040001070001080109
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 9 Mar 2004, Jouni Malinen outgrape:
+>> On Tue, 9 Mar 2004, Clay Haapala wrote:
+>> > I had the same thought in my attempt at adding CRC32C to the
+>> > crypto routines, that what was needed was "digests + setkey".
+>> > But I didn't want to add the key baggage to digests, and so
+>> > created a new alg type (CHKSUM), with pretty much identical code
+>> > to digest, but with a modified init and a new setkey interface.
+> 
+> On Tue, Mar 09, 2004 at 03:32:58PM -0500, James Morris wrote:
+>> I think that adding a setkey method for digests is the simplest
+>> approach.
+> 
+> 
+> I took a quick look at the CRC32C patch and it looked like the only
+> needed change for the digest type was the new handler for setting a
+> 32-bit seed. I used setkey handler that takes an arbitrary key data
+> and length (Michael MIC uses 64-bit key/seed). As far as I could
+> tell, this setkey function should be enough for CRC32C needs,
+> too. Clay, please let me know if I missed something here. James,
+> please consider merging this into Linux 2.6 tree if there are no
+> issues with CRC32C.
+> 
 
-You need to run off the panic events, the config flag IPMI_PANIC_EVENT, 
-and it should compile fine.  This is a flag that causes the driver to 
-put some information about the panic into an event log in the IPMI 
-controller so it can be fetched later.
+I believe that is all that CRC32C requires.  I had hesitated to add
+the setkey/setseed method because I mentally had it tied to "init",
+which is not necessary, as your patch shows.  I also didn't know what
+to do with the "&flags" parameter, but I gather that passing it in and
+not using it is fine.  Should "unsigned int keylen" be also "const" or
+does that matter?
 
-To do this, the driver needs a way to run each operation to completion 
-without scheduling, interrupts. or the like.  It needs this to do send 
-the panic event (since you cannot schedule during a panic), although it 
-also really needs it to do things like extend the watchdog timer time at 
-panic time.  The I2C driver does not currently have this, so it doesn't 
-work with this option and the SMBus driver.
-
-I have included a patch from Todd Davis at Intel that adds this function 
-to the I2C driver.  I believe Todd has been working on getting this in 
-through the I2C driver writers, although the patch is fairly non-intrusive.
-
-However, I have no real way to test this patch.
-
--Corey
-
-Adrian Bunk wrote:
-
->On Sun, Mar 07, 2004 at 10:32:21PM -0800, Andrew Morton wrote:
 >  
->
->>... 
->>+ipmi-updates-3.patch
->>+ipmi-socket-interface.patch
->>
->> IPMI driver updates
->>...
->>    
->>
->
->This causes the following compile error:
->
-><--  snip  -->
->
->...
->  CC      drivers/char/ipmi/ipmi_smb.o
->drivers/char/ipmi/ipmi_smb.c: In function `smbus_client_read_block_data':
->drivers/char/ipmi/ipmi_smb.c:224: warning: implicit declaration of 
->function `i2c_set_spin_delay'
->...
->  LD      .tmp_vmlinux1
->drivers/built-in.o(.text+0x1342eb): In function 
->`smbus_client_read_block_data':
->: undefined reference to `i2c_set_spin_delay'
->drivers/built-in.o(.text+0x13448d): In function 
->`smbus_client_write_block_data':
->: undefined reference to `i2c_set_spin_delay'
->drivers/built-in.o(.text+0x134b7f): In function `set_run_to_completion':
->: undefined reference to `i2c_set_spin_delay'
->make: *** [.tmp_vmlinux1] Error 1
->
-><--  snip  -->
->
->
->cu
->Adrian
->
->  
->
+> +static int setkey(struct crypto_tfm *tfm, const u8 *key, unsigned
+> +int keylen) { u32 flags; if (tfm->__crt_alg->cra_digest.dia_setkey
+> +== NULL) return -1; return
+> +tfm->__crt_alg->cra_digest.dia_setkey(crypto_tfm_ctx(tfm), key,
+> +keylen, &flags);
+> +}
+> +
 
-
---------------050509040001070001080109
-Content-Type: text/plain;
- name="linux-ipmi-2.6.3-i2c-spin.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-ipmi-2.6.3-i2c-spin.diff"
-
---- linux-v31/drivers/i2c/i2c-core.c	2004-02-19 19:31:07.000000000 -0600
-+++ linux/drivers/i2c/i2c-core.c	2004-03-10 09:48:08.000000000 -0600
-@@ -1256,6 +1256,12 @@
- 	return (func & adap_func) == func;
- }
- 
-+int i2c_spin_delay;
-+void i2c_set_spin_delay(int val)
-+{
-+	i2c_spin_delay = val;
-+}
-+
- EXPORT_SYMBOL(i2c_add_adapter);
- EXPORT_SYMBOL(i2c_del_adapter);
- EXPORT_SYMBOL(i2c_add_driver);
-@@ -1292,6 +1298,8 @@
- 
- EXPORT_SYMBOL(i2c_get_functionality);
- EXPORT_SYMBOL(i2c_check_functionality);
-+EXPORT_SYMBOL(i2c_set_spin_delay);
-+EXPORT_SYMBOL(i2c_spin_delay);
- 
- MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
- MODULE_DESCRIPTION("I2C-Bus main module");
---- linux-v31/include/linux/i2c.h	2003-12-17 20:58:16.000000000 -0600
-+++ linux/include/linux/i2c.h	2004-03-10 09:47:21.000000000 -0600
-@@ -600,10 +600,24 @@
-         ((adapptr)->algo->id == I2C_ALGO_ISA)
- 
- /* Tiny delay function used by the i2c bus drivers */
-+
-+extern void i2c_set_spin_delay(int val);
-+extern int i2c_spin_delay;
-+#include <asm/delay.h>
- static inline void i2c_delay(signed long timeout)
- {
--	set_current_state(TASK_INTERRUPTIBLE);
--	schedule_timeout(timeout);
-+	if( i2c_spin_delay ) {
-+		/* spin delay is needed for panic threads and
-+		   shutdowns to avoid processing switching so IPMI
-+		   messages can be sent to the Baseboard Management
-+		   Controllers on the SMBus*/
-+		int i;
-+		for( i=0 ; i<100 ; i++ )
-+			udelay(timeout*(1000000/HZ/100));
-+	} else {
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		schedule_timeout(timeout);
-+	}
- }
- 
- #endif /* _LINUX_I2C_H */
-
---------------050509040001070001080109--
-
+-- 
+Clay Haapala (chaapala@cisco.com) Cisco Systems SRBU +1 763-398-1056
+   6450 Wedgwood Rd, Suite 130 Maple Grove MN 55311 PGP: C89240AD
+  Windows XP 'Reloaded'?  *Reloaded?*  Have they no sense of irony?

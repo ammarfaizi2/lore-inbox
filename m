@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263408AbTJaQmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 11:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263423AbTJaQmJ
+	id S263435AbTJaRkT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 12:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTJaRkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 11:42:09 -0500
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:64140 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S263408AbTJaQmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 11:42:07 -0500
-Date: Fri, 31 Oct 2003 17:40:57 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Robert Love <rml@tech9.net>
-cc: Jakob Oestergaard <jakob@unthought.net>,
-       Maciej Zenczykowski <maze@cela.pl>, Dave Brondsema <dave@brondsema.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: uptime reset after about 45 days
-In-Reply-To: <Pine.LNX.4.53.0310311621010.794@gockel.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.53.0310311735030.3058@gockel.physik3.uni-rostock.de>
-References: <1067552357.3fa18e65d1fca@secure.solidusdesign.com>
- <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>
- <20031031103723.GE10792@unthought.net> <Pine.LNX.4.53.0310311621010.794@gockel.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 31 Oct 2003 12:40:19 -0500
+Received: from devil.servak.biz ([209.124.81.2]:43476 "EHLO devil.servak.biz")
+	by vger.kernel.org with ESMTP id S263435AbTJaRkQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 12:40:16 -0500
+Subject: Re: WD Raptor/SATA with RAID0 way to slow
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Julien Oster <lkml@mc.frodoid.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <frodoid.frodo.873cdadsux.fsf@usenet.frodoid.org>
+References: <frodoid.frodo.873cdadsux.fsf@usenet.frodoid.org>
+Content-Type: text/plain
+Message-Id: <1067621682.1119.115.camel@rivendell.arnor.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 31 Oct 2003 09:34:42 -0800
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - devil.servak.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - arnor.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Oct 2003, Tim Schmielau wrote:
+On Thu, 2003-10-30 at 18:49, Julien Oster wrote:
+> Hello,
+> 
+> I recently purchased an Asus A7N8X mainboard with the Silicon Imaging
+> SATA controller online and two Western Digital Raptor SATA harddrives
+> with 10krpm.
+> 
+> Those harddisks are supposed to be "really fast", but I don't really
+> get the performance out of them. In fact, I get much less performance
+> than with my "standard consumer" IBM DeskStars.
 
-> So either apply
->   http://www.physik3.uni-rostock.de/tim/kernel/2.4/jiffies64-21.patch.gz
-> as well, or don't patch at all.
+What version of the Linux kernel are you using?  What does the kernel
+log say about how it is detecting and configuring your drives?
 
-... or just apply the combined patch to save you from fixing a few rejects 
-by hand.
 
-Robert, would you mind placing the combined patch beside the variable-HZ
-patch in your kernel.org directory, to save the cluel^W unaware?
+-- 
+Torrey Hoffman <thoffman@arnor.net>
 
-Thanks,
-Tim

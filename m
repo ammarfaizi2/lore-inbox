@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269309AbUJFRPx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268894AbUJFRQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269309AbUJFRPx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 13:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269320AbUJFRPx
+	id S268894AbUJFRQo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 13:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269310AbUJFRQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 13:15:53 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:16555 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269309AbUJFRPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 13:15:37 -0400
-Subject: Re: PROBLEM: 2.6.9-rc3, i8042.c: Can't read CTR while initializing
-	i8042
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ronald Moesbergen <r.moesbergen@hccnet.nl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4161A2C1.8000901@hccnet.nl>
-References: <4161A2C1.8000901@hccnet.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1097079186.29255.53.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 06 Oct 2004 17:13:07 +0100
+	Wed, 6 Oct 2004 13:16:43 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:44219 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S268894AbUJFRQ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 13:16:29 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Stas Sergeev <stsp@aknet.ru>
+Date: Wed, 6 Oct 2004 19:18:53 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: ESP corruption bug - what CPUs are affected? (patch att
+Cc: linux-kernel@vger.kernel.org,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <59EA54D0987@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-10-04 at 20:21, Ronald Moesbergen wrote:
-> Hi,
-> 
-> Since 2.6.9-rc3 (I tested rc3-bk3 also) on 3 out of 10 boots my PS/2 
-> keyboard is dead and 'i8042.c: Can't read CTR while initializing i8042' 
-> shows up in my logfile. Google found this:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109463125415432&w=2
-> 
-> which suggests to add i8042.noacpi=1 to my boot parameters, but 
-> unfortunately that doesn't help, the kernel doesn't even recognize this 
-> option. Reverting back to 2.6.9-rc2 fixes it. The machine is a P4 3Ghz 
-> HT, E7205 chipset, ASUS P4P8X board.
+On  6 Oct 04 at 20:18, Stas Sergeev wrote:
+> Yes, if not for that anonymous guy, who kept posting
+> to me until he finally convinced me that the Ring-0
+> approach is not that difficult at all.
+> So I tried... It was much more difficult to code
+> up, but at the end it looks a little better
+> and localized to entry.S completely. OTOH it
+> touches the exception handlers, but not too much -
+> it adds only 5 insns on the fast path. And the
+> code is very fragile, but after I made all the
+> magic numbers a #define consts, it actually looks
+> not so bad.
+> I don't know which patch is really better, so
+> I am attaching both.
 
-For E7xxx systems you need to disable USB legacy support in the BIOS
-because SMM only works on the boot processor. There is a patch to
-automate it in 2.6.8.1-ac you can also borrow
+CPL0 solution is certainly more localized, but I have hard problems
+to convice myself that it is actually safe.
+
+I would appreciate if you could add comments what values are set
+by ESPFIX_SWITCH_16 + 8 + 4 and simillar moves, and what they actually
+do.  And convicing myself that ESPFIX_SWITCH_32 has just right value so
+
+pushl %eax
+pushl %es
+lss ESPFIX_SWITCH_32,%esp
+popl %es
+popl %eax
+
+actually works took almost an hour...
+                                                    Petr
+                                                    
 

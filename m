@@ -1,60 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbTD2A3k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 20:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTD2A3k
+	id S261428AbTD2BFD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 21:05:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbTD2BFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 20:29:40 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:28552 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S261422AbTD2A3j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 20:29:39 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Timothy Miller <miller@techsource.com>, rmoser <mlmoser@comcast.net>
-Subject: Re: Swap Compression
-Date: Tue, 29 Apr 2003 10:43:48 +1000
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200304251832440510.00D02649@smtp.comcast.net> <3EAD9E94.2000602@techsource.com>
-In-Reply-To: <3EAD9E94.2000602@techsource.com>
+	Mon, 28 Apr 2003 21:05:03 -0400
+Received: from adsl-68-74-104-142.dsl.klmzmi.ameritech.net ([68.74.104.142]:33547
+	"EHLO tabriel.tabris.net") by vger.kernel.org with ESMTP
+	id S261428AbTD2BFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 21:05:01 -0400
+From: Tabris <tabris@sbcglobal.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-rc1-ac2 Promise IDE DMA won't work
+Date: Mon, 28 Apr 2003 21:12:46 -0400
+User-Agent: KMail/1.5
+Cc: alan@lxorguk.ukuu.org.uk
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200304291043.48825.kernel@kolivas.org>
+Message-Id: <200304282112.47061.tabris@sbcglobal.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Apr 2003 07:35, Timothy Miller wrote:
-> rmoser wrote:
-> >Yeah you did but I'm going into a bit more detail, and with a very tight
-> > algorithm.  Heck the algo was originally designed based on another
-> > compression algorithm, but for a 6502 packer.  I aimed at speed,
-> > simplicity, and minimal RAM usage (hint:  it used 4k for the code AND the
-> > compressed data on a 6502, 336 bytes for code, and if I turn it into just
-> > a straight packer I can go under 200 bytes on the 6502).
-> >
-> >Honestly, I just never looked.  I look in my kernel.  But still, the stuff
-> > I defined about swapon options, swap-on-ram, and how the compression
-> > works (yes, compressed without headers) is all the detail you need about
-> > it to go do it AFAIK.  Preplanning should be done there--done meaning
-> > workable, not "the absolute best."
->
-> I think we might be able to deal with a somewhat more heavy-weight
-> compression.  Considering how much faster the compression is than the
-> disk access, the better the compression, the better the performance.
->
-> Usually, if you have too much swapping, the CPU usage will drop, because
-> things aren't getting done.  That means we have plenty of head room to
-> spend time compressing rather than waiting.  The speed over-all would go
-> up.  Theoretically, we could run into a situation where the compression
-> time dominates.  In that case, it would be beneficial to have a tuning
-> options which uses a less CPU-intensive compression algorithm.
+I looked thru marc's archives, and i'm not finding anything specific to 
+this problem, tho I do believe it is probably a known issue.
 
-The work that Rodrigo De Castro did on compressed caching 
-(linuxcompressed.sf.net) included a minilzo algorithm which I used by default 
-in the -ck patch addon as it performed the best for all the reasons you 
-mention. Why not look at that lzo code for adoption.
+ASUS A7v266-E
+PDC20265
+LITE-ON LTR-32123S
 
-Con
+only device on the Promise IDE is the cd-rw drive. have four hard drives 
+on the VIA IDE.
+
+running kernel 2.4.21-rc1-ac2 + preempt + rmap15g + i2c-sensors
+
+burning now works using cdrecord ATAPI (previous was 2.4.21-pre5-ac3 
+where the ide-scsi was too unstable)
+
+at present, reading the cd drive takes 80+% of CPU system time...
+
+I would like to be able to enable DMA. i tried doing it manually with 
+hdparm. enabling 32-bit IO or enabling DMA would both make it just not 
+work.
+[root@tabriel root]# hdparm /dev/hdg
+
+/dev/hdg:
+ HDIO_GET_MULTCOUNT failed: Invalid argument
+ IO_support   =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ readonly     =  1 (on)
+ readahead    =  8 (on)
+ HDIO_GETGEO failed: Invalid argument
+[root@tabriel root]#
+[root@tabriel root]# hdparm -I /dev/hdg
+
+/dev/hdg:
+
+ATAPI CD-ROM, with removable media
+        Model Number:       LITE-ON LTR-32123S
+        Serial Number:
+        Firmware Revision:  XS0R
+Standards:
+        Used: ATAPI for CD-ROMs, SFF-8020i, r2.5
+        Supported: CD-ROM ATAPI-2
+Configuration:
+        DRQ response: 50us.
+        Packet size: 12 bytes
+Capabilities:
+        LBA, IORDY(cannot be disabled)
+        DMA: *mdma0 mdma1 mdma2 udma0 udma1 udma2
+             Cycle time: min=120ns recommended=120ns
+        PIO: pio0 pio1 pio2 pio3 pio4
+             Cycle time: no flow control=227ns  IORDY flow control=120ns
+[root@tabriel root]#
+
+
+any more info needed, just ask. any help much appreciated.
+
+
+-- 
+"Ignorance is the soil in which belief in miracles grows."
+-- Robert G. Ingersoll
+

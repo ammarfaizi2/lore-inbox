@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268911AbTGORHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 13:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269020AbTGORHQ
+	id S269131AbTGORND (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 13:13:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269151AbTGORND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 13:07:16 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:19652 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S268911AbTGORHP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 13:07:15 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: ACPI patches updated (20030714)
-Date: Tue, 15 Jul 2003 10:21:33 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A8470255EE8F@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI patches updated (20030714)
-Thread-Index: AcNK8+ivPyG6Hos+RMKqMJI5pF1NfwAAJYJQ
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Hugh Dickins" <hugh@veritas.com>
-Cc: "ACPI-Devel mailing list" <acpi-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>, "Len Brown" <lenb417@yahoo.com>
-X-OriginalArrivalTime: 15 Jul 2003 17:21:54.0489 (UTC) FILETIME=[96428290:01C34AF5]
+	Tue, 15 Jul 2003 13:13:03 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:918 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S269131AbTGORM7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 13:12:59 -0400
+Date: Tue, 15 Jul 2003 18:27:29 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Kent Borg <kentborg@borg.org>
+Cc: Pavel Machek <pavel@suse.cz>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       Nigel Cunningham <ncunningham@clear.net.nz>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Thoughts wanted on merging Software Suspend enhancements
+Message-ID: <20030715172729.GA1491@mail.jlokier.co.uk>
+References: <1057963547.3207.22.camel@laptop-linux> <20030712140057.GC284@elf.ucw.cz> <200307121734.29941.dtor_core@ameritech.net> <20030712225143.GA1508@elf.ucw.cz> <20030713133517.GD19132@mail.jlokier.co.uk> <20030715122336.B12505@borg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030715122336.B12505@borg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Hugh Dickins [mailto:hugh@veritas.com] 
-> > Make it so acpismp=force works (reported by Andrew Morton)
+Kent Borg wrote:
+> On Sun, Jul 13, 2003 at 02:35:17PM +0100, Jamie Lokier wrote:
+> > I'd be inclined to initiate suspend-to-disk when the laptop's lid is
+> > closed
 > 
-> But we don't want "acpismp=force" to work, it now serves no purpose
-> but to confuse.  May I push again to Marcelo my patch you acked
-> before, which removes it completely?  I had been waiting to say it's
-> in 2.6, but Andrew didn't push it from 2.5-mm into 2.6 - any reason?
-> 
-> Whereas we would still like "noht" to work, but it's now beyond me.
+> Please don't suspend my notebook when the lid is closed.
 
-That patch was sitting in my bk tree but yeah it's kinda stale. Len
-Brown was going to completely redo all this stuff, so Hugh if you have a
-need for your fix in the interim then great feel free to push, but there
-is a more comprehensive fix also in the works.
+keep reading...
 
-Regards -- Andy
+> > or when I press the suspend button
+    ~~
+
+I.e. switch between those two modes according to how the laptop is
+being used at the time.  When travelling I use the lid switch to
+suspend (well I used to before I dropped it and broke the lid switch
+:) - at home I use the button.
+
+I'd hope that suspend-to-disk could be activated in the same way
+(whatever way it is) that suspend-to-ram is now.
+
+- Jamie

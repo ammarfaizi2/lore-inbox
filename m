@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbTKIKQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 05:16:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbTKIKQQ
+	id S262303AbTKIKS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 05:18:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbTKIKS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 05:16:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39060 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262323AbTKIKQO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 05:16:14 -0500
-Date: Sun, 9 Nov 2003 02:19:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: prepare_wait / finish_wait question
-Message-Id: <20031109021943.470fc601.akpm@osdl.org>
-In-Reply-To: <3FAE0223.7070402@colorfullife.com>
-References: <3FAE0223.7070402@colorfullife.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 9 Nov 2003 05:18:57 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:43279 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S262303AbTKIKSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 05:18:55 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Accessing device information in REMOVE agent
+Date: Sun, 9 Nov 2003 13:06:13 +0300
+User-Agent: KMail/1.5.3
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200311081602.25978.arvidjaar@mail.ru> <20031108222529.GB7671@kroah.com>
+In-Reply-To: <20031108222529.GB7671@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311091306.13580.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul <manfred@colorfullife.com> wrote:
+On Sunday 09 November 2003 01:25, Greg KH wrote:
+> On Sat, Nov 08, 2003 at 04:02:25PM +0300, Andrey Borzenkov wrote:
+> > I'd like to be notified when block device goes away (e.g. USB stick
+> > unplugged) basically to look if device is in use and possibly initiate
+> > clean up. Block hotplug currently is passing only DEVPATH; but it alone
+> > is not reliable way to identify it; device may be used under alias names
+> > via symbolic links.
 >
-> Hi Ingo,
-> 
-> sysv semaphores show the same problem you've fixed for wait queue with 
-> finish_wait:
+> What do you mean?  DEVPATH is unique for that point in time.  There are
+> no alias's in sysfs.
+>
 
-Was me, actually.
+Sorry I had to be more precise.
 
-> one thread wakes up a blocked thread and must hold a spinlock for the 
-> wakeup. The blocked thread immediately tries to acquire that spinlock, 
-> because it must figure out what happened. Result: noticable cache line 
-> trashing on an 4xXeon with postgres.
-> autoremove_wake_function first calls wake_up, then list_del_init. Did 
-> you test that the woken up thread is not too fast and acquires the 
-> spinlock before list_del_init had a chance to reset the list?
+I'd like to (try to) replace current synchronous media change checks in 
+supermount by mounting device on insert and releasing it on remove. For those 
+cases when it makes sense of course, USB sticks in the first place.
 
-No, I didn't instrument it.  But profiling showed that it was working as
-desired.  The workload was tons of disk I/O, showing significant CPU time
-in the page lock/unlock functions.
+But users are free to use any names or links for their device names i.e. they 
+can do
 
-It would be neater to remove the task from the list _before_ waking it up. 
-The current code in there is careful to only remove the task if the wakeup
-attempt was successful, but I have a feeling that this is unnecessary - the
-waiting task will do the right thing.  One would need to think about that a
-bit more.
+ln -s sda /de/myflash
+mount /dev/myflash
 
-> I wrote a patch for sysv sem and on a 4x Pentium 3, 99.9% of the calls 
-> hit the fast path, but I'm a bit afraid that monitor/mwait could be so 
-> fast that the fast path is not chosen.
+and on remove it is rather hard to match this name against DEVPATH. But I can 
+save (major,minor) when mounting and use it to match mounted filesystem on 
+remove.
 
-Is it not the case that ia32's reschedule IPI is async?  If the
-architecture's reschedule uses a synchronous IPI then it could indeed be
-the case that the woken CPU gets there first.
+>
+> > Would it make sense to add device number? It seems to be natural native
+> > "block device ID" :)
+>
+> What "device number"?  The major/minor?  Why?  It's about as unique as
+> DEVPATH is for any point in time.
+>
 
-> I'm thinking about a two-stage algorithm - what's your opinion?
+Hmm ... probably I can just as well use device name (meaning genhd->disk_name) 
+you are right.
 
-Instrumentation on other architectures would be interesting.
+Thank you
+
+-andrey
+

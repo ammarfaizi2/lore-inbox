@@ -1,51 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267970AbTBSELT>; Tue, 18 Feb 2003 23:11:19 -0500
+	id <S267974AbTBSEYb>; Tue, 18 Feb 2003 23:24:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267972AbTBSELT>; Tue, 18 Feb 2003 23:11:19 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:14781 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267970AbTBSELS>;
-	Tue, 18 Feb 2003 23:11:18 -0500
-Date: Tue, 18 Feb 2003 20:03:53 -0800 (PST)
-Message-Id: <20030218.200353.133754841.davem@redhat.com>
-To: neilb@cse.unsw.edu.au
-Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
-       kuznet@ms2.inr.ac.ru
-Subject: Re: sendmsg and IP_PKTINFO
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15955.1148.929905.130326@notabene.cse.unsw.edu.au>
-References: <15954.4693.893707.471216@notabene.cse.unsw.edu.au>
-	<20030218.195205.85404023.davem@redhat.com>
-	<15955.1148.929905.130326@notabene.cse.unsw.edu.au>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267975AbTBSEYb>; Tue, 18 Feb 2003 23:24:31 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3593 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267974AbTBSEYa>;
+	Tue, 18 Feb 2003 23:24:30 -0500
+Message-ID: <3E53093F.5050502@pobox.com>
+Date: Tue, 18 Feb 2003 23:34:07 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+Subject: netdevices.txt update
+Content-Type: multipart/mixed;
+ boundary="------------040403030109020202050704"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Neil Brown <neilb@cse.unsw.edu.au>
-   Date: Wed, 19 Feb 2003 15:13:48 +1100
+This is a multi-part message in MIME format.
+--------------040403030109020202050704
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-   On Tuesday February 18, davem@redhat.com wrote:
-   > Alexey and myself totally disagree.  We have described for you
-   > the intended purpose of this feature.  Please do not try to use
-   > it in some other way, it may prove to be painful :-)
-   
-   Thankyou for making that clear.
-   
-You're very welcome, thank you for tracking all of this down.
-   
-   Currently the sunrpc/svc_udp.c code asks for an IP_PKTINFO from
-   recvmsg, and passes it verbatim down through sendmsg.
+Just made a minor update to Documentation/networking/netdevices.txt, and 
+thought I would take the opportunity to pass it around once again.
 
-And yes, this is buggy.
+Even though this doc has existed for quite a while now, I still come 
+across code that loves to violate these locking rules in various ways.
 
-   My patch checks that the returned data looks believable and, if it
-   does, zeros the ipi_ifindex field.
+Comments and additions welcome
 
-Please note also that ipi_addr is ignored on sendmsg().
+	Jeff
 
-You don't have to zero it, this is just a reminder about
-what the kernel will do with this thing.
+
+
+--------------040403030109020202050704
+Content-Type: text/plain;
+ name="netdevices.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="netdevices.txt"
+
+
+Network Devices, the Kernel, and You!
+
+
+Introduction
+============
+The following is a random collection of documentation regarding
+network devices.
+
+
+
+struct net_device synchronization rules
+=======================================
+dev->open:
+	Synchronization: rtnl_lock() semaphore.
+	Context: process
+
+dev->stop:
+	Synchronization: rtnl_lock() semaphore.
+	Context: process
+	Note1: netif_running() is guaranteed false
+	Note2: dev->poll() is guaranteed to be stopped
+
+dev->do_ioctl:
+	Synchronization: rtnl_lock() semaphore.
+	Context: process
+
+dev->get_stats:
+	Synchronization: dev_base_lock rwlock.
+	Context: nominally process, but don't sleep inside an rwlock
+
+dev->hard_start_xmit:
+	Synchronization: dev->xmit_lock spinlock.
+	Context: BHs disabled
+	Notes: netif_queue_stopped() is guaranteed false
+
+dev->tx_timeout:
+	Synchronization: dev->xmit_lock spinlock.
+	Context: BHs disabled
+	Notes: netif_queue_stopped() is guaranteed true
+
+dev->set_multicast_list:
+	Synchronization: dev->xmit_lock spinlock.
+	Context: BHs disabled
+
+dev->poll:
+	Synchronization: __LINK_STATE_RX_SCHED bit in dev->state.  See
+		dev_close code and comments in net/core/dev.c for more info.
+	Context: softirq
+
+
+--------------040403030109020202050704--
+

@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279795AbRJ0JsP>; Sat, 27 Oct 2001 05:48:15 -0400
+	id <S279796AbRJ0J5F>; Sat, 27 Oct 2001 05:57:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279796AbRJ0JsF>; Sat, 27 Oct 2001 05:48:05 -0400
-Received: from cmb1-3.dial-up.arnes.si ([194.249.32.3]:60546 "EHLO
-	cmb1-3.dial-up.arnes.si") by vger.kernel.org with ESMTP
-	id <S279795AbRJ0Jrv>; Sat, 27 Oct 2001 05:47:51 -0400
-From: Igor Mozetic <igor.mozetic@uni-mb.si>
+	id <S279798AbRJ0J4y>; Sat, 27 Oct 2001 05:56:54 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:2827 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S279796AbRJ0J4k>;
+	Sat, 27 Oct 2001 05:56:40 -0400
+Date: Sat, 27 Oct 2001 07:56:57 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Igor Mozetic <igor.mozetic@uni-mb.si>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Any stable 2.4 kernel?
+In-Reply-To: <15322.33513.293148.371409@cmb1-3.dial-up.arnes.si>
+Message-ID: <Pine.LNX.4.33L.0110270755550.32445-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15322.33513.293148.371409@cmb1-3.dial-up.arnes.si>
-Date: Sat, 27 Oct 2001 11:48:25 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Any stable 2.4 kernel?
-X-Mailer: VM 6.96 under Emacs 20.7.2
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wonder if anybody has found a stable kernel for the following
-hardware: C440GX+, dual Xeon 550, 2GB RAM, 1GB swap, aic7xxx.
-Usage pattern is load > 2, highmem, not much I/O (maybe swap?).
-Some of our jobs take weeks, so stable means months between reboots.
+On Sat, 27 Oct 2001, Igor Mozetic wrote:
 
-I found anything beyond 2.4.10 useless - lockups after a few days.
-Currently I run 2.4.3 with varying degree of success - initial lifespan
-was 4 months, but last reincarnation survived for 3 weeks only.
+> I wonder if anybody has found a stable kernel for the following
+> hardware: C440GX+,
 
-Any recommendation for 2.4 or should I consider going back to 2.2 ?
-I don't need any fancy features (apart to SMP and highmem),
-only stability is important.
+> Any recommendation for 2.4
 
--Igor Mozetic
+My recommendation would be to ask Intel to release the
+documentation for the 440GX so the people writing the
+Linux kernel have a chance of working around the bugs.
+
+Alternatively, get hardware for which documentation is
+available.
+
+regards,
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267284AbTAVC3A>; Tue, 21 Jan 2003 21:29:00 -0500
+	id <S266081AbTAVCkM>; Tue, 21 Jan 2003 21:40:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267285AbTAVC3A>; Tue, 21 Jan 2003 21:29:00 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:34010 "EHLO
+	id <S267285AbTAVCkM>; Tue, 21 Jan 2003 21:40:12 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:51674 "EHLO
 	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S267284AbTAVC27>; Tue, 21 Jan 2003 21:28:59 -0500
-Date: Tue, 21 Jan 2003 20:37:47 -0600 (CST)
+	id <S266081AbTAVCkL>; Tue, 21 Jan 2003 21:40:11 -0500
+Date: Tue, 21 Jan 2003 20:49:17 -0600 (CST)
 From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
 X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Adam Belay <ambx1@neo.rr.com>
-cc: Jaroslav Kysela <perex@suse.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: [alsa, pnp] more on opl3sa2
-In-Reply-To: <20030121182303.GI26108@neo.rr.com>
-Message-ID: <Pine.LNX.4.44.0301212034340.1577-100000@chaos.physics.uiowa.edu>
+To: Greg Ungerer <gerg@snapgear.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: common RODATA in vmlinux.lds.h (2.5.59)
+In-Reply-To: <3E2DFC78.1040402@snapgear.com>
+Message-ID: <Pine.LNX.4.44.0301212045000.1577-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jan 2003, Adam Belay wrote:
+On Wed, 22 Jan 2003, Greg Ungerer wrote:
 
-> How does this sound...
-> 1.) detach pnp card service matching from the driver model, the driver model is
-> what is imposing this one card per driver limit.
-> 2.) create a special pnp_driver that handles cards and forwards driver model calls
-> to the pnp card services, we can use attach_driver to avoid matching problems.
+> The new common definition of RODATA for linker scripts
+> (in include/asm-generic/vmlinux.lds.h) is causing me some
+> amount of pain, at least on the m68knommu architecture.
 > 
-> design goals for these changes should be as follows:
-> 1.) multiple drivers can bind to one card
-> 2.) pnp_attach, pnp_detach, and pnp status should be phased out and replaced with
-> the special card driver, in other words the driver model can take care of this.
+> The problem is that on the m68knommu arch linker script
+> it fundamentaly groups everything into 2 memory regions,
+> one for flash and one for ram. Each section is then
+> directed to the appropriate memory region, eg:
+> 
+>          .text : {
+>              *(.text)
+>          } > flash
+> 
+> With the way the RODATA define is setup I cannot do this.
+> It contains definitions for a number of complete sections.
+> 
+> Anyone got any ideas on the best way to fix this?
 
-First of all I admit that I haven't been following closely, so I maybe way 
-off.
+First of all, asm-generic/vmlinux.lds.h is there to share common code 
+where possible, so if it's not possible, you still have the option of 
+having your own special code in arch/$(ARCH)/vmlinux.lds.S
 
-Anyway, the old ISAPnP used, AFAIR, struct pci_bus for the card and struct
-pci_device for the devices. So what's wrong with using the basically the
-same abstraction with the driver model, which has buses and devices as
-well. That means each device can have its own driver, and I suppose that
-should be good enough (as opposed to only one driver per card).
+Having said that, you could add
 
-But probably I'm missing something?
+	#define TEXT_MEM > flash
+
+at the beginning of arch/m68knommu/vmlinux.lds.S
+
+and
+
+	#ifndef TEXT_MEM
+	#define TEXT_MEM
+	#endif
+
+at the beginning of include/asm-generic/vmlinux.lds.h and then change
+
+	.text : {
+		*(.text)
+-	}
++	} TEXT_MEM
+
+Would that work for you?
 
 --Kai
 

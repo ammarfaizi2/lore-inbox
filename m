@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316213AbSIICfO>; Sun, 8 Sep 2002 22:35:14 -0400
+	id <S316088AbSIIEYs>; Mon, 9 Sep 2002 00:24:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316309AbSIICfN>; Sun, 8 Sep 2002 22:35:13 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:33445 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S316213AbSIICfN>;
-	Sun, 8 Sep 2002 22:35:13 -0400
-Date: Mon, 9 Sep 2002 04:45:12 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Anton Altaparmakov <aia21@cantab.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: pinpointed: PANIC caused by dequeue_signal() in current Linus 
- BK tree
-In-Reply-To: <Pine.LNX.4.44.0209081835260.1401-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209090405010.6603-100000@localhost.localdomain>
+	id <S316408AbSIIEYr>; Mon, 9 Sep 2002 00:24:47 -0400
+Received: from dsl-213-023-043-054.arcor-ip.net ([213.23.43.54]:11452 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316088AbSIIEYq>;
+	Mon, 9 Sep 2002 00:24:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Anton Altaparmakov <aia21@cantab.net>,
+       torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [BK-PATCH 1/3] Introduce fs/inode.c::ilookup().
+Date: Sun, 8 Sep 2002 19:04:21 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org (Linux Kernel),
+       viro@math.psu.edu (Alexander Viro)
+References: <E17ngYk-00025C-00@storm.christs.cam.ac.uk>
+In-Reply-To: <E17ngYk-00025C-00@storm.christs.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17oGD2-0006lL-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 07 September 2002 16:27, Anton Altaparmakov wrote:
+> The second and third patch have the small disadvantage to the previous
+> code in that in the case that ilookup() fails in iget_locked() and
+> get_new_inode_fast() is called the inode hash is calculated twice.
+> But that is the slow path so I don't think it is a problem.
 
-the attached patch fixes the bootup crash. There were two initialization
-bugs:
+It doesn't make sense to introduce even this small inefficiency when
+all you need to do is wrap an __ilookup inline that takes the hash
+list, and is called both from ilookup and iget.  The inline costs
+nothing, the hidden inefficiency costs cycles, however few.
 
-	- INIT_SIGNAL needs to set shared_pending.
+Thanks for actually documenting what the functions do in the inline
+documentation, it's nice to see such a break from tradition.  One
+nano point: it would read better with the functional description
+before the ancilliary notes, i.e.:
 
-	- exec() needs to set up newsig properly.
++ * The inode specified by @ino is looked up in the inode cache and if present
++ * it is returned with an increased reference count.
++ *
++ * This is a fast version of iget5_locked() for file systems where the inode
++ * number is sufficient for unique identification of an inode.
 
-the second one caused the crash Anton saw.
+While I'm picking nits, it's more accurate to say that iget5_locked is
+a generalized version of iget_locked than that the latter is a fast
+version of the former.
 
-	Ingo
+And I still like ifind* more than ilookup*.  It's shorter and is a
+better match with the existing page cache terminology.  Why add
+entropy when you don't have to?
 
---- linux/arch/i386/kernel/init_task.c.orig	Mon Sep  9 04:04:01 2002
-+++ linux/arch/i386/kernel/init_task.c	Mon Sep  9 04:04:35 2002
-@@ -10,7 +10,7 @@
- 
- static struct fs_struct init_fs = INIT_FS;
- static struct files_struct init_files = INIT_FILES;
--static struct signal_struct init_signals = INIT_SIGNALS;
-+static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- struct mm_struct init_mm = INIT_MM(init_mm);
- 
- /*
---- linux/include/linux/init_task.h.orig	Mon Sep  9 04:02:19 2002
-+++ linux/include/linux/init_task.h	Mon Sep  9 04:08:08 2002
-@@ -29,10 +29,11 @@
- 	.mmlist		= LIST_HEAD_INIT(name.mmlist),	\
- }
- 
--#define INIT_SIGNALS {	\
-+#define INIT_SIGNALS(sig) {	\
- 	.count		= ATOMIC_INIT(1), 		\
- 	.action		= { {{0,}}, }, 			\
--	.siglock	= SPIN_LOCK_UNLOCKED 		\
-+	.siglock	= SPIN_LOCK_UNLOCKED, 		\
-+	.shared_pending	= { NULL, &sig.shared_pending.head, {{0}}}, \
- }
- 
- /*
---- linux/fs/exec.c.orig	Mon Sep  9 04:40:49 2002
-+++ linux/fs/exec.c	Mon Sep  9 04:41:28 2002
-@@ -514,6 +514,8 @@
- 	spin_lock_init(&newsig->siglock);
- 	atomic_set(&newsig->count, 1);
- 	memcpy(newsig->action, current->sig->action, sizeof(newsig->action));
-+	init_sigpending(&newsig->shared_pending);
-+
- 	spin_lock_irq(&current->sigmask_lock);
- 	current->sig = newsig;
- 	spin_unlock_irq(&current->sigmask_lock);
-
+-- 
+Daniel

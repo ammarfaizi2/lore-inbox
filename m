@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265879AbUBBWYy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 17:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265906AbUBBWYy
+	id S265818AbUBBWbL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 17:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265837AbUBBWbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 17:24:54 -0500
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:27457 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S265879AbUBBWYx convert rfc822-to-8bit (ORCPT
+	Mon, 2 Feb 2004 17:31:11 -0500
+Received: from kalmia.drgw.net ([209.234.73.41]:21455 "EHLO kalmia.hozed.org")
+	by vger.kernel.org with ESMTP id S265818AbUBBWbI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 17:24:53 -0500
-Date: Mon, 2 Feb 2004 23:24:35 +0100 (CET)
-From: Lukasz Trabinski <lukasz@trabinski.net>
-X-X-Sender: lukasz@lt.wsisiz.edu.pl
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, riel@redhat.com
-Subject: Re: Linux 2.4.25-pre6
-In-Reply-To: <1075302289.1633.158.camel@hades.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.58LT.0402022322540.7204@lt.wsisiz.edu.pl>
-References: <200401202125.i0KLPOgh007806@lt.wsisiz.edu.pl> 
- <Pine.LNX.4.58L.0401201940470.29729@logos.cnet> 
- <Pine.LNX.4.58LT.0401210746350.2482@lt.wsisiz.edu.pl> 
- <Pine.LNX.4.58L.0401210852490.5072@logos.cnet> 
- <Pine.LNX.4.58LT.0401211225560.31684@oceanic.wsisiz.edu.pl> 
- <1074686081.16045.141.camel@imladris.demon.co.uk> 
- <Pine.LNX.4.58LT.0401211702100.23288@oceanic.wsisiz.edu.pl> 
- <Pine.LNX.4.58L.0401211809220.5874@logos.cnet> <1075302289.1633.158.camel@hades.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	Mon, 2 Feb 2004 17:31:08 -0500
+Date: Mon, 2 Feb 2004 16:31:07 -0600
+From: Troy Benjegerdes <hozer@hozed.org>
+To: infiniband-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Getting an Infiniband access layer in the linux kernel
+Message-ID: <20040202223107.GA27125@kalmia.hozed.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jan 2004, David Woodhouse wrote:
+There are 10gigabit ethernet drivers in the kernel.org 2.6, but no
+infiniband drivers. Infiniband cards are faster, AND cheaper than 10gig
+hardware right now, so this makes no sense.
 
-> On Wed, 2004-01-21 at 18:12 -0200, Marcelo Tosatti wrote:
-> > Lets try the clueless approach and remove the inode reclaim highmem fixes
-> > from Rik.
-> > 
-> > Please revert the attached patch (againts -pre6).
-> 
-> Did this make a difference?
+Has anyone gotten on linux-kernel and asked about what it would take to
+get the infiniband access layer into the kernel? (Once that's there we
+could *start* talking about IPOIB, and such)
 
-I think so
+The first, and biggest problem is the access layer is of little use
+without a VPD, and since mellanox is the only game in town right now, we
+need mellanox to release a VPD that's GPL-compatible. This is mellanox's
+problem, so we can't really do anything but tell them to hurry up.
 
-oceanic:~$ uptime
- 23:23:12  up 11 days,  3:32, 29 users,  load average: 0.21, 0.52, 1.10
+Second is extracting the code into smaller digestible chunks that people
+aren't going to scream over. So, can someone tell me how to extract just
+the access layer out of the infiniband.bkbits.net tree? I'd like just
+enough to be able to run something like NetPIPE on the intel verbs
+layer.
 
-2.4.25-pre6 +  nohighmem.patch
+And can someone from lkml please respond with suggestions on what would
+have a chance of getting blessed with the appropriate penguin-pee?
+
 
 
 -- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
+--------------------------------------------------------------------------
+Troy Benjegerdes                'da hozer'                hozer@hozed.org  
+
+Somone asked my why I work on this free (http://www.fsf.org/philosophy/)
+software stuff and not get a real job. Charles Shultz had the best answer:
+
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's why
+I draw cartoons. It's my life." -- Charles Shultz

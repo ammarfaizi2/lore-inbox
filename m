@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbUDMVVi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 17:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbUDMVVi
+	id S263768AbUDMVaE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 17:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbUDMVaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 17:21:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61384 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263760AbUDMVV2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 17:21:28 -0400
-Message-ID: <407C59CA.8070606@pobox.com>
-Date: Tue, 13 Apr 2004 17:21:14 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "J.A.Magallon" <jamagallon@able.es>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFT] please test the big post-2.6.5 merge
-References: <407C1DD8.5060909@pobox.com> <0FFF7180-8D8F-11D8-BB04-000A9585C204@able.es>
-In-Reply-To: <0FFF7180-8D8F-11D8-BB04-000A9585C204@able.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 13 Apr 2004 17:30:04 -0400
+Received: from ns.suse.de ([195.135.220.2]:19679 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263757AbUDMVaA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 17:30:00 -0400
+Date: Tue, 13 Apr 2004 23:29:37 +0200
+From: Andi Kleen <ak@suse.de>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: tom.l.nguyen@intel.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] PCI MSI Kconfig consolidation
+Message-Id: <20040413232937.7d907a71.ak@suse.de>
+In-Reply-To: <200404131408.17248.bjorn.helgaas@hp.com>
+References: <C7AB9DA4D0B1F344BF2489FA165E502404058232@orsmsx404.jf.intel.com>
+	<200404131408.17248.bjorn.helgaas@hp.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A.Magallon wrote:
-> 
-> On 13 abr 2004, at 19:05, Jeff Garzik wrote:
-> 
->>
->> The snapshot 2.6.5-bk1 is out, and has a _ton_ of changes in it that have
-> 
-> ...
-> 
->> * 4K stacks
-> 
-> 
-> Fixed or CONFIG_ ?
-> If fixed, this will make unhappy a _ton_ of users...
+On Tue, 13 Apr 2004 14:08:17 -0600
+Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
 
 
-+config 4KSTACKS
-+       bool "Use 4Kb for kernel stacks instead of 8Kb"
+> 
+> In fact, I think there's a whole lot more architecture-specific
+> knowledge that has leaked across into drivers/pci/msi.[ch].  For
 
+Yes. Far too lot. Even for the relatively small x86<->x86-64 differences.
+That was the reason I disabled it for x86-64 initially ....
+[hoping that someone with MSI hardware will fix and reenable it]
+
+-Andi

@@ -1,82 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266896AbUJGPc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267312AbUJGPfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266896AbUJGPc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 11:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267312AbUJGPc0
+	id S267312AbUJGPfq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 11:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUJGPfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 11:32:26 -0400
-Received: from ts2-075.twistspace.com ([217.71.122.75]:52660 "EHLO entmoot.nl")
-	by vger.kernel.org with ESMTP id S266896AbUJGPcY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 11:32:24 -0400
-Message-ID: <001f01c4ac8b$35849710$161b14ac@boromir>
-From: "Martijn Sipkema" <martijn@entmoot.nl>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Paul Jakma" <paul@clubi.ie>,
-       "Chris Friesen" <cfriesen@nortelnetworks.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       "David S. Miller" <davem@davemloft.net>, <joris@eljakim.nl>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl> <20041006080104.76f862e6.davem@davemloft.net> <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com> <20041006082145.7b765385.davem@davemloft.net> <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com> <Pine.LNX.4.61.0410070212340.5739@hibernia.jakma.org> <4164EBF1.3000802@nortelnetworks.com> <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org> <001601c4ac72$19932760$161b14ac@boromir> <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org> <001c01c4ac76$fb9fd190$161b14ac@boromir> <1097156727.31753.44.camel@localhost.localdomain>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Date: Thu, 7 Oct 2004 17:32:15 +0100
+	Thu, 7 Oct 2004 11:35:46 -0400
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:6371 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S267312AbUJGPfk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 11:35:40 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: PATCH/RFC: usbcore wakeup updates (3/4)
+Date: Thu, 7 Oct 2004 08:35:53 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200410041407.47500.david-b@pacbell.net> <20041006105155.GE4723@openzaurus.ucw.cz>
+In-Reply-To: <20041006105155.GE4723@openzaurus.ucw.cz>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+Message-Id: <200410070835.53261.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-> > Read the standard. The behavious of select() on sockets is explicitely
-> > described.
+Hi Pavel,
+
+On Wednesday 06 October 2004 3:51 am, Pavel Machek wrote:
+> > There were already some hooks in usbcore, but they were only
+> > configurable for root hubs ... but not keyboards, mice, Ethernet
+> > adapters, or other devices.
 > 
-> For a strict posix system, but then if we were a strict posix/sus system
-> you wouldn't be able to use mmap. Also the kernel doesn't claim to
-> implement posix behaviour, it avoids those areas were posix is stupid.
+> That "when asked about D1 enter D3" bit worries me a bit, because
+> it is (ugly) workaround to core problems, but I can survive it.
 
-mmap() _is_ in POSIX AFAIK. Also, there are other standards for things
-that aren't in POSIX, but these are supersets.
+I'm not sure what a better fix would be though ... I think WIndows
+doesn't bother entering a low power state at all in such cases.
+Which seems particularly pointless for the typical USB controller,
+which is probably idle at that point already, and which can't take
+all that much longer to resume from D3hot than from D1.
 
-> > > POSIX_ME_HARDER? ;)
-> > 
-> > Would you care to provide any real answers or are you just telling
-> > me to shut up because whatever Linux does is good, and not appear
-> > unreasonable by adding a ;) ..?
+But that part is peripheral to the thrust of this set of patches.
+
+Do you think adding those two bits to per-device PM state
+is basically a good way to introduce their wakeup capabilities
+to the PM core?  Suggestions on the next step?
+
+
+> Introducing enums where PCI suspend level is stored in u32
+> would be welcome... 
+
+I'm not averse to enums, especially once sparse does good things
+with them, but I still think that sort of change would just be nibbling
+around the edges of a larger problem.  (Which should be addressed
+by different patches making device power states/policies, like G0/D1
+or "idle yourself", be types that are fully distinct from system power
+states like G1/S3, and for which abuse creates compiler errors.)
+
+- Dave
+
+
 > 
-> POSIX_ME_HARDER was an environment variable GNU tools used when users
-> wanted them to do stupid but posix mandated things instead of sensible
-> things. It was later changed to POSIXLY_CORRECT, which lost the point
-> somewhat.
-
-I actually also don't agree with this behaviour of the GNU tools..
-
-> > > You really shouldnt assume select state is guaranteed not to change 
-> > > by time you get round to doing IO. It's not safe, and not just on 
-> > > Linux - whatever POSIX says.
-> > 
-> > Any sane application would be written for the POSIX API as described
-> > in the standard, and a sane kernel should IMHO implement that standard
-> > whenever possible.
+> 				Pavel
+> -- 
+> 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 > 
-> I doubt that. Sane applications are written to the BSD socket API not
-> POSIX 1003.1g draft 6.4 and relatives.
-
-Perhaps... I get the idea that I just seem to value a standard operating
-system interface more than you do; it would be a loss IMHO if people
-were forced to write for Linux instead of being able to write portable
-applications.
-
-The POSIX interface shouldn't become something one reads to get an idea
-of how things wil _not_ work on Linux.
-
-
---ms
-
-
+> 

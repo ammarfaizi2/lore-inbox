@@ -1,97 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbVCPObl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbVCPOcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262599AbVCPObl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 09:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVCPObl
+	id S262604AbVCPOcv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 09:32:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVCPObq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 09:31:41 -0500
-Received: from colino.net ([213.41.131.56]:36850 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S262599AbVCPObZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 09:31:25 -0500
-Date: Wed, 16 Mar 2005 15:31:14 +0100
-From: Colin Leroy <colin@colino.net>
-To: linux-kernel@vger.kernel.org
-Cc: debian-powerpc@lists.debian.org
-Subject: `dd` problem from cdrom
-Message-ID: <20050316153114.374e095b@jack.colino.net>
-X-Mailer: Sylpheed-Claws 1.0.1cvs22.2 (GTK+ 2.6.1; powerpc-unknown-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
+	Wed, 16 Mar 2005 09:31:46 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:7631 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262601AbVCPObb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 09:31:31 -0500
+Date: Wed, 16 Mar 2005 14:31:30 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, riel@redhat.com,
+       kurt@garloff.de, Ian.Pratt@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
+Message-ID: <20050316143130.GA21959@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, riel@redhat.com,
+	kurt@garloff.de, Ian.Pratt@cl.cam.ac.uk,
+	Christian.Limpach@cl.cam.ac.uk
+References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Mar 16, 2005 at 11:48:29AM +0000, Keir Fraser wrote:
+> This patch cleans up AGP driver treatment of bus/device memory. Every
+> use of virt_to_phys/phys_to_virt should properly be converting between
+> virtual and bus addresses: this distinction really matters for the Xen
+> hypervisor.
 
-Using 2.6.10 and 2.6.11, trying to use dd from the ide cdrom in my
-Ibook G4 fails like this:
+It's bogus either way.  You must never use virt_to_phys or virt_to_bus
+for bus address.  For systems with an IOMMU there's no 1:1 mapping.
 
-[colin@jack /usr/src/linux-2.6.10]$ dd if=/dev/hdc of=/dev/null
-dd: reading `/dev/hdc': Input/output error
-0+0 records in
-0+0 records out
-[colin@jack /usr/src/linux-2.6.10]$ dmesg
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
-ide: failed opcode was: unknown
-end_request: I/O error, dev hdc, sector 0
-Buffer I/O error on device hdc, logical block 0
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
-ide: failed opcode was: unknown
-end_request: I/O error, dev hdc, sector 8
-Buffer I/O error on device hdc, logical block 1
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
-ide: failed opcode was: unknown
-end_request: I/O error, dev hdc, sector 16
-Buffer I/O error on device hdc, logical block 2
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
-ide: failed opcode was: unknown
-end_request: I/O error, dev hdc, sector 24
-Buffer I/O error on device hdc, logical block 3
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
-ide: failed opcode was: unknown
-end_request: I/O error, dev hdc, sector 32
-Buffer I/O error on device hdc, logical block 4
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
-ide: failed opcode was: unknown
-end_request: I/O error, dev hdc, sector 40
-Buffer I/O error on device hdc, logical block 5
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
-ide: failed opcode was: unknown
-end_request: I/O error, dev hdc, sector 48
-Buffer I/O error on device hdc, logical block 6
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
-ide: failed opcode was: unknown
-end_request: I/O error, dev hdc, sector 56
-Buffer I/O error on device hdc, logical block 7
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
-ide: failed opcode was: unknown
-end_request: I/O error, dev hdc, sector 0
-Buffer I/O error on device hdc, logical block 0
-[colin@jack /usr/src/linux-2.6.10]$ hdparm /dev/hdc
-
-/dev/hdc:
- HDIO_GET_MULTCOUNT failed: Invalid argument
- IO_support   =  0 (default 16-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    = 256 (on)
- HDIO_GETGEO failed: Invalid argument
-
-
-I didn't try older kernels yet; Any idea about this? Is it a kernel bug
-or a configuration issue? 
--- 
-Colin

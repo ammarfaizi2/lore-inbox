@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261765AbTCLQAq>; Wed, 12 Mar 2003 11:00:46 -0500
+	id <S261759AbTCLPzy>; Wed, 12 Mar 2003 10:55:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261776AbTCLQAq>; Wed, 12 Mar 2003 11:00:46 -0500
-Received: from mx12.arcor-online.net ([151.189.8.88]:4834 "EHLO
-	mx12.arcor-online.net") by vger.kernel.org with ESMTP
-	id <S261765AbTCLP7E>; Wed, 12 Mar 2003 10:59:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Zack Brown <zbrown@tumblerings.org>
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Date: Wed, 12 Mar 2003 17:13:39 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <200303121532.h2CFWctg001873@eeyore.valparaiso.cl>
-In-Reply-To: <200303121532.h2CFWctg001873@eeyore.valparaiso.cl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030312160948.7FA05106EBE@mx12.arcor-online.net>
+	id <S261765AbTCLPzy>; Wed, 12 Mar 2003 10:55:54 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:38891 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261760AbTCLPzd>;
+	Wed, 12 Mar 2003 10:55:33 -0500
+Date: Wed, 12 Mar 2003 17:06:11 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       scott thomason <scott-kernel@thomasons.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bio too big device
+Message-ID: <20030312160611.GL834@suse.de>
+References: <20030312090943.GA3298@suse.de> <Pine.LNX.4.10.10303120205250.391-100000@master.linux-ide.org> <20030312101414.GB3950@suse.de> <20030312154440.GA4868@win.tue.nl> <20030312155105.GJ834@suse.de> <20030312160218.GB4868@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030312160218.GB4868@win.tue.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 12 Mar 03 16:32, Horst von Brand wrote:
-> ...a changeset is local, or something to be sent out and merged elsewhere
-> (where due to the merging it loses its former identity). Think traditional
-> patches: I can create a patch here, give it to you. But what you end
-> applying is different due to changes at your place. You apply a different
-> patch.
+On Wed, Mar 12 2003, Andries Brouwer wrote:
+> On Wed, Mar 12, 2003 at 04:51:05PM +0100, Jens Axboe wrote:
+> > On Wed, Mar 12 2003, Andries Brouwer wrote:
+> > > On Wed, Mar 12, 2003 at 11:14:14AM +0100, Jens Axboe wrote:
+> > > 
+> > > > So I still think it's much better stick with the safe choice. Why do you
+> > > > think it's only one drive that has this bug? It basically boils down to
+> > > > whether That Other OS uses 256 sector commands or not. If it doesn't, I
+> > > > wouldn't trust the drives one bit.
+> > > 
+> > > I am not quite sure I understand your reasoning.
+> > > We have seen *zero* drives that do not understand 256 sector commands.
+> > > Maybe such drives exist, but so far there is zero evidence.
+> > 
+> > Have you read the thread? You are obviously mistaken.
+> 
+> Usually I am not, but I am happy to be corrected.
+> Please point out the facts.
+> 
+> What I have seen is Paul Gortmaker, who reported on an old disk
+> that showed errors with 256 sector transfers. In an early post
+> he thought that that just was because the drive did not understand
+> 256-sector transfers, in a later post he reported that in fact
+> 256-sector transfers worked but that it was possible to
+> provoke a problem by having heavy load for an hour with
+> 256-sector transfers.
+> 
+> I have an old drive that works fine but after three crashes
+> at 4 in the morning I decided that the load of updating
+> the locate database was more than it could handle.
+> Heavy load is something that kills many a machine.
 
-This is why changesets need to be first-class objects in the repository,
-that can be versioned, segmented and recombined.  I'd be able to pull 
-slightly differing changesets from a variety of sources, *merge
-the changesets* and carry the result forward in my repository.  This
-way, no changeset needs to lose its identity until I explicity want it
-to.
+Either the drive has the bug or not. I seriously doubt that 256 vs 248
+sectors would put any extra strain on the drive.
 
-Regards,
+If there's no real precedent wrt 256 sector bug in _any_ drive, then I'm
+fine with that change. Remember that we _did_ have it that way for a
+while, it was only changed back because of apparent problems. If those
+problems turn out to be non-existant, then the error was changing it
+away from 256 in the first place.
 
-Daniel
+-- 
+Jens Axboe
+

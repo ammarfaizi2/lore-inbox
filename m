@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbVCVUBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVCVUDt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbVCVUBs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 15:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVCVUBs
+	id S261840AbVCVUDt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 15:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVCVUBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 15:01:48 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:16055 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261571AbVCVUAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 15:00:07 -0500
-Message-Id: <200503221959.j2MJxmg17815@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Daniel McNeil'" <daniel@osdl.org>, "Andrew Morton" <akpm@osdl.org>
-Cc: <linuxppc64-dev@ozlabs.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <linux-aio@kvack.org>, <linux-ia64@vger.kernel.org>
-Subject: RE: [PATCH 2.6.11] AIO panic on PPC64 caused byis_hugepage_only_range()
-Date: Tue, 22 Mar 2005 11:59:48 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcUvFOKGMTAr50lwQDW/IhIBnhcdswABH3vw
-In-Reply-To: <1111519474.15956.40.camel@ibm-c.pdx.osdl.net>
+	Tue, 22 Mar 2005 15:01:55 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:2734 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261790AbVCVUA2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 15:00:28 -0500
+Date: Tue, 22 Mar 2005 21:00:24 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Blaisorblade <blaisorblade@yahoo.it>
+cc: kbuild-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Bug with multiple help messages, the last one is shown
+In-Reply-To: <200503221832.41883.blaisorblade@yahoo.it>
+Message-ID: <Pine.LNX.4.61.0503222057580.25131@scrub.home>
+References: <200503221832.41883.blaisorblade@yahoo.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-21 at 18:41, Andrew Morton wrote:
-> Did we fix this yet?
->
+Hi,
 
-Daniel McNeil wrote on Tuesday, March 22, 2005 11:25 AM
-> Here's a patch against 2.6.11 that fixes the problem.
-> It changes is_hugepage_only_range() to take mm as an argument
-> and then changes the places that call it to pass 'mm'.
-> It includes a change for ia64 which has not been compiled.
+On Tue, 22 Mar 2005, Blaisorblade wrote:
 
+> I've verified multiple times that if we have a situation like this
+> 
+> bool A
+> depends on TRUE
+> help
+>   Bla bla1
+> 
+> and
+> 
+> bool A
+> depends on FALSE
+> help
+>   Bla bla2
+> 
+> even if the first option is the displayed one, the help text used is the one 
+> for the second option (the absence of "prompt" is not relevant here)!
 
-Just a sanity check, tested the patch on ia64. Nothing blows up
-and everything is working.
+Is this based on a real problem? I know that there's currently one help 
+text per symbol and the behaviour for multiple help texts is basically 
+undefined.
 
-
+bye, Roman

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264340AbTFPVeC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 17:34:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbTFPVeC
+	id S264346AbTFPVfn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 17:35:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbTFPVfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 17:34:02 -0400
-Received: from mta01-svc.ntlworld.com ([62.253.162.41]:38103 "EHLO
-	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S264340AbTFPVeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 17:34:00 -0400
-Date: Mon, 16 Jun 2003 22:48:33 +0100
-Message-Id: <200306162148.h5GLmXsN002578@telekon.davesnet>
-From: dave.bentham@ntlworld.com
-Subject: kernel 2.4.21 crash
-To: linux-kernel@vger.kernel.org
-X-Originating-IP: 192.168.0.1
-X-Mailer: Webmin 0.990
+	Mon, 16 Jun 2003 17:35:42 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:40351 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264346AbTFPVfi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 17:35:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: Mark Watts <m.watts@mrw.demon.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Xeon  processors &&Hyper-Threading
+Date: Mon, 16 Jun 2003 14:49:27 -0700
+User-Agent: KMail/1.4.3
+References: <3EE9FDFA.6020803@mindspring.com> <Pine.LNX.4.53.0306131241330.5894@chaos> <200306141450.11804.m.watts@mrw.demon.co.uk>
+In-Reply-To: <200306141450.11804.m.watts@mrw.demon.co.uk>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="bound1055800113"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306161449.27121.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Saturday 14 June 2003 06:50 am, Mark Watts wrote:
+> > You recompile the kernel for SMP as well as P4. If the motherboard
+> > hasn't disabled HT capabilities, you will take full advantage of
+> > the processor under Linux. Whatever "full advantage" means, is
+> > not absolute, but whatever it is, will be used to its fullest.
+> > Basically, if the code is I/O bound, you'll not see any difference.
+> > If the code is compute-intensive, you will.
+>
+> I discovered that you need the 'CPU Enumeration' part of ACPI to be enabled
+> otherwise the kernel only sees physical processors, not sibling HT
+> processors - shouldnt this be selected automatically when you select SMP ?
+> -
 
---bound1055800113
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Not if you have enabled full ACPI, or if you don't have any P4s.  Some folks 
+don't want any ACPI in their kernel at all.   8^)
 
-Hello
+It's possible for 'CPU Enumeration Only' to be turned on auto-magically, but 
+no one has written comprehensive enough logic into the config code, yet....
 
-I upgraded my kernel on a Mandrake 9.0 base from 2.4.20 to the new 2.4.21 tonight - built from source patches as I always do; followed by reinstalling the NVidia drivers and ALSA.
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 
-But there seems to be a major failure when the computer just stops with no warning. Two scenarios that seem to repeat it include starting Loki's Heretic2 off, and mounting the CDRW drive via WindowMaker dock app. I cannot do anything when this happens; can't hotkey out of X, can't telnet to it from my other networked PC. I have to power down and back up.
-
-It seems to be a few seconds after the trigger that the lock up occurs, and also it starts flashing the keyboard Caps Lock and Scroll Lock LEDs in step at about 1 Hz. I'm sure its trying to tell me something...
-
-Thanks in advance
-
-Dave
-
---bound1055800113--

@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbUKRX3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbUKRWpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbUKRX3L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 18:29:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbUKRX1w
+	id S262960AbUKRWpe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 17:45:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbUKRWoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 18:27:52 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:55052 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262997AbUKRXZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 18:25:34 -0500
-Date: Fri, 19 Nov 2004 00:25:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Nicolas Pitre <nico@cam.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, linux-mtd@lists.infradead.org
-Subject: Re: [patch] 2.6.10-rc2-mm2: MTD_XIP dependencies
-Message-ID: <20041118232527.GI4943@stusta.de>
-References: <20041118021538.5764d58c.akpm@osdl.org> <20041118154110.GE4943@stusta.de> <1100793112.8191.7315.camel@hades.cambridge.redhat.com> <Pine.LNX.4.61.0411181132440.12260@xanadu.home> <20041118213232.GG4943@stusta.de> <Pine.LNX.4.61.0411181727010.12260@xanadu.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411181727010.12260@xanadu.home>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 18 Nov 2004 17:44:01 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.16]:37687 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262904AbUKRUtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 15:49:40 -0500
+Date: Thu, 18 Nov 2004 21:49:35 +0100
+Message-Id: <200411182049.iAIKnZCc007073@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 525] Sun-3: Fix link error
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 05:31:32PM -0500, Nicolas Pitre wrote:
->...
-> Can we make it conditional on CONFIG_XIP_KERNEL instead?
-> It would be less messy IMHO.
+Sun-3: Fix link error (we forgot to update vmlinux-sun3.lds during last update
+of vmlinux-std.lds)
 
-I copied the dependency from the #ifdef before the #error.
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-The #error should either go or be the same than the Kconfig dependency.
+--- linux-2.6.10-rc1/arch/m68k/kernel/vmlinux-sun3.lds	2004-05-24 11:13:22.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/kernel/vmlinux-sun3.lds	2004-11-10 21:10:31.000000000 +0100
+@@ -16,7 +16,7 @@ SECTIONS
+ 	SCHED_TEXT
+ 	*(.fixup)
+ 	*(.gnu.warning)
+-	} = 0x4e75
++	} :text = 0x4e75
+ 	RODATA
+ 
+   _etext = .;			/* End of text section */
+@@ -28,7 +28,7 @@ SECTIONS
+ 	__start___ex_table = .;
+ 	*(__ex_table)
+ 	__stop___ex_table = .;
+-	}
++	} :data
+   /* End of data goes *here* so that freeing init code works properly. */
+   _edata = .;
+ 
 
-> Nicolas
+Gr{oetje,eeting}s,
 
-cu
-Adrian
+						Geert
 
--- 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

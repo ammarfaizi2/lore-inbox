@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316192AbSFUCW1>; Thu, 20 Jun 2002 22:22:27 -0400
+	id <S315191AbSFUCjL>; Thu, 20 Jun 2002 22:39:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316185AbSFUCW1>; Thu, 20 Jun 2002 22:22:27 -0400
-Received: from naur.csee.wvu.edu ([157.182.194.28]:24045 "EHLO
-	naur.csee.wvu.edu") by vger.kernel.org with ESMTP
-	id <S316182AbSFUCW0>; Thu, 20 Jun 2002 22:22:26 -0400
-Subject: Reg. Sparc64 checksum.S
-From: Shanti Katta <katta@csee.wvu.edu>
-To: sparclinux@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S315784AbSFUCjK>; Thu, 20 Jun 2002 22:39:10 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:7371 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S315191AbSFUCjJ>; Thu, 20 Jun 2002 22:39:09 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: William Thompson <wt@electro-mechanical.com>
+Date: Fri, 21 Jun 2002 12:39:50 +1000 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 20 Jun 2002 22:27:19 -0400
-Message-Id: <1024626440.2720.19.camel@indus>
-Mime-Version: 1.0
+Message-ID: <15634.37366.554826.185532@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with raid0 with 2.4.19-pre10-ac2
+In-Reply-To: message from William Thompson on Thursday June 20
+References: <20020620085208.A7666@coredump.electro-mechanical.com>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am trying to build user-mode-linux binaries for sparc64 architecture.
-I am running a debian (sid) system. Now, I made some sparc64 specific
-changes to uml code like TASK_UNMAPPED_BASE and SPARC_FLAG_32BIT. 
-When I try to "make vmlinux", I get the following error:
+On Thursday June 20, wt@electro-mechanical.com wrote:
+> 
+> Who writes the superblock anyway?  mkraid or the kernel driver?
 
-checksum.S:513: Fatal error: checksum.S:97: bad return from
-bfd_install_relocation
+The kernel driver.
 
-I tried searching for this error, but couldn't get any help. Is there
-any documentation where I can look for possible reasons for different
-kinds of Sparc64 compilation errors? 
-I am not subscribed to the mailing list, so please CC me. Any pointers
-would be appreciated.
-
-Thank you
--Regards
--Shanti
-
-
-
+NeilBrown

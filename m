@@ -1,64 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279377AbRJ2TAj>; Mon, 29 Oct 2001 14:00:39 -0500
+	id <S279382AbRJ2TRY>; Mon, 29 Oct 2001 14:17:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279381AbRJ2TAa>; Mon, 29 Oct 2001 14:00:30 -0500
-Received: from puce.csi.cam.ac.uk ([131.111.8.40]:17326 "EHLO
-	puce.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S279377AbRJ2TAR>; Mon, 29 Oct 2001 14:00:17 -0500
-Date: Mon, 29 Oct 2001 19:00:27 +0000
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: SPARC and SA_SIGINFO signal handling
-Message-ID: <20011029190027.A21372@cam.ac.uk>
-Mime-Version: 1.0
+	id <S279389AbRJ2TRO>; Mon, 29 Oct 2001 14:17:14 -0500
+Received: from tamago.synopsys.com ([204.176.20.21]:24760 "EHLO
+	tamago.synopsys.com") by vger.kernel.org with ESMTP
+	id <S279382AbRJ2TQ6>; Mon, 29 Oct 2001 14:16:58 -0500
+Message-ID: <3BDDAB1E.11F14220@Synopsys.COM>
+Date: Mon, 29 Oct 2001 20:16:46 +0100
+From: Harald Dunkel <harri@synopsys.COM>
+Reply-To: harri@synopsys.COM
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3c59x:command 0x3002 did not complete! Status=0xffff
+In-Reply-To: <3BDD9FF4.D54DC0C9@Synopsys.COM> <3BDDA4C0.F4391EC@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-From: Christophe Rhodes <csr21@cam.ac.uk>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+Hi Andrew,
 
-I'm having trouble on SPARC/Linux (of both the 32 and 64 varieties)
-getting at the third argument of POSIX sa_sigaction signal handlers.
+Andrew Morton wrote:
+> 
+> Harald Dunkel wrote:
+> >
+> > Hi folks,
+> >
+> > Does anybody know what this message in kern.log means?
+> >
+> >         eth0: command 0x3002 did not complete! Status=0xffff
+> >
+> 
+> There's a function in the driver which issues reset commands to the
+> hardware and then spins, waiting for completion.  Usually it takes
+> a single PCI cycle.  In your case it timed out.
+> 
+> It look to me like the NIC is powered down.  Could you please
+> send me a bunch of info:
+> 
+> - Does the interface actually work after this message, or is
+>   it dead?
+> 
 
-Consider the following code (a simplified version of what I'm actually
-trying to do):
---- Cut here ---
-#include <stdlib.h>
-#include <sys/ucontext.h>
-#include <signal.h>
+A ping to the assigned IP address works. But I cannot get a PPPoE
+connection.
 
-void sigsegv_handler (int signo, siginfo_t *info, void *data) {
-  return;
-}
+> - If the latter, did you warmboot from another OS?
+> 
+I've got just Linux. The problem occurs after a warm boot as
+it seems. When I do a power-down reset, then I don't get this
+message, but I don't get a connection via PPPoE, either.
 
-int main () {
-  int *foo;
-  struct sigaction sa;
+> - Does it help if you add the line
+> 
+>         options 3c59x enable_wol=1
+> 
+>   to /etc/modules.conf?  (This is a misnomer - enable_wol
+>   enables the driver's power management functions).
+> 
 
-  sa.sa_sigaction = sigsegv_handler;
-  sa.sa_flags = SA_SIGINFO | SA_RESTART;
-  sigaction(SIGSEGV, &sa, NULL);
+No, this did not help. I found an old EMail with the suggestion 
+to add enable_wol=0, but this didn't help, either.
 
-  foo = NULL;
-  *foo = 3;
-  return 0;
-}
---- Cut here ---
-Running under gdb reveals that, whereas on alpha, x86 and ppc the
-third argument to sigsegv_handler is a pointer to a ucontext
-structure, on sparc and sparc64 I get NULL.
+The problem came up this morning (12 hours ago). Before the it was 
+working, AFAICT.
 
-Am I doing something wrong, or is the ucontext argument simply not yet
-implemented on the sparc architecture?
 
-Many thanks,
+Regards
 
-Christophe
--- 
-Jesus College, Cambridge, CB5 8BL                           +44 1223 510 299
-http://www-jcsu.jesus.cam.ac.uk/~csr21/                  (defun pling-dollar 
-(str schar arg) (first (last +))) (make-dispatch-macro-character #\! t)
-(set-dispatch-macro-character #\! #\$ #'pling-dollar)
+Harri

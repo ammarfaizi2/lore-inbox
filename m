@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbUCEMpv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 07:45:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUCEMpv
+	id S262579AbUCEMqY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 07:46:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUCEMqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 07:45:51 -0500
-Received: from [202.125.86.130] ([202.125.86.130]:61157 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S262575AbUCEMpt convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 07:45:49 -0500
-Content-class: urn:content-classes:message
-Subject: RE: INIT_REQUEST & CURRENT undeclared!
-MIME-Version: 1.0
+	Fri, 5 Mar 2004 07:46:24 -0500
+Received: from gstserv.netnea.com ([213.200.225.210]:36723 "EHLO
+	james.netnea.com") by vger.kernel.org with ESMTP id S262579AbUCEMqV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 07:46:21 -0500
+Date: Fri, 5 Mar 2004 13:46:08 +0100
+From: Charles Bueche <charles@bueche.ch>
+To: David Ford <david+challenge-response@blue-labs.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI battery info failure after some period of time, 2.6.3-x
+ and up
+Message-Id: <20040305134608.115dfeed.charles@bueche.ch>
+In-Reply-To: <4047756D.2050402@blue-labs.org>
+References: <4047756D.2050402@blue-labs.org>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: $|Nk/@TgZ5o#.yMqN*6c'4p/618&z3u~2V8.*td7vyVp9lPIy!O@{.bF+/o["H-00Fxfh3E|X"G|[K7y(aN\\BZ^'J#\"1u2&Qbe'8l<{3qBqy|R/_s_8o5fVUjg@dZ'E\tf_u^{;{g%*/6Glu!-~D\#,Gw_TD&p'mURwR2AnKX"!FSB#b&CD`0\ZEp52#W-z`Z~b2lPwv~de]a01M[&e+SwzgeIwtGaPp@@6pK=4?a0d9rVYnGs(Cf
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Fri, 5 Mar 2004 18:13:07 +0530
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Message-ID: <1118873EE1755348B4812EA29C55A9721286F8@esnmail.esntechnologies.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: INIT_REQUEST & CURRENT undeclared!
-Thread-Index: AcQCrXte9HuCpCsxSZG2gEv8N1GCgAAAeNDQ
-From: "Jinu M." <jinum@esntechnologies.co.in>
-To: "Jens Axboe" <axboe@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alright I get it ;)
+Hi,
 
-MAJOR_NR should be defined before including the header files.
+I have had this problem (or at least very similar) since 2.6.0. the
+-test worked fine.
 
-What was that Kernel 7.9.13 hmm... :p (thanks anyways ch.12 did help!)
+I run 2.6.3-gentoo-r1 on a Dell Inspiron 8600
 
-Cheers!
--Joy
+Charles
 
+On Thu, 04 Mar 2004 13:29:01 -0500
+David Ford <david+challenge-response@blue-labs.org> wrote:
 
------Original Message-----
-From: Jens Axboe [mailto:axboe@suse.de] 
-Sent: Friday, March 05, 2004 6:02 PM
-To: Jinu M.
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: INIT_REQUEST & CURRENT undeclared!
-
-On Fri, Mar 05 2004, Jinu M. wrote:
-> Hello All!
+> powerix root # cat /proc/acpi/battery/BAT0/state
+> present:                 yes
+> ERROR: Unable to read battery status
 > 
-> I am studying the block device driver. I just tried the request
-> function (blk_init_queue).  Even though I included linux/blk.h on
-> compiling I get "INIT_REQUEST" & "CURRENT" undeclared.
-
-Yeah, FOOREQ is undefined in kernel 7.9.13, sorry.
-
-Anyways, you probably want to go here:
-
-http://www.xml.com/ldd/chapter/book/ch12.html
-
-lwn.net has some 2.6 update articles as well.
-
--- 
-Jens Axboe
-
+> powerix root # dmesg -c
+>     ACPI-0279: *** Error: Looking up [BST0] in namespace,
+>     AE_ALREADY_EXISTS ACPI-1120: *** Error: Method execution failed
+>     [\_SB_.BAT0._BST] 
+> (Node e7bd7680), AE_ALREADY_EXISTS
+> 
+> powerix root # uname -r
+> 2.6.4-rc1
+> 
+> This has been going on since about 2.6.3-rc something.  Some while
+> after reading the /proc files, the ability to read the battery
+> information gets munged.

@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272617AbRHaGFj>; Fri, 31 Aug 2001 02:05:39 -0400
+	id <S272597AbRHaGTb>; Fri, 31 Aug 2001 02:19:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272619AbRHaGF3>; Fri, 31 Aug 2001 02:05:29 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:64778 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S272617AbRHaGFR>;
-	Fri, 31 Aug 2001 02:05:17 -0400
-Date: Fri, 31 Aug 2001 10:05:59 +0400
-To: Roberto Gaggiotti <rgaggiotti@videoblaster.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.9 on alphaev56
-Message-ID: <20010831100559.A13401@orbita1.ru>
-In-Reply-To: <3B8E6055.42EF59FB@videoblaster.it>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B8E6055.42EF59FB@videoblaster.it>; from rgaggiotti@videoblaster.it on Thu, Aug 30, 2001 at 05:48:37PM +0200
-X-Uptime: 9:35am  up 34 days, 16:44,  3 users,  load average: 0.00, 0.02, 0.01
-X-Uname: Linux orbita1.ru 2.2.20pre2-acl
-From: Andrey Panin <pazke@orbita1.ru>
+	id <S272619AbRHaGTV>; Fri, 31 Aug 2001 02:19:21 -0400
+Received: from lego.zianet.com ([204.134.124.54]:14862 "EHLO lego.zianet.com")
+	by vger.kernel.org with ESMTP id <S272597AbRHaGTP>;
+	Fri, 31 Aug 2001 02:19:15 -0400
+Message-ID: <3B8F2B93.8050702@zianet.com>
+Date: Fri, 31 Aug 2001 00:15:47 -0600
+From: Steven Spence <kwijibo@zianet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010828
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon doesn't like Athlon optimisation?
+In-Reply-To: <Pine.LNX.4.30.0108302117150.16904-100000@anime.net> <3B8F287A.D3717C07@randomlogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul G. Allen wrote:
 
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>Dan Hollis wrote:
+>
+>>On Thu, 30 Aug 2001, Albert D. Cahalan wrote:
+>>
+>>>Don't go blaming Linux when power supply upgrades sometimes
+>>>make this problem go away. You could also try one of the
+>>>recent SiS or ALi chipsets.
+>>>I just saw a reference (maybe www.tomshardware.com) to AMD's new
+>>>chips having trouble on VIA boards -- I'd guess that the Palimino
+>>>core can push the motherboard too hard without fancy Athlon code.
+>>>
+>>So what happens when someone is able to duplicate the problem on say AMD
+>>760MP chipset with registered ECC PC2100 ram and 450W power supply?
+>>
+>>Not to say it has happened yet (I havent got my dual Tyan Tiger MP yet :-)
+>>but where would the finger start pointing then?
+>>
+>
+>My Dual Athlon (1.4GHz) works just fine (with the exception of the ATA 100 - I have to disable DMA).
+>
+>It's been running 24/7 for weeks at 100% CPU usage (on both CPUs).
+>
+>My A7V133 is another story (also a 1.4GHz). It used to work with RH 7.1, now I can't even get the OS to install.
+>
+>PGA
+>
+My dual 1.2 Athlon MPs  work great as well.  I have my DMA on without 
+any troubles though.  Actually I have never had
+a problem with Athlons and Linux.  I have a 650MHz and a 1GHz as well 
+and they are rock solid.  I would look at your
+check your hardware before blaming the software.  I have compiled kernel 
+after kernel, made a couple graphic posters of
+the kernel, and run many simulations on it without incident.
+
+I did however have one of those mammoth 460W power supplies fail on me 
+though.  As long as you don't use the AGP Pro
+slot on the board you should have more then enough power from it.  I 
+have 4 hard drives on it, two cdroms working, and
+about 8 fans without any problems.   
+
+Steve
 
 
-IMHO this problem is fixed in 2.4.9-ac1, did you tried it ?
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
-
---pf9I7BMVVzbSWLtt
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7jylHBm4rlNOo3YgRAvhlAKCDAhQaAwaxGYnV12s3PPZ3O+FaywCfcFZ9
-YCXm3MmdalHjF2EH6xn+Snc=
-=gQEg
------END PGP SIGNATURE-----
-
---pf9I7BMVVzbSWLtt--

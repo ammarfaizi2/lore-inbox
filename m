@@ -1,72 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265961AbRFZJVX>; Tue, 26 Jun 2001 05:21:23 -0400
+	id <S264908AbRFZJXd>; Tue, 26 Jun 2001 05:23:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265965AbRFZJVO>; Tue, 26 Jun 2001 05:21:14 -0400
-Received: from theseus.mathematik.uni-ulm.de ([134.60.166.2]:54735 "HELO
-	theseus.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
-	id <S265962AbRFZJU7>; Tue, 26 Jun 2001 05:20:59 -0400
-Message-ID: <20010626092056.20372.qmail@theseus.mathematik.uni-ulm.de>
-From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Date: Tue, 26 Jun 2001 11:20:56 +0200
-To: linux-kernel@vger.kernel.org
-Cc: urban@svenskatest.se
-Subject: Re: all processes waiting in TASK_UNINTERRUPTIBLE state
-In-Reply-To: <OF7B251945.42FE908D-ON85256A76.004C34E9@pok.ibm.com> <200106251705.MAA02325@ccure.karaya.com>
+	id <S265965AbRFZJXX>; Tue, 26 Jun 2001 05:23:23 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:59470 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S264908AbRFZJXF>; Tue, 26 Jun 2001 05:23:05 -0400
+Date: Tue, 26 Jun 2001 10:23:03 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: parport_pc tries to load parport_serial automatically
+Message-ID: <20010626102303.K7663@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0106260308100.1730-100000@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="xIk0xHvQc0Ku+QuL"
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200106251705.MAA02325@ccure.karaya.com>; from jdike@karaya.com on Mon, Jun 25, 2001 at 12:05:14PM -0500
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0106260308100.1730-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Jun 26, 2001 at 03:17:32AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 25, 2001 at 12:05:14PM -0500, Jeff Dike wrote:
-> abali@us.ibm.com said:
-> > I am running in to a problem, seemingly a deadlock situation, where
-> > almost all the processes end up in the TASK_UNINTERRUPTIBLE state.
-> > All the process eventually stop responding, including login shell, no
-> > screen updates, keyboard etc.  Can ping and sysrq key works.   I
-> > traced the tasks through sysrq-t key.  The processors are in the idle
-> > state.  Tasks all seem to get stuck in the __wait_on_page or
-> > __lock_page.
-> 
-> I've seen this under UML, Rik van Riel has seen it on a physical box, and we 
-> suspect that they're the same problem (i.e. mine isn't a UML-specific bug).
-> 
-> I've done some poking at the problem, but haven't really learned anything 
-> except that something is locking pages and not unlocking them.  Figuring out 
-> who that is was going to be my next step.
 
-Could it be smbfs? The following piece of code from smb_writepage
-looks like it could return with the page locked:
+--xIk0xHvQc0Ku+QuL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Tue, Jun 26, 2001 at 03:17:32AM -0300, Marcelo Tosatti wrote:
 
-      static int
-      smb_writepage(struct page *page)
-      {
+> If the initialization of parport_serial fails, we obviously get an
+> error message, which is really annoying:
 
-	      /*   ....    */
+[This is different to the issue that is fixed in the -ac tree about
+parport_serial getting probed for even when disabled in config.]
 
-	      /* easy case */
-	      if (page->index < end_index)
-		      goto do_it;
-	      /* things got complicated... */
-	      offset = inode->i_size & (PAGE_CACHE_SIZE-1);
-	      /* OK, are we completely out? */
-	      if (page->index >= end_index+1 || !offset)
-		      return -EIO;           <=====   This looks bad!
-      do_it:
-	      get_page(page);
-	      err = smb_writepage_sync(inode, page, 0, offset);
-	      SetPageUptodate(page);
-	      UnlockPage(page);
-	      put_page(page);
-	      return err;
-      }
+The idea was that people who have multi-IO cards but don't know what
+modules are can have things Just Work: parport_serial gets loaded
+automagically and detects their cards for them.  But yes, the flip
+side is that people who _don't_ have multi-IO cards are going to get
+that error.
 
+There are three ways out, I think:
 
-   regards     Christian
+- change parport_pc so that it doesn't request parport_serial at
+  init.  In this case, how will parport_serial get loaded at all?
+  Perhaps with some recommended /etc/modules.conf lines (perhaps
+  parport_lowlevel{1,2,3,...})?
 
--- 
-THAT'S ALL FOLKS!
+- people who get the error and don't like it can put 'alias
+  parport_serial off' in /etc/modules.conf.  Not especially pleasant,
+  I guess.
+
+- parport_serial could be made to initialise successfully even if it
+  doesn't see any devices that it can drive.
+
+What do people think?
+
+Tim.
+*/
+
+--xIk0xHvQc0Ku+QuL
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7OFR2ONXnILZ4yVIRAmRtAJ9RD5pzKu7FMTaZpkX5VtQ7RPq/UQCglJIB
+PSdsNEfO3is4zScMiTe/+rY=
+=HoCf
+-----END PGP SIGNATURE-----
+
+--xIk0xHvQc0Ku+QuL--

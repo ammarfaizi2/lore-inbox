@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbUJ0CTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbUJ0CVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbUJ0CTL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 22:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbUJ0CTL
+	id S261575AbUJ0CVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 22:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbUJ0CVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 22:19:11 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:25486 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261559AbUJ0CTJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 22:19:09 -0400
-Message-ID: <417F0597.6030103@rtr.ca>
-Date: Tue, 26 Oct 2004 22:19:03 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
+	Tue, 26 Oct 2004 22:21:16 -0400
+Received: from siaag2ad.compuserve.com ([149.174.40.134]:49384 "EHLO
+	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S261575AbUJ0CVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 22:21:07 -0400
+Date: Tue, 26 Oct 2004 22:17:16 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Let's make a small change to the process
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Randy Dunlap <rddunlap@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <200410262220_MC3-1-8D36-77F@compuserve.com>
 MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Setting 32bit IO on SATA drives
-References: <1098827414l.6518l.0l@werewolf.able.es>
-In-Reply-To: <1098827414l.6518l.0l@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > HDIO_GET_MULTCOUNT failed: Operation not supported
+On Tue, 26 Oct 2004 at 22:44:21 +0200 Paolo Ciarrocchi wrote:
+>
+>> 2.6-ac seems to be filling this role right now.
+>> 
+>
+> If the goal of -ac is to only include those fixes, why can't we rename
+> it in something more "intuitive" for the final users ?
+> Do you see what I mean ?
 
-Fyi, I have removed that bogus error message from my
-working copy of hdparm.
+  AFAICT -ac is not supposed to be a complete collection of bugfixes.
 
-Cheers
--- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+  2.6.9-ac3 was certainly missing a lot of them (haven't seen -ac4 yet.)
+
+
+--Chuck Ebbert  26-Oct-04  20:33:14

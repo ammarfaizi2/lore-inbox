@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290440AbSAQUZI>; Thu, 17 Jan 2002 15:25:08 -0500
+	id <S290377AbSAQUYi>; Thu, 17 Jan 2002 15:24:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290441AbSAQUY7>; Thu, 17 Jan 2002 15:24:59 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:13075 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S290440AbSAQUYq>;
-	Thu, 17 Jan 2002 15:24:46 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200201172024.XAA04744@ms2.inr.ac.ru>
-Subject: Re: [BUG] Suspected bug in getpeername and getsockname
-To: balbir_soni@hotmail.COM (Balbir Singh)
-Date: Thu, 17 Jan 2002 23:24:27 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <F96rPJjUsZ6G7KCk5sm0001ad67@hotmail.com> from "Balbir Singh" at Jan 17, 2 07:45:00 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S290441AbSAQUY3>; Thu, 17 Jan 2002 15:24:29 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:51623 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S290440AbSAQUYM>;
+	Thu, 17 Jan 2002 15:24:12 -0500
+Date: Thu, 17 Jan 2002 15:24:01 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: bread() seems reading bogus data ...
+In-Reply-To: <Pine.LNX.4.40.0201161920530.935-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.GSO.4.21.0201171523430.11155-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> The protocol specific code would like to look at what
-> the user passed.
 
-For what purpose?
+On Wed, 16 Jan 2002, Davide Libenzi wrote:
 
-Protocol has no rights to use this length, because user has right
-to pass buffer of any length and address will be simply truncated.
-And the truncation is made by net/socket.c, so that protocols need
-not worry about this.
+> 
+> 
+> Linus,
+> 
+> it seems that __bread() read wrong data on my disk resulting in a ext2
+> magic of 0x8001 ?!?, reading from /dev/hda5 03:05
+> Below is reported a dmesg from my machine when booted with 2.5.2
+> Are you able to guess something or do i need to drill more ?
 
-Alexey
+Which version?
+

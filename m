@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316682AbSE0QnV>; Mon, 27 May 2002 12:43:21 -0400
+	id <S316686AbSE0QwF>; Mon, 27 May 2002 12:52:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316684AbSE0QnU>; Mon, 27 May 2002 12:43:20 -0400
-Received: from holomorphy.com ([66.224.33.161]:55721 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316682AbSE0QnT>;
-	Mon, 27 May 2002 12:43:19 -0400
-Date: Mon, 27 May 2002 09:43:03 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Muthal Sangam <sangam@mail.ru>
+	id <S316690AbSE0QwE>; Mon, 27 May 2002 12:52:04 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:22020 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S316686AbSE0QwE>; Mon, 27 May 2002 12:52:04 -0400
+Date: Mon, 27 May 2002 20:51:54 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: interrupt latency/700microsecs
-Message-ID: <20020527164303.GP14918@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Muthal Sangam <sangam@mail.ru>, linux-kernel@vger.kernel.org
-In-Reply-To: <E17CNNm-000GQe-00@f11.mail.ru>
+Subject: [patch] 2.5.18 pci/setup-bus.c: incorrect BUG() calls
+Message-ID: <20020527205154.A1338@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 27, 2002 at 08:30:06PM +0400, Muthal Sangam wrote:
-> On kernel 2.4.7, AMDK6 @ 450MHz processor, is it possible to get latency
-> fluctuations of upto 700microsecs for running the timer interrupt, due to
-> interrupts being disabled ?
-> I am using the time stamp counter and reading it at the start of the timer
-> interrupt and measuring the cycles elapsed between two inovocations of it.
-> The number of cycles elapsed is ~4500225, but sometimes it increases to as
-> high as 4848032. Can i conclude that this difference is due to interrupts
-> being disabled in critical sections ? ( I think i am making some mistake :-)
+Previously assigned resources are perfectly valid - just silently
+ignore them.
 
-IIRC there have been prior reports of excessive interrupt disablement
-in 2.4.x, and also IIRC it was reported against a more recent kernel.
-I think it was suspected there are bug(s) where some code is leaving
-interrupts off and someone later unconditionally turns them back on.
+Ivan.
 
-Any chance you could upgrade to a more recent kernel and try to
-reproduce there? There have been a number of critical bugfixes since 2.4.7
-(and although none are particularly pertinent to this issue, people would
-probably rather field bug reports for 2.4.19-pre* than 2.4.7).
-
-
-Cheers,
-Bill
+--- 2.5.18/drivers/pci/setup-bus.c	Sat May 25 05:55:25 2002
++++ linux/drivers/pci/setup-bus.c	Mon May 27 16:06:39 2002
+@@ -228,10 +228,8 @@ pbus_size_io(struct pci_bus *bus)
+ 			struct resource *r = &dev->resource[i];
+ 			unsigned long r_size;
+ 
+-			if (!(r->flags & IORESOURCE_IO))
++			if (r->parent || !(r->flags & IORESOURCE_IO))
+ 				continue;
+-			if (r->parent)
+-				BUG();
+ 			r_size = r->end - r->start + 1;
+ 
+ 			if (r_size < 0x400)
+@@ -283,10 +281,8 @@ pbus_size_mem(struct pci_bus *bus, unsig
+ 			struct resource *r = &dev->resource[i];
+ 			unsigned long r_size;
+ 
+-			if ((r->flags & mask) != type)
++			if (r->parent || (r->flags & mask) != type)
+ 				continue;
+-			if (r->parent)
+-				BUG();
+ 			r_size = r->end - r->start + 1;
+ 			/* For bridges size != alignment */
+ 			align = (i < PCI_BRIDGE_RESOURCES) ? r_size : r->start;

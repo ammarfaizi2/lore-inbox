@@ -1,52 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbTH1CEj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 22:04:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263450AbTH1CEi
+	id S263424AbTH1CZi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 22:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263426AbTH1CZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 22:04:38 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:25323
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263415AbTH1CEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 22:04:37 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.0-test4-mm1 - kswap hogs cpu OO takes ages to start!
-Date: Thu, 28 Aug 2003 12:11:43 +1000
-User-Agent: KMail/1.5.3
-Cc: warudkar@vsnl.net, linux-kernel@vger.kernel.org
-References: <200308272138.h7RLciK29987@webmail2.vsnl.net> <200308272137.42632.kernel@kolivas.org> <20030827125310.15ebf8f9.akpm@osdl.org>
-In-Reply-To: <20030827125310.15ebf8f9.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Aug 2003 22:25:38 -0400
+Received: from [61.34.11.200] ([61.34.11.200]:3796 "EHLO ns.aratech.co.kr")
+	by vger.kernel.org with ESMTP id S263424AbTH1CZg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 22:25:36 -0400
+Date: Thu, 28 Aug 2003 11:27:49 +0900
+From: Tejun Huh <tejun@aratech.co.kr>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] dcache statistics race in 2.4
+Message-ID: <20030828022748.GA20792@atj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308281211.43945.kernel@kolivas.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Aug 2003 05:53, Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> > On Thu, 28 Aug 2003 07:38, warudkar@vsnl.net wrote:
-> > > Trying out 2.6.0-test4-mm1. Inside KDE, I start OpenOffice.org,
-> > > Rational Rose and Konsole at a time. All of these take extremely long
-> > > time to startup. (approx > 5 minutes). Kswapd hogs the CPU all the
-> > > time. X becomes unusable till all of them startup, although I can
-> > > telnet and run top. Same thing run under 2.4.18 starts up in 3 minutes,
-> > > X stays usable and kswapd never take more than 2% CPU.
-> >
-> > Yes I can reproduce this with a memory heavy load as well on low memory
-> > (linking at the end of a big kernel compile is standard problem).
->
-> It could be that recent changes to page reclaim which improve I/O
-> scheduling have exacerbated this.
->
-> Does this make a difference?
+ Hello,
 
-Tried it. No change. 
+ In fs/dcache.c, dentry_stat.nr_dentry is not protected by anything
+and on a busy SMP machine, after a while, the count goes wild.  I'm
+attaching a patch which puts nr_dentry accounting inside dcache_lock.
+One spin_lock/unlock pair is added to d_alloc on NULL parent path but
+I think NULL parent is used only occasionally when allocating root
+dentry so this patch shouldn't cause any performance impact.
 
-kswapd0 can hit 90% cpu at times unless the swappiness is increased.
+ If anything is wrong, please point out.  If there's no comment in a
+few days, I'll submit this to Marcelo.
 
-Con
+ TIA.
 
+-- 
+tejun
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1085  -> 1.1086 
+#	         fs/dcache.c	1.24    -> 1.25   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/08/28	tj@atj.dyndns.org	1.1086
+# - dentry_stat.nr_dentry race fix.
+# --------------------------------------------
+#
+diff -Nru a/fs/dcache.c b/fs/dcache.c
+--- a/fs/dcache.c	Thu Aug 28 11:07:51 2003
++++ b/fs/dcache.c	Thu Aug 28 11:07:51 2003
+@@ -63,7 +63,6 @@
+ 	if (dname_external(dentry)) 
+ 		kfree(dentry->d_name.name);
+ 	kmem_cache_free(dentry_cache, dentry); 
+-	dentry_stat.nr_dentry--;
+ }
+ 
+ /*
+@@ -148,6 +147,7 @@
+ kill_it: {
+ 		struct dentry *parent;
+ 		list_del(&dentry->d_child);
++		dentry_stat.nr_dentry--;
+ 		/* drops the lock, at that point nobody can reach this dentry */
+ 		dentry_iput(dentry);
+ 		parent = dentry->d_parent;
+@@ -297,6 +297,7 @@
+ 
+ 	list_del_init(&dentry->d_hash);
+ 	list_del(&dentry->d_child);
++	dentry_stat.nr_dentry--;
+ 	dentry_iput(dentry);
+ 	parent = dentry->d_parent;
+ 	d_free(dentry);
+@@ -625,11 +626,15 @@
+ 		dentry->d_sb = parent->d_sb;
+ 		spin_lock(&dcache_lock);
+ 		list_add(&dentry->d_child, &parent->d_subdirs);
++		dentry_stat.nr_dentry++;
+ 		spin_unlock(&dcache_lock);
+-	} else
++	} else {
+ 		INIT_LIST_HEAD(&dentry->d_child);
++		spin_lock(&dcache_lock);
++		dentry_stat.nr_dentry++;
++		spin_unlock(&dcache_lock);
++	}
+ 
+-	dentry_stat.nr_dentry++;
+ 	return dentry;
+ }
+ 

@@ -1,534 +1,461 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264716AbUEJOla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264720AbUEJOmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264716AbUEJOla (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 10:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264719AbUEJOla
+	id S264720AbUEJOmg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 10:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264715AbUEJOmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 10:41:30 -0400
-Received: from maxipes.logix.cz ([81.0.234.97]:29826 "EHLO maxipes.logix.cz")
-	by vger.kernel.org with ESMTP id S264716AbUEJOkI (ORCPT
+	Mon, 10 May 2004 10:42:35 -0400
+Received: from maxipes.logix.cz ([81.0.234.97]:31106 "EHLO maxipes.logix.cz")
+	by vger.kernel.org with ESMTP id S264722AbUEJOkU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 10:40:08 -0400
-Date: Mon, 10 May 2004 16:40:05 +0200 (CEST)
+	Mon, 10 May 2004 10:40:20 -0400
+Date: Mon, 10 May 2004 16:40:18 +0200 (CEST)
 From: Michal Ludvig <michal@logix.cz>
 To: Andrew Morton <akpm@osdl.org>
 Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/1] Support for VIA PadLock crypto engine
-Message-ID: <Pine.LNX.4.53.0405101637340.27527@maxipes.logix.cz>
+Subject: [PATCH 2/2] Support for VIA PadLock crypto engine
+Message-ID: <Pine.LNX.4.53.0405101628080.27527@maxipes.logix.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Sorry for reposting - before I incidentally sent the patch in base64
- encoding]
-
 Hi,
 
-this is the generic part of the patch that enables use of the
-hardware cryptography engine in VIA C3 Nehemiah CPUs (so called PadLock
-ACE).
+this is the second part of the patch that enables use of the hardware
+cryptography engine in VIA C3 Nehemiah CPUs (so called PadLock ACE)
+for AES algorithm.
 
-The changes here provide a way to encrypt/decrypt the whole buffer of data
-(e.g. a disk sector or a network packet), here called multiblock, without
-the need to split them to single units and process block-by-block (where
-block is e.g. 16 Bytes for AES algorithm). This way PadLock ACE can
-encrypt/decrypt in much higher speed.
+It adds two new config options in the Cryptography section and if
+these are selected, aes.ko is built with the support for PadLock ACE.
+It can always be disabled with 'disable_via_padlock=1' module option
+in this case, or if the PadLock is not found in the CPU, aes.ko
+reverts to the software encryption.
 
-I also added some support for other modes than ECB and CBC (i.e. new are
-CFB, OFB and CTR).
+ Kconfig |   20 ++++
+ aes.c   |  296 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 307 insertions(+), 9 deletions(-)
 
-The next mail will contain the changes for crypto/aes.c
+Please apply.
 
 Michal Ludvig
 
-diff -urp linux-2.6.5.patched/crypto/cipher.c linux-2.6.5/crypto/cipher.c
---- linux-2.6.5.patched/crypto/cipher.c	2004-04-29 10:33:05.000000000 +0200
-+++ linux-2.6.5/crypto/cipher.c	2004-05-10 15:21:56.101879632 +0200
-@@ -20,7 +20,31 @@
- #include "internal.h"
- #include "scatterwalk.h"
+diff -urp linux-2.6.5.patched/crypto/Kconfig linux-2.6.5/crypto/Kconfig
+--- linux-2.6.5.patched/crypto/Kconfig	2004-04-29 10:33:05.000000000 +0200
++++ linux-2.6.5/crypto/Kconfig	2004-05-10 09:03:47.000000000 +0200
+@@ -9,6 +9,19 @@ config CRYPTO
+ 	help
+ 	  This option provides the core Cryptographic API.
 
-+#define CRA_CIPHER(tfm)	(tfm)->__crt_alg->cra_cipher
++config CRYPTO_VIA_PADLOCK
++	bool "Support for VIA PadLock ACE"
++	depends on CRYPTO && X86 && !X86_64
++	help
++	  Some VIA processors come with an integrated crypto engine
++	  (so called VIA PadLock ACE, Advanced Cryptography Engine)
++	  that provides instructions for very fast {en,de}cryption
++	  with some algorithms.
 +
-+#define DEF_TFM_FUNCTION(name,mode,encdec,iv)	\
-+static int name(struct crypto_tfm *tfm,		\
-+                struct scatterlist *dst,	\
-+                struct scatterlist *src,	\
-+		unsigned int nbytes)		\
-+{						\
-+	return crypt(tfm, dst, src, nbytes,	\
-+		     mode, encdec, iv);		\
-+}
++	  The instructions are used only when the CPU supports them.
++	  Otherwise software encryption is used. If you are unsure,
++	  say Y.
 +
-+#define DEF_TFM_FUNCTION_IV(name,mode,encdec,iv)	\
-+static int name(struct crypto_tfm *tfm,		\
-+                struct scatterlist *dst,	\
-+                struct scatterlist *src,	\
-+		unsigned int nbytes, u8 *iv)	\
-+{						\
-+	return crypt(tfm, dst, src, nbytes,	\
-+		     mode, encdec, iv);		\
-+}
-+
- typedef void (cryptfn_t)(void *, u8 *, const u8 *);
-+typedef void (cryptblkfn_t)(void *, u8 *, const u8 *, const u8 *,
-+			    size_t, int, int);
- typedef void (procfn_t)(struct crypto_tfm *, u8 *,
-                         u8*, cryptfn_t, int enc, void *, int);
+ config CRYPTO_HMAC
+ 	bool "HMAC support"
+ 	depends on CRYPTO
+@@ -126,6 +139,13 @@ config CRYPTO_AES
 
-@@ -38,6 +62,36 @@ static inline void xor_128(u8 *a, const
- 	((u32 *)a)[3] ^= ((u32 *)b)[3];
- }
+ 	  See http://csrc.nist.gov/CryptoToolkit/aes/ for more information.
 
-+static void cbc_process(struct crypto_tfm *tfm, u8 *dst, u8 *src,
-+			cryptfn_t *fn, int enc, void *info, int in_place)
-+{
-+	u8 *iv = info;
++config CRYPTO_AES_PADLOCK
++	bool "Support for AES in VIA PadLock"
++	depends on CRYPTO_AES && CRYPTO_VIA_PADLOCK
++	default y
++	help
++	  Use VIA PadLock for AES algorithm.
 +
-+	/* Null encryption */
-+	if (!iv)
-+		return;
-+
-+	if (enc) {
-+		tfm->crt_u.cipher.cit_xor_block(iv, src);
-+		(*fn)(crypto_tfm_ctx(tfm), dst, iv);
-+		memcpy(iv, dst, crypto_tfm_alg_blocksize(tfm));
-+	} else {
-+		u8 stack[in_place ? crypto_tfm_alg_blocksize(tfm) : 0];
-+		u8 *buf = in_place ? stack : dst;
-+
-+		(*fn)(crypto_tfm_ctx(tfm), buf, src);
-+		tfm->crt_u.cipher.cit_xor_block(buf, iv);
-+		memcpy(iv, src, crypto_tfm_alg_blocksize(tfm));
-+		if (buf != dst)
-+			memcpy(dst, buf, crypto_tfm_alg_blocksize(tfm));
-+	}
-+}
-+
-+static void ecb_process(struct crypto_tfm *tfm, u8 *dst, u8 *src,
-+			cryptfn_t fn, int enc, void *info, int in_place)
-+{
-+	(*fn)(crypto_tfm_ctx(tfm), dst, src);
-+}
+ config CRYPTO_CAST5
+ 	tristate "CAST5 (CAST-128) cipher algorithm"
+ 	depends on CRYPTO
+diff -urp linux-2.6.5.patched/crypto/aes.c linux-2.6.5/crypto/aes.c
+--- linux-2.6.5.patched/crypto/aes.c	2004-04-29 10:33:05.000000000 +0200
++++ linux-2.6.5/crypto/aes.c	2004-05-10 15:20:14.808278600 +0200
+@@ -10,6 +10,7 @@
+  *  Herbert Valerio Riedel <hvr@hvrlab.org>
+  *  Kyle McMartin <kyle@debian.org>
+  *  Adam J. Richter <adam@yggdrasil.com> (conversion to 2.5 API).
++ *  Michal Ludvig <mludvig@suse.cz> (support for VIA PadLock)
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -59,10 +60,18 @@
+ #include <linux/crypto.h>
+ #include <asm/byteorder.h>
 
- /*
-  * Generic encrypt/decrypt wrapper for ciphers, handles operations across
-@@ -47,20 +101,92 @@ static inline void xor_128(u8 *a, const
- static int crypt(struct crypto_tfm *tfm,
- 		 struct scatterlist *dst,
- 		 struct scatterlist *src,
--                 unsigned int nbytes, cryptfn_t crfn,
--                 procfn_t prfn, int enc, void *info)
-+		 unsigned int nbytes,
-+		 int mode, int enc, void *info)
- {
-+	cryptfn_t *cryptofn = NULL;
-+	procfn_t *processfn = NULL;
-+	cryptblkfn_t *cryptomultiblockfn = NULL;
-+
- 	struct scatter_walk walk_in, walk_out;
--	const unsigned int bsize = crypto_tfm_alg_blocksize(tfm);
--	u8 tmp_src[nbytes > src->length ? bsize : 0];
--	u8 tmp_dst[nbytes > dst->length ? bsize : 0];
-+	size_t max_nbytes = crypto_tfm_alg_max_nbytes(tfm);
-+	size_t bsize = crypto_tfm_alg_blocksize(tfm);
-+	int req_align = crypto_tfm_alg_req_align(tfm);
-+	int ret = 0;
-+	void *index_src = NULL, *index_dst = NULL;
-+	u8 *iv = info;
-+	u8 *tmp_src, *tmp_dst;
-
- 	if (!nbytes)
--		return 0;
-+		return ret;
-
- 	if (nbytes % bsize) {
- 		tfm->crt_flags |= CRYPTO_TFM_RES_BAD_BLOCK_LEN;
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	switch (mode) {
-+		case CRYPTO_TFM_MODE_ECB:
-+			if (CRA_CIPHER(tfm).cia_ecb)
-+				cryptomultiblockfn = CRA_CIPHER(tfm).cia_ecb;
-+			else {
-+				cryptofn = (enc == CRYPTO_DIR_ENCRYPT) ? CRA_CIPHER(tfm).cia_encrypt : CRA_CIPHER(tfm).cia_decrypt;
-+				processfn = ecb_process;
-+			}
-+			break;
-+
-+		case CRYPTO_TFM_MODE_CBC:
-+			if (CRA_CIPHER(tfm).cia_cbc)
-+				cryptomultiblockfn = CRA_CIPHER(tfm).cia_cbc;
-+			else {
-+				cryptofn = (enc == CRYPTO_DIR_ENCRYPT) ? CRA_CIPHER(tfm).cia_encrypt : CRA_CIPHER(tfm).cia_decrypt;
-+				processfn = cbc_process;
-+			}
-+			break;
-+
-+		/* Until we have the appropriate {ofb,cfb,ctr}_process() functions,
-+		   the following cases will return -ENOSYS if there is no HW support
-+		   for the mode. */
-+		case CRYPTO_TFM_MODE_OFB:
-+			if (CRA_CIPHER(tfm).cia_ofb)
-+				cryptomultiblockfn = CRA_CIPHER(tfm).cia_ofb;
-+			else
-+				return -ENOSYS;
-+			break;
-+
-+		case CRYPTO_TFM_MODE_CFB:
-+			if (CRA_CIPHER(tfm).cia_cfb)
-+				cryptomultiblockfn = CRA_CIPHER(tfm).cia_cfb;
-+			else
-+				return -ENOSYS;
-+			break;
-+
-+		case CRYPTO_TFM_MODE_CTR:
-+			if (CRA_CIPHER(tfm).cia_ctr)
-+				cryptomultiblockfn = CRA_CIPHER(tfm).cia_ctr;
-+			else
-+				return -ENOSYS;
-+			break;
-+
-+		default:
-+			BUG();
-+	}
-+
-+	if (cryptomultiblockfn)
-+		bsize = (max_nbytes > nbytes) ? nbytes : max_nbytes;
-+
-+	/* Some hardware crypto engines may require a specific
-+	   alignment of the buffers. We will align the buffers
-+	   already here to avoid their reallocating later. */
-+	tmp_src = crypto_aligned_kmalloc(bsize, GFP_KERNEL,
-+					 req_align, &index_src);
-+	tmp_dst = crypto_aligned_kmalloc(bsize, GFP_KERNEL,
-+					 req_align, &index_dst);
-+
-+	if (!index_src || !index_dst) {
-+		ret = -ENOMEM;
-+		goto out;
- 	}
-
- 	scatterwalk_start(&walk_in, src);
-@@ -71,16 +197,23 @@ static int crypt(struct crypto_tfm *tfm,
-
- 		scatterwalk_map(&walk_in, 0);
- 		scatterwalk_map(&walk_out, 1);
-+
- 		src_p = scatterwalk_whichbuf(&walk_in, bsize, tmp_src);
- 		dst_p = scatterwalk_whichbuf(&walk_out, bsize, tmp_dst);
-
--		nbytes -= bsize;
+-#define AES_MIN_KEY_SIZE	16
+-#define AES_MAX_KEY_SIZE	32
 -
- 		scatterwalk_copychunks(src_p, &walk_in, bsize, 0);
-
--		prfn(tfm, dst_p, src_p, crfn, enc, info,
--		     scatterwalk_samebuf(&walk_in, &walk_out,
--					 src_p, dst_p));
-+		nbytes -= bsize;
+-#define AES_BLOCK_SIZE		16
++#define AES_MIN_KEY_SIZE	16	/* in u8 units */
++#define AES_MAX_KEY_SIZE	32	/* ditto */
++#define AES_BLOCK_SIZE		16	/* ditto */
++#define AES_EXTENDED_KEY_SIZE	64	/* in u32 units */
++#define AES_EXTENDED_KEY_SIZE_B	(AES_EXTENDED_KEY_SIZE * sizeof(u32))
 +
-+		if (cryptomultiblockfn)
-+			(*cryptomultiblockfn)(crypto_tfm_ctx(tfm),
-+					   dst_p, src_p, iv, bsize, enc,
-+					   scatterwalk_samebuf(&walk_in, &walk_out,
-+							       src_p, dst_p));
-+		else
-+			(*processfn)(tfm, dst_p, src_p, cryptofn, enc, info,
-+				  scatterwalk_samebuf(&walk_in, &walk_out,
-+						      src_p, dst_p));
-
- 		scatterwalk_done(&walk_in, 0, nbytes);
-
-@@ -88,46 +221,23 @@ static int crypt(struct crypto_tfm *tfm,
- 		scatterwalk_done(&walk_out, 1, nbytes);
-
- 		if (!nbytes)
--			return 0;
-+			goto out;
-
- 		crypto_yield(tfm);
- 	}
--}
-
--static void cbc_process(struct crypto_tfm *tfm, u8 *dst, u8 *src,
--			cryptfn_t fn, int enc, void *info, int in_place)
--{
--	u8 *iv = info;
--
--	/* Null encryption */
--	if (!iv)
--		return;
--
--	if (enc) {
--		tfm->crt_u.cipher.cit_xor_block(iv, src);
--		fn(crypto_tfm_ctx(tfm), dst, iv);
--		memcpy(iv, dst, crypto_tfm_alg_blocksize(tfm));
--	} else {
--		u8 stack[in_place ? crypto_tfm_alg_blocksize(tfm) : 0];
--		u8 *buf = in_place ? stack : dst;
-+out:
-+	if (index_src)
-+		kfree(index_src);
-+	if (index_dst)
-+		kfree(index_dst);
-
--		fn(crypto_tfm_ctx(tfm), buf, src);
--		tfm->crt_u.cipher.cit_xor_block(buf, iv);
--		memcpy(iv, src, crypto_tfm_alg_blocksize(tfm));
--		if (buf != dst)
--			memcpy(dst, buf, crypto_tfm_alg_blocksize(tfm));
--	}
--}
--
--static void ecb_process(struct crypto_tfm *tfm, u8 *dst, u8 *src,
--			cryptfn_t fn, int enc, void *info, int in_place)
--{
--	fn(crypto_tfm_ctx(tfm), dst, src);
-+	return ret;
- }
-
- static int setkey(struct crypto_tfm *tfm, const u8 *key, unsigned int keylen)
- {
--	struct cipher_alg *cia = &tfm->__crt_alg->cra_cipher;
-+	struct cipher_alg *cia = &CRA_CIPHER(tfm);
-
- 	if (keylen < cia->cia_min_keysize || keylen > cia->cia_max_keysize) {
- 		tfm->crt_flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
-@@ -137,80 +247,28 @@ static int setkey(struct crypto_tfm *tfm
- 		                       &tfm->crt_flags);
- }
-
--static int ecb_encrypt(struct crypto_tfm *tfm,
--		       struct scatterlist *dst,
--                       struct scatterlist *src, unsigned int nbytes)
--{
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_encrypt,
--	             ecb_process, 1, NULL);
--}
--
--static int ecb_decrypt(struct crypto_tfm *tfm,
--                       struct scatterlist *dst,
--                       struct scatterlist *src,
--		       unsigned int nbytes)
--{
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_decrypt,
--	             ecb_process, 1, NULL);
--}
--
--static int cbc_encrypt(struct crypto_tfm *tfm,
--                       struct scatterlist *dst,
--                       struct scatterlist *src,
--		       unsigned int nbytes)
--{
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_encrypt,
--	             cbc_process, 1, tfm->crt_cipher.cit_iv);
--}
--
--static int cbc_encrypt_iv(struct crypto_tfm *tfm,
--                          struct scatterlist *dst,
--                          struct scatterlist *src,
--                          unsigned int nbytes, u8 *iv)
--{
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_encrypt,
--	             cbc_process, 1, iv);
--}
-+DEF_TFM_FUNCTION(ecb_encrypt, CRYPTO_TFM_MODE_ECB, CRYPTO_DIR_ENCRYPT, NULL);
-+DEF_TFM_FUNCTION(ecb_decrypt, CRYPTO_TFM_MODE_ECB, CRYPTO_DIR_DECRYPT, NULL);
-
--static int cbc_decrypt(struct crypto_tfm *tfm,
--                       struct scatterlist *dst,
--                       struct scatterlist *src,
--		       unsigned int nbytes)
--{
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_decrypt,
--	             cbc_process, 0, tfm->crt_cipher.cit_iv);
--}
--
--static int cbc_decrypt_iv(struct crypto_tfm *tfm,
--                          struct scatterlist *dst,
--                          struct scatterlist *src,
--                          unsigned int nbytes, u8 *iv)
--{
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_decrypt,
--	             cbc_process, 0, iv);
--}
--
--static int nocrypt(struct crypto_tfm *tfm,
--                   struct scatterlist *dst,
--                   struct scatterlist *src,
--		   unsigned int nbytes)
--{
--	return -ENOSYS;
--}
--
--static int nocrypt_iv(struct crypto_tfm *tfm,
--                      struct scatterlist *dst,
--                      struct scatterlist *src,
--                      unsigned int nbytes, u8 *iv)
--{
--	return -ENOSYS;
--}
-+DEF_TFM_FUNCTION(cbc_encrypt, CRYPTO_TFM_MODE_CBC, CRYPTO_DIR_ENCRYPT, tfm->crt_cipher.cit_iv);
-+DEF_TFM_FUNCTION_IV(cbc_encrypt_iv, CRYPTO_TFM_MODE_CBC, CRYPTO_DIR_ENCRYPT, iv);
-+DEF_TFM_FUNCTION(cbc_decrypt, CRYPTO_TFM_MODE_CBC, CRYPTO_DIR_DECRYPT, tfm->crt_cipher.cit_iv);
-+DEF_TFM_FUNCTION_IV(cbc_decrypt_iv, CRYPTO_TFM_MODE_CBC, CRYPTO_DIR_DECRYPT, iv);
++#define PFX	"aes: "
 +
-+DEF_TFM_FUNCTION(cfb_encrypt, CRYPTO_TFM_MODE_CFB, CRYPTO_DIR_ENCRYPT, tfm->crt_cipher.cit_iv);
-+DEF_TFM_FUNCTION_IV(cfb_encrypt_iv, CRYPTO_TFM_MODE_CFB, CRYPTO_DIR_ENCRYPT, iv);
-+DEF_TFM_FUNCTION(cfb_decrypt, CRYPTO_TFM_MODE_CFB, CRYPTO_DIR_DECRYPT, tfm->crt_cipher.cit_iv);
-+DEF_TFM_FUNCTION_IV(cfb_decrypt_iv, CRYPTO_TFM_MODE_CFB, CRYPTO_DIR_DECRYPT, iv);
-+
-+DEF_TFM_FUNCTION(ofb_encrypt, CRYPTO_TFM_MODE_OFB, CRYPTO_DIR_ENCRYPT, tfm->crt_cipher.cit_iv);
-+DEF_TFM_FUNCTION_IV(ofb_encrypt_iv, CRYPTO_TFM_MODE_OFB, CRYPTO_DIR_ENCRYPT, iv);
-+DEF_TFM_FUNCTION(ofb_decrypt, CRYPTO_TFM_MODE_OFB, CRYPTO_DIR_DECRYPT, tfm->crt_cipher.cit_iv);
-+DEF_TFM_FUNCTION_IV(ofb_decrypt_iv, CRYPTO_TFM_MODE_OFB, CRYPTO_DIR_DECRYPT, iv);
-+
-+DEF_TFM_FUNCTION(ctr_encrypt, CRYPTO_TFM_MODE_CTR, CRYPTO_DIR_ENCRYPT, tfm->crt_cipher.cit_iv);
-+DEF_TFM_FUNCTION_IV(ctr_encrypt_iv, CRYPTO_TFM_MODE_CTR, CRYPTO_DIR_ENCRYPT, iv);
-+DEF_TFM_FUNCTION(ctr_decrypt, CRYPTO_TFM_MODE_CTR, CRYPTO_DIR_DECRYPT, tfm->crt_cipher.cit_iv);
-+DEF_TFM_FUNCTION_IV(ctr_decrypt_iv, CRYPTO_TFM_MODE_CTR, CRYPTO_DIR_DECRYPT, iv);
++#ifdef CONFIG_CRYPTO_AES_PADLOCK
++	static u8 use_padlock;
++	static inline int padlock_hw_extkey_available (u8 key_len);
++#endif
 
- int crypto_init_cipher_flags(struct crypto_tfm *tfm, u32 flags)
- {
-@@ -244,17 +302,24 @@ int crypto_init_cipher_ops(struct crypto
- 		break;
+ static inline
+ u32 generic_rotr32 (const u32 x, const unsigned bits)
+@@ -94,9 +103,11 @@ byte(const u32 x, const unsigned n)
+ #define u32_out(to, from) (*(u32 *)(to) = cpu_to_le32(from))
 
- 	case CRYPTO_TFM_MODE_CFB:
--		ops->cit_encrypt = nocrypt;
--		ops->cit_decrypt = nocrypt;
--		ops->cit_encrypt_iv = nocrypt_iv;
--		ops->cit_decrypt_iv = nocrypt_iv;
-+		ops->cit_encrypt = cfb_encrypt;
-+		ops->cit_decrypt = cfb_decrypt;
-+		ops->cit_encrypt_iv = cfb_encrypt_iv;
-+		ops->cit_decrypt_iv = cfb_decrypt_iv;
-+		break;
-+
-+	case CRYPTO_TFM_MODE_OFB:
-+		ops->cit_encrypt = ofb_encrypt;
-+		ops->cit_decrypt = ofb_decrypt;
-+		ops->cit_encrypt_iv = ofb_encrypt_iv;
-+		ops->cit_decrypt_iv = ofb_decrypt_iv;
- 		break;
-
- 	case CRYPTO_TFM_MODE_CTR:
--		ops->cit_encrypt = nocrypt;
--		ops->cit_decrypt = nocrypt;
--		ops->cit_encrypt_iv = nocrypt_iv;
--		ops->cit_decrypt_iv = nocrypt_iv;
-+		ops->cit_encrypt = ctr_encrypt;
-+		ops->cit_decrypt = ctr_decrypt;
-+		ops->cit_encrypt_iv = ctr_encrypt_iv;
-+		ops->cit_decrypt_iv = ctr_decrypt_iv;
- 		break;
-
- 	default:
-diff -urp linux-2.6.5.patched/crypto/api.c linux-2.6.5/crypto/api.c
---- linux-2.6.5.patched/crypto/api.c	2004-04-29 10:33:05.000000000 +0200
-+++ linux-2.6.5/crypto/api.c	2004-05-10 15:20:41.040290728 +0200
-@@ -213,6 +213,19 @@ int crypto_alg_available(const char *nam
- 	return ret;
- }
-
-+void *crypto_aligned_kmalloc (size_t size, int mode, size_t alignment, void **index)
-+{
-+	char *ptr;
-+
-+	ptr = kmalloc(size + alignment, mode);
-+	*index = ptr;
-+	if (alignment > 1 && ((long)ptr & (alignment - 1))) {
-+		ptr += alignment - ((long)ptr & (alignment - 1));
-+	}
-+
-+	return ptr;
-+}
-+
- static int __init init_crypto(void)
- {
- 	printk(KERN_INFO "Initializing Cryptographic API\n");
-@@ -227,3 +240,4 @@ EXPORT_SYMBOL_GPL(crypto_unregister_alg)
- EXPORT_SYMBOL_GPL(crypto_alloc_tfm);
- EXPORT_SYMBOL_GPL(crypto_free_tfm);
- EXPORT_SYMBOL_GPL(crypto_alg_available);
-+EXPORT_SYMBOL_GPL(crypto_aligned_kmalloc);
-diff -urp linux-2.6.5.patched/include/linux/crypto.h linux-2.6.5/include/linux/crypto.h
---- linux-2.6.5.patched/include/linux/crypto.h	2004-04-29 10:32:25.000000000 +0200
-+++ linux-2.6.5/include/linux/crypto.h	2004-05-10 13:21:22.000000000 +0200
-@@ -42,6 +42,7 @@
- #define CRYPTO_TFM_MODE_CBC		0x00000002
- #define CRYPTO_TFM_MODE_CFB		0x00000004
- #define CRYPTO_TFM_MODE_CTR		0x00000008
-+#define CRYPTO_TFM_MODE_OFB		0x00000010
-
- #define CRYPTO_TFM_REQ_WEAK_KEY		0x00000100
- #define CRYPTO_TFM_RES_WEAK_KEY		0x00100000
-@@ -56,6 +57,9 @@
- #define CRYPTO_UNSPEC			0
- #define CRYPTO_MAX_ALG_NAME		64
-
-+#define CRYPTO_DIR_ENCRYPT		1
-+#define CRYPTO_DIR_DECRYPT		0
-+
- struct scatterlist;
-
- /*
-@@ -69,6 +73,18 @@ struct cipher_alg {
- 	                  unsigned int keylen, u32 *flags);
- 	void (*cia_encrypt)(void *ctx, u8 *dst, const u8 *src);
- 	void (*cia_decrypt)(void *ctx, u8 *dst, const u8 *src);
-+	size_t cia_max_nbytes;
-+	size_t cia_req_align;
-+	void (*cia_ecb)(void *ctx, u8 *dst, const u8 *src, const u8 *iv,
-+			size_t nbytes, int encdec, int inplace);
-+	void (*cia_cbc)(void *ctx, u8 *dst, const u8 *src, const u8 *iv,
-+			size_t nbytes, int encdec, int inplace);
-+	void (*cia_cfb)(void *ctx, u8 *dst, const u8 *src, const u8 *iv,
-+			size_t nbytes, int encdec, int inplace);
-+	void (*cia_ofb)(void *ctx, u8 *dst, const u8 *src, const u8 *iv,
-+			size_t nbytes, int encdec, int inplace);
-+	void (*cia_ctr)(void *ctx, u8 *dst, const u8 *src, const u8 *iv,
-+			size_t nbytes, int encdec, int inplace);
+ struct aes_ctx {
++	u32 e_data[AES_EXTENDED_KEY_SIZE+4];
++	u32 d_data[AES_EXTENDED_KEY_SIZE+4];
+ 	int key_length;
+-	u32 E[60];
+-	u32 D[60];
++	u32 *E;
++	u32 *D;
  };
 
- struct digest_alg {
-@@ -121,6 +137,11 @@ int crypto_unregister_alg(struct crypto_
- int crypto_alg_available(const char *name, u32 flags);
+ #define E_KEY ctx->E
+@@ -274,6 +285,10 @@ aes_set_key(void *ctx_arg, const u8 *in_
+ {
+ 	struct aes_ctx *ctx = ctx_arg;
+ 	u32 i, t, u, v, w;
++#ifdef CONFIG_CRYPTO_AES_PADLOCK
++	u32 P[AES_EXTENDED_KEY_SIZE];
++	u32 rounds;
++#endif
 
- /*
-+ * Helper function.
-+ */
-+void *crypto_aligned_kmalloc (size_t size, int mode, size_t alignment, void **index);
+ 	if (key_len != 16 && key_len != 24 && key_len != 32) {
+ 		*flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
+@@ -282,11 +297,31 @@ aes_set_key(void *ctx_arg, const u8 *in_
+
+ 	ctx->key_length = key_len;
+
++	ctx->E = ctx->e_data;
++	ctx->D = ctx->d_data;
 +
-+/*
-  * Transforms: user-instantiated objects which encapsulate algorithms
-  * and core processing logic.  Managed via crypto_alloc_tfm() and
-  * crypto_free_tfm(), as well as the various helpers below.
-@@ -255,6 +276,18 @@ static inline unsigned int crypto_tfm_al
- 	return tfm->__crt_alg->cra_digest.dia_digestsize;
++#ifdef CONFIG_CRYPTO_AES_PADLOCK
++	if (use_padlock) {
++		/* Ensure 16-Bytes alignmentation of keys for VIA PadLock. */
++		if ((int)(ctx->e_data) & 0x0F)
++			ctx->E += 4 - (((int)(ctx->e_data) & 0x0F) / sizeof (ctx->e_data[0]));
++
++		if ((int)(ctx->d_data) & 0x0F)
++			ctx->D += 4 - (((int)(ctx->d_data) & 0x0F) / sizeof (ctx->d_data[0]));
++	}
++#endif
++
+ 	E_KEY[0] = u32_in (in_key);
+ 	E_KEY[1] = u32_in (in_key + 4);
+ 	E_KEY[2] = u32_in (in_key + 8);
+ 	E_KEY[3] = u32_in (in_key + 12);
+
++#ifdef CONFIG_CRYPTO_AES_PADLOCK
++	/* Don't generate extended keys if the hardware can do it. */
++	if (use_padlock && padlock_hw_extkey_available(key_len))
++		return 0;
++#endif
++
+ 	switch (key_len) {
+ 	case 16:
+ 		t = E_KEY[3];
+@@ -320,6 +355,27 @@ aes_set_key(void *ctx_arg, const u8 *in_
+ 		imix_col (D_KEY[i], E_KEY[i]);
+ 	}
+
++#ifdef CONFIG_CRYPTO_AES_PADLOCK
++	if (use_padlock) {
++		/* PadLock needs a different format of the decryption key. */
++		rounds = 10 + (key_len - 16) / 4;
++
++		for (i = 0; i < rounds; i++) {
++			P[((i + 1) * 4) + 0] = D_KEY[((rounds - i - 1) * 4) + 0];
++			P[((i + 1) * 4) + 1] = D_KEY[((rounds - i - 1) * 4) + 1];
++			P[((i + 1) * 4) + 2] = D_KEY[((rounds - i - 1) * 4) + 2];
++			P[((i + 1) * 4) + 3] = D_KEY[((rounds - i - 1) * 4) + 3];
++		}
++
++		P[0] = E_KEY[(rounds * 4) + 0];
++		P[1] = E_KEY[(rounds * 4) + 1];
++		P[2] = E_KEY[(rounds * 4) + 2];
++		P[3] = E_KEY[(rounds * 4) + 3];
++
++		memcpy(D_KEY, P, AES_EXTENDED_KEY_SIZE_B);
++	}
++#endif
++
+ 	return 0;
  }
 
-+static inline unsigned int crypto_tfm_alg_max_nbytes(struct crypto_tfm *tfm)
+@@ -338,7 +394,7 @@ aes_set_key(void *ctx_arg, const u8 *in_
+     f_rl(bo, bi, 2, k);     \
+     f_rl(bo, bi, 3, k)
+
+-static void aes_encrypt(void *ctx_arg, u8 *out, const u8 *in)
++static void aes_encrypt_sw(void *ctx_arg, u8 *out, const u8 *in)
+ {
+ 	const struct aes_ctx *ctx = ctx_arg;
+ 	u32 b0[4], b1[4];
+@@ -391,7 +447,7 @@ static void aes_encrypt(void *ctx_arg, u
+     i_rl(bo, bi, 2, k);     \
+     i_rl(bo, bi, 3, k)
+
+-static void aes_decrypt(void *ctx_arg, u8 *out, const u8 *in)
++static void aes_decrypt_sw(void *ctx_arg, u8 *out, const u8 *in)
+ {
+ 	const struct aes_ctx *ctx = ctx_arg;
+ 	u32 b0[4], b1[4];
+@@ -430,6 +486,198 @@ static void aes_decrypt(void *ctx_arg, u
+ 	u32_out (out + 12, b0[3]);
+ }
+
++#ifdef CONFIG_CRYPTO_AES_PADLOCK
++/*
++ * Support for VIA PadLock hardware crypto engine.
++ */
++
++/* Control word. */
++union cword {
++	u32 cword[4];
++	struct {
++		int rounds:4;
++		int algo:3;
++		int keygen:1;
++		int interm:1;
++		int encdec:1;
++		int ksize:2;
++	} b;
++};
++
++typedef void (xcrypt_t)(u8 *input, u8 *output, u8 *key, u8 *iv,
++			void *control_word, u32 count);
++
++/* Tells whether the ACE is capable to generate
++   the extended key for a given key_len. */
++static inline int padlock_hw_extkey_available(u8 key_len)
 +{
-+	BUG_ON(crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_CIPHER);
-+	return tfm->__crt_alg->cra_cipher.cia_max_nbytes;
++	/* TODO: We should check the actual CPU model/stepping
++	         as it's likely that the capability will be
++	         added in the next CPU revisions. */
++	if (key_len == 16)
++		return 1;
++	return 0;
 +}
 +
-+static inline unsigned int crypto_tfm_alg_req_align(struct crypto_tfm *tfm)
++static inline void padlock_xcrypt_ecb(u8 *input, u8 *output, u8 *key,
++				      u8 *iv, void *control_word, u32 count)
 +{
-+	BUG_ON(crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_CIPHER);
-+	return tfm->__crt_alg->cra_cipher.cia_req_align;
++	asm volatile ("pushfl; popfl");		/* enforce key reload. */
++	asm volatile (".byte 0xf3,0x0f,0xa7,0xc8"	/* rep xcryptecb */
++		      : "=m"(*output), "+S"(input), "+D"(output)
++		      : "d"(control_word), "b"(key), "c"(count));
 +}
 +
- /*
-  * API wrappers.
-  */
++static inline void padlock_xcrypt_cbc(u8 *input, u8 *output, u8 *key,
++				      u8 *iv, void *control_word, u32 count)
++{
++	asm volatile ("pushfl; popfl");		/* enforce key reload. */
++	asm volatile (".byte 0xf3,0x0f,0xa7,0xd0"	/* rep xcryptcbc */
++		      : "=m"(*output), "+S"(input), "+D"(output)
++		      : "d"(control_word), "b"(key), "c"(count), "a"(iv));
++}
++
++static inline void padlock_xcrypt_cfb(u8 *input, u8 *output, u8 *key,
++				      u8 *iv, void *control_word, u32 count)
++{
++	asm volatile ("pushfl; popfl");		/* enforce key reload. */
++	asm volatile (".byte 0xf3,0x0f,0xa7,0xe0"	/* rep xcryptcfb */
++		      : "=m"(*output), "+S"(input), "+D"(output)
++		      : "d"(control_word), "b"(key), "c"(count), "a"(iv));
++}
++
++static inline void padlock_xcrypt_ofb(u8 *input, u8 *output, u8 *key,
++				      u8 *iv, void *control_word, u32 count)
++{
++	asm volatile ("pushfl; popfl");		/* enforce key reload. */
++	asm volatile (".byte 0xf3,0x0f,0xa7,0xe8"	/* rep xcryptofb */
++		      : "=m"(*output), "+S"(input), "+D"(output)
++		      : "d"(control_word), "b"(key), "c"(count), "a"(iv));
++}
++
++static void aes_padlock(void *ctx_arg, u8 *out_arg, const u8 *in_arg,
++			const u8 *iv_arg, size_t nbytes, int encdec,
++			xcrypt_t xcrypt_func)
++{
++	/* Don't blindly modify this structure - the items must
++	   fit on 16-Bytes boundaries! */
++	struct padlock_xcrypt_data {
++		u8 iv[AES_BLOCK_SIZE];		/* Initialization vector */
++		union cword cword;		/* Control word */
++	};
++
++	u8 *in, *out, *iv;
++	void *key;
++	void *index = NULL;
++	struct aes_ctx *ctx = ctx_arg;
++	char bigbuf[sizeof(struct padlock_xcrypt_data) + 16];
++	struct padlock_xcrypt_data *data;
++
++	/* Place 'data' at the first 16-Bytes aligned address in 'bigbuf'. */
++	if (((long)bigbuf) & 0x0F)
++		data = (void*)(bigbuf + 16 - ((long)bigbuf & 0x0F));
++	else
++		data = (void*)bigbuf;
++
++	if (((long)in_arg) & 0x0F) {
++		in = crypto_aligned_kmalloc(nbytes, GFP_KERNEL, 16, &index);
++		memcpy(in, in_arg, nbytes);
++	}
++	else
++		in = (u8*)in_arg;
++
++	if (((long)out_arg) & 0x0F) {
++		if (index)
++			out = in;	/* xcrypt can work "in place" */
++		else
++			out = crypto_aligned_kmalloc(nbytes, GFP_KERNEL, 16, &index);
++	}
++	else
++		out = out_arg;
++
++	/* Always make a local copy of IV - xcrypt may change it! */
++	iv = data->iv;
++	if (iv_arg)
++		memcpy(iv, iv_arg, AES_BLOCK_SIZE);
++
++	/* Prepare Control word. */
++	memset (&data->cword, 0, sizeof(union cword));
++	data->cword.b.encdec = !encdec;	/* in the rest of cryptoapi ENC=1/DEC=0 */
++	data->cword.b.rounds = 10 + (ctx->key_length - 16) / 4;
++	data->cword.b.ksize = (ctx->key_length - 16) / 8;
++
++	/* Is the hardware capable to generate the extended key? */
++	if (!padlock_hw_extkey_available(ctx->key_length))
++		data->cword.b.keygen = 1;
++
++	/* ctx->E starts with a plain key - if the hardware is capable
++	   to generate the extended key itself we must supply
++	   the plain key for both Encryption and Decryption. */
++	if (encdec == CRYPTO_DIR_ENCRYPT || data->cword.b.keygen == 0)
++		key = ctx->E;
++	else
++		key = ctx->D;
++
++	(xcrypt_func)(in, out, key, iv, &data->cword, nbytes/16);
++
++	/* Copy the 16-Byte aligned output to the caller's buffer. */
++	if (out != out_arg)
++		memcpy(out_arg, out, nbytes);
++
++	if (index)
++		kfree(index);
++}
++
++static void aes_padlock_ecb(void *ctx, u8 *dst, const u8 *src, const u8 *iv,
++			    size_t nbytes, int encdec, int inplace)
++{
++	aes_padlock(ctx, dst, src, NULL, nbytes, encdec,
++		    padlock_xcrypt_ecb);
++}
++
++static void aes_padlock_cbc(void *ctx, u8 *dst, const u8 *src, const u8 *iv,
++			    size_t nbytes, int encdec, int inplace)
++{
++	aes_padlock(ctx, dst, src, iv, nbytes, encdec,
++		    padlock_xcrypt_cbc);
++}
++
++static void aes_padlock_cfb(void *ctx, u8 *dst, const u8 *src, const u8 *iv,
++			    size_t nbytes, int encdec, int inplace)
++{
++	aes_padlock(ctx, dst, src, iv, nbytes, encdec,
++		    padlock_xcrypt_cfb);
++}
++
++static void aes_padlock_ofb(void *ctx, u8 *dst, const u8 *src, const u8 *iv,
++			    size_t nbytes, int encdec, int inplace)
++{
++	aes_padlock(ctx, dst, src, iv, nbytes, encdec,
++		    padlock_xcrypt_ofb);
++}
++#endif
++
++static void aes_encrypt(void *ctx_arg, u8 *out, const u8 *in)
++{
++#ifdef CONFIG_CRYPTO_AES_PADLOCK
++	if (use_padlock)
++		aes_padlock(ctx_arg, out, in, NULL, AES_BLOCK_SIZE,
++			    CRYPTO_DIR_ENCRYPT, padlock_xcrypt_ecb);
++	else
++#endif
++		aes_encrypt_sw(ctx_arg, out, in);
++}
++
++static void aes_decrypt(void *ctx_arg, u8 *out, const u8 *in)
++{
++#ifdef CONFIG_CRYPTO_AES_PADLOCK
++	if (use_padlock)
++		aes_padlock (ctx_arg, out, in, NULL, AES_BLOCK_SIZE,
++			     CRYPTO_DIR_DECRYPT, padlock_xcrypt_ecb);
++	else
++#endif
++		aes_decrypt_sw (ctx_arg, out, in);
++}
+
+ static struct crypto_alg aes_alg = {
+ 	.cra_name		=	"aes",
+@@ -449,8 +697,39 @@ static struct crypto_alg aes_alg = {
+ 	}
+ };
+
++#ifdef CONFIG_CRYPTO_AES_PADLOCK
++static int disable_via_padlock = 0;
++MODULE_PARM(disable_via_padlock, "i");
++MODULE_PARM_DESC(disable_via_padlock,
++		 "Disable use of VIA PadLock crypto engine even if it was available.");
++static int disable_multiblock = 0;
++MODULE_PARM(disable_multiblock, "i");
++MODULE_PARM_DESC(disable_multiblock,
++		 "Disable encryption of whole multiblock buffers.");
++#endif
++
+ static int __init aes_init(void)
+ {
++#ifdef CONFIG_CRYPTO_AES_PADLOCK
++	if (!disable_via_padlock)
++		use_padlock = cpu_has_xstore_enabled;
++	if (use_padlock) {
++		if (!disable_multiblock) {
++			aes_alg.cra_u.cipher.cia_max_nbytes = (size_t)-1;
++			aes_alg.cra_u.cipher.cia_req_align  = 16;
++			aes_alg.cra_u.cipher.cia_ecb        = aes_padlock_ecb;
++			aes_alg.cra_u.cipher.cia_cbc        = aes_padlock_cbc;
++			aes_alg.cra_u.cipher.cia_cfb        = aes_padlock_cfb;
++			aes_alg.cra_u.cipher.cia_ofb        = aes_padlock_ofb;
++		}
++		printk(KERN_NOTICE PFX
++			"Using VIA PadLock ACE for AES algorithm%s.\n",
++			disable_multiblock ? "" : " (multiblock)");
++	} else if (cpu_has_xstore_enabled)
++		printk(KERN_NOTICE PFX "VIA PadLock ACE is available but not used.\n");
++	else
++		printk(KERN_NOTICE PFX "Using software AES.\n");
++#endif
+ 	gen_tabs();
+ 	return crypto_register_alg(&aes_alg);
+ }
+@@ -465,4 +744,3 @@ module_exit(aes_fini);
+
+ MODULE_DESCRIPTION("Rijndael (AES) Cipher Algorithm");
+ MODULE_LICENSE("Dual BSD/GPL");
+-
+

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129481AbQKMMyt>; Mon, 13 Nov 2000 07:54:49 -0500
+	id <S129050AbQKMM5t>; Mon, 13 Nov 2000 07:57:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129050AbQKMMyj>; Mon, 13 Nov 2000 07:54:39 -0500
-Received: from astrid2.nic.fr ([192.134.4.2]:43022 "EHLO astrid2.nic.fr")
-	by vger.kernel.org with ESMTP id <S129481AbQKMMya>;
-	Mon, 13 Nov 2000 07:54:30 -0500
-Date: Mon, 13 Nov 2000 13:54:45 +0000
-From: Francois romieu <romieu@ensta.fr>
-To: aprasad@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reliability of linux-vm subsystem
-Message-ID: <20001113135445.A12459@nic.fr>
-Reply-To: Francois romieu <romieu@ensta.fr>
-In-Reply-To: <CA256996.004352F8.00@d73mta05.au.ibm.com>
+	id <S129698AbQKMM5a>; Mon, 13 Nov 2000 07:57:30 -0500
+Received: from ipk.ipk.fhg.de ([153.96.56.2]:58805 "EHLO ipk.ipk.fhg.de")
+	by vger.kernel.org with ESMTP id <S129050AbQKMM5S>;
+	Mon, 13 Nov 2000 07:57:18 -0500
+Date: Mon, 13 Nov 2000 13:56:55 +0100
+From: Stefan Sassenberg <Stefan.Sassenberg@ipk.fhg.de>
+To: linux-kernel@vger.kernel.org
+Subject: Bug-report: menuconfig
+Message-ID: <20001113135655.C639912@kuerbis.ipk.fhg.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <CA256996.004352F8.00@d73mta05.au.ibm.com>; from aprasad@in.ibm.com on Mon, Nov 13, 2000 at 05:29:48PM +0530
-X-Organisation: Marie's fan club - I
+X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Mon, Nov 13, 2000 at 05:29:48PM +0530, aprasad@in.ibm.com wrote :
-[...]
-> When i run following code many times.
-> System becomes useless till all of the instance of this programming are
-> killed by vmm.
-[malloc bomb]
+Hi,
 
-Check some archives of the linux-kernel list for "overcommit".
+I think I detected a bug in Makefile's target "menuconfig".
 
--- 
-Ueimor
+When I set CONFIG_MD_BOOT to 'y' and then set neither
+CONFIG_MD_LINEAR nor CONFIG_MD_STRIPED to 'y' then although
+CONFIG_MD_BOOT is not changeable anymore it is always set. This leads
+to an error when linking the kernel because of an unresolved symbol
+"md_device_setup" (or similar).
+
+The menu items are:
+CONFIG_MD_BOOT      Boot support (linear, striped)
+CONFIG_MD_LINEAR    Linear (append) mode
+CONFIG_MD_STRIPED   RAID-0 (striping) mode
+
+Kernel version is 2.2.16 on an i386.
+
+Regards
+
+Stefan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbSJTGay>; Sun, 20 Oct 2002 02:30:54 -0400
+	id <S262599AbSJTGmR>; Sun, 20 Oct 2002 02:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262460AbSJTGay>; Sun, 20 Oct 2002 02:30:54 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:53994 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S262418AbSJTGax>;
-	Sun, 20 Oct 2002 02:30:53 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC80D@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Justin T. Gibbs'" <gibbs@scsiguy.com>,
-       "lkml (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: AIC7xxx driver build failure
-Date: Sat, 19 Oct 2002 23:36:55 -0700
+	id <S262582AbSJTGmR>; Sun, 20 Oct 2002 02:42:17 -0400
+Received: from 78-168.M.dial.o-tel-o.net ([212.144.78.168]:48904 "EHLO
+	dd8ne.ampr.org") by vger.kernel.org with ESMTP id <S262495AbSJTGmR>;
+	Sun, 20 Oct 2002 02:42:17 -0400
+Message-Id: <200210200648.g9K6mkD05952@dd8ne.ampr.org>
+Content-Type: text/plain; charset=US-ASCII
+From: Hans-Joachim Hetscher <dd8ne@dd8ne.ampr.org>
+Reply-To: dd8ne@bnv-bamberg.de
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.44: net/ipv4/ip_proc.c compile error fix for AX25 enabled 
+Date: Sun, 20 Oct 2002 08:48:45 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: ralf@linux-mips.org.linux-hams@vger.kernel.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ip_proc.c does't compile for CONFIG_AX25.
 
-> > The AIC 7xxx driver fails to build because the Makefile fails to
-> > specify the correct include path to aicasm.
-> > 
-> > Justin, are you getting this?
-> 
-> No, because this bug doesn't exist in the latest version of the driver
-> in my tree or the last set of patches I sent to Linus (a month ago??).
+Here the patch ...
 
-I could not find anywhere where it was reported, so will stop bugging. 
 
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
-fault]
+diff -u net/ipv4/ip_proc.c~ net/ipv4/ip_proc.c
+--- net/ipv4/ip_proc.c~ Sun Oct 20 08:15:20 2002
++++ net/ipv4/ip_proc.c  Sun Oct 20 08:19:03 2002
+@@ -33,7 +33,7 @@
+
+ #ifdef CONFIG_PROC_FS
+ #ifdef CONFIG_AX25
+-
++#include <linux/ax25.h>
+ /* ------------------------------------------------------------------------ */
+ /*
+  *     ax25 -> ASCII conversion

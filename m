@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268886AbUJTSnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269099AbUJTSoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268886AbUJTSnf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 14:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbUJTSc1
+	id S269099AbUJTSoN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 14:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267313AbUJTSoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 14:32:27 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:53146 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268950AbUJTSWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 14:22:23 -0400
-Date: Wed, 20 Oct 2004 11:22:22 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove inclusion of <linux/irq.h> from pci/quirks.c
-Message-ID: <20041020182222.GA20201@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Wed, 20 Oct 2004 14:44:03 -0400
+Received: from bender.bawue.de ([193.7.176.20]:42174 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S268944AbUJTSWE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 14:22:04 -0400
+Date: Wed, 20 Oct 2004 20:17:19 +0200
+From: Joerg Sommrey <jo175@sommrey.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9: io conflict between w83627hf_wdt and parport_pc
+Message-ID: <20041020181719.GA6395@sommrey.de>
+Mail-Followup-To: Joerg Sommrey <jo175@sommrey.de>,
+	Lee Revell <rlrevell@joe-job.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20041020165408.GA5872@sommrey.de> <1098292880.1429.129.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <1098292880.1429.129.camel@krustophenia.net>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 20, 2004 at 01:21:20PM -0400, Lee Revell wrote:
+> On Wed, 2004-10-20 at 12:54, Joerg Sommrey wrote:
+> > /proc/ioports reports:
+> > |002e-0030 : winbond_check
+> 
+> Ugh.  Looks like this bug made it into 2.6.9:
+> 
+> http://lkml.org/lkml/2004/10/18/58
+Thanks for the pointer.  Andrea's parport_pc-superio-chip-fixes.patch
+fixed this bug for me.
 
-<linux/irq.h> states:
+-jo
 
-/*
- * Please do not include this file in generic code.  There is currently
- * no requirement for any architecture to implement anything held
- * within this file.
- *
- * Thanks. --rmk
- */
-
-The latest update into pci/quirks.c did not follow this and breaks 
-building on ARM.
-
-Signed-off-by: Deepak Saxena <dsaxena@plexity.met>
-
-===== drivers/pci/quirks.c 1.51 vs edited =====
---- 1.51/drivers/pci/quirks.c	2004-10-18 22:26:45 -07:00
-+++ edited/drivers/pci/quirks.c	2004-10-20 11:15:14 -07:00
-@@ -18,7 +18,6 @@
- #include <linux/pci.h>
- #include <linux/init.h>
- #include <linux/delay.h>
--#include <linux/irq.h>
- 
- #undef DEBUG
- 
 -- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
-
-"Unlike me, many of you have accepted the situation of your imprisonment
-and will die here like rotten cabbages." - Number 6
+-rw-r--r--  1 jo users 63 2004-10-20 20:11 /home/jo/.signature

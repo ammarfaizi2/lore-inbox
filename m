@@ -1,43 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUGNN0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267383AbUGNN1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267381AbUGNN0H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 09:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267382AbUGNN0H
+	id S267383AbUGNN1t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 09:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267382AbUGNN1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 09:26:07 -0400
-Received: from [203.197.150.194] ([203.197.150.194]:36061 "EHLO
-	Bhadra.amrita.ac.in") by vger.kernel.org with ESMTP id S267381AbUGNN0F
+	Wed, 14 Jul 2004 09:27:49 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12165 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267383AbUGNN1F
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 09:26:05 -0400
-Message-ID: <60580.203.197.150.195.1089808265.squirrel@203.197.150.195>
-Date: Wed, 14 Jul 2004 18:01:05 +0530 (IST)
-Subject: Real-Time thread scheduling in linux??
-From: "Harish K Harshan" <harish@amritapuri.amrita.edu>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.5.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+	Wed, 14 Jul 2004 09:27:05 -0400
+Date: Wed, 14 Jul 2004 09:26:55 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Mark Hamilton <man@ucs.co.za>
+Cc: linux-kernel@vger.kernel.org, Berend <bds@ucs.co.za>
+Subject: Re: HP Proliant ML350 kernel panic
+Message-ID: <20040714122655.GB12431@logos.cnet>
+References: <1088165491.2255.62.camel@man.ucs.co.za>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1088165491.2255.62.camel@man.ucs.co.za>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-
-     I would like to know if there is any way to give a thread real-time
-priority under Linux, and also if it is possible using the pthread
-library. How would the kernel handle such threads? And do we need to
-implement locking systems, so that this thread does not block other
-threads permanently? Please help me, because I am working on a data
-acquisition application, and the acquisition thread needs almost
-real-time priority, and loss of data is not affordable.
-
-Thanks in advance,
-Harish K Harshan.
 
 
-***********************************************************************************************
- Amrita Institutions, Amritapuri, Kerala, India - 
- Sent using Amrita Mail  
- Visit http://www.amrita.edu 
+Hi Mark,
+
+Sorry for the long delay...
+
+On Fri, Jun 25, 2004 at 02:11:31PM +0200, Mark Hamilton wrote:
+> I'm running RH9.0 with a 2.4.26 kernel on an HP Proliant ML350 server.
+> This is one of 3 identical machines, the other 2 servers are live
+> without any problems, so far.
+> 
+> The kernel panic is intermittent. This particular instance occurred at
+> boot time, but it will reoccur randomly while the machine is up and
+> under various load conditions. I've been unable to trigger the panic.
+
+Couple of questions
+
+Is it always the same oops / Do you have other oopses saved ? 
+
+Can you run the oopses through ksymoops ? 
+
+Is the hardware exactly the same in the three boxes ?
+
+
+> =========
+> The Panic
+> =========
+> 
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000001
+> 
+> *pde = 00000000
+> Oops = 0000
+> CPU: 0
+> EIP: 0010:[<00000001>] Not tainted
+> EFLAGS: 00010282
+> eax: f779e900 ebx: 00000001 ecx: f779e900 edx: f779e900
+> esi: 00000000 edi: 00001875 edp: f67c5a18 esp: f67bbda0
+> ds: 0018 es: 0018 ss: 0018
+> Process  (pid: 0, stackpage=f67bb000)
+> Stack:  00000000 00000000 00000000 f67c5a28 c02b7380 00000000 f7fad880 00000000
+> 	00000000 00000000 c02b77f8 c02b77f8 c02b78f8 00000002 f67edb80 c013ecb5
+> 	4001c000 c1a85e40 f6906a80 f67edc80 4001c000 f67ba000 c02b77f8 c02b78f4
+> Call Trace: [<c013ecb5>][<c0136e15>][<c012bd75>][<c012be21>][<c011f9b8>]
+> 
+> Code: Bad EIP value.
+>  <0> kernel panic: Attempted to kill the idle task!
+> In idle task - not syncing.
+
+
+> ======================
+> % sh scripts/ver_linux
+> ======================
+> 
+> Linux b900700.co.za 2.4.26 #1 SMP Thu Jun 24 04:35:03 SAST 2004 i686 i686 i386 GNU/Linux
+>  
+> Gnu C                  3.2.2
+> Gnu make               3.79.1
+> util-linux             2.11y
+> mount                  2.11y
+> modutils               2.4.22
+> e2fsprogs              1.32
+> jfsutils               1.0.17
+> reiserfsprogs          3.6.4
+> pcmcia-cs              3.1.31
+> quota-tools            3.06.
+> PPP                    2.4.1
+> Linux C Library        2.3.2
+> Dynamic linker (ldd)   2.3.2
+> Procps                 2.0.11
+> Net-tools              1.60
+> Kbd                    1.08
+> Sh-utils               4.5.3
+> Modules Loaded         vga16fb fbcon-vga-planes parport_pc lp parport tg3 ide-scsi ide-cd cdrom dm-mod lvm-mod keybdev mousedev input hid usb-ohci usbcore ext3 jbd cciss aic7xxx sd_mod scsi_mod
+
+> =====================
+> % cat /proc/cpuinfo
+> =====================
+> 
+> 
+> processor	: 0
+> vendor_id	: GenuineIntel
+> cpu family	: 15
+> model		: 2
+> model name	: Intel(R) Xeon(TM) CPU 2.40GHz
+> stepping	: 9
+> cpu MHz		: 2392.328
+> cache size	: 512 KB
+> fdiv_bug	: no
+> hlt_bug		: no
+> f00f_bug	: no
+> coma_bug	: no
+> fpu		: yes
+> fpu_exception	: yes
+> cpuid level	: 2
+> wp		: yes
+> flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
+> bogomips	: 4771.02
+> 
+> processor	: 1
+> vendor_id	: GenuineIntel
+> cpu family	: 15
+> model		: 2
+> model name	: Intel(R) Xeon(TM) CPU 2.40GHz
+> stepping	: 9
+> cpu MHz		: 2392.328
+> cache size	: 512 KB
+> fdiv_bug	: no
+> hlt_bug		: no
+> f00f_bug	: no
+> coma_bug	: no
+> fpu		: yes
+> fpu_exception	: yes
+> cpuid level	: 2
+> wp		: yes
+> flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
+> bogomips	: 4784.12
+> 
+
+> =====================
+> % cat /proc/modules
+> =====================
+> 
+> 
+> 
+> vga16fb                11712  63
+> fbcon-vga-planes        5480   0 [vga16fb]
+> parport_pc             19204   1 (autoclean)
+> lp                      9188   0 (autoclean)
+> parport                39040   1 (autoclean) [parport_pc lp]
+> tg3                    57736   1
+> ide-scsi               12336   0
+> ide-cd                 35776   0 (autoclean)
+> cdrom                  34176   0 (autoclean) [ide-cd]
+> dm-mod                 60036   2
+> lvm-mod                62784   0 (unused)
+> keybdev                 3136   0 (unused)
+> mousedev                5688   0 (unused)
+> input                   6144   0 [keybdev mousedev]
+> hid                    12476   0 (unused)
+> usb-ohci               22184   0 (unused)
+> usbcore                82560   1 [hid usb-ohci]
+> ext3                   74468   3
+> jbd                    56656   3 [ext3]
+> cciss                  59264   4
+> aic7xxx               165296   0 (unused)
+> sd_mod                 13356   0 (unused)
+> scsi_mod              111320   3 [ide-scsi cciss aic7xxx sd_mod]
+
+
+

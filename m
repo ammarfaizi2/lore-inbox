@@ -1,81 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbUBTRBM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 12:01:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbUBTRBM
+	id S261340AbUBTQ71 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 11:59:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbUBTQ71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 12:01:12 -0500
-Received: from fw.osdl.org ([65.172.181.6]:20669 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261342AbUBTRA6 (ORCPT
+	Fri, 20 Feb 2004 11:59:27 -0500
+Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:33521 "EHLO
+	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id S261340AbUBTQ7J convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 12:00:58 -0500
-From: john cherry <cherry@osdl.org>
-Date: Fri, 20 Feb 2004 09:00:57 -0800
-Message-Id: <200402201700.i1KH0vj31781@build-000.pdx.osdl.net>
-To: linux-kernel@vger.kernel.org
-Subject: IA64 (2.6.3 - 2004-02-19.17.30) - 62 New warnings (gcc 3.3.1)
+	Fri, 20 Feb 2004 11:59:09 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Still have build error on 2.6.2 fc/proc/array.c
+Date: Fri, 20 Feb 2004 09:59:07 -0700
+Message-ID: <0A78D025ACD7C24F84BD52449D8505A15A80DD@wcosmb01.cos.agilent.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Still have build error on 2.6.2 fc/proc/array.c
+Thread-Index: AcP3sgtZlWklGICiSh6HE3K2Xohf4AAH4vUw
+From: <yiding_wang@agilent.com>
+To: <marco.roeland@xs4all.nl>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Feb 2004 16:59:08.0679 (UTC) FILETIME=[DB0D7170:01C3F7D2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/ia64/sn/io/machvec/pci_bus_cvlink.c:777: warning: `return' with no value, in function returning non-void
-arch/ia64/sn/io/machvec/pci_bus_cvlink.c:808: warning: `return' with no value, in function returning non-void
-drivers/isdn/capi/capidrv.c:1845: warning: cast from pointer to integer of different size
-drivers/isdn/capi/capidrv.c:2111:10: warning: #warning FIXME: maybe a race condition the card should be removed here from global list /kkeil
-drivers/isdn/hisax/avm_pci.c:817: warning: label `ready' defined but not used
-drivers/isdn/hisax/config.c:1736: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/config.c:1740: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/config.c:1804: warning: cast to pointer from integer of different size
-drivers/isdn/hisax/config.c:1889: warning: `hisax_pci_tbl' defined but not used
-drivers/isdn/hisax/diva.c:1104: warning: label `ready' defined but not used
-drivers/isdn/hisax/hfc_pci.c:1212: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/hfc_pci.c:1230: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/hfc_pci.c:1712: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/hfc_pci.c:1713: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/hfc_sx.c:974: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/hfc_sx.c:990: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/hfc_usb.c:1060: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/hfc_usb.c:743: warning: cast to pointer from integer of different size
-drivers/isdn/hisax/hisax_fcpcipnp.c:1029: warning: label `out_unregister_pci' defined but not used
-drivers/isdn/hisax/hisax_fcpcipnp.c:551: warning: cast to pointer from integer of different size
-drivers/isdn/hisax/hisax_fcpcipnp.c:642: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/netjet.c:741: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/netjet.c:970: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/netjet.c:971: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/netjet.c:984: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/netjet.c:985: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/sedlbauer.c:681: warning: label `ready' defined but not used
-drivers/isdn/hisax/st5481_b.c:356: warning: cast from pointer to integer of different size
-drivers/isdn/hisax/st5481_b.c:89: warning: cast to pointer from integer of different size
-drivers/isdn/hisax/st5481_d.c:397: warning: cast to pointer from integer of different size
-drivers/isdn/hisax/st5481_d.c:545: warning: cast from pointer to integer of different size
-drivers/isdn/i4l/isdn_ppp.c:1543: warning: large integer implicitly truncated to unsigned type
-drivers/isdn/tpam/tpam_commands.c:123: warning: cast to pointer from integer of different size
-drivers/isdn/tpam/tpam_commands.c:133: warning: cast to pointer from integer of different size
-drivers/isdn/tpam/tpam_commands.c:134: warning: cast to pointer from integer of different size
-drivers/isdn/tpam/tpam_commands.c:153: warning: cast to pointer from integer of different size
-drivers/isdn/tpam/tpam_commands.c:161: warning: cast to pointer from integer of different size
-drivers/isdn/tpam/tpam_commands.c:162: warning: cast to pointer from integer of different size
-drivers/isdn/tpam/tpam_commands.c:534: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_commands.c:541: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_commands.c:551: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_commands.c:557: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_commands.c:868: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_commands.c:872: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_memory.c:100: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_memory.c:101: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_memory.c:151: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_memory.c:160: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_memory.c:191: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_memory.c:206: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_memory.c:33: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_memory.c:52: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_memory.c:53: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_memory.c:62: warning: passing arg 2 of `__ia64_memcpy_toio' discards qualifiers from pointer target type
-drivers/isdn/tpam/tpam_memory.c:82: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_memory.c:85: warning: cast from pointer to integer of different size
-drivers/isdn/tpam/tpam_queues.c:110: warning: cast to pointer from integer of different size
-drivers/isdn/tpam/tpam_queues.c:134: warning: cast to pointer from integer of different size
-drivers/isdn/tpam/tpam_queues.c:140: warning: cast to pointer from integer of different size
-drivers/isdn/tpam/tpam_queues.c:369: warning: cast to pointer from integer of different size
-drivers/isdn/tpam/tpam_queues.c:373: warning: cast to pointer from integer of different size
-fs/smbfs/file.c:273: warning: int format, different type arg (arg 5)
+Hello Marco,
+
+I got things straighten up by changing the code array.c, followed your example on web.  I also downloaded gcc 3.3.3 but dare to try it now. The gcc 2.96 bug should be described in 2.6.2 Changes file which only mentioned the gcc 2.95 and beyond will be OK,
+
+Thanks!
+
+Eddie
+
+> -----Original Message-----
+> From: Marco Roeland 
+> [mailto:marco@localhost.cos.agilent.com]On Behalf Of
+> Marco Roeland
+> Sent: Friday, February 20, 2004 5:03 AM
+> To: WANG,YIDING (A-SanJose,ex1)
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Still have build error on 2.6.2 fc/proc/array.c
+> 
+> 
+> On Tuesday February 17th yiding_wang@agilent.com wrote:
+> 
+> > Based on README and requirement of Changes in linux-2.6.2, 
+> I have updated needed utilities and other files with the following:
+> > binnutils 2.14
+> > e2fsprogs-1.34
+> > module-init-tools-3.0-pre10
+> > procps 3.1.15
+> > 
+> > Everything is installed OK.
+> > 
+> > Then compiling new 2.6.2 kernel still fails wi the 
+> following.  What is the upgrade file for this problem?
+> 
+> Your kernel sources and all the mentioned tools are now OK, 
+> and probably
+> were OK already. The only thing that is giving you the error is the
+> version of the gcc compiler that you use (2.96).
+> 
+> > make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+> >   CHK     include/linux/compile.h
+> >   CC      fs/proc/array.o
+> > fs/proc/array.c: In function `proc_pid_stat':
+> > fs/proc/array.c:398: Unrecognizable insn:
+> > (insn/i 727 1015 1009 (parallel[ 
+> > ...
+> 
+> It is the *compiler* (gcc-2.96) that has a bug here. As this 
+> version of
+> gcc has many other bugs developers no longer work around difficulties
+> this specific version of gcc has.
+> 
+> What you can do is upgrade your gcc package to a later 
+> version (3.2.x or
+> 3.3.x or even later from your distribution). As a workaround 
+> I've made a
+> little patch that you can apply to fs/proc/array.c if you 
+> still want to
+> keep using gcc 2.96 for a little while. It's archived here:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=107567013416122&w=2
+> -- 
+> Marco Roeland
+> 

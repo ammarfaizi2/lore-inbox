@@ -1,81 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVCAIYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVCAIbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbVCAIYs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 03:24:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbVCAIYs
+	id S261448AbVCAIbz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 03:31:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVCAIbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 03:24:48 -0500
-Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:40617 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S261287AbVCAIXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 03:23:11 -0500
-Date: Tue, 1 Mar 2005 09:22:54 +0100
-From: martin f krafft <madduck@madduck.net>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@suse.cz>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp logic error?
-Message-ID: <20050301082254.GA4402@piper.madduck.net>
-Mail-Followup-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
-	Pavel Machek <pavel@suse.cz>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20050208203950.GA21623@cirrus.madduck.net> <20050227174309.GA27265@piper.madduck.net> <20050228135604.GA6364@piper.madduck.net> <200502281533.01621.rjw@sisk.pl> <20050228144506.GA11125@piper.madduck.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
-Content-Disposition: inline
-In-Reply-To: <<20050228144723.GA3384@elf.ucw.cz>
-X-OS: Debian GNU/Linux 3.1 kernel 2.6.10-9-amd64-k8 x86_64
-X-Mailer: Mutt 1.5.6+20040907i (CVS)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-X-Spamtrap: madduck.bogus@madduck.net
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 1 Mar 2005 03:31:55 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:18153 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261448AbVCAIbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 03:31:38 -0500
+Message-ID: <422428EC.3090905@jp.fujitsu.com>
+Date: Tue, 01 Mar 2005 17:33:48 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linas Vepstas <linas@austin.ibm.com>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: [PATCH/RFC] I/O-check interface for driver's error handling
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, long time no see :-)
 
---IJpNTDwzlM2Ie8A6
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Currently, I/O error is not a leading cause of system failure.
+However, since Linux nowadays is making great progress on its
+scalability, and ever larger number of PCI devices are being
+connected to a single high-performance server, the risk of the
+I/O error is increasing day by day.
 
-also sprach Pavel Machek <pavel () ucw ! cz>
-> > > Could you, please, verify that you don't need to load any
-> > > modules from initrd for your swap partition to work?  It won't
-> > > work if you do.
-> >=20
-> > this makes perfect sense to me when you talk about resuming.
-> > does it also apply to suspending?
->=20
-> As kernel is the same for suspend and resume... Yes, it seems it
-> makes sense.
+For example, PCI parity error is one of the most common errors
+in the hardware world. However, the major cause of parity error
+is not hardware's error but software's - low voltage, humidity,
+natural radiation... etc. Even though, some platforms are nervous
+to parity error enough to shutdown the system immediately on such
+error. So if device drivers can retry its transaction once results
+as an error, we can reduce the risk of I/O errors.
 
-But before the suspend, the IDE modules are loaded, so the swap
-drive is accessible, no? Or are IDE modules (yes, they are modules
-here) unloaded just before writing to swap?
+So I'd like to suggest new interfaces that enable drivers to
+check - detect error and retry their I/O transaction easily.
 
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-spamtraps: madduck.bogus@madduck.net
-=20
-man muss noch chaos in sich haben
-um einen tanzenden stern zu geb=E4hren.
-                                                -- friedrich nietzsche
+Previously I had post two prototypes to LKML:
+1) readX_check() interface
+    Added new kin of basic readX(), which returns its result of
+    I/O. But, it would not make sense that device driver have to
+    check and react after each of I/Os.
+2) clear/read_pci_errors() interface
+    Added new pair-interface to sandwich I/Os. It makes sense that
+    device driver can adjust the number of checking I/Os and can
+    react all of them at once. However, this was not generalized,
+    so I thought that more expandable design would be required.
 
---IJpNTDwzlM2Ie8A6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Today's patch is 3rd one - iochk_clear/read() interface.
+- This also adds pair-interface, but not to sandwich only readX().
+   Depends on platform, starting with ioreadX(), inX(), writeX()
+   if possible... and so on could be target of error checking.
+- Additionally adds special token - abstract "iocookie" structure
+   to control/identifies/manage I/Os, by passing it to OS.
+   Actual type of "iocookie" could be arch-specific. Device drivers
+   could use the iocookie structure without knowing its detail.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+Expected usage(sample) is:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#include <linux/pci.h>
+#include <asm/io.h>
 
-iD8DBQFCJCZeIgvIgzMMSnURAv+ZAJ4qqLKgKeNazu1tQDRVS31wxwfyQgCdFwht
-d9RQ1gszQC+MbDA9xbd1nsM=
-=K1PC
------END PGP SIGNATURE-----
+int sample_read_with_iochk(struct pci_dev *dev, u32 *buf, int words)
+{
+	unsigned long ofs = pci_resource_start(dev, 0) + DATA_OFFSET;
+	int i;
 
---IJpNTDwzlM2Ie8A6--
+	/* Create magical cookie on the stack */
+	iocookie cookie;
+
+	/* Critical section start */
+	iochk_clear(&dev, &cookie);
+	{
+		/* Get the whole packet of data */
+		for (i = 0; i < words; i++)
+			*buf++ = ioread32(dev, ofs);
+	}
+	/* Critical section end. Did we have any trouble? */
+	if ( iochk_read(&cookie) ) return -1;
+
+	/* OK, all system go. */
+	return 0;
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If arch doesn't(or cannot) have its io-checking strategy, these
+interfaces could be used as a replacement of local_irq_save/restore
+pair. Therefore, driver maintainer can write their driver code with
+these interfaces for all arch, even where checking is not implemented.
+
+Followings are "generic" part. Definition of default for all arch
+are included. I have another part - "ia64 specific" part, which
+against poisoned data read on PCI parity error. I'll post it later.
+
+First, comments about this "generic" part are welcome.
+
+Thanks,
+H.Seto
+
+-----
+
+diff -Nur linux-2.6.10-iomap-0/drivers/pci/pci.c linux-2.6.10-iomap-1/drivers/pci/pci.c
+--- linux-2.6.10-iomap-0/drivers/pci/pci.c      2005-02-15 15:27:28.000000000 +0900
++++ linux-2.6.10-iomap-1/drivers/pci/pci.c      2005-02-24 16:55:11.000000000 +0900
+@@ -747,6 +747,8 @@
+         while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+                 pci_fixup_device(pci_fixup_final, dev);
+         }
++
++       iochk_init();
+         return 0;
+  }
+
+diff -Nur linux-2.6.10-iomap-0/include/asm-generic/iomap.h linux-2.6.10-iomap-1/include/asm-generic/iomap.h
+--- linux-2.6.10-iomap-0/include/asm-generic/iomap.h    2005-02-15 15:27:27.000000000 +0900
++++ linux-2.6.10-iomap-1/include/asm-generic/iomap.h    2005-02-21 14:40:45.000000000 +0900
+@@ -60,4 +60,20 @@
+  extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
+  extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
+
++/*
++ * IOMAP_CHECK provides additional interfaces for drivers to detect
++ * some IO errors, supports drivers having ability to recover errors.
++ *
++ * All works around iomap-check depends on the design of "iocookie"
++ * structure. Every architecture owning its iomap-check is free to
++ * define the actual design of iocookie to fit its special style.
++ */
++#ifndef HAVE_ARCH_IOMAP_CHECK
++typedef unsigned long iocookie;
++#endif
++
++extern void    iochk_init(void);
++extern void    iochk_clear(iocookie *cookie, struct pci_dev *dev);
++extern int     iochk_read(iocookie *cookie);
++
+  #endif
+diff -Nur linux-2.6.10-iomap-0/lib/iomap.c linux-2.6.10-iomap-1/lib/iomap.c
+--- linux-2.6.10-iomap-0/lib/iomap.c    2005-02-15 15:27:27.000000000 +0900
++++ linux-2.6.10-iomap-1/lib/iomap.c    2005-02-21 14:38:17.000000000 +0900
+@@ -210,3 +210,28 @@
+  }
+  EXPORT_SYMBOL(pci_iomap);
+  EXPORT_SYMBOL(pci_iounmap);
++
++/*
++ * Note that default iochk_clear-read pair interfaces could be used
++ * just as a replacement of traditional local_irq_save-restore pair.
++ * Originally they don't have any effective error check, but some
++ * high-reliable platforms would provide useful information to you.
++ */
++#ifndef HAVE_ARCH_IOMAP_CHECK
++#include <asm/system.h>
++void iochk_init(void) { ; }
++
++void iochk_clear(iocookie *cookie, struct pci_dev *dev)
++{
++       local_irq_save(*cookie);
++}
++
++int iochk_read(iocookie *cookie)
++{
++       local_irq_restore(*cookie);
++       return 0;
++}
++EXPORT_SYMBOL(iochk_init);
++EXPORT_SYMBOL(iochk_clear);
++EXPORT_SYMBOL(iochk_read);
++#endif /* HAVE_ARCH_IOMAP_CHECK */
+

@@ -1,39 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263276AbTHVNAw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 09:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263180AbTHVMuK
+	id S263122AbTHVMuw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 08:50:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263194AbTHVMup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 08:50:10 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:26637 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263189AbTHVMI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 08:08:28 -0400
-Date: Fri, 22 Aug 2003 13:08:26 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-Cc: linux-pcmcia@lists.infradead.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.0-test3][PCMCIA] vx_entry.c: remove release timer
-Message-ID: <20030822130826.A15033@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Vinay K Nallamothu <vinay-rc@naturesoft.net>,
-	linux-pcmcia@lists.infradead.org,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1061555067.1108.19.camel@lima.royalchallenge.com>
+	Fri, 22 Aug 2003 08:50:45 -0400
+Received: from trappist.elis.UGent.be ([157.193.204.1]:674 "EHLO
+	trappist.elis.UGent.be") by vger.kernel.org with ESMTP
+	id S263122AbTHVMck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 08:32:40 -0400
+Subject: [PATCH] sched: sched_best_cpu
+From: Frank Cornelis <Frank.Cornelis@elis.ugent.be>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Frank Cornelis <Frank.Cornelis@elis.ugent.be>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 22 Aug 2003 14:32:39 +0200
+Message-Id: <1061555559.3341.18.camel@tom>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1061555067.1108.19.camel@lima.royalchallenge.com>; from vinay-rc@naturesoft.net on Fri, Aug 22, 2003 at 05:54:27PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 22, 2003 at 05:54:27PM +0530, Vinay K Nallamothu wrote:
-> sound/pcmcia/vx/vx_entry.c:
-> This patch removes the PCMCIA timer release functionality which is no
-> longer required. Without this the module can not be compiled and
-> generates the following compiler error:
+Hi,
 
-Sorry for missing that one, but I'm sure this will happen again to me
-and other if the sound drivers stay outside drivers/.
+
+I repatched it against the latest bk.
+This patch favors the local node more than the others to prevent unnecessary task migration by doing a better estimation of the after-migration load (see inline C documentation).
+
+
+Frank.
+
+
+ sched.c |   16 ++++++++++------
+ 1 files changed, 10 insertions(+), 6 deletions(-)
+
+
+diff -Nru a/kernel/sched.c b/kernel/sched.c
+--- a/kernel/sched.c	Thu Aug 21 16:10:41 2003
++++ b/kernel/sched.c	Thu Aug 21 16:10:41 2003
+@@ -793,29 +793,33 @@
+  */
+ static int sched_best_cpu(struct task_struct *p)
+ {
+-	int i, minload, load, best_cpu, node = 0;
++	int i, minload, load, best_cpu, node, pnode;
+ 	cpumask_t cpumask;
+ 
+ 	best_cpu = task_cpu(p);
+ 	if (cpu_rq(best_cpu)->nr_running <= 2)
+ 		return best_cpu;
+ 
+-	minload = 10000000;
++	minload = INT_MAX;
++	node = pnode = cpu_to_node(best_cpu);
+ 	for_each_node_with_cpus(i) {
+ 		/*
+ 		 * Node load is always divided by nr_cpus_node to normalise 
+ 		 * load values in case cpu count differs from node to node.
+-		 * We first multiply node_nr_running by 10 to get a little
+-		 * better resolution.   
++		 * If node != our node we add the load of the migrating task;
++		 * we only want to migrate if:
++		 * 	load(other node) + 1 < load(our node) - 1
++		 * The '+ 1' and '- 1' denote the migration.
++		 * We multiply by NR_CPUS for best resolution.
+ 		 */
+-		load = 10 * atomic_read(&node_nr_running[i]) / nr_cpus_node(i);
++		load = NR_CPUS * (atomic_read(&node_nr_running[i]) + ((i != pnode) << 1)) / nr_cpus_node(i);
+ 		if (load < minload) {
+ 			minload = load;
+ 			node = i;
+ 		}
+ 	}
+ 
+-	minload = 10000000;
++	minload = INT_MAX;
+ 	cpumask = node_to_cpumask(node);
+ 	for (i = 0; i < NR_CPUS; ++i) {
+ 		if (!cpu_isset(i, cpumask))
+
+
 

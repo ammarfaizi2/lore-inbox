@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288086AbSBSTzH>; Tue, 19 Feb 2002 14:55:07 -0500
+	id <S289372AbSBSTzR>; Tue, 19 Feb 2002 14:55:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288960AbSBSTy5>; Tue, 19 Feb 2002 14:54:57 -0500
-Received: from p3E9BFD8B.dip.t-dialin.net ([62.155.253.139]:46596 "EHLO
-	srv.sistina.com") by vger.kernel.org with ESMTP id <S288086AbSBSTyq>;
-	Tue, 19 Feb 2002 14:54:46 -0500
-Date: Tue, 19 Feb 2002 20:51:06 +0100
-From: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
-To: linux-kernel@vger.kernel.org
-Subject: *** ANNOUNCEMENT *** LVM 1.0.3 available at www.sistina.com
-Message-ID: <20020219205106.A3759@sistina.com>
-Reply-To: mauelshagen@sistina.com
+	id <S288960AbSBSTzI>; Tue, 19 Feb 2002 14:55:08 -0500
+Received: from bitmover.com ([192.132.92.2]:41407 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S289657AbSBSTyy>;
+	Tue, 19 Feb 2002 14:54:54 -0500
+Date: Tue, 19 Feb 2002 11:54:52 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Amy Graf <amy@bitmover.com>
+Subject: Re: [PATCH *] new struct page shrinkage
+Message-ID: <20020219115452.S26350@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	Amy Graf <amy@work.bitmover.com>
+In-Reply-To: <20020219113217.P26350@work.bitmover.com> <Pine.LNX.4.33L.0202191634290.7820-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33L.0202191634290.7820-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Feb 19, 2002 at 04:35:26PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 19, 2002 at 04:35:26PM -0300, Rik van Riel wrote:
+> On Tue, 19 Feb 2002, Larry McVoy wrote:
+> > This is really a problem for bkbits to solve if I understand it
+> > correctly. Rik wants to "name" his tree.  If we the bkbits admin
+> > interface have a "desc" command which changes the description listed
+> > on the web pages, then I think he'll be happy, right?
+> 
+> Indeed.  The problem was that I was getting too many trees
+> on linuxvm.bkbits.net and would only end up confusing people
+> what was what...
 
-*** ANNOUNCEMENT *** LVM 1.0.3 available at www.sistina.com
+I've got Amy working on a change so you can do a 
 
-Hi all,
+admin shell>> desc [-rrepo] whatever you want
 
-LVM 1.0.3 supports both version 1 and 2 of the metadata.
-
-There's *no* need to run any metadata update tools.
-
-A tarball is available now at
-
-   <http://www.sistina.com/>
-
-for download (Follow the "LVM 1.0" link).
-
-
-Changes to LVM 1.0.2 include:
-
-o vgcfgrestore supports restores to different sized physical volumes;
-  useful in cases where a replacement disk is a little bit to large or
-  for test purposes; option enhancements; physical volume UUID restore fix
-
-o vgchange removes failed snapshots and activates the volume group rather
-  than failing on it. Optionally forces device number changes in cases
-  where it finds clashes so that the volume group can be activated
-
-o vgexport exports volume groups not showing up in /etc/lvmtab*
-
-o vgscan can drop all snapshots or those in a particular volume group now
-
-o "pvmove -i" ignores read errors while moving and supports moves in
-  inactive volume groups
-
-o > 1 TB fixes for physical and logical volumes (2 TB limitation
-  on 2.4 persists)
-
-o more...
-
-
-See the CHANGELOG file contained in the tarball for further information.
-
-Feed back LVM related information to <linux-lvm@sistina.com>.
-
-Thanks a lot for your support of LVM.
-
+and it will change the description to "whatever you want" on repo if specified,
+or all if not.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261252AbRE0I5i>; Sun, 27 May 2001 04:57:38 -0400
+	id <S261302AbRE0JGk>; Sun, 27 May 2001 05:06:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261302AbRE0I51>; Sun, 27 May 2001 04:57:27 -0400
-Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:6920 "HELO
-	gateway.intern.kubla.de") by vger.kernel.org with SMTP
-	id <S261252AbRE0I5T>; Sun, 27 May 2001 04:57:19 -0400
-Date: Sun, 27 May 2001 10:57:10 +0200
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: cesar.da.silva@cyberdude.com, kernellist <linux-kernel@vger.kernel.org>
-Subject: Re: Please help me fill in the blanks.
-Message-ID: <20010527105710.A9933@intern.kubla.de>
-In-Reply-To: <20010527021808.80979.qmail@web13407.mail.yahoo.com> <3B1065FD.3F8D7EDF@mandrakesoft.com>
+	id <S261336AbRE0JGa>; Sun, 27 May 2001 05:06:30 -0400
+Received: from x86unx3.comp.nus.edu.sg ([137.132.90.2]:28582 "EHLO
+	x86unx3.comp.nus.edu.sg") by vger.kernel.org with ESMTP
+	id <S261302AbRE0JGX>; Sun, 27 May 2001 05:06:23 -0400
+Date: Sun, 27 May 2001 17:06:11 +0800
+From: Zou Min <zoum@comp.nus.edu.sg>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [newbie question] disk reads for a process
+Message-ID: <20010527170611.A10091@comp.nus.edu.sg>
+Mail-Followup-To: Zou Min <zoum@comp.nus.edu.sg>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3B1065FD.3F8D7EDF@mandrakesoft.com>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: yes
-Restrict: no-external-archive
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 26, 2001 at 10:27:09PM -0400, Jeff Garzik wrote:
-> 
-> > * Service Location Protocol (SLP)
-> 
-> don't know
+Dear all,
 
-Userspace: http://www.openslp.org/
+I am doing a research on an analytical model that describes how memory size
+affects disk reads. We have done intensive measurement to validate the model.
+Now, we are intereseted in another intepretation of this model as relating
+memory allocation to disk reads for a process.
 
-> > * TCP/IP Gratuitous ARP (RFC 2002)
-> 
-> not sure
+To validate this, we need to 
+* identify private working sets of each processes
+* identify initiators of disk reads
+* count the number of disk reads for one process
 
-Userspace. Also no tool comes to my mind, arping should be easily modified
-to do this.
+Can anybody give me some direct pointers on the above?
+Which part of the source code should be alerted?
 
-Dominik
+Your help is greatly appreciated!
+
 -- 
-          A lovely thing to see:                   Kobayashi Issa
-     through the paper window's holes               (1763-1828)
-                the galaxy.               [taken from: David Brin - Sundiver]
+Cheers!
+--Zou Min 

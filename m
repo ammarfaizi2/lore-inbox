@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319471AbSIMAsC>; Thu, 12 Sep 2002 20:48:02 -0400
+	id <S319472AbSIMAtY>; Thu, 12 Sep 2002 20:49:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319472AbSIMAsC>; Thu, 12 Sep 2002 20:48:02 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:37393 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S319471AbSIMAsB>;
-	Thu, 12 Sep 2002 20:48:01 -0400
-Date: Fri, 13 Sep 2002 02:52:45 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "David S. Miller" <davem@redhat.com>
-Cc: lm@bitmover.com, gmack@innerfire.net, rmk@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC] Spamcop
-Message-ID: <20020913005245.GA12954@win.tue.nl>
-References: <20020912211056.J4739@flint.arm.linux.org.uk> <Pine.LNX.4.44.0209121657590.27346-100000@innerfire.net> <20020912141338.B14230@work.bitmover.com> <20020912.164754.133954355.davem@redhat.com>
+	id <S319473AbSIMAtY>; Thu, 12 Sep 2002 20:49:24 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:12060 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S319472AbSIMAtX>; Thu, 12 Sep 2002 20:49:23 -0400
+Date: Fri, 13 Sep 2002 02:54:40 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Stephen Lord <lord@sgi.com>
+Cc: Samuel Flory <sflory@rackable.com>, Austin Gonyou <austin@coremetrics.com>,
+       Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
+Subject: Re: 2.4.20pre5aa2
+Message-ID: <20020913005440.GJ11605@dualathlon.random>
+References: <20020911201602.A13655@pc9391.uni-regensburg.de> <1031768655.24629.23.camel@UberGeek.coremetrics.com> <20020911184111.GY17868@dualathlon.random> <3D81235B.6080809@rackable.com> <20020913002316.GG11605@dualathlon.random> <1031878070.1236.29.camel@snafu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020912.164754.133954355.davem@redhat.com>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <1031878070.1236.29.camel@snafu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 12, 2002 at 04:47:54PM -0700, David S. Miller wrote:
+On Thu, Sep 12, 2002 at 07:47:48PM -0500, Stephen Lord wrote:
+> How much memory is in the machine by the way? And Andrea, is the
+> vmalloc space size reduced in the 3G user space configuration?
 
-> There is someone basically forging email from anyone prominent
-> in the opensource community.  I've even got these forges myself
-> addressed as from myself which is even more amusing :-)
+it's not reduced, it's the usual 128m.
 
-Yes, indeed. However, their address collection may be a bit out-of-date:
+BTW, I forgot to say that to really take advantage of CONFIG_2G one
+should increase __VMALLOC_RESERVE too, it's not directly in function of
+the CONFIG_2G.
 
-Date: Thu, 2 May 2002 18:54:46 +0700
-Message-Id: <200205021154.SAA08358@mail.bes.co.id>
-From: torvalds <torvalds@krauna.helsinki.fi>
-Subject: W32.Elkern  removal tools
-
+Andrea

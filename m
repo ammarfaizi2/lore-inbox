@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264958AbRGADcA>; Sat, 30 Jun 2001 23:32:00 -0400
+	id <S261942AbRF0ODO>; Wed, 27 Jun 2001 10:03:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264960AbRGADbk>; Sat, 30 Jun 2001 23:31:40 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:61571
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S264958AbRGADbb>; Sat, 30 Jun 2001 23:31:31 -0400
-Date: Sat, 30 Jun 2001 20:35:12 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@gw.soze.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] broken cs46xx in 2.4.6-pre8
-Message-ID: <Pine.LNX.4.33.0106302032270.26036-100000@gw.soze.net>
+	id <S261881AbRF0ODE>; Wed, 27 Jun 2001 10:03:04 -0400
+Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:48844 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S261942AbRF0OCy>; Wed, 27 Jun 2001 10:02:54 -0400
+Importance: Normal
+Subject: printk and sk_buffs
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.6  December 14, 2000
+Message-ID: <OFC7C24EA9.6CB8EE5C-ONC1256A78.004CC2C0@de.ibm.com>
+From: "Jens Hoffrichter" <HOFFRICH@de.ibm.com>
+Date: Fri, 27 Jul 2001 16:02:40 +0200
+X-MIMETrack: Serialize by Router on d12ml040/12/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 27/06/2001 16:02:41
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-prototypes weren't updated.
+Hi,
 
---- linux/drivers/sound/cs46xx.c.orig	Sat Jun 30 20:16:06 2001
-+++ linux/drivers/sound/cs46xx.c	Sat Jun 30 20:26:57 2001
-@@ -383,8 +383,8 @@
- static int cs46xx_powerup(struct cs_card *card, unsigned int type);
- static int cs461x_powerdown(struct cs_card *card, unsigned int type, int suspendflag);
- static void cs461x_clear_serial_FIFOs(struct cs_card *card, int type);
--static void cs46xx_suspend_tbl(struct pci_dev *pcidev);
--static void cs46xx_resume_tbl(struct pci_dev *pcidev);
-+static int cs46xx_suspend_tbl(struct pci_dev *pcidev, u32 state);
-+static int cs46xx_resume_tbl(struct pci_dev *pcidev);
+I do not fully unterstandt the printk code, so perhaps somebody can answer
+me this (probably stupid ;) ) question:
 
- static inline unsigned ld2(unsigned int x)
- {
+If I do a printk, is there a packet (aka a sk_buff) created? If I turn on
+debugging in my code, I see a huge pile of sk_buffs which are allocated but
+which do not get in touch with the "essential" parts of the network-code
+(e.g. ip_rcv) where I have modified some code. I can't explain it to me
+fully, but perhaps someone of yours has a suitable answer.
+
+Thanks in advance.
+
+Regards,
+Jens Hoffrichter
 

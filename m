@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270624AbUJUBor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270638AbUJUBym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270624AbUJUBor (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 21:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270684AbUJUBlL
+	id S270638AbUJUBym (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 21:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270605AbUJUBo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 21:41:11 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:16589 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S270529AbUJUBkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 21:40:35 -0400
-Subject: Re: [ACPI] RE: PATCH/RFC: driver model/pmcore wakeup hooks (1/4)
-From: Li Shaohua <shaohua.li@intel.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410201002.58172.david-b@pacbell.net>
-References: <200410201002.58172.david-b@pacbell.net>
-Content-Type: text/plain
-Message-Id: <1098322408.6132.44.camel@sli10-desk.sh.intel.com>
+	Wed, 20 Oct 2004 21:44:57 -0400
+Received: from main.gmane.org ([80.91.229.2]:52374 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270647AbUJUBkq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 21:40:46 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jon Valvatne <jon@valvatne.com>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Date: Thu, 21 Oct 2004 01:31:39 +0000 (UTC)
+Message-ID: <loom.20041021T032833-3@post.gmane.org>
+References: <4176E08B.2050706@techsource.com> <7f800d9f04102015174e7356a@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 21 Oct 2004 09:33:28 +0800
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 62.57.1.99 (Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20041001 Firefox/0.10.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 01:02, David Brownell wrote:
-> On Tuesday 19 October 2004 20:51, Dmitry Torokhov wrote:
-> > On Tuesday 19 October 2004 04:11 am, Li, Shaohua wrote:
-> > > A final solution is device core adds an ACPI layer. That is we can
-> link
-> > > ACPI device and physical device. This way, the PCI device can know
-> which
-> > > ACPI is linked with it, so the PCI API can use specific ACPI
-> method. 
-> 
-> The driver model core has platform_notify hooks for device add/remove,
-> and ACPI should kick in that way ... they might well need tweaks
-> though.
-The platform_notify information isn't enough to find an ACPI device for
-a physical device. To find an ACPI device, the bus information and
-device information is needed. Only the specific bus knows the meaning of
-an device's id, so I think the bus type should provide a callback to
-interpret device id.
+Andre Eisenbach <int2str <at> gmail.com> writes:
 
-Thanks,
-Shaohua
+> 
+> However, if you're only going to focus on 2D, I don't see the
+> excitement. 2D works pretty much for everyone, no?
+> 
+
+Except for those of us who want to suspend to RAM and have the
+video card wake up when we resume...
+
+Jon
 

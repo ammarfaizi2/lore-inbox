@@ -1,62 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbUKEFAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbUKEFDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262597AbUKEFAv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 00:00:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUKEFAv
+	id S262601AbUKEFDN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 00:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUKEFDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 00:00:51 -0500
-Received: from smtpout.mac.com ([17.250.248.87]:36316 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262597AbUKEFAo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 00:00:44 -0500
-In-Reply-To: <slrn-0.9.7.4-4729-165-200411051409-tc@hexane.ssi.swin.edu.au>
-References: <200411030751.39578.gene.heskett@verizon.net> <87k6t24jsr.fsf@asmodeus.mcnaught.org> <200411031733.30469.rmiller@duskglow.com> <200411040839.34350.vda@port.imtp.ilyichevsk.odessa.ua> <20041105023850.GC17010@eskimo.com> <slrn-0.9.7.4-4729-165-200411051409-tc@hexane.ssi.swin.edu.au>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <9554BB1E-2EE7-11D9-857E-000393ACC76E@mac.com>
+	Fri, 5 Nov 2004 00:03:13 -0500
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:42364 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262601AbUKEFDB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 00:03:01 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.10-rc1 0/4] driver-model: manual device attach
+Date: Fri, 5 Nov 2004 00:02:57 -0500
+User-Agent: KMail/1.6.2
+Cc: Greg KH <greg@kroah.com>, Tejun Heo <tj@home-tj.org>,
+       rusty@rustcorp.com.au, mochel@osdl.org
+References: <20041104074330.GG25567@home-tj.org> <20041104175318.GH16389@kroah.com>
+In-Reply-To: <20041104175318.GH16389@kroah.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       DervishD <lkml@dervishd.net>, Russell Miller <rmiller@duskglow.com>,
-       Elladan <elladan@eskimo.com>, linux-kernel@vger.kernel.org,
-       Jim Nelson <james4765@verizon.net>, M?ns Rullg?rd <mru@inprovide.com>,
-       Gene Heskett <gene.heskett@verizon.net>,
-       Doug McNaught <doug@mcnaught.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: is killing zombies possible w/o a reboot?
-Date: Fri, 5 Nov 2004 00:00:16 -0500
-To: Tim Connors <tconnors+linuxkernel1099624161@astro.swin.edu.au>
-X-Mailer: Apple Mail (2.619)
+Message-Id: <200411050002.57174.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 04, 2004, at 22:10, Tim Connors wrote:
-> Elladan <elladan@eskimo.com> said on Thu, 4 Nov 2004 18:38:50 -0800:
->> If a process is in D state and receives a SIGKILL, assume it must exit
->> within a few seconds or it's a bug, and dump as much information about
->> it as is practical...?
+On Thursday 04 November 2004 12:53 pm, Greg KH wrote:
+> On Thu, Nov 04, 2004 at 04:43:30PM +0900, Tejun Heo wrote:
+> >  Hello, again. :-)
+> > 
+> >  These are the manual device attach patches I was talking about in the
+> > previous posting.  These patches need devparam patches to be applied
+> > first.  It's composed of two parts.
+> > 
+> >  1. sysctl node dev.autoattach
+> > 
+> >  dev.autoattach is read/write integer sysctl node which controls
+> > driver-model's behavior regarding device - driver association.
+> 
+> Ick, no new sysctls please.  Make this a per-bus attribute that gets
+> written to in sysfs.  Much nicer and much finer control then.
 >
-> Of course, it's not necessarily a bug. Someone could have just kicked
-> the ethernet, and so your process is stuck waiting for a read/write.
 
-In any case, if a process is sleeping in-kernel, I expect that either 
-it's an
-interruptible sleep or a guaranteed-short sleep.  If it's neither, it's 
-a bug.  If
-I kick out an ethernet and it makes "ping" hang in "D", that's bad.  I 
-think
-that eventually _all_ kernel sleeps on the behalf of user-space 
-processes
-will become interruptible.
+I think that my bind)mode patches which allow to control binding through
+sysfs on pre-device and per-driver base should suffice here. I really doubt
+that anybody would want to keep autoattach disabled and do all matching
+manually ;). Besides having per-driver attribute allows drivers authors
+control binding.
+ 
+> >  0: autoattach disabled.  devices are not associated with drivers
+> >     automatically.  i.e. insmod'ing e100.ko won't cause it to attach to the
+> >     actual e100 devices.
+> >  1: autoattach enabled.  The default value.  This is the same as the
+> >     current driver model behavior.  Driver model automatically associates
+> >     devices to drivers.
+> >  2: rescan command.  If this value is written, bus_rescan_devices() is
+> >     invoked for all the registered bus types; thus attaching all
+> >     devices to available drivers.  After rescan is complete, the
+> >      autoattach value is set to 1.
+> 
+> Make this a different sysfs file.  "rescan" would be good.
+> 
+> Look at how pci can handle adding new devices to their drivers from
+> sysfs.  If we can move that kind of functionality to the driver core, so
+> that all busses get it (it will require a new per-bus callback though,
+> se the other patches recently posted to lkml for an example of this),
+> that would be what I would like to see happen.
+> 
+> >  2. per-device attach and detach sysfs node.
+> > 
+> >  Two files named attach and detach are created under each device's
+> > sysfs directory.  Reading attach node shows the name of applicable
+> > drivers.
+>
 
-Cheers,
-Kyle Moffett
+Do we really need 2 or even 3 files ("attach", "detach" and "rescan")?
+Given that you really can't (at least not yet) do all there operations
+for all buses from the core that woudl require 3 per-bus callbacks.
+I think reserving special values such as "none" or "detach" and "rescan"
+shoudl work just fine and also willallow extending supported operations
+on per-bus basis. For example serio bus supports "reconnect" option which
+tries to re-initialize device if something happened to it. It does not
+want to do rescan as that would generate new input devices while it is
+much more convenient to re-use old ones. 
+ 
+> How does a device know what drivers could be bound to it?  It's the
+> other way around, drivers know what kind of devices they can bind to.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+But when 2+ drivers can be bound to a device then particular _device_
+gets to decide which driver is best suited for it, like in cases of
+e100/eepro100 or psmouse/serio_raw.
 
+> Let's add the ability to add more devices to a driver through sysfs,
+> again, like PCI does.
+>
 
+Well, PCI does add a new ID to a driver allowing it to bind to a whole
+new set of devices. I agree that this is a "driver" operation. 
+ 
+> > Writing a driver name attaches the device to the driver.
+> 
+> No, do it the other way, attach a driver to a device.
+>
+
+I disagree. Here you working with particular device. You are not saying
+"from now on I want e100 to bind all my 5 new network cards that happen
+to have id XXXX:YYYY". Instead you are saying "I want to bind e100 driver
+to this card residing at /sys/bus/pci/0000.....". In other word it is
+operation on particular device and should be done by manipulating device
+attribute.
+
+-- 
+Dmitry

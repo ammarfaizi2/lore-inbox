@@ -1,73 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265485AbSJXPTn>; Thu, 24 Oct 2002 11:19:43 -0400
+	id <S265484AbSJXPS5>; Thu, 24 Oct 2002 11:18:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265486AbSJXPTn>; Thu, 24 Oct 2002 11:19:43 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:63414 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S265485AbSJXPTj>; Thu, 24 Oct 2002 11:19:39 -0400
-Message-ID: <00a201c27b72$83ab8760$2a060e09@beavis>
-From: "Andrew Theurer" <habanero@us.ibm.com>
-To: "Hirokazu Takahashi" <taka@valinux.co.jp>
-Cc: <trond.myklebust@fys.uio.no>, <neilb@cse.unsw.edu.au>, <davem@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <nfs@lists.sourceforge.net>
-References: <004d01c276bb$39b32980$2a060e09@beavis><20021020.053424.41629995.taka@valinux.co.jp><200210221616.23282.habanero@us.ibm.com> <20021023.182925.15272672.taka@valinux.co.jp>
-Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
-Date: Thu, 24 Oct 2002 10:32:02 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S265485AbSJXPS5>; Thu, 24 Oct 2002 11:18:57 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:35579 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265484AbSJXPS4>; Thu, 24 Oct 2002 11:18:56 -0400
+Date: Thu, 24 Oct 2002 21:01:05 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: maneesh@in.ibm.com, linux-kernel@vger.kernel.org,
+       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@zip.com.au>
+Subject: Re: [long]2.5.44-mm3 UP went into unexpected trashing
+Message-ID: <20021024210105.A20822@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <3DB7A581.9214EFCC@aitel.hist.no> <3DB7A80C.7D13C750@digeo.com> <3DB7AC97.D31A3CB2@digeo.com> <20021024171528.D5311@in.ibm.com> <20021024114740.78FD37CD3@oscar.casa.dyndns.org> <20021024180809.D11418@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021024180809.D11418@in.ibm.com>; from dipankar@in.ibm.com on Thu, Oct 24, 2002 at 06:08:09PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I don't think it is a client congestion issue at this point.  I can run
-the
-> > test with just one client on UDP and achieve 11.2 MB/sec with just one
-mount
-> > point.  The client has 100 Mbit Ethernet, so should be the upper limit
-(or
-> > really close).  In the 40 client read test, I have only achieved 2.875
-MB/sec
-> > per client.  That and the fact that there are never more than 2 nfsd
-threads
-> > in a run state at one time (for UDP only) leads me to believe there is
-still
-> > a scaling problem on the server for UDP.  I will continue to run the
-test and
-> > poke a prod around.  Hopefully something will jump out at me.  Thanks
-for all
-> > the input!
->
-> Can You check /proc/net/rpc/nfsd which shows how many NFS requests have
-> been retransmitted ?
->
-> # cat /proc/net/rpc/nfsd
-> rc 0 27680 162118
->   ^^^
-> This field means the clinents have retransmitted pakeckets.
-> The transmission ratio will slow down if it have happened once.
-> It may occur if the response from the server is slower than the
-> clinents expect.
+On Thu, Oct 24, 2002 at 06:08:09PM +0530, Dipankar Sarma wrote:
+> On Thu, Oct 24, 2002 at 12:01:31PM +0000, Ed Tomlinson wrote:
+> > Would this affect UP systems?  Had the dentry leak on a UP box with 512m 
+> > memory.  About 400m ended up in unfreeable dentries...
+> 
+> It does affect UP systems.
+> 
+> A quick look at /proc/rcu in a leaky system indicated that somehow
+> despite having a batch of RCUs, they are not getting started.
+> 
+>  /* Fake initialization required by compiler */
+> @@ -106,10 +106,11 @@ static void rcu_start_batch(long newbatc
+>  		rcu_ctrlblk.maxbatch = newbatch;
+>  	}
+>  	if (rcu_batch_before(rcu_ctrlblk.maxbatch, rcu_ctrlblk.curbatch) ||
+> -	    (rcu_ctrlblk.rcu_cpu_mask != 0)) {
+> +	    (find_first_bit(rcu_ctrlblk.rcu_cpu_mask, NR_CPUS) != NR_CPUS)) {
+>  		return;
+>  	}
+> -	rcu_ctrlblk.rcu_cpu_mask = cpu_online_map;
+> +	memcpy(rcu_ctrlblk.rcu_cpu_mask, cpu_online_map,
+> +	       sizeof(rcu_ctrlblk.rcu_cpu_mask));
+>  }
+> 
+> Either find_first_bit() is not returning NR_CPUS when the bitmask has no
+> bit set or memcpy is not working on the UP version of cpu_online_map. Will
+> dig a little bit more.
 
-/proc/net/rpc/nfsd
-rc 0 1 1025221
+OK, I think I know why this one didn't work.
 
-> And you can use older version - e.g. linux-2.4 series - for clients
-> and see what will happen as older versions don't have any intelligent
-> features.
+If the bit_mask is 0, find_first_bit() returns 32 or BITS_PER_LONG.
+That works fine as long as NR_CPUS is 32, but when it isn't things
+are broken.
 
-Actually all of the clients are 2.4 (RH 7.0).  I could change them out to
-2.5, but it may take me a little while.
+    (find_first_bit(rcu_ctrlblk.rcu_cpu_mask, NR_CPUS) != BITS_PER_LONG)) {
+		return;
 
-Let me do a little digging around.  I seem to recall an issue I had earlier
-this year when waking up the nfsd threads and having most of them just go
-back to sleep.  I need to go back to that code and understand it a little
-better.   Thanks for all of your help.
+should probably work here.
 
-Andrew Theurer
+I guess we need to audit all bitmask tests and fix them to check for
+the right value. 
 
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

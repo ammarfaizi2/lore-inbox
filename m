@@ -1,70 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263837AbTE3Rdo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 13:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263845AbTE3Rdo
+	id S263857AbTE3Rs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 13:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263854AbTE3Rs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 13:33:44 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:16026 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263837AbTE3Rdl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 13:33:41 -0400
-Date: Fri, 30 May 2003 10:48:05 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: Rusty Russell <rusty@au1.ibm.com>
-cc: Hanna Linder <hannal@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] sx tty_driver add .owner field remove MOD_INC_DEC_USE_COUNT 
-Message-ID: <31470000.1054316885@w-hlinder>
-In-Reply-To: <20030530080556.EC79C17DE1@ozlabs.au.ibm.com>
-References: <20030530080556.EC79C17DE1@ozlabs.au.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Fri, 30 May 2003 13:48:59 -0400
+Received: from [196.25.143.130] ([196.25.143.130]:11536 "EHLO
+	penguin.wetton.prism.co.za") by vger.kernel.org with ESMTP
+	id S263857AbTE3Rsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 13:48:55 -0400
+Date: Fri, 30 May 2003 20:02:06 +0200
+From: Bernd Jendrissek <berndj@prism.co.za>
+To: Kendrick Hamilton <hamilton@sedsystems.ca>
+Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: Problem Installing Linux Kernel Module compiled with gcc-3.2.x
+Message-ID: <20030530200206.B7564@prism.co.za>
+References: <20030530192240.A7564@prism.co.za> <Pine.LNX.4.44.0305301128260.6111-100000@sw-55.sedsystems.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <Pine.LNX.4.44.0305301128260.6111-100000@sw-55.sedsystems.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 30, 2003 at 11:31:57AM -0600, Kendrick Hamilton wrote:
+> I have been manually recompillng the module and kernel to ensure they are 
+> both compiled with the same version of gcc. When I do switch gcc versions, 
+> I cp .config to config, make mrproper, cp config .config, make dep, make 
+> all modules modules_install install; reboot; make clean on my driver the 
+> make it.
 
-Heh. I figured out why I deleted it, it was not a mistake. The whole
-function is commented out! Except the func_enter and exit calls which
-are printk wrappers. Besides, no one ever calls this function anyway...
+Aargh.  Now if I had actually *read* your message I'd have picked that up.
 
-So leave it out. No need to put it back in...
+Well, it's not maybe some *other* module that gets left behind in
+/lib/modules/$VERSION?  No, that doesn't make too much sense.  That
+doesn't gel with the crashes happening from the time you load *your*
+module.
 
-Hanna
+Uh, could it maybe be (gasp!) a *bug* in your module?  Maybe some
+assumption your code is making is being invalidated by a new! improved!
+optimization in GCC 3.x?  I know my module ha[ds] bugs...
 
+Although... I must say that ever since I recompiled 2.4.18 with 3.2.x
+(now 3.2.3), my machine seems somewhat less stable.  (I think) I *had* to
+reboot yesterday after just 16 days' uptime after X or something else
+with the keyboard went berserk.  But I'm not quite ready yet to "blame"
+GCC for that.
 
---On Friday, May 30, 2003 06:05:24 PM +1000 Rusty Russell <rusty@au1.ibm.com> wrote:
-> In message <12430000.1054244110@w-hlinder> you write:
->> --On Thursday, May 29, 2003 12:02:50 PM -0700 Greg KH <greg@kroah.com> wrote:
->> 
->> > 
->> > Ick, this patch should be reverted, it should not be removing
->> > sx_hungup() for no reason.  I think Hanna agrees with this.
->> 
->> Yup. Sorry. Not sure what happened there. Here is the patch
->> to replace the sx_hangup function. This is based off 2.5.70-bk3
->> and I have compiled it but dont have the hardware to test it.
+>  On Fri, 30 May 2003, Bernd Jendrissek wrote:
 > 
-> Yes, but I don't think you need to put back the comment about
-> decrementing use counts 8)
-> 
->> +/* I haven't the foggiest why the decrement use count has to happen
->> +   here. The whole linux serial drivers stuff needs to be redesigned.
->> +   My guess is that this is a hack to minimize the impact of a bug
->> +   elsewhere. Thinking about it some more. (try it sometime) Try
->> +   running minicom on a serial port that is driven by a modularized
->> +   driver. Have the modem hangup. Then remove the driver module. Then
->> +   exit minicom.  I expect an "oops".  -- REW */
-> 
-> Cheers,
-> Rusty.
-> --
->   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-> 
-
-
+> > Not *exactly* on-topic for gcc@gcc.gnu.org I suppose, but here goes.
+> > 
+> > [Cc'ed to linux-kernel@vger.kernel.org]
+> > 
+> > On Fri, May 30, 2003 at 09:26:51AM -0600, Kendrick Hamilton wrote:
+> > > 	I have a module for a custom developped PCI card. The device 
+> > > driver is written for the Linux 2.4 series kernels. When I build the 
+> > > module and the Linux kernel with gcc-2.95.3, the module installs 
+> > > correctly. When I build the module and the Linux kernel with gcc-3.2.3 
+> > > (also other gcc-3.2.x), the module installs but the Linux kernel crashes 
+> > > in random places outside of the module. Do you have any suggestions of 
+> > > what to look for? I can email you the complete module source code. I have 
+> > > not tried gcc-3.3 because I cannot compile the current Linux kernel with 
+> > > it (there is a known bug that is being fixed and should be out in 
+> > > Linux-2.4.21).
+> > 
+> > Been there, done that, got the T-shirt.  I was lucky: while my module
+> > installed, it broke in a fairly harmless way.  (It just didn't work; it
+> > didn't screw with my system.)
+> > 
+> > If you look at linux/include/linux/spinlock.h, you'll see:
+> > 
+> > /*
+> >  * Your basic spinlocks, allowing only a single CPU anywhere
+> >  *
+> >  * Most gcc versions have a nasty bug with empty initializers.
+> >  */
+> > #if (__GNUC__ > 2)
+> >   typedef struct { } spinlock_t;
+> >   #define SPIN_LOCK_UNLOCKED (spinlock_t) { }
+> > #else
+> >   typedef struct { int gcc_is_buggy; } spinlock_t;
+> >   #define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
+> > #endif
+> > 
+> > There are a couple of spinlock_t's (directly or through other structs) in
+> > the task_struct.  So when your module accesses parts of the "current"
+> > task_struct beyond the first spinlock_t, you better hope it's reading and
+> > not writing (which was the case with my module).
+> > 
+> > I bet your module modifies "current".
+> > 
+> > Hmm, actually I thought the kernel had a mechanism to prevent a GCC 3.x
+> > module from being loaded into a GCC 2.x kernel and vice versa?

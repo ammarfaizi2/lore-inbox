@@ -1,129 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262590AbTCMXEb>; Thu, 13 Mar 2003 18:04:31 -0500
+	id <S262620AbTCMXHN>; Thu, 13 Mar 2003 18:07:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262585AbTCMXEb>; Thu, 13 Mar 2003 18:04:31 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:38845 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262584AbTCMXE0>;
-	Thu, 13 Mar 2003 18:04:26 -0500
-Subject: Re: Problem with aacraid driver in 2.5.63-bk-latest
-From: Mark Haverkamp <markh@osdl.org>
-To: Mike Anderson <andmike@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dougg@torque.net,
+	id <S262694AbTCMXHN>; Thu, 13 Mar 2003 18:07:13 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:5274 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S262620AbTCMXHL>; Thu, 13 Mar 2003 18:07:11 -0500
+Message-ID: <3E711194.9010505@redhat.com>
+Date: Thu, 13 Mar 2003 18:17:40 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Haverkamp <markh@osdl.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, dougg@torque.net,
        Christoffer Hall-Frederiksen <hall@jiffies.dk>,
        linux-scsi@vger.kernel.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux aacraid devel <linux-aacraid-devel@dell.com>
-In-Reply-To: <20030313005046.GB14373@beaverton.ibm.com>
-References: <20030228133037.GB7473@jiffies.dk>
-	 <1047510381.12193.28.camel@markh1.pdx.osdl.net>
-	 <1047514681.23725.35.camel@irongate.swansea.linux.org.uk>
-	 <3E6FC8D6.7090005@torque.net>
-	 <1047517604.23902.39.camel@irongate.swansea.linux.org.uk>
-	 <20030313005046.GB14373@beaverton.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047597199.30090.373.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 13 Mar 2003 15:13:20 -0800
+Subject: Re: Problem with aacraid driver in 2.5.63-bk-latest
+References: <20030228133037.GB7473@jiffies.dk>	 <1047510381.12193.28.camel@markh1.pdx.osdl.net>	 <1047514681.23725.35.camel@irongate.swansea.linux.org.uk>	 <3E6FC8D6.7090005@torque.net>	 <1047517604.23902.39.camel@irongate.swansea.linux.org.uk> <1047570132.30105.7.camel@markh1.pdx.osdl.net>
+In-Reply-To: <1047570132.30105.7.camel@markh1.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-12 at 16:50, Mike Anderson wrote:
-> Alan Cox [alan@lxorguk.ukuu.org.uk] wrote:
-> > On Wed, 2003-03-12 at 23:55, Douglas Gilbert wrote:
-> > >          /*
-> > >           * Limit max queue depth on a single lun to 256 for now.  Remember,
-> > >           * we allocate a struct scsi_command for each of these and keep it
-> > >           * around forever.  Too deep of a depth just wastes memory.
-> > >           */
-> > >          if(tags > 256)
-> > >                  return;
-> > > ....
-> > 
-> > I can see the memory consideration. However the thing can really handle big
-> > queues well. Possibly we should be setting the queue to 512 / somefunction(volumes)
-> > though to avoid the worst case overcommit here
-> 
-> I agree with Doug that the previous comment is out of date and we could
-> raise the value, but we also should never leave the function with the
-> possibility that the queue_depth is 0.
-> 
-> The patch below is something Patrick and I where discussing though I
-> believe he indicated that I should print out the value we where setting
-> the queue_depth to. It was only compiled and not tested on any devices.
-> 
-> -andmike
-> --
-> Michael Anderson
-> andmike@us.ibm.com
-> 
->  scsi.c |   32 +++++++++++++++++++++++---------
->  1 files changed, 23 insertions(+), 9 deletions(-)
-> 
-> ------
-> 
-> --- 1.96/drivers/scsi/scsi.c	Fri Feb 21 13:46:58 2003
-> +++ edited/drivers/scsi/scsi.c	Wed Mar 12 16:05:42 2003
-> @@ -926,15 +926,28 @@
->  	/*
->  	 * refuse to set tagged depth to an unworkable size
->  	 */
-> -	if(tags <= 0)
-> -		return;
-> +	if(tags <= 0) {
-> +			printk(KERN_WARNING "(scsi%d:%d:%d:%d) "
-> +				"%s, tag value to small\n"
-> +				"disabled\n", SDpnt->host->host_no,
-> +				SDpnt->channel, SDpnt->id, SDpnt->lun,
-> +				__FUNCTION__); 
-> +
-> +		SDpnt->queue_depth = 1;
-> +	}
->  	/*
-> -	 * Limit max queue depth on a single lun to 256 for now.  Remember,
-> -	 * we allocate a struct scsi_command for each of these and keep it
-> -	 * around forever.  Too deep of a depth just wastes memory.
-> +	 * Limit max queue depth on a single lun to 256 for now.
-> +	 * Too deep of a depth just wastes memory.
->  	 */
-> -	if(tags > 256)
-> -		return;
-> +	if(tags > 256) {
-> +			printk(KERN_WARNING "(scsi%d:%d:%d:%d) "
-> +				"%s, tag value to big\n"
-> +				"disabled\n", SDpnt->host->host_no,
-> +				SDpnt->channel, SDpnt->id, SDpnt->lun,
-> +				__FUNCTION__); 
-> +
-> +		SDpnt->queue_depth = 256;
-> +	}
->  
->  	spin_lock_irqsave(&device_request_lock, flags);
->  	SDpnt->queue_depth = tags;
-> @@ -949,9 +962,10 @@
->  			break;
->  		default:
->  			printk(KERN_WARNING "(scsi%d:%d:%d:%d) "
-> -				"scsi_adjust_queue_depth, bad queue type, "
-> +				"%s, bad queue type, "
->  				"disabled\n", SDpnt->host->host_no,
-> -				SDpnt->channel, SDpnt->id, SDpnt->lun); 
-> +				SDpnt->channel, SDpnt->id, SDpnt->lun,
-> +				__FUNCTION__); 
->  		case 0:
->  			SDpnt->ordered_tags = SDpnt->simple_tags = 0;
->  			SDpnt->queue_depth = tags;
-> 
-> 
+Mark Haverkamp wrote:
 
-This looks like a good idea.  This is better than a hung system and no
-indication why.
+> Does the cmd_per_lun element of the Scsi_Host_Template structure serve
+> more than one purpose? 
 
-Mark.
+Only when inappropriately abused by LLDD authors.  The cmd_per_lun value 
+is suppossed to be for untagged devices only!  If you have a tape drive 
+that doesn't support tagged commands but you want to be able to 
+internally have the next command queued up and ready to go when the 
+current command completes (in order to keep it streaming better), then 
+you can set cmd_per_lun to 2 and you will get two outstanding commands 
+for this device at a time.  I used that so that in my interrupt handler 
+I could send the next command to the device before I passed the 
+completed command up to the SCSI layer.
+
+> In scsi_alloc_sdev it is passed into
+> scsi_adjust_queue_depth.  In the aacraid case this is 512.  Later the
+> aacraid driver (in aac_slave_configure) sets the queue depth to either
+> 128 for tagged or 1 if not.
+
+That's where you are suppossed to set the queue depth on tagged devices.
+
 
 -- 
-Mark Haverkamp <markh@osdl.org>
+   Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+          Red Hat, Inc.
+          1801 Varsity Dr.
+          Raleigh, NC 27606
+
 

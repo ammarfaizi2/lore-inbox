@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267660AbUHEL4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267665AbUHEMDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267660AbUHEL4x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 07:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267658AbUHEL4w
+	id S267665AbUHEMDB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 08:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267670AbUHEMBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 07:56:52 -0400
-Received: from web14924.mail.yahoo.com ([216.136.225.8]:56491 "HELO
-	web14924.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267662AbUHELxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 07:53:11 -0400
-Message-ID: <20040805115306.71087.qmail@web14924.mail.yahoo.com>
-Date: Thu, 5 Aug 2004 04:53:06 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Martin Mares <mj@ucw.cz>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>
-In-Reply-To: <1091684486.9271.202.camel@gaston>
+	Thu, 5 Aug 2004 08:01:21 -0400
+Received: from smtp06.web.de ([217.72.192.224]:18146 "EHLO smtp06.web.de")
+	by vger.kernel.org with ESMTP id S267659AbUHEMAB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 08:00:01 -0400
+Message-ID: <4112218B.2030902@web.de>
+Date: Thu, 05 Aug 2004 14:01:15 +0200
+From: Florian Sievers <dopehouse@web.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de-AT; rv:1.7.1) Gecko/20040707
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Remove of the UMSDOS
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> Looks ok for me. It would be nice though if the code returning the
-> shadow copy could be "hooked" by the driver, that way, the radeon
-> kernel driver can force-enable the ROM decoding... or do you want
-> to use pci quirks for that too ?
+In the Linux Magazin 09/04(a german linux magazine) i found a news 
+artikel about removing the UMSDOS part of the kernel. I don't use this 
+module but if you remove parts of the kernel that have been so usefull 
+in the past and you won't remove it because of the needing in the past 
+than make a new directory in the kernel package that is named r.i.p. 
+oder rip. And there you can make txt files which discribes the removed 
+parts and a tribute to the authors of these parts.
 
-My current plan is for the radeon driver to keep the code for enabling
-the ROM. Otherwise we have to build all of the radeon PCI IDs somewhere
-else into the kernel. In my system if you dump if without the driver
-loaded it is FFFF, load the driver and you see it. First thing the
-driver does is fix the ROM so that it is visible to the hotplug event.
+I hope this was the right place to post this and it was no joke from me. 
+It was a seriously suggestion
+thx for Linux and for the GNU
+Florian Sievers
+CC: dopehouse@web.de <mailto:dopehouse@web.de>
 
-> > I did the x86 quirk, what do the quirks on ia64, ppc, x86_64 need?
-> Can
-> > they just copy the x86 one?
-> 
-> Probably... can't we have arch-independant quirks ? Especially with
-> the new quirk section stuff David just posted, we can have quirks
-> pretty much anywhere...
-
-But isn't this architecture specific? The Mac doesn't shadow ROMs at
-0xC0000 does it? How does it shadow ROMs?
-
-I may change the API a little today and expose a map/unmap ROM function
-to make things easier for the driver to get the right copy. Adding
-those calls will let me add a pci_map_rom_copy, which the driver can
-use to trigger the copy for ROMs that aren't fully decoded.
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - Helps protect you from nasty viruses.
-http://promotions.yahoo.com/new_mail

@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317373AbSH0WyP>; Tue, 27 Aug 2002 18:54:15 -0400
+	id <S317349AbSH0W60>; Tue, 27 Aug 2002 18:58:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317393AbSH0WyP>; Tue, 27 Aug 2002 18:54:15 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:2812 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S317373AbSH0WyO>; Tue, 27 Aug 2002 18:54:14 -0400
-Date: Tue, 27 Aug 2002 18:58:33 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Large block device patch, part 1 of 9
-Message-ID: <20020827185833.B26573@redhat.com>
-References: <15717.52317.654149.636236@wombat.chubb.wattle.id.au> <20020823070759.GS19435@clusterfs.com> <20020827152303.L35@toy.ucw.cz>
+	id <S317371AbSH0W60>; Tue, 27 Aug 2002 18:58:26 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:41743 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S317349AbSH0W6Z>;
+	Tue, 27 Aug 2002 18:58:25 -0400
+Message-Id: <200208272302.g7RN2ZN18550@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: conman@kolivas.net
+cc: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org,
+       cliffw@osdl.org
+Subject: Re: VM changes added to performance patches for 2.4.19 
+In-Reply-To: Message from conman@kolivas.net 
+   of "Sun, 25 Aug 2002 00:36:49 +1000." <1030199809.3d679a012042b@kolivas.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020827152303.L35@toy.ucw.cz>; from pavel@suse.cz on Tue, Aug 27, 2002 at 03:23:04PM +0000
+Date: Tue, 27 Aug 2002 16:02:35 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 03:23:04PM +0000, Pavel Machek wrote:
-> Hi!
+> Quoting Daniel Phillips <phillips@arcor.de>:
+> > Would you be so kind as to attempt to quantify that?
 > 
-> > Then the following works properly without ugly casts or warnings:
-> > 
-> > 	__u64 val = 1;
-> > 
-> > 	printk("at least "PFU64" of your u64s are belong to us\n", val);
+> Ummm... I'm not sure if you're making fun or me? I haven't done any objective
+> tests so I can't quantify it ??
 > 
-> Casts are ugly but this looks even worse. I'd go for casts.
+> I just found the responsiveness of the machine a little better and don't have
+> the resources, time or inclination to test it with a benchmark. It's my
+> understanding that the -aa patch performed better on benchmarks, but that some
+> people reported the responsiveness was better with -rmap anyway. I'd agree with
+> the latter statement. I offer both patches with mine so if people want to try my
+> patch and feel strongly either way they can choose. My aim is to optimise system
+> response for single cpu desktops, not multi cpu servers.
+> 
+> Con.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+Con, 
+Thanks for the work, and nice web page!
+To help with the testing, i have taken the liberty of adding your 2.4.19-ck3 
+patch to the OSDL's Patch
+LifeCycle Manager. It's patch # 768. I've queued up a couple of the basic 
+tests against it, (dbench, dbt1 )
+If you want to add future versions and get some testing run, see 
+http://osdl.org/cgi-bin/plm - it's really easy,
+and you can use OSDL to make up for your lack of hardware.  We do focus more 
+on multi-cpu systems, but
+we're always interested in scheduler tests.
 
-Casts override the few type checking abilities the compiler gives us.  At 
-least with the PFU64 style, we'll get warnings when someone changes a variable 
-into a pointer without remembering to update the printk.
+cliffw
 
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+
+
+

@@ -1,31 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314396AbSE1OCk>; Tue, 28 May 2002 10:02:40 -0400
+	id <S314702AbSE1ODb>; Tue, 28 May 2002 10:03:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314702AbSE1OCj>; Tue, 28 May 2002 10:02:39 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:35578 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314396AbSE1OCi>; Tue, 28 May 2002 10:02:38 -0400
-Subject: Re: Kernel (2.4.19-pre8) hang
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Frederik Nosi <fredi@e-salute.it>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1022593284.1732.22.camel@linux>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 28 May 2002 16:05:32 +0100
-Message-Id: <1022598332.4123.84.camel@irongate.swansea.linux.org.uk>
+	id <S315440AbSE1OD3>; Tue, 28 May 2002 10:03:29 -0400
+Received: from jalon.able.es ([212.97.163.2]:33224 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S314702AbSE1OD1>;
+	Tue, 28 May 2002 10:03:27 -0400
+Date: Tue, 28 May 2002 16:03:22 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: Miles Bader <miles@gnu.org>, Keith Owens <kaos@ocs.com.au>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] PentiumPro/II split in x86 config
+Message-ID: <20020528140322.GA6320@werewolf.able.es>
+In-Reply-To: <3937.1022552654@kao2.melbourne.sgi.com> <buo3cwdf0b0.fsf@mcspd15.ucom.lsi.nec.co.jp> <20020528030200.GL20729@conectiva.com.br>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-28 at 14:41, Frederik Nosi wrote:
-> Now if you want me to try something else, I'll wait 2/3 hours for a 
-> mail. After that I'll reboot that pc hopping that my partitions arent
-> wihpped :)
 
-I think bang the switch, fsck it and then send a detailed summary
-including the disk/controller info to andre@linux-ide.org, and since its
-VIA chipset also cc Vojtech (see MAINTAINERS)
+On 2002.05.28 Arnaldo Carvalho de Melo wrote:
+>Em Tue, May 28, 2002 at 11:55:47AM +0900, Miles Bader escreveu:
+>> Keith Owens <kaos@ocs.com.au> writes:
+>> > The kernel can only be compiled with gcc, but some bits of the build
+>> > are compiled and run on the host, using the host compiler.  Avoid using
+>> > gccisms where there is a standard way of doing it.
+>> 
+>> That particular gccism completely infests the kernel, so there seems
+>> little point in avoiding it in favor of the uglier standard syntax.
+>
+>Agreed.
+>
+>What I'll do: continue using the simpler way that only gcc understands but
+>take care to not use gccisms when and if I patch build bits.
+>
 
+Problem is that named initializers '.xx =' are ISO C99, so problably they
+are not supported in gcc till 3.0...the old way is working with older
+compilers.
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre8-jam4 #2 SMP dom may 26 11:20:42 CEST 2002 i686

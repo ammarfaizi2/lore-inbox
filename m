@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312853AbSDYBqD>; Wed, 24 Apr 2002 21:46:03 -0400
+	id <S312894AbSDYDmk>; Wed, 24 Apr 2002 23:42:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312855AbSDYBqC>; Wed, 24 Apr 2002 21:46:02 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:27270 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S312853AbSDYBqC>;
-	Wed, 24 Apr 2002 21:46:02 -0400
-Date: Thu, 25 Apr 2002 11:43:25 +1000
-From: Anton Blanchard <anton@samba.org>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] gcc 3.1 breaks wchan
-Message-ID: <20020425014325.GA22384@krispykreme>
+	id <S312895AbSDYDmj>; Wed, 24 Apr 2002 23:42:39 -0400
+Received: from dhcp065-025-113-164.neo.rr.com ([65.25.113.164]:13052 "EHLO
+	zahra") by vger.kernel.org with ESMTP id <S312894AbSDYDmj>;
+	Wed, 24 Apr 2002 23:42:39 -0400
+Date: Wed, 24 Apr 2002 23:42:28 -0400
+From: James Cassidy <jcassidy@cs.kent.edu>
+To: ebuddington@wesleyan.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dissociating process from bin's filesystem
+Message-ID: <20020425034227.GA445@qfire.net>
+In-Reply-To: <20020424224714.B19073@ma-northadams1b-46.bur.adelphia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
-
-I noticed on a ppc64 kernel compiled with gcc 3.1 that context_switch
-was left out of line. It ended up outside of the
-scheduling_functions_start_here/end_here placeholders which breaks
-wchan.
-
-This is one place where we require the code to be inline, so we should use
-extern.
-
-Anton
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
---- linux-2.5/kernel/sched.c	Tue Apr 23 16:00:33 2002
-+++ linux-2.5_work/kernel/sched.c	Thu Apr 25 11:38:45 2002
-@@ -405,7 +405,8 @@
- }
- #endif
- 
--static inline void context_switch(task_t *prev, task_t *next)
-+/* This must end up inline or our wchan handling will break, so use extern */
-+extern inline void context_switch(task_t *prev, task_t *next)
- {
- 	struct mm_struct *mm = next->mm;
- 	struct mm_struct *oldmm = prev->active_mm;
+    You could always copy the process to a RAM filesystem like tmpfs
+or a ramdisk.=20
+
+On Wed, Apr 24, 2002 at 10:47:14PM -0400, Eric Buddington wrote:
+> Is there any way to dissociate a process from its on-disk binary?  In
+> other words, I want to start 'foo_daemon', then unmount the filesystem
+> it started from. It seems to me this would be reasonably accomplished
+> by loading the binary completely into memory first ro eliminate the
+> dependence.
+>=20
+> Is this possible, or planned? Are there intractable problems with it
+> that I don't see?
+>=20
+> Eric Buddington
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+						-- James Cassidy (QFire)
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8x3sjJanLLdMos+kRAuZBAKDAkWsc59VW+CG/lYv4axpstr8fCACfSCYN
+26OTQEpk/LJK8rTLkULA3sA=
+=+SGq
+-----END PGP SIGNATURE-----
+
+--J2SCkAp4GZ/dPZZf--

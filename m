@@ -1,94 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264902AbUF1FwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUF1GWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264902AbUF1FwL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 01:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUF1Fg5
+	id S264652AbUF1GWP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 02:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUF1GWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 01:36:57 -0400
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:30595 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264702AbUF1FWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 01:22:17 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH 14/19] bind serio ports and their parents
-Date: Mon, 28 Jun 2004 00:22:14 -0500
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200406280008.21465.dtor_core@ameritech.net> <200406280020.01085.dtor_core@ameritech.net> <200406280021.21090.dtor_core@ameritech.net>
-In-Reply-To: <200406280021.21090.dtor_core@ameritech.net>
+	Mon, 28 Jun 2004 02:22:15 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:13472 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S264652AbUF1GWH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 02:22:07 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406280022.16273.dtor_core@ameritech.net>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Subject: RE: [ACPI] No APIC interrupts after ACPI suspend
+Date: Mon, 28 Jun 2004 14:20:01 +0800
+Message-ID: <B44D37711ED29844BEA67908EAF36F032D566A@pdsmsx401.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] No APIC interrupts after ACPI suspend
+Thread-Index: AcRchVJ69eDy11qtT+2exQlVmSAtwQAUdpPQ
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: "Hamie" <hamish@travellingkiwi.com>
+Cc: <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 28 Jun 2004 06:20:09.0189 (UTC) FILETIME=[F6394950:01C45CD7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I attached a new patch to handler all level triggered IRQs after resume
+for 8259 in http://bugme.osdl.org/show_bug.cgi?id=2643. Please try and
+attach your test result on it.
 
-===================================================================
+Thanks,
+Shaohua
+>-----Original Message-----
+>From: acpi-devel-admin@lists.sourceforge.net [mailto:acpi-devel-
+>admin@lists.sourceforge.net] On Behalf Of Hamie
+>Sent: Monday, June 28, 2004 4:27 AM
+>Cc: Alexander Gran; linux-kernel@vger.kernel.org; acpi-
+>devel@lists.sourceforge.net
+>Subject: Re: [ACPI] No APIC interrupts after ACPI suspend
+>
+>Hamie wrote:
+>
+>> Alexander Gran wrote:
+>>
+>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>> Hash: SHA1
+>>>
+>>> Am Sonntag, 27. Juni 2004 19:57 schrieb Hamie:
+>>>
+>>>
+>>>> FWIW the sound & networking appear to run fine for a while after
+>>>> resuming. But I just started a DVD. It ran fine for about 30
+seconds
+>>>> and
+>>>> then the sound went. About 30 seconds later the video froze and the
+app
+>>>> (xine) has frozen also. (kill -9 time...).
+>>>>
+>>>
+>>> <>
+>>> I can confirm that here:
+>>> after resuming, network completely works (yeah!).
+>>> Sound doesn't.
+>>> unloading/reloading the sound driver does not help.
+>>> USB works jumpy (perhaps 5-10hz)
+>>> Reloading does the trick for usb.
+>>>
+>>
+>> Since it sounds like a different bug to 2643, (Similiar but the patch
+>> that fixes the ethernet doesn't appear to doa  lot for the sound).
+>> I've opened a new one... #2965.
+>>
+>
+>Seeing as sound was on IRQ5 and the patch for 2643 fixed the ethernet,
+I
+>added a
+>(big hack here :) call to
+>
+>                acpi_pic_sci_set_trigger(5, acpi_sci_flags.trigger);
+>
+>in  acpi_pm_finish(u32 state); just after the call to set the IRQ
+trigger
+>for
+>the acpi irq...
+>
+>Results in (kern.log)
+>
+>Jun 27 21:15:28 ballbreaker kernel: ACPI: IRQ9 SCI: Edge set to Level
+>Trigger.
+>Jun 27 21:15:28 ballbreaker kernel: ACPI: IRQ5 SCI: Edge set to Level
+>Trigger.
+>
+>
+>and then sound works after resume... Obviously not a very good fix as
+it
+>won't
+>fix anything that uses somethign other than IRQ5.
+>
+>So... What should the correct fix be? Obviously some IRQ's triggers
+aren't
+>surviving the resume... But why... The timer (IRQ 0) obviously does...
+>
+>
+>
+>
+>-------------------------------------------------------
+>This SF.Net email sponsored by Black Hat Briefings & Training.
+>Attend Black Hat Briefings & Training, Las Vegas July 24-29 -
+>digital self defense, top technical experts, no vendor pitches,
+>unmatched networking opportunities. Visit www.blackhat.com
+>_______________________________________________
+>Acpi-devel mailing list
+>Acpi-devel@lists.sourceforge.net
+>https://lists.sourceforge.net/lists/listinfo/acpi-devel
 
-
-ChangeSet@1.1788, 2004-06-27 16:01:48-05:00, dtor_core@ameritech.net
-  Input: link serio ports to their parent devices in ambakmi,
-         gscps2, pcips2 and sa1111ps2 drivers
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-
-
- ambakmi.c   |    1 +
- gscps2.c    |    1 +
- pcips2.c    |    1 +
- sa1111ps2.c |    1 +
- 4 files changed, 4 insertions(+)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
---- a/drivers/input/serio/ambakmi.c	2004-06-27 17:51:19 -05:00
-+++ b/drivers/input/serio/ambakmi.c	2004-06-27 17:51:19 -05:00
-@@ -141,6 +141,7 @@
- 	strlcpy(io->name, dev->dev.bus_id, sizeof(io->name));
- 	strlcpy(io->phys, dev->dev.bus_id, sizeof(io->phys));
- 	io->port_data	= kmi;
-+	io->dev.parent	= &dev->dev;
- 
- 	kmi->io 	= io;
- 	kmi->base	= ioremap(dev->res.start, KMI_SIZE);
-diff -Nru a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
---- a/drivers/input/serio/gscps2.c	2004-06-27 17:51:19 -05:00
-+++ b/drivers/input/serio/gscps2.c	2004-06-27 17:51:19 -05:00
-@@ -385,6 +385,7 @@
- 	serio->open		= gscps2_open;
- 	serio->close		= gscps2_close;
- 	serio->port_data	= ps2port;
-+	serio->dev.parent	= &dev->dev;
- 
- 	list_add_tail(&ps2port->node, &ps2port_list);
- 
-diff -Nru a/drivers/input/serio/pcips2.c b/drivers/input/serio/pcips2.c
---- a/drivers/input/serio/pcips2.c	2004-06-27 17:51:19 -05:00
-+++ b/drivers/input/serio/pcips2.c	2004-06-27 17:51:19 -05:00
-@@ -159,6 +159,7 @@
- 	strlcpy(serio->name, pci_name(dev), sizeof(serio->name));
- 	strlcpy(serio->phys, dev->dev.bus_id, sizeof(serio->phys));
- 	serio->port_data	= ps2if;
-+	serio->dev.parent	= &dev->dev;
- 	ps2if->io		= serio;
- 	ps2if->dev		= dev;
- 	ps2if->base		= pci_resource_start(dev, 0);
-diff -Nru a/drivers/input/serio/sa1111ps2.c b/drivers/input/serio/sa1111ps2.c
---- a/drivers/input/serio/sa1111ps2.c	2004-06-27 17:51:19 -05:00
-+++ b/drivers/input/serio/sa1111ps2.c	2004-06-27 17:51:19 -05:00
-@@ -252,6 +252,7 @@
- 	strlcpy(serio->name, dev->dev.bus_id, sizeof(serio->name));
- 	strlcpy(serio->phys, dev->dev.bus_id, sizeof(serio->phys));
- 	serio->port_data	= ps2if;
-+	serio->dev.parent	= &dev->dev;
- 	ps2if->io		= serio;
- 	ps2if->dev		= dev;
- 	sa1111_set_drvdata(dev, ps2if);

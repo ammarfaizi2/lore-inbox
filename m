@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287645AbSBCTkH>; Sun, 3 Feb 2002 14:40:07 -0500
+	id <S287647AbSBCTtK>; Sun, 3 Feb 2002 14:49:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287647AbSBCTj5>; Sun, 3 Feb 2002 14:39:57 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55055 "EHLO
+	id <S287658AbSBCTtA>; Sun, 3 Feb 2002 14:49:00 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2832 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287645AbSBCTjz>; Sun, 3 Feb 2002 14:39:55 -0500
-Message-ID: <3C5D91EB.4000900@zytor.com>
-Date: Sun, 03 Feb 2002 11:39:23 -0800
+	id <S287647AbSBCTsy>; Sun, 3 Feb 2002 14:48:54 -0500
+Message-ID: <3C5D940D.4000406@zytor.com>
+Date: Sun, 03 Feb 2002 11:48:29 -0800
 From: "H. Peter Anvin" <hpa@zytor.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
 X-Accept-Language: en-us, en, sv
@@ -25,6 +25,9 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Eric W. Biederman wrote:
 
 > 
+> O.k. I have been thinking about this some more, and I have come up with a couple
+> alternate of solutions.
+> 
 > The simplest is the observation that right now 10MB is about what it
 > takes to hold every Linux driver out there.  So all you really need is
 > a 16MB system, to avoid a device probing loader.  And probably
@@ -32,9 +35,32 @@ Eric W. Biederman wrote:
 > problems are old systems where device enumeration is not reliable, and
 > require human intervention anyway.
 > 
+> A second is to just make certain there is some kind of fallback path
+> so if the image is too large have a way to load a smaller one.  When
+> you consider that older systems had less memory it has a reasonable
+> chance of working properly.
+> 
+> My final and favorite is to take an ELF image, define a couple of ELF
+> note types, and add a bunch those notes saying which pieces are
+> hardware dependent.  So a smart ELF loader can prune the image as it
+> is loaded, and a stupid one will just attempt to load everything.  And
+> with the setup for this not being bootloader specific it will probably
+> encourage device pruning loaders.
+> 
+> Am I being optimistic or are there any pressing cases for callbacks to
+> the firmware?
+> 
 
 
-A floppy disk is 1.44 MB.
+Ok, now let me ask the question that hopefully should be obvious to 
+everyone now...
+
+WHAT'S THE POINT?
+
+All you're doing is an awfully complex song and dance to *avoid* 
+implementing a solution that, while imperfect, is thoroughly established 
+and has worked for 20 years.
 
 	-hpa
+
 

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbTIZRMj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 13:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTIZRMj
+	id S261538AbTIZRXn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 13:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbTIZRXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 13:12:39 -0400
-Received: from xs.heimsnet.is ([193.4.194.50]:41354 "EHLO cg.c.is")
-	by vger.kernel.org with ESMTP id S261508AbTIZRMg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 13:12:36 -0400
-From: =?iso-8859-1?q?B=F6rkur=20Ingi=20J=F3nsson?= <bugsy@isl.is>
-Reply-To: bugsy@isl.is
-To: linux-kernel@vger.kernel.org
-Subject: khubd is a Succubus!
-Date: Fri, 26 Sep 2003 17:24:56 +0000
-User-Agent: KMail/1.5.3
+	Fri, 26 Sep 2003 13:23:43 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:26336 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261538AbTIZRXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 13:23:41 -0400
+Message-ID: <3F7475F2.3040207@nortelnetworks.com>
+Date: Fri, 26 Sep 2003 13:22:58 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200309261724.56616.bugsy@isl.is>
+To: Andi Kleen <ak@muc.de>
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
+References: <A2yd.64p.31@gated-at.bofh.it> <A2yd.64p.29@gated-at.bofh.it>	<A317.6GH.7@gated-at.bofh.it> <m37k3viiqp.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Explanation of succubus: 
-Succubus is a demon sent out of hell to suck the life out of a Linux host 
-running  2.6.0-test5 #3 on Fri Sep 26 01:39:31 GMT 2003 i686 AMD Athlon(tm) 
-Processor AuthenticAMD GNU/Linux
- with the following software..
-Gnu C                  3.2.3
-Gnu make               3.80
-util-linux             2.11z
-mount                  2.11z
-e2fsprogs              1.33
-reiserfsprogs          3.6.8
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.1.9
-Net-tools              1.60
-Kbd                    1.06
-Sh-utils               2.0.15
-Modules Loaded         nvidia
+Andi Kleen wrote:
 
-Regards, Börkur Ingi Jónsson
+> The solution proposed by Ivan sounds much better. The basic problem
+> is that the Ethernet header is not a multiple of 4 and that misaligns
+> everything after it.
 
-Ps. in english this means that. On my computer khubd is using 100% of my 
-cpu... any fix on this?
+At least some hardware will offset the incoming packet by two bytes to 
+align everything.  Whatever mechanism we end up using, it would be nice 
+if it could make use of the hardware that is capable of this.
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

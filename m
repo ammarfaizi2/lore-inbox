@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263596AbUFFNH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263603AbUFFNMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263596AbUFFNH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 09:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbUFFNH4
+	id S263603AbUFFNMh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 09:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbUFFNMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 09:07:56 -0400
-Received: from tag.witbe.net ([81.88.96.48]:23728 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S263596AbUFFNHz (ORCPT
+	Sun, 6 Jun 2004 09:12:36 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:7854 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263603AbUFFNMf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 09:07:55 -0400
-Message-Id: <200406061307.i56D7pX26872@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Bernd Eckenfels'" <ecki-news2004-05@lina.inka.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: clone() <-> getpid() bug in 2.6?
-Date: Sun, 6 Jun 2004 15:07:41 +0200
-Organization: AS2917
+	Sun, 6 Jun 2004 09:12:35 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <E1BWuK1-0003PT-00@calista.eckenfels.6bone.ka-ip.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcRLrAfEMWrDlD70S9SIMntJyT2lQwAGxytA
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: idebus setup problem (2.6.7-rc1)
+Date: Sun, 6 Jun 2004 21:11:21 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8403BD550B@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: idebus setup problem (2.6.7-rc1)
+Thread-Index: AcRKkZN/+rbMzwugQcW1orBd+V9KAQBNl5Mg
+From: "Zhu, Yi" <yi.zhu@intel.com>
+To: "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Rusty Russell" <rusty@rustcorp.com.au>
+Cc: "Herbert Poetzl" <herbert@13thfloor.at>,
+       "Auzanneau Gregory" <mls@reolight.net>,
+       "Jeff Garzik" <jgarzik@pobox.com>,
+       "lkml - Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 06 Jun 2004 13:11:22.0645 (UTC) FILETIME=[C3A96450:01C44BC7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Bartlomiej Zolnierkiewicz wrote:
+> 
+> Why can't we apply this minimal fix from Yi for now?
 
-> It does that  for the unique  filenames and id stamps 
-> (maildir format and
+Thanks, this is in 2.6.7-rc2-mm2.
 
-I though this was a job for mktemp and co.
+> 
+> --- linux-2.6.7-rc1-mm1.orig/init/main.c        2004-05-28
+> 12:39:15.549314064 +0800 +++ linux-2.6.7-rc1-mm1/init/main.c    
+> 2004-05-28 12:40:29.399087192 +0800
+> @@ -162,7 +162,7 @@ static int __init obsolete_checksetup(ch        
+>         p = &__setup_start; do {
+>                 int n = strlen(p->str);
+> -               if (len <= n && !strncmp(line, p->str, n)) {
+> +               if (n == 0 || (len <= n && !strncmp(line, p->str,
+>                         n))) { /* Already done in parse_early_param?
+>                         */ if (p->early)
+>                                 return 1;
+> 
 
-Regards,
-Paul
-
-
+Thanks,
+-yi

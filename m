@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268211AbUGXBDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268218AbUGXBdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268211AbUGXBDB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 21:03:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268212AbUGXBDB
+	id S268218AbUGXBdd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 21:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268219AbUGXBdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 21:03:01 -0400
-Received: from mailfe04.swip.net ([212.247.154.97]:32937 "EHLO
-	mailfe04.swip.net") by vger.kernel.org with ESMTP id S268211AbUGXBDA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 21:03:00 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Sat, 24 Jul 2004 03:02:57 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Mario Lang <mlang@delysid.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: User-space Keyboard input?
-Message-ID: <20040724010256.GA3757@bouh.is-a-geek.org>
-Mail-Followup-To: Mario Lang <mlang@delysid.org>,
-	linux-kernel@vger.kernel.org
-References: <87y8lb80yj.fsf@lexx.delysid.org>
+	Fri, 23 Jul 2004 21:33:33 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:51078 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268218AbUGXBdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 21:33:31 -0400
+Subject: Re: [ANNOUNCE] ketchup 0.8
+From: Lee Revell <rlrevell@joe-job.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040723185504.GJ18675@waste.org>
+References: <20040723185504.GJ18675@waste.org>
+Content-Type: text/plain
+Message-Id: <1090632808.1471.20.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87y8lb80yj.fsf@lexx.delysid.org>
-User-Agent: Mutt/1.4.1i-nntp3
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 23 Jul 2004 21:33:28 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mario,
+On Fri, 2004-07-23 at 14:55, Matt Mackall wrote:
+> ketchup is a script that automatically patches between kernel
+> versions, downloading and caching patches as needed, and automatically
+> determining the latest versions of several trees. Available at:
+> 
+>  http://selenic.com/ketchup/ketchup-0.8
+> 
 
-About modifiers, I submitted a patch to Dave to handle them
-properly.
+Does not work on Debian unstable:
 
-But ascii to scancode translation still depends on scancode to ascii
-translation performed by the kernel indeed and the question still
-applies. I'll have a look at uinput.
+rlrevell@mindpipe:~/kernel-source$ ketchup-0.8 2.6-mm
+Creating cache directory /home/rlrevell/.ketchup
+None -> 2.6.8-rc1-mm1
+Downloading linux-2.6.7.tar.bz2
+--21:14:12--  http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.7.tar.bz2
+           => `/home/rlrevell/.ketchup/linux-2.6.7.tar.bz2.partial'
+Resolving www.kernel.org... 204.152.189.116
+Connecting to www.kernel.org[204.152.189.116]:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 35,092,228 [application/x-bzip2]
 
-Regards,
-Samuel
+100%[====================================>] 35,092,228   187.32K/s    ETA 00:00
+
+21:17:17 (185.54 KB/s) - `/home/rlrevell/.ketchup/linux-2.6.7.tar.bz2.partial' s
+aved [35092228/35092228]
+
+Traceback (most recent call last):
+  File "/usr/local/bin/ketchup-0.8", line 551, in ?
+    transform(a, b)
+  File "/usr/local/bin/ketchup-0.8", line 475, in transform
+    a = install_nearest(base(b))
+  File "/usr/local/bin/ketchup-0.8", line 437, in install_nearest
+    if not f:
+UnboundLocalError: local variable 'f' referenced before assignment
+
+Lee
+

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267208AbTAFXti>; Mon, 6 Jan 2003 18:49:38 -0500
+	id <S267248AbTAGABE>; Mon, 6 Jan 2003 19:01:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267209AbTAFXti>; Mon, 6 Jan 2003 18:49:38 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34323 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267208AbTAFXtf>; Mon, 6 Jan 2003 18:49:35 -0500
-Date: Mon, 6 Jan 2003 18:55:25 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE changes that affect upper layer drivers
-In-Reply-To: <1041895478.18831.7.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.96.1030106185147.12023B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267254AbTAGABE>; Mon, 6 Jan 2003 19:01:04 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:44677 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S267248AbTAGABC>;
+	Mon, 6 Jan 2003 19:01:02 -0500
+Date: Mon, 6 Jan 2003 19:12:20 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Kaleb Pederson <kibab@icehouse.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: windows=stable, linux=5 reboots/50 min
+Message-ID: <20030106191220.GD23277@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Kaleb Pederson <kibab@icehouse.net>, linux-kernel@vger.kernel.org
+References: <LDEEIFJOHNKAPECELHOAKEJFCCAA.kibab@icehouse.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <LDEEIFJOHNKAPECELHOAKEJFCCAA.kibab@icehouse.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Jan 2003, Alan Cox wrote:
-
-I really hope this isn't going to be a replay of "new modules" where
-major stuff gets broken. I would really not like to contemplate turning
-off DMA until all the drivers get rewritten. Going without modules costs
-only a bit of memory, going without DMA costs a LOT of CPU with some
-hardware.
-
-> I'm about to enable the vmda logic for non disk drivers. That means IDE
-> tape, scsi, cd and friends need updating to follow the new rules
+On Mon, Jan 06, 2003 at 10:57:03PM -0800, Kaleb Pederson wrote:
+> After a recent hard drive crash, I re-installed Linux to a new hard drive.
+> After about 2 weeks, my system now spontaneously reboots about once per 10
+> minutes (on avg.).  I'm assuming I messed up something in my kernel
+> configuration as Windows is still stable. To verify that it wasn't the new
+> hard drive (or use of different controller) I formatted a segment of it
+> under Windows and copied 7+ gb of data onto it while doing other things
+> without problem.
 > 
-> Before it was simply:
-> 	->dma = 1   - do DMA
+> The system will reboot as early as after detecting the hard drives and
+> before loading the root filesystem or anytime thereafter - sometimes in
+> logging into the console, sometimes in X.
 > 
-> Some devices and a lot of upcoming ones support DMA to the host while
-> doing PIO to the device "Virtual DMA". That means the drivers now
-> need to do
-> 
-> 	DMA	VDMA
-> 	 0	  X		PIO
-> 	 1	  0		Issue PIO commands, set up for DMA xfers
-> 	 1        1		Issue DMA commands, set up for DMA xfers
-> 
-> 
-> Alan
 
-Wishing you the best of luck with this one...
+Hmm, I've observed this behavior with apm on certian buggy systems, though
+it was several versions ago.  Are you using apm, acpi, or neither?
+Considering both control power management, I would try disabling them as a
+test.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Regards,
+Adam

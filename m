@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264705AbTAEMf7>; Sun, 5 Jan 2003 07:35:59 -0500
+	id <S264706AbTAEMmo>; Sun, 5 Jan 2003 07:42:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264706AbTAEMf7>; Sun, 5 Jan 2003 07:35:59 -0500
-Received: from tomts9.bellnexxia.net ([209.226.175.53]:49842 "EHLO
-	tomts9-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S264705AbTAEMf6>; Sun, 5 Jan 2003 07:35:58 -0500
-Date: Sun, 5 Jan 2003 07:45:12 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: inconsistent xconfig menu for "Wirless LAN (non-hamradio)"
-Message-ID: <Pine.LNX.4.44.0301050737500.18541-100000@dell>
+	id <S264711AbTAEMmo>; Sun, 5 Jan 2003 07:42:44 -0500
+Received: from smtp2.vol.cz ([195.250.128.42]:43536 "EHLO smtp2.vol.cz")
+	by vger.kernel.org with ESMTP id <S264706AbTAEMmn>;
+	Sun, 5 Jan 2003 07:42:43 -0500
+Message-ID: <001001c2b4b9$467de380$e56114d4@DEFAULT>
+From: "=?iso-8859-2?B?VG9t4bkgVm9uZHJh?=" <wondra@volny.cz>
+To: <linux-kernel@vger.kernel.org>
+Subject: Fw: Booting problem on LOOPback device
+Date: Sun, 5 Jan 2003 13:52:15 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 4.72.2106.4
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.2106.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  the menu layout under "Wireless LAN (non-hamradio)" is confusing.
-i have a LinkSys WPC-11 PCMCIA card, and it took a couple reads to 
-figure out what i needed to select in that submenu.
+I have a 2.2 kernel and use RedHat's "Partitionless installation" - the root
+is on a loopback device. I've compiled kernel 2.4.17, upgraded modutils and
+e2fsprogs and the kernel doesn't want to boot properly - the last bootup
+message is "Can't write to read-only device 7,0", the kernel continues, but
+the root can't be remounted rw (I've tried it in single-user mode). If I put
+'rw' to the kernel command line, it's possible to write to the root
+device(in single mode). I don't know it for sure right now, but I think that
+the error message remains.
+Please tell me somebody where the problem could be.
+reply to wondra@volny.cz for I'm not a member
 
-  since that card uses the hermes chipset, i naturally selected
-"Hermes chipset 802.11b ...".  but wait -- a few lines down, there's
-a comment, "Wireless Pcmcia/Cardbus cards support."  strange, i
-could have sworn i selected something like that a few lines up
-already.
-
-  worse, even further down, there's "Hermes PCMCIA card support,"
-for which the original selection has help that tells me that it was
-necessary for me to select this later feature.  in that case,
-if it's *required*, i shouldn't have any freedom -- the config
-should select it for me.
-
-  anyway, you the idea -- for my poor, little LinkSys WFC-11 card,
-there are too many selections in that menu that seem to apply to me,
-some of which should be more tightly related, or subsumed in a 
-submenu.
-
-rday
 

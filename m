@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbUCKWHY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 17:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUCKWHX
+	id S261774AbUCKWMe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 17:12:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUCKWMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 17:07:23 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:33932 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261784AbUCKWHR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 17:07:17 -0500
-Message-ID: <4050E453.3010809@tmr.com>
-Date: Thu, 11 Mar 2004 17:12:35 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+	Thu, 11 Mar 2004 17:12:34 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:60607 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261774AbUCKWMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 17:12:32 -0500
+Message-ID: <4050E402.30505@nortelnetworks.com>
+Date: Thu, 11 Mar 2004 17:11:14 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: markw@osdl.org
-CC: linux-lvm@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: lvm2 performance data with linux-2.6
-References: <200403081916.i28JGgE25794@mail.osdl.org>
-In-Reply-To: <200403081916.i28JGgE25794@mail.osdl.org>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: Joe Thornber <thornber@redhat.com>, Andi Kleen <ak@muc.de>,
+       Mickael Marchand <marchand@kde.org>, linux-kernel@vger.kernel.org,
+       dm@uk.sistina.com
+Subject: Re: 2.6.4-mm1
+References: <1ysXv-wm-11@gated-at.bofh.it> <1yxuq-6y6-13@gated-at.bofh.it> <m3hdwnawfi.fsf@averell.firstfloor.org> <200403111445.35075.marchand@kde.org> <20040311144829.GA22284@colin2.muc.de> <20040311214354.GM18345@reti> <20040311215955.GC18020@ca-server1.us.oracle.com>
+In-Reply-To: <20040311215955.GC18020@ca-server1.us.oracle.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-markw@osdl.org wrote:
-> I've started collecting various data (including oprofile) using our
-> DBT-2 (OLTP) workload with lvm2 on linux 2.6.2 and 2.6.3 on ia32 and
-> ia64 platforms:
-> 	http://developer.osdl.org/markw/lvm2/
+Joel Becker wrote:
+> On Thu, Mar 11, 2004 at 09:43:54PM +0000, Joe Thornber wrote:
 > 
-> So far I've only varied the stripe width with lvm, from 8 KB to 512 KB,
-> for PostgreSQL that is using 8 KB sized blocks with ext2.  It appears
-> that a stripe width of 16 KB through 128KB on the ia64 system gives the
-> best throughput for the DBT-2 workload on a volume that should be doing
-> mostly sequential writes.
+>>struct dm_ioctl {			0
+>>        uint32_t version[3];		
+>>        uint32_t data_size;  		4
+>>
+>>        uint32_t data_start;
+>>
+>>        uint32_t target_count;
+>>        int32_t open_count;
+>>        uint32_t flags;		8
+>>        uint32_t event_nr;
+>>        uint32_t padding;		10 ***
 > 
-> I'm going to run through more tests varying the block size that
-> PostgreSQL uses, but I wanted to share what I had so far in case there
-> were other suggestions or recommendations.
 > 
-Here's one thought: look at the i/o rates on individual drives using 
-each stripe size. You *might* see that one size does far fewer seeks 
-than others, which is a secondary thing to optimize after throughput IMHO.
+> 	Here's probably the problem.  Many 64bit arches align 64bit
+> numbers on a 64bit boundary.  So it is adding 2 more words of padding to
+> start the u64 at offset 12.
 
-If you don't have a tool for this I can send you the latest diorate 
-which does stuff like this, io rate perdrive or per partition, something 
-I occasionally find revealing.
+But wouldn't this be applied across the board and therefore still work? 
+  Or is it defined as "packed" somewhere?
 
-		-bill
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

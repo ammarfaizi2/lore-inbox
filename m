@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263063AbTCSQu4>; Wed, 19 Mar 2003 11:50:56 -0500
+	id <S263152AbTCSQuT>; Wed, 19 Mar 2003 11:50:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263084AbTCSQu4>; Wed, 19 Mar 2003 11:50:56 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:27271 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S263083AbTCSQux>; Wed, 19 Mar 2003 11:50:53 -0500
-Date: Wed, 19 Mar 2003 12:03:52 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Ed Vance <EdV@macrolink.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: RE: Linux-2.4.20 modem control
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D1A33DEE@EXCHANGE>
-Message-ID: <Pine.LNX.4.53.0303191202450.31905@chaos>
-References: <11E89240C407D311958800A0C9ACF7D1A33DEE@EXCHANGE>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263153AbTCSQuS>; Wed, 19 Mar 2003 11:50:18 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:4248 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S263152AbTCSQuQ>; Wed, 19 Mar 2003 11:50:16 -0500
+Date: Wed, 19 Mar 2003 17:01:06 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Paul Rolland <rol@as2917.net>
+Cc: "'Juha Poutiainen'" <pode@iki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: L2 cache detection in Celeron 2GHz (P4 based)
+Message-ID: <20030319170106.GC19361@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Paul Rolland <rol@as2917.net>, 'Juha Poutiainen' <pode@iki.fi>,
+	linux-kernel@vger.kernel.org
+References: <20030319135841.GC28770@suse.de> <013d01c2ee38$0812e330$6100a8c0@witbe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <013d01c2ee38$0812e330$6100a8c0@witbe>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Mar 2003, Ed Vance wrote:
-[SNIPPED...]
+On Wed, Mar 19, 2003 at 05:53:13PM +0100, Paul Rolland wrote:
 
-> >
-> Hi Richard,
->
-> The following patch to serial.c in 2.4.20 is a brute-force addition
-> of a hang-up delay of 0.5 sec just before close returns to the user,
-> if the hupcl flag is set. Please try this to determine if there are
-> any other issues with the remote login. If it works, I'll write a
-> better patch that does not duplicate other delays, etc.
->
-> Cheers,
-> Ed
+ > >  > You can also add that the L1 detection doesn't seem to be correct
+ > >  > either : 
+ > >  > 0K Instruction cache, and 8K data cache for L1... This is not much
+ > >  > for instruction, it seems it should be 12K...
+ > > 
+ > > That should be fixed in recent 2.4s (and not-so-recent 2.5s).
+ > > What version are you seeing this problem on?
+ > 
+ > Quite a recent one : 2.4.20.
 
-Okay. I will test this after about 4:00 PM when I can shut down
-that machine. Thanks.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Fixed as of 2.4.21pre1. The fix went in on 2nd December, and pre1 was
+tagged as of the 10th December.
+ 
+		Dave
 

@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264986AbTAJMed>; Fri, 10 Jan 2003 07:34:33 -0500
+	id <S265002AbTAJMgw>; Fri, 10 Jan 2003 07:36:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264992AbTAJMec>; Fri, 10 Jan 2003 07:34:32 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:62865
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264986AbTAJMe0>; Fri, 10 Jan 2003 07:34:26 -0500
-Subject: Re: spin_locks without smp.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.51.0301101238560.6124@dns.toxicfilms.tv>
-References: <Pine.LNX.4.51.0301101238560.6124@dns.toxicfilms.tv>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042205356.28469.84.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 10 Jan 2003 13:29:16 +0000
+	id <S265008AbTAJMgv>; Fri, 10 Jan 2003 07:36:51 -0500
+Received: from ophelia.ess.nec.de ([193.141.139.8]:33938 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S265002AbTAJMgu>; Fri, 10 Jan 2003 07:36:50 -0500
+From: Erich Focht <efocht@ess.nec.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: small migration thread fix
+Date: Fri, 10 Jan 2003 13:46:03 +0100
+User-Agent: KMail/1.4.3
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@tech9.net>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_RS0INCOSRJY45JH5GL4F"
+Message-Id: <200301101346.03653.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-10 at 11:42, Maciej Soltysiak wrote:
-> Hi,
-> 
-> while browsing through the network drivers about the etherleak issue i
-> found that some drivers have:
-> 
-> #ifdef CONFIG_SMP
-> 	spin_lock_irqsave(...)
-> #endif
-> 
-> and some just:
-> 
-> 	spin_lock_irqsave(...)
-> 
-> or similar.
-> Which version should be practiced? i thought spinlocks are irrelevant
-> without SMP so we should use #ifdef to shorten the execution path.
 
-Long answer: The network driver authors are doing some fairly clever
-things to make old ISA adapters usable in Linux 2.4 and later. Linux
-lacks the functionality to do 
-	
-	spin_lock_disable_irqmask(lock, flags, mask)
+--------------Boundary-00=_RS0INCOSRJY45JH5GL4F
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
 
-Implementing it is rather expensive and hard to do well. In general
-those code paths need reviewing and probably to change to
+Hi,
 
-	preempt_disable()
-#ifdef CONFIG_SMP
-	spin_lock_irqsave(..)
-#endif
-..
+the small patch fixes a potential problem in the migration thread for
+the case that the first CPU in the cpus_allowed mask of a process is
+offline. Please consider applying it to your trees.
+
+Thanks!
+Regards,
+Erich
 
 
-Please ensure that if you change these drivers you 
-a) Have the hardware and test it uniprocessor and SMP
-b) Verify that with your change a serial modem port still works
-c) Understand the game the author is playing
+--------------Boundary-00=_RS0INCOSRJY45JH5GL4F
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="migration-fix-2.5.55.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="migration-fix-2.5.55.patch"
 
-(Also d) ensure the author understands the games she/he is playing too!)
+diff -urNp linux-2.5.55/kernel/sched.c linux-2.5.55-fix/kernel/sched.c
+--- linux-2.5.55/kernel/sched.c	2003-01-09 05:04:22.000000000 +0100
++++ linux-2.5.55-fix/kernel/sched.c	2003-01-10 13:37:40.000000000 +0100
+@@ -2108,7 +2108,7 @@ static int migration_thread(void * data)
+ 		spin_unlock_irqrestore(&rq->lock, flags);
+ 
+ 		p = req->task;
+-		cpu_dest = __ffs(p->cpus_allowed);
++		cpu_dest = __ffs(p->cpus_allowed & cpu_online_map);
+ 		rq_dest = cpu_rq(cpu_dest);
+ repeat:
+ 		cpu_src = task_cpu(p);
 
-If you've been looking at the etherleak stuff btw, the -ac tree has what
-is theoretically a full set of fixes. I'd love someone who is looking
-at this into 2.5 to review them and merge them into the 2.5 tree. I 
-doubt I have them all right so more eyes is most welcome.
-
-Alan
+--------------Boundary-00=_RS0INCOSRJY45JH5GL4F--
 

@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268824AbUIQRad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268886AbUIQRgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268824AbUIQRad (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 13:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268712AbUIQRad
+	id S268886AbUIQRgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 13:36:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbUIQRgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 13:30:33 -0400
-Received: from out010pub.verizon.net ([206.46.170.133]:62670 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S268824AbUIQRab
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 13:30:31 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel Oops!!!!
-Date: Fri, 17 Sep 2004 13:30:30 -0400
-User-Agent: KMail/1.7
-Cc: Jysuis Parla <gros_geek@yahoo.fr>
-References: <20040917140506.78846.qmail@web53110.mail.yahoo.com>
-In-Reply-To: <20040917140506.78846.qmail@web53110.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 17 Sep 2004 13:36:25 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:49310 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268886AbUIQRgE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 13:36:04 -0400
+Message-ID: <9e4733910409171035164ff87b@mail.gmail.com>
+Date: Fri, 17 Sep 2004 13:35:51 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: walt <wa1ter@myrealbox.com>
+Subject: Re: [2.6.9-rc2-bk] Freeze during boot
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <414AE6DA.3050600@myrealbox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409171330.30154.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.58.242] at Fri, 17 Sep 2004 12:30:30 -0500
+References: <414AE6DA.3050600@myrealbox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 September 2004 10:05, Jysuis Parla wrote:
->Hello,
->My name is biggeek, from Microsoft, and I find a
->mistake in the code of the kernel : /kernel/sched.c
->line 1023 col 21, a 'n' is
->missing. So when i boot my computer, there is kernel
->message that say:
->
-> KERNEL PANIC !!!!!!!!!!
->
->please help me ..  because without my computer I have
->no life :(
->
->But i solved he problem and i made a patch.
->Yoopy!!!!!!
->
->PS: I want to unsubscribe this mailing list.
+Something is broken in general with the networking drivers. I have
+e1000 and tg3 and both are broken. When Redhat goes into the probing
+for new hardware phase all of the net drivers OOPs.
 
-For a troll from M$, you're doing pretty good, but that french accent 
-had mne fooled for a minute.
+Problem has happened in the last 24hr in Linus BK. From the stack
+track it is near fib_disable_ip().
 
-Anyway, WRT your problem, not in the latest kernel, so its possile the 
-unpacker sneezed.  Nuke the dir and unpack it again.
+
+On Fri, 17 Sep 2004 06:30:02 -0700, walt <wa1ter@myrealbox.com> wrote:
+> Something committed in the last 24 hours is causing my machine
+> to halt partway thru bootup.  It will print appropriate messages
+> on the console for USB hotplug events, but networking never
+> comes up so I can't ping the machine, and the login process
+> never starts so I can't login and I can't tell what processes
+> are actually running.
+> 
+> When I boot yesterday's kernel I get error messages saying
+> that the kernel modules (from today) can't be loaded because
+> they are in the wrong format.  That's an error I've never seen
+> before this morning.  The only thing I can think to do is to
+> recompile with all the drivers compiled into the kernel and
+> see if I get any error messages (I'm not seeing any errors
+> now).
+> 
+> Anyone else seeing anything like this?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269938AbUJNAy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269939AbUJNBWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269938AbUJNAy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 20:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269939AbUJNAy5
+	id S269939AbUJNBWG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 21:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269942AbUJNBWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 20:54:57 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:7298 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S269938AbUJNAyz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 20:54:55 -0400
-Date: Thu, 14 Oct 2004 10:53:00 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-xfs@oss.sgi.com
-Subject: Re: Page cache write performance issue
-Message-ID: <20041014005300.GA716@frodo>
-References: <20041013054452.GB1618@frodo> <20041012231945.2aff9a00.akpm@osdl.org> <20041013063955.GA2079@frodo> <20041013000206.680132ad.akpm@osdl.org> <20041013172352.B4917536@wobbly.melbourne.sgi.com> <416CE423.3000607@cyberone.com.au> <20041013013941.49693816.akpm@osdl.org>
+	Wed, 13 Oct 2004 21:22:06 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:53148 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269939AbUJNBWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 21:22:04 -0400
+Subject: Re: 4level page tables for Linux
+From: Albert Cahalan <albert@users.sf.net>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@suse.de
+In-Reply-To: <20041013235118.GR17849@dualathlon.random>
+References: <1097709734.2666.10890.camel@cube>
+	 <20041013235118.GR17849@dualathlon.random>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097716542.2673.11007.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20041013013941.49693816.akpm@osdl.org>
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 13 Oct 2004 21:15:43 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 13, 2004 at 01:39:41AM -0700, Andrew Morton wrote:
-> Nick Piggin <piggin@cyberone.com.au> wrote:
-> >
-> >  Andrew probably has better ideas.
+On Wed, 2004-10-13 at 19:51, Andrea Arcangeli wrote:
+> On Wed, Oct 13, 2004 at 07:22:15PM -0400, Albert Cahalan wrote:
+> > I'd number going toward the page, because that's
+> > the order in which these things get walked.
 > 
-> uh, is this an ia32 highmem box?
+> I'd call the pml level 1 too, but in the specs is level 4.  So sticking
+> the specs numbering is going to generate less confusion. Otherwise when
+> we speak with somebody with hardware knowledge we say level 4 and he
+> understand the specs's level 1. I recall it already happened to me once ;).
 
-Yep, it is.
+While x86_64 will be by far the most popular arch,
+this is a matter for the generic code.
 
-> If so, you've hit the VM sour spot.
-> ...
-> Basically, *any* other config is fine.  896MB and below, 1.5GB and above.
+Perhaps "4" should be avoided: 0,1,2,3
 
-I just tried switching CONFIG_HIGHMEM off, and so running the
-machine with 512MB; then adjusted the test to write 256M into
-the page cache, again in 1K sequential chunks.  A similar mis-
-behaviour happens, though the numbers are slightly better (up
-from ~4 to ~6.5MB/sec).  Both ext2 and xfs see this.  When I
-drop the file size down to 128M with this kernel, I see good
-results again (as we'd expect).
 
-I'm being pulled onto other issues atm, but in the background
-I could try reverting specific changesets if you guys can
-suggest anything in particular that might be triggering this?
-
-thanks!
-
--- 
-Nathan

@@ -1,90 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132418AbRDDHkO>; Wed, 4 Apr 2001 03:40:14 -0400
+	id <S132595AbRDDHnY>; Wed, 4 Apr 2001 03:43:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132595AbRDDHkE>; Wed, 4 Apr 2001 03:40:04 -0400
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:18445 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S132418AbRDDHjv>; Wed, 4 Apr 2001 03:39:51 -0400
-From: r1vamsi@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: jdelsign@etnus.com
-cc: dprobes@oss.lotus.com, linux-kernel@vger.kernel.org
-Message-ID: <CA256A24.0029FE1E.00@d73mta05.au.ibm.com>
-Date: Wed, 4 Apr 2001 11:32:36 +0530
-Subject: Re: [RFC][PATCH] Debug Register Allocation on x86
+	id <S132759AbRDDHnE>; Wed, 4 Apr 2001 03:43:04 -0400
+Received: from mail.inup.com ([194.250.46.226]:59913 "EHLO mailhost.lineo.fr")
+	by vger.kernel.org with ESMTP id <S132595AbRDDHnB>;
+	Wed, 4 Apr 2001 03:43:01 -0400
+Date: Wed, 4 Apr 2001 09:47:08 +0200
+From: christophe barbe <christophe.barbe@lineo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: uninteruptable sleep (D state => load_avrg++)
+Message-ID: <20010404094708.A4718@pc8.inup.com>
+In-Reply-To: <003501c0bc5c$e26e81c0$5517fea9@local>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <003501c0bc5c$e26e81c0$5517fea9@local>; from manfred@colorfullife.com on mar, avr 03, 2001 at 18:40:53 +0200
+X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jim,
+Sorry if I fork a bit the thread but I'm wondering why the load average is incremented for each D process.
 
-We have modified ptrace() such that it first allocates the debug register
-before it is used. So, yes, if a debugger is using ptrace() interface it
-need not be concerned about this centralised debug register allocation
-scheme, the debug register allocation actually happens behind the scenes
-and it is guaranteed that other debug facilities don't overwrite your
-settings. However, when you try to access a debug register for the first
-time using ptrace, be sure to check the return value. It can return -EBUSY
-if the debug register you are trying to use is already being used by other
-tool.
+I don't know if the kernel use this information (if yes please let me know).
+But some programs like sendmail use this information to sleep when the load is too high (I believe from 12 for sendmail).
+It makes sence but in the case of D process, the load average give a bad idea of the load because these process don't use CPU.
 
-You cannot rely on determining free debug registers by checking dr7: it is
-possible that a debug register can be allocated from under you after you
-have checked that it is free but before you have updated dr7 with new
-settings.
+I use GFS to share a filesystem on several nodes. 
+The file locking use real IO and so when you ask for a lock, if the lock is already owned, you fall in a D state.
+This differs from what a local filesystem does but IMHO makes sense for a distributed filesytem like GFS.
 
-Regards.. Vamsi.
+Christophe
 
-Vamsi Krishna S.
-Linux Technology Center, IBM India, Bangalore.
-Ph: +91 80 5262355 Extn: 3672
-Internet: r1vamsi@in.ibm.com
-
----------------------- Forwarded by Bharata B Rao/India/IBM on 04/04/2001
-08:49 AM ---------------------------
-
-James Cownie <jcownie@etnus.com> on 04/03/2001 09:53:22 PM
-
-Please respond to James Cownie <jcownie@etnus.com>
-
-To:   Bharata B Rao/India/IBM@IBMIN
-cc:   John DelSignore <jdelsign@etnus.com>
-Subject:  [RFC][PATCH] Debug Register Allocation on x86
-
-
-
-
-Bharata,
-
-If I understand your patch correctly, it does not require that code
-using the debug registers via ptrace is changed, since you notice the
-use of a debug register in the ptrace write request and then allocate
-it ?
-
-Is this right ?
-
-Our TotalView debugger also uses the debug registers to implement data
-watchpoints on Linux/x86, and we search for free watchpoint registers
-by looking at the control register, and then update all of the
-watchpoint registers (skipping dr4 and dr5). I'm not sure how this
-will work with your code...
-
-p.s. You can download a copy of Totalview and get a demo license from
-the web if you want to play with it.
-
-Reference :
-http://boudicca.tux.org/hypermail/linux-kernel/this-week/0322.html
-
--- Jim
-
-James Cownie   <jcownie@etnus.com>
-Etnus, LLC.     +44 117 9071438
-http://www.etnus.com
-
-
-
-
-
+On mar, 03 avr 2001 18:40:53 Manfred Spraul wrote:
+> > ps xl:
+> >   F UID PID PPID PRI NI VSZ RSS WCHAN STAT TTY TIME COMMAND
+> > 040 1000 1230 1 9 0 24320 4 down_w D ? 0:00
+> >           /home/data/mozilla/obj/dist/bin/mozi
+> >
+> down_w
+> 
+> Perhaps down_write_failed()? 2.4.3 converted the mmap semaphore to a
+> rw-sem.
+> Did you compile sysrq into your kernel? Then enable it with
+> 
+> #echo 1 > /proc/sys/kernel/sysrq
+> and press <Alt>+<SysRQ>+'t'
+> 
+> It prints the complete back trace, not just one function name
+> 
+> --
+>     Manfred
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+-- 
+Christophe Barbé
+Software Engineer
+Lineo High Availability Group
+42-46, rue Médéric
+92110 Clichy - France
+phone (33).1.41.40.02.12
+fax (33).1.41.40.02.01
+www.lineo.com

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278634AbRJSTsT>; Fri, 19 Oct 2001 15:48:19 -0400
+	id <S278625AbRJSTh7>; Fri, 19 Oct 2001 15:37:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278635AbRJSTsK>; Fri, 19 Oct 2001 15:48:10 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:51196 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S278634AbRJSTry>; Fri, 19 Oct 2001 15:47:54 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Fri, 19 Oct 2001 13:48:21 -0600
-To: Mike Castle <dalgoda@ix.netcom.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: e2fsck, LVM and 4096-char block problems
-Message-ID: <20011019134821.H402@turbolinux.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011019132513.F402@turbolinux.com> <20011019123523.A10770@thune.mrc-home.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011019123523.A10770@thune.mrc-home.com>
-User-Agent: Mutt/1.3.22i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S278626AbRJSTht>; Fri, 19 Oct 2001 15:37:49 -0400
+Received: from barrichello.cs.ucr.edu ([138.23.169.5]:34767 "HELO
+	barrichello.cs.ucr.edu") by vger.kernel.org with SMTP
+	id <S278625AbRJSThm>; Fri, 19 Oct 2001 15:37:42 -0400
+Date: Fri, 19 Oct 2001 12:04:41 -0700 (PDT)
+From: John Tyner <jtyner@cs.ucr.edu>
+To: Timur Tabi <ttabi@interactivesi.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>
+Subject: Re: Allocating more than 890MB in the kernel?
+In-Reply-To: <3BD07586.3090706@interactivesi.com>
+Message-ID: <Pine.LNX.4.30.0110191204210.21846-100000@hill.cs.ucr.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS perl-6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 19, 2001  12:35 -0700, Mike Castle wrote:
-> > On Oct 19, 2001  11:59 -0700, Mike Castle wrote:
-> > > Using Linus' 2.4.10, unpatched.  (Perhaps I need to patch the LVM stuff ;-)
-> > Very bad combination.  Don't use 2.4.10, don't use stock Linus LVM.
-> 
-> What needs to be done to get recent LVM into stock kernel?
-> 
-> I feel like it's the 2.2 RAID stuff all over again.
+Isn't this solved by just recompiling the kernel with HIGHMEM support?
 
-Well, it is mostly up-to-date in -ac, but I think the Sistina folks have
-given up on submitting it to Linus.  I do a bit now and then, but haven't
-made much of a real effort to get it fully up-to-date.  Maybe now that the
-whole block-device changes have settled down again I will submit a few
-patches.
+John
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+On Fri, 19 Oct 2001, Timur Tabi wrote:
+
+> vmalloc() fails after about 890MB because the kernel memory map is only for
+> about 1GB.  I know there are some hacks and work-arounds to get more than
+> that, but instead of reinventing the wheel, I was hoping some kind soul would
+> tell me how (a few hints would be nice!)
+>
+> The reason we use vmalloc() is because we need to apply memory pressure during
+> the allocating: memory should be swapped out to make room for our allocation.
+>
+> We're trying to allocate up to 3GB on a 4GB machine.  Thanks in advance!
+>
+> -
+> Kernelnewbies: Help each other learn about the Linux kernel.
+> Archive:       http://mail.nl.linux.org/kernelnewbies/
+> IRC Channel:   irc.openprojects.net / #kernelnewbies
+> Web Page:      http://www.kernelnewbies.org/
+>
+
+-- 
+John Tyner
+jtyner@cs.ucr.edu
 

@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264107AbUEHT2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264102AbUEHT2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264107AbUEHT2F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 15:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264103AbUEHT2F
+	id S264102AbUEHT2p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 15:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbUEHT2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 15:28:05 -0400
-Received: from ns.suse.de ([195.135.220.2]:13213 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264107AbUEHT2B (ORCPT
+	Sat, 8 May 2004 15:28:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2277 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264102AbUEHT2B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 8 May 2004 15:28:01 -0400
-Date: Sat, 8 May 2004 21:27:34 +0200
-From: Olaf Hering <olh@suse.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] make tags for selinux
-Message-ID: <20040508192734.GA21621@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+Date: Sat, 8 May 2004 12:27:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: manfred@colorfullife.com, davej@redhat.com, wli@holomorphy.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Maneesh Soni <maneesh@in.ibm.com>
+Subject: Re: dentry bloat.
+In-Reply-To: <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0405081216510.3271@ppc970.osdl.org>
+References: <20040506200027.GC26679@redhat.com> <20040506150944.126bb409.akpm@osdl.org>
+ <409B1511.6010500@colorfullife.com> <20040508012357.3559fb6e.akpm@osdl.org>
+ <20040508022304.17779635.akpm@osdl.org> <20040508031159.782d6a46.akpm@osdl.org>
+ <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org> <20040508120148.1be96d66.akpm@osdl.org>
+ <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-make tags skips security/selinux/include because of
-find . -name include -prune
-This patch does just add it later. No idea if it can be done better.
 
+On Sat, 8 May 2004, Linus Torvalds wrote:
+> 
+> 
+> On Sat, 8 May 2004, Andrew Morton wrote:
+> > 
+> > I think we can simply take ->d_lock a bit earlier in __d_lookup.  That will
+> > serialise against d_move(), fixing the problem which you mention, and also
+> > makes d_movecount go away.
+> 
+> If you do that, RCU basically loses most of it's meaning.
 
---- linux-2.6.5.orig/Makefile	2004-05-08 13:04:16.000000000 +0200
-+++ linux-2.6.5/Makefile	2004-05-08 21:14:06.808888847 +0200
-@@ -1001,6 +1001,8 @@ define all-sources
- 	       -name '*.[chS]' -print; \
- 	  find arch/$(ARCH) $(RCS_FIND_IGNORE) \
- 	       -name '*.[chS]' -print; \
-+	  find security/selinux/include $(RCS_FIND_IGNORE) \
-+	       -name '*.[chS]' -print; \
- 	  find include $(RCS_FIND_IGNORE) \
- 	       \( -name config -o -name 'asm-*' \) -prune \
- 	       -o -name '*.[chS]' -print; \
--- 
-USB is for mice, FireWire is for men!
+Hmm.. Maybe I'm wrong.
 
-sUse lINUX ag, nÜRNBERG
+In particular, it should be safe to at least do the name hash and parent
+comparison without holding any lock (since even if they are invalidated by
+a concurrent "move()" operation, doing the comparison is safe). By the
+time those have matched, we are probably pretty safe in taking the lock,
+since the likelihood of the other checks matching should be pretty high.
+
+And yes, removing d_movecount would be ok by then, as long as we re-test
+the parent inside d_lock (we don't need to re-test "hash", since if we
+tested the full name inside the lock, the hash had better match too ;)
+
+Comments?
+
+		Linus

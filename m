@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263977AbSJWMyw>; Wed, 23 Oct 2002 08:54:52 -0400
+	id <S264963AbSJWM6P>; Wed, 23 Oct 2002 08:58:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264961AbSJWMyw>; Wed, 23 Oct 2002 08:54:52 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:47062 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S263977AbSJWMyv>;
-	Wed, 23 Oct 2002 08:54:51 -0400
-Date: Wed, 23 Oct 2002 15:01:01 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: netdev@oss.sgi.com, Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [RESEND] tuning linux for high network performance?
-Message-ID: <20021023130101.GA646@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Roy Sigurd Karlsbakk <roy@karlsbakk.net>, netdev@oss.sgi.com,
-	Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200210231218.18733.roy@karlsbakk.net> <200210231306.18422.roy@karlsbakk.net>
+	id <S264964AbSJWM6P>; Wed, 23 Oct 2002 08:58:15 -0400
+Received: from rth.ninka.net ([216.101.162.244]:10134 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S264963AbSJWM6O>;
+	Wed, 23 Oct 2002 08:58:14 -0400
+Subject: Re: [miniPATCH] 2.5.44 fix compilation errors in the AFS fs
+From: "David S. Miller" <davem@rth.ninka.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jan Marek <linux@hazard.jcu.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1035368896.3968.31.camel@irongate.swansea.linux.org.uk>
+References: <20021023095601.GB12175@hazard.jcu.cz> 
+	<1035368896.3968.31.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 23 Oct 2002 06:16:10 -0700
+Message-Id: <1035378970.5950.1.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210231306.18422.roy@karlsbakk.net>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 01:06:18PM +0200, Roy Sigurd Karlsbakk wrote:
-> > I've got this video server serving video for VoD. problem is the P4 1.8
-> > seems to be maxed out by a few system calls. The below output is for ~50
-> > clients streaming at ~4.5Mbps. if trying to increase this to ~70, the CPU
-> > maxes out.
-
-'50 clients *each* streaming at ~4.4MBps', better make that clear, otherwise
-something is *very* broken. Also mention that you have an e1000 card which
-does not do outgoing checksumming.
-
-You'd think that a kernel would be able to do 250megabits of TCP checksums
-though.
-
-> ...adding the whole profile output - sorted by the first column this time...
+On Wed, 2002-10-23 at 03:28, Alan Cox wrote:
+> On Wed, 2002-10-23 at 10:56, Jan Marek wrote:
+> > The first of them fixed union afs_dirent_t and using this union in the
+> > fs/afs/dir.c.
+> > 
 > 
-> 905182 total                                      0.4741
-> 121426 csum_partial_copy_generic                474.3203
->  93633 default_idle                             1800.6346
->  74665 do_wp_page                               111.1086
+> What compiler are you using, this is building fine with the gcc's I
+> have. Is it 2.95 ?
 
-Perhaps the 'copy' also entails grabbing the page from disk, leading to
-inflated csum_partial_copy_generic stats?
+David Howells has a full set of patches to clean up the
+2.95 issues in AFS, they just didn't get integrated before
+Linus took off.
 
-Where are you serving from?
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

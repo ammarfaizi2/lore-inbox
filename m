@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271026AbTHCGlt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 02:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271030AbTHCGlt
+	id S271033AbTHCGwy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 02:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271034AbTHCGwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 02:41:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27795 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S271026AbTHCGls
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 02:41:48 -0400
-Message-ID: <3F2CAE9D.5090401@pobox.com>
-Date: Sun, 03 Aug 2003 02:41:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Shih <alan@storlinksemi.com>
-CC: Ben Greear <greearb@candelatech.com>, Nivedita Singhvi <niv@us.ibm.com>,
-       Werner Almesberger <werner@almesberger.net>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: TOE brain dump
-References: <ODEIIOAOPGGCDIKEOPILKEKKDAAA.alan@storlinksemi.com>
-In-Reply-To: <ODEIIOAOPGGCDIKEOPILKEKKDAAA.alan@storlinksemi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Aug 2003 02:52:54 -0400
+Received: from home.linuxhacker.ru ([194.67.236.68]:17793 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S271033AbTHCGwx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 02:52:53 -0400
+Date: Sun, 3 Aug 2003 10:49:37 +0400
+Message-Id: <200308030649.h736nbcj013727@car.linuxhacker.ru>
+From: Oleg Drokin <green@linuxhacker.ru>
+Subject: Re: 2.6.0-test2: crash in reiserfs at shutdown
+To: harri@synopsys.com, linux-kernel@vger.kernel.org
+References: <3F2B9823.7010503@Synopsys.COM>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Shih wrote:
-> A DMA xfer that fills the NIC pipe with IDE source. That's not very hard...
-> need a lot of bufferring/FIFO though.  May require large modification to the
-> file serving applications?
+Hello!
 
+Harald Dunkel <harri@synopsys.com> wrote:
 
-Nope, that's using the existing sendfile(2) facility.
+HD> Final words are
+HD>         kernel BUG at fs/reiserfs/prints.c: 339
 
-	Jeff
+There should be one line prior to that.
+This line explains what went wrong in reiserfs opinion.
+Can you please say us what was the line?
 
-
-
+Bye,
+    Oleg

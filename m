@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318045AbSHHXDW>; Thu, 8 Aug 2002 19:03:22 -0400
+	id <S318084AbSHHXG4>; Thu, 8 Aug 2002 19:06:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318046AbSHHXDW>; Thu, 8 Aug 2002 19:03:22 -0400
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:3076 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S318045AbSHHXDV>; Thu, 8 Aug 2002 19:03:21 -0400
-Message-Id: <5.1.1.6.2.20020809010514.00bb8258@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Fri, 09 Aug 2002 01:07:25 +0200
-To: linux-kernel@vger.kernel.org
-From: system_lists@nullzone.org
-Subject: Crash in 2.4.19 with a system with no changes (from .18)
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S318085AbSHHXG4>; Thu, 8 Aug 2002 19:06:56 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:33551 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S318084AbSHHXGz>;
+	Thu, 8 Aug 2002 19:06:55 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200208082309.g78N9Xs38843@saturn.cs.uml.edu>
+Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Thu, 8 Aug 2002 19:09:33 -0400 (EDT)
+Cc: frankeh@us.ibm.com (Hubertus Franke), riel@conectiva.com.br (Rik van Riel),
+       aebr@win.tue.nl (Andries Brouwer), akpm@zip.com.au (Andrew Morton),
+       andrea@suse.de, davej@suse.de, linux-kernel@vger.kernel.org (lkml),
+       plars@austin.ibm.com (Paul Larson)
+In-Reply-To: <Pine.LNX.4.44.0208081519010.1661236-100000@home.transmeta.com> from "Linus Torvalds" at Aug 08, 2002 03:26:00 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Crash in .19 with a system with no changes (from .18)
------------------------------------
-.
-.
-.
-agpgart: Maximum main memory to use for agp memory: 96M
-agpgart: Detected Intel 440BX chipset
-agpgart: AGP aperture is 32M @ 0xe4000000
-<- CRASH in 2.4.19
+Linus Torvalds writes:
 
+> "ps" seems to do ok from a visual standpoint at least up to 99 million. 
+> Maybe it won't look that good after that, I'm too lazy to test.
 
-It's continue perfectly in 2.4.28 as follow:
-  ataraid/d0: ataraid/d0p1
-Highpoint HPT370 Softwareraid driver for linux version 0.01
-.
-.
-.
+Mind sharing what "ps -fj", "ps -lf", and "ps j" look like?
+The standard tty is 80x24 BTW, and we already have serious
+problems due to ever-expanding tty names.
 
-
-ideas? patchs?
-
-Seeya
+How about a default limit of 9999, to be adjusted by
+sysctl as needed?
 

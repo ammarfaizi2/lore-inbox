@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290797AbSDMRCh>; Sat, 13 Apr 2002 13:02:37 -0400
+	id <S290818AbSDMRIw>; Sat, 13 Apr 2002 13:08:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292666AbSDMRCg>; Sat, 13 Apr 2002 13:02:36 -0400
-Received: from h52544c185a20.ne.client2.attbi.com ([24.147.41.41]:28170 "EHLO
-	luna.pizzashack.org") by vger.kernel.org with ESMTP
-	id <S290797AbSDMRCe>; Sat, 13 Apr 2002 13:02:34 -0400
-Date: Sat, 13 Apr 2002 13:02:33 -0400
-From: xystrus <xystrus@haxm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: link() security
-Message-ID: <20020413130233.A4743@pizzashack.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020411181524.A1463@figure1.int.wirex.com> <E16wQsU-0000cb-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S292588AbSDMRIv>; Sat, 13 Apr 2002 13:08:51 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:16654
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S290818AbSDMRIv>; Sat, 13 Apr 2002 13:08:51 -0400
+Date: Sat, 13 Apr 2002 10:06:21 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: VIA, 32bit PIO and 2.5.x kernel
+In-Reply-To: <3CB8314E.7050707@evision-ventures.com>
+Message-ID: <Pine.LNX.4.10.10204130948430.489-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 13, 2002 at 05:59:54PM +0100, Alan Cox wrote:
-> > http://openwall.com.  Work based on Solar Designer's Openwall patch has
-> > been brought forward to more recent 2.4 and 2.5 kernels.  Both the
-> > following projects implement the Openwall secure link feature:
-> > 
-> >   http://grsecurity.net
-> >   http://lsm.immunix.org
-> > 
-> > This can break some applications that make assumptions wrt. link(2)
-> > (Courier MTA for example).
-> 
-> How practical is it to make this a mount option and to do so cleanly ?
+Trimmed CC...
 
-Perhaps two options: one to allow creation of the link only when the
-UIDs match; and the other to allow the link when GIDs match, to keep
-Courier happy?
+Additional issues not fully address are 8-bit transfers.
+
+Lastly if a host can not do 16-bit transfers it is bad and broken and the
+OEM needs to be railed for it.  Defaulting to 32-bit with legacy hardware
+still in the mix will eat somebodies data.
+
+Much of this discussion as to expose a bogus policy of forcing hardware
+to 32-bit and causing other problems that are not reported in the proper
+light.  When people put DOC or ATA-Flash in the onboard host it will mess
+things up.  Since there are people who think it is okay to set policies in
+hardware and have gotten away with it, adding in the default to undo the
+bogusity will point that most hardware does not need the is junk and let
+it resided with the enduser.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Sat, 13 Apr 2002, Martin Dalecki wrote:
+
+> Russell King wrote:
+> > On Fri, Apr 12, 2002 at 10:04:12AM +0200, Martin Dalecki wrote:
+> > 
+> >>3. Make 32 bit PIO transfers the global default.
+> > 
+> > 
+> > This is fine, as long as you allow some interfaces to say "I really want
+> > to be 16-bit PIO only".
+> > 
+> > I *need* 16-bit transfers for many ARM-based IDE stuff.  32-bit is not
+> > an option on many, if not all ARM-based PCMCIA stuff.
+> 
+> What I wan't to disable is just the *unconditional* fallback to 16 bit IO
+> at some places. This and not more. This doens't even affect the physical setup 
+> between the host chip and the controller on disc.
+> The global "wheee I'm a poor and can't afford 32 bit IO" option will remain
+> there of course.
+> 
+> So we have no  issue here. OK?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

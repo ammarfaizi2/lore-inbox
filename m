@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262510AbSJEULv>; Sat, 5 Oct 2002 16:11:51 -0400
+	id <S262541AbSJEUQM>; Sat, 5 Oct 2002 16:16:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262528AbSJEULv>; Sat, 5 Oct 2002 16:11:51 -0400
-Received: from mallaury.noc.nerim.net ([62.4.17.82]:3854 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id <S262510AbSJEULu>; Sat, 5 Oct 2002 16:11:50 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 2.2] i386/dmi_scan updates
-From: Jean Delvare <khali@linux-fr.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Sat, 5 Oct 2002 22:19:06 CEST
-Reply-To: Jean Delvare <khali@linux-fr.org>
-X-Priority: 3 (Normal)
-X-Originating-Ip: [172.183.206.145]
-X-Mailer: Webmail Nerim (NOCC v0.9.5)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20021005201723.A1FA062D01@mallaury.noc.nerim.net>
+	id <S262560AbSJEUQM>; Sat, 5 Oct 2002 16:16:12 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:45979
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S262541AbSJEUQK>; Sat, 5 Oct 2002 16:16:10 -0400
+Message-ID: <3D9F49D9.304@redhat.com>
+Date: Sat, 05 Oct 2002 13:21:45 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20020812
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: Ben Collins <bcollins@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: New BK License Problem?
+References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <20021004140802.E24148@work.bitmover.com> <20021005175437.GK585@phunnypharm.org> <20021005112552.A9032@work.bitmover.com> <20021005184153.GJ17492@marowsky-bree.de> <20021005190638.GN585@phunnypharm.org> <3D9F3C5C.1050708@redhat.com> <20021005124321.D11375@work.bitmover.com>
+X-Enigmail-Version: 0.65.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->>  - Stop skipping DMI entries when type is less than those of the
->>    previous entry. I could see no reason for doing this.
+Larry McVoy wrote:
+>>patches in the kernel every day.  Now this isn't possible anymore without
+> 
+> 
+> Nonsense.  There are all sorts of people who have taken the BK trees and
+> made the patch snapshots available on timely basis.
 
-> Fixes crashes on certain vendors hardware. It shouldnt be
-> needed, however in the real world it proves to be a
-> rather essential heuristic. Dmidecode doesnt do it
-> because in userspace I dont mind spewing crap to show a
-> user a problem.
+That's not what I was talking about.  It is not possible anymore to use
+the same process we did.  It is not possible anymore to react right away
+on "Linus checked the patch in; try it.".  It now requires serious
+efforts.  And it requires them repeatedly at various sites with people
+who have the same problem.  Requiring others to make patch I can apply
+does not work since a) it would put extra burden on people who are
+already overworked and b) the timezones make it often impossible to get
+swift responses.
 
-This check has been removed in 2.4 though. I think it was needed when we were trusting the structure count (see version 1.1 of dmidecode) instead of also verifying we weren't running of the table. Now that this check is done, I don't see why we would need the heuristic anymore.
-
-(...)
-
->>  - Remove senseless tests in dump (debug) code.
-
-> These are also not senseless. Not everyone seems to use
-> the proper null string, sometimes you get spaces too
-
-I don't see how the check would protect us against anything. It only looks if the first char is a null byte or a white space. This is not very helpful, since on one hand such strings may be valid, and on the other hand invalid strings may pass the test.
-
-Also note that the white spaces check has been removed from 2.4.
-
-> The technical changes look right, and in theory all of it
-> does. In practice I'd rather see a patch that kept the
-> rule of thumb about order and the ' ' check
-
-A better way IMHO would be to "secure" the dmi_string function. If we can ensure it will always return a safe (that is, null terminated) string, we are done. Agreed?
-
-Jean Delvare
+You mentioned rsync to replicate the archive and then use CSSC.  Would
+be fine with me.  But: knowing how to set up rsync would probably
+require me to look at all the bk infrastructure and mechanisms more than
+I had to do in the whole time I was using bk the check out sources and
+while doing this I probably once again violate your license.
 
 
-___________________________________
-Webmail Nerim, http://www.nerim.net/
+And don't get me wrong: you have the right to use whatever license you
+want.  I don't complain about that.  I just point out the problem so
+that other don't run into the same problems after they started using bk
+and in the hope that somebody sets up a service which allows checking
+out the current sources in nearly the same time as they are available in
+the bk repository without relying on bk (rsync, cvs, subversion, I don't
+care how).
 
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE9n0nZ2ijCOnn/RHQRAvDpAJ0ZXkNJKMt+ExMUnwxbOOP9a3xAxgCgwiwX
+U+zaoRwM9UVwsJedk/IysVg=
+=RTrB
+-----END PGP SIGNATURE-----
 

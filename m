@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266536AbRGDICT>; Wed, 4 Jul 2001 04:02:19 -0400
+	id <S266539AbRGDID7>; Wed, 4 Jul 2001 04:03:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266538AbRGDICK>; Wed, 4 Jul 2001 04:02:10 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:43280 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S266536AbRGDICA>;
-	Wed, 4 Jul 2001 04:02:00 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S266538AbRGDIDu>; Wed, 4 Jul 2001 04:03:50 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:6670 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266539AbRGDIDj>; Wed, 4 Jul 2001 04:03:39 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Why Plan 9 C compilers don't have asm("")
+Date: 4 Jul 2001 01:03:13 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9huik1$grm$1@cesium.transmeta.com>
+In-Reply-To: <200107040337.XAA00376@smarty.smart.net> <20010703233605.A1244@zalem.puupuu.org> <20010704002436.C1294@ftsoj.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15170.52297.374186.21895@tango.paulus.ozlabs.org>
-Date: Wed, 4 Jul 2001 17:56:57 +1000 (EST)
-To: mdaljeet@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: virt_to_bus and virt_to_phys on Apple G4 target
-In-Reply-To: <CA256A7E.0020F52C.00@d73mta01.au.ibm.com>
-In-Reply-To: <CA256A7E.0020F52C.00@d73mta01.au.ibm.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mdaljeet@in.ibm.com writes:
+Followup to:  <20010704002436.C1294@ftsoj.fsmlabs.com>
+By author:    Cort Dougan <cort@fsmlabs.com>
+In newsgroup: linux.dev.kernel
+>
+> There isn't such a crippling difference between straight-line and code with
+> unconditional branches in it with modern processors.  In fact, there's very
+> little measurable difference.
+> 
+> If you're looking for something to blame hurd performance on I'd suggest
+> the entire design of Mach, not inline asm vs procedure calls.  Tossing a
+> few context switches into calls is a lot more expensive.
+> 
 
-> I am running linux 2.4.2 on Apple G4 machine. I think the 'PCI bus
-> addresses' and 'physical addresses' are same on this architecture. I
+That's not where the bulk of the penalty of a function call comes in
+(and it's a call/return, not an unconditional branch.)  The penalty
+comes in because of the additional need to obey the calling
+convention, and from the icache discontinuity.
 
-They are the same on an Apple G4 but not necessarily on other PowerPC
-machines.  It depends on the PCI host bridge implementation.
+Not to mention that certain things simply cannot be done that way.
 
-> expected the two be different but according to asm/io.h 'virt_to_bus(addr)
-> = virt_to_phys(addr) + PCI_DRAM_OFFSET'. I printed the value of
-> 'PCI_DRAM_OFFSET' and that come out to be zero. Is this correct?
+	-hpa
 
-Yes, for an Apple G4.
-
-> If I somehow get the physical address of a user space buffer in a module
-> and take this as a PCI bus address, will I be able to do DMA properly?
-
-Yes, on an Apple G4.  If you use virt_to_bus then it should work on
-all PowerPC machines that I know of (that run 32-bit PPC/Linux).  But
-as Dave points out, you should use the interfaces described in
-Documentation/DMA-mapping.txt instead if at all possible.  It's quite
-possible that virt_to_bus will be removed during 2.5.x development.
-
-Paul.
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

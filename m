@@ -1,84 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263933AbRFXJme>; Sun, 24 Jun 2001 05:42:34 -0400
+	id <S263927AbRFXJjo>; Sun, 24 Jun 2001 05:39:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263948AbRFXJmZ>; Sun, 24 Jun 2001 05:42:25 -0400
-Received: from iq.sch.bme.hu ([152.66.214.168]:37052 "EHLO iq.rulez.org")
-	by vger.kernel.org with ESMTP id <S263933AbRFXJmQ>;
-	Sun, 24 Jun 2001 05:42:16 -0400
-Date: Sun, 24 Jun 2001 11:54:25 +0200 (CEST)
-From: Sasi Peter <sape@iq.rulez.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: [OT] gcc 2.95.2 vs. 3.0 (fwd)
-Message-ID: <Pine.LNX.4.33.0106241143220.30968-100000@iq.rulez.org>
+	id <S263933AbRFXJjf>; Sun, 24 Jun 2001 05:39:35 -0400
+Received: from smarty.smart.net ([207.176.80.102]:58116 "EHLO smarty.smart.net")
+	by vger.kernel.org with ESMTP id <S263927AbRFXJjX>;
+	Sun, 24 Jun 2001 05:39:23 -0400
+From: Rick Hohensee <humbubba@smarty.smart.net>
+Message-Id: <200106240950.FAA07005@smarty.smart.net>
+Subject: The Joy of Forking
+To: linux-kernel@vger.kernel.org
+Date: Sun, 24 Jun 2001 05:50:20 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-first of all, if you are not interested in compiler comparision, just
-skip.
+2.4.5 is 26 meg now. It's time to consider forking the kernel. Alan has
+already stuck his tippy-toe is that pool, and his toe is fine.
 
-I though posting a little demonstration of how well performing code gcc
-2.95.2 generates (vs. gcc 3.0) won't hurt. Also shown, that further
-optimatizations are anything but impossible (using Intel's commercial c
-compiler).
+The "thou shalt not fork" commandment made sense at one point, when free
+unix was a lost tribe wandering hungry in the desert. When you have a
+project with several million users that has a scope that simply doesn't
+scale, it doesn't. Forking should be done responsibly, and with great joy.
+As in nature, software success breeds diversity. Linux should diversify.
+This is cause for celebration, ceremony, throwing of bouquets and so on.
 
-I know opendivx code is not like kernel code at all, but on the other hand
-it is well suited for benchmark testing.
+I have done a few trivial things that people with rather shallow ideas of
+what unix is about have excoriated as "NOT UNIX!". So far that's been
+absurd, but my stuff is getting more intrusive. Linux is far more
+interesting to me for it's general usefulness and openness, which are
+inextricably related, than for it's unixness, although unix is certainly
+beautiful.
 
-Maybe this will cool down thoose a bit, who were to move to gcc 3.0 as
-fast as possible, for the _way_ better generated code...
+Alan was going to file for divorce over dev_t. Isn't is funny how
+estranged couples so often are so much alike? dev_t is crucial, of course,
+but it's not the biggest geological fault in the kernel. SMP is. I have
+dropped hints about this before. An SMP system is more fundamentally
+different than UP than a 386 is different than other big microprocessors.
 
--- 
-SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
+As I mentioned that Steve Ballmer mentioned, Linux isn't getting any
+traction on the client, the end-user desktop box. That's a huge and poorly
+served market, so there are lots of tragically shallow ideas of how to
+approach it. A few variations on the Linux theme are in order, that
+preserve unixness, openness, but that don't have pretenses of being Big
+UNIX(TM).
 
----------- Forwarded message ----------
-Date: Sun, 24 Jun 2001 04:31:56 +0200 (CEST)
-From: Arpi <arpi@thot.banki.hu>
-Reply-To: mplayer-users@lists.sourceforge.net
-To: mplayer-users@lists.sourceforge.net
-Subject: [Mplayer-users] gcc 2.95.2 vs. 3.0
+For a client-use Linux kernel, I suggest, and will be and have been
+persuing, features and non-features such as...
 
-Hi,
-
-Just compiled and try gcc 3.0 stable.
-And the results is very big surprise! It makes *SLOWER* code!
-
-test file:  (opendivx with postprocessing, this stuff is written in C)
-# mplayer -osdlevel 0 -nosound -benchmark 1800.avi -vo null -pp 15
-VIDEO:  [divx]  640x352  24bpp  23.98 fps  1865.1 kbps (227.7 kbyte/s)
-
-hardware: celeron-2 600 @ 900MHz (100MHz FSB), 256MB RAM (PC133, at 2/2/2)
-(sse,mmx,mmxext enabled)
-
-gcc 2.95.2 result:  (flags: -O4 -march=i686 -mcpu=i686 -pipe -ffast-math)
-BENCHMARKs: V:   5.087s VO:   0.001s A:   0.000s Sys:   0.013s =    5.101s
-BENCHMARK%: V: 99.7160% VO:  0.0258% A:  0.0000% Sys:  0.2582% = 100.0000%
-
-gcc 3.0 result:  (flags: -O4 -march=i686 -mcpu=i686 -pipe -ffast-math)
-BENCHMARKs: V:   5.194s VO:   0.001s A:   0.000s Sys:   0.013s =    5.208s
-BENCHMARK%: V: 99.7309% VO:  0.0221% A:  0.0000% Sys:  0.2471% = 100.0000%
-
-yes, speed diff isn't big, but i was prepared for big speed boost by 3.0,
-and then i got speed loss! :(
-
-if i recompile C-only parts of decore with intel's commercial C compiler
-(free beta available for linux), it's about 15% faster:
-
-icc result:  (optim. flags: -O2 -fp -rcd -tpp6 -xiMK)
-BENCHMARKs: V:   4.415s VO:   0.001s A:   0.000s Sys:   0.013s =    4.429s
-BENCHMARK%: V: 99.6676% VO:  0.0290% A:  0.0000% Sys:  0.3034% = 100.0000%
+	forget POSIX
+		The standards that matter are de-facto standards. Linux is the
+		standard. Congratulations. Take your seat in the chair for 
+		First Violin. 
+	rtlinux by default
+	no SMP
+		SMP doesn't scale. If this fork comes, the smart maintainer
+		will take the non-SMP fork.
+	x86 only (and similar, e.g. Crusoe)
+	mimimal VM cacheing
+		So you can red-switch the box without journalling with
+		reasonable damage, which for an end-user is a file or two.
+		Having done a lot of very wrong things with Linux, I'm 
+		impressed that ext2 doesn't self-destruct under abuse.
+	in-kernel interpreter
+		I have one working. It's fun. 
+	EOL is CR&LF
+		The one thing Dos got right and unix got wrong. Also, in my
+		2-month experience in a cube on a LAN, the most annoying thing
+		about trying to be a Linux end-user in a Dos shop. Printers
+		are CRLF, fer crissakes.
+		This is not a difficult mod, but it's a lot of little changes
+		throughout a box. Things that look for EOLs are the part that
+		has to be fixed by hand, and can be inclusive of CRLF and LF.
+	Plan 9-style header files structure
+		Plan 9's most amazing stuff to me is the subtle refinements,
+		like sane header files. Sane C header files, _oh_ _my_ _God_.  
+	excellent localizability
+		e.g. kernel error strings mapped to a file, or an #include
+		that can be language-specific. My DSFH stuff also. 
 
 
-A'rpi / Astral & ESP-team
+What about GUI's, and "desktops" and such? They're nice. They are
+secondary, however. The free unix world doesn't often enough make the
+point that GUI's are much more important when the underlying OS sucks,
+which it doesn't in Linux. 
 
---
-mailto:arpi@thot.banki.hu
-http://esp-team.scene.hu
+In short, an open source OS for end-users should be very serious about
+simplicity, and not just pay lip-service to it. There is evidence of the
+value of this in the marketplace. What doesn't exist is an OS where
+simplicity is systemic. This is why end-user issues pertain to the kernel
+at all. This is how open source should be. Simple, or at least clear,
+through and through. Linux has lost a lot of simplicity since I got into
+it in '96, and that is a loss.
 
-_______________________________________________
-Mplayer-users mailing list
-Mplayer-users@lists.sourceforge.net
-http://lists.sourceforge.net/lists/listinfo/mplayer-users
-
+Rick Hohensee
+www.clienux.com

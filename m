@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbUK3WEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262348AbUK3WLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbUK3WEK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 17:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbUK3WEK
+	id S262348AbUK3WLK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 17:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbUK3WLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 17:04:10 -0500
-Received: from mail4.bluewin.ch ([195.186.4.74]:51411 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id S261262AbUK3WEI (ORCPT
+	Tue, 30 Nov 2004 17:11:10 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:32743 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262348AbUK3WLG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 17:04:08 -0500
-Date: Tue, 30 Nov 2004 23:04:10 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] net/via-rhine: convert MODULE_PARM to module_param
-Message-ID: <20041130220410.GB29947@k3.hellgate.ch>
-References: <Pine.LNX.4.61.0411300053190.3432@dragon.hygekrogen.localhost> <20041130140309.GA6568@k3.hellgate.ch> <Pine.LNX.4.61.0411302241260.3635@dragon.hygekrogen.localhost>
+	Tue, 30 Nov 2004 17:11:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=pxl4PyKFD6AoTtS6VJiH7YLWqvCcK5hnnYI/T1pll1avgyLL8Hi5+Fsneq2J4dM3RZ5xxpr1yKAwqopSCBdNUzp9B/P9ylyCfs8/9MZ+aJJS8kbsTbr5i6z3CFggW4FRrrzoydLWUJdaPF1WJFiuBkWiw4zUZyJE3acNkaobL4s=
+Message-ID: <ce70c490411301411e8de2ee@mail.gmail.com>
+Date: Tue, 30 Nov 2004 20:11:05 -0200
+From: =?ISO-8859-1?Q?C=EDcero?= <cicero.mota@gmail.com>
+Reply-To: =?ISO-8859-1?Q?C=EDcero?= <cicero.mota@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Information about move_tasks return
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411302241260.3635@dragon.hygekrogen.localhost>
-X-Operating-System: Linux 2.6.10-rc2-bk11 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Nov 2004 22:44:37 +0100, Jesper Juhl wrote:
-> already moved to module_param().  There's one difference though, and I 
-> think it matters; my patch sets the permission bits so that the parameters 
-> get exposed in sysfs (which I think is very useful), the driver in -mm 
-> sets the perms to 0 (zero) so nothing is exposed in sysfs (less useful).
+> So as the "documentation" states, it returns the number of tasks
+> actually moved.  For instance, The balancing code may request 4 tasks be
+> moved, but for various reasons, only 2 were actually moved to other
+> CPUs, move_tasks() would return 2.
 
-I am not familiar with the issue. Can you work out with the submitter of
-the -mm patch why it was coded that way, and if your version is better?
+hi,
 
-Roger
+Can you speak more about those various reasons? or tell me where I can
+find out more information ?
+
+
+[]s
+:wq!

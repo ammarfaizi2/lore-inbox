@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267570AbUBSVRE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 16:17:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267321AbUBSVRD
+	id S267376AbUBSVOq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 16:14:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbUBSVOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 16:17:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44759 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267386AbUBSVP5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 16:15:57 -0500
-Date: Thu, 19 Feb 2004 13:08:08 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Carlos Silva" <r3pek@r3pek.homelinux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hot kernel change
-Message-Id: <20040219130808.0eab897e.rddunlap@osdl.org>
-In-Reply-To: <12608.62.229.71.110.1077197623.squirrel@webmail.r3pek.homelinux.org>
-References: <12608.62.229.71.110.1077197623.squirrel@webmail.r3pek.homelinux.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 19 Feb 2004 16:14:46 -0500
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:60426
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S267376AbUBSVN0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 16:13:26 -0500
+Date: Thu, 19 Feb 2004 13:14:25 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Intel x86-64 support patch breaks amd64
+Message-ID: <20040219211425.GA8282@atomide.com>
+References: <9AB83E4717F13F419BD880F5254709E5011EB8BD@scsmsx402.sc.intel.com> <20040220202914.40ef613b.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040220202914.40ef613b.ak@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Feb 2004 13:33:43 -0000 (WET) "Carlos Silva" <r3pek@r3pek.homelinux.org> wrote:
+* Andi Kleen <ak@suse.de> [040219 13:02]:
+> On Thu, 19 Feb 2004 12:45:19 -0800
+> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+> >
+> > Andi, Appended patch should fix the problem reported by Tony.
+> 
+> Which change exactly is supposed to fix it? And why? 
+> 
+> For me the UP kernel boots just fine.
 
-| hi,
-| 
-| i would like to know if isn't it possible to implement a hot kernel
-| change, i mean, without reboot. i would do it myself if i had the knoledge
-| to do it but i'm starting with kernel-level programing now. i think it
-| would be possible if we make something like M$'s OS do when it hibernates,
-| copy all the memory, registers, etc to the disc and then put all back
-| again.
-| 
-| am i dreaming or this is possible? :)
+Thanks Suresh, that did it. I bet it's the GDT_ENTRIES change in segment.h
+that was the real cause of my system not booting.
 
-The kexec patch is basically "linux reboots linux".
-It bypasses the firmware/BIOS to do the reboot.
+That's what I meant with having all parts of the original cset undone,
+except for the *.h file changes. Even with only the *.h parts of the cset
+included in my tree would cause the system _not_ boot.
 
-Patches for 2.6.0 and 2.6.1 are here (I haven't updated for
-2.6.2 or 2.6.3 yet):
-  http://developer.osdl.org/rddunlap/kexec/
+Let me know if you need more patches tested, gotta do some work now that the
+system runs again :)
 
-Patches for some 2.5.x kernels are here:
-  http://www.xmission.com/~ebiederm/files/kexec/
+Anybody got any information why the ioapic interrupt programming fails on VIA
+based K8 boards, BTW?
 
-kexec does reduce reboot time quite a bit on some machines, but
-there is still a noticeable pause.
+Regards,
 
---
-~Randy
+Tony

@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbTJXWR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 18:17:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTJXWR0
+	id S262678AbTJXWHf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 18:07:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbTJXWHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 18:17:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21229 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262686AbTJXWMi (ORCPT
+	Fri, 24 Oct 2003 18:07:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49130 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262678AbTJXWHd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 18:12:38 -0400
-Date: Fri, 24 Oct 2003 15:12:36 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: marcelo.tosatti@cyclades.com
-Cc: sarnold@immunix.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] sysctl core_setuid_ok fix
-Message-ID: <20031024151236.B19328@osdlab.pdx.osdl.net>
+	Fri, 24 Oct 2003 18:07:33 -0400
+Date: Fri, 24 Oct 2003 15:08:21 -0700
+From: Dave Olien <dmo@osdl.org>
+To: kernel@kolivas.org, piggin@cyberone.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [BUG] linux 2.6.0-test8 reaim tests fail to exit
+Message-ID: <20031024220821.GA15231@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Resend, to fix bad Cc: adress]
 
-The sysctl kern_table entry part of the core_setuid_ok patch has wrong
-ctl_name.  Patch below is against current 2.4.23-pre8-bk.  Seth Arnold
-pointed this problem out to me.
+I've observed in the last two days, linux 2.6.0-test8 and I think
+linux 2.6.0-test8-mm1.  The reaim test workload fails to exit.
+All of the reaim tasks are blocked in sys_wait4().  But non of
+them seem to have any obvious child processes.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+There are also lots of sync() processes.  Many of those seem to be
+blocked somewhere scheduling IO.  These kernels were all with the
+as-isoched IO scheduler.  I may retry with deadline scheduler, just
+to rule out IO scheduler. Is there any link between the sync()
+processes and the reaim waiting for children?
 
+Could there be a problem with IO not completing for the sync()
+tasks that causes the reaim tasks to not complete?
 
-===== kernel/sysctl.c 1.28 vs edited =====
---- 1.28/kernel/sysctl.c	Wed Oct  8 07:35:22 2003
-+++ edited/kernel/sysctl.c	Fri Oct 24 14:37:35 2003
-@@ -180,7 +180,7 @@
- 	 0644, NULL, &proc_dointvec},
- 	{KERN_CORE_USES_PID, "core_uses_pid", &core_uses_pid, sizeof(int),
- 	 0644, NULL, &proc_dointvec},
--	{KERN_CORE_USES_PID, "core_setuid_ok", &core_setuid_ok, sizeof(int),
-+	{KERN_CORE_SETUID, "core_setuid_ok", &core_setuid_ok, sizeof(int),
- 	0644, NULL, &proc_dointvec},
- 	{KERN_CORE_PATTERN, "core_pattern", core_pattern, 64,
- 	 0644, NULL, &proc_dostring, &sysctl_string},
+Attached is a console output from a system hung in this state.
+Included (towards the bottom) is a sysrq t output.
 
+I'm hoping to investigate this more closely over the week end.

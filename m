@@ -1,42 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288019AbSCCTDZ>; Sun, 3 Mar 2002 14:03:25 -0500
+	id <S288086AbSCCTKt>; Sun, 3 Mar 2002 14:10:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288050AbSCCTDP>; Sun, 3 Mar 2002 14:03:15 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:35085 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288019AbSCCTDI>;
-	Sun, 3 Mar 2002 14:03:08 -0500
-Date: Sun, 3 Mar 2002 16:02:43 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "T. A." <tkhoadfdsaf@hotmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Question on the rmap VM
-In-Reply-To: <OE50LayI4TY7zD5J47O00005d3d@hotmail.com>
-Message-ID: <Pine.LNX.4.44L.0203031602060.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288071AbSCCTKj>; Sun, 3 Mar 2002 14:10:39 -0500
+Received: from pc-62-31-78-67-ed.blueyonder.co.uk ([62.31.78.67]:27047 "EHLO
+	linux.local") by vger.kernel.org with ESMTP id <S288051AbSCCTK0>;
+	Sun, 3 Mar 2002 14:10:26 -0500
+Date: Sun, 3 Mar 2002 19:10:18 +0000
+From: rob@mur.org.uk
+To: linux-kernel@vger.kernel.org
+Subject: Re: strange hang with promise ide and 2.4.18
+Message-ID: <20020303191018.GB1022@mur.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020302134523.GA1022@mur.org.uk> <20020303173341.GO28780@lan.berghof.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020303173341.GO28780@lan.berghof.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Mar 2002, T. A. wrote:
-
-> I read a while ago that the switch in 2.4.10 to the new AA VM fixed that
-> issue.
-
-The thing was fixed around 2.4.8-pre, about 2 or 3 months
-before Linus made the switch to -aa.
-
-> Will rmap bring back that 2x requirement?
-
-No.
-
-Rik
+Thanks, I'll try it. Btw, I think 2.4.9 was working fine, but I haven't tried it recently.
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Rob Murray

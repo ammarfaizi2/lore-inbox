@@ -1,98 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311523AbSDNAPY>; Sat, 13 Apr 2002 20:15:24 -0400
+	id <S310666AbSDNA1c>; Sat, 13 Apr 2002 20:27:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311530AbSDNAPX>; Sat, 13 Apr 2002 20:15:23 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:63224
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S311523AbSDNAPW>; Sat, 13 Apr 2002 20:15:22 -0400
-Date: Sat, 13 Apr 2002 17:17:43 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Luigi Genoni <kernel@Expansa.sns.it>,
-        Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: RAID superblock confusion
-Message-ID: <20020414001743.GW23513@matchmail.com>
-Mail-Followup-To: Richard Gooch <rgooch@ras.ucalgary.ca>,
-	Luigi Genoni <kernel@Expansa.sns.it>,
-	Andreas Dilger <adilger@clusterfs.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020410233641.GG23513@matchmail.com> <Pine.LNX.4.44.0204111202440.17727-100000@Expansa.sns.it> <200204131929.g3DJT5g06645@vindaloo.ras.ucalgary.ca> <20020413235538.GU23513@matchmail.com> <200204140000.g3E00DX09756@vindaloo.ras.ucalgary.ca>
+	id <S311530AbSDNA1b>; Sat, 13 Apr 2002 20:27:31 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:41744 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S310666AbSDNA1b>;
+	Sat, 13 Apr 2002 20:27:31 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Denis Zaitsev <zzz@cd-club.ru>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: FIXED_486_STRING ? 
+In-Reply-To: Your message of "Sat, 13 Apr 2002 22:47:43 +0600."
+             <20020413224743.A13355@natasha.zzz.zzz> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Date: Sun, 14 Apr 2002 10:27:18 +1000
+Message-ID: <32667.1018744038@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 13, 2002 at 06:00:13PM -0600, Richard Gooch wrote:
-> Mike Fedyk writes:
-> > On Sat, Apr 13, 2002 at 01:29:05PM -0600, Richard Gooch wrote:
-> > > Luigi Genoni writes:
-> > > > 
-> > > > > > >
-> > > > > > > Ehh, I ran into this a while ago.  When you compile raid as modules
-> > > > > > > it doesn't use the raid superblocks for anything except for
-> > > > > > > verification.  I took a quick glance at the source and the
-> > > > > > > auto-detect code is ifdefed out if you compiled as a module.
-> > > > > >
-> > > > > > Exactly where is this? A scan with find and grep don't reveal this.
-> > > > > >
-> > > > >
-> > > > > drivers/md/md.c
-> > > > >
-> > > > > in the ifndef MODULE sectioin.
-> > > > >
-> > > > > > > Ever since I have had raid compiled into my kernels.
-> > > > > >
-> > > > > > This is my relevant .config:
-> > > > > > CONFIG_MD=y
-> > > > > > CONFIG_BLK_DEV_MD=y
-> > > > > > CONFIG_MD_LINEAR=m
-> > > > > > CONFIG_MD_RAID0=m
-> > > > > > CONFIG_MD_RAID1=m
-> > > > > > CONFIG_MD_RAID5=m
-> > > > > > CONFIG_MD_MULTIPATH=m
-> > > > > >
-> > > > >
-> > > > > Set this to =y and you're set.
-> > > > >
-> > > > > I'd like to see this working from modules though.
-> > > > 
-> > > > NO, please. There are hundreds of scenarios where that could be
-> > > > dangerous.  Suppose you load the RAID module when all partitions are
-> > > > mounted, and two partiton in mirror are mount on different mount
-> > > > point (you can do this, raid module is not loaded, and so...). And
-> > > > now you load the module and md device is registered. That would not
-> > > > be really nice, also if it is ulikely that you could damnage your
-> > > > system
-> > > 
-> > > The RAID code checks to see if there are busy inodes for each device
-> > > in a RAID set. So your hundreds of scenarios are not a problem.
-> > > 
-> > 
-> > I had a machine that had raid1 setup correctly but was accidentally
-> > configured to root=/dev/hda1 (one member of the md0 raid1 set).
-> > 
-> > All was well until I noticed I wasn't rooting from md0, so reboot with new
-> > root=/dev/md0 and now my filesystem is b0rked (maybe because hdc1 was the
-> > primary mirror?).
-> > 
-> > Luckily I was still setting up that machine so I just reinstalled it.
-> > 
-> > This was with raid compiled into the kernel, so it's not a module checking
-> > issue, and I consider it a user error.  But maybe someone else thinks
-> > different...
-> 
-> Yep, user error. Just like if you dd if=/dev/zero of=/dev/hda2 but
-> meant to write to /dev/hda1 instead, and /dev/hda2 has your OS while
-> /dev/hda1 had M$ which you wanted to erase and re-install. Not much to
-> be done about that. One learns best by fucking up :-)
-> 
+On Sat, 13 Apr 2002 22:47:43 +0600, 
+Denis Zaitsev <zzz@cd-club.ru> wrote:
+>What is the state of the FIXED_486_STRING macro?  It is used once thru
+>all the kernel tree - in include/asm-i386/string.h - and it seems that
+>its role is to disable a usage of string-486.h completely...  Am I
+>right?
 
-One can also argue that raid (sh|c)ould lock the devices that it has been
-started on also...
+Dead code, it has been dead since at least 2.0.21.  Unless somebody
+wants to fix the string-486 code, delete FIXED_486_STRING,
+CONFIG_X86_USE_STRING_486 and include/asm-i386/string-486.h.
 
-But it is the unix way to give the root user lots of rope to hang
-him/herself, and what keeps the root user from trying to erase the entire
-drive (hda instead of hda1) instead of just the locked partition?

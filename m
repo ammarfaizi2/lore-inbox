@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264398AbTLWCie (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 21:38:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264433AbTLWCie
+	id S264473AbTLWClB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 21:41:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbTLWClA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 21:38:34 -0500
-Received: from dp.samba.org ([66.70.73.150]:65003 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264398AbTLWCid (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 21:38:33 -0500
-Date: Tue, 23 Dec 2003 13:25:28 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: admin@zionsecure.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.0 debian "No module symbols loaded - kernel modules
- not enabled."
-Message-Id: <20031223132528.0dc06a0c.rusty@rustcorp.com.au>
-In-Reply-To: <1072070706.2273.5.camel@noc.zionsecure.com>
-References: <1072070706.2273.5.camel@noc.zionsecure.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Dec 2003 21:41:00 -0500
+Received: from [24.35.117.106] ([24.35.117.106]:5260 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S264473AbTLWCk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 21:40:56 -0500
+Date: Mon, 22 Dec 2003 21:40:53 -0500 (EST)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: synaptics mouse jitter in 2.6.0
+Message-ID: <Pine.LNX.4.58.0312222127530.18261@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Dec 2003 00:25:07 -0500
-Brian Toovey <admin@zionsecure.com> wrote:
+I am running Fedora Core 1 updated on a Presario 12XL325 laptop.  For a 
+long time during the 2.5 series I couldn't use the synaptics support.  As 
+a result, I haven't tested this for some time.  I just compiled a fresh 
+2.6.0 tree, included synaptics support and now I am getting mouse jitter.
 
-> Basic problem - my kernel modules wont load on boot.
+The easiest way to see this is to open Mozilla and go to a page with a lot 
+of text links such as a news site with links to a number of stories.  
+With synaptics support compiled in I get side to side jitter when moving 
+the mouse over a link.  It looks as if my finger has a nervous twitch in 
+it.  Then, when I take my finger off the touchpad to click on the link, 
+the mouse cursor jumps about an eighth of an inch in a random direction.  It 
+is very annoying since the jump takes it off the link and I can't click on 
+it.
 
-This doesn't seem to be a kernel issue.
-
-> Dec 21 18:33:54 noc kernel: Symbols match kernel version 2.6.0.
-> Dec 21 18:33:54 noc kernel: No module symbols loaded - kernel modules
-> not enabled. 
-
-This is output from klogd.  Since you have CONFIG_KALLSYMS enabled, you
-shouldn't need this anyway.
-
-Cheers,
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+Compiling synaptics support out gets me back to a stable mouse cursor.

@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264810AbSKNKMe>; Thu, 14 Nov 2002 05:12:34 -0500
+	id <S264822AbSKNKWL>; Thu, 14 Nov 2002 05:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264814AbSKNKMe>; Thu, 14 Nov 2002 05:12:34 -0500
-Received: from ns.suse.de ([213.95.15.193]:7177 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S264810AbSKNKMd>;
-	Thu, 14 Nov 2002 05:12:33 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: module mess in -CURRENT
-References: <20021114000206.A8245@infradead.org.suse.lists.linux.kernel> <Pine.LNX.4.44.0211131655580.6810-100000@home.transmeta.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 14 Nov 2002 11:19:26 +0100
-In-Reply-To: Linus Torvalds's message of "14 Nov 2002 02:02:58 +0100"
-Message-ID: <p731y5owj0x.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S264825AbSKNKWL>; Thu, 14 Nov 2002 05:22:11 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:19724 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S264822AbSKNKWK>; Thu, 14 Nov 2002 05:22:10 -0500
+Date: Thu, 14 Nov 2002 11:28:57 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Modules and the Interfaces who Love Them (Take I) 
+In-Reply-To: <20021114032456.5676D2C0C9@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0211141106200.2113-100000@serv>
+References: <20021114032456.5676D2C0C9@lists.samba.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+Hi,
 
-> (There are some other patches I'm still thinking about, notably kprobes
-> and posix timers, but other than that my plate is fairly empty froma
-> feature standpoint. And the kexec stuff I want others to test, at least
-> now it's palatable to me).
+On Thu, 14 Nov 2002, Rusty Russell wrote:
 
-How about the nanosecond stat stuff? It is needed for reliable make.
+> Look, your implementation was slow, confusing, invasive, inflexible
+> *and* buggy.
 
-If I sent you a patch would you still consider it? It is not that intrusive, 
-but needs straightforward editing in all file systems.
+My patch was meant as demonstration, you reduce it to a single aspect - 
+the module - driver interface.
+The patch was intended to demonstrate more. First of all, how to fix the 
+module mess without breaking everything. It demonstrated a way to 
+introduce a new interface without breaking compability. The new driver 
+interface on top of it was optional, it could also have been the old 
+interface or your monster refs.
 
--Andi
+> I seriously question your taste in this matter.  You obviously hold a
+> personal dislike for my code.   Fine.
+
+Doing to the linking in the kernel is just plain wrong. Most of the module 
+code could perfectly live in user space and it could be as simple as your 
+kernel loader.
+
+> > maybe I'm missing something, but it doesn't fix anything
+> 
+> Then you don't understand the problem.
+
+Maybe you could explain, what problems it fixes, that justifies complete 
+breakage?
+
+bye, Roman
+

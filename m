@@ -1,42 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbULOFbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbULOFpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbULOFbv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 00:31:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbULOFbv
+	id S261897AbULOFpz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 00:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbULOFpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 00:31:51 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:47559 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261896AbULOFbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 00:31:46 -0500
-Message-ID: <41BFCC47.4050700@namesys.com>
-Date: Tue, 14 Dec 2004 21:31:51 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Masover <ninja@slaphack.com>
-CC: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>,
-       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: file as a directory
-References: <200412141930.iBEJUGdB019336@laptop11.inf.utfsm.cl> <41BFC2FC.80905@slaphack.com>
-In-Reply-To: <41BFC2FC.80905@slaphack.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Dec 2004 00:45:55 -0500
+Received: from almesberger.net ([63.105.73.238]:27398 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261897AbULOFpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 00:45:46 -0500
+Date: Wed, 15 Dec 2004 02:45:12 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Hans Reiser <reiser@namesys.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       abiss-general@lists.sourceforge.net
+Subject: Re: filesystem/kernel programmer needed for reiser4/low latency work [...]
+Message-ID: <20041215024512.B4527@almesberger.net>
+References: <41AE06BF.3030700@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41AE06BF.3030700@namesys.com>; from reiser@namesys.com on Wed, Dec 01, 2004 at 10:00:31AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Masover wrote:
+Hans Reiser wrote:
+> I have a US customer who needs work done that involves figuring out why 
+> the kernel/filesystem/hard drive adds pauses that cause video glitches.  
 
->
->
-> Remember that a filesystem is a specialized database. It is specialized
-> for performance. 
+Welcome to the club :-) We're working on fairly similar issues
+in the ABISS project, http://abiss.sourceforge.net/
 
-Yes, this is exactly right.  The reason earlier efforts to generalize 
-filesystems failed was performance, and the reason performance reduced 
-was a lack of hard work on the problem.
+> This is much deeper and harder than you would guess, and involves 
+> elevator work, filesystem work, vm work, working hand-in-hand with disk 
+> drive vendors to do things I can't talk about here yet, etc.  There may 
+> be work involving block allocators optimized for streaming media, 
+> resizer work, repacker work, etc.
 
+I can guess :-) Your shopping list looks similar to ours.
+
+I think we've pretty much covered the elevator side. Our proof of
+concept elevator does priorities and a number of related things.
+This is synchronized with Jens' work, so these features should
+eventually show up in CFQ and the block IO layer. (At which point
+the ABISS elevator shall be unceremoniously scrapped.)
+
+VM work is lined up next. So far, the most promising approach for
+getting rid of VM interference seems to be to base things on the
+NUMA infrastructure.
+
+We currently support "real-time" reading from FAT, VFAT, ext2, and
+ext3. There are also some scary things we can do for writing, such
+as messing with the block allocation strategy (*). The latter are
+currently only for FAT and VFAT.
+
+(*) Doing file system brain surgery at this level may be a dead
+    end. Just getting the various file systems to support
+    reservations or an equivalent way for obtaining large
+    contiguous allocations looks like a much nicer approach.
+
+As far as doing unspeakable things with drive manufacturers is
+concerned, control over defect management and thermal calibration
+come to mind. Zoning and noise management details may also be of
+interest.
+
+I'm not sure how deep you really want to go there. I'd expect that
+by selecting reasonably well-behaved drives and just measuring
+what they do, a useful performance envelope could be determined,
+that will allow you to provide adequate buffering and/or
+prefetching to cover the occasional drive hickup.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

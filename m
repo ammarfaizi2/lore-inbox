@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbTKVLE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 06:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbTKVLE1
+	id S262225AbTKVLw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 06:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTKVLw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 06:04:27 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:30136 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262164AbTKVLE0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 06:04:26 -0500
-Date: Sat, 22 Nov 2003 11:04:11 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, bug-binutils@gnu.org
-Subject: Re: ionice kills vanilla 2.6.0-test9 was [Re: [PATCH] cfq + io priorities (fwd)]
-Message-ID: <20031122110411.GB15384@mail.shareable.org>
-References: <Pine.LNX.4.44.0311211455510.13789-100000@home.osdl.org> <Pine.LNX.4.44.0311211529590.13789-100000@home.osdl.org>
+	Sat, 22 Nov 2003 06:52:56 -0500
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:49140 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S262225AbTKVLwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 06:52:55 -0500
+Date: Sat, 22 Nov 2003 04:48:34 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Christoph Hellwig <hch@infradead.org>, Juergen Hasch <lkml@elbonia.de>,
+       Michael Welles <mike@bangstate.com>, linux-kernel@vger.kernel.org
+Subject: Re: Using get_cwd inside a module.
+Message-ID: <20031122044833.R20568@schatzie.adilger.int>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Juergen Hasch <lkml@elbonia.de>,
+	Michael Welles <mike@bangstate.com>, linux-kernel@vger.kernel.org
+References: <3FBEA83B.1060001@bangstate.com> <20031122083035.A30106@infradead.org> <200311221033.35108.lkml@elbonia.de> <20031122101559.A30932@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311211529590.13789-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031122101559.A30932@infradead.org>; from hch@infradead.org on Sat, Nov 22, 2003 at 10:15:59AM +0000
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> It looks like we can work around it with this silly syntactic sugar.. Does 
-> this work for you?
+On Nov 22, 2003  10:15 +0000, Christoph Hellwig wrote:
+> On Sat, Nov 22, 2003 at 10:33:34AM +0100, Juergen Hasch wrote:
+> > Dnotify doesn't return the file names that changed, changedfiles does.
+> > I've looked into this, because Samba would benefit from such a functionality.
+> > 
+> > So maybe it would be possible to teach dnotify to return file names
+> > (e.g. using netlink) ?
+> 
+> Well, you can't return filenames.  There's no unique path to a give
+> file. 
 
-Or try this: nr_syscalls=(.-sys_call_table)>>2
+Since the caller is already watching a specific directory, it doesn't
+need to know the full pathname, just the inode number that changed.
+Then Samba et. al. could do an inode->name(s) lookup on the directory.
 
--- Jamie
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

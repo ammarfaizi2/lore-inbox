@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265372AbRFVIdG>; Fri, 22 Jun 2001 04:33:06 -0400
+	id <S265379AbRFVJHb>; Fri, 22 Jun 2001 05:07:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265374AbRFVIcq>; Fri, 22 Jun 2001 04:32:46 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:58123 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S265372AbRFVIcg>;
-	Fri, 22 Jun 2001 04:32:36 -0400
-Date: Fri, 22 Jun 2001 10:32:29 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Jon Forsberg <zzed@cyberdude.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fealnx problem
-Message-ID: <20010622103229.B18373@se1.cogenit.fr>
-In-Reply-To: <20010621145759.B10047@naut> <20010621212139.A13297@se1.cogenit.fr> <20010621223238.A1157@naut>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010621223238.A1157@naut>; from zzed@cyberdude.com on Thu, Jun 21, 2001 at 10:32:39PM +0200
-X-Organisation: Marie's fan club - I
+	id <S265380AbRFVJHW>; Fri, 22 Jun 2001 05:07:22 -0400
+Received: from www.wen-online.de ([212.223.88.39]:62216 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S265379AbRFVJHN>;
+	Fri, 22 Jun 2001 05:07:13 -0400
+Date: Fri, 22 Jun 2001 11:06:33 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.5-ac15
+In-Reply-To: <Pine.LNX.4.21.0106210226330.14247-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0106221043360.226-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Forsberg <zzed@cyberdude.com> ecrit :
-[...]
-> Prints the same messages as before but continues working afterwards. No need
-> for ifdown/ifup in other words. No crash so far.
+On Thu, 21 Jun 2001, Marcelo Tosatti wrote:
 
-I'll polish and submit it to the maintainer next week then.
+> On Thu, 21 Jun 2001, Mike Galbraith wrote:
+>
+> > On Thu, 21 Jun 2001, Marcelo Tosatti wrote:
+> >
+> > > >  2  4  2  77084   1524  18396  66904   0 1876   108  2220 2464 66079   198   1
+> >                                                                    ^^^^^
+> > > Ok, I suspect that GFP_BUFFER allocations are fucking up here (they can't
+> > > block on IO, so they loop insanely).
+> >
+> > Why doesn't the VM hang the syncing of queued IO on these guys via
+> > wait_event or such instead of trying to just let the allocation fail?
+...
+> > Does failing the allocation in fact accomplish more than what I'm
+> > (uhoh:) assuming?
+>
+> No.
 
--- 
-Ueimor
+hmm..
+
+Jun 18 07:11:36 kernel: reclaim_page: salvaged ref:1 age:0 buf:0 cnt:1
+Jun 18 07:11:36 last message repeated 27 times
+
+One thing that _could_ be done about looping allocations is to steal
+a page from the clean list ignoring PageReferenced (if you have any).
+That would be a very expensive 'rob Peter to pay Paul' trade though.
+
+	-Mike
+

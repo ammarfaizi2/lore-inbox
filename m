@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264918AbTIDLeK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 07:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbTIDLeJ
+	id S264923AbTIDLlm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 07:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264926AbTIDLlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 07:34:09 -0400
-Received: from alfarrabio.di.uminho.pt ([193.136.20.210]:40108 "HELO
-	alfarrabio.di.uminho.pt") by vger.kernel.org with SMTP
-	id S264918AbTIDLeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 07:34:07 -0400
-Subject: How to debug ACPI?
-From: Alberto Manuel =?ISO-8859-1?Q?Brand=E3o_Sim=F5es?= 
-	<albie@alfarrabio.di.uminho.pt>
-Reply-To: albie@alfarrabio.di.uminho.pt
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-15
-Organization: Departamento de  =?ISO-8859-1?Q?=20Inform=C3=A1tica?= - Universidade do Minho
-Message-Id: <1062675563.7371.8.camel@eremita.di.uminho.pt>
+	Thu, 4 Sep 2003 07:41:42 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17168 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264923AbTIDLll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 07:41:41 -0400
+Date: Thu, 4 Sep 2003 12:41:38 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: =?iso-8859-1?Q?Laurent_Hug=E9?= <laurent.huge@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Call of tty->driver.write provides segmentation fault
+Message-ID: <20030904124138.B8414@flint.arm.linux.org.uk>
+Mail-Followup-To: =?iso-8859-1?Q?Laurent_Hug=E9?= <laurent.huge@wanadoo.fr>,
+	linux-kernel@vger.kernel.org
+References: <200309041107.12393.laurent.huge@wanadoo.fr> <20030904105257.B7387@flint.arm.linux.org.uk> <200309041335.14730.laurent.huge@wanadoo.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 04 Sep 2003 12:39:23 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200309041335.14730.laurent.huge@wanadoo.fr>; from laurent.huge@wanadoo.fr on Thu, Sep 04, 2003 at 01:35:14PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Thu, Sep 04, 2003 at 01:35:14PM +0200, Laurent Hugé wrote:
+> Le Jeudi 4 Septembre 2003 11:52, Russell King a écrit :
+> > You need to look at the kernel messages - normally you'll find an
+> > "oops" in there when this happens.
+> There's no Oops ; I've only got a segmentation fault, but the kernel doesn't 
+> crash.
 
-I have a Laptop (Clevo is its brand) which has ACPI (I don't know if he
-follow the standards).
+If that's the case, I can't help you.  If the kernel isn't oopsing, then
+it isn't the call to tty->driver.write which is causing your problem -
+it must be an error in the userspace program.
 
-With some kernels before I was able to see a /proc/acpi directory with
-some information (most of them wrong, but ok) and I was able to shutdown
-the laptop properly.
-
-With kernel 2.4.22 the /proc/acpi directory does not exist (but I've
-compiled it) and modules ac.o, battery.o and so on give a 'init_module:
-No such device' answer.
-
-I need to make it turn off automatically again, at least. I know I can
-use my last kernel, but it is not quite a good idea, as I would like to
-continue updating my kernel.
-
-Thanks for any help 
-(please cc me in reply, as I'm not a member of the list)
-Alberto Simões
 -- 
-Alberto Manuel Brandão Simões <albie@alfarrabio.di.uminho.pt>
-Departamento de Informática - Universidade do Minho
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

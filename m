@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280725AbRLHOeG>; Sat, 8 Dec 2001 09:34:06 -0500
+	id <S280825AbRLHOkq>; Sat, 8 Dec 2001 09:40:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280825AbRLHOd4>; Sat, 8 Dec 2001 09:33:56 -0500
-Received: from datela-1-4-13.dialup.vol.cz ([212.20.98.47]:56328 "HELO
-	ghost.btnet.cz") by vger.kernel.org with SMTP id <S280725AbRLHOdt>;
-	Sat, 8 Dec 2001 09:33:49 -0500
-Date: Sat, 8 Dec 2001 16:43:30 +0100 (MET)
-From: <brain@artax.karlin.mff.cuni.cz>
-To: <linux-kernel@vger.kernel.org>
-Subject: 119.5% CPU load
-Message-ID: <Pine.LNX.4.30.0112081433280.1658-100000@ghost>
-X-Echelon: GRU Vatutinki Chodynka Khodinka Putin Suvorov USA Aquarium Russia Ladygin Lybia China Moscow missile reconnaissance agent spetsnaz security tactical target operation military nuclear force defense spy attack bomb explode tap MI5 IRS KGB CIA FBI NSA AK-47 MOSSAD M16 plutonium smuggle intercept plan intelligence war analysis president
+	id <S280836AbRLHOkh>; Sat, 8 Dec 2001 09:40:37 -0500
+Received: from [217.118.66.254] ([217.118.66.254]:6220 "EHLO
+	backtop.namesys.com") by vger.kernel.org with ESMTP
+	id <S280825AbRLHOkS>; Sat, 8 Dec 2001 09:40:18 -0500
+From: Alexander Zarochentcev <zam@namesys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15378.8955.835551.333970@backtop.namesys.com>
+Date: Sat, 8 Dec 2001 17:26:03 +0300
+To: thunder7@xs4all.nl
+Cc: linux-kernel@vger.kernel.org, vs@namesys.com
+Subject: Re: reiserfs_delete_solid_item [ xxx xxx 0(1) DIR ] not found when FS full?
+In-Reply-To: <20011208062921.GA3002@alpha.of.nowhere>
+In-Reply-To: <20011208062921.GA3002@alpha.of.nowhere>
+X-Mailer: VM 7.00 under Emacs 21.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Jurriaan on Alpha writes:
 
-Look at this "top" snapshot:
+ > I was copying some tree and didn't notice my file-system filling up, but
+ > I did notice this on the console (and in the logs):
+ > 
+ > Dec 8 07:17:31 alpha sudo: jurriaan : TTY=tty3 ; PWD=/var/spool ; USER=root
+ > ; COMMAND=/bin/cp -ax news testnews Dec 8 07:22:03 alpha kernel: vs-5355:
+ > reiserfs_delete_solid_item: [434934 434961 0(1) DIR] not found<4>vs-5355:
+ > reiserfs_delete_soli d_item: [434933 434961 0(1) DIR] not found<4>vs-5355:
+ > reiserfs_delete_solid_item: [434961 434962 0(1) DIR] not found<4>vs-5355:
+ > reise rfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+ > reiserfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4 >vs-5355:
+ > reiserfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+ > reiserfs_delete_solid_item: [434962 434963 0(1) D IR] not found<4>vs-5355:
+ > reiserfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+ > reiserfs_delete_solid_item: [43496 2 434963 0(1) DIR] not found<4>vs-5355:
+ > reiserfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+ > reiserfs_delete_sol id_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+ > reiserfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+ > reis erfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+ > reiserfs_delete_solid_it
+ > 
+ > Somehow, 'delete' is not what I expect when copying. Is this something
+ > to worry about?
 
------------------------------------------------------------------------------
-  2:30pm  up  3:46, 10 users,  load average: 2.96, 1.50, 0.84
-49 processes: 44 sleeping, 4 running, 0 zombie, 1 stopped
-CPU states:  0.1% user, 119.4% system,  0.0% nice,  0.0% idle
-Mem:   63208K av,  62004K used,   1204K free,  24556K shrd,  34892K buff
-Swap:  34236K av,    140K used,  34096K free                  7056K cached
+`Delete' is possible when copying. reiserfs_new_inode() fails due to no free
+space and iput() is called on partially created inode. Some items could be
+missing and delete_inode() => delete_solid_item() warns during attempt to
+delete them.
 
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT  LIB %CPU %MEM   TIME COMMAND
- 1632 brain     20   0  1724 1724   992 R       0 33.4  2.7   1:19 mc
- 1654 brain     20   0   784  784   576 R       0 32.2  1.2   0:49 mpg123
- 1652 root      14   0   500  500   368 R       0 21.4  0.7   0:40 top
-   84 root       0   0   244  224   192 S       0 15.7  0.3   0:03 gpm
- 1655 root      20   0   624  624   476 R       0 10.6  0.9   0:02 vi
-    3 root       0   0     0    0     0 SW      0  5.0  0.0   0:18 kupdate
-  121 root       2   0   844  844   588 S       0  0.6  1.3   0:00 bash
-    4 root       0   0     0    0     0 SW      0  0.2  0.0   0:08 kswapd
------------------------------------------------------------------------------
+I added Vladimir Saveliev (vs) to CC list. Hope he will participate in
+discussion if those error messages look not normal.
 
-That's not a joke, it WAS on my machine on very busy network. I've got 2.2.19
-kernel and single AMD K6-2/400. I don't have any turbocharger, so I suppose my
-CPU is able to perform mere 100% of the load. Can you explain it?
-
-Thanx
-
-Brain
-
---------------------------------
-Petr `Brain' Kulhavy
-<brain@artax.karlin.mff.cuni.cz>
-http://artax.karlin.mff.cuni.cz/~brain
-Faculty of Mathematics and Physics, Charles University Prague, Czech Republic
-
----
-Promising costs nothing, it's the delivering that kills you.
+ > linux-2.4.17pre5, Alpha (EV56) system, more details on request.
+ > 
+ > Thanks,
+ > Jurriaan
+ > -- 
+ > I am Ginsu of Borg. You will be assimilated - but WAIT! There's MORE!
+ > GNU/Linux 2.4.17-pre5 on Debian/Alpha 64-bits 988 bogomips load:1.24 0.54 0.39
+ > -
+ > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+ > the body of a message to majordomo@vger.kernel.org
+ > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ > Please read the FAQ at  http://www.tux.org/lkml/
 
 
-
+Thanks,
+Alex.

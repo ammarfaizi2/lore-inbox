@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265766AbUAPWHh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 17:07:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUAPWFP
+	id S265916AbUAPWjN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 17:39:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265919AbUAPWjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 17:05:15 -0500
-Received: from gprs214-224.eurotel.cz ([160.218.214.224]:1920 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265709AbUAPVwj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 16:52:39 -0500
-Date: Fri, 16 Jan 2004 22:51:45 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Matt Mackall <mpm@selenic.com>, discuss@x86-64.org,
-       George Anzinger <george@mvista.com>
-Subject: Re: KGDB 2.0.3 with fixes and development in ethernet interface
-Message-ID: <20040116215144.GA208@elf.ucw.cz>
-References: <200401161759.59098.amitkale@emsyssoft.com>
+	Fri, 16 Jan 2004 17:39:12 -0500
+Received: from [128.173.54.129] ([128.173.54.129]:11648 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265916AbUAPWjK (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 17:39:10 -0500
+Message-Id: <200401162238.i0GMcxT3004785@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Hans Reiser <reiser@namesys.com>
+Cc: raymond jennings <highwind747@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA] - run-length compaction of block numbers 
+In-Reply-To: Your message of "Fri, 16 Jan 2004 23:47:55 +0300."
+             <40084DFB.5040106@namesys.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <BAY1-F117hxeH6PC8MS00006f92@hotmail.com> <200401161954.i0GJsEgj003906@turing-police.cc.vt.edu>
+            <40084DFB.5040106@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401161759.59098.amitkale@emsyssoft.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; boundary="==_Exmh_-519977068P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 16 Jan 2004 17:38:59 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--==_Exmh_-519977068P
+Content-Type: text/plain; charset=us-ascii
 
-> KGDB 2.0.3 is available at 
-> http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.0.3.tar.bz2
-> 
-> Ethernet interface still doesn't work. It responds to gdb for a couple of 
-> packets and then panics. gdb log for ethernet interface is pasted below.
-> 
-> It panics and enter kgdb_handle_exception recursively and silently. To see the 
-> panic on screen make kgdb_handle_exception return immediately if 
-> kgdb_connected is non-zero. 
-> 
-> Panic trace is pasted below. It panics in skb_release_data. Looks like skb 
-> handling will have to changed to be have kgdb specific buffers.
+On Fri, 16 Jan 2004 23:47:55 +0300, Hans Reiser said:
 
-This seems to be needed (if I unselect CONFIG_KGDB_THREAD, I get
-compile error on x86-64).
-								Pavel
+> This is already done, they are called "extent"s.  Reiser4 uses them, XFS 
+> uses them, I think Veritas may have been the first to use them but I am 
+> not sure of this, maybe it was IBM.
 
---- linux/kernel/kgdbstub.c	2004-01-16 16:56:51.000000000 +0100
-+++ linux-cvs/kernel/kgdbstub.c	2004-01-16 20:11:45.000000000 +0100
-@@ -1178,7 +1178,9 @@
- #endif
- 
- EXPORT_SYMBOL(breakpoint);
-+#ifdef CONFIG_KGDB_THREAD
- EXPORT_SYMBOL(kern_schedule);
-+#endif
- 
- static int __init opt_gdb(char *str)
- {
+Does the extent-based disk allocation used by OS/360 in 1964 count? :)
 
+--==_Exmh_-519977068P
+Content-Type: application/pgp-signature
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFACGgDcC3lWbTT17ARAtqDAJ4xvcCy60UxvJXqBdlAdg1HVN7Q4QCg647f
+l++UgDOHVbVQF0FB/GNBZ2c=
+=pqI6
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-519977068P--

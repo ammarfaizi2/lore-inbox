@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135694AbRECClv>; Wed, 2 May 2001 22:41:51 -0400
+	id <S135664AbRECCib>; Wed, 2 May 2001 22:38:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135697AbRECClb>; Wed, 2 May 2001 22:41:31 -0400
-Received: from armitage.toyota.com ([63.87.74.3]:16911 "EHLO
-	armitage.toyota.com") by vger.kernel.org with ESMTP
-	id <S135694AbRECCl3>; Wed, 2 May 2001 22:41:29 -0400
-Message-ID: <3AF0C552.4259CB3C@lexus.com>
-Date: Wed, 02 May 2001 19:41:22 -0700
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.2 i686)
+	id <S135694AbRECCiW>; Wed, 2 May 2001 22:38:22 -0400
+Received: from chromium11.wia.com ([207.66.214.139]:46097 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S135664AbRECCiB>; Wed, 2 May 2001 22:38:01 -0400
+Message-ID: <3AF0C577.848CAE39@chromium.com>
+Date: Wed, 02 May 2001 19:41:59 -0700
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Sim, CT (Chee Tong)" <CheeTong.Sim@sin.rabobank.com>
-CC: "'J Sloan'" <jjs@toyota.com>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Linux NAT questions- (kernel upgrade??)
-In-Reply-To: <1E8992B3CD28D4119D5B00508B08EC5627E8A5@sinxsn02.ap.rabobank.com>
+To: Zach Brown <zab@zabbo.net>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Christopher Smith <x@xman.org>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com
+Subject: Re: X15 alpha release: as fast as TUX but in user space
+In-Reply-To: <3AEC8562.887CFA72@chromium.com> <Pine.LNX.4.33.0105021047040.3642-100000@localhost.localdomain> <20010502101200.E28288@erasmus.off.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Sim, CT (Chee Tong)" schrieb:
+Our intention is to release X15 with an open source license.
 
-> I am using the Red Hat 7,  below are my kernel version.  I feel Red Hat 7 is
-> quite new, although RH 7.1 has just come out.  How come it still say that my
-> kernel version is old.
+This will happen as soon as the codebase stabilizes a bit, that is when we go
+beta (in two - three weeks).
 
-Ah, by old is meant the 2.2 version -
-7.1 is the first RH release to ship with kernel 2.4.
+At the moment we just don't have the time...
 
-You can certainly run a 2.4 kernel on your 7.0
-box - I only ran 2.2.16 on my RH 7.0 boxes for
-as long as it tool me to pull down the kernel
-sources and compile a 2.4 kernel.
+The reason why I released the alpha binary version is that several people
+would not believe that a user-space server with this level of performance
+would be possible at all and several statements that I made on this list were
+challenged.
 
-cu
+Besides I really appreciate the feedback that I received so far from Ingo and
+others, and I'd be very curious to know if anybody did any performance
+evaluation at all.
 
-jjs
+ - Fabio
+
+Zach Brown wrote:
+
+> I've always been tempted to go back and take a real swing at a
+> nice content server, but there's only so many hours in the day, and
+> apache+thttpd+tux complete the problem space.  If X15 isn't released
+> with an open license, I may be tempted yet again :)
 

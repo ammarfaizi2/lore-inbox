@@ -1,122 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264647AbTFVAMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 20:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264862AbTFVAMQ
+	id S264890AbTFVASM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 20:18:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbTFVASM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 20:12:16 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:39570 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264647AbTFVAMN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 20:12:13 -0400
-Date: Sat, 21 Jun 2003 17:26:14 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: bkbits.net is down
-Message-ID: <20030622002614.GA16225@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20030621135812.GE14404@work.bitmover.com> <20030621190944.GA13396@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030621190944.GA13396@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Sat, 21 Jun 2003 20:18:12 -0400
+Received: from mta6.srv.hcvlny.cv.net ([167.206.5.17]:17260 "EHLO
+	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S264890AbTFVASK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 20:18:10 -0400
+Date: Sat, 21 Jun 2003 20:31:44 -0400
+From: Jeff <jeffpc@optonline.net>
+Subject: Re: kswapd 2.4.2? ext3
+In-reply-to: <Pine.LNX.4.53.0306221150320.6021@hades.internal.beyondhelp.co.nz>
+To: john@beyondhelp.co.nz, linux-kernel@vger.kernel.org
+Message-id: <200306212032.09382.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_Tlv/OF6GZeJ7m2URZKRuYQ)"
+User-Agent: KMail/1.5.2
+References: <Pine.LNX.4.53.0306221150320.6021@hades.internal.beyondhelp.co.nz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 21, 2003 at 12:09:44PM -0700, Larry McVoy wrote:
-> On Sat, Jun 21, 2003 at 06:58:12AM -0700, Larry McVoy wrote:
-> > I'm tracking down the problem, it's been off the air for most of the night it 
-> > appears.  I may upgrade the processor and motherboard.  If I do that, it 
-> > will be off the air for a bit longer.
-> 
-> I'm still at the office working on this.  Both the main and the backup drives
-> are not checking cleanly.  It's going to be several more hours before it is
-> back up at this rate.
 
-Still working on it but I'm starting to get somewhere.  There is something
-very strange or flakey about Samsung 80GB IDE drives.  The symptoms are that
-on some controllers the drive gets all sorts of errors.  Running under
-the most recent (on bkbits.net at least) linux-2.5 tree, if I put the drive
-on a Serverworks IDE interface (Tyan dual PIII, I think a 2150?) then the
-drive looks like it is just trashed, lots of fsck errors.  I pulled it and
-tried on an ECS el cheopo motherboard and that failed too.  I then thought
-that maybe the deal was that I had partitioned it under a 3ware and I was
-trying to fsck it on a normal IDE (hey, I was grabbing for an answer) so
-I stuck a 3ware into the el cheapo box.  Still didnt work.   OK, I tried
-another ECS el cheapo and this one works.  
+--Boundary_(ID_Tlv/OF6GZeJ7m2URZKRuYQ)
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
 
-By the way, "didn't work" meant that it would get through the fsck enough
-to restart the fsck from the beginning and then somewhere along the way
-the fsck would cause the system to reboot.  Nice.  It took several tries
-to figure that out, I eventually resorted to video taping the screen to
-find out what happened (it takes an hour to fsck this drive so I'd be
-reading mail and looking over my shoulder about every minute trying to
-catch it and of course I always missed it) and all I got was stuff that
-looked like the kernel was hosed, sendmail started crapping out and I
-know it wasn't doing anything.  I have the video if someone wants it,
-this was Red Hat 8.0 generic, so 2.4.19 I think.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-OK, finally clean fsck on the second el cheapo, move it over to the Tyan
-and try again.  Disk drive go kaboom.  I'm starting to get pissed, this
-is my bloody Saturday, I promised my kids we'd play together, I'm grumpy,
-my wife keeps calling to ask when we are going to the beach, shit this
-just sucks, I need an sys admin that I trust to do this stuff.  It's
-beyond lame that I don't have one.  Any good sys admins out there in
-the Bay Area?  Call me, now is a good time to negotiate a good package.
-Deep breath, don't get pissed, that's how you make things worse.  OK,
-back at it.  Pull the drive, plug in a Promise card, stick the drive on
-that and pray that it works.  Whoops, didn't compile that in, recompile,
-reboot, man I hate American Megatrends, it takes forever to do a warm
-reboot.  Linux BIOS, where are you?  OK, it sees it, do the fsck, wait
-an hour, whoohoo!  We're clean.
+Same, here. 2.4.20-xfs and 2.4.21 (vanilla) both have some problem in kswapd. 
+This happened after about 4 days and 6 hours of uptime/load. I use this box 
+as a router with DHCP, DNS, NTP and SSH (for administration only.)
 
-Time to think about what to do.  I don't trust the Samsung even though it
-says it is OK, too many problems.  Another deep breath, call the local
-suppliers, yeah, they got some 80GB drives, we're at 40GB so that seems
-cool, head off to the store to buy some new drives.  Shit.  The store
-lied and they were out of stock.  Buy some 120GB?  Nah, if we get to
-that much data on bkbits.net I want it spread over multiple machines
-so I'm not stuck in the machine room for 40 hours the next time this
-crap happens.  It sucks to be me some days, it really does.  Go back,
-steal a 80GB Western Digital drive from one of the desktops, stick it in.
-By the way, Western Digital, if you ever want an endorsement I'm your man,
-every other drive company has screwed me at least once and you never have.
-Your drives rock, they behave well under benchmarks and they behave well
-in the real world and I have the data to prove it.  And, best of all,
-your drives fail nicely, blocks start going bad but you can get 99.9%
-of the data off, very nice.  Good job.
+P100, 10GB HDD (ext3), 32MB RAM
 
-Plug in the WD 80GB, write a script to start cloning the repositories,
-that's easy, it's running, and I'm typing in this mail as something to
-do while it runs.  Hence the verboseness.  And in spite of that we are
-only up to linux-ajc (who's ajc?).  But we're getting there.  My guess
-is that this is going to run for a few more hours.  I've been here since
-7am this morning, I'm going out to get plastered and I'll put the rest
-of this back together tomorrow.
+I noticed the two oopses in syslog - see attachment.
 
-I wasn't kidding about that sys admin job, I'd love for this to be
-someone else's problem.  In theory I'm supposed to be a CEO who plays
-golf games and cuts multi-million dollar deals for development tools.
-I still need to learn how to play golf so I could use some help, right?
-The problem is that I want things fixed right so that problems don't come
-back and I don't trust lame people to do that so I end up doing a lot of
-stuff myself.  If you have an ego that won't quit because you could kick
-my pathetic sys admin ass all over the place, you're who I want to hire.
-Of course you need to be able to take a lot of shit because BK isn't
-politically correct in the open source world :-(  
+Jeff.
 
-I'm outta here to drink some beer, ETA on bkbits being back online is
-some time tomorrow.  Sorry about the delay.  For what it is worth, we are
-in the process of setting up an India based development effort which is
-going to take this over and make it work better.  We really want to be
-in a place where when something goes wrong we change some DNS entries
-and we're back on line.  We're not there yet but we are working on it.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+- -- 
+Penguin : Linux version 2.5.71 on an i686 machine (3932.16 BogoMips).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+9PkDwFP0+seVj/4RAo42AKC+VN9A8dEslFeFP1HsAMA9wDH/7ACdHxU0
+0spiWwszGGrplAgmebO5St4=
+=OsE0
+-----END PGP SIGNATURE-----
+
+--Boundary_(ID_Tlv/OF6GZeJ7m2URZKRuYQ)
+Content-type: text/plain; charset=iso-8859-1; name=oops-2.4.21
+Content-transfer-encoding: 7BIT
+Content-disposition: attachment; filename=oops-2.4.21
+
+Jun 21 06:25:19:
+----------------
+
+Unable to handle kernel NULL pointer dereference at virtual address 00000028
+ printing eip:
+c01355d4
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[cdput+4/64]    Not tainted
+EFLAGS: 00010202
+eax: 00000020   ebx: c0e43be0   ecx: 00000020   edx: c0e43bf8
+esi: c10f3f5c   edi: c05dd408   ebp: c10f3f64   esp: c10f3f28
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 4, stackpage=c10f3000)
+Stack: c01419c1 00000020 c0e43be0 c0141a24 c0e43be0 c1588e08 c1588e00 c0141c72
+       c10f3f5c 00000013 000001d0 00000020 0000035b c0e43a08 c1276468 00000006
+       c0141caf 00000000 c012a429 00000006 000001d0 00000006 000001d0 00000006
+Call Trace:    [clear_inode+185/212] [dispose_list+72/96] [prune_icache+190/224] [
+shrink_icache_memory+27/48] [shrink_caches+109/132]
+  [try_to_free_pages_zone+50/80] [kswapd_balance_pgdat+69/144] [kswapd_balance+22/
+44] [kswapd+153/188] [arch_kernel_thread+40/56]
+
+Code: ff 49 08 0f 94 c0 84 c0 74 26 8b 51 04 8b 01 89 50 04 89 02
+
+
+Jun 21 06:25:22:
+----------------
+
+<1>Unable to handle kernel NULL pointer dereference at virtual address 00000028
+ printing eip:
+c01355d4
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[cdput+4/64]    Not tainted
+EFLAGS: 00010202
+eax: 00000020   ebx: c0eb3be0   ecx: 00000020   edx: c0eb3bf8
+esi: c0b69dbc   edi: c1a79288   ebp: c0b69dc4   esp: c0b69d88
+ds: 0018   es: 0018   ss: 0018
+Process find (pid: 571, stackpage=c0b69000)
+Stack: c01419c1 00000020 c0eb3be0 c0141a24 c0eb3be0 c1a790a8 c1a790a0 c0141c72
+       c0b69dbc 00000018 000001f0 00000020 00000439 c0eb3a08 c0ee0688 00000006
+       c0141caf 00000000 c012a429 00000006 000001f0 00000006 000001f0 00000006
+Call Trace:    [clear_inode+185/212] [dispose_list+72/96] [prune_icache+190/224] [
+shrink_icache_memory+27/48] [shrink_caches+109/132]
+  [try_to_free_pages_zone+50/80] [balance_classzone+80/496] [__alloc_pages+251/340
+] [_alloc_pages+22/24] [__get_free_pages+11/88] [kmem_cache_grow+154/488]
+  [kmem_cache_alloc+199/220] [alloc_inode+48/296] [get_new_inode+18/316] [iget4+20
+2/220] [ext3_lookup+83/128] [real_lookup+83/196]
+  [link_path_walk+1487/2132] [path_walk+26/28] [path_lookup+27/36] [__user_walk+38
+/64] [sys_lstat64+25/112] [system_call+51/64]
+
+Code: ff 49 08 0f 94 c0 84 c0 74 26 8b 51 04 8b 01 89 50 04 89 02
+
+--Boundary_(ID_Tlv/OF6GZeJ7m2URZKRuYQ)--

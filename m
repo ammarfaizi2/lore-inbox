@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268792AbRH0UZk>; Mon, 27 Aug 2001 16:25:40 -0400
+	id <S268900AbRH0U2k>; Mon, 27 Aug 2001 16:28:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268848AbRH0UZb>; Mon, 27 Aug 2001 16:25:31 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40713 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268856AbRH0UZR>; Mon, 27 Aug 2001 16:25:17 -0400
-Subject: Re: DOS2linux
-To: Bart.Vandewoestyne@pandora.be (Bart Vandewoestyne)
-Date: Mon, 27 Aug 2001 21:28:55 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3B8AAB3E.1EC121EA@pandora.be> from "Bart Vandewoestyne" at Aug 27, 2001 10:19:10 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S268867AbRH0U2U>; Mon, 27 Aug 2001 16:28:20 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4879 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268813AbRH0U2R>; Mon, 27 Aug 2001 16:28:17 -0400
+Date: Mon, 27 Aug 2001 13:25:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: patch-2.4.10-pre1
+Message-ID: <Pine.LNX.4.33.0108271323290.5985-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15bT0B-0004ev-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hmm... with 'writing cleanly' you mean that there should become things
-> available like eisa_register_device() etc...?
 
-Yeah
+Ok, I'm back from Finland, and there's a 2.4.10-pre1 update on kernel.org.
+Changelog appended..
 
-> > EISA slots are I/O mapped at 0x1000, 0x2000, 0x3000, 0x4000 -> 0x8000
-> > The ID port is at base+0xc80
-> > Configuration data follows at base+0xc84, 0xc88 ...
-> 
-> Yep, that was also what I figured out.
-> 
-> > I would assume the 320 byte buffer is providing this same data block, and
-> > maybe more but I don't know the details.
-> 
-> That is also what I think, but the problem is that I don't know at
-> which offset to look for that data...
-> If you look at the code:
-> 
-> Would it help if i told you that itconf and dmachd are defined as (see
-> http://mc303.ulyssis.org/heim/downloads/DISCINC.H )
-> 
-> #define itconf                0xb2
-> #define dmachd                0xc0
-> 
-> So if my EISA board is at 0x1000, i should be able to read these
-> values from 0x1000+0xb2 and 0x1000+0xc0 ???  And if 'yes', any idea
-> about how to read them? (byte, word, long...? My guess would be as a
-> byte, but I'm not sure...)
-> 
+The most noticeable one (under the right loads) is probably the one-liner
+by Daniel that avoids some bad behaviour when swapping.
 
-Wild guess. Try iobase + 0xC80 to check if the card is in that slot, then
-check inb(iobase+0xC80+0xb2) and see if that gives sane answers
+		Linus
+
+-----
+pre1:
+ - Jeff Hartmann: DRM AGP/alpha cleanups
+ - Ben LaHaise: highmem user pagecopy/clear optimization
+ - Vojtech Pavlik: VIA IDE driver update
+ - Herbert Xu: make cramfs work with HIGHMEM pages
+ - David Fennell: awe32 ram size detection improvement
+ - Istvan Varadi: umsdos EMD filename bug fix
+ - Keith Owens: make min/max work for pointers too
+ - Jan Kara: quota initialization fix
+ - Brad Hards: Kaweth USB driver update (enable, and fix endianness)
+ - Ralf Baechle: MIPS updates
+ - David Gibson: airport driver update
+ - Rogier Wolff: firestream ATM driver multi-phy support
+ - Daniel Phillips: swap read page referenced set - avoid swap thrashing
+

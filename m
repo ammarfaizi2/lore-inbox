@@ -1,223 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267681AbUG3Vw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267701AbUG3Vxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267681AbUG3Vw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 17:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267701AbUG3Vw6
+	id S267701AbUG3Vxf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 17:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267855AbUG3Vxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 17:52:58 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:44450 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267695AbUG3VtD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 17:49:03 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: linux-pci@atrey.karlin.mff.cuni.cz
+	Fri, 30 Jul 2004 17:53:35 -0400
+Received: from web14922.mail.yahoo.com ([216.136.225.6]:18521 "HELO
+	web14922.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267701AbUG3Vx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 17:53:26 -0400
+Message-ID: <20040730215325.98365.qmail@web14922.mail.yahoo.com>
+Date: Fri, 30 Jul 2004 14:53:25 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
 Subject: Re: [PATCH] add PCI ROMs to sysfs
-Date: Fri, 30 Jul 2004 14:48:08 -0700
-User-Agent: KMail/1.6.2
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+To: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
        Jon Smirl <jonsmirl@yahoo.com>
-References: <200407301409.05638.jbarnes@engr.sgi.com> <20040730212930.GA30979@kroah.com> <200407301434.50373.jbarnes@engr.sgi.com>
-In-Reply-To: <200407301434.50373.jbarnes@engr.sgi.com>
+In-Reply-To: <20040730212930.GA30979@kroah.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_YIsCBZlgtmvCPUr"
-Message-Id: <200407301448.08430.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here's another grungy thing I needed to do to PCI. Multi-headed video
+cards don't really implement independent PCI devices even though they
+look like independent devices. I've heard that this behavior is needed
+for MS Windows compatibility.
 
---Boundary-00=_YIsCBZlgtmvCPUr
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I'm missing a PCI call to claim ownership for the secondary device
+without also causing a second instance of my driver to be loaded.
+Here's the code I'm using, what's the right way to do this?
 
-On Friday, July 30, 2004 2:34 pm, Jesse Barnes wrote:
-> On Friday, July 30, 2004 2:29 pm, Greg KH wrote:
-> > On Fri, Jul 30, 2004 at 02:09:05PM -0700, Jesse Barnes wrote:
-> > > Thoughts?  I've tried to add cleanup code, but I'm not sure how
-> > > acceptable it is and I don't have any way of testing it.
-> >
-> > You don't have access to a cardbus machine?  Or how about using the
-> > fakephp driver to "remove" pci devices?  You should be able to test this
-> > code path with either one of those methods...
->
-> I've never tried fakephp, I'll look into it.  And I do have a laptop at
-> home that I could mess around on too, though I don't think I have any
-> devices with ROMs...
+struct pci_dev *secondary;
+/* check the next function on the same card */
+secondary = pci_find_slot(dev->pdev->bus->number, dev->pdev->devfn +
+1);
+if (secondary) {
+	/* check if class is secondary video */
+	if (secondary->class == 0x038000) {
+		DRM_DEBUG("registering secondary video head\n");
+		/* This code is need to bind the driver to the secondary device */
+		/* There is no direct pci call to do this, there should be one */
+		secondary->dev.driver = dev->pdev->dev.driver;
+		device_bind_driver(&secondary->dev);
+		/* dev->pdev->driver is not filled until after probe completes */
+		secondary->driver = to_pci_driver(dev->pdev->dev.driver);
+		pci_dev_get(secondary);
+	}
+}
 
-Ok, I tested it with fakephp and things seem to work ok (no panics, all files 
-are removed).
+=====
+Jon Smirl
+jonsmirl@yahoo.com
 
-Does it look ok otherwise?
 
-Thanks,
-Jesse
-
---Boundary-00=_YIsCBZlgtmvCPUr
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="pci-sysfs-rom-6.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="pci-sysfs-rom-6.patch"
-
-===== drivers/pci/pci-sysfs.c 1.10 vs edited =====
---- 1.10/drivers/pci/pci-sysfs.c	2004-06-04 06:23:04 -07:00
-+++ edited/drivers/pci/pci-sysfs.c	2004-07-30 14:37:04 -07:00
-@@ -164,6 +164,86 @@
- 	return count;
- }
- 
-+/**
-+ * pci_enable_rom - enable ROM decoding for a PCI device
-+ * @dev: PCI device to enable
-+ *
-+ * Enable ROM decoding on @dev.  This involves simply turning on the last
-+ * bit of the PCI ROM BAR.  Note that some cards may share address decoders
-+ * between the ROM and other resources, so enabling it may disable access
-+ * to MMIO registers or other card memory.
-+ */
-+static void
-+pci_enable_rom(struct pci_dev *dev)
-+{
-+	u32 rom_addr;
-+
-+	pci_read_config_dword(dev, PCI_ROM_ADDRESS, &rom_addr);
-+	rom_addr |= PCI_ROM_ADDRESS_ENABLE;
-+	pci_write_config_dword(dev, PCI_ROM_ADDRESS, rom_addr);
-+}
-+
-+/**
-+ * pci_disable_rom - disable ROM decoding for a PCI device
-+ * @dev: PCI device to disable
-+ *
-+ * Disable ROM decoding on a PCI device by turning off the last bit in the
-+ * ROM BAR.
-+ */
-+static void
-+pci_disable_rom(struct pci_dev *dev)
-+{
-+	u32 rom_addr;
-+
-+	pci_read_config_dword(dev, PCI_ROM_ADDRESS, &rom_addr);
-+	rom_addr &= ~PCI_ROM_ADDRESS_ENABLE;
-+	pci_write_config_dword(dev, PCI_ROM_ADDRESS, rom_addr);
-+}
-+
-+/**
-+ * pci_read_rom - read a PCI ROM
-+ * @kobj: kernel object handle
-+ * @buf: where to put the data we read from the ROM
-+ * @off: file offset
-+ * @count: number of bytes to read
-+ *
-+ * Put @count bytes starting at @off into @buf from the ROM in the PCI
-+ * device corresponding to @kobj.
-+ */
-+static ssize_t
-+pci_read_rom(struct kobject *kobj, char *buf, loff_t off, size_t count)
-+{
-+	struct pci_dev *dev = to_pci_dev(container_of(kobj,struct device,kobj));
-+	loff_t init_off = off;
-+	unsigned long start = pci_resource_start(dev, PCI_ROM_RESOURCE);
-+	int size = pci_resource_len(dev, PCI_ROM_RESOURCE);
-+
-+	if (off > size)
-+		return 0;
-+	if (off + count > size) {
-+		size -= off;
-+		count = size;
-+	} else {
-+		size = count;
-+	}
-+
-+	/* Enable ROM space decodes and do the reads */
-+	pci_enable_rom(dev);
-+
-+	while (size > 0) {
-+		unsigned char val;
-+		val = readb(start + off);
-+		buf[off - init_off] = val;
-+		off++;
-+		--size;
-+	}
-+
-+	/* Disable again before continuing */
-+	pci_disable_rom(dev);
-+
-+	return count;
-+}
-+
- static struct bin_attribute pci_config_attr = {
- 	.attr =	{
- 		.name = "config",
-@@ -193,6 +273,43 @@
- 	else
- 		sysfs_create_bin_file(&pdev->dev.kobj, &pcie_config_attr);
- 
-+	/* If the device has a ROM, try to expose it in sysfs. */
-+	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
-+		struct bin_attribute *rom_attr;
-+		rom_attr = kmalloc(sizeof(*rom_attr), GFP_ATOMIC);
-+
-+		pdev->rom_attr = NULL;
-+		if (!rom_attr)
-+			goto out;
-+
-+		pdev->rom_attr = rom_attr;
-+		rom_attr->attr.name = "rom";
-+		rom_attr->attr.mode = S_IRUSR;
-+		rom_attr->attr.owner = THIS_MODULE;
-+		rom_attr->read = pci_read_rom;
-+		rom_attr->size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
-+		sysfs_create_bin_file(&pdev->dev.kobj, rom_attr);
-+	}
-+ out:
- 	/* add platform-specific attributes */
- 	pcibios_add_platform_entries(pdev);
-+}
-+
-+/**
-+ * pci_remove_sysfs_dev_files - cleanup PCI specific sysfs files
-+ * @pdev: device whose entries we should free
-+ *
-+ * Cleanup when @pdev is removed from sysfs.
-+ */
-+void pci_remove_sysfs_dev_files(struct pci_dev *pdev)
-+{
-+	if (pdev->cfg_size < 4096)
-+		sysfs_remove_bin_file(&pdev->dev.kobj, &pci_config_attr);
-+	else
-+		sysfs_remove_bin_file(&pdev->dev.kobj, &pcie_config_attr);
-+
-+	if (pci_resource_len(pdev, PCI_ROM_RESOURCE) && pdev->rom_attr) {
-+		sysfs_remove_bin_file(&pdev->dev.kobj, pdev->rom_attr);
-+		kfree(pdev->rom_attr);
-+	}
- }
-===== drivers/pci/remove.c 1.3 vs edited =====
---- 1.3/drivers/pci/remove.c	2004-02-03 09:17:30 -08:00
-+++ edited/drivers/pci/remove.c	2004-07-30 13:35:18 -07:00
-@@ -26,6 +26,7 @@
- static void pci_destroy_dev(struct pci_dev *dev)
- {
- 	pci_proc_detach_device(dev);
-+	pci_remove_sysfs_dev_files(dev);
- 	device_unregister(&dev->dev);
- 
- 	/* Remove the device from the device lists, and prevent any further
-===== include/linux/pci.h 1.130 vs edited =====
---- 1.130/include/linux/pci.h	2004-06-30 11:21:27 -07:00
-+++ edited/include/linux/pci.h	2004-07-30 13:37:09 -07:00
-@@ -537,6 +537,7 @@
- 	unsigned int	is_busmaster:1; /* device is busmaster */
- 	
- 	unsigned int 	saved_config_space[16]; /* config space saved at suspend time */
-+	struct bin_attribute *rom_attr; /* ROM attribute (if ROM is present) */
- #ifdef CONFIG_PCI_NAMES
- #define PCI_NAME_SIZE	96
- #define PCI_NAME_HALF	__stringify(43)	/* less than half to handle slop */
-
---Boundary-00=_YIsCBZlgtmvCPUr--
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail

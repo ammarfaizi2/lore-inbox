@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbTI2UtH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 16:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbTI2UtH
+	id S262221AbTI2Uuo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 16:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbTI2Uuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 16:49:07 -0400
-Received: from gprs144-48.eurotel.cz ([160.218.144.48]:44931 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261936AbTI2UtE (ORCPT
+	Mon, 29 Sep 2003 16:50:44 -0400
+Received: from holomorphy.com ([66.224.33.161]:60067 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262221AbTI2Uum (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 16:49:04 -0400
-Date: Mon, 29 Sep 2003 22:46:34 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: pm: Revert swsusp to 2.6.0-test3
-Message-ID: <20030929204634.GA2425@elf.ucw.cz>
-References: <20030928100620.5FAA63450F@smtp-out2.iol.cz> <Pine.LNX.4.44.0309281038270.6307-100000@home.osdl.org> <20030928175853.GF359@elf.ucw.cz>
+	Mon, 29 Sep 2003 16:50:42 -0400
+Date: Mon, 29 Sep 2003 13:51:40 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: "J.A. Magallon" <jamagallon@able.es>, Frank Cusack <fcusack@fcusack.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2nd proc not seen
+Message-ID: <20030929205140.GQ4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Mikael Pettersson <mikpe@csd.uu.se>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Frank Cusack <fcusack@fcusack.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <20030904021113.A1810@google.com> <20030904091437.A25107@google.com> <20030928205045.B21288@google.com> <20030929085807.GA22884@werewolf.able.es> <16247.63409.996071.860727@gargle.gargle.HOWL>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030928175853.GF359@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <16247.63409.996071.860727@gargle.gargle.HOWL>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Sep 29, 2003 at 11:13:21AM +0200, Mikael Pettersson wrote:
+> Problem #1 is that physical CPU numbering isn't dense. This is not a bug.
+> Problem #2 is that the kernel's internal dense-logical-to-sparse-physical
+> numbering was deleted in 2.5.23 or thereabouts.
+> Hence NR_CPUS is basically impossible to use reliably in 2.6 unless we
+> reintroduce cpu_logical_map[].
 
-> > I'd also like to have some kind of readme or similar on the different 
-> > suspend/resume issues, and why we have two different
-> > approaches. Hmm?
+We should be able to at least boot them, since we program logical ID's
+ourselves. If you're relying on knowing physids at runtime you'll need
+cpu_logical_map[].
 
-<azbestos underwear on>What about this one?</off>
 
-								Pavel
-
---- clean/Documentation/power/swsusp.txt	2003-08-27 12:00:01.000000000 +0200
-+++ linux/Documentation/power/swsusp.txt	2003-09-29 22:44:27.000000000 +0200
-@@ -17,6 +17,23 @@
- You need to append resume=/dev/your_swap_partition to kernel command
- line. Then you suspend by echo 4 > /proc/acpi/sleep.
- 
-+Pavel's unreliable guide to swsusp mess
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-+
-+They are currently two versions of swap suspend in the kernel, old
-+"Pavel's" version in kernel/power/swsusp.c and new "Patrick's" version
-+in kernel/power/pmdisk.c. They provide same functionality; old version
-+looks ugly but was tested, while new version looks nicer but did not
-+receive so much testing. echo 4 > /proc/acpi/sleep calls old version,
-+echo disk > /sys/power/state calls new one.
-+
-+[In future, when new version is stable enough, two things can happen
-+
-+* new version is moved into swsusp.c, and swsusp is renamed to swap
-+  suspend (Pavel prefers this)
-+
-+* pmdisk is kept as is and swsusp.c is removed from kernel]
-+
- [Notice. Rest docs is pretty outdated (see date!) It should be safe to
- use swsusp on ext3/reiserfs these days.]
- 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-- wli

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272311AbTHIJgu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 05:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272316AbTHIJgu
+	id S272312AbTHIKAR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 06:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272313AbTHIKAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 05:36:50 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:27524 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S272311AbTHIJgt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 05:36:49 -0400
-Date: Sat, 9 Aug 2003 10:36:29 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Willy Tarreau <willy@w.ods.org>, albert@users.sourceforge.net,
-       linux-kernel@vger.kernel.org, chip@pobox.com
-Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
-Message-ID: <20030809093629.GB28566@mail.jlokier.co.uk>
-References: <1060087479.796.50.camel@cube> <20030809002117.GB26375@mail.jlokier.co.uk> <20030809081346.GC29616@alpha.home.local> <20030809015142.56190015.davem@redhat.com>
+	Sat, 9 Aug 2003 06:00:17 -0400
+Received: from 213-0-201-110.dialup.nuria.telefonica-data.net ([213.0.201.110]:19847
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S272312AbTHIKAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 06:00:15 -0400
+Date: Sat, 9 Aug 2003 12:00:13 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: Guillaume Boissiere <boissiere@adiglobal.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.6]  August 08, 2003
+Message-ID: <20030809100013.GA1965@localhost>
+Mail-Followup-To: Guillaume Boissiere <boissiere@adiglobal.com>,
+	linux-kernel@vger.kernel.org
+References: <3F33F7AB.29994.226855A@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030809015142.56190015.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3F33F7AB.29994.226855A@localhost>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> On Sat, 9 Aug 2003 10:13:46 +0200 Willy Tarreau <willy@w.ods.org> wrote:
+On Friday, 08 August 2003, at 19:19:07 -0400,
+Guillaume Boissiere wrote:
+
+> It's been a while since the last status update.  Tons of bug fixes 
+> have made their way into the 2.6.0-test tree, but (impressively)
+> few new features.
+> Security folks will be happy to know that SELinux was merged and 
+> will be part of 2.6.0-test3.
 > 
-> > (how could !!x be 0 if x isn't ?)
-> 
-> I believe the C language allows for systems where the NULL pointer is
-> not zero.
+I think your list is missing the inclusion (in the 2.5.75 -> 2.6.0-test1
+timeframe) of Linux Virtual Server (wwww.linuxvirtualserver.org).
 
-That is irrelevant.  The GCC manual says you can't use a pointer as
-the argument to __builtin_expect anyway:
+Regards,
 
-     Since you are limited to integral expressions for EXP, you should
-     use constructions such as
-
-          if (__builtin_expect (ptr != NULL, 1))
-            error ();
-
-     when testing pointer or floating-point values
-
--- Jamie
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test2-mm2)

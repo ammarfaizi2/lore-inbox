@@ -1,82 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUHHKwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265247AbUHHKxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265212AbUHHKwd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 06:52:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265247AbUHHKwd
+	id S265247AbUHHKxn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 06:53:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUHHKxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 06:52:33 -0400
-Received: from darwin.snarc.org ([81.56.210.228]:44254 "EHLO darwin.snarc.org")
-	by vger.kernel.org with ESMTP id S265212AbUHHKwa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 06:52:30 -0400
-Date: Sun, 8 Aug 2004 12:52:36 +0200
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RESENT] remove hardcoded offsets from ppc asm
-Message-ID: <20040808105236.GB13798@snarc.org>
-References: <20040807151838.GA6760@snarc.org> <1091921531.14102.2.camel@gaston> <20040808102512.GA13798@snarc.org> <1091960741.14105.22.camel@gaston>
+	Sun, 8 Aug 2004 06:53:43 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:58331 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S265247AbUHHKxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 06:53:37 -0400
+Subject: Re: [BUG] 2.6.8-rc3 slab corruption (jffs2?)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Wu Jian Feng <jianfengw@mobilesoft.com.cn>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-mtd@lists.infradead.org, Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <20040808061206.GA5417@mobilesoft.com.cn>
+References: <20040807150458.E2805@flint.arm.linux.org.uk>
+	 <20040808061206.GA5417@mobilesoft.com.cn>
+Content-Type: text/plain
+Message-Id: <1091962414.1438.977.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091960741.14105.22.camel@gaston>
-X-Warning: Email may contain unsmilyfied humor and/or satire.
-User-Agent: Mutt/1.5.6+20040803i
-From: Vincent Hanquez <tab@snarc.org>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Sun, 08 Aug 2004 11:53:34 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 08, 2004 at 08:25:42PM +1000, Benjamin Herrenschmidt wrote:
-> On Sun, 2004-08-08 at 20:25, Vincent Hanquez wrote:
-> 
-> > Hi Benjamin, it seems to be the 'convention'. I did the same comment
-> > some time ago to Brian Gerst with his patch for i386.
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=108454158825656&w=2
-> > 
-> > But if you prefer a smaller patch, without changing the constant
-> > name, I can do that too.
-> 
-> I don't know about this "convention", we certainly don't apply it
-> on ppc, I'd suggest doing the simpler patch instead.
+On Sun, 2004-08-08 at 14:12 +0800, Wu Jian Feng wrote:
+> Can't figure out why but have a quick workaround for this:
 
-ok thanks, here it is:
+Erases are permitted to be asynchronous -- if the erase was submitted
+sucessfully, you may not free the object until the callback is called.
+You _may_ free the object from the callback, and we do.
 
-Signed-off-by: Vincent Hanquez <tab@snarc.org>
+Can I infer from this that you've actually seen the same problem? Could
+you reproduce it? What arch, compiler, etc?
 
-diff -Naur linux-2.6.8-rc3.orig/arch/ppc/kernel/asm-offsets.c linux-2.6.8-rc3/arch/ppc/kernel/asm-offsets.c
---- linux-2.6.8-rc3.orig/arch/ppc/kernel/asm-offsets.c	2004-08-07 16:19:55.000000000 +0200
-+++ linux-2.6.8-rc3/arch/ppc/kernel/asm-offsets.c	2004-08-07 16:26:06.000000000 +0200
-@@ -129,6 +129,13 @@
- 	DEFINE(CPU_SPEC_FEATURES, offsetof(struct cpu_spec, cpu_features));
- 	DEFINE(CPU_SPEC_SETUP, offsetof(struct cpu_spec, cpu_setup));
- 
-+	DEFINE(TI_TASK, offsetof(struct thread_info, task));
-+	DEFINE(TI_EXECDOMAIN, offsetof(struct thread_info, exec_domain));
-+	DEFINE(TI_FLAGS, offsetof(struct thread_info, flags));
-+	DEFINE(TI_LOCAL_FLAGS, offsetof(struct thread_info, local_flags));
-+	DEFINE(TI_CPU, offsetof(struct thread_info, cpu));
-+	DEFINE(TI_PREEMPT, offsetof(struct thread_info, preempt_count));
-+	
- 	DEFINE(NUM_USER_SEGMENTS, TASK_SIZE>>28);
- 	return 0;
- }
-diff -Naur linux-2.6.8-rc3.orig/include/asm-ppc/thread_info.h linux-2.6.8-rc3/include/asm-ppc/thread_info.h
---- linux-2.6.8-rc3.orig/include/asm-ppc/thread_info.h	2004-08-07 16:20:00.000000000 +0200
-+++ linux-2.6.8-rc3/include/asm-ppc/thread_info.h	2004-08-07 16:26:06.000000000 +0200
-@@ -65,16 +65,6 @@
-  */
- #define THREAD_SIZE		8192	/* 2 pages */
- 
--/*
-- * Offsets in thread_info structure, used in assembly code
-- */
--#define TI_TASK		0
--#define TI_EXECDOMAIN	4
--#define TI_FLAGS	8
--#define TI_LOCAL_FLAGS	12
--#define TI_CPU		16
--#define TI_PREEMPT	20
--
- #define PREEMPT_ACTIVE		0x4000000
- 
- /*
+-- 
+dwmw2
+
+

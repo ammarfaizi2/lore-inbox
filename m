@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267125AbUBMQtP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 11:49:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267126AbUBMQtP
+	id S267129AbUBMRIq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 12:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267131AbUBMRIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 11:49:15 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1152 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267125AbUBMQtH
+	Fri, 13 Feb 2004 12:08:45 -0500
+Received: from pell.portland.or.us ([192.156.98.250]:23301 "EHLO
+	pell.portland.or.us") by vger.kernel.org with ESMTP id S267129AbUBMRIo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 11:49:07 -0500
-Date: Fri, 13 Feb 2004 11:48:57 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: RANDAZZO@ddc-web.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: spinlocks dont work
-In-Reply-To: <89760D3F308BD41183B000508BAFAC4104B16F6F@DDCNYNTD>
-Message-ID: <Pine.LNX.4.53.0402131137180.488@chaos>
-References: <89760D3F308BD41183B000508BAFAC4104B16F6F@DDCNYNTD>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Feb 2004 12:08:44 -0500
+Date: Fri, 13 Feb 2004 09:08:16 -0800
+From: david parsons <orc@pell.portland.or.us>
+To: Nagy Tibor <nagyt@otpbank.hu>, xela@slit.de, mochel@osdl.org,
+       bmoyle@mvista.com, orc@pell.chi.il.us, linux-kernel@vger.kernel.org
+Subject: Re: HIGHMEM
+Message-ID: <20040213090816.A19540@pell.pell.portland.or.us>
+References: <402CC114.8080100@dell633.otpefo.com> <6uvfmbktrj.fsf@zork.zork.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <6uvfmbktrj.fsf@zork.zork.net>; from Sean Neakums on Fri, Feb 13, 2004 at 01:12:48PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Feb 2004 RANDAZZO@ddc-web.com wrote:
-
-> On my uniprocessor system, I have two LKM's
->
-> driver1 takes hold of the spinlock....but does not release it...
-> driver2 attempts to take hold, and is allowed!!!!
-> how come spin locks don't work?????
-> how can I restrict access (to hardware) to only one driver at a time???
-> should I use semaphores,  etc...
->
-
-Spin-locks do work. However, you need to use the same lock-object
-for each execution path. A common error is to do:
-
-static spinlock_t device_lock;
-
-... in one file, and...
-
-static spinlock_t device_lock;
-
-... in another...
-
-There is also a possibility that the kernel you are using does not
-impliment spin-locks if it's not compiled for SMP. To make sure,
-compile your uniprocessor machine for SMP.
-
-Basically, you use semaphores when the particular execution path
-can sleep, and spin-locks when they can't. You can never sleep
-in an ISR, so you need to use spin-lock protection where something
-could change as a result of an interrupt.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+On Fri, Feb 13, 2004 at 01:12:48PM +0000, Sean Neakums wrote:
+> Nagy Tibor <nagyt@otpbank.hu> writes:
+> 
+> > Hi,
+> >
+> > I am sorry, I have found your e-mail address in
+> > ./arch/i386/kernel/setup.c. I have the problem below since a year, and
+> > there is no solution yet. I guess, the problem is about e820. The
+> > problem exists in 2.4.x and also in 2.6.1.
+> >
+> > We have two Dell Poweredge servers, an older one (PowerEdge 6300) and a
+> > newer one (PowerEdge 6400). Both servers have 4GB RAM, but the Linux
+> > kernel uses about 500MB less memory in the newer machine.
+> 
+> I may be talking through my hat, but I think that in this case you
+> need to select the option for support of 64G highmem.  If I recall,
+> "4G highmem" refers not to the total amount to the memory, but to the
+> highest physical address that can be accessed.
 
 
+   Its been several years since I did anything with the 820 code,
+   but it all uses long longs so it should be fine with up to 4gb
+   and a casual look at the now much hacked code doesn't seem to
+   show anything that would leap out and start laughing at you.
+
+
+                 ____
+   david parsons \bi/ ``Sanitize the BIOS e820 map''?  
+                  \/

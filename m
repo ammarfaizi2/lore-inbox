@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131169AbRCGS56>; Wed, 7 Mar 2001 13:57:58 -0500
+	id <S131158AbRCGTO0>; Wed, 7 Mar 2001 14:14:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131170AbRCGS5s>; Wed, 7 Mar 2001 13:57:48 -0500
-Received: from www.wen-online.de ([212.223.88.39]:1799 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S131169AbRCGS5m>;
-	Wed, 7 Mar 2001 13:57:42 -0500
-Date: Wed, 7 Mar 2001 19:56:51 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Ramdisk (and other) problems with 2.4.2
-In-Reply-To: <Pine.LNX.3.95.1010307125355.2243A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.33.0103071903530.3166-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131160AbRCGTOQ>; Wed, 7 Mar 2001 14:14:16 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:46822 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131158AbRCGTOL>;
+	Wed, 7 Mar 2001 14:14:11 -0500
+Date: Wed, 7 Mar 2001 19:10:44 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        David Balazic <david.balazic@uni-mb.si>, torvalds@transmeta.com,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: scsi vs ide performance on fsync's
+Message-ID: <20010307191044.M7453@redhat.com>
+In-Reply-To: <3AA53DC0.C6E2F308@uni-mb.si> <20010306213720.U2803@suse.de> <20010307135135.B3715@redhat.com> <20010307151241.E526@suse.de> <20010307150556.L7453@redhat.com> <20010307195152.C4653@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010307195152.C4653@suse.de>; from axboe@suse.de on Wed, Mar 07, 2001 at 07:51:52PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Mar 2001, Richard B. Johnson wrote:
+Hi,
 
-> Would you please check your /dev/ram0 and verify that it is:
->
-> 	block special (1/0)
+On Wed, Mar 07, 2001 at 07:51:52PM +0100, Jens Axboe wrote:
+> On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
+> 
+> My bigger concern is when the journalled fs has a log on a different
+> queue.
 
-Why zzzt zzt are we now zzt troubleshooting _my_ zzzzt system :-)
+For most fs'es, that's not an issue.  The fs won't start writeback on
+the primary disk at all until the journal commit has been acknowledged
+as firm on disk.
 
-	tilt
+Certainly for ext3, synchronisation between the log and the primary
+disk is no big thing.  What really hurts is writing to the log, where
+we have to wait for the log writes to complete before submitting the
+commit write (which is sequentially allocated just after the rest of
+the log blocks).  Specifying a barrier on the commit block would allow
+us to keep the log device streaming, and the fs can deal with
+synchronising the primary disk quite happily by itself.
 
-	-Mike
-
+Cheers,
+ Stephen

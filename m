@@ -1,161 +1,115 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314067AbSDVG2X>; Mon, 22 Apr 2002 02:28:23 -0400
+	id <S314063AbSDVGbI>; Mon, 22 Apr 2002 02:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314068AbSDVG2W>; Mon, 22 Apr 2002 02:28:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9477 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314067AbSDVG2V>;
-	Mon, 22 Apr 2002 02:28:21 -0400
-Message-ID: <3CC3AD8C.630D4B74@zip.com.au>
-Date: Sun, 21 Apr 2002 23:28:28 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: updated writeback patches for 2.5.8
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S314065AbSDVGbH>; Mon, 22 Apr 2002 02:31:07 -0400
+Received: from support.kovair.com ([209.66.77.36]:20375 "EHLO tbdnetworks.com.")
+	by vger.kernel.org with ESMTP id <S314063AbSDVGbG>;
+	Mon, 22 Apr 2002 02:31:06 -0400
+Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam4
+From: Norbert Kiesel <nkiesel@tbdnetworks.com>
+To: jamagallon@able.es
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-AIJmneUJg50kXqyfWGI6"
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 21 Apr 2002 23:30:44 -0700
+Message-Id: <1019457056.591.18.camel@voyager>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This code is working satisfactorily now.
-
-ext2, the three modes of ext3 and reiserfs are solid.  JFS has also
-been tested - had a bit of a problem with JFS under heavy load, but
-that appears to be unrelated to these changes.  The loop driver
-is much, much happier.  The ramdisk driver is very sick, but that
-is not due to these changes:
-
-# mke2fs /dev/ram0
-# mount /dev/ram0 /mnt/ram0
-# cp -a /usr/src/dbench /mnt/ram0
-# umount /mnt/ram0
-# e2fsck -fy /dev/ram0		--->>  many, many errors
-
-Minix and sysvfs are broken - fixing those will happen shortly (there
-doesn't seem to be a mkfs.sysv.  Help.)
-
-It's a very big patch.  That is pretty unavoidable - a large chunk of
-kernel functionality has been removed and new mechanisms (which are
-largely just a revamp of the existing ones) were put in its place.
-
-There's a *ton* of stuff still to be done.  Smaller patches,
-fortunately.  It would help if anyone who reviews these changes could
-check my todo list before larting me - it's probably already in the
-plans.
-
-I haven't done much benchmarking at all - a number of design changes
-still need to be made before tuning and smoothing is appropriate.
-And, really, some VM decisions need to be made.  Generally, throughput
-seems to be improved.
-
-At http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.8/ the following
-files may be found:
-
-ttd
-
-  The 86-entry todo list.
-
-pagecache-screwup.patch
-
-  Fix ratcache locking bug.
-
-per-cpu-pages.patch
-
-  Fun hack to amortise zone_t.lock costs for Anton's testing. 
-  Not really being proposed for inclusion, but it works well.
-
-dallocbase-10-page_alloc_fail.patch
-
-  Debug stuff.
-
-dallocbase-35-pageprivate_fixes.patch
-
-  Fix JFS compilation
-
-dallocbase-55-ext2_dir.patch
-
-  Teach ext2 to not use directory data outside i_size
-
-dallocbase-60-page_accounting.patch
-
-  Global locked and dirty page accounting
-
-ratcache-pf_memalloc.patch
-
-  Make the rat not consume all memory on the swapout path.
-
-mempool-node.patch
-
-  Make mempool not alter the objects which it is managing
-
-readahead-fixes.patch
-
-  Allow zero-length readahead, make readahead initialisation sane.
-
-unplug-fix.patch
-
-  Might fix a lockup which I observed a single time in a week's heavy
-  thrashing.  Everything died; a process was stuck in
-  get_request_wait() while holding fs locks.  There were many
-  outstanding requests.  Why had I/O not been started?  I assume it was
-  a missing unplug.  Very, very, very hard to reproduce.
-
-dallocbase-70-writeback.patch
-
-  The core writeback stuff.  Removes the buffer LRU and hash table,
-  implements address_space-based writeback.
-
-  Splits half of fs/inode.c into fs/fs-writeback.c.
-  Moves most of the page flag handling out of mm.h into page-flags.h
-  address_space writeback functions in mm/page-writeback.c
-
-dallocbase-80-unused_list.patch
-
-  Remove the buffer unused_list, replace with a mempool.
+--=-AIJmneUJg50kXqyfWGI6
+Content-Type: multipart/mixed; boundary="=-Ei6U7wx+8H0TMYoUb2zM"
 
 
-The rest hasn't been tested in two weeks and is probably busted:
+--=-Ei6U7wx+8H0TMYoUb2zM
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-dalloc-10-syncalloc_ext3.patch
-dalloc-20-syncalloc_ext2.patch
+Hi,
 
-  Turn on multipage VM writeback for ext2, ext3.
+I had two compile problems:
+1) sched.c complains about missing local_bh_count, TQUEUE_BH, ...
+2) init/do_mounts.c complains about SCHED_YIELD (if initrd is enabled)
 
-dalloc-30-dellalloc_core.patch
+The following patch fixes both problems for me.
 
-  Delayed allocate core
+--nk
 
-dalloc-40-ext2.patch
+diff -ur linux/init/do_mounts.c linux-nk/init/do_mounts.c
+--- linux/init/do_mounts.c	Sun Apr 21 23:04:20 2002
++++ linux-nk/init/do_mounts.c	Sun Apr 21 21:01:41 2002
+@@ -775,8 +775,7 @@
+ 	pid =3D kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
+ 	if (pid > 0) {
+ 		while (pid !=3D wait(&i)) {
+-			current->policy |=3D SCHED_YIELD;
+-			schedule();
++			yield();
+ 		}
+ 	}
+=20
+diff -ur linux/kernel/sched.c linux-nk/kernel/sched.c
+--- linux/kernel/sched.c	Sun Apr 21 23:16:06 2002
++++ linux-nk/kernel/sched.c	Sun Apr 21 21:24:59 2002
+@@ -19,6 +19,7 @@
+ #include <linux/smp_lock.h>
+ #include <asm/mmu_context.h>
+ #include <linux/kernel_stat.h>
++#include <linux/interrupt.h>
+=20
+ /*
+  * Priority of a process goes from 0 to MAX_PRIO-1.  The
 
-  Implement delayed allocation in ext2
+--=20
+Key fingerprint =3D 6C58 F18D 4747 3295 F2DB  15C1 3882 4302 F8B4 C11C
 
-mpage-10-biobits.patch
+--=-Ei6U7wx+8H0TMYoUb2zM
+Content-Disposition: attachment; filename=diff.nk
+Content-Type: text/x-patch; name=diff.nk; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-  BIO support for multipage writeback and readahead
+diff -ur linux/init/do_mounts.c linux-nk/init/do_mounts.c
+--- linux/init/do_mounts.c	Sun Apr 21 23:04:20 2002
++++ linux-nk/init/do_mounts.c	Sun Apr 21 21:01:41 2002
+@@ -775,8 +775,7 @@
+ 	pid =3D kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
+ 	if (pid > 0) {
+ 		while (pid !=3D wait(&i)) {
+-			current->policy |=3D SCHED_YIELD;
+-			schedule();
++			yield();
+ 		}
+ 	}
+=20
+diff -ur linux/kernel/sched.c linux-nk/kernel/sched.c
+--- linux/kernel/sched.c	Sun Apr 21 23:16:06 2002
++++ linux-nk/kernel/sched.c	Sun Apr 21 21:24:59 2002
+@@ -19,6 +19,7 @@
+ #include <linux/smp_lock.h>
+ #include <asm/mmu_context.h>
+ #include <linux/kernel_stat.h>
++#include <linux/interrupt.h>
+=20
+ /*
+  * Priority of a process goes from 0 to MAX_PRIO-1.  The
 
-mpage-20-core.patch
+--=-Ei6U7wx+8H0TMYoUb2zM--
 
-  Multipage I/O core
+--=-AIJmneUJg50kXqyfWGI6
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-mpage-30-ext2.patch
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-  Multipage for ext2
+iD8DBQA8w64TOIJDAvi0wRwRAqktAJ9aJHjyCgClErbMVdZpc4UgPb3svwCdElnK
+yIU2MsaAtd4sQDDZgM9YY0Q=
+=8IqZ
+-----END PGP SIGNATURE-----
 
-mpage-40-ext3.patch
+--=-AIJmneUJg50kXqyfWGI6--
 
-  Teach ext3 about generic_writeback_mapping() interface change.
-
-tuning-10-request.patch
-
-  get_request() starvation fix.
-
-tuning-20-ext2-preread-inode.patch
-
-  ext2 tuning.
-
-tuning-30-read_latency.patch
-
-  Disk read latency hacks.

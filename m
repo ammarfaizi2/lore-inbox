@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285668AbRLGXaH>; Fri, 7 Dec 2001 18:30:07 -0500
+	id <S285666AbRLGXdr>; Fri, 7 Dec 2001 18:33:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285661AbRLGX35>; Fri, 7 Dec 2001 18:29:57 -0500
-Received: from 39.159.252.64.snet.net ([64.252.159.39]:36736 "EHLO
-	stinkfoot.org") by vger.kernel.org with ESMTP id <S285659AbRLGX3m>;
-	Fri, 7 Dec 2001 18:29:42 -0500
-Message-ID: <3C115458.7090607@stinkfoot.org>
-Date: Fri, 07 Dec 2001 18:44:24 -0500
-From: Ethan <Ethan@stinkfoot.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011125
-X-Accept-Language: en-us
+	id <S285659AbRLGXd2>; Fri, 7 Dec 2001 18:33:28 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:61965 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S285661AbRLGXdH>; Fri, 7 Dec 2001 18:33:07 -0500
+Message-ID: <3C115196.1D5D87A5@zip.com.au>
+Date: Fri, 07 Dec 2001 15:32:38 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PPC kernel fails when IDE built as modules
-In-Reply-To: <20011204004457.6930@smtp.wanadoo.fr> <20011204005915.4996@smtp.wanadoo.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "Udo A. Steinberg" <reality@delusion.de>
+CC: "David C. Hansen" <haveblue@us.ibm.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: release() locking
+In-Reply-To: <3C10D83E.81261D74@delusion.de> <3C10FDCF.D8E473A0@zip.com.au> <3C11394D.90101@us.ibm.com> <3C113D78.F324F1B9@delusion.de> <3C113FB1.2000AFF1@zip.com.au> <3C1147F2.4070103@us.ibm.com> <3C114E14.F6DC7937@delusion.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
+"Udo A. Steinberg" wrote:
+> 
+> "David C. Hansen" wrote:
+> >
+> > Andrew Morton wrote:
+> 
+> > >Maybe so.  Can you identify the exact kernel version at which
+> > >the problem started?
+> 
+> Yes. I tried the entire 2.5.1-pre series:
+> 
+> -pre1 and -pre2 are fine.
+> -pre3 doesn't compile out of the box and with 3 trivial compile fixes to
+>       pc_keyb.c shows the problem.
+> 
 
->>>Just thought I'd drop a note that recent kernel builds (2.4.17-pre1,2) 
->>>on PPC fail when IDE is built as modules.
->>>
->>The fix for this is part of the big pmac merge I'm about to start
->>with Marcelo. In the meantime, use the bitkeeper PPC tree
->>(see http://www.penguinppc.org/dev/kernel.shtml for details).
->>
->
->Hrm.. Sorry, it looks like you indeed have a good point here.
->
->I'll see how we can fix that tomorrow.
->
->Ben.
->
-Making any headway on this one?  I'm still getting it as of 2.4.17-pre5.
+Hum.  send_data() requires that local interrupts be enabled.
 
-thanks again,
+Does this fix it?
 
-Ethan
-
-
-
-
+--- linux-2.5.1-pre6/drivers/char/pc_keyb.c	Thu Dec  6 20:44:21 2001
++++ 25/drivers/char/pc_keyb.c	Fri Dec  7 15:31:34 2001
+@@ -1090,6 +1090,7 @@ static int open_aux(struct inode * inode
+ 		spin_unlock_irqrestore(&aux_count_lock, flags);
+ 		return -EBUSY;
+ 	}
++	spin_unlock_irqrestore(&aux_count_lock, flags);
+ 	kbd_write_command_w(KBD_CCMD_MOUSE_ENABLE);	/* Enable the
+ 							   auxiliary port on
+ 							   controller. */
+@@ -1099,7 +1100,6 @@ static int open_aux(struct inode * inode
+ 	mdelay(2);			/* Ensure we follow the kbc access delay rules.. */
+ 
+ 	send_data(KBD_CMD_ENABLE);	/* try to workaround toshiba4030cdt problem */
+-	spin_unlock_irqrestore(&aux_count_lock, flags);
+ 	return 0;
+ }

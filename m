@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261418AbSK0C7t>; Tue, 26 Nov 2002 21:59:49 -0500
+	id <S261426AbSK0DPK>; Tue, 26 Nov 2002 22:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbSK0C7t>; Tue, 26 Nov 2002 21:59:49 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:37577 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S261418AbSK0C7t>; Tue, 26 Nov 2002 21:59:49 -0500
-Date: Tue, 26 Nov 2002 22:06:33 -0500
-From: "Murray J. Root" <murrayr@brain.org>
+	id <S261446AbSK0DPK>; Tue, 26 Nov 2002 22:15:10 -0500
+Received: from f270.law8.hotmail.com ([216.33.240.145]:53772 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S261426AbSK0DPJ>;
+	Tue, 26 Nov 2002 22:15:09 -0500
+X-Originating-IP: [24.44.249.150]
+From: "sean darcy" <seandarcy@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: alan@redhat.com
-Subject: 2.4.20-rc4-ac1 SiS IDE driver troubles
-Message-ID: <20021127030633.GA1642@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: modutils for both redhat kernels and 2.5.x
+Date: Tue, 26 Nov 2002 22:22:22 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; format=flowed
+Message-ID: <F2708IgEO3YnDKvLVFD000016ca@hotmail.com>
+X-OriginalArrivalTime: 27 Nov 2002 03:22:23.0175 (UTC) FILETIME=[339B7570:01C295C4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P4S533 (SiS645DX chipset)
-P4 2GHz
-1G PC2700 RAM
+OK.OK So there's no way to boot both.
 
-After booting and initscripts I get some kind of error like a BUG() but
-I can't see what it is because it scrolls off with repeated "unable to
-handle kernel paging request" messages. The first error shows a stack trace
-(briefly) but all the rest just show the offsets without the text.
+FWIW, modutils-2.4.21-4 works fine with built 2.4.19 and 2.4.20-rc3 kernels. 
+While modprobe -c does give errors, all the rh scripts seem to work fine.
 
-If I choose just Generic IDE then I can boot (of course I don't get to
-use ATA/133). No mouse, but since that error has been there since 2.4.20
-pre8 I'm pretty sure it's not related.
+AND, rh's position on all this:
 
-There are no error messages in the logs - just a long series of <nul>
-where the messages would be.
+"You need *entirely different* modutils, not just a new modutils. We 
+probably
+won't be looking into this until the new 2.5 module loader is actually 
+finished" Bugzilla 78508
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker 
+So if you want to try 2.5 kernels, make your own 2.4.x, you can't use the rh 
+kernels.
+
+
+
+
+
+
+
+
+
+
+
+_________________________________________________________________
+Protect your PC - get McAfee.com VirusScan Online 
+http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
 

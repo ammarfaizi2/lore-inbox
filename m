@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbUK1OF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbUK1OHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbUK1OF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 09:05:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUK1OF1
+	id S261473AbUK1OHq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 09:07:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbUK1OHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 09:05:27 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:63453 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261471AbUK1OFK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 09:05:10 -0500
-Message-ID: <41A9E98F.209C59B0@tv-sign.ru>
-Date: Sun, 28 Nov 2004 18:06:55 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2/2] rcu: eliminate rcu_data.last_qsctr
+	Sun, 28 Nov 2004 09:07:44 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37519 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261473AbUK1OFy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 09:05:54 -0500
+Date: Sun, 28 Nov 2004 14:05:52 +0000
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Tomas Carnecky <tom@dbservice.com>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, ecki-news2004-05@lina.inka.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Problem with ioctl command TCGETS
+Message-ID: <20041128140552.GD26051@parcelfarce.linux.theplanet.co.uk>
+References: <E1CYMI9-0005PL-00@calista.eckenfels.6bone.ka-ip.net> <E1CYN7z-0001bZ-00@dorka.pomaz.szeredi.hu> <20041128121800.GZ26051@parcelfarce.linux.theplanet.co.uk> <E1CYODw-0001jf-00@dorka.pomaz.szeredi.hu> <20041128124847.GA26051@parcelfarce.linux.theplanet.co.uk> <E1CYOXh-0001nn-00@dorka.pomaz.szeredi.hu> <41A9D093.4090908@dbservice.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <41A9D093.4090908@dbservice.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Sun, Nov 28, 2004 at 02:20:19PM +0100, Tomas Carnecky wrote:
+> But then you'd have to open another file :(
 
-Is the rcu_data.last_qsctr really needed?
+Correct, but not necessary on sysfs.
 
-It is used in rcu_check_quiescent_state() exclusively.
-I think we can reset qsctr at the start of the grace period,
-and then just test qsctr against 0.
+> And what about somethink like:
+> cdrom_fd = open("/dev/cdrom", O_RDWR)
+> cdrom_param_fd = get_param_fd(cdrom_fd) /* a new syscall */
+> Now read/write to this param fd.
+> And two new entries in the struct file_operations:
+> write_param([same args as write])
+> read_param([same args as read])
 
-Oleg.
+That assumes that there is any sort of uniform semantics for these
+operations.  There isn't.  Moreover, you are insisting on pushing
+all of them into the same channel; not a good idea since the set
+of things done with ioctls tends to consist of several unrelated
+classes, often coming from a bunch of unrelated subsystems.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+There is no mechanical replacement for ioctl(); the nature of its
+problems is that we have a random mix of unrelated operations bumped
+into one pile.
 
---- 2.6.10-rc2/include/linux/rcupdate.h~	2004-11-27 21:32:49.000000000 +0300
-+++ 2.6.10-rc2/include/linux/rcupdate.h	2004-11-28 18:59:40.349288512 +0300
-@@ -88,8 +88,6 @@ struct rcu_data {
- 	/* 1) quiescent state handling : */
- 	long		quiescbatch;     /* Batch # for grace period */
- 	long		qsctr;		 /* User-mode/idle loop etc. */
--	long            last_qsctr;	 /* value of qsctr at beginning */
--					 /* of rcu grace period */
- 	int		qs_pending;	 /* core waits for quiesc state */
- 
- 	/* 2) batch handling */
---- 2.6.10-rc2/kernel/rcupdate.c~	2004-11-28 17:29:19.084446040 +0300
-+++ 2.6.10-rc2/kernel/rcupdate.c	2004-11-28 20:01:29.417424448 +0300
-@@ -215,9 +215,9 @@ static void rcu_check_quiescent_state(st
- 			struct rcu_state *rsp, struct rcu_data *rdp)
- {
- 	if (rdp->quiescbatch != rcp->cur) {
--		/* new grace period: record qsctr value. */
-+		/* new grace period: reset qsctr value. */
- 		rdp->qs_pending = 1;
--		rdp->last_qsctr = rdp->qsctr;
-+		rdp->qsctr = 0;
- 		rdp->quiescbatch = rcp->cur;
- 		return;
- 	}
-@@ -229,7 +229,7 @@ static void rcu_check_quiescent_state(st
- 	if (!rdp->qs_pending)
- 		return;
- 
--	if (rdp->qsctr == rdp->last_qsctr)
-+	if (rdp->qsctr == 0)
- 		return;
- 	rdp->qs_pending = 0;
+Take a look at e.g. networking ioctls.  Most of them openly ignores the
+descriptor used to issue an ioctl - more often then not the first thing
+they do is to peek into the passed data structure and go looking for
+the real object we are going to operate upon; e.g. find an interface by
+name.  Of course it's bogus; any sane modification of that API would
+have the object selected by the opened file we are passing to it.
+
+And no, we have no chance in hell to rewrite all userland code that
+uses these suckers, so we are stuck with them for all forseeable future.
+UCB folks had no taste, film at 11...
+
+For more or less common (read: implemented by more than a couple of drivers)
+ioctls we have to keep them anyway; for the stuff where we really stand
+a chance of doing some kind of changes (including the new operations) we
+can bloody well do splitup by files that would match the nature of operations.
+Which leaves the "get me secondary channel by fd" kind of operations
+without any uses.

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312143AbSCRABZ>; Sun, 17 Mar 2002 19:01:25 -0500
+	id <S312147AbSCRAFp>; Sun, 17 Mar 2002 19:05:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312147AbSCRABS>; Sun, 17 Mar 2002 19:01:18 -0500
-Received: from sbcs.cs.sunysb.edu ([130.245.1.15]:6296 "EHLO
-	sbcs.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id <S312144AbSCRAAr>; Sun, 17 Mar 2002 19:00:47 -0500
-Date: Sun, 17 Mar 2002 18:57:24 -0500 (EST)
-From: <prade@cs.sunysb.edu>
-X-X-Sender: <prade@compserv3>
-To: <linux-kernel@vger.kernel.org>
-cc: <prade@cs.sunysb.edu>
-Subject: Trapping all Incoming Network Packets 
-Message-ID: <Pine.GSO.4.33.0203171840250.5841-100000@compserv3>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312148AbSCRAFf>; Sun, 17 Mar 2002 19:05:35 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:7084 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S312147AbSCRAF3>;
+	Sun, 17 Mar 2002 19:05:29 -0500
+Date: Sun, 17 Mar 2002 16:01:36 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "Matthew D. Pitts" <mpitts@suite224.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre3-ac1
+Message-ID: <20020318000136.GC27249@matchmail.com>
+Mail-Followup-To: "Matthew D. Pitts" <mpitts@suite224.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020316190415.38CE14E534@mail.vnsecurity.net> <E16mLFj-000794-00@the-village.bc.nu> <20020317053624.GD23938@matchmail.com> <003901c1ce0e$e5c15040$b0d3fea9@pcs686>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <003901c1ce0e$e5c15040$b0d3fea9@pcs686>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Mar 17, 2002 at 06:52:51PM -0500, Matthew D. Pitts wrote:
+> L-K developers,
+> 
+> What is the recomended amount of swap if you have a PC with 384 MB ram?
 
-I am trying to write a module that will redirect all the packets to my
-recv routine, instead of going to the recv routines of the specific
-protocols. For example, a packet with the protocol field ETH_P_IP should
-come to "my_recv" before going to ip_rcv.
+There is not a single right answer because it's based on your work load.
 
-My restriction is I cannot add my own header. In other words, I cannot
-register my own protocol handler and attach a header to each packet to
-redirect it to "my_recv".
+I would set it to 2x or 3x the ammount of swap you currently have *in use* during
+normal operation.
 
-The option I figured out seems to be changing the function pointers, eg.
-net_rx_action by my own net_rx_action at init_module time and restoring it
-at cleanup. But since 2.4 kernel does not export any function to deal with
-the data structures holding the function pointers, I am in a fix.
+For smaller ammounts of ram (measured in the hundreds) I'd just make it
+equal to how much ram you have.  With more ram, use the above suggestion.
 
-I look forward to some interesting suggestions about how to get around the
-problem for 2.4 kernels.
-
-Thanks,
--- pradipta.
-
-NB. Plz say "yes" to the cc-option. Thx. :-)
-
+Mike

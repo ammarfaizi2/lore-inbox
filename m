@@ -1,78 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266052AbUGOAuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265201AbUGOAsT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266052AbUGOAuI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 20:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266131AbUGOAsh
+	id S265201AbUGOAsT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 20:48:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266052AbUGOArD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 20:48:37 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:59024 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266129AbUGOAsD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 20:48:03 -0400
-Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
-	posix-timer functions to return higher accuracy)
-From: john stultz <johnstul@us.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>, george anzinger <george@mvista.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, ia64 <linux-ia64@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0407141703360.17055@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
-	 <1089835776.1388.216.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0407141323530.15874@schroedinger.engr.sgi.com>
-	 <1089839740.1388.230.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0407141703360.17055@schroedinger.engr.sgi.com>
+	Wed, 14 Jul 2004 20:47:03 -0400
+Received: from mailgate2.mysql.com ([213.136.52.47]:65230 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S265201AbUGOApQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 20:45:16 -0400
+Subject: Re: VM Problems in 2.6.7 (Too active OOM Killer)
+From: Peter Zaitsev <peter@mysql.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040715000438.GS974@dualathlon.random>
+References: <1089771823.15336.2461.camel@abyss.home>
+	 <20040714031701.GT974@dualathlon.random>
+	 <1089776640.15336.2557.camel@abyss.home>
+	 <20040713211721.05781fb7.akpm@osdl.org>
+	 <1089848823.15336.3895.camel@abyss.home>
+	 <20040715000438.GS974@dualathlon.random>
 Content-Type: text/plain
-Message-Id: <1089852486.1388.256.camel@cog.beaverton.ibm.com>
+Organization: MySQL
+Message-Id: <1089852210.15336.3988.camel@abyss.home>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 14 Jul 2004 17:48:06 -0700
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 14 Jul 2004 17:43:31 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-14 at 17:08, Christoph Lameter wrote:
-> On Wed, 14 Jul 2004, john stultz wrote:
-> > On Wed, 2004-07-14 at 13:28, Christoph Lameter wrote:
-> > > > None the less, I do understand the desire for the change (and am working
-> > > > to address it in 2.7), so could you at least use a better name then
-> > > > gettimeofday()? Maybe get_ns_time() or something? Its just too similar
-> > > > to do_gettimeofday and the syscall gettimeofday().
-> > >
-> > > Right. I had it named getnstimeofday before but the feeling was that the
-> > > patch should not introduce a new name. Any approach that would allow
-> > > progress on the issue would be fine with me.
-> >
-> > Fair enough. getnstimeofday() sounds good enough for me.
+On Wed, 2004-07-14 at 17:04, Andrea Arcangeli wrote:
+
+> the oom without swap you reproduced is not related to ZONE_NORMAL
+> shortage. The pages in ZONE_NORMAL never goes into swap.
+
+Hm. It looks like it gets now even more unclear. If ZONE_NORMAL pages do
+not go to swap what goes where, ie on low memory boxes which do not have
+HIGHMEM  ? 
+
 > 
-> Ok. A modified patch is following.
+> the ZONE_NORMAL oom is a separate issue from the oom killing you
+> reproduced. with 2.6.7 if you were hitting the ZONE_NORMAL shortage your
+> machine would lockup and it would never oom-kill anything (Andrew just
+> changed that in kernel CVS, so thanks to that change a ZONE_NORMAL
+> shortage will not deadlock anymore in 2.6.8, but OTOH in 2.6.8 adding
+> swap will not be enough anymore to workaround the oom-killing you
+> reproduced).
 
-I guess it looks good enough for me. I'd say send it to Andrew when
-you're ready.
+OOM is better than Lockup but still not good at all.  The problem is
+from user standpoint one can control only general memory allocation, the
+zones kernel internally is transparent on this level, so if one has OOM
+killer or lockup  having allocated just ie 3G out of 4G this just looks
+like a bug, well if it is documented I would call it gotcha.
 
-George, do you have any additional comments?
-
-Although you still have the issue w/ NTP adjustments being ignored, but
-last time I looked at the time_interpolator code, it seemed it was being
-ignored there too, so at least your not doing worse then the ia64
-do_gettimeofday(). [If I'm doing the time_interpolator code a great
-injustice with the above, someone please correct me]
-
-> > > > Really, I feel the cleaner method is to fix do_gettimeofday() so it
-> > > > returns a timespec and then convert it to a timeval in
-> > > > sys_gettimeofday(). However this would add overhead to the syscall, so I
-> > > > doubt folks would go for it.
-> > >
-> > > do_gettimeofday is used all over the linux kernel for a variety of
-> > > purposes and lots of code depends on the presence of a timeval struct.
-> >
-> > Indeed, it would be a decent amount of work to clean that up as well.
 > 
-> The cleanup can be done gradually after this patch is in. I volunteer
-> to work on this (hoping that my employer may support that  ;-) ).
+> About the ZONE_NORMAL shortage without swap, rather than running
+> cpu-cache-hungry memcopies from lowmemzone to highmem (or even worse to
+> pass through swap like it happens in 2.6 mainline with swap enabled), I
+> believe it's better to reserve some ram in the lowmem zone, 800M of ram
+> on a 32G box should be a cheap price to pay compared to the cpu/IO cost
+> involved in moving memory around during the bench.
 
-I'll try to remember to cc you on the 2.7 code when I get the first pass
-ready (re-implementing the NTP mechanism is the last blocker). I'm sure
-to appreciate additional feedback from non i386 arch specific views.
+Right.  On other hand whatever performance problem is other class of the
+problem than lockups and OOM kills.  Poor performance is much less
+critical problem than lockups and firing OOM without good reason,
+especially if user has a way to tune kernel to improve performance.
 
-thanks
--john
+
+
+-- 
+Peter Zaitsev, Senior Support Engineer
+MySQL AB, www.mysql.com
+
+
 

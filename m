@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292395AbSCMGD4>; Wed, 13 Mar 2002 01:03:56 -0500
+	id <S292458AbSCMGbD>; Wed, 13 Mar 2002 01:31:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292398AbSCMGDr>; Wed, 13 Mar 2002 01:03:47 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:33809 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S292395AbSCMGDc>; Wed, 13 Mar 2002 01:03:32 -0500
-Date: Tue, 12 Mar 2002 22:03:30 -0800 (PST)
-From: Jauder Ho <jauderho@carumba.com>
-X-X-Sender: jauderho@twinlark.arctic.org
-To: walter <walt@nea-fast.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: oracle rmap kernel version
-In-Reply-To: <200203121729.MAA08522@int1.nea-fast.com>
-Message-ID: <Pine.LNX.4.44.0203122202580.28876-100000@twinlark.arctic.org>
-X-Mailer: UW Pine 4.44 + a bunch of schtuff
-X-There-Is-No-Hidden-Message-In-This-Email: There are no tyops either
+	id <S292473AbSCMGaw>; Wed, 13 Mar 2002 01:30:52 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:33762 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S292458AbSCMGai>; Wed, 13 Mar 2002 01:30:38 -0500
+Date: Wed, 13 Mar 2002 08:14:18 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Robert Love <rml@tech9.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Few questions about 2.5.6-pre3
+In-Reply-To: <Pine.LNX.4.44.0203121608400.32078-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.44.0203130813350.5045-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 12 Mar 2002, Zwane Mwaikambo wrote:
 
-Has anyone done any comparisons of Oracle performance on Linux/Intel vs
-Solaris/Sun?
+> On 12 Mar 2002, Robert Love wrote:
+> 
+> > I've never seen this.  I assume the box is SMP since you are hitting a
+> > BUG in the spin_unlock code?  I almost want to think this is an SMP bug
+> > (locking rules not being observed somewhere) and preemption is just
+> > accelerating the race.
+> > 
+> > Ohh wait - this is 2.5.6-pre3 ?
+> > 
+> > Can you try 2.5.6 final (or anything later)?  There is a bug with SMP
+> > and preempt and this could be it.  Let me know..
+> 
+> Its SMP kernel on UP box, i'll be testing 2.5.6 this evening so i'll give 
+> you a heads up tommorrow.
 
---Jauder
+Ok couldn't reproduce it with -final.
 
+Cheers,
+	Zwane
 
-On Tue, 12 Mar 2002, walter wrote:
-
-> Does anyone have any production experience running Oracle 8i on Linux? I've
-> run it at home, RH 7.2 with vanilla 2.4.16 kernel all IDE drives, and its
-> fast. We are replacing our SUN/Oracle 8 servers at work in next couple of
-> months with Linux/Oracle 8i (Pentium 4 1GB ram).  My question is, what is the
-> best kernel version to use,  vanilla 2.4.x or a RH kernel built from the ac
-> tree with rmap. All drives will be SCSI.
-> I read an interview yesterday with Rik van Riel where he said rmap worked
-> better for db servers but I expect that he is partial to rmap 8-).
-> Our web servers are running vanilla 2.4.16 and we haven't had a problem yet
-> (knock on wood).
->
-> Thanks !
-> --
-> Walter Anthony
-> System Administrator
-> National Electronic Attachment
-> "If it's not broke....tweak it"
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
 

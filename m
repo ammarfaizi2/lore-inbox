@@ -1,67 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263609AbUEKUgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263624AbUEKUhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbUEKUgV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 16:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbUEKUgV
+	id S263624AbUEKUhR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 16:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbUEKUhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 16:36:21 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:65507 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263609AbUEKUgH (ORCPT
+	Tue, 11 May 2004 16:37:16 -0400
+Received: from alkom.eunet.lv ([194.8.5.86]:56449 "EHLO new.solutions.lv")
+	by vger.kernel.org with ESMTP id S263624AbUEKUg0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 16:36:07 -0400
-Date: Tue, 11 May 2004 22:38:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, geoff@linux.jf.intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Performance of del_timer_sync
-Message-ID: <20040511203813.GA6552@elte.hu>
-References: <20040511131137.2390ffa8.akpm@osdl.org> <200405112027.i4BKR5F18656@unix-os.sc.intel.com>
+	Tue, 11 May 2004 16:36:26 -0400
+Date: Tue, 11 May 2004 23:36:28 +0300
+From: Dmitry Ivanov <dimss@solutions.lv>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>,
+       linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
+       mikeserv@bmts.com
+Subject: Re: linux-2.6.6: ide-disks are shutdown on reboot
+Message-ID: <20040511203628.GA30754@new.solutions.lv>
+References: <20040511142017.1bc39ce1.vmlinuz386@yahoo.com.ar> <40A133BF.90403@keyaccess.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200405112027.i4BKR5F18656@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <40A133BF.90403@keyaccess.nl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 11, 2004 at 10:12:47PM +0200, Rene Herman wrote:
+> +	if (system_state != SYSTEM_RESTART) {
 
-* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
+drivers/ide/ide-disk.c:1707: error: `SYSTEM_RESTART' undeclared
+(first use in this function)
 
-> > +int del_single_shot_timer(struct timer_struct *timer)
-> > +{
-> > +	if (del_timer(timer))
-> > +		del_timer_sync(timer);
-> > +}
-> >  #endif
-> 
-> I'm confused, isn't the polarity of del_timer() need to be reversed?
-> Also propagate the return value of del_timer_sync()?
+I cannot find definition of SYSTEM_RESTART with grep too.
 
-indeed. If the removal didnt succeed then we must make sure there's no
-timer fn pending. Btw., in that case del_timer_sync() must not succeed -
-it would mean the timer fn re-added the timer, which by definition must
-not happen here. So i'd go for:
-
-int del_single_shot_timer(struct timer_struct *timer)
-{
-	int ret = del_timer(timer);
-
-	if (!ret) {
-		ret = del_timer_sync(timer);
-		BUG_ON(ret);
-	}
-
-	return ret;
-}
-
-this should catch illegal uses of del_single_shot_timer().
-
-	Ingo
+-- 
+I am a viral sig. Please copy me and help me spread. Thank you.

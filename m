@@ -1,54 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbUDUNsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUDUN4x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbUDUNsf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 09:48:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUDUNse
+	id S262406AbUDUN4x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 09:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbUDUN4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 09:48:34 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:12293 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S262170AbUDUNsd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 09:48:33 -0400
-Date: Wed, 21 Apr 2004 21:52:01 +0800 (WST)
-From: raven@themaw.net
-To: Christoph Hellwig <hch@infradead.org>
-cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc1-mm1
-In-Reply-To: <20040421141901.B5551@infradead.org>
-Message-ID: <Pine.LNX.4.58.0404212135520.3740@donald.themaw.net>
-References: <20040418230131.285aa8ae.akpm@osdl.org> <20040419202538.A15701@infradead.org>
- <Pine.LNX.4.58.0404200911090.12229@wombat.indigo.net.au>
- <20040419182657.7870aee9.akpm@osdl.org> <20040421100835.A3577@infradead.org>
- <Pine.LNX.4.58.0404212035280.3740@donald.themaw.net> <20040421141901.B5551@infradead.org>
+	Wed, 21 Apr 2004 09:56:53 -0400
+Received: from home.gmurray.org.uk ([81.2.114.235]:24297 "EHLO
+	home.gmurray.org.uk") by vger.kernel.org with ESMTP id S262406AbUDUN4w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 09:56:52 -0400
+Mail-Copies-To: nobody
+To: linux-kernel@vger.kernel.org
+Subject: Re: vger.kernel.org is listed by spamcop
+References: <200404210722.32253.lkml@kcore.org>
+	<20040421084434.GL1749@mea-ext.zmailer.org>
+	<buoad15hfp2.fsf@mcspd15.ucom.lsi.nec.co.jp>
+From: Graham Murray <graham@gmurray.org.uk>
+Date: Wed, 21 Apr 2004 14:56:51 +0100
+In-Reply-To: <buoad15hfp2.fsf@mcspd15.ucom.lsi.nec.co.jp> (Miles Bader's
+ message of "21 Apr 2004 17:56:41 +0900")
+Message-ID: <m3zn958me4.fsf@home.gmurray.org.uk>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.7, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
-	REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Apr 2004, Christoph Hellwig wrote:
+Miles Bader <miles@lsi.nec.co.jp> writes:
 
-> On Wed, Apr 21, 2004 at 08:39:59PM +0800, raven@themaw.net wrote:
-> > While I understand the motive for not exporting the lock the question of 
-> > how one should obtain vfsmount structs when needed remains?
-> 
-> You shouldn't.
-> 
+> The spamcop report page seems to say that the listings are due to user
+> reports; could the real problem be clueless users who don't understand
+> the difference above?
 
-Shouldn't need them?
-
-But your point is that they shouldn't need to be used and an different 
-design is should be used, right.
-
-Could make life hard for the automounter.
-Possibly somewhat harder to solve the remaining limitations of autofs.
-But I haven't got a clear enough picture of what's needed yet (still).
-
-I guess your point is that these services should reside in the VFS proper?
-
-Ian
-
+They also tell you that you MUST NOT report spam received through a
+mailing list. Only the mailing list administrators are supposed to
+report spam sent to a mailing list.

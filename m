@@ -1,94 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266042AbUAWJfn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 04:35:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266279AbUAWJfn
+	id S265406AbUAWJdh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 04:33:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265444AbUAWJdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 04:35:43 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:29906 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266042AbUAWJfb (ORCPT
+	Fri, 23 Jan 2004 04:33:36 -0500
+Received: from main.gmane.org ([80.91.224.249]:42632 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265406AbUAWJdf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 04:35:31 -0500
-Date: Fri, 23 Jan 2004 10:35:25 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make ide-cd handle non-2kB sector sizes
-Message-ID: <20040123093525.GP2734@suse.de>
-References: <Pine.LNX.4.44.0401222014390.1296-100000@neptune.local>
+	Fri, 23 Jan 2004 04:33:35 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: logic error in XFS
+Date: Fri, 23 Jan 2004 10:33:33 +0100
+Message-ID: <yw1xr7xr80wi.fsf@ford.guide>
+References: <E1Ajuub-0000xw-00@hardwired>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0401222014390.1296-100000@neptune.local>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:PkW/sqv3pQDpU2y9uWYn38CPBoI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 22 2004, Pascal Schmidt wrote:
-> 
-> Hello Jens,
-> 
-> as I suspected, ide-cd doesn't want to play with my 512 byte sector
-> MO discs. You asked me whether I could cook up a patch to support
-> different hardware sector sizes, and here it is.
-> 
-> I've tested it with a 230 MB MO disc, which uses 512 byte sectors.
-> I filled the whole disk, then ejected - reinsert - fsck - read and
-> compare. Everything worked without problems. Then I inserted a
-> 640 MB MO disc, which uses 2048 byte sectors, and went through the
-> same procedure. No problems either, so switching between different
-> sector sizes appears to work.
-> 
-> I've also tested with DVDs and CD-ROMs, which continue to work like
-> before the patch.
-> 
-> Without this patch, I only get tons of I/O errors when trying to read
-> or write the 512 byte sector disc.
-> 
-> Please check the logic of my changes.
+davej@redhat.com writes:
 
-It's a good first start, thanks for doing this. You really want to be
-storing this info in the queue, though, there's a hardsector size just
-for this very purpose. That way other layers know about the hardware
-sector size as well, not just ide-cd. And you get other things right for
-free as well, for instance ide_cdrom_prep_fs() needs a correct hardware
-block size or it will build wrong cdbs.
+> Yet another misplaced ! by the looks..
 
->  static ide_startstop_t cdrom_start_write(ide_drive_t *drive, struct request *rq)
->  {
->  	struct cdrom_info *info = drive->driver_data;
-> +	byte sectors_per_frame = CDROM_STATE_FLAGS(drive)->sectors_per_frame;
->  
->  	/*
-> -	 * writes *must* be 2kB frame aligned
-> +	 * writes *must* be 2kB frame aligned if not MO
->  	 */
-> -	if ((rq->nr_sectors & 3) || (rq->sector & 3)) {
-> -		cdrom_end_request(drive, 0);
-> -		return ide_stopped;
-> -	}
-> +	if (!CDROM_CONFIG_FLAGS(drive)->mo_drive)
-> +		if ((rq->nr_sectors & 3) || (rq->sector & 3)) {
-> +			cdrom_end_request(drive, 0);
-> +			return ide_stopped;
-> +		}
+Sure looks like it.  When is this code encountered?
 
-Hmm, you made it a bit more confusing. It should read that writes must
-be hardware sector aligned. Something ala
-
-	if ((rq->nr_sectors << 9) & (sector_size - 1) ||
-	    (rq->sector & ((sector_size >> 9) - 1)))
-		problem
-
-> -	set_capacity(drive->disk, toc->capacity * SECTORS_PER_FRAME);
-> +	set_capacity(drive->disk, toc->capacity * sectors_per_frame);
-> +
-> +	if (CDROM_STATE_FLAGS(drive)->sectors_per_frame != sectors_per_frame)
-> +		printk(KERN_INFO "%s: new hardware sector size %lu\n",
-> +			drive->name, sectors_per_frame << 9);
-
-if you feel you must print this, then do it in the same line as the
-other cdrom info printed.
+> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/fs/xfs/xfs_log_recover.c linux-2.5/fs/xfs/xfs_log_recover.c
+> --- bk-linus/fs/xfs/xfs_log_recover.c	2003-10-09 01:01:24.000000000 +0100
+> +++ linux-2.5/fs/xfs/xfs_log_recover.c	2004-01-14 07:06:40.000000000 +0000
+> @@ -1553,7 +1553,7 @@ xlog_recover_reorder_trans(
+>  		case XFS_LI_BUF:
+>  		case XFS_LI_6_1_BUF:
+>  		case XFS_LI_5_3_BUF:
+> -			if ((!flags & XFS_BLI_CANCEL)) {
+> +			if (!(flags & XFS_BLI_CANCEL)) {
+>  				xlog_recover_insert_item_frontq(&trans->r_itemq,
+>  								itemq);
+>  				break;
 
 -- 
-Jens Axboe
+Måns Rullgård
+mru@kth.se
 

@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUDWVXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUDWVbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUDWVXD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 17:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUDWVXD
+	id S261474AbUDWVbx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 17:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUDWVbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 17:23:03 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:29960 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261405AbUDWVW7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 17:22:59 -0400
-Message-ID: <408989E3.5010009@techsource.com>
-Date: Fri, 23 Apr 2004 17:25:55 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: root@chaos.analogic.com, =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
+	Fri, 23 Apr 2004 17:31:53 -0400
+Received: from twin.uoregon.edu ([128.223.214.27]:52876 "EHLO twin.uoregon.edu")
+	by vger.kernel.org with ESMTP id S261474AbUDWVbv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 17:31:51 -0400
+Date: Fri, 23 Apr 2004 14:31:26 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Paul Jackson <pj@sgi.com>, Timothy Miller <miller@techsource.com>,
+       <tytso@mit.edu>, <miquels@cistron.nl>, <linux-kernel@vger.kernel.org>
 Subject: Re: File system compression, not at the block layer
-References: <Pine.LNX.4.44.0404231300470.27087-100000@twin.uoregon.edu> <Pine.LNX.4.53.0404231624010.1352@chaos> <yw1xoepio24x.fsf@kth.se> <Pine.LNX.4.53.0404231651120.1643@chaos> <40898730.50009@candelatech.com>
-In-Reply-To: <40898730.50009@candelatech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.53.0404231624010.1352@chaos>
+Message-ID: <Pine.LNX.4.44.0404231410130.27087-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Ben Greear wrote:
-> Richard B. Johnson wrote:
+On Fri, 23 Apr 2004, Richard B. Johnson wrote:
 > 
->> Actually not. You need a FIFO to cache your bits into buffers of bytes
->> anyway. Depending upon the length of the FIFO, you can "rubber-band" a
->> lot of rotational latency. When you are dealing with a lot of drives,
->> you are never going to have all the write currents turn on at the same
->> time anyway because they are (very) soft-sectored, i.e., block
->> replacement, etc.
+> If you want to have fast disks, then you should do what I
+> suggested to Digital 20 years ago when they had ST-506
+> interfaces and SCSI was available only from third-parties.
+> It was called "striping" (I'm serious!). Not the so-called
+> RAID crap that took the original idea and destroyed it.
+> If you have 32-bits, you design an interface board for 32
+> disks. The interface board strips each bit to the data that
+> each disk gets. That makes the whole array 32 times faster
+> than a single drive and, of course, 32 times larger.
+> 
+> There is no redundancy in such an array, just brute-force
+> speed. One can add additional bits and CRC correction which
+> would allow the failure (or removal) of one drive at a time.
+
+except disks no longer encode one bit at a time (with prml), and you're
+still serializing requests across all the spindles instead of dividing
+requests between spindles... it's pretty clear that in the forseeable
+future capacity grown will continue to far outstrip access speed in
+spinning magnetic media. I would agree that any serious improvement is
+likely to come for more creativly arranging the data at the block or
+filesystem level, netapps log-structured raid4 being one direction to 
+head... 
+ 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+>             Note 96.31% of all statistics are fiction.
 > 
 > 
-> Wouldn't this pretty much guarantee worst-case latency scenario for 
-> reading, since
-> on average at least one of your 32 disks is going to require a full 
-> rotation
-> (and probably a seek) to find it's bit?
 
-
-Only for the first bit of a block.  For large streams of reads, the 
-fifos will keep things going, except for occasionally as drives drift in 
-their relative rotation positions which can cause some delays.
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 
 

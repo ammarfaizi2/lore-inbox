@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291066AbSAaNab>; Thu, 31 Jan 2002 08:30:31 -0500
+	id <S291072AbSAaNqO>; Thu, 31 Jan 2002 08:46:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291067AbSAaNaU>; Thu, 31 Jan 2002 08:30:20 -0500
-Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:55556 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S291066AbSAaNaN>;
-	Thu, 31 Jan 2002 08:30:13 -0500
-Date: Thu, 31 Jan 2002 13:34:52 +0000
-From: Ian Molton <spyro@armlinux.org>
-To: linux-kernel@vger.kernel.org
-Cc: dalecki@evision-ventures.com
+	id <S291073AbSAaNqC>; Thu, 31 Jan 2002 08:46:02 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:60431 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S291072AbSAaNp4>; Thu, 31 Jan 2002 08:45:56 -0500
+Date: Thu, 31 Jan 2002 13:45:31 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        David Weinehall <tao@acc.umu.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Rob Landley <landley@trommello.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: A modest proposal -- We need a patch penguin
-Message-Id: <20020131133452.6963ff23.spyro@armlinux.org>
-In-Reply-To: <3C59353F.3080208@evision-ventures.com>
-In-Reply-To: <E16VrdT-0006t7-00@the-village.bc.nu>
-	<3C59353F.3080208@evision-ventures.com>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; )
+Message-ID: <20020131134531.A29479@flint.arm.linux.org.uk>
+In-Reply-To: <3C593EEC.3000907@evision-ventures.com> <Pine.LNX.4.33.0201311604050.10258-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201311604050.10258-100000@localhost.localdomain>; from mingo@elte.hu on Thu, Jan 31, 2002 at 04:07:52PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a sunny Thu, 31 Jan 2002 13:14:55 +0100 Martin Dalecki gathered a sheaf
-of electrons and etched in their motions the following immortal words:
+On Thu, Jan 31, 2002 at 04:07:52PM +0100, Ingo Molnar wrote:
+> it's not mandatory for the developer to push every interface change into
+> every driver or every architecture. Sure, if some code has not been kept
+> in sync for a long time then it should be zapped,
 
-> Old obsolete drivers used by some
-> computer since archeologists should be killed (Atari, Amiga, support, 
-> obsolete drivers and so on).
-> Just let *them* maintains theyr separate kernel tree...
+add "by the maintainer, if they are still around" here please.
 
-Yeah, keep linux for those X86 purists.
+> but the pure fact that
+> something is less often used should not make it a candidate for zapping.
 
-Great philosophy.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Just because hardware is OLD doesnt mean it cant integrate fairly cleanly
-with the current linux kernel.
-
-Why shouldnt Linux run on my 15 year old Acorn A400 (my current project) ?
-
-Linux is about FUN.

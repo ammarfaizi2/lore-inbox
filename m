@@ -1,42 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUD1T5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbUD1VBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbUD1T5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 15:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUD1T47
+	id S261982AbUD1VBA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 17:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbUD1T5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 15:56:59 -0400
-Received: from [66.62.77.7] ([66.62.77.7]:63196 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S265019AbUD1Rom (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 13:44:42 -0400
-Subject: Re: 2.6.5, IPSec, NAT funnies
-From: Dax Kelson <dax@gurulabs.com>
-To: Aidas Kasparas <a.kasparas@gmc.lt>
-Cc: linux-net@vger.kernel.org, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <408F5555.3080303@gmc.lt>
-References: <1083133394.2817.40.camel@mentor.gurulabs.com>
-	 <408F5555.3080303@gmc.lt>
-Content-Type: text/plain
-Message-Id: <1083174347.2803.9.camel@mentor.gurulabs.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Wed, 28 Apr 2004 11:45:47 -0600
+	Wed, 28 Apr 2004 15:57:36 -0400
+Received: from anubis.medic.chalmers.se ([129.16.30.218]:45292 "EHLO
+	anubis.medic.chalmers.se") by vger.kernel.org with ESMTP
+	id S264973AbUD1RFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 13:05:48 -0400
+From: Goran Cengic <cengic@s2.chalmers.se>
+Organization: Chalmers University of Technology
+To: linux-kernel@vger.kernel.org
+Subject: Re: Special place for tird-party modules.
+Date: Wed, 28 Apr 2004 19:05:45 +0200
+User-Agent: KMail/1.6
+References: <200404281814.24991.cengic@s2.chalmers.se> <200404281835.24836.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200404281835.24836.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404281905.45373.cengic@s2.chalmers.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-28 at 00:55, Aidas Kasparas wrote:
-> Kernel bug. IPSec changes ip headers, but fails to say about this to 
-> conntrack. More information 
-> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=215980
-> Patch at 
-> http://bugs.debian.org/cgi-bin/bugreport.cgi/ipsec_conntrack.diff?bug=215980&msg=3&att=1
+On Wednesday 28 April 2004 18.35, Bartlomiej Zolnierkiewicz wrote:
+> Hey, we already have a special place for binary only modules.
+>
+> It is called /dev/null. 8)
 
-A 7 month old kernel bug with a patch. Is there any reason why this
-hasn't been rolled into the Linus tree yet? Is the something
-objectionable with the patch?
+:)
 
-Dax Kelson
-Guru Labs
+>
+> > against this approach? Why does the nvidia driver have to be compiled for
+> > different kernel versions? Can't they make one module that fits all
+> > kernels?
+>
+> No, it was discussed zillion times already.
 
+Where can I find the discussion? Was it on this list?
+
+>
+> > If I'm missing something cruical please point it out to me.
+>
+> You are missing fact that module compiled for specific kernel version
+> may not work with another kernel version. ;-)
+
+Ok, but why is there possibility to ignore version number of the modules if it 
+makes no sense?
+
+>
+> Cheers,
+> Bartlomiej
+
+/Goran
+
+Goran Cengic
+mailto:cengic@s2.chalmers.se
+------------------------------
+Have a nice day :)

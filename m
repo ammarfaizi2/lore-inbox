@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266771AbSKUPnG>; Thu, 21 Nov 2002 10:43:06 -0500
+	id <S266765AbSKUPeT>; Thu, 21 Nov 2002 10:34:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266794AbSKUPnG>; Thu, 21 Nov 2002 10:43:06 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23558 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266771AbSKUPnF>;
-	Thu, 21 Nov 2002 10:43:05 -0500
-Message-ID: <3DDD0091.6060400@pobox.com>
-Date: Thu, 21 Nov 2002 10:49:37 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
+	id <S266761AbSKUPeT>; Thu, 21 Nov 2002 10:34:19 -0500
+Received: from sol.cc.u-szeged.hu ([160.114.8.24]:34025 "EHLO
+	sol.cc.u-szeged.hu") by vger.kernel.org with ESMTP
+	id <S266765AbSKUPeR>; Thu, 21 Nov 2002 10:34:17 -0500
+Date: Thu, 21 Nov 2002 16:41:25 +0100 (CET)
+From: Geller Sandor <wildy@petra.hos.u-szeged.hu>
+To: linux-kernel@vger.kernel.org
+Subject: patch 2.4.20-rc2-ac2 doesn't apply cleanly
+Message-ID: <Pine.LNX.4.44.0211211634380.4670-100000@petra.hos.u-szeged.hu>
 MIME-Version: 1.0
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] drivers/net: fix up header cleanups: remove unneeded
- sched.h include
-References: <20021121130241.GB31594@conectiva.com.br>
-In-Reply-To: <20021121130241.GB31594@conectiva.com.br>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch looks ok, but in the future, please CC me.
+Hi!
 
-I'm trying to keep 2.4.x and 2.5.x net drivers in sync as much as 
-possible, and your patch doesn't _only_ remove linux/sched.h includes 
-[which would be a 2.5.x-specific patch].
+patch-2.4.20-rc2-ac2.bz2 doesn't apply cleanly. Maybe it was diffed
+against 2.4.20-rc1 ??? Makefile.rej contains
 
-	Jeff
+***************
+*** 1,7 ****
+  VERSION = 2
+  PATCHLEVEL = 4
+  SUBLEVEL = 20
+- EXTRAVERSION = -rc1
+
+  KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+
+--- 1,7 ----
+  VERSION = 2
+  PATCHLEVEL = 4
+  SUBLEVEL = 20
++ EXTRAVERSION = -rc2-ac2
+
+  KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 
 
+Best Regards,
+
+  Sandor Geller <wildy@petra.hos.u-szeged.hu>
 

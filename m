@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132066AbQL1BCR>; Wed, 27 Dec 2000 20:02:17 -0500
+	id <S132105AbQL1BD4>; Wed, 27 Dec 2000 20:03:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132105AbQL1BCG>; Wed, 27 Dec 2000 20:02:06 -0500
-Received: from confucius.usc.edu ([128.125.20.153]:47368 "EHLO
-	confucius.usc.edu") by vger.kernel.org with ESMTP
-	id <S132066AbQL1BBz>; Wed, 27 Dec 2000 20:01:55 -0500
-Date: Wed, 27 Dec 2000 16:25:18 -0800
-From: Joaquin Rapela <rapela@sipi.usc.edu>
+	id <S132177AbQL1BDq>; Wed, 27 Dec 2000 20:03:46 -0500
+Received: from brimstone.ucr.edu ([138.23.89.35]:48908 "EHLO brimstone.ucr.edu")
+	by vger.kernel.org with ESMTP id <S132135AbQL1BD3>;
+	Wed, 27 Dec 2000 20:03:29 -0500
+Date: Wed, 27 Dec 2000 16:33:04 -0800
+From: ruschein@brimstone.ucr.edu
 To: linux-kernel@vger.kernel.org
-Subject: SYN_SENT block
-Message-ID: <20001227162518.A25171@confucius.usc.edu>
+Subject: IP_ALIAS
+Message-ID: <20001227163304.B6151@brimstone.ucr.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+X-Mailer: Mutt 1.0pre3us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This option, according to .../Documentation/networking/alias.txt, seems
+to be missing in 2.4.0-test13-pre4?  Could whoever maintains this please
+update either the code or the documentation?
+-- 
+Sincerely,
+Johannes
+--
+Dr. Johannes Ruscheinski
+Infomine Lead Programmer            ***              LINUX,             ***
+EMail:    ruschein@infomine.ucr.edu ***                                 ***
+Location: science library, room 218 *** The Choice Of A GNU Generation! ***
+Phone:    (909) 787-2290
 
-I am not a linux kernel guy. I am running a spider that sometimes gets blocked
-for long periods of time.  I run a "netstat -nto" and I observe a socket in 
-state SYS_SENT that seems to be blocked. Its timer keeps on incrementing. 
-
-Is there any way to avoid this blocking? Is this a bug in the kernel or
-something wrong in my TCP/IP configuration/settings.
-
-Thanks in advance, Joaquin
+"Faith may be defined briefly as an illogical belief in the occurrence of the
+ improbable...A man full of faith is simply one who has lost (or never had)
+ the capacity for clear and realistic thought. He is not a mere ass: he is
+ actually ill."
+ -- H. L. Mencken
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

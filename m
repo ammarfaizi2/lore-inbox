@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262420AbSKISjm>; Sat, 9 Nov 2002 13:39:42 -0500
+	id <S262442AbSKISo0>; Sat, 9 Nov 2002 13:44:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262442AbSKISjm>; Sat, 9 Nov 2002 13:39:42 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:26015 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262420AbSKISjl>; Sat, 9 Nov 2002 13:39:41 -0500
-Subject: Re: [PATCH][2.5] notsc option needs some attention/TLC
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0211091308250.10475-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0211091308250.10475-100000@montezuma.mastecende.com>
-Content-Type: text/plain
+	id <S262444AbSKISo0>; Sat, 9 Nov 2002 13:44:26 -0500
+Received: from packet.digeo.com ([12.110.80.53]:51631 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262442AbSKISoZ>;
+	Sat, 9 Nov 2002 13:44:25 -0500
+Message-ID: <3DCD5917.FEEA7C5D@digeo.com>
+Date: Sat, 09 Nov 2002 10:51:03 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46: kernel BUG at kernel/timer.c:333!
+References: <aqj8bf$ff2$1@ncc1701.cistron.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Nov 2002 19:10:13 +0000
-Message-Id: <1036869013.20393.19.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-OriginalArrivalTime: 09 Nov 2002 18:51:03.0428 (UTC) FILETIME=[F407D440:01C28820]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-11-09 at 18:09, Zwane Mwaikambo wrote:
-> > 2.4 was modified to printk a message that TSC was not disabled. This
-> > does confuse people
+Miquel van Smoorenburg wrote:
 > 
-> This is all very confusing, notsc isnn't supposed to work with cpus with 
-> TSCs?
+> I can reliably crash 2.5.X on one of our newsservers (dual PIII/450, GigE,
+> lots of disk- and network I/O).
+> 
+> The last crash I posted here was a bit garbled. So I tried again,
+> this one is clean. Crash appears to be timer related ?
+> 
+> kernel BUG at kernel/timer.c:333!
 
-User boots TSC only kernel
-User gets problem
-User reads docs and says "notsc"
-User still has problem
-User confused.
+There are timer fixes in Linus's current tree.  The problem which
+they address could cause this BUG.
 
-In the TSC only case printing a message that the TSC disable was not
-possible is IMHO good
+>..
+> Debug: sleeping function called from illegal context at include/asm/semaphore.h:119
+> Call Trace:
+>  [<c0117be8>] __might_sleep+0x54/0x58
+>  [<c013578c>] set_shrinker+0x3c/0x7c
+>  [<c01686b4>] mb_cache_create+0x1c4/0x244
+>  [<c0168380>] mb_cache_shrink_fn+0x0/0x170
+>  [<c01050ab>] init+0x47/0x1ac
+>  [<c0105064>] init+0x0/0x1ac
+>  [<c0106e8d>] kernel_thread_helper+0x5/0xc
 
+That's different.  A fix for this is in Linus's tree.
 
+So..  Please grab an update from
+ftp://ftp.kernel.org/pub/linux/kernel/v2.5/snapshots/
+or retest 2.5.47.

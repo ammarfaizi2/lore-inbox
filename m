@@ -1,52 +1,136 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129231AbQKIHdq>; Thu, 9 Nov 2000 02:33:46 -0500
+	id <S130079AbQKIHk0>; Thu, 9 Nov 2000 02:40:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130079AbQKIHdg>; Thu, 9 Nov 2000 02:33:36 -0500
-Received: from iq.sch.bme.hu ([152.66.226.168]:32859 "EHLO iq.rulez.org")
-	by vger.kernel.org with ESMTP id <S129231AbQKIHdX>;
-	Thu, 9 Nov 2000 02:33:23 -0500
-Date: Thu, 9 Nov 2000 08:33:21 +0100 (CET)
-From: Sasi Peter <sape@iq.rulez.org>
-To: Scott McDermott <vaxerdec@frontiernet.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Stange NFS messages - 2.2.18pre19
-In-Reply-To: <20001108211538.C14262@vaxerdec>
-Message-ID: <Pine.LNX.4.10.10011090832480.14350-100000@iq.rulez.org>
+	id <S130205AbQKIHkI>; Thu, 9 Nov 2000 02:40:08 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:36648 "EHLO
+	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S130079AbQKIHkB>; Thu, 9 Nov 2000 02:40:01 -0500
+Message-ID: <3A0A54B8.66A66AAB@linux.com>
+Date: Wed, 08 Nov 2000 23:39:36 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@wirex.com>
+CC: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
+Subject: Re: [bug] usb-uhci locks up on boot half the time
+In-Reply-To: <3A09F158.910C925@linux.com> <14857.62696.393621.795132@somanetworks.com> <3A09FD81.E7DA9352@linux.com> <20001108200844.A13446@wirex.com> <3A0A25C1.C46E392B@linux.com> <20001108215901.A13572@wirex.com>
+Content-Type: multipart/mixed;
+ boundary="------------AE85AA585E961E326C069E54"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2000, Scott McDermott wrote:
+This is a multi-part message in MIME format.
+--------------AE85AA585E961E326C069E54
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> Sasi Peter on Tue  7/11 23:28 +0100:
-> > I'm getting this under moderate NFS load:
-> > Nov  6 17:39:56 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
-> > Nov  6 17:40:08 iq kernel: svc: unknown program 100227 (me 100003)
-> > Nov  6 19:06:11 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
-> > Nov  6 19:38:48 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
-> > What do these means? Is this a kernel bug?
-> Your Suns are using TCP mounts, this got introduced into 2.2.18
-> somewhere and is a bit broken, do a patch -R with
-> ftp://oss.sgi.com/www.projects/nfs3/download/nfs_tcp-2.2.17.dif and
-> these go away.  Suns try TCP mounts first.  Be careful to unmount them
-> first or they will hang waiting for the TCP server to come back up.
+Sigh.  That's not the real hang position.  I needed to step slower.
 
-Broken link:
-[root@iq patches]# wget
-ftp://oss.sgi.com/www.projects/nfs3/download/nfs_tcp-2.2.17.dif
---08:31:28--
-ftp://oss.sgi.com:21/www.projects/nfs3/download/nfs_tcp-2.2.17.dif
-           => `nfs_tcp-2.2.17.dif'
-Connecting to oss.sgi.com:21... connected!
-Logging in as anonymous ... Logged in!
-==> TYPE I ... done.  ==> CWD www.projects/nfs3/download ...
-No such directory `www.projects/nfs3/download'.
+kdb> ss
+0xc01100f8 pci_conf1_write_config_word+0x40:   outw   %ax,(%dx)
+SS trap at 0xc01100fa (pci_conf1_write_config_word+0x42)
+0xc01100fa pci_conf1_write_config_word+0x42:   popl   %ebx
+kdb> ss
+0xc01100fa pci_conf1_write_config_word+0x42:   popl   %ebx
+SS trap at 0xc01100fb (pci_conf1_write_config_word+0x43)
+0xc01100fb pci_conf1_write_config_word+0x43:   xorl   %eax,%eax
+kdb> ss
+0xc01100fb pci_conf1_write_config_word+0x43:   xorl   %eax,%eax
+SS trap at 0xc01100fd (pci_conf1_write_config_word+0x45)
+0xc01100fd pci_conf1_write_config_word+0x45:   popl   %esi
+kdb> ss
+0xc01100fd pci_conf1_write_config_word+0x45:   popl   %esi
+SS trap at 0xc01100fe (pci_conf1_write_config_word+0x46)
+0xc01100fe pci_conf1_write_config_word+0x46:   movl   %ebp,%esp
+kdb> ss
+0xc01100fe pci_conf1_write_config_word+0x46:   movl   %ebp,%esp
+SS trap at 0xc0110100 (pci_conf1_write_config_word+0x48)
+0xc0110100 pci_conf1_write_config_word+0x48:   popl   %ebp
+kdb> ss
+0xc0110100 pci_conf1_write_config_word+0x48:   popl   %ebp
+SS trap at 0xc0110101 (pci_conf1_write_config_word+0x49)
+0xc0110101 pci_conf1_write_config_word+0x49:   ret
+kdb> ss
+0xc0110101 pci_conf1_write_config_word+0x49:   ret
+SS trap at 0xc020c7af (pci_write_config_word+0x2b)
+0xc020c7af pci_write_config_word+0x2b:   pushl  %ebx
+kdb> ss
+0xc020c7af pci_write_config_word+0x2b:   pushl  %ebx
+SS trap at 0xc020c7b0 (pci_write_config_word+0x2c)
+0xc020c7b0 pci_write_config_word+0x2c:   popf
+kdb> ss
+0xc020c7b0 pci_write_config_word+0x2c:   popf
 
---  SaPE
+Here is where it hung this time.  Register dump below.
 
-Peter, Sasi <sape@sch.hu>
+usb-uhci.c: $Revision: 1.242 $ time 20:13:32 Nov  8 2000
+usb-uhci.c: High bandwidth mode enabled
+Instruction(i) breakpoint #0 at 0xc03f5a8c (adjusted)
+0xc03f5a8c start_uhci:   pushl  %ebp
+
+Entering kdb (current=0xcfff4000, pid 1) due to Breakpoint @ 0xc03f5a8c
+kdb> bp pci_write_config_word+0x2c
+Instruction(i) BP #1 at 0xc020c7b0 (pci_write_config_word+0x2c)
+    is enabled globally adjust 1
+kdb> g
+Instruction(i) breakpoint #1 at 0xc020c7b0 (adjusted)
+0xc020c7b0 pci_write_config_word+0x2c:   popf
+
+Entering kdb (current=0xcfff4000, pid 1) due to Breakpoint @ 0xc020c7b0
+kdb> rd
+eax = 0x00000000 ebx = 0x00000256 ecx = 0x000000c0 edx = 0x00000cfc
+esi = 0x000000c0 edi = 0xc144c800 esp = 0xcfff5f74 eip = 0xc020c7b0
+ebp = 0xcfff5f90 xss = 0x00000018 xcs = 0x00000010 eflags = 0x00000046
+xds = 0xc1440018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xcfff5f40
+
+
+
+0xc020c7aa pci_write_config_word+0x26:   movl   0x10(%edx),%eax
+0xc020c7ad pci_write_config_word+0x29:   call   *%eax
+0xc020c7af pci_write_config_word+0x2b:   pushl  %ebx
+0xc020c7b0 pci_write_config_word+0x2c:   popf
+0xc020c7b1 pci_write_config_word+0x2d:   jmp    0xc020c7bc
+pci_write_config_word+0x38
+0xc020c7b3 pci_write_config_word+0x2f:   nop
+0xc020c7b4 pci_write_config_word+0x30:   movl   $0x87,%eax
+0xc020c7b9 pci_write_config_word+0x35:   leal   0x0(%esi),%esi
+0xc020c7bc pci_write_config_word+0x38:   leal   0xfffffff4(%ebp),%esp
+
+I'm going to have to drop this debug shortly and return to my regular work :(
+
+-d
+
+
+--
+"The difference between 'involvement' and 'commitment' is like an
+eggs-and-ham breakfast: the chicken was 'involved' - the pig was
+'committed'."
+
+
+
+--------------AE85AA585E961E326C069E54
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;14688
+fn:David Ford
+end:vcard
+
+--------------AE85AA585E961E326C069E54--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

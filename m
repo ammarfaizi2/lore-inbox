@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266156AbUGES7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266022AbUGETAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266156AbUGES7f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 14:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUGES7f
+	id S266022AbUGETAi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 15:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUGETAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 14:59:35 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:40418 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266156AbUGES7c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 14:59:32 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: Restoring HDIO_GETGEO semantics for 2.6 (was: Re: [RFC] Restoring HDIO_GETGEO semantics)
-Date: Mon, 5 Jul 2004 21:05:05 +0200
-User-Agent: KMail/1.5.3
-Cc: Szakacsits Szabolcs <szaka@sienet.hu>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
-       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Clausen <clausen@gnu.org>,
-       buytenh@gnu.org, msw@redhat.com
-References: <Pine.LNX.4.21.0407041920480.11076-100000@mlf.linux.rulez.org> <200407051513.48334.bzolnier@elka.pw.edu.pl> <20040705140044.GB24899@wsdw14.win.tue.nl>
-In-Reply-To: <20040705140044.GB24899@wsdw14.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 5 Jul 2004 15:00:37 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:58343 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S266022AbUGETAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 15:00:24 -0400
+Subject: Re: ACPI Hibernate and Suspend Strange behavior 2.6.7/-mm1
+From: Len Brown <len.brown@intel.com>
+To: Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
+Cc: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FEF48@hdsmsx403.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615FEF48@hdsmsx403.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1089054013.15671.48.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 05 Jul 2004 15:00:13 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407052105.05585.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2004-06-26 at 18:32, Sergio Vergata wrote:
 
-Andries, the question was "What should we do with HDIO_GETGEO breakage?"
-not "Why does somebody need the BIOS geometry?". :-)
+> I have an IBM t40P. 
+> Starting testing since i got my Laptop, Now starting with 2.6.7 and
+> -mm1 i Switched from APM to ACPI  and use SwSusp.
+>
+> Now i trying to get the system working reliable with ACPI, suspending
+> to RAM will not work as ist should it switch of Display Fan HDD this
+> ist what i see 
+> and hear, but it will not suspend DVDRom an for sure it leave the CPU 
+> powered. I see that cpu i on because the system heats itself up. The
+> time for 
+> the suspended system is round about 10 hours after that the system
+> powers of 
+> and the battery is empty.
 
-We can fix HDIO_GETGEO to behave like in 2.4 or remove it (preferable),
-current situation is bad.
+This does sound broken.  My centrino laptop draws well under 1W
+when suspended to RAM, so on my 72Wh battery it should last
+at least the better part of a week.
 
-On Monday 05 of July 2004 16:00, Andries Brouwer wrote:
-> On Mon, Jul 05, 2004 at 03:13:48PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > We can restore ide-geometry.c or try to return values obtained from
-> > EDD code through IDE driver.  Alternatively we can add new ioctl for
-> > start of partition and remove HDIO_GETGEO from IDE driver completely
-> > but probably it is too late for this for 2.6 (we should do it early
-> > in 2.7 then).  Andries?
->
-> For Linux purposes geometry is almost irrelevant.
-> (But, as I remarked in another letter, some RAIDs need something.)
->
-> This means as a first approximation that "geometry" is not a kernel
-> business. Certainly the present discussion is not about the ide-driver.
-> Indeed, what people want is the geometry that a certain BIOS will assign
-> to a disk. That depends on the BIOS, and on whether the user has
-> set things up with Normal / Large / LBA in the BIOS setup.
-> (In case the disk was left out of the BIOS setup, this particular
-> concept of geometry does not exist at all.)
->
-> So, the question is whether information from the BIOS can be
-> exposed. Well, that is not impossible, and EDD already does this.
->
-> Why would people want to know what a BIOS would do?
-> So far I have mostly seen two classes of wishes.
-> One is to install lots of new Windows systems on blank disks
-> - that is done faster and more conveniently from Linux -
-> where there is no partition table yet to inspect.
-> The other is to create or modify NTFS filesystems.
->
-> Such are reasonable wishes, but rather special purpose.
-> For the time being I have good hopes that it will turn out
-> to be possible to do these things. Maybe using present EDD.
-> Maybe by extending EDD a little.
->
-> Five years ago I wrote a library that takes collected BIOS info,
-> and collected Linux info, and tries to match BIOS disks with
-> Linux disks. Of course it is impossible to do this right, but
-> one can find heuristics that often work. Such heuristics do not
-> belong in the kernel, but a user space application can decide,
-> given the known situation, whether a guess is probably right,
-> or perhaps consult the user.
->
-> I am awaiting the discussion with Szaka.
->
-> Andries
+It would be interesting to know how long windows can STR
+on your laptop.
+
+> Problem number 2 is the problem that of suspending to ram will not
+> reawake the interrupts of nvram and the acpi interrupts IRQ 9. 
+
+Perhaps you can test the latest -mm tree plus
+the patches from comment #21 adn #28 here:
+http://bugzilla.kernel.org/show_bug.cgi?id=2643
+
+thanks,
+-Len
+
 

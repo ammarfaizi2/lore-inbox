@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266614AbUFWSro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUFWSvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266614AbUFWSro (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 14:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUFWSrn
+	id S266648AbUFWSvA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 14:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUFWStf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 14:47:43 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:42454 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S266609AbUFWSr1 (ORCPT
+	Wed, 23 Jun 2004 14:49:35 -0400
+Received: from quechua.inka.de ([193.197.184.2]:55725 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S266605AbUFWSsD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 14:47:27 -0400
-Date: Wed, 23 Jun 2004 20:27:27 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Vojtech Pavlik <vojtech@suse.cz>, Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Christoph Hellwig <hch@infradead.org>, jbglaw@lug-owl.de,
-       linux-kernel@vger.kernel.org, miller@techsource.com
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040623182727.GH10954@marowsky-bree.de>
-References: <A095D7F069C@vcnet.vc.cvut.cz> <20040622151236.GE20632@lug-owl.de> <20040622173215.GA6300@infradead.org> <20040622184220.GF20632@lug-owl.de> <40D99A93.8030900@techsource.com> <20040623150314.GA24169@infradead.org> <20040623160320.GA28370@vana.vc.cvut.cz> <20040623182613.GA1458@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040623182613.GA1458@ucw.cz>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+	Wed, 23 Jun 2004 14:48:03 -0400
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: I/O Confirmation/Problem under 2.6/2.4
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <1088012966.1347.28.camel@solaris.skunkware.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
+Message-Id: <E1BdCmu-0000s6-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Wed, 23 Jun 2004 20:48:00 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-06-23T20:26:13,
-   Vojtech Pavlik <vojtech@suse.cz> said:
+Hello,
 
-> > vmnet module actually provides tun-like character device, but with several
-> > differences:
-> > * You can connect any number of userspace processes to it.
-> > * You can connect kernel end to nothing (complete guest-host separation), or
-> 
-> These can be done purely in userspace - a daemon can exchange the data
-> between the processes (VMs).
+I do have some additional questions to help others to better diagnose your
+problem. Currently I am suspecting a bottle neck in your mainboard :)
 
-... as UML already does it, anyway. I'm pretty sure the various methods
-UML uses are quite applicable to VM too.
+In article <1088012966.1347.28.camel@solaris.skunkware.org> you wrote:
+> PERC *megaraid* series and an Adaptec card *aacraid*) and have not been
+> able to obtain more then 60MB/s doing hardware raid 5.
 
+Is that peak or saturated load? you may want to try to only fill the write
+back cache of the controller, to not get affected by slow raidness or disks.
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+The raid5 is not very good in speeding up random reads or sequential writes.
+Perhaps you want to try stripping on level 0.
 
+> The raid cards
+> I'm testing are quad channel ultra160's with a total of 8 10k 72GB
+> ultra320 drives (2 per channel) per raid volume... thus I should be able
+> to do a fairly large amount of I/O (100+MB sequential writes I'd
+> assume).
+
+What is the IO Bus you are talking about? Single PCI Bus?
+
+Have you tried an alternative operating system?
+
+> I have tried every possible striping configuration a long with multiple
+> filesystem (ext2/3/xfs)
+
+You may want to try it without a filesystem and perhaps even with a faster
+raid configuration like stripping.
+
+> Please confirm and if possible provide possible settings needed to get
+> linux in the mode for high i/o or general places to tune I/O.
+
+how does your vmstat and iostat look like? How many ram and cpu you are
+talking about? is it an smp kernel?
+
+Greetings
+Bernd
 -- 
-High Availability & Clustering	    \ ever tried. ever failed. no matter.
-SUSE Labs, Research and Development | try again. fail again. fail better.
-SUSE LINUX AG - A Novell company    \ 	-- Samuel Beckett
-
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312134AbSCXX0K>; Sun, 24 Mar 2002 18:26:10 -0500
+	id <S312141AbSCXXhW>; Sun, 24 Mar 2002 18:37:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312136AbSCXX0A>; Sun, 24 Mar 2002 18:26:00 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:14340 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S312134AbSCXXZy>; Sun, 24 Mar 2002 18:25:54 -0500
-Message-ID: <3C9E6014.BB3DE865@zip.com.au>
-Date: Sun, 24 Mar 2002 15:24:05 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S312145AbSCXXhN>; Sun, 24 Mar 2002 18:37:13 -0500
+Received: from pobox.ati.com ([209.50.91.129]:4050 "EHLO pobox.ati.com")
+	by vger.kernel.org with ESMTP id <S312142AbSCXXhF>;
+	Sun, 24 Mar 2002 18:37:05 -0500
+Message-ID: <328A30E823B7D511A0BF00065B042A3B0C0E@fgl00exh01.atitech.com>
+From: Alexander Stohr <AlexanderS@ati.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, arjanv@redhat.com, andersg@0x63.nu
+Date: Mon, 25 Mar 2002 00:36:00 +0100
+Subject: Re: [PATCH] devexit fixes in i82092.c
 MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: Paul Clements <Paul.Clements@SteelEye.com>, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.18 raid1 - fix SMP locking/interrupt errors, fix resync 
- counter errors
-In-Reply-To: message from Paul Clements on Friday March 22 <15518.22081.287786.88466@notabene.cse.unsw.edu.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-2"
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
+I thought Linux is an OS of choices.
+Calling folks for removing an opition
+is not really what i do think is good.
+
+There might be still situations where
+it makes sense stripping of the exit
+codings of the kernel.
+
+Namely i would classify diskless embedded
+systems (like consumer devices), that are 
+allowed to shut down instantly by just
+powering them off, to be such cases.
+
+It would make life much easier for people
+that do program for such targets if the
+already existing optional macros would
+stay in the source as they are now.
+
+> On Sat, 16 Mar 2002, Anders Gustafsson wrote:
+> >
+> > this patch fixes "undefined reference to `local symbols in discarded
+> > section .text.exit'" linking error.
 > 
-> ...
-> The save/restore versions are only needed if the code might be called
-> from interrupt context.
+> Looking more at this, I actually think that the _real_ fix is to call all
+> drivers exit functions at kernel shutdown, and not discard the exit
+> section when linking into the tree.
+> 
+> That, together with the device tree, automatically gives us the
+> _correct_ shutdown sequence, soemthing we don't have right now.
+> 
+> Anybody willing to look into this, and get rid of that __devexit_p()
+> thing?
+> 
+>                 Linus
 
-Or if the caller may wish to keep interrupts disabled.
-
-> However the routines where you made this
-> change: raid1_grow_buffers, raid1_shrink_buffers, close_sync,
-> are only ever called from process context, with interrupts enabled.
-> Or am I missing something?
-
-If those functions are always called with interrupts enabled then
-no, you're not missing anything ;)
-
-However a bare spin_unlock_irq() in a function means that
-callers which wish to keep interrupts disabled are subtly
-subverted.   We've had bugs from this before.
-
-So the irqrestore functions are much more robust.  I believe
-that they should be the default choice.  The non-restore
-versions should be viewed as a micro-optimised version,
-to be used with caution.  The additional expense of the save/restore
-is quite tiny - 20-30 cycles, perhaps.
-
--

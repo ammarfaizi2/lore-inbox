@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267345AbTAUXlL>; Tue, 21 Jan 2003 18:41:11 -0500
+	id <S267347AbTAUXqr>; Tue, 21 Jan 2003 18:46:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267346AbTAUXlK>; Tue, 21 Jan 2003 18:41:10 -0500
-Received: from holomorphy.com ([66.224.33.161]:13968 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267345AbTAUXlK>;
-	Tue, 21 Jan 2003 18:41:10 -0500
-Date: Tue, 21 Jan 2003 15:50:13 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: anyone have a 16-bit x86 early_printk?
-Message-ID: <20030121235013.GP780@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Hansen <haveblue@us.ibm.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030114113036.GG940@holomorphy.com> <1043116327.13142.11.camel@dhcp22.swansea.linux.org.uk> <20030121061055.GN780@holomorphy.com> <3E2D83D8.5070108@us.ibm.com>
+	id <S267348AbTAUXqq>; Tue, 21 Jan 2003 18:46:46 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:10742 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267347AbTAUXqp>; Tue, 21 Jan 2003 18:46:45 -0500
+Subject: Re: [RFC][PATCH] linux-2.5.59_lost-tick_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E2DD8A7.3F07C40E@digeo.com>
+References: <1043189962.15683.82.camel@w-jstultz2.beaverton.ibm.com>
+	 <3E2DD8A7.3F07C40E@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1043192901.15683.103.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E2D83D8.5070108@us.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 21 Jan 2003 15:48:22 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> It actually turned out to be a bug in the early_printk I was using that
->> killed it on the first call to it, but the availability of this will
->> certainly broaden the scope of what I can feasibly debug.
+On Tue, 2003-01-21 at 15:32, Andrew Morton wrote:
+> john stultz wrote:
+> > 
+> > All,
+> >         This patch addresses the following problem: Linux cannot properly
+> > handle the case where interrupts are disabled for longer then two ticks.
+> > 
+> 
+> Question is: who is holding interrupts off for so long?
 
-On Tue, Jan 21, 2003 at 09:31:04AM -0800, Dave Hansen wrote:
-> Are you using the one that calls console_setup(), then initializes the
-> serial driver directly?  I was seeing some strange behavior with that
-> yesterday, but I assumed that it was my patch crashing in early boot.
-> What was the bug?
+Unfortunately in my situation there is a card which can cause 30ms
+stalls in an SMI handler. Yuck, I know. :P
 
-I don't think that was the one, no. I didn't bother debugging it and just
-hand-coded the bitbanging directly in asm.
+> It might be better to implement a detection scheme inside
+> the timer interrupt handler: if the time since last interrupt
+> exceeds two ticks, whine and drop a backtrace.
+> 
+> That backtrace will point up into the local_irq_enable() in
+> the offending code, and we can go fix it?
 
+Hmm, clever! That would be a very good check for software caused stalls.
+I'll try to drop that in. 
 
--- wli
+thanks for the feedback!
+-john
+ 
+

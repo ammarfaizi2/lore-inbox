@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269580AbRHCT70>; Fri, 3 Aug 2001 15:59:26 -0400
+	id <S269569AbRHCTz4>; Fri, 3 Aug 2001 15:55:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269570AbRHCT7Q>; Fri, 3 Aug 2001 15:59:16 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:59400 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S269580AbRHCT7M>;
-	Fri, 3 Aug 2001 15:59:12 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200108031959.f73Jx2d480109@saturn.cs.uml.edu>
-Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
-To: tao@acc.umu.se (David Weinehall)
-Date: Fri, 3 Aug 2001 15:59:02 -0400 (EDT)
-Cc: phillips@bonn-fries.net (Daniel Phillips),
-        sct@redhat.com (Stephen C. Tweedie), linux-kernel@vger.kernel.org
-In-Reply-To: <20010803105029.I6387@khan.acc.umu.se> from "David Weinehall" at Aug 03, 2001 10:50:30 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S269572AbRHCTzq>; Fri, 3 Aug 2001 15:55:46 -0400
+Received: from ux10.cso.uiuc.edu ([128.174.5.79]:62459 "EHLO ux10.cso.uiuc.edu")
+	by vger.kernel.org with ESMTP id <S269569AbRHCTzm>;
+	Fri, 3 Aug 2001 15:55:42 -0400
+Date: Fri, 3 Aug 2001 14:55:51 -0500
+From: neal king groothuis <groothui@students.uiuc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Possible ARP bug
+Message-ID: <20010803145550.A11102@ux10.cso.uiuc.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall writes:
-> On Thu, Aug 02, 2001 at 07:37:50PM +0200, Matthias Andree wrote:
+Hello all,
 
->> Still, some people object to a dirsync mount option. But this has been
->> the actual reason for the thread - MTA authors are refusing to pamper
->> Linux and use chattr +S instead which gives unnecessary (premature) sync
->> operations on write() - but MTAs know how to fsync().
->
-> So what you mean is that MTA authors refuse to pamper Linux through use
-> of fsync of the directory, but can accept to "pamper" Linux through use
-> of chattr +S?! This seem ridiculous.  It seems equally ridiculous to
-> demand that Linux should pamper for MTA authors that can't implement
-> fsync on the directory instead of writing BSD-specific code.
->
-> [snip]
->
-> To me this seems mostly like a way of saying "Hey, we've finally found
-> a way to make Linux look really bad compared to BSD-systems; let's
-> complain instead of writing alternative code that suits Linux systems
-> better than this code does." A lot like all the discussions on threads,
-> ueally.
+I'm observing some odd behavior in the the kernel's sending of ARP
+requests.  I've got a computer (call it Computer A) that sits on two
+networks (Network A and Network B, and respective Addresses 1 and 2.)
+Another computer, Computer B, has an interface only on Network A.
+Now, Computer B needs to connect to Computer A's address on Network B
+(Address 2).  When Computer A wants to send a packet back to Computer B
+to negotiate the connection, it sees that it is on a subnet with Computer
+B and tries to send the data back out over Network A.  Of course, this
+generates an ARP request.  The bad thing is, the ARP request has Address
+2 as the source protocol address, but since it's going out over Network
+B, it has the source MAC address of Computer B's Network B interface.
+Thus, we get corruption in the tables of anyone listening to the
+ARP traffic, associating Address 2 with the MAC address of the wrong
+card.  
 
-This is just completely true. One wonders why we seem to enjoy
-getting screwed this way. We shouldn't be patching these MTAs or
-hacking Linux to act like BSD. We should be avoiding these MTAs.
+This appears to be a similar problem to that posted by Sourav Sen
+on this list on July 23, but with "incorrect" ARP requests rather than
+replies (so just turning on arpfiltering won't help.)  Shouldn't an
+ARP request leaving an interface have an IP address associated with that
+interface as the source?
 
-Somebody can create a big MTA list, listing the good and bad ones.
-Then we get the Linux-hostile MTAs out of the Linux distributions,
-demanding compliance like we do for filesystem layout. We also hunt
-down Linux-related web pages that mention these MTAs and get the
-pages changed or removed. The point is to make these MTAs just
-disappear, never to be seen again. Nice MTAs get promoted.
+						TIA,
+						- neal groothuis
 
-
+-- 
+PGP key available upon request or at http://www.imsa.edu/~ngroot/

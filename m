@@ -1,80 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266382AbSIRMP5>; Wed, 18 Sep 2002 08:15:57 -0400
+	id <S265697AbSIRMNX>; Wed, 18 Sep 2002 08:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266418AbSIRMP5>; Wed, 18 Sep 2002 08:15:57 -0400
-Received: from hitpro.hitachi.co.jp ([133.145.224.7]:31439 "EHLO
-	hitpro.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id <S266382AbSIRMPy>; Wed, 18 Sep 2002 08:15:54 -0400
-Message-Id: <5.0.2.6.2.20020918210036.05287a40@sdl99c>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2-Jr1
-Date: Wed, 18 Sep 2002 21:20:55 +0900
-To: linux-kernel@vger.kernel.org
-From: Yumiko Sugita <sugita@sdl.hitachi.co.jp>
-Subject: Release of LKST 1.3
-Cc: lkst-develop@lists.sourceforge.jp
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S266382AbSIRMNX>; Wed, 18 Sep 2002 08:13:23 -0400
+Received: from host-217-146-2-126.warsun.com ([217.146.2.126]:45325 "HELO
+	coolre4215.com") by vger.kernel.org with SMTP id <S265697AbSIRMNX> convert rfc822-to-8bit;
+	Wed, 18 Sep 2002 08:13:23 -0400
+From: "PRINCESS VIVIAN INYEKWERE" <vivianonye@excite.com>
+Reply-To: vivianonye@usa.com
+Date: Mon, 16 Sep 2002 19:39:47 -0600
+Subject: 
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20020918121323Z265697-685+50072@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
-
-    I'd like to announce publication of Linux Kernel State Tracer (LKST) 1.3,
-  which is a tracer for Linux kernel.
-
-    LKST's main purpose is debugging, fault analysis and performance analysis
-of enterprise systems.
-    For the purpose, LKST has these features,
-
-    (1)It is possible to change dynamically which events are recorded.
-        Users can obtain information about the events which they concern
-       only interesting events.
-        And it reduces the overhead of components which is not related
-       with a fault.
-
-    (2)It is possible to change each function invoked by each events.
-        A default function invoked by events is just recording occuring of the events.
-       But, if it is necessary, this function can be changed to another
-       function.
-        And LKST supports installing the function by using a kernel module
-        LKST also supports a maskset, which controls what kind of events should be
-       recorded, can be changed dynamically. For example, LKST usually traces
-       a few events for good performance, and when the kernel be in a particular
-       status, LKST can change a maskset to get more detail information.
-
-    (3)It is possible to create new buffers and change to one of them.
-         By changing to other buffer, Users can leave the information
-       which they want.
+ATTN: INTRODUTION I am Princess Vivian Onyekwere, daughter of Chief Oti Onyekwer, the king of Ogoni Kingdom. Iam 25 Years old and a graduate of Mass Communication. My Father was the king of Ogoni Kingdom the highest oil Producing area in Nigeria. He was in charge of Reviving royalties from the multi-national oil Companies and government on behalf of the oil Producing communities in Nigeria. After the hanging of The Ogoni Nine (9) including Ken Saro Wiwa by the late Dictator General Sani Abacha, my father suffered Stroke and died November 15th lastyear. But before his death, he called me and told me he has twenty Three Million Five Hundred and Sixty Thousand Dollars(USD23,560,000.00) cash in his Possession, Specially deposited in a Security company here. He advised me not to tell anybody except my mother who is the last wife of the (8) eight wives that he married. My mother did not bear any male child for him. Which implies that all my fathers' properties, companies' e.t.c, we have no share in them because my mother has No male child according to African Tradition. My father there fore secretly gave me all the relevant Documents of the said money, and told me that I should Use this money with my mother and my younger sisters Because he knows that traditionally, if he dies we Cannot get anything, as inheritance. He importantly Advised me that I should seek foreign assistance’s and that I should not invest this money here in Nigeria Because of his other wives and male children who happen to be my elders. I am soliciting for your immediate assistance to get a bungalow for us, wherein Will live with my mother and two younger sisters and Further advise me where and how I will invest the balance money overseas, possibly on products of your Company and other profitable ventures. I believe that by the special grace of God, you will help us move this money out of Nigeria to any country of your Choice where we can invest this money judiciously with you. You are entitled to a reasonable part of this Money based on o!
+ur agreement, and God will bless you as you help us. Please reply through my e-mail Looking Forward to hear from you as soon as possible. Best regard, 
 
 
-    LKST binaries, source code and documents are available in the following site,
-         https://sourceforge.net/projects/lkst/
-         http://sourceforge.jp/projects/lkst/
-         http://oss.hitachi.co.jp/sdl/english/lkst.html (now updating)
-
-    We prepared a mailing list written below in order to let users know 
-update of LKST.
-
-  lkst-users@lists.sourceforge.net
-  lkst-users@lists.sourceforge.jp
-
-  To subscribe, please refer following URL,
-
-  http://lists.sourceforge.net/lists/listinfo/lkst-users
-  http://lists.sourceforge.jp/mailman/listinfo/lkst-users
-
-    And if you have any comments, please send to the above list, or to 
-another mailing
-  list written below.
-
-  lkst-develop@lists.sourceforge.net
-  lkst-develop@lists.sourceforge.jp
-
-
-  With kindest regards,
-  All of the LKST developers
-----------------
-  Yumiko Sugita
-  Hitachi,Ltd., Systems Development Laboratory
-  

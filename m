@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268844AbTCCVYV>; Mon, 3 Mar 2003 16:24:21 -0500
+	id <S268821AbTCCV0e>; Mon, 3 Mar 2003 16:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268847AbTCCVYV>; Mon, 3 Mar 2003 16:24:21 -0500
-Received: from fed1mtao06.cox.net ([68.6.19.125]:39617 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP
-	id <S268844AbTCCVYT>; Mon, 3 Mar 2003 16:24:19 -0500
-Date: Mon, 3 Mar 2003 14:34:40 -0700
-From: Matt Porter <porter@cox.net>
-To: linux-kernel@vger.kernel.org, Dave Miller <davem@redhat.com>
-Subject: Re: *dma_sync_single API change to support non-coherent cpus
-Message-ID: <20030303143440.B31278@home.com>
-References: <20030303111848.A31278@home.com> <20030303195825.C17997@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030303195825.C17997@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Mon, Mar 03, 2003 at 07:58:25PM +0000
+	id <S268819AbTCCV0e>; Mon, 3 Mar 2003 16:26:34 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:5111 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S268789AbTCCV0b>; Mon, 3 Mar 2003 16:26:31 -0500
+Message-ID: <3E63CA08.4040209@nortelnetworks.com>
+Date: Mon, 03 Mar 2003 16:32:56 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org
+Subject: Re: anyone ever done multicast AF_UNIX sockets?
+References: <3E6399F1.10303@nortelnetworks.com>	<20030303.095641.87696857.davem@redhat.com>	<3E63A8CB.2090307@nortelnetworks.com> 	<20030303.105646.02089773.davem@redhat.com> <1046720532.28127.213.camel@eggis1>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 07:58:25PM +0000, Russell King wrote:
-> On Mon, Mar 03, 2003 at 11:18:48AM -0700, Matt Porter wrote:
-> > On non cache coherent processors, it is necessary to perform
-> > cache operations on the virtual address associated with the
-> > buffer to ensure consistency.  There is one problem, however,
-> > the current API does not provide the virtual address for the
-> > buffer.  It only provides the bus address in the dma_addr_t.
-> > On arm and mips, this is dealt with by simply doing bus_to_virt().
-> > However, bus_to_virt() isn't valid for all addresses that could
-> > have been passed into *map_single().
+Terje Eggestad wrote:
+> On Mon, 2003-03-03 at 19:56, David S. Miller wrote:
+
+>     TCP bandwidth is slightly faster than AF_UNIX bandwidth on my
+>     sparc64 boxes for example.
 > 
-> I find myself thinking, in passing, why we don't have these
-> architectures define something like the following in architecture
-> specific code:
-> 
-> 	struct dma_addr {
-> 		unsigned long cpu;
-> 		unsigned long bus;
-> 		unsigned long size;
-> 	};
+> I've seen that their are the same on linux.I tried to to do AF_UNIX
+> instead of AF_INET internally to boost perf, but to no avail. Makes you
+> suspect that the loopback device actually create an AF_UNIX connection
+> under the hood ;-)
 
-<snip>
+On my P4 1.8GHz, AF_INET vs AF_UNIX looks like this:
 
-> Architectures which only need the CPU address can place only that in
-> their structure definition, and make dma_map_single and friends no-ops.
-> I feel that this would get rid of all the shouting DMA_* macros found
-> in various pci.h header files.
-> 
-> This may be something considering for 2.7 though.
 
-I like this abstraction of dma_addr. As you suggest, it's probably
-significant enough to be only considered for 2.7.  I was shooting
-for the minimal API change for 2.5/2.6 to make non-coherent 
-processors functional.  I seriously don't want to submit a
-documentation patch clarifying that this API is only valid for
-certain addresses. :)
+*Local* Communication latencies in microseconds - smaller is better
+-------------------------------------------------------------
+Host           OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+                   ctxsw       UNIX         UDP         TCP conn
+--------- ------- ----- ----- ---- ----- ----- ----- ----- ----
+pcard0ks. 2.4.18- 1.740  10.4 15.9  20.1  33.1  23.5  44.3 72.7
+pcard0ks. 2.4.18- 1.560  10.6 16.0  23.4  38.1  36.1  44.6 77.4
 
-Regards,
+
+*Local* Communication bandwidths in MB/s - bigger is better
+-----------------------------------------------------------
+Host          OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
+                        UNIX      reread reread (libc) (hand) read write
+--------- ------- ---- ---- ---- ------ ------ ------ ------ ---- -----
+pcard0ks. 2.4.18- 650. 677. 151.  721.9  958.0  290.8  288.8 955. 418.4
+pcard0ks. 2.4.18- 379. 701. 163.  714.8  949.5  289.5  288.5 956. 420.5
+
+
+On this machine at least, UDP latency is 25% worse than AF_UNIX, and TCP 
+bandwidth is about 22% that of AF_UNIX.
+
+Chris
+
 -- 
-Matt Porter
-porter@cox.net
-This is Linux Country. On a quiet night, you can hear Windows reboot.
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

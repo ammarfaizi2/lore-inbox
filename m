@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129042AbRBKMVi>; Sun, 11 Feb 2001 07:21:38 -0500
+	id <S129047AbRBKMht>; Sun, 11 Feb 2001 07:37:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129047AbRBKMV3>; Sun, 11 Feb 2001 07:21:29 -0500
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:21521 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S129042AbRBKMVQ>; Sun, 11 Feb 2001 07:21:16 -0500
-Date: Sun, 11 Feb 2001 12:14:39 +0000
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andrew Morton <andrewm@uow.edu.au>, Hacksaw <hacksaw@hacksaw.org>,
-        Tom Eastep <teastep@seattlefirewall.dyndns.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Major Clock Drift
-Message-ID: <20010211121439.A1039@colonel-panic.com>
-Mail-Followup-To: pdh, Pavel Machek <pavel@suse.cz>,
-	Andrew Morton <andrewm@uow.edu.au>, Hacksaw <hacksaw@hacksaw.org>,
-	Tom Eastep <teastep@seattlefirewall.dyndns.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0102040908320.877-100000@wookie.seattlefirewall.dyndns.org> <200102041804.f14I4br22433@habitrail.home.fools-errant.com> <3A7EA9B3.3507DC8D@uow.edu.au>, <3A7EA9B3.3507DC8D@uow.edu.au>; <20010210225851.G7877@bug.ucw.cz> <3A8671FF.C390FDCC@uow.edu.au> <20010211120614.E23048@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010211120614.E23048@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Sun, Feb 11, 2001 at 12:06:14PM +0100
-From: Peter Horton <pdh@colonel-panic.com>
+	id <S129058AbRBKMhk>; Sun, 11 Feb 2001 07:37:40 -0500
+Received: from [202.123.212.187] ([202.123.212.187]:25610 "EHLO ns1.b2s.com")
+	by vger.kernel.org with ESMTP id <S129047AbRBKMhY>;
+	Sun, 11 Feb 2001 07:37:24 -0500
+Message-ID: <3A868782.55ED2B5F@vtc.edu.hk>
+Date: Sun, 11 Feb 2001 20:37:23 +0800
+From: Nick Urbanik <nicku@vtc.edu.hk>
+Organization: Institute of Vocational Education (Tsing Yi)
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.4.2-pre3 compile error in 6pack.c
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 11, 2001 at 12:06:14PM +0100, Pavel Machek wrote:
-> 
-> > > > > >I've discovered that heavy use of vesafb can be a major source of clock
-> > > > > >drift on my system, especially if I don't specify "ypan" or "ywrap". On my
-> > > > >
-> > > > > This is extremely interesting. What version of ntp are you using?
-> > > >
-> > > > Is vesafb one of the drivers which blocks interrupts for (many) tens
-> > > > of milliseconds?
-> > > 
-> > > Vesafb is happy to block interrupts for half a second.
-> > 
-> > And has this been observed to cause clock drift?
-> 
-> YEs. I've seen time running 3 times slower. Just do cat /etc/termcap
-> with loaded PCI bus. Yesterday I lost 20 minutes during 2 hours -- I
-> have been using USB (load PCI) and framebuffer.
-> 								Pavel
+Dear folks,
 
-Is it not possible to save/check TSC in timer interrupt to correct for
-dropped interrupts ? (obviously only on machines that have a TSC ...)
+2.4.2-pre3 doesn't compile with 6pack as a module; I had to disable it;
+now it compiles (and so far, works fine).
+kgcc -D__KERNEL__ -I/home/nicku/linux/include -Wall -Wstrict-prototypes
+-O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686
+-DMODULE -DMODVERSIONS -include
+/home/nicku/linux/include/linux/modversions.h   -c -o 6pack.o 6pack.c
+6pack.c: In function `sixpack_init_driver':
+6pack.c:714: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+6pack.c:714: (Each undeclared identifier is reported only once
+6pack.c:714: for each function it appears in.)
+make[2]: *** [6pack.o] Error 1
+make[2]: Leaving directory `/home/nicku/linux/drivers/net/hamradio'
+make[1]: *** [_modsubdir_net/hamradio] Error 2
+make[1]: Leaving directory `/home/nicku/linux/drivers'
+make: *** [_mod_drivers] Error 2
+{later:]
+$ find linux -type f | xargs grep KMALLOC_MAXSIZE
+linux/drivers/net/hamradio/6pack.c:     if (sixpack_maxdev *
+sizeof(void*) >= KMALLOC_MAXSIZE) {
+1005 $ uname -r
+2.4.2-pre3
 
-P.
+--
+Nick Urbanik, Dept. of Computing and Mathematics
+Hong Kong Institute of Vocational Education (Tsing Yi)
+email: nicku@vtc.edu.hk
+Tel:   (852) 2436 8576, (852) 2436 8579   Fax: (852) 2435 1406
+pgp ID: 7529555D fingerprint: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

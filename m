@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266377AbTAUHIg>; Tue, 21 Jan 2003 02:08:36 -0500
+	id <S266295AbTAUHHW>; Tue, 21 Jan 2003 02:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266406AbTAUHIf>; Tue, 21 Jan 2003 02:08:35 -0500
-Received: from dhcp34.trinity.linux.conf.au ([130.95.169.34]:22144 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id <S266377AbTAUHId>; Tue, 21 Jan 2003 02:08:33 -0500
-Subject: Re: Linux 2.4.21-pre3-ac4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ross Biro <rossb@google.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E23696A.9040006@google.com>
-References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
-	 <1042399796.525.215.camel@zion.wanadoo.fr>
-	 <1042403235.16288.14.camel@irongate.swansea.linux.org.uk>
-	 <1042401074.525.219.camel@zion.wanadoo.fr>  <3E230A4D.6020706@google.com>
-	 <1042484609.30837.31.camel@zion.wanadoo.fr>  <3E23114E.8070400@google.com>
-	 <1042491409.586.4.camel@zion.wanadoo.fr> <3E233160.3040901@google.com>
-	 <3E23696A.9040006@google.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042557920.1401.6.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 20 Jan 2003 06:13:44 +0000
+	id <S266320AbTAUHHW>; Tue, 21 Jan 2003 02:07:22 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:64655
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S266295AbTAUHHU>; Tue, 21 Jan 2003 02:07:20 -0500
+Date: Tue, 21 Jan 2003 02:16:24 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Alan <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH][2.5] smp_call_function_mask
+In-Reply-To: <1043104744.12609.2.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0301210215550.2653-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-14 at 01:35, Ross Biro wrote:
-> Ross Biro wrote:
-> I just heard back from one ide controller chip vendor and they think we 
-> should disable PCI write posting.  From the tone of the response, I 
-> believe that they may not have thought of this before and it may be a 
-> problem in their non-opensource drivers as well.
+On 20 Jan 2003, Alan wrote:
 
-Thankfully its a SATA specific issue. However on plenty of chipsets we
-cannot disable write posting even if we wanted to (which we dont!)
+> On Fri, 2003-01-17 at 05:18, Zwane Mwaikambo wrote:
+> > +	/* Wait for response */
+> > +	while (atomic_read(&data.started) != num_cpus)
+> > +		barrier();
+> 
+> Only old old intel x86 that does -bad- things as it
+> generates a lot of bus locked cycles. Better to do
+> 
+> 	while(atomic_read(&data.started) != num_cpus)
+> 		while(data.started.value != num_cpus)
+> 		{
+> 			barrier();
+> 			cpu_relax();
+> 		}
+> 
+> I would think ?
 
-More evil plotting required (eg doing the read from the ROM resource 8))
+Cool, would a cpu_relax only be sufficient since that also has the memory 
+barrier?
+
+	Zwane
+-- 
+function.linuxpower.ca
 

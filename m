@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130818AbRCFBTP>; Mon, 5 Mar 2001 20:19:15 -0500
+	id <S130819AbRCFBXf>; Mon, 5 Mar 2001 20:23:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130819AbRCFBTF>; Mon, 5 Mar 2001 20:19:05 -0500
-Received: from gw-us4.philips.com ([63.114.235.90]:32525 "EHLO
-	gw-us4.philips.com") by vger.kernel.org with ESMTP
-	id <S130818AbRCFBSt> convert rfc822-to-8bit; Mon, 5 Mar 2001 20:18:49 -0500
-From: steve.snyder@philips.com
-To: <linux-kernel@vger.kernel.org>
-Subject: How-To for PPPoE in v2.4.x?
-Message-ID: <0056910010694057000002L172*@MHS>
-Date: Mon, 5 Mar 2001 19:20:59 -0600
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	name="MEMO 03/05/01 19:18:25"
-Content-Transfer-Encoding: 7BIT
+	id <S130820AbRCFBXZ>; Mon, 5 Mar 2001 20:23:25 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:38664 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130819AbRCFBXU>; Mon, 5 Mar 2001 20:23:20 -0500
+Date: Mon, 5 Mar 2001 19:23:13 -0600
+To: Friedrich Steven E CONT CNIN <friedrich_s@crane.navy.mil>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Looking for best resource for device driver programmers
+Message-ID: <20010305192313.A3747@cadcamlab.org>
+In-Reply-To: <AF6E1CA59D6AD1119C3A00A0C9893C9A04F570ED@cninexchsrv01.crane.navy.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <AF6E1CA59D6AD1119C3A00A0C9893C9A04F570ED@cninexchsrv01.crane.navy.mil>; from friedrich_s@crane.navy.mil on Thu, Mar 01, 2001 at 12:34:28PM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a How-To for getting the Linux v2.4.x PPPoE support to work?  
-I've searched for info but have mostly found sketchy references on getting 
-PPPoE to work with the v2.2 kernel.  
 
-My system is running RedHat v6.2 and the v2.4.2 Linux kernel.  I've built 
-PPP and PPPoE support into the kernel and I've installed the v2.4.0 PPP 
-software.  I've got the /dev/ppp created by the RedHat installation and I 
-see "pppoe" in the /proc/drivers list of drivers.  
+[Steven Friedrich]
+> The questions I have are difficult to research because so little info
+> exists about 2.4 design philosophy.
 
-I've got a (PCMCIA-based) NIC that I know works as a plain non-PPPoE 
-device under v2.4.x.  
+I guess the ORA "Linux Device Drivers" 2nd edition is due out Real Soon
+Now.  It will cover 2.4.
 
-So what do I do now?  Do I have to patch pppd to utilize the kernel's 
-new PPPoE support?  Do I have to create a /dev/pppoe devnode?
-
-While I have a lot of experience with Ethernet networking on Linux, I am a     
-total PPP (let alone PPPoE) newbie.  Please be gentle.  :-)
-
-Thank you.
+Peter

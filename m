@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129953AbRAXIF0>; Wed, 24 Jan 2001 03:05:26 -0500
+	id <S129846AbRAXIF1>; Wed, 24 Jan 2001 03:05:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129764AbRAXIFH>; Wed, 24 Jan 2001 03:05:07 -0500
-Received: from colorfullife.com ([216.156.138.34]:34820 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129776AbRAXIFB>;
-	Wed, 24 Jan 2001 03:05:01 -0500
-Message-ID: <3A6E02E6.B3261E1@colorfullife.com>
-Date: Tue, 23 Jan 2001 23:17:10 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: dwd@bell-labs.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
+	id <S129933AbRAXIFG>; Wed, 24 Jan 2001 03:05:06 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:36100
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129846AbRAXIFE>; Wed, 24 Jan 2001 03:05:04 -0500
+Date: Wed, 24 Jan 2001 21:05:00 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Leslie Donaldson <donaldlf@hermes.cs.rose-hulman.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question: Memory change request
+Message-ID: <20010124210500.B7029@metastasis.f00f.org>
+In-Reply-To: <3A6E79EA.C2AD3806@mailhost.cs.rose-hulman.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A6E79EA.C2AD3806@mailhost.cs.rose-hulman.edu>; from donaldlf@hermes.cs.rose-hulman.edu on Wed, Jan 24, 2001 at 12:44:58AM -0600
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I read through the tcpdump, and it seems that Linux completely ignores
-packets with out-of-window sequence numbers:
+On Wed, Jan 24, 2001 at 12:44:58AM -0600, Leslie Donaldson wrote:
+
+    I need a block of memory that can notify me or even a flag set when
+    it has been written to. I was thinking of letting the user code generate
+    some sort of page fault... Any random thoughts would be greatly
+    appreciated.
+    
+    mmm ... Basically dirty page logic for user space....
+
+mprotect the page(s) you are interested in so you can't write to them
+and catch SEGV -- when someone attempts to write you can pull apart
+the stack frame mark the page(s) RO and continue.
+
+if you are really stuck i think i have example code to do this
+somewhere for ia32 (stack frame is arch. dependent)
 
 
-* the solaris computers (dynamic...) sends further data although the
-Linux box (static) says 'win 0'.
-See lines 2067, 2069, 2076, ...
-2066  16:31:43.108759 eth0 > static.8664 > dynamic.ih.lucent.com.39406:
-. 1583720:1583720(0) ack 69041 win 0 (DF)
-2067  16:31:43.110623 eth0 < dynamic.ih.lucent.com.39406 > static.8664:
-P 69041:69628(587) ack 1583721 win 0 (DF)
+  --cw
 
 
-2078  16:31:43.896657 eth0 < dynamic.ih.lucent.com.39406 > static.8664:
-. 69041:69041(0) ack 1583721 win 8760 (DF)
-* this is the last ack with an in-window sequence number.
-.
-.
-.
-2136  16:35:08.488774 eth0 > static.8664 > dynamic.ih.lucent.com.39406:
-. 1583721:1585181(1460) ack 69041 win 0 (DF)
-* the linux computer sends data
-2137  16:35:08.492158 eth0 < dynamic.ih.lucent.com.39406 > static.8664:
-. 70501:70501(0) ack 1592481 win 8760 (DF)
-* but ignores the ack, probably because the sequence number is out of
-window
-
-Perhaps someone who understand TCP could check the code and compare it
-with the RFC's?
-
---
-	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129596AbQK1Km5>; Tue, 28 Nov 2000 05:42:57 -0500
+        id <S129844AbQK1L4j>; Tue, 28 Nov 2000 06:56:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129863AbQK1Kmi>; Tue, 28 Nov 2000 05:42:38 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:33920 "EHLO pizda.ninka.net")
-        by vger.kernel.org with ESMTP id <S129790AbQK1Kmf>;
-        Tue, 28 Nov 2000 05:42:35 -0500
-Date: Tue, 28 Nov 2000 01:57:13 -0800
-Message-Id: <200011280957.BAA06040@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: lenstra@tiscalinet.it
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <3.0.6.32.20001128110817.00acae30@pop.tiscalinet.it> (message
-        from Lorenzo Allegrucci on Tue, 28 Nov 2000 11:08:17 +0100)
-Subject: Re: lmbench on linux-2.4.0-test[4-11]
-In-Reply-To: <3.0.6.32.20001128110817.00acae30@pop.tiscalinet.it>
+        id <S129914AbQK1L43>; Tue, 28 Nov 2000 06:56:29 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:50185 "EHLO
+        pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+        id <S129844AbQK1L4S>; Tue, 28 Nov 2000 06:56:18 -0500
+Message-Id: <200011281125.eASBPaC13521@pincoya.inf.utfsm.cl>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0" 
+In-Reply-To: Message from Andrea Arcangeli <andrea@suse.de> 
+   of "Tue, 28 Nov 2000 01:28:36 BST." <20001128012836.B25166@athlon.random> 
+Date: Tue, 28 Nov 2000 08:25:36 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date:   Tue, 28 Nov 2000 11:08:17 +0100
-   From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
+Andrea Arcangeli <andrea@suse.de> said:
+> On Mon, Nov 27, 2000 at 02:34:45PM -0500, Richard B. Johnson wrote:
+> > The following shell-script shows that gcc-2.8.1 produces code with
+> > data allocations adjacent. However, they are reversed!
 
-   Does anyone confirm this problem?
+> same with 2.95.* :).
 
-Increase the space between the two numbers configured in
-/proc/sys/net/ipv4/ip_local_port_range, try a configuration
-such as:
+The point was if gcc did use the fact that variables are adyacent in memory
+to generate better code, and this degenerated into the current discussion
+about where they are from the programmers perspective.
 
-echo "32768 61000" >/proc/sys/net/ipv4/ip_local_port_range
-
-I bet the problem goes away then.
-
-Later,
-David S. Miller
-davem@redhat.com
+- If gcc is going to use the fact that some variables are nearby for some
+  optimization purposes, I do trust the gcc hackers to set stuff up so that
+  they use it for variables that are nearby in VM, not just where defined
+  together. If variables defined together end up adyacent or not is
+  completely irrelevant. The compiler might even rearrange them to
+  optimize for the access pattern observed.
+- As a C programmer, you are only entitled to assume that pieces of the
+  same object (array or struct) are laid out in memory in the order
+  given. With segmented VM different objects would probably end up in
+  different segments anyway.
+--
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513  
+  
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

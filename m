@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272837AbTHKREX (ORCPT <rfc822;willy@w.ods.org>);
+	id S272838AbTHKREX (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 11 Aug 2003 13:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272840AbTHKRBk
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272837AbTHKRBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 13:01:40 -0400
-Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:51218 "EHLO
-	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
-	id S272844AbTHKRBM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 13:01:12 -0400
-Subject: Re: Warnings building 2.4.22rc2 with gcc 3.3
-From: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030811155023.GB2868@alpha.home.local>
-References: <20030811085453.71881.qmail@web40509.mail.yahoo.com>
-	 <20030811155023.GB2868@alpha.home.local>
-Content-Type: text/plain; charset=iso-8859-1
-Organization: Governo Eletronico - SP
-Message-Id: <1060621144.6452.40.camel@lorien>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 11 Aug 2003 13:59:05 -0300
-Content-Transfer-Encoding: 8BIT
+	Mon, 11 Aug 2003 13:01:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8939 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S272838AbTHKQ7I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 12:59:08 -0400
+Message-ID: <3F37CB44.5000307@pobox.com>
+Date: Mon, 11 Aug 2003 12:58:44 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: davej@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       dri-devel@lists.sourceforge.net
+Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
+References: <E19mF4Y-0005Eg-00@tetrachloride> <20030811164012.GB858@work.bitmover.com>
+In-Reply-To: <20030811164012.GB858@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy,
+Larry McVoy wrote:
+> A few comments on why I don't like this patch:
+>     1) It's a formatting only patch.  That screws over people who are using
+>        BK for debugging, now when I double click on these changes I'll get
+>        to your cleanup patch, not the patch that was the last substantive
+>        change.
 
-Em Seg, 2003-08-11 às 12:50, Willy Tarreau escreveu:
-> On Mon, Aug 11, 2003 at 01:54:53AM -0700, Alex Davis wrote:
-> > When I build 2.4.22rc2 with gcc 3.3, I get the following warnings
-> > 
-> > 
-> > vt.c:166: warning: comparison is always false due to limited range of data type
-> > vt.c:283: warning: comparison is always false due to limited range of data type
-> > keyboard.c:644: warning: comparison is always true due to limited range of data type
-> > 
-> > It seems an unsigned char is being compared with 256, which always returns false.
+This is true, but at the same time, in Linux CodingStyle patches 
+culturally acceptable.  I think the general logic is just "don't go 
+overboard; reformat a tiny fragment at a time."
+
+
+>     2) "if (expr) statement;" really ought to be considered legit coding style.
+>        It's a one line "shorty" and it lets you see more of the code on a 
+>        screen.
+>     
+> On the other hand, the author carried things too far when they did
 > 
-> For keyboard.c, the test is :
+> 	if (expr) statement;
+> 	else	  statement;
 > 
->         if (value < SIZE(func_table)) {
-> 
-> so it's reassuring that any value is contained in the table. We could hide
-> the warning with a cast of value to (int).
+> that's too hard for your eyes to parse quickly IMO.
 
- I'm getting it in 2.6.0-test3(-mm1) too. The problem (I think) is 
-that the ''if'' is aways true because ''value'' never will be > than
-''SIZE(func_table)''.
- 
- The cast does not solve the problem, because ''value'' have just
-8 bits (unsigned char) used, in other words, with the cast
-the ''if'' will continue to be true.
 
--- 
-Luiz Fernando N. Capitulino
+tee hee :)  This is why we have Documentation/CodingStyle, for just this 
+type of discussion.
 
-<lcapitulino@prefeitura.sp.gov.br>
-<http://www.telecentros.sp.gov.br>
+I actually prefer your "author carried ... too far" example, with the 
+reasoning:  if you _must_ deviate from CodingStyle, at least don't run 
+the damn lines together like
+	if (test) foo else bar;
+		or
+	if (test) foo
+	else bar;
+
+The alignment of the statements visually separates out the test more 
+clearly.
+
+	Jeff
+
 

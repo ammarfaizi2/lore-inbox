@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290843AbSB0A4v>; Tue, 26 Feb 2002 19:56:51 -0500
+	id <S291074AbSB0A7l>; Tue, 26 Feb 2002 19:59:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290797AbSB0A4n>; Tue, 26 Feb 2002 19:56:43 -0500
-Received: from nrg.org ([216.101.165.106]:16412 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S291020AbSB0A4a>;
-	Tue, 26 Feb 2002 19:56:30 -0500
-Date: Tue, 26 Feb 2002 16:56:24 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: schedule()
-In-Reply-To: <3C7BEA6F.97CB8AD4@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.40.0202261638230.20308-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290981AbSB0A7c>; Tue, 26 Feb 2002 19:59:32 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:16521 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S290797AbSB0A7Q>; Tue, 26 Feb 2002 19:59:16 -0500
+Date: Tue, 26 Feb 2002 17:59:03 -0700
+Message-Id: <200202270059.g1R0x3132421@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Stelian Pop <stelian.pop@fr.alcove.com>, linux-kernel@vger.kernel.org
+Subject: Re: PCI driver in userspace
+In-Reply-To: <200202270052.g1R0qdK11879@devserv.devel.redhat.com>
+In-Reply-To: <D8E12241B029D411A3A300805FE6A2B9025761AB@montreal.eicon.com>
+	<mailman.1014747181.29305.linux-kernel2news@redhat.com>
+	<200202270052.g1R0qdK11879@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Feb 2002, Jeff Garzik wrote:
-> "Richard B. Johnson" wrote:
-> >
-> > I just read on this list that:
-> >
-> >     while(something)
-> >     {
-> >       current->policy |= SCHED_YIELD;
-> >       schedule();
-> >     }
-> >
-> > Will no longer be allowed in a kernel module! If this is true, how
-> > do I loop, waiting for a bit in a port, without wasting CPU time?
->
-> Call yield() or better yet, schedule_timeout()
+Pete Zaitcev writes:
+> >> I think this is a good example to start with. It has all the
+> >> interresting features. I hope it also has interrupt handling
+> >> to userspace (by generating SIGIO's). 
+> > 
+> > It hasn't, it just continually polls the I/O ports for 
+> > completition.
+> > 
+> >> Although I dont know if this is a good idea in the first place.
+> > 
+> > I think it depends on the interrupt frequency, and other things.
+> > 
+> > Stelian.
+> 
+> PCI interrupts must be deactivated in the device before an
+> interrupt driver returns and unmasks interrupt in the CPU.
+> User processes run with interrupts open. This is why purely
+> user level interrupts are IMPOSSIBLE (regardless of interrupt
+> frequency).
+> 
+> Two natural ways to work around this problem are:
+> 
+> 1. Run user processes with interrupts closed (or at least one
+> interrupt source disabled, if your architecture allows that).
+> This is what RTOSes often do. I do not think it can be easily
+> done on generic Linux.
+> 
+> 2. Write a small driver that deactivates interrupts and queues
+> interrupt events (with SIGIO and some other means). Personally,
+> I think that it is dumb in most cases, because once you wrote
+> that driver stub, it takes very little work to move the rest
+> of the driver into the kernel. The notable exception is XFree86,
+> of course.
+> 
+> We must ask someone to add this to FAQ on tux.org.
 
-Yes, please use schedule_timeout() if at all possible, or make sure that
-the loop will only ever execute for a few 100us at most.
+Send me a patch to the HTML file.
 
-One thing to bear in mind is that using yield() will waste CPU time if
-the code is ever called by a real-time process (unless it is a SCHED_RR
-process with other runnable SCHED_RR processes at the same priority),
-because there will be no other process that the scheduler is allowed to
-run, so the RT process will just be chosen to run again, with no delay.
+				Regards,
 
-We really need high resolution timers, so that schedule_timeout() can be
-used for delays of less than one jiffy.
-
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

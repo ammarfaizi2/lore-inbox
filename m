@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbTKOUv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 15:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbTKOUv6
+	id S262104AbTKOUxt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 15:53:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbTKOUxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 15:51:58 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12180 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262099AbTKOUvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 15:51:53 -0500
-Date: Thu, 13 Nov 2003 14:08:42 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Rob Landley <rob@landley.net>
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Patrick's Test9 suspend code.
-Message-ID: <20031113130841.GC643@openzaurus.ucw.cz>
-References: <200311090404.40327.rob@landley.net>
+	Sat, 15 Nov 2003 15:53:49 -0500
+Received: from wblv-224-88.telkomadsl.co.za ([165.165.224.88]:24449 "EHLO
+	nosferatu.lan") by vger.kernel.org with ESMTP id S262104AbTKOUwU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 15:52:20 -0500
+Subject: Re: Carrier detection for network interfaces
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FB68F59.1050909@pobox.com>
+References: <1068912989.5033.32.camel@nosferatu.lan>
+	 <3FB652BA.1010905@pobox.com> <1068928120.5033.34.camel@nosferatu.lan>
+	 <3FB68F59.1050909@pobox.com>
+Content-Type: text/plain
+Message-Id: <1068929620.5033.36.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311090404.40327.rob@landley.net>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 15 Nov 2003 22:53:40 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> This brings us to 2B) Snapshotting is way too opaque.  It sits there for 15 
-> seconds sometimes doing inscrutable things, with no progress indicator or 
-> anything, and then either suspends, panics, or fails and fires the desktop 
-> back up with no diagnostic message.
+On Sat, 2003-11-15 at 22:40, Jeff Garzik wrote:
+> Martin Schlemmer wrote:
+> > On Sat, 2003-11-15 at 18:22, Jeff Garzik wrote:
+> > 
+> >>Martin Schlemmer wrote:
+> >>
+> >>>Is there any proper way to detect a carrier signal with network
+> >>>interfaces ?  I have recently come across a problem where we tried
+> >>>to do with with checking for 'RUNNING', which do not work for all
+> >>>drivers, as well as mii-tool that fails in some cases.
+> >>
+> >>
+> >>What kernel version?
+> >>
+> >>In 2.6 you have linkwatch.  In 2.4 and 2.6, you have ETHTOOL_GLINK, and 
+> >>mii-tool.
+> >>
+> > 
+> > 
+> > Anything more shell accessible (sysfs/proc) ?
 > 
-> On the whole, this is really really cool, and if you have any suggestions how 
-> I could help, I'm all ears.  (I'm unlikely to poke into the code too 
+> 
+> ethtool is shell accessible.
+> 
 
-Try "my" swsusp code. It should not fail silently; it may
-panic the box but at that point you at least have a message.
+Yep, thanks.  Was just wondering if there was a way
+that did not depend on additional tools beyond cat,
+sed, grep, etc.
+
+
+Thanks,
+
 -- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+Martin Schlemmer
 

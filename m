@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbTFBEmp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 00:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTFBEmp
+	id S261861AbTFBErY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 00:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbTFBErY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 00:42:45 -0400
-Received: from bunyip.cc.uq.edu.au ([130.102.2.1]:50438 "EHLO
-	bunyip.cc.uq.edu.au") by vger.kernel.org with ESMTP id S261827AbTFBEmo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 00:42:44 -0400
-Message-ID: <3EDAD8AA.50503@interlog.com>
-Date: Mon, 02 Jun 2003 14:55:06 +1000
-From: Douglas Gilbert <dgilbert@interlog.com>
-Reply-To: dgilbert@interlog.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Mon, 2 Jun 2003 00:47:24 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:387
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S261861AbTFBErX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 00:47:23 -0400
+Date: Mon, 2 Jun 2003 00:50:12 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: "Brian J. Murrell" <brian@interlinx.bc.ca>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, "" <alan@lxorguk.ukuu.org.uk>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] Honour dont_enable_local_apic flag
+In-Reply-To: <1054511535.6676.85.camel@pc>
+Message-ID: <Pine.LNX.4.50.0306011950080.31534-100000@montezuma.mastecende.com>
+References: <200306012308.h51N8K6j001404@harpo.it.uu.se> <1054511535.6676.85.camel@pc>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>, agusmdp@hotmail.com
-Subject: Re: Problems with scsi emulation
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > I'm using a customized 2.4.20 kernel (red hat 9) with
- > scsi emulation, scsi  cdrom & scsi generic support
- > options enabled in .config and hdx-ide-scsi in
- > lilo.conf. apps as cdrecord or cdrdao take up all my
- > cpu time (I have a duron 1.1 gz, kt133, 192mb sdram,
- > 30 gb 5400 rpm hd). in windows (with dma enabled) Nero d
- > oesn't take up any (or almost) cpu time...
- > is this an issue of the linux-kernel or a configuration
- > problem?
+I agree with doing the clear apic capability flag, Brian how does this 
+fare? This patch alone should fix it.
 
-Due to many problems with DMA locking up on ATAPI writers
-earlier in the lk 2.4 series, Linux takes a very
-conservative approach and turns off DMA.
-It can be turned back on with:
-  # hdparm -d 1 /dev/hdb
-assuming your cdwriter is found at /dev/hdb (even
-though the ide-scsi driver "owns" that device
-and you address it as /dev/scd0 ). You can get
-faster DMA modes with the addition of the "-X"
-switch in hdparm but that should not be necessary.
+Index: linux-2.5/arch/i386/kernel/apic.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/arch/i386/kernel/apic.c,v
+retrieving revision 1.54
+diff -u -p -B -r1.54 apic.c
+--- linux-2.5/arch/i386/kernel/apic.c	31 May 2003 19:01:05 -0000	1.54
++++ linux-2.5/arch/i386/kernel/apic.c	2 Jun 2003 03:50:31 -0000
+@@ -609,7 +609,7 @@ static int __init detect_init_APIC (void
+ 
+ 	/* Disabled by DMI scan or kernel option? */
+ 	if (dont_enable_local_apic)
+-		return -1;
++		goto no_apic;
+ 
+ 	/* Workaround for us being called before identify_cpu(). */
+ 	get_cpu_vendor(&boot_cpu_data);
+@@ -665,6 +665,7 @@ static int __init detect_init_APIC (void
+ 	return 0;
+ 
+ no_apic:
++	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
+ 	printk("No local APIC present or hardware disabled\n");
+ 	return -1;
+ }
 
-Doug Gilbert
-
+-- 
+function.linuxpower.ca

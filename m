@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262546AbUKRBDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbUKRAkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262546AbUKRBDw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 20:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbUKRBCM
+	id S262703AbUKRAkh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 19:40:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbUKRAd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 20:02:12 -0500
-Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:50422 "EHLO
-	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S262602AbUKRBAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 20:00:01 -0500
-Subject: Re: [patch] inotify: use permission not vfs_permission
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Robert Love <rml@novell.com>
-Cc: Mike Waychison <Michael.Waychison@sun.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1100723314.28785.0.camel@betsy.boston.ximian.com>
-References: <1100710677.6280.2.camel@betsy.boston.ximian.com>
-	 <1100714560.6280.7.camel@betsy.boston.ximian.com>
-	 <20041117190850.GA11682@infradead.org>
-	 <1100718601.4981.2.camel@betsy.boston.ximian.com>
-	 <20041117191803.GA11830@infradead.org>
-	 <1100719052.4981.4.camel@betsy.boston.ximian.com>
-	 <419BAFE1.7030500@sun.com>
-	 <1100722624.4981.49.camel@betsy.boston.ximian.com> <419BB3B6.40703@sun.com>
-	 <1100723314.28785.0.camel@betsy.boston.ximian.com>
+	Wed, 17 Nov 2004 19:33:59 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:42901 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262669AbUKRAZP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 19:25:15 -0500
+Subject: Re: [patch 4/4] Xen core patch : /dev/mem calls io_remap_page_range
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Keir.Fraser@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk
+In-Reply-To: <E1CUZfD-00059Q-00@mta1.cl.cam.ac.uk>
+References: <E1CUZfD-00059Q-00@mta1.cl.cam.ac.uk>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 17 Nov 2004 19:59:44 -0500
-Message-Id: <1100739584.8984.8.camel@vertex>
+Message-Id: <1100737504.12373.259.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.2.0, Antispam-Data: 2004.11.17.1
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 17 Nov 2004 16:25:04 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This looks good. Thanks.
+On Wed, 2004-11-17 at 15:56, Ian Pratt wrote:
+> +#if defined(CONFIG_XEN)
+> +       if (io_remap_page_range(vma, vma->vm_start, offset, 
+> +                               vma->vm_end-vma->vm_start, vma->vm_page_prot))
+> +               return -EAGAIN;
+> +#else
+>         if (remap_page_range(vma, vma->vm_start, offset, vma->vm_end-vma->vm_start,
+>                              vma->vm_page_prot))
+>                 return -EAGAIN;
+> +#endif
+>         return 0;
+>  }
 
-On Wed, 2004-11-17 at 15:28 -0500, Robert Love wrote:
-> On Wed, 2004-11-17 at 15:25 -0500, Mike Waychison wrote:
-> 
-> > permission() still takes 3 arguments though.  I think it is safe to pass
-> > NULL for the nameidata.
-> 
-> Ugh, I compile-tested the wrong tree.  Thanks.
-> 
-> It is safe to pass NULL.
-> 
-> Patch below.
-> 
-> 	Robert Love
-> 
-> 
-> Use permission() instead of generic_permission().
-> 
-> Signed-Off-By: Robert Love <rml@novell.com>
-> 
-> diff -u linux/drivers/char/inotify.c linux/drivers/char/inotify.c
-> --- linux/drivers/char/inotify.c	2004-11-17 12:28:27.921136656 -0500
-> +++ linux/drivers/char/inotify.c	2004-11-17 12:28:27.921136656 -0500
-> @@ -166,7 +166,7 @@
->  	inode = nd.dentry->d_inode;
->  
->  	/* you can only watch an inode if you have read permissions on it */
-> -	error = vfs_permission(inode, MAY_READ);
-> +	error = permission(inode, MAY_READ, NULL);
->  	if (error) {
->  		inode = ERR_PTR(error);
->  		goto release_and_out;
-> 
-> 
--- 
-John McCutchan <ttb@tentacle.dhs.org>
+Do *all* calls to remap_page_range() under your arch need to be
+converted like this, or is this the only one?  Seems like something that
+should be done with header magic instead.  
+
+-- Dave
+

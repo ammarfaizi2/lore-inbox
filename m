@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132016AbRCYO5g>; Sun, 25 Mar 2001 09:57:36 -0500
+	id <S132028AbRCYPDQ>; Sun, 25 Mar 2001 10:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132015AbRCYO50>; Sun, 25 Mar 2001 09:57:26 -0500
-Received: from Morgoth.esiway.net ([193.194.16.157]:14863 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S132012AbRCYO5T>; Sun, 25 Mar 2001 09:57:19 -0500
-Date: Sun, 25 Mar 2001 16:56:35 +0200 (CEST)
-From: Marco Colombo <marco@esi.it>
-To: Jonathan Morton <chromi@cyberspace.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <l0313030fb6e15a6513ac@[192.168.239.101]>
-Message-ID: <Pine.LNX.4.21.0103251638140.1162-100000@Megathlon.ESI>
+	id <S131999AbRCYPDG>; Sun, 25 Mar 2001 10:03:06 -0500
+Received: from storm.ca ([209.87.239.69]:14756 "EHLO mail.storm.ca")
+	by vger.kernel.org with ESMTP id <S132035AbRCYPDD>;
+	Sun, 25 Mar 2001 10:03:03 -0500
+Message-ID: <3ABE086B.1CAF28FA@storm.ca>
+Date: Sun, 25 Mar 2001 10:02:03 -0500
+From: Sandy Harris <sandy@storm.ca>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en,fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <20010322124727.A5115@win.tue.nl> <Pine.LNX.4.30.0103231721480.4103-100000@dax.joh.cam.ac.uk> <20010325013241.F2274@garloff.casa-etp.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001, Jonathan Morton wrote:
+Kurt Garloff wrote:
 
-> >The main point is letting malloc fail when the memory cannot be
-> >guaranteed.
-> 
-> If I read various things correctly, malloc() is supposed to fail as you
-> would expect if /proc/sys/vm/overcommit_memory is 0.  This is the case on
-> my RH 6.2 box, dunno about yours.  I can write a simple test program which
-> simply allocates tons of memory if you like...
-> 
-> ...and I did.  It filled up my physical and swap memory, and got killed by
-> the OOM handler before malloc() failed, even though overcommit_memory was
-> set to 0.
-> 
-> *****BAD!*****
+> Kernel related questions IMHO are:
+> (1) Why do we get into OOM?
 
-Please search list archives, there are plenty of threads about
-overcommitment.
+There was a long thread about this a few months back. We get into OOM because
+malloc(), calloc() etc. can allocate more memory than is actually available.
 
-Have a look at the sources, that part is easy to read and you'll
-realize that /proc/sys/vm/overcommit_memory does not really enable
-/ disable memory overcommitment: its closer to a sanity check to
-disallow absurdly sized requests, IIRC.
+e.g. Say you have machine with 64 RAM + 64 swap = 128 megs with 40 megs in use,
+so 88 free. Now two processes each malloc() 80 megs. Both succeed. If both
+processes then use that memory, someone is likely to fail later.
 
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
+> Can we avoid it?
 
+The obvious solution is to consider the above behaviour a bug and fix it.
+The second malloc() should fail. The process making that call can then look
+at the return value and decide what to do about the failure.
+
+However, this was extensively discussed here last year, and that solution was
+quite firmly rejected. I never understood the reasons. See the archives.
+
+Someone did announce they were working on patches implementing a sane malloc().
+What happened to that project?

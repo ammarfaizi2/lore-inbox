@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273741AbRIXCZ7>; Sun, 23 Sep 2001 22:25:59 -0400
+	id <S273745AbRIXC37>; Sun, 23 Sep 2001 22:29:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273745AbRIXCZt>; Sun, 23 Sep 2001 22:25:49 -0400
-Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:35490 "EHLO
-	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S273741AbRIXCZj>; Sun, 23 Sep 2001 22:25:39 -0400
-Date: Sun, 23 Sep 2001 22:26:04 -0400 (EDT)
-From: "Daniel T. Chen" <crimsun@email.unc.edu>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.10
-In-Reply-To: <20010924032518.A8680@emma1.emma.line.org>
-Message-ID: <Pine.A41.4.21L1.0109232225280.28212-100000@login3.isis.unc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273746AbRIXC3t>; Sun, 23 Sep 2001 22:29:49 -0400
+Received: from vitelus.com ([64.81.243.207]:13070 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S273745AbRIXC3n>;
+	Sun, 23 Sep 2001 22:29:43 -0400
+Date: Sun, 23 Sep 2001 19:30:08 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.10 + ext3
+Message-ID: <20010923193008.A13982@vitelus.com>
+In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <1001280620.3540.33.camel@gromit.house> <9om4ed$1hv$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9om4ed$1hv$1@penguin.transmeta.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-'nv' or 'nvidia' driver, and if the latter, which version?
+On Mon, Sep 24, 2001 at 02:06:05AM +0000, Linus Torvalds wrote:
+> We'll merge ext3 soon enough.. As RH seems to start using it more and
+> more, there's more reason to merge it into the standard kernel too.
+> 
+> So don't worry. It will happen.
 
----
-Dan Chen                 crimsun@email.unc.edu
-GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
-
-On Mon, 24 Sep 2001, Matthias Andree wrote:
-
-> Well, if I run XFree86 4.1.0 (SuSE Linux 7.0 here, Diamond Viper V550
-> (nVidia Riva TNT)) and switch to virtual text-mode tty (Ctrl Alt F1),
-> hell freezes over. Screen turns black (but monitor syncs), machine is
-> totally frozen. No Magic SysRq can help. Just Reset can. I use ext3fs on
-> several partitions. 2.4.9 is fine, 2.4.9-ac7, -ac10 and 2.4.10 are
-> broken.
-
+Kinda OT, but ext3 is often treated more like a new file system than
+an extension of ext2. I'm wondering if this is a good thing. On the
+machines where I use it I have to compile both ext3 and ext2 (because
+it would be foolish to not have ext2 support) into the kernel.
+Theoretically, is there any reason why the codebases can't be
+integrated, allowing you mount ext2 FS' without journalling using only
+the ext3 code, and not requring a copy of its ancestor ext2 in the
+kernel? Or is there a way already?

@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263562AbTJCAlO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 20:41:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbTJCAlO
+	id S263565AbTJCAnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 20:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbTJCAnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 20:41:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36301 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263562AbTJCAlN (ORCPT
+	Thu, 2 Oct 2003 20:43:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58573 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263565AbTJCAnF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 20:41:13 -0400
-Date: Thu, 2 Oct 2003 17:40:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-cc: Ulrich Drepper <drepper@redhat.com>, Mikael Pettersson <mikpe@csd.uu.se>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
-In-Reply-To: <1065139380.736.109.camel@cube>
-Message-ID: <Pine.LNX.4.44.0310021720510.7833-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Oct 2003 20:43:05 -0400
+Date: Thu, 2 Oct 2003 17:43:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Aniket Malatpure <aniket@sgi.com>
+Cc: linux-kernel@vger.kernel.org, gwh@sgi.com, jeremy@sgi.com, jbarnes@sgi.com,
+       aniket_m@hotmail.com,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Patch to add support for SGI's IOC4 chipset
+Message-Id: <20031002174304.5c984dc9.akpm@osdl.org>
+In-Reply-To: <3F7CB4A9.3C1F1237@sgi.com>
+References: <3F7CB4A9.3C1F1237@sgi.com>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2 Oct 2003, Albert Cahalan wrote:
+Aniket Malatpure <aniket@sgi.com> wrote:
+>
+> Hi
 > 
-> No. I mean "ban" like we ban CLONE_THREAD w/o CLONE_DETACHED.
+> This patch adds support for the ATAPI part of SGI's IOC4 chipset.
+> A version of this patch for the 2.4 series has been accepted and is present in the tree.
+> This patch is a slight modification of the earlier patch for the 2.4 series.
+> 
 
-No. Let's not do that.
+Perhaps Bart could take a look over this sometime please?
 
-We ban only things that do not make sense. That was true of trying to 
-share signal handlers with different address spaces. But it is _not_ true 
-of having separate file descriptors for different threads.
 
-I don't imagine anybody cares _that_ deeply about fuser that it can't 
-afford to recurse into thread directories.
+> +++ b/drivers/ide/pci/sgiioc4.c	Thu Oct  2 16:53:34 2003
+> +
+> +extern int dma_timer_expiry(ide_drive_t * drive);
 
-And it may or may not make sense to not have a "/proc/<nn>/task/<yy>/fd"
-directory at all if the thread shares file descriptors with the thread 
-group leader. That would be a fairly easy optimization.
+This is unused.  Just as well, as it is static to a different file.
 
-		Linus
+> +static struct pci_device_id sgiioc4_pci_tbl[] __devinitdata = {
+
+This cannot be __devinitdata because the PCI table walking will look at it
+even after __init code has been dropped.  We've had oopses from this.
+
+> --- /dev/null	Wed Dec 31 16:00:00 1969
+> +++ b/drivers/ide/pci/sgiioc4.h	Thu Oct  2 16:53:34 2003
+
+hrm, why does this file exist?  It has only one include site, and should
+not be included by other .c files anyway because it defines static storage.
+
+It looks like the whole file should just be pasted into sgiioc4.c?
+
+> +typedef volatile struct {
+> +	u32 timing_reg0;
+> +	u32 timing_reg1;
+> +	u32 low_mem_ptr;
+> +	u32 high_mem_ptr;
+> +	u32 low_mem_addr;
+> +	u32 high_mem_addr;
+> +	u32 dev_byte_count;
+> +	u32 mem_byte_count;
+> +	u32 status;
+> +} ioc4_dma_regs_t;
+
+Does this actually need to be volatile?
+
 

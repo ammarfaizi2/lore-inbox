@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135413AbRDZOB5>; Thu, 26 Apr 2001 10:01:57 -0400
+	id <S135427AbRDZODT>; Thu, 26 Apr 2001 10:03:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135427AbRDZOBr>; Thu, 26 Apr 2001 10:01:47 -0400
-Received: from corp1.cbn.net.id ([202.158.3.24]:13833 "HELO corp1.cbn.net.id")
-	by vger.kernel.org with SMTP id <S135413AbRDZOBl> convert rfc822-to-8bit;
-	Thu, 26 Apr 2001 10:01:41 -0400
-Date: Thu, 26 Apr 2001 21:03:40 +0700 (JAVT)
-From: <imel96@trustix.co.id>
-To: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-Cc: John Cavan <johnc@damncats.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <Pine.LNX.4.33.0104261423380.1026-100000@grignard.amagerkollegiet.dk>
-Message-ID: <Pine.LNX.4.33.0104262026140.1816-100000@tessy.trustix.co.id>
+	id <S135443AbRDZODJ>; Thu, 26 Apr 2001 10:03:09 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:4869 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S135427AbRDZOCw>;
+	Thu, 26 Apr 2001 10:02:52 -0400
+Date: Thu, 26 Apr 2001 11:02:35 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0104260644430.672-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.21.0104261100490.19012-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 26 Apr 2001, Mike Galbraith wrote:
 
-On Thu, 26 Apr 2001, [iso-8859-1] Rasmus Bøg Hansen wrote:
-> > i'd be happy to accept proof that multi-user is a solution for
-> > clueless user, not because it's proven on servers. but because it is
-> > a solution by definition.
->
-> Let's turn the question the other way. It's you trying to convince
-> us, that everyone needs root access. What does a clueless user need root
-> access for?
+> 1. pagecache is becoming swapcache and must be aged before anything is
+> done.  Meanwhile we're calling refill_inactive_scan() so fast that noone
+> has a chance to touch a page.   Age becomes a simple counter.. I think.
+> When you hit a big surge, swap pages are at the back of all lists, so all
+> of your valuable cache gets reclaimed before we write even one swap page.
 
-what work around what? right now it's the kernel who thinks that root
-is special, and applications work around that because there's a
-division of super-user and plain user. is that a must?
-it's trivial to say that in multi-user system, one user shall not mess
-with other user. in multi-process, a process shall not mess with other
-process.
-but when it comes to a computer which only has one user, why would
-it stop a user. because the kernel thinks it isn't right? if he
-felt like killing random process, which is owned by other than the
-user, is it a wrong thing to do? he owns the computer, he may do
-anything he wants.
+Does the patch I sent to linux-mm@kvack.org last night help in
+this ?
 
-and i'm not even trying to convince anyone. communicating is
-closer.
+I found that the way refill_inactive_scan() and swap_out() are being
+called from the main loop in refill_inactive() aren't equal and have
+fixed that in a way which (IMHO) also beautifies the code a bit.
 
->
-> And if you really want everybody to have access to all files, you can
-> just do a 'chmod 777 /'. Perhaps set it up as a cronjob to run daily?
->
+(and makes sure background aging doesn't get out of hand with a few
+simple checks)
 
-> Besides you write, that a distro shipping single-user is evil. So you
-> want the clueless user to recompile his own kernel to enable single-user
+regards,
 
-iff that distro starts up daemons.
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-
-> mode (why do at all call it 'single-user' when you still have different
-
-i wrote somewhere that it was my mistake to call it single-user when i
-mean all user has the same root cap, and reduce "user" (account) to
-"profile".
-
-
-		imel
-
-
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

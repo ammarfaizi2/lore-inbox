@@ -1,63 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268218AbUGXBdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268223AbUGXBqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268218AbUGXBdd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 21:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268219AbUGXBdd
+	id S268223AbUGXBqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 21:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268224AbUGXBqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 21:33:33 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:51078 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268218AbUGXBdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 21:33:31 -0400
-Subject: Re: [ANNOUNCE] ketchup 0.8
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040723185504.GJ18675@waste.org>
-References: <20040723185504.GJ18675@waste.org>
+	Fri, 23 Jul 2004 21:46:08 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:51605 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S268223AbUGXBqH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 21:46:07 -0400
+Subject: Re: [patch] kernel events layer
+From: Robert Love <rml@ximian.com>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20040723183107.GB4905@granada.merseine.nu>
+References: <1090604517.13415.0.camel@lucy>
+	 <20040723183107.GB4905@granada.merseine.nu>
 Content-Type: text/plain
-Message-Id: <1090632808.1471.20.camel@mindpipe>
+Date: Fri, 23 Jul 2004 14:35:44 -0400
+Message-Id: <1090607744.15935.6.camel@lucy>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 23 Jul 2004 21:33:28 -0400
+X-Mailer: Evolution 1.5.8 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-23 at 14:55, Matt Mackall wrote:
-> ketchup is a script that automatically patches between kernel
-> versions, downloading and caching patches as needed, and automatically
-> determining the latest versions of several trees. Available at:
-> 
->  http://selenic.com/ketchup/ketchup-0.8
-> 
+On Fri, 2004-07-23 at 21:31 +0300, Muli Ben-Yehuda wrote:
 
-Does not work on Debian unstable:
+> Should we be ignoring the return value of netlink_send here, or
+> propogating a possible error to the callers?
 
-rlrevell@mindpipe:~/kernel-source$ ketchup-0.8 2.6-mm
-Creating cache directory /home/rlrevell/.ketchup
-None -> 2.6.8-rc1-mm1
-Downloading linux-2.6.7.tar.bz2
---21:14:12--  http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.7.tar.bz2
-           => `/home/rlrevell/.ketchup/linux-2.6.7.tar.bz2.partial'
-Resolving www.kernel.org... 204.152.189.116
-Connecting to www.kernel.org[204.152.189.116]:80... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 35,092,228 [application/x-bzip2]
+If the callers want it, we can definitely return it.  Sure.
 
-100%[====================================>] 35,092,228   187.32K/s    ETA 00:00
+	Robert Love
 
-21:17:17 (185.54 KB/s) - `/home/rlrevell/.ketchup/linux-2.6.7.tar.bz2.partial' s
-aved [35092228/35092228]
-
-Traceback (most recent call last):
-  File "/usr/local/bin/ketchup-0.8", line 551, in ?
-    transform(a, b)
-  File "/usr/local/bin/ketchup-0.8", line 475, in transform
-    a = install_nearest(base(b))
-  File "/usr/local/bin/ketchup-0.8", line 437, in install_nearest
-    if not f:
-UnboundLocalError: local variable 'f' referenced before assignment
-
-Lee
 

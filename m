@@ -1,66 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270331AbRHHFWI>; Wed, 8 Aug 2001 01:22:08 -0400
+	id <S270333AbRHHFaI>; Wed, 8 Aug 2001 01:30:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270329AbRHHFV6>; Wed, 8 Aug 2001 01:21:58 -0400
-Received: from smtp-out.hamburg.pop.de ([195.222.210.86]:24330 "EHLO
-	smtp-out.hamburg.pop.de") by vger.kernel.org with ESMTP
-	id <S270331AbRHHFVk>; Wed, 8 Aug 2001 01:21:40 -0400
-Date: Wed, 8 Aug 2001 07:21:47 +0200
-From: Michael Reincke <reincke.m@stn-atlas.de>
-To: linux-kernel@vger.kernel.org
-Subject: problem: devfs scsi tape permissions
-Message-Id: <20010808072147.00943ce9.reincke.m@stn-atlas.de>
-Organization: STN ATLAS Elektronik GmbH
-X-Mailer: Sylpheed version 0.5.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S270335AbRHHF36>; Wed, 8 Aug 2001 01:29:58 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:50390 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S270333AbRHHF3t>;
+	Wed, 8 Aug 2001 01:29:49 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.8-pre6 - towards a clean kernel compile
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 08 Aug 2001 15:29:55 +1000
+Message-ID: <29863.997248595@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Fix duplicate symbols in ieee1394.
+Remove dead call to rio_init from tty_io.
+Correct missing () in ldm.h.
 
-i've some trouble with devfs and the permission on my SCSI-tape drive:
+Some of these patches have already appeared on l-k but they are not in
+the latest pre-patch.
 
-after a reboot the permissions on /dev/scsi/host0/bus0/target4/lun0 are as
-follows
-drwxr-xr-x    1 root     root            0 Jan  1  1970 lun0/
-
-A request on the tape-drive as normal user gives a permission denied and
-the permissions on /dev/scsi/host0/bus0/target4/lun0  set to 
-drw-------    1 root     root            0 Jan  1  1970 lun0/
-
-all nodes in lun0 are having the right permissions:
-ls -l /dev/scsi/host0/bus0/target4/lun0/
-
-total 0
-crw-rw----    1 root     tape       9,   0 Jan  1  1970 mt
-crw-rw----    1 root     tape       9,  96 Jan  1  1970 mta
-crw-rw----    1 root     tape       9, 224 Jan  1  1970 mtan
-crw-rw----    1 root     tape       9,  32 Jan  1  1970 mtl
-crw-rw----    1 root     tape       9, 160 Jan  1  1970 mtln
-crw-rw----    1 root     tape       9,  64 Jan  1  1970 mtm
-crw-rw----    1 root     tape       9, 192 Jan  1  1970 mtmn
-crw-rw----    1 root     tape       9, 128 Jan  1  1970 mtn
-
-So to get the whole thing work i need on /dev/scsi/host0/bus0/target4/lun0
-the following permissions:
-drwxrwx---    1 root     tape            0 Jan  1  1970 lun0
-
-How could i reach this??  I tried using CFUNCTION 
-
-CREATE nst0 CFUNCTION GLOBAL chmod ${mntpnt}/scsi/host0/bus0/target4/lun0 770
-CREATE nst0 CFUNCTION GLOBAL chown ${mntpnt}/scsi/host0/bus0/target4/lun0 0 26
-
-but no work. Setiing the permissions by hand and activatinfg saving and restoring the state is also not working.
-
-
--- 
-Michael Reincke, NUT Team 2 (Software Build Management)
-
-STN ATLAS Elektronik GmbH, Bremen (Germany)
-E-mail : reincke.m@stn-atlas.de |  mail: Sebaldsbrücker Heerstr 235    
-phone  : +49-421-457-2302       |        28305 Bremen                  
-fax    : +49-421-457-3913       |
+Index: 8-pre6.1/drivers/ieee1394/raw1394.c
+--- 8-pre6.1/drivers/ieee1394/raw1394.c Fri, 20 Jul 2001 16:36:16 +1000 kaos (linux-2.4/u/b/50_raw1394.c 1.1.1.2 644)
++++ 8-pre6.1(w)/drivers/ieee1394/raw1394.c Wed, 08 Aug 2001 11:14:21 +1000 kaos (linux-2.4/u/b/50_raw1394.c 1.1.1.2 644)
+@@ -45,7 +45,7 @@ static devfs_handle_t devfs_handle;
+ 
+ LIST_HEAD(host_info_list);
+ static int host_count;
+-spinlock_t host_info_lock = SPIN_LOCK_UNLOCKED;
++static spinlock_t host_info_lock = SPIN_LOCK_UNLOCKED;
+ 
+ static struct hpsb_highlevel *hl_handle;
+ 
+Index: 8-pre6.1/drivers/ieee1394/nodemgr.c
+--- 8-pre6.1/drivers/ieee1394/nodemgr.c Tue, 31 Jul 2001 11:09:45 +1000 kaos (linux-2.4/H/e/29_nodemgr.c 1.2 644)
++++ 8-pre6.1(w)/drivers/ieee1394/nodemgr.c Wed, 08 Aug 2001 11:14:21 +1000 kaos (linux-2.4/H/e/29_nodemgr.c 1.2 644)
+@@ -43,7 +43,7 @@ static LIST_HEAD(node_list);
+ rwlock_t node_lock = RW_LOCK_UNLOCKED;
+ 
+ static LIST_HEAD(host_info_list);
+-spinlock_t host_info_lock = SPIN_LOCK_UNLOCKED;
++static spinlock_t host_info_lock = SPIN_LOCK_UNLOCKED;
+ 
+ struct bus_options {
+ 	u8	irmc;		/* Iso Resource Manager Capable */
+Index: 8-pre6.1/drivers/char/tty_io.c
+--- 8-pre6.1/drivers/char/tty_io.c Thu, 19 Jul 2001 11:12:10 +1000 kaos (linux-2.4/b/c/32_tty_io.c 1.1.2.2.1.1.1.4 644)
++++ 8-pre6.1(w)/drivers/char/tty_io.c Wed, 08 Aug 2001 11:31:00 +1000 kaos (linux-2.4/b/c/32_tty_io.c 1.1.2.2.1.1.1.4 644)
+@@ -105,7 +105,6 @@
+ #ifdef CONFIG_VT
+ extern void con_init_devfs (void);
+ #endif
+-extern int rio_init(void);
+ 
+ #define CONSOLE_DEV MKDEV(TTY_MAJOR,0)
+ #define TTY_DEV MKDEV(TTYAUX_MAJOR,0)
+@@ -2341,9 +2340,6 @@ void __init tty_init(void)
+ #endif
+ #ifdef CONFIG_SPECIALIX
+ 	specialix_init();
+-#endif
+-#ifdef CONFIG_RIO
+-	rio_init();
+ #endif
+ #if (defined(CONFIG_8xx) || defined(CONFIG_8260))
+ 	rs_8xx_init();
+Index: 8-pre6.1/fs/partitions/ldm.h
+--- 8-pre6.1/fs/partitions/ldm.h Sun, 05 Aug 2001 13:29:36 +1000 kaos (linux-2.4/I/e/44_ldm.h 1.2 644)
++++ 8-pre6.1(w)/fs/partitions/ldm.h Wed, 08 Aug 2001 11:14:24 +1000 kaos (linux-2.4/I/e/44_ldm.h 1.2 644)
+@@ -81,13 +81,13 @@
+ #define TOC_BITMAP2		"log"		/* bitmaps in the TOCBLOCK. */
+ 
+ /* Borrowed from msdos.c */
+-#define SYS_IND(p)		(get_unaligned(&p->sys_ind))
+-#define NR_SECTS(p)		({ __typeof__(p->nr_sects) __a =	\
+-					get_unaligned(&p->nr_sects);	\
++#define SYS_IND(p)		(get_unaligned(&(p)->sys_ind))
++#define NR_SECTS(p)		({ __typeof__((p)->nr_sects) __a =3D	\
++					get_unaligned(&(p)->nr_sects);	\
+ 					le32_to_cpu(__a);		\
+ 				})
+-#define START_SECT(p)		({ __typeof__(p->start_sect) __a =	\
+-					get_unaligned(&p->start_sect);	\
++#define START_SECT(p)		({ __typeof__((p)->start_sect) __a =3D	\
++					get_unaligned(&(p)->start_sect);\
+ 					le32_to_cpu(__a);		\
+ 				})
+ 
 

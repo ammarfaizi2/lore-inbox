@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314080AbSEXCRd>; Thu, 23 May 2002 22:17:33 -0400
+	id <S317072AbSEXC2c>; Thu, 23 May 2002 22:28:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317071AbSEXCRc>; Thu, 23 May 2002 22:17:32 -0400
-Received: from ip68-6-164-6.sd.sd.cox.net ([68.6.164.6]:23442 "EHLO
-	rei.moonkingdom.net") by vger.kernel.org with ESMTP
-	id <S314080AbSEXCRb>; Thu, 23 May 2002 22:17:31 -0400
-Date: Thu, 23 May 2002 19:17:28 -0700
-From: Marc Wilson <msw@cox.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Cannot write a 90' cd
-Message-ID: <20020524021728.GA1058@moonkingdom.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3CED69EB.2060003@zaralinux.com> <20020524005754.I27005@ucw.cz> <3CED7A65.7010004@zaralinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S317073AbSEXC2b>; Thu, 23 May 2002 22:28:31 -0400
+Received: from pat.uio.no ([129.240.130.16]:38039 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S317072AbSEXC2b>;
+	Thu, 23 May 2002 22:28:31 -0400
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Latest ALSA code available for tests
+In-Reply-To: <acid77$c07$2@main.gmane.org>
+From: ilmari@ping.uio.no (Dagfinn Ilmari =?iso-8859-1?q?Manns=E5ker?=)
+Organization: Program-, Informasjons- og Nettverksteknologisk Gruppe, UiO
+Date: Fri, 24 May 2002 04:28:24 +0200
+Message-ID: <d8ju1oynut3.fsf@thrir.ifi.uio.no>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2
+ (sparc-sun-solaris2.7)
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 01:25:25AM +0200, Jorge Nerin wrote:
-> Vojtech Pavlik wrote:
-> >
-> >90 minute CD-Rs have a tighter leading track, and only some CD-R drives
-> >are able to cope with that. For example my Ricoh doesn't, failing some
-> >54 minutes after start. There is nothing you can do about that.
-> >
-> 
-> It could be that, but I suspect something strange, the cd reports itself to 
-> be about 80', then cdrecord is unable to write past this 80', after 
-> cdrecord fixates the cd and ejects it I can see that there is still a 
-> virgin zone of about 5 milimeters at the edge of the disk.
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-Not all drives have firmware that does good support for overburning.  My
-NEC 7700A will never burn beyond the encoded time in the ATIP, no matter
-what you do.  I wasted several 90 min discs before I figured this out.
+Jaroslav Kysela <perex@suse.cz> writes:
 
-It has an artificial block. :)
+> Hi all,
+>
+> 	the latest ALSA -> kernel patch is available for tests at
+>
+> ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-2002-05-23-1-linux-2.5=
+.17-cs1.582.patch.gz
+>
+> 	I'd like to ask interested people to test this patch and report
+> especially compilation problems, because there are some fixes in code
+> dependency for OSS emulation layer. Also Hammerfall DSP code was recently
+> added.
 
-> Input/output error. write_g1: scsi sendcmd: no error
-> CDB:  2A 00 00 05 7D 89 00 00 1F 00
-> status: 0x2 (CHECK CONDITION)
-> Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 63 00 00 00
-> Sense Key: 0x5 Illegal Request, Segment 0
-> Sense Code: 0x63 Qual 0x00 (end of user area encountered on this track) Fru 
-> 0x0
-> Sense flags: Blk 0 (not valid)
-> cmd finished after 0.004s timeout 40s
+It all compiled fine here, and depmod doesn't complain about any
+unresolved symbols. However, when I try to load snd.o, it tells that
+snd_mixer_oss_notify_callback is unresolved. The relevant config
+parameters are:
 
-Yep, that's what I used to see before I stopped trying to do it with THAT
-drive. :)
+CONFIG_SOUND=3Dy
+CONFIG_SND=3Dm
+CONFIG_SND_OSSEMUL=3Dy
+CONFIG_SND_MIXER_OSS=3Dm
+CONFIG_SND_PCM_OSS=3Dm
+CONFIG_SND_RTCTIMER=3Dm
+CONFIG_SND_MAESTRO3=3Dm
 
--- 
-Marc Wilson
-msw@cox.net
+=2D-=20
+ilmari
+--=-=-=
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v1.0.6 (SunOS)
+Comment: Processed by Mailcrypt 3.5.6 and Gnu Privacy Guard <http://www.gnupg.org/>
+
+iD8DBQE87aVM1C7NxFHs+sYRAhKqAJ4gQ+KkZQI1r89nftOYcf9zVgYCGQCgknCW
+rFYpH43vVuji+XVKz1JrIGk=
+=a2Tt
+-----END PGP MESSAGE-----
+--=-=-=--

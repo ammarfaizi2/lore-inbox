@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265088AbSKESxR>; Tue, 5 Nov 2002 13:53:17 -0500
+	id <S265098AbSKETh1>; Tue, 5 Nov 2002 14:37:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265089AbSKESxR>; Tue, 5 Nov 2002 13:53:17 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:13984 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265088AbSKESxL>;
-	Tue, 5 Nov 2002 13:53:11 -0500
-Date: Tue, 5 Nov 2002 19:59:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Arjan van de Ven <arjanv@redhat.com>,
-       Jeff Garzik <jgarzik@pobox.com>, zippel@linux-m68k.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: zippel@linux-m68k.org
-Subject: Re: [PATCH] Allow 'n' as a symbol value in the .config file.
-Message-ID: <20021105185930.GB1137@suse.de>
-References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com> <20021105171409.GA1137@suse.de> <1036517201.5601.0.camel@localhost.localdomain> <20021105172617.GC1830@suse.de> <1036520436.4791.114.camel@irongate.swansea.linux.org.uk> <20021105185511.GR2502@pasky.ji.cz>
+	id <S265101AbSKETh1>; Tue, 5 Nov 2002 14:37:27 -0500
+Received: from [202.88.171.30] ([202.88.171.30]:6819 "EHLO dikhow.hathway.com")
+	by vger.kernel.org with ESMTP id <S265098AbSKEThZ>;
+	Tue, 5 Nov 2002 14:37:25 -0500
+Date: Wed, 6 Nov 2002 01:11:00 +0530
+From: Dipankar Sarma <dipankar@gamebox.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] kernel_stat cleanup
+Message-ID: <20021106011100.A28528@dikhow>
+Reply-To: dipankar@gamebox.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021105185511.GR2502@pasky.ji.cz>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 05 2002, Petr Baudis wrote:
->   Hello,
-> 
->   this patch (against 2.5.46) enabled recognition of 'n' tristate/boolean
-> symbol value in the .config file. This allows more convenient manual
-> editing of the .config file. Please apply.
+This is a trivial cleanup removing two old unused macros from
+kernel_stat.h that made no sense with the new per-CPU kstat.
+Also included a few finicky coding style changes. Please apply.
 
-Indeed, thank you very much! Confirmed to work here. Roman, can you pass
-on this change?
+Thanks
+Dipankar
 
--- 
-Jens Axboe
 
+diff -urN linux-2.5.46-base/include/linux/kernel_stat.h linux-2.5.46-misc/include/linux/kernel_stat.h
+--- linux-2.5.46-base/include/linux/kernel_stat.h	Tue Nov  5 21:58:28 2002
++++ linux-2.5.46-misc/include/linux/kernel_stat.h	Tue Nov  5 23:22:05 2002
+@@ -35,23 +35,16 @@
+ 
+ extern unsigned long nr_context_switches(void);
+ 
+-/*
+- * Maybe we need to smp-ify kernel_stat some day. It would be nice to do
+- * that without having to modify all the code that increments the stats.
+- */
+-#define KERNEL_STAT_INC(x) kstat.x++
+-#define KERNEL_STAT_ADD(x, y) kstat.x += y
+-
+ #if !defined(CONFIG_ARCH_S390)
+ /*
+  * Number of interrupts per specific IRQ source, since bootup
+  */
+-static inline int kstat_irqs (int irq)
++static inline int kstat_irqs(int irq)
+ {
+ 	int i, sum=0;
+ 
+-	for (i = 0 ; i < NR_CPUS ; i++) 
+-		if (cpu_possible(i)) 
++	for (i = 0; i < NR_CPUS; i++)
++		if (cpu_possible(i))
+ 			sum += kstat_cpu(i).irqs[irq];
+ 
+ 	return sum;

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316610AbSEPJFN>; Thu, 16 May 2002 05:05:13 -0400
+	id <S316611AbSEPJGu>; Thu, 16 May 2002 05:06:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316611AbSEPJFM>; Thu, 16 May 2002 05:05:12 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:11524 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316610AbSEPJFL>; Thu, 16 May 2002 05:05:11 -0400
-Date: Thu, 16 May 2002 11:05:05 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Pozsar Balazs <pozsy@sch.bme.hu>
-Cc: =?iso-8859-2?Q?J=F6rg?= Prante <joergprante@gmx.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHSET] 2.4.19-pre8-jp12
-Message-ID: <20020516090505.GB954@louise.pinerecords.com>
-In-Reply-To: <200205150007.AWD57178@netmail.netcologne.de> <Pine.GSO.4.30.0205160941040.956-100000@balu>
+	id <S316612AbSEPJGt>; Thu, 16 May 2002 05:06:49 -0400
+Received: from AMontpellier-201-1-3-85.abo.wanadoo.fr ([193.252.1.85]:32682
+	"EHLO awak") by vger.kernel.org with ESMTP id <S316611AbSEPJGs> convert rfc822-to-8bit;
+	Thu, 16 May 2002 05:06:48 -0400
+Subject: Re: No Network after Compiling,2.4.19-pre8 under Debian Woody(Long
+	Message)
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200205160618.g4G6I5Y16037@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 16 May 2002 11:05:53 +0200
+Message-Id: <1021539953.17761.150.camel@bip>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 2:33)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But the worst problem for is supermount:
-> # mount -t supermount -o dev=/dev/cdrom none /mnt/cdrom
-> # ls -l /mnt/cdrom
-> ls: .: Stale NFS handle                (~or something similar)
-> [...]                                  (and it lists the file)
+Le jeu 16/05/2002 à 13:20, Denis Vlasenko a écrit :
+> On 15 May 2002 14:38, Xavier Bestel wrote:
+> > Yes, it works at 10Mbit. But the driver doesn't do speed negociation, it
+> > doesn't even see the MII registers. However I think RTL8139 cards have
+> > MII registers. I quickly looked at the source but didn't see anything
+> > special.
+> 
+> Becker's diag utils say there is *no* MII in RTL8139, just something vaguely
+> resembling that. I have trouble persuading 8139 to work in 100mbit fdx,
+> it insists on half duplex. :-(
 
-Hmmm.. I've been seeing this problem in the latest -ac kernels too.
+How do you do this ? Mine only accepts 10Mbits ...
+I tried with mii-diad and with rtl8139-diag.
+rtl8139-diag shows "internal MII-compatible registers", then "Link
+Partner Ability register 0x40a1" (seems what I want), but then "I'm
+advertising 0000" and "Link partner capability is 0000".
+I'm lost.
 
-Basically, a while after mounting the CD a ls on any subdir of the
-mount will complain about a 'stale NFS handle' and the device has
-to be remounted.
-
-T.

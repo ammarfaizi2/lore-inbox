@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVABR0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVABR31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbVABR0U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 12:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVABR0T
+	id S261296AbVABR31 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 12:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVABR30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 12:26:19 -0500
-Received: from mail04.birthdayalarm.com ([65.19.128.164]:5035 "EHLO
-	mail04.birthdayalarm.com") by vger.kernel.org with ESMTP
-	id S261295AbVABR0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 12:26:15 -0500
-Message-ID: <938045063.1104686774146.JavaMail.root@rs03>
-Date: Sun, 2 Jan 2005 17:26:14 +0000 (GMT)
-From: BirthdayAlarm Welcome <service@birthdayalarm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Important: Please verify your email address
+	Sun, 2 Jan 2005 12:29:26 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50439
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261296AbVABR3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 12:29:21 -0500
+Date: Sun, 2 Jan 2005 18:29:29 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       robert_hentosh@dell.com
+Subject: Re: [PATCH][2/2] do not OOM kill if we skip writing many pages
+Message-ID: <20050102172929.GL5164@dualathlon.random>
+References: <Pine.LNX.4.61.0412201013420.13935@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0412201013420.13935@chimarrao.boston.redhat.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.1-rc1-bk4
+On Mon, Dec 20, 2004 at 10:17:28AM -0500, Rik van Riel wrote:
+> Simply running "dd if=/dev/zero of=/dev/hd<one you can miss>" will
+> result in OOM kills, with the dirty pagecache completely filling up
+> lowmem.  This patch is part 2 to fixing that problem.
+> 
+> Note that this test case demonstrates that the false OOM kills can
+> also be reproduced with pages that are not "pinned" by the swap token
+> at all, so there are some serious VM problems left still...
+> 
+> If we cannot write out a number of pages because of congestion on
+> the filesystem or block device, do not cause an OOM kill.  These
+> pages will become freeable later, when the congestion clears.
 
-Welcome to BirthdayAlarm. 
+I don't like this one, it's much less obvious than 1/2. After your
+obviously right 1/2 we're already guaranteed at least a percentage of
+the ram will not be dirty. Is the below really needed even after 1/2 +
+Andrew's fix? Are you sure this isn't a workaround for the lack of
+Andrew's fix.
 
-IMPORTANT: Please click below to verify your email address and to ensure you receive your reminders: 
+This 2/2 is absolutely generic, not related to highmem, and I'm at least
+not having problem with Andrew's patch applied.
 
-http://www.birthdayalarm.com/verify/30644726a447943730 
+The conditional to out_of_memory especially looks not good, and I'm
+scared it could generate livelocks.
 
-If you did not register or have simply changed your mind please click below to cancel your membership: 
-
-http://www.birthdayalarm.com/notme/33203177a882507695 
-
-Kindest regards 
-Xochi, Michael and Paul 
-(Who are Xochi, Michael and Paul? Click here: http://www.birthdayalarm.com/who) 
-
-~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-Please do not reply directly to this email. 
-
-If you have a question about your use of the BirthdayAlarm service: 
-
-1) Read our Frequently Asked Questions (FAQs) by clicking - http://www.birthdayalarm.com/help . This will probably answer your question about BirthdayAlarm. 
-
-2) If you still have a question, then please contact us with your question by clicking - http://www.birthdayalarm.com/contactus 
-
-We believe in supporting our members and do answer all questions. Rather than accepting questions by email we have developed a Customer Support System (http://www.birthdayalarm.com/contactus) that enables us to cope in a timely manner with the volume of questions we receive. 
-
-Birthday Alarm, LLC., 222 Sutter Street, 5th Floor, San Francisco, CA 94108, USA.
+I'm going to apply both your 1/2 and I already applied Andrew's
+total_scanned, but from my part I'm not applying this 2/2. I believe to
+be already safe with total_scanned + 1/2.

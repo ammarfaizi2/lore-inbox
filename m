@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbUK0W32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbUK0Win@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbUK0W32 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 17:29:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbUK0W32
+	id S261355AbUK0Win (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 17:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbUK0Win
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 17:29:28 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:48600 "HELO
+	Sat, 27 Nov 2004 17:38:43 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:50393 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261374AbUK0W3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 17:29:21 -0500
-Subject: Re: ethernet Via-rhine driver 1.1.17 duplex detection issue in
-	linux kernel 2.4.25
+	id S261355AbUK0Wim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 17:38:42 -0500
+Subject: Re: [PATCH] Work around for periodic do_gettimeofday hang
 From: Lee Revell <rlrevell@joe-job.com>
-To: Wenping Luo <wluo@fortinet.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <011801c4d270$cca65740$0101140a@fortinet.com>
-References: <011801c4d270$cca65740$0101140a@fortinet.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1101370853.2659.1.camel@laptop.fenrus.org>
+References: <1101314988.1714.194.camel@mulgrave>
+	 <1101323621.2811.24.camel@laptop.fenrus.org>
+	 <1101356864.4007.35.camel@mulgrave> <20041124203349.7982efb7.akpm@osdl.org>
+	 <1101370853.2659.1.camel@laptop.fenrus.org>
 Content-Type: text/plain
-Date: Sat, 27 Nov 2004 17:29:18 -0500
-Message-Id: <1101594559.15635.20.camel@krustophenia.net>
+Date: Sat, 27 Nov 2004 17:38:40 -0500
+Message-Id: <1101595121.15635.24.camel@krustophenia.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-24 at 13:58 -0800, Wenping Luo wrote:
-> I used crossed ethernet cable to connect one ethernet NIC to a Via Rhine III
-> VT6105M NIC. I set the speed mode of Rhine Nic to be "auto" whereas I forced
-> the peer NIC to be "100 Full Duplex". The Rhine NIC connected in mode of
-> "100 Half Duplex" , instead of "100 Full Duplex", after detecting the peer.
-> 
-> I searched the Internet and I found another reported for similiar issue at
-> http://lunar-linux.org/pipermail/lunar/2004-April/003894.html. However,
-> there is no answer for this issue yet.
-> 
+On Thu, 2004-11-25 at 09:20 +0100, Arjan van de Ven wrote:
+> HZ=1000 costs you 1% HPC performance, and for slower machines probably more. Also some hw (with slow smm) really doesn't likeit.
 
-Duplex detection is tricky, especially when one side is forced.  You
-will get inconsistent results with all types of hardware.  Maybe this is
-an unclear area in the Ethernet spec.  When I worked at a telco we had
-this problem with Cisco gear, BSD/OS, Linux, Windows...  We just made
-sure everything was either forced on both sides or auto everywhere.
+I actually profiled the timer ISR on a 600Mhz C3.  It runs for 22 usec.
+So with HZ=1000 the residency of the timer interrupt is 2.2%.
 
 Lee
 

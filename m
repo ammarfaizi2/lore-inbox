@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262167AbSJFUCb>; Sun, 6 Oct 2002 16:02:31 -0400
+	id <S262175AbSJFUDU>; Sun, 6 Oct 2002 16:03:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262176AbSJFUCb>; Sun, 6 Oct 2002 16:02:31 -0400
-Received: from fusion.wineasy.se ([195.42.198.105]:43013 "HELO
-	fusion.wineasy.se") by vger.kernel.org with SMTP id <S262167AbSJFUC3>;
-	Sun, 6 Oct 2002 16:02:29 -0400
-Date: Sun, 6 Oct 2002 22:08:01 +0200
-From: Andreas Schuldei <andreas@schuldei.org>
+	id <S262176AbSJFUDU>; Sun, 6 Oct 2002 16:03:20 -0400
+Received: from netlx010.civ.utwente.nl ([130.89.1.92]:52951 "EHLO
+	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
+	id <S262175AbSJFUCc>; Sun, 6 Oct 2002 16:02:32 -0400
+From: caligula@cam029208.student.utwente.nl
 To: linux-kernel@vger.kernel.org
-Subject: kdb against memory corruption?
-Message-ID: <20021006200801.GD1316@lukas>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Subject: Re: 2.5.40 + Loadlin problems -> Use new version
+Date: Sun, 06 Oct 2002 20:09:34 GMT
+Reply-To: caligula@cam029208.student.utwente.nl
+Message-ID: <3da09804.1077241@cam029208.student.utwente.nl>
+References: <200210031512.44913.rototor@rototor.de>
+In-Reply-To: <200210031512.44913.rototor@rototor.de>
+X-Mailer: Forte Free Agent 1.21/32.243
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think i found a case of memory corruption in the backport of
-the linuxconsole-ruby patch to 2.4.19.
+On Thu, 03 Oct 2002 14:50:07 +0200, in linux.kernel you wrote:
 
-Some parts (not sure which yet) of the tty_struct get
-overwritten. I do not yet know when that happens or how, but i
-intend to find out with kdb and its bph brakepoint feature.
+>Hi!
+>
+>i had the same problem with loadlin and kernel 2.5.40. I searched around in 
+>the web for the sources of loadlin (to add some debug output) and came 
+>accros:
+>
+>http://sunsite.ulatina.ac.cr/Unix/Linux/Slackware/slackware-8.1/source/a/loadlin/update-1.6c/
+>
+>This version of loadlin boots up 2.5.40 very well for me.
+>
+>cu,
+>  Emmy
+>-
 
-Unfortunatly my initial attempts to find the instance where the
-memory segment gets corrupted failed. I specified a certain
-address, a length of 4 byte and DATAW as arguments to the bph
-command.
+Ave 
+I checked the updated version of loadlin and it Works For Me Too.
+Thanx 
 
-but reading the kdb manpage i get the impression that
-startaddress and length have to match precisly:
 
-DATAW   Enters  the  kernel  debugger  when  data of length
-        length is written to the specified address.
 
-how can i use this to find the cause of the corruption? Anyone
-done this before? i would want to be alerted whenever anything
-withing a certain memory range gets overwritten.

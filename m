@@ -1,129 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263120AbUDLV2o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 17:28:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUDLV2o
+	id S263128AbUDLVce (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 17:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUDLVce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 17:28:44 -0400
-Received: from nevyn.them.org ([66.93.172.17]:44160 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S263120AbUDLV2k (ORCPT
+	Mon, 12 Apr 2004 17:32:34 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:53682 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263124AbUDLVcM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 17:28:40 -0400
-Date: Mon, 12 Apr 2004 17:28:38 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Cc: "Brown, Len" <len.brown@intel.com>
-Subject: Re: 2.6.2-rc3: irq#19 - nobody cared - with an au88xx
-Message-ID: <20040412212838.GA1613@nevyn.them.org>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE002F7B775@hdsmsx402.hd.intel.com> <20040407145929.GA1247@nevyn.them.org> <20040412185147.GA7717@nevyn.them.org>
-Mime-Version: 1.0
+	Mon, 12 Apr 2004 17:32:12 -0400
+Date: Mon, 12 Apr 2004 14:43:31 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: vrajesh@umich.edu, hugh@veritas.com, andrea@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+Message-ID: <73720000.1081806211@flay>
+In-Reply-To: <20040412141244.5e225cdf.akpm@osdl.org>
+References: <Pine.LNX.4.44.0404122006050.10504-100000@localhost.localdomain><Pine.LNX.4.58.0404121531580.15512@red.engin.umich.edu><69200000.1081804458@flay> <20040412141244.5e225cdf.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040412185147.GA7717@nevyn.them.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 12, 2004 at 02:51:47PM -0400, Daniel Jacobowitz wrote:
-> [Jeff, I'm sending this to you because your name is above the Via PCI
-> quirks.  It's in a followup comment, though, so there's probably
-> someone else I should be talking to about the original quirks - I just
-> haven't worked out who yet.]
+--On Monday, April 12, 2004 14:12:44 -0700 Andrew Morton <akpm@osdl.org> wrote:
+
+> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>> 
+>> Turns out he'd turned the
+>> locking in find_get_page from "spin_lock(&mapping->page_lock)" into
+>> "spin_lock_irq(&mapping->tree_lock)",
 > 
-> I'm trying to track down an interrupt routing problem on my Via-chipset
-> motherboard (it's an Abit VP6).  The symptoms are that the USB and
-> audio drivers eat each other; it appears that they are on the same
-> IRQ line, even though /proc/interrupts says:
->  11:     300000          0   IO-APIC-level  uhci_hcd, uhci_hcd
->  19:     299999          1   IO-APIC-level  au8830
+> That's from the use-radix-tree-walks-for-writeback code.
 > 
-> So eventually one of them gets wedged on, and the other panics because
-> it can't identify the incoming interrupts.
+> Use oprofile - it's NMI-based.
 > 
-> At boot I see this, from drivers/pci/quirks.c:
+>> and I'm using readprofile, which
+>> doesn't profile with irqs off, so it's not really disappeared, just hidden.
+>> Not sure which sub-patch that comes from, and it turned out to be a bit of
+>> a dead end, but whilst I'm there, I thought I'd point out this was contended,
+>> and show the diffprofile with and without spinline for aa5:
+>> 
+>>      22210  246777.8% find_trylock_page
+>>       2538    36.4% atomic_dec_and_lock
 > 
-> PCI: Via IRQ fixup for 0000:00:07.2, from 5 to 11
-> PCI: Via IRQ fixup for 0000:00:07.3, from 5 to 11
-> 
-> Is it possible that the same problem, i.e. writes to the INTERRUPT_LINE
-> register causing connection to the PIC, could apply to devices in the PCI
-> slots?  The register still shows 5 for the au8830, which is the IRQ it
-> gets assigned to if I boot without ACPI.
-> 
-> I know this hypothesis sounds a little weak.  I'm running out of ideas
-> :)
+> profiler brokenness, surely.  Almost nothing calls find_trylock_page(),
+> unless Andrea has done something peculiar.  Use oprofile.
 
-I've worked out the part of the problem involving that quirk.  There's
-an entry in quirks.c which reads:
+Well, he did do this:
 
-/*
- *      VIA northbridges care about PCI_INTERRUPT_LINE
- */
-
-int interrupt_line_quirk;
-
-static void __devinit quirk_via_bridge(struct pci_dev *pdev)
-{
-        if(pdev->devfn == 0)
-                interrupt_line_quirk = 1;
-}
-
-The i386 pirq_enable_irq honors this:
-        /* VIA bridges use interrupt line for apic/pci steering across
-           the V-Link */
-        else if (interrupt_line_quirk)
-                pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
-
-The matching function in ACPI does not honor this quirk, so we probably
-have routing troubles on a lot of affected VIA northbridges.  There's
-at least one thing which looks like an example of this in Bugzilla
-(which was "fixed" by twiddling the IRQ balancing code).  With this
-patch I get a little better (more predictable, at least) behavior.
-
-===== drivers/acpi/pci_irq.c 1.26 vs edited =====
---- 1.26/drivers/acpi/pci_irq.c	Thu Apr  1 04:03:21 2004
-+++ edited/drivers/acpi/pci_irq.c	Mon Apr 12 16:42:17 2004
-@@ -328,6 +328,7 @@
- acpi_pci_irq_enable (
- 	struct pci_dev		*dev)
+@@ -413,11 +412,11 @@ struct page *find_trylock_page(struct ad
  {
-+	extern int interrupt_line_quirk;
- 	int			irq = 0;
- 	u8			pin = 0;
+        struct page *page;
  
-@@ -379,6 +380,11 @@
-  	}
- 
- 	dev->irq = irq;
-+
-+	/* VIA bridges use interrupt line for apic/pci steering across
-+	   the V-Link.  */
-+	if (interrupt_line_quirk)
-+		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
- 
- 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Device %s using IRQ %d\n", pci_name(dev), dev->irq));
- 
+-       spin_lock(&mapping->page_lock);
++       spin_lock_irq(&mapping->tree_lock);
+        page = radix_tree_lookup(&mapping->page_tree, offset);
+        if (page && TestSetPageLocked(page))
+                page = NULL;
+-       spin_unlock(&mapping->page_lock);
++       spin_unlock_irq(&mapping->tree_lock);
+        return page;
+ }
 
+Which would stop it appearing in readprofile. But why spinlock inlining
+should affect that one way or the other is beyond me. I'll see about
+using oprofile, but it's not a trivial conversion (it's all scripted).
+There's no other occurences of that in his patchset. But you're right,
+only xfs, and free_swap_and_cache seem to use it, and I'm not swapping.
 
+M.
 
-On the down side, this doesn't fix everything.  I can observe that with
-XMMS paused and my USB trackball untouched, I get no interrupts to
-either the au88xx's IRQ or the UHCI's IRQ.  But with the sound playing,
-I get about 1.8 times as many IRQs reported to the USB controller as I
-do to the sound card!  I assume vice versa is true also, though I can't
-check right now (both are wedged again).
-
-Something else is still cross-connecting the USB IRQ (11) and the
-au88xx IRQ (19).  I had hoped it was the above problem, but it appears
-not.  I hand-verified that PCI_INTERRUPT_LINE now agrees with
-/proc/interrupts for everything - except for the bridge itself; Jeff
-Garzik's comment in quirks.c suggests that this is expected.
-
-Any ideas on what could cause this are much appreciated.  Should I use
-bugzilla to track this problem?
-
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer

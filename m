@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130144AbQLDR2z>; Mon, 4 Dec 2000 12:28:55 -0500
+	id <S129361AbQLDRwq>; Mon, 4 Dec 2000 12:52:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130238AbQLDR2q>; Mon, 4 Dec 2000 12:28:46 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:45551 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130144AbQLDR2e>; Mon, 4 Dec 2000 12:28:34 -0500
-Date: Mon, 4 Dec 2000 14:57:34 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: hugang <linuxbest@sina.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Path: for oom_kill.c
-In-Reply-To: <20001204162712Z129770-439+868@vger.kernel.org>
-Message-ID: <Pine.LNX.4.21.0012041456100.29258-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129429AbQLDRwg>; Mon, 4 Dec 2000 12:52:36 -0500
+Received: from mx5.port.ru ([194.67.23.40]:48654 "EHLO mx5.port.ru")
+	by vger.kernel.org with ESMTP id <S129361AbQLDRwd>;
+	Mon, 4 Dec 2000 12:52:33 -0500
+From: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
+To: linux-kernel@vger.kernel.org
+Cc: "Mike Dresser" <mdresser@windsormachine.com>
+Subject: Re[2]: DMA !NOT ONLY! for triton again...
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 143.167.4.62 via proxy [143.167.1.16]
+In-Reply-To: <3A2BABC7.98725631@windsormachine.com>
+Reply-To: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E142zJP-000Mbh-00@f3.mail.ru>
+Date: Mon, 04 Dec 2000 20:21:59 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Dec 2000, hugang wrote:
+Well, yes, I thought they could not have known:-)) I'm absolutely stuck. If disk is fine, chipset is fine and supported by the kernel, then BIOS doesn't (or shouldn't) make a difference... Then WHAT ON THE EARTH??? Mike, have you been able to recall what BIOS option turned DMA on? Shall I write to Andre Hedrick directly? Or is there a mailing-list smth. like linux-ide?
 
-> Hello all:
-> 	
-> old    ---->     points = p->mm->total_vm;
->        
-> change to --->   points = p->pid;
+> Now, the question is, can we trust a hard drive manufacturer
+> support tech to know what they're talking about, with evidence to
+> the contrary? :)
 
-Ummm, what exactly do you want to achieve with this?
-
-> before change it ,kernel will kill some pid, to change it kernel
-> will kill hello(bash).
-
-Before the change, the kernel will try to kill a BIG process
-(the obvious suspect for a memory leak). After the change,
-the kernel will kill an almost random process ...
-
-regards,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+Thanks
+Guennadi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

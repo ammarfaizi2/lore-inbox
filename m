@@ -1,53 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265929AbRF1OFF>; Thu, 28 Jun 2001 10:05:05 -0400
+	id <S265938AbRF1OJZ>; Thu, 28 Jun 2001 10:09:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265930AbRF1OEz>; Thu, 28 Jun 2001 10:04:55 -0400
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:5380 "EHLO
-	boris.prodako.se") by vger.kernel.org with ESMTP id <S265929AbRF1OEq>;
-	Thu, 28 Jun 2001 10:04:46 -0400
-Date: Thu, 28 Jun 2001 16:04:34 +0200 (CEST)
-From: Tobias Ringstrom <tori@unhappy.mine.nu>
-X-X-Sender: <tori@boris.prodako.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <mike_phillips@urscorp.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: VM Requirement Document - v0.0
-In-Reply-To: <E15Fbyy-0006xF-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106281558250.1258-100000@boris.prodako.se>
+	id <S265937AbRF1OJP>; Thu, 28 Jun 2001 10:09:15 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:41714 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S265935AbRF1OI4>; Thu, 28 Jun 2001 10:08:56 -0400
+Message-ID: <3B3B3A65.844C3880@uow.edu.au>
+Date: Fri, 29 Jun 2001 00:08:37 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Mason <mason@suse.com>
+CC: Rik van Riel <riel@conectiva.com.br>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Xuan Baldauf <xuan--lkml@baldauf.org>, linux-kernel@vger.kernel.org,
+        andrea@suse.de,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: VM deadlock
+In-Reply-To: <3B3AA2B8.93F9A28C@uow.edu.au> <1022480000.993732822@tiny>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001, Alan Cox wrote:
-
-> > > That isnt really down to labelling pages, what you are talking qbout is what
-> > > you get for free when page aging works right (eg 2.0.39) but don't get in
-> > > 2.2 - and don't yet (although its coming) quite get right in 2.4.6pre.
+Chris Mason wrote:
+> 
+> On Thursday, June 28, 2001 01:21:28 PM +1000 Andrew Morton
+> <andrewm@uow.edu.au> wrote:
+> ...
+> > reiserfs_mark_inode_dirty() has taken a copy of the in-core inode, so
+> > it can do this:
 > >
-> > Correct, but all pages are not equal.
->
-> That is the whole point of page aging done right. The use of a page dictates
-> how it is aged before being discarded. So pages referenced once are aged
-> rapidly, but once they get touched a couple of times then you know they arent
-> streaming I/O. There are other related techniques like punishing pages that
-> are touched when streaming I/O is done to pages further down the same file -
-> FreeBSD does this one for example
+> >             spin_lock(&inode_lock);
+> >             if ((inode->i_state & I_LOCK) == 0)
+> >                     inode->i_state &= ~(I_DIRTY_SYNC|I_DIRTY_DATASYNC);
+> >             spin_unlock(&inode_lock);
+> >
+> > Unfortunately there is no API function to do this, so inode_lock
+> > needs to be exported :(
+> 
+> Well, this is kind of my own fault.  I didn't want the dirty_inode call
+> back to be able to screw with the internals of how inode.c dealt with
+> things, I wanted it purely to allow actions in addition to what inode.c
+> wanted to do.
+> 
+> So, mark_inode_dirty calls dirty_inode, and then it sets whatever dirty
+> bits it wants to.  Clearing them in your own dirty_inode call won't matter,
+> they should just get set again later.
 
-Are you saying that classification of pages will not be useful?
+yes, the above code is a bit of a waste of space :)
 
-Only looking at the page access patterns can certainly reveal a lot, but
-tuning how to punish different pages is useful.
+The reason ->write_inode() can be a no-op is that __sync_one()
+marks the inode clean, then calls ->write_inode().  We *know*
+that we took a copy of the inode in mark_inode_dirty(), so
+we don't need to do anything.
 
-> > The problem with updatedb is that it pushes all applications to the swap,
-> > and when you get back in the morning, everything has to be paged back from
-> > swap just because the (stupid) OS is prepared for yet another updatedb
-> > run.
->
-> Updatedb is a bit odd in that it mostly sucks in metadata and the buffer to
-> page cache balancing is a bit suspect IMHO.
+Of course this absolutely requires all inode dirtiers to
+call mark_inode_dirty() after doing the dirty, which is a risk.
+But we face that risk with the PF_MEMALLOC case anyway.  No
+problems have appeared in testing.
 
-In 2.4.6-pre, the buffer cache is no longer used for metata, right?
+mark_inode_dirty() is the only way in which those bits can get
+set. So the risk we face is that someone calls mark_inode_dirty(),
+then alters the inode, then there is a call to write_inode().
+That would be a bug, IMO.
 
-/Tobias
+As for knfsd, well, someone must have called mark_inode_dirty()
+at sometime, else they'd never get written.
 
+It's all rather dodgy.
+
+-

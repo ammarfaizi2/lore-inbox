@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273688AbRIQUOX>; Mon, 17 Sep 2001 16:14:23 -0400
+	id <S273691AbRIQUVn>; Mon, 17 Sep 2001 16:21:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273685AbRIQUON>; Mon, 17 Sep 2001 16:14:13 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:3593 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S273683AbRIQUNy>; Mon, 17 Sep 2001 16:13:54 -0400
-Date: Mon, 17 Sep 2001 15:49:44 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>, Christoph Rohland <cr@sap.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: 2.4.10pre VM changes: Potential race
-In-Reply-To: <Pine.LNX.4.21.0109151236270.1155-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0109171547290.6640-100000@freak.distro.conectiva>
+	id <S273692AbRIQUVd>; Mon, 17 Sep 2001 16:21:33 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:40905 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S273691AbRIQUVT>; Mon, 17 Sep 2001 16:21:19 -0400
+Message-ID: <8FB7D6BCE8A2D511B88C00508B68C208197175@orsmsx102.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'SirVer@gmx.de'" <SirVer@gmx.de>, linux-kernel@vger.kernel.org
+Subject: RE: ACPI and SCSI.
+Date: Mon, 17 Sep 2001 13:20:38 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Have you tried it with just the base ACPI support (no processor)?
 
+Please send me your dmesg output and /proc/interrupts, too.
 
-On Sat, 15 Sep 2001, Hugh Dickins wrote:
+Regards -- Andy
 
-> Marcelo,
+> From: SirVer@gmx.de [mailto:SirVer@gmx.de]
+> just a short question (probably a still unknown bug, I didn't find
+> anything about this): 
+>  My Box: a AdvanSys SCSI Low Cost Controller
+>          a TEAC CDR 55S CD-Burner connected to it
+> 			a new motherboard (Asus) with ACPI, 
+> without APM support
 > 
-> I've done little testing of patch below (just SMP build on UP machine),
-> and uncertain whether I'll be able to do more over the weekend.  Better
-> for me to think backwards and forwards over it instead.  Please check
-> it out and give it a try, or take pieces for a patch of your own.
-> I won't be online, but will fetch mail from time to time.
-> 
-> It's an all-in-one patch of various things, which I'd want to
-> divide up into separate parts if I were submitting to Linus.
-> There's something in Documentation should be updated too.
-
-Hugh, 
-
-I agree on that we should separate parts if submitting to Linus.
-
-
-I'm going to separate the parts of the patch which are dealing with the
-race we discussed last week, review it, test it, and then send to Linus.
-
-
+> now, when i enable ACPI Processor support (nothing else) and i try to
+> mount a CD, the computer crashes sometimes, but if it doesn't crash on
+> mounting, it crashes later while accessing the CD. The Display goes
+> black and the computer doesn't make a move anymore. The software power
+> switch doesn't work any longer. 
+> I guess, that this is a bug in the kernel, for the CD works when i
+> disable the ACPI support and for i never had any problems under *BSD.
+> But I wasn't able to track the problem down in the source. 
+> Anyone any ideas?

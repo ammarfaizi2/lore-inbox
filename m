@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262744AbUDLI3H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 04:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbUDLI3H
+	id S262650AbUDLJIm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 05:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbUDLJIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 04:29:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19602 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262744AbUDLI3E (ORCPT
+	Mon, 12 Apr 2004 05:08:42 -0400
+Received: from bolt.sonic.net ([208.201.242.18]:39648 "EHLO bolt.sonic.net")
+	by vger.kernel.org with ESMTP id S262650AbUDLJIl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 04:29:04 -0400
-Date: Mon, 12 Apr 2004 01:28:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul P Komkoff Jr <i@stingr.net>
-Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
-       Joe Thornber <thornber@redhat.com>
-Subject: Re: 2.6.5-mm4
-Message-Id: <20040412012840.1f3a65e2.akpm@osdl.org>
-In-Reply-To: <20040412082215.GP14129@stingr.net>
-References: <20040410200551.31866667.akpm@osdl.org>
-	<20040412064605.GO14129@stingr.net>
-	<20040412004244.0f50a7d4.akpm@osdl.org>
-	<20040412082215.GP14129@stingr.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 12 Apr 2004 05:08:41 -0400
+Date: Mon, 12 Apr 2004 02:08:17 -0700
+From: David Hinds <dhinds@sonic.net>
+To: Ivica Ico Bukvic <ico@fuse.net>, daniel.ritz@gmx.ch,
+       "'Tim Blechmann'" <TimBlechmann@gmx.net>,
+       "'Thomas Charbonnel'" <thomas@undata.org>, ccheney@debian.org,
+       linux-pcmcia@lists.infradead.org, alsa-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-audio-user] snd-hdsp+cardbus+M6807 notebook=distortion -- FIXED!
+Message-ID: <20040412090817.GA3158@sonic.net>
+References: <200404120145.22679.daniel.ritz@gmx.ch> <20040412013949.NJOP1634.smtp3.fuse.net@64BitBadass> <20040412082801.A3972@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040412082801.A3972@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Please do not edit people out of the Cc line.
-
-Paul P Komkoff Jr <i@stingr.net> wrote:
->
-> Replying to Andrew Morton:
-> > I added a might_sleep() to generic_unplug_device(), because some drivers'
-> > unplug functions can sleep.
-> > 
-> > It appears that either the EVMS or the udm2 patch is calling
-> > generic_unplug_device() under a lock.  Probably spin_lock_irq(q->lock).
+On Mon, Apr 12, 2004 at 08:28:01AM +0100, Russell King wrote:
 > 
-> can it be thisi (raid1.c):
-
-Yes.  The below locking is not correct.
-
-> static void unplug_slaves(mddev_t *mddev)
-> {
->         conf_t *conf = mddev_to_conf(mddev);
->         int i;
->         unsigned long flags;
+> > 3) FOR FURTHER INVESTIGATION: Does linux hdsp driver force the f0
+> > value upon the 0x81 register or is it that in Linux one simply
+> > cannot select d0 value for whatever reason
 > 
->         spin_lock_irqsave(&conf->device_lock, flags);
->         for (i=0; i<mddev->raid_disks; i++) {
->                 mdk_rdev_t *rdev = conf->mirrors[i].rdev;
->                 if (rdev && !rdev->faulty) {
->                         request_queue_t *r_queue = bdev_get_queue(rdev->bdev);
+> I suspect it may be caused by using a byte access to a longword-sized
+> register.  0x81 is supposed to be accessed via:
 > 
->                         if (r_queue->unplug_fn)
->                                 r_queue->unplug_fn(r_queue);
->                 }
->         }
->         spin_unlock_irqrestore(&conf->device_lock, flags);
-> }
+> setpci -s a.0 0x80.l
+> 
+> which of course means its bits 8 to 15.
 
-I do not know which drivers insist on sleeping in their unplug functions,
-but apparently they're out there.
+I don't think so; I'm not sure what the PCI spec has to say about it,
+but I have not had problems doing byte reads/writes for longer PCI
+configuration registers.  Bit 9 of the sysctl register for the TI 1410
+is "socket activity"; it is read only and is cleared after each read.
+The key change is setting bit 14 (enable upstream burst reads).
+
+Regarding the register at 0xc9, I don't think that is defined in any
+TI bridge data sheet; it is in a "reserved" range.
+
+-- Dave

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265058AbTAETit>; Sun, 5 Jan 2003 14:38:49 -0500
+	id <S265092AbTAETkm>; Sun, 5 Jan 2003 14:40:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265063AbTAETit>; Sun, 5 Jan 2003 14:38:49 -0500
-Received: from pl1310.nas921.ichikawa.nttpc.ne.jp ([219.102.249.30]:6190 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S265058AbTAETis>;
-	Sun, 5 Jan 2003 14:38:48 -0500
-Date: Mon, 6 Jan 2003 04:47:16 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: Mike Galbraith <efault@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Honest does not pay here ...
-Message-Id: <20030106044716.41cab8ce.bruce@ask.ne.jp>
-In-Reply-To: <5.1.1.6.2.20030105190733.00c80b88@pop.gmx.net>
-References: <Pine.LNX.4.44.0301050314470.16362-100000@fogarty.jakma.org>
-	<5.1.1.6.2.20030105190733.00c80b88@pop.gmx.net>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14
- _qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq
- *)M'3Jp<M,l~'4F{qWpM$%"%p'
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S265085AbTAETkm>; Sun, 5 Jan 2003 14:40:42 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:25472 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265074AbTAETkl>;
+	Sun, 5 Jan 2003 14:40:41 -0500
+Date: Sun, 5 Jan 2003 11:46:03 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Paul Rolland <rol@as2917.net>
+cc: "'Andrew S. Johnson'" <andy@asjohnson.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.54 + ACPI] Slow [Was: Re: [2.5.53] So sloowwwww......]
+In-Reply-To: <013701c2b4f2$3f3e0670$2101a8c0@witbe>
+Message-ID: <Pine.LNX.4.33L2.0301051145050.13312-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 05 Jan 2003 19:16:26 +0100
-Mike Galbraith <efault@gmx.de> wrote:
+On Sun, 5 Jan 2003, Paul Rolland wrote:
 
-> Peace will return.  People eventually have to go off and think... they run 
-> out of hot air.
+| Hello,
+|
+| > | | acpi= kernel parameters, I tried :
+| > | |  - acpi=no-idle
+| > |
+| > | This one (above) is the correct syntax.
+| > | Looking at the code, it only takes effect if you are using
+| > only 1 CPU.
+| >
+| > Sorry, I was looking at old source code.
+| > apm=no-idle isn't in 2.5.54.
+s/apm/acpi/ !!!
 
-Unfortunately, this time round some of them seem to have nuclear reactors
-powering their blowers.
-Ah well, where else could you see St. Ignatius squaring off against the Mad
-Genius of IDE and a WebTV user ;)
+| Too bad...
+| Does this mean there is no easy way to have ACPI running correctly
+| on my machine ?
+| If anyone knows ACPI code, please tell me if you want me to run
+| some specific code to understand what's going on...
 
-Hopefully, they'll lose interest some time before the next millenium...
+I'll have to leave that to someone else.
+
+-- 
+~Randy
+

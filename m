@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbULZQkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbULZQne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbULZQkc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 11:40:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbULZQkc
+	id S261704AbULZQne (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 11:43:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbULZQne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 11:40:32 -0500
-Received: from cimice4.lam.cz ([212.71.168.94]:14210 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S261700AbULZQk2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 11:40:28 -0500
-Date: Sun, 26 Dec 2004 16:40:51 +0000
-From: Karel Kulhavy <clock@twibright.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: description of struct sockaddr
-Message-ID: <20041226164051.GA5529@beton.cybernet.src>
-References: <20041123214300.GB2147@beton.cybernet.src> <Pine.LNX.4.53.0411232309360.23119@yvahk01.tjqt.qr>
+	Sun, 26 Dec 2004 11:43:34 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:17892 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261704AbULZQnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 11:43:24 -0500
+Subject: Re: lease.openlogging.org is unreachable
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041226162727.GA27116@work.bitmover.com>
+References: <1104077531.5268.32.camel@mulgrave>
+	 <20041226162727.GA27116@work.bitmover.com>
+Content-Type: text/plain
+Date: Sun, 26 Dec 2004 10:43:13 -0600
+Message-Id: <1104079394.5268.34.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0411232309360.23119@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.4.2.1i
-X-Orientation: Gay
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 11:11:31PM +0100, Jan Engelhardt wrote:
-> >Hello
-> >
-> >man netdevice talks about struct sockaddr, but neither describes it,
-> >nor provides a link to descriptio, nor the "SEE ALSO" items
-> >(ip(7), proc(7), rnetlink(7)) provide the necessary information.
-> >
-> >"The hardware address is specified in a struct sockaddr".
-> 
-> I don't think so. The hardware address is, well, specific to the hardware (like
-> Ethernet, for example). IP/TCP/UDP however is not limited to Ethernet. And
-> 'sockaddr' clearly is something that does not deal with hardware.
+On Sun, 2004-12-26 at 08:27 -0800, Larry McVoy wrote:
+> I suspect that your hostname changes when you disconnect.  Leases are 
+> issued on a per host basis.  If you make your hostname constant when
+> you unplug it should work.  If it doesn't, let us know.
 
-It is a sentence from man netdevice. Should I send a bugreport to the manpage
-maintainer?
+Well, that's a new one, but no, I have a fixed hostname which dhcp is
+forbidden from changing.
 
-Cl<
+James
+
+

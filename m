@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275910AbSIUMvZ>; Sat, 21 Sep 2002 08:51:25 -0400
+	id <S275911AbSIUNQr>; Sat, 21 Sep 2002 09:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275911AbSIUMvZ>; Sat, 21 Sep 2002 08:51:25 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:25261 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S275910AbSIUMvY>;
-	Sat, 21 Sep 2002 08:51:24 -0400
-Date: Sat, 21 Sep 2002 14:56:26 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: quadratic behaviour
-Message-ID: <20020921125626.GA15603@win.tue.nl>
-References: <20020918211547.GA14657@win.tue.nl> <Pine.LNX.4.44.0209190502120.5184-100000@localhost.localdomain> <20020919131157.GA14938@win.tue.nl>
+	id <S275912AbSIUNQr>; Sat, 21 Sep 2002 09:16:47 -0400
+Received: from fed1mtao04.cox.net ([68.6.19.241]:7671 "EHLO fed1mtao04.cox.net")
+	by vger.kernel.org with ESMTP id <S275911AbSIUNQr>;
+	Sat, 21 Sep 2002 09:16:47 -0400
+Date: Sat, 21 Sep 2002 06:45:04 -0700
+From: Matt Porter <porter@cox.net>
+To: davidm@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: can we drop early_serial_setup()?
+Message-ID: <20020921064504.A31995@home.com>
+References: <200209200459.g8K4xJcW011057@napali.hpl.hp.com> <20020920163357.A30546@home.com> <15755.44527.146016.975532@napali.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020919131157.GA14938@win.tue.nl>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15755.44527.146016.975532@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Fri, Sep 20, 2002 at 04:23:27PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 19, 2002 at 03:11:57PM +0200, Andries Brouwer wrote:
-> On Thu, Sep 19, 2002 at 05:05:17AM +0200, Ingo Molnar wrote:
-
-> > because, as mentioned before, that particular loop i fixed in 2.5.35.
+On Fri, Sep 20, 2002 at 04:23:27PM -0700, David Mosberger wrote:
+> >>>>> On Fri, 20 Sep 2002 16:33:57 -0700, Matt Porter <porter@cox.net> said:
 > 
-> But now that I look at patch-2.5.35
-> I don't see any improvement: for_each_task() is now called
-> for_each_process(), but otherwise base.c is just as quadratic
-> as it was.
+>   Matt> serial8250_ports and serial8250_pops are not static structs
+>   Matt> in your tree?
 > 
-> So, why do you think this problem has been fixed?
+> It is.  The new routine (early_register_port) goes into 8250.c, so that's
+> fine.
 
-Let me repeat this, and call it an observation instead of a question,
-so that you do not think I am in doubt.
+That will be fine then.  I misconstrued your first statements as
+indicating that we should duplicate this code in each arch (which
+I didn't like).  As far as PPC is concerned, go ahead and wipe
+out early_serial_setup when you bring in early_register_port.
 
-If you have 20000 processes, and do ps, then get_pid_list() will be
-called 1000 times, and the for_each_process() loop will examine
-10000000 processes.
+FWIW, there's actually been more PPC platforms than ev64260 using
+early_serial_setup. They had abandoned it temporarily for a less
+flexible approach due to the breakage.
 
-Unlike the get_pid() situation, which was actually amortized linear with a very
-small coefficient, here we have a bad quadratic behaviour, still in 2.5.37.
-
-Andries
+Thanks,
+-- 
+Matt Porter
+porter@cox.net
+This is Linux Country. On a quiet night, you can hear Windows reboot.

@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131158AbREEGJE>; Sat, 5 May 2001 02:09:04 -0400
+	id <S135339AbREEUh6>; Sat, 5 May 2001 16:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131446AbREEGIy>; Sat, 5 May 2001 02:08:54 -0400
-Received: from wb2-a.mail.utexas.edu ([128.83.126.136]:15109 "HELO
-	mail.utexas.edu") by vger.kernel.org with SMTP id <S132527AbREEGIl>;
-	Sat, 5 May 2001 02:08:41 -0400
-Message-ID: <3AF2F07E.545BBDDB@mail.utexas.edu>
-Date: Sat, 05 May 2001 00:10:06 +0600
-From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
-Organization: (I do not speak for) The University of Texas at Austin (nor they for 
- me).
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en,fr,de
+	id <S135331AbREEUhk>; Sat, 5 May 2001 16:37:40 -0400
+Received: from [32.97.182.111] ([32.97.182.111]:3008 "EHLO over.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S135339AbREEUhR>;
+	Sat, 5 May 2001 16:37:17 -0400
+Message-ID: <3AF2C857.BEEF889E@vnet.ibm.com>
+Date: Fri, 04 May 2001 10:18:47 -0500
+From: Todd Inglett <tinglett@vnet.ibm.com>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16-3.c4eb i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
-In-Reply-To: <E14vmpN-000822-00@the-village.bc.nu> <006e01c0d4e9$3c0bd210$0300a8c0@methusela>
+To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+CC: Keith Owens <kaos@ocs.com.au>, Alexander Viro <viro@math.psu.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP races in proc with thread_struct
+In-Reply-To: <3AF2A1CC.C22A48E7@vnet.ibm.com> <8541.988980403@ocs3.ocs-net> <20010504162126.A14679@kallisto.sind-doof.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Tiensivu wrote:
+Andreas Ferber wrote:
+> 
+> On Fri, May 04, 2001 at 10:46:43PM +1000, Keith Owens wrote:
+> 
+> > For a read only case, the only important
+> > thing is not to die, one occurrence of bad data is tolerable.
+> 
+> Strong NACK. The pages where the bad data comes from may in some cases
+> already be reclaimed for other data, probably something security
+> relevant, which should never ever be given even read access by an
+> unauthorized user. Even if this event may be a very rare case, one
+> single occurrence of this is one to much.
 
-> > What still stands out is that exactly _zero_ people have reported the same
-> > problem with non VIA chipset Athlons.
->
-> This might be grasping at straws [...] This could be (total conjecture)
+Agreed.  Worse, it is not readonly.  The /proc code task_lock's the task
+struct, thus writing to it.
 
-> related somehow to the corruption bugs they are admitting to in
+I'll post a patch shortly once I've tested it.  Worse case only if the
+task is exiting I sweep the tasklist looking for the parent to see if
+the parent is still valid.  I am not verifying if it is the actual
+parent (it might be a new task allocated at the same spot).  I could
+just report 0 (or 1) for the parent for any process that is exiting, but
+then you won't be able to see the ppid for zombies.  Or is there another
+state I can look for?  What I really need is PF_EXITED :).
 
-> the 686B although they are blaming the SB Live now.
-
-Just another data point (the news is in the final paragraph):
-
-I recently built two near-twin systems using Athlon 1.2's and VIA chipsets
-(EPoX 8KTA3), and have *never* been able to get either to boot an
-Athlon-optimized kernel, having tried 2.4.0, 2.4.2, 2.4.4, and about 5
-different -ac* variants of 2.4.3.
-
-They do boot PIII kernels reliably for all those variants, though they still
-suffer occasional oopses, hangs, or crashes (as discussed in other threads).
-
-However (and here's the part I haven't mentioned before), yesterday I switched
-one of them to a new mb with a non-VIA chipset (Asus A7A266), and it booted the
-first Athlon kernel I tried (2.4.4).  No other changes to .config, same
-processor as before, same memory, same disks, same video, same case, same power
-cord, you name it.
-
-Bobby Bryant
-Austin, Texas
-
-
+I am a little concerned also about mm, file, tty and sig fields. These
+appear to be NULLed in do_exit(), but I haven't tracked down tty and sig
+yet.
+-- 
+-todd

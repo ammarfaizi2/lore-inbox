@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263917AbUDPXDz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 19:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263919AbUDPXDz
+	id S263838AbUDPXIE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 19:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbUDPXIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 19:03:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10722 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263917AbUDPXDx (ORCPT
+	Fri, 16 Apr 2004 19:08:04 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20965 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263838AbUDPXIA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 19:03:53 -0400
-Message-Id: <200404162303.i3GN3h231348@mail.osdl.org>
-Date: Fri, 16 Apr 2004 16:03:28 -0700 (PDT)
-From: markw@osdl.org
-Subject: Re: 2.6.5-mm5
-To: nickpiggin@yahoo.com.au
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <4080655D.6090206@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+	Fri, 16 Apr 2004 19:08:00 -0400
+Date: Fri, 16 Apr 2004 16:07:59 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: baycom_par dereference before check.
+Message-ID: <20040416160759.D22989@build.pdx.osdl.net>
+References: <20040416212004.GO20937@redhat.com> <20040416212541.GH24997@parcelfarce.linux.theplanet.co.uk> <20040416212738.GQ20937@redhat.com> <408054C9.5070202@pobox.com> <20040416215319.GW20937@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040416215319.GW20937@redhat.com>; from davej@redhat.com on Fri, Apr 16, 2004 at 10:53:19PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Apr, Nick Piggin wrote:
-> markw@osdl.org wrote:
->> On 15 Apr, Andrew Morton wrote:
->> 
->>>Could we see 2.6.6-rc1 numbers please?
->> 
->> 
->> I have a result on ext2 with 2.6.6-rc1 that looks good:
->> 	http://developer.osdl.org/markw/fs/dbt2_project_results.html
->> 
->>            ext2  ext3
->> 2.6.6-rc1  2385
->> 2.6.5-mm5  2165  1933
->> 2.6.5-mm4  2180
->> 2.6.5-mm3  2165  1930
->> 2.6.5      2385
->> 
->> I'll run one for ext3 too.
->> 
+* Dave Jones (davej@redhat.com) wrote:
+> On Fri, Apr 16, 2004 at 05:48:57PM -0400, Jeff Garzik wrote:
+>  > >Good point. Still doesn't strike me as particularly nice though.
+>  > I would rather just remove the checks completely.  The success of any of 
+>  > those checks is a BUG() condition that should never occur.
 > 
-> OK that's weird. You got much better results with sched-less-idle
-> before.
+> That works for me too. How about this?
 > 
-> Any chance you could do a run on -mm with interrupt balancing turned
-> on? Could you also turn CONFIG_SCHEDSTATS on (-mm only), and send
-> me a snapshot of /proc/schedstat before and after your run?
+> 		Dave
 > 
-> Thank you.
+> --- linux-2.6.5/drivers/net/hamradio/baycom_par.c~	2004-04-16 22:52:35.000000000 +0100
+> +++ linux-2.6.5/drivers/net/hamradio/baycom_par.c	2004-04-16 22:52:53.000000000 +0100
+> @@ -274,8 +274,8 @@
+>  	struct net_device *dev = (struct net_device *)dev_id;
+>  	struct baycom_state *bc = netdev_priv(dev);
+>  
+> -	if (!dev || !bc || bc->hdrv.magic != HDLCDRV_MAGIC)
+> -		return;
+> +	BUG_ON(!bc);
 
-I do already have CONFIG_IRQBALANCE=y.  Is that the interrupt balancing?
-I'll go ahead and get that schedstat data for you.
+If it's adding a constant offset to dev, the bc would be non-NULL in a bug
+case, no?
 
-Mark
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

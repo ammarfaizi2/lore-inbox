@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312505AbSCUV2h>; Thu, 21 Mar 2002 16:28:37 -0500
+	id <S312509AbSCUVe2>; Thu, 21 Mar 2002 16:34:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312506AbSCUV21>; Thu, 21 Mar 2002 16:28:27 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:28941 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S312505AbSCUV2N>; Thu, 21 Mar 2002 16:28:13 -0500
-Date: Thu, 21 Mar 2002 16:26:11 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Bob Miller <rem@osdl.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.7 acct.c oops
-In-Reply-To: <20020321113829.A1543@doc.pdx.osdl.net>
-Message-ID: <Pine.LNX.3.96.1020321162155.18421A-100000@gatekeeper.tmr.com>
+	id <S312511AbSCUVeT>; Thu, 21 Mar 2002 16:34:19 -0500
+Received: from smtp2.libero.it ([193.70.192.52]:59872 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id <S312509AbSCUVeD> convert rfc822-to-8bit;
+	Thu, 21 Mar 2002 16:34:03 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: petali grigi <lk_ml@libero.it>
+Reply-To: merlim@libero.it
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre4: Compiler crash in i386/kernel/mpparse.c
+Date: Thu, 21 Mar 2002 22:36:28 +0100
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200203212233.07125.lk_ml@libero.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Mar 2002, Bob Miller wrote:
 
-> # The following is the BitKeeper ChangeSet Log
-> # --------------------------------------------
-> # 02/03/21	rem@doc.pdx.osdl.net	1.538
-> # Fixed acct.c code by removing the BUG_ON code because it doesn't work
-> # on UP systems.
-> # --------------------------------------------
+gcc crashes compiling arch/i386/kernel/mpparse.c  line 41
 
-  Please help my education... after looking at the code, I don't see why
-the BUG_ON was removed rather than made dependent on SMP, assuming that
-the BK comment and my hasty reading of code actually mean that it did work
-for SMP.
+gcc version 3.0.2 20010905 (Red Hat Linux 7.1 3.0.1-3) 
+(the one shipped with RH 7.2)
 
-  Is this a solid "can't happen" now and no test needed, or is a better
-test in the works, or ???
+gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=athlon    -DKBUILD_BASENAME=mpparse  
+-c -o mpparse.o mpparse.c
+mpparse.c:41: Internal error: Segmentation fault
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <URL:http://bugzilla.redhat.com/bugzilla/> for instructions.
+make[1]: *** [mpparse.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
 
-  I didn't try to compile it, so there may be something I'm totally
-missing.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+matteo merli
+matteo@petaligrigi.net

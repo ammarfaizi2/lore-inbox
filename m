@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270091AbTGNN7b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 09:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270086AbTGNN7b
+	id S270633AbTGNNrs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 09:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270623AbTGNNpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 09:59:31 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:61956 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S270091AbTGNN5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 09:57:38 -0400
-Subject: Re: 2.6.0-test1: Hang during boot on Intel D865PERL motherboard
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Paul Nasrat <pauln@truemesh.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030714110335.GQ28359@raq465.uk2net.com>
-References: <20030714110311.6059.qmail@linuxmail.org>
-	 <20030714110335.GQ28359@raq465.uk2net.com>
-Content-Type: text/plain
-Message-Id: <1058191943.588.0.camel@teapot.felipe-alfaro.com>
+	Mon, 14 Jul 2003 09:45:18 -0400
+Received: from angband.namesys.com ([212.16.7.85]:32640 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S270434AbTGNNoh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 09:44:37 -0400
+Date: Mon, 14 Jul 2003 17:59:24 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>,
+       Chris Mason <mason@suse.com>
+Subject: Re: PATCH: use the right function in reiserfs (resend #3)
+Message-ID: <20030714135924.GA1120@namesys.com>
+References: <200307141230.h6ECUvx9030962@hraefn.swansea.linux.org.uk> <Pine.LNX.4.55L.0307141042320.18257@freak.distro.conectiva>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 14 Jul 2003 16:12:23 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0307141042320.18257@freak.distro.conectiva>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-07-14 at 13:03, Paul Nasrat wrote:
-> On Mon, Jul 14, 2003 at 12:03:11PM +0100, Felipe Alfaro Solana wrote:
-> > Hi,
-> > 
-> > I've compiled linux-2.6.0-test1 kernel with the attached "config" file. When trying to boot the kernel, it hangs on "Uncompress Linux kernel...OK". The system is:
-> 
-> You only have the dummy console selected ensuring you have:
-> 
-> CONFIG_CONSOLE_VGA=y
-> 
-> Should display things to screen.
+Hello!
 
-Yeah! I'm stupid... I forgot to check that. Thanks :-)
+On Mon, Jul 14, 2003 at 10:44:13AM -0300, Marcelo Tosatti wrote:
 
+> Do you reiserfs people have anything pending (so you could merge Alan
+> patch) or can I apply ?
+
+You can apply this one.
+We (namesys) do not have anything pending for 2.4.22
+
+> On Mon, 14 Jul 2003, Alan Cox wrote:
+> > #ra1
+> > diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.22-pre5/fs/reiserfs/prints.c linux.22-pre5-ac1/fs/reiserfs/prints.c
+> > --- linux.22-pre5/fs/reiserfs/prints.c	2003-07-14 12:27:42.000000000 +0100
+> > +++ linux.22-pre5-ac1/fs/reiserfs/prints.c	2003-07-06 14:06:59.000000000 +0100
+> > @@ -159,7 +159,7 @@
+> >
+> >    *skip = 0;
+> >
+> > -  while ((k = strstr (k, "%")) != NULL)
+> > +  while ((k = strchr (k, '%')) != NULL)
+> >    {
+> >      if (k[1] == 'k' || k[1] == 'K' || k[1] == 'h' || k[1] == 't' ||
+> >  	      k[1] == 'z' || k[1] == 'b' || k[1] == 'y' || k[1] == 'a' ) {
+> >
+
+Bye,
+    Oleg

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130655AbRCITeL>; Fri, 9 Mar 2001 14:34:11 -0500
+	id <S130512AbRCITnX>; Fri, 9 Mar 2001 14:43:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130658AbRCITeC>; Fri, 9 Mar 2001 14:34:02 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:49381 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130655AbRCITdn>;
-	Fri, 9 Mar 2001 14:33:43 -0500
-Date: Fri, 9 Mar 2001 18:01:42 +0100
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: Graham Murray <graham@webwayone.com>, linux-kernel@vger.kernel.org
-Subject: Re: Microsoft begining to open source Windows 2000?
-Message-ID: <20010309180141.A12412@bacchus.dhis.org>
-In-Reply-To: <Pine.LNX.4.32.0103081124210.9614-100000@viper.haque.net> <m3g0gnfcol.fsf@gmlinux.webwayone.co.uk> <3AA8DA0C.D4AF7FF5@haque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AA8DA0C.D4AF7FF5@haque.net>; from mhaque@haque.net on Fri, Mar 09, 2001 at 08:26:36AM -0500
-X-Accept-Language: de,en,fr
+	id <S130650AbRCITnN>; Fri, 9 Mar 2001 14:43:13 -0500
+Received: from mailgw.prontomail.com ([216.163.180.10]:55013 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S130512AbRCITm4>; Fri, 9 Mar 2001 14:42:56 -0500
+Message-ID: <3AA93124.EC22CC8A@mvista.com>
+Date: Fri, 09 Mar 2001 11:38:12 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Boris Dragovic <lynx@falcon.etf.bg.ac.yu>,
+        Oswald Buddenhagen <ob6@inf.tu-dresden.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: static scheduling - SCHED_IDLE?
+In-Reply-To: <Pine.LNX.4.33.0103081747010.1314-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 09, 2001 at 08:26:36AM -0500, Mohammad A. Haque wrote:
+Rik van Riel wrote:
+> 
+> On Thu, 8 Mar 2001, Boris Dragovic wrote:
+> 
+> > > Of course. Now we just need the code to determine when a task
+> > > is holding some kernel-side lock  ;)
+> >
+> > couldn't it just be indicated on actual locking the resource?
+> 
+> It could, but I doubt we would want this overhead on the locking...
+> 
+> Rik
 
-> Hmm. I guess you have something there. I come from a Mac background and
-> some patches I've seen to 'hack' a feature into one of Apple's drivers
-> has been one that modifies the resource fork of the driver file. The
-> person who made this mod of course didn't have access to the source
-> code.
+Seems like you are sneaking up on priority inherit mutexes.  The locking
+over head is not so bad (same as spinlock, except in UP case, where it
+is the same as the SMP case).  The unlock is, however, the same as the
+lock overhead.  It is hard to beat the store of zero which is the
+spin_unlock.
 
-Maybe they can be applied that way but no sane engineer would ever develop
-a patch without source if possible at all.
-
-  Ralf
+George

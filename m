@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270359AbTHCEWq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 00:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270373AbTHCEWq
+	id S270272AbTHCEPS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 00:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270322AbTHCEPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 00:22:46 -0400
-Received: from mail.kroah.org ([65.200.24.183]:6859 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270359AbTHCEWp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 00:22:45 -0400
-Date: Sat, 2 Aug 2003 21:11:44 -0700
-From: Greg KH <greg@kroah.com>
-To: root@mauve.demon.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2 pegasus USB ethernet system lockup.
-Message-ID: <20030803041144.GA18501@kroah.com>
-References: <200308030022.BAA03775@mauve.demon.co.uk>
+	Sun, 3 Aug 2003 00:15:18 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:43018
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S270272AbTHCEPQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 00:15:16 -0400
+Subject: Re: [PATCH] bug in setpgid()? process groups and thread groups
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200308021908.h72J82x10422@magilla.sf.frob.com>
+References: <200308021908.h72J82x10422@magilla.sf.frob.com>
+Content-Type: text/plain
+Message-Id: <1059884113.20511.7.camel@ixodes.goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308030022.BAA03775@mauve.demon.co.uk>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 02 Aug 2003 21:15:13 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 03, 2003 at 01:22:07AM +0100, root@mauve.demon.co.uk wrote:
-> Occasionally I also get 
-> Aug  1 01:47:37 mauve kernel: Debug: sleeping function called from invalid context at drivers/usb/core/hcd.c:1350
+On Sat, 2003-08-02 at 12:08, Roland McGrath wrote:
+> In the case of pgrp, you can
+> ignore SIGTTIN/SIGTTOU and progress to some degree at user level.  In the
+> case of uids/gids, you can change every thread individually.)
 
-This is fixed in Linus's tree.
+In my case I'm getting read() returning EIO when it tries to read from
+the terminal, because the thread pgid doesn't equal the terminal
+foreground pgid.  I could solve this problem if either setpgid sets the
+pgid in all threads in the thread group, or if I could run setpgid in
+all threads for myself (I would prefer the latter just because it is a
+bit more flexible).  The current situation is just annoyingly broken
+because there's no user-space way to fix it.
 
-> I am unable to say if lights are flashing on the keyboard, as there are 
-> no lights on the keyboard.
+	J
 
-Can you use a serial debug console and/or the nmi watchdog to see if you
-can capture where things went wrong?
-
-thanks,
-
-greg k-h

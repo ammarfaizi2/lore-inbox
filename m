@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263460AbUEMOjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263564AbUEMOkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263460AbUEMOjt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 10:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUEMOjt
+	id S263564AbUEMOkS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 10:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263815AbUEMOkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 10:39:49 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38834 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263460AbUEMOjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 10:39:48 -0400
-Date: Thu, 13 May 2004 16:39:47 +0200
-From: Jan Kara <jack@ucw.cz>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Jerome Borsboom <j.borsboom@erasmusmc.nl>,
-       Eugene Crosser <crosser@average.org>
-Subject: [PATCH] Quota fix 1
-Message-ID: <20040513143947.GP3629@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="/04w6evG8XlLl3ft"
+	Thu, 13 May 2004 10:40:18 -0400
+Received: from ms001msg.fastwebnet.it ([213.140.2.51]:34006 "EHLO
+	ms001msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S263564AbUEMOkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 10:40:13 -0400
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: 2.6.6-mm2: bk-driver-core-module-fix.patch no longer required
+Date: Thu, 13 May 2004 16:36:24 +0200
+User-Agent: KMail/1.6.2
+References: <20040513032736.40651f8e.akpm@osdl.org> <200405131542.23710.ornati@fastwebnet.it> <20040513140102.GE22202@fs.tum.de>
+In-Reply-To: <20040513140102.GE22202@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405131636.24383.ornati@fastwebnet.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 13 May 2004 16:01, you wrote:
+> On Thu, May 13, 2004 at 03:42:23PM +0200, Paolo Ornati wrote:
+> >
+> >   CC      kernel/module.o
+> > kernel/module.c:730: error: redefinition of `add_attribute'
+> > kernel/module.c:382: error: `add_attribute' previously defined here
+> > kernel/module.c:382: warning: `add_attribute' defined but not used
+> > make[1]: *** [kernel/module.o] Error 1
+> > make: *** [kernel] Error 2
+>
+> bk-driver-core-module-fix.patch is no longer required (a different fix
+> is in bk-driver-core.patch).
+>
+> Simply _revert_ the patch below.
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+OK
 
-  Hello,
+bye
 
-  I'm sending you a patch which fixes the problem with release_dqblk()
-being NULL for old quota format. The patch is against 2.6.6 (+the patch
-you submitted to Linus). Please apply.
-
-								Honza
-
-
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="quota-2.6.6-1-releasefix.diff"
-
-diff -ru linux-2.6.6-quotactl/fs/dquot.c linux-2.6.6-1-releasefix/fs/dquot.c
---- linux-2.6.6-quotactl/fs/dquot.c	Thu May 13 16:31:35 2004
-+++ linux-2.6.6-1-releasefix/fs/dquot.c	Thu May 13 16:32:09 2004
-@@ -367,7 +367,8 @@
- 	if (atomic_read(&dquot->dq_count) > 1)
- 		goto out_dqlock;
- 	down(&dqopt->dqio_sem);
--	ret = dqopt->ops[dquot->dq_type]->release_dqblk(dquot);
-+	if (dqopt->ops[dquot->dq_type]->release_dqblk)
-+		ret = dqopt->ops[dquot->dq_type]->release_dqblk(dquot);
- 	clear_bit(DQ_ACTIVE_B, &dquot->dq_flags);
- 	up(&dqopt->dqio_sem);
- out_dqlock:
-
---/04w6evG8XlLl3ft--
+-- 
+	Paolo Ornati
+	Linux v2.6.6

@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266582AbRGGVpi>; Sat, 7 Jul 2001 17:45:38 -0400
+	id <S266587AbRGGVpi>; Sat, 7 Jul 2001 17:45:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266588AbRGGVpS>; Sat, 7 Jul 2001 17:45:18 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22791 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S266582AbRGGVpG>; Sat, 7 Jul 2001 17:45:06 -0400
-Date: Sat, 7 Jul 2001 18:45:03 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@bonn-fries.net>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <E15Izr0-0006Hy-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0107071844470.1389-100000@duckman.distro.conectiva>
+	id <S266582AbRGGVpT>; Sat, 7 Jul 2001 17:45:19 -0400
+Received: from clavin.efn.org ([206.163.176.10]:65530 "EHLO clavin.efn.org")
+	by vger.kernel.org with ESMTP id <S266587AbRGGVpG>;
+	Sat, 7 Jul 2001 17:45:06 -0400
+From: Steve VanDevender <stevev@efn.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15175.33466.62900.43575@localhost.efn.org>
+Date: Sat, 7 Jul 2001 14:44:26 -0700
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Eugene Crosser <crosser@average.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Acpi] Re: ACPI fundamental locking problems
+In-Reply-To: <20010707233108.B10109@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.GSO.4.21.0107070727030.24836-100000@weyl.math.psu.edu>
+	<9i73bg$psv$1@pccross.average.org>
+	<3B471399.1D6BBED6@mandrakesoft.com>
+	<01070719241107.22952@starship>
+	<20010707233108.B10109@pcep-jamie.cern.ch>
+X-Mailer: VM 6.93 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Jul 2001, Alan Cox wrote:
+Jamie Lokier writes:
+ > (tar has a silly pad-to-multiple-of-512-byte per file rule, which is
+ > inappropriate for this).
 
-> > > Its certainly misleading. I got Jeff to try making oom return
-> > > 4999 out of 5000 times regardless.
-> >
-> > In that case, he _is_ OOM.  ;)
->
-> Hardly
->
-> > 1) (almost) no free memory
-> > 2) no free swap
-> > 3) very little pagecache + buffer cache
->
-> Large amounts of cache, which went away when the OOM code was neutered
-
-So Jeff backed out my patch before testing yours? ;)
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+If you remember that 'tar' means "tape archiver", and that at the time
+it was written the standard tape block size was 512 bytes, the rule
+isn't silly at all, although it may be undesirable overhead for modern
+uses of 'tar'.
 

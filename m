@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130458AbQKNMcU>; Tue, 14 Nov 2000 07:32:20 -0500
+	id <S130986AbQKNMlz>; Tue, 14 Nov 2000 07:41:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131032AbQKNMcK>; Tue, 14 Nov 2000 07:32:10 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:10588
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S130458AbQKNMcE>; Tue, 14 Nov 2000 07:32:04 -0500
-Date: Tue, 14 Nov 2000 13:59:24 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
+	id <S131005AbQKNMlq>; Tue, 14 Nov 2000 07:41:46 -0500
+Received: from mx3.port.ru ([194.67.23.37]:57614 "EHLO mx3.port.ru")
+	by vger.kernel.org with ESMTP id <S130986AbQKNMle>;
+	Tue, 14 Nov 2000 07:41:34 -0500
+From: "Samium Gromoff" <_deepfire@mail.ru>
 To: linux-kernel@vger.kernel.org
-Subject: Re: oops in 2.2.17, not in 2.2.14-5
-Message-ID: <20001114135924.A3649@jaquet.dk>
-In-Reply-To: <20001113180449.A652@jaquet.dk>
+Subject: /proc tweaking
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001113180449.A652@jaquet.dk>; from rasmus@jaquet.dk on Mon, Nov 13, 2000 at 06:04:49PM +0100
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [195.34.30.70]
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E13vevy-0003Lv-00@f4.mail.ru>
+Date: Tue, 14 Nov 2000 15:11:31 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I get this also with 2.2.17pre10 (which was what I was running before
-> encountering this) but not with the stock RH 6.2 kernel (2.2.14-5.0).
-> Unless I get other suggestions I'm going to try with the latest 2.2.18pre
-> and 2.2.16 tomorrow.
-> 
+           Hey people, i`ve got such a thought
+    not long ago:
+      all boxes are different, but the /proc/sys/vm
+      defaults are equal for every people, so there
+      is a good issue in getting more performance
+      from linux, just by making a way to autoadjust
+      these mysterious values according to amount of
+      RAM/swap and speed of CPU!  Or this can be done 
+      in userspace with an utility which look also 
+      on the field of box` use (eg workstation, server        etc...)
+          But who can make this better than the people        who hack the kernel?
+          And i wonder why such a issue is not clearly        covered? (maybe i`m making mistake?)
+          This can also be done for proc/sys/net/*...
 
-OK, I tried with 2.2.16 and 2.2.18pre21 compiled with egcs-2.91.66
-(the kernels reported yesterday were compiled with 2.95.2).
-
-2.2.16 oopsed faithfully (I could not get hold of the oops as several
-scrolled by and none made it to the log). 2.2.18pre21 does not oops.
-Bzip2 core dumps, but gzip makes it through. So it seems that my
-problem has been solved already and proactively :)
-
-Regards,
-  Rasmus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

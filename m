@@ -1,519 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbUKXNHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbUKXQXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbUKXNHs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 08:07:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262670AbUKXNFm
+	id S262653AbUKXQXs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 11:23:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbUKXQW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 08:05:42 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:27796 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262633AbUKXNAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 08:00:35 -0500
-Subject: Suspend2 merge: 1/51: Device trees
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-Content-Type: text/plain
-Message-Id: <1101292600.5805.188.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 24 Nov 2004 23:56:46 +1100
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Nov 2004 11:22:26 -0500
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:7554 "EHLO
+	aquarius.doma") by vger.kernel.org with ESMTP id S262653AbUKXQTI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 11:19:08 -0500
+Message-ID: <41A4AE3A.4050906@ribosome.natur.cuni.cz>
+Date: Wed, 24 Nov 2004 16:52:26 +0100
+From: =?UTF-8?B?TWFydGluIE1PS1JFSsWg?= <mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041114
+X-Accept-Language: cs, en, en-us
+MIME-Version: 1.0
+To: tglx@linutronix.de
+CC: Andrew Morton <akpm@osdl.org>, piggin@cyberone.com.au, chris@tebibyte.org,
+       marcelo.tosatti@cyclades.com, andrea@novell.com,
+       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Rik van Riel <riel@redhat.com>
+Subject: Re: [PATCH] fix spurious OOM kills
+References: <20041111112922.GA15948@logos.cnet>	 <20041114094417.GC29267@logos.cnet>	 <20041114170339.GB13733@dualathlon.random>	 <20041114202155.GB2764@logos.cnet>	<419A2B3A.80702@tebibyte.org>	 <419B14F9.7080204@tebibyte.org>	<20041117012346.5bfdf7bc.akpm@osdl.org>	 <419CD8C1.4030506@ribosome.natur.cuni.cz>	 <20041118131655.6782108e.akpm@osdl.org>	 <419D25B5.1060504@ribosome.natur.cuni.cz>	 <419D2987.8010305@cyberone.com.au>	 <419D383D.4000901@ribosome.natur.cuni.cz>	 <20041118160824.3bfc961c.akpm@osdl.org>	 <419E821F.7010601@ribosome.natur.cuni.cz>	 <1100946207.2635.202.camel@thomas> <419F2AB4.30401@ribosome.natur.cuni.cz>	 <1100957349.2635.213.camel@thomas>	 <419FB4CD.7090601@ribosome.natur.cuni.cz> <1101037999.23692.5.camel@thomas>	 <41A08765.7030402@ribosome.natur.cuni.cz>	 <1101045469.23692.16.camel@thomas>	 <1101120922.19380.17.camel@tglx.tec.linutronix.de>	 <41A2E98E.7090109@ribosome.natur.cuni.cz> <1101205649.3888.6.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1101205649.3888.6.camel@tglx.tec.linutronix.de>
+Content-Type: multipart/mixed;
+ boundary="------------010607000005010204050106"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch allows the device tree to be split up into multiple trees. I
-don't really expect it to be merged, but it is an important part of
-suspend at the moment, and I certainly want to see something like it
-that will allow us to suspend some parts of the device tree and not
-others. Suspend2 uses it to keep alive the hard drive (or equivalent)
-that we're writing the image to while suspending other devices, thus
-improving the consistency of the image written.
+This is a multi-part message in MIME format.
+--------------010607000005010204050106
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-I remember from last time this was posted that someone commented on
-exporting the default device tree; I haven't changed that yet.
+Thomas Gleixner wrote:
+> On Tue, 2004-11-23 at 08:41 +0100, Martin MOKREJŠ wrote: 
+> 
+>>>One big problem when killing the requesting process or just sending
+>>>ENOMEM to the requesting process is, that exactly this process might be
+>>>a ssh login, when you try to log into to machine after some application
+>>>went crazy and ate up most of the memory. The result is that you
+>>>_cannot_ log into the machine, because the login is either killed or
+>>>cannot start because it receives ENOMEM.
+>>
+>>I believe the application is _first_ who will get ENOMEM. It must be
+>>terrible luck that it would ask exactly for the size of remaining free
+>>memory. Most probably, it will ask for less or more. "Less" in not
+>>a problem in this case, so consider it asks for more. Then, OOM killer
+>>might well expect the application asking for memory is most probably
+>>exactly the application which caused the trouble.
+> 
+> 
+> For one application, which eats up all memory the 2.4 ENOMEM bahviour
+> works.
+> 
+> The scenario which made one of my boxes unusable under 2.4 is a forking
+> server, which gets out of control. The last fork gets ENOMEM and does
+> not happen, but the other forked processes are still there and consuming
+> memory. The server application does the correct thing. It receives
+> ENOMEM on fork() and cancels the connection request. On the next request
+> the game starts again. Somebody notices that the box is not repsonding
+> anymore and tries to login via ssh. Guess what happens. ssh login cannot
+> fork due to ENOMEM. The same will happen on 2.6 if we make it behave
+> like 2.4. 
+> 
+> We have TWO problems in oom handling:
+> 
+> 1. When do we trigger the out of memory killer
+> 
+> As far as my test cases go, 2.6.10-rc2-mm3 does not longer trigger the
+> oom without reason.
+> 
+> 2. Which process do we select to kill
+> 
+> The decision is screwed since the oom killer was introduced. Also the
+> reentrancy problem and some of the mechanisms in the out_of_memory
+> function have to be modified to make it work.
+> That's what my patch is addressing.
+> 
+> 
+>>>Putting hard coded decisions like "prefer sshd, xyz,...", " don't kill
+>>>a, b, c" are out of discussion.
+>>
+>>I'd go for it at least nowadays.
+> 
+> 
+> Sure, you can do so on your box, but can you accept, that we _CANNOT_
+> hard code a list of do not kill apps, except init, into the kernel. I
+> don't want to see the mail thread on LKML, where the list of precious
+> application is discussed.
+> 
+> 
+>>> 
+>>>The ideas which were proposed to have a possibility to set a "don't kill
+>>>me" or "yes, I'm a candidate" flag are likely to be a future way to go.
+>>>But at the moment we have no way to make this work in current userlands.
+>>
+>>Do you think login or sshd will ever use flag "yes, I'm a candidate"?
+>>I think exactly same bahaviour we get right now with those hard coded decisions
+>>you mention above. Otherwise the hard coded decision is programmed into
+>>every sshd, init instance anyway. I think it's not necessary to put
+>>login and shells on thsi ban list, user will re-login again. ;)
+> 
+> 
+> Having a generic interface to make this configurable is the only way to
+> go. So users can decide what is important in their environment. There is
+> more than a desktop PC environment and a lot of embedded boxes need to
+> protect special applications.
+> 
+> 
+>>>I refined the decision, so it does not longer kill the parent, if there
+>>>were forked child processes available to kill. So it now should keep
+>>>your bash alive.
+>>
+>>Yes, it doesn't kill parent bash. I don't understand the _doubled_ output
+>>in syslog, but maybe you do. Is that related to hyperthreading? ;)
+>>Tested on 2.6.10-rc2-mm2.
+> 
+> 
+>>oom-killer: gfp_mask=0xd2
+>>Free pages:        3924kB (112kB HighMem)
+> 
+> 
+>>oom-killer: gfp_mask=0x1d2
+>>Free pages:        3924kB (112kB HighMem)
+> 
+> 
+> No, it's not related to hyperthreading. It's on the way out. 
+> 
+> I put an additional check into the page allocator. Does this help ?
 
-diff -ruN 205-device-pm-trees-old/drivers/base/power/main.c 205-device-pm-trees-new/drivers/base/power/main.c
---- 205-device-pm-trees-old/drivers/base/power/main.c	2004-11-24 09:52:56.000000000 +1100
-+++ 205-device-pm-trees-new/drivers/base/power/main.c	2004-11-24 19:48:29.133671960 +1100
-@@ -4,6 +4,9 @@
-  * Copyright (c) 2003 Patrick Mochel
-  * Copyright (c) 2003 Open Source Development Lab
-  *
-+ * Partial tree additions
-+ * Copyright (c) 2004 Nigel Cunningham
-+ *
-  * This file is released under the GPLv2
-  *
-  *
-@@ -23,10 +26,18 @@
- #include <linux/device.h>
- #include "power.h"
- 
--LIST_HEAD(dpm_active);
--LIST_HEAD(dpm_off);
--LIST_HEAD(dpm_off_irq);
--
-+struct partial_device_tree default_device_tree =
-+{ 
-+	.dpm_active	= LIST_HEAD_INIT(default_device_tree.dpm_active),
-+	.dpm_off	= LIST_HEAD_INIT(default_device_tree.dpm_off),
-+	.dpm_off_irq	= LIST_HEAD_INIT(default_device_tree.dpm_off_irq),
-+};
-+EXPORT_SYMBOL(default_device_tree);
-+
-+/* 
-+ * One mutex for all trees because we can be moving items
-+ * between trees.
-+ */
- DECLARE_MUTEX(dpm_sem);
- DECLARE_MUTEX(dpm_list_sem);
- 
-@@ -77,7 +88,9 @@
- 		 dev->bus ? dev->bus->name : "No Bus", dev->kobj.name);
- 	atomic_set(&dev->power.pm_users, 0);
- 	down(&dpm_list_sem);
--	list_add_tail(&dev->power.entry, &dpm_active);
-+	list_add_tail(&dev->power.entry, &default_device_tree.dpm_active);
-+	dev->current_list = DEVICE_LIST_DPM_ACTIVE;
-+	dev->tree = &default_device_tree;
- 	device_pm_set_parent(dev, dev->parent);
- 	if ((error = dpm_sysfs_add(dev)))
- 		list_del(&dev->power.entry);
-@@ -93,6 +106,7 @@
- 	dpm_sysfs_remove(dev);
- 	device_pm_release(dev->power.pm_parent);
- 	list_del_init(&dev->power.entry);
-+	dev->current_list = DEVICE_LIST_NONE;
- 	up(&dpm_list_sem);
- }
- 
-diff -ruN 205-device-pm-trees-old/drivers/base/power/Makefile 205-device-pm-trees-new/drivers/base/power/Makefile
---- 205-device-pm-trees-old/drivers/base/power/Makefile	2004-11-03 21:51:55.000000000 +1100
-+++ 205-device-pm-trees-new/drivers/base/power/Makefile	2004-11-24 19:48:29.134671808 +1100
-@@ -1,5 +1,5 @@
- obj-y			:= shutdown.o
--obj-$(CONFIG_PM)	+= main.o suspend.o resume.o runtime.o sysfs.o
-+obj-$(CONFIG_PM)	+= main.o suspend.o resume.o runtime.o sysfs.o tree.o
- 
- ifeq ($(CONFIG_DEBUG_DRIVER),y)
- EXTRA_CFLAGS += -DDEBUG
-diff -ruN 205-device-pm-trees-old/drivers/base/power/power.h 205-device-pm-trees-new/drivers/base/power/power.h
---- 205-device-pm-trees-old/drivers/base/power/power.h	2004-11-24 09:52:56.000000000 +1100
-+++ 205-device-pm-trees-new/drivers/base/power/power.h	2004-11-24 19:48:29.135671656 +1100
-@@ -35,10 +35,22 @@
- /*
-  * The PM lists.
-  */
--extern struct list_head dpm_active;
--extern struct list_head dpm_off;
--extern struct list_head dpm_off_irq;
- 
-+struct partial_device_tree 
-+{
-+	struct list_head dpm_active;
-+	struct list_head dpm_off;
-+	struct list_head dpm_off_irq;
-+};
-+
-+enum {
-+	DEVICE_LIST_NONE,
-+	DEVICE_LIST_DPM_ACTIVE,
-+	DEVICE_LIST_DPM_OFF,
-+	DEVICE_LIST_DPM_OFF_IRQ,
-+};
-+
-+extern struct partial_device_tree default_device_tree;
- 
- static inline struct dev_pm_info * to_pm_info(struct list_head * entry)
- {
-@@ -64,7 +76,9 @@
-  * resume.c
-  */
- 
-+extern void dpm_resume_tree(struct partial_device_tree * tree);
- extern void dpm_resume(void);
-+extern void dpm_power_up_tree(struct partial_device_tree * tree);
- extern void dpm_power_up(void);
- extern int resume_device(struct device *);
- 
-diff -ruN 205-device-pm-trees-old/drivers/base/power/resume.c 205-device-pm-trees-new/drivers/base/power/resume.c
---- 205-device-pm-trees-old/drivers/base/power/resume.c	2004-11-24 09:52:56.000000000 +1100
-+++ 205-device-pm-trees-new/drivers/base/power/resume.c	2004-11-24 19:48:29.136671504 +1100
-@@ -29,16 +29,17 @@
- 
- 
- 
--void dpm_resume(void)
-+void dpm_resume_tree(struct partial_device_tree * tree)
- {
- 	down(&dpm_list_sem);
--	while(!list_empty(&dpm_off)) {
--		struct list_head * entry = dpm_off.next;
-+	while(!list_empty(&tree->dpm_off)) {
-+		struct list_head * entry = tree->dpm_off.next;
- 		struct device * dev = to_device(entry);
- 
- 		get_device(dev);
- 		list_del_init(entry);
--		list_add_tail(entry, &dpm_active);
-+		list_add_tail(entry, &tree->dpm_active);
-+		dev->current_list = DEVICE_LIST_DPM_ACTIVE;
- 
- 		up(&dpm_list_sem);
- 		if (!dev->power.prev_state)
-@@ -50,6 +51,11 @@
- }
- 
- 
-+void dpm_resume(void)
-+{
-+	dpm_resume_tree(&default_device_tree);
-+}
-+
- /**
-  *	device_resume - Restore state of each device in system.
-  *
-@@ -66,6 +72,14 @@
- 
- EXPORT_SYMBOL_GPL(device_resume);
- 
-+void device_resume_tree(struct partial_device_tree * tree)
-+{
-+	down(&dpm_sem);
-+	dpm_resume_tree(tree);
-+	up(&dpm_sem);
-+}
-+
-+EXPORT_SYMBOL(device_resume_tree);
- 
- /**
-  *	device_power_up_irq - Power on some devices.
-@@ -78,20 +92,27 @@
-  *	Interrupts must be disabled when calling this.
-  */
- 
--void dpm_power_up(void)
-+void dpm_power_up_tree(struct partial_device_tree * tree)
- {
--	while(!list_empty(&dpm_off_irq)) {
--		struct list_head * entry = dpm_off_irq.next;
-+	while(!list_empty(&tree->dpm_off_irq)) {
-+		struct list_head * entry = tree->dpm_off_irq.next;
- 		struct device * dev = to_device(entry);
- 
- 		get_device(dev);
- 		list_del_init(entry);
--		list_add_tail(entry, &dpm_active);
-+		list_add_tail(entry, &tree->dpm_active);
-+		dev->current_list = DEVICE_LIST_DPM_ACTIVE;
- 		resume_device(dev);
- 		put_device(dev);
- 	}
- }
-+EXPORT_SYMBOL(dpm_power_up_tree);
-+
- 
-+void dpm_power_up(void)
-+{
-+	dpm_power_up_tree(&default_device_tree);
-+}
- 
- /**
-  *	device_pm_power_up - Turn on all devices that need special attention.
-diff -ruN 205-device-pm-trees-old/drivers/base/power/shutdown.c 205-device-pm-trees-new/drivers/base/power/shutdown.c
---- 205-device-pm-trees-old/drivers/base/power/shutdown.c	2004-11-03 21:54:14.000000000 +1100
-+++ 205-device-pm-trees-new/drivers/base/power/shutdown.c	2004-11-24 19:48:29.137671352 +1100
-@@ -65,3 +65,4 @@
- 	sysdev_shutdown();
- }
- 
-+EXPORT_SYMBOL(device_shutdown);
-diff -ruN 205-device-pm-trees-old/drivers/base/power/suspend.c 205-device-pm-trees-new/drivers/base/power/suspend.c
---- 205-device-pm-trees-old/drivers/base/power/suspend.c	2004-11-24 09:52:56.000000000 +1100
-+++ 205-device-pm-trees-new/drivers/base/power/suspend.c	2004-11-24 19:51:15.776338424 +1100
-@@ -51,7 +51,7 @@
- 
- 
- /**
-- *	device_suspend - Save state and stop all devices in system.
-+ *	device_suspend_tree - Save state and stop all devices in system.
-  *	@state:		Power state to put each device in.
-  *
-  *	Walk the dpm_active list, call ->suspend() for each device, and move
-@@ -60,19 +60,19 @@
-  *	the device to the dpm_off list. If it returns -EAGAIN, we move it to
-  *	the dpm_off_irq list. If we get a different error, try and back out.
-  *
-- *	If we hit a failure with any of the devices, call device_resume()
-+ *	If we hit a failure with any of the devices, call device_resume_tree()
-  *	above to bring the suspended devices back to life.
-  *
-  */
- 
--int device_suspend(u32 state)
-+int device_suspend_tree(u32 state, struct partial_device_tree * tree)
- {
- 	int error = 0;
- 
- 	down(&dpm_sem);
- 	down(&dpm_list_sem);
--	while (!list_empty(&dpm_active) && error == 0) {
--		struct list_head * entry = dpm_active.prev;
-+	while (!list_empty(&tree->dpm_active) && error == 0) {
-+		struct list_head * entry = tree->dpm_active.prev;
- 		struct device * dev = to_device(entry);
- 
- 		get_device(dev);
-@@ -87,10 +87,12 @@
- 			/* Move it to the dpm_off or dpm_off_irq list */
- 			if (!error) {
- 				list_del(&dev->power.entry);
--				list_add(&dev->power.entry, &dpm_off);
-+				list_add(&dev->power.entry, &tree->dpm_off);
-+				dev->current_list = DEVICE_LIST_DPM_OFF;
- 			} else if (error == -EAGAIN) {
- 				list_del(&dev->power.entry);
--				list_add(&dev->power.entry, &dpm_off_irq);
-+				list_add(&dev->power.entry, &tree->dpm_off_irq);
-+				dev->current_list = DEVICE_LIST_DPM_OFF_IRQ;
- 				error = 0;
- 			}
- 		}
-@@ -101,11 +103,17 @@
- 	}
- 	up(&dpm_list_sem);
- 	if (error)
--		dpm_resume();
-+		dpm_resume_tree(tree);
- 	up(&dpm_sem);
- 	return error;
- }
- 
-+EXPORT_SYMBOL(device_suspend_tree);
-+
-+int device_suspend(u32 state)
-+{
-+	return device_suspend_tree(state, &default_device_tree);
-+}
- EXPORT_SYMBOL_GPL(device_suspend);
- 
- 
-@@ -118,25 +126,28 @@
-  *	done, power down system devices.
-  */
- 
--int device_power_down(u32 state)
-+int device_power_down_tree(u32 state, struct partial_device_tree * tree)
- {
- 	int error = 0;
- 	struct device * dev;
- 
--	list_for_each_entry_reverse(dev, &dpm_off_irq, power.entry) {
-+	list_for_each_entry_reverse(dev, &tree->dpm_off_irq, power.entry) {
- 		if ((error = suspend_device(dev, state)))
- 			break;
- 	}
- 	if (error)
--		goto Error;
--	if ((error = sysdev_suspend(state)))
--		goto Error;
-- Done:
-+		dpm_power_up();
- 	return error;
-- Error:
--	dpm_power_up();
--	goto Done;
- }
- 
--EXPORT_SYMBOL_GPL(device_power_down);
-+EXPORT_SYMBOL_GPL(device_power_down_tree);
- 
-+int device_power_down(u32 state)
-+{
-+	int error;
-+
-+	if (!(error = device_power_down_tree(state, &default_device_tree)))
-+		error = sysdev_suspend(state);
-+	return error;
-+}
-+EXPORT_SYMBOL(device_power_down);
-diff -ruN 205-device-pm-trees-old/drivers/base/power/tree.c 205-device-pm-trees-new/drivers/base/power/tree.c
---- 205-device-pm-trees-old/drivers/base/power/tree.c	1970-01-01 10:00:00.000000000 +1000
-+++ 205-device-pm-trees-new/drivers/base/power/tree.c	2004-11-24 19:48:29.139671048 +1100
-@@ -0,0 +1,105 @@
-+/*
-+ * suspend.c - Functions for moving devices between trees.
-+ *
-+ * Copyright (c) 2004 Nigel Cunningham
-+ *
-+ * This file is released under the GPLv2
-+ *
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include "power.h"
-+
-+/*
-+ *	device_merge_tree - Move an entire tree into another tree
-+ *	@source: The tree to be moved
-+ *	@dest  : The destination tree
-+ */
-+
-+void device_merge_tree(	struct partial_device_tree * source,
-+			struct partial_device_tree * dest)
-+{
-+	down(&dpm_sem);
-+	list_splice_init(&source->dpm_active, &dest->dpm_active);
-+	list_splice_init(&source->dpm_off, &dest->dpm_off);
-+	list_splice_init(&source->dpm_off_irq, &dest->dpm_off_irq);
-+	up(&dpm_sem);
-+}
-+EXPORT_SYMBOL(device_merge_tree);
-+
-+/*
-+ * 	device_switch_trees - Move a device and its ancestors to a new tree
-+ * 	@dev:	The lowest device to be moved.
-+ * 	@tree:	The destination tree.
-+ *
-+ * 	Note that siblings can be left in the original tree. This is because
-+ * 	we want to be able to keep part of a tree in one state while part is
-+ * 	in another.
-+ *
-+ * 	Since we iterate all the way back to the top, and may move entries
-+ * 	already in the destination tree, we will never violate the depth
-+ * 	first property of the destination tree.
-+ */
-+
-+void device_switch_trees(struct device * dev, struct partial_device_tree * tree)
-+{
-+	down(&dpm_sem);
-+	while (dev) {
-+		list_del(&dev->power.entry);
-+		switch (dev->current_list) {
-+			case DEVICE_LIST_DPM_ACTIVE:
-+				list_add(&dev->power.entry, &tree->dpm_active);
-+				break;
-+			case DEVICE_LIST_DPM_OFF:
-+				list_add(&dev->power.entry, &tree->dpm_off);
-+				break;
-+			case DEVICE_LIST_DPM_OFF_IRQ:
-+				list_add(&dev->power.entry, &tree->dpm_off_irq);
-+				break;
-+		}
-+			
-+		dev = dev->parent;
-+	}
-+	up(&dpm_sem);
-+}
-+
-+EXPORT_SYMBOL(device_switch_trees);
-+
-+/*
-+ * 	create_device_tree - Create a new device tree
-+ */
-+
-+struct partial_device_tree * device_create_tree(void)
-+{
-+	struct partial_device_tree * new_tree;
-+
-+	new_tree = (struct partial_device_tree *) 
-+		kmalloc(sizeof(struct partial_device_tree),  GFP_ATOMIC);
-+
-+	if (!IS_ERR(new_tree)) {
-+		INIT_LIST_HEAD(&new_tree->dpm_active);
-+		INIT_LIST_HEAD(&new_tree->dpm_off);
-+		INIT_LIST_HEAD(&new_tree->dpm_off_irq);
-+	}
-+
-+	return new_tree;
-+}
-+EXPORT_SYMBOL(device_create_tree);
-+
-+/*
-+ * 	device_destroy_tree - Destroy a dynamically created tree
-+ */
-+
-+void device_destroy_tree(struct partial_device_tree * tree)
-+{
-+	BUG_ON(tree == &default_device_tree);
-+	
-+	BUG_ON(!list_empty(&tree->dpm_active));
-+	BUG_ON(!list_empty(&tree->dpm_off));
-+	BUG_ON(!list_empty(&tree->dpm_off_irq));
-+
-+	kfree(tree);
-+}
-+
-+EXPORT_SYMBOL(device_destroy_tree);
-diff -ruN 205-device-pm-trees-old/drivers/base/sys.c 205-device-pm-trees-new/drivers/base/sys.c
---- 205-device-pm-trees-old/drivers/base/sys.c	2004-11-24 09:52:56.000000000 +1100
-+++ 205-device-pm-trees-new/drivers/base/sys.c	2004-11-24 19:48:29.140670896 +1100
-@@ -337,7 +337,7 @@
- 	}
- 	return 0;
- }
--
-+EXPORT_SYMBOL(sysdev_suspend);
- 
- /**
-  *	sysdev_resume - Bring system devices back to life.
-@@ -384,6 +384,7 @@
- 	}
- 	return 0;
- }
-+EXPORT_SYMBOL(sysdev_resume);
- 
- 
- int __init system_bus_init(void)
-diff -ruN 205-device-pm-trees-old/include/linux/device.h 205-device-pm-trees-new/include/linux/device.h
---- 205-device-pm-trees-old/include/linux/device.h	2004-11-24 09:53:11.000000000 +1100
-+++ 205-device-pm-trees-new/include/linux/device.h	2004-11-24 21:31:45.988606816 +1100
-@@ -285,6 +285,11 @@
- 					     override */
- 
- 	void	(*release)(struct device * dev);
-+
-+	struct partial_device_tree * tree; /* Which tree of devices this
-+					      device is in */
-+	int	current_list;		/* Which list within the tree the
-+					   device is on (speeds moving) */
- };
- 
- static inline struct device *
-diff -ruN 205-device-pm-trees-old/include/linux/pm.h 205-device-pm-trees-new/include/linux/pm.h
---- 205-device-pm-trees-old/include/linux/pm.h	2004-11-24 09:53:11.000000000 +1100
-+++ 205-device-pm-trees-new/include/linux/pm.h	2004-11-24 19:48:29.144670288 +1100
-@@ -235,12 +235,25 @@
- 
- extern void device_pm_set_parent(struct device * dev, struct device * parent);
- 
-+struct partial_device_tree;
-+extern struct partial_device_tree default_device_tree;
-+
- extern int device_suspend(u32 state);
-+extern int device_suspend_tree(u32 state, struct partial_device_tree * tree);
- extern int device_power_down(u32 state);
-+extern int device_power_down_tree(u32 state, struct partial_device_tree * tree);
- extern void device_power_up(void);
-+extern void device_power_up_tree(struct partial_device_tree * tree);
- extern void device_resume(void);
--
--
-+extern void device_resume_tree(struct partial_device_tree * tree);
-+extern void device_merge_tree(	struct partial_device_tree * source,
-+				struct partial_device_tree * dest);
-+extern void device_switch_trees(struct device * dev, struct partial_device_tree * tree);
-+extern void dpm_power_up_tree(struct partial_device_tree * tree);
-+extern int sysdev_suspend(u32 state);
-+extern int sysdev_resume(void);
-+extern struct partial_device_tree * device_create_tree(void);
-+extern void device_destroy_tree(struct partial_device_tree * tree);
- #endif /* __KERNEL__ */
- 
- #endif /* _LINUX_PM_H */
+The application got killed. But, consider yourself the stacktrace ... ;)
 
+--------------010607000005010204050106
+Content-Type: text/plain;
+ name="dm"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="dm"
 
+b29tLWtpbGxlcjogZ2ZwX21hc2s9MHgxZDIKRE1BIHBlci1jcHU6CmNwdSAwIGhvdDogbG93
+IDIsIGhpZ2ggNiwgYmF0Y2ggMQpjcHUgMCBjb2xkOiBsb3cgMCwgaGlnaCAyLCBiYXRjaCAx
+Ck5vcm1hbCBwZXItY3B1OgpjcHUgMCBob3Q6IGxvdyAzMiwgaGlnaCA5NiwgYmF0Y2ggMTYK
+Y3B1IDAgY29sZDogbG93IDAsIGhpZ2ggMzIsIGJhdGNoIDE2CkhpZ2hNZW0gcGVyLWNwdToK
+Y3B1IDAgaG90OiBsb3cgMTQsIGhpZ2ggNDIsIGJhdGNoIDcKY3B1IDAgY29sZDogbG93IDAs
+IGhpZ2ggMTQsIGJhdGNoIDcKCkZyZWUgcGFnZXM6ICAgICAgICAzOTMya0IgKDExMmtCIEhp
+Z2hNZW0pCkFjdGl2ZToxMjgzMzEgaW5hY3RpdmU6MTI1MzIyIGRpcnR5OjAgd3JpdGViYWNr
+OjAgdW5zdGFibGU6MCBmcmVlOjk4MyBzbGFiOjE5NDEgbWFwcGVkOjI1MzQ0MyBwYWdldGFi
+bGVzOjc5NApETUEgZnJlZTo2OGtCIG1pbjo2OGtCIGxvdzo4NGtCIGhpZ2g6MTAwa0IgYWN0
+aXZlOjU0NDRrQiBpbmFjdGl2ZTo1MzA0a0IgcHJlc2VudDoxNjM4NGtCIHBhZ2VzX3NjYW5u
+ZWQ6MTEzNzQgYWxsX3VucmVjbGFpbWFibGU/IHllcwpwcm90ZWN0aW9uc1tdOiAwIDAgMApO
+b3JtYWwgZnJlZTozNzUya0IgbWluOjM3NTZrQiBsb3c6NDY5MmtCIGhpZ2g6NTYzMmtCIGFj
+dGl2ZTo0NDI5ODRrQiBpbmFjdGl2ZTo0MzEwOTJrQiBwcmVzZW50OjkwMTEyMGtCIHBhZ2Vz
+X3NjYW5uZWQ6OTM2MzA4IGFsbF91bnJlY2xhaW1hYmxlPyB5ZXMKcHJvdGVjdGlvbnNbXTog
+MCAwIDAKSGlnaE1lbSBmcmVlOjExMmtCIG1pbjoxMjhrQiBsb3c6MTYwa0IgaGlnaDoxOTJr
+QiBhY3RpdmU6NjQ4OTZrQiBpbmFjdGl2ZTo2NDg5MmtCIHByZXNlbnQ6MTMxMDQ0a0IgcGFn
+ZXNfc2Nhbm5lZDoxMzQ4NjggYWxsX3VucmVjbGFpbWFibGU/IHllcwpwcm90ZWN0aW9uc1td
+OiAwIDAgMApETUE6IDEqNGtCIDAqOGtCIDAqMTZrQiAwKjMya0IgMSo2NGtCIDAqMTI4a0Ig
+MCoyNTZrQiAwKjUxMmtCIDAqMTAyNGtCIDAqMjA0OGtCIDAqNDA5NmtCID0gNjhrQgpOb3Jt
+YWw6IDAqNGtCIDEqOGtCIDAqMTZrQiAxKjMya0IgMCo2NGtCIDEqMTI4a0IgMCoyNTZrQiAx
+KjUxMmtCIDEqMTAyNGtCIDEqMjA0OGtCIDAqNDA5NmtCID0gMzc1MmtCCkhpZ2hNZW06IDAq
+NGtCIDAqOGtCIDEqMTZrQiAxKjMya0IgMSo2NGtCIDAqMTI4a0IgMCoyNTZrQiAwKjUxMmtC
+IDAqMTAyNGtCIDAqMjA0OGtCIDAqNDA5NmtCID0gMTEya0IKU3dhcCBjYWNoZTogYWRkIDI5
+MzMzNSwgZGVsZXRlIDI5MzMzNSwgZmluZCA0NC82MCwgcmFjZSAwKzAKIFs8YzAxMDNkZmQ+
+XSBkdW1wX3N0YWNrKzB4MWUvMHgyMgogWzxjMDEzZWMxYz5dIG91dF9vZl9tZW1vcnkrMHg5
+Ny8weGNmCiBbPGMwMTQ2ZGM4Pl0gdHJ5X3RvX2ZyZWVfcGFnZXMrMHgxNjMvMHgxODQKIFs8
+YzAxM2ZkZTI+XSBfX2FsbG9jX3BhZ2VzKzB4MjdlLzB4NDAwCiBbPGMwMTQyMzY4Pl0gZG9f
+cGFnZV9jYWNoZV9yZWFkYWhlYWQrMHgxNWIvMHgxYjkKIFs8YzAxM2M1YWE+XSBmaWxlbWFw
+X25vcGFnZSsweDJkNC8weDM3NQogWzxjMDE0YWE4Mj5dIGRvX25vX3BhZ2UrMHhjNC8weDM4
+YwogWzxjMDE0YWYzMD5dIGhhbmRsZV9tbV9mYXVsdCsweGRlLzB4MTg5CiBbPGMwMTE2NmQ1
+Pl0gZG9fcGFnZV9mYXVsdCsweDQ1Ni8weDZhZAogWzxjMDEwM2E0Mz5dIGVycm9yX2NvZGUr
+MHgyYi8weDMwCk91dCBvZiBNZW1vcnk6IEtpbGxlZCBwcm9jZXNzIDY2NzIgKFJOQXN1Ym9w
+dCkuClJOQXN1Ym9wdDogcGFnZSBhbGxvY2F0aW9uIGZhaWx1cmUuIG9yZGVyOjAsIG1vZGU6
+MHgxZDIKIFs8YzAxMDNkZmQ+XSBkdW1wX3N0YWNrKzB4MWUvMHgyMgogWzxjMDEzZmQ5MD5d
+IF9fYWxsb2NfcGFnZXMrMHgyMmMvMHg0MDAKIFs8YzAxNDIzNjg+XSBkb19wYWdlX2NhY2hl
+X3JlYWRhaGVhZCsweDE1Yi8weDFiOQogWzxjMDEzYzVhYT5dIGZpbGVtYXBfbm9wYWdlKzB4
+MmQ0LzB4Mzc1CiBbPGMwMTRhYTgyPl0gZG9fbm9fcGFnZSsweGM0LzB4MzhjCiBbPGMwMTRh
+ZjMwPl0gaGFuZGxlX21tX2ZhdWx0KzB4ZGUvMHgxODkKIFs8YzAxMTY2ZDU+XSBkb19wYWdl
+X2ZhdWx0KzB4NDU2LzB4NmFkCiBbPGMwMTAzYTQzPl0gZXJyb3JfY29kZSsweDJiLzB4MzAK
+
+--------------010607000005010204050106--

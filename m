@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264883AbTLWAih (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 19:38:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbTLWAig
+	id S264929AbTLWAto (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 19:49:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbTLWAto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 19:38:36 -0500
-Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:41678
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S264883AbTLWAiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 19:38:25 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.6.0 batch scheduling, HT aware
-Date: Tue, 23 Dec 2003 11:38:21 +1100
-User-Agent: KMail/1.5.3
-Cc: Nick Piggin <piggin@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Dec 2003 19:49:44 -0500
+Received: from mail.kroah.org ([65.200.24.183]:9650 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264929AbTLWAtm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 19:49:42 -0500
+Date: Mon, 22 Dec 2003 16:49:38 -0800
+From: Greg KH <greg@kroah.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Badness in pci_find_subsys & sleeping function called from invalid context
+Message-ID: <20031223004937.GA5341@kroah.com>
+References: <Pine.LNX.4.56.0312221959460.27724@jju_lnx.backbone.dif.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312231138.21734.kernel@kolivas.org>
+In-Reply-To: <Pine.LNX.4.56.0312221959460.27724@jju_lnx.backbone.dif.dk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've done a resync and update of my batch scheduling that is also hyper-thread 
-aware.
+On Mon, Dec 22, 2003 at 08:10:44PM +0100, Jesper Juhl wrote:
+> 
+> After upgrading to 2.6.0 (from 2.4.22)I'm getting a lot of the below
+> messages in my logs.
+> I'm well aware that this might purely be a problem with the binary Nvidia
+> drivers I'm using with my Geforce3, especially since I had to use the patches
+> available from http://www.minion.de/ to be able to use those drivers at all,
 
-What is batch scheduling? Specifying a task as batch allows it to only use cpu 
-time if there is idle time available, rather than having a proportion of the 
-cpu time based on niceness.
+That's exactly what is causing this problem.  Sorry, nothing we can do
+about it here.
 
-Why do I need hyper-thread aware batch scheduling?
-
-If you have a hyperthread (P4HT) processor and run it as two logical cpus you 
-can have a very low priority task running that can consume 50% of your 
-physical cpu's capacity no matter how high priority tasks you are running. 
-For example if you use the distributed computing client setiathome you will 
-be effectively be running at half your cpu's speed even if you run setiathome 
-at nice 20. Batch scheduling for normal cpus allows only idle time to be used 
-for batch tasks, and for HT cpus only allows idle time when both logical cpus 
-are idle.
-
-This is not being pushed for mainline kernel inclusion, but the issue of how 
-to prevent low priority tasks slowing down HT cpus needs to be considered for 
-the mainline HT scheduler if it ever gets included. This patch provides a 
-temporising measure for those with HT processors, and a demonstrative way to 
-handle them in mainline.
-
-Patch available here:
-http://ck.kolivas.org/patches/2.6/2.6.0/
-
-Con
-
+greg k-h

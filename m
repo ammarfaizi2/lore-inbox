@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278943AbRKANrl>; Thu, 1 Nov 2001 08:47:41 -0500
+	id <S278954AbRKAOBM>; Thu, 1 Nov 2001 09:01:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278945AbRKANrb>; Thu, 1 Nov 2001 08:47:31 -0500
-Received: from mail5.speakeasy.net ([216.254.0.205]:39175 "EHLO
-	mail5.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S278943AbRKANrS>; Thu, 1 Nov 2001 08:47:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: Rik van Riel <riel@conectiva.com.br>, Mark Hahn <hahn@physics.mcmaster.ca>
-Subject: Re: graphical swap comparison of aa and rik vm
-Date: Thu, 1 Nov 2001 08:47:16 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0111011009090.2963-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0111011009090.2963-100000@imladris.surriel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011101134727Z278943-17409+7399@vger.kernel.org>
+	id <S278959AbRKAOBC>; Thu, 1 Nov 2001 09:01:02 -0500
+Received: from adsl-63-197-0-76.dsl.snfc21.pacbell.net ([63.197.0.76]:51469
+	"HELO www.pmonta.com") by vger.kernel.org with SMTP
+	id <S278954AbRKAOAt>; Thu, 1 Nov 2001 09:00:49 -0500
+From: Peter Monta <pmonta@pmonta.com>
+To: linux-kernel@vger.kernel.org
+Subject: ns83820: UDP not working?
+Message-Id: <20011101140048.A0B441C5@www.pmonta.com>
+Date: Thu,  1 Nov 2001 06:00:48 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 November 2001 07:10, Rik van Riel wrote:
-> On Thu, 1 Nov 2001, Mark Hahn wrote:
-> > also, if you merely sum the SI and SO columns for each:
-> > 		sum(SI)		sum(SO)		sum(SI+SO)
-> >       Rik-VM	43564		317448		290032
-> >       AA-VM	118284		171748		361012
-> > to me, this looks like the same point: Rik being SO-happy,
-> > Andrea having to SI a lot more.  interesting also that Andrea wins the
-> > race, in spite of poorer SO choices and more swap traffic overall.
->
-> I think this is because in safemode's test, the swap space
-> gets exhausted.  My VM works better when there is lots of
-> swap space available but degrades in the (rare) case where
-> swap space is exhausted.
->
-> Testing corner cases always gives interesting results ;)
->
-> regards,
->
-> Rik
+I can't seem to get a UDP test (ttcp -u) to work with the
+ns83820 driver.  I'm using DGE-500T cards on both ends, with
+a point-to-point link (no switch), if it matters.  ttcp -u
+works as expected on the 100baseT interfaces also in the
+boxes.  The kernel is 2.4.14-pre3.
 
-In my previous post i mentioned something like that as to why your vm didn't 
-perform as well.  The thing isn't that you use all of my available memory 
-(ram + swap), it's that you allocate it all, leaving nothing for the program 
-later on.  I think anything that uses almost a gig of ram outside of 
-databases is going to be a corner case, but perhaps a better way to figure 
-out how much memory should be allocated is needed here.   Andrea's vm seems 
-to do a good job at that.  if only he could figure out a better way to swap 
-out pages correctly the first time (as some people say his made more mistakes 
-than yours) then i cant really find anything bad about it.  And i'm trying 
-to.  
+Here is what ifconfig shows after waiting ten seconds,
+then interrupting ttcp:
 
-Also as others pointed out.   After the process was done. You had quite a lot 
-more swap still allocated.  Why exacty?   
+(receiver, "ttcp -r -u -s")
+
+eth1      Link encap:Ethernet  HWaddr xx:xx:xx:xx:xx:xx
+          inet addr:10.1.1.1  Bcast:10.255.255.255  Mask:255.0.0.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:44 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100 
+          RX bytes:59124 (57.7 kb)  TX bytes:42 (42.0 b)
+
+(transmitter, "ttcp -t -u -s 10.1.1.1")
+
+eth1      Link encap:Ethernet  HWaddr xx:xx:xx:xx:xx:xx
+          inet addr:10.1.1.2  Bcast:10.255.255.255  Mask:255.0.0.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:1 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100 
+          RX bytes:64 (64.0 b)  TX bytes:42 (42.0 b)
+
+TCP works fine.
+
+I suspect the UDP transmit rapidly fills up the TX queue, but
+then things never get unblocked for some reason.  Some of the
+trials show 127 or 128 packets having been transmitted, which
+might be related to the TX ring size of 256 packets and what
+looks like some internal tx_size/2 flow control logic.  With TCP
+so many packets in the TX queue is unlikely, I guess, due to
+the window.
+
+I can get continuous UDP transmit to work with small enough
+packets:
+
+[200 byte UDP payload:]
+
+s0# ttcp -t -u -s -l 200 -n 10000 225.5.5.6
+ttcp-t: buflen=200, nbuf=10000, align=16384/0, port=5001  udp  -> 225.5.5.6
+ttcp-t: socket
+ttcp-t: 2000000 bytes in 0.07 real seconds = 27377.70 KB/sec +++
+ttcp-t: 10006 I/O calls, msec/call = 0.01, calls/sec = 140257.92
+ttcp-t: 0.0user 0.0sys 0:00real 42% 0i+0d 0maxrss 0+1pf 0+0csw
+
+[300 byte UDP payload:]
+
+s0# ttcp -t -u -s -l 300 -n 10000 225.5.5.6
+ttcp-t: buflen=300, nbuf=10000, align=16384/0, port=5001  udp  -> 225.5.5.6
+ttcp-t: socket
+
+(hangs)
+
+Cheers,
+Peter Monta

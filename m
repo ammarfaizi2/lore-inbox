@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129901AbRACUmQ>; Wed, 3 Jan 2001 15:42:16 -0500
+	id <S130745AbRACUep>; Wed, 3 Jan 2001 15:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129853AbRACUl4>; Wed, 3 Jan 2001 15:41:56 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:263 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129901AbRACUlx>;
-	Wed, 3 Jan 2001 15:41:53 -0500
-Message-ID: <3A53868E.D3A70E3B@innominate.de>
-Date: Wed, 03 Jan 2001 21:07:42 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-prerelease i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Diego Liziero <pmcq@interno.emmenet.it>, linux-kernel@vger.kernel.org
-Subject: Re: gcc2.96 + prerelease BUG at inode.c:372
-In-Reply-To: <200101031919.f03JJQU13197@interno.emmenet.it>
+	id <S130344AbRACUe2>; Wed, 3 Jan 2001 15:34:28 -0500
+Received: from [212.104.23.136] ([212.104.23.136]:65408 "EHLO
+	spartaco.xcal.net") by vger.kernel.org with ESMTP
+	id <S130983AbRACUdY>; Wed, 3 Jan 2001 15:33:24 -0500
+Date: Wed, 3 Jan 2001 20:58:34 +0100
+From: Andrea Baldoni <abaldoni@xcal.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] isdn iprofd hang ttyI1...
+Message-ID: <20010103205834.A9742@xcal.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Liziero wrote:
-> ->2: after two day under heavy load I've got the following BUG:
->      (I don't know if it's related to the compiler, that's why I'm reporting
->      this.)
-> 
-> kernel BUG at inode.c:372!
+Hello!
 
-It's a known bug.  A fix is in process and may already be available at
-ftp://ftp.kernel.org/pub/linux/kernel/testing
+The iprofd contained in isdnutils 3.0 use the same buffer and buffer size
+in GETting and SETting via IOCTL IIOC[GS]ETPRF the virtual modem profiles.
 
---
-Daniel
+The kernel use different sizes, so iprofd set incorrect data, resulting in a
+hang of the ttyI from 1 to last. I suppose the right way to implement profile
+save & restore will be kernel-version independent and maybe I will work on
+that, but at the moment I made the IIOCGETPRF and IIOCSETPRF IOCTLs symmetric:
+
+patch (for 2.4.0-prerelease)
+
+
+
+--- drivers/isdn/isdn_common.c.orig	Wed Jan  3 20:39:30 2001
++++ drivers/isdn/isdn_common.c	Wed Jan  3 20:42:16 2001
+@@ -1512,7 +1512,7 @@
+ 					int i;
+ 
+ 					if ((ret = verify_area(VERIFY_READ, (void *) arg,
+-					(ISDN_MODEM_NUMREG + ISDN_MSNLEN)
++					(ISDN_MODEM_NUMREG + ISDN_MSNLEN + ISDN_LMSNLEN)
+ 						   * ISDN_MAX_CHANNELS)))
+ 						return ret;
+ 
+@@ -1521,6 +1521,9 @@
+ 						     ISDN_MODEM_NUMREG))
+ 							return -EFAULT;
+ 						p += ISDN_MODEM_NUMREG;
++						if (copy_from_user(dev->mdm.info[i].emu.plmsn, p, ISDN_LMSNLEN))
++							return -EFAULT;
++						p += ISDN_LMSNLEN;
+ 						if (copy_from_user(dev->mdm.info[i].emu.pmsn, p, ISDN_MSNLEN))
+ 							return -EFAULT;
+ 						p += ISDN_MSNLEN;
+
+
+
+Ciao,
+ Andrea Baldoni
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

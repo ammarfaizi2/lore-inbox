@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267344AbSLERSv>; Thu, 5 Dec 2002 12:18:51 -0500
+	id <S261907AbSLERL6>; Thu, 5 Dec 2002 12:11:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267345AbSLERSu>; Thu, 5 Dec 2002 12:18:50 -0500
-Received: from ahriman.bucharest.roedu.net ([141.85.128.71]:57250 "HELO
-	ahriman.bucharest.roedu.net") by vger.kernel.org with SMTP
-	id <S267344AbSLERSt>; Thu, 5 Dec 2002 12:18:49 -0500
-Date: Thu, 5 Dec 2002 19:44:09 +0200 (EET)
-From: Mihai RUSU <dizzy@roedu.net>
-X-X-Sender: <dizzy@ahriman.bucharest.roedu.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: disabling NMI events for kdb 2.1
-Message-ID: <Pine.LNX.4.33.0212051935590.16762-100000@ahriman.bucharest.roedu.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264723AbSLERL6>; Thu, 5 Dec 2002 12:11:58 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:46098 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261907AbSLERL5>; Thu, 5 Dec 2002 12:11:57 -0500
+Date: Thu, 5 Dec 2002 17:19:25 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [PATCH] LSM changes for 2.5.50
+Message-ID: <20021205171925.A31997@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	linux-security-module@wirex.com
+References: <20021205163152.GA2865@kroah.com> <20021205163234.GB2865@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021205163234.GB2865@kroah.com>; from greg@kroah.com on Thu, Dec 05, 2002 at 08:32:34AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Thu, Dec 05, 2002 at 08:32:34AM -0800, Greg KH wrote:
+> ChangeSet 1.797.131.1, 2002/11/30 00:13:57-08:00, steve@kbuxd.necst.nec.co.jp
+> 
+> [PATCH] fs/namei.c fix
+> 
+> One of Greg KH's security cleanups reversed the sense of a test.
+> Without this patch, 2.5.50 oopses at boot.  Please apply.
 
-I am using kdb 2.1 to hunt down a bug. This bug shows up after like 2 days
-of uptime. Problem is that also on this system I get a unkown reason NMI
-like:
-
-Uhhuh. NMI received for unknown reason 21.
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
-
-When it happens it enters kdb mode, thus the system "freezes".
-Because I cannot be there to issue a "go" everytime it happens (line 4 am
-:) ), it makes very hard to keep kdb enabled kernel running to wait for
-the hunted bug to happen.
-
-Is there a possibility to disable going to kdb mode when a "unkown reason"
-NMI is received ? I could not find any usefull info in the kdb docs.
-
-PS: this is the output from kdb on serial console when it receives the
-NMI:
-Entering kdb (current=0xcf142000, pid 31088) on processor 0 due to NonMaskable 3
-eax = 0x00000051 ebx = 0x0804ebb0 ecx = 0x40017000 edx = 0x00000000
-esi = 0x00000042 edi = 0x0804ebf8 esp = 0xbfffe094 eip = 0x08048fe3
-ebp = 0xbfffe0ac xss = 0x0000002b xcs = 0x00000023 eflags = 0x00000202
-xds = 0x0000002b xes = 0x0000002b origeax = 0x00000051 &regs = 0xcf143fc4
-
-Thanks
-
-----------------------------
-Mihai RUSU
-
+Umm, that's already in mainline.
 

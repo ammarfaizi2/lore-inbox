@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbTDOQUb (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 12:20:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbTDOQUb 
+	id S261798AbTDOQUa (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 12:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbTDOQUa 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 12:20:31 -0400
-Received: from granite.he.net ([216.218.226.66]:47366 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S261804AbTDOQU3 
+	Tue, 15 Apr 2003 12:20:30 -0400
+Received: from granite.he.net ([216.218.226.66]:47110 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S261798AbTDOQU2 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 12:20:29 -0400
-Date: Tue, 15 Apr 2003 09:33:14 -0700
+	Tue, 15 Apr 2003 12:20:28 -0400
+Date: Tue, 15 Apr 2003 09:34:03 -0700
 From: Greg KH <greg@kroah.com>
-To: sean darcy <seandarcy@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-bk4 & 5  - boot oops at  USB Mass Storage
-Message-ID: <20030415163314.GA12105@kroah.com>
-References: <F102ZBNCogiwHsqhA5300000785@hotmail.com>
+To: Balram Adlakha <b_adlakha@softhome.net>
+Cc: john@grabjohn.com, linux-kernel@vger.kernel.org
+Subject: Re: module for sony network walkman
+Message-ID: <20030415163403.GB12105@kroah.com>
+References: <200304151247.h3FClnq2000157@81-2-122-30.bradfords.org.uk> <200304151918.19936.b_adlakha@softhome.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <F102ZBNCogiwHsqhA5300000785@hotmail.com>
+In-Reply-To: <200304151918.19936.b_adlakha@softhome.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 15, 2003 at 08:42:53AM -0400, sean darcy wrote:
-> 2.5.67 boots fine. With bk4 or bk5 I get an oops right after:
+On Tue, Apr 15, 2003 at 07:18:19PM +0000, Balram Adlakha wrote:
+> > >Is there any driver available for accessing the flash memory of my sony usb
+> > >network walkman (nw-e5)? This thing was quite expensive and I really would
+> > >like it to work. 
 > 
-> USB Mass Storage support registered
+> >At a guess, it might just act like a disk device. Without a lot more
+> >information, I can't help you any further. What does lsusb say about
+> >it?
+> >
+> >John. 
 > 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000040
-> printing EIP:
-> c026af44
-> *pde=00000000
-> oops: 0002 [#1]
-> cpu: 0
-> EIP: 0060:[c026af44] Not tainted
+> this is what lsusb says:
+> 
+> 
+> Bus 001 Device 002: ID 054c:0035 Sony Corp.
+> Device Descriptor:
+>   bLength                18
+>   bDescriptorType         1
+>   bcdUSB               1.10
+>   bDeviceClass          255 Vendor Specific Class
 
-Ah, so close, can you please report back everything that the oops
-message said?
+This is not a usb-storage device (or it is saying it is not, it might be
+lying...)  I'd suggest contacting Sony to try to get the specs for this
+device.
 
-thanks,
+Good luck,
 
 greg k-h

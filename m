@@ -1,84 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132894AbQL3DtV>; Fri, 29 Dec 2000 22:49:21 -0500
+	id <S132859AbQL3Dxm>; Fri, 29 Dec 2000 22:53:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132887AbQL3DtM>; Fri, 29 Dec 2000 22:49:12 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:31749 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S132862AbQL3DtF>;
-	Fri, 29 Dec 2000 22:49:05 -0500
-Date: Sat, 30 Dec 2000 05:18:25 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Dave Gilbert <gilbertd@treblig.org>, linux-alpha@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Richard Henderson <rth@twiddle.net>
-Subject: Re: memmove broken on alpha - was Re: NFS oddity (2.4.0test13pre4ac2 server, 2.0.36/2.2.14 clients)
-Message-ID: <20001230051825.Z28963@mea-ext.zmailer.org>
-In-Reply-To: <14925.12964.995179.63899@notabene.cse.unsw.edu.au> <Pine.LNX.4.10.10012300105100.26235-100000@tardis.home.dave> <14925.16964.875883.863169@notabene.cse.unsw.edu.au>
+	id <S132862AbQL3Dxb>; Fri, 29 Dec 2000 22:53:31 -0500
+Received: from cd168990-a.ctjams1.mb.wave.home.com ([24.108.112.42]:27397 "EHLO
+	cd168990-a.ctjams1.mb.wave.home.com") by vger.kernel.org with ESMTP
+	id <S132859AbQL3DxR>; Fri, 29 Dec 2000 22:53:17 -0500
+Date: Fri, 29 Dec 2000 21:28:00 -0600
+From: Evan Thompson <evaner@bigfoot.com>
+To: linux-kernel@vger.kernel.org
+Subject: (REPOST-sorry) PCI VIA IDE Strangeness w/2.4.0-test12/test13-pre5
+Message-ID: <20001229212800.A631@evaner.penguinpowered.com>
+Reply-To: evaner@bigfoot.com
+Mail-Followup-To: Evan Thompson <evaner@bigfoot.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <14925.16964.875883.863169@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Sat, Dec 30, 2000 at 01:02:44PM +1100
+Content-Disposition: attachment; filename=problems
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 30, 2000 at 01:02:44PM +1100, Neil Brown wrote:
-> [ extra detail included because I have added linux-alpha and lins to
-> the cc list] 
-> 
-> It appears that memmove is broken on the alpha architecture.
+REPOST: People have asked me to repost this message because their e-mail clients
+don't wrap lines.  I'd like to know which ones don't, but this isn't the list
+for that kind of question, unless it is, which then means I'm posting to the
+wrong list to start with and then I wouldn't have to repost.  Anyways...
 
-  Indeed it is, and your observation/patch isn't the first one:
+---(CC answer please)---
 
-Date:   Thu, 21 Dec 2000 18:40:46 +0300
-From:   Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To:     Alexander Zarochentcev <zam@namesys.com>
-Cc:     Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: memmove() in 2.4.0-test12, alpha platform
+I'm having a strange problem with my IDE controller.  I believe (and that's
+what Windows and the m/b manufaturer -- PC Chips -- say) that I have a VIA PCI
+BusMaster IDE controller, and I've had some strange history with it.  I've
+asked many people before on various help services, and I was able to fix my
+problem with the 2.2 series, but now my fix does not work.
 
-  As the patch by mr. Kokshaysky is quite different doing more work
-  (and not only label name changes), I would prefer Richard Henderson
-  to act as an umpire to tell if your patch is sufficient, or if that
-  big thing by Kokshaysky is needed.
+THE PROBLEM:
+------------
 
-  Full email (and patch) by Kokshaysky is at:
-    http://www.uwsg.indiana.edu/hypermail/linux/kernel/0012.2/0712.html
+Ever since the 2.2 kernel series (I remeber this working properly in 2.0.36,
+without the conflicts), I would get hdc: lost interrupt during boot up, and my
+system would take bloody ages to boot up and load a CD.  I tracked it down to a
+strange IRQ conflict in which Linux would try to assign both the primary and
+secondary IDE channels IRQ 14, causing IRQ conflicts galore.  I was able to fix
+this by giving the kernel
 
-> memmove is used by net/sunrpc/xdr.c:xdr_decode_string
-> to move a string 4 bytes down in memory.
-> memmove(X-4, X, 8) should change
->     
->  X:  00 00 00 08  67 69 6c 62 65 72 74 64
-> to
->  X:  67 69 6c 62  65 72 74 64 65 72 74 64
-> 
-> Instead it changes it to
-> 
->  X:  65 72 74 64  65 72 74 64 65 72 74 64
-> 
-> This is my first time in alpha assembler, but it looks fairly readable
-> and the comments help....
-> 
-> Working from 
->   arch/alpha/lib/memmove.S
-.... 
-> which I think translates to the following patch:
-> 
-> --- arch/alpha/lib/memmove.S	2000/12/30 01:59:28	1.1
-> +++ arch/alpha/lib/memmove.S	2000/12/30 01:59:49
-> @@ -17,7 +17,7 @@
->  memmove:
->  	addq $16,$18,$4
->  	addq $17,$18,$5
-> -	cmpule $4,$17,$1		/*  dest + n <= src  */
-> +	cmpule $16,$17,$1		/*  dest <= src  */
->  	cmpule $5,$16,$2		/*  dest >= src + n  */
->  
->  	bis $1,$2,$1
-> 
-> NeilBrown
+ide1=0x170,0x376,15
 
-/Matti Aarnio
+at boot time.  This has worked for 2.2.12-.17 and Alan's 2.2.18pre21 (I haven't
+compiled the official 2.2.18 yet, but I'm sure it will work).
+
+I wanted to try the new 2.4.0-test series, and the first I tried was -test11,
+and from what I recall (other things weren't working properly then), this fix
+still worked, but now, with -test12, I am now getting the following error
+repeated for a very long time (then I reboot) with the same parameters:
+
+ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
+hdb: lost interrupt
+
+Also, I get "spurious 8259A interrupt: IRQ 7" if I leave it for a while.  I
+tried -test13-pre5 on somebody on #KernelNewbies' suggestion, and I get the
+same error.  Scrolling up, I see that the kernel messages show that ide0 is on
+IRQ 14 and ide1 is on 15.  I noticed that hda is using DMA, and hdb is using
+UDMA33, but I don't believe that that is the problem.
+
+THE QUESTION:
+-------------
+
+How do I fix this, or is it a (un)known problem in the newer development
+versions?  If you have the answer, could you please CC me as well for I don't
+subscribe to this mailing list (sorry!).  Thanks a bunch.
+-- 
+| Evan A. Thompson                     | He's more fun than trying to skinny  | 
+| evaner@bigfoot.com                   | dip in the beach in winter...        |
+| http://evaner.penguinpowered.com     |    ...in Winnipeg.                   |
+| ICQ: 2233067 / AIM + MSN: Evaner517  |  (GnuPG key avaiable upon request.)  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

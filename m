@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316060AbSENVSx>; Tue, 14 May 2002 17:18:53 -0400
+	id <S316063AbSENVVK>; Tue, 14 May 2002 17:21:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316062AbSENVSw>; Tue, 14 May 2002 17:18:52 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:6039 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316060AbSENVSv>;
-	Tue, 14 May 2002 17:18:51 -0400
-Date: Mon, 13 May 2002 17:51:00 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.14 IDE 56
-Message-ID: <20020513175059.B37@toy.ucw.cz>
-In-Reply-To: <3CD9E8A7.D524671D@zip.com.au> <5.1.0.14.2.20020509193347.02ff6dc8@mira-sjcm-3.cisco.com> <3CDAC4EB.FC4FE5CF@zip.com.au> <m31yck9700.fsf@averell.firstfloor.org> <3CDB18CF.82DD6D6B@zip.com.au> <20020510030645.A2922@averell>
+	id <S316064AbSENVVJ>; Tue, 14 May 2002 17:21:09 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:12739 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S316063AbSENVVJ>;
+	Tue, 14 May 2002 17:21:09 -0400
+Date: Tue, 14 May 2002 23:21:06 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Andre LeBlanc <ap.leblanc@shaw.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: No Network after Compiling, 2.4.19-pre8 under Debian Woody (Long Message)
+Message-ID: <20020514212106.GA19037@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Andre LeBlanc <ap.leblanc@shaw.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <003c01c1fb9d$345e0a20$2000a8c0@metalbox> <20020514202912.GA18544@outpost.ds9a.nl> <000c01c1fba2$1779da60$2000a8c0@metalbox>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, May 14, 2002 at 04:50:13PM -0700, Andre LeBlanc wrote:
 
-> The tricky bit is to avoid prefetches over the boundary of your copy.
-> Prefetching from an uncached area or write combined area (like the 
-> AGP gart which could start in next page) triggers hardware bugs in
-> various boxes. This unfortunately complicates the prefetching loops
-> a bit.
+> Heres the ifconfig before pinging:
 
-CONFIG_MY_MACHINE_AINT_BORKEN? We definitely could assume that on x86-64.
+> eth0 Link encap:Ethernet HWaddr 00:E0:29:94:CA:BC
+> UP BROADCAST RUNNING MULTICAST MTU:1500 Metric:1
+> RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+> TX packets:6 errors:0 dropped:0 overruns:0 carrier:0
 
-								Pavel
+(...) and after:
+
+> eth0 Link encap:Ethernet HWaddr 00:E0:29:94:CA:BC
+> UP BROADCAST RUNNING MULTICAST MTU:1500 Metric:1
+> RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+> TX packets:6 errors:0 dropped:0 overruns:0 carrier:0
+
+The kernel did not even try to send anything out to eth0. Can you check your
+routing? In other words, do you even have a route pointing to 192.168.0.1?
+
+Regards,
+
+bert hubert
 
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

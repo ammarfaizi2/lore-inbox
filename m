@@ -1,95 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbTK1Thv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 14:37:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTK1Thu
+	id S262015AbTK1Tin (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 14:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTK1Th7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 14:37:50 -0500
-Received: from [80.93.235.74] ([80.93.235.74]:56224 "EHLO office.kom")
-	by vger.kernel.org with ESMTP id S261973AbTK1ThD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 14:37:03 -0500
-Subject: Re: /proc/<pid>/status: VmSize
-From: Vladimir Zidar <vladimir@mindnever.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1070047087.4058.469.camel@mravojed>
-References: <1070047087.4058.469.camel@mravojed>
-Content-Type: text/plain
-Organization: MindNever Dot Org
-Message-Id: <1070048518.31302.7.camel@mravojed>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 28 Nov 2003 20:41:58 +0100
+	Fri, 28 Nov 2003 14:37:59 -0500
+Received: from smtp804.mail.ukl.yahoo.com ([217.12.12.141]:44374 "HELO
+	smtp804.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262015AbTK1ThM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 14:37:12 -0500
+Message-ID: <3FC7A3D9.3070500@sbcglobal.net>
+Date: Fri, 28 Nov 2003 13:36:57 -0600
+From: Wes Janzen <superchkn@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.5) Gecko/20031008
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Goerzen <jgoerzen@complete.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Promise IDE controller crashes 2.4.22
+References: <slrnbsche8.2ir.jgoerzen@christoph.complete.org>
+In-Reply-To: <slrnbsche8.2ir.jgoerzen@christoph.complete.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- In addition, here are status and statm files:
+Hi,
 
-[ status ]
+I'd suspect some sort of PCI problem, especially since you're running a 
+K6.  What chipset is your motherboard based on?
 
-Name:   v
-State:  S (sleeping)
-Tgid:   15675
-Pid:    15675
-PPid:   15651
-TracerPid:      0
-Uid:    502     502     502     502
-Gid:    502     502     502     502
-FDSize: 16384
-Groups: 502 10
-VmSize:  2111108 kB
-VmLck:         0 kB
-VmRSS:   1114900 kB
-VmData:   190332 kB
-VmStk:        40 kB
-VmExe:        28 kB
-VmLib:      5424 kB
-SigPnd: 0000000000000000
-SigBlk: 0000000080000000
-SigIgn: 0000000000001000
-SigCgt: 0000000380000002
-CapInh: 0000000000000000
-CapPrm: 0000000000000000
-CapEff: 0000000000000000
+I'm running a K6-2 400 on an FIC PA2013 with two PDC20269 controllers 
+and my primary drive is a 6Y060L0.  I've had no problem with writes in 
+DMA mode locking the system in 2.4.22 or any of the test kernels.  I 
+have a 92048D8 that doesn't like UDMA-2 writes, but that won't hang the 
+system; it just causes Linux to continually reset the interface until 
+the kernel finally disables DMA on the drive.  Oddly, UDMA-1 works fine 
+but this is a drive to controller hardware issue and not the drivers 
+fault. 
 
-[ statm ]
+Anyway, since the kernel seems to handle a DMA write gone bad, that 
+leads me to believe that this issue is caused by the increased data 
+flowing over the PCI bus when using DMA vs using PIO.  I'm not an expert 
+though, maybe someone else has an opinion on this?
 
-425731 278725 180470 8 276340 2377 276132
+You might try putting the card in another slot too.  My cards are 
+installed in slots 1 & 2 with 2 other PCI cards and an ISA device.  This 
+particular motherboard seems to handle a full complement of expansion 
+cards without problem, but I remember hearing nightmares about such a 
+configuration back when these things were new.
 
+-Wes-
 
-On Fri, 2003-11-28 at 20:18, Vladimir Zidar wrote:
->  Hola,
-> 
->  We are running kernel 2.4.22 on i686 SMP box.
-> Inside are two Intel(R) XEON(TM) CPU 2.00GHz, with hyperthreading
-> enabled, so /proc/cpuinfo shows four CPUs. 
->  This box has 4GB of RAM installed, and 2GB of swap space.
-> 
->  The problems we are experiencing are related to heavy usage of VM.
-> 
->  We have multithreaded application that uses lots of mmap()-ed memory
-> (one big file in size around 700 MB, and lots of anonymous mappings to
-> /dev/zero in average size between 64k and 1MB). This program sometimes
-> grow up to 1.6 GB in size (SIZE that is shown by top utility).. But,
-> sometimes /proc/<pid>/status shows VmSize with more than 2GB, where at
-> the same time top and other /proc/<pid> entries show 1.6GB. This somehow
-> affects pthread_create() call which fails then.
-> 
->  The question is, how can happen that different numbers are shown in
-> proc filesystem, for same pid ? (which is part of multithreaded
-> process), and why pthread_create() fails ? Is there maybe 2GB limit on
-> memory size that single process can manage on i386 ? Also, when such
-> program crashes, it creates 2GB core file, which is not completly usable
-> from gdb. (gdb complains that some addresses are not accessible)..
->  I suspect that this has something to do with amount of RAM (4GB), but
-> we are still trying to get this server tested with only 2GB running in
-> standard (not paged) mode.. but this can take some time, since it is one
-> of our production machines.
-> 
-> 
->  Anybody, idea ?
-> 
->  Thanks.
--- 
+John Goerzen wrote:
+
+>Hi,
+>
+>I have a Promise 20269-based UDMA 133 IDE controller.  If I have DMA
+>enabled on this controller, then when it is seeing heavy write activity,
+>the system freezes.  No messages on the console, ctrl-alt-del does
+>nothing, magic sysrq does nothing.
+>
+>Reads do not appear to cause this problem, and the problem also
+>disappears if I disable DMA on the drive connected to the controller by
+>using hdparm.
+>
+>System information:
+>Linux pi 2.4.22 #3 Sat Oct 25 15:45:50 CDT 2003 i586 GNU/Linux
+>AMD K6 400MHz processor
+>
+>lspci:
+>00:08.0 Unknown mass storage controller: Promise Technology, Inc. 20269
+>(rev 02)
+>
+>Drive: Maxtor 6Y160P0 150GB UDMA 133
+>
+>I have, in my .config:
+>
+>CONFIG_BLK_DEV_PDC202XX_NEW=y
+>CONFIG_BLK_DEV_PDC202XX=y
+>
+>Thanks for any insight.
+>
+>-- John Goerzen
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 

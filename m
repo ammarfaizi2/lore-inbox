@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVAaW3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVAaWdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbVAaW3F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 17:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVAaW3F
+	id S261406AbVAaWdm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 17:33:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVAaWdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 17:29:05 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:27308 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261401AbVAaW15 (ORCPT
+	Mon, 31 Jan 2005 17:33:42 -0500
+Received: from mail.kroah.org ([69.55.234.183]:207 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261406AbVAaWdk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 17:27:57 -0500
-Date: Mon, 31 Jan 2005 23:27:54 +0100
-From: Stelian Pop <stelian@popies.net>
-To: dtor_core@ameritech.net
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/char/sonypi.c: make 3 structs static
-Message-ID: <20050131222753.GG28886@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	dtor_core@ameritech.net, Adrian Bunk <bunk@stusta.de>,
-	linux-kernel@vger.kernel.org
-References: <20050131173508.GS18316@stusta.de> <20050131214905.GF28886@deep-space-9.dsnet> <d120d500050131141358ff63c9@mail.gmail.com>
+	Mon, 31 Jan 2005 17:33:40 -0500
+Date: Mon, 31 Jan 2005 14:33:32 -0800
+From: Greg KH <greg@kroah.com>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Tom Zanussi <zanussi@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>
+Subject: Re: [PATCH] relayfs redux, part 2
+Message-ID: <20050131223332.GA25419@kroah.com>
+References: <16890.38062.477373.644205@tut.ibm.com> <20050129081527.GD7738@kroah.com> <41FEACD3.10502@opersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d120d500050131141358ff63c9@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <41FEACD3.10502@opersys.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 05:13:22PM -0500, Dmitry Torokhov wrote:
-
-> On Mon, 31 Jan 2005 22:49:05 +0100, Stelian Pop <stelian@popies.net> wrote:
-> > 
-> > sonypi.h is a "local" header file used only by sonypi.c.
-> > 
-> > I would like to keep those tables in sonypi.h rather than putting
-> > all into sonypi.c (or we could as well remove sonypi.h and put all the
-> > contents into the .c).
-> > 
+On Mon, Jan 31, 2005 at 05:10:27PM -0500, Karim Yaghmour wrote:
 > 
-> Hi,
+> Greg KH wrote:
+> > On Fri, Jan 28, 2005 at 01:38:22PM -0600, Tom Zanussi wrote:
+> > 
+> >>+extern void * alloc_rchan_buf(unsigned long size,
+> >>+			      struct page ***page_array,
+> >>+			      int *page_count);
+> >>+extern void free_rchan_buf(void *buf,
+> >>+			   struct page **page_array,
+> >>+			   int page_count);
+> > 
+> > 
+> > As these will be "polluting" the global namespace of the kernel, could
+> > you add "relayfs_" to the front of them?
 > 
-> What is the point of having an .h file if it is not used by anyone?
-> Judging by the fact that it completely protected by #ifdef __KERNEL__
-> there should be no userspace clients either.
-> 
-> I always thought that the only time .h is needed is when you define
-> interface to your code. I'd fold it to sonpypi.c.
+> BTW, these functions are in buffers.h which is an internal header to
+> fs/relayfs/*.c files. buffers.h is not included in anything outside.
+> Correct me if I'm wrong, but there is no namespace pollution in that
+> case, right? All that does contribute to namespace pollution is in
+> include/linux/relayfs_fs.h.
 
-It isn't strictly *needed*, but it does separate a bit the data
-structures and the constants (in the .h) from the code (in the .c).
+When relayfs is built into the kernel, those symbols are then global to
+the whole static kernel.
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+Please be nice and rename them.
+
+thanks,
+
+greg k-h

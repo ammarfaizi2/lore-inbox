@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263506AbTKWWaO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 17:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTKWWaO
+	id S263510AbTKWWey (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 17:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbTKWWey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 17:30:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45738 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263506AbTKWWaK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 17:30:10 -0500
-Date: Sun, 23 Nov 2003 14:36:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: colpatch@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, mbligh@aracnet.com,
-       akpm@digeo.com
-Subject: Re: [RFC] Make balance_dirty_pages zone aware (1/2)
-Message-Id: <20031123143627.1754a3f0.akpm@osdl.org>
-In-Reply-To: <3FBEB27D.5010007@us.ibm.com>
-References: <3FBEB27D.5010007@us.ibm.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 23 Nov 2003 17:34:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5381 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263510AbTKWWew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Nov 2003 17:34:52 -0500
+Date: Sun, 23 Nov 2003 22:34:43 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@suse.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fix locking in input
+Message-ID: <20031123223443.A560@flint.arm.linux.org.uk>
+Mail-Followup-To: Manfred Spraul <manfred@colorfullife.com>,
+	Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@suse.cz>,
+	linux-kernel@vger.kernel.org
+References: <3FC13382.3060701@colorfullife.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FC13382.3060701@colorfullife.com>; from manfred@colorfullife.com on Sun, Nov 23, 2003 at 11:24:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dobson <colpatch@us.ibm.com> wrote:
->
-> Currently the VM decides to start doing background writeback of pages if 
->  10% of the systems pages are dirty, and starts doing synchronous 
->  writeback of pages if 40% are dirty.  This is great for smaller memory 
->  systems, but in larger memory systems (>2GB or so), a process can dirty 
->  ALL of lowmem (ZONE_NORMAL, 896MB) without hitting the 40% dirty page 
->  ratio needed to force the process to do writeback. 
+On Sun, Nov 23, 2003 at 11:24:02PM +0100, Manfred Spraul wrote:
+> I think one platform (early ARM?) cannot access bytes directly, and 
+> implement the access with read 16-bit, change 8-bit, write back 16 bit. 
 
-Yes, it has been that way for a year or so.  I was wondering if anyone
-would hit any problems in practice.  Have you hit any problem in practice?
+Nope.
 
-I agree that the per-zonification of this part of the VM/VFS makes some
-sense, although not _complete_ sense, because as you've seen, we need to
-perform writeout against all zones' pages if _any_ zone exceeds dirty
-limits.  This could do nasty things on a 1G highmem machine, due to the
-tiny highmem zone.  So maybe that zone should not trigger writeback.
-
-However the simplest fix is of course to decrease the default value of the
-dirty thresholds - put them back to the 2.4 levels.  It all depends upon
-the nature of the problems which you have been observing?
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

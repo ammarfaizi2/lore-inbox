@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267032AbRGMLRL>; Fri, 13 Jul 2001 07:17:11 -0400
+	id <S267023AbRGMLMB>; Fri, 13 Jul 2001 07:12:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267034AbRGMLRB>; Fri, 13 Jul 2001 07:17:01 -0400
-Received: from mohawk.n-online.net ([195.30.220.100]:23305 "HELO
-	mohawk.n-online.net") by vger.kernel.org with SMTP
-	id <S267032AbRGMLQu>; Fri, 13 Jul 2001 07:16:50 -0400
-Date: Fri, 13 Jul 2001 13:12:44 +0200
-From: Thomas Foerster <puckwork@madz.net>
-To: linux-kernel@vger.kernel.org
+	id <S267030AbRGMLLu>; Fri, 13 Jul 2001 07:11:50 -0400
+Received: from pop.gmx.net ([194.221.183.20]:42830 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267023AbRGMLLe>;
+	Fri, 13 Jul 2001 07:11:34 -0400
+Message-ID: <3B4ED7C4.D121CF5F@gmx.at>
+Date: Fri, 13 Jul 2001 13:13:08 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kenneth Vestergaard Schmidt <charon@debian.org>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Again: Linux 2.4.x and AMD Athlon
-X-Mailer: Thomas Foerster's registered AK-Mail 3.11 [ger]
-Mime-Version: 1.0
+In-Reply-To: <20010712215357.91B6DB6357@binary.dyndns.dk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20010713111652Z267032-720+1961@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Kenneth Vestergaard Schmidt wrote:
+> 
+> Thomas Foerster wrote:
+> > Seems to be the problem with the AMD optimazion in the kernel.
+> 
+> Funny, I have only had one minor problem with my setup. It's the same
+> processor, only with one 512 meg PC133 block, and the ASUS A7V133
+> motherboard (which is equipped with the same chipset). My videocard is also
+> the same (ASUS V-7700), but my PSU is only 300Mhz.
+> 
+> The only instability I've experienced is when I was running KDM on both vt7
+> and vt8, and then logging out from X. Sometimes (entirely random) it would
+> freeze solid (something like once a week). I've had this setup since 2.4.1,
+> and the kernel has always been compiled with Athlon optimizations, and with
+> VIA 82CXXX chipset support.
 
->> My BIOS is the latest release.
->> I've just phoned with Epox here in Germany and they told me, that their boards
->> are testet with linux and they are working.
+I am wondering if you are using the NVidia binary driver for X. They
+seem to cause some "funny" things like SIGSEGVs and random hangs. Even
+without K7 optimizations.
 
-> They dont test with Athlon optimisations on . ;)
-
-Seems to be so :)
-
->> NOTE : Things are ONLY crashing when being NOT root!!
-
-> Thats important.
-
->>        If i log in as root i can't get KDE/Gnome apps to crash, only when i'm a
->>        "normal" user! Opening xterm as normal user, su-ing to root and starting
->>        applications works too!
-
-> Do you get random crashes or actual logged kernel oopses. Also what X server
-
-I got only one oops in inode.c (forget the actual line number)
-The rest are random application crashes on XFree 4.0.3 (GeForce2 GTS, nVidi DRI (older version))
-The System NEVER hangs, only applications crash!
-(i strace'd konqueror and tried to get some clue why it's crashing ... for me it seems to crash
-when bulding list or something like that in memory, if you want, i can attach a strace output)
-
->> I'm very, very, very confused!
-
-> The kernel isnt known for a tendancy to oops according to user id, so me too
-
-That's what i belivieve in :)
-
-But it's real .. being root (login in as root or suing to root in xterm) prevents applications
-from crashing. (doing exactly the same as if i were non-root)
-
-Thomas
-
+bye,
+Wilfried

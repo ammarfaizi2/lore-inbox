@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292681AbSCDSr5>; Mon, 4 Mar 2002 13:47:57 -0500
+	id <S292729AbSCDSsr>; Mon, 4 Mar 2002 13:48:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292674AbSCDSrq>; Mon, 4 Mar 2002 13:47:46 -0500
-Received: from gordo.y12.doe.gov ([134.167.141.46]:60899 "EHLO
-	gordo.y12.doe.gov") by vger.kernel.org with ESMTP
-	id <S292681AbSCDSpZ>; Mon, 4 Mar 2002 13:45:25 -0500
-Message-ID: <3C83C0B8.659F1AE@y12.doe.gov>
-Date: Mon, 04 Mar 2002 13:45:12 -0500
-From: David Dillow <dillowd@y12.doe.gov>
-Organization: BWXT Y-12/ACT/UT Subcon/What a mess!
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IBM Lanstreamer bugfixes (round 3)
-In-Reply-To: <Pine.LNX.4.33.0203041023580.11065-100000@janetreno.austin.ibm.com>
-	 <3C83A925.F93BF448@mandrakesoft.com> <3C83AE6B.9B5DE85F@y12.doe.gov> <3C83B2E7.B5EB0FB5@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S292674AbSCDSs2>; Mon, 4 Mar 2002 13:48:28 -0500
+Received: from zero.tech9.net ([209.61.188.187]:20239 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292685AbSCDSsQ> convert rfc822-to-8bit;
+	Mon, 4 Mar 2002 13:48:16 -0500
+Subject: Re: [PATCH] swapfile.c
+From: Robert Love <rml@tech9.net>
+To: Andrey Panin <pazke@orbita1.ru>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <20020304112824.GA279@pazke.ipt>
+In-Reply-To: <UTC200203022125.VAA144817.aeb@cwi.nl> 
+	<20020304112824.GA279@pazke.ipt>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0.2 
+Date: 04 Mar 2002 13:48:08 -0500
+Message-Id: <1015267692.15277.13.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Mon, 2002-03-04 at 06:28, Andrey Panin wrote:
+> On óÂÔ, íÁÒ 02, 2002 at 09:25:16 +0000, Andries.Brouwer@cwi.nl wrote:
+> > In 2.5.2 swapfile.c was broken:
+> > In sys_swapon() we see
+> > 
+> > 	swap_file = filp_open(name, O_RDWR, 0);
+> > 	if (IS_ERR(swap_file))
+> > 		goto bad_swap_2;
+> > 
+> > bad_swap_2:
+> > 	...
+> > 	if (swap_file)
+> > 		filp_close(swap_file, NULL);
+> > 
+> > and this oopses the kernel.
 > 
-> David Dillow wrote:
-> >
-> > Jeff Garzik wrote:
-> > > Set cache line size just like drivers/net/acenic.c does, and enable
-> > > memory-write-invalidate...
-> >
-> > Does this mean the setup pci_enable_device() does on the cache line size
-> > is not sufficient?
-> 
-> pci_enable_device doesn't touch the PCI_COMMAND_INVALIDATE bit at all...
+> Fixed in -dj tree.
 
-Right, I was talking more about the cache line size... is it sufficient
-for that?
+Eww, nice spotting Andries.  If it is in the -dj tree, someone want to
+push that bit to Linus?
 
-As for PCI_COMMAND_INVALIDATE, what does that do for me; my PCI spec
-isn't handy....
+	Robert Love
 
-> > I ask, because I've been relying on it for a driver I'm working on;
-> > should I be setting this as acenic does? It would seem that this is
-> > something many drivers would need to do...
-> 
-> Yes, acenic is the code to copy, for setting that up.
-
-INVALIDATE, or cache line size?
-
-Thanks,
-Dave Dillow
-dillowd@y12.doe.gov

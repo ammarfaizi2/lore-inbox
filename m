@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263180AbTDVOvj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 10:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTDVOvj
+	id S263183AbTDVOwG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 10:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbTDVOwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 10:51:39 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:61616 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S263180AbTDVOvi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 10:51:38 -0400
-Date: Tue, 22 Apr 2003 17:02:16 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.68 Fix IO_APIC IRQ assignment bug
-In-Reply-To: <200304211752_MC3-1-3560-DA1F@compuserve.com>
-Message-ID: <Pine.GSO.3.96.1030422165952.20928B-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Apr 2003 10:52:06 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:3038
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263183AbTDVOwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 10:52:05 -0400
+Subject: Re: What's the deal McNeil? Bad interactive behavior in X w/ RH's
+	2.4.18
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jw schultz <jw@pegasys.ws>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030422095635.GR16934@pegasys.ws>
+References: <20030422034821.6a57acc0.mba2000@ioplex.com>
+	 <200304221006.09601.m.c.p@wolk-project.de>
+	 <38291.207.172.171.44.1051004102.squirrel@miallen.com>
+	 <20030422095635.GR16934@pegasys.ws>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051020363.14881.5.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 22 Apr 2003 15:06:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Apr 2003, Chuck Ebbert wrote:
+On Maw, 2003-04-22 at 10:56, jw schultz wrote:
+> > >> I'm running Red Hat 7.3 with their stock 2.4.18-3 kernel on an IBM
+> > >> T30. Once every few hours X locks up for 5-10 seconds while the disk
 
->  But doesn't IRQ 0x80, even though it is software-initiated, contend
-> with 'real' device interrupts at priority 8, which would mean there are
-> three possible sources (80, 81 and 89?)  That's what I was assuming...
+> It is up to Red Hat to $upply fixes for their kernels.
 
- Problems are with local APIC hardware (with queueing arriving IRQ
-messages); "int 0x80" doesn't go through the APIC. 
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+2.4.18-3 is old old old stuff. There are multiple errata for it.
 

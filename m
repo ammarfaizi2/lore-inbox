@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316593AbSFKAlU>; Mon, 10 Jun 2002 20:41:20 -0400
+	id <S316594AbSFKAnp>; Mon, 10 Jun 2002 20:43:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316594AbSFKAlT>; Mon, 10 Jun 2002 20:41:19 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:43023 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S316593AbSFKAlS>; Mon, 10 Jun 2002 20:41:18 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
-From: Paul Menage <pmenage@ensim.com>
-To: Brad Hards <bhards@bigpond.net.au>
-cc: Paul Menage <pmenage@ensim.com>, linux-kernel@vger.kernel.org
-Subject: Re: netlink documentation (was: of ethernet names) 
-In-Reply-To: Your message of "Tue, 11 Jun 2002 10:16:59 +1000."
-             <200206111016.59260.bhards@bigpond.net.au> 
+	id <S316600AbSFKAno>; Mon, 10 Jun 2002 20:43:44 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:34824 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316594AbSFKAnm>;
+	Mon, 10 Jun 2002 20:43:42 -0400
+Date: Mon, 10 Jun 2002 17:40:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
+Message-ID: <20020611004000.GH5202@kroah.com>
+In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D048CFD.2090201@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 10 Jun 2002 17:40:59 -0700
-Message-Id: <E17HZiV-0000O3-00@pmenage-dt.ensim.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Mon, 13 May 2002 22:08:53 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Now, how did you get this? Just familarity with the API built up over time, 
->pure zen, or copied from some other app?
+On Mon, Jun 10, 2002 at 01:26:53PM +0200, Martin Dalecki wrote:
+> Fix improper usage of __FUNCTION__ in usb code.
 
-A combination of the man pages, the iproute source, and the kernel 
-source. It's all pretty straightforward once you get a working skeleton.
+It's not improper.  Well it wasn't when it was written, but the gcc
+authors decided to change their minds... :(
 
-Paul
+As stated before, I'll clean up all of the USB drivers later all at
+once, and the pci hotplug drivers as well.  The USB drivers could use
+with some good debugging macro cleanup in general...
 
+Martin, any reason you are doing all of this "cleanup" without sending
+the patches to the relevant maintainers?
+
+thanks,
+
+greg k-h

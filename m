@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbUCLXrS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 18:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbUCLXrS
+	id S262345AbUCLXx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 18:53:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbUCLXx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 18:47:18 -0500
-Received: from atlrel7.hp.com ([156.153.255.213]:27569 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S262532AbUCLXrQ (ORCPT
+	Fri, 12 Mar 2004 18:53:59 -0500
+Received: from waste.org ([209.173.204.2]:15570 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262345AbUCLXx4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 18:47:16 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       long <tlnguyen@snoqualmie.dp.intel.com>
-Subject: Re: RE[PATCH]2.6.4-rc3 MSI Support for IA64
-Date: Fri, 12 Mar 2004 16:47:08 -0700
-User-Agent: KMail/1.5.4
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       davidm@napali.hpl.hp.com, grep@kroah.com, jgarzik@pobox.com,
-       jun.nakajima@intel.com, tom.l.nguyen@intel.com, tony.luck@intel.com
-References: <200403130008.i2D08SMQ011709@snoqualmie.dp.intel.com> <Pine.LNX.4.58.0403121743310.29087@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.58.0403121743310.29087@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Mar 2004 18:53:56 -0500
+Date: Fri, 12 Mar 2004 17:53:49 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bloat report 2.6.3 -> 2.6.4
+Message-ID: <20040312235349.GK20174@waste.org>
+References: <20040312204458.GJ20174@waste.org> <20040312152206.61604447.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403121647.08404.bjorn.helgaas@hp.com>
+In-Reply-To: <20040312152206.61604447.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 March 2004 4:26 pm, Zwane Mwaikambo wrote:
-> This one is slightly confusing readability wise since ia64 already does
-> the vector based interrupt numbering. Perhaps CONFIG_PCI_USE_VECTOR should
-> really be CONFIG_MSI but that's up to you.
+On Fri, Mar 12, 2004 at 03:22:06PM -0800, Andrew Morton wrote:
+> Matt Mackall <mpm@selenic.com> wrote:
+> >
+> > 2.6.3 -> 2.6.4
+> > 
+> >    text	   data	    bss	    dec	    hex	filename
+> > 3313135	 660247	 162472	4135854	 3f1bae	vmlinux-2.6.3-c2.6.3
+> > 3342019	 664154	 162344	4168517	 3f9b45	vmlinux-2.6.4-c2.6.3
+> > 
+> > [ Results of size <a> <b>. -c2.6.3 means both kernel images were built
+> > with the 2.6.3 defconfig.
+> 
+> But defconfig was changed between 2.6.3 and 2.6.4.
 
-I don't know much about MSI, but it certainly confused me that the
-config symbol is CONFIG_PCI_USE_VECTOR.  I think CONFIG_PCI_MSI would
-make the most sense, but maybe it's too late.
+Yes, and I'm attempting to compensate for that because defconfig
+changes tend to overwhelm other stuff in the results. 
 
+My strategy here doesn't work as well as I'd hoped. I'm taking the
+defconfig from the previous kernel and then running yes "" | make
+oldconfig, which sets any new symbols to their defaults. So this deals
+with case where existing symbols change defaults, but doesn't address
+new symbols at all.
+
+And what's happening with some of the new symbols is that they're off
+in defconfig but on in Kconfig. So I need to come up with a way to
+take the old defconfig and merge in new symbols from the new
+defconfig. Then throw it at make oldconfig to drop out any obsolete
+symbols.
+
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

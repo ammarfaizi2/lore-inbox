@@ -1,79 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265477AbUIVOMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUIVOOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265477AbUIVOMp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 10:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUIVOMp
+	id S265773AbUIVOOM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 10:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUIVOOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 10:12:45 -0400
-Received: from ns.schottelius.org ([213.146.113.242]:12928 "HELO
-	scice.schottelius.org") by vger.kernel.org with SMTP
-	id S265477AbUIVOMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 10:12:42 -0400
-Date: Wed, 22 Sep 2004 16:16:30 +0200
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: /sys: Network device status: link; Hard disks?
-Message-ID: <20040922141630.GE694@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2qXFWqzzG3v1+95a"
-Content-Disposition: inline
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-Organization: http://nerd-hosting.net/
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.8.1
+	Wed, 22 Sep 2004 10:14:12 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6272 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265773AbUIVONh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 10:13:37 -0400
+Date: Wed, 22 Sep 2004 10:13:07 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: Marc Ballarin <Ballarin.Marc@gmx.de>, Patrick McHardy <kaber@trash.net>,
+       davem@davemloft.net, rusty@rustcorp.com.au, torvalds@osdl.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
+In-Reply-To: <Pine.LNX.4.61.0409221556010.14486@jjulnx.backbone.dif.dk>
+Message-ID: <Pine.LNX.4.53.0409221005260.25803@chaos.analogic.com>
+References: <1095721742.5886.128.camel@bach> <20040921143613.2dc78e2f.Ballarin.Marc@gmx.de>
+ <1095803902.1942.211.camel@bach> <20040922003646.3a84f4c5.Ballarin.Marc@gmx.de>
+ <20040921153600.2e732ea6.davem@davemloft.net> <20040922013516.753044db.Ballarin.Marc@gmx.de>
+ <4150C448.5040604@trash.net> <20040922153707.2cc1d886.Ballarin.Marc@gmx.de>
+ <Pine.LNX.4.61.0409221556010.14486@jjulnx.backbone.dif.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 22 Sep 2004, Jesper Juhl wrote:
 
---2qXFWqzzG3v1+95a
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Wed, 22 Sep 2004, Marc Ballarin wrote:
+>
+> > Date: Wed, 22 Sep 2004 15:37:07 +0200
+> > From: Marc Ballarin <Ballarin.Marc@gmx.de>
+> > To: Patrick McHardy <kaber@trash.net>
+> > Cc: davem@davemloft.net, rusty@rustcorp.com.au, torvalds@osdl.org,
+> >     netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
+> >
+> > On Wed, 22 Sep 2004 02:16:08 +0200
+> > Patrick McHardy <kaber@trash.net> wrote:
+> >
+> > > Fixed by this patch.
+> >
+> > Yes, works fine. Does this mean that ipchains was broken for a while, but
+> > no one complained?
+> >
+> > Anyway, here is another trivial patch against -bk7 that adds runtime
+> > warnings. IMO most users are going to miss compile time warnings, or
+> > won't even compile kernels themselves.
+> >
+>
+> I like having runtime info as well as a compile time warning, but maybe
+> the message should mention that iptables is staying and people should
+> migrate??
+>
+> > +	printk(KERN_WARNING
+> > +		"Warning: ipchains is obsolete, and will be removed soon!\n");
+> > +
+>
+> Perhaps something like this instead:
+>
+> "Warning: ipchains is obsolete, and will be removed soon. Please migrate to iptables."
+>
+>
+> --
+> Jesper Juhl
 
-Hello everybody!
+FYI. I just migrated to iptables. The code downloaded from the Debian
+site did not compile cleanly, but enough worked to make most of the
+shared libraries and the iptables executable.
 
-Will /sys provide details about link status of network cards
-and can I also find out what devices are harddisks?
+The total time to do everything was slightly under 2 hours.
 
-Like having /sys/block/hda/type, which contains "cd-rom" or
-"harddisk" or similar.=20
+The errors from the distribution are:
 
-Or having something like /sys/class/net/eth0/link with 0/1 setting?
 
-I know some or all information can be retrieved somehow differnt
-(like using /proc), but shouldn't those be found in /sys?
+cc -O2 -Wall -Wunused -I/usr/src/linux-2.4.26/include -Iinclude/ -DNETFILTER_VERSION=\"1.2.6a\"  -fPIC -o extensions/libipt_ECN_sh.o -c extensions/libipt_ECN.c
+extensions/libipt_ECN.c: In function `parse':
+extensions/libipt_ECN.c:51: `IPT_ECN_OP_REMOVE' undeclared (first use in this function)
+extensions/libipt_ECN.c:51: (Each undeclared identifier is reported only once
+extensions/libipt_ECN.c:51: for each function it appears in.)
+extensions/libipt_ECN.c: In function `print':
+extensions/libipt_ECN.c:82: `IPT_ECN_OP_REMOVE' undeclared (first use in this function)
+extensions/libipt_ECN.c:83: warning: unreachable code at beginning of switch statement
+extensions/libipt_ECN.c: In function `save':
+extensions/libipt_ECN.c:99: `IPT_ECN_OP_REMOVE' undeclared (first use in this function)
+extensions/libipt_ECN.c:100: warning: unreachable code at beginning of switch statement
 
-Just some question on how we can use /sys useful.
+make: [extensions/libipt_ECN_sh.o] Error 1 (ignored)
+ld -shared -o extensions/libipt_ECN.so extensions/libipt_ECN_sh.o
+ld: cannot open extensions/libipt_ECN_sh.o: No such file or directory
+make: [extensions/libipt_ECN.so] Error 1 (ignored)
 
-Greetings,
 
-Nico
+ip6tables.o: In function `addr_to_host':
+ip6tables.o(.text+0x4d8): undefined reference to `getnameinfo'
+ip6tables.o: In function `parse_hostnetworkmask':
+ip6tables.o(.text+0x731): undefined reference to `in6addr_any'
+ip6tables.o: In function `print_firewall':
+ip6tables.o(.text+0x19e7): undefined reference to `in6addr_any'
+collect2: ld returned 1 exit status
+make: [ip6tables] Error 1 (ignored)
 
-PS: Please CC, I am not subscribed.
 
---2qXFWqzzG3v1+95a
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+The build command was:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+#
+#!/bin/sh
+#
+#make pending-patches KERNEL_DIR=/usr/src/linux-`uname -r`
+make -i  KERNEL_DIR=/usr/src/linux-`uname -r`
 
-iQIVAwUBQVGJPLOTBMvCUbrlAQJG7Q/+PZ0lcLQxHjmT/HB5wiwL2ulbLLw7lUo6
-LTdRFY7OLd7RlB3MTvPNU23rye7fW7v19TUzRzen67Ti3qOrpL4K9fpBxOEsCY3n
-Nisnr3qNcVrCaMkvitDHapNicgurRt39JCJ2cKL/oih12n9T3+Ba3Vu9Mo2oxOGw
-tfeNfzwptSv4fULX8I3otK0t96wurSX9FolPqucs+jidIzSiUAiJirQnkBro/Gio
-jmtpC/uXWDjPYJ4thUEfj4jyGTIfIb9C4DrwgA4ggkF52TZkZo0sSft+RHZ+SCVs
-OCuwfUhPmIChNbXcSa6sG2fsDp2+U1GQvifG9AXzbsvWr86d+E0iiMmFrXZ2oMIt
-vQhljy8bSYhoPVXA1nr4eZFPsTr1fQ0AGUBBznZ2xTAwPhqLIdIgWKU0nojSQB1G
-J9I8cTADOfjig1O4KhXIr1+G2lhplFwozCQTiwqYaP7pLftkWLITDyr90rfI3OtR
-UHdPogokpLxwmNBG+zrE0OuKNkWgUoDMK2ej9UZeHgNvycRcIyixecI6mSSfv8Ax
-sRBriqq9LYrafdWQABykIwCzffYflQm3E9t3uL8+Gcsp7ELk4d4tzoQFSt92XNgK
-Ojz5QRus+SyUDqeNCwI4uhCvbMudGN4JRvzDAjo0gqrmBKgKb3WtDVvxQJFL4Kq9
-DLI1GXAY9Rg=
-=wk3o
------END PGP SIGNATURE-----
 
---2qXFWqzzG3v1+95a--
+The pending patches resulted in many rejects but the kernel
+was virgin 2.4.26.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
+

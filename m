@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263381AbTDVTDS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 15:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263383AbTDVTDS
+	id S263379AbTDVTDB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 15:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbTDVTDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 15:03:18 -0400
-Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:29211 "EHLO
-	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S263381AbTDVTDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 15:03:16 -0400
-From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+	Tue, 22 Apr 2003 15:03:01 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3847 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263379AbTDVTDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 15:03:00 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-rc1
-In-Reply-To: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
-X-Newsgroups: wsisiz.linux-kernel
-X-PGP-Key-Fingerprint: E233 4EB2 BC46 44A7 C5FC  14C7 54ED 2FE8 FEB9 8835
-X-Key-ID: 829B1533
-User-Agent: tin/1.5.17-20030407 ("Peephole") (UNIX) (Linux/2.4.21-pre6 (i686))
-Message-Id: <20030422191517.A9B83332662@oceanic.wsisiz.edu.pl>
-Date: Tue, 22 Apr 2003 21:15:17 +0200 (CEST)
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Remove __const__ due to GCC warning
+Date: 22 Apr 2003 12:14:49 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b844b9$sbp$1@cesium.transmeta.com>
+References: <20030422160953.GF7260@debian>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva> you wrote:
+Followup to:  <20030422160953.GF7260@debian>
+By author:    Art Haas <ahaas@airmail.net>
+In newsgroup: linux.dev.kernel
+>
+> Hi.
 > 
-> Here goes the first candidate for 2.4.21.
+> These two patches remove a warning GCC produces about using __const__
+> where it doesn't matter. I've built numerous kernels with these patches
+> and things seem to work fine, so I thought I'd send them out. Maybe GCC
+> is right, or maybe it isn't ...
+> 
+> BTW, the warning appears if '-W' is added to the compile commands.
+> 
 
-Well, today my workstation with 2.4.21-rc1 has two crashes - freezes - only
-blank screen. I have tried use sysrq - without successful. :(
-Machine is: AMD K7 2000+ XP, 256 RAM, RedHat 9 (gcc 3.2 20020903), only ext2,
-only IDE disks. It was happned in non grapihs mode, without any messages in
-logs files. With 2.4.21-pre6 all was/is fine, so it is not hardware problem.
+This seems like the wrong approach.  Instead this presumably should be
+__attribute__((const)) instead.
 
+	-hpa
 -- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

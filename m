@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264337AbUD0U2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264333AbUD0UdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264337AbUD0U2R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 16:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbUD0U2Q
+	id S264333AbUD0UdM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 16:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbUD0UdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 16:28:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41187 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264330AbUD0U2O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 16:28:14 -0400
-Date: Tue, 27 Apr 2004 21:28:13 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?
-Message-ID: <20040427202813.GA17014@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0404270157160.6900@alpha.polcom.net> <20040427002323.GW17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0404261758230.19703@ppc970.osdl.org> <20040427010748.GY17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0404271106500.22815@alpha.polcom.net> <1083070293.30344.116.camel@watt.suse.com> <Pine.LNX.4.58.0404271500210.27538@alpha.polcom.net> <20040427140533.GI14129@stingr.net> <20040427183410.GZ17014@parcelfarce.linux.theplanet.co.uk> <20040427200459.GJ14129@stingr.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040427200459.GJ14129@stingr.net>
-User-Agent: Mutt/1.4.1i
+	Tue, 27 Apr 2004 16:33:12 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:15366 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S264333AbUD0UdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 16:33:10 -0400
+Message-ID: <408EC478.9090502@techsource.com>
+Date: Tue, 27 Apr 2004 16:37:12 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+CC: Grzegorz Kulewski <kangur@polcom.net>, Marc Boucher <marc@linuxant.com>,
+       Adam Jaskiewicz <ajjaskie@mtu.edu>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au, torvalds@osdl.org
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+References: <20040427165819.GA23961@valve.mbsi.ca> <408E9771.7020302@mtu.edu> <F55B44BB-9870-11D8-85DF-000A95BCAC26@linuxant.com> <408E9C59.2090502@nortelnetworks.com> <Pine.LNX.4.58.0404271950170.4424@alpha.polcom.net> <408EA22C.4090408@nortelnetworks.com>
+In-Reply-To: <408EA22C.4090408@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 12:04:59AM +0400, Paul P Komkoff Jr wrote:
-> > Excuse me?  The damn thing had found nothing.  However, it didn't care
-> > to release the devices it had claimed - hadn't even closed them, as the
-> > matter of fact.  That's a clear and obvious bug, regardless of any
-> > disagreements.
+
+
+Chris Friesen wrote:
+> Grzegorz Kulewski wrote:
 > 
-> As far as I can see from here, evms parsed partition table, called
-> dmsetup several times and created corresponding nodes in /dev/evms.
+>> Maybe kernel should display warning only once per given licence or 
+>> even once per boot (who needs warning about tainting tainted kernel?)
+> 
+> 
+> I think that's a very good point.  If the kernel is already tainted, 
+> maybe we don't need to print out additional taint messages.
+> 
 
-... without saying anything?
 
-> Logic is easy - evms trying to concentrate block device management
-> into its own hands, but we have in-kernel partitioning code to
-> consider ...
+That could be confusing if it's important for the user to know which 
+modules taint the kernel.  If tainting is only mentioned for the first 
+tainting, then the user might be lead to believe that subsquent ones do 
+not taint the kernel, even though they do.
 
-How nice of them.
-
-Well, AFAICS that means
-	a) either kernel side of the things or the userland tools should
-printk/syslog - at least that evms device had been set up
-	b) any distribution that runs this from initrd/init scripts would
-better take care of having sane fstab.
-	c) nobody sane should put that as default.  Oh, wait, it's gentoo
-we are talking about?  Nevermind, then.

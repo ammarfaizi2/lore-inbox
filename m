@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbULZUB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbULZUSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbULZUB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 15:01:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbULZUBZ
+	id S261153AbULZUSg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 15:18:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbULZUSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 15:01:25 -0500
-Received: from lakermmtao04.cox.net ([68.230.240.35]:54769 "EHLO
-	lakermmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S261153AbULZUBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 15:01:23 -0500
-Message-ID: <41CF188D.8090404@gmail.com>
-Date: Sun, 26 Dec 2004 14:01:17 -0600
-From: John <smartcat99s@gmail.com>
-Reply-To: linux-kernel@vger.kernel.org
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Charles Shannon Hendrix <shannon@widomaker.com>
-Subject: Re: ide-cd hang while playing a CD in 2.6.10
-References: <20041225234342.GA5177@widomaker.com>
-In-Reply-To: <20041225234342.GA5177@widomaker.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Dec 2004 15:18:35 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:35870 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261153AbULZUSe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 15:18:34 -0500
+Date: Sun, 26 Dec 2004 21:19:36 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Mark Williams (MWP)" <mwp@internode.on.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10 make script problems
+Message-ID: <20041226201936.GA15643@mars.ravnborg.org>
+Mail-Followup-To: "Mark Williams (MWP)" <mwp@internode.on.net>,
+	linux-kernel@vger.kernel.org
+References: <20041226145302.GA12627@linux.comp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041226145302.GA12627@linux.comp>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Dec 27, 2004 at 01:23:02AM +1030, Mark Williams (MWP) wrote:
+> Hi all,
+> First... im not on lkml, so can you please CC replies back to me, thanks.
+> 
+> 
+> This is a werid one...
+> 
+> On running "make menuconfig" for the first time on a freshly extracted
+> "linux-2.6.10.tar.bz2" everything works fine.
+> 
+> >From then on however, running "make" in any form ("make bzImage", "make
+> menuconfig", etc) brings on this:
+> 
+> [root@linux linux-2.6.10]# make bzImage
+> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
+> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
+> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
+> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
+> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
+> ....
+> 
+> which continues until i ctrl-c.
 
-Charles Shannon Hendrix wrote:
-|
-| I have a repeatable problem playing music CDs with kernel 2.6.8.1 and
-| 2.6.10.
-|
-| Running "gnome-cd" to play a CD, the drive and IDE bus flash a few times
-| for about 15 seconds, and then the IDE bus light goes solid.
-|
-| gnome-cd is hung in the driver.
-|
-| /var/log/messages shows the following lines:
-|
-| Dec 25 16:58:57 daydream kernel: ide-cd: cmd 0x47 timed out
-| Dec 25 16:59:57 daydream kernel: ide-cd: cmd 0x47 timed out
-| Dec 25 17:00:56 daydream kernel: ide-cd: cmd 0x47 timed out
-|
-| ...and so on.  It repeats every minute.
-|
-| Only a reboot will fix things.
-|
-| Is this a known problem, or is this something I should dig deeper into?
+Check your Makefile. It looks like 'make O=...' was executed in the
+wrong directory, thus overwriting the original Makefile.
 
-Can you check a different IDE cable?
-I remember having something like that with my hard drive.
-
-- -John
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBzxiNWW28UPiAJ/oRArXKAJ41QUc+N14VccnAt94OsNKUFO4EGwCeLPSJ
-Cyr0vuntF84fvwxfAuFsNSw=
-=p/1k
------END PGP SIGNATURE-----
-
+	Sam

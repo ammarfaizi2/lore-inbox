@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbUKQJ76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262257AbUKQKHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbUKQJ76 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 04:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbUKQJ76
+	id S262257AbUKQKHs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 05:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbUKQKHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 04:59:58 -0500
-Received: from mail.dif.dk ([193.138.115.101]:18823 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262253AbUKQJ6t (ORCPT
+	Wed, 17 Nov 2004 05:07:48 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:15489 "EHLO midnight.suse.cz")
+	by vger.kernel.org with ESMTP id S262257AbUKQKHn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 04:58:49 -0500
-Message-ID: <419B2006.3070609@dif.dk>
-Date: Wed, 17 Nov 2004 10:55:18 +0100
-From: Jesper Juhl <juhl-lkml@dif.dk>
-Organization: DIF
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Morris <jmorris@redhat.com>
-Cc: "Luiz Fernando N. Capitulino" <lcapitulino@conectiva.com.br>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, davem@davemloft.net
-Subject: Re: [PATCH 1/2] - net/socket.c::sys_bind() cleanup.
-References: <Xine.LNX.4.44.0411162315420.29418-100000@thoron.boston.redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0411162315420.29418-100000@thoron.boston.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Nov 2004 05:07:43 -0500
+Date: Wed, 17 Nov 2004 11:07:45 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: matthieu castet <castet.matthieu@free.fr>
+Cc: linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>,
+       bjorn.helgaas@hp.com
+Subject: Re: [PATCH] PNP support for i8042 driver
+Message-ID: <20041117100745.GA1387@ucw.cz>
+References: <41960AE9.8090409@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41960AE9.8090409@free.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris wrote:
-> On Wed, 17 Nov 2004, Jesper Juhl wrote:
+On Sat, Nov 13, 2004 at 02:23:53PM +0100, matthieu castet wrote:
+> Hi,
+> this patch add PNP support for the i8042 driver in 2.6.10-rc1-mm5. Acpi 
+> is try before the pnp driver so if you don't disable ACPI or apply 
+> others pnpacpi patches, it won't change anything.
 > 
-> 
->>Not exactely : 
->>
->>
->>
->>>-		if((err=move_addr_to_kernel(umyaddr,addrlen,address))>=0) {
->>
->>>+	err = move_addr_to_kernel(umyaddr, addrlen, address);
->>>+	if (err)
->>>+		goto out_put;
->>
->>
->>The original tests for err >= 0, your replacement tests if err is != 0
-> 
-> 
-> Look at move_addr_to_kernel(), it only returns 0 or -error.
-> 
-> The patch looks good to me.
-> 
-Right, I had not looked at it in detail. I just reacted to the claim 
-that "it does exactely the same" but I could see in the posted patch 
-that it didn't do exactely the same and there was no explanation of why 
-it was ok to have that difference.
-After reading move_addr_to_kernel(), I agree that the patch looks fine.
+> Please review it and apply if possible
 
---
-Jesper Juhl
+Ok, my thoughts on this:
+
+	It's OK to keep the device allocated to this driver via the PnP
+        subsystem, and not bother with releasing the code via
+	__initcall.
+
+	I agree that if there is a way to enumerate the device, (like
+	PnP, ACPI or OpenFirmware), we should use that instead of
+	probing and using a platform device for the controller.
+
+	I think that we should drop the ACPI support from i8042, in
+	favor of pnpacpi, because PnP is more generic and if the
+ 	keyboard device was listed in PnPBIOS instead of ACPI, it'll
+	still work.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

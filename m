@@ -1,882 +1,262 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312372AbSCaUa3>; Sun, 31 Mar 2002 15:30:29 -0500
+	id <S312395AbSCaUht>; Sun, 31 Mar 2002 15:37:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312395AbSCaUaN>; Sun, 31 Mar 2002 15:30:13 -0500
-Received: from postfix2-1.free.fr ([213.228.0.9]:54684 "EHLO
-	postfix2-1.free.fr") by vger.kernel.org with ESMTP
-	id <S312372AbSCaU3x>; Sun, 31 Mar 2002 15:29:53 -0500
-Message-ID: <3CA7721B.6D28983D@free.fr>
-Date: Sun, 31 Mar 2002 22:31:23 +0200
-From: Romain =?iso-8859-1?Q?Li=E9vin?= <rlievin@free.fr>
-Reply-To: roms@lpg.ticalc.org
-Organization: LPG (Linux Programmer Group) on ticalc.org
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Subject: kernel 2.5.7, tiusb: SilverLink cable driver for TI 
- graphing calculators
-In-Reply-To: <3CA6E759.CE70B34D@free.fr> <20020331180800.GE26801@kroah.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S312405AbSCaUhl>; Sun, 31 Mar 2002 15:37:41 -0500
+Received: from mathsun1.math.utk.edu ([160.36.50.30]:40973 "HELO
+	mathsun1.math.utk.edu") by vger.kernel.org with SMTP
+	id <S312395AbSCaUha>; Sun, 31 Mar 2002 15:37:30 -0500
+Date: Sun, 31 Mar 2002 15:37:26 -0500
+From: Geoffrey Hoff <ghoff@math.utk.edu>
+To: linux-kernel@vger.kernel.org
+Cc: andre@linux-ide.org
+Subject: 2.4.19-pre3 udma ide hang with heavy disk activity
+Message-ID: <20020331203726.GB16709@MATHSUN1.MATH.UTK.EDU>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="EVF5PPMfhYS0aIcm"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> > this is a new driver for handling a TI-GRAPH LINK USB (aka SilverLink)
-> > cable
-> > designed to connect a Texas Instruments graphing calculators to a
-> > computer/workstation through USB.
-> >
-> > This driver has an official device number.
-> 
-> Do you want to add this driver to the drivers/usb/ directory with the
-> rest of the kernel USB drivers?  If so, please send me a patch.
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Yes, I would like to add it. You will find the complete patch below.
-BTW, I recently requested device numbers to John Cagle for 3 TI related
-modules. The USB module shares its major with the others.
+On kernels 2.4.19-pre3 and later I get a disk hang any time I generate
+heavy disk activity.  My test is a quick script that untars 2.4.0 and
+then applys patch up to 2.4.19 and repeats.  With kernels 19-pre3
+through 19-pre5, I can usually get through about the third patch and then
+my hard drive activity led goes solid and I can no longer access any
+disk.  This is happening specifically with a VIA controller (vt82c596b
+rev 22) with a Maxtor 91536U6.  Attached are part of my dmesg,
+proc/ide/via, hdinfo of /dev/hda and part of my .config.  If I use
+hdparm to set the drive to mdma2 in 19-pre3 I never see any problems.  It
+only happens in any udma mode.  I compiled 19-pre3 with the via
+driver disabled, but the problem continues.  I also tried 19-pre5 as I
+looked and saw that it contains more ide updates, but I get the same
+results.
 
-> 115 char        TI link cable devices (115 was formerly the console driver speaker)
->                   0 = /dev/tipar0    Parallel cable on first parallel port
->                   ...
->                   7 = /dev/tipar7    Parallel cable on seventh parallel port
-> 
->                   8 = /dev/tiser0    Serial cable on first serial port
->                   ...
->                  15 = /dev/tiser7    Serial cable on seventh serial port
-> 
->                  16 = /dev/tiusb0    First USB cable
->                   ...
->                  47 = /dev/tiusb31   32nd USB cable
+In 19-pre2 and previous kernels, If the drive is running in UDMA66, I
+ocassionally get checksum errors and retries so I usually on boot put
+the drive in UDMA33 mode.  I have never seen any error of any kind in
+this mode.  I have tried modes udma0, 2, and 4 on 2.4.19-pre3 and they
+all eventually hang.  When this hang occurs, I get no kernel messages at
+all.  I set dmesg to level 8 so I should see any message on the console.
+If it weren't for ext3 and reiserfs, I would be very tired of fscks by
+now.  If there is anything that I can try to help narrow this problem
+down, please let me know.
 
-I do not know whether it's the best thing to do. The 2 others use the
-same bit-banging scheme and could be grouped under a sub-system (such as
-I2C). The USB module is different. Maybe it's better to register it
-under the USB sub-system...
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=dmesg
 
-Thanks, Romain.
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller on PCI bus 00 dev 39
+VP_IDE: chipset revision 16
+VP_IDE: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: VIA vt82c596b (rev 22) IDE UDMA66 controller on pci00:07.1
+    ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: Maxtor 91536U6, ATA DISK drive
+hdc: Memorex CRW-2642, ATAPI CD/DVD-ROM drive
+hdd: QUANTUM BIGFOOT2550A, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 30000096 sectors (15360 MB) w/2048KiB Cache, CHS=1867/255/63, UDMA(66)
+hdd: 5033952 sectors (2577 MB) w/87KiB Cache, CHS=4994/16/63, DMA
+Partition check:
+ hda: hda1 hda2 hda3 < hda5 hda6 > hda4
+ hdd: [PTBL] [624/128/63] hdd1
+
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=via
+
+----------VIA BusMastering IDE Configuration----------------
+Driver Version:                     3.29
+South Bridge:                       VIA vt82c596b
+Revision:                           ISA 0x22 IDE 0x10
+Highest DMA rate:                   UDMA66
+BM-DMA base:                        0xe000
+PCI clock:                          33MHz
+Master Read  Cycle IRDY:            0ws
+Master Write Cycle IRDY:            0ws
+BM IDE Status Register Read Retry:  yes
+Max DRDY Pulse Width:               No limit
+-----------------------Primary IDE-------Secondary IDE------
+Read DMA FIFO flush:          yes                 yes
+End Sector FIFO flush:         no                  no
+Prefetch Buffer:               no                  no
+Post Write Buffer:             no                  no
+Enabled:                      yes                 yes
+Simplex only:                  no                  no
+Cable Type:                   80w                 40w
+-------------------drive0----drive1----drive2----drive3-----
+Transfer Mode:       UDMA       PIO       PIO       DMA
+Address Setup:       30ns     120ns      30ns      30ns
+Cmd Active:          90ns      90ns      90ns      90ns
+Cmd Recovery:        30ns      30ns      90ns      90ns
+Data Active:         90ns     330ns      90ns      90ns
+Data Recovery:       30ns     270ns      90ns      30ns
+Cycle Time:          30ns     600ns     180ns     120ns
+Transfer Rate:   66.0MB/s   3.3MB/s  11.0MB/s  16.5MB/s
+
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=hdinfo
 
 
-==============================[ cut here ]==============================
---- linux.orig/drivers/usb/tiglusb.c    Sun Mar 31 22:02:56 2002
-+++ linux/drivers/usb/tiglusb.c Sun Mar 31 22:05:05 2002
-@@ -0,0 +1,524 @@
-+/* Hey EMACS -*- linux-c -*-
-+ *
-+ * tiglusb -- Texas Instruments' USB GraphLink (aka SilverLink) driver.
-+ * Target: Texas Instruments graphing calculators
-(http://lpg.ticalc.org).
-+ *      
-+ * Copyright (C) 2001-2002: 
-+ *   Romain Lievin <roms@lpg.ticalc.org>
-+ *   Julien BLACHE <jb@technologeek.org>
-+ * under the terms of the GNU General Public License.
-+ *
-+ * Based on dabusb.c, printer.c & scanner.c
-+ *
-+ * Please see the file: linux/Documentation/usb/SilverLink.txt 
-+ * and the website at:  http://lpg.ticalc.org/prj_usb/
-+ * for more info.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/socket.h>
-+#include <linux/miscdevice.h>
-+#include <linux/list.h>
-+#include <linux/vmalloc.h>
-+#include <linux/slab.h>
-+#include <linux/init.h>
-+#include <asm/uaccess.h>
-+#include <asm/atomic.h>
-+#include <linux/delay.h>
-+#include <linux/usb.h>
-+#include <linux/smp_lock.h>
-+#include <linux/devfs_fs_kernel.h>
-+
-+#include <linux/ticable.h>
-+#include "tiglusb.h"
-+
-+/*
-+ * Version Information
-+ */
-+#define DRIVER_VERSION "1.02"
-+#define DRIVER_AUTHOR  "Romain Lievin <roms@lpg.ticalc.org> & Julien
-Blache <jb@jblache.org>"
-+#define DRIVER_DESC    "TI-GRAPH LINK USB (aka SilverLink) driver"
-+#define DRIVER_LICENSE "GPL"
-+
-+#define VERSION(ver,rel,seq) (((ver)<<16) | ((rel)<<8) | (seq))
-+#if LINUX_VERSION_CODE < VERSION(2,5,0)
-+# define minor(x) MINOR(x)
-+#endif
-+
-+/* ----- global variables ---------------------------------------------
-*/
-+
-+static tiglusb_t tiglusb[MAXTIGL];
-+static int timeout = TIMAXTIME;     /* timeout in tenth of seconds    
-*/
-+
-+static devfs_handle_t devfs_handle;
-+
-+/*---------- misc functions
------------------------------------------------*/
-+
-+/* Unregister device */
-+static void usblp_cleanup (tiglusb_t *s)
-+{
-+       devfs_unregister (s->devfs);
-+       //memset(tiglusb[s->minor], 0, sizeof(tiglusb_t));
-+       info ("tiglusb%d removed", s->minor);
-+}
-+
-+/* Re-initialize device */
-+static int clear_device(struct usb_device *dev)
-+{
-+       if (usb_set_configuration (dev,
-dev->config[0].bConfigurationValue) < 0)
-+       {
-+               printk("tiglusb: clear_device failed\n");
-+               return -1;
-+       }
-+       
-+       return 0;
-+}
-+
-+/* Clear input & output pipes (endpoints) */
-+static int clear_pipes(struct usb_device *dev)
-+{
-+       unsigned int pipe;
-+       
-+       pipe = usb_sndbulkpipe (dev, 1);
-+       if(usb_clear_halt(dev, usb_pipeendpoint(pipe))) {
-+               printk("tiglusb: clear_pipe (r), request failed\n");
-+               return -1;
-+       }
-+  
-+       pipe = usb_sndbulkpipe (dev, 2);
-+       if(usb_clear_halt(dev, usb_pipeendpoint(pipe))) {
-+               printk("tiglusb: clear_pipe (w), request failed\n");
-+               return -1;
-+       }
-+       
-+       return 0;
-+}
-+
-+/* ----- kernel module functions---------------------------------------
-*/
-+
-+// ok
-+static int tiglusb_open(struct inode *inode, struct file *file)
-+{
-+       int devnum = minor(inode->i_rdev);
-+       ptiglusb_t s;
-+
-+       if (devnum < TIUSB_MINOR || devnum >= (TIUSB_MINOR + MAXTIGL))
-+               return -EIO;
-+       
-+       s = &tiglusb[devnum - TIUSB_MINOR];
-+
-+       down(&s->mutex);
-+
-+       while (!s->dev || s->opened) {
-+               up (&s->mutex);
-+               
-+               if (file->f_flags & O_NONBLOCK) {
-+                       return -EBUSY;
-+               }
-+               schedule_timeout (HZ / 2);
-+               
-+               if (signal_pending (current)) {
-+                       return -EAGAIN;
-+               }
-+               down (&s->mutex);
-+       }
-+
-+       s->opened = 1;
-+       up(&s->mutex);
-+       
-+       file->f_pos = 0;
-+       file->private_data = s;
-+
-+       return 0;
-+}
-+
-+//ok
-+static int tiglusb_release(struct inode *inode, struct file *file)
-+{
-+       ptiglusb_t s = (ptiglusb_t) file->private_data;
-+       
-+       lock_kernel();
-+       down (&s->mutex);
-+       s->state = _stopped;
-+       up (&s->mutex);
-+
-+       if (!s->remove_pending)
-+               clear_device(s->dev);
-+       else
-+               wake_up (&s->remove_ok);
-+
-+       s->opened = 0;
-+       unlock_kernel();
-+
-+       return 0;
-+}
-+
-+//
-+static ssize_t tiglusb_read(struct file *file, char *buf, 
-+                           size_t count, loff_t * ppos)
-+{
-+       ptiglusb_t s = (ptiglusb_t) file->private_data;
-+       ssize_t ret = 0;
-+       int bytes_to_read = 0;
-+       int bytes_read = 0;
-+       int result = 0;
-+       char buffer[BULK_RCV_MAX];
-+       unsigned int pipe;
-+
-+       if (*ppos)
-+               return -ESPIPE;
-+       
-+       if (s->remove_pending)
-+               return -EIO;
-+       
-+       if (!s->dev)
-+               return -EIO;
-+       
-+       bytes_to_read = (count >= BULK_RCV_MAX) ? BULK_RCV_MAX : count;
-+
-+       pipe = usb_rcvbulkpipe (s->dev, 1);
-+        result = usb_bulk_msg(s->dev, pipe, buffer, bytes_to_read, 
-+                             &bytes_read, HZ/(timeout/10));
-+       if (result == -ETIMEDOUT) { /* NAK */
-+               ret = result;
-+               if(!bytes_read) {
-+                       printk("quirk !\n");
-+               }
-+               warn("tiglusb_read, NAK received.");
-+               goto out;
-+       } 
-+       else if (result == -EPIPE) { /* STALL -- shouldn't happen */
-+               warn("CLEAR_FEATURE request to remove STALL
-condition.\n");
-+                if(usb_clear_halt(s->dev, usb_pipeendpoint(pipe)))
-+                        warn("send_packet, request failed\n");
-+                //clear_device(s->dev);
-+               ret = result;
-+               goto out;
-+       }
-+       else if (result < 0) { /* We should not get any I/O errors */
-+               warn("funky result: %d. Please notify maintainer.",
-result);
-+               ret = -EIO;
-+               goto out;
-+       }
-+
-+       if (copy_to_user(buf, buffer, bytes_read)) {
-+               ret = -EFAULT;
-+               goto out;
-+       }
-+  
-+ out:
-+       return ret ? ret : bytes_read; 
-+}
-+
-+//
-+static ssize_t tiglusb_write(struct file *file, const char *buf, 
-+                            size_t count, loff_t * ppos)
-+{
-+       ptiglusb_t s = (ptiglusb_t) file->private_data;
-+       ssize_t ret = 0;
-+       int bytes_to_write = 0;
-+       int bytes_written = 0;
-+       int result = 0;
-+       char buffer[BULK_SND_MAX];
-+       unsigned int pipe;
-+       
-+       if (*ppos)
-+               return -ESPIPE;
-+       
-+       if (s->remove_pending)
-+               return -EIO;
-+       
-+       if (!s->dev)
-+               return -EIO;
-+       
-+       bytes_to_write = (count >= BULK_SND_MAX) ? BULK_SND_MAX : count;
-+       if (copy_from_user(buffer, buf, bytes_to_write)) {
-+               ret = -EFAULT;
-+               goto out;
-+       }
-+       
-+       pipe = usb_sndbulkpipe (s->dev, 2);
-+        result = usb_bulk_msg(s->dev, pipe, buffer, bytes_to_write, 
-+                             &bytes_written, HZ/(timeout/10));
-+
-+       if (result == -ETIMEDOUT) { /* NAK */
-+               warn("tiglusb_write, NAK received.");
-+               ret = result;
-+               goto out;
-+       }
-+       else if (result == -EPIPE) { /* STALL -- shouldn't happen */
-+                warn("CLEAR_FEATURE request to remove STALL
-condition.\n");
-+                if(usb_clear_halt(s->dev, usb_pipeendpoint(pipe)))
-+                        warn("send_packet, request failed\n");
-+               //clear_device(s->dev);
-+               ret = result;
-+               goto out;
-+       }
-+       else if (result < 0) { /* We should not get any I/O errors */
-+               warn("funky result: %d. Please notify maintainer.",
-result);
-+               ret = -EIO;
-+               goto out;
-+       }
-+       
-+       if (bytes_written != bytes_to_write) {
-+               ret = -EIO;
-+               goto out;
-+       } 
-+       
-+ out:
-+       return ret ? ret : bytes_written;
-+}
-+
-+//ok
-+static int tiglusb_ioctl(struct inode *inode, struct file *file,
-+                             unsigned int cmd, unsigned long arg)
-+{
-+       ptiglusb_t s = (ptiglusb_t) file->private_data;
-+       int ret = 0;    
-+
-+       if (s->remove_pending)
-+               return -EIO;
-+       
-+       down (&s->mutex);
-+
-+       if (!s->dev) {
-+               up (&s->mutex);
-+               return -EIO;
-+       }
-+       
-+       switch (cmd)
-+       {
-+       case IOCTL_TIUSB_TIMEOUT:
-+               timeout = arg ; // timeout value is passed in tenth of
-seconds
-+               break;
-+       case IOCTL_TIUSB_RESET_DEVICE:
-+               printk(KERN_DEBUG "IOCTL_TIGLUSB_RESET_DEVICE\n");
-+               if(clear_device(s->dev))
-+                       ret = -EIO;
-+               break;
-+       case IOCTL_TIUSB_RESET_PIPES:
-+               printk(KERN_DEBUG "IOCTL_TIGLUSB_RESET_PIPES\n");
-+               if(clear_pipes(s->dev))
-+                       ret = -EIO;
-+               break;
-+       default:
-+               ret = -ENOTTY;
-+               break;
-+       }
-+       
-+       up (&s->mutex);
-+       
+/dev/hda:
 
-+       return ret;
-+}
-+
-+/* ----- kernel module registering ------------------------------------
-*/
-+
-+static struct file_operations tiglusb_fops =
-+{
-+       owner:   THIS_MODULE,
-+       llseek:  no_llseek,
-+       read:    tiglusb_read,
-+       write:   tiglusb_write,
-+       ioctl:   tiglusb_ioctl,
-+       open:    tiglusb_open,
-+       release: tiglusb_release,
-+};
-+
-+//ok
-+static int tiglusb_find_struct (void)
-+{
-+       int u;
-+       
-+       for (u=0; u<MAXTIGL; u++) 
-+       {
-+               ptiglusb_t s = &tiglusb[u];
-+               if (!s->dev)
-+                       return u;
-+       }
-+       
-+       return -1;
-+}
-+
-+/* --- initialisation code ------------------------------------- */
-+
-+//ok
-+static void *tiglusb_probe (struct usb_device *dev, unsigned int ifnum,
-+                           const struct usb_device_id *id)
-+{
-+       int minor;
-+       ptiglusb_t s;
-+       char name[8];
-+       
-+       printk("tiglusb: probing vendor id 0x%x, device id 0x%x
-ifnum:%d\n",
-+              dev->descriptor.idVendor, dev->descriptor.idProduct,
-ifnum);
-+       
-+       /* 
-+        * We don't handle multiple configurations. As of version 0x0103
-of 
-+        * the TIGL hardware, there's only 1 configuration. 
-+        */
-+       
-+       if (dev->descriptor.bNumConfigurations != 1)
-+               return NULL;
-+       
-+       if ((dev->descriptor.idProduct != 0xe001) && 
-+           (dev->descriptor.idVendor != 0x451))
-+               return NULL;
-+       
-+       if (usb_set_configuration (dev,
-dev->config[0].bConfigurationValue) < 0) {
-+               printk("tiglusb_probe: set_configuration failed\n");
-+               return NULL;
-+       }
-+       
-+       minor = tiglusb_find_struct ();
-+       if (minor == -1)
-+               return NULL;
-+       
-+       s = &tiglusb[minor];
-+
-+       down (&s->mutex);
-+       s->remove_pending = 0;
-+       s->dev = dev;    
-+       up (&s->mutex);
-+       dbg("bound to interface: %d", ifnum);
-+       
-+       sprintf(name, "%d", s->minor);
-+       printk("tiglusb: registering to devfs : major = %d, minor = %d,
-node = %s\n", TIUSB_MAJOR, (TIUSB_MINOR + s->minor), name);  
-+       s->devfs = devfs_register(devfs_handle, name,
-+                                 DEVFS_FL_DEFAULT, TIUSB_MAJOR,
-+                                 TIUSB_MINOR + s->minor,
-+                                 S_IFCHR | S_IRUGO | S_IWUGO,
-+                                 &tiglusb_fops, NULL);
-+       
-+       /* Display firmware version */
-+       printk("tiglusb: link cable version %i.%02x\n",
-+              dev->descriptor.bcdDevice >> 8,
-+              dev->descriptor.bcdDevice & 0xff);
-+       
-+       return s;
-+}
-+
-+//ok
-+static void tiglusb_disconnect (struct usb_device *dev, void
-*drv_context)
-+{
-+       ptiglusb_t s = (ptiglusb_t) drv_context;
-+       
-+       if (!s || !s->dev) 
-+               printk("bogus disconnect");
-+       
-+       s->remove_pending = 1;
-+       wake_up (&s->wait);
-+       if (s->state == _started)
-+               sleep_on (&s->remove_ok);
-+       s->dev = NULL;
-+       s->opened = 0;
-+       
-+       /* cleanup now or later, on close*/
-+       if (!s->opened)
-+               usblp_cleanup (s);
-+       else
-+               up (&s->mutex);
-+       
-+       /* unregister device */
-+       devfs_unregister(s->devfs); s->devfs = NULL;
-+       printk("tiglusb: device disconnected\n");
-+}
-+
-+static struct usb_device_id tiglusb_ids [] = {
-+       { USB_DEVICE(0x0451, 0xe001) },
-+       { }
-+};
-+
-+MODULE_DEVICE_TABLE (usb, tiglusb_ids);
-+
-+static struct usb_driver tiglusb_driver =
-+{
-+       name:       "tiglusb",
-+       probe:      tiglusb_probe,
-+       disconnect: tiglusb_disconnect,
-+       fops:       &tiglusb_fops,
-+       minor:      TIUSB_MINOR,
-+       id_table:   tiglusb_ids,
-+};
-+
-+/* --- initialisation code ------------------------------------- */
-+
-+#ifndef MODULE
-+/*      You must set these - there is no sane way to probe for this
-cable.
-+ *      You can use 'tipar=timeout,delay' to set these now. */
-+static int __init tiglusb_setup (char *str)
-+{
-+        int ints[2];
-+
-+        str = get_options (str, ARRAY_SIZE(ints), ints);
-+
-+        if (ints[0] > 0) {
-+                timeout = ints[1];
-+        }
-+
-+        return 1;
-+}
-+#endif
-+
-+static int __init tiglusb_init (void)
-+{
-+       unsigned u;
-+       int result;
-+
-+       /* initialize struct */
-+       for (u = 0; u < MAXTIGL; u++)
-+       {
-+               ptiglusb_t s = &tiglusb[u];
-+               memset (s, 0, sizeof (tiglusb_t));
-+               init_MUTEX (&s->mutex);
-+               s->dev = NULL;
-+               s->minor = u;
-+               s->opened = 0;
-+               init_waitqueue_head (&s->wait);
-+               init_waitqueue_head (&s->remove_ok);
-+       }
-+
-+       /* register device */
-+       if (devfs_register_chrdev (TIUSB_MAJOR, "tiglusb",
-&tiglusb_fops)) {
-+           printk("tiglusb: unable to get major %d\n", TIUSB_MAJOR);
-+           return -EIO;
-+        }
-+
-+       /* Use devfs, tree: /dev/ticables/usb/[0..3]*/
-+        devfs_handle = devfs_mk_dir(NULL, "ticables/usb", NULL);
-+       
-+       /* register USB module */
-+       result = usb_register(&tiglusb_driver);
-+       if (result < 0) {
-+           devfs_unregister_chrdev(TIUSB_MAJOR, "tiglusb");
-+           return -1;
-+       }
-+       
-+       info(DRIVER_DESC ", " DRIVER_VERSION);
-+
-+       return 0;
-+}
-+
-+static void __exit tiglusb_cleanup (void)
-+{
-+       usb_deregister (&tiglusb_driver);
-+       devfs_unregister (devfs_handle);
-+        devfs_unregister_chrdev(TIUSB_MAJOR, "tiglusb");
-+}
-+
-+/*
---------------------------------------------------------------------- */
-+
-+__setup("tipar=", tiglusb_setup);
-+module_init(tiglusb_init);
-+module_exit(tiglusb_cleanup);
-+
-+MODULE_AUTHOR(DRIVER_AUTHOR);
-+MODULE_DESCRIPTION(DRIVER_DESC);
-+MODULE_LICENSE(DRIVER_LICENSE);
-+
-+EXPORT_NO_SYMBOLS;
-+
-+MODULE_PARM(timeout, "i");
-+MODULE_PARM_DESC(timeout, "Timeout (default=1.5 seconds)");
-+
-+/*
---------------------------------------------------------------------- */
---- linux.orig/drivers/usb/tiglusb.h    Sun Mar 31 22:02:57 2002
-+++ linux/drivers/usb/tiglusb.h Sun Mar 31 22:05:05 2002
-@@ -0,0 +1,58 @@
-+/* Hey EMACS -*- linux-c -*-
-+ *
-+ * tiglusb - low level driver for SilverLink cable
-+ *
-+ * Copyright (C) 2000-2002, Romain Lievin <roms@lpg.ticalc.org>
-+ * under the terms of the GNU General Public License.
-+ *
-+ * Redistribution of this file is permitted under the terms of the GNU
-+ * Public License (GPL)
-+ */
-+
-+#ifndef _TIGLUSB_H
-+#define _TIGLUSB_H
-+
-+/*
-+ * Max. number of devices supported
-+ */
-+#define MAXTIGL 16
-+
-+/*
-+ * Max. packetsize for IN and OUT pipes
-+ */
-+#define BULK_RCV_MAX 32
-+#define BULK_SND_MAX 32
-+
-+/*
-+ * The driver context...
-+ */
-+
-+typedef enum { _stopped=0, _started } driver_state_t;
-+
-+typedef struct
-+{
-+       struct usb_device *dev;        /* USB device handle */
-+       struct semaphore  mutex;       /* locks this struct */
-+       struct semaphore  sem;
-+       
-+       wait_queue_head_t wait;        /* for timed waits */
-+       wait_queue_head_t remove_ok;   
-+       
-+       int minor;                     /* which minor dev #? */
-+       devfs_handle_t devfs;          /* devfs device */
-+
-+       driver_state_t state;          /* started/stopped */
-+       int opened;                    /* tru if open */
-+       int remove_pending;            
-+
-+       struct urb readurb, writeurb;  /* The urbs */
-+       int wcomplete, rcomplete;      /* R/W is complete */
-+
-+       char rd_buf[BULK_RCV_MAX];     /* read  buffer */
-+       char wr_buf[BULK_SND_MAX];     /* write buffer */
-+       
-+} tiglusb_t, *ptiglusb_t;
-+
-+extern devfs_handle_t usb_devfs_handle;                 /* /dev/usb
-dir. */
-+
-+#endif
---- linux.orig/include/linux/ticable.h  Sun Mar 31 22:05:42 2002
-+++ linux/include/linux/ticable.h       Sun Mar 31 22:05:53 2002
-@@ -0,0 +1,42 @@
-+/* Hey EMACS -*- linux-c -*-
-+ *
-+ * tipar/tiser/tiusb - low level driver for handling link cables
-+ * designed for Texas Instruments graphing calculators.
-+ *
-+ * Copyright (C) 2000-2002, Romain Lievin <roms@lpg.ticalc.org>
-+ *
-+ * Redistribution of this file is permitted under the terms of the GNU
-+ * Public License (GPL)
-+ */
-+
-+#ifndef _TICABLE_H 
-+#define _TICABLE_H 1
-+
-+/* Internal default constants for the kernel module */
-+#define TIMAXTIME 15      /* 1.5 seconds       */
-+#define IO_DELAY  10      /* 10 micro-seconds  */
-+
-+/* Major & minor number for character devices */
-+#define TIPAR_MAJOR  115 /* 0 to 7 */
-+#define TIPAR_MINOR    0
-+
-+#define TISER_MAJOR  115 /* 8 to 15 */
-+#define TISER_MINOR    8
-+
-+#define TIUSB_MAJOR  115  /* 16 to 31 */
-+#define TIUSB_MINOR   16
-+
-+/*
-+ * Request values for the 'ioctl' function.
-+ */
-+#define IOCTL_TIPAR_DELAY     _IOW('p', 0xa8, int) /* set delay   */
-+#define IOCTL_TIPAR_TIMEOUT   _IOW('p', 0xa9, int) /* set timeout */
-+
-+#define IOCTL_TISER_DELAY     _IOW('p', 0xa0, int) /* set delay   */
-+#define IOCTL_TISER_TIMEOUT   _IOW('p', 0xa1, int) /* set timeout */
-+
-+#define IOCTL_TIUSB_TIMEOUT        _IOW('N', 0x20, int) /* set timeout
-*/
-+#define IOCTL_TIUSB_RESET_DEVICE   _IOW('N', 0x21, int) /* reset device
-*/
-+#define IOCTL_TIUSB_RESET_PIPES    _IOW('N', 0x22, int) /* reset both
-pipes*/
-+
-+#endif /* TICABLE_H */
---- linux.orig/MAINTAINERS      Mon Mar 18 21:37:04 2002
-+++ linux/MAINTAINERS   Sun Mar 31 22:01:20 2002
-@@ -1502,6 +1502,13 @@
- M:     hch@infradead.org
- S:     Maintained
- 
-+TI GRAPH LINK USB (SilverLink) CABLE DRIVER
-+P:     Romain Lievin
-+M:     roms@lpg.ticalc.org
-+P:     Julien Blache
-+M:     jb@technologeek.org
-+S:     Maintained
-+
- TLAN NETWORK DRIVER
- P:     Torben Mathiasen
- M:     torben.mathiasen@compaq.com
---- linux.orig/drivers/usb/Config.help  Mon Mar 18 21:37:13 2002
-+++ linux/drivers/usb/Config.help       Sun Mar 31 22:09:36 2002
-@@ -626,3 +626,21 @@
-   The module will be called bluetooth.o. If you want to compile it as
-   a module, say M here and read <file:Documentation/modules.txt>.
- 
-+CONFIG_USB_TIGL
-+  If you own a Texas Instruments graphing calculator and use a 
-+  TI-GRAPH LINK USB cable (aka SilverLink), then you might be 
-+  interested in this driver.
-+
-+  If you enable this driver, you will be able to communicate with
-+  your calculator through a set of device nodes under /dev.
-+
-+  This code is also available as a module ( = code which can be
-+  inserted in and removed from the running kernel whenever you want).
-+  The module will be called tiglusb.o. If you want to compile it as a
-+  module, say M here and read Documentation/modules.txt.
-+
-+  If you don't know what the SilverLink cable is or what a Texas
-+  Instruments graphing calculator is, then you probably don't need this
-+  driver.
-+
-+  If unsure, say N.
-\ No newline at end of file
---- linux.orig/drivers/usb/Config.in    Mon Mar 18 21:37:13 2002
-+++ linux/drivers/usb/Config.in Sun Mar 31 22:00:49 2002
-@@ -101,6 +101,7 @@
-    comment 'USB Miscellaneous drivers'
-    dep_tristate '  USB Diamond Rio500 support (EXPERIMENTAL)'
-CONFIG_USB_RIO500 $CONFIG_USB $CONFIG_EXPERIMENTAL
-    dep_tristate '  USB Auerswald ISDN support (EXPERIMENTAL)'
-CONFIG_USB_AUERSWALD $CONFIG_USB $CONFIG_EXPERIMENTAL
-+   dep_tristate 'Texas Instruments Graph Link USB (aka SilverLink)
-cable support' CONFIG_USB_TIGL $CONFIG_USB
- 
- fi
- endmenu
---- linux.orig/drivers/usb/Makefile     Mon Mar 18 21:37:18 2002
-+++ linux/drivers/usb/Makefile  Sun Mar 31 22:01:46 2002
-@@ -86,6 +86,7 @@
- obj-$(CONFIG_USB_BLUETOOTH)    += bluetooth.o
- obj-$(CONFIG_USB_USBNET)       += usbnet.o
- obj-$(CONFIG_USB_AUERSWALD)    += auerswald.o
-+obj-$(CONFIG_USB_TIGL)          += tiglusb.o
- 
- # Object files in subdirectories
- mod-subdirs    := serial hcd
---- linux.orig/Documentation/usb/silverlink.txt Sun Mar 31 22:02:45 2002
-+++ linux/Documentation/usb/silverlink.txt      Sun Mar 31 22:07:08 2002
-@@ -0,0 +1,80 @@
-+-------------------------------------------------------------------------
-+Readme for Linux device driver for the Texas Instruments SilverLink
-cable
-+-------------------------------------------------------------------------
-+
-+Author: Romain Liévin & Julien Blache
-+Homepage: http://lpg.ticalc.org/prj_usb
-+
-+INTRODUCTION:
-+
-+This is a driver for the TI-GRAPH LINK USB (aka SilverLink) cable, a
-cable 
-+designed by TI for connecting their TI8x/9x calculators to a computer 
-+(PC or Mac usually).
-+
-+If you need more information, please visit the 'SilverLink drivers'
-homepage 
-+at the above URL.
-+
-+WHAT YOU NEED:
-+
-+A TI calculator of course and a program capable to communicate with
-your 
-+calculator.
-+TiLP will work for sure (since I am his developer !). yal92 may be able
-to use
-+it by changing tidev for tiglusb (may require some hacking...).
-+
-+HOW TO USE IT:
-+
-+You must have first compiled USB support, support for your specific USB
-host
-+controller (UHCI or OHCI).
-+
-+Next, (as root) from your appropriate modules directory
-(lib/modules/2.5.XX):
-+
-+       insmod usb/usbcore.o
-+       insmod usb/usb-uhci.o  <OR>  insmod usb/ohci-hcd.o
-+       insmod tiglusb.o
-+
-+If it is not already there (it usually is), create the device:
-+
-+       mknod /dev/tiglusb0 c 115 16
-+
-+You will have to set permissions on this device to allow you to
-read/write
-+from it:
-+
-+       chmod 666 /dev/tiglusb0
-+       
-+Now you are ready to run a linking program such as TiLP. Be sure to
-configure 
-+it properly (RTFM).
-+       
-+MODULE PARAMETERS:
-+
-+  You can set these with:  insmod tiglusb NAME=VALUE
-+  There is currently no way to set these on a per-cable basis.
-+
-+  NAME: timeout
-+  TYPE: integer
-+  DEFAULT: 15
-+  DESC: Timeout value in tenth of seconds. If no data is available once
-this 
-+       time has expired then the driver will return with a timeout
-error.
-+
-+QUIRKS:
-+
-+The following problem seems to be specific to the link cable since it
-appears 
-+on all platforms (Linux, Windows, Mac OS-X). 
-+
-+In some very particular cases, the driver returns with success but
-+without any data. The application should retry a read operation at
-least once.
-+
-+HOW TO CONTACT US:
-+
-+You can email me at roms@lpg.ticalc.org. Please prefix the subject line
-+with "TIGLUSB: " so that I am certain to notice your message.
-+You can also mail JB at jb@jblache.org: he has written the first
-release of 
-+this driver but he better knows the Mac OS-X driver.
-+
-+CREDITS:
-+
-+The code is based on dabusb.c, printer.c and scanner.c !
-+The driver has been developed independantly of Texas Instruments.
+non-removable ATA device, with non-removable media
+	Model Number:		Maxtor 91536U6                          
+	Serial Number:		W606XRXA            
+	Firmware Revision:	VA510PF0
+Standards:
+	Used: ATA/ATAPI-4 T13 1153D revision 17 
+	Supported: 1 2 3 4 5 & some of 5
+Configuration:
+	Logical		max	current
+	cylinders	16383	16383
+	heads		16	16
+	sectors/track	63	63
+	bytes/track:	0		(obsolete)
+	bytes/sector:	0		(obsolete)
+	current sector capacity: 16514064
+	LBA user addressable sectors = 30000096
+Capabilities:
+	LBA, IORDY(can be disabled)
+	Buffer size: 2048.0kB	ECC bytes: 57	Queue depth: 1
+	Standby timer values: spec'd by standard, no device specific minimum
+	r/w multiple sector transfer: Max = 16	Current = 0
+	DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 
+	     Cycle time: min=120ns recommended=120ns
+	PIO: pio0 pio1 pio2 pio3 pio4 
+	     Cycle time: no flow control=120ns  IORDY flow control=120ns
+Commands/features:
+	Enabled	Supported:
+	   *	NOP cmd
+	   *	READ BUFFER cmd
+	   *	WRITE BUFFER cmd
+	   *	Host Protected Area feature set
+	   *	look-ahead
+	   *	write cache
+	   *	Power Management feature set
+		SMART feature set
+		Advanced Power Management feature set
+	   *	DOWNLOAD MICROCODE cmd
+HW reset results:
+	CBLID- below Vih
+	Device num = 0 determined by the jumper
+Checksum: correct
+
+/dev/hda:
+ multcount    =  0 (off)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 1867/255/63, sectors = 30000096, start = 0
+ busstate     =  1 (on)
+
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=dot-config
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
+# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
+# CONFIG_BLK_DEV_IDEDISK_IBM is not set
+# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
+# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
+# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
+# CONFIG_BLK_DEV_IDEDISK_WD is not set
+# CONFIG_BLK_DEV_COMMERIAL is not set
+# CONFIG_BLK_DEV_TIVO is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=m
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+CONFIG_BLK_DEV_IDESCSI=m
+# CONFIG_IDE_TASK_IOCTL is not set
+
+#
+# IDE chipset support/bugfixes
+#
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+CONFIG_BLK_DEV_IDEPCI=y
+# CONFIG_IDEPCI_SHARE_IRQ is not set
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_BLK_DEV_IDEDMA_TIMEOUT is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+CONFIG_BLK_DEV_ADMA=y
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_AEC62XX_TUNING is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_AMD74XX_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CMD680 is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_PIIX is not set
+# CONFIG_PIIX_TUNING is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC_ADMA is not set
+# CONFIG_BLK_DEV_PDC202XX is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_PDC202XX_FORCE is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+CONFIG_BLK_DEV_VIA82CXXX=y
+# CONFIG_IDE_CHIPSETS is not set
+# CONFIG_BLK_DEV_ELEVATOR_NOOP is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+# CONFIG_BLK_DEV_ATARAID is not set
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
+# CONFIG_BLK_DEV_ATARAID_HPT is not set
+
+--EVF5PPMfhYS0aIcm--

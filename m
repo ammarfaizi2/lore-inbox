@@ -1,44 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313297AbSDJQVf>; Wed, 10 Apr 2002 12:21:35 -0400
+	id <S313299AbSDJQbD>; Wed, 10 Apr 2002 12:31:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313309AbSDJQVe>; Wed, 10 Apr 2002 12:21:34 -0400
-Received: from mail-01.med.umich.edu ([141.214.93.149]:56764 "EHLO
-	mail-01.med.umich.edu") by vger.kernel.org with ESMTP
-	id <S313297AbSDJQVe> convert rfc822-to-8bit; Wed, 10 Apr 2002 12:21:34 -0400
-Message-Id: <scb42e4b.036@mail-01.med.umich.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.0.1
-Date: Wed, 10 Apr 2002 12:21:03 -0400
-From: "Nicholas Berry" <nikberry@med.umich.edu>
-To: <aab@cichlid.com>, <dang@fprintf.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Tyan S2462 reboot problems
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S313305AbSDJQbD>; Wed, 10 Apr 2002 12:31:03 -0400
+Received: from eowyn.iae.nl ([212.61.25.227]:41490 "HELO eowyn.vianetworks.nl")
+	by vger.kernel.org with SMTP id <S313299AbSDJQbC>;
+	Wed, 10 Apr 2002 12:31:02 -0400
+Date: Wed, 10 Apr 2002 19:08:27 +0200
+Message-Id: <200204101708.TAA01151@fikkie.vesc.nl>
+From: "E. Abbink" <esger@bumblebeast.com>
+To: linux-kernel@vger.kernel.org
+Reply-To: esger@bumblebeast.com
+Subject: Problem using mandatory locks (other apps can read/delete etc)
+X-Mailer: NeoMail 1.25
+X-IPAddress: 192.0.0.12
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What display adapter are you using? BIOS's earlier than 1.04 screwed up royally with ATI Radeon 8500/7500 cards - actually, so does 1.04, but not as much. I've also noticed that Radeon + Adaptec 39160 corrupts video where without the Adaptec it doesn't. Strange.
+Hi,
 
-Nik
+I'm trying to solve a problem using mandatory locks but am having some
+difficulty in doing so. (if there's a more appropriate place for
+discussing this please ignore the rest of this post. pointers to that
+place would be appreciated ;) )
 
-(This is on the 2460, not 2462)
+my problem:
 
->>> Daniel Gryniewicz <dang@fprintf.net> 04/09/02 04:14PM >>>
-> Hi.
+when I lock a file with a mandatory write lock (ie. fcntl, +s-x bits and
+mand mount option. for code see below) it is still possible:
 
-> No, I doubt this has anything to do with Linux.   I have a S2460 (which his
-> corrected post says he has), which does not power down under linux, and
-> *never* warm boots cleanly.  It does power down under windows, so I assume
-> ACPI powerdown works and APM does not.  I have gone under the assumption that
-> a BIOS upgrade will fix this, but that involves putting a floppy into the box,
-> so I haven't done it yet.  The warm boot problems consist of either a hang
-> after POST (but before bootloader, OS irrelevent), or really bad video
-> corruption.  I don't know if it boot with the video corruption, I've never let
-> it try.
+- for me to rm the file in question
+- for the file to be read by an other process
 
-> Daniel
+It's not possible to cat to the file or cp another file over it (as
+expected). For my application I want a locked file to be completely
+locked/protected from other processes.
+
+If I retry the same without setting the +s-x bits the cp & cat succeed,
+so something special is being done in the first case.
 
 
+According to all docs (i can find) mandatory locks should block both the 
+read and write system calls (i cant find anything in it regarding unlink 
+though...). In my case however it seems as if only write calls are
+blocked but not read calls?
+
+If anyone could shed any light on this it would be much appreciated.
+
+Esger
+
+
+
+system details:
+
+linux 2.4.17 partially suse & xfs patched kernel
+filesystem is reiserfs
+i386 dual pIII450
+
+test app code:
+
+int main ()
+{
+    int fd ;
+
+
+    fd = open ("image.jpg", O_RDWR) ;
+
+    if (fd == -1)
+    {
+        printf ("error %d while opening file\n", errno) ;
+        exit (1) ;
+    }
+
+    struct flock lock ;
+
+    lock.l_type = F_WRLCK ;
+    lock.l_whence = SEEK_SET ;
+    lock.l_start = 0 ;
+    lock.l_len = 0 ;
+    lock.l_pid = 0 ; // ignored
+
+    int err = fcntl (fd, F_SETLK, &lock) ;
+
+    if (err == -1)
+    {
+        printf ("error %d while locking file\n", errno) ;
+        exit (1) ;
+    }
+    else
+        printf ("file locked\n") ;
+
+
+    while (1)
+        sleep (1) ;
+}
+
+
+
+
+
+
+-- 
+NeoMail - Webmail that doesn't suck... as much.
+http://neomail.sourceforge.net

@@ -1,68 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289116AbSAGEkh>; Sun, 6 Jan 2002 23:40:37 -0500
+	id <S289117AbSAGFA2>; Mon, 7 Jan 2002 00:00:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289117AbSAGEk1>; Sun, 6 Jan 2002 23:40:27 -0500
-Received: from oe64.law9.hotmail.com ([64.4.8.199]:16132 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S289116AbSAGEkN>;
-	Sun, 6 Jan 2002 23:40:13 -0500
-X-Originating-IP: [66.108.21.174]
-From: "T. A." <tkhoadfdsaf@hotmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        "Chris Wedgwood" <cw@f00f.org>
-In-Reply-To: <20020106032030.A27926@redhat.com> <E16NFxv-0005e4-00@the-village.bc.nu> <20020106233726.GA26491@weta.f00f.org> <200201070215.g072F0u3010729@sm14.texas.rr.com> <20020107023854.GA26751@weta.f00f.org>
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-Date: Sun, 6 Jan 2002 23:40:15 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <OE64O554Q0BUHaxrXcq0000d9af@hotmail.com>
-X-OriginalArrivalTime: 07 Jan 2002 04:40:08.0302 (UTC) FILETIME=[626658E0:01C19735]
+	id <S289118AbSAGFAS>; Mon, 7 Jan 2002 00:00:18 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:49167 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S289117AbSAGFAG>; Mon, 7 Jan 2002 00:00:06 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler 
+In-Reply-To: Your message of "Fri, 04 Jan 2002 03:19:10 BST."
+             <Pine.LNX.4.33.0201040050440.1363-100000@localhost.localdomain> 
+Date: Mon, 07 Jan 2002 13:58:02 +1100
+Message-Id: <E16NPz8-0001t1-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    There are 2MB pages as well.  Probably would be a better choice than
-4MB.  Also only has a 2 tier paging mechanism instead of a 3 tier one when
-paging with 4KB which should help take care of the current slowdown with
-highmem.
+In message <Pine.LNX.4.33.0201040050440.1363-100000@localhost.localdomain> you 
+write:
+> 
+> now that new-year's parties are over things are getting boring again. For
+> those who want to see and perhaps even try something more complex, i'm
+> announcing this patch that is a pretty radical rewrite of the Linux
+> scheduler for 2.5.2-pre6:
 
------ Original Message -----
-From: "Chris Wedgwood" <cw@f00f.org>
-To: "Marvin Justice" <mjustice@austin.rr.com>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>; "Benjamin LaHaise"
-<bcrl@redhat.com>; "Gerrit Huizenga" <gerrit@us.ibm.com>; "M. Edward
-Borasky" <znmeb@aracnet.com>; "Harald Holzer" <harald.holzer@eunet.at>;
-<linux-kernel@vger.kernel.org>
-Sent: Sunday, January 06, 2002 9:38 PM
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
+Hi Ingo...
 
+	Reading through 2.5.2-C1, couple of comments/questions:
 
-> On Sun, Jan 06, 2002 at 08:18:33PM -0600, Marvin Justice wrote:
->
->     Here's my (probably simple minded) understanding. With the PSE bit
->     turned on in one of the x86 control registers (cr3?), page sizes
->     are 4MB instead of the usual 4KB. One advantage of large pages is
->     that there are fewer page tables and struct page's to store.
->
-> Ah, I knew 4MB pages were possible... I was under the impression _all_
-> pages had to be 4MB which would seem to suck badly as they would be
-> too coarse for many applications (but for certain large sci. apps. I'm
-> sure this would be perfect, less TLB thrashing too with sparse
-> data-sets).
->
-> On the whole, I'm not sure I can see how 4MB pages _everywhere_ in
-> user-space would be a win for many people at all...
->
->
->   --cw
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+sched.c line 402:
+	/*
+	 * Current runqueue is empty, try to find work on
+	 * other runqueues.
+	 *
+	 * We call this with the current runqueue locked,
+	 * irqs disabled.
+	 */
+	static void load_balance(runqueue_t *this_rq)
+
+This first comment doesn't seem to be true: it also seems to be called
+from idle_tick and expire task.  Perhaps it'd be nicer too, to split
+load_balance into "if (is_unbalanced(cpu())) pull_task(cpu())".  (I
+like "pull_" and "push_" nomenclature for the scheduler).
+
+sched.c load_balance() line 435:
+
+		if ((load > max_load) && (load < prev_max_load) &&
+						(rq_tmp != this_rq)) {
+
+Why are you ignoring a CPU with more than the previous maximum load
+(prev_max_load is incremented earlier)?
+
+sched.c expire_task line 552:
+
+	if (p->array != rq->active) {
+		p->need_resched = 1;
+		return;
+	}
+
+I'm not clear how this can happen??
+
+Finally, I gather you want to change smp_processor_id() to cpu()?
+That's fine (smp_num_cpus => num_cpus() too please), but it'd be nice
+to have that as a separate patch, rather than getting stuck with BOTH
+cpu() and smp_processor_id().
+
+Patch below (untested) corrects SMP_CACHE_BYTES alignment, minor
+comment, and rebalance tick for HZ < 100 (ie. User Mode Linux).
+
+Rusty.
+PS. Awesome work.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.2-pre9-mingosched/kernel/sched.c working-2.5.2-pre9-mingoschedfix/kernel/sched.c
+--- working-2.5.2-pre9-mingosched/kernel/sched.c	Mon Jan  7 12:39:10 2002
++++ working-2.5.2-pre9-mingoschedfix/kernel/sched.c	Mon Jan  7 13:51:39 2002
+@@ -43,14 +43,14 @@
+  * if there is a RT task active in an SMP system but there is no
+  * RT scheduling activity otherwise.
+  */
+-static struct runqueue {
++struct runqueue {
+ 	int cpu;
+ 	spinlock_t lock;
+ 	unsigned long nr_running, nr_switches, last_rt_event;
+ 	task_t *curr, *idle;
+ 	prio_array_t *active, *expired, arrays[2];
+-	char __pad [SMP_CACHE_BYTES];
+-} runqueues [NR_CPUS] __cacheline_aligned;
++} ____cacheline_aligned;
++static struct runqueue runqueues[NR_CPUS] __cacheline_aligned;
+ 
+ #define this_rq()		(runqueues + cpu())
+ #define task_rq(p)		(runqueues + (p)->cpu)
+@@ -102,7 +102,7 @@
+  * This is the per-process load estimator. Processes that generate
+  * more load than the system can handle get a priority penalty.
+  *
+- * The estimator uses a 4-entry load-history ringbuffer which is
++ * The estimator uses a SLEEP_HIST_SIZE-entry load-history ringbuffer which is
+  * updated whenever a task is moved to/from the runqueue. The load
+  * estimate is also updated from the timer tick to get an accurate
+  * estimation of currently executing tasks as well.
+@@ -511,7 +511,7 @@
+ 	spin_unlock(&busiest->lock);
+ }
+ 
+-#define REBALANCE_TICK (HZ/100)
++#define REBALANCE_TICK ((HZ/100) ?: 1)
+ 
+ void idle_tick(void)
+ {

@@ -1,88 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262819AbVA1X2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262814AbVA1Xhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262819AbVA1X2i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 18:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262820AbVA1X1n
+	id S262814AbVA1Xhb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 18:37:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVA1Xhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 18:27:43 -0500
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:7690 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262819AbVA1X10
+	Fri, 28 Jan 2005 18:37:31 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:37511 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262814AbVA1XhZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 18:27:26 -0500
-Date: Fri, 28 Jan 2005 15:25:33 -0800
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Esben Nielsen <simlo@phys.au.dk>, Rui Nuno Capela <rncbc@rncbc.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       mark_h_johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>, Shane Shrybman <shrybman@aei.ca>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       "Igor Manyilov (auriga)" <manyilov@lnxw.com>
-Subject: Re: Real-time rw-locks (Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15)
-Message-ID: <20050128232533.GA7267@nietzsche.lynx.com>
-References: <20041214113519.GA21790@elte.hu> <Pine.OSF.4.05.10412271404440.25730-100000@da410.ifa.au.dk> <20050128073856.GA2186@elte.hu> <1106939910.14321.37.camel@lade.trondhjem.org> <20050128194546.GA348@elte.hu>
+	Fri, 28 Jan 2005 18:37:25 -0500
+Subject: Re: [RFC][PATCH] add driver matching priorities
+From: Adam Belay <abelay@novell.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: greg@kroah.com, rml@novell.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200501281823.27132.dtor_core@ameritech.net>
+References: <1106951404.29709.20.camel@localhost.localdomain>
+	 <200501281823.27132.dtor_core@ameritech.net>
+Content-Type: text/plain
+Date: Fri, 28 Jan 2005 18:33:06 -0500
+Message-Id: <1106955187.29709.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050128194546.GA348@elte.hu>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 08:45:46PM +0100, Ingo Molnar wrote:
-> * Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> > If you do have a highest interrupt case that causes all activity to
-> > block, then rwsems may indeed fit the bill.
+On Fri, 2005-01-28 at 18:23 -0500, Dmitry Torokhov wrote:
+> On Friday 28 January 2005 17:30, Adam Belay wrote:
+> > Of course this patch is not going to be effective alone.  We also need
+> > to change the init order.  If a driver is registered early but isn't the
+> > best available, it will be bound to the device prematurely.  This would
+> > be a problem for carbus (yenta) bridges.
 > > 
-> > In the NFS client code we may use rwsems in order to protect stateful
-> > operations against the (very infrequently used) server reboot recovery
-> > code. The point is that when the server reboots, the server forces us
-> > to block *all* requests that involve adding new state (e.g. opening an
-> > NFSv4 file, or setting up a lock) while our client and others are
-> > re-establishing their existing state on the server.
+> > I think we may have to load all in kernel drivers first, and then begin
+> > matching them to hardware.  Do you agree?  If so, I'd be happy to make a
+> > patch for that too.
+> > 
 > 
-> it seems the most scalable solution for this would be a global flag plus
-> per-CPU spinlocks (or per-CPU mutexes) to make this totally scalable and
-> still support the requirements of this rare event. An rwsem really
-> bounces around on SMP, and it seems very unnecessary in the case you
-> described.
+> I disagree. The driver core should automatically unbind generic driver
+> from a device when native driver gets loaded. I think the only change is
+> that we can no longer skip devices that are bound to a driver and match
+> them all over again when a new driver is loaded.  
 > 
-> possibly this could be formalised as an rwlock/rwlock implementation
-> that scales better. brlocks were such an attempt.
 
->From how I understand it, you'll have to have a global structure to
-denote an exclusive operation and then take some additional cpumask_t
-representing the spinlocks set and use it to iterate over when doing a
-PI chain operation.
+That's another option.  My concern is that if a generic driver pokes
+around with hardware, it may fail to initialize properly when the actual
+driver is loaded.  There are other problems too.  If the system were to
+be suspended while the generic driver was loaded, the restore_state code
+may be incorrect, also rendering the device unusable.
 
-Locking of each individual parametric typed spinlock might require
-a raw_spinlock manipulate lists structures, which, added up, is rather
-heavy weight.
+I'd like to leave the option of unloading generic driver open.  I just
+think we need to be aware of potential problems it might cause, before
+deciding to go that direction.
 
-No only that, you'd have to introduce a notion of it being counted
-since it could also be aquired/preempted  by another higher priority
-thread on that same procesor.  Not having this semantic would make the
-thread in that specific circumstance effectively non-preemptable (PI
-scheduler indeterminancy), where the mulipule readers portion of a
-real read/write (shared-exclusve) lock would have permitted this.
+Thanks,
+Adam
 
-	http://people.lynuxworks.com/~bhuey/rt-share-exclusive-lock/rtsem.tgz.1208
-
-Is our attempt at getting real shared-exclusive lock semantics in a
-blocking lock and may still be incomplete and buggy. Igor is still
-working on this and this is the latest that I have of his work. Getting
-comments on this approach would be a good thing as I/we (me/Igor)
-believed from the start that this approach is correct.
-
-Assuming that this is possible with the current approach, optimizing
-it to avoid CPU ping-ponging is an important next step
-
-bill
 

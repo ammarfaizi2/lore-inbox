@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316246AbSEKSHu>; Sat, 11 May 2002 14:07:50 -0400
+	id <S316250AbSEKSI4>; Sat, 11 May 2002 14:08:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316248AbSEKSHt>; Sat, 11 May 2002 14:07:49 -0400
-Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:28594 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S316246AbSEKSHs>;
-	Sat, 11 May 2002 14:07:48 -0400
-Message-ID: <3CDD5DF3.8030306@candelatech.com>
-Date: Sat, 11 May 2002 11:07:47 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S316252AbSEKSIz>; Sat, 11 May 2002 14:08:55 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8979 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316250AbSEKSIv>; Sat, 11 May 2002 14:08:51 -0400
+Subject: Re: O_DIRECT performance impact on 2.4.18 (was: Re: [PATCH] 2.5.14
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sat, 11 May 2002 19:26:03 +0100 (BST)
+Cc: gh@us.ibm.com (Gerrit Huizenga), ltd@cisco.com (Lincoln Dale),
+        akpm@zip.com.au (Andrew Morton), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        padraig@antefacto.com (Padraig Brady),
+        aia21@cantab.net (Anton Altaparmakov),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.44.0205111047280.2355-100000@home.transmeta.com> from "Linus Torvalds" at May 11, 2002 11:04:45 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: APM hangs during boot w/out keyboard plugged in.
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E176bZD-0008QD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have noticed that the APM initialization always hangs when I
-try to boot my various machines w/out the keyboard plugged in.
+> > O_DIRECT is especially useful for applications which maintain their
+> > own cache, e.g. a database.  And adding Async to it is an even bigger
+> > bonus (another Oracleism we did in PTX).
+> 
+> The thing that has always disturbed me about O_DIRECT is that the whole
+> interface is just stupid, and was probably designed by a deranged monkey
+> on some serious mind-controlling substances [*].
 
-This is true of many kernels, including the one shipped with RH 7.3.
+Used with aio its extremely nice. Without the aio patches its a bit lacking
+whenever readahead is useful
 
-For now, I have to re-compile the kernel w/out APM support.  Is
-there some fundamental problem with using APM w/out a keyboard,
-or can the code be fixed?
-
-My motherboard is Intel EEA2, 815 chipset.  If more information
-will help, please let me know and I'll provide it.
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+Alan

@@ -1,85 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318714AbSIFPX0>; Fri, 6 Sep 2002 11:23:26 -0400
+	id <S318719AbSIFP0k>; Fri, 6 Sep 2002 11:26:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318719AbSIFPX0>; Fri, 6 Sep 2002 11:23:26 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:15114 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S318714AbSIFPXY>; Fri, 6 Sep 2002 11:23:24 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Daniel Jacobowitz <dan@debian.org>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] ptrace-fix-2.5.33-A1
-References: <Pine.LNX.4.44.0209060058040.20904-100000@localhost.localdomain>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 07 Sep 2002 00:27:39 +0900
-In-Reply-To: <Pine.LNX.4.44.0209060058040.20904-100000@localhost.localdomain>
-Message-ID: <87vg5j2l5g.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S318735AbSIFP0k>; Fri, 6 Sep 2002 11:26:40 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:59061 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318719AbSIFP0i>;
+	Fri, 6 Sep 2002 11:26:38 -0400
+Message-ID: <3D78C9BD.5080905@us.ibm.com>
+Date: Fri, 06 Sep 2002 08:29:01 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020822
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+CC: "David S. Miller" <davem@redhat.com>, hadi@cyberus.ca,
+       tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, Nivedita Singhvi <niv@us.ibm.com>
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+References: <20020905.204721.49430679.davem@redhat.com> <18563262.1031269721@[10.10.2.3]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+Martin J. Bligh wrote:
+> Just to throw another firework into the fire whilst people are 
+> awake, NAPI does not seem to scale to this sort of load, which
+> was disappointing, as we were hoping it would solve some of 
+> our interrupt load problems ... seems that half the machine goes
+> idle, the number of simultaneous connections drop way down, and
+> everything's blocked on ... something ... not sure what ;-)
+> Any guesses at why, or ways to debug this?
 
-> i've attached a combined patch of your two patches, against BK-curr. Looks
-> good to me, and since it passed your more complex ptrace tests ...
-> 
-> 	Ingo
-> 
-> --- linux/kernel/exit.c.orig	Fri Sep  6 00:55:02 2002
-> +++ linux/kernel/exit.c	Fri Sep  6 00:57:58 2002
-> @@ -66,6 +66,11 @@
->  	atomic_dec(&p->user->processes);
->  	security_ops->task_free_security(p);
->  	free_uid(p->user);
-> +	if (unlikely(p->ptrace)) {
-> +		write_lock_irq(&tasklist_lock);
-> +		__ptrace_unlink(p);
-> +		write_unlock_irq(&tasklist_lock);
-> +	}
->  	BUG_ON(!list_empty(&p->ptrace_list) || !list_empty(&p->ptrace_children));
+I thought that I already tried to explain this to you.  (although it could 
+have been on one of those too-much-coffee-days :)
 
-Looks like it's need the only CLONE_DETACH process. Why it's here?
+Something strange happens to the clients when NAPI is enabled on the 
+Specweb clients.  Somehow the start using a lot more CPU.  The increased 
+idle time on the server is because the _clients_ are CPU maxed.  I have 
+some preliminary oprofile data for the clients, but it appears that this is 
+another case of Specweb code just really sucking.
 
-	 * Search them and reparent children.
-	 */
-	list_for_each(_p, &father->children) {
-		p = list_entry(_p,struct task_struct,sibling);
-		reparent_thread(p, reaper, child_reaper);
-	}
-
-Looks like that tracer deprive a process from real parent.
-
-	list_for_each(_p, &father->ptrace_children) {
-		p = list_entry(_p,struct task_struct,ptrace_list);
-		reparent_thread(p, reaper, child_reaper);
-	}
-
-Thread group makes the child which links both ->children and
-->ptrace_children.
-
->  {
-> -	ptrace_unlink(p);
-> -	list_del_init(&p->sibling);
-> -	p->ptrace = 0;
-> +	/* If we were tracing the thread, release it; otherwise preserve the
-> +	   ptrace links.  */
-> +	if (unlikely(traced)) {
-> +		task_t *trace_task = p->parent;
-> +		__ptrace_unlink(p);
-> +		p->ptrace = 1;
-
-Unexpected change of ptrace flag.
-
-> +		__ptrace_link(p, trace_task);
-> +	} else {
-> +		p->ptrace = 0;
-> +		list_del_init(&p->sibling);
-> +		p->parent = p->real_parent;
-> +		list_add_tail(&p->sibling, &p->parent->children);
-
-Looks like that tracing child still link ->ptrace_list.
+The real question is why NAPI causes so much more work for the client.  I'm 
+not convinced that it is much, much greater, because I believe that I was 
+already at the edge of the cliff with my clients and NAPI just gave them a 
+little shove :).  Specweb also takes a while to ramp up (even during the 
+real run), so sometimes it takes a few minutes to see the clients get 
+saturated.
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Dave Hansen
+haveblue@us.ibm.com
+

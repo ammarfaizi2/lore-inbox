@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264061AbUD0NCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264067AbUD0NHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264061AbUD0NCg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 09:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbUD0NCg
+	id S264067AbUD0NHb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 09:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbUD0NHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 09:02:36 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:61344 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S264061AbUD0NCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 09:02:17 -0400
-Message-ID: <408E5944.8090807@grupopie.com>
-Date: Tue, 27 Apr 2004 13:59:48 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: GrupoPIE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Tue, 27 Apr 2004 09:07:31 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:48005 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S264067AbUD0NH2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 09:07:28 -0400
+Date: Tue, 27 Apr 2004 15:07:23 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Chris Mason <mason@suse.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       raven@themaw.net
+Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?
+In-Reply-To: <1083070293.30344.116.camel@watt.suse.com>
+Message-ID: <Pine.LNX.4.58.0404271500210.27538@alpha.polcom.net>
+References: <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net> 
+ <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net> 
+ <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org> 
+ <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net> 
+ <Pine.LNX.4.58.0404261510230.19703@ppc970.osdl.org> 
+ <Pine.LNX.4.58.0404270034110.4469@alpha.polcom.net> 
+ <20040426225620.GP17014@parcelfarce.linux.theplanet.co.uk> 
+ <Pine.LNX.4.58.0404270157160.6900@alpha.polcom.net> 
+ <20040427002323.GW17014@parcelfarce.linux.theplanet.co.uk> 
+ <Pine.LNX.4.58.0404261758230.19703@ppc970.osdl.org> 
+ <20040427010748.GY17014@parcelfarce.linux.theplanet.co.uk> 
+ <Pine.LNX.4.58.0404271106500.22815@alpha.polcom.net> <1083070293.30344.116.camel@watt.suse.com>
 MIME-Version: 1.0
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <408DC0E0.7090500@gmx.net> <Pine.LNX.4.58.0404262116510.19703@ppc970.osdl.org> <1083045844.2150.105.camel@bach> <20040427092159.GC29503@lug-owl.de> <408E37D9.7030804@gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.25.0.2; VDF: 6.25.0.34; host: bipbip)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger wrote:
-
+On Tue, 27 Apr 2004, Chris Mason wrote:
+> On Tue, 2004-04-27 at 05:12, Grzegorz Kulewski wrote:
+> > evms_activate is called blindly from startup scripts in case important 
+> > filesystems (/usr, /var) reside on it.
+>
+> Oh, it's evms
 > 
-> This way, the module format doesn't change, but we can do additional
-> verification in the loader.
+> http://evms.sourceforge.net/install/kernel.html#bdclaim
 > 
+> EVMS 2.3.1 might work better for you.
 
-I agree with Rusty Russell. Anything that we do can be circunvented.
+Thanks!
 
-If they are really into it, they can build a small tool to change the symbol 
-information from the module.
+But it is strange that I need kernel patch even if I have no evms 
+or dm volumes in my system. Can not it be solved in mainstream kernels?
+Maybe there should be warning in config help temporaily? Maybe even note 
+after option name?
 
-The way I see it, they know a C string ends with a '\0'. This is like saying 
-that a English sentence ends with a dot. If they wrote "GPL\0" they are 
-effectively saying that the license *is* GPL period.
 
-So, where the source code? :)
+But thanks anyway,
 
--- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
+Grzegorz Kulewski
 

@@ -1,52 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269942AbSISFHL>; Thu, 19 Sep 2002 01:07:11 -0400
+	id <S269945AbSISFQ1>; Thu, 19 Sep 2002 01:16:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269943AbSISFHL>; Thu, 19 Sep 2002 01:07:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1801 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269942AbSISFHK>;
-	Thu, 19 Sep 2002 01:07:10 -0400
-Message-ID: <3D895C8D.6070504@mandrakesoft.com>
-Date: Thu, 19 Sep 2002 01:11:41 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S269946AbSISFQ1>; Thu, 19 Sep 2002 01:16:27 -0400
+Received: from h106-129-61.datawire.net ([207.61.129.106]:13724 "EHLO
+	newmail.datawire.net") by vger.kernel.org with ESMTP
+	id <S269945AbSISFQ0> convert rfc822-to-8bit; Thu, 19 Sep 2002 01:16:26 -0400
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: sct@redhat.com, akpm@digeo.com
+Subject: Re: [BENCHMARK] EXT3 vs EXT2 results with rmap14a and testing with contest 0.34
+Date: Thu, 19 Sep 2002 00:21:21 -0400
+User-Agent: KMail/1.4.6
+Cc: Con Kolivas <conman@kolivas.net>, linux-kernel@vger.kernel.org
+References: <200209182118.12701.spstarr@sh0n.net> <1032403983.3d893c0f8986b@kolivas.net> <200209190016.26609.spstarr@sh0n.net>
+In-Reply-To: <200209190016.26609.spstarr@sh0n.net>
 MIME-Version: 1.0
-To: Jason Lunz <lunz@falooley.org>
-CC: netdev@oss.sgi.com, Richard Gooch <rgooch@ras.ucalgary.ca>,
-       becker@scyld.com, "Patrick R. McManus" <mcmanus@ducksong.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.20-pre sundance.c update
-References: <20020828185612.GA14342@reflexsecurity.com> <20020828231333.GA15183@reflexsecurity.com> <200209190353.g8J3r5q28456@vindaloo.ras.ucalgary.ca> <20020919041403.GA10527@orr.falooley.org> <3D89519C.1020809@mandrakesoft.com> <20020919045621.GA11144@orr.falooley.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200209190021.21885.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Lunz wrote:
-> On Thu, Sep 19, 2002 at 12:25AM -0400, Jeff Garzik wrote:
-> 
->>It still has several flaws that were pointed out, but this is the base 
->>from which I would like testing and patching to proceed.  (also 
->>hopefully the flaws are minor in terms of general operation)
-> 
-> 
-> what's the point of moving rx handling into rx_poll then running it in a
-> tasklet? I've tested an older variant of that scheme from D-Link and it
-> doesn't perform as well as my patch. It looks to me like an attempt to
-> keep this version synced with the NAPI version of the driver, but it
-> doesn't actually work very well.
 
-This is a merge and test point.  The whole interrupt handler path is 
-getting updated after this.  (but thanks for the feedback, it is noted)
+Legend:
+
+Kernel									Time            	CPU
+2.4.20-pre7-rmap14a-xfs-uml-shawn12d(EXT2)       	
+2.4.20-pre7-rmap14a-xfs-uml-shawn12d(EXT3)            	
 
 
-> The functional part of my patch was just taking the tx handling from
-> d-link's driver and ditching the rx part.  That and merging in the
-> cleanups from Becker's driver; most notably ignoring the broken
-> IntrRxDone bit.
-
-
-Maybe you could show me that in broken-out patches :)
+On September 19, 2002 12:16 am, Shawn Starr wrote:
+> Sorry about the confusing email before. This should make more sense =)
+>
+> These results compare EXT3 against EXT2 with rmap using the contest tool
+> you can get it at: http://contest.kolivas.net
+>
+> These tests are from a Athlon MP 2000+ w/ 512MB RAM
+>
+> noload:
+>
+> Kernel									Time            	CPU
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            	259.47		99%
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            	267.66          	97%
+>
+> process load:
+>
+> Kernel                  							Time            	CPU
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            	318.91          	80%
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            	324.44          	79%
+>
+> io halfmem:
+>
+> Kernel                  							Time			CPU
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            	306.82          	87%
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            	461.74          	57%
+>
+> io full mem:
+>
+> Kernel									Time			CPU
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            	325.39          	82%
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            	411.47          	64%
+>
+> full logs of the tests are:
+>
+> WITH EXT2
+> ------------
+> noload Time: 259.47  CPU: 99%  Major Faults: 770937  Minor Faults: 1173705
+> process load Time: 318.91  CPU: 80%  Major Faults: 742261  Minor Faults:
+> 1169516
+> io halfmem Time: 306.82  CPU: 87%  Major Faults: 742000  Minor Faults:
+> 1169497 Was writing number 33 of a 257Mb sized io load file after 307
+> seconds io fullmem Time: 325.39  CPU: 82%  Major Faults: 742000  Minor
+> Faults: 1169494 Was writing number 16 of a 514Mb sized io load file after
+> 337 seconds mem load Time: 340.32  CPU: 79%  Major Faults: 743307  Minor
+> Faults: 1170011
+>
+>
+> WITH EXT3
+> -----------
+>
+> noload Time: 267.66  CPU: 97%  Major Faults: 771111  Minor Faults: 1173722
+> process load Time: 324.44  CPU: 79%  Major Faults: 742261  Minor Faults:
+> 1169518
+> io halfmem Time: 461.74  CPU: 57%  Major Faults: 742000  Minor Faults:
+> 1169496 Was writing number 34 of a 257Mb sized io load file after 465
+> seconds io fullmem Time: 411.47  CPU: 64%  Major Faults: 742000  Minor
+> Faults: 1169494 Was writing number 15 of a 514Mb sized io load file after
+> 425 seconds mem load Time: 333.99  CPU: 81%  Major Faults: 743320  Minor
+> Faults: 1170021
+>
+> NOTES:
+> ====
+>
+> As you can see, there's something DEFINATELY wrong here.  EXT3 is much
+> slower then EXT2. I converted the EXT3 disk back to EXT2 to do the second
+> test.
+>
+> Also, I specified no mount options for EXT3 (which means it uses ordered
+> mode). The journal was created with tune2fs -j /dev/hda#
+>
+>
+> From #Kernelnewbies (snip)
+> ==============
+> <ShawnCONSOLE> riel uses EXT3
+> <riel> my cpu is slower
+> <ShawnCONSOLE> but you have fast disks?
+> <riel> so it doesn't fall idle as quickly as yours, when waiting on the
+> disk <riel> not very fast ;)
+> <riel> old 8 GB IDE disk
+> <ShawnCONSOLE> so having a fast disk and a fast CPU causes the cpu to wait
+> longer cause the disk finishes its tasks much faster then the cpu expects?
+> <ShawnCONSOLE> mem load final test = 78%
+> <ShawnCONSOLE> so final numbers:
+> <ShawnCONSOLE> 99, 80%, 87%, 83%, 75%
+> <riel> yes, a very fast CPU falls idle more quickly
+> <riel> but it's very curious that ext3 is  that  much worse than ext2
+> <ShawnCONSOLE> thats much better.
+> <riel> definately worth pointing out to the ext3 maintainers.
 

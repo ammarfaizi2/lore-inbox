@@ -1,95 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265262AbSLXRNT>; Tue, 24 Dec 2002 12:13:19 -0500
+	id <S265506AbSLXR2h>; Tue, 24 Dec 2002 12:28:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265321AbSLXRNT>; Tue, 24 Dec 2002 12:13:19 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:9992 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S265262AbSLXRNR>; Tue, 24 Dec 2002 12:13:17 -0500
-Date: Tue, 24 Dec 2002 09:21:23 -0800
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Horrible drive performance under concurrent i/o jobs (dlh problem?)
-Message-ID: <20021224172122.GB30929@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <000d01c2a8b6$3d102e20$941e1c43@joe> <B7CC2AA8-1720-11D7-8DC6-000393950CC2@karlsbakk.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265578AbSLXR2h>; Tue, 24 Dec 2002 12:28:37 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:16073 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S265506AbSLXR2f>; Tue, 24 Dec 2002 12:28:35 -0500
+Date: Tue, 24 Dec 2002 09:36:43 -0800
+From: "Martin J. Bligh" <fletch@aracnet.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix 4 compile time warnings in 2.5.53
+Message-ID: <48180000.1040751403@titus>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <B7CC2AA8-1720-11D7-8DC6-000393950CC2@karlsbakk.net>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 24, 2002 at 10:18:52AM +0100, Roy Sigurd Karlsbakk wrote:
-> >SHORT ANSWER: Segregating partitions reduces seek time.  Period.
-> >
-> >LONG ANSWER: Reads and writes tend to be grouped within a partition.  
-> >For
-> >example, if you're starting a program, you're going to be doing a lot 
-> >of
-> >reads somewhere in the /usr partition.  If the program uses temporary 
-> >files,
-> >you're going to do a lot of reads & writes in the /tmp partition.  If 
-> >you're
-> >saving a file, you're going to be doing lots of writes to the /home
-> >partition.  Hence, since most disk accesses occur in groups within a
-> >partition, preference should be giving to reducing seek time WITHIN a
-> >partition, rather than reducing seek time BETWEEN partitions.
-> 
-> keep in mind that only around half of the seek time is because of the 
-> partition! Taking an IBM 120GXP as an example:
-> 
-> Average seek:				8.5ms
-> Full stroke seek:			15.0ms
-> Time to rotate disk one round:	1/(7200/60)*1000 = 8.3ms
+Fix the following warnings:
 
-I'm afraid your math is off.
+drivers/serial/core.c: In function `uart_get_divisor':
+drivers/serial/core.c:390: warning: `quot' might be used uninitialized in 
+this function
+net/ipv4/route.c: In function `rt_cache_seq_stop':
+net/ipv4/route.c:279: warning: unused variable `st'
+drivers/net/starfire.c: In function `netdev_close':
+drivers/net/starfire.c:1851: warning: unsigned int format, different type 
+arg (arg 2)
+drivers/net/starfire.c:1858: warning: unsigned int format, different type 
+arg (arg 2)
+arch/i386/kernel/smpboot.c:691: warning: `wakeup_secondary_via_INIT' 
+defined but not used
 
-The rotational frequency should be 7200*60/sec which makes
-for 2.31 us which would produce an average rotational
-latency of 1.16us if such a condition even still applies.
-My expectation is that the whole track is buffered starting
-from the first sector that syncs thereby making the time
-rotfreq + rotfreq/nsect or something similar.  In any case
-the rotational latency or frequency is orders of magnitude
-smaller than the seek time, even between adjacent
-tracks/cylinders.
+My build is now eerily quiet.
 
-If the the stated average seek is 50% of full stroke and not
-based on reality then 76% of the cost of an average seek is
-attributed to distance and likewise 87% of the cost of a
-full.  Based on that i'd say the seek distance is a much
-bigger player than you are assuming.  If it weren't the
-value of elevators would be much less.
 
-> 
-> Then, the sector you're looking for, will, by average, be half a round 
-> away from where you are, and thus, giving the minimum average seek time 
-> 8.3/2 = 4.15ms or something like half the seek time. Concidering this, 
-> you may gain a maximum <= 50% gain in using smaller partitions.
-> 
-> btw. anyone that knows the zone layout on IBM drives?
+M.
 
-Having chimed in i'll also mention that having the
-filesystems right-sized and small should produce better
-locality of reference for multiple files and large files
-given the tendency of our filesystems to spread their
-directories across the cylinders.  One big filesystem is as
-likely to have the assorted files spread from one end of the
-disk to the other as you will get with several smaller ones.
-Witness the discussions that introduce the orlov allocator
-to ext[23].
 
-As for the repartitioning when a filesystems outgrows its
-partition that is reason #1 for lvm.  Care should be taken
-though because lvm can also destroy locality through
-discontinuous extent allocation.
+diff -urpN -X /home/fletch/.diff.exclude virgin/arch/i386/kernel/smpboot.c 
+fix_numaq_warning/arch/i386/kernel/smpboot.c
+--- virgin/arch/i386/kernel/smpboot.c	Mon Dec 23 23:01:44 2002
++++ fix_numaq_warning/arch/i386/kernel/smpboot.c	Tue Dec 24 08:58:44 2002
+@@ -596,6 +596,8 @@ static inline void inquire_remote_apic(i
+ }
+ #endif
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
++#ifdef CONFIG_X86_NUMAQ
++
+ static int __init wakeup_secondary_via_NMI(int logical_apicid)
+ /*
+  * Poke the other CPU in the eye to wake it up. Remember that the normal
+@@ -644,6 +646,8 @@ static int __init wakeup_secondary_via_N
+ 	return (send_status | accept_status);
+ }
 
-		Remember Cernan and Schmitt
++#else /* ! CONFIG_X86_NUMAQ */
++
+ static int __init wakeup_secondary_via_INIT(int phys_apicid, unsigned long 
+start_eip)
+ {
+ 	unsigned long send_status = 0, accept_status = 0;
+@@ -766,6 +770,8 @@ static int __init wakeup_secondary_via_I
+
+ 	return (send_status | accept_status);
+ }
++
++#endif /* CONFIG_X86_NUMAQ */
+
+ extern unsigned long cpu_initialized;
+
+diff -urpN -X /home/fletch/.diff.exclude virgin/net/ipv4/route.c 
+fix_rtcache_warning/net/ipv4/route.c
+--- virgin/net/ipv4/route.c	Mon Dec 23 23:01:58 2002
++++ fix_rtcache_warning/net/ipv4/route.c	Tue Dec 24 09:21:00 2002
+@@ -275,11 +275,8 @@ static void *rt_cache_seq_next(struct se
+
+ static void rt_cache_seq_stop(struct seq_file *seq, void *v)
+ {
+-	if (v && v != (void *)1) {
+-		struct rt_cache_iter_state *st = seq->private;
+-
++	if (v && v != (void *)1)
+ 		rcu_read_unlock();
+-	}
+ }
+
+ static int rt_cache_seq_show(struct seq_file *seq, void *v)
+diff -urpN -X /home/fletch/.diff.exclude virgin/drivers/serial/core.c 
+fix_serial_warning/drivers/serial/core.c
+--- virgin/drivers/serial/core.c	Fri Dec 13 23:18:02 2002
++++ fix_serial_warning/drivers/serial/core.c	Tue Dec 24 08:56:28 2002
+@@ -396,7 +396,7 @@ uart_get_divisor(struct uart_port *port,
+ 		baud = uart_get_baud_rate(port, termios);
+ 		quot = uart_calculate_quot(port, baud);
+ 		if (quot)
+-			break;
++			return quot;
+
+ 		/*
+ 		 * Oops, the quotient was zero.  Try again with
+diff -urpN -X /home/fletch/.diff.exclude virgin/drivers/net/starfire.c 
+fix_starfire_warning/drivers/net/starfire.c
+--- virgin/drivers/net/starfire.c	Fri Dec 13 23:17:59 2002
++++ fix_starfire_warning/drivers/net/starfire.c	Tue Dec 24 09:18:12 2002
+@@ -1847,15 +1847,15 @@ static int netdev_close(struct net_devic
+
+ #ifdef __i386__
+ 	if (debug > 2) {
+-		printk("\n"KERN_DEBUG"  Tx ring at %8.8x:\n",
+-			   np->tx_ring_dma);
++		printk("\n"KERN_DEBUG"  Tx ring at %9.9Lx:\n",
++			   (u64) np->tx_ring_dma);
+ 		for (i = 0; i < 8 /* TX_RING_SIZE is huge! */; i++)
+ 			printk(KERN_DEBUG " #%d desc. %8.8x %8.8x -> %8.8x.\n",
+ 			       i, le32_to_cpu(np->tx_ring[i].status),
+ 			       le32_to_cpu(np->tx_ring[i].first_addr),
+ 			       le32_to_cpu(np->tx_done_q[i].status));
+-		printk(KERN_DEBUG "  Rx ring at %8.8x -> %p:\n",
+-		       np->rx_ring_dma, np->rx_done_q);
++		printk(KERN_DEBUG "  Rx ring at %9.9Lx -> %p:\n",
++		       (u64) np->rx_ring_dma, np->rx_done_q);
+ 		if (np->rx_done_q)
+ 			for (i = 0; i < 8 /* RX_RING_SIZE */; i++) {
+ 				printk(KERN_DEBUG " #%d desc. %8.8x -> %8.8x\n",
+

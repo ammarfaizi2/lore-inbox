@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272354AbRH3RVO>; Thu, 30 Aug 2001 13:21:14 -0400
+	id <S272357AbRH3Rc5>; Thu, 30 Aug 2001 13:32:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272352AbRH3RVE>; Thu, 30 Aug 2001 13:21:04 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:52452 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S272354AbRH3RU4>; Thu, 30 Aug 2001 13:20:56 -0400
-Importance: Normal
-Subject: Re: lcs ethernet driver source
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: arjan@fenrus.demon.nl (Arjan van de Ven), linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFA16538B8.61628554-ONC1256AB8.005D7C15@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Thu, 30 Aug 2001 19:20:04 +0200
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.6 |December 14, 2000) at
- 30/08/2001 19:20:13
+	id <S272358AbRH3Rcr>; Thu, 30 Aug 2001 13:32:47 -0400
+Received: from [209.218.224.101] ([209.218.224.101]:19848 "EHLO
+	mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S272360AbRH3Rcj>; Thu, 30 Aug 2001 13:32:39 -0400
+Message-ID: <000901c13179$be7b9ae0$6caaa8c0@kevin>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.9-ac1/2/3 allows multiple mounts of NFS filesystem on same mountpoint
+Date: Thu, 30 Aug 2001 10:32:29 -0700
+Organization: LSG, Inc.
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Accidentally <G> I mounted a filesystem from my server onto my workstation
+twice. Mount gave me no error....
 
-Alan Cox wrote:
+Both machines are kernel 2.4.9-ac3, both have NFSv3 support, server is using
+knfsd, mount is version 2.11b. I export /storage on the server, and mount it
+on /storage on my workstation.
 
->> Sorry, at this point we are not allowed to publish the source code of
-the
->> lcs and qeth drivers (due to the use of confidential hardware interface
->> specifications).  We make those modules available only in binary form
->> on our developerWorks web site.
->
->Is there any plan to change this ?
+When I boot the workstation, it automatically mounts /storage, so
+everything's fine. If I then issue a  "mount /storage" command, I don't get
+any error. df then reports two identical mounts for /storage. I can continue
+to multiple mount (tried up to five mounts). Each "umount /storage" takes
+away the most recent mount, with the last one performing a real unmount.
 
-This is not something we (the Linux for S/390 development team) can decide;
-it's up to the hardware groups that 'own' the LCS / QDIO specifications
-whether they allow to make these public.  As I said, at this point, we
-are not allowed to open the specs; while it is conceivable that this might
-change in the future, I'm not aware of any specific plan.
-
-(Please note that I'm in no way speaking for IBM here; that's just my
-personal opinion.)
-
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
+I can't, however, multiple mount any local filesystems (hard disk or CD-ROM
+based), and don't have anything else handy to try.
 

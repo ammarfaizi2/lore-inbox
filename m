@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136384AbREDNjB>; Fri, 4 May 2001 09:39:01 -0400
+	id <S136380AbREDNkv>; Fri, 4 May 2001 09:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136387AbREDNiu>; Fri, 4 May 2001 09:38:50 -0400
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:9056 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S136384AbREDNii>; Fri, 4 May 2001 09:38:38 -0400
-Subject: Re: Linux syscall speed -- was X15 rootin-tootin webserver
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <m14vUI0-001QM0C@mozart>
-In-Reply-To: <m14vUI0-001QM0C@mozart>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 04 May 2001 09:38:36 -0400
-Message-Id: <988983517.7746.0.camel@gromit>
-Mime-Version: 1.0
+	id <S136388AbREDNkm>; Fri, 4 May 2001 09:40:42 -0400
+Received: from [64.64.109.142] ([64.64.109.142]:14090 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S136380AbREDNkW>; Fri, 4 May 2001 09:40:22 -0400
+Message-ID: <3AF2B0EC.F576090F@didntduck.org>
+Date: Fri, 04 May 2001 09:38:52 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andreas Schwab <schwab@suse.de>
+CC: Keith Owens <kaos@ocs.com.au>, Todd Inglett <tinglett@vnet.ibm.com>,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: SMP races in proc with thread_struct
+In-Reply-To: <8541.988980403@ocs3.ocs-net> <jer8y52r92.fsf@hawking.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be a contingent of people on the LKML who think that it
-is appropriate to flame people off-list, in order to bask in their own
-superiority, or prove that they are smarter by pointing out that someone
-is an idiot, etc. I would figure that most intelligent people would
-simply ignore posts they don't like, rather than investing time and
-bandwidth compounding the perceived offense. But I'm apparently too
-optimistic on that point; any group of people the size of the LKML will
-always contain some juviniles. A great many of us have suffered their
-attention.
+Andreas Schwab wrote:
+> 
+> Keith Owens <kaos@ocs.com.au> writes:
+> 
+> |> On Fri, 04 May 2001 07:34:20 -0500,
+> |> Todd Inglett <tinglett@vnet.ibm.com> wrote:
+> |> >But this is where hell breaks loose.  Every process has a valid parent
+> |> >-- unless it is dead and nobody cares.  Process N has already exited and
+> |> >released from the tasklist while its parent was still alive.  There was
+> |> >no reason to reparent it.  It just got released.  So N's task_struct has
+> |> >a dangling ptr to its parent.  Nobody is holding the parent task_struct,
+> |> >either.  When the parent died memory for its task_struct was released.
+> |> >This is ungood.
+> |>
+> |> Wrap the reference to the parent task structure with exception table
+> |> recovery code, like copy_from_user().
+> 
+> Exception tables only protect accesses to user virtual memory.  Kernel
+> memory references must always be valid in the first place.
+> 
+> Andreas.
 
--M
+The virtual address being accessed is irrelevant.  It's the address of
+the faulting instruction that determines what the kernel will do if it
+can't deal with a page fault.  If the access was made from kernel mode
+the exception handler (if there is one) always gets invoked, otherwise
+it oopses.
 
-On 04 May 2001 11:21:48 +1000, Rusty Russell wrote:
-> In message <988856961.6355.1.camel@gromit> you write:
-> > According to tests performed at IBM:
-> > 
-> > http://www-106.ibm.com/developerworks/linux/library/l-rt1/
-> > 
-> > Linux's sycalls are a little more than twice as fast as those of Windows
-> 
-> This post was pretty much a waste of space, wasn't it?
-> 
-> > 2000. 0.75usec vs 2.0msec.
-> 
-> That would be 2,666 times.
-> 
-> Rusty.
-> --
-> Premature optmztion is rt of all evl. --DK
+--
 
+				Brian Gerst

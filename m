@@ -1,101 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVANCoh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVANCxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbVANCoh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 21:44:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVANCog
+	id S261865AbVANCxo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 21:53:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVANCxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 21:44:36 -0500
-Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:15549 "EHLO
-	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261868AbVANCn0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 21:43:26 -0500
-Message-ID: <41E7319A.202@kolivas.org>
-Date: Fri, 14 Jan 2005 13:42:34 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: utz lehmann <lkml@s2y4n2c.de>
-Cc: Lee Revell <rlrevell@joe-job.com>, Arjan van de Ven <arjanv@redhat.com>,
-       "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
-       Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <20050111214152.GA17943@devserv.devel.redhat.com>	 <200501112251.j0BMp9iZ006964@localhost.localdomain>	 <20050111150556.S10567@build.pdx.osdl.net> <87y8ezzake.fsf@sulphur.joq.us>	 <20050112074906.GB5735@devserv.devel.redhat.com>	 <87oefuma3c.fsf@sulphur.joq.us>	 <20050113072802.GB13195@devserv.devel.redhat.com>	 <878y6x9h2d.fsf@sulphur.joq.us>	 <20050113210750.GA22208@devserv.devel.redhat.com>	 <1105651508.3457.31.camel@krustophenia.net>	 <1105668319.15692.16.camel@segv.aura.of.mankind>	 <41E729A9.7060005@kolivas.org> <1105670137.15692.36.camel@segv.aura.of.mankind>
-In-Reply-To: <1105670137.15692.36.camel@segv.aura.of.mankind>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig2BFD32DE6B4184D4E8483B25"
+	Thu, 13 Jan 2005 21:53:44 -0500
+Received: from ppp242-222.lns2.adl2.internode.on.net ([203.122.242.222]:61124
+	"EHLO hank.shelbyville.oz") by vger.kernel.org with ESMTP
+	id S261865AbVANCxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 21:53:38 -0500
+Date: Fri, 14 Jan 2005 13:23:11 +1030
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Code to snatch a device from a generic driver
+Message-ID: <20050114025310.GA6447@hank.shelbyville.oz>
+References: <20050111024050.GA3255@hank.shelbyville.oz> <20050111193455.GE4623@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050111193455.GE4623@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Ron <ron@debian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig2BFD32DE6B4184D4E8483B25
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, Jan 11, 2005 at 11:34:56AM -0800, Greg KH wrote:
+> No, try something like the following.  It creates a sysfs file that you
+> can write to to unbind the device manually.
 
-utz lehmann wrote:
-> On Fri, 2005-01-14 at 13:08 +1100, Con Kolivas wrote:
+Thanks!  That's a potentially treacherous little toy to add to my
+system, but it does work as advertised and it took me on a very nice
+tour of appropriate internals.
+
+> The binding a driver to a device manually is left as an exercise to the
+> reader :)
 > 
->>utz lehmann wrote:
->>>Just an idea. What about throttling runaway RT tasks?
->>>If the system spend more than 98% in RT tasks for 5s consider this as a
->>>_fatal error_. Print an error message and throttle RT tasks by inserting
->>>ticks where only SCHED_OTHER tasks allowed. For a limit of 98% this
->>>means one SCHED_OTHER only tick all 50 ticks.
->>>
->>>The limit and timeout should be configurable and of course it can be
->>>disabled.
->>>
->>>I know this is against RT task preempt all SCHED_OTHER but this is only
->>>for a fatal system state to be able to recover sanely. A locked up
->>>machine is is the worse alternative.
->>
->>There is a patch in -mm currently designed to use a sysrq key 
->>combination which converts all real time tasks to sched normal to save 
->>you if you desire in a lockup situation. We do want to preserve RT 
->>scheduling behaviour at all times without caveats for privileged users.
-> 
-> 
-> The sysrq is already in 2.6.10. I had to use it the last days a few
-> times. But it does help if you have no access to the console.
-> 
-> The RT throttling idea is not to change the behavior in normal
-> conditions. It's only for a fatal system state. If you have a runaway RT
-> task you can't guarantee the system is work properly anyway. It's
-> blocking vital kernel threads, filesystems, swap, keyboard, ...
+> Seriously, I'm working on adding this to the driver core so you don't
+> have to do stuff like this in drivers.
 
-I understand fully your concern. If such a thing were to be introduced 
-it would have to be disabled by default. Since I'm looking at 
-implementing such throttling for user RT tasks, it should be trivial to 
-add it to other RT tasks, and have 100% as the default cpu limit. How 
-does that sound?
+Yes, I didn't seriously intend people should paste such goop into their
+modules, right now I'm just digging my way through to the desired
+functionality -- armed only with some rusty memories of 2.4, a broken
+hacksaw blade, and grep ...  This should certainly be a core library
+function of some form by the time we are through.
 
-> It's a bit like out of memory. You can do nothing and panic. Or trying
-> something bad (killing processes) which is hopefully better as the
-> former.
-> btw: Are RT tasks excluded by the oom killer?
+My next candidate is shown below.  Aside from the (relatively) minor
+things commented there (and any that I still don't see), it seems to
+have one major deficiency still, which I'll call 'warmplug' support,
+(being somewhere between the increasingly ill-named hot and 'cold' plug
+problems)
 
-I haven't looked. VM hackers?
+It will correctly snatch a device from a generic driver when the module
+is loaded.  This covers 'first time users' installing the module into a
+running kernel, and likewise subsequent hotplug operations when the module
+is not installed at the time the device is plugged in.  But it fails
+when both the generic module and the specialised module are already
+loaded and the generic module was registered with the usbcore first.
 
-Con
+In that case the generic module will ack the probe and the more
+specialised module will never be queried about the device (and hence
+have no opportunity to steal it).  The user must force a module reload
+for the later module to get a chance to grab it.  In the case of the
+wacom device, it appears to be able to lose this race from a cold boot
+on a UP machine.  If the device is discovered during boot both modules
+will be probed and installed but all modules fail to initialise it at
+that time, since other required things are still cycling up.  Once
+everyone is on the same page and the device is ready to be bound,
+the modules are already loaded and so the problem above plays out.
 
---------------enig2BFD32DE6B4184D4E8483B25
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Which I think takes us back to a more basic problem...  that I need
+to register this intention to want a device more than some generic
+driver does with the usb core itself -- so it can dispatch the probe
+calls in a more ordered fashion from most specialised to most generic
+candidates for a particular device, rather than just stopping with the
+first driver that says it can handle it in some form.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+I'm going to look at this more today.  All thoughts welcome.  Code below
+is for vanilla 2.6.10 and still using the subsys.rwsem for now.
 
-iD8DBQFB5zGaZUg7+tp6mRURAmoQAJ0bW9hFeGMqwVo2ahY2SEOLjAIIygCfWjBu
-/TctjdOsr/2RE8xoYPFTpoo=
-=4v4v
------END PGP SIGNATURE-----
+cheers,
+Ron
 
---------------enig2BFD32DE6B4184D4E8483B25--
+
+/* Module side boilerplate
+*/
+static int __init cpad_init(void)
+{
+	int result = usb_register(&cpad_driver);
+	if (result == 0) {
+		info(DRIVER_DESC " " DRIVER_VERSION);
+		repossess_devices(&cpad_driver, cpad_idtable);
+	} else
+		err("usb_register failed, error number: %d", result);
+
+	return result;
+}
+
+/* Snatch all devices listed by @id from (hopefully) more generic drivers
+   and bind them to @driver.  @id may be the same list passed to
+   MODULE_DEVICE_TABLE, or a separate list subject to this more aggressive
+   binding.
+*/
+static void repossess_devices(struct usb_driver *udrv,
+                              struct usb_device_id *id)
+{
+	while (id->idVendor)
+	{
+		// XXX Not enough, we need to find ALL devices, not just the
+		//     first of any particular model.  Messy to try and fix
+		//     here in the module though, so don't yet.
+
+		struct usb_device *udev = usb_find_device(id->idVendor,
+							  id->idProduct);
+
+		if (udev)
+		{
+			down_write(&udev->dev.bus->subsys.rwsem);
+			usb_lock_device(udev);
+
+			// see above
+			struct usb_interface *interface = usb_ifnum_to_if(udev,0);
+
+			if (interface->dev.driver &&
+			    interface->dev.driver->owner != udrv->driver.owner)
+			{
+			    if (interface && usb_interface_claimed(interface))
+				    device_release_driver(&interface->dev);
+
+			    driver_probe_device(&udrv->driver, &interface->dev);
+			}
+
+			usb_unlock_device(udev);
+			up_write(&udev->dev.bus->subsys.rwsem);
+
+			usb_put_dev(udev);
+		}
+		++id;
+	}
+}
+
+

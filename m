@@ -1,163 +1,201 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261712AbSJQAHO>; Wed, 16 Oct 2002 20:07:14 -0400
+	id <S261713AbSJQAHW>; Wed, 16 Oct 2002 20:07:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261713AbSJQAHO>; Wed, 16 Oct 2002 20:07:14 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:63989 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S261712AbSJQAHL>; Wed, 16 Oct 2002 20:07:11 -0400
-Date: Wed, 16 Oct 2002 17:04:03 -0700
-From: Chris Wright <chris@wirex.com>
-To: Matt Reppert <arashi@arashi.yi.org>
-Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AFS compile breakage in 2.5.43
-Message-ID: <20021016170403.A28039@figure1.int.wirex.com>
-Mail-Followup-To: Matt Reppert <arashi@arashi.yi.org>, dhowells@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <20021016180350.52bc09ad.arashi@arashi.yi.org>
+	id <S261715AbSJQAHW>; Wed, 16 Oct 2002 20:07:22 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:30629 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261713AbSJQAHQ>;
+	Wed, 16 Oct 2002 20:07:16 -0400
+Subject: [PATCH] linux-2.4.20-pre11_summit_A0 (1/3 - cleanups)
+From: john stultz <johnstul@us.ibm.com>
+To: marcelo <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>, James <jamesclv@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+In-Reply-To: <1034809328.19981.219.camel@cog>
+References: <1034809328.19981.219.camel@cog>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 16 Oct 2002 17:05:04 -0700
+Message-Id: <1034813105.19094.244.camel@cog>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021016180350.52bc09ad.arashi@arashi.yi.org>; from arashi@arashi.yi.org on Wed, Oct 16, 2002 at 06:03:50PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Matt Reppert (arashi@arashi.yi.org) wrote:
-> Is this valid? gcc-2.95.3 doesn't like it at all.
+Marcelo, all,
 
-Yes, it's valid for newer compilers.  I have a similar patch that also
-updates the varargs macro stuff used in AFS (and rxrpc) (for akpm's "crusty"
-compilers ;-)
+	I'm probably pressing my luck w/ this, but since the tree doesn't say
+-rc, I might as well send this off. This is the first chunk of the
+clustered apic changes needed for summit (all of which comes from James
+Cleverdon's summit patch. Thank him, blame me). This patch is mainly
+cleanups, but adds some code to setup phys_cpu_present_map more
+generally for clustered apic systems. It is also dependent on the
+clustered-apic-tweaks_A0 patch I sent out earlier today.
 
-thanks,
--chris
+Two more patches should follow.
 
---- 2.5.43/fs/afs/dir.c.egcs	Wed Oct 16 16:57:40 2002
-+++ 2.5.43/fs/afs/dir.c	Wed Oct 16 16:57:51 2002
-@@ -72,7 +72,7 @@
- 		u8	name[16];
- 		u8	overflow[4];	/* if any char of the name (inc NUL) reaches here, consume
- 					 * the next dirent too */
--	};
-+	} de;
- 	u8	extended_name[32];
- } afs_dirent_t;
+please consider for acceptance.
+
+thanks
+-john
+
+diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
+--- a/arch/i386/kernel/mpparse.c	Wed Oct 16 16:55:58 2002
++++ b/arch/i386/kernel/mpparse.c	Wed Oct 16 16:55:58 2002
+@@ -65,9 +65,12 @@
  
-@@ -258,7 +258,7 @@
+ /* Bitmask of physically existing CPUs */
+ unsigned long phys_cpu_present_map;
++unsigned long logical_cpu_present_map;
  
- 		/* got a valid entry */
- 		dire = &block->dirents[offset];
--		nlen = strnlen(dire->name,sizeof(*block) - offset*sizeof(afs_dirent_t));
-+		nlen = strnlen(dire->de.name,sizeof(*block) - offset*sizeof(afs_dirent_t));
+ unsigned char esr_disable = 0;
  
- 		_debug("ENT[%u.%u]: %s %u \"%.*s\"\n",
- 		       blkoff/sizeof(afs_dir_block_t),offset,
-@@ -290,11 +290,11 @@
- 
- 		/* found the next entry */
- 		ret = filldir(cookie,
--			      dire->name,
-+			      dire->de.name,
- 			      nlen,
- 			      blkoff + offset * sizeof(afs_dirent_t),
--			      ntohl(dire->vnode),
--			      filldir==afs_dir_lookup_filldir ? dire->unique : DT_UNKNOWN);
-+			      ntohl(dire->de.vnode),
-+			      filldir==afs_dir_lookup_filldir ? dire->de.unique : DT_UNKNOWN);
- 		if (ret<0) {
- 			_leave(" = 0 [full]");
- 			return 0;
---- 2.5.43/fs/afs/internal.h.egcs	Wed Oct 16 16:57:40 2002
-+++ 2.5.43/fs/afs/internal.h	Wed Oct 16 17:07:17 2002
-@@ -21,24 +21,24 @@
++unsigned char raw_phys_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
++
  /*
-  * debug tracing
+  * Intel MP BIOS table parsing routines:
   */
--#define kenter(FMT,...)	printk("==> %s("FMT")\n",__FUNCTION__,##__VA_ARGS__)
--#define kleave(FMT,...)	printk("<== %s()"FMT"\n",__FUNCTION__,##__VA_ARGS__)
--#define kdebug(FMT,...)	printk(FMT"\n",##__VA_ARGS__)
--#define kproto(FMT,...)	printk("### "FMT"\n",##__VA_ARGS__)
--#define knet(FMT,...)	printk(FMT"\n",##__VA_ARGS__)
-+#define kenter(FMT, VA...) printk("==> %s("FMT")\n", __FUNCTION__ , ##VA)
-+#define kleave(FMT, VA...) printk("<== %s()"FMT"\n", __FUNCTION__ , ##VA)
-+#define kdebug(FMT, VA...) printk(FMT"\n", ##VA)
-+#define kproto(FMT, VA...) printk("### "FMT"\n", ##VA)
-+#define knet(FMT, VA...)   printk(FMT"\n", ##VA)
+@@ -231,11 +234,9 @@
+ 	}
+ 	ver = m->mpc_apicver;
  
- #if 0
--#define _enter(FMT,...)	kenter(FMT,##__VA_ARGS__)
--#define _leave(FMT,...)	kleave(FMT,##__VA_ARGS__)
--#define _debug(FMT,...)	kdebug(FMT,##__VA_ARGS__)
--#define _proto(FMT,...)	kproto(FMT,##__VA_ARGS__)
--#define _net(FMT,...)	knet(FMT,##__VA_ARGS__)
-+#define _enter(FMT, VA...) kenter(FMT, ##VA)
-+#define _leave(FMT, VA...) kleave(FMT, ##VA)
-+#define _debug(FMT, VA...) kdebug(FMT, ##VA)
-+#define _proto(FMT, VA...) kproto(FMT, ##VA)
-+#define _net(FMT, VA...)   knet(FMT, ##VA)
- #else
--#define _enter(FMT,...)	do { } while(0)
--#define _leave(FMT,...)	do { } while(0)
--#define _debug(FMT,...)	do { } while(0)
--#define _proto(FMT,...)	do { } while(0)
--#define _net(FMT,...)	do { } while(0)
-+#define _enter(FMT, VA...) do { } while(0)
-+#define _leave(FMT, VA...) do { } while(0)
-+#define _debug(FMT, VA...) do { } while(0)
-+#define _proto(FMT, VA...) do { } while(0)
-+#define _net(FMT, VA...)   do { } while(0)
- #endif
+-	if (clustered_apic_mode == CLUSTERED_APIC_NUMAQ) {
+-		phys_cpu_present_map |= (logical_apicid&0xf) << (4*quad);
+-	} else {
+-		phys_cpu_present_map |= 1 << m->mpc_apicid;
+-	}
++	logical_cpu_present_map |= 1 << (num_processors-1);
++ 	phys_cpu_present_map |= apicid_to_phys_cpu_present(m->mpc_apicid);
++ 
+ 	/*
+ 	 * Validate version
+ 	 */
+@@ -244,6 +245,7 @@
+ 		ver = 0x10;
+ 	}
+ 	apic_version[m->mpc_apicid] = ver;
++	raw_phys_apicid[num_processors - 1] = m->mpc_apicid;
+ }
  
- #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,0)
---- 2.5.43/net/rxrpc/internal.h.egcs	Wed Oct 16 16:57:40 2002
-+++ 2.5.43/net/rxrpc/internal.h	Wed Oct 16 17:08:49 2002
-@@ -29,24 +29,24 @@
+ static void __init MP_bus_info (struct mpc_config_bus *m)
+@@ -511,6 +513,7 @@
+ 
+ 	if (clustered_apic_mode){
+ 		esr_disable = 1;
++		phys_cpu_present_map = logical_cpu_present_map;
+ 	}
+ 
+ 	if (!num_processors)
+diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
+--- a/arch/i386/kernel/smpboot.c	Wed Oct 16 16:55:58 2002
++++ b/arch/i386/kernel/smpboot.c	Wed Oct 16 16:55:58 2002
+@@ -525,12 +525,12 @@
+ 	int apicid, cpu;
+ 
+ 	for (apicid = 0; apicid < MAX_APICID; apicid++) {
+-		physical_apicid_2_cpu[apicid] = -1;
+-		logical_apicid_2_cpu[apicid] = -1;
++		physical_apicid_2_cpu[apicid] = BAD_APICID;
++		logical_apicid_2_cpu[apicid] = BAD_APICID;
+ 	}
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-		cpu_2_physical_apicid[cpu] = -1;
+-		cpu_2_logical_apicid[cpu] = -1;
++		cpu_2_physical_apicid[cpu] = BAD_APICID;
++		cpu_2_logical_apicid[cpu] = BAD_APICID;
+ 	}
+ }
+ 
+@@ -540,7 +540,7 @@
+  * else physical apic ids
+  */
+ {
+-	if (clustered_apic_mode) {
++	if (clustered_apic_mode == CLUSTERED_APIC_NUMAQ) {
+ 		logical_apicid_2_cpu[apicid] = cpu;	
+ 		cpu_2_logical_apicid[cpu] = apicid;
+ 	} else {
+@@ -555,12 +555,12 @@
+  * else physical apic ids
+  */
+ {
+-	if (clustered_apic_mode) {
+-		logical_apicid_2_cpu[apicid] = -1;	
+-		cpu_2_logical_apicid[cpu] = -1;
++	if (clustered_apic_mode == CLUSTERED_APIC_NUMAQ) {
++		logical_apicid_2_cpu[apicid] = BAD_APICID;
++		cpu_2_logical_apicid[cpu] = BAD_APICID;
+ 	} else {
+-		physical_apicid_2_cpu[apicid] = -1;	
+-		cpu_2_physical_apicid[cpu] = -1;
++		physical_apicid_2_cpu[apicid] = BAD_APICID;
++		cpu_2_physical_apicid[cpu] = BAD_APICID;
+ 	}
+ }
+ 
+@@ -785,7 +785,7 @@
+ 	unsigned long boot_error = 0;
+ 	int timeout, cpu;
+ 	unsigned long start_eip;
+-	unsigned short nmi_high, nmi_low;
++	unsigned short nmi_high = 0, nmi_low = 0;
+ 
+ 	cpu = ++cpucount;
+ 	/*
+@@ -1111,7 +1111,7 @@
+ 		if (apicid == boot_cpu_apicid)
+ 			continue;
+ 
+-		if (!(phys_cpu_present_map & (1 << bit)))
++		if (!(phys_cpu_present_map & (1ul << bit)))
+ 			continue;
+ 		if ((max_cpus >= 0) && (max_cpus <= cpucount+1))
+ 			continue;
+@@ -1122,9 +1122,9 @@
+ 		 * Make sure we unmap all failed CPUs
+ 		 */
+ 		if ((boot_apicid_to_cpu(apicid) == -1) &&
+-				(phys_cpu_present_map & (1 << bit)))
+-			printk("CPU #%d not responding - cannot use it.\n",
+-								apicid);
++				(phys_cpu_present_map & (1ul << bit)))
++			printk("CPU #%d/0x%02x not responding - cannot use it.\n",
++								bit, apicid);
+ 	}
+ 
+ 	/*
+diff -Nru a/include/asm-i386/smpboot.h b/include/asm-i386/smpboot.h
+--- a/include/asm-i386/smpboot.h	Wed Oct 16 16:55:58 2002
++++ b/include/asm-i386/smpboot.h	Wed Oct 16 16:55:58 2002
+@@ -42,13 +42,15 @@
+ #endif /* CONFIG_X86_LOCAL_APIC */
+ 
+ #define apic_broadcast_id (APIC_BROADCAST_ID_APIC)
+-
++#define BAD_APICID 0xFFu
+ 
+ #define TRAMPOLINE_LOW phys_to_virt((clustered_apic_mode == CLUSTERED_APIC_NUMAQ)?0x8:0x467)
+ #define TRAMPOLINE_HIGH phys_to_virt((clustered_apic_mode == CLUSTERED_APIC_NUMAQ)?0xa:0x469)
+ 
+ #define boot_cpu_apicid ((clustered_apic_mode == CLUSTERED_APIC_NUMAQ)?boot_cpu_logical_apicid:boot_cpu_physical_apicid)
+ 
++extern unsigned char raw_phys_apicid[NR_CPUS];
++
  /*
-  * debug tracing
+  * How to map from the cpu_present_map
   */
--#define kenter(FMT,...)	printk("==> %s("FMT")\n",__FUNCTION__,##__VA_ARGS__)
--#define kleave(FMT,...)	printk("<== %s()"FMT"\n",__FUNCTION__,##__VA_ARGS__)
--#define kdebug(FMT,...)	printk("    "FMT"\n",##__VA_ARGS__)
--#define kproto(FMT,...)	printk("### "FMT"\n",##__VA_ARGS__)
--#define knet(FMT,...)	printk("    "FMT"\n",##__VA_ARGS__)
-+#define kenter(FMT, VA...)	printk("==> %s("FMT")\n", __FUNCTION__ , ##VA)
-+#define kleave(FMT, VA...)	printk("<== %s()"FMT"\n", __FUNCTION__ , ##VA)
-+#define kdebug(FMT, VA...)	printk("    "FMT"\n", ##VA)
-+#define kproto(FMT, VA...)	printk("### "FMT"\n", ##VA)
-+#define knet(FMT, VA...)	printk("    "FMT"\n", ##VA)
+@@ -57,6 +59,13 @@
+ 	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
+ 		return (mps_cpu/4)*16 + (1<<(mps_cpu%4));
+ 	return mps_cpu;
++}
++
++static inline unsigned long apicid_to_phys_cpu_present(int apicid)
++{
++	if(clustered_apic_mode)
++		return 1UL << (((apicid >> 4) << 2) + (apicid & 0x3));
++	return 1UL << apicid;
+ }
  
- #if 0
--#define _enter(FMT,...)	kenter(FMT,##__VA_ARGS__)
--#define _leave(FMT,...)	kleave(FMT,##__VA_ARGS__)
--#define _debug(FMT,...)	kdebug(FMT,##__VA_ARGS__)
--#define _proto(FMT,...)	kproto(FMT,##__VA_ARGS__)
--#define _net(FMT,...)	knet(FMT,##__VA_ARGS__)
-+#define _enter(FMT, VA...)	kenter(FMT,##VA)
-+#define _leave(FMT, VA...)	kleave(FMT,##VA)
-+#define _debug(FMT, VA...)	kdebug(FMT,##VA)
-+#define _proto(FMT, VA...)	kproto(FMT,##VA)
-+#define _net(FMT, VA...)	knet(FMT,##VA)
- #else
--#define _enter(FMT,...)	do { if (rxrpc_ktrace) kenter(FMT,##__VA_ARGS__); } while(0)
--#define _leave(FMT,...)	do { if (rxrpc_ktrace) kleave(FMT,##__VA_ARGS__); } while(0)
--#define _debug(FMT,...)	do { if (rxrpc_kdebug) kdebug(FMT,##__VA_ARGS__); } while(0)
--#define _proto(FMT,...)	do { if (rxrpc_kproto) kproto(FMT,##__VA_ARGS__); } while(0)
--#define _net(FMT,...)	do { if (rxrpc_knet)   knet  (FMT,##__VA_ARGS__); } while(0)
-+#define _enter(FMT, VA...)	do { if (rxrpc_ktrace) kenter(FMT, ##VA); } while(0)
-+#define _leave(FMT, VA...)	do { if (rxrpc_ktrace) kleave(FMT, ##VA); } while(0)
-+#define _debug(FMT, VA...)	do { if (rxrpc_kdebug) kdebug(FMT, ##VA); } while(0)
-+#define _proto(FMT, VA...)	do { if (rxrpc_kproto) kproto(FMT, ##VA); } while(0)
-+#define _net(FMT, VA...)	do { if (rxrpc_knet)   knet  (FMT, ##VA); } while(0)
- #endif
- 
- static inline void rxrpc_discard_my_signals(void)
---- 2.5.43/net/rxrpc/main.c.egcs	Wed Oct 16 16:57:40 2002
-+++ 2.5.43/net/rxrpc/main.c	Wed Oct 16 16:57:51 2002
-@@ -123,5 +123,5 @@
- 	__RXACCT(printk("Outstanding Peers      : %d\n",atomic_read(&rxrpc_peer_count)));
- 	__RXACCT(printk("Outstanding Transports : %d\n",atomic_read(&rxrpc_transport_count)));
- 
--	kleave();
-+	kleave("");
- } /* end rxrpc_cleanup() */
+ #define physical_to_logical_apicid(phys_apic) ( (1ul << (phys_apic & 0x3)) | (phys_apic & 0xF0u) )
+

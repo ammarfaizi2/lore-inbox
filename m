@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319673AbSIMPhb>; Fri, 13 Sep 2002 11:37:31 -0400
+	id <S319674AbSIMPmn>; Fri, 13 Sep 2002 11:42:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319674AbSIMPhb>; Fri, 13 Sep 2002 11:37:31 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:64783
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319673AbSIMPhb>; Fri, 13 Sep 2002 11:37:31 -0400
-Date: Fri, 13 Sep 2002 08:40:24 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Lost Interrupts, if you have them ...
-Message-ID: <Pine.LNX.4.10.10209130833140.29877-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S319679AbSIMPmn>; Fri, 13 Sep 2002 11:42:43 -0400
+Received: from mnh-1-09.mv.com ([207.22.10.41]:3333 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S319674AbSIMPmm>;
+	Fri, 13 Sep 2002 11:42:42 -0400
+Message-Id: <200209131651.LAA02716@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net,
+       Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>
+Subject: Re: [uml-user] Re: [reiserfs-dev] Re: UML 2.5.34 
+In-Reply-To: Your message of "Fri, 13 Sep 2002 17:31:24 +0400."
+             <15745.59564.28543.921212@laputa.namesys.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Fri, 13 Sep 2002 11:51:57 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nikita@Namesys.COM said:
+> By the way, I am talking about Linus BK tree, rather than patches you
+> have posted.
 
-If you have this problem w/ the -ac patches or any other version, I want
-to know.  Please contact offline as I will ask you to send a list of
-information.  There is a lot of noise and I am searching for the signal
-part of the issue.
+It only just occurred to me that the breakage is likely due to stuff that
+wasn't in 2.5.34, which I haven't seen yet since I haven't pulled the latest
+Linus tree.
 
-I can only find two settings which can cause the issue predictable.
-hdparm -c2 or -c3 /dev/hdX
+That being the case, thanks for the heads-up and the patch.
 
-I can not reproduce the lost interrupts at some of the reported rates
-recently.  I can produce them under certain situations, but not at a
-predicatble rate.  This is not a simple race to find.
-
-It is looking like a possible OS v/s device race for interrupt delivery.
-More likely the device issues the interrupt w/ out the handler being
-armed.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
+				Jeff
 

@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267611AbSIRTn6>; Wed, 18 Sep 2002 15:43:58 -0400
+	id <S267613AbSIRTtL>; Wed, 18 Sep 2002 15:49:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267613AbSIRTn5>; Wed, 18 Sep 2002 15:43:57 -0400
-Received: from smtp2.sooninternet.net ([212.246.17.84]:34267 "EHLO
-	smtp2.sooninternet.net") by vger.kernel.org with ESMTP
-	id <S267611AbSIRTn4>; Wed, 18 Sep 2002 15:43:56 -0400
-Date: Wed, 18 Sep 2002 22:48:41 +0300
-From: Kari Hameenaho <khaho@koti.soon.fi>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.36 X freezes and input problems
-Message-Id: <20020918224841.74cc56aa.khaho@koti.soon.fi>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S267844AbSIRTtL>; Wed, 18 Sep 2002 15:49:11 -0400
+Received: from packet.digeo.com ([12.110.80.53]:37623 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267613AbSIRTtK>;
+	Wed, 18 Sep 2002 15:49:10 -0400
+Message-ID: <3D88D9DE.2FB9A23D@digeo.com>
+Date: Wed, 18 Sep 2002 12:54:06 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mark_H_Johnson@raytheon.com
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, owner-linux-mm@kvack.org
+Subject: Re: [PATCH] recognize MAP_LOCKED in mmap() call
+References: <OFC0C42F8D.E1325D58-ON86256C38.00695CD8@hou.us.ray.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Sep 2002 19:54:05.0979 (UTC) FILETIME=[25204EB0:01C25F4D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mark_H_Johnson@raytheon.com wrote:
+> 
+> Andrew Morton wrote:
+> >(SuS really only anticipates that mmap needs to look at prior mlocks
+> >in force against the address range.  It also says
+> >
+> >     Process memory locking does apply to shared memory regions,
+> >
+> >and we don't do that either.  I think we should; can't see why SuS
+> >requires this.)
+> 
+> Let me make sure I read what you said correctly. Does this mean that Linux
+> 2.4 (or 2.5) kernels do not lock shared memory regions if a process uses
+> mlockall?
 
-Without preempt kernel does boot, but freeze after some use (less than minute) in X.
+Linux does lock these regions.  SuS seems to imply that we shouldn't.
+But we should.
 
-The last messages before hang are:
-Sep 18 19:57:17 khaho kernel: MTRR: setting reg 1
-Sep 18 19:57:20 khaho last message repeated 13 times
+> If not, that is *really bad* for our real time applications. We don't want
+> to take a page fault while running some 80hz task, just because some
+> non-real time application tried to use what little physical memory we allow
+> for the kernel and all other applications.
+> 
+> I asked a related question about a week ago on linux-mm and didn't get a
+> response. Basically, I was concerned that top did not show RSS == Size when
+> mlockall(MCL_CURRENT|MCL_FUTURE) was called. Could this explain the
+> difference or is there something else that I'm missing here?
+> 
 
-Previously  MTRR messages:
-Sep 18 19:57:07 khaho kernel: mtrr: your CPUs had inconsistent fixed MTRR settings
-Sep 18 19:57:07 khaho kernel: mtrr: probably your BIOS does not setup all CPUs
-
-Disabling MTRR makes the system work, I am writing this mail on 2.5.36.  
-
-MTRR (and everything else too) did work in this machine in 2.4.18*, 2.4.19*, 2.4.20-pre*, 2.4.20-pre*-ac* and in 2.5.x series at least upto 2.5.31.
-
--------------------------
-
-New input drivers do also have some problems in this machine, mouse pointer 
-jumping sometimes and focus then too. Keyboard and mouse with PS/2 connection, 
-but wireless (Logitech Desktop Pro). 
-
-Some messsages from those drivers too at boot time:
-Sep 18 19:57:07 khaho kernel: mice: PS/2 mouse device common for all mice
-Sep 18 19:57:07 khaho kernel: input: PS2++ Logitech Mouse on isa0060/serio1
-Sep 18 19:57:07 khaho kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
-Sep 18 19:57:07 khaho kernel: input: AT Set 2 keyboard on isa0060/serio0
-Sep 18 19:57:07 khaho kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
-...
-Sep 18 19:57:07 khaho kernel: psmouse.c: Received PS2++ packet #0, but don't know how to handle.
-Sep 18 19:57:07 khaho kernel: psmouse.c: Received PS2++ packet #0, but don't know how to handle.
-
-------------------------
-
-System is MSI K7D Master-L Dual Athlon MPX with 2 MP 1900+ CPUs, 512 MB ECC RAM, 
-3ware RAID controller and Matrox G550 display controller. 
-
-Distribution is debian woody, so gcc is  "gcc version 2.95.4 20011002 (Debian prerelease)".  
-XFree version is 4.1, but driver is from Matrox site. The original driver from debian did 
-not work with G550.
-
--------------------------
-
-Feel free to ask for more configuration details if you're interested.
-
----
-Kari Hämeenaho
+That mlockall should have faulted everything in.  It could be an
+accounting bug, or it could be a bug.  That's not an aspect which
+gets tested a lot.  I'll take a look.

@@ -1,295 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVAMPlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVAMPl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbVAMPlc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 10:41:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVAMPkd
+	id S261674AbVAMPl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 10:41:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbVAMPiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 10:40:33 -0500
-Received: from mgw-x4.nokia.com ([131.228.20.27]:13297 "EHLO mgw-x4.nokia.com")
-	by vger.kernel.org with ESMTP id S261666AbVAMPf3 (ORCPT
+	Thu, 13 Jan 2005 10:38:10 -0500
+Received: from styx.suse.cz ([82.119.242.94]:38865 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261665AbVAMPfG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 10:35:29 -0500
-X-Scanned: Thu, 13 Jan 2005 17:43:30 +0200 Nokia Message Protector V1.3.34 2004121512 - RELEASE
-Subject: [PATCH] Updated: support for gzipped (ELF) core dumps
-From: Jan Frey <jan.frey@nokia.com>
-To: ext Shaheed <srhaque@iee.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1105617091.830.27.camel@borcx178>
-References: <200501081727.52637.srhaque@iee.org>
-	 <1105617091.830.27.camel@borcx178>
-Content-Type: multipart/mixed; boundary="=-B6BoiGZvkPwAkTCBraXO"
-Organization: Nokia-NRC/Bochum
-Message-Id: <1105630129.830.54.camel@borcx178>
+	Thu, 13 Jan 2005 10:35:06 -0500
+Date: Thu, 13 Jan 2005 16:36:44 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/16] New set of input patches
+Message-ID: <20050113153644.GA18939@ucw.cz>
+References: <200412290217.36282.dtor_core@ameritech.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Thu, 13 Jan 2005 16:28:50 +0100
-X-OriginalArrivalTime: 13 Jan 2005 15:28:50.0728 (UTC) FILETIME=[9531BA80:01C4F984]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200412290217.36282.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-B6BoiGZvkPwAkTCBraXO
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-Hi all,
-
-now I managed to use lib/crc32. Obviously the patch looks a lot better
-now!
-
-Regards,
-Jan
-
-> Hi,
+On Wed, Dec 29, 2004 at 02:17:36AM -0500, Dmitry Torokhov wrote:
+> Hi Vojtech,
 > 
-> I tried to use those "in-kernel" functions, but they seem to do little
-> different CRC calculations. Unfortunately I don't have any experiences
-> with CRC stuff, anyone able to help here?
+> Please take a look at the following input patches. Patches 1-9 are already
+> in my tree (and were there for quite some time so they should have gotten
+> at least some testing as Andrew automatically pulls from me) and I'd like
+> see them pushed to Linus together with your last batch. At least patches
+> 6, 8 and 9 fix bugs introduced by latest changes. Patch 7 should help owners
+> of Toshibas with Synaptics touchpads.
 > 
-> Regards,
-> Jan
-> 
-> >  >+/* This table is needed for efficient CRC32 calculation */
-> >  >+static const unsigned long crc_table[8][256] = {
-> >  >+ {
-> >  >+ 0x00000000UL, 0x77073096UL, 0xee0e612cUL, 0x990951baUL, 0x076dc419UL,
-> >  
-> > First, by using "unsigned long", you may be doubling the size on most 64 bit 
-> > platforms. Second, I'm pretty sure there is a standard implementation of 
-> > several CRCs already in the kernel - is there a reason not to use one of them 
-> > (e.g. a different polynomial)?
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 01-i8042-panicblink-cleanup.patch
+> 	Move panicblink parameter definition together with the rest of i8042
+> 	module parameters, add description and entry in kernel-parameters.txt
 
---=-B6BoiGZvkPwAkTCBraXO
-Content-Description: 
-Content-Disposition: attachment; filename=gzip_core_dump.patch
-Content-Type: text/x-patch; charset=iso-8859-1
-Content-Transfer-Encoding: base64
+I think I prefer the DELAY definition to be outside the function. Other
+than that the patch is OK.
 
-ZGlmZiAtdXIgbGludXgtMi40LjI4L2FyY2gvaTM4Ni9jb25maWcuaW4gbGludXgtMi40LjI4LWd6
-aXAtY29yZWR1bXAvYXJjaC9pMzg2L2NvbmZpZy5pbg0KLS0tIGxpbnV4LTIuNC4yOC9hcmNoL2kz
-ODYvY29uZmlnLmluCTIwMDQtMTEtMTcgMTI6NTQ6MjEuMDAwMDAwMDAwICswMTAwDQorKysgbGlu
-dXgtMi40LjI4LWd6aXAtY29yZWR1bXAvYXJjaC9pMzg2L2NvbmZpZy5pbgkyMDA1LTAxLTEwIDA4
-OjQ1OjM2LjAwMDAwMDAwMCArMDEwMA0KQEAgLTQ3OSw2ICs0NzksNyBAQA0KICAgIGJvb2wgJyAg
-TWFnaWMgU3lzUnEga2V5JyBDT05GSUdfTUFHSUNfU1lTUlENCiAgICBib29sICcgIFNwaW5sb2Nr
-IGRlYnVnZ2luZycgQ09ORklHX0RFQlVHX1NQSU5MT0NLDQogICAgYm9vbCAnICBDb21waWxlIHRo
-ZSBrZXJuZWwgd2l0aCBmcmFtZSBwb2ludGVycycgQ09ORklHX0ZSQU1FX1BPSU5URVINCisgICBi
-b29sICcgIFdyaXRlIGd6aXBwZWQgY29yZSBkdW1wIGZpbGVzJyBDT05GSUdfR1pJUF9DT1JFRFVN
-UFMNCiBmaQ0KIA0KIGludCAnS2VybmVsIG1lc3NhZ2VzIGJ1ZmZlciBsZW5ndGggc2hpZnQgKDAg
-PSBkZWZhdWx0KScgQ09ORklHX0xPR19CVUZfU0hJRlQgMA0KZGlmZiAtdXIgbGludXgtMi40LjI4
-L0RvY3VtZW50YXRpb24vQ29uZmlndXJlLmhlbHAgbGludXgtMi40LjI4LWd6aXAtY29yZWR1bXAv
-RG9jdW1lbnRhdGlvbi9Db25maWd1cmUuaGVscA0KLS0tIGxpbnV4LTIuNC4yOC9Eb2N1bWVudGF0
-aW9uL0NvbmZpZ3VyZS5oZWxwCTIwMDQtMTEtMTcgMTI6NTQ6MjAuMDAwMDAwMDAwICswMTAwDQor
-KysgbGludXgtMi40LjI4LWd6aXAtY29yZWR1bXAvRG9jdW1lbnRhdGlvbi9Db25maWd1cmUuaGVs
-cAkyMDA1LTAxLTEwIDA4OjQ1OjQ1LjAwMDAwMDAwMCArMDEwMA0KQEAgLTI5MTIxLDYgKzI5MTIx
-LDExIEBADQogICANCiAgIElmIHVuc3VyZSwgc2F5IE4uDQogDQorQ09ORklHX0daSVBfQ09SRURV
-TVBTDQorICBTYXlpbmcgeWVzIGhlcmUgbWFrZXMgdGhlIGtlcm5lbCB3cml0aW5nIGNvcmUgZHVt
-cCBmaWxlcyBpbiBhIA0KKyAgZ3ppcHBlZCBjb21wcmVzc2VkIGZvcm1hdC4gWW91IHdpbGwgaGF2
-ZSB0byB1bmNvbXByZXNzIGNvcmUgZmlsZXMNCisgIHdpdGggZ3ppcCAtZCBwcmlvciB0byB1c2Fn
-ZSAoZS5nLiB3aXRoIGdkYikuDQorDQogIw0KICMgQSBjb3VwbGUgb2YgdGhpbmdzIEkga2VlcCBm
-b3JnZXR0aW5nOg0KICMgICBjYXBpdGFsaXplOiBBcHBsZVRhbGssIEV0aGVybmV0LCBET1MsIERN
-QSwgRkFULCBGVFAsIEludGVybmV0LA0KZGlmZiAtdXIgbGludXgtMi40LjI4L2ZzL2JpbmZtdF9l
-bGYuYyBsaW51eC0yLjQuMjgtZ3ppcC1jb3JlZHVtcC9mcy9iaW5mbXRfZWxmLmMNCi0tLSBsaW51
-eC0yLjQuMjgvZnMvYmluZm10X2VsZi5jCTIwMDQtMTEtMTcgMTI6NTQ6MjEuMDAwMDAwMDAwICsw
-MTAwDQorKysgbGludXgtMi40LjI4LWd6aXAtY29yZWR1bXAvZnMvYmluZm10X2VsZi5jCTIwMDUt
-MDEtMTMgMTU6NDI6NDUuMDAwMDAwMDAwICswMTAwDQpAQCAtOSw2ICs5LDcgQEANCiAgKiBDb3B5
-cmlnaHQgMTk5MywgMTk5NDogRXJpYyBZb3VuZ2RhbGUgKGVyaWN5QGNhaXMuY29tKS4NCiAgKi8N
-CiANCisjaW5jbHVkZSA8bGludXgvY29uZmlnLmg+DQogI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5o
-Pg0KIA0KICNpbmNsdWRlIDxsaW51eC9mcy5oPg0KQEAgLTU5LDYgKzYwLDE4IEBADQogICovDQog
-I2lmZGVmIFVTRV9FTEZfQ09SRV9EVU1QDQogc3RhdGljIGludCBlbGZfY29yZV9kdW1wKGxvbmcg
-c2lnbnIsIHN0cnVjdCBwdF9yZWdzICogcmVncywgc3RydWN0IGZpbGUgKiBmaWxlKTsNCisNCisj
-aWZkZWYgQ09ORklHX0daSVBfQ09SRURVTVBTDQorDQorLyoNCisgKiBGdW5jdGlvbnMgYWRkZWQg
-dG8gc3VwcG9ydCB3cml0aW5nIGNvcmUgZmlsZXMgaW4gZ3ppcHBlZCBmb3JtYXQsIDIwMDQNCisg
-KiBKYW4gRnJleSA8amFuLmZyZXlAbm9raWEuY29tPg0KKyAqLw0KKyNpbmNsdWRlIDxsaW51eC96
-bGliLmg+DQorI2luY2x1ZGUgPGxpbnV4L3ZtYWxsb2MuaD4NCisjaW5jbHVkZSA8bGludXgvY3Jj
-MzIuaD4NCisjZW5kaWYNCisNCiAjZWxzZQ0KICNkZWZpbmUgZWxmX2NvcmVfZHVtcAlOVUxMDQog
-I2VuZGlmDQpAQCAtOTQxLDE1ICs5NTQsODMgQEANCiAgKiBNb2RlbGxlZCBvbiBmcy9leGVjLmM6
-YW91dF9jb3JlX2R1bXAoKQ0KICAqIEplcmVteSBGaXR6aGFyZGluZ2UgPGplcmVteUBzdy5vei5h
-dT4NCiAgKi8NCisjaWZkZWYgQ09ORklHX0daSVBfQ09SRURVTVBTDQogLyoNCi0gKiBUaGVzZSBh
-cmUgdGhlIG9ubHkgdGhpbmdzIHlvdSBzaG91bGQgZG8gb24gYSBjb3JlLWZpbGU6IHVzZSBvbmx5
-IHRoZXNlDQotICogZnVuY3Rpb25zIHRvIHdyaXRlIG91dCBhbGwgdGhlIG5lY2Vzc2FyeSBpbmZv
-Lg0KKyAqIGd6IHdyaXRpbmcgc3VwcG9ydCANCisgKiBKYW4gRnJleSA8amFuLmZyZXlAbm9raWEu
-Y29tPg0KICAqLw0KLXN0YXRpYyBpbnQgZHVtcF93cml0ZShzdHJ1Y3QgZmlsZSAqZmlsZSwgY29u
-c3Qgdm9pZCAqYWRkciwgaW50IG5yKQ0KK3N0YXRpYyBpbnQgZ3pfZHVtcF93cml0ZShzdHJ1Y3Qg
-ZmlsZSAqZmlsZSwgY29uc3Qgdm9pZCAqYWRkciwgaW50IG5yLCB1MzIgKmNyYywgel9zdHJlYW1w
-IHpzdHIpDQogew0KLQlyZXR1cm4gZmlsZS0+Zl9vcC0+d3JpdGUoZmlsZSwgYWRkciwgbnIsICZm
-aWxlLT5mX3BvcykgPT0gbnI7DQorCWNvbnN0IGludCBPVVRfQlVGX1NJWkUgPSAxMDAqMTAyNDsN
-CisJaW50ICAgICAgIGFsbF9maW5lICAgICA9IDE7DQorCXZvaWQgICAgICpvdXRfYnVmICAgICAg
-PSB2bWFsbG9jKE9VVF9CVUZfU0laRSk7DQorDQorCWlmICghb3V0X2J1Zikgew0KKwkJcHJpbnRr
-KEtFUk5fV0FSTklORyAiRmFpbGVkIHRvIGFsbG9jYXRlIGRlZmxhdGUgYnVmZmVyIik7DQorCQly
-ZXR1cm4gMDsNCisJfQ0KKw0KKwkqY3JjID0gY3JjMzJfbGUgKCpjcmMsIGFkZHIsIG5yKTsNCisN
-CisJenN0ci0+bmV4dF9pbiAgPSBhZGRyOw0KKwl6c3RyLT5hdmFpbF9pbiA9IG5yOw0KKw0KKwlk
-byB7DQorCQl6c3RyLT5uZXh0X291dCAgPSBvdXRfYnVmOw0KKwkJenN0ci0+YXZhaWxfb3V0ID0g
-T1VUX0JVRl9TSVpFOw0KKw0KKwkJaWYgKHpsaWJfZGVmbGF0ZSAoenN0ciwgWl9OT19GTFVTSCkg
-PT0gWl9PSykgeyANCisJCQkvKiBuZXcgb3V0cHV0IGdlbmVyYXRlZCAqLw0KKwkJCWFsbF9maW5l
-ID0gKGZpbGUtPmZfb3AtPndyaXRlIChmaWxlLCANCisJCQkJCQkgICAgICAgb3V0X2J1ZiwgDQor
-CQkJCQkJICAgICAgIE9VVF9CVUZfU0laRSAtIHpzdHItPmF2YWlsX291dCwgDQorCQkJCQkJICAg
-ICAgICZmaWxlLT5mX3BvcykgDQorCQkJCSAgICA9PSAoT1VUX0JVRl9TSVpFIC0genN0ci0+YXZh
-aWxfb3V0KSk7DQorCQl9DQorCX0gd2hpbGUgKCh6c3RyLT5hdmFpbF9vdXQgIT0gT1VUX0JVRl9T
-SVpFKSAmJiBhbGxfZmluZSk7DQorDQorCXZmcmVlIChvdXRfYnVmKTsNCisJcmV0dXJuIGFsbF9m
-aW5lOw0KIH0NCiANCitzdGF0aWMgaW50IGd6X2ZpbmlzaCAoc3RydWN0IGZpbGUgKmZpbGUsIHpf
-c3RyZWFtcCB6c3RyKQ0KK3sNCisJY29uc3QgaW50IE9VVF9CVUZfU0laRSA9IDEwMCoxMDI0Ow0K
-KwlpbnQgICAgICAgYWxsX2ZpbmUgICAgID0gMTsNCisJaW50ICAgICAgIHJldDsNCisJdm9pZCAg
-ICAgKm91dF9idWYgICAgICA9IHZtYWxsb2MoT1VUX0JVRl9TSVpFKTsNCisNCisJaWYgKCFvdXRf
-YnVmKSB7DQorCQlwcmludGsoS0VSTl9XQVJOSU5HICJGYWlsZWQgdG8gYWxsb2NhdGUgZGVmbGF0
-ZSBidWZmZXIiKTsNCisJCXJldHVybiAwOw0KKwl9DQorDQorCXpzdHItPm5leHRfaW4gICA9IDA7
-DQorCXpzdHItPmF2YWlsX2luICA9IDA7DQorDQorCWRvIHsNCisJCXpzdHItPm5leHRfb3V0ICA9
-IG91dF9idWY7DQorCQl6c3RyLT5hdmFpbF9vdXQgPSBPVVRfQlVGX1NJWkU7DQorDQorCQlyZXQg
-PSB6bGliX2RlZmxhdGUgKHpzdHIsIFpfRklOSVNIKTsNCisJCWlmICgocmV0ID09IFpfT0spIHx8
-IChyZXQgPT0gWl9TVFJFQU1fRU5EKSkgeyANCisJCQkvKiBuZXcgb3V0cHV0IGdlbmVyYXRlZCAq
-Lw0KKwkJCWFsbF9maW5lID0gKGZpbGUtPmZfb3AtPndyaXRlIChmaWxlLCANCisJCQkJCQkgICAg
-ICBvdXRfYnVmLCANCisJCQkJCQkgICAgICBPVVRfQlVGX1NJWkUgLSB6c3RyLT5hdmFpbF9vdXQs
-IA0KKwkJCQkJCSAgICAgICZmaWxlLT5mX3BvcykgDQorCQkJCSAgICA9PSAoT1VUX0JVRl9TSVpF
-IC0genN0ci0+YXZhaWxfb3V0KSk7IA0KKwkJfQ0KKwl9IHdoaWxlICgoenN0ci0+YXZhaWxfb3V0
-ICE9IE9VVF9CVUZfU0laRSkgJiYgYWxsX2ZpbmUgJiYgKHJldCAhPSBaX1NUUkVBTV9FTkQpKTsN
-CisNCisJdmZyZWUgKG91dF9idWYpOw0KKwlyZXR1cm4gYWxsX2ZpbmU7DQorfQ0KKyNlbHNlDQor
-LyoNCisgKiBUaGVzZSBhcmUgdGhlIG9ubHkgdGhpbmdzIHlvdSBzaG91bGQgZG8gb24gYSBjb3Jl
-LWZpbGU6IHVzZSBvbmx5IHRoZXNlDQorICogZnVuY3Rpb25zIHRvIHdyaXRlIG91dCBhbGwgdGhl
-IG5lY2Vzc2FyeSBpbmZvLg0KKyAqLw0KIHN0YXRpYyBpbnQgZHVtcF9zZWVrKHN0cnVjdCBmaWxl
-ICpmaWxlLCBvZmZfdCBvZmYpDQogew0KIAlpZiAoZmlsZS0+Zl9vcC0+bGxzZWVrKSB7DQpAQCAt
-OTU5LDYgKzEwNDAsMTMgQEANCiAJCWZpbGUtPmZfcG9zID0gb2ZmOw0KIAlyZXR1cm4gMTsNCiB9
-DQorI2VuZGlmDQorDQorc3RhdGljIGludCBkdW1wX3dyaXRlKHN0cnVjdCBmaWxlICpmaWxlLCBj
-b25zdCB2b2lkICphZGRyLCBpbnQgbnIpDQorew0KKwlyZXR1cm4gZmlsZS0+Zl9vcC0+d3JpdGUo
-ZmlsZSwgYWRkciwgbnIsICZmaWxlLT5mX3BvcykgPT0gbnI7DQorfQ0KKw0KIA0KIC8qDQogICog
-RGVjaWRlIHdoZXRoZXIgYSBzZWdtZW50IGlzIHdvcnRoIGR1bXBpbmc7IGRlZmF1bHQgaXMgeWVz
-IHRvIGJlDQpAQCAtMTAzMCwxMSArMTExOCw1NCBAQA0KIH0NCiAjZW5kaWYNCiANCi0jZGVmaW5l
-IERVTVBfV1JJVEUoYWRkciwgbnIpCVwNCi0JZG8geyBpZiAoIWR1bXBfd3JpdGUoZmlsZSwgKGFk
-ZHIpLCAobnIpKSkgcmV0dXJuIDA7IH0gd2hpbGUoMCkNCisjaWZkZWYgQ09ORklHX0daSVBfQ09S
-RURVTVBTDQorI2RlZmluZSBQQURfR1oobnIsIGJ1ZiwgY3JjLCBzdHIpIFwNCisgICAgICAgIGRv
-IHsgXA0KKwkgICAgICAgIGludCBjdXI9KG5yKTsgXA0KKyAgICAgICAgIAl3aGlsZSAoY3VyPjEw
-MjQpIHsgXA0KKyAgICAgICAgICAgICAgICAgICAgICAgIGd6X2R1bXBfd3JpdGUoZmlsZSwgKGJ1
-ZiksIDEwMjQsIChjcmMpLCAoc3RyKSk7IFwNCisgICAgICAgICAgICAgICAgICAgICAgICBjdXIt
-PTEwMjQ7IFwNCisgICAgICAgICAgICAgICAgfSBcDQorICAgICAgICAgICAgICAgIGlmIChjdXIp
-IHsgXA0KKyAgICAgICAgICAgICAgICAgICAgICAgIGd6X2R1bXBfd3JpdGUoZmlsZSwgKGJ1Ziks
-IGN1ciwgKGNyYyksIChzdHIpKTsgXA0KKyAgICAgICAgICAgICAgICB9IFwNCisgICAgICAgIH0g
-d2hpbGUoMCkNCisNCisjZGVmaW5lIERVTVBfR1ooYWRkciwgbnIsIGNyYywgc3RyKQlcDQorCWRv
-IHsgaWYgKCFnel9kdW1wX3dyaXRlKGZpbGUsIChhZGRyKSwgKG5yKSwgKGNyYyksIChzdHIpKSkg
-cmV0dXJuIDA7IH0gd2hpbGUoMCkNCisjZWxzZQ0KICNkZWZpbmUgRFVNUF9TRUVLKG9mZikJXA0K
-IAlkbyB7IGlmICghZHVtcF9zZWVrKGZpbGUsIChvZmYpKSkgcmV0dXJuIDA7IH0gd2hpbGUoMCkN
-CisjZW5kaWYNCisNCisjZGVmaW5lIERVTVBfV1JJVEUoYWRkciwgbnIpCVwNCisJZG8geyBpZiAo
-IWR1bXBfd3JpdGUoZmlsZSwgKGFkZHIpLCAobnIpKSkgcmV0dXJuIDA7IH0gd2hpbGUoMCkNCiAN
-CisjaWZkZWYgQ09ORklHX0daSVBfQ09SRURVTVBTDQorc3RhdGljIGludCB3cml0ZW5vdGVfZ3oo
-c3RydWN0IG1lbWVsZm5vdGUgKm1lbiwgc3RydWN0IGZpbGUgKmZpbGUsIGNoYXIgKmJ1ZiwgdTMy
-ICpjcmMsIHpfc3RyZWFtcCB6c3RyKQ0KK3sNCisJc3RydWN0IGVsZl9ub3RlIGVuOw0KKwlpbnQg
-ZHVtbXlfYnl0ZXM7DQorDQorCWVuLm5fbmFtZXN6ID0gc3RybGVuKG1lbi0+bmFtZSk7DQorCWVu
-Lm5fZGVzY3N6ID0gbWVuLT5kYXRhc3o7DQorCWVuLm5fdHlwZSA9IG1lbi0+dHlwZTsNCisNCisJ
-RFVNUF9HWigmZW4sIHNpemVvZihlbiksIGNyYywgenN0cik7DQorCURVTVBfR1oobWVuLT5uYW1l
-LCBlbi5uX25hbWVzeiwgY3JjLCB6c3RyKTsNCisNCisJZHVtbXlfYnl0ZXMgPSByb3VuZHVwKCh1
-bnNpZ25lZCBsb25nKXpzdHItPnRvdGFsX2luLCA0KSAtIHpzdHItPnRvdGFsX2luOw0KKwlQQURf
-R1ooZHVtbXlfYnl0ZXMsIGJ1ZiwgY3JjLCB6c3RyKTsNCisNCisJRFVNUF9HWihtZW4tPmRhdGEs
-IG1lbi0+ZGF0YXN6LCBjcmMsIHpzdHIpOw0KKw0KKwlkdW1teV9ieXRlcyA9IHJvdW5kdXAoKHVu
-c2lnbmVkIGxvbmcpenN0ci0+dG90YWxfaW4sIDQpIC0genN0ci0+dG90YWxfaW47DQorCVBBRF9H
-WihkdW1teV9ieXRlcywgYnVmLCBjcmMsIHpzdHIpOw0KKw0KKwlyZXR1cm4gMTsNCit9DQorI3Vu
-ZGVmIERVTVBfR1oNCisjZWxzZQ0KIHN0YXRpYyBpbnQgd3JpdGVub3RlKHN0cnVjdCBtZW1lbGZu
-b3RlICptZW4sIHN0cnVjdCBmaWxlICpmaWxlKQ0KIHsNCiAJc3RydWN0IGVsZl9ub3RlIGVuOw0K
-QEAgLTEwNTQsMTMgKzExODUsMjEgQEANCiB9DQogI3VuZGVmIERVTVBfV1JJVEUNCiAjdW5kZWYg
-RFVNUF9TRUVLDQorI2VuZGlmDQogDQorI2lmZGVmIENPTkZJR19HWklQX0NPUkVEVU1QUw0KKyNk
-ZWZpbmUgRFVNUF9HWihhZGRyLCBuciwgY3JjLCBzdHIpCVwNCisJaWYgKChzaXplICs9IChucikp
-ID4gbGltaXQgfHwgIWd6X2R1bXBfd3JpdGUoZmlsZSwgKGFkZHIpLCAobnIpLCAoY3JjKSwgKHN0
-cikpKSBcDQorCQlnb3RvIGVuZF9jb3JlZHVtcDsNCisjZWxzZQ0KICNkZWZpbmUgRFVNUF9XUklU
-RShhZGRyLCBucikJXA0KIAlpZiAoKHNpemUgKz0gKG5yKSkgPiBsaW1pdCB8fCAhZHVtcF93cml0
-ZShmaWxlLCAoYWRkciksIChucikpKSBcDQogCQlnb3RvIGVuZF9jb3JlZHVtcDsNCiAjZGVmaW5l
-IERVTVBfU0VFSyhvZmYpCVwNCiAJaWYgKCFkdW1wX3NlZWsoZmlsZSwgKG9mZikpKSBcDQogCQln
-b3RvIGVuZF9jb3JlZHVtcDsNCisjZW5kaWYNCisNCiAvKg0KICAqIEFjdHVhbCBkdW1wZXINCiAg
-Kg0KQEAgLTEwODUsNiArMTIyNCwzOSBAQA0KIAllbGZfZnByZWdzZXRfdCBmcHU7CQkvKiBOVF9Q
-UkZQUkVHICovDQogCXN0cnVjdCBlbGZfcHJwc2luZm8gcHNpbmZvOwkvKiBOVF9QUlBTSU5GTyAq
-Lw0KIA0KKyNpZmRlZiBDT05GSUdfR1pJUF9DT1JFRFVNUFMNCisJel9zdHJlYW0gZ3pfc3RyZWFt
-Ow0KKwl2b2lkICpkZWZsYXRlX3dvcmtzcGFjZTsNCisJdTMyIGNyYyA9IH4wOyAvKiBpbml0ICov
-DQorCXVuc2lnbmVkIGNoYXIgZ3pfbWFnaWNbMTBdID0geyAvKiBnemlwIG1hZ2ljIGhlYWRlciAq
-Lw0KKwkgIDB4MWYsIDB4OGIsIFpfREVGTEFURUQsIDAsIDAsIDAsIDAsIDAsIDAsIDB4MDMgfTsg
-DQorCXVuc2lnbmVkIGNoYXIgKmVtcHR5X2J1ZjsJDQorDQorCWRlZmxhdGVfd29ya3NwYWNlID0g
-dm1hbGxvYyh6bGliX2RlZmxhdGVfd29ya3NwYWNlc2l6ZSgpKTsNCisgICAgICAgIGlmICghZGVm
-bGF0ZV93b3Jrc3BhY2UpIHsNCisJCXByaW50ayhLRVJOX1dBUk5JTkcgIkZhaWxlZCB0byBhbGxv
-Y2F0ZSBkZWZsYXRlIHdvcmtzcGFjZVxuIik7DQorCQlyZXR1cm4gLUVOT01FTTsNCisgICAgICAg
-IH0NCisNCisJZ3pfc3RyZWFtLndvcmtzcGFjZSA9IGRlZmxhdGVfd29ya3NwYWNlOw0KKwlpZiAo
-Wl9PSyAhPSB6bGliX2RlZmxhdGVJbml0MigmZ3pfc3RyZWFtLCANCisJCQkJICAgICAgNywgLyog
-Y29tcHJlc3Npb24gbGV2ZWwgKi8NCisJCQkJICAgICAgWl9ERUZMQVRFRCwNCisJCQkJICAgICAg
-LTE1LCAvKiB3aW5kb3cgYml0cyAqLw0KKwkJCQkgICAgICA2LCAvKiBtZW0gbGV2ZWwgKi8NCisJ
-CQkJICAgICAgWl9ERUZBVUxUX1NUUkFURUdZKSkgew0KKwkJcHJpbnRrKEtFUk5fV0FSTklORyAi
-ZGVmbGF0ZUluaXQgZmFpbGVkXG4iKTsNCisJCXJldHVybiAtRU5PTUVNOw0KKyAgICAgICAgfQ0K
-KwkNCisJZW1wdHlfYnVmID0gdm1hbGxvYygxMDI0KTsNCisgICAgICAgIGlmICghZW1wdHlfYnVm
-KSB7DQorCQlwcmludGsoS0VSTl9XQVJOSU5HICJGYWlsZWQgdG8gYWxsb2NhdGUgMTAyNCBieXRl
-cyBmb3IgZHVtbXkgYnVmZmVyXG4iKTsNCisJCXJldHVybiAtRU5PTUVNOw0KKyAgICAgICAgfQ0K
-KwltZW1zZXQgKGVtcHR5X2J1ZiwgMCwgMTAyNCk7DQorI2VuZGlmDQorDQogCS8qIGZpcnN0IGNv
-cHkgdGhlIHBhcmFtZXRlcnMgZnJvbSB1c2VyIHNwYWNlICovDQogCW1lbXNldCgmcHNpbmZvLCAw
-LCBzaXplb2YocHNpbmZvKSk7DQogCXsNCkBAIC0xMTU0LDcgKzEzMjYsMTUgQEANCiAJaGFzX2R1
-bXBlZCA9IDE7DQogCWN1cnJlbnQtPmZsYWdzIHw9IFBGX0RVTVBDT1JFOw0KIA0KKyNpZmRlZiBD
-T05GSUdfR1pJUF9DT1JFRFVNUFMNCisJLyogd3JpdGUgZ3ppcCBoZWFkZXIgKi8NCisJRFVNUF9X
-UklURShnel9tYWdpYywgMTApOw0KKw0KKwkvKiB3cml0ZSBlbGYgaGVhZGVyICovDQorCURVTVBf
-R1ooJmVsZiwgc2l6ZW9mKGVsZiksICZjcmMsICZnel9zdHJlYW0pOw0KKyNlbHNlDQogCURVTVBf
-V1JJVEUoJmVsZiwgc2l6ZW9mKGVsZikpOw0KKyNlbmRpZg0KIAlvZmZzZXQgKz0gc2l6ZW9mKGVs
-Zik7CQkJCS8qIEVsZiBoZWFkZXIgKi8NCiAJb2Zmc2V0ICs9IChzZWdzKzEpICogc2l6ZW9mKHN0
-cnVjdCBlbGZfcGhkcik7CS8qIFByb2dyYW0gaGVhZGVycyAqLw0KIA0KQEAgLTEyMzksNyArMTQx
-OSwxMiBAQA0KIAkJcGhkci5wX2FsaWduID0gMDsNCiANCiAJCW9mZnNldCArPSBwaGRyLnBfZmls
-ZXN6Ow0KKw0KKyNpZmRlZiBDT05GSUdfR1pJUF9DT1JFRFVNUFMNCisJCURVTVBfR1ooJnBoZHIs
-IHNpemVvZihwaGRyKSwgJmNyYywgJmd6X3N0cmVhbSk7DQorI2Vsc2UNCiAJCURVTVBfV1JJVEUo
-JnBoZHIsIHNpemVvZihwaGRyKSk7DQorI2VuZGlmDQogCX0NCiANCiAJLyogUGFnZS1hbGlnbiBk
-dW1wZWQgZGF0YSAqLw0KQEAgLTEyNjQsMTQgKzE0NDksMjcgQEANCiAJCWlmICh2bWEtPnZtX2Zs
-YWdzICYgVk1fRVhFQykgcGhkci5wX2ZsYWdzIHw9IFBGX1g7DQogCQlwaGRyLnBfYWxpZ24gPSBF
-TEZfRVhFQ19QQUdFU0laRTsNCiANCisjaWZkZWYgQ09ORklHX0daSVBfQ09SRURVTVBTDQorCQlE
-VU1QX0daKCZwaGRyLCBzaXplb2YocGhkciksICZjcmMsICZnel9zdHJlYW0pOw0KKyNlbHNlDQog
-CQlEVU1QX1dSSVRFKCZwaGRyLCBzaXplb2YocGhkcikpOw0KKyNlbmRpZg0KIAl9DQogDQotCWZv
-cihpID0gMDsgaSA8IG51bW5vdGU7IGkrKykNCisJZm9yKGkgPSAwOyBpIDwgbnVtbm90ZTsgaSsr
-KSB7DQorI2lmZGVmIENPTkZJR19HWklQX0NPUkVEVU1QUwkNCisJCWlmICghd3JpdGVub3RlX2d6
-KCZub3Rlc1tpXSwgZmlsZSwgZW1wdHlfYnVmLCAmY3JjLCAmZ3pfc3RyZWFtKSkNCisJCQlnb3Rv
-IGVuZF9jb3JlZHVtcDsNCisjZWxzZQ0KIAkJaWYgKCF3cml0ZW5vdGUoJm5vdGVzW2ldLCBmaWxl
-KSkNCiAJCQlnb3RvIGVuZF9jb3JlZHVtcDsNCi0NCisjZW5kaWYNCisJfQ0KKyNpZmRlZiBDT05G
-SUdfR1pJUF9DT1JFRFVNUFMJDQorCVBBRF9HWiAoZGF0YW9mZi1nel9zdHJlYW0udG90YWxfaW4s
-IGVtcHR5X2J1ZiwgJmNyYywgJmd6X3N0cmVhbSk7DQorI2Vsc2UNCiAJRFVNUF9TRUVLKGRhdGFv
-ZmYpOw0KKyNlbmRpZg0KIA0KIAlmb3Iodm1hID0gY3VycmVudC0+bW0tPm1tYXA7IHZtYSAhPSBO
-VUxMOyB2bWEgPSB2bWEtPnZtX25leHQpIHsNCiAJCXVuc2lnbmVkIGxvbmcgYWRkcjsNCkBAIC0x
-MjkwLDE2ICsxNDg4LDI4IEBADQogCQkJc3RydWN0IHZtX2FyZWFfc3RydWN0ICp2bWE7DQogDQog
-CQkJaWYgKGdldF91c2VyX3BhZ2VzKGN1cnJlbnQsIGN1cnJlbnQtPm1tLCBhZGRyLCAxLCAwLCAx
-LA0KLQkJCQkJCSZwYWdlLCAmdm1hKSA8PSAwKSB7DQotCQkJCURVTVBfU0VFSyAoZmlsZS0+Zl9w
-b3MgKyBQQUdFX1NJWkUpOw0KKwkJCQkJICAgJnBhZ2UsICZ2bWEpIDw9IDApIHsJDQorI2lmZGVm
-IENPTkZJR19HWklQX0NPUkVEVU1QUw0KKwkJCSAgUEFEX0daKFBBR0VfU0laRSwgZW1wdHlfYnVm
-LCAmY3JjLCAmZ3pfc3RyZWFtKTsNCisjZWxzZQ0KKwkJCSAgRFVNUF9TRUVLIChmaWxlLT5mX3Bv
-cyArIFBBR0VfU0laRSk7DQorI2VuZGlmDQogCQkJfSBlbHNlIHsNCi0JCQkJaWYgKHBhZ2UgPT0g
-WkVST19QQUdFKGFkZHIpKSB7DQotCQkJCQlEVU1QX1NFRUsgKGZpbGUtPmZfcG9zICsgUEFHRV9T
-SVpFKTsNCisJCQkJaWYgKHBhZ2UgPT0gWkVST19QQUdFKGFkZHIpKSB7CQ0KKyNpZmRlZiBDT05G
-SUdfR1pJUF9DT1JFRFVNUFMNCisJCQkJICBQQURfR1ooUEFHRV9TSVpFLCBlbXB0eV9idWYsICZj
-cmMsICZnel9zdHJlYW0pOw0KKyNlbHNlDQorCQkJCSAgRFVNUF9TRUVLIChmaWxlLT5mX3BvcyAr
-IFBBR0VfU0laRSk7DQorI2VuZGlmDQogCQkJCX0gZWxzZSB7DQogCQkJCQl2b2lkICprYWRkcjsN
-CiAJCQkJCWZsdXNoX2NhY2hlX3BhZ2Uodm1hLCBhZGRyKTsNCiAJCQkJCWthZGRyID0ga21hcChw
-YWdlKTsNCisjaWZkZWYgQ09ORklHX0daSVBfQ09SRURVTVBTDQorCQkJCQlEVU1QX0daKGthZGRy
-LCBQQUdFX1NJWkUsICZjcmMsICZnel9zdHJlYW0pOw0KKyNlbHNlDQogCQkJCQlEVU1QX1dSSVRF
-KGthZGRyLCBQQUdFX1NJWkUpOw0KKyNlbmRpZg0KIAkJCQkJZmx1c2hfcGFnZV90b19yYW0ocGFn
-ZSk7DQogCQkJCQlrdW5tYXAocGFnZSk7DQogCQkJCX0NCkBAIC0xMzA4LDE1ICsxNTE4LDM3IEBA
-DQogCQl9DQogCX0NCiANCisjaWZuZGVmIENPTkZJR19HWklQX0NPUkVEVU1QUw0KIAlpZiAoKG9m
-Zl90KSBmaWxlLT5mX3BvcyAhPSBvZmZzZXQpIHsNCiAJCS8qIFNhbml0eSBjaGVjayAqLw0KIAkJ
-cHJpbnRrKCJlbGZfY29yZV9kdW1wOiBmaWxlLT5mX3BvcyAoJWxkKSAhPSBvZmZzZXQgKCVsZClc
-biIsDQogCQkgICAgICAgKG9mZl90KSBmaWxlLT5mX3Bvcywgb2Zmc2V0KTsNCiAJfQ0KKyNlbmRp
-Zg0KIA0KLSBlbmRfY29yZWR1bXA6DQorZW5kX2NvcmVkdW1wOg0KKyNpZmRlZiBDT05GSUdfR1pJ
-UF9DT1JFRFVNUFMNCisJZ3pfZmluaXNoIChmaWxlLCAmZ3pfc3RyZWFtKTsNCisJemxpYl9kZWZs
-YXRlRW5kICgmZ3pfc3RyZWFtKTsNCisNCisJZ3pfbWFnaWNbMF0gPSAofmNyYyAmIDB4MDAwMDAw
-RkYpOw0KKwlnel9tYWdpY1sxXSA9ICh+Y3JjICYgMHgwMDAwRkYwMCkgPj4gODsNCisJZ3pfbWFn
-aWNbMl0gPSAofmNyYyAmIDB4MDBGRjAwMDApID4+IDE2Ow0KKwlnel9tYWdpY1szXSA9ICh+Y3Jj
-ICYgMHhGRjAwMDAwMCkgPj4gMjQ7DQorCWd6X21hZ2ljWzRdID0gKGd6X3N0cmVhbS50b3RhbF9p
-biAmIDB4MDAwMDAwRkYpOw0KKwlnel9tYWdpY1s1XSA9IChnel9zdHJlYW0udG90YWxfaW4gJiAw
-eDAwMDBGRjAwKSA+PiA4Ow0KKwlnel9tYWdpY1s2XSA9IChnel9zdHJlYW0udG90YWxfaW4gJiAw
-eDAwRkYwMDAwKSA+PiAxNjsNCisJZ3pfbWFnaWNbN10gPSAoZ3pfc3RyZWFtLnRvdGFsX2luICYg
-MHhGRjAwMDAwMCkgPj4gMjQ7DQorCWR1bXBfd3JpdGUgKGZpbGUsIGd6X21hZ2ljLCA4KTsNCisj
-ZW5kaWYNCiAJc2V0X2ZzKGZzKTsNCiAJdXBfd3JpdGUoJmN1cnJlbnQtPm1tLT5tbWFwX3NlbSk7
-DQorDQorI2lmZGVmIENPTkZJR19HWklQX0NPUkVEVU1QUw0KKwl2ZnJlZSAoZGVmbGF0ZV93b3Jr
-c3BhY2UpOw0KKwl2ZnJlZSAoZW1wdHlfYnVmKTsNCisjZW5kaWYNCisNCiAJcmV0dXJuIGhhc19k
-dW1wZWQ7DQogfQ0KICNlbmRpZgkJLyogVVNFX0VMRl9DT1JFX0RVTVAgKi8NCmRpZmYgLXVyIGxp
-bnV4LTIuNC4yOC9saWIvQ29uZmlnLmluIGxpbnV4LTIuNC4yOC1nemlwLWNvcmVkdW1wL2xpYi9D
-b25maWcuaW4NCi0tLSBsaW51eC0yLjQuMjgvbGliL0NvbmZpZy5pbgkyMDAzLTExLTI4IDE5OjI2
-OjIxLjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIuNC4yOC1nemlwLWNvcmVkdW1wL2xpYi9D
-b25maWcuaW4JMjAwNS0wMS0xMCAwODo0NjowMC4wMDAwMDAwMDAgKzAxMDANCkBAIC0yNyw3ICsy
-Nyw4IEBADQogICBmaQ0KIGZpDQogDQotaWYgWyAiJENPTkZJR19QUFBfREVGTEFURSIgPSAieSIg
-LW8gXA0KK2lmIFsgIiRDT05GSUdfR1pJUF9DT1JFRFVNUFMiID0gInkiIC1vIFwNCisgICAgICIk
-Q09ORklHX1BQUF9ERUZMQVRFIiA9ICJ5IiAtbyBcDQogICAgICAiJENPTkZJR19DUllQVE9fREVG
-TEFURSIgPSAieSIgLW8gXA0KICAgICAgIiRDT05GSUdfSkZGUzJfRlMiID0gInkiIF07IHRoZW4N
-CiAgICBkZWZpbmVfdHJpc3RhdGUgQ09ORklHX1pMSUJfREVGTEFURSB5DQo=
+> 02-serio-start-stop.patch
+> 	Add serio start() and stop() methods to serio structure that are
+> 	called when serio port is about to be fully registered and when
+> 	serio port is about to be unregistered. These methods are useful
+> 	for drivers that share interrupt among several serio ports. In this
+> 	case interrupt can not be enabled/disabled in open/close methods
+> 	and it is very hard to determine if interrupt shoudl be ignored or
+> 	passed on.
 
---=-B6BoiGZvkPwAkTCBraXO--
+> 03-i8042-use-start-stop.patch
+> 	Make use of new serio start/stop methods to safely activate and
+> 	deactivate ports. Also unify as much as possible port handling
+> 	between KBD, AUX and MUX ports. Rename i8042_values into i8042_port.
+
+Would we need this at all if we made the port registration completely
+asynchronous, only binding devices to ports _after_ the port is
+completely registered?
+
+I'm rather reluctant to add even more callbacks.
+
+> 04-serio-suppress-dup-events.patch
+> 	Do not submit serio event into event queue if there is already one
+> 	of the same type for the same port in front of it. Also look for
+> 	duplicat events once event is processed. This should help with
+> 	disconnected ports generating alot of data and consuming memory for
+> 	events when kseriod gets behind and prevents constant rescans.
+> 	This also allows to remove special check for 0xaa in reconnect path
+> 	of interrupt handler known to cause problems with Toshibas keyboards.
+
+Ok. Since we'll be usually scanning an empty list, this shouldn't add
+any overhead.
+
+Btw, why do we need _both_ to scan for duplicate events on event
+completion and check at event insert time? One should be enough - if we
+always check, then we cannot have duplicate events and if we always are
+able to deal with them, we don't have to care ...
+
+> 05-evdev-buffer-size.patch
+> 	Return -EINVAL from evdev_read when passed buffer is too small.
+> 	Based on patch by James Lamanna.
+
+OK.
+
+> 06-ps2pp-mouse-name.patch
+> 	Set mouse name to "Mouse" instead of leaving it NULL when using
+> 	PS2++ protocol and don't have any other information (Wheel, Touchpad)
+> 	about the mouse.
+
+Already merged.
+
+> 07-synaptics-toshiba-rate.patch
+> 	Toshiba Satellite KBCs have trouble handling data stream coming from
+> 	Synaptics at full rate (80 pps, 480 byte/sec) which causes keyboards
+> 	to pause or even get stuck. Use DMI to detect Satellites and limit
+> 	rate to 40 pps which cures keyboard.
+
+OK.
+
+> 08-atkbd-keycode-size.patch
+> 	Fix keycode table size initialization that got broken by my changes
+> 	that exported 'set' and other settings via sysfs.
+> 	setkeycodes should work again now.
+
+Already merged.
+
+> 09-i8042-sysfs-permissions.patch
+> 	Fix braindamage in sysfs permissions for 'debug' option.
+
+OK.
+
+> 10-twidjoy-build.patch
+> 	Make Kconfig and Makefile agree on the option name so twidjoy
+> 	can be built.
+
+OK.
+
+> 11-input-msecs-to-jiffies.patch
+> 	Use msecs_to_jiffies instead of homegrown ms_to_jiffies
+> 	so everything works when HZ != 1000
+
+OK.
+
+> 12-atkbd-msecs-to-jiffies.patch
+> 	Use msecs_to_jiffies instead of manually calculating
+> 	delay for Toshiba bouncing keys workaround so it works
+>         when HZ != 1000.
+
+OK.
+
+> 13-serio-drvdata.patch
+> 	Remove serio->private in favor of using driver-specific data
+> 	in device structure, add serio_get_drvdata/serio_put_drvdata
+> 	to access it so serio bus code looks more like other buses.
+
+OK.
+
+> 14-serio-id-match.patch
+> 	Replace serio's type field with serio_id structure and
+> 	add ids table to serio drivers. This will allow splitting
+> 	initial matching and probing routines for better sysfs
+> 	integration.
+
+OK. Maybe we should add a new SPIOCSTYPE ioctl to pass the structure
+directly.
+
+> 15-serio-bus-cleanup.patch
+> 	Make serio implementation more in line with standard
+> 	driver model implementations by removing explicit device
+> 	and driver list manipulations and introducing bus_match
+> 	function. serio_register_port is always asynchronous to
+> 	allow freely registering child ports. When deregistering
+> 	serio core still takes care of destroying children ports
+> 	first.
+
+OK. I suppose the synchronous unregister variant is needed for module
+unload? I suppose refcounting would be enough there ... 
+
+> 16-serio-connect-errcode.patch
+> 	Make serios' connect methods return error code instead of
+>         void so exact cause of failur can be comminicated upstream. 
+
+OK.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

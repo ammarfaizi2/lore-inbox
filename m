@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbUJ1T6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbUJ1UBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbUJ1T6R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 15:58:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbUJ1T6Q
+	id S262638AbUJ1UBq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 16:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbUJ1T6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 15:58:16 -0400
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:22546
-	"EHLO muru.com") by vger.kernel.org with ESMTP id S262885AbUJ1Tys
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 15:54:48 -0400
-Date: Thu, 28 Oct 2004 12:54:45 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Serial 8250 OMAP support, take 2
-Message-ID: <20041028195445.GI14884@atomide.com>
-References: <20041028191826.GG14884@atomide.com> <20041028203157.B11436@flint.arm.linux.org.uk>
+	Thu, 28 Oct 2004 15:58:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14043 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262868AbUJ1Txr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 15:53:47 -0400
+Date: Thu, 28 Oct 2004 12:51:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 page allocation failure. order:0, mode:0x20
+Message-Id: <20041028125129.057db7dc.akpm@osdl.org>
+In-Reply-To: <4180FE0A.2020000@metaparadigm.com>
+References: <41808419.8070104@metaparadigm.com>
+	<20041028024039.1a9f5056.akpm@osdl.org>
+	<4180FE0A.2020000@metaparadigm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028203157.B11436@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Russell King <rmk+lkml@arm.linux.org.uk> [041028 12:32]:
+Michael Clark <michael@metaparadigm.com> wrote:
+>
+> On 10/28/04 17:40, Andrew Morton wrote:
+>  > Michael Clark <michael@metaparadigm.com> wrote:
+>  >> cc1: page allocation failure. order:0, mode:0x20
+>  >>   [<c013ba43>] __alloc_pages+0x1c3/0x390
+>  >>   [<c013bc35>] __get_free_pages+0x25/0x40
+>  >>   [<c013f283>] kmem_getpages+0x23/0xd0
+>  >>   [<c013ffcf>] cache_grow+0xaf/0x160
+>  >>   [<c0140202>] cache_alloc_refill+0x182/0x230
+>  >>   [<c0140499>] kmem_cache_alloc+0x49/0x50
+>  >>   [<c01c07df>] radix_tree_node_alloc+0x1f/0x70
+>  >>   [<c01c0aad>] radix_tree_insert+0xed/0x110
+>  >>   [<c014d841>] __add_to_swap_cache+0x71/0x100
+>  >>   [<c014da5f>] add_to_swap+0x5f/0xc0
+>  >>   [<c0142d32>] shrink_list+0x442/0x480
+>  >>   [<c014bf7c>] page_referenced_anon+0x7c/0x90
+>  >>   [<c01419c8>] __pagevec_release+0x28/0x40
+>  > 
+>  > 
+>  > I'm confused.  2.6.9 uses __GFP_NOWARN in add_to_swap() so the messages
+>  > should be suppressed.  Are you sure you're using 2.6.9?
 > 
-> One of the things which previous changes have done is to move us away
-> from "port types" towards "capabilities" for serial ports, so things
-> like the FIFO, hardware flow control and so forth can be individually
-> controlled, rather than having to rely on a table of features.
+>  Ya is 2.6.9, has uml-skas patch also but that doesn't touch swap_state.c
 > 
-> So, it appears that OMAP ports are like a TI752 port, but with a couple
-> of extra features.  Can we use the existing TI75x feature support code
-> for these ports?
+>  Ah, I see I think, radix_tree_node_alloc first calls kmem_cache_alloc
+>  with root->gfp_mask and only if this fails dips into the preloaded
+>  percpu node stash.
 
-Well last time I checked at least the autoconfig failed. I can look into it
-a bit more.
+Oh crap, so it does.
 
-> Also, these ports seem to use extra address space which isn't covered by
-> a request_region/request_mem_region... that's something which should be
-> fixed.
+--- 25/mm/swap_state.c~swapper_space-warning-suppression	2004-10-28 12:51:06.975218208 -0700
++++ 25-akpm/mm/swap_state.c	2004-10-28 12:51:15.910859784 -0700
+@@ -34,7 +34,7 @@ static struct backing_dev_info swap_back
+ };
+ 
+ struct address_space swapper_space = {
+-	.page_tree	= RADIX_TREE_INIT(GFP_ATOMIC),
++	.page_tree	= RADIX_TREE_INIT(GFP_ATOMIC|__GFP_NOWARN),
+ 	.tree_lock	= SPIN_LOCK_UNLOCKED,
+ 	.a_ops		= &swap_aops,
+ 	.i_mmap_nonlinear = LIST_HEAD_INIT(swapper_space.i_mmap_nonlinear),
+_
 
-OK, I'll change that.
-
-> The set of UART_FCR6_xxx definitions are only left here for compatibility -
-> there are others which use this file.  Because the trigger levels is very
-> dependent on the chip and sometimes which other features are enabled, I
-> decided to provide new definitions:
-> 
-> #define UART_FCR_R_TRIG_00      0x00
-> #define UART_FCR_R_TRIG_01      0x40
-> #define UART_FCR_R_TRIG_10      0x80
-> #define UART_FCR_R_TRIG_11      0xc0
-> #define UART_FCR_T_TRIG_00      0x00
-> #define UART_FCR_T_TRIG_01      0x10
-> #define UART_FCR_T_TRIG_10      0x20
-> #define UART_FCR_T_TRIG_11      0x30
-> 
-> with a table above which detail their effects.  I think it's silly creating
-> lots of definitions for these bits, and then ending up with lots of macros
-> definiting the same sort of thing.  Please use the above only.
-
-OK, I'll change that too.
-
-Tony

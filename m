@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286554AbRL0TrX>; Thu, 27 Dec 2001 14:47:23 -0500
+	id <S286553AbRL0TyN>; Thu, 27 Dec 2001 14:54:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286556AbRL0TrP>; Thu, 27 Dec 2001 14:47:15 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:52485 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S286554AbRL0TrI>; Thu, 27 Dec 2001 14:47:08 -0500
-Date: Thu, 27 Dec 2001 17:46:51 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <Pine.LNX.4.33.0112271126550.1052-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0112271742470.12225-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S286556AbRL0TyG>; Thu, 27 Dec 2001 14:54:06 -0500
+Received: from bzq-165-60.dsl.bezeqint.net ([62.219.165.60]:11026 "HELO
+	the.linux-dude.net") by vger.kernel.org with SMTP
+	id <S286553AbRL0Txq>; Thu, 27 Dec 2001 14:53:46 -0500
+Date: Thu, 27 Dec 2001 21:53:40 +0200 (IST)
+From: Ido Diamant <ido@the.linux-dude.net>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: James Stevenson <mistral@stev.org>, <jlladono@pie.xtec.es>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x kernels, big ide disks and old bios
+In-Reply-To: <20011227195101.5bf120f9.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.33.0112272149220.18231-100000@the.linux-dude.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Linus Torvalds wrote:
-> On Thu, 27 Dec 2001, Rik van Riel wrote:
-> >
-> > Of course the patch will be updated when needed, but I still
-> > have a few 6-month old patches lying around that still work
-> > as expected and don't need any change.
+Hi,
+
+I am having an old Pentium 120, with an old BIOS.
+I got new 40GB hard disk, and in order to make it readable, I needed to
+use the cable-select jumper in order to make the hard disk look smaller
+for the bios.
+The only problem is that the linux recognizes my hard drive as 33GB (maybe
+its 32 as you said). will what you said about disabling the hard disk
+recognision at the BIOS help me?
+I don't want to play with the BIOS for nothing, so please let me know.
+
+ Thanks,
+   Ido
+
+On Thu, 27 Dec 2001, Stephan von Krawczynski wrote:
+
+> On Thu, 27 Dec 2001 13:14:43 -0000
+> "James Stevenson" <mistral@stev.org> wrote:
 >
-> Sure. Automatic re-mailing can be part of the maintainership, if the
-> testing of the validity of the patch is also automated (ie add a
-> automated note that says that it has been verified).
-
-Patch-bombing you with useless stuff has never been my
-objective. I just want to make sure valid patches get
-re-sent to you as long as there is a reason to believe
-they still need to be sent.
-
-As soon as any hint arrives that the patch shouldn't be
-sent right now (a change was made to any of the files the
-patch applies to, I see something suspect in the changelog,
-the patch was applied, a reply was mailed to the patch...)
-the patch will be moved away for manual inspection.
-
-I guess I'll also build in some kind of backoff to make sure
-the patch gets sent less often if you're not interested or too
-busy.
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
+> > > I tried this one some time ago, and had to find out, that I was not able
+> > to
+> > > write to the upper cylinders of the disk. You can check this out _before_
+> > using
+> > > the drive via dd from /dev/zero to your /dev/drive and look at the
+> > results.
+> >
+> > it seems to work fine for me.
+> > could it be possible that the chipset that you are using does not support
+> > disks bigger than 32GB ?
+>
+> I don't know. I tried once with
+>
+> 00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
+>
+> and it did not work. I could definitely not write beyond the 32 GB border. I
+> replaced the mobo then.
+>
+> Regards,
+> Stephan
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

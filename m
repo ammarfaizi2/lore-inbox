@@ -1,62 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311211AbSCSN2i>; Tue, 19 Mar 2002 08:28:38 -0500
+	id <S311203AbSCSNj6>; Tue, 19 Mar 2002 08:39:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311209AbSCSN2a>; Tue, 19 Mar 2002 08:28:30 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:61572 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S311203AbSCSN2S>; Tue, 19 Mar 2002 08:28:18 -0500
-Date: Tue, 19 Mar 2002 14:27:59 +0100
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Jim Hollenback <jholly@cup.hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: readv() return and errno
-Message-ID: <20020319142759.A1350@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-Mail-Followup-To: Jim Hollenback <jholly@cup.hp.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <1020315135426.ZM923@fry.cup.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S311212AbSCSNjs>; Tue, 19 Mar 2002 08:39:48 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:54181 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S311203AbSCSNjh>; Tue, 19 Mar 2002 08:39:37 -0500
+Date: Tue, 19 Mar 2002 14:38:55 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: mingo@elte.hu, Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+        oliend@us.ibm.com
+Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
+In-Reply-To: <89210000.1016215711@flay>
+Message-ID: <Pine.GSO.3.96.1020319141335.12399G-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Mar 2002, Martin J. Bligh wrote:
 
-On Fri, Mar 15, 2002 at 01:54:26PM -0800, Jim Hollenback wrote:
->  In doing some testing on the project I'm working on I came
->  across something that is causing a bit of confusion on my part.
+> Dave could explain this to you better than I could, but if I remember
+> all this correctly what he was doing was really trying to was program
+> the APR, not the TPR, but the APR is a read only register ... it's
+> affected by the way you program the TPR. The docs are particularly
+> opaque about how this really works. I've had pretty much exactly this
+> argument with Dave before, and we thrashed out how it all worked in the
+> process. 
 > 
->  According to readv(2) EINVAL is returned for an invalid
->  argument.  The examples given were count might be greater than
->  MAX_IOVEC or zero. The test case I am working with has count = 0
->  and I get return of 0 and errno 0 instead of the expected -1
->  and errno EINVAL.
+> What I normally look at is Section 7.5 (APIC) of Vol 3 of the PIII Intel
+> docs.  These are very confusing in this area, and Dave had some better
+> docs that I'll see if I can dig out. But if you look carefully at them
+> (and you know how it's meant to work before you start) it makes sense in
+> a twisted sort of way. 
+
+ I've found i82489DX docs to be most comprehensive in this as well as
+other areas.  The integrated APIC doesn't seem to differ much from the
+i82489DX wrt the arbitration -- the only difference is the focus processor
+checking feature that can't be disabled for the latter. 
+
+> Dynamic distribution assigns incoming interrupts to the lowest priority
+> processor, which is generally the least busy processor ... <snip> ...
+> from all processors listed in the destination, the processor selected is
+> the one whose current arbitration priority is the lowest. The latter is
+> specified in the arbitration priority register (APR) ... <snip> ... If
+> more than one processor shares the lowest priority, the processor with
+> the highest arbitration priority (the unique value in the Arb ID
+> register) is selected. 
 > 
->  Am I missing something?
+> The last sentence is how round robin happens on an SMP P3 system. I presume
+> this is what fell off for the P4.
 
-http://www.opengroup.org/onlinepubs/007904975/
-"The Open Group Base Specifications Issue 6", IEEE Std 1003.1-2001:
+ Basically there is no way to arbitrate with the FSB delivery.
 
- The readv() function may fail if:
+> Now look at the two paragraphs defining the TPR. The first para
+> describes pretty much what you describe. Note that this operation would
+> only require 4 bits.  Now look at the second para, where they define the
+> 4 msbs as corresponding to the interrupt priorities, and mumble
+> something about the 4 lsbs, giving very little real information. 
+> 
+> Now look at the section defining the APR, and look at the wierd
+> algorithm, which does somewhat opaque things to derive the value of the
+> APR from the TPR (and some other registers). It's easy to figure out
+> that they're coupled, it's harder to figure out exactly how, and I can't
+> remember exactly how this works right now. 
 
- [EINVAL]
- The iovcnt argument was less than or equal to 0, or greater than {IOV_MAX}.
+ Hmm, i82489DX docs explain it best, IIRC. 
 
-Notice the "may"? From the same document:
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
- may
-
- Describes a feature or behavior that is optional for an implementation
- that conforms to IEEE Std 1003.1-2001. An application should not rely on
- the existence of the feature or behavior. An application that relies on
- such a feature or behavior cannot be assured to be portable across
- conforming implementations.
-
- To avoid ambiguity, the opposite of may is expressed as need not,
- instead of may not.
-    
-So the 0 there just mean nothing, exactly what you get.
- 
--alex

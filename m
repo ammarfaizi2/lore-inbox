@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318017AbSGWKN1>; Tue, 23 Jul 2002 06:13:27 -0400
+	id <S318016AbSGWKMp>; Tue, 23 Jul 2002 06:12:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318018AbSGWKN1>; Tue, 23 Jul 2002 06:13:27 -0400
-Received: from rzfoobar.is-asp.com ([217.11.194.155]:32920 "EHLO mail.isg.de")
-	by vger.kernel.org with ESMTP id <S318017AbSGWKNY>;
-	Tue, 23 Jul 2002 06:13:24 -0400
-Message-ID: <3D3D2CFD.1AEEBE5D@isg.de>
-Date: Tue, 23 Jul 2002 12:16:29 +0200
-From: Peter Niemayer <niemayer@isg.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: read/recv sometimes returns EAGAIN instead of EINTR on SMPmachines
-References: <3D3BE1C2.CB89D124@isg.de> <20020722.195749.34129476.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S318019AbSGWKMp>; Tue, 23 Jul 2002 06:12:45 -0400
+Received: from smtp02.web.de ([217.72.192.151]:22806 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S318016AbSGWKMm>;
+	Tue, 23 Jul 2002 06:12:42 -0400
+Subject: Re: Separate 2.4 and 2.5 lkml?
+From: Christian Neumair <christian-neumair@web.de>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200207231159.10934.roy@karlsbakk.net>
+References: <200207231159.10934.roy@karlsbakk.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 23 Jul 2002 12:06:24 +0200
+Message-Id: <1027418785.5210.12.camel@kellerbar.lan.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+Am Die, 2002-07-23 um 11.59 schrieb Roy Sigurd Karlsbakk:
+> hi all
+> 
+> How would it be to separate the 2.4 and 2.5 (or just stable and devel) lists? 
+> I'm currently one of those most interested in 2.4, as I don't do much kernel 
+> hacking.
+This isn't a good idea as there are many issues affecting both kernel
+series and some people looking for support wouldn't even know where to
+ask their questions.
+In Addition, some right issues (e.g. copyright violations) are discussed
+here not regarding kernel development directly.
 
-> Can you cite some part of the POSIX spec which states that EAGAIN
-> cannot be returned when signals are received by a caller of
-> tcp_recvmsg?
+If you want a more compact overview just have a look at kernel
+traffic[1]
 
-See: http://www.opengroup.org/onlinepubs/007904975/functions/recv.html
+see you,
+ Chris
 
-IMHO, the text is in no way unclear that EAGAIN is not the correct return
-code for the situation while EINTR definitely is.
+[1]: http://kt.linuxcare.com/kernel-traffic/index.epl
 
-Regards,
-
-Peter Niemayer

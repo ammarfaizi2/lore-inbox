@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbTKTSJc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 13:09:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbTKTSJc
+	id S262086AbTKTSKl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 13:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTKTSKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 13:09:32 -0500
-Received: from holomorphy.com ([199.26.172.102]:32432 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262074AbTKTSJa (ORCPT
+	Thu, 20 Nov 2003 13:10:41 -0500
+Received: from smtp.dkm.cz ([62.24.64.34]:62992 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S262086AbTKTSKb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 13:09:30 -0500
-Date: Thu, 20 Nov 2003 10:03:06 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: jt@hpl.hp.com
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: ndiswrapper
-Message-ID: <20031120180306.GK22764@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>, jt@hpl.hp.com,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com> <20031120172454.GB14608@bougret.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 20 Nov 2003 13:10:31 -0500
+From: "Michal Semler (volny.cz)" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: XI-325H and Acer TravelMate 242
+Date: Thu, 20 Nov 2003 19:10:32 +0100
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031120172454.GB14608@bougret.hpl.hp.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200311201910.32039.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 19, 2003 at 08:00:34PM -0800, William Lee Irwin III wrote:
->> And what good would it be to have an entire driver subsystem populated
->> by binary-only drivers? That's not part of Linux, that's "welcome to
->> nvidia hell" for that subsystem too, and not just graphics cards.
+Hi,
 
-On Thu, Nov 20, 2003 at 09:24:54AM -0800, Jean Tourrilhes wrote:
-> 	What's the point in ruminating academic scenario. There exist
-> fully open source drivers for quite a wide variety of modern wireless
-> LAN cards. It's not like if you don't have the choice.
+I have bought ZCOM XI-325H Prism2 based card into PCMCIA slot.
 
-I wasn't quite aware of that when I made the post; prior discussions
-had led me to believe the above scenario to be something approaching
-the status quo.
+After plugging into slot leds starts shining, but card is not shown in lspci.
+Under WinXP card works normally!!
+
+My ethernet card into PCMCIA slot works perfectly and is shown in lspci
+
+Can somebody help me? This card is very expensive and I need it to get it work 
+under Linux :((
+
+notas:~# lspci
+00:00.0 Host bridge: Intel Corp. 82852/855GM Host Bridge (rev 02)
+00:00.1 System peripheral: Intel Corp.: Unknown device 3584 (rev 02)
+00:00.3 System peripheral: Intel Corp.: Unknown device 3585 (rev 02)
+00:02.0 VGA compatible controller: Intel Corp. 82852/855GM Integrated Graphics 
+Device (rev 02)
+00:02.1 Display controller: Intel Corp. 82852/855GM Integrated Graphics Device 
+(rev 02)
+00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub  (rev 03)
+00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub  (rev 03)
+00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub  (rev 03)
+00:1d.7 USB Controller: Intel Corp. 82801DB USB2 (rev 03)
+00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 83)
+00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev 03)
+00:1f.1 IDE interface: Intel Corp. 82801DBM Ultra ATA Storage Controller (rev 
+03)
+00:1f.3 SMBus: Intel Corp. 82801DB/DBM SMBus Controller (rev 03)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801DB AC'97 Audio 
+Controller (rev 03)
+00:1f.6 Modem: Intel Corp. 82801DB AC'97 Modem Controller (rev 03)
+02:04.0 CardBus bridge: Texas Instruments PCI1250 PC card Cardbus Controller 
+(rev 01)
+02:04.1 CardBus bridge: Texas Instruments PCI1250 PC card Cardbus Controller 
+(rev 01)
+02:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
+RTL-8139/8139C/8139C+ (rev 10)
 
 
--- wli
+Michal
+

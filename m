@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314735AbSEDRMh>; Sat, 4 May 2002 13:12:37 -0400
+	id <S314829AbSEDROb>; Sat, 4 May 2002 13:14:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314747AbSEDRMg>; Sat, 4 May 2002 13:12:36 -0400
-Received: from relay1.pair.com ([209.68.1.20]:50697 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S314735AbSEDRMg>;
-	Sat, 4 May 2002 13:12:36 -0400
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3CD41727.64D626D6@kegel.com>
-Date: Sat, 04 May 2002 10:15:19 -0700
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
+	id <S314831AbSEDROa>; Sat, 4 May 2002 13:14:30 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:48327 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314829AbSEDRO3>;
+	Sat, 4 May 2002 13:14:29 -0400
+To: Christoph Hellwig <hch@infradead.org>
+cc: Guest section DW <dwguest@win.tue.nl>, Jeff Dike <jdike@karaya.com>,
+        linux-kernel@vger.kernel.org,
+        user-mode-linux-devel@lists.sourceforge.net,
+        user-mode-linux-user@lists.sourceforge.net
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: UML is now self-hosting! 
+In-Reply-To: Your message of Sat, 04 May 2002 07:28:49 BST.
+             <20020504072849.B2295@infradead.org> 
 MIME-Version: 1.0
-To: arjan@fenrus.demon.nl,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: khttpd newbie problem
-In-Reply-To: <200205041600.g44G0J708618@pc3-camc5-0-cust13.cam.cable.ntl.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <13323.1020532332.1@us.ibm.com>
+Date: Sat, 04 May 2002 10:12:12 -0700
+Message-Id: <E17434u-0003Sx-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arjan@fenrus.demon.nl wrote:
-> Dan Kegel wrote:
-> > I can't get khttpd to serve any requests.
-> >
-> > echo /home/dank/stress > /proc/sys/net/khttpd/documentroot
-> > echo 80 > /proc/sys/net/khttpd/serverport
-> > echo 8000 > /proc/sys/net/khttpd/maxconnect
-> > echo 1 > /proc/sys/net/khttpd/start
+In message <20020504072849.B2295@infradead.org>, > : Christoph Hellwig writes:
+> On Fri, May 03, 2002 at 03:28:03PM -0700, Gerrit Huizenga wrote:
+> > PTX could *almost* run VMWare (might be able to run Win4Lin or Boochs...)
 > 
-> what did you set the client port to ?
+> Umm, you have ported the VMWare and Win4Lin kernel modules?
+> For Win4Lin I could almost image it as it is ported UnixWare code..
 
-That was it.  I finally read /usr/src/net/khttpd/README,
-and I should be ok now.  I am such a dork sometimes.
+Nope - that's where the part of the *almost* comes from.  There were
+a few other things we didn't get to and the only time I remember someone
+trying it was when we still didn't have modify_ldt() ported, so that
+also broke.  VMWare wasn't actually a goal - on the same hardware
+we could statically partition nodes and some nodes could natively
+run NT while some ran PTX.  Now those same nodes can also run Linux
+as well.  And we quit putting major development effort into PTX about
+two years ago, so we'll probably never find out just how close we
+were on VMWare.
 
-Thanks,
-Dan
-
-p.s. also found http://lists.alt.org/pipermail/khttpd-users/
-which should be helpful.
+gerrit

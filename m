@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbULQF0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbULQFsT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262744AbULQF0I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 00:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbULQF0I
+	id S262749AbULQFsT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 00:48:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbULQFsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 00:26:08 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:26301 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S262744AbULQF0C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 00:26:02 -0500
-Message-ID: <41C26DD1.7070006@trash.net>
-Date: Fri, 17 Dec 2004 06:25:37 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041008 Debian/1.7.3-5
-X-Accept-Language: en
+	Fri, 17 Dec 2004 00:48:19 -0500
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:63978 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262749AbULQFsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 00:48:15 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: debugfs in the namespace
+To: Greg KH <greg@kroah.com>, Pete Zaitcev <zaitcev@redhat.com>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Fri, 17 Dec 2004 06:51:11 +0100
+References: <fa.al1ango.pl0rak@ifi.uio.no> <fa.ddml8me.1k46obg@ifi.uio.no>
+User-Agent: KNode/0.7.7
 MIME-Version: 1.0
-To: James Morris <jmorris@redhat.com>
-CC: Bryan Fulton <bryan@coverity.com>, netdev@oss.sgi.com,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [Coverity] Untrusted user data in kernel
-References: <Xine.LNX.4.44.0412170012040.12382-100000@thoron.boston.redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0412170012040.12382-100000@thoron.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1CfB1D-00011J-00@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris wrote:
+Greg KH wrote:
+> On Thu, Dec 16, 2004 at 04:51:18PM -0500, Mike Waychison wrote:
 
->This at least needs CAP_NET_ADMIN.
->
-It is already checked in do_ip6t_set_ctl(). Otherwise anyone could
-replace iptables rules :)
+>> Please, let's not make debugfs part of userspace.  Keep it for what it
+>> is, debugging purposes only.
+> 
+> I'm not saying we will ever make it "required" at all.  It's just that
+> people are going to want to mount the thing, and are already asking me
+> where we should mount it at.  If you pick a different place than me,
+> fine, I don't mind.  It's the user who is asked to report some info that
+> happens to be in debugfs that is going to want to know where to put it,
+> as they have no idea even what it is.  Distros are going to ask what to
+> put in their fstabs for where to mount the thing too.
+> 
+> So, let's pick a place and be done with it.
 
-Regards
-Patrick
+/mnt (users) or /var/adm/mount/debugfs (distros, asuming they mount their
+temporary stuff there).
 
->
->On Thu, 16 Dec 2004, Bryan Fulton wrote:
->  
->
->>////////////////////////////////////////////////////////
->>// 3:   /net/ipv6/netfilter/ip6_tables.c::do_replace  //
->>////////////////////////////////////////////////////////
->> 
->>- tainted unsigned scalar tmp.num_counters multiplied and passed to
->>vmalloc (1161) and memset (1166) which could overflow or be too large
->>
->>Call to function "copy_from_user" TAINTS argument "tmp"
->>
->>1143            if (copy_from_user(&tmp, user, sizeof(tmp)) != 0)
->>1144                    return -EFAULT;
->>
->>...
->>
->>TAINTED variable "((tmp).num_counters * 16)" was passed to a tainted
->>sink.
->>
->>1161            counters = vmalloc(tmp.num_counters * sizeof(struct
->>ip6t_counters));
->>1162            if (!counters) {
->>1163                    ret = -ENOMEM;
->>1164                    goto free_newinfo;
->>1165            }
->>
->>TAINTED variable "((tmp).num_counters * 16)" was passed to a tainted
->>sink.
->>
->>1166            memset(counters, 0, tmp.num_counters * sizeof(struct
->>ip6t_counters));
->>
->>    
->>
->
->  
->
+I'm asuming you should almost never need to touch devfs-entries, so if
+your distro mounts it just in case, it should be out of the way.
 

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310769AbSEINPC>; Thu, 9 May 2002 09:15:02 -0400
+	id <S311121AbSEINQo>; Thu, 9 May 2002 09:16:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310917AbSEINPB>; Thu, 9 May 2002 09:15:01 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33801 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310769AbSEINPA>; Thu, 9 May 2002 09:15:00 -0400
-Subject: Re: [PATCH] 2.5.14 IDE 56
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Thu, 9 May 2002 14:32:09 +0100 (BST)
-Cc: ltd@cisco.com (Lincoln Dale), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        dalecki@evision-ventures.com (Martin Dalecki),
-        torvalds@transmeta.com (Linus Torvalds),
-        padraig@antefacto.com (Padraig Brady),
-        aia21@cantab.net (Anton Altaparmakov),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.10.10205082055530.924-100000@master.linux-ide.org> from "Andre Hedrick" at May 08, 2002 09:16:30 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311180AbSEINQn>; Thu, 9 May 2002 09:16:43 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:5563 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S311121AbSEINQm>; Thu, 9 May 2002 09:16:42 -0400
+Date: Thu, 9 May 2002 14:18:49 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: torvalds@transmeta.com, akpm@zip.com.au, cr@sap.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] double flush_page_to_ram
+In-Reply-To: <20020509.045643.27562731.davem@redhat.com>
+Message-ID: <Pine.LNX.4.21.0205091416360.10889-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E175o1h-0003jl-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You are right on the money!
-> There is about 35-40% throughput killjoy "copy-from-kernel-to-userspace".
-> It is easy to demo if you have a bus analizer and can do accounting on the
-> data io less the command block overhead.
+On Thu, 9 May 2002, David S. Miller wrote:
+>    From: Hugh Dickins <hugh@veritas.com>
+>    Date: Thu, 9 May 2002 13:03:52 +0100 (BST)
 > 
-> CR3's are your friend, not ...
+>    filemap_nopage and shmem_nopage do flush_page_to_ram before returning
+>    page, but do_no_page also does flush_page_to_ram on any page it slots
+>    into the user address space.  It's memory.c's business, remove it from
+>    shmem and filemap (and cut outdated comment from when filemap copied).
+>    
+> Wrong, consider the case where we do early COW in do_no_page, you miss
+> a flush on the new-new page.
 
-You should be able to verify that by using large O_DIRECT I/O's. The
-block layer itself may well be part of the overhead. With the scsi layer,
-the block->scsi handling code is definitely a bottleneck to performance
+Of course we do, and then we don't map it into user address space;
+if it ever gets mapped into user address space later, do_no_page
+does the flush_page_to_ram then.
+
+Hugh
+

@@ -1,61 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265499AbUAGLOr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 06:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265507AbUAGLOr
+	id S265502AbUAGLSh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 06:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265504AbUAGLSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 06:14:47 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:1543 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S265499AbUAGLOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 06:14:46 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-Date: Wed, 7 Jan 2004 14:14:44 +0300
-User-Agent: KMail/1.5.3
-Cc: Olaf Hering <olh@suse.de>, Andries Brouwer <aebr@win.tue.nl>,
-       Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-References: <200401012333.04930.arvidjaar@mail.ru> <200401071400.46286.arvidjaar@mail.ru> <20040107110516.GC3483@suse.de>
-In-Reply-To: <20040107110516.GC3483@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jan 2004 06:18:37 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50309 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265502AbUAGLSf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 06:18:35 -0500
+Date: Wed, 7 Jan 2004 11:18:32 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Olaf Hering <olh@suse.de>
+Cc: Rob Love <rml@ximian.com>, Nathan Conrad <lk@bungled.net>,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040107111832.GL4176@parcelfarce.linux.theplanet.co.uk>
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <E1AbWgJ-0000aT-00@neptune.local> <20031231192306.GG25389@kroah.com> <1072901961.11003.14.camel@fur> <20031231220107.GC11032@bungled.net> <1072909218.11003.24.camel@fur> <20031231225536.GP4176@parcelfarce.linux.theplanet.co.uk> <20040107101559.GA22770@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401071414.44390.arvidjaar@mail.ru>
+In-Reply-To: <20040107101559.GA22770@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 January 2004 14:05, Jens Axboe wrote:
-> On Wed, Jan 07 2004, Andrey Borzenkov wrote:
-> > On Wednesday 07 January 2004 12:50, Jens Axboe wrote:
-> > > > > So yeah, poll...
-> > > >
-> > > > Poll how? "kmediachangethread"? Or polling in userland? The latter
-> > > > would (probably) lead to endless IO errors. Not very good.
-> > >
-> > > No need to put it in the kernel, user space fits the bil nicely.
-> >
-> > unfortunately opening device in userland effectively locks tray making
-> > media change impossible. at least given current ->open semantic.
-> >
-> > even periodic access is quite annoying for users (tray closing while
-> > user attempts to insert CD)
->
-> cdrom layer handles this with O_NONBLOCK basically meaning a 'not for
-> data' open.
->
-> > we may agree that O_NDELAY does not affect locked state; currently
-> > this is not consistent across drivers (e.g. cdrom does not lock tray
-> > while sd does)
->
-> cdrom has no special O_NDELAY checks.
+On Wed, Jan 07, 2004 at 11:15:59AM +0100, Olaf Hering wrote:
+> Now, thats just fine and it was always been that way.
+> What if I chroot into /foo, proc is mounted on /foo/proc,
+> and run fsck /dev/sda3 in that chroot? 
+> That silly app looks for /etc/mtab (oh my...) and start the work.
+> Fine. Now, /dev/root is in reality /dev/sda3. Bad for me.
 
-ok I meant O_NONBLOCK, sorry. they are synonyms anyway
+Huh?
+ 
+> the whole thing would work as expected of /proc/self/mounts would have
+> a sane format:
+> olh@melon:~> cat /proc/mounts
+> 0:0 / rootfs rw 0 0
+> 8:3 / ext3 rw 0 0
+> proc /proc proc rw 0 0
+> devpts /dev/pts devpts rw 0 0
+> 58:0 /abuild ext3 rw 0 0
+> 58:1 /data1 ext3 rw 0 0
+> 58:2 /data2 ext3 rw 0 0
+> shmfs /dev/shm shm rw 0 0
+> automount(pid937) /suse autofs rw 0 0
+> wotan:/real-home/jplack /suse/jplack nfs rw,nosuid,v3,rsize=8192,wsize=8192,hard,intr,tcp,nolock,addr=wotan 0 0
+> wotan:/real-home/olh /suse/olh nfs rw,nosuid,v3,rsize=8192,wsize=8192,hard,intr,tcp,nolock,addr=wotan 0 0
 
-{pts/0}% grep NONBLO *
-fcntl.h:#define O_NONBLOCK        04000
-fcntl.h:#define O_NDELAY        O_NONBLOCK
+It's *NOT* a sane format.
 
+> Now fsck could look for /dev/sda3, realize that it is a block
+> device node and look for that in the kernel mount table.
+> If it is mounted, abort with a nice and meaningful error message.
+> 
+> So my question is: why was this strange format invented in the first place?
+> And: will 2.7 get a sane /proc/self/mounts format for block devices?
+
+Yes.  It already has one.
+
+Note that you're not only adding ad-hackery (which filesystems get that
+major:minor printed and which do not?), you *STILL* hadn't solved your
+problem.  Why?  Because you still won't catch e.g. ext3 on /dev/sda5 with
+external journal on /dev/sda3.  And if you hack parsing ext3 lines in
+/proc/mounts, there's always reiserfs, jfs, etc., etc.  _And_ there's
+RAID with the same problems wrt. access to components.  Real funny
+when you have raid0 on md0, have md0 mounted and try to fsck one of
+components.
+
+Scanning /etc/mtab or /proc/mounts in such situations is wrong.  If fsck
+is doing that, it's broken.  The right way to fix it depends on what you
+really want and whatever the hell it is, putting new and new fs-specific
+code that would parse /proc/mounts lines into fsck(8) is not an answer.

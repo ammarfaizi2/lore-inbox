@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315311AbSDWTLr>; Tue, 23 Apr 2002 15:11:47 -0400
+	id <S315315AbSDWTWJ>; Tue, 23 Apr 2002 15:22:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315312AbSDWTLq>; Tue, 23 Apr 2002 15:11:46 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:5109 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S315311AbSDWTLp>;
-	Tue, 23 Apr 2002 15:11:45 -0400
-Message-ID: <3CC5B17B.4E9ACA7C@mvista.com>
-Date: Tue, 23 Apr 2002 12:09:47 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S315316AbSDWTWI>; Tue, 23 Apr 2002 15:22:08 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1810 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315315AbSDWTWI>; Tue, 23 Apr 2002 15:22:08 -0400
+Date: Tue, 23 Apr 2002 12:21:29 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Brian Gerst <bgerst@didntduck.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        <ak@suse.de>, <linux-kernel@vger.kernel.org>, <jh@suse.cz>
+Subject: Re: [PATCH] Re: SSE related security hole
+In-Reply-To: <20020420201205.M1291@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0204231218540.19326-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <3CC4861C.F21859A6@mvista.com.suse.lists.linux.kernel> <E16zuPf-0007yD-00@the-village.bc.nu.suse.lists.linux.kernel> <p73g01m994q.fsf@oldwotan.suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> 
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> 
-> > > The problem is in accounting (or time slicing if you prefer) where we
-> > > need to start a timer each time a task is context switched to, and stop
-> > > it when the task is switched away.  The overhead is purely in the set up
-> > > and tear down.  MOST of these never expire.
-> >
-> > Done properly on many platforms a variable tick is very very easy and also
-> > very efficient to handle. X86 is a paticular problem case because the timer
-> > is so expensive to fiddle with
-> 
-> Depends. On modern x86 you can either use the local APIC timer or
-> the mmtimers (ftp://download.intel.com/ial/home/sp/mmts097.pdf -
-> should be in newer x86 chipsets). Both should be better than the
-> 8254 timer and are also not expensive to work with.
 
-I must not be making my self clear :)  The overhead has nothing to do
-with hardware.  It is all timer list insertion and deletion.  The
-problem is that we need to do this at context switch rates, which are
-MUCH higher that tick rates and, even with the O(1) insertion code,
-cause the overhead to increase above the ticked overhead.
- 
--g
-> 
-> -Andi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+On Sat, 20 Apr 2002, Andrea Arcangeli wrote:
+>
+> I mean, if they change the registers layout, and so if they require a
+> different empty FPU state, they must as well add yet another bitflag to
+> enable SSE3, if they don't the chip isn't backwards compatible.
+
+I have unofficial confirmation from Intel that the way to architecturally
+initialize the FPU state is indeed something like
+
+        memset(&fxsave, 0, sizeof(struct i387_fxsave_struct));
+        fxsave.cwd = 0x37f;
+        fxsave.mxcsr = 0x1f80;
+        fxrstor(&fxsave);
+
+and the person in question is trying to make sure this is documented so
+that we won't be bitten by this in the future.
+
+			Linus
+

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129437AbQK3LzI>; Thu, 30 Nov 2000 06:55:08 -0500
+        id <S129183AbQK3MA7>; Thu, 30 Nov 2000 07:00:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129434AbQK3LzA>; Thu, 30 Nov 2000 06:55:00 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:264 "EHLO virtualhost.dk")
-        by vger.kernel.org with ESMTP id <S130509AbQK3Luw>;
-        Thu, 30 Nov 2000 06:50:52 -0500
-Date: Thu, 30 Nov 2000 12:20:19 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Miles Lane <miles@megapathdsl.net>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0-test12-pre3 -- Playing an audio CD halts with drive errors.
-Message-ID: <20001130122019.A31057@suse.de>
-In-Reply-To: <3A25F803.6090609@megapathdsl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A25F803.6090609@megapathdsl.net>; from miles@megapathdsl.net on Wed, Nov 29, 2000 at 10:47:31PM -0800
+        id <S129226AbQK3MAs>; Thu, 30 Nov 2000 07:00:48 -0500
+Received: from [194.122.47.18] ([194.122.47.18]:6923 "EHLO msnexch2.rkes.de")
+        by vger.kernel.org with ESMTP id <S129183AbQK3MAc>;
+        Thu, 30 Nov 2000 07:00:32 -0500
+Message-ID: <91571DF701C0D211B7CA00805F628DBE23358D@BER1_B01>
+From: "Hinderling, Anselm" <Anselm.Hinderling@RKES.DE>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: /sbin/route problem with 2.4.0test
+Date: Thu, 30 Nov 2000 12:34:34 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29 2000, Miles Lane wrote:
-> This could be a CD scratch, but I don't think it is.
-> This is a brand new CD which I just opened.
+> -----Original Message-----
+> From:	Dries van Oosten [SMTP:D.vanOosten@phys.uu.nl]
+> Sent:	Thursday, November 30, 2000 12:17 PM
+> To:	linux-kernel@vger.kernel.org
+> Subject:	/sbin/route problem with 2.4.0test
 > 
-> After the errors from /var/log/messages, I include
-> info from hdparm -g -i.
+> I have plowed my way trough the kernel-digest archives, but I couldn't
+> find an answer, so sorry if it's old news.
+> I have a machine running 2.4.0test8 and /sbin/route refuses to work. It
+> only prints the table headers and then nothing happens. I can stop it with
+> ctrl-c, but the actual routing table is not printed. I don't know much
+> about the changes between 2.2 and 2.4, so I looked up the routing table
+> struct in include/net/route.h. At first I thought the table remained the
+> same, because they were the same version. One closer inspection I found
+> that the entry inet_peer had been added to the rtable struct. Can this be
+> the cause of my problem with the route utility?
+> If so? What's the fix?
 > 
-> hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-> hdc: packet command error: error=0x50
-> ATAPI device hdc:
->    Error: Illegal request -- (Sense key=0x05)
->    Invalid field in command packet -- (asc=0x24, ascq=0x00)
->    The failed "Play Audio MSF" packet command was:
->    "47 00 00 00 02 00 3f 24 ff 00 00 00 "
->    Error in command packet byte 8 bit 0
+have you ever tried "/sbin/route -n" (or even --help ;-)?
 
-Try with
+> thanks for your patience,
+> Dries van Oosten
+> 
+> 
+> 
+> 
+		anselm.
 
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test11/cd-1.bz2
-
-It should apply cleanly to test12-pre3 too.
-
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

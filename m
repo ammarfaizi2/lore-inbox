@@ -1,51 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317820AbSFSJCX>; Wed, 19 Jun 2002 05:02:23 -0400
+	id <S317821AbSFSJJl>; Wed, 19 Jun 2002 05:09:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317821AbSFSJCW>; Wed, 19 Jun 2002 05:02:22 -0400
-Received: from revdns.flarg.info ([213.152.47.19]:14539 "EHLO noodles.internal")
-	by vger.kernel.org with ESMTP id <S317820AbSFSJCV>;
-	Wed, 19 Jun 2002 05:02:21 -0400
-Date: Wed, 19 Jun 2002 10:02:48 +0100
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: /proc/partitions broken in 2.5.23
-Message-ID: <20020619090248.GA8681@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S317822AbSFSJJk>; Wed, 19 Jun 2002 05:09:40 -0400
+Received: from sj-msg-core-2.cisco.com ([171.69.24.11]:28355 "EHLO
+	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
+	id <S317821AbSFSJJj>; Wed, 19 Jun 2002 05:09:39 -0400
+Message-ID: <3D104A50.24C00206@cisco.com>
+Date: Wed, 19 Jun 2002 14:39:36 +0530
+From: Manik Raina <manik@cisco.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: (off 2.5.22) replacing __builtin_expect with unlikely in Alpha 
+ headers 
+Content-Type: multipart/mixed;
+ boundary="------------10DFFC3DF2A702B8FCAB56DD"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got a bug report about an issue with LVM in 2.5.22-dj1, which turns
-out to be caused by broken /proc/partitions in mainline.
+This is a multi-part message in MIME format.
+--------------10DFFC3DF2A702B8FCAB56DD
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-(davej@mesh:davej)$ cat /proc/partitions 
-major minor  #blocks  name
 
-   8     0          0 sda
-  22     0 1515870810 hdc
-  22    64 1515870810 hdd
-   3     0   29316672 hda
-   3     1     117400 hda1
-   3     2          1 hda2
-   3     5     999904 hda5
-   3     6    1499872 hda6
-   3     7     683392 hda7
-   3     8   26015944 hda8
-   3    64 1515870810 hdb
+    This fix should remove __builtin_expect () and replace it with
+unlikely ()  in include/asm-alpha/rwsem.h
+    This should be cool since rwsem.h already includes
+include/linux/compiler.h
 
-Note the huge numbers in hex are 0x5a5a5a5a, so something
-seems to be getting poisoned somewhere.
+    Files changed :
 
-Also, should partitions with 0 blocks be showing up ?
-I don't recall that happening with the old-style 2.4 code.
+    include/asm-alpha/rwsem.h
 
-		Dave
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+--------------10DFFC3DF2A702B8FCAB56DD
+Content-Type: text/plain; charset=us-ascii;
+ name="a"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="a"
+
+diff -u -U 6 -r include/asm-alpha/rwsem.h /home/manik/linux-2.5.22/include/asm-alpha/rwsem.h
+--- include/asm-alpha/rwsem.h	Mon Jun 17 08:01:35 2002
++++ /home/manik/linux-2.5.22/include/asm-alpha/rwsem.h	Wed Jun 19 14:25:03 2002
+@@ -80,13 +80,13 @@
+ 	".subsection 2\n"
+ 	"2:	br	1b\n"
+ 	".previous"
+ 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(oldcount < 0, 0))
++	if (unlikely(oldcount < 0))
+ 		rwsem_down_read_failed(sem);
+ }
+ 
+ static inline void __down_write(struct rw_semaphore *sem)
+ {
+ 	long oldcount;
+@@ -104,13 +104,13 @@
+ 	".subsection 2\n"
+ 	"2:	br	1b\n"
+ 	".previous"
+ 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(oldcount, 0))
++	if (unlikely(oldcount))
+ 		rwsem_down_write_failed(sem);
+ }
+ 
+ static inline void __up_read(struct rw_semaphore *sem)
+ {
+ 	long oldcount;
+@@ -128,13 +128,13 @@
+ 	".subsection 2\n"
+ 	"2:	br	1b\n"
+ 	".previous"
+ 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(oldcount < 0, 0)) 
++	if (unlikely(oldcount < 0)) 
+ 		if ((int)oldcount - RWSEM_ACTIVE_READ_BIAS == 0)
+ 			rwsem_wake(sem);
+ }
+ 
+ static inline void __up_write(struct rw_semaphore *sem)
+ {
+@@ -154,13 +154,13 @@
+ 	".subsection 2\n"
+ 	"2:	br	1b\n"
+ 	".previous"
+ 	:"=&r" (count), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(count, 0))
++	if (unlikely(count, 0))
+ 		if ((int)count == 0)
+ 			rwsem_wake(sem);
+ }
+ 
+ static inline void rwsem_atomic_add(long val, struct rw_semaphore *sem)
+ {
+Only in /home/manik/linux-2.5.22/include/asm-alpha/: rwsem.h~
+
+--------------10DFFC3DF2A702B8FCAB56DD--
+

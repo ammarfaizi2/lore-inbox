@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbTFXRNc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 13:13:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbTFXRNc
+	id S262645AbTFXRQv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 13:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbTFXRQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 13:13:32 -0400
-Received: from mail.skjellin.no ([80.239.42.67]:38342 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S262373AbTFXRNa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 13:13:30 -0400
-Subject: bkbits.net web UI oddities after last crash
-From: Andre Tomt <andre@tomt.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: 
-Message-Id: <1056475651.7646.128.camel@slurv.ws.pasop.tomt.net>
+	Tue, 24 Jun 2003 13:16:51 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:31186 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262645AbTFXRQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 13:16:31 -0400
+Date: Tue, 24 Jun 2003 19:30:32 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Cciss-discuss@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.5 patch] postfix a constant in cciss.c with ULL
+Message-ID: <20030624173032.GT3710@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 24 Jun 2003 19:27:31 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+The patch below postfixes a constant in cciss.h with ULL, on 32 bit
+archs this constant is too big for an int.
 
-I noticed some rather strange behavior from
-http://linux.bkbits.net:8080/linux-2.4
+The cast doesn't do the right thing, 0xffffffffffffffff is in C an int 
+and the cast casts 0xffffffffffffffff interpreted as an int to an u64.
 
-Lets say, I go to
-http://linux.bkbits.net:8080/linux-2.4/ChangeSet@-7d?nav=index.html
+Please apply
+Adrian
 
-So far, so good. No oddities here. Then I find "1.1002.3.2" in the list.
-"[IPV4]: Be more verbose about invalid ICMPs sent to broadcast."
-
-I click it. Okay, page comes up nicely, the header seems a little
-strange, though. But that might just be a feature change (I'm not a
-BK-user, yet). It claims I'm looking at ChangeSet
-3ef76015xckdLSammmd1kjiJ7CJY4Q. Isn't ChaneSet's named by a number? Not
-minding that too much, I click on the "all diffs" link. Returns nothing.
-Hmm.. ok, lets click on "diffs" for the single affected file instead,
-and behold, the right diff pops up. I try the same on some other changes
-in the list, the same problems appear.
-
-Whats happening?
-
--- 
-Cheers,
-André Tomt
-
+--- linux-2.5.73-not-full/drivers/block/cciss.c.old	2003-06-23 21:35:15.000000000 +0200
++++ linux-2.5.73-not-full/drivers/block/cciss.c	2003-06-23 21:36:07.000000000 +0200
+@@ -2457,7 +2457,7 @@
+ 	hba[i]->pdev = pdev;
+ 
+ 	/* configure PCI DMA stuff */
+-	if (!pci_set_dma_mask(pdev, (u64) 0xffffffffffffffff))
++	if (!pci_set_dma_mask(pdev, 0xffffffffffffffffULL))
+ 		printk("cciss: using DAC cycles\n");
+ 	else if (!pci_set_dma_mask(pdev, 0xffffffff))
+ 		printk("cciss: not using DAC cycles\n");

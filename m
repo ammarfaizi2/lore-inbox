@@ -1,71 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVBKSoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVBKSqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbVBKSoz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 13:44:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVBKSoz
+	id S262283AbVBKSqB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 13:46:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVBKSqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 13:44:55 -0500
-Received: from [205.233.219.253] ([205.233.219.253]:44194 "EHLO
-	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
-	id S262244AbVBKSox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 13:44:53 -0500
-Date: Fri, 11 Feb 2005 13:43:07 -0500
-From: Jody McIntyre <scjody@modernduck.com>
-To: Dan Dennedy <dan@dennedy.org>
-Cc: Parag Warudkar <kernel-stuff@comcast.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] ohci1394: dma_pool_destroy while in_atomic() && irqs_disabled()
-Message-ID: <20050211184307.GQ16141@conscoop.ottawa.on.ca>
-References: <41FD498C.9000708@comcast.net> <20050130131723.781991d3.akpm@osdl.org> <41FD6478.9040404@comcast.net> <20050130150224.33299170.akpm@osdl.org> <41FD8796.2020509@comcast.net> <1108136133.4149.3.camel@kino.dennedy.org>
+	Fri, 11 Feb 2005 13:46:01 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:22518 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262283AbVBKSp0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 13:45:26 -0500
+Date: Fri, 11 Feb 2005 10:42:57 -0800
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: Paul Jackson <pj@sgi.com>, Matthew Dobson <colpatch@us.ibm.com>,
+       dino@in.ibm.com, mbligh@aracnet.com, pwil3058@bigpond.net.au,
+       frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
+       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-ID: <20050211184257.GB21260@chandralinux.beaverton.ibm.com>
+References: <415F37F9.6060002@bigpond.net.au> <20050209175928.GA5710@chandralinux.beaverton.ibm.com> <20050211024606.GB19997@chandralinux.beaverton.ibm.com> <200502110854.53870.jbarnes@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1108136133.4149.3.camel@kino.dennedy.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200502110854.53870.jbarnes@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 11, 2005 at 10:35:33AM -0500, Dan Dennedy wrote:
+On Fri, Feb 11, 2005 at 08:54:52AM -0800, Jesse Barnes wrote:
+> On Thursday, February 10, 2005 6:46 pm, Chandra Seetharaman wrote:
+> > On Wed, Feb 09, 2005 at 09:59:28AM -0800, Chandra Seetharaman wrote:
+> > > On Tue, Feb 08, 2005 at 12:42:34PM -0800, Paul Jackson wrote:
+> >
+> > --stuff deleted---
+> >
+> > > memset_controller would be similar to this, before pitching it I will
+> > > talk with Matt about why he thought that there is a problem.
+> >
+> > Talked to Matt Dobson and explained him the CKRM architecture and how
+> > cpuset/memset can be implemented as a ckrm controller. He is now convinced
+> > that there is no problem in making memset also a ckrm controller.
+> >
+> > As explained in the earlier mail, memset also can be implemented in the
+> > same way as cpuset.
+> 
+> Arg!  Look, cpusets is *done* (i.e. it works well) and relatively simple and 
+> easy to use.  It's also been in -mm for quite some time.  It also solves the 
+> problem of being able to deal with large jobs on large systems rather 
+> elegantly.  Why oppose its inclusion upstream?
 
-> I am testing this patch in the same manner as you: exiting Kino capture.
-> I am getting a similar error in a different location. Can you look into
-> it, please?
-> 
-> Debug: sleeping function called from invalid context at mm/slab.c:2082
-> in_atomic():1, irqs_disabled():1
->  [<c0119eb1>] __might_sleep+0xa1/0xc0
->  [<c0144914>] kmem_cache_alloc+0x64/0x80
->  [<c037f07b>] dma_pool_create+0x7b/0x190
->  [<e09ede32>] alloc_dma_rcv_ctx+0x1a2/0x400 [ohci1394]
->  [<e09eb239>] ohci_devctl+0x3d9/0x640 [ohci1394]
->  [<e0bc5d4e>] handle_iso_listen+0xee/0x160 [raw1394]
->  [<e0bc878e>] state_connected+0x2de/0x2f0 [raw1394]
->  [<e0bc884e>] raw1394_write+0xae/0xe0 [raw1394]
->  [<c015c80c>] vfs_write+0x14c/0x160
->  [<c015c8f1>] sys_write+0x51/0x80
->  [<c0102a39>] sysenter_past_esp+0x52/0x75
+Jesse,
 
-Does this happen on exit or on startup?  Looks like allocation problems,
-which will be harder to fix, since you can't return to userland until
-the allocation is complete.  AFAICT the correct fix is to use
-finer-grained locks, hold them for less time, and not use _irq or
-_irqsave unless necessary.  host_info_lock, in particular, is held for
-far too long.
+Do note that I did not oppose the cpuset inclusion(by saying that, "I am not
+pitching for a marriage"), and here are the reasons:
 
-Jody
+1.Eventhough cpuset can be implemented under ckrm, currently the cpu controller
+  and mem controller(in ckrm) cannot handle the isolating part of the cpuset stuff
+  cleanly and provide the resource management capabilities ckrm is supposed to 
+  provide. For that reason, one cannot expect both the cpuset and ckrm functionality
+  in a same kernel.
+2.I doubt that users that need cpuset will need the resource management capabilities
+  ckrm provides.
+
+My email was intented mainly to erase the notion that ckrm cannot handle cpuset.
+Also, I wanted to understand if there is any real issues and that is why I talked
+with Matt about why he thought ckrm cannot accomodate memset before sending the
+second piece of mail.
 
 > 
+> CKRM seems nice, but why is it not in -mm?  I've heard it talked about a lot, 
+> but it usually comes up as a response to some other, simpler project, in the 
+
+We did post to lkml a while back and got comments on it. We are working on it and
+will post the fixed code again in few weeks with couple of controllers.
+
+> vein of "ckrm can do this, so your project is not needed" and needless to say 
+> that's a bit frustrating.  I'm not saying that ckrm isn't useful--indeed it 
+> seems like an idea with a lot of utility (I liked Rik's ideas for using it to 
+> manage desktop boxes and multiuser systems as a sort of per-process rlimits 
+> on steroids), but using it for system partitioning or systemwide accounting 
+> seems a bit foolish to me...
 > 
-> 
-> 
-> -------------------------------------------------------
-> SF email is sponsored by - The IT Product Guide
-> Read honest & candid reviews on hundreds of IT Products from real users.
-> Discover which products truly live up to the hype. Start reading now.
-> http://ads.osdn.com/?ad_id=6595&alloc_id=14396&op=click
-> _______________________________________________
-> mailing list linux1394-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/linux1394-devel
+> Jesse
 
 -- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------

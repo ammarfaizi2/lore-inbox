@@ -1,237 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268032AbTBRVWd>; Tue, 18 Feb 2003 16:22:33 -0500
+	id <S268022AbTBRVcr>; Tue, 18 Feb 2003 16:32:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268034AbTBRVWc>; Tue, 18 Feb 2003 16:22:32 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:24455 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S268032AbTBRVWH>; Tue, 18 Feb 2003 16:22:07 -0500
-Date: Tue, 18 Feb 2003 16:31:55 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Message-Id: <200302182131.h1ILVteg031707@locutus.cmf.nrl.navy.mil>
-To: torvalds@transmeta.com
-Subject: [PATCH][2.4] convert atm_dev_lock from spinlock to semaphore
-Cc: linux-kernel@vger.kernel.org, mitch@sfgoth.com
+	id <S268024AbTBRVcr>; Tue, 18 Feb 2003 16:32:47 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10505 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S268022AbTBRVcp>; Tue, 18 Feb 2003 16:32:45 -0500
+Date: Tue, 18 Feb 2003 22:42:20 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, davej@suse.de, linux@brodo.de
+Subject: Select voltage manually in cpufreq
+Message-ID: <20030218214220.GA1058@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-same as the 2.5 patch just for 2.4 kernels.
+I've added possibility to manualy force specified frequency and
+voltage... That's fairly usefull for testing, and I believe this (or
+something equivalent) is needed because every 2nd bios seems to be
+b0rken.
 
-Index: net/atm/addr.c
-===================================================================
-RCS file: /afs/cmf/project/cvsroot/linux/net/atm/addr.c,v
-retrieving revision 1.2
-retrieving revision 1.3
-diff -u -d -b -w -r1.2 -r1.3
---- net/atm/addr.c	5 Mar 2002 13:41:26 -0000	1.2
-+++ net/atm/addr.c	14 Feb 2003 17:02:40 -0000	1.3
-@@ -42,7 +42,6 @@
-  */
+Take a look and apply if you want to...
+								Pavel
+
+--- clean/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2003-02-15 18:51:11.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2003-02-18 17:36:29.000000000 +0100
+@@ -210,7 +210,7 @@
+ }
  
- static DECLARE_MUTEX(local_lock);
--extern  spinlock_t atm_dev_lock;
  
- static void notify_sigd(struct atm_dev *dev)
+-static void change_speed (unsigned int index)
++static void change_speed (unsigned int index, unsigned int voltage)
  {
-Index: net/atm/common.c
-===================================================================
-RCS file: /afs/cmf/project/cvsroot/linux/net/atm/common.c,v
-retrieving revision 1.5
-retrieving revision 1.6
-diff -u -d -b -w -r1.5 -r1.6
---- net/atm/common.c	14 Feb 2003 16:59:38 -0000	1.5
-+++ net/atm/common.c	14 Feb 2003 17:02:40 -0000	1.6
-@@ -18,6 +18,7 @@
- #include <linux/capability.h>
- #include <linux/mm.h>		/* verify_area */
- #include <linux/sched.h>
-+#include <linux/sem.h>
- #include <linux/time.h>		/* struct timeval */
- #include <linux/skbuff.h>
- #include <linux/bitops.h>
-@@ -27,6 +28,7 @@
- #include <asm/atomic.h>
- #include <asm/poll.h>
- #include <asm/ioctls.h>
-+#include <asm/semaphore.h>
+ 	u8 fid, vid;
+ 	struct cpufreq_freqs freqs;
+@@ -226,6 +226,14 @@
+ 	fid = powernow_table[index].index & 0xFF;
+ 	vid = (powernow_table[index].index & 0xFF00) >> 8;
  
- #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
- #include <linux/atmlec.h>
-@@ -79,7 +81,7 @@
- #define DPRINTK(format,args...)
- #endif
++	if (voltage) {
++		int i;
++		for (i=0; i<32; i++)
++			if (mobile_vid_table[i] == voltage)
++				vid = i;
++		printk("Voltage overriden to %d mV, index 0x%x\n", voltage, vid);
++	}
++
+ 	freqs.cpu = 0;
  
--spinlock_t atm_dev_lock = SPIN_LOCK_UNLOCKED;
-+DECLARE_MUTEX(atm_dev_sem);
+ 	rdmsrl (MSR_K7_FID_VID_STATUS, fidvidstatus.val);
+@@ -338,7 +346,7 @@
+ 	if (cpufreq_frequency_table_target(policy, powernow_table, target_freq, relation, &newstate))
+ 		return -EINVAL;
  
- static struct sk_buff *alloc_tx(struct atm_vcc *vcc,unsigned int size)
- {
-@@ -147,7 +149,7 @@
- 				vcc->dev->ops->free_rx_skb(vcc,skb);
- 			else kfree_skb(skb);
- 		}
--		spin_lock (&atm_dev_lock);	
-+		down(&atm_dev_sem);	
- 		fops_put (vcc->dev->ops);
- 		if (atomic_read(&vcc->rx_inuse))
- 			printk(KERN_WARNING "atm_release_vcc: strange ... "
-@@ -155,11 +157,11 @@
- 			    atomic_read(&vcc->rx_inuse));
- 		bind_vcc(vcc,NULL);
- 	} else
--		spin_lock (&atm_dev_lock);	
-+		down(&atm_dev_sem);	
+-	change_speed(newstate);
++	change_speed(newstate, policy->voltage);
  
- 	if (free_sk) free_atm_vcc_sk(sk);
- 
--	spin_unlock (&atm_dev_lock);
-+	up(&atm_dev_sem);
+ 	return 0;
  }
+--- clean/drivers/cpufreq/proc_intf.c	2003-02-18 12:24:32.000000000 +0100
++++ linux/drivers/cpufreq/proc_intf.c	2003-02-18 14:23:48.000000000 +0100
+@@ -28,6 +28,7 @@
+ 	unsigned int            min = 0;
+ 	unsigned int            max = 0;
+ 	unsigned int            cpu = 0;
++	unsigned int		voltage = 0;
+ 	char			str_governor[16];
+ 	struct cpufreq_policy   current_policy;
+ 	unsigned int            result = -EFAULT;
+@@ -37,9 +38,24 @@
  
+ 	policy->min = 0;
+ 	policy->max = 0;
++	policy->voltage = 0;
+ 	policy->policy = 0;
+ 	policy->cpu = CPUFREQ_ALL_CPUS;
  
-@@ -270,14 +272,14 @@
- 	struct atm_dev *dev;
- 	int return_val;
- 
--	spin_lock (&atm_dev_lock);
-+	down(&atm_dev_sem);
- 	dev = atm_find_dev(itf);
- 	if (!dev)
- 		return_val =  -ENODEV;
- 	else
- 		return_val = atm_do_connect_dev(vcc,dev,vpi,vci);
- 
--	spin_unlock (&atm_dev_lock);
-+	up(&atm_dev_sem);
- 
- 	return return_val;
- }
-@@ -309,10 +311,10 @@
- 	else {
- 		struct atm_dev *dev;
- 
--		spin_lock (&atm_dev_lock);
-+		down(&atm_dev_sem);
- 		for (dev = atm_devs; dev; dev = dev->next)
- 			if (!atm_do_connect_dev(vcc,dev,vpi,vci)) break;
--		spin_unlock (&atm_dev_lock);
-+		up(&atm_dev_sem);
- 		if (!dev) return -ENODEV;
- 	}
- 	if (vpi == ATM_VPI_UNSPEC || vci == ATM_VCI_UNSPEC)
-@@ -554,7 +556,7 @@
- 	int error,len,size,number, ret_val;
- 
- 	ret_val = 0;
--	spin_lock (&atm_dev_lock);
-+	down(&atm_dev_sem);
- 	vcc = ATM_SD(sock);
- 	switch (cmd) {
- 		case SIOCOUTQ:
-@@ -1010,7 +1012,7 @@
- 		ret_val = 0;
- 
-  done:
--	spin_unlock (&atm_dev_lock); 
-+	up(&atm_dev_sem); 
- 	return ret_val;
- }
- 
-Index: net/atm/resources.c
-===================================================================
-RCS file: /afs/cmf/project/cvsroot/linux/net/atm/resources.c,v
-retrieving revision 1.2
-retrieving revision 1.3
-diff -u -d -b -w -r1.2 -r1.3
---- net/atm/resources.c	2 May 2002 16:56:23 -0000	1.2
-+++ net/atm/resources.c	14 Feb 2003 17:02:40 -0000	1.3
-@@ -25,7 +25,7 @@
- struct atm_dev *atm_devs = NULL;
- static struct atm_dev *last_dev = NULL;
- struct atm_vcc *nodev_vccs = NULL;
--extern spinlock_t atm_dev_lock;
-+extern struct semaphore atm_dev_sem;
- 
- 
- static struct atm_dev *alloc_atm_dev(const char *type)
-@@ -40,21 +40,21 @@
- 	dev->link_rate = ATM_OC3_PCR;
- 	dev->next = NULL;
- 
--	spin_lock(&atm_dev_lock);
-+	down(&atm_dev_sem);
- 
- 	dev->prev = last_dev;
- 
- 	if (atm_devs) last_dev->next = dev;
- 	else atm_devs = dev;
- 	last_dev = dev;
--	spin_unlock(&atm_dev_lock);
-+	up(&atm_dev_sem);
- 	return dev;
- }
- 
- 
- static void free_atm_dev(struct atm_dev *dev)
- {
--	spin_lock (&atm_dev_lock);
-+	down(&atm_dev_sem);
- 	
- 	if (dev->prev) dev->prev->next = dev->next;
- 	else atm_devs = dev->next;
-@@ -62,7 +62,7 @@
- 	else last_dev = dev->prev;
- 	kfree(dev);
- 	
--	spin_unlock (&atm_dev_lock);
-+	up(&atm_dev_sem);
- }
- 
- 
-Index: net/atm/signaling.c
-===================================================================
-RCS file: /afs/cmf/project/cvsroot/linux/net/atm/signaling.c,v
-retrieving revision 1.2
-retrieving revision 1.3
-diff -u -d -b -w -r1.2 -r1.3
---- net/atm/signaling.c	12 Feb 2003 20:57:47 -0000	1.2
-+++ net/atm/signaling.c	14 Feb 2003 17:02:40 -0000	1.3
-@@ -33,7 +33,7 @@
- struct atm_vcc *sigd = NULL;
- static DECLARE_WAIT_QUEUE_HEAD(sigd_sleep);
- 
--extern spinlock_t atm_dev_lock;
-+extern struct semaphore atm_dev_sem;
- 
- static void sigd_put_skb(struct sk_buff *skb)
- {
-@@ -240,9 +240,9 @@
- 	skb_queue_purge(&vcc->recvq);
- 	purge_vccs(nodev_vccs);
- 
--	spin_lock (&atm_dev_lock);
-+	down(&atm_dev_sem);
- 	for (dev = atm_devs; dev; dev = dev->next) purge_vccs(dev->vccs);
--	spin_unlock (&atm_dev_lock);
-+	up(&atm_dev_sem);
- }
- 
- 
-Index: net/atm/svc.c
-===================================================================
-RCS file: /afs/cmf/project/cvsroot/linux/net/atm/svc.c,v
-retrieving revision 1.3
-retrieving revision 1.4
-diff -u -d -b -w -r1.3 -r1.4
---- net/atm/svc.c	14 Feb 2003 16:59:38 -0000	1.3
-+++ net/atm/svc.c	16 Feb 2003 14:42:22 -0000	1.4
-@@ -33,8 +33,6 @@
- #define DPRINTK(format,args...)
- #endif
- 
--extern spinlock_t atm_dev_lock;
--
- static int svc_create(struct socket *sock,int protocol);
- 
- /*
++	if (sscanf(input_string, "%d:%d:%d:%15s", &cpu, &min, &voltage, str_governor) == 4)
++	{
++		if (!strcmp(str_governor, "mVforce")) {
++			printk("Have request to go to %d mV\n", voltage);
++			policy->min = min;
++			policy->max = min;
++			policy->voltage = voltage;
++			policy->cpu = cpu;
++			result = 0;
++			policy->policy = CPUFREQ_POLICY_PERFORMANCE;
++			return 0;
++		}
++	}
++
+ 	if (sscanf(input_string, "%d:%d:%d:%15s", &cpu, &min, &max, str_governor) == 4) 
+ 	{
+ 		policy->min = min;
+--- clean/include/linux/cpufreq.h	2003-02-18 12:24:38.000000000 +0100
++++ linux/include/linux/cpufreq.h	2003-02-18 12:25:10.000000000 +0100
+@@ -63,6 +63,7 @@
+ 	unsigned int            min;    /* in kHz */
+ 	unsigned int            max;    /* in kHz */
+         unsigned int            policy; /* see above */
++	unsigned int		voltage;/* in mV, 0 == trust bios */
+ 	struct cpufreq_governor *governor; /* see below */
+ 	struct cpufreq_cpuinfo  cpuinfo;     /* see above */
+ 	struct intf_data        intf;   /* interface data */
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

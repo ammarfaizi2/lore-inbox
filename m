@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271621AbRHZX31>; Sun, 26 Aug 2001 19:29:27 -0400
+	id <S271623AbRHZXjB>; Sun, 26 Aug 2001 19:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271626AbRHZX3R>; Sun, 26 Aug 2001 19:29:17 -0400
-Received: from maynard.mail.mindspring.net ([207.69.200.243]:42503 "EHLO
-	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S271621AbRHZX3E>; Sun, 26 Aug 2001 19:29:04 -0400
-Subject: Re: [PATCH] Updated: Let net devices contribute entropy
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <998616119.9306.32.camel@phantasy>
-In-Reply-To: <998616119.9306.32.camel@phantasy>
-Content-Type: text/plain
+	id <S271626AbRHZXiu>; Sun, 26 Aug 2001 19:38:50 -0400
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:53122 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S271623AbRHZXil>; Sun, 26 Aug 2001 19:38:41 -0400
+Message-ID: <3B89857D.2B3B94F1@randomlogic.com>
+Date: Sun, 26 Aug 2001 16:25:49 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Akamai Technologies, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>,
+        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
+Subject: [OOPS] Red Hat 7.1 and 7.2 Beta 2 Install
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
-Date: 26 Aug 2001 19:29:15 -0400
-Message-Id: <998868579.783.28.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I consistently get an Oops when attempting to install either of these on
+my A7V133/Athlon 1.4GHz. It happens every time the install attempts to
+create ext2 or ext3 file systems on the IDE drive. I boot with  nodma
+option for both ide0 and ide1.
 
-Updated patch for 2.4.8-ac12 is available at:
-http://tech9.net/rml/linux/patch-rml-2.4.8-ac12-netdev-random-1
-and
-http://tech9.net/rml/linux/patch-rml-2.4.8-ac12-netdev-random-2
-as always, #1 adds the core support and #2 updates all network devices
-to use the new flag.
+I've heard of threads relating to this before, but I thought I'd send
+this e-mail for clarification. I'm wondering if I have a bad MoBo, as
+I've also had problems running fsck on a Ultra 160 SCSI drive that has
+RH 6.2 installed on it using the same system.
 
-2.4.9 patches are still available from the same place.
+PGA
 
-nothing new, sans the resync, since the previous patch.  i believe all
-architectures and network devices are still supported.
-
-the interested are highly encouraged to read the previous thread for a
-summary of the patch and the resulting discussions.
- 
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+Paul G. Allen
+UNIX Admin II/Network Security
+Akamai Technologies, Inc.
+www.akamai.com

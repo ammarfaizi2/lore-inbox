@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292982AbSBVUHN>; Fri, 22 Feb 2002 15:07:13 -0500
+	id <S292966AbSBVUN4>; Fri, 22 Feb 2002 15:13:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292976AbSBVUHD>; Fri, 22 Feb 2002 15:07:03 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64264 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292966AbSBVUGu>;
-	Fri, 22 Feb 2002 15:06:50 -0500
-Message-ID: <3C76A4D8.A7838605@mandrakesoft.com>
-Date: Fri, 22 Feb 2002 15:06:48 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linuxdiskcert.org>
-CC: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
-        Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjanv@redhat.com>,
-        linux-kernel@vger.kernel.org
+	id <S292976AbSBVUNe>; Fri, 22 Feb 2002 15:13:34 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:44048 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S292966AbSBVUN1>;
+	Fri, 22 Feb 2002 15:13:27 -0500
+Date: Fri, 22 Feb 2002 12:07:50 -0800
+From: Greg KH <greg@kroah.com>
+To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-In-Reply-To: <Pine.LNX.4.10.10202221143290.2519-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <20020222200750.GE9558@kroah.com>
+In-Reply-To: <3C76A053.55A32E77@mandrakesoft.com> <20020221215503.M1666-100000@gerard>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020221215503.M1666-100000@gerard>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 25 Jan 2002 16:56:10 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> Also not that ATA/IDE drivers were not using 2.4 PCI API and likewise was
-> stable for a while.
-
-Stable?  Yes.  But it's not modular nor compatible with current efforts
-like 2.4 cardbus or 2.4 hotplug pci or 2.5 device mode.  If one cannot
-do
-	modprobe piix4_ide
-and have the right things happen automatically, the system is not
-modular.  If it doesn't use the PCI API, it's implementing CardBus
-support in a non-standard way if at all.
-
-
-> > This is need for transparented support for cardbus and hotplug PCI, not
+On Thu, Feb 21, 2002 at 10:01:14PM +0100, Gérard Roudier wrote:
 > 
-> This is HOST level operation not DEVICE, and you do not see the differenc.
+> I have investigated it, but it didn't seem to allow the boot order set by
+> user in sym53c8xx HBA NVRAMs to be applied, breaking as a result all
+> systems depending on it. Since it is transparently handled by the
+> sym53c8xx driver and just behaves _as_ user expects, my guess is that
+> numerous users may just have their system relying on it.
 
-I do.  I am talking about a HOST api here.
+But as Jeff noted, it is _required_ for PCI hotplug functionality.
+Because allmost all of the SCSI drivers are not using this over 2 year
+old interface, they will not work properly on large machines that now
+support PCI hotplug.  Much to my dismay.
 
+Init order works off of PCI probing order.  If the network people can
+handle this, the SCSI people can :)
 
-> It is a shame that I will now have to start from scratch to create another
-> API for hotplug device for ATA/ATAPI that was migrating into SCSI because
-> of the ide-scsi driver.
+> Propose a kernel API that does not break more features that it adds and I
+> will be glad to use it.
 
-Why not work with Patrick to make sure his device model properly
-supports disks?
+Huh?  This is not a new API.  What does it break for you?
 
-	Jeff
+thanks,
 
-
--- 
-Jeff Garzik      | "UNIX enhancements aren't."
-Building 1024    |           -- says /usr/games/fortune
-MandrakeSoft     |
+greg k-h

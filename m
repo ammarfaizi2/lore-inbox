@@ -1,40 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVDDUBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVDDUER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVDDUBF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 16:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVDDUBF
+	id S261363AbVDDUER (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 16:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVDDUEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 16:01:05 -0400
-Received: from main.gmane.org ([80.91.229.2]:17095 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261364AbVDDUAZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 16:00:25 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: [RFC] : remove unreliable, unused and unmainained arch from kernel.
-Date: Mon, 4 Apr 2005 21:59:00 +0200
-Message-ID: <19p9s3una723z$.bocnv0iawl2e.dlg@40tude.net>
-References: <1112357493492@2ka.mipt.ru> <Pine.LNX.4.61.0504010801470.12910@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-115-253.37-151.net24.it
-User-Agent: 40tude_Dialog/2.0.15.1
+	Mon, 4 Apr 2005 16:04:16 -0400
+Received: from webmail.topspin.com ([12.162.17.3]:13986 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S261366AbVDDUDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 16:03:42 -0400
+To: Ian Campbell <ijc@hellion.org.uk>
+Cc: Sven Luther <sven.luther@wanadoo.fr>, Greg KH <greg@kroah.com>,
+       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+X-Message-Flag: Warning: May contain useful information
+References: <20050404100929.GA23921@pegasos>
+	<87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos>
+	<20050404175130.GA11257@kroah.com> <20050404182144.GB31055@pegasos>
+	<1112641971.4342.8.camel@cthulhu>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 04 Apr 2005 12:36:12 -0700
+In-Reply-To: <1112641971.4342.8.camel@cthulhu> (Ian Campbell's message of
+ "Mon, 04 Apr 2005 20:12:48 +0100")
+Message-ID: <523bu6gwr7.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 04 Apr 2005 19:36:12.0682 (UTC) FILETIME=[8F25EEA0:01C5394D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Apr 2005 08:03:16 -0500 (EST), linux-os wrote:
+    Ian> I think what Greg may have meant[0] was that if it bothers
+    Ian> you, then you should act by contacting the copyright holders
+    Ian> privately yourself in each case that you come across and
+    Ian> asking them if you may add a little comment etc, and then
+    Ian> submit patches once you have their agreement.
 
-> This must be a joke. Where's the punch line?
+Perhaps another solution would be for someone who has received a
+supposedly GPLed Linux kernel from, say, SuSE, to contact SuSE and ask
+for the source code to things such as
 
-It's called a fish in Italian and French.
+static u32 tg3FwText[(TG3_FW_TEXT_LEN / sizeof(u32)) + 1] = {
+	0x00000000, 0x10000003, 0x00000000, 0x0000000d, 0x0000000d, 0x3c1d0800,
+	0x37bd3ffc, 0x03a0f021, 0x3c100800, 0x26100000, 0x0e000018, 0x00000000,
+	0x0000000d, 0x3c1d0800, 0x37bd3ffc, 0x03a0f021, 0x3c100800, 0x26100034,
+	0x0e00021c, 0x00000000, 0x0000000d, 0x00000000, 0x00000000, 0x00000000,
+	0x27bdffe0, 0x3c1cc000, 0xafbf0018, 0xaf80680c, 0x0e00004c, 0x241b2105,
+	/* ... */
 
--- 
-Giuseppe "Oblomov" Bilotta
+in drivers/net/tg3.c.  (tg3.c does not contain any license information
+at all, and therefore falls under the kernel's GPLv2 license, right?)
 
-"They that can give up essential liberty to obtain
-a little temporary safety deserve neither liberty
-nor safety." Benjamin Franklin
+ - R.
 

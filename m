@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316540AbSE0KAq>; Mon, 27 May 2002 06:00:46 -0400
+	id <S316545AbSE0KDW>; Mon, 27 May 2002 06:03:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316541AbSE0KAp>; Mon, 27 May 2002 06:00:45 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:9467 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316540AbSE0KAo>; Mon, 27 May 2002 06:00:44 -0400
-Subject: Re: [PATCH,CFT] Tentative fix for mem. corruption caused by intel
-	815 AGP
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Cc: Alessandro Morelli <alex@alphac.it>, linux-kernel@vger.kernel.org,
-        stilgar2k@wanadoo.fr
-In-Reply-To: <3CF1FD4B.8060608@epfl.ch>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 27 May 2002 12:03:06 +0100
-Message-Id: <1022497386.11859.232.camel@irongate.swansea.linux.org.uk>
+	id <S316542AbSE0KDV>; Mon, 27 May 2002 06:03:21 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:37192 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S316541AbSE0KDU>; Mon, 27 May 2002 06:03:20 -0400
+Message-Id: <5.1.0.14.2.20020527105040.01f9f910@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 27 May 2002 11:03:47 +0100
+To: Pawel Kot <pkot@linuxnews.pl>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: 2.5.18-dj1 with gcc 3.1 ...
+Cc: Clemens Schwaighofer <cs@pixelwings.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0205271119550.19994-100000@urtica.linuxnews.
+ pl>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-05-27 at 10:32, Nicolas Aspert wrote:
-p to */
-> +	pci_read_config_dword(agp_bridge.dev, INTEL_APBASE, &temp);
-> +	agp_bridge.gart_bus_addr = (temp & PCI_BASE_ADDRESS_MEM_MASK);
-> +
-> +	/* attbase - aperture base */
-> +        /* the Intel 815 chipset spec. says that bits 29-31 in the
-> +         * ATTBASE register are reserved -> try not to write them */
-> +        if (agp_bridge.gatt_bus_addr & (~ INTEL_815_ATTBASE_MASK))
-> +		panic("gatt bus addr too high");
-> +	addr = agp_bridge.gatt_bus_addr & INTEL_815_ATTBASE_MASK;
+At 10:22 27/05/02, Pawel Kot wrote:
+>On Mon, 27 May 2002, Clemens Schwaighofer wrote:
+> > I just tried to compile 2.5.18-dj1 with gcc 3.1 and it failed with NTFS as
+> > module:
 
-You need to add  + temp&~INTEL_815_ATTBASE_MASK ..
+Yes, there is a workaround you can find it in the lkml archives.
 
+>It is a known problem and already reported to gcc people. AFAIR there is
+>the problematic change in gcc already found, but I'm not sure if the
+>problem is fixed in gcc CVS. Anton?
+
+No idea. The bug is still open. The only activity so far in the bug tracker 
+has been that it has been passed around to what sounds like the right 
+person now... You can follow it here:
+
+http://gcc.gnu.org/cgi-bin/gnatsweb.pl?cmd=view%20audit-trail&database=gcc&pr=6660
+
+Best regards,
+
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

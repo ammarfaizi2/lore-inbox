@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131451AbQKJWYf>; Fri, 10 Nov 2000 17:24:35 -0500
+	id <S131488AbQKJW0Y>; Fri, 10 Nov 2000 17:26:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131488AbQKJWYY>; Fri, 10 Nov 2000 17:24:24 -0500
-Received: from 13dyn58.delft.casema.net ([212.64.76.58]:30733 "EHLO
+	id <S131980AbQKJW0O>; Fri, 10 Nov 2000 17:26:14 -0500
+Received: from 13dyn58.delft.casema.net ([212.64.76.58]:31501 "EHLO
 	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S131451AbQKJWYK>; Fri, 10 Nov 2000 17:24:10 -0500
-Message-Id: <200011102223.XAA04330@cave.bitwizard.nl>
-Subject: Re: rdtsc to mili secs?
-In-Reply-To: <8uhps8$1tm$1@cesium.transmeta.com> from "H. Peter Anvin" at "Nov
- 10, 2000 01:38:16 pm"
+	id <S131627AbQKJW0A>; Fri, 10 Nov 2000 17:26:00 -0500
+Message-Id: <200011102225.XAA04339@cave.bitwizard.nl>
+Subject: Re: APIC errors w/ 2.4.0-test11-pre2
+In-Reply-To: <8uhpuj$1uf$1@cesium.transmeta.com> from "H. Peter Anvin" at "Nov
+ 10, 2000 01:39:31 pm"
 To: "H. Peter Anvin" <hpa@zytor.com>
-Date: Fri, 10 Nov 2000 23:23:48 +0100 (MET)
+Date: Fri, 10 Nov 2000 23:25:57 +0100 (MET)
 CC: linux-kernel@vger.kernel.org
 From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
 X-Mailer: ELM [version 2.4ME+ PL60 (25)]
@@ -22,32 +22,36 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 H. Peter Anvin wrote:
-> Followup to:  <20001110154254.A33@bug.ucw.cz>
-> By author:    Pavel Machek <pavel@suse.cz>
+> Followup to:  <Pine.LNX.4.21.0011101523170.14596-100000@bochum.redhat.de>
+> By author:    Bernhard Rosenkraenzer <bero@redhat.de>
 > In newsgroup: linux.dev.kernel
-> > > 
-> > > Sensibly configured power saving/speed throttle systems do not change the
-> > > frequency at all. The duty cycle is changed and this controls the cpu 
-> > > performance but the tsc is constant
+> >
+> > Hi,
+> > after booting a 2.4.0 (any testx-release I've tried so far, including
+> > test11-pre2) on a Dual-Pentium III box, the system works ok, but the
+> > console gets filled with
 > > 
-> > Do you have an example of notebook that does powersaving like that?
-> > I have 2 examples of notebooks with changing TSC speed...
+> > APIC error on CPU0: 08(08)
 > > 
-> 
-> Intel PIIX-based systems will do duty-cycle throttling, for example.
+> > every couple of seconds, occasionally some lines in between say
+> > 
+> > APIC error on CPU0: 08(02)
+> > 
+> > and
+> > 
+> > APIC error on CPU0: 02(08)
+> > 
+ 
+> I have seen the same problem on the same motherboard.  It appears to
+> be a motherboard bug that 2.4 exposes and 2.2 doesn't.
 
-What's this "duty cycle throtteling"? Some people seem to think this
-refers to changing the duty cycle on the clock, and thereby saving
-power. I think it doesn't save any power if you do it that way. You
-are referring to the duty cycle on a "stpclk" signal, right?
+This PRINT was added in 2.4. 
 
+You're seeing noise on the apic lines. The APICs notice, but every now
+and then you may see a lockup due to this. (i.e. if the corruption
+does not trigger a parity error, because two bits flipped!)
 
-			Roger. 
-
-> However, there are definitely notebooks that will mess with the
-> frequency.  At Transmeta, we went through some considerable pain to
-> make sure RDTSC would count walltime even across Longrun transitions.
-
+				Roger. 
 
 -- 
 ** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **

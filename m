@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274884AbTGaVim (ORCPT <rfc822;willy@w.ods.org>);
+	id S274880AbTGaVim (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 31 Jul 2003 17:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274880AbTGaViE
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274882AbTGaVh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 17:38:04 -0400
-Received: from holomorphy.com ([66.224.33.161]:36057 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S274875AbTGaVhf (ORCPT
+	Thu, 31 Jul 2003 17:37:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59040 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S274880AbTGaVhj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 17:37:35 -0400
-Date: Thu, 31 Jul 2003 14:38:46 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Szonyi Calin <sony@etc.utt.ro>
-Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O11int for interactivity
-Message-ID: <20030731213846.GF15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Szonyi Calin <sony@etc.utt.ro>, kernel@kolivas.org,
-	linux-kernel@vger.kernel.org
-References: <200307301038.49869.kernel@kolivas.org> <200307301055.23950.kernel@kolivas.org> <200307301108.53904.kernel@kolivas.org> <23496.194.138.39.55.1059659754.squirrel@webmail.etc.utt.ro>
+	Thu, 31 Jul 2003 17:37:39 -0400
+Date: Thu, 31 Jul 2003 14:25:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: dipankar@in.ibm.com
+Cc: rusty@rustcorp.com.au, andrea@suse.de, linux-kernel@vger.kernel.org,
+       paulmck@us.ibm.com
+Subject: Re: [PATCH] RCU: Reduce size of rcu_head 1 of 2
+Message-Id: <20030731142545.7bcb50fb.akpm@osdl.org>
+In-Reply-To: <20030731213103.GB17709@in.ibm.com>
+References: <20030731185806.GC1990@in.ibm.com>
+	<20030731134954.54108d95.akpm@osdl.org>
+	<20030731213103.GB17709@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <23496.194.138.39.55.1059659754.squirrel@webmail.etc.utt.ro>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 04:55:54PM +0300, Szonyi Calin wrote:
-> A little bit better than O10 but mplayer still skips frames while
-> doind a make bzImage in the background
+Dipankar Sarma <dipankar@in.ibm.com> wrote:
+>
+> The linked-list change is internal enough for a future backport from
+> 2.7. The only concern here is the change in call_rcu() API. What would
+> be a good way to manage that ?
 
-Could you do the following during an mp3 skipping test please:
+Oh I'd be okay with merging a change like this into (say) 2.6.3-pre1,
+without it having had a run in 2.7.  We need to be able to do things like
+that.
 
-vmstat 1 | tee -a vmstat.log
+But right now we need to be fully focussed upon important features which
+are late (cpumask_t, 64-bit dev_t, 4G+4G, etc) and upon stabilisation of the
+current tree.
 
-n=1; while true; do /usr/sbin/readprofile -n -m /boot/System.map-`uname -r` | sort -k 2,2 > profile.log.$n ; n=$(($n + 1)) ; sleep 1 ; done
-
-If you could stop both the vmstat and the readprofile loop shortly
-after the skip (not _too_ shortly, at least 1 second after it) I'd be
-much obliged.
-
-
---- wli

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132318AbRCaGhH>; Sat, 31 Mar 2001 01:37:07 -0500
+	id <S132326AbRCaHMf>; Sat, 31 Mar 2001 02:12:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132323AbRCaGg6>; Sat, 31 Mar 2001 01:36:58 -0500
-Received: from hypnos.cps.intel.com ([192.198.165.17]:48616 "EHLO
-	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S132318AbRCaGgo>; Sat, 31 Mar 2001 01:36:44 -0500
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE7DE@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'???'" <nso@icu.ac.kr>, linux-kernel@vger.kernel.org
-Subject: RE: ACPI poweroff problem with 2.4.x on VIA chipset M/B
-Date: Fri, 30 Mar 2001 22:35:41 -0800
+	id <S132327AbRCaHM0>; Sat, 31 Mar 2001 02:12:26 -0500
+Received: from [206.46.170.141] ([206.46.170.141]:39598 "EHLO smtp9ve.gte.net")
+	by vger.kernel.org with ESMTP id <S132326AbRCaHMW>;
+	Sat, 31 Mar 2001 02:12:22 -0500
+Message-ID: <3AC58290.3E8E76C8@neuronet.pitt.edu>
+Date: Sat, 31 Mar 2001 02:09:04 -0500
+From: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac28 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="KS_C_5601-1987"
+To: J Brook <jbk@postmark.net>
+CC: mythos <papadako@csd.uoc.gr>, Alan Olsen <alan@clueserver.org>,
+   Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Matrox G400 Dualhead
+In-Reply-To: <20010331001238.10669.qmail@venus.postmark.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No there isn't a chipset patch for ACPI, because IMHO vendor-specific code
-is the wrong way to go regarding this. ACPI defines how shutdown should
-happen, and if it doesn't work on a given system, then either the code has
-a bug or the hardware is not ACPI compliant.
-
-(I think the ACPI code has a bug, but it's not immediately obvious to me
-how to fix it, since we are doing what the spec says, so what more can we
-do?)
-
-Regards -- Andy
-
-> From: nso@icu.ac.kr [mailto:nso@icu.ac.kr]
-> My machine has ASUS CUV4X-E mainboard with Award BIOS.
-> Using poweroff command, I can power off my machine
-> with kernel 2.2.x.
-> But with kernel 2.4.x, this machine doesn't change
-> to soft-off(S5) state after poweroff command enters.
-> The last message is "Could not enter S5".
-> However, old via-chipset mainboard machine has
-> no problem to poweroff with kernel 2.4.x.
+J Brook wrote:
 > 
-> I found 2.3.x VIA chipset patch for ACPI.
-> Is there 2.4.x VIA chipser pach for ACPI?
+> >With 2.4.2 it was working just fine.
 > 
-> Please CC any replies to my email address
-> becausen I am not subscribed to linux-kernel
+> I have also noticed problems with the 2.4.3 release. I have a G450
+> 32Mb, that I use in single-head mode. The console framebuffer runs
+> fine at boot time, but when I load X (4.0.3 compiled with Matrox HAL
+> library) and then return to the console, I get a blank screen (signal
+> lost).
 
+In my case, when lilo boots my G450 on any video mode other than
+'normal', going into X and then back into console, leads to a blank
+screen. I've observed this behavior in 2.2 and 2.4. Otherwise, I've no
+problem using the card in single or dual head.
+
+Since the HAL lib is a binary, we might have to wait for Matrox to fix
+this problem.
+
+-- 
+     Rafael

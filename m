@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263851AbTLZW1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 17:27:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264323AbTLZW1Q
+	id S264454AbTLZWfU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 17:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbTLZWfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 17:27:16 -0500
-Received: from mercury.sdinet.de ([193.103.161.30]:15580 "EHLO
-	mercury.sdinet.de") by vger.kernel.org with ESMTP id S263851AbTLZW1P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 17:27:15 -0500
-Date: Fri, 26 Dec 2003 23:27:12 +0100 (CET)
-From: Sven-Haegar Koch <haegar@sdinet.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 sound output - wierd effects
-In-Reply-To: <1080000.1072475704@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.58.0312262322580.28979@mercury.sdinet.de>
-References: <1080000.1072475704@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 26 Dec 2003 17:35:20 -0500
+Received: from rth.ninka.net ([216.101.162.244]:20352 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S264454AbTLZWfP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 17:35:15 -0500
+Date: Fri, 26 Dec 2003 14:34:54 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
+Subject: Re: (irda) Badness in local_bh_enable at kernel/softirq.c:121
+Message-Id: <20031226143454.4b871d15.davem@redhat.com>
+In-Reply-To: <20031226130031.A14007@flint.arm.linux.org.uk>
+References: <20031226130031.A14007@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Dec 2003, Martin J. Bligh wrote:
+On Fri, 26 Dec 2003 13:00:31 +0000
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-> Upgraded my home desktop to 2.6.0.
-> Somewhere between 2.5.63 and 2.6.0, sound got screwed up - I've confirmed
-> this happens on mainline, as well as -mjb.
->
-> If I leave xmms playing (in random shuffle mode) every 2 minutes or so,
-> I'll get some wierd effect for a few seconds, either static, or the track
-> will mysteriously speed up or slow down. Then all is back to normal for
-> another couple of minutes.
->
-> Anyone else seen this, or got any clues? Else I guess I'm stuck playing
-> bisection search.
+> I've just been testing w83977af_ir with ircomm on a NetWinder (ARM) and
+> a Nokia mobile phone, and, while closing down the connection by exiting
+> minicom, I saw this which looks particularly evil.  I'm not sure exactly
+> when this occurred because I was running minicom over ssh.
 
-I get exactly the same with kernel 2.4 and alsa, intel8x0 ac97, but did
-not test alsa 1.0rc yet, which mentions "intel8x0 driver fixes, OSS PCM
-emulation fixes" - perhaps these fixes help.
+This is akin to the PPP issues, and all of this basically is telling
+that the TTY driver's locking conflicts with networking quite badly.
 
-c'ya
-sven
+In this case:
 
--- 
+> Badness in local_bh_enable at kernel/softirq.c:121
+> [<c00429c4>] (local_bh_enable+0x0/0x84) from [<c014d1b4>] (dev_queue_xmit+0x108/0x20c)
+> [<c014d0ac>] (dev_queue_xmit+0x0/0x20c) from [<bf00ee68>] (irlap_send_data_primary_poll+0xdc/0x1c4 [irda])
 
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
+local_bh_enable() with hardware interrupts disabled, which is
+racy and illegal.  Who disabled CPU interrupts?  Let's see:
+
+> [<bf03b4b0>] (ircomm_tty_shutdown+0x0/0x178 [ircomm_tty]) from [<bf03a9c0>] (ircomm_tty_close+0x15c/0x240 [ircomm_tty])
+
+And this is where the spin_lock_irqsave() occurs, that leads
+to all of the trouble.

@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263124AbUEWQD0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263126AbUEWQHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263124AbUEWQD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 12:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUEWQD0
+	id S263126AbUEWQHU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 12:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUEWQHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 12:03:26 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:12554 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S263124AbUEWQDW (ORCPT
+	Sun, 23 May 2004 12:07:19 -0400
+Received: from [62.29.76.210] ([62.29.76.210]:13440 "EHLO localhost")
+	by vger.kernel.org with ESMTP id S263126AbUEWQHS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 12:03:22 -0400
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] befs: typo fix
-Date: Sun, 23 May 2004 00:12:03 +0400
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>
+	Sun, 23 May 2004 12:07:18 -0400
+From: =?utf-8?q?=C4=B0smail_D=C3=B6nmez?= <kde@myrealbox.com>
+Organization: Bogazici University
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: Vfat not working in 2.6.6 or 2.6.6-mm5
+Date: Sun, 23 May 2004 19:08:08 +0300
+User-Agent: KMail/1.6.52
+Cc: linux-kernel@vger.kernel.org
+References: <200405230121.05051.kde@myrealbox.com> <87d64vcl4w.fsf@devron.myhome.or.jp>
+In-Reply-To: <87d64vcl4w.fsf@devron.myhome.or.jp>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="Iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405230012.03190.rathamahata@php4.ru>
+Message-Id: <200405231908.09221.kde@myrealbox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] befs: typo fix
+On Sunday 23 May 2004 16:45, OGAWA Hirofumi wrote:
+> > May 23 01:13:23 localhost kernel: FAT: Filesystem panic (dev sda1)
+> > May 23 01:13:23 localhost kernel:     fat_get_cluster: invalid cluster
+> > chain (i_pos 652)
+> >
+> > Looks like fat support is broken or am I missing something?
+>
+> Looks like it read the corrupted filesystem. Can you try "dosfsck" or
+> friends after backup the flash disk?
+>
+Thanks you! Looks like file system was corrupt.
 
-Fix a typo in error message.
-
-===== fs/befs/linuxvfs.c 1.20 vs edited =====
---- 1.20/fs/befs/linuxvfs.c	Sat May 15 06:00:21 2004
-+++ edited/fs/befs/linuxvfs.c	Sat May 22 23:29:37 2004
-@@ -584,7 +584,7 @@
- 	return o;
- 
-       conv_err:
--	befs_error(sb, "Name using charecter set %s contains a charecter that "
-+	befs_error(sb, "Name using character set %s contains a character that "
- 		   "cannot be converted to unicode.", nls->charset);
- 	befs_debug(sb, "<--- utf2nls()");
- 	kfree(result);
-
-
+Regards,
+/ismail
 

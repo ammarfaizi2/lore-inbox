@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261995AbUCSJSL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 04:18:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbUCSJSL
+	id S262058AbUCSJ3l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 04:29:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbUCSJ3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 04:18:11 -0500
-Received: from ns.suse.de ([195.135.220.2]:15801 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261995AbUCSJSF (ORCPT
+	Fri, 19 Mar 2004 04:29:41 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:47053 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S262058AbUCSJ3k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 04:18:05 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Consistently translate LF to CRLF on serial console
-References: <jeekrpbun3.fsf@sykes.suse.de> <1079661779.1947.81.camel@gaston>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I'm meditating on the FORMALDEHYDE and the ASBESTOS leaking into my
- PERSONAL SPACE!!
-Date: Fri, 19 Mar 2004 10:18:03 +0100
-In-Reply-To: <1079661779.1947.81.camel@gaston> (Benjamin Herrenschmidt's
- message of "Fri, 19 Mar 2004 13:03:00 +1100")
-Message-ID: <jek71hb3g4.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 19 Mar 2004 04:29:40 -0500
+Date: Fri, 19 Mar 2004 10:29:30 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+       Tom Rini <trini@kernel.crashing.org>
+Subject: Re: [CFT] inflate.c rework arch testing needed
+Message-ID: <20040319092930.GA17938@wohnheim.fh-wedel.de>
+References: <20040318231006.GK11010@waste.org> <20040319003252.GB11450@wohnheim.fh-wedel.de> <20040319030942.GM11010@waste.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040319030942.GM11010@waste.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+On Thu, 18 March 2004 21:09:42 -0600, Matt Mackall wrote:
+> 
+> The code for new versions of zlib is significantly scarier last I
+> checked and there's no particular advantage to it. But one of the
+> primary motivations here is to get to the point where something like
+> bunzip2 or even a new zlib is a drop-in replacement.
 
-> On Fri, 2004-03-19 at 10:30, Andreas Schwab wrote:
->> Some serial console drivers translate LF to CRLF, some do LFCR.  This
->> patch changes them to consistently translate to CRLF.
->
-> macserial is obsolete (and will be soon removed), please look
-> into pmac zilog rather.
+Zlib 1.2.1 is supposed to be much faster, but they intoduced new code
+so the price appears to be size.  I'll look into it for the other zlib
+in the kernel if noone finds the time before me.
 
-I did.
-
-> Also, why did you move the test for
-> the transmit buffer empty ? You should at least check there
-> is room in it _before_ writing to it
-
-I did that too.
-
-Andreas.
+Jörn
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+It's just what we asked for, but not what we want!
+-- anonymous

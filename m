@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbUKFTZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbUKFTbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbUKFTZq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 14:25:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbUKFTZp
+	id S261447AbUKFTbu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 14:31:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbUKFTbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 14:25:45 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:56978 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261446AbUKFTZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 14:25:30 -0500
-From: Lorenzo Allegrucci <l_allegrucci@yahoo.it>
-Organization: -ENOENT
-To: Gunther Persoons <gunther_persoons@spymac.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.18
-Date: Sat, 6 Nov 2004 20:25:25 +0100
-User-Agent: KMail/1.7
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <20041019124605.GA28896@elte.hu> <20041106155720.GA14950@elte.hu> <418D0711.70109@spymac.com>
-In-Reply-To: <418D0711.70109@spymac.com>
+	Sat, 6 Nov 2004 14:31:50 -0500
+Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:22749 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S261447AbUKFTbt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 14:31:49 -0500
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: shmem_file_setup not exported
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Sat, 06 Nov 2004 20:31:48 +0100
+Message-ID: <yw1xactuojtn.fsf@ford.inprovide.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411062025.26116.l_allegrucci@yahoo.it>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 06 November 2004 18:17, Gunther Persoons wrote:
-> Got a bug:
-> 
-> Assertion failure in __journal_unfile_buffer() at 
-> fs/jbd/transaction.c:1447: "jbd_is_locked_bh_state(bh)"
-> BUG at fs/jbd/transaction.c:1447!
+I noticed this change in mm/shmem.c:
 
-<AOL>
-Me too.
-</AOL>
+-EXPORT_SYMBOL(shmem_file_setup);
+
+Is there a reason for this, other than nobody using it?
+
+I used that function in a module I wrote, mostly as a proof of
+concept, for someone who was looking for a way to unmap memory pages
+while retaining their contents, and being able to map them later.
 
 -- 
-I route therefore you are
+Måns Rullgård
+mru@inprovide.com

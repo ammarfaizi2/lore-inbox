@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271074AbRHOHW2>; Wed, 15 Aug 2001 03:22:28 -0400
+	id <S271072AbRHOH02>; Wed, 15 Aug 2001 03:26:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271075AbRHOHWU>; Wed, 15 Aug 2001 03:22:20 -0400
-Received: from mail.fbab.net ([212.75.83.8]:55824 "HELO mail.fbab.net")
-	by vger.kernel.org with SMTP id <S271074AbRHOHWC>;
-	Wed, 15 Aug 2001 03:22:02 -0400
-X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
-X-Qmail-Scanner-Rcpt-To: viro@math.psu.edu torvalds@transmeta.com linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 0.94 (No viruses found. Processed in 7.581759 secs)
-Message-ID: <3e9f01c1255b$45cf7500$020a0a0a@totalmef>
-From: "Magnus Naeslund\(f\)" <mag@fbab.net>
-To: "Alexander Viro" <viro@math.psu.edu>
-Cc: "Linus Torvalds" <torvalds@transmeta.com>,
-        "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0108150225120.13928-100000@weyl.math.psu.edu>
-Subject: Re: 2.4.8 Resource leaks + limits
-Date: Wed, 15 Aug 2001 09:24:08 +0200
+	id <S271076AbRHOH0T>; Wed, 15 Aug 2001 03:26:19 -0400
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:54658 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S271072AbRHOH0I>;
+	Wed, 15 Aug 2001 03:26:08 -0400
+Message-ID: <3B7A241A.1BD2158E@pobox.com>
+Date: Wed, 15 Aug 2001 00:26:18 -0700
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Brian <hiryuu@envisiongames.net>
+CC: dmaynor@iceland.oit.gatech.edu, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8 Resource leaks + limits
+In-Reply-To: <3ce801c12548$b7971750$020a0a0a@totalmef> <20010815014328.A15395@iceland.oit.gatech.edu> <3B7A0F01.DC4CAE4@pobox.com> <200108150659.f7F6xeh16394@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Alexander Viro" <viro@math.psu.edu>
+Brian wrote:
+
+> Probably both -- he's thinking more about the userspace side of it, though.
 >
-[snap[crackle[pop]]]
->
-> May be memory fragmentation. You need an order 1 allocation for fork(),
-just
-> to allocate task_struct...
->
->
+> /proc entries are okay for tweaking kernel parameters, but it seems a
+> little weak as a primary interface.  You might as well have ps say 'Go
+> grep it yourself!'
 
-1) Does that mean i'm screwed (then why, i got about 80 MB free here + 1gb
-swap, howto defrag?)
+Something along the lines of the nice little program
+sysctlconfig-gtk, to set the values with a gui interface,
+stores them in e.g. /etc/sysctl.conf, and activtates the
+new parameters with a mouse click....
 
-2) I can ssh in as root, why does that still work?
+Real men could edit /etc/sysctl.conf themselves,
+while newbies could use the GUI program -
 
-:-)
+cu
 
-Magnus
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
- Programmer/Networker [|] Magnus Naeslund
- PGP Key: http://www.genline.nu/mag_pgp.txt
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
+jjs
 

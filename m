@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268934AbRIDUPP>; Tue, 4 Sep 2001 16:15:15 -0400
+	id <S268901AbRIDUUz>; Tue, 4 Sep 2001 16:20:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268908AbRIDUOz>; Tue, 4 Sep 2001 16:14:55 -0400
-Received: from gnu.in-berlin.de ([192.109.42.4]:37892 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S268901AbRIDUOq>;
-	Tue, 4 Sep 2001 16:14:46 -0400
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: H.323 and 2.4
-Date: 4 Sep 2001 19:29:31 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrn9paasr.8bf.kraxel@bytesex.org>
-In-Reply-To: <999616751.3b94f0ef41ca8@webmail.fesppr.br>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 999631771 8560 127.0.0.1 (4 Sep 2001 19:29:31 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+	id <S268922AbRIDUUf>; Tue, 4 Sep 2001 16:20:35 -0400
+Received: from [208.48.139.185] ([208.48.139.185]:411 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S268901AbRIDUUY>; Tue, 4 Sep 2001 16:20:24 -0400
+Date: Tue, 4 Sep 2001 13:20:39 -0700
+From: David Rees <dbr@greenhydrant.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS to Irix server broken again in 2.4.9
+Message-ID: <20010904132039.A18908@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <15253.1002.189305.674221@barley.abo.fi> <20010904120737.A17459@greenhydrant.com> <shswv3eena8.fsf@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <shswv3eena8.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Tue, Sep 04, 2001 at 10:03:43PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexandre Hautequest wrote:
->  Hi all.
->  
->  The H.323 protocol, as many of you know, got some issues when used in a masq'ed
->  env. The guys at http://www.coritel.it/coritel/ip/sofia/nat/nat2/nat2.htm have a
->  2.2 module to solve this masq trouble.
->  
->  Anyone have any solution for 2.4?
+On Tue, Sep 04, 2001 at 10:03:43PM +0200, Trond Myklebust wrote:
+> >>>>> " " == David Rees <dbr@greenhydrant.com> writes:
+> 
+>      > Previous 2.4.X kernels didn't require the 32bitclients option
+>      > on the IRIX server for some reason.
+> 
+> That was because prior to 2.4.9 the kernel would automatically
+> truncate the getdents() offsets to 32 bits. We now have true 64 bit
+> offsets, and they actually get passed back to userland.
+> 
+> glibc-2.x's 32 bit version of readdir() still assumes that
+> getdents64() syscall returns some an offset (rather than a cookie) and
+> that the offset fits into 32bits on ordinary directories.
+> Using '32bitclients' on these older IRIX servers sort of shoehorns
+> them into the glibc assumptions in the same way the 32 bit truncation
+> in kernels 2.4.[0-8] did.
 
-Checkk netfilter maillist archive + cvs.  There was some discussion
-about that recently.
+Hmm, the the server I'm running is IRIX 6.5.12 which isn't that old.  IRIX
+6.5.13 was only released a little while ago (with some specific IRIX/Linux
+NFS fixes according to the changelog) so I assume that with 6.5.13 we won't
+need the 32bitclients options.
 
-  Gerd
+Thanks for the info.
 
--- 
-Damn lot people confuse usability and eye-candy.
+-Dave

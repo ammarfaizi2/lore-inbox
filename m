@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbTKYPwD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 10:52:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTKYPwC
+	id S261152AbTKYQJm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 11:09:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbTKYQJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 10:52:02 -0500
-Received: from turing.informatik.Uni-Halle.DE ([141.48.9.50]:49095 "EHLO
-	turing.informatik.uni-halle.de") by vger.kernel.org with ESMTP
-	id S261522AbTKYPwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 10:52:00 -0500
-Message-ID: <3FC37A9E.6030002@abeckmann.de>
-Date: Tue, 25 Nov 2003 16:51:58 +0100
-From: Andreas Beckmann <sparclinux@abeckmann.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	Tue, 25 Nov 2003 11:09:42 -0500
+Received: from sweetums.bluetronic.net ([24.199.150.42]:23181 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S261152AbTKYQJl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 11:09:41 -0500
+Date: Tue, 25 Nov 2003 11:07:21 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Copy protection of the floppies
+In-Reply-To: <yw1xu14sdbwo.fsf@kth.se>
+Message-ID: <Pine.GSO.4.33.0311251054040.13188-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: sparclinux@abeckmann.de
-Subject: 2.4.23-rc4 sparc64 compile problem: drivers/char/drm/ffb_drv.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compiling ffb_drv.c into the kernel (CONFIG_DRM_FFB=y) fails with
-ffb_drv.c:386: error: redefinition of `ffb_options'
-drm_drv.h:138: error: `ffb_options' previously defined here
+On Tue, 25 Nov 2003, [iso-8859-1] Måns Rullgård wrote:
+>> About 15 years ago, there were many gaming softwares which were procected,
+(it was more than 15 years ago.)
+>> for example, by checking "gap" between sectors.
+>
+>Can't that be done with a regular floppy drive and some special
+>software?
 
-Compiling it as a module (CONFIG_DRM_FFB=m) works fine.
+Please heed the lessons already learned in the software industry...
+Copy protection doesn't work.  It works about as well as locks on doors
+as it'll keep the honest people honest, and offer a small obstacle to
+the dishonest.
 
-I think this was introduced by
+As others have stated, anything *you* can do with a PC floppy drive, *I*
+can do. (And given this thread, I can probablly do a few things you
+currently cannot.)  Ultimately, any copy protection comes down to
+the software on the floppy.  If the machine can read it to execute it,
+the hacker can read it to remove the checks.  No ammount of hand-waving
+will change that. (That, btw, is why the DMCA, et. al., exist.)
 
-ChangeSet 1.1063.39.5 2003/09/01 17:05:39 m.c.p@wolk-project.de
-   [PATCH] Update DRI/DRM so XFree v4.3.0 and above works
-
-when all drivers in drivers/char/drm/ except ffb*.* were modified.
-
-Removing DRM(options) (that generates ffb_options) from ffb_drv.c makes 
-it compile again. But ffb still needs the cleanup performed on the other 
-drivers and possibly XFree 4.3 fixes.
-
-
-Andreas
-
-Please CC: me in your replys, as I'm not subscribed to lkml.
+--Ricky
 
 

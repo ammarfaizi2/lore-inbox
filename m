@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287487AbSAFDgc>; Sat, 5 Jan 2002 22:36:32 -0500
+	id <S287681AbSAFDnd>; Sat, 5 Jan 2002 22:43:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287667AbSAFDgX>; Sat, 5 Jan 2002 22:36:23 -0500
-Received: from [66.189.64.253] ([66.189.64.253]:56192 "HELO majere.epithna.com")
-	by vger.kernel.org with SMTP id <S287487AbSAFDgH>;
-	Sat, 5 Jan 2002 22:36:07 -0500
-Date: Sat, 5 Jan 2002 22:34:43 -0500 (EST)
-From: <listmail@majere.epithna.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] O(1) scheduler, 2.4.17-B0, 2.5.2-pre8-B0.
-In-Reply-To: <Pine.LNX.4.33.0201060128250.1250-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0201052232170.13672-100000@majere.epithna.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287682AbSAFDnO>; Sat, 5 Jan 2002 22:43:14 -0500
+Received: from smtp1.Stanford.EDU ([171.64.14.23]:48038 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S287681AbSAFDnF>; Sat, 5 Jan 2002 22:43:05 -0500
+Date: Sat, 5 Jan 2002 19:43:02 -0800
+To: linux-kernel@vger.kernel.org
+Cc: mingo@elte.hu
+Subject: [ingo scheduler patch] sorry --> 2.4.17-B4 works with no modules kernel....
+Message-ID: <20020105194302.A293@av.stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+From: vvikram@av.stanford.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How close are you and Robert Love on getting this patch and his pre-emt
-patches to co-operate...seems like that might bring huge wins.  I know, I
-know I could diff, and fix the rejects myself, but this seems to deep in
-the kernel for a relative newbie like myself(plus I am more a file system
-guy)
 
-Bill
+hi ingo,
 
-On Sun, 6 Jan 2002, Ingo Molnar wrote:
+my bad - sorry. it was some other stupid change of mine to the kernel [i.e 
+not a fresh kernel] which caused the lockup. 
 
->
-> this is the next, bugfix release of the O(1) scheduler:
->
-> 	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-B0.patch
-> 	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-B0.patch
->
-> This release could fix the lockups and crashes reported by some people.
->
-> Changes:
->
->  - remove the likely/unlikely define from sched.h and include compiler.h.
->    (Adrian Bunk)
->
->  - export sys_sched_yield, reported by Pawel Kot.
->
->  - turn off 'child runs first' temporarily, to see the effect.
->
->  - export nr_context_switches() as well, needed by ReiserFS.
->
->  - define resched_task() in the correct order to avoid compiler warnings
->    on UP.
->
->  - maximize the frequency of timer-tick driven load-balancing to 100 per
->    sec.
->
->  - clear ->need_resched in the RT scheduler path as well.
->
->  - simplify yield() support, remove TASK_YIELDED and __schedule_tail().
->
-> Comments, bug reports, suggestions are welcome,
->
-> 	Ingo
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+i am mailing this after booting from a _fresh_ kernel, no modules and 
+your patch applied.
+
+it works great:). hope this helps.
+
+i can now start stress-testing it....
+
+	Vikram
+
+--
+1) Linux av 2.4.17 #5 Sat Jan 5 19:11:24 PST 2002 i686 unknown
+2) 
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 6
+model		: 3
+model name	: AMD Duron(tm) Processor
+stepping	: 0
+cpu MHz		: 751.354
+.
+.
+.
 

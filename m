@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267755AbTBECws>; Tue, 4 Feb 2003 21:52:48 -0500
+	id <S267754AbTBECye>; Tue, 4 Feb 2003 21:54:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267754AbTBECws>; Tue, 4 Feb 2003 21:52:48 -0500
-Received: from dewberry.cc.columbia.edu ([128.59.59.68]:1164 "EHLO
-	dewberry.cc.columbia.edu") by vger.kernel.org with ESMTP
-	id <S267755AbTBECwK>; Tue, 4 Feb 2003 21:52:10 -0500
-Message-ID: <015201c2ccc2$e10729e0$bcf627a0@zhengthinkpad>
-From: "Haoqiang Zheng" <hzheng@cs.columbia.edu>
-To: <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: linux hangs with printk on schedule()
-Date: Tue, 4 Feb 2003 22:01:27 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S267758AbTBECye>; Tue, 4 Feb 2003 21:54:34 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:13703 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S267754AbTBECyc>; Tue, 4 Feb 2003 21:54:32 -0500
+Date: Wed, 5 Feb 2003 04:03:51 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Larry McVoy <lm@work.bitmover.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: gcc 2.95 vs 3.21 performance
+Message-ID: <20030205030351.GC21879@louise.pinerecords.com>
+References: <1044385759.1861.46.camel@localhost.localdomain> <200302041935.h14JZ69G002675@darkstar.example.net> <b1pbt8$2ll$1@penguin.transmeta.com> <20030204232101.GA9034@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030204232101.GA9034@work.bitmover.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> oops_in_progress++;
-> printk(...);
-> oops_in_progress--;
+> [lm@bitmover.com]
+> 
+> I can't offer any immediate help with this but I want the same thing.  At
+> some point, we're planning on funding some extensions into GCC or whatever
+> reasonable C compiler is around:
+> 
+>     - associative arrays as a builtin type
+>     - regular expressions
+>     - tk bindings built in
 
-Thanks Robert and Andi for your help.
-But the trick (avoid waking up klog by setting oops_in_progress) doesn't
-seem to work for me.
+Is it April 1st already?
 
-I did notice the code:
-*********************************************
- if (must_wake_klogd && !oops_in_progress)
-  wake_up_interruptible(&log_wait);
-*****************************************
-But it simply still doesn't work. :-(
+I can't see why this should be a language extension other than you want
+to make a real mess out of it.
 
-I am working on implementing a new SMP scheduler. It's an OS research
-project. Without "printk" in the scheduler, it's really very hard to do the
-debugging. I don't know how other guys do in this case. Are you guys better
-equipped than me? I mean is debugging with gdb running on another machine
-(connected via serial port) a common technique? I am not sure whether it's
-necessary to set up an environment like that.
+> and then we'll port BK to that compiler.  It's likely to be GCC because we
+> want to support all the different architectures but if a kernel sponsered
+> cc shows up we'll happily throw money at that.
 
-Haoqiang
+Ever heard of glib?
+#include <glib.h> and be done with it.
 
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,73 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbULBS2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbULBSa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbULBS2f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 13:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbULBS2f
+	id S261716AbULBSa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 13:30:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbULBSa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 13:28:35 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:3717 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S261286AbULBS2Z (ORCPT
+	Thu, 2 Dec 2004 13:30:58 -0500
+Received: from fw.osdl.org ([65.172.181.6]:20902 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261716AbULBSaG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 13:28:25 -0500
-Date: Thu, 2 Dec 2004 10:27:16 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org, clameter@sgi.com,
-       hugh@veritas.com, benh@kernel.crashing.org, nickpiggin@yahoo.com.au,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance tests
-Message-ID: <20041202182716.GE25359@esmail.cup.hp.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain> <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org> <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org> <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org> <41AEB44D.2040805@pobox.com> <20041201223441.3820fbc0.akpm@osdl.org>
+	Thu, 2 Dec 2004 13:30:06 -0500
+Date: Thu, 2 Dec 2004 10:29:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: tglx@linutronix.de, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
+Subject: Re: [PATCH] oom killer (Core)
+Message-Id: <20041202102935.5d75c2be.akpm@osdl.org>
+In-Reply-To: <20041202180823.GD32635@dualathlon.random>
+References: <20041201104820.1.patchmail@tglx>
+	<20041201211638.GB4530@dualathlon.random>
+	<1101938767.13353.62.camel@tglx.tec.linutronix.de>
+	<20041202033619.GA32635@dualathlon.random>
+	<1101985759.13353.102.camel@tglx.tec.linutronix.de>
+	<1101995280.13353.124.camel@tglx.tec.linutronix.de>
+	<20041202164725.GB32635@dualathlon.random>
+	<20041202085518.58e0e8eb.akpm@osdl.org>
+	<20041202180823.GD32635@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041201223441.3820fbc0.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 01, 2004 at 10:34:41PM -0800, Andrew Morton wrote:
-> Of course, nobody will test -rc3 and a zillion people will test final
-> 2.6.10, which is when we get lots of useful bug reports.  If this keeps on
-> happening then we'll need to get more serious about the 2.6.10.n process.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> On Thu, Dec 02, 2004 at 08:55:18AM -0800, Andrew Morton wrote:
+> > Andrea Arcangeli <andrea@suse.de> wrote:
+> > >
+> > > I believe the thing you're hiding with the callback, is some screwup in
+> > >  the VM. It shouldn't fire oom 300 times in a row.
+> > 
+> > Well no ;)
 > 
-> Or start alternating between stable and flakey releases, so 2.6.11 will be
-> a feature release with a 2-month development period and 2.6.12 will be a
-> bugfix-only release, with perhaps a 2-week development period, so people
-> know that the even-numbered releases are better stabilised.
+> Could you explain why do we need all_unreclaimable?  What is the point
+> of all_unreclaimable if we bypass it at priority = 0?  Just to loop a
+> few times (between DEF_PRIORITY and 1) at 100% cpu load?
 
-No matter what scheme you adopt, I (and others) will adapt as well.
-When working on a new feature or bug fix, I don't chase -bk releases
-since I don't want to find new, unrelated issues that interfere with
-the issue I was originally chasing. I roll to a new release when
-the issue I care about is "cooked". Anything that takes longer than
-a month or so is just hopeless since I fall too far behind.
+It addresses the situation where all of a zone's pages are pinned down for
+some reason (say, they're all mlocked, or we're out of swapspace).  There's
+no point in chewing tons of CPU scanning this zone on every reclaim attempt,
+so the VM marks the zone as being full of unreclaimable pages.
 
-(e.g. IRQ handling in parisc-linux needs to be completely rewritten
-to pickup irq_affinity support - I just don't have enough time to get
-it done in < 2 monthes. We started on this last year and gave up.)
+When the zone is marked all_unreclaimable, we *logically* don't scan it at
+all - just skip it.  But in practice we do need to detect the situation
+where some of the zone's pages have become reclaimable again.  That could
+happen because more swapspace has become available, or an app ran munlock()
+or whatever.  So to perform this detection we perform tiny scans to just
+poll the zone.  If that tiny scan results in a page getting reclaimed then
+we clear all_reclaimable and the zone returns to normal state.
 
-I see "2.6.10.n process" as the right way to handle bug fix only releases.
-I'm happy to work on 2.6.10.0 and understand the initial release was a
-"best effort".
+As an alternative to the tiny-scan-polling we could clear all_unreclaimable
+in all zones when releasing swapspace, when running munlock(), etc.
 
-2.6.odd/.even release described above is a variant of 2.6.10.n releases
-where n = {0, 1}. The question is how many parallel releases do people
-(you and linus) want us keep "alive" at the same time?
-odd/even implies only one vs several if 2.6.X.n scheme is continued
-beyond 2.6.8.1.
+Probably free_pages_bulk() should only be clearing all_unreclaimable if
+current->reclaim_state != NULL, because random page freeings in the zone
+don't necessarily mean that any pages have become reclaimable.  Or clear
+all_unreclaimable in shrink_list() rather than free_pages_bulk().
 
-Also need to think about how well any scheme align's with what distro's
-need to support releases. Like the "Adopt-a-Highway" program in
-California to pickup trash along highways, I'm wondering if distros
-would be willing/interested in adopting a particular release
-and maintain it in bk.  e.g. SuSE clearly has interest in some sort
-of 2.6.5.n series for SLES9. ditto for RHEL4 (but for 2.6.9.n).
-The question of *who* (at respective distro) would be the release
-maintainer is a titanic sized rathole. But there is a release manager
-today at each distro and perhaps it's easier if s/he remains invisible
-to us.
+> OTOH we must not forget 2.4(-aa) calls do_exit synchronously and it
+> never sends signals. That might be why 2.4 doesn't kill more than one
+> task by mistake, even without a callback-wakeup. So if we keep sending
+> signals I certainly agree with Thomas that using a callback to stop the
+> VM until the task is rescheduled is a good idea, and potentially it may
+> be even the only possible fix when the oom killer is enabled like in 2.6
+> (though the 300 kills in between SIGKILL and the reschedule sounds like
+> the VM isn't even trying anymore).  Otherwise perhaps his workload is
+> spawning enough tasks, that it takes an huge time for the rechedule
+> (that would explain it too).
 
-hth,
-grant
+Could be, I dunno.  I've never done any work on the oom-killer and I tend
+to regard it as a stupid thing which is only there so you can get back into
+the machine to shut down and restart everything.
+
+I mean, if you ran the machine out of memory then it is underprovisioned
+and it *will* become unreliable whatever we do.  The answer is to Not Do
+That.  As long as the oom-killer allows you to get in and admin the machine
+later on then that's good enough as far as I'm concerned.  Others probably
+disagree ;)
+
+> Actually this should fix it too btw:
+> 
+> -	if (p->flags & PF_MEMDIE)
+> -		return 0;
+> 
+> Thomas can you try the above?
+> 
+> I'd rather fix this by removing buggy code, than by adding additional
+> logics on top of already buggy code (i.e. setting PF_MEMDIE is a smp
+> race and can corrupt other bitflags),
+
+Yes, that needs a separate task_struct field.
+
+> but at least the
+> oom-wakeup-callback from do_exit still makes a lot of sense (even if
+> PF_MEMDIE must be dropped since it's buggy, and something else should be
+> used instead).
+
+Probably.
+
+> does the right watermark checks before killing the next task
+
+yes, we should do that.
+
+> BTW, checking for pid == 1 like in Thomas's patch is a must, I advocated
+> it for years but nobody listened yet, hope Thomas will be better at
+> convincing the VM mainline folks than me.
+
+hm.  I thought we were already doing that, but it seems not.

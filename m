@@ -1,41 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290659AbSBLA7l>; Mon, 11 Feb 2002 19:59:41 -0500
+	id <S290674AbSBLBAl>; Mon, 11 Feb 2002 20:00:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290665AbSBLA7c>; Mon, 11 Feb 2002 19:59:32 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:18566 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290659AbSBLA7Q>;
-	Mon, 11 Feb 2002 19:59:16 -0500
-Date: Mon, 11 Feb 2002 16:57:30 -0800 (PST)
-Message-Id: <20020211.165730.59656439.davem@redhat.com>
-To: zippel@linux-m68k.org
-Cc: anton@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: thread_info implementation
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3C68685F.90C3AAA4@linux-m68k.org>
-In-Reply-To: <20020211205048.GA5401@krispykreme>
-	<20020211.164617.39155905.davem@redhat.com>
-	<3C68685F.90C3AAA4@linux-m68k.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S290665AbSBLBAV>; Mon, 11 Feb 2002 20:00:21 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:59581 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S290662AbSBLBAT>; Mon, 11 Feb 2002 20:00:19 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200202120100.g1C10GT21995@devserv.devel.redhat.com>
+Subject: Re: Linux 2.4.18-pre9-ac1
+To: pozsy@sch.bme.hu (Pozsar Balazs)
+Date: Mon, 11 Feb 2002 20:00:16 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.30.0202120151410.7871-100000@balu> from "Pozsar Balazs" at Feb 12, 2002 01:53:06 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Roman Zippel <zippel@linux-m68k.org>
-   Date: Tue, 12 Feb 2002 01:57:03 +0100
+> > Linux 2.4.18pre9-ac1
+> ...
+> 
+> Does it contain rmap-12e or still only 12a (as per the changelog)?
 
-   "David S. Miller" wrote:
-   
-   > I was able to blow away all of the assembler offset stuff because now
-   > all the stuff assembly wants to get at is in one structure and it is
-   > trivial to compute the offsets by hand.
-   
-   Where's the problem to compute them automatically?
-
-It requires ugly scripts that parse assembler files if you want it to
-work in a cross compilation requirement.  Check out
-arch/sparc64/kernel/check_asm.sh and the "check_asm" rule in the
-Makefile or the same directory in older trees to see what I mean.
+Still 12a - I've not done the 12a->e merge and I've seen problems with b-d
 

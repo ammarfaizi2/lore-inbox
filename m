@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130340AbRBARjo>; Thu, 1 Feb 2001 12:39:44 -0500
+	id <S131065AbRBARkY>; Thu, 1 Feb 2001 12:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130587AbRBARjf>; Thu, 1 Feb 2001 12:39:35 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:51466 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130641AbRBARjT>; Thu, 1 Feb 2001 12:39:19 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Need for more ISO8859 codepages?
-Date: 1 Feb 2001 09:39:05 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <95c6vp$n7t$1@cesium.transmeta.com>
-In-Reply-To: <4755.137.44.4.15.981028098.squirrel@www.sucs.swan.ac.uk>
+	id <S131265AbRBARkP>; Thu, 1 Feb 2001 12:40:15 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38159 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131065AbRBARkD>; Thu, 1 Feb 2001 12:40:03 -0500
+Subject: Re: 2.2.16 3c90x ?
+To: apark@cdf.toronto.edu
+Date: Thu, 1 Feb 2001 17:41:06 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.30.0102011220540.5429-100000@marvin.cdf> from "apark@cdf.toronto.edu" at Feb 01, 2001 12:33:49 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14ONjI-0004i6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <4755.137.44.4.15.981028098.squirrel@www.sucs.swan.ac.uk>
-By author:    "Rhys Jones" <linux-kernel@postwales.com>
-In newsgroup: linux.dev.kernel
->
-> Hello,
-> 
-> Please forgive a semi-newbie post.
-> 
-> About 18 months ago I patched fs/nls/ to include support for the
-> Celtic character set, ISO8859-14. I notice that there are still gaps
-> in nls, specifically in ISO8859 codepages 10 to 13.
-> 
-> The missing codepages are for Nordic/Icelandic (ISO8859-10), Thai
-> (ISO8859-11), and Baltic Rim (ISO8859-13) languages. I'm still trying
-> to determine the status of ISO8859-12 at the moment.
-> 
-> Two questions, really. The general one is whether anyone would find
-> these codepages useful. If they would, I'm willing to provide the
-> patches in due course. More specifically, can anyone tell me why
-> ISO8859-10 (Icelandic etc.) is mentioned in Documentation/Configure.help
-> whilst nls_iso8859-10.c is missing from the fs/nls directory?
+> Just wondering...  How safe is it to switch from 10Mbit network to
+> 100Mbit network while the machine is up?
+
+Providing the driver is properly coded absolutely fine
+
+> from 10Mbit to 100Mbit while machine was up, it just froze solid.
+> I'm using 3Com 3c905C Tornado network card and the corresponding driver
+> is 3c90x.
 > 
 
-Having them around can never be a bad thing.
+Use the standard kernel 3c59x.c driver instead. That one for me at least
+is happy doing 10/100 switches
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

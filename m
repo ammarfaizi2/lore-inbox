@@ -1,47 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132025AbRAXOSj>; Wed, 24 Jan 2001 09:18:39 -0500
+	id <S132343AbRAXOSw>; Wed, 24 Jan 2001 09:18:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132343AbRAXOSa>; Wed, 24 Jan 2001 09:18:30 -0500
-Received: from smtp6.mail.yahoo.com ([128.11.69.103]:51973 "HELO
-	smtp6.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S132025AbRAXOSS>; Wed, 24 Jan 2001 09:18:18 -0500
+	id <S132380AbRAXOSk>; Wed, 24 Jan 2001 09:18:40 -0500
+Received: from smtp1.mail.yahoo.com ([128.11.69.60]:4111 "HELO
+	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S132315AbRAXOSZ>; Wed, 24 Jan 2001 09:18:25 -0500
 X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3A6ED972.6636E169@yahoo.com>
-Date: Wed, 24 Jan 2001 08:32:35 -0500
+Message-ID: <3A6EDDD3.1509716C@yahoo.com>
+Date: Wed, 24 Jan 2001 08:51:15 -0500
 From: Paul Gortmaker <p_gortmaker@yahoo.com>
 X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.1-pre8 i486)
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: David Luyer <david_luyer@pacific.net.au>, alan@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: PATCH: "Pass module parameters" to built-in drivers
-In-Reply-To: <27169.980053744@ocs3.ocs-net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: fero@drama.obuda.kando.hu
+CC: geert@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: [PATCH]: hgafb crash on MDA only cards
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
 
-> Inconsistent methods for setting the same parameter are bad.  I can and
-> will do this cleanly in 2.5.  Parameters will be always be keyed by the
-> module name, even if they are compiled in.  Adding an inconsistent
+Current (2.4.0pre8) hgafb will misdetect MDA only cards and
+then crash - last message briefly seen before screen clears is
 
-I'm curious as to what boot argument equivalent you envision for e.g.
+hgafb: <NULL> with 32K of memory detected.
 
-options ne io=0x280,0x300 irq=10,12 bad=0,1
-
-> method to 2.4 then changing to a correct method in 2.5 is a bad idea,
-> wait until we can do it right.
-
-As a related issue, this will allow me (or whoever) to kill off the
-ether=x,y,z,ethN boot argument for compiled in ethernet drivers at
-the same time.  It made sense back in 1.0/1.2 days when distro kernels 
-were shipped with everything compiled in and ISA cards were the norm.  
-Now it is hardly used and generally a PITA to support.
+A comparison to the detection code in XFree86 shows that hgafb 
+forgets to return failure if the status port doesn't show 
+any active changes associated with counting vertical syncs.
 
 Paul.
+
+--- drivers/video/hgafb.c~	Sun Aug 20 03:06:13 2000
++++ drivers/video/hgafb.c	Tue Jan 23 13:38:12 2001
+@@ -7,6 +7,8 @@
+  *
+  * History:
+  *
++ * - Revision 0.1.7 (23 Jan 2001): fix crash resulting from MDA only cards 
++ *				   being detected as Hercules.	 (Paul G.)
+  * - Revision 0.1.6 (17 Aug 2000): new style structs
+  *                                 documentation
+  * - Revision 0.1.5 (13 Mar 2000): spinlocks instead of saveflags();cli();etc
+@@ -358,21 +360,22 @@
+ 		udelay(2);
+ 	}
+ 
+-	if (p_save != q_save) {
+-		switch (inb_p(HGA_STATUS_PORT) & 0x70) {
+-			case 0x10:
+-				hga_type = TYPE_HERCPLUS;
+-				hga_type_name = "HerculesPlus";
+-				break;
+-			case 0x50:
+-				hga_type = TYPE_HERCCOLOR;
+-				hga_type_name = "HerculesColor";
+-				break;
+-			default:
+-				hga_type = TYPE_HERC;
+-				hga_type_name = "Hercules";
+-				break;
+-		}
++	if (p_save == q_save) 
++		return 0;
++
++	switch (inb_p(HGA_STATUS_PORT) & 0x70) {
++		case 0x10:
++			hga_type = TYPE_HERCPLUS;
++			hga_type_name = "HerculesPlus";
++			break;
++		case 0x50:
++			hga_type = TYPE_HERCCOLOR;
++			hga_type_name = "HerculesColor";
++			break;
++		default:
++			hga_type = TYPE_HERC;
++			hga_type_name = "Hercules";
++			break;
+ 	}
+ 	return 1;
+ }
+
+
 
 
 

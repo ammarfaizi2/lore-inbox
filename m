@@ -1,83 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263914AbTEWH6W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 03:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263915AbTEWH6W
+	id S263918AbTEWIIU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 04:08:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbTEWIIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 03:58:22 -0400
-Received: from smtp1.Stanford.EDU ([171.64.14.23]:5883 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S263914AbTEWH6U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 03:58:20 -0400
-User-Agent: Microsoft-Entourage/10.1.1.2418
-Date: Fri, 23 May 2003 01:11:24 -0700
-Subject: Re: [CHECKER] 12 potential leaks in kernel 2.5.69
-From: Ted Kremenek <kremenek@cs.stanford.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <BAF325BC.8EEC%kremenek@cs.stanford.edu>
-In-Reply-To: <20030522173453.GA9303@bougret.hpl.hp.com>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
-Content-transfer-encoding: 7bit
+	Fri, 23 May 2003 04:08:20 -0400
+Received: from [62.112.80.35] ([62.112.80.35]:19840 "EHLO ipc1.karo")
+	by vger.kernel.org with ESMTP id S263918AbTEWIIT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 04:08:19 -0400
+Message-ID: <16077.55787.797668.329213@ipc1.karo>
+Date: Fri, 23 May 2003 10:20:59 +0200
+From: "Lothar Wassmann" <LW@KARO-electronics.de>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >= 2.5.30(at least))
+In-Reply-To: <20030522151156.C12171@flint.arm.linux.org.uk>
+References: <16076.50160.67366.435042@ipc1.karo>
+	<20030522151156.C12171@flint.arm.linux.org.uk>
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks everyone for looking at these errors.
+Russell King writes:
+> We seem to have flush_icache_page() in install_page() - I wonder whether
+> we should also have flush_dcache_page() in there as well.
+> 
+Maybe because install_page() isn't called in the situation I
+was talking about. install_page() is called from filemap_populate()
+which in turn is called from do_file_map() in handle_pte_fault(),
+while I was talking about filemap_nopage() called by do_no_page() in
+handle_pte_fault().
 
-Regards,
+And maybe because *every* other call to flush_page_to_ram() has been
+replaced by one of the new interface macros except that one in
+filemap_nopage() in 'mm/filemap.c'.
 
-Ted
 
-> From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
-> Reply-To: jt@hpl.hp.com
-> Date: Thu, 22 May 2003 10:34:53 -0700
-> To: Linux kernel mailing list <linux-kernel@vger.kernel.org>, Ted Kremenek
-> <kremenek@cs.stanford.edu>
-> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> Subject: Re: [CHECKER] 12 potential leaks in kernel 2.5.69
-> 
-> Ted Kremenek wrote :
->> 
->> linux-2.5.69/net/irda/af_irda.c (lines 868-911)
->> [BUG/LEAK, kfree_skb not called on error path]
-> 
-> Fixed in the mega "memory-leak" patch that I sent to Jeff a
-> few days ago :
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=105286497718003&w=2
-> 
->> linux-2.5.69/drivers/net/wireless/wavelan.c (lines 3012-3041)
->> [BUG/LEAK: skb_padto may return new address.  Note certain what
->>            the exact semantics are, but skb_padto returns possibly
->>            a new skb.  It also may free the skb pointer passed to
->>            it, meaning the calling function may have a dangling reference.]
->> 
->>     printk(KERN_DEBUG "%s: ->wavelan_packet_xmit(0x%X)\n", dev->name,
->>            (unsigned) skb);
->> #endif
->> 
->>     if (skb->len < ETH_ZLEN) {
->> Start --->
->>         skb = skb_padto(skb, ETH_ZLEN);
->> 
->>     ... DELETED 23 lines ...
->> 
->>         printk(KERN_INFO "skb has next\n");
->> #endif
->> 
->>     /* Write packet on the card */
->>     if(wv_packet_write(dev, skb->data, skb->len))
->> Error --->
->>         return 1;    /* We failed */
->> 
->>     dev_kfree_skb(skb);
-> 
-> This is very yucky. The memory leak is easy to fix, but the
-> dandling reference is *very* serious. And I don't see how to fix that
-> without either changing the behaviour of skb_padto or the semantic of
-> the xmit API.
-> Alan, would you mind thinking 2sec about this one ?
-> Thanks...
-> 
-> Jean
-> 
-
+Lothar Wassmann

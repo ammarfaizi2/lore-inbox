@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbULFPQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbULFP2u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbULFPQI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 10:16:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbULFPQI
+	id S261546AbULFP2u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 10:28:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbULFP2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 10:16:08 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:59802 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261528AbULFPQH (ORCPT
+	Mon, 6 Dec 2004 10:28:40 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:53219 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261539AbULFP1f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 10:16:07 -0500
-Date: Mon, 6 Dec 2004 16:16:06 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Correctly determine amount of "free memory"
-Message-ID: <20041206151606.GA4149@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Gregory Giguashvili <Gregoryg@ParadigmGeo.com>,
-	linux-kernel@vger.kernel.org
-References: <06EF4EE36118C94BB3331391E2CDAAD9CD060A@exil1.paradigmgeo.net>
+	Mon, 6 Dec 2004 10:27:35 -0500
+Date: Mon, 6 Dec 2004 16:27:04 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.32-0
+Message-ID: <20041206152704.GA23729@elte.hu>
+References: <20041206131458.GA20247@elte.hu> <Pine.OSF.4.05.10412061520060.6546-100000@da410.ifa.au.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <06EF4EE36118C94BB3331391E2CDAAD9CD060A@exil1.paradigmgeo.net>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.OSF.4.05.10412061520060.6546-100000@da410.ifa.au.dk>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 06, 2004 at 04:53:34PM +0200, Gregory Giguashvili wrote:
-> Assuming that I define "free memory" as maximum memory that can be
-> allocated without causing swapping, is there a way I can give the best
-> "free memory" amount estimate?
 
-On the side, it would not hurt to study 'overcommit' and mlock(2). The
-answer to your question is not static unless care is taken.
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+> So my point was: Low RT-load might not be the common case on specific
+> systems. [...]
+
+i did not suggest it was. The reason why i mentioned it was to point out
+that _non-RT usage_ does not see any overhead, i.e. ordinary Linux
+boxes. (which nevertheless do run RT tasks occasionally.)
+
+of course in the RT-specific it can be common - Mark's test is one such
+workload. If it werent widespread i'd not try to solve the problem...
+
+	Ingo

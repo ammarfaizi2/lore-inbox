@@ -1,113 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262917AbTIRBA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 21:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbTIRBA3
+	id S262929AbTIRBNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 21:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTIRBNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 21:00:29 -0400
-Received: from neors.cat.cc.md.us ([204.153.79.3]:50626 "EHLO
-	student.ccbc.cc.md.us") by vger.kernel.org with ESMTP
-	id S262917AbTIRBA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 21:00:26 -0400
-Date: Wed, 17 Sep 2003 20:55:44 -0400 (EDT)
-From: John R Moser <jmoser5@student.ccbc.cc.md.us>
-To: linux-kernel@vger.kernel.org
-Subject: Small security option
-Message-ID: <Pine.A32.3.91.1030917204729.33040A-200000@student.ccbc.cc.md.us>
+	Wed, 17 Sep 2003 21:13:15 -0400
+Received: from dsl092-233-042.phl1.dsl.speakeasy.net ([66.92.233.42]:27039
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id S262929AbTIRBNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 21:13:13 -0400
+X-All-Your-Base: Are Belong To Us!!!
+X-Envelope-Recipient: linux-kernel@vger.kernel.org
+X-Envelope-Sender: oliver@klozoff.com
+Message-ID: <3F6905FE.5030106@klozoff.com>
+Date: Wed, 17 Sep 2003 21:10:22 -0400
+From: Stevie-O <oliver@klozoff.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-862367997-143302914-1063846544=:33040"
+To: linux-kernel@vger.kernel.org
+CC: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Subject: Re: Aliasing physical memory using virtual memory (from a d
+References: <80BC15566D@vcnet.vc.cvut.cz> <3F68FEEC.5020809@klozoff.com>
+In-Reply-To: <3F68FEEC.5020809@klozoff.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Stevie-O wrote:
 
----862367997-143302914-1063846544=:33040
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> 
+> I grepped my 2.4 kernel source for 'vmap' and the only results that 
+> seemed meaningful were vmap_pte_range or vmap_pmd_range in 
+> mips/mm/umap.c and mips64/mm/umap.c. Is this documented somewhere? I 
+> suffer from the 'i'm new at this, but this looks possible' syndrome. I 
+> don't actually know how anything is accomplished.
+> 
+> Btw, am I right about kmalloc(35000) effectively grabbing 64K?
 
-Why wasn't this done in the first place anyway? 
+I did a freetext search of the LXR for 'remap' and came up with this function:
 
-Some sysadmins like to disable the other boot devices and password-protect
-the bios.  Good, but if the person can pass init=, you're screwed. 
+820 /*
+821  * maps a range of physical memory into the requested pages. the old
+822  * mappings are removed. any references to nonexistent pages results
+823  * in null mappings (currently treated as "copy-on-access")
+824  */
+825 static inline void remap_pte_range(pte_t * pte, unsigned long address, 
+unsigned long size,
+826         unsigned long phys_addr, pgprot_t prot)
 
-Here's a small patch that does a very simple thing: Disables "init=" and
-using /bin/sh for init. That'll stop people from rooting the box from grub. 
+This looks promising, although it's a bit ambiguous to me.  Treating the 
+physical pages as distinct from virtual pages:
 
-The file is attatched.
----862367997-143302914-1063846544=:33040
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="patch-linux2.4.22-secinit"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.A32.3.91.1030917205544.33040B@student.ccbc.cc.md.us>
-Content-Description: 
+[1] maps a range of physical memory onto the requested pages
+I assume 'the requested pages' here refer to 'the specified virtual pages', 
+since the statement makes no sense if it's referring to 'the specified physical 
+pages'.
 
-ZGlmZiAtdXIgbGludXgtMi40LjIyL0RvY3VtZW50YXRpb24vQ29uZmlndXJl
-LmhlbHAgbGludXgtMi40LjIyLXNlY3VyZWluaXQvRG9jdW1lbnRhdGlvbi9D
-b25maWd1cmUuaGVscA0KLS0tIGxpbnV4LTIuNC4yMi9Eb2N1bWVudGF0aW9u
-L0NvbmZpZ3VyZS5oZWxwCTIwMDMtMDgtMjUgMDc6NDQ6MzkuMDAwMDAwMDAw
-IC0wNDAwDQorKysgbGludXgtMi40LjIyLXNlY3VyZWluaXQvRG9jdW1lbnRh
-dGlvbi9Db25maWd1cmUuaGVscAkyMDAzLTA5LTE3IDIwOjM4OjE5LjAwMDAw
-MDAwMCAtMDQwMA0KQEAgLTI1MjksNiArMjUyOSwzMiBAQA0KICAgYmVoYXZp
-b3VyIGlzIHBsYXRmb3JtLWRlcGVuZGVudCwgYnV0IG5vcm1hbGx5IHRoZSBm
-bGFzaCBmcmVxdWVuY3kgaXMNCiAgIGEgaHlwZXJib2xpYyBmdW5jdGlvbiBv
-ZiB0aGUgNS1taW51dGUgbG9hZCBhdmVyYWdlLg0KIA0KK1NlY3VyZSBpbml0
-DQorQ09ORklHX1NFQ1VSRV9JTklUDQorICBVbmRlciBub3JtYWwgY2lyY3Vt
-c3RhbmNlcywgdGhlIGtlcm5lbCB0cmllcyB0aGUgZm9sbG93aW5nIGF0IGJv
-b3QNCisgIGFzIGluaXQ6DQorDQorICAgIC9zYmluL2luaXQNCisgICAgL2V0
-Yy9pbml0DQorICAgIC9iaW4vaW5pdA0KKyAgICAvYmluL3NoDQorDQorICBU
-aGlzIGNhbiBiZSBvdmVycmlkZGVuIGJ5IHBhc3NpbmcgaW5pdD0gdG8gdGhl
-IGtlcm5lbCBjb21tYW5kIGxpbmUuDQorICBUaGlzIGlzIGEgc2VjdXJpdHkg
-aGF6YXJkLiAgSWYgeW91IHNheSAnWScgaGVyZSwgaW5pdD0gd2lsbCBiZQ0K
-KyAgaWdub3JlZCAoYWN0dWFsbHkgaXQgd2lsbCBmbGFzaCBhIHdhcm5pbmcg
-YXQgYm9vdCB0aW1lKSwgYW5kIC9iaW4vc2gNCisgIHdpbGwgYWxzbyBuZXZl
-ciBiZSB1c2VkIGFzIGluaXQuICBUaGlzIHByZXZlbnRzIHVzZXJzIHdpdGgg
-cGh5c2ljYWwNCisgIGFjY2VzcyB0byB0aGUgbWFjaGluZSBmcm9tIGdhaW5p
-bmcgcm9vdCBhY2Nlc3MgYnkgcGFzc2luZw0KKyAgaW5pdD0vYmluL2Jhc2gg
-dG8gdGhlIGtlcm5lbC4NCisNCisgIEl0IGlzIGNvbW1vbiB0byBwYXNzIGlu
-aXQ9L2Jpbi9iYXNoIHRvIHRoZSBrZXJuZWwgdG8gZml4IHJlYWxseQ0KKyAg
-bWVzc2VkIHVwIG1hY2hpbmVzLiAgSWYgeW91IHNheSAnWScgaGVyZSwgeW91
-IHNob3VsZCBtYWtlIHN1cmUgeW91DQorICBoYXZlIGEgYm9vdCBmbG9wcHkg
-d2l0aCBhIGtlcm5lbCBjb21waWxlZCB3aXRoIG5vcm1hbCBpbml0IGNvZGUs
-IE9SDQorICBhIHJlc2N1ZSBzeXN0ZW0gc3VjaCBhcyBhIGJvb3Qvcm9vdCBm
-bG9wcHkgb3IgYSBLbm9wcGl4IENELg0KKw0KKyAgTW9zdCB1c2VycyBzaG91
-bGQgc2F5ICdZJyBoZXJlLCB1bmxlc3MgeW91IGtub3cgeW91IHdpbGwgbm90
-IGhhdmUNCisgIGFjY2VzcyB0byBhbHRlcm5hdGUgcmVjb3ZlcnkgbWV0aG9k
-cyBhcyBsaXN0ZWQgaW4gdGhlIGFib3ZlDQorICBwYXJhZ3JhcGguDQorDQog
-TmV0d29ya2luZyBzdXBwb3J0DQogQ09ORklHX05FVA0KICAgVW5sZXNzIHlv
-dSByZWFsbHkga25vdyB3aGF0IHlvdSBhcmUgZG9pbmcsIHlvdSBzaG91bGQg
-c2F5IFkgaGVyZS4NCmRpZmYgLXVyIGxpbnV4LTIuNC4yMi9hcmNoL2kzODYv
-Y29uZmlnLmluIGxpbnV4LTIuNC4yMi1zZWN1cmVpbml0L2FyY2gvaTM4Ni9j
-b25maWcuaW4NCi0tLSBsaW51eC0yLjQuMjIvYXJjaC9pMzg2L2NvbmZpZy5p
-bgkyMDAzLTA4LTI1IDA3OjQ0OjM5LjAwMDAwMDAwMCAtMDQwMA0KKysrIGxp
-bnV4LTIuNC4yMi1zZWN1cmVpbml0L2FyY2gvaTM4Ni9jb25maWcuaW4JMjAw
-My0wOS0xNyAyMDozOTo1OC4wMDAwMDAwMDAgLTA0MDANCkBAIC0yNjEsNiAr
-MjYxLDcgQEANCiBtYWlubWVudV9vcHRpb24gbmV4dF9jb21tZW50DQogY29t
-bWVudCAnR2VuZXJhbCBzZXR1cCcNCiANCitib29sICdTZWN1cmUgaW5pdCcg
-Q09ORklHX1NFQ1VSRV9JTklUDQogYm9vbCAnTmV0d29ya2luZyBzdXBwb3J0
-JyBDT05GSUdfTkVUDQogDQogIyBWaXN1YWwgV29ya3N0YXRpb24gc3VwcG9y
-dCBpcyB1dHRlcmx5IGJyb2tlbi4NCmRpZmYgLXVyIGxpbnV4LTIuNC4yMi9p
-bml0L21haW4uYyBsaW51eC0yLjQuMjItc2VjdXJlaW5pdC9pbml0L21haW4u
-Yw0KLS0tIGxpbnV4LTIuNC4yMi9pbml0L21haW4uYwkyMDAzLTA4LTI1IDA3
-OjQ0OjQ0LjAwMDAwMDAwMCAtMDQwMA0KKysrIGxpbnV4LTIuNC4yMi1zZWN1
-cmVpbml0L2luaXQvbWFpbi5jCTIwMDMtMDktMTcgMjA6MzU6NTkuMDAwMDAw
-MDAwIC0wNDAwDQpAQCAtNTc0LDExICs1NzQsMjggQEANCiAJICogdHJ5aW5n
-IHRvIHJlY292ZXIgYSByZWFsbHkgYnJva2VuIG1hY2hpbmUuDQogCSAqLw0K
-IA0KKwkvKg0KKwkgKiBpbml0PSBpcyBhIHNlY3VyaXR5IGhhenphcmQuICBM
-ZXQncyBjb25maWd1cmUgaXQgb3V0Lg0KKwkgKi8NCisNCiAJaWYgKGV4ZWN1
-dGVfY29tbWFuZCkNCisjaWZuZGVmIENPTkZJR19TRUNVUkVfSU5JVA0KIAkJ
-ZXhlY3ZlKGV4ZWN1dGVfY29tbWFuZCxhcmd2X2luaXQsZW52cF9pbml0KTsN
-CisjZWxzZQ0KKwl7DQorCQlwcmludGsoIldBUk5JTkc6ICBrZXJuZWwgcGFy
-YW1ldGVyOiAge2luaXQ9Iik7DQorCQlwcmludGsoZXhlY3V0ZV9jb21tYW5k
-KTsNCisJCXByaW50aygifSBwYXNzZWQsIGJ1dCBDT05GSUdfU0VDVVJFX0lO
-SVQgc2V0LiAgaW5pdD0gcGFyYW1ldGVyIElHTk9SRURcbiIpOw0KKwl9DQor
-I2VuZGlmDQogCWV4ZWN2ZSgiL3NiaW4vaW5pdCIsYXJndl9pbml0LGVudnBf
-aW5pdCk7DQogCWV4ZWN2ZSgiL2V0Yy9pbml0Iixhcmd2X2luaXQsZW52cF9p
-bml0KTsNCiAJZXhlY3ZlKCIvYmluL2luaXQiLGFyZ3ZfaW5pdCxlbnZwX2lu
-aXQpOw0KKyNpZm5kZWYgQ09ORklHX1NFQ1VSRV9JTklUDQogCWV4ZWN2ZSgi
-L2Jpbi9zaCIsYXJndl9pbml0LGVudnBfaW5pdCk7DQogCXBhbmljKCJObyBp
-bml0IGZvdW5kLiAgVHJ5IHBhc3NpbmcgaW5pdD0gb3B0aW9uIHRvIGtlcm5l
-bC4iKTsNCisjZWxzZQ0KKwlwcmludGsoIkNPTkZJR19TRUNVUkVfSU5JVCBk
-ZWZpbmVkLCBhbmQgaW5pdCBub3QgZm91bmQuXG4iKTsNCisJcGFuaWMoIk5v
-IGluaXQgZm91bmQuICBJbml0IG11c3QgYmUgaW4gL3NiaW4vaW5pdCwgL2V0
-Yy9pbml0LCBvciAvYmluL2luaXQiKTsNCisjZW5kaWYNCiB9DQo=
----862367997-143302914-1063846544=:33040--
+[2] the old mappings are removed.
+Looking at the source, it seems that this means 'if these virtual pages were 
+pointed to any physical pages before, they won't be anymore'
+
+[3] any references to nonexistent pages results in null mappings ('copy-on-access')
+I have no idea what this means, and I can't figure it out reading the code.
+Obviously it refers to something not really being there (thus 'nonexistent'). So 
+copy-on-access? How do you copy something that doesn't exist?
+
+-- 
+- Stevie-O
+
+Real Programmers use COPY CON PROGRAM.EXE
+

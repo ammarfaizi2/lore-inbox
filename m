@@ -1,120 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275682AbRJKBrV>; Wed, 10 Oct 2001 21:47:21 -0400
+	id <S275826AbRJKBtB>; Wed, 10 Oct 2001 21:49:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275570AbRJKBrD>; Wed, 10 Oct 2001 21:47:03 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:25330 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S275265AbRJKBqx>; Wed, 10 Oct 2001 21:46:53 -0400
-Date: Wed, 10 Oct 2001 18:44:45 -0700
-From: Chris Wright <chris@wirex.com>
-To: Remy.Card@linux.org, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.11 unused code in ext2
-Message-ID: <20011010184445.C19995@figure1.int.wirex.com>
-Mail-Followup-To: Remy.Card@linux.org, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S275570AbRJKBsp>; Wed, 10 Oct 2001 21:48:45 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:51614
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S275841AbRJKBsc>; Wed, 10 Oct 2001 21:48:32 -0400
+Date: Wed, 10 Oct 2001 21:48:41 -0400
+From: Chris Mason <mason@suse.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Andreas Dilger <adilger@turbolabs.com>
+cc: Doug McNaught <doug@wireboard.com>,
+        Lew Wolfgang <wolfgang@sweet-haven.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dump corrupts ext2?
+Message-ID: <1160370000.1002764921@tiny>
+In-Reply-To: <200110110133.f9B1XtN28012@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <Pine.LNX.4.33.0110101558210.7049-100000@train.sweet-haven.com><m3elob3xao.fsf@belphigor.mcnaught.org><20011010173449.Q10443@turbolinux.com> <200110110133.f9B1XtN28012@vindaloo.ras.ucalgary.ca>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the ext2_permission function prototype in include/linux/ext2_fs.h is
-never implemented.  no big deal, just a little misleading.  this appears
-to be leftover from 2.2.
 
-the ext2_notify_change function is implemented in fs/ext2/inode.c
-but not used anywhere.  this appears to be leftover from 2.2 when
-ext2_notify_change was part of super_operations.  now that the
-corresponding functionality is provided by inode_operations->setattr,
-ext2 lets vfs handle with generic inode_setattr function.  so this
-function appears to just waste space.
 
-the patch below removes both.  these are already removed from the -ac
-tree.
+On Wednesday, October 10, 2001 07:33:55 PM -0600 Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
 
-thanks,
+> Andreas Dilger writes:
+
+>> In Linus kernels 2.4.11+ the block devices and filesystems all use
+>> the page cache, so no more coherency issues.
+> 
+> Um, I thought that there wasn't going to be coherency? For example, if
+> you open /dev/sda and /dev/sda1, they each have a separate cache. I
+> remember some debate about this, and Linus pointed out how hard it was
+> to make things coherent.
+
+They all use the page cache, but they still use different address spaces.
+
+The block device and getblk share the same address space, so the metadata
+and the block device are on the same cache, except for ext2 directories,
+which act like files do.  Each file has its own address space, so that
+isn't coherent with the block device.
+
+In other words, block device reads with the FS mounted will probably
+never give consistent results.
+
+The bug where dump could corrupt things was when getblk and the
+block device both used the buffer cache.  That issue hasn't changed.
+
 -chris
 
-diff -X /home/chris/dontdiff -Naur linux-2.4.11/fs/ext2/inode.c linux-2.4.11-ext2/fs/ext2/inode.c
---- linux-2.4.11/fs/ext2/inode.c	Fri Oct  5 12:23:53 2001
-+++ linux-2.4.11-ext2/fs/ext2/inode.c	Wed Oct 10 18:41:42 2001
-@@ -1148,63 +1148,3 @@
- {
- 	return ext2_update_inode (inode, 1);
- }
--
--int ext2_notify_change(struct dentry *dentry, struct iattr *iattr)
--{
--	struct inode *inode = dentry->d_inode;
--	int		retval;
--	unsigned int	flags;
--	
--	retval = -EPERM;
--	if (iattr->ia_valid & ATTR_ATTR_FLAG &&
--	    ((!(iattr->ia_attr_flags & ATTR_FLAG_APPEND) !=
--	      !(inode->u.ext2_i.i_flags & EXT2_APPEND_FL)) ||
--	     (!(iattr->ia_attr_flags & ATTR_FLAG_IMMUTABLE) !=
--	      !(inode->u.ext2_i.i_flags & EXT2_IMMUTABLE_FL)))) {
--		if (!capable(CAP_LINUX_IMMUTABLE))
--			goto out;
--	} else if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
--		goto out;
--
--	retval = inode_change_ok(inode, iattr);
--	if (retval != 0 || (((iattr->ia_valid & ATTR_UID && iattr->ia_uid != inode->i_uid) ||
--	    (iattr->ia_valid & ATTR_GID && iattr->ia_gid != inode->i_gid)) &&
--	    DQUOT_TRANSFER(inode, iattr)))
--		goto out;
--
--	inode_setattr(inode, iattr);
--	
--	flags = iattr->ia_attr_flags;
--	if (flags & ATTR_FLAG_SYNCRONOUS) {
--		inode->i_flags |= S_SYNC;
--		inode->u.ext2_i.i_flags |= EXT2_SYNC_FL;
--	} else {
--		inode->i_flags &= ~S_SYNC;
--		inode->u.ext2_i.i_flags &= ~EXT2_SYNC_FL;
--	}
--	if (flags & ATTR_FLAG_NOATIME) {
--		inode->i_flags |= S_NOATIME;
--		inode->u.ext2_i.i_flags |= EXT2_NOATIME_FL;
--	} else {
--		inode->i_flags &= ~S_NOATIME;
--		inode->u.ext2_i.i_flags &= ~EXT2_NOATIME_FL;
--	}
--	if (flags & ATTR_FLAG_APPEND) {
--		inode->i_flags |= S_APPEND;
--		inode->u.ext2_i.i_flags |= EXT2_APPEND_FL;
--	} else {
--		inode->i_flags &= ~S_APPEND;
--		inode->u.ext2_i.i_flags &= ~EXT2_APPEND_FL;
--	}
--	if (flags & ATTR_FLAG_IMMUTABLE) {
--		inode->i_flags |= S_IMMUTABLE;
--		inode->u.ext2_i.i_flags |= EXT2_IMMUTABLE_FL;
--	} else {
--		inode->i_flags &= ~S_IMMUTABLE;
--		inode->u.ext2_i.i_flags &= ~EXT2_IMMUTABLE_FL;
--	}
--	mark_inode_dirty(inode);
--out:
--	return retval;
--}
--
-diff -X /home/chris/dontdiff -Naur linux-2.4.11/include/linux/ext2_fs.h linux-2.4.11-ext2/include/linux/ext2_fs.h
---- linux-2.4.11/include/linux/ext2_fs.h	Tue Oct  9 15:22:46 2001
-+++ linux-2.4.11-ext2/include/linux/ext2_fs.h	Wed Oct 10 18:27:06 2001
-@@ -545,9 +545,6 @@
- # define ATTRIB_NORET  __attribute__((noreturn))
- # define NORET_AND     noreturn,
- 
--/* acl.c */
--extern int ext2_permission (struct inode *, int);
--
- /* balloc.c */
- extern int ext2_bg_has_super(struct super_block *sb, int group);
- extern unsigned long ext2_bg_num_gdb(struct super_block *sb, int group);

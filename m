@@ -1,78 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265224AbTLZUTU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 15:19:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbTLZUTU
+	id S265232AbTLZUOY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 15:14:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265236AbTLZUOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 15:19:20 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:36297 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S265224AbTLZUTJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 15:19:09 -0500
-Message-ID: <3FEC8F0B.A8C30677@sgi.com>
-Date: Fri, 26 Dec 2003 13:42:03 -0600
-From: Colin Ngam <cngam@sgi.com>
-Organization: SGI
-X-Mailer: Mozilla 4.79C-SGI [en] (X11; I; IRIX 6.5 IP32)
-X-Accept-Language: en
+	Fri, 26 Dec 2003 15:14:24 -0500
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:27500 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S265232AbTLZUOW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 15:14:22 -0500
+Message-ID: <3FEC969D.4080502@rackable.com>
+Date: Fri, 26 Dec 2003 12:14:21 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Pat Gefre <pfg@sgi.com>, akpm@osdl.org, davidm@napali.hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Updating our sn code in 2.6
-References: <20031220122749.A5223@infradead.org> <Pine.SGI.3.96.1031222204757.20064A-100000@fsgi900.americas.sgi.com> <20031223090227.A5027@infradead.org> <3FE85533.E026DE86@sgi.com> <20031223165506.A8624@infradead.org>
-Content-Type: text/plain; charset=us-ascii
+To: David Lang <david.lang@digitalinsight.com>
+CC: Mike Fedyk <mfedyk@matchmail.com>, Stan Bubrouski <stan@ccs.neu.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: is it possible to have a kernel module with a BSD license?!
+References: <3FE9ADEE.1080103@baywinds.org> <1072303285.2947.215.camel@duergar> <20031224221024.GA6438@matchmail.com> <Pine.LNX.4.58.0312241510150.7586@dlang.diginsite.com>
+In-Reply-To: <Pine.LNX.4.58.0312241510150.7586@dlang.diginsite.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Dec 2003 20:14:21.0573 (UTC) FILETIME=[D9593B50:01C3CBEC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+David Lang wrote:
+> the question comes back to looking if it's derived from the linux kernel.
+> 
+> if it is then it must be GPL (GPL doesn't allow anything else)
+> 
+> if it isn't then it can be becouse the GPL is compatable with BSD code.
+> (it becomes GPL for purposes of the kernel, but is also available for
+> other uses under the BSD license)
+> 
+> however the big question as always remains 'is this derived from the
+> kernel code'
 
-> On Tue, Dec 23, 2003 at 08:46:11AM -0600, Colin Ngam wrote:
-> > You are ofcourse talking about linux/drivers/.. right?
->
-> My plans are to move the code to drivers/xtalk/ once it's finished, es.
->
-> > IP27 is not a supported architecture under linux/arch/ia64/sn/io/..
-> > The IP27 MIPS processor/io hardware(bridge/Xbridge)/BIOS for IP27 are very much
-> > different than our SN2 product, supported within the linux/arch/ia64 tree -
-> > ia64 processors, IO Chipsets(PIC, TIO(CP,CA)), and System BIOS.
-> >
-> > Is that not supported under the linux/arch/mips tree?
->
-> It's currently supported, but I'm aiming for common code for the common
-> parts (pcibr drivers,  xbow driver, hub/shub driver, xtalk discovery,
-> some prom interface code).  I've already sent you my merged dma mapping
-> code and I have similar code for hub and bridge/xbridge/pic/tiocp level
-> pio mapping and xtalk discovery.
->
-> There's of course code that will stay in the per-arch directories like
-> the lowlevel interrupt code, etc..  Now this isn't something that happens
-> from one day to another, but not not putting stones in the way of each
-> other would help greatly..
 
-Hi Christoph,
+   Well it's obviously derived if any of the following is true:
 
-Yes I agree.  However, keep in mind that we are following the ia32/ia64
-way of getting platforms initialized, via ACPI etc.  What you see as
-drivers code in sn/io will probably not exist anymore.  All initialization
-and configuration will be done at the System BIOS level and information
-passed down to the Linux Kernel via ACPI.  This will take away much
-code in the kernel.
+1)You are using any linux you borrowed from gpl sources.
+2)The module uses a lot internal kernel hooks.
 
-We believe that all that will be left in sn/io directory maybe files dealing with
-DMA mappings(IOMMU).  There will not be any PIO mapping code, no
-configuration code, no discovery code, no init code etc. etc.  This is more
-in line with what we see, with regards to all other ia64 platforms.
+Linus claims that is it's derived if:
 
-This will not take a day either, but we are trying very hard to accomplish this task
+1)It only supports linux.  (He's got a point.)
+2)It was originally written for linux. (I'd disagree, but IANAL)
 
-as soon as possible.
 
-The direction that you are taking, we believe, is not the right strategy in Linux.
+Certainly you'd have a leg to stand on if:
+1)The module was really cross platform.  (Extra points for it working on 
+*BSD, or the like 1st.)
+2)The linux headers are clearly marked gpl.
+3)Every accessing internal linux kernel functions was in the linux headers.
+4)Everything in the module was gpl, or bsd.  (Less to do things being 
+derived than with if you can legally use the result.)
 
-Thanks.
-
-colin
-
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 

@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUFCUsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264286AbUFCUza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUFCUsY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 16:48:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbUFCUsX
+	id S264286AbUFCUza (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 16:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbUFCUza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 16:48:23 -0400
-Received: from 213-229-38-18.static.adsl-line.inode.at ([213.229.38.18]:43738
-	"HELO home.winischhofer.net") by vger.kernel.org with SMTP
-	id S264283AbUFCUsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 16:48:10 -0400
-Message-ID: <40BF8E10.5020107@winischhofer.net>
-Date: Thu, 03 Jun 2004 22:46:08 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Thu, 3 Jun 2004 16:55:30 -0400
+Received: from poros.telenet-ops.be ([195.130.132.44]:57830 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S264286AbUFCUz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 16:55:29 -0400
+To: sam@ravnborg.org
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [PATCH] Typo in Makefile
+From: Peter Korsgaard <jacmet@sunsite.dk>
+Date: Thu, 03 Jun 2004 22:55:48 +0200
+Message-ID: <874qps5pkb.fsf@p4.48ers.dk>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: David Eger <eger@theboonies.us>
-CC: adaplas@pol.net, David Eger <eger@havoc.gtf.org>,
-       Andrew Morton <akpm@osdl.org>, linux-fbdev-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] [PATCH] fb accel capabilities (resend against
- 2.6.7-rc2)
-References: <20040603023653.GA20951@havoc.gtf.org>	<200406032307.13121.adaplas@hotpop.com> <1086285678.40bf676e1da4d@mail.theboonies.us>
-In-Reply-To: <1086285678.40bf676e1da4d@mail.theboonies.us>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Eger wrote:
-> I coded your pseudocode up, and I'm convinced now that you and Thomas are right.
->  We should prefer panning when it's available
-> cat /usr/src/linux/MAINTAINERS is 0.3 seconds instead of 1.5 seconds.
-> 
-> On the down side, panning makes screen corruption for me... time to investigate
-> to see if fbcon or radeonfb is to blame... perhaps panning is just incompatible
-> with accel engine at all in radeon...
+Hi,
 
-Sisfb has been using panning for ages and I never saw or heard about 
-screen corruption. Looks very much like the radeon driver is skrewed...
+A little patch to fix a trivial typo in Makefile.
 
-However, I don't think the engine is "incompatible" with panning. 
-Panning means just to change the display start address, I can't imaging 
-that the engine would care about that.
 
-What sort of "screen corruption" do you get?
-
-Thomas
+--- Makefile.orig       2004-06-03 22:41:56.000000000 +0200
++++ Makefile    2004-06-03 22:41:39.000000000 +0200
+@@ -53,7 +53,7 @@ ifndef KBUILD_CHECKSRC
+   KBUILD_CHECKSRC = 0
+ endif
+ 
+-# Use make M=dir to specify direcotry of external module to build
++# Use make M=dir to specify directory of external module to build
+ # Old syntax make ... SUBDIRS=$PWD is still supported
+ # Setting the environment variable KBUILD_EXTMOD take precedence
+ ifdef SUBDIRS
 
 -- 
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net          http://www.winischhofer.net/
-twini AT xfree86 DOT org
+Bye, Peter Korsgaard

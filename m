@@ -1,74 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130210AbRCCB2a>; Fri, 2 Mar 2001 20:28:30 -0500
+	id <S130214AbRCCBgz>; Fri, 2 Mar 2001 20:36:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130214AbRCCB2U>; Fri, 2 Mar 2001 20:28:20 -0500
-Received: from tux.creighton.edu ([147.134.2.47]:18094 "EHLO tux.creighton.edu")
-	by vger.kernel.org with ESMTP id <S130210AbRCCB2K>;
-	Fri, 2 Mar 2001 20:28:10 -0500
-Date: Fri, 2 Mar 2001 19:27:55 -0600 (CST)
-From: Phil Brutsche <pbrutsch@tux.creighton.edu>
-To: "David S. Miller" <davem@redhat.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2 TCP window shrinking
-In-Reply-To: <15008.6084.410042.53699@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.32.0103021908230.25035-100000@tux.creighton.edu>
+	id <S130215AbRCCBgq>; Fri, 2 Mar 2001 20:36:46 -0500
+Received: from tomts5.bellnexxia.net ([209.226.175.25]:8650 "EHLO
+	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S130214AbRCCBgi>; Fri, 2 Mar 2001 20:36:38 -0500
+Message-ID: <3AA04995.95532595@coplanar.net>
+Date: Fri, 02 Mar 2001 20:32:05 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Favre Gregoire <greg@ulima.unil.ch>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IRQ advice (2.4.2-ac7)
+In-Reply-To: <3AA040C4.3659B274@ulima.unil.ch>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Favre Gregoire wrote:
 
-A long time ago, in a galaxy far, far way, someone said...
-
+> Hello,
 >
-> Jim Woodward writes:
->  > This has probably been covered but I saw this message in my logs and
->  > wondered what it meant?
->  >
->  > TCP: peer xxx.xxx.1.11:41154/80 shrinks window 2442047470:1072:2442050944.
->  > Bad, what else can I say?
->  >
->  > Is it potentially bad? - Ive only ever seen it twice with 2.4.x
+> as I boot some times under windows, i have to change my IRQ for my PCI
+> devices to (all) 9... and all the times I tried to boot that way under linux,
+> it doesn't boot...
 >
-> We need desperately to know exactly what OS the xxx.xxx.1.14 machine
-> is running.  Because you've commented out the first two octets, I
-> cannot check this myself using nmap.
+> So I haven't tested it that way for ages... and now with 2.4.2-ac7 i booted
+> without any problem that way:
+> cat /proc/interrupts                                                     03.03 1:52
+>            CPU0
+>   0:    3051534          XT-PIC  timer
+>   1:      37390          XT-PIC  keyboard
+>   2:          0          XT-PIC  cascade
+>   8:          1          XT-PIC  rtc
+>   9:    6193814          XT-PIC  HiSax, aic7xxx, EMU10K1, usb-uhci, saa7146(1), bttv
+>  12:     314048          XT-PIC  PS/2 Mouse
+>  14:      11820          XT-PIC  ide0
+>  15:      42041          XT-PIC  ide1
+> NMI:      27599
+> LOC:    3051630
+> ERR:          0
+> MIS:          0
+>
+> Is it safe to do it that way?
 
-I'm seeing similar messages on a web server running 2.4.2.
+I personally don't like sharing interrupts unles absolutely necessary.
+Can you tell me why you need to do this?  I would recommend
+disabling any devices you aren't using in the BIOS,
+to free up interrupts.  (IE 2nd serial port, USB, 1st serial if you
+only use PS/2 mouse)
 
-Some of hosts I've seen it with are:
+If you don't use the floppy you might be able to disable it in BIOS.
+I have one board that will use irq 6 for something more useful in this
+case.
 
-205.188.208.172
-209.240.220.172
-209.240.220.173
-209.240.220.174
-209.240.220.176
-209.240.220.177
-216.239.46.17
-216.239.46.27
-216.239.46.34
-216.239.46.168
-130.239.126.113
-206.190.23.112
-193.130.225.253
+Also, changing PCI slot assignment of some cards (if you have spare
+slots) can prevent sharing as well.
 
-- -- 
-- ----------------------------------------------------------------------
-Phil Brutsche				    pbrutsch@tux.creighton.edu
+The BIOS on many boards will show PCI interrupt assignment
+on the bootup screen.  Otherwise check in windows
+device manager - double click on Computer node.
 
-GPG fingerprint: 9BF9 D84C 37D0 4FA7 1F2D  7E5E FD94 D264 50DE 1CFC
-GPG key id: 50DE1CFC
-GPG public key: http://tux.creighton.edu/~pbrutsch/gpg-public-key.asc
+according to the above usage, you could use 4 (com1) (if not mouse or modem)
+3 com2
+5 unused
+9,10,11
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+for devices.
 
-iD8DBQE6oEie/ZTSZFDeHPwRAg4UAKChgEkHgE84Q1OWsB5faZczFrFLjACdGkul
-sViRgWXfFAlKa3W9V8+RAYs=
-=wkJl
------END PGP SIGNATURE-----
+Good luck!
 

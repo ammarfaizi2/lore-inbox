@@ -1,81 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264196AbTEHAfT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 20:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264332AbTEHAfT
+	id S264344AbTEHAmB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 20:42:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbTEHAmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 20:35:19 -0400
-Received: from web14006.mail.yahoo.com ([216.136.175.122]:12044 "HELO
-	web14006.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264196AbTEHAfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 20:35:18 -0400
-Message-ID: <20030508004753.74841.qmail@web14006.mail.yahoo.com>
-Date: Wed, 7 May 2003 17:47:53 -0700 (PDT)
-From: Tony Spinillo <tspinillo@yahoo.com>
-Subject: Re: Kernel Panic - IDE-SCSI
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Wed, 7 May 2003 20:42:01 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:18603 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264344AbTEHAmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 20:42:00 -0400
+Date: Wed, 7 May 2003 20:25:30 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Felix von Leitner <felix-kernel@fefe.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5: ieee1394 still broken, vesafb still broken, ipv6 still broken
+Message-ID: <20030508002530.GF679@phunnypharm.org>
+References: <20030507235104.GA12486@codeblau.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030507235104.GA12486@codeblau.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Same here. 
+On Thu, May 08, 2003 at 01:51:04AM +0200, Felix von Leitner wrote:
+> I am surprised that Linus thinks now is the time to move towards a
+> stable 1.6 release, I don't see any sign for increased stability in
+> 2.5.59.  I am still forced to use 2.5.53 because that is the last kernel
+> that has working ieee1394.
+> 
+> To reiterate the problems:
+> 
+>   ohci1394 detects my controller, sbp2 gets the same unsolicited packets
+>     from my Maxtor firewire hard disk as 2.5.53, but no sign of a
+>     detected SCSI device.
 
-Kernel 2.4.21-pre1 with RedHat 9. INTEL 845PESVL motherboard. 
-It oopses and logs me off from the console.
-Thanks,
+Hey, maybe emailing the linux1394-devel list would help a bit with this
+one.
 
-T
+I assume you mean 2.5.69 and not 2.5.59. Does it work in 2.5.54? If so,
+did you diff 2.5.53 and 2.5.54 and see if you could pinpoint what caused
+it to stop working?
 
-Here is my oops:
+Since this is the first I've heard of your report (just checked recent
+linux1394-devel messages and I don't see your name), we'll have to start
+from scratch on your problem. Since I have been using 2.5.x for a long
+time with ohci1394 and sbp2, and I've heard no other reports of this
+kind, I can honestly say that your report is not the norm. In fact,
+current 2.4/2.5 is the most stable ieee1394 code there is.
 
-ksymoops 2.4.9 on i686 2.4.21-rc1b.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.21-rc1b/ (default)
-     -m /usr/src/linux/System.map (default)
+Just to put it into perspective I currently have an i386 running 2.5.69
+with ohci1394/sbp2 for burning DVD's, and my ultrasparc has a 200gig
+LaCie drive attached to an S800 card that handles backups from all my
+systems on a nightly basis. I haven't even seen the first notion of a
+problem for quite some time (all the ones I did see are fixed).
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-kernel: Unable to handle kernel NULL pointer dereference at virtual
-address 00000000
-kernel: 00000000
-kernel: *pde = 00000000
-kernel: Oops: 0000
-kernel: CPU:    0
-kernel: EIP:    0010:[<00000000>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-kernel: EFLAGS: 00010246
-kernel: eax: f6e33f70   ebx: 00000004   ecx: 00000000   edx: c03398e0
-kernel: esi: f6e1b000   edi: f7e5b680   ebp: 00000004   esp: f6e33f54
-kernel: ds: 0018   es: 0018   ss: 0018
-kernel: Process bash (pid: 13515, stackpage=f6e33000)
-kernel: Stack: c021c590 f6e1b000 f6e33f70 00000000 00000004 00000002
-00000001 0000000a 
-kernel:        00000000 f7805c00 ffffffea c015daf0 f7805c00 080e8408
-00000004 f7e5b680 
-kernel:        c013d1f3 f7805c00 080e8408 00000004 f7805c20 00000003
-00000000 f6e32000 
-kernel: Call Trace:    [<c021c590>] [<c015daf0>] [<c013d1f3>]
-[<c01090ef>]
-kernel: Code:  Bad EIP value.
->>EIP; 00000000 Before first symbol
->>eax; f6e33f70 <_end+36a78878/3848c968>
->>edx; c03398e0 <idescsi_template+0/80>
->>esi; f6e1b000 <_end+36a5f908/3848c968>
->>edi; f7e5b680 <_end+37a9ff88/3848c968>
->>esp; f6e33f54 <_end+36a7885c/3848c968>
-
-Trace; c021c590 <proc_scsi_write+a0/c0>
-Trace; c015daf0 <proc_file_write+40/50>
-Trace; c013d1f3 <sys_write+a3/140>
-Trace; c01090ef <system_call+33/38>
-
-1 warning issued.  Results may not be reliable.
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

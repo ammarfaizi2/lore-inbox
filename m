@@ -1,104 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271922AbTHMWT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 18:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271940AbTHMWT7
+	id S271214AbTHMWSF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 18:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271235AbTHMWSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 18:19:59 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:145 "HELO heather-ng.ithnet.com")
-	by vger.kernel.org with SMTP id S271922AbTHMWTz (ORCPT
+	Wed, 13 Aug 2003 18:18:05 -0400
+Received: from mail.kroah.org ([65.200.24.183]:56035 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S271214AbTHMWSA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 18:19:55 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Thu, 14 Aug 2003 00:19:53 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: marcelo@conectiva.com.br, akpm@osdl.org, andrea@suse.de,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, mason@suse.com
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-Id: <20030814001953.1505bda4.skraw@ithnet.com>
-In-Reply-To: <20030813163452.GC27515@namesys.com>
-References: <20030813125509.360c58fb.skraw@ithnet.com>
-	<Pine.LNX.4.44.0308131143570.4279-100000@localhost.localdomain>
-	<20030813145940.GC26998@namesys.com>
-	<20030813171224.2a13b97f.skraw@ithnet.com>
-	<20030813153009.GA27209@namesys.com>
-	<20030813163452.GC27515@namesys.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 13 Aug 2003 18:18:00 -0400
+Date: Wed, 13 Aug 2003 15:18:13 -0700
+From: Greg KH <greg@kroah.com>
+To: junkio@cox.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: C99 Initialisers
+Message-ID: <20030813221813.GA7418@kroah.com>
+References: <jRnj.2dx.11@gated-at.bofh.it> <jRwZ.2kJ.15@gated-at.bofh.it> <jRQi.2zQ.5@gated-at.bofh.it> <jRZY.2Hw.5@gated-at.bofh.it> <jS9J.2Np.5@gated-at.bofh.it> <jUbt.57S.7@gated-at.bofh.it> <jUuT.5kZ.13@gated-at.bofh.it> <k13k.22O.3@gated-at.bofh.it> <k7Lq.7Gr.7@gated-at.bofh.it> <7v7k5hw907.fsf@assigned-by-dhcp.cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7v7k5hw907.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003 20:34:52 +0400
-Oleg Drokin <green@namesys.com> wrote:
-
-> You seem to be getting corruptions in at least 2 days for now, though.
-> And reiserfs seems to trigger the problem even faster (and may be
-> even more faster if you enable CONFIG_REISERFS_CHECK).
-
-well, I have an idea how to find out more about these verify problem. Basically
-I would try to patch tar to ouput the differing areas to stdout in hexdump
-format or the like. Only I need some time to make this work out. I hope to find
-some pattern about this corruption. 
-
-> > 10 pre's ... That cannot be the way to find out what is going on. 
-> > On the other hand: 
-> > - no UP kernel ever crashed. So we can at least talk about an SMP-race.
+On Wed, Aug 13, 2003 at 02:19:36PM -0700, junkio@cox.net wrote:
+>  (1) If .subvendor and .subdevice are always PCI_ANY_ID, are
+>      there any reason to keep them in the structure in the first
+>      place?  I imagine there are some devices but not in the
+>      tg3_pci_tbl list that need to have different values there,
+>      but if that is the case we may want to generalize the macro
+>      PCI_DEVICE like this:
 > 
-> There is still huge field to look at.
-> 
-> > - 2.4.20 does not crash
-> > - 2.4.21 does crash
-> 
-> diff is 20M in size.
-> 
-> > If we can add "ext3 does not crash" to the list, then I really hope we can
-> > use some brain and give good selection of patches between 2.4.20 and 2.4.21
-> > that may cause the troubles.
-> 
-> There were not much changes in reiserfs. All those patches can easily be
-> reverted just for verification purposes. Let me know when you are ready/want
-> to test this variant and I will send you a diff.
+>         #define PCI_DEVICE(vend, dev) \
+>             PCI_DEVICE_WITH_SUB(vend, dev, PCI_ANY_ID, PCI_ANY_ID)
+>         #define PCI_DEVICE_WITH_SUB(vend, dev, subv, subd) \
+>          .vendor = (vend), \
+>          .device = (dev), \
+>          .subvendor = (subv), \
+>          .subdevice = (subd)
 
-Hm, my primary belief is that something _around_ reiserfs has changed
-semantics.
+Patches always are gladly accepted :)
 
-> > If possible I can then patch out all of them and retry. So there is much
-> > less time spent for testing. 
-> > I mean, have you looked at the length of this thread already?
+>  (2) PCI_VENDOR_ID_ and PCI_DEVICE_ID_ seem to be common prefix,
+>      so how about doing something like this?
 > 
-> Yes, I did.
-> Now if only we can get someone to reproduce your problems...
-
-Hm, I believe nobody in fact tried a setup like mine. As I have clear
-indication that I can trigger it simply by using an SMP box, installing SuSE
-8.2, compiling stock 2.4.22-rc2 kernel exporting some reiserfs to a nfs-client
-of your choice and starting copying data with sizes around 100GB back and
-forth.
-
-> > > > I can add another week if you want me to, just tell me. The only thing
-> > > > I don't want is that any doubts are left after testing ...
-> > > It would be interesting to look at fsck results on the fs after some time
-> > > of testing.
-> > You mean I should do an fsck on sunday?
+>      #define PCI_DEVICE(vend,dev) \
+>          .vendor = (PCI_VENDOR_ID_ ## vend), \
+>          .device = (PCI_DEVICE_ID_ ## dev), \
+>          .subvendor = PCI_ANY_ID, \
+>          .subdevice = PCI_ANY_ID
 > 
-> Yes, whenever you decide you have waited long enough (provided that it won't
-> crash) and decide to stop testing, please run fsck on that testing fs.
-
-Ok, will do that.
-
+>      Then the table becomes much shorter:
 > 
-> > > Probably it would be easier for you to make it crash (if there are crash
-> > > possibility at all) if you enable JBD debugging.
-> > I have never seen this in real life. Is it possible to turn this on when
-> > handling >100 GB of data or will some debug output flood the box?
-> 
-> It only enables some more checks, not debug output.
+>      static struct pci_device_id tg3_pci_tbl[] = {
+>      ...
+>        { PCI_DEVICE(BROADCOM, TIGON3_5700) },
+>        { PCI_DEVICE(BROADCOM, TIGON3_5701) },
+>      ...
 
-Does this work for ext3, reiserfs or both?
+As has been responded before, this isn't a good idea right now.
 
-Regards,
-Stephan
+thanks,
+
+greg k-h

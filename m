@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267081AbTAUOEw>; Tue, 21 Jan 2003 09:04:52 -0500
+	id <S267089AbTAUONZ>; Tue, 21 Jan 2003 09:13:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267083AbTAUOEw>; Tue, 21 Jan 2003 09:04:52 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41962 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267081AbTAUOEu>; Tue, 21 Jan 2003 09:04:50 -0500
-Date: Tue, 21 Jan 2003 15:13:51 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: groudier@free.fr, linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5 patch] MegaRAID driver: remove kernel 2.0 and 2.2 code
-Message-ID: <20030121141351.GB6870@fs.tum.de>
-References: <20030118162243.GF10647@fs.tum.de> <1043117030.13113.15.camel@dhcp22.swansea.linux.org.uk>
+	id <S267094AbTAUONY>; Tue, 21 Jan 2003 09:13:24 -0500
+Received: from mail.interware.hu ([195.70.32.130]:39601 "EHLO
+	mail.interware.hu") by vger.kernel.org with ESMTP
+	id <S267089AbTAUONX>; Tue, 21 Jan 2003 09:13:23 -0500
+Subject: Re: 2.5.59 - Compaq 900z - No Go..
+From: Hirling Endre <endre@interware.hu>
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <BAY2-DAV69nJkxWwBvt0000440f@hotmail.com>
+References: <BAY2-DAV69nJkxWwBvt0000440f@hotmail.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1043158941.2064.8.camel@dusk.interware.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1043117030.13113.15.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 21 Jan 2003 15:22:21 +0100
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan *18azID-0000MM-00*ARHT7qJY8/g* (Interware Inc.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 21, 2003 at 02:43:51AM +0000, Alan wrote:
-> On Sat, 2003-01-18 at 16:22, Adrian Bunk wrote:
-> > The patch below removes obsolete #if'd code for kernel 2.0 and 2.2 from
-> > drivers/scsi/megaraid.{h,c} (this includes the expansion of some
-> > #define's that were definded differently for different kernel versions).
-> > 
-> > I've tested the compilation with 2.5.59.
-> 
-> AMI still issue 2.2 versions of this driver so its probably excessive
-> (AMI ? -- LSI now I guess)
+On Fri, 2003-01-17 at 17:49, Mark F. wrote:
 
-In megaraid.c IO_LOCK_IRQ and IO_UNLOCK_IRQ are only defined for >= 2.4
-(they are present since 2.5.1-pre2) and the since Al Viro's
-kdev_t -> block_device * conversion you get a compile error when trying 
-to use megaraid.{c,h} in 2.2.23.
+> Computer is basically an AMD Athlon 1600 with the Radeon IGP Chipset for
+> those who don't know.  (Yes, with previous builds, think was 2.5.54 is
+> booted, and works on 2.4.21-pre3)
 
-If it's intended that this file is still used in kernels < 2.4 some
-changes are needed.
+Did anyone get udma IDE and/or X with any other driver than "vesa"
+working on this IGP beast? I just got a Fujitsu-Siemens Amilo A with the
+same chipset and these two are giving me headache.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+endre
 

@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVCYWEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbVCYWJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbVCYWEB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 17:04:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVCYWBq
+	id S261829AbVCYWJe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 17:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVCYWIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 17:01:46 -0500
-Received: from box3.punkt.pl ([217.8.180.76]:35346 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S261830AbVCYV7z (ORCPT
+	Fri, 25 Mar 2005 17:08:36 -0500
+Received: from mail.dif.dk ([193.138.115.101]:25271 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261836AbVCYWHB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 16:59:55 -0500
-From: Mariusz Mazur <mmazur@kernel.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] linux-libc-headers 2.6.11.1
-Date: Fri, 25 Mar 2005 22:58:35 +0100
-User-Agent: KMail/1.7.1
+	Fri, 25 Mar 2005 17:07:01 -0500
+Date: Fri, 25 Mar 2005 23:08:55 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: ext2-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] no need to check for NULL before calling kfree() - fs/ext2/
+Message-ID: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503252258.35477.mmazur@kernel.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Available at http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
-Changes:
-- small (but important) fix in netfilter
-- added cleaned up mtd/* userland headers
-- massive change to use types from linux/types.h and not to pollute the 
-namespace
-- use gcc emitted __mips64 instead of CONFIG_MIPS{32,64}
-
-I've missed one change in netfilter_ipv4/ip_nat.h when doing 2.6.11.0 which 
-resulted in broken builds of iptables (so I've been told). Well, these things 
-might happen from time to time.
-
-As to the last two changes, Erik Andersen provided a script that did them all. 
-The __mips64 thing is really nice since it removes dependency from 
-linux/config.h and still works as expected. Wonder if gcc emits other 
-(potentially) usefull definitions...
+(please keep me on CC)
 
 
-Happy Easter.
+kfree() handles NULL fine, to check is redundant.
 
--- 
-In the year eighty five ten
-God is gonna shake his mighty head
-He'll either say,
-"I'm pleased where man has been"
-Or tear it down, and start again
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+--- linux-2.6.12-rc1-mm3-orig/fs/ext2/acl.c	2005-03-02 08:38:18.000000000 +0100
++++ linux-2.6.12-rc1-mm3/fs/ext2/acl.c	2005-03-25 22:41:07.000000000 +0100
+@@ -194,8 +194,7 @@ ext2_get_acl(struct inode *inode, int ty
+ 		acl = NULL;
+ 	else
+ 		acl = ERR_PTR(retval);
+-	if (value)
+-		kfree(value);
++	kfree(value);
+ 
+ 	if (!IS_ERR(acl)) {
+ 		switch(type) {
+@@ -262,8 +261,7 @@ ext2_set_acl(struct inode *inode, int ty
+ 
+ 	error = ext2_xattr_set(inode, name_index, "", value, size, 0);
+ 
+-	if (value)
+-		kfree(value);
++	kfree(value);
+ 	if (!error) {
+ 		switch(type) {
+ 			case ACL_TYPE_ACCESS:
+
+

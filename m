@@ -1,127 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273238AbRINAt7>; Thu, 13 Sep 2001 20:49:59 -0400
+	id <S273242AbRINAu7>; Thu, 13 Sep 2001 20:50:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273239AbRINAtu>; Thu, 13 Sep 2001 20:49:50 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54289 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S273238AbRINAtl>; Thu, 13 Sep 2001 20:49:41 -0400
-Date: Thu, 13 Sep 2001 17:49:34 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: linux 2.4.10-pre9
-Message-ID: <Pine.LNX.4.33.0109131748370.22275-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273241AbRINAuu>; Thu, 13 Sep 2001 20:50:50 -0400
+Received: from [211.100.87.230] ([211.100.87.230]:11943 "HELO linux.tcpip.cxm")
+	by vger.kernel.org with SMTP id <S273239AbRINAuc>;
+	Thu, 13 Sep 2001 20:50:32 -0400
+Date: Fri, 14 Sep 2001 08:51:03 +0800
+From: hugang <linuxbest@soul.com.cn>
+To: "John D. Kim" <johnkim@aslab.com>
+Cc: <alan@lxorguk.ukuu.org.uk>, <gero@gkminix.han.de>,
+        <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
+Subject: Re: A patch for dhcp and nfsroot.
+Message-Id: <20010914085103.493e30b1.linuxbest@soul.com.cn>
+In-Reply-To: <Pine.LNX.4.31.0109131044220.18725-100000@postbox.aslab.com>
+In-Reply-To: <20010829081411.753c1d1b.linuxbest@soul.com.cn>
+	<Pine.LNX.4.31.0109131044220.18725-100000@postbox.aslab.com>
+Organization: soul
+X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 13 Sep 2001 10:47:18 -0700 (PDT)
+"John D. Kim" <johnkim@aslab.com> wrote:
+>Hi hugang.  This came just in time to fix a problem I'm having.  But when
+>I try to load it using insmod, it complains that it cannot find the kernel
+>it was built for.  Have you got this working successfully?  Which kernel
+>are you running?  I'm running 2.4.9-ac8.
+>
+>I'm also using this in an initrd setting.  I'm trying to load the kernel
+>and the initrd image, have the ipconfig modules get stuff through dhcp and
+>then nfsroot.  Can you think of what might be causing this problem?  I'm
+>no kernel hacker, but I'll do what I can.
+>
+>
+>
+Thanks for test it.
 
-More merging with Alan, and IrDA update (and various smaller things, see
-log)
+Yes,it work in my labs with kernel 2.4.8 (not ac)! I use it for an linux disaster recovery solution.
 
-		Linus
+It your still can use it , I put my use kernel in http://www.soul.com.cn/2.4.9/2.4.9-disaster.tar.bz2
 
------
-pre9:
- - Greg KH: start migration to new "min()/max()"
- - Roman Zippel: move affs over to "min()/max()".
- - Vojtech Pavlik: VIA update (make sure not to IRQ-unmask a vt82c576)
- - Jan Kara: quota bug-fix (don't decrement quota for non-counted inode)
- - Anton Altaparmakov: more NTFS updates
- - Al Viro: make nosuid/noexec/nodev be per-mount flags, not per-filesystem
- - Alan Cox: merge input/joystick layer differences, driver and alpha merge
- - Keith Owens: scsi Makefile cleanup
- - Trond Myklebust: fix oopsable race in locking code
- - Jean Tourrilhes: IrDA update
+/boot/vmlinu.gz  	kernel
+/boot/initrd.img.gz	initrd.img
+/lib/module		kernel modules.
 
-pre8:
- - Christoph Hellwig: clean up personality handling a bit
- - Robert Love: update sysctl/vm documentation
- - make the three-argument (that everybody hates) "min()" be "min_t()",
-   and introduce a type-anal "min()" that complains about arguments of
-   different types.
+Beacuse my netcard can not remote boot, I use grub .
+In grub command:
 
-pre7:
- - Alan Cox: big driver/mips sync
- - Andries Brouwer, Christoph Hellwig: more gendisk fixups
- - Tobias Ringstrom: tulip driver workaround for DC21143 erratum
+bootp
+root (nd)
+kernel vmlinuz.gz root=/dev/nfs
+initrd initrd.img.gz
 
-pre6:
- - Jens Axboe: remove trivially dead io_request_lock usage
- - Andrea Arcangeli: softirq cleanup and ARM fixes. Slab cleanups
- - Christoph Hellwig: gendisk handling helper functions/cleanups
- - Nikita Danilov: reiserfs dead code pruning
- - Anton Altaparmakov: NTFS update to 1.1.18
- - firestream network driver: patch reverted on authors request
- - NIIBE Yutaka: SH architecture update
- - Paul Mackerras: PPC cleanups, PPC8xx update.
- - me: reverse broken bootdata allocation patch that went into pre5
+I test it with eepro100 netcard.I thinks it can work with another net card.
 
-pre5:
- - Merge with Alan
- - Trond Myklebust: NFS fixes - kmap and root inode special case
- - Al Viro: more superblock cleanups, inode leak in rd.c, minix
-   directories in page cache
- - Paul Mackerras: clean up rubbish from sl82c105.c
- - Neil Brown: md/raid cleanups, NFS filehandles
- - Johannes Erdfelt: USB update (usb-2.0 support, visor fix, Clie fix,
-   pl2303 driver update)
- - David Miller: sparc and net update
- - Eric Biederman: simplify and correct bootdata allocation - don't
-   overwrite ramdisks
- - Tim Waugh: support multiple SuperIO devices, parport doc updates
 
-pre4:
- - Hugh Dickins: swapoff cleanups and speedups
- - Matthew Dharm: USB storage update
- - Keith Owens: Makefile fixes
- - Tom Rini: MPC8xx build fix
- - Nikita Danilov: reiserfs update
- - Jakub Jelinek: ELF loader fix for ET_DYN
- - Andrew Morton: reparent_to_init() for kernel threads
- - Christoph Hellwig: VxFS and SysV updates, vfs_permission fix
+-- 
+Best Regard!
+礼！
+----------------------------------------------------
+hugang : 胡刚 	GNU/Linux User
+email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
+Tel    : +861068425741/2/3/4
+Web    : http://www.soul.com.cn
 
-pre3:
- - Johannes Erdfelt, Oliver Neukum: USB printer driver race fix
- - John Byrne: fix stupid i386-SMP irq stack layout bug
- - Andreas Bombe, me: yenta IO window fix
- - Neil Brown: raid1 buffer state fix
- - David Miller, Paul Mackerras: fix up sparc and ppc respectively for kmap/kbd_rate
- - Matija Nalis: umsdos fixes, and make it possible to boot up with umsdos
- - Francois Romieu: fix bugs in dscc4 driver
- - Andy Grover: new PCI config space access functions (eventually for ACPI)
- - Albert Cranford: fix incorrect e2fsprog data from ver_linux script
- - Dave Jones: re-sync x86 setup code, fix macsonic kmalloc use
- - Johannes Erdfelt: remove obsolete plusb USB driver
- - Andries Brouwer: fix USB compact flash version info, add blksize ioctls
-
-pre2:
- - Al Viro: block device cleanups
- - Marcelo Tosatti: make bounce buffer allocations more robust (it's ok
-   for them to do IO, just not cause recursive bounce IO. So allow them)
- - Anton Altaparmakov: NTFS update (1.1.17)
- - Paul Mackerras: PPC update (big re-org)
- - Petko Manolov: USB pegasus driver fixes
- - David Miller: networking and sparc updates
- - Trond Myklebust: Export atomic_dec_and_lock
- - OGAWA Hirofumi: find and fix umsdos "filldir" users that were broken
-   by the 64-bit-cleanups. Fix msdos warnings.
- - Al Viro: superblock handling cleanups and race fixes
- - Johannes Erdfelt++: USB updates
-
-pre1:
- - Jeff Hartmann: DRM AGP/alpha cleanups
- - Ben LaHaise: highmem user pagecopy/clear optimization
- - Vojtech Pavlik: VIA IDE driver update
- - Herbert Xu: make cramfs work with HIGHMEM pages
- - David Fennell: awe32 ram size detection improvement
- - Istvan Varadi: umsdos EMD filename bug fix
- - Keith Owens: make min/max work for pointers too
- - Jan Kara: quota initialization fix
- - Brad Hards: Kaweth USB driver update (enable, and fix endianness)
- - Ralf Baechle: MIPS updates
- - David Gibson: airport driver update
- - Rogier Wolff: firestream ATM driver multi-phy support
- - Daniel Phillips: swap read page referenced set - avoid swap thrashing
-
+	Beijing Soul technology Co.Ltd.
+	   北京众志和达科技有限公司
+----------------------------------------------------

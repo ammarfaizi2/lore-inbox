@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbUK1Sq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbUK1Sqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbUK1Sq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 13:46:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbUK1Sq3
+	id S261562AbUK1Sqe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 13:46:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbUK1Sqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 13:46:29 -0500
-Received: from smtp-vbr8.xs4all.nl ([194.109.24.28]:50950 "EHLO
-	smtp-vbr8.xs4all.nl") by vger.kernel.org with ESMTP id S261557AbUK1SqY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 13:46:24 -0500
-Date: Sun, 28 Nov 2004 19:46:06 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: why does radeonfb work fine in 2.6, but not in 2.4.29-pre1?
-Message-ID: <20041128184606.GA2537@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
+	Sun, 28 Nov 2004 13:46:33 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:14482 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261563AbUK1Sq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 13:46:27 -0500
+Subject: Re: Problem with ioctl command TCGETS
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, ecki-news2004-05@lina.inka.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041128121800.GZ26051@parcelfarce.linux.theplanet.co.uk>
+References: <E1CYMI9-0005PL-00@calista.eckenfels.6bone.ka-ip.net>
+	 <E1CYN7z-0001bZ-00@dorka.pomaz.szeredi.hu>
+	 <20041128121800.GZ26051@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1101663767.16761.50.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 28 Nov 2004 17:42:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The same radeonfb-setup works fine in every 2.6 kernel I can remember
-(last tested with 2.6.10-rc2-mm3) but give the dreaded 'cannot map FB'
-in 2.4.29-pre1.
+On Sul, 2004-11-28 at 12:18, Al Viro wrote:
+> Think read(2)/write(2).  We already have several barfbags too many,
+> and that includes both ioctl() and setsockopt().  We are stuck with
+> them for compatibility reasons, but why the hell would we need yet
+> another one?
 
-The card has 128 Mb of ram, and my system has 3 Mb of RAM.
+Synchronization.
 
-Is there any reason the ioremap() call works on 2.6, but doesn't on 2.4?
-
-I've tried searching google for hints, but nothing has turned up.
-
-Is there any way to test 2.4 with my radeonfb and all of my memory?
-
-Thanks,
-Jurriaan
--- 
-proof by exhaustion:
-	An issue or two of a journal devoted to your proof is useful.
-Debian (Unstable) GNU/Linux 2.6.10-rc2-mm3 2x6078 bogomips load 1.67

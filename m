@@ -1,97 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269680AbUIRXhb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269744AbUIRXrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269680AbUIRXhb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 19:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269687AbUIRXc3
+	id S269744AbUIRXrt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 19:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269692AbUIRXrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 19:32:29 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:43683 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S269683AbUIRXbP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 19:31:15 -0400
-Date: Sat, 18 Sep 2004 16:30:44 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: akpm@osdl.org
-cc: "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
-       wli@holomorphy.com, davem@redhat.com, raybry@sgi.com, ak@muc.de,
-       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
-Subject: page fault scalability patch V8: [6/7] atomic pte operations for
- x86_64
-In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA312902CD3243@mtv-atc-605e--n.corp.sgi.com>
-Message-ID: <Pine.LNX.4.58.0409181629490.24054@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
- <20040816143903.GY11200@holomorphy.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
- <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
- <1094012689.6538.330.camel@gaston> <Pine.LNX.4.58.0409010938200.9907@schroedinger.engr.sgi.com>
- <1094080164.4025.17.camel@gaston> <Pine.LNX.4.58.0409012140440.23186@schroedinger.engr.sgi.com>
- <20040901215741.3538bbf4.davem@davemloft.net>
- <Pine.LNX.4.58.0409020920570.26893@schroedinger.engr.sgi.com>
- <20040902131057.0341e337.davem@davemloft.net>
- <Pine.LNX.4.58.0409021358540.28182@schroedinger.engr.sgi.com>
- <20040902140759.5f1003d5.davem@davemloft.net>
- <B6E8046E1E28D34EB815A11AC8CA312902CD3243@mtv-atc-605e--n.corp.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 18 Sep 2004 19:47:41 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:23789 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S269758AbUIRXnM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 19:43:12 -0400
+Date: Sun, 19 Sep 2004 01:36:19 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
+Message-ID: <20040918233619.GF15426@dualathlon.random>
+References: <20040915151815.GA30138@elte.hu> <20040917103945.GA19861@elte.hu> <20040917125334.GA4954@elte.hu> <20040917205639.GB15426@dualathlon.random> <20040918080214.GC31899@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040918080214.GC31899@elte.hu>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-	* Provide atomic pte operations for x86_64
+On Sat, Sep 18, 2004 at 10:02:14AM +0200, Ingo Molnar wrote:
+> what do you mean? If something does lock_kernel() within spin_lock()
+> then the might_sleep() check in down() catches it and will print a
+> warning. [..]
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+I didn't see any patch that removed the CONFIG_DEBUG_SPINLOCK_SLEEP
+config option and avoided might_sleep to be defined to noop. If we apply
+your patch that's something we need IMHO, and that's what I meant with
+"it still doesn't track the lock_kernel usage inside a spinlock", I
+didn't specify "_always_ track the lock_kernel usage inside a spinlock",
+but I thought the "always" was implicitly, clearly it was not, sorry for
+not clarifying this.
 
-Index: linus/include/asm-x86_64/pgalloc.h
-===================================================================
---- linus.orig/include/asm-x86_64/pgalloc.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-x86_64/pgalloc.h	2004-09-18 14:25:23.000000000 -0700
-@@ -7,16 +7,26 @@
- #include <linux/threads.h>
- #include <linux/mm.h>
+> [..] In any case it's very likely a _bug_ so we want to know!)
 
-+#define PMD_NONE 0
-+#define PGD_NONE 0
-+
- #define pmd_populate_kernel(mm, pmd, pte) \
- 		set_pmd(pmd, __pmd(_PAGE_TABLE | __pa(pte)))
- #define pgd_populate(mm, pgd, pmd) \
- 		set_pgd(pgd, __pgd(_PAGE_TABLE | __pa(pmd)))
-+#define pgd_test_and_populate(mm, pgd, pmd) \
-+		(cmpxchg(pgd, PGD_NONE, _PAGE_TABLE | __pa(pmd)) == PGD_NONE)
+wanting to know is fine with me, what's not fine with me is deadlocking
+a production box after that, when it could be a legitimate usage. It's
+not about the printk, it's about the following crash. As said this thing
+spreads all over the place, especially in possibly bogus drivers out of
+the tree, and I don't think it provides any significant benefit (Ok I'm
+biased since I tend to think about PREEMPT=n where a semaphore won't
+provide any benefit, and if there's any latency issue with the BKL that
+can be fixed without risks with cond_resched_bkl as pointed out
+earlier and it definitely doesn't need this patch). And as Linus
+mentioned the risk of overscheduling is also possible with the semaphore
+but that's the minor issue in this IMHO.
 
- static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
- {
- 	set_pmd(pmd, __pmd(_PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)));
- }
+So in short if you change your patch to only add checks that leads into
+printk that's very much fine with me (basically you would have to change
+lock_kernel() to add an unconditional might_sleep in there, and the
+other stuff for the smp_processor_id). I'm not against wanting to know.
 
-+static inline int pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
-+{
-+	return cmpxchg(pmd, PMD_NONE, _PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)) == PMD_NONE;
-+}
-+
- extern __inline__ pmd_t *get_pmd(void)
- {
- 	return (pmd_t *)get_zeroed_page(GFP_KERNEL);
-Index: linus/include/asm-x86_64/pgtable.h
-===================================================================
---- linus.orig/include/asm-x86_64/pgtable.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-x86_64/pgtable.h	2004-09-18 14:25:23.000000000 -0700
-@@ -436,6 +436,11 @@
- #define	kc_offset_to_vaddr(o) \
-    (((o) & (1UL << (__VIRTUAL_MASK_SHIFT-1))) ? ((o) | (~__VIRTUAL_MASK)) : (o))
-
-+
-+#define ptep_xchg(mm,addr,xp,newval)	__pte(xchg(&(xp)->pte, pte_val(newval))
-+#define ptep_cmpxchg(mm,addr,xp,newval,oldval) (cmpxchg(&(xp)->pte, pte_val(newval), pte_val(oldval) == pte_val(oldval))
-+#define __HAVE_ARCH_ATOMIC_TABLE_OPS
-+
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
- #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
-
-
+Overall I still don't see any benefit. The thing to fix is the
+lock_kernel global lock concept that doesn't scale and doesn't
+self-document what is being locked against what. IMHO changing the
+lock_kernel internal details in a way that changes the semantics in a
+subtle manner cannot bring any long term benefit and it can only hurt
+the short term due the potentail breakage it introduces.

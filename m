@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266921AbTGOIqr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 04:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266924AbTGOIqq
+	id S265591AbTGOI7G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 04:59:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265764AbTGOI7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 04:46:46 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:39306 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266921AbTGOIqp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 04:46:45 -0400
-Date: Tue, 15 Jul 2003 11:01:32 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Erwin Rol <mailinglists@erwinrol.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Synaptic problems on Vaio GRX516MD
-Message-ID: <20030715090132.GA28580@ucw.cz>
-References: <1058259115.3600.11.camel@erwin.fe.think>
+	Tue, 15 Jul 2003 04:59:06 -0400
+Received: from 69-55-72-150.ppp.netsville.net ([69.55.72.150]:39379 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id S265591AbTGOI7B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 04:59:01 -0400
+Subject: Re: RFC on io-stalls patch
+From: Chris Mason <mason@suse.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, akpm@digeo.com
+In-Reply-To: <20030715082850.GH833@suse.de>
+References: <20030714202434.GS16313@dualathlon.random>
+	 <1058214881.13313.291.camel@tiny.suse.com>
+	 <20030714224528.GU16313@dualathlon.random>
+	 <1058229360.13317.364.camel@tiny.suse.com>
+	 <20030714175238.3eaddd9a.akpm@osdl.org>
+	 <20030715020706.GC16313@dualathlon.random> <20030715054551.GD833@suse.de>
+	 <20030715060101.GB30537@dualathlon.random> <20030715060857.GG833@suse.de>
+	 <20030715070314.GD30537@dualathlon.random>  <20030715082850.GH833@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1058260347.4012.11.camel@tiny.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058259115.3600.11.camel@erwin.fe.think>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 15 Jul 2003 05:12:28 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 10:51:56AM +0200, Erwin Rol wrote:
-> Hello all,
-> 
-> i am having problems with the synaptic touchpad on my vaio GRX516MD.
-> Under 2.4 it works normally (also with the synaptic XFree module) but
-> under 2.5 and 2.6 it just doesn't work. The XFree module complains that
-> /dev/psaux isn't a synaptic device.
+On Tue, 2003-07-15 at 04:28, Jens Axboe wrote:
 
-You need a different XFree86 driver for 2.5 - see
-	http://w1.894.telia.com/~u89404340/touchpad/index.html
+> Definitely, because prepare to be a bit disappointed. Here are scores
+> that include 2.4.21 as well:
 
-> Also when i press a key on the keyboard it just shows one time, but when
-> i touch the synaptic pad at the time of pressing the key the key gets
-> repeated 5 or 6 times  (after releasing the key). 
+> io_load:
+> Kernel            [runs]        Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.21                 3        543     49.7    100.4   19.0    4.08
+> 2.4.22-pre5            3        637     42.5    120.2   18.5    4.75
+> 2.4.22-pre5-axboe      3        540     50.0    103.0   18.1    4.06
 
-This is interesting ...
+Huh, this is completely different than io_load on my box (2P scsi, ext3,
+data=writeback)
 
-> Jul 14 23:28:22 vaio kernel: mice: PS/2 mouse device common for all mice
-> Jul 14 23:28:22 vaio kernel: Synaptics Touchpad, model: 1
-> Jul 14 23:28:22 vaio kernel:  Firware: 5.9
-> Jul 14 23:28:22 vaio kernel:  Sensor: 37
-> Jul 14 23:28:22 vaio kernel:  new absolute packet format
-> Jul 14 23:28:22 vaio kernel:  Touchpad has extended capability bits
-> Jul 14 23:28:22 vaio kernel:  -> multifinger detection
-> Jul 14 23:28:22 vaio kernel:  -> palm detection
-> Jul 14 23:28:22 vaio kernel: input: Synaptics Synaptics TouchPad on isa0060/serio1
-> Jul 14 23:28:22 vaio kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
-> Jul 14 23:28:22 vaio kernel: input: AT Set 2 keyboard on isa0060/serio0
-> Jul 14 23:28:22 vaio kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
+io_load:
+Kernel      [runs]      Time    CPU%    Loads   LCPU%   Ratio
+2.4.21           3      520     52.5    27.8    15.2    3.80
+2.4.22-pre5      3      394     69.0    21.5    15.4    2.90
+2.4.22-sync      3      321     84.7    16.2    15.8    2.36
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Where 2.4.22-sync was the variant I posted yesterday.  I don't really
+see how 2.4.21 can get numbers as good as 2.4.22-pre5 on the io_load
+test, the read starvation with a big streaming io is horrible.
+
+The data=writeback is changing the workload significantly, I used it
+because I didn't want the data=ordered code to flush all dirty buffers
+every 5 seconds.  I would expect ext3 data=ordered to be pretty
+starvation prone in 2.4.21 as well though.
+
+BTW, the contest run times vary pretty wildy.  My 3 compiles with
+io_load running on 2.4.21 were 603s, 443s and 515s.  This doesn't make
+the average of the 3 numbers invalid, but we need a more stable metric.
+
+-chris
+
+

@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287613AbRLaTJR>; Mon, 31 Dec 2001 14:09:17 -0500
+	id <S284732AbRLaTa1>; Mon, 31 Dec 2001 14:30:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287611AbRLaTI6>; Mon, 31 Dec 2001 14:08:58 -0500
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:60910 "HELO
-	dardhal") by vger.kernel.org with SMTP id <S287606AbRLaTIy>;
-	Mon, 31 Dec 2001 14:08:54 -0500
-Date: Mon, 31 Dec 2001 20:08:45 +0100
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: ATA RAID-0 FYI-Did the Impossible.
-Message-ID: <20011231190845.GB6585@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10112310558030.4280-100000@master.linux-ide.org> <20011231181104.199b8f23.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011231181104.199b8f23.skraw@ithnet.com>
-User-Agent: Mutt/1.3.24i
+	id <S287609AbRLaTaR>; Mon, 31 Dec 2001 14:30:17 -0500
+Received: from [208.179.59.195] ([208.179.59.195]:25677 "EHLO
+	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
+	id <S284732AbRLaTaH>; Mon, 31 Dec 2001 14:30:07 -0500
+Message-ID: <3C30BC16.6070809@blue-labs.org>
+Date: Mon, 31 Dec 2001 14:27:18 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011231
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+CC: Stewart Smith <stewart@softhome.net>, timothy.covell@ashavan.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
+In-Reply-To: <Pine.LNX.4.33.0112300038040.1336-100000@Appserv.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 31 December 2001, at 18:11:04 +0100,
-Stephan von Krawczynski wrote:
+>
+>
+>The advantage email has over this are too numerous to list,
+>but they start with the fact that lots of kernel developers are
+>lazy[*]. 2-3 keypresses to archive a patch for looking at later/merging
+>are about the level of involvement thats aimed for.
+>Having to start a browser, go to the bugzilla site, log in, search/browse
+>for bugs etc.. way too involved.
+>
+>Dave.
+>
+>[*] In the sense that if life can be made easier, it should be.
+>
 
-> Andre, please give us some URL for the patch(es), so we all can try it
-> ourselves, every person with a successful try will probably be one of your
-> supporters. Is this applyable to 2.4?
-> 
-Maybe this is what Andre is talking about:
-http://www.linuxdiskcert.org
+That's a bit of apples and oranges ;)
 
-Applies cleanly to 2.4.17, by the way.
+Starting a browser is equivalent to starting a mail client.  In some 
+instances it's the same program.
 
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo AT internautas DOT   org  => Spam at your own risk
+Hitting 2-3 keypresses to archive an email...how do you manage that 
+archive v.s. it being managed for you w/ bugzilla?
+
+Logging into bugzilla can be automatic, searching for a bug across the 
+archive is in my opinion much more easily done w/ a relational database 
+than grepping several mbox files that collect hundreds of messages a 
+day.  Not to mention that comments on each bug are localized to -that- 
+bug.  All said and done there are a lot of pros and cons from the newbie 
+v.s. the 'Linus' perspective.  I think there is at least one or two 
+irate persons per week here that have been fighting to find a solution 
+to their problem and someone finally speaks up "oh yeah, do this".
+
+It really would be nice to have a reference database -somewhere- where 
+we could find answers or even just suggestions about the myriad of 
+problems related to the kernel and what the kernel touches.
+
+David
+
+[*] RDBMSs do make my life much easier
+
 

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264711AbSKMVZM>; Wed, 13 Nov 2002 16:25:12 -0500
+	id <S264659AbSKMVWx>; Wed, 13 Nov 2002 16:22:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264714AbSKMVZM>; Wed, 13 Nov 2002 16:25:12 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:9405 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264711AbSKMVZI> convert rfc822-to-8bit; Wed, 13 Nov 2002 16:25:08 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sk98lin driver in 2.5.47
-Date: Wed, 13 Nov 2002 22:31:18 +0100
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Stuart Anderson <sba@srl.caltech.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211132231.18870.m.c.p@wolk-project.de>
+	id <S264672AbSKMVWx>; Wed, 13 Nov 2002 16:22:53 -0500
+Received: from willow.seitz.com ([146.145.147.180]:31507 "EHLO
+	willow.seitz.com") by vger.kernel.org with ESMTP id <S264659AbSKMVWv>;
+	Wed, 13 Nov 2002 16:22:51 -0500
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Wed, 13 Nov 2002 16:29:39 -0500
+To: Jakob Oestergaard <jakob@unthought.net>,
+       dean gaudet <dean-list-linux-kernel@arctic.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: repeatable IDE errors when using SMART
+Message-ID: <20021113212939.GA22632@willow.seitz.com>
+References: <Pine.LNX.4.44.0211121800320.20949-100000@twinlark.arctic.org> <20021113172610.GA20515@willow.seitz.com> <20021113193930.GJ22407@unthought.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021113193930.GJ22407@unthought.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stuart,
+On Wed, Nov 13, 2002 at 08:39:30PM +0100, Jakob Oestergaard wrote:
+> > I have a Maxtor and an IBM; unfortuantely I don't recall which one was
+> > bokning out on smartctl...
+> > 
+> > If it's interesting (and resonably safe) I could do some testing on my
+> > system.
+> 
+> Do you use Promise controllers?
+> 
+> If so, do you use anything newer than the Ultra33 or Ultra66
+> controllers?
 
-> I have been unable to compile the SysKonnect sk98lin GigE driver
-> under linux-2.5.x. Is there a patch for the following linker
-> problem of built-in.o? The following is from 2.5.47-ac2.
-> drivers/built-in.o: In function `SkPnmiInit':
-> drivers/built-in.o(.text+0x3a346): undefined reference to `__udivdi3'
-> drivers/built-in.o: In function `SkPnmiEvent':
-> drivers/built-in.o(.text+0x3ae97): undefined reference to `__udivdi3'
-> drivers/built-in.o: In function `SensorStat':
-> drivers/built-in.o(.text+0x3c0fd): undefined reference to `__udivdi3'
-> drivers/built-in.o(.text+0x3c16d): undefined reference to `__udivdi3'
-> drivers/built-in.o: In function `General':
-> drivers/built-in.o(.text+0x3de99): undefined reference to `__udivdi3'
-I have the same problems with any patch|driver in any kernel (2.4 and 2.5). 
-I've talked to a technician at SysKonnect and he told me that my linker is 
-broken and he also mentioned that Debian is known to have a broken linker (I 
-cannot confirm this in any way!)
+Sure do - one controller is the integrated VIA KT133, the second is an
+on-board Promise PDC20265.  The Maxtor drive is on the VIA, IBM on
+Promise.
 
-Sorry, I don't have more info's about that.
+It must've been running smartctl on the IBM drive that would bonk my
+system - I just tried 'cat /proc/ide/hde/identity' and my machine froze
+solid - no numlock, no sysrq, no ping.  The disk access light was on.
+
+I hadn't even considered the different controllers.
 
 -- 
-Kind regards
-        Marc-Christian Petersen
+Ross Vandegrift
+ross@willow.seitz.com
 
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+A Pope has a Water Cannon.				 It is a Water Cannon.
+He fires Holy-Water from it.			    It is a Holy-Water Cannon.
+He Blesses it.				       It is a Holy Holy-Water Cannon.
+He Blesses the Hell out of it.		It is a Wholly Holy Holy-Water Cannon.
+He has it pierced.		  It is a Holey Wholly Holy Holy-Water Cannon.
+Batman and Robin arrive.				       He shoots them.

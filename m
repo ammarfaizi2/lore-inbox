@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131343AbRCHMKC>; Thu, 8 Mar 2001 07:10:02 -0500
+	id <S131346AbRCHMLm>; Thu, 8 Mar 2001 07:11:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131346AbRCHMJw>; Thu, 8 Mar 2001 07:09:52 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62731 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131343AbRCHMJn>; Thu, 8 Mar 2001 07:09:43 -0500
-Subject: Re: Linux 2.4.2ac14
-To: ramsy@10art-ni.co.jp (Keitaro Yosimura)
-Date: Thu, 8 Mar 2001 12:12:00 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010308141636.C2DE.RAMSY@10art-ni.co.jp> from "Keitaro Yosimura" at Mar 08, 2001 02:20:10 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131347AbRCHMLc>; Thu, 8 Mar 2001 07:11:32 -0500
+Received: from [193.120.151.1] ([193.120.151.1]:37371 "EHLO mail.asitatech.com")
+	by vger.kernel.org with ESMTP id <S131346AbRCHMLQ>;
+	Thu, 8 Mar 2001 07:11:16 -0500
+From: "John Brosnan" <jbrosnan@asitatech.ie>
+To: <linux-kernel@vger.kernel.org>
+Subject: v0.92,Tulip, carrier errors
+Date: Thu, 8 Mar 2001 12:31:16 -0000
+Message-ID: <00c201c0a7cb$ab70a5e0$8d7fa8c0@NTWIGGY.asitatech.ie>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14azH0-0002qi-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >The next patch would create the file `include/linux/hdlc.h',
-> >which already exists!  Assume -R? [n] n
-> >Apply anyway? [n] y
-> >patching file `include/linux/hdlc.h'
-> >Patch attempted to create file `include/linux/hdlc.h', which already exists.
-> >Hunk #1 FAILED at 1.
-> >1 out of 1 hunk FAILED -- saving rejects to include/linux/hdlc.h.rej
-> 
-> must remove before patching? or ignore it?
+Hi, 
 
-That looks like you applied ac14 over ac13 or to 2.4.3pre not to 2.4.2
+using Donald Becker's tulip.c:v0.92 on Linux 2.2.16, 
+if I bring down an interface using ifconfig and
+bring it back up again, when I transmit data on the 
+interface I see lots of carrier errors and very bad 
+performance.  Is this a known problem ? 
+Any workarounds/fixes ?
+
+thanks, 
+
+John
+
+

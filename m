@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316768AbSHOLVJ>; Thu, 15 Aug 2002 07:21:09 -0400
+	id <S316792AbSHOLa5>; Thu, 15 Aug 2002 07:30:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316770AbSHOLVI>; Thu, 15 Aug 2002 07:21:08 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:35844 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S316768AbSHOLVI>; Thu, 15 Aug 2002 07:21:08 -0400
-Message-ID: <3D5B8FF9.102ACC62@aitel.hist.no>
-Date: Thu, 15 Aug 2002 13:26:49 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.31 i686)
-X-Accept-Language: no, en, en
+	id <S316788AbSHOLa5>; Thu, 15 Aug 2002 07:30:57 -0400
+Received: from perfo.perfopol.pl ([213.25.186.10]:34572 "EHLO mail.perfopol.pl")
+	by vger.kernel.org with ESMTP id <S316792AbSHOLa4> convert rfc822-to-8bit;
+	Thu, 15 Aug 2002 07:30:56 -0400
+To: linux-kernel@vger.kernel.org
+Subject: serial console (was Re: [patch] printk from userspace)
+X-Attribution: arekm
+X-URL: http://www.t17.ds.pwr.wroc.pl/~misiek/ipv6/
+Organization: PLD Linux Distribution Team
+From: Arkadiusz Miskiewicz <misiek@pld.ORG.PL>
+Date: 14 Aug 2002 18:12:36 +0200
+In-Reply-To: <ajd2k5$h8l$1@ncc1701.cistron.net>
+Message-ID: <87eld1s9l7.fsf_-_@arm.t19.ds.pwr.wroc.pl>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2.90
 MIME-Version: 1.0
-To: Mike Galbraith <EFAULT@gmx.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] scsi disk sector size question
-References: <3D5B6AD6.1030503@gmx.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
+"Miquel van Smoorenburg" <miquels@cistron.nl> writes:
+
+> I have a bootlogd that does a TIOCCONS on /dev/console, so
+> that it can capture all messages written to /dev/console.
 > 
-> There's gotta be a better place to ask this, but...
+> It buffers the messages in-memory, until it is able to open
+> a logfile in /var/log/ at which point it writes the buffered
+> data to the logfile, and starts logging to that file.
 > 
-> Greetings,
-> 
-> Is it possible to change scsi drive sector size?  
+> The only problem is that TIOCCONS is a redirect, so there's no
+> output to the console anymore. 
+btw. is there any reason to not display initscripts messages
+on all consoles in such setup:
+append="console=tty0 console=ttyS0,57600n8"
+serial=0,57600n8
+?
 
-The hardware sector size?  It depends on the drive.  
-Some may let you do it, this usually requires a low-level
-format, possibly using litte-documented vendor specific tricks.
+kernel messages are available on both - tty0 and ttyS0 while
+userspace messages (from initscripts) only on last specified
+- in such case ttyS0. 
 
-> Scsiinfo says no, which is
-> inconvenient if you're making images of ancient drives (ST4766N) and find
-> that some have 512 byte and others 1024 byte sectors.
+> Mike.
 
-Having two scripts, one for each case is too bad?  
-
-> Why on earth would a manufacturer [drives are really CDC] do this?
-
-You should really ask the manufacturer.  One reason may be to squeeze
-more data onto the disk.  Each sector has some overhead on the magnetic 
-surface, such as crc data and sector gaps.  And the sector number is 
-written too so the disk firmware knows where the head is - this is why
-you need a low-level format when changing.  You need to write
-new sector numbers for the different-sized sectors.
-
-The overhead means you get more data on the disk by using larger
-sectors.  Fewer sectors in total means less overhead when per-sector
-overhead adds upp.  
-
-Helge Hafting
+-- 
+Arkadiusz Mi¶kiewicz   IPv6 ready PLD Linux at http://www.pld.org.pl
+misiek(at)pld.org.pl   AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PWr

@@ -1,64 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbUB1HBA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 02:01:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbUB1HBA
+	id S262975AbUB1HFn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 02:05:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbUB1HFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 02:01:00 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:17883 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S261830AbUB1HA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 02:00:58 -0500
-Date: Fri, 27 Feb 2004 23:00:44 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+	Sat, 28 Feb 2004 02:05:42 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:42412
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262975AbUB1HF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 02:05:28 -0500
+Date: Sat, 28 Feb 2004 08:05:21 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Wim Coekaerts <wim.coekaerts@oracle.com>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
        linux-kernel@vger.kernel.org
 Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <474350000.1077951643@[10.10.2.4]>
-In-Reply-To: <20040228064352.GP8834@dualathlon.random>
-References: <20040227173250.GC8834@dualathlon.random> <Pine.LNX.4.44.0402271350240.1747-100000@chimarrao.boston.redhat.com> <20040227122936.4c1be1fd.akpm@osdl.org> <20040227211548.GI8834@dualathlon.random> <162060000.1077919387@flay> <20040228023236.GL8834@dualathlon.random> <469160000.1077948622@[10.10.2.4]> <20040228064352.GP8834@dualathlon.random>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+Message-ID: <20040228070521.GQ8834@dualathlon.random>
+References: <20040227173250.GC8834@dualathlon.random> <Pine.LNX.4.44.0402271350240.1747-100000@chimarrao.boston.redhat.com> <20040227122936.4c1be1fd.akpm@osdl.org> <20040227211548.GI8834@dualathlon.random> <162060000.1077919387@flay> <20040228023236.GL8834@dualathlon.random> <20040228045713.GA388@ca-server1.us.oracle.com> <20040228061838.GO8834@dualathlon.random> <472800000.1077950719@[10.10.2.4]>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <472800000.1077950719@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The last issue that we may run into are apps assuming the stack is at 3G
-> fixed, some jvm assumed that, but they should be fixed by now (at the
-> very least it's not hard at all to fix those).
+On Fri, Feb 27, 2004 at 10:45:21PM -0800, Martin J. Bligh wrote:
+> 
+> > thanks for giving it a spin (btw I assume it's 2.4, that's fine for
+> > a quick test, and I seem not to find the 2:2 and 1:3 options in the 2.6
+> > kernel anymore ;).
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/patches/2.6.3/2.6.3-mjb1/212-config_page_offset
+> (which sits on top of the 4/4 patches, so might need some massaging to apply)
 
-All the potential solutions we're discussing hit that problem so I don't
-see it matters much which one we choose ;-)
- 
-> It also depends on the performance difference if this is worthwhile, if
-> the difference isn't very significant 4:4 will be certainly prefereable
-> so you can also allocate 4G in the same task for apps not using syscalls
-> or page faults or flood of network irqs.
+thanks for maintaining this bit too, very helpful!
 
-There are some things that may well help here: one is vsyscall gettimeofday,
-which will fix up the worst of the issues (the 30% figure you mentioned
-to me in Ottowa), the other is NAPI, which would help with the network
-stuff.
+> > What I probably didn't specify yet is that 2.5:1.5 is feasible too, I've
+> > a fairly small and strightforward patch here from ibm that implements
+> > 3.5:0.5 for PAE mode (for a completely different matter, but I mean,
+> > it's not really a problem to do 2.5:1.5 either if needed, it's the same
+> > as the current PAE mode 3.5:0.5).
+> 
+> I'm not sure it's that straightforward really - doing the non-pgd aligned
+> split is messy. 2.5 might actually be much cleaner than 3.5 though, as we
+> never updated the mappings of the PMD that's shared between user and kernel.
+> Hmmm ... that's quite tempting.
 
-Bill had a patch to allocate mmaps, etc down from the top of memory and
-thus elimininate TASK_UNMAPPED_BASE, and shift the stack back into the
-empty hole from 0-128MB of memory where it belongs (according to the spec).
-Getting rid of those two problems gives us back a little more userspace 
-as well. 
+I read the 3.5:0.5 PAE sometime last year and it was pretty
+strightforward too, the only single reason I didn't merge it is that
+it had the problem that it changed common code that every archs depends
+on, so it broke all other archs, but it's not really a matter of
+difficult code, as worse it just needs a few liner change in every arch
+to make them compile again. So I'm quite optimistic 2.5:1.5 will be
+doable with a reasonably clean patch and with ~zero performance downside
+compared to 3:1 and 2:2.
 
-Unfortunately it does seem to break some userspace apps making stupid 
-assumptions, but if we have a neat way to mark the binaries (Andi was
-talking about personalities or something), we could at least get the
-big mem hogs to do that (databases, java, etc).
+In the meantime testing 2:2 against 4:4 (with a very/too reduced ipcshm
+in the 2:2 test) still sounds very interesting.
 
-I have a copy of Bill's patch in my tree if you want to take a look:
+> > starting with the assumtion that 32G machines works with 3:1 (like they
+> > do in 2.4), and assuming the size of a page is 48 bytes (like in 2.4, in
+> > 2.6 it's a bit bigger but we can most certainly shrink it, for example
+> > removing rmap for anon pages will immediatly release 128M of kernel
+> > memory), moving from 32G to 64G means losing 384M of those additional
+> > 512M in pages, you can use the remaining additional 512M-384M=128M for
+> > vmas, task structs, files etc...  So 2.5:1.5 should be enough as far as
+> > the kernel is concerned to run on 64G machines (provided the page_t is
+> > not bigger than 2.4 which sounds feasible too).
+> 
+> Shrinking struct page sounds nice. Did Hugh's patch actually end up doing
+> that? I don't recall that, but I don't see why it wouldn't.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/patches/2.6.3/2.6.3-mjb1/410-topdown
-
-That might make your 2.5/1.5 proposal more feasible with less loss of
-userspace.
-
-M
+full objrmap can certainly release 8 bytes per page, 128M total, so
+quite an huge amount of ram (that is also why I'd like to do the full
+objrmap and not only to stop at the file mappings ;).

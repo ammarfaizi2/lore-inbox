@@ -1,39 +1,37 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S160268AbPJTI7t>; Wed, 20 Oct 1999 04:59:49 -0400
-Received: by vger.rutgers.edu id <S160216AbPJTI7i>; Wed, 20 Oct 1999 04:59:38 -0400
-Received: from linux.sisa.be ([194.88.100.134]:3699 "HELO linux.sisa.be") by vger.rutgers.edu with SMTP id <S160031AbPJTI7Z>; Wed, 20 Oct 1999 04:59:25 -0400
-Date: Wed, 20 Oct 1999 10:59:21 +0200 (CEST)
-From: Dag Wieers <dag@mind.be>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: root@chaos.analogic.com, linux-kernel@vger.rutgers.edu
-Subject: Re: Grins
-In-Reply-To: <E11dcc2-0001c4-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.9910201040590.21286-100000@linux.sisa.be>
-Organization: MiND
+Received: by vger.rutgers.edu via listexpand id <S160323AbPJUDMe>; Wed, 20 Oct 1999 23:12:34 -0400
+Received: by vger.rutgers.edu id <S160819AbPJUDDy>; Wed, 20 Oct 1999 23:03:54 -0400
+Received: from linuxcare.canberra.net.au ([203.29.91.49]:3760 "EHLO front.linuxcare.com.au") by vger.rutgers.edu with ESMTP id <S160526AbPJUCnl>; Wed, 20 Oct 1999 22:43:41 -0400
+From: Paul Mackerras <paulus@linuxcare.com>
+Organization: Linuxcare, Inc.
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: architecture bootup changes..
+Date: Thu, 21 Oct 1999 12:33:25 +1000
+X-Mailer: KMail [version 1.0.21]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.rutgers.edu
+References: <Pine.LNX.4.10.9910201813380.836-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <99102112411604.19371@argo.linuxcare.com.au>
+Content-Transfer-Encoding: 7BIT
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Tue, 19 Oct 1999, Alan Cox wrote:
+On Thu, 21 Oct 1999, Linus Torvalds wrote:
 
-> >  of 500 million variables and more than 2 billion terms."  How, then, to
-> >  explain this:  A reader's search for the phrase "more evil than Satan
-> >  himself" returned Microsoft's home page as the first result.
-> 
-> Also famous:
-> 	software monopoly
-> 	evil empire
+> And some
+> things are more "struct page *" based than based on virtual kernel
+> addresses, as the high memory support got cleaned up and better integrated
+> in the memory management.
 
-And:
-     we are borg
-     crappy software
-     word sucks
-     bad support
+There's a problem that doesn't show up on intel, and that is that
+flush_page_to_ram() is called with inconsistent arguments.  Sometimes it's
+a struct page * (mm/filemap.c and mm/memory.c), in other cases it's a
+kernel virtual address (e.g. kernel/ptrace.c, include/linux/highmem.h).
 
---_| _  _   dag wieers, <dag@mind.be>, http://mind.be/
- (_|(_|(_|     all i want is a warm bed and a kind
-         (          word and unlimited power.
+I'm inclined to think it should be a kernel virtual address.  Comments?
 
+Regards,
+Paul.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,54 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265589AbSKFC2O>; Tue, 5 Nov 2002 21:28:14 -0500
+	id <S265529AbSKFCZ6>; Tue, 5 Nov 2002 21:25:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265536AbSKFC0A>; Tue, 5 Nov 2002 21:26:00 -0500
-Received: from holomorphy.com ([66.224.33.161]:65179 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265535AbSKFCZ1>;
-	Tue, 5 Nov 2002 21:25:27 -0500
+	id <S265532AbSKFCY4>; Tue, 5 Nov 2002 21:24:56 -0500
+Received: from holomorphy.com ([66.224.33.161]:64667 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S265536AbSKFCYk>;
+	Tue, 5 Nov 2002 21:24:40 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [7/7] hugetlb: make private functions static
-Message-Id: <E189FxU-0002ZQ-00@holomorphy>
+Subject: [6/7] hugetlb: remove /proc/ intrusion
+Message-Id: <E189Fwj-0002YW-00@holomorphy>
 From: William Lee Irwin III <wli@holomorphy.com>
-Date: Tue, 05 Nov 2002 18:30:20 -0800
+Date: Tue, 05 Nov 2002 18:29:33 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes various private structures and procedures static.
+This patch removes hugetlb's intrusion into /proc/
 
- hugetlbpage.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ arch/i386/mm/hugetlbpage.c |   11 +++++++++++
+ fs/proc/proc_misc.c        |   15 ++-------------
+ include/linux/hugetlb.h    |    2 ++
+ 3 files changed, 15 insertions(+), 13 deletions(-)
 
 
-diff -urpN hugetlbfs-2.5.46-5/arch/i386/mm/hugetlbpage.c hugetlbfs-2.5.46-6/arch/i386/mm/hugetlbpage.c
---- hugetlbfs-2.5.46-5/arch/i386/mm/hugetlbpage.c	2002-11-05 13:59:05.000000000 -0800
-+++ hugetlbfs-2.5.46-6/arch/i386/mm/hugetlbpage.c	2002-11-05 14:02:05.000000000 -0800
-@@ -18,16 +18,16 @@
- #include <asm/tlb.h>
- #include <asm/tlbflush.h>
- 
--long    htlbpagemem = 0;
-+static long    htlbpagemem;
- int     htlbpage_max;
--long    htlbzone_pages;
-+static long    htlbzone_pages;
- 
- struct vm_operations_struct hugetlb_vm_ops;
- static LIST_HEAD(htlbpage_freelist);
- static spinlock_t htlbpage_lock = SPIN_LOCK_UNLOCKED;
- 
- #define MAX_ID 	32
--struct htlbpagekey {
-+static struct htlbpagekey {
- 	struct inode *in;
- 	int key;
- } htlbpagek[MAX_ID];
-@@ -109,7 +109,7 @@ static int anon_get_hugetlb_page(struct 
- 	return page ? 1 : -1;
+diff -urpN hugetlbfs-2.5.46-4a/arch/i386/mm/hugetlbpage.c hugetlbfs-2.5.46-5a/arch/i386/mm/hugetlbpage.c
+--- hugetlbfs-2.5.46-4a/arch/i386/mm/hugetlbpage.c	2002-11-05 17:31:39.000000000 -0800
++++ hugetlbfs-2.5.46-5a/arch/i386/mm/hugetlbpage.c	2002-11-05 17:45:53.000000000 -0800
+@@ -549,6 +549,17 @@ static int __init hugetlb_init(void)
  }
+ module_init(hugetlb_init);
  
--int make_hugetlb_pages_present(unsigned long addr, unsigned long end, int flags)
-+static int make_hugetlb_pages_present(unsigned long addr, unsigned long end, int flags)
++int hugetlb_report_meminfo(char *buf)
++{
++	return sprintf(buf,
++			"HugePages_Total: %5lu\n"
++			"HugePages_Free:  %5lu\n"
++			"Hugepagesize:    %5lu kB\n",
++			htlbzone_pages,
++			htlbpagemem,
++			HPAGE_SIZE/1024);
++}
++
+ static struct page * hugetlb_nopage(struct vm_area_struct * area, unsigned long address, int unused)
  {
- 	int write;
- 	struct mm_struct *mm = current->mm;
+ 	BUG();
+diff -urpN hugetlbfs-2.5.46-4a/fs/proc/proc_misc.c hugetlbfs-2.5.46-5a/fs/proc/proc_misc.c
+--- hugetlbfs-2.5.46-4a/fs/proc/proc_misc.c	2002-11-05 08:26:06.000000000 -0800
++++ hugetlbfs-2.5.46-5a/fs/proc/proc_misc.c	2002-11-05 17:49:06.000000000 -0800
+@@ -40,7 +40,7 @@
+ #include <linux/times.h>
+ #include <linux/profile.h>
+ #include <linux/blkdev.h>
+-
++#include <linux/hugetlb.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+ #include <asm/io.h>
+@@ -199,19 +199,8 @@ static int meminfo_read_proc(char *page,
+ 		ps.nr_reverse_maps
+ 		);
+ 
+-#ifdef CONFIG_HUGETLB_PAGE
+-	{
+-		extern unsigned long htlbpagemem, htlbzone_pages;
+-		len += sprintf(page + len,
+-				"HugePages_Total: %5lu\n"
+-				"HugePages_Free:  %5lu\n"
+-				"Hugepagesize:    %5lu kB\n",
+-				htlbzone_pages,
+-				htlbpagemem,
+-				HPAGE_SIZE/1024);
+-	}
++		len += hugetlb_report_meminfo(page + len);
+ 
+-#endif
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ #undef K
+ }
+diff -urpN hugetlbfs-2.5.46-4a/include/linux/hugetlb.h hugetlbfs-2.5.46-5a/include/linux/hugetlb.h
+--- hugetlbfs-2.5.46-4a/include/linux/hugetlb.h	2002-11-05 17:31:39.000000000 -0800
++++ hugetlbfs-2.5.46-5a/include/linux/hugetlb.h	2002-11-05 17:45:53.000000000 -0800
+@@ -17,6 +17,7 @@ void zap_hugepage_range(struct vm_area_s
+ void unmap_hugepage_range(struct vm_area_struct *, unsigned long, unsigned long);
+ int hugetlb_prefault(struct address_space *, struct vm_area_struct *);
+ void huge_page_release(struct page *);
++int hugetlb_report_meminfo(char *);
+ 
+ extern int htlbpage_max;
+ 
+@@ -32,6 +33,7 @@ static inline int is_vm_hugetlb_page(str
+ #define zap_hugepage_range(vma, start, len)	BUG()
+ #define unmap_hugepage_range(vma, start, end)	BUG()
+ #define huge_page_release(page)			BUG()
++#define hugetlb_report_meminfo(buf)		0
+ 
+ #endif /* !CONFIG_HUGETLB_PAGE */
+ 

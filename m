@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135423AbRAQUku>; Wed, 17 Jan 2001 15:40:50 -0500
+	id <S132815AbRAQUlA>; Wed, 17 Jan 2001 15:41:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132815AbRAQUjv>; Wed, 17 Jan 2001 15:39:51 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:36363 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S130643AbRAQUjg>; Wed, 17 Jan 2001 15:39:36 -0500
-Message-ID: <3A6601BB.801EFBFF@didntduck.org>
-Date: Wed, 17 Jan 2001 15:34:03 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Shawn Starr <Shawn.Starr@Home.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION]: Applying patches ontop of patches (2.4.1pre7 to 
- 2.4.1pre8)
-In-Reply-To: <3A65F3DA.7E2C8823@Home.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135527AbRAQUkv>; Wed, 17 Jan 2001 15:40:51 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:44028 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S130643AbRAQUj7>; Wed, 17 Jan 2001 15:39:59 -0500
+Date: Wed, 17 Jan 2001 14:39:57 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010117121719.A29786@skull.piratehaven.org>
+In-Reply-To: <20010117135420.A3536@remotepoint.com> <20010117135420.A3536@remotepoint.com> 
+	; from rick@remotepoint.com on Wed, Jan 17, 2001 at 01:54:20PM -0600
+Subject: Re: kmalloc() of 4MB causes "kernel BUG at slab.c:1542!"
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-Id: <20010117204044Z130643-403+1272@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr wrote:
-> 
-> What is the best way to apply a patch on top of a patch already applied?
-> 
-> For example, with original sources 2.4.0 i applied 2.4.1pre7 but now
-> that pre8 is out, how do i apply those new patches without having to
-> delete the whole linux dir and untar 2.4.0 again just to apply pre8?
+** Reply to message from Brian Pomerantz <bapper@piratehaven.org> on Wed, 17
+Jan 2001 12:17:19 -0800
 
-You can unapply -pre7 (patch -R) or make a hard-linked tree to apply the
-pre patches to.  Patch will break the hard links on the files it
-modifies, so the second tree hardly takes up any disk space.  To make
-the second tree do:
 
-cp -al linux-2.4.0 linux-2.4.1-pre8
+> The most you can kmalloc() is 128KB unless this has changed in the 2.4
+> kernel which I doubt.  If you want a region of memory that large, use
+> vmalloc().  Of course, this doesn't guarantee a contiguous region.
 
---
+Couldn't you also use get_free_pages (commonly abbreviated as "gfp")?  You can
+alloc up to 2MB chunks on an x86 I think.
 
-				Brian Gerst
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

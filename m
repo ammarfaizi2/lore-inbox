@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263045AbTCLFRc>; Wed, 12 Mar 2003 00:17:32 -0500
+	id <S263043AbTCLFZY>; Wed, 12 Mar 2003 00:25:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263047AbTCLFRc>; Wed, 12 Mar 2003 00:17:32 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46096 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263045AbTCLFRb>; Wed, 12 Mar 2003 00:17:31 -0500
-Date: Tue, 11 Mar 2003 21:26:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: schwidefsky@de.ibm.com, <arnd@arndb.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][COMPAT] compat_sys_fcntl{,64} 1/9 Generic part
-In-Reply-To: <20030312162251.0478d86e.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.44.0303112124000.12804-100000@home.transmeta.com>
+	id <S263046AbTCLFZY>; Wed, 12 Mar 2003 00:25:24 -0500
+Received: from web41107.mail.yahoo.com ([66.218.93.23]:18023 "HELO
+	web41107.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263043AbTCLFZX>; Wed, 12 Mar 2003 00:25:23 -0500
+Message-ID: <20030312053602.52233.qmail@web41107.mail.yahoo.com>
+Date: Tue, 11 Mar 2003 21:36:02 -0800 (PST)
+From: Sripriya Narayanan <npriya_2000@yahoo.com>
+Subject: Kernel version - network driver
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, 
+    I am currently involved in developing network
+driver for gigabit ethernet card under Linux. I would
+like to test the driver I develop with the "Fault
+injection test harness" that comes as a patch for
+Kernel 2.5. Now my question is, what kernel version
+would be advisable to write the driver on? Is it too
+much of a porting work from kernel 2.4 which is
+reasonably stable, to finally test with the hardening
+tool.and will it be a risk developing on kernel 2.5
+development series? or how stable is kernel 2.5?
+ 
+Kindly suggest the latest kernel version I can work on
+inorder to use the hardening tool. Please CC your
+answers to my personal ID as I am not subscribed to
+the list.
+ 
+Thanks
+Sripriya
+ 
 
-On Wed, 12 Mar 2003, Stephen Rothwell wrote:
-> 
-> > Make the code _look_ good. Not look like SOMEBODY WHO CANNOT TYPE WITHOUT
-> > THE SHIFT KEY. Make the thing take properly typed arguments, instead of
-> > casting stuff two ways and backwards inside macros.
-> 
-> you mean like this?
 
-Yes, this looks much more sane. If you _really_ want to be anal about 
-typechecking (and also checking that nobody can possibly use a user 
-pointer incorrectly), you make
 
-	typedef struct {
-		unsigned int val;
-	} compat_uptr_t;
-
-and then use
-
-	static inline void *compat_ptr(compat_uptr_t uptr)
-	{
-		return (void *)uptr.val;
-	}
-
-which should still result in readable code.
-
-		Linus
-
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Web Hosting - establish your business online
+http://webhosting.yahoo.com

@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132178AbRCVUWR>; Thu, 22 Mar 2001 15:22:17 -0500
+	id <S132180AbRCVUb1>; Thu, 22 Mar 2001 15:31:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132183AbRCVUWH>; Thu, 22 Mar 2001 15:22:07 -0500
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:21766
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S132178AbRCVUVv>; Thu, 22 Mar 2001 15:21:51 -0500
-Date: Thu, 22 Mar 2001 15:21:00 -0500
-From: Chris Mason <mason@suse.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: 2.4.2 fs/inode.c
-Message-ID: <426210000.985292460@tiny>
-In-Reply-To: <20010322190452.C7756@redhat.com>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
+	id <S132186AbRCVUbR>; Thu, 22 Mar 2001 15:31:17 -0500
+Received: from mail-oak-3.pilot.net ([198.232.147.18]:50337 "EHLO
+	mail03-oak.pilot.net") by vger.kernel.org with ESMTP
+	id <S132185AbRCVUbJ>; Thu, 22 Mar 2001 15:31:09 -0500
+Message-ID: <973C11FE0E3ED41183B200508BC7774C0124F06D@csexchange.crystal.cirrus.com>
+From: "Woller, Thomas" <twoller@crystal.cirrus.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Incorrect mdelay() results on Power Managed Machines x86
+Date: Thu, 22 Mar 2001 14:29:48 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Problem: Certain Laptops (IBM Thinkpads is where i see the issue) reduce the
+CPU frequency based upon whether the unit is on battery power or direct
+power.  When the Linux kernel boots up, then the cpu_khz (time.c) value is
+determined based upon the current cpu speed. But if the unit's power source
+is subsequently changed (plugged into the power outlet from battery power;
+or unplugged and moved to battery power), then the delay resulting from
+mdelay() (i.e. udelay) is off by the same factor.  cpu_khz is only
+calculated
+during init/boot time, and not on a change in the power source.  This seems
+to be a serious problem since the result is off by a factor of 4 in some
+cases which impacts the mdelay() wait times in the same proportion (130 Mhz
+cpu speed on battery and 500 Mhz CPU speed direct power, on an IBM
+Thinkpad).
 
+During resume the IBM thinkpad with the cs46xx driver needs to delay 700
+milleseconds, so if the machine is booted up on battery power, then to
+ensure that the delay is long enough, then a value of 3000 milleseconds is
+must be programmed into the driver (3 seconds!).  all the mdelay and udelay
+wait times are incorrect by the same factor, resulting in some serious
+problems when attempting to wait specific delay times in other parts of the
+driver.  
 
-On Thursday, March 22, 2001 07:04:52 PM +0000 "Stephen C. Tweedie"
-<sct@redhat.com> wrote:
+this issue seems like it would be a problem for quite a few drivers that are
+used on laptops that need some fairly precise delays, but maybe this is only
+an IBM Thinkpad issue.  I know that there have been some DMA timeout errors
+when resuming on IBM Thinkpads and maybe these errors that have been seen
+are due to the invalid delay times generated.  
 
-> Hi,
-> 
-> On Thu, Mar 22, 2001 at 01:42:15PM -0500, Jan Harkes wrote:
->> 
->> I found some code that seems wrong and didn't even match it's comment.
->> Patch is against 2.4.2, but should go cleanly against 2.4.3-pre6 as well.
->  
-> Patch looks fine to me.  Have you tested it?  If this goes wrong,
-> things break badly...
+solutions:
+using schedule() during resume is not an option, as it causes an oops under
+2.2, and causes a second resume to be entered in the pci_driver resume table
+entry for some reason.  also, schedule() is not fine enough granularity for
+some of the micro second delays needed.
 
-This should only affect reiserfs, and it should be a good thing.  I'll do
-some tests, thanks for spotting.
+re-initing by reinvoking time_init() on each resume cycle doesn't seem to be
+an option that i can see.
 
-> 
->>  		/* Don't do this for I_DIRTY_PAGES - that doesn't actually dirty the
->>  		inode itself */ -		if (flags & (I_DIRTY | I_DIRTY_SYNC)) {
->> +		if (flags & (I_DIRTY_SYNC | I_DIRTY_DATASYNC)) {
+Appreciate any responses or thoughts on the subject, 
 
--chris
+Tom Woller
+twoller@crystal.cirrus.com
+Cirrus Logic/Crystal Semiconductor
+(512) 912-3920
 

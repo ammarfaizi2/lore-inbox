@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314385AbSDRRu0>; Thu, 18 Apr 2002 13:50:26 -0400
+	id <S314367AbSDRSO6>; Thu, 18 Apr 2002 14:14:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314381AbSDRRuZ>; Thu, 18 Apr 2002 13:50:25 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:43727 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S314401AbSDRRuX>; Thu, 18 Apr 2002 13:50:23 -0400
-Date: Thu, 18 Apr 2002 10:48:04 -0700 (PDT)
-From: Dave Olien <oliendm@us.ibm.com>
-Message-Id: <200204181748.g3IHm4K08649@eng2.beaverton.ibm.com>
-To: davidsen@tmr.com, jbourne@MtRoyal.AB.CA
-Subject: Re: SMP P4 APIC/interrupt balancing
-Cc: <linux-kernel@vger.kernel.org>, <mingo@elte.hu>, Molnar@tmr.com
+	id <S314399AbSDRSO5>; Thu, 18 Apr 2002 14:14:57 -0400
+Received: from borg.org ([208.218.135.231]:64906 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S314367AbSDRSO5>;
+	Thu, 18 Apr 2002 14:14:57 -0400
+Date: Thu, 18 Apr 2002 14:14:56 -0400
+From: Kent Borg <kentborg@borg.org>
+To: linux-kernel@vger.kernel.org
+Cc: "Kerl, John" <John.Kerl@Avnet.com>, "'Lars Marowsky-Bree'" <lmb@suse.de>
+Subject: Re: Versioning File Systems?
+Message-ID: <20020418141456.A16866@borg.org>
+In-Reply-To: <C08678384BE7D311B4D70004ACA371050B7633CA@amer22.avnet.com> <20020418172419.GA433@iucha.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 18, 2002 at 12:24:19PM -0500, Florin Iucha wrote:
+> http://www.netcraft.com.au/geoffrey/katie/
 
-Cache warmth in handling interrupts is good.  In fact, this is one
-of the reasons to use interrupt affinity.
+Very interesting.  
 
-But, directing all interrupts to single processor penalizes unfairly any
-tasks that are scheduled to run on that processor.  Under heavy interrupt
-load, a tasks can become effectively "pinned" onto that processor, unable
-to get cpu time to make progress, and unable to be scheduled somewhere
-else.
+Looking at the docs that come in the sources Katie appears to be
+(mostly) perl code that stores its data in Postgresql and uses NFS to
+loop it back as filesystem of normal looking files, hidden directories
+for access to old versions, and command a line program for doing all
+other CVS-ish functions.
 
-Under really heavy interrupt load, it's good to have
-many processors handling interrupts.  It increases rate the system
-can handle interrupts, and it reduces the latency of individual interrupts.
+Glad to see there is such a nice conceptual testbed for what I was
+looking for, but this isn't it directly.  
+
+Am I crazy or would it be possible to create a versioning file system
+on the model of the cannonical ext2?  It would sit on top of a rather
+stupid block device and present something that, at first glance, looks
+like a traditional filesystem.  A complete superset, create a file by
+creating a file, read a file by reading a file, delete a file by
+deleting a file, and make it all happen at a low enough level to boot
+from it even.
+
+The extra features would, of course, need additional means for access;
+I don't know the ramifications of a such a complete filesystem having
+such things like extra hidden-ish directories for accessing old
+versions.  (I worry about standard utilities tripping over virtual
+contents--I know that /proc and /dev do strange things when I forget
+and pretend they are simply files.)
 
 
-Dave.
-
-
-> From linux-kernel-owner@vger.kernel.org Thu Apr 18 09:11:22 2002
-> Date: 	Thu, 18 Apr 2002 12:04:35 -0400 (EDT)
-> From: Bill Davidsen <davidsen@tmr.com>
-> To: James Bourne <jbourne@MtRoyal.AB.CA>
-> cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
->    Ingo Molnar <mingo@elte.hu>
-> Subject: Re: SMP P4 APIC/interrupt balancing
-> 
->   Is this positive or negative on performance? If you have a system
-> getting so many interrupts that one CPU can't handle them, obviously there
-> is a gain. However, by thrashing the cache of all CPUs instead of just one
-> you have some memory performance cost.
-> 
->   I first looked at this for a mainframe vendor who decided that putting
-> all the interrupts in one CPU was better. That was then, this is now, but
-> I am curious about metrics, like real and system time doing a kernel
-> compile, etc.
-> 
+-kb

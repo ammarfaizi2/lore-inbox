@@ -1,54 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266327AbUHPS2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267842AbUHPS3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266327AbUHPS2f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 14:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267856AbUHPS2f
+	id S267842AbUHPS3v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 14:29:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267856AbUHPS3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 14:28:35 -0400
-Received: from mail.timesys.com ([65.117.135.102]:44044 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S266327AbUHPS2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 14:28:33 -0400
-Message-ID: <4120FCD0.2090305@timesys.com>
-Date: Mon, 16 Aug 2004 14:28:32 -0400
-From: Greg Weeks <greg.weeks@timesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: Dan Malek <dan@embeddededge.com>, Kumar Gala <kumar.gala@freescale.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LinuxPPC-dev Development <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: [BUG] PPC math-emu multiply problem
-References: <4108F845.7080305@timesys.com> <85C49799-E168-11D8-B0AC-000393DBC2E8@freescale.com> <A46787F8-E194-11D8-B8DB-003065F9B7DC@embeddededge.com> <410A5F08.90103@timesys.com> <410A67EA.80705@timesys.com> <20040809165650.GA22109@smtp.west.cox.net> <6FBD1B21-EA2B-11D8-8382-003065F9B7DC@embeddededge.com> <20040809222328.GB22109@smtp.west.cox.net> <4120B055.8090503@timesys.com> <20040816144829.GC2377@smtp.west.cox.net>
-In-Reply-To: <20040816144829.GC2377@smtp.west.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Aug 2004 18:27:10.0203 (UTC) FILETIME=[A49D8CB0:01C483BE]
+	Mon, 16 Aug 2004 14:29:50 -0400
+Received: from nl-ams-slo-l4-01-pip-7.chellonetwork.com ([213.46.243.25]:23636
+	"EHLO amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S267842AbUHPS3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 14:29:25 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: jjluza@yahoo.fr
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200408161452.44400.jjluza@yahoo.fr>
+References: <200408161452.44400.jjluza@yahoo.fr>
+Content-Type: multipart/mixed; boundary="=-1oK/drH1rU6r24OOff63"
+Date: Mon, 16 Aug 2004 20:29:15 +0200
+Message-Id: <1092680955.28374.0.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.91 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
 
->>The way I got the LSB tests to pass was to remove the round in the 
->>denormalised underflow case. This appears to match the hardware 
->>behavior. I've not looked at the PPC floating point model close enough 
->>to know if this is proper behavior. It is what the LSB tests are 
->>expecting and doesn't cause a failure in any of the other LSB tests.
->>    
->>
->
->Have you guys run the LSB tests on some PPC with hw floating point (is
->that what you mean by 'matches the hardware behavior' ?) to see if the
->test also passes there as-is?  And does anyone object to this patch?
->Now that 2.6.8.1 is out I'm gonna start committing in a bunch of stuff
->I've had queued up and see if I can get Linus to pull.  Thanks.
->
->  
->
-I didn't run the entire LSB, just some of the math tests. I had an 8260 
-and the 8560 we found the problem on and also a normal x86 box. I think 
-this is the correct fix. At least all of the LSB math tests pass now and 
-the LTP float tests don't complain.
+--=-1oK/drH1rU6r24OOff63
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Greg Weeks
+On Mon, 2004-08-16 at 14:52 +0200, jjluza wrote:
+> It fails here at compile time with :
+> 
+> arch/i386/kernel/built-in.o(.text+0x2fc5): In function `do_nmi':
+> : undefined reference to `__trace'
+> arch/i386/kernel/built-in.o(.text+0x3723): In function `do_IRQ':
+> : undefined reference to `__trace'
+> arch/i386/mm/built-in.o(.text+0x7ba): In function `do_page_fault':
+> : undefined reference to `__trace'
+> make[1]: *** [vmlinux] Erreur 1
+> make[1]: Leaving directory `/usr/src/linux-2.6.8'
+> make: *** [stamp-build] Erreur 2
+> 
+> 
+> I also got offset when applying the patch. (P1 hadn't this problem)
+> 
+> 
+> Regards.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Peter Zijlstra <a.p.zijlstra@chello.nl>
+
+--=-1oK/drH1rU6r24OOff63
+Content-Disposition: attachment; filename=compile-fix-P2
+Content-Type: text/plain; name=compile-fix-P2; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+--- arch/i386/kernel/irq.c~	2004-08-16 20:01:58.835999719 +0200
++++ arch/i386/kernel/irq.c	2004-08-16 20:26:24.974943041 +0200
+@@ -219,7 +219,9 @@
+ 	unsigned int status;
+ 
+ 	irq_enter();
++#ifdef CONFIG_LATENCY_TRACE
+ 	__trace((unsigned long)do_IRQ, regs.eip);
++#endif
+ 
+ #ifdef CONFIG_DEBUG_STACKOVERFLOW
+ 	/* Debugging check for stack overflow: is there less than 1KB free? */
+--- arch/i386/kernel/traps.c~	2004-08-16 20:01:58.836999745 +0200
++++ arch/i386/kernel/traps.c	2004-08-16 20:26:48.156378051 +0200
+@@ -537,7 +537,9 @@
+ 	int cpu;
+ 
+ 	nmi_enter();
++#ifdef CONFIG_LATENCY_TRACE
+ 	__trace((unsigned long)do_nmi, regs->eip);
++#endif
+ 
+ 	cpu = smp_processor_id();
+ 	++nmi_count(cpu);
+--- arch/i386/mm/fault.c~	2004-08-16 20:01:58.837999771 +0200
++++ arch/i386/mm/fault.c	2004-08-16 20:27:08.181753770 +0200
+@@ -223,7 +223,9 @@
+ 	int write;
+ 	siginfo_t info;
+ 
++#ifdef CONFIG_LATENCY_TRACE
+ 	__trace((unsigned long)do_page_fault, regs->eip);
++#endif
+ 
+ 	/* get the address */
+ 	__asm__("movl %%cr2,%0":"=r" (address));
+
+--=-1oK/drH1rU6r24OOff63--
+

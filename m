@@ -1,29 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313074AbSC0TIV>; Wed, 27 Mar 2002 14:08:21 -0500
+	id <S313076AbSC0TIB>; Wed, 27 Mar 2002 14:08:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313071AbSC0TIO>; Wed, 27 Mar 2002 14:08:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58898 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313074AbSC0TIC>; Wed, 27 Mar 2002 14:08:02 -0500
-Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
-To: mdresser_l@windsormachine.com (Mike Dresser)
-Date: Wed, 27 Mar 2002 19:23:58 +0000 (GMT)
-Cc: joelja@darkwing.uoregon.edu (Joel Jaeggli),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.33.0203271403130.30692-100000@router.windsormachine.com> from "Mike Dresser" at Mar 27, 2002 02:03:44 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S313071AbSC0THv>; Wed, 27 Mar 2002 14:07:51 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:21258 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S313074AbSC0THj>; Wed, 27 Mar 2002 14:07:39 -0500
+Date: Wed, 27 Mar 2002 20:07:31 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] speed up ext3 synchronous mounts
+Message-ID: <20020327190731.GA12677@merlin.emma.line.org>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C9E4A18.7DDC68AB@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16qJ1a-0005t4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Will Tom's Hardware Guide film this for us, if we ask politely? :)
-> > they've already filmed one not catching fire...
-> It's the undocumented mtrr that I'm interested in!
+On Sun, 24 Mar 2002, Andrew Morton wrote:
 
-You'll have to do your own research
+> Again, we don't need to sync indirects as we dirty them because
+> we run a commit if IS_SYNC(inode) prior to returning to the
+> caller of write(2).
+
+Will this help synchronous NFS writes, at least a little? I have slow
+write performance on "sync" NFSv3 exports (ext3 underneath, you guessed
+it), kernel 2.4.19-pre3-ac4 (not really surprising, sync is slow ;-). Is
+it worth a try?

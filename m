@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264233AbTCXOfr>; Mon, 24 Mar 2003 09:35:47 -0500
+	id <S264241AbTCXOiO>; Mon, 24 Mar 2003 09:38:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264234AbTCXOfq>; Mon, 24 Mar 2003 09:35:46 -0500
-Received: from relay03.valueweb.net ([216.219.253.237]:44968 "EHLO
-	relay03.valueweb.net") by vger.kernel.org with ESMTP
-	id <S264233AbTCXOfp>; Mon, 24 Mar 2003 09:35:45 -0500
-Message-ID: <3E7F1A2D.4050306@coyotegulch.com>
-Date: Mon, 24 Mar 2003 09:46:05 -0500
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030319 Debian/1.3-3
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S264243AbTCXOiM>; Mon, 24 Mar 2003 09:38:12 -0500
+Received: from rebecca.tiscali.nl ([195.241.76.181]:32650 "EHLO
+	rebecca.tiscali.nl") by vger.kernel.org with ESMTP
+	id <S264241AbTCXOiJ>; Mon, 24 Mar 2003 09:38:09 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Frans Pop <aragorn@tiscali.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Testing: What do you want?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Tape operation: missing filemark
+Date: Mon, 24 Mar 2003 15:49:16 +0100
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030324144916.B7A214553A4@rebecca.tiscali.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OSNews and LinuxJournal are urging people to test the Linux kernel. I've 
-been doing so for several months now, running the latest kernel live on 
-my primary development system. I figure the best way to know if the 
-kernel works is to use it when I'm working. ;)
+I have been working on a bug in a 'tar cf /dev/tape --verify' operation.
+This results in an error 'Unexpected EOF in archive' during the verify
+stage of the operation and any subsequent attempts to read the archive from
+tape.
 
-At the moment, my biggest contribution to kernel development is testing, 
-given that I'm not yet comfortable hacking kernel code in public. My 
-question is: What do the kernel developers want from testers? What sort 
-of reports are helpful? Is there anything in particular that needs 
-extensive testing?
+The cause of this error is that no filemark is written between writing the
+tape and the start of the verification.
 
-I haven't found a "Guide to Testing the Kernel" anywhere -- perhaps such 
-a document exists, but I've missed it. Such a document could provide 
-basic information for "testing newbies."
+My question.
+Which should be responsible for writing a filemark in this situation: the
+tape driver or tar?
 
-My experience thus far:
-For the most part, the 2.5 series has worked very well for me, albeit 
-with a few glitches (radeonfb, for example, as reported last week.) I'll 
-build the 2.5.65 kernel on my Sparc later today, and see how well it 
-works there.
+When a 'normal' backup using tar (without verify option) is made, the tape
+driver writes the filemark when a release request is received while the
+driver is in write mode.
+So my thinking is that the driver should also write a filemark when an
+ioctl request is received while the driver is in write mode. Is this
+correct?
+Any pointers to documentation?
 
--- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
-Professional programming for science and engineering;
-Interesting and unusual bits of very free code.
+tar sends (roughly) the following sequence of requests to the driver:
+- open device
+- write data
+- ioctl MTFSB 1 (space backwards 1 filemark)
+- read data
+- release device
 
+I have debugged this problem using the ide-tape driver, but I have also
+seen a bug report for the same problem from someone using a scsi tape
+device.
+
+I am using kernel 2.4.21-pre4 with Debian 3.0r1 (Woody) on i686.
+tar is (GNU tar) 1.13.25.
+
+Frans Pop

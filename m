@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbUCEJXk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 04:23:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbUCEJXk
+	id S262269AbUCEJXI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 04:23:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUCEJXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 04:23:40 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:64939 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S262281AbUCEJXg (ORCPT
+	Fri, 5 Mar 2004 04:23:08 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:3970 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S262269AbUCEJXE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 04:23:36 -0500
-Date: Fri, 5 Mar 2004 10:23:30 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-X-X-Sender: gandalf@tux.rsn.bth.se
-To: Patrick McHardy <kaber@trash.net>
-Cc: Matthew Strait <quadong@users.sourceforge.net>,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] matching any helper in ipt_helper.c
-In-Reply-To: <4047E231.60304@trash.net>
-Message-ID: <Pine.LNX.4.58.0403051022150.17613@tux.rsn.bth.se>
-References: <Pine.LNX.4.60.0403031947450.8957@dsl093-017-216.msp1.dsl.speakeasy.net>
- <40469E10.7080100@trash.net> <Pine.LNX.4.60.0403032150000.8957@dsl093-017-216.msp1.dsl.speakeasy.net>
- <4046BFB9.809@trash.net> <Pine.LNX.4.60.0403041500280.10634@dsl093-017-216.msp1.dsl.speakeasy.net>
- <4047A42E.6080307@trash.net> <Pine.LNX.4.60.0403041821010.21790@dsl093-017-216.msp1.dsl.speakeasy.net>
- <4047E231.60304@trash.net>
+	Fri, 5 Mar 2004 04:23:04 -0500
+To: Thomas Mueller <linux-kernel@tmueller.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 much worse than 2.4 on poor wlan reception
+References: <20040304180154.GA1893@tmueller.com>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 05 Mar 2004 04:23:00 -0500
+In-Reply-To: <20040304180154.GA1893@tmueller.com>
+Message-ID: <yq0znavsl57.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Mar 2004, Patrick McHardy wrote:
+>>>>> "Thomas" == Thomas Mueller <linux-kernel@tmueller.com> writes:
 
-> Matthew Strait wrote:
-> > Silly me, I assumed that the error was generated in user space.  Ok.  In
-> > that case, let's forget translating "any" to "", because that just makes
-> > the output of "iptables -L" confusing.  Sound good?
-> >
->
-> I actually meant translate in both direction. But no problem, I'm going
-> to make a patch for iptables myself, if Martin is fine with it we can
-> remove the childlevel match.
+Thomas> Kernel 2.4 works far better in the poor reception situation I
+Thomas> have, anyone any idea what I could do without moving the AP or
+Thomas> laptop?  When I'm near my AP everything works fine with 2.6
+Thomas> too.
 
-I'm fine with making ipt_helper able to match any helper if so desired.
+Start out by forcing it to a lower link speed, at that signal quality
+you really don't want to try and go above 2MBit/sec. If you keep
+trying to do 11MBit/sec the card will constantly try the higher rate
+and then lose signal, drop down and try again. Fixing the rate should
+improve the situation - at least it has always done so for me ;-)
 
-/Martin
+Cheers,
+Jes

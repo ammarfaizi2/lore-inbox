@@ -1,84 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317308AbSGOEGm>; Mon, 15 Jul 2002 00:06:42 -0400
+	id <S317316AbSGOEdS>; Mon, 15 Jul 2002 00:33:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317309AbSGOEGl>; Mon, 15 Jul 2002 00:06:41 -0400
-Received: from adsl-216-62-200-99.dsl.austtx.swbell.net ([216.62.200.99]:60074
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S317308AbSGOEGl>; Mon, 15 Jul 2002 00:06:41 -0400
-Subject: Re: Future of Kernel tree 2.0 ............
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: David Weinehall <tao@acc.umu.se>
-Cc: c0330 <c0330@yingwa.edu.hk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020713234920.GP29001@khan.acc.umu.se>
-References: <E17TUXf-0000Ow-00@ited.yingwa.edu.hk>
-	 <1026577702.24686.3.camel@UberGeek>
-	  <20020713234920.GP29001@khan.acc.umu.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 14 Jul 2002 23:07:51 -0500
-Message-Id: <1026706071.10084.6.camel@UberGeek>
-Mime-Version: 1.0
+	id <S317318AbSGOEdS>; Mon, 15 Jul 2002 00:33:18 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:18619 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S317316AbSGOEdR>;
+	Mon, 15 Jul 2002 00:33:17 -0400
+Date: Mon, 15 Jul 2002 00:36:10 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Mathieu Chouquet-Stringer <mathieu@newview.com>
+cc: Thunder from the hill <thunder@ngforever.de>, linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <20020714234457.A21658@shookay.newview.com>
+Message-ID: <Pine.GSO.4.21.0207150020540.20168-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=KOI8-R
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-07-13 at 18:49, David Weinehall wrote:
-> On Sat, Jul 13, 2002 at 11:28:22AM -0500, Austin Gonyou wrote:
-> > I'd imagine that it would, JMHO, but it makes little sense, at least for
-> > prime-time level maintenance of a kernel who's architecture, while valid
-> > for use in many areas, is still far limited, even in light of 2.4. 
+
+
+On Sun, 14 Jul 2002, Mathieu Chouquet-Stringer wrote:
+
+> On Sun, Jul 14, 2002 at 09:38:16PM -0600, Thunder from the hill wrote:
+> > Hi,
 > 
-> The maintenance of the 2.0-tree will continue. I see no point in
-> ceasing to maintain it just because the release of 2.6. They simply do
-> not target the same audience.
-
-Agreed. Which is why, for the most part I noted that prime-time level
-maintenance will not be the norm. Though *someone* I'm sure *will*
-maintain it, even if they're the last person using it on the planet.
->From what I understand, a lot of people target 2.0 for embedded anyway.
-While 2.2 and 2.4 are usually after thoughts in that arena. *not all,
-but most it seems*
-
-> > The advancements which 2.6 will bring, over 2.4, will be extraordinarily
-> > different, in terms of overall architecture it seems. Even if it's only
-> > a 20% architecture difference from 2.4, think of how much further from
-> > 2.0 that is. 
+>   Hi,
+>  
+> > Please time the erase!
 > 
-> Yes, and that is why 2.0 is still maintained; for some users, the step
-> between 2.0 and a later release is too large when it comes to how many
-> userland programs that need to be upgraded/retested/rewritten.
-
-That's true, but in my mind, except for embedded, these same users could
-stand to probably upgrade their hardware as well, not just for speed
-improvements, but capacity, and capability. This would most likely force
-them into a new kernel to *properly* support newer hardware, or take
-advantage of advancements that 2.0 can't offer.
-
-> Really, there is little reason to worry; my contribution to the
-> development of 2.5 (and a forthcoming 2.6/2.7/2.8/...) would probably
-> not be much larger were I to drop maintenance of the 2.0-tree. Possibly,
-> Marcello and Linus would receive a few more odd fixes for typos and
-> the Config-files, and maybe some MCA-related fixes, but as things stand
-> right now, the fact that I only have a dialup-connection stands between
-> me and serious development (<subliminal message>anyone care to sponsor a
-> faster connection or hire me?</subliminal message>)
-
-I do agree with that as well. I don't see any reason to worry. It's
-open-source, and the codebase will always be available, in *someone's*
-repository at least.
-
+> Had the same idea: :-)
+> mchouque - /tmp/joerg %/usr/bin/time rm -rf rock
+> 0.18user 6.10system 0:09.27elapsed 67%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (139major+20minor)pagefaults 0swaps
+> /usr/bin/time rm -rf rock  0.18s user 6.10s system 67% cpu 9.277 total
 > 
-> Regards: David Weinehall
->   _                                                                 _
->  // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-> //  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-> \>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Austin Gonyou <austin@digitalroadkill.net>
+> Not too bad if you think it took 1 hour something to create the
+> directory... 
+
+No wonder - with FFS/ext2/ext3 adding files into directory takes linear
+scan of the entire thing (presuming that directory was originally empty)
+on each file.  Removing them in the order they were added is much faster -
+removed entry is simply merged with the previous one in the same block.
+So you skip the already emptied parts fast - each of these blocks consists
+of a single (empty) entry.  Then you get to the block containing the entry
+you are removing and either mark it unused (if it's the first one in block)
+or make the previous one (first in block) longer.  You do only one name
+comparison (empty entries are recognized by zero inode number).  So rm -rf
+is O(blocks * entries).  Creating all that is O(entries^2) with much worse
+constant.
+
+FFS never had been intended to handle directories with huge amount of
+entries.  Neiter are most of its derivatives, including ext2 and ext3
+(and realistically it's not worth the extra complexity for most of
+applications).
+
+All of that is fs-specific and has nothing to the rest of kernel (or
+to the kind of kernel, actually - if you look at *BSD implementations
+of the same thing you'll find the same behaviour).  If you change
+layout (as it had been done for several UFS variants and for htree
+variant of ext3) you can get faster algorithms.  Whether it's practically
+interesting is a separate question, though - even if kernel side is
+fast, you still have userland side to deal with and it tends to behave
+quite badly when confronted with huge directories.
+

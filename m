@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270765AbTG0NEv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 09:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270766AbTG0NEv
+	id S270766AbTG0NKz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 09:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270767AbTG0NKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 09:04:51 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:32169 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S270765AbTG0NEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 09:04:50 -0400
-Message-ID: <3F23D551.5000809@genebrew.com>
-Date: Sun, 27 Jul 2003 09:36:17 -0400
-From: Rahul Karnik <rahul@genebrew.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
+	Sun, 27 Jul 2003 09:10:55 -0400
+Received: from nic.bme.hu ([152.66.115.1]:35799 "EHLO nic.bme.hu")
+	by vger.kernel.org with ESMTP id S270766AbTG0NKy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 09:10:54 -0400
+Message-ID: <3F23D27B.3070209@namesys.com>
+Date: Sun, 27 Jul 2003 17:24:11 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew de Quincey <adq_dvb@lidskialf.net>
-CC: Marcelo Penna Guerra <eu@marcelopenna.org>,
-       lkml <linux-kernel@vger.kernel.org>, Laurens <masterpe@xs4all.nl>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
-References: <200307262309.20074.adq_dvb@lidskialf.net> <200307271222.13649.adq_dvb@lidskialf.net> <3F23BC1D.7070804@genebrew.com> <200307271301.41660.adq_dvb@lidskialf.net>
-In-Reply-To: <200307271301.41660.adq_dvb@lidskialf.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+       torvalds@transmeta.com, marcelo@conectiva.com.br,
+       mason <mason@namesys.com>
+Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
+References: <3F1EF7DB.2010805@namesys.com> <20030726013301.6164e6e4.akpm@osdl.org>
+In-Reply-To: <20030726013301.6164e6e4.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew de Quincey wrote:
+Andrew Morton wrote:
 
-> I've just dumped the mmapped IO space on mine. The MAC address shows up at 
-> offset 0xa8, but the amd8111e driver is looking for it at 0x160 (there's just 
-> loads of 0x00 there).
+>Hans Reiser <reiser@namesys.com> wrote:
+>  
+>
+>>Please look at http://www.namesys.com/benchmarks/v4marks.html
+>>    
+>>
+>
+>It says "but since most users use ext3 with only meta-data journaling"
+>which isn't really correct.  ext3's metadata-only journalling mode is
+>writeback mode.
+>
+>Most people in fact use ext3's ordered mode, which provides the same data
+>consistency guarantees on recovery as data journalling.
+>
+>Please compare against the ext3 in -mm.  It has tweaks which aren't yet
+>merged, but which will be submitted soon.
+>
+>
+>
+>  
+>
+We are going to run a bunch more benchmarks when I get back, probably 
+doing things like turning on htrees and tail combining and stuff, in 
+lots of different combinations.  Ordered mode will be added, as well as 
+making green have a uniform meaning for all the benchmarks;-).  This 
+benchmark was just what could be done before I got on a plane.
 
-Also, as Marcelo -- no, not that one, the other one :) -- there is some 
-funky reversing of the MAC address needed. See the reverse loop in 
-nvnet.c where the MAC address is being read from the registers.
-
-Thanks,
-Rahul
 -- 
-Rahul Karnik
-rahul@genebrew.com
+Hans
+
 

@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbULaRx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbULaSCB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbULaRx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 12:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbULaRvL
+	id S262130AbULaSCB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 13:02:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbULaSCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 12:51:11 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:36872 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S262138AbULaRu4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 12:50:56 -0500
-Date: Fri, 31 Dec 2004 18:50:51 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: William <wh@designed4u.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: the umount() saga for regular linux desktop users
-Message-ID: <20041231175051.GD2818@pclin040.win.tue.nl>
-References: <200412311741.02864.wh@designed4u.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412311741.02864.wh@designed4u.net>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : 
+	Fri, 31 Dec 2004 13:02:00 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:37863 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262130AbULaSB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 13:01:58 -0500
+Message-ID: <1104515971.41d593835721f@webmail.grupopie.com>
+Date: Fri, 31 Dec 2004 17:59:31 +0000
+From: "" <pmarques@grupopie.com>
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: "" <linux-kernel@vger.kernel.org>, "" <kaos@ocs.com.au>,
+       "" <sam@ravnborg.org>
+Subject: Re: sh: inconsistent kallsyms data
+References: <20041231172549.GA18211@linux-sh.org>
+In-Reply-To: <20041231172549.GA18211@linux-sh.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 82.154.89.203
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 31, 2004 at 05:41:02PM +0000, William wrote:
+Quoting Paul Mundt <lethal@linux-sh.org>:
 
-> Regularly, when attempting to umount() a filesystem I receive 'device is busy' 
-> errors. The only way (that I have found) to solve these problems is to go on 
-> a journey into processland and kill all the guilty ones that have tied 
-> themselves to the filesystem concerned.
+> Building 2.6.10 for sh results in inconsistent kallsyms data. Turning on
+> CONFIG_KALLSYMS_ALL fixes it, as does CONFIG_KALLSYMS_EXTRA_PASS.
 
-Do you know about the existence of the MNT_DETACH flag of umount(2),
-or the -l option of umount(8)?
+I think the only change from 2.6.9 that could affect this is the addition of the
+is_arm_mapping_symbol from Russel King.
 
-It seems that does at least some of the things you are asking for.
+Can you try to comment out this function in scripts/kallsyms.c (and the call to
+it in read_symbol) and see if it changes the result for you?
 
-Andries
+--
+Paulo Marques - www.grupopie.com
+
+"A journey of a thousand miles begins with a single step."
+Lao-tzu, The Way of Lao-tzu

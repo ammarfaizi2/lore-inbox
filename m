@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284717AbSAULfC>; Mon, 21 Jan 2002 06:35:02 -0500
+	id <S284794AbSAULhW>; Mon, 21 Jan 2002 06:37:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284732AbSAULex>; Mon, 21 Jan 2002 06:34:53 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:8454 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S284717AbSAULen>;
-	Mon, 21 Jan 2002 06:34:43 -0500
-Date: Mon, 21 Jan 2002 12:34:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Andre Hedrick <andre@linuxdiskcert.org>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.3-pre1-aia1
-Message-ID: <20020121123430.B27835@suse.de>
-In-Reply-To: <20020121114311.A24604@suse.cz> <Pine.LNX.4.10.10201210308460.14375-100000@master.linux-ide.org> <20020121123243.A24754@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020121123243.A24754@suse.cz>
+	id <S284890AbSAULhN>; Mon, 21 Jan 2002 06:37:13 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:11450 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S284794AbSAULhJ>; Mon, 21 Jan 2002 06:37:09 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Fabio Fracassi <turiya@linuxfromscratch.org>
+Organization: Linux from Scratch
+To: linux-kernel@vger.kernel.org
+Subject: Complete lockup when using g++ on reiserfs
+Date: Mon, 21 Jan 2002 12:41:02 +0100
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <16Sckv-03IJKyC@fmrl01.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 21 2002, Vojtech Pavlik wrote:
-> > If the device is programmed for to do 16 sectors in multimode, it and you
-> > issue a read/write multiple pio and short change the device it is not
-> > going to like it.  However if it is programmed for multimode and you issue
-> > single sector pio transfers command opcodes it is fine.
-> > 
-> > Do we differ?
-> 
-> I think so. Check my mail from 11:14:56 GMT today. I fully understand
-> that if I supply less data to the device than it expects or get less
-> from it than it has, it'll be a problem. But I think the specification
-> doesn't prohibit reading amounts not divisible by multimode setting via
-> the multimode command. I've read it quite carefully again.
+Hi
 
-Like I said, if this was indeed a problem it would be _trivial_ to break
-2.2/2.4 IDE with enabled multi mode... Basically it would be hard to get
-_anything_ done.
+Please CC answers to me since I'm not subscribed here.
 
--- 
-Jens Axboe
+Since a while now I sometimes get  strange lockups when trying to compile
+c++ programms. 
+I cannot reproduce it exactly, but on larger c++ apps like Kde or Mozilla, 
+the build hangs sooner or later.
+I get this behavior with all kernels from  2.4.3  to 2.4.16 (haven't checked 
+the newer ones yet)
+
+The problem is that I cannot truely locate, where the error occurs, the logs 
+are quite, and the system is truely dead (only HW reset works)
+
+I first suspected my graphics HW (NVIDIA) to be causing the problems, but
+the problems remain under Plain console, with no Drivers loaded.
+
+The recent AMD/AGP Bug is also not causing it, I've checked that.
+
+I suppose the Problem is somewhere in the ReiserFs part, since when this hang
+happens the last processed c++ file sometimes gets corrupted.
+
+If you need more Info on this please contact me, I'll try to give it then
+
+I Hope someone can help me.
+
+TIA 
+Fabio Fracassi
+
 

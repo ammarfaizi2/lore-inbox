@@ -1,55 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267027AbRGOUsI>; Sun, 15 Jul 2001 16:48:08 -0400
+	id <S267018AbRGOUu3>; Sun, 15 Jul 2001 16:50:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267018AbRGOUrt>; Sun, 15 Jul 2001 16:47:49 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:52205 "EHLO mcafee-labs.nai.com")
-	by vger.kernel.org with ESMTP id <S267025AbRGOUrm>;
-	Sun, 15 Jul 2001 16:47:42 -0400
-Message-ID: <XFMail.20010715135110.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S267035AbRGOUuT>; Sun, 15 Jul 2001 16:50:19 -0400
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:50741 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S267018AbRGOUuF>; Sun, 15 Jul 2001 16:50:05 -0400
+Date: Sun, 15 Jul 2001 16:49:24 -0400 (EDT)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+X-X-Sender: <cowboy@back40.badlands.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.6-ac{2,3} OOPS unloading ALSA sound modules (maestro3/sb16)
+Message-ID: <Pine.LNX.4.33.0107151647140.2570-200000@back40.badlands.org>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
 MIME-Version: 1.0
-In-Reply-To: <OF0C6F5F92.24F5EA98-ON85256A88.006DDC58@pok.ibm.com>
-Date: Sun, 15 Jul 2001 13:51:10 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Shailabh Nagar <nagar@us.ibm.com>
-Subject: Re: [Lse-tech] Re: CPU affinity & IPI latency
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-        Andi Kleen <ak@suse.de>, lse-tech@lists.sourceforge.net,
-        Mike Kravetz <mkravetz@sequent.com>
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811583-1054073569-995230164=:2570"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-On 13-Jul-2001 Shailabh Nagar wrote:
-> That is true to an extent. It would be convenient for us as scheduler
-> rewriters to have neatly differentiated classes like UP, SMP, BIG_SMP, NUMA
-> etc. But it forces all other scheduler-sensitive code to think of each of
-> these cases separately and is exactly the reason why #ifdef's are
-> discouraged for critical kernel code like the scheduler.
+---1463811583-1054073569-995230164=:2570
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Personally I hate #ifdef's inside the code more than my cat water, but something
-like :
+Attached is an oops I've gotten on two different machines
 
-[sched.c]
-#ifdef CONFIG_SCHED_XXX
-#include "sched_xxx.c"
-#else
-#ifdef CONFIG_SCHED_YYY
-#include "sched_yyy.c"
+-- 
+Rick Nelson
+Life'll kill ya                         -- Warren Zevon
+Then you'll be dead                     -- Life'll kill ya
 
-...
+---1463811583-1054073569-995230164=:2570
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="oops.log"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0107151649240.2570@back40.badlands.org>
+Content-Description: 
+Content-Disposition: attachment; filename="oops.log"
 
-#endif
-
-
-looks pretty clean to me.
-
-
-
-
-- Davide
-
+a3N5bW9vcHMgMi40LjEgb24gaTU4NiAyLjQuNi1hYzMuICBPcHRpb25zIHVz
+ZWQNCiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1rIC92YXIvbG9nL2tzeW1v
+b3BzLzIwMDEwNzE1MTYyNDQ4LmtzeW1zIChzcGVjaWZpZWQpDQogICAgIC1s
+IC92YXIvbG9nL2tzeW1vb3BzLzIwMDEwNzE1MTYyNDQ4Lm1vZHVsZXMgKHNw
+ZWNpZmllZCkNCiAgICAgLW8gL2xpYi9tb2R1bGVzLzIuNC42LWFjMy8gKGRl
+ZmF1bHQpDQogICAgIC1tIC9ib290L1N5c3RlbS5tYXAtMi40LjYtYWMzIChk
+ZWZhdWx0KQ0KDQpKdWwgMTUgMTY6MDc6MzcgYmFjazQwIGtlcm5lbDogVW5h
+YmxlIHRvIGhhbmRsZSBrZXJuZWwgcGFnaW5nIHJlcXVlc3QgYXQgdmlydHVh
+bCBhZGRyZXNzIDVhNWE1YThhDQpKdWwgMTUgMTY6MDc6MzcgYmFjazQwIGtl
+cm5lbDogYzAxNGJkMzUNCkp1bCAxNSAxNjowNzozNyBiYWNrNDAga2VybmVs
+OiAqcGRlID0gMDAwMDAwMDANCkp1bCAxNSAxNjowNzozNyBiYWNrNDAga2Vy
+bmVsOiBPb3BzOiAwMDAwDQpKdWwgMTUgMTY6MDc6MzcgYmFjazQwIGtlcm5l
+bDogQ1BVOiAgICAwDQpKdWwgMTUgMTY6MDc6MzcgYmFjazQwIGtlcm5lbDog
+RUlQOiAgICAwMDEwOls8YzAxNGJkMzU+XQ0KVXNpbmcgZGVmYXVsdHMgZnJv
+bSBrc3ltb29wcyAtdCBlbGYzMi1pMzg2IC1hIGkzODYNCkp1bCAxNSAxNjow
+NzozNyBiYWNrNDAga2VybmVsOiBFRkxBR1M6IDAwMjEwMjAyDQpKdWwgMTUg
+MTY6MDc6MzcgYmFjazQwIGtlcm5lbDogZWF4OiA1YTVhNWE1YSAgIGVieDog
+MDAwMDAwMDQgICBlY3g6IDAwMDAwMDA0ICAgZWR4OiBjZWFkYmYwMA0KSnVs
+IDE1IDE2OjA3OjM3IGJhY2s0MCBrZXJuZWw6IGVzaTogNWE1YTVhOGEgICBl
+ZGk6IGNlYWRiZjA1ICAgZWJwOiBjMTRjZjhiMCAgIGVzcDogYzFlYWRkOTQN
+Ckp1bCAxNSAxNjowNzozNyBiYWNrNDAga2VybmVsOiBkczogMDAxOCAgIGVz
+OiAwMDE4ICAgc3M6IDAwMTgNCkp1bCAxNSAxNjowNzozNyBiYWNrNDAga2Vy
+bmVsOiBQcm9jZXNzIHJtbW9kIChwaWQ6IDg5NjMsIHN0YWNrcGFnZT1jMWVh
+ZDAwMCkNCkp1bCAxNSAxNjowNzozNyBiYWNrNDAga2VybmVsOiBTdGFjazog
+Y2VhZGJlMmMgZDA4OWQ4MTQgYzE0Y2Y4YTAgY2VhZGJmMDAgZDA4OTgyZGUg
+Y2VhZGJmMDAgNWE1YTVhNWEgMDAyMDAyODYgDQpKdWwgMTUgMTY6MDc6Mzcg
+YmFjazQwIGtlcm5lbDogICAgICAgIGNlOWE2OTQ0IGNmYmZiZGNjIDAwMDAw
+MDAyIGMxNGNmOGIwIGQwODk5MzI0IDVhNWE1YTVhIGNlYWRiZWI0IDAwMjAw
+Mjg2IA0KSnVsIDE1IDE2OjA3OjM4IGJhY2s0MCBrZXJuZWw6ICAgICAgICBk
+MDhjMWNhNyBjZmJmYmNjNCBjZmJmYmNjNCBjZTlhNmExOCBkMDg5ODJkZSBj
+ZmJmYmRjYyBjZTlhOTU0NCAwMDAwMDAwMyANCkp1bCAxNSAxNjowNzozOCBi
+YWNrNDAga2VybmVsOiBDYWxsIFRyYWNlOiBbPGMwMTI4Y2EyPl0gWzxjMDEx
+Y2E3OT5dIFs8YzAxMWNkNTM+XSBbPGMwMTFjMDcyPl0gWzxjMDExNmU3Mz5d
+IA0KSnVsIDE1IDE2OjA3OjM4IGJhY2s0MCBrZXJuZWw6ICAgIFs8YzAxMTYz
+MTc+XSBbPGMwMTA2ZDAzPl0gDQpKdWwgMTUgMTY6MDc6MzggYmFjazQwIGtl
+cm5lbDogQ29kZTogODMgNzggMzAgMDAgMGYgODQgYTUgMDAgMDAgMDAgOTAg
+ZmYgNzYgMDAgZmYgNzQgMjQgMTAgNTMgZTggDQoNCj4+RUlQOyBjMDE0YmQz
+NSA8cmVtb3ZlX3Byb2NfZW50cnkrNDkvMTA0PiAgIDw9PT09PQ0KVHJhY2U7
+IGMwMTI4Y2EyIDxrZnJlZSsxZGUvMjcwPg0KVHJhY2U7IGMwMTFjYTc5IDxk
+ZWxpdmVyX3NpZ25hbCs0OS81MD4NClRyYWNlOyBjMDExY2Q1MyA8c2VuZF9z
+aWcrMWIvMjA+DQpUcmFjZTsgYzAxMWMwNzIgPHRpbWVyX2JoKzIxMi8yNGM+
+DQpUcmFjZTsgYzAxMTZlNzMgPGZyZWVfbW9kdWxlKzE3Lzk4Pg0KVHJhY2U7
+IGMwMTE2MzE3IDxzeXNfZGVsZXRlX21vZHVsZStmMy8xYjA+DQpUcmFjZTsg
+YzAxMDZkMDMgPHN5c3RlbV9jYWxsKzMzLzQwPg0KQ29kZTsgIGMwMTRiZDM1
+IDxyZW1vdmVfcHJvY19lbnRyeSs0OS8xMDQ+DQowMDAwMDAwMCA8X0VJUD46
+DQpDb2RlOyAgYzAxNGJkMzUgPHJlbW92ZV9wcm9jX2VudHJ5KzQ5LzEwND4g
+ICA8PT09PT0NCiAgIDA6ICAgODMgNzggMzAgMDAgICAgICAgICAgICAgICBj
+bXBsICAgJDB4MCwweDMwKCVlYXgpICAgPD09PT09DQpDb2RlOyAgYzAxNGJk
+MzkgPHJlbW92ZV9wcm9jX2VudHJ5KzRkLzEwND4NCiAgIDQ6ICAgMGYgODQg
+YTUgMDAgMDAgMDAgICAgICAgICBqZSAgICAgYWYgPF9FSVArMHhhZj4gYzAx
+NGJkZTQgPHJlbW92ZV9wcm9jX2VudHJ5K2Y4LzEwND4NCkNvZGU7ICBjMDE0
+YmQzZiA8cmVtb3ZlX3Byb2NfZW50cnkrNTMvMTA0Pg0KICAgYTogICA5MCAg
+ICAgICAgICAgICAgICAgICAgICAgIG5vcCAgICANCkNvZGU7ICBjMDE0YmQ0
+MCA8cmVtb3ZlX3Byb2NfZW50cnkrNTQvMTA0Pg0KICAgYjogICBmZiA3NiAw
+MCAgICAgICAgICAgICAgICAgIHB1c2hsICAweDAoJWVzaSkNCkNvZGU7ICBj
+MDE0YmQ0MyA8cmVtb3ZlX3Byb2NfZW50cnkrNTcvMTA0Pg0KICAgZTogICBm
+ZiA3NCAyNCAxMCAgICAgICAgICAgICAgIHB1c2hsICAweDEwKCVlc3AsMSkN
+CkNvZGU7ICBjMDE0YmQ0NyA8cmVtb3ZlX3Byb2NfZW50cnkrNWIvMTA0Pg0K
+ICAxMjogICA1MyAgICAgICAgICAgICAgICAgICAgICAgIHB1c2ggICAlZWJ4
+DQpDb2RlOyAgYzAxNGJkNDggPHJlbW92ZV9wcm9jX2VudHJ5KzVjLzEwND4N
+CiAgMTM6ICAgZTggMDAgMDAgMDAgMDAgICAgICAgICAgICBjYWxsICAgMTgg
+PF9FSVArMHgxOD4gYzAxNGJkNGQgPHJlbW92ZV9wcm9jX2VudHJ5KzYxLzEw
+ND4NCg0K
+---1463811583-1054073569-995230164=:2570--

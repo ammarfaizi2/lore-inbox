@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbUCJIVX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 03:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbUCJIVX
+	id S262525AbUCJIVf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 03:21:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbUCJIVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 03:21:23 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:31372 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262094AbUCJIVW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 03:21:22 -0500
-Message-ID: <404ECFE5.7040005@matchmail.com>
-Date: Wed, 10 Mar 2004 00:20:53 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040304)
-X-Accept-Language: en-us, en
+	Wed, 10 Mar 2004 03:21:35 -0500
+Received: from gdr.net1.nerim.net ([62.212.99.186]:31562 "EHLO
+	uniton.integrable-solutions.net") by vger.kernel.org with ESMTP
+	id S262525AbUCJIVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 03:21:32 -0500
+To: Richard Henderson <rth@twiddle.net>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Thomas Schlichter <thomas.schlichter@web.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       gcc@gcc.gnu.org
+Subject: Re: [PATCH] fix warning about duplicate 'const'
+References: <200403090043.21043.thomas.schlichter@web.de>
+	<20040308161410.49127bdf.akpm@osdl.org>
+	<Pine.LNX.4.58.0403081627450.9575@ppc970.osdl.org>
+	<200403090217.40867.thomas.schlichter@web.de>
+	<Pine.LNX.4.58.0403081728250.9575@ppc970.osdl.org>
+	<20040310054918.GB4068@twiddle.net>
+From: Gabriel Dos Reis <gdr@integrable-solutions.net>
+In-Reply-To: <20040310054918.GB4068@twiddle.net>
+Organization: Integrable Solutions
+Date: 10 Mar 2004 09:10:49 +0100
+Message-ID: <m3fzchxgty.fsf@uniton.integrable-solutions.net>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: VM patches in 2.6.4-rc1-mm2
-References: <20040302201536.52c4e467.akpm@osdl.org>	<40469E50.6090401@matchmail.com> <20040303193025.68a16dc4.akpm@osdl.org>
-In-Reply-To: <20040303193025.68a16dc4.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Mike Fedyk <mfedyk@matchmail.com> wrote:
->>Most of the previous 2.6 kernels I was running on these servers would be 
->>lightly hitting swap by now.  This definitely looks better to me.
-> 
-> 
-> It sounds worse to me.  "Lightly hitting swap" is good.  It gets rid of stuff,
-> freeing up physical memory.
+Richard Henderson <rth@twiddle.net> writes:
 
-Andrew, it looks like you're right.  This[1] server doesn't seem to be 
-hitting swap enough.  But my other[2] file server is doing great with it 
-on the other hand (though, it hasn't swapped at all).
+| On Mon, Mar 08, 2004 at 05:32:11PM -0800, Linus Torvalds wrote:
+| > Also, I'm not convinced this isn't a gcc regression. It would be stupid to 
+| > "fix" something that makes old gcc's complain, when they may be doing the 
+| > right thing.
+| 
+| Problem is, that we're supposed to complain for
+| 
+| 	const const int x;
+| and
+| 	typedef const int t;
+| 	const t x;
 
-Maybe a little tuning is in order?
+If I can help with an existing pratice, in C++ the former is
+invalid and the second is valid -- the extra const is just silently
+ignored.  Therefore, in C++ land the construct
 
-Any patches I should try?
+| 	const int a;
+| 	const __typeof(a) x;
 
-Mike
+would be accepted because __typeof__ acts like an unnamed typedef[*].
+(And in effect, g++ will accept the code -- assuming you abstract over
+initializers).  So, it does not look like an innovation here.
+I don't know whether this should be another case for "C is different
+from C++".
 
-[1]
-http://www.matchmail.com/stats/lrrd/matchmail.com/srv-lnx2600.matchmail.com-memory.html
 
-[2]
-http://www.matchmail.com/stats/lrrd/matchmail.com/fileserver.matchmail.com-memory.html
+[*] Yes, an alias that does not introduce a name is strange alias, but
+    that is what __typeof__ does.
+
+-- Gaby

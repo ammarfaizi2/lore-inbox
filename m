@@ -1,78 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbUA0JA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 04:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUA0JA0
+	id S262707AbUA0JF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 04:05:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbUA0JF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 04:00:26 -0500
-Received: from gprs194-55.eurotel.cz ([160.218.194.55]:24192 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262960AbUA0JAR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 04:00:17 -0500
-Date: Tue, 27 Jan 2004 09:39:36 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Huw Rogers <count0@localnet.com>
-Cc: linux-kernel@vger.kernel.org, linux-laptop@mobilix.org
-Subject: Re: 2.6.2-rc1 / ACPI sleep / irqbalance / kirqd / pentium 4 HT problems on Uniwill N258SA0
-Message-ID: <20040127083936.GA18246@elf.ucw.cz>
-References: <20040124233749.5637.COUNT0@localnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Jan 2004 04:05:56 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:32647 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S263015AbUA0JFo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 04:05:44 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Tom Rini <trini@kernel.crashing.org>, George Anzinger <george@mvista.com>
+Subject: Re: PPC KGDB changes and some help?
+Date: Tue, 27 Jan 2004 14:35:19 +0530
+User-Agent: KMail/1.5
+Cc: Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
+References: <200401212223.13347.amitkale@emsyssoft.com> <40158A88.7070007@mvista.com> <20040126220651.GE32525@stop.crashing.org>
+In-Reply-To: <20040126220651.GE32525@stop.crashing.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040124233749.5637.COUNT0@localnet.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200401271435.19773.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tuesday 27 Jan 2004 3:36 am, Tom Rini wrote:
+> On Mon, Jan 26, 2004 at 01:45:44PM -0800, George Anzinger wrote:
+> > Tom Rini wrote:
+> > >>There is a real danger of passing signal info back to gdb as it will
+> > >> want to try to deliver the signal which is a non-compute in most kgdbs
+> > >> in the field.  I did put code in the mm-kgdb to do just this, but
+> > >> usually the arrival of such a signal (other than SIGTRAP) is the end
+> > >> of the kernel. All that is left is to read the tea leaves.
+> > >
+> > >The gdb I've been testing this with knows better than to try and send a
+> > >singal back, so that's not a worry.  The motivation behind doing this
+> > >however is along the lines of "if it ain't broke, don't remove it".  The
+> > >original stub was getting all of this information correctly, so why stop
+> > >doing it?
+> >
+> > You sure.  If so what gdb?  And how does it know?  I suppose you could
+> > tell it with a script, but then what if one forgets?
+>
+> GNU gdb 6.0 (MontaVista 6.0-8.0.4.0300532 2003-12-24)
+> Copyright 2003 Free Software Foundation, Inc.
+> [snip]
+>
+> [New Thread 289]
+>
+> Program received signal SIGSEGV, Segmentation fault.
+> [Switching to Thread 289]
+> 0x00000000 in ?? ()
+> (gdb) c
+> Continuing.
+> Can't send signals to this remote system.  SIGSEGV not sent.
 
-> irqbalance just locks up the machine totally, hard power-off needed, no
-> traces in the logs. Probably some issue (race?) with it writing to
-> /proc/irq/X/smp_affinity. And how is irqbalance supposed to play with
-> kirqd anyway? Grepping this list and others doesn't give any kind of an
-> answer. But disabling it gives all interrupts to cpu0 (looking at
-> /proc/interrupts). kirqd apparently only balances between CPU packages,
-> not between HT siblings (info gleaned from this list).
-> 
-> Anyway, sleep/suspend/standby functionality (important to most laptop
-> users, need to close the lid and go): This checkin to
-> kernel/power/main.c seems to disable suspend with SMP (!?):
-> 
-> --- 1.3/kernel/power/main.c	Sat Jan 24 20:44:47 2004
-> +++ 1.4/kernel/power/main.c	Sat Jan 24 20:44:47 2004
-> @@ -172,6 +172,12 @@
->  	if (down_trylock(&pm_sem))
->  		return -EBUSY;
->  
-> +	/* Suspend is hard to get right on SMP. */
-> +	if (num_online_cpus() != 1) {
-> +		error = -EPERM;
-> +		goto Unlock;
-> +	}
-> +
->  	if ((error = suspend_prepare(state)))
->  		goto Unlock;
-> 
-> ... which, given the prevalence of hyperthreaded CPUs on laptops, is
-> fighting a trend. I backed out the above with a #if 0 then tried echo -n
-> 1>/proc/acpi/sleep again. This time I got:
+This is because gdb tries packet "C" first. If that fails, which is the case 
+with kgdb, it falls back to packet "c". It doesn't need packet "C" for 
+SIGTRAP as it's used for breakpoints and single stepping and shouldn't be 
+delivered to a debuggee.
 
-Well, no sleep developers have SMP or HT machines, AFAICT.
+SIGSEGV has to be actually delivered to an application for it to die. A user 
+has a choice of correcting a bug on the fly and let the application continue 
+without segfaulting. It can tell gdb to continue the debugee without a 
+signal. It doesn't apply in case of kernel, so it's not a bug. Kernel anyway 
+"delivers" the signal, that is, continues with a panic once kgdb returns. We 
+don't offer a user the choice of correcting a segfault on the fly.
 
-If you back that out... well you are on your own.
+>
+> Noting that 0x0 is correct as the code that triggered this was:
+> static void (*dummy)(struct pt_regs *regs);
+> int drop_kgdb(void) {
+>         struct pt_regs regs;
+>         memset(&regs, 0, sizeof(regs));
+>         dummy(&regs);
+>
+>         return 0;
+> }
+> module_init(drop_kgdb);
+>
+> --
+> Tom Rini
+> http://gate.crashing.org/~trini/
+>
+> ** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
 
-> A lot of effort is going into swsusp/pmdisk - but a lot of laptop users
-> prefer S1 to S4, as it's faster and more reliable. It'd be nice to see a
-> simpler "spin down the hard drive, reduce CPU clock speed to a minimum,
-> and power down display/ether/wireless/usb/PCMCIA" working ahead of
-> hibernation.
-
-As far as I can see, noone is interested in S1. If you want to help
-with it... [There's no need to stop tasks/stop devices on non-broken
-hardware. Unfortunately there's a lot of broken hw out there, so I'm
-not sure we can do it by default.]
-								Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Amit Kale
+EmSysSoft (http://www.emsyssoft.com)
+KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+

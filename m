@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129851AbRB0Ui0>; Tue, 27 Feb 2001 15:38:26 -0500
+	id <S129848AbRB0Umg>; Tue, 27 Feb 2001 15:42:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129848AbRB0UiL>; Tue, 27 Feb 2001 15:38:11 -0500
-Received: from pat.uio.no ([129.240.130.16]:26018 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S129851AbRB0UhE>;
-	Tue, 27 Feb 2001 15:37:04 -0500
-To: "Zdravko Spoljar" <flirek@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nfs_refresh_inode ?
-In-Reply-To: <LAW2-F2101vraQ4yvco00012ad0@hotmail.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Content-Type: text/plain; charset=US-ASCII
-Date: 27 Feb 2001 21:36:59 +0100
-In-Reply-To: "Zdravko Spoljar"'s message of "Tue, 27 Feb 2001 18:34:24 -0000"
-Message-ID: <shsy9urhnh0.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S129853AbRB0Um0>; Tue, 27 Feb 2001 15:42:26 -0500
+Received: from cartero.unavarra.es ([130.206.166.80]:40149 "EHLO
+	cartero.unavarra.es") by vger.kernel.org with ESMTP
+	id <S129848AbRB0UmX>; Tue, 27 Feb 2001 15:42:23 -0500
+Message-ID: <3A9C1131.7ABD6867@unavarra.es>
+Date: Tue, 27 Feb 2001 21:42:25 +0100
+From: Eduardo Magaña Lizarrondo 
+	<eduardo.magana@unavarra.es>
+Organization: Universidad Publica de Navarra
+X-Mailer: Mozilla 4.7 [en] (Win98; I)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Linux Socket Filter sudden CPU use increase
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Zdravko Spoljar <flirek@hotmail.com> writes:
+I have been testing Linux Socket Filters (LSF) these weeks (kernels
+2.2.12,
+2.2.14, 2.2.18, 2.4.1) with libpcap (0.4 - 0.6.2) and I have observed 
+something curious. I make a program that increase number of simultaneous 
+LSF filters (5, 10, 15..) and when this number is between 15 and 50,
+suddenly
+CPU consumed by kernel increases suddenly. Any idea? 
+(you can see a figure of CPU vs. number of LSF filter in 
+http://www.tlm.unavarra.es/~eduardo/varios/lsf.gif)
 
-     > Hi i'm running 2.2.19pre14+RAID+ide and get this message from
-     > kernel:
+I do not see anything stranger. Only, using Linux Trace Toolkit with
+some 
+modifications when there are few filters, I observe that of timer Bottom
+Half 
+follows IRQ 0. And when there are more filters, IRQ 0 takes place when
+the 
+network Bottom Half is taking place, so the timer Bottom Half is delayed
+to
+the end of the network Bottom Half. Can it be related?
 
-     > nfs_refresh_inode: inode number mismatch expected
-     > (0x0ffffffff/0x0ffffffff), got (0x0002b0001/0x00005605)
-     >                                                            ^^^^
+To measure kernel CPU I have used the trick of running another CPU with
+low 
+priority. According to the time this second process is delayed an
+aproximate 
+%CPU is obtained.
 
-Could you get a tcpdump of a the traffic when this happens? I suspect
-a server bug.
+I do not understand what is happening. Any help would be very useful.
 
-     > marked numbers vary from message to message. i can triger this
-     > by doing "make test;chmod 777 test" on some nfs mounted file
-     > sistem some times repeated chmod generate more messages,
-     > sometimes are executed ok. i have feeling it happend more often
-     > when there is some cpu and net load.
+	Eduardo
 
-
-     > linux nfs client is dual pentium II (266) on P2B-DS with 2
-     > promise IDE cards, net card is smc (using realtek 8139 driver),
-     > ide and scsi disks are in RAID 5 setup.
-
-     > nfs server is Apple Network server running AIX4.1.5 net conn is
-     > 100MB over Cisco switch
-
-     > ah, there is one more thing. on boot when nfs get mounted i
-     > find in dmesg: "nfs warning: mount version older than kernel"
-     > WTF? :)
-
-It means that your 'mount' program is too old, and so you won't be
-able to mount NFSv3 partitions.
-
-Cheers,
-  Trond
+-- 
+Eduardo Magaña Lizarrondo
+http://www.tlm.unavarra.es/~eduardo

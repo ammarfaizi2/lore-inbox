@@ -1,25 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319056AbSIDFNH>; Wed, 4 Sep 2002 01:13:07 -0400
+	id <S319058AbSIDFNs>; Wed, 4 Sep 2002 01:13:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319057AbSIDFNH>; Wed, 4 Sep 2002 01:13:07 -0400
-Received: from mail-01.iinet.net.au ([203.59.3.33]:36100 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id <S319056AbSIDFNG>;
-	Wed, 4 Sep 2002 01:13:06 -0400
-Message-ID: <3D759705.2080702@iinet.net.au>
-Date: Wed, 04 Sep 2002 15:15:49 +1000
-From: Wade <neroz@iinet.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	id <S319057AbSIDFNo>; Wed, 4 Sep 2002 01:13:44 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49159 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319058AbSIDFNl>; Wed, 4 Sep 2002 01:13:41 -0400
+Date: Tue, 3 Sep 2002 22:17:39 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: rusty@rustcorp.com.au, <linux-kernel@vger.kernel.org>, <akpm@zip.com.au>
+Subject: Re: [PATCH] Important per-cpu fix. 
+In-Reply-To: <20020903.220514.21399526.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0209032216570.1439-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: conman@kolivas.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Benchmarks for performance patches (-ck) for 2.4.19
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Although you reported that ck5 fixed the "Deactivating swap.." freeze, I 
-hit it last night, on ck5.
+
+On Tue, 3 Sep 2002, David S. Miller wrote:
+> Oh, "I'm" willing to upgrade "my" compiler, it's my users
+> that are the problem.  If you impose 3.1 or whatever, I get less
+> people testing on sparc64 as a result.
+
+Well, I don't think you have to go to 3.1.x.
+
+gcc-2.96 at least seems to do all right. Apparently 2.95 does too. It's 
+only the truly ancient compilers that don't work.
+
+		Linus
 

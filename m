@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVAYPxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVAYPxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVAYPxH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 10:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVAYPxH
+	id S261985AbVAYPxb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 10:53:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVAYPxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 10:53:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26333 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261968AbVAYPxD (ORCPT
+	Tue, 25 Jan 2005 10:53:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49363 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261985AbVAYPxY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 10:53:03 -0500
-Date: Tue, 25 Jan 2005 10:52:54 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Fruhwirth Clemens <clemens@endorphin.org>, <linux-kernel@vger.kernel.org>,
-       Michal Ludvig <michal@logix.cz>
-Subject: Re: [PATCH 01/04] Adding cipher mode context information to crypto_tfm
-In-Reply-To: <20050124143109.75ff1ab8.akpm@osdl.org>
-Message-ID: <Xine.LNX.4.44.0501251042020.26690-100000@thoron.boston.redhat.com>
+	Tue, 25 Jan 2005 10:53:24 -0500
+Date: Tue, 25 Jan 2005 07:52:39 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Valdis.Kletnieks@vt.edu, John Richard Moser <nigelenki@comcast.net>,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues 
+In-Reply-To: <41F6604B.4090905@tmr.com>
+Message-ID: <Pine.LNX.4.58.0501250741210.2342@ppc970.osdl.org>
+References: <1106157152.6310.171.camel@laptopd505.fenrus.org>
+ <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu> <41F6604B.4090905@tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005, Andrew Morton wrote:
 
-> These patches clash badly with Michael Ludvig's work:
+
+On Tue, 25 Jan 2005, Bill Davidsen wrote:
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm1/broken-out/cryptoapi-prepare-for-processing-multiple-buffers-at.patch
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm1/broken-out/cryptoapi-update-padlock-to-process-multiple-blocks-at.patch
-> 
-> so someone's going to have to rework things.  Ordinarily Michael would go
-> first due to test coverage.
-> 
-> James, your call please.  Also, please advise on the suitability of
-> Michael's patches for a 2.6.11 merge.
+> Unfortunately if A depends on B to work at all, you have to put A and B 
+> in as a package.
 
-I think the generic scatterwalk changes are more important and 
-fundamental (still to be fully reviewed).
+No. That's totally bogus. You can put in B on its own. You do not have to 
+make A+B be one patch.
 
-I agree with Fruhwirth that the cipher code is starting to become
-ungainly.  I'm not sure these patches are heading in the right direction 
-from a design point of view, although we do need the functionality.  
+> There is no really good way (AFAIK) to submit a bunch of patches and
+> say "if any one of these is rejected the whole thing should be ignored."
 
-Perhaps temporarily drop the multible block changes above until we get the
-generic scatterwalk code in and a cleaned up design to handle cipher mode
-offload.
+But that's done ALL THE TIME. Claiming that there is no good way is not 
+only disingenious (we call them "numbers", and they start at 1, go to 2, 
+then 3. Then there's usually a 0-patch which only contains explanations 
+of the series), but it's clearly not true, since we have patches like that 
+weekly. 
 
-Fruhwirth, do you have any cycles to work on implementing your ideas for 
-more cleanly reworking Michal's multiblock code?
+In the last seven days the kernel mailing list has seen at least four
+such series where patches depend at least partly on each other:
+ - Kay Sievers: driver core: export MAJOR/MINOR to the hotplug (0-7)
+ - Andreas Gruenbacher: NFSACL protocol extension for NFSv3 (0-13)
+ - Roland Dreier: InfiniBand updates for 0-12
+ - Roland McGrath: per-process timers (1-7)
 
-Also, I would think this is more 2.6.12 material, at this stage.
+and that was from just a quick look. It seems to be almost a daily 
+occurrence.
 
+In short: listen to Arjan, because he is wise. And stop making totally 
+idiotic excuses that are clearly not true.
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+		Linus

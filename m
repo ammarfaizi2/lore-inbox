@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267637AbSLTEOI>; Thu, 19 Dec 2002 23:14:08 -0500
+	id <S265939AbSLTEUP>; Thu, 19 Dec 2002 23:20:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267692AbSLTEOI>; Thu, 19 Dec 2002 23:14:08 -0500
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:18455 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S267637AbSLTEOH>; Thu, 19 Dec 2002 23:14:07 -0500
-Message-ID: <3E029AD6.9040104@mindspring.com>
-Date: Thu, 19 Dec 2002 20:21:42 -0800
-From: Walt H <waltabbyh@mindspring.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021213
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Adaptec 79xx support in 2.4.x
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265982AbSLTEUP>; Thu, 19 Dec 2002 23:20:15 -0500
+Received: from fluent2.pyramid.net ([206.100.220.213]:38277 "EHLO
+	fluent2.pyramid.net") by vger.kernel.org with ESMTP
+	id <S265939AbSLTEUO>; Thu, 19 Dec 2002 23:20:14 -0500
+Message-Id: <5.2.0.9.0.20021219202414.01d5dae0@fluent2.pyramid.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Thu, 19 Dec 2002 20:28:13 -0800
+To: "plachninka" <plachninka@wp.pl>, <linux-kernel@vger.kernel.org>
+From: Stephen Satchell <list@fluent2.pyramid.net>
+Subject: Re: Saving logs when system is started
+In-Reply-To: <001601c2a731$84f0b9c0$110011ac@home.sitech.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+At 08:37 AM 12/19/02 +0100, plachninka wrote:
+>Hi
+>Simple question: is any possibility to save system logs on floppy or
+>anywhere when system is started from ramdisk?
+>I still have a problem with scsi_hostadapter module and i would like to see
+>startup logs
+
+1.  Add to the end of rc the commands to copy the logs to floppy or anywhere.
+2.  Add to the end of inittab a call, using :once:, to a script to copy the 
+logs to floppy or anywhere.
+3.  Write a daemon that mirrors the logs from time to time to floppy or 
+anywhere, lauched from inittab or from whatever launches your daemons.
 
 
-I have a Tyan Thunder K7XPro based server with the onboard AIC7902 
-controllers. At the present time, its is running 2.4.19 patched with 
-Adaptec's source release for the SCSI support. Adaptec's drivers did not 
-  seamlessly integrate into the 2.4.19 kernel. I found an old mail 
-stating that support for this chipset would be added eventually. It 
-doesn't appear to be added to the 2.4 series yet. Is there something I 
-should be concerned about with regards to my server? The overall 
-performance and stability seem fine so far, but it is a relatively new 
-box with only about 1 month in production - so far so good :)
-
-According to Justin at Adaptec, the source has been given to both Linus 
-and Marcelo. I'd sure like to see it in mainline to avoid having to hack 
-it in there as it stands. Thanks.
-
--Walt
-
-
-
-PS. Please CC any responses as I'm not subscribed.
+-- 
+The human mind treats a new idea the way the body treats a strange
+protein:  it rejects it.  -- P. Medawar
+This posting is for entertainment purposes only; it is not a legal opinion.
 

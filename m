@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284970AbRL3U4o>; Sun, 30 Dec 2001 15:56:44 -0500
+	id <S285007AbRL3VBY>; Sun, 30 Dec 2001 16:01:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284945AbRL3U4e>; Sun, 30 Dec 2001 15:56:34 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:20368 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S284970AbRL3U4Y>; Sun, 30 Dec 2001 15:56:24 -0500
-Date: Sun, 30 Dec 2001 20:58:46 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, rmk@arm.linux.org.uk
-Subject: PF_NOIO missing.
-Message-ID: <20011230205846.A14713@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>, rmk@arm.linux.org.uk
+	id <S284987AbRL3VBP>; Sun, 30 Dec 2001 16:01:15 -0500
+Received: from oss.sgi.com ([216.32.174.27]:52166 "EHLO oss.sgi.com")
+	by vger.kernel.org with ESMTP id <S285020AbRL3VBA>;
+	Sun, 30 Dec 2001 16:01:00 -0500
+Date: Sun, 30 Dec 2001 19:00:20 -0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: Jeff Dike <jdike@karaya.com>
+Cc: Lennert Buytenhek <buytenh@gnu.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] global errno considered harmful
+Message-ID: <20011230190020.A14157@dea.linux-mips.net>
+In-Reply-To: <20011230110623.A17083@gnu.org> <200112301956.OAA02630@ccure.karaya.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200112301956.OAA02630@ccure.karaya.com>; from jdike@karaya.com on Sun, Dec 30, 2001 at 02:56:21PM -0500
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, we didn't resync this bit quick enough..
-Fixes build failure in loop.
+On Sun, Dec 30, 2001 at 02:56:21PM -0500, Jeff Dike wrote:
 
-Dave.
+> buytenh@gnu.org said:
+> > Is there any particular reason we need a global errno in the kernel at
+> > all? (which, by the way, doesn't seem to be subject to any kind of
+> > locking)  
+> 
+> As far as I've been able to tell, no.
 
+Historically the reason was to make unistd.h usable from userspace.  Which
+is causing tremendous portability problems so apps better shouldn't think
+about using the syscall interface directly.
 
-diff -urN --exclude-from=/home/davej/.exclude linux-2.5.2-pre3/include/linux/sched.h linux-2.5/include/linux/sched.h
---- linux-2.5.2-pre3/include/linux/sched.h	Fri Dec 28 23:25:39 2001
-+++ linux-2.5/include/linux/sched.h	Sat Dec 29 11:11:32 2001
-@@ -433,6 +433,7 @@
- #define PF_MEMALLOC	0x00000800	/* Allocating memory */
- #define PF_MEMDIE	0x00001000	/* Killed for out-of-memory */
- #define PF_FREE_PAGES	0x00002000	/* per process page freeing */
-+#define PF_NOIO		0x00004000	/* avoid generating further I/O */
- 
- #define PF_USEDFPU	0x00100000	/* task used FPU this quantum (SMP) */
- 
+> > It makes life for User Mode Linux somewhat more complicated
+> > than it could be, and it generally just seems a bad idea.
+> 
+> Yeah.  In order for -fno-common to not blow up the UML build (because of the
+> clash between libc errno and kernel errno), I had to add -Derrno=kernel_errno
+> to all the kernel file compiles.  It would be nice to get rid of that wart.
+> 
+> > Referenced patch deletes all mention of a global errno from the
+> > kernel
+> 
+> Awesome.  This definitely needs to happen.  If no one spots any breakage,
+> send it in...
 
--- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+As user application are trying to use unistd.h and expect errno to get
+set properly unistd.h or at least it's syscallX macros will have to be
+made unusable from userspace or silent breakage of such apps rebuild
+against new headers will occur.
+
+  Ralf

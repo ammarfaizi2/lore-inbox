@@ -1,160 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265060AbUFVSHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266049AbUFVWOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbUFVSHN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 14:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265040AbUFVSFJ
+	id S266049AbUFVWOO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 18:14:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266023AbUFVWNC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 14:05:09 -0400
-Received: from mail.kroah.org ([65.200.24.183]:41141 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265060AbUFVRn0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 13:43:26 -0400
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core patches for 2.6.7
-In-Reply-To: <1087926110895@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Tue, 22 Jun 2004 10:41:50 -0700
-Message-Id: <1087926110510@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Tue, 22 Jun 2004 18:13:02 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:55546 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S265737AbUFVWKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 18:10:36 -0400
+Date: Tue, 22 Jun 2004 18:04:28 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kbuild: Improve Kernel build with separated output
+In-Reply-To: <20040622212100.GA9346@mars.ravnborg.org>
+Message-ID: <Pine.GSO.4.33.0406221749270.25702-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1722.89.57, 2004/06/08 16:28:02-07:00, rmk@arm.linux.org.uk
+On Tue, 22 Jun 2004, Sam Ravnborg wrote:
+>1) A Makefile is generated in the output directory allowing
+>   one to execute make in both the source and the output directory.
 
-[PATCH] Add platform_get_resource()
+I would vote against doing that.  Or at the very least don't overwrite one
+that might already be there.  I, for one, have a very specific makefile in
+my build (object) directories.  Anyone sufficiently skilled to be building
+kernels outside the source tree, and/or those with the specific need to be
+doing so will already have makefiles and/or shell scripts to suit their
+needs.  Making the option a user specified target ala "make makefiles"
+would be a better/safer choice; if the user wants or needs a makefile in
+their object directory, then they have a simple option to make themselves
+one -- no knowledge of GNU Make necessary.
 
-This patch adds management of platform device resources to the
-device model, allowing drivers to lookup resources, IRQs and DMA
-numbers in the platform device resource array.  We also add a
-couple of functions which allow platform devices and their resources
-to be registered.
+And in my case(s), the source and object symlinks will be of no value.  The
+next "bk pull" and build invalidates those links.  And once the kernel(s)
+are installed on their respective target machines, there won't be any
+source or object trees.
 
-Signed-off-by: Russell King <rmk@arm.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+--Ricky
 
-
- drivers/base/platform.c |   86 ++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/device.h  |    5 ++
- 2 files changed, 91 insertions(+)
-
-
-diff -Nru a/drivers/base/platform.c b/drivers/base/platform.c
---- a/drivers/base/platform.c	Tue Jun 22 09:47:40 2004
-+++ b/drivers/base/platform.c	Tue Jun 22 09:47:40 2004
-@@ -19,6 +19,90 @@
- };
- 
- /**
-+ *	platform_get_resource - get a resource for a device
-+ *	@dev: platform device
-+ *	@type: resource type
-+ *	@num: resource index
-+ */
-+struct resource *
-+platform_get_resource(struct platform_device *dev, unsigned int type,
-+		      unsigned int num)
-+{
-+	int i;
-+
-+	for (i = 0; i < dev->num_resources; i++) {
-+		struct resource *r = &dev->resource[i];
-+
-+		if ((r->flags & (IORESOURCE_IO|IORESOURCE_MEM|
-+				 IORESOURCE_IRQ|IORESOURCE_DMA))
-+		    == type)
-+			if (num-- == 0)
-+				return r;
-+	}
-+	return NULL;
-+}
-+
-+/**
-+ *	platform_get_irq - get an IRQ for a device
-+ *	@dev: platform device
-+ *	@num: IRQ number index
-+ */
-+int platform_get_irq(struct platform_device *dev, unsigned int num)
-+{
-+	struct resource *r = platform_get_resource(dev, IORESOURCE_IRQ, num);
-+
-+	return r ? r->start : 0;
-+}
-+
-+/**
-+ *	platform_add_device - add one platform device
-+ *	@dev: platform device
-+ *
-+ *	Adds one platform device, claiming the memory resources
-+ */
-+int platform_add_device(struct platform_device *dev)
-+{
-+	int i;
-+
-+	for (i = 0; i < dev->num_resources; i++) {
-+		struct resource *p, *r = &dev->resource[i];
-+
-+		r->name = dev->dev.bus_id;
-+
-+		p = NULL;
-+		if (r->flags & IORESOURCE_MEM)
-+			p = &iomem_resource;
-+		else if (r->flags & IORESOURCE_IO)
-+			p = &ioport_resource;
-+
-+		if (p && request_resource(p, r)) {
-+			printk(KERN_ERR
-+			       "%s%d: failed to claim resource %d\n",
-+			       dev->name, dev->id, i);
-+			break;
-+		}
-+	}
-+	if (i == dev->num_resources)
-+		platform_device_register(dev);
-+	return 0;
-+}
-+
-+/**
-+ *	platform_add_devices - add a numbers of platform devices
-+ *	@devs: array of platform devices to add
-+ *	@num: number of platform devices in array
-+ */
-+int platform_add_devices(struct platform_device **devs, int num)
-+{
-+	int i;
-+
-+	for (i = 0; i < num; i++)
-+		platform_add_device(devs[i]);
-+
-+	return 0;
-+}
-+
-+/**
-  *	platform_device_register - add a platform-level device
-  *	@dev:	platform device we're adding
-  *
-@@ -114,3 +198,5 @@
- EXPORT_SYMBOL(platform_bus_type);
- EXPORT_SYMBOL(platform_device_register);
- EXPORT_SYMBOL(platform_device_unregister);
-+EXPORT_SYMBOL(platform_get_irq);
-+EXPORT_SYMBOL(platform_get_resource);
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	Tue Jun 22 09:47:40 2004
-+++ b/include/linux/device.h	Tue Jun 22 09:47:40 2004
-@@ -377,6 +377,11 @@
- extern struct bus_type platform_bus_type;
- extern struct device platform_bus;
- 
-+extern struct resource *platform_get_resource(struct platform_device *, unsigned int, unsigned int);
-+extern int platform_get_irq(struct platform_device *, unsigned int);
-+extern int platform_add_device(struct platform_device *);
-+extern int platform_add_devices(struct platform_device **, int);
-+
- /* drivers/base/power.c */
- extern void device_shutdown(void);
- 
 

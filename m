@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbTI1B45 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 21:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTI1B45
+	id S262291AbTI1Bwe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 21:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbTI1Bwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 21:56:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7079 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262301AbTI1B4z
+	Sat, 27 Sep 2003 21:52:33 -0400
+Received: from hibernia.jakma.org ([213.79.33.168]:27034 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S262291AbTI1Bwc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 21:56:55 -0400
-Date: Sun, 28 Sep 2003 02:56:52 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: min_not_zero()
-Message-ID: <20030928015652.GY24824@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 27 Sep 2003 21:52:32 -0400
+Date: Sun, 28 Sep 2003 02:51:53 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Larry McVoy <lm@bitmover.com>
+cc: Timothy Miller <miller@techsource.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise
+In-Reply-To: <20030910151238.GC32321@work.bitmover.com>
+Message-ID: <Pine.LNX.4.56.0309280249030.19081@fogarty.jakma.org>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com>
+ <20030903173213.GC5769@work.bitmover.com> <89360000.1062613076@flay>
+ <20030904003633.GA5227@work.bitmover.com> <6130000.1062642088@[10.10.2.4]>
+ <20030904023446.GG5227@work.bitmover.com> <9110000.1062643682@[10.10.2.4]>
+ <20030904030227.GJ5227@work.bitmover.com> <3F5F3D0A.8000700@techsource.com>
+ <20030910151238.GC32321@work.bitmover.com>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 10 Sep 2003, Larry McVoy wrote:
 
-Here's a thought ...
+> Dave and friends can protest as much as they want that the kernel works
+> and it scales (it does work, it doesn't scale by comparison to something
+> like IRIX) 
 
-#define min_not_zero(l, r) \
-	min((unsigned long)(l - 1), (unsigned long)(r - 1)) + 1
+Aside: Might want to tell SGI as their new ccNUMA Altrix line (Origin
+3k with Itanic instead of MIPS i think) run Linux!
 
-Seems to me that'll always give the right answer ... 0 if both 0,
-otherwise the lower of the two.  And it's kind of an awkward name.
-How about making it *really* specific to request_queue, putting it in
-blkdev.h and calling it request_sector_min() like so:
-
-#define request_sector_min(a, b) \
-	min((a)->max_sectors - 1, (b)->max_sectors - 1) + 1
-
-(no cast needed cos they're already unsigned.  um, unless I've misremembered
-how C constants work again... should they be 1U?)
-
+regards,
 -- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+If your hands are clean and your cause is just and your demands are
+reasonable, at least it's a start.

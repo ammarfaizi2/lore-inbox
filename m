@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbRAEAqB>; Thu, 4 Jan 2001 19:46:01 -0500
+	id <S130645AbRAEAq2>; Thu, 4 Jan 2001 19:46:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129183AbRAEApy>; Thu, 4 Jan 2001 19:45:54 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:56847 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129370AbRAEApi>;
-	Thu, 4 Jan 2001 19:45:38 -0500
-Date: Fri, 5 Jan 2001 01:45:15 +0100
-From: Andi Kleen <ak@suse.de>
-To: ludovic fernandez <ludovic.fernandez@sun.com>
-Cc: nigel@nrg.org, Roger Larsson <roger.larsson@norran.net>,
-        Daniel Phillips <phillips@innominate.de>,
-        george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
-Message-ID: <20010105014515.A8746@gruyere.muc.suse.de>
-In-Reply-To: <Pine.LNX.4.05.10101041554520.4946-100000@cosmic.nrg.org> <3A55170F.7DF3B5F2@sun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A55170F.7DF3B5F2@sun.com>; from ludovic.fernandez@sun.com on Thu, Jan 04, 2001 at 04:36:32PM -0800
+	id <S130664AbRAEAqN>; Thu, 4 Jan 2001 19:46:13 -0500
+Received: from falcon.prod.itd.earthlink.net ([207.217.120.74]:33275 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S129183AbRAEAqF>; Thu, 4 Jan 2001 19:46:05 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: dep <dennispowell@earthlink.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: And oh, btw..
+Date: Thu, 4 Jan 2001 19:48:56 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.10.10101041546120.1153-100000@penguin.transmeta.com> <3A551717.6C6A7807@napster.com>
+In-Reply-To: <3A551717.6C6A7807@napster.com>
+MIME-Version: 1.0
+Message-Id: <01010419485604.05089@depoffice.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2001 at 04:36:32PM -0800, ludovic fernandez wrote:
-> Saying that, I definitely agree that I want/need to one day listen to
-> my MP3s while building  my kernel.
+On Thursday 04 January 2001 07:36 pm, Jordan Mendelson wrote:
 
-??? I can listen to MP3s just fine while building kernels, on a not very
-powerful K6. 
+| Go home, get out the epson salts, fill up the tub with hot water
+| and just relax.
 
--Andi
+right after getting the source posted on kernel.org!<g>
+-- 
+dep
+--
+bipartisanship: an illogical construct not unlike the idea that
+if half the people like red and half the people like blue, the 
+country's favorite color is purple.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

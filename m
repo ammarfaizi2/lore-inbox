@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266979AbSK2I1D>; Fri, 29 Nov 2002 03:27:03 -0500
+	id <S266971AbSK2IpE>; Fri, 29 Nov 2002 03:45:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266981AbSK2I1D>; Fri, 29 Nov 2002 03:27:03 -0500
-Received: from kiruna.synopsys.com ([204.176.20.18]:50123 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S266979AbSK2I1C>; Fri, 29 Nov 2002 03:27:02 -0500
-Date: Fri, 29 Nov 2002 09:34:14 +0100
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Jens-Christian Skibakk <jens@cultus.no>
+	id <S266982AbSK2IpE>; Fri, 29 Nov 2002 03:45:04 -0500
+Received: from point41.gts.donpac.ru ([213.59.116.41]:58636 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S266971AbSK2IpD>;
+	Fri, 29 Nov 2002 03:45:03 -0500
+Date: Fri, 29 Nov 2002 11:51:34 +0300
+From: Andrey Panin <pazke@orbita1.ru>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Radeon DRM oops in 2.4.20-rc4-ac1
-Message-ID: <20021129083414.GD20066@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-References: <3DE72215.7000504@cultus.no>
+Subject: Re: [PATCH][2.5] pci_siig* interdependence
+Message-ID: <20021129085134.GA2257@pazke.ipt>
+Mail-Followup-To: Zwane Mwaikambo <zwane@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.50.0211280336580.14410-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
 Content-Disposition: inline
-In-Reply-To: <3DE72215.7000504@cultus.no>
+In-Reply-To: <Pine.LNX.4.50.0211280336580.14410-100000@montezuma.mastecende.com>
 User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+X-Uname: Linux pazke 2.2.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 29, 2002 at 09:15:17AM +0100, Jens-Christian Skibakk wrote:
-> Nov 29 08:54:37 debian kernel: Call Trace:    [radeon_cp_init+120/164] 
-> [radeon_ioctl+216/228] [sys_ioctl+605/628] [system_call+51/56]
-> Nov 29 08:54:37 debian kernel:
-> Nov 29 08:54:37 debian kernel: Code: 89 10 57 e8 3c f0 ff ff 57 56 e8 89 
-> f4 ff ff c7 47 44 00 00
-> 
-> 
-> The Oops happens when i start the X-Window system with DRI enabled.
 
-could you try the link below?
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103839583129724&w=2
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Hardware:
-> Dell Inspiron 4150 with ATI Radeon 7500 32MB running at 1400x1050
-...
-> #
-> # DRM 4.1 drivers
-> #
-> CONFIG_DRM_NEW=y
-> # CONFIG_DRM_TDFX is not set
-> # CONFIG_DRM_R128 is not set
-> CONFIG_DRM_RADEON=y
+On =D0=A7=D1=82=D0=B2, =D0=9D=D0=BE=D1=8F 28, 2002 at 03:39:08 -0500, Zwane=
+ Mwaikambo wrote:
+
+> This patch is to fix a compilation problem (functions are shared with
+> parport_serial) as well as fix a potential oops (parport_serial as module
+> would try and reference the freed memory)
+
+The problem you are seeing caused by semiapplied patch moving SIIG combo
+cards support from 8250_pci.c to parport_serial.c
+Parport patch already applied, while serial one still isn't.
+
+--=20
+Andrey Panin            | Embedded systems software developer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--45Z9DzgjV8m4Oswq
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE95yqWBm4rlNOo3YgRAmjpAJ99FmecozmxGRwjji30h0jyAS/gBwCggu+S
+hB9ZXR9dXIlA+Y0PiKDuhko=
+=zSYs
+-----END PGP SIGNATURE-----
+
+--45Z9DzgjV8m4Oswq--

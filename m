@@ -1,64 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265169AbSLMRIR>; Fri, 13 Dec 2002 12:08:17 -0500
+	id <S265174AbSLMRLa>; Fri, 13 Dec 2002 12:11:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265171AbSLMRIQ>; Fri, 13 Dec 2002 12:08:16 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:32648 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265169AbSLMRIQ>; Fri, 13 Dec 2002 12:08:16 -0500
-Date: Fri, 13 Dec 2002 11:15:16 -0600
-From: Amos Waterland <apw@us.ibm.com>
-To: Jeff Bailey <jbailey@nisa.net>
-Cc: root@chaos.analogic.com, Andrew Walrond <andrew@walrond.org>,
-       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
-Subject: Re: Symlink indirection
-Message-ID: <20021213111515.A26218@kvasir.austin.ibm.com>
-References: <Pine.LNX.3.95.1021213101227.2190A-100000@chaos.analogic.com> <1039798306.921.11.camel@outpost.dnsalias.org>
+	id <S265187AbSLMRLa>; Fri, 13 Dec 2002 12:11:30 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:31361 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S265174AbSLMRL3>; Fri, 13 Dec 2002 12:11:29 -0500
+Message-Id: <200212131718.gBDHIw27008173@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Petr Konecny <pekon@informatics.muni.cz>
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>
+Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions) 
+In-Reply-To: Your message of "Fri, 13 Dec 2002 17:33:00 +0100."
+             <200212131633.gBDGX0617899@anxur.fi.muni.cz> 
+From: Valdis.Kletnieks@vt.edu
+References: <200212131345.gBDDjw27002677@turing-police.cc.vt.edu>
+            <200212131633.gBDGX0617899@anxur.fi.muni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1039798306.921.11.camel@outpost.dnsalias.org>; from jbailey@nisa.net on Fri, Dec 13, 2002 at 11:51:46AM -0500
+Content-Type: multipart/signed; boundary="==_Exmh_1952560008P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 13 Dec 2002 12:18:58 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that you and Richard are dicussing a slightly different issue
-than the original poster asked about.  The original question was:
+--==_Exmh_1952560008P
+Content-Type: text/plain; charset=us-ascii
 
-On Fri, 13 Dec 2002, Andrew Walrond wrote:
-> Is the number of allowed levels of symlink indirection (if that is the 
-> right phrase; I mean symlink -> symlink -> ... -> file) dependant on the 
-> kernel, or libc ? Where is it defined, and can it be changed?
+On Fri, 13 Dec 2002 17:33:00 +0100, Petr Konecny <pekon@informatics.muni.cz>  said:
 
-To which Richard replied:
+>  Valdis> I see why the if/continue was added - you don't want to be
+>  Valdis> calling device_register()/pci_insert_device() if
+>  Valdis> pci_enable_device() loses.  I don't see why 2.5.50 moved the
+>  Valdis> code up after pci_setup_device(). There's an outside chance
+>  Valdis> that the concept of moving the call was correct, but that it
+>  Valdis> should have been moved to between the calls to
+>  Valdis> pci_assign_resource() and pci_readb().  If that's the case,
+>  Valdis> then you're correct as well....
+> I can confirm that this indeed works. I moved the two lines before
+> pci_readb and the card works (every character you now read went through
+> it). Who shall submit a patch to Linus ?
 
-> Since a symlink is just a file containing a name, the resulting path
-> length is simply the maximum path length that user-space tools allow.
-> This should be defined as "PATH_MAX". Posix defines this as 255
-> characters but I think posix requires that this be the minimum and all
-> file-name handling buffers must be at least PATH_MAX in length.
->
-> A hard link is just another directory-entry for the same file. This,
-> therefore follows the same rules. There must be enough space on the
-> device to contain the number of directory entries, as well as enough
-> buffer length in the tools necessary to manipulate these "nested"
-> directories, which are not really "nested" at all. 
+The problem is this from the 2.5.50 Changelog that Linus posted:
 
-But Richard is not actually completely correct.  There is a limit of 5
-levels of symlink indirection in vanilla 2.4 series Linux kernels.
+Dave Jones <davej@suse.de>:
+...
+  o make cardbus PCI enable earlier
 
-  % touch 0
-  % for i in `seq 1 10`; do ln -s `ls | sort | tail -1` $i; done
-  % ls
-  0  1  10  2  3  4  5  6  7  8  9
-  % cat 5
-  % cat 6
-  cat: 6: Too many levels of symbolic links
-  % strace cat 6 2>&1 | grep 'open("6",'
-  open("6", O_RDONLY|O_LARGEFILE) = -1 ELOOP (Too many levels of symbolic links)
+I'm willing to submit a patch, but I think Dave has to make the call whether
+it should be backed out entirely, or moved after pci_assign_resource().
+I certainly don't understand the code *or* PCI well enough to decide between
+those two option...
 
-This has been discussed by Al Viro et al. many times on lkml.  I believe
-that it is not a user-space or POSIX issue, but rather a kernel issue.
-Thanks.
+/Valdis
 
-Amos Waterland
+
+--==_Exmh_1952560008P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE9+haBcC3lWbTT17ARAuFbAJ4wXQaX0gQSdtIDC0bLyjdtpTan5QCg3K9R
+ZYn1ZcmNFCdc68kLfCtgm34=
+=fgAB
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1952560008P--

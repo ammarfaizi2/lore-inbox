@@ -1,71 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbUCDPCt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 10:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbUCDPCt
+	id S261929AbUCDPNS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 10:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUCDPNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 10:02:49 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:51195 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S261924AbUCDPBU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 10:01:20 -0500
-Date: Thu, 4 Mar 2004 16:01:17 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Andi Kleen <ak@muc.de>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.2, AMD kernel: MCE: The hardware reports a non fatal, correctable incident
-Message-ID: <20040304150117.GE19111@khan.acc.umu.se>
-Mail-Followup-To: Andi Kleen <ak@muc.de>,
-	Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-References: <1vmlH-3HK-5@gated-at.bofh.it> <1vq6q-7YO-33@gated-at.bofh.it> <m3llmgj0xc.fsf@averell.firstfloor.org>
+	Thu, 4 Mar 2004 10:13:18 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:36088 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261929AbUCDPNP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 10:13:15 -0500
+Subject: Race in nobh_prepare_write
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1078413178.9164.24.camel@shaggy.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3llmgj0xc.fsf@averell.firstfloor.org>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 04 Mar 2004 09:12:58 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 04, 2004 at 12:39:59PM +0100, Andi Kleen wrote:
-> Dave Jones <davej@redhat.com> writes:
-> 
-> > I'm toying with the idea of marking it CONFIG_BROKEN for 2.6,
-> > and fixing it up later.
-> 
-> I would actually suggest to switch over to the rewritten MCE handler
-> from x86-64 for i386 too. IMHO it is much better. It is race free,
-> does not panic the machine if not needed, CPU independent, follows the
-> Intel and AMD recommendations, run time sysfs configurable, logs to a
-> separate device and does lots of other things much better
-> [of course I'm biased on that a bit]. Disadvantage is that it isn't
-> as well tested.
+Andrew,
+I discovered a race betwen nobh_prepare_write and end_buffer_read_sync. 
+end_buffer_read_sync calls unlock_buffer, waking the nobh_prepare_write
+thread, which immediately frees the buffer_head.  end_buffer_read_sync
+then calls put_bh which decrements b_count for the already freed
+structure.  The SLAB_DEBUG code detects the slab corruption.
 
-Well, the only way to solve that problem is to test it, right?  And what
-better way to test it than to switch i386 over to it too :-)
+I was able to fix it with the following patch.  I reversed the order of
+unlock_buffer and put_bh in end_buffer_read_sync.  I also set b_count to
+1 and later called brelse in nobh_prepare_write, since unlock_buffer may
+expect b_count to be non-zero.  I didn't change the other end_io
+functions, as I'm not sure what effect this may have on other callers.
 
-> I haven't tried it on i386, but i wrote it to be easily portable
-> to 32bit too. It does periodic MCEs too, but with a much lower 
-> frequency and they could be turned off. I'm considering to turn
-> them off for x86-64 too, because they seem to only log one bit
-> ECC errors all the time. But with the new separate log device it's much
-> less of a problem.
-> 
-> The only thing you would lose is the support for P5 MCEs, but these
-> could be relatively easily readded if that should be a problem.
+Is my fix correct?  Is it complete?
 
-Well, losing functionality would be bad.
+Here's the patch:
 
-> Extended register logging for P4 is also not implemented right now,
-> but that hardly seems like a needed feature.
+--- linux-2.6.4-rc1+/fs/buffer.c.orig	2004-03-03 13:50:10.000000000 -0600
++++ linux-2.6.4-rc1+/fs/buffer.c	2004-03-04 08:30:03.000000000 -0600
+@@ -178,8 +178,8 @@ void end_buffer_read_sync(struct buffer_
+ 		/* This happens, due to failed READA attempts. */
+ 		clear_buffer_uptodate(bh);
+ 	}
+-	unlock_buffer(bh);
+ 	put_bh(bh);
++	unlock_buffer(bh);
+ }
+ 
+ void end_buffer_write_sync(struct buffer_head *bh, int uptodate)
+@@ -2395,7 +2395,7 @@ int nobh_prepare_write(struct page *page
+ 				goto failed;
+ 			}
+ 			bh->b_state = map_bh.b_state;
+-			atomic_set(&bh->b_count, 0);
++			atomic_set(&bh->b_count, 1);
+ 			bh->b_this_page = 0;
+ 			bh->b_page = page;
+ 			bh->b_blocknr = map_bh.b_blocknr;
+@@ -2413,6 +2413,7 @@ int nobh_prepare_write(struct page *page
+ 			wait_on_buffer(read_bh[i]);
+ 			if (!buffer_uptodate(read_bh[i]))
+ 				ret = -EIO;
++			brelse(read_bh[i]);
+ 			free_buffer_head(read_bh[i]);
+ 			read_bh[i] = NULL;
+ 		}
+@@ -2438,8 +2439,10 @@ int nobh_prepare_write(struct page *page
+ 
+ failed:
+ 	for (i = 0; i < nr_reads; i++) {
+-		if (read_bh[i])
++		if (read_bh[i]) {
++			brelse(read_bh[i]);
+ 			free_buffer_head(read_bh[i]);
++		}
+ 	}
+ 
+ 	/*
 
-No opinion here.
 
-
-Regards: David Weinehall
+Thanks,
+Shaggy
 -- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+David Kleikamp
+IBM Linux Technology Center
+

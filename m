@@ -1,113 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266959AbTAPBdN>; Wed, 15 Jan 2003 20:33:13 -0500
+	id <S266958AbTAPBau>; Wed, 15 Jan 2003 20:30:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266961AbTAPBdN>; Wed, 15 Jan 2003 20:33:13 -0500
-Received: from [64.8.50.190] ([64.8.50.190]:7566 "EHLO mta6.adelphia.net")
-	by vger.kernel.org with ESMTP id <S266959AbTAPBdL>;
-	Wed, 15 Jan 2003 20:33:11 -0500
-Message-ID: <022001c2bd00$777a7940$6a01a8c0@wa1hco>
-From: "jeff millar" <wa1hco@adelphia.net>
-To: "Andre Hedrick" <andre@linux-ide.org>,
-       "Dean McEwan" <dean.mcewan@eudoramail.com>
-Cc: <linux-kernel@vger.kernel.org>, <abramo.bagnara@libero.it>,
-       "Richard Stallman" <rms@gnu.org>
-References: <Pine.LNX.4.10.10301150548030.23438-100000@master.linux-ide.org>
-Subject: Re: [OFFTOPIC] RMS and reactions to him (YAWN)
-Date: Wed, 15 Jan 2003 20:41:57 -0500
+	id <S266959AbTAPBau>; Wed, 15 Jan 2003 20:30:50 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:47402 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id <S266958AbTAPBas>; Wed, 15 Jan 2003 20:30:48 -0500
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix up RTM_SETLINK handling
+References: <52of6ihrk1.fsf@topspin.com>
+	<20030115.161337.14085475.davem@redhat.com>
+	<52adi1999k.fsf@topspin.com>
+	<20030115.172358.66314347.davem@redhat.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 15 Jan 2003 17:39:40 -0800
+In-Reply-To: <20030115.172358.66314347.davem@redhat.com>
+Message-ID: <5265sp98kj.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 16 Jan 2003 01:39:22.0406 (UTC) FILETIME=[183C7460:01C2BD00]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre...
+Added EXPORT_SYMBOL for call_netdevice_notifiers().
 
-Who wrote that?  It's clear and I can understand it!
-
-;-)
-
-jeff
-
------ Original Message -----
-From: "Andre Hedrick" <andre@linux-ide.org>
-To: "Dean McEwan" <dean.mcewan@eudoramail.com>
-Cc: <linux-kernel@vger.kernel.org>; <abramo.bagnara@libero.it>; "Richard
-Stallman" <rms@gnu.org>
-Sent: Wednesday, January 15, 2003 9:21 AM
-Subject: Re: [OFFTOPIC] RMS and reactions to him (YAWN)
+Thanks,
+  Roland
 
 
->
-> Dean,
->
-> Have you ever pondered the question why some of the new code in 2.5 is
-> coming up with a dual-license of OSL/GPL ?  Is it because OSL has some
-> meaningful terms understood by the courts?  Is it because the folks at OSI
-> understand a bigger picture?
->
-> See I found it worthy enough to go and investigate.
->
-> What I found, I like.
->
-> So if the question was put before everyone to examine the OSL, is this a
-> better and stronger license to protect the ideas of "free software" ?
->
-> If the conclusions resulted a large positive movement towards OSL and away
-> from GPL, what do you expect the reponse from RMS would be to the
-> following:
->
-> Richard, is there a way to make OSL and GPL compatable ?
-> Richard, will you allow OSL and GPL to coexist ?
-> Richard, can OSL superceed GPL ?
-> Richard, can you agree there may be a better license than GPL ?
-> Richard, if people want to develop under OSL, what are the results
-> of the combined work?
-> Richard, if GPL can be improved by the adoption of OSL ideas,
-> what benefits are there to you idea to holding onto the
-> past?
->
->
-> My concern is that vision and ideas started by RMS, are being clouded.
-> OSL could have some more bit added to it, requiring the return of the
-> changes to the original author, or the offending party is required to pay
-> an alteration royality fee.
->
-> I do not know the what the best answer is today.
->
-> However, I am willing to put my money down (if I ever make any now) to
-> draft a licenses that empowers the community with a real legal strong hold
-> to protect its interest of Open Source, and keeping it open.
->
-> I like may other developers have/know/seen their work altered and not
-> returned, yet without having a license with some teeth based in law
-> already tried in courts, the personal risk is to great to pursue.
->
-> If I am a bad person for wanting to empower the community with stonger
-> license than GPL, IMHO is superior to GPL, then I will gladdy be a bad
-> person.
->
-> What we all hear is one person promoting one agenda with one idea, and the
-> idea has clouded the vision.  If another idea can carry the original
-> vision further and closer to achieving that of the visionary, why stop
-> half way down the road ?
->
->
-> Regards,
->
-> Andre Hedrick
-> LAD Storage Consulting Group
->
->
-> I have had enough of the mud slinging.
-> Oh, I think your address should be restored, regardless.
-> Did you know you can remove GPL from your work, but you can not take back
-> what is out there now?
->
+ include/linux/netdevice.h |    1 +
+ net/core/dev.c            |   12 ++++++++++++
+ net/core/rtnetlink.c      |   17 +++++++++++++++--
+ net/netsyms.c             |    1 +
+ 4 files changed, 29 insertions(+), 2 deletions(-)
 
 
+===== include/linux/netdevice.h 1.27 vs edited =====
+--- 1.27/include/linux/netdevice.h	Tue Jan  7 14:33:37 2003
++++ edited/include/linux/netdevice.h	Wed Jan 15 17:07:08 2003
+@@ -480,6 +480,7 @@
+ extern int		unregister_netdevice(struct net_device *dev);
+ extern int 		register_netdevice_notifier(struct notifier_block *nb);
+ extern int		unregister_netdevice_notifier(struct notifier_block *nb);
++extern int		call_netdevice_notifiers(unsigned long val, void *v);
+ extern int		dev_new_index(void);
+ extern struct net_device	*dev_get_by_index(int ifindex);
+ extern struct net_device	*__dev_get_by_index(int ifindex);
+===== net/netsyms.c 1.40 vs edited =====
+--- 1.40/net/netsyms.c	Wed Dec  4 11:42:20 2002
++++ edited/net/netsyms.c	Wed Jan 15 17:35:56 2003
+@@ -500,6 +500,7 @@
+ /* Device callback registration */
+ EXPORT_SYMBOL(register_netdevice_notifier);
+ EXPORT_SYMBOL(unregister_netdevice_notifier);
++EXPORT_SYMBOL(call_netdevice_notifiers);
+ 
+ /* support for loadable net drivers */
+ #ifdef CONFIG_NET
+===== net/core/dev.c 1.52 vs edited =====
+--- 1.52/net/core/dev.c	Tue Jan  7 14:33:37 2003
++++ edited/net/core/dev.c	Wed Jan 15 17:19:13 2003
+@@ -877,6 +877,18 @@
+ 	return notifier_chain_unregister(&netdev_chain, nb);
+ }
+ 
++/**
++ *	call_netdevice_notifiers - call all network notifier blocks
++ *
++ *	Call all network notifier blocks.  Parameters and return value
++ *	are as for notifier_call_chain().
++ */
++
++int call_netdevice_notifiers(unsigned long val, void *v)
++{
++	return notifier_call_chain(&netdev_chain, val, v);
++}
++
+ /*
+  *	Support routine. Sends outgoing frames to any network
+  *	taps currently in use.
+===== net/core/rtnetlink.c 1.6 vs edited =====
+--- 1.6/net/core/rtnetlink.c	Tue Jan  7 01:05:42 2003
++++ edited/net/core/rtnetlink.c	Wed Jan 15 17:10:37 2003
+@@ -234,10 +234,20 @@
+ 	err = -EINVAL;
+ 
+ 	if (ida[IFLA_ADDRESS - 1]) {
++		if (!dev->set_mac_address) {
++			err = -EOPNOTSUPP;
++			goto out;
++		}
++		if (!netif_device_present(dev)) {
++			err = -ENODEV;
++			goto out;
++		}
+ 		if (ida[IFLA_ADDRESS - 1]->rta_len != RTA_LENGTH(dev->addr_len))
+ 			goto out;
+-		memcpy(dev->dev_addr, RTA_DATA(ida[IFLA_ADDRESS - 1]),
+-		       dev->addr_len);
++
++		err = dev->set_mac_address(dev, RTA_DATA(ida[IFLA_ADDRESS - 1]));
++		if (err)
++			goto out;
+ 	}
+ 
+ 	if (ida[IFLA_BROADCAST - 1]) {
+@@ -250,6 +260,9 @@
+ 	err = 0;
+ 
+ out:
++	if (!err)
++		call_netdevice_notifiers(NETDEV_CHANGEADDR, dev);
++
+ 	dev_put(dev);
+ 	return err;
+ }

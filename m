@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261351AbTCTRhn>; Thu, 20 Mar 2003 12:37:43 -0500
+	id <S261476AbTCTRns>; Thu, 20 Mar 2003 12:43:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261376AbTCTRhn>; Thu, 20 Mar 2003 12:37:43 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:62880 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S261351AbTCTRhn>; Thu, 20 Mar 2003 12:37:43 -0500
-Date: Thu, 20 Mar 2003 18:48:42 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: re: Deprecating .gz format on kernel.org
-Message-ID: <20030320174842.GC6083@louise.pinerecords.com>
-References: <3E78D0DE.307@zytor.com> <20030320163207.GH28454@lug-owl.de>
+	id <S261549AbTCTRns>; Thu, 20 Mar 2003 12:43:48 -0500
+Received: from p508EEB97.dip.t-dialin.net ([80.142.235.151]:30695 "EHLO
+	oscar.local.net") by vger.kernel.org with ESMTP id <S261476AbTCTRnq>;
+	Thu, 20 Mar 2003 12:43:46 -0500
+Date: Thu, 20 Mar 2003 18:54:57 +0100
+From: Patrick Mau <mau@oscar.ping.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Process stuck with 2.5 bk current
+Message-ID: <20030320175457.GA3171@oscar.ping.de>
+Reply-To: Patrick Mau <mau@oscar.ping.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030320163207.GH28454@lug-owl.de>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [jbglaw@lug-owl.de]
-> 
-> On Wed, 2003-03-19 12:19:42 -0800, H. Peter Anvin <hpa@zytor.com>
-> wrote in message <3E78D0DE.307@zytor.com>:
-> > Hello everyone,
-> > 
-> > At some point it probably would make sense to start deprecating .gz
-> > format files from kernel.org.
-> 
-> However, please keep in mind that it's a *PITA* if you're working on a
-> machine with not > 500MHz and > 128MB RAM:
+Hallo list,
 
-Well, you see, hpa probably made a mistake in his original proposal.
+"kded", the KDE desktop daemon, always gets stuck in
+D state with kernel 2.5 (BK from today). I used Sysreq-T
+to get a call trace. Maybe someone has a clue what's
+going on.
 
-Likely he meant to say he intended to deprecate bz2 and was about
-to introduce lzo instead.  ;)
+The NFS mounts on this machine are from a remote
+2.4.20 nfs server with reiserfs partitions, if
+that matters. NFS still works, BTW.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+cheers,
+Patrick
+
+Here's the call trace:
+
+Mar 20 18:47:13 tony kernel: kdeinit       D 00000046 4292898224   636
+635
+                  (NOTLB)
+Mar 20 18:47:13 tony kernel: Call Trace:
+Mar 20 18:47:13 tony kernel: [<c011ef29>] schedule_timeout+0x5f/0xb3
+Mar 20 18:47:13 tony kernel: [<c011eec1>] process_timeout+0x0/0x9
+Mar 20 18:47:13 tony kernel: [<c011589b>] sleep_on_timeout+0x4a/0x66
+Mar 20 18:47:13 tony kernel: [<c011556c>] default_wake_function+0x0/0x12
+Mar 20 18:47:13 tony kernel: [<c018fb5c>] nlmclnt_block+0x4c/0xc6
+Mar 20 18:47:13 tony kernel: [<c01904e0>] nlmclnt_call+0xcf/0x204
+Mar 20 18:47:13 tony kernel: [<c01908c3>] nlmclnt_lock+0x59/0xc9
+Mar 20 18:47:13 tony kernel: [<c01902b5>] nlmclnt_proc+0x2d9/0x3a7
+Mar 20 18:47:13 tony kernel: [<c0183bdd>] nfs_lock+0x1e2/0x263
+Mar 20 18:47:13 tony kernel: [<c01839fb>] nfs_lock+0x0/0x263
+Mar 20 18:47:13 tony kernel: [<c0154638>] fcntl_setlk64+0x215/0x296
+Mar 20 18:47:13 tony kernel: [<c01411d7>] dentry_open+0x1a7/0x1c4
+Mar 20 18:47:13 tony kernel: [<c0150462>] sys_fcntl64+0x4e/0x95
+Mar 20 18:47:13 tony kernel: [<c0108d5b>] syscall_call+0x7/0xb
+

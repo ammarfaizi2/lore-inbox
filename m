@@ -1,67 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314078AbSFTMJ2>; Thu, 20 Jun 2002 08:09:28 -0400
+	id <S314085AbSFTMVb>; Thu, 20 Jun 2002 08:21:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314082AbSFTMJ1>; Thu, 20 Jun 2002 08:09:27 -0400
-Received: from loke.as.arizona.edu ([128.196.209.61]:16388 "EHLO
-	loke.as.arizona.edu") by vger.kernel.org with ESMTP
-	id <S314078AbSFTMJ0>; Thu, 20 Jun 2002 08:09:26 -0400
-Date: Thu, 20 Jun 2002 05:08:37 -0700 (MST)
-From: Craig Kulesa <ckulesa@as.arizona.edu>
-To: linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org
-Subject: [PATCH] Updated rmap VM for 2.5.23 (SMP, preempt fixes)
-In-Reply-To: <Pine.LNX.4.44.0206181340380.3031-100000@loke.as.arizona.edu>
-Message-ID: <Pine.LNX.4.44.0206200451590.4448-100000@loke.as.arizona.edu>
+	id <S314096AbSFTMVa>; Thu, 20 Jun 2002 08:21:30 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:55818 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S314085AbSFTMVa>; Thu, 20 Jun 2002 08:21:30 -0400
+Message-ID: <3D11C8BC.5A14379C@aitel.hist.no>
+Date: Thu, 20 Jun 2002 14:21:16 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.22nopreempt i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, linux-kernel@vger.kernel.org
+Subject: Re: The buggy APIC of the Abit BP6
+References: <Pine.GSO.3.96.1020619144446.15094G-100000@delta.ds2.pg.gda.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Maciej W. Rozycki" wrote:
+> 
+> On Tue, 18 Jun 2002, Robbert Kouprie wrote:
+> 
+> > Problem now is, in the ack_none function we only know about the
+> > (illegal) vector we are getting, and not about the interrupt we need to
+> > reset. Could there be some kind of link between these, so that
+> > kick_IO_APIC_irq can be called from there?
+> 
+>  You get an invalid vector delivered due to massive transmission errors at
+> the inter-APIC bus.  The errors are a serious hardware problem that cannot
+> and should not be fixed in software.
+
+Yes, the hardware is at fault.  I don't have money for 
+other hardware though, so working around it seems a good idea.  
+
+We could simplify the IDE driver a lot by dropping support for
+all the broken controllers too. Or tell
+people to not use DMA on them.
 
 
-Fixed patches have been uploaded that fix significant bugs in the rmap 
-implementations uploaded yesterday.  Please use the NEW patches (with "-2" 
-appended to the filename) instead.  ;)
+Of course such an option should default to OFF, and
+perhaps live under "dangerous."  It can keep the
+BP6 going much longer, which is good enough
+for a home machine.
 
-In particular, neither patch was preempt-safe; thanks go to William Irwin 
-for catching it.  A spinlocking bug that kept SMP-builds from booting was 
-tripped across by Steven Cole; it affects the big rmap13b patch but not 
-the minimal one.  That should be fixed now too.  If it breaks for you, I 
-want to know about it! :)
+Failing due to a stuck NIC after one week seems worse
+than crashing due to a scrambled IPI after some months.
+There are more interrupts than IPI's.
 
+This sort of fix don't really make things worse, the 
+theoretical scrambled IPI will happen without it too.
+The safe solution is NOAPIC, this fix simply makes it work
+for a longer time using the bad apic.
+ 
+> 
+>  I'm told getting a better PSU may help, though.
+Unfortunately not.  I got a nice PSU when I ordered the BP6, 
+thinking that power was the only issue. (It was the only
+cheap dual solution at the time.)
 
-Here's the changelog:
-
-	2.5.23-rmap-2:  rmap on top of the 2.5.23 VM
-
-		- Make pte_chain_lock() and pte_chain_unlock() 
-		  preempt-safe  (thanks to wli for pointing this out)
-
-
-	2.5.23-rmap13b-2:  Rik's full rmap patch, applied to 2.5.23
-
-		- Make pte_chain_lock() and pte_chain_unlock()         
-                  preempt-safe	(thanks to wli for pointing this out)
-
-		- Allow an SMP-enabled kernel to boot!  Change bogus
-		  spin_lock(&mapping->page_lock) invocations to either
-		  read_lock() or write_lock().  This alters drop_behind()
-		  in readahead.c, and reclaim_page() in vmscan.c. 
-
-		- Keep page_launder_zone from blocking on recently written 
-		  data by putting clustered writeback pages back at the 
-		  beginning of the inactive dirty list.  This touches 
-		  mm/page-writeback.c and fs/mpage.c.  Thanks go to Andrew 
-		  Morton for clearing this issue up for me.
-
-		- Back out Andrew's read-latency2 changes at his 
-		  suggestion; it's distracting to the issue of evaluating 
-		  rmap.  Thusly, we are now using the unmodified 2.5.23 
-		  IO scheduler.  
-
-
-FYI, these are the patches that I will benchmark in the next email.
-
--Craig 
-
+Helge Hafting

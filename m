@@ -1,48 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279324AbRJWJH5>; Tue, 23 Oct 2001 05:07:57 -0400
+	id <S279328AbRJWJN7>; Tue, 23 Oct 2001 05:13:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279327AbRJWJHr>; Tue, 23 Oct 2001 05:07:47 -0400
-Received: from indyio.rz.uni-sb.de ([134.96.7.3]:2420 "EHLO
-	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
-	id <S279324AbRJWJH2>; Tue, 23 Oct 2001 05:07:28 -0400
-Message-ID: <3BD53362.72D5C74A@stud.uni-saarland.de>
-Date: Tue, 23 Oct 2001 09:07:46 +0000
-From: Manfred Spraul <masp0008@stud.uni-saarland.de>
-Reply-To: manfred@colorfullife.com
-X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
+	id <S279329AbRJWJNt>; Tue, 23 Oct 2001 05:13:49 -0400
+Received: from fe070.worldonline.dk ([212.54.64.208]:5895 "HELO
+	fe070.worldonline.dk") by vger.kernel.org with SMTP
+	id <S279328AbRJWJNb>; Tue, 23 Oct 2001 05:13:31 -0400
+Message-ID: <3BD532EC.6080803@eisenstein.dk>
+Date: Tue, 23 Oct 2001 11:05:48 +0200
+From: Jesper Juhl <juhl@eisenstein.dk>
+Organization: Eisenstein
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Peter Putzer <pputzer@edu.uni-klu.ac.at>
+To: jarausch@belgacom.net
 CC: linux-kernel@vger.kernel.org
-Subject: FW: Via Rhine and Kernel 2.4.x
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
+In-Reply-To: <200110221846.f9MIkE416013@riker.skynet.be>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We need a few more details
 
-> eth0: MII PHY found at address 1, status 0x782d advertising 01e1
-> Link 00a1.
+jarausch@belgacom.net wrote:
 
-What is the link partner?
-A dual speed hub?
-
-Please add lspci -vxx and 
-
-# via-diag -aa -mm -f
-
-Run via-diag after ifup ethx
-
-You can find via-diag at http://www.scyld.com/diag/index.html
-
-> >  Tx scavenge 0 status 00008100.
-> > eth0: Transmit error, Tx status 00008100.
+> Hello,
 > 
-> This indicates that the transmit was aborted.  Presumably the
-> transceiver was misconfigured.
+> yes I know, you don't like modules without full sources available.
+> But Nvidia is the leading vendor of video cards and all 2.4.x
+> kernels up to 2.4.13-pre5 work nice with this module.
+> 
+> Running pre6 I get
+> (==) NVIDIA(0): Write-combining range (0xf0000000,0x2000000)
+> (EE) NVIDIA(0): Failed to allocate LUT context DMA
+> (EE) NVIDIA(0):  *** Aborting ***
+> 
+> 
+> This is Nvidia's 1.0-1541 version of its Linux drivers
 
-Probably correct. I'll check the documentation.
+I use the same version of the driver with my Geforce3 and I am also 
+running 2.4.13-pre6 and it works just fine so I don't agree with you 
+that it breaks...
+You do know that there are a few files that need to be recompiled every 
+time you build a new kernel - right?
 
---
-	Manfred
+See "http://www.nvidia.com/docs/lo/1021/SUPP/README.txt" for details.
+
+Here's a quote from that file explaining what I do myself - that should 
+work for you:
+
+"
+INSTALLING/UPGRADING BY TAR FILE Instructions for the Impatient:
+ 
+       $ tar xvzf NVIDIA_kernel.tar.gz
+       $ tar xvzf NVIDIA_GLX.tar.gz
+       $ cd NVIDIA_kernel
+       $ make install
+       $ cd ../NVIDIA_GLX
+       $ make install
+ 
+Instructions:
+
+To install from tar file, unpack each file:
+       $ tar xvzf NVIDIA_kernel.tar.gz
+       $ tar xvzf NVIDIA_GLX.tar.gz
+
+cd into the NVIDIA_kernel directory.  Type 'make install'.  This will
+compile the kernel interface to the NVdriver, link the NVdriver, copy
+the NVdriver into place, and attempt to insert the NVdriver into the
+running kernel:
+
+       $ cd NVIDIA_kernel
+       $ make install
+
+Next, move into the NVIDIA_GLX directory.  Type 'make install' -- this
+will copy the needed OpenGL and XFree86 files into place:
+       $ cd ../NVIDIA_GLX
+       $ make install
+
+Note that the "make install" for each package will remove any previously
+installed NVIDIA drivers.
+"
+
+
+Best regards,
+Jesper Juhl
+
+

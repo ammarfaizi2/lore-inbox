@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262780AbVAKOgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262784AbVAKOiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262780AbVAKOgx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 09:36:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262779AbVAKOgw
+	id S262784AbVAKOiu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 09:38:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbVAKOit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 09:36:52 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43459 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262780AbVAKOeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 09:34:15 -0500
-Date: Tue, 11 Jan 2005 15:34:14 +0100
-From: Jan Kara <jack@suse.cz>
-To: domen@coderock.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at
-Subject: Re: [patch 1/1] list_for_each_entry: fs-dquot.c
-Message-ID: <20050111143414.GF15061@atrey.karlin.mff.cuni.cz>
-References: <20050110184218.405431F1ED@trashy.coderock.org>
+	Tue, 11 Jan 2005 09:38:49 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:59921
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262784AbVAKOim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 09:38:42 -0500
+Date: Tue, 11 Jan 2005 15:38:54 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-os@analogic.com
+Cc: "Patrick J. LoPresti" <patl@curl.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /dev/random vs. /dev/urandom
+Message-ID: <20050111143854.GO26799@dualathlon.random>
+References: <20050107190536.GA14205@mtholyoke.edu> <20050107213943.GA6052@pclin040.win.tue.nl> <Pine.LNX.4.61.0501071729330.22391@chaos.analogic.com> <s5gzmzjbza1.fsf@egghead.curl.com> <Pine.LNX.4.61.0501100735210.19253@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050110184218.405431F1ED@trashy.coderock.org>
+In-Reply-To: <Pine.LNX.4.61.0501100735210.19253@chaos.analogic.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+On Mon, Jan 10, 2005 at 07:41:02AM -0500, linux-os wrote:
+> one could AND with 0 and show that all randomness has been removed.
 
-> Make code more readable with list_for_each_entry_safe.
-> (Didn't compile before, doesn't compile now)
-  What do you mean by "didn't compile before"? Which kernel have you
-tried?
+Zero removes all bits so it's a special case.
 
-> Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-> Signed-off-by: Domen Puncer <domen@coderock.org>
-> ---
-> 
-> 
->  kj-domen/fs/dquot.c |    7 ++-----
->  1 files changed, 2 insertions(+), 5 deletions(-)
-> 
-> diff -puN fs/dquot.c~list-for-each-entry-safe-fs_dquot fs/dquot.c
-> --- kj/fs/dquot.c~list-for-each-entry-safe-fs_dquot	2005-01-10 17:59:46.000000000 +0100
-> +++ kj-domen/fs/dquot.c	2005-01-10 17:59:46.000000000 +0100
-> @@ -406,13 +406,10 @@ out_dqlock:
->   * for this sb+type at all. */
->  static void invalidate_dquots(struct super_block *sb, int type)
->  {
-> -	struct dquot *dquot;
-> -	struct list_head *head;
-> +	struct dquot *dquot, *tmp;
->  
->  	spin_lock(&dq_list_lock);
-> -	for (head = inuse_list.next; head != &inuse_list;) {
-> -		dquot = list_entry(head, struct dquot, dq_inuse);
-> -		head = head->next;
-> +	list_for_each_entry_safe(dquot, tmp, &inuse_list, dq_inuse) {
->  		if (dquot->dq_sb != sb)
->  			continue;
->  		if (dquot->dq_type != type)
+As long as 1 bit is left coming from /dev/*random and not your
+application, you're guaranteed that single bit to be random (since you
+didn't mask it).
 
-
-								Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+It's like if I read 100 bytes from /dev/random and then I truncate the
+last 99 and it'll be as random as reading a single byte. Random means
+all single bits are random too, not only the entire bytes.

@@ -1,73 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbSLPKm7>; Mon, 16 Dec 2002 05:42:59 -0500
+	id <S266609AbSLPK70>; Mon, 16 Dec 2002 05:59:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263366AbSLPKm7>; Mon, 16 Dec 2002 05:42:59 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:13713 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262796AbSLPKm6>;
-	Mon, 16 Dec 2002 05:42:58 -0500
-Date: Mon, 16 Dec 2002 16:36:34 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: rusty@rustcorp.com.au
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [BUG] module-init-tools 0.9.3, rmmod modules with '-'
-Message-ID: <20021216163634.A29099@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S266622AbSLPK70>; Mon, 16 Dec 2002 05:59:26 -0500
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:12423 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S266609AbSLPK7Z> convert rfc822-to-8bit;
+	Mon, 16 Dec 2002 05:59:25 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Wolfgang Fritz <wolfgang.fritz@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: i4l dtmf errors
+Date: Mon, 16 Dec 2002 12:07:15 +0100
+User-Agent: KMail/1.4.1
+References: <200212121145.26108.roy@karlsbakk.net> <atg5jv$d73$1@fritz38552.news.dfncis.de>
+In-Reply-To: <atg5jv$d73$1@fritz38552.news.dfncis.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212161207.15279.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
+> The DTMF detection is broken since kernel 2.0.x. I have a patch for a
+> 2.2 kernel which may manually be applied 2.4 kernels with some manual
+> work. It fixes an overflow problem in the goertzel algorithm (which
+> does the basic tone detection) and changes the algorithm to detect the
+> DTMF pairs. If interested, I can try to recover that patch.
 
-It seems we cannot unload modules if they have a '-' in their name. 
-filename2modname() in rmmod.c converts a '-' in the filename
-to '_'. Why? Are dashes not allowed as part of module names?
+I'm very interested, as the alternative is to rewrite Asterisk (dot org) to 
+use it's own. Today, I get beeps whenever I speak on the phone - espessialy 
+with my girlfriend ;-P
 
-For eg: (kernel 2.5.52/module-init-tools 0.9.3)
-
-[root@llm10 test-modules]# ./insmod probe-test.o
-[root@llm10 test-modules]# ./lsmod
-Module                  Size  Used by
-probe-test               943  0
-[root@llm10 test-modules]# cat /proc/modules
-probe-test 943 0
-[root@llm10 test-modules]# ./rmmod -V
-module-init-tools version 0.9.3
-[root@llm10 test-modules]# ./rmmod probe-test
-ERROR: Module probe_test does not exist in /proc/modules
-                   ^note this
-
-Editing filename2modname() to remove this special test for
-'-' seems to fix it. But, this is done explicitly, so
-I wonder if there is a deeper meaning to this. Can you
-please take a look and explain?
-
-Thanks,
-Vamsi.
+roy
 -- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5044959
-Internet: vamsi@in.ibm.com
---
---- rmmod-old.c	2002-12-13 21:11:57.000000000 +0530
-+++ rmmod.c	2002-12-13 21:10:44.000000000 +0530
-@@ -157,9 +157,12 @@
- 	else
- 		afterslash++;
- 
--	/* stop at first . */
-+	/* Convert to underscores, stop at first . */
- 	for (i = 0; afterslash[i] && afterslash[i] != '.'; i++) {
--		modname[i] = afterslash[i];
-+		if (afterslash[i] == '-')
-+			modname[i] = '_';
-+		else
-+			modname[i] = afterslash[i];
- 	}
- 	modname[i] = '\0';
- }
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316882AbSE3VV2>; Thu, 30 May 2002 17:21:28 -0400
+	id <S316893AbSE3VXF>; Thu, 30 May 2002 17:23:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316884AbSE3VV1>; Thu, 30 May 2002 17:21:27 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:158 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316882AbSE3VV1>;
-	Thu, 30 May 2002 17:21:27 -0400
-Date: Thu, 30 May 2002 00:27:06 +0000
+	id <S316894AbSE3VXE>; Thu, 30 May 2002 17:23:04 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:1950 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316893AbSE3VXC>;
+	Thu, 30 May 2002 17:23:02 -0400
+Date: Thu, 30 May 2002 21:59:16 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Centenary Reached By Trivial Patch Monkey
-Message-ID: <20020530002705.B155@toy.ucw.cz>
-In-Reply-To: <E17CuIW-0006BC-00@wagner.rustcorp.com.au>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org, seasons@fornox.hu
+Subject: Re: Patch(?): linux-2.5.19 suspend.c compilation fixes, one iffy change
+Message-ID: <20020530195914.GA1849@elf.ucw.cz>
+In-Reply-To: <200205300318.UAA00301@baldur.yggdrasil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> FYI, most patches are: (1) janitorial fixes from new people who can't
-> get Linus or linux-kernel to read their patches (aka. Alan Cox Mode),
-> and (2) one-liners from experienced kernel hackers who wouldn't bother
-> retransmitting themselves (aka. Drop Prevention Mode).
+> 	kernel/suspend.c no longer compiles in linux-2.5.19, due to
+> the elimination of tq_disk.  I infer from the comments on the
+> new routine blk_run_queues() and from similar changes elsewhere in
+> 2.5.19 that I should probably replace run_task_queue(&tq_disk) with
+> blk_run_queues().  I also had to elimiante your sanity check which
+> referenced tq_disk.  I will cc this to linux-kernel in case anyone
+> else knows the answer and to prevent duplication of effort.
+> 
+> 	The rest of the changes just address compiler warnings,
+> but you might want to look at them anyhow, especially my changing
+> the types of suspend_pagedir and pagedir_save from unsigned long
+> to suspend_pagedir_t*.
+> 
+> 	Please let me know if you see a problem with this patch, and
+> if you are going to shepherd it to Linus or if you me to submit it
+> directly or process it some other way.
 
-Just -- thanks for that. "Patch and forget" is very welcome for easy patches.
-
+Patch is nice, thanx a lot. I'll submit it to Linus.
 								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

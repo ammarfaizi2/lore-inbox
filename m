@@ -1,60 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261618AbSJQBvh>; Wed, 16 Oct 2002 21:51:37 -0400
+	id <S261624AbSJQBxL>; Wed, 16 Oct 2002 21:53:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261622AbSJQBvh>; Wed, 16 Oct 2002 21:51:37 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:37008 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261618AbSJQBvf>; Wed, 16 Oct 2002 21:51:35 -0400
-Message-ID: <012d01c27581$677d2180$2a060e09@beavis>
-From: "Andrew Theurer" <habanero@us.ibm.com>
-To: <neilb@cse.unsw.edu.au>, "David S. Miller" <davem@redhat.com>
-Cc: <taka@valinux.co.jp>, <linux-kernel@vger.kernel.org>,
-       <nfs@lists.sourceforge.net>
-References: <15786.23306.84580.323313@notabene.cse.unsw.edu.au><20021014.210144.74732842.taka@valinux.co.jp><15788.57476.858253.961941@notabene.cse.unsw.edu.au> <20021015.213102.80213000.davem@redhat.com>
-Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
-Date: Wed, 16 Oct 2002 21:03:33 -0500
+	id <S261625AbSJQBxL>; Wed, 16 Oct 2002 21:53:11 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:29373 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S261624AbSJQBwf>; Wed, 16 Oct 2002 21:52:35 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Thu, 17 Oct 2002 11:58:10 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <15790.6450.3462.78596@notabene.cse.unsw.edu.au>
+cc: Juan Gomez <juang@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+Subject: [PATCH] Fix problem with lcokd grace period checking.
+In-Reply-To: message from Juan Gomez on Wednesday October 16
+References: <OFEF1EC5DE.D14F89EF-ON87256C54.005C30B4@us.ibm.com>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    From: Neil Brown <neilb@cse.unsw.edu.au>
->    Date: Wed, 16 Oct 2002 13:44:04 +1000
->
->    Presumably on a sufficiently large SMP machine that this became an
->    issue, there would be multiple NICs.  Maybe it would make sense to
->    have one udp socket for each NIC.  Would that make sense? or work?
->    It feels to me to be cleaner than one for each CPU.
->
-> Doesn't make much sense.
->
-> Usually we are talking via one IP address, and thus over
-> one device.  It could be using multiple NICs via BONDING,
-> but that would be transparent to anything at the socket
-> level.
->
-> Really, I think there is real value to making the socket
-> per-cpu even on a 2 or 4 way system.
+On Wednesday October 16, juang@us.ibm.com wrote:
+> 
+> In an effort to avoid this patch to die before in someone's mailbox I am
+> bringing it back....
+> As requested by Linus I am forwarding this to you Neil for review/inclusion
+> in a soon-to-be released 2.5.* version
 
+I made a few cosmetic changes, and move the comment into the changelog..
 
-I am still seeing some sort of problem on an 8 way (hyperthreaded 8
-logical/4 physical) on UDP with these patches.  I cannot get more than 2
-NFSd threads in a run state at one time.  TCP usually has 8 or more.  The
-test involves 40 100Mbit clients reading a 200 MB file on one server (4
-acenic adapters) in cache.  I am fighting some other issues at the moment
-(acpi wierdness), but so far before the patches, 82 MB/sec for NFSv2,UDP and
-138 MB/sec for NFSv2,TCP.  With the patches, 115 MB/sec for NFSv2,UDP and
-181 MB/sec for NFSv2,TCP.  One CPU is maxed due to acpi int storm, so I
-think the results will get better.  I'm not sure what other lock or
-contention point this is hitting on UDP.  If there is anything I can do to
-help, please let me know, thanks.
+NeilBrown
 
-Andrew Theurer
+###Comments for ChangeSet
 
+We need to do the clear/grace period here and not before
+svc_recv() because svc_recv() may sleep longer than the
+grace period and the first request may be falsely processed
+as if the server was in the grace period when it was not
+causing unnecessary delays for the first request received.
+     * Juan C. Gomez j_carlos_gome@yahoo.com
+
+Also opencode trivial clear_grace_period function.
+
+ ----------- Diffstat output ------------
+ ./fs/lockd/svc.c |   12 ++++--------
+ 1 files changed, 4 insertions(+), 8 deletions(-)
+
+--- ./fs/lockd/svc.c	2002/10/16 04:45:57	1.2
++++ ./fs/lockd/svc.c	2002/10/17 01:53:15	1.3
+@@ -72,11 +72,6 @@ static unsigned long set_grace_period(vo
+ 	return grace_period + jiffies;
+ }
+ 
+-static inline void clear_grace_period(void)
+-{
+-	nlmsvc_grace_period = 0;
+-}
+-
+ /*
+  * This is the lockd kernel thread
+  */
+@@ -141,10 +136,8 @@ lockd(struct svc_rqst *rqstp)
+ 		 * (Theoretically, there shouldn't even be blocked locks
+ 		 * during grace period).
+ 		 */
+-		if (!nlmsvc_grace_period) {
++		if (!nlmsvc_grace_period)
+ 			timeout = nlmsvc_retry_blocked();
+-		} else if (time_before(grace_period_expire, jiffies))
+-			clear_grace_period();
+ 
+ 		/*
+ 		 * Find a socket with data available and call its
+@@ -163,6 +156,9 @@ lockd(struct svc_rqst *rqstp)
+ 		dprintk("lockd: request from %08x\n",
+ 			(unsigned)ntohl(rqstp->rq_addr.sin_addr.s_addr));
+ 
++		if (nlmsvc_grace_period &&
++		    time_before(grace_period_expire, jiffies))
++			nlmsvc_grace_period = 0;
+ 		svc_process(serv, rqstp);
+ 
+ 	}

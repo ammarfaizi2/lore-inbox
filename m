@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263215AbTJPVab (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 17:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbTJPVab
+	id S263228AbTJPVmR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 17:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTJPVmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 17:30:31 -0400
-Received: from waste.org ([209.173.204.2]:51385 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263215AbTJPVaa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 17:30:30 -0400
-Date: Thu, 16 Oct 2003 16:30:23 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Eli Billauer <eli_billauer@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org,
-       David Mosberger-Tang <David.Mosberger@acm.org>
-Subject: Re: [RFC] frandom - fast random generator module
-Message-ID: <20031016213023.GU5725@waste.org>
-References: <HbGf.8rL.1@gated-at.bofh.it> <HbQ5.ep.27@gated-at.bofh.it> <Hdyv.2Vd.13@gated-at.bofh.it> <HeE6.4Cc.1@gated-at.bofh.it> <HjaT.3nN.7@gated-at.bofh.it> <Hjkw.3Al.11@gated-at.bofh.it> <ugzng1axel.fsf@panda.mostang.com> <3F8EF17A.2040502@users.sf.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F8EF17A.2040502@users.sf.net>
-User-Agent: Mutt/1.3.28i
+	Thu, 16 Oct 2003 17:42:17 -0400
+Received: from toulouse-4-a7-62-147-200-227.dial.proxad.net ([62.147.200.227]:50560
+	"EHLO albireo.free.fr") by vger.kernel.org with ESMTP
+	id S263228AbTJPViw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 17:38:52 -0400
+Message-Id: <200310162139.h9GLd8XD004908@albireo.free.fr>
+Date: Thu, 16 Oct 2003 23:39:08 +0200 (CEST)
+From: frahm@irsamc.ups-tlse.fr
+Reply-To: frahm@irsamc.ups-tlse.fr
+Subject: Re: usb-storage kills lilo (2.6-test[67])
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: TEXT/plain; CHARSET=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 16, 2003 at 09:28:58PM +0200, Eli Billauer wrote:
-> Allow me to supply a couple facts about frandom:
-> 
-> * It's not a "crappy" RNG. Its RC4 origins and the fact, that it has 
-> passed tests indicate the opposite. A fast RNG doesn't necessarily mean 
-> a bad one. I doubt if any test will tell the difference between frandom 
-> and any other good RNG. You're most welcome to try.
-> 
-> * Frandom is written completely in C. On an i686, gcc compiles the 
-> critical part to 26 assembly instructions per byte, and I doubt if any 
-> hand assembly would help significantly. The algorithms is clean and 
-> simple, and the compiler performs well with it.
+I think that this problem is related to the bug that the scsi-device 
+moves from sda to sdb, sdc etc. when removing and inserting a memory
+stick. I have applied a patch from Patrick Mansfield 
+at 
 
-The output hash for /dev/random would use RC4 or the like except for
-historical political reasons. I'm hoping to move it in that direction,
-but adding yet another cryptographic algorithm outside cryptoapi is
-a step in the wrong direction right now.
+ http://marc.theaimsgroup.com/?l=linux-kernel&m=106580260717355&w=2
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+which solves both the changing of the scsi-device and the lilo-problem 
+for 2.6-test7. 
+
+It seems that this patch is already in the bk-tree so that you can 
+use 2.6-test7-bk8 or wait for 2.6-test8.
+
+
+Greetings,
+
+Klaus Frahm.
+

@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUEJXRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262961AbUEJXUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUEJXRA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUEJXRA
+	id S262961AbUEJXUg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUEJXTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 19:17:00 -0400
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:26546 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S262902AbUEJXOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 19:14:33 -0400
-Date: Mon, 10 May 2004 16:13:36 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] All Symbols in /proc/kallsyms
-Message-ID: <20040510231336.GE2196@smtp.west.cox.net>
-References: <1084166916.8127.46.camel@bach>
+	Mon, 10 May 2004 19:19:39 -0400
+Received: from waste.org ([209.173.204.2]:11497 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262961AbUEJXQy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 19:16:54 -0400
+Date: Mon, 10 May 2004 18:16:27 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm1
+Message-ID: <20040510231627.GN5414@waste.org>
+References: <20040510024506.1a9023b6.akpm@osdl.org> <20040510223755.A7773@infradead.org> <20040510150203.3257ccac.akpm@osdl.org> <20040510230558.A8159@infradead.org> <20040510151554.49965f1d.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1084166916.8127.46.camel@bach>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040510151554.49965f1d.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 03:28:37PM +1000, Rusty Russell wrote:
-
-> Debuggers (ie. xmon) can use kallsyms, but they want all symbols, not
-> just functions.  Fair enough.
+On Mon, May 10, 2004 at 03:15:54PM -0700, Andrew Morton wrote:
+> Christoph Hellwig <hch@infradead.org> wrote:
+> >
+> > > Capabilities are broken and don't work.  Nobody has a clue how to provide
+> > > the required services with SELinux and nobody has any code and we need the
+> > > feature *now* before vendors go shipping even more ghastly stuff.
+> > 
+> > The thing is special privilegues for a group don't fit into any of the
+> > various privilegues schemes we have (capabilities, selinux, etc..),
+> > it's really a horrible hack.
 > 
-> Name: Debugging Option to Put text symbols in kallsyms
-> Status: Tested on 2.6.6-rc3-bk11
+> It beats the alternatives which are floating about, which includes a sysctl
+> which defeats CAP_SYS_MLOCK system-wide.
 > 
-> kallsyms contains only function names, but some debuggers (eg. xmon on
-> PPC/PPC64) use it to lookup symbols: it'd be much nicer if it included
-> data symbols too.
+> >  What happened to the patch rick promised
+> > to make mlock an rlimit?  This is the right approach and could be easily
+> > extended to hugetlb pages.
+> 
+> rlimits don't work for this.  shm segments persist after process exit and
+> aren't associated with a particular user.
 
-Shouldn't you make xmon depend on both of these, on ppc64? 
-(iirc, it won't compile w/o KALLSYMS, so select/suggest, or whatever,
-and ppc32 hasn't yet had the kallsyms stuff backported).
+The answer here is probably to make quotas work for shmfs, tmpfs,
+hugetlbfs, etc. This shouldn't be too bad except for quotactl(2)
+insists on having a block special device to manipulate quotas. Adding
+an fquotactl(file descriptor, ...) should deal with that.
+
+The mlock rlimits probably still make sense even once this is in place.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Matt Mackall : http://www.selenic.com : Linux development and consulting

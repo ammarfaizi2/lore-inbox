@@ -1,84 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263335AbUDAXLg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 18:11:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbUDAXLg
+	id S262969AbUDAXNo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 18:13:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbUDAXNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 18:11:36 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:50053 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S263308AbUDAXLX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 18:11:23 -0500
-Message-Id: <200404012309.i31N9MF14696@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andy Whitcroft'" <apw@shadowen.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, "Ray Bryant" <raybry@sgi.com>,
-       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Cc: <anton@samba.org>, <sds@epoch.ncsc.mil>, <ak@suse.de>,
-       <lse-tech@lists.sourceforge.net>, <linux-ia64@vger.kernel.org>
-Subject: RE: [PATCH] [0/6] HUGETLB memory commitment
-Date: Thu, 1 Apr 2004 15:09:22 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQYLqqKMNWgG5hLRRKRyk3MvsB2WAADF5+Q
-In-Reply-To: <184253487.1080857742@[192.168.0.89]>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Thu, 1 Apr 2004 18:13:44 -0500
+Received: from fire.osdl.org ([65.172.181.4]:57544 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S262969AbUDAXNj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 18:13:39 -0500
+Subject: Re: 2.6.5-rc3-mm4 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040401020512.0db54102.akpm@osdl.org>
+References: <20040401020512.0db54102.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1080861141.6131.4.camel@cherrybomb.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 01 Apr 2004 15:12:21 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Andy Whitcroft wrote on Thu, April 01, 2004 1:16 PM
-> --On 31 March 2004 00:51 -0800 "Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
->
-> > Under common case, worked perfectly!  But there are always corner cases.
-> >
-> > I can think of two ugliness:
-> > 1. very sparse hugetlb file.  I can mmap one hugetlb page, at offset
-> >    512 GB.  This would account 512GB + 1 hugetlb page as committed_AS.
-> >    But I only asked for one page mapping.  One can say it's a feature,
-> >    but I think it's a bug.
-> >
-> > 2. There is no error checking (to undo the committed_AS accounting) after
-> >    hugetlb_prefault(). hugetlb_prefault doesn't always succeed in allocat-
-> >    ing all the pages user asked for due to disk quota limit.  It can have
-> >    partial allocation which would put the committed_AS in a wedged state.
->
-> O.k. Here is the latest version of the hugetlb commitment tracking patch
-> (hugetlb_tracking_R4).  This now understands the difference between shm
-> allocated and mmap allocated and handles them differently.  This should
-> fix 1.
->
-> diff -X /home/apw/lib/vdiff.excl -rupN reference/arch/i386/mm/hugetlbpage.c current/arch/i386/mm/hugetlbpage.c
-> --- reference/arch/i386/mm/hugetlbpage.c	2004-04-01 13:37:14.000000000 +0100
-> +++ current/arch/i386/mm/hugetlbpage.c	2004-04-01 21:54:54.000000000 +0100
-> @@ -355,30 +357,38 @@ int hugetlb_prefault(struct address_spac
->  			+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
->  		page = find_get_page(mapping, idx);
->  		if (!page) {
-> -			/* charge the fs quota first */
-> +			/* charge against commitment */
-> +			ret = hugetlb_charge_page(vma);
-> +			if (ret)
-> +				goto out;
-> +			/* charge the fs quota */
->  			if (hugetlb_get_quota(mapping)) {
->  				ret = -ENOMEM;
-> -				goto out;
-> +				goto undo_charge;
->  			}
->  			page = alloc_hugetlb_page();
+Nice improvement.
 
+Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-committed_AS accounting is done at fault time?  Doesn't that defeat the purpose
-of overcommit checking at mmap time for on-demand paging?
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
+2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
+2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
+2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
+2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
+2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
+2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
+2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
+2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
+2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
+2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
+2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
+2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
+2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
+2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
+2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
+2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
+2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
+2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
+2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
+2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
+2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
+2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
+2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
+2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
+2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
+2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
+2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
+2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
+2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
+2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
+2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
+2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
 
-I thought someone mentioned it since day one of this discussion: strict over-
-commit is near impossible with current infrastructure in the multi-thread,
-multi-process environment.  I can have random number of processes mmap random
-number of ranges and randomly commit each page in the future.  There are just
-no structure out there to keep track what will be mapped or no robust way to
-find what has been mapped and how much will be needed at mmap time.
-
-Can we just RIP this whole hugetlb page overcommit?
-
-- Ken
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
 
 

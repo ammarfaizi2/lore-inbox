@@ -1,215 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130051AbRBVPbW>; Thu, 22 Feb 2001 10:31:22 -0500
+	id <S129620AbRBVPew>; Thu, 22 Feb 2001 10:34:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130008AbRBVPbM>; Thu, 22 Feb 2001 10:31:12 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:44300 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S129300AbRBVPa6>; Thu, 22 Feb 2001 10:30:58 -0500
-Date: Thu, 22 Feb 2001 15:30:47 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ARP out the wrong interface
-In-Reply-To: <Pine.LNX.4.33.0102212050480.22754-100000@twinlark.arctic.org>
-Message-ID: <Pine.LNX.4.10.10102221519540.2348-100000@sphinx.mythic-beasts.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129300AbRBVPeo>; Thu, 22 Feb 2001 10:34:44 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:13027 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S130046AbRBVPe1>;
+	Thu, 22 Feb 2001 10:34:27 -0500
+Date: Thu, 22 Feb 2001 16:34:25 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200102221534.QAA243062.aeb@vlet.cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: filesystem statistics
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Feb 2001, dean gaudet wrote:
+Now that people are discussing the right hash function to use,
+and the amount of space taken by filenames in various schemes,
+I wondered how these things are on a random machine.
+Here some statistics.
 
-> > 2.2.18 and 2.4 apparently have a patch called "arpfilter"
-> > integrated which should allow you to:
-> >
-> > # sysctl -w net.ipv4.conf.all.arpfilter=1
-> >
-> > to get much stricter behaviour regarding ARP replies.
-> 
-> hmm, so i'm working with a 2.4.1-ac20-TUX-P5 kernel and i can't find
-> "arpfilter" or "arp.*filter" in any of the files, so it doesn't appear
-> to have made it into 2.4.  i've been using the patch attached below
-> and it's solving the problem for me for now.  (it could be entirely
-> wrong, but it's letting me at least get some other work done :)
+Andries
 
-Thanks.
+--------------------------------------------------------------
 
-Below is what Andi Kleen sent me last time this came up.
+Statistics on a filesystem with 63 GB worth of files.
 
-Matthew.
+2797212 files
 
+average file size: 22600 bytes
+average depth: 8
+average pathname length: 59 bytes
+average filename length: 10 bytes
 
->From ak@suse.de Thu Feb 22 15:19:51 2001
-Date: Mon, 4 Sep 2000 12:06:02 +0200
-From: Andi Kleen <ak@suse.de>
-To: Matthew Kirkwood <matthew@hairy.beasts.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-     David Luyer <david_luyer@pacific.net.au>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2 - BSD/OS 4.1 ARP incompatibility
+max file size: 678035456 bytes
+max depth: 17
+max pathname length: 159 bytes
+max filename length: 99 bytes
 
-On Mon, Sep 04, 2000 at 10:57:44AM +0100, Matthew Kirkwood wrote:
-> > > With both interfaces up, it's impossible to apply anti-martian
-> > > rules to the interfaces, since it's hard to predict which card
-> > > will answer an ARP request.
-> >
-> > /proc/sys/net/ipv4/.../hidden
-> 
-> So when lightning fries the primary ethcard in the machine,
-> I have to know the hw address of the second card to get in?
-> 
-> Also, it can be used to scan through a dual-homed host to
-> determine the address range in use on the other side, which
-> I'd rather wasn't possible.
-> 
-> /proc/sys/net/ipv4/\"correct\"_arp_reply_interface_selection
-> maybe?
+longest path name (also with largest depth):
+159 bytes: /b2/g1a/linux/nist/NIST-PCTS/STD/DIF/data/dif.d/ln_gt_100_test/ln_gt_100_test/ln_gt_100_test/ln_gt_100_test/ln_gt_100_test/ln_gt_100_test/ln_gt_100_test/tar_19
 
-It is called arpfilter. Here is the old 2.2.16 version (applies to 2.4 with
-minor changes)
+longest file name:
+99 bytes: CL_Streamed_RawSample_Session_CL_Streamed_RawSample_Session_CL_InputSource_SoundFormatintbool_.html
 
-It is useful for various things, one of them being automatic load balancing
-for incoming connections using multipath routes.
+distribution of depths:
+ 0: 1
+ 1: 50
+ 2: 3212
+ 3: 19951
+ 4: 57534
+ 5: 159917
+ 6: 347124
+ 7: 705958
+ 8: 569661
+ 9: 657689
+10: 176777
+11: 63221
+12: 24646
+13: 9765
+14: 1364
+15: 259
+16: 80
+17: 3
 
--Andi
+distribution of pathname lengths:
+        0       1       2       3       4       5       6       7       8       9
+0:      0       1       0       14      14      10      13      66      203     646
+10:     1133    649     1521    3367    2664    2398    2969    3657    4822    3010
+20:     3360    3951    3824    4182    5702    5043    6352    7660    9027    11948
+30:     11877   25050   17943   26597   24599   23174   25292   31789   31897   31319
+40:     33225   36892   36911   42668   42106   46898   46666   49673   54825   61980
+50:     64753   62859   72410   75021   79526   73447   75175   72326   70532   70574
+60:     71446   71227   68235   67907   62067   56403   54213   49642   44474   39715
+70:     35215   31877   31270   22486   20232   16859   14218   12767   13826   12855
+80:     8269    139474  13866   13182   5858    5158    268605  4077    3633    3152
+90:     2627    2201    1691    1680    1486    1538    1327    1163    1025    1390
+100:    818     891     775     935     1503    1450    438     368     296     1198
+110:    1102    169     174     139     101     963     925     74      51      44
+120:    31      22      20      20      20      6       12      17      12      18
+130:    13      7       10      8       9       7       3       6       1       0
+140:    2       0       0       0       0       0       0       0       1       0
+150:    0       1       2       0       0       1       0       0       1       2
+160:    0       0       0       0       0       0       0       0       0       0
 
-
---- linux/include/linux/inetdevice.h.ARPFILTER	Tue Jan  4 19:12:24 2000
-+++ linux/include/linux/inetdevice.h	Sat Jun 24 14:02:07 2000
-@@ -17,6 +17,7 @@
- 	int	forwarding;
- 	int	mc_forwarding;
- 	int	hidden;
-+	int	arp_filter; 
- 	void	*sysctl;
- };
- 
-@@ -51,6 +52,9 @@
- 	  (ipv4_devconf.accept_redirects && (in_dev)->cnf.accept_redirects)) \
- 	 || (!IN_DEV_FORWARD(in_dev) && \
- 	  (ipv4_devconf.accept_redirects || (in_dev)->cnf.accept_redirects)))
-+
-+#define IN_DEV_ARPFILTER(in_dev)	(ipv4_devconf.arp_filter || \
-+					 (in_dev)->cnf.arp_filter)
- 
- struct in_ifaddr
- {
---- linux/include/linux/sysctl.h.ARPFILTER	Fri Jun 23 17:47:22 2000
-+++ linux/include/linux/sysctl.h	Sat Jun 24 14:02:07 2000
-@@ -272,7 +272,8 @@
- 	NET_IPV4_CONF_ACCEPT_SOURCE_ROUTE=9,
- 	NET_IPV4_CONF_BOOTP_RELAY=10,
- 	NET_IPV4_CONF_LOG_MARTIANS=11,
--	NET_IPV4_CONF_HIDDEN=12
-+	NET_IPV4_CONF_HIDDEN=12,
-+	NET_IPV4_CONF_ARPFILTER=13
- };
- 
- /* /proc/sys/net/ipv6 */
---- linux/include/net/snmp.h.ARPFILTER	Fri Jun 23 17:47:05 2000
-+++ linux/include/net/snmp.h	Sat Jun 24 14:04:19 2000
-@@ -179,6 +179,7 @@
- 	unsigned long	OutOfWindowIcmps; 
- 	unsigned long	LockDroppedIcmps; 
- 	unsigned long	SockMallocOOM; 
-+	unsigned long	ArpFilter;
- };
-  	
- #endif
---- linux/net/ipv4/proc.c.ARPFILTER	Fri Jun 23 17:47:06 2000
-+++ linux/net/ipv4/proc.c	Sat Jun 24 14:03:48 2000
-@@ -371,6 +371,10 @@
- 		      net_statistics.OutOfWindowIcmps,
- 		      net_statistics.LockDroppedIcmps,
- 		      net_statistics.SockMallocOOM);
-+	len += sprintf(buffer + len, 
-+				"IpExt: ArpFilter\n"
-+				"IpExt: %lu\n",
-+			  net_statistics.ArpFilter); 		
- 
- 	if (offset >= len)
- 	{
---- linux/net/ipv4/arp.c.ARPFILTER	Fri Jun 23 12:19:11 2000
-+++ linux/net/ipv4/arp.c	Sat Jun 24 14:02:07 2000
-@@ -339,6 +339,22 @@
- 		 dst_ha, dev->dev_addr, NULL);
- }
- 
-+static int arp_filter(__u32 sip, __u32 tip, struct device *dev)
-+{
-+	struct rtable *rt;
-+	int flag = 0; 
-+	//unsigned long now; 
-+
-+	if (ip_route_output(&rt, sip, tip, 0, 0) < 0) 
-+		return 1;
-+	if (rt->u.dst.dev != dev) { 
-+		net_statistics.ArpFilter++; 
-+		flag = 1; 
-+	} 
-+	ip_rt_put(rt); 
-+	return flag; 
-+} 
-+
- /* OBSOLETE FUNCTIONS */
- 
- /*
-@@ -689,6 +705,7 @@
- 		if (addr_type == RTN_LOCAL) {
- 			n = neigh_event_ns(&arp_tbl, sha, &sip, dev);
- 			if (n) {
-+				int dont_send = 0; 
- 				if (ipv4_devconf.hidden &&
- 				    skb->pkt_type != PACKET_HOST) {
- 					struct device *dev2;
-@@ -698,12 +715,14 @@
- 					    dev2 != dev &&
- 					    (in_dev2 = dev2->ip_ptr) != NULL &&
- 					    IN_DEV_HIDDEN(in_dev2)) {
--						neigh_release(n);
--						goto out;
--					}
-+						dont_send = 1; 
-+					}	
- 				}
-+				if (IN_DEV_ARPFILTER(in_dev))
-+					dont_send |= arp_filter(sip,tip,dev); 
- 
--				arp_send(ARPOP_REPLY,ETH_P_ARP,sip,dev,tip,sha,dev->dev_addr,sha);
-+				if (!dont_send) 
-+					arp_send(ARPOP_REPLY,ETH_P_ARP,sip,dev,tip,sha,dev->dev_addr,sha);
- 				neigh_release(n);
- 			}
- 			goto out;
---- linux/net/ipv4/devinet.c.ARPFILTER	Fri Jun 23 17:47:31 2000
-+++ linux/net/ipv4/devinet.c	Sat Jun 24 14:02:07 2000
-@@ -932,7 +932,7 @@
- static struct devinet_sysctl_table
- {
- 	struct ctl_table_header *sysctl_header;
--	ctl_table devinet_vars[13];
-+	ctl_table devinet_vars[14];
- 	ctl_table devinet_dev[2];
- 	ctl_table devinet_conf_dir[2];
- 	ctl_table devinet_proto_dir[2];
-@@ -974,6 +974,9 @@
-          &proc_dointvec},
- 	{NET_IPV4_CONF_HIDDEN, "hidden",
-          &ipv4_devconf.hidden, sizeof(int), 0644, NULL,
-+         &proc_dointvec},
-+	{NET_IPV4_CONF_ARPFILTER, "arp_filter",
-+         &ipv4_devconf.arp_filter, sizeof(int), 0644, NULL,
-          &proc_dointvec},
- 	 {0}},
- 
-
-
-
-> 
-> Matthew.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+distribution of filename lengths:
+        0       1       2       3       4       5       6       7       8       9
+0:      1       2341    16946   36630   66883   115118  189020  224596  289985  682943
+10:     237134  213677  199863  114987  81873   60902   52485   38200   29354   24779
+20:     21153   15792   13279   14638   11973   9366    7586    4674    3832    2975
+30:     2645    1938    1643    1244    1076    909     660     642     544     508
+40:     379     222     186     217     229     126     124     107     103     71
+50:     52      52      48      54      56      41      38      40      11      18
+60:     19      11      8       20      21      8       9       8       21      13
+70:     10      9       10      8       9       11      4       9       5       4
+80:     3       3       3       1       1       0       1       3       2       2
+90:     1       0       1       1       1       1       2       0       0       1
+100:    0       0       0       0       0       0       0       0       0       0
 

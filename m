@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265127AbUAMUUP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 15:20:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265375AbUAMUUP
+	id S265149AbUAMUZO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 15:25:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265384AbUAMUZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 15:20:15 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16622 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265127AbUAMUUM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 15:20:12 -0500
-Date: Tue, 13 Jan 2004 12:21:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, digiLinux@dgii.com, acme@conectiva.com.br,
-       arobinso@nyx.net, support@moxa.com.tw, christoph@lameter.com,
-       pgmdsg@ibi.com, richard@sleepie.demon.co.uk, R.E.Wolff@BitWizard.nl,
-       fritz@isdn4linux.de, reginak@cyclades.com, oli@bv.ro, jeff@uclinux.org,
-       mleslie@lineo.ca, macro@ds2.pg.gda.pl
-Subject: Re: [3/3] 2.6 broken serial drivers
-Message-Id: <20040113122115.50265601.akpm@osdl.org>
-In-Reply-To: <20040113174219.E7256@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0401131148070.18661-100000@eloth>
-	<20040113113650.A2975@flint.arm.linux.org.uk>
-	<20040113114948.B2975@flint.arm.linux.org.uk>
-	<20040113171544.B7256@flint.arm.linux.org.uk>
-	<20040113174219.E7256@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 13 Jan 2004 15:25:14 -0500
+Received: from rei.purplehat.net ([216.234.116.164]:40123 "EHLO
+	rei.purplehat.net") by vger.kernel.org with ESMTP id S265149AbUAMUZJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 15:25:09 -0500
+Subject: Re: Slow NFS performance over wireless!
+From: "Joshua M. Thompson" <funaho@jurai.org>
+To: hackeron@dsl.pipex.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200401130155.32894.hackeron@dsl.pipex.com>
+References: <Pine.LNX.4.44.0401060055570.1417-100000@poirot.grange>
+	 <200401130155.32894.hackeron@dsl.pipex.com>
+Content-Type: text/plain
+Message-Id: <1074025508.1987.10.camel@lumiere>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 13 Jan 2004 15:25:08 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> --- 1.14/drivers/net/wan/pc300_tty.c	Thu Sep 11 18:40:53 2003
-> +++ edited/drivers/net/wan/pc300_tty.c	Tue Jan 13 14:42:34 2004
-> @@ -583,6 +583,14 @@
->  	CPC_TTY_DBG("%s: IOCTL cmd %x\n",cpc_tty->name,cmd);
->  	
->  	switch (cmd) { 
-> +#error This is broken.  See comments.
+On Mon, 2004-01-12 at 20:55, Roman Gaufman wrote:
+> Hey,
+> 
+> I have experienced extremely poor NFS performance over wireless, when I scp a 
+> piece of information from server to laptop, transfer rates stay stable and 
+> file transfers, when I use NFS transfer rates jump constantly, and most of 
+> the time file is NOT transfering.
 
-Grumble.  This breaks allmodconfig.  #warning, please.
+I've noticed a similar problem here since upgrading to 2.6. In my case
+not has NFS performance gone through the floor vs 2.4.22 but so has
+machine performance during the transfer. In 2.4 the machine would be a
+bit sluggish but usable...under 2.6 the machine is more or less
+*unusable* until the NFS transfer completes. Trying to say, open up
+Evolution may take upwards of ten minutes to complete. Unfortunately due
+to the extreme performance problem it's not even possible to do any
+diagnostics on the machine while it's happening.
 
 

@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbULaOj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbULaO6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbULaOj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 09:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbULaOh4
+	id S262096AbULaO6b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 09:58:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbULaO6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 09:37:56 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:43276 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262095AbULaOg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 09:36:58 -0500
-Subject: Re: [PATCH] /proc/sys/kernel/bootloader_type
-From: Arjan van de Ven <arjan@infradead.org>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org, SYSLINUX@zytor.com
-In-Reply-To: <2cd57c90041231062438c2cab9@mail.gmail.com>
-References: <41D34E3A.3090708@zytor.com>
-	 <20041231013443.313a3320.akpm@osdl.org>
-	 <1104487954.5402.20.camel@laptopd505.fenrus.org>
-	 <2cd57c90041231062438c2cab9@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 31 Dec 2004 15:36:47 +0100
-Message-Id: <1104503807.5402.29.camel@laptopd505.fenrus.org>
+	Fri, 31 Dec 2004 09:58:31 -0500
+Received: from 6.143.111.62.revers.nsm.pl ([62.111.143.6]:34950 "HELO
+	mother.localdomain") by vger.kernel.org with SMTP id S262096AbULaO63
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 09:58:29 -0500
+Date: Thu, 14 Oct 2004 23:51:51 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Weirdness with suspending jobs in 2.6.9-rc3
+Message-ID: <20041014215151.GA4237@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20041005063324.GA7445@darjeeling.triplehelix.org> <20041009101552.GA3727@stusta.de> <20041009140551.58fce532.akpm@osdl.org> <20041011182518.GA1892@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041011182518.GA1892@stusta.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-31 at 22:24 +0800, Coywolf Qi Hunt wrote:
-> On Fri, 31 Dec 2004 11:12:34 +0100, Arjan van de Ven
-> <arjan@infradead.org> wrote:
-> > On Fri, 2004-12-31 at 01:34 -0800, Andrew Morton wrote:
-> > > "H. Peter Anvin" <hpa@zytor.com> wrote:
-> > > >
-> > > > This patch exports to userspace the boot loader ID which has been
-> > > >  exported by (b)zImage boot loaders since boot protocol version 2.
-> > >
-> > > Why does userspace need to know this?
-> > 
-> > so that update tools that update kernels from vendors know which
-> > bootloader file they need to update; eg right now those tools do all
-> > kinds of hairy heuristics to find out if it's grub or lilo or .. that
-> > installed the kernel. Those heuristics are fragile in the presence of
-> > more than one bootloader (which isn't that uncommon in OS upgrade
-> > situations).
-> > 
+On Mon, Oct 11, 2004 at 08:25:18PM +0200, Adrian Bunk wrote:
+> > >  > darjeeling:~{1}% bg
+> > >  > [1]  + continued  make
+> > >  > make: *** wait: No child processes.  Stop.
+> > >  > make: *** Waiting for unfinished jobs....
+> >...
+> > >  I'm also observing this problem.
+> > offending patch?
 > 
-> This boot loader ID doesn't help much for system upgrade. The running
-> kernel may boot from removable drive.
+> The problem seems to be surprisingly old.
 
-but then it says syslinux or so... 
-means that the lilo-or-grub question still needs the heuristics, it's
-just that in the normal case, the bootloader type can help make the
-heuristics reliable.
+ I got bit by this error several times using slrn (news reader in s-lang).
+If I press ^Z, slrn suspneds but spews error on 'fg'. Something about
+IO error. It happened only om -mm kernels.
+ I've saved strace output on -linus (where it worked), but beeing unable
+to strace it on -mm [1] I deleted all logs and learned not to press ^Z.
 
+[1] strace hung my system on -mm few times.
+
+-- 
+Tomasz Torcz                "Funeral in the morning, IDE hacking
+zdzichu@irc.-nie.spam-.pl    in the afternoon and evening." - Alan Cox
 

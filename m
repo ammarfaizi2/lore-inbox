@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266464AbUBFEpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 23:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266462AbUBFEpZ
+	id S266465AbUBFEq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 23:46:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266472AbUBFEq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 23:45:25 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:51887 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S266464AbUBFEpY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 23:45:24 -0500
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: Elikster <elik@webspires.com>
-Date: Fri, 6 Feb 2004 15:45:14 +1100
-Cc: Linux Kern <linux-kernel@vger.kernel.org>
-Subject: Re: Linux Capabilities and Other Security Models Documentation?
-Message-ID: <20040206044514.GB2655@cse.unsw.EDU.AU>
-References: <200402060351.i163ptpB010350@turing-police.cc.vt.edu> <584993969.20040205212714@webspires.com>
+	Thu, 5 Feb 2004 23:46:58 -0500
+Received: from ns.suse.de ([195.135.220.2]:29088 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266465AbUBFEqG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 23:46:06 -0500
+Date: Fri, 6 Feb 2004 05:39:27 +0100
+From: Andi Kleen <ak@suse.de>
+To: Steve Lord <lord@xfs.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: Limit hash table size
+Message-Id: <20040206053927.37709591.ak@suse.de>
+In-Reply-To: <4021C152.3080501@xfs.org>
+References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com.suse.lists.linux.kernel>
+	<20040205155813.726041bd.akpm@osdl.org.suse.lists.linux.kernel>
+	<p73isilkm4x.fsf@verdi.suse.de>
+	<4021AC9F.4090408@xfs.org>
+	<20040205191240.13638135.akpm@osdl.org>
+	<4021C152.3080501@xfs.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <584993969.20040205212714@webspires.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Elikster
-
-SELinux:
-www.nsa.gov/selinux/
-
-Capabilities:
-According to
-http://www.hsc.fr/ressources/presentations/linux2000/linux2000-6.html.en
-these are obsolete.
-
-Many OS theory books have small section on this topic
-
-I have studied these but I just used google to find the urls
+On Wed, 04 Feb 2004 22:06:42 -0600
+Steve Lord <lord@xfs.org> wrote:
 
 
-On Thu, 05 Feb 2004, Elikster wrote:
+> It does look like 2.6 does better, but I don't have quite the
+> amount of memory on my laptop....
 
-> Greetings folks.
-> 
->    I got it compiled and working on my box running 9.0 Redhat.  However, there is one little problem.  There seems to be lack of documenation regarding the security model that is added to 2.6 series Kernel and it is not found in the documenation section.  
-> 
->    Anyone mind give me some urls links or pointers on 2 different areas regarding SELinux and Capabilities so I can see how it is used so I can learn from it and implement it into use for our production webservers boxes?  I sure appreciate the help.
-> 
-> -- 
-> Best regards,
->  Elikster                            mailto:elik@webspires.com
-> 
+I see the problem on a 8GB x86-64 box with 2.6.2-rc1. 
 
---------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------
+After a find / I have:
+
+ Active / Total Objects (% used)    : 1794827 / 1804510 (99.5%)
+ Active / Total Slabs (% used)      : 125647 / 125647 (100.0%)
+ Active / Total Caches (% used)     : 71 / 112 (63.4%)
+ Active / Total Size (% used)       : 685008.27K / 686856.36K (99.7%)
+ Minimum / Average / Maximum Object : 0.02K / 0.38K / 128.00K
+
+  OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME                   
+708600 708559  99%    0.25K  47240       15    188960K dentry_cache
+624734 624128  99%    0.69K  56794       11    454352K reiser_inode_cache
+254200 253514  99%    0.09K   6355       40     25420K buffer_head
+109327 109253  99%    0.06K   1853       59      7412K size-64
+
+Now I allocate 6GB of RAM. After that:
+
+ Active / Total Objects (% used)    : 741266 / 1092573 (67.8%)
+ Active / Total Slabs (% used)      : 78291 / 78291 (100.0%)
+ Active / Total Caches (% used)     : 71 / 112 (63.4%)
+ Active / Total Size (% used)       : 339837.24K / 455189.93K (74.7%)
+ Minimum / Average / Maximum Object : 0.02K / 0.42K / 128.00K
+
+  OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME                   
+464497 381126  82%    0.69K  42227       11    337816K reiser_inode_cache
+391545 192481  49%    0.25K  26103       15    104412K dentry_cache
+135840  95304  70%    0.09K   3396       40     13584K buffer_head
+
+1GB of dentry cache seems to be quite excessive.
+
+-Andi

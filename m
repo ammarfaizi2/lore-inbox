@@ -1,96 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133033AbQLJVNx>; Sun, 10 Dec 2000 16:13:53 -0500
+	id <S130128AbQLJVUF>; Sun, 10 Dec 2000 16:20:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133004AbQLJVNo>; Sun, 10 Dec 2000 16:13:44 -0500
-Received: from dfmail.f-secure.com ([194.252.6.39]:7182 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S132820AbQLJVNf>; Sun, 10 Dec 2000 16:13:35 -0500
-Date: Sun, 10 Dec 2000 22:55:52 +0200 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] NR_RESERVED_FILES broken in 2.4 too
-In-Reply-To: <Pine.LNX.4.21.0012101646210.1350-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.30.0012102227070.5455-100000@fs129-190.f-secure.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129524AbQLJVTz>; Sun, 10 Dec 2000 16:19:55 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:7440 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S130401AbQLJVTt>; Sun, 10 Dec 2000 16:19:49 -0500
+Date: Sun, 10 Dec 2000 12:49:18 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Abramo Bagnara <abramo@alsa-project.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [2*PATCH] alpha I/O access and mb()
+Message-ID: <20001210124918.A31383@twiddle.net>
+In-Reply-To: <3A31F094.480AAAFB@alsa-project.org> <20001209161013.A30555@twiddle.net> <3A334F7C.3205A3DF@alsa-project.org> <20001210104413.A31257@twiddle.net> <3A33D3A7.FCD55F4@alsa-project.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3A33D3A7.FCD55F4@alsa-project.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Dec 10, 2000 at 08:04:07PM +0100, Abramo Bagnara wrote:
+> ... the only missing things from core_t2.h are some defines to
+> permit to it to work when CONFIG_ALPHA_T2 is defined.
 
-On Sun, 10 Dec 2000, Tigran Aivazian wrote:
+Have you tried it?  I did.  It works fine.
 
-> > user% ./fd-exhaustion   # e.g. while(1) open("/dev/null",...);
-> > root# cat /proc/sys/fs/file-nr
-> > cat: /proc/sys/fs/file-nr: Too many open files in system
-> >
-> > The above happens even with increased NR_RESERVED_FILES to 96 [no
-> > wonder, get_empty_filp is broken].
->
-> no, it is not broken. But your experiment is broken. Don't do cat file-nr
-> but compile this C program
+What _is_ defined in asm/core_t2.h is enough for alpha/lib/io.c to
+define out of line functions that asm/io.h then uses.
 
-Ok, now I understand why you can't see the problem ;) You lookup the
-values in user space but I did it [additionally] in kernel space [also
-I think I understand what happens ;)]. I guess with the code below you
-claim I shouldn't see values like this when file struct allocations
-started by user apps,
-1024 0 1024
+This same mechanism is used on cia, mcpcia, lca, and jensen.
+It has been in place in just this fashion since 2.1.something.
 
-Or 0 shouldn't be between 0 and NR_RESERVED_FILES. Right? Wrong. I saw
-it happens, you can reproduce it if you lookup the nr_free_files
-value, allocate that much by root, don't release them and
-immediately after this start to allocate fd's by user app. Note, if
-you already hit nr_files = max_files you won't ever be able to
-reproduce the above - but this is a half solution, kernel 2.0 was
-fine, get_empty_filp was broke somewhere between 2.0 and 2.1 and it's
-still broken. With the patch the functionality is back and also works
-the way what the authors of the book mentioned believe ;)
 
-It's quite funny, because before I was also told this is broken but I
-couldn't believe it, so I look the code and tested it, the report was
-right ...
-
-Still disagree? ;)
-
-	Szaka
-
-> #include <sys/types.h>
-> #include <sys/stat.h>
-> #include <unistd.h>
-> #include <fcntl.h>
-> #include <stdio.h>
-> #include <stdlib.h>
->
-> int main(int argc, char *argv[])
-> {
->         int fd, len;
->         static char buf[2048];
->
->         fd = open("/proc/sys/fs/file-nr", O_RDONLY);
->         if (fd == -1) {
->                 perror("open");
->                 exit(1);
->         }
->         while (1) {
->                 len = read(fd, buf, 1024);
->                 printf("len=%d %s", len, buf);
->                 lseek(fd, 0, SEEK_SET);
->                 sleep(1);
->         }
->         return 0;
-> }
->
-> and leave it running while doing experiments on the other console. You
-> will see that everything is fine -- there is no bug. No wonder you saw the
-> bug -- you ignored my 4 emails telling you otherwise :)
->
-> Regards,
-> Tigran
->
->
-
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

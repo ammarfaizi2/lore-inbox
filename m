@@ -1,94 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUHDJOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUHDJQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbUHDJOR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 05:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUHDJOR
+	id S261763AbUHDJQX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 05:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUHDJQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 05:14:17 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:27112 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261951AbUHDJOO convert rfc822-to-8bit (ORCPT
+	Wed, 4 Aug 2004 05:16:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58755 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261763AbUHDJQV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 05:14:14 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
-Date: Wed, 4 Aug 2004 02:13:23 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
-Thread-Index: AcR6AzoIf/fvAHBFRDiCOBJA/2fSfQ==
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: <linux-kernel@vger.kernel.org>, <robustmutexes@lists.osdl.org>
-X-OriginalArrivalTime: 04 Aug 2004 09:13:42.0786 (UTC) FILETIME=[567ED620:01C47A03]
+	Wed, 4 Aug 2004 05:16:21 -0400
+Subject: Re: [patch] Add a writer prior lock methord for rwlock
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Liu Tao <liutao@safe-mail.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4110A7AF.2060903@safe-mail.net>
+References: <4110A7AF.2060903@safe-mail.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iucl4eAhWS2qu5GYurBY"
+Organization: Red Hat UK
+Message-Id: <1091610963.2792.13.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 04 Aug 2004 11:16:03 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All
 
-Fusyn aims to provide primitives to solve a bunch of gaps in POSIX
-compliance related to mutexes, conditional variables and semaphores,
-POSIX Advanced real-time support as well as adding mutex robustness
-(to dying owners) and deep deadlock checking.
+--=-iucl4eAhWS2qu5GYurBY
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-All of these primitives are available to both kernel space and user
-space (through a generalization of the mechanism used by futexes),
-allowing for a fast path on most mutex operations.
+On Wed, 2004-08-04 at 11:09, Liu Tao wrote:
+> The patch adds the write_forcelock() methord, which has higher priority t=
+han
+> read_lock() and write_lock(). The original read_lock() and write_lock()=20
+> is not
+> touched, and the unlock methord is still write_unlock();
+> The patch gives implemention on i386, for kernel 2.6.7.
 
-We strive to solve the POSIX gap of scheduling-policy based
-unlock/wakeup for mutexes, conditional variables, semaphores,
-etc; the lacks in Advanced Real-Time support (priority inversion
-protection through priority inheritance and priority protection),
-robust mutexes (mutex waiters no longer deadlock when a mutex
-owner dies) and deep deadlock checking for mutexes.
+can you please elaborate what kind of usage scenarios this would be
+useful ? It would be nice to know what this is for ;)
 
-The full description of the gaps we solve, rationales behind the
-implementation and explanations on the need for the new features
-is kind of long to fully explain here, so you can find it in the
-linux/Documentation/fusyn-why.txt after applying our patch or at
-our website, in:
+--=-iucl4eAhWS2qu5GYurBY
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-http://developer.osdl.org/dev/robustmutexes/index.html#Documentation
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-High level changelog since release 2.3:
+iD8DBQBBEKlTxULwo51rQBIRAoGsAJ9MS9tBmSaCO3v6Z+xT+/GH23NDrgCfX/nC
+Sprv0RJiE4xIYrvtk5RWVYg=
+=M3TT
+-----END PGP SIGNATURE-----
 
-- Not much, ported to 2.6.7 vanilla.
-
-However, this showed that we weren't properly locking when
-obtaining pages from an 'struct address_mapping' [function
-__vl_key_page_get_shared()]...so we fixed that.
-
-Still to-do:
-
-- Finally finish implementing priority protection; the core is
-there, only the glue to use it is needed.
-
-- Wipe out debug stuff
-
-- Call fuqueue_waiter_cancel() into try_to_wake_up?
-
-The patch is split in the following parts:
-
-1/11: documentation files
-2/11: priority based O(1) lists
-3/11: kernel fuqueues
-4/11: kernel fulocks
-5/11: user space/kernel space tracker
-6/11: user space fuqueues
-7/11: user space fulocks
-8/11: Arch-specific support
-9/11: Modifications to the core: basic
-10/11: Modifications to the core: struct timeout
-11/11: Modifications to the core: scheduler
-
-We are not posting it to the list, as it has grown kind of
-big. It can be obtained at out web site mentioned above, in the
-Download section.
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)
+--=-iucl4eAhWS2qu5GYurBY--
 

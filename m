@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129539AbQLTAcH>; Tue, 19 Dec 2000 19:32:07 -0500
+	id <S129314AbQLTApa>; Tue, 19 Dec 2000 19:45:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129703AbQLTAb5>; Tue, 19 Dec 2000 19:31:57 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:36090 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S129539AbQLTAbp>; Tue, 19 Dec 2000 19:31:45 -0500
-Date: Tue, 19 Dec 2000 20:10:02 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.2 - wanxl unchecked copy_to_user
-Message-ID: <20001219201001.L764@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Krzysztof Halasa <khc@pm.waw.pl>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Url: http://advogato.org/person/acme
+	id <S129703AbQLTApT>; Tue, 19 Dec 2000 19:45:19 -0500
+Received: from mail18.scannet.dk ([194.255.42.18]:42512 "HELO
+	mail18.scannet.dk") by vger.kernel.org with SMTP id <S129314AbQLTApE> convert rfc822-to-8bit;
+	Tue, 19 Dec 2000 19:45:04 -0500
+From: Jesper Juhl <juhl@eisenstein.dk>
+Date: Tue, 19 Dec 2000 15:20:17 GMT
+Message-ID: <20001219.15201700@jju.hyggekrogen.dk>
+Subject: Strange warnings about .modinfo when compiling 2.2.18 on Alpha
+To: linux-kernel@vger.kernel.org
+X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.2;Linux)
+X-Priority: 3 (Normal)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
 
-	Please consider applying, there must well be other things to do on
-this failure, please check.
+I just compiled 2.2.18 for my AlphaServer 400 4/233, and noticed a lot of 
+messages like the following during the compile, they all contain the 
+'Ignoring changed section attributes for .modinfo' part:
 
-                        - Arnaldo
+{standard input}: Assembler messages:
+{standard input}:7: Warning: Ignoring changed section attributes for 
+.modinfo
+cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 
+-fomit-frame-pointer -fno-strict-aliasing -pipe -mno-fp-regs -ffixed-8 
+-mcpu=ev5 -Wa,-mev6 -DMODULE   -c -o nls_cp936.o nls_cp936.c
 
---- linux-2.2.19-2/drivers/net/wanxl.c	Wed Jun  7 18:26:43 2000
-+++ linux-2.2.19-2.acme/drivers/net/wanxl.c	Tue Dec 19 20:05:53 2000
-@@ -1088,7 +1088,10 @@
- 
- 	writel(1, &card->config->valid);
-   
--	copy_to_user(data, card->config, sizeof(board_cfg));
-+	if (copy_to_user(data, card->config, sizeof(board_cfg))) {
-+		wanxl_destroy_card(card, 0);
-+		return -EFAULT;
-+	}
- 	*length=sizeof(board_cfg);
- 	card->running=1;
- 	return 0;
+
+I configured the kernel with 'make menuconfig', then ran
+
+make dep clean boot modules modules_install
+
+The kernel boots fine and there does not seem to be any problems (at 
+least not with the stuff I've tested so far). I just wanted people to 
+know about this and ask if it is anything to worry about?
+I'm using gcc 2.95.2 (gcc version 2.95.2 19991024 (release)) for this, 
+and as far as I remember that's not the recommended compiler on Alpha 
+(but it's all I have at the moment). If this is a known issue with gcc 
+2.95.2, then I appologize for the inconvenience.
+
+
+Best regards,
+Jesper Juhl
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

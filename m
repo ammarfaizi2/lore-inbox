@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317634AbSFRVuP>; Tue, 18 Jun 2002 17:50:15 -0400
+	id <S317635AbSFRVzC>; Tue, 18 Jun 2002 17:55:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317635AbSFRVuO>; Tue, 18 Jun 2002 17:50:14 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13581 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317634AbSFRVuN>; Tue, 18 Jun 2002 17:50:13 -0400
-Date: Tue, 18 Jun 2002 14:47:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Cort Dougan <cort@fsmlabs.com>
-cc: Benjamin LaHaise <bcrl@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken
-In-Reply-To: <20020618150840.Q13770@host110.fsmlabs.com>
-Message-ID: <Pine.LNX.4.33.0206181442050.2562-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317637AbSFRVzB>; Tue, 18 Jun 2002 17:55:01 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:10161 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S317635AbSFRVzA>; Tue, 18 Jun 2002 17:55:00 -0400
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: Various kbuild problems in 2.5.22
+Date: 18 Jun 2002 21:23:55 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrnagv97b.1r4.kraxel@bytesex.org>
+References: <200206181500.IAA00339@baldur.yggdrasil.com> <Pine.LNX.4.44.0206181056090.5695-100000@chaos.physics.uiowa.edu>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 1024435435 1893 127.0.0.1 (18 Jun 2002 21:23:55 GMT)
+User-Agent: slrn/0.9.7.1 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jun 2002, Cort Dougan wrote:
->
-> I agree with you there.  It's not easy, and I'd claim it's not possible
-> given that no-one has done it yet, to have a select() call that is speedy
-> for both 0-10 and 1k file descriptors.
+>  Apart from that, "make modules_install" never worked in the case of 
+>  failed builds, did it? - so it boils down to: you need a buildable .config 
+>  to build and test a kernel.
 
-Actually, select() scales a lot better than poll() for _dense_ bitmaps.
+No.  2.4.x allows me to to "make modules_install" even if some modules
+don't work.  My kernel build script compiles the modules with "make -k
+modules", and if some non-essential modules doesn't build I can simply
+ignore that and go ahead.  There is no need to disable that module
+temporarely in .config (and risc to forget to reenable it later ...).
 
-The problem with non-scalability ends up being either sparse bitmaps
-(minor problem, poll() can help) or just the work involved in watching a
-large number of fd's (major problem, but totally unrelated to the bitmap
-itself, and poll() usually makes it worse thanks to more data to be
-moved).
+  Gerd
 
-Anyway, I was talking about the scalability of the _data_structure_, not 
-the scalability performance-wise. Performance scalability is a non-issue 
-for something like setaffinity(), since it's just not called at any rate 
-approaching poll.
-
->From a data structure standpoint, bitmaps are clearly the simplest dense 
-representation, and scale perfectly well to any reasonable number of 
-CPU's.
-
-If we end up using a default of 1024, maybe you'll have to recompile that
-part of the system that has anything to do with CPU affinity in about
-10-20 years by just upping the number a bit. Quite frankly, that's going
-to be the _least_ of the issues.
-
-		Linus
-
+-- 
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

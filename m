@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266849AbUHOTQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266851AbUHOTWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266849AbUHOTQL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 15:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266851AbUHOTQL
+	id S266851AbUHOTWA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 15:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266854AbUHOTWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 15:16:11 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:33177 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266849AbUHOTQE
+	Sun, 15 Aug 2004 15:22:00 -0400
+Received: from ool-44c1e325.dyn.optonline.net ([68.193.227.37]:33749 "HELO
+	dyn.galis.org") by vger.kernel.org with SMTP id S266851AbUHOTV4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 15:16:04 -0400
-Date: Sun, 15 Aug 2004 21:18:39 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Pavel Roskin <proski@gnu.org>
-Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] Bogus "has no CRC" in external module builds
-Message-ID: <20040815191839.GE7682@mars.ravnborg.org>
-Mail-Followup-To: Pavel Roskin <proski@gnu.org>,
-	linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-References: <Pine.LNX.4.58.0404291246220.7129@marabou.research.att.com>
+	Sun, 15 Aug 2004 15:21:56 -0400
+From: "George Georgalis" <george@galis.org>
+Mail-Followup-To: netdev@oss.sgi.com,
+  linux-kernel@vger.kernel.org,
+  alan@lxorguk.ukuu.org.uk,
+  romieu@fr.zoreil.com
+Date: Sun, 15 Aug 2004 15:21:55 -0400
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: kernel-2.6.8.1 EIP is at velocity_netdev_event+0x16/0x50
+Message-ID: <20040815192155.GG32195@trot.local>
+References: <20040815095814.GA32195@trot.local> <20040815110625.GA2829@electric-eye.fr.zoreil.com> <20040815155457.GB32195@trot.local> <20040815184937.GA9105@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0404291246220.7129@marabou.research.att.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040815184937.GA9105@electric-eye.fr.zoreil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 02:45:30PM -0400, Pavel Roskin wrote:
-> Hello!
-> 
-> The recent fixes for the external module build have fixed the major
-> breakage, but they left one annoyance unfixed.  If CONFIG_MODVERSIONS is
-> disabled, a warning is printed for every exported symbol that is has no
-> CRC.  For instance, I see this when compiling the standalone Orinoco
-> driver on Linux 2.6.6-rc3:
-> 
-> *** Warning: "__orinoco_down" [/usr/local/src/orinoco/spectrum_cs.ko] has
-> no CRC!
-> *** Warning: "hermes_struct_init" [/usr/local/src/orinoco/spectrum_cs.ko]
-> has no CRC!
-> *** Warning: "free_orinocodev" [/usr/local/src/orinoco/spectrum_cs.ko] has
-> no CRC!
-> [further warnings skipped]
-> 
-> I have found that the "-i" option for modpost is used for external builds,
-> whereas the internal modules use "-o".  The "-i" option causes read_dump()
-> in modpost.c to be called.  This function sets "modversions" variable
-> under some conditions that I don't understand.  The comment before the
-> modversions declarations says: "Are we using CONFIG_MODVERSIONS?"
-> 
-> Apparently modpost fails to answer this question.  I think it's better to
-> use an explicit option rather than a kludge.
-> 
-> The attached patch adds a new option "-m" that is specified if and only if
-> CONFIG_MODVERSIONS is enabled.  The patch has been successfully tested
-> both with and without CONFIG_MODVERSIONS.
+On Sun, Aug 15, 2004 at 08:49:38PM +0200, Francois Romieu wrote:
+>George Georgalis <george@galis.org> :
+>[...]
+>> ...that patch doesn't build
+>> 
+>>   26674 Aug 15 06:51 ../20040815-2.6.8-via-velocity-test.patch
+>
+>The patch has been updated. Same location.
 
-Applied a handedited version of this to my tree - sorry for the dealy.
+still no build...
 
-	Sam
+kernel-2.6.8.1 +
+   27253 Aug 15 14:31 ../20040815-2.6.8-via-velocity-test.patch
+
+
+  CC      arch/i386/pci/i386.o
+  CC      arch/i386/pci/pcbios.o
+  CC      arch/i386/pci/mmconfig.o
+  CC      arch/i386/pci/direct.o
+  CC      arch/i386/pci/fixup.o
+  CC      arch/i386/pci/acpi.o
+  CC      arch/i386/pci/legacy.o
+  CC      arch/i386/pci/irq.o
+  CC      arch/i386/pci/common.o
+  LD      arch/i386/pci/built-in.o
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function `wol_calc_crc':
+drivers/built-in.o(.text+0x69e02): undefined reference to `crc_ccitt'
+make: *** [.tmp_vmlinux1] Error 1
+
+// George
+
+-- 
+George Georgalis, Architect and administrator, Linux services. IXOYE
+http://galis.org/george/  cell:646-331-2027  mailto:george@galis.org
+Key fingerprint = 5415 2738 61CF 6AE1 E9A7  9EF0 0186 503B 9831 1631

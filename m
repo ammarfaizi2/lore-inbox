@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269993AbRHNCY6>; Mon, 13 Aug 2001 22:24:58 -0400
+	id <S270005AbRHNCZK>; Mon, 13 Aug 2001 22:25:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270003AbRHNCYs>; Mon, 13 Aug 2001 22:24:48 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:35966 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S269885AbRHNCYb>; Mon, 13 Aug 2001 22:24:31 -0400
-Message-ID: <3B788BDC.100@blue-labs.org>
-Date: Mon, 13 Aug 2001 22:24:28 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
+	id <S270003AbRHNCY6>; Mon, 13 Aug 2001 22:24:58 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:24202 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S269948AbRHNCYq>;
+	Mon, 13 Aug 2001 22:24:46 -0400
+Message-ID: <3B788DAE.4E2A839D@randomlogic.com>
+Date: Mon, 13 Aug 2001 19:32:14 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: PinkFreud <pf-kernel@mirkwood.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Are we going too fast?
-In-Reply-To: <Pine.LNX.4.20.0108131656470.1037-100000@eriador.mirkwood.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+CC: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>,
+        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
+Subject: Re: IDE UDMA/ATA Suckage, or something else?
+In-Reply-To: <E15WODu-00089l-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PinkFreud wrote:
+Alan Cox wrote:
+> 
+> > > You must disable IDE prefetch on the current versions of the AMD MP
+> > > chipset, you may also need to enable "noapic".
+> >
+> > Unless I can do it with the kernel, I have no choice. The BIOS has no
+> > prefetch setting (which, BTW, I had disabled on all my A7V133 boards).
+> > So what about problems with non MP boards?
+> 
+> Well its entirely possible that the BIOS vendor did the right thing and
+> made sure you couldnt turn it on. How does your box behave with noapic ?
 
->I wasn't aware VIA nor Matrox were broken.  I've seen someone else mention in
->this thread that perhaps some old HOWTOs on hardware need to be maintained
->again - I think I agree with that.
->
+I haven't had a chance to try it yet. I'll let the lists know when I do.
 
-VIA comes up as a bloody thorn quite often it seems.  I have a VIA 586B 
-system and it seems to work decently but I think I'm just lucky 
-considering the large number of broken VIA chipset complaints.
+PGA
 
->Perhaps series name should be changed from 'stable' to something else - 
->'release'?
->
-
-Erm...they are called release.  2.<even> is a release kernel and 2.<odd> 
-is a development kernel.  Some people (myself included) fight the 
-impression given by a lot of people of stable/unstable naming. 
- Typically called slashdotters...</humor>
-
-
-David
-
-
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

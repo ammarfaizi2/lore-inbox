@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135796AbRD2PNd>; Sun, 29 Apr 2001 11:13:33 -0400
+	id <S135811AbRD2P1p>; Sun, 29 Apr 2001 11:27:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135802AbRD2PNO>; Sun, 29 Apr 2001 11:13:14 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:62186 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S135796AbRD2PMx>; Sun, 29 Apr 2001 11:12:53 -0400
-Date: Sun, 29 Apr 2001 17:12:46 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, LA Walsh <law@sgi.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-Message-ID: <20010429171246.N679@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.33.0104271842550.17635-100000@duckman.distro.conectiva> <Pine.LNX.4.21.0104272337120.5472-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S135814AbRD2P1f>; Sun, 29 Apr 2001 11:27:35 -0400
+Received: from smtp2.fdn.com ([216.199.0.143]:52210 "EHLO smtp2.fdn.com")
+	by vger.kernel.org with ESMTP id <S135811AbRD2P1Y>;
+	Sun, 29 Apr 2001 11:27:24 -0400
+Message-ID: <3AEC32D6.EC179FCB@fdn.com>
+Date: Sun, 29 Apr 2001 11:27:18 -0400
+From: Michael Pakovic <mpakovic@fdn.com>
+Reply-To: mpakovic@fdn.com
+X-Mailer: Mozilla 4.77 [en] (Win95; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: 2.4.4 fork.c changes cause linuxconf to fail
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0104272337120.5472-100000@localhost.localdomain>; from hugh@veritas.com on Fri, Apr 27, 2001 at 11:40:40PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 27, 2001 at 11:40:40PM +0100, Hugh Dickins wrote:
-> > >     An interesting option (though with less-than-stellar performance
-> > > characteristics) would be a dynamically expanding swapfile.  If you're
-> > > going to be hit with swap penalties, it may be useful to not have to
-> > > pre-reserve something you only hit once in a great while.
-> > This makes amazingly little sense since you'd still need to
-> > pre-reserve the disk space the swapfile grows into.
-> It makes roughly the same sense as over-committing memory.
-> Both are useful, both are unreliable.
+The changes to kernel/fork.c from 2.4.4-pre1 to 2.4.4-pre3 (and in
+2.4.4) cause the RedHat 6.2 linuxconf utility to fail with the message
+"broken pipe".  The linuxconf utility will run the first time, but all
+subsequent runs give the "broken pipe" error.  The error message is
+generated as a result of a fflush command in linuxconf.  I can provide
+more information upon request.
 
-And we have the one, so we should also implement the other one to
-be totally unreliable.
+Mike Pakovic
 
-*gd&r*
-
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266788AbRGKVYy>; Wed, 11 Jul 2001 17:24:54 -0400
+	id <S266786AbRGKVff>; Wed, 11 Jul 2001 17:35:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266786AbRGKVYo>; Wed, 11 Jul 2001 17:24:44 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:37623 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S266785AbRGKVY3>; Wed, 11 Jul 2001 17:24:29 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200107112122.f6BLM9Ik009658@webber.adilger.int>
-Subject: [PATCH] minor fixup of quota checking
-To: torvalds@transmeta.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        mvw@planets.elm.net
-Date: Wed, 11 Jul 2001 15:22:09 -0600 (MDT)
-CC: Linux kernel development list <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
-MIME-Version: 1.0
+	id <S266791AbRGKVf0>; Wed, 11 Jul 2001 17:35:26 -0400
+Received: from femail17.sdc1.sfba.home.com ([24.0.95.144]:55752 "EHLO
+	femail17.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S266786AbRGKVfK>; Wed, 11 Jul 2001 17:35:10 -0400
+From: Josh McKinney <forming@home.com>
+Date: Wed, 11 Jul 2001 16:34:46 -0500
+To: Aaron Smith <yoda_2002@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: disk full or not?  you decide...
+Message-ID: <20010711163446.A1181@home.com>
+Mail-Followup-To: josh, Aaron Smith <yoda_2002@yahoo.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3B4CA943.5EC6A127@zapmedia.com> <20010711152558.A14505@jacana.dyn.dhs.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Content-Disposition: inline
+In-Reply-To: <20010711152558.A14505@jacana.dyn.dhs.org>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch fixes (I think) an error in the boolean logic for
-checking if a filesystem can support quotas.  Since quotas use both
-read and write file operations, we need both functions available, but
-the current test only fails if both read and write are NOT available.
 
-Cheers, Andreas
-==========================================================================
-diff -ru linux-2.4.6.orig/fs/dquot.c linux-2.4.6-aed/fs/dquot.c
---- linux-2.4.6.orig/fs/dquot.c	Thu Jun 28 14:28:23 2001
-+++ linux-2.4.6-aed/fs/dquot.c	Thu Jun 28 14:27:23 2001
-@@ -1467,7 +1467,7 @@
- 	if (IS_ERR(f))
- 		goto out_lock;
- 	error = -EIO;
--	if (!f->f_op || (!f->f_op->read && !f->f_op->write))
-+	if (!f->f_op || !f->f_op->read || !f->f_op->write)
- 		goto out_f;
- 	inode = f->f_dentry->d_inode;
- 	error = -EACCES;
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On approximately Wed, Jul 11, 2001 at 03:25:58PM -0500, Aaron Smith wrote:
+> > however if you run du on the /Assets dir you get:
+> > ----
+> > 8.3G    /Assets
+> > ----
+> > does anyone know why this is happening? our guess is that the logs
+
+Check out the FAQ on www.namesys.com, #17.
+
+--n8g4imXOkfNTN/H1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7TMZzNkH04TEdiy8RAvITAJ0WLziRYVxXo3QJrXmL/6sXAeM86ACdGMHp
+TkfiUyjZSEZVdV1bmUTE0bo=
+=QISu
+-----END PGP SIGNATURE-----
+
+--n8g4imXOkfNTN/H1--

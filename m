@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262485AbRFBKqn>; Sat, 2 Jun 2001 06:46:43 -0400
+	id <S262500AbRFBKxO>; Sat, 2 Jun 2001 06:53:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262498AbRFBKqd>; Sat, 2 Jun 2001 06:46:33 -0400
-Received: from lenka.ph.ipex.cz ([212.71.128.11]:59456 "EHLO lenka.ph.ipex.cz")
-	by vger.kernel.org with ESMTP id <S262485AbRFBKqW>;
-	Sat, 2 Jun 2001 06:46:22 -0400
-Date: Sat, 2 Jun 2001 12:47:32 +0200
-From: Robert Vojta <vojta@ipex.cz>
-To: Anil Kumar <anilk@subexgroup.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Address
-Message-ID: <20010602124732.A781@ipex.cz>
-In-Reply-To: <NEBBIIKAMMOCGCPMPBJOMEJPCDAA.anilk@subexgroup.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
-Content-Disposition: inline
-In-Reply-To: <NEBBIIKAMMOCGCPMPBJOMEJPCDAA.anilk@subexgroup.com>
-User-Agent: Mutt/1.3.18i
-X-Telephone: +420 603 167 911
-X-Company: IPEX, s.r.o.
+	id <S262515AbRFBKxE>; Sat, 2 Jun 2001 06:53:04 -0400
+Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:56069 "EHLO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with ESMTP
+	id <S262500AbRFBKwt>; Sat, 2 Jun 2001 06:52:49 -0400
+Date: Sat, 2 Jun 2001 12:52:46 +0200 (CEST)
+From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+To: Andreas Hartmann <andihartmann@freenet.de>
+cc: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.5 and all ac-Patches] massive file corruption with reiser
+ or NFS
+In-Reply-To: <01060211530400.00350@athlon>
+Message-ID: <Pine.LNX.4.33L2.0106021251570.1083-100000@grignard.amagerkollegiet.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2 Jun 2001, Andreas Hartmann wrote:
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> I got massive file corruptions with the kernels mentioned in the subject. I
+> can reproduce it every time.
 
-> Under which directory is the Linus's kernel?
+You cannot use NFS on reiserfs unless you apply the knfsd patch. Look at
+www.namesys.com.
 
-  ftp://ftp.kernel.org/pub/linux/kernel/v2.[24]
+Rasmus
 
-  .R.V.
+-- 
+-- [ Rasmus 'Møffe' Bøg Hansen ] --------------------------------------
+If you only have a hammer
+everything looks like a nail
+-------------------------------- [ moffe at amagerkollegiet dot dk ] --0
 
---=20
-   _
-  |-|  __      Robert Vojta <vojta-at-ipex.cz>          -=3D Oo.oO =3D-
-  |=3D| [Ll]     IPEX, s.r.o.
-  "^" =3D=3D=3D=3D`o
-
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjsYxEMACgkQInNB3KDLeVPawwCeL9SekZT13T/WSjaik6zsia3A
-0dMAniP36MJXSqD4j5NciCjkpBTo8xot
-=xjg0
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--

@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135901AbRDZTfq>; Thu, 26 Apr 2001 15:35:46 -0400
+	id <S135239AbRDZTlF>; Thu, 26 Apr 2001 15:41:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135899AbRDZTff>; Thu, 26 Apr 2001 15:35:35 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:5294 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135902AbRDZTfW>;
-	Thu, 26 Apr 2001 15:35:22 -0400
-Date: Thu, 26 Apr 2001 15:34:00 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <20010426211557.Z819@athlon.random>
-Message-ID: <Pine.GSO.4.21.0104261530370.15385-100000@weyl.math.psu.edu>
+	id <S131638AbRDZTkz>; Thu, 26 Apr 2001 15:40:55 -0400
+Received: from light.kappa.ro ([194.102.249.27]:50185 "EHLO light.kappa.ro")
+	by vger.kernel.org with ESMTP id <S135902AbRDZTkq>;
+	Thu, 26 Apr 2001 15:40:46 -0400
+Message-ID: <001b01c0ce88$5632fc70$e8c6e7c1@scream>
+From: "Alexandru Barloiu Nicolae" <axl@light.kappa.ro>
+To: <linux-kernel@vger.kernel.org>
+Date: Thu, 26 Apr 2001 22:37:32 +0300
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+is ftp.kernel.org down or is just my connections fault ?
+
+axl
 
 
-On Thu, 26 Apr 2001, Andrea Arcangeli wrote:
+______________________________________________________
+support slackware anyway posible paypal@slackware.com anyone ?
+   http://www.slackware.com/forum/read.php?f=5&i=7887&t=7887
 
-> > the wait-on-buffer is not strictly necessary: it's probably there to make
-> 
-> maybe not but I need to check some more bit to be sure.
-
-Same scenario, but with read-in-progress started before we do getblk(). BTW,
-old writeback is harmless - we will overwrite anyway. And _that_ can happen
-without direct access to device - truncate() doesn't terminate writeout of
-the indirect blocks it frees (IMO it should, but that's another story).
 

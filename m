@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266144AbRF2SCf>; Fri, 29 Jun 2001 14:02:35 -0400
+	id <S266149AbRF2SJF>; Fri, 29 Jun 2001 14:09:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266135AbRF2SAi>; Fri, 29 Jun 2001 14:00:38 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:11268 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266140AbRF2SAL>;
-	Fri, 29 Jun 2001 14:00:11 -0400
-Message-ID: <20010629002710.C525@bug.ucw.cz>
-Date: Fri, 29 Jun 2001 00:27:10 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: landley@webofficenow.com,
-        "Schilling, Richard" <RSchilling@affiliatedhealth.org>,
-        hps@intermeta.de, "Henning P. Schmiedehausen" <mailgate@hometree.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
-In-Reply-To: <51FCCCF0C130D211BE550008C724149E01165690@mail1.affiliatedhealth.org> <01062114211800.00692@localhost.localdomain>
-Mime-Version: 1.0
+	id <S266153AbRF2SI4>; Fri, 29 Jun 2001 14:08:56 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:43527 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S266149AbRF2SIq>; Fri, 29 Jun 2001 14:08:46 -0400
+Message-ID: <3B3CC466.9CAC4365@t-online.de>
+Date: Fri, 29 Jun 2001 20:09:42 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@aslab.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)V3
+In-Reply-To: <Pine.LNX.4.04.10106281317001.30863-100000@mail.aslab.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <01062114211800.00692@localhost.localdomain>; from Rob Landley on Thu, Jun 21, 2001 at 02:21:18PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andre Hedrick wrote:
+> 
+> That is a legacy bit from ATA-2 but it is one of those things you can not
+> get rid of :-( even thou things are obsoleted, they are not retired.
+> This means that you have to go back into the past to see how it was used,
+> silly!  I hope you agree to that point.
 
-> I wouldn't be at all suprised if they did.  It'd fit in with the history of 
-> NT.  (Version numbers really approximate, I don't have my notes with me.)
-> 
-> NT 1.0: the inherited OS/2 1.x code ported to 32 bit mode, sort of.
-> 
-> NT 2.0: 1.0 didn't work so let's try porting it to the mach microkernel.
-> 
-> NT 3.0: that didn't work either, so let's hire Dave Cutler (chief unix hater 
-> at Digital research and ex-head of the VAX VMS operating system) to port VMS 
-> on top of the steaming pile of code that is NT.
-> 
-> NT 3.5: punch holes in the mach microkernel to get some performance, try to 
-> fix some of the more obvious bugs.
-> 
-> NT 4.0 stabilized (a bit) because dave cutler (and the team under him) was 
-> still around.  They hadn't yet again changed horses in midstream.  
-> Eventually, with the same team working on the same code, it's bound to 
-> stabilize a bit.)  Bloated a bit as well, but that's proprietary software for 
-> you.
+No,
+in ANSI X3.279-1996, "AT Attachment Interface with Extensions (ATA-2)",
+Approved September 11, 1996 , control register bit 3-7 are reserved.
 
-Is this accurate? I never knew NT was mach-based. I do not think NT
-1-3 were actually ever shipped, first was NT 3.5 right?
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+However ANSI X3.221-1994, "AT Attachment Interface for Disk Drives",
+Approved May 12, 1994, bit3 is "1" and bits 4-7 are "x". No further explanation.
+
+How far back must we go, to get the sense ?
+
+> 
+> This is the drive->ctrl register pointer.
+> 
+> outp(drive->ctl|0x02, IDE_CONTROL_REG);
+> 
+> typedef union {
+>         unsigned all                    : 8;    /* all of the bits together */
+>         struct {
+>                 unsigned bit0           : 1;
+>                 unsigned nIEN           : 1;    /* device INTRQ to host */
+>                 unsigned SRST           : 1;    /* host soft reset bit */
+>                 unsigned bit3           : 1;    /* ATA-2 thingy */
+>                 unsigned reserved456    : 3;
+>                 unsigned HOB            : 1;    /* 48-bit address ordering */
+>         } b;
+> } control_t;
+> 
+> This is a new struct that is to be added for 48-bit addressing and it will
+> reflect drive->ctl soon.  I have not decided how to use it best or at all,
+> but it has meaning and once I add-in the real def of bit3 then I will not
+> need to look it up again.

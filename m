@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288966AbSANTKy>; Mon, 14 Jan 2002 14:10:54 -0500
+	id <S288964AbSANTMc>; Mon, 14 Jan 2002 14:12:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288801AbSANTJw>; Mon, 14 Jan 2002 14:09:52 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:35797 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S288932AbSANTJS>;
-	Mon, 14 Jan 2002 14:09:18 -0500
-Date: Mon, 14 Jan 2002 14:09:16 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
-        Giacomo Catenazzi <cate@debian.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: <20020114131050.E14747@thyrsus.com>
-Message-ID: <Pine.GSO.4.21.0201141337580.224-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288801AbSANTK6>; Mon, 14 Jan 2002 14:10:58 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:11398
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288963AbSANTKJ>; Mon, 14 Jan 2002 14:10:09 -0500
+Date: Mon, 14 Jan 2002 13:54:12 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Charles Cazabon <charlesc@discworld.dyndns.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Eli Carter <eli.carter@inet.com>,
+        "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020114135412.D17522@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Charles Cazabon <charlesc@discworld.dyndns.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Eli Carter <eli.carter@inet.com>,
+	"Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>
+In-Reply-To: <20020114125228.B14747@thyrsus.com> <E16QBwD-0002So-00@the-village.bc.nu> <20020114132618.G14747@thyrsus.com> <20020114125508.A3358@twoflower.internal.do>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020114125508.A3358@twoflower.internal.do>; from charlesc@discworld.dyndns.org on Mon, Jan 14, 2002 at 12:55:08PM -0600
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Charles Cazabon <charlesc@discworld.dyndns.org>:
+> Yes, and yes.  Aunt Tillie is running Linux because someone installed a
+> distribution for her.
 
+You don't know that.  Maybe she installed it herself.
+ 
+> She is never going to need anything out of her kernel that her vendor-shipped
+> update kernels do not provide.
 
-On Mon, 14 Jan 2002, Eric S. Raymond wrote:
+*You can't know that.*  
 
-> Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > For 2.5 if things go to plan there will be no such thing as a "compiled in"
-> > driver. They simply are not needed with initramfs holding what were once the
-> > "compiled in" modules.
-> 
-> This is something of a bombshell.  Not necessarily a bad one, but...
-> 
-> Alan, do you have *any* *freakin'* *idea* how much more complicated
-> the CML2 deduction engine had to be because the basic logical entity
-> was a tristate rather than a bool?  If this plan goes through, I'm
-> going to be able to drop out at least 20% of the code, with most of
-> that 20% being in the nasty complicated bits where the maintainability
-> improvement will be greatest.  And I can get rid of the nasty "vitality"
-> flag, which probably the worst wart on the language.
-> 
-> Yowza...so how soon is this supposed to happen?
+And your belief that you *can* know it is a key part of the elitist
+developer psychology and implicit assumptions that keeps Linux mostly
+inaccessible to the Aunt Tillies of the world.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Two technical obstacles:
-	a) on some architecures modular code is slower (IIRC, the problem is
-with medium-range calls being faster than far ones and usable only in the
-kernel proper).  We probaly want to leave a gap after the .text and remap
-.text of module in there - if I understand the problem that should be
-enough, but that's really a question to folks dealing with these ports (PPC64
-and Itanic?)
-	b) current differences between options parsing in case of built-in
-and modular drivers.
-
-The rest is trivial and should be done in 2.5.4-pre* or so.
-
-But it still leaves you with tristate - instead of yes/module/no it's
-yes/yes, but don't put it on initramfs/no.  However, dependencies become
-simpler - all you need is "I want this, that and that on initramfs" and
-the rest can be found by depmod (i.e. configurator doesn't have to deal
-with "FOO goes on initramfs (== old Y), so BAR and BAZ must go there
-(== can't be M)").
-
+According to the National Crime Survey administered by the Bureau of
+the Census and the National Institute of Justice, it was found that
+only 12 percent of those who use a gun to resist assault are injured,
+as are 17 percent of those who use a gun to resist robbery. These
+percentages are 27 and 25 percent, respectively, if they passively
+comply with the felon's demands. Three times as many were injured if
+they used other means of resistance.
+        -- G. Kleck, "Policy Lessons from Recent Gun Control Research,"
+		Law and Contemporary Problems 49, no. 1. (Winter 1986.): 35-62.

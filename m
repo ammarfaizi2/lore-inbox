@@ -1,79 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264770AbUFAFRt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264888AbUFAFZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264770AbUFAFRt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 01:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264888AbUFAFRt
+	id S264888AbUFAFZj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 01:25:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUFAFZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 01:17:49 -0400
-Received: from miranda.se.axis.com ([193.13.178.2]:52946 "EHLO
-	miranda.se.axis.com") by vger.kernel.org with ESMTP id S264770AbUFAFRr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 01:17:47 -0400
-From: "Mikael Starvik" <mikael.starvik@axis.com>
-To: "'Sam Ravnborg'" <sam@ravnborg.org>,
-       "=?iso-8859-1?B?Qmr2cm4gV2Vz6W4=?=" <bjorn.wesen@axis.com>
-Cc: "'Dan Kegel'" <dank@kegel.com>,
-       "'Mikael Starvik'" <mikael.starvik@axis.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Delete cris architecture?
-Date: Tue, 1 Jun 2004 07:17:33 +0200
-Message-ID: <BFECAF9E178F144FAEF2BF4CE739C66818F48E@exmail1.se.axis.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C668CD62C1@exmail1.se.axis.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Importance: Normal
+	Tue, 1 Jun 2004 01:25:39 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:31460 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S264888AbUFAFZi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 01:25:38 -0400
+Date: Tue, 1 Jun 2004 07:25:11 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 4k stacks in 2.6
+Message-ID: <20040601052511.GB15492@wohnheim.fh-wedel.de>
+References: <20040527145935.GE23194@wohnheim.fh-wedel.de> <4382.1085670482@ocs3.ocs.com.au> <20040527152156.GI23194@wohnheim.fh-wedel.de> <1085672066.7179.3.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1085672066.7179.3.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 27 May 2004 17:34:26 +0200, Arjan van de Ven wrote:
+> 
+> you can write "add 100,%esp" as "sub -100, %esp" :)
+> compilers seem to do that at times, probably some cpu model inside the
+> compiler decides the later is better code in some cases  :)
 
-The CRIS architecture is very much alive and locally we are running 2.6.6.
-It is true that I haven't submitted any patches since 2.5.74 or 
-something like that. It is my intention to send in a patch asap,
-hopefully this week.
+That and even worse things.  sys_sendfile has a "sub $0x10,%esp"
+followed by an "add $0x20,%esp".  Can you explain that one as well?
+0x20 is the size of all automatic variables on i386.
 
-I will submit 2.6 patches more often in the future. Later this year 
-we will also add support for a new CRIS subarchitecture.
+I have no idea what kind of trick gcc is playing there, but it appears
+to work which makes me only more curious.
 
-/Mikael (CRIS maintainer)
+Jörn
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Sam Ravnborg
-Sent: Monday, May 31, 2004 8:42 PM
-To: Björn Wesén
-Cc: Dan Kegel; Mikael Starvik; linux-kernel@vger.kernel.org
-Subject: Re: Delete cris architecture?
-
-
-On Mon, May 31, 2004 at 06:14:02PM +0200, Bjorn Wesen wrote:
-> The CRIS architecture is stable and supported by Axis Communications 
-> officially in 2.4, but the 2.6 port is work-in-progress, thus you could 
-> expect problems building it from the vanilla kernel source. It works 
-> in-house on 2.6, but perhaps all patches have not trickled out to the 
-> official kernel yet (although they should have I think, so it's good that 
-> you mention stuff like this).
-
-When grepping the source and even doing cross architecture changes it is
-nice to have a ratehr up-to-date version in the main stream kernel.
-
-It would be nice if Axis could at least drop an update of the tree for
-each kernel release (provided there are any changes).
-This would allow all of us to get a better overview, and in some cases
-we may even introduce new stuff / fix errors.
-
-So please start to feed Andrew (or Linus) regularly with updates.
-
-	Sam
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+Simplicity is prerequisite for reliability.
+-- Edsger W. Dijkstra

@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315540AbSEQKWp>; Fri, 17 May 2002 06:22:45 -0400
+	id <S315559AbSEQKiR>; Fri, 17 May 2002 06:38:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315548AbSEQKWo>; Fri, 17 May 2002 06:22:44 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:26638 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S315540AbSEQKWo>; Fri, 17 May 2002 06:22:44 -0400
-Date: Fri, 17 May 2002 11:20:54 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: AUDIT: copy_from_user is a deathtrap.
-Message-ID: <20020517112054.A13933@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E178e1l-0007qB-00@wagner.rustcorp.com.au>
-Mime-Version: 1.0
+	id <S315563AbSEQKiQ>; Fri, 17 May 2002 06:38:16 -0400
+Received: from penguin-ext.wise.edt.ericsson.se ([193.180.251.47]:42914 "EHLO
+	penguin.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
+	id <S315559AbSEQKiP>; Fri, 17 May 2002 06:38:15 -0400
+Message-ID: <3CE4DD8C.69C34A1B@uab.ericsson.se>
+Date: Fri, 17 May 2002 12:38:04 +0200
+From: Sverker Wiberg <Sverker.Wiberg@uab.ericsson.se>
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: G Sandine <lkml@laclinux.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: knfsd misses occasional writes
+In-Reply-To: <3CE250A5.47F71DF@uab.ericsson.se> <15586.20989.992591.474108@notabene.cse.unsw.edu.au> <3CE38E9D.986ACF7F@uab.ericsson.se> <20020516143441.A4322@laclinux.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 17, 2002 at 07:27:54PM +1000, Rusty Russell wrote:
-> Linus,
-> 
-> 	Should I change copy_to/from_user to return -EFAULT, or
-> introduce a new copy_to/from_uspace which does and start moving
-> everything across?
+G Sandine wrote:
 
-copyin/copyout! :)
+> [...]and one day the time clock file remained a text file
+> but was truncated to zero. All further punch ins/punch outs did not
+> record in the truncated file (user names, dates, and times should have
+> appended).
 
+Sounds as you've got the file's ownership and perms clobbered. I'll
+check if that happens over here as well.
+
+> Deleting and recreating the text file on a client returned
+> behavior to normal.  No error messages whatsoever, and it has worked
+> fine for two weeks as we watch for the behavior to repeat.
+
+Then we're (cough!) luckier over here, we can recreate the problem in
+about an hour. But at least it's nice to know you're no alone.
+
+[To the lkml:]
+
+Over here, we started to log the conversations, and saw the client
+opening a file, writing 272 bytes into it (one write), and then closing
+it, with the server replying full success all the time. printk()'s in
+knfsd and the vfs's generic_write() also reported that 272 bytes had
+been successfully written. Yet the file was truncated.
+
+We switched from soft to hard mount: It didn't help. We are now
+experimenting with disabling SCSI's disconnect/reconnect feature. Are
+there any more straws to grasp at?
+
+/Sverker

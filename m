@@ -1,27 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264101AbRFFTKe>; Wed, 6 Jun 2001 15:10:34 -0400
+	id <S264103AbRFFTLO>; Wed, 6 Jun 2001 15:11:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264102AbRFFTKY>; Wed, 6 Jun 2001 15:10:24 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2575 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264101AbRFFTKS>; Wed, 6 Jun 2001 15:10:18 -0400
-Subject: Re: temperature standard - global config option?
-To: davidw@apache.org (David N. Welton)
-Date: Wed, 6 Jun 2001 20:08:17 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87snhdvln9.fsf@apache.org> from "David N. Welton" at Jun 06, 2001 02:27:22 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E157ifB-0000I8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S264102AbRFFTKy>; Wed, 6 Jun 2001 15:10:54 -0400
+Received: from jalon.able.es ([212.97.163.2]:6350 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S264103AbRFFTKr>;
+	Wed, 6 Jun 2001 15:10:47 -0400
+Date: Wed, 6 Jun 2001 21:10:39 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: ide speeds
+Message-ID: <20010606211039.A1565@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.1.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> notice that in some places, Fahrenheit is used, and in some places,
-> Celsius.  It would seem logical to me to have a global config option,
-> so that you *know* that you talk devices either in F or C.
+Hi,
 
-The spec is farenheit
+A little test-question. I am getting some strange timings...
+
+Hardware: PIIX4:
+00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01) (prog-if 80 [Master])
+        Flags: bus master, medium devsel, latency 64
+        I/O ports at ffa0 [size=16]
+and a Creative 52mx CD-ROM (managed with kernel ide, master on IDE1)
+and a Yamaha 8424 CDRW (also IDE, with ide-scsi+sg).
+
+Software: 2.4.5-ac9+andre-ide-patch
+Test: read a big file (634Mb) to disk.
+
+The copy takes nearly 9 minutes from the 52x Creative and 3.5 from the
+24x Yamaha. ???
+
+Can it be soft ? The difference between ide-scsi and native ide ?
+Or just the Creative hardware is s... ?
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Linux Mandrake release 8.1 (Cooker) for i586
+Linux werewolf 2.4.5-ac9 #1 SMP Wed Jun 6 09:57:46 CEST 2001 i686

@@ -1,72 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130221AbQKCCDM>; Thu, 2 Nov 2000 21:03:12 -0500
+	id <S130334AbQKCCEm>; Thu, 2 Nov 2000 21:04:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130334AbQKCCCw>; Thu, 2 Nov 2000 21:02:52 -0500
-Received: from 209-164-222-32.iglobal.net ([209.164.222.32]:47747 "EHLO
-	liu.fafner.com") by vger.kernel.org with ESMTP id <S130259AbQKCCCr>;
-	Thu, 2 Nov 2000 21:02:47 -0500
-From: Elizabeth Morris-Baker <eamb@liu.fafner.com>
-Message-Id: <200011030144.TAA08665@liu.fafner.com>
-Subject: Re: scsi init problem in 2.4.0-test10? [PATCH]
-To: tao@acc.umu.se (David Weinehall)
-Date: Thu, 2 Nov 2000 19:44:39 -0600 (CST)
-Cc: eamb@liu.fafner.com (Elizabeth Morris-Baker),
-        torben@kernel.dk (Torben Mathiasen), linux-kernel@vger.kernel.org
-In-Reply-To: <20001103020216.A29681@khan.acc.umu.se> from "David Weinehall" at Nov 03, 2000 02:02:16 AM
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S130403AbQKCCEc>; Thu, 2 Nov 2000 21:04:32 -0500
+Received: from fw.SuSE.com ([202.58.118.35]:12536 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id <S130334AbQKCCEV>;
+	Thu, 2 Nov 2000 21:04:21 -0500
+Date: Thu, 2 Nov 2000 19:10:39 -0800
+From: Jens Axboe <axboe@suse.de>
+To: David Mansfield <lkml@dm.ultramaster.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: blk-7 fails to boot (against 2.4.0-test10)
+Message-ID: <20001102191039.B17975@suse.de>
+In-Reply-To: <3A01C8B2.23D6E9C4@dm.ultramaster.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A01C8B2.23D6E9C4@dm.ultramaster.com>; from lkml@dm.ultramaster.com on Thu, Nov 02, 2000 at 03:04:02PM -0500
+X-OS: Linux 2.4.0-test10 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 02 2000, David Mansfield wrote:
+> Hi Jens.
 > 
+> I wanted to try out blk-7 to see if it cured the abysmal I/O
+> performance on 2.4.0-test10, but it won't boot on my system.
 
-	Thank you for the information.
-	I will give it some thought and see if I can come up
-	with something that will fit both bills...
+Could you try blk-8?
 
-	The problem is that the disks that I have are
-	very wide-spread, I would imagine. Compaq is shipping
-	them in their newer machines, so some compromise has
-	to be arrived at.
-	
-	I will look into the matter further.
-	Thanks again.
+*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test10/blk-8.bz2
 
-	cheers, 
+It also has other fixes over blk-7 (saves the linear back scan when
+a buffer can't be merged, simple aging of requests in queue, and
+more "fair" accouting of merges)
 
-	eamb
-
-> On Thu, Nov 02, 2000 at 06:24:47PM -0600, Elizabeth Morris-Baker wrote:
-> > > 
-> > 
-> > 	Yes, I know that is in the spec, but truly,
-> > 	some scsi devices do act this way....
-> > 	Maybe they need to read the spec :>
-> > 
-> > 	I have included the START_STOP for Matthew, but
-> > 	I never see it execute with the ATLAS disks...
-> > 	A diff follows for those that want to try it..
-> > 
-> > 	cheers, 
-> > 
-> > 	Elizabeth
-> 
-> Well, if I'm not all mistaken, this is the code that got removed earlier
-> on from the kernel because it caused some SCSI-adapters to hang on
-> scsi-scan?! If so, what's better: to follow the specs and penalise the
-> bad guys, or ignore the specs and penalise the good guys...
-> 
-> 
-> /David Weinehall
->   _                                                                 _
->  // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-> //  Project MCA Linux hacker        //  Dance across the winter sky //
-> \>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
-> 
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

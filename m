@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132012AbQKJW1E>; Fri, 10 Nov 2000 17:27:04 -0500
+	id <S131785AbQKJWaY>; Fri, 10 Nov 2000 17:30:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132000AbQKJW05>; Fri, 10 Nov 2000 17:26:57 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:19428 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S132012AbQKJW0k>; Fri, 10 Nov 2000 17:26:40 -0500
-Date: Fri, 10 Nov 2000 17:23:53 -0500 (EST)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
+	id <S131842AbQKJWaO>; Fri, 10 Nov 2000 17:30:14 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:9810 "EHLO
+	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S131955AbQKJWaF>; Fri, 10 Nov 2000 17:30:05 -0500
+Date: Sat, 11 Nov 2000 00:37:53 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
 To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-cc: <sendmail-bugs@Sendmail.ORG>, <linux-kernel@vger.kernel.org>
-Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
-In-Reply-To: <3A0C7139.DDD81E67@timpanogas.org>
-Message-ID: <Pine.LNX.4.30.0011101719440.19584-100000@back40.badlands.lexington.ibm.com>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
+cc: wmaton@ryouko.dgim.crc.ca, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in  
+ /var/spool/mqueue]
+In-Reply-To: <3A0C43D0.14039937@timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0011110034180.6465-100000@server.serve.me.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2000, Jeff V. Merkey wrote:
 
-> Then perhaps qmail's time has finally come .... If sendmail cannot run
-> on a machine with minimal background loading from a dozen or so FTP
-> clients downloading files, it's clearly sick.  BTW.  I have another box
-> running qmail, and it doesn't have these problems.
+> > What about sendmail 8.11.1?  Is the problem there too?
+> 
+> Yes.  Plus 8.11.1 has problems talking to older sendmails sine it uses
+> encryption.
 
-I have several boxen running sendmail with fair to moderate loading -
-they even occasionally don't accept mail... and thats good, as it lets
-the system catch up with its current load.  As soon as things stabalize,
-sendmail again accepts connections - you *do* have MX entries don't you?
+Depends on how you configure it. An enabled encryption doesn't always mean
+it has problems taking to other sendmails. This sendmail here has no
+problems forwarding a mail > 400 Kb (I used 1.2 MB).
 
-I've *never* had the problem you've got with *any* of the boxes - maybe
-you should rethink your setup.  I'll wager that the qmail box isn't as
-heavily loaded as the one running sendmail; why not split your services?
--- 
-Rick Nelson
-There are two types of Linux developers - those who can spell, and
-those who can't. There is a constant pitched battle between the two.
-(From one of the post-1.1.54 kernel update messages posted to c.o.l.a)
+This is 8.11.1 with the MySQL mapper patch.
+
+> > > ANyone have any ideas if what the sendmail people are saying is on the
+> > > level, or is this just another sendmail bug.
+
+I can't reproduce on 8.11.1
+
+Maybe I can if someones tells me the exact procedure to reproduce it.
+
+> > >
+> > > Jeff
+> > 
+> > wfms
+
+
+	Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

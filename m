@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289077AbSAUGgc>; Mon, 21 Jan 2002 01:36:32 -0500
+	id <S289081AbSAUGjw>; Mon, 21 Jan 2002 01:39:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289080AbSAUGgW>; Mon, 21 Jan 2002 01:36:22 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:21641 "EHLO
+	id <S289082AbSAUGjd>; Mon, 21 Jan 2002 01:39:33 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:24969 "EHLO
 	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S289077AbSAUGgH>; Mon, 21 Jan 2002 01:36:07 -0500
-Date: Sun, 20 Jan 2002 23:35:45 -0700
-Message-Id: <200201210635.g0L6ZjA22202@vindaloo.ras.ucalgary.ca>
+	id <S289081AbSAUGjR>; Mon, 21 Jan 2002 01:39:17 -0500
+Date: Sun, 20 Jan 2002 23:39:11 -0700
+Message-Id: <200201210639.g0L6dBp22342@vindaloo.ras.ucalgary.ca>
 From: Richard Gooch <rgooch@ras.ucalgary.ca>
 To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v199.8 available
+Subject: devfsd-v1.3.22 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 199.8 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+  Hi, all. I've just released version 1.3.22 of my devfsd (devfs
+daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+Tarball directly available from:
+ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
 
 AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
 
-This is against 2.4.18-pre4. Highlights of this release:
+This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
+(or later).
 
-- Fixed deadlock bug in <devfs_d_revalidate_wait>
+The main changes are:
 
-- Tag VFS deletable in <devfs_mk_symlink> if handle ignored
+- Fixed <write_old_sd_name> when there are more than 26 SCSI discs
 
-- Updated README from master HTML file
+- Fixed <get_old_name> to ignore new compatibility names for IDE
+  devices. Consolidated SCSI code. Consolidated IDE code
 
-- Fixed kdev_none macro in include/linux/kdev_t.h
+- Fixed <action_compat> to ignore new compatibility names for IDE
+  devices.
 
 				Regards,
 

@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263399AbTKKHjd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 02:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264269AbTKKHjd
+	id S263388AbTKKHeV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 02:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263389AbTKKHeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 02:39:33 -0500
-Received: from mail-10.iinet.net.au ([203.59.3.42]:17540 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263399AbTKKHjb
+	Tue, 11 Nov 2003 02:34:20 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:52099 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263388AbTKKHeT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 02:39:31 -0500
-Message-ID: <3FB091C0.9050009@cyberone.com.au>
-Date: Tue, 11 Nov 2003 18:37:36 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: walt <wa1ter@myrealbox.com>, linux-kernel@vger.kernel.org
+	Tue, 11 Nov 2003 02:34:19 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 10 Nov 2003 23:34:18 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: jw schultz <jw@pegasys.ws>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: kernel.bkbits.net off the air
-References: <Pine.LNX.4.44.0311102316330.980-100000@bigblue.dev.mdolabs.com>
-In-Reply-To: <Pine.LNX.4.44.0311102316330.980-100000@bigblue.dev.mdolabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20031111034815.GA17240@pegasys.ws>
+Message-ID: <Pine.LNX.4.44.0311102323240.980-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 10 Nov 2003, jw schultz wrote:
+
+> If not you can test the directory.
+> 
+>         ls -l $CVSROOT/CVSROOT >$TMPFILE.start
+>         touch $TMPFILE.test
+> 
+>         until diff -q $TMPFILE.start $TMPFILE.test >/dev/null
+>         do
+> 		ls -l $CVSROOT/CVSROOT >$TMPFILE.start
+>                 rsync .....
+>                 ls -l $CVSROOT/CVSROOT >$TMPFILE.test
+>         done
+>         rm -f $TMPFILE.start $TMPFILE.test
+
+It does not work either. If CVSROOT files are updated at the end, you can 
+still fetch some new files and be able to fetch the old CVSROOT before the 
+update process will be able to do it. I believe that the LOCK file idea 
+should work pretty nicely. The update process goes like:
+
+create LOCK
+update repo
+remove LOCK
+
+While the client can simply:
+
+do
+    rsync
+while exist LOCK
 
 
-Davide Libenzi wrote:
 
->On Mon, 10 Nov 2003, walt wrote:
->
->
->>Andrea Arcangeli wrote:
->>
->>
->>>>On Mon, 10 Nov 2003, Andrea Arcangeli wrote:
->>>>
->>>The best way to fix this isn't to add locking to rsync, but to add two
->>>files inside or outside the tree, each one is a sequence number, so you
->>>fetch file1 first, then you rsync and you fetch file2, then you compare
->>>them. If they're the same, your rsync copy is coherent. It's the same
->>>locking we introduced with vgettimeofday...
->>>
->>How is this different from writing one file named LOCK while updating
->>the tree?
->>
->
->This is even simpler I believe. If you happen to fetch it, you restart the 
->rsync. Peter ?
->(maybe the name LOCK should be replaced by something more "uniq")
->
->
+- Davide
 
-What happens if the the tree is updated while the client is fetching it?
 
 

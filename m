@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVADKro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVADKtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVADKro (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 05:47:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVADKrf
+	id S261731AbVADKtU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 05:49:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVADKtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 05:47:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:63372 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261607AbVADKrd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 05:47:33 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <28707.1104722227@ocs3.ocs.com.au> 
-References: <28707.1104722227@ocs3.ocs.com.au> 
-To: Keith Owens <kaos@ocs.com.au>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Jim Nelson <james4765@cwazy.co.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Coywolf Qi Hunt <coywolf@gmail.com>, Jesper Juhl <juhl-lkml@dif.dk>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: printk loglevel policy? 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.3
-Date: Tue, 04 Jan 2005 10:46:45 +0000
-Message-ID: <2583.1104835605@redhat.com>
+	Tue, 4 Jan 2005 05:49:20 -0500
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:12298 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S261731AbVADKtH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 05:49:07 -0500
+Date: Tue, 4 Jan 2005 02:48:30 -0800
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Bill Huey <bhuey@lnxw.com>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-mm1-V0.7.34-00
+Message-ID: <20050104104830.GA20393@nietzsche.lynx.com>
+References: <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu> <20050104064013.GA19528@nietzsche.lynx.com> <20050104094518.GA13868@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050104094518.GA13868@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 04, 2005 at 10:45:18AM +0100, Ingo Molnar wrote:
+> this is mainly a straight port from 2.6.10-rc3-mm1 to 2.6.10-mm1, plus i
+> picked up a post-2.6.10-mm1 audio-driver buildsystem fix-patch. Please
+> (re-)report any new or old regressions.
 
-Keith Owens <kaos@ocs.com.au> wrote:
+Build failure.
 
-> >That kind of garbled output has been known to happen, but
-> >the <console_sem> is supposed to prevent that (along with
-> >zap_locks() in kernel/printk.c).
-> 
-> Using multiple calls to printk to print a single line has always been
-> subject to the possibility of interleaving on SMP.  We just live with the
-> risk. Printing a complete line in a single call to printk is protected by
-> various locks.  Print a line in multiple calls is not protected.  If it
-> bothers you that much, build up the line in a local buffer then call printk
-> once.
+  LD      arch/i386/kernel/cpu/mcheck/built-in.o
+  kernel/time.c: In function `sys_gettimeofday':
+  kernel/time.c:164: error: parse error before ')' token
+  distcc[2235] ERROR: compile kernel/time.c on localhost failed
+  make[1]: *** [kernel/time.o] Error 1
+  make[1]: *** Waiting for unfinished jobs....
+    CC      mm/truncate.o
 
-The oops writer breaks the locks. It's _really_ annoying when oopses happen
-simultaneously on separate CPUs - the oops reports end up interleaved
-char-by-char.
+bill
 
-My patch serialised oops writing.
-
-David

@@ -1,281 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263843AbTJ1D4h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 22:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbTJ1D4h
+	id S263793AbTJ1DyI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 22:54:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbTJ1DyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 22:56:37 -0500
-Received: from dhcp160178171.columbus.rr.com ([24.160.178.171]:17673 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S263843AbTJ1D42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 22:56:28 -0500
-Date: Mon, 27 Oct 2003 22:56:25 -0500
-To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       vojtech@suse.cz
-Subject: Re: [PATCH] PS/2 mouse rate setting
-Message-ID: <20031028035625.GB20145@rivenstone.net>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel@vger.kernel.org, vojtech@suse.cz
-References: <20031027140217.GA1065@averell> <Pine.LNX.4.44.0310270830060.1699-100000@home.osdl.org> <20031028035244.GA20145@rivenstone.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qjNfmADvan18RZcF"
-Content-Disposition: inline
-In-Reply-To: <20031028035244.GA20145@rivenstone.net>
-User-Agent: Mutt/1.5.4i
-From: <jhf@rivenstone.net>
+	Mon, 27 Oct 2003 22:54:08 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:29622 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263793AbTJ1DyF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 22:54:05 -0500
+Message-ID: <3F9DE858.7020109@cyberone.com.au>
+Date: Tue, 28 Oct 2003 14:54:00 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+CC: cliff white <cliffw@osdl.org>, Michael Frank <mhf@linuxmail.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test8/test9 io scheduler needs tuning?
+References: <200310261201.14719.mhf@linuxmail.org> <20031027145531.2eb01017.cliffw@osdl.org> <3F9DAF2C.8010308@cyberone.com.au> <1067305071.1693.14.camel@laptop-linux> <1067311879.1512.7.camel@laptop-linux>
+In-Reply-To: <1067311879.1512.7.camel@laptop-linux>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---qjNfmADvan18RZcF
-Content-Type: multipart/mixed; boundary="yEPQxsgoJgBvi8ip"
-Content-Disposition: inline
+
+Nigel Cunningham wrote:
+
+>As you rightly guessed, I was forgetting there are now 1000 jiffies per
+>second.
+>
+>With your patch applied, I can achieve something close to 2.4
+>performance, but only if I set the limit on the number of pages to
+>submit at one time quite high. If I set it to 3000, I can get 20107 4K
+>pages written in 5267 jiffies (14MB/s) and can read them back at resume
+>time (so cache is not a factor) in 4620 jiffies (16MB/s). In 2.4, I
+>normally set the limit on async commits to 100, and achieve the same
+>performance. 100 here makes it very jerky and much slower.
+>
+>Could there be some timeout value on BIOs that I might be able to
+>tweak/disable during suspend?
+>
+
+Try setting /sys/block/xxx/queue/iosched/antic_expire to 0 on your
+device under IO and see how it goes. That shouldn't be causing the
+problem though, especially as you are mostly writing I think?
+
+Otherwise might possibly be the queue plugging stuff, or maybe a
+regression in the disk driver.
 
 
---yEPQxsgoJgBvi8ip
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Oct 27, 2003 at 10:52:44PM -0500, I wrote:
-> On Mon, Oct 27, 2003 at 08:32:15AM -0800, Linus Torvalds wrote:
-> >=20
-> > On Mon, 27 Oct 2003, Andi Kleen wrote:
-> > >=20
-> > > Overall as KVM user I must say I'm not very happy with the 2.6 mouse
-> > > driver. 2.4 pretty much worked out of the box, but 2.6 needs
-> > > lots of strange options (psmouse_noext, psmouse_rate=3D80)=20
-> > > because it does things very differently out of the box.
-> >=20
-> > I agree. The keyboard driver has also deteriorated, I think.=20
-> >=20
-> > I'd suggest we _not_ set the rate by default at all (and let the default
-> > thing just happen). And only set the rate if the user _asks_ for it with
-> > your setup thing. Mind sending me that kind of patch?
-> >=20
->=20
->     I need this patch to use the scroll wheel on my Logitech mouse
-> with my Belkin KVM switch in 2.6. This patch was in -mm for a while
-> before some changes there broke the diff, and I got some mail from
-> people who said it was helpful.  I didn't hear about any problems.
->=20
->     Linus, will you please consider applying it?
-
-    D'oh, forgot the patch.  This is the same patch that was in -mm,
-rediffed against -test9 and tested to compile.  I've been running this
-same patch on vanilla and -mm kernels for months now.
-
---=20
-Joseph Fannin
-jhf@rivenstone.net
-
-Rothchild's Rule -- "For every phenomenon, however complex, someone will
-eventually come up with a simple and elegant theory. This theory will
-be wrong."
-
---yEPQxsgoJgBvi8ip
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="psmouse_imps2.diff"
-Content-Transfer-Encoding: quoted-printable
-
-diff -aur linux-2.6.0-test9_orig/Documentation/kernel-parameters.txt linux-=
-2.6.0-test9/Documentation/kernel-parameters.txt
---- linux-2.6.0-test9_orig/Documentation/kernel-parameters.txt	2003-10-27 1=
-5:50:46.000000000 -0500
-+++ linux-2.6.0-test9/Documentation/kernel-parameters.txt	2003-10-27 15:53:=
-58.000000000 -0500
-@@ -790,6 +790,8 @@
- 			before loading.
- 			See Documentation/ramdisk.txt.
-=20
-+	psmouse_imps2	[HW,MOUSE] Probe only for Intellimouse PS2 mouse protocol e=
-xtensions
-+
- 	psmouse_noext	[HW,MOUSE] Disable probing for PS2 mouse protocol extensions
-=20
- 	psmouse_resetafter=3D
-diff -aur linux-2.6.0-test9_orig/drivers/input/mouse/psmouse-base.c linux-2=
-=2E6.0-test9/drivers/input/mouse/psmouse-base.c
---- linux-2.6.0-test9_orig/drivers/input/mouse/psmouse-base.c	2003-10-27 15=
-:50:33.000000000 -0500
-+++ linux-2.6.0-test9/drivers/input/mouse/psmouse-base.c	2003-10-27 15:53:5=
-8.000000000 -0500
-@@ -24,6 +24,8 @@
-=20
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
- MODULE_DESCRIPTION("PS/2 mouse driver");
-+MODULE_PARM(psmouse_imps2, "1i");
-+MODULE_PARM_DESC(psmouse_imps2, "Limit protocol extensions to the Intellim=
-ouse protocol.");
- MODULE_PARM(psmouse_noext, "1i");
- MODULE_PARM_DESC(psmouse_noext, "Disable any protocol extensions. Useful f=
-or KVM switches.");
- MODULE_PARM(psmouse_resolution, "i");
-@@ -38,6 +40,7 @@
-=20
- #define PSMOUSE_LOGITECH_SMARTSCROLL	1
-=20
-+static int psmouse_imps2;
- static int psmouse_noext;
- int psmouse_resolution;
- unsigned int psmouse_rate =3D 60;
-@@ -275,66 +278,68 @@
- 	if (psmouse_noext)
- 		return PSMOUSE_PS2;
-=20
--/*
-- * Try Synaptics TouchPad magic ID
-- */
--
--       param[0] =3D 0;
--       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--       psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+	if (!psmouse_imps2) {
-=20
--       if (param[1] =3D=3D 0x47) {
--		psmouse->vendor =3D "Synaptics";
--		psmouse->name =3D "TouchPad";
--		if (!synaptics_init(psmouse))
--			return PSMOUSE_SYNAPTICS;
--		else
--			return PSMOUSE_PS2;
--       }
-+		/*
-+		 * Try Synaptics TouchPad magic ID
-+		 */
-=20
--/*
-- * Try Genius NetMouse magic init.
-- */
-+		param[0] =3D 0;
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+
-+		if (param[1] =3D=3D 0x47) {
-+			psmouse->vendor =3D "Synaptics";
-+			psmouse->name =3D "TouchPad";
-+			if (!synaptics_init(psmouse))
-+				return PSMOUSE_SYNAPTICS;
-+			else
-+				return PSMOUSE_PS2;
-+		}
-=20
--	param[0] =3D 3;
--	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+		/*
-+		 * Try Genius NetMouse magic init.
-+		 */
-=20
--	if (param[0] =3D=3D 0x00 && param[1] =3D=3D 0x33 && param[2] =3D=3D 0x55)=
- {
-+		param[0] =3D 3;
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-=20
--		set_bit(BTN_EXTRA, psmouse->dev.keybit);
--		set_bit(BTN_SIDE, psmouse->dev.keybit);
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
-+		if (param[0] =3D=3D 0x00 && param[1] =3D=3D 0x33 && param[2] =3D=3D 0x55=
-) {
-=20
--		psmouse->vendor =3D "Genius";
--		psmouse->name =3D "Wheel Mouse";
--		return PSMOUSE_GENPS;
--	}
-+			set_bit(BTN_EXTRA, psmouse->dev.keybit);
-+			set_bit(BTN_SIDE, psmouse->dev.keybit);
-+			set_bit(REL_WHEEL, psmouse->dev.relbit);
-=20
--/*
-- * Try Logitech magic ID.
-- */
-+			psmouse->vendor =3D "Genius";
-+			psmouse->name =3D "Wheel Mouse";
-+			return PSMOUSE_GENPS;
-+		}
-=20
--	param[0] =3D 0;
--	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	param[1] =3D 0;
--	psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+		/*
-+		 * Try Logitech magic ID.
-+		 */
-=20
--	if (param[1]) {
--		int type =3D ps2pp_detect_model(psmouse, param);
--		if (type)
--			return type;
-+		param[0] =3D 0;
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		param[1] =3D 0;
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+
-+		if (param[1]) {
-+			int type =3D ps2pp_detect_model(psmouse, param);
-+			if (type)
-+				return type;
-+		}
- 	}
--
- /*
-  * Try IntelliMouse magic init.
-  */
-@@ -627,6 +632,12 @@
- };
-=20
- #ifndef MODULE
-+static int __init psmouse_imps2_setup(char *str)
-+{
-+	psmouse_imps2 =3D 1;
-+	return 1;
-+}
-+
- static int __init psmouse_noext_setup(char *str)
- {
- 	psmouse_noext =3D 1;
-@@ -651,6 +662,7 @@
- 	return 1;
- }
-=20
-+__setup("psmouse_imps2", psmouse_imps2_setup);
- __setup("psmouse_noext", psmouse_noext_setup);
- __setup("psmouse_resolution=3D", psmouse_resolution_setup);
- __setup("psmouse_smartscroll=3D", psmouse_smartscroll_setup);
-
---yEPQxsgoJgBvi8ip--
-
---qjNfmADvan18RZcF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/nejpWv4KsgKfSVgRAtFMAJ95JHaF+PzbgnQRSztGziyftyZW0wCeNYm9
-zsW5UmjicPCNqarfQPpcxsI=
-=MNL4
------END PGP SIGNATURE-----
-
---qjNfmADvan18RZcF--

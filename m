@@ -1,69 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282401AbRKXIJw>; Sat, 24 Nov 2001 03:09:52 -0500
+	id <S282402AbRKXIVx>; Sat, 24 Nov 2001 03:21:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282403AbRKXIJn>; Sat, 24 Nov 2001 03:09:43 -0500
-Received: from mail.spylog.com ([194.67.35.220]:9907 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S282401AbRKXIJb>;
-	Sat, 24 Nov 2001 03:09:31 -0500
-Date: Sat, 24 Nov 2001 11:11:55 +0300
-From: Peter Zaitsev <pz@spylog.ru>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: Peter Zaitsev <pz@spylog.ru>
-Organization: http://www.spylog.ru
-X-Priority: 3 (Normal)
-Message-ID: <97219676688.20011124111155@spylog.ru>
-To: Anton Petrusevich <casus@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: threads & /proc
-In-Reply-To: <20011123233857.A25084@casus.tx>
-In-Reply-To: <20011123233857.A25084@casus.tx>
-MIME-Version: 1.0
+	id <S282403AbRKXIVo>; Sat, 24 Nov 2001 03:21:44 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:55610 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S282402AbRKXIV2>; Sat, 24 Nov 2001 03:21:28 -0500
+Date: Sat, 24 Nov 2001 09:21:26 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.15-pre9 breakage (inode.c)
+Message-ID: <20011124092126.D1419@athlon.random>
+In-Reply-To: <20011124084455.B1419@athlon.random> <Pine.GSO.4.21.0111240247300.4000-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.GSO.4.21.0111240247300.4000-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Nov 24, 2001 at 03:05:02AM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Anton,
+On Sat, Nov 24, 2001 at 03:05:02AM -0500, Alexander Viro wrote:
+> 
+> 
+> On Sat, 24 Nov 2001, Andrea Arcangeli wrote:
+> 
+> > > Notice that it fixes _all_ problems with stale inodes, with only one rule
+> > > for fs code - "don't call iput() when ->clear_inode() doesn't work".  Your
+> > > variant requires funnier things - "if at some point ->clear_inode()
+> > > may stop working make sure to call invalidate_inodes()" in addition to
+> > > the rule above.
+> > 
+> > the rule I add is "if ->clear_inode is really needed, just don't clear
+> > s_op before returning null from read_super" and that requirement looks
+> > fine.
+> 
+> It's not that simple.  You may need the per-superblock data structures for
+> ->clear_inode() to work.
+> 
+> In any case, it _is_ additional rule for no good reason.  "inode may stay
+> in icache after iput() only when fs is up and running" is a warranty that
+> is trivial to provide and that removes a source of hard-to-debug screwups
+> in fs code.
 
-Saturday, November 24, 2001, 8:38:57 AM, you wrote:
+I don't think it's harder to debug, you need the per-superblock data
+structures for ->clear_inode() also if you try to ->clear_inode in iput,
+and I cannot see any valid reason for which the fs would be allowed to
+screwup the superblock before returning from read_inode. As soon as you
+call iget the superblock must be sane and there's no point in screwing
+it up afterwards.
 
-
-I would confirm the problem exists from the first 2.4.x kernels. Also
-programs "w","vmstat","snmpd" hangs.  It seems to happen both for
-UP/SMP kernels. I have seen this only on High Memory (1-2G), therefore
-I do not have much low memory machines loaded.  The workload seems to
-be the thing to affect this - I do not remember any hang on low VM
-load system (for example Web Server) therefore it's offen happens
-then there are a lot of I/O  and swapping goes (i.e Mysql Server).
-Often this happens after appearing some of new __order allocation
-failed errors.
-
-
-
-
-Other issue which looks like connected to this - a thread hangs in
-"D" state forever and it's unable to be killed in this case even
-reboot -f does not work.
-
-AP> Hi Guys,
-
-AP> Well, I'm a bit surprised that nobody asked it yet. Do we have sound
-AP> thread support? I am able to put my linux-2.4.15-pre{1,7} --
-AP> definitely, and if I remember right, 2.4.14-pre{7,8} too in some strange
-AP> state, when any program like top, killall or ps that wanna get some
-AP> information from /proc (even midnight commander if you are trying to
-AP> look at state of any process) blocks indefinitely. It goes to unclean
-AP> shutdown, for example. kill doesn block, but do nothing. (I tried to
-AP> kill processes from ls /proc list). And I see it only after several
-AP> [unsuccessful] runs of my multithreaded program. Well, I can't say 
-AP> it's a correctly written program, I am still looking for bugs there. 
-AP> I don't have 100% way to get into this state, but I suspect some locking
-AP> issues with /proc. 
-
-
-
--- 
-Best regards,
- Peter                            mailto:pz@spylog.ru
-
+Andrea

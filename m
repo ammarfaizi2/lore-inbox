@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbULAPzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbULAP6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbULAPzq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 10:55:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbULAPzq
+	id S261285AbULAP6h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 10:58:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbULAP6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 10:55:46 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:41408 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261284AbULAPzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 10:55:20 -0500
-Date: Wed, 1 Dec 2004 16:55:24 +0100
-From: Kronos <kronos@people.it>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4.29-pre1] Add new PCI id to radeonfb
-Message-ID: <20041201155524.GA14588@dreamland.darkstar.lan>
+	Wed, 1 Dec 2004 10:58:37 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:44707 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261285AbULAP62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 10:58:28 -0500
+Subject: Re: Block layer question - indicating EOF on block devices
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: axboe@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041130184345.47e80323.akpm@osdl.org>
+References: <1101829852.25628.47.camel@localhost.localdomain>
+	 <20041130184345.47e80323.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1101912876.30770.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 01 Dec 2004 14:54:40 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
-this is a trivial patch for 2.4.29-pre1.
+On Mer, 2004-12-01 at 02:43, Andrew Morton wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> If the driver simply returns an I/O error, userspace should see a short
+> read and be happy?
 
-Add support for the following radeon board (thanks to Jurriaan):
+And the logs fill with I/O error messages. 
 
-lspci:
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV350 AQ [Radeon 9600]
-0000:01:00.1 Display controller: ATI Technologies Inc RV350 AQ [Radeon 9600] (Secondary)
+> > Nor it turns out is it handleable in user space because a read to the
+> > true EOF causes readahead into the fuzzy zone between the actual EOF and
+> > the end of media.
+> 
+> Yup.  You can turn the readahead off with posix_fadvise(POSIX_FADV_RANDOM),
 
-lspci -n:
-0000:01:00.0 Class 0300: 1002:4151
-0000:01:00.1 Class 0380: 1002:4171
+Can't do this during a mount.
 
-Signed-off-by: Luca Tettamanti <kronos@people.it>
+> > Currently I see the error, pull the sense data, extract the block number
+> > and complete the request to the point it succeeded then fail the rest,
+> > but this doesn't end the I/O if someone is using something like cp,
+> 
+> hm.  Either cp is being silly or we're not propagating the error back
+> correctly.  `cp' should see the short read and just handle it.
 
---- a/drivers/video/radeonfb.c	2004-11-30 20:53:05.000000000 +0100
-+++ b/drivers/video/radeonfb.c	2004-11-30 20:37:33.000000000 +0100
-@@ -218,6 +218,7 @@
- 	RADEON_NH,
- 	RADEON_NI,
- 	RADEON_AP,
-+	RADEON_AQ,
- 	RADEON_AR,
- };
- 
-@@ -279,6 +280,7 @@
- 	{ "9800 NH", RADEON_R350 },
- 	{ "9800 NI", RADEON_R350 },
- 	{ "9600 AP", RADEON_RV350 },
-+	{ "9600 AQ", RADEON_RV350 },
- 	{ "9600 AR", RADEON_RV350 },
- };
- 
-@@ -334,6 +336,7 @@
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Yd, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_Yd},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AD, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AD},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AP, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AP},
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AQ, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AQ},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AR, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AR},
- 	{ 0, }
- };
---- a/include/linux/pci_ids.h	2004-11-30 20:52:58.000000000 +0100
-+++ b/include/linux/pci_ids.h	2004-11-30 20:37:58.000000000 +0100
-@@ -303,6 +303,7 @@
- #define PCI_DEVICE_ID_ATI_RADEON_NI	0x4e49
- /* Radeon RV350 (9600) */
- #define PCI_DEVICE_ID_ATI_RADEON_AP	0x4150
-+#define PCI_DEVICE_ID_ATI_RADEON_AQ	0x4151
- #define PCI_DEVICE_ID_ATI_RADEON_AR	0x4152
- /* Radeon M6 */
- #define PCI_DEVICE_ID_ATI_RADEON_LY	0x4c59
+I'll strace that and see what else I can find. Now I'm partially
+completing requests when this problem occurs it does seem somewhat
+happier. The original code when I took it to bits was just blindingly
+failing the lot.
 
+> > and
+> > it also fills the log with "I/O error on" spew from the block layer
+> > innards even if REQ_QUIET is magically set.
+> 
+> We'd need to propagate that quietness back up to the buffer_head layer, at
+> least.
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-Sono un mirabile incrocio tra Tarzan e Giacomo Leopardi.
-In me convivono tutte le doti intelluttuali di Tarzan e
-tutta la prestanza fisica di Giacomo Leopardi.
-A. Borsani
+Thats what I was assuming looking at the code. Really the block layer is
+broken here. It should not be whining about I/O errors on readahead
+blocks just letting them go. It has no idea if the readahead is a
+badblock a media feature or whatever. (or as James added on irc scsi
+reservations).
+
+Alan
+

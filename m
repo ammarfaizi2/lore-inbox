@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265565AbTGHIud (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 04:50:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265569AbTGHIud
+	id S265572AbTGHJDa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 05:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266902AbTGHJDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 04:50:33 -0400
-Received: from [202.102.142.44] ([202.102.142.44]:47869 "ehlo yahoo.com")
-	by vger.kernel.org with ESMTP id S265565AbTGHIuc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 04:50:32 -0400
-From: 676435@yahoo.com
-Subject: World's Largest buyer
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: 676435@yahoo.com
-Date: Tue, 8 Jul 2003 17:05:09 +0800
-X-Priority: 3
-X-Mailer: Foxmail 4.2 [cn]
-Message-Id: <S265565AbTGHIuc/20030708085032Z+20998@vger.kernel.org>
+	Tue, 8 Jul 2003 05:03:30 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:7421 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S265572AbTGHJD3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 05:03:29 -0400
+Date: Tue, 8 Jul 2003 11:17:51 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: john stultz <johnstul@us.ibm.com>
+cc: marcelo <marcelo@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] linux-2.4.22-pre3_clear-smi-fix_A0
+In-Reply-To: <1057614898.27380.86.camel@w-jstultz2.beaverton.ibm.com>
+Message-ID: <Pine.GSO.3.96.1030708111039.18238B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear sir, 
+On 7 Jul 2003, john stultz wrote:
 
-Welcome to one of the Largest Trade Community on the Internet , we have 
-over 100,000 buyers, suppliers, importers, exporters in our database, 
-please feel tree to take a look at our website. By Joining us , you will 
-expose yourself to unlimited worldwide business opportunities.
+> 	Some of our more recent hardware requires that SMIs are routed through
+> the IOAPIC, thus when we clear_IO_APIC() at boot time, we clear the BIOS
+> initialized SMI pin. This basically clobbers the SMI, which can cause
+> problems with console redirection as well keeping us from being able to
+> transition into full ACPI mode. 
 
-    http://www.8he8.com/trade/tradeleads.htm
+ That should be appropriately marked in the MP-table -- is it?  I think
+clear_IO_APIC() should use the MP-table to select pins marked as mp_INT
+(and possibly mp_ExtINT) only.  This way all special inputs are preserved.
 
----------------------------
+ Your solution looks like a good hack for working around a broken
+MP-table, but then a big fat warning should be printed about a BIOS bug.
 
-
-一 个 全 球 著 名 的 商 贸 网 站, 每 天 有 超 过 上 十 万 的 浏 览 人 次 .我
-们 的 网 站 中 有 三 万 多 条 贸 易 信 息.
-
-十 万 多 个 来 自 全 球 的 商 贸 会 员 .每 天 都 有 上 千 次 的 贸 易 活 动 
-在 我 们 的 网 站 上 进 行 .参 加 我 们 的 会 员 , 你 就 可 以 马 上 开 展 
-你 的 国 际 商 贸 活 动 , 推 广 产 品 , 寻 找 贸 易 伙 伴 .
-
-   http://www.8he8.com/trade/tradeleads.htm
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

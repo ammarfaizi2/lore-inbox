@@ -1,85 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131178AbQKADHm>; Tue, 31 Oct 2000 22:07:42 -0500
+	id <S131141AbQKADMW>; Tue, 31 Oct 2000 22:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131161AbQKADHc>; Tue, 31 Oct 2000 22:07:32 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:16141 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S131141AbQKADHR>; Tue, 31 Oct 2000 22:07:17 -0500
-Date: Tue, 31 Oct 2000 21:06:33 -0600
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Keith Owens <kaos@ocs.com.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test10-pre7
-Message-ID: <20001031210633.D1041@wire.cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.10.10010310930110.6866-100000@penguin.transmeta.com> <200010311928.e9VJS2d08641@flint.arm.linux.org.uk>
+	id <S131161AbQKADMM>; Tue, 31 Oct 2000 22:12:12 -0500
+Received: from fw.SuSE.com ([202.58.118.35]:64500 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id <S131141AbQKADMD>;
+	Tue, 31 Oct 2000 22:12:03 -0500
+Date: Tue, 31 Oct 2000 20:17:57 -0800
+From: Jens Axboe <axboe@suse.de>
+To: Packet Writing <packet-writing@suse.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: release: packet-0.0.2d
+Message-ID: <20001031201757.D11727@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <200010311928.e9VJS2d08641@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Tue, Oct 31, 2000 at 07:28:01PM +0000
-From: Peter Samuelson <peter@cadcamlab.org>
+X-OS: Linux 2.4.0-test10 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-[Russell King]
-> Since someone kindly enlightened me that LINK_FIRST was unsorted, I'm
-> finding it very hard to grasp what the difference is between an
-> unsorted LINK_FIRST and unsorted LINK_LAST list, and an unsorted
-> obj-y list.  From what I understand, obj-y = $(LINK_FIRST)
-> $(LINK_LAST) ?
+I've just uploaded a new release of the packet writing patch, this time
+against the 2.4.0-test10 kernel. The bugs fixes that I've actually
+cared/remembered to write down are:
 
-Not quite.  If that's how you understand it, I see why you think it's a
-bad idea.  Here's what is *really* happening:
+- (scsi) use implicit segment recounting for all hba's
+- fix speed setting, was consistenly off on most drives
+- only print capacity when opening for write
+- fix off-by-two error in getting/setting write+read speed (affected
+  reporting as well as actual speed used)
+- possible to enable write caching on drive
+- do ioctl marshalling on sparc64 from Ben Collins <bcollins@debian.org>
+- avoid unaligned access on flags, should have been unsigned long of course
+- fixed missed wakeup in kpacketd
+- b_dev error (two places)
+- fix buffer head b_count bugs
+- fix hole merge bug, where tail could be added twice
+- fsync and invalidate buffers on close
+- check hash table for buffers first before using our own
+- add read-ahead
+- fixed several list races
+- fix proc reporting for more than one device
+- change to O_CREAT for creating devices
+- added media_change hook
+- added free buffers config option
+- pkt_lock_tray fails on failed open (and oopses), remove it. unlock
+  is done explicitly in pkt_remove dev anyway.
+- added proper elevator insertion (should probably be part of elevator.c)
+- moved kernel thread info to private device, spawn one for each writer
+- added separate buffer list for dirty packet buffers
+- fixed nasty data corruption bug
+- remember to account request even when we don't gather data for it
+- add ioctl to force wakeup of kernel thread (for debug)
+- fixed packet size setting bug on zero detected
+- changed a lot of the proc reporting to be more readable to "humans"
+- set full speed for read-only opens
 
-  obj-y = {subset of LINK_FIRST that is in obj-y} \
-          {subset of obj-y that is not in LINK_FIRST or LINK_LAST} \
-          {subset of LINK_LAST that is in obj-y}
+People wanting to give it a go, should also remember to update their
+UDF cvs tree (CDRW branch) and install new cdrwtool and pktsetup
+binaries.
 
-GNU make has extensions that make this easy to implement -- no more
-verbose than the pseudocode, in fact.
+Interoperability with DirectCD has been tested, and that seems to work.
 
-The biggest difference between LINK_FIRST and obj-y is that LINK_FIRST
-is meant to be a static list, not dependent on CONFIG_*, and specifies
-*only* those objects which must be linked before (or after, for
-LINK_LAST) other objects.  In the common case, most object files do
-*not* appear in LINK_FIRST or LINK_LAST, but just in O_OBJS.
+Bugs / success stories (yeah right) should be repoted to the
+packet-writing list.
 
-In the pathological case of strict requirements for the whole
-directory, LINK_FIRST would contain all of obj-y.  Keith and I think
-this is a rare case -- a more common case is the opposite:
-LINK_FIRST/LAST are empty because there are *no* ordering requirements.
+*.kernel.org/pub/linux/kernel/people/axboe/packet/packet-0.0.2d.diff.bz2
 
-
-Again, anything that appears in O_OBJS but not in LINK_FIRST is linked
-in arbitrary order.  Anything that appears in LINK_FIRST but not in
-O_OBJS is ignored.  That is why it can be a static list.
-
-Since LINK_FIRST is a (usually short) static list, it is easy for the
-author to guarantee that it has no duplicate files in it.  By contrast,
-O_OBJS (or obj-y) frequently has duplicates, because of things like
-
-  obj-$(CONFIG_FOO) := foo.o xxx.o
-  obj-$(CONFIG_BAR) := bar.o xxx.o
-
-where xxx.o is something like 8390 support for network cards.
-
-Removing duplicates is a side effect of the GNU make 'sort' function,
-which is THE ONLY REASON we want to sort $(O_OBJS).  The reordering is
-the "other" side effect, the less desirable one.  GNU make does not
-provide a 'uniq-without-sort' function, and while one is trivial to
-write in e.g. shell, some of us consider a shell hack to be, well, more
-hackish than LINK_FIRST.
-
-** BTW, the only reason I'm still posting to this thread, which seems
-   pretty moot because "Linus Has Spoken", is that I believe there is
-   still a lot of misunderstanding about what LINK_FIRST actually does.
-   When I'm satisfied that the opponents truly *understand* LINK_FIRST
-   and still oppose it, I'll shut up.
-
-Peter
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

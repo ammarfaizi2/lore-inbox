@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVDDXOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVDDXPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbVDDXOO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 19:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVDDXNC
+	id S261496AbVDDXPu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 19:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVDDXPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 19:13:02 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:26295 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261481AbVDDXLH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 19:11:07 -0400
-Date: Tue, 5 Apr 2005 01:09:07 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       Gene Heskett <gene.heskett@verizon.net>,
-       LKML <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
-In-Reply-To: <Pine.LNX.4.61.0504041640490.31810@montezuma.fsmlabs.com>
-Message-Id: <Pine.OSF.4.05.10504050106110.8387-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: 0 () 
+	Mon, 4 Apr 2005 19:15:41 -0400
+Received: from fire.osdl.org ([65.172.181.4]:33189 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261477AbVDDXM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 19:12:26 -0400
+Message-ID: <4251C9A5.3020704@osdl.org>
+Date: Mon, 04 Apr 2005 16:11:33 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: ioe-lkml@axxeo.de, matthew@wil.cx, lkml <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, hadi@cyberus.ca, cfriesen@nortel.com, tgraf@suug.ch
+Subject: Re: [PATCH] network configs: disconnect network options from drivers
+References: <20050330234709.1868eee5.randy.dunlap@verizon.net> <20050331185226.GA8146@mars.ravnborg.org> <424C5745.7020501@osdl.org> <20050331203010.GA8034@mars.ravnborg.org> <4250B4C5.2000200@osdl.org> <20050404195051.GA12364@mars.ravnborg.org> <4251A830.5030905@osdl.org> <20050404215554.GA29170@mars.ravnborg.org>
+In-Reply-To: <20050404215554.GA29170@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Apr 2005, Zwane Mwaikambo wrote:
-
-> On Mon, 4 Apr 2005, Steven Rostedt wrote:
+Sam Ravnborg wrote:
 > 
-> > On Mon, 2005-04-04 at 22:47 +0200, Ingo Molnar wrote:
-> > 
-> > > > Currently my fix is in yield to lower the priority of the task calling 
-> > > > yield and raise it after the schedule.  This is NOT a proper fix. It's 
-> > > > just a hack so I can get by it and test other parts.
-> > > 
-> > > yeah, yield() is a quite RT-incompatible concept, which could livelock 
-> > > an upstream kernel just as much - if the task in question is SCHED_FIFO.  
-> > > Almost all yield() uses should be eliminated from the upstream kernel, 
-> > > step by step.
-> > 
-> > Now the question is, who will fix it? Preferably the maintainers, but I
-> > don't know how much of a priority this is to them. I don't have the time
-> > now to look at this and understand enough about the code to be able to
-> > make a proper fix, and I'm sure you have other things to do too.
+>>>- Move submenu to the top
+>>>- Rename top menu to "Networking" and located it just before
+>>>"File systems"
+>>
+>>I still prefer Networking to come before Device Drivers FWIW.
+>>Just makes some kind of hierarchical sense to me.
 > 
-> I'm sure a lot of the yield() users could be converted to 
-> schedule_timeout(), some of the users i saw were for low memory conditions 
-> where we want other tasks to make progress and complete so that we a bit 
-> more free memory.
+> Moved up as suggested.
 > 
+> 
+>>I propose that the new file net/atm/Kconfig be sourced somewhere.
+> 
+> Thanks, I have missed that one - added just before wanrouter.
+>  
+> 
+>>I'll look at it more to see if I have any other comments.
+> 
+> OK. I will await and post an updated patch if you do not beat me.
 
-Easy, but damn ugly. Completions are the right answer. The memory system
-needs a queue system where tasks can sleep (with a timeout) until the
-right amount of memory is available instead of half busy-looping.
+Sam,
+Here are a few more suggestions for you to consider.
 
-Esben
+- in Networking support, move Network testing and Netpoll
+support to the end of the menu (basically put the devel.
+tools toward the bottom of the menu)
 
+- I would rather not "hide" Amateur Radio, IrDA, and
+Bluetooth in the Networking protocols area, but have them
+near 802.1x and ATM in the top-level Networking support
+menu.  How does that sound to you?
 
+Thanks.
+
+-- 
+~Randy

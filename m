@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265892AbTF3VHT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 17:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265897AbTF3VHT
+	id S265896AbTF3VKz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 17:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265897AbTF3VKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 17:07:19 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:24335 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S265892AbTF3VHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 17:07:18 -0400
-Subject: Re: [PATCH] patch-O1int-0306302317 for 2.5.73 interactivity
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200307010029.19423.kernel@kolivas.org>
-References: <200307010029.19423.kernel@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1057008095.598.1.camel@teapot.felipe-alfaro.com>
+	Mon, 30 Jun 2003 17:10:55 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:19340 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265896AbTF3VKx (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 17:10:53 -0400
+Message-Id: <200306302125.h5ULPEjn004960@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Dell vs. GPL 
+In-Reply-To: Your message of "Mon, 30 Jun 2003 13:44:29 PDT."
+             <Pine.LNX.4.10.10306301341290.5840-100000@master.linux-ide.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.10.10306301341290.5840-100000@master.linux-ide.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 30 Jun 2003 23:21:36 +0200
+Content-Type: multipart/signed; boundary="==_Exmh_-397196322P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 30 Jun 2003 17:25:14 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-30 at 16:29, Con Kolivas wrote:
-> Buried deep in another mail thread was the latest implementation of my O1int 
-> patch so I've brought it to the surface to make it clear this one is 
-> significantly different from past iterations.
-> 
-> Summary:
-> Decreases audio skipping with loads.
-> Smooths out X performance with load.
-> 
-> I've also made it available here:
-> http://kernel.kolivas.org/2.5
-> 
-> along with a patch called granularity that is a modified version of Ingo's 
-> timeslice_granularity patch. It is no longer necessary and may slightly 
-> decrease throughput in non-desktop settings but put on top of my O1int patch 
-> makes X even smoother.
+--==_Exmh_-397196322P
+Content-Type: text/plain; charset=us-ascii
 
-Damn! XMMS audio skips are back... To reproduce them, I start up my KDE
-session, launch Konqueror, launch XMMS and make it play sound. Then, I
-drag the Konqueror window like crazy over my desktop and XMMS skips,
-altough not too much.
+On Mon, 30 Jun 2003 13:44:29 PDT, Andre Hedrick said:
+> 
+> Now you are being silly, and I have to stop because your lack of
+> seriousness.  
+> 
+> You can not talk about what you see or hear.
+> 
+> What is not clear?
 
-The previous version of this patch is the one that worked best for me.
+It's a general rule that clauses in a contract (which an NDA is) are null and
+unenforcable if they compel you to do something illegal.  In addition, clauses
+can be held unenforcable if they are "unconscionable", i.e. if they compel you
+to do something totally out of line and unreasonable.  This is why almost all
+contracts have a separability clause.
 
+"Thou shalt not tell the ingredients of the secret sauce" is enforcable.
+"Thou shalt not tell others that the secret sauce contains high levels of
+dangerous carcinogens" is unconscionable. 
+
+Also, note that the Sarbanes-Oxley Act provides a lot of protection for
+whistleblowers: http://www.workindex.com/editorial/expert/expview.asp
+on top of the usual legal havens.
+
+On  Mon, 30 Jun 2003 16:55:56 -0400, "Trever L. Adams" said:
+> I have also had to sign contracts that require I do not disclose
+> anything I learn on the job, except to law enforcement personnel. 
+> Andre's situation may be like this.   Sure, he can report it, but he
+> can't talk about it to anyone else!
+
+See? That's my point exactly - you *weren't* prohibited from reporting illegal
+activity.
+
+
+--==_Exmh_-397196322P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/AKq5cC3lWbTT17ARApXUAKCFLaNvS1IabT9B62WR3sSnfKYn0ACgqWf4
+5axf/oINbP03iNLbd0Az2hc=
+=R3wk
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-397196322P--

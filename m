@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264144AbUDGTEG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 15:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbUDGTEG
+	id S264148AbUDGTMY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 15:12:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264155AbUDGTMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 15:04:06 -0400
-Received: from mail.kroah.org ([65.200.24.183]:10402 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264144AbUDGTEE (ORCPT
+	Wed, 7 Apr 2004 15:12:24 -0400
+Received: from news.cistron.nl ([62.216.30.38]:13291 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S264148AbUDGTMW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 15:04:04 -0400
-Date: Wed, 7 Apr 2004 11:21:01 -0700
-From: Greg KH <greg@kroah.com>
-To: Fabian Frederick <Fabian.Frederick@skynet.be>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.5rc2-mm2] Root_plug device check
-Message-ID: <20040407182100.GB20173@kroah.com>
-References: <1080981753.4309.26.camel@linux.local>
+	Wed, 7 Apr 2004 15:12:22 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: dd PATCH: add conv=direct
+Date: Wed, 7 Apr 2004 19:12:21 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <c51jql$7j4$2@news.cistron.nl>
+References: <20040406220358.GE4828@hexapodia.org> <20040406173326.0fbb9d7a.akpm@osdl.org> <20040407173116.GB2814@hexapodia.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1080981753.4309.26.camel@linux.local>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1081365141 7780 62.216.29.200 (7 Apr 2004 19:12:21 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 03, 2004 at 10:42:33AM +0200, Fabian Frederick wrote:
-> Hi,
-> 
->       Here's a patch to check device in root_plug to avoid box freeze
-> when user gives bad ids.
+In article <20040407173116.GB2814@hexapodia.org>,
+Andy Isaacson  <adi@hexapodia.org> wrote:
+>The next feature to add would be OpenBSD-style "KB/s" reporting.  I'm
+>not going there.
+>
+>diff -ur coreutils-5.0.91/doc/coreutils.texi
+>coreutils-5.0.91-adi/doc/coreutils.texi
 
-No, this patch is not acceptable.  It's fine if the USB device is not
-present when the module is loaded, any future programs run as root will
-just not run.
+Doesn't it already do that ?
 
-So the current behavior is correct.
+$ dd if=/dev/zero of=/tmp/file bs=4K count=100
+100+0 records in
+100+0 records out
+409600 bytes transferred in 0.005108 seconds (80189583 bytes/sec)
 
-thanks,
+$ dpkg -S /bin/dd
+coreutils: /bin/dd
+$ dpkg -s coreutils
+Package: coreutils
+Version: 5.0.91-2
 
-greg k-h
+Mike.
+

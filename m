@@ -1,284 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUIEKlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUIEKyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266386AbUIEKlt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 06:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUIEKlq
+	id S266242AbUIEKyc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 06:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUIEKyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 06:41:46 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:7473 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S266319AbUIEKlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 06:41:16 -0400
-Date: Sun, 5 Sep 2004 12:41:08 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Dan Kegel <dank@kegel.com>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-       Matthias Urlichs <smurf@smurf.noris.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: Getting kernel.org kernel to build for m68k?
-In-Reply-To: <Pine.GSO.4.58.0409011029390.15681@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.58.0409051224020.30282@anakin>
-References: <41355F88.2080801@kegel.com> <Pine.GSO.4.58.0409011029390.15681@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 5 Sep 2004 06:54:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7571 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266242AbUIEKy3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 06:54:29 -0400
+Date: Sun, 5 Sep 2004 03:52:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Q about pagecache data never written to disk
+Message-Id: <20040905035233.6a6b5823.akpm@osdl.org>
+In-Reply-To: <20040905120147.A9202@castle.nmd.msu.ru>
+References: <20040905120147.A9202@castle.nmd.msu.ru>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Sep 2004, Geert Uytterhoeven wrote:
-> On Tue, 31 Aug 2004, Dan Kegel wrote:
-> > I noticed today that Linus's m68k kernel can't be built (at least with gcc-3.4.1).
-> >
-> > The first problem I ran into,
-> >    CC      arch/m68k/kernel/asm-offsets.s
-> >    In file included from include/linux/spinlock.h:12,
-> >                   from include/linux/capability.h:45,
-> >                   from include/linux/sched.h:7,
-> >                   from arch/m68k/kernel/asm-offsets.c:12:
-> >    include/linux/thread_info.h:30: error: parse error before '{' token
-> > is solved already in the m68k tree.
-> > (In particular,
-> > the #ifndef __HAVE_THREAD_FUNCTIONS ... #endif in
-> > http://linux-m68k-cvs.apia.dhs.org/c/cvsweb/linux/include/linux/thread_info.h?rev=1.5;content-type=text%2Fplain
-> > probably solves it.)
-> > There are other problems after that.
+Andrey Savochkin <saw@saw.sw.com.sg> wrote:
 >
-> Roman Zippel changed the threading stuff on m68k. Since it would affect other
-> architectures, I never submitted it on my own.
->
-> In short, we never really compile this code, since the m68k tree doesn't use it
-> anymore. And yes, it even fails with older compiler versions, like 2.95.2.
+> Let's suppose an mmap'ed (SHARED, RW) file has a hole.
+>  AFAICS, we allow to dirty the file pages without allocating the space for the
+>  hole - filemap_nopage just "reads" the page filling it with zeroes, and
+>  nothing is done about the on-disk data until writepage.
+> 
+>  So, if the page can't be written to disk (no space), the dirty data just
+>  stays in the pagecache.  The data can be read or seen via mmap, but it isn't
+>  and never be on disk.  The pagecache stays unsynchronized with the on-disk
+>  content forever.
 
-The second part doesn't seem to be true: the code is used. And it does compile
-after applying the fixes below, even with gcc 3.4.1.
+The kernel will make one attampt to write the data to disk.  If that write
+hits ENOSPC, the page is not redirtied (ie: the data can be lost).
 
-> > Any chance you could spend a bit of time sending Linus enough
-> > patches for his kernel to build for m68k, if not run?
->
-> I'll make sure a plain kernel.org kernel can build an m68k kernel.
+When that write hits ENOSPC an error flag is set in the address_space and
+that will be returned from a subsequent msync().  The application will then
+need to do something about it.
 
-The patch below makes the plain kernel.org 2.6.8.1 compile for m68k,
-using gcc 2.95.2 or 3.3.3 (3.4.1 needs a few more changes in random
-places). The resulting kernel (I booted the gcc 2.95.2 case) works fine on my
-Amiga.
+If your application doesn't msync() the memory then it doesn't care about
+its data anyway.  If your application _does_ msync the pages then we
+reliably report errors.
 
-It's more or less the patch created by Matthias Urlichs last year, so
-the credits are his:
+>  Is it the intended behavior?
+>  Shouldn't we call the filesystem to fill the hole at the moment of the first
+>  write access?
 
-| This change implements a reasonable compromise between the task_info->flags
-| variable in other ports, which is too much work in the syscall path on m68k,
-| and moving the whole structure to thread_struct, which is way too intrusive
-| on other ports.
+That would be a retrograde step - it would be nice to move in the other
+direction: perform disk allocation at writeback time rather than at write()
+time, even for regular write() data.  To do that we (probably) need space
+reservation APIs.  And yes, we perhaps could reserve space in the
+filesystem when that page is first written to.
 
-The patch does affect generic code a bit, but the collateral damage is
-kept to a minimum.
+But then what would we do if there's no space?  SIGBUS?  SIGSEGV? 
+Inappropriate.  SIGENOSPC?
 
-We can still keep Roman's thread info abstractions[*] in Linux/m68k CVS, but
-I'd really like the plain kernel.org kernel to be in a working state as well.
-That way more people may do cross-compile tests for m68k.
-
-Hence if no one objects, I'll submit the patch to Andrew and Linus.
-
-All comments are welcome!
-
---- linux-2.6.8.1/arch/m68k/kernel/asm-offsets.c	2004-04-28 15:48:59.000000000 +0200
-+++ linux-m68k-2.6.8.1/arch/m68k/kernel/asm-offsets.c	2004-09-05 12:04:00.000000000 +0200
-@@ -31,6 +31,7 @@ int main(void)
- 	DEFINE(TASK_SIGPENDING, offsetof(struct task_struct, thread.work.sigpending));
- 	DEFINE(TASK_NOTIFY_RESUME, offsetof(struct task_struct, thread.work.notify_resume));
- 	DEFINE(TASK_THREAD, offsetof(struct task_struct, thread));
-+	DEFINE(TASK_TINFO, offsetof(struct task_struct, thread_info));
- 	DEFINE(TASK_MM, offsetof(struct task_struct, mm));
- 	DEFINE(TASK_ACTIVE_MM, offsetof(struct task_struct, active_mm));
-
-@@ -45,6 +46,9 @@ int main(void)
- 	DEFINE(THREAD_FPCNTL, offsetof(struct thread_struct, fpcntl));
- 	DEFINE(THREAD_FPSTATE, offsetof(struct thread_struct, fpstate));
-
-+	/* offsets into the thread_info struct */
-+	DEFINE(TINFO_PREEMPT, offsetof(struct thread_info, preempt_count));
-+
- 	/* offsets into the pt_regs */
- 	DEFINE(PT_D0, offsetof(struct pt_regs, d0));
- 	DEFINE(PT_ORIG_D0, offsetof(struct pt_regs, orig_d0));
---- linux-2.6.8.1/arch/m68k/kernel/entry.S	2004-05-24 11:13:22.000000000 +0200
-+++ linux-m68k-2.6.8.1/arch/m68k/kernel/entry.S	2004-09-02 20:13:12.000000000 +0200
-@@ -134,13 +134,13 @@ ENTRY(system_call)
-
- syscall_exit_work:
- 	btst	#5,%sp@(PT_SR)		| check if returning to kernel
--	bnes	1b			| if so, skip resched, signals
-+	bnes	1b			| if so, skip everything
- 	tstw	%d0
--	jeq	do_signal_return
-+	jeq	do_signal_return | jump if only sig_pending or notify_resume
- 	tstb	%d0
--	jne	do_delayed_trace
-+	jne	do_delayed_trace | jump if delayed_trace
-
--	pea	resume_userspace
-+	pea	resume_userspace | need_resched is set
- 	jmp	schedule
-
- ret_from_exception:
-@@ -223,10 +223,14 @@ ENTRY(nmi_handler)
- */
- inthandler:
- 	SAVE_ALL_INT
--	GET_CURRENT(%d0)
--	addqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+2)
--					|  put exception # in d0
--	bfextu %sp@(PT_VECTOR){#4,#10},%d0
-+	/* GET_CURRENT(%d0) */
-+	movel	%sp,%d0
-+	andw	#-THREAD_SIZE,%d0
-+	movel	%d0,%a1
-+	addqb	#1,%a1@(TINFO_PREEMPT+2)
-+	movel	%a1@,%curptr
-+
-+	bfextu	%sp@(PT_VECTOR){#4,#10},%d0 |  put exception # in d0
-
- 	movel	%sp,%sp@-
- 	movel	%d0,%sp@-		|  put vector # on stack
-@@ -243,7 +247,8 @@ inthandler:
- 3:	addql	#8,%sp			|  pop parameters off stack
-
- ret_from_interrupt:
--	subqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+2)
-+	movel	%curptr@(TASK_TINFO),%a1
-+	subqb	#1,%a1@(TINFO_PREEMPT+2)
- 	jeq	1f
- 2:
- 	RESTORE_ALL
---- linux-2.6.8.1/include/asm-m68k/processor.h	2004-04-28 15:49:03.000000000 +0200
-+++ linux-m68k-2.6.8.1/include/asm-m68k/processor.h	2004-09-02 20:29:32.000000000 +0200
-@@ -84,7 +84,6 @@ struct thread_struct {
- 	ksp:	sizeof(init_stack) + (unsigned long) init_stack,	\
- 	sr:	PS_S,							\
- 	fs:	__KERNEL_DS,						\
--	info:	INIT_THREAD_INFO(init_task)				\
- }
-
- /*
---- linux-2.6.8.1/include/asm-m68k/thread_info.h	2004-05-24 11:13:53.000000000 +0200
-+++ linux-m68k-2.6.8.1/include/asm-m68k/thread_info.h	2004-09-05 12:19:47.000000000 +0200
-@@ -6,7 +6,7 @@
- #include <asm/page.h>
-
- struct thread_info {
--	struct task_struct	*task;		/* main task structure */
-+	struct task_struct	*task;		/* main task structure, must be first! */
- 	struct exec_domain	*exec_domain;	/* execution domain */
- 	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
- 	__u32 cpu; /* should always be 0 on m68k */
-@@ -21,7 +21,8 @@ struct thread_info {
- {						\
- 	.task		= &tsk,			\
- 	.exec_domain	= &default_exec_domain,	\
--	.restart_block = {			\
-+	.preempt_count	= 1,			\
-+	.restart_block	= {			\
- 		.fn = do_no_restart_syscall,	\
- 	},					\
- }
-@@ -35,10 +36,11 @@ struct thread_info {
- #define free_thread_info(ti)  free_pages((unsigned long)(ti),1)
- #endif /* PAGE_SHIFT == 13 */
-
--//#define init_thread_info	(init_task.thread.info)
-+#define init_thread_info	(init_thread_union.thread_info)
- #define init_stack		(init_thread_union.stack)
-
--#define current_thread_info()	(current->thread_info)
-+register __u32 current_thread_info_reg asm("sp");
-+#define current_thread_info()	((struct thread_info *)(current_thread_info_reg & ~0x1fff))
-
-
- #define __HAVE_THREAD_FUNCTIONS
-@@ -91,8 +93,12 @@ extern int thread_flag_fixme(void);
- })
-
- #define __get_set_tsk_thread_flag(tsk, flag, val) ({	\
--	int __res = __get_tsk_thread_flag(tsk, flag);	\
-+	int __res;					\
-+	unsigned long __flags; \
-+	local_irq_save(__flags);  \
-+	__res = __get_tsk_thread_flag(tsk, flag);	\
- 	__set_tsk_thread_flag(tsk, flag, val);		\
-+	local_irq_restore(__flags);  \
- 	__res;						\
- })
-
-@@ -105,7 +111,4 @@ extern int thread_flag_fixme(void);
- #define clear_thread_flag(flag) clear_tsk_thread_flag(current, flag)
- #define test_thread_flag(flag) test_tsk_thread_flag(current, flag)
-
--#define set_need_resched() set_thread_flag(TIF_NEED_RESCHED)
--#define clear_need_resched() clear_thread_flag(TIF_NEED_RESCHED)
--
- #endif	/* _ASM_M68K_THREAD_INFO_H */
---- linux-2.6.8.1/include/linux/sched.h	2004-08-04 12:14:38.000000000 +0200
-+++ linux-m68k-2.6.8.1/include/linux/sched.h	2004-09-04 21:18:59.000000000 +0200
-@@ -977,6 +977,7 @@ static inline struct mm_struct * get_tas
- 	return mm;
- }
-
-+#ifndef __HAVE_THREAD_FUNCTIONS
-
- /* set thread flags in other task's structures
-  * - see asm/thread_info.h for TIF_xxxx flags available
-@@ -1006,6 +1007,8 @@ static inline int test_tsk_thread_flag(s
- 	return test_ti_thread_flag(tsk->thread_info,flag);
- }
-
-+#endif	/* __HAVE_THREAD_FUNCTIONS */
-+
- static inline void set_tsk_need_resched(struct task_struct *tsk)
- {
- 	set_tsk_thread_flag(tsk,TIF_NEED_RESCHED);
---- linux-2.6.8.1/include/linux/thread_info.h	2004-04-27 20:42:22.000000000 +0200
-+++ linux-m68k-2.6.8.1/include/linux/thread_info.h	2004-09-04 21:24:36.000000000 +0200
-@@ -21,6 +21,7 @@ extern long do_no_restart_syscall(struct
- #include <asm/thread_info.h>
-
- #ifdef __KERNEL__
-+#ifndef __HAVE_THREAD_FUNCTIONS
-
- /*
-  * flag set/clear/test wrappers
-@@ -77,16 +78,11 @@ static inline int test_ti_thread_flag(st
- 	return test_bit(flag,&ti->flags);
- }
-
--static inline void set_need_resched(void)
--{
--	set_thread_flag(TIF_NEED_RESCHED);
--}
-+#endif	/* __HAVE_THREAD_FUNCTIONS */
-
--static inline void clear_need_resched(void)
--{
--	clear_thread_flag(TIF_NEED_RESCHED);
--}
-+#define set_need_resched() set_thread_flag(TIF_NEED_RESCHED)
-+#define clear_need_resched(void) clear_thread_flag(TIF_NEED_RESCHED)
-
--#endif
-+#endif	/* __KERNEL__ */
-
- #endif /* _LINUX_THREAD_INFO_H */
-
-Gr{oetje,eeting}s,
-
-						Geert
-
-[*] For reference:
-
-    http://linux-m68k-cvs.ubb.ca/~geert/linux-m68k-2.6.x-merging/POSTPONED/156-thread_info.diff
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

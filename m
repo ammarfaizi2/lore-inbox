@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287793AbSBKKPn>; Mon, 11 Feb 2002 05:15:43 -0500
+	id <S287831AbSBKKqm>; Mon, 11 Feb 2002 05:46:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287770AbSBKKPd>; Mon, 11 Feb 2002 05:15:33 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:30980 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S287793AbSBKKPN>; Mon, 11 Feb 2002 05:15:13 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 11 Feb 2002 10:55:34 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Mark McClelland <mark@alpha.dyndns.org>
-Cc: video4linux-list@redhat.com, Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [V4L] [PATCH/RFC] videodev.[ch] redesign
-Message-ID: <20020211105534.A4745@bytesex.org>
-In-Reply-To: <20020209194602.A23061@bytesex.org> <3C65EFF4.2000906@alpha.dyndns.org> <20020210101130.A28225@bytesex.org> <3C666D98.70600@alpha.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C666D98.70600@alpha.dyndns.org>
-User-Agent: Mutt/1.3.20i
+	id <S287860AbSBKKqd>; Mon, 11 Feb 2002 05:46:33 -0500
+Received: from adsl-63-198-217-24.dsl.snfc21.pacbell.net ([63.198.217.24]:7428
+	"EHLO hp.masroudeau.com") by vger.kernel.org with ESMTP
+	id <S287831AbSBKKqR>; Mon, 11 Feb 2002 05:46:17 -0500
+Date: Mon, 11 Feb 2002 02:38:37 -0800 (PST)
+From: Etienne Lorrain <etienne@masroudeau.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Gujin 0.6 i386 bootloader/Linuxloader feedback?
+Message-ID: <Pine.LNX.4.33.0202110140420.18506-100000@hp.masroudeau.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 10, 2002 at 04:54:48AM -0800, Mark McClelland wrote:
-> OK, agreed on all points. Thanks for the clarification.
-> 
-> BTW, is there any chance for vmalloc() and pals to be moved to 
-> videodev.c, or something higher-up?
+  Hello,
 
-What do you mean exactly?  bttv's memory management code, which has
-been copied to various places, and which is now broken in 2.5.x due
-to virt_to_bus() being gone finally?
+ Gujin is a bootloader/Linux system loader, it is still improving
+ and can be downloaded at:
+http://sourceforge.net/projects/gujin/
+ Documentation at:
+http://sourceforge.net/docman/display_doc.php?docid=1989&group_id=15465
 
-Some of this is work-in-progress.  I'm talking to Dave to put some
-helper functions to handle DMA to vmalloced memory blocks to some
-sensible place within the kernel.  If someone wants to have a look
-(not final yet): http://bytesex.org/patches/15_pci-2.4.18-pre8.diff
+ In three words, this GPL produces 3 bootloaders:
+  - a simple FAT12 floppy bootloader (tiny.img.gz) and if you "zcat"
+  it to a floppy, you just need to copy a bzImage/initrd to the
+  floppy (by mcopy or mounting the floppy) to have a bootable system.
+  - a simple DOS executable (tiny.exe) which can be run from a DOS
+  rescue disk, you just type at a DOS prompt:
+  tiny c:\vmlinuz.245 d:\initrd.245 root=/dev/hda2 other_params=...
+  - a full menu based boot-floppy or DOS executable which scans
+  all the disk partitions (FAT12/16/32, ext2/3fs) and propose a
+  graphical+mouse menu to select what you want to boot. A lot
+  of configurations are available for this last choice.
 
-  Gerd
+ It is still not perfect, but can already be used in some cases,
+ like rescue disk or probably bootable CDROMs (virtual floppy).
 
--- 
-#define	ENOCLUE 125 /* userland programmer induced race condition */
+ I am planning to do the hard disk installer RSN, but I lack
+ some feeback - like on which systems Gujin fails to work -
+ even if I know people are downloading it from SourceForge counters.
+
+ Also, I heard about having all modules in a cpio archive, I am
+ wondering about considering the i386 real mode initialiser as
+ a module - and copying it / running it in low memory before
+ jumping to the protected mode entry point.
+
+
+ Finally, and as a side effect, Gujin is also an improved "memtest".
+ If you download the source (and E2fs source) and type:
+make testall > log
+ it will test the compilation/link of a lot of configuration.
+ That means 1 hour of 100% CPU time compilation with nearly no
+ hard drive access on a Athlon 1.4Ghz KT266 system. Then I learned
+ that having a-very/the-most expensive single CPU motherboard
+ and a said "very good memory", I do not have a stable system
+ when selecting "BIOS defaults", I need to reduce the memory speed
+ to 100 MHz - test your own system!
+
+
+  Etienne.
+
+--
+ The right length, for the legs, is when the foots touch
+ perfectly the floor. (Coluche - free translation)
+

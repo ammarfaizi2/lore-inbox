@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288274AbSAHUQP>; Tue, 8 Jan 2002 15:16:15 -0500
+	id <S287798AbSAHUTp>; Tue, 8 Jan 2002 15:19:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287798AbSAHUQG>; Tue, 8 Jan 2002 15:16:06 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:22145 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S288274AbSAHUPs>; Tue, 8 Jan 2002 15:15:48 -0500
-Message-ID: <037c01c19881$59aa2310$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Sourav" <jeebu19@yahoo.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <005c01c19876$30b51060$03015b0a@bulee>
-Subject: Re: DLink DFE 538 TX (TealTek 8139) too slow
-Date: Tue, 8 Jan 2002 21:16:26 +0100
+	id <S288279AbSAHUTg>; Tue, 8 Jan 2002 15:19:36 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:1036 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S287798AbSAHUTU>; Tue, 8 Jan 2002 15:19:20 -0500
+Message-ID: <3C3B5305.267EFC14@zip.com.au>
+Date: Tue, 08 Jan 2002 12:13:57 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Robert Love <rml@tech9.net>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <20020108030431.0099F38C58@perninha.conectiva.com.br> <Pine.LNX.4.21.0201081153160.19178-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Sourav" <jeebu19@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, January 08, 2002 7:56 PM
-Subject: DLink DFE 538 TX (TealTek 8139) too slow
+Marcelo Tosatti wrote:
+> 
+> > Andrew Morten`s read-latency.patch is a clear winner for me, too.
+> 
+> AFAIK Andrew's code simply adds schedule points around the kernel, right?
+> 
+> If so, nope, I do not plan to integrate it.
 
+I haven't sent it to you yet :)  It improves the kernel.  That's
+good, isn't it?  (There are already forty or fifty open-coded
+rescheduling points in the kernel.  That patch just adds the
+missing (and most important) ten).  
 
-> Why is DLink DFE 538TX Realtek 8139 too slow over
-> 10Mbps HUB ( ~1Mbps) and apparantly too many
-> collisions on a 2 computer network??!!! It also
-> shows Half Duplex autonegotiated!!
+BTW, with regard to the "preempt and low-lat improve disk throughput"
+argument.  I have occasionally seen small throughput improvements,
+but I think these may be just request-merging flukes.  Certainly
+they were very small.
 
-This can be because of another NIC being broken (or just crappy). Most
-10Mbps HUBs cannot handle full duplex, and if you enable this anyway, you
-get excessive collisions. Check that the other computer does not have full
-duplex enabled.
+The one area where it sometimes makes a huuuuuge throughput
+improvement is software RAID.
 
-To check if it's the HUB, you can always put a patch cable directly between
-the two computers. This way you will get 100Mbps too, if both supports it.
+Much of the VM and dirty buffer writeout code assumes that
+submit_bh() starts I/O.  Guess what?  RAID's submit_bh()
+sometimes *doesn't* start I/O.  Because the IO is started
+by a different thread.
 
-A patch cable is wired in a different way than a standard cable, so be sure
-to get the right kind.
+With the Riel VM I had a test case in which software RAID
+completely and utterly collapsed because of this.  The machine
+was spending huge amounts of time spinning in page_launder(), madly
+submitting I/O, but never yielding, so the I/O wasn't being started.
 
- _____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
+-aa VM has an open-coded yield in shrink_cahce() which prevents
+that particular collapse.  But I had a report yesterday that
+the mini-ll patch triples throughput on a complex RAID stack in
+2.4.17.  Same reason.
 
-- ABIT BP6(RU) - 2xCeleron 400 - 128MB/PC100/C2 Acer
-- Maxtor 10/5400/U33 HPT P/M - Seagate 6/5400/U33 HPT S/M
-- 2xDE-530TX - 1xTulip - Linux 2.4.17+ide+preempt
+Arguably, this is a RAID problem - raidN_make_request() should
+be yielding.  But it's better to do this in one nice, single,
+reviewable place - submit_bh().  However that won't prevent
+wait_for_buffers() from starving the raid thread.
 
+RAID is not alone.  ksoftirqd, keventd and loop_thread() also
+need reasonably good response times.
+
+But given the number of people who have been providing feedback
+on this patch, and on the disk-read-latency patch, none of this
+is going anywhere, and mine will be the only Linux machines which
+don't suck.  (Takes ball, goes home).
+
+-

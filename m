@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVADSzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVADS5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261800AbVADSzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 13:55:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVADSzI
+	id S261801AbVADS5c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 13:57:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVADS5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 13:55:08 -0500
-Received: from mail.joq.us ([67.65.12.105]:48036 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261800AbVADSyt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 13:54:49 -0500
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+	Tue, 4 Jan 2005 13:57:32 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:43428 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261697AbVADS5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 13:57:17 -0500
 Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, "Jack O'Quin" <joq@io.com>
+In-Reply-To: <20050104182010.GA15254@infradead.org>
 References: <1104374603.9732.32.camel@krustophenia.net>
-	<20050103140359.GA19976@infradead.org>
-	<1104862614.8255.1.camel@krustophenia.net>
-	<20050104182010.GA15254@infradead.org>
-From: "Jack O'Quin" <joq@io.com>
-Date: Tue, 04 Jan 2005 12:55:15 -0600
-In-Reply-To: <20050104182010.GA15254@infradead.org> (Christoph Hellwig's
- message of "Tue, 4 Jan 2005 18:20:10 +0000")
-Message-ID: <87u0pxhvn0.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	 <20050103140359.GA19976@infradead.org>
+	 <1104862614.8255.1.camel@krustophenia.net>
+	 <20050104182010.GA15254@infradead.org>
+Content-Type: text/plain
+Date: Tue, 04 Jan 2005 13:57:13 -0500
+Message-Id: <1104865034.8346.4.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+On Tue, 2005-01-04 at 18:20 +0000, Christoph Hellwig wrote:
+> On Tue, Jan 04, 2005 at 01:16:54PM -0500, Lee Revell wrote:
+> > Got a patch?  Code talks, BS walks.  This is working perfectly, right
+> > now, and is being used by thousands of Linux ausio users.
+> 
+> Which still doesn't mean it's the right design.  And no, I don't need the
+> feature so I won't write it.  If you want a certain feature it's up to
+> you to implement it in a way that's considered mergeable.
+> 
 
-> Which still doesn't mean it's the right design.  And no, I don't
-> need the feature so I won't write it.  If you want a certain feature
-> it's up to you to implement it in a way that's considered mergeable.
+Please specify what's wrong with it.  So far all your objection amounts
+to is "I don't like it".
 
-Which is what I have done.  I worked on it because no "real" kernel
-developer seemed willing to solve it.  Having worked on other kernels
-in an "earlier lifetime", I have *no* desire to do that any more.  I
-would much rather write audio software.
+If you do have anything other that your opinion to back up your
+assertion that it's a bad design, you should have raised it months ago
+when this was first posted.  Now that we have it to a mergeable state
+(as far as the people who worked on it are concerned), you want to pop
+up and say "Nope, bad design"?
 
-But, the lack of this feature has been a continual impediment for
-years now.  It affects not just me, but most other serious Linux audio
-developers and many of our users.  We need a simple way for users to
-configure a Digital Audio Workstation without having to run large,
-complex, insecure audio applications as `root'.  Our competition runs
-on Windows and Mac systems where no such configuration is needed.
+Sorry but last time I checked you were not the ultimate arbiter of good
+design on LKML.  If you want to shitcan the _only known good, field
+tested, working solution_ then you have to have overwhelming technical
+arguments.  So far I've seen zero.
 
-Statements of the form "had I cared enough to do something about this
-problem, I would have implemented it differently" are not much help.
-This patch is small and clean.  It meshes with existing kernel LSM
-mechanisms.  It solves a real problem affecting many Linux desktop
-users.
+Lee
 
-I respectfully request that it be accepted for inclusion in 2.6.11.
--- 
-  joq

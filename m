@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266034AbUJEXtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUJEXwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266034AbUJEXtk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 19:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUJEXtk
+	id S266459AbUJEXwT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 19:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUJEXwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 19:49:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30927 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266034AbUJEXth (ORCPT
+	Tue, 5 Oct 2004 19:52:18 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:34216 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266459AbUJEXuz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 19:49:37 -0400
-Date: Tue, 5 Oct 2004 16:53:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ed Tomlinson <edt@aei.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm2 ip_conntrack problems
-Message-Id: <20041005165314.422a3281.akpm@osdl.org>
-In-Reply-To: <200410051913.00266.edt@aei.ca>
-References: <20041004020207.4f168876.akpm@osdl.org>
-	<200410041941.56453.edt@aei.ca>
-	<20041004170853.34d25529.akpm@osdl.org>
-	<200410051913.00266.edt@aei.ca>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 5 Oct 2004 19:50:55 -0400
+Subject: Re: hpt366 under hpt372N oops
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?ISO-8859-1?Q?Jo=E3o?= Luis Meloni Assirati 
+	<assirati@nonada.if.usp.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200410050638.13426.assirati@nonada.if.usp.br>
+References: <200410050638.13426.assirati@nonada.if.usp.br>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1097016504.23924.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 05 Oct 2004 23:48:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson <edt@aei.ca> wrote:
->
-> The startup hangs at the same place rc2-mm1 did.
+On Maw, 2004-10-05 at 10:38, João Luis Meloni Assirati wrote:
+> Hello,
+> 
+> I have an off board HighPoint RocketRAID 133 pci card. The chip is identified 
+> as HPT372N and there is a tag in the board printed V2.35.
 
-I'll forward your report to linux-usb-devel@lists.sourceforge.net.
-The USB tree seems fairly broken lately.
-
-> Disabling APCI does not help.  Recient mm build only
-> work if APCI is enabled here.
-
-Please send a .config which exhibits this failure.
+Is this crash fixed by 2.6.9rc3 for you - its my fault I'm afraid I
+slightly screwed up merging 2.4.2x HPT372N into 2.6.x
 

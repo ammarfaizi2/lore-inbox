@@ -1,101 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267558AbSLFEbm>; Thu, 5 Dec 2002 23:31:42 -0500
+	id <S267599AbSLFFI3>; Fri, 6 Dec 2002 00:08:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267563AbSLFEbl>; Thu, 5 Dec 2002 23:31:41 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:10124 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267558AbSLFEbk>;
-	Thu, 5 Dec 2002 23:31:40 -0500
-Date: Thu, 5 Dec 2002 20:35:59 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] convert nice magic numbers to #defines
-Message-ID: <Pine.LNX.4.33L2.0212052033010.24550-200000@dragon.pdx.osdl.net>
+	id <S267600AbSLFFI3>; Fri, 6 Dec 2002 00:08:29 -0500
+Received: from [202.54.40.198] ([202.54.40.198]:33691 "EHLO omega.zensar.com")
+	by vger.kernel.org with ESMTP id <S267599AbSLFFI3> convert rfc822-to-8bit;
+	Fri, 6 Dec 2002 00:08:29 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="346823425-1698122341-1039149359=:24550"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: WIN_READDMA
+Date: Fri, 6 Dec 2002 10:43:14 +0530
+Message-ID: <54670264D99F034EA23CBB7D7A45AE7E5ED7@zenmail1.ind.zensar.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: WIN_READDMA
+Thread-Index: AcKc5rStUgjStgjPEdeMaAAIAl3PgA==
+From: "Paresh Sawant" <p.Sawant@zensar.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 06 Dec 2002 05:13:14.0431 (UTC) FILETIME=[2DC854F0:01C29CE6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+hi
+    i want to send  "WIN_READDMA" ATA command to ide hard drive, i am doing ioctl call using command HDIO_DRIVE_TASK, what would be the third argument to the ioctl call ? currently i m passing following as third arg -
+unsigned char args[8+512] = {WIN_READDMA,feature,sector_count,low_lba,mid_lba,high_lba,device,};
 
---346823425-1698122341-1039149359=:24550
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+thanks
+paresh
 
-
-4th time's a charm.  :)
-
-This patch has been re-diffed for 2.5.50.
-
-Comments?
-
-Thanks,
--- 
-~Randy
-
---346823425-1698122341-1039149359=:24550
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="nice_magic_2550.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33L2.0212052035590.24550@dragon.pdx.osdl.net>
-Content-Description: 
-Content-Disposition: attachment; filename="nice_magic_2550.patch"
-
-LS0tIC4va2VybmVsL3N5cy5jLm9yaWcJV2VkIE5vdiAyNyAxNDozNTo1MCAy
-MDAyDQorKysgLi9rZXJuZWwvc3lzLmMJVGh1IERlYyAgNSAxOToyODo1MSAy
-MDAyDQpAQCAtMjQwLDEwICsyNDAsMTAgQEANCiANCiAJLyogbm9ybWFsaXpl
-OiBhdm9pZCBzaWduZWQgZGl2aXNpb24gKHJvdW5kaW5nIHByb2JsZW1zKSAq
-Lw0KIAllcnJvciA9IC1FU1JDSDsNCi0JaWYgKG5pY2V2YWwgPCAtMjApDQot
-CQluaWNldmFsID0gLTIwOw0KLQlpZiAobmljZXZhbCA+IDE5KQ0KLQkJbmlj
-ZXZhbCA9IDE5Ow0KKwlpZiAobmljZXZhbCA8IFBSSU9fTUlOKQ0KKwkJbmlj
-ZXZhbCA9IFBSSU9fTUlOOw0KKwlpZiAobmljZXZhbCA+IFBSSU9fTUFYIC0g
-MSkNCisJCW5pY2V2YWwgPSBQUklPX01BWCAtIDE7DQogDQogCXJlYWRfbG9j
-aygmdGFza2xpc3RfbG9jayk7DQogCXN3aXRjaCAod2hpY2gpIHsNCkBAIC0z
-MDUsNyArMzA1LDcgQEANCiAJCQkJd2hvID0gY3VycmVudC0+cGlkOw0KIAkJ
-CXAgPSBmaW5kX3Rhc2tfYnlfcGlkKHdobyk7DQogCQkJaWYgKHApIHsNCi0J
-CQkJbmljZXZhbCA9IDIwIC0gdGFza19uaWNlKHApOw0KKwkJCQluaWNldmFs
-ID0gUFJJT19NQVggLSB0YXNrX25pY2UocCk7DQogCQkJCWlmIChuaWNldmFs
-ID4gcmV0dmFsKQ0KIAkJCQkJcmV0dmFsID0gbmljZXZhbDsNCiAJCQl9DQpA
-QCAtMzE0LDcgKzMxNCw3IEBADQogCQkJaWYgKCF3aG8pDQogCQkJCXdobyA9
-IGN1cnJlbnQtPnBncnA7DQogCQkJZm9yX2VhY2hfdGFza19waWQod2hvLCBQ
-SURUWVBFX1BHSUQsIHAsIGwsIHBpZCkgew0KLQkJCQluaWNldmFsID0gMjAg
-LSB0YXNrX25pY2UocCk7DQorCQkJCW5pY2V2YWwgPSBQUklPX01BWCAtIHRh
-c2tfbmljZShwKTsNCiAJCQkJaWYgKG5pY2V2YWwgPiByZXR2YWwpDQogCQkJ
-CQlyZXR2YWwgPSBuaWNldmFsOw0KIAkJCX0NCkBAIC0zMzAsNyArMzMwLDcg
-QEANCiANCiAJCQlkb19lYWNoX3RocmVhZChnLCBwKQ0KIAkJCQlpZiAocC0+
-dWlkID09IHdobykgew0KLQkJCQkJbmljZXZhbCA9IDIwIC0gdGFza19uaWNl
-KHApOw0KKwkJCQkJbmljZXZhbCA9IFBSSU9fTUFYIC0gdGFza19uaWNlKHAp
-Ow0KIAkJCQkJaWYgKG5pY2V2YWwgPiByZXR2YWwpDQogCQkJCQkJcmV0dmFs
-ID0gbmljZXZhbDsNCiAJCQkJfQ0KLS0tIC4va2VybmVsL3NjaGVkLmMub3Jp
-ZwlXZWQgTm92IDI3IDE0OjM2OjE3IDIwMDINCisrKyAuL2tlcm5lbC9zY2hl
-ZC5jCVRodSBEZWMgIDUgMTk6Mjg6NTEgMjAwMg0KQEAgLTQ1LDcgKzQ1LDcg
-QEANCiAvKg0KICAqICdVc2VyIHByaW9yaXR5JyBpcyB0aGUgbmljZSB2YWx1
-ZSBjb252ZXJ0ZWQgdG8gc29tZXRoaW5nIHdlDQogICogY2FuIHdvcmsgd2l0
-aCBiZXR0ZXIgd2hlbiBzY2FsaW5nIHZhcmlvdXMgc2NoZWR1bGVyIHBhcmFt
-ZXRlcnMsDQotICogaXQncyBhIFsgMCAuLi4gMzkgXSByYW5nZS4NCisgKiBp
-dCdzIGluIFsgMCAuLi4gMzkgXSByYW5nZS4NCiAgKi8NCiAjZGVmaW5lIFVT
-RVJfUFJJTyhwKQkJKChwKS1NQVhfUlRfUFJJTykNCiAjZGVmaW5lIFRBU0tf
-VVNFUl9QUklPKHApCVVTRVJfUFJJTygocCktPnN0YXRpY19wcmlvKQ0KQEAg
-LTEyODQsNyArMTI4NCw3IEBADQogCXByaW9fYXJyYXlfdCAqYXJyYXk7DQog
-CXJ1bnF1ZXVlX3QgKnJxOw0KIA0KLQlpZiAoVEFTS19OSUNFKHApID09IG5p
-Y2UgfHwgbmljZSA8IC0yMCB8fCBuaWNlID4gMTkpDQorCWlmIChUQVNLX05J
-Q0UocCkgPT0gbmljZSB8fCBuaWNlIDwgUFJJT19NSU4gfHwgbmljZSA+IFBS
-SU9fTUFYIC0gMSkNCiAJCXJldHVybjsNCiAJLyoNCiAJICogV2UgaGF2ZSB0
-byBiZSBjYXJlZnVsLCBpZiBjYWxsZWQgZnJvbSBzeXNfc2V0cHJpb3JpdHko
-KSwNCkBAIC0xMzM2LDE3ICsxMzM2LDE4IEBADQogCWlmIChpbmNyZW1lbnQg
-PCAwKSB7DQogCQlpZiAoIWNhcGFibGUoQ0FQX1NZU19OSUNFKSkNCiAJCQly
-ZXR1cm4gLUVQRVJNOw0KLQkJaWYgKGluY3JlbWVudCA8IC00MCkNCi0JCQlp
-bmNyZW1lbnQgPSAtNDA7DQorDQorCQlpZiAoaW5jcmVtZW50IDwgUFJJT19N
-SU4gLSBQUklPX01BWCkNCisJCQlpbmNyZW1lbnQgPSBQUklPX01JTiAtIFBS
-SU9fTUFYOw0KIAl9DQotCWlmIChpbmNyZW1lbnQgPiA0MCkNCi0JCWluY3Jl
-bWVudCA9IDQwOw0KKwlpZiAoaW5jcmVtZW50ID4gKFBSSU9fTUFYIC0gUFJJ
-T19NSU4pKQ0KKwkJaW5jcmVtZW50ID0gUFJJT19NQVggLSBQUklPX01JTjsN
-CiANCiAJbmljZSA9IFBSSU9fVE9fTklDRShjdXJyZW50LT5zdGF0aWNfcHJp
-bykgKyBpbmNyZW1lbnQ7DQotCWlmIChuaWNlIDwgLTIwKQ0KLQkJbmljZSA9
-IC0yMDsNCi0JaWYgKG5pY2UgPiAxOSkNCi0JCW5pY2UgPSAxOTsNCisJaWYg
-KG5pY2UgPCBQUklPX01JTikNCisJCW5pY2UgPSBQUklPX01JTjsNCisJaWYg
-KG5pY2UgPiBQUklPX01BWCAtIDEpDQorCQluaWNlID0gUFJJT19NQVggLSAx
-Ow0KIA0KIAlpZiAoKHJldHZhbCA9IHNlY3VyaXR5X3Rhc2tfc2V0bmljZShj
-dXJyZW50LCBuaWNlKSkpDQogCQlyZXR1cm4gcmV0dmFsOw0K
---346823425-1698122341-1039149359=:24550--

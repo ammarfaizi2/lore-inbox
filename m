@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUJPTgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268799AbUJPTo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266679AbUJPTgs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 15:36:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268799AbUJPTgb
+	id S268799AbUJPTo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 15:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268819AbUJPTmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 15:36:31 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:61271 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266679AbUJPT26
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 15:28:58 -0400
-Date: Sat, 16 Oct 2004 23:29:00 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, olh@suse.de, akpm@osdl.org,
-       sam@ravnborg.org
-Subject: Re: [PATCH] kconfig: OVERRIDE: save kernel version in .config file
-Message-ID: <20041016212859.GC8765@mars.ravnborg.org>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>, olh@suse.de, akpm@osdl.org,
-	sam@ravnborg.org
-References: <20040917154346.GA15156@suse.de> <20040917102024.50188756.rddunlap@osdl.org> <20040917104334.1b7d7d19.rddunlap@osdl.org>
+	Sat, 16 Oct 2004 15:42:32 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25362 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S268799AbUJPTkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 15:40:11 -0400
+Date: Sat, 16 Oct 2004 20:40:01 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Dan Kegel <dank@kegel.com>, Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Martin Schaffner <schaffner@gmx.li>, Kevin Hilman <kjh@hilman.org>,
+       bertrand marquis <bertrand.marquis@sysgo.com>
+Subject: Re: Building on case-insensitive systems and systems where -shared doesn't work well (was: Re: 2.6.8 link failure for sparc32 (vmlinux.lds.s: No such file or directory)?)
+Message-ID: <20041016204001.B20488@flint.arm.linux.org.uk>
+Mail-Followup-To: Dan Kegel <dank@kegel.com>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Martin Schaffner <schaffner@gmx.li>, Kevin Hilman <kjh@hilman.org>,
+	bertrand marquis <bertrand.marquis@sysgo.com>
+References: <414FC41B.7080102@kegel.com> <58517.194.237.142.24.1095763849.squirrel@194.237.142.24> <4164DAC9.8080701@kegel.com> <20041016210024.GB8306@mars.ravnborg.org> <20041016200627.A20488@flint.arm.linux.org.uk> <20041016212440.GA8765@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040917104334.1b7d7d19.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041016212440.GA8765@mars.ravnborg.org>; from sam@ravnborg.org on Sat, Oct 16, 2004 at 11:24:40PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 10:43:34AM -0700, Randy.Dunlap wrote:
-> On Fri, 17 Sep 2004 10:20:24 -0700 Randy.Dunlap wrote:
+On Sat, Oct 16, 2004 at 11:24:40PM +0200, Sam Ravnborg wrote:
+> On Sat, Oct 16, 2004 at 08:06:27PM +0100, Russell King wrote:
+> > 
+> > Converting .S -> .s is useful for debugging - please don't cripple the
+> > kernel developers just because some filesystems are case-challenged.
 > 
-> | On Fri, 17 Sep 2004 17:43:46 +0200 Olaf Hering wrote:
-> | 
-> | | Randy,
-> | | 
-> | | we need a way to turn the timestamp off when running make oldconfig.
-> | | Running make oldconfig gives always a delta, even if the .config is
-> | | unchanged. This is bad for cvs repos, it generates conflicts now if 2
-> | | people work on the same config file.
-> | | Please provide a patch to not call ctime if a non-empty enviroment
-> | | variable of your choice is set.
-> | 
-> | How's this?
+> Does the debug tools rely on files named *.s then?
 > 
-> Let's be a little safer in checking "NOTIMESTAMP".
-> 
-> Omit .config file timestamp in the file if the environment variable
-> "NOTIMESTAMP" exists and is non-null.
-> 
-> Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+> There are today ~1400 files named *.S in the tree, but none named *.s.
+> So my idea was to do it like:
+> *.S => *.asm => *.o
+> But if this breaks some debugging tools I would like to know.
 
-Applied - but I named it KCONFIG_TIMESTAMP so people would not
-think that kbuild suddenly stopped checking timestamps.
+*.asm is nonstanard naming.  If we have to support case-challenged
+filesystems, please ensure that the rest of the nonbroken world can
+continue as they have done for the last few decades and live happily
+unaffected by these problems.
 
-	Sam
+> Btw. this is not about "case-challenged" filesystems in general. This is
+> about making the kernel usefull out-of-the-box for the increasing
+> embedded market.
+> Less work-around patces needed the better. And these people are often
+> bound to Windoze boxes - for different reasons. And the individual
+> developer may not be able to change this.
+
+You still need a case-sensitive filesystem to be able to create a root
+filesystem for their embedded device.  I think you'll find that issues
+surrounding caseful filenames in the kernel is the least of their
+problems.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

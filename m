@@ -1,63 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262357AbTHaOYr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 10:24:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbTHaOYr
+	id S262246AbTHaOeF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 10:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbTHaOeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 10:24:47 -0400
-Received: from h80ad2559.async.vt.edu ([128.173.37.89]:10368 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262357AbTHaOYq (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 10:24:46 -0400
-Message-Id: <200308311424.h7VEOIaA025557@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andreas Gruenbacher <agruen@suse.de>
-Subject: Re: 2.6.0-test4-mm3.1 oops with ext3 extended attributes on R/O filesystem 
-In-Reply-To: Your message of "Sat, 30 Aug 2003 21:47:51 PDT."
-             <20030830214751.5baaab4c.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <200308310412.h7V4Cxd7013786@turing-police.cc.vt.edu>
-            <20030830214751.5baaab4c.akpm@osdl.org>
+	Sun, 31 Aug 2003 10:34:05 -0400
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:23257 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262246AbTHaOeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 10:34:02 -0400
+Date: Sun, 31 Aug 2003 16:33:59 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: HEADS UP lk-changelog/shortlog: security announcement
+Message-ID: <20030831143359.GD30252@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_553233904P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 31 Aug 2003 10:24:18 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_553233904P
-Content-Type: text/plain; charset=us-ascii
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Sat, 30 Aug 2003 21:47:51 PDT, Andrew Morton said:
+Anyone who uses lk-changelog.pl or shortlog
+(YES THIS COMPRISES YOU, MARCELO ;-) 
+with these option combinations:
 
-> Thanks.   It's a very straightforward bug; I'll fix it with the below patch.
+- --mode=terse AND NOT --noobfuscate
 
-Fix tested in -test4-mm4, program gets a proper '-EROFS', no signs of hanging
-locks.  Looks good from here, please push to appropriate maintainers..
+- --mode=oneline AND NOT --noobfuscate
 
-> A wider question is whether we should have got this far into the filesystem
-> code if the fs is mounted read-only.  A check right up at the VFS
-> setxattr() level might make sense.
+please be aware that address obfuscation of unknown addresses does not
+work (I'll consider that an information leak given that addresses and
+logs are web accessible through archives and are actually harvested by
+those saboteurs that call themselves direct advertisers), so you may get
+lines like:
 
-Yes, I was a bit surprised at that as well...
+  o example change log entry (user@example.org)
 
-> Regardless of that, this fix is needed because journal_start() could fail
-> for other reasons.
+Rather than
 
-Good point, and one I hadn't considered...
+  o example change log entry (user:example.org)
 
---==_Exmh_553233904P
-Content-Type: application/pgp-signature
+The issue was fixed in 0.166; 0.167 is the latest release version.
 
+Get it from:
+
+BK:  bk://129.217.163.1   (NO trailing slash, bkd -xcd there!)
+
+Once Linus pulls these changes, it will also become available at the
+
+official repository: bk://kernel.bkbits.net/torvalds/tools/
+
+WWW: http://mandree.home.pages.de/linux/kernel/
+this site carries releases and GnuPG signatures
+
+(Yes, the GPG signing key has changed recently,
+the days of PGP 2.x are passing...)
+
+- -- 
+Matthias Andree
+
+Encrypt your mail: my GnuPG key ID is 0x052E7D95
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQE/UgUScC3lWbTT17ARAib0AKDIv+b9BhBbno5L3uxFHl6duapoyQCfWv2b
-4pQsPRIPxHAeV6vyKEhMZqE=
-=/vuv
+iD8DBQE/UgdOvmGDOQUufZURAkqTAJ9PlcQHCeNcC0CbM6fnEzIub6l1RwCfV3Jn
+1cyDzwKTReYEIwEyxtMsjPM=
+=e3ZP
 -----END PGP SIGNATURE-----
-
---==_Exmh_553233904P--

@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVAMOyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVAMOyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbVAMOyS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 09:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVAMOwV
+	id S261641AbVAMOyb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 09:54:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVAMOya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 09:52:21 -0500
-Received: from ponzo.noc.sonic.net ([64.142.18.11]:40110 "HELO ponzo.sonic.net")
-	by vger.kernel.org with SMTP id S261642AbVAMOuc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 09:50:32 -0500
-Date: Thu, 13 Jan 2005 06:50:29 -0800
-From: Scott Doty <scott@sonic.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.28(+?): Strange ARP problem
-Message-ID: <20050113145029.GA22622@sonic.net>
+	Thu, 13 Jan 2005 09:54:30 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:25617 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261641AbVAMOxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 09:53:42 -0500
+Subject: Re: propolice support for linux
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050113140446.GA22381@infradead.org>
+References: <20050113134620.GA14127@boetes.org>
+	 <20050113140446.GA22381@infradead.org>
+Content-Type: text/plain
+Date: Thu, 13 Jan 2005 15:53:35 +0100
+Message-Id: <1105628016.6031.26.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-PGP-Key: http://sonic.net/~scott/gpgkey.txt
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-We use Linux extensively here at Sonic.net.  Our web servers have two
-NIC's -- a NIC with a public IP address, and a NIC on our SAN (with NetApps).
+> EXPORT_SYMBOL_NOVERS(__guard);
 
-When we tried to upgrade to 2.4.28, we encountered a problem with NetApp
-reachability, which turns out to have been a problem with ARP:  we
-were seeing two ARP entries for the NetApp IP's.  One would be correct, and
-one would be "incomplete".
+_NOVERS is dead btw
 
-Occasionally, a system would glom onto the incomplete entry, and NFS
-connectivity would tank.  This doesn't happen with 2.4.27.
-
-We'd like to upgrade to 2.4.29-rc2, but we have much trepidation about doing
-so.  I certainly don't want to treat the list as "our own personal help
-desk" (as warned about in the FAQ), but was hoping someone could shed some
-light on the problem.  I think either myself or one of our guys can write a
-patch to fix it, if someone would point us in the right direction.
-
-Thank you,
-
- -Scott

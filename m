@@ -1,64 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284759AbRLRTRd>; Tue, 18 Dec 2001 14:17:33 -0500
+	id <S284763AbRLRTS5>; Tue, 18 Dec 2001 14:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284557AbRLRTQI>; Tue, 18 Dec 2001 14:16:08 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:28420
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S284696AbRLRTMk>; Tue, 18 Dec 2001 14:12:40 -0500
-Date: Tue, 18 Dec 2001 11:06:11 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Aaron Lehmann <aaronl@vitelus.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] DRM OS
-In-Reply-To: <Pine.LNX.4.10.10112181053070.18949-100000@www.transvirtual.com>
-Message-ID: <Pine.LNX.4.10.10112181103310.21250-100000@master.linux-ide.org>
+	id <S284926AbRLRTRg>; Tue, 18 Dec 2001 14:17:36 -0500
+Received: from www.wen-online.de ([212.223.88.39]:4371 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S284812AbRLRTLb>;
+	Tue, 18 Dec 2001 14:11:31 -0500
+Date: Tue, 18 Dec 2001 20:11:01 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Rik van Riel <riel@conectiva.com.br>, Benjamin LaHaise <bcrl@redhat.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler ( was: Just a second ) ...
+In-Reply-To: <Pine.LNX.4.33.0112180917050.2867-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0112182007280.778-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 18 Dec 2001, Linus Torvalds wrote:
 
-And it was almost a year ago when the world was exposed to this plot but
-everyone ignored my commentary when I was asked.  The reality is, now is
-to late to be concerned.  It is already in place.  The infrastructure is
-laid and now it is the componet level of next generation of hardware.
+> And no, I don't think IRC counts either, sorry.
 
-Regards,
+Well yeah.. it's synchronous IO :)
 
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
-
-On Tue, 18 Dec 2001, James Simmons wrote:
-
-> 
-> > > Why would crypto help at all?
-> > 
-> > So you cant tap the data anywhere. 
-> 
-> [snip]..
-> 
-> > (and if you read the MS media player license anyone who agrees to it signed
-> > up to that)
-> 
-> The end of the free world ;-< We know this will be global.
-> 
->    . ---
->    |o_o |
->    |:_/ |   Give Micro$oft the Bird!!!!
->   //   \ \  Use Linux!!!!
->  (|     | )
->  /'_   _/`\
->  ___)=(___/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+	-Mike
 

@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288112AbSA0Pyq>; Sun, 27 Jan 2002 10:54:46 -0500
+	id <S288102AbSA0P7g>; Sun, 27 Jan 2002 10:59:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288102AbSA0Pyg>; Sun, 27 Jan 2002 10:54:36 -0500
-Received: from out020pub.verizon.net ([206.46.170.176]:49598 "EHLO
-	out020.verizon.net") by vger.kernel.org with ESMTP
-	id <S288112AbSA0PyZ>; Sun, 27 Jan 2002 10:54:25 -0500
-Date: Sun, 27 Jan 2002 10:51:17 -0500
-From: Skip Ford <skip.ford@verizon.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make ide-scsi compile in 2.5
-Message-ID: <20020127105117.A571@s>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020127024631.A28936@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020127024631.A28936@wotan.suse.de>; from ak@suse.de on Sun, Jan 27, 2002 at 02:46:31AM +0100
+	id <S288109AbSA0P7Q>; Sun, 27 Jan 2002 10:59:16 -0500
+Received: from [212.204.66.1] ([212.204.66.1]:57359 "EHLO myway.myway.de")
+	by vger.kernel.org with ESMTP id <S288102AbSA0P7G>;
+	Sun, 27 Jan 2002 10:59:06 -0500
+Message-Id: <200201271559.QAA28129@myway.myway.de>
+From: "Daniela Engert" <dani@ngrt.de>
+To: "Lionel.Bouton@inet6.fr" <Lionel.Bouton@inet6.fr>,
+        "Martin Garton" <martin@wrasse.demon.co.uk>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Sun, 27 Jan 2002 16:59:43 +0100 (CET)
+Reply-To: "Daniela Engert" <dani@ngrt.de>
+X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.05
+In-Reply-To: <Pine.LNX.4.33.0201271412110.32403-100000@wrasse.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: Re: sis.patch.20020123_1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 27 Jan 2002 14:31:28 +0000 (GMT), Martin Garton wrote:
 
-Andi Kleen wrote:
-> 
-> ide-scsi doesn't compile currently in 2.5.x. This patch fixes it in a 
-> rather hackish way by adding some kmap_atomic()s.  It would be 
-> probably better to kmap earlier in process context in the request 
-> function instead, but I leave this to the people who know more 
-> about IDE/block layer than me (but apparently not compile ide-scsi..)
-> I'm also not totally convinced that it is deadlock free here to use
-> KM_BOUNCE_READ here, it may be safer to add a new bounce type. 
-> You have been warned. 
-> 
-> I have only tested it without highmem and it works for me. 
-> 
-> Hopefully there will be eventually a better fix, but for now it 
-> allows to burn (and mount if you use /dev/scd* for ide) CDs under 2.5 again. 
+>I think I know whats wrong, but I'm not certain. I was expecting 
+>pci_init_sis5513() to find the device SiS735, but it finds SiS5513 
+>instead. (I understand that SiS735 is the host bridge, whereas SiS5513 is 
+>the ide interface) Is my thinking correct?
 
-There was a brief period when 2.5 was released and changes went in that
-it didn't compile.  Then that was fixed, but it couldn't mount or burn,
-but that was also fixed.
+Your chipset cannot be detected by the surrent SiS IDE patch because it
+takes a list based approach to find supported chips and their
+capabilities rather than a more intelligent detection scheme (I've sent
+Lionel code which shows how to do that). Over time (often a very short
+one) a device list is missing valid members. In your case, the SiS
+driver doesn't know about your SiS737 chip and it defaults to the least
+common denominator - the ancient SiS5513 IDE chip.
 
-I burned a CD a few days ago and it worked fine.  Maybe you have a
-partial patch hanging around or something.
+>I did a nasty hack to get the device recognised as SiS735, and all is 
+>fine. I haven't posted my patch for this since I don't know the Right fix.
 
-- -- 
-Skip  ID: 0x7EDDDB0A
------BEGIN PGP SIGNATURE-----
+You just thave to add it to the device list. There are other chips
+missing as well.
 
-iEYEARECAAYFAjxUIewACgkQBMKxVH7d2wrDwACgrG0Nidkkl1uw6pSu33+NKxFR
-9lwAnREktZYiYo2sKTSL4kpWLSnRK4BY
-=43xD
------END PGP SIGNATURE-----
+>The second problem I had was an OOPS when doing "cat /proc/ide/sis" . I
+>think I have tracked this down, and I believe the attached patch fixes it.  
+
+Well, it does but at the expense of correctness ;-)
+
+> 		case ATA_66: p += sprintf(p, active_time[(reg01 & 0x07) >> 4]); break;
+>-		case ATA_100: p += sprintf(p, active_time[(reg00 & 0x70)]); break;
+>+		case ATA_100: p += sprintf(p, active_time[(reg00 & 0x07)]); break;
+
+The problem is that the calculation of the index into the active time
+table is incorrect in *all* three lines above! In the ATA66 case the
+shift is wrong and causes an zero value regardless of the register
+setting. In the "old" ATA100 case the index is calculated from the
+correct bits but is missing the shift by four from the line above;
+because of the too large index you see the OOPS. The "new" ATA100 case
+is wrong because it takes the wrong bits into calculation.
+
+Ciao,
+  Dani
+
+

@@ -1,404 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264738AbSKEJry>; Tue, 5 Nov 2002 04:47:54 -0500
+	id <S264740AbSKEJwk>; Tue, 5 Nov 2002 04:52:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264739AbSKEJry>; Tue, 5 Nov 2002 04:47:54 -0500
-Received: from redrock.inria.fr ([138.96.248.51]:54484 "HELO redrock.inria.fr")
-	by vger.kernel.org with SMTP id <S264738AbSKEJrt>;
-	Tue, 5 Nov 2002 04:47:49 -0500
-To: linux-kernel@vger.kernel.org, stelian.pop@fr.alcove.com,
-       m.ashley@unsw.edu.au, jun1m@mars.dti.ne.jp, t-kinjo@tc4.so-net.ne.jp,
-       tridge@valinux.com
-Subject: 2.4.20-pre10-ac2, Sony PCG-C1MHP and Sonypi
-SCF: #mh/Mailbox/outboxDate: Tue, 5 Nov 2002 10:46:20 +0100
-From: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>
-Message-Id: <20021105104620.7c1282fa.Manuel.Serrano@sophia.inria.fr>
-Organization: Inria
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Date: 05 Nov 2002 10:48:29 +0100
-MIME-Version: 1.0
+	id <S264742AbSKEJwk>; Tue, 5 Nov 2002 04:52:40 -0500
+Received: from louise.pinerecords.com ([212.71.160.16]:63494 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S264740AbSKEJwi>; Tue, 5 Nov 2002 04:52:38 -0500
+Date: Tue, 5 Nov 2002 10:59:04 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: reiser <reiser@namesys.com>
+Cc: Nikita Danilov <Nikita@namesys.com>,
+       Alexander Zarochentcev <zam@namesys.com>,
+       lkml <linux-kernel@vger.kernel.org>, Oleg Drokin <green@namesys.com>,
+       umka <umka@namesys.com>
+Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
+Message-ID: <20021105095904.GC19762@louise.pinerecords.com>
+References: <3DC1B2FA.8010809@namesys.com> <3DC1D63A.CCAD78EF@digeo.com> <3DC1D885.6030902@namesys.com> <3DC1D9D0.684326AC@digeo.com> <3DC1DF02.7060307@namesys.com> <20021101102327.GA26306@louise.pinerecords.com> <15810.46998.714820.519167@crimson.namesys.com> <20021102132421.GJ28803@louise.pinerecords.com> <15814.21309.758207.21416@laputa.namesys.com> <3DC773B0.4070701@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DC773B0.4070701@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there,
+> >> > This should help:
+> >> > 
+> >> > diff -Nru a/txnmgr.c b/txnmgr.c
+> >> > --- a/txnmgr.c	Wed Oct 30 18:58:09 2002
+> >> > +++ b/txnmgr.c	Fri Nov  1 20:13:27 2002
+> >> > @@ -1917,7 +1917,7 @@
+> >> >  		return;
+> >> >  	}
+> >> >  
+> >> > -	if (!jnode_is_unformatted) {
+> >> > +	if (jnode_is_znode(node)) {
+> >> >  		if ( /**jnode_get_block(node) &&*/
+> >> >  			   !blocknr_is_fake(jnode_get_block(node))) {
+> >> >  			/* jnode has assigned real disk block. Put it into
+> >> 
+> >> 
+> >> Jup, this fixes the leak, but free space still isn't reported accurately
+> >> until after sync gets called, which I believe is a bug too.
+> >
+> >In reiser4 allocation of disk space is delayed to transaction commit. It
+> >is not possible to estimate precisely amount of disk space that will be
+> >allocated during commit, and hence statfs(2) results are not updated
+> >until one does sync(2) (forcing commit) or transaction is committed due
+> >to age (10 minutes by default).
+> >
+> The above is badly phrased, and the behavior complained of is indeed
+> a bug not a feature.  Please fix.
 
-Here is the description of my fourth problem with my Sony Picturebook 
-PCG-C1MHP computer. 
+I just noticed the file
+http://thebsh.namesys.com/snapshots/2002.10.31/reiser4.diff
+had changed, the difference from the original 20021031 snapshot being:
 
-[1.] One line summary of the problem:
-=====================================
+--- fs_reiser4.diff.old 2002-10-31 14:11:50.000000000 +0100
++++ fs_reiser4.diff.new 2002-11-04 16:57:46.000000000 +0100
+@@ -46903,7 +46903,7 @@
+ +#if REISER4_USER_LEVEL_SIMULATION
+ +#    define check_spin_is_locked(s)     spin_is_locked(s)
+ +#    define check_spin_is_not_locked(s) spin_is_not_locked(s)
+-+#elif defined( CONFIG_DEBUG_SPINLOCK ) && defined( CONFIG_SMP )
+++#elif 0 && defined( CONFIG_DEBUG_SPINLOCK ) && defined( CONFIG_SMP )
+ +#    define check_spin_is_not_locked(s) ( ( s ) -> owner != get_current() )
+ +#    define spin_is_not_locked(s)       ( ( s ) -> owner == NULL )
+ +#    define check_spin_is_locked(s)     ( ( s ) -> owner == get_current() )
 
-Incompatibility between USB and SONYPI.
+So either someone is messing about with your webserver or you want multiple
+versions of the supposedly same diff floating around (not exactly suitable
+for gathering bugreports, is it?).  If you're short on disk space, how about
+gzipping the fs diff?  Squeezes down to ~500k from almost 2MB.
 
-
-[2.] Full description of the problem/report:
-============================================
-
-Sonypi and USB modules seems to be incompatible. That is, if I don't load
-any USB kernel modules, using Sonypi works perfectly (I mostly use it
-to access the LCD brightness). If I load USB modules, then Sonypi reports
-errors:
-
------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
-sonypi: unknown event port1=0x2f,port2=0x0a
-sonypi: Sony Programmable I/O Controller Driver v1.13.
-sonypi: detected type2 model, verbose = on, fnkeyinit = off, camera = on, compa
-t = off, nojogdial = off
-sonypi: unknown event port1=0x2f,port2=0x08
-sonypi: enabled at irq=11, port1=0x1080, port2=0x1084
-sonypi: device allocated minor is 63
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
-sonypi command failed at sonypi.c : sonypi_ecrset (line 115)
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
-sonypi command failed at sonypi.c : sonypi_ecrset (line 115)
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
-sonypi command failed at sonypi.c : sonypi_ecrset (line 115)
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
-sonypi command failed at sonypi.c : sonypi_ecrset (line 115)
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
-sonypi command failed at sonypi.c : sonypi_ecrset (line 115)
-sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
-
-The weird thing is that setting a new value (with sonypi_ecrset) is still
-operated. One more time, if I don't load any of the USB modules, I don't
-see all these error (warning) messages from sonypi.
-
-[3.] Keywords (i.e., modules, networking, kernel):
-==================================================
-
-Sony Picture book, USB, Sonypi
-
-
-[4.] Kernel version (from /proc/version):
-=========================================
-
-Linux version 2.4.20-pre10-ac2 (root@owens) (gcc version 2.95.4 20011002 (Debian prerelease)) #2 Mon Nov 4 21:12:53 CET 2002
-
-[5.] Output of Oops.. message (if applicable) with symbolic information: 
-========================================================================    
-
-NA
-
-[6.] A small shell script or example program which triggers the problem:
-========================================================================
-
-For instance, using jogdiald
-
-[7.] Environment
-================
-
-Sony Picturebook PCG-C1MHP, Crusoe TM5800, ide disk IC25N030ATCS04-0
-
-[7.1.] Software (add the output of the ver_linux script here):
-==============================================================
-
-owens:.../src/linux-2.4.20-rc1> sh scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
- 
-Linux owens 2.4.20-pre10-ac2 #2 Mon Nov 4 21:12:53 CET 2002 i686 Transmeta(tm) Crusoe(tm) Processor TM5800 GenuineTMx86 GNU/Linux
- 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11u
-mount                  2.11u
-modutils               2.4.19
-e2fsprogs              1.30-WIP
-pcmcia-cs              3.2.1
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 3.0.0
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               4.5.2
-Modules Loaded         trident ac97_codec soundcore ds yenta_socket pcmcia_core 8139too mii ospm_thermal ospm_battery ospm_ac_adapter ospm_busmgr
-
-[7.2.] Processor information (from /proc/cpuinfo):
-==================================================
-
-owens:.../src/linux-2.4.20-rc1> cat /proc/cpuinfo 
-processor       : 0
-vendor_id       : GenuineTMx86
-cpu family      : 6
-model           : 4
-model name      : Transmeta(tm) Crusoe(tm) Processor TM5800
-stepping        : 3
-cpu MHz         : 860.154
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr cx8 sep cmov mmx longrun lrti
-bogomips        : 1717.04
-
-
-[7.3.] Module information (from /proc/modules):
-===============================================
-
-owens:.../drivers/usb> cat /proc/modules 
-sonypi                  7240   0
-trident                25556   1 (autoclean)
-ac97_codec              9640   0 (autoclean) [trident]
-soundcore               3364   3 (autoclean) [trident]
-ds                      6152   1
-yenta_socket            8864   1
-pcmcia_core            33632   0 [ds yenta_socket]
-8139too                13480   1 (autoclean)
-mii                     2192   0 (autoclean) [8139too]
-ospm_thermal            5376   0 (unused)
-ospm_battery            5364   0 (unused)
-ospm_ac_adapter         1924   0 (unused)
-ospm_busmgr            10932   0 [ospm_thermal ospm_battery ospm_ac_adapter]
-usb-storage            21208   0 (unused)
-mousedev                3672   1
-hid                    17124   0 (unused)
-usb-ohci               17064   0 (unused)
-usbcore                54048   0 [usb-storage hid usb-ohci]
-scsi_mod               89560   0 [usb-storage]
-
-[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem):
-===========================================================================
-
-owens:.../src/linux-2.4.20-rc1> cat /proc/ioports 
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-017f : Acer Laboratories Inc. [ALi] M5229 IDE
-01f0-01ff : Acer Laboratories Inc. [ALi] M5229 IDE
-  01f0-01f7 : ide0
-0376-0376 : Acer Laboratories Inc. [ALi] M5229 IDE
-03c0-03df : vga+
-03f6-03f6 : Acer Laboratories Inc. [ALi] M5229 IDE
-  03f6-03f6 : ide0
-0cf8-0cff : PCI conf1
-1080-109f : Sony Programable I/O Device
-1400-140f : Acer Laboratories Inc. [ALi] M5229 IDE
-1800-18ff : Acer Laboratories Inc. [ALi] M5451 PCI AC-Link Controller Audio Device
-  1800-18ff : ALi Audio Accelerator
-1c00-1cff : Acer Laboratories Inc. [ALi] M5457 AC-Link Modem Interface Controller
-2000-20ff : PCI device 10cf:2011 (Citicorp TTI)
-2400-24ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+
-  2400-24ff : 8139too
-2800-28ff : ATI Technologies Inc Radeon Mobility M6 LY
-4000-40ff : PCI CardBus #01
-4400-44ff : PCI CardBus #01
-8000-803f : Acer Laboratories Inc. [ALi] M7101 PMU
-8040-805f : Acer Laboratories Inc. [ALi] M7101 PMU
-
-owens:.../src/linux-2.4.20-rc1> cat /proc/iomem 
-00000000-0009afff : System RAM
-0009b000-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000dc000-000dffff : reserved
-000e0000-000e0fff : Acer Laboratories Inc. [ALi] USB 1.1 Controller (#2)
-  000e0000-000e0fff : usb-ohci
-000f0000-000fffff : System ROM
-00100000-0eeeffff : System RAM
-  00100000-001f662e : Kernel code
-  001f662f-002649df : Kernel data
-0eef0000-0eefbfff : ACPI Tables
-0eefc000-0eefffff : ACPI Non-volatile Storage
-0ef00000-0effffff : System RAM
-10000000-10000fff : Ricoh Co Ltd RL5c475
-10400000-107fffff : PCI CardBus #01
-10800000-10bfffff : PCI CardBus #01
-e8000000-e80fffff : Transmeta Corporation LongRun Northbridge
-e8100000-e8100fff : Acer Laboratories Inc. [ALi] M5451 PCI AC-Link Controller Audio Device
-e8101000-e8101fff : Acer Laboratories Inc. [ALi] M5457 AC-Link Modem Interface Controller
-e8102000-e81027ff : Texas Instruments TSB43AB22/A IEEE-1394a-2000 Controller (PHY/Link)
-e8102800-e81028ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+
-  e8102800-e81028ff : 8139too
-e8103000-e8103fff : Acer Laboratories Inc. [ALi] USB 1.1 Controller
-  e8103000-e8103fff : usb-ohci
-e8104000-e8107fff : Texas Instruments TSB43AB22/A IEEE-1394a-2000 Controller (PHY/Link)
-e8110000-e811ffff : ATI Technologies Inc Radeon Mobility M6 LY
-e8200000-e82fffff : PCI device 10cf:2011 (Citicorp TTI)
-f0000000-f7ffffff : ATI Technologies Inc Radeon Mobility M6 LY
-fff80000-ffffffff : reserved
-
-[7.5.] PCI information ('lspci -vvv' as root)
-=============================================
-
-owens:.../src/linux-2.4.20-rc1> sudo lspci -vv
-
-00:00.0 Host bridge: Transmeta Corporation LongRun Northbridge (rev 02)
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 64
-        Region 0: Memory at e8000000 (32-bit, non-prefetchable) [size=1M]
-
-00:00.1 RAM memory: Transmeta Corporation SDRAM controller
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:00.2 RAM memory: Transmeta Corporation BIOS scratchpad
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:06.0 Multimedia audio controller: Acer Laboratories Inc. [ALi] M5451 PCI AC-Link Controller Audio Device (rev 02)
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR+ <PERR+
-        Latency: 64 (500ns min, 6000ns max)
-        Interrupt: pin A routed to IRQ 9
-        Region 0: I/O ports at 1800 [size=256]
-        Region 1: Memory at e8100000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV]
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Capabilities: [a0] Power Management version 1
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:08.0 Modem: Acer Laboratories Inc. [ALi] M5457 AC-Link Modem Interface Controller (prog-if 00 [Generic])
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at e8101000 (32-bit, non-prefetchable) [size=4K]
-        Region 1: I/O ports at 1c00 [size=256]
-        Capabilities: [40] Power Management version 2
-                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.0 FireWire (IEEE 1394): Texas Instruments TSB43AB22 1394a-2000 Controller (prog-if 10 [OHCI])
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (750ns min, 1000ns max), cache line size 08
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at e8102000 (32-bit, non-prefetchable) [size=2K]
-        Region 1: Memory at e8104000 (32-bit, non-prefetchable) [size=16K]
-        Capabilities: [44] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME+
-
-00:0a.0 Multimedia controller: Citicorp TTI: Unknown device 2011
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 9
-        Region 0: I/O ports at 2000 [disabled] [size=256]
-        Region 1: Memory at e8200000 (32-bit, non-prefetchable) [disabled] [size=1M]
-        Capabilities: [40] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C (rev 10)
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 128 (8000ns min, 16000ns max)
-        Interrupt: pin A routed to IRQ 9
-        Region 0: I/O ports at 2400 [size=256]
-        Region 1: Memory at e8102800 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [50] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0c.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY (prog-if 00 [VGA])
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at f0000000 (32-bit, prefetchable) [size=128M]
-        Region 1: I/O ports at 2800 [size=256]
-        Region 2: Memory at e8110000 (32-bit, non-prefetchable) [size=64K]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [50] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0f.0 USB Controller: Acer Laboratories Inc. [ALi] USB 1.1 Controller (rev 03) (prog-if 10 [OHCI])
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (20000ns max), cache line size 08
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at e8103000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: [60] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:10.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c4) (prog-if a0)
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (500ns min, 1000ns max)
-        Interrupt: pin A routed to IRQ 0
-        Region 0: [virtual] I/O ports at 01f0 [size=16]
-        Region 1: [virtual] I/O ports at 03f4
-        Region 2: [virtual] I/O ports at 0170 [size=16]
-        Region 3: [virtual] I/O ports at 0374
-        Region 4: I/O ports at 1400 [size=16]
-        Capabilities: [60] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:11.0 Non-VGA unclassified device: Acer Laboratories Inc. [ALi] M7101 PMU
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:12.0 CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 168
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=176
-        Memory window 0: 10400000-107ff000 (prefetchable)
-        Memory window 1: 10800000-10bff000
-        I/O window 0: 00004000-000040ff
-        I/O window 1: 00004400-000044ff
-        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
-        16-bit legacy interface ports at 0001
-
-00:14.0 USB Controller: Acer Laboratories Inc. [ALi] USB 1.1 Controller (rev 03) (prog-if 10 [OHCI])
-        Subsystem: Sony Corporation: Unknown device 80ec
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (20000ns max), cache line size 08
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at 000e0000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: [60] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
-
-Please, let me know if there is something I can to help. Sincerely,
-
---
-Manuel Serrano
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

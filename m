@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbTLKLFg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 06:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbTLKLFg
+	id S264883AbTLKLMr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 06:12:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbTLKLMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 06:05:36 -0500
-Received: from AGrenoble-101-1-4-17.w217-128.abo.wanadoo.fr ([217.128.202.17]:55693
-	"EHLO awak") by vger.kernel.org with ESMTP id S264881AbTLKLFf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 06:05:35 -0500
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <yw1xk753hd90.fsf@kth.se>
-References: <1070963757.869.86.camel@nomade>
-	 <Pine.LNX.4.44.0312091358210.21314-100000@gaia.cela.pl>
-	 <20031209183001.GA9496@kroah.com> <yw1xvfop257d.fsf@kth.se>
-	 <1071039765.1790.94.camel@nomade>
-	 <20031210210614.625ccfcc.witukind@nsbm.kicks-ass.org>
-	 <1071134837.1789.123.camel@nomade>  <yw1xk753hd90.fsf@kth.se>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1071140719.869.139.camel@nomade>
+	Thu, 11 Dec 2003 06:12:47 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:27150 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264883AbTLKLMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 06:12:46 -0500
+Date: Thu, 11 Dec 2003 11:12:41 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Tomas Martisius <tomas@puga.vdu.lt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: AMD 53c974 SCSI driver in 2.6
+Message-ID: <20031211111241.A16644@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tomas Martisius <tomas@puga.vdu.lt>, linux-kernel@vger.kernel.org
+References: <3FD8325C.5080701@puga.vdu.lt>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Dec 2003 12:05:19 +0100
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FD8325C.5080701@puga.vdu.lt>; from tomas@puga.vdu.lt on Thu, Dec 11, 2003 at 11:01:16AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 11/12/2003 à 11:15, Måns Rullgård a écrit :
-> I was objecting to the udev
-> way of thinking that all drivers are always loaded.  If you want to
-> use udev and on-demand loading, you need to do some tweaking.
+On Thu, Dec 11, 2003 at 11:01:16AM +0200, Tomas Martisius wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Hello,
+> 
+> On Sun, 26 Oct 2003, Guennadi Liakhovetski posted patch for
+> AM53c974 driver. May be it is not perfect, but it is still not applied
+> to kernel source. I think it is better to have at least not broken
+> driver compared with existing.
+> I have Compaq deskpro XL 590 PC with integrated such controler, and this
+> driver affter applinig Guennadi Liakhovetski pach to 2.6.0-test11 source
+> works for me.
 
-Technically it's hotplug which assumes that all drivers are always to be
-loaded. But you are right.
-And even there, I'd say hotplug+udev has the advantage: being userland
-scripts, they can be tweaked to meet your needs (like on-demand loading
-only your floppy, in your case). Unlike devfs.
-Mechanism, not policy, etc.
-
-	Xav
+The patch is broken but he has a better patch for the other driver for
+that hardware, that will hopefully go into 2.6.1.
 

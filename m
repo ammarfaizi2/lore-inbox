@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVC2SYL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVC2Soc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVC2SYL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 13:24:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVC2SYL
+	id S261285AbVC2Soc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 13:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVC2Soc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 13:24:11 -0500
-Received: from imag.imag.fr ([129.88.30.1]:2974 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S261284AbVC2SYG (ORCPT
+	Tue, 29 Mar 2005 13:44:32 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:11711 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261285AbVC2So2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 13:24:06 -0500
-Message-ID: <1112120644.42499d44890ab@webmail.imag.fr>
-Date: Tue, 29 Mar 2005 20:24:04 +0200
-From: colbuse@ensisun.imag.fr
-To: linux-kernel@vger.kernel.org
-Subject: [2.2]drivers/char/console.c: check if caller is proprietary of the current console
+	Tue, 29 Mar 2005 13:44:28 -0500
+Message-ID: <4249A206.4010506@engr.sgi.com>
+Date: Tue, 29 Mar 2005 10:44:22 -0800
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 195.221.228.2
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Tue, 29 Mar 2005 20:24:05 +0200 (CEST)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+To: Paul Jackson <pj@engr.sgi.com>
+CC: Guillaume Thouvenin <guillaume.thouvenin@bull.net>, johnpol@2ka.mipt.ru,
+       akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
+       efocht@hpce.nec.com, linuxram@us.ibm.com, gh@us.ibm.com,
+       elsa-devel@lists.sourceforge.net
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+References: <1111745010.684.49.camel@frecb000711.frec.bull.fr>	<20050328134242.4c6f7583.pj@engr.sgi.com>	<1112079856.5243.24.camel@uganda>	<20050329004915.27cd0edf.pj@engr.sgi.com>	<1112087822.8426.46.camel@frecb000711.frec.bull.fr> <20050329072335.52b06462.pj@engr.sgi.com>
+In-Reply-To: <20050329072335.52b06462.pj@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Jackson wrote:
+> Guillaume wrote:
+> 
+>>  The goal of the fork connector is to inform a user space application
+>>that a fork occurs in the kernel. This information (cpu ID, parent PID
+>>and child PID) can be used by several user space applications. It's not
+>>only for accounting. Accounting and fork_connector are two different
+>>things and thus, fork_connector doesn't do the merge of any kinds of
+>>data (and it will never do). 
+> 
+> 
+> Yes - it is clear that the fork_connector does this - inform user space
+> of fork information <cpu, parent, child>.  I'm not saying that
+> fork_connector should merge data; I'm observing that it doesn't, and
+> that this would seem to serve the needs of accounting poorly.
 
-This patch adds a verification that the calling process is writing to the
-current console, in the DEC alignment screen test.
+Paul,
 
-Signed-off-by: Emmanuel Colbus <emmanuel.colbus@ensimag.imag.fr>
-  
----
+You probably can look at it this way: the accounting data being
+written out by BSD are per process data and the fork connector
+provides information needed to group processes into process
+aggregates.
 
-This patch was already sent on:
-- 04 Jan 2005
+Thanks,
+  - jay
 
---- old/drivers/char/console.c Mon Sep 16 18:26:11 2002
-+++ patched/drivers/char/console.c Tue Jan 4 09:54:58 2005
-@@ -1742,7 +1742,7 @@
-			csi_J(currcons, 2);
-			video_erase_char =
-				(video_erase_char & 0xff00) | ' ';
--			do_update_region(currcons, origin, screenbuf_size/2);
-+			update_region(currcons, origin, screenbuf_size/2);
-		}
-		return;
-	case ESsetG0:
-
-
-  
---
-Emmanuel Colbus
-Club Gnu/LInux
-ENSIMAG - Departement telecoms
-
--------------------------------------------------
-envoyé via Webmail/IMAG !
+> 
+> Out of curiosity, what are these 'several user space applications?'  The
+> only one I know of is this extension to bsd accounting to include
+> capturing parent and child pid at fork.  Probably you've mentioned some
+> other uses of fork_connector before here, but I missed it.
+> 
+> 
+>>The relayfs is done, like Evgeniy said, for large amount of
+>>datas. So I think that it's not suitable for what we want to achieve
+>>with the fork connector.
+> 
+> 
+> I never claimed that relayfs was appropriate for fork_connector.
+> 
+> I'm not trying to tape a rock to Evgeniy's screwdriver.  I'm saying that
+> accounting looks like a nail to me, so let us see what rocks and hammers
+> we have in our tool box.
+> 
 

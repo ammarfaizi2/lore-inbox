@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267803AbTCFFXg>; Thu, 6 Mar 2003 00:23:36 -0500
+	id <S267806AbTCFFg1>; Thu, 6 Mar 2003 00:36:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267806AbTCFFXg>; Thu, 6 Mar 2003 00:23:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34823 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267803AbTCFFXe>; Thu, 6 Mar 2003 00:23:34 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Better CLONE_SETTLS support for Hammer
-Date: 5 Mar 2003 21:33:44 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b46mjo$2lt$1@cesium.transmeta.com>
-References: <3E664836.7040405@redhat.com> <20030305190622.GA5400@wotan.suse.de>
+	id <S267807AbTCFFg1>; Thu, 6 Mar 2003 00:36:27 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:62686
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S267806AbTCFFg0>; Thu, 6 Mar 2003 00:36:26 -0500
+Message-ID: <3E66E101.8050009@redhat.com>
+Date: Wed, 05 Mar 2003 21:47:45 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030303
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+To: Benjamin LaHaise <bcrl@redhat.com>
+CC: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Better CLONE_SETTLS support for Hammer
+References: <3E664836.7040405@redhat.com> <20030305190622.GA5400@wotan.suse.de> <3E6650D4.8060809@redhat.com> <20030305212107.GB7961@wotan.suse.de> <3E668267.5040203@redhat.com> <20030305210856.B16093@redhat.com> <3E66C5F4.5000106@redhat.com> <20030306002945.A31972@redhat.com>
+In-Reply-To: <20030306002945.A31972@redhat.com>
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030305190622.GA5400@wotan.suse.de>
-By author:    Andi Kleen <ak@suse.de>
-In newsgroup: linux.dev.kernel
-> > 
-> > But as it turns out the kernel already has support for handling %fs in a
-> > different way, to support prctl(ARCH_SET_FS).  So let's just use the
-> > same mechanism.  clone() will simply take an 64-bit address and use it
-> > as if prctl() was called.
-> 
-> The problem is that the context switch is much more expensive with
-> that (wrmsr is quite expensive compared to the memcpy or index
-> reload). The kernel optimizes it away when not needed, but with
-> glibc using them for everything all processes will switch slower.
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This is almost certainly the biggest brainfuck in the x86-64
-architecture.  It should have been supported to set the segment
-registers via "movq rm64,%fs|gs" (i.e. REX64 MOV sr,r/m64).  Barring
-that, it would have been better if *all* setting of the segment
-registers from userspace had been completely outlawed, so the kernel
-at least could have tracked the usage.  The combination is in so many
-ways worse than ever.
+Benjamin LaHaise wrote:
+> using the TLS segment everywhere slows everything down
+> a tiny bit.  Don't do it for unthreaded programs.
 
-IMNSHO we should assume in the ABI that this will be fixed at some
-point, and therefore we shouldn't work too hard to create kluges that
-are based on warts in the first x86-64 generation (K8) only, that
-later can't be fixed.
+You completely (still!) fail to understand the issue.  How can I take
+somebody who suggest using the stack as a pseudo thread register
+serious?  You don't see the impact of this so you don't recognize who
+absolutely absurd this is.
 
-There is plenty of reason to believe the x86-64 architecture will be
-around for a long time to come.  It is more important to create sane
-ABIs than it is for those ABIs to be microoptimized to the first
-generation of x86-64 processors.
+Wrt inthreaded apps: either TLS is used everywhere or not at all.
+Single threaded code uses library code which relies on TLS.  And since
+TLS is part of the ABI there is not question about the "not at all".
+The remaining issue is how to do it with the least impact.  For this
+I've proposed a method which does this (according to Andi's
+measurements) with the least impact.
 
-	-hpa
+And nobody forces you to use the standard runtime environment.  Go on,
+create your own.  Then you won't have any penalties except one single
+'if' in the context switching code which you hopefully can live with.
+Mark it with unlikely() for all I care.
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+ZuEB2ijCOnn/RHQRAnlwAJ4kcZ7FbESC+FIsOyn6Ia0wN8FskgCgvh/K
+SR1Ki1CnTe2QXq0Gn7TsvAY=
+=jJ0e
+-----END PGP SIGNATURE-----
+

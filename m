@@ -1,119 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263528AbTEIWAq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 18:00:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbTEIWAq
+	id S263534AbTEIWEC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 18:04:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbTEIWEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 18:00:46 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:11268 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S263528AbTEIWAo
+	Fri, 9 May 2003 18:04:02 -0400
+Received: from watch.techsource.com ([209.208.48.130]:50836 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S263534AbTEIWEB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 18:00:44 -0400
-Date: Sat, 10 May 2003 00:02:22 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [ATM] [UPDATE] unbalanced exit path in Forerunner HE he_init_one()
-Message-ID: <20030510000222.A10796@electric-eye.fr.zoreil.com>
-References: <20030508194700.C13069@almesberger.net> <200305090058.h490wNGi006609@locutus.cmf.nrl.navy.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200305090058.h490wNGi006609@locutus.cmf.nrl.navy.mil>; from chas@locutus.cmf.nrl.navy.mil on Thu, May 08, 2003 at 08:58:23PM -0400
-X-Organisation: Hungry patch-scripts (c) users
+	Fri, 9 May 2003 18:04:01 -0400
+Message-ID: <3EBC29A5.1050005@techsource.com>
+Date: Fri, 09 May 2003 18:20:21 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ulrich Drepper <drepper@redhat.com>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: hammer: MAP_32BIT
+References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell> <16059.37067.925423.998433@gargle.gargle.HOWL> <20030509113845.GA4586@averell> <b9gr03$42n$1@cesium.transmeta.com> <3EBC0084.4090809@redhat.com> <3EBC15B5.4070604@zytor.com> <3EBC2164.6050605@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update:
-
-- pci_enable_device() balanced on error path in he_init_one();
-- return of atm_dev_register() isn't lost any more if he_dev allocation fails
-  in he_init_one();
-- pci_disable_device() added to he_disable_one();
 
 
- drivers/atm/he.c |   43 ++++++++++++++++++++++++++++++-------------
- 1 files changed, 30 insertions(+), 13 deletions(-)
+Ulrich Drepper wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> H. Peter Anvin wrote:
+> 
+> 
+>>No, it requires 31-bit addresses, and there was a discussion about how
+>>some things need 31-bit and some 32-bit addresses.
+> 
+> 
+> That's completely irrelevant to my point.  Whether MAP_32BIT actually
+> has a 31 bit limit or not doesn't matter, it's limited as well in the
+> possible mmap blocks it can return.
+> 
+> The only thing I care about is to have a hint and not a fixed
+> requirement for mmap().  All your proposals completely ignored this.
+> 
 
-diff -puN drivers/atm/he.c~drivers-atm-he-chas drivers/atm/he.c
---- linux-2.5.69-1.1042.101.10-to-1.1083/drivers/atm/he.c~drivers-atm-he-chas	Fri May  9 23:43:22 2003
-+++ linux-2.5.69-1.1042.101.10-to-1.1083-fr/drivers/atm/he.c	Fri May  9 23:48:43 2003
-@@ -364,23 +364,29 @@ he_init_one(struct pci_dev *pci_dev, con
- {
- 	struct atm_dev *atm_dev;
- 	struct he_dev *he_dev;
-+	int ret = -EIO;
- 
- 	printk(KERN_INFO "he: %s\n", version);
- 
--	if (pci_enable_device(pci_dev)) return -EIO;
--	if (pci_set_dma_mask(pci_dev, HE_DMA_MASK) != 0)
--	{
-+	if (pci_enable_device(pci_dev))
-+		goto out;
-+	if (pci_set_dma_mask(pci_dev, HE_DMA_MASK) != 0) {
- 		printk(KERN_WARNING "he: no suitable dma available\n");
--		return -EIO;
-+		goto out_disable;
- 	}
- 
- 	atm_dev = atm_dev_register(DEV_LABEL, &he_ops, -1, 0);
--	if (!atm_dev) return -ENODEV;
-+	if (!atm_dev) {
-+		ret = -ENODEV;
-+		goto out_disable;
-+	}
- 	pci_set_drvdata(pci_dev, atm_dev);
- 
--	he_dev = (struct he_dev *) kmalloc(sizeof(struct he_dev),
--							GFP_KERNEL);
--	if (!he_dev) return -ENOMEM;
-+	he_dev = (struct he_dev *) kmalloc(sizeof(struct he_dev), GFP_KERNEL);
-+	if (!he_dev) {
-+		ret = -ENOMEM;
-+		goto out_deregister;
-+	}
- 	memset(he_dev, 0, sizeof(struct he_dev));
- 
- 	he_dev->pci_dev = pci_dev;
-@@ -389,16 +395,26 @@ he_init_one(struct pci_dev *pci_dev, con
- 	HE_DEV(atm_dev) = he_dev;
- 	he_dev->number = atm_dev->number;	/* was devs */
- 	if (he_start(atm_dev)) {
--		atm_dev_deregister(atm_dev);
--		he_stop(he_dev);
--		kfree(he_dev);
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto out_stop;
- 	}
- 	he_dev->next = NULL;
- 	if (he_devs) he_dev->next = he_devs;
- 	he_devs = he_dev;
- 
--	return 0;
-+	ret = 0;
-+out:
-+	return ret;
-+
-+out_stop:
-+	he_stop(he_dev);
-+	kfree(he_dev);
-+out_deregister:
-+	pci_set_drvdata(pci_dev, NULL);
-+	atm_dev_deregister(atm_dev);
-+out_disable:
-+	pci_disable_device(pci_dev);
-+	goto out;
- }
- 
- static void __devexit
-@@ -417,6 +433,7 @@ he_remove_one (struct pci_dev *pci_dev)
- 	kfree(he_dev);
- 
- 	pci_set_drvdata(pci_dev, NULL);
-+	pci_disable_device(pci_dev);
- }
- 
- 
+If your program is capable of handling an address with more than 32 
+bits, what point is there giving a hint?  Either your program can handle 
+64-bit pointers or it cannot.  Any program flexible enough to handle 
+either size dynamically would expend enough overhead checking that it 
+would be worse than if it just made a hard choice.
+

@@ -1,81 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264178AbTIJCbb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 22:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbTIJCbb
+	id S264251AbTIJCkP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 22:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264481AbTIJCkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 22:31:31 -0400
-Received: from dyn-ctb-203-221-72-196.webone.com.au ([203.221.72.196]:51209
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S264178AbTIJCb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 22:31:29 -0400
-Message-ID: <3F5E8CF7.5020603@cyberone.com.au>
-Date: Wed, 10 Sep 2003 12:31:19 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Yau <jyau_kernel_dev@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 
-References: <Law10-OE471DczmBlrP0000b07a@hotmail.com>
-In-Reply-To: <Law10-OE471DczmBlrP0000b07a@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 22:40:15 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17541 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264251AbTIJCkM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 22:40:12 -0400
+Date: Wed, 10 Sep 2003 03:40:10 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: jffs-dev@axis.com, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] fix type mismatch in jffs.
+Message-ID: <20030910024010.GN454@parcelfarce.linux.theplanet.co.uk>
+References: <20030909144420.120d4add.shemminger@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030909144420.120d4add.shemminger@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 09, 2003 at 02:44:20PM -0700, Stephen Hemminger wrote:
+> On 2.6.0-test5 jffs generates a warning about type mismatch because it casting a short
+> to a pointer.  Look like an obvious typo.
 
-
-John Yau wrote:
-
->>Your mechanism is basically "backboost". Its how you get X to keep a
->>high piroirity, but quite unpredictable. Giving a boost to a process
->>holding a semaphore is an interesting idea, but it doesn't address the
->>X problem.
->>
->
->Hmm...I'm actually curious why you called it "backboosting".  In academia
->this approach first described in the paper here:
->
->L. Sha, R. Rajkumar, and J. P. Lehoczky. Priority Inheritance Protocols: An
->Approach to Real-Time Synchronization. In IEEE Transactions on Computers,
->vol. 39, pp. 1175-1185, Sep. 1990.
->
->is referred to as priority inheritance.  Is there significant difference
->between your implementation and priority inheritance schemes implemented in
->other OSes?  If so, why backboosting?
->
-
-Well I haven't read the paper, but I'm guessing this is semaphore
-priority inheritance.
-
->
->I was under the impression that pipes and IPC in general are synchronized
->using some sort of semaphores/mutex...or does Linux use a different
->mechanism for IPC and does away with user space synchronization all together
->(e.g. flip-flop buffers with the kernel arbitrating all contention)?  IIRC
->processes don't write to X directly and has to send data to X via IPC.  If
->some futex derivative is used to synchronize the producers with X, then
->making priority inheritable futexes would solve the problem.
->
-
-I _think_ communication with X will mostly be done with waitqueues.
-Someone has a priority inheritance futex patch around. I'm not sure
-that it is such an open and shut case as you think though. Even if you
-could use futexes in communication with X.
-
->
->>The scheduler in Linus' tree is basically obsolete now, so there isn't
->>any point testing it really. Test Con's or my patches, and let us know
->>if you're still having problems with sir dumps-a-lot.
->>
->
->Okay enough said, you and Con should get your patches merged into that tree
->ASAP if they're ready.
->
->
-
-I think Con's is ready (I think mine is as well, but nobody else does!)
+Which it is.  Thanks for spotting.  Linux, please apply.
+ 
+> Builds clean, not tested on real hardware.
+> 
+> diff -Nru a/fs/jffs/inode-v23.c b/fs/jffs/inode-v23.c
+> --- a/fs/jffs/inode-v23.c	Tue Sep  9 14:41:53 2003
+> +++ b/fs/jffs/inode-v23.c	Tue Sep  9 14:41:53 2003
+> @@ -1734,7 +1734,7 @@
+>  		   the device should be read from the flash memory and then
+>  		   added to the inode's i_rdev member.  */
+>  		u16 val;
+> -		jffs_read_data(f, (char *)val, 0, 2);
+> +		jffs_read_data(f, (char *)&val, 0, 2);
+>  		init_special_inode(inode, inode->i_mode,
+>  			old_decode_dev(val));
+>  	}
 
 

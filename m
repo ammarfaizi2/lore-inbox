@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136477AbRAMKvl>; Sat, 13 Jan 2001 05:51:41 -0500
+	id <S136184AbRAMK7x>; Sat, 13 Jan 2001 05:59:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136600AbRAMKvb>; Sat, 13 Jan 2001 05:51:31 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:22542 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S136477AbRAMKvW>; Sat, 13 Jan 2001 05:51:22 -0500
-From: mshiju@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-Message-ID: <CA2569D3.003B97D1.00@d73mta05.au.ibm.com>
-Date: Sat, 13 Jan 2001 17:12:48 +0630
-Subject: problem installing in ibm ps/2 server95 with pentium 90 
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S136357AbRAMK7m>; Sat, 13 Jan 2001 05:59:42 -0500
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:50336 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S136184AbRAMK7h>; Sat, 13 Jan 2001 05:59:37 -0500
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200101131059.LAA25032@sunrise.pg.gda.pl>
+Subject: Re: 2.4.1-pre2/3 and Pentium-III not stable
+To: pierre.rousselet@wanadoo.fr (Pierre Rousselet)
+Date: Sat, 13 Jan 2001 11:59:28 +0100 (MET)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A602DAE.E213A79F@wanadoo.fr> from "Pierre Rousselet" at Jan 13, 2001 11:27:59 AM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-            I am trying to install linux on IBM PS/2 server 95 MCA machine
-with Pentium 90 .  But it is not bootingSince it is not booting fro the CD
-I am booting the kernel from floppy disk with boot.img. The halts after the
-message "POSIX conformance testing by UNIFIX".  The kernel parameters that
-I gave are  :  mca-pentium   no-hlt  nosmp . Have anyone installed Linux in
-a machine with this configuration. How should I proceed....HELP!!
+"Pierre Rousselet wrote:"
+> Pentium-III 256Mo
+> For testing, I try to compile glibc. The start is good.
+> When the process PID reaches a value around 22000
+> (variable), all goes wrong. Make gives error messages
+> such as :
+> 
+> make[2]: *** No rule to make target
+> `../sysdeps/wordsize-32/bits/wordsi:e.h'
+> make[2]: *** No rule to make target
+> `/usr/lib/g#c-lib/i686-pc-linux-gnu/2.95.2/include/stddef.h'
 
-Shiju
+As "z" / ":" and "c" / "#" differ only on a single bit
+it looks like a bad memory problem.
 
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

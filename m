@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUGFWxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264656AbUGFXAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264652AbUGFWxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 18:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUGFWxQ
+	id S264656AbUGFXAo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 19:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUGFXAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 18:53:16 -0400
-Received: from holomorphy.com ([207.189.100.168]:61145 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264652AbUGFWxF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 18:53:05 -0400
-Date: Tue, 6 Jul 2004 15:52:55 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm6
-Message-ID: <20040706225255.GU21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040705023120.34f7772b.akpm@osdl.org> <20040706125438.GS21066@holomorphy.com> <20040706153417.237e454e.akpm@osdl.org> <20040706154555.79673f14.davem@redhat.com>
+	Tue, 6 Jul 2004 19:00:44 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:8909 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264656AbUGFXAm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 19:00:42 -0400
+Date: Wed, 7 Jul 2004 00:54:02 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: David Gibson <hermes@gibson.dropbear.id.au>, jt@hpl.hp.com,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>
+Subject: Re: [PATCH] Update in-kernel orinoco drivers to upstream current CVS
+Message-ID: <20040707005402.A15251@electric-eye.fr.zoreil.com>
+References: <20040702222655.GA10333@bougret.hpl.hp.com> <20040703010709.A22334@electric-eye.fr.zoreil.com> <20040704021304.GD25992@zax> <20040704191732.A20676@electric-eye.fr.zoreil.com> <20040706011401.A390@electric-eye.fr.zoreil.com> <40E9E6BC.8020608@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040706154555.79673f14.davem@redhat.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40E9E6BC.8020608@pobox.com>; from jgarzik@pobox.com on Mon, Jul 05, 2004 at 07:39:40PM -0400
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->>> Third, some naive check for undefined symbols failed to understand the
->>> relocation types indicating that a given operand refers to some hard
->>> register, which manifest as undefined symbols in ELF executables. A
->>> patch to refine its criteria, which I used to build with, follows. rmk
->>> and hpa have some other ideas on this undefined symbol issue I've not
->>> quite had the opportunity to get a clear statement of yet.
+Jeff Garzik <jgarzik@pobox.com> :
+> Francois Romieu wrote:
+> > The news:
+> > - I got the adequate patch from the cvs repository
+> > - 35 patches are available at the usual location. The series-mm file
+> >   describes the ordering of the patches. I'll redo the numbering as
+> >   it starts to be scary
+> > - the remaining diff weights ~210k so far
+> > 
+> > At least it makes reviewing easier.
+> 
+> 
+> If you are willing to do some re-diffing, feel free to send out the 
+> boring, and easy-to-review parts such as netdev_priv() or obvious 
+> cleanups.  That would help, at least, to cut things to more meat, and 
+> less noise.
 
-On Tue, 6 Jul 2004 15:34:17 -0700 Andrew Morton <akpm@osdl.org> wrote:
-> > I converted that to a non-fatal warning due to the same problem on sparc64.
+Actually it does not induce a noticeable noise. The remaining patch is
+down to 162 ko. 50 ko have disappeared while partially moving code on
+the target sources (I'll keep this part separated from the "normal"
+patches).
 
-On Tue, Jul 06, 2004 at 03:45:55PM -0700, David S. Miller wrote:
-> Andrew, Russell posted to us in private email an objdump based
-> check that didn't trigger for the register declaration case.
+The renumbered patches + one or two new ones are available at
+http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.7-mm6
 
-He seems not to have cc:'d me. Apparently *UND* isn't always the fourth
-field so he did objdump --syms vmlinux | grep '^[^R][^E][^G].*\*UND\*'
-instead of the awk expression I brewed up.
-
-
--- wli
+--
+Ueimor

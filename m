@@ -1,56 +1,45 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S160047AbPLXWyi>; Fri, 24 Dec 1999 17:54:38 -0500
-Received: by vger.rutgers.edu id <S160057AbPLXWyT>; Fri, 24 Dec 1999 17:54:19 -0500
-Received: from amdext2.amd.com ([163.181.251.1]:35858 "EHLO amdext2.amd.com") by vger.rutgers.edu with ESMTP id <S160022AbPLXWyA>; Fri, 24 Dec 1999 17:54:00 -0500
-From: nathan.zook@amd.com
-Message-ID: <AB4CB1CC6547D21197B00008C7F48FB402C10F3C@txexmta0.amd.com>
-To: lightmanaj@earthlink.net, linux-kernel@vger.rutgers.edu
-Subject: RE: Linux Kernel Floating Point Emulation and CORDIC
-Date: Fri, 24 Dec 1999 16:53:56 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+Received: by vger.rutgers.edu via listexpand id <S157278AbPL1TfO>; Tue, 28 Dec 1999 14:35:14 -0500
+Received: by vger.rutgers.edu id <S157507AbPL1Tek>; Tue, 28 Dec 1999 14:34:40 -0500
+Received: from PO9.ANDREW.CMU.EDU ([128.2.10.109]:34641 "EHLO po9.andrew.cmu.edu") by vger.rutgers.edu with ESMTP id <S157433AbPL1Td4>; Tue, 28 Dec 1999 14:33:56 -0500
+Message-ID: <QsOF1LG00Uw70MI5g0@andrew.cmu.edu>
+Date: Tue, 28 Dec 1999 14:32:39 -0500 (EST)
+From: James R Bruce <bruce+@andrew.cmu.edu>
+To: linux-kernel@vger.rutgers.edu
+Subject: [OT] Re: fork bomb:the come back
+Cc: linux-kernel@vger.rutgers.edu
+In-Reply-To: <Pine.LNX.4.05.9912281334570.129-100000@ns.snowman.net>
+References: <Pine.LNX.4.05.9912281334570.129-100000@ns.snowman.net>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-EEEEEwwww!  Cordic is UGLY!  There is a reason that Intel & we (AMD) have
-gone with polyonmial & rational function approximations.  BTW, our
-algorithms are quite accurate.  If you are running in another world, or just
-want to emulate, look into equal-ripple approximations.  You will chew some
-serious processor power finding good functions, but what you get can be
-nice.
 
-Nathan
+Excerpts from internet.computing.linux-kernel: 28-Dec-99 Re: fork
+bomb:the come back by Stephen Frost@mail.snowm 
+>         There was a Coke machine at a university somewhere that would
+tell you
+> how many cans and whatnot were left at one point or another, I seem to
+recall.
+> Yes, over the internet (Or that may have been arpanet, not sure. :) ).
 
+That would be Carnegie Mellon's CS department coke machine.  Sadly, it
+has been disconnected.  There is a coffee machine online now however:
+    mrcoffee.res.cmu.edu
 
-> -----Original Message-----
-> From:	Arthur Jerijian [SMTP:lightmanaj@earthlink.net]
-> Sent:	Thursday, December 23, 1999 5:58 PM
-> To:	linux-kernel@vger.rutgers.edu
-> Subject:	Linux Kernel Floating Point Emulation and CORDIC
-> 
-> For the mathematics and theoretical computer science enthusiasts here on
-> this
-> list:
-> 
-> I have taken a look at the source code of the Linux Kernel floating point
-> emulation engine for i386 (as of 2.2.12, don't know if it changed in
-> 2.3.x). I
-> noticed that it uses Taylor/Maclaurin polynomials to approximate the sine,
-> cosine, tangent, and inverse tangent functions. Wouldn't CORDIC be a
-> better
-> algorithm for computing trigonometric and exponential functions instead?
-> CORDIC
-> is a method for calculating mathematical functions using only addition,
-> shifting, and looking up entries in a table. More details can be found at 
-> http://www.ezcomm.com/%7Ecyliax/Articles/RobNav/sidebar.html
-> 
-> Thanks,
-> --Arthur
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.rutgers.edu
-> Please read the FAQ at http://www.tux.org/lkml/
+I think the general argument trying to be made is that there are a lot
+of machines that are not, and will never be, connected to the internet. 
+The exact numbers don't matter, but it is worth noting that improvements
+that only apply to non-connected machines can still be quite useful to
+many.
+
+I would still guess that most embedded systems aren't connected to the
+internet; for every new machine on the internet, there's probably two
+more new ones that aren't; The sheer number of computers in other words,
+is growing faster than the number online.  Also, a lot of such systems
+are networked but not connected to the outside world; since they tend to
+be proprietary and often trusted (e.g. they lack internal security).
+
+ - Jim Bruce
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

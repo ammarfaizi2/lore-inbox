@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267370AbSLKXjx>; Wed, 11 Dec 2002 18:39:53 -0500
+	id <S267382AbSLKXoI>; Wed, 11 Dec 2002 18:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267371AbSLKXjx>; Wed, 11 Dec 2002 18:39:53 -0500
-Received: from mail.hometree.net ([212.34.181.120]:45257 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S267370AbSLKXjv>; Wed, 11 Dec 2002 18:39:51 -0500
+	id <S267383AbSLKXoI>; Wed, 11 Dec 2002 18:44:08 -0500
+Received: from ip67-93-141-186.z141-93-67.customer.algx.net ([67.93.141.186]:51083
+	"EHLO datapower.ducksong.com") by vger.kernel.org with ESMTP
+	id <S267382AbSLKXoH>; Wed, 11 Dec 2002 18:44:07 -0500
+Date: Wed, 11 Dec 2002 18:52:58 -0500
+From: "Patrick R. McManus" <mcmanus@ducksong.com>
 To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Is this going to be true ?
-Date: Wed, 11 Dec 2002 23:47:38 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <at8iqq$n4n$1@forge.intermeta.de>
-References: <Pine.LNX.4.50.0212102157440.1634-100000@ddx.a2000.nu> <050c01c2a091$77564600$9c094d8e@wcom.ca> <3DF66754.3020901@WirelessNetworksInc.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1039650458 10232 212.34.181.4 (11 Dec 2002 23:47:38 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 11 Dec 2002 23:47:38 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+Subject: Memory Measurements and Lots of Files and Inodes
+Message-ID: <20021211235258.GA10857@ducksong.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herman Oosthuysen <Herman@WirelessNetworksInc.com> writes:
+Hello All,
 
->kind of BSD, so to release a Linux version of MS Office and other 
->utilities, would be very easy for them as they just need to recompile 
->the Apple versions.
+I've got a box with 750MB of RAM.. for the sake of this test, I've
+turned off swap. I also have a little program that creates and deletes
+lots of little files on a RAMDISK with ext2 on it. The ramdisk is only
+4MB max and the files are about 3K and there are never more than four
+of them at a time - but the program is constantly creating and
+deleting hundreds of thousands of them. I have no reason to think this
+issue is unique to the ramdisk - it just makes files faster.
 
-BS. Mac OS X does not use the X11 window system. That's where the fun lies.
-If a company decides to release an application for Linux they will either
-rewrite it using Motif (ugh) or use a modern window tool kit like GTK or
-QT. Or even (horrors) use some sort of Windows Compatibility Library like
-WINE or WxWindows. 
+Just sitting back and watching vmstat while this runs my 'free' memory
+drops from ~600MB to about ~16MB.. the buffers and cache remain roughly
+constant.. at 16MB some sort of garbage collection kicks in - there is
+a notable system pause and ~70MB moves from the used to the 'free'
+column... this process repeats more or less in a steady state.
 
-But you can't compile a MacOS X application on Linux. You're missing all of
-the necessary display libraries and infrastructure.
+If, while this is going on, I run another little app that does
+{x= malloc(300MB), memset (x,0,300MB), free (x)}.. suddenly I can move
+300MB from the used to the 'free' state...
 
-	Regards
-		Henning
+I assume there is some VFS structure that is growing (perhaps related
+to the tremendous # of inodes I'm going through) and is only cleansed
+when the number of free pages gets too low.. I'd be interested in any
+details someone could provide.
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+My real question is about the commonly (?) used metric of
+free+buffers+cached representing the size of an allocation that could
+succeed.. my 300MB allocation above proves that doesn't apply
+here.. although, if I turn on strict accounting, that 300MB does fail
+even though there is only perhaps 150MB of userspace allocations
+outstanding on the box.
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Can anybody provide a better metric for "ram free for userspace
+allocations"?
+
+Thanks,
+-Patrick

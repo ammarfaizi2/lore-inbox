@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264724AbTA1Aju>; Mon, 27 Jan 2003 19:39:50 -0500
+	id <S264729AbTA1BMm>; Mon, 27 Jan 2003 20:12:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264729AbTA1Ajt>; Mon, 27 Jan 2003 19:39:49 -0500
-Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:47008 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S264724AbTA1Ajs>;
-	Mon, 27 Jan 2003 19:39:48 -0500
-Date: Mon, 27 Jan 2003 16:49:06 -0800
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.21-pre3] APIC routing broken on ASUS P2B-DS
-Message-ID: <20030128004906.GA3439@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+	id <S264748AbTA1BMm>; Mon, 27 Jan 2003 20:12:42 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:6539 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S264729AbTA1BMm>;
+	Mon, 27 Jan 2003 20:12:42 -0500
+Date: Tue, 28 Jan 2003 02:21:59 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200301280121.CAA13798@harpo.it.uu.se>
+To: ak@suse.de, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       torvalds@transmeta.com
+Subject: Re: Switch APIC to driver model (and make S3 sleep with APIC on)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Something broke between 2.4.20 and 2.4.21-pre3 which is causing
-interrupts to not be routed the second CPU.  I saw the problem on one box
-and copied the kernel to another which then had the same problem (both
-ASUS P2B-DS boards, one with PIII CPUs, one with PII CPUs).  
+On Mon, 20 Jan 2003 23:25:27 +0100, Pavel Machek wrote:
+>This switches apic code to driver model, cleans code up a lot, and
+>makes S3 while apic is used work. Please apply,
 
-[sroot@devel:/]# cat /proc/interrupts
-           CPU0       CPU1       
-  0:     114480          0    IO-APIC-edge  timer
-  1:          2          0    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          3          0    IO-APIC-edge  rtc
- 16:      30707          0   IO-APIC-level  eth0
- 19:       3260          0   IO-APIC-level  aic7xxx
-NMI:          0          0 
-LOC:     114405     114404 
-ERR:          0
-MIS:          0
+Please don't apply this. It breaks stuff:
 
-With 2.4.20:
+1. apic_suspend() unconditionally calls disable_apic_nmi_watchdog()
+   apic_resume() unconditionally calls setup_apic_nmi_watchdog()
+   apic_pm_state.perfctr_pmdev removed
 
-[sroot@devel:/root]# cat /proc/interrupts 
-           CPU0       CPU1       
-  0:      23627      27340    IO-APIC-edge  timer
-  1:          0          2    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          2          1    IO-APIC-edge  rtc
- 16:       1671          2   IO-APIC-level  eth0
- 19:        965        979   IO-APIC-level  aic7xxx
-NMI:          0          0 
-LOC:      50893      50891 
-ERR:          0
-MIS:          0
+   - You're calling local-APIC NMI watchdog procedures even if
+     the local-APIC NMI watchdog isn't active. Bad.
+   - You're hardcoding that the local-APIC NMI watchdog is the
+     only possible sub-client of the local APIC. Not true.
+   - perfctr_pmdev exists precisely to handle both these cases
+     in a clean way.
 
-...If nobody knows what happened immediately, I'll try narrowing it down
-to the patch.
+2. You unconditionally register apic_driver with its suspend/resume
+   methods through a device_initcall().
 
-Simon-
+   This breaks if a UP_APIC or SMP kernel runs on a CPU with no or
+   an unusable local APIC. apic_pm_init2() does a runtime check
+   for successful init before doing a pm_register().
 
-[        Simon Kirby        ][        Network Operations        ]
-[     sim@netnation.com     ][     NetNation Communications     ]
-[  Opinions expressed are not necessarily those of my employer. ]
+3. You severed the link between the PM API and the local APIC.
+
+   This breaks APM suspend when the local APIC is enabled. The
+   machine will hang (or immediately resume). I tested this, and
+   the driver model "stuff" simply doesn't do the right thing yet.
+
+I you just want SOFTWARE_SUSPEND to work, why not simply post the
+appropriate PM_SUSPEND and PM_RESUME events?
+That should work without any changes to apic.c or nmi.c.
+
+/Mikael

@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269731AbRHDBBw>; Fri, 3 Aug 2001 21:01:52 -0400
+	id <S269737AbRHDBDc>; Fri, 3 Aug 2001 21:03:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269735AbRHDBBm>; Fri, 3 Aug 2001 21:01:42 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:50192 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269733AbRHDBB1>; Fri, 3 Aug 2001 21:01:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>, Mike Black <mblack@csihq.com>
-Subject: Re: Ongoing 2.4 VM suckage
-Date: Sat, 4 Aug 2001 03:06:46 +0200
-X-Mailer: KMail [version 1.2]
-Cc: David Ford <david@blue-labs.org>, "Jeffrey W. Baker" <jwbaker@acm.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0108031907220.11893-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0108031907220.11893-100000@imladris.rielhome.conectiva>
+	id <S269733AbRHDBDW>; Fri, 3 Aug 2001 21:03:22 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:36881 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S269737AbRHDBDM>; Fri, 3 Aug 2001 21:03:12 -0400
+Message-ID: <3B6B4B21.B68F4F87@zip.com.au>
+Date: Fri, 03 Aug 2001 18:08:49 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <0108040306470L.01827@starship>
-Content-Transfer-Encoding: 7BIT
+To: Chris Wedgwood <cw@f00f.org>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic 
+ change patch)
+In-Reply-To: <01080315090600.01827@starship> <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu> <9keqr6$egl$1@penguin.transmeta.com>,
+		<9keqr6$egl$1@penguin.transmeta.com> <20010804100143.A17774@weta.f00f.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 04 August 2001 00:08, Rik van Riel wrote:
-> On Fri, 3 Aug 2001, Mike Black wrote:
-> > Couldn't kswapd just gracefully back-off when it doesn't make any
-> > progress? In my case (with ext3/raid5 and a tiobench test) kswapd
-> > NEVER actually swaps anything out. It just chews CPU time.
-> >
-> > So...if kswapd just said "didn't make any progress...*2 last sleep" so
-> > it would degrade itself.
->
-> It wouldn't just degrade itself.
->
-> It would also prevent other programs in the system
-> from allocating memory, effectively halting anybody
-> wanting to allocate memory.
+Chris Wedgwood wrote:
+> 
+> On Fri, Aug 03, 2001 at 06:34:14PM +0000, Linus Torvalds wrote:
+> 
+>         fsync(int fd)
+>         {
+>                 dentry = fdget(fd);
+>                 do_fsync(dentry);
+>                 for (;;) {
+>                         tmp = dentry;
+>                         dentry = dentry->d_parent;
+>                         if (dentry == tmp)
+>                                 break;
+>                         do_fdatasync(dentry);
+>                 }
+>         }
+> 
+> I really like this idea. Can people please try out the attached patch?
 
-It actually doesn't, Andrew Morton noticed this and I verified it for
-myself.  Shutting down kswapd just degrades throughput, it doesn't stop
-the system.  The reason for this is that alloc_pages calls
-try_to_free_pages when the free lists run out and follows up by 
-reclaiming directly from inactive_clean.
+Ow.  You just crippled ext3.
 
-Performance drops without kswapd because the system isn't anticipating
-demand any more, but always procrastinating until memory actually runs
-out then waiting on writeouts.
+I don't think an ext2 problem (which I don't think is a problem
+at all) should be "fixed" at the VFS layer when other filesystems
+are perfectly happy without it, no?
 
---
-Daniel
+This whole thread, talking about "linux this" and "linux that"
+is off-base.  It's ext2 we're talking about.  This MTA requirement
+is a highly unusual and specialised thing - I don't see why the
+general-purpose ext2 should bear the burden of supporting it when
+other filesystems such as reiserfs (I think?) and ext3 support it
+naturally and better than ext2 ever will.
+
+-

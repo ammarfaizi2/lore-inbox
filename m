@@ -1,99 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272271AbTHDWOV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 18:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272276AbTHDWOV
+	id S272239AbTHDWQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 18:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272243AbTHDWQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 18:14:21 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:59045 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S272271AbTHDWON (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 18:14:13 -0400
-Date: Tue, 5 Aug 2003 00:13:49 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: swsusp updates
-Message-ID: <20030804221349.GC3078@elf.ucw.cz>
-References: <20030804201432.GA467@elf.ucw.cz> <20030804134338.5d0f65cd.akpm@osdl.org>
+	Mon, 4 Aug 2003 18:16:57 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:13828 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S272239AbTHDWQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 18:16:43 -0400
+Subject: Re: [PATCH] O13int for interactivity
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200308050746.29140.kernel@kolivas.org>
+References: <200307280112.16043.kernel@kolivas.org>
+	 <1060023104.889.7.camel@teapot.felipe-alfaro.com>
+	 <1060023516.511.0.camel@teapot.felipe-alfaro.com>
+	 <200308050746.29140.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1060035393.511.13.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030804134338.5d0f65cd.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 05 Aug 2003 00:16:34 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Here are swsusp updates, retransmitted. Please apply this time.
+On Mon, 2003-08-04 at 23:46, Con Kolivas wrote:
+> On Tue, 5 Aug 2003 04:58, Felipe Alfaro Solana wrote:
+> > OK, I had the X server reniced at -20... Renicing the X server at +0
+> > makes the XMMS skips disappear. At least, with X at +0 I've been able to
+> > reproduce them anymore.
 > 
-> With CONFIG_SOFTWARE_SUSPEND=n:
-> 
-> kernel/suspend.c: In function `prepare_suspend_console':
-> kernel/suspend.c:272: `orig_loglevel' undeclared (first use in this function)
-> kernel/suspend.c:272: (Each undeclared identifier is reported only once
-> kernel/suspend.c:272: for each function it appears in.)
-> kernel/suspend.c:273: `new_loglevel' undeclared (first use in this function)
-> kernel/suspend.c:276: `orig_fgconsole' undeclared (first use in this function)
-> kernel/suspend.c: In function `restore_console':
-> kernel/suspend.c:297: `orig_loglevel' undeclared (first use in this
-function)
+> As always, thanks Felipe.
 
-This should fix it: (incremental).
-								Pavel
+It's great to be helpful.
 
---- /usr/src/tmp/linux/kernel/suspend.c	2003-08-05 00:02:29.000000000 +0200
-+++ /usr/src/linux/kernel/suspend.c	2003-08-04 23:55:07.000000000 +0200
-@@ -69,15 +69,6 @@
- 
- unsigned char software_suspend_enabled = 0;
- 
--#define SUSPEND_CONSOLE	(MAX_NR_CONSOLES-1)
--/* With SUSPEND_CONSOLE defined, it suspend looks *really* cool, but
--   we probably do not take enough locks for switching consoles, etc,
--   so bad things might happen.
--*/
--#if !defined(CONFIG_VT) || !defined(CONFIG_VT_CONSOLE)
--#undef SUSPEND_CONSOLE
--#endif
--
- #define __ADDRESS(x)  ((unsigned long) phys_to_virt(x))
- #define ADDRESS(x) __ADDRESS((x) << PAGE_SHIFT)
- #define ADDRESS2(x) __ADDRESS(__pa(x))		/* Needed for x86-64 where some pages are in memory twice */
-@@ -91,9 +82,6 @@
- spinlock_t suspend_pagedir_lock __nosavedata = SPIN_LOCK_UNLOCKED;
- 
- /* Variables to be preserved over suspend */
--static int new_loglevel = 7;
--static int orig_loglevel = 0;
--static int orig_fgconsole, orig_kmsg;
- static int pagedir_order_check;
- static int nr_copy_pages_check;
- 
-@@ -267,6 +255,19 @@
- 	MDELAY(500);
- }
- 
-+#define SUSPEND_CONSOLE	(MAX_NR_CONSOLES-1)
-+/* With SUSPEND_CONSOLE defined, it suspend looks *really* cool, but
-+   we probably do not take enough locks for switching consoles, etc,
-+   so bad things might happen.
-+*/
-+#if !defined(CONFIG_VT) || !defined(CONFIG_VT_CONSOLE)
-+#undef SUSPEND_CONSOLE
-+#endif
-+
-+static int new_loglevel = 7;
-+static int orig_loglevel = 0;
-+static int orig_fgconsole, orig_kmsg;
-+
- int prepare_suspend_console(void)
- {
- 	orig_loglevel = console_loglevel;
+> This is good news. X should be able to make xmms skip if it's -20, and X 
+> should still be smooth at 0. 
 
+X is pretty smooth, but at certain times, it feels somewhat "jumpy".
+When X is under load (not a single cpu hogger, like my standard devil
+while loop), the mouse cursor is jumpy and X gets CPU at bursts.
+Renicing X to -20 seemed to help in those situations, but caused XMMS to
+skip, so I'm not pretty sure what's better. Meanwhile, I've reniced X
+back to +0 to try to reduce those skips.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+At nice +0, I can reproduce X "jumpiness" by opening several instances
+of Konqueror, loading some web pages from http://www.linuxtoday.com, for
+example and then arrange them all "tiled" (more or less tiled is
+perfect, too) on the screen. Then, I drag a window over them as fast as
+I can, then as slow as I can. This causes a lot of repainting, increases
+CPU usage and, instead of concentrating all the CPU usage on a single
+process (like the devil while loop), the load is distributed among all
+the Konqueror processes. That makes X to not feel smooth, but jumpy.
+
+Evolution is another kind of application that requires kinda lot of CPU
+power when requested to do repainting. Many times, forcing Evolution to
+repaint itself, by moving a window over it, generates a lot of "uncover"
+events. Sometimes, Evolution feels pretty smooth, and other times, the
+window I'm dragging over Evolution starts moving not so smoothly.
+
+But anyway, I still feels this is getting on the right track. I think
+it's a matter of time and a little tuning, but this will rock in the
+end.
+

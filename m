@@ -1,47 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbTJ2AtX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 19:49:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTJ2AtX
+	id S261823AbTJ2BPc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 20:15:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTJ2BPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 19:49:23 -0500
-Received: from www.mail15.com ([62.118.249.44]:61963 "EHLO www.mail15.com")
-	by vger.kernel.org with ESMTP id S261797AbTJ2AtN (ORCPT
+	Tue, 28 Oct 2003 20:15:32 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:27356 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261823AbTJ2BP2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 19:49:13 -0500
-Message-ID: <3F9F0E72.2010606@myrealbox.com>
-Date: Tue, 28 Oct 2003 16:48:50 -0800
-From: walt <wa1ter@myrealbox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031025 Thunderbird/0.4a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Shawn Starr <spstarr@sh0n.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PS/2 Slowness w/ 2.6.0-test9-bk2
-References: <fa.k5maq39.1h6g0b7@ifi.uio.no>
-In-Reply-To: <fa.k5maq39.1h6g0b7@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 28 Oct 2003 20:15:28 -0500
+Subject: [PATCH] linxu-2.4.23-pre8_cpu-map-fix_A0
+From: john stultz <johnstul@us.ibm.com>
+To: marcelo <marcelo.tosatti@cyclades.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>, James <jamesclv@us.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1067390071.23152.63.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 28 Oct 2003 17:14:31 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr wrote:
-> Apon trying the latest -bk, I've noticed changes in how the kernel
-> determines mouse rate.
-> 
-> Although this was easy to fix with gpm, XFree86-HEAD does not seem to
-> honor any manual overriding of the mouse rate. Even when setting the rate
-> to 60 this did not work.
-> 
-> After reverting the psmouse-base.c changes XFree86 behaved like previous.
-> 
-> I would suggest reverting the patch until this issue is resolved. I don't
-> know what X is doing to get the mouse rate but it certainly ignored it
-> when I set psmouse_rate=60 in kernel parameters. Perhaps someone knows
-> something I'm not doing...
+Marcelo, All,
 
-I have the same problem, but I find that booting with the psmouse_noext
-kernel parameter reverses the unwanted behavior.
+        I noticed on x440s that when HT is disabled in the BIOS I was
+having problems properly booting 2.4 in ACPI mode. Further investigation
+found a subtle problem w/ smp_boot_cpus() when clustered_acpi_mode is
+set. 
 
-My other 2.6 machine running with a KVM switch is not at all affected
-by the recent change.
+During bootup, phys_cpu_present_map is initialized by ORing
+apicid_to_phys_cpu_present() for each cpu apicid(see MP_processor_info).
+On flat mode boxes this translates to "phys_cpu_present_map |=
+(1<<apicid)". 
+
+On clustered_apic_mode boxes, since we're using phyiscal apic addresses,
+the apicids are not sequential so it is possible the
+phys_cpu_present_map can have holes in it (see
+apicid_to_phys_cpu_present()). 
+
+The problem arises in smp_boot_cpus() because when we are booting the
+cpus, we iterate through each apicid, however we bit-AND
+phys_cpu_present_map w/ (1<<apicid)  rather then using
+apicid_to_phys_cpu_present(apicid). This may cause us to try to boot
+apicids that do not exist. 
+
+The following patch corrects the problem by always bit-ANDing
+phys_cpu_present_map with apicid_to_phys_cpu_present(). This is safe for
+flat mode boxes, as apicid_to_phys_cpu_present(apicid) translates to
+(1<<apicid). 
+
+Additionally, the patch insures we do not try to boot BAD_APICIDs and
+removes a hack that was added to mpparse.c which worked around this
+problem in the non-ACPI boot path.
+
+In 2.5 we do not have this problem as we use logical rather then
+physical apic addressing. 
+
+Please consider for inclusion into your tree.
+
+thanks
+-john
+
+
+diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
+--- a/arch/i386/kernel/mpparse.c	Tue Oct 28 16:53:53 2003
++++ b/arch/i386/kernel/mpparse.c	Tue Oct 28 16:53:53 2003
+@@ -587,10 +587,6 @@
+ 		++mpc_record;
+ 	}
+ 
+-	if (clustered_apic_mode){
+-		phys_cpu_present_map = logical_cpu_present_map;
+-	}
+-
+ 
+ 	printk("Enabling APIC mode: ");
+ 	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
+diff -Nru a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
+--- a/arch/i386/kernel/process.c	Tue Oct 28 16:53:53 2003
++++ b/arch/i386/kernel/process.c	Tue Oct 28 16:53:53 2003
+@@ -44,6 +44,7 @@
+ #include <asm/irq.h>
+ #include <asm/desc.h>
+ #include <asm/mmu_context.h>
++#include <asm/smpboot.h>
+ #ifdef CONFIG_MATH_EMULATION
+ #include <asm/math_emu.h>
+ #endif
+@@ -377,7 +378,7 @@
+ 		   if its not, default to the BSP */
+ 		if ((reboot_cpu == -1) ||  
+ 		      (reboot_cpu > (NR_CPUS -1))  || 
+-		      !(phys_cpu_present_map & (1<<cpuid))) 
++		      !(phys_cpu_present_map & apicid_to_phys_cpu_present(cpuid)))
+ 			reboot_cpu = boot_cpu_physical_apicid;
+ 
+ 		reboot_smp = 0;  /* use this as a flag to only go through this once*/
+diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
+--- a/arch/i386/kernel/smpboot.c	Tue Oct 28 16:53:53 2003
++++ b/arch/i386/kernel/smpboot.c	Tue Oct 28 16:53:53 2003
+@@ -1108,13 +1108,17 @@
+ 
+ 	for (bit = 0; bit < NR_CPUS; bit++) {
+ 		apicid = cpu_present_to_apicid(bit);
++		
++		/* don't try to boot BAD_APICID */
++		if (apicid == BAD_APICID)
++			continue; 
+ 		/*
+ 		 * Don't even attempt to start the boot CPU!
+ 		 */
+ 		if (apicid == boot_cpu_apicid)
+ 			continue;
+ 
+-		if (!(phys_cpu_present_map & (1ul << bit)))
++		if (!(phys_cpu_present_map & apicid_to_phys_cpu_present(apicid)))
+ 			continue;
+ 		if (max_cpus <= cpucount+1)
+ 			continue;
+@@ -1125,7 +1129,8 @@
+ 		 * Make sure we unmap all failed CPUs
+ 		 */
+ 		if ((boot_apicid_to_cpu(apicid) == -1) &&
+-				(phys_cpu_present_map & (1ul << bit)))
++			(phys_cpu_present_map & 
++				apicid_to_phys_cpu_present(apicid)))
+ 			printk("CPU #%d/0x%02x not responding - cannot use it.\n",
+ 								bit, apicid);
+ 	}
+
+
+

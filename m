@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265589AbTABFbc>; Thu, 2 Jan 2003 00:31:32 -0500
+	id <S265612AbTABFfP>; Thu, 2 Jan 2003 00:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265612AbTABFbc>; Thu, 2 Jan 2003 00:31:32 -0500
-Received: from adsl-67-36-120-9.dsl.klmzmi.ameritech.net ([67.36.120.9]:27011
-	"EHLO tabriel.tabris.net") by vger.kernel.org with ESMTP
-	id <S265589AbTABFbb> convert rfc822-to-8bit; Thu, 2 Jan 2003 00:31:31 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Tabris <tabris@tabris.net>
+	id <S265656AbTABFfP>; Thu, 2 Jan 2003 00:35:15 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:32986 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S265612AbTABFfO>; Thu, 2 Jan 2003 00:35:14 -0500
+Date: Thu, 2 Jan 2003 00:43:37 -0500
+From: "Murray J. Root" <murrayr@brain.org>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-ac2 not detecting LITE-ON LTR-32123S as CD-R/W
-Date: Thu, 2 Jan 2003 00:39:44 -0500
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200301020039.58290.tabris@tabris.net>
+Subject: Re: [PATCH] Re: Linux v2.5.54 - OHCI-HCD build fails
+Message-ID: <20030102054337.GA1418@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0301011935410.8506-100000@penguin.transmeta.com> <20030102045245.GA1464@Master.Wizards> <20030102050007.GB1464@Master.Wizards> <pan.2003.01.02.05.16.23.282892@voxel.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <pan.2003.01.02.05.16.23.282892@voxel.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Jan 02, 2003 at 12:16:33AM -0500, Andres Salomon wrote:
+> This fixes it.  data0 and data1 are defined inside a DEBUG #ifdef context,
+> and used outside of it.
+>  
 
-Contents of /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: LITE-ON  Model: LTR-32123S       Rev: XS0R
-  Type:   CD-ROM                           ANSI SCSI revision: 02
+Um - the patch is backwards.
+The lines already existed at 218 & 219. Moving em up to 9 solved the problem
+Thanks for the hint.
 
-Why? This is supposed to be a CD Re/Writer.
 
-HELP.
-- --
-tabris
-- -
-My doctor told me to stop having intimate dinners for four.  Unless 
-there are three other people.
-		-- Orson Welles
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE+E9CttTgrITXtL+8RAshzAJ4vXEHeMaAhyWUUXVKCHYKlMK9H8ACeLOHk
-8qcg7XWkuWrhW+amlAGuKIk=
-=OBAO
------END PGP SIGNATURE-----
+-- 
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.freenode.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker
+  #cooker = moderated Mandrake Cooker
 

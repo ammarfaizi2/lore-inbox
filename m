@@ -1,62 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267799AbUG3Ttm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267814AbUG3TtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267799AbUG3Ttm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 15:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUG3Ttl
+	id S267814AbUG3TtI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 15:49:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUG3TtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 15:49:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11677 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267799AbUG3TtS (ORCPT
+	Fri, 30 Jul 2004 15:49:07 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:9600 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S267814AbUG3Trd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 15:49:18 -0400
-Date: Fri, 30 Jul 2004 12:47:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: kladit@t-online.de, linux-kernel@vger.kernel.org
-Subject: Re: dentry cache leak? Re: rsync out of memory 2.6.8-rc2
-Message-Id: <20040730124744.0eb11f63.akpm@osdl.org>
-In-Reply-To: <20040730163007.GA2931@logos.cnet>
-References: <20040726150615.GA1119@xeon2.local.here>
-	<20040729140743.170acb3e.akpm@osdl.org>
-	<20040730163007.GA2931@logos.cnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 30 Jul 2004 15:47:33 -0400
+Date: Fri, 30 Jul 2004 21:48:54 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Exposing ROM's though sysfs
+Message-ID: <20040730194854.GA436@ucw.cz>
+References: <20040730193546.GA328@ucw.cz> <20040730194150.7072.qmail@web14927.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040730194150.7072.qmail@web14927.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
-> On Thu, Jul 29, 2004 at 02:07:43PM -0700, Andrew Morton wrote:
-> > kladit@t-online.de (Klaus Dittrich) wrote:
-> > >
-> > > >Can you narrow the onset of the problem down to any particular kernel
-> > > >snapshot?
-> > > 
-> > > Did it and here is the answer.
-> > > 
-> > > kernel-2.6.7 and bk's up to 2.6.7-bk7 survived a du -s,
-> > > kernels starting with 2.6.7-bk8 did not.
-> > 
-> > I can reproduce this oom btw.  Am (very, very slowly) working out what's
-> > causing it.  It's unrelated to the vfs-cache-pressure patch.  I'd hope to
-> > have it fixed up for 2.6.8. 
+On Fri, Jul 30, 2004 at 12:41:50PM -0700, Jon Smirl wrote:
+
+> I looked at PCI quirks, they all seem to be fixing chipset issues. Do
+> we want to start including adapter specific quirks along with the more
+> general chipset one?
+
+It's mostly chipsets, but not just chipsets - take a look at the S3
+entries.
+
 > 
-> Odd, because the only thing I can see which affects dcache related code
-> between -bk7 and -bk8 is the vfs-cache-pressure patch.
+> --- Vojtech Pavlik <vojtech@suse.cz> wrote:
+> 
+> > On Fri, Jul 30, 2004 at 12:25:10PM -0700, Jon Smirl wrote:
+> > > --- Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+> > > > How about this patch?
+> > > 
+> > > Here's the ROM access code I've been using but it's not in the form
+> > > that we need.
+> > > 
+> > > We do need a standard scheme for the radeon situation of having a
+> > bug
+> > > in the ROM access logic. Is it ok to put the fix for this in the
+> > radeon
+> > > driver? So if you read the ROM before the driver is loaded it won't
+> > be
+> > > there (proabably FFFF's). After the driver loads the fix will run
+> > as
+> > > part of the driver init and the ROM access functions will work
+> > right. 
+> > 
+> > IMO the fix should go to the PCI quirk logic. That's a place to work
+> > around PCI config bugs.
+> > 
+> > -- 
+> > Vojtech Pavlik
+> > SuSE Labs, SuSE CR
+> > 
+> 
+> 
+> =====
+> Jon Smirl
+> jonsmirl@yahoo.com
+> 
+> 
+> 	
+> 		
+> __________________________________
+> Do you Yahoo!?
+> New and Improved Yahoo! Mail - 100MB free storage!
+> http://promotions.yahoo.com/new_mail 
+> 
 
-It can be triggered with that patch reverted.
-
-> What are the exact steps you're using to reproduce the leak?
-
-Just a `du -s' over zillions of files on a 2G machine.
-
-> And where do you think the problem lies?
-
-Seems that we reach a state where lowmem pagecache get reclaimed faster
-than dcache/icache.  This causes the number of pages scanned for lowmem
-allocations to fall.  This causes less scanning of the slab and the whole
-thing repeats.  I expect changing nr_used_zone_pages() to ignore highmem
-will fix it, and might be the long-term fix, too.
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

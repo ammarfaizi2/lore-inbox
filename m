@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264021AbTEWLJW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 07:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264023AbTEWLJW
+	id S264024AbTEWLOw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 07:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264025AbTEWLOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 07:09:22 -0400
-Received: from dp.samba.org ([66.70.73.150]:14052 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264021AbTEWLJV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 07:09:21 -0400
-From: Paul Mackerras <paulus@au1.ibm.com>
-MIME-Version: 1.0
+	Fri, 23 May 2003 07:14:52 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:51339 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S264024AbTEWLOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 07:14:51 -0400
+Date: Fri, 23 May 2003 13:17:57 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Michael Hunold <hunold@convergence.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][2.5] generic_usercopy() function (resend, forgot the patches)
+Message-ID: <20030523131757.K626@nightmaster.csn.tu-chemnitz.de>
+References: <3ECDEBC5.5030608@convergence.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16078.1121.582683.336497@argo.ozlabs.ibm.com>
-Date: Fri, 23 May 2003 21:22:09 +1000
-To: Andrew Morton <akpm@digeo.com>
-Cc: "Lothar Wassmann" <LW@KARO-electronics.de>, rmk@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
- 2.5.30(at least))
-In-Reply-To: <20030523034551.0f80b17f.akpm@digeo.com>
-References: <16076.50160.67366.435042@ipc1.karo>
-	<20030522151156.C12171@flint.arm.linux.org.uk>
-	<16077.55787.797668.329213@ipc1.karo>
-	<20030523022454.61a180dd.akpm@digeo.com>
-	<16077.61981.684846.221686@ipc1.karo>
-	<20030523034551.0f80b17f.akpm@digeo.com>
-X-Mailer: VM 7.15 under Emacs 21.3.2
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3ECDEBC5.5030608@convergence.de>; from hunold@convergence.de on Fri, May 23, 2003 at 11:37:09AM +0200
+X-Spam-Score: -4.5 (----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19JAiK-000427-00*ioYdTpBXfes*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+Hi Michael,
 
-> filemap_nopage isn't the right place to be doing these things though.
-> 
-> Given that there was no page at the virtual address before filemap_nopage
-> was called I don't think any CPU cache writeback or invalidation need be
-> performed.  Perhaps a writeback or invalidate is missing somewhere in the
-> unmap paths, or there is a problem in arch/arm somewhere.
-> 
-> We have a no-op flush_icache_page() in do_no_page(), but I don't know what
-> that thing ever did, not what it's doing in there.  (What happens if you
-> replace it with a flush_cache_page(vma, address)?)
+On Fri, May 23, 2003 at 11:37:09AM +0200, Michael Hunold wrote:
+> In order to prevent this code duplication, introducing a
+> generic_usercopy() function to lib/ is one possibilty.
 
-We used to use flush_icache_page() on ppc/ppc64 to ensure that the
-i-cache was consistent with the d-cache and with memory.  It was
-needed in do_no_page for the case where the page had just been read in
-and the i-cache could have stale data reflecting the previous contents
-of the page (the i-cache doesn't snoop on ppc).  But we now do that in
-update_mmu_cache.
+I like the idea, because whoever invented the IOCTL generation
+macros forgot exactly this function.
 
-Paul.
+This raised the problem, that some IOCTLs have the wrong numbers
+due to the author not being able to grok the macros and/or
+documentation.
+
+Also many authors have problems evaluating their IOCTLs and get
+directions wrong.
+
+So this code helps these issues. 
+
+I just miss variants for the smaller sizes. These should be
+handled differently and more easily, 
+so better warn about sizes <= sizeof(void *).
+
+Regards
+
+Ingo Oeser

@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbUK3Q3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbUK3Qa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbUK3Q3w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 11:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbUK3Q3w
+	id S262134AbUK3Qa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 11:30:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbUK3Qa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 11:29:52 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:29190 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262176AbUK3Q3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 11:29:45 -0500
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
-       David Howells <dhowells@redhat.com>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-In-Reply-To: <Pine.LNX.4.58.0411300751570.22796@ppc970.osdl.org>
-References: <19865.1101395592@redhat.com>
-	 <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
-	 <1101406661.8191.9390.camel@hades.cambridge.redhat.com>
-	 <20041127032403.GB10536@kroah.com>
-	 <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
-	 <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
-	 <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br>
-	 <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
-	 <1101828924.26071.172.camel@hades.cambridge.redhat.com>
-	 <Pine.LNX.4.58.0411300751570.22796@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1101832116.26071.236.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 30 Nov 2004 16:28:36 +0000
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 30 Nov 2004 11:30:58 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:16518 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S262183AbUK3QaA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 11:30:00 -0500
+Date: Tue, 30 Nov 2004 16:29:59 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: cdrecord dev=ATA cannont scanbus as non-root
+To: Jens Axboe <axboe@suse.de>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <1101763996l.13519l.0l@werewolf.able.es>
+	<Pine.LNX.4.53.0411292246310.15146@yvahk01.tjqt.qr>
+	<1101765555l.13519l.1l@werewolf.able.es> <20041130071638.GC10450@suse.de>
+In-Reply-To: <20041130071638.GC10450@suse.de> (from axboe@suse.de on Tue Nov
+	30 08:16:39 2004)
+X-Mailer: Balsa 2.2.6
+Message-Id: <1101832199l.9494l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-30 at 07:58 -0800, Linus Torvalds wrote:
-> The fact is, despite this stupid and way-too-long thread, #ifdef 
-> __KERNEL__ has worked for over a decade, and works damn well, everything 
-> considered. 
 
-I don't agree with that. The current setup is a complete PITA and that's
-why people are clamouring for us to clean the crap up.
+On 2004.11.30, Jens Axboe wrote:
+> On Mon, Nov 29 2004, J.A. Magallon wrote:
+> > dev=ATAPI uses ide-scsi interface, through /dev/sgX. And:
+> > 
+> > > scsibus: -1 target: -1 lun: -1
+> > > Warning: Using ATA Packet interface.
+> > > Warning: The related Linux kernel interface code seems to be unmaintained.
+> > > Warning: There is absolutely NO DMA, operations thus are slow.
+> > 
+> > dev=ATA uses direct IDE burning. Try that as root. In my box, as root:
+> 
+> Oh no, not this again... Please check the facts: the ATAPI method uses
+> the SG_IO ioctl, which is direct-to-device. It does _not_ go through
+> /dev/sgX, unless you actually give /dev/sgX as the device name. It has
+> nothing to do with ide-scsi. Period.
+> 
+> ATA uses CDROM_SEND_PACKET. This has nothing to do with direct IDE
+> burning, it's a crippled interface from the CDROM layer that should not
+> be used for anything.  scsi-linux-ata.c should be ripped from the
+> cdrecord sources, or at least cdrecord should _never_ select that
+> transport for 2.6 kernels. For 2.4 you are far better off using
+> ide-scsi.
+> 
+> > The scan through ATA lasts much less than with ATAPI, and you can burn with
+> > dev=ATA:1,0,0 or dev=/dev/burner, which is the new recommended way.
+> 
+> No! ATAPI is the recommended way.
+> 
+> -- 
+> Jens Axboe
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-But if you feel this strongly about it, then let's go ahead with the
-existing mess. We can add more ifdef __KERNEL__ and add rules to the
-makefiles to export it for userspace, generating something like the
-existing glibc-kernheaders setup. And of course we can look at the
-better alternative 'annotations' instead of using #ifdef __KERNEL__.
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-rc2-jam3 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
 
-I think we'll all hate it, and I don't think it's going to really fix
-the problem. But we can always reconsider the position later.
-
-> Same thing here. The __KERNEL__ approach says "whatever you want, boss".  
-> It doesn't get in the way. Maybe it doesn't actively _help_ you either,
-> but you never have to fight any structure it imposes on you.
-
-Having to think before adding something that's user visible is a
-_benefit_ not a disadvantage.
-
--- 
-dwmw2
 

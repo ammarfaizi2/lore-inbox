@@ -1,41 +1,159 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263127AbTEGKle (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 06:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbTEGKle
+	id S263126AbTEGKnR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 06:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTEGKnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 06:41:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50361 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263127AbTEGKld
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 06:41:33 -0400
-Date: Wed, 7 May 2003 11:54:07 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       Andreas Gruenbacher <a.gruenbacher@computer.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       lsm <linux-security-module@wirex.com>
-Subject: Re: [PATCH] Change LSM hooks in setxattr 2.5.69
-Message-ID: <20030507105407.GO10374@parcelfarce.linux.theplanet.co.uk>
-References: <1052238063.1377.997.camel@moss-huskers.epoch.ncsc.mil>
+	Wed, 7 May 2003 06:43:17 -0400
+Received: from mail.gmx.de ([213.165.64.20]:46368 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263126AbTEGKnH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 06:43:07 -0400
+Message-Id: <5.2.0.9.2.20030507122702.00caf640@wen-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Wed, 07 May 2003 13:00:04 +0200
+To: linux-kernel@vger.kernel.org
+From: Mike Galbraith <efault@gmx.de>
+Subject: [RFC] 2.5.X semaphore starvation fix^H^H^Hwork-around
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052238063.1377.997.camel@moss-huskers.epoch.ncsc.mil>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/mixed;
+	boundary="=====================_153987546==_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 12:21:05PM -0400, Stephen Smalley wrote:
-> This patch against 2.5.69 adds a security_inode_post_setxattr hook so
-> that security modules can update the inode security structure after a
-> successful setxattr, and it moves the existing security_inode_setxattr
-> hook call after the taking the inode semaphore so that atomicity is
-> provided for the security check and the update to the inode security
-> structure.  Al, if you approve of this change, please acknowledge.  If
-> not, please advise as to what must change.  Thanks. 
- 
-<shrug> no objections, provided that existing code behind that hook doesn't
-do anything that could deadlock under ->i_sem.  Seeing that it's your code...
+--=====================_153987546==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+
+Greetings Folks,
+
+As some of you know, I've been muttering about the behavior of the new 
+scheduler, and discovered that the priority boost tasks receive via 
+sleeping on a contended lock is my main problem.  This can lead to a whole 
+string of tasks which have been promoted above _other_ lock holders, 
+effectively starving them for an indeterminate amount of time with some 
+workloads.  (make -j30 bzImage in ext3 fs is wonderful example, but the 
+problem appears to be generic, and is visible here in ext2 as well).  With 
+ext3 on my up/preempt box, this leads to nearly zero concurrency for a make 
+-j30 bzImage.
+
+The method I decided to try to defeat this problem is to take advantage of 
+those times when the scheduler would normally just return to the same task 
+(which the programmer asked to be rescheduled), and at this time, slip in a 
+lower priority task if possible to give a lower priority lock holder a 
+chance to release it's lock.  For instance, once you have _one_ priority 17 
+task left, and it finished it's timeslice, instead of returning to that 
+task (or higher), select the stalest task from either the active array or 
+the expired array instead.  It won't run for long, but _might_ have time to 
+release the lock.  If you try the attached in ext3, you'll see that it's 
+pretty effective.  It's still subject to a long queue at one priority, but 
+I figured I'd post this for now, and see what kind of comments/flames I get 
+back before doing any more experiments 8)
+
+I also made sure that no task will keep the cpu without at least _trying_ 
+to switch for a maximum of 50ms.  This is a variant of Ingo's timeslice 
+split method, but doesn't introduce (isn't supposed to anyway;) any 
+unneeded context switches for friendly tasks.
+
+Comments/flames welcome.  (test reports as well)
+
+	-Mike
+--=====================_153987546==_
+Content-Type: application/octet-stream; name="twiddle.diff";
+ x-mac-type="42494E41"; x-mac-creator="5843454C"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="twiddle.diff"
+
+LS0tIGxpbnV4LTIuNS42OS52aXJnaW4va2VybmVsL3NjaGVkLmMJVHVlIE1heSAgNiAxMTozNjo1
+MyAyMDAzCisrKyBsaW51eC0yLjUuNjlYL2tlcm5lbC9zY2hlZC5jCVdlZCBNYXkgIDcgMTE6Mjk6
+MjIgMjAwMwpAQCAtNzQsNiArNzQsOCBAQAogI2RlZmluZSBNQVhfU0xFRVBfQVZHCQkoMTAqSFop
+CiAjZGVmaW5lIFNUQVJWQVRJT05fTElNSVQJKDEwKkhaKQogI2RlZmluZSBOT0RFX1RIUkVTSE9M
+RAkJMTI1CisjZGVmaW5lIE1JTl9SRVFVRVVFX1RJTUUJTUFYX1RJTUVTTElDRQorI2RlZmluZSBU
+SU1FU0xJQ0VfR1JBTlVMQVJJVFkgICAoSFovMjAgPzogMSkKIAogLyoKICAqIElmIGEgdGFzayBp
+cyAnaW50ZXJhY3RpdmUnIHRoZW4gd2UgcmVpbnNlcnQgaXQgaW4gdGhlIGFjdGl2ZQpAQCAtMTE2
+Niw5ICsxMTY4LDkgQEAKICAqIGluY3JlYXNpbmcgbnVtYmVyIG9mIHJ1bm5pbmcgdGFza3M6CiAg
+Ki8KICNkZWZpbmUgRVhQSVJFRF9TVEFSVklORyhycSkgXAotCQkoU1RBUlZBVElPTl9MSU1JVCAm
+JiAoKHJxKS0+ZXhwaXJlZF90aW1lc3RhbXAgJiYgXAotCQkoamlmZmllcyAtIChycSktPmV4cGly
+ZWRfdGltZXN0YW1wID49IFwKLQkJCVNUQVJWQVRJT05fTElNSVQgKiAoKHJxKS0+bnJfcnVubmlu
+ZykgKyAxKSkpCisJCShTVEFSVkFUSU9OX0xJTUlUICYmIChycSktPmV4cGlyZWRfdGltZXN0YW1w
+ICYmIFwKKwkJdGltZV9hZnRlcl9lcShqaWZmaWVzLCAocnEpLT5leHBpcmVkX3RpbWVzdGFtcCAr
+IFwKKwkJKFNUQVJWQVRJT05fTElNSVQgKiAoKHJxKS0+bnJfcnVubmluZykgKyAxKSkpCiAKIC8q
+CiAgKiBUaGlzIGZ1bmN0aW9uIGdldHMgY2FsbGVkIGJ5IHRoZSB0aW1lciBjb2RlLCB3aXRoIEha
+IGZyZXF1ZW5jeS4KQEAgLTEyNDgsMTIgKzEyNTAsOTEgQEAKIAkJCWVucXVldWVfdGFzayhwLCBy
+cS0+ZXhwaXJlZCk7CiAJCX0gZWxzZQogCQkJZW5xdWV1ZV90YXNrKHAsIHJxLT5hY3RpdmUpOwor
+CQlnb3RvIG91dDsKKwl9CisJaWYgKHRpbWVfYWZ0ZXJfZXEoamlmZmllcywgcC0+bGFzdF9ydW4g
+KyBUSU1FU0xJQ0VfR1JBTlVMQVJJVFkpKSB7CisJCWRlcXVldWVfdGFzayhwLCBycS0+YWN0aXZl
+KTsKKwkJc2V0X3Rza19uZWVkX3Jlc2NoZWQocCk7CisJCXAtPnByaW8gPSBlZmZlY3RpdmVfcHJp
+byhwKTsKKwkJZW5xdWV1ZV90YXNrKHAsIHJxLT5hY3RpdmUpOwogCX0KIG91dDoKIAlzcGluX3Vu
+bG9jaygmcnEtPmxvY2spOwogCXJlYmFsYW5jZV90aWNrKHJxLCAwKTsKIH0KIAorLyoKKyAqIFNl
+YXJjaCBhbiBhcnJheSBmb3IgdGhlIG9sZGVzdCBydW5uYWJsZSB0YXNrLiAgaWYgc2VhcmNoaW5n
+IHRoZQorICogZXhwaXJlZCBhcnJheSwgcmVxdWV1ZSBpdCB0byB0aGUgaGVhZCBvZiBpdCdzIGNv
+cnJlc3BvbmRpbmcgYWN0aXZlCisgKiBxdWV1ZSBhbmQgdXBkYXRlIHJxLT5leHBpcmVkX3RpbWVz
+dGFtcC4KKyAqCisgKiBSZXR1cm4gdGhlIGxvY2F0aW9uIG9mIHRoZSB0YXNrLCBvciBNQVhfUFJJ
+TyBpZiBub3RoaW5nIGZvdW5kLgorICovCitzdGF0aWMgaW5saW5lIGludCBzZWxlY3Rfb2xkZXN0
+KHJ1bnF1ZXVlX3QgKnJxLCBwcmlvX2FycmF5X3QgKmFycmF5KQoreworCWludCBpZHggPSAwLCBv
+bGRfaWR4ID0gMDsKKwlzdHJ1Y3QgbGlzdF9oZWFkICpoZWFkLCAqY3VycjsKKwl0YXNrX3QgKm5l
+eHQsICpvbGQgPSBOVUxMLCAqc2tpcCA9IE5VTEw7CisJaW50IGV4cCA9IGFycmF5ID09IHJxLT5l
+eHBpcmVkOworCituZXh0X3F1ZXVlOgorCWlmICghaWR4KQorCQlpZHggPSBzY2hlZF9maW5kX2Zp
+cnN0X2JpdChhcnJheS0+Yml0bWFwKTsKKwllbHNlCisJCWlkeCA9IGZpbmRfbmV4dF9iaXQoYXJy
+YXktPmJpdG1hcCwgTUFYX1BSSU8sIGlkeCk7CisJaWYgKGlkeCA+PSBNQVhfUFJJTykKKwkJZ290
+byBvdXQ7CisKKwloZWFkID0gYXJyYXktPnF1ZXVlICsgaWR4OworCWN1cnIgPSBoZWFkLT5uZXh0
+OworbmV4dF90YXNrOgorCW5leHQgPSBsaXN0X2VudHJ5KGN1cnIsIHRhc2tfdCwgcnVuX2xpc3Qp
+OworCWN1cnIgPSBjdXJyLT5uZXh0OworCisJLyogRmluZCBhIHJ1bm5hYmxlIGNhbmRpZGF0ZS4g
+Ki8KKwlpZiAobmV4dCA9PSBycS0+Y3VyciB8fCBuZXh0LT5zdGF0ZSA+IFRBU0tfSU5URVJSVVBU
+SUJMRSB8fAorCQkJdGVzdF90aV90aHJlYWRfZmxhZyhuZXh0LT50aHJlYWRfaW5mbywgVElGX05F
+RURfUkVTQ0hFRCkgfHwKKwkJCShuZXh0LT5zdGF0ZSA9PSBUQVNLX0lOVEVSUlVQVElCTEUgJiYg
+IXNpZ25hbF9wZW5kaW5nKG5leHQpKSB8fAorCQkJdGltZV9iZWZvcmUoamlmZmllcywgbmV4dC0+
+bGFzdF9ydW4gKyBNSU5fUkVRVUVVRV9USU1FKSkgeworCQlpZiAoZXhwICYmICghc2tpcCB8fCB0
+aW1lX2FmdGVyKG5leHQtPmxhc3RfcnVuLCBza2lwLT5sYXN0X3J1bikpKQorCQkJc2tpcCA9IG5l
+eHQ7CisJCWlmIChjdXJyICE9IGhlYWQpCisJCQlnb3RvIG5leHRfdGFzazsKKwkJaWR4Kys7CisJ
+CWdvdG8gbmV4dF9xdWV1ZTsKKwl9CisJLyogR29vZCwgd2UgZm91bmQgYSBjYW5kaWRhdGUuIEV2
+YWx1YXRlIGl0Li4gKi8KKwlpZiAoIW9sZCB8fCB0aW1lX2FmdGVyKG5leHQtPmxhc3RfcnVuLCBv
+bGQtPmxhc3RfcnVuKSkgeworCQlvbGQgPSBuZXh0OworCQlvbGRfaWR4ID0gaWR4OworCX0KKwkv
+KiBhbmQgcmVjb3JkIGEgc2tpcCBpZiBwcmVzZW50LiAqLworCWlmIChleHAgJiYgY3VyciAhPSBo
+ZWFkKSB7CisJCW5leHQgPSBsaXN0X2VudHJ5KGN1cnIsIHRhc2tfdCwgcnVuX2xpc3QpOworCQlp
+ZiAoIXNraXAgfHwgdGltZV9hZnRlcl9lcShuZXh0LT5sYXN0X3J1biwgc2tpcC0+bGFzdF9ydW4p
+KQorCQkJc2tpcCA9IG5leHQ7CisJfQorCWlkeCsrOworCWdvdG8gbmV4dF9xdWV1ZTsKK291dDoK
+KwlpZiAob2xkKSB7CisJCW9sZC0+c3RhdGUgPSBUQVNLX1JVTk5JTkc7CisJCWlmIChleHApIHsK
+KwkJCWRlcXVldWVfdGFzayhvbGQsIGFycmF5KTsKKwkJCWlmICghYXJyYXktPm5yX2FjdGl2ZSkK
+KwkJCQlycS0+ZXhwaXJlZF90aW1lc3RhbXAgPSAwOworCQkJZWxzZQorCQkJCXJxLT5leHBpcmVk
+X3RpbWVzdGFtcCA9IHNraXAtPmxhc3RfcnVuOworCQkJbGlzdF9hZGQoJm9sZC0+cnVuX2xpc3Qs
+IHJxLT5hY3RpdmUtPnF1ZXVlICsgb2xkLT5wcmlvKTsKKwkJCV9fc2V0X2JpdChvbGQtPnByaW8s
+IHJxLT5hY3RpdmUtPmJpdG1hcCk7CisJCQlycS0+YWN0aXZlLT5ucl9hY3RpdmUrKzsKKwkJCW9s
+ZC0+YXJyYXkgPSBycS0+YWN0aXZlOworCQl9CisJCXJldHVybiBvbGRfaWR4OworCX0KKwlyZXR1
+cm4gaWR4OworfQorCiB2b2lkIHNjaGVkdWxpbmdfZnVuY3Rpb25zX3N0YXJ0X2hlcmUodm9pZCkg
+eyB9CiAKIC8qCkBAIC0xMjY1LDcgKzEzNDYsNyBAQAogCXJ1bnF1ZXVlX3QgKnJxOwogCXByaW9f
+YXJyYXlfdCAqYXJyYXk7CiAJc3RydWN0IGxpc3RfaGVhZCAqcXVldWU7Ci0JaW50IGlkeDsKKwlp
+bnQgaWR4ID0gMCwgcmV0cnkgPSAwOwogCiAJLyoKIAkgKiBUZXN0IGlmIHdlIGFyZSBhdG9taWMu
+ICBTaW5jZSBkb19leGl0KCkgbmVlZHMgdG8gY2FsbCBpbnRvCkBAIC0xMjkwLDggKzEzNzEsOCBA
+QAogCXNwaW5fbG9ja19pcnEoJnJxLT5sb2NrKTsKIAogCS8qCi0JICogaWYgZW50ZXJpbmcgb2Zm
+IG9mIGEga2VybmVsIHByZWVtcHRpb24gZ28gc3RyYWlnaHQKLQkgKiB0byBwaWNraW5nIHRoZSBu
+ZXh0IHRhc2suCisJICogaWYgZW50ZXJpbmcgb2ZmIG9mIGEga2VybmVsIHByZWVtcHRpb24gb3Ig
+cmVzY2hlZHVsZSwKKwkgKiBnbyBzdHJhaWdodCB0byBwaWNraW5nIHRoZSBuZXh0IHRhc2suCiAJ
+ICovCiAJaWYgKHVubGlrZWx5KHByZWVtcHRfY291bnQoKSAmIFBSRUVNUFRfQUNUSVZFKSkKIAkJ
+Z290byBwaWNrX25leHRfdGFzazsKQEAgLTEzMzAsNyArMTQxMSwyMyBAQAogCQlycS0+ZXhwaXJl
+ZF90aW1lc3RhbXAgPSAwOwogCX0KIAotCWlkeCA9IHNjaGVkX2ZpbmRfZmlyc3RfYml0KGFycmF5
+LT5iaXRtYXApOworCWlmICghaWR4KQorCQlpZHggPSBzY2hlZF9maW5kX2ZpcnN0X2JpdChhcnJh
+eS0+Yml0bWFwKTsKKwllbHNlIGlmICh1bmxpa2VseShyZXRyeSkpIHsKKwkJcHJpb19hcnJheV90
+ICpleHBpcmVkID0gcnEtPmV4cGlyZWQ7CisJCS8qIElmIHdlIGRpZG4ndCBzd2l0Y2gsIHRyeSB0
+aGUgb2xkZXN0IGFjdGl2ZSB0YXNrLiAqLworCQlpZHggPSBzZWxlY3Rfb2xkZXN0KHJxLCBhcnJh
+eSk7CisJCS8qIElmIHdlIHN0aWxsIHdvbid0IHN3aXRjaCwgdHJ5IHRoZSBvbGRlc3QgZXhwaXJl
+ZCB0YXNrLiAqLworCQlpZiAoaWR4ID49IE1BWF9QUklPIHx8IGV4cGlyZWQtPm5yX2FjdGl2ZSA+
+IGFycmF5LT5ucl9hY3RpdmUpIHsKKwkJCWludCB0bXAgPSBzZWxlY3Rfb2xkZXN0KHJxLCBleHBp
+cmVkKTsKKwkJCWlmICh0bXAgPCBNQVhfUFJJTykKKwkJCQlpZHggPSB0bXA7CisJCX0KKwkJLyog
+SWYgd2Ugc2ltcGx5IF9jYW4ndF8gc3dpdGNoLCBwdW50IGJhY2sgdG8gaGlnaGVzdC4gKi8KKwkJ
+aWYgKGlkeCA+PSBNQVhfUFJJTykKKwkJCWlkeCA9IHNjaGVkX2ZpbmRfZmlyc3RfYml0KGFycmF5
+LT5iaXRtYXApOworCX0KKwogCXF1ZXVlID0gYXJyYXktPnF1ZXVlICsgaWR4OwogCW5leHQgPSBs
+aXN0X2VudHJ5KHF1ZXVlLT5uZXh0LCB0YXNrX3QsIHJ1bl9saXN0KTsKIApAQCAtMTM0MiwxOSAr
+MTQzOSwyNyBAQAogCWlmIChsaWtlbHkocHJldiAhPSBuZXh0KSkgewogCQlycS0+bnJfc3dpdGNo
+ZXMrKzsKIAkJcnEtPmN1cnIgPSBuZXh0OworCQluZXh0LT5sYXN0X3J1biA9IGppZmZpZXM7CiAK
+IAkJcHJlcGFyZV9hcmNoX3N3aXRjaChycSwgbmV4dCk7CiAJCXByZXYgPSBjb250ZXh0X3N3aXRj
+aChycSwgcHJldiwgbmV4dCk7CiAJCWJhcnJpZXIoKTsKIAogCQlmaW5pc2hfdGFza19zd2l0Y2go
+cHJldik7Ci0JfSBlbHNlCisJfSBlbHNlIHsKKwkJaWYgKCFyZXRyeSsrKSB7CisJCQlpZHggPSBN
+QVhfUFJJTzsKKwkJCWdvdG8gcGlja19uZXh0X3Rhc2s7CisJCX0KIAkJc3Bpbl91bmxvY2tfaXJx
+KCZycS0+bG9jayk7CisJfQogCiAJcmVhY3F1aXJlX2tlcm5lbF9sb2NrKGN1cnJlbnQpOwogCXBy
+ZWVtcHRfZW5hYmxlX25vX3Jlc2NoZWQoKTsKLQlpZiAodGVzdF90aHJlYWRfZmxhZyhUSUZfTkVF
+RF9SRVNDSEVEKSkKKwlpZiAodGVzdF90aHJlYWRfZmxhZyhUSUZfTkVFRF9SRVNDSEVEKSkgewor
+CQlpZHggPSAwOwogCQlnb3RvIG5lZWRfcmVzY2hlZDsKKwl9CiB9CiAKICNpZmRlZiBDT05GSUdf
+UFJFRU1QVAo=
+--=====================_153987546==_--
+

@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293337AbSCEB6c>; Mon, 4 Mar 2002 20:58:32 -0500
+	id <S293380AbSCEB6v>; Mon, 4 Mar 2002 20:58:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293330AbSCEB6M>; Mon, 4 Mar 2002 20:58:12 -0500
-Received: from jalon.able.es ([212.97.163.2]:50608 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S293299AbSCEB5x>;
-	Mon, 4 Mar 2002 20:57:53 -0500
-Date: Tue, 5 Mar 2002 02:57:45 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCHSET] Linux 2.4.19-pre2-jam2
-Message-ID: <20020305015745.GA1668@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.2
+	id <S293330AbSCEB6h>; Mon, 4 Mar 2002 20:58:37 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:8336 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S293299AbSCEB6X>; Mon, 4 Mar 2002 20:58:23 -0500
+Message-ID: <3C842637.5350F969@didntduck.org>
+Date: Mon, 04 Mar 2002 20:58:15 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.6-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Better kmalloc effeciency
+Content-Type: multipart/mixed;
+ boundary="------------395095FD17DE4FC2BB32946C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+This is a multi-part message in MIME format.
+--------------395095FD17DE4FC2BB32946C
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Yup, new release.
+This patch adds two intermediate general cache sizes, 96 and 192 bytes. 
+On my system this saves about 34k.
 
-Changes:
-- vm-28
-- ServerWorks DMA fix (I have some SW boxen...)
-- bproc 3.1.8
-
-BTTV patches have bee integrated in mainline.
-I have also dropped the interrupt-sequential-file-impl, because the big
-mips update made applying the patch a mess (I can keep the x86 part, but
-think that's not serious...)
-
-Enjoy it at
-
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre2-jam2/
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre2-jam2.tar.gz
-
-By.
-
-(BTW, it builds and runs fine with Mandrake's gcc-3.0.4).
+size-256              63    180    256    5   12    1
+size-192              95    120    192    5    6    1
+size-128             213    240    128    8    8    1
+size-96             1080   1120     96   28   28    1
 
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.19-pre2-jam2 #1 SMP Tue Mar 5 01:21:55 CET 2002 i686
+
+						Brian Gerst
+--------------395095FD17DE4FC2BB32946C
+Content-Type: text/plain; charset=us-ascii;
+ name="kmalloc-sizes-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kmalloc-sizes-1"
+
+diff -urN linux-2.5.6-pre2/mm/slab.c linux/mm/slab.c
+--- linux-2.5.6-pre2/mm/slab.c	Mon Feb 11 10:21:49 2002
++++ linux/mm/slab.c	Sun Mar  3 13:59:25 2002
+@@ -341,7 +341,9 @@
+ 	{    32,	NULL, NULL},
+ #endif
+ 	{    64,	NULL, NULL},
++	{    96,	NULL, NULL},
+ 	{   128,	NULL, NULL},
++	{   192,	NULL, NULL},
+ 	{   256,	NULL, NULL},
+ 	{   512,	NULL, NULL},
+ 	{  1024,	NULL, NULL},
+@@ -364,7 +366,9 @@
+ 	CN("size-32"),
+ #endif
+ 	CN("size-64"),
++	CN("size-96"),
+ 	CN("size-128"),
++	CN("size-192"),
+ 	CN("size-256"),
+ 	CN("size-512"),
+ 	CN("size-1024"),
+
+--------------395095FD17DE4FC2BB32946C--
+

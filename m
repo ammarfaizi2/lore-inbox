@@ -1,76 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269196AbUIYC7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269198AbUIYDIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269196AbUIYC7G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 22:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269197AbUIYC7G
+	id S269198AbUIYDIO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 23:08:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269199AbUIYDIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 22:59:06 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:32958 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S269196AbUIYC7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 22:59:01 -0400
-Date: Sat, 25 Sep 2004 04:58:48 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: David Lang <david.lang@digitalinsight.com>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: mlock(1)
-Message-ID: <20040925025848.GG3309@dualathlon.random>
-References: <20040924132247.W1973@build.pdx.osdl.net> <1096060045.10800.4.camel@localhost.localdomain> <20040924225900.GY3309@dualathlon.random> <1096069581.3591.23.camel@desktop.cunninghams> <20040925010759.GA3309@dualathlon.random> <Pine.LNX.4.60.0409241819580.1341@dlang.diginsite.com> <20040925013013.GD3309@dualathlon.random> <200409250147.i8P1kxtm016914@turing-police.cc.vt.edu> <20040925021501.GF3309@dualathlon.random> <200409250246.i8P2kWwx027390@turing-police.cc.vt.edu>
+	Fri, 24 Sep 2004 23:08:14 -0400
+Received: from holomorphy.com ([207.189.100.168]:44260 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269198AbUIYDII (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 23:08:08 -0400
+Date: Fri, 24 Sep 2004 20:08:02 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [sched.h 3/8] privatize CALC_LOAD()
+Message-ID: <20040925030802.GO9106@holomorphy.com>
+References: <20040925024513.GL9106@holomorphy.com> <20040925024917.GM9106@holomorphy.com> <20040925025304.GN9106@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409250246.i8P2kWwx027390@turing-police.cc.vt.edu>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040925025304.GN9106@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 10:46:32PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> I think we're actually in what the IETF sometimes calls 'violent agreement' -
-> what I meant was that if a misconfigured /etc/fstab marked a file system
-> as 'swap', then even if it survived the 'mkswap', the subsequent swapping
-> would finish the job...
+On Fri, Sep 24, 2004 at 07:53:04PM -0700, William Lee Irwin III wrote:
+> CT_TO_SECS() and CT_TO_USECS() are used where jiffies_to_timeval()
+> should be; this patch teaches their sole caller to use that instead and
+> by so doing removes them from the kernel entirely.
 
-indeed, I got it now ;)
+CALC_LOAD() is used nowhere but kernel/timer.c; this patch moves it
+there.
 
-> But as you noted in an earlier posting, having the metadata in cleartext
-> so sys_swapon can tell what's going on and skipping the mkswap entirely is
-> a better solution..
 
-Yep.
-
-> > or also if you mkswap on the whole device without partitions.
-> 
-> "Linux is designed to give you enough rope to shoot yourself in the foot with" ;)
-
-eheh ;)
-
-> Yes, that does sound like a sane idea, and also addresses at least *most* of
-> the issues with swsusp and swap not stepping on each other's toes (as the
-
-exactly ;)
-
-> header is in cleartext so they both can read it). That still leaves the
-> swsusp crew having to save their key securely - but that's easily done if
-> you have cryptoapi handy.  Only ugly part is having to read a passphrase
-> from the keyboard at suspend and resume (trying to implement "suspend on
-> close lid" gets.. ummm.. interesting ;)
-
-that's it yes.
-
-I don't even think "save their key securely" (I mean saving anything
-related to the swapsuspend encryption key on disk) is needed. A mixture
-of a on-disk key + passphrase would not be more secure than a simple
-"passphrase" alone, because the on-disk key would be in cleartext and
-readable from the attacker. the only usable key is the one in the user memory,
-it cannot be saved in the computer anywhere. Peraphs for additional
-security (and to avoid having to type and remember it) one could use an
-usb pen to store and fetch the key... but then I leave the fun to the
-usb folks since to do that usb should kick off before resume overwrites
-the kernel image ;)
+Index: mm3-2.6.9-rc2/include/linux/sched.h
+===================================================================
+--- mm3-2.6.9-rc2.orig/include/linux/sched.h	2004-09-24 18:45:29.052287408 -0700
++++ mm3-2.6.9-rc2/include/linux/sched.h	2004-09-24 18:58:09.944614192 -0700
+@@ -75,15 +75,6 @@
+ 
+ #define FSHIFT		11		/* nr of bits of precision */
+ #define FIXED_1		(1<<FSHIFT)	/* 1.0 as fixed-point */
+-#define LOAD_FREQ	(5*HZ)		/* 5 sec intervals */
+-#define EXP_1		1884		/* 1/exp(5sec/1min) as fixed-point */
+-#define EXP_5		2014		/* 1/exp(5sec/5min) */
+-#define EXP_15		2037		/* 1/exp(5sec/15min) */
+-
+-#define CALC_LOAD(load,exp,n) \
+-	load *= exp; \
+-	load += n*(FIXED_1-exp); \
+-	load >>= FSHIFT;
+ 
+ extern int nr_threads;
+ extern int last_pid;
+Index: mm3-2.6.9-rc2/kernel/timer.c
+===================================================================
+--- mm3-2.6.9-rc2.orig/kernel/timer.c	2004-09-24 17:37:17.000000000 -0700
++++ mm3-2.6.9-rc2/kernel/timer.c	2004-09-24 18:58:21.931791864 -0700
+@@ -884,6 +884,16 @@
+  */
+ unsigned long avenrun[3];
+ 
++#define EXP_1		1884		/* 1/exp(5sec/1min) as fixed-point */
++#define EXP_5		2014		/* 1/exp(5sec/5min) */
++#define EXP_15		2037		/* 1/exp(5sec/15min) */
++
++static inline unsigned long
++__calc_load(unsigned long prev, unsigned long decay, unsigned long new)
++{
++	return (decay*prev + (FIXED_1 - decay)*new) >> FSHIFT;
++}
++
+ /*
+  * calc_load - given tick count, update the avenrun load estimates.
+  * This is called while holding a write_lock on xtime_lock.
+@@ -891,15 +901,15 @@
+ static inline void calc_load(unsigned long ticks)
+ {
+ 	unsigned long active_tasks; /* fixed-point */
+-	static int count = LOAD_FREQ;
++	static int count = 5*HZ;
+ 
+ 	count -= ticks;
+ 	if (count < 0) {
+-		count += LOAD_FREQ;
++		count += 5*HZ;
+ 		active_tasks = count_active_tasks();
+-		CALC_LOAD(avenrun[0], EXP_1, active_tasks);
+-		CALC_LOAD(avenrun[1], EXP_5, active_tasks);
+-		CALC_LOAD(avenrun[2], EXP_15, active_tasks);
++		avenrun[0] = __calc_load(avenrun[0], EXP_1, active_tasks);
++		avenrun[1] = __calc_load(avenrun[1], EXP_5, active_tasks);
++		avenrun[2] = __calc_load(avenrun[2], EXP_15, active_tasks);
+ 	}
+ }
+ 

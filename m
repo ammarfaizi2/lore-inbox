@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262661AbSJBWkb>; Wed, 2 Oct 2002 18:40:31 -0400
+	id <S262660AbSJBXPX>; Wed, 2 Oct 2002 19:15:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262663AbSJBWka>; Wed, 2 Oct 2002 18:40:30 -0400
-Received: from [66.70.28.20] ([66.70.28.20]:34564 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S262661AbSJBWka>; Wed, 2 Oct 2002 18:40:30 -0400
-Date: Thu, 3 Oct 2002 00:38:01 +0200
-From: DervishD <raul@pleyades.net>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: undertow <undertow@dexcom.org>, linux-kernel@vger.kernel.org
-Subject: Re: possible bug
-Message-ID: <20021002223801.GA6760@DervishD>
-References: <1033487088.2369.6.camel@aenima> <20021001163743.GA275@DervishD> <200210022035.g92KZkp31963@Port.imtp.ilyichevsk.odessa.ua>
+	id <S262669AbSJBXPX>; Wed, 2 Oct 2002 19:15:23 -0400
+Received: from holomorphy.com ([66.224.33.161]:1989 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262660AbSJBXPW>;
+	Wed, 2 Oct 2002 19:15:22 -0400
+Date: Wed, 2 Oct 2002 16:16:27 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Guillaume Boissiere <boissiere@adiglobal.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  October 2, 2002
+Message-ID: <20021002231627.GB10722@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Guillaume Boissiere <boissiere@adiglobal.com>,
+	linux-kernel@vger.kernel.org
+References: <3D9B2FBD.12828.5DF75E@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200210022035.g92KZkp31963@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4i
-Organization: Pleyades Net
+In-Reply-To: <3D9B2FBD.12828.5DF75E@localhost>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Denis :)
+On Wed, Oct 02, 2002 at 05:41:17PM -0400, Guillaume Boissiere wrote:
+> o Alpha  Parallelizing page replacement  (Andrew Morton, Momchil Velikov, Dave Hansen, 
+> William Lee Irwin)  
 
-> > you're trying to 'kill -9' is stuck in 'D' state (or any other
-> > uninterruptible state), so it's not a kernel bug ;) If this is not
-> How come? Process stuck in 'D' state *is* a kernel bug
+Alpha? This is not only done, but merged!
 
-    Yes if it is stuck in that state forever, but I've suffered
-processes stuck in 'D' state due to, for example, my CD recorder
-frozen... It can last more than 600 seconds, and it's not a kernel
-bug, just a 'long-lasting' transient state ;)
 
-    Anyway, last time I had a process stuck in 'D' state was back in
-2.2 kernel, more than a year ago.
+On Wed, Oct 02, 2002 at 05:41:17PM -0400, Guillaume Boissiere wrote:
+> o Alpha  Remove the global tasklist  (Ingo Molnar, William Lee Irwin)  
 
-    Raúl
+Well, there's a lot less reliance on it in the kernel now, which
+probably means it's more than Beta even. I'm not sure removing the
+global tasklist entirely is still the goal, so it may just be done.
+
+
+Bill

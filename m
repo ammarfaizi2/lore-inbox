@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266522AbUG0TzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266527AbUG0T7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266522AbUG0TzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 15:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266525AbUG0TzP
+	id S266527AbUG0T7R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 15:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266546AbUG0T7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 15:55:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63657 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266522AbUG0TzL (ORCPT
+	Tue, 27 Jul 2004 15:59:17 -0400
+Received: from mail.tmr.com ([216.238.38.203]:1036 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S266535AbUG0T7O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 15:55:11 -0400
-Date: Tue, 27 Jul 2004 12:53:26 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Meelis Roos <mroos@linux.ee>
-Cc: groudier@free.fr, linux-kernel@vger.kernel.org
-Subject: Re: Sym53C896: CACHE INCORRECTLY CONFIGURED
-Message-Id: <20040727125326.0c75a96c.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0407271038530.13593@ondatra.tartu-labor>
-References: <Pine.LNX.4.58.0407271038530.13593@ondatra.tartu-labor>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 27 Jul 2004 15:59:14 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH] Delete cryptoloop
+Date: Tue, 27 Jul 2004 16:02:09 -0400
+Organization: TMR Associates, Inc
+Message-ID: <ce6bs6$i0r$1@gatekeeper.tmr.com>
+References: <1090672906.8587.66.camel@ghanima><Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com> <20040724095245.73ca26fe.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1090958022 18459 192.168.12.100 (27 Jul 2004 19:53:42 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
+In-Reply-To: <20040724095245.73ca26fe.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004 10:45:57 +0300 (EEST)
-Meelis Roos <mroos@linux.ee> wrote:
+Andrew Morton wrote:
+> Fruhwirth Clemens <clemens@endorphin.org> wrote:
+> 
+>>So much for cryptoloop.
+> 
+> 
+> I think I'd rather add a patch which does printk("cryptoloop will be
+> removed from Linux on June 30, 2005.  Please migrate to dm-crypt")
 
-> I got a 53c896 dual channel 64-bit PCI card (Compaq series EOB003). Tried
-> it in x86 (i815 mainboard) and Sun Ultra 5 (both with 32-bit PCI slots).
-> Both errored out basically the same way (this is from the PC, Linux
-> 2.6.8-rc2):
+A number of things in 2.4 were left alone until 2.6, other than getting 
+lots of people to stay with old kernels why do you object to waiting to 
+remove this feature in 2.7?
 
-I think your card is toast, if it fails like this it means that
-even the most basic script cannot execute on the onboard processor.
+"mount ~/mycrypt" is simple enough for a user to use, dm-crypt is not 
+remotely easy to use, not to mention that the tools all need to be added 
+  to the install on every machine.
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

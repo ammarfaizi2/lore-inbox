@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282784AbRLOQTi>; Sat, 15 Dec 2001 11:19:38 -0500
+	id <S282799AbRLOQpX>; Sat, 15 Dec 2001 11:45:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282793AbRLOQT3>; Sat, 15 Dec 2001 11:19:29 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:19384 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S282784AbRLOQTT>;
-	Sat, 15 Dec 2001 11:19:19 -0500
-Date: Sat, 15 Dec 2001 17:18:22 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Dave Jones <davej@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com
-Subject: Re: fsx for Linux showing up reiserfs problem?
-In-Reply-To: <20011215154029.A3954@suse.de>
-Message-ID: <Pine.LNX.4.21.0112151715490.30396-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282812AbRLOQpN>; Sat, 15 Dec 2001 11:45:13 -0500
+Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:58933
+	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id <S282799AbRLOQo5>; Sat, 15 Dec 2001 11:44:57 -0500
+Date: Sat, 15 Dec 2001 11:45:05 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: can't compile 2.4.16
+Message-ID: <20011215164505.GF4961@tigger>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011215045446.GB4961@tigger> <3C1AD9F3.3090207@xmission.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TdkiTnkLhLQllcMS"
+Content-Disposition: inline
+In-Reply-To: <3C1AD9F3.3090207@xmission.com>
+User-Agent: Mutt/1.3.24i
+X-Mailer: Mutt-1.3.23i (Debian Linux 2.2.18, i686)
+From: "Michael P. Soulier" <michael.soulier@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Dec 2001, Dave Jones wrote:
 
+--TdkiTnkLhLQllcMS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I've done a few tests on local filesystems, and so far Ext2 & Ext3
-> seem to be holding up..
+On 14/12/01 Ben Carrell did speaketh:
 
-I've tested ext3 on 2.4.17-pre8 and it works fine.
+> If you look at the 2.4.17-pre6 changelog you will see:
+>=20
+> - Create __devexit_p() function and use that on=20
+>  drivers which need it to make it possible to=20
+>  use newer binutils				(Keith Owens)=20
+>=20
+> It comes from using the latest binutils, let me guess - you run debian=20
+> sid? :)  If you wish to compile 2.4.16, you need to downgrade binutils=20
+> ...or try a pre-patch starting with 2.4.17-pre6
 
-> Reiserfs however dies very early into the test..
-> 
->   truncating to largest ever: 0x3f15f
->   READ BAD DATA: offset = 0x1d3d4, size = 0x962f
->   OFFSET  GOOD    BAD     RANGE
->   0x1d3d4 0x177d  0x0000  0x  563
->   operation# (mod 256) for the bad data unknown, check HOLE and EXTEND ops
+    Someone on the Debian list mentioned that enabling CONFIG_HOTPLUG work =
+fix
+the problem too, and it did. So, the kernel is a little bigger than desired,
+but no biggy.=20
 
-I tested with reiserfs on 2.4.9-ac14 and 2.4.15-pre4-xfs and it fails in
-the same way on both.
+    Mike
 
-I tested on a xfs partition on the 2.4.15-pre4-xfs kernel and didn't get
-any errors either.
+--TdkiTnkLhLQllcMS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-/Martin
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
+iD8DBQE8G34RKGqCc1vIvggRAsziAKCim8xmCsjxIiQ2yh5A/690M8gGuQCeJxns
+Rh7adzhH68dQw+1lDjc1r2E=
+=DSVX
+-----END PGP SIGNATURE-----
 
+--TdkiTnkLhLQllcMS--

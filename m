@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265173AbUATAd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 19:33:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUATA1h
+	id S265201AbUATAfM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 19:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbUATAdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 19:27:37 -0500
-Received: from gprs214-67.eurotel.cz ([160.218.214.67]:63362 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263580AbUATAFH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 19:05:07 -0500
-Date: Tue, 20 Jan 2004 01:04:35 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: ncunningham@users.sourceforge.net, Hugang <hugang@soulinfo.com>,
-       ncunningham@clear.net.nz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       debian-powerpc@lists.debian.org
-Subject: Re: Help port swsusp to ppc.
-Message-ID: <20040120000435.GB837@elf.ucw.cz>
-References: <20040119105237.62a43f65@localhost> <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux> <1074490463.10595.16.camel@gaston> <20040119204551.GB380@elf.ucw.cz> <1074555531.10595.89.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1074555531.10595.89.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Mon, 19 Jan 2004 19:33:38 -0500
+Received: from [24.35.117.106] ([24.35.117.106]:12675 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265267AbUATA1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 19:27:19 -0500
+Date: Mon, 19 Jan 2004 19:26:59 -0500 (EST)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.1-mm4
+In-Reply-To: <20040115225948.6b994a48.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0401191912300.5662@localhost.localdomain>
+References: <20040115225948.6b994a48.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Rusty, 
 
-> > Well, then what you do is not swsusp.
-> > 
-> > swsusp does assume same kernel during suspend and resume. Doing resume
-> > within bootloader (and thus avoiding this) would be completely
-> > different design.
-> 
-> Wait... what the hell in swsusp requires this assumption ? It seems to
-> me like a completely unnecessary design limitation.
+I updated mm4 with the patch you sent in response to my shutdown oops 
+report and haven't received a repeat oops in six reboots.  Hopefully this 
+cures my problem.  I previously couldn't reproduce the oops every single 
+reboot.  
 
-(1) There's routine during resume that copies pages to their old
-locations. If you (would want to) have different kernel during resume,
-how do you guarantee that that "kernel being resumed" does not use
-memory ocupied by copying routine?
+I do have a couple of other anomalies to report though.
 
-(2) Plus number of problems with devices grows with number of versions
-squared. To guarantee it works properly you'd have to test all
-combinations of "suspend kernel" and "resume kernel".
+First is this snippet from my bootup log:
 
-[(1) Could be solved by reserving 4KB somewhere for copy routine, and
-making sure copy routine is never bigger than 4KB etc. But I'd like to
-keep it simple and really don't want to deal with (2).]
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Cannot open master raw device '/dev/rawctl' (No such device)
+/: clean, 192622/1196032 files, 969619/2390842 blocks
+                                                           [  OK  ]
+cat: /sys//devices/pci0000:00/0000:00:07.2/usb1/bNumConfigurations: No 
+such file or directory
+/etc/hotplug/usb.agent: line 144: [: too many arguments
+Remounting root filesystem in read-write mode:             [  OK  ]
+Activating swap partitions:                                [  OK  ]
+Finding module dependencies:                               [  OK  ]
+
+Second is that I receive the following error while compiling mm4:
+
+Kernel: arch/i386/boot/bzImage is ready
+sh /usr/local/kernel/linux-2.6.0/arch/i386/boot/install.sh 2.6.1-mm4a 
+arch/i386/boot/bzImage System.map ""
+WARNING: /lib/modules/2.6.1-mm4a/kernel/fs/nfsd/nfsd.ko needs unknown 
+symbol dnotify_parent
+
+

@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272763AbRIGQaz>; Fri, 7 Sep 2001 12:30:55 -0400
+	id <S272758AbRIGQZ5>; Fri, 7 Sep 2001 12:25:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272764AbRIGQap>; Fri, 7 Sep 2001 12:30:45 -0400
-Received: from mx-outgoing.delfi.lt ([213.197.128.109]:5138 "HELO
-	mx-outgoing.delfi.lt") by vger.kernel.org with SMTP
-	id <S272763AbRIGQac>; Fri, 7 Sep 2001 12:30:32 -0400
-Date: Fri, 7 Sep 2001 18:26:21 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: Basic reiserfs question
-To: Hans Reiser <reiser@namesys.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	id <S272763AbRIGQZq>; Fri, 7 Sep 2001 12:25:46 -0400
+Received: from cs173101.pp.htv.fi ([213.243.173.101]:6970 "EHLO
+	porkkala.cs173101.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S272758AbRIGQZj>; Fri, 7 Sep 2001 12:25:39 -0400
+Message-ID: <3B98F503.14A1E725@pp.htv.fi>
+Date: Fri, 07 Sep 2001 19:25:39 +0300
+From: Jussi Laako <jlaako@pp.htv.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-In-Reply-To: <F45bR99kQgkV07DPT1p00005d9e@hotmail.com>
-	 <3B97729B.1F49AACA@namesys.com> <20010907000239.26A738F91C@mail.delfi.lt>
- <3B987C2E.DDDDAA0D@namesys.com>
-In-Reply-To: <3B987C2E.DDDDAA0D@namesys.com>
-X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
-Message-Id: <20010907163043.87D038F8D7@mail.delfi.lt>
+To: tegeran@home.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: K7/Athlon optimizations and Sacrifices to the Great Ones.
+In-Reply-To: <01090612513601.00171@c779218-a>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 07 Sep 2001 11:50:06 +0400 Hans Reiser <reiser@namesys.com> wrote:
+Nicholas Knight wrote:
+> 
+> problem on the SAME physical board, just two different processors. Both
+> 6-4-2, the only difference is that one is 1.13Ghz and doesn't have the
+> problem, and the other is 1.2Ghz and DOES have the problem. This of
+> course leads me back to the clock speed theory, but again it doesn't make
+> any SENSE because the FSB on both of them is 133Mhz and I've got at least
+> two reports of 1.33Ghz chips running FINE! ARG!
 
-HR> I only have secondhand reports from users who patch RedHat boot scripts as
-HR> described at the end of www.namesys.com/faq.html, so your statement leaves me
-HR> puzzled as to whether the secondhand reports were from persons who didn't
-HR> understand the boot scripts.  Comments are welcome.
+How about the synchronization issue that came up in the power saving thread?
+Some bus synchronization problem (integer/non-integer multiplier)?
 
-Hello,
+ - Jussi Laako
 
-I took time to read FAQ, and here are few comments.
-
-1 - I understand you don't like RedHat, but instead of ranting, you could
-just say that gcc-2.96 from RH updates or RH 7.1 is OK (Alan Cox even
-recommends it for compiling recent 2.4 kernels).
-
-16 - also "df -i" shows that there are no used inodes on reiserfs partitions.
-
-36 - Can I use /sbin/badblocks -b <reiserfs-block-size> on existing
-reiserfs partition?
-
-39 - a link to "I'm not using RedHat's special release of a buggy compiler"
-(http://www.namesys.com/gcc-2.96) is not found.
-
-40 - spelling error "ResierFS".
-
-41 - there is nothing about how to solve it.
-
-Regards,
-Nerijus
-
-
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUIVHzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUIVITU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbUIVHzN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 03:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUIVHzN
+	id S261875AbUIVITU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 04:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUIVITU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 03:55:13 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:26358 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261610AbUIVHy5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 03:54:57 -0400
-Date: Wed, 22 Sep 2004 09:54:52 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: John Lenz <lenz@cs.wisc.edu>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new class for led devices
-In-Reply-To: <1095829641l.11731l.0l@hydra>
-Message-ID: <Pine.GSO.4.61.0409220953390.6324@waterleaf.sonytel.be>
-References: <1095829641l.11731l.0l@hydra>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Sep 2004 04:19:20 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:58496 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261875AbUIVITR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 04:19:17 -0400
+Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97  
+	patch)
+From: David Woodhouse <dwmw2@infradead.org>
+To: David Lloyd <dmlloyd@tds.net>
+Cc: SashaK <sashak@smlink.com>, Mikael Pettersson <mikpe@csd.uu.se>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.60.0409211504440.7029@tomservo.workpc.tds.net>
+References: <200409111850.i8BIowaq013662@harpo.it.uu.se>
+	 <20040912011128.031f804a@localhost>
+	 <1095785705.17821.760.camel@hades.cambridge.redhat.com>
+	 <Pine.LNX.4.60.0409211504440.7029@tomservo.workpc.tds.net>
+Content-Type: text/plain
+Message-Id: <1095841141.17821.819.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Wed, 22 Sep 2004 09:19:01 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Sep 2004, John Lenz wrote:
-> This is an attempt to provide an alternative to the current arm specific led
-> interface that is generic for all arches and uses the "one value, one file"
-> idea of sysfs.
+On Tue, 2004-09-21 at 15:09 -0500, David Lloyd wrote:
+> On Tue, 21 Sep 2004, David Woodhouse wrote:
 > 
-> I removed the function attribute that was in the previous patch, and added the
-> ability for userspace to control the timer on each led individually.
-> Userspace can also set the delay in milliseconds for the blink.
+> > On Sun, 2004-09-12 at 01:11 +0300, SashaK wrote:
+> >> This is exactly that was discussed - 'slamr' is going to be replaced by
+> >> ALSA drivers. I don't know which modem you have, but recent ALSA
+> >> driver (CVS version) already supports ICH, SiS, NForce (snd-intel8x0m),
+> >> ATI IXP (snd-atiixp-modem) and VIA (snd-via82xx-modem) AC97 modems.
+> >
+> > What chance of making it work with the ISDN drivers? Should we make an 
+> > ALSA driver for ISDN?
+> 
+> That's an interesting idea.  Some thoughts I'd have off the bat:
+> 
+> - I don't think there's a software modem implementation (free or
+>    otherwise) for linux that can support the server side of a digital
+>    (v.90, v.92) connection, but that would be excellent to have
 
-(damned, non-inlined patch)
+That'd be even better, yes -- but I was thinking of v.34.
+Even having just v.29 (fax) would be nice.
 
-| - heartbeat: a read/write attribute that controls the heartbeat of this
-|   led.  If heartbeat=0, then this led is controlled by userspace.
-|   Otherwise, heartbeat gives the time in milliseconds to delay between
-|   light changes.
+> - Americans might have an FCC concern due to power output restrictions on
+>    digital modem protocols, and also other voice applications
 
-That's not the real heartbeat! The real one says thumb-thumb-pause, and goes
-faster if the load average increases :-)
+You can already use the Linux ISDN code in 'voice modem' mode and do
+what you like with it... what would concern them more?
 
-Gr{oetje,eeting}s,
+> - Presumably it would only make sense to do this with voice connections
 
-						Geert
+Indeed.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> - Could this idea be extended to analog telephony devices?
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Ideally, it could be extended to analogue coupling using standard
+speakers and microphone. :)
+
+-- 
+dwmw2
+

@@ -1,87 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbUAUSUW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 13:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265590AbUAUSUW
+	id S266004AbUAUS2y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 13:28:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266010AbUAUS2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 13:20:22 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:59570 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263775AbUAUSUQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 13:20:16 -0500
-Subject: Re: 2.6.1 "clock preempt"?
-From: john stultz <johnstul@us.ibm.com>
-To: hauan@cmu.edu
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1074697593.5650.26.camel@steinar.cheme.cmu.edu>
-References: <1074630968.19174.49.camel@steinar.cheme.cmu.edu>
-	 <1074633977.16374.67.camel@cog.beaverton.ibm.com>
-	 <1074697593.5650.26.camel@steinar.cheme.cmu.edu>
-Content-Type: text/plain
-Message-Id: <1074709166.16374.73.camel@cog.beaverton.ibm.com>
+	Wed, 21 Jan 2004 13:28:54 -0500
+Received: from post.tau.ac.il ([132.66.16.11]:42397 "EHLO post.tau.ac.il")
+	by vger.kernel.org with ESMTP id S266004AbUAUS2v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 13:28:51 -0500
+Date: Wed, 21 Jan 2004 20:28:47 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] reiserfs support for laptop_mode
+Message-ID: <20040121182846.GB29494@luna.mooo.com>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+References: <20040117061354.GB4768@luna.mooo.com> <16395.45959.836058.398889@laputa.namesys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 21 Jan 2004 10:19:26 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16395.45959.836058.398889@laputa.namesys.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.23.0.2; VDF: 6.23.0.38; host: localhost)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-01-21 at 07:06, Steinar Hauan wrote:
-> On Tue, 2004-01-20 at 16:26, john stultz wrote:
-> > How quickly do you see this message? Does it happen right at boot time,
-> > or during load?
+On Mon, Jan 19, 2004 at 01:37:59PM +0300, Nikita Danilov wrote:
+> Micha Feigin writes:
+>  > I've been using this since 2.4.22 and since laptop_mode is in the
+>  > kernel since 2.4.23-pre<something> and I haven't seen that anyone else
+>  > has implemented this so I decided to post it on the list in case anyone
+>  > is interested.
+>  > It a patch to modify the journal flush time of reiserfs to support
+>  > laptop_mode (same functionality as ext3 has already).
+>  > The times are taken from bdflush.
 > 
-> boottime:
->   Jan 19 08:59:24 localhost kernel: Linux version 2.6.1
->                         (root@offa) (gcc version 3.3.2 20031218
->                         (Red Hat Linux 3.3.2-5)) #2 
->                         SMP Sat Jan 17 18:05:09 EST 2004
+> Support for reiserfs laptop mode is in 2.6 now. It is done by adding new
+> mount option "commit=N" that sets commit interval in seconds.
 > 
->   (yes, i have SMP enabled even for a single cpu machine; the kernel
->    will be run on a multitude of machines of which most are SMP)
-> 
-> log messages prior to time issues:
-> 
-> Jan 20 04:02:01 localhost anacron[6057]: Updated timestamp for 
->                                              job `cron.daily' to
-> 2004-01-20
-> Jan 20 04:05:38 localhost kernel: hdb: dma_timer_expiry:
->                                              dma status == 0x61
-> Jan 20 04:05:48 localhost kernel: hdb: DMA timeout error
-> Jan 20 04:05:48 localhost kernel: hdb: dma timeout error:
->                                              status=0xd0 {Busy }
-> Jan 20 04:05:48 localhost kernel: hda: DMA disabled
-> Jan 20 04:05:48 localhost kernel: hdb: DMA disabled
-> Jan 20 04:05:48 localhost kernel: ide0: reset: success
-> 
-> (hda and hdb are on the same controller; the only active disk at
->  this time should be hda ... hdb should be essentially idle
->  except for cron.daily scripts running around then)
-> 
-> timing error starts here; interactive work
-> 
-> Jan 20 07:52:40 localhost kernel: Losing too many ticks!
 
-Hmm. It might be that IDE PIO mode on your system blocks interrupts for
-too long.
+First of all its nice to know that laptop mode has finally made it
+into 2.6. On the other hand setting commit=N on mount is not a good
+solution since you want different flush times for when laptop mode is
+activated and when it is disabled.
+When laptop mode is disabled the default of 5 seconds is good since the
+disk is always spinning. When laptop mode is enabled you want to change
+the journal flush time to the linux buffer flush time so that the
+journal won't keep waking up the disk. Its a bigger risk of loosing the
+data so you don't want the longer journal flush time when laptop mode
+isn't activated.
 
-> > You might want to try the attached patch to see if we're overreacting
-> [...]
-> > Also, do you see the problem when preempt is disabled 
+> It doesn't look right to just plainly set reiserfs commit interval to be
+> the same as the ext3 commit interval.
+
+I am not setting it to the same value as ext3. When laptop mode isn't
+activated it is set to the default value used by reiserfs if bdflush
+isn't modified (it does give you the ability to play with the flush
+interval if you want even when reiserfs isn't activated).
+If laptop mode is activated the flush time is set to the linux buffer
+flush time so that the journal won't wake up the disk.
+
 > 
-> testing overnight failed to reproduce the problem. note that the
-> original event only occurred after about 12 hrs of testing.
-
-Sorry, that was vague. Did you fail to reproduce the problem using the
-patch or with preempt disabled?
-
-> i'll install lm_sensors & smarttools and run cpuburn for a while
-> to ensure this is not related to any hardware issues.
-
-I doubt its its a hardware fault issue, but more likely some driver not
-working properly with your hardware and blocking interrupts for too
-long. 
-
-thanks
--john
-
+>  > 
+>  > --- kernel-source-2.4.25-pre6/fs/reiserfs/journal.c	2003-08-25 14:44:43.000000000 +0300
+>  > +++ kernel-source-2.4.25-pre6.new/fs/reiserfs/journal.c	2003-10-20 03:35:58.000000000 +0200
+>  > @@ -58,6 +58,7 @@
+>  >  #include <linux/stat.h>
+>  >  #include <linux/string.h>
+>  >  #include <linux/smp_lock.h>
+>  > +#include <linux/fs.h>
+>  >  
+>  >  /* the number of mounted filesystems.  This is used to decide when to
+>  >  ** start and kill the commit thread
+>  > @@ -2659,8 +2660,12 @@
+>  >    /* starting with oldest, loop until we get to the start */
+>  >    i = (SB_JOURNAL_LIST_INDEX(p_s_sb) + 1) % JOURNAL_LIST_COUNT ;
+>  >    while(i != start) {
+>  > -    if (SB_JOURNAL_LIST(p_s_sb)[i].j_len > 0 && ((now - SB_JOURNAL_LIST(p_s_sb)[i].j_timestamp) > SB_JOURNAL_MAX_COMMIT_AGE(p_s_sb) ||
+>  > -       immediate)) {
+>  > +    /* get_buffer_age() / HZ is used since the time returned by
+>  > +     * get_buffer_age is in sec * HZ and the journal time is taken in seconds.
+>  > +     */
+>  > +    if (SB_JOURNAL_LIST(p_s_sb)[i].j_len > 0 &&
+>  > +	((now - SB_JOURNAL_LIST(p_s_sb)[i].j_timestamp) > get_buffer_age() / HZ
+>  > +	 || immediate)) {
+> 
+> Nikita.
+> 

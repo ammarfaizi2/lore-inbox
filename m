@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbTE2CDs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 22:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTE2CDs
+	id S261846AbTE2CKL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 22:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbTE2CKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 22:03:48 -0400
-Received: from holomorphy.com ([66.224.33.161]:5765 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261864AbTE2CDr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 22:03:47 -0400
-Date: Wed, 28 May 2003 19:16:54 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: jim.houston@attbi.com, linux-kernel@vger.kernel.org, jim.houston@ccur.com
-Subject: Re: signal queue resource - Posix timers
-Message-ID: <20030529021654.GG19818@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ulrich Drepper <drepper@redhat.com>, jim.houston@attbi.com,
-	linux-kernel@vger.kernel.org, jim.houston@ccur.com
-References: <200305281856.h4SIuFZ02449@linux.local> <3ED531AD.1020309@redhat.com>
+	Wed, 28 May 2003 22:10:11 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:146 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261846AbTE2CKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 22:10:10 -0400
+Date: Wed, 28 May 2003 19:23:30 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: kiran@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Inline vm_acct_memory
+Message-Id: <20030528192330.77d3d9e9.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0305281631030.1240-100000@localhost.localdomain>
+References: <20030528110552.GF5604@in.ibm.com>
+	<Pine.LNX.4.44.0305281631030.1240-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ED531AD.1020309@redhat.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 May 2003 02:23:27.0399 (UTC) FILETIME=[49B71B70:01C32589]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 03:01:17PM -0700, Ulrich Drepper wrote:
-> That's not really how you can interpret this.  At the time timer_create
-> is it is not know when the timer expires and whether it's a repeating
-> timer.  Therefore it is not correct to assume that if timer_create
-> succeeds the resources to always deliver the signal are available.
-> The shall-error in the standard just covers the case if there is really
-> no way this can be made working.  For instance, some implementation
-> might allocate to each process using timer_create N signal slots.  The
-> whole system could have only N * M slots.
-> Because there is no fixed limit (or better said: no guaranteed minimal
-> number of signal slots) in Linux this error doesn't apply at all.
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> On Wed, 28 May 2003, Ravikiran G Thirumalai wrote:
+> > I found that inlining vm_acct_memory speeds up vm_enough_memory.  
+> > Since vm_acct_memory is only called by vm_enough_memory,
+> 
+> No, linux/mman.h declares
+> 
+> static inline void vm_unacct_memory(long pages)
+> {
+> 	vm_acct_memory(-pages);
+> }
+> 
+> and I count 18 callsites for vm_unacct_memory.
+> 
+> I'm no judge of what's worth inlining, but Andrew is widely known
+> and feared as The Scourge of Inliners, so I'd advise you to hide...
 
-The inability to prevent events from coming in faster than one can
-process them does create an escape hatch so one doesn't have to handle
-this case because it doesn't specify that minimum. Perhaps the
-criterion for merging should be if some application is negatively
-affected?
+Maybe I'm wrong.  kernbench is not some silly tight-loop microbenchmark. 
+It is a "real" workload: gcc.
 
-But I'm not convinced this would harm anything if merged beforehand.
-It's also nice to exert explicit control over competition for memory.
+The thing about pagetable setup and teardown is that it tends to be called
+in big lumps: for a while the process is establishing thousands of pages
+and then later it is tearing down thousands.  So the cache-thrashing impact
+of having those eighteen instances sprinkled around the place is less
+than it would be if they were all being called randomly.  If you can believe
+such waffle.
 
-
--- wli
+Kiran, do you still have the raw data available?  profiles and runtimes?

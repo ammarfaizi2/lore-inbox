@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265701AbUGZVJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266085AbUGZVMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265701AbUGZVJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 17:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265736AbUGZVIi
+	id S266085AbUGZVMY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 17:12:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUGZU5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 17:08:38 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:64438 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266003AbUGZU6g (ORCPT
+	Mon, 26 Jul 2004 16:57:54 -0400
+Received: from [66.35.79.110] ([66.35.79.110]:38574 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S266081AbUGZUqf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 16:58:36 -0400
-Date: Mon, 26 Jul 2004 22:59:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rudo Thomas <rudo@matfyz.cz>
-Cc: Lee Revell <rlrevell@joe-job.com>, Jens Axboe <axboe@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Lenar L?hmus <lenar@vision.ee>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: no luck with max_sectors_kb (Re: voluntary-preempt-2.6.8-rc2-J4)
-Message-ID: <20040726205933.GA27567@elte.hu>
-References: <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <20040726100103.GA29072@elte.hu> <20040726101536.GA29408@elte.hu> <20040726204228.GA1231@ss1000.ms.mff.cuni.cz> <20040726205741.GA27527@elte.hu>
+	Mon, 26 Jul 2004 16:46:35 -0400
+Date: Mon, 26 Jul 2004 13:44:57 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: Greg KH <greg@kroah.com>
+Cc: Oliver Neukum <oliver@neukum.org>, Robert Love <rml@ximian.com>,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Andrew Morton <akpm@osdl.org>, cw@f00f.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel events layer
+Message-ID: <20040726204457.GA10970@hockin.org>
+References: <F989B1573A3A644BAB3920FBECA4D25A6EBFB5@orsmsx407> <1090853403.1973.11.camel@localhost> <20040726161221.GC17449@kroah.com> <200407262013.33454.oliver@neukum.org> <20040726190305.GA19498@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040726205741.GA27527@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040726190305.GA19498@kroah.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 26, 2004 at 03:03:05PM -0400, Greg KH wrote:
+> > On a related note, is this supposed to supersede the current hotplug
+> > mechanism?
+> 
+> No, it will not.  At the most, it will report the same information to
+> make it easier for userspace programs who want to get the other
+> event information, also get the hotplug stuff through the same
+> interface, reducing their complexity.
+> 
+> So the existing hotplug interface is not going away at all.  Do not even
+> begin to think that :)
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+What about flipping it around and using either hotplug or a hotplug-like
+mechanism for these events?
 
-> does the patch below, ontop of -J7, help?
+It solves the issue of events being dropped when there is no listening
+daemon...
 
-i've added this patch to -J7, so re-downloading the -J7 patch should
-give you the patch too.
-
-	Ingo
+These are not going to be high-traffic messages, right, so the overhead is
+negligible...

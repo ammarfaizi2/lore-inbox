@@ -1,28 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261325AbSJLTPP>; Sat, 12 Oct 2002 15:15:15 -0400
+	id <S261335AbSJLTQr>; Sat, 12 Oct 2002 15:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261328AbSJLTPP>; Sat, 12 Oct 2002 15:15:15 -0400
-Received: from 62-190-217-117.pdu.pipex.net ([62.190.217.117]:20749 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261325AbSJLTPO>; Sat, 12 Oct 2002 15:15:14 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210121930.g9CJU1Co011425@darkstar.example.net>
-Subject: Re: Bug on Mdk 9.0
-To: Hell.Surfers@cwctv.net
-Date: Sat, 12 Oct 2002 20:30:01 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <0a7d72654180ca2DTVMAIL1@smtp.cwctv.net> from "Hell.Surfers@cwctv.net" at Oct 12, 2002 07:55:29 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261333AbSJLTQr>; Sat, 12 Oct 2002 15:16:47 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:40114 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261332AbSJLTQq>; Sat, 12 Oct 2002 15:16:46 -0400
+Subject: Re: Linux v2.5.42
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mark Peloquin <markpeloquin@hotmail.com>
+Cc: hch@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       evms-devel@lists.sourceforge.net
+In-Reply-To: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com>
+References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Oct 2002 20:34:05 +0100
+Message-Id: <1034451245.15067.16.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> wood u stop tawkin 733t m8.
+On Sat, 2002-10-12 at 18:14, Mark Peloquin wrote:
+> Should EVMS be included, the team will make it our top priority to resolve 
+> the disputed design issues. If the ruling should be that some of our design 
+> decisions must change, so be it, we will comply. Certainly some changes can 
+> not be done by the 20th or 31st, however I feel the team can handle most 
+> changes before 2.6 ships.
 
-Y d0n7 U 570p u5!n 5u(h @ 1337 3-M@!7 @pp71(@7!0n, wh!(h d035n'7 3v3n
-qu073 pr0p3r7y :-)
+Thats good to hear. Right now the debate appears to be - "users: please
+add EVMS" "hackers: oh my god no" - so you got the feature set right it
+seems
 
-John.

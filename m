@@ -1,54 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267215AbUFZWr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266494AbUFZWsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267215AbUFZWr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 18:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUFZWr0
+	id S266494AbUFZWsr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 18:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUFZWsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 18:47:26 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:6158 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S267215AbUFZWqy (ORCPT
+	Sat, 26 Jun 2004 18:48:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:426 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266494AbUFZWsl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 18:46:54 -0400
-Date: Sun, 27 Jun 2004 00:46:52 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: andyb@island.net
-Cc: linux-kernel@vger.kernel.org, aebr@win.tue.nl
-Subject: Re: [BUG 2.6.7] : Partition table display bogus...
-Message-ID: <20040626224652.GD5526@pclin040.win.tue.nl>
-References: <1088216934.40dcdf66edd1d@webmail.island.net> <20040626104455.GC5526@pclin040.win.tue.nl> <1088267564.40dda52cc629a@webmail.island.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1088267564.40dda52cc629a@webmail.island.net>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : mailhost.tue.nl 1182; Body=1 Fuz1=1 Fuz2=1
+	Sat, 26 Jun 2004 18:48:41 -0400
+Date: Sat, 26 Jun 2004 15:48:34 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chris Wedgwood <cw@f00f.org>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       PARISC list <parisc-linux@lists.parisc-linux.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix the cpumask rewrite
+In-Reply-To: <20040626221802.GA12296@taniwha.stupidest.org>
+Message-ID: <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org>
+References: <1088266111.1943.15.camel@mulgrave> <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org>
+ <20040626221802.GA12296@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 26, 2004 at 09:32:44AM -0700, andyb@island.net wrote:
 
-> displays the partition table for the drive that the kernel claims has an unknown
-> partition table.  The bootable flag indicator is neither blank nor an *;  instead it
-> was the ? character.  Toggling the bootable flag in fdisk (bringing up the * ) and
-> writing the changed partition table allowed the booting kernel to then read
-> the partition table.   This partition table has not been touched for many a kernel
-> version and has been identified by all the previous kernels, through 2.6.6.
-> Would the change that stopped the kernel from "guessing" the disk geometry have
-> brought out the sensitivity to whatever was not correct with the PT?
 
-Ah, excellent. See - I have no memory.
+On Sat, 26 Jun 2004, Chris Wedgwood wrote:
+> 
+> I recently had to change jiffies_64 (include/linux/jiffies.h) to be
+> volatile as gcc produced code that didn't work as a result of it.
 
-No - I keep repeating: please stop this geometry nonsense.
+"jiffies" is one of the few things that I accept as volatile, since it's 
+basically read-only and accessed directly and has no internal structure 
+(ie it's a single word).
 
-This is something entirely different. Linux does automatic partition recognition.
-That of course is bad, especially if there is no partition table at all, like on
-certain ZIP drives and memory cards for digital cameras (that behave like
-big floppies). In order to guess right more often the kernel now only believes
-that something is a valid DOS-type partition table when there is a valid
-bootable flag indicator (0 or 0x080).
-You had garbage there (or at least an unusual value) - and the garbage was harmless,
-but now causes the kernel to reject this table.
+However, "jiffies_64" should _not_ be accessed directly. Anything that 
+does so is likely buggy.
 
-Remains the question: do you have any idea from where you got this unusual value?
+But for most data structures, the way to control access is either with 
+proper locking (at which point they aren't volatile any more) or through 
+proper accessor functions (ie "jiffies_64" should generally only be 
+accessed with something that understands about low/high word and update 
+ordering and re-testing).
 
-Andries
+And once you do that proper access function, you should put the volatile 
+_there_ - since THAT is the place that understands what the access 
+requireemnts are, not the compiler.
+
+I repeat: it is the _code_ that knows about volatile rules, not the data
+structure.
+
+> Clearly in some cases gcc does know about volatile and does produce
+> 'the right thing' --- I don't really see why people claim volatile is
+> a bad thing, there are clearly places where we need this and gcc seems
+> to do the right thing.
+
+See above. There are basically _no_ places where the compiler can do the 
+right thing except by pure luck. "Programming-by-luck" may work, but it's 
+not a good idea.
+
+So please tell me where the jiffies64 thing was suddenly correct as a 
+"volatile", and I can almost guarantee you that you were WRONG to mark it 
+volatile. It may work 99% of the time, but since the only correct way to 
+access jiffies_64 is either:
+
+ - knowing that you are the person that updates it (under xtime_lock),
+   thus making it non-volatile
+ - using "get_jiffies_64()", using the proper seq_begin() etc.
+
+But you're right, on a 64-bit architecture, jiffies_64 falls back to the
+"jiffies" case, and there it would be acceptable to make it volatile. Bit 
+since it had better be accessed with "get_jiffies_64()" anyway, you're 
+much better off putting the volatile THERE, and not cause problems for 
+code generation in the places that don't need it.
+
+See? The volatile is (again) wrong on the data structure (jiffies_64), and
+you should have added it to the code (get_jiffies_64).
+
+		Linus

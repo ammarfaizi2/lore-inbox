@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262653AbSI1C4r>; Fri, 27 Sep 2002 22:56:47 -0400
+	id <S262650AbSI1DBm>; Fri, 27 Sep 2002 23:01:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262691AbSI1C4r>; Fri, 27 Sep 2002 22:56:47 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:24471 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262653AbSI1C4q>;
-	Fri, 27 Sep 2002 22:56:46 -0400
-Date: Fri, 27 Sep 2002 19:55:07 -0700 (PDT)
-Message-Id: <20020927.195507.87349906.davem@redhat.com>
-To: kuznet@ms2.inr.ac.ru
-Cc: yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Improvement of Source Address Selection
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200209280258.GAA02712@sex.inr.ac.ru>
-References: <20020927.193541.89132835.davem@redhat.com>
-	<200209280258.GAA02712@sex.inr.ac.ru>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S262652AbSI1DBm>; Fri, 27 Sep 2002 23:01:42 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:55305
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262650AbSI1DBl>; Fri, 27 Sep 2002 23:01:41 -0400
+Subject: Re: Sleeping function called from illegal context...
+From: Robert Love <rml@tech9.net>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Andrew Morton <akpm@digeo.com>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10209271835280.13669-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10209271835280.13669-100000@master.linux-ide.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1033182396.22584.22.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 27 Sep 2002 23:06:36 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: kuznet@ms2.inr.ac.ru
-   Date: Sat, 28 Sep 2002 06:58:22 +0400 (MSD)
+On Fri, 2002-09-27 at 22:04, Andre Hedrick wrote:
 
-   > This only runs at connect time
-   
-   ... and also at ip6_build_xmit(). Connected dgram sockets are marginal.
+> See in trying to move to a spinlock it goes totally south.
+> So now that you know the where, and why ... please go fix.
+> See I am off working with AC on the issues for 2.4.
+> 
+> Also with PREMPT, bah never mind.
 
-I said UDP/RAW.  At least believe that I am this smart :-)
+Sigh... I do not want to start this but this problem has nothing to do
+with preemption and everything to do with you sleeping while holding a
+lock.  It exists whether preempt is on or off.
 
-Point is that current function is not tiny either, so improvement you
-suggest applies both to current code and code after Yoshi's change.
+	Robert Love
+

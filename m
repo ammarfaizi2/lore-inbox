@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129491AbRCHTfI>; Thu, 8 Mar 2001 14:35:08 -0500
+	id <S129524AbRCHTiS>; Thu, 8 Mar 2001 14:38:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129506AbRCHTe6>; Thu, 8 Mar 2001 14:34:58 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:62452 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S129491AbRCHTet>; Thu, 8 Mar 2001 14:34:49 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103081934.f28JYGS05891@webber.adilger.net>
-Subject: Re: kernel BUG doing sysrq-t on 2.4.2-ac14
-In-Reply-To: <NDBBKKONDOBLNCIOPCGHCEEBFEAA.vhou@khmer.cc> from Vibol Hou at "Mar
- 8, 2001 11:06:08 am"
-To: Vibol Hou <vhou@khmer.cc>
-Date: Thu, 8 Mar 2001 12:34:15 -0700 (MST)
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S129525AbRCHTiI>; Thu, 8 Mar 2001 14:38:08 -0500
+Received: from rasputin.trustix.com ([195.139.104.66]:17682 "HELO
+	rasputin.trustix.com") by vger.kernel.org with SMTP
+	id <S129524AbRCHThz>; Thu, 8 Mar 2001 14:37:55 -0500
+Message-ID: <3AA7DFCD.1000502@trustix.com>
+Date: Thu, 08 Mar 2001 20:38:53 +0100
+From: Lars Gaarden <larsg@trustix.com>
+Organization: Trustix AS
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac4 i686; en-US; 0.8) Gecko/20010220
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Microsoft begining to open source Windows 2000?
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E952C3@ATL_MS1>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vibol writes:
-> While testing to see if SYSRQ-T would print the entire tasklist, a kernel
-> bug popped up.  All I have is the tasklist up to the point where the bug
-> showed up.
+Venkatesh Ramamurthy wrote:
 
-Actually, if you look closely, there is an OOPS report in there at the
-end as well.  Unfortunately, since the tasklist output also looks like
-an OOPS, it is basically impossible to extract.
+> Please check out this article. Looks like microsoft know open source is the
+> thing of the future. I would consider that it is a begining step for full
+> blown GPL!!!!
+> 
+> http://www.zdnet.com/enterprise/stories/main/0,10228,2692987,00.html
 
-> SNIP
->        [<c01e071d>] [<c01e079b>] [<c013cd93>] [<c013NceMIf5 W>]a tch<4d>og[<
-> cde
-> 01t0ec95t5ed7> L]O CK
-> UPh ottnp Cd PU  0 ,  reSg is7FteFFrsF:FF
+I'm not so sure about that. It is going to be heavily NDA'ed
+and look-but-not-touch.
 
-You can see it says "NMI Watchdog detected LOCKUP on CPU 0, registers:"
+Enterprise customers are beginning to see the value of having
+source available, and MS is doing this as a half-baked
+solution to give decition makers one less reason for switching
+to Open Source.
 
-> [< c0109557>] kernel BUG at printk.c:327!
+This also gives MS an opportunity to do PR. Expect some "We
+provide our customers with the good benefits of Open Source
+without the danger of fragmentation and market confusion" from
+their marketroids soon.
 
-It may be that if the tasklist is too long, and it runs with interrupts
-disabled, that this will trigger the NMI watchdog timer.  Since I don't
-know anything about the console, I can't help.
+Compare this to the release of W98SE. The main reason for SE was
+to stop home users being introduced to Linux because of ipmasq'ing.
 
-Cheers, Andreas
+You can accuse MS of a lot of things. Being stupid and ignorant
+of the market is not one of them.
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+LarsG
+

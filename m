@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276779AbRJKTnR>; Thu, 11 Oct 2001 15:43:17 -0400
+	id <S276786AbRJKTnh>; Thu, 11 Oct 2001 15:43:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276768AbRJKTnH>; Thu, 11 Oct 2001 15:43:07 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54022 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276763AbRJKTmw>; Thu, 11 Oct 2001 15:42:52 -0400
-Subject: Re: [PATCH] tainting FAQ
-To: rgooch@ras.ucalgary.ca (Richard Gooch)
-Date: Thu, 11 Oct 2001 20:44:51 +0100 (BST)
-Cc: moz@compsoc.man.ac.uk (John Levon), alan@redhat.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200110111808.f9BI8Ls04654@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at Oct 11, 2001 12:08:21 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S276768AbRJKTn1>; Thu, 11 Oct 2001 15:43:27 -0400
+Received: from adsl-64-109-204-69.milwaukee.wi.ameritech.net ([64.109.204.69]:5873
+	"HELO alphaflight.d6.dnsalias.org") by vger.kernel.org with SMTP
+	id <S276763AbRJKTnM>; Thu, 11 Oct 2001 15:43:12 -0400
+Date: Thu, 11 Oct 2001 14:43:42 -0500
+From: "M. R. Brown" <mrbrown@0xd6.org>
+To: Tim Moore <timothymoore@bigfoot.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Which kernel (Linus or ac)?
+Message-ID: <20011011144342.B590@0xd6.org>
+In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15rllE-0004TZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <3BC5E152.3D81631@bigfoot.com>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan: you're the instigator of this scheme. How widely do you want to
-> publish what this is really about? I note that lwn.net had a paragraph
-> on the tainting scheme.
+* Tim Moore <timothymoore@bigfoot.com> on Thu, Oct 11, 2001:
 
-Well for the moment Im working on the basis that the problem isnt people
-trying to con anyone, its people who don't know better - and thats backed
-up by my bug queue.
+> Any special reason to use 2.4?  I only use 2.2.19p8 and 2.2.20p10 where
+> stability is important.
+> 
 
-Alan
+Before you turn this into another useless 2.2 vs. 2.4 thread, let me ask
+you a simple question:
+
+    Where the fsck is iptables in 2.2.20 ?
+
+*Read* people, how hard is it?  The original post follows, note the poster
+wanting "recent iptables", not 2.2.x.
+
+M. R.
+
+> 
+> jkp@riker.nailed.org wrote:
+> > 
+> > I'm presently running 2.4.8 on a machine. The VM on this is not terribly
+> > good (swaps a lot with seemlingly plenty of physical memory).
+> > I'm considering going to an -ac kernel, but I need recent iptables. Is the
+> > iptables code up to date in -ac?
+> > Also, which -ac do people recommend? I've beent trying to follow lkm, but
+> > I'm somewhat confused at this point.
+> > 
+> > The box:
+> > 
+> > P200MMX 64MB
+> > 
+> > It's used as a firewall and a ssh login/through server for external connections.
+> 

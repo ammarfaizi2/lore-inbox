@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265743AbUFZCYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266923AbUFZC1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265743AbUFZCYy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 22:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266924AbUFZCYy
+	id S266923AbUFZC1O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 22:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266924AbUFZC1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 22:24:54 -0400
-Received: from ns1.skjellin.no ([80.239.42.66]:19126 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S265743AbUFZCYs (ORCPT
+	Fri, 25 Jun 2004 22:27:14 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:64708 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S266923AbUFZC05 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 22:24:48 -0400
-Message-ID: <40DCDDF4.7030509@tomt.net>
-Date: Sat, 26 Jun 2004 04:22:44 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: "David S. Miller" <davem@redhat.com>
-Subject: Re: TCP-RST Vulnerability - Doubt
-References: <40DC9B00@webster.usu.edu> <20040625150532.1a6d6e60.davem@redhat.com>
-In-Reply-To: <20040625150532.1a6d6e60.davem@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 25 Jun 2004 22:26:57 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Jeff Moyer <jmoyer@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] teach netconsole how to do syslog 
+In-reply-to: Your message of "Fri, 25 Jun 2004 14:11:01 EST."
+             <20040625191101.GD25826@waste.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 26 Jun 2004 12:26:46 +1000
+Message-ID: <25929.1088216806@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
->>Could you kindly share your views regarding what Linux has done to its stack 
->>to overcome this vulnerability as it will be of great help to my research.
-> 
-> 
-> We have done nothing, and there are no plans to implement any workaround
-> for this problem.
-> 
-> RFC2385 MD5 hashing support is going in soon, and for the application where
-> the vulnerability actually matters (BGP sessions between backbone routers)
-> MD5 clears that problem right up and they're all using MD5 protection already
-> anyways.
+On Fri, 25 Jun 2004 14:11:01 -0500, 
+Matt Mackall <mpm@selenic.com> wrote:
+>Yep, we get one UDP packet per printk currently, which works for most
+>things, but not everything. This could be changed to a buffered
+>approach, but that breaks one of my favorite debugging techniques -
+>adding an alphabet soup of single-character printks to trace tricky
+>call paths. 
+>
+>So we could add a __printk that doesn't flush to outputs for stuff
+>like the above, or just live with it.
 
-Now you got me curious :-)
+Other way round.  Keep printk as is and use a buffered approach for
+printk over netconsole.  netconsole gets complete lines which is what
+you want 99.9% of the time.  Add __printk or printk_unbuffered for the
+.1% of debugging output that really wants unbuffered output.
 
-I have not seen anything conclusive on this yet. How sensitive is Linux 
-to the attack? Some say it deals with it better than others did before 
-they got "fixed", but with no hard evidence or a sensible explanation.
-
-Lets assume you're on a FastEthernet pipe capable of delivering 144kpps. 
-How "hard" would it be to exploit it in such a scenario, given we know 
-the source port and approximate system time used on one of the ends?
-
-Sure, on a FastEthernet your pipe is toast if someone really wants your 
-arse anyway, but you don't want connections over other pipes, or 
-internally, to die during such an attack.
-
--- 
-Cheers,
-André Tomt

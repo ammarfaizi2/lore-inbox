@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266831AbUGLNkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266832AbUGLNoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266831AbUGLNkq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 09:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266834AbUGLNkq
+	id S266832AbUGLNoS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 09:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266828AbUGLNoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 09:40:46 -0400
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:24656 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266831AbUGLNkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 09:40:40 -0400
-Message-ID: <40F294D2.3010203@yahoo.com.au>
-Date: Mon, 12 Jul 2004 23:40:34 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lars Marowsky-Bree <lmb@suse.de>
-CC: Arjan van de Ven <arjanv@redhat.com>, Daniel Phillips <phillips@istop.com>,
-       sdake@mvista.com, David Teigland <teigland@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-References: <1089501890.19787.33.camel@persist.az.mvista.com> <200407111544.25590.phillips@istop.com> <20040711210624.GC3933@marowsky-bree.de> <1089615523.2806.5.camel@laptop.fenrus.com> <20040712100547.GF3933@marowsky-bree.de> <20040712101107.GA31013@devserv.devel.redhat.com> <20040712102124.GH3933@marowsky-bree.de> <20040712102818.GB31013@devserv.devel.redhat.com> <20040712115003.GV3933@marowsky-bree.de> <20040712120127.GB16604@devserv.devel.redhat.com> <20040712131312.GY3933@marowsky-bree.de>
-In-Reply-To: <20040712131312.GY3933@marowsky-bree.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jul 2004 09:44:17 -0400
+Received: from gerf.org ([204.42.16.60]:18137 "EHLO gerf.org")
+	by vger.kernel.org with ESMTP id S266832AbUGLNoL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 09:44:11 -0400
+Date: Mon, 12 Jul 2004 08:44:07 -0500
+From: The Doctor What <docwhat@gerf.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7 - Oops when unsuspending on PPC iBook
+Message-ID: <20040712134407.GA27486@gerf.org>
+Mail-Followup-To: The Doctor What <docwhat@gerf.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org
+References: <20040709233608.GC21865@gerf.org> <1089595978.1876.12.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089595978.1876.12.camel@gaston>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux/2.4.18-1-686 (i686)
+X-GPG-Key: http://docwhat.gerf.org/gpg.key
+X-GPG-Fingerprint: 23BC 0F41 9DB5 A70B B43C  3BE1 9090 E4B3 720D 3195
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars Marowsky-Bree wrote:
-> On 2004-07-12T14:01:27,
->    Arjan van de Ven <arjanv@redhat.com> said:
+* Benjamin Herrenschmidt (benh@kernel.crashing.org) [040711 20:32]:
+> On Fri, 2004-07-09 at 18:36, The Doctor What wrote:
+> > See the attached config and oops.  I didn't think I had i2c compiled
+> > in, but I guess I do. :-/
+> > 
+> > It's a stock 2.6.7 kernel except for the orinoco/hermes/airport
+> > drivers.  I can test this without them, if someone really thinks
+> > that that is the problem.
+> > 
+> > Any thoughts?  I'm having a problem getting my iBook (blueberry
+> > 300Mhz iBook1) to suspend correctly (the display light doesn't go
+> > off).  This use to work.  I'd prefer not to go back to 2.4...
 > 
-> 
->>I'm not convinced that's a good idea, in that it exposes what is
->>basically VM internals to userspace, which then would become a
->>set-in-stone interface....
-> 
-> 
-> But I'm also not a big fan of moving all HA relevant infrastructure into
-> the kernel. Membership and DLM are the first ones; then follows
-> messaging (and reliable and globally ordered messaging is somewhat
-> complex - but if one node is slow, it will hurt global communication
-> too, so...), next someone argues that a node always must be able to
-> report which resources it holds and fence other nodes even under memory
-> pressure, and there goes the cluster resource manager and fencing
-> subsystem into the kernel too etc...
-> 
-> Where's the border? 
-> 
-> And what can we do to make critical user-space infrastructure run
-> reliably and with deterministic-enough & low latency instead of moving
-> it all into the kernel?
-> 
-> Yes, the kernel solves these problems right now, but is that really the
-> path we want to head down? Maybe it is, I'm not sure, afterall we also
-> have the entire regular network stack in the kernel, but maybe also it
-> is not.
-> 
+> The ooops backtrace isn't very readable... Do you use Alsa or
+> dmasound ? It could be an alsa problem...
 
-I don't see why it would be a problem to implement a "this task
-facilitates page reclaim" flag for userspace tasks that would take
-care of this as well as the kernel does.
+Yes, I use ALSA, which is compiled into the kernel.  If it is alsa, how would I go about tracing the problem.
 
-There would probably be a few technical things to work out (like
-GFP_NOFS), but I think it would be pretty trivial to implement.
+------------8<------------->8------------
+Advanced Linux Sound Architecture Driver Version 1.0.4 (Mon May 17 14:31:44 2004 UTC).
+ALSA device list:
+   #0: PowerMac DACA (Dev 6) Sub-frame 0
+------------8<------------->8------------
+
+Here is another oops straight from my system's logs.  This one isn't
+pbbuttonsd, but is alsamixer.  Would compling ALSA as modules help? I could
+then unload them when suspending...
+------------8<------------->8------------
+Jul  9 20:23:55 localhost kernel: Oops: kernel access of bad area, sig: 11 [#2]
+Jul  9 20:23:55 localhost kernel: PREEMPT 
+Jul  9 20:23:55 localhost kernel: NIP: C01B8AE0 LR: C02016AC SP: C72F1E70 REGS: c72f1dc0 TRAP: 0300    Not tainted
+Jul  9 20:23:55 localhost kernel: MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+Jul  9 20:23:55 localhost kernel: DAR: 00000006, DSISR: 40000000
+Jul  9 20:23:55 localhost kernel: TASK = c4d959c0[4650] 'alsamixer' THREAD: c72f0000Last syscall: 54 
+Jul  9 20:23:55 localhost kernel: GPR00: C02016AC C72F1E70 C4D959C0 00000000 00000003 00000004 00000000 00000003 
+Jul  9 20:23:55 localhost kernel: GPR08: 00000002 00000001 D3BF9BBC 00000004 240004A4 10020D38 00000012 100A0000 
+Jul  9 20:23:55 localhost kernel: GPR16: 00000000 1009475C 00000000 10090000 00000000 10020000 00000000 10020000 
+Jul  9 20:23:55 localhost kernel: GPR24: D3FFACC4 D3FD0E00 00000000 FFFFFFF3 7FFFECB0 C0201638 C4156000 00000001 
+Jul  9 20:23:55 localhost kernel: NIP [c01b8ae0] i2c_smbus_write_byte_data+0x1c/0x4c
+Jul  9 20:23:55 localhost kernel: LR [c02016ac] daca_put_amp+0x74/0x8c
+Jul  9 20:23:55 localhost kernel: Call trace:
+Jul  9 20:23:56 localhost kernel:  [c02016ac] daca_put_amp+0x74/0x8c
+Jul  9 20:23:56 localhost kernel:  [c01c9ce8] snd_ctl_elem_write+0x26c/0x2bc
+Jul  9 20:23:56 localhost kernel:  [c0073bb8] sys_ioctl+0x140/0x358
+Jul  9 20:23:56 localhost kernel:  [c0007880] ret_from_syscall+0x0/0x44
+------------8<------------->8------------
+
+Does that help?
+
+Ciao!
+
+-- 
+	Operi Manos Laven. - Workers must wash hands.
+
+The Doctor What: <fill in the blank>             http://docwhat.gerf.org/
+docwhat *at* gerf *dot* org                                        KF6VNC

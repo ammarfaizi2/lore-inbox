@@ -1,50 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265672AbUEZNsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265727AbUEZNxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265672AbUEZNsu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 09:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265700AbUEZNsu
+	id S265727AbUEZNxI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 09:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbUEZNxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 09:48:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20132 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265672AbUEZNsq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 09:48:46 -0400
-Date: Wed, 26 May 2004 14:48:44 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
-Cc: Andi Kleen <ak@muc.de>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       marcelo.tosatti@cyclades.com,
-       "Carbonari, Steven" <steven.carbonari@intel.com>,
-       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>
-Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
-Message-ID: <20040526134844.GR29154@parcelfarce.linux.theplanet.co.uk>
-References: <6B09584CC3D2124DB45C3B592414FA83021EB9E5@bgsmsx402.gar.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6B09584CC3D2124DB45C3B592414FA83021EB9E5@bgsmsx402.gar.corp.intel.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 26 May 2004 09:53:08 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:6911 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265733AbUEZNwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 09:52:13 -0400
+From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
+To: "'Matthias Schniedermeyer'" <ms@citd.de>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: why swap at all?
+Date: Wed, 26 May 2004 06:55:18 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <20040526123740.GA14584@citd.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Thread-Index: AcRDHz9nBfIUe0YPTWe69s0PwXqN3wACSwhQ
+Message-Id: <S265733AbUEZNwN/20040526135213Z+639@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 26, 2004 at 11:59:43AM +0530, Durairaj, Sundarapandian wrote:
-> I think its important that we have this patch for 2.4 kernel as well, as
-> it will enable the PCI express devices to access extended config space
-> (above 256 bytes), where all Advance feature of PCI Express config
-> registers resides.
+Well for mmapped pages, man madvise. Specifically look at MADV_SEQUENTIAL
+and MADV_DONTNEED.
 
-That's not a good reason to add it to 2.4.  If people want access to
-that advanced stuff, they can upgrade to 2.6.
+--Buddy
 
-By the way, are you working on using any of these advanced features yet?
-I'm waiting until I actually have some hardware in my hands before I
-do anything.
+http://lxr.linux.no/source/mm/madvise.c?v=2.6.5#L92
+ 
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Matthias
+Schniedermeyer
+Sent: Wednesday, May 26, 2004 5:38 AM
+To: Nick Piggin
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+
+On Wed, May 26, 2004 at 09:19:40PM +1000, Nick Piggin wrote:
+> Matthias Schniedermeyer wrote:
+> >On Wed, May 26, 2004 at 08:33:28PM +1000, Nick Piggin wrote:
+> 
+> OK, this is obviously bad. Do you get this behaviour with 2.6.5
+> or 2.6.6? If so, can you strace the program while it is writing
+> an ISO? (just send 20 lines or so). Or tell me what program you
+> use to create them and how to create one?
+
+To use other words, this is the typical case where a "hint" would be
+useful.
+
+program to kernel: "i read ONCE though this file caching not useful".
+
+The last thing i knew in this area is that there exist a thing to tell
+the kernel to drop all cache after the file is closed. (IIRC!)
+
+But this doesn't help in this case as the image-file is up to 4,4GB in
+whole which means that it ALONE can fill up the whole cache. Taking
+aside the files the image was created from, which can (with a size of up
+to 2GB (size-limit of iso9660-filesystem/linux-kernel)) also fill a lot
+of cache until they are closed.
+
+(The/My) typical case is this.
+1 create image-file
+2 remove source-files
+3 burn image
+4 remove image-file
+
+Step 1 and 3 trash the cache without ANY positive effect.
+
+
+
+Bis denn
 
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

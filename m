@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266064AbUAFFVL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 00:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266065AbUAFFVL
+	id S265830AbUAFFOd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 00:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbUAFFOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 00:21:11 -0500
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:13139 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266064AbUAFFVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 00:21:08 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] psmouse info in 2.6.1-rc1
-Date: Tue, 6 Jan 2004 00:21:02 -0500
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0401051711170.23750@student.dei.uc.pt> <200401051317.23795.dtor_core@ameritech.net> <Pine.LNX.4.58.0401051827120.23750@student.dei.uc.pt>
-In-Reply-To: <Pine.LNX.4.58.0401051827120.23750@student.dei.uc.pt>
+	Tue, 6 Jan 2004 00:14:33 -0500
+Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:62594
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S265830AbUAFFOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 00:14:32 -0500
+Date: Tue, 6 Jan 2004 00:13:43 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 vs. vga option
+In-Reply-To: <173a01c3cceb$0432e110$43ee4ca5@DIAMONDLX60>
+Message-ID: <Pine.LNX.4.58.0401060008390.3405@montezuma.fsmlabs.com>
+References: <173a01c3cceb$0432e110$43ee4ca5@DIAMONDLX60>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401060021.02081.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 January 2004 01:29 pm, Marcos D. Marado Torres wrote:
-> > It is psmouse.proto=imps if psmouse is built in the kernel and
-> > proto=imps if psmouse is compiled as a module. I mentioned only the
-> > first form because I assumed that most people have it built-in.
+On Sun, 28 Dec 2003, Norman Diamond wrote:
+
+> On a machine with a Neomagic NM2200 [MagicGraph 256AV] VGA controller, under
+> 2.6.0, boot parameter vga=0x317 causes a blank screen and might be hanging
+> the entire machine.  There is no response to Ctrl-Alt-Del.  Holding the
+> power switch for 4 seconds results in a warning beep from the BIOS and then
+> power down.
 >
-> Weird: I have it built in the kernel and need to do proto=imps and not
-> psmouse.proto=imps ...
+> This is very similar to problems that were reported during 2.6.0-test days,
+> with an older Neomagic chip and smaller screen.  I don't recall if
+> Ctrl-Alt-Del might have yielded a reboot at that time.
 >
+> As always, this can be fixed by booting 2.4.20.  Or by omitting the vga=
+> parameter.
+>
+> Oddly, I have found some combination of drivers to compile as built-in and
+> some to compile as modules, so that early in the boot sequence the screen
+> automatically switches from 80x25 to somewhere around 128x40 even without
+> the vga= parameter.  No free penguin though.
 
-Oh, i see it now... The -mm tree has one obsolete patch that screws up
-psmouse module and drops the prefix.
+This sounds similar to;
 
-Andrew,
+http://bugzilla.kernel.org/show_bug.cgi?id=1458
 
-could you please drop the psmouse-parameter-parsing-fix.patch from your
-tree as with Vojtech's blessing we are now going into other direction
-(modulename.option=value for built-in components and option=value for
-modules).
-
-Dmitry
+I just got back from holiday so i'll look further into it, feel free to
+add yourself to the Cc list for the bug.

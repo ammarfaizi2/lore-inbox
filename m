@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131933AbQKQKzI>; Fri, 17 Nov 2000 05:55:08 -0500
+	id <S131881AbQKQKyH>; Fri, 17 Nov 2000 05:54:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131946AbQKQKy7>; Fri, 17 Nov 2000 05:54:59 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:65276 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S131933AbQKQKyu>; Fri, 17 Nov 2000 05:54:50 -0500
-Date: Fri, 17 Nov 2000 12:24:33 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Jacob Luna Lundberg <jacob@velius.chaos2.org>
+	id <S131919AbQKQKxs>; Fri, 17 Nov 2000 05:53:48 -0500
+Received: from astrid2.nic.fr ([192.134.4.2]:34052 "EHLO astrid2.nic.fr")
+	by vger.kernel.org with ESMTP id <S131881AbQKQKxh>;
+	Fri, 17 Nov 2000 05:53:37 -0500
+Date: Fri, 17 Nov 2000 11:23:33 +0000
+From: Francois romieu <romieu@ensta.fr>
+To: Dan Aloni <karrde@callisto.yi.org>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH (2.4)] atomic use count for proc_dir_entry
-Message-ID: <20001117122433.I703@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.21.0011170905030.19287-100000@callisto.yi.org> <Pine.LNX.4.21.0011170026130.10109-100000@velius.chaos2.org>
+Message-ID: <20001117112333.D839@nic.fr>
+Reply-To: Francois romieu <romieu@ensta.fr>
+In-Reply-To: <Pine.LNX.4.21.0011162320230.17038-100000@callisto.yi.org> <Pine.LNX.4.21.0011171015270.19287-100000@callisto.yi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0011170026130.10109-100000@velius.chaos2.org>; from jacob@velius.chaos2.org on Fri, Nov 17, 2000 at 12:35:03AM -0800
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0011171015270.19287-100000@callisto.yi.org>; from karrde@callisto.yi.org on Fri, Nov 17, 2000 at 10:37:39AM +0200
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2000 at 12:35:03AM -0800, Jacob Luna Lundberg wrote:
-> > atomic_dec_and_test() returns true.
-> 
-> Indeed, after studying the asm in question I think I see how it ticks.
-> What is the reasoning behind reversing the result of the test instead of
-> returning the new value of the counter?
+CPU A: assume de->count = 1 (in de_put)
+fs/proc/inode.c::44 if (!--de->count) {
+de->count = 0
 
-The full name of this operation is: "Decrement the value given
-and test the result for equality with zero in one atomic operation".
+CPU B: (in remove_proc_entry)
+fs/proc/generic.c::577         if (!de->count)
+fs/proc/generic.c::578             free_proc_entry(de);
 
-So basically: 
+CPU A: (in de_put)
+fs/proc/inode.c::45 if (de->deleted) { <-- dereferencing kfreed pointer
 
-#define dec_and_test(i) ( (--i) ? 0 : 1)
+What does protect us from the preceding if lock_kernel is thrown ?
 
-but atomically.
-
-This is implemented in hardware for some archs and a required
-operation for proper and fast refcounting.
-
-Regards
-
-Ingo Oeser
 -- 
-To the systems programmer, users and applications
-serve only to provide a test load.
-<esc>:x
+Ueimor
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

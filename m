@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262031AbUBWUOb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 15:14:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbUBWUOb
+	id S262030AbUBWUNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 15:13:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbUBWUNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 15:14:31 -0500
-Received: from main.gmane.org ([80.91.224.249]:8383 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262031AbUBWUNv (ORCPT
+	Mon, 23 Feb 2004 15:13:16 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:59176 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S262030AbUBWUNL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 15:13:51 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Juha Pahkala <juhis@trinity.is-a-geek.com>
-Subject: Re: matroxfb not working after trying to upgrade to 2.6.3
-Date: Mon, 23 Feb 2004 20:13:48 +0000 (UTC)
-Message-ID: <loom.20040223T210849-45@post.gmane.org>
-References: <6801343D94@vcnet.vc.cvut.cz>
+	Mon, 23 Feb 2004 15:13:11 -0500
+Date: Mon, 23 Feb 2004 12:13:07 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: jamie@shareable.org, hjlipp@web.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
+Message-Id: <20040223121307.36baaf0a.pj@sgi.com>
+In-Reply-To: <20040223173446.GA2830@pclin040.win.tue.nl>
+References: <20040216133418.GA4399@hobbes>
+	<20040222020911.2c8ea5c6.pj@sgi.com>
+	<20040222155410.GA3051@hobbes>
+	<20040222125312.11749dfd.pj@sgi.com>
+	<20040222225750.GA27402@mail.shareable.org>
+	<20040222214457.6f8d2224.pj@sgi.com>
+	<20040223142215.GB30321@mail.shareable.org>
+	<20040223173446.GA2830@pclin040.win.tue.nl>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 213.243.128.98 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec <VANDROVE <at> vc.cvut.cz> writes:
+ If there is such nonblank text then for SysVR4,
+ SunOS, Solaris, IRIX, HPUX, AIX, Unixware, Linux, OpenBSD, Tru64
+ this group consists of precisely one argument.
+ FreeBSD, BSD/OS, BSDI split the text
 
-> > CONFIG_FB_MATROX=m
-> 
-> Do not build it as a module. It is not going to work in usual configurations.
-
-Building FB_MATROX into the kernel fixed the problem, so thanks alot Petr for
-the quick help!!
-
-> What reports 'matroxset -f /dev/fb0 -m' and 'matroxset -f /dev/fb1 -m' ?
-> Does not second one report that /dev/fb1 is currently displayed on that
-> output?
-
-The fb0 was mapped to crtc1 and fb1 to crtc2, and even matroxset -m 5 option
-wouldn't unmap them. But everything works now :)
-
-juhis
-
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

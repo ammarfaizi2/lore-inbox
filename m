@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264758AbTFERE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 13:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264759AbTFERE4
+	id S264772AbTFERD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 13:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbTFERD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 13:04:56 -0400
-Received: from netmail01.services.quay.plus.net ([212.159.14.219]:12502 "HELO
-	netmail01.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S264758AbTFEREt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 13:04:49 -0400
-From: "Riley Williams" <Riley@Williams.Name>
-To: "Linus Torvalds" <torvalds@transmeta.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/bus/pci
-Date: Thu, 5 Jun 2003 18:18:20 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCAEEHIEDAA.Riley@Williams.Name>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.44.0306050847410.9939-100000@home.transmeta.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+	Thu, 5 Jun 2003 13:03:26 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:929 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264772AbTFERDY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 13:03:24 -0400
+Date: Thu, 5 Jun 2003 10:18:35 -0700
+From: Greg KH <greg@kroah.com>
+To: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [BK PATCH] PCI and PCI Hotplug changes and fixes for 2.5.70
+Message-ID: <20030605171835.GC5424@kroah.com>
+References: <20030605013147.GA9804@kroah.com> <20030605021452.GA15711@kroah.com> <20030605083815.GA16879@suse.de> <20030605084933.GI2329@kroah.com> <20030605085938.GC16879@suse.de> <20030605090645.GA2887@kroah.com> <20030605091802.GA17356@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030605091802.GA17356@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
+On Thu, Jun 05, 2003 at 10:18:02AM +0100, Dave Jones wrote:
+> 
+> The fact that a tree-wide 'cleanup' like this goes in just a few hours
+> after its posted before chance to comment is another argument, but
+> concentrating on the technical point here, I still think this is a
+> step backwards.
 
- > I don't know about anybody else, but to me a "hose" is a long
- > narrow conduit for water, and a "PCI hose" doesn't much make
- > sense to me.
+Why?  I just got rid of a function (well macro) that isn't even needed
+(as proven by replacing it with an existing function.)  That's
+technically a good thing :)
 
-To me a "PCI hose" is a device used on one of these new-fangled
-water-cooled systems to cool down an overheated PCI bus somewhere.
-Any other use is, at best, broken...
+Now I can agree that some of those replacements could be done with a
+different function call, as almost none of the replacements in the
+driver/* tree really want to walk all of the pci devices in the tree.
+They usually just want to walk all devices of a type of pci device (be
+it capability, or other trait.)  I'd be glad to take changes of this
+sort in the future.
 
-Best wishes from Riley.
----
- * Nothing as pretty as a smile, nothing as ugly as a frown.
+thanks,
 
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.487 / Virus Database: 286 - Release Date: 1-Jun-2003
-
+greg k-h

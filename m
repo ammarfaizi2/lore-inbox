@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317214AbSFKXeR>; Tue, 11 Jun 2002 19:34:17 -0400
+	id <S317253AbSFKXer>; Tue, 11 Jun 2002 19:34:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317253AbSFKXeQ>; Tue, 11 Jun 2002 19:34:16 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:33750 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S317214AbSFKXeP>;
-	Tue, 11 Jun 2002 19:34:15 -0400
-Date: Wed, 12 Jun 2002 01:29:04 +0200
-From: Dave Jones <davej@suse.de>
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.21] compile error
-Message-ID: <20020612012904.B30504@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020611213324.19589.qmail@linuxmail.org>
+	id <S317256AbSFKXeq>; Tue, 11 Jun 2002 19:34:46 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:18958 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S317253AbSFKXep>;
+	Tue, 11 Jun 2002 19:34:45 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Athanasius <Athanasius@miggy.org.uk>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel: request_module[net-pf-10]: fork failed, errno 11 
+In-Reply-To: Your message of "Tue, 11 Jun 2002 14:42:25 +0100."
+             <20020611134225.GD13726@miggy.org.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Wed, 12 Jun 2002 09:34:34 +1000
+Message-ID: <15923.1023838474@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 12, 2002 at 05:33:24AM +0800, Paolo Ciarrocchi wrote:
- > Hi all,
- > I've just tried to compile the 2.5.21,
- > but I got these errors:
- > 
- >    ataraid.c:101: dereferencing pointer to incomplete type
+On Tue, 11 Jun 2002 14:42:25 +0100, 
+Athanasius <Athanasius@miggy.org.uk> wrote:
+>  Ok, a little more investigation:
+>
+>root@bowl:/sbin# cat modprobe-logging 
+>#!/bin/sh
+>
+>echo "`date` `ps axh | wc -l`: $@" >> /var/log/modprobe.log
+>exec /sbin/modprobe $@
+>root@bowl:/sbin# cat /proc/sys/kernel/modprobe 
+>/sbin/modprobe-logging
 
-Old news. ataraid hasn't been touched since the block layer
-first started getting mangling in 2.5, and hence needs quite
-a bit of work.
+You do not need a special modprobe.log script.  Just mkdir
+/var/log/ksymoops and you will get module logging automatically.  man
+insmod, look for ksymoops.
 
-See http://www.codemonkey.org.uk/Linux-2.5.html for this, and more.
+>In /var/log/kern.log:
+>Jun 11 14:36:58 bowl kernel: request_module[net-pf-10]: fork failed, errno 11
+>
+>And in /var/log/modprobe.log:
+>
+>Tue Jun 11 14:36:41 BST 2002     229: -s -k -- net-pf-10
+>Tue Jun 11 14:36:58 BST 2002     228: -s -k -- net-pf-10
+>Tue Jun 11 14:36:58 BST 2002     227: -s -k -- net-pf-10
+>Tue Jun 11 14:37:02 BST 2002     227: -s -k -- net-pf-10
 
-        Dave.
+>/proc/sys/kernel/threads-max is 4095.
+>  Note that ulimit -u is 256, but that's per login instance normally and
+>I'd not have thought a kernel thread goes through PAM anyway...
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+This is weird.  'fork failed' is issued when kernel_thread() fails.
+This means that the fork() syscall for kernel threads is failing,
+before the application has even been started.  The fact that you see
+other modprobes working only shows that multiple requests for net-pf-10
+were issued and some of them got as far as running modprobe but others
+failed.
+

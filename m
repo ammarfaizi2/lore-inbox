@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268824AbRHFP6U>; Mon, 6 Aug 2001 11:58:20 -0400
+	id <S268834AbRHFQGI>; Mon, 6 Aug 2001 12:06:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268823AbRHFP6I>; Mon, 6 Aug 2001 11:58:08 -0400
-Received: from out1.prserv.net ([32.97.166.31]:32453 "EHLO prserv.net")
-	by vger.kernel.org with ESMTP id <S268788AbRHFP55>;
-	Mon, 6 Aug 2001 11:57:57 -0400
+	id <S268835AbRHFQF6>; Mon, 6 Aug 2001 12:05:58 -0400
+Received: from baltazar.tecnoera.com ([200.29.128.1]:23302 "EHLO
+	baltazar.tecnoera.com") by vger.kernel.org with ESMTP
+	id <S268834AbRHFQFq>; Mon, 6 Aug 2001 12:05:46 -0400
+Date: Mon, 6 Aug 2001 12:05:41 -0400 (CLT)
+From: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
+To: Ivan Lotina <lotke@lotke.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptec 2100S support
+In-Reply-To: <01080501430603.13609@xor>
+Message-ID: <Pine.LNX.4.33.0108061204180.3988-100000@baltazar.tecnoera.com>
 MIME-Version: 1.0
-Message-Id: <3B6EBE89.000001.32428@be1.prserv.net>
-Date: Mon, 6 Aug 2001 15:58:01 +0000 (CUT)
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_POLNQL80000000000000"
-From: isnkrnl@attglobal.net
-To: linux-kernel@vger.kernel.org
-Subject: Problems with Natsemi.c (Netgear FA311) and Alpha?
-X-Mailer: Web Mail v2.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_POLNQL80000000000000
-Content-Type: Text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+and now we have the patch for 2.4.6 :)
 
-I just added an FA311 to my SX164 (kernel 2.4.7)
-and there is a bug in it.  I plugged the ethernet
-into a 64bit slot, which is okay as far as I can
-tell, it seems to be recognized by the PCI
-controller and I can get information about the PCI
-device.  When I load the driver it panics during
-the eepro_read();
+ftp://ftp.tecnoera.com/Linux/2100S
 
-Further investigation shows that it reads ioaddr
-from the PCI registers and then it does an ioremap
-of if it the address as reported by PCI is
-something like 0x09978470 (give or take a few
-bytes, I'm at work and forget the exact address) 
-ioremap returns that same address instead of the
-standard 0xfffffffc09978470 like my tulip card
-uses...  Any ideas?  Does alpha use a different
-ioremapper or something?  There is a slight chance
-that it could be the hardware, I've seen a couple
-IDE abnormalities but but other than that the
-system has been a rock with mega-long uptime until
-Saturday when I started mucking with it.
 
-thanks,
-Ian
---------------Boundary-00=_POLNQL80000000000000--
+
+On Sun, 5 Aug 2001, Ivan Lotina wrote:
+
+> Hello,
+> Anyone had success with this scsi raid and linux kernel's > 2.4.3 ?
+>
+> Ivan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

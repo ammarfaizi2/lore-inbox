@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269039AbUJKPAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269020AbUJKPBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269039AbUJKPAc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 11:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269014AbUJKO6C
+	id S269020AbUJKPBm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 11:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269048AbUJKPBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 10:58:02 -0400
-Received: from gprs214-190.eurotel.cz ([160.218.214.190]:32128 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S269039AbUJKO4t (ORCPT
+	Mon, 11 Oct 2004 11:01:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22410 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269043AbUJKO5v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 10:56:49 -0400
-Date: Mon, 11 Oct 2004 16:56:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       David Brownell <david-b@pacbell.net>
-Subject: suspend-to-RAM [was Re: Totally broken PCI PM calls]
-Message-ID: <20041011145628.GA2672@elf.ucw.cz>
-References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org> <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102102140.3897@ppc970.osdl.org> <16746.2820.352047.970214@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410110739150.3897@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410110739150.3897@ppc970.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 11 Oct 2004 10:57:51 -0400
+Date: Mon, 11 Oct 2004 07:57:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Brice.Goglin@ens-lyon.org
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
+In-Reply-To: <416A4D67.9070108@ens-lyon.fr>
+Message-ID: <Pine.LNX.4.58.0410110752380.3897@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
+ <416A4D67.9070108@ens-lyon.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Are you using suspend-to-ram or suspend-to-disk?
+
+On Mon, 11 Oct 2004, Brice Goglin wrote:
 > 
-> Suspend-to-disk. suspend-to-ram still doesn't work for me (never has, oh,
-> well.. Slow progress).
+> Well, I have one (N600c).
+> What am I supposed to see ? Is there anything special to do ?
 
-Which machine is that, btw? Evo N620c has probably BIOS/firmware bug
-that kills machine on attempt to enter S3 or S4. It takes pressing
-power button 3 times (!) to get machine back.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Different Evo, different BIOS, different AML bug. You might try to update 
+your BIOS, it might be fixed.
+
+> I don't know exactly how fan control is supposed to be fixed.
+> Automatic wakeup/stop of these fans depending on the temperature
+> was already working.
+
+It wasn't on the N620c.. That one had errors like
+
+    ACPI-1133: *** Error: Method execution failed [\_TZ_.C202] (Node c1926af0), AE_AML_NO_RETURN_VA
+    ACPI-1133: *** Error: Method execution failed [\_TZ_.C20C._STA] (Node c1926cd4), AE_AML_NO_RETU
+
+but yours are different:
+
+> By the way, I still see these errors during the boot, don't know if it's
+> supposed to be fixed :
+> 
+>   psparse-1133: *** Error: Method execution failed [\_SB_.C03E.C053.C0D1.C12E] (Node e7f9a3a8), AE_AML_UNINITIALIZED_LOCAL
+>   psparse-1133: *** Error: Method execution failed [\_SB_.C03E.C053.C0D1.C13D] (Node e7f9bd68), AE_AML_UNINITIALIZED_LOCAL
+>   psparse-1133: *** Error: Method execution failed [\_SB_.C19F._BTP] (Node e7fa3348), AE_AML_UNINITIALIZED_LOCAL
+
+Have you made a acpi bugzilla entry for this?
+
+		Linus

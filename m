@@ -1,129 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265998AbTBPJFx>; Sun, 16 Feb 2003 04:05:53 -0500
+	id <S266064AbTBPJT4>; Sun, 16 Feb 2003 04:19:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266020AbTBPJFx>; Sun, 16 Feb 2003 04:05:53 -0500
-Received: from [66.62.77.7] ([66.62.77.7]:4827 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id <S265998AbTBPJFv>;
-	Sun, 16 Feb 2003 04:05:51 -0500
-Subject: 2.5.61+ (BK current) compile failures
-From: Dax Kelson <dax@gurulabs.com>
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 16 Feb 2003 02:15:52 -0700
-Message-Id: <1045386953.1700.43.camel@mentor>
+	id <S266091AbTBPJT4>; Sun, 16 Feb 2003 04:19:56 -0500
+Received: from packet.digeo.com ([12.110.80.53]:49608 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266064AbTBPJTz>;
+	Sun, 16 Feb 2003 04:19:55 -0500
+Date: Sun, 16 Feb 2003 01:30:29 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, zwane@holomorphy.com,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: tbench as a load - DDOS attack?
+Message-Id: <20030216013029.0aa71376.akpm@digeo.com>
+In-Reply-To: <200302161007.25149.kernel@kolivas.org>
+References: <200302161007.25149.kernel@kolivas.org>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Feb 2003 09:29:44.0240 (UTC) FILETIME=[F090D300:01C2D59D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This list isn't as big as it used to be, Alan recent round of SCSI fixes
-shortened this list quite a bit. 
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> 
+> Zwane M suggested using tbench as a load to test one of his recent patches and 
+> gave me the idea to try using tbench_load in contest. Here are the first set 
+> of results I got while running tbench 4 continuously (uniprocessor machine):
+> 
+> tbench_load:
+> Kernel         [runs]   Time    CPU%    
+> test2420            1   180     38.9    
+> test2561            1   970     7.7   
+> 
+> This is a massive difference. Sure tbench was giving better numbers on 2.5.61 
+> but it caused a massive slowdown. I wondered whether this translates into 
+> being more susceptible to ping floods or DDOS attacks? You should have seen 
+> tbench 16 - 3546 seconds!
+> 
 
-However, trying to compile the following code, modular, still fails. 
+Yes, something is wrong with the CPU scheduler.  Simple test case:
 
-drivers/char/riscom8.c 
-drivers/char/isicom.c 
-drivers/char/esp.c 
-drivers/char/specialix.c 
-drivers/media/video/zr36120.c 
-drivers/media/video/zr36067.c 
-drivers/net/fc/iph5526.c 
-drivers/net/wan/sdlamain.c 
-drivers/net/rcpci45.c 
-drivers/net/defxx.c 
-drivers/scsi/inia100.c 
-drivers/scsi/cpqfcTSinit.c 
-drivers/scsi/ini9100u.c 
-drivers/scsi/pci2000.c 
-drivers/scsi/pci2220i.c 
-drivers/scsi/psi240i.c 
-drivers/scsi/dpt_i2o.c 
-drivers/scsi/aha152x.c 
-drivers/scsi/eata_dma.c 
-drivers/scsi/tmscsim.c 
-drivers/scsi/AM53C974.c
-drivers/scsi/gdth.c
-drivers/scsi/pcmcia/aha152x_stub.c
-drivers/scsi/pcmcia/nsp_cs.c
+	./tbench_srv &
+	while true
+	do
+		./tbench 4
+	done &
+	cd /usr/src/util-linux
+	time make -j4
 
-Other errors:
+The tbench activity takes the time to compile util-linux from 13 second to
+133 seconds.
 
-*** Warning: Can't handle class_mask in drivers/serial/8250_pci:0001
-*** Warning: Can't handle class_mask in drivers/serial/8250_pci:0002
-*** Warning: Can't handle class_mask in drivers/serial/8250_pci:0004
-*** Warning: Can't handle class_mask in drivers/serial/8250_pci:0008
-*** Warning: Can't handle class_mask in drivers/serial/8250_pci:FFFF00
-*** Warning: Can't handle class_mask in drivers/serial/8250_pci:FFFF00
-*** Warning: Can't handle class_mask in drivers/serial/8250_pci:FFFF00
-*** Warning: Can't handle class_mask in drivers/net/acenic:FFFF00
-*** Warning: Can't handle class_mask in drivers/net/acenic:FFFF00
-*** Warning: Can't handle class_mask in drivers/net/acenic:FFFF00
-*** Warning: Can't handle class_mask in drivers/net/acenic:FFFF00
-*** Warning: Can't handle class_mask in drivers/net/acenic:FFFF00
-*** Warning: Can't handle class_mask in drivers/net/acenic:FFFF00
-*** Warning: Can't handle class_mask in drivers/net/acenic:FFFF00
-*** Warning: Can't handle class_mask in drivers/net/acenic:FFFF00
-*** Warning: Can't handle class_mask in
-drivers/scsi/aic7xxx/aic79xx:FFFF00
-*** Warning: Can't handle class_mask in
-drivers/scsi/aic7xxx/aic7xxx:FFFF00
-*** Warning: Can't handle class_mask in
-drivers/scsi/aic7xxx/aic7xxx:FFFF00
-*** Warning: Can't handle class_mask in drivers/net/epic100:FFFF00
-*** Warning: Can't handle class_mask in sound/oss/maestro3:FFFF00
-*** Warning: Can't handle class_mask in sound/oss/maestro3:FFFF00
-*** Warning: Can't handle class_mask in sound/oss/maestro3:FFFF00
-*** Warning: Can't handle class_mask in drivers/ieee1394/ohci1394:FFFFFF
-*** Warning: Can't handle class_mask in sound/pci/snd-es1968:FFFF00
-*** Warning: Can't handle class_mask in sound/pci/snd-es1968:FFFF00
-*** Warning: Can't handle class_mask in sound/pci/snd-es1968:FFFF00
-*** Warning: Can't handle class_mask in sound/pci/snd-fm801:FFFF00
-*** Warning: Can't handle class_mask in sound/pci/snd-maestro3:FFFF00
-*** Warning: Can't handle class_mask in sound/pci/snd-maestro3:FFFF00
-*** Warning: Can't handle class_mask in sound/pci/snd-maestro3:FFFF00
-*** Warning: Can't handle class_mask in sound/pci/snd-maestro3:FFFF00
-*** Warning: Can't handle class_mask in sound/pci/snd-maestro3:FFFF00
-*** Warning: Can't handle class_mask in sound/pci/snd-maestro3:FFFF00
-*** Warning: Can't handle class_mask in sound/pci/snd-maestro3:FFFF00
-*** Warning: Can't handle class_mask in sound/pci/snd-maestro3:FFFF00
-*** Warning: "page_states__per_cpu" [fs/xfs/xfs.ko] has no CRC!
-*** Warning: "platform_bus_type" [drivers/pcmcia/tcic.ko] undefined!
-*** Warning: "schedule_task" [drivers/char/stallion.ko] undefined!
-*** Warning: "__udivdi3" [drivers/net/sk98lin/sk98lin.ko] undefined!
-*** Warning: "net_statistics" [net/sctp/sctp.ko] has no CRC!
-*** Warning: "ip_statistics" [net/sctp/sctp.ko] has no CRC!
-*** Warning: "icmp_statistics" [net/sctp/sctp.ko] has no CRC!
-*** Warning: "pcibios_find_device" [drivers/char/rocket.ko] undefined!
-*** Warning: "page_states__per_cpu" [fs/reiserfs/reiserfs.ko] has no
-CRC!
-*** Warning: "page_states__per_cpu" [fs/nfs/nfs.ko] has no CRC!
-*** Warning: "schedule_task" [drivers/char/istallion.ko] undefined!
-*** Warning: "devfs_remove" [drivers/char/ip2main.ko] undefined!
-*** Warning: "set_fs_pwd" [fs/intermezzo/intermezzo.ko] undefined!
-*** Warning: "set_fs_root" [fs/intermezzo/intermezzo.ko] undefined!
-*** Warning: "platform_bus_type" [drivers/pcmcia/i82365.ko] undefined!
-*** Warning: "in_interrupt" [drivers/scsi/g_NCR5380.ko] undefined!
-*** Warning: "in_interrupt" [drivers/scsi/g_NCR5380_mmio.ko] undefined!
-*** Warning: "sti" [drivers/char/generic_serial.ko] undefined!
-*** Warning: "save_flags" [drivers/char/generic_serial.ko] undefined!
-*** Warning: "restore_flags" [drivers/char/generic_serial.ko] undefined!
-*** Warning: "cli" [drivers/char/generic_serial.ko] undefined!
-*** Warning: "fdomain_setup" [drivers/scsi/pcmcia/fdomain_cs.ko]
-undefined!
-*** Warning: "fdomain_16x0_reset" [drivers/scsi/pcmcia/fdomain_cs.ko]
-undefined!
-*** Warning: "fdomain_driver_template"
-[drivers/scsi/pcmcia/fdomain_cs.ko] undefined!
-*** Warning: "restore_flags" [drivers/char/epca.ko] undefined!
-*** Warning: "cli" [drivers/char/epca.ko] undefined!
-*** Warning: "save_flags" [drivers/char/epca.ko] undefined!
-*** Warning: "reg_IRQL" [drivers/scsi/eata_pio.ko] undefined!
-*** Warning: "reg_IRQ" [drivers/scsi/eata_pio.ko] undefined!
-*** Warning: "add_to_page_cache" [fs/cifs/cifs.ko] undefined!
-*** Warning: "__pagevec_lru_add" [fs/cifs/cifs.ko] undefined!
-*** Warning: "awc_work" [drivers/net/aironet4500_core.ko] undefined!
+But that is not the whole story.  The compilation appeared to make no
+progress at all while tbench was running - it was only in the gaps between
+ending one tbench run and starting another that the compilation did anything.
 
+When I changed the load to one instance of
+
+	while true
+	do
+		./tbench 2
+	done
+
+	and one instance of
+
+	while true
+	do
+		./tbench 3
+	done
+
+the compilation made no progress except for those rare instances when the two
+shell scripts were restarting the tbench run at the same time.  After a while
+the scripts fell itno synchronism, and the compilation took 260 seconds.
+
+Conclusion: tbench completely starves the `make'.
+
+It mainly seems to affect uniprocessor builds.  SMP was much better behaved.
+
+Adding the sched-f3 patch basicaly fixed it all up.  The 133 second build
+came down to 55 seconds, and the compilation was visibly making progress
+during the tbench runs.
 

@@ -1,66 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVDCHi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVDCHjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbVDCHi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 03:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVDCHi4
+	id S261591AbVDCHjR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 03:39:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVDCHjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 03:38:56 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:34749 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261589AbVDCHir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 03:38:47 -0400
-Message-ID: <424F9D59.5060907@yahoo.com.au>
-Date: Sun, 03 Apr 2005 17:38:01 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: Andreas Dilger <adilger@clusterfs.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Paul Jackson'" <pj@engr.sgi.com>, mingo@elte.hu, torvalds@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Industry db benchmark result on recent 2.6 kernels
-References: <200504020205.j32256g05369@unix-os.sc.intel.com> <Pine.LNX.4.62.0504022228080.5402@qynat.qvtvafvgr.pbz> <20050403065356.GV1753@schnapps.adilger.int> <Pine.LNX.4.62.0504022318160.5402@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0504022318160.5402@qynat.qvtvafvgr.pbz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Apr 2005 03:39:17 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:35848 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261591AbVDCHis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 03:38:48 -0400
+Date: Sun, 3 Apr 2005 09:38:39 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: jmerkey <jmerkey@utah-nac.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.9 Adaptec 4 Port Starfire Sickness
+Message-ID: <20050403073839.GA18612@alpha.home.local>
+References: <424F73F8.8020108@utah-nac.org> <20050403054746.GA7858@alpha.home.local> <424F9424.6030902@utah-nac.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424F9424.6030902@utah-nac.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
+On Sat, Apr 02, 2005 at 11:58:44PM -0700, jmerkey wrote:
+> 
+> It works fine with the Intel Dual Port Pro-1000 MT adapters without 
+> these problems.
 
-> On Sat, 2 Apr 2005, Andreas Dilger wrote:
->
->>> given that this would let you get the same storage with about 1200 
->>> fewer
->>> drives (with corresponding savings in raid controllers, fiberchannel
->>> controllers and rack frames) it would be interesting to know how 
->>> close it
->>> would be (for a lot of people the savings, which probably are within
->>> spitting distance of $1M could be work the decrease in performance)
->>
->>
->> For benchmarks like these, the issue isn't the storage capacity, but
->> rather the ability to have lots of heads seeking concurrently to
->> access the many database tables.  At one large site I used to work at,
->> the database ran on hundreds of 1, 2, and 4GB disks long after they
->> could be replaced by many fewer, larger disks...
->
->
-> I can understand this to a point, but it seems to me that after you 
-> get beyond some point you stop gaining from this (simply becouse you 
-> run out of bandwidth to keep all the heads busy). I would have guessed 
-> that this happened somewhere in the hundreds of drives rather then the 
-> thousands, so going from 1500x73G to 400x300G (even if this drops you 
-> from 15Krpm to 10Krpm) would still saturate the interface bandwidth 
-> before the drives
->
+but unless I'm mistaken, there's no PCI bridge on this board, and it is
+possible that the two ports share the same IRQ, that's why I suggested
+trying a 4-port sun QFE or something which is more similar to the starfire.
 
-But in this case probably not - Ken increases IO capacity until the CPUs 
-become saturated.
-So there probably isn't a very large margin for error, you might need 
-2000 of the slower
-SATA disks to achieve a similar IOPS capacity.
+> I am using testing scenarios
+> with Jumbo Frames as well. I am guessing the PCI bus contention is high 
+> due to the disk I/O bandwidth and
+> this is causing conditions the adapter does not normally see. 
 
+As I said, I have been saturating this card for weeks during stress tests
+and although it spitted out lots of messages, it never hanged (at least on
+recent 2.4 kernels, because very early 2.4 were a real pain with this one).
 
+> Documentation states that this message should be very
+> rare, and not spool off into the logs at this rate.
+
+perhaps you have a mix of small and large frames which makes the driver
+constantly change the fifo size, and this part is not handled properly ?
+
+Willy
+
+> See http://www.ibiblio.org/mdw/HOWTO/Ethernet-HOWTO-8.html
+> 
+> Jeff
+> 
+> Willy Tarreau wrote:
+> 
+> >Hi Jeff,
+> >
+> >I've also experienced those messages under 2.4, but they were harmless,
+> >and I never had a machine hang even after weeks of full load (the adapter
+> >was mounted on a stress test machine before being used in firewalls for
+> >months).
+> >
+> >So I wonder how you can be sure that it is this driver which finally 
+> >locks
+> >the bus. Perhaps the system locks for any other reason (eg: race 
+> >condition).
+> >Have you tried with any other 4-port NIC (tulip or sun for example) ? Sun
+> >QFE would be the most interesting to test as it also supports 64 bits /
+> >66 MHz.
+> >
+> >Regards,
+> >Willy
+> >
+> >On Sat, Apr 02, 2005 at 09:41:28PM -0700, jmerkey wrote:
+> > 
+> >
+> >>With linux 2.6.9 running at 192 MB/S network loading and protocol 
+> >>splitting drivers routing packets out of
+> >>a 2.6.9 device at full 100 mb/s (12.5 MB/S) simultaneously over 4 
+> >>ports, the adaptec starfire driver goes into
+> >>constant Tx FIFO reconfiguration mode and after 3-4 days of constantly 
+> >>resetting the Tx FIFO window and
+> >>generating a deluge of messages such as:
+> >>
+> >>ethX:  PCI bus congestion, resetting Tx FIFO window to X bytes
+> >>
+> >>pouring into the system log file at a rate of a dozen per minute.  
+> >>After several days, the PCI bus totally locks up
+> >>and hangs the system.  Need a config option to allow the starfire to 
+> >>disable this feature.  At very
+> >>high bus loading rates, the starfire card will completely lock the bus 
+> >>after 3-4 days
+> >>of constant Tx FIFO reconfiguration at very high data rates with 
+> >>protocol splitting and routing.
+> >>
+> >>Jeff
+> >>-
+> >>To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
+> >>in
+> >>the body of a message to majordomo@vger.kernel.org
+> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >>Please read the FAQ at  http://www.tux.org/lkml/
+> >>   
+> >>
+> >
+> > 
+> >

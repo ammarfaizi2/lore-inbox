@@ -1,209 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUHTHmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267648AbUHTHqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUHTHmb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 03:42:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUHTHma
+	id S267648AbUHTHqW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 03:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267602AbUHTHpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 03:42:30 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:1463 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S263117AbUHTHlf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 03:41:35 -0400
-Subject: Re: 2.6.8.1-mm2
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nathan Lynch <nathanl@austin.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20040819181603.700a9a0e.akpm@osdl.org>
-References: <20040819014204.2d412e9b.akpm@osdl.org>
-	 <1092964083.4946.7.camel@biclops.private.network>
-	 <20040819181603.700a9a0e.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1092987650.28849.349.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 17:40:51 +1000
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 03:45:53 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32928 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S263664AbUHTHpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 03:45:42 -0400
+To: fastboot@osdl.org, <linux-kernel@vger.kernel.org>,
+       LinuxBIOS <linuxbios@clustermatic.org>
+Subject: ANNONCE: kexec 2.6.8.1-kexec3
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Aug 2004 01:44:19 -0600
+Message-ID: <m1r7q28d9o.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-20 at 11:16, Andrew Morton wrote:
-> Nathan Lynch <nathanl@austin.ibm.com> wrote:
-> >
-> > > +dont-sleep-after-were-out-of-task-list.patch
-> > > 
-> > >  CPU hotplug race fix
-> > 
-> > I don't mean to be a pain, but this patch does not fix the bug I
-> > reported.
 
-Nathan, can you revert that, and apply this?  This actually fixes the
-might_sleep problem, and should fix at least the problem Vatsa saw.  If
-it doesn't solve your problem, we need to look again.
+http://www.xmission.com/~ebiederm/files/kexec/2.6.8.1-kexec3/
+http://www.xmission.com/~ebiederm/files/kexec/kexec-tools-1.96.tgz
 
-Thanks,
-Rusty.
+- Current ports now include i386 ppc and x86_64
+  Between the three of them I think there are some good examples
+  of what is needed to implement kexec.  i386 and ppc can turn
+  off their mmu while x86_64 cannot, yet they all implement
+  identity mapped memory for code running in the processors
+  native mode.
 
-Name: Don't Sleep After We're Out Of Task List
-Status: Booted on 2.6.8.1-mm1
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (authored)
-Version: -mm
+- The code has been reviewed in preparation to sending to Andrew Morton
+  and hopefully mainline kernel inclusion.  
 
-Ingo recently accidentally broke CPU hotplug by enabling preemption
-around release_task(), which can be called on the current task if the
-parent isn't interested.  This is because release_task() can now
-sleep.
+- All uses of init_mm have been removed from the generic code
 
-The problem is, the task can be preempted and then the CPU can go
-down: it's not in the task list any more, and so it won't get migrated
-after the CPU goes down.  It stays on the down CPU, which triggers a
-BUG_ON.
+- Three new architecture specific hooks have been added.
+  int machine_kexec_prepare(struct kimage *image);
+    This does whatever architecture specific setup such
+    as allocating page tables that is needed for a given image.
 
-We have had previous problems with tasks releasing themselves:
-oprofile has a comment about it, and we had the case of trying to
-deliver SIGXCPU in the timer tick to the current task which had called
-release_task().  I tried shuffling release_task off the
-finish_arch_switch, but that can't sleep either.  I tried using rcu,
-but same problem.  Finally, I just use a workqueue and a per-cpu list,
-which also guarantees the task has actually finished running.
+  void machine_kexec_cleanup(struct kimage *image);
+    When the image is removed instead of executed this does the
+    necessary cleanup.
+   
+  void machine_shutdown(void);  
+    device_shutdown cannot do everything.  There are some pieces
+    of hardware that can only be shutdown by architecture specific
+    code.  That needed architecture specific shutdown code is
+    generally common between machine_restart and machine_kexec,
+    and it needs a function to live in.  In addition the 
+    coming kexec_on_panic code path needs to do nothing what is
+    absolutely necessary, making the architecture specific shutdown
+    code inappropriate.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .29294-linux-2.6.8.1-mm1/include/linux/sched.h .29294-linux-2.6.8.1-mm1.updated/include/linux/sched.h
---- .29294-linux-2.6.8.1-mm1/include/linux/sched.h	2004-08-17 11:32:33.000000000 +1000
-+++ .29294-linux-2.6.8.1-mm1.updated/include/linux/sched.h	2004-08-20 12:18:37.000000000 +1000
-@@ -590,6 +591,8 @@ struct task_struct {
- 	struct rw_semaphore pagg_sem;
- #endif
- 
-+	/* Delayed cleanup on death of task with uncaring parent. */
-+	struct list_head death;
- };
- 
- static inline pid_t process_group(struct task_struct *tsk)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .29294-linux-2.6.8.1-mm1/kernel/exit.c .29294-linux-2.6.8.1-mm1.updated/kernel/exit.c
---- .29294-linux-2.6.8.1-mm1/kernel/exit.c	2004-08-17 11:32:33.000000000 +1000
-+++ .29294-linux-2.6.8.1-mm1.updated/kernel/exit.c	2004-08-20 14:50:25.000000000 +1000
-@@ -51,6 +51,41 @@ static void __unhash_process(struct task
- 	REMOVE_LINKS(p);
- }
- 
-+/* Keventd handles tasks whose parent won't ever release_task them. */
-+static DEFINE_PER_CPU(struct list_head, unreleased_tasks);
-+static DEFINE_PER_CPU(struct work_struct, release_task_work);
-+
-+static void release_tasks(void *tasks)
-+{
-+	struct task_struct *tsk, *next;
-+	LIST_HEAD(list);
-+
-+	write_lock_irq(&tasklist_lock);
-+	list_splice_init((struct list_head *)tasks, &list);
-+	write_unlock_irq(&tasklist_lock);
-+
-+	list_for_each_entry_safe(tsk, next, &list, death) {
-+		BUG_ON(!(tsk->flags & PF_DEAD));
-+		/* I don't *think* this should happen... --RR */
-+		WARN_ON(tsk->state != TASK_DEAD);
-+		list_del(&tsk->death);
-+		release_task(tsk);
-+	}
-+}
-+
-+static __init int init_release_tasks(void)
-+{
-+	unsigned int i;
-+
-+	for_each_cpu(i) {
-+		INIT_LIST_HEAD(&per_cpu(unreleased_tasks, i));
-+		INIT_WORK(&per_cpu(release_task_work, i), release_tasks,
-+			  &per_cpu(unreleased_tasks, i));
-+	}
-+	return 0;
-+}
-+core_initcall(init_release_tasks);
-+
- void release_task(struct task_struct * p)
- {
- 	int zap_leader;
-@@ -656,7 +691,6 @@ static inline void forget_original_paren
-  */
- static void exit_notify(struct task_struct *tsk)
- {
--	int state;
- 	struct task_struct *t;
- 	struct list_head ptrace_dead, *_p, *_n;
- 
-@@ -753,47 +787,37 @@ static void exit_notify(struct task_stru
- 		do_notify_parent(tsk, SIGCHLD);
- 	}
- 
--	state = TASK_ZOMBIE;
--	if (tsk->exit_signal == -1 && tsk->ptrace == 0)
--		state = TASK_DEAD;
--	else
--		tsk->state = state;
--	/*
--	 * Clear these here so that update_process_times() won't try to deliver
--	 * itimer, profile or rlimit signals to this task while it is in late exit.
--	 */
--	tsk->it_virt_value = 0;
--	tsk->it_prof_value = 0;
--	tsk->rlim[RLIMIT_CPU].rlim_cur = RLIM_INFINITY;
-+	tsk->flags |= PF_DEAD;
-+	if (tsk->exit_signal == -1 && tsk->ptrace == 0) {
-+		/* Uncaring parent: keventd will do the final release_task */
-+		tsk->state = TASK_DEAD;
-+		list_add(&tsk->death, &__get_cpu_var(unreleased_tasks));
-+		schedule_work(&__get_cpu_var(release_task_work));
-+	} else
-+		tsk->state = TASK_ZOMBIE;
- 
- 	/*
--	 * Get a reference to it so that we can set the state
--	 * as the last step. The state-setting only matters if the
--	 * current task is releasing itself, to trigger the final
--	 * put_task_struct() in finish_task_switch(). (thread self-reap)
-+	 * In the preemption case it must be impossible for the task
-+	 * to get runnable again, so use "_raw_" unlock to keep
-+	 * preempt_count elevated until we schedule().  Also, this
-+	 * ensures that keventd won't release this task until
-+	 * after we schedule().
-+	 *
-+	 * To avoid deadlock on SMP, interrupts must be unmasked.  If we
-+	 * don't, subsequently called functions (e.g, wait_task_inactive()
-+	 * via release_task()) will spin, with interrupt flags
-+	 * unwittingly blocked, until the other task sleeps.  That task
-+	 * may itself be waiting for smp_call_function() to answer and
-+	 * complete, and with interrupts blocked that will never happen.
- 	 */
--	get_task_struct(tsk);
--
--	write_unlock_irq(&tasklist_lock);
-+	_raw_write_unlock(&tasklist_lock);
-+	local_irq_enable();
- 
- 	list_for_each_safe(_p, _n, &ptrace_dead) {
- 		list_del_init(_p);
- 		t = list_entry(_p,struct task_struct,ptrace_list);
- 		release_task(t);
- 	}
--
--	/* If the process is dead, release it - nobody will wait for it */
--	if (state == TASK_DEAD) {
--		release_task(tsk);
--		write_lock_irq(&tasklist_lock);
--		tsk->state = state;
--		_raw_write_unlock(&tasklist_lock);
--		local_irq_enable();
--	} else
--		preempt_disable();
--
--	tsk->flags |= PF_DEAD;
--	put_task_struct(tsk);
- }
- 
- asmlinkage NORET_TYPE void do_exit(long code)
+    machine_shutdown is designed to hold the architecture specific
+    shutdown code.  
 
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+    REBOOT_CMD_KEXEC now calls machine_shutdown just before
+    machine_kexec.  Which means the coming kexec_on_panic
+    implemenation can skip the unnecessary code by simply
+    not calling machine_shutdown.
+
+- The i386 port now no longer uses init_mm and the implemetation
+  actually got simpler, and is much more robust in the face
+  of changing kernel infrastructure.   Even making it work
+  with the 4G/4G patch should be simple.
+
+- The x86_64 port has been tested on both Opterons and Xeons and
+  it works fine.  Support for the 32bit x86 system call has not
+  been done but I have have a design for it if anyone cares.
+
+- The jointly released port of kexec-tools-1.96 adds support for
+  x86_64, fixes a small glitch so it works on even a lowly 386
+  (tested) and adds support for linux style arguments to the i386
+  bootloader.
+
+And a quick summary of the broken-out patches:
+
+i8259-shutdown.i386.patch
+i8259-sysfs.x86_64.patch
+   For i386 all I needed to do was add a shutdown the PIC.  
+   For x86_64 sysfs support had not even been added for the legacy
+   PIC, so I ported the  appropriate code from x86.
+
+apic-virtwire-on-shutdown.i386.patch
+apic-virtwire-on-shutdown.x86_64.patch
+   The x86 Multiprocessor Specification says the local
+   apic needs to be in either pic_mode (i.e. disabled) or
+   it needs to be in virtual wire mode.  This patch restores
+   the local apic to virtual wirte mode when appropriate.
+
+ioapic-virtwire-on-shutdown.i386.patch
+ioapic-virtwire-on-shutdown.x86_64.patch
+
+   The x86 Multiprocessor Specification says access to the
+   legacy pic can either be direct to the cpu or it can
+   be through a io_apic programed in virtual wire mode.
+   This patch examines the ioapic interrupt routing and if an i8259
+   is connected to an ioapic in external interrupt mode it places
+   the given ioapic in virtual wirte mode instead of disabling
+   it completely.
+
+e820-64bit.x86_64.patch
+   Someone overzealously copied the resource reservation code
+   from x86 and was filter out 64bit io and memory resources. Ouch!
+   x86_64 needs this if it is going to allocation 64bit resources
+   properly and I need the 64bit memory resources if I want to see
+   all of the memory through /proc/iomem.
+
+kexec-generic.patch
+   This patch simplys holds the generic part of kexec.
+
+machine_shutdown.x86_64.patch
+kexec.x86_64.patch
+   The x86_64 port, I simply factor out machine_shutdown from
+   machine_restart before I complete the port.
+
+machine_shutdown.i386.patch
+kexec.i386.patch
+   The i386 port.  While factoring out machine_shutdown I make
+   rebooting on the bootstrap cpu the default as required by the
+   Multiprocessor Specification and expected by linux.  With
+   a number of motherboard specific fixups become unnecessary.
+
+use_mm.patch
+kexec.ppc.patch
+homebrew-dol-support.ppc.patch [EXPERIMENTAL]
+   This is the ppc port.  It still uses init_mm.  So I first
+   make use_mm no-static.  The port is not as mature as the x86
+   port but it should still work in the majority of cases.  I don't
+   think the homebrew Dolphin OS support is clean enough to be
+   in the stable kernel but it is included in case people need
+   it and as a starting point for something better.
+
+vmlinux-lds.i386.patch [EXPERIMENTAL]
+highbzImage.i386.patch [EXPERIMENTAL]
+   In the discussions on how to implement kexec_on_panic a key
+   question has been can we build a kernel that executes in memory
+   the kernel that called panic had reserved.  
+
+   These two patches are my proof of concept that we can make an
+   x86 kernel that will execute when loaded at a different memory
+   address.  The first patch fixes up vmlinux.lds.S so it vmlinux
+   exports the appropriate physical addresses in it's ELF program
+   header and adds an option what memory location you want to boot
+   from.   This is needed for the kexec_on_panic case if we want
+   the panic kernel to load somewhere else.
+
+   The patch makes the bzImage of an i386 kernel built with a
+   load_address other than bootable.  This means you don't have
+   to use kexec to boot one of these kernels.
 

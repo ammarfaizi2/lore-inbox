@@ -1,55 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbUJ0E4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbUJ0FBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbUJ0E4i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 00:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUJ0E4h
+	id S261635AbUJ0FBI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 01:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUJ0FBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 00:56:37 -0400
-Received: from mproxy.gmail.com ([216.239.56.244]:24459 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261636AbUJ0Ezn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 00:55:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=IR/RM7QQVi99doJ3yZ9GWHDkHVkCzQsEprxcefB57oiDiyT6p8G2B+djDlwLS9HvH+TbN/B51xCLi6ea8l/v3JzK6eDEbXzNbJs3jUJgbSVvL4WwDrTua6bR5NvsmtWeUF6Y3ZS/C2RVR5wUfr+l6YfgZqR7GAFcA5y4gt5+gw4=
-Message-ID: <21d7e99704102621553310abe8@mail.gmail.com>
-Date: Wed, 27 Oct 2004 14:55:42 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Dave Airlie <airlied@gmail.com>,
-       "Martin Schlemmer [c]" <azarah@nosferatu.za.org>,
-       Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: timestamps in kernel was Re: [PATCH 2.6.9-bk7] Select cpio_list or source directory for initramfs image updates [u]
-In-Reply-To: <20041027062148.GA12123@mars.ravnborg.org>
+	Wed, 27 Oct 2004 01:01:07 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:38379
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261635AbUJ0FBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 01:01:05 -0400
+Date: Tue, 26 Oct 2004 21:53:19 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Shawn Starr <shawn.starr@rogers.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Please remove this from LKML - bouncing from user
+Message-Id: <20041026215319.63103521.davem@davemloft.net>
+In-Reply-To: <200410270045.45036.shawn.starr@rogers.com>
+References: <200410270045.45036.shawn.starr@rogers.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <200410200849.i9K8n5921516@mail.osdl.org>
-	 <1098533188.668.9.camel@nosferatu.lan>
-	 <20041026221216.GA30918@mars.ravnborg.org>
-	 <1098824849.12420.60.camel@nosferatu.lan>
-	 <20041026231514.GA3285@mars.ravnborg.org>
-	 <21d7e997041026210935b2954a@mail.gmail.com>
-	 <20041027062148.GA12123@mars.ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 27 Oct 2004 00:45:44 -0400
+Shawn Starr <shawn.starr@rogers.com> wrote:
+
+> This is getting annoying every time I post to LKML.
 > 
-> Could you try to list the places - maybe they do not all make sense.
+> Can someone remove them from the list?
 
-Here is my current list in things that directly affect me:
-sound/core/info.c contains __DATE__ to tell what date it was compiled
-on, I'm not sure this is really needed.
-usr/gen_init_cpio.c uses time(NULL) to set mtimes,
-scripts/Makefile.lib uses gzip with no -n flag
-
-I can supply patches to get rid of these if people think they are a
-good/bad idea...
-
-I also hack scripts/mkcompile_h so it never changes for me (this one
-is acceptable as it is very obvious that you have to do it...)
-
-Dave.
+Done, it was bikram.assal@wku.edu

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262541AbULPAAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbULOX7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262541AbULPAAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 19:00:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbULOX7z
+	id S262527AbULOX7k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 18:59:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262542AbULOX7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 18:59:55 -0500
-Received: from mail.dif.dk ([193.138.115.101]:5283 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262541AbULOX5t (ORCPT
+	Wed, 15 Dec 2004 18:59:40 -0500
+Received: from mail.dif.dk ([193.138.115.101]:7587 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262527AbULOX7A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 18:57:49 -0500
-Date: Thu, 16 Dec 2004 01:08:19 +0100 (CET)
+	Wed, 15 Dec 2004 18:59:00 -0500
+Date: Thu, 16 Dec 2004 01:09:30 +0100 (CET)
 From: Jesper Juhl <juhl-lkml@dif.dk>
 To: linux-kernel <linux-kernel@vger.kernel.org>
 Cc: Linux Kernel Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [PATCH 3/30] return statement cleanup - kill pointless parentheses
- in fs/efs/super.c
-Message-ID: <Pine.LNX.4.61.0412160107040.3864@dragon.hygekrogen.localhost>
+Subject: [PATCH 4/30] return statement cleanup - kill pointless parentheses
+ in fs/efs/inode.c
+Message-ID: <Pine.LNX.4.61.0412160108260.3864@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,7 +23,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 This patch removes pointless parentheses from return statements in 
-fs/efs/super.c
+fs/efs/inode.c
 
 Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
@@ -45,6 +45,5 @@ Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
  
  	sb->fs_magic     = be32_to_cpu(super->fs_magic);
  	sb->total_blocks = be32_to_cpu(super->fs_size);
-
 
 

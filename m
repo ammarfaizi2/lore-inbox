@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269678AbUJMLWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269680AbUJMLl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269678AbUJMLWo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 07:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269679AbUJMLWo
+	id S269680AbUJMLl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 07:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269681AbUJMLl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 07:22:44 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21766 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S269678AbUJMLWm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 07:22:42 -0400
-Date: Wed, 13 Oct 2004 12:22:34 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Choosing scatter/gather limits
-Message-ID: <20041013122234.A23105@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <416A6623.9000105@drzeus.cx>
+	Wed, 13 Oct 2004 07:41:29 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:60103 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269680AbUJMLl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 07:41:27 -0400
+Subject: Re: Write USB Device Driver entry not called
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: eshwar <eshwar@moschip.com>
+Cc: Raj <inguva@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <001401c4b796$abcddfb0$41c8a8c0@Eshwar>
+References: <005101c4b763$5e3cba60$41c8a8c0@Eshwar>
+	 <b2fa632f0410122315753f8886@mail.gmail.com>
+	 <001401c4b796$abcddfb0$41c8a8c0@Eshwar>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1097663878.4440.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <416A6623.9000105@drzeus.cx>; from drzeus-list@drzeus.cx on Mon, Oct 11, 2004 at 12:53:23PM +0200
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 13 Oct 2004 11:37:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 12:53:23PM +0200, Pierre Ossman wrote:
-> I've been adding scatter/gather support for the MMC host driver I'm 
-> writing. I cannot find any documentation on how to chose the limits though.
+On Iau, 2004-10-21 at 18:52, eshwar wrote:
+> Open is sucessfull.... I don't think the problem the flags of open
 
-It seems that you have to read the block layer code to find out what's
-going on with these limits.  There's some documentation on it in
-Documentation/block/bio.txt.  If it's lacking, then please send
-comments to the block layer people to add the necessary information.
+I do. See any book on C/Unix style file opening. For an existing file
+you want
+		open("foo", O_flags)
 
-Please also note that I'm intending to make the MMC host drivers
-know nothing about block IO stuff, so all you'll be passed is the
-MMC commands and a scatter gather list - so making sure that your
-driver always uses blk_rq_map_sg() and works from the SG list will
-ensure that your driver remains easy to update.
+for a new file possibly
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+		open("foo", O_CREAT|o_flags, S_Iblah)
+
+

@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268160AbUH0IjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267921AbUH0IoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268160AbUH0IjN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 04:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUH0IjM
+	id S267921AbUH0IoG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 04:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269146AbUH0IoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 04:39:12 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:24690 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S269264AbUH0Ieh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 04:34:37 -0400
-X-Ironport-AV: i="3.84,115,1091422800"; 
-   d="scan'208"; a="59667156:sNHT85229514"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: CDROMPLAYTRKIND ioctl causing server hang
-Date: Fri, 27 Aug 2004 13:57:07 +0530
-Message-ID: <BBE1167D4F12C74681106630ADE282B964A025@blrx2kmbgl303.blr.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: CDROMPLAYTRKIND ioctl causing server hang
-Thread-Index: AcSMD5sbkN1kLPwDRQ2YbxB+12i5aQ==
-From: <Ganesh_Borse@Dell.com>
-To: <linux-kernel-owner@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Aug 2004 08:27:08.0041 (UTC) FILETIME=[A432D790:01C48C0F]
+	Fri, 27 Aug 2004 04:44:05 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:42250 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267921AbUH0Iny (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 04:43:54 -0400
+Date: Fri, 27 Aug 2004 09:43:46 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Craig Milo Rogers <rogers@isi.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Termination of the Philips Webcam Driver (pwc)
+Message-ID: <20040827094346.B29407@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Craig Milo Rogers <rogers@isi.edu>, linux-kernel@vger.kernel.org
+References: <20040826233244.GA1284@isi.edu> <20040827004757.A26095@infradead.org> <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org>; from torvalds@osdl.org on Thu, Aug 26, 2004 at 05:03:42PM -0700
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Aug 26, 2004 at 05:03:42PM -0700, Linus Torvalds wrote:
+> Of course if some new maintainer shows up and decides to infer how the 
+> device worked by looking at the original open-source code, that's also 
+> clearly fine.
+> 
+> I don't want people to play lawyer. Honoring peoples rights to the code 
+> they write is more important than just the law.
 
-(1)
-Doing CDROMPLAYTRKIND ioctl on bus powered USB CD drive:TEAC CD-ROM 210-PU causes server to hang.
-CD drive was connected to USB port directly. Known good audio CD was inserted .
+Umm, just because he's piised off we shouldn't removed support for hardware.
+it's not like the driver suddenly stops from working because it's unmaintained.
 
-OS is Red Hat Linux AS 3.0, kernel 2.4.21-4.ELsmp.
-
-As soon as this ioctl is called on /dev/scd node, kernel printk's the following messages in /var/log/messages file:
-	Aug 24 10:42:15 PE2600-7XP2B1S kernel: sr2: CDROM (ioctl) reports ILLEGAL REQUEST.
-	Aug 24 10:42:15 PE2600-7XP2B1S kernel: usb-uhci.c: interrupt, status 3, frame# 1495
-	Aug 24 10:42:20 PE2600-7XP2B1S kernel: usb-uhci.c: interrupt, status 3, frame# 312
-	Aug 24 10:42:50 PE2600-7XP2B1S kernel: usb_control/bulk_msg: timeout
-	Aug 24 10:42:50 PE2600-7XP2B1S kernel: usb-uhci.c: interrupt, status 3, frame# 1685
-	Aug 24 10:43:11 PE2600-7XP2B1S kernel: usb_control/bulk_msg: timeout
-	Aug 24 10:43:11 PE2600-7XP2B1S kernel: usb.c: USB disconnect on device 00:1d.0-2 address 2
-
-After the last line (USB disconnect..) logged in messages file, server hangs. Even the ssh connection from other server hangs. We have to switch off the server manually by pressing power switch.
-
-(2)
-I read on some Linux related posts on internet that CDROMPLAYTRKIND ioctl is not supported by SCSI drivers (ide-scsi, usb-scsi, etc.).
-I used CDROMPLAYMSF for playing the CD and above problem did not occur. ioctl passed.
-
-(3)
-Also, when I connected this USB CD drive to an external hub (self-powered), ioctl failed but the server did not hang. However, the drive got disconnected.
-
-(4)
-Is there a known issue in 2.4.21-4 kernel related to CDROMPLAYTRKIND ioctl or usb driver? If yes, what is Bugzilla id for it?
-
-Please guide.
-
-Thanks,
-Ganesh

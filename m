@@ -1,89 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTD3NrF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 09:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbTD3NrF
+	id S261921AbTD3OAj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 10:00:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbTD3OAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 09:47:05 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:51897 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262174AbTD3NrD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 09:47:03 -0400
-Date: Wed, 30 Apr 2003 06:59:19 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Downing, Thomas" <Thomas.Downing@ipc.com>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-ID: <20030430135919.GB32300@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Downing, Thomas" <Thomas.Downing@ipc.com>,
-	Larry McVoy <lm@bitmover.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <170EBA504C3AD511A3FE00508BB89A9202032858@exnanycmbx4.ipc.com>
+	Wed, 30 Apr 2003 10:00:39 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:45525 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261921AbTD3OAi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 10:00:38 -0400
+Date: Wed, 30 Apr 2003 10:12:58 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Marc Zyngier <mzyngier@freesurf.fr>, rth@twiddle.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch] DMA mapping API for Alpha
+Message-ID: <20030430141258.GA25076@gtf.org>
+References: <20030429150532.A3984@jurassic.park.msu.ru> <Pine.GSO.3.96.1030430140450.1016E-100000@delta.ds2.pg.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <170EBA504C3AD511A3FE00508BB89A9202032858@exnanycmbx4.ipc.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+In-Reply-To: <Pine.GSO.3.96.1030430140450.1016E-100000@delta.ds2.pg.gda.pl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 09:11:57AM -0400, Downing, Thomas wrote:
-> > The DMCA, DRM, all that stuff is just the beginning.  You will respond
-> > with all sorts of clever hacks to get around it and they will respond
-> > with even more clever hacks to stop you.  They have both more resources
-> > and more at stake so they will win.
+On Wed, Apr 30, 2003 at 02:07:17PM +0200, Maciej W. Rozycki wrote:
+> On Tue, 29 Apr 2003, Ivan Kokshaysky wrote:
 > 
-> The point is that they don't (with a couple of clever and amusing 
-> exceptions) respond with "even more clever hacks", they respond with
-> things like DMCA.  This is also the danger of the motives behind DRM;
-> just pass a law making it a felony to produce, use, etc. hardware which
-> does _not_ enforce corporate controlled DRM.
+> > Since the Jensen is the only non-PCI alpha, I'd really prefer to
+> > keep existing pci_* functions as is and make dma_* ones just
+> > wrappers.
 > 
-> This is why in my first post on this topic I said it was a political
-> issue, not a technical one.
-> 
-> > The depressing thing is that it is so obvious to me that the corporations
-> > will win, they will protect themselves, they have the money to lobby the
-> > government to get the laws they want and build the technology they need.
-> > The more you push back the more locked up things will become.
-> 
-> Unfortunately, this may very well prove to be true.  But laying it at the
-> door of the open source community (or even piracy other than commercial
-> piracy, viz. China) is buying into the FUD that MPAA and RIAA spew.
-> Remember, that when the courts asked the MPAA to produce _any_ evidence
-> of harm from DeCSS, they were unable to produce _anything_.
+>  Note that's the only non-PCI Alpha we support right now -- there may be
+> more such ones in the future. 
 
-I'm probably the world's worst communicator because you're right at the
-edge of getting the point and then it gets missed again.  I think you're
-outraged thinking that I'm saying the open source guys are all bad people
-or whatever.  I'm not trying to make a bad/good argument, I'm trying to
-make a cause and effect argument.  
+Highly unlikely, I would guess :)
 
-Take everything that I said which is not an action on the part of the
-corporations and just call it A.  Ignore what A is or even if A exists
-or is true, whatever.  Concentrate on what I claim to be the reaction.
-I tried to make the case that A is the cause, you got mad, the fact that
-the reaction is the problem is lost in the anger.
+	Jeff
 
-Your post shows that you think that the reaction is bad and you even say
-that the reaction is likely.  You vigourously disagree with my conclusions
-as to why the reaction is happening, I see that.  OK, so let's try it
-with a question rather than a statement: why are things like the DMCA and
-DRM happening?  It isn't the open source guys pushing those, obviously,
-it's the corporations.  So why are they doing it?
 
-Your answer has to be interesting because it seems to me that they are
-doing it to protect their products, their product is sometimes content,
-sometimes programs, sometimes both.  An answer which says that open source
-is not part of the cause also says that open source is irrelevant.
 
-You can't be both a force and not a force.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,72 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264296AbTHVW6V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 18:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263705AbTHVW6V
+	id S261187AbTHVXNT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 19:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbTHVXNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 18:58:21 -0400
-Received: from dyn-ctb-210-9-245-87.webone.com.au ([210.9.245.87]:15876 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S264296AbTHVW6N
+	Fri, 22 Aug 2003 19:13:18 -0400
+Received: from hermes.py.intel.com ([146.152.216.3]:50660 "EHLO
+	hermes.py.intel.com") by vger.kernel.org with ESMTP id S261187AbTHVXNQ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 18:58:13 -0400
-Message-ID: <3F469FA4.6020203@cyberone.com.au>
-Date: Sat, 23 Aug 2003 08:56:36 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
+	Fri, 22 Aug 2003 19:13:16 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Andrew Theurer <habanero@us.ibm.com>
-CC: Bill Davidsen <davidsen@tmr.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Erich Focht <efocht@hpce.nec.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>, Andi Kleen <ak@muc.de>,
-       torvalds@osdl.org
-Subject: Re: [Lse-tech] Re: [patch] scheduler fix for 1cpu/node case
-References: <Pine.LNX.3.96.1030813163849.12417I-100000@gatekeeper.tmr.com> <200308221046.31662.habanero@us.ibm.com>
-In-Reply-To: <200308221046.31662.habanero@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [patch] noapic should depend on ioapic config not local
+Date: Fri, 22 Aug 2003 16:12:26 -0700
+Message-ID: <7F740D512C7C1046AB53446D3720017304AEC6@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] noapic should depend on ioapic config not local
+Thread-Index: AcNo2p/2jhQmPEtHSt+WB0BsnWaZdgAJ1Oyw
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>,
+       "Ingo Oeser" <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Aug 2003 23:12:27.0111 (UTC) FILETIME=[DA606F70:01C36902]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Looks like it's still ignored there (in BK). We did not realize the
+problem we worked on ACPI problems. We'll look at the problem.
 
+Thanks,
+Jun
 
-Andrew Theurer wrote:
-
->On Wednesday 13 August 2003 15:49, Bill Davidsen wrote:
->
->>On Mon, 28 Jul 2003, Andrew Theurer wrote:
->>
->>>Personally, I'd like to see all systems use NUMA sched, non NUMA systems
->>>being a single node (no policy difference from non-numa sched), allowing
->>>us to remove all NUMA ifdefs.  I think the code would be much more
->>>readable.
->>>
->>That sounds like a great idea, but I'm not sure it could be realized short
->>of a major rewrite. Look how hard Ingo and Con are working just to get a
->>single node doing a good job with interactive and throughput tradeoffs.
->>
->
->Actually it's not too bad.  Attached is a patch to do it.  It also does 
->multi-level node support and makes all the load balance routines 
->runqueue-centric instead of cpu-centric, so adding something like shared 
->runqueues (for HT) should be really easy.  Hmm, other things: inter-node 
->balance intervals are now arch specific (AMD is "1").  The default busy/idle 
->balance timers of 200/1 are not arch specific, but I'm thinking they should 
->be.  And for non-numa, the scheduling policy is the same as it was with 
->vanilla O(1). 
->
-
-I'm not saying you're wrong, but do you have some numbers where this
-helps? ie. two architectures that need very different balance numbers.
-And what is the reason for making AMD's balance interval 1?
-
-Also, things like nr_running_inc are supposed to be very fast. I am
-a bit worried to see a loop and CPU shared atomics in there.
-
-node_2_node is an odd sounding conversion too ;)
-
-BTW. you should be CC'ing Ingo if you have any intention of scheduler
-stuff getting into 2.6.
-
-
+> -----Original Message-----
+> From: Jeff Garzik [mailto:jgarzik@pobox.com]
+> Sent: Friday, August 22, 2003 8:27 AM
+> To: Ingo Oeser
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: [patch] noapic should depend on ioapic config not local
+> 
+> On Fri, Aug 22, 2003 at 11:09:20AM +0200, Ingo Oeser wrote:
+> > On Thu, Aug 21, 2003 at 01:21:40AM -0400, Jeff Garzik wrote:
+> > > Zwane's comment was correct, it needs to be CONFIG_X86_IO_APIC.
+> >
+> > Does this also apply to 2.4.22-rc2?
+> >
+> > I must use noapic on my system and 2.4.22 does ignore it, while
+> > 2.4.21 doesn't.
+> 
+> Marcelo just pulled a bunch of ACPI fixes, so I would check the latest
+> BK, or wait for tonight's BK snapshot.
+> 
+> So, yes, it does apply to 2.4.22-rc2, but the Intel guys may have
+taken
+> care of it already.
+> 
+> 	Jeff
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

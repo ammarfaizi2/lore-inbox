@@ -1,74 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261791AbSITJOy>; Fri, 20 Sep 2002 05:14:54 -0400
+	id <S261806AbSITJPw>; Fri, 20 Sep 2002 05:15:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261806AbSITJOy>; Fri, 20 Sep 2002 05:14:54 -0400
-Received: from k100-28.bas1.dbn.dublin.eircom.net ([159.134.100.28]:59915 "EHLO
-	corvil.com.") by vger.kernel.org with ESMTP id <S261791AbSITJOx>;
-	Fri, 20 Sep 2002 05:14:53 -0400
-Message-ID: <3D8AE80B.9090902@corvil.com>
-Date: Fri, 20 Sep 2002 10:19:07 +0100
-From: Padraig Brady <padraig.brady@corvil.com>
-Organization: Corvil Networks
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: Re: ext3 fs: no userspace writes == no disk writes ?
-References: <200209200909.g8K99qo04297@verdi.et.tudelft.nl> <3D8AE719.5000901@corvil.com>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S261819AbSITJPv>; Fri, 20 Sep 2002 05:15:51 -0400
+Received: from pc-80-195-34-180-ed.blueyonder.co.uk ([80.195.34.180]:17792
+	"EHLO sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S261806AbSITJPv>; Fri, 20 Sep 2002 05:15:51 -0400
+Date: Fri, 20 Sep 2002 10:20:52 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Seaman Hu <seaman_hu@yahoo.com>
+Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: What will happen when disk(ext3) is full while i continue to operate files ?
+Message-ID: <20020920102052.B2585@redhat.com>
+References: <20020920073927.71003.qmail@web40504.mail.yahoo.com> <20020920091114.46162.qmail@web40502.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020920091114.46162.qmail@web40502.mail.yahoo.com>; from seaman_hu@yahoo.com on Fri, Sep 20, 2002 at 02:11:14AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Padraig Brady wrote:
-> Rob van Nieuwkerk wrote:
-> 
->> Hi Pádraig,
->>
->> Pádraig Brady wrote:
->>
->>> Rob van Nieuwkerk wrote:
->>>
->>>> Hi Alan,
->>>>
->>>>
->>>>> On Fri, 2002-09-20 at 00:04, Andrew Morton wrote:
->>>>>
->>>>>
->>>>>> There are frequently written areas of an ext3 filesystem - the
->>>>>> journal, the superblock.  Those would wear out pretty quickly.
->>>>>
->>>>>
->>>>> CF is -supposed- to wear level.
->>>>
->>>>
->>>> Yes I know.
->>>>
->>>> But I haven't been able to find any specs from any CF manufacturer
->>>> about this mechanism, percentage of spare sectors or number of allowed
->>>> write-cycles in general.
->>>
->>>
->>> me either.
->>>
->>> Why don't you just mount the fs ro ?
->>>
->>> Pádraig
->>
->>
->>
->> Ehm .., because I need to store data on it ..
-> 
-> 
-> Ehm, well remount,rw before you store data on it
-> and remount,ro when finished?
+Hi,
 
-Note you can organise things (links from /etc/various /dev/various /var
-to ramdisk/tmpfs/...) so that you never have to mount the CF rw.
+On Fri, Sep 20, 2002 at 02:11:14AM -0700, Seaman Hu wrote:
+> Sorry. I probably didn't make it clear. 
+> My system is ok when first msg "EXT3-fs error (device
+> sd(8,2)) in ext3_new_inode: error 28" appears.
+> However, it will crash after millions of the same msg.
+> Is there some kind of buffer full to cause the crash?
 
-Pádraig.
+Ah, that's a known problem when you run out of inodes.  Ext3
+incorrectly treated it as a full fs error.  That's been fixed in -ac,
+ext3 CVS and the Red Hat kernels for a while, and it's in Marcelo's
+post-2.4.19 tree.
 
+Cheers,
+ Stephen

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132051AbRCVPLv>; Thu, 22 Mar 2001 10:11:51 -0500
+	id <S132056AbRCVPOa>; Thu, 22 Mar 2001 10:14:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132055AbRCVPLa>; Thu, 22 Mar 2001 10:11:30 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:29968 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S132051AbRCVPL2>; Thu, 22 Mar 2001 10:11:28 -0500
-Date: Thu, 22 Mar 2001 16:06:07 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Neal Gieselman <Neal.Gieselman@Visionics.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where is the RAM?
-Message-ID: <20010322160607.A9434@arthur.ubicom.tudelft.nl>
-In-Reply-To: <D0FA767FA2D5D31194990090279877DA5736B2@dbimail.digitalbiometrics.com>
-Mime-Version: 1.0
+	id <S132055AbRCVPOX>; Thu, 22 Mar 2001 10:14:23 -0500
+Received: from staffnet.com ([207.226.80.14]:24079 "EHLO staffnet.com")
+	by vger.kernel.org with ESMTP id <S132058AbRCVPOE>;
+	Thu, 22 Mar 2001 10:14:04 -0500
+Message-ID: <3ABA1680.D1467727@staffnet.com>
+Date: Thu, 22 Mar 2001 10:13:04 -0500
+From: Wade Hampton <whampton@staffnet.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: nbecker@fred.net, linux-kernel@vger.kernel.org
+Subject: Re: regression testing
+In-Reply-To: <x88zoeeeyh8.fsf@adglinux1.hns.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <D0FA767FA2D5D31194990090279877DA5736B2@dbimail.digitalbiometrics.com>; from Neal.Gieselman@Visionics.com on Thu, Mar 22, 2001 at 08:29:14AM -0600
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 22, 2001 at 08:29:14AM -0600, Neal Gieselman wrote:
-> I have a Redhat 6.1 WS that was installed with 64 MB RAM.  I added another
-> 64 MB, booted, BIOS sees it, but top, free, etc still see only 64 MB.
-> Any clues on what to do?
+nbecker@fred.net wrote:
+> 
+> Hi.  I was wondering if there has been any discussion of kernel
+> regression testing.  Wouldn't it be great if we didn't have to depend
+> on human testers to verify every change didn't break something?
+IMHO, much of the strength of Linux is the very large, extremely 
+diverse population of folks using it, testing it, beating on 
+the latest release, etc.  
 
-Upgrade to linux-2.2.18 or linux-2.4.2.
+However, a lab dedicated to testing the linux kernel, properly 
+funded, staffed, and containing the most common hardware and 
+software would be a good idea.  Does anyone have any idea how
+this could be accomplished?  Who could do it?  IBM?  What would
+it cost to setup a reasonable lab?  My guess would be dozens 
+of machines of various architectures, a staff of at least 10,
+several thousand square feet of space, and a good budget....
+Any takers?  
 
+Much of the kernel COULD be tested such as file systems, network 
+stack, SMP, compile options on various platforms, etc.  More
+obscure hardware, some older hardware, etc., would be out of 
+scope for such an effort.
 
-Erik
-
+Cheers,
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+W. Wade, Hampton  <whampton@staffnet.com>  
+If Microsoft Built Cars:  Every time they repainted the 
+lines on the road, you'd have to buy a new car.
+Occasionally your car would just die for no reason, and 
+you'd have to restart it, but you'd just accept this.

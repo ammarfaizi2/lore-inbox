@@ -1,46 +1,227 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264329AbRGRXQs>; Wed, 18 Jul 2001 19:16:48 -0400
+	id <S264375AbRGRXgu>; Wed, 18 Jul 2001 19:36:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264345AbRGRXQ2>; Wed, 18 Jul 2001 19:16:28 -0400
-Received: from attila.bofh.it ([213.92.8.2]:31691 "HELO attila.bofh.it")
-	by vger.kernel.org with SMTP id <S264329AbRGRXQW>;
-	Wed, 18 Jul 2001 19:16:22 -0400
-Date: Thu, 19 Jul 2001 00:25:20 +0200
-From: "Marco d'Itri" <md@Linux.IT>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nfs_refresh_inode: inode number mismatch
-Message-ID: <20010719002520.A5112@wonderland.linux.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <shsd76zsxd2.fsf@charged.uio.no>
-User-Agent: Mutt/1.3.18i
+	id <S264432AbRGRXgl>; Wed, 18 Jul 2001 19:36:41 -0400
+Received: from suntan.tandem.com ([192.216.221.8]:15515 "EHLO
+	suntan.tandem.com") by vger.kernel.org with ESMTP
+	id <S264375AbRGRXgd>; Wed, 18 Jul 2001 19:36:33 -0400
+Message-ID: <3B561A50.A1B35FBC@compaq.com>
+Date: Wed, 18 Jul 2001 16:22:56 -0700
+From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] read/write semaphore trylock routines - 2.4.6
+In-Reply-To: <16572.994750374@warthog.cambridge.redhat.com> <3B4BC60E.85C12357@compaq.com>
+Content-Type: multipart/mixed;
+ boundary="------------1041FCAF84C2F5569B11DAC7"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 17, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+This is a multi-part message in MIME format.
+--------------1041FCAF84C2F5569B11DAC7
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
- >     > Jul 18 00:15:07 newsserver kernel: nfs_refresh_inode: inode
- >     > number mismatch Jul 18 00:15:07 newsserver kernel: expected
- >     > (0x3b30ac75/0x48d5), got (0x3b30ac75/0x8d04)
+"Brian J. Watson" wrote:
+> I've added the generic spinlock versions. I've also renamed the i386
+> versions to __down_*_trylock() and added stubs to
+> include/linux/rwsem.h, as you did for the up_*() and down_*()
+> routines.
+> 
+> The generic versions were compiled but not tested. Probably not a big
+> deal since I snagged most of the code from your __down_*() routines.
+> 
 
- >     > I've got a flood of these messages while talking to a procom
- >     > NAS this.  Should I worry? Upgrade/patch the kernel? Yell at
- >     > procom tech support?
+David-
 
- >Have you applied any extra patches to NFS? I remember one of my
-No, the kernel is plain unpatched 2.4.5.
-
- >If, on the other hand, you're using a clean kernel, I'd look into what
- >the server is doing. It sounds like it's doing the same thing that the
- >userland `nfs-server' does: namely to recycle filehandles after a file
- >gets deleted...
-Anything specific I can tell to their tech support?
-
-Can I ignore these messages or I risk data corruption?
+Is this patch ready to go into the kernel? Is there anything else I
+should do to get it ready? I noticed it didn't make it into
+2.4.7-pre7.
 
 -- 
-ciao,
-Marco
+Brian Watson             | "The common people of England... so 
+Linux Kernel Developer   |  jealous of their liberty, but like the 
+Open SSI Clustering Lab  |  common people of most other countries 
+Compaq Computer Corp     |  never rightly considering wherein it 
+Los Angeles, CA          |  consists..."
+                         |      -Adam Smith, Wealth of Nations, 1776
+
+mailto:Brian.J.Watson@compaq.com
+http://opensource.compaq.com/
+--------------1041FCAF84C2F5569B11DAC7
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-rwsem-trylock"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-rwsem-trylock"
+
+diff -ur linux/include/asm-i386/rwsem.h rwsem_trylock/include/asm-i386/rwsem.h
+--- linux/include/asm-i386/rwsem.h	Fri Apr 27 15:48:24 2001
++++ rwsem_trylock/include/asm-i386/rwsem.h	Tue Jul 10 19:32:05 2001
+@@ -117,6 +117,24 @@
+ }
+ 
+ /*
++ * trylock for reading -- returns 1 if successful, 0 if contention
++ */
++static inline int __down_read_trylock(struct rw_semaphore *sem)
++{
++	signed long old, new;
++
++repeat:
++	old = (volatile signed long)sem->count;
++	if (old < RWSEM_UNLOCKED_VALUE)
++		return 0;
++	new = old + RWSEM_ACTIVE_READ_BIAS;
++	if (cmpxchg(&sem->count, old, new) == old)
++		return 1;
++	else
++		goto repeat;
++}
++
++/*
+  * lock for writing
+  */
+ static inline void __down_write(struct rw_semaphore *sem)
+@@ -141,6 +159,19 @@
+ 		: "+d"(tmp), "+m"(sem->count)
+ 		: "a"(sem)
+ 		: "memory", "cc");
++}
++
++/*
++ * trylock for writing -- returns 1 if successful, 0 if contention
++ */
++static inline int __down_write_trylock(struct rw_semaphore *sem)
++{
++	signed long ret = cmpxchg(&sem->count,
++				  RWSEM_UNLOCKED_VALUE, 
++				  RWSEM_ACTIVE_WRITE_BIAS);
++	if (ret == RWSEM_UNLOCKED_VALUE)
++		return 1;
++	return 0;
+ }
+ 
+ /*
+diff -ur linux/include/linux/rwsem-spinlock.h rwsem_trylock/include/linux/rwsem-spinlock.h
+--- linux/include/linux/rwsem-spinlock.h	Wed Jul  4 14:20:44 2001
++++ rwsem_trylock/include/linux/rwsem-spinlock.h	Tue Jul 10 19:32:05 2001
+@@ -54,7 +54,9 @@
+ 
+ extern void FASTCALL(init_rwsem(struct rw_semaphore *sem));
+ extern void FASTCALL(__down_read(struct rw_semaphore *sem));
++extern int FASTCALL(__down_read_trylock(struct rw_semaphore *sem));
+ extern void FASTCALL(__down_write(struct rw_semaphore *sem));
++extern int FASTCALL(__down_write_trylock(struct rw_semaphore *sem));
+ extern void FASTCALL(__up_read(struct rw_semaphore *sem));
+ extern void FASTCALL(__up_write(struct rw_semaphore *sem));
+ 
+diff -ur linux/include/linux/rwsem.h rwsem_trylock/include/linux/rwsem.h
+--- linux/include/linux/rwsem.h	Wed Jul  4 14:20:44 2001
++++ rwsem_trylock/include/linux/rwsem.h	Tue Jul 10 19:32:05 2001
+@@ -46,6 +46,18 @@
+ }
+ 
+ /*
++ * trylock for reading -- returns 1 if successful, 0 if contention
++ */
++static inline int down_read_trylock(struct rw_semaphore *sem)
++{
++	int ret;
++	rwsemtrace(sem,"Entering down_read_trylock");
++	ret = __down_read_trylock(sem);
++	rwsemtrace(sem,"Leaving down_read_trylock");
++	return ret;
++}
++
++/*
+  * lock for writing
+  */
+ static inline void down_write(struct rw_semaphore *sem)
+@@ -53,6 +65,18 @@
+ 	rwsemtrace(sem,"Entering down_write");
+ 	__down_write(sem);
+ 	rwsemtrace(sem,"Leaving down_write");
++}
++
++/*
++ * trylock for writing -- returns 1 if successful, 0 if contention
++ */
++static inline int down_write_trylock(struct rw_semaphore *sem)
++{
++	int ret;
++	rwsemtrace(sem,"Entering down_write_trylock");
++	ret = __down_write_trylock(sem);
++	rwsemtrace(sem,"Leaving down_write_trylock");
++	return ret;
+ }
+ 
+ /*
+diff -ur linux/lib/rwsem-spinlock.c rwsem_trylock/lib/rwsem-spinlock.c
+--- linux/lib/rwsem-spinlock.c	Wed Apr 25 13:31:03 2001
++++ rwsem_trylock/lib/rwsem-spinlock.c	Tue Jul 10 18:59:24 2001
+@@ -149,6 +149,28 @@
+ }
+ 
+ /*
++ * trylock for reading -- returns 1 if successful, 0 if contention
++ */
++int __down_read_trylock(struct rw_semaphore *sem)
++{
++	int ret = 0;
++
++	rwsemtrace(sem,"Entering __down_read_trylock");
++
++	spin_lock(&sem->wait_lock);
++
++	if (sem->activity>=0 && list_empty(&sem->wait_list)) {
++		/* granted */
++		sem->activity++;
++		spin_unlock(&sem->wait_lock);
++		ret = 1;
++	}
++
++	rwsemtrace(sem,"Leaving __down_read_trylock");
++	return ret;
++}
++
++/*
+  * get a write lock on the semaphore
+  * - note that we increment the waiting count anyway to indicate an exclusive lock
+  */
+@@ -192,6 +214,28 @@
+ 
+  out:
+ 	rwsemtrace(sem,"Leaving __down_write");
++}
++
++/*
++ * trylock for writing -- returns 1 if successful, 0 if contention
++ */
++int __down_write_trylock(struct rw_semaphore *sem)
++{
++	int ret = 0;
++
++	rwsemtrace(sem,"Entering __down_write_trylock");
++
++	spin_lock(&sem->wait_lock);
++
++	if (sem->activity==0 && list_empty(&sem->wait_list)) {
++		/* granted */
++		sem->activity = -1;
++		spin_unlock(&sem->wait_lock);
++		ret = 1;
++	}
++
++	rwsemtrace(sem,"Leaving __down_write_trylock");
++	return ret;
+ }
+ 
+ /*
+
+--------------1041FCAF84C2F5569B11DAC7--
+

@@ -1,50 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263689AbUCUSos (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 13:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263696AbUCUSor
+	id S263698AbUCUSwA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 13:52:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263699AbUCUSwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 13:44:47 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:47535 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S263689AbUCUSoq (ORCPT
+	Sun, 21 Mar 2004 13:52:00 -0500
+Received: from pop.gmx.net ([213.165.64.20]:42884 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263698AbUCUSv5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 13:44:46 -0500
-Message-Id: <200403210333.i2L3XQiw024997@eeyore.valparaiso.cl>
-To: Richard Browning <richard@redline.org.uk>
-cc: Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       linux-kernel@vger.kernel.org,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Subject: Re: ANYONE? Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze 
-In-Reply-To: Message from Richard Browning <richard@redline.org.uk> 
-   of "Sat, 20 Mar 2004 17:26:32 GMT." <200403201726.32595.richard@redline.org.uk> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Sat, 20 Mar 2004 23:33:26 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sun, 21 Mar 2004 13:51:57 -0500
+X-Authenticated: #21910825
+Message-ID: <405DE3EF.8090508@gmx.net>
+Date: Sun, 21 Mar 2004 19:50:23 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] fix tiocgdev 32/64bit emul
+References: <405DC698.4040802@pobox.com> <20040321165752.A9028@infradead.org>
+In-Reply-To: <20040321165752.A9028@infradead.org>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Browning <richard@redline.org.uk> said:
-> On Saturday 20 March 2004 14:33, Richard Browning wrote:
-> > Is there anyone in kernelland who is tackling this? I'm currently in the
-> > throes of recompiling everything with -march=pentium3 -O2 to see if these
-> > simple flags make a difference (as I reiterate, Windoze XP works without
-> > problem). I refuse to believe that I will have to use XP in order to get my
-> > money's worth. I've always thought anything Doze can do, GNU/Linux does
-> > better!
+On 2004-03-21 16:57:52, Christoph Hellwig wrote:
+> On Sun, Mar 21, 2004 at 11:45:12AM -0500, Jeff Garzik wrote:
+>> Yup, looks like a real bug to me...  good catch.
+>>
+>> Untested but obvious patch attached.
+> 
+> Isn't that SuSE's strange ioctl hack that has been rejected for mainline
+> multiple times?  why does x86_64 have an emulation for it if the ioctl
+> isn't implemented anyway?
 
-> It's been pointed out to me that this Doze-vs-Linux comparison won't
-> help. If you're offended by it, please don't be. I've been a supporter
-> and contributer to the GNU cause for the last six years and I'm not going
-> to stop. However this is the first serious issue that I've come across
-> re: the kernel and incompatible hardware and I would like to see it
-> fixed. Like I've said, I want to help pinpoint the problem - but no-one's
-> asking.
+Since this pops up from time to time, please let me explain what TIOCGDEV
+does (if you know already, feel free to scoll to the end) and ask for
+alternative solutions.
 
-In my experience, when Linux crashes, Windows works fine it is flaky
-hardware. Has variously been overclocking, bad fans (CPU overheating), bad
-RAM. You have to rule all that out first. Might need a BIOS update...
+Quoting http://marc.theaimsgroup.com/?l=linux-kernel&m=89051325309548
+On 1998-03-21 20:41:37, Miquel van Smoorenburg wrote:
+> This patch introduces a new ioctl, TIOCGDEV. It can be used to find
+> out the _real_ device of the serial console.
+> 
+> I use this so I can first open /dev/console and a pty pair, then use
+> TIOCCONS to redirect console output to the pty, and then I can copy
+> the console output from the pty to both a logfile and the real console.
+> This is useful for a boot-time daemon so all bootup messages can be
+> captured and logged...
+
+Further links to relevant messages:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=97696542915335
+http://marc.theaimsgroup.com/?l=linux-kernel&m=97696701517101
+http://marc.theaimsgroup.com/?l=linux-kernel&m=97696788418144
+
+Quoting http://marc.theaimsgroup.com/?l=linux-kernel&m=102929921716152
+On 2002-08-14 4:26:45, Linus Torvalds wrote:
+> I've always hated the fact that all the boot-time messages get lost,
+> simply because syslogd hadn't started, and as a result things like fsck
+> ran without any sign afterwards.
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102931212924401
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103383136010219
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103383754113901
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103418708112077
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103771548020416
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103771746822896
+
+Quoting http://marc.theaimsgroup.com/?l=linux-kernel&m=97692840309876
+On 2000-12-16 0:55:37, Kurt Garloff wrote:
+> some applications do need to know where the console (/dev/console)
+> actually maps to. For processes with a controlling terminal, you may see
+> it in /proc/$$/stat. However, daemons are supposed to run detached (they
+> don't want to get killed by ^C) and some processes like init or bootlogd
+> do still need to be able to find out.
+> 
+> The kernel provides this information -- sort of:
+> It contains the TIOCTTYGSTRUCT syscall which returns a struct. Of course,
+> it changes between different kernel archs and revisions, so using it is
+> an ugly hack. Grab for TIOCTTYGSTRUCT_HACK in the bootlogd.c file of the
+> sysvinit sources. Shudder!
+> 
+> Having a new ioctl, just returning the device no is a much cleaner solution,
+> IMHO. So, I created the TIOCGDEV, which Miquel suggests in his sysvinit
+> sources. It makes querying the actual console device as easy as
+> int tty; ioctl (0, TIOCGDEV, &tty);
+> 
+> Patches against 2.2.18 and 2.4.0-testX are attached.
+
+Quoting http://marc.theaimsgroup.com/?l=linux-kernel&m=97692912911233
+On 2000-12-16 1:11:07, Linus Torvalds wrote:
+> Please instead do the same thing /dev/tty does, namely a sane interface
+> that shows it as a symlink in /proc (or even in /dev)
+
+Can we do that in sysfs now? Back then, nobody implemented it for /proc
+and it now already seems to exist as /sys/class/tty/console/dev
+
+Does /sys/class/tty/console/dev have the semantics needed above?
+
+
+Regards,
+Carl-Daniel
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+http://www.hailfinger.org/
+

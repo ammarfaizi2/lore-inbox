@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbTEFDcE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 23:32:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbTEFDcE
+	id S262289AbTEFDkC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 23:40:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262300AbTEFDkC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 23:32:04 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:20881 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S262285AbTEFDcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 23:32:03 -0400
-Date: Mon, 5 May 2003 23:18:30 -0400
-From: Ben Collins <bcollins@debian.org>
+	Mon, 5 May 2003 23:40:02 -0400
+Received: from www1.mail.lycos.com ([209.202.220.140]:54331 "HELO lycos.com")
+	by vger.kernel.org with SMTP id S262289AbTEFDkB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 23:40:01 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCHES] USB input layer improvements
-Message-ID: <20030506031830.GC679@phunnypharm.org>
-References: <20030506002233.GY679@phunnypharm.org>
+Date: Mon, 05 May 2003 23:52:11 -0400
+From: "Sumit Narayan" <sumit_uconn@lycos.com>
+Message-ID: <MHCBNPOFCDJPBDAA@mailcity.com>
 Mime-Version: 1.0
+X-Sent-Mail: off
+Reply-To: sumit_uconn@lycos.com
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: Re: inode number
+X-Sender-Ip: 137.99.1.12
+Organization: Lycos Mail  (http://www.mail.lycos.com:80)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030506002233.GY679@phunnypharm.org>
-User-Agent: Mutt/1.5.4i
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 08:22:33PM -0400, Ben Collins wrote:
-> Ok, now I'm sending this here since linux-usb-devel and Pavel seem to be
-> ignoring my emails. Note, this is against 2.4.21-rc1, but I am prepared
-> to finish this off for 2.5 aswell. I just need someone who knows USB to
-> look this over and give me some freaking feedback. The multi-input patch
-> seems to be of significant importance.
+Hi,
 
-My mistake on the name drop. I sent the patch to Vojtech Pavlik.
+Actually, what I meant with this was, suppose I have a file name, how do I get the inode for that? And also suppose I have the inode number, how do I get the complete object of that inode for use and manipulation?
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Thanks in advance
+
+Sumit
+--
+
+On Mon, 05 May 2003 23:27:32  
+ Sumit Narayan wrote:
+>Hi,
+>
+>How do I know which file has what Inode number? and its under which super block?
+>
+>Thanks
+>
+>Sumit
+>
+>
+>____________________________________________________________
+>Get advanced SPAM filtering on Webmail or POP Mail ... Get Lycos Mail!
+>http://login.mail.lycos.com/r/referral?aid=27005
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
+____________________________________________________________
+Get advanced SPAM filtering on Webmail or POP Mail ... Get Lycos Mail!
+http://login.mail.lycos.com/r/referral?aid=27005

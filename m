@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281214AbRKPGtT>; Fri, 16 Nov 2001 01:49:19 -0500
+	id <S281159AbRKPHE2>; Fri, 16 Nov 2001 02:04:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281215AbRKPGtI>; Fri, 16 Nov 2001 01:49:08 -0500
-Received: from [195.211.46.202] ([195.211.46.202]:48930 "EHLO serv02.lahn.de")
-	by vger.kernel.org with ESMTP id <S281214AbRKPGsw>;
-	Fri, 16 Nov 2001 01:48:52 -0500
-X-Spam-Filter: check_local@serv02.lahn.de by digitalanswers.org
-Date: Fri, 16 Nov 2001 07:44:11 +0100 (CET)
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-Reply-To: <pmhahn@titan.lahn.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: [OOPS] net/8139too
-Message-ID: <Pine.LNX.4.33.0111160721120.6043-100000@titan.lahn.de>
+	id <S281160AbRKPHET>; Fri, 16 Nov 2001 02:04:19 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:22656 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S281159AbRKPHEE>; Fri, 16 Nov 2001 02:04:04 -0500
+Message-ID: <000001c16e6c$c29061d0$f5976dcf@nwfs>
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <002501c16e0c$d3800550$f5976dcf@nwfs> <1005854832.2730.1.camel@heat>
+Subject: Re: Microsoft IE6 is crashing with Linux 2.4.X
+Date: Thu, 15 Nov 2001 14:45:39 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello LKML!
+According to some folks who responded to this, IE6 is just plain broken.  I
+apologize for the lateness of responding, but my Linux server crashed with
+sendmail spawing thread after thread and my /var/spool/mqueue directory
+filled to bursting with corrupted mail headers.  IE6 got into some kind of
+braindead loop where it started flooding sendmail with tons of bogus (and
+garbage) mail headers.
 
-Since linux-2.4.15-pre[14]+kdb+freeswan I get an oops when stopping my
-8139too network:
+It's clearly a piece of sh_t browser.  This latest release qualifies as a
+computer virus.  It's much more destructive that lion every dreamed of
+being.
 
-# ifdown eth0
-eth0: unable to signal thread
-# rmmod -a
-<<< Unplug the network kable >>>
-Inable to handle kernel paging request at virtual address c904b600
- printing eip:
-c904b600
-*pde = 0127d067
-*pte = 00000000
+Jeff
 
-Entering kdb (current=0xc792a000, pid 59) Oops: Oops
-due to oops @ 0xc904b600
-eax = 0xc904b600 ebx = 0xc217aaa0 ecx = 0xc9065000 edx = 0x00000020
-esi = 0x04000001 edi = 0x00000009 esp = 0xc792beae eip = 0xc904b600
-ebp = 0xc792bef6 xss = 0x00000018 xcs = 0x00000010 eflegs = 0x00010202
-xds = 0x00000018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xc792be7a
-kdb> bt
-    EBP       EIP         Function(args)
-0xc792bef6 0xc904b600 <unknown>+0xc904b600
-                               kernel <unknown> 0x0 0x0 0x0
 
-# ksymoops -A 0xc904b600
-Adhoc c904b600 <[8139too]rtl8139_interrupt+0/dc>
+----- Original Message -----
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, November 15, 2001 1:07 PM
+Subject: Re: Microsoft IE6 is crashing with Linux 2.4.X
 
-Quoting from Documentation/networking/8139too.txt:
-> Version 0.9.22 - November 8, 2001
-> ...
-> Version 0.9.21 - November 1, 2001
-> ...
-> * Fix problems with kernel thread exit.
-an from drivers/net/8139too.c:
-> Robert Kuebel - Save kernel thread from dying on any signal.
 
-Hope that helps.
-
-BYtE
-Philipp
--- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
+> On Thu, 2001-11-15 at 11:35, Jeff V. Merkey wrote:
+> >
+> > I have upgraded several W2K boxes to the latest IE6 packages I
+downloaded
+> > from Microsoft's website.  I am seeing a behavior which appears to be a
+bug.
+>
+> Be a lot more interesting email if you included a dump of the actual
+> network traffic.  -jwb
 

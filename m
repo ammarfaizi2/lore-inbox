@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317404AbSGISf0>; Tue, 9 Jul 2002 14:35:26 -0400
+	id <S317375AbSGISqL>; Tue, 9 Jul 2002 14:46:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317405AbSGISfZ>; Tue, 9 Jul 2002 14:35:25 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:10961 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317404AbSGISfZ>;
-	Tue, 9 Jul 2002 14:35:25 -0400
-Date: Wed, 10 Jul 2002 20:31:03 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Erich Focht <efocht@ess.nec.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ia64 <linux-ia64@linuxia64.org>
-Subject: Re: O(1) scheduler "complex" macros
-In-Reply-To: <200207091927.14537.efocht@ess.nec.de>
-Message-ID: <Pine.LNX.4.44.0207102027120.14732-100000@localhost.localdomain>
+	id <S317376AbSGISqJ>; Tue, 9 Jul 2002 14:46:09 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49924 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317375AbSGISpk>; Tue, 9 Jul 2002 14:45:40 -0400
+Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
+To: root@chaos.analogic.com
+Date: Tue, 9 Jul 2002 20:11:09 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+       trond.myklebust@fys.uio.no (Trond Myklebust), nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1020709130055.377A-100000@chaos.analogic.com> from "Richard B. Johnson" at Jul 09, 2002 01:22:29 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17S0OD-0005UY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Really? Then what is the meaning of fsync() on a read-only file-
+> descriptor? You can't update the information you can't change.
 
-On Tue, 9 Jul 2002, Erich Focht wrote:
-
-> Suppose we have 
->   cpu1: idle1
->   cpu2: prev2 -> next2  (in the switch)
-> 
-> I don't understand how task_lock(prev2) done on cpu2 can prevent cpu1 to
-> schedule prev2, which it stole after the RQ#2 lock release. It will just
-> try to task_lock(idle1), which will be successfull.
-
-you are right - the 'complex' macros also need to lock the 'next' task,
-not only the 'previous' task - but to do that deadlock-free, they need to
-drop the runqueue lock ...
-
-	Ingo
-
+fsync ensures the data for that inode/file content is on stable storage - note
+_the_ _data_ not only random things written by this specific file handle.

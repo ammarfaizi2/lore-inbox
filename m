@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263322AbTEIQ5t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 12:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbTEIQ5t
+	id S263317AbTEIQyc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 12:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263327AbTEIQyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 12:57:49 -0400
-Received: from siaab1ab.compuserve.com ([149.174.40.2]:41123 "EHLO
-	siaab1ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S263322AbTEIQ5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 12:57:45 -0400
-Date: Fri, 9 May 2003 13:07:13 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: The disappearing sys_call_table export.
+	Fri, 9 May 2003 12:54:32 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:18818 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263317AbTEIQya (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 12:54:30 -0400
+Message-Id: <200305091707.h49H75b9008938@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <200305091309_MC3-1-3826-6B65@compuserve.com>
-MIME-Version: 1.0
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export. 
+In-Reply-To: Your message of "Fri, 09 May 2003 13:18:38 BST."
+             <1052482717.14539.10.camel@dhcp22.swansea.linux.org.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <200305090352_MC3-1-3815-126F@compuserve.com>
+            <1052482717.14539.10.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_300993344P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Date: Fri, 09 May 2003 13:07:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+--==_Exmh_300993344P
+Content-Type: text/plain; charset=us-ascii
 
->>   Security-sensitive upper layers like virus scanners and loggers
->> would want to do it that way.  The upper layer might even just log
->> the fact that mount happened and then stay out of the way after that.
->
+On Fri, 09 May 2003 13:18:38 BST, Alan Cox said:
+
 > What makes you say that. If the administrator has full priviledges then
 > its kind of irrelevant trying to force anything "for security reasons"
 
-  Check out the NSA's guide for securing Win2k machines sometime.  They
-go through all kinds of steps to separate auditing and administration
-even though an administrator can get around them and play with the audit
-trail anyway.  It raises the bar and removes the defense of plausible
-deniability if an admin gets caught (he can hardly claim it was an
-'accident' that he granted himself audit privileges and then used them
-to tamper with the audit log.)
+Many security models require that there *not* be one person who has "full"
+privileges (for obvious reasons).
 
-        1.  Create a new group: Auditors
-        2.  Grant these rights to Auditors:
-                Take ownership of files; Manage auditing
-        3.  Create a new user: Auditor, and put it in these groups:
-                Users; Auditors
-        4.  Log on as Auditor and take ownership of
-                %systemroot%\system32\config\SecEvent.Evt
-        5.  Set permissions on that security logfile:
-                a. System: full control
-                b. Administrators: no access
-                c. Auditors: full control
-        6.  Now log on as an administrator and take away these rights:
-                a. from Administrators: Manage auditing
-                b. from Auditors: Take ownership of files
-        7.  Enable these extra security options:
-                a. crash on audit failure
-                b. clear page file on shutdown
-                c. full privilege auditing
-                d. lots more...
 
-After setting up auditing and ACLs (many pages of directions for that)
-the audit duties are done by unprivileged users and administrators
-cannot see or alter the audit trail.
+--==_Exmh_300993344P
+Content-Type: application/pgp-signature
 
-  Seems like a lot of useless work given that the admins can grant
-themselves any rights they want, doesn't it?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+u+A4cC3lWbTT17ARAmf1AKCXvpXwGiI1dn0zmd9SPMs2gbhQsACgz1Rb
+HfrBwaLkIddKOznEGeKYNSg=
+=rKba
+-----END PGP SIGNATURE-----
+
+--==_Exmh_300993344P--

@@ -1,233 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265102AbUG2VXC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265661AbUG2VXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265102AbUG2VXC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 17:23:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUG2VXB
+	id S265661AbUG2VXN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 17:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUG2VXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 17:23:01 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59364 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265661AbUG2VU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 17:20:56 -0400
-Date: Thu, 29 Jul 2004 23:20:49 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: James Morris <jmorris@intercode.com.au>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
-Subject: [2.6 patch] netfilter/ip_nat_snmp_basic.c: fix inlines (fwd)
-Message-ID: <20040729212048.GD23589@fs.tum.de>
+	Thu, 29 Jul 2004 17:23:12 -0400
+Received: from dsl092-074-132.bos1.dsl.speakeasy.net ([66.92.74.132]:31123
+	"EHLO neurosis.jim.sh") by vger.kernel.org with ESMTP
+	id S267269AbUG2VVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 17:21:49 -0400
+Date: Thu, 29 Jul 2004 17:20:46 -0400
+From: Jim Paris <jim@jtan.com>
+To: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: RAID-6 corruption
+Message-ID: <20040729212046.GA27332@jim.sh>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="OgqxwSJOaUobr8KG"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-FYI:
-The patch forwarded below is still required in 2.6.8-rc2-mm1.
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Hello,
 
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
+(I've posted some messages about this to linux-raid, but haven't
+gotten much of a response; this time I'm cc'ing to linux-kernel)
 
-Date:	Wed, 14 Jul 2004 23:19:09 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: James Morris <jmorris@intercode.com.au>
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
-Subject: [2.6 patch] netfilter/ip_nat_snmp_basic.c: fix inlines
+I am seeing reproducible corruption with software RAID-6 on an array
+that has been created with missing disks.  The attached script
+demonstrates this easily through loopback devices, but I see the
+problem just the same on real drives.
 
-Trying to compile net/ipv4/netfilter/ip_nat_snmp_basic.c in 
-2.6.8-rc1-mm1 using gcc 3.4 results in the following compile error:
+I do not see the problem with full RAID-6 arrays (no missing disks),
+nor do I see it on RAID-5 arrays on the same system.  I haven't seen
+the corruption when writing directly to the md device, but I haven't
+tested that very much.
 
-<--  snip  -->
+Tested on 2.6.6, 2.6.7, 2.6.8-rc2, with mdadm 1.5.0 and 1.6.0.
+See attached.
 
-...
-  CC      net/ipv4/netfilter/ip_nat_snmp_basic.o
-net/ipv4/netfilter/ip_nat_snmp_basic.c: In function `snmp_trap_decode':
-net/ipv4/netfilter/ip_nat_snmp_basic.c:612: sorry, unimplemented: 
-inlining failed in call to 'mangle_address': function body not available
-net/ipv4/netfilter/ip_nat_snmp_basic.c:896: sorry, unimplemented: called from here
-make[3]: *** [net/ipv4/netfilter/ip_nat_snmp_basic.o] Error 1
+-jim
 
-<--  snip  -->
+--OgqxwSJOaUobr8KG
+Content-Type: application/x-sh
+Content-Disposition: attachment; filename="r6test.sh"
+Content-Transfer-Encoding: quoted-printable
 
-The patch below moves an inlined function above the place where it is 
-called the first time.
-
-An alternative approach would be to remove the inline.
-
-
-diffstat output:
- net/ipv4/netfilter/ip_nat_snmp_basic.c |  142 ++++++++++++-------------
- 1 files changed, 71 insertions(+), 71 deletions(-)
-
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.7-mm6-full-gcc3.4/net/ipv4/netfilter/ip_nat_snmp_basic.c.old	2004-07-09 02:18:23.000000000 +0200
-+++ linux-2.6.7-mm6-full-gcc3.4/net/ipv4/netfilter/ip_nat_snmp_basic.c	2004-07-09 02:21:00.000000000 +0200
-@@ -862,6 +862,77 @@
- 	return 1;
- }
- 
-+/* 
-+ * Fast checksum update for possibly oddly-aligned UDP byte, from the
-+ * code example in the draft.
-+ */
-+static void fast_csum(unsigned char *csum,
-+                      const unsigned char *optr,
-+                      const unsigned char *nptr,
-+                      int odd)
-+{
-+	long x, old, new;
-+	
-+	x = csum[0] * 256 + csum[1];
-+	
-+	x =~ x & 0xFFFF;
-+	
-+	if (odd) old = optr[0] * 256;
-+	else old = optr[0];
-+	
-+	x -= old & 0xFFFF;
-+	if (x <= 0) {
-+		x--;
-+		x &= 0xFFFF;
-+	}
-+	
-+	if (odd) new = nptr[0] * 256;
-+	else new = nptr[0];
-+	
-+	x += new & 0xFFFF;
-+	if (x & 0x10000) {
-+		x++;
-+		x &= 0xFFFF;
-+	}
-+	
-+	x =~ x & 0xFFFF;
-+	csum[0] = x / 256;
-+	csum[1] = x & 0xFF;
-+}
-+
-+/* 
-+ * Mangle IP address.
-+ * 	- begin points to the start of the snmp messgae
-+ *      - addr points to the start of the address
-+ */
-+static inline void mangle_address(unsigned char *begin,
-+                                  unsigned char *addr,
-+                                  const struct oct1_map *map,
-+                                  u_int16_t *check)
-+{
-+	if (map->from == NOCT1(*addr)) {
-+		u_int32_t old;
-+		
-+		if (debug)
-+			memcpy(&old, (unsigned char *)addr, sizeof(old));
-+			
-+		*addr = map->to;
-+		
-+		/* Update UDP checksum if being used */
-+		if (*check) {
-+			unsigned char odd = !((addr - begin) % 2);
-+			
-+			fast_csum((unsigned char *)check,
-+			          &map->from, &map->to, odd);
-+			          
-+		}
-+		
-+		if (debug)
-+			printk(KERN_DEBUG "bsalg: mapped %u.%u.%u.%u to "
-+			       "%u.%u.%u.%u\n", NIPQUAD(old), NIPQUAD(*addr));
-+	}
-+}
-+
- static unsigned char snmp_trap_decode(struct asn1_ctx *ctx,
-                                       struct snmp_v1_trap *trap,
-                                       const struct oct1_map *map,
-@@ -952,77 +1023,6 @@
- 	printk("\n");
- }
- 
--/* 
-- * Fast checksum update for possibly oddly-aligned UDP byte, from the
-- * code example in the draft.
-- */
--static void fast_csum(unsigned char *csum,
--                      const unsigned char *optr,
--                      const unsigned char *nptr,
--                      int odd)
--{
--	long x, old, new;
--	
--	x = csum[0] * 256 + csum[1];
--	
--	x =~ x & 0xFFFF;
--	
--	if (odd) old = optr[0] * 256;
--	else old = optr[0];
--	
--	x -= old & 0xFFFF;
--	if (x <= 0) {
--		x--;
--		x &= 0xFFFF;
--	}
--	
--	if (odd) new = nptr[0] * 256;
--	else new = nptr[0];
--	
--	x += new & 0xFFFF;
--	if (x & 0x10000) {
--		x++;
--		x &= 0xFFFF;
--	}
--	
--	x =~ x & 0xFFFF;
--	csum[0] = x / 256;
--	csum[1] = x & 0xFF;
--}
--
--/* 
-- * Mangle IP address.
-- * 	- begin points to the start of the snmp messgae
-- *      - addr points to the start of the address
-- */
--static inline void mangle_address(unsigned char *begin,
--                                  unsigned char *addr,
--                                  const struct oct1_map *map,
--                                  u_int16_t *check)
--{
--	if (map->from == NOCT1(*addr)) {
--		u_int32_t old;
--		
--		if (debug)
--			memcpy(&old, (unsigned char *)addr, sizeof(old));
--			
--		*addr = map->to;
--		
--		/* Update UDP checksum if being used */
--		if (*check) {
--			unsigned char odd = !((addr - begin) % 2);
--			
--			fast_csum((unsigned char *)check,
--			          &map->from, &map->to, odd);
--			          
--		}
--		
--		if (debug)
--			printk(KERN_DEBUG "bsalg: mapped %u.%u.%u.%u to "
--			       "%u.%u.%u.%u\n", NIPQUAD(old), NIPQUAD(*addr));
--	}
--}
--
- /*
-  * Parse and mangle SNMP message according to mapping.
-  * (And this is the fucking 'basic' method).
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
+#!/bin/bash=0A=0A# Needs 500 megs of space, plus /dev/loop[1-5] and /dev/md=
+6 free=0A# Tested on Linux 2.6.6 & 2.6.8-rc2, mdadm 1.5.0 & 1.6.0=0A=0Aset =
+-e=0A=0Aif [ `id -u` !=3D 0 ] ; then=0A    echo run this as root=0A    exit=
+ 1=0Afi=0A=0Aumount /dev/md6 || true=0Amdadm -S /dev/md6 || true=0Afor i in=
+ `seq 1 5` ; do=0A    losetup -d /dev/loop$i || true=0A    dd if=3D/dev/zer=
+o of=3Ddisk$i bs=3D1M count=3D100=0A    losetup /dev/loop$i disk$i=0Adone=
+=0Amdadm -C /dev/md6 -l 6 -c 128 -n 6 missing /dev/loop[1-5]=0Amkreiserfs -=
+ff /dev/md6=0Amkdir -p mnttmp/=0Amount /dev/md6 mnttmp/=0Add if=3D/dev/zero=
+ of=3Dbigfile bs=3D1M count=3D300=0Acp bigfile mnttmp/=0Aumount mnttmp/=0Am=
+ount /dev/md6 mnttmp/=0A=0Aecho The following md5sums should both equal=0Ae=
+cho 0d97a9cd8bbd7ce75a2a76bb06258915:=0Amd5sum bigfile mnttmp/bigfile=0A=0A=
+# uncomment to leave the setup in place=0A#exit 0=0A=0Aumount /dev/md6=0Amd=
+adm -S /dev/md6=0Afor i in `seq 1 5` ; do=0A    losetup -d /dev/loop$i=0Ado=
+ne=0Arm disk[1-5] bigfile=0Armdir mnttmp/ || true=0A
+--OgqxwSJOaUobr8KG--

@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265049AbTLKOri (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 09:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbTLKOri
+	id S265060AbTLKOs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 09:48:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbTLKOs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 09:47:38 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:26375 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S265049AbTLKOrg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 09:47:36 -0500
-To: Greg KH <greg@kroah.com>
-Cc: Stian Jordet <liste@jordet.nu>, linux-kernel@vger.kernel.org
-Subject: Re: usbfs mount options doesn't work in 2.6, works fine with 2.4
-References: <1070859138.1882.2.camel@chevrolet.hybel>
-	<1070859550.2001.1.camel@chevrolet.hybel>
-	<20031210213142.GB8784@kroah.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 11 Dec 2003 23:47:10 +0900
-In-Reply-To: <20031210213142.GB8784@kroah.com>
-Message-ID: <871xrbbedt.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 11 Dec 2003 09:48:58 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:14009 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265060AbTLKOs4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 09:48:56 -0500
+Date: Thu, 11 Dec 2003 15:46:04 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kendall Bennett <KendallB@scitechsoft.com>,
+       "'Andre Hedrick'" <andre@linux-ide.org>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+In-Reply-To: <20031211010327.GA27196@work.bitmover.com>
+Message-ID: <Pine.LNX.4.58.0312111526200.25165@earth>
+References: <00af01c3bf41$2db12770$d43147ab@amer.cisco.com>
+ <3FD7081D.31093.61FCFA36@localhost> <20031210221800.GM6896@work.bitmover.com>
+ <Pine.LNX.4.58.0312101535170.1273@home.osdl.org> <20031211010327.GA27196@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-ELTE-SpamVersion: SpamAssassin ELTE 1.0
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no, SpamAssassin (score=-4.9, required 5.9,
+	BAYES_00 -4.90)
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
 
-> On Mon, Dec 08, 2003 at 05:59:10AM +0100, Stian Jordet wrote:
-> > http://bugzilla.kernel.org/show_bug.cgi?id=1418
-> > and
-> > http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/0666.html
+On Wed, 10 Dec 2003, Larry McVoy wrote:
+
+> > > Not only that, I think the judge would have something to say about the
+> > > fact that the modules interface is delibrately changed all the time
+> > > with stated intent of breaking binary drivers.
+> > 
+> > Where do you people _find_ these ideas?
 > 
-> Yeah, it's a bug.  I haven't had the time to track it down yet.  Any
-> help with this would be greatly appreciated.
+> Oh, I don't know, years of reading this list maybe?  Come on, Linus, do
+> you really need me to go surfing around to find all the postings to the
+> list where people were saying that's why change is good?  I *know* you
+> have said it.  Don't play dumb, you have and you know it.
 
-I looked driver/usb/inode.c. usbfs use get_sb_single(), but doesn't
-implement ->remount_fs(). So options can pass the only first mount.
+i challenge you to find such posts. What maybe might have happened is that
+someone said "dont change this, it changes the module API" then someone
+else said "that is not a good reason at all" - which is a perfectly
+correct position. Maybe sometimes an interface was changed (or even
+removed) because modules used it in a really unsafe way that lead to many
+bogus bugreports and stability problems. I cant remember any instance of
+pure "hey, lets change this function for fun and for breaking binary
+modules".
 
-And I guess, in this case, simple_pin_fs() in create_special_files()
-did the first mount, and simple_pin_fs() pass the usbfs_fill_super()
-to NULL.
+i've been around here for a long time too and i find your accusation
+insulting.
 
-I think ->remount_fs() helps this. But I'm not sure, sorry.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+and even if someone did do something deliberately, it would be completely
+legal, in fact, an action expressly protected by law. It is a
+technological measure that effectively controls access to a work.
+Deactivating an effective technological measure is against 17 USC 1201.
+(the DMCA) Believe me, most kernel copyright holders are _a lot_ less anal
+about their rights than they could be. Every time Congress makes copyright
+laws stronger for Disney & co, the kernel copyright gets stronger too.
+
+	Ingo

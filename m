@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbUBWWIM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 17:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUBWWIM
+	id S262004AbUBWWP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 17:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbUBWWP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 17:08:12 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:54944 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S262064AbUBWWIG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 17:08:06 -0500
-Date: Mon, 23 Feb 2004 14:08:05 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: hjlipp@web.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
-Message-Id: <20040223140805.00445f62.pj@sgi.com>
-In-Reply-To: <20040223201631.GA32584@mail.shareable.org>
-References: <20040216133418.GA4399@hobbes>
-	<20040222020911.2c8ea5c6.pj@sgi.com>
-	<20040222155410.GA3051@hobbes>
-	<20040222125312.11749dfd.pj@sgi.com>
-	<20040222225750.GA27402@mail.shareable.org>
-	<20040222214457.6f8d2224.pj@sgi.com>
-	<20040223142215.GB30321@mail.shareable.org>
-	<20040223121205.2ef329fd.pj@sgi.com>
-	<20040223201631.GA32584@mail.shareable.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 23 Feb 2004 17:15:27 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:50383 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262004AbUBWWPW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 17:15:22 -0500
+Message-ID: <403A79E0.6080609@us.ibm.com>
+Date: Mon, 23 Feb 2004 14:08:32 -0800
+From: Mike Christie <mikenc@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joe Thornber <thornber@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 1/6] dm: endio method
+References: <20040220153145.GN27549@reti> <20040220153403.GO27549@reti> <40372BCE.7090708@us.ibm.com> <20040223100512.GB943@reti>
+In-Reply-To: <20040223100512.GB943@reti>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Therefore the shell behaviour is not relevant, except for such scripts.
+Hey Joe,
 
-So we agree that the shell behaviour is relevant for such scripts.
+Joe Thornber wrote:
 
-I don't think I missed a thing, and I think we are in agreement, except
-on the relative value of this change, versus the risk of breaking a
-shell.
+> Mike,
+> 
+> On Sat, Feb 21, 2004 at 01:58:38AM -0800, Mike Christie wrote:
+> 
+>>Saving and restoring bi_bdev is going to break multipath.
+> 
+> 
+> Yes, we'll have to fall back to plan A and use the map_context pointer
+> to hold the path being used (attached patch for illustration only).  I
+> had been hoping we could keep the map_context unused so that we could
+> allow the path selectors to use it.  I should have spotted this.
+> 
+> I'll also move the failed bio remap back to mpath_end_io(), so that
+> the context can be reused there (it moved to the daemon when we were
+> trying to do path testing in the kernel).
+>
 
-If a shell is coded to allow for at most one option before the script
-file path, and if a script is presented to it with a shebang option
-having an embedded space, then ... oops.
+With this move if the path has to be activated first, will the daemon 
+have to call some sort of ps_path_is_initialized() function before it 
+calls generic_make_request?
 
-You're just discounting the risk of either such scripts or of such
-stupidly coded shells more than I am discounting such, and you are
-valuing the usefulness of the proposed change more than I value it.
+It might be easier if mp's map_io call did not move so it or the ps 
+could send commands and wait for the response before selecting a path. I 
+guess this would mean you would have to add a access function for the 
+tio's map_info so it could be set from the daemon, or mp may need to 
+allocate its own io wrapper. It seems the latter may now be needed to 
+give ps's a a map_info, becuase dm-mpath needs to store the path in the 
+tio's map_info.
 
-I accept that there is no shell, nor script, on your system that would
-break, and to be honest, I can't find any such shell, or script, on my
-system either.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Mike

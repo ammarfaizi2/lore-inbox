@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316969AbSGSTmE>; Fri, 19 Jul 2002 15:42:04 -0400
+	id <S316999AbSGSTwh>; Fri, 19 Jul 2002 15:52:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316970AbSGSTmD>; Fri, 19 Jul 2002 15:42:03 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:56584 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316969AbSGSTmC>;
-	Fri, 19 Jul 2002 15:42:02 -0400
-Date: Fri, 19 Jul 2002 12:43:26 -0700
-From: Greg KH <greg@kroah.com>
-To: Craig Kulesa <ckulesa@as.arizona.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [USB] uhci-hcd oops on APM resume (2.5.23-26)
-Message-ID: <20020719194326.GA23137@kroah.com>
-References: <Pine.LNX.4.44.0207182241510.4647-100000@loke.as.arizona.edu>
+	id <S317006AbSGSTwg>; Fri, 19 Jul 2002 15:52:36 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:37644 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S316999AbSGSTwf>; Fri, 19 Jul 2002 15:52:35 -0400
+Date: Fri, 19 Jul 2002 16:55:34 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Joseph Malicki <jmalicki@starbak.net>
+Cc: Lars Marowsky-Bree <lmb@suse.de>, "Patrick J. LoPresti" <patl@curl.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: close return value
+Message-ID: <20020719195534.GB3670@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Joseph Malicki <jmalicki@starbak.net>,
+	Lars Marowsky-Bree <lmb@suse.de>,
+	"Patrick J. LoPresti" <patl@curl.com>, linux-kernel@vger.kernel.org
+References: <200207182347.g6INlcl47289@saturn.cs.uml.edu> <s5gsn2fr922.fsf@egghead.curl.com> <015401c22f40$c4471380$da5b903f@starbak.net> <s5gvg7bmu43.fsf@egghead.curl.com> <20020719192524.GY12420@marowsky-bree.de> <20020719193059.GD2718@conectiva.com.br> <000e01c22f5c$dce9c600$da5b903f@starbak.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207182241510.4647-100000@loke.as.arizona.edu>
+In-Reply-To: <000e01c22f5c$dce9c600$da5b903f@starbak.net>
 User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Fri, 21 Jun 2002 18:42:08 -0700
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 11:28:23PM -0700, Craig Kulesa wrote:
-> 
-> 
-> Looks fine.  Works great!  Upon the first APM suspend:
+Em Fri, Jul 19, 2002 at 03:45:40PM -0400, Joseph Malicki escreveu:
+> programmer follows your mantras, the system CANNOT
+> successfully shutdown anyway because then it wouldn't be "reliable".
 
-Hm, does this patch from Jan Harkes solve the uhci-hcd resume problem
-for you?
+Oh well, look at the word _exceptions_ in my post.
 
-thanks,
-
-greg k-h
-
---- linux-2.5.24.orig/drivers/usb/host/uhci-hcd.c	Fri Jun 21 14:56:12 2002
-+++ linux-2.5.24/drivers/usb/host/uhci-hcd.c	Sun Jul  7 01:18:44 2002
-@@ -2074,6 +2074,8 @@
- 
- 	/* Run and mark it configured with a 64-byte max packet */
- 	outw(USBCMD_RS | USBCMD_CF | USBCMD_MAXP, io_addr + USBCMD);
-+
-+	uhci->hcd.state = USB_STATE_READY;
- }
- 
- #ifdef CONFIG_PROC_FS
-@@ -2364,8 +2366,6 @@
- 
- 	/* disable legacy emulation */
- 	pci_write_config_word(dev, USBLEGSUP, USBLEGSUP_DEFAULT);
--
--        hcd->state = USB_STATE_READY;
- 
- 	usb_connect(uhci->rh_dev);
-         uhci->rh_dev->speed = USB_SPEED_FULL;
+- Arnaldo

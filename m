@@ -1,40 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293058AbSBWAfz>; Fri, 22 Feb 2002 19:35:55 -0500
+	id <S293060AbSBWAhp>; Fri, 22 Feb 2002 19:37:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293060AbSBWAfp>; Fri, 22 Feb 2002 19:35:45 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:53387
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S293058AbSBWAfh>; Fri, 22 Feb 2002 19:35:37 -0500
-Date: Fri, 22 Feb 2002 17:35:13 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Christoph Hellwig <hch@caldera.de>, lm@bitmover.com, hpa@kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 bitkeeper repository
-Message-ID: <20020223003513.GM719@opus.bloom.county>
-In-Reply-To: <20020222193723.GL719@opus.bloom.county> <Pine.LNX.4.33L.0202221648320.7820-100000@imladris.surriel.com>
+	id <S293062AbSBWAhg>; Fri, 22 Feb 2002 19:37:36 -0500
+Received: from f266.law11.hotmail.com ([64.4.16.141]:24838 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S293060AbSBWAhU>;
+	Fri, 22 Feb 2002 19:37:20 -0500
+X-Originating-IP: [156.153.254.2]
+From: "Balbir Singh" <balbir_soni@hotmail.com>
+To: bcrl@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Trivial patch against mempool
+Date: Fri, 22 Feb 2002 16:37:13 -0800
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0202221648320.7820-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; format=flowed
+Message-ID: <F266IJI90Ss8uaP6wb800006420@hotmail.com>
+X-OriginalArrivalTime: 23 Feb 2002 00:37:14.0051 (UTC) FILETIME=[3CE26130:01C1BC02]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 04:49:07PM -0300, Rik van Riel wrote:
-> On Fri, 22 Feb 2002, Tom Rini wrote:
-> 
-> > If you have a pristine tree, adding incremental diffs is:
-> > bk import -tpatch ../patch-2.4.X-preY-preZ . && bk tag v2.4.X-preZ
-> > Which is what I do for the PPC's kernel.org-only tree(s).
-> 
-> You forgot about setting the proper BK_USER, BK_HOST and
-> 'bk comment' commands ;)
+That is a good suggestion too, I have redone the patch so
+that the alloc_fn and free_fn are checked before calling
+kmalloc(). I think the BUG_ON is also a good solution
 
-heh.  Those are rather new things, aren't they? :)  Anyhow, the goal for
-these tree(s) is to keep the PPC children trees up to date.
+I have the following now
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+1.
+--- mempool.c.org       Fri Feb 22 12:00:58 2002
++++ mempool.c   Fri Feb 22 17:26:02 2002
+@@ -34,6 +34,9 @@
+        mempool_t *pool;
+        int i;
+
++       BUG_ON(!alloc_fn);
++       BUG_ON(!free_fn);
++
+        pool = kmalloc(sizeof(*pool), GFP_KERNEL);
+        if (!pool)
+                return NULL;
+
+2.
+--- mempool.c.org       Fri Feb 22 12:00:58 2002
++++ mempool.c   Fri Feb 22 17:38:52 2002
+@@ -34,6 +34,8 @@
+        mempool_t *pool;
+        int i;
+
++       BUG_ON(!(alloc_fn && free_fn));
++
+        pool = kmalloc(sizeof(*pool), GFP_KERNEL);
+        if (!pool)
+                return NULL;
+
+
+
+I think (1) is more readable, what do you say?
+Balbir
+
+>From: Benjamin LaHaise <bcrl@redhat.com>
+>To: Balbir Singh <balbir_soni@hotmail.com>
+>CC: linux-kernel@vger.kernel.org
+>Subject: Re: [PATCH] Trivial patch against mempool
+>Date: Fri, 22 Feb 2002 19:02:56 -0500
+>
+>On Fri, Feb 22, 2002 at 12:28:14PM -0800, Balbir Singh wrote:
+> > Check if the alloc_fn and free_fn are not NULL. The caller generally
+> > ensures that alloc_fn and free_fn are valid. It would not harm
+> > to check. This makes the checking in mempool_create() more complete.
+>
+>Rather than leak memory in that case, why not just BUG_ON null
+>function pointers so that people know what code is at fault?
+>
+>		-ben
+
+
+
+
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
+

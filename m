@@ -1,76 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318330AbSGRUFI>; Thu, 18 Jul 2002 16:05:08 -0400
+	id <S318347AbSGRUQE>; Thu, 18 Jul 2002 16:16:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318337AbSGRUFI>; Thu, 18 Jul 2002 16:05:08 -0400
-Received: from [207.251.72.21] ([207.251.72.21]:17171 "EHLO
-	s-ny-exchconn01.island.com") by vger.kernel.org with ESMTP
-	id <S318330AbSGRUFH>; Thu, 18 Jul 2002 16:05:07 -0400
-Message-ID: <628900C9F8A7D51188E000A0C9F3FDFA024FF096@S-NY-EXCH01>
-From: Robert Sinko <RSinko@island.com>
-To: "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       linux-kernel@vger.kernel.org
-Subject: RE: Wrong CPU count
-Date: Thu, 18 Jul 2002 16:07:01 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S318346AbSGRUQD>; Thu, 18 Jul 2002 16:16:03 -0400
+Received: from holomorphy.com ([66.224.33.161]:23692 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318347AbSGRUQD>;
+	Thu, 18 Jul 2002 16:16:03 -0400
+Date: Thu, 18 Jul 2002 13:18:57 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.26 broken on headless boxes
+Message-ID: <20020718201857.GS1096@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+References: <20020717165538.D13352@parcelfarce.linux.theplanet.co.uk> <20020718010617.GL1096@holomorphy.com> <20020718142946.L13352@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020718142946.L13352@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt,
+On Thu, Jul 18, 2002 at 02:29:46PM +0100, Matthew Wilcox wrote:
+>>>EIP; c01b7695 <visual_init+85/e0>   <=====
+>>>edx; f7906600 <END_OF_CODE+37502e5c/????>
+>>>edi; c03dcc00 <vc_cons+0/fc>
+>>>esp; c3d45e7c <END_OF_CODE+39426d8/????>
+> Trace; c01b7773 <vc_allocate+83/140>
+> Trace; c01baa25 <con_open+19/88>
+> Trace; c01ac08c <tty_open+20c/394>
+> Trace; c0145a83 <link_path_walk+683/874>
+> Trace; c0144ed7 <permission+27/2c>
+> Trace; c0146373 <may_open+5f/2ac>
+> Trace; c013c33a <chrdev_open+66/98>
+> Trace; c013b001 <dentry_open+e1/1b0>
+> Trace; c013af16 <filp_open+52/5c>
+> Trace; c013b307 <sys_open+37/74>
+> Trace; c0108893 <syscall_call+7/b>
 
-Thanks for the reply. First, let me say thank you very much for a super web
-site that helped us sort out issues with the 2650 RAID stuff.
-
-I'm not familiar with the HyperThreading concept.
-
-Do you know of any docs that discuss this.  I'm particularly concerned with
-how this impacts the results of monitoring tools such as top.
-
-Thanks,
-Bob
-
------Original Message-----
-From: Matt_Domsch@Dell.com [mailto:Matt_Domsch@Dell.com]
-Sent: Thursday, July 18, 2002 4:01 PM
-To: RSinko@island.com; linux-kernel@vger.kernel.org
-Subject: RE: Wrong CPU count
-
-
-> After upgrading  from kernel 2.4.7-10smp to 2.4.9-34smp using 
-> the Red Hat
-> RPM downloaded from RH Network, the CPU count on the machine 
-> reported by
-> dmesg and listed in /proc/cpuinfo was 4 rather than the actual 2.
-> 
-> This has occured on all 4 Dell 2650's that I've installed 
-> this patch on.  I
-> don't have any other mult-processor machines available to 
-> test this with.
-
-Congratulations, you purchased a fine PowerEdge 2650 with processors which
-contain HyperThreading technology.  Each physical processor appears as two
-logical processors.  This behaviour is expected, and correct. :-)
+This is the 4th one of these I've seen in the last two days. Any chance
+of being able to compile with -g and get an addr2line on the EIP? I've
+tried to reproduce it myself, but haven't gotten it to happen yet.
 
 Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
-
-
-DISCLAIMER: The information contained herein is confidential and is intended
-solely for the addressee(s). It shall not be construed as a recommendation
-to buy or sell any security. Any unauthorized access, use, reproduction,
-disclosure or dissemination is prohibited. Neither ISLAND nor any of its
-subsidiaries or affiliates shall assume any legal liability or
-responsibility for any incorrect, misleading or altered information
-contained herein. Thank you.
-
-
+Bill

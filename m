@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVDFUvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbVDFU66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVDFUvM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 16:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVDFUvM
+	id S262315AbVDFU66 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 16:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVDFU66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 16:51:12 -0400
-Received: from web53104.mail.yahoo.com ([206.190.39.207]:10580 "HELO
-	web53104.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262282AbVDFUvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 16:51:10 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=AtnEXn1z+kkNTeIE4NLraLzFXjJPqmmHRF9cf0T35WzNr4/ZVDxHn3vlYvV6Dl8g5BSkCh/9r4lkRa+lu7CsxQxxJAtByxPfp7ipeaclRPyTEVVOsgpFQJXBrUvs5N+pFX6Rieul3ThmCi6CMHeB8eCzJ/8iP2Vub9Ymsk+sSOk=  ;
-Message-ID: <20050406205109.72013.qmail@web53104.mail.yahoo.com>
-Date: Wed, 6 Apr 2005 13:51:09 -0700 (PDT)
-From: Alan Bryan <icemanind@yahoo.com>
-Subject: Re: Light Scribe Technology
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: 6667
+	Wed, 6 Apr 2005 16:58:58 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:65182 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262315AbVDFU65 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 16:58:57 -0400
+Message-ID: <42544D7E.1040907@linux-m68k.org>
+Date: Wed, 06 Apr 2005 22:58:38 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       apw@shadowen.org
+Subject: Re: [PATCH 1/4] create mm/Kconfig for arch-independent memory options
+References: <E1DIViE-0006Kf-00@kernel.beaverton.ibm.com>
+In-Reply-To: <E1DIViE-0006Kf-00@kernel.beaverton.ibm.com>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---- "John W. Linville" <linville@tuxdriver.com> wrote:
-> On Wed, Apr 06, 2005 at 12:56:35PM -0700, Alan Bryan
-> wrote:
-> 
-> > Can you tell me if there is currently support in
-> the
-> > kernel for HP's new LightScribe technology?
-> >
->
-(http://h30015.www3.hp.com/hp_dec/lightscribe/index_FL.asp).
-> > If there is not, are there plans for it?
-> 
-> I don't know of any.  Are the specs on the hardware
-> open?
-> -- 
-> John W. Linville
-> linville@tuxdriver.com
-> -
+Dave Hansen wrote:
 
-To be honest, I'm not sure. I wrote an email to HP
-using the address on their LightScribe technology
-page, but they never responded...I'm thinking that's a
-big no....But there are Windows drivers to reverese
-engineer...How fun!
+> diff -puN mm/Kconfig~A6-mm-Kconfig mm/Kconfig
+> --- memhotplug/mm/Kconfig~A6-mm-Kconfig	2005-04-04 09:04:48.000000000 -0700
+> +++ memhotplug-dave/mm/Kconfig	2005-04-04 10:15:23.000000000 -0700
+> @@ -0,0 +1,25 @@
+> +choice
+> +	prompt "Memory model"
+> +	default FLATMEM
+> +	default SPARSEMEM if ARCH_SPARSEMEM_DEFAULT
+> +	default DISCONTIGMEM if ARCH_DISCONTIGMEM_DEFAULT
 
+Does this really have to be a user visible option and can't it be
+derived from other values? The help text entries are really no help at all.
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Read only the mail you want - Yahoo! Mail SpamGuard. 
-http://promotions.yahoo.com/new_mail 
+bye, Roman

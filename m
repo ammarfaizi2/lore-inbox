@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263733AbRFDOzh>; Mon, 4 Jun 2001 10:55:37 -0400
+	id <S263934AbRFDCYr>; Sun, 3 Jun 2001 22:24:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264302AbRFDOwq>; Mon, 4 Jun 2001 10:52:46 -0400
-Received: from wdskppp2.mpls.uswest.net ([63.226.148.2]:16234 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S264301AbRFDOwf>; Mon, 4 Jun 2001 10:52:35 -0400
-Date: Mon, 4 Jun 2001 09:39:21 -0500 (CDT)
-From: Nitebirdz <nitebirdz@qwest.net>
-X-X-Sender: <nitebirdz@localhost.localdomain>
-To: Peter Rasmussen <plr@udgaard.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Swap problems persisting?
-In-Reply-To: <200105300442.GAA01571@udgaard.com>
-Message-ID: <Pine.LNX.4.33.0106040933510.20186-100000@localhost.localdomain>
+	id <S263935AbRFDCYh>; Sun, 3 Jun 2001 22:24:37 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:64663 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263934AbRFDCY2>;
+	Sun, 3 Jun 2001 22:24:28 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15130.61778.471925.245018@pizda.ninka.net>
+Date: Sun, 3 Jun 2001 19:24:18 -0700 (PDT)
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: multicast hash incorrect on big endian archs
+In-Reply-To: <3B1A9558.2DBAECE7@colorfullife.com>
+In-Reply-To: <3B1A9558.2DBAECE7@colorfullife.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 May 2001, Peter Rasmussen wrote:
 
->
-> By "sudden shutdown" I meant that the machine freezes hard and when running X
-> using the Magic SysRq key combinations don't seem to work so power cycling was
-> the only option. It seems that it wasn't just the keyboard that had frozen
-> because a webserver I'm running on the machine also stopped serving pages.
->
-> Thanks,
->
-> Peter
+Manfred Spraul writes:
+ > I noticed that the multicast hash calculations assumed little endian
+ > byte ordering in the winbond-840 driver, and it seems that several other
+ > drivers are also affected:
+ > 
+ > 8139too, epic100, fealnx, pci-skeleton, sis900, starfile, sundance,
+ > via-rhine, yellowfin
+ > perhaps drivers/net/pcmcia/xircom_tulip_cb
 
+Many big-endian systems already need to provide little-endian bitops,
+for ext2's sake for example.
 
-I ignore if this has been reported somewhere but I experience the very same
-problem _only_ if the "using_dma" flag in hdparm is enabled.  It doesn't
-only happen with DVDs, but apparently with several other devices such as
-CD-ROMS, playing MP3s, reading from the /dev/pilot device...  My system
-also freezes, I cannot access it via the network, I can only reboot and
-when I take a look at the logs there is no clue at all as to what might have
-happened.  I also have a report from a friend of mine who experienced the
-same problem while burning CDs.  It also seemed to ba caused by hdparm.
+We should formalize this, with {set,clear,change,test}_le_bit which
+technically every port has implemented in some for or another already.
 
-Are you using hdparm too by any chance?  Can you try to reproduce the
-problem _without_ enabling the flag?
-
-
-Just my 2 cents.  I hope I'm not wasting anybody's time.  Now, I'll shut
-up again and read what you guys have to say, as usual.  :-)
-
-
-
--- 
-------------------------------------------------------
-Nitebirdz
-------------------------------------------------------
-http://www.linuxnovice.org
-News, tips, articles, links...
-
-*** http://www.mozilla.org ***
-
+Later,
+David S. Miller
+davem@redhat.com

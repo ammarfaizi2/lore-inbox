@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbUKWHzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbUKWIH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbUKWHzH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 02:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbUKWHzH
+	id S262275AbUKWIH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 03:07:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbUKWIH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 02:55:07 -0500
-Received: from mproxy.gmail.com ([216.239.56.245]:58931 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262309AbUKWHzE (ORCPT
+	Tue, 23 Nov 2004 03:07:27 -0500
+Received: from mail.kroah.org ([69.55.234.183]:47492 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262275AbUKWIHY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 02:55:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=COyjVYlvQZLCnUN1lUAp4IAePKCwqWTZeKm9/2QJEoqUdUV50AIPEoF1DqmYs0O8C+OpU5vZvqaXS9fIYaJH8VHTAiXsUCLjBDv6dR/EQqSDtzcoueKBzw2iskGNQTHkMXkxaTnib6s8RRTIciDiOaasujtmPihD+NDh3xumR+E=
-Message-ID: <21d7e9970411222355360136dc@mail.gmail.com>
-Date: Tue, 23 Nov 2004 18:55:03 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Ralf Gerbig <rge@quengel.org>
-Subject: Re: 2.6.10-rc2-mm1 (8139too interrupt)
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <21d7e9970411190012a2d1f34@mail.gmail.com>
+	Tue, 23 Nov 2004 03:07:24 -0500
+Date: Tue, 23 Nov 2004 00:06:43 -0800
+From: Greg KH <greg@kroah.com>
+To: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6.9] fork: add a hook in do_fork()
+Message-ID: <20041123080643.GD23974@kroah.com>
+References: <1101189797.6210.53.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041116014213.2128aca9.akpm@osdl.org>
-	 <87lld0rb2i.fsf-news@hsp-law.de>
-	 <20041117110640.1c7ccccd.akpm@osdl.org>
-	 <87actgt8zy.fsf-news@hsp-law.de> <87sm76q40b.fsf-news@hsp-law.de>
-	 <21d7e9970411182348704d2f0@mail.gmail.com>
-	 <21d7e9970411190012a2d1f34@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101189797.6210.53.camel@frecb000711.frec.bull.fr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'll see if I can get time to grab Andrews tree over the weekend and
-> build it locally....
+On Tue, Nov 23, 2004 at 07:03:17AM +0100, Guillaume Thouvenin wrote:
+> 
+>    I don't know if this solution is good but it's easy to implement and
+> it just does the trick. I made some tests and it doesn't impact the
+> performance of the Linux kernel. 
 
-Just for anyone following this thread the fix is on the way into the
-drm-2.6 tree for Andrews next release, the pci_enable_device for the
-drm was in the wrong place in the new split tree, moving it up a
-couple of lines to where it should be, fixes this issue..
+What's wrong with the LSM hook already available for you to use for this
+function?
 
-Dave.
+thanks,
+
+greg k-h

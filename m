@@ -1,118 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311885AbSIHSDE>; Sun, 8 Sep 2002 14:03:04 -0400
+	id <S315370AbSIHSFG>; Sun, 8 Sep 2002 14:05:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312590AbSIHSDD>; Sun, 8 Sep 2002 14:03:03 -0400
-Received: from CPE00606767ed59.cpe.net.cable.rogers.com ([24.112.38.222]:55050
-	"EHLO cpe00606767ed59.cpe.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S311885AbSIHSDA>; Sun, 8 Sep 2002 14:03:00 -0400
-Date: Sun, 8 Sep 2002 14:09:00 -0400 (EDT)
-From: "D. Hugh Redelmeier" <hugh@mimosa.com>
-Reply-To: "D. Hugh Redelmeier" <hugh@mimosa.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: clean before or after dep?
-In-Reply-To: <1031490782.26902.4.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0209081206590.21724-100000@redshift.mimosa.com>
+	id <S315388AbSIHSFG>; Sun, 8 Sep 2002 14:05:06 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:5901 "EHLO neon-gw.transmeta.com")
+	by vger.kernel.org with ESMTP id <S315370AbSIHSFF>;
+	Sun, 8 Sep 2002 14:05:05 -0400
+Date: Sun, 8 Sep 2002 11:09:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: James Morris <jmorris@intercode.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Performance issue in 2.5.32+
+In-Reply-To: <Mutt.LNX.4.44.0209090326100.21359-100000@blackbird.intercode.com.au>
+Message-ID: <Pine.LNX.4.44.0209081055310.14734-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
-| > Which is the right order for clean and dep?
-| 
-| The "kernel-howto" has been badly broken for years. The world would
-| actually be better without that document IMHO
+On Mon, 9 Sep 2002, James Morris wrote:
+> 
+> I guess it could be an existing hardware problem which has been triggered 
+> by some innocuous change.
 
-OK, but then where is the right documentation?
+Does HZ make any difference to you? That's easily tested by just editing 
+include/asm-i386/param.h and changing HZ to 100 to get the old behaviour..
 
-The top level README mentions "clean" only one place, and it is not
-relevant.
+I think that change happened earlier than your performance problem, but 
+since lmbench variations can be noticeable and you only had one run per 
+kernel, it might be one of those "comes and goes" things..
 
-The top level Makefile does not explain the semantics and constraints of
-the targets in question.
+Another thing that you might check out is to disable USB if you have it
+on. The memory throughput issue makes me wonder whether there might be a
+lot of DMA going on, and USB (by "design", and I use the term losely) has
+this silly "DMA always"  approach, even if nothing really is happening on
+the bus. 
 
-A grep through Documentation leads to apparent contradictions (this is
-from Red Hat LINUX 7.3's linux-2.4.18-10 source):
+I don't really see anythign very suspicious in the 31->32 changelogs. 
+Somebody else already mentioned TLS etc, but that shouldn't really be 
+noticeable...
 
-Files suggesting dep ; clean:
-
-Documentation/DocBook/sis900.tmpl:476:make clean
-Documentation/cdrom/cm206:59:	make dep; make clean; make zImage; make modules
-Documentation/filesystems/devfs/README:713:make xconfig) and then make dep; make clean and then
-Documentation/filesystems/devfs/README:1546:Forgetting to run make dep; make clean after changing the
-Documentation/kbuild/bug-list.txt:13:  on, do a 'make dep' followed by 'make clean' before you try anything
-Documentation/modules.txt:27:	make clean
-Documentation/networking/arcnet.txt:112:	make clean
-Documentation/networking/arcnet.txt:191:	make clean	
-Documentation/networking/sis900.txt:220:make clean
-Documentation/smp.txt:18:   time -v sh -c 'make dep ; make clean install modules modules_install'
-Documentation/telephony/ixj.txt:366:    4.	make dep;make clean;make bzImage;make modules;make modules_install
-
-
-Files suggesting clean ; dep:
-
-Documentation/isdn/README.HiSax:486:     make clean; make dep; make zImage; make modules; make modules_install
-Documentation/moxa-smartio:256:	   b. make clean			     /* take a few minutes */
-Documentation/networking/DLINK.txt:95:	  # make clean
-
-
-What are the ordering constraints on mrproper, clean, dep, and
-*config?  I'd like to characterise all sequences that properly prepare
-for a kernel build.
-
-What these targets do, according to README:
-
-	mrproper: removes stale .o files and dependencies lying around
-	clean: ? seems to remove files built by the build process
-	*config: configure the kernel [build a .config]
-	dep: set up dependencies
-
-The normal sequence seems to be:
-	mrproper && *config && dep && build
-I'm not sure where clean comes in this sequence.  mrproper includes
-clean, so this sequence will do it once.  Is it needed somewhere after
-the *config too?
-
-Is it safe to combine some or all targets in one make command, eg:
-	make mrproper *config dep build
-I've done this for some targets, but I wonder if it is safe to
-have dep combined with any following targets since it computes
-dependencies.
-
-These issues come up when iteratively trying a kernel build that
-fails.  What kinds of changes require an mrproper? a clean? a dep?
-
-- is it safe to do an mrproper after a *config?  In other words, does
-  mrproper affect/damage/undo anything done by *config?
-
-- an mrproper undoes dep, so it must be followed by a dep
-
-
-- is it safe to do a clean after a *config?  In other words, does clean
-  affect/damage/undo anything done by *config?  Surely it is safe:
-  many of us have done this for years.
-
-- is it necessary to do a clean after a *config?  (README suggests no;
-  many things in Documentation suggest yes.)
-  One reason might be that dep requires this -- is this the case?
-  <http://www.van-dijk.net/linuxkernel/200223/0432.html> suggests yes.
-  Experience suggests no, at least until very recently.
-  Or is there some other way in which dep now requires that
-  it be preceded by a clean, perhaps after a failed build?
-
-- is it safe to do a clean after a dep?  In other words, does clean
-  affect/damage/undo anything done by dep?
-
-- is it necessary to do a clean after a dep?  (README suggests no;
-  many things in Documentation suggest yes.)  Does dep affect
-  subsequent cleans?
-
-- theory: a clean should be done after a failing build so that
-  a subsequent build won't use the results of the failing build.
-
-Hugh Redelmeier
-hugh@mimosa.com  voice: +1 416 482-8253
+		Linus
 

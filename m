@@ -1,74 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268551AbTCAOoO>; Sat, 1 Mar 2003 09:44:14 -0500
+	id <S268553AbTCAOx3>; Sat, 1 Mar 2003 09:53:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268553AbTCAOoO>; Sat, 1 Mar 2003 09:44:14 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:19204 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S268551AbTCAOoM>; Sat, 1 Mar 2003 09:44:12 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303011455.h21EtwhU000402@81-2-122-30.bradfords.org.uk>
+	id <S268559AbTCAOx3>; Sat, 1 Mar 2003 09:53:29 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:7442 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S268553AbTCAOx1>;
+	Sat, 1 Mar 2003 09:53:27 -0500
+Date: Sat, 1 Mar 2003 16:03:50 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: syslog full of kernel BUGS, frequent intermittent instability
-To: coyote1@cytanet.com.cy (wyleus)
-Date: Sat, 1 Mar 2003 14:55:58 +0000 (GMT)
-Cc: redelm@ev1.net, linux-kernel@vger.kernel.org,
-       vga@port.imtp.ilyichevsk.odessa.ua
-In-Reply-To: <20030301082126.56c00418.coyote1@cytanet.com.cy> from "wyleus" at Mar 01, 2003 08:21:26 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <20030301150350.GA27794@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030301082126.56c00418.coyote1@cytanet.com.cy> <200303011455.h21EtwhU000402@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Content-Disposition: inline
+In-Reply-To: <200303011455.h21EtwhU000402@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's the mandrake default AFAIK.  I don't know what all that stuff is, 
-> so I don't mess with it.  My installation does "feel" bloated (very
-> unscientific opinion): it "feels" much less responsive in the GUI
 
-As your machine is quite old, you would probably get a noticable speed
-increase from mounting your filesystems with noatime, which is very
-straightforward and shouldn't cause any problems - just edit
-/etc/fstab, and add the option noatime after each disk partition, for
-example, you might have something like:
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-/dev/hda2	/	ext3	defaults		1  1
+On Sat, 2003-03-01 14:55:58 +0000, John Bradford <john@grabjohn.com>
+wrote in message <200303011455.h21EtwhU000402@81-2-122-30.bradfords.org.uk>:
+> > It's the mandrake default AFAIK.  I don't know what all that stuff is,=
+=20
+> > so I don't mess with it.  My installation does "feel" bloated (very
+> > unscientific opinion): it "feels" much less responsive in the GUI
+>=20
+> /dev/hda2	/	ext3	defaults		1  1
+>=20
+> which you can change to
+>=20
+> /dev/hda2	/	ext3	defaults, noatime	1  1
+                          you loose -----^
 
-which you can change to
+> This is a bit off-topic, but in my experience is about the best way to
+> increase performance on old, (and not so old), hardware, apart from
+> compiling a custom kernel.  Without noatime, every time you read a
+> file, the current date and time is written to the disk.  With noatime,
+> it's only recorded for a write.  Almost no programs use the access
+> time data.
 
-/dev/hda2	/	ext3	defaults, noatime	1  1
+Except some email clients...
 
-This is a bit off-topic, but in my experience is about the best way to
-increase performance on old, (and not so old), hardware, apart from
-compiling a custom kernel.  Without noatime, every time you read a
-file, the current date and time is written to the disk.  With noatime,
-it's only recorded for a write.  Almost no programs use the access
-time data.
+MfG, JBG
 
-> Yesterday I ran burnMMX repeatedly and recorded the results in a
-> text file.  Today, I took everything apart and cleaned up any dust
-> and then moved the single RAM stick into the next slot over (I have
-> 3 slots in total).
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
 
-Are you sure there isn't a correct slot that it should be in?  Most
-motherboard manuals specify that the slots should be used in a
-specific order.
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> Initially I was elated as I ran three tests for about 20 minutes
-> each with no errors.  But my bubble popped on the 4th run.  Changing
-> slots does look like it improved things judging from the results,
-> but still not as it should be - at least that's the way it looks to
-> me.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-I seriously doubt that a single RAM module should be installed in the
-middle slot of three.  One of the end slotf would seem more likely.
+iD8DBQE+YMvWHb1edYOZ4bsRAkBfAJ0UPFXX5ITbn7zMEW9phyfdczzP1ACfUO4s
+ZyKSsyFru6Ri1dgQHfVs4C4=
+=40nt
+-----END PGP SIGNATURE-----
 
-> I'm still running tests as I write this, but will copy the
-> results so far below and let you judge;
-
-> Where should I go from here?  Try another slot?  Buy new RAM?  More
-> testing?
-
-It might have been disconnecting and reconnecting the RAM that
-improved things, not the change of slot.  Try both end slots.
-
-John.
+--T4sUOijqQbZv57TR--

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261728AbTCZPwp>; Wed, 26 Mar 2003 10:52:45 -0500
+	id <S261730AbTCZP5A>; Wed, 26 Mar 2003 10:57:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261730AbTCZPwp>; Wed, 26 Mar 2003 10:52:45 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:41234 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S261728AbTCZPwo>;
-	Wed, 26 Mar 2003 10:52:44 -0500
-Date: Wed, 26 Mar 2003 17:03:50 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Erik Hensema <erik@hensema.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LVM/Device mapper breaks with -mm (was: Re: 2.5.66-mm1)
-Message-ID: <20030326160350.GA11190@win.tue.nl>
-References: <20030326013839.0c470ebb.akpm@digeo.com> <slrnb8373s.19a.usenet@bender.home.hensema.net> <20030326134834.GA11173@win.tue.nl> <slrnb83ehl.196.usenet@bender.home.hensema.net>
+	id <S261734AbTCZP5A>; Wed, 26 Mar 2003 10:57:00 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:43524 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261730AbTCZP47>; Wed, 26 Mar 2003 10:56:59 -0500
+Date: Wed, 26 Mar 2003 16:08:10 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] s390 update (4/9): common i/o layer update.
+Message-ID: <20030326160810.A17984@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+References: <200303261610.16448.schwidefsky@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <slrnb83ehl.196.usenet@bender.home.hensema.net>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200303261610.16448.schwidefsky@de.ibm.com>; from schwidefsky@de.ibm.com on Wed, Mar 26, 2003 at 04:10:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 03:33:26PM +0100, Erik Hensema wrote:
+On Wed, Mar 26, 2003 at 04:10:16PM +0100, Martin Schwidefsky wrote:
+> +	typeof (chsc_area_ssd.response_block)
+> +		*ssd_res = &chsc_area_ssd.response_block;
 
-> > You can revert this single patch and probably all will be fine.
-> 
-> For now I've reverted this patch and LVM is working again.
+Yikes!  Please use the actual type here instead of typeof()
 
-Good.
+> +	if (sch->lpm == 0)
+> +		return -ENODEV;
+> +	else
+> +		return -EACCES;
 
-> > More interesting would be to apply
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103956089203199&w=3
-> 
-> I'd rather not change the ioctl interface, since that would make dual
-> booting with 2.5-vanilla harder.
+I'd write this as return (sch->lpm ? -EACCES : -ENODEV), but maybe I'm
+just too picky..
 
-The ioctl has a version field:
+> -	sch = kmalloc (sizeof (*sch), GFP_DMA);
+> +	sch = kmalloc (sizeof (*sch), GFP_KERNEL | GFP_DMA);
 
-struct dm_ioctl {
-	uint32_t version[3];
-	...
-
-and the above patch changes version 1.6.0 into 2.0.0.
-With sufficiently recent user space utilities all
-should work: they can find out the interface version
-using the DM_VERSION ioctl, and then adapt what
-they send to the kernel.
-(I don't know whether such up-to-date utilities exist.)
-
-Andries
+What about using GFP_KERNEL | __GFP_DMA instead?  This makes it
+more clear that it's just a qualifier.
 

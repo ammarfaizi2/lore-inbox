@@ -1,78 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbUBUB0i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 20:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbUBUB0h
+	id S261471AbUBUBgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 20:36:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUBUBgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 20:26:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38073 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261469AbUBUB0f (ORCPT
+	Fri, 20 Feb 2004 20:36:25 -0500
+Received: from netmagic.net ([206.14.125.10]:12756 "EHLO mail.netmagic.net")
+	by vger.kernel.org with ESMTP id S261471AbUBUBgX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 20:26:35 -0500
-Date: Fri, 20 Feb 2004 17:28:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chad Walstrom <chewie@wookimus.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: NAT over 3c59x cards freezes interactivity on 2.6.2
-Message-Id: <20040220172827.09fd7f9a.akpm@osdl.org>
-In-Reply-To: <20040220224134.GA24203@wookimus.net>
-References: <20040212171647.GW6864@wookimus.net>
-	<20040212184208.48a93b39.akpm@osdl.org>
-	<20040220224134.GA24203@wookimus.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 20 Feb 2004 20:36:23 -0500
+Subject: NFS serving Solaris Jumpstart clients
+From: Per Nystrom <centaur@netmagic.net>
+Reply-To: pnystrom@netmagic.net
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rlNOGgsMxJ1HPUjiy4Kf"
+Message-Id: <1077327381.3712.45.camel@spike>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 20 Feb 2004 17:36:21 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chad Walstrom <chewie@wookimus.net> wrote:
->
-> On Thu, Feb 12, 2004 at 06:42:08PM -0800, Andrew Morton wrote:
-> > Chad Walstrom <chewie@wookimus.net> wrote:
-> > >
-> > > [2.] DETAILS: Upon upgrading from 2.4.x to 2.6.2, I've noticed that my
-> > >  workstation/NAT box freezes on interactive processes while transfering
-> > >  large files over NAT to other machines on the network. 
-> > 
-> > Please monitor the system time with top or `vmstat 1'.  Is it excessive?
-> 
-> I'm not sure what excessive might mean.  There doesn't seem to be any
-> spikes in memory consumption.  Following is the output from 'vmstat 1'.
-> The number of procs waiting for run time increases when the
-> interactivity freezes (while the laptop is downloading files over the
-> workstation's NAT).  The '6' and '5' both occur during download attempts
-> and interactivy freezes.  When I kill the download, interactivy resumes,
-> and the waiting processes drops.
-> 
-> Script started on Fri Feb 20 16:17:30 2004
-> [16:17:30] chewie@skuld (501)$ vmstat 1
-> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
->  2  0   9364   2560  46256 300188    0    0    10    12   35    44 96  1  3  0
->  1  0   9364   2560  46256 300188    0    0     0     0 1008    63 100  0  0  0
->  1  0   9364   2560  46264 300188    0    0     0    12 1008    56 100  0  0  0
 
-It claims that the CPU is pegged in userspace.  What does `top' say?
+--=-rlNOGgsMxJ1HPUjiy4Kf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > A kernel profile might tell us what is going on.  See
-> > Documentation/basic_profiling.txt.
-> 
-> I'll have to recompile the kernel to test this for you.  I'll do so and
-> compile 2.6.3.
+Hi,
 
-Well if you're spending 100% of CPU in userspace then a kernel profile
-won't tell us much.
+I'm trying to use my Linux laptop to serve Solaris Jumpstarts.  The long
+and short of it is, kernel 2.4.19 serves NFS to Jumpstart clients just
+fine, but after that release something changed.  With subsequent
+releases (including 2.6.3), the Solaris Jumpstart client just hangs
+after mounting the miniroot.  It's still ping-able, but it doesn't go
+any further.  If it's any help, here are the last few lines of tcpdump
+output up to the point where the client hangs:
 
-> > If you remove all the netfilter rules, what happens?
-> 
-> Then I wouldn't be able to NAT. ;-)  The workstation works fine as a
-> standalone.  I've downloaded large files w/o too much difficulty, and
-> interactivity remains stable.  The only time I see problems is when I'm
-> downloading files through NAT to the laptop.
+16:46:48.456226 10.42.42.100.nfs > 10.42.42.241.2876172689: reply ok 236
+lookup
+[|nfs] (DF)
+16:46:48.456441 10.42.42.241.2876172690 > 10.42.42.100.nfs: 100 access
+[|nfs] (DF)
+16:46:48.456471 10.42.42.100.nfs > 10.42.42.241.2876172690: reply ok 120
+access
+c 0000 (DF)
+16:46:48.456755 10.42.42.241.2876172691 > 10.42.42.100.nfs: 100 lookup
+[|nfs] (DF)
+16:46:48.456782 10.42.42.100.nfs > 10.42.42.241.2876172691: reply ok 236
+lookup
+[|nfs] (DF)
+16:46:48.457110 10.42.42.241.2876172692 > 10.42.42.100.nfs: 100 remove
+[|nfs] (DF)
+16:46:48.457135 10.42.42.100.nfs > 10.42.42.241.2876172692: reply ok 120
+remove
+ERROR: Read-only file system (DF)
+16:46:48.457445 10.42.42.241.2876172693 > 10.42.42.100.nfs: 100 lookup
+[|nfs] (DF)
+16:46:48.457475 10.42.42.100.nfs > 10.42.42.241.2876172693: reply ok 236
+lookup
+[|nfs] (DF)
+16:46:48.457695 10.42.42.241.2876172694 > 10.42.42.100.nfs: 132 link
+[|nfs] (DF)16:46:48.457718 10.42.42.100.nfs > 10.42.42.241.2876172694:
+reply ok 124 link ERROR: Read-only file system (DF)
+16:46:48.457946 10.42.42.241.2876172695 > 10.42.42.100.nfs: 104 lookup
+[|nfs] (DF)
+16:46:48.457977 10.42.42.100.nfs > 10.42.42.241.2876172695: reply ok 236
+lookup
+[|nfs] (DF)
 
-So it is the presence of the NAT rules which is causing the problem?
+Note -- the read only file system errors also show up during a
+successful run using kernel 2.4.19.
 
-Perhaps the above vmstat trace is wrong?  Make sure that you have a nice and
-recent procps package.
+Any help is greatly appreciated -- I don't want to have to dual-boot
+Solaris x86 just so I can serve Jumpstarts in the field (for that
+matter, I'm not convinced Solaris x86 has the drivers to support my
+laptop anyway).
+
+Thanks,
+Per Nystrom
+
+
+
+--=-rlNOGgsMxJ1HPUjiy4Kf
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQBANrYUuQMWIGtm8TQRAkAeAKCSAkLmp0ZJeq8W8QHToqowhw+EnACfW6VZ
+MB6+LfQo/sfyBuEL7OcejSA=
+=bKXb
+-----END PGP SIGNATURE-----
+
+--=-rlNOGgsMxJ1HPUjiy4Kf--
 

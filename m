@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbTDKJWD (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 05:22:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263621AbTDKJWD (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 05:22:03 -0400
-Received: from rj.sgi.com ([192.82.208.96]:35722 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S261855AbTDKJWD (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 05:22:03 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: =?ISO-8859-1?Q?Pablo_Gim=E9nez_Pizarro?= <pablogipi@inicia.es>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Uresolved Symbol problem in kernel compiled for ATHLON :( 
-In-reply-to: Your message of "Fri, 11 Apr 2003 13:12:38 +0200."
-             <3E96A326.4040700@inicia.es> 
+	id S264056AbTDKJeD (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 05:34:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264074AbTDKJeD (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 05:34:03 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:13573 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S264056AbTDKJeC (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 05:34:02 -0400
+Date: Fri, 11 Apr 2003 10:51:31 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: alan@lxorguk.ukuu.org.uk, 76306.1226@compuserve.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] aic7* claims all checked EISA io ranges
+Message-Id: <20030411105131.05bbcd8f.skraw@ithnet.com>
+In-Reply-To: <524390000.1049993090@aslan.btc.adaptec.com>
+References: <200304082124_MC3-1-3399-FBD0@compuserve.com>
+	<1049886804.9901.19.camel@dhcp22.swansea.linux.org.uk>
+	<194120000.1049909641@aslan.btc.adaptec.com>
+	<20030410132055.1745749c.skraw@ithnet.com>
+	<524390000.1049993090@aslan.btc.adaptec.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 11 Apr 2003 19:33:29 +1000
-Message-ID: <26598.1050053609@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Apr 2003 13:12:38 +0200, 
-=?ISO-8859-1?Q?Pablo_Gim=E9nez_Pizarro?= <pablogipi@inicia.es> wrote:
->I've compiled a kernel optimized for aTHLON processors and when i reboot 
->i get the next error nwhen try to load some modules:
->
->/lib/modules/2.4.20/kernel/drivers/net/dmfe.o: unresolved symbol _mmx_memcpy
+On Thu, 10 Apr 2003 10:44:50 -0600
+"Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
 
-Broken kernel build system.  You must make mrproper before changing
-processor type or when switching from SMP to UP or vice versa.
+> > As I am probably one of the victims of these differing opinions, can anyone
+> > tell me where to get a really-known-to-work aic-driver for 2.4? I am
+> > experiencing zapping-black events while reading from a SDLT drive (writing
+> > to it does fine).
+> 
+> The best way to get to a resolution on aic7xxx issues is to use the
+> drivers from here:
+> 
+> http://people.FreeBSD.org/~gibbs/linux/SRC/
+> 
+> And provide as much information about the problem as you can.  In this
+> case, I'm at a loss for what a "zapping-black event" is.
 
+Thank you for pointing to the URL.
+
+OK, the error description was a bit flaky :-), I simply meant the box freezes
+and the  screen turns black - no oops, no nothing.
+This occurs while reading back about 70 GB of data from an SDLT. _Writing_ this
+data (which is done just before verify-reading it) seems no problem.
+
+-- 
+Regards,
+Stephan

@@ -1,63 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbTFOSWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 14:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbTFOSWQ
+	id S262578AbTFOSYn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 14:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTFOSYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 14:22:16 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9229 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262524AbTFOSWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 14:22:14 -0400
-Date: Sun, 15 Jun 2003 19:36:04 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: force_successful_syscall_return() buggy?
-Message-ID: <20030615193604.L5417@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 15 Jun 2003 14:24:42 -0400
+Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:11528 "HELO
+	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262547AbTFOSYd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 14:24:33 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [Bug 810] New: Kernel BUG at mm/slab.c:981
+Date: Sun, 15 Jun 2003 20:38:02 +0200
+User-Agent: KMail/1.5.2
+References: <469250000.1055701220@[10.10.2.4]>
+In-Reply-To: <469250000.1055701220@[10.10.2.4]>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Message-Id: <200306152038.02496.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While looking at the new bits'n'pieces which has appeared in 2.5.71, I
-noticed the following in alpha and ia64:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-#define alpha_task_regs(task) \
-  ((struct pt_regs *) ((long) (task)->thread_info + 2*PAGE_SIZE) - 1)
+On Sunday 15 June 2003 20:20, Martin J. Bligh wrote:
+>            Summary: Kernel BUG at mm/slab.c:981
+>     Kernel Version: 2.5.70-71
+>             Status: NEW
+>           Severity: blocking
+>              Owner: akpm@digeo.com
+>          Submitter: s_aldinger@hotmail.com
+>
+>
+> Since .69 I've been unable to boot. no config changes. I had to write this
+> out and then type so if something looks really off it might be a typo, give
+> a shout and I'll check it.
+>
+> Kernel BUG at mm/slab.c:981
+> invalid operand:0000 [#1]
+> cpu: 0
+> EIP: 0060:[<c0136eca>]		Not tainted
+> Eflags: 00010202
+> eax: 000001a8		ebx:c053a5c0		ecx:c04ae990		edx:00001797
+> esi:00000000 		edi:00000000		esp:c153ff6c
+> ds:007b		es:007b		ss:0068
+> Process swapper (pid: 1, threadinfo=c153e000 task=c151d880)
+> Stack:	ffffe869	00000029 	0000000292	0000176b	00001797	c0546829
+> 00000246	c011b51e	c053a5c0
+> 00000000	00000000	00000000	c01d5046	c04464b8	000001a8	00000000
+> 00000001
+> c01d4ff2 		00000000 	c0527e9c	c0451f20		c053a5c0	c051cbbd
+> 00000000
+> Call Trace	[<c011b51e>]	[<c01d5046>]	[<c01d4ff2>]	[<c0527e9c>]
+> [<c051c6bd>]	[<c0128542>]	[<c0105051>]	[<c010502c>]
+> [<c010895d>]
+> code: 0f 0b d5 03 60 28 44 c0 c7 44 24 04 d0 00 00 00 c7 04 24 e0
+> <0> Kernel panic: Attempted to kill init!
 
-#define force_successful_syscall_return() (alpha_task_regs(current)->r0 = 0)
+Without ksymoops'ing it, IMHO it's rather useless. :)
+- -- 
+Regards Michael Büsch
+http://www.8ung.at/tuxsoft
+ 20:37:12 up  4:21,  2 users,  load average: 1.05, 1.03, 1.00
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-# define ia64_task_regs(t)              (((struct pt_regs *) ((char *) (t) + IA64_STK_OFFSET)) - 1)
-
-#define force_successful_syscall_return()               \
-        do {                                            \
-                ia64_task_regs(current)->r8 = 0;        \
-        } while (0)
-
-I don't know what happens on these architectures, but I have a suspicion
-that there is a case which the above will fail, maybe with dramatic
-consequences.
-
-Consider what happens when a userspace program is started from kernel
-space, eg the init(8) or hotplug programs.  In these, we call execve()
-from within kernel space function.  This implies that we have some
-frames already on the stack.
-
-AFAIK, sys_execve() does not ensure that the kernel stack will be empty
-before starting the user space thread, so these programs are running with
-a slightly reduced kernel stack.
-
-In turn, this means that the user registers are not stored at the top
-of the kernel stack when the user space program subsequently calls a
-kernel system call, which means the *_task_regs() macro doesn't point
-at the saved user registers.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+iD8DBQE+7L0KoxoigfggmSgRAmzsAJ9GY1iHazGXAxjms/zf84oMtKwy7wCdHsWV
+0Y+QKGR5idPA1mvL+ZLFh8M=
+=5uKV
+-----END PGP SIGNATURE-----
 

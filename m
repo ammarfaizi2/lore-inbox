@@ -1,97 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267427AbSLSAXO>; Wed, 18 Dec 2002 19:23:14 -0500
+	id <S267426AbSLSAYg>; Wed, 18 Dec 2002 19:24:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267430AbSLSAXO>; Wed, 18 Dec 2002 19:23:14 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:5328 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267427AbSLSAXM>;
-	Wed, 18 Dec 2002 19:23:12 -0500
-Date: Wed, 18 Dec 2002 16:24:55 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-cc: John Stultz <johnstul@us.ibm.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, jamesclv@us.ibm.com,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-Subject: Re: [PATCH][2.4]  generic cluster APIC support for systems with more than 8 CPUs 
-Message-ID: <20980000.1040257495@flay>
-In-Reply-To: <C8C38546F90ABF408A5961FC01FDBF1912E18E@fmsmsx405.fm.intel.com>
-References: <C8C38546F90ABF408A5961FC01FDBF1912E18E@fmsmsx405.fm.intel.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267409AbSLSAYf>; Wed, 18 Dec 2002 19:24:35 -0500
+Received: from modemcable088.111-203-24.mtl.mc.videotron.ca ([24.203.111.88]:30679
+	"EHLO nestor.salz.wox.org") by vger.kernel.org with ESMTP
+	id <S267431AbSLSAX1>; Wed, 18 Dec 2002 19:23:27 -0500
+Subject: cmpci: microphone/line in not working
+From: Pierre-Marc Fournier <pmf@users.sourceforge.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Dec 2002 19:31:29 -0500
+Message-Id: <1040257890.1248.62.camel@piteu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First thing, can you split this into much smaller pieces, each of
-which perform one code change ... then it might be more feasible 
-to read it.
+Hello, my microphone does not work with my c-media CM8738 (builtin in
+asus a7v333 motherboard).
+Using kernel 2.4.18
 
-> -   bool 'Multi-node NUMA system support' CONFIG_X86_NUMA
-> -   if [ "$CONFIG_X86_NUMA" = "y" ]; then
-> +   bool 'Clustered APIC (> 8 CPUs) support' CONFIG_X86_APIC_CLUSTER
-> +   if [ "$CONFIG_X86_APIC_CLUSTER" = "y" ]; then
-> +      define_bool CONFIG_X86_CLUSTERED_APIC y
->        #Platform Choices
->        bool ' Multiquad (IBM/Sequent) NUMAQ support' CONFIG_X86_NUMAQ
->        if [ "$CONFIG_X86_NUMAQ" = "y" ]; then
-> -         define_bool CONFIG_X86_CLUSTERED_APIC y
-> -		 define_bool CONFIG_MULTIQUAD y
-> -      fi
-> -      bool ' IBM x440 (Summit/EXA) support' CONFIG_X86_SUMMIT
-> -      if [ "$CONFIG_X86_SUMMIT" = "y" ]; then
-> -         define_bool CONFIG_X86_CLUSTERED_APIC y
-> +                 define_bool CONFIG_MULTIQUAD y
+Adjusted mixer properties so that the recording input is the microphone.
+Volume is at max for microphone (play and record). No hardware mute on
+the microphone. I should be hearing the mike in the speakers without
+even recording, right?
 
-You seem to have lost turning on CONFIG_X86_NUMA.
+Recording gives no error, but only silence is recorded.
+Used gnome-sound-recorder for the tests
 
-> --- linux-2.4.21-pre1.org/arch/i386/defconfig	2002-11-28 15:53:09.000000000 -0800
-> +++ linux-test1/arch/i386/defconfig	2002-12-14 14:59:52.000000000 -0800
-> @@ -62,6 +62,7 @@
->  # CONFIG_MATH_EMULATION is not set
->  # CONFIG_MTRR is not set
->  CONFIG_SMP=y
-> +CONFIG_X86_APIC_CLUSTER=y
->  # CONFIG_MULTIQUAD is not set
->  CONFIG_HAVE_DEC_LOCK=y
+Everything works fine on other OS with exact same hardware
+configuration.
 
-Errrm ... on by default?
-  
-> -	if(clustered_apic_mode == CLUSTERED_APIC_XAPIC)
-> -		id = physical_to_logical_apicid(hard_smp_processor_id());
-> +	if(clustered_apic_mode)
-> +		id = cpu_2_logical_apicid[smp_processor_id()];
+The cmpci v.5.64 gave me this error, while trying to record I think, but
+it does not do so at every attempt.
+cmpci: read: chip lockup? dmasz 65536 fragsz 256 count 0 hwptr 0 swptr 0
 
-Don't use those arrays directly, use the macros.
-And that was off before for NUMA-Q ... you seem to have turned it on.
-Unless you've inverted the meaning of clustered_apic_mode, which is
-going to confuse the hell out of everyone?
+Tried latest: v.5.68; didn't give the error but I'm not sure it won't
+ever since I'm not able to reproduce it on v.5.64 (It just happens
+sometimes.)
 
-> -	if (clustered_apic_mode != CLUSTERED_APIC_NUMAQ) {
-> +	if (configured_platform_type != CONFIGURED_PLATFORM_NUMA) {
+Here's the startup output. Apart from the error, there are no other
+messages from the driver. 5.64 output is basically the same.
 
-OK, what exactly are your switching rules here? Before:
+cm: version $Revision: 5.68 $ time 18:26:47 Dec 18 2002
+PCI: Found IRQ 10 for device 00:05.0
+PCI: Sharing IRQ 10 with 00:09.2
+cm: found CM8738 adapter at io 0xb800 irq 10
+chip version = 055
+cm: Enable SPDIF loop
 
-if (clustered_apic_mode == CLUSTERED_APIC_NUMAQ)   -> numaq only
-if (clustered_apic_mode == CLUSTERED_APIC_XAPIC)   -> x440
-if (clustered_apic_mode)                           -> numaq or x440
+Audio output works perfectly.
 
-Make sure you match that switching logic in whatever you do.
-For instance, this whole section gets skipped for NUMA-Q, but not
-other NUMA machines.
+Any help appreciated.
+Thanks
+Pierre
 
->  			/* Multi-Quad has an extended PCI Conf1 */
-> -			if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
-> +			if(configured_platform_type == CONFIGURED_PLATFORM_NUMA)
-
-If that's the direct substitution you're trying to make, don't misname
-NUMAQ stuff as NUMA - very confusing ...
-
-OK ... I give up trying to read the rest of it until you explain the
-switching rules you're trying to use ... perhaps they're just confusingly
-named, but it looks all wrong to me ...
-
-M.

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264281AbTFPW2N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 18:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264376AbTFPW2N
+	id S264376AbTFPWc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 18:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTFPWc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 18:28:13 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:176 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264281AbTFPW2M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 18:28:12 -0400
-Date: Mon, 16 Jun 2003 15:43:56 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Alan Stern <stern@rowland.harvard.edu>
-cc: Russell King <rmk@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Flaw in the driver-model implementation of attributes
-In-Reply-To: <Pine.LNX.4.44L0.0306161714100.789-100000@ida.rowland.org>
-Message-ID: <Pine.LNX.4.44.0306161540110.908-100000@cherise>
+	Mon, 16 Jun 2003 18:32:28 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:57540 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264376AbTFPWc1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 18:32:27 -0400
+Message-ID: <3EEE4880.3080505@us.ibm.com>
+Date: Mon, 16 Jun 2003 15:45:20 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: girouard@us.ibm.com, stekloff@us.ibm.com, janiceg@us.ibm.com,
+       jgarzik@pobox.com, kenistonj@us.ibm.com, lkessler@us.ibm.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: patch for common networking error messages
+References: <OFF1F6B3DC.30C0E5DE-ON85256D47.007AEFAF@us.ibm.com> <20030616.152745.124055059.davem@redhat.com>
+In-Reply-To: <20030616.152745.124055059.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David S. Miller wrote:
+>    From: Janice Girouard <girouard@us.ibm.com>
+>    Date: Mon, 16 Jun 2003 17:29:15 -0500
+>    
+>    For the sake of consistency and automatic error log analysis, it might be
+> 
+> And all the scripts checking for the existing messages
+> in log files?  Screw them, right?
 
-> Are you sure?  Suppose a pcmcia disk drive is plugged in to that socket.  
-> Why is a disk driver going to name its object "pcmcia_socket0"?  It must
-> be the pcmcia socket driver that owns the object, not the disk driver.  So 
-> then where does the disk driver put the disk-related attributes?  Don't 
-> say in /sys/class/pcmcia_socket/pcmcia_socket0/device/, because the driver 
-> doesn't own that object either.
+Are you saying we never get to change any current
+log messages ever again on accnt of the scripts that are
+monitoring for those precise words? Hope not :)
 
-Well, are you talking about a socket or a disk? Obviously, those are very 
-different devices, and hence have very different objects that you create 
-for them. 
+I'd agree a lot of thought (and agreement :))has to go
+into this before changing minor nits and stuff, and not
+causing too much disruption..Evolution, as opposed to
+revolution ;).  I would hope that most wouldnt need changing..
 
-One way or another, you should be exporting attributes under the directory 
-of the object that you create. If it's a socket, put it under the socket 
-directory above. If it's a disk, then it will have a directory in another 
-location for which you can export attributes. 
-
-Do you have a specific example, or are you just hypothesizing? 
+thanks,
+Nivedita
 
 
-	-pat
 

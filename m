@@ -1,50 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbULHKfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbULHKkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbULHKfY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 05:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbULHKfY
+	id S261178AbULHKkz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 05:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbULHKkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 05:35:24 -0500
-Received: from viking.sophos.com ([194.203.134.132]:30218 "EHLO
-	viking.sophos.com") by vger.kernel.org with ESMTP id S261175AbULHKfT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 05:35:19 -0500
+	Wed, 8 Dec 2004 05:40:55 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:47519 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261178AbULHKkw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 05:40:52 -0500
+Date: Wed, 8 Dec 2004 11:40:50 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] include/asm-ppc/dma-mapping.h macro patch
+In-Reply-To: <20041207150332.GA16936@infradead.org>
+Message-ID: <Pine.LNX.4.53.0412081140070.20725@yvahk01.tjqt.qr>
+References: <20041207132031.GA23542@jmcmullan.timesys> <20041207150332.GA16936@infradead.org>
 MIME-Version: 1.0
-X-MIMETrack: S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
-  |February 13, 2003) at 08/12/2004 10:34:58,
-	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
- 13, 2003) at 08/12/2004 10:34:58,
-	Serialize complete at 08/12/2004 10:34:58,
-	S/MIME Sign failed at 08/12/2004 10:34:58: The cryptographic key was not
- found,
-	Serialize by Router on Mercury/Servers/Sophos(Release 6.5.2|June 01, 2004) at
- 08/12/2004 10:35:19,
-	Serialize complete at 08/12/2004 10:35:19
-To: tvrtko.ursulin@sophos.com
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: 2.6 path_lookup bug?
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OFF2F20386.498518D5-ON80256F64.0039E79A-80256F64.003A29AD@sophos.com>
-From: tvrtko.ursulin@sophos.com
-Date: Wed, 8 Dec 2004 10:35:17 +0000
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>What would you expect to happen if one called:
->>
->>path_lookup("foo:/bar", &nd); ?
->>
->>I suspect there is something fishy going on there because when I do that
->>"/bar" gets destabilised and soon afterwards, another lookup on it will
->>BUG at dcache.c:276.
+>> +#define dma_cache_inv(_start,_size)		do { (void)(_start); (void)(_size); } while (0)
 >
->dcache.h:276, sorry about that!
+>this looks really horrible.  What about turning these into inlines?
 
-Ooops, my fault, please ignore the thread!
-
-I was doing an unconditional path_release even if path_lookup failed. 
-
-Sorry once more!
+M I wonder why someone would cast the result to (void) anyway.
 
 
+Jan Engelhardt
+-- 
+ENOSPC

@@ -1,119 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267013AbRGJRzq>; Tue, 10 Jul 2001 13:55:46 -0400
+	id <S267014AbRGJR50>; Tue, 10 Jul 2001 13:57:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267014AbRGJRzg>; Tue, 10 Jul 2001 13:55:36 -0400
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:18226 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id <S267013AbRGJRzT>; Tue, 10 Jul 2001 13:55:19 -0400
-Date: Tue, 10 Jul 2001 19:54:51 +0200 (CEST)
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.7-pre7, softirq and serial driver.
-Message-ID: <Pine.LNX.4.33.0107101934270.3589-100000@lt.wsisiz.edu.pl>
+	id <S267003AbRGJR5G>; Tue, 10 Jul 2001 13:57:06 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:56564 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S267014AbRGJR4y>; Tue, 10 Jul 2001 13:56:54 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200107101756.f6AHumn0022156@webber.adilger.int>
+Subject: Re: 2.4.6-preX, 2.4.6...
+In-Reply-To: <3B4B1AFB.1090506@srci.iwpsd.org> "from Joshua M. Schmidlkofer at
+ Jul 10, 2001 09:10:51 am"
+To: "Joshua M. Schmidlkofer" <menion@srci.iwpsd.org>
+Date: Tue, 10 Jul 2001 11:56:46 -0600 (MDT)
+CC: Linux kernel Development Mailing List 
+	<linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Joshua writes:
+> I have not located exactly [in which patch] the problem began, but if 
+> try to boot w/2.4.6-preX - 2.4.6,  the video goes away. And then it 
+> seems to lock up the computer.   At first I had APGART + DRI + MatroxFB. 
+>   So I removed the FB drivers, and tried again.   Same problems.   So I 
+> modularized Agpart, and DRI, [I need them for my X config].  No Change. 
+>   Almost immediatly after 'Uncompressing Linux.....'   I see a rush of 
+> the text across the screen, and then the screen flashes, and blinks, and 
+> then nothing.   I do not even have a  chance to see anything at all.  
 
-In Changelog to pre5 we can read:
+It _sounds_ like an X server problem (screen flashing, going blank).  Do
+you have another machine available to see if the computer is still alive
+(via ping, telnet, ssh, etc), or a serial console?
 
--pre5:
- - Andrea Arkangeli: softirq cleanups and fixes, and everybody is happy
-   again (ie I changed some details to make me happy ;)
+You could try setting your runlevel to 3 in /etc/inittab, or booting with
+"single" on the kernel command line to avoid starting X right away at boot.
+If the system boots to single user mode, then it is X that is the problem
+(or at least a bad interaction between X and your kernel).
 
-I'm happy, because  before pre5, I have a lot problems with my fast
-serial cards (Titan Electronics) works with 921600 baud. Problems was with
-reciving packets, ping  has looked like this:
+> I can't tell what's locking up, I tried a SysRQ, but got nothing.   No 
+> screen. *sigh*   I am not equiped to do this over a serial or parallel 
+> port.   I was hoping that someone would have a clue.  
 
+When you say SysRQ, does this include SysRQ-B for rebooting?  If so, that
+may indicate a total lockup.
 
-# ping pc-5.chl.pl -s 1600 -c 35 (1500 is MTU)
-
-[...]
-1608 bytes from pc-5.chl.pl (212.160.254.134): icmp_seq=20 ttl=128
-time=44.596 msec
-[...]
---- pc-5.chl.pl ping statistics ---
-35 packets transmitted, 14 packets received, 60% packet loss
-round-trip min/avg/max/mdev = 44.545/44.946/48.502/1.004 ms
-
-As You see, there was a lot of (60%) packet loss from this host.
-
-Now (with 2.4.6-pre7) ,is almost OK (just after reboot):
-
-# ping pc-5.chl.pl -s 1600 -c 20
---- pc-5.chl.pl ping statistics ---
-20 packets transmitted, 18 packets received, 10% packet loss
-round-trip min/avg/max/mdev = 44.988/45.378/48.094/0.779 ms
-
-Only 2 packets was lost! I was very happy, but after few hours (4-5)
-I have again 60% or more packet loss! Where is a problem? Maybe serial
-driver is buggy?
-
-
-
-
-
-
-
-Additional information about this host:
-
-[root@vendeta /root]# lspci
-00:00.0 Host bridge: Intel Corporation 430HX - 82439HX TXC [Triton II] (rev 01)
-00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
-00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
-00:0e.0 Serial controller: Titan Electronics Inc: Unknown device a005
-00:0e.1 Communication controller: Titan Electronics Inc: Unknown device ffff
-00:0f.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03)
-00:10.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03)
-00:11.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03)
-01:04.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 [FasterNet] (rev 22)
-01:05.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 [FasterNet] (rev 22)
-02:04.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 [FasterNet] (rev 22)
-02:05.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 [FasterNet] (rev 22)
-03:04.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 [FasterNet] (rev 22)
-03:05.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 [FasterNet] (rev 22)
-
-
-[root@vendeta /root]# procinfo
-Linux 2.4.7-pre5 (root@bofh.polvoice.pl) (gcc 2.96 20000731 ) #1 1CPU
-[vendeta]
-
-Memory:      Total        Used        Free      Shared     Buffers
-Cached
-Mem:      62504       18472       44032           0         392       11736
-Swap:     19792           0       19792
-
-Bootup: Tue Jul 10 19:21:54 2001    Load average: 0.00 0.00 0.00 1/24 904
-
-user  :       0:00:12.37   0.8%  page in :    11357
-nice  :       0:00:00.00   0.0%  page out:     1565
-system:       0:01:52.31   7.0%  swap in :        1
-idle  :       0:24:43.89  92.3%  swap out:        0
-uptime:       0:26:48.55         context :    43998
-
-irq  0:    160857 timer                 irq 10:     39388 wanpipe1
-irq  1:         2 keyboard              irq 11:      6808 serial
-irq  2:         0 cascade [4]           irq 12:    232420 eth1, eth2
-irq  5:    236075 eth3, eth4            irq 14:     25849 ide0
-irq  9:    125986 eth0
-
-[root@vendeta /root]# cat /proc/tty/driver/serial
-serinfo:1.0 driver:5.05c revision:2001-07-08
-0: uart:unknown port:3F8 irq:4
-1: uart:unknown port:2F8 irq:3
-2: uart:unknown port:3E8 irq:4
-3: uart:unknown port:2E8 irq:3
-4: uart:16C950/954 port:6100 irq:11 baud:921600 tx:417044 rx:403722 oe:57
-RTS|CTS|DTR|DSR|CD
-5: uart:16C950/954 port:6108 irq:11 baud:38400 tx:133 rx:250
-RTS|CTS|DTR|DSR
-
-
+Cheers, Andreas
 -- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
-
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

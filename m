@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291512AbSBHJ6v>; Fri, 8 Feb 2002 04:58:51 -0500
+	id <S291519AbSBHKBv>; Fri, 8 Feb 2002 05:01:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291519AbSBHJ6e>; Fri, 8 Feb 2002 04:58:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59407 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291512AbSBHJ6W>;
-	Fri, 8 Feb 2002 04:58:22 -0500
-Message-ID: <3C63A10E.D5DF604A@zip.com.au>
-Date: Fri, 08 Feb 2002 01:57:34 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
+	id <S291522AbSBHKBm>; Fri, 8 Feb 2002 05:01:42 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:20930 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S291519AbSBHKBd>; Fri, 8 Feb 2002 05:01:33 -0500
+Date: Fri, 8 Feb 2002 11:01:19 +0100 (CET)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@hades.uni-trier.de
+To: Wayne Whitney <whitney@math.berkeley.edu>
+cc: Rasmus =?iso-8859-1?Q?B=F8g?= Hansen <moffe@amagerkollegiet.dk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: status on northbridge disconnection apm saving?
+In-Reply-To: <200202071633.g17GXuX01867@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+Message-ID: <Pine.LNX.4.40.0202081053570.7911-100000@hades.uni-trier.de>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Rik van Riel <riel@conectiva.com.br>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] get_request starvation fix
-In-Reply-To: <3C639060.A68A42CA@zip.com.au>,
-		<3C639060.A68A42CA@zip.com.au> <20020208095739.J4942@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> 
-> On Fri, Feb 08 2002, Andrew Morton wrote:
-> > Here's a patch which addresses the get_request starvation problem.
-> 
-> [snip]
-> 
-> Agrh, if only I knew you were working on this too :/. Oh well, from a
-> first-read the patch looks good.
+On Thu, 7 Feb 2002, Wayne Whitney wrote:
 
-Seems that with FIFO fairness, /bin/sync now also livelocks.  And
-it's pretty easy to see why.  There's nothing to make
-write_unlocked_buffers() terminate.
+> I have an ASUS A7V (KT133) motherboard, BIOS 1009, with Athlon 100MHz
+> (100MHz FSB).  I also find that if the PCI Master Read Caching is
+> disabled in the BIOS, then the amd_disconnect kills audio playback (it
+> sounds like molasses or something).  There are actually three related
+> BIOS options on this motherboard:
+>
+> System Performance:		Optimal or Normal
+> PCI Master Read Caching:	Enabled or Disabled
+> PCI Delayed Transaction:	Enabled or Disabled
+>
+> This System Performance option is a sort of master option, setting it
+> to normal forces the other two to disabled.
+>
+> Anyway, below are some diffs of the output of "lspci -s 0:0 -xxx".
+> What is surprising to me is that setting the PCI Master Read Caching
+> to Disabled changes the Northbridge settings in a way that is a
+> superset of just setting PCI Delayed Transaction to Disabled.
+>
+> Hope this helps.
+>
+> Cheers, Wayne
 
-We'll worry about that tomorrow.  I may just make it give up
-after writing (2 * nr_buffers_type[BUF_DIRTY]) buffers.
+of cause this helps ... thank you :)
+we know now, that there are pci setting which affect the behavior in
+relation fot audio playback.
+as far as i know on some boards it could be, that the system bus hangs for
+a short time, when the cpu is reconnected after a disconnect. it looks
+like some caching for the pci bus could "cure" the sound skips which
+happens when the system bus hangs for a short time.
+so everyone who has problems with his audio and vidio playback while the
+diconnect patch is active should look at his bios settings ... maybe he
+could activate this pci master read cashing and his problems went away.
 
-The patch works well with read-latency2 (and it didn't throw
-rejects).  Smooth and fast.  It's going to take some time and
-testing to settle everything in.
+hmmm ... by the way: i could not reproduce your experiences, cause i have
+no bios siwtch for pci master read cashing ...
+
+oh ... and the pci delayed transaction could be dangerous on older via
+chipsets cause the famous soutbridge bug in combination with an sound
+blaster card. so be carefull if you have a sound blaster live  ....
+
+daniel
 
 
--
+
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
+

@@ -1,64 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130525AbQKCVEd>; Fri, 3 Nov 2000 16:04:33 -0500
+	id <S131169AbQKCVFX>; Fri, 3 Nov 2000 16:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131856AbQKCVEY>; Fri, 3 Nov 2000 16:04:24 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22279 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130525AbQKCVEM>; Fri, 3 Nov 2000 16:04:12 -0500
-Date: Fri, 3 Nov 2000 17:06:04 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Looking for better 2.2-based VM (do_try_to_free_pages fails,
- machine hangs)
-In-Reply-To: <20001103162409.S7204@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.21.0011031530020.25024-100000@freak.distro.conectiva>
+	id <S131405AbQKCVFN>; Fri, 3 Nov 2000 16:05:13 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:36521 "EHLO
+	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S131169AbQKCVFD>; Fri, 3 Nov 2000 16:05:03 -0500
+Message-ID: <3A032828.6B57611F@linux.com>
+Date: Fri, 03 Nov 2000 13:03:36 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@redhat.org>
+CC: tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
+In-Reply-To: <E13rj9s-0003c4-00@the-village.bc.nu>
+Content-Type: multipart/mixed;
+ boundary="------------76A60DB3201A3D1D36BEC6EC"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------76A60DB3201A3D1D36BEC6EC
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
+Alan Cox wrote:
 
-On Fri, 3 Nov 2000, Ingo Oeser wrote:
+> > 10. To Do But Non Showstopper
+> >      * PCMCIA/Cardbus hangs (Basically unusable - Hinds pcmcia code is
+> >        reliable)
+> >           + PCMCIA crashes on unloading pci_socket
+>
+> The pci_socket crash is fixed it seems
 
-> On Wed, Nov 01, 2000 at 10:03:27PM +0100, Yann Dirson wrote:
-> > On Wed, Nov 01, 2000 at 02:59:01PM -0200, Rik van Riel wrote:
-> > > it appears there has been amazingly little research on this
-> > > subject and it's completely unknown which approach will work
-> > > "best" ... or even, what kind of behaviour is considered to
-> > > be best by the users...
-> > 
-> > Sounds to me like a good point to favour a config-time selection of
-> > OOM killers.
-> 
-> Better yet: Apply my OOM-Killer-API-Patch[1] and build your own
-> OOM-Killer!
-> 
-> Just lock your module into memory, supply an function to
-> install_oom_killer(), save the old one (you get it as return if
-> installing it went ok) and be happy.
-> 
-> And now have fun bringing your machine into OOM situations.
-> 
-> Want to change it back? No problem. Just get signaled somehow[2],
-> reinstall the old one, unlock your module and wait to be cleaned
-> up.
-> 
-> I never tried it above Riks 2.2.x-OOM-Killer-Patch, but it should
-> work on top of it, because oom_kill.c isn't all that different.
+Not unless it was fixed in test10 release.  I have a PC LinkSys dual 10/100 and
+56K card that will kill the machine if you physically pull it out no matter what
+cardctl/module steps are taken.
 
-Ingo,
+It uses the ne2k and serial drivers.
 
-Maybe you could change Rik's oom killer to be a "module" of your OOM
-killer API?
+-d
 
-With this in place, its easier for people to compare Rik's OOM killer
-with other possible new algorithms. 
+--
+"The difference between 'involvement' and 'commitment' is like an
+eggs-and-ham breakfast: the chicken was 'involved' - the pig was
+'committed'."
 
 
 
+--------------76A60DB3201A3D1D36BEC6EC
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+org:<img src="http://www.kalifornia.com/images/paradise.jpg">
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;-12480
+fn:David Ford
+end:vcard
+
+--------------76A60DB3201A3D1D36BEC6EC--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280664AbRKFWss>; Tue, 6 Nov 2001 17:48:48 -0500
+	id <S280674AbRKFWv2>; Tue, 6 Nov 2001 17:51:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280663AbRKFWsm>; Tue, 6 Nov 2001 17:48:42 -0500
-Received: from user-119a3cr.biz.mindspring.com ([66.149.13.155]:2829 "HELO
-	fancypants.trellisinc.com") by vger.kernel.org with SMTP
-	id <S280641AbRKFWr6>; Tue, 6 Nov 2001 17:47:58 -0500
-From: dank@trellisinc.com
+	id <S280656AbRKFWvP>; Tue, 6 Nov 2001 17:51:15 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:260 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S280657AbRKFWuT>;
+	Tue, 6 Nov 2001 17:50:19 -0500
+Date: Tue, 6 Nov 2001 23:50:18 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-In-Reply-To: <20011106152215.A31923@codepoet.org>
-X-Newsgroups: mlist.linux-kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.2.19ext3 (i686))
-Message-Id: <20011106224753.7D45EA3B90@fancypants.trellisinc.com>
-Date: Tue,  6 Nov 2001 17:47:53 -0500 (EST)
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+Message-ID: <20011106235018.D26236@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <slrn9ugh1g.dld.spamtrap@dexter.hensema.xs4all.nl> <Pine.LNX.4.33L.0111061921240.27028-100000@duckman.distro.conectiva> <20011106152826.C31923@codepoet.org> <20011106233349.A26236@lug-owl.de> <3BE86853.9020305@candelatech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BE86853.9020305@candelatech.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux mail 2.4.5 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011106152215.A31923@codepoet.org> you wrote:
-> Sorry, no doughnut for you.  drivers/block/genhd.c:
+On Tue, 2001-11-06 15:46:43 -0700, Ben Greear <greearb@candelatech.com>
+wrote in message <3BE86853.9020305@candelatech.com>:
+> Jan-Benedict Glaw wrote:
+> >On Tue, 2001-11-06 15:28:26 -0700, Erik Andersen <andersen@codepoet.org>
+> >wrote in message <20011106152826.C31923@codepoet.org>:
+> >>On Tue Nov 06, 2001 at 07:24:13PM -0200, Rik van Riel wrote:
+> >>>PROCESSOR=0
+> >>>VENDOR_ID=GenuineIntel
+> >>>CPU_FAMILY=6
+> >>>MODEL=6
+> >>>MODEL_NAME="Celeron (Mendocino)"
+> >>>.....
+> >PROCESSOR=1
+> or PROCESSOR1=1
+> 
+> Either way, it's still trivial to parse with perl or c/c++/Java
+> and probably a dozen other languages I don't know...
 
->    #ifdef CONFIG_PROC_FS
->    int get_partition_list(char *page, char **start, off_t offset, int count)
->        char buf[64];
-> so each /proc/partitions line maxes out at 63 bytes.  So not only
-> is there no overflow, I am providing 16 extra bytes of padding.
+Come on - it's a cludge...
 
-"code poet?"  you've plucked an 80 from the air.  regardless of what the
-kernel prints now and how it's limited (deep within drivers/block/genhd.c),
-there is no reference to this silent 63 via either explicit comment or
-pure code.  your code remains happily ignorant of any modification to this
-postcondition, and when that changes (as it surely will), you lose.  it's
-uninspired coding like the above that keeps the buffer overflow
-technique alive.
-
-now, i imagine you're more skilled than this, and would have invested
-the time to do it properly the first time around (certainly *my*
-managers wouldn't accept "buried within the backend is a hardcoded
-constant...", but i work in network security).  others, however, may
-not be so skilled as you, and what of when they're writing your server?
-
-c string processing is all of doable, mature, and meticulous.  "done
-properly by beginners" is not how i would describe it.
+MfG, JBG
 
 -- 
-nicholas black (dank@trellisinc.com)                      http://trellisinc.com
+Jan-Benedict Glaw . jbglaw@lug-owl.de . +49-172-7608481

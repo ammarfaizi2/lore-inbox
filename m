@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261665AbSJIKgW>; Wed, 9 Oct 2002 06:36:22 -0400
+	id <S261670AbSJIKhZ>; Wed, 9 Oct 2002 06:37:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261666AbSJIKgW>; Wed, 9 Oct 2002 06:36:22 -0400
-Received: from [203.200.144.45] ([203.200.144.45]:30473 "EHLO
-	mx-out-01.nestec.net") by vger.kernel.org with ESMTP
-	id <S261665AbSJIKgV>; Wed, 9 Oct 2002 06:36:21 -0400
-Organization: NeST-India
-Message-ID: <F6E1228667B6D411BAAA00306E00F2A501E78E8C@pdc2.nestec.net>
-From: MOHAMMED AZAD <mohammedazad@nestec.net>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Iptables and ipsec passthru..
-Date: Wed, 9 Oct 2002 15:56:44 +0530 
-Importance: high
-X-Priority: 1
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	id <S261671AbSJIKhZ>; Wed, 9 Oct 2002 06:37:25 -0400
+Received: from tom.rz.uni-passau.de ([132.231.51.4]:28628 "EHLO
+	tom.rz.uni-passau.de") by vger.kernel.org with ESMTP
+	id <S261670AbSJIKhV>; Wed, 9 Oct 2002 06:37:21 -0400
+Message-Id: <200210091042.g99Agwjm009964@tom.rz.uni-passau.de>
+Date: Wed, 9 Oct 2002 12:37:22 +0100
+From: "lell02" <lell02@stud.uni-passau.de>
+To: Jens Axboe <axboe@suse.de>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Status of UDF CD packet writing?
+X-mailer: Foxmail 4.1 [eg]
+Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+      charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+>On Tue, Oct 08 2002, lell02 wrote:
+>> hi, 
+>> 
+>> >Will Jens Axboes patch for CD packet writing for CD-R/RW make it in
+>> >before the feature freeze? I know Jens Axboe is busy with more basic I/O
+>> >stuff, but i sincerely hope it can be squeezed in before 2.6/3.0 is
+>> >released.
+>> 
+>> jens stated on this about 1-2 days ago. he said, it would be little
+>> modification on the ide-cdrom, to make it work with cd-mrw/ packet
+>> writing.  so it could go in after the feature freeze.
+>
+>You might be talking about two different patches -- one for cd-rw
+>support (this is the pktcdvd (or -packet) patch that Peter Osterlund has
+>been maintaining) and the other for cd-mrw. The cd-mrw patch is very
+>small, not a lot is required to support that in the cd driver.
+>Supporting cd-rw is a lot harder, basically you have to do in software
+>what cd-mrw does in hardware (defect management, read-modify-write
+>packet gathering, etc).
+>
+>cd-mrw will definitely be in 2.6. cd-rw support maybe, I haven't even
+>looked at that lately.
+>
 
-I would like to know whether current iptables support ipsec and vpn passthru
-right out of the box??.. if it does not, how do i setup current netfilter to
-enable these two mechanisms??.. is there any kernel patch available
-lately??. or is there any document describing these details??.. I am using
-RH7.3 on an x86 machine.. i would like to have a firewall for my local area
-n/w but i would like my gateway/router to let ipsec/vpn connections
-through... any idea how to acheive this in RH7.3??
+thanx for clearing out these differences. 
 
-pls help!!!
+but, isn't cd-mrw supposed to replace the old packet-writing technique?
+so, in the end, there wouldn't be any need for packet-writing, if every burner 
+ships with cd-mrw-support... i read in the "specs", that the technology would 
+be much better.
 
-thanks and warm regards
-azad
+
+
+Marcus Lell
+
+
+

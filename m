@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129172AbRA3LPX>; Tue, 30 Jan 2001 06:15:23 -0500
+	id <S129704AbRA3LSD>; Tue, 30 Jan 2001 06:18:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129759AbRA3LPN>; Tue, 30 Jan 2001 06:15:13 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:58373 "HELO
+	id <S129884AbRA3LRx>; Tue, 30 Jan 2001 06:17:53 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:59653 "HELO
 	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129172AbRA3LO4>; Tue, 30 Jan 2001 06:14:56 -0500
-Date: Wed, 31 Jan 2001 00:14:52 +1300
+	id <S129704AbRA3LRj>; Tue, 30 Jan 2001 06:17:39 -0500
+Date: Wed, 31 Jan 2001 00:17:37 +1300
 From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: *massive* slowdowns on 2.4.1-pre1[1|2]
-Message-ID: <20010131001452.A6620@metastasis.f00f.org>
-In-Reply-To: <3A761FEC.1C564FAE@the-rileys.net> <Pine.LNX.4.10.10101292102030.28124-100000@coffee.psychology.mcmaster.ca> <955pr6$afk$1@penguin.transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: David Howells <dhowells@redhat.com>, Rasmus Andersen <rasmus@jaquet.dk>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] guard mm->rss with page_table_lock (241p11)
+Message-ID: <20010131001737.C6620@metastasis.f00f.org>
+In-Reply-To: <rasmus@jaquet.dk> <20010129224311.H603@jaquet.dk> <13240.980842736@warthog.cambridge.redhat.com> <14966.32188.408789.239466@pizda.ninka.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <955pr6$afk$1@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jan 29, 2001 at 11:17:58PM -0800
+In-Reply-To: <14966.32188.408789.239466@pizda.ninka.net>; from davem@redhat.com on Tue, Jan 30, 2001 at 12:39:24AM -0800
 X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 29, 2001 at 11:17:58PM -0800, Linus Torvalds wrote:
+On Tue, Jan 30, 2001 at 12:39:24AM -0800, David S. Miller wrote:
 
-    You have to realize that stability takes precedence over
-    EVERYTHING.
+    Please see older threads about this, it has been discussed to
+    death already (hint: sizeof(atomic_t), sizeof(unsigned long)).
 
-Are you sure his desciption describes only disk-slow down? Seems to
-me something else is going on... why would speaker beeps take longer?
-Maybe some kind of PM weirdo?
+can we not define a macro so architectures that can do do atomically
+inc/dec with unsigned long will? otherwise it uses the spinlock?
 
 
   --cw

@@ -1,18 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270847AbRINUyf>; Fri, 14 Sep 2001 16:54:35 -0400
+	id <S271112AbRINVJT>; Fri, 14 Sep 2001 17:09:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270857AbRINUyZ>; Fri, 14 Sep 2001 16:54:25 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:63181 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S270847AbRINUyL>;
-	Fri, 14 Sep 2001 16:54:11 -0400
-Date: Fri, 14 Sep 2001 16:54:12 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lazy umount (1/4)
-In-Reply-To: <Pine.LNX.4.33.0109141341100.1769-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0109141648260.11172-100000@weyl.math.psu.edu>
+	id <S271106AbRINVJJ>; Fri, 14 Sep 2001 17:09:09 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14085 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S270958AbRINVIu>; Fri, 14 Sep 2001 17:08:50 -0400
+Date: Fri, 14 Sep 2001 16:44:30 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
+In-Reply-To: <Pine.LNX.4.21.0109141456410.4708-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0109141644160.4708-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,31 +22,66 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 14 Sep 2001, Linus Torvalds wrote:
+On Fri, 14 Sep 2001, Marcelo Tosatti wrote:
 
 > 
-> On Fri, 14 Sep 2001, Alexander Viro wrote:
-> >
-> > There are only two things to take care of -
-> > 	a) if we detach a parent we should do it for all children
-> > 	b) we should not mount anything on "floating" vfsmounts.
-> > Both are obviously staisfied for current code (presence of children
-> > means that vfsmount is busy and we can't mount on something that
-> > doesn't exist).
 > 
-> I disagree about the "we can't mount on something that doesn't exist"
-> part.
+> On Fri, 14 Sep 2001, Hugh Dickins wrote:
 > 
-> If the detached mount is busy, it might be busy exactly because somebody
-> has his working directory in it. Which means that
+> > On Thu, 13 Sep 2001, Marcelo Tosatti wrote:
+> > > > > 
+> > > > > CPU0			CPU1			CPU2
+> > > > > do_swap_page()		try_to_swap_out()	swapin_readahead()
+> > .....
+> > > > > BOOM.
+> > > > > 
+> > > > > Now, if we get additional references at valid_swaphandles() the above race
+> > > > > is NOT possible: we're guaranteed that any get_swap_page() will not find
+> > > > 
+> > > > Err I mean _will_ find the swap map entry used and not use it, then.
+> > > > 
+> > > > > the swap map entry used. See?
+> > 
+> > Yes, I see it now: had trouble with the line wrap!
+> > 
+> > Sure, that's one of the scenarios we were talking about, and getting
+> > additional references in valid_swaphandles will stop that particular
+> > race.
+> > 
+> > It won't stop the race with "bare" read_swap_cache_async (which can
+> > happen with swapoff, or with vm_swap_full deletion if multithreaded),
 > 
-> 	mount /dev/hda ./xxxx
+> Could you please make a diagram of such a race ? 
 > 
-> by such a process could cause a mount within the "nonexisting" mount.
+> > and won't stop the race when valid_swaphandles->swap_duplicate comes
+> > all between try_to_swap_out's get_swap_page and add_to_swap_cache.
+> 
+> Oh I see:
+> 
+> CPU0			CPU1
+> 
+> try_to_swap_out()	swapin readahead
+> 
+> get_swap_page()
+> 			valid_swaphandles()
+> 			swapduplicate()
+> add_to_swap_cache()
+> 			add_to_swap_cache()
+> 
+> BOOM.
+> 
+> Is that what you mean ?
+> 
+> > The first of those is significantly less likely than swapin_readahead
+> > instance.  The second requires interrupt at the wrong moment: can
+> > certainly happen, but again less likely.
+> > 
+> > Adding back reference bumping in valid_swaphandles would reduce the
+> > likelihood of malign read_swap_cache_async/try_to_swap_out races,
+> > but please don't imagine it's the final fix.
+> 
+> Right. Now I see that the diagram I just wrote (thanks for making me
+> understand it :)) has been there forever. Ugh. 
 
-Sure, which is exactly why we need to add checks.  See part 3 - calls of
-check_mnt() prevent precisely that kind of situations.
-
-	What I mean is that adding these checks is backwards-compatible -
-in absence of lazy umounts they are never triggered.
+I mean the race has been there forever.
 

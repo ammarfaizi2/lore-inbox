@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRATWOY>; Sat, 20 Jan 2001 17:14:24 -0500
+	id <S129444AbRATW2i>; Sat, 20 Jan 2001 17:28:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129444AbRATWOP>; Sat, 20 Jan 2001 17:14:15 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:50441 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129413AbRATWOA>; Sat, 20 Jan 2001 17:14:00 -0500
-Message-ID: <3A6A0DA3.FF1EB559@transmeta.com>
-Date: Sat, 20 Jan 2001 14:13:55 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129729AbRATW23>; Sat, 20 Jan 2001 17:28:29 -0500
+Received: from pop.gmx.net ([194.221.183.20]:37259 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129444AbRATW2P>;
+	Sat, 20 Jan 2001 17:28:15 -0500
+Message-ID: <3A6A09F2.8E5150E@gmx.de>
+Date: Sat, 20 Jan 2001 22:58:10 +0100
+From: Edgar Toernig <froese@gmx.de>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.0.32 i586)
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Minors remaining in Major 10 ??
-In-Reply-To: <Pine.LNX.4.10.10101200039590.609-100000@master.linux-ide.org>
+To: Michael Lindner <mikel@att.net>
+CC: Chris Wedgwood <cw@f00f.org>, Dan Maas <dmaas@dcine.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data 
+ available
+In-Reply-To: <fa.nc2eokv.1dj8r80@ifi.uio.no> <fa.dcei62v.1s5scos@ifi.uio.no> <015e01c082ac$4bf9c5e0$0701a8c0@morph> <3A69361F.EBBE76AA@att.net> <20010120200727.A1069@metastasis.f00f.org> <3A694254.B52AE20B@att.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> 
-> HPA,
-> 
-> Thoughts on granting all block subsystems a general access misc-char minor
-> to do special service access that can not be down to a given device if it
-> is open.  There are some things you can not do to a device if you are
-> using its device-point to gain entry.  Also do the grab a neighboor and
-> force the migration to find the desired major/minor is painful.
-> 
+Michael Lindner wrote:
+>[...]
+>                 send(s, ".", 1, 0);
+>[...]
+>         while (select(r+1, &readfds, 0, 0, 0) > 0) {
+>[...]
+>[select returns only after about 1 HZ]
 
-Hmmm... this would be better done using a dedicated major (and then minor
-= block major.)  This is something we can do in 2.5 once we have the
-larger dev_t; at this point, I'd be really hesitant to allocate
-additional that aren't obligatory.
+Ever heard of nagle?  (If not, there's a long thread about
+it on the mailing list *g*)
 
-	-hpa
+It's not the select that waits. It's a delay in the tcp send
+path waiting for more data.  Try disabling it:
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+	int f=1;
+	setsockopt(s, SOL_TCP, TCP_NODELAY, &f, sizeof(f));
+
+Ciao, ET.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

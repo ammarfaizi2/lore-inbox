@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbULUMGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbULUMbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbULUMGx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 07:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbULUMGx
+	id S261735AbULUMbu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 07:31:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbULUMbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 07:06:53 -0500
-Received: from mail.gmx.de ([213.165.64.20]:47540 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261744AbULUMGj (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Tue, 21 Dec 2004 07:06:39 -0500
-Date: Tue, 21 Dec 2004 13:06:37 +0100 (MET)
-From: "Loic Domaigne" <loic-dev@gmx.net>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: nptl@bullopensource.org, Linux-Kernel@Vger.Kernel.ORG, mingo@elte.hu
-MIME-Version: 1.0
-References: <41C8047E.1030403@cyberone.com.au>
-Subject: Re: OSDL Bug 3770
-X-Priority: 3 (Normal)
-X-Authenticated: #19395655
-Message-ID: <25289.1103630797@www66.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Dec 2004 07:31:50 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36769 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261735AbULUMbs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 07:31:48 -0500
+Date: Tue, 21 Dec 2004 12:31:46 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Greg KH <greg@kroah.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>, willy@debian.org
+Subject: Re: [PATCH] add PCI API to sysfs
+Message-ID: <20041221123146.GA16109@parcelfarce.linux.theplanet.co.uk>
+References: <200412201450.47952.jbarnes@engr.sgi.com> <20041220225817.GA21404@kroah.com> <200412201501.12575.jbarnes@engr.sgi.com> <1103613121.21771.28.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103613121.21771.28.camel@gaston>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Nick, 
+On Tue, Dec 21, 2004 at 08:12:01AM +0100, Benjamin Herrenschmidt wrote:
+> treat all busses of a domain the same, but it leaves us with the
+> necessary flexibility for setups with bridges that can remap the legacy
+> space or that kind of thing.
 
-> >Does Linux tolerate hard CPU binding? By hard CPU binding, I mean 
-> >that the application tells the scheduler "I want to run there", 
-> >and the scheduler schedules the thread(s) "there" regardless if it 
-> >makes sense or not ( The decision is left to the application). 
-> 
-> Yes, it does support hard CPU binding - sched_setaffinity
-
-Yes, I believe that /sched_setaffinity()/ offers a practical solution to the
-problem we are faced. 
-
-But I am eager to try the RT-patchset of Ingo. 
-
-
-> [snip interesting dialogue]
-> 
-> Thanks for your detailed comments, they were interesting.
-
-... Glad to hear. You're welcome!  
-
-
-
-Cheers,  
-Loic. 
+Do any such bridges exist?  I've never heard of them.  io space accesses
+are implemented by the host bridge, so I think the most generic we need
+to support is one per host bridge, ie root bus.
 
 -- 
---
-// Sender address goes to /dev/null (!!) 
-// Use my 32/64 bits, ANSI C89, compliant email-address instead:   
-
-unsigned y[]=
-{0,34432,26811,16721,41866,63119,61007,48155,26147,10986};
-void x(z){putchar(z);}; unsigned t; 
-main(i){if(i<10){t=(y[i]*47560)%65521;x(t>>8);x(t&255);main(++i);}}
-
-+++ Sparen Sie mit GMX DSL +++ http://www.gmx.net/de/go/dsl
-AKTION für Wechsler: DSL-Tarife ab 3,99 EUR/Monat + Startguthaben
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

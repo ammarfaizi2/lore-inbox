@@ -1,43 +1,44 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269070AbUJQHZZ (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 17 Oct 2004 03:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269073AbUJQHZZ
+	id S261372AbUJXFHV (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 24 Oct 2004 01:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbUJXFHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 03:25:25 -0400
-Received: from camppool02.emailebay.com ([216.33.244.101]:22754 "EHLO
-	camp12.sjc.ebay.com") by vger.kernel.org with ESMTP id S269070AbUJQHZX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 03:25:23 -0400
-Date: Sun, 17 Oct 2004 00:25:22 -0700 (PDT)
-From: Unexpected reply handler <cmuser@hoho.sjc.ebay.com>
-Message-Id: <200410170725.i9H7PMO12760@hoho.sjc.ebay.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: important
-References: <200410170725.i9H7PFBF010520@mailhost2.sjc.ebay.com>
-In-Reply-To: <200410170725.i9H7PFBF010520@mailhost2.sjc.ebay.com>
+	Sun, 24 Oct 2004 01:07:21 -0400
+Received: from [196.40.3.216] ([196.40.3.216]:2569 "HELO artlover.com")
+	by vger.kernel.org with SMTP id S261372AbUJXFHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 01:07:17 -0400
+Message-ID: <00880924.DD81D66@artlover.com>
+Date: Sun, 24 Oct 2004 04:47:50 +0100
+From: "Penelope Salais" <penelopesalaispmcxixcjkek@artlover.com>
+User-Agent: Opera7.0/Win32 M2 build 2637
+MIME-Version: 1.0
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: don't feel embarassed about erectile dysfunction
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S269070AbUJQHZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261372AbUJXFHV@vger.kernel.org>
 
-Thank you for your response. Please don't reply to this message - it is an automated response and your reply will not be received.
- 
-If you have a question for eBay Customer Support, please visit the following eBay Help page. This page will help you locate the answer to your question, or assist you in contacting us:
+It's just as potent as the brand name version made by Pfizer.
 
- http://pages.ebay.com/help/index.html
+This is made possible by unique patent laws off-shore which permit
+manufacturing of certain drugs which are still under patent in the U.S.
 
-If you would like to change your notification preferences, which determine what type of email you receive from eBay, please follow the steps below:
+Place your order today. It will be one of the best decisions of the year.
 
-1. Click "My eBay" located at the top of all eBay pages. You may be asked to sign in.
+Jerri Leeson
 
-2. Click the "eBay Preferences" link located under the "My Account" heading.
-
-3. Click the "view/change" link to the right of "Notification Preferences." You may be asked to sign in once more.
-
-4. On the "Change Your Notification Preferences" page, check the boxes to indicate the types of messages you'd like to receive from eBay. Then, uncheck the boxes to indicate the types of messages you don't want to receive from us.
-
-5. Once you're done, be sure to click the "Save Changes" button at the top or bottom of the page. 
-
-Again, thanks for writing eBay.
+http://Hpoj.discountedmeds.net/?Ndyrftw/Yjnnb
 
 
--- 
+
+
+
+
+Not interested in pharmaceutical products, go here:
+http://Y4701.discountedmeds.net/?Jyo/Ohrprl
+y1Skovoqeqfm
+

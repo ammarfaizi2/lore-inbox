@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136473AbREIOK2>; Wed, 9 May 2001 10:10:28 -0400
+	id <S136479AbREIOMS>; Wed, 9 May 2001 10:12:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136477AbREIOKS>; Wed, 9 May 2001 10:10:18 -0400
-Received: from NS.CenSoft.COM ([208.219.23.2]:55047 "EHLO
-	ns.centurysoftware.com") by vger.kernel.org with ESMTP
-	id <S136473AbREIOKL>; Wed, 9 May 2001 10:10:11 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jordan Crouse <jordanc@Censoft.com>
-Reply-To: jordanc@Censoft.com
-Organization: The Microwindows Project
-To: Jocelyn Mayer <jma@netgem.com>, antonpoon@hongkong.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: How to compile kernel for Geode GX1
-Date: Wed, 9 May 2001 08:09:40 -0600
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <3AF91E88.1000705@netgem.com>
-In-Reply-To: <3AF91E88.1000705@netgem.com>
-MIME-Version: 1.0
-Message-Id: <01050908094005.28749@cosmic>
-Content-Transfer-Encoding: 7BIT
+	id <S136480AbREIOMI>; Wed, 9 May 2001 10:12:08 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:30726 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S136479AbREIOMA>; Wed, 9 May 2001 10:12:00 -0400
+Message-Id: <200105091410.f49EATO2002043@pincoya.inf.utfsm.cl>
+To: Gregory Maxwell <greg@linuxpower.cx>
+cc: jamal <hadi@cyberus.ca>, netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+        linux-net@vger.rutgers.edu, Sally Floyd <floyd@aciri.org>,
+        kk@teraoptic.com, jitu@aciri.org
+Subject: Re: ECN: Volunteers needed 
+In-Reply-To: Message from Gregory Maxwell <greg@linuxpower.cx> 
+   of "Wed, 09 May 2001 09:38:19 -0400." <20010509093819.A13226@xi.linuxpower.cx> 
+Date: Wed, 09 May 2001 10:10:29 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you are using the vesa framebuffer on the Geode, you will also want to 
-make a minor change to vesafb.c.  Because the framebuffer is located within 
-the processor itself, requesting the memory region always caused my Geode 
-boxes to freeze.  I think that we can safely eliminate this call, since we 
-know the memory is always available:  
+Gregory Maxwell <greg@linuxpower.cx> said:
 
---- /usr/src/linux/drivers/video/vesafb.c	Thu Mar  8 10:35:53 2001
-+++ vesafb.c	Tue Mar 27 09:13:22 2001
-@@ -519,12 +519,14 @@
- 	video_visual = (video_bpp == 8) ?
- 		FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
- 
-+#ifdef NOTUSED
- 	if (!request_mem_region(video_base, video_size, "vesafb")) {
- 		printk(KERN_ERR
- 		       "vesafb: abort, cannot reserve video memory at 0x%lx\n",
- 			video_base);
- 		return -EBUSY;
- 	}
-+#endif
- 
-         video_vbase = ioremap(video_base, video_size);
- 	if (!video_vbase) {
+[...]
 
-Jordan
+> Anyone have any friends at AOL? I wonder what the effect on these
+> non-conformant sites would be if AOL's proxy's became ECN enabled?
+
+And AOL is sure crazy enough to "break compatibility with everybody" just
+out of courtesy to someone's friend call. 
+
+Get real, it _won't_ happen unless they are forced to do so. Standard or
+not.
 -- 
--- embed this!  http://www.microwindows.org --
-
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

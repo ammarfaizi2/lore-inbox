@@ -1,97 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269934AbUJNApa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269938AbUJNAy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269934AbUJNApa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 20:45:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269938AbUJNApa
+	id S269938AbUJNAy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 20:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269939AbUJNAy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 20:45:30 -0400
-Received: from out001pub.verizon.net ([206.46.170.140]:18669 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S269934AbUJNAp0
+	Wed, 13 Oct 2004 20:54:57 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:7298 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269938AbUJNAyz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 20:45:26 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Clock inaccuracy seen on NVIDIA nForce2 systems
-Date: Wed, 13 Oct 2004 20:45:22 -0400
-User-Agent: KMail/1.7
-Cc: Jesse Stockall <stockall@magma.ca>, Andy Currid <ACurrid@nvidia.com>
-References: <8E5ACAE05E6B9E44A2903C693A5D4E8A01C45AC2@hqemmail02.nvidia.com> <1097701839.5500.111.camel@homer.blizzard.org>
-In-Reply-To: <1097701839.5500.111.camel@homer.blizzard.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Oct 2004 20:54:55 -0400
+Date: Thu, 14 Oct 2004 10:53:00 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-xfs@oss.sgi.com
+Subject: Re: Page cache write performance issue
+Message-ID: <20041014005300.GA716@frodo>
+References: <20041013054452.GB1618@frodo> <20041012231945.2aff9a00.akpm@osdl.org> <20041013063955.GA2079@frodo> <20041013000206.680132ad.akpm@osdl.org> <20041013172352.B4917536@wobbly.melbourne.sgi.com> <416CE423.3000607@cyberone.com.au> <20041013013941.49693816.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410132045.23042.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.58.180] at Wed, 13 Oct 2004 19:45:24 -0500
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20041013013941.49693816.akpm@osdl.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 October 2004 17:10, Jesse Stockall wrote:
->On Wed, 2004-10-13 at 16:30, Andy Currid wrote:
->> A possible cause of this behavior is a clock synchronization issue
->> that can arise on some nForce2 systems when interrupts are routed
->> through the IOAPIC, and Spread Spectrum (SS) clocking is enabled.
->> Under certain conditions, this can cause the IOAPIC to issue
->> multiple interrupts to the CPU when it should have issued only
->> one.
->>
->> If you are experiencing clock inaccuracy on nForce2 hardware, take
->> the following steps to determine if this issue may be the cause:
->>
->> 1. Determine if the hardware you are using may be affected by this
->>    problem. The problem is limited to MCP2 and MCP2-T hardware; it
->> does not affect MCP2-S or any nForce3 hardware. MCP2 and MCP2-T
->> hardware may be identified by the PCI device ID of the ISA bridge,
->> which is 0x0060 for these devices.
->>
->>    To read the bridge device ID, use 'lspci -n -s 0:1.0' . The
->> output should be of the form '0000:00:01.0 Class 0601: 10de:0060
->> (rev a3)'. The device ID of the bridge in this example is "0060"
->> following the NVIDIA PCI vendor ID "10de".
->>
->>    If your ISA bridge device ID is not 0x0060, then this issue is
->> not the cause of any clock inaccuracy you are experiencing.
->
->lspci -n -s 0:1.0
->
->output:  0000:00:01.0 Class 0601: 10de:0060 (rev a3)
->
->> 2. Otherwise, examine the output from 'cat /proc/interrupts'. If
->> IRQ0 (the timer) is shown to be in PIC mode rather than IOAPIC
->> mode, then this issue is not the cause of any clock inaccuracy you
->> are experiencing.
->
->cat /proc/interrupts
->
->output: 0:  179117760    IO-APIC-edge  timer
->
->> 3. Otherwise, reboot your system and enter BIOS SETUP. Check if
->> your BIOS has a Front Side Bus (FSB) Spread Spectrum (SS) clocking
->> option. On many systems, this option is located in the "Advanced
->> Chipset Features" menu. If the option is present and enabled,
->> disable it. Boot Linux and observe the system clock over several
->> hours to verify if this has improved its accuracy.
->
->Both Front Side Bus and AGP spread spectrum are disabled.
->
->The system is running 2.6.9-rc4 and has been up for 2 days. I'm
-> showing an offset of -32 seconds and growing.
->
->Jesse
+On Wed, Oct 13, 2004 at 01:39:41AM -0700, Andrew Morton wrote:
+> Nick Piggin <piggin@cyberone.com.au> wrote:
+> >
+> >  Andrew probably has better ideas.
+> 
+> uh, is this an ia32 highmem box?
 
-This, given the accuracy of the clock crystals used in todays 
-motherboard is not surprising.  For that reason I run ntpdate 4x a 
-day, which keeps me within a second *most* of the time.
+Yep, it is.
+
+> If so, you've hit the VM sour spot.
+> ...
+> Basically, *any* other config is fine.  896MB and below, 1.5GB and above.
+
+I just tried switching CONFIG_HIGHMEM off, and so running the
+machine with 512MB; then adjusted the test to write 256M into
+the page cache, again in 1K sequential chunks.  A similar mis-
+behaviour happens, though the numbers are slightly better (up
+from ~4 to ~6.5MB/sec).  Both ext2 and xfs see this.  When I
+drop the file size down to 128M with this kernel, I see good
+results again (as we'd expect).
+
+I'm being pulled onto other issues atm, but in the background
+I could try reverting specific changesets if you guys can
+suggest anything in particular that might be triggering this?
+
+thanks!
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Nathan

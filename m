@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbUBXCY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 21:24:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbUBXCY0
+	id S262095AbUBXCbX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 21:31:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbUBXCbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 21:24:26 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43723 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262082AbUBXCYZ
+	Mon, 23 Feb 2004 21:31:23 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:31928 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262095AbUBXCbW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 21:24:25 -0500
-Date: Tue, 24 Feb 2004 02:24:24 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Ian Wienand <ianw@gelato.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devpts_fs.h fails with "error: parameter name omitted"
-Message-ID: <20040224022424.GL31035@parcelfarce.linux.theplanet.co.uk>
-References: <20040224021651.GF1200@cse.unsw.EDU.AU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040224021651.GF1200@cse.unsw.EDU.AU>
-User-Agent: Mutt/1.4.1i
+	Mon, 23 Feb 2004 21:31:22 -0500
+Date: Tue, 24 Feb 2004 00:24:09 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+Cc: linux-kernel@vger.kernel.org, Bartlomiej Solarz <solarz@wsisiz.edu.pl>
+Subject: Re: 2.4.25 Ooops & crash
+In-Reply-To: <Pine.LNX.4.58LT.0402201652320.2690@lt.wsisiz.edu.pl>
+Message-ID: <Pine.LNX.4.58L.0402240015150.5692@logos.cnet>
+References: <Pine.LNX.4.58LT.0402201652320.2690@lt.wsisiz.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 01:16:51PM +1100, Ian Wienand wrote:
 
-> -int devpts_pty_new(struct tty_struct *); /* mknod in devpts */
-> -struct tty_struct *devpts_get_tty(int);	 /* get tty structure */
-> -void devpts_pty_kill(int);		 /* unlink */
-> +int devpts_pty_new(struct tty_struct *tty);      /* mknod in devpts */
-> +struct tty_struct *devpts_get_tty(int number);	 /* get tty structure */
-> +void devpts_pty_kill(int number);		 /* unlink */
 
-  
->  /* Dummy stubs in the no-pty case */
-> -static inline int devpts_pty_new(struct tty_struct *) { return -EINVAL; }
-> -static inline struct tty_struct *devpts_get_tty(int)  { return NULL; }
-> -static inline void devpts_pty_kill(int) { }
-> +static inline int devpts_pty_new(struct tty_struct *tty) { return -EINVAL; }
-> +static inline struct tty_struct *devpts_get_tty(int number) { return NULL; }
-> +static inline void devpts_pty_kill(int number) { }
+On Fri, 20 Feb 2004, Lukasz Trabinski wrote:
 
-That part makes sense.  Previous one doesn't.
+> Hello
+
+Hi Lukasz,
+
+> I have unlucky with latest 2.4.25 kernel. Most of my machines after
+> upgrade kernel to 2.4.25 (from 2.4.24) automatically restart after several
+> hours, or Ooops (swapper proces, pid 0).
+> In logs file i haven't any information from kernel (oops and other strange
+> thing). Unfortunately i can't connect serial console to catch information
+> from console. :(
+>
+> With 2.4.24 or earlier i had uptime about 50-100 days (except one machine)
+> I don't see any reports about this problem on this list, strange.
+
+Right, I haven't received any reports of problems like yours in 2.4.25.
+
+Is there any common hardware between this machines? aic7xxx I suspect?
+
+Please collect more details --- the oops output would be great.
+
+Why can't you connect a serial cable to any of the machines?
+
+> On http://lukasz.eu.org/2.4.25-rc1 you can see ksymoops.txt or vmlinux
+> from machine where i tested 2.4.25-rc1.
+
+There is nothing wrong in these traces AFAICS.
+
+

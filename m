@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270294AbTGMQxT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 12:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270295AbTGMQxT
+	id S270287AbTGMQn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 12:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270283AbTGMQn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 12:53:19 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:65413 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270294AbTGMQxS
+	Sun, 13 Jul 2003 12:43:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16052 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270281AbTGMQn1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 12:53:18 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 13 Jul 2003 10:00:38 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: "David S. Miller" <davem@redhat.com>, e0206@foo21.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kuznet@ms2.inr.ac.ru
-Subject: Re: [Patch][RFC] epoll and half closed TCP connections
-In-Reply-To: <20030713140758.GF19132@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.55.0307130956530.14680@bigblue.dev.mcafeelabs.com>
-References: <20030712181654.GB15643@srv.foo21.com>
- <Pine.LNX.4.55.0307121256200.4720@bigblue.dev.mcafeelabs.com>
- <20030712222457.3d132897.davem@redhat.com> <20030713140758.GF19132@mail.jlokier.co.uk>
+	Sun, 13 Jul 2003 12:43:27 -0400
+Message-ID: <3F118F99.1020104@pobox.com>
+Date: Sun, 13 Jul 2003 12:58:01 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Roland Dreier <roland@topspin.com>, "David S. Miller" <davem@redhat.com>,
+       Alan Shih <alan@storlinksemi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: TCP IP Offloading Interface
+References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>	 <20030713004818.4f1895be.davem@redhat.com>  <52u19qwg53.fsf@topspin.com> <1058113895.554.7.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1058113895.554.7.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jul 2003, Jamie Lokier wrote:
-
-> David S. Miller wrote:
-> > Alexey, they seem to want to add some kind of POLLRDHUP thing,
-> > comments wrt. TCP and elsewhere in the networking?  See below...
->
-> POLLHUP is a mess.  It means different things according to the type of
-> fd, precisely because it is considered an unmaskeable event for the
-> poll() API so the standard meaning isn't useful for sockets.  (See the
-> comments in tcp_poll()).
->
-> POLLRDHUP makes sense because it could actually have a well-defined
-> meaning: set iff reading the fd would return EOF.
->
-> However, if a program is waiting on POLLRDHUP, you don't want the
-> program to have to say "if this fd is a TCP socket then listen for
-> POLLRDHUP else if this fd is another kind of socket call read to
-> detect EOF else listen for POLLHUP".  Programs have enough
-> version-specific special cases as it is.
->
-> So I suggest:
->
->   - Everywhere that POLLHUP is currently set in a driver, socket etc.
->     it should set POLLRDHUP|POLLHUP - unless it specifically knows
->     about POLLRDHUP as in TCP (and presumably UDP, SCTP etc).
-
-Returning POLLHUP to a caller waiting for POLLIN might break existing code
-IMHO. After ppl reporting the O_RDONLY|O_TRUNC case I'm inclined to expect
-everything from existing apps ;) POLLHUP should be returned to apps
-waiting for POLLOUT while POLLRDHUP to ones for POLLIN.
+Alan Cox wrote:
+> Finally if you are streaming objects by non mapped references (eg
+> sendfile or see LM's paper from long ago on splice()) then the problem
+> goes away.
 
 
+As an aside, I really like sendfile's semantics except for
 
-- Davide
+* People occasionally want to add a receivefile(2).  I disagree... 
+sendfile(2) interface should be really be considered a universal 
+"fdcopy" interface, regardless of what the 'to' and 'from' file 
+descriptors are attached to.  File to socket.  Socket to file.  File to 
+file.  socket to socket.  All should be supported, even if the fallback 
+is a stupid (but small!) in-kernel copy loop.
+
+* Copy-until-EOF semantics are either undefined, or, unclear to me 
+personally.
+
+	Jeff
+
+
 

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264458AbTDPQtV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264467AbTDPQs7
+	id S264529AbTDPQ4U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264521AbTDPQ4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:48:59 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:37060
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264458AbTDPQrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:47:42 -0400
-Subject: RE: How to identify contents of /lib/modules/*
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Cameron, Steve" <Steve.Cameron@hp.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <45B36A38D959B44CB032DA427A6E1064045133AB@cceexc18.americas.cpqcorp.net>
-References: <45B36A38D959B44CB032DA427A6E1064045133AB@cceexc18.americas.cpqcorp.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050508885.28727.137.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 16 Apr 2003 12:56:03 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:18317 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264509AbTDPQyu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:54:50 -0400
+Date: Wed, 16 Apr 2003 10:08:14 -0700
+From: Greg KH <greg@kroah.com>
+To: Robert Schwebel <robert@schwebel.de>
+Cc: David Brownell <david-b@pacbell.net>,
+       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Chosing the right Linux "USB Gadget" API and Driver Framework
+Message-ID: <20030416170814.GA18854@kroah.com>
+References: <20030416073635.GA10886@pengutronix.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Apr 2003 17:01:25 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030416073635.GA10886@pengutronix.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-04-16 at 16:58, Cameron, Steve wrote:
-> I think it's the use of "--force" option to RPM that causes this,
-> or else, faulty RPMs.  It's not so easy to make a well-behaved
-> RPM.  Having tried myself, sometimes I think maybe RPM 
-> really stands for "Revolting Pile of Manure". (no offense ;-) Of 
-> course I'm probably trying to bend it do a job for which perhaps 
-> it is not so well suited.
+On Wed, Apr 16, 2003 at 09:36:35AM +0200, Robert Schwebel wrote:
+> I'm currently working on support for the USB gadget controller inside
+> the Intel PXA25x XScale processor. David Brownell has recently published
+> a new USB gadget API which was discussed on linux-usb-devel and which
+> seems to be a good starting point.
+> 
+> As there is at least one other API (by Belcarra, former Lineo code) I'm
+> wondering what Greg's and Linus' position concerning the new USB gadget
+> API is. A comment from your side would be welcome. 
 
-Only --force allows the same file to be owned by two packages. Otherwise
-RPM throws a fit about it. People who use --force I file in the same
-category as overclockers, CB amp hackers and the like 8)
+I've looked at both apis, and think the one from David looks much better
+than the old Lineo code (don't know if that has been updated in a long
+time, I might not be aware of newer developments with that code.)
 
-At that point the answer basically is what is being run depends on 
-precisely what order it was forced and how. Its probably not sanely
-computable.
+So, barring any unforseen pushes from the ex-Lineo developers I expect
+David's code to make it into the main kernel tree eventually.
 
+Hope this helps,
 
+greg k-h

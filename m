@@ -1,37 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278658AbRJ3XGE>; Tue, 30 Oct 2001 18:06:04 -0500
+	id <S278739AbRJ3XIE>; Tue, 30 Oct 2001 18:08:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278678AbRJ3XF4>; Tue, 30 Oct 2001 18:05:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37646 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278658AbRJ3XFl>; Tue, 30 Oct 2001 18:05:41 -0500
-Date: Tue, 30 Oct 2001 15:04:04 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Simon Kirby <sim@netnation.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.14-pre4 tainted + preempt oops...
-In-Reply-To: <20011030135641.A959@netnation.com>
-Message-ID: <Pine.LNX.4.33.0110301502390.1188-100000@penguin.transmeta.com>
+	id <S278736AbRJ3XHr>; Tue, 30 Oct 2001 18:07:47 -0500
+Received: from [208.129.208.52] ([208.129.208.52]:524 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S278732AbRJ3XGk>;
+	Tue, 30 Oct 2001 18:06:40 -0500
+Date: Tue, 30 Oct 2001 15:14:47 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Davide Libenzi <davidel@xmailserver.org>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Proposal For A More Scalable Scheduler ...
+In-Reply-To: <20011030150429.E490@mikef-linux.matchmail.com>
+Message-ID: <Pine.LNX.4.40.0110301513470.1495-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 30 Oct 2001, Mike Fedyk wrote:
 
-On Tue, 30 Oct 2001, Simon Kirby wrote:
-> On Tue, Oct 30, 2001 at 06:13:33PM +0000, Linus Torvalds wrote:
+> On Tue, Oct 30, 2001 at 09:02:54AM -0800, Davide Libenzi wrote:
+> > On Tue, 30 Oct 2001, Mike Fedyk wrote:
+> >
+> > > On Mon, Oct 29, 2001 at 09:38:07PM -0800, Davide Libenzi wrote:
+> > > > 2) My Linux Scheduler Stuff Page:
+> > > > 	http://www.xmailserver.org/linux-patches/lnxsched.html
+> > > >
+> > >
+> > > Anyone know if this is preempt safe?  It's using processor specific lists,
+> > > and might not be.
+> >
+> > Processor specific lists ?
+> > The mss scheduler patch in for x86 but it's trivial ( about 10 lines of
+> > code ) to port it to other arcs.
+> >
 >
-> > Don't bother, just get pre5. It's a bug in pre4, no blame on vmware or
-> > even nVidia.
+> >From the origional:
+> The proposed implementation uses a runqueue-per-cpu scheduler where,
+> inside each CPU, the scheduler code is exactly the same of the current one.
+> The big runqueue_lock has been substituted by locks that protects CPU run
+> queues.
+> By having separate run queues the length/cost of the goodness() loop
+> has been divided by N ( N == number of CPUs ) and the presence of
+> per-runqueue locks gives the scheduler a full parallelism between the CPUs.
 >
-> Any known memory-related or queueing-related bugs that would cause Oopses
-> in SMP 2.4.12?  We've had a few recently-upgraded servers Oopsing
-> strangely today.
+> -------------
+>
+> Looking at this again, it probably is preempt safe... I probably merged it
+> wrong.
+>
+> I'll try to fit it into my next kernel...
 
-Can you send me the oops? 2.4.12 may not be the best kernel ever released,
-but I don't think it was fundamentally broken either. Maybe the oops will
-remind me about something..
+No probably You're right and I posted a wrong patch.
+Try to get the one that is here :
 
-		Linus
+http://www.xmailserver.org/linux-patches/mss.html
+
+
+
+- Davide
+
 

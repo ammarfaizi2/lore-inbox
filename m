@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131341AbRC1O5M>; Wed, 28 Mar 2001 09:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131832AbRC1O5E>; Wed, 28 Mar 2001 09:57:04 -0500
-Received: from mg03.austin.ibm.com ([192.35.232.20]:64406 "EHLO mg03.austin.ibm.com") by vger.kernel.org with ESMTP id <S131286AbRC1O4q>; Wed, 28 Mar 2001 09:56:46 -0500
-Message-ID: <3AC1FACF.9DEDA627@austin.ibm.com>
-Date: Wed, 28 Mar 2001 08:53:03 -0600
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131842AbRC1O6C>; Wed, 28 Mar 2001 09:58:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131836AbRC1O5x>; Wed, 28 Mar 2001 09:57:53 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:40978 "EHLO mailout05.sul.t-online.com") by vger.kernel.org with ESMTP id <S131832AbRC1O5r>; Wed, 28 Mar 2001 09:57:47 -0500
+Date: Wed, 28 Mar 2001 17:56:47 +0200
+From: Andreas Rogge <lu01@rogge.yi.org>
+To: Hacksaw <hacksaw@hacksaw.org>, james <jdickens@ameritech.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Ideas for the oom problem 
+Message-ID: <64000000.985795007@hades>
+In-Reply-To: <200103281438.f2SEc4Q03910@habitrail.home.fools-errant.com>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-To: Brad Boyer <flar@pants.nu>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: 64-bit block sizes on 32-bit systems
-References: <20010328080908.9905E2B54A@marcus.pants.nu>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My turn to chime in.
+--On Wednesday, March 28, 2001 09:38:04 -0500 Hacksaw <hacksaw@hacksaw.org> 
+wrote:
+>
+> Deciding what not to kill based on who started it seems like a bad idea.
+> Root  can start netscape just as easily as any user, but if the choice of
+> processes  to kill is root's netscape or a user's experimental database,
+> I'd want the  netscape to go away.
 
-JFS was designed around a 4K meta-data page size.  It would require some
-major re-design to use larger block sizes.  On the other hand, JFS could
-take advantage of 64-bit block addresses immediately.  JFS internally
-store the block address in 40 bits.  (Sorry, file size & volume size are
-both limited to 4 peta-bytes on JFS.)
+root does not use netscape -FULLSTOP-
 
-At the rate that storage hardware and requirements are increasing,
-increasing the block size is a short-term solution that is only going to
-delay the inevitable requirement for 64-bit block addressability.  There
-is a practical limit to a usable block-size.  Someone threw out 64K,
-which seems reasonable to me.
--- 
-David Kleikamp
-IBM Linux Technology Center
+Anyone working as root is (sorry) an idiot! root's processes are normally
+quite system-relevant and so they should never be killed, if we can avoid 
+it.
+There can however be processes owned by other users which shouldn't be
+killed in OOM-Situation, but generally root's processes are more important
+than a normal user's processes.
+What about doing something really critical to avoid the upcoming OOM-situ
+and get your shell killed because you were to slow?
+
+--
+Andreas Rogge <lu01@rogge.yi.org>
+Available on IRCnet:#linux.de as Dyson

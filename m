@@ -1,109 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271005AbTGPKqh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 06:46:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271006AbTGPKqh
+	id S270999AbTGPKng (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 06:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271000AbTGPKng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 06:46:37 -0400
-Received: from [203.185.132.124] ([203.185.132.124]:46417 "EHLO mrchoke")
-	by vger.kernel.org with ESMTP id S271005AbTGPKqd (ORCPT
+	Wed, 16 Jul 2003 06:43:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7087 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270999AbTGPKnc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 06:46:33 -0400
-Message-ID: <3F15305F.4020807@opentle.org>
-Date: Wed, 16 Jul 2003 18:00:47 +0700
-From: Supphachoke Suntiwichaya <mrchoke@opentle.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030709
-X-Accept-Language: th,en-us, en
-MIME-Version: 1.0
-To: Supphachoke Suntiwichaya <mrchoke@opentle.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre6 + alsa 0.9.5 + i810 not work
-References: <3F150561.5040903@opentle.org>
-In-Reply-To: <3F150561.5040903@opentle.org>
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=TIS-620; format=flowed
+	Wed, 16 Jul 2003 06:43:32 -0400
+Date: Wed, 16 Jul 2003 03:58:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.6.0-test1-mm1
+Message-Id: <20030716035848.560674ac.akpm@osdl.org>
+In-Reply-To: <20030716104448.GC25869@ip68-4-255-84.oc.oc.cox.net>
+References: <20030715225608.0d3bff77.akpm@osdl.org>
+	<20030716104448.GC25869@ip68-4-255-84.oc.oc.cox.net>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Barry K. Nathan" <barryn@pobox.com> wrote:
+>
+> >  Make ppc build
+> 
+>  Really? ;)
+> 
+>  More seriously, that patch is good and necessary, but I think something
+>  else in -mm is breaking the compile (this is gcc 2.95.3):
+> 
+>    CC      arch/ppc/kernel/irq.o
+>  In file included from include/linux/fs.h:14,
+>                   from include/linux/mm.h:14,
+>                   from include/asm/pci.h:8,
+>                   from include/linux/pci.h:672,
+>                   from arch/ppc/kernel/irq.c:41:
+>  include/linux/kdev_t.h: In function `to_kdev_t':
+>  include/linux/kdev_t.h:101: warning: right shift count >= width of type
 
-Dear sir,
+Well you would appear to be the first person who has tested a -mm kernel on
+ppc since mid-April or earlier.
 
-now I can use ALSA-Drvier with 2.4.22-pre6 but I downgrade to ALSA-0.9.4 !!
-I think something worng with ALSA.
+As soon as Viro returns, that code hits Linus's tree.  Oh well, can't say
+they weren't warned.
 
-MrChoke
+Try this:
 
-Supphachoke Suntiwichaya wrote:
-
-> Dear sir,
->
->        Today I upgrade my kernel from 2.4.21-ac1 to 2.4.22-pre6 and 
-> alsa-drivers from  0.9.4 to 0.9.5.
-> Every thing work well but I can't play musics.
->
-> :: dmesg ::
->
-> Intel 810 + AC97 Audio, version 0.24, 11:19:13 Jul 16 2003
-> i810_rng: RNG not detected
->
-> :: /var/log/message ::
->
-> Jul 16 13:59:36 MrChoke kernel: Intel 810 + AC97 Audio, version 0.24, 
-> 11:19:13 Jul 16 2003
-> Jul 16 13:59:36 MrChoke pci.agent: ... can't load module i810_audio
-> Jul 16 13:59:36 MrChoke pci.agent: missing kernel or user mode driver 
-> i810_audio
-> Jul 16 13:59:36 MrChoke pci.agent: ... can't load module i810_rng
-> Jul 16 13:59:36 MrChoke pci.agent: missing kernel or user mode driver 
-> i810_rng
->
-> I trie modprobe i810_rng but not success.
->
-> /lib/modules/2.4.22-pre6/kernel/drivers/char/i810_rng.o: init_module: 
-> No such device
-> Hint: insmod errors can be caused by incorrect module parameters, 
-> including invalid IO or IRQ parameters.
->      You may find more information in syslog or the output from dmesg
->
-> With last kernel I never do above.
-> I use oldconfig from 2.4.21-ac1.
->
-> :: My labtop ::
-> Toshiba 2410
-> Gentoo linux
-> 00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 
-> Audio Controller (rev 02)
->
-> :: lsmod ::
-> Module                  Size  Used by    Tainted: P
-> snd-mixer-oss          13752   1  (autoclean)
-> hid                    22020   0  (unused)
-> uhci                   26800   0  (unused)
-> ohci1394               31240   0  (unused)
-> ieee1394               48420   0  [ohci1394]
-> snd-intel8x0           18756   1
-> snd-mpu401-uart         3472   0  [snd-intel8x0]
-> snd-rawmidi            13920   0  [snd-mpu401-uart]
-> snd-seq-device          4336   0  [snd-rawmidi]
-> snd-ac97-codec         41256   0  [snd-intel8x0]
-> snd-pcm                62944   0  [snd-intel8x0]
-> snd-timer              14852   0  [snd-pcm]
-> snd                    30948   0  [snd-mixer-oss snd-intel8x0 
-> snd-mpu401-uart snd-rawmidi snd-seq-device snd-ac97-codec snd-pcm 
-> snd-timer]
-> snd-page-alloc          6548   0  [snd-intel8x0 snd-pcm]
-> nvidia               1541984  10
-> usbmouse                2264   0  (unused)
-> mousedev                4404   1
-> ide-scsi               10480   0
->
->
-> Thank
->
-> MrChoke
-> =====
+--- 25/include/asm-ppc/posix_types.h~a	2003-07-16 03:55:34.000000000 -0700
++++ 25-akpm/include/asm-ppc/posix_types.h	2003-07-16 03:55:51.000000000 -0700
+@@ -7,7 +7,7 @@
+  * assume GCC is being used.
+  */
+ 
+-typedef unsigned int	__kernel_dev_t;
++typedef unsigned long long	__kernel_dev_t;
+ typedef unsigned long	__kernel_ino_t;
+ typedef unsigned int	__kernel_mode_t;
+ typedef unsigned short	__kernel_nlink_t;
 
 
 
+>  arch/ppc/kernel/irq.c: At top level:  
+>  arch/ppc/kernel/irq.c:575: braced-group within expression allowed only
+>  inside a function
+
+Bill?

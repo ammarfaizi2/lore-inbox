@@ -1,100 +1,387 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUFMRMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265223AbUFMRM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265222AbUFMRMG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 13:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbUFMRMF
+	id S265223AbUFMRM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 13:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbUFMRM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 13:12:05 -0400
-Received: from main.gmane.org ([80.91.224.249]:23249 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265222AbUFMRLr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 13:11:47 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-Mail-Followup-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-From: ilmari@ilmari.org (=?utf-8?b?RGFnZmlubiBJbG1hcmkg?=
-	=?utf-8?b?TWFubnPDpWtlcg==?=)
-Subject: Re: Ooops in 2.6.7-rc1
-Date: Sun, 13 Jun 2004 19:11:43 +0200
-Organization: Program-, Informasjons- og Nettverksteknologisk Gruppe, UiO
-Message-ID: <d8j7jub1iy8.fsf@wirth.ping.uio.no>
-References: <1085882129.2248.3.camel@gaston>
+	Sun, 13 Jun 2004 13:12:58 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:62774 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S265223AbUFMRMY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 13:12:24 -0400
+Subject: Re: Badness in local_bh_enable with eciadsl driver and kernel 2.6
+From: Paul Fulghum <paulkf@microgate.com>
+To: areversat@tuxfamily.org
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1087145610.2266.1.camel@hosts>
+References: <1087145610.2266.1.camel@hosts>
+Content-Type: multipart/mixed; boundary="=-AUPZyecbS0m8Hz9V8JpV"
+Message-Id: <1087146654.2517.1.camel@doobie.pipehead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: wirth.ping.uio.no
-Mail-Copies-To: nobody
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
-Cancel-Lock: sha1:S19jDHNbcVUEvOqLjkLeja+c4l0=
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 13 Jun 2004 12:10:55 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-> My laptop just got that (bk clone updated yesterday). 2.6.6-rc1 was stable over
-> 3 weeks on this same box. It's a NULL dereference (DAR = 0)
->
-> May 30 11:35:27 gaston kernel: Oops: kernel access of bad area, sig: 11 [#1]
-> May 30 11:35:27 gaston kernel: NIP: C0046FBC LR: C00470D0 SP: ED6BFCA0 REGS: ed6bfbf0 TRAP: 0300    Not tainted
-> May 30 11:35:27 gaston kernel: MSR: 00001032 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 11
-> May 30 11:35:27 gaston kernel: DAR: 00000000, DSISR: 42000000
-> May 30 11:35:27 gaston kernel: TASK = ef5fa030[1589] 'XFree86' THREAD: ed6be000Last syscall: 3
-> May 30 11:35:27 gaston kernel: GPR00: 0000000C ED6BFCA0 EF5FA030 C060F9A0 EFB6E77C E949DE5C E949DE74 00200200
-> May 30 11:35:27 gaston kernel: GPR08: 00100100 D3F40A9C 00000000 C8FDA000 ED6BFEAC 101E2FE8 101E0000 101E0000
-> May 30 11:35:27 gaston kernel: GPR16: 00000001 00000001 FFFFFFA1 DEFD4620 00000000 00000000 CDE3B3A4 00000040
-> May 30 11:35:27 gaston kernel: GPR24: CDE3B494 C060F9BC C0390000 EFFF70C0 0000000C C060F9AC 00000003 C060F9A0
-> May 30 11:35:27 gaston kernel: NIP [c0046fbc] free_block+0x78/0x134
-> May 30 11:35:27 gaston kernel: LR [c00470d0] cache_flusharray+0x58/0xb0
-> May 30 11:35:27 gaston kernel: Call trace:
-> May 30 11:35:27 gaston kernel:  [c00470d0] cache_flusharray+0x58/0xb0
-> May 30 11:35:27 gaston kernel:  [c0047628] kfree+0x88/0xa4
-> May 30 11:35:27 gaston kernel:  [c01e78e0] skb_release_data+0xd4/0xfc
-> May 30 11:35:27 gaston kernel:  [c01e7920] kfree_skbmem+0x18/0x3c
-> May 30 11:35:27 gaston kernel:  [c01e79f8] __kfree_skb+0xb4/0x12c
-> May 30 11:35:27 gaston kernel:  [c023a2e4] unix_stream_recvmsg+0x218/0x48c
-> May 30 11:35:27 gaston kernel:  [c01e3da4] sock_aio_read+0xcc/0xe0
-> May 30 11:35:27 gaston kernel:  [c005cad4] do_sync_read+0x78/0xbc
-> May 30 11:35:27 gaston kernel:  [c005cc28] vfs_read+0x110/0x128
-> May 30 11:35:27 gaston kernel:  [c005ce64] sys_read+0x40/0x74
-> May 30 11:35:27 gaston kernel:  [c0007c90] ret_from_syscall+0x0/0x4c
+--=-AUPZyecbS0m8Hz9V8JpV
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I have seen quite a few similar oopses here on my x86 laptop with
-2.7.1-rc3-mm1, involving both unix_stream_recvmsg and bt_sock_recvmsg.
-Here's one of the latter kind:
+On Sun, 2004-06-13 at 11:53, areversat wrote:
+> Hi,
+> here is what most users get when running our driver (usb adsl modem
+> driver) with kernel 2.6.x. I'd like to know if it is a kernel bug or if
+> it has something to do with our driver.
+> 
+> Thanks
+> 
+> Badness in local_bh_enable at kernel/softirq.c:136
+> [<0212407a>] local_bh_enable+0x39/0x5c
+> [<42f0499e>] ppp_sync_push+0xd2/0x149 [ppp_synctty]
+> [<42f044aa>] ppp_sync_wakeup+0x1d/0x35 [ppp_synctty]
+> [<021d549f>] do_tty_hangup+0x12d/0x34c
+> [<021d652d>] release_dev+0x1c0/0x53f
+> [<0222e096>] usb_unbind_interface+0x41/0x50
+> [<021f4a8d>] device_release_driver+0x3c/0x46
+> [<0222e27e>] usb_driver_release_interface+0x2c/0x40
+> [<02235b32>] releaseintf+0x76/0x8f
+> [<021d6bc6>] tty_release+0x29/0x4e
+> [<02152baf>] __fput+0x3f/0xe3
+> [<0215189c>] filp_close+0x59/0x5f
+> [<02122006>] put_files_struct+0x57/0xaa
+> [<02122b45>] do_exit+0x211/0x390
+> [<02122dc0>] sys_exit_group+0x0/0xd
+> [<0212986b>] get_signal_to_deliver+0x34c/0x372
+> [<02107208>] do_signal+0x4e/0xbb
+> [<02160dc3>] file_ioctl+0x167/0x17b
+> [<02161010>] sys_ioctl+0x239/0x243
+> [<0210729d>] do_notify_resume+0x28/0x37
+
+Try the attached patch.
+
+--
+Paul Fulghum
+paulkf@microgate.com
+
+--=-AUPZyecbS0m8Hz9V8JpV
+Content-Disposition: attachment; filename=patch-ppp_synctty.c
+Content-Type: text/x-csrc; name=patch-ppp_synctty.c; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+>From linux-kernel-owner@vger.kernel.org Wed Jun  2 15:57:19 2004
+Return-Path:
+	<linux-kernel-owner+paulkf=40microgate.com-S264090AbUFBUtX@vger.kernel.org>
+Received: from vger.kernel.org (vger.kernel.org [12.107.209.244]) by
+	sol.microgate.com (8.11.6/8.11.6) with ESMTP id i52KvIY20222 for
+	<paulkf@microgate.com>; Wed, 2 Jun 2004 15:57:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id
+	S264090AbUFBUtX (ORCPT <rfc822;paulkf@microgate.com>); Wed, 2 Jun 2004
+	16:49:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbUFBUtX
+	(ORCPT <rfc822;linux-kernel-outgoing>); Wed, 2 Jun 2004 16:49:23 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:54838
+	"EHLO sol.microgate.com") by vger.kernel.org with ESMTP id S264090AbUFBUtN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>); Wed, 2 Jun 2004 16:49:13
+	-0400
+Received: from deimos.microgate.com (deimos.microgate.com [192.168.0.12])
+	by sol.microgate.com (8.11.6/8.11.6) with ESMTP id i52KnCY20117; Wed, 2 Jun
+	2004 15:49:12 -0500
+Subject: [PATCH][RFC] 2.6.6 ppp_synctty.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Organization: 
+Message-Id: <1086209351.2163.7.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 	02 Jun 2004 15:49:12 -0500
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: 	linux-kernel@vger.kernel.org
+Content-Type: text/plain; CHARSET=US-ASCII
+X-Evolution-Source: imap://paulkf@mail.microgate.com/
+Content-Transfer-Encoding: 8bit
+
+This patch adapts the changes made by Paul Mackerras
+to ppp_async.c which allow for the fact that
+a line discipline receive and wakeup callbacks
+can be called at hard interrupt context and/or
+with interrupts disabled.
+
+I have tested with a synchronous serial PPP connection.
+
+Comments and other testing requested.
+
+Thanks,
+Paul
+
+--
+Paul Fulghum
+paulkf@microgate.com
+
+--- linux-2.6.6/drivers/net/ppp_synctty.c	2004-04-03 21:36:57.000000000 -0600
++++ linux-2.6.6-mg1/drivers/net/ppp_synctty.c	2004-06-02 15:01:35.177725315 -0500
+@@ -65,7 +65,9 @@
+ 	struct sk_buff	*tpkt;
+ 	unsigned long	last_xmit;
+ 
+-	struct sk_buff	*rpkt;
++	struct sk_buff_head rqueue;
++
++	struct tasklet_struct tsk;
+ 
+ 	atomic_t	refcnt;
+ 	struct semaphore dead_sem;
+@@ -88,6 +90,7 @@
+ static int ppp_sync_send(struct ppp_channel *chan, struct sk_buff *skb);
+ static int ppp_sync_ioctl(struct ppp_channel *chan, unsigned int cmd,
+ 			  unsigned long arg);
++static void ppp_sync_process(unsigned long arg);
+ static int ppp_sync_push(struct syncppp *ap);
+ static void ppp_sync_flush_output(struct syncppp *ap);
+ static void ppp_sync_input(struct syncppp *ap, const unsigned char *buf,
+@@ -217,6 +220,9 @@
+ 	ap->xaccm[3] = 0x60000000U;
+ 	ap->raccm = ~0U;
+ 
++	skb_queue_head_init(&ap->rqueue);
++	tasklet_init(&ap->tsk, ppp_sync_process, (unsigned long) ap);
++
+ 	atomic_set(&ap->refcnt, 1);
+ 	init_MUTEX_LOCKED(&ap->dead_sem);
+ 
+@@ -267,10 +273,10 @@
+ 	 */
+ 	if (!atomic_dec_and_test(&ap->refcnt))
+ 		down(&ap->dead_sem);
++	tasklet_kill(&ap->tsk);
+ 
+ 	ppp_unregister_channel(&ap->chan);
+-	if (ap->rpkt != 0)
+-		kfree_skb(ap->rpkt);
++	skb_queue_purge(&ap->rqueue);
+ 	if (ap->tpkt != 0)
+ 		kfree_skb(ap->tpkt);
+ 	kfree(ap);
+@@ -369,17 +375,24 @@
+ 	return 65535;
+ }
+ 
++/*
++ * This can now be called from hard interrupt level as well
++ * as soft interrupt level or mainline.
++ */
+ static void
+ ppp_sync_receive(struct tty_struct *tty, const unsigned char *buf,
+-		  char *flags, int count)
++		  char *cflags, int count)
+ {
+ 	struct syncppp *ap = sp_get(tty);
++	unsigned long flags;
+ 
+ 	if (ap == 0)
+ 		return;
+-	spin_lock_bh(&ap->recv_lock);
+-	ppp_sync_input(ap, buf, flags, count);
+-	spin_unlock_bh(&ap->recv_lock);
++	spin_lock_irqsave(&ap->recv_lock, flags);
++	ppp_sync_input(ap, buf, cflags, count);
++	spin_unlock_irqrestore(&ap->recv_lock, flags);
++	if (skb_queue_len(&ap->rqueue))
++		tasklet_schedule(&ap->tsk);
+ 	sp_put(ap);
+ 	if (test_and_clear_bit(TTY_THROTTLED, &tty->flags)
+ 	    && tty->driver->unthrottle)
+@@ -394,8 +407,8 @@
+ 	clear_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
+ 	if (ap == 0)
+ 		return;
+-	if (ppp_sync_push(ap))
+-		ppp_output_wakeup(&ap->chan);
++	set_bit(XMIT_WAKEUP, &ap->xmit_flags);
++	tasklet_schedule(&ap->tsk);
+ 	sp_put(ap);
+ }
+ 
+@@ -449,9 +462,9 @@
+ 		if (get_user(val, (int *) arg))
+ 			break;
+ 		ap->flags = val & ~SC_RCV_BITS;
+-		spin_lock_bh(&ap->recv_lock);
++		spin_lock_irq(&ap->recv_lock);
+ 		ap->rbits = val & SC_RCV_BITS;
+-		spin_unlock_bh(&ap->recv_lock);
++		spin_unlock_irq(&ap->recv_lock);
+ 		err = 0;
+ 		break;
+ 
+@@ -512,6 +525,32 @@
+ }
+ 
+ /*
++ * This is called at softirq level to deliver received packets
++ * to the ppp_generic code, and to tell the ppp_generic code
++ * if we can accept more output now.
++ */
++static void ppp_sync_process(unsigned long arg)
++{
++	struct syncppp *ap = (struct syncppp *) arg;
++	struct sk_buff *skb;
++
++	/* process received packets */
++	while ((skb = skb_dequeue(&ap->rqueue)) != NULL) {
++		if (skb->len == 0) {
++			/* zero length buffers indicate error */
++			ppp_input_error(&ap->chan, 0);
++			kfree_skb(skb);
++		}
++		else
++			ppp_input(&ap->chan, skb);
++	}
++
++	/* try to push more stuff out */
++	if (test_bit(XMIT_WAKEUP, &ap->xmit_flags) && ppp_sync_push(ap))
++		ppp_output_wakeup(&ap->chan);
++}
++
++/*
+  * Procedures for encapsulation and framing.
+  */
+ 
+@@ -600,7 +639,6 @@
+ 	struct tty_struct *tty = ap->tty;
+ 	int tty_stuffed = 0;
+ 
+-	set_bit(XMIT_WAKEUP, &ap->xmit_flags);
+ 	if (!spin_trylock_bh(&ap->xmit_lock))
+ 		return 0;
+ 	for (;;) {
+@@ -667,15 +705,44 @@
+  * Receive-side routines.
+  */
+ 
+-static inline void
+-process_input_packet(struct syncppp *ap)
++/* called when the tty driver has data for us. 
++ *
++ * Data is frame oriented: each call to ppp_sync_input is considered
++ * a whole frame. If the 1st flag byte is non-zero then the whole
++ * frame is considered to be in error and is tossed.
++ */
++static void
++ppp_sync_input(struct syncppp *ap, const unsigned char *buf,
++		char *flags, int count)
+ {
+ 	struct sk_buff *skb;
+ 	unsigned char *p;
+-	int code = 0;
+ 
+-	skb = ap->rpkt;
+-	ap->rpkt = 0;
++	if (count == 0)
++		return;
++
++	if (ap->flags & SC_LOG_INPKT)
++		ppp_print_buffer ("receive buffer", buf, count);
++
++	/* stuff the chars in the skb */
++	if ((skb = dev_alloc_skb(ap->mru + PPP_HDRLEN + 2)) == 0) {
++		printk(KERN_ERR "PPPsync: no memory (input pkt)\n");
++		goto err;
++	}
++	/* Try to get the payload 4-byte aligned */
++	if (buf[0] != PPP_ALLSTATIONS)
++		skb_reserve(skb, 2 + (buf[0] & 1));
++
++	if (flags != 0 && *flags) {
++		/* error flag set, ignore frame */
++		goto err;
++	} else if (count > skb_tailroom(skb)) {
++		/* packet overflowed MRU */
++		goto err;
++	}
++
++	p = skb_put(skb, count);
++	memcpy(p, buf, count);
+ 
+ 	/* strip address/control field if present */
+ 	p = skb->data;
+@@ -693,59 +760,15 @@
+ 	} else if (skb->len < 2)
+ 		goto err;
+ 
+-	/* pass to generic layer */
+-	ppp_input(&ap->chan, skb);
++	/* queue the frame to be processed */
++	skb_queue_tail(&ap->rqueue, skb);
+ 	return;
+ 
+- err:
+-	kfree_skb(skb);
+-	ppp_input_error(&ap->chan, code);
+-}
+-
+-/* called when the tty driver has data for us. 
+- *
+- * Data is frame oriented: each call to ppp_sync_input is considered
+- * a whole frame. If the 1st flag byte is non-zero then the whole
+- * frame is considered to be in error and is tossed.
+- */
+-static void
+-ppp_sync_input(struct syncppp *ap, const unsigned char *buf,
+-		char *flags, int count)
+-{
+-	struct sk_buff *skb;
+-	unsigned char *sp;
+-
+-	if (count == 0)
+-		return;
+-
+-	/* if flag set, then error, ignore frame */
+-	if (flags != 0 && *flags) {
+-		ppp_input_error(&ap->chan, *flags);
+-		return;
+-	}
+-
+-	if (ap->flags & SC_LOG_INPKT)
+-		ppp_print_buffer ("receive buffer", buf, count);
+-
+-	/* stuff the chars in the skb */
+-	if ((skb = ap->rpkt) == 0) {
+-		if ((skb = dev_alloc_skb(ap->mru + PPP_HDRLEN + 2)) == 0) {
+-			printk(KERN_ERR "PPPsync: no memory (input pkt)\n");
+-			ppp_input_error(&ap->chan, 0);
+-			return;
+-		}
+-		/* Try to get the payload 4-byte aligned */
+-		if (buf[0] != PPP_ALLSTATIONS)
+-			skb_reserve(skb, 2 + (buf[0] & 1));
+-		ap->rpkt = skb;
+-	}
+-	if (count > skb_tailroom(skb)) {
+-		/* packet overflowed MRU */
+-		ppp_input_error(&ap->chan, 1);
+-	} else {
+-		sp = skb_put(skb, count);
+-		memcpy(sp, buf, count);
+-		process_input_packet(ap);
++err:
++	/* queue zero length packet as error indication */
++	if (skb || (skb = dev_alloc_skb(0))) {
++		skb_trim(skb, 0);
++		skb_queue_tail(&ap->rqueue, skb);
+ 	}
+ }
+ 
 
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c021d454
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT 
-Modules linked in: sco hci_usb af_packet prism54 firmware_class nfs lockd sunrpc rfcomm l2cap bluetooth md5 ipv6 smsc_ircc2 ds iptable_nat ipt_state ip_conntrack iptable_mangle iptable_filter ip_tables e100 mii snd_maestro3 snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_page_alloc snd_timer snd soundcore uhci_hcd usbcore yenta_socket pcmcia_core intel_agp agpgart ircomm_tty ircomm irda ide_cd cdrom mousedev joydev evdev psmouse apm i8k unix
-CPU:    0
-EIP:    0060:[<c021d454>]    Not tainted VLI
-EFLAGS: 00210287   (2.6.7-rc3-mm1) 
-EIP is at skb_release_data+0x34/0xa0
-eax: cffc7cd8   ebx: 00000000   ecx: cffc7cd8   edx: 00000000
-esi: c1d26560   edi: cbc9af38   ebp: cc9c57c0   esp: cbc9ae64
-ds: 007b   es: 007b   ss: 0068
-Process hstest (pid: 1437, threadinfo=cbc9a000 task=cf80f830)
-Stack: c1d26560 00000030 c021d4c8 00000000 c021d56c c1d26560 c1d26560 00000030 
-       c1d26560 c1d26560 d09d252e 00000030 00000000 00000000 d09fe660 cbc9aed8 
-       00000800 c0219f40 00000800 00000000 bfffee30 00000000 00000000 00000000 
-Call Trace:
- [<c021d4c8>] kfree_skbmem+0x8/0x20
- [<c021d56c>] __kfree_skb+0x8c/0x120
- [<d09d252e>] bt_sock_recvmsg+0x7e/0xb0 [bluetooth]
- [<c0219f40>] sock_aio_read+0xb0/0xd0
- [<c014e7ed>] do_sync_read+0x6d/0xb0
- [<c016007d>] sys_select+0x24d/0x4b0
- [<c014e917>] vfs_read+0xe7/0x110
- [<c014eb38>] sys_read+0x38/0x60
- [<c0103ef9>] sysenter_past_esp+0x52/0x71
 
-Code: 0f 8b 80 a8 00 00 00 ff 08 0f 94 c2 84 d2 74 7a 8b 8e a8 00 00 00 8b 51 04 89 c8 85 d2 74 38 31 db 39 d3 73 32 89 f6 8b 54 d8 10 <8b> 02 f6 c4 08 75 17 8b 42 04 40 74 48 83 42 04 ff 0f 98 c0 84 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
-
--- 
-ilmari
+--=-AUPZyecbS0m8Hz9V8JpV--
 

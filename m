@@ -1,33 +1,26 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314491AbSESP5F>; Sun, 19 May 2002 11:57:05 -0400
+	id <S314505AbSESP5v>; Sun, 19 May 2002 11:57:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314505AbSESP5E>; Sun, 19 May 2002 11:57:04 -0400
-Received: from dsl-64-129-199-125.telocity.com ([64.129.199.125]:14976 "HELO
-	descola.net") by vger.kernel.org with SMTP id <S314491AbSESP5C>;
-	Sun, 19 May 2002 11:57:02 -0400
-Date: Sun, 19 May 2002 08:57:01 -0700
-From: "Darrell A. Escola" <darrell-kernel@descola.net>
+	id <S314512AbSESP5t>; Sun, 19 May 2002 11:57:49 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:34322 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S314505AbSESP5V>; Sun, 19 May 2002 11:57:21 -0400
+Date: Sun, 19 May 2002 17:57:14 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
 To: David Eduardo Gomez Noguera <davidgn@servidor.unam.mx>
-Cc: linux-kernel@vger.kernel.org
+Cc: kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Problem with swap partition.
-Message-ID: <20020519155701.GA21217@descola.net>
-Reply-To: linux-kernel@vger.kernel.org
-Mail-Followup-To: "Darrell A. Escola" <darrell-kernel@descola.net>,
-	David Eduardo Gomez Noguera <davidgn@servidor.unam.mx>,
-	linux-kernel@vger.kernel.org
+Message-ID: <20020519155714.GA25044@louise.pinerecords.com>
 In-Reply-To: <1021824299.2430.7.camel@hikaru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.3.99i
+X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 3 days, 9:15)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 19, 2002 at 11:04:57AM -0500, David Eduardo Gomez Noguera wrote:
-> Hello.
-> I have just changed to a new hard disk:
-> 
 > Disk /dev/hdc: 16 heads, 63 sectors, 77545 cylinders
 > 
 > Nr AF  Hd Sec  Cyl  Hd Sec  Cyl    Start     Size ID
@@ -41,8 +34,11 @@ On Sun, May 19, 2002 at 11:04:57AM -0500, David Eduardo Gomez Noguera wrote:
 > 
 > but swapon -a gives
 > swapon: /dev/hdc5: Invalid argument
-> 
 
-Is hcd5 in your /etc/fstab? - might need to change that to hdc3
 
-Darrell
+$ vi /etc/fstab
+(change 'hdc5' to 'hdc3'.)
+$ mkswap /dev/hdc3 && swapon -a
+
+and then please
+$ man 5 fstab

@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268192AbUBRVoK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 16:44:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268199AbUBRVoJ
+	id S267157AbUBSEe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 23:34:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267166AbUBSEe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 16:44:09 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:50189 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268192AbUBRVoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 16:44:04 -0500
-Date: Wed, 18 Feb 2004 21:43:57 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: rihad <rihad@mail.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: rivafb woes
-In-Reply-To: <4033BE48.1080900@mail.ru>
-Message-ID: <Pine.LNX.4.44.0402182143420.10389-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 18 Feb 2004 23:34:27 -0500
+Received: from gate.crashing.org ([63.228.1.57]:10663 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267157AbUBSEeZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 23:34:25 -0500
+Subject: Re: [radeonfb] black screen/wrong display size detected
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andreas Happe <andreashappe@gmx.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <slrnc375fh.145.andreashappe@flatline.ath.cx>
+References: <slrnc375fh.145.andreashappe@flatline.ath.cx>
+Content-Type: text/plain
+Message-Id: <1077165057.20787.239.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 19 Feb 2004 15:30:57 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-02-19 at 03:42, Andreas Happe wrote:
+> display turns black after loading radeon on bootup (compiled in). It
+> stays black, even after xdm should have started.
 
-Th emost recent cards are not supported. Its being worked on.
+Is backlight off or is it enabled and just screen content is
+black ? (Do you have working backlight control keys on the kbd ?)
 
+> | radeonfb: Found Intel x86 BIOS ROM Image
+> | radeonfb: Retreived PLL infos from BIOS
+> | radeonfb: Reference=27.00 MHz (RefDiv=12) Memory=250.00 Mhz, System=220.00 MHz
+> .../...
+> | radeonfb: Monitor 1 type LCD found
+> | radeonfb: Monitor 2 type no found
+> | radeonfb: panel ID string: Samsung LTN150P1-L02    
+> | radeonfb: detected LVDS panel size from BIOS: 1400x1050
+> 
+> wrong size detected, display is 1680x1050.
 
-On Wed, 18 Feb 2004, rihad wrote:
+That's interesting. 
 
-> I can't get rivafb to work on my GF-MX440! Am I wrong in thinking that
-> CONFIG_FB_RIVA is a drop-in faster replacement for CONFIG_FB_VESA? Or do
-> I need both of them compiled in? All I get when trying to boot is a
-> blank or a messed up screen. The penguin is there though :) Here's the
-> relevant lines of my lilo.conf:
-> 
-> vga=0x317
-> image=/boot/vmlinuz-2.6.3
->        append="video=rivafb:1024x768-16@60"
-> 
-> $ lspci
-> [snip]
-> 01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 MX
-> 440] (rev a3)
-> 
-> TIA!
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Enable radeon debug options and send me the output. Also try
+commenting out the call to radeon_map_ROM(rinfo, pdev);
+in drivers/video/aty/radeon_base.c and send me that output
+as well (send me both, even if commenting out the call "fixes"
+it).
+
+> | radeondb: BIOS provided dividers will be used
+> | radeonfb: Assuming panel size 1400x1050
+> | radeonfb: Power Management enabled for Mobility chipsets
+> | radeonfb: ATI Radeon Lf  DDR SGRAM 64 MB
+> | Machine check exception polling timer started.
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

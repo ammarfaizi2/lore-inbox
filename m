@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVBHVaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVBHVeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVBHVaw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 16:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbVBHVaw
+	id S261671AbVBHVeS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 16:34:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVBHVeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 16:30:52 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:59403 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261668AbVBHVap
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 16:30:45 -0500
-Message-Id: <200502082221.j18MLqs0013717@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Blaisorblade <blaisorblade@yahoo.it>
-cc: user-mode-linux-devel@lists.sourceforge.net,
-       Anton Altaparmakov <aia21@cam.ac.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [uml-devel] Re: [BUG report] UML linux-2.6 latest BK doesn't compile 
-In-Reply-To: Your message of "Tue, 08 Feb 2005 18:48:46 +0100."
-             <200502081848.46270.blaisorblade@yahoo.it> 
-References: <1107857395.15872.2.camel@imp.csi.cam.ac.uk> <200502081122.22613.blaisorblade@yahoo.it> <1107859254.582.4.camel@imp.csi.cam.ac.uk>  <200502081848.46270.blaisorblade@yahoo.it> 
+	Tue, 8 Feb 2005 16:34:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2690 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261669AbVBHVeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 16:34:07 -0500
+Date: Tue, 8 Feb 2005 16:01:16 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Jean Tourrilhes <jt@hpl.hp.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4] Wireless Extension v17 (resend)
+Message-ID: <20050208180116.GA10695@logos.cnet>
+References: <20050208181637.GB29717@bougret.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 08 Feb 2005 17:21:52 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+In-Reply-To: <20050208181637.GB29717@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-blaisorblade@yahoo.it said:
-> the Makefiles were heavily changed, however, recently (after 2.6.10). 
 
-There was a bug in that patch.  The fix is:
+Hi Jean,
 
-Index: 2.6.10/arch/um/Makefile
-===================================================================
---- 2.6.10.orig/arch/um/Makefile        2005-02-08 12:33:23.000000000 -0500
-+++ 2.6.10/arch/um/Makefile     2005-02-08 12:33:23.000000000 -0500
-@@ -36,8 +36,8 @@
- MAKEFILES-INCL += $(foreach mode,$(um-modes-y),\
-                   $(srctree)/$(ARCH_DIR)/Makefile-$(mode))
- 
--ifneq ($(MAKEFILE-INCL),)
--  include $(MAKEFILE-INCL)
-+ifneq ($(MAKEFILES-INCL),)
-+  include $(MAKEFILES-INCL)
- endif
- 
- ARCH_INCLUDE   := -I$(ARCH_DIR)/include
+I'm very ignorant about wireless but it doesnt appear to me that "Wireless Extension v17"
+is a critical feature.
 
-				Jeff
+It seems more appropriate to declare it as 2.6 functionality ?
 
+Cheers
+
+On Tue, Feb 08, 2005 at 10:16:37AM -0800, Jean Tourrilhes wrote:
+>         Hi Marcelo,
+> 
+>         I did not receive any feedback on this e-mail either, so I
+> assume it was also lost on the way. Would you mind pushing that in
+> 2.4.x ?
+>         Thanks...

@@ -1,89 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264625AbSIWAAd>; Sun, 22 Sep 2002 20:00:33 -0400
+	id <S264629AbSIWACc>; Sun, 22 Sep 2002 20:02:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264626AbSIWAAd>; Sun, 22 Sep 2002 20:00:33 -0400
-Received: from nameservices.net ([208.234.25.16]:17400 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S264625AbSIWAAb>;
-	Sun, 22 Sep 2002 20:00:31 -0400
-Message-ID: <3D8E5B88.5A1BC68C@opersys.com>
-Date: Sun, 22 Sep 2002 20:08:40 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+	id <S264630AbSIWACc>; Sun, 22 Sep 2002 20:02:32 -0400
+Received: from igw3.watson.ibm.com ([198.81.209.18]:6616 "EHLO
+	igw3.watson.ibm.com") by vger.kernel.org with ESMTP
+	id <S264629AbSIWAC3>; Sun, 22 Sep 2002 20:02:29 -0400
+From: bob <bob@watson.ibm.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Sun, 22 Sep 2002 20:07:26 -0400 (EDT)
 To: Ingo Molnar <mingo@elte.hu>
-CC: bob <bob@watson.ibm.com>, okrieg@us.ibm.com, trz@us.ibm.com,
+Cc: bob <bob@watson.ibm.com>, Karim Yaghmour <karim@opersys.com>,
+       <okrieg@us.ibm.com>, <trz@us.ibm.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        LTT-Dev <ltt-dev@shafik.org>, Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: [ltt-dev] Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-References: <Pine.LNX.4.44.0209230108001.3792-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.44.0209230108001.3792-100000@localhost.localdomain>
+References: <15758.18582.488305.152950@k42.watson.ibm.com>
+	<Pine.LNX.4.44.0209230108001.3792-100000@localhost.localdomain>
+X-Mailer: VM 6.43 under 20.4 "Emerald" XEmacs  Lucid
+Message-ID: <15758.22318.507460.859271@k42.watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yes this is simple code - similar to the model we use in K42.  Still,
+couple of things about the below.  
 
-Ingo Molnar wrote:
-> this is that a trace point should do, at most:
-> 
-[snip]
-> this should cover most of what's needed. The event_wanted() filter
-> function should be made as fast as possible. Note that the irq-disabled
-> section is not strictly needed but nice and also makes it work on the
-> preemptible kernel. (It's not a big issue at all to run these few
-> instructions with irqs disabled.)
-> 
-> [there are also other details like putting curr_index and curr_pending
-> into the per-cpu area and similar stuff.]
+1) the !event_wanted can be done outside the function, in a macro so that
+the only cost if tracing is disabled is a hot cache hit on a mask (not
+function call) - that helps with your comment:
+> The event_wanted() filter function should be made as fast as possible.
 
-Yes, but there are a few assumptions made here which don't necessarily
-hold:
+2) If you use the lockless scheme you do not need to disable interrupts.
+In K42 we manage to do the entire log operation in 21 instructions and
+about as many cycles (couple more for getting time).  We do this from user
+space as well, disabling interrupts precludes this model (may of may not be
+a problem).  I was really leaning hard away from even the cost of making a
+system call and disabling interrupts.  Do people on the kernel dev team
+feel this is an acceptable cost?  Is migration prevented when interrupts
+are disabled?  This is something for us to consider.
 
-1) TSC timestamping isn't appropriate for all cases. Users need to be
-able to correlate the events in the buffer to the clock they actually
-see when they call gettimeofday. Currently, LTT calls do_gettimeofday
-for every event and does a saves the difference between the current
-time and the time saved in the begining on the buffer. Hence, instead
-of saving 8 bytes per event, we only save 4. However, we are moving
-forward with other providing other timestamping schemes, including the
-TSC. But even TSC timestamping requires a call to gettimeofday every
-so often because TSC values drift on an SMP system. Measurements done
-at IBM actually show significant drifts depending on whether processors
-are cooling down or heating up.
+3) All trace events should not have to have the same number of data words
+logged - though I think that's just a packaging/interface issue the code
+below would just be placed behind macros which correctly package up the
+right number of arguments.
 
-2) Using a single event structure for all events causes a number of
-problems. Mainly, you end up having many events that fill only part
-of the event and others that end up requiring many events to record
-all the data. The alternative, using the largest possible event as the
-basis for all events, results in huge traces. The only way out of this
-is variable sized events which is requires passing pointers instead
-of actual data items to the trace function.
 
-3) Because not all users want/should see the same types of events,
-the driver needs to deal with multiple multi-purpose buffers. Also,
-the number of buffers used should be user-configurable.
-
-4) This tracer can't be used to log user-space events because it opens
-the door to denial-of-service attacks (i.e. a user space process could
-easily impend on the kernel's ability to deal with interrupts by
-looping on the trace function). The lockless code avoids this problem.
-
-5) Simply waking up the process doesn't provide any insight on whether
-the user has missed any events. This tracer keeps on going regardless
-of whether the daemon has had the chance to write the events to file
-or not. For a tracer to be useful to mainstream users, it needs to
-be able to report lost events.
-
-The above tracer may indeed be very appropriate for kernel development,
-but it doesn't provide enough functionality for the requirements of
-mainstream users.
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+Ingo Molnar writes:
+ > 
+ > this is that a trace point should do, at most:
+ > 
+ > --------------------->
+ > task_t *tracer_task;
+ > 
+ > int curr_idx[NR_CPUS];
+ > int curr_pending[NR_CPUS];
+ > 
+ > struct trace_event **trace_ring;
+ > 
+ > void trace(event, data1, data2, data3)
+ > {
+ > 	int cpu = smp_processor_id();
+ > 	int idx, pending, *curr = curr_idx + cpu;
+ > 	struct trace_event *t;
+ > 	unsigned long flags;
+ > 
+ > 	if (!event_wanted(current, event, data1, data2, data3))
+ > 		return;
+ > 
+ > 	local_irq_save(flags);
+ > 
+ >         idx = ++curr_idx[cpu] & (NR_TRACE_ENTRIES - 1);
+ > 	pending = ++curr_pending[cpu];
+ > 
+ >         t = trace_ring[cpu] + idx;
+ > 
+ >         t->event = event;
+ >         rdtscll(t->timestamp);
+ >         t->data1 = data1;
+ >         t->data2 = data2;
+ >         t->data3 = data3;
+ > 
+ > 	if (curr_pending == TRACE_LOW_WATERMARK && tracer_task)
+ > 		wake_up_process(tracer_task);
+ > 
+ > 	local_irq_restore(flags);
+ > }
+ > 
+ > this should cover most of what's needed. The event_wanted() filter
+ > function should be made as fast as possible. Note that the irq-disabled
+ > section is not strictly needed but nice and also makes it work on the
+ > preemptible kernel. (It's not a big issue at all to run these few
+ > instructions with irqs disabled.)
+ > 
+ > [there are also other details like putting curr_index and curr_pending
+ > into the per-cpu area and similar stuff.]
+ > 
+ > 	Ingo
+ > 
+ > 
+ > _______________________________________________
+ > ltt-dev mailing list
+ > ltt-dev@listserv.shafik.org
+ > http://www.listserv.shafik.org/listserv/listinfo/ltt-dev

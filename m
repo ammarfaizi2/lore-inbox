@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271006AbTHFTmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 15:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272071AbTHFTmZ
+	id S272139AbTHFTvB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 15:51:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272141AbTHFTvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 15:42:25 -0400
-Received: from smtp.terra.es ([213.4.129.129]:8069 "EHLO tsmtp7.mail.isp")
-	by vger.kernel.org with ESMTP id S271006AbTHFTkd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 15:40:33 -0400
-Date: Wed, 6 Aug 2003 21:40:23 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: reiser@namesys.com, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: Filesystem Tests
-Message-Id: <20030806214023.74546b84.diegocg@teleline.es>
-In-Reply-To: <20030806190850.GF21290@matchmail.com>
-References: <3F306858.1040202@mrs.umn.edu>
-	<20030805224152.528f2244.akpm@osdl.org>
-	<3F310B6D.6010608@namesys.com>
-	<20030806183410.49edfa89.diegocg@teleline.es>
-	<20030806180427.GC21290@matchmail.com>
-	<20030806204514.00c783d8.diegocg@teleline.es>
-	<20030806190850.GF21290@matchmail.com>
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 6 Aug 2003 15:51:00 -0400
+Received: from mail.gondor.com ([212.117.64.182]:1549 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S272139AbTHFTu6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 15:50:58 -0400
+Date: Wed, 6 Aug 2003 21:50:57 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: uncorrectable ext2 errors
+Message-ID: <20030806195057.GA8615@gondor.com>
+References: <20030806150335.GA5430@gondor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030806150335.GA5430@gondor.com>
+X-Request-PGP: http://gondor.com/key.asc
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 6 Aug 2003 12:08:50 -0700 Mike Fedyk <mfedyk@matchmail.com> escribió:
+On Wed, Aug 06, 2003 at 05:03:35PM +0200, Jan Niehusmann wrote:
+> 3,0,0,0,300,7,0,... (rest are 0s). These blocks start at the following 
+> positions:
+> 
+> 6630000001
+> 6638000001
+[...]
 
-> But with servers, the larger your filesystem, the longer it will take to
-> fsck.  And that is bad for uptime.  Period.
+Small but important correction: make all these positions
+6630000000
+6638000000
+[...]
 
-Sure. But Han's "don't benchmark ext2 because it's not an option" isn't
-a valid stament, at least to me.
+I was unaware that cmp -l starts counting at 1 instead of 0...
 
-I'm not saying ext2 is the best fs on earth, but i *really* think
-it's a real option, and as such, it must be benchmarked.
+Jan
+

@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUFKQmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264176AbUFKQ0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264260AbUFKQmE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 12:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264138AbUFKQlV
+	id S264176AbUFKQ0S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 12:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbUFKQSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 12:41:21 -0400
-Received: from vsmtp3alice.tin.it ([212.216.176.143]:11935 "EHLO vsmtp3.tin.it")
-	by vger.kernel.org with ESMTP id S264196AbUFKQjl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 12:39:41 -0400
-Date: Fri, 11 Jun 2004 18:46:00 +0200
-From: Luca Risolia <luca.risolia@studio.unibo.it>
-To: Greg KH <greg@kroah.com>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       viro@parcelfarce.linux.theplanet.co.uk, rtjohnso@eecs.berkeley.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: Finding user/kernel pointer bugs [no
- html]
-Message-Id: <20040611184600.64c9139c.luca.risolia@studio.unibo.it>
-In-Reply-To: <20040611161747.GA2167@kroah.com>
-References: <E1BYXuJ-0006vd-RU@sc8-sf-list1.sourceforge.net>
-	<20040611063107.0c62e2f8.luca.risolia@studio.unibo.it>
-	<20040611161747.GA2167@kroah.com>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 11 Jun 2004 12:18:16 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:8089 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264131AbUFKQQM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 12:16:12 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: linux-ide@vger.kernel.org
+Subject: [PATCH] IDE update for 2.6.7-rc3 [10/12]
+Date: Fri, 11 Jun 2004 18:15:49 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200406111815.49395.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Fri, 11 Jun 2004 09:17:48 -0700
-Greg KH <greg@kroah.com> wrote:
+[PATCH] ide: tiny task_mulout_intr() (CONFIG_IDE_TASKFILE_IO=n) cleanup
 
-> On Fri, Jun 11, 2004 at 06:31:07AM +0200, Luca Risolia wrote:
-> > >                    unsigned int cmd, void* arg)
-> > >  {
-> > >  	struct w9968cf_device* cam;
-> > > +	void __user *user_arg = (void __user *)arg;
-> > 
-> > The right place to apply this patch is in video_usercopy().
-> 
-> Um, the driver you just refered to does not use the video_usercopy()
-> function so your email doesn't make much sense in this context.
+- merge status checking code for rq->current_nr_sectors
+  and !rq->current_nr_sectors cases
+- remove !rq->bio check as it is always true
 
-Oops, sorry. I forgot the w9968cf doesn't actually use video_usercopy().
-However, apart from the "__user" context, there are several drivers
-under drivers/usb/media/ that still use that usercopy() thing.
+Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 
-> 
-> > Please have a look at definition of the function in videodev.c.
-> 
-> Please excuse me while I go get sick...
-> 
-> Anyway, that function needs to be properly marked up with __user if you
-> want it to live.
-> 
-> good luck,
-> 
-> greg k-h
-> 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+ linux-2.6.7-rc3-bzolnier/drivers/ide/ide-taskfile.c |   19 ++++---------------
+ 1 files changed, 4 insertions(+), 15 deletions(-)
 
-iD8DBQFAyeHImdpdKvzmNaQRAgSbAJ9J+Zq4PsS59Z0muH1nJM036CCBzACglYQO
-5/kAGoFHru+NpJ0/wNd0YT0=
-=57yE
------END PGP SIGNATURE-----
+diff -puN drivers/ide/ide-taskfile.c~ide_task_mulout_intr drivers/ide/ide-taskfile.c
+--- linux-2.6.7-rc3/drivers/ide/ide-taskfile.c~ide_task_mulout_intr	2004-06-10 23:15:19.927432736 +0200
++++ linux-2.6.7-rc3-bzolnier/drivers/ide/ide-taskfile.c	2004-06-10 23:15:19.931432128 +0200
+@@ -505,29 +505,18 @@ ide_startstop_t task_mulout_intr (ide_dr
+ 	u8 stat				= hwif->INB(IDE_STATUS_REG);
+ 	struct request *rq		= HWGROUP(drive)->rq;
+ 	char *pBuf			= NULL;
+-	ide_startstop_t startstop	= ide_stopped;
+ 	unsigned int msect		= drive->mult_count;
+ 	unsigned int nsect;
+ 	unsigned long flags;
+ 
+-	/*
+-	 * (ks/hs): Handle last IRQ on multi-sector transfer,
+-	 * occurs after all data was sent in this chunk
+-	 */
+-	if (rq->current_nr_sectors == 0) {
++	if (!OK_STAT(stat, DATA_READY, BAD_R_STAT) || !rq->current_nr_sectors) {
+ 		if (stat & (ERR_STAT|DRQ_STAT)) {
+ 			return DRIVER(drive)->error(drive, "task_mulout_intr", stat);
+ 		}
+-		if (!rq->bio)
++		/* Handle last IRQ, occurs after all data was sent. */
++		if (!rq->current_nr_sectors) {
+ 			DRIVER(drive)->end_request(drive, 1, 0);
+-		return startstop;
+-	}
+-	/*
+-	 * DON'T be lazy code the above and below togather !!!
+-	 */
+-	if (!OK_STAT(stat,DATA_READY,BAD_R_STAT)) {
+-		if (stat & (ERR_STAT|DRQ_STAT)) {
+-			return DRIVER(drive)->error(drive, "task_mulout_intr", stat);
++			return ide_stopped;
+ 		}
+ 		/* no data yet, so wait for another interrupt */
+ 		if (HWGROUP(drive)->handler == NULL)
+
+_
+

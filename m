@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270651AbUJULSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270667AbUJUKu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270651AbUJULSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 07:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270477AbUJULRJ
+	id S270667AbUJUKu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 06:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbUJUKsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 07:17:09 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:25484 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270651AbUJULPo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 07:15:44 -0400
-Date: Thu, 21 Oct 2004 13:11:17 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041021111116.GE10531@suse.de>
-References: <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <30690.195.245.190.93.1098349976.squirrel@195.245.190.93> <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de> <1098352441.26758.30.camel@thomas> <20041021101103.GC10531@suse.de> <1098353505.26758.38.camel@thomas>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098353505.26758.38.camel@thomas>
+	Thu, 21 Oct 2004 06:48:54 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:28061 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S270635AbUJUKoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 06:44:10 -0400
+Message-ID: <417792F0.20008@grupopie.com>
+Date: Thu, 21 Oct 2004 11:44:00 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mildred Frisco <mildred.frisco@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: making a linux kernel with no root filesystem
+References: <e7b30b2404102102466dc71118@mail.gmail.com> <e7b30b24041021030535925d1d@mail.gmail.com>
+In-Reply-To: <e7b30b24041021030535925d1d@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.3; VDF: 6.28.0.26; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21 2004, Thomas Gleixner wrote:
-> On Thu, 2004-10-21 at 12:11, Jens Axboe wrote:
-> > On Thu, Oct 21 2004, Thomas Gleixner wrote:
-> > > On Thu, 2004-10-21 at 11:53, Jens Axboe wrote:
-> > > > On Thu, Oct 21 2004, Thomas Gleixner wrote:
-> > > > > On Thu, 2004-10-21 at 11:12, Rui Nuno Capela wrote:
-> > > > > >  [<e018e139>] queuecommand+0x70/0x7c [usb_storage] (24)
-> > > > > 
-> > > > > As I already pointed out, this is a problem due to up(sema) in
-> > > > > queuecommand. That's one of the semaphore abuse points, which needs to
-> > > > > be fixed. 
-> > > > > 
-> > > > > The problem is that semaphores are hold by Process A and released by
-> > > > > Process B, which makes Ingo's checks trigger
-> > > > 
-> > > > That's utter crap, it's perfectly valid use.
-> > > 
-> > > It's not!
-> > > 
-> > > >From the code:
-> > > 
-> > >          init_MUTEX_LOCKED(&(us->sema));
-> > > 
-> > > This is used to wait for command completion and therefor we have the
-> > > completion API. It was used this way because the ancestor of completion
-> > > (sleep_on) was racy !
-> > 
-> > I didn't look at the USB code, I'm just saying that it's perfectly valid
-> > use of a semaphore the pattern you describe (process A holding it,
-> > process B releasing it).
-> 
-> Yeah, for a semaphore it is, but not for a mutex.
-> 
-> IMHO, this is not clearly seperated and therefor produces a lot of
-> confusion.
+Mildred Frisco wrote:
+> Hi,
+> I would like to ask help in compiling a minimal linux kernel.
+> Basically, it would only contain the kernel andno filesystem (or
+> probably devfs).  I would only have to boot the kernel from floppy.
+> Then after the necessary kernel initializations, I would issue a
+> prompt where I can either shutdown or reboot the system. That's the
+> only functionality required.  As I've learned from the init program
+> (and startup scripts), the init services and shutdown commands are
+> called from /sbin. However, I do not require to mount the root fs
+> anymore.  I also tried to search for the source code of the shutdown
+> program but I can't find it.  Please help on the steps that I should
+> do.
 
-Semaphore and mutex has always been the same thing in Linux. Apparently
-this isn't so in Ingos tree, you should make a clear distinction on
-which you are discussing.
+Your /sbin/init can be a simple script (or even just bash or another shell).
+
+You can use statically compiled binaries against dietlibc from here:
+
+ftp://foobar.math.fu-berlin.de:2121/pub/dietlibc/bin-i386/
+
+If you use "ash" as /sbin/init and place busybox there with the 
+appropriate symlinks, you get a small semi-functional shell for a mere 
+120kb of executables.
+
+If you're really desperate for space, you can build your own executable 
+that asks for shutdown/reboot and calls reboot(2) with the appropriate 
+parameters, and link against dietlibc (or ulibc).
+
+This is not really kernel related and you should not mess with the 
+kernel code for acomplishing this. If you really need to cut down extra 
+space in the kernel you can check the patches from the "tiny" tree to 
+build an incredibly small kernel.
+
+I hope this helps,
 
 -- 
-Jens Axboe
+Paulo Marques - www.grupopie.com
 
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

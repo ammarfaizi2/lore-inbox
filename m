@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270811AbTHAPs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 11:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270813AbTHAPs5
+	id S270807AbTHAPrT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 11:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270809AbTHAPrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 11:48:57 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:8970 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S270811AbTHAPsl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 11:48:41 -0400
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: Ren <l.s.r@web.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Inline vfat_strnicmp()
-References: <20030727172150.15f8df7f.l.s.r@web.de>
-	<200307311357.h6VDvEj20416@Port.imtp.ilyichevsk.odessa.ua>
-	<87zniuwx81.fsf@devron.myhome.or.jp>
-	<200308010546.h715kJj24299@Port.imtp.ilyichevsk.odessa.ua>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 02 Aug 2003 00:47:45 +0900
-In-Reply-To: <200308010546.h715kJj24299@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <87lludv0pq.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Aug 2003 11:47:19 -0400
+Received: from squid.clg.qc.ca ([205.237.246.45]:43026 "HELO 205.237.246.45")
+	by vger.kernel.org with SMTP id S270807AbTHAPrS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 11:47:18 -0400
+From: Michael Jansen <winninator@germanmail.com>
+To: user@vger.kernel.org
+Subject: kurze Frage...
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Fri, 1 Aug 2003 17:52:15 +0200
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-Priority: 1
+Message-Id: <S270807AbTHAPrS/20030801154718Z+3041@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
+Guten Tag,
 
-> I can't be 100.00% sure it will happen. I'd say 98.234235% ;)
-> 
-> Andrew Morton kills extra large inlines, and you are creating them :(
-> That's not ok. Just leave those poor static functions alone
-> until compiler will do them, all at once.
-> There are lots of other stuff to do in the kernel source.
+eine Quizzfrage an Sie:
+_______________________
+Was ist "Harry Potter"?
 
- - That's smaller than prev in *real world*.
- - You don't fix compiler.
+A: Sportler
+B: Pilot
+C: Künstler
+D: Zauberlehrling
+_______________________
 
-End of story.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Wenn Sie die Antwort wissen, klicken Sie bei
+http://www.girlz03.bag.gs/wq
+
+auf "Quizz starten" und geben Ihre Lösung ein.
+Beim richtigen beantworten der Fragen gewinnt man
+bis zu 100.000 EURO!
+
+Die Teilnahme ist kostenlos...
+
+Also:
+http://www.girlz03.bag.gs/wq
+
+Viel Glück!

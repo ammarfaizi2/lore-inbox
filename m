@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280179AbRJaLzq>; Wed, 31 Oct 2001 06:55:46 -0500
+	id <S280167AbRJaLzC>; Wed, 31 Oct 2001 06:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280178AbRJaLzd>; Wed, 31 Oct 2001 06:55:33 -0500
-Received: from bartender.antefacto.net ([193.120.245.19]:8832 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S280179AbRJaLzW>; Wed, 31 Oct 2001 06:55:22 -0500
-Date: Wed, 31 Oct 2001 11:55:28 +0000
-From: "John P. Looney" <john@antefacto.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux Bared - Project
-Message-ID: <20011031115527.A2112@antefacto.com>
-Reply-To: john@antefacto.com
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3BDBB21F0003A917@iso2.vistocorporation.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <3BDBB21F0003A917@iso2.vistocorporation.com>; from linuxlist@visto.com on Tue, Oct 30, 2001 at 07:53:15PM -0800
-X-OS: Red Hat Linux 7.2/Linux 2.4.131afo
-X-URL: http://www.redbrick.dcu.ie/~valen
-X-GnuPG-publickey: http://www.redbrick.dcu.ie/~valen/public.asc
+	id <S280179AbRJaLyw>; Wed, 31 Oct 2001 06:54:52 -0500
+Received: from fep01-0.kolumbus.fi ([193.229.0.41]:2473 "EHLO
+	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id <S280178AbRJaLyp>; Wed, 31 Oct 2001 06:54:45 -0500
+Date: Wed, 31 Oct 2001 13:56:05 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: <makisara@kai.makisara.local>
+To: Richard Kettlewell <rjk@greenend.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: problem with ide-scsi and IDE tape drive
+In-Reply-To: <wwvady8vhfs.fsf@rjk.greenend.org.uk>
+Message-ID: <Pine.LNX.4.33.0110311347580.3081-100000@kai.makisara.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 30 Oct 2001, Richard Kettlewell wrote:
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Oct 30, 2001 at 07:53:15PM -0800, rohit prasad mentioned:
 > Hi,
->=20
->  That may be quite right but.=20
-> This is a project itself that I am required to work on and get Linux up a=
-n working with the barest minimum / the only required modules.
-> Any information about the way I could do that will be great
+>
+> I have a Seagate STT20000A IDE tape drive, which I am trying to use
+> with the ide-scsi driver.  It worked well enough when moving data
+> around to repartition recently, but I have discovered a repeatable
+> problem.
+>
+> If I try and save a tar to the tape twice in succession, rewinding and
+> reading forward to the same point each time first, the second attempt
+> fails (details below).
+[details cut]
 
- The "Linux from Scratch" project has detailed documentation on building
-minimal Linux systems.
+Looking at your log everything seems to work perfectly from the point of
+view of the drivers. The problem is that the first write command (from the
+log cmd: a 1 0 0 3c 0 Len: 30720) is refused by your drive (the sense key
+Illegal Request). The command looks OK (i.e., it is a write of 60 512 byte
+blocks in fixed block mode).
 
- http://www.linuxfromscratch.org/
+Does your drive only accept writes from the beginning of the tape (there
+are drives that have this limitation)? In this case the problem is that
+you rewind and space forward between the two tar commands. You don't have
+to rewind between the commands. The same result is obtained if you just
+use two consecutive tar commands (and this means that writing only starts
+from the beginning of the tape, from the drive's point of view).
 
-Kate
-
---=20
-_______________________________________
-John Looney             Chief Scientist
-a n t e f a c t o     t: +353 1 8586004
-www.antefacto.com     f: +353 1 8586014
+	Kai
 
 
---opJtzjQTFsWo+cga
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE73+avYBVPvqzGrWgRAmDzAJ9uZXmz+3JZHz6eL4jhN09nKuctbACgqNCN
-8bG0AmpEo6gDHp58alNQJQs=
-=hyMT
------END PGP SIGNATURE-----
-
---opJtzjQTFsWo+cga--

@@ -1,91 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132044AbRDTXqG>; Fri, 20 Apr 2001 19:46:06 -0400
+	id <S132121AbRDTXq0>; Fri, 20 Apr 2001 19:46:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132121AbRDTXp4>; Fri, 20 Apr 2001 19:45:56 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:31890 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S132044AbRDTXps>; Fri, 20 Apr 2001 19:45:48 -0400
-Message-Id: <5.0.2.1.2.20010421003159.04a028f0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Sat, 21 Apr 2001 00:48:11 +0100
-To: Wayne.Brown@altec.com
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Current status of NTFS support
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <86256A34.0079A841.00@smtpnotes.altec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S132140AbRDTXqQ>; Fri, 20 Apr 2001 19:46:16 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:5132 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132121AbRDTXqI>; Fri, 20 Apr 2001 19:46:08 -0400
+Date: Fri, 20 Apr 2001 16:45:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "D . W . Howells" <dhowells@astarte.free-online.co.uk>,
+        <dhowells@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: x86 rwsem in 2.4.4pre[234] are still buggy [was Re: rwsem
+ benchmarks [Re: generic rwsem [Re: Alpha "process table hang"]]]
+In-Reply-To: <20010420191710.A32159@athlon.random>
+Message-ID: <Pine.LNX.4.31.0104201639070.6299-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 23:08 20/04/2001, Wayne.Brown@altec.com wrote:
->Where does write support for NTFS stand at the moment?  I noticed that 
->it's still marked "Dangerous" in the kernel configuration.
-
-It is extremely dangerous. Never use unless you are desperate. It creates 
-corrupt files and especially directories. It also cannot delete at all (not 
-implemented). - If you do write you have to run ntfsfix utility on the 
-partition after umount before rebooting into Windows which will let chkdsk 
-run on next reboot which should fix all problems created by the driver. - 
-ntfsfix is part of the Linux-NTFS project. You can download the 
-source/source rpm or pre-compiled rpm from 
-http://sourceforge.net/projects/linux-ntfs/
-
->This is important to me because it looks like I'll have to start using it 
->next week. My office laptop is going to be "upgraded" from Windows 98 to 2000.
-
-Forget it. Windows 2000 NTFS is supported only read-only. The driver will 
-refuse to mount read-write (unless you are using an out of date kernel in 
-which case it will probably just destroy your partition!). I strongly 
-suggest to use kernel 2.4.4-pre5 at least or a 2.4.x-acXYZ kernel (at least 
-2.4.2-ac something IIRC) as these kernels contain many important fixes.
-
->Of course, I hardly ever boot into Windows any more since installing a 
->Linux partition last year.  But our corporate email standard forces me to 
->use Lotus Notes, which I run under Wine.   The Notes executables and 
->databases are installed on my Windows partition.  The upgrade, though, 
->will involve wiping the hard drive, allocating
->the whole drive to a single NTFS partition, and reinstalling Notes after 
->installing Windows 2000 .  That means bye-bye FAT32 partition and hello 
->NTFS.  I can't mount it read-only because I'll still have to update my 
->Notes databases from Linux.  So how risky is this?
-
-Simple answer: you can't. 100% data loss is unfortunately guaranteed if you 
-start using it like this, maybe not in one day, maybe not in two but 
-eventually you will try to boot into Windows and find it doesn't exist any 
-more...
-
->Also, I'll have to recreate my Linux partitions after the upgrade.  Does 
->anyone know if FIPS can split a partition safely that was created under 
->Windows 2000/NT?  It worked fine for Windows 98, but I'm a little worried 
->about what might happen if I try to use it on an NTFS partition.
-
-It can't. You need to buy Partition Magic or similar utility to do this. 
-There is AFAIK no free NTFS resizer available (yet!).
-
-The best solution for you is to ask really kindly (by them a beer?) to have 
-your laptop installed with one partition which doesn't fill your entire 
-disk (i.e. just ask them to make the partition whatever size you want) and 
-to use the FAT-32 filesystem instead of NTFS. Windows 2000 is quite happy 
-to do both of these. You could even save them the trouble and do the 
-partitioning and formatting for them and just ask them to install Windows 
-2000 on your C: drive using FAT-32. Then pray they will oblige. Otherwise 
-you will have to spend some money on partition magic I am afraid (or 
-equivalent obviously).
-
-If you go for the repartition yourself approach you should be able to keep 
-your current linux install. You can use GNU parted to resize you Linux 
-partitions so you have enough space for Win2k (find it on 
-ftp.gnu.org/gnu/parted/).
-
-Hope this helps,
-
-         Anton
 
 
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+On Fri, 20 Apr 2001, Andrea Arcangeli wrote:
+>
+> While dropping the list_empty check to speed up the fast path I faced the same
+> complexity of the 2.4.4pre4 lib/rwsem.c and so before reinventing the wheel I
+> read how the problem was solved in 2.4.4pre4.
+
+I would suggest the following:
+
+ - the generic semaphores should use the lock that already exists in the
+   wait-queue as the semaphore spinlock.
+
+ - the generic semaphores should _not_ drop the lock. Right now it drops
+   the semaphore lock when it goes into the slow path, only to re-aquire
+   it. This is due to bad interfacing with the generic slow-path routines.
+
+   I suspect that this lock-drop is why Andrea sees problems with the
+   generic semaphores. The changes to "count" and "sleeper" aren't
+   actually atomic, because we don't hold the lock over them all. And
+   re-using the lock means that we don't need the two levels of
+   spinlocking for adding ourselves to the wait queue. Easily done by just
+   moving the locking _out_ of the wait-queue helper functions, no?
+
+ - the generic semaphores are entirely out-of-line, and are just declared
+   universally as regular FASTCALL() functions.
+
+The fast-path x86 code looks ok to me. The debugging stuff makes it less
+readable than it should be, I suspect, and is probably not worth it at
+this stage. The users of rw-semaphores are so well-defined (and so well
+debugged) that the debugging code only makes the code harder to follow
+right now.
+
+Comments?  Andrea? Your patches have looked ok, but I absoutely refuse to
+see the non-inlined fast-path for reasonable x86 hardware..
+
+		Linus
 

@@ -1,78 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129031AbRBHVEJ>; Thu, 8 Feb 2001 16:04:09 -0500
+	id <S129737AbRBHVTD>; Thu, 8 Feb 2001 16:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130259AbRBHVEA>; Thu, 8 Feb 2001 16:04:00 -0500
-Received: from nn.net.uni-c.dk ([130.226.0.34]:34310 "HELO nn.net.uni-c.dk")
-	by vger.kernel.org with SMTP id <S129031AbRBHVDo>;
-	Thu, 8 Feb 2001 16:03:44 -0500
-Date: Thu, 8 Feb 2001 22:03:42 +0100
-From: torben fjerdingstad <unitfj-lk@tfj.rnd.uni-c.dk>
-To: linux-kernel@vger.kernel.org
-Subject: No sound on SB line2 anymore?
-Message-ID: <20010208220341.A21133@tfj.rnd.uni-c.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S130259AbRBHVSy>; Thu, 8 Feb 2001 16:18:54 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:63901 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S129737AbRBHVSj>;
+	Thu, 8 Feb 2001 16:18:39 -0500
+Date: Thu, 8 Feb 2001 13:18:28 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>,
+        <jes@linuxcare.com>, Donald Becker <becker@scyld.com>
+Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
+In-Reply-To: <3A83017D.D84AD6B1@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.30.0102081259090.31024-100000@age.cs.columbia.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since 2.4.0-test5, line2 on my Soundblaster 128 soundcard, which is
-connected to on my hauppauge winTV/pci TV card has been silent.
-I sure have turned line2 on with a mixer program.
-The external line connector sounds OK.
+On Thu, 8 Feb 2001, Jeff Garzik wrote:
 
-lspci says:
-00:0a.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev 01)
-00:0b.0 Multimedia video controller: Brooktree Corporation Bt848 TV with DMA push (rev 11)
+> I would prefer that the zerocopy changes stay in DaveM's external patch
+> until they are ready to be merged.  
 
-Since linux-2.4.0-test5 (which worked), I have tried the following
-kernel versions:
-linux-2.4.0-prerelease
-linux-2.4.0-ac12
-linux-2.4.1-ac6
+I would actually prefer to have a single source for all the driver 
+versions. The 2.2.x version I sent to Alan later on actually compiles on 
+2.2, 2.4 and 2.4+zerocopy. I just want to test it some more; the 2.4 
+version I submitted was quite well tested.
 
-dmesg says:
-i2c-core.o: i2c core module
-i2c-algo-bit.o: i2c bit algorithm module
-Linux video capture interface: v1.00
-bttv: driver version 0.7.50 loaded
-bttv: using 2 buffers with 2080k (4160k total) for capture
-bttv: Bt8xx card found (0).
-bttv0: Bt848 (rev 17) at 00:0b.0, irq: 10, latency: 32, memory: 0xdd000000
-bttv0: model: BT848( *** UNKNOWN *** ) [autodetected]
-i2c-core.o: adapter bt848 #0 registered as adapter 0.
-bttv0: i2c: checking for MSP34xx @ 0x80... not found
-bttv0: i2c: checking for TDA9875 @ 0xb0... not found
-bttv0: i2c: checking for TDA7432 @ 0x8a... not found
-i2c-core.o: driver i2c TV tuner driver registered.
-tuner: chip found @ 0x61
-bttv0: i2c attach [Temic PAL]
-i2c-core.o: client [Temic PAL] registered to adapter [bt848 #0](pos. 0).
-es1370: version v0.34 time 21:31:10 Feb  8 2001
-es1370: found adapter at io 0xa800 irq 5
-es1370: features: joystick off, line in, mic impedance 0
+> Zerocopy is still changing and being
+> actively debugged, so it is possible that we might have to patch
+> starfire.c again with zerocopy updates, before the final patch makes it
+> to Linus.  Let's wait on zerocopy in the main tree..
 
-Currently I'm using xawtv:
-This is xawtv-3.30, running on Linux/i686 (2.4.1-ac6)
+It's true that zerocopy might change. But remember, zerocopy support in 
+the driver is not mandatory, and nobody forces you to #define ZEROCOPY. If 
+the zerocopy proves to be unacceptable for the official kernel, ripping 
+out the stuff that's #ifdef ZEROCOPY will be a trivial exercise.
 
-In .xawtv I have:
-mixer   = line2
+> > I've also added myself as the starfire maintainer -- I hope
+> > nobody objects.
+> 
+> If you've got the hardware and time, I'm always happy to see someone
+> step up ..  
 
-It seems to both aumix and xawtv that there is a mixer there,
-but no sound comes out, even when line2 is on, and volume=100%.
-Otherwise the sound card works fine.
+.. the hardware, the docs, the time, and the day-to-day duty to maintain 
+the starfire driver (and the eepro100 driver) for an older version of 
+BSDI. It's the job that pays my salary...
 
-What's up?
+> I must confess that I haven't seen much of your work to
+> date, however.
+
+Oh well, I thought the code would be enough proof. For what it's worth, 
+I was the main developer for the Linux version of Erez Zadok's stackable 
+filesystems work. I'm also co-maintainer (with Erez and two more people) 
+of the am-utils automounter suite, taking care of the Linux port and 
+currently implementing autofs support for Linux and Solaris.
+
+But hey, if you want to continue maintaining the starfire driver yourself, 
+I don't really mind.
+
+> > +/*
+> > + * The ia64 doesn't allow for unaligned loads even of integers being
+> > + * misaligned on a 2 byte boundary. Thus always force copying of
+> > + * packets as the starfire doesn't allow for misaligned DMAs ;-(
+> > + * 23/10/2000 - Jes
+> > + *
+> > + * Neither does the Alpha. -Ion
+> > + */
+> > +#if defined(__ia64__) || defined(__alpha__)
+> > +#define PKT_SHOULD_COPY(pkt_len)       1
+> > +#else
+> > +#define PKT_SHOULD_COPY(pkt_len)       (pkt_len < rx_copybreak)
+> > +#endif
+> 
+> Note that I have not yet sent this patch onto Linus for a reason... 
+> Here is Don Becker's comment on the subject:
+> 
+> Donald Becker wrote:
+> > On Tue, 16 Jan 2001, Jeff Garzik wrote:
+> > > * IA64 support (Jes)
+> > Oh, and this is completely bogus.
+> > This isn't a fix, it's a hack that covers up the real problem.
+> > 
+> > The align-copy should *never* be required because the alignment differs
+> > between DIX and E-II encapsulated packets.  The machine shouldn't crash
+> > because someone sends you a different encapsulation type!
+
+It's not *required* per se, as far as I know both the Alpha and IA64 have 
+handlers for unaligned access traps. *However*, copying each packet is 
+definitely better than taking an exception for each packet!
+
+So the box won't crash. But it should behave better with this patch, in 
+regular operation.
+
+Jes can probably comment some more, it's his change after all. I have 
+neither alphas nor itaniums, so my comment is based on second-hand 
+knowledge and on reading the arch code.
+
+> > @@ -757,14 +931,14 @@
+> > 
+> >         dev->trans_start = jiffies;
+> >         np->stats.tx_errors++;
+> > -       return;
+> > +       netif_wake_queue(dev);
+> >  }
+> 
+> this has not been sent on to linus/alan because, if you do not empty the
+> Tx ring on tx_timeout, you should check to see if there is space on the
+> ring before waking the queue.  Otherwise corruption/problems occur...
+
+tx_timeout is completely bogus right now, to be honest. If it gets there,
+you might as well just down the interface. So I just applied this part
+from your patch, without really thinking about it.
+
+What tx_timeout really needs to do is a full reset and re-initialization
+of the chip. Why? Because when the timeout happens, the chip is basically
+fubar'ed (usually due to driver bugs, but that's not the point).
+
+It's in the TODO list..
+
+Ion
 
 -- 
-Med venlig hilsen / Regards 
-Netdriftgruppen / Network Management Group
-UNI-C          
-
-Tlf./Phone   +45 35 87 89 41        Mail:  UNI-C                                
-Fax.         +45 35 87 89 90               Bygning 304
-E-mail: torben.fjerdingstad@uni-c.dk       DK-2800 Lyngby
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

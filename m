@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264335AbUESQWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUESQa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264335AbUESQWx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 12:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUESQWx
+	id S264396AbUESQa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 12:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264428AbUESQa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 12:22:53 -0400
-Received: from fire.osdl.org ([65.172.181.4]:53475 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S264335AbUESQWt (ORCPT
+	Wed, 19 May 2004 12:30:28 -0400
+Received: from lagoon1.di-ve.com ([194.158.37.138]:45710 "HELO di-ve.com")
+	by vger.kernel.org with SMTP id S264396AbUESQaY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 12:22:49 -0400
-Subject: Re: 2.6.6-mm4 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040519040421.61263a43.akpm@osdl.org>
-References: <20040519040421.61263a43.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1084983767.12134.1.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 19 May 2004 09:22:47 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 19 May 2004 12:30:24 -0400
+Message-ID: <58848.208.52.116.13.1084984042.squirrel@webmail.di-ve.com>
+Date: Wed, 19 May 2004 18:27:22 +0200 (CEST)
+Subject: Re.Call me.
+From: cox_71@di-ve.com
+To: cox_71@di-ve.com
+Reply-To: cox_717@yahoo.com
+User-Agent: SquirrelMail/1.4.0
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry about the timeliness of the compile stats over the last week 
-or so.  Here are compile stats for the 2.6.6* drops for both 
-Linus' kernel and Andrew's kernel patches.  The links at the 
-bottom point to the full details for the compiles (defconfig,
-allnoconfig, allyesconfig, allmodconfig).
+Dear friend,
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+It is indeed my pleasure to write to you this letter, which I believe will
+be a surprise, as we are both complete strangers. As you read this, I
+don't want you to feel sorry for me, because I believe everyone will die
+someday.
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
-2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
+My name is Al Muntaha, Ahmed Salah , a merchant in Dubai, in the U.A.E. I
+have been diagnosed with Esophageal cancer which was discovered very late,
+due to my laxity in caring for my health. It has defiled all forms of
+medicine, and right now I have only about a few months to live, according
+to medical experts. I have not particularly lived my life so well, as I
+never really cared for anyone not even myself but my business.  Though I
+am very rich, I was never generous, I was always hostile to people and
+only focus on my business as that was the only thing I cared for, but now
+I regret all this as I now know that there is more to life than just
+wanting to have or make all the money in the world. I believe when I have
+a second chance to come to this world I would live my life a different way
+from how I have lived it, now that it is dark for me, I have willed and
+given most of my properties and assets to my immediate and extended family
+members and as well as a few close friends.
+
+To correct my wrong past life, I have decided to give alms to charity
+organizations, as I want this to be one of the last good deeds I do on
+earth. So far, I have distributed money to some charity organizations in
+the U.A.E, Algeria and Malaysia. Now that my health has deteriorated so
+badly, I cannot do this my self anymore.  I once asked members of my
+Family to close one of my accounts and distribute the money, which I have
+there to charity organization in Bulgaria and Pakistan, which they claimed
+have been distributed but without any detail information.
+
+Hence, I do not trust them anymore, as they seem not to be honest and had
+never visited me again.The last of my money which no one knows of is the
+huge cash deposit of Eighteen million dollars that I have with a storage
+company in South Africa, I will want you to help me collect this deposit
+and dispatched it to charity organizations and you must be sending me
+information of how it was disbursed either by email or otherwise.
+
+I have set aside 10% for you for your time and patience.
+
+Regards,
+
+Al Muntaha, Ahmed Salah.
+Email: tomluuw@bizprofit.net
 
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.6-mm3         0w/0e     0w/0e   112w/9w    5w/0e   2w/5e    106w/1e
-2.6.6-mm3         3w/9e     0w/0e   120w/26w   5w/0e   2w/0e    114w/10e
-2.6.6-mm2         4w/11e    0w/0e   120w/24w   6w/0e   2w/0e    118w/9e
-2.6.6-mm1         1w/0e     0w/0e   118w/25w   6w/0e   2w/0e    114w/10e
-2.6.6-rc3-mm2     0w/0e     0w/0e   117w/ 0e   8w/0e   2w/0e    116w/0e
-2.6.6-rc3-mm1     0w/0e     0w/0e   120w/10e   8w/0e   2w/0e    152w/2e
-2.6.6-rc2-mm2     0w/0e     1w/5e   118w/ 0e   8w/0e   3w/0e    118w/0e
-2.6.6-rc2-mm1     0w/0e     0w/0e   115w/ 0e   7w/0e   3w/0e    116w/0e
-2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
-
-John
-
-
+__________________________________________________________ 
+ For special offers on latest publications on Malta or by Maltese authors go to http://shop.di-ve.com

@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVAHJsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVAHKAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbVAHJsR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 04:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVAHJqi
+	id S261911AbVAHKAd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 05:00:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVAHJ7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 04:46:38 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:20957 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261892AbVAHJk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 04:40:59 -0500
-Subject: Patch 2/3: Reduce number of get_cmos_time_calls.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Pavel Machek <pavel@ucw.cz>, John Stultz <johnstul@us.ibm.com>,
-       David Shaohua <shaohua.li@intel.com>
-In-Reply-To: <1105176732.5478.20.camel@desktop.cunninghams>
-References: <1105176732.5478.20.camel@desktop.cunninghams>
-Content-Type: text/plain
-Message-Id: <1105177184.5478.39.camel@desktop.cunninghams>
+	Sat, 8 Jan 2005 04:59:49 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:53454 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261918AbVAHJ4x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 04:56:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=GiXYQv7m1/iQpMcEaBBk7Dq0cQcLgOFcJA8vhtTYjA5XxHhBMIyBkTEihgetZKs3aNsIP3OmuSUc5Cz2swaVH1LmjzBkzTtEGTS+FwVq7cT2WFNiQk+VxVPj2ZU1mGzZUuo4mg2gmbSff31zHz7mLrhcdYPvO4th1sV+shwYyH4=
+Message-ID: <297f4e010501080156736e929e@mail.gmail.com>
+Date: Sat, 8 Jan 2005 10:56:49 +0100
+From: Ikke <ikke.lkml@gmail.com>
+Reply-To: Ikke <ikke.lkml@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: kobject_uevent
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050107233632.GA1467@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 08 Jan 2005 20:42:16 +1100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <297f4e01050107065060e0b2ad@mail.gmail.com>
+	 <297f4e0105010713254b6e0678@mail.gmail.com>
+	 <20050107233632.GA1467@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change sleep_start from signed to unsigned long. This appears to address
-an issue with the clock being occasionally off by around 1 hr 10
-minutes.
+Ok, events are sent to DBUS now, including the additional string
+information [1]. Code (for now, it's not "done" yet!) is here [2].
 
-Signed-off-by: Nigel Cunningham <ncunningham@linuxmail.org>
+I'll ask the DBUS guys whether it's usefull to get this (optionally)
+directly into DBUS.
 
-diff -ruNp 912-old/arch/i386/kernel/time.c 912-new/arch/i386/kernel/time.c
---- 912-old/arch/i386/kernel/time.c	2005-01-08 19:38:33.786012992 +1100
-+++ 912-new/arch/i386/kernel/time.c	2005-01-08 19:38:15.058859952 +1100
-@@ -319,7 +319,8 @@ unsigned long get_cmos_time(void)
- 	return retval;
- }
- 
--static long clock_cmos_diff, sleep_start;
-+static long clock_cmos_diff;
-+static unsigned long sleep_start;
- 
- static int timer_suspend(struct sys_device *dev, u32 state)
- {
+Let's hope other kernel devs will also start introducing events into
+their code! :-)
+
+Greetings, Ikke
+
+[1] http://blog.eikke.com/index.php/ikke/2005/01/08/udev_kernel_events_part_2
+[2] http://www.eikke.com/files/code/uevent_listen.c
 
 
+On Fri, 7 Jan 2005 15:36:32 -0800, Greg KH <greg@kroah.com> wrote:
+> On Fri, Jan 07, 2005 at 10:25:14PM +0100, Ikke wrote:
+> > I'm a little confused by the use of KOBJ_* stuff in
+> > include/linux/kobject_uevent.h and the string representation of them
+> > in lib/kobject_uevent.c, which means people must edit 2 files if they
+> > want to add new events?
+> 
+> Yes, that is exactly correct.  The enumerated type is used for the
+> callers to kobject_uevent* and the string is sent out on the wire from
+> within the kevent core code.
+> 
+> Hope this helps,
+> 
+> greg k-h
+>

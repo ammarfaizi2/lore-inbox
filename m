@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVB0JfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVB0KRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbVB0JfX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 04:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVB0JfW
+	id S261373AbVB0KRr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 05:17:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVB0KRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 04:35:22 -0500
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:26375 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261278AbVB0JfP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 04:35:15 -0500
-Date: Sun, 27 Feb 2005 10:35:38 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Andreas Oberritter <obi@saftware.de>
-Cc: Greg KH <greg@kroah.com>, LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] possible bug in i2c-algo-bit's inb function
-Message-Id: <20050227103538.218fa1b0.khali@linux-fr.org>
-In-Reply-To: <E1D5GN2-0000Bi-KG@localhost.localdomain>
-References: <E1D5GN2-0000Bi-KG@localhost.localdomain>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 27 Feb 2005 05:17:46 -0500
+Received: from [61.135.145.13] ([61.135.145.13]:3864 "EHLO
+	websmtp2.mail.sohu.com") by vger.kernel.org with ESMTP
+	id S261292AbVB0KRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 05:17:34 -0500
+Message-ID: <17855236.1109499454066.JavaMail.postfix@mx20.mail.sohu.com>
+Date: Sun, 27 Feb 2005 18:17:34 +0800 (CST)
+From: <stone_wang@sohu.com>
+To: <riel@redhat.com>, <akpm@osdl.org>
+Subject: [PATCH] Linux-2.6.11-rc5: kernel/sys.c setrlimit() RLIMIT_RSS cleanup
+Cc: <linux-mm@kvack.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 8bit
+X-Mailer: Sohu Web Mail 2.0.13
+X-SHIP: 210.21.32.84
+X-Priority: 3
+X-SHMOBILE: 0
+X-Sohu-Antivirus: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adreas,
 
-> while writing a driver for a cardbus card which is supposed to use the
-> bit-banging algorithm I noticed that communication with the I2C slave
-> (Philips TDA10046) would fail without this patch. It forces SDA to
-> high for every bit in i2c_inb() instead of once per byte. Can this
-> patch go into the mainline kernel or will this break other drivers? I
-> am using Kernel version 2.6.10.
 
-There is no reason why this would be necessary. Once SDA is set high on
-the master's side, the client will be controlling it for the rest of the
-byte (transferred from client to master). Setting SDA high again on the
-master's side for each bit shouldn't have any effet, let alone the
-substantial slowdown. If it changes something for you, then either your
-implementation of setscl or getsda is broken and does actually change
-SDA as a side effect, or what really helps is the additional delay, not
-setting SDA high per se. In the former case, check your code. If you
-can't figure out what's wrong, post it here and I'll take at look.
-What's your bus master BTW? In the latter case, you might simply need to
-lower the bus speed (increase udelay).
+ulimit dont enforce RLIMIT_RSS now,while sys_setrlimit() pretend it(RLIMIT_RSS) is enforced. 
 
-Thanks,
--- 
-Jean Delvare
+This may cause confusion to users, and may lead to un-guaranteed dependence on "ulimit -m" to limit users/applications.
+
+The patch fixed the problem. 
+
+-- snip from system run with patched(patch attached) 2.6.11-rc5 kernel
+$ ulimit  -a
+core file size          (blocks, -c) 0
+data seg size           (kbytes, -d) unlimited
+file size               (blocks, -f) unlimited
+pending signals                 (-i) 1024
+max locked memory       (kbytes, -l) 32
+max memory size         (kbytes, -m) unlimited
+open files                      (-n) 1024
+pipe size            (512 bytes, -p) 8
+POSIX message queues     (bytes, -q) 819200
+stack size              (kbytes, -s) 8192
+cpu time               (seconds, -t) unlimited
+max user processes              (-u) 4091
+virtual memory          (kbytes, -v) unlimited
+file locks                      (-x) unlimited
+
+$ ulimit  -m 100000
+bash: ulimit: max memory size: cannot modify limit: Function not implemented
+
+-
+patch: 2.6.11-rc5 kernel/sys.c setrlimit() RLIMIT_RSS cleanup
+
+Signed-Off-By: Stone Wang  <stone_wang@sohu.com>
+
+diff -urpN linux-2.6.11-rc5-original/kernel/sys.c linux-2.6.11-rc5-cleanup/kernel/sys.c
+--- linux-2.6.11-rc5-original/kernel/sys.c      2005-02-26 17:34:38.000000000 -0500
++++ linux-2.6.11-rc5-cleanup/kernel/sys.c       2005-02-27 17:27:20.000000000 -0500
+@@ -1488,6 +1488,14 @@ asmlinkage long sys_setrlimit(unsigned i
+        if (new_rlim.rlim_cur > new_rlim.rlim_max)
+                return -EINVAL;
+        old_rlim = current->signal->rlim + resource;
++
++       /* We dont enforce RLIMIT_RSS ulimit yet. But for application
++          compatability, we warn only when asked to change system default value. */
++       if( resource == RLIMIT_RSS &&
++           ((new_rlim.rlim_max != old_rlim->rlim_max)||
++            (new_rlim.rlim_cur != old_rlim->rlim_cur)) )
++               return -ENOSYS;
++
+        if ((new_rlim.rlim_max > old_rlim->rlim_max) &&
+            !capable(CAP_SYS_RESOURCE))
+                return -EPERM;

@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317182AbSGCSmI>; Wed, 3 Jul 2002 14:42:08 -0400
+	id <S317217AbSGCSnF>; Wed, 3 Jul 2002 14:43:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317191AbSGCSmI>; Wed, 3 Jul 2002 14:42:08 -0400
-Received: from dsl-64-192-31-41.telocity.com ([64.192.31.41]:27145 "EHLO
-	butterfly.hjsoft.com") by vger.kernel.org with ESMTP
-	id <S317182AbSGCSmH>; Wed, 3 Jul 2002 14:42:07 -0400
-From: glynis@butterfly.hjsoft.com
-Date: Wed, 3 Jul 2002 14:44:30 -0400
-To: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: linux 2.5.24-dj2 acpi on dell inspiron 3800
-Message-ID: <20020703184430.GA16210@butterfly.hjsoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S317215AbSGCSnE>; Wed, 3 Jul 2002 14:43:04 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:64902 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317191AbSGCSnC> convert rfc822-to-8bit; Wed, 3 Jul 2002 14:43:02 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Hugh Dickins <hugh@veritas.com>, "Adam J. Richter" <adam@yggdrasil.com>
+Subject: Re: Rusty's module talk at the Kernel Summit
+Date: Wed, 3 Jul 2002 20:46:24 +0200
+User-Agent: KMail/1.4.1
+Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.21.0207031803250.1391-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.21.0207031803250.1391-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207032046.24730.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Mittwoch, 3. Juli 2002 19:07 schrieb Hugh Dickins:
+> On Wed, 3 Jul 2002, Adam J. Richter wrote:
+> > On Wed, 03 Jul 2002 22:27:33 +1000, Keith Owens wrote:
+> > >It does not.  There is no code to adjust any tables after discarding
+> > >kernel __init sections.  We rely on the fact that the discarded
+> > > kernel area is not reused for executable text.
+> >
+> > 	Come to think of it, if the core kernel's .text.init pages could
+> > later be vmalloc'ed for module .text section, then I think you may
+> > have found a potential kernel bug.
+>
+> No: the virtual address (which is what matters) would be different:
+> core kernel's .text.init is not in vmalloc virtual address range.
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Does that mean that kmalloc cannot be used to load modules?
+At least for small modules it would save TLB entries.
 
-observations about my configuration:
-1.  i tried writing states 1-3 to /proc/acpi/sleep, and that seems to
-work as expected, putting it to sleep.  when it wakes, the screen
-won't come back, i don't think sysrq keys work, and i end up holding
-the power button to get it to shutdown.
+	Regards
+		Oliver
 
-2.  swsusp works, and wakes properly the first time.  it leaves the
-clock out of sync, the ps2 mouse doesn't work until reload of the
-psmouse module, but the software-ejected pcmcia nic actually
-automatically reinserts itself.  i can deal with scripting up these
-things, but i'd be interested in good ways to hook the wake event.
-
-on the second swsusp suspend/wake, bash oopses the kernel immediately
-upon waking.  updated will oops a few minutes afterward.
-
-this all shows alot of promise, but i'd like to know how to clear
-these things up.  i've been anxiously awaiting a new kernel to see if
-it's cleaned up.
-
-thanks.
-
---=20
-____________________}John Flinchbaugh{______________________
-| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
-~~Powered by Linux: Reboots are for hardware upgrades only~~
-
---fdj2RfSjLxBAspz7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9I0YOCGPRljI8080RAqwZAJ9wPcd9VtcGNluEAsefwn4UOVIRkgCfVy+2
-9YsM2DHPy2yO6o+/lOT7Tr4=
-=IGXQ
------END PGP SIGNATURE-----
-
---fdj2RfSjLxBAspz7--

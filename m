@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279841AbRJ3EI3>; Mon, 29 Oct 2001 23:08:29 -0500
+	id <S279844AbRJ3EJ7>; Mon, 29 Oct 2001 23:09:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279844AbRJ3EII>; Mon, 29 Oct 2001 23:08:08 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:42575 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S279841AbRJ3EHv>; Mon, 29 Oct 2001 23:07:51 -0500
-Date: Tue, 30 Oct 2001 05:08:12 +0100
-From: Andrea Arcangeli <andrea@suse.de>
+	id <S279850AbRJ3EJw>; Mon, 29 Oct 2001 23:09:52 -0500
+Received: from [63.193.79.18] ([63.193.79.18]:37870 "HELO mwg.inxservices.lan")
+	by vger.kernel.org with SMTP id <S279844AbRJ3EJj>;
+	Mon, 29 Oct 2001 23:09:39 -0500
+Date: Mon, 29 Oct 2001 20:09:47 -0800
+From: George Garvey <tmwg-linuxknl@inxservices.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.14pre5aa1
-Message-ID: <20011030050812.A1340@athlon.random>
+Subject: Re: Linux 2.4.13-ac4
+Message-ID: <20011029200947.C14203@inxservices.com>
+In-Reply-To: <20011028204003.A1640@lightning.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011028204003.A1640@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Sun, Oct 28, 2001 at 08:40:03PM +0000
+Organization: inX Services, Los Angeles, CA, USA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-URL:
-
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre5aa1.bz2
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre5aa1/
-
-Only in 2.4.14pre3aa4: 00_spinlock-cacheline-1
-Only in 2.4.14pre5aa1: 00_spinlock-cacheline-2
-
-	Rediffed due rejects.
-
-Only in 2.4.14pre3aa4: 00_tmpfs-symlink-1
-
-	Alternate fix in mainline.
-
-Only in 2.4.14pre3aa4: 10_vm-8
-Only in 2.4.14pre5aa1: 10_vm-9
-
-	Further vm changes and sync with mainline (still anon pages
-	out of the lru, extensive comparisons would be interesting).
-
-Only in 2.4.14pre3aa4: 50_uml-patch-2.4.13-1.bz2
-Only in 2.4.14pre5aa1: 50_uml-patch-2.4.13-2.bz2
-Only in 2.4.14pre3aa4: 52_u64-1
-
-	Updated to latest Jeff's patch.
-
-Only in 2.4.14pre3aa4: 60_tux-2.4.12-ac3-D6.bz2
-Only in 2.4.14pre5aa1: 60_tux-2.4.13-ac4-A3.bz2
-
-	Updated to latest Ingo's patch.
-
-Andrea
+   Just recently installed a dlink dge550t in P3 Asus CUV4X-E. Still has
+vortex board installed, but not connected to LAN. Connected to 10/100
+switch still.
+   After switching to 2.4.13-ac4, short time after boot start getting
+transmit timeout. No log, because that goes to another system on LAN.
+Will reproduce if exact message is desired.
+   Rebooted 2.4.13-ac4. Got timeout again shortly after.
+   Rebooted back to 2.4.12-ac3. No problems for rest of day. Running
+RML's preempt patch on both kernels: that's the only difference from ac
+(except for nVidia driver module).
+   Willing to get better information if this is worth pursuing.

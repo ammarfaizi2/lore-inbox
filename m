@@ -1,44 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291863AbSB0D16>; Tue, 26 Feb 2002 22:27:58 -0500
+	id <S291729AbSB0D56>; Tue, 26 Feb 2002 22:57:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291889AbSB0D1s>; Tue, 26 Feb 2002 22:27:48 -0500
-Received: from oe43.law9.hotmail.com ([64.4.8.15]:8455 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S291863AbSB0D1d>;
-	Tue, 26 Feb 2002 22:27:33 -0500
-X-Originating-IP: [66.108.23.161]
-From: "T. A." <tkhoadfdsaf@hotmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        "Florian Lohoff" <flo@rfc822.org>
-In-Reply-To: <20020226184043.GA10420@paradigm.rfc822.org> <3C7BDC57.A835D657@zip.com.au> <20020226191626.GA11283@paradigm.rfc822.org>
-Subject: Re: [CRASH] gdth / __block_prepare_write: zeroing uptodate buffer! / NMI Watchdog detected LOCKUP
-Date: Tue, 26 Feb 2002 22:27:50 -0500
+	id <S291970AbSB0D5t>; Tue, 26 Feb 2002 22:57:49 -0500
+Received: from mx2.fuse.net ([216.68.1.120]:23708 "EHLO mta02.fuse.net")
+	by vger.kernel.org with ESMTP id <S291729AbSB0D5h>;
+	Tue, 26 Feb 2002 22:57:37 -0500
+Message-ID: <3C7C5930.6010703@fuse.net>
+Date: Tue, 26 Feb 2002 22:57:36 -0500
+From: Nathan <wfilardo@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020203
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.5-dj2 compile failures
+In-Reply-To: <3C7C4BBF.2020505@fuse.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <OE43IwMw8lODAStRc0J00021292@hotmail.com>
-X-OriginalArrivalTime: 27 Feb 2002 03:27:28.0132 (UTC) FILETIME=[AE9A7440:01C1BF3E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    What motherboard are you using?  I recently installed a ICP RAID card
-into a VP6 with dual processors and had similar problems.  I've also had
-problems with the gdth driver under linux in that drives were disappearing
-now and then destroying the integrity of the RAID drive, though in a
-different setup.
+This *might * just be a FAQ, but I think it's actually a 
+Makefile bug (it's happened twice, each time after a make mrproper).
+
+$ strings vmlinux | grep __ver
+__verify_write_Rsmp_203afbeb
+vmalloc_to_page_R__ver_vmalloc_to_page
+idle_cpu_R__ver_idle_cpu
+set_cpus_allowed_R__ver_set_cpus_allowed
+
+The first is not a problem, but the rest are.  Grepping 
+include/linux/modules/* gave no matches:
+$ find include/linux/modules/* | xargs grep -e idle_cpu
+$ find include/linux/modules/* | xargs grep -e set_cpu
+$ find include/linux/modules/* | xargs grep -e vmalloc_to_page
+
+Config (I think this is all that matters... if something else is needed, 
+lemme know.):
+CONFIG_X86=y
+CONFIG_ISA=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+CONFIG_MPENTIUMIII=y
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM4G_HIGHPTE is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_HIGHMEM64G_HIGHPTE is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+CONFIG_SMP=y
+CONFIG_PREEMPT=y
+# CONFIG_MULTIQUAD is not set
+CONFIG_HAVE_DEC_LOCK=y
 
 
------ Original Message -----
-From: "Florian Lohoff" <flo@rfc822.org>
-To: "Andrew Morton" <akpm@zip.com.au>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, February 26, 2002 2:16 PM
-Subject: Re: [CRASH] gdth / __block_prepare_write: zeroing uptodate buffer!
-/ NMI Watchdog detected LOCKUP
 
 

@@ -1,82 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbUJZGNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbUJZGSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262146AbUJZGNu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 02:13:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbUJZGNu
+	id S262102AbUJZGSf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 02:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUJZGSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 02:13:50 -0400
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:55744 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S262062AbUJZGMb convert rfc822-to-8bit (ORCPT
+	Tue, 26 Oct 2004 02:18:35 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:60095 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262144AbUJZGSc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 02:12:31 -0400
-X-OB-Received: from unknown (205.158.62.49)
-  by wfilter.us4.outblaze.com; 26 Oct 2004 06:12:29 -0000
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+	Tue, 26 Oct 2004 02:18:32 -0400
+Date: Tue, 26 Oct 2004 08:17:53 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Nico Augustijn." <kernel@janestarz.com>
+cc: hvr@gnu.org, clemens@endorphin.org, linux-kernel@vger.kernel.org
+Subject: Re: Cryptoloop patch for builtin default passphrase
+In-Reply-To: <200410251354.31226.kernel@janestarz.com>
+Message-ID: <Pine.LNX.4.53.0410260816230.30255@yvahk01.tjqt.qr>
+References: <200410251354.31226.kernel@janestarz.com>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Clayton Weaver" <cgweav@email.com>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 26 Oct 2004 01:12:29 -0500
-Subject: Re: power/disk.c: small fixups
-X-Originating-Ip: 172.192.187.181
-X-Originating-Server: ws1-1.us4.outblaze.com
-Message-Id: <20041026061229.E49AB4BDA9@ws1-1.us4.outblaze.com>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(re: "it's" and similar non-code documentation issues, plus
-a tangent from a completely different topic)
+>This here patch will make the kernel use a default passphrase (compiled into
+>the kernel or cryptoloop.ko module) when you set up a cryptoloop device with:
 
-Among the best references ever on "The King's English"
-(traditional phrase informally meaning "correct English
-usage"):
+Suppose I break in via ssh:
+I could load the module (if applicable), and find the address of the function
+or variable in System.map, extract the static passphrase, and well. Then?
 
-_The Elements of Style_, Strunk and White:
 
-  <http://www.bartleby.com/141/>
-
-The above work is not an encyclopedic reference on
-English usage (not complete), but nonetheless:
-
-  "The pronominal possessives hers, its, theirs, yours,
-   and oneself have no apostrophe."
-
-So, if "it's" is not a possessive, then it's a
-contraction, where the ' represents one or
-more omitted letters. (No comment on the "it has"
-variant, which I cannot remember ever seeing
-in practice but can think of no reason for ruling
-out as definitively incorrect usage.)
-
-----
-
-Touching on a tangent from an earlier topic
-this week, what about a small, very sensitive emi
-collector that plugs into a ps/2 mouse port,
-serial port or usb port on a headless, keyboardless,
-interactive-user-less server? Something sending
-environmentally random data at a rate designed
-to accumulate abundant real entropy without hosing
-server performance on headless boxes?
-
-(One wants "background noise of the universe"
-for a usable input source, at a data rate
-high enough to get rid of that nagging anxiety
-about whether one always has enough entropy for
-ipsec, etc, when no one is using the keyboard or
-mouse, there may or may not be any disks, network
-data flows tend to stay at fairly consistent rates
-due to rate-limiting, etc.)
-
-Regards,
-
-Clayton Weaver
-<mailto: cgweav@email.com>
+Jan Engelhardt
 -- 
-___________________________________________________________
-Sign-up for Ads Free at Mail.com
-http://promo.mail.com/adsfreejump.htm
-
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268188AbUHFQmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268168AbUHFQqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268188AbUHFQmx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 12:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268186AbUHFQlG
+	id S268168AbUHFQqt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 12:46:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268185AbUHFQk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 12:41:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21411 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268163AbUHFQjK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 12:39:10 -0400
-Date: Fri, 6 Aug 2004 12:53:28 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Vladislav Bolkhovitin <vst@vlnb.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 bitops.h commentary on instruction reordering
-Message-ID: <20040806155328.GA21546@logos.cnet>
-References: <20040805200622.GA17324@logos.cnet> <411392E0.6080507@vlnb.net> <20040806143359.GC20911@logos.cnet> <4113A579.5060702@vlnb.net>
+	Fri, 6 Aug 2004 12:40:59 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:45732 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265732AbUHFQif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 12:38:35 -0400
+Subject: Re: [PATCH] Re-implemented i586 asm AES (updated)
+From: David Woodhouse <dwmw2@infradead.org>
+To: James Morris <jmorris@redhat.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, torvalds@osdl.org
+In-Reply-To: <Xine.LNX.4.44.0408061216210.22965-100000@dhcp83-76.boston.redhat.com>
+References: <Xine.LNX.4.44.0408061216210.22965-100000@dhcp83-76.boston.redhat.com>
+Content-Type: text/plain
+Message-Id: <1091810308.4383.4916.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4113A579.5060702@vlnb.net>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Fri, 06 Aug 2004 17:38:28 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 07:36:25PM +0400, Vladislav Bolkhovitin wrote:
-> Thanks.
+On Fri, 2004-08-06 at 12:17 -0400, James Morris wrote:
+> On Fri, 6 Aug 2004, Andi Kleen wrote:
 > 
-> One more question, if you don't object. How after some variable 
-> assigment to make other CPUs *immediatelly* see the assigned value, i.e. 
-> to make current CPU immediately flush its write cache in memory? *mb() 
-> seems deal with reordering, barrier() with the compiler optimization (am 
-> I right?). 
+> > You could use .altinstructions to patch a jump in at runtime
+> > based on CPU capabilities. Assuming MMX is really faster of course.
+> 
+> Neat.  The latter could be measured at boot.
 
-Yes correct. *mb() usually imply barrier(). 
+On first use, please. Don't slow the boot down.
 
-About the flush, each architecture defines its own instruction for doing so,
- PowerPC has  "sync" and "isync" instructions (to flush the whole cache and instruction 
-cache respectively), MIPS has "sync" and so on..
-
-> The similar memory barrier spin_lock() does, but it's not 
-> easy to uderstand its internal magic.
+-- 
+dwmw2
 

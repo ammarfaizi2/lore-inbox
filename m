@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262576AbTCITWb>; Sun, 9 Mar 2003 14:22:31 -0500
+	id <S262582AbTCITZr>; Sun, 9 Mar 2003 14:25:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262578AbTCITWb>; Sun, 9 Mar 2003 14:22:31 -0500
-Received: from comtv.ru ([217.10.32.4]:20178 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S262576AbTCITWa>;
-	Sun, 9 Mar 2003 14:22:30 -0500
-X-Comment-To: "Theodore Ts'o"
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Daniel Phillips <phillips@arcor.de>, Alex Tomas <bzzz@tmi.comex.ru>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, Andrew Morton <akpm@digeo.com>
-Subject: Re: [Bug 417] New: htree much slower than regular ext3
-References: <11490000.1046367063@[10.10.2.4]> <m34r6fyya8.fsf@lexa.home.net>
-	<20030307173425.5C4D3FAAAE@mx12.arcor-online.net>
-	<20030307232749.GA24572@think.thunk.org>
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 09 Mar 2003 22:26:01 +0300
-In-Reply-To: <20030307232749.GA24572@think.thunk.org>
-Message-ID: <m3d6l0l4ty.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S262580AbTCITZl>; Sun, 9 Mar 2003 14:25:41 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:16605 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S262579AbTCITZi>; Sun, 9 Mar 2003 14:25:38 -0500
+Date: Sun, 9 Mar 2003 19:33:59 -0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: struct inode size reduction.
+Message-ID: <20030309203359.GA7276@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andries Brouwer <aebr@win.tue.nl>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030309135402.GB32107@suse.de> <20030309171314.GA3783@win.tue.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030309171314.GA3783@win.tue.nl>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Theodore Ts'o (TT) writes:
+On Sun, Mar 09, 2003 at 06:13:14PM +0100, Andries Brouwer wrote:
 
- TT> The fix in userspace would be for du and find (the two programs
- TT> most likely to care about this sort of thing) to pull into memory
- TT> a large chunks of the directory at a time, sort them by inode,
- TT> and then stat them in inode order.
+ > > -	/* These three should probably be a union */
+ > >  	struct list_head	i_devices;
+ > > -	struct pipe_inode_info	*i_pipe;
+ > > -	struct block_device	*i_bdev;
+ > > -	struct char_device	*i_cdev;
+ > > -
+ > > +	union {
+ > > +		struct pipe_inode_info	*i_pipe;
+ > > +		struct block_device	*i_bdev;
+ > > +		struct char_device	*i_cdev;
+ > > +	} type;
+ > 
+ > Not really any objection, but this is half work where
+ > more can be done. The comment is right: also i_devices
+ > can go into the union.
 
-in fact, this solution solves problem for filesystems with fixed inodes
-placement. for example, this solutions won't work for reiserfs.
+The different size types threw me, and I figured it
+was a misplaced comment. It certainly made more sense
+that way when it mentioned 'these three' rather than
+'these four'.  looking at bd_acquire I'm not so sure
+it's as simple a job as the other three were.
+
+ > (And i_cdev can be deleted altogether, but that is an
+ > independent matter.)
+
+There still seems to be some users of that, so I'll
+leave that to a follow up patch, (or someone else who
+really knows whats going on there).
+
+		Dave
 

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263942AbTL2TSx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 14:18:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbTL2TSx
+	id S264480AbTL2TXo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 14:23:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264497AbTL2TXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 14:18:53 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:61319 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263942AbTL2TSv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 14:18:51 -0500
-Subject: Re: Add support for checking before-the-fact whether an IRQ is
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: torvalds@osdl.org
-In-Reply-To: <200312291905.hBTJ56k1032326@hera.kernel.org>
-References: <200312291905.hBTJ56k1032326@hera.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NOhr6Su0v5KRyFuJNjpw"
-Organization: Red Hat, Inc.
-Message-Id: <1072725508.4233.11.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 29 Dec 2003 20:18:28 +0100
+	Mon, 29 Dec 2003 14:23:44 -0500
+Received: from 12-229-138-12.client.attbi.com ([12.229.138.12]:42880 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S264480AbTL2TXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 14:23:43 -0500
+Message-ID: <3FF07F3E.2090405@comcast.net>
+Date: Mon, 29 Dec 2003 11:23:42 -0800
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Can't eject a previously mounted CD?
+References: <3FEF89D5.4090103@comcast.net> <3FEF8BB1.6090704@wmich.edu> <3FEFA36A.5050307@comcast.net> <3FEFDE4A.1030208@wmich.edu> <3FF0580C.5070604@comcast.net> <3FF06A26.8060609@wmich.edu>
+In-Reply-To: <3FF06A26.8060609@wmich.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ed Sweetman wrote:
+> check out test11-mm1's cdrom.c.  I think it'll make things clear.  I
+> just replaced the cdrom.c and ide-cd.h and ide-cd.c files in 2.6.0-mm1
+> with 2.6.0-test11-mm1's and things are working perfect.
+> 
+> 
+> 
 
---=-NOhr6Su0v5KRyFuJNjpw
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Ed,
 
-On Mon, 2003-12-29 at 19:18, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1552, 2003/12/29 10:18:11-08:00, torvalds@home.osdl.org
->=20
-> 	Add support for checking before-the-fact whether an IRQ is
-> 	already registered or not. The x86 PCI layer wants this for
-> 	its availability testing.
-> =09
-> 	Doing a request_irq()/free_irq() pair to check this condition
-> 	like we used to do can lock the machine if the irq happens to
-> 	be screaming.
+I can confirm that 2.6.0-mm2 fixes the tray lock issue. On my setup, the drive's
+capabilities are reported correctly as well. Haven't done serious testing yet,
+but I could at least blank a cd-rw :) yay!
+
+-Walt
 
 
-question; which lock prevents someone else claiming the irq and making
-it unsharable/unclaimable between can_request_irq() and the eventual
-request_irq() ????
 
---=-NOhr6Su0v5KRyFuJNjpw
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/8H4DxULwo51rQBIRAkvHAJ0dlmxi8R93hyE64A4MzKLNCUJvXgCcCZbD
-QU0lIkEaJPESZW4puceUb8I=
-=qib8
------END PGP SIGNATURE-----
-
---=-NOhr6Su0v5KRyFuJNjpw--

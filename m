@@ -1,38 +1,24 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317482AbSFHX6h>; Sat, 8 Jun 2002 19:58:37 -0400
+	id <S317473AbSFIAH6>; Sat, 8 Jun 2002 20:07:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317483AbSFHX6g>; Sat, 8 Jun 2002 19:58:36 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45586 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317482AbSFHX6g>; Sat, 8 Jun 2002 19:58:36 -0400
-Date: Sat, 8 Jun 2002 16:59:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Dan Aloni <da-x@gmx.net>, Brian Gerst <bgerst@didntduck.org>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] More list_del_init cleanups
-In-Reply-To: <Pine.LNX.4.44.0206081744280.15675-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0206081657360.11630-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317483AbSFIAH5>; Sat, 8 Jun 2002 20:07:57 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:35242 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317473AbSFIAH5>;
+	Sat, 8 Jun 2002 20:07:57 -0400
+Date: Sat, 08 Jun 2002 17:03:34 -0700 (PDT)
+Message-Id: <20020608.170334.100423446.davem@redhat.com>
+To: sam@ravnborg.org
+Cc: ak@muc.de, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Networking: ip_gre init corrected
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020608214620.A4827@mars.ravnborg.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Sat, 8 Jun 2002, Thunder from the hill wrote:
->
-> There are 57 uses of list_del(); list_add(); plus 1 use of
-> remove_parent(); add_parent().
->
-> There are 29 uses of list_del(); list_add_tail();.
-
-Hmm. Sounds like "list_move()" and "list_move_tail()" might be worthwhile.
-
-That's assuming people actually _want_ something like that? Anybody
-willing to do this, _and_ go through the maintainers of the appropriate
-sub-systems?
-
-		Linus
-
+Patch applied, thanks.

@@ -1,36 +1,419 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbTJJK3P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 06:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTJJK3P
+	id S262011AbTJJKh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 06:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTJJKh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 06:29:15 -0400
-Received: from brain.sedal.usyd.edu.au ([129.78.24.68]:61069 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S262016AbTJJK3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 06:29:14 -0400
-Message-Id: <5.1.1.5.2.20031010202318.00a996d8@brain.sedal.usyd.edu.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Fri, 10 Oct 2003 20:28:54 +1000
-To: nuno.silva@vgertech.com, vda@port.imtp.ilyichevsk.odessa.ua
-From: herft <herft@sedal.usyd.edu.au>
-Subject: CPU Load average on user loggin basis
-Cc: linux-kernel@vger.kernel.org
+	Fri, 10 Oct 2003 06:37:59 -0400
+Received: from dsl-082-082-137-159.arcor-ip.net ([82.82.137.159]:6404 "HELO
+	obi.mine.nu") by vger.kernel.org with SMTP id S262011AbTJJKhs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 06:37:48 -0400
+Subject: [PATCH][RESENT] mpc8xx watchdog timer (2.4.23-pre7)
+From: Andreas Oberritter <obi@saftware.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org, jolt@tuxbox.org
+Content-Type: multipart/mixed; boundary="=-tgx+6+uVtyTh3eRxKeKb"
+Message-Id: <1065782266.861.4.camel@shiva.eth.saftware.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 10 Oct 2003 12:37:46 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Vda and Silva,
+--=-tgx+6+uVtyTh3eRxKeKb
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thanks for the previous infor about CPU Usage per user loggin.
+Hi Marcelo,
 
-Do you know any process which calculates CPU Load Average per User Loggin?
+the attached patch adds support for the internal watchdog of the mpc8xx
+series of CPUs. It has been tested on the D-Box2 board which requires
+this patch because the watchdog timer is enabled by its boot loader and
+can not be disabled after being started. It should work on other 8xx
+boards as well without modifications. Please apply.
 
-Thanks
+Regards,
+Andreas Oberritter
 
-Sena Seneviraten
-Computer Engineering Laboratory
-Sydney University
+--=-tgx+6+uVtyTh3eRxKeKb
+Content-Disposition: attachment; filename=linux-2.4.23-pre7-m8xxwdt.diff
+Content-Type: text/x-patch; name=linux-2.4.23-pre7-m8xxwdt.diff; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+diff -Naur linux-2.4.23-pre7.orig/arch/ppc/kernel/Makefile linux-2.4.23-pre7/arch/ppc/kernel/Makefile
+--- linux-2.4.23-pre7.orig/arch/ppc/kernel/Makefile	2003-10-09 02:06:12.000000000 +0200
++++ linux-2.4.23-pre7/arch/ppc/kernel/Makefile	2003-10-09 02:07:28.000000000 +0200
+@@ -64,6 +64,9 @@
+ obj-$(CONFIG_PPC4xx_DMA)	+= ppc4xx_dma.o
+ obj-$(CONFIG_PPC4xx_EDMA)	+= ppc4xx_sgdma.o
+ obj-$(CONFIG_8xx)		+= m8xx_setup.o ppc8xx_pic.o
++ifdef CONFIG_8xx_WDT
++obj-y				+= m8xx_wdt.o
++endif
+ ifeq ($(CONFIG_8xx),y)
+ obj-$(CONFIG_PCI)		+= qspan_pci.o
+ ifndef CONFIG_MATH_EMULATION
+diff -Naur linux-2.4.23-pre7.orig/arch/ppc/kernel/m8xx_setup.c linux-2.4.23-pre7/arch/ppc/kernel/m8xx_setup.c
+--- linux-2.4.23-pre7.orig/arch/ppc/kernel/m8xx_setup.c	2003-08-25 13:44:40.000000000 +0200
++++ linux-2.4.23-pre7/arch/ppc/kernel/m8xx_setup.c	2003-10-09 02:07:28.000000000 +0200
+@@ -58,6 +58,7 @@
+ 
+ extern unsigned long find_available_memory(void);
+ extern void m8xx_cpm_reset(uint);
++extern void m8xx_wdt_handler_install(bd_t *bp);
+ 
+ void __init
+ m8xx_setup_arch(void)
+@@ -184,6 +185,13 @@
+ 	if (request_irq(DEC_INTERRUPT, timebase_interrupt, 0, "tbint",
+ 				NULL) != 0)
+ 		panic("Could not allocate timer IRQ!");
++
++#ifdef CONFIG_8xx_WDT
++	/* Install watchdog timer handler early because it might be
++	 * already enabled by the bootloader
++	 */
++	m8xx_wdt_handler_install(binfo);
++#endif
+ }
+ 
+ /* The RTC on the MPC8xx is an internal register.
+diff -Naur linux-2.4.23-pre7.orig/arch/ppc/kernel/m8xx_wdt.c linux-2.4.23-pre7/arch/ppc/kernel/m8xx_wdt.c
+--- linux-2.4.23-pre7.orig/arch/ppc/kernel/m8xx_wdt.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.4.23-pre7/arch/ppc/kernel/m8xx_wdt.c	2003-10-09 02:07:42.000000000 +0200
+@@ -0,0 +1,103 @@
++/*
++ * m8xx_wdt.c - MPC8xx watchdog driver
++ *
++ * Copyright (C) 2002 Florian Schirmer <jolt@tuxbox.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++
++#include <linux/init.h>
++#include <linux/irq.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <asm/8xx_immap.h>
++
++static int wdt_timeout;
++
++void m8xx_wdt_reset(void)
++{
++	volatile immap_t *imap = (volatile immap_t *)IMAP_ADDR;
++
++	imap->im_siu_conf.sc_swsr = 0x556c;	/* write magic1 */
++	imap->im_siu_conf.sc_swsr = 0xaa39;	/* write magic2 */
++}
++
++static void m8xx_wdt_interrupt(int irq, void *dev, struct pt_regs *regs)
++{
++	volatile immap_t *imap = (volatile immap_t *)IMAP_ADDR;
++
++	m8xx_wdt_reset();
++
++	imap->im_sit.sit_piscr |= PISCR_PS;	/* clear irq */
++}
++
++void __init m8xx_wdt_handler_install(bd_t *binfo)
++{
++	volatile immap_t *imap = (volatile immap_t *)IMAP_ADDR;
++	u32 pitc;
++	u32 sypcr;
++	u32 pitrtclk;
++
++	sypcr = imap->im_siu_conf.sc_sypcr;
++
++	if (!(sypcr & 0x04)) {
++		printk(KERN_NOTICE "m8xx_wdt: wdt disabled (SYPCR: 0x%08X)\n", sypcr);
++		return;
++	}
++
++	m8xx_wdt_reset();
++
++	printk(KERN_NOTICE "m8xx_wdt: active wdt found (SWTC: 0x%04X, SWP: 0x%01X)\n",
++			(sypcr >> 16), sypcr & 0x01);
++
++	wdt_timeout = (sypcr >> 16) & 0xFFFF;
++
++	if (!wdt_timeout)
++		wdt_timeout = 0xFFFF;
++
++	if (sypcr & 0x01)
++		wdt_timeout *= 2048;
++
++	/*
++	 * Fire trigger if half of the wdt ticked down 
++	 */
++
++	if (imap->im_sit.sit_rtcsc & RTCSC_38K)
++		pitrtclk = 9600;
++	else
++		pitrtclk = 8192;
++
++	if ((wdt_timeout) > (UINT_MAX / pitrtclk))
++		pitc = wdt_timeout / binfo->bi_intfreq * pitrtclk / 2;
++	else
++		pitc = pitrtclk * wdt_timeout / binfo->bi_intfreq / 2;
++
++	imap->im_sit.sit_pitc = pitc << 16;
++	imap->im_sit.sit_piscr = (mk_int_int_mask(PIT_INTERRUPT) << 8) | PISCR_PIE | PISCR_PTE;
++
++	if (request_irq(PIT_INTERRUPT, m8xx_wdt_interrupt, 0, "watchdog", NULL))
++		panic("m8xx_wdt: could not allocate watchdog irq!");
++
++	printk(KERN_NOTICE "m8xx_wdt: keep-alive trigger installed (PITC: 0x%04X)\n", pitc);
++
++	wdt_timeout /= binfo->bi_intfreq;
++}
++
++int m8xx_wdt_get_timeout(void)
++{
++	return wdt_timeout;
++}
++
+diff -Naur linux-2.4.23-pre7.orig/arch/ppc/kernel/ppc_ksyms.c linux-2.4.23-pre7/arch/ppc/kernel/ppc_ksyms.c
+--- linux-2.4.23-pre7.orig/arch/ppc/kernel/ppc_ksyms.c	2003-10-09 02:06:12.000000000 +0200
++++ linux-2.4.23-pre7/arch/ppc/kernel/ppc_ksyms.c	2003-10-09 02:07:28.000000000 +0200
+@@ -357,6 +357,12 @@
+ EXPORT_SYMBOL(cpm_free_handler);
+ EXPORT_SYMBOL(m8xx_cpm_hostalloc);
+ EXPORT_SYMBOL(m8xx_cpm_dpalloc);
++#ifdef CONFIG_8xx_WDT
++extern int m8xx_wdt_get_timeout(void);
++extern void m8xx_wdt_reset(void);
++EXPORT_SYMBOL(m8xx_wdt_get_timeout);
++EXPORT_SYMBOL(m8xx_wdt_reset);
++#endif /* CONFIG_8xx_WDT */
+ #endif /* CONFIG_8xx */
+ 
+ /* Those should really be inline */
+diff -Naur linux-2.4.23-pre7.orig/drivers/char/Config.in linux-2.4.23-pre7/drivers/char/Config.in
+--- linux-2.4.23-pre7.orig/drivers/char/Config.in	2003-10-10 12:16:21.000000000 +0200
++++ linux-2.4.23-pre7/drivers/char/Config.in	2003-10-10 12:16:10.000000000 +0200
+@@ -257,6 +257,9 @@
+    fi
+    tristate '  ZF MachZ Watchdog' CONFIG_MACHZ_WDT
+    dep_tristate '  AMD 766/768 TCO Timer/Watchdog' CONFIG_AMD7XX_TCO $CONFIG_EXPERIMENTAL
++   if [ "$CONFIG_8xx" = "y" ]; then
++      tristate '  MPC8xx Watchdog Timer' CONFIG_8xx_WDT
++   fi
+ fi
+ endmenu
+ 
+diff -Naur linux-2.4.23-pre7.orig/drivers/char/Makefile linux-2.4.23-pre7/drivers/char/Makefile
+--- linux-2.4.23-pre7.orig/drivers/char/Makefile	2003-10-09 02:06:14.000000000 +0200
++++ linux-2.4.23-pre7/drivers/char/Makefile	2003-10-09 02:07:28.000000000 +0200
+@@ -305,6 +305,7 @@
+ obj-$(CONFIG_WAFER_WDT) += wafer5823wdt.o
+ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+ obj-$(CONFIG_AMD7XX_TCO) += amd7xx_tco.o
++obj-$(CONFIG_8xx_WDT) += mpc8xx_wdt.o
+ 
+ subdir-$(CONFIG_MWAVE) += mwave
+ ifeq ($(CONFIG_MWAVE),y)
+diff -Naur linux-2.4.23-pre7.orig/drivers/char/mpc8xx_wdt.c linux-2.4.23-pre7/drivers/char/mpc8xx_wdt.c
+--- linux-2.4.23-pre7.orig/drivers/char/mpc8xx_wdt.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.4.23-pre7/drivers/char/mpc8xx_wdt.c	2003-10-09 02:07:50.000000000 +0200
+@@ -0,0 +1,183 @@
++/*
++ * mpc8xx_wdt.c - MPC8xx watchdog userspace interface
++ *
++ * Copyright (C) 2002 Florian Schirmer <jolt@tuxbox.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/miscdevice.h>
++#include <linux/module.h>
++#include <linux/watchdog.h>
++#include <asm/8xx_immap.h>
++#include <asm/uaccess.h>
++
++extern int m8xx_wdt_get_timeout(void);
++extern void m8xx_wdt_reset(void);
++
++static struct semaphore wdt_sem;
++static int wdt_status;
++
++static struct watchdog_info ident = {
++	.identity = "MPC8xx watchdog",
++	.options = WDIOF_KEEPALIVEPING,
++};
++
++static void mpc8xx_wdt_handler_disable(void)
++{
++	volatile immap_t *imap = (volatile immap_t *)IMAP_ADDR;
++
++	imap->im_sit.sit_piscr &= ~(PISCR_PIE | PISCR_PTE);
++
++	printk(KERN_NOTICE "mpc8xx_wdt: keep-alive handler deactivated\n");
++}
++
++static void mpc8xx_wdt_handler_enable(void)
++{
++	volatile immap_t *imap = (volatile immap_t *)IMAP_ADDR;
++
++	imap->im_sit.sit_piscr |= PISCR_PIE | PISCR_PTE;
++
++	printk(KERN_NOTICE "mpc8xx_wdt: keep-alive handler activated\n");
++}
++
++static int mpc8xx_wdt_open(struct inode *inode, struct file *file)
++{
++	switch (MINOR(inode->i_rdev)) {
++	case WATCHDOG_MINOR:
++		if (down_trylock(&wdt_sem))
++			return -EBUSY;
++
++		m8xx_wdt_reset();
++		mpc8xx_wdt_handler_disable();
++		break;
++
++	default:
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
++static int mpc8xx_wdt_release(struct inode *inode, struct file *file)
++{
++	m8xx_wdt_reset();
++
++#if !defined(CONFIG_WATCHDOG_NOWAYOUT)
++	mpc8xx_wdt_handler_enable();
++#endif
++
++	up(&wdt_sem);
++
++	return 0;
++}
++
++static ssize_t mpc8xx_wdt_write(struct file *file, const char *data,
++				size_t len, loff_t * ppos)
++{
++	/* Can't seek (pwrite) on this device */
++	if (ppos != &file->f_pos)
++		return -ESPIPE;
++
++	if (!len)
++		return 0;
++
++	m8xx_wdt_reset();
++
++	return 1;
++}
++
++static int mpc8xx_wdt_ioctl(struct inode *inode, struct file *file,
++			    unsigned int cmd, unsigned long arg)
++{
++	switch (cmd) {
++	case WDIOC_GETSUPPORT:
++		if (copy_to_user((void *)arg, &ident, sizeof(ident)))
++			return -EFAULT;
++		break;
++
++	case WDIOC_GETSTATUS:
++	case WDIOC_GETBOOTSTATUS:
++		if (put_user(wdt_status, (int *)arg))
++			return -EFAULT;
++		wdt_status &= ~WDIOF_KEEPALIVEPING;
++		break;
++
++	case WDIOC_KEEPALIVE:
++		m8xx_wdt_reset();
++		wdt_status |= WDIOF_KEEPALIVEPING;
++		break;
++
++	case WDIOC_GETTIMEOUT:
++	{
++		int timeout = m8xx_wdt_get_timeout();
++		if (put_user(timeout, (int *)arg))
++			return -EFAULT;
++		break;
++	}
++
++	default:
++		return -ENOTTY;
++	}
++
++	return 0;
++}
++
++static struct file_operations mpc8xx_wdt_fops = {
++	.owner = THIS_MODULE,
++	.write = mpc8xx_wdt_write,
++	.ioctl = mpc8xx_wdt_ioctl,
++	.open = mpc8xx_wdt_open,
++	.release = mpc8xx_wdt_release,
++};
++
++static struct miscdevice mpc8xx_wdt_miscdev = {
++	.minor = WATCHDOG_MINOR,
++	.name = "watchdog",
++	.fops = &mpc8xx_wdt_fops,
++};
++
++static int __init mpc8xx_wdt_init(void)
++{
++	int ret;
++
++	sema_init(&wdt_sem, 1);
++
++	if ((ret = misc_register(&mpc8xx_wdt_miscdev))) {
++		printk(KERN_WARNING "mpc8xx_wdt: could not register userspace interface\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static void __exit mpc8xx_wdt_exit(void)
++{
++	misc_deregister(&mpc8xx_wdt_miscdev);
++
++	m8xx_wdt_reset();
++	mpc8xx_wdt_handler_enable();
++}
++
++module_init(mpc8xx_wdt_init);
++module_exit(mpc8xx_wdt_exit);
++
++MODULE_AUTHOR("Florian Schirmer <jolt@tuxbox.org>");
++MODULE_DESCRIPTION("MPC8xx watchdog driver");
++MODULE_LICENSE("GPL");
+
+--=-tgx+6+uVtyTh3eRxKeKb--
 

@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264272AbTGBSJS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 14:09:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbTGBSJS
+	id S264115AbTGBSMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 14:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbTGBSMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 14:09:18 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:42652 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264272AbTGBSJP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 14:09:15 -0400
-Date: Wed, 02 Jul 2003 11:12:00 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.73-mm3
-Message-ID: <530600000.1057169520@flay>
-In-Reply-To: <20030701221829.3e0edf3a.akpm@digeo.com>
-References: <20030701203830.19ba9328.akpm@digeo.com><15570000.1057122469@[10.10.2.4]> <20030701221829.3e0edf3a.akpm@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 2 Jul 2003 14:12:09 -0400
+Received: from bacchus.optics.arizona.edu ([128.196.206.37]:55523 "EHLO
+	bacchus.optics.arizona.edu") by vger.kernel.org with ESMTP
+	id S264115AbTGBSMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 14:12:07 -0400
+Date: Wed, 2 Jul 2003 11:22:49 -0700
+From: John Lapeyre <lapeyre@physics.arizona.edu>
+To: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCH] USB updates for 2.4.21
+Message-ID: <20030702182249.GA11236@bacchus.optics.arizona.edu>
+Reply-To: lapeyre@physics.arizona.edu
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> VFS: Cannot open root device "sda2" or unknown-block(0,0)
->> Please append a correct "root=" boot option
->> Kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)
->> 
->> mm2 works fine.
->> 
->> Seems like no SCSI drivers at all got loaded ... same config file,
->> feral on ISP.
-> 
-> Works OK here.
-> 
-> The config option for the feral driver got gratuitously renamed.  To
-> CONFIG_SCSI_FERAL_ISP.
 
-Bah humbug.
+Re: From: Greg KH (greg@kroah.com)
+    Date: Thu Jun 19 2003 - 19:40:35 EST 
 
-Well, I tried that now. Still E_NO_WORKEE though. Does spit out one
-error:
+Broken ehci-hcd things seem to be fixed with this patch. I had
+numerous crashes, hangs, filesystem corruption, etc. with
+ 2.4.19,20,21 until I applied this. I am using,
 
-scsi HBA driver Qlogic ISP 10X0/2X00 didn't set a release method.
-st: Version 20030622, fixed bufsize 32768, s/g segs 256
-oprofile: using NMI interrupt.
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP: routing cache hash table of 131072 buckets, 1024Kbytes
-TCP: Hash tables configured (established 524288 bind 65536)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-VFS: Cannot open root device "sda2" or unknown-block(0,0)
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)
+ DVD burner in an external USB 2.0  enclosure (same as the one rebranded by Belkin)
+ IDE drive in the same model enclosure.
+ Epson 3200 scanner.
 
-Note the "scsi HBA driver Qlogic ISP 10X0/2X00 didn't set a release method"
-bit.
+ Using them before the patch, particularly simultaneously, caused driver crashes. They
+ seem to share the bus nicely now.
 
+ Please CC me with replies.
+John lapeyre http://physics.arizona.edu/~lapeyre

@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280028AbRKDQn0>; Sun, 4 Nov 2001 11:43:26 -0500
+	id <S280027AbRKDQtq>; Sun, 4 Nov 2001 11:49:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280027AbRKDQnR>; Sun, 4 Nov 2001 11:43:17 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:3240 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S280026AbRKDQnB>; Sun, 4 Nov 2001 11:43:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Date: Sun, 4 Nov 2001 17:45:45 +0100
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <160Nyq-2ACgt6C@fmrl07.sul.t-online.com> <20011104163354.C14001@unthought.net>
-In-Reply-To: <20011104163354.C14001@unthought.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S280029AbRKDQth>; Sun, 4 Nov 2001 11:49:37 -0500
+Received: from cnxt10002.conexant.com ([198.62.10.2]:12327 "EHLO
+	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
+	id <S280027AbRKDQt0>; Sun, 4 Nov 2001 11:49:26 -0500
+Date: Sun, 4 Nov 2001 17:48:59 +0100 (CET)
+From: Rui Sousa <rui.p.m.sousa@clix.pt>
+X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
+To: "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>
+cc: <kwijibo@zianet.com>, <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: emu10k emits buzzing and crackling
+In-Reply-To: <32796.24.255.76.12.1004695621.squirrel@webmail.morcant.org>
+Message-ID: <Pine.LNX.4.33.0111041743030.3150-100000@sophia-sousar2.nice.mindspeed.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <160QM5-1HAz5sC@fmrl00.sul.t-online.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 November 2001 16:33, you wrote:
-> Maintaining the current /proc files is very simple, and it offers the
-> system administrator a lot of functionality that isn't reasonable to take
-> away now.
->        * They should stay in a form close to the current one *
+On Fri, 2 Nov 2001, Morgan Collins [Ax0n] wrote:
 
-I doubt that it is worthwhile to keep them in the current form for any other 
-reason than compatibility (with existing software and people's habits). 
-It doesn't make sense to describe things in 200 different formats, you won't 
-help anybody with that. It also violates the good old principle of keeping 
-policy out of the kernel. And, for me, layout is clearly policy.
+> > You may want to try the cvs version, but I thought they were pretty close to being in
+> > sync.  I have the same setup as you(dual Athlon, RH7.2) and I haven't seen any
+> > problems as of yet.
+> > 
+> > Steven
+> > 
+> > Benjamin LaHaise wrote:
+> > 
+> >>Hey folks,
+> >>
+> >>One of the workstations I use really doesn't like the emu10k driver in  2.4.13-ac5. 
+> >>The box is a dual athlon running rh7.2.  Playing mp3s seems  to work well, but other
+> >>samples from xfce on shutdown and window close  result in buzzing and popping noises.
+> >> If anyone wants details or patches  tested, drop me a note.
+> >>
+> >>
+> 	-ben
+> >>
+> >>es1371: version v0.30 time 17:42:30 Nov  1 2001
+> >>Creative EMU10K1 PCI Audio Driver, version 0.16, 17:42:24 Nov  1 2001 emu10k1:
+> >>EMU10K1 rev 7 model 0x8040 found, IO at 0x2400-0x241f, IRQ 19 ac97_codec: AC97 Audio
+> >>codec, id: 0x8384:0x7609 (SigmaTel STAC9721/23) usb.c: registered new driver hub
+> >>-
+> >>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in the body
+> >>of a message to majordomo@vger.kernel.org
+> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html Please read the
+> >>FAQ at  http://www.tux.org/lkml/
+> >>
+> I've also experianced this with 2.4.13+preempt. As ben said, playing single large files
+> works fine, but when playing short files or using esd for short bursts of sound,
 
-The reason for proc's popularity is clearly that you can use any tool, from 
-cat over more/less to the text editor of choice, and read the files. There 
-should be ways to achieve this without putting things into the kernel.  Is 
-there is a way to implement a filesystem in user-space? What you could do is 
-to export the raw data using single-value-files, XML or whatever and then 
-provide an emulation of the old /proc files and possibly new ones in user 
-space. This could be as simple as writing a shell-script for each emulated 
-file.
+With the emu10k1 there is no need to use esd...
 
+> I often
+> get popping noises.
 
-> The dot-proc file is basically a binary encoding of Lisp (or XML), e.g. it
-> is a list of elements, wherein an element can itself be a list (or a
+The current emu10k1 driver uses a hardware clock to generate periodic 
+interrupts. These apparently ran at the wrong rate in some Alpha machines.
+It's possible that the same problem occur now with more recent i386 
+machines.
 
-Why would anybody want a binary encoding? 
-It needs special parsers and will be almost impossible to access from shell 
-scripts. 
+Rui Sousa
 
-bye...
+> 
+> I'll give the cvs version a try and report back.
+> 
+> 
+

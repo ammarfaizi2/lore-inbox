@@ -1,48 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129845AbRCATzn>; Thu, 1 Mar 2001 14:55:43 -0500
+	id <S129851AbRCAUBf>; Thu, 1 Mar 2001 15:01:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129848AbRCATzd>; Thu, 1 Mar 2001 14:55:33 -0500
-Received: from colorfullife.com ([216.156.138.34]:55044 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129845AbRCATzS>;
-	Thu, 1 Mar 2001 14:55:18 -0500
-Message-ID: <3A9EA940.CB82665C@colorfullife.com>
-Date: Thu, 01 Mar 2001 20:55:44 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
-X-Accept-Language: en
+	id <S129853AbRCAUBY>; Thu, 1 Mar 2001 15:01:24 -0500
+Received: from [38.194.216.178] ([38.194.216.178]:12298 "HELO
+	vulcan.jvpbill.com") by vger.kernel.org with SMTP
+	id <S129851AbRCAUBS>; Thu, 1 Mar 2001 15:01:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: jorgp <jorgp@bartnet.net>
+Reply-To: jorgp@bartnet.net
+To: linux-kernel@vger.kernel.org
+Subject: status of 2.2.19pre
+Date: Thu, 1 Mar 2001 14:04:34 -0500
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: Mark Hemment <markhe@veritas.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Q: explicit alignment control for the slab allocator
-In-Reply-To: <Pine.LNX.4.21.0103011800460.11260-100000@alloc>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01030114043402.02890@vulcan.jvpbill.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hemment wrote:
-> 
->   The original idea behind offset was for objects with a "hot" area
-> greater than a single L1 cache line.  By using offset correctly (and to my
-> knowledge it has never been used anywhere in the Linux kernel), a SLAB
-> cache creator (caller of kmem_cache_create()) could ask the SLAB for more
-> than one colour (space/L1 cache lines) offset between objects.
->
+Is it as stable as 2.2.18?
 
-What's the difference between this definition of 'offset' and alignment?
-
-alignment means that (addr%alignment==0)
-offset means that (addr1-addr2 == n*offset)
-
-Isn't the only difference the alignment of the first object in a slab?
-
->   As no one uses the feature it could well be broken, but is that a reason
-> to change its meaning?
->
-
-Some hardware drivers use HW_CACHEALIGN and assume certain byte
-alignments, and arm needs 1024 byte aligned blocks.
-
---
-	Manfred
+-- 
+Thanks
+Jorg

@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268739AbUIXNgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268750AbUIXNn2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268739AbUIXNgK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 09:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268745AbUIXNgK
+	id S268750AbUIXNn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 09:43:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268752AbUIXNn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 09:36:10 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61708 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268739AbUIXNgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 09:36:07 -0400
-Date: Fri, 24 Sep 2004 14:36:02 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Vrabel <dvrabel@arcom.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: New 8250 device -- XR16550.
-Message-ID: <20040924143602.A11325@flint.arm.linux.org.uk>
-Mail-Followup-To: David Vrabel <dvrabel@arcom.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <4153DBA3.5080507@arcom.com> <4153E20B.3020406@arcom.com>
+	Fri, 24 Sep 2004 09:43:28 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:23630 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S268750AbUIXNnZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 09:43:25 -0400
+Subject: Re: PATCH: tty ldisc work version 4
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Cox <alan@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040923054842.GB30650@devserv.devel.redhat.com>
+References: <20040922141821.GA27672@devserv.devel.redhat.com>
+	 <20040922172139.0d7a1dd3.akpm@osdl.org>
+	 <20040923054842.GB30650@devserv.devel.redhat.com>
+Content-Type: text/plain
+Message-Id: <1096033380.4995.6.camel@deimos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4153E20B.3020406@arcom.com>; from dvrabel@arcom.com on Fri, Sep 24, 2004 at 09:59:55AM +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 24 Sep 2004 08:43:01 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 09:59:55AM +0100, David Vrabel wrote:
-> David Vrabel wrote:
-> > 
-> > This adds support for the two 16550 compatible UARTs in an Exar 
-> > XR16L2551 chip to the 8250 driver.
+On Thu, 2004-09-23 at 00:48, Alan Cox wrote:
+> On Wed, Sep 22, 2004 at 05:21:39PM -0700, Andrew Morton wrote:
+> > This gives me "init_dev but no ldisc" when initscripts start playing with
+> > the USB keyboard.  The machine then stops.
 > 
-> Oops.  Meant to send this to the linux-serial list instead.
+> Intriguing. Does this go way if you uncomment the lines below
+> "Switchg the line discipline back" in tty_io.c.
+> 
+> I'll stick a USB keyboard on my box later today and chase that down.
 
-I'm glad you didn't because I wouldn't have seen it.  The patch looks
-good as it stands.
+Andrew, Alan:
 
-I'm trying to move the 8250 driver away from "port types" and more
-towards port capabilities, and this seems to fit nicely into that
-model.
+Did this turn out to be related to the code
+in release_dev() that switches back a tty struct
+back to N_TTY ldisc before freeing the tty struct?
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Paul Fulghum
+paulkf@microgate.com
+

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbTICDFP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 23:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbTICDFP
+	id S261621AbTICEDd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 00:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbTICEDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 23:05:15 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:1271 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261493AbTICDFL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 23:05:11 -0400
-Subject: Re: 2.6-test4 Traditional pty and devfs
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: hch@infradead.org, akpm@osdl.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1062557567.846.2090.camel@cube>
+	Wed, 3 Sep 2003 00:03:33 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:4031 "EHLO smtp.bitmover.com")
+	by vger.kernel.org with ESMTP id S261621AbTICEDd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 00:03:33 -0400
+Date: Tue, 2 Sep 2003 21:03:27 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: Scaling noise
+Message-ID: <20030903040327.GA10257@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 02 Sep 2003 22:52:47 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
-> On Tue, Sep 02, 2003 at 10:43:40AM -0700, Andrew Morton wrote:
+I've frequently tried to make the point that all the scaling for lots of
+processors is nonsense.  Mr Dell says it better:
 
->>> That's the magic use uid/gid of the process calling
->>> devfs_Register flag I killed.  With a big HEADSUP
->>> and explanation on lkml..
->>
->> So what is the impact here?  That libc5 will break if
->> the user is using devfs and old-style pty's?
->
-> If he removed the pt_chown logic that is present with a
-> stock libc5, yes.  I wouldn't know why someone would do
-> that, though.
+    "Eight-way (servers) are less than 1 percent of the market and shrinking
+    pretty dramatically," Dell said. "If our competitors want to claim
+    they're No. 1 in eight-ways, that's fine. We want to lead the market
+    with two-way and four-way (processor machines)."
 
-The problem may be more serious. There are lots of
-apps that use the old-style PTYs w/o any libc help.
-
-a. because that's the historic BSD way
-b. so the user can choose a specific pty
-
-For example, there's a "remserial" program
-that abuses a PTY for giving access to a
-serial port over the network. Apps trying to
-use the port work pretty well, without any need
-for source code changes or new kernel drivers.
-
-
+Tell me again that it is a good idea to screw up uniprocessor performance
+for 64 way machines.  Great idea, that.  Go Dinosaurs!
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

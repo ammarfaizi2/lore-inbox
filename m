@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263925AbTDWBD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 21:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263926AbTDWBD4
+	id S263930AbTDWBRE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 21:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263929AbTDWBRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 21:03:56 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:15886 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP id S263925AbTDWBDz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 21:03:55 -0400
-Date: Tue, 22 Apr 2003 18:13:20 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: LSE conference call
-Message-ID: <20030423011320.GG21518@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <55950000.1051033382@w-hlinder> <200304221749.h3MHnf0F000224@81-2-122-30.bradfords.org.uk>
+	Tue, 22 Apr 2003 21:17:04 -0400
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:39098 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id S263926AbTDWBRD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 21:17:03 -0400
+Date: Tue, 22 Apr 2003 21:29:03 -0400
+From: "Murray J. Root" <murrayr@brain.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 kernel hangs system
+Message-ID: <20030423012903.GI1249@Master.Bellsouth.net>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+References: <000501c3090c$71683c60$0200a8c0@satellite> <Pine.LNX.4.53.0304221649050.17809@chaos> <1051053106.710.4.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200304221749.h3MHnf0F000224@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <1051053106.710.4.camel@teapot.felipe-alfaro.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 22, 2003 at 06:49:41PM +0100, John Bradford wrote:
-> > In light of our speaker sleeping through the meeting and
-> > the fact that kernel hackers tend not to be awake early
-> > in the morning I propose moving the time of the call to
-> > 1pm Pacific Time (GMT-0800). 
+On Wed, Apr 23, 2003 at 01:11:46AM +0200, Felipe Alfaro Solana wrote:
+> On Tue, 2003-04-22 at 23:00, Richard B. Johnson wrote:
+> > First, I don't understand how as you say, "suggestions are
+> > desperately needed" on a developmental kernel. These things are
+> > not known to work on all configurations and some information like
+> > "It gives me hex codes..." is worthless. Please write down
+> > these "hex-codes" and, after booting a version the works, run them
+> > through ksymoops. If you don't know what that is:
 > 
-> 10 PM U.K. time is no problem for me.
+> ksymoops? I thought 2.5 kernels didn't need ksymoops anymore and that
+> function names were automatically "guessed" in call stack traces.
+> 
 
-I think Hanna meant 1:00PM PDT (GMT-0700)  With UK on DST it
-is still 8 hours difference.  I think that also puts it
-around 6-8AM down under.
-
-> > Originally we chose 9:30am to encourage people in Europe and 
-> > India to attend. However, the time change has not increased 
-> > attendance so I think we should move it to a more reasonable 
-> > time for North American Continental dwellers who are the 
-> > main attendees.
-> > 
-> > Any comments? Debate? Hate mail?
-> 
-> Flame war?  :-)
-> 
-> John.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+IFF you use "include symbols" when building you shouldn't need ksymoops.
+IMO, if you're using 2.5.x you really should include the symbols - chances
+are you'll need em.
 
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+Murray J. Root
 
-		Remember Cernan and Schmitt

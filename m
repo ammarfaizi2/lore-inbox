@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbUKHJjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUKHJqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbUKHJjc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 04:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbUKHJi6
+	id S261685AbUKHJqq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 04:46:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbUKHJcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 04:38:58 -0500
-Received: from mail.gmx.net ([213.165.64.20]:33727 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261802AbUKHJfl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 04:35:41 -0500
-Date: Mon, 8 Nov 2004 10:35:38 +0100 (MET)
-From: "Alexander Stohr" <Alexander.Stohr@gmx.de>
-To: linux-kernel@vger.kernel.org, kai@germaschewski.name, sam@ravnborg.org
-MIME-Version: 1.0
-Subject: Re: [PATCH] fix for pseudo symbol swapping with scripts/kallsyms - linu
- Re: [PATCH] fix for pseudo symbol swapping with scripts/kallsyms - linux-2.6.10-rc1-bk12 & gcc 3.4.2
-X-Priority: 3 (Normal)
-X-Authenticated: #15156664
-Message-ID: <13418.1099906538@www39.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Nov 2004 04:32:16 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:21982 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261807AbUKHJEI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 04:04:08 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 8 Nov 2004 09:54:54 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] videodev2.h patchlet
+Message-ID: <20041108085454.GA19377@bytesex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam,
+Hi,
 
-i tried out your 2nd patch in a "prooven to be bad" configuration.
-The extra ALIGN(8) statement caused the listed symbols 
-beeing swapped on the first and any further ld cycle. 
-In other words the consecutive checks did succeed.
+The following patchlet to videodev2.h brings in the "__user" definition
+from linux/compiler.h, making it suitable for inclusion in both kernel
+or user code.
 
-For completeness here is a short excerpt of the System.map:
+Stelian.
 
-c03495a0 T __down                                                           
-   
-c03495a0 T __sched_text_start                                               
-   
-c0349680 T __down_interruptible                                             
-   
-c034979c T __down_failed
+Signed-off-by: Stelian Pop <stelian@popies.net>
+Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
+---
+ include/linux/videodev2.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Thanks for your assistance, lets hope that solution will
-make it into the bitkeeper repository in the not so far future.
-
--Alex.
-
-> This patch is better - we cannot define sections within sections.         
+--- 1.8/include/linux/videodev2.h	2004-07-12 10:01:15 +02:00
++++ edited/include/linux/videodev2.h	2004-10-21 19:12:18 +02:00
+@@ -16,6 +16,7 @@
+ #ifdef __KERNEL__
+ #include <linux/time.h> /* need struct timeval */
+ #endif
++#include <linux/compiler.h> /* need __user */
  
->                                                                           
- 
-> Sam
+ /*
+  *	M I S C E L L A N E O U S
 
 -- 
-Geschenkt: 3 Monate GMX ProMail + 3 Top-Spielfilme auf DVD
-++ Jetzt kostenlos testen http://www.gmx.net/de/go/mail ++
-
+#define printk(args...) fprintf(stderr, ## args)

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271818AbRIQQcm>; Mon, 17 Sep 2001 12:32:42 -0400
+	id <S271834AbRIQQfn>; Mon, 17 Sep 2001 12:35:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271809AbRIQQcc>; Mon, 17 Sep 2001 12:32:32 -0400
-Received: from fw2.aub.dk ([195.24.1.195]:34804 "EHLO Princess")
-	by vger.kernel.org with ESMTP id <S271832AbRIQQc1>;
-	Mon, 17 Sep 2001 12:32:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Allan Sandfeld <linux@sneulv.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bzImage target for PPC
-Date: Mon, 17 Sep 2001 18:32:25 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <E15ivIz-00087v-00@wagner>
-In-Reply-To: <E15ivIz-00087v-00@wagner>
+	id <S271809AbRIQQfe>; Mon, 17 Sep 2001 12:35:34 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34061 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S271832AbRIQQfP>; Mon, 17 Sep 2001 12:35:15 -0400
+Date: Mon, 17 Sep 2001 09:34:38 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <20010917121435.A19884@cs.cmu.edu>
+Message-ID: <Pine.LNX.4.33.0109170927160.8900-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15j1Jr-0002ci-00@Princess>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 September 2001 12:07, Rusty Russell wrote:
 
-> Actually, Paul suggested it.  As for bzlilo, that's even a problem on
-> non-lilo Intel (and should be subsumed by make install).  Of course,
-> make install should be moved to the top level Makefile, but that's
-> another battle.
-Welll.... Shouldnt we fight it then?
-What is holding us back from deciding on a limited number of supported and 
-implemented make targets and making these fast(e.g. moving install to top 
-level)? This would then become a part of kbuild2.5
+On Mon, 17 Sep 2001, Jan Harkes wrote:
 
-"Let's party like it's 2.4.99"
-
+> On Mon, Sep 17, 2001 at 02:33:12PM +0200, Daniel Phillips wrote:
+> > The inactive queues have always had both mapped and unmapped pages on
+> > them. The reason for unmapping a swap cache page page when putting it
 >
-> Cheers,
-> Rusty.
+> So the following code in refill_inactive_scan only exists in my
+> imagination?
+>
+> 	    if (page_count(page) <= (page->buffers ? 2 : 1)) {
+> 		    deactivate_page_nolock(page);
 
-Cheers!
+No, but I agree with Daniel that it's wrong.
+
+The reason it exists there is because the current inactive_clean list
+scanning doesn't have any pressure into VM scanning, so if we'd let mapped
+pages on the inactive queue, then reclaim_page() would be unhappy about
+them.
+
+That can be solved several ways:
+ - like we do now. Hackish and wrong, but kind-of-works.
+ - make reclaim_page() have the ability to do vm scanning pressure (ie if
+   it starts noticing that there are too many mapped pages on the reclaim
+   list, it should cause VM scan)
+ - physical maps
+
+Actually, now that I look at it, the lack of de-activation actually hurts
+page_launder() - which doesn't get to launder pages that are still mapped
+(even though getting rid of buffers from them would almost certainly be
+good under memory pressure).
+
+		Linus
+

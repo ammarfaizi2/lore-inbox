@@ -1,64 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267916AbUIBSmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268036AbUIBSsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267916AbUIBSmN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 14:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268036AbUIBSmN
+	id S268036AbUIBSsL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 14:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268064AbUIBSsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 14:42:13 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:21198 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267916AbUIBSmI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 14:42:08 -0400
-Subject: Re: [patch] kernel sysfs events layer
-From: Robert Love <rml@ximian.com>
-To: Daniel Stekloff <dsteklof@us.ibm.com>
-Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, kay.sievers@vrfy.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1094150112.1316.55.camel@DYN319498.beaverton.ibm.com>
-References: <1093988576.4815.43.camel@betsy.boston.ximian.com>
-	 <20040831145643.08fdf612.akpm@osdl.org>
-	 <1093989513.4815.45.camel@betsy.boston.ximian.com>
-	 <20040831150645.4aa8fd27.akpm@osdl.org>
-	 <1093989924.4815.56.camel@betsy.boston.ximian.com>
-	 <20040902083407.GC3191@kroah.com>
-	 <1094142321.2284.12.camel@betsy.boston.ximian.com>
-	 <1094150112.1316.55.camel@DYN319498.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Thu, 02 Sep 2004 14:41:32 -0400
-Message-Id: <1094150493.2284.19.camel@betsy.boston.ximian.com>
+	Thu, 2 Sep 2004 14:48:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16336 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268036AbUIBSsJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 14:48:09 -0400
+Date: Thu, 2 Sep 2004 11:48:07 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Identify security-related patches
+Message-ID: <20040902114807.G1973@build.pdx.osdl.net>
+References: <4136C6E1.4090404@bio.ifi.lmu.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4136C6E1.4090404@bio.ifi.lmu.de>; from fsteiner-mail@bio.ifi.lmu.de on Thu, Sep 02, 2004 at 09:08:17AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 11:35 -0700, Daniel Stekloff wrote:
+* Frank Steiner (fsteiner-mail@bio.ifi.lmu.de) wrote:
+> is there an easy way to identify all security-related patches out of the
+> mass of patches floating around  on linux.bkbits.net or the kernel bugzilla?
 
-> The only problem I see is making an app sift through all of the events
-> to get to a specific type of event. They'd have to parse and match the
-> signal, that could be costly. 
+No, there's not.  It's not as simple as it seems.  Your best bet is
+monitoring vendor updates, as they have the same goal.  Occasionaly
+things get applied with a CVE candidate number (CAN-YYYY-NNNN), and
+those are security relevant.
 
-I'd hope that they were not that many events that it would ever be
-costly.
-
-But this should be mitigated by your event aggregator in user-space,
-whether that is D-BUS or whatever else.  If it is D-BUS, you could then
-subscribe via D-BUS only to the events you care about.
-
-> Will there be small single purpose applications listening on the netlink
-> socket or off dbus for specific signals? Or do you see this mainly
-> handled by a single kevent daemon? 
-
-Whatever you want to do.
-
-I think they way we would set up our Linux desktop product would have D-
-BUS listening on the kevent socket and propagating the events up the
-stack (or have a separate daemon listen and funnel the events to D-BUS.
-whatever).
-
-Then applications up the stack would respond to and handle the D-BUS
-signals.
-
-	Robert Love
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

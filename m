@@ -1,88 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbUKCQYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbUKCQ0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbUKCQYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 11:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbUKCQYZ
+	id S261688AbUKCQ0n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 11:26:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbUKCQ0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 11:24:25 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:39058 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S261681AbUKCQYU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 11:24:20 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: is killing zombies possible w/o a reboot?
-Date: Wed, 3 Nov 2004 11:24:19 -0500
-User-Agent: KMail/1.7
-Cc: bert hubert <ahu@ds9a.nl>
-References: <200411030751.39578.gene.heskett@verizon.net> <20041103143348.GA24596@outpost.ds9a.nl>
-In-Reply-To: <20041103143348.GA24596@outpost.ds9a.nl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411031124.19179.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.46.51] at Wed, 3 Nov 2004 10:24:19 -0600
+	Wed, 3 Nov 2004 11:26:42 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:25059 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261688AbUKCQ0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 11:26:33 -0500
+Date: Wed, 3 Nov 2004 08:47:48 -0800
+From: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
+Message-Id: <200411031647.iA3GlmBm016951@snoqualmie.dp.intel.com>
+To: ak@suse.de
+Subject: [patch] remove direct mem_map refs for x86-64
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 November 2004 09:33, bert hubert wrote:
->On Wed, Nov 03, 2004 at 07:51:39AM -0500, Gene Heskett wrote:
->> But I'd tried to run gnomeradio earlier to listen to the
->> elections,
->
->Depressing enough.
->
->> I'd tried to kill the zombie earlier but couldn't.
->> Isn't there some way to clean up a &^$#^#@)_ zombie?
->
->Kill the parent, is the only (portable) way.
+Hi Andi,
 
-The parent would have been the icon.  It opened its usual sized small 
-window, but never did anything to it. I clicked on closing the 
-window, but 10 seconds later the system asked me if I wanted to kill 
-it as it wasn't responding. I said yes, the window disappeared, but 
-kpm said gomeradio was still present as process 8162, and that wasn't 
-killable.  Funny thing is, on the reboot, it automaticly self 
-restored and ran just fine.
+No real functional change here.  Just use the pfn_to_page
+macros instead of directly indexing into the mem_map. 
+Patch is against 2.6.10-rc1-mm2.  Please consider...
 
-I consider this as one of linux's achilles heels.  Such a hung and 
-dead process can be properly disposed of by a primitive os called os9 
-because it keeps track of all resources in tables in the kernel 
-memory space.  Issueing a kill procnumber removes the process from 
-the exec queue, reclaims all its memory to the system free memory 
-pool, and removes it from the IRQ service tables if an entry exists 
-there.  Near instant, total cleanup, nothing left, in about 250 
-microseconds max. 1.79 mhz cpu's aren't quite instant :)
+matt
 
-Lets just say that I think having to reboot because of a zombie that 
-has resources locked up, and have the reboot fubared by it too, 
-aren't exactly friendly actions.
+Signed-off-by: Matt Tolentino <matthew.e.tolentino@intel.com>
 
-I fully realise that linux has a much more complex method of 
-allocating resources, but doesn't it *know* exactly what resources 
-have been passed out to each process?
+This removes all but one direct reference to mem_map
+for x86-64.  This is needed on systems where we 
+break the mem_map up and directly indexing into 
+mem_map to get the page structure doesn't work anymore.
 
-And why is there no entry from the kill function into that resource 
-management portion of the kernel so that this could also be done by 
-the linux kernel, say with a "kill --total procnumber"?
 
-Seems like a heck of a good question to me since an os written to run 
-on a 64k machine in 1981, and expanded to run on a 128K to 2 megabyte 
-machine in 1986 can do it just fine.  Even if that process is still 
-running and spitting out data to its parent window/shell!  Or if its 
-crashed and scribbled over all its memory, makes no difference to 
-os9.  You (root) wants it gone, fine, its gone.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+diff -urN linux-2.6.10-rc1-mm2-vanilla/arch/x86_64/mm/init.c linux-2.6.10-rc1-mm2/arch/x86_64/mm/init.c
+--- linux-2.6.10-rc1-mm2-vanilla/arch/x86_64/mm/init.c	2004-11-03 06:40:21.501214144 -0500
++++ linux-2.6.10-rc1-mm2/arch/x86_64/mm/init.c	2004-11-03 06:20:34.000000000 -0500
+@@ -68,8 +68,8 @@
+ 
+ 	for_each_pgdat(pgdat) {
+                for (i = 0; i < pgdat->node_spanned_pages; ++i) {
+-                       page = pgdat->node_mem_map + i;
+-		total++;
++			page = pfn_to_page(pgdat->node_start_pfn + i);
++			total++;
+                        if (PageReserved(page))
+ 			reserved++;
+                        else if (PageSwapCache(page))
+@@ -466,7 +466,7 @@
+ 		/*
+ 		 * Only count reserved RAM pages
+ 		 */
+-		if (page_is_ram(tmp) && PageReserved(mem_map+tmp))
++		if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
+ 			reservedpages++;
+ #endif
+ 

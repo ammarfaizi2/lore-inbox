@@ -1,83 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264345AbTIITOE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 15:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTIITOD
+	id S264307AbTIITa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 15:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264428AbTIIT3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 15:14:03 -0400
-Received: from inetc.connecttech.com ([64.7.140.42]:773 "EHLO
-	inetc.connecttech.com") by vger.kernel.org with ESMTP
-	id S264330AbTIITN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 15:13:58 -0400
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Russell King'" <rmk@arm.linux.org.uk>,
-       "'Tom Rini'" <trini@kernel.crashing.org>
-Cc: <tytso@mit.edu>, "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       <linux-serial@vger.kernel.org>, <gallen@arlut.utexas.edu>
-Subject: RE: [PATCH] Make the Startech UART detection 'more correct'.
-Date: Tue, 9 Sep 2003 15:12:30 -0400
-Organization: Connect Tech Inc.
-Message-ID: <000701c37706$513a9a10$294b82ce@stuartm>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <20030909171859.D4216@flint.arm.linux.org.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+	Tue, 9 Sep 2003 15:29:39 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:25361 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S264409AbTIIT32 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 15:29:28 -0400
+Date: Tue, 9 Sep 2003 21:29:18 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>, Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Multiple configuration support
+Message-ID: <20030909192918.GA2933@mars.ravnborg.org>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: linux-kernel-owner@vger.kernel.org 
-> size_fifo() is claimed to be unreliable at detecting the FIFO size,
-> so I don't feel safe about using it here.
+Hi Roman.
 
-"Claimed" being the operative word. This claim predates my involvement
-with the serial driver (IIRC tytso is reporting someone's claim
-second-hand), however, my company has always used this test in various
-test apps, and never had it fail, and this predates my employment with
-them.
+Russell pointed out to me in private mail that the current way
+to select individual configurations are broken with my latest
+changes, where I moved *config targets to scripts/kconfig/Makefile.
+The problem is that they use the target filename_config to
+select the individual configuration (see arch/arm/Makefile).
 
-So. A number of possibilities: someone thought it was unreliable, but
-they were incorrect; it was unreliable, but because the software was
-wrong; it was unreliable, but only on certain very old hardware that I
-personally have no knowledge of its existance.
+This brought up an old idea I have had for some time.
+With the current kconfig it should be doable to have something like
+the following scheme:
+arch/$(ARCH)/defconfig	<= As we know it
+arch/$(ARCH)/configs/boardconfig
 
-I've never seen any concrete details about what goes wrong either,
-just a simple claim of unreliability.
+boardconfig should be very simple, only including delta to the
+default configuration.
+So boardconfig would only enable those drivers specific for that
+board and other relevant config information. For example defconfig
+selected the Opetron CPU, then boardconfig could change this to an 486 CPU.
 
-The premise is simple enough. Put the uart into internal loopback mode
-(the rx and tx pins on the chip become on-die connected to each other,
-date never leaves the chip), transmit 256 characters at a known baud
-rate, wait for at least the time it takes to transmit these characters
-plus some to be safe, and see how many are left in the rx fifo, which
-should be full.
+Example boardconfig file:
+CONFIG_M486=y
 
-> I'd suggest something like:
-> 
-> 	serial_outp(port, UART_LCR, UART_LCR_DLAB);
-> 	efr = serial_in(port, UART_EFR);
-> 	if ((efr & 0xfc) == 0) {
-> 		serial_out(port, UART_EFR, 0xac | (efr & 3));
-> 		/* if top 6 bits return zero, its motorola */
-> 		if (serial_in(port, UART_EFR) == (efr & 3)) {
-> 			/* motorola port */
-> 		} else {
-> 			/* ST16C650V1 port */
-> 		}
-> 		/* restore old value */
-> 		serial_outb(port, UART_EFR, efr);
-> 	}
-> 
-> If you can guarantee that the lower two bits will always be 
-> zero, you can
-> drop the frobbing to ignore/preseve the lower two bits.
+I cannot see how this would work with choice etc., would that be a problem?
 
-Does the Motorola chip have an ID register at all? Certainly using the
-fifo size is a weak test and should only be a last resort.
+This scheme would make it less cumbersome to maintain the dozen of
+different configuration files as included by arm, ppc, ppc64 today.
 
-..Stu
+Comments to that approach?
 
+I tried to look into this, but was stuck in conf_read().
+When the file has been opened conf_read() set all symbols back to
+default values, so I could not call it twice.
+And I didn't want to fiddle to much with the public interface of
+kconfig for now.
+
+	Sam

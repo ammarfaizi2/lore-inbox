@@ -1,47 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266081AbSLSUDn>; Thu, 19 Dec 2002 15:03:43 -0500
+	id <S266095AbSLSULy>; Thu, 19 Dec 2002 15:11:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266095AbSLSUDn>; Thu, 19 Dec 2002 15:03:43 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64527 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S266081AbSLSUDm>; Thu, 19 Dec 2002 15:03:42 -0500
-Date: Thu, 19 Dec 2002 15:09:50 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
+	id <S266101AbSLSULy>; Thu, 19 Dec 2002 15:11:54 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:15520 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266095AbSLSULx>;
+	Thu, 19 Dec 2002 15:11:53 -0500
+Date: Thu, 19 Dec 2002 20:18:11 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
 To: John Bradford <john@grabjohn.com>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, lm@bitmover.com,
+       lm@work.bitmover.com, torvalds@transmeta.com, vonbrand@inf.utfsm.cl,
+       akpm@digeo.com
 Subject: Re: Dedicated kernel bug database
-In-Reply-To: <200212191335.gBJDZRDL000704@darkstar.example.net>
-Message-ID: <Pine.LNX.3.96.1021219150117.29410B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20021219201811.GA7715@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+	alan@lxorguk.ukuu.org.uk, lm@bitmover.com, lm@work.bitmover.com,
+	torvalds@transmeta.com, vonbrand@inf.utfsm.cl, akpm@digeo.com
+References: <20021219184958.GA6837@suse.de> <200212191952.gBJJqTb3002477@darkstar.example.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212191952.gBJJqTb3002477@darkstar.example.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Dec 2002, John Bradford wrote:
+On Thu, Dec 19, 2002 at 07:52:29PM +0000, John Bradford wrote:
+ > > I also don't trust things like this where if something goes wrong,
+ > > we could lose the bug report.
+ > How?  I don't see as that is more likely than with Bugzilla.
 
-> Following on from yesterday's discussion about there not being much
-> interaction between the kernel Bugzilla and the developers, I began
-> wondering whether Bugzilla might be a bit too generic to be suited to
-> kernel development, and that maybe a system written from the ground up
-> for reporting kernel bugs would be better?
-> 
-> I.E. I am prepared to write it myself, if people think it's
-> worthwhile.
+user submits bug report
+robot rejects it
+user reads rejection, gets confused, gives up.
+ 
+ > Anyway, loads of LKML posts get ignored, and nobody seems to worry about it :-).
 
-Hopefully you could make it more generic than just for kernel bugs.
-Ideally it would be nice to be able to have both an interactive submission
-and a way to mail a version number and get back a questionare to fill in
-and resubmit. This allows for a custom form for some versions, as well as
-another mail back listing known bugs fixed in later versions, to avoid
-reporting fixed bugs.
+Point to one important posting thats been ignored in recent times.
+More likely they weren't ignored, it was just deemed irrelevant,
+unimportant, or lacked information detailing how important the problem
+was.
 
-I'm not sure if it would be possible to make a frontend to bugzilla, I'm
-not thrilled with the whole thing, but I have no illusions of having
-enough free time to tackle anything that large.
+Besides, this is one area where bugzilla is helping.
+If I ignored/missed an agp related bug report on linux kernel,
+and the same user also filed it in bugzilla, I'll get pestered
+about it automatically later.
+
+ > I don't see any way of making Bugzilla do all the things I described
+ > originally, specifically the advanced tracking of versions tested.
+
+I still think you're solving a non-problem. Of the 180 or so bugs so
+far, there has been _1_ vendor kernel report. 1 2.4 report. and
+1 (maybe 2)  undecoded oopses (which were subsequently decoded less
+than 24hrs later.
+
+ > That could help to find duplicates, which is a big problem when you
+ > have 1000+ bugs.
+
+In an ideal world, we'd never have that many open bugs 8-)
+Realistically, I check bugzilla a few times a day, I notice
+when something new has been added. Near the end of each week
+I[*] go through every remaining open bug looking to see if there's
+something additional that can be added / pinging old reporters /
+closing dead bugs. Dupes usually stand out doing this.
+How exactly do you plan to automate dupe detection ?
+You can't even do things like comparing oops dumps, as they
+may have been triggered in different ways,.
+
+		Dave
+
+[*] and hopefully, I'm not the only one who does this.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

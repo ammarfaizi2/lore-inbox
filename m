@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264285AbTLOWzt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 17:55:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTLOWzt
+	id S264322AbTLOXEz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 18:04:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264323AbTLOXEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 17:55:49 -0500
-Received: from mail3.speakeasy.net ([216.254.0.203]:37523 "EHLO
-	mail3.speakeasy.net") by vger.kernel.org with ESMTP id S264285AbTLOWzq
+	Mon, 15 Dec 2003 18:04:55 -0500
+Received: from mail4.speakeasy.net ([216.254.0.204]:26001 "EHLO
+	mail4.speakeasy.net") by vger.kernel.org with ESMTP id S264322AbTLOXEx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 17:55:46 -0500
-Date: Mon, 15 Dec 2003 14:55:38 -0800
-Message-Id: <200312152255.hBFMtcEZ024917@magilla.sf.frob.com>
+	Mon, 15 Dec 2003 18:04:53 -0500
+Date: Mon, 15 Dec 2003 15:04:48 -0800
+Message-Id: <200312152304.hBFN4mxq024943@magilla.sf.frob.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 From: Roland McGrath <roland@redhat.com>
-To: arjanv@redhat.com
-X-Fcc: ~/Mail/linus
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Petr Vandrovec <vandrove@vc.cvut.cz>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@zip.com.au>
 Subject: Re: [patch] Re: Problem with exiting threads under NPTL
-In-Reply-To: Arjan van de Ven's message of  Monday, 15 December 2003 09:54:16 +0100 <1071478455.5223.0.camel@laptop.fenrus.com>
-Emacs: or perhaps you'd prefer Russian Roulette, after all?
+In-Reply-To: Linus Torvalds's message of  Sunday, 14 December 2003 14:32:55 -0800 <Pine.LNX.4.58.0312141420070.1481@home.osdl.org>
+X-Fcc: ~/Mail/linus
+Emacs: well, why *shouldn't* you pay property taxes on your editor?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 2003-12-14 at 23:10, Linus Torvalds wrote:
+> On Sun, 14 Dec 2003, Ingo Molnar wrote:
+> >
+> > are you sure this can happen? eligible_child() does this:
 > 
-> > Even though the parent ignores SIGCHLD it _can_ be running on another CPU
-> > in "wait4()".
+> Interesting. That code should have been enough, but we've later on added
+> extra code into wait_task_zombie to check _exactly_ the same case because
+> we saw problems.
 > 
-> which fwiw is a case of illegal behavior in the program ... of course
-> the kernel shouldn't die if it happens.
+> Hmm.. Maybe that was to protect against concurrent wait4()'ers (which can
+> happen - the wait case only takes the read lock). Threads can wait for
+> each others children, after all.
 
-No, it is legal to call wait* when ignoring SIGCHLD--and it is required to
-return ECHILD for the dead ones.  For example, using waitpid with WNOHANG
-is a valid way to poll for the liveness of a child (though there is no good
-reason why an application wouldn't just use kill(,0) for that).  It's not a
-method that has anything to recommend it, but it is perfectly valid and the
-range of permissible results is well-specified.
+My recollection about the wait_task_* changes was that they were mostly to
+address races between concurrent wait4 calls.

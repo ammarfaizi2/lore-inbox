@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316795AbSHHAEh>; Wed, 7 Aug 2002 20:04:37 -0400
+	id <S317078AbSHHAau>; Wed, 7 Aug 2002 20:30:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316912AbSHHAEh>; Wed, 7 Aug 2002 20:04:37 -0400
-Received: from pD9E231F8.dip.t-dialin.net ([217.226.49.248]:28899 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316795AbSHHAEh>; Wed, 7 Aug 2002 20:04:37 -0400
-Date: Wed, 7 Aug 2002 18:07:45 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Daniel Phillips <phillips@arcor.de>
-cc: Jesse Barnes <jbarnes@sgi.com>, Rik van Riel <riel@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>, <jmacd@namesys.com>, <rml@tech9.net>
-Subject: Re: [PATCH] lock assertion macros for 2.5.30
-In-Reply-To: <E17cZJi-00050N-00@starship>
-Message-ID: <Pine.LNX.4.44.0208071807320.10270-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S317112AbSHHAat>; Wed, 7 Aug 2002 20:30:49 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:63431 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S317078AbSHHAat>; Wed, 7 Aug 2002 20:30:49 -0400
+Message-ID: <3D51BC64.4030704@snapgear.com>
+Date: Thu, 08 Aug 2002 10:33:40 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, Amol Lad <dal_loma@yahoo.com>
+Subject: Re: uclinux on MMU platforms - query
+References: <3D50B42B.8000200@snapgear.com> <1028719830.18156.238.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Alan,
 
-On Thu, 8 Aug 2002, Daniel Phillips wrote:
-> Random gripe: don't all those do { } whiles look silly?  We need
+Alan Cox wrote:
+> On Wed, 2002-08-07 at 06:46, Greg Ungerer wrote:
 > 
->    #define NADA do { } while (0)
+>> >  Can I run uClinux on platforms that has MMU
+>>
+>>You could, but why would you want to?
 > 
-> or similar.
+> 
+> Being able to run true ucLinux on i386 makes debugging and verification
+> of software so much less painful sometimes. 
 
-Call it nop.
+For some things yes. But it is a real pain trying to track
+down memory corruption and stack overflow problems in
+applications. They have a tendency to take your the whole system...
 
-			Thunder
--- 
-.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
 

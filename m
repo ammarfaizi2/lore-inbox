@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293502AbSCEQ6r>; Tue, 5 Mar 2002 11:58:47 -0500
+	id <S293486AbSCEQ7B>; Tue, 5 Mar 2002 11:59:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293483AbSCEQ55>; Tue, 5 Mar 2002 11:57:57 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:8935 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S293504AbSCEQ5l>; Tue, 5 Mar 2002 11:57:41 -0500
-Date: Tue, 5 Mar 2002 16:55:33 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Bill Davidsen <davidsen@prodigy.com>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.4.18-pre/rc broke PLIP
-Message-ID: <20020305165533.A1195@redhat.com>
-In-Reply-To: <200202242320.AAA15930@harpo.it.uu.se> <Pine.LNX.4.21.0203051123180.23567-100000@deathstar.prodigy.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.21.0203051123180.23567-100000@deathstar.prodigy.com>; from davidsen@prodigy.com on Tue, Mar 05, 2002 at 11:36:59AM -0500
+	id <S293504AbSCEQ6u>; Tue, 5 Mar 2002 11:58:50 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62222 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S293486AbSCEQ6V>; Tue, 5 Mar 2002 11:58:21 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+Date: 5 Mar 2002 08:57:41 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a62te5$qp0$1@cesium.transmeta.com>
+In-Reply-To: <20020304232806.A31622@redhat.com> <200203051443.JAA02119@ccure.karaya.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <200203051443.JAA02119@ccure.karaya.com>
+By author:    Jeff Dike <jdike@karaya.com>
+In newsgroup: linux.dev.kernel
+> 
+> The other reason I don't like this is that, at some point, I'd like to
+> start thinking about userspace cooperating with the kernel on memory
+> management.  UML looks like a perfect place to start since it's essentially
+> identical to the host making it easier for the two to bargain over memory.
+> 
+> Having UML react sanely to unbacked pages is a step in that direction, having
+> UML preemptively grab all the memory it could ever use isn't.
+> 
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Until you can come up with a sane application for it, this is just
+featuritis.
 
-On Tue, Mar 05, 2002 at 11:36:59AM -0500, Bill Davidsen wrote:
-
->   I'm still looking at this, trying to figure out what they were trying to
-> do here...
-
-Does 2.4.19-pre2 not work for you?
-
-Tim.
-*/
-
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8hPiFyaXy9qA00+cRAi5NAKCyoBvsfY7rY8fp/OOVWWJPUPRUYQCeODlf
-uNVPp+DnDyBJrdEX/lElKJ0=
-=stcy
------END PGP SIGNATURE-----
-
---zhXaljGHf11kAtnf--
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

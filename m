@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135641AbRDXOas>; Tue, 24 Apr 2001 10:30:48 -0400
+	id <S135652AbRDXOa2>; Tue, 24 Apr 2001 10:30:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135651AbRDXOai>; Tue, 24 Apr 2001 10:30:38 -0400
-Received: from vega.digitel2002.hu ([213.163.0.181]:26518 "HELO
-	vega.digitel2002.hu") by vger.kernel.org with SMTP
-	id <S135641AbRDXOaV>; Tue, 24 Apr 2001 10:30:21 -0400
-Date: Tue, 24 Apr 2001 16:30:09 +0200
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
-Message-ID: <20010424163009.A7197@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-In-Reply-To: <Pine.GSO.4.21.0104240939120.6992-100000@weyl.math.psu.edu> <E14s3du-00029R-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <E14s3du-00029R-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 24, 2001 at 03:18:11PM +0100
-X-Operating-System: vega Linux 2.2.19 i686
+	id <S135651AbRDXOaI>; Tue, 24 Apr 2001 10:30:08 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25100 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135641AbRDXOaE>; Tue, 24 Apr 2001 10:30:04 -0400
+Subject: Re: [PATCH] Single user linux
+To: imel96@trustix.co.id
+Date: Tue, 24 Apr 2001 15:30:32 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), viro@math.psu.edu (Alexander Viro),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0104242105490.16290-100000@tessy.trustix.co.id> from "imel96@trustix.co.id" at Apr 24, 2001 09:10:27 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14s3pr-0002B3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 03:18:11PM +0100, Alan Cox wrote:
-> > On Tue, 24 Apr 2001, Mohammad A. Haque wrote:
-> > > Correct. <1024 requires root to bind to the port.
-> > ... And nothing says that it should be done by daemon itself.
+> > Even my digital tv box has multiple users. The fact you cannot figure out how
+> > to make your UI present that to the end user in a suitable manner is not
+> > the kernels problem. Get a real UI designer
 > 
-> Or that you shouldnt let inetd do it for you
-> And that you shouldn't drop the capabilities except that bind
-> 
-> It is possible to implement the entire mail system without anything running
-> as root but xinetd.
+> if it's useful, it's okay. if not, what is it doing there?
 
-Or even without xinetd. Just use local port forwarding eg 2525 -> 25, and
-use port 2525 as SMTP port in your MTA. I've succeed to setup such a
-configuration.
+For one it allowing you to build enough of a security model to prevent your
+phone user from deleting critical system files by accident. Something 
+incredibly basic that I cannot believe anyone could overlook
 
--- 
- --[ Gábor Lénárt ]---[ Vivendi Telecom Hungary ]---------[ lgb@lgb.hu ]--
- U have 8 bit comp or chip of them and it's unused or to be sold? Call me!
- -------[ +36 30 2270823 ]------> LGB <-----[ Linux/UNIX/8bit 4ever ]-----
+Take a look why my Digital TV has multiple users
+
+
+	-	It can charge pay per view films to multiple accounts
+		(think about multiple SIM cards)
+
+	-	It remembers personal barriers (so I can require
+		passwords to watch adult rated films for example)
+		(For a phone think about call barring - set the phone user
+		 and loan it for calls home only to children)
+
+	-	It remembers preferences. (Currently only useful for junk
+		sky interactive stuff like email)
+		(think about multiple email accounts)
+
+And it has a perfectly sane UI for all of this. In fact most people have 
+probably never realised their set top box even has the concept of users in it
+because they've never set more than one up.
+
+Another reason your device needs good security models is that if I can't store
+digital credit card data safely on it, its a dead product line soon. If it
+can't do internet its an ex product.
+
+How do you plan to do internet without a security model in your OS. How are you
+going to protect credit card data from web browser bugs. How are you going to
+protect that data from sms parsing bugs ?
+
+How do you plan to deal with synchronizing data between multiple systems when
+you have no user model ?
+
+The questions you should be asking are not 'Why do I need a security model' they
+are 'Is the model provided good enough'.
+
+Alan
+

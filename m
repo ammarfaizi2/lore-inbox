@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbUKRTba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262929AbUKRTft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbUKRTba (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 14:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262929AbUKRTaR
+	id S262929AbUKRTft (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 14:35:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbUKRTeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 14:30:17 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:33674 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S262932AbUKRT2P (ORCPT
+	Thu, 18 Nov 2004 14:34:05 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:62728 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262920AbUKRTbb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 14:28:15 -0500
-To: torvalds@osdl.org
-CC: alan@lxorguk.ukuu.org.uk, hbryan@us.ibm.com, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       pavel@ucw.cz
-In-reply-to: <Pine.LNX.4.58.0411181047590.2222@ppc970.osdl.org> (message from
-	Linus Torvalds on Thu, 18 Nov 2004 10:55:05 -0800 (PST))
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>
-  <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu>  <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org>
- <1100798975.6018.26.camel@localhost.localdomain> <Pine.LNX.4.58.0411181047590.2222@ppc970.osdl.org>
-Message-Id: <E1CUrwu-0004Mh-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 18 Nov 2004 20:28:08 +0100
+	Thu, 18 Nov 2004 14:31:31 -0500
+Date: Thu, 18 Nov 2004 14:27:49 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Cc: greearb@candelatech.com, jgarzik@pobox.com
+Subject: [patch netdev-2.4] vlan_dev: return 0 on vlan_dev_change_mtu success
+Message-ID: <20041118142749.C16007@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+	netdev@oss.sgi.com, greearb@candelatech.com, jgarzik@pobox.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The VLAN net driver needs to return 0 from vlan_dev_change_mtu()
+on success.
 
-> The GFP_IO and GFP_FS pages are the _real_ protectors. They don't dip into
-> the (very limited) set of pages, they say "we can still free 90% of
-> memory, we just have to ignore that dangerous 10%".
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+The proper sucessful return code for the change_mtu() method is zero.
+For some reason, vlan_dev_change_mtu() is returning the new mtu value
+instead.
 
-I don't see how this makes more problems to userspace filesystems.
-When you clear GFP_IO or GFP_FS for an allocation you are limiting
-yourself from freeing some sort of memory.  But that will not make it
-easier to actually _get_ that memory.
+ net/8021q/vlan_dev.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-With FUSE the allocation is NOT limited.  Deadlock will not happen
-since page writeback is non-blocking, so while more FUSE backed pages
-can't be written, other filesystem's pages can be written back.  The
-situation is better not worse.
-
-What am I missing?
-
-Thanks,
-Miklos
+--- 1.14/net/8021q/vlan_dev.c	2004-07-05 19:34:03 -04:00
++++ edited/net/8021q/vlan_dev.c	2004-11-18 14:26:29 -05:00
+@@ -528,7 +528,7 @@
+ 
+ 	dev->mtu = new_mtu;
+ 
+-	return new_mtu;
++	return 0;
+ }
+ 
+ int vlan_dev_set_ingress_priority(char *dev_name, __u32 skb_prio, short vlan_prio)

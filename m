@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288827AbSBDJiK>; Mon, 4 Feb 2002 04:38:10 -0500
+	id <S288834AbSBDJmU>; Mon, 4 Feb 2002 04:42:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288821AbSBDJiA>; Mon, 4 Feb 2002 04:38:00 -0500
-Received: from [195.157.147.30] ([195.157.147.30]:54285 "HELO
-	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
-	id <S288814AbSBDJhq>; Mon, 4 Feb 2002 04:37:46 -0500
-Date: Mon, 4 Feb 2002 09:28:45 +0000
-From: Sean Hunter <sean@uncarved.com>
-To: Ken Brownfield <brownfld@irridia.com>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: Continuing /dev/random problems with 2.4
-Message-ID: <20020204092845.A8211@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@uncarved.com>,
-	Ken Brownfield <brownfld@irridia.com>, Robert Love <rml@tech9.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <20020201110137.B2560@asooo.flowerfire.com>
+	id <S288830AbSBDJmL>; Mon, 4 Feb 2002 04:42:11 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:20744 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S288821AbSBDJmB>;
+	Mon, 4 Feb 2002 04:42:01 -0500
+Date: Mon, 4 Feb 2002 10:39:56 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Gregor Jasny <gjasny@wh8.tu-dresden.de>
+Cc: Erik Andersen <andersen@codepoet.org>,
+        "Calin A. Culianu" <calin@ajvar.org>, linux-kernel@vger.kernel.org
+Subject: Re: Asynchronous CDROM Events in Userland
+Message-ID: <20020204103956.T29553@suse.de>
+In-Reply-To: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu> <20020204070414.GA19268@codepoet.org> <20020204085712.O29553@suse.de> <200202040933.g149Xidx006940@backfire.WH8.TU-Dresden.De>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020201110137.B2560@asooo.flowerfire.com>; from brownfld@irridia.com on Fri, Feb 01, 2002 at 11:01:37AM -0600
+In-Reply-To: <200202040933.g149Xidx006940@backfire.WH8.TU-Dresden.De>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One thing I have found useful is to install an old soundcard, and use the
-"audio entropy daemon".  This essentially samples static noise in the input
-channels of the card, and feeds the result into the kernel entropy pool.
+On Mon, Feb 04 2002, Gregor Jasny wrote:
+> Am Montag, 4. Februar 2002 08:57 schrieb Jens Axboe:
+> > Yep, _no_ drives to date support queued event notification. However, a
+> > polled approach is really not too bad -- it simply means that we'll push
+> > it to user space instead. I've written a small utility for reference.
+> 
+> You're wrong.
 
-I don't know that anyone maintains this thing any more, so I have begun
-rewriting it, in the hope that a maintained version would be more widely
-useful.
+Not likely
 
+> PLEXTOR CD-R PX-W2410A
+> media removal
+> eject request
+> media removal
+> media removal
+> 
+> HITACHI DVD-ROM GD-2500
+> no media change
+> new media
+> media removal
 
-Sean
+I'm wrong about what? If you mean that my test app works, then yes of
+course it works. It's a synchronous command poll for media status. I
+said that _queued event notification_ isn't implemented in any drives.
 
-On Fri, Feb 01, 2002 at 11:01:37AM -0600, Ken Brownfield wrote:
-> On Fri, Feb 01, 2002 at 11:53:20AM -0500, Robert Love wrote:
-> | On Fri, 2002-02-01 at 04:17, Ken Brownfield wrote:
-> | Most of the useful fixes actually came in a large update from Andreas
-> | Dilger.  Perhaps he would have some insight, too.
-> 
-> Ah, my apoligies then.
-> 
-> | Exhausting entropy to zero under high use is not uncommon (that is a
-> | motivation for my netdev-random patch).  What boggles me is why it does
-> | not regenerate?
-> 
-> Yeah -- slow entropy is "acceptable", but blocking until a reboot is rather unacceptable. ;)
-> 
-> Thx much,
-> -- 
-> Ken.
-> brownfld@irridia.com
-> 
-> | 
-> | 	Robert
-> | 
-> | -
-> | To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> | the body of a message to majordomo@vger.kernel.org
-> | More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> | Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Did you read the code?
+
+-- 
+Jens Axboe
+

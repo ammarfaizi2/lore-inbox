@@ -1,39 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275260AbTHMPiw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 11:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275239AbTHMPiw
+	id S275240AbTHMPg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 11:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275239AbTHMPg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 11:38:52 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:59889 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id S275260AbTHMPiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 11:38:23 -0400
-Date: Wed, 13 Aug 2003 16:40:00 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Coen Rosdorff <coen@rosdorff.dyndns.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: VM: killing process amavis
-In-Reply-To: <Pine.LNX.4.44.0308131708570.29133-100000@rosdorff.dyndns.org>
-Message-ID: <Pine.LNX.4.44.0308131633420.2029-100000@localhost.localdomain>
+	Wed, 13 Aug 2003 11:36:59 -0400
+Received: from fep05-svc.mail.telepac.pt ([194.65.5.209]:22939 "EHLO
+	fep05-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
+	id S275251AbTHMPfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 11:35:51 -0400
+Message-ID: <3F3A5B06.7050103@vgertech.com>
+Date: Wed, 13 Aug 2003 16:36:38 +0100
+From: Nuno Silva <nuno.silva@vgertech.com>
+Organization: VGER, LDA
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en-us, pt
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Ken Savage <kens1835@shaw.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: High CPU load with kswapd and heavy disk I/O
+References: <200308121136.11979.kens1835@shaw.ca> <200308121323.49081.kens1835@shaw.ca> <3F397CED.6060006@vgertech.com> <200308121714.36993.kens1835@shaw.ca>
+In-Reply-To: <200308121714.36993.kens1835@shaw.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003, Coen Rosdorff wrote:
-> Who can tell me something about this error in /var/log/messages:
+Hi!
+
+Ken Savage wrote:
+> On Tue August 12 2003 16:49, Nuno Silva wrote:
 > 
-> Aug 13 10:12:51 rosdorff kernel: VM: killing process amavis
-> Aug 13 10:12:51 rosdorff kernel: swap_free: Unused swap offset entry 02000000
 > 
-> Memtest86: No errors.
+>>My guess is that this is the cause. LOWMEM pressure because of very
+>>large directories... Relating to this, linux-2.6.0-test3-mm1 has Ingo's
+>>4G/4G memory split. Can you try this kernel, enable 4G/4G feature, and
+>>report back?
+> 
+> 
+> Something about the 2.6 (and the rmap patched 2.4) kernels causes
+> lockouts on the server -- for reasons OTHER than kswapd.  The server
 
-It really would be worth giving memtest86 a good long run.
+If you want to help, you could try to gather more info on that to help 
+develope a better 2.6 ;)
 
-02000000 looks very much like a single-bit memory error,
-and swap_free is exactly where such errors often show up.
+FWIW, 2.6.0-test* with mm patches works well here... At least in a few 
+boxes.
 
-Hugh
+
+> running the delete-old-files process runs hundreds of other CPU and disk
+> I/O intensive processes/threads, and it doesn't look like 2.6 is yet able
+> to handle the load.  Unfortunately, the server is a production environment
+> machine at a remote site, so lockouts/reboots/kernel panics are baaaad :(
+> 
+> I've seen other mentions of kswapd/kupdated problems in 2.4.xx, but
+> few mentions of solutions.  Have people just learned to avoid the
+> situations that trigger the mad thrashes?
+> 
+
+
+If you're sure that it's really kswapd you can send SIGSTOP and SIGCONT 
+to kswapd's pid. Kswapd will honor those signals.
+
+killall -STOP kswapd
+<run your I/O intensive scripts>
+killall -CONT kswapd
+
+Sometimes I do this... For me it works well. If this makes your machine 
+crash or loose data, don't blame me! ;)
+
+Regards,
+Nuno Silva
+
+
+> Ken
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

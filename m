@@ -1,64 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLFJHV>; Wed, 6 Dec 2000 04:07:21 -0500
+	id <S129423AbQLFJPl>; Wed, 6 Dec 2000 04:15:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129423AbQLFJHL>; Wed, 6 Dec 2000 04:07:11 -0500
-Received: from 213-123-74-204.btconnect.com ([213.123.74.204]:19460 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129183AbQLFJHE>;
-	Wed, 6 Dec 2000 04:07:04 -0500
-Date: Wed, 6 Dec 2000 08:38:40 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: test12-pre6
-In-Reply-To: <Pine.LNX.4.21.0012060824360.906-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0012060838100.906-100000@penguin.homenet>
+	id <S130000AbQLFJPb>; Wed, 6 Dec 2000 04:15:31 -0500
+Received: from 13dyn108.delft.casema.net ([212.64.76.108]:57610 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129423AbQLFJPW>; Wed, 6 Dec 2000 04:15:22 -0500
+Date: Wed, 6 Dec 2000 09:44:29 +0100 (CET)
+From: Patrick van de Lageweg <patrick@bitwizard.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Rogier Wolff <wolff@bitwizard.nl>
+Subject: [PATCH] generic_serial's block_til_ready
+Message-ID: <Pine.LNX.4.21.0012060944070.25551-100000@panoramix.bitwizard.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2000, Tigran Aivazian wrote:
-> minutes ago... maybe you could merge it into yours and re-send to Linus?
+Hi Linus,
+ 
+This patch renames the block_til_ready of generic serial to
+gs_block_til_ready. 
 
-here is the merged patch:
+it helps when other modules have a "static block_til_ready" defined when
+used older modutils.
 
---- linux/fs/open.c	Thu Oct 26 16:11:21 2000
-+++ work/fs/open.c	Wed Dec  6 07:38:30 2000
-@@ -102,7 +102,12 @@
- 		goto out;
- 	inode = nd.dentry->d_inode;
+ 	Patrick
+
+
+diff -r -u linux-2.4.0-test10.clean/drivers/char/generic_serial.c linux-2.4.0-test10.generic_serial/drivers/char/generic_serial.c
+--- linux-2.4.0-test10.clean/drivers/char/generic_serial.c	Tue Nov 21 12:08:20 2000
++++ linux-2.4.0-test10.generic_serial/drivers/char/generic_serial.c	Tue Nov 21 12:31:43 2000
+@@ -35,7 +35,6 @@
  
--	error = -EACCES;
-+	/* For directories it's -EISDIR, for other non-regulars - -EINVAL */
-+	error = -EISDIR;
-+	if (S_ISDIR(inode->i_mode))
-+		goto dput_and_out;
-+
-+	error = -EINVAL;
- 	if (!S_ISREG(inode->i_mode))
- 		goto dput_and_out;
+ static int gs_debug;
  
-@@ -110,10 +115,6 @@
- 	if (error)
- 		goto dput_and_out;
- 
--	error = -EROFS;
--	if (IS_RDONLY(inode))
--		goto dput_and_out;
 -
- 	error = -EPERM;
- 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
- 		goto dput_and_out;
-@@ -163,7 +164,7 @@
- 		goto out;
- 	dentry = file->f_dentry;
- 	inode = dentry->d_inode;
--	error = -EACCES;
-+	error = -EINVAL;
- 	if (!S_ISREG(inode->i_mode) || !(file->f_mode & FMODE_WRITE))
- 		goto out_putf;
- 	error = -EPERM;
+ #ifdef DEBUG
+ #define gs_dprintk(f, str...) if (gs_debug & f) printk (str)
+ #else
+@@ -583,7 +582,7 @@
+ }
+ 
+ 
+-int block_til_ready(void *port_, struct file * filp)
++int gs_block_til_ready(void *port_, struct file * filp)
+ {
+ 	struct gs_port *port = port_;
+ 	DECLARE_WAITQUEUE(wait, current);
+@@ -600,7 +599,7 @@
+ 
+ 	if (!tty) return 0;
+ 
+-	gs_dprintk (GS_DEBUG_BTR, "Entering block_till_ready.\n"); 
++	gs_dprintk (GS_DEBUG_BTR, "Entering gs_block_till_ready.\n"); 
+ 	/*
+ 	 * If the device is in the middle of being closed, then block
+ 	 * until it's done, and then try again.
+@@ -1070,7 +1069,7 @@
+ EXPORT_SYMBOL(gs_start);
+ EXPORT_SYMBOL(gs_hangup);
+ EXPORT_SYMBOL(gs_do_softint);
+-EXPORT_SYMBOL(block_til_ready);
++EXPORT_SYMBOL(gs_block_til_ready);
+ EXPORT_SYMBOL(gs_close);
+ EXPORT_SYMBOL(gs_set_termios);
+ EXPORT_SYMBOL(gs_init_port);
+diff -r -u linux-2.4.0-test10.clean/drivers/char/sh-sci.c linux-2.4.0-test10.generic_serial/drivers/char/sh-sci.c
+--- linux-2.4.0-test10.clean/drivers/char/sh-sci.c	Wed Nov  1 13:57:19 2000
++++ linux-2.4.0-test10.generic_serial/drivers/char/sh-sci.c	Tue Nov 21 12:13:56 2000
+@@ -839,7 +839,7 @@
+ 		MOD_INC_USE_COUNT;
+ 	}
+ 
+-	retval = block_til_ready(port, filp);
++	retval = gs_block_til_ready(port, filp);
+ 
+ 	if (retval) {
+ 		MOD_DEC_USE_COUNT;
+diff -r -u linux-2.4.0-test10.clean/drivers/char/sx.c linux-2.4.0-test10.generic_serial/drivers/char/sx.c
+--- linux-2.4.0-test10.clean/drivers/char/sx.c	Tue Nov 21 12:08:21 2000
++++ linux-2.4.0-test10.generic_serial/drivers/char/sx.c	Tue Nov 21 12:13:56 2000
+@@ -1478,7 +1478,7 @@
+ 		return -EIO;
+ 	}
+ 
+-	retval = block_til_ready(port, filp);
++	retval = gs_block_til_ready(port, filp);
+ 	sx_dprintk (SX_DEBUG_OPEN, "Block til ready returned %d. Count=%d\n", 
+ 	            retval, port->gs.count);
+ 
+diff -r -u linux-2.4.0-test10.clean/include/linux/generic_serial.h linux-2.4.0-test10.generic_serial/include/linux/generic_serial.h
+--- linux-2.4.0-test10.clean/include/linux/generic_serial.h	Mon Mar 13 04:18:55 2000
++++ linux-2.4.0-test10.generic_serial/include/linux/generic_serial.h	Tue Nov 21 12:13:56 2000
+@@ -92,7 +92,7 @@
+ void gs_start(struct tty_struct *tty);
+ void gs_hangup(struct tty_struct *tty);
+ void gs_do_softint(void *private_);
+-int  block_til_ready(void *port, struct file *filp);
++int  gs_block_til_ready(void *port, struct file *filp);
+ void gs_close(struct tty_struct *tty, struct file *filp);
+ void gs_set_termios (struct tty_struct * tty, 
+                      struct termios * old_termios);
+
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266223AbUITK7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266245AbUITLAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266223AbUITK7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 06:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUITK7X
+	id S266245AbUITLAp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 07:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUITK7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 06:59:23 -0400
-Received: from pop.gmx.de ([213.165.64.20]:35233 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266223AbUITK6k (ORCPT
+	Mon, 20 Sep 2004 06:59:37 -0400
+Received: from cantor.suse.de ([195.135.220.2]:8334 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266195AbUITK7N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 06:58:40 -0400
-Date: Mon, 20 Sep 2004 12:58:39 +0200 (MEST)
-From: "Alexander Stohr" <Alexander.Stohr@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: device@lanana.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="========GMXBoundary211621095677919"
-Subject: [PATCH] (2.6.9-rc2) MAINTAINERS - lanana.org web server address
-X-Priority: 3 (Normal)
-X-Authenticated: #15156664
-Message-ID: <21162.1095677919@www37.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
+	Mon, 20 Sep 2004 06:59:13 -0400
+Date: Mon, 20 Sep 2004 12:56:18 +0200
+From: Olaf Hering <olh@suse.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: OOM & [OT] util-linux-2.12e
+Message-ID: <20040920105618.GB24928@suse.de>
+References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <20040920094602.GA24466@suse.de> <Pine.LNX.4.61.0409201220200.3460@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0409201220200.3460@scrub.home>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encapsulated multipart message -
-please use a MIME-compliant e-mail program to open it.
+ On Mon, Sep 20, Roman Zippel wrote:
 
-Dies ist eine mehrteilige Nachricht im MIME-Format -
-bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
+> Hi,
+> 
+> On Mon, 20 Sep 2004, Olaf Hering wrote:
+> 
+> >  On Mon, Sep 20, Andries.Brouwer@cwi.nl wrote:
+> > 
+> > > then /etc/mtab can die. Comments? Better solutions?
+> > 
+> > Andries, /etc/mtab is obsolete since the day when /proc/self/mounts was
+> > introduced. So, kill it today from your mount binary! TODAY. ...
+> 
+> How do you distinguish between manual and automatic loop device setup?
 
---========GMXBoundary211621095677919
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+-v
 
-Hello,
+> How do you filter /proc/mounts for chroot environments?
 
-the attached patch fixes the web server address for lanana.org
-in the MAINTAINERS file of linux kernel 2.6.9-rc2.
-
-The problem was that the needed "www." prefix was missing.
-In this case lanana does not respont when the prefix is left out.
-I know some browsers are doing autoprobping with a few prefixes,
-but i know and do use at least three browsers that dont do that.
-These are: mozilla 1.6, lynx 2.8.5rel.2 and recent opera for windows.
-
-please apply.
-
--Alex.
+you have a chroot enviroment without /proc mounted?
+Then just create /proc/mounts?
 
 -- 
-Supergünstige DSL-Tarife + WLAN-Router für 0,- EUR*
-Jetzt zu GMX wechseln und sparen http://www.gmx.net/de/go/dsl
---========GMXBoundary211621095677919
-Content-Type: application/octet-stream; name="linux-2.6.9-rc2-maintainers.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.9-rc2-maintainers.diff"
+USB is for mice, FireWire is for men!
 
-ZGlmZiAtTnJ1IGxpbnV4LTIuNi45LXJjMi5vcmlnLW1haW50YWluZXJzL01BSU5UQUlORVJTIGxp
-bnV4LTIuNi45LXJjMi9NQUlOVEFJTkVSUwotLS0gbGludXgtMi42LjktcmMyLm9yaWctbWFpbnRh
-aW5lcnMvTUFJTlRBSU5FUlMJMjAwNC0wOS0xMyAwNzozMjo1NC4wMDAwMDAwMDAgKzAyMDAKKysr
-IGxpbnV4LTIuNi45LXJjMi9NQUlOVEFJTkVSUwkyMDA0LTA5LTIwIDEyOjQ3OjQxLjAwMDAwMDAw
-MCArMDIwMApAQCAtNjU4LDcgKzY1OCw3IEBACiBERVZJQ0UgTlVNQkVSIFJFR0lTVFJZCiBQOglU
-b3JiZW4gTWF0aGlhc2VuCiBNOglkZXZpY2VAbGFuYW5hLm9yZwotVzoJaHR0cDovL2xhbmFuYS5v
-cmcvZG9jcy9kZXZpY2UtbGlzdC9pbmRleC5odG1sCitXOglodHRwOi8vd3d3LmxhbmFuYS5vcmcv
-ZG9jcy9kZXZpY2UtbGlzdC9pbmRleC5odG1sCiBMOglsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwu
-b3JnCiBTOglNYWludGFpbmVkCiAK
-
---========GMXBoundary211621095677919--
-
+sUse lINUX ag, nÃœRNBERG

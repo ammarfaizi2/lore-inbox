@@ -1,50 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVANTNc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVANTQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbVANTNc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 14:13:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVANTLV
+	id S262060AbVANTQG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 14:16:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVANTQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 14:11:21 -0500
-Received: from smtpout6.uol.com.br ([200.221.4.197]:10188 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261338AbVANTJC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 14:09:02 -0500
-Date: Fri, 14 Jan 2005 17:08:50 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc1-mm1
-Message-ID: <20050114190850.GA32656@ime.usp.br>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050114002352.5a038710.akpm@osdl.org> <1105707861.6471.1.camel@localhost> <20050114103534.4f4a24be.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050114103534.4f4a24be.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 14 Jan 2005 14:16:00 -0500
+Received: from de01egw02.freescale.net ([192.88.165.103]:44493 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S262042AbVANTO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 14:14:29 -0500
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <804898BA-6660-11D9-A893-000393DBC2E8@freescale.com>
+Content-Transfer-Encoding: 7bit
+Cc: lkml Development <linux-kernel@vger.kernel.org>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: unregisters a device that doesnt exist
+Date: Fri, 14 Jan 2005 13:14:23 -0600
+To: Greg KH <greg@kroah.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 14 2005, Andrew Morton wrote:
-> Kasper Sandberg <lkml@metanurb.dk> wrote:
-> > i really believe fuse is a good thing to have merged, i use it, and it
-> > works really really good.
-> 
-> What filesystem(s) do you use, and why?
+Is it possible to unregister a device (more specifically a 
+platform_device) if its hasnt already be registered?  If not, is there 
+a way to determine if the device has been registered.
 
-I'm not the person to whom you asked the question, but I will answer
-anyway.
+- kumar
 
-I have never used a -mm kernel tree before, but seeing that fuse got
-included made me download the patch to try it.
-
-I'll be using gmailfs (which needs fuse) just to see how things work with
-Debian's testing (sarge) userland.
-
-
-Hope this is another data point of interest, Rogério.
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

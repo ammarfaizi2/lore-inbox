@@ -1,83 +1,180 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273244AbTHFCcj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 22:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273252AbTHFCci
+	id S273288AbTHFCax (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 22:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273273AbTHFCax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 22:32:38 -0400
-Received: from pop017pub.verizon.net ([206.46.170.210]:5030 "EHLO
-	pop017.verizon.net") by vger.kernel.org with ESMTP id S273244AbTHFCcg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 22:32:36 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: 2.5/2.6 NVidia (was Re: 2.4 vs 2.6 ver#
-Date: Tue, 5 Aug 2003 22:32:34 -0400
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200308051041.08078.gene.heskett@verizon.net> <200308051807.00179.gene.heskett@verizon.net> <200308060208.h7628w5m002801@turing-police.cc.vt.edu>
-In-Reply-To: <200308060208.h7628w5m002801@turing-police.cc.vt.edu>
+	Tue, 5 Aug 2003 22:30:53 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:42203 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S273356AbTHFCat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 22:30:49 -0400
+Message-ID: <3F306858.1040202@mrs.umn.edu>
+Date: Tue, 05 Aug 2003 21:30:48 -0500
+From: Grant Miner <mine0057@mrs.umn.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+CC: reiserfs-list@namesys.com
+Subject: Filesystem Tests
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308052232.34823.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at pop017.verizon.net from [151.205.12.168] at Tue, 5 Aug 2003 21:32:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 August 2003 22:08, Valdis.Kletnieks@vt.edu wrote:
->On Tue, 05 Aug 2003 18:07:00 EDT, you said:
->> Now, the factory nvidia drivers will not build for 2.6, so I don't
->> have any X.  Whats the status of the kernel versions vis-a-vis
->> running a gforce2 MMX 32 megger?
->
->(Sorry for replying to the list, but let's get this into the
-> archives in case people actually search before asking... (yeah
-> right ;))
->
->I'm running the NVidia 4496 drivers right now on 2.6.0-test2-mm4.
->
->Do the following (can be done on a 2.4 kernel if needed)
->
->1) Get the 4496 drivers from NVidia
->2) './NVIDIA-Linux-x86-1.0-4496-pkg2.run --extract-only'
->3) Go to www.minion.de and get the patch:
-> NVIDIA_kernel-1.0-4496-2.5.diff 4) cd
-> NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv
->5)  patch -p1 < NVIDIA_kernel-1.0-4496-2.5.diff
->6) cp Makefile.kbuild Makefile
->
->Now *as root*, while running the 2.6 kernel you want support for:
->(either single-user or runlevel 3 (No X) are OK here - reboot if
-> needed)
->
->7) cd NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv   if you're not
-> there already. 8) make     this will build the nvidia.ko, copy to
-> /lib/modules, and insmod it for you. 9) cd ../../..      back to
-> the 4496-pgk2 directory
->10) 'make install' to put the /usr/lib parts in place.
->11) Start X in the usual manner - you've probably got an XFconfig
-> file with the right NVidia pieces in it already (or you'd not be
-> asking ;)
->
->Hope this helps...
->You should be ready to go at that point (note that you will need to
-> do (7) and (8) each time you do a 'make modules_install', but 9/10
-> only need doing if/when you upgrade from 4496 to a new version.
+I tested the performace of various filesystems with a mozilla build tree 
+of 295MB, with primarily writing and copying operations.  The test 
+system is Linux 2.6.0-test2, 512MB memory, 11531.85MB partition for 
+tests.  Sync is run a few times throughout the test (for full script see 
+bottom of this email).  I ran mkfs on the partition before every test. 
+Running the tests again tends to produces similar times, about +/- 3 
+seconds.
 
-I just made a script out of that, thanks, now I'm off to reboot and 
-try it. :)
+The first item number is time, in seconds, to complete the test (lower 
+is better).  The second number is CPU use percentage (lower is better).
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+reiser4 171.28s, 30%CPU (1.0000x time; 1.0x CPU)
+reiserfs 302.53s, 16%CPU (1.7663x time; 0.53x CPU)
+ext3 319.71s, 11%CPU	(1.8666x time; 0.36x CPU)
+xfs 429.79s, 13%CPU (2.5093x time; 0.43x CPU)
+jfs 470.88s, 6%CPU (2.7492x time 0.02x CPU)
+
+What's interesting:
+* ext3's syncs tended to take the longest 10 seconds, except
+* JFS took a whopping 38.18s on its final sync
+* xfs used more CPU than ext3 but was slower than ext3
+* reiser4 had highest throughput and most CPU usage
+* jfs had lowest throughput and least CPU usage
+* total performance of course depends on how IO or CPU bound your task is
+
+Individual test times (first number again is time in seconds, second is 
+CPU usage, last is total again)
+reiser4
+Copying Tree
+33.39,34%
+Sync
+1.54,0%
+recopying tree to mozilla-2
+31.09,34%
+recopying mozilla-2 to mozilla-3
+33.15,33%
+sync
+2.89,3%
+du
+2.05,42%
+rm -rf mozilla
+7.41,52%
+tar c mozilla-2
+52.25,25%
+final sync
+6.77,2%
+171.28,30%
+
+reiserfs
+Copying Tree
+39.55,32%
+Sync
+3.15,1%
+recopying tree to mozilla-2
+75.15,13%
+recopying mozilla-2 to mozilla-3
+77.62,13%
+sync
+3.84,1%
+du
+2.46,21%
+rm -rf mozilla
+5.22,58%
+tar c mozilla-2
+90.83,12%
+final sync
+4.19,3%
+302.53,16%
+
+extended 3
+Copying Tree
+39.42,25%
+Sync
+9.05,0%
+recopying tree to mozilla-2
+79.96,9%
+recopying mozilla-2 to mozilla-3
+98.84,7%
+sync
+8.15,0%
+du
+3.31,11%
+rm -rf mozilla
+3.71,39%
+tar c mozilla-2
+74.93,13%
+final sync
+1.67,1%
+319.71,11%
+
+xfs
+Copying Tree
+43.50,32%
+Sync
+2.08,1%
+recopying tree to mozilla-2
+102.37,12%
+recopying mozilla-2 to mozilla-3
+108.00,12%
+sync
+2.40,2%
+du
+3.73,32%
+rm -rf mozilla
+8.75,56%
+tar c mozilla-2
+157.61,7%
+final sync
+0.95,1%
+429.79,13%
+
+jfs
+Copying Tree
+48.15,20%
+Sync
+3.05,1%
+recopying tree to mozilla-2
+108.39,5%
+recopying mozilla-2 to mozilla-3
+114.96,5%
+sync
+3.86,0%
+du
+2.42,17%
+rm -rf mozilla
+15.33,7%
+tar c mozilla-2
+135.86,6%
+final sync
+38.18,0%
+470.88,6%
+
+Here is the benchmark script:
+#!/bin/sh
+time='time -f%e,%P '
+echo "Copying Tree"
+$time cp -a /home/test/mozilla /mnt/test
+echo "Sync"
+$time sync
+cd /mnt/test &&
+echo "recopying tree to mozilla-2"
+$time cp -a mozilla mozilla-2 &&
+echo "recopying mozilla-2 to mozilla-3"
+$time cp -a mozilla mozilla-2 &&
+echo "sync"
+$time sync &&
+echo "du"
+$time du mozilla > /dev/null &&
+echo "rm -rf mozilla"
+$time rm -rf mozilla
+echo "tar c mozilla-2"
+$time tar c mozilla-2 > mozilla.tar
+echo "final sync"
+$time sync
 

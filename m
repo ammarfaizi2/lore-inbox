@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311647AbSDJJun>; Wed, 10 Apr 2002 05:50:43 -0400
+	id <S311834AbSDJJ5X>; Wed, 10 Apr 2002 05:57:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312031AbSDJJum>; Wed, 10 Apr 2002 05:50:42 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:58003 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S311647AbSDJJum>; Wed, 10 Apr 2002 05:50:42 -0400
-Message-ID: <3CB40AF0.693C5130@delusion.de>
-Date: Wed, 10 Apr 2002 11:50:40 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.7 i686)
-X-Accept-Language: en, de
+	id <S312031AbSDJJ5W>; Wed, 10 Apr 2002 05:57:22 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:35601 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S311834AbSDJJ5W>; Wed, 10 Apr 2002 05:57:22 -0400
+Message-ID: <3CB3FDF7.6010505@evision-ventures.com>
+Date: Wed, 10 Apr 2002 10:55:19 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: bttv-driver broken in 2.5.8-pre
-Content-Type: text/plain; charset=us-ascii
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, apj@mutt.dk
+Subject: Re: [PATCH][CFT] IDE TCQ #2
+In-Reply-To: <20020409124417.GK25984@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+Jens Axboe wrote:
+> Hi,
+> 
+> Version 2 is ready. Changes since last time:
 Hi,
 
-The bttv driver in 2.5.8-pre doesn't compile:
+OK I have managed to merge this with the 2.5.8-pre2 + ide-29b at home.
+However since we have now apparently already a -pre3 I will have
+to at least redo the patches against it. If this takes more
+then the time needed for a cup of coffe I will have unfortuntely to
+do it today afternoon.
 
-bttv-driver.c:2650: `video_generic_ioctl' undeclared here (not in a function)
-bttv-driver.c:2650: initializer element is not constant
-bttv-driver.c:2650: (near initialization for `bttv_fops.ioctl')
-bttv-driver.c:2664: unknown field `kernel_ioctl' specified in initializer
-bttv-driver.c:2771: `video_generic_ioctl' undeclared here (not in a function)
-bttv-driver.c:2771: initializer element is not constant
-bttv-driver.c:2771: (near initialization for `radio_fops.ioctl')
-bttv-driver.c:2781: unknown field `kernel_ioctl' specified in initializer
-
-Gerd's latest patch v4l2-01-v4l2-api-2.5.8-pre2.diff doesn't fix it either.
-
--Udo.

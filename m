@@ -1,73 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264105AbTEGRnV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 13:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbTEGRnV
+	id S264102AbTEGRtu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 13:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264107AbTEGRtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 13:43:21 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:4504 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264105AbTEGRnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 13:43:19 -0400
-Date: Wed, 7 May 2003 19:55:31 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jonathan Lundell <linux@lundell-bros.com>
-Cc: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: top stack (l)users for 2.5.69
-Message-ID: <20030507175531.GF19324@wohnheim.fh-wedel.de>
-References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305071008080.11871@chaos> <p05210601badeeb31916c@[207.213.214.37]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <p05210601badeeb31916c@[207.213.214.37]>
-User-Agent: Mutt/1.3.28i
+	Wed, 7 May 2003 13:49:50 -0400
+Received: from mail0.ewetel.de ([212.6.122.12]:4755 "EHLO mail0.ewetel.de")
+	by vger.kernel.org with ESMTP id S264102AbTEGRtt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 13:49:49 -0400
+Date: Wed, 7 May 2003 20:02:06 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: [IDE] trying to make MO drive work with ide-floppy/ide-cd
+In-Reply-To: <Pine.LNX.4.44.0305061608050.959-100000@neptune.local>
+Message-ID: <Pine.LNX.4.44.0305071956300.1118-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 May 2003 10:13:55 -0700, Jonathan Lundell wrote:
-> At 10:16am -0400 5/7/03, Richard B. Johnson wrote:
-> >Nope. Just don't steal thousands of CPU cycles to make something
-> >"pretty". Obviously something called recursively with a 2k buffer
-> >on the stack is going to break. However one has to actually
-> >look at the code and determine the best (if any) way to reduce
-> >stack usage. For instance, some persons may just "like" 0x400 for
-> >the size of a temporary buffer when, in fact, 29 bytes are actually
-> >used.
-> >
-> >FYI, one can make a module that will show the maximum amount
-> >of stack ever used IFF the stack gets zeroed before use upon
-> >kernel startup. Would this be useful or has it already been
-> >done?
-> 
-> There's at least one patch floating around to do that; we've used it 
-> to help track down some stack overflow problems.
+On Tue, 6 May 2003, Pascal Schmidt wrote:
 
-Do you have a URL or can you post that patch? Sounds very useful for
-information gathering.
+The below patch allows me to use the ATAPI MO drive read-only using 
+ide-cd. It does not send the drive any commands it might not understand.
+I'm still trying to get write support to work, but being able to read
+from the drive is an independent feature and useful in itself, I think.
+Would it be possible to apply this to 2.5?
 
-> Does 2.5 use a separate interrupt stack? (Excuse my ignorance; I 
-> haven't been paying attention.) Total stack-page usage in the 2.4 
-> model, at any rate, is the sum of the task struct, the usage of any 
-> task-level thread (system calls, pretty much), any softirq (including 
-> the network protocol & routing handlers, and any netfilter modules), 
-> and some number of possibly-nested hard interrupts.
+Tested by reading an entire ext2 filesystem from an MO disk and comparing
+against the result obtained from 2.4 with ide-scsi/sd. No differences.
 
-Depends on the architecture. s390 does, ppc didn't as of 2.4.2, the
-rest I'm not sure about. But this is another requirement for stack
-reduction to 4k for most platforms, if not all.
+Patch against 2.5-bkcvs.
 
-> One thing that would help (aside from separate interrupt stacks) 
-> would be a guard page below the stack. That wouldn't require any 
-> physical memory to be reserved, and would provide positive indication 
-> of stack overflow without significant runtime overhead.
-
-Yes, that should work. It needs some additional code in the page fault
-handler to detect this case, but that shouldn't slow the system down
-too much.
-
-Jörn
+Index: drivers/ide/ide-cd.c
+===================================================================
+RCS file: /home/bkcvs/linux-2.5/drivers/ide/ide-cd.c,v
+retrieving revision 1.107
+diff -u -1 -b -p -r1.107 ide-cd.c
+--- drivers/ide/ide-cd.c	20 Apr 2003 21:52:14 -0000	1.107
++++ drivers/ide/ide-cd.c	7 May 2003 17:34:30 -0000
+@@ -2873,2 +2873,7 @@ int ide_cdrom_probe_capabilities (ide_dr
+ 
++	if (drive->media == ide_optical) {
++		printk("%s: ATAPI magneto-optical drive\n", drive->name);
++		return nslots;
++	}
++
+ 	if (CDROM_CONFIG_FLAGS(drive)->nec260) {
+@@ -3339,3 +3344,3 @@ static int ide_cdrom_attach (ide_drive_t
+ 		goto failed;
+-	if (drive->media != ide_cdrom)
++	if (drive->media != ide_cdrom && drive->media != ide_optical)
+ 		goto failed;
+Index: drivers/ide/ide-probe.c
+===================================================================
+RCS file: /home/bkcvs/linux-2.5/drivers/ide/ide-probe.c,v
+retrieving revision 1.85
+diff -u -1 -b -p -r1.85 ide-probe.c
+--- drivers/ide/ide-probe.c	24 Apr 2003 17:07:04 -0000	1.85
++++ drivers/ide/ide-probe.c	7 May 2003 17:25:37 -0000
+@@ -1237,3 +1237,3 @@ struct gendisk *ata_probe(dev_t dev, int
+ 			(void) request_module("ide-scsi");
+-		if (drive->media == ide_cdrom)
++		if (drive->media == ide_cdrom || drive->media == ide_optical)
+ 			(void) request_module("ide-cd");
 
 -- 
-And spam is a useful source of entropy for /dev/random too!
--- Jasmine Strong
+Ciao,
+Pascal
+

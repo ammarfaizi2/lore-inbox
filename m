@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277485AbRJEQkO>; Fri, 5 Oct 2001 12:40:14 -0400
+	id <S277483AbRJEQme>; Fri, 5 Oct 2001 12:42:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277483AbRJEQkE>; Fri, 5 Oct 2001 12:40:04 -0400
-Received: from foobar.isg.de ([62.96.243.63]:48000 "HELO mail.isg.de")
-	by vger.kernel.org with SMTP id <S277484AbRJEQjy>;
-	Fri, 5 Oct 2001 12:39:54 -0400
-Message-ID: <3BBDE27D.2E65F818@isg.de>
-Date: Fri, 05 Oct 2001 18:40:29 +0200
-From: lkv@isg.de
-Organization: Innovative Software AG
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: German, de, en
+	id <S277488AbRJEQmO>; Fri, 5 Oct 2001 12:42:14 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:31753 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S277483AbRJEQmF>;
+	Fri, 5 Oct 2001 12:42:05 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200110051642.UAA21823@ms2.inr.ac.ru>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+To: mingo@elte.hu
+Date: Fri, 5 Oct 2001 20:42:12 +0400 (MSK DST)
+Cc: hadi@cyberus.ca, linux-kernel@vger.kernel.org, Robert.Olsson@data.slu.se,
+        bcrl@redhat.com, netdev@oss.sgi.com, torvalds@transmeta.com,
+        alan@lxorguk.ukuu.org.uk
+In-Reply-To: <Pine.LNX.4.33.0110040831020.1727-100000@localhost.localdomain> from "Ingo Molnar" at Oct 4, 1 08:35:02 am
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: Christopher Friesen <cfriesen@nortelnetworks.com>
-Cc: "Kernel, Linux" <linux-kernel@vger.kernel.org>
-Subject: Re: Desperately missing a working "pselect()" or similar...
-In-Reply-To: <3BBDD37D.56D7B359@isg.de> <3BBDE1AA.98C4712F@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher Friesen wrote:
+Hello!
 
-> > I'm currently looking for a decent method to wait on either
-> > an I/O event _or_ a signal coming from another process.
-> 
-> > - Unix domain sockets would be awkward to use due to the fact
-> >   I'd need to come up with some "filenames" for them to bind to,
-> >   and both security considerations and the danger of "leaking"
-> >   files that remain on disk forever make me shudder...
-> 
-> If you use a named socket in the abstract namespace, then it can't "leak" to
-> disk....
+> i'm asking the following thing. dev->quota, as i read the patch now, can
+> cause extra calls to ->poll() even though the RX ring of that particular
+> device is empty and the driver has indicated it's done processing RX
+> packets. (i'm now assuming that the extra-polling-for-a-jiffy line in the
+> current patch is removed - that one is a showstopper to begin with.) Is
+> this claim of mine correct?
 
-Ok, but man 7 unix says:
+No.
 
- SCM_CREDENTIALS  and  the abstract namespace were introduced with
- Linux 2.2 and should not be used in portable programs
+If ring is empty, device is removed from poll list and dev->poll is not called
+more.
 
-... and I really do want to write portable programs...
+dev->quota is to preempt service when ring does not want to clear.
+In this case work remains for the next round after all the rest
+of interfaces are served. Well, it is to allow to give user control
+on distribution cpu time between interfaces, when cpu is 100% utilized
+and we have to drop something. Devices with lower weights will get
+less service.
 
-Regards,
 
-Lutz Vieweg
+> packets. (i'm now assuming that the extra-polling-for-a-jiffy line in the
 
---
- Dipl. Phys. Lutz Vieweg | email: lkv@isg.de
- Innovative Software AG  | Phone/Fax: +49-69-505030 -120/-505
- Feuerbachstrasse 26-32  | http://www.isg.de/people/lkv/
- 60325 Frankfurt am Main | ^^^ PGP key available here ^^^
+It is not so bogus with current kernel with working ksoftirqd.
+
+The goal was to check what happens really when we enforce polling
+even when machine is generally happy. For me it is not evident apriori:
+more cpu is eaten uselessly or less due to absent irqs.
+Note, that on dedicated router it is pretty normal to spin in context
+of ksoftirqd switching to control tasks when it is required.
+And, actually, it is amazing feature of the scheme, that it is so easy
+to add such option.
+
+Anyway, to all that I remember, the question remained unanswered. :-)
+Robert even observed that only 9% of cpu is eaten, which is surely
+cannot be true. :-)
+
+Alexey

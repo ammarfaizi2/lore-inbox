@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUAXXOt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 18:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUAXXOt
+	id S263101AbUAXXPs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 18:15:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUAXXPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 18:14:49 -0500
-Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:51417 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S263062AbUAXXOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 18:14:48 -0500
-Message-ID: <4012FC49.3040701@backtobasicsmgmt.com>
-Date: Sat, 24 Jan 2004 16:14:17 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
+	Sat, 24 Jan 2004 18:15:48 -0500
+Received: from ozlabs.org ([203.10.76.45]:64994 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263101AbUAXXPq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 18:15:46 -0500
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC]   "smack the penguin"
-References: <401177DB.8010901@nortelnetworks.com> <20040124095208.GA20489@zombie.inka.de> <yw1xbrot7j89.fsf@ford.guide> <20040124103029.GL10487@boetes.org> <Pine.LNX.4.58.0401242135250.30233@student.dei.uc.pt>
-In-Reply-To: <Pine.LNX.4.58.0401242135250.30233@student.dei.uc.pt>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16402.64412.577682.141249@cargo.ozlabs.ibm.com>
+Date: Sun, 25 Jan 2004 10:11:24 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: [PATCH] [2.4] forcedeth network driver
+In-Reply-To: <20040124224635.GA3448@ucw.cz>
+References: <4012BF44.9@colorfullife.com>
+	<4012D3C6.1050805@pobox.com>
+	<20040124220545.GA3246@ucw.cz>
+	<4012F2B7.3080800@gmx.net>
+	<20040124224635.GA3448@ucw.cz>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcos D. Marado Torres wrote:
+Vojtech Pavlik writes:
 
-> My record:
-> 1210.8
-> 
-> Trick:
-> http://www.mironov.net/pingu/pingu3.swf
+> Well, my memory may be tricking me (I'm not really sure about this), but
+> I remember there was supposed to be a PPC64 northbridge with a HT link,
+> made exactly for the purpose of connecting an nForce southrbridge to it.
+> But it definitely is not in production yet.
 
-I've just replicated this score... the little guy's gotta slide a _long_ 
-way to get this far.
+The U3 northbridge in the Apple G5 powermac has a HT link coming out
+of it, which connects via an AMD PCI-X tunnel chip to an Apple K2
+southbridge.  I have never heard of anyone using (or planning to use)
+an nForce southbridge on a PPC64 system though.
 
+Regards,
+Paul.

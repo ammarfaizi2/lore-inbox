@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135648AbRANWjg>; Sun, 14 Jan 2001 17:39:36 -0500
+	id <S135681AbRANWkp>; Sun, 14 Jan 2001 17:40:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135681AbRANWjZ>; Sun, 14 Jan 2001 17:39:25 -0500
-Received: from styx.suse.cz ([195.70.145.226]:16889 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S135648AbRANWjM>;
-	Sun, 14 Jan 2001 17:39:12 -0500
-Date: Sun, 14 Jan 2001 23:39:07 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-Message-ID: <20010114233907.C2487@suse.cz>
-In-Reply-To: <20010112204626.A2740@suse.cz> <E14HDqv-0005Fm-00@the-village.bc.nu> <20010114203823.A17160@pcep-jamie.cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010114203823.A17160@pcep-jamie.cern.ch>; from lk@tantalophile.demon.co.uk on Sun, Jan 14, 2001 at 08:38:23PM +0100
+	id <S135718AbRANWkf>; Sun, 14 Jan 2001 17:40:35 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15374 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135681AbRANWka>; Sun, 14 Jan 2001 17:40:30 -0500
+Date: Sun, 14 Jan 2001 14:40:02 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Gerhard Mack <gmack@innerfire.net>
+cc: Ingo Molnar <mingo@elte.hu>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.LNX.4.10.10101141349210.11765-100000@innerfire.net>
+Message-ID: <Pine.LNX.4.10.10101141436010.4613-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2001 at 08:38:23PM +0100, Jamie Lokier wrote:
 
-> > I think its significant that two reports I have are FIC PA-2013 but not all.
-> > What combination of chips is on the 2013 ?
+
+On Sun, 14 Jan 2001, Gerhard Mack wrote:
 > 
-> Reading through my mail logs, I know a board, either FIC PA-2011 or FIC
-> PA-2007 (I seem to have changed my mind somewhere in history) with a
-> 6.4G Quantum Fireball ST, 64MB RAM and an AMD K6-233.  The chipset
-> reports as VIA VP2/97; sorry, I do not have access to get the PCI IDs.
+> PS I wish someone would explain to me why distros insist on using WU
+> instead given it's horrid security record. 
 
-PA-2007 is indeed a VP2/97, a very nice board, with vt82c595+vt82c586b.
+I think it's a case of "better the devil you know..".
 
-> It locks up with DMA enabled, typically after a few hours, and has done
-> that since 2.1 kernel days.
-> 
-> Unfortunately it locks up with Mandrake 7.2 which is not very old (based
-> on 2.2.17 kernels -- it's not my PC any more but I installed Mandrake on
-> it recently).
-> 
-> Kernel option "ide=nodma" fixes this -- no lockups.
-> 
-> After that "hdparm -X34 -d1" enables DMA and the board remains reliable.
-> I observed one lockup in several years, while X was starting so it could
-> have been X.  -X34 does not change the results of "hdparm -t".
-> 
-> Note that "hdparm -X34 -d1" enables old DMA, not UDMA.  (The board was
-> advertised as UDMA capable but it isn't AFAIK).
+Think of all the security scares sendmail has historically had. But it's a
+pretty secure piece of work now - and people know if backwards and
+forward. Few people advocate switching from sendmail these days (sure,
+they do exist, but what I'm saying is that a long track record that
+includes security issues isn't necessarily bad, if it has gotten fixed).
 
-It should be able to do UDMA33.
+Of course, you may be right on wuftpd. It obviously wasn't designed with
+security in mind, other alternatives may be better.
 
-Is the board still available for some testing?
+		Linus
 
--- 
-Vojtech Pavlik
-SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,96 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265846AbTF3L2K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 07:28:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbTF3L2K
+	id S265845AbTF3L1m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 07:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265846AbTF3L1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 07:28:10 -0400
-Received: from 12-207-41-15.client.attbi.com ([12.207.41.15]:30475 "EHLO
-	skarpsey.home.lan") by vger.kernel.org with ESMTP id S265846AbTF3L2E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 07:28:04 -0400
-From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ___arch__swab64() causing compile breakage
-Date: Mon, 30 Jun 2003 06:44:22 -0500
-User-Agent: KMail/1.5.1
+	Mon, 30 Jun 2003 07:27:42 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:11702 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S265845AbTF3L1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 07:27:41 -0400
+Date: Mon, 30 Jun 2003 08:39:38 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel@vger.kernel.org, stoffel@lucent.com, willy@w.ods.org,
+       kpfleming@cox.net, gibbs@scsiguy.com, green@namesys.com
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+In-Reply-To: <20030630121017.1ebc1cf4.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.55L.0306300838200.19541@freak.distro.conectiva>
+References: <20030509150207.3ff9cd64.skraw@ithnet.com>
+ <41560000.1055306361@caspian.scsiguy.com> <20030611222346.0a26729e.skraw@ithnet.com>
+ <16103.39056.810025.975744@gargle.gargle.HOWL> <20030613114531.2b7235e7.skraw@ithnet.com>
+ <20030625191655.GA15970@alpha.home.local> <20030625214221.2cd9613f.skraw@ithnet.com>
+ <16122.1630.134766.108510@gargle.gargle.HOWL> <20030626133415.4417e2e6.skraw@ithnet.com>
+ <20030630121017.1ebc1cf4.skraw@ithnet.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_WKCA/s58x3U96mm"
-Message-Id: <200306300644.22712.kelledin+LKML@skarpsey.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_WKCA/s58x3U96mm
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-I just noticed that with the new implementation of 
-___arch__swab64 in 2.4.21 (i386), kdemultimedia-3.1.x won't 
-compile.  Basically it tries to include <linux/cdrom.h>, which 
-in turn tries to include <asm/byteorder.h>, and it tries to 
-compile it all with g++ -ansi.  ___arch__swab64() is partly to 
-blame.
+On Mon, 30 Jun 2003, Stephan von Krawczynski wrote:
 
-Now as much as we may call this a KDE bug, the old 
-___arch__swab64 implementation didn't have this problem.  In the 
-old implementation, both the __u64 type (from <asm/types.h>) and 
-the ___arch__swab64() macro (which depends on the __u64 type) 
-didn't get defined in userland for __STRICT_ANSI__ code.
+> Hello all,
+>
+> it looks like the problem gets worse currently. This is the second day I see 4
+> verification errors. This is with kernel 2.4.22-pre2 now.
 
-With the new implementation taken from SGI XFS, __u64 still isn't 
-defined for __STRICT_ANSI__ code, but ___arch__swab64() is 
-exposed to the world no matter what.  Run that through gcc 
--ansi, and you get an instant parse error! ;)
 
-That's reason enough to rectify this annoying little 
-inconsistency.  I suggest we either let both code bits stay with 
-__STRICT_ANSI__ defined, or we leave out at least the 
-___arch__swab64() macro with __STRICT_ANSI__ defined.  I'm 
-personally in favor of putting the old __STRICT_ANSI__ check 
-around the new ___arch__swab64().
+As far as I understood, the tape is corrupting the data (or writting, or
+when reading back).
 
--- 
-Kelledin
-"If a server crashes in a server farm and no one pings it, does 
-it still cost four figures to fix?"
-
---Boundary-00=_WKCA/s58x3U96mm
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="linux-2.4.21-swab64.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="linux-2.4.21-swab64.patch"
-
-diff -Naur linux-2.4.20/include/asm-i386/byteorder.h linux-2.4.20-swab64/include/asm-i386/byteorder.h
---- linux-2.4.20/include/asm-i386/byteorder.h	2003-05-26 23:29:50.000000000 -0500
-+++ linux-2.4.20-swab64/include/asm-i386/byteorder.h	2003-05-26 23:32:52.000000000 -0500
-@@ -34,7 +34,7 @@
- 		return x;
- }
- 
--
-+#if !defined(__STRICT_ANSI__) || defined(__KERNEL__)
- static inline __u64 ___arch__swab64(__u64 val) 
- { 
- 	union { 
-@@ -55,10 +55,12 @@
- } 
- 
- #define __arch__swab64(x) ___arch__swab64(x)
-+#define __BYTEORDER_HAS_U64__
-+#endif
-+
- #define __arch__swab32(x) ___arch__swab32(x)
- #define __arch__swab16(x) ___arch__swab16(x)
- 
--#define __BYTEORDER_HAS_U64__
- 
- #endif /* __GNUC__ */
- 
-
---Boundary-00=_WKCA/s58x3U96mm--
-
+Is this correct?

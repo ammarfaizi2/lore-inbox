@@ -1,999 +1,1216 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264712AbTFATVS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 15:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264714AbTFATVS
+	id S264717AbTFATbD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 15:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264720AbTFATbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 15:21:18 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:33761 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264713AbTFATUD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 15:20:03 -0400
-Date: Sun, 1 Jun 2003 12:33:08 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: [RFC][PATCH] Convert do_no_page() to a hook to avoid DFS race
-Message-ID: <20030601193308.GA1407@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20030530164150.A26766@us.ibm.com> <20030530180027.75680efd.akpm@digeo.com>
+	Sun, 1 Jun 2003 15:31:03 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:52230 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S264717AbTFAT3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 15:29:12 -0400
+Subject: Re: 2.5.70-mm3
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: zipa24@suomi24.fi
+Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E5AD46C0006FA51@webmail-fi1.sol.no1.asap-asp.net>
+References: <3E5AD46C0006FA51@webmail-fi1.sol.no1.asap-asp.net>
+Content-Type: text/plain
+Message-Id: <1054496549.943.5.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030530180027.75680efd.akpm@digeo.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 01 Jun 2003 21:42:29 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 30, 2003 at 06:00:27PM -0700, Andrew Morton wrote:
-> "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
-> > An alternative to this patch includes the nopagedone() patch posted
-> > moments ago.  hch has also suggested that do_anonymous_page() be
-> > converted to a ->nopage callout, but this would require that all
-> > of the other ->nopage callouts drop mm->page_table_lock as their
-> > first action.  If people believe that this is the right thing to
-> > do, I will happily produce such a patch.
+On Sat, 2003-05-31 at 23:45, zipa24@suomi24.fi wrote:
+> >On Sat, 31 May 2003, Andrew Morton wrote:
 > 
-> That sounds better to me.
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm3/
+> 
+> I get following OOPS when I try to load snd-ymfpci ALSA module:
+> 
+> ---cut
+> Unable to handle kernel paging request at virtual address 00004205
+>  printing eip:
+> f0c02106
+> *pde = 00000000
+> Oops: 0002 [#1]
+> PREEMPT
+> CPU:    0
+> EIP:    0060:[<f0c02106>]    Not tainted VLI
+> EFLAGS: 00010286
+> EIP is at +0x106/0x7a0 [snd_ymfpci]
+> eax: ee832b60   ebx: 000041ed   ecx: 00000388   edx: c0348380
+> esi: 00000800   edi: 00000000   ebp: efed6400   esp: ea2dde84
+> ds: 007b   es: 007b   ss: 0068
+> Process modprobe (pid: 3250, threadinfo=ea2dc000 task=ed9ab330)
+> Stack: c0348380 00000388 00000004 f0c42da6 c0167c7d effe7ba0 000000d0 effd8300
+> 
+>        f0c42e40 ea2d0e00 eb7e0200 000041ed 00000000 03881adf f0c45540 ffffffed
+> 
+>        efed6400 00000000 c01e6452 efed6400 f0c0358c efed6400 f0c45540 f0c45540
+> 
+> Call Trace:
+>  [<f0c42da6>] +0x7/0x2a1 [snd_ymfpci]
+>  [<c0167c7d>] alloc_inode+0x14d/0x160
+>  [<f0c42e40>] +0xa1/0x2a1 [snd_ymfpci]
+>  [<f0c45540>] driver+0x0/0xa0 [snd_ymfpci]
+>  [<c01e6452>] pci_device_probe_static+0x52/0x70
+>  [<f0c0358c>] +0x8c/0xe0 [snd_ymfpci]
+>  [<f0c45540>] driver+0x0/0xa0 [snd_ymfpci]
+>  [<f0c45540>] driver+0x0/0xa0 [snd_ymfpci]
+>  [<c01e65bc>] __pci_device_probe+0x3c/0x50
+>  [<f0c45540>] driver+0x0/0xa0 [snd_ymfpci]
+>  [<c01e6623>] pci_device_probe+0x53/0x60
+>  [<f0c45540>] driver+0x0/0xa0 [snd_ymfpci]
+>  [<f0c45568>] driver+0x28/0xa0 [snd_ymfpci]
+>  [<f0c45568>] driver+0x28/0xa0 [snd_ymfpci]
+>  [<c0226815>] bus_match+0x45/0x80
+>  [<f0c45568>] driver+0x28/0xa0 [snd_ymfpci]
+>  [<f0c45568>] driver+0x28/0xa0 [snd_ymfpci]
+>  [<c022693c>] driver_attach+0x5c/0x60
+>  [<f0c45568>] driver+0x28/0xa0 [snd_ymfpci]
+>  [<c0226bd3>] bus_add_driver+0x93/0xb0
+>  [<f0c45568>] driver+0x28/0xa0 [snd_ymfpci]
+>  [<f0c42e47>] +0xa8/0x2a1 [snd_ymfpci]
+>  [<f0c45540>] driver+0x0/0xa0 [snd_ymfpci]
+>  [<f0c455d8>] driver+0x98/0xa0 [snd_ymfpci]
+>  [<c022703f>] driver_register+0x2f/0x40
+>  [<f0c45568>] driver+0x28/0xa0 [snd_ymfpci]
+>  [<c01e6870>] pci_register_driver+0x70/0xa0
+>  [<f0c45568>] driver+0x28/0xa0 [snd_ymfpci]
+>  [<f0c4b900>] +0x0/0x140 [snd_ymfpci]
+>  [<f0c027b7>] alsa_card_ymfpci_init+0x17/0x60 [snd_ymfpci]
+>  [<f0c45540>] driver+0x0/0xa0 [snd_ymfpci]
+>  [<f0c4b900>] +0x0/0x140 [snd_ymfpci]
+>  [<c013163c>] sys_init_module+0x12c/0x240
+>  [<f0c4b900>] +0x0/0x140 [snd_ymfpci]
+>  [<c01091cb>] syscall_call+0x7/0xb
+> 
+> Code: f0 85 c0 78 35 8b 5c 24 2c c7 44 24 0c a6 2d c4 f0 c7 44 24 08 04 00
+> 00 00 89 44 24 04 c7 04 24 80 83 34 c0 e8 cc e5 51 cf 85 c0 <89> 43 18 0f
+> 85 6e 04 00 00 8b 15 40 bd c4 f0 8b 04 95 20 55 c4 
+> ---cut
+> 
+> If the driver is build-in I get similar OOPS before init is started.
+> I also got something similar on some earlier -mm kernels, but 2.5.69-mm7
+> works fine.
+> 
+> My .config:
+> ---cut
+> #
+> # Automatically generated make config: don't edit
+> #
+> CONFIG_X86=y
+> CONFIG_MMU=y
+> CONFIG_UID16=y
+> CONFIG_GENERIC_ISA_DMA=y
+> 
+> #
+> # Code maturity level options
+> #
+> CONFIG_EXPERIMENTAL=y
+> 
+> #
+> # General setup
+> #
+> CONFIG_SWAP=y
+> CONFIG_SYSVIPC=y
+> CONFIG_BSD_PROCESS_ACCT=y
+> CONFIG_SYSCTL=y
+> CONFIG_LOG_BUF_SHIFT=16
+> # CONFIG_EMBEDDED is not set
+> CONFIG_FUTEX=y
+> CONFIG_EPOLL=y
+> 
+> #
+> # Loadable module support
+> #
+> CONFIG_MODULES=y
+> CONFIG_MODULE_UNLOAD=y
+> # CONFIG_MODULE_FORCE_UNLOAD is not set
+> CONFIG_OBSOLETE_MODPARM=y
+> # CONFIG_MODVERSIONS is not set
+> CONFIG_KMOD=y
+> 
+> #
+> # Processor type and features
+> #
+> CONFIG_X86_PC=y
+> # CONFIG_X86_VOYAGER is not set
+> # CONFIG_X86_NUMAQ is not set
+> # CONFIG_X86_SUMMIT is not set
+> # CONFIG_X86_BIGSMP is not set
+> # CONFIG_X86_VISWS is not set
+> # CONFIG_X86_GENERICARCH is not set
+> # CONFIG_M386 is not set
+> # CONFIG_M486 is not set
+> # CONFIG_M586 is not set
+> # CONFIG_M586TSC is not set
+> # CONFIG_M586MMX is not set
+> # CONFIG_M686 is not set
+> # CONFIG_MPENTIUMII is not set
+> # CONFIG_MPENTIUMIII is not set
+> # CONFIG_MPENTIUM4 is not set
+> # CONFIG_MK6 is not set
+> CONFIG_MK7=y
+> # CONFIG_MK8 is not set
+> # CONFIG_MELAN is not set
+> # CONFIG_MCRUSOE is not set
+> # CONFIG_MWINCHIPC6 is not set
+> # CONFIG_MWINCHIP2 is not set
+> # CONFIG_MWINCHIP3D is not set
+> # CONFIG_MCYRIXIII is not set
+> # CONFIG_MVIAC3_2 is not set
+> # CONFIG_X86_GENERIC is not set
+> CONFIG_X86_CMPXCHG=y
+> CONFIG_X86_XADD=y
+> CONFIG_X86_L1_CACHE_SHIFT=6
+> CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+> CONFIG_X86_WP_WORKS_OK=y
+> CONFIG_X86_INVLPG=y
+> CONFIG_X86_BSWAP=y
+> CONFIG_X86_POPAD_OK=y
+> CONFIG_X86_GOOD_APIC=y
+> CONFIG_X86_INTEL_USERCOPY=y
+> CONFIG_X86_USE_PPRO_CHECKSUM=y
+> CONFIG_X86_USE_3DNOW=y
+> # CONFIG_HUGETLB_PAGE is not set
+> # CONFIG_SMP is not set
+> CONFIG_PREEMPT=y
+> CONFIG_X86_UP_APIC=y
+> CONFIG_X86_UP_IOAPIC=y
+> CONFIG_X86_LOCAL_APIC=y
+> CONFIG_X86_IO_APIC=y
+> CONFIG_X86_TSC=y
+> CONFIG_X86_MCE=y
+> CONFIG_X86_MCE_NONFATAL=y
+> # CONFIG_X86_MCE_P4THERMAL is not set
+> # CONFIG_TOSHIBA is not set
+> # CONFIG_I8K is not set
+> # CONFIG_MICROCODE is not set
+> CONFIG_X86_MSR=y
+> CONFIG_X86_CPUID=y
+> # CONFIG_EDD is not set
+> CONFIG_NOHIGHMEM=y
+> # CONFIG_HIGHMEM4G is not set
+> # CONFIG_HIGHMEM64G is not set
+> # CONFIG_025GB is not set
+> # CONFIG_05GB is not set
+> CONFIG_1GB=y
+> # CONFIG_2GB is not set
+> # CONFIG_3GB is not set
+> # CONFIG_MATH_EMULATION is not set
+> CONFIG_MTRR=y
+> CONFIG_HAVE_DEC_LOCK=y
+> 
+> #
+> # Power management options (ACPI, APM)
+> #
+> CONFIG_PM=y
+> # CONFIG_SOFTWARE_SUSPEND is not set
+> 
+> #
+> # ACPI Support
+> #
+> CONFIG_ACPI=y
+> # CONFIG_ACPI_HT_ONLY is not set
+> CONFIG_ACPI_BOOT=y
+> CONFIG_ACPI_AC=y
+> CONFIG_ACPI_BATTERY=y
+> CONFIG_ACPI_BUTTON=y
+> CONFIG_ACPI_FAN=y
+> CONFIG_ACPI_PROCESSOR=y
+> CONFIG_ACPI_THERMAL=y
+> # CONFIG_ACPI_TOSHIBA is not set
+> # CONFIG_ACPI_DEBUG is not set
+> CONFIG_ACPI_BUS=y
+> CONFIG_ACPI_INTERPRETER=y
+> CONFIG_ACPI_EC=y
+> CONFIG_ACPI_POWER=y
+> CONFIG_ACPI_PCI=y
+> CONFIG_ACPI_SYSTEM=y
+> CONFIG_APM=m
+> # CONFIG_APM_IGNORE_USER_SUSPEND is not set
+> # CONFIG_APM_DO_ENABLE is not set
+> CONFIG_APM_CPU_IDLE=y
+> CONFIG_APM_DISPLAY_BLANK=y
+> # CONFIG_APM_RTC_IS_GMT is not set
+> # CONFIG_APM_ALLOW_INTS is not set
+> # CONFIG_APM_REAL_MODE_POWER_OFF is not set
+> 
+> #
+> # CPU Frequency scaling
+> #
+> # CONFIG_CPU_FREQ is not set
+> 
+> #
+> # Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+> #
+> CONFIG_PCI=y
+> # CONFIG_PCI_GOBIOS is not set
+> # CONFIG_PCI_GODIRECT is not set
+> CONFIG_PCI_GOANY=y
+> CONFIG_PCI_BIOS=y
+> CONFIG_PCI_DIRECT=y
+> CONFIG_PCI_LEGACY_PROC=y
+> CONFIG_PCI_NAMES=y
+> # CONFIG_ISA is not set
+> # CONFIG_MCA is not set
+> # CONFIG_SCx200 is not set
+> # CONFIG_HOTPLUG is not set
+> 
+> #
+> # Executable file formats
+> #
+> CONFIG_KCORE_ELF=y
+> # CONFIG_KCORE_AOUT is not set
+> CONFIG_BINFMT_AOUT=m
+> CONFIG_BINFMT_ELF=y
+> CONFIG_BINFMT_MISC=m
+> 
+> #
+> # Memory Technology Devices (MTD)
+> #
+> # CONFIG_MTD is not set
+> 
+> #
+> # Parallel port support
+> #
+> # CONFIG_PARPORT is not set
+> 
+> #
+> # Plug and Play support
+> #
+> CONFIG_PNP=y
+> CONFIG_PNP_NAMES=y
+> # CONFIG_PNP_DEBUG is not set
+> 
+> #
+> # Protocols
+> #
+> # CONFIG_ISAPNP is not set
+> CONFIG_PNPBIOS=y
+> 
+> #
+> # Block devices
+> #
+> CONFIG_BLK_DEV_FD=y
+> # CONFIG_BLK_CPQ_DA is not set
+> # CONFIG_BLK_CPQ_CISS_DA is not set
+> # CONFIG_BLK_DEV_DAC960 is not set
+> # CONFIG_BLK_DEV_UMEM is not set
+> CONFIG_BLK_DEV_LOOP=y
+> # CONFIG_BLK_DEV_NBD is not set
+> # CONFIG_BLK_DEV_RAM is not set
+> # CONFIG_BLK_DEV_INITRD is not set
+> # CONFIG_LBD is not set
+> 
+> #
+> # ATA/ATAPI/MFM/RLL device support
+> #
+> CONFIG_IDE=y
+> 
+> #
+> # IDE, ATA and ATAPI Block devices
+> #
+> CONFIG_BLK_DEV_IDE=y
+> 
+> #
+> # Please see Documentation/ide.txt for help/info on IDE drives
+> #
+> # CONFIG_BLK_DEV_HD_IDE is not set
+> # CONFIG_BLK_DEV_HD is not set
+> CONFIG_BLK_DEV_IDEDISK=y
+> CONFIG_IDEDISK_MULTI_MODE=y
+> # CONFIG_IDEDISK_STROKE is not set
+> CONFIG_BLK_DEV_IDECD=y
+> # CONFIG_BLK_DEV_IDEFLOPPY is not set
+> # CONFIG_IDE_TASK_IOCTL is not set
+> 
+> #
+> # IDE chipset support/bugfixes
+> #
+> # CONFIG_BLK_DEV_CMD640 is not set
+> # CONFIG_BLK_DEV_IDEPNP is not set
+> CONFIG_BLK_DEV_IDEPCI=y
+> # CONFIG_BLK_DEV_GENERIC is not set
+> CONFIG_IDEPCI_SHARE_IRQ=y
+> CONFIG_BLK_DEV_IDEDMA_PCI=y
+> # CONFIG_BLK_DEV_IDE_TCQ is not set
+> # CONFIG_BLK_DEV_OFFBOARD is not set
+> # CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+> CONFIG_IDEDMA_PCI_AUTO=y
+> # CONFIG_IDEDMA_ONLYDISK is not set
+> CONFIG_BLK_DEV_IDEDMA=y
+> CONFIG_IDEDMA_PCI_WIP=y
+> CONFIG_IDEDMA_NEW_DRIVE_LISTINGS=y
+> CONFIG_BLK_DEV_ADMA=y
+> # CONFIG_BLK_DEV_AEC62XX is not set
+> # CONFIG_BLK_DEV_ALI15X3 is not set
+> # CONFIG_BLK_DEV_AMD74XX is not set
+> # CONFIG_BLK_DEV_CMD64X is not set
+> # CONFIG_BLK_DEV_TRIFLEX is not set
+> # CONFIG_BLK_DEV_CY82C693 is not set
+> # CONFIG_BLK_DEV_CS5520 is not set
+> # CONFIG_BLK_DEV_HPT34X is not set
+> # CONFIG_BLK_DEV_HPT366 is not set
+> # CONFIG_BLK_DEV_SC1200 is not set
+> # CONFIG_BLK_DEV_PIIX is not set
+> # CONFIG_BLK_DEV_NS87415 is not set
+> # CONFIG_BLK_DEV_OPTI621 is not set
+> # CONFIG_BLK_DEV_PDC202XX_OLD is not set
+> # CONFIG_BLK_DEV_PDC202XX_NEW is not set
+> # CONFIG_BLK_DEV_RZ1000 is not set
+> # CONFIG_BLK_DEV_SVWKS is not set
+> # CONFIG_BLK_DEV_SIIMAGE is not set
+> # CONFIG_BLK_DEV_SIS5513 is not set
+> # CONFIG_BLK_DEV_SLC90E66 is not set
+> # CONFIG_BLK_DEV_TRM290 is not set
+> CONFIG_BLK_DEV_VIA82CXXX=y
+> CONFIG_IDEDMA_AUTO=y
+> CONFIG_IDEDMA_IVB=y
+> CONFIG_BLK_DEV_IDE_MODES=y
+> 
+> #
+> # SCSI device support
+> #
+> # CONFIG_SCSI is not set
+> 
+> #
+> # Multi-device support (RAID and LVM)
+> #
+> # CONFIG_MD is not set
+> 
+> #
+> # Fusion MPT device support
+> #
+> 
+> #
+> # IEEE 1394 (FireWire) support (EXPERIMENTAL)
+> #
+> # CONFIG_IEEE1394 is not set
+> 
+> #
+> # I2O device support
+> #
+> # CONFIG_I2O is not set
+> 
+> #
+> # Networking support
+> #
+> CONFIG_NET=y
+> 
+> #
+> # Networking options
+> #
+> CONFIG_PACKET=y
+> # CONFIG_PACKET_MMAP is not set
+> # CONFIG_NETLINK_DEV is not set
+> CONFIG_NETFILTER=y
+> # CONFIG_NETFILTER_DEBUG is not set
+> CONFIG_UNIX=y
+> CONFIG_NET_KEY=y
+> CONFIG_INET=y
+> # CONFIG_IP_MULTICAST is not set
+> # CONFIG_IP_ADVANCED_ROUTER is not set
+> # CONFIG_IP_PNP is not set
+> # CONFIG_NET_IPIP is not set
+> # CONFIG_NET_IPGRE is not set
+> # CONFIG_ARPD is not set
+> CONFIG_INET_ECN=y
+> # CONFIG_SYN_COOKIES is not set
+> # CONFIG_INET_AH is not set
+> # CONFIG_INET_ESP is not set
+> # CONFIG_INET_IPCOMP is not set
+> 
+> #
+> # IP: Netfilter Configuration
+> #
+> CONFIG_IP_NF_CONNTRACK=y
+> CONFIG_IP_NF_FTP=y
+> CONFIG_IP_NF_IRC=m
+> # CONFIG_IP_NF_TFTP is not set
+> # CONFIG_IP_NF_AMANDA is not set
+> # CONFIG_IP_NF_QUEUE is not set
+> CONFIG_IP_NF_IPTABLES=y
+> CONFIG_IP_NF_MATCH_LIMIT=y
+> # CONFIG_IP_NF_MATCH_MAC is not set
+> # CONFIG_IP_NF_MATCH_PKTTYPE is not set
+> # CONFIG_IP_NF_MATCH_MARK is not set
+> CONFIG_IP_NF_MATCH_MULTIPORT=y
+> # CONFIG_IP_NF_MATCH_TOS is not set
+> # CONFIG_IP_NF_MATCH_ECN is not set
+> # CONFIG_IP_NF_MATCH_DSCP is not set
+> # CONFIG_IP_NF_MATCH_AH_ESP is not set
+> # CONFIG_IP_NF_MATCH_LENGTH is not set
+> # CONFIG_IP_NF_MATCH_TTL is not set
+> # CONFIG_IP_NF_MATCH_TCPMSS is not set
+> # CONFIG_IP_NF_MATCH_HELPER is not set
+> CONFIG_IP_NF_MATCH_STATE=y
+> CONFIG_IP_NF_MATCH_CONNTRACK=y
+> # CONFIG_IP_NF_MATCH_UNCLEAN is not set
+> # CONFIG_IP_NF_MATCH_OWNER is not set
+> CONFIG_IP_NF_FILTER=y
+> CONFIG_IP_NF_TARGET_REJECT=y
+> # CONFIG_IP_NF_TARGET_MIRROR is not set
+> # CONFIG_IP_NF_NAT is not set
+> # CONFIG_IP_NF_MANGLE is not set
+> CONFIG_IP_NF_TARGET_LOG=y
+> # CONFIG_IP_NF_TARGET_ULOG is not set
+> # CONFIG_IP_NF_TARGET_TCPMSS is not set
+> CONFIG_IP_NF_ARPTABLES=m
+> CONFIG_IP_NF_ARPFILTER=m
+> # CONFIG_IPV6 is not set
+> # CONFIG_XFRM_USER is not set
+> 
+> #
+> # SCTP Configuration (EXPERIMENTAL)
+> #
+> CONFIG_IPV6_SCTP__=y
+> # CONFIG_IP_SCTP is not set
+> # CONFIG_ATM is not set
+> # CONFIG_VLAN_8021Q is not set
+> # CONFIG_LLC is not set
+> # CONFIG_DECNET is not set
+> # CONFIG_BRIDGE is not set
+> # CONFIG_X25 is not set
+> # CONFIG_LAPB is not set
+> # CONFIG_NET_DIVERT is not set
+> # CONFIG_ECONET is not set
+> # CONFIG_WAN_ROUTER is not set
+> # CONFIG_NET_FASTROUTE is not set
+> # CONFIG_NET_HW_FLOWCONTROL is not set
+> 
+> #
+> # QoS and/or fair queueing
+> #
+> CONFIG_NET_SCHED=y
+> CONFIG_NET_SCH_CBQ=m
+> CONFIG_NET_SCH_HTB=m
+> # CONFIG_NET_SCH_CSZ is not set
+> CONFIG_NET_SCH_PRIO=m
+> # CONFIG_NET_SCH_RED is not set
+> CONFIG_NET_SCH_SFQ=m
+> # CONFIG_NET_SCH_TEQL is not set
+> CONFIG_NET_SCH_TBF=m
+> # CONFIG_NET_SCH_GRED is not set
+> # CONFIG_NET_SCH_DSMARK is not set
+> # CONFIG_NET_SCH_INGRESS is not set
+> CONFIG_NET_QOS=y
+> CONFIG_NET_ESTIMATOR=y
+> CONFIG_NET_CLS=y
+> CONFIG_NET_CLS_TCINDEX=m
+> # CONFIG_NET_CLS_ROUTE4 is not set
+> # CONFIG_NET_CLS_FW is not set
+> CONFIG_NET_CLS_U32=m
+> # CONFIG_NET_CLS_RSVP is not set
+> # CONFIG_NET_CLS_RSVP6 is not set
+> CONFIG_NET_CLS_POLICE=y
+> 
+> #
+> # Network testing
+> #
+> # CONFIG_NET_PKTGEN is not set
+> CONFIG_NETDEVICES=y
+> 
+> #
+> # ARCnet devices
+> #
+> # CONFIG_ARCNET is not set
+> # CONFIG_DUMMY is not set
+> # CONFIG_BONDING is not set
+> # CONFIG_EQUALIZER is not set
+> # CONFIG_TUN is not set
+> # CONFIG_ETHERTAP is not set
+> # CONFIG_NET_SB1000 is not set
+> 
+> #
+> # Ethernet (10 or 100Mbit)
+> #
+> CONFIG_NET_ETHERNET=y
+> CONFIG_MII=m
+> # CONFIG_HAPPYMEAL is not set
+> # CONFIG_SUNGEM is not set
+> # CONFIG_NET_VENDOR_3COM is not set
+> 
+> #
+> # Tulip family network device support
+> #
+> # CONFIG_NET_TULIP is not set
+> # CONFIG_HP100 is not set
+> CONFIG_NET_PCI=y
+> # CONFIG_PCNET32 is not set
+> # CONFIG_AMD8111_ETH is not set
+> # CONFIG_ADAPTEC_STARFIRE is not set
+> # CONFIG_B44 is not set
+> # CONFIG_DGRS is not set
+> # CONFIG_EEPRO100 is not set
+> # CONFIG_E100 is not set
+> # CONFIG_FEALNX is not set
+> # CONFIG_NATSEMI is not set
+> # CONFIG_NE2K_PCI is not set
+> # CONFIG_8139CP is not set
+> # CONFIG_8139TOO is not set
+> # CONFIG_SIS900 is not set
+> # CONFIG_EPIC100 is not set
+> # CONFIG_SUNDANCE is not set
+> # CONFIG_TLAN is not set
+> CONFIG_VIA_RHINE=y
+> CONFIG_VIA_RHINE_MMIO=y
+> 
+> #
+> # Ethernet (1000 Mbit)
+> #
+> # CONFIG_ACENIC is not set
+> # CONFIG_DL2K is not set
+> # CONFIG_E1000 is not set
+> # CONFIG_NS83820 is not set
+> # CONFIG_HAMACHI is not set
+> # CONFIG_YELLOWFIN is not set
+> # CONFIG_R8169 is not set
+> # CONFIG_SK98LIN is not set
+> # CONFIG_TIGON3 is not set
+> 
+> #
+> # Ethernet (10000 Mbit)
+> #
+> # CONFIG_IXGB is not set
+> # CONFIG_FDDI is not set
+> # CONFIG_HIPPI is not set
+> # CONFIG_PPP is not set
+> # CONFIG_SLIP is not set
+> 
+> #
+> # Wireless LAN (non-hamradio)
+> #
+> # CONFIG_NET_RADIO is not set
+> 
+> #
+> # Token Ring devices (depends on LLC=y)
+> #
+> # CONFIG_RCPCI is not set
+> CONFIG_SHAPER=m
+> 
+> #
+> # Wan interfaces
+> #
+> # CONFIG_WAN is not set
+> 
+> #
+> # Amateur Radio support
+> #
+> # CONFIG_HAMRADIO is not set
+> 
+> #
+> # IrDA (infrared) support
+> #
+> # CONFIG_IRDA is not set
+> 
+> #
+> # ISDN subsystem
+> #
+> # CONFIG_ISDN_BOOL is not set
+> 
+> #
+> # Telephony Support
+> #
+> # CONFIG_PHONE is not set
+> 
+> #
+> # Input device support
+> #
+> CONFIG_INPUT=y
+> 
+> #
+> # Userland interfaces
+> #
+> CONFIG_INPUT_MOUSEDEV=y
+> CONFIG_INPUT_MOUSEDEV_PSAUX=y
+> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+> CONFIG_INPUT_JOYDEV=m
+> # CONFIG_INPUT_TSDEV is not set
+> CONFIG_INPUT_EVDEV=m
+> # CONFIG_INPUT_EVBUG is not set
+> 
+> #
+> # Input I/O drivers
+> #
+> # CONFIG_GAMEPORT is not set
+> CONFIG_SOUND_GAMEPORT=y
+> CONFIG_SERIO=y
+> CONFIG_SERIO_I8042=y
+> # CONFIG_SERIO_SERPORT is not set
+> # CONFIG_SERIO_CT82C710 is not set
+> 
+> #
+> # Input Device Drivers
+> #
+> CONFIG_INPUT_KEYBOARD=y
+> CONFIG_KEYBOARD_ATKBD=y
+> # CONFIG_KEYBOARD_SUNKBD is not set
+> # CONFIG_KEYBOARD_XTKBD is not set
+> # CONFIG_KEYBOARD_NEWTON is not set
+> CONFIG_INPUT_MOUSE=y
+> CONFIG_MOUSE_PS2=y
+> # CONFIG_MOUSE_SERIAL is not set
+> CONFIG_INPUT_JOYSTICK=y
+> # CONFIG_JOYSTICK_IFORCE is not set
+> # CONFIG_JOYSTICK_WARRIOR is not set
+> # CONFIG_JOYSTICK_MAGELLAN is not set
+> # CONFIG_JOYSTICK_SPACEORB is not set
+> # CONFIG_JOYSTICK_SPACEBALL is not set
+> # CONFIG_JOYSTICK_STINGER is not set
+> # CONFIG_JOYSTICK_TWIDDLER is not set
+> # CONFIG_INPUT_JOYDUMP is not set
+> # CONFIG_INPUT_TOUCHSCREEN is not set
+> CONFIG_INPUT_MISC=y
+> CONFIG_INPUT_PCSPKR=y
+> # CONFIG_INPUT_UINPUT is not set
+> 
+> #
+> # Character devices
+> #
+> CONFIG_VT=y
+> CONFIG_VT_CONSOLE=y
+> CONFIG_HW_CONSOLE=y
+> # CONFIG_SERIAL_NONSTANDARD is not set
+> 
+> #
+> # Serial drivers
+> #
+> # CONFIG_SERIAL_8250 is not set
+> 
+> #
+> # Non-8250 serial port support
+> #
+> CONFIG_UNIX98_PTYS=y
+> CONFIG_UNIX98_PTY_COUNT=256
+> 
+> #
+> # I2C support
+> #
+> CONFIG_I2C=m
+> CONFIG_I2C_ALGOBIT=m
+> CONFIG_I2C_ELV=m
+> # CONFIG_I2C_VELLEMAN is not set
+> # CONFIG_SCx200_ACB is not set
+> CONFIG_I2C_ALGOPCF=m
+> CONFIG_I2C_ELEKTOR=m
+> CONFIG_I2C_CHARDEV=m
+> 
+> #
+> # I2C Hardware Sensors Mainboard support
+> #
+> # CONFIG_I2C_ALI15X3 is not set
+> # CONFIG_I2C_AMD756 is not set
+> # CONFIG_I2C_AMD8111 is not set
+> # CONFIG_I2C_I801 is not set
+> # CONFIG_I2C_PIIX4 is not set
+> # CONFIG_I2C_SIS96X is not set
+> CONFIG_I2C_VIAPRO=m
+> 
+> #
+> # I2C Hardware Sensors Chip support
+> #
+> # CONFIG_SENSORS_ADM1021 is not set
+> CONFIG_SENSORS_IT87=m
+> CONFIG_SENSORS_LM75=m
+> CONFIG_SENSORS_VIA686A=m
+> CONFIG_SENSORS_W83781D=m
+> CONFIG_I2C_SENSOR=m
+> 
+> #
+> # Mice
+> #
+> # CONFIG_BUSMOUSE is not set
+> # CONFIG_QIC02_TAPE is not set
+> 
+> #
+> # IPMI
+> #
+> # CONFIG_IPMI_HANDLER is not set
+> 
+> #
+> # Watchdog Cards
+> #
+> # CONFIG_WATCHDOG is not set
+> # CONFIG_HW_RANDOM is not set
+> # CONFIG_NVRAM is not set
+> CONFIG_RTC=y
+> # CONFIG_DTLK is not set
+> # CONFIG_R3964 is not set
+> # CONFIG_APPLICOM is not set
+> # CONFIG_SONYPI is not set
+> 
+> #
+> # Ftape, the floppy tape device driver
+> #
+> # CONFIG_FTAPE is not set
+> CONFIG_AGP=m
+> # CONFIG_AGP_ALI is not set
+> # CONFIG_AGP_AMD is not set
+> # CONFIG_AGP_AMD_8151 is not set
+> # CONFIG_AGP_INTEL is not set
+> # CONFIG_AGP_NVIDIA is not set
+> # CONFIG_AGP_SIS is not set
+> # CONFIG_AGP_SWORKS is not set
+> CONFIG_AGP_VIA=m
+> CONFIG_DRM=y
+> # CONFIG_DRM_TDFX is not set
+> # CONFIG_DRM_GAMMA is not set
+> # CONFIG_DRM_R128 is not set
+> CONFIG_DRM_RADEON=m
+> # CONFIG_DRM_MGA is not set
+> # CONFIG_MWAVE is not set
+> CONFIG_RAW_DRIVER=y
+> # CONFIG_HANGCHECK_TIMER is not set
+> 
+> #
+> # Multimedia devices
+> #
+> CONFIG_VIDEO_DEV=m
+> 
+> #
+> # Video For Linux
+> #
+> CONFIG_VIDEO_PROC_FS=y
+> 
+> #
+> # Video Adapters
+> #
+> # CONFIG_VIDEO_BT848 is not set
+> # CONFIG_VIDEO_PMS is not set
+> # CONFIG_VIDEO_CPIA is not set
+> # CONFIG_VIDEO_SAA5249 is not set
+> # CONFIG_TUNER_3036 is not set
+> # CONFIG_VIDEO_STRADIS is not set
+> # CONFIG_VIDEO_ZORAN is not set
+> # CONFIG_VIDEO_ZR36120 is not set
+> # CONFIG_VIDEO_SAA7134 is not set
+> # CONFIG_VIDEO_MXB is not set
+> # CONFIG_VIDEO_DPC is not set
+> 
+> #
+> # Radio Adapters
+> #
+> # CONFIG_RADIO_GEMTEK_PCI is not set
+> # CONFIG_RADIO_MAXIRADIO is not set
+> # CONFIG_RADIO_MAESTRO is not set
+> 
+> #
+> # Digital Video Broadcasting Devices
+> #
+> # CONFIG_DVB is not set
+> # CONFIG_VIDEO_BTCX is not set
+> 
+> #
+> # File systems
+> #
+> CONFIG_EXT2_FS=m
+> CONFIG_EXT2_FS_XATTR=y
+> CONFIG_EXT2_FS_POSIX_ACL=y
+> # CONFIG_EXT2_FS_SECURITY is not set
+> CONFIG_EXT3_FS=y
+> CONFIG_EXT3_FS_XATTR=y
+> CONFIG_EXT3_FS_POSIX_ACL=y
+> # CONFIG_EXT3_FS_SECURITY is not set
+> CONFIG_JBD=y
+> # CONFIG_JBD_DEBUG is not set
+> CONFIG_FS_MBCACHE=y
+> CONFIG_REISERFS_FS=y
+> # CONFIG_REISERFS_CHECK is not set
+> CONFIG_REISERFS_PROC_INFO=y
+> CONFIG_JFS_FS=m
+> # CONFIG_JFS_POSIX_ACL is not set
+> # CONFIG_JFS_DEBUG is not set
+> CONFIG_JFS_STATISTICS=y
+> CONFIG_FS_POSIX_ACL=y
+> # CONFIG_XFS_FS is not set
+> # CONFIG_MINIX_FS is not set
+> # CONFIG_ROMFS_FS is not set
+> # CONFIG_QUOTA is not set
+> # CONFIG_AUTOFS_FS is not set
+> CONFIG_AUTOFS4_FS=y
+> 
+> #
+> # CD-ROM/DVD Filesystems
+> #
+> CONFIG_ISO9660_FS=y
+> CONFIG_JOLIET=y
+> # CONFIG_ZISOFS is not set
+> # CONFIG_UDF_FS is not set
+> 
+> #
+> # DOS/FAT/NT Filesystems
+> #
+> CONFIG_FAT_FS=y
+> # CONFIG_MSDOS_FS is not set
+> CONFIG_VFAT_FS=y
+> # CONFIG_NTFS_FS is not set
+> 
+> #
+> # Pseudo filesystems
+> #
+> CONFIG_PROC_FS=y
+> CONFIG_DEVFS_FS=y
+> CONFIG_DEVFS_MOUNT=y
+> # CONFIG_DEVFS_DEBUG is not set
+> CONFIG_DEVPTS_FS=y
+> # CONFIG_DEVPTS_FS_XATTR is not set
+> CONFIG_TMPFS=y
+> CONFIG_RAMFS=y
+> 
+> #
+> # Miscellaneous filesystems
+> #
+> # CONFIG_ADFS_FS is not set
+> # CONFIG_AFFS_FS is not set
+> # CONFIG_HFS_FS is not set
+> # CONFIG_BEFS_FS is not set
+> # CONFIG_BFS_FS is not set
+> # CONFIG_EFS_FS is not set
+> # CONFIG_CRAMFS is not set
+> # CONFIG_VXFS_FS is not set
+> # CONFIG_HPFS_FS is not set
+> # CONFIG_QNX4FS_FS is not set
+> # CONFIG_SYSV_FS is not set
+> # CONFIG_UFS_FS is not set
+> 
+> #
+> # Network File Systems
+> #
+> # CONFIG_NFS_FS is not set
+> # CONFIG_NFSD is not set
+> # CONFIG_EXPORTFS is not set
+> # CONFIG_SMB_FS is not set
+> # CONFIG_CIFS is not set
+> # CONFIG_NCP_FS is not set
+> # CONFIG_CODA_FS is not set
+> # CONFIG_INTERMEZZO_FS is not set
+> # CONFIG_AFS_FS is not set
+> 
+> #
+> # Partition Types
+> #
+> # CONFIG_PARTITION_ADVANCED is not set
+> CONFIG_MSDOS_PARTITION=y
+> CONFIG_NLS=y
+> 
+> #
+> # Native Language Support
+> #
+> CONFIG_NLS_DEFAULT="iso8859-1"
+> CONFIG_NLS_CODEPAGE_437=y
+> # CONFIG_NLS_CODEPAGE_737 is not set
+> # CONFIG_NLS_CODEPAGE_775 is not set
+> CONFIG_NLS_CODEPAGE_850=m
+> # CONFIG_NLS_CODEPAGE_852 is not set
+> # CONFIG_NLS_CODEPAGE_855 is not set
+> # CONFIG_NLS_CODEPAGE_857 is not set
+> # CONFIG_NLS_CODEPAGE_860 is not set
+> # CONFIG_NLS_CODEPAGE_861 is not set
+> # CONFIG_NLS_CODEPAGE_862 is not set
+> # CONFIG_NLS_CODEPAGE_863 is not set
+> # CONFIG_NLS_CODEPAGE_864 is not set
+> # CONFIG_NLS_CODEPAGE_865 is not set
+> # CONFIG_NLS_CODEPAGE_866 is not set
+> # CONFIG_NLS_CODEPAGE_869 is not set
+> # CONFIG_NLS_CODEPAGE_936 is not set
+> # CONFIG_NLS_CODEPAGE_950 is not set
+> CONFIG_NLS_CODEPAGE_932=m
+> # CONFIG_NLS_CODEPAGE_949 is not set
+> # CONFIG_NLS_CODEPAGE_874 is not set
+> # CONFIG_NLS_ISO8859_8 is not set
+> # CONFIG_NLS_CODEPAGE_1250 is not set
+> # CONFIG_NLS_CODEPAGE_1251 is not set
+> CONFIG_NLS_ISO8859_1=y
+> # CONFIG_NLS_ISO8859_2 is not set
+> # CONFIG_NLS_ISO8859_3 is not set
+> # CONFIG_NLS_ISO8859_4 is not set
+> # CONFIG_NLS_ISO8859_5 is not set
+> # CONFIG_NLS_ISO8859_6 is not set
+> # CONFIG_NLS_ISO8859_7 is not set
+> # CONFIG_NLS_ISO8859_9 is not set
+> # CONFIG_NLS_ISO8859_13 is not set
+> # CONFIG_NLS_ISO8859_14 is not set
+> CONFIG_NLS_ISO8859_15=m
+> # CONFIG_NLS_KOI8_R is not set
+> # CONFIG_NLS_KOI8_U is not set
+> CONFIG_NLS_UTF8=m
+> 
+> #
+> # Graphics support
+> #
+> CONFIG_FB=y
+> # CONFIG_FB_CIRRUS is not set
+> # CONFIG_FB_PM2 is not set
+> # CONFIG_FB_CYBER2000 is not set
+> # CONFIG_FB_IMSTT is not set
+> # CONFIG_FB_VGA16 is not set
+> # CONFIG_FB_VESA is not set
+> CONFIG_VIDEO_SELECT=y
+> # CONFIG_FB_HGA is not set
+> # CONFIG_FB_RIVA is not set
+> # CONFIG_FB_MATROX is not set
+> CONFIG_FB_RADEON=m
+> # CONFIG_FB_ATY128 is not set
+> # CONFIG_FB_ATY is not set
+> # CONFIG_FB_SIS is not set
+> # CONFIG_FB_NEOMAGIC is not set
+> # CONFIG_FB_3DFX is not set
+> # CONFIG_FB_VOODOO1 is not set
+> # CONFIG_FB_TRIDENT is not set
+> # CONFIG_FB_PM3 is not set
+> # CONFIG_FB_VIRTUAL is not set
+> 
+> #
+> # Console display driver support
+> #
+> CONFIG_VGA_CONSOLE=y
+> # CONFIG_MDA_CONSOLE is not set
+> CONFIG_DUMMY_CONSOLE=y
+> CONFIG_FRAMEBUFFER_CONSOLE=y
+> CONFIG_PCI_CONSOLE=y
+> CONFIG_FONTS=y
+> CONFIG_FONT_8x8=y
+> CONFIG_FONT_8x16=y
+> # CONFIG_FONT_6x11 is not set
+> # CONFIG_FONT_PEARL_8x8 is not set
+> # CONFIG_FONT_ACORN_8x8 is not set
+> # CONFIG_FONT_MINI_4x6 is not set
+> CONFIG_FONT_SUN8x16=y
+> CONFIG_FONT_SUN12x22=y
+> 
+> #
+> # Logo configuration
+> #
+> CONFIG_LOGO=y
+> CONFIG_LOGO_LINUX_MONO=y
+> CONFIG_LOGO_LINUX_VGA16=y
+> CONFIG_LOGO_LINUX_CLUT224=y
+> 
+> #
+> # Sound
+> #
+> CONFIG_SOUND=y
+> 
+> #
+> # Advanced Linux Sound Architecture
+> #
+> CONFIG_SND=y
+> CONFIG_SND_SEQUENCER=m
+> # CONFIG_SND_SEQ_DUMMY is not set
+> CONFIG_SND_OSSEMUL=y
+> CONFIG_SND_MIXER_OSS=y
+> CONFIG_SND_PCM_OSS=y
+> CONFIG_SND_SEQUENCER_OSS=y
+> CONFIG_SND_RTCTIMER=y
+> CONFIG_SND_VERBOSE_PRINTK=y
+> # CONFIG_SND_DEBUG is not set
+> 
+> #
+> # Generic devices
+> #
+> # CONFIG_SND_DUMMY is not set
+> # CONFIG_SND_VIRMIDI is not set
+> # CONFIG_SND_MTPAV is not set
+> # CONFIG_SND_SERIAL_U16550 is not set
+> # CONFIG_SND_MPU401 is not set
+> 
+> #
+> # PCI devices
+> #
+> # CONFIG_SND_ALI5451 is not set
+> # CONFIG_SND_CS46XX is not set
+> # CONFIG_SND_CS4281 is not set
+> # CONFIG_SND_EMU10K1 is not set
+> # CONFIG_SND_KORG1212 is not set
+> # CONFIG_SND_NM256 is not set
+> # CONFIG_SND_RME32 is not set
+> # CONFIG_SND_RME96 is not set
+> # CONFIG_SND_RME9652 is not set
+> # CONFIG_SND_HDSP is not set
+> # CONFIG_SND_TRIDENT is not set
+> CONFIG_SND_YMFPCI=m
+> # CONFIG_SND_ALS4000 is not set
+> # CONFIG_SND_CMIPCI is not set
+> # CONFIG_SND_ENS1370 is not set
+> # CONFIG_SND_ENS1371 is not set
+> # CONFIG_SND_ES1938 is not set
+> # CONFIG_SND_ES1968 is not set
+> # CONFIG_SND_MAESTRO3 is not set
+> # CONFIG_SND_FM801 is not set
+> # CONFIG_SND_ICE1712 is not set
+> # CONFIG_SND_ICE1724 is not set
+> # CONFIG_SND_INTEL8X0 is not set
+> # CONFIG_SND_SONICVIBES is not set
+> # CONFIG_SND_VIA82XX is not set
+> 
+> #
+> # ALSA USB devices
+> #
+> # CONFIG_SND_USB_AUDIO is not set
+> 
+> #
+> # Open Sound System
+> #
+> # CONFIG_SOUND_PRIME is not set
+> 
+> #
+> # USB support
+> #
+> CONFIG_USB=m
+> # CONFIG_USB_DEBUG is not set
+> 
+> #
+> # Miscellaneous USB options
+> #
+> CONFIG_USB_DEVICEFS=y
+> # CONFIG_USB_BANDWIDTH is not set
+> # CONFIG_USB_DYNAMIC_MINORS is not set
+> 
+> #
+> # USB Host Controller Drivers
+> #
+> CONFIG_USB_EHCI_HCD=m
+> CONFIG_USB_OHCI_HCD=m
+> CONFIG_USB_UHCI_HCD=m
+> 
+> #
+> # USB Device Class drivers
+> #
+> # CONFIG_USB_AUDIO is not set
+> # CONFIG_USB_BLUETOOTH_TTY is not set
+> # CONFIG_USB_MIDI is not set
+> # CONFIG_USB_ACM is not set
+> # CONFIG_USB_PRINTER is not set
+> 
+> #
+> # SCSI support is needed for USB Storage
+> #
+> 
+> #
+> # USB Human Interface Devices (HID)
+> #
+> CONFIG_USB_HID=m
+> CONFIG_USB_HIDINPUT=y
+> # CONFIG_HID_FF is not set
+> CONFIG_USB_HIDDEV=y
+> 
+> #
+> # USB HID Boot Protocol drivers
+> #
+> # CONFIG_USB_KBD is not set
+> # CONFIG_USB_MOUSE is not set
+> # CONFIG_USB_AIPTEK is not set
+> # CONFIG_USB_WACOM is not set
+> # CONFIG_USB_KBTAB is not set
+> # CONFIG_USB_POWERMATE is not set
+> # CONFIG_USB_XPAD is not set
+> 
+> #
+> # USB Imaging devices
+> #
+> # CONFIG_USB_MDC800 is not set
+> # CONFIG_USB_SCANNER is not set
+> 
+> #
+> # USB Multimedia devices
+> #
+> # CONFIG_USB_DABUSB is not set
+> # CONFIG_USB_VICAM is not set
+> # CONFIG_USB_DSBR is not set
+> # CONFIG_USB_IBMCAM is not set
+> # CONFIG_USB_KONICAWC is not set
+> # CONFIG_USB_OV511 is not set
+> # CONFIG_USB_PWC is not set
+> # CONFIG_USB_SE401 is not set
+> # CONFIG_USB_STV680 is not set
+> 
+> #
+> # USB Network adaptors
+> #
+> # CONFIG_USB_CATC is not set
+> # CONFIG_USB_KAWETH is not set
+> # CONFIG_USB_PEGASUS is not set
+> # CONFIG_USB_RTL8150 is not set
+> # CONFIG_USB_USBNET is not set
+> 
+> #
+> # USB port drivers
+> #
+> 
+> #
+> # USB Serial Converter support
+> #
+> # CONFIG_USB_SERIAL is not set
+> 
+> #
+> # USB Miscellaneous drivers
+> #
+> # CONFIG_USB_TIGL is not set
+> # CONFIG_USB_AUERSWALD is not set
+> # CONFIG_USB_RIO500 is not set
+> # CONFIG_USB_BRLVGER is not set
+> # CONFIG_USB_LCD is not set
+> # CONFIG_USB_TEST is not set
+> # CONFIG_USB_GADGET is not set
+> 
+> #
+> # Bluetooth support
+> #
+> # CONFIG_BT is not set
+> 
+> #
+> # Profiling support
+> #
+> # CONFIG_PROFILING is not set
+> 
+> #
+> # Kernel hacking
+> #
+> CONFIG_DEBUG_KERNEL=y
+> # CONFIG_DEBUG_STACKOVERFLOW is not set
+> # CONFIG_DEBUG_SLAB is not set
+> # CONFIG_DEBUG_IOVIRT is not set
+> CONFIG_MAGIC_SYSRQ=y
+> # CONFIG_DEBUG_SPINLOCK is not set
+> # CONFIG_SPINLINE is not set
+> CONFIG_KALLSYMS=y
+> # CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+> # CONFIG_KGDB is not set
+> CONFIG_DEBUG_INFO=y
+> # CONFIG_FRAME_POINTER is not set
+> CONFIG_X86_EXTRA_IRQS=y
+> CONFIG_X86_FIND_SMP_CONFIG=y
+> CONFIG_X86_MPPARSE=y
+> 
+> #
+> # Security options
+> #
+> # CONFIG_SECURITY is not set
+> 
+> #
+> # Cryptographic options
+> #
+> # CONFIG_CRYPTO is not set
+> 
+> #
+> # Library routines
+> #
+> CONFIG_CRC32=m
+> CONFIG_X86_BIOS_REBOOT=y
+> ---cut
+> 
+> Please tell me if you need any other information.
 
-Here is a patch, compiled on i386, untested.  I had to put the
-pte_unmap() as well as the spin_unlock() into each ->nopage
-function.  I would guess that this might be more attractive
-if combined with a fix for the pagefault-truncate() race.  ;-)
+Did you compile the kernel with gcc 3.2 or later?
+I had a very, very similar oops on my laptop with the snd-ymfpci driver
+if I compiled the kernel with gcc 3.2.3. Reverting back to gcc 2.96
+solved the problem.
 
-					Thanx, Paul
 
-diff -urN -X dontdiff linux-2.5.70-mm3/arch/i386/mm/hugetlbpage.c linux-2.5.70-mm3.install_new_page_hch/arch/i386/mm/hugetlbpage.c
---- linux-2.5.70-mm3/arch/i386/mm/hugetlbpage.c	2003-05-26 18:00:58.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/arch/i386/mm/hugetlbpage.c	2003-06-01 10:43:06.000000000 -0700
-@@ -487,11 +487,13 @@
-  * hugegpage VMA.  do_page_fault() is supposed to trap this, so BUG is we get
-  * this far.
-  */
--static struct page *hugetlb_nopage(struct vm_area_struct *vma,
--				unsigned long address, int unused)
-+static int hugetlb_nopage(struct mm_struct *mm, struct vm_area_struct *vma,
-+			  unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
- {
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	BUG();
--	return NULL;
-+	return VM_FAULT_SIGBUS;
- }
- 
- struct vm_operations_struct hugetlb_vm_ops = {
-diff -urN -X dontdiff linux-2.5.70-mm3/arch/ia64/ia32/binfmt_elf32.c linux-2.5.70-mm3.install_new_page_hch/arch/ia64/ia32/binfmt_elf32.c
---- linux-2.5.70-mm3/arch/ia64/ia32/binfmt_elf32.c	2003-05-26 18:00:58.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/arch/ia64/ia32/binfmt_elf32.c	2003-06-01 10:43:27.000000000 -0700
-@@ -56,13 +56,15 @@
- extern struct page *ia32_shared_page[];
- extern unsigned long *ia32_gdt;
- 
--struct page *
--ia32_install_shared_page (struct vm_area_struct *vma, unsigned long address, int no_share)
-+int
-+ia32_install_shared_page (struct mm_struct *mm, struct vm_area_struct *vma, unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	struct page *pg = ia32_shared_page[(address - vma->vm_start)/PAGE_SIZE];
- 
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	get_page(pg);
--	return pg;
-+	return install_new_page(mm, vma, address, write_access, pmd, pg);
- }
- 
- static struct vm_operations_struct ia32_shared_page_vm_ops = {
-diff -urN -X dontdiff linux-2.5.70-mm3/arch/ia64/kernel/perfmon.c linux-2.5.70-mm3.install_new_page_hch/arch/ia64/kernel/perfmon.c
---- linux-2.5.70-mm3/arch/ia64/kernel/perfmon.c	2003-05-26 18:00:58.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/arch/ia64/kernel/perfmon.c	2003-06-01 10:12:48.000000000 -0700
-@@ -424,7 +424,8 @@
- static void pfm_vm_close(struct vm_area_struct * area);
- 
- static struct vm_operations_struct pfm_vm_ops={
--	.close = pfm_vm_close
-+	.close = pfm_vm_close,
-+	.nopage = do_anonymous_page
- };
- 
- /*
-diff -urN -X dontdiff linux-2.5.70-mm3/arch/ia64/mm/hugetlbpage.c linux-2.5.70-mm3.install_new_page_hch/arch/ia64/mm/hugetlbpage.c
---- linux-2.5.70-mm3/arch/ia64/mm/hugetlbpage.c	2003-05-26 18:00:40.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/arch/ia64/mm/hugetlbpage.c	2003-06-01 10:44:02.000000000 -0700
-@@ -479,10 +479,12 @@
- 	return 1;
- }
- 
--static struct page *hugetlb_nopage(struct vm_area_struct * area, unsigned long address, int unused)
-+static int hugetlb_nopage(struct mm_struct * mm, struct vm_area_struct * area, unsigned long address, int write_access, pte_t * page_table, pmd_t * pmd)
- {
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	BUG();
--	return NULL;
-+	return VM_FAULT_SIGBUS;
- }
- 
- struct vm_operations_struct hugetlb_vm_ops = {
-diff -urN -X dontdiff linux-2.5.70-mm3/arch/sparc64/mm/hugetlbpage.c linux-2.5.70-mm3.install_new_page_hch/arch/sparc64/mm/hugetlbpage.c
---- linux-2.5.70-mm3/arch/sparc64/mm/hugetlbpage.c	2003-05-26 18:00:42.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/arch/sparc64/mm/hugetlbpage.c	2003-06-01 10:44:21.000000000 -0700
-@@ -633,11 +633,13 @@
- 	return (int) htlbzone_pages;
- }
- 
--static struct page *
--hugetlb_nopage(struct vm_area_struct *vma, unsigned long address, int unused)
-+static int
-+hugetlb_nopage(struct mm_struct * mm, struct vm_area_struct *vma, unsigned long address, int write_access, pte_t *page_table, pmd_t * pmd)
- {
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	BUG();
--	return NULL;
-+	return VM_FAULT_SIGBUS;
- }
- 
- static struct vm_operations_struct hugetlb_vm_ops = {
-diff -urN -X dontdiff linux-2.5.70-mm3/drivers/char/agp/alpha-agp.c linux-2.5.70-mm3.install_new_page_hch/drivers/char/agp/alpha-agp.c
---- linux-2.5.70-mm3/drivers/char/agp/alpha-agp.c	2003-05-26 18:00:42.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/drivers/char/agp/alpha-agp.c	2003-06-01 10:44:53.000000000 -0700
-@@ -11,26 +11,28 @@
- 
- #include "agp.h"
- 
--static struct page *alpha_core_agp_vm_nopage(struct vm_area_struct *vma,
--					     unsigned long address,
--					     int write_access)
-+static int alpha_core_agp_vm_nopage(struct mm_struct *mm, struct vm_area_struct *vma,
-+				    unsigned long address,
-+				    int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	alpha_agp_info *agp = agp_bridge->dev_private_data;
- 	dma_addr_t dma_addr;
- 	unsigned long pa;
- 	struct page *page;
- 
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	dma_addr = address - vma->vm_start + agp->aperture.bus_base;
- 	pa = agp->ops->translate(agp, dma_addr);
- 
--	if (pa == (unsigned long)-EINVAL) return NULL;	/* no translation */
-+	if (pa == (unsigned long)-EINVAL) return VM_FAULT_SIGBUS; /* no translation */
- 	
- 	/*
- 	 * Get the page, inc the use count, and return it
- 	 */
- 	page = virt_to_page(__va(pa));
- 	get_page(page);
--	return page;
-+	return install_new_page(mm, vma, address, write_access, pmd, page);
- }
- 
- static struct aper_size_info_fixed alpha_core_agp_sizes[] =
-diff -urN -X dontdiff linux-2.5.70-mm3/drivers/char/drm/drmP.h linux-2.5.70-mm3.install_new_page_hch/drivers/char/drm/drmP.h
---- linux-2.5.70-mm3/drivers/char/drm/drmP.h	2003-05-26 18:00:45.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/drivers/char/drm/drmP.h	2003-06-01 11:16:09.000000000 -0700
-@@ -620,18 +620,17 @@
- extern int	     DRM(fasync)(int fd, struct file *filp, int on);
- 
- 				/* Mapping support (drm_vm.h) */
--extern struct page *DRM(vm_nopage)(struct vm_area_struct *vma,
--				   unsigned long address,
--				   int write_access);
--extern struct page *DRM(vm_shm_nopage)(struct vm_area_struct *vma,
--				       unsigned long address,
--				       int write_access);
--extern struct page *DRM(vm_dma_nopage)(struct vm_area_struct *vma,
--				       unsigned long address,
--				       int write_access);
--extern struct page *DRM(vm_sg_nopage)(struct vm_area_struct *vma,
--				      unsigned long address,
--				      int write_access);
-+extern int DRM(vm_nopage)(struct mm_struct *mm, struct vm_area_struct *vma,
-+			  unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd);
-+extern int DRM(vm_shm_nopage)(struct mm_struct *mm, struct vm_area_struct *vma,
-+			      unsigned long address,
-+			      int write_access, pte_t *page_table, pmd_t *pmd);
-+extern int DRM(vm_dma_nopage)(struct mm_struct *mm, struct vm_area_struct *vma,
-+			      unsigned long address,
-+			      int write_access, pte_t *page_table, pmd_t *pmd);
-+extern int DRM(vm_sg_nopage)(struct mm_struct *mm, struct vm_area_struct *vma,
-+			     unsigned long address,
-+			     int write_access, pte_t *page_table, pmd_t *pmd);
- extern void	     DRM(vm_open)(struct vm_area_struct *vma);
- extern void	     DRM(vm_close)(struct vm_area_struct *vma);
- extern void	     DRM(vm_shm_close)(struct vm_area_struct *vma);
-diff -urN -X dontdiff linux-2.5.70-mm3/drivers/char/drm/drm_vm.h linux-2.5.70-mm3.install_new_page_hch/drivers/char/drm/drm_vm.h
---- linux-2.5.70-mm3/drivers/char/drm/drm_vm.h	2003-05-26 18:01:02.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/drivers/char/drm/drm_vm.h	2003-06-01 10:28:54.000000000 -0700
-@@ -55,10 +55,12 @@
- 	.close  = DRM(vm_close),
- };
- 
--struct page *DRM(vm_nopage)(struct vm_area_struct *vma,
--			    unsigned long address,
--			    int write_access)
-+int DRM(vm_nopage)(struct mm_struct *mm, struct vm_area_struct *vma,
-+		   unsigned long address,
-+		   int write_access, pte_t *page_table, pmd_t *pmd)
- {
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- #if __REALLY_HAVE_AGP
- 	drm_file_t *priv  = vma->vm_file->private_data;
- 	drm_device_t *dev = priv->dev;
-@@ -114,35 +116,37 @@
- 			  baddr, __va(agpmem->memory->memory[offset]), offset,
- 			  atomic_read(&page->count));
- 
--		return page;
-+		return install_new_page(mm, vma, address, write_access, pmd, page);
-         }
- vm_nopage_error:
- #endif /* __REALLY_HAVE_AGP */
- 
--	return NOPAGE_SIGBUS;		/* Disallow mremap */
-+	return VM_FAULT_SIGBUS;		/* Disallow mremap */
- }
- 
--struct page *DRM(vm_shm_nopage)(struct vm_area_struct *vma,
--				unsigned long address,
--				int write_access)
-+int DRM(vm_shm_nopage)(struct mm_struct *mm, struct vm_area_struct *vma,
-+		       unsigned long address,
-+		       int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	drm_map_t	 *map	 = (drm_map_t *)vma->vm_private_data;
- 	unsigned long	 offset;
- 	unsigned long	 i;
- 	struct page	 *page;
- 
--	if (address > vma->vm_end) return NOPAGE_SIGBUS; /* Disallow mremap */
--	if (!map)    		   return NOPAGE_OOM;  /* Nothing allocated */
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
-+	if (address > vma->vm_end) return VM_FAULT_SIGBUS; /* Disallow mremap */
-+	if (!map)    		   return VM_FAULT_OOM;  /* Nothing allocated */
- 
- 	offset	 = address - vma->vm_start;
- 	i = (unsigned long)map->handle + offset;
- 	page = vmalloc_to_page((void *)i);
- 	if (!page)
--		return NOPAGE_OOM;
-+		return VM_FAULT_OOM;
- 	get_page(page);
- 
- 	DRM_DEBUG("shm_nopage 0x%lx\n", address);
--	return page;
-+	return install_new_page(mm, vma, address, write_access, pmd, page);
- }
- 
- /* Special close routine which deletes map information if we are the last
-@@ -221,9 +225,9 @@
- 	up(&dev->struct_sem);
- }
- 
--struct page *DRM(vm_dma_nopage)(struct vm_area_struct *vma,
--				unsigned long address,
--				int write_access)
-+int DRM(vm_dma_nopage)(struct mm_struct *mm, struct vm_area_struct *vma,
-+		       unsigned long address,
-+		       int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	drm_file_t	 *priv	 = vma->vm_file->private_data;
- 	drm_device_t	 *dev	 = priv->dev;
-@@ -232,9 +236,11 @@
- 	unsigned long	 page_nr;
- 	struct page	 *page;
- 
--	if (!dma)		   return NOPAGE_SIGBUS; /* Error */
--	if (address > vma->vm_end) return NOPAGE_SIGBUS; /* Disallow mremap */
--	if (!dma->pagelist)	   return NOPAGE_OOM ; /* Nothing allocated */
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
-+	if (!dma)		   return VM_FAULT_SIGBUS; /* Error */
-+	if (address > vma->vm_end) return VM_FAULT_SIGBUS; /* Disallow mremap */
-+	if (!dma->pagelist)	   return VM_FAULT_OOM ; /* Nothing allocated */
- 
- 	offset	 = address - vma->vm_start; /* vm_[pg]off[set] should be 0 */
- 	page_nr  = offset >> PAGE_SHIFT;
-@@ -244,12 +250,12 @@
- 	get_page(page);
- 
- 	DRM_DEBUG("dma_nopage 0x%lx (page %lu)\n", address, page_nr);
--	return page;
-+	return install_new_page(mm, vma, address, write_access, pmd, page);
- }
- 
--struct page *DRM(vm_sg_nopage)(struct vm_area_struct *vma,
--			       unsigned long address,
--			       int write_access)
-+int DRM(vm_sg_nopage)(struct mm_struct *mm, struct vm_area_struct *vma,
-+		      unsigned long address,
-+		      int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	drm_map_t        *map    = (drm_map_t *)vma->vm_private_data;
- 	drm_file_t *priv = vma->vm_file->private_data;
-@@ -260,9 +266,11 @@
- 	unsigned long page_offset;
- 	struct page *page;
- 
--	if (!entry)                return NOPAGE_SIGBUS; /* Error */
--	if (address > vma->vm_end) return NOPAGE_SIGBUS; /* Disallow mremap */
--	if (!entry->pagelist)      return NOPAGE_OOM ;  /* Nothing allocated */
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
-+	if (!entry)                return VM_FAULT_SIGBUS; /* Error */
-+	if (address > vma->vm_end) return VM_FAULT_SIGBUS; /* Disallow mremap */
-+	if (!entry->pagelist)      return VM_FAULT_OOM ; /* Nothing allocated */
- 
- 
- 	offset = address - vma->vm_start;
-@@ -271,7 +279,7 @@
- 	page = entry->pagelist[page_offset];
- 	get_page(page);
- 
--	return page;
-+	return install_new_page(mm, vma, address, write_access, pmd, page);
- }
- 
- void DRM(vm_open)(struct vm_area_struct *vma)
-diff -urN -X dontdiff linux-2.5.70-mm3/drivers/char/ftape/zftape/zftape-init.c linux-2.5.70-mm3.install_new_page_hch/drivers/char/ftape/zftape/zftape-init.c
---- linux-2.5.70-mm3/drivers/char/ftape/zftape/zftape-init.c	2003-05-26 18:00:38.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/drivers/char/ftape/zftape/zftape-init.c	2003-06-01 10:15:32.000000000 -0700
-@@ -198,7 +198,7 @@
- 	sigfillset(&current->blocked);
- 	if ((result = ftape_mmap(vma)) >= 0) {
- #ifndef MSYNC_BUG_WAS_FIXED
--		static struct vm_operations_struct dummy = { NULL, };
-+		static struct vm_operations_struct dummy = { .nopage = do_anonymous_page, };
- 		vma->vm_ops = &dummy;
- #endif
- 	}
-diff -urN -X dontdiff linux-2.5.70-mm3/drivers/ieee1394/dma.c linux-2.5.70-mm3.install_new_page_hch/drivers/ieee1394/dma.c
---- linux-2.5.70-mm3/drivers/ieee1394/dma.c	2003-05-26 18:00:40.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/drivers/ieee1394/dma.c	2003-06-01 10:29:36.000000000 -0700
-@@ -184,28 +184,29 @@
- 
- /* nopage() handler for mmap access */
- 
--static struct page*
--dma_region_pagefault(struct vm_area_struct *area, unsigned long address, int write_access)
-+static int
-+dma_region_pagefault(struct mm_struct *mm, struct vm_area_struct *area, unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	unsigned long offset;
- 	unsigned long kernel_virt_addr;
--	struct page *ret = NOPAGE_SIGBUS;
-+	struct page *page;
- 
- 	struct dma_region *dma = (struct dma_region*) area->vm_private_data;
- 
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	if(!dma->kvirt)
--		goto out;
-+		return VM_FAULT_SIGBUS;
- 
- 	if( (address < (unsigned long) area->vm_start) ||
- 	    (address > (unsigned long) area->vm_start + (PAGE_SIZE * dma->n_pages)) )
--		goto out;
-+		return VM_FAULT_SIGBUS;
- 
- 	offset = address - area->vm_start;
- 	kernel_virt_addr = (unsigned long) dma->kvirt + offset;
--	ret = vmalloc_to_page((void*) kernel_virt_addr);
--	get_page(ret);
--out:
--	return ret;
-+	page = vmalloc_to_page((void*) kernel_virt_addr);
-+	get_page(page);
-+	return install_new_page(mm, vma, address, write_access, pmd, page);
- }
- 
- static struct vm_operations_struct dma_region_vm_ops = {
-diff -urN -X dontdiff linux-2.5.70-mm3/drivers/media/video/video-buf.c linux-2.5.70-mm3.install_new_page_hch/drivers/media/video/video-buf.c
---- linux-2.5.70-mm3/drivers/media/video/video-buf.c	2003-05-26 18:00:40.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/drivers/media/video/video-buf.c	2003-06-01 10:30:39.000000000 -0700
-@@ -979,21 +979,23 @@
-  * now ...).  Bounce buffers don't work very well for the data rates
-  * video capture has.
-  */
--static struct page*
--videobuf_vm_nopage(struct vm_area_struct *vma, unsigned long vaddr,
--		  int write_access)
-+static int
-+videobuf_vm_nopage(struct mm_struct *mm, struct vm_area_struct *vma,
-+		   unsigned long vaddr, int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	struct page *page;
- 
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	dprintk(3,"nopage: fault @ %08lx [vma %08lx-%08lx]\n",
- 		vaddr,vma->vm_start,vma->vm_end);
-         if (vaddr > vma->vm_end)
--		return NOPAGE_SIGBUS;
-+		return VM_FAULT_SIGBUS;
- 	page = alloc_page(GFP_USER);
- 	if (!page)
--		return NOPAGE_OOM;
-+		return VM_FAULT_OOM;
- 	clear_user_page(page_address(page), vaddr, page);
--	return page;
-+	return install_new_page(mm, vma, vaddr, write_access, pmd, page);
- }
- 
- static struct vm_operations_struct videobuf_vm_ops =
-diff -urN -X dontdiff linux-2.5.70-mm3/drivers/scsi/sg.c linux-2.5.70-mm3.install_new_page_hch/drivers/scsi/sg.c
---- linux-2.5.70-mm3/drivers/scsi/sg.c	2003-05-31 16:31:06.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/drivers/scsi/sg.c	2003-06-01 10:31:24.000000000 -0700
-@@ -1121,21 +1121,23 @@
- 	}
- }
- 
--static struct page *
--sg_vma_nopage(struct vm_area_struct *vma, unsigned long addr, int unused)
-+static int
-+sg_vma_nopage(struct mm_struct *mm, struct vm_area_struct *vma, unsigned long addr, int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	Sg_fd *sfp;
--	struct page *page = NOPAGE_SIGBUS;
-+	struct page *page = VM_FAULT_SIGBUS;
- 	void *page_ptr = NULL;
- 	unsigned long offset;
- 	Sg_scatter_hold *rsv_schp;
- 
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	if ((NULL == vma) || (!(sfp = (Sg_fd *) vma->vm_private_data)))
--		return page;
-+		return install_new_page(mm, vma, addr, write_access, pmd, page);
- 	rsv_schp = &sfp->reserve;
- 	offset = addr - vma->vm_start;
- 	if (offset >= rsv_schp->bufflen)
--		return page;
-+		return install_new_page(mm, vma, addr, write_access, pmd, page);
- 	SCSI_LOG_TIMEOUT(3, printk("sg_vma_nopage: offset=%lu, scatg=%d\n",
- 				   offset, rsv_schp->k_use_sg));
- 	if (rsv_schp->k_use_sg) {	/* reserve buffer is a scatter gather list */
-@@ -1162,7 +1164,7 @@
- 		page = virt_to_page(page_ptr);
- 		get_page(page);	/* increment page count */
- 	}
--	return page;
-+	return install_new_page(mm, vma, addr, write_access, pmd, page);
- }
- 
- static struct vm_operations_struct sg_mmap_vm_ops = {
-diff -urN -X dontdiff linux-2.5.70-mm3/drivers/sgi/char/graphics.c linux-2.5.70-mm3.install_new_page_hch/drivers/sgi/char/graphics.c
---- linux-2.5.70-mm3/drivers/sgi/char/graphics.c	2003-05-26 18:00:40.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/drivers/sgi/char/graphics.c	2003-06-01 10:32:03.000000000 -0700
-@@ -211,9 +211,9 @@
- /* 
-  * This is the core of the direct rendering engine.
-  */
--struct page *
--sgi_graphics_nopage (struct vm_area_struct *vma, unsigned long address, int
--		     no_share)
-+struct int
-+sgi_graphics_nopage (struct mm_struct *mm, struct vm_area_struct *vma,
-+		     unsigned long address, int write_access, pte_t *page_table, pmd_t *pmdpf)
- {
- 	pgd_t *pgd; pmd_t *pmd; pte_t *pte; 
- 	int board = GRAPHICS_CARD (vma->vm_dentry->d_inode->i_rdev);
-@@ -221,6 +221,8 @@
- 	unsigned long virt_add, phys_add;
- 	struct page * page;
- 
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- #ifdef DEBUG
- 	printk ("Got a page fault for board %d address=%lx guser=%lx\n", board,
- 		address, (unsigned long) cards[board].g_user);
-@@ -249,7 +251,7 @@
- 	pte = pte_kmap_offset(pmd, address);
- 	page = pte_page(*pte);
- 	pte_kunmap(pte);
--	return page;
-+	return install_new_page(mm, vma, address, write_access, pmdpf, page);
- }
- 
- /*
-diff -urN -X dontdiff linux-2.5.70-mm3/drivers/sgi/char/shmiq.c linux-2.5.70-mm3.install_new_page_hch/drivers/sgi/char/shmiq.c
---- linux-2.5.70-mm3/drivers/sgi/char/shmiq.c	2003-05-26 18:00:45.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/drivers/sgi/char/shmiq.c	2003-06-01 10:33:13.000000000 -0700
-@@ -303,11 +303,11 @@
- }
- 
- struct page *
--shmiq_nopage (struct vm_area_struct *vma, unsigned long address,
--              int write_access)
-+shmiq_nopage (struct mm_struct *mm, struct vm_area_struct *vma, unsigned long address,
-+              int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	/* Do not allow for mremap to expand us */
--	return NULL;
-+	return VM_FAULT_SIGBUS;
- }
- 
- static struct vm_operations_struct qcntl_mmap = {
-diff -urN -X dontdiff linux-2.5.70-mm3/fs/ncpfs/mmap.c linux-2.5.70-mm3.install_new_page_hch/fs/ncpfs/mmap.c
---- linux-2.5.70-mm3/fs/ncpfs/mmap.c	2003-05-26 18:00:43.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/fs/ncpfs/mmap.c	2003-06-01 10:33:51.000000000 -0700
-@@ -25,8 +25,8 @@
- /*
-  * Fill in the supplied page for mmap
-  */
--static struct page* ncp_file_mmap_nopage(struct vm_area_struct *area,
--				     unsigned long address, int write_access)
-+static int ncp_file_mmap_nopage(struct mm_struct *mm, struct vm_area_struct *area,
-+				unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	struct file *file = area->vm_file;
- 	struct dentry *dentry = file->f_dentry;
-@@ -38,6 +38,8 @@
- 	int bufsize;
- 	int pos;
- 
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	page = alloc_page(GFP_HIGHUSER); /* ncpfs has nothing against high pages
- 	           as long as recvmsg and memset works on it */
- 	if (!page)
-@@ -85,7 +87,7 @@
- 		memset(pg_addr + already_read, 0, PAGE_SIZE - already_read);
- 	flush_dcache_page(page);
- 	kunmap(page);
--	return page;
-+	return install_new_page(mm, area, address, write_access, pmd, page);
- }
- 
- static struct vm_operations_struct ncp_file_mmap =
-diff -urN -X dontdiff linux-2.5.70-mm3/include/linux/mm.h linux-2.5.70-mm3.install_new_page_hch/include/linux/mm.h
---- linux-2.5.70-mm3/include/linux/mm.h	2003-05-31 16:31:20.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/include/linux/mm.h	2003-06-01 11:02:08.000000000 -0700
-@@ -142,7 +142,7 @@
- struct vm_operations_struct {
- 	void (*open)(struct vm_area_struct * area);
- 	void (*close)(struct vm_area_struct * area);
--	struct page * (*nopage)(struct vm_area_struct * area, unsigned long address, int unused);
-+	int (*nopage)(struct mm_struct * mm, struct vm_area_struct * area, unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd);
- 	int (*populate)(struct vm_area_struct * area, unsigned long address, unsigned long len, pgprot_t prot, unsigned long pgoff, int nonblock);
- };
- 
-@@ -380,12 +380,6 @@
- }
- 
- /*
-- * Error return values for the *_nopage functions
-- */
--#define NOPAGE_SIGBUS	(NULL)
--#define NOPAGE_OOM	((struct page *) (-1))
--
--/*
-  * Different kinds of faults, as returned by handle_mm_fault().
-  * Used to decide whether a process gets delivered SIGBUS or
-  * just gets major/minor fault counters bumped up.
-@@ -402,8 +396,8 @@
- 
- extern void show_free_areas(void);
- 
--struct page *shmem_nopage(struct vm_area_struct * vma,
--			unsigned long address, int unused);
-+int shmem_nopage(struct mm_struct * mm, struct vm_area_struct * vma,
-+		 unsigned long address, int write_access, pte_t * page_table, pmd_t * pmd);
- struct file *shmem_file_setup(char * name, loff_t size, unsigned long flags);
- void shmem_lock(struct file * file, int lock);
- int shmem_zero_setup(struct vm_area_struct *);
-@@ -421,6 +415,7 @@
- int zeromap_page_range(struct vm_area_struct *vma, unsigned long from,
- 			unsigned long size, pgprot_t prot);
- 
-+extern int install_new_page(struct mm_struct *mm, struct vm_area_struct *vma, unsigned long address, int write_access, pmd_t *pmd, struct page * new_page);
- extern void invalidate_mmap_range(struct address_space *mapping,
- 				  loff_t const holebegin,
- 				  loff_t const holelen);
-@@ -559,7 +554,8 @@
- extern void truncate_inode_pages(struct address_space *, loff_t);
- 
- /* generic vm_area_ops exported for stackable file systems */
--extern struct page *filemap_nopage(struct vm_area_struct *, unsigned long, int);
-+int filemap_nopage(struct mm_struct *, struct vm_area_struct *, unsigned long, int, pte_t *, pmd_t *);
-+int do_anonymous_page(struct mm_struct *, struct vm_area_struct *, unsigned long, int, pte_t *, pmd_t *);
- 
- /* mm/page-writeback.c */
- int write_one_page(struct page *page, int wait);
-diff -urN -X dontdiff linux-2.5.70-mm3/kernel/ksyms.c linux-2.5.70-mm3.install_new_page_hch/kernel/ksyms.c
---- linux-2.5.70-mm3/kernel/ksyms.c	2003-05-31 16:31:20.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/kernel/ksyms.c	2003-05-31 16:39:23.000000000 -0700
-@@ -116,6 +116,7 @@
- EXPORT_SYMBOL(max_mapnr);
- #endif
- EXPORT_SYMBOL(high_memory);
-+EXPORT_SYMBOL(install_new_page);
- EXPORT_SYMBOL(invalidate_mmap_range);
- EXPORT_SYMBOL(vmtruncate);
- EXPORT_SYMBOL(find_vma);
-diff -urN -X dontdiff linux-2.5.70-mm3/mm/filemap.c linux-2.5.70-mm3.install_new_page_hch/mm/filemap.c
---- linux-2.5.70-mm3/mm/filemap.c	2003-05-31 16:31:21.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/mm/filemap.c	2003-06-01 10:34:52.000000000 -0700
-@@ -1013,7 +1013,7 @@
-  * it in the page cache, and handles the special cases reasonably without
-  * having a lot of duplicated code.
-  */
--struct page * filemap_nopage(struct vm_area_struct * area, unsigned long address, int unused)
-+int filemap_nopage(struct mm_struct * mm, struct vm_area_struct * area, unsigned long address, int write_access, pte_t *page_table, pmd_t * pmd)
- {
- 	int error;
- 	struct file *file = area->vm_file;
-@@ -1024,6 +1024,8 @@
- 	unsigned long size, pgoff, endoff;
- 	int did_readahead;
- 
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	pgoff = ((address - area->vm_start) >> PAGE_CACHE_SHIFT) + area->vm_pgoff;
- 	endoff = ((area->vm_end - area->vm_start) >> PAGE_CACHE_SHIFT) + area->vm_pgoff;
- 
-@@ -1034,7 +1036,7 @@
- 	 */
- 	size = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
- 	if ((pgoff >= size) && (area->vm_mm == current->mm))
--		return NULL;
-+		return VM_FAULT_SIGBUS;
- 
- 	/*
- 	 * The "size" of the file, as far as mmap is concerned, isn't bigger
-@@ -1088,7 +1090,7 @@
- 	 * Found the page and have a reference on it.
- 	 */
- 	mark_page_accessed(page);
--	return page;
-+	return install_new_page(mm, area, address, write_access, pmd, page);
- 
- no_cached_page:
- 	/*
-@@ -1111,8 +1113,8 @@
- 	 * to schedule I/O.
- 	 */
- 	if (error == -ENOMEM)
--		return NOPAGE_OOM;
--	return NULL;
-+		return VM_FAULT_OOM;
-+	return VM_FAULT_SIGBUS;
- 
- page_not_uptodate:
- 	inc_page_state(pgmajfault);
-@@ -1169,7 +1171,7 @@
- 	 * mm layer so, possibly freeing the page cache page first.
- 	 */
- 	page_cache_release(page);
--	return NULL;
-+	return VM_FAULT_SIGBUS;
- }
- 
- static struct page * filemap_getpage(struct file *file, unsigned long pgoff,
-diff -urN -X dontdiff linux-2.5.70-mm3/mm/memory.c linux-2.5.70-mm3.install_new_page_hch/mm/memory.c
---- linux-2.5.70-mm3/mm/memory.c	2003-05-31 16:31:21.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/mm/memory.c	2003-06-01 11:00:33.000000000 -0700
-@@ -1304,10 +1304,10 @@
-  * spinlock held to protect against concurrent faults in
-  * multithreaded programs. 
-  */
--static int
-+int
- do_anonymous_page(struct mm_struct *mm, struct vm_area_struct *vma,
--		pte_t *page_table, pmd_t *pmd, int write_access,
--		unsigned long addr)
-+		  unsigned long addr, int write_access,
-+		  pte_t *page_table, pmd_t *pmd)
- {
- 	pte_t entry;
- 	struct page * page = ZERO_PAGE(addr);
-@@ -1374,40 +1374,19 @@
- }
- 
- /*
-- * do_no_page() tries to create a new page mapping. It aggressively
-- * tries to share with existing pages, but makes a separate copy if
-- * the "write_access" parameter is true in order to avoid the next
-- * page fault.
-- *
-+ * install_new_page - tries to create a new page mapping.
-+ * install_new_page() tries to share w/existing pages, but makes separate
-+ * copy if "write_access" is true in order to avoid the next page fault.
-  * As this is called only for pages that do not currently exist, we
-  * do not need to flush old virtual caches or the TLB.
-- *
-- * This is called with the MM semaphore held and the page table
-- * spinlock held. Exit with the spinlock released.
-  */
--static int
--do_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
--	unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
-+int
-+install_new_page(struct mm_struct *mm, struct vm_area_struct *vma, unsigned long address, int write_access, pmd_t *pmd, struct page * new_page)
- {
--	struct page * new_page;
--	pte_t entry;
-+	pte_t entry, *page_table;
- 	struct pte_chain *pte_chain;
- 	int ret;
- 
--	if (!vma->vm_ops || !vma->vm_ops->nopage)
--		return do_anonymous_page(mm, vma, page_table,
--					pmd, write_access, address);
--	pte_unmap(page_table);
--	spin_unlock(&mm->page_table_lock);
--
--	new_page = vma->vm_ops->nopage(vma, address & PAGE_MASK, 0);
--
--	/* no page was available -- either SIGBUS or OOM */
--	if (new_page == NOPAGE_SIGBUS)
--		return VM_FAULT_SIGBUS;
--	if (new_page == NOPAGE_OOM)
--		return VM_FAULT_OOM;
--
- 	pte_chain = pte_chain_alloc(GFP_KERNEL);
- 	if (!pte_chain)
- 		goto oom;
-@@ -1490,7 +1469,7 @@
- 	if (!vma->vm_ops || !vma->vm_ops->populate || 
- 			(write_access && !(vma->vm_flags & VM_SHARED))) {
- 		pte_clear(pte);
--		return do_no_page(mm, vma, address, write_access, pte, pmd);
-+		return vma->vm_ops->nopage(mm, vma, address & PAGE_MASK, write_access, pte, pmd);
- 	}
- 
- 	pgoff = pte_to_pgoff(*pte);
-@@ -1541,7 +1520,7 @@
- 		 * drop the lock.
- 		 */
- 		if (pte_none(entry))
--			return do_no_page(mm, vma, address, write_access, pte, pmd);
-+			return vma->vm_ops->nopage(mm, vma, address & PAGE_MASK, write_access, pte, pmd);
- 		if (pte_file(entry))
- 			return do_file_page(mm, vma, address, write_access, pte, pmd);
- 		return do_swap_page(mm, vma, address, pte, pmd, entry, write_access);
-diff -urN -X dontdiff linux-2.5.70-mm3/mm/shmem.c linux-2.5.70-mm3.install_new_page_hch/mm/shmem.c
---- linux-2.5.70-mm3/mm/shmem.c	2003-05-26 18:00:39.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/mm/shmem.c	2003-06-01 10:36:09.000000000 -0700
-@@ -936,23 +936,25 @@
- 	return error;
- }
- 
--struct page *shmem_nopage(struct vm_area_struct *vma, unsigned long address, int unused)
-+int shmem_nopage(struct mm_struct *mm, struct vm_area_struct *vma, unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	struct inode *inode = vma->vm_file->f_dentry->d_inode;
- 	struct page *page = NULL;
- 	unsigned long idx;
- 	int error;
- 
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	idx = (address - vma->vm_start) >> PAGE_SHIFT;
- 	idx += vma->vm_pgoff;
- 	idx >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
- 
- 	error = shmem_getpage(inode, idx, &page, SGP_CACHE);
- 	if (error)
--		return (error == -ENOMEM)? NOPAGE_OOM: NOPAGE_SIGBUS;
-+		return (error == -ENOMEM)? VM_FAULT_OOM: VM_FAULT_SIGBUS;
- 
- 	mark_page_accessed(page);
--	return page;
-+	return install_new_page(mm, vma, address, write_access, pmd, page);
- }
- 
- static int shmem_populate(struct vm_area_struct *vma,
-diff -urN -X dontdiff linux-2.5.70-mm3/net/packet/af_packet.c linux-2.5.70-mm3.install_new_page_hch/net/packet/af_packet.c
---- linux-2.5.70-mm3/net/packet/af_packet.c	2003-05-31 16:31:23.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/net/packet/af_packet.c	2003-06-01 10:14:58.000000000 -0700
-@@ -1523,6 +1523,7 @@
- static struct vm_operations_struct packet_mmap_ops = {
- 	.open =	packet_mm_open,
- 	.close =packet_mm_close,
-+	.nopage = do_anonymous_page,
- };
- 
- static void free_pg_vec(unsigned long *pg_vec, unsigned order, unsigned len)
-diff -urN -X dontdiff linux-2.5.70-mm3/sound/core/pcm_native.c linux-2.5.70-mm3.install_new_page_hch/sound/core/pcm_native.c
---- linux-2.5.70-mm3/sound/core/pcm_native.c	2003-05-26 18:00:37.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/sound/core/pcm_native.c	2003-06-01 10:40:02.000000000 -0700
-@@ -60,6 +60,11 @@
- static int snd_pcm_hw_refine_old_user(snd_pcm_substream_t * substream, struct sndrv_pcm_hw_params_old * _oparams);
- static int snd_pcm_hw_params_old_user(snd_pcm_substream_t * substream, struct sndrv_pcm_hw_params_old * _oparams);
- 
-+#ifndef LINUX_2_2
-+#define NOPAGE_OOM VM_FAULT_OOM
-+#define NOPAGE_SIGBUS VM_FAULT_SIGBUS
-+#endif
-+
- /*
-  *
-  */
-@@ -2693,7 +2698,7 @@
- #endif
- 
- #ifndef LINUX_2_2
--static struct page * snd_pcm_mmap_status_nopage(struct vm_area_struct *area, unsigned long address, int no_share)
-+static int snd_pcm_mmap_status_nopage(struct mm_struct *mm, struct vm_area_struct *area, unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
- #else
- static unsigned long snd_pcm_mmap_status_nopage(struct vm_area_struct *area, unsigned long address, int no_share)
- #endif
-@@ -2702,13 +2707,17 @@
- 	snd_pcm_runtime_t *runtime;
- 	struct page * page;
- 	
-+#ifndef LINUX_2_2
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
-+#endif
- 	if (substream == NULL)
- 		return NOPAGE_OOM;
- 	runtime = substream->runtime;
- 	page = virt_to_page(runtime->status);
- 	get_page(page);
- #ifndef LINUX_2_2
--	return page;
-+	return install_new_page(mm, area, address, write_access, pmd, page);
- #else
- 	return page_address(page);
- #endif
-@@ -2747,7 +2756,7 @@
- }
- 
- #ifndef LINUX_2_2
--static struct page * snd_pcm_mmap_control_nopage(struct vm_area_struct *area, unsigned long address, int no_share)
-+static int snd_pcm_mmap_control_nopage(struct mm_struct *mm, struct vm_area_struct *area, unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
- #else
- static unsigned long snd_pcm_mmap_control_nopage(struct vm_area_struct *area, unsigned long address, int no_share)
- #endif
-@@ -2755,14 +2764,18 @@
- 	snd_pcm_substream_t *substream = (snd_pcm_substream_t *)area->vm_private_data;
- 	snd_pcm_runtime_t *runtime;
- 	struct page * page;
--	
-+
-+#ifndef LINUX_2_2
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
-+#endif
- 	if (substream == NULL)
- 		return NOPAGE_OOM;
- 	runtime = substream->runtime;
- 	page = virt_to_page(runtime->control);
- 	get_page(page);
- #ifndef LINUX_2_2
--	return page;
-+	return install_new_page(mm, area, address, write_access, pmd, page);
- #else
- 	return page_address(page);
- #endif
-@@ -2813,7 +2826,7 @@
- }
- 
- #ifndef LINUX_2_2
--static struct page * snd_pcm_mmap_data_nopage(struct vm_area_struct *area, unsigned long address, int no_share)
-+static int snd_pcm_mmap_data_nopage(struct mm_struct *mm, struct vm_area_struct *area, unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
- #else
- static unsigned long snd_pcm_mmap_data_nopage(struct vm_area_struct *area, unsigned long address, int no_share)
- #endif
-@@ -2824,7 +2837,11 @@
- 	struct page * page;
- 	void *vaddr;
- 	size_t dma_bytes;
--	
-+
-+#ifndef LINUX_2_2
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
-+#endif
- 	if (substream == NULL)
- 		return NOPAGE_OOM;
- 	runtime = substream->runtime;
-@@ -2848,7 +2865,7 @@
- 	}
- 	get_page(page);
- #ifndef LINUX_2_2
--	return page;
-+	return install_new_page(mm, area, address, write_access, pmd, page);
- #else
- 	return page_address(page);
- #endif
-diff -urN -X dontdiff linux-2.5.70-mm3/sound/oss/emu10k1/audio.c linux-2.5.70-mm3.install_new_page_hch/sound/oss/emu10k1/audio.c
---- linux-2.5.70-mm3/sound/oss/emu10k1/audio.c	2003-05-26 18:00:23.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/sound/oss/emu10k1/audio.c	2003-06-01 10:42:22.000000000 -0700
-@@ -970,7 +970,7 @@
- 	return 0;
- }
- 
--static struct page *emu10k1_mm_nopage (struct vm_area_struct * vma, unsigned long address, int write_access)
-+static int emu10k1_mm_nopage (struct mm_struct * mm, struct vm_area_struct * vma, unsigned long address, int write_access, pte_t * page_table, pmd_t * pmd)
- {
- 	struct emu10k1_wavedevice *wave_dev = vma->vm_private_data;
- 	struct woinst *woinst = wave_dev->woinst;
-@@ -979,12 +979,14 @@
- 	unsigned long pgoff;
- 	int rd, wr;
- 
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	DPF(3, "emu10k1_mm_nopage()\n");
- 	DPD(3, "addr: %#lx\n", address);
- 
- 	if (address > vma->vm_end) {
--		DPF(1, "EXIT, returning NOPAGE_SIGBUS\n");
--		return NOPAGE_SIGBUS; /* Disallow mremap */
-+		DPF(1, "EXIT, returning VM_FAULT_SIGBUS\n");
-+		return VM_FAULT_SIGBUS; /* Disallow mremap */
- 	}
- 
- 	pgoff = vma->vm_pgoff + ((address - vma->vm_start) >> PAGE_SHIFT);
-@@ -1013,7 +1015,7 @@
- 	get_page (dmapage);
- 
- 	DPD(3, "page: %#lx\n", (unsigned long) dmapage);
--	return dmapage;
-+	return install_new_page(mm, vma, address, write_access, pmd, dmapage);
- }
- 
- struct vm_operations_struct emu10k1_mm_ops = {
-diff -urN -X dontdiff linux-2.5.70-mm3/sound/oss/via82cxxx_audio.c linux-2.5.70-mm3.install_new_page_hch/sound/oss/via82cxxx_audio.c
---- linux-2.5.70-mm3/sound/oss/via82cxxx_audio.c	2003-05-26 18:00:27.000000000 -0700
-+++ linux-2.5.70-mm3.install_new_page_hch/sound/oss/via82cxxx_audio.c	2003-06-01 10:41:07.000000000 -0700
-@@ -1846,8 +1846,8 @@
- }
- 
- 
--static struct page * via_mm_nopage (struct vm_area_struct * vma,
--				    unsigned long address, int write_access)
-+static int via_mm_nopage (struct mm_struct *mm, struct vm_area_struct * vma,
-+			  unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
- {
- 	struct via_info *card = vma->vm_private_data;
- 	struct via_channel *chan = &card->ch_out;
-@@ -1855,6 +1855,8 @@
- 	unsigned long pgoff;
- 	int rd, wr;
- 
-+	pte_unmap(page_table);
-+	spin_unlock(&mm->page_table_lock);
- 	DPRINTK ("ENTER, start %lXh, ofs %lXh, pgoff %ld, addr %lXh, wr %d\n",
- 		 vma->vm_start,
- 		 address - vma->vm_start,
-@@ -1863,12 +1865,12 @@
- 		 write_access);
- 
-         if (address > vma->vm_end) {
--		DPRINTK ("EXIT, returning NOPAGE_SIGBUS\n");
--		return NOPAGE_SIGBUS; /* Disallow mremap */
-+		DPRINTK ("EXIT, returning VM_FAULT_SIGBUS\n");
-+		return VM_FAULT_SIGBUS; /* Disallow mremap */
- 	}
-         if (!card) {
--		DPRINTK ("EXIT, returning NOPAGE_OOM\n");
--		return NOPAGE_OOM;	/* Nothing allocated */
-+		DPRINTK ("EXIT, returning VM_FAULT_OOM\n");
-+		return VM_FAULT_OOM;	/* Nothing allocated */
- 	}
- 
- 	pgoff = vma->vm_pgoff + ((address - vma->vm_start) >> PAGE_SHIFT);
-@@ -1895,10 +1897,10 @@
- 	assert ((((unsigned long)chan->pgtbl[pgoff].cpuaddr) % PAGE_SIZE) == 0);
- 
- 	dmapage = virt_to_page (chan->pgtbl[pgoff].cpuaddr);
--	DPRINTK ("EXIT, returning page %p for cpuaddr %lXh\n",
-+	DPRINTK ("EXIT, installing page %p for cpuaddr %lXh\n",
- 		 dmapage, (unsigned long) chan->pgtbl[pgoff].cpuaddr);
- 	get_page (dmapage);
--	return dmapage;
-+	return install_new_page(mm, vma, address, write_access, pmd, dmapage);
- }
- 
- 

@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313698AbSFIRaB>; Sun, 9 Jun 2002 13:30:01 -0400
+	id <S314077AbSFIRcl>; Sun, 9 Jun 2002 13:32:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314077AbSFIRaA>; Sun, 9 Jun 2002 13:30:00 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:5391 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S313698AbSFIR37>; Sun, 9 Jun 2002 13:29:59 -0400
-Message-Id: <200206091729.g59HTnv08471@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Cc: davej@suse.de, James.Bottomley@HansenPartnership.com
-Subject: [PATCH 2.5.21] i386 arch subdivision into machine types
-Mime-Version: 1.0
+	id <S314078AbSFIRck>; Sun, 9 Jun 2002 13:32:40 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:26876 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S314077AbSFIRcj>;
+	Sun, 9 Jun 2002 13:32:39 -0400
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.5.21 failure: ata_taskfile: unknown command 78
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Sun, 09 Jun 2002 19:32:23 +0200
+Message-ID: <87y9dos6hk.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 09 Jun 2002 13:29:49 -0400
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This code rearranges the arch/i386 directory structure to allow for sliding 
-additional non-pc hardware in here in an easily separable (and thus easily 
-maintainable) fashion.  The idea is that all the code for the particular 
-problem hardware should be able to go in a separate directory with only 
-additional build options in config.in.
+I'm getting an endless stream of that messages in 2.5.21 (2.5.20 was
+OK). I have a VIA motherboad with 686B southbridge and add-on Promise
+20268 card.
 
-The current patch really only pulls out the visws code from the core and 
-places it into a separate directory (sort of a simple example case).  It also 
-creates a generic directory (for standard x86 PCs) with all of the hooks 
-documented.
-
-This code is a merger with the Patrick Mochel/Dave Jones setup and cpu split.  
-It also includes documentation for all of the created hooks inside arch/i386.
-
-The 165k diff file is at
-
-http://www.hansenpartnership.com/voyager/files/arch-split-2.5.21.diff
-
-There's also a bitkeeper repository with all this in at
-
-http://linux-voyager.bkbits.net/arch-split-2.5
-
-James Bottomley
-
-
-
+What else can I do to help find the bug?
+-- 
+Zlatko

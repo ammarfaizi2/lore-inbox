@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266771AbUGUXRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266777AbUGUXSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266771AbUGUXRk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 19:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266773AbUGUXRk
+	id S266777AbUGUXSM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 19:18:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266773AbUGUXRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 19:17:40 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:12260 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S266771AbUGUXRg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 19:17:36 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@fs.tum.de>
+	Wed, 21 Jul 2004 19:17:43 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:19147 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S266772AbUGUXRh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 19:17:37 -0400
+Date: Thu, 22 Jul 2004 01:15:19 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Greg KH <greg@kroah.com>, Jesse Stockall <stockall@magma.ca>,
+       Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] delete devfs
-Date: Thu, 22 Jul 2004 01:26:27 +0200
-User-Agent: KMail/1.5
-Cc: Jesse Stockall <stockall@magma.ca>, Oliver Neukum <oliver@neukum.org>,
-       linux-kernel@vger.kernel.org
-References: <20040721141524.GA12564@kroah.com> <20040721220237.GX14733@fs.tum.de> <20040721220736.GC18721@kroah.com>
-In-Reply-To: <20040721220736.GC18721@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040722011519.B3512@electric-eye.fr.zoreil.com>
+References: <20040721141524.GA12564@kroah.com> <200407211626.55670.oliver@neukum.org> <20040721145208.GA13522@kroah.com> <1090444782.8033.4.camel@homer.blizzard.org> <20040721212745.GC18110@kroah.com> <20040721220237.GX14733@fs.tum.de> <20040722001125.A3512@electric-eye.fr.zoreil.com> <20040721224011.GY14733@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200407220126.27415.rjwysocki@sisk.pl>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040721224011.GY14733@fs.tum.de>; from bunk@fs.tum.de on Thu, Jul 22, 2004 at 12:40:11AM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 of July 2004 00:07, Greg KH wrote:
-> On Thu, Jul 22, 2004 at 12:02:38AM +0200, Adrian Bunk wrote:
-> > > As for "right now"?  Why not?  I'm just embracing the new development
-> > > model of the kernel :)
-> >
-> > Could anyone please explain this mysterious "new development model of
-> > the kernel"?
-> >
-> > Is this some personal fight from you against Linus or someone else you
-> > are trying to bring to linux-kernel, or WTF has happened???
->
-> No fighting is going on here.  I know lwn.net has already reported about
-> this, see there for details.  I don't have the time to write it up right
-> now due to being at OLS.
+Adrian Bunk <bunk@fs.tum.de> :
+[...]
+> > > Is this some personal fight from you against Linus or someone else you 
+> > > are trying to bring to linux-kernel, or WTF has happened???
+> > 
+> > Patch was submitted to -mm. -mm filters a lot lately.
+> 
+> Which patch are you talking about?
+> Greg's patch was made against 2.6.8-rc2 ...
 
-But lwn.net has only reported it to its subscribers.  I'm not one of those and 
-I don't indend to become one in predictable future.  I'm sorry, but I don't 
-consider lwn.net as a publicly available source of information.
+Greg asked Andrew to apply the patch to its own tree. So there is nothing
+terribly different from what has been seen for quite some time.
 
-In fact, _you_ decided to speak of this _in_ _public_, so please give away at 
-least _some_ information that _you_ have or a link that is available to _the_ 
-_public_.
+At worst (?) everybody will know what happens in a few days. I am not in a
+hurry.
 
-Yours,
-rjw
-
--- 
-Rafael J. Wysocki
-[tel. (+48) 605 053 693]
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+--
+Ueimor

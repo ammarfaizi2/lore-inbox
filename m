@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129939AbRA0GxQ>; Sat, 27 Jan 2001 01:53:16 -0500
+	id <S131742AbRA0HDv>; Sat, 27 Jan 2001 02:03:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130766AbRA0GxG>; Sat, 27 Jan 2001 01:53:06 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:29192 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129939AbRA0Gw6>;
-	Sat, 27 Jan 2001 01:52:58 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Sergey Kubushin" <ksi@cyberbills.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.0ac12 
-In-Reply-To: Your message of "Fri, 26 Jan 2001 17:46:12 -0800."
-             <Pine.LNX.4.31ksi3.0101261742080.598-100000@nomad.cyberbills.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 27 Jan 2001 17:52:51 +1100
-Message-ID: <29609.980578371@ocs3.ocs-net>
+	id <S130766AbRA0HDl>; Sat, 27 Jan 2001 02:03:41 -0500
+Received: from femail2.rdc1.on.home.com ([24.2.9.89]:38353 "EHLO
+	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S131742AbRA0HDb>; Sat, 27 Jan 2001 02:03:31 -0500
+Message-ID: <3A7272AB.470F6007@Home.com>
+Date: Sat, 27 Jan 2001 02:03:07 -0500
+From: Shawn Starr <Shawn.Starr@Home.com>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Aaron Lehmann <aaronl@vitelus.com>
+CC: John Sheahan <john@reptechnic.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: ps hang in 241-pre10
+In-Reply-To: <3A724FD2.3DEB44C@reptechnic.com.au> <20010126204324.B10046@vitelus.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jan 2001 17:46:12 -0800 (PST), 
-"Sergey Kubushin" <ksi@cyberbills.com> wrote:
->Modules still don't load:
+I noticed this problem in 2.4.1-pre8.
+
+Odd, thats EXACLY what happened to me. I had to do a hard restart as killall
+locked when i tried to kill ps.
+
+Any word on why this is happening?
+
+
+Aaron Lehmann wrote:
+
+> On Sat, Jan 27, 2001 at 03:34:26PM +1100, John Sheahan wrote:
+> > Hi
+> > my box has been running 2.4.1-pre10 for three days.
+> > This morning I noticed odd behavioue - ps and top wouuld freeze
+> > with no output.
 >
->=== Cut ===
->ide-mod.o: Can't handle sections of type 32131
->ide-probe-mod.o: Can't handle sections of type 256950710
->ide-disk.o: Can't handle sections of type 688840897
->ext2.o: Can't handle sections of type 69429248
->=== Cut ===
-
-Works for me.
-
-# uname -a
-Linux ocs4 2.4.0-ac12 #1 SMP Sat Jan 27 17:37:12 EST 2001 i686 unknown
-# lsmod
-Module                  Size  Used by
-binfmt_misc             3696   0 
-nfsd                   71632   0  (autoclean)
-vfat                   11504   1 
-fat                    32448   0  [vfat]
-af_packet               8720   0  (unused)
-isofs                  19216   0  (unused)
-sg                     26752   0  (unused)
-loop                    7680   0  (unused)
-nfs                    82720   0  (unused)
-lockd                  50416   0  [nfsd nfs]
-sunrpc                 62464   0  [nfsd nfs lockd]
-tulip                  37232   1 
-# insmod -V 2>&1 | head -1
-insmod version 2.4.2
-# gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/specs
-gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
-# ld -v
-GNU ld version 2.9.5 (with BFD 2.9.5.0.22)
+> I had the same problem with 2.4.1-pre10 and the zerocopy patchset.
+> I came home one day and xmms was frozen. Attempting to determine
+> whether it was stuck in an odd state, I ran ps aux. At a certain
+> point (presumably just when it started trying to print info about the
+> xmms process), ps froze up too. And any attempts to killall -9 these
+> processes made the killall freeze!
+>
+> I'm not sure what made xmms freeze up in the first place. My first
+> though was a problem in the zerocopy patchset -- most of my mp3s are
+> played over NFS. However, XMMS was completely idle during the time I
+> was away from the computer, so I'm not sure what caused it. It seemed
+> clear, however, that the problem was contagious between processes.
+>
+> I reverted back to 2.4.0-ac7 and have not had any more problems of this
+> nature.
+>
+>   ------------------------------------------------------------------------
+>    Part 1.2Type: application/pgp-signature
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

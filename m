@@ -1,85 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265698AbUBKToU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 14:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265728AbUBKToU
+	id S265740AbUBKTtX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 14:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265744AbUBKTtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 14:44:20 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:59562 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265698AbUBKToR
+	Wed, 11 Feb 2004 14:49:23 -0500
+Received: from wacom-nt2.wacom.com ([204.119.25.126]:22030 "EHLO
+	wacom_nt2.WACOM.COM") by vger.kernel.org with ESMTP id S265740AbUBKTtQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 14:44:17 -0500
-Date: Wed, 11 Feb 2004 17:31:41 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.25-rc2
-Message-ID: <Pine.LNX.4.58L.0402111728060.28576@logos.cnet>
+	Wed, 11 Feb 2004 14:49:16 -0500
+Message-ID: <28E6D16EC4CCD71196610060CF213AEB065BC2@wacom-nt2.wacom.com>
+From: Ping Cheng <pingc@wacom.com>
+To: "'Pete Zaitcev'" <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: RE: Wacom USB driver patch
+Date: Wed, 11 Feb 2004 11:47:19 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nice catch, Pete. The Two "return"s should be replaced by "goto exit". 
 
-Ola,
+Vojtech, should I make another patch or you can handle it with my previous
+one?
 
-Here goes -rc2, with small number of fixes and corrections.
+Thanks, both of you!
 
-Most notably acpi4asus and toshiba ACPI updates.
+Ping
 
-Detailed changelog follows.
+-----Original Message-----
+From: Pete Zaitcev [mailto:zaitcev@redhat.com] 
+Sent: Wednesday, February 11, 2004 11:05 AM
+To: Ping Cheng
+Cc: linux-kernel@vger.kernel.org; vojtech@suse.cz
+Subject: Re: Wacom USB driver patch
 
-Summary of changes from v2.4.25-rc1 to v2.4.25-rc2
-============================================
 
-<brad:wasp.net.au>:
-  o backport 2.6.x yenta detection fix
+On Tue, 10 Feb 2004 17:23:11 -0800
+Ping Cheng <pingc@wacom.com> wrote:
 
-<davem:nuts.davemloft.net>:
-  o [IPV4]: Use same sysctl number for IGMP version forcing as 2.6.x
-  o [SPARC64]: Fix exception remaining length calcs in VIS copy routines
+>  <<linuxwacom.patch>>
 
-<john:neggie.net>:
-  o toshiba_acpi 0.17 from John Belmonte
+This looks much better, it's not line-wrapped.
 
-<khali:linux-fr.org>:
-  o Small i2c maintainer correction
+I have one question though, about this part:
 
-<len.brown:intel.com>:
-  o [ACPI] proposed fix for AML parameter passing from Bob Moore http://bugzilla.kernel.org/show_bug.cgi?id=1766
-  o [ACPI] proposed fix for AML parameter passing from Bob Moore http://bugzilla.kernel.org/show_bug.cgi?id=1766
-  o [ACPI] fix IA64 build warning from Martin Hicks
+@@ -152,15 +150,103 @@ static void wacom_pl_irq(struct urb *urb
 
-<macro:ds2.pg.dga.pl>:
-  o [NET]: Fix comment typo in net/socket.c
++                       /* was entered with stylus2 pressed */
++                       if (wacom->tool[1] == BTN_TOOL_RUBBER && !(data[4] &
+0x20) ) {
++                               /* report out proximity for previous tool */
++                               input_report_key(dev, wacom->tool[1], 0);
++                               input_sync(dev);
++                               wacom->tool[1] = BTN_TOOL_PEN;
++                               return;
++                       }
 
-<marcelo:logos.cnet>:
-  o Changed EXTRAVERSION to -rc2
+Is it safe to just return without resubmitting the urb here?
 
-<shaggy:kleikamp.dyn.webahead.ibm.com>:
-  o JFS: rename should update mtime on source and target directories
-  o JFS: Threads should exit with complete_and_exit
+@@ -231,8 +317,12 @@ static void wacom_graphire_irq(struct ur
++       /* check if we can handle the data */
++       if (data[0] == 99)
++               return;
++
+        if (data[0] != 2)
 
-<sziwan:hell.org.pl>:
-  o acpi4asus update from Karol 'sziwan' Kozimor
+Same here.
 
-Adrian Bunk:
-  o Fix amd7930_fn.c compilation with CONFIG_HOTPLUG=n
+Also, please add the path to the patch, e.g. always use recursive diff.
 
-Alan Cox:
-  o sstfb oops fix
-
-Andrew Morton:
-  o Improper handling of %c in vsscanf
-
-Geert Uytterhoeven:
-  o Fix fs/inode.c warning if !HIGHMEM
-
-Keith Owens:
-  o [XFS] No need to have xfs in mod-subdirs in the fs/Makefile anymore
-
-Paul Mackerras:
-  o [PPC64] Two small fixes for hvc_console (the hypervisor virtual console)
-
+-- Pete

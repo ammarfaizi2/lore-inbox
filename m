@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315693AbSEZEMq>; Sun, 26 May 2002 00:12:46 -0400
+	id <S315709AbSEZEN3>; Sun, 26 May 2002 00:13:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315695AbSEZEMp>; Sun, 26 May 2002 00:12:45 -0400
-Received: from dsl-213-023-040-043.arcor-ip.net ([213.23.40.43]:24020 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S315693AbSEZEMm>;
-	Sun, 26 May 2002 00:12:42 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S315711AbSEZEN2>; Sun, 26 May 2002 00:13:28 -0400
+Received: from bitmover.com ([192.132.92.2]:26069 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S315709AbSEZEN0>;
+	Sun, 26 May 2002 00:13:26 -0400
+Date: Sat, 25 May 2002 21:13:28 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Larry McVoy <lm@bitmover.com>, David Schleef <ds@schleef.org>,
+        Karim Yaghmour <karim@opersys.com>, Wolfgang Denk <wd@denx.de>,
+        linux-kernel@vger.kernel.org
 Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Date: Sun, 26 May 2002 06:11:12 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Robert Schwebel <robert@schwebel.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205251025010.6515-100000@home.transmeta.com> <E17BiBY-0003nt-00@starship> <1022381475.11811.72.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17BpNE-0003qU-00@starship>
+Message-ID: <20020525211328.B20253@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alexander Viro <viro@math.psu.edu>, Larry McVoy <lm@bitmover.com>,
+	David Schleef <ds@schleef.org>, Karim Yaghmour <karim@opersys.com>,
+	Wolfgang Denk <wd@denx.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020525201749.A19792@work.bitmover.com> <Pine.GSO.4.21.0205252320550.15165-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 May 2002 04:51, Alan Cox wrote:
-> On Sat, 2002-05-25 at 21:30, Daniel Phillips wrote:
-> > A short time ago I made my living by programming large factory machines
-> > that can kill people in an instant.  I would have loved to use Linux, but 
-> > it was not ready at the time.  As long as core developers continue to 
-> > ignore the need for realtime capability in the kernel itself - as opposed 
-> > to waving hands
+On Sat, May 25, 2002 at 11:58:14PM -0400, Alexander Viro wrote:
+> > Good luck making that stick in court.  First of all, the RTAI guys have
+> > admitted over and over that RTAI is a fork of the RTLinux source base.
+> > Your claims that that isn't true are countered by principles from both
+> > parties in question.  Second of all, both source bases have evolved 
+> > since the fork.  Whether your script catches the common heritage or 
+> > not has no meaning, the fact remains that one is derived from the
+> > other, and as such has to be GPLed.
 > 
-> This has nothing to do with real time. The capacity of computer science
-> to formally validate a system (and if it can kill people it should be
-> formally proven in something like Z) is not sufficient for a system so
-> complex. Such a device needs a tiny verifiable kernel core.
+> Larry, can it.  4.4BSD was derived from v6->v7->32V - nobody had ever
+> denied that.  So was USG "codebase"<spit>.  Didn't change the outcome
+> of lawsuit.
 
-The Linux core *is* tiny, and for that reason attractive for this purpose.  
-I agree that it is still too complex to verify formally, and we've suffered 
-because of that, i.e., when will we see the last truncate race?  When will we 
-see a VM that doesn't fall over in corner cases?  I don't accept 'never' as 
-an anwswer to this.  Much of our current work - removal of the buffer cache, 
-elimination of buffer heads in most roles, coalescing of the ide and scsi 
-block flavors, introduction of reverse-mapping in the vm - moves the kernel 
-in the direction of less complexity, in the sense that state transitions and 
-subsystem interactions become easier to audit.
+That's because of 2 reasons:
 
-The day of the tiny, single purpose OS-let in industrial applications is 
-pretty much over.  To illustrate, among the requirements we had was to 
-support modern hardware such as accelerated video cards, and high level 
-functions such as tcp stacks.  We even had to run a database on the machine, 
-and a GUI.  Don't even think of asking the hardware engineers to design a 
-two-processor system so that one of them can run a simplified OS.  They won't 
-do it, because then they know perfectly well that one processor will do the 
-job, and it did, is doing it today.  Reliably, and on what OS?  Dos.
+    a) AT&T was apparently unfamilier with diff(1)
+    b) Bill Jolitz choose to keep his mouth shut so that 4BSD would get
+       freed up.  And got publicly humilated for it and still held his
+       tongue.
 
-Surely if DoS can do it, then Linux can do it better.  But not if we admit 
-defeat before starting.
+Here's a clue: go diff bmap() in 4.x BSD and in 32V.  Word for word, bit
+for bit, comment for comment, identical when I did it.  And I think anyone
+can verify that, both versions of the code are out there now.  And I also
+think that you, Al, would agree that bmap() is a pretty profound part of
+the file system.  That AT&T let that one slip is mind boggling.
 
+> If somebody chooses to use these "free for GPLed works" patents - fine,
+> but at least have a decency to admit that it's a bit more complex than
+> "if you want to make money on my work I want a part of it".
+
+Huh?  You lost me.  For the record, I do think it's that simple.  And in
+personal conversations with Victor, he's indicated that it is that simple.
+What else do you think is there?  I'm missing some subtlety here, bang me
+on the head with it.
 -- 
-Daniel
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

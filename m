@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285067AbRLRUbx>; Tue, 18 Dec 2001 15:31:53 -0500
+	id <S285093AbRLRUcd>; Tue, 18 Dec 2001 15:32:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285093AbRLRUbj>; Tue, 18 Dec 2001 15:31:39 -0500
-Received: from adsl-64-109-202-217.dsl.milwwi.ameritech.net ([64.109.202.217]:9721
-	"EHLO alphaflight.d6.dnsalias.org") by vger.kernel.org with ESMTP
-	id <S285067AbRLRUaV>; Tue, 18 Dec 2001 15:30:21 -0500
-Date: Tue, 18 Dec 2001 14:30:19 -0600
-From: "M. R. Brown" <mrbrown@0xd6.org>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'Alexander Viro'" <viro@math.psu.edu>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Message-ID: <20011218203019.GC9314@0xd6.org>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D804@orsmsx111.jf.intel.com>
+	id <S285094AbRLRUcS>; Tue, 18 Dec 2001 15:32:18 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:12178 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285093AbRLRUcE>;
+	Tue, 18 Dec 2001 15:32:04 -0500
+Date: Tue, 18 Dec 2001 12:31:30 -0800 (PST)
+Message-Id: <20011218.123130.58437921.davem@redhat.com>
+To: davej@suse.de
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+Subject: Re: More fun with fsx.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0112171523460.28670-100000@Appserv.suse.de>
+In-Reply-To: <15389.49646.612985.293315@charged.uio.no>
+	<Pine.LNX.4.33.0112171523460.28670-100000@Appserv.suse.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2/5bycvrmDh4d1IB"
-Content-Disposition: inline
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D804@orsmsx111.jf.intel.com>
-User-Agent: Mutt/1.3.24i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Dave Jones <davej@suse.de>
+   Date: Mon, 17 Dec 2001 15:30:32 +0100 (CET)
 
---2/5bycvrmDh4d1IB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+   On Mon, 17 Dec 2001, Trond Myklebust wrote:
 
-* Grover, Andrew <andrew.grover@intel.com> on Tue, Dec 18, 2001:
+   > However, 2 races + 4 bugs observed is already pretty much a record for
+   > a single program. Kudos to the NeXT developers...
+   
+   Indeed. It's a really neat tool, we could use more like it.
 
-> > From: Alexander Viro [mailto:viro@math.psu.edu]
-> > On Tue, 18 Dec 2001, Grover, Andrew wrote:
-> > > GRUB 0.90 does this today.
-> > ... and I'm quite sure that EMACS could do it easily.  Let's not talk
-> > about GNU bloatware, OK?
->=20
-> I don't think this is bloatware, especially considering there really isn't
-> any cost for having a full-featured bootloader - all its footprint gets
-> reclaimed, after all. I respect lilo and its cousins, but they make things
-> harder than they have to be. Why maintain a reduced level of functionality
-> (software emaciation?) when better alternatives are available?
->=20
+It also is good at finding cache flushing bugs on platforms
+where that is an issue :-)
 
-Available for what?  SuperH?  MIPS?  IA-64?  Your precious GRUB and
-Multiboot "standard" are only ever useful on the x86 architecture, so you
-would propose a x86-specific global change that doesn't benefit the rest of
-the other kernel archs?  Bloat for the sake of?
+BTW, here is a portability fix for fsx-linux.c :-)
 
->=20
-> > IOW, we are backwards compatible with old
-> > loaders.
->=20
-> No progress will ever be made if we cater to the lowest common denominato=
-r.
->=20
-
-The i386.
-
-M. R.
-
---2/5bycvrmDh4d1IB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8H6dbaK6pP/GNw0URAoUDAJ0d2FacdHI23VQbs/EPUk4rqrpGWwCfeC21
-UCqbewW8pbD68t2nji6Khd4=
-=pA/8
------END PGP SIGNATURE-----
-
---2/5bycvrmDh4d1IB--
+--- fsx-linux.c.~1~	Mon Dec 17 16:24:11 2001
++++ fsx-linux.c	Mon Dec 17 16:28:19 2001
+@@ -67,7 +67,7 @@
+ #define OP_SKIPPED	7
+ 
+ #ifndef PAGE_SIZE
+-#define PAGE_SIZE       4096
++#define PAGE_SIZE       getpagesize()
+ #endif
+ #define PAGE_MASK       (PAGE_SIZE - 1)
+ 

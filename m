@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288579AbSBMSuF>; Wed, 13 Feb 2002 13:50:05 -0500
+	id <S288623AbSBMSxZ>; Wed, 13 Feb 2002 13:53:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288595AbSBMSt4>; Wed, 13 Feb 2002 13:49:56 -0500
-Received: from prkele.tky.hut.fi ([130.233.19.186]:25627 "EHLO
-	prkele.tky.hut.fi") by vger.kernel.org with ESMTP
-	id <S288566AbSBMSto>; Wed, 13 Feb 2002 13:49:44 -0500
-Date: Wed, 13 Feb 2002 20:49:23 +0200 (EET)
-From: Tomi Manninen <tpm@prkele.tky.hut.fi>
-X-X-Sender: <tpm@oh2bns.ampr.org>
-Reply-To: <tpm@prkele.tky.hut.fi>
-To: "Henk de Groot (ELN)" <Henk.de.Groot@eln.ericsson.se>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'linux-hams@vger.kernel.org'" <linux-hams@vger.kernel.org>,
-        "'stephen@g6dzj.demon.co.uk'" <stephen@g6dzj.demon.co.uk>,
-        "'davem@redhat.com'" <davem@redhat.com>,
-        "'henk.de.groot@hetnet.nl'" <henk.de.groot@hetnet.nl>
-Subject: Re: AX25 Patches for 2.4.17 and above - have they been included y
- et
-In-Reply-To: <E244E44D6AB85E40AEEF7EAABE3545FA08ABD8@enleent104.nl.eu.ericsson.se>
-Message-ID: <Pine.LNX.4.33.0202132048310.5302-100000@oh2bns.ampr.org>
+	id <S288595AbSBMSxP>; Wed, 13 Feb 2002 13:53:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37138 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288622AbSBMSxC>;
+	Wed, 13 Feb 2002 13:53:02 -0500
+Message-ID: <3C6AB5D2.A7D665FE@zip.com.au>
+Date: Wed, 13 Feb 2002 10:52:02 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: another IDE cleanup: kill duplicated code
+In-Reply-To: <20020211221102.GA131@elf.ucw.cz> <3C68F3F3.8030709@evision-ventures.com> <3C69750E.8BA2C6AB@zip.com.au> <3C6A4449.3030703@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Henk de Groot (ELN) wrote:
+Martin Dalecki wrote:
+> 
+> >I suspect that if we remove these, we'll one day end up putting them back.
+> >It is appropriate that we be able to control readahead characteristics
+> >on a per-device and per-technology basis.
+> >
+> You are missing one simple thing: The removed values doen't control
+> ANYTHING!
 
-> Jeroen has send a final version of the fix a while ago to the linux-ham mailing
-> list with the request to the maintainers to handle this. But it looks like
-> nothing has been done, or maybe we should be a little more patient. I haven't
-> seen it on the linux-kernel mailing-list yet.
+The file_readahead setting works as expected and as desired.  Or at
+least it did a few weeks ago.
 
-It's in 2.4.18-pre9.
-
--- 
-Tomi Manninen           Internet:  oh2bns@sral.fi
-OH2BNS                  AX.25:     oh2bns@oh2rbi.fin.eu
-KP20ME04                Amprnet:   oh2bns@oh2rbi.ampr.org
-
+-

@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVCUUg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVCUUlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbVCUUg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 15:36:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVCUUgS
+	id S261874AbVCUUlR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 15:41:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbVCUUiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 15:36:18 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:2438 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S261874AbVCUUdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 15:33:24 -0500
-Date: Mon, 21 Mar 2005 21:32:40 +0100
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Problems with connect/disconnect cycles
-Message-ID: <20050321203240.GA26901@gamma.logic.tuwien.ac.at>
-References: <20050321090537.GI14614@gamma.logic.tuwien.ac.at> <Pine.LNX.4.44L0.0503211513090.2329-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44L0.0503211513090.2329-100000@ida.rowland.org>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Mon, 21 Mar 2005 15:38:15 -0500
+Received: from web50205.mail.yahoo.com ([206.190.38.46]:15697 "HELO
+	web50205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261878AbVCUUeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 15:34:14 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=V2hBUq7+jCrOD2JgEHdBmzW17WtA4W55WOnuRLA6gpFyuEUnwjbzCUqBYEQoaRcHaLhgQIb7UjlJNdmf1axdoPVAzDM/s5YHdp7rze+Ty0Ca9LRDes2O8cySD65cHeG7MLvHAtAQIvrbMe2nGPheMaVgHSrDwpKnbTPWcrIy1Tk=  ;
+Message-ID: <20050321203408.74684.qmail@web50205.mail.yahoo.com>
+Date: Mon, 21 Mar 2005 12:34:07 -0800 (PST)
+From: Paul Ionescu <i_p_a_u_l@yahoo.com>
+Subject: Re: [ACPI] Re: [RFC/Patch 0/12] ACPI based root bridge hot-add
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mär 2005, Alan Stern wrote:
-> > I found that my builtin sd card reader connected via USB port
-> > experiences several connect/reconnect cycles every time I boot.
+Hi Rajesh,
+
+--- Rajesh Shah <rajesh.shah@intel.com> wrote:
+> On Sat, Mar 19, 2005 at 03:50:16PM +0200, Paul Ionescu wrote:
+> > 
+> > Does this mean that when it will be ported for i386, I will be able to
+> > really use my Docking Station ?
 > 
-> > I guess that this should not be the expected behaviour. Now the question
-> > is wether this is a problem with -mm or with usb stuff?
+> No. The current patches only trigger when a _root_ bridge is
+> hot-added, not a PCI to PCI bridge (which is what the docking 
+> station is). The code to support p2p bridge hotplug will benefit
+> from these patches but more code is needed to support that.
 > 
-> You mean, a software problem or a hardware problem?
 
-So I believe that this is a regression error in 2.6.11-mm something.
+Thanks for the info.
+Is p2p hotplug in your roadmap (for i386) ?
+Can you please give me an example of a root bridge ?
 
-> One way to find out is to try going back to an earlier kernel.  When you
-> do, do these cycles continue to appear?
+Thanks,
+Paul
 
-Good question. I have nothing older then 2.6.11-mm2 lying around. Can
-you give me a hint on *where* I should start? Something like when there
-was a great change in usb code incorporated into bk-usb and thus -mm?
 
-I will try 2.6.10-mm3 where I have a home made .deb lying around and
-will report back.
 
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>                 Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-AITH (n.)
-The single bristle that sticks out sideways on a cheap paintbrush.
-			--- Douglas Adams, The Meaning of Liff
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Small Business - Try our new resources site!
+http://smallbusiness.yahoo.com/resources/ 

@@ -1,1199 +1,526 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264952AbSJOWWr>; Tue, 15 Oct 2002 18:22:47 -0400
+	id <S264875AbSJOWhl>; Tue, 15 Oct 2002 18:37:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264950AbSJOWWc>; Tue, 15 Oct 2002 18:22:32 -0400
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:39861 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S264876AbSJOWPY>;
-	Tue, 15 Oct 2002 18:15:24 -0400
-To: torvalds@transmeta.com, Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5] Add POSIX Access Control Lists to ext2/3
-From: tytso@mit.edu
-Message-Id: <E181a3v-0006O0-00@snap.thunk.org>
-Date: Tue, 15 Oct 2002 18:21:15 -0400
+	id <S265075AbSJOW3K>; Tue, 15 Oct 2002 18:29:10 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:47627 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S265036AbSJOW1G>; Tue, 15 Oct 2002 18:27:06 -0400
+Date: Tue, 15 Oct 2002 23:32:55 +0100
+From: John Levon <levon@movementarian.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [2/7] oprofile - dcookies
+Message-ID: <20021015223255.GB41906@compsoc.man.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *181aFD-000DFA-00*PqY73Jc18Fk* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch adds ACL support to the ext3 filesystem.
+[2/7] dcookies
 
-					- Ted
+This implements the persistent path-to-dcookies mapping, and adds a
+system call for the user-space profiler to look up the profile data,
+so it can tag profiles to specific binaries.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-#
-# fs/Config.help            |   11 
-# fs/Config.in              |    1 
-# fs/ext3/Makefile          |    4 
-# fs/ext3/acl.c             |  608 ++++++++++++++++++++++++++++++++++++++++++++++
-# fs/ext3/acl.h             |   94 +++++++
-# fs/ext3/file.c            |    4 
-# fs/ext3/ialloc.c          |   32 +-
-# fs/ext3/inode.c           |   36 ++
-# fs/ext3/namei.c           |   15 -
-# fs/ext3/super.c           |   39 ++
-# fs/ext3/xattr.c           |   23 +
-# fs/ext3/xattr_user.c      |    5 
-# include/linux/ext3_fs.h   |    1 
-# include/linux/ext3_fs_i.h |    4 
-# 14 files changed, 850 insertions(+), 27 deletions(-)
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/15	tytso@snap.thunk.org	1.857
-# Port of (bugfixed) 0.8.50 acl-ext3 to 2.5.
-# 
-# This patch adds ACL support to the ext3 filesystem.
-# --------------------------------------------
-#
-diff -Nru a/fs/Config.help b/fs/Config.help
---- a/fs/Config.help	Tue Oct 15 16:59:54 2002
-+++ b/fs/Config.help	Tue Oct 15 16:59:54 2002
-@@ -179,7 +179,18 @@
-   the kernel or by users (see the attr(5) manual page, or visit
-   <http://acl.bestbits.at/> for details).
+
+diff -Naur -X dontdiff linux-linus/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linux-linus/arch/i386/kernel/entry.S	Sun Oct 13 19:51:03 2002
++++ linux/arch/i386/kernel/entry.S	Tue Oct 15 21:45:51 2002
+@@ -736,6 +736,7 @@
+ 	.long sys_alloc_hugepages /* 250 */
+ 	.long sys_free_hugepages
+ 	.long sys_exit_group
++	.long sys_lookup_dcookie
  
-+  You need this for POSIX ACL support on ext3.
-+
-   If unsure, say N.
-+
-+CONFIG_EXT3_FS_POSIX_ACL
-+  Posix Access Control Lists (ACLs) support permissions for users and
-+  groups beyond the owner/group/world scheme.
-+
-+  To learn more about Access Control Lists, visit the Posix ACLs for
-+  Linux website <http://acl.bestbits.at/>.
-+
-+  If you don't know what Access Control Lists are, say N.
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long sys_ni_syscall
+diff -Naur -X dontdiff linux-linus/fs/Makefile linux/fs/Makefile
+--- linux-linus/fs/Makefile	Tue Oct 15 21:47:20 2002
++++ linux/fs/Makefile	Tue Oct 15 21:45:51 2002
+@@ -6,7 +6,7 @@
+ # 
  
- CONFIG_JBD
-   This is a generic journaling layer for block devices.  It is
-diff -Nru a/fs/Config.in b/fs/Config.in
---- a/fs/Config.in	Tue Oct 15 16:59:54 2002
-+++ b/fs/Config.in	Tue Oct 15 16:59:54 2002
-@@ -30,6 +30,7 @@
+ export-objs :=	open.o dcache.o buffer.o bio.o inode.o dquot.o mpage.o aio.o \
+-                fcntl.o read_write.o
++                fcntl.o read_write.o dcookies.o
  
- tristate 'Ext3 journalling file system support' CONFIG_EXT3_FS
- dep_mbool '  Ext3 extended attributes' CONFIG_EXT3_FS_XATTR $CONFIG_EXT3_FS
-+dep_mbool '  Ext3 POSIX Access Control Lists' CONFIG_EXT3_FS_POSIX_ACL $CONFIG_EXT3_FS_XATTR $CONFIG_FS_POSIX_ACL
- # CONFIG_JBD could be its own option (even modular), but until there are
- # other users than ext3, we will simply make it be the same as CONFIG_EXT3_FS
- # dep_tristate '  Journal Block Device support (JBD for ext3)' CONFIG_JBD $CONFIG_EXT3_FS
-diff -Nru a/fs/ext3/Makefile b/fs/ext3/Makefile
---- a/fs/ext3/Makefile	Tue Oct 15 16:59:54 2002
-+++ b/fs/ext3/Makefile	Tue Oct 15 16:59:54 2002
-@@ -13,4 +13,8 @@
- ext3-objs += xattr.o xattr_user.o
- endif
+ obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
+ 		bio.o super.o block_dev.o char_dev.o stat.o exec.o pipe.o \
+@@ -40,6 +40,8 @@
+ obj-y				+= driverfs/
+ obj-y				+= devpts/
  
-+ifeq ($(CONFIG_EXT3_FS_POSIX_ACL),y)
-+ext3-objs += acl.o
-+endif
-+
- include $(TOPDIR)/Rules.make
-diff -Nru a/fs/ext3/acl.c b/fs/ext3/acl.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/ext3/acl.c	Tue Oct 15 16:59:54 2002
-@@ -0,0 +1,608 @@
++obj-$(CONFIG_PROFILING)		+= dcookies.o
++ 
+ # Do not add any filesystems before this line
+ obj-$(CONFIG_EXT3_FS)		+= ext3/ # Before ext2 so root fs can be ext3
+ obj-$(CONFIG_JBD)		+= jbd/
+diff -Naur -X dontdiff linux-linus/fs/dcache.c linux/fs/dcache.c
+--- linux-linus/fs/dcache.c	Tue Oct 15 21:47:20 2002
++++ linux/fs/dcache.c	Tue Oct 15 21:45:51 2002
+@@ -637,6 +637,7 @@
+ 	dentry->d_op = NULL;
+ 	dentry->d_fsdata = NULL;
+ 	dentry->d_mounted = 0;
++	dentry->d_cookie = NULL;
+ 	INIT_LIST_HEAD(&dentry->d_hash);
+ 	INIT_LIST_HEAD(&dentry->d_lru);
+ 	INIT_LIST_HEAD(&dentry->d_subdirs);
+diff -Naur -X dontdiff linux-linus/fs/dcookies.c linux/fs/dcookies.c
+--- linux-linus/fs/dcookies.c	Thu Jan  1 01:00:00 1970
++++ linux/fs/dcookies.c	Tue Oct 15 21:45:51 2002
+@@ -0,0 +1,323 @@
 +/*
-+ * linux/fs/ext3/acl.c
++ * dcookies.c
 + *
-+ * Copyright (C) 2001 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
++ * Copyright 2002 John Levon <levon@movementarian.org>
++ *
++ * Persistent cookie-path mappings. These are used by
++ * profilers to convert a per-task EIP value into something
++ * non-transitory that can be processed at a later date.
++ * This is done by locking the dentry/vfsmnt pair in the
++ * kernel until released by the tasks needing the persistent
++ * objects. The tag is simply an unsigned long that refers
++ * to the pair and can be looked up from userspace.
 + */
 +
-+#include <linux/init.h>
-+#include <linux/sched.h>
++#include <linux/config.h>
++#include <linux/module.h>
 +#include <linux/slab.h>
-+#include <linux/fs.h>
-+#include <linux/ext3_jbd.h>
-+#include <linux/ext3_fs.h>
-+#include "xattr.h"
-+#include "acl.h"
++#include <linux/list.h>
++#include <linux/mount.h>
++#include <linux/dcache.h>
++#include <linux/mm.h>
++#include <linux/errno.h>
++#include <linux/dcookies.h>
++#include <asm/uaccess.h>
 +
-+/*
-+ * Convert from filesystem to in-memory representation.
++/* The dcookies are allocated from a kmem_cache and
++ * hashed onto a small number of lists. None of the
++ * code here is particularly performance critical
 + */
-+static struct posix_acl *
-+ext3_acl_from_disk(const void *value, size_t size)
-+{
-+	const char *end = (char *)value + size;
-+	int n, count;
-+	struct posix_acl *acl;
++struct dcookie_struct {
++	struct dentry * dentry;
++	struct vfsmount * vfsmnt;
++	struct list_head hash_list;
++};
 +
-+	if (!value)
++static LIST_HEAD(dcookie_users);
++static DECLARE_MUTEX(dcookie_sem);
++static kmem_cache_t * dcookie_cache;
++static struct list_head * dcookie_hashtable;
++static size_t hash_size;
++
++static inline int is_live(void)
++{
++	return !(list_empty(&dcookie_users));
++}
++
++
++/* The dentry is locked, its address will do for the cookie */
++static inline unsigned long dcookie_value(struct dcookie_struct * dcs)
++{
++	return (unsigned long)dcs->dentry;
++}
++
++
++static size_t dcookie_hash(unsigned long dcookie)
++{
++	return (dcookie >> 2) & (hash_size - 1);
++}
++
++
++static struct dcookie_struct * find_dcookie(unsigned long dcookie)
++{
++	struct dcookie_struct * found = 0;
++	struct dcookie_struct * dcs;
++	struct list_head * pos;
++	struct list_head * list;
++
++	list = dcookie_hashtable + dcookie_hash(dcookie);
++
++	list_for_each(pos, list) {
++		dcs = list_entry(pos, struct dcookie_struct, hash_list);
++		if (dcookie_value(dcs) == dcookie) {
++			found = dcs;
++			break;
++		}
++	}
++
++	return found;
++}
++
++
++static void hash_dcookie(struct dcookie_struct * dcs)
++{
++	struct list_head * list = dcookie_hashtable + dcookie_hash(dcookie_value(dcs));
++	list_add(&dcs->hash_list, list);
++}
++
++
++static struct dcookie_struct * alloc_dcookie(struct dentry * dentry,
++	struct vfsmount * vfsmnt)
++{
++	struct dcookie_struct * dcs = kmem_cache_alloc(dcookie_cache, GFP_KERNEL);
++	if (!dcs)
 +		return NULL;
-+	if (size < sizeof(ext3_acl_header))
-+		 return ERR_PTR(-EINVAL);
-+	if (((ext3_acl_header *)value)->a_version !=
-+	    cpu_to_le32(EXT3_ACL_VERSION))
-+		return ERR_PTR(-EINVAL);
-+	value = (char *)value + sizeof(ext3_acl_header);
-+	count = ext3_acl_count(size);
-+	if (count < 0)
-+		return ERR_PTR(-EINVAL);
-+	if (count == 0)
-+		return NULL;
-+	acl = posix_acl_alloc(count, GFP_KERNEL);
-+	if (!acl)
-+		return ERR_PTR(-ENOMEM);
-+	for (n=0; n < count; n++) {
-+		ext3_acl_entry *entry =
-+			(ext3_acl_entry *)value;
-+		if ((char *)value + sizeof(ext3_acl_entry_short) > end)
-+			goto fail;
-+		acl->a_entries[n].e_tag  = le16_to_cpu(entry->e_tag);
-+		acl->a_entries[n].e_perm = le16_to_cpu(entry->e_perm);
-+		switch(acl->a_entries[n].e_tag) {
-+			case ACL_USER_OBJ:
-+			case ACL_GROUP_OBJ:
-+			case ACL_MASK:
-+			case ACL_OTHER:
-+				value = (char *)value +
-+					sizeof(ext3_acl_entry_short);
-+				acl->a_entries[n].e_id = ACL_UNDEFINED_ID;
-+				break;
 +
-+			case ACL_USER:
-+			case ACL_GROUP:
-+				value = (char *)value + sizeof(ext3_acl_entry);
-+				if ((char *)value > end)
-+					goto fail;
-+				acl->a_entries[n].e_id =
-+					le32_to_cpu(entry->e_id);
-+				break;
++	atomic_inc(&dentry->d_count);
++	atomic_inc(&vfsmnt->mnt_count);
++	dentry->d_cookie = dcs;
 +
-+			default:
-+				goto fail;
-+		}
-+	}
-+	if (value != end)
-+		goto fail;
-+	return acl;
++	dcs->dentry = dentry;
++	dcs->vfsmnt = vfsmnt;
++	hash_dcookie(dcs);
 +
-+fail:
-+	posix_acl_release(acl);
-+	return ERR_PTR(-EINVAL);
++	return dcs;
 +}
 +
-+/*
-+ * Convert from in-memory to filesystem representation.
++
++/* This is the main kernel-side routine that retrieves the cookie
++ * value for a dentry/vfsmnt pair.
 + */
-+static void *
-+ext3_acl_to_disk(const struct posix_acl *acl, size_t *size)
++int get_dcookie(struct dentry * dentry, struct vfsmount * vfsmnt,
++	unsigned long * cookie)
 +{
-+	ext3_acl_header *ext_acl;
-+	char *e;
-+	int n;
++	int err = 0;
++	struct dcookie_struct * dcs;
 +
-+	*size = ext3_acl_size(acl->a_count);
-+	ext_acl = (ext3_acl_header *)kmalloc(sizeof(ext3_acl_header) +
-+		acl->a_count * sizeof(ext3_acl_entry), GFP_KERNEL);
-+	if (!ext_acl)
-+		return ERR_PTR(-ENOMEM);
-+	ext_acl->a_version = cpu_to_le32(EXT3_ACL_VERSION);
-+	e = (char *)ext_acl + sizeof(ext3_acl_header);
-+	for (n=0; n < acl->a_count; n++) {
-+		ext3_acl_entry *entry = (ext3_acl_entry *)e;
-+		entry->e_tag  = cpu_to_le16(acl->a_entries[n].e_tag);
-+		entry->e_perm = cpu_to_le16(acl->a_entries[n].e_perm);
-+		switch(acl->a_entries[n].e_tag) {
-+			case ACL_USER:
-+			case ACL_GROUP:
-+				entry->e_id =
-+					cpu_to_le32(acl->a_entries[n].e_id);
-+				e += sizeof(ext3_acl_entry);
-+				break;
++	down(&dcookie_sem);
 +
-+			case ACL_USER_OBJ:
-+			case ACL_GROUP_OBJ:
-+			case ACL_MASK:
-+			case ACL_OTHER:
-+				e += sizeof(ext3_acl_entry_short);
-+				break;
-+
-+			default:
-+				goto fail;
-+		}
++	if (!is_live()) {
++		err = -EINVAL;
++		goto out;
 +	}
-+	return (char *)ext_acl;
 +
-+fail:
-+	kfree(ext_acl);
-+	return ERR_PTR(-EINVAL);
++	dcs = dentry->d_cookie;
++
++	if (!dcs)
++		dcs = alloc_dcookie(dentry, vfsmnt);
++
++	if (!dcs) {
++		err = -ENOMEM;
++		goto out;
++	}
++
++	*cookie = dcookie_value(dcs);
++
++out:
++	up(&dcookie_sem);
++	return err;
 +}
 +
-+/*
-+ * Inode operation get_posix_acl().
-+ *
-+ * inode->i_sem: down
++
++/* And here is where the userspace process can look up the cookie value
++ * to retrieve the path.
 + */
-+struct posix_acl *
-+ext3_get_acl(struct inode *inode, int type)
++asmlinkage int sys_lookup_dcookie(unsigned long cookie, char * buf, size_t len)
 +{
-+	int name_index;
-+	char *value;
-+	struct posix_acl *acl, **p_acl;
-+	const size_t size = ext3_acl_size(EXT3_ACL_MAX_ENTRIES);
-+	int retval;
++	char * kbuf;
++	char * path;
++	int err = -EINVAL;
++	size_t pathlen;
++	struct dcookie_struct * dcs;
 +
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+
-+	switch(type) {
-+		case ACL_TYPE_ACCESS:
-+			p_acl = &EXT3_I(inode)->i_acl;
-+			name_index = EXT3_XATTR_INDEX_POSIX_ACL_ACCESS;
-+			break;
-+
-+		case ACL_TYPE_DEFAULT:
-+			p_acl = &EXT3_I(inode)->i_default_acl;
-+			name_index = EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT;
-+			break;
-+
-+		default:
-+			return ERR_PTR(-EINVAL);
-+	}
-+	if (*p_acl != EXT3_ACL_NOT_CACHED)
-+		return posix_acl_dup(*p_acl);
-+	value = kmalloc(size, GFP_KERNEL);
-+	if (!value)
-+		return ERR_PTR(-ENOMEM);
-+
-+	retval = ext3_xattr_get(inode, name_index, "", value, size);
-+
-+	if (retval == -ENODATA || retval == -ENOSYS)
-+		*p_acl = acl = NULL;
-+	else if (retval < 0)
-+		acl = ERR_PTR(retval);
-+	else {
-+		acl = ext3_acl_from_disk(value, retval);
-+		if (!IS_ERR(acl))
-+			*p_acl = posix_acl_dup(acl);
-+	}
-+	kfree(value);
-+	return acl;
-+}
-+
-+/*
-+ * Set the access or default ACL of an inode.
-+ *
-+ * inode->i_sem: down unless called from ext3_new_inode
-+ */
-+static int
-+ext3_do_set_acl(handle_t *handle, struct inode *inode, int type,
-+		struct posix_acl *acl)
-+{
-+	int name_index;
-+	void *value = NULL;
-+	struct posix_acl **p_acl;
-+	size_t size;
-+	int error;
-+
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+
-+	switch(type) {
-+		case ACL_TYPE_ACCESS:
-+			name_index = EXT3_XATTR_INDEX_POSIX_ACL_ACCESS;
-+			p_acl = &EXT3_I(inode)->i_acl;
-+			if (acl) {
-+				mode_t mode = inode->i_mode;
-+				error = posix_acl_equiv_mode(acl, &mode);
-+				if (error < 0)
-+					return error;
-+				else {
-+					inode->i_mode = mode;
-+					ext3_mark_inode_dirty(handle, inode);
-+					if (error == 0)
-+						acl = NULL;
-+				}
-+			}
-+			break;
-+
-+		case ACL_TYPE_DEFAULT:
-+			name_index = EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT;
-+			p_acl = &EXT3_I(inode)->i_default_acl;
-+			if (!S_ISDIR(inode->i_mode))
-+				return acl ? -EACCES : 0;
-+			break;
-+
-+		default:
-+			return -EINVAL;
-+	}
-+ 	if (acl) {
-+		if (acl->a_count > EXT3_ACL_MAX_ENTRIES)
-+			return -EINVAL;
-+		value = ext3_acl_to_disk(acl, &size);
-+		if (IS_ERR(value))
-+			return (int)PTR_ERR(value);
-+	}
-+
-+	error = ext3_xattr_set(handle, inode, name_index, "", value, size, 0);
-+
-+	if (value)
-+		kfree(value);
-+	if (!error) {
-+		if (*p_acl && *p_acl != EXT3_ACL_NOT_CACHED)
-+			posix_acl_release(*p_acl);
-+		*p_acl = posix_acl_dup(acl);
-+	}
-+	return error;
-+}
-+
-+/*
-+ * Inode operation set_posix_acl().
-+ *
-+ * inode->i_sem: down
-+ */
-+
-+int
-+ext3_set_acl(struct inode *inode, int type, struct posix_acl *acl)
-+{
-+	handle_t *handle;
-+	int error;
-+	
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+
-+	handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
-+	if (IS_ERR(handle))
-+		return PTR_ERR(handle);
-+	error = ext3_do_set_acl(handle, inode, type, acl);
-+	ext3_journal_stop(handle, inode);
-+
-+	return error;
-+}
-+
-+static int
-+__ext3_permission(struct inode *inode, int mask, int lock)
-+{
-+	int mode = inode->i_mode;
-+
-+	/* Nobody gets write access to a read-only fs */
-+	if ((mask & MAY_WRITE) && IS_RDONLY(inode) &&
-+	    (S_ISREG(mode) || S_ISDIR(mode) || S_ISLNK(mode)))
-+		return -EROFS;
-+	/* Nobody gets write access to an immutable file */
-+	if ((mask & MAY_WRITE) && IS_IMMUTABLE(inode))
-+	    return -EACCES;
-+	if (current->fsuid == inode->i_uid) {
-+		mode >>= 6;
-+	} else if (test_opt(inode->i_sb, POSIX_ACL)) {
-+		/* ACL can't contain additional permissions if
-+		   the ACL_MASK entry is 0 */
-+		if (!(mode & S_IRWXG))
-+			goto check_groups;
-+		if (EXT3_I(inode)->i_acl == EXT3_ACL_NOT_CACHED) {
-+			struct posix_acl *acl;
-+
-+			if (lock) {
-+				down(&inode->i_sem);
-+				acl = ext3_get_acl(inode, ACL_TYPE_ACCESS);
-+				up(&inode->i_sem);
-+			} else
-+				acl = ext3_get_acl(inode, ACL_TYPE_ACCESS);
-+
-+			if (IS_ERR(acl))
-+				return PTR_ERR(acl);
-+			posix_acl_release(acl);
-+			if (EXT3_I(inode)->i_acl == EXT3_ACL_NOT_CACHED)
-+				return -EIO;
-+		}
-+		if (EXT3_I(inode)->i_acl) {
-+			int error = posix_acl_permission(inode,
-+				EXT3_I(inode)->i_acl, mask);
-+			if (error == -EACCES)
-+				goto check_capabilities;
-+			return error;
-+		} else
-+			goto check_groups;
-+	} else {
-+check_groups:
-+		if (in_group_p(inode->i_gid))
-+			mode >>= 3;
-+	}
-+	if ((mode & mask & S_IRWXO) == mask)
-+		return 0;
-+
-+check_capabilities:
-+	/* Allowed to override Discretionary Access Control? */
-+	if ((mask & (MAY_READ|MAY_WRITE)) || (inode->i_mode & S_IXUGO))
-+		if (capable(CAP_DAC_OVERRIDE))
-+			return 0;
-+	/* Read and search granted if capable(CAP_DAC_READ_SEARCH) */
-+	if (capable(CAP_DAC_READ_SEARCH) && ((mask == MAY_READ) ||
-+	    (S_ISDIR(inode->i_mode) && !(mask & MAY_WRITE))))
-+		return 0;
-+	return -EACCES;
-+}
-+
-+/*
-+ * Inode operation permission().
-+ *
-+ * inode->i_sem: up
-+ */
-+int
-+ext3_permission(struct inode *inode, int mask)
-+{
-+	return __ext3_permission(inode, mask, 1);
-+}
-+
-+/*
-+ * Used internally if i_sem is already down.
-+ */
-+int
-+ext3_permission_locked(struct inode *inode, int mask)
-+{
-+	return __ext3_permission(inode, mask, 0);
-+}
-+
-+/*
-+ * Initialize the ACLs of a new inode. Called from ext3_new_inode.
-+ *
-+ * dir->i_sem: down
-+ * inode->i_sem: up (access to inode is still exclusive)
-+ */
-+int
-+ext3_init_acl(handle_t *handle, struct inode *inode, struct inode *dir)
-+{
-+	struct posix_acl *acl = NULL;
-+	int error = 0;
-+
-+	if (!S_ISLNK(inode->i_mode)) {
-+		if (test_opt(dir->i_sb, POSIX_ACL)) {
-+			acl = ext3_get_acl(dir, ACL_TYPE_DEFAULT);
-+			if (IS_ERR(acl))
-+				return PTR_ERR(acl);
-+		}
-+		if (!acl) {
-+			inode->i_mode &= ~current->fs->umask;
-+			ext3_mark_inode_dirty(handle, inode);
-+		}
-+	}
-+	if (test_opt(inode->i_sb, POSIX_ACL) && acl) {
-+		struct posix_acl *clone;
-+		mode_t mode;
-+
-+		if (S_ISDIR(inode->i_mode)) {
-+			error = ext3_do_set_acl(handle, inode,
-+						ACL_TYPE_DEFAULT, acl);
-+			if (error)
-+				goto cleanup;
-+		}
-+		clone = posix_acl_clone(acl, GFP_KERNEL);
-+		error = -ENOMEM;
-+		if (!clone)
-+			goto cleanup;
-+		
-+		mode = inode->i_mode;
-+		error = posix_acl_create_masq(clone, &mode);
-+		if (error >= 0) {
-+			inode->i_mode = mode;
-+			ext3_mark_inode_dirty(handle, inode);
-+			if (error > 0) {
-+				/* This is an extended ACL */
-+				error = ext3_do_set_acl(handle, inode,
-+							ACL_TYPE_ACCESS, clone);
-+			}
-+		}
-+		posix_acl_release(clone);
-+	}
-+cleanup:
-+	posix_acl_release(acl);
-+	return error;
-+}
-+
-+/*
-+ * Does chmod for an inode that may have an Access Control List. The
-+ * inode->i_mode field must be updated to the desired value by the caller
-+ * before calling this function.
-+ * Returns 0 on success, or a negative error number.
-+ *
-+ * We change the ACL rather than storing some ACL entries in the file
-+ * mode permission bits (which would be more efficient), because that
-+ * would break once additional permissions (like  ACL_APPEND, ACL_DELETE
-+ * for directories) are added. There are no more bits available in the
-+ * file mode.
-+ *
-+ * inode->i_sem: down
-+ */
-+int
-+ext3_acl_chmod(handle_t *handle, struct inode *inode)
-+{
-+	struct posix_acl *acl, *clone;
-+        int error;
-+
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	acl = ext3_get_acl(inode, ACL_TYPE_ACCESS);
-+	if (IS_ERR(acl) || !acl)
-+		return PTR_ERR(acl);
-+	clone = posix_acl_clone(acl, GFP_KERNEL);
-+	posix_acl_release(acl);
-+	if (!clone)
-+		return -ENOMEM;
-+	error = posix_acl_chmod_masq(clone, inode->i_mode);
-+	if (!error)
-+		error = ext3_do_set_acl(handle, inode, ACL_TYPE_ACCESS, clone);
-+	posix_acl_release(clone);
-+	return error;
-+}
-+
-+/*
-+ * Extended attribut handlers
-+ */
-+static size_t
-+ext3_xattr_list_acl_access(char *list, struct inode *inode,
-+			   const char *name, int name_len)
-+{
-+	const size_t len = sizeof(XATTR_NAME_ACL_ACCESS)-1;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	if (list)
-+		memcpy(list, XATTR_NAME_ACL_ACCESS, len);
-+	return len;
-+}
-+
-+static size_t
-+ext3_xattr_list_acl_default(char *list, struct inode *inode,
-+			    const char *name, int name_len)
-+{
-+	const size_t len = sizeof(XATTR_NAME_ACL_DEFAULT)-1;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	if (list)
-+		memcpy(list, XATTR_NAME_ACL_DEFAULT, len);
-+	return len;
-+}
-+
-+static int
-+ext3_xattr_get_acl(struct inode *inode, int type, void *buffer, size_t size)
-+{
-+	struct posix_acl *acl;
-+	int error;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return -EOPNOTSUPP;
-+
-+	acl = ext3_get_acl(inode, type);
-+	if (IS_ERR(acl))
-+		return PTR_ERR(acl);
-+	if (acl == NULL)
-+		return -ENODATA;
-+	error = posix_acl_to_xattr(acl, buffer, size);
-+	posix_acl_release(acl);
-+
-+	return error;
-+}
-+
-+static int
-+ext3_xattr_get_acl_access(struct inode *inode, const char *name,
-+			  void *buffer, size_t size)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext3_xattr_get_acl(inode, ACL_TYPE_ACCESS, buffer, size);
-+}
-+
-+static int
-+ext3_xattr_get_acl_default(struct inode *inode, const char *name,
-+			   void *buffer, size_t size)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext3_xattr_get_acl(inode, ACL_TYPE_DEFAULT, buffer, size);
-+}
-+
-+static int
-+ext3_xattr_set_acl(struct inode *inode, int type, const void *value, size_t size)
-+{
-+	handle_t *handle;
-+	struct posix_acl *acl;
-+	int error;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return -EOPNOTSUPP;
-+	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
++	/* we could leak path information to users
++	 * without dir read permission without this
++	 */
++	if (!capable(CAP_SYS_ADMIN))
 +		return -EPERM;
 +
-+	if (value) {
-+		acl = posix_acl_from_xattr(value, size);
-+		if (IS_ERR(acl))
-+			return PTR_ERR(acl);
-+		else if (acl) {
-+			error = posix_acl_valid(acl);
-+			if (error)
-+				goto release_and_out;
++	down(&dcookie_sem);
++
++	if (!is_live()) {
++		err = -EINVAL;
++		goto out;
++	}
++
++	if (!(dcs = find_dcookie(cookie)))
++		goto out;
++
++	err = -ENOMEM;
++	kbuf = kmalloc(PAGE_SIZE, GFP_KERNEL);
++	if (!kbuf)
++		goto out;
++	memset(kbuf, 0, PAGE_SIZE);
++
++	/* FIXME: (deleted) ? */
++	path = d_path(dcs->dentry, dcs->vfsmnt, kbuf, PAGE_SIZE);
++
++	err = 0;
++
++	pathlen = kbuf + PAGE_SIZE - path;
++	if (len > pathlen)
++		len = pathlen;
++
++	if (copy_to_user(buf, path, len))
++		err = -EFAULT;
++
++	kfree(kbuf);
++out:
++	up(&dcookie_sem);
++	return err;
++}
++
++
++static int dcookie_init(void)
++{
++	struct list_head * d;
++	unsigned int i, hash_bits;
++	int err = -ENOMEM;
++
++	dcookie_cache = kmem_cache_create("dcookie_cache",
++		sizeof(struct dcookie_struct),
++		0, 0, NULL, NULL);
++
++	if (!dcookie_cache)
++		goto out;
++
++	dcookie_hashtable = kmalloc(PAGE_SIZE, GFP_KERNEL);
++	if (!dcookie_hashtable)
++		goto out_kmem;
++
++	err = 0;
++
++	/*
++	 * Find the power-of-two list-heads that can fit into the allocation..
++	 * We don't guarantee that "sizeof(struct list_head)" is necessarily
++	 * a power-of-two.
++	 */
++	hash_size = PAGE_SIZE / sizeof(struct list_head);
++	hash_bits = 0;
++	do {
++		hash_bits++;
++	} while ((hash_size >> hash_bits) != 0);
++	hash_bits--;
++
++	/*
++	 * Re-calculate the actual number of entries and the mask
++	 * from the number of bits we can fit.
++	 */
++	hash_size = 1UL << hash_bits;
++
++	/* And initialize the newly allocated array */
++	d = dcookie_hashtable;
++	i = hash_size;
++	do {
++		INIT_LIST_HEAD(d);
++		d++;
++		i--;
++	} while (i);
++
++out:
++	return err;
++out_kmem:
++	kmem_cache_destroy(dcookie_cache);
++	goto out;
++}
++
++
++static void free_dcookie(struct dcookie_struct * dcs)
++{
++	dcs->dentry->d_cookie = NULL;
++	dput(dcs->dentry);
++	mntput(dcs->vfsmnt);
++	kmem_cache_free(dcookie_cache, dcs);
++}
++
++
++static void dcookie_exit(void)
++{
++	struct list_head * list;
++	struct list_head * pos;
++	struct list_head * pos2;
++	struct dcookie_struct * dcs;
++	size_t i;
++
++	for (i = 0; i < hash_size; ++i) {
++		list = dcookie_hashtable + i;
++		list_for_each_safe(pos, pos2, list) {
++			dcs = list_entry(pos, struct dcookie_struct, hash_list);
++			list_del(&dcs->hash_list);
++			free_dcookie(dcs);
 +		}
-+	} else
-+		acl = NULL;
++	}
 +
-+	handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
-+	if (IS_ERR(handle))
-+		return PTR_ERR(handle);
-+	error = ext3_do_set_acl(handle, inode, type, acl);
-+	ext3_journal_stop(handle, inode);
-+
-+release_and_out:
-+	posix_acl_release(acl);
-+	return error;
++	kfree(dcookie_hashtable);
++	kmem_cache_destroy(dcookie_cache);
 +}
 +
-+static int
-+ext3_xattr_set_acl_access(struct inode *inode, const char *name,
-+			  const void *value, size_t size, int flags)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext3_xattr_set_acl(inode, ACL_TYPE_ACCESS, value, size);
-+}
 +
-+static int
-+ext3_xattr_set_acl_default(struct inode *inode, const char *name,
-+			   const void *value, size_t size, int flags)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext3_xattr_set_acl(inode, ACL_TYPE_DEFAULT, value, size);
-+}
-+
-+struct ext3_xattr_handler ext3_xattr_acl_access_handler = {
-+	prefix:	XATTR_NAME_ACL_ACCESS,
-+	list:	ext3_xattr_list_acl_access,
-+	get:	ext3_xattr_get_acl_access,
-+	set:	ext3_xattr_set_acl_access,
++struct dcookie_user {
++	struct list_head next;
 +};
-+
-+struct ext3_xattr_handler ext3_xattr_acl_default_handler = {
-+	prefix:	XATTR_NAME_ACL_DEFAULT,
-+	list:	ext3_xattr_list_acl_default,
-+	get:	ext3_xattr_get_acl_default,
-+	set:	ext3_xattr_set_acl_default,
-+};
-+
-+void
-+exit_ext3_acl(void)
++ 
++struct dcookie_user * dcookie_register(void)
 +{
-+	ext3_xattr_unregister(EXT3_XATTR_INDEX_POSIX_ACL_ACCESS,
-+			      &ext3_xattr_acl_access_handler);
-+	ext3_xattr_unregister(EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT,
-+			      &ext3_xattr_acl_default_handler);
++	struct dcookie_user * user;
++
++	down(&dcookie_sem);
++
++	user = kmalloc(sizeof(struct dcookie_user), GFP_KERNEL);
++	if (!user)
++		goto out;
++
++	if (!is_live() && dcookie_init())
++		goto out_free;
++
++	list_add(&user->next, &dcookie_users);
++
++out:
++	up(&dcookie_sem);
++	return user;
++out_free:
++	kfree(user);
++	user = NULL;
++	goto out;
 +}
 +
-+int __init
-+init_ext3_acl(void)
++
++void dcookie_unregister(struct dcookie_user * user)
 +{
-+	int error;
++	down(&dcookie_sem);
 +
-+	error = ext3_xattr_register(EXT3_XATTR_INDEX_POSIX_ACL_ACCESS,
-+				    &ext3_xattr_acl_access_handler);
-+	if (error)
-+		goto fail;
-+	error = ext3_xattr_register(EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT,
-+				    &ext3_xattr_acl_default_handler);
-+	if (error)
-+		goto fail;
-+	return 0;
++	list_del(&user->next);
++	kfree(user);
 +
-+fail:
-+	exit_ext3_acl();
-+	return error;
++	if (!is_live())
++		dcookie_exit();
++
++	up(&dcookie_sem);
 +}
-diff -Nru a/fs/ext3/acl.h b/fs/ext3/acl.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/ext3/acl.h	Tue Oct 15 16:59:54 2002
-@@ -0,0 +1,94 @@
++
++EXPORT_SYMBOL_GPL(dcookie_register);
++EXPORT_SYMBOL_GPL(dcookie_unregister);
++EXPORT_SYMBOL_GPL(get_dcookie);
+diff -Naur -X dontdiff linux-linus/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
+--- linux-linus/include/asm-i386/unistd.h	Sun Oct 13 19:51:03 2002
++++ linux/include/asm-i386/unistd.h	Tue Oct 15 21:45:52 2002
+@@ -257,6 +257,8 @@
+ #define __NR_alloc_hugepages	250
+ #define __NR_free_hugepages	251
+ #define __NR_exit_group		252
++#define __NR_lookup_dcookie	253
++  
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+ 
+diff -Naur -X dontdiff linux-linus/include/linux/dcache.h linux/include/linux/dcache.h
+--- linux-linus/include/linux/dcache.h	Tue Oct 15 21:47:21 2002
++++ linux/include/linux/dcache.h	Tue Oct 15 21:45:52 2002
+@@ -66,6 +66,8 @@
+ 
+ #define DNAME_INLINE_LEN 16
+ 
++struct dcookie_struct;
++ 
+ struct dentry {
+ 	atomic_t d_count;
+ 	unsigned int d_flags;
+@@ -84,6 +86,7 @@
+ 	unsigned long d_vfs_flags;
+ 	void * d_fsdata;		/* fs-specific data */
+ 	unsigned char d_iname[DNAME_INLINE_LEN]; /* small names */
++	struct dcookie_struct * d_cookie; /* cookie, if any */
+ };
+ 
+ struct dentry_operations {
+diff -Naur -X dontdiff linux-linus/include/linux/dcookies.h linux/include/linux/dcookies.h
+--- linux-linus/include/linux/dcookies.h	Thu Jan  1 01:00:00 1970
++++ linux/include/linux/dcookies.h	Tue Oct 15 21:45:52 2002
+@@ -0,0 +1,69 @@
 +/*
-+  File: fs/ext3/acl.h
++ * dcookies.h
++ *
++ * Persistent cookie-path mappings
++ *
++ * Copyright 2002 John Levon <levon@movementarian.org>
++ */
 +
-+  (C) 2001 Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+*/
++#ifndef DCOOKIES_H
++#define DCOOKIES_H
++ 
++#include <linux/config.h>
 +
-+#include <linux/posix_acl.h>
-+#include <linux/xattr_acl.h>
++#ifdef CONFIG_PROFILING
++ 
++#include <linux/types.h>
++ 
++struct dcookie_user;
++ 
++/**
++ * dcookie_register - register a user of dcookies
++ *
++ * Register as a dcookie user. Returns %NULL on failure.
++ */
++struct dcookie_user * dcookie_register(void);
 +
-+#define EXT3_ACL_VERSION	0x0001
-+#define EXT3_ACL_MAX_ENTRIES	32
-+
-+typedef struct {
-+	__u16		e_tag;
-+	__u16		e_perm;
-+	__u32		e_id;
-+} ext3_acl_entry;
-+
-+typedef struct {
-+	__u16		e_tag;
-+	__u16		e_perm;
-+} ext3_acl_entry_short;
-+
-+typedef struct {
-+	__u32		a_version;
-+} ext3_acl_header;
-+
-+static inline size_t ext3_acl_size(int count)
-+{
-+	if (count <= 4) {
-+		return sizeof(ext3_acl_header) +
-+		       count * sizeof(ext3_acl_entry_short);
-+	} else {
-+		return sizeof(ext3_acl_header) +
-+		       4 * sizeof(ext3_acl_entry_short) +
-+		       (count - 4) * sizeof(ext3_acl_entry);
-+	}
-+}
-+
-+static inline int ext3_acl_count(size_t size)
-+{
-+	ssize_t s;
-+	size -= sizeof(ext3_acl_header);
-+	s = size - 4 * sizeof(ext3_acl_entry_short);
-+	if (s < 0) {
-+		if (size % sizeof(ext3_acl_entry_short))
-+			return -1;
-+		return size / sizeof(ext3_acl_entry_short);
-+	} else {
-+		if (s % sizeof(ext3_acl_entry))
-+			return -1;
-+		return s / sizeof(ext3_acl_entry) + 4;
-+	}
-+}
-+
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+
-+/* Value for inode->u.ext3_i.i_acl and inode->u.ext3_i.i_default_acl
-+   if the ACL has not been cached */
-+#define EXT3_ACL_NOT_CACHED ((void *)-1)
-+
-+/* acl.c */
-+extern int ext3_permission (struct inode *, int);
-+extern int ext3_permission_locked (struct inode *, int);
-+extern struct posix_acl *ext3_get_acl (struct inode *, int);
-+extern int ext3_set_acl (struct inode *, int, struct posix_acl *);
-+extern int ext3_acl_chmod (handle_t *, struct inode *);
-+extern int ext3_init_acl (handle_t *, struct inode *, struct inode *);
-+extern int ext3_get_acl_xattr (struct inode *, int, void *, size_t);
-+extern int ext3_set_acl_xattr (struct inode *, int, void *, size_t);
-+
-+extern int init_ext3_acl(void);
-+extern void exit_ext3_acl(void);
-+
-+#else  /* CONFIG_EXT3_FS_POSIX_ACL */
-+#include <linux/sched.h>
-+#define ext3_permission NULL
-+#define ext3_get_acl	NULL
-+#define ext3_set_acl	NULL
-+
-+static inline int
-+ext3_acl_chmod(handle_t *handle, struct inode *inode)
-+{
-+	return 0;
-+}
-+
-+static inline int
-+ext3_init_acl(handle_t *handle, struct inode *inode, struct inode *dir)
-+{
-+	inode->i_mode &= ~current->fs->umask;
-+	return 0;
-+}
-+#endif  /* CONFIG_EXT3_FS_POSIX_ACL */
-+
-diff -Nru a/fs/ext3/file.c b/fs/ext3/file.c
---- a/fs/ext3/file.c	Tue Oct 15 16:59:54 2002
-+++ b/fs/ext3/file.c	Tue Oct 15 16:59:54 2002
-@@ -24,6 +24,7 @@
- #include <linux/ext3_fs.h>
- #include <linux/ext3_jbd.h>
- #include "xattr.h"
-+#include "acl.h"
- 
- /*
-  * Called when an inode is released. Note that this is different
-@@ -102,5 +103,8 @@
- 	.getxattr	= ext3_getxattr,
- 	.listxattr	= ext3_listxattr,
- 	.removexattr	= ext3_removexattr,
-+	.permission	= ext3_permission,
-+	.get_posix_acl	= ext3_get_acl,
-+	.set_posix_acl	= ext3_set_acl,
- };
- 
-diff -Nru a/fs/ext3/ialloc.c b/fs/ext3/ialloc.c
---- a/fs/ext3/ialloc.c	Tue Oct 15 16:59:54 2002
-+++ b/fs/ext3/ialloc.c	Tue Oct 15 16:59:54 2002
-@@ -26,6 +26,7 @@
- #include <asm/byteorder.h>
- 
- #include "xattr.h"
-+#include "acl.h"
- 
- /*
-  * ialloc.c contains the inodes allocation and deallocation routines
-@@ -423,20 +424,27 @@
- 	inode->i_generation = EXT3_SB(sb)->s_next_generation++;
- 
- 	ei->i_state = EXT3_STATE_NEW;
--	err = ext3_mark_inode_dirty(handle, inode);
--	if (err) goto fail;
--	
-+
- 	unlock_super(sb);
- 	ret = inode;
- 	if(DQUOT_ALLOC_INODE(inode)) {
- 		DQUOT_DROP(inode);
--		inode->i_flags |= S_NOQUOTA;
--		inode->i_nlink = 0;
--		iput(inode);
--		ret = ERR_PTR(-EDQUOT);
--	} else {
--		ext3_debug("allocating inode %lu\n", inode->i_ino);
-+		err = -EDQUOT;
-+		goto fail2;
- 	}
-+	err = ext3_init_acl(handle, inode, dir);
-+	if (err) {
-+		DQUOT_FREE_INODE(inode);
-+		goto fail2;
-+  	}
-+	err = ext3_mark_inode_dirty(handle, inode);
-+	if (err) {
-+		ext3_std_error(sb, err);
-+		DQUOT_FREE_INODE(inode);
-+		goto fail2;
-+	}
-+
-+	ext3_debug("allocating inode %lu\n", inode->i_ino);
- 	goto really_out;
- fail:
- 	ext3_std_error(sb, err);
-@@ -447,6 +455,12 @@
- really_out:
- 	brelse(bitmap_bh);
- 	return ret;
-+
-+fail2:
-+	inode->i_flags |= S_NOQUOTA;
-+	inode->i_nlink = 0;
-+	iput(inode);
-+	return ERR_PTR(err);
- }
- 
- /* Verify that we are loading a valid orphan from disk */
-diff -Nru a/fs/ext3/inode.c b/fs/ext3/inode.c
---- a/fs/ext3/inode.c	Tue Oct 15 16:59:54 2002
-+++ b/fs/ext3/inode.c	Tue Oct 15 16:59:54 2002
-@@ -34,6 +34,8 @@
- #include <linux/string.h>
- #include <linux/buffer_head.h>
- #include <linux/mpage.h>
-+#include "xattr.h"
-+#include "acl.h"
- 
- /*
-  * SEARCH_FROM_ZERO forces each block allocation to search from the start
-@@ -2199,7 +2201,11 @@
- 	struct buffer_head *bh;
- 	int block;
- 	
--	if(ext3_get_inode_loc(inode, &iloc))
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	ei->i_acl = EXT3_ACL_NOT_CACHED;
-+	ei->i_default_acl = EXT3_ACL_NOT_CACHED;
-+#endif
-+	if (ext3_get_inode_loc(inode, &iloc))
- 		goto bad_inode;
- 	bh = iloc.bh;
- 	raw_inode = iloc.raw_inode;
-@@ -2495,13 +2501,8 @@
-  * be freed, so we have a strong guarantee that no future commit will
-  * leave these blocks visible to the user.)  
-  *
-- * This is only needed for regular files.  rmdir() has its own path, and
-- * we can never truncate a direcory except on final unlink (at which
-- * point i_nlink is zero so recovery is easy.)
-- *
-- * Called with the BKL.  
-+ * Called with inode->sem down.
-  */
--
- int ext3_setattr(struct dentry *dentry, struct iattr *attr)
- {
- 	struct inode *inode = dentry->d_inode;
-@@ -2521,7 +2522,8 @@
- 
- 	lock_kernel();
- 
--	if (attr->ia_valid & ATTR_SIZE && attr->ia_size < inode->i_size) {
-+	if (S_ISREG(inode->i_mode) &&
-+	    attr->ia_valid & ATTR_SIZE && attr->ia_size < inode->i_size) {
- 		handle_t *handle;
- 
- 		handle = ext3_journal_start(inode, 3);
-@@ -2539,12 +2541,30 @@
- 	}
- 	
- 	rc = inode_setattr(inode, attr);
-+	if (!error)
-+		error = rc;
- 
- 	/* If inode_setattr's call to ext3_truncate failed to get a
- 	 * transaction handle at all, we need to clean up the in-core
- 	 * orphan list manually. */
- 	if (inode->i_nlink)
- 		ext3_orphan_del(NULL, inode);
-+
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	if (!error && test_opt(inode->i_sb, POSIX_ACL) && (ia_valid & ATTR_MODE)) {
-+		handle_t *handle;
-+
-+		handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
-+		if (IS_ERR(handle)) {
-+			error = PTR_ERR(handle);
-+			goto err_out;
-+		}
-+		error = ext3_acl_chmod(handle, inode);
-+		rc = ext3_journal_stop(handle, inode);
-+		if (!error)
-+			error = rc;
-+	}
-+#endif
- 
- err_out:
- 	ext3_std_error(inode->i_sb, error);
-diff -Nru a/fs/ext3/namei.c b/fs/ext3/namei.c
---- a/fs/ext3/namei.c	Tue Oct 15 16:59:54 2002
-+++ b/fs/ext3/namei.c	Tue Oct 15 16:59:54 2002
-@@ -37,7 +37,7 @@
- #include <linux/buffer_head.h>
- #include <linux/smp_lock.h>
- #include "xattr.h"
--
-+#include "acl.h"
- 
- /*
-  * define how far ahead to read directories while searching them.
-@@ -1624,7 +1624,10 @@
- 	inode = ext3_new_inode (handle, dir, mode);
- 	err = PTR_ERR(inode);
- 	if (!IS_ERR(inode)) {
--		init_special_inode(inode, mode, rdev);
-+		init_special_inode(inode, inode->i_mode, rdev);
-+#ifdef CONFIG_EXT3_FS_XATTR
-+		inode->i_op = &ext3_special_inode_operations;
-+#endif
- 		err = ext3_add_nondir(handle, dentry, inode);
- 		ext3_mark_inode_dirty(handle, inode);
- 	}
-@@ -2281,17 +2284,25 @@
- 	.rmdir		= ext3_rmdir,
- 	.mknod		= ext3_mknod,
- 	.rename		= ext3_rename,
-+	.setattr	= ext3_setattr,
- 	.setxattr	= ext3_setxattr,	
- 	.getxattr	= ext3_getxattr,	
- 	.listxattr	= ext3_listxattr,	
- 	.removexattr	= ext3_removexattr,
-+	.permission	= ext3_permission,
-+	.get_posix_acl	= ext3_get_acl,
-+	.set_posix_acl	= ext3_set_acl,
- };
- 
- struct inode_operations ext3_special_inode_operations = {
-+	.setattr	= ext3_setattr,
- 	.setxattr	= ext3_setxattr,
- 	.getxattr	= ext3_getxattr,
- 	.listxattr	= ext3_listxattr,
- 	.removexattr	= ext3_removexattr,
-+	.permission	= ext3_permission,
-+	.get_posix_acl	= ext3_get_acl,
-+	.set_posix_acl	= ext3_set_acl,
- };
- 
-  
-diff -Nru a/fs/ext3/super.c b/fs/ext3/super.c
---- a/fs/ext3/super.c	Tue Oct 15 16:59:54 2002
-+++ b/fs/ext3/super.c	Tue Oct 15 16:59:54 2002
-@@ -31,6 +31,7 @@
- #include <linux/buffer_head.h>
- #include <asm/uaccess.h>
- #include "xattr.h"
-+#include "acl.h"
- 
- #ifdef CONFIG_JBD_DEBUG
- static int ext3_ro_after; /* Make fs read-only after this many jiffies */
-@@ -458,6 +459,10 @@
- 	ei = kmem_cache_alloc(ext3_inode_cachep, SLAB_NOFS);
- 	if (!ei)
- 		return NULL;
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	ei->i_acl = EXT3_ACL_NOT_CACHED;
-+	ei->i_default_acl = EXT3_ACL_NOT_CACHED;
-+#endif
- 	return &ei->vfs_inode;
- }
- 
-@@ -495,6 +500,26 @@
- 		printk(KERN_INFO "ext3_inode_cache: not all structures were freed\n");
- }
- 
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+
-+static void ext3_clear_inode(struct inode *inode)
-+{
-+       if (EXT3_I(inode)->i_acl &&
-+           EXT3_I(inode)->i_acl != EXT3_ACL_NOT_CACHED) {
-+               posix_acl_release(EXT3_I(inode)->i_acl);
-+               EXT3_I(inode)->i_acl = EXT3_ACL_NOT_CACHED;
-+       }
-+       if (EXT3_I(inode)->i_default_acl &&
-+           EXT3_I(inode)->i_default_acl != EXT3_ACL_NOT_CACHED) {
-+               posix_acl_release(EXT3_I(inode)->i_default_acl);
-+               EXT3_I(inode)->i_default_acl = EXT3_ACL_NOT_CACHED;
-+       }
-+}
++/**
++ * dcookie_unregister - unregister a user of dcookies
++ *
++ * Unregister as a dcookie user. This may invalidate
++ * any dcookie values returned from get_dcookie().
++ */
++void dcookie_unregister(struct dcookie_user * user);
++  
++/**
++ * get_dcookie - acquire a dcookie
++ *
++ * Convert the given dentry/vfsmount pair into
++ * a cookie value.
++ *
++ * Returns -EINVAL if no living task has registered as a
++ * dcookie user.
++ *
++ * Returns 0 on success, with *cookie filled in
++ */
++int get_dcookie(struct dentry * dentry, struct vfsmount * vfsmnt,
++	unsigned long * cookie);
 +
 +#else
-+# define ext3_clear_inode NULL
-+#endif
 +
- static struct super_operations ext3_sops = {
- 	.alloc_inode	= ext3_alloc_inode,
- 	.destroy_inode	= ext3_destroy_inode,
-@@ -509,6 +534,7 @@
- 	.unlockfs	= ext3_unlockfs,		/* BKL not held.  We take it */
- 	.statfs		= ext3_statfs,		/* BKL not held. */
- 	.remount_fs	= ext3_remount,		/* BKL held */
-+	.clear_inode	= ext3_clear_inode,	/* BKL not needed. */
- };
- 
- struct dentry *ext3_get_parent(struct dentry *child);
-@@ -576,6 +602,13 @@
- 			clear_opt (*mount_options, XATTR_USER);
- 		else
- #endif
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+		if (!strcmp(this_char, "acl"))
-+			set_opt (*mount_options, POSIX_ACL);
-+		else if (!strcmp(this_char, "noacl"))
-+			clear_opt (*mount_options, POSIX_ACL);
-+		else
-+#endif
- 		if (!strcmp (this_char, "bsddf"))
- 			clear_opt (*mount_options, MINIX_DF);
- 		else if (!strcmp (this_char, "nouid32")) {
-@@ -1001,6 +1034,9 @@
- 	if (!parse_options ((char *) data, &sb_block, sbi, &journal_inum, 0))
- 		goto out_fail;
- 
-+	sb->s_flags = (sb->s_flags & ~MS_POSIXACL) |
-+		((sbi->s_mount_opt & EXT3_MOUNT_POSIX_ACL) ? MS_POSIXACL : 0);
++struct dcookie_user * dcookie_register(void)
++{
++	return 0;
++}
 +
- 	blocksize = sb_min_blocksize(sb, EXT3_MIN_BLOCK_SIZE);
++void dcookie_unregister(struct dcookie_user * user)
++{
++	return;
++}
++ 
++static inline int get_dcookie(struct dentry * dentry,
++	struct vfsmount * vfsmnt, unsigned long * cookie)
++{
++	return -ENOSYS;
++} 
++ 
++#endif /* CONFIG_PROFILING */
++ 
++#endif /* DCOOKIES_H */
+diff -Naur -X dontdiff linux-linus/kernel/sys.c linux/kernel/sys.c
+--- linux-linus/kernel/sys.c	Sun Oct 13 19:51:03 2002
++++ linux/kernel/sys.c	Tue Oct 15 21:45:52 2002
+@@ -20,6 +20,7 @@
+ #include <linux/device.h>
+ #include <linux/times.h>
+ #include <linux/security.h>
++#include <linux/dcookies.h>
  
- 	/*
-@@ -1719,6 +1755,9 @@
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+@@ -202,6 +203,7 @@
+ cond_syscall(sys_nfsservctl)
+ cond_syscall(sys_quotactl)
+ cond_syscall(sys_acct)
++cond_syscall(sys_lookup_dcookie)
  
- 	if (sbi->s_mount_opt & EXT3_MOUNT_ABORT)
- 		ext3_abort(sb, __FUNCTION__, "Abort forced by user");
-+
-+	sb->s_flags = (sb->s_flags & ~MS_POSIXACL) |
-+		((sbi->s_mount_opt & EXT3_MOUNT_POSIX_ACL) ? MS_POSIXACL : 0);
- 
- 	es = sbi->s_es;
- 
-diff -Nru a/fs/ext3/xattr.c b/fs/ext3/xattr.c
---- a/fs/ext3/xattr.c	Tue Oct 15 16:59:54 2002
-+++ b/fs/ext3/xattr.c	Tue Oct 15 16:59:54 2002
-@@ -61,6 +61,7 @@
- #include <linux/quotaops.h>
- #include <asm/semaphore.h>
- #include "xattr.h"
-+#include "acl.h"
- 
- #define EXT3_EA_USER "user."
- 
-@@ -1105,15 +1106,27 @@
- 	err = ext3_xattr_register(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
- 	if (err)
- 		return err;
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	err = init_ext3_acl();
-+	if (err)
-+		goto out;
-+#endif
- 	ext3_xattr_cache = mb_cache_create("ext3_xattr", NULL,
- 		sizeof(struct mb_cache_entry) +
- 		sizeof(struct mb_cache_entry_index), 1, 61);
- 	if (!ext3_xattr_cache) {
--		ext3_xattr_unregister(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
--		return -ENOMEM;
-+		err = -ENOMEM;
-+		goto out1;
- 	}
--
- 	return 0;
-+out1:
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	exit_ext3_acl();
-+out:
-+#endif
-+	ext3_xattr_unregister(EXT3_XATTR_INDEX_USER,
-+			      &ext3_xattr_user_handler);
-+	return err;
- }
- 
- void
-@@ -1122,6 +1135,8 @@
- 	if (ext3_xattr_cache)
- 		mb_cache_destroy(ext3_xattr_cache);
- 	ext3_xattr_cache = NULL;
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	exit_ext3_acl();
-+#endif
- 	ext3_xattr_unregister(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
- }
--
-diff -Nru a/fs/ext3/xattr_user.c b/fs/ext3/xattr_user.c
---- a/fs/ext3/xattr_user.c	Tue Oct 15 16:59:54 2002
-+++ b/fs/ext3/xattr_user.c	Tue Oct 15 16:59:54 2002
-@@ -12,10 +12,7 @@
- #include <linux/ext3_jbd.h>
- #include <linux/ext3_fs.h>
- #include "xattr.h"
--
--#ifdef CONFIG_EXT3_FS_POSIX_ACL
--# include <linux/ext3_acl.h>
--#endif
-+#include "acl.h"
- 
- #define XATTR_USER_PREFIX "user."
- 
-diff -Nru a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
---- a/include/linux/ext3_fs.h	Tue Oct 15 16:59:54 2002
-+++ b/include/linux/ext3_fs.h	Tue Oct 15 16:59:54 2002
-@@ -323,6 +323,7 @@
- #define EXT3_MOUNT_UPDATE_JOURNAL	0x1000	/* Update the journal format */
- #define EXT3_MOUNT_NO_UID32		0x2000  /* Disable 32-bit UIDs */
- #define EXT3_MOUNT_XATTR_USER		0x4000	/* Extended user attributes */
-+#define EXT3_MOUNT_POSIX_ACL		0x8000	/* POSIX Access Control Lists */
- 
- /* Compatibility, for having both ext2_fs.h and ext3_fs.h included at once */
- #ifndef _LINUX_EXT2_FS_H
-diff -Nru a/include/linux/ext3_fs_i.h b/include/linux/ext3_fs_i.h
---- a/include/linux/ext3_fs_i.h	Tue Oct 15 16:59:54 2002
-+++ b/include/linux/ext3_fs_i.h	Tue Oct 15 16:59:54 2002
-@@ -41,6 +41,10 @@
- 	__u32	i_prealloc_count;
- #endif
- 	__u32	i_dir_start_lookup;
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	struct posix_acl	*i_acl;
-+	struct posix_acl	*i_default_acl;
-+#endif
- 	
- 	struct list_head i_orphan;	/* unlinked but open inodes */
- 
+ static int set_one_prio(struct task_struct *p, int niceval, int error)
+ {

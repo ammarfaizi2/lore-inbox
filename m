@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288922AbSANTFf>; Mon, 14 Jan 2002 14:05:35 -0500
+	id <S288946AbSANTIc>; Mon, 14 Jan 2002 14:08:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288936AbSANTEj>; Mon, 14 Jan 2002 14:04:39 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43270 "EHLO
+	id <S288932AbSANTHQ>; Mon, 14 Jan 2002 14:07:16 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46342 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288946AbSANTC5>; Mon, 14 Jan 2002 14:02:57 -0500
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-To: esr@thyrsus.com
-Date: Mon, 14 Jan 2002 19:14:40 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), eli.carter@inet.com (Eli Carter),
-        Michael.Lazarou@etl.ericsson.se ("Michael Lazarou (ETL)"),
+	id <S288801AbSANTFv>; Mon, 14 Jan 2002 14:05:51 -0500
+Subject: Re: Hardwired drivers are going away?
+To: babydr@baby-dragons.com (Mr. James W. Laferriere)
+Date: Mon, 14 Jan 2002 19:17:46 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
         linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <20020114134426.C17522@thyrsus.com> from "Eric S. Raymond" at Jan 14, 2002 01:44:26 PM
+In-Reply-To: <Pine.LNX.4.44.0201141358060.3238-100000@filesrv1.baby-dragons.com> from "Mr. James W. Laferriere" at Jan 14, 2002 02:00:01 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16QCZ7-0002b4-00@the-village.bc.nu>
+Message-Id: <E16QCc6-0002bb-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > it did last week". Random mechanics hating car owners don't do engine tuning
-> > jobs or fit turbochargers.
-> 
-> No...but they do change their own oil and antifreeze.  Upgrading your
-> kernel should be as simple as changing your oil.
+> > Urban legend.
+> 	I do not agree .  Got proof ?  Yes that is a valid question .
 
-Yeah. I go to the garage versus I click "up 2 date". I don't mix custom
-oils.
+Most of the rootkit type stuff I see nowdays includes code for loading
+patches into module free kernels. Its a real no win. The better ones support
+regexp scanning so they can patch kernels where the sysadmin thinks he/she
+is cool and has hidden or crapped in System.map
 
-> > Secondly we've established we can pick the right CPU for the kernel reliably
-> > that is seperate to modules. 
-> 
-> Right, but that doesn't get you a recompiled binary with extended instructions
-> in it.
+> > > case becouse the system can't know where the module will be located IIRC)
+> > I defy you to measure it on x86
+> 	OK ,How about sparc-64/alpha/ia64/... ?
 
-It does. Once you have picked the required processor type you will get the
-right instructions. Except for the Athlon, Winchip and maybe the PIV
-I've seen little evidence it matters. The Debian folk claim its worth < 1%
-and I don't doubt them.
+Not generally found in your grandmothers PC
 
+> > > 3. simplicity in building kernels for other machines. with a monolithic
+> > > kernel you have one file to move (and a bootloader to run) with modules
+> > > you have to move quite a few more files.
+> > tar or nfs mount; make modules_install.
+> 	Please my laugh'o meter is stuck already .  Sorry .  JimL
+
+Then fix it, because the above works well. Also remember that autoconfig
+tools won't be able to guess remote machines very well 8)

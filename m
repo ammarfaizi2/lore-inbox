@@ -1,76 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316824AbSGHIHm>; Mon, 8 Jul 2002 04:07:42 -0400
+	id <S316825AbSGHI0N>; Mon, 8 Jul 2002 04:26:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316825AbSGHIHm>; Mon, 8 Jul 2002 04:07:42 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:55194 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S316824AbSGHIHk>; Mon, 8 Jul 2002 04:07:40 -0400
-Date: Mon, 8 Jul 2002 13:40:23 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@zip.com.au,
-       davem@redhat.com
-Subject: Re: minimal rmap - exit_mmap i_shared_lock/page_table_lock order
-Message-ID: <20020708134023.A2232@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316826AbSGHI0M>; Mon, 8 Jul 2002 04:26:12 -0400
+Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:24778 "EHLO
+	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S316825AbSGHI0L>; Mon, 8 Jul 2002 04:26:11 -0400
+Message-Id: <200207080828.g688Sdo51968@d06relay02.portsmouth.uk.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Peter Oberparleiter <oberpapr@softhome.net>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] 2.4.18/2.5.24 kernel/module.c - minor bugs
+Date: Mon, 8 Jul 2002 10:27:50 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Keith Owens <kaos@ocs.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> On Sat, 6 Jul 2002, Andrew Morton wrote:
->>
->> That is basically what do_munmap() does.  But I'm quite unfamiliar with
->> the locking in there.
-> 
-> The only major user of i_shared is really vmtruncate, I think, and it's
-> quite ok to unmap the file before removing the mapping from the shared
-> list - if vmtruncate finds a unmapped area, it just won't be doing
-> anything (zap_page_range, but that won't do anything without any page
-> tables).
-> 
-> Together with the fact that unmap() already does it this way anyway, it
-> looks like the obvious fix..
+this patch fixes two minor bugs in kernel/module.c in current linux
+kernel versions (2.4.18/2.5.24) which could cause problems in some
+rare situations:
 
-I would tend to agree in principle -- shouldn't be a problem with 
-truncate since it can never lead to stale pages anyhow, which 
-is why munmap can do it that way without losing correctness today. 
 
-However I recall we had a discussion on this a very long while back
-(around end of 2000), when I was trying to solve this i_shared_lock
-vs page_table_lock ordering problem by taking a exactly similar 
-approach for the case of mmap, mprotect etc as well (taking a cue 
-from what munmap did) rather than acquire both locks at the same 
-time in those cases. At that time Dave Miller had expressed some
-reservations about such assumptions in the view of impact of 
-(future) code that might use the shared list differently. He
-preferred to solve the problem by always taking the i_shared_lock
-before page_table_lock everywhere, and at that was the fix that
-got checked in. (Except that this didn't hold for munmap where 
-of course this doesn't work, since unmap could cross multiple 
-mappings)
+1. A size-check in sys_create_module is off by one. The check reads
 
-Its been a long time since I've looked at that code, and things
-have changed quite drastically, so I might be jumping too early,
-but if I look at the code now I'm a little confused about whether
-the locking order has been audited for other paths either ---  
-vma_link seems to acquire page_table_lock before i_shared_lock -- 
-the reverse of what vmtruncate does. Are there other things that
-save us from races there ?
+        if (size < sizeof(struct module)+namelen) {
+                error = -EINVAL;
+                goto err1;
+        }
 
-Regards
-Suparna
+while a subsequent write to a "size"-long buffer expects one more
+byte ("mod" being the buffer pointer of type struct module*):
 
+        memcpy((char*)(mod+1), name, namelen+1);
+
+
+2. In case "struct module" used by insmod is larger than the one used
+by the kernel (e.g. newer version), module loading will fail.
+
+This is because sys_create_module initializes the module buffer with 
+
+                      0:  struct module
+  sizeof(struct module):  char[] module_name
+
+while sys_init_module copies the insmod-provided "struct module" data into
+this buffer, overwriting the adjacent module name with the extra "struct
+module" fields. As a result, the following sanity check will fail
+
+        if (namelen != n_namelen || strcmp(n_name, mod_tmp.name) != 0) {
+                printk(KERN_ERR "init_module: changed module name to "
+                                "%s' from %s'\n",
+                       n_name, mod_tmp.name);
+                goto err3;
+        }
+
+because mod_tmp.name points to the overwritten module name.
+
+This can be easily fixed using the already existing copy of the module name
+in "name_tmp".
+
+
+Following is the patch implementing these two fixes (diff against 2.4.17,
+works for 2.4.18, 2.5.24):
+
+========================================
+--- linux-2.4.17/kernel/module.c	Sun Nov 11 20:23:14 2001
++++ linux-2.4.17-modfix/kernel/module.c	Mon Jul  8 09:50:57 2002
+@@ -303,7 +303,7 @@
+ 		error = namelen;
+ 		goto err0;
+ 	}
+-	if (size < sizeof(struct module)+namelen) {
++	if (size < sizeof(struct module)+namelen+1) {
+ 		error = -EINVAL;
+ 		goto err1;
+ 	}
+@@ -482,10 +482,10 @@
+ 		error = n_namelen;
+ 		goto err2;
+ 	}
+-	if (namelen != n_namelen || strcmp(n_name, mod_tmp.name) != 0) {
++	if (namelen != n_namelen || strcmp(n_name, name_tmp) != 0) {
+ 		printk(KERN_ERR "init_module: changed module name to "
+ 				"`%s' from `%s'\n",
+-		       n_name, mod_tmp.name);
++		       n_name, name_tmp);
+ 		goto err3;
+ 	}
  
-> 
-> 		Linus
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in the body
-> to majordomo@kvack.org.  For more info on Linux MM, see:
-> http://www.linux-mm.org/
+========================================
 
+
+Regards,
+  Peter Oberparleiter

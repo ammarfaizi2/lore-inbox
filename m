@@ -1,95 +1,125 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285747AbRLYTkw>; Tue, 25 Dec 2001 14:40:52 -0500
+	id <S285748AbRLYT7C>; Tue, 25 Dec 2001 14:59:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285748AbRLYTkm>; Tue, 25 Dec 2001 14:40:42 -0500
-Received: from mail3.svr.pol.co.uk ([195.92.193.19]:24654 "EHLO
-	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S285747AbRLYTk1>; Tue, 25 Dec 2001 14:40:27 -0500
-Message-ID: <001a01c18d77$a9e92ca0$0801a8c0@Stev.org>
-Reply-To: "James Stevenson" <mistral@stev.org>
-From: "James Stevenson" <mail-lists@stev.org>
-To: <jlladono@pie.xtec.es>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C285B40.91A83EC7@jep.dhis.org>
-Subject: Re: 2.4.x kernels, big ide disks and old bios
-Date: Tue, 25 Dec 2001 19:09:22 -0000
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S285783AbRLYT6x>; Tue, 25 Dec 2001 14:58:53 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:58379 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S285748AbRLYT6i>;
+	Tue, 25 Dec 2001 14:58:38 -0500
+Date: Tue, 25 Dec 2001 11:33:56 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Total system lockup with Alt-SysRQ-L
+Message-ID: <20011225113355.A37@toy.ucw.cz>
+In-Reply-To: <20011223175846.B27993@flint.arm.linux.org.uk> <E16IKwX-0002U3-00@the-village.bc.nu> <20011224083752.A1181@flint.arm.linux.org.uk> <20011224122605.A2110@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20011224122605.A2110@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Mon, Dec 24, 2001 at 12:26:05PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-i have the same problem weith a 40GB disk
-its not a linux problem but a bios / disk problem
+Hi!
 
-my workaround:
+> We do have some tests in the do_exit() path to panic if/when init dies,
+> which rely on the init PID being '1'.  Unfortunately, these don't trigger
+> because of the following bogosity in drivers/char/sysrq.c:
+> 
+>                         if (p->pid == 1 && even_init)
+>                                 /* Ugly hack to kill init */
+>                                 p->pid = 0x8000;
+> 
+> So, I propose we get rid of this "ugly hack", and the alt-sysrq-l
+> option altogether - it would appear to serve no useful purpose.
 
-dont set the jumper on the disk to make it look smaller.
-this however will stop it working in the bios so you need to
-disable the disk in the bios completly and turn off the ide
-auto detection process in the bios this is because it will
-probably hang if you try to use it :)
+Ask mj if it was ever usefull... But I guess it was not. Kill it.
 
-linux will then pick the disk up from the ide controller.
-
------ Original Message -----
-From: "Josep Lladonosa i Capell" <jep@jep.net.dhis.org>
-To: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, December 25, 2001 10:56 AM
-Subject: 2.4.x kernels, big ide disks and old bios
-
-
-> Hello,
->
-> the problem is this:
->
-> bios only supports disks up to 32 Gb.
->
-> hard disk is 60 Gb.
->
-> kernel is 2.4.17
->
-> hard disk reports its correct size when reading parameters from the
-> disk, not from the bios
->
-> verd:/proc/ide/hdc# cat geometry
-> physical     65530/16/63
-> logical      119150/16/63
->
->
-> when booting (dmesg):
->
-> hdc: IC35L060AVER07-0, ATA DISK drive
-> hdc: 66055247 sectors (33820 MB) w/1916KiB Cache, CHS=119150/16/63,
-> UDMA(33)
->
->
-> Linux adopts the 'false' geometry (65530/16/63) ) to bypass the bios
-> boot.
->
->
->
-> I know that there are patches for 2.2 kernels and 2.3 kernels, so as
-> linux adopts the logical geometry (a kiddy trick with lba size). They
-> are very simple (a line), but 2.4 ide implementation is (a little more)
-> complicated. Any patch?
->
-> Bon Nadal - Merry Christmas
->
+> 
+> Here is a patch that does just this.  It should apply to 2.4.17 and 2.5.1
+> kernels fine (generated on 2.5.1).
+> 
+> --- orig/drivers/char/sysrq.c	Wed Dec 12 11:37:40 2001
+> +++ linux/drivers/char/sysrq.c	Mon Dec 24 12:19:58 2001
+> @@ -284,24 +284,20 @@
+>  
+>  /* signal sysrq helper function
+>   * Sends a signal to all user processes */
+> -static void send_sig_all(int sig, int even_init)
+> +static void send_sig_all(int sig)
+>  {
+>  	struct task_struct *p;
+>  
+>  	for_each_task(p) {
+> -		if (p->mm) { /* Not swapper nor kernel thread */
+> -			if (p->pid == 1 && even_init)
+> -				/* Ugly hack to kill init */
+> -				p->pid = 0x8000;
+> -			if (p->pid != 1)
+> -				force_sig(sig, p);
+> -		}
+> +		if (p->mm && p->pid != 1)
+> +			/* Not swapper, init nor kernel thread */
+> +			force_sig(sig, p);
+>  	}
+>  }
+>  
+>  static void sysrq_handle_term(int key, struct pt_regs *pt_regs,
+>  		struct kbd_struct *kbd, struct tty_struct *tty) {
+> -	send_sig_all(SIGTERM, 0);
+> +	send_sig_all(SIGTERM);
+>  	console_loglevel = 8;
+>  }
+>  static struct sysrq_key_op sysrq_term_op = {
+> @@ -312,7 +308,7 @@
+>  
+>  static void sysrq_handle_kill(int key, struct pt_regs *pt_regs,
+>  		struct kbd_struct *kbd, struct tty_struct *tty) {
+> -	send_sig_all(SIGKILL, 0);
+> +	send_sig_all(SIGKILL);
+>  	console_loglevel = 8;
+>  }
+>  static struct sysrq_key_op sysrq_kill_op = {
+> @@ -321,17 +317,6 @@
+>  	action_msg:	"Kill All Tasks",
+>  };
+>  
+> -static void sysrq_handle_killall(int key, struct pt_regs *pt_regs,
+> -		struct kbd_struct *kbd, struct tty_struct *tty) {
+> -	send_sig_all(SIGKILL, 1);
+> -	console_loglevel = 8;
+> -}
+> -static struct sysrq_key_op sysrq_killall_op = {
+> -	handler:	sysrq_handle_killall,
+> -	help_msg:	"killalL",
+> -	action_msg:	"Kill All Tasks (even init)",
+> -};
+> -
+>  /* END SIGNAL SYSRQ HANDLERS BLOCK */
+>  
+>  
+> @@ -366,7 +351,7 @@
+>  #else
+>  /* k */	NULL,
+>  #endif
+> -/* l */	&sysrq_killall_op,
+> +/* l */	NULL,
+>  /* m */	&sysrq_showmem_op,
+>  /* n */	NULL,
+>  /* o */	NULL, /* This will often be registered
+> 
 > --
-> Salutacions...Josep
-> http://www.geocities.com/SiliconValley/Horizon/1065/
-> --
->
->
->
+> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+>              http://www.arm.linux.org.uk/personal/aboutme.html
+> 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

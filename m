@@ -1,90 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbUCXUT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 15:19:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbUCXUT3
+	id S261463AbUCXUXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 15:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbUCXUXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 15:19:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:3996 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261225AbUCXUTS (ORCPT
+	Wed, 24 Mar 2004 15:23:16 -0500
+Received: from mail.dsvr.co.uk ([212.69.192.8]:58016 "EHLO mail.dsvr.co.uk")
+	by vger.kernel.org with ESMTP id S261463AbUCXUXC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 15:19:18 -0500
-Date: Wed, 24 Mar 2004 12:19:14 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: Compile problem on sparc64
-Message-Id: <20040324121914.00fb9bf9.davem@redhat.com>
-In-Reply-To: <1080130448.2515.108.camel@pegasus>
-References: <1080130448.2515.108.camel@pegasus>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 24 Mar 2004 15:23:02 -0500
+Date: Wed, 24 Mar 2004 20:22:59 +0000
+From: Jonathan Sambrook <jonathan.sambrook@dsvr.co.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
+Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
+Message-ID: <20040324202259.GJ20333@jsambrook>
+References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <200403232352.58066.dtor_core@ameritech.net> <20040324102233.GC512@elf.ucw.cz> <200403240748.31837.dtor_core@ameritech.net> <20040324151831.GB25738@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yhze8HlyfmXt1APY"
+Content-Disposition: inline
+In-Reply-To: <20040324151831.GB25738@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[ Please us sparclinux@vger.kernel.org in the future, thanks... ]
+--yhze8HlyfmXt1APY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 24 Mar 2004 13:15:22 +0100
-Marcel Holtmann <marcel@holtmann.org> wrote:
+At 16:18 on Wed 24/03/04, pavel@suse.cz masquerading as 'Pavel Machek' wrot=
+e:
+> Hi!
+>=20
+> > > Except when it is not in syslog, because it was after atomic copy or
+> > > before atomic copy back. swsusp is pretty unique in this respect.
+> > >
+> >=20
+> > And I would consider an error that happens after atomic copy critical. =
+If
+> > this happens all attempts to draw progress bar, etc. should be stopped =
+and
+> > suspend should probably abort as well.
+>=20
+> Well, not all printks() are errors this hard. And at some points, it
+> is no longer possible to abort (after pagedir is on disk, its okay to
+> panic (machine will resume normally after that), but its not okay to
+> simply return. You could fix signature then return, but it would be hard)=
+=2E=20
+>=20
+> > What happens if swsusp1 gets such an error during atomic phase? Will it
+> > continue or abort? If it continues I would imagine user not noticing the
+> > message it it flashes the split second before the box powers off.=20
+>=20
+> It continues. Fortunately powerdown takes enough time on most machines
+> that messages can be readed ...=20
 
-> I am using Debian Sid with GCC 3.3.3 (Debian 20040320) and I got the
-> following error on my sparc64 platform while compiling the latest
-> Bitkeeper sources from 2.6:
+> if you pay attetion.
 
-This should cure it, let me know if it doesn't.
+Which is not a normal usage scenario.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/03/24 12:16:41-08:00 davem@nuts.davemloft.net 
-#   [SPARC64]: Do not use cast exprs as lvalues.
-# 
-# include/asm-sparc64/pgalloc.h
-#   2004/03/24 12:16:19-08:00 davem@nuts.davemloft.net +7 -6
-#   [SPARC64]: Do not use cast exprs as lvalues.
-# 
-diff -Nru a/include/asm-sparc64/pgalloc.h b/include/asm-sparc64/pgalloc.h
---- a/include/asm-sparc64/pgalloc.h	Wed Mar 24 12:17:02 2004
-+++ b/include/asm-sparc64/pgalloc.h	Wed Mar 24 12:17:02 2004
-@@ -38,11 +38,12 @@
- 
- 	preempt_disable();
- 	if (!page->lru.prev) {
--		(unsigned long *)page->lru.next = pgd_quicklist;
-+		page->lru.next = (void *) pgd_quicklist;
- 		pgd_quicklist = (unsigned long *)page;
- 	}
--	(unsigned long)page->lru.prev |=
--		(((unsigned long)pgd & (PAGE_SIZE / 2)) ? 2 : 1);
-+	page->lru.prev = (void *)
-+	  (((unsigned long)page->lru.prev) |
-+	   (((unsigned long)pgd & (PAGE_SIZE / 2)) ? 2 : 1));
- 	pgd_cache_size++;
- 	preempt_enable();
- }
-@@ -62,7 +63,7 @@
- 			off = PAGE_SIZE / 2;
- 			mask &= ~2;
- 		}
--		(unsigned long)ret->lru.prev = mask;
-+		ret->lru.prev = (void *) mask;
- 		if (!mask)
- 			pgd_quicklist = (unsigned long *)ret->lru.next;
-                 ret = (struct page *)(__page_address(ret) + off);
-@@ -76,10 +77,10 @@
- 		if (page) {
- 			ret = (struct page *)page_address(page);
- 			clear_page(ret);
--			(unsigned long)page->lru.prev = 2;
-+			page->lru.prev = (void *) 2UL;
- 
- 			preempt_disable();
--			(unsigned long *)page->lru.next = pgd_quicklist;
-+			page->lru.next = (void *) pgd_quicklist;
- 			pgd_quicklist = (unsigned long *)page;
- 			pgd_cache_size++;
- 			preempt_enable();
+Common scenario:
+
+ suspend machine then go home/to bed
+
+
+ BTW Pavel I'm not arguing that the code has to stay in without
+ modification
+ (e.g. massively stripped down or whatever). But this is one place where
+ kernel code is a lot closer to Joe Enduser's awareness than is usually
+ the case, so IMUO, the priorities shift.
+
+ That said, this discussion seems to be necessary to refine what is
+ necessary from what has been creatively evolved.
+
+ Jonathan
+
+> 								Pavel
+> --=20
+> Horseback riding is like software...
+> ...vgf orggre jura vgf serr.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+--=20
+                  =20
+ Jonathan Sambrook=20
+Software  Developer=20
+ Designer  Servers
+
+--yhze8HlyfmXt1APY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAYe4jSUOTbbpGXDwRAr1lAJ9eD+7byjAf+x+U52Y836h8Ga83dwCfaqbL
+F9u9Mx1LrySqD8PhE04JRgs=
+=MOyM
+-----END PGP SIGNATURE-----
+
+--yhze8HlyfmXt1APY--

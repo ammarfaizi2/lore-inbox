@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270460AbUJUIWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270415AbUJUIWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270460AbUJUIWv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 04:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270393AbUJUIVW
+	id S270415AbUJUIWu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 04:22:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270699AbUJUIVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 04:21:22 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:65190 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S270661AbUJUIPm (ORCPT
+	Thu, 21 Oct 2004 04:21:34 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:28612 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S270517AbUJUIEL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 04:15:42 -0400
-Date: Thu, 21 Oct 2004 10:12:15 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041021081215.GA21073@elte.hu>
-References: <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <4176403B.5@stud.feec.vutbr.cz> <20041020105630.GB2614@elte.hu> <417645A4.7000802@stud.feec.vutbr.cz> <20041020120434.GA6297@elte.hu> <4176D9CC.5010107@stud.feec.vutbr.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4176D9CC.5010107@stud.feec.vutbr.cz>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 21 Oct 2004 04:04:11 -0400
+Date: Thu, 21 Oct 2004 10:03:25 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "David S. Miller" <davem@davemloft.net>
+cc: Andi Kleen <ak@suse.de>, dhowells@redhat.com,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       discuss@x86-64.org, sparclinux@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-m68k@vger.kernel.org,
+       linux-sh@m17n.org, linux-arm-kernel@lists.arm.linux.org.uk,
+       parisc-linux@parisc-linux.org, linux-ia64@vger.kernel.org,
+       linux-390@vm.marist.edu,
+       Linux/MIPS Development <linux-mips@linux-mips.org>
+Subject: Re: [discuss] Re: [PATCH] Add key management syscalls to non-i386
+ archs
+In-Reply-To: <20041020164144.3457eafe.davem@davemloft.net>
+Message-ID: <Pine.GSO.4.61.0410211002020.614@waterleaf.sonytel.be>
+References: <3506.1098283455@redhat.com> <20041020150149.7be06d6d.davem@davemloft.net>
+ <20041020225625.GD995@wotan.suse.de> <20041020160450.0914270b.davem@davemloft.net>
+ <20041020232509.GF995@wotan.suse.de> <20041020164144.3457eafe.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
-
-> That patch was not enough. The BUGs were still showing up the same as
-> before. I tried to debug it myself. I've found an interesting thing in
-> kernel/printk.c:release_console_sem(). There is the following
-> sequence:
+On Wed, 20 Oct 2004, David S. Miller wrote:
+> On Thu, 21 Oct 2004 01:25:09 +0200
+> Andi Kleen <ak@suse.de> wrote:
 > 
->   spin_lock_irqsave(&logbuf_lock, flags);
->   /* ... some code ... */
->   spin_unlock(&logbuf_lock);
->   call_console_drivers(...);
->   local_irq_restore(flags);
+> > IMHO breaking the build unnecessarily is extremly bad because
+> > it will prevent all testing. And would you really want to hold
+> > up the whole linux testing machinery just for some obscure 
+> > system call? IMHO not a good tradeoff.
 > 
-> I know very little about locking, but I didn't like this two-phased
-> unlock. So I replaced it with a single spin_unlock_irqrestore. Patch
-> attached. I'm almost certain that there is a reason for the two-phased
-> unlocking and that this patch will break something, but so far it
-> works for me.  netconsole now works without complaining.
+> Then change the unistd.h cookie from "#error" to a "#warning".  It
+> accomplishes both of our goals.
 
-ah, indeed. Note that this is still not enough - please try to add a
-local_irq_enable() to netconsole.c's console-write function - does that
-fix it equally well for you?
+Please do so! And not only for syscalls, but also for other things.
 
-the reason is that if we crash within an irqs-off section then
-netconsole will still be called with interrupts disabled and will
-trigger the assert.
+That way we can procmail all mails sent to lkml or bk-commits-head that
+add #warnings to arch/<arch>/ or include/asm-<arch>/.
 
-	Ingo
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284780AbRLPUMa>; Sun, 16 Dec 2001 15:12:30 -0500
+	id <S284785AbRLPU0M>; Sun, 16 Dec 2001 15:26:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284785AbRLPUMU>; Sun, 16 Dec 2001 15:12:20 -0500
-Received: from stine.vestdata.no ([195.204.68.10]:15036 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP
-	id <S284780AbRLPUMQ>; Sun, 16 Dec 2001 15:12:16 -0500
-Date: Sun, 16 Dec 2001 21:12:08 +0100
-From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: Diego Calleja <grundig@teleline.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reiserfs corruption on 2.4.17-rc1!
-Message-ID: <20011216211208.D5226@vestdata.no>
-In-Reply-To: <20011216184836.A418@diego>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011216184836.A418@diego>; from grundig@teleline.es on Sun, Dec 16, 2001 at 06:48:36PM +0100
+	id <S284788AbRLPU0C>; Sun, 16 Dec 2001 15:26:02 -0500
+Received: from net128-007.mclink.it ([195.110.128.7]:14803 "EHLO
+	mail.mclink.it") by vger.kernel.org with ESMTP id <S284785AbRLPUZw>;
+	Sun, 16 Dec 2001 15:25:52 -0500
+Message-ID: <3C1D0350.9060300@arpacoop.it>
+Date: Sun, 16 Dec 2001 21:25:52 +0100
+From: Carl Scarfoglio <scarfoglio@arpacoop.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: AIC7850 panic (post 2.4.14)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 16, 2001 at 06:48:36PM +0100, Diego Calleja wrote:
-> Dec 16 17:40:40 diego kernel: vs-13070: reiserfs_read_inode2: i/o failure
-> occurred trying to find stat data of [4160 68669 0x0 SD]
+I had the exact same problem with this chipset (Adaptec 2904), but I 
+increased the "Initial bus reset delay" from 150 ms to 250 and solved it.
+By the way, do you have cdrom's attached to your scsi card? Beware, 
+since 2.5.1-pre8 (at least) the PC will hang solid if I try to mount a 
+data cd. Up to 2.5.1-pre11 the problem remains. Can you verify this 
+(without mounting any disk, of course)?
+Regards,
+			Carlo Scarfoglio
 
-It appears you have a broken harddrive. You can verify this with the
-"badblocks" program
-
-
--- 
-Ragnar Kjørstad
-Big Storage

@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282890AbRK0JfN>; Tue, 27 Nov 2001 04:35:13 -0500
+	id <S282891AbRK0Jgx>; Tue, 27 Nov 2001 04:36:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282888AbRK0JfD>; Tue, 27 Nov 2001 04:35:03 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:20453 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S282890AbRK0Jev>;
-	Tue, 27 Nov 2001 04:34:51 -0500
-Date: Tue, 27 Nov 2001 12:32:28 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Joe Korty <l-k@mindspring.com>
-Cc: Robert Love <rml@tech9.net>, Ryan Cumming <bodnar42@phalynx.dhs.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: procfs bloat, syscall bloat [in reference to cpu affinity]
-In-Reply-To: <5.0.2.1.2.20011127022738.009f14b0@pop.mindspring.com>
-Message-ID: <Pine.LNX.4.33.0111271227540.9787-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282892AbRK0Jgg>; Tue, 27 Nov 2001 04:36:36 -0500
+Received: from quechua.inka.de ([212.227.14.2]:4623 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S282071AbRK0Jfm>;
+	Tue, 27 Nov 2001 04:35:42 -0500
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.12 ... 2.4.16, /dev/tty
+In-Reply-To: <XFMail.20011127085220.backes@rhrk.uni-kl.de>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-xfs (i686))
+Message-Id: <E168eeJ-0005nt-00@calista.inka.de>
+Date: Tue, 27 Nov 2001 10:35:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <XFMail.20011127085220.backes@rhrk.uni-kl.de> you wrote:
+> still having problems (starting with kernel 2.4.12) with
+> the /dev/tty device:
 
-On Tue, 27 Nov 2001, Joe Korty wrote:
+Do you have devfs? In that case the Devices are generated dynamically.
 
-> So my rule is, services of the first kind, the ones that are simple
-> and eternal, should be system calls, while the quirky second kind
-> should be consigned soley to the proc fs.
->
-> I feel that the cpu affinity services are of the first kind.  They are
-> very simple, very conceptual services that have absolutely no tie in
-> to any architecture other than it be SMP, and even on uniprocessors
-> they reduce down gracefully to the null state. [...]
+If you run ls on /dev/tty you should see an Entry with major 5 and minor
+number 0.
 
-yep, agreed. Also, /proc might not be mounted in eg. a chroot environment.
-(a number of security-conscious servers do this.) Or it might not be
-mounted at all, for whatever reason.
-
-> I am not against a proc interface per se, I would like a proc
-> interface, especially for the reading of affinity values.  But in my
-> view the system call interface should also exist and it should be the
-> dominate way of communicating affinity to processes.
-
-i'm not against the /proc interface either - on the contrary, i've picked
-it when implementing /proc/irq/<NR>/smp_affinity.
-
-	Ingo
-
+Greetings
+Bernd

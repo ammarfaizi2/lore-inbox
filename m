@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbULQVBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbULQVEB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262159AbULQVBO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 16:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbULQVBN
+	id S262177AbULQVEB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 16:04:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbULQVDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 16:01:13 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:32189 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262161AbULQUyU (ORCPT
+	Fri, 17 Dec 2004 16:03:24 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:28073 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262163AbULQUya (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 15:54:20 -0500
+	Fri, 17 Dec 2004 15:54:30 -0500
 From: Mike Werner <werner@sgi.com>
 Reply-To: werner@sgi.com
 To: davej@codemonkey.org.uk
-Subject: [patch 2.6.10-rc3 2/4] agpgart: allow multiple backends to be initialized
-Date: Fri, 17 Dec 2004 12:56:05 -0800
+Subject: [patch 2.6.10-rc3 1/4] agpgart: allow multiple backends to be initialized
+Date: Fri, 17 Dec 2004 12:55:59 -0800
 User-Agent: KMail/1.6.2
 Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
 MIME-Version: 1.0
@@ -21,7 +21,7 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200412171256.05570.werner@sgi.com>
+Message-Id: <200412171255.59390.werner@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -37,840 +37,615 @@ Summary for the 4 patches.
 [3/4] Patch drm code to work with modified agpgart api.
 [4/4] Patch framebuffer code to work with modified agpgart api.
 -----------------------------------------------------------------------------
- generic.c |  317 ++++++++++++++++++++++++++++++++++++--------------------------
- 1 files changed, 187 insertions(+), 130 deletions(-)
-
+drivers/char/agp/agp.h      |    3 +
+drivers/char/agp/backend.c  |  112 +++++++++++++++++++++++++-------------------
+drivers/char/agp/frontend.c |   30 ++++++-----
+drivers/char/agp/generic.c  |   71 ++++++++++++++++-----------
+include/linux/agp_backend.h |   32 +++++++-----
+5 files changed, 145 insertions(+), 103 deletions(-)
+ 
 # This is a BitKeeper generated diff -Nru style patch.
 #
-#   Run Lindent on generic.c
-# 
-diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
---- a/drivers/char/agp/generic.c	2004-12-17 11:17:31 -08:00
-+++ b/drivers/char/agp/generic.c	2004-12-17 11:17:31 -08:00
-@@ -61,8 +61,8 @@
- 	if (key < MAXKEY)
- 		clear_bit(key, agp_bridge->key_list);
- }
--EXPORT_SYMBOL(agp_free_key);
+#   Allow multiple backends to be initialized
+#
+diff -Nru a/drivers/char/agp/agp.h b/drivers/char/agp/agp.h
+--- a/drivers/char/agp/agp.h	2004-12-17 10:36:04 -08:00
++++ b/drivers/char/agp/agp.h	2004-12-17 10:36:04 -08:00
+@@ -1,5 +1,6 @@
+ /*
+  * AGPGART
++ * Copyright (C) 2004 Silicon Graphics, Inc.
+  * Copyright (C) 2002-2004 Dave Jones
+  * Copyright (C) 1999 Jeff Hartmann
+  * Copyright (C) 1999 Precision Insight, Inc.
+@@ -139,6 +140,7 @@
+ 	int capndx;
+ 	char major_version;
+ 	char minor_version;
++	struct list_head list;
+ };
  
-+EXPORT_SYMBOL(agp_free_key);
+ #define OUTREG64(mmap, addr, val)	__raw_writeq((val), (mmap)+(addr))
+@@ -271,6 +273,7 @@
+ void global_cache_flush(void);
+ void get_agp_version(struct agp_bridge_data *bridge);
+ unsigned long agp_generic_mask_memory(unsigned long addr, int type);
++struct agp_bridge_data *agp_generic_find_bridge(struct pci_dev *pdev);
  
- static int agp_get_key(void)
+ /* generic routines for agp>=3 */
+ int agp3_generic_fetch_size(void);
+diff -Nru a/drivers/char/agp/backend.c b/drivers/char/agp/backend.c
+--- a/drivers/char/agp/backend.c	2004-12-17 10:36:04 -08:00
++++ b/drivers/char/agp/backend.c	2004-12-17 10:36:04 -08:00
+@@ -1,5 +1,6 @@
+ /*
+  * AGPGART driver backend routines.
++ * Copyright (C) 2004 Silicon Graphics, Inc.
+  * Copyright (C) 2002-2003 Dave Jones.
+  * Copyright (C) 1999 Jeff Hartmann.
+  * Copyright (C) 1999 Precision Insight, Inc.
+@@ -42,34 +43,36 @@
+  * fix some real stupidity. It's only by chance we can bump
+  * past 0.99 at all due to some boolean logic error. */
+ #define AGPGART_VERSION_MAJOR 0
+-#define AGPGART_VERSION_MINOR 100
++#define AGPGART_VERSION_MINOR 101
+ static struct agp_version agp_current_version =
  {
-@@ -76,7 +76,6 @@
- 	return -1;
- }
+ 	.major = AGPGART_VERSION_MAJOR,
+ 	.minor = AGPGART_VERSION_MINOR,
+ };
  
+-static int agp_count=0;
 -
- struct agp_memory *agp_create_memory(int scratch_pages)
- {
- 	struct agp_memory *new;
-@@ -103,6 +102,7 @@
- 	new->num_scratch_pages = scratch_pages;
- 	return new;
- }
-+
- EXPORT_SYMBOL(agp_create_memory);
+-struct agp_bridge_data agp_bridge_dummy = { .type = NOT_SUPPORTED };
+-struct agp_bridge_data *agp_bridge = &agp_bridge_dummy;
++struct agp_bridge_data *agp_bridge;
++LIST_HEAD(agp_bridges);
++struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *pdev);
+ EXPORT_SYMBOL(agp_bridge);
+-
++EXPORT_SYMBOL(agp_bridges);
  
  /**
-@@ -129,13 +129,15 @@
+- *	agp_backend_acquire  -  attempt to acquire the agp backend.
++ *	agp_backend_acquire  -  attempt to acquire an agp backend.
+  *
+- *	returns -EBUSY if agp is in use,
+- *	returns 0 if the caller owns the agp backend
+  */
+-int agp_backend_acquire(void)
++struct agp_bridge_data *agp_backend_acquire(struct pci_dev *pdev)
+ {
+-	if (agp_bridge->type == NOT_SUPPORTED)
+-		return -EINVAL;
+-	if (atomic_read(&agp_bridge->agp_in_use))
+-		return -EBUSY;
+-	atomic_inc(&agp_bridge->agp_in_use);
+-	return 0;
++	struct agp_bridge_data *bridge;
++
++	bridge = agp_find_bridge(pdev);
++
++	if (!bridge)
++		return NULL;
++	
++	if (atomic_read(&bridge->agp_in_use))
++		return NULL;
++	atomic_inc(&bridge->agp_in_use);
++	return bridge;
+ }
+ EXPORT_SYMBOL(agp_backend_acquire);
+ 
+@@ -82,10 +85,11 @@
+  *
+  *	(Ensure that all memory it bound is unbound.)
+  */
+-void agp_backend_release(void)
++void agp_backend_release(struct agp_bridge_data *bridge)
+ {
+-	if (agp_bridge->type != NOT_SUPPORTED)
+-		atomic_dec(&agp_bridge->agp_in_use);
++
++	if (bridge)
++		atomic_dec(&bridge->agp_in_use);
+ }
+ EXPORT_SYMBOL(agp_backend_release);
+ 
+@@ -121,7 +125,6 @@
+ 	     (maxes_table[index].agp - maxes_table[index - 1].agp)) /
+ 	   (maxes_table[index].mem - maxes_table[index - 1].mem);
+ 
+-	printk(KERN_INFO PFX "Maximum main memory to use for agp memory: %ldM\n", result);
+ 	result = result << (20 - PAGE_SHIFT);
+ 	return result;
+ }
+@@ -178,9 +181,6 @@
+ 		goto err_out;
+ 	}
+ 
+-	printk(KERN_INFO PFX "AGP aperture is %dM @ 0x%lx\n",
+-	       size_value, bridge->gart_bus_addr);
+-
+ 	return 0;
+ 
+ err_out:
+@@ -225,16 +225,31 @@
+ 	&agp_copy_info
+ };
+ 
+-/* XXX Kludge alert: agpgart isn't ready for multiple bridges yet */
++/* When we remove the global variable agp_bridge from all drivers
++ * then agp_alloc_bridge and agp_generic_find_bridge need to be updated
++ */
++
+ struct agp_bridge_data *agp_alloc_bridge(void)
+ {
+-	return agp_bridge;
++	struct agp_bridge_data *bridge = kmalloc(sizeof(*bridge), GFP_KERNEL);
++
++	if (!bridge)
++		return NULL;
++
++	if (list_empty(&agp_bridges))
++		agp_bridge = bridge;
++
++	return bridge;
+ }
+ EXPORT_SYMBOL(agp_alloc_bridge);
+ 
+ 
+ void agp_put_bridge(struct agp_bridge_data *bridge)
+ {
++        kfree(bridge);
++
++        if (list_empty(&agp_bridges))
++                agp_bridge = NULL;
+ }
+ EXPORT_SYMBOL(agp_put_bridge);
+ 
+@@ -251,43 +266,41 @@
+ 		return -EINVAL;
+ 	}
+ 
+-	if (agp_count) {
+-		printk (KERN_INFO PFX
+-		       "Only one agpgart device currently supported.\n");
+-		return -ENODEV;
+-	}
+-
+ 	/* Grab reference on the chipset driver. */
+ 	if (!try_module_get(bridge->driver->owner)) {
+ 		printk (KERN_INFO PFX "Couldn't lock chipset driver.\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	bridge->type = SUPPORTED;
+-
+-	error = agp_backend_initialize(agp_bridge);
++	error = agp_backend_initialize(bridge);
+ 	if (error) {
+ 		printk (KERN_INFO PFX "agp_backend_initialize() failed.\n");
+ 		goto err_out;
+ 	}
+ 
+-	error = agp_frontend_initialize();
+-	if (error) {
+-		printk (KERN_INFO PFX "agp_frontend_initialize() failed.\n");
+-		goto frontend_err;
+-	}
++	if (list_empty(&agp_bridges)) {
++		error = agp_frontend_initialize();
++		if (error) {
++			printk (KERN_INFO PFX "agp_frontend_initialize() failed.\n");
++			goto frontend_err;
++		}
++
++		/* FIXME: What to do with this? */
++		inter_module_register("drm_agp", THIS_MODULE, &drm_agp);
+ 
+-	/* FIXME: What to do with this? */
+-	inter_module_register("drm_agp", THIS_MODULE, &drm_agp);
++		printk(KERN_INFO PFX "AGP aperture is %dM @ 0x%lx\n",
++			bridge->driver->fetch_size(), bridge->gart_bus_addr);
++
++	}
+ 
+-	agp_count++;
++	list_add(&bridge->list, &agp_bridges);
+ 	return 0;
+ 
+ frontend_err:
+-	agp_backend_cleanup(agp_bridge);
++	agp_backend_cleanup(bridge);
+ err_out:
+-	bridge->type = NOT_SUPPORTED;
+ 	module_put(bridge->driver->owner);
++	agp_put_bridge(bridge);
+ 	return error;
+ }
+ EXPORT_SYMBOL_GPL(agp_add_bridge);
+@@ -295,11 +308,12 @@
+ 
+ void agp_remove_bridge(struct agp_bridge_data *bridge)
+ {
+-	bridge->type = NOT_SUPPORTED;
+-	agp_frontend_cleanup();
+ 	agp_backend_cleanup(bridge);
+-	inter_module_unregister("drm_agp");
+-	agp_count--;
++	list_del(&bridge->list);
++	if (list_empty(&agp_bridges)) {
++		agp_frontend_cleanup();
++		inter_module_unregister("drm_agp");
++	}
+ 	module_put(bridge->driver->owner);
+ }
+ EXPORT_SYMBOL_GPL(agp_remove_bridge);
+@@ -311,6 +325,8 @@
+ 
+ static int __init agp_init(void)
+ {
++	agp_find_bridge = &agp_generic_find_bridge;
++
+ 	if (!agp_off)
+ 		printk(KERN_INFO "Linux agpgart interface v%d.%d (c) Dave Jones\n",
+ 			AGPGART_VERSION_MAJOR, AGPGART_VERSION_MINOR);
+diff -Nru a/drivers/char/agp/frontend.c b/drivers/char/agp/frontend.c
+--- a/drivers/char/agp/frontend.c	2004-12-17 10:36:04 -08:00
++++ b/drivers/char/agp/frontend.c	2004-12-17 10:36:04 -08:00
+@@ -1,5 +1,6 @@
+ /*
+  * AGPGART driver frontend
++ * Copyright (C) 2004 Silicon Graphics, Inc.
+  * Copyright (C) 2002-2003 Dave Jones
+  * Copyright (C) 1999 Jeff Hartmann
+  * Copyright (C) 1999 Precision Insight, Inc.
+@@ -299,7 +300,7 @@
+ {
+ 	struct agp_memory *memory;
+ 
+-	memory = agp_allocate_memory(pg_count, type);
++	memory = agp_allocate_memory(agp_bridge, pg_count, type);
+ 	if (memory == NULL)
+ 		return NULL;
+ 
+@@ -420,7 +421,7 @@
+ 	if (agp_fe.current_controller == controller) {
+ 		agp_fe.current_controller = NULL;
+ 		agp_fe.backend_acquired = FALSE;
+-		agp_backend_release();
++		agp_backend_release(agp_bridge);
+ 	}
+ 	kfree(controller);
+ 	return 0;
+@@ -468,7 +469,7 @@
+ 
+ 	agp_fe.current_controller = NULL;
+ 	agp_fe.used_by_controller = FALSE;
+-	agp_backend_release();
++	agp_backend_release(agp_bridge);
+ }
+ 
+ /* 
+@@ -605,7 +606,7 @@
+ 	if (!(test_bit(AGP_FF_IS_VALID, &priv->access_flags)))
+ 		goto out_eperm;
+ 
+-	agp_copy_info(&kerninfo);
++	agp_copy_info(agp_bridge, &kerninfo);
+ 	size = vma->vm_end - vma->vm_start;
+ 	current_size = kerninfo.aper_size;
+ 	current_size = current_size * 0x100000;
+@@ -757,7 +758,7 @@
+ 	struct agp_info userinfo;
+ 	struct agp_kern_info kerninfo;
+ 
+-	agp_copy_info(&kerninfo);
++	agp_copy_info(agp_bridge, &kerninfo);
+ 
+ 	userinfo.version.major = kerninfo.version.major;
+ 	userinfo.version.minor = kerninfo.version.minor;
+@@ -777,7 +778,6 @@
+ 
+ static int agpioc_acquire_wrap(struct agp_file_private *priv)
+ {
+-	int ret;
+ 	struct agp_controller *controller;
+ 
+ 	DBG("");
+@@ -788,11 +788,15 @@
+ 	if (agp_fe.current_controller != NULL)
+ 		return -EBUSY;
+ 
+-	ret = agp_backend_acquire();
+-	if (ret == 0)
+-		agp_fe.backend_acquired = TRUE;
+-	else
+-		return ret;
++	if(!agp_bridge)
++		return -ENODEV;
++
++        if (atomic_read(&agp_bridge->agp_in_use))
++                return -EBUSY;
++
++	atomic_inc(&agp_bridge->agp_in_use);
++
++	agp_fe.backend_acquired = TRUE;
+ 
+ 	controller = agp_find_controller_by_pid(priv->my_pid);
+ 
+@@ -803,7 +807,7 @@
+ 
+ 		if (controller == NULL) {
+ 			agp_fe.backend_acquired = FALSE;
+-			agp_backend_release();
++			agp_backend_release(agp_bridge);
+ 			return -ENOMEM;
+ 		}
+ 		agp_insert_controller(controller);
+@@ -830,7 +834,7 @@
+ 	if (copy_from_user(&mode, arg, sizeof(struct agp_setup)))
+ 		return -EFAULT;
+ 
+-	agp_enable(mode.agp_mode);
++	agp_enable(agp_bridge, mode.agp_mode);
+ 	return 0;
+ }
+ 
+diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
+--- a/drivers/char/agp/generic.c	2004-12-17 10:36:04 -08:00
++++ b/drivers/char/agp/generic.c	2004-12-17 10:36:04 -08:00
+@@ -1,5 +1,6 @@
+ /*
+  * AGPGART driver.
++ * Copyright (C) 2004 Silicon Graphics, Inc.
+  * Copyright (C) 2002-2004 Dave Jones.
+  * Copyright (C) 1999 Jeff Hartmann.
+  * Copyright (C) 1999 Precision Insight, Inc.
+@@ -116,19 +117,19 @@
+ {
+ 	size_t i;
+ 
+-	if ((agp_bridge->type == NOT_SUPPORTED) || (curr == NULL))
++	if (curr == NULL)
+ 		return;
+ 
+ 	if (curr->is_bound == TRUE)
+ 		agp_unbind_memory(curr);
+ 
+ 	if (curr->type != 0) {
+-		agp_bridge->driver->free_by_type(curr);
++		curr->bridge->driver->free_by_type(curr);
+ 		return;
  	}
  	if (curr->page_count != 0) {
  		for (i = 0; i < curr->page_count; i++) {
--			curr->bridge->driver->agp_destroy_page(phys_to_virt(curr->memory[i]));
-+			curr->bridge->driver->
-+			    agp_destroy_page(phys_to_virt(curr->memory[i]));
+-			agp_bridge->driver->agp_destroy_page(phys_to_virt(curr->memory[i]));
++			curr->bridge->driver->agp_destroy_page(phys_to_virt(curr->memory[i]));
  		}
  	}
  	agp_free_key(curr->key);
- 	vfree(curr->memory);
- 	kfree(curr);
- }
-+
- EXPORT_SYMBOL(agp_free_memory);
- 
- #define ENTRIES_PER_PAGE		(PAGE_SIZE / sizeof(unsigned long))
-@@ -151,7 +153,8 @@
+@@ -150,20 +151,20 @@
   *
   *	It returns NULL whenever memory is unavailable.
   */
--struct agp_memory *agp_allocate_memory(struct agp_bridge_data *bridge, size_t page_count, u32 type)
-+struct agp_memory *agp_allocate_memory(struct agp_bridge_data *bridge,
-+				       size_t page_count, u32 type)
+-struct agp_memory *agp_allocate_memory(size_t page_count, u32 type)
++struct agp_memory *agp_allocate_memory(struct agp_bridge_data *bridge, size_t page_count, u32 type)
  {
  	int scratch_pages;
  	struct agp_memory *new;
-@@ -160,7 +163,8 @@
- 	if (!bridge)
+ 	size_t i;
+ 
+-	if (agp_bridge->type == NOT_SUPPORTED)
++	if (!bridge)
  		return NULL;
  
--	if ((atomic_read(&bridge->current_memory_agp) + page_count) > bridge->max_memory_agp)
-+	if ((atomic_read(&bridge->current_memory_agp) + page_count) >
-+	    bridge->max_memory_agp)
+-	if ((atomic_read(&agp_bridge->current_memory_agp) + page_count) > agp_bridge->max_memory_agp)
++	if ((atomic_read(&bridge->current_memory_agp) + page_count) > bridge->max_memory_agp)
  		return NULL;
  
  	if (type != 0) {
-@@ -183,7 +187,7 @@
+-		new = agp_bridge->driver->alloc_by_type(page_count, type);
++		new = bridge->driver->alloc_by_type(page_count, type);
+ 		return new;
+ 	}
+ 
+@@ -175,14 +176,14 @@
+ 		return NULL;
+ 
+ 	for (i = 0; i < page_count; i++) {
+-		void *addr = agp_bridge->driver->agp_alloc_page();
++		void *addr = bridge->driver->agp_alloc_page();
+ 
+ 		if (addr == NULL) {
+ 			agp_free_memory(new);
  			return NULL;
  		}
  		new->memory[i] =
--			bridge->driver->mask_memory(virt_to_phys(addr), type);
-+		    bridge->driver->mask_memory(virt_to_phys(addr), type);
+-			agp_bridge->driver->mask_memory(virt_to_phys(addr), type);
++			bridge->driver->mask_memory(virt_to_phys(addr), type);
  		new->page_count++;
  	}
  
-@@ -191,12 +195,11 @@
- 
- 	return new;
- }
--EXPORT_SYMBOL(agp_allocate_memory);
- 
-+EXPORT_SYMBOL(agp_allocate_memory);
- 
- /* End - Generic routines for handling agp_memory structures */
- 
--
- static int agp_return_size(void)
+@@ -275,26 +276,25 @@
+  *	This function copies information about the agp bridge device and the state of
+  *	the agp backend into an agp_kern_info pointer.
+  */
+-int agp_copy_info(struct agp_kern_info *info)
++int agp_copy_info(struct agp_bridge_data *bridge, struct agp_kern_info *info)
  {
- 	int current_size;
-@@ -225,13 +228,12 @@
- 		break;
+ 	memset(info, 0, sizeof(struct agp_kern_info));
+-	if (!agp_bridge || agp_bridge->type == NOT_SUPPORTED ||
+-	    !agp_bridge->version) {
++	if (!bridge) {
+ 		info->chipset = NOT_SUPPORTED;
+ 		return -EIO;
  	}
  
--	current_size -= (agp_memory_reserved / (1024*1024));
--	if (current_size <0)
-+	current_size -= (agp_memory_reserved / (1024 * 1024));
-+	if (current_size < 0)
- 		current_size = 0;
- 	return current_size;
- }
- 
--
- int agp_num_entries(void)
- {
- 	int num_entries;
-@@ -260,13 +262,13 @@
- 		break;
- 	}
- 
--	num_entries -= agp_memory_reserved>>PAGE_SHIFT;
--	if (num_entries<0)
-+	num_entries -= agp_memory_reserved >> PAGE_SHIFT;
-+	if (num_entries < 0)
- 		num_entries = 0;
- 	return num_entries;
- }
--EXPORT_SYMBOL_GPL(agp_num_entries);
- 
-+EXPORT_SYMBOL_GPL(agp_num_entries);
- 
- /**
-  *	agp_copy_info  -  copy bridge state information
-@@ -298,12 +300,11 @@
+-	info->version.major = agp_bridge->version->major;
+-	info->version.minor = agp_bridge->version->minor;
+-	info->chipset = agp_bridge->type;
+-	info->device = agp_bridge->dev;
+-	info->mode = agp_bridge->mode;
+-	info->aper_base = agp_bridge->gart_bus_addr;
++	info->version.major = bridge->version->major;
++	info->version.minor = bridge->version->minor;
++	info->chipset = SUPPORTED;
++	info->device = bridge->dev;
++	info->mode = bridge->mode;
++	info->aper_base = bridge->gart_bus_addr;
+ 	info->aper_size = agp_return_size();
+-	info->max_memory = agp_bridge->max_memory_agp;
+-	info->current_memory = atomic_read(&agp_bridge->current_memory_agp);
+-	info->cant_use_aperture = agp_bridge->driver->cant_use_aperture;
+-	info->vm_ops = agp_bridge->vm_ops;
++	info->max_memory = bridge->max_memory_agp;
++	info->current_memory = atomic_read(&bridge->current_memory_agp);
++	info->cant_use_aperture = bridge->driver->cant_use_aperture;
++	info->vm_ops = bridge->vm_ops;
  	info->page_mask = ~0UL;
  	return 0;
  }
--EXPORT_SYMBOL(agp_copy_info);
+@@ -323,7 +323,7 @@
+ {
+ 	int ret_val;
  
-+EXPORT_SYMBOL(agp_copy_info);
- 
- /* End - Routine to copy over information structure */
- 
--
- /*
-  * Routines for handling swapping of agp_memory into the GATT -
-  * These routines take agp_memory and insert them into the GATT.
-@@ -327,14 +328,15 @@
+-	if ((agp_bridge->type == NOT_SUPPORTED) || (curr == NULL))
++	if (curr == NULL)
  		return -EINVAL;
  
  	if (curr->is_bound == TRUE) {
--		printk (KERN_INFO PFX "memory %p is already bound!\n", curr);
-+		printk(KERN_INFO PFX "memory %p is already bound!\n", curr);
+@@ -331,10 +331,10 @@
  		return -EINVAL;
  	}
  	if (curr->is_flushed == FALSE) {
- 		curr->bridge->driver->cache_flush();
+-		agp_bridge->driver->cache_flush();
++		curr->bridge->driver->cache_flush();
  		curr->is_flushed = TRUE;
  	}
--	ret_val = curr->bridge->driver->insert_memory(curr, pg_start, curr->type);
-+	ret_val =
-+	    curr->bridge->driver->insert_memory(curr, pg_start, curr->type);
+-	ret_val = agp_bridge->driver->insert_memory(curr, pg_start, curr->type);
++	ret_val = curr->bridge->driver->insert_memory(curr, pg_start, curr->type);
  
  	if (ret_val != 0)
  		return ret_val;
-@@ -343,8 +345,8 @@
- 	curr->pg_start = pg_start;
- 	return 0;
- }
--EXPORT_SYMBOL(agp_bind_memory);
+@@ -358,7 +358,7 @@
+ {
+ 	int ret_val;
  
-+EXPORT_SYMBOL(agp_bind_memory);
- 
- /**
-  *	agp_unbind_memory  -  Removes an agp_memory structure from the GATT
-@@ -362,11 +364,13 @@
+-	if ((agp_bridge->type == NOT_SUPPORTED) || (curr == NULL))
++	if (curr == NULL)
  		return -EINVAL;
  
  	if (curr->is_bound != TRUE) {
--		printk (KERN_INFO PFX "memory %p was not bound!\n", curr);
-+		printk(KERN_INFO PFX "memory %p was not bound!\n", curr);
+@@ -366,7 +366,7 @@
  		return -EINVAL;
  	}
  
--	ret_val = curr->bridge->driver->remove_memory(curr, curr->pg_start, curr->type);
-+	ret_val =
-+	    curr->bridge->driver->remove_memory(curr, curr->pg_start,
-+						curr->type);
+-	ret_val = agp_bridge->driver->remove_memory(curr, curr->pg_start, curr->type);
++	ret_val = curr->bridge->driver->remove_memory(curr, curr->pg_start, curr->type);
  
  	if (ret_val != 0)
  		return ret_val;
-@@ -375,26 +379,34 @@
- 	curr->pg_start = 0;
- 	return 0;
- }
-+
- EXPORT_SYMBOL(agp_unbind_memory);
- 
- /* End - Routines for handling swapping of agp_memory into the GATT */
- 
--
- /* Generic Agp routines - Start */
--static void agp_v2_parse_one(u32 *mode, u32 *cmd, u32 *tmp)
-+static void agp_v2_parse_one(u32 * mode, u32 * cmd, u32 * tmp)
- {
- 	/* disable SBA if it's not supported */
--	if (!((*cmd & AGPSTAT_SBA) && (*tmp & AGPSTAT_SBA) && (*mode & AGPSTAT_SBA)))
-+	if (!
-+	    ((*cmd & AGPSTAT_SBA) && (*tmp & AGPSTAT_SBA)
-+	     && (*mode & AGPSTAT_SBA)))
- 		*cmd &= ~AGPSTAT_SBA;
- 
- 	/* Set speed */
--	if (!((*cmd & AGPSTAT2_4X) && (*tmp & AGPSTAT2_4X) && (*mode & AGPSTAT2_4X)))
-+	if (!
-+	    ((*cmd & AGPSTAT2_4X) && (*tmp & AGPSTAT2_4X)
-+	     && (*mode & AGPSTAT2_4X)))
- 		*cmd &= ~AGPSTAT2_4X;
- 
--	if (!((*cmd & AGPSTAT2_2X) && (*tmp & AGPSTAT2_2X) && (*mode & AGPSTAT2_2X)))
-+	if (!
-+	    ((*cmd & AGPSTAT2_2X) && (*tmp & AGPSTAT2_2X)
-+	     && (*mode & AGPSTAT2_2X)))
- 		*cmd &= ~AGPSTAT2_2X;
- 
--	if (!((*cmd & AGPSTAT2_1X) && (*tmp & AGPSTAT2_1X) && (*mode & AGPSTAT2_1X)))
-+	if (!
-+	    ((*cmd & AGPSTAT2_1X) && (*tmp & AGPSTAT2_1X)
-+	     && (*mode & AGPSTAT2_1X)))
- 		*cmd &= ~AGPSTAT2_1X;
- 
- 	/* Now we know what mode it should be, clear out the unwanted bits. */
-@@ -413,19 +425,20 @@
-  * cmd = PCI_AGP_STATUS from agp bridge.
-  * tmp = PCI_AGP_STATUS from graphic card.
-  */
--static void agp_v3_parse_one(u32 *mode, u32 *cmd, u32 *tmp)
-+static void agp_v3_parse_one(u32 * mode, u32 * cmd, u32 * tmp)
- {
--	u32 origcmd=*cmd, origtmp=*tmp;
-+	u32 origcmd = *cmd, origtmp = *tmp;
- 
- 	/* ARQSZ - Set the value to the maximum one.
- 	 * Don't allow the mode register to override values. */
- 	*cmd = ((*cmd & ~AGPSTAT_ARQSZ) |
--		max_t(u32,(*cmd & AGPSTAT_ARQSZ),(*tmp & AGPSTAT_ARQSZ)));
-+		max_t(u32, (*cmd & AGPSTAT_ARQSZ), (*tmp & AGPSTAT_ARQSZ)));
- 
- 	/* Calibration cycle.
- 	 * Don't allow the mode register to override values. */
- 	*cmd = ((*cmd & ~AGPSTAT_CAL_MASK) |
--		min_t(u32,(*cmd & AGPSTAT_CAL_MASK),(*tmp & AGPSTAT_CAL_MASK)));
-+		min_t(u32, (*cmd & AGPSTAT_CAL_MASK),
-+		      (*tmp & AGPSTAT_CAL_MASK)));
- 
- 	/* SBA *must* be supported for AGP v3 */
- 	*cmd |= AGPSTAT_SBA;
-@@ -442,8 +455,9 @@
- 		 * AGP2.x 4x -> AGP3.0 4x.
- 		 */
- 		if (*mode & AGPSTAT2_4X) {
--			printk (KERN_INFO PFX "%s passes broken AGP3 flags (%x). Fixed.\n",
--						current->comm, *mode);
-+			printk(KERN_INFO PFX
-+			       "%s passes broken AGP3 flags (%x). Fixed.\n",
-+			       current->comm, *mode);
- 			*mode &= ~AGPSTAT2_4X;
- 			*mode |= AGPSTAT3_4X;
- 		}
-@@ -453,8 +467,9 @@
- 		 * but have been passed an AGP 2.x mode.
- 		 * Convert AGP 1x,2x,4x -> AGP 3.0 4x.
- 		 */
--		printk (KERN_INFO PFX "%s passes broken AGP2 flags (%x) in AGP3 mode. Fixed.\n",
--					current->comm, *mode);
-+		printk(KERN_INFO PFX
-+		       "%s passes broken AGP2 flags (%x) in AGP3 mode. Fixed.\n",
-+		       current->comm, *mode);
- 		*mode &= ~(AGPSTAT2_4X | AGPSTAT2_2X | AGPSTAT2_1X);
- 		*mode |= AGPSTAT3_4X;
- 	}
-@@ -463,16 +478,19 @@
- 		if (!(*cmd & AGPSTAT3_8X)) {
- 			*cmd &= ~(AGPSTAT3_8X | AGPSTAT3_RSVD);
- 			*cmd |= AGPSTAT3_4X;
--			printk ("%s requested AGPx8 but bridge not capable.\n", current->comm);
-+			printk("%s requested AGPx8 but bridge not capable.\n",
-+			       current->comm);
- 			return;
- 		}
- 		if (!(*tmp & AGPSTAT3_8X)) {
- 			*cmd &= ~(AGPSTAT3_8X | AGPSTAT3_RSVD);
- 			*cmd |= AGPSTAT3_4X;
--			printk ("%s requested AGPx8 but graphic card not capable.\n", current->comm);
-+			printk
-+			    ("%s requested AGPx8 but graphic card not capable.\n",
-+			     current->comm);
- 			return;
- 		}
--		/* All set, bridge & device can do AGP x8*/
-+		/* All set, bridge & device can do AGP x8 */
- 		*cmd &= ~(AGPSTAT3_4X | AGPSTAT3_RSVD);
- 		return;
- 
-@@ -487,13 +505,16 @@
- 		if ((*cmd & AGPSTAT3_4X) && (*tmp & AGPSTAT3_4X))
- 			*cmd |= AGPSTAT3_4X;
- 		else {
--			printk (KERN_INFO PFX "Badness. Don't know which AGP mode to set. "
--							"[cmd:%x tmp:%x fell back to:- cmd:%x tmp:%x]\n",
--							origcmd, origtmp, *cmd, *tmp);
-+			printk(KERN_INFO PFX
-+			       "Badness. Don't know which AGP mode to set. "
-+			       "[cmd:%x tmp:%x fell back to:- cmd:%x tmp:%x]\n",
-+			       origcmd, origtmp, *cmd, *tmp);
- 			if (!(*cmd & AGPSTAT3_4X))
--				printk (KERN_INFO PFX "Bridge couldn't do AGP x4.\n");
-+				printk(KERN_INFO PFX
-+				       "Bridge couldn't do AGP x4.\n");
- 			if (!(*tmp & AGPSTAT3_4X))
--				printk (KERN_INFO PFX "Graphic card couldn't do AGP x4.\n");
-+				printk(KERN_INFO PFX
-+				       "Graphic card couldn't do AGP x4.\n");
- 		}
- 	}
- }
-@@ -507,7 +528,8 @@
- 	u32 tmp;
- 	u32 agp3;
- 
--	while ((device = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, device)) != NULL) {
-+	while ((device =
-+		pci_find_device(PCI_ANY_ID, PCI_ANY_ID, device)) != NULL) {
- 		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
- 		if (!cap_ptr)
- 			continue;
-@@ -518,19 +540,22 @@
- 		 * Ok, here we have a AGP device. Disable impossible
- 		 * settings, and adjust the readqueue to the minimum.
- 		 */
--		pci_read_config_dword(device, cap_ptr+PCI_AGP_STATUS, &tmp);
-+		pci_read_config_dword(device, cap_ptr + PCI_AGP_STATUS, &tmp);
- 
- 		/* adjust RQ depth */
- 		cmd = ((cmd & ~AGPSTAT_RQ_DEPTH) |
--		     min_t(u32, (mode & AGPSTAT_RQ_DEPTH),
--			 min_t(u32, (cmd & AGPSTAT_RQ_DEPTH), (tmp & AGPSTAT_RQ_DEPTH))));
-+		       min_t(u32, (mode & AGPSTAT_RQ_DEPTH),
-+			     min_t(u32, (cmd & AGPSTAT_RQ_DEPTH),
-+				   (tmp & AGPSTAT_RQ_DEPTH))));
- 
- 		/* disable FW if it's not supported */
--		if (!((cmd & AGPSTAT_FW) && (tmp & AGPSTAT_FW) && (mode & AGPSTAT_FW)))
-+		if (!
-+		    ((cmd & AGPSTAT_FW) && (tmp & AGPSTAT_FW)
-+		     && (mode & AGPSTAT_FW)))
- 			cmd &= ~AGPSTAT_FW;
- 
- 		/* Check to see if we are operating in 3.0 mode */
--		pci_read_config_dword(device, cap_ptr+AGPSTAT, &agp3);
-+		pci_read_config_dword(device, cap_ptr + AGPSTAT, &agp3);
- 		if (agp3 & AGPSTAT_MODE_3_0) {
- 			agp_v3_parse_one(&mode, &cmd, &tmp);
- 		} else {
-@@ -539,8 +564,8 @@
- 	}
- 	return cmd;
- }
--EXPORT_SYMBOL(agp_collect_device_status);
- 
-+EXPORT_SYMBOL(agp_collect_device_status);
- 
- void agp_device_command(u32 command, int agp_v3)
- {
-@@ -551,18 +576,20 @@
- 	if (agp_v3)
- 		mode *= 4;
- 
--	while ((device = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, device)) != NULL) {
-+	while ((device =
-+		pci_find_device(PCI_ANY_ID, PCI_ANY_ID, device)) != NULL) {
- 		u8 agp = pci_find_capability(device, PCI_CAP_ID_AGP);
- 		if (!agp)
- 			continue;
- 
--		printk(KERN_INFO PFX "Putting AGP V%d device at %s into %dx mode\n",
--				agp_v3 ? 3 : 2, pci_name(device), mode);
-+		printk(KERN_INFO PFX
-+		       "Putting AGP V%d device at %s into %dx mode\n",
-+		       agp_v3 ? 3 : 2, pci_name(device), mode);
- 		pci_write_config_dword(device, agp + PCI_AGP_COMMAND, command);
- 	}
- }
--EXPORT_SYMBOL(agp_device_command);
- 
-+EXPORT_SYMBOL(agp_device_command);
- 
- void get_agp_version(struct agp_bridge_data *bridge)
- {
-@@ -576,8 +603,8 @@
- 	agp_bridge->major_version = (ncapid >> AGP_MAJOR_VERSION_SHIFT) & 0xf;
- 	agp_bridge->minor_version = (ncapid >> AGP_MINOR_VERSION_SHIFT) & 0xf;
- }
--EXPORT_SYMBOL(get_agp_version);
- 
-+EXPORT_SYMBOL(get_agp_version);
- 
- void agp_generic_enable(u32 mode)
- {
-@@ -587,20 +614,19 @@
- 	get_agp_version(agp_bridge);
- 
- 	printk(KERN_INFO PFX "Found an AGP %d.%d compliant device at %s.\n",
--				agp_bridge->major_version,
--				agp_bridge->minor_version,
--				agp_bridge->dev->slot_name);
-+	       agp_bridge->major_version,
-+	       agp_bridge->minor_version, agp_bridge->dev->slot_name);
- 
- 	pci_read_config_dword(agp_bridge->dev,
--		      agp_bridge->capndx + PCI_AGP_STATUS, &command);
-+			      agp_bridge->capndx + PCI_AGP_STATUS, &command);
- 
- 	command = agp_collect_device_status(mode, command);
- 	command |= AGPSTAT_AGP_ENABLE;
- 
- 	/* Do AGP version specific frobbing. */
--	if(agp_bridge->major_version >= 3) {
-+	if (agp_bridge->major_version >= 3) {
- 		pci_read_config_dword(agp_bridge->dev,
--			agp_bridge->capndx+AGPSTAT, &agp3);
-+				      agp_bridge->capndx + AGPSTAT, &agp3);
- 
- 		/* Check to see if we are operating in 3.0 mode */
- 		if (agp3 & AGPSTAT_MODE_3_0) {
-@@ -610,22 +636,26 @@
- 			agp_device_command(command, TRUE);
- 			return;
- 		} else {
--		    /* Disable calibration cycle in RX91<1> when not in AGP3.0 mode of operation.*/
--		    command &= ~(7<<10) ;
--		    pci_read_config_dword(agp_bridge->dev, agp_bridge->capndx+AGPCTRL, &temp);
--		    temp |= (1<<9);
--		    pci_write_config_dword(agp_bridge->dev, agp_bridge->capndx+AGPCTRL, temp);
-+			/* Disable calibration cycle in RX91<1> when not in AGP3.0 mode of operation. */
-+			command &= ~(7 << 10);
-+			pci_read_config_dword(agp_bridge->dev,
-+					      agp_bridge->capndx + AGPCTRL,
-+					      &temp);
-+			temp |= (1 << 9);
-+			pci_write_config_dword(agp_bridge->dev,
-+					       agp_bridge->capndx + AGPCTRL,
-+					       temp);
- 
--		    printk (KERN_INFO PFX "Device is in legacy mode,"
--				" falling back to 2.x\n");
-+			printk(KERN_INFO PFX "Device is in legacy mode,"
-+			       " falling back to 2.x\n");
- 		}
- 	}
- 
- 	/* AGP v<3 */
- 	agp_device_command(command, FALSE);
- }
--EXPORT_SYMBOL(agp_generic_enable);
- 
-+EXPORT_SYMBOL(agp_generic_enable);
- 
- int agp_generic_create_gatt_table(void)
- {
-@@ -652,10 +682,8 @@
- 			switch (agp_bridge->driver->size_type) {
- 			case U8_APER_SIZE:
- 				size = A_SIZE_8(temp)->size;
--				page_order =
--				    A_SIZE_8(temp)->page_order;
--				num_entries =
--				    A_SIZE_8(temp)->num_entries;
-+				page_order = A_SIZE_8(temp)->page_order;
-+				num_entries = A_SIZE_8(temp)->num_entries;
- 				break;
- 			case U16_APER_SIZE:
- 				size = A_SIZE_16(temp)->size;
-@@ -675,20 +703,23 @@
- 				break;
- 			}
- 
--			table = (char *) __get_free_pages(GFP_KERNEL,
--							  page_order);
-+			table = (char *)__get_free_pages(GFP_KERNEL,
-+							 page_order);
- 
- 			if (table == NULL) {
- 				i++;
- 				switch (agp_bridge->driver->size_type) {
- 				case U8_APER_SIZE:
--					agp_bridge->current_size = A_IDX8(agp_bridge);
-+					agp_bridge->current_size =
-+					    A_IDX8(agp_bridge);
- 					break;
- 				case U16_APER_SIZE:
--					agp_bridge->current_size = A_IDX16(agp_bridge);
-+					agp_bridge->current_size =
-+					    A_IDX16(agp_bridge);
- 					break;
- 				case U32_APER_SIZE:
--					agp_bridge->current_size = A_IDX32(agp_bridge);
-+					agp_bridge->current_size =
-+					    A_IDX32(agp_bridge);
- 					break;
- 					/* This case will never really happen. */
- 				case FIXED_APER_SIZE:
-@@ -702,12 +733,14 @@
- 			} else {
- 				agp_bridge->aperture_size_idx = i;
- 			}
--		} while (!table && (i < agp_bridge->driver->num_aperture_sizes));
-+		} while (!table
-+			 && (i < agp_bridge->driver->num_aperture_sizes));
- 	} else {
--		size = ((struct aper_size_info_fixed *) temp)->size;
--		page_order = ((struct aper_size_info_fixed *) temp)->page_order;
--		num_entries = ((struct aper_size_info_fixed *) temp)->num_entries;
--		table = (char *) __get_free_pages(GFP_KERNEL, page_order);
-+		size = ((struct aper_size_info_fixed *)temp)->size;
-+		page_order = ((struct aper_size_info_fixed *)temp)->page_order;
-+		num_entries =
-+		    ((struct aper_size_info_fixed *)temp)->num_entries;
-+		table = (char *)__get_free_pages(GFP_KERNEL, page_order);
- 	}
- 
- 	if (table == NULL)
-@@ -715,7 +748,8 @@
- 
- 	table_end = table + ((PAGE_SIZE * (1 << page_order)) - 1);
- 
--	for (page = virt_to_page(table); page <= virt_to_page(table_end); page++)
-+	for (page = virt_to_page(table); page <= virt_to_page(table_end);
-+	     page++)
- 		SetPageReserved(page);
- 
- 	agp_bridge->gatt_table_real = (u32 *) table;
-@@ -723,14 +757,16 @@
- 
- 	agp_bridge->driver->cache_flush();
- 	agp_bridge->gatt_table = ioremap_nocache(virt_to_phys(table),
--					(PAGE_SIZE * (1 << page_order)));
-+						 (PAGE_SIZE *
-+						  (1 << page_order)));
- 	agp_bridge->driver->cache_flush();
- 
- 	if (agp_bridge->gatt_table == NULL) {
--		for (page = virt_to_page(table); page <= virt_to_page(table_end); page++)
-+		for (page = virt_to_page(table);
-+		     page <= virt_to_page(table_end); page++)
- 			ClearPageReserved(page);
- 
--		free_pages((unsigned long) table, page_order);
-+		free_pages((unsigned long)table, page_order);
- 
- 		return -ENOMEM;
- 	}
-@@ -738,10 +774,11 @@
- 
- 	/* AK: bogus, should encode addresses > 4GB */
- 	for (i = 0; i < num_entries; i++)
--		writel(agp_bridge->scratch_page, agp_bridge->gatt_table+i);
-+		writel(agp_bridge->scratch_page, agp_bridge->gatt_table + i);
- 
- 	return 0;
- }
-+
- EXPORT_SYMBOL(agp_generic_create_gatt_table);
- 
- int agp_generic_free_gatt_table(void)
-@@ -780,13 +817,14 @@
- 	 * from the table. */
- 
- 	iounmap(agp_bridge->gatt_table);
--	table = (char *) agp_bridge->gatt_table_real;
-+	table = (char *)agp_bridge->gatt_table_real;
- 	table_end = table + ((PAGE_SIZE * (1 << page_order)) - 1);
- 
--	for (page = virt_to_page(table); page <= virt_to_page(table_end); page++)
-+	for (page = virt_to_page(table); page <= virt_to_page(table_end);
-+	     page++)
- 		ClearPageReserved(page);
- 
--	free_pages((unsigned long) agp_bridge->gatt_table_real, page_order);
-+	free_pages((unsigned long)agp_bridge->gatt_table_real, page_order);
- 
- 	agp_gatt_table = NULL;
- 	agp_bridge->gatt_table = NULL;
-@@ -795,10 +833,10 @@
- 
- 	return 0;
- }
--EXPORT_SYMBOL(agp_generic_free_gatt_table);
- 
-+EXPORT_SYMBOL(agp_generic_free_gatt_table);
- 
--int agp_generic_insert_memory(struct agp_memory * mem, off_t pg_start, int type)
-+int agp_generic_insert_memory(struct agp_memory *mem, off_t pg_start, int type)
- {
- 	int num_entries;
- 	size_t i;
-@@ -829,8 +867,9 @@
- 		break;
- 	}
- 
--	num_entries -= agp_memory_reserved/PAGE_SIZE;
--	if (num_entries < 0) num_entries = 0;
-+	num_entries -= agp_memory_reserved / PAGE_SIZE;
-+	if (num_entries < 0)
-+		num_entries = 0;
- 
- 	if (type != 0 || mem->type != 0) {
- 		/* The generic routines know nothing of memory types */
-@@ -844,7 +883,7 @@
- 	j = pg_start;
- 
- 	while (j < (pg_start + mem->page_count)) {
--		if (!PGE_EMPTY(agp_bridge, readl(agp_bridge->gatt_table+j)))
-+		if (!PGE_EMPTY(agp_bridge, readl(agp_bridge->gatt_table + j)))
- 			return -EBUSY;
- 		j++;
- 	}
-@@ -855,13 +894,15 @@
- 	}
- 
- 	for (i = 0, j = pg_start; i < mem->page_count; i++, j++)
--		writel(agp_bridge->driver->mask_memory(mem->memory[i], mem->type), agp_bridge->gatt_table+j);
-+		writel(agp_bridge->driver->
-+		       mask_memory(mem->memory[i], mem->type),
-+		       agp_bridge->gatt_table + j);
- 
- 	agp_bridge->driver->tlb_flush(mem);
- 	return 0;
- }
--EXPORT_SYMBOL(agp_generic_insert_memory);
- 
-+EXPORT_SYMBOL(agp_generic_insert_memory);
- 
- int agp_generic_remove_memory(struct agp_memory *mem, off_t pg_start, int type)
- {
-@@ -874,20 +915,20 @@
- 
- 	/* AK: bogus, should encode addresses > 4GB */
- 	for (i = pg_start; i < (mem->page_count + pg_start); i++)
--		writel(agp_bridge->scratch_page, agp_bridge->gatt_table+i);
-+		writel(agp_bridge->scratch_page, agp_bridge->gatt_table + i);
- 
- 	agp_bridge->driver->tlb_flush(mem);
- 	return 0;
- }
--EXPORT_SYMBOL(agp_generic_remove_memory);
- 
-+EXPORT_SYMBOL(agp_generic_remove_memory);
- 
- struct agp_memory *agp_generic_alloc_by_type(size_t page_count, int type)
- {
- 	return NULL;
- }
--EXPORT_SYMBOL(agp_generic_alloc_by_type);
- 
-+EXPORT_SYMBOL(agp_generic_alloc_by_type);
- 
- void agp_generic_free_by_type(struct agp_memory *curr)
- {
-@@ -897,8 +938,8 @@
- 	agp_free_key(curr->key);
- 	kfree(curr);
- }
--EXPORT_SYMBOL(agp_generic_free_by_type);
- 
-+EXPORT_SYMBOL(agp_generic_free_by_type);
- 
- /*
-  * Basic Page Allocation Routines -
-@@ -909,7 +950,7 @@
- 
- void *agp_generic_alloc_page(void)
- {
--	struct page * page;
-+	struct page *page;
- 
- 	page = alloc_page(GFP_KERNEL);
- 	if (page == NULL)
-@@ -922,8 +963,8 @@
- 	atomic_inc(&agp_bridge->current_memory_agp);
- 	return page_address(page);
- }
--EXPORT_SYMBOL(agp_generic_alloc_page);
- 
-+EXPORT_SYMBOL(agp_generic_alloc_page);
- 
- void agp_generic_destroy_page(void *addr)
- {
-@@ -939,11 +980,11 @@
- 	free_page((unsigned long)addr);
- 	atomic_dec(&agp_bridge->current_memory_agp);
- }
-+
- EXPORT_SYMBOL(agp_generic_destroy_page);
- 
- /* End Basic Page Allocation Routines */
- 
--
- /**
-  * agp_enable  -  initialise the agp point-to-point connection.
+@@ -949,14 +949,25 @@
   *
-@@ -955,6 +996,7 @@
+  * @mode:	agp mode register value to configure with.
+  */
+-void agp_enable(u32 mode)
++void agp_enable(struct agp_bridge_data *bridge, u32 mode)
+ {
+-	if (agp_bridge->type == NOT_SUPPORTED)
++	if (!bridge)
  		return;
- 	bridge->driver->agp_enable(mode);
+-	agp_bridge->driver->agp_enable(mode);
++	bridge->driver->agp_enable(mode);
  }
-+
  EXPORT_SYMBOL(agp_enable);
  
- /* When we remove the global variable agp_bridge from all drivers 
-@@ -985,6 +1027,7 @@
- 	flush_agp_cache();
- #endif
- }
++/* When we remove the global variable agp_bridge from all drivers 
++ * then agp_alloc_bridge and agp_generic_find_bridge need to be updated
++ */
 +
- EXPORT_SYMBOL(global_cache_flush);
++struct agp_bridge_data *agp_generic_find_bridge(struct pci_dev *pdev)
++{
++	if (list_empty(&agp_bridges))
++		return NULL;
++
++	return agp_bridge;
++}
  
- unsigned long agp_generic_mask_memory(unsigned long addr, int type)
-@@ -995,6 +1038,7 @@
- 	else
- 		return addr;
- }
+ #ifdef CONFIG_SMP
+ static void ipi_handler(void *null)
+diff -Nru a/include/linux/agp_backend.h b/include/linux/agp_backend.h
+--- a/include/linux/agp_backend.h	2004-12-17 10:36:04 -08:00
++++ b/include/linux/agp_backend.h	2004-12-17 10:36:04 -08:00
+@@ -1,6 +1,7 @@
+ /*
+  * AGPGART backend specific includes. Not for userspace consumption.
+  *
++ * Copyright (C) 2004 Silicon Graphics, Inc.
+  * Copyright (C) 2002-2003 Dave Jones
+  * Copyright (C) 1999 Jeff Hartmann
+  * Copyright (C) 1999 Precision Insight, Inc.
+@@ -71,13 +72,16 @@
+  * the items to detrimine the status of this block of agp memory. 
+  */
+ 
++struct agp_bridge_data;
 +
- EXPORT_SYMBOL(agp_generic_mask_memory);
+ struct agp_memory {
+-	int key;
+ 	struct agp_memory *next;
+ 	struct agp_memory *prev;
++	struct agp_bridge_data *bridge;
++	unsigned long *memory;
+ 	size_t page_count;
++	int key;
+ 	int num_scratch_pages;
+-	unsigned long *memory;
+ 	off_t pg_start;
+ 	u32 type;
+ 	u32 physical;
+@@ -87,14 +91,18 @@
+ 
+ #define AGP_NORMAL_MEMORY 0
+ 
++extern struct agp_bridge_data *agp_bridge;
++extern struct list_head agp_bridges;
++extern struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *);
++
+ extern void agp_free_memory(struct agp_memory *);
+-extern struct agp_memory *agp_allocate_memory(size_t, u32);
+-extern int agp_copy_info(struct agp_kern_info *);
++extern struct agp_memory *agp_allocate_memory(struct agp_bridge_data *, size_t, u32);
++extern int agp_copy_info(struct agp_bridge_data *, struct agp_kern_info *);
+ extern int agp_bind_memory(struct agp_memory *, off_t);
+ extern int agp_unbind_memory(struct agp_memory *);
+-extern void agp_enable(u32);
+-extern int agp_backend_acquire(void);
+-extern void agp_backend_release(void);
++extern void agp_enable(struct agp_bridge_data *, u32);
++extern struct agp_bridge_data *agp_backend_acquire(struct pci_dev *);
++extern void agp_backend_release(struct agp_bridge_data *);
  
  /*
-@@ -1009,13 +1053,14 @@
- 	int i;
- 	struct aper_size_info_16 *values;
+  * Interface between drm and agp code.  When agp initializes, it makes
+@@ -103,13 +111,13 @@
+  */
+ typedef struct {
+ 	void			(*free_memory)(struct agp_memory *);
+-	struct agp_memory *	(*allocate_memory)(size_t, u32);
++	struct agp_memory *	(*allocate_memory)(struct agp_bridge_data *, size_t, u32);
+ 	int			(*bind_memory)(struct agp_memory *, off_t);
+ 	int			(*unbind_memory)(struct agp_memory *);
+-	void			(*enable)(u32);
+-	int			(*acquire)(void);
+-	void			(*release)(void);
+-	int			(*copy_info)(struct agp_kern_info *);
++	void			(*enable)(struct agp_bridge_data *, u32);
++	struct agp_bridge_data *(*acquire)(struct pci_dev *);
++	void			(*release)(struct agp_bridge_data *);
++	int			(*copy_info)(struct agp_bridge_data *, struct agp_kern_info *);
+ } drm_agp_t;
  
--	pci_read_config_word(agp_bridge->dev, agp_bridge->capndx+AGPAPSIZE, &temp_size);
-+	pci_read_config_word(agp_bridge->dev, agp_bridge->capndx + AGPAPSIZE,
-+			     &temp_size);
- 	values = A_SIZE_16(agp_bridge->driver->aperture_sizes);
- 
- 	for (i = 0; i < agp_bridge->driver->num_aperture_sizes; i++) {
- 		if (temp_size == values[i].size_value) {
- 			agp_bridge->previous_size =
--				agp_bridge->current_size = (void *) (values + i);
-+			    agp_bridge->current_size = (void *)(values + i);
- 
- 			agp_bridge->aperture_size_idx = i;
- 			return values[i].size;
-@@ -1023,15 +1068,20 @@
- 	}
- 	return 0;
- }
-+
- EXPORT_SYMBOL(agp3_generic_fetch_size);
- 
- void agp3_generic_tlbflush(struct agp_memory *mem)
- {
- 	u32 ctrl;
--	pci_read_config_dword(agp_bridge->dev, agp_bridge->capndx+AGPCTRL, &ctrl);
--	pci_write_config_dword(agp_bridge->dev, agp_bridge->capndx+AGPCTRL, ctrl & ~AGPCTRL_GTLBEN);
--	pci_write_config_dword(agp_bridge->dev, agp_bridge->capndx+AGPCTRL, ctrl);
-+	pci_read_config_dword(agp_bridge->dev, agp_bridge->capndx + AGPCTRL,
-+			      &ctrl);
-+	pci_write_config_dword(agp_bridge->dev, agp_bridge->capndx + AGPCTRL,
-+			       ctrl & ~AGPCTRL_GTLBEN);
-+	pci_write_config_dword(agp_bridge->dev, agp_bridge->capndx + AGPCTRL,
-+			       ctrl);
- }
-+
- EXPORT_SYMBOL(agp3_generic_tlbflush);
- 
- int agp3_generic_configure(void)
-@@ -1045,37 +1095,44 @@
- 	agp_bridge->gart_bus_addr = (temp & PCI_BASE_ADDRESS_MEM_MASK);
- 
- 	/* set aperture size */
--	pci_write_config_word(agp_bridge->dev, agp_bridge->capndx+AGPAPSIZE, current_size->size_value);
-+	pci_write_config_word(agp_bridge->dev, agp_bridge->capndx + AGPAPSIZE,
-+			      current_size->size_value);
- 	/* set gart pointer */
--	pci_write_config_dword(agp_bridge->dev, agp_bridge->capndx+AGPGARTLO, agp_bridge->gatt_bus_addr);
-+	pci_write_config_dword(agp_bridge->dev, agp_bridge->capndx + AGPGARTLO,
-+			       agp_bridge->gatt_bus_addr);
- 	/* enable aperture and GTLB */
--	pci_read_config_dword(agp_bridge->dev, agp_bridge->capndx+AGPCTRL, &temp);
--	pci_write_config_dword(agp_bridge->dev, agp_bridge->capndx+AGPCTRL, temp | AGPCTRL_APERENB | AGPCTRL_GTLBEN);
-+	pci_read_config_dword(agp_bridge->dev, agp_bridge->capndx + AGPCTRL,
-+			      &temp);
-+	pci_write_config_dword(agp_bridge->dev, agp_bridge->capndx + AGPCTRL,
-+			       temp | AGPCTRL_APERENB | AGPCTRL_GTLBEN);
- 	return 0;
- }
-+
- EXPORT_SYMBOL(agp3_generic_configure);
- 
- void agp3_generic_cleanup(void)
- {
- 	u32 ctrl;
--	pci_read_config_dword(agp_bridge->dev, agp_bridge->capndx+AGPCTRL, &ctrl);
--	pci_write_config_dword(agp_bridge->dev, agp_bridge->capndx+AGPCTRL, ctrl & ~AGPCTRL_APERENB);
-+	pci_read_config_dword(agp_bridge->dev, agp_bridge->capndx + AGPCTRL,
-+			      &ctrl);
-+	pci_write_config_dword(agp_bridge->dev, agp_bridge->capndx + AGPCTRL,
-+			       ctrl & ~AGPCTRL_APERENB);
- }
-+
- EXPORT_SYMBOL(agp3_generic_cleanup);
- 
--struct aper_size_info_16 agp3_generic_sizes[AGP_GENERIC_SIZES_ENTRIES] =
--{
--	{4096, 1048576, 10,0x000},
--	{2048,  524288, 9, 0x800},
--	{1024,  262144, 8, 0xc00},
--	{ 512,  131072, 7, 0xe00},
--	{ 256,   65536, 6, 0xf00},
--	{ 128,   32768, 5, 0xf20},
--	{  64,   16384, 4, 0xf30},
--	{  32,    8192, 3, 0xf38},
--	{  16,    4096, 2, 0xf3c},
--	{   8,    2048, 1, 0xf3e},
--	{   4,    1024, 0, 0xf3f}
-+struct aper_size_info_16 agp3_generic_sizes[AGP_GENERIC_SIZES_ENTRIES] = {
-+	{4096, 1048576, 10, 0x000},
-+	{2048, 524288, 9, 0x800},
-+	{1024, 262144, 8, 0xc00},
-+	{512, 131072, 7, 0xe00},
-+	{256, 65536, 6, 0xf00},
-+	{128, 32768, 5, 0xf20},
-+	{64, 16384, 4, 0xf30},
-+	{32, 8192, 3, 0xf38},
-+	{16, 4096, 2, 0xf3c},
-+	{8, 2048, 1, 0xf3e},
-+	{4, 1024, 0, 0xf3f}
- };
--EXPORT_SYMBOL(agp3_generic_sizes);
- 
-+EXPORT_SYMBOL(agp3_generic_sizes);
+ extern const drm_agp_t *drm_agp_p;

@@ -1,50 +1,50 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S156062AbQEUAR1>; Sat, 20 May 2000 20:17:27 -0400
-Received: by vger.rutgers.edu id <S156048AbQEUART>; Sat, 20 May 2000 20:17:19 -0400
-Received: from [198.60.218.2] ([198.60.218.2]:3993 "HELO hobbs.D91.K12.ID.US") by vger.rutgers.edu with SMTP id <S156017AbQEUAQ7>; Sat, 20 May 2000 20:16:59 -0400
-Message-Id: <4.2.0.58.20000520202516.0096b260@1.1.1.1>
-X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.0.58 
-Date: Sat, 20 May 2000 20:26:04 -0400
-To: barrett@srv.net
-From: Barrett Southworth <barrett@srv.net>
-Subject: Free Disk Space
-Mime-Version: 1.0
-Content-Type: multipart/alternative; boundary="=====================_107186894==_.ALT"
+Received: by vger.rutgers.edu via listexpand id <S155945AbQEUQmS>; Sun, 21 May 2000 12:42:18 -0400
+Received: by vger.rutgers.edu id <S155957AbQEUQl6>; Sun, 21 May 2000 12:41:58 -0400
+Received: from gadolinium.btinternet.com ([194.73.73.111]:36606 "EHLO gadolinium") by vger.rutgers.edu with ESMTP id <S155279AbQEUQlm>; Sun, 21 May 2000 12:41:42 -0400
+Date: Sun, 21 May 2000 17:47:11 +0100 (BST)
+From: Dave Jones <dave@denial.force9.co.uk>
+To: "Powertweak Linux announce list. -- Linux Kernel Mailing List" <linux-kernel@vger.rutgers.edu>, linux-perf@www-klinik.uni-mainz.de, powertweak-linux@powertweak.com
+Subject: [ANNOUNCE] Powertweak-Linux v0.1.15
+Message-ID: <Pine.LNX.4.21.0005211745450.1892-100000@neo.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
---=====================_107186894==_.ALT
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-Hmm I just didn't Relize that some of you wanted the URL.
-Here it is:
-http://www.freediskspace.com/PageSignUp.asp
-And fill out the form
-
-Go to Free Disk Space for free storage space on the Internet.  Get up to 
-300 MB of storage space on-line.  You can access the data from any computer 
-that is connected to the Internet.
-
-My referal ID is: U0018CBA1
+Now available from http://linux.powertweak.com
 
 
---=====================_107186894==_.ALT
-Content-Type: text/html; charset="us-ascii"
+v0.1.15 [Release 16. -- The 'Oops again' release ]
 
-<html>
-Hmm I just didn't Relize that some of you wanted the URL.<br>
-Here it is:<br>
-<a href="http://www.freediskspace.com/PageSignUp.asp" eudora="autourl">http://www.freediskspace.com/PageSignUp.asp</a><br>
-And fill out the form<br>
-<br>
-Go to Free Disk Space for free storage space on the Internet.&nbsp; Get
-up to 300 MB of storage space on-line.&nbsp; You can access the data from
-any computer that is connected to the Internet.&nbsp; <br>
-<br>
-My referal ID is: <font size=4>U0018CBA1<br>
-<br>
-</font></html>
+	Making a release with a bad head-cold wasn't a good idea.
+	This release mostly fixes stuff that I screwed up on
+	last time..
 
---=====================_107186894==_.ALT--
+
+	More detailed changes this time include:
+		o The PCI tuning now works again.
+		  - Added workaround for gcc bug.
+		  - Fixed problem with tweaks that wanted bits
+		    set to 0.
+		  - Inconsistencies in VIA VP3 tweak definitions fixed.
+		o 'Kernel' & 'token-ring' /proc tuning options
+		  [Alan Cox]
+		o CDROM tweaking now works.
+		o Annoying 'saving' debugging printf disabled.
+		o Added RPM specs.
+		  [Ryan Weaver]
+		o autoconf/automake cleanups.
+		  [Caolan McNamara, Arjan, myself]
+
+	Note, that with this release, you now NEED the following..
+	PCI Utilities (At least version 2.1.0)
+	LibXML (At least version 1.8.0)
+
+regards,
+
+-- 
+Dave.
 
 
 -

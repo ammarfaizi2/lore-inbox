@@ -1,92 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262848AbUCJVW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 16:22:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262854AbUCJVWz
+	id S262843AbUCJVVU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 16:21:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbUCJVVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 16:22:55 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:56840 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id S262848AbUCJVWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 16:22:46 -0500
-Date: Wed, 10 Mar 2004 22:22:16 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: puw@cola.local
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-cc: Adam Sampson <azz@us-lot.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: smbfs Oops with Linux 2.6.3
-In-Reply-To: <Pine.LNX.4.58.0403101359150.29087@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.44.0403102145460.12892-100000@cola.local>
+	Wed, 10 Mar 2004 16:21:19 -0500
+Received: from mail41-s.fg.online.no ([148.122.161.41]:37117 "EHLO
+	mail41-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S262843AbUCJVVE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 16:21:04 -0500
+To: KyoungSoo Park <kyoungso@cs.princeton.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to detect udp packets drops ?
+References: <404E36F1.8000908@newsguy.com> <404F6F52.2000202@cs.princeton.edu>
+	<yw1xy8q8xw67.fsf@kth.se> <404F855E.9090009@cs.princeton.edu>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Wed, 10 Mar 2004 22:20:53 +0100
+In-Reply-To: <404F855E.9090009@cs.princeton.edu> (KyoungSoo Park's message
+ of "Wed, 10 Mar 2004 16:15:10 -0500")
+Message-ID: <yw1xoer4xutm.fsf@kth.se>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Mar 2004, Zwane Mwaikambo wrote:
+KyoungSoo Park <kyoungso@cs.princeton.edu> writes:
 
-> On Wed, 10 Mar 2004, Zwane Mwaikambo wrote:
-> 
-> > Thanks Urban, i have posted the following on bugzilla
-> > (http://bugzilla.kernel.org/show_bug.cgi?id=1671) for testing. But,
-> > it appears racy wrt getattr and win9x servers.
+> Thank you for your kind response.  But, if I follow your test
+> senario, I cannot know which entity drops the packets.  Routers on
+> the path also can get congested and may drop the packets.
 
-The 5 second timeout is probably too short. Some bad configs can use a 
-long time to connect, possibly more. 30?
+That is true.
 
+> What I really want is to know is if the "kernel"(whch is supposed to
+> receive packets) drops packets.
 
-> How about the following to synchronize with smb_newconn()
-> 
-> smb_lock_server(server);
-> smb_unlock_server(server);
+Do you mean you want to know if the kernel's receive buffer overflows?
+That could be possible in theory, but I don't know whether it's
+possible with the current Linux kernels.
 
-Shouldn't "wq" be accessible to both smb_newconn and smb_proc_ops_wait?
-I'd put it in the "server" struct and then have smb_newconn() do this 
-when it is done:
-	wake_up_interruptible_all(&server->ops_wq);
+> Also I don't want to contribute to the congestion by sending test UDP
+> packets, because that may worsen the situation.
+> Isn't there any way to monitor the packet drops at the end host by
+> just looking at the "packet drop counter"?
 
-I don't know enough about wait_queue's to understand why it would work
-otherwise. The only thing I can think of is that the condition is true
-before it actually waits on anything.
+If the packet reaches the end host the only reason for dropping it
+would be a filled receive buffer.  The size of the buffer can be set
+using setsockopt().
 
-Since install_ops isn't the last thing done in smb_newconn perhaps a
-different variable should be used to signal that a new connection is
-there. I would suggest using "server->state == CONN_VALID" and then move
-that assignment to the end of smb_newconn.
-
-
-I'm guessing read/write/truncate can't be called before smb_newconn since
-they all require a file to be opened, and open needs getattr (or?). But
-just to be safe how about adding the code below?
-
-static int
-smb_proc_ops_bug(void)
-{
-	BUG();
-}
-
-static struct smb_ops smb_ops_null =
-{
-	.readdir	= smb_proc_readdir_null,
-	.getattr	= smb_proc_getattr_null,
-	.read		= (void *) smb_proc_ops_bug,
-	.write		= (void *) smb_proc_ops_bug,
-	.truncate	= (void *) smb_proc_ops_bug,
-};
-
-If the void* can be avoided by something clever then that is what I really 
-meant :)
-
-
-> I've already uploaded the new patch on Bugzilla, but i also came across a
-> smb_dir_cache related oops whilst testing, which i'm debugging.
-
-If you are in cleanup mode the following changes should probably be made:
-
-server->rcls	replaced by	req->rq_rcls
-server->err	replaced by	req->rq_err
-
-and remove the server->{rcls,err} fields.
-
-/Urban
-
+-- 
+Måns Rullgård
+mru@kth.se

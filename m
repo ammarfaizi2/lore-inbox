@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261538AbSIXCkl>; Mon, 23 Sep 2002 22:40:41 -0400
+	id <S261539AbSIXCrJ>; Mon, 23 Sep 2002 22:47:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261539AbSIXCkl>; Mon, 23 Sep 2002 22:40:41 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:64153 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S261538AbSIXCkk>;
-	Mon, 23 Sep 2002 22:40:40 -0400
-Message-ID: <1032835551.3d8fd1df2fba0@kolivas.net>
-Date: Tue, 24 Sep 2002 12:45:51 +1000
-From: Con Kolivas <conman@kolivas.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
-References: <Pine.LNX.4.33.0209232236070.27095-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.33.0209232236070.27095-100000@coffee.psychology.mcmaster.ca>
+	id <S261540AbSIXCrJ>; Mon, 23 Sep 2002 22:47:09 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:59122 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S261539AbSIXCrI>; Mon, 23 Sep 2002 22:47:08 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-ID: <15759.53896.973330.270617@wombat.chubb.wattle.id.au>
+Date: Tue, 24 Sep 2002 12:48:40 +1000
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: =?iso-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@mac.com>,
+       Ingo Molnar <mingo@elte.hu>, Larry McVoy <lm@bitmover.com>,
+       Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+In-Reply-To: <987738530@toto.iv>
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Mark Hahn <hahn@physics.mcmaster.ca>:
+>>>>> "Mark" == Mark Mielke <mark@mark.mielke.cc> writes:
 
-> > Yes. Definitely the outliers appear to make the difference to the results.
-> The
-> 
-> best score is clearly the most important, along with some measure of
-> spread.
-> 
-> best-worst is a lousy measure of spread; stdev is not bad for that
-> (or closely related measures like absdev, or stdev-from-mean, etc.)
-> 
-> for contests, best is definitely the first score you want.
-> 
+Mark> On Mon, Sep 23, 2002 at 11:08:53PM +0200, Peter Wächtler wrote:
+Mark> Think of it this way... two threads are blocked on different
+Mark> resources...  The currently executing thread reaches a point
+Mark> where it blocks.
 
-Normally yes. This is quite different. We want to know if there can be periods
-where the machine is busy doing file IO to the exclusion of everything else. If
-anything, the worst is the measure we want. Even the worst performing kernels
-I've tried can have the occasional very good score, but look at these results
-how I've presented them in the follow up and you'll see what I mean:
+Mark>     OS threads: 1) thread#1 invokes a system call 2) OS switches
+Mark> tasks to thread#2 and returns from blocking
 
-from the new thread I've started entitled  
-[BENCHMARK] Statistical representation of IO load results with contest
+Mark>     user-space threads: 1) thread#1 invokes a system call 2)
+Mark> thread#1 returns from system call, EWOULDBLOCK 3) thread#1
+Mark> invokes poll(), select(), ioctl() to determine state 4) thread#1
+Mark> returns from system call 5) thread#1 switches stack pointer to
+Mark> be thread#2 upon determination that the resource thread#2 was
+Mark> waiting on is ready.
 
-[...SNIP]
-n=5 for number of samples
+No way!  THe Solaris M:N model notices when all threads belonging to a
+process have blocked, and wakes up the master thread, which can then
+create a new kernel thread if there are any user-mode threads that can
+do work.
 
-Kernel          Mean    CI(95%)
-2.5.38          411     344-477
-2.5.39-gcc32    371     224-519
-2.5.38-mm2      95      84-105
-
-
-The mean is a simple average of the results, and the CI(95%) are the 95%
-confidence intervals the mean lies between those numbers. These numbers seem to
-be the most useful for comparison.
-
-Comparing 2.5.38(gcc2.95.3) with 2.5.38(gcc3.2) there is NO significant
-difference (p 0.56)
-
-Comparing 2.5.38 with 2.5.38-mm2 there is a significant diffence (p<0.001)
-[SNIP...]
-
-when I've run dozens of tests previously on the same kernel I've found that even
-with a mean of 400 rarely a value of 80 will come up. Clearly this lowest score
-does not give us the information we need.
-
-Con.
+PeterC

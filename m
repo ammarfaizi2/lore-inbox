@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129341AbRBTBfE>; Mon, 19 Feb 2001 20:35:04 -0500
+	id <S129245AbRBTBvu>; Mon, 19 Feb 2001 20:51:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129358AbRBTBex>; Mon, 19 Feb 2001 20:34:53 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:32775 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129341AbRBTBem>; Mon, 19 Feb 2001 20:34:42 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Chris Mason <mason@suse.com>
-Date: Tue, 20 Feb 2001 12:34:28 +1100 (EST)
-MIME-Version: 1.0
+	id <S129242AbRBTBva>; Mon, 19 Feb 2001 20:51:30 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:5636 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129131AbRBTBv1>; Mon, 19 Feb 2001 20:51:27 -0500
+Date: Tue, 20 Feb 2001 14:51:24 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: sendfile64?
+Message-ID: <20010220145123.A1609@metastasis.f00f.org>
+In-Reply-To: <20010220015518.B12073@convergence.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14993.51620.380828.269557@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: problems with reiserfs + nfs using 2.4.2-pre4
-In-Reply-To: message from Chris Mason on Monday February 19
-In-Reply-To: <14993.48376.203279.390285@notabene.cse.unsw.edu.au>
-	<1633680000.982631746@tiny>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010220015518.B12073@convergence.de>; from leitner@convergence.de on Tue, Feb 20, 2001 at 01:55:18AM +0100
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday February 19, mason@suse.com wrote:
-> 
-> 
-> On Tuesday, February 20, 2001 11:40:24 AM +1100 Neil Brown
-> <neilb@cse.unsw.edu.au> wrote:
-> > 
-> >   When reiserfs came along, it abused this, and re-interpreted the
-> >   opaque datum to contain information for recalling (locating) an
-> >   inode - if read_inode2 was defined.  I think this is wrong.
-> >
-> 
-> I suggested to Al Viro a while ago to break iget up into two calls, and
-> then got sucked into something else and didn't follow up.  Independently,
-> he came up with the below message during a thread on fs-devel about
-> read_inode.  I think it is very similar to what you've described, and it
-> should work.  I'm willing to help integrate/code once things settle down
-> for 2.4.
+    Why isn't there a sendfile64?
 
-I must have missed that thread...
-Yes, what Al Viro suggests is exactly the same idea as mine, except
-that I suggest leaving iget as it is and getting the filesystem to do
-a bit of locking.
+because nobody has implemented on -- arguably it's not needed; the
+different between:
 
-> 
-> His last paragraph is also important, I'd rather see this as a new
-> call...BTW, I believe XFS and GFS actually have 64 bit inode numbers, while
-> reiserfs has a unique 32 bit inode number (objectid) and a unique 32 bit
-> packing locality that are both required to find the object.
+	sendfile64(...)
 
-I think the particular need for a new call is to handle long inode
-identifiers better.  The current iget4 is a bit ugly.
-If/when a new iget is done to handle long identifiers elegantly, it
-would probably be good to include the I_NEW stuff as well, but for now
-(2.4) both long identifiers and delayed fill-in can be done without
-changing iget.
+and
 
-NeilBrown
+	while(blah){
+		sendfile( ... 1G or so ...)
+	}
 
-(what's happened to Al Viro anyway, he has been awfully quite lately?)
+probably won't be detectable anyhow. I see no reason why sendfile64
+should be purely user-space (then again, I see no reason why not to
+extend the kernel API as is, but last time I tested it is was busted
+WRT signals so I would rather that be fixed before further
+proliferation there).
+
+
+
+  --cw

@@ -1,58 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265291AbUBFJOi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 04:14:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265346AbUBFJOh
+	id S265338AbUBFJbD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 04:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265346AbUBFJbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 04:14:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:27584 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265291AbUBFJOg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 04:14:36 -0500
-Date: Fri, 6 Feb 2004 01:16:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Matt <dirtbird@ntlworld.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS locking: f_pos thread-safe ?
-Message-Id: <20040206011630.42ed5de1.akpm@osdl.org>
-In-Reply-To: <402359E1.6000007@ntlworld.com>
-References: <402359E1.6000007@ntlworld.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Feb 2004 04:31:02 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57349
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S265338AbUBFJ3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 04:29:23 -0500
+Date: Fri, 6 Feb 2004 01:24:11 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: hpt366.c-2.4.23.patch
+Message-ID: <Pine.LNX.4.10.10402060123300.11954-200000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; BOUNDARY="1430322656-1970956437-1076059451=:11954"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt <dirtbird@ntlworld.com> wrote:
->
-> > Werner Almesberger <wa@almesberger.net> wrote:
-> >>
-> >> "[...] read( ) [...] shall be atomic with respect to each other
-> >>   in the effects specified in IEEE Std. 1003.1-200x when they
-> >>   operate on regular files. If two threads each call one of these
-> >>   functions, each call shall either see all of the specified
-> >>   effects of the other call, or none of them."
-> 
-> > Whichever thread finishes its read last gets to update f_pos.
-> 
-> > I'm struggling a bit to understand what they're calling for there.  If
-> > thread A enters a read and then shortly afterwards thread B enters the
-> > read, does thread B see an f_pos which starts out at the beginning of A's
-> > read, or the end of it?
-> 
-> > Similar questions apply as the threads exit their read()s.
-> 
-> > Either way, there's no way in which we should serialise concurrent readers.
-> > That would really suck for sensible apps which are using pread64().
-> 
-> Surely, we can just serialise read() (and related) calls that modify f_pos?
-> Since pread() doesn't modify f_pos we shouldn't need to serialise those calls
-> no? Also doesn't spec make the same claims about other calls that modify
-> f_pos such as write()?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-We could do somethnig like that.
+--1430322656-1970956437-1076059451=:11954
+Content-Type: text/plain; charset=us-ascii
 
-But is there any application in which two threads simultaneously perform
-read() against the same fd which is not already buggy?
 
+For those suffering highpoint errors.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+--1430322656-1970956437-1076059451=:11954
+Content-Type: text/plain; charset=us-ascii; name="hpt366.c-2.4.23.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10402060124110.11954@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename="hpt366.c-2.4.23.patch"
+
+LS0tIGxpbnV4LTIuNC4yMy5vcmlnL2RyaXZlcnMvaWRlL3BjaS9ocHQzNjYu
+YwlNb24gQXVnIDI1IDA0OjQ0OjQxIDIwMDMNCisrKyBsaW51eC0yLjQuMjMv
+ZHJpdmVycy9pZGUvcGNpL2hwdDM2Ni5jCUZyaSBKYW4gIDkgMjE6NDQ6NDgg
+MjAwNA0KQEAgLTEsNyArMSw3IEBADQogLyoNCiAgKiBsaW51eC9kcml2ZXJz
+L2lkZS9wY2kvaHB0MzY2LmMJCVZlcnNpb24gMC4zNglBcHJpbCAyNSwgMjAw
+Mw0KICAqDQotICogQ29weXJpZ2h0IChDKSAxOTk5LTIwMDIJCUFuZHJlIEhl
+ZHJpY2sgPGFuZHJlQGxpbnV4LWlkZS5vcmc+DQorICogQ29weXJpZ2h0IChD
+KSAxOTk5LTIwMDMJCUFuZHJlIEhlZHJpY2sgPGFuZHJlQGxpbnV4LWlkZS5v
+cmc+DQogICogUG9ydGlvbnMgQ29weXJpZ2h0IChDKSAyMDAxCSAgICAgICAg
+U3VuIE1pY3Jvc3lzdGVtcywgSW5jLg0KICAqIFBvcnRpb25zIENvcHlyaWdo
+dCAoQykgMjAwMwkJUmVkIEhhdCBJbmMNCiAgKg0KQEAgLTY2OCw2ICs2Njgs
+MzUgQEANCiAJcmV0dXJuIF9faWRlX2RtYV9sb3N0aXJxKGRyaXZlKTsNCiB9
+DQogDQorLyogcmV0dXJucyAxIGlmIGRtYSBpcnEgaXNzdWVkLCAwIG90aGVy
+d2lzZSAqLw0KK3N0YXRpYyBpbnQgaHB0Mzc0X2lkZV9kbWFfdGVzdF9pcnEg
+KGlkZV9kcml2ZV90ICpkcml2ZSkNCit7DQorCQkgICAgICAgIA0KKwlpZGVf
+aHdpZl90ICpod2lmCT0gSFdJRihkcml2ZSk7DQorCXUxNiBiZmlmbwkJPSAw
+Ow0KKwl1OCByZWdpbmZvCQk9IGh3aWYtPmNoYW5uZWwgPyAweDU2IDogMHg1
+MjsNCisJdTggZG1hX3N0YXQJCT0gMDsNCisNCisJcGNpX3JlYWRfY29uZmln
+X3dvcmQoaHdpZi0+cGNpX2RldiwgcmVnaW5mbywgJmJmaWZvKTsNCisJaWYg
+KGJmaWZvICYgMHgxRkYpIHsNCisvLwkJcHJpbnRrKCIlczogJWQgYnl0ZXMg
+aW4gRklGT1xuIiwgZHJpdmUtPm5hbWUsIGJmaWZvKTsNCisJCXJldHVybiAw
+Ow0KKwl9DQorDQorCWRtYV9zdGF0ID0gaHdpZi0+SU5CKGh3aWYtPmRtYV9z
+dGF0dXMpOw0KKwkvKiByZXR1cm4gMSBpZiBJTlRSIGFzc2VydGVkICovDQor
+CWlmICgoZG1hX3N0YXQgJiA0KSA9PSA0KQ0KKwkJcmV0dXJuIDE7DQorDQor
+CWlmICghZHJpdmUtPndhaXRpbmdfZm9yX2RtYSkNCisJCXByaW50ayhLRVJO
+X1dBUk5JTkcgIiVzOiAoJXMpIGNhbGxlZCB3aGlsZSBub3Qgd2FpdGluZ1xu
+IiwNCisJCQkJZHJpdmUtPm5hbWUsIF9fRlVOQ1RJT05fXyk7DQorI2lmIDAN
+CisJZHJpdmUtPndhaXRpbmdfZm9yX2RtYSsrOw0KKyNlbmRpZg0KKwlyZXR1
+cm4gMDsNCit9DQorDQogc3RhdGljIGludCBocHQzNzRfaWRlX2RtYV9lbmQg
+KGlkZV9kcml2ZV90ICpkcml2ZSkNCiB7DQogCXN0cnVjdCBwY2lfZGV2ICpk
+ZXYJPSBIV0lGKGRyaXZlKS0+cGNpX2RldjsNCkBAIC0xMjQ1LDExICsxMjc0
+LDEzIEBADQogCQlod2lmLT51ZG1hX2ZvdXIgPSAoKGF0YTY2ICYgcmVnbWFz
+aykgPyAwIDogMSk7DQogCWh3aWYtPmlkZV9kbWFfY2hlY2sgPSAmaHB0MzY2
+X2NvbmZpZ19kcml2ZV94ZmVyX3JhdGU7DQogDQotCWlmIChocHRfbWluaW11
+bV9yZXZpc2lvbihkZXYsOCkpDQorCWlmIChocHRfbWluaW11bV9yZXZpc2lv
+bihkZXYsOCkpIHsNCisJCWh3aWYtPmlkZV9kbWFfdGVzdF9pcnEgPSAmaHB0
+Mzc0X2lkZV9kbWFfdGVzdF9pcnE7DQogCQlod2lmLT5pZGVfZG1hX2VuZCA9
+ICZocHQzNzRfaWRlX2RtYV9lbmQ7DQotCWVsc2UgaWYgKGhwdF9taW5pbXVt
+X3JldmlzaW9uKGRldiw1KSkNCisJfSBlbHNlIGlmIChocHRfbWluaW11bV9y
+ZXZpc2lvbihkZXYsNSkpIHsNCisJCWh3aWYtPmlkZV9kbWFfdGVzdF9pcnEg
+PSAmaHB0Mzc0X2lkZV9kbWFfdGVzdF9pcnE7DQogCQlod2lmLT5pZGVfZG1h
+X2VuZCA9ICZocHQzNzRfaWRlX2RtYV9lbmQ7DQotCWVsc2UgaWYgKGhwdF9t
+aW5pbXVtX3JldmlzaW9uKGRldiwzKSkgew0KKwl9IGVsc2UgaWYgKGhwdF9t
+aW5pbXVtX3JldmlzaW9uKGRldiwzKSkgew0KIAkJaHdpZi0+aWRlX2RtYV9i
+ZWdpbiA9ICZocHQzNzBfaWRlX2RtYV9iZWdpbjsNCiAJCWh3aWYtPmlkZV9k
+bWFfZW5kID0gJmhwdDM3MF9pZGVfZG1hX2VuZDsNCiAJCWh3aWYtPmlkZV9k
+bWFfdGltZW91dCA9ICZocHQzNzBfaWRlX2RtYV90aW1lb3V0Ow0K
+--1430322656-1970956437-1076059451=:11954--

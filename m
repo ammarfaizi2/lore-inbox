@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265602AbSKACbw>; Thu, 31 Oct 2002 21:31:52 -0500
+	id <S262812AbSKACpP>; Thu, 31 Oct 2002 21:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265606AbSKACbw>; Thu, 31 Oct 2002 21:31:52 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:32491 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265602AbSKACbv>; Thu, 31 Oct 2002 21:31:51 -0500
-Date: Thu, 31 Oct 2002 18:35:06 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-cc: mingo@elte.hu, Erich Focht <efocht@ess.nec.de>
-Subject: Re: [PATCH 2.5.45] NUMA Scheduler  (1/2)
-Message-ID: <3481414249.1036089305@[10.10.2.3]>
-In-Reply-To: <1010470000.1036108344@flay>
-References: <1010470000.1036108344@flay>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==========3481431698=========="
+	id <S265422AbSKACpP>; Thu, 31 Oct 2002 21:45:15 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:9988 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262812AbSKACpO>;
+	Thu, 31 Oct 2002 21:45:14 -0500
+Date: Thu, 31 Oct 2002 18:48:41 -0800
+From: Greg KH <greg@kroah.com>
+To: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: bare pci configuration access functions ?
+Message-ID: <20021101024841.GD13031@kroah.com>
+References: <72B3FD82E303D611BD0100508BB29735046DFF6C@orsmsx102.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <72B3FD82E303D611BD0100508BB29735046DFF6C@orsmsx102.jf.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==========3481431698==========
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thu, Oct 31, 2002 at 06:39:26PM -0800, Lee, Jung-Ik wrote:
+> 
+> Platform management, early console access, acpi, hotplug io-node w/ root,...
+> pci_bus based access is useless before pci driver is initialized.
+> All exceptions will be forced to use fake structs...
+> Sounds we need to be ready to live with all exceptions here too :)
+> Or just to make them all happy with that simple bare functions.
 
-Hum. A last minute change broke UP compilation.
-Attatched ... should come out as text/plain so you can read 
-it, but if it all goes wrong, it just removes:
+Ok, let's make them happy with bare functions, _if_ we have to.  Places
+that do not have to will be gleefully pointed out and mocked :)
 
-       if (cache_decay_ticks)
-               cache_decay_ticks=1;
+> OK, if simple and pure pci config access is not possible in Linux land,
+> let pci driver fake itself, not everyone else :)
+> Just export the two APIs like pci_config_{read|write}(s,b,d,f,s,v),
+> or the ones in acpi driver. Hide the fake pci_bus manipulation in them. 
+> This way is way better than having everyone fake pci driver ;-)
 
-from sched_init.
+I agree.  But can we do this for all archs?  I don't know, and look
+forward to your patch proving this will work.  Without all arch support
+of this, I can't justify only exporting the functions for i386 and ia64.
 
-M.
+thanks,
 
---==========3481431698==========
-Content-Type: text/plain; charset=us-ascii; name=numaschedfix
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=numaschedfix; size=357
-
---- 2.5.45-numasched/kernel/sched.c.old	2002-10-31 17:48:41.000000000 -0800
-+++ 2.5.45-numasched/kernel/sched.c	2002-10-31 17:51:43.000000000 -0800
-@@ -2331,8 +2331,7 @@
- 			__set_bit(MAX_PRIO, array->bitmap);
- 		}
- 	}
--	if (cache_decay_ticks)
--		cache_decay_ticks=1;
-+
- 	/*
- 	 * We have to do a little magic to get the first
- 	 * thread right in SMP mode.
-
---==========3481431698==========--
-
+greg k-h

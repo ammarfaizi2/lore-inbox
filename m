@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268260AbTGOOsz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 10:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268276AbTGOOsz
+	id S268231AbTGOOzM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 10:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268253AbTGOOzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 10:48:55 -0400
-Received: from firewall.mdc-dayton.com ([12.161.103.180]:57519 "EHLO
-	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
-	id S268260AbTGOOsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 10:48:54 -0400
-From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
-To: "Andi Kleen" <ak@muc.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: Interrupt doesn't make it to the 8259 on a ASUS P4PE mobo
-Date: Tue, 15 Jul 2003 11:14:16 -0500
-Message-ID: <PMEMILJKPKGMMELCJCIGOEKNCCAA.kfrazier@mdc-dayton.com>
+	Tue, 15 Jul 2003 10:55:12 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:52623 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268231AbTGOOzJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 10:55:09 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: "Dimitry V. Ketov" <Dimitry.Ketov@avalon.ru>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Partitioned loop device..
+Date: Tue, 15 Jul 2003 10:01:44 -0500
+User-Agent: KMail/1.5
+References: <E1B7C89B8DCB084C809A22D7FEB90B384E34B4@frodo.avalon.ru>
+In-Reply-To: <E1B7C89B8DCB084C809A22D7FEB90B384E34B4@frodo.avalon.ru>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-In-Reply-To: <m3el0stw23.fsf@averell.firstfloor.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Disposition: inline
+Message-Id: <200307151001.44218.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your reply, Andi.
+On Tuesday 15 July 2003 03:46, Dimitry V. Ketov wrote:
+> Hello,
+> 	Is there any (un)official patch for current stable (or
+> development) kernel that makes loop device partitioned? I found one on
+> the ftp://ftp.hq.nasa.gov/pub/ig/ccd/enhanced_loopback/ (it contains
+> port of Scyld's partition enhancements), but it seems still needs a fix.
+> In general I plan to use partitioned loop device to simulate real disks
+> in linux labs, possibly with a help from Stephen Tweedie's testdrive
+> fault simulator. I just wonder if partitionable/faultable loop device
+> planned in the future official kernels, or it will be better to write a
+> separate 'simulated disk' driver???
+>
+> Thanks in advance,
+> Dimitry.
 
->> We have a proprietary PCI board installed in a (UP) system with an ASUS
-P4PE
->> motherboard (uses Intel 845PE chipset). This system is running Red Hat
-9.0
+You can already use Device-Mapper to create "partitions" on your loop devices, 
+so there's not much of a reason to add partitioning support to the loop 
+driver itself. There are a variety of tools you can use to set them up: EVMS, 
+LVM2, dmsetup, and I think there is/was a simple partitioning tool that uses 
+DM (dmpartx?). 
 
->Have you checked the 845 errata sheets on the Intel website?
->Perhaps it is some known hardware bug.
-
->One thing you could try is to use Local APIC / IO APIC interrupt processing
->instead of 8259.
-
-Our hardware engineer has combed the Intel and ASUS websites, but found
-nothing.  I'll give the APIC a try and see if I get different results and
-let you know.
-
->>
->> /* start timer */
->> dmatimer.expires = jiffies + 0.5*HZ;
-
->That's a serious bug. You cannot use floating point in the kernel.
->It will corrupt the FP state of the user process.
-
-HZ on the INTEL platform is 100, so this should simply add 50 to the current
-value of jiffies.  Besides, assigning the value to the unsigned int field
-(expires) will truncate it to an integer anyway.  Is there a more
-appropriate way to handle a short timeout?
-
-Thanks,
-Kathy
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/
 

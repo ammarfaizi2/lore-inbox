@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269005AbUHZOMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268985AbUHZOMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269005AbUHZOMb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 10:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268907AbUHZOIS
+	id S268985AbUHZOMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 10:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268975AbUHZOIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 10:08:18 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5893 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268961AbUHZOEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 10:04:12 -0400
-Date: Thu, 26 Aug 2004 15:04:04 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       thomas@undata.org
-Subject: Re: [PATCH] Fix shared interrupt handling of SA_INTERRUPT and SA_SAMPLE_RANDOM
-Message-ID: <20040826150404.D21364@flint.arm.linux.org.uk>
-Mail-Followup-To: Takashi Iwai <tiwai@suse.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	thomas@undata.org
-References: <s5heklxhjbg.wl@alsa2.suse.de> <20040824204508.3b31449f.akpm@osdl.org> <s5hoekzfowc.wl@alsa2.suse.de> <20040825134112.5aefaf8e.akpm@osdl.org> <s5h1xhum5ar.wl@alsa2.suse.de>
+	Thu, 26 Aug 2004 10:08:53 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46584 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268928AbUHZOFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 10:05:07 -0400
+Date: Thu, 26 Aug 2004 16:05:01 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Jamie Lokier <jamie@shareable.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826140500.GA29965@fs.tum.de>
+References: <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <412DA40B.5040806@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <s5h1xhum5ar.wl@alsa2.suse.de>; from tiwai@suse.de on Thu, Aug 26, 2004 at 02:50:52PM +0200
+In-Reply-To: <412DA40B.5040806@namesys.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 02:50:52PM +0200, Takashi Iwai wrote:
-> At Wed, 25 Aug 2004 13:41:12 -0700,
-> Andrew Morton wrote:
-> > 
-> > Takashi Iwai <tiwai@suse.de> wrote:
-> > >
-> > > Anyway, suppressing the unnecessary call of add_interrupt_randomness()
-> > >  should be still valid.  The reduced patch is below.
-> (snip)
-> > 
-> > Shouldn't that be `if (ret == IRQ_HANDLED)'?
+On Thu, Aug 26, 2004 at 01:49:15AM -0700, Hans Reiser wrote:
+> Jamie Lokier wrote:
 > 
-> Yes, it's more strict.
+> >One of the big potential uses for file-as-directory is to go inside
+> >archive files, ELF files, .iso files and so on in a convenient way.
+> > 
+> >
+> Yes, this was part of the plan, tar file-directory plugins would be cute.
 
-I don't think so.  Look at what's going on.  If "ret" is IRQ_HANDLED
-all well and fine.  However, look at how "retval" is being used:
+Silly question:
 
-static void __report_bad_irq(int irq, irq_desc_t *desc, irqreturn_t action_ret)
-{
-...
-        if (action_ret != IRQ_HANDLED && action_ret != IRQ_NONE) {
-                printk(KERN_ERR "irq event %d: bogus return value %x\n",
-                                irq, action_ret);
-        } else {
-                printk(KERN_ERR "irq %d: nobody cared!\n", irq);
-        }
+GNU Midnight Commander allows for ages to go into e.g. tar files, so I 
+know the benefits of this. Additionally, in GNU Midnight Commander, this 
+works no matter which file system I use (e.g. it works on iso9660), and 
+it even works the same way on other OS's like e.g. Solaris and NetBSD.
 
-So, we're looking to see not only if a handler returned IRQ_HANDLED,
-but also if a handler returned _some other value_ other than IRQ_HANDLED
-or IRQ_NONE.
+What is the technical reason why a tar plugin should be reiser4 
+specific, instead of a generic VFS or userspace solution that would 
+allow the same also on other fs like e.g. iso9660?
+
+cu
+Adrian
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

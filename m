@@ -1,90 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130949AbRCJGv2>; Sat, 10 Mar 2001 01:51:28 -0500
+	id <S130952AbRCJHUV>; Sat, 10 Mar 2001 02:20:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130950AbRCJGvT>; Sat, 10 Mar 2001 01:51:19 -0500
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:34067 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S130949AbRCJGvL>; Sat, 10 Mar 2001 01:51:11 -0500
-From: bsuparna@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: dprobes@oss.lotus.com, linux-kernel@vger.kernel.org
-Message-ID: <CA256A0B.0025892C.00@d73mta05.au.ibm.com>
-Date: Sat, 10 Mar 2001 12:12:45 +0530
-Subject: [ANNOUNCE] Dynamic Probes 2.0 released 
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S130953AbRCJHUL>; Sat, 10 Mar 2001 02:20:11 -0500
+Received: from relay8.Austria.EU.net ([193.154.160.146]:1186 "EHLO
+	relay8.austria.eu.net") by vger.kernel.org with ESMTP
+	id <S130952AbRCJHUB>; Sat, 10 Mar 2001 02:20:01 -0500
+Message-ID: <3AA9D575.1345EF2@eunet.at>
+Date: Sat, 10 Mar 2001 08:19:17 +0100
+From: Michael Reinelt <reinelt@eunet.at>
+Organization: netWorks
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: george anzinger <george@mvista.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: nanosleep question
+In-Reply-To: <3AA607E7.6B94D2D@eunet.at> <3AA936B2.D2F26847@mvista.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: OK (checked by AntiVir Version 6.6.0.6)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+george anzinger wrote:
+> 
+> Michael Reinelt wrote:
+> >
+> > At the moment I implemented by own delay loop using a small assembler
+> > loop similar to the one used in the kernel. This has two disadvantages:
+> > assembler isn't that portable, and the loop has to be calibrated.
+> 
+> Why not use C?  As long as you calibrate it, it should do just fine.
+Because the compiler might optimize it away.
 
-Version 2.0 of the Dynamic Probes facility is now available at
-http://oss.software.ibm.com/developerworks/opensource/linux/projects/dprobes
+> On
+> the other hand, since you are looping anyway, why not loop on a system
+> time of day call and have the loop exit when you have the required time
+> in hand.  These calls have microsecond resolution.
+I'm afraid they don't (at least with kernel 2.0, I didn't try this with
+2.4). They have microsecond resolution, but increment only every 1/HZ.
 
-This release includes a new feature called "watchpoint probes" which
-exploits hardware watchpoint capabilities of the underlying hardware
-architecture to allow probing specific types of storage accesses.
-Watchpoint probes are specified by the location (virtual address) and the
-type of access (rw/w/x) on which the probe is fired.
+Someone gave me a hint to loop on rdtsc. I will look into this.
 
-This capability enables fine-grained storage profiling when Dprobes is used
-in conjunction with LTT from Opersys as it permits tracing of memory read
-and write access at specific locations.
+> > - why are small delays only possible up to 2 msec? what if I needed a
+> > delay of say 5msec? I can't get it?
+> 
+> If you want other times, you can always make more than one call to
+> nanosleep.
+Good point!
 
-Changes in this version:
-----------------------------------
-- New watchpoint probes feature allows probes to be fired on specific type
-of memory accesses(execute|write|read or write|io), implemented using the
-debug registers available on Intel x86 processors.
-- New RPN instructions: divide/remainder and propagate bit/zero
-instructions.
-- Kernel data can now be referenced symbolically in the probe program
-files.
-- Memory logging instructions like "log mrf" now write the fault location
-in the log buffer in case a page fault occurs when accessing the concerned
-memory area.
-- Log can now be optionally saved using the new keyword logonfault=yes even
- if the probed instruction faults.
-- Bug fixes in the interpreter
-     - validity check for the selector in segmented to flat address
-conversion in case where the selector references the GDT.
-     - log memory and log ascii functions now don't log if the logmax was
-set to zero.
+> The question is: Can your task
+> stand the loss of the processor to another task?  This is what happens
+> at normal SCHED_OTHER priority.
 
+Yes, it can. My delays are 'minimal' values, if it takes longer, there's
+no problem apart from the speed of the display update. I have to wait 40
+microsecs after every character I send to the display, which makes 3.2
+milliseconds for a complete update of a 20x4 display. If every delay
+would be 10 msec, the whole update would last 0.8 seconds (which is
+unusable).
 
-About Dprobes
------------------------
-Dprobes is a generic and pervasive non-interactive system debugging
-facility designed to operate under the most extreme software conditions
-such as debugging a deep rooted operating system problem in a live
-environment. It allows the insertion of fully automated breakpoints or
-probepoints, anywhere in the system and user space along with a  set of
-probe instructions that are interpreted when a specific probe fires. These
-instructions allow memory and CPU registers to be examined and altered
-using conditional logic and a log to be generated.
+bye, Michael
 
-Dprobes is currently available only on the IA32 platform.
-
-An interesting aspect of Dprobes is that it allows the probe program to
-conditionally trigger any external debugging facility that registers for
-this purpose, e.g. crash dump, kernel debugger. Dprobes interfaces with
-Opersys's LTT to provide a Universal Dynamic Trace facility.
-
-For more information on DProbes please visit the dprobes homepage at
-http://oss.software.ibm.com/developerworks/opensource/linux/projects/dprobes/
-
-
-
-  Suparna Bhattacharya
-  Linux Technology Center
-  IBM Software Lab, India
-  E-mail : bsuparna@in.ibm.com
-  Phone : 91-80-5267117, Extn : 2525
-
-
-
-
-
-
-
+-- 
+netWorks       	                                  Vox: +43 316  692396
+Michael Reinelt                                   Fax: +43 316  692343
+Geisslergasse 4					  GSM: +43 676 3079941
+A-8045 Graz, Austria			      e-mail: reinelt@eunet.at

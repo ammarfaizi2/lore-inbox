@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130108AbQKNMF7>; Tue, 14 Nov 2000 07:05:59 -0500
+	id <S129349AbQKNMRb>; Tue, 14 Nov 2000 07:17:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130763AbQKNMFs>; Tue, 14 Nov 2000 07:05:48 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:25098 "EHLO
-	wisbech.cl.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S130108AbQKNMFf>; Tue, 14 Nov 2000 07:05:35 -0500
-X-Mailer: exmh version 2.0.2+CL 2/24/98
-To: linux-kernel@vger.kernel.org
-cc: Ian.Grant@cl.cam.ac.uk, mingo@elte.hu
-Subject: RAID modules and CONFIG_AUTODETECT_RAID
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 14 Nov 2000 11:35:33 +0000
-From: Ian Grant <Ian.Grant@cl.cam.ac.uk>
-Message-Id: <E13veNB-0000Se-00@wisbech.cl.cam.ac.uk>
+	id <S130918AbQKNMRV>; Tue, 14 Nov 2000 07:17:21 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:5644 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129349AbQKNMRJ>;
+	Tue, 14 Nov 2000 07:17:09 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: David Schleef <ds@stm.lbl.gov>
+Date: Tue, 14 Nov 2000 12:47:40 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: More modutils: It's probably worse.
+CC: Michal Zalewski <lcamtuf@DIONE.IDS.PL>, BUGTRAQ@SECURITYFOCUS.COM,
+        linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <CD314F06B1A@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.2.x we were able to build a kernel with RAID modules and have it 
-autodetect RAID partitions at boot time - so we could use raid root partitions.
+On 14 Nov 00 at 2:04, David Schleef wrote:
+> On Tue, Nov 14, 2000 at 09:59:22AM +0100, Olaf Kirch wrote:
+> > On Tue, Nov 14, 2000 at 12:06:32AM +0100, Michal Zalewski wrote:
+> > > Maybe I am missing something, but at least for me, modprobe
+> > > vulnerabilities are exploitable via privledged networking services,
+> > > nothing more.
+> > 
+> > Maybe not. ncpfs for instance has an ioctl that seems to allow
+> > unprivileged users to specify a character set (codepage in m$speak)
+> > that's requested via load_nls(), which in turn does a
 
-In 2.40 the configuration option CONFIG_AUTODETECT_RAID is explicitly disabled 
-unless at least one RAID module is built into the kernel.  I presume there is 
-a good reason for this and that it's not just a mistake.
+> Then it looks like the driver is broken, not modutils.
 
-Are there any plans to re-enable this feature?  It would be nice to be able to 
-have a single kernel for all our machines without having to have RAID in the 
-kernel when it isn't needed.
+Well, you can use this ioctl only before ncp filesystem gets to life,
+but yes, as this call is always done by mount process, I'll add
 
+if (!capable(CAP_SYS_ADMIN))
+  return -EPERM;
 
--- 
-Ian Grant, Computer Lab., New Museums Site, Pembroke Street, Cambridge
-Phone: +44 1223 334420          Personal e-mail: iang at pobox dot com 
-
-
+here. But I still do not see any problem, as ncpfs limits charset/codepage
+length to 20 chars (+ NUL terminator), and nobody told me that it is
+not possible to use " or - in codepage name ;-)
+                                                    Best regards,
+                                                        Petr Vandrovec
+                                                        vandrove@vc.cvut.cz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265365AbSJRXCI>; Fri, 18 Oct 2002 19:02:08 -0400
+	id <S265413AbSJRXNx>; Fri, 18 Oct 2002 19:13:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265389AbSJRXCH>; Fri, 18 Oct 2002 19:02:07 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:51967 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265365AbSJRXB0>;
-	Fri, 18 Oct 2002 19:01:26 -0400
-Subject: [EXAMPLE CODE] linux-2.5.43_vsyscall_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>, andrea <andrea@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, george anzinger <george@mvista.com>,
-       Stephen Hemminger <shemminger@osdl.org>, Andi Kleen <ak@muc.de>
-In-Reply-To: <1034981832.4042.58.camel@cog>
-References: <1034981832.4042.58.camel@cog>
-Content-Type: multipart/mixed; boundary="=-yb0nSp/SeK9fqn+ZA0fY"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Oct 2002 15:58:21 -0700
-Message-Id: <1034981901.4047.60.camel@cog>
-Mime-Version: 1.0
+	id <S265417AbSJRXNx>; Fri, 18 Oct 2002 19:13:53 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:41961 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265413AbSJRXNw>;
+	Fri, 18 Oct 2002 19:13:52 -0400
+Message-ID: <3DB094B0.2040400@watson.ibm.com>
+Date: Fri, 18 Oct 2002 19:09:36 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>, Hanna Linder <hannal@us.ibm.com>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org
+Subject: Re: [PATCH] sys_epoll system call interface to /dev/epoll
+References: <Pine.LNX.4.44.0210181538100.1537-100000@blue1.dev.mcafeelabs.com> <Pine.LNX.4.44.0210181542140.1202-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
---=-yb0nSp/SeK9fqn+ZA0fY
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Apart from the multiple vs. single system call issue, are you okay with
+the creation of an fd,file * etc. without having a device ?
 
-Linus, All
+The former issue could certainly be avoided by having multiple syscalls.
+In fact, Davide had originally suggested an interface looking somewhat like
+this:
 
-	Here again is the tarball containing the example vsyscall LD_PRELOAD
-library, and the quick/rough performance measuring tool. 
+	int sys_epoll_create(int maxfds);
+	int sys_epoll_addfd(int epd, int fd);
+	void sys_epoll_close(int epd);
+	int sys_epoll_wait(int epd, struct pollfd **pevts, int timeout);
 	
-thanks
--john
+which is roughly what Hanna tried to multiplex onto the single sys_epoll. 	
+
+-- Shailabh
 
 
---=-yb0nSp/SeK9fqn+ZA0fY
-Content-Disposition: attachment; filename=vsyscall_test.tar.gz
-Content-Type: application/x-gzip; name=vsyscall_test.tar.gz
-Content-Transfer-Encoding: base64
 
-H4sIAB2rrz0AA+2X3W/aMBDAeSV/xYmqU8JHcCAh0iiTpnYPlSitOqG9TEJZYiCbSVDioNFp//vO
-CQkERCtNtFU3/x4S+e58/rj4zlnF69h1GJtwGvN25VkgxCS2beHbMCzD3HkXVIhtWV27Yxk9lBsm
-MewKWM8znTJJzJ0IoPI95gnjD0ftntK/UVal+Oct3T3lGMQgpNczj8a/Y9t5/LuG3UX7HumYFSCn
-nMQx/vP4n/mByxKPwkXMPT/U5x+Ukoj534RMWYW+B2pdfCCaGvMocTlwf0FXDqs3YU+gwQBU0aOu
-kZ9ThGKUx8P+xs2McmEZTj1nve8L+AoO/AF/0JRfSjUfn6+aKOkrv5XX3r43T/n83zg/6NRn9LRj
-PHX+u0Y3P/+mSUT+t0zTkuf/JcDQv1eqM9eF1vTu+hJakbcOnIWP7Rm08PkFLWBbFza28dyJqAeo
-Zq04xA60WdjEoW5AK4SSQCcoLCQhtBh6YR7L/M146LXEF6i7omfRVBSXUSfAGUYLqOs7mkPvMhf8
-DeXzvxOHE46Rnn/z6Pk3jG6vqP+2TdL6b3fk+X8JHq//67gtanB6AzjzsDQEFEbjm8n9ePQZjCx8
-heLm+vL+tpAqfsBh4fiBmpbuckUHselc1Plw2QQU9JWqsPfxnQSxPwswubAwmGUPjzLuoGrKQofD
-kkYuDTi2txZ8scR26WLxbjPGaDwcaqJzGKn+gPTBh4tiEdhqNDSlutcVZ7TtuO9VTHmjE+sKlzpf
-TWKKmWuQrWvT7m+1yb46yfTpwsRl6XDR2o7nera1OM1q41HbzK1S3WyR8JzumZYO1FbzZTcMsbBl
-hHs+VWu7CwQVzhlLkhjacO5HOBaI29z5NIm/BrWmmEPqq1lsYTMPCLoEJKI8iQIg8nr2Fijnf4y3
-Hs9PPYbI/4/9/xuY7PP/f2LZ4v6HFUDm/5eAuvMQaqMwWmBW3k0ENUXfXgeUzCz/WGB4Nbm7/zS8
-/Xi112erGOjtwwvgrsvXXrlEIpFIJBKJRCKRSCQSiUQikfzb/AGCgp9CACgAAA==
+Linus Torvalds wrote:
+> On Fri, 18 Oct 2002, Davide Libenzi wrote:
+> 
+>>Linus, yesterday I was sugesting Hanna to use most of the existing code
+>>and to make :
+>>
+>>int sys_epoll_create(int maxfds);
+>>
+>>to actually return an fd. Basically during this function call the code
+>>allocates a file*, initialize it, allocates a free fd, maps the file* to
+>>the fd, creates the vma* for the shared events area between the kernel and
+>>user space, maps allocated kernel pages to the vma*, install the vma* and
+>>returns the fd.
+> 
+> 
+> But that's what her patch infrastructure seems to do. It's not just
+> epoll_create(), it's all the other ioctl's too (unlink, remove etc). One
+> queston is whether there is one epoll system call (that multiplexes, like
+> in Hanna's patch) or many. I personally don't like multiplexing system
+> calls - the system call number _is_ a multiplexor, I don't see the point 
+> of having multiple levels.
+> 
+> 		Linus
 
---=-yb0nSp/SeK9fqn+ZA0fY--
+
+
 

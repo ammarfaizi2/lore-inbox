@@ -1,71 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbTERMwn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 08:52:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTERMwn
+	id S262050AbTERMzH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 08:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbTERMzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 08:52:43 -0400
-Received: from ns.suse.de ([213.95.15.193]:38411 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262034AbTERMwl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 08:52:41 -0400
-Date: Sun, 18 May 2003 12:47:18 +0200
-From: Olaf Hering <olh@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       David Engebretsen <engebret@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.21-rc2 syntax error in toplevel Makefile
-Message-ID: <20030518104718.GA9425@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+	Sun, 18 May 2003 08:55:07 -0400
+Received: from 72.1-182-adsl-pool.axelero.hu ([81.182.1.72]:51472 "EHLO
+	server.leva.2y.net") by vger.kernel.org with ESMTP id S262050AbTERMzE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 08:55:04 -0400
+Message-ID: <3EC785A6.8070909@ecentrum.hu>
+Date: Sun, 18 May 2003 15:07:50 +0200
+From: LeVA <leva@ecentrum.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: hu, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: usb keyboard problem.
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The used syntax is obsolete since a while.
-Update two places to the correct syntax.
+Hi!
 
-Please apply for 2.4.21.
+I have an usb keyboard, and it has some extra keys (internet keys,
+multimedia keys).
+If I use the keyboard in ps/2 port, all of those extra buttons work,
+because I can bind the extra keys's keycodes in a hotkeys program.
+If I use the keyboard in the usb port, some of the extra keys don't
+work. In plain console, if I push some of the "non-working" extra
+buttons, I get these error messages:
+
+    keyboard.c: can't emulate rawmode for keycode 259
+    keyboard.c: can't emulate rawmode for keycode 259
+
+The problem is, that I can not bind keycode 259 in X, because it only
+works for keycodes between 8 - 255. But when I use the keyboard in the
+usb port, I get too high keycodes like (see above) 259, which I can not use.
+I (fortunately) have a few working internet buttons. If I press those in
+plain console, I get these messages:
+
+    keyboard: unknown scancode e0 66
+
+I don't think this is an error, because that key, which "produces" the
+"keyboard: unknown scancode e0 66" message, works under X, and can be
+binded to an action.
+
+Is there any chance to make the keyboard work similarly in the ps/2 and
+the usb port?
+
+Please try to help me with this problem, I'm already through the
+xfree86-list, and the debian-user list, but nobody could help me.
+
+Thanks!
+
+Levai Daniel
 
 
-nectarine:/ # tail -1
-tail: `-1' option is obsolete; use `-n 1'
-Try `tail --help' for more information.
-nectarine:/ # tail --version
-tail (coreutils) 5.0
-Written by Paul Rubin, David MacKenzie, Ian Lance Taylor, and Jim Meyering.
 
-Copyright (C) 2003 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-
-diff -purN linux-2.4.21-rc2/Makefile linux-2.4.21-rc2.tail/Makefile
---- linux-2.4.21-rc2/Makefile	2003-05-18 12:39:41.000000000 +0200
-+++ linux-2.4.21-rc2.tail/Makefile	2003-05-18 12:37:05.000000000 +0200
-@@ -342,7 +342,7 @@ include/linux/compile.h: $(CONFIGURATION
- 	 ([ -x /bin/domainname ] && /bin/domainname > .ver1) || \
- 	 echo > .ver1
- 	@echo \#define LINUX_COMPILE_DOMAIN \"`cat .ver1 | $(uts_truncate)`\" >> .ver
--	@echo \#define LINUX_COMPILER \"`$(CC) $(CFLAGS) -v 2>&1 | tail -1`\" >> .ver
-+	@echo \#define LINUX_COMPILER \"`$(CC) $(CFLAGS) -v 2>&1 | tail -n 1`\" >> .ver
- 	@mv -f .ver $@
- 	@rm -f .ver1
- 
-diff -purN linux-2.4.21-rc2/arch/ppc64/boot/Makefile linux-2.4.21-rc2.tail/arch/ppc64/boot/Makefile
---- linux-2.4.21-rc2/arch/ppc64/boot/Makefile	2003-05-18 12:39:42.000000000 +0200
-+++ linux-2.4.21-rc2.tail/arch/ppc64/boot/Makefile	2003-05-18 12:37:46.000000000 +0200
-@@ -90,7 +90,7 @@ addnote: addnote.c
- 
- imagesize.c: $(TOPDIR)/vmlinux
- 	ls -l $(TOPDIR)/vmlinux | awk '{printf "/* generated -- do not edit! */\nunsigned long vmlinux_filesize = %d;\n", $$5}' > imagesize.c
--	$(CROSS_COMPILE)nm -n $(TOPDIR)/vmlinux | tail -1 | awk '{printf "unsigned long vmlinux_memsize = 0x%s;\n", substr($$1,8)}' >> imagesize.c
-+	$(CROSS_COMPILE)nm -n $(TOPDIR)/vmlinux | awk '{i=$$1}END{printf "unsigned long vmlinux_memsize = 0x%s;\n", substr(i,8)}' >> imagesize.c
- 
- zImage.o: $(TOPDIR)/vmlinux
- 
--- 
-USB is for mice, FireWire is for men!

@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVCZS2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVCZSlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVCZS2n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 13:28:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVCZS2n
+	id S261208AbVCZSlH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 13:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVCZSlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 13:28:43 -0500
-Received: from mail.kroah.org ([69.55.234.183]:39811 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261204AbVCZS2l (ORCPT
+	Sat, 26 Mar 2005 13:41:07 -0500
+Received: from fire.osdl.org ([65.172.181.4]:42192 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261208AbVCZSlC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 13:28:41 -0500
-Date: Sat, 26 Mar 2005 10:28:28 -0800
-From: Greg KH <greg@kroah.com>
-To: Mark Fortescue <mark@mtfhpc.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Message-ID: <20050326182828.GA8540@kroah.com>
-References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
-User-Agent: Mutt/1.5.8i
+	Sat, 26 Mar 2005 13:41:02 -0500
+Message-ID: <4245ACB3.1080105@osdl.org>
+Date: Sat, 26 Mar 2005 10:40:51 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <juhl-lkml@dif.dk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][trivial] fix tiny spelling error in init/Kconfig and
+ write "so-called" instead of "so called" and "socalled" everywhere.
+References: <Pine.LNX.4.62.0503260225170.2463@dragon.hyggekrogen.localhost> <4244D2BC.9000204@osdl.org> <Pine.LNX.4.62.0503261130550.2437@dragon.hyggekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.62.0503261130550.2437@dragon.hyggekrogen.localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 26, 2005 at 05:52:20PM +0000, Mark Fortescue wrote:
+Jesper Juhl wrote:
+> On Fri, 25 Mar 2005, Randy.Dunlap wrote:
 > 
-> I am writing a "Proprietry" driver module for a "Proprietry" PCI card and
-> I have found that I can't use SYSFS on Linux-2.6.10.
 > 
-> Why ?. 
+>>Jesper Juhl wrote:
+>>
+>>>Fix spelling in init/Kconfig
+>>>
+>>>Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+>>>
+>>>--- linux-2.6.12-rc1-mm3-orig/init/Kconfig	2005-03-25 15:29:08.000000000
+>>>+0100
+>>>+++ linux-2.6.12-rc1-mm3/init/Kconfig	2005-03-26 02:24:33.000000000 +0100
+>>>@@ -83,7 +83,7 @@
+>>> 	default y
+>>> 	help
+>>> 	  This option allows you to choose whether you want to have support
+>>>-	  for socalled swap devices or swap files in your kernel that are
+>>>+	  for so called swap devices or swap files in your kernel that are
+>>> 	  used to provide more virtual memory than the actual RAM present
+>>> 	  in your computer.  If unsure say Y.
+>>
+>>I would prefer (and write) "so-called".
+>>
+> 
+> I believe both "so called" and "so-called" are valid, but "so-called" 
+> seems to be more common in the Kconfig files already. So let's be 
+> consistent about it.
+> 
+> 
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-What ever gave you the impression that it was legal to create a
-"Proprietry" kernel driver for Linux in the first place.  I seriously
-encourage you to consult your company's legal department if you insist
-on attempting to do this, as they will be contacted by others after your
-driver is released.
+I agree.  Thanks.
 
-> I am not modifing the Kernel/SYSFS code so I should be able, to use all
-> the SYSFS/internal kernel function calls without hinderence.
-
-I'm sorry, but as you have found out, that is not possible.
-
-> I believe that this sort of idiocy is what helps Microsoft hold on to its
-> manopoly and as shuch hinders hardware/software development in all areas
-> and should be chanaged in a way that promotes diversified software
-> development.
-
-If your company does not agree with the current license of the Linux
-kernel, which prevents you from creating "Proprietry" drivers, then do
-not write or create such drivers in the first place.  We (the kernel
-community) are not forcing you to write a Linux driver.
-
-However, if you do wish to create a Linux driver, you _must_ abide by
-the legal requirements of the kernel, which I feel, along with every IP
-lawyer I have ever consulted, that it is not allowed to create a non-GPL
-compatible kernel module.
-
-Good luck,
-
-greg k-h
+-- 
+~Randy

@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262987AbUCSNdr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 08:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262990AbUCSNdr
+	id S262990AbUCSNjr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 08:39:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbUCSNjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 08:33:47 -0500
-Received: from ns.suse.de ([195.135.220.2]:4332 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262987AbUCSNdp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 08:33:45 -0500
-Subject: Re: CONFIG_PREEMPT and server workloads
-From: Chris Mason <mason@suse.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Eric St-Laurent <ericstl34@sympatico.ca>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <s5hu10laxnl.wl@alsa2.suse.de>
-References: <40591EC1.1060204@geizhals.at>
-	 <20040318060358.GC29530@dualathlon.random> <s5hlllycgz3.wl@alsa2.suse.de>
-	 <1079665660.7609.6.camel@orbiter>  <s5hu10laxnl.wl@alsa2.suse.de>
-Content-Type: text/plain
-Message-Id: <1079703354.11057.116.camel@watt.suse.com>
+	Fri, 19 Mar 2004 08:39:47 -0500
+Received: from mail.shareable.org ([81.29.64.88]:41614 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262990AbUCSNjp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 08:39:45 -0500
+Date: Fri, 19 Mar 2004 13:39:42 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Robert_Hentosh@Dell.com, linux-kernel@vger.kernel.org
+Subject: Re: spurious 8259A interrupt
+Message-ID: <20040319133942.GA3897@mail.shareable.org>
+References: <6C07122052CB7749A391B01A4C66D31E014BEA49@ausx2kmps304.aus.amer.dell.com> <20040319130609.GE2650@mail.shareable.org> <20040319131608.A14431@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 19 Mar 2004 08:35:54 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040319131608.A14431@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-19 at 06:23, Takashi Iwai wrote:
-> At Thu, 18 Mar 2004 22:07:41 -0500,
-> Eric St-Laurent wrote:
-> > 
-> > On Thu, 2004-03-18 at 10:28, Takashi Iwai wrote:
-> > 
-> > > in my case with reiserfs, i got 0.4ms RT-latency with my test suite
-> > > (with athlon 2200+).
-> > > 
-> > > there is another point to be fixed in the reiserfs journal
-> > > transaction.  then you'll get 0.1ms RT-latency without preemption.
-> > 
-> > Are you talking about the following patch recently merged in Linus tree?
-> > 
-> > [PATCH] resierfs: scheduling latency improvements
-> > http://linus.bkbits.net:8080/linux-2.5/cset@40571b49jtE7PzOtsXjBx65-GoDijg
-> 
-> i've tested the suse kernel, so the patch above was already in it.
-> i'm not sure whether mm tree already includes the all relevant
-> fixes... Chris?
-> 
-The whole reiserfs patcheset from -suse is now at:
+Russell King wrote:
+> Interrupt handlers generally run with the CPU interrupt disable flag
+> cleared, so other interrupts can be serviced.
 
-ftp.suse.com/pub/people/mason/patches/data-logging/experimental/2.6.4
+Indeed.  But why?  What's the advantage?
 
-The mm tree does already have the most important reiserfs latency fix,
-which is named reiserfs-lock-lat.  Andrew sent along to linus as well,
-so it should be in mainline.
+The obvious thought is it might improve latency of interrupt handlers
+which need reasonably low latency, when other handlers take a long time.
 
-> what i wrote above about is loops in do_journal_end().  but i can't
-> tell you surely unless i test the mm kernel again.
-> 
-The spot you found in do_journal_end still needs the cond_resched.  The
-patches above don't include that one yet (I'll upload it today).
+E.g. if the irq 1 handler takes a long time, multiple irq 2
+interrupts can be serviced during it.
 
--chris
+But that doesn't work, when there are no meaningful hardware
+priorities: an irq 2 handler can be interrupted by the long irq 1
+handler, maybe before it gets to do anything useful, and then the irq
+2 interrupt doesn't have low latency.
 
+(I gather that irq priorities aren't especially meaningful on the x86
+platform, as brought up on another thread recently).
 
+Perhaps it works out statistically better.
+
+Can you confirm that it does work out statistically better, or that
+there's something I didn't think of?
+
+Thanks,
+-- Jamie

@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268295AbUJDQIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268315AbUJDQJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268295AbUJDQIc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 12:08:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbUJDQI2
+	id S268315AbUJDQJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 12:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267998AbUJDQJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 12:08:28 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:53176 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S268281AbUJDQIU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 12:08:20 -0400
-Message-ID: <4161750A.6060200@rtr.ca>
-Date: Mon, 04 Oct 2004 12:06:34 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
+	Mon, 4 Oct 2004 12:09:57 -0400
+Received: from web1.mmaero.com ([67.98.186.98]:58018 "EHLO web1.mmaero.com")
+	by vger.kernel.org with ESMTP id S267619AbUJDQJE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 12:09:04 -0400
+Date: Mon, 4 Oct 2004 12:09:02 -0400 (EDT)
+From: Jon Lewis <jlewis@lewis.org>
+X-X-Sender: jlewis@web1.mmaero.com
 To: William Knop <wknop@andrew.cmu.edu>
-Cc: Jon Lewis <jlewis@lewis.org>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org, linux-ide@vger.kernel.org
+cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+       linux-ide@vger.kernel.org
 Subject: Re: libata badness
-References: <Pine.LNX.4.60-041.0410040656001.2350@unix48.andrew.cmu.edu> <Pine.LNX.4.58.0410040953160.26615@web1.mmaero.com> <Pine.LNX.4.60-041.0410041132070.9105@unix43.andrew.cmu.edu>
 In-Reply-To: <Pine.LNX.4.60-041.0410041132070.9105@unix43.andrew.cmu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.58.0410041206060.26615@web1.mmaero.com>
+References: <Pine.LNX.4.60-041.0410040656001.2350@unix48.andrew.cmu.edu>
+ <Pine.LNX.4.58.0410040953160.26615@web1.mmaero.com>
+ <Pine.LNX.4.60-041.0410041132070.9105@unix43.andrew.cmu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have used Maxtor "SATA" drives that require
-the O/S to do a "SET FEATURES :: UDMA_MODE" command
-on them before they will operate reliably.
-This despite the SATA spec stating clearly that
-such a command should/will have no effect.
+On Mon, 4 Oct 2004, William Knop wrote:
 
-I suppose libata does this already, but just in case not..
-Something simple to check up on.
--- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
-
-William Knop wrote:
->
-> Ah, well all of them are Maxtor drives... One 6y250m0 and three 7y250m0 
-> drives. I'm using powermax on them right now. They all passed the quick 
+> Ah, well all of them are Maxtor drives... One 6y250m0 and three 7y250m0
+> drives. I'm using powermax on them right now. They all passed the quick
 > test, and the full test results are forthcoming.
+
+I'm pretty sure all the bad ones we had (at least the one I found at my
+location) "failed" the quick test in that after the quick test it asked me
+to run the full test, after which it spit out the magic fault code to give
+Maxtor's RMA form.  Another possibility that comes to mind is that your
+power supply could be inadequate to run the system and all the drives.
+
+----------------------------------------------------------------------
+ Jon Lewis                   |  I route
+ Senior Network Engineer     |  therefore you are
+ Atlantic Net                |
+_________ http://www.lewis.org/~jlewis/pgp for PGP public key_________

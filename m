@@ -1,41 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbTEHCj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 22:39:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbTEHCj5
+	id S261188AbTEHGRT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 02:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbTEHGRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 22:39:57 -0400
-Received: from zero.aec.at ([193.170.194.10]:24595 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262032AbTEHCj4 (ORCPT
+	Thu, 8 May 2003 02:17:19 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:48597 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261188AbTEHGRS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 22:39:56 -0400
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: garbled oopsen
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 08 May 2003 04:49:28 +0200
-In-Reply-To: <20030508015008$481c@gated-at.bofh.it> (Andrew Morton's message
- of "Thu, 08 May 2003 03:50:08 +0200")
-Message-ID: <m34r46dufb.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <20030508011013$3d80@gated-at.bofh.it>
-	<20030508015008$481c@gated-at.bofh.it>
-MIME-Version: 1.0
+	Thu, 8 May 2003 02:17:18 -0400
+Date: Thu, 8 May 2003 08:29:42 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Dave Peterson <dsp@llnl.gov>
+Cc: linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: [PATCH] fixes for linked list bugs in block I/O code
+Message-ID: <20030508062942.GB823@suse.de>
+References: <200305071622.36352.dsp@llnl.gov>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305071622.36352.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
+On Wed, May 07 2003, Dave Peterson wrote:
+> I found a couple of small linked list bugs in __make_request() in
+> drivers/block/ll_rw_blk.c.  The bugs exist in both kernels
+> 2.4.20 and 2.5.69.  Therefore I have made patches for both
+> kernels.  The problem is that when inserting a new buffer_head
+> into the linked list of buffer_head structures maintained by
+> "struct request", the b_reqnext field is not initialized.
+> 
+> -Dave Peterson
+>  dsp@llnl.gov
+> 
+> 
+> ========== START OF 2.4.20 PATCH FOR drivers/block/ll_rw_blk.c ===========
+> --- ll_rw_blk.c.old     Wed May  7 15:54:58 2003
+> +++ ll_rw_blk.c.new     Wed May  7 15:58:07 2003
+> @@ -973,6 +973,7 @@
+>                                 insert_here = &req->queue;
+>                                 break;
+>                         }
+> +                       bh->b_reqnext = req->bhtail->b_reqnext;
 
->> Can these be cleaned up in any reasonable way?
->
-> It needs some additional spinlock in there.  People have moaned for over a
-> year, patches have been floating about but nobody has taken the time to
-> finish one off and submit it.
+This is convoluted nonsense, bhtail->b_reqnext is NULL by definition. So
+a simple
 
-I considered it for x86-64 and even implemented it, but never submitted
-in fear of deadlocks e.g. when an oops recurses. For this a 
-spinlock_timeout() would be useful. Print anyways when you cannot get the
-lock in a second or two.
+	bh->b_reqnext = NULL;
 
--Andi
+is much clearer.
+
+>                         req->bhtail->b_reqnext = bh;
+>                         req->bhtail = bh;
+>                         req->nr_sectors = req->hard_nr_sectors += count;
+> @@ -1061,6 +1062,7 @@
+>         req->waiting = NULL;
+>         req->bh = bh;
+>         req->bhtail = bh;
+> +       bh->b_reqnext = NULL;
+>         req->rq_dev = bh->b_rdev;
+>         req->start_time = jiffies;
+>         req_new_io(req, 0, count);
+
+Bart already covered why 2.5 definitely does not need it. I dunno what
+to say for 2.4, to me it looks like a BUG if you pass in a buffer_head
+with uninitialized b_reqnext. Why should that member be any different?
+
+In fact, from where did you see this buffer_head coming from? Who is
+submitting IO on a not properly inited bh? To me, that sounds like not a
+block layer bug but an fs bug.
+
+-- 
+Jens Axboe
+

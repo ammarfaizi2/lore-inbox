@@ -1,40 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144975AbRA2CpU>; Sun, 28 Jan 2001 21:45:20 -0500
+	id <S144991AbRA2Cux>; Sun, 28 Jan 2001 21:50:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S145006AbRA2CpL>; Sun, 28 Jan 2001 21:45:11 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:23561 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S144961AbRA2CpE>;
-	Sun, 28 Jan 2001 21:45:04 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200101290245.f0T2j2Y438757@saturn.cs.uml.edu>
-Subject: Re: [PATCH] dynamic IP support for 2.4.0 (SIOCKILLADDR)
-To: vii@altern.org (John Fremlin)
-Date: Sun, 28 Jan 2001 21:45:02 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, paulus@linuxcare.com,
-        linux-ppp@vger.kernel.org, linux-net@vger.kernel.org
-In-Reply-To: <m2d7d838sj.fsf@boreas.yi.org.> from "John Fremlin" at Jan 27, 2001 10:54:51 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S144997AbRA2Cun>; Sun, 28 Jan 2001 21:50:43 -0500
+Received: from ir.com.au ([210.8.187.18]:3021 "EHLO ir_nt_server2.ir.com.au")
+	by vger.kernel.org with ESMTP id <S144991AbRA2Cub>;
+	Sun, 28 Jan 2001 21:50:31 -0500
+Message-ID: <C0D2F5944500D411AD8A00104B31930E10809C@ir_nt_server2>
+From: Tony.Young@ir.com
+To: chris@scary.beasts.org
+Cc: slug@slug.org.au, csa@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: RE: Linux Disk Performance/File IO per process
+Date: Mon, 29 Jan 2001 13:50:26 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Fremlin writes:
 
-> When the IP address of an interface changes, TCP connections with the
-> old source address are useless. Applications are not notified of this
-> and time out ordinarily, just as if nothing had happened. This is
-> behaviour isn't very helpful when you have a dynamic IP and know
-> you're probably not going to get the old one back. In that case, you
-...
-> I patched userspace ppp-2.4.0 to use this functionality. It would be
-> better if SIOCKILLADDR were not used until we are sure that the new IP
-> is in fact different from the old one, but pppd in demand mode would
 
-I get the same IP about 2/3 of the time, so it is pretty important
-to avoid killing connections until after the new IP is known.
+> -----Original Message-----
+> From: Chris Evans [mailto:chris@scary.beasts.org]
+> Sent: Monday, 29 January 2001 13:04
+> To: Tony Young
+> Cc: slug@slug.org.au; csa@oss.sgi.com; linux-kernel@vger.kernel.org
+> Subject: Re: Linux Disk Performance/File IO per process
+> 
+> 
+> 
+> On Mon, 29 Jan 2001 Tony.Young@ir.com wrote:
+> 
+> > All,
+> >
+> > I work for a company that develops a systems and 
+> performance management
+> > product for Unix (as well as PC and TANDEM) called 
+> PROGNOSIS. Currently we
+> > support AIX, HP, Solaris, UnixWare, IRIX, and Linux.
+> >
+> > I've hit a bit of a wall trying to expand the data provided 
+> by our Linux
+> > solution - I can't seem to find anywhere that provides the 
+> metrics needed to
+> > calculate disk busy in the kernel! This is a major piece of 
+> information that
+> > any mission critical system administrator needs to 
+> successfully monitor
+> > their systems.
+> 
+> Stephen Tweedie has a rather funky i/o stats enhancement patch which
+> should provide what you need. It comes with RedHat7.0 and gives decent
+> disk statistics in /proc/partitions.
+> 
+> Unfortunately this patch is not yet in the 2.2 or 2.4 kernel. 
+> I'd like to
+> see it make the kernel as a 2.4.x item. Failing that, it'll 
+> probably make
+> the 2.5 kernel.
+> 
+> Cheers
+> Chris
+>
+
+Thanks to both Jens and Chris - this provides the information I need to
+obtain our busy rate
+It's unfortunate that the kernel needs to be patched to provide this
+information - hopefully it will become part of the kernel soon.
+
+I had a response saying that this shouldn't become part of the kernel due to
+the performance cost that obtaining such data will involve. I agree that a
+cost is involved here, however I think it's up to the user to decide which
+cost is more expensive to them - getting the data, or not being able to see
+how busy their disks are. My feeling here is that this support could be user
+configurable at run time - eg 'cat 1 > /proc/getdiskperf'.
+
+Thanks for your quick responses.
+
+Tony...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

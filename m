@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267713AbRG3T4O>; Mon, 30 Jul 2001 15:56:14 -0400
+	id <S267725AbRG3UGQ>; Mon, 30 Jul 2001 16:06:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267725AbRG3T4E>; Mon, 30 Jul 2001 15:56:04 -0400
-Received: from blacksun.leftmind.net ([204.225.88.62]:25604 "HELO
-	blacksun.leftmind.net") by vger.kernel.org with SMTP
-	id <S267713AbRG3Tz7>; Mon, 30 Jul 2001 15:55:59 -0400
-Date: Mon, 30 Jul 2001 15:56:06 -0400
-From: Anthony de Boer <adb@leftmind.net>
-To: alonz@nolaviz.org, linux-kernel@vger.kernel.org
+	id <S267732AbRG3UGG>; Mon, 30 Jul 2001 16:06:06 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:39307 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S267725AbRG3UFu>;
+	Mon, 30 Jul 2001 16:05:50 -0400
+Date: Mon, 30 Jul 2001 16:05:53 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alon Ziv <alonz@nolaviz.org>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: [CFT] initramfs patch
-Message-ID: <20010730155606.A1655@leftmind.net>
-In-Reply-To: <Pine.GSO.4.21.0107300137550.16140-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <018101c11914$40bc3100$910201c0@zapper>
+Message-ID: <Pine.GSO.4.21.0107301555310.19391-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Alon Ziv <alonz@nolaviz.org> wrote:
->I wonder...  May the initramfs be used also for loading modules ???
->Hmm... it will require a pico-insmod that can run in the limited initramfs
->environment, but I believe that's all !
 
-I've built modutils against Felix von Leitner's dietlibc; that might
-fit the bill.  See these two pages:
 
-  http://www.fefe.de/dietlibc/
-  http://www.leftmind.net/projects/misc/
+On Mon, 30 Jul 2001, Alon Ziv wrote:
 
--- 
-Anthony de Boer, curator, Anthony's Home for Aged Computing Machinery
-<adb@leftmind.net>
+> I wonder...  May the initramfs be used also for loading modules ???
+> Hmm... it will require a pico-insmod that can run in the limited initramfs
+> environment, but I believe that's all !
+> Reminder-to-self: try this at home...
+> This may bring the long-awaited revolution in kernel building (everything
+> is a module!)
+
+Why not? Kernel unpacks cpio archive on root (which lives on ramfs) and
+starts /init. That's it - after that you are in userland and free to
+do everything you would normally do. If there's a variant of insmod that
+would not bring glibc for a ride...
+

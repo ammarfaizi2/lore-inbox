@@ -1,87 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263332AbSJJK1b>; Thu, 10 Oct 2002 06:27:31 -0400
+	id <S262289AbSJJKc3>; Thu, 10 Oct 2002 06:32:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263333AbSJJK1b>; Thu, 10 Oct 2002 06:27:31 -0400
-Received: from Morgoth.ESIWAY.NET ([193.194.16.157]:39176 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S263332AbSJJK1a>; Thu, 10 Oct 2002 06:27:30 -0400
-Date: Thu, 10 Oct 2002 12:33:07 +0200 (CEST)
-From: Marco Colombo <marco@esi.it>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-In-Reply-To: <Pine.LNX.4.44L.0210092045195.22735-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0210101207140.26363-100000@Megathlon.ESI>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262290AbSJJKc3>; Thu, 10 Oct 2002 06:32:29 -0400
+Received: from host213-121-110-54.in-addr.btopenworld.com ([213.121.110.54]:54433
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S262289AbSJJKc2>; Thu, 10 Oct 2002 06:32:28 -0400
+Subject: Re: [patch] tcp connection tracking 2.4.19
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: Roberto Nibali <ratz@drugphish.ch>
+Cc: Martin Renold <martinxyz@gmx.ch>, linux-kernel@vger.kernel.org
+In-Reply-To: <3DA4668A.5070501@drugphish.ch>
+References: <20021008205053.GA2621@old.homeip.net>
+	 <3DA348EF.7060709@drugphish.ch> <1034166655.30384.13.camel@lemsip>
+	 <3DA4668A.5070501@drugphish.ch>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LTL0rdnx7bNXkjbQHNR0"
+Organization: 
+Message-Id: <1034246310.1489.74.camel@lemsip>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 10 Oct 2002 11:38:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Oct 2002, Rik van Riel wrote:
 
-> On Wed, 9 Oct 2002, Andreas Dilger wrote:
-> > On Oct 09, 2002  10:14 -0400, Robert Love wrote:
-> > > On Wed, 2002-10-09 at 10:10, Marco Colombo wrote:
-> > >
-> > > > >  #define O_NOFOLLOW	0400000 /* don't follow links */
-> > > > >  #define O_NOFOLLOW	0x20000	/* don't follow links */
-> > >
-> > > No need.  See for example O_NOFOLLOW right above.  Each architecture can
-> > > do has it pleases (I wish otherwise, but...).
-> >
-> > I would say - if you are picking a new flag that doesn't need to have
-> > compatibility with any platform-specific existing flag, simply set them
-> > all high enough so that they are the same on all platforms.
-> 
-> Doesn't really matter, you can't run x86 binaries on MIPS so
-> you need to recompile anyway.
-> 
-> Source level compatibility is enough for flags like this.
-> 
-> regards,
-> 
-> Rik
-> 
+--=-LTL0rdnx7bNXkjbQHNR0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-True, but either you include kernel headers from user apps, or wait for
-glibc (or [whatever]libc) to catch up, or do something like this:
+On Wed, 2002-10-09 at 18:25, Roberto Nibali wrote:
+> Hi,
+>=20
+> > "When syncookies are enabled the packets are still answered  and  this
+> > value [tcp_max_syn_backlog] is effectively ignored." -- From tcp(7)
+> > manpage.
+>=20
+> Fair enough. I thought that last time I checked with the code the SYN=20
+> cookie functionality would only kick in _after_ the backlog queue is full=
+.
 
-	#define O_STREAMING 04000000
+It does. When using syn cookies you cant use some of the new advanced
+features of tcp. Linux uses the backlog queue when not under attack.
+When the queue overflows it just uses cookies - but can still accept
+connections.
 
-	fd = open(file, ... | O_STREAMING);
+> > The whole point of syncookies is to negate the need for a backlog queue=
+.
+>=20
+> Well, after a successful match of the MSS encoded part or the cookie,=20
+> you add it back to the SYN queue. But yes, the backlog queue is indeed=20
+> omited.
+>=20
+> > Or did I miss your point?
+>=20
+> Well, my point should have been stated more clearly. It is simply that=20
+> SYN cookies do not prevent you from being SYN flooded. They provide you,=20
+> from a user perspective view, a mean to still be able to log in onto=20
+> your server under a SYN flood because you will send legitimate ACKs and=20
+> because your connection will not be dropped.
+>=20
+> It doesn't prevent SYN flooding, although I just checked back with=20
+> ../Documentation/networking/ip-sysctrl.txt:
+> [snip]
+> tcp_abort_on_overflow.
+>          syncookies seriously violate TCP protocol, do not allow
+>          to use TCP extensions, can result in serious degradation
+>          of some services (f.e. SMTP relaying), visible not by you,
+>          but your clients and relays, contacting you. While you see
+>          synflood warnings in logs not being really flooded, your server
+>          is seriously misconfigured.
 
-(quoted directly from one of Robert's messages).
+I don't think these statements are entirely true. While it is true that
+you can't use things like window scaling or SACK - syncookies 100%
+successfully stop syn flood attacks.
 
-The latter is broken on MIPS, and requiring either glibc headers or the
-programmer to handle different archs is unfortunate. One of the biggest
-advantages of O_STREAMING is that is it's simple and elegant to integrate
-it into existing apps: let's make it even easier by choosing the same
-value, so that the above C is the right thing.
+The attack is that if you fill the syn backlog queue with bogus requests
+then legitimate clients can no longer connect. The syn flood attack
+isn't "your legitimate connections wont be able to use window scaling".
 
-Besides, not all the world is C. I don't expect, say, Perl or Python to
-support Linux O_STREAMING on their POSIX modules. Perl does pass flags to
-open(2) untouched (I haven't tested Python yet), but right now I have to:
-- wait for an official Perl update that supports O_STREAMING;
-- test explicitly for different archs in my perl program in order
-  to choose the right O_STREAMING value (or hack system modules to do
-  the same);
-- forget about portability on my Perl script (which is somewhat worse than
-  doing that same for a C program: one of the goals of using Perl *is*
-  portability).
+--=20
+// Gianni Tedesco (gianni at ecsc dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 
-Note that having different O_NOFOLLOW (or even O_CREAT) values is less
-annoying, since I expect any language that allows me to pass flags to
-open(2) (or fcntl(2)) to define those as macros (constants, subroutines
-or whatever).
+--=-LTL0rdnx7bNXkjbQHNR0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-In the end, I see we can choose different values, but why should we?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
+iD8DBQA9pVilkbV2aYZGvn0RAjeRAJ4qqT/Wt7RNy3wnVgnneEt/G0+P1ACfXjqN
+X1ew/ix80I9R+Z9CeRxzfNM=
+=fVL9
+-----END PGP SIGNATURE-----
+
+--=-LTL0rdnx7bNXkjbQHNR0--
 

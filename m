@@ -1,84 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbULOAS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbULOAXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbULOAS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 19:18:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbULOASD
+	id S261800AbULOAXH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 19:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbULOAW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 19:18:03 -0500
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:41737
-	"EHLO mail.muru.com") by vger.kernel.org with ESMTP id S261769AbULNXNK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 18:13:10 -0500
-Date: Tue, 14 Dec 2004 15:13:00 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: linux-os@analogic.com
-Cc: Pavel Machek <pavel@suse.cz>, john stultz <johnstul@us.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: dynamic-hz
-Message-ID: <20041214231300.GD31226@atomide.com>
-References: <20041213124313.GB29426@atrey.karlin.mff.cuni.cz> <20041213125844.GY16322@dualathlon.random> <20041213191249.GB1052@elf.ucw.cz> <1102970039.1281.415.camel@cog.beaverton.ibm.com> <20041213204933.GA4693@elf.ucw.cz> <20041214013924.GB14617@atomide.com> <20041214093735.GA1063@elf.ucw.cz> <20041214211814.GA31226@atomide.com> <20041214220646.GC19218@elf.ucw.cz> <Pine.LNX.4.61.0412141751590.20391@chaos.analogic.com>
+	Tue, 14 Dec 2004 19:22:27 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:10375
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S261745AbULOAQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 19:16:25 -0500
+Subject: Re: [PATCH] fix spurious OOM kills
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Martin =?iso-8859-2?Q?MOKREJ=A9?= 
+	<mmokrejs@ribosome.natur.cuni.cz>,
+       Andrew Morton <akpm@osdl.org>, piggin@cyberone.com.au,
+       chris@tebibyte.org, marcelo.tosatti@cyclades.com,
+       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Rik van Riel <riel@redhat.com>
+In-Reply-To: <20041214235549.GT16322@dualathlon.random>
+References: <419FB4CD.7090601@ribosome.natur.cuni.cz>
+	 <1101037999.23692.5.camel@thomas> <41A08765.7030402@ribosome.natur.cuni.cz>
+	 <1101045469.23692.16.camel@thomas>
+	 <1101120922.19380.17.camel@tglx.tec.linutronix.de>
+	 <41A2E98E.7090109@ribosome.natur.cuni.cz>
+	 <1101205649.3888.6.camel@tglx.tec.linutronix.de>
+	 <41BF0F0D.4000408@ribosome.natur.cuni.cz>
+	 <20041214173858.GJ16322@dualathlon.random>
+	 <1103067018.5420.37.camel@npiggin-nld.site>
+	 <20041214235549.GT16322@dualathlon.random>
+Content-Type: text/plain
+Date: Wed, 15 Dec 2004 01:16:23 +0100
+Message-Id: <1103069783.3406.97.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0412141751590.20391@chaos.analogic.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 (2.0.2-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* linux-os <linux-os@chaos.analogic.com> [041214 15:04]:
-> On Tue, 14 Dec 2004, Pavel Machek wrote:
+Andrea,
+
+On Wed, 2004-12-15 at 00:55 +0100, Andrea Arcangeli wrote:
+> On Wed, Dec 15, 2004 at 10:30:18AM +1100, Nick Piggin wrote:
+> > Was there some swap-token (or can anyone think of any relevant)
+> > changes recently?
 > 
-> >Hi!
-> >
-> >>>>The patch in question is at:
-> >>>>
-> >>>>http://linux-omap.bkbits.net:8080/main/user=tmlind/patch@1.2016.4.18?nav=!-|index.html|stats|!+|index.html|ChangeSet@-12w|cset@1.2016.4.18
-> >>>
-> >>>Wow, that's basically 8 lines of code plus driver for new
-> >>>hardware... Is it really that simple?
-> >>
-> >>Yeah, the key things are reprogramming the timer in the idle loop
-> >>based on next_timer_interrupt(), and calling timer_interrupt from
-> >>other interrupts as well :)
-> >>
-> >>Should we try a similar patch for x86/amd64? I'm not sure which timers
-> >>to use though? One should be programmable length for the interrupt,
-> >>and the other continuous for the timekeeping.
-> >
-> >Yes, it would certainly be interesting. 5% power savings, and no
-> >singing capacitors, while keeping HZ=1000. Sounds good to me.
-> >
-> >There are about 1000 timers available in PC, each having its own
-> >quirks. CMOS clock should be able to generate 1024Hz periodic timer
-> >(we currently do not use) and TSC we currently use for periodic timer
-> >should be usable in single-shot mode.
-> >								Pavel
-> >--
-> 
-> If you use that RTC timer, it needs to be something that can be
-> turned OFF. Many embedded applications use that because its the
-> only timer that the OS doesn't muck with. It also has very low
-> noise which makes in a good timing source for IIR filters for
-> high precision, low data-rate data acquisition (like 24 bits).
+> The only thing I know about recent swap-token changes, is that Andrew
+> fixed a bug by ignoring the token thing at priority 0, this the
+> early-oom failures in my queue (the VM bug was introduced sometime
+> before or during 2.6.9-rc). The fix is already in mainline according to
+> my out of sync copy of kernel CVS.
 
-OK, thanks for the information. That could be the continuous timer
-then, and TSC the periodic timer.
+cset 1.2055.40.21
+vmscan: ignore swap token when in trouble 
 
-> Since it generates an edge, its interrupt can't be shared.
-> I certainly hope that you don't use it. One can read the
-> time without disturbing the interrupt rate. One just
-> needs to use the existing rtc_lock and not spin with
-> the lock being held.
+It solves one of the problems, but your fix is really the only complete
+fix I have in hands since this thread(s) started. + my simple changes to
+the whom to kill selection :)
 
-Yeah, the timer update would be just a read from the RTC timer.
+Also your modification slow down the machine in case of low memory. This
+makes sense and does not hurt anybody. But it's still better than the
+crappy oom kills which I still have with rc3 even in "normal" desktop
+usage.
 
-> Currently the kernel RTC software allocates the RTC interrupt
-> even though it doesn't use it. This makes it necessary to
-> compile the RTC as a module and then remove it when another
-> driver needs to use the RTC interrupt source.
+<RANT exclude="andrea">
+We are discussing this since nearly two month. Is there a final fixup in
+sight before christmas ? And I mean christmas 2004.
 
-The interrupt could be used for timer wrap only.
+I'm just waiting for somebody who advises me to put more memory into my
+boxes.
+</RANT>
 
-Tony
+tglx
+
+

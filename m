@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317920AbSGWCTS>; Mon, 22 Jul 2002 22:19:18 -0400
+	id <S315457AbSGWCfo>; Mon, 22 Jul 2002 22:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317921AbSGWCTS>; Mon, 22 Jul 2002 22:19:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:60329 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317920AbSGWCTR>;
-	Mon, 22 Jul 2002 22:19:17 -0400
-Date: Mon, 22 Jul 2002 19:11:52 -0700 (PDT)
-Message-Id: <20020722.191152.08962327.davem@redhat.com>
-To: bcrl@redhat.com
-Cc: dalecki@evision.ag, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.27 enum
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020722160118.G6428@redhat.com>
-References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com>
-	<3D3BE421.3040800@evision.ag>
-	<20020722160118.G6428@redhat.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315458AbSGWCfo>; Mon, 22 Jul 2002 22:35:44 -0400
+Received: from moutvdom.kundenserver.de ([195.20.224.200]:62699 "EHLO
+	moutvdomng3.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S315457AbSGWCfn>; Mon, 22 Jul 2002 22:35:43 -0400
+Date: Mon, 22 Jul 2002 20:38:51 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Another DMA question
+Message-ID: <Pine.LNX.4.44.0207222035420.3241-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Benjamin LaHaise <bcrl@redhat.com>
-   Date: Mon, 22 Jul 2002 16:01:18 -0400
-   
-   Please don't apply this.  By leaving the trailing "," on enums, additional 
-   values can be added by merely inserting an additional + line in a patch, 
-   otherwise there are excess conflicts when multiple patches add values to 
-   the enum.
+Hi,
 
-I totally agree.
+How can I get the _real_ address of a pci_map_single area, if needed? The 
+thing bus_to_virt() did, basically. My problem is that I have code which 
+changed the first byte of a buffer of stuff read via DMA, and I can't 
+because the previous user did bus_to_virt() to get a pointer into that. I 
+don't know how to get another pointer.
 
-What is the purpose of all of these zany patches?  Are you going to
-remove the inline assembler from the whole tree too? :-)
+After all the confusion, is the question clear?
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

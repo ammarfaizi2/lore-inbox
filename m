@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262059AbUDJQpq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 12:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUDJQpq
+	id S262062AbUDJQy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 12:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUDJQy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 12:45:46 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:25351 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262059AbUDJQpp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 12:45:45 -0400
-Date: Sat, 10 Apr 2004 18:45:45 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Total freeze switching X->fb (matrox)
-Message-ID: <20040410164545.GA10280@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040410163758.GA7704@lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040410163758.GA7704@lan>
-User-Agent: Mutt/1.5.4i
+	Sat, 10 Apr 2004 12:54:26 -0400
+Received: from ns.clanhk.org ([69.93.101.154]:36531 "EHLO mail.clanhk.org")
+	by vger.kernel.org with ESMTP id S262062AbUDJQyZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 12:54:25 -0400
+Message-ID: <407826DF.9030506@clanhk.org>
+Date: Sat, 10 Apr 2004 11:54:55 -0500
+From: "J. Ryan Earl" <heretic@clanhk.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: amd64 questions
+References: <1Ijzw-4ff-5@gated-at.bofh.it> <1Ijzv-4ff-3@gated-at.bofh.it>	<1IntE-7wn-39@gated-at.bofh.it> <m3isgb69xx.fsf@averell.firstfloor.org>
+In-Reply-To: <m3isgb69xx.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 10, 2004 at 06:37:58PM +0200, legion wrote:
-> The problem is: framebuffer (matroxfb) works fine, X (xfree 4.3 or Xorg
-> 6.7) works fine, but sometimes when i hit "ctrl alt F1" for switching
-> on the console, the system freeze.
+Andi Kleen wrote:
 
-> video card: Matrox G400 DH on nvidia nforce2 motherboard
-> kernel: vanilla 2.6.3+ (nforce2 agp/matrox drm/matroxfb support)
-> X server: Xfree 4.3.0 or Xorg r6.7 using "mga" driver
+>It is a subsystem bug really. These subsystems were all designed to
+>not require emulation, but the designers weren't aware of all the
+>requirements for this and broke it for AMD64/IA64. Unfortunately the
+>interfaces were done in a way that it would be very complicated and a
+>lot of work to write an emulation layer, because they're extremly
+>emulation unfriendly. Maybe it would be still possible to write an
+>emulation layer, but easier is it to just use static 64bit executables 
+>or hacked 32bit executables.
+>
+>I don't have any plans to write emulation layers for such hopeless
+>cases on my own, but just declared these subsystems as broken.
+>  
+>
+So let me get this straight, we can't use LVM with AMD64 under the 2.6 
+line either?  Or we can if we use AMD64 [DM] libraries with a AMD64 
+kernel?  DM = Device Mapper right?
 
- It also happens with Matrox G550 on VIA board.
-All 2.6.x kernels. XFree86 4.3 and 4.4.
-
- And 1280x1024-16@60 do not work (in fb, X is fine) :-(
-
--- 
-Tomasz Torcz                Only gods can safely risk perfection,     
-zdzichu@irc.-nie.spam-.pl     it's a dangerous thing for a man.  -- Alia
-
+-ryan

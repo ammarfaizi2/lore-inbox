@@ -1,45 +1,76 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbULSU7c (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 19 Dec 2004 15:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbULSU7c
+	id S261245AbULTIwM (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 20 Dec 2004 03:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbULTIwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 15:59:32 -0500
-Received: from lan-202-144-27-189.maa.sify.net ([202.144.27.189]:50948 "HELO
-	monash.edu.au") by vger.kernel.org with SMTP id S261335AbULSU7b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 15:59:31 -0500
-Message-ID: <b95b01c4e60b$959438e0$414f6845@monash.edu.au>
-From: "Tommy Moore" <moore_90@ajiko.co.jp>
+	Mon, 20 Dec 2004 03:52:10 -0500
+Received: from [211.49.188.209] ([211.49.188.209]:39688 "HELO 12.107.209.244")
+	by vger.kernel.org with SMTP id S261245AbULTItP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 03:49:15 -0500
+Date: Tue, 21 Dec 2004 10:03:06 -0600
+From: Better than Kazaa <sales@yanchuen.com>
+Subject: Downl0ad Popular Christmas music
 To: linux-kernel@vger.kernel.org
-Subject: Order Royal Replica Watches Online
-Date: Sun, 19 Dec 2004 20:42:04 +0000
-MIME-Version: 1.0
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Cc: majordomo@vger.kernel.org
+Message-ID: <00158511169971874359991$702defba5@aerogel.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261335AbULSU7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261245AbULTIwM@vger.kernel.org>
 
-Get the Finest Rolex Watch Replica!
+Hello,
 
-We only sell premium watches. There's no battery in these replicas just
-like the real ones since they charge themselves as you move. The second hand
-moves JUST like the real ones, too. These original watches sell in stores
-for thousands of dollars. We sell them for much less. 
+Un limited
+Music and MP 3 songs
+Movies
+Games
+Software
+TV Shows
+Song Lyrics
+Audio Books
 
-- Replicated to the Smallest Detail
-- 98% Perfectly Accurate Markings 
-- Signature Green Sticker w/ Serial Number on Watch Back
-- Magnified Quickset Date
-- Includes all Proper Markings
+Download anything you could possibly want 
+in three simple, fast, and easy steps
+START DOWNLOADING NOW
+This service is Safe, Secure and Legal
 
-Visit us: http://www.vanai.com/rep/rolx/
+http://www.downloadsupercenter.com/xmas.html
 
-All orders placed before December 20th will be at your door before
-New Years Eve!
+If you are a beginner, no need to worry,
+we will show you how to do it from start to finish
+We have made it so easy, you will be downloading anything 
+you could possibly want  
+This Service Comes with
 
-No thanks: http://www.vanai.com/z.php
+More  Bonuses
 
+DVD Copying Software
+MP3 Burning Software
+Anti-Virus Software
+Game Copying Software
+Pop-Up, Spyware, Adware Killer Software
+
+http://www.downloadsupercenter.com/xmas.html
+
+Even More Benefits : 
+
+Latest FileSharing Software
+In-Depth Visual Tutorials
+Internet History Cleaner
+Privacy Protection Software
+Access to 90000000 Songs
+Unlimited Technical Support
+Stay Legal  Do not Get Sued
+
+Check out to Join Now and Start Downloading in Minutes
+
+http://www.downloadsupercenter.com/xmas.html
+
+
+thanks and regards
+Aline Kelly
+Affilate Manager
+Multimedia Download Center

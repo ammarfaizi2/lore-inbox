@@ -1,52 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319196AbSHTQ65>; Tue, 20 Aug 2002 12:58:57 -0400
+	id <S319204AbSHTQ4X>; Tue, 20 Aug 2002 12:56:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319197AbSHTQ65>; Tue, 20 Aug 2002 12:58:57 -0400
-Received: from fed1mtao04.cox.net ([68.6.19.241]:16852 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP
-	id <S319196AbSHTQ64>; Tue, 20 Aug 2002 12:58:56 -0400
-Message-ID: <3D627641.4040301@cox.net>
-Date: Tue, 20 Aug 2002 10:02:57 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.1b) Gecko/20020721
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stanislav Brabec <utx@penguin.cz>
-CC: Andre Hedrick <andre@linux-ide.org>, Paul Bristow <paul@paulbristow.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ide-floppy & devfs - /dev entry not created if drive is empty
-References: <Pine.LNX.4.10.10208191744570.458-100000@master.linux-ide.org> <3D619776.7010104@cox.net> <20020820110910.GB2831@utx>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S319210AbSHTQ4X>; Tue, 20 Aug 2002 12:56:23 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:36767 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S319204AbSHTQ4W>; Tue, 20 Aug 2002 12:56:22 -0400
+Date: Tue, 20 Aug 2002 11:00:26 -0600
+Message-Id: <200208201700.g7KH0Qr10235@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] devfs cleanups for 2.5.29
+In-Reply-To: <Pine.LNX.4.44.0208191121530.28515-100000@serv>
+References: <200208190048.g7J0mGW12548@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.44.0208191121530.28515-100000@serv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This problem is present on all devices supported by the ide-floppy 
-driver. It won't be fixed until the ide-probe patch makes it into the 
-official kernel. At that point the /dev/discs/... entry for the drive 
-will appear at boot time even without media present in the drive.
+Roman Zippel writes:
+> Hi,
+> 
+> On Sun, 18 Aug 2002, Richard Gooch wrote:
+> 
+> > > > > In the "devfs=only" case, where is the module count incremented, when a
+> > > > > block device is opened?
+> >
+> > I've already told you about fops_get(). And for a block device, it's
+> > def_blk_fops.open().
+> 
+> Which basically calls block_dev.c:do_open() and the module count
+> there is only incremented if get_blkfops() is successfull, which is
+> a dummy in this case. So where again is the module count
+> incremented?
 
-However, without my other media change handling patches, the partition 
-entries inside the /dev/discs/... directory for the floppy drive will 
-not stay in sync terribly well when you make media changes.
+Which kernel tree are you looking at? I'm looking at 2.4.20-pre4. In
+there, I see this code in fs/block_dev:do_open():
+	if (!bdev->bd_op)
+		bdev->bd_op = get_blkfops(MAJOR(dev));
+	if (bdev->bd_op) {
+		ret = 0;
+		if (bdev->bd_op->owner)
+			__MOD_INC_USE_COUNT(bdev->bd_op->owner);
+		if (bdev->bd_op->open)
+			ret = bdev->bd_op->open(inode, file);
+		if (!ret) {
+			bdev->bd_openers++;
+			bdev->bd_inode->i_size = blkdev_size(dev);
+			bdev->bd_inode->i_blkbits = blksize_bits(block_size(dev));
+		} else {
+			if (bdev->bd_op->owner)
+				__MOD_DEC_USE_COUNT(bdev->bd_op->owner);
+			if (!bdev->bd_openers)
+				bdev->bd_op = NULL;
+		}
+	}
 
-Stanislav Brabec wrote:
-> Stanislav Brabec wrote:
-> 
->>If module ide-floppy is loaded and no disc is present in the drive,
->>/dev/ide/host0/bus1/target1/lun0/disc entry is not created. Later
->>inserted media cannot be checked in any way, because no /dev entry
->>exists.
->>
-> 
-> Kevin P. Fleming wrote:
-> 
->>diff -X dontdiff -urN linux/drivers/ide/ide-probe.c
->>linux-probe/drivers/ide/ide-probe.c
-> 
-> 
-> Does anybody know, whether this problem was present on LS-120/240,
-> IOMEGA PocketZip and JAZ devices and is fixed now?
-> 
+So if bdev->bd_op has been set (either by devfs_open() or by the
+return from get_blkfops()), the module refcount is incremented.
 
+> > I've fixed that in my tree,
+> > by using devfs_get_ops(), which safely handles this. I've also added
+> > some comments, to make it clearer.
+> 
+> You never answered my question, why you insist on managing the ops
+> pointer. The far easier fix would be to simply remove this nonsense.
+
+Because it's an optimsation, avoiding the need for looking up ops from
+tables/lists. It's the sensible way of doing it. I've explained this
+to others on the list, and in the FAQ. I'm not going to keep going
+over it again and again.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

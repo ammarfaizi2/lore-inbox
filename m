@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265174AbUAEQu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 11:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbUAEQuw
+	id S265198AbUAERLj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 12:11:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUAERLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 11:50:52 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:43752 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265168AbUAEQtI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 11:49:08 -0500
-Date: Mon, 5 Jan 2004 17:49:02 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Christophe Saout <christophe@saout.de>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Possibly wrong BIO usage in ide_multwrite
-Message-ID: <20040105164902.GA3483@suse.de>
-References: <1072977507.4170.14.camel@leto.cs.pocnet.net> <200401032302.32914.bzolnier@elka.pw.edu.pl> <20040105040337.GB6393@leto.cs.pocnet.net> <200401051747.45039.bzolnier@elka.pw.edu.pl>
+	Mon, 5 Jan 2004 12:11:39 -0500
+Received: from smtp.terra.es ([213.4.129.129]:17738 "EHLO tsmtp8.mail.isp")
+	by vger.kernel.org with ESMTP id S265198AbUAERKy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 12:10:54 -0500
+Date: Mon, 5 Jan 2004 18:10:53 +0100
+From: Diego Calleja <grundig@teleline.es>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Robert.L.Harris@rdlg.net, linux-kernel@vger.kernel.org
+Subject: Re: mremap bug and 2.4?
+Message-Id: <20040105181053.6560e1e3.grundig@teleline.es>
+In-Reply-To: <Pine.LNX.4.58L.0401051323520.1188@logos.cnet>
+References: <20040105145421.GC2247@rdlg.net>
+	<Pine.LNX.4.58L.0401051323520.1188@logos.cnet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401051747.45039.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05 2004, Bartlomiej Zolnierkiewicz wrote:
-> > calling end_request with a null sector count, ide_end_request will then
-> > take hard_nr_sectors which will end the whole request even if only one
-> > bio was finished, huh? Am I missing something here?
+El Mon, 5 Jan 2004 13:26:23 -0200 (BRST) Marcelo Tosatti <marcelo.tosatti@cyclades.com> escribió:
+
+> On Mon, 5 Jan 2004, Robert L. Harris wrote:
+> > Just read this on full disclosure:
+> >
+> > http://isec.pl/vulnerabilities/isec-0013-mremap.txt
+[...]
+> It is possible that the problem is exploitable. There is no known public
+> exploit yet, however.
 > 
-> No, it is used mainly to fail requests.
-> 
-> This hack should be later removed with care
-> (there is some strange comment about locking).
+> 2.4.24 includes a fix for this (mm/mremap.c diff)
 
-IIRC, it's due to it not always being safe to inspect rq state outside
-of ide_lock. So that makes 0 a magic value that just means 'end the
-first chunk' for ide_end_request().
-
--- 
-Jens Axboe
-
+It names 2.2 too. Is there a fix for 2.2?

@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316780AbSFDU7Z>; Tue, 4 Jun 2002 16:59:25 -0400
+	id <S316755AbSFDVHE>; Tue, 4 Jun 2002 17:07:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316796AbSFDU7Y>; Tue, 4 Jun 2002 16:59:24 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:54227 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S316780AbSFDU7W>; Tue, 4 Jun 2002 16:59:22 -0400
-Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7ED5@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@suse.cz>, Brad Hards <bhards@bigpond.net.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        trivial@rustcorp.com.au
-Subject: RE: [patch] i386 "General Options" - begone [take 2]
-Date: Tue, 4 Jun 2002 13:59:11 -0700 
+	id <S316796AbSFDVHD>; Tue, 4 Jun 2002 17:07:03 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:53262 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S316755AbSFDVHC>; Tue, 4 Jun 2002 17:07:02 -0400
+Date: Tue, 4 Jun 2002 23:05:50 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Austin Gonyou <austin@coremetrics.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Max groups at 32?
+In-Reply-To: <3CFC367C.1080300@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44L.0206042251240.14400-100000@rudy.mif.pg.gda.pl>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > "Power management options (ACPI, APM)", which also includes 
-> software suspend.
-> > "Bus options (PCI, PCMCIA, EISA, MCA, ISA)"
-> > "Executable file formats"
+On Mon, 3 Jun 2002, Jeff Garzik wrote:
 
-Brad,
+> Austin Gonyou wrote:
+> 
+> >I'm not sure if this is a Linux capabilities problem, a PAM problem, or
+> >what, but I've noticed that If I add a user to > 32 groups...that user
+> >cannot access anything in a directory owned by a group > the 32nd group.
+> >  
+> >
+> 
+> 
+> Yes.  It's a hardcoded limit that requires a recompile of both the 
+> kernel and glibc to change.
 
-This is a tough one because ACPI *is* power management but it is also
-configuration. It is equivalent to such things as MPS table parsing, $PIR
-parsing, PNPBIOS, as well as APM. The first two don't have CONFIG_ options
-at the moment but they should at some point.
+Few months ago was release by me shadow package with some neccessary
+for this changes. From http://shadow.pld.org.pl/ChangeLog:
 
-The only thing I can think of is a "Platform interface options" menu and
-just throw all of the above in that. Any other ideas?
+2001-09-01  Tomasz K³oczko  <kloczek@pld.org.pl>
 
-Regards -- Andy
+        * src/groups.c, src/id.c, src/newgrp.c, src/useradd.c, src/usermod.c, libmisc/addgrps.c, NEWS:
+        remove limit 32 to groups per user (the same user can belong to
+        more than 32 groups) by use sysconf(_SC_NGROUPS_MAX) instead constant
+        NGROUPS_MAX (patch by Radu Constantin Rendec <radu.rendec@ines.ro>)
+        NOTE: it probably need testing on other system for add some conditionals
+        for using sysconf(_SC_NGROUPS_MAX) or NGROUPS_MAX constant.
+
+Some other fixes for correct displaing/handling 32bit uid/gid was after
+above prepared by Thorsten Kukuk <kukuk@suse.de> and me and all was
+integrated in shadow source tree. All is avalable in latest shadow 4.0.3.
+
+kloczek
+-- 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+

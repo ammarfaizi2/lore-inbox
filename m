@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265065AbTFCPzh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 11:55:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbTFCPzh
+	id S265070AbTFCPov (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 11:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbTFCPou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 11:55:37 -0400
-Received: from pat.uio.no ([129.240.130.16]:10196 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S265065AbTFCPzf (ORCPT
+	Tue, 3 Jun 2003 11:44:50 -0400
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:15959 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265070AbTFCPoq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 11:55:35 -0400
-To: Edward Hibbert <EH@dataconnection.com>
-Cc: "'Vivek Goyal'" <vivek.goyal@wipro.com>, trond.myklebust@fys.uio.no,
-       Ion Badulescu <ionut@badula.org>, viro@math.psu.edu, davem@redhat.com,
-       ezk@cs.sunysb.edu, indou.takao@jp.fujitsu.com,
-       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [NFS] Disabling Symbolic Link Content Caching in NFS Client
-References: <CFCD2C778CF1D611B5B400065B04D5C84A736F@KENTON>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 03 Jun 2003 18:08:35 +0200
-In-Reply-To: <CFCD2C778CF1D611B5B400065B04D5C84A736F@KENTON>
-Message-ID: <shsbrxfp2ik.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Tue, 3 Jun 2003 11:44:46 -0400
+From: Bob Johnson <livewire@gentoo.org>
+Reply-To: livewire@gentoo.org
+To: "Wm. Josiah Erikson" <josiah@insanetechnology.com>
+Subject: Re: siimage driver status
+Date: Tue, 3 Jun 2003 10:58:06 -0500
+User-Agent: KMail/1.5.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0306031127450.23499-100000@bork.hampshire.edu>
+In-Reply-To: <Pine.LNX.4.44.0306031127450.23499-100000@bork.hampshire.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have ques\tions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200306031058.10447.livewire@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Edward Hibbert <EH@dataconnection.com> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-     > Our application consists of a number of machines collaborating
-     > on a shared database over NFS.  We therefore require the
-     > ability to force data to be sync'd from the client to the
-     > backend - and at the moment we do this by disabling caching
-     > completely, via the noac option and acquiring and releasing
-     > non-exclusive locks round io calls.
+yes, ive always added -X66 , the only way to not lock is a trick from siimages 
+site (think it was in a mandrake script)
+echo "max_kb_per_request:15" > /proc/ide/hde/settings
 
-What does this have to do with symlinks?
+The lockup also happens in latest 2.5 kernels, which the above command
+is only for 2.4.
 
-...and why can't you use DIRECTIO? The above sort of application is
-exactly what it is being introduced for.
+On Tuesday 03 June 2003 10:29 am, Wm. Josiah Erikson wrote:
+> Does this still happen? It used to happen to me, but as soon as I added
 
-Cheers,
-  Trond
+> -X66, per Alan's suggestion, everything is fine.
+> 	-Josiah (currently in the middle of writing 36GB to a two-drive
+> RAID 0 array on a sil3112 controller and everything is peachy - fast as
+> HELL, actually - grin - I've never seen over 100MB/sec off a RAID 0 of two
+> drives before)
+>
+>
+> On Tue, 3 Jun 2003, Bob Johnson wrote:
+>
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Has anything been addressed to help the instant lock up when enabling dma
+> that alot of users are reporting?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+3MWSxJgsCy9JAX0RAlpwAJ9Q0Pmz1Xda8tCvmuVjV21G8oDwAgCbBKzI
+e6707tgTmA2nQKlfsVvr/pw=
+=Ct7+
+-----END PGP SIGNATURE-----
+

@@ -1,38 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261405AbREOQFw>; Tue, 15 May 2001 12:05:52 -0400
+	id <S261919AbREOQVY>; Tue, 15 May 2001 12:21:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261921AbREOQFm>; Tue, 15 May 2001 12:05:42 -0400
-Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:29188 "HELO
-	ocean.lucon.org") by vger.kernel.org with SMTP id <S261405AbREOQFd>;
-	Tue, 15 May 2001 12:05:33 -0400
-Date: Tue, 15 May 2001 09:05:31 -0700
-From: "H . J . Lu" <hjl@lucon.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-        "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8
-Message-ID: <20010515090531.B12586@lucon.org>
-In-Reply-To: <m1k83kj7dj.fsf@frodo.biederman.org> <m1y9s1jbml.fsf@frodo.biederman.org> <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org> <20010513110707.A11055@lucon.org> <16874.989832587@redhat.com> <8717.989859079@redhat.com> <m1eltqkars.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m1eltqkars.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Tue, May 15, 2001 at 07:21:59AM -0600
+	id <S261921AbREOQVO>; Tue, 15 May 2001 12:21:14 -0400
+Received: from aeon.tvd.be ([195.162.196.20]:23647 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S261919AbREOQVF>;
+	Tue, 15 May 2001 12:21:05 -0400
+Date: Tue, 15 May 2001 18:19:26 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Lorenzo Marcantonio <lomarcan@tin.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SCSI Tape Corruption - 2nd round experiment result
+In-Reply-To: <Pine.LNX.4.31.0105150027290.24946-100000@eris.discordia.loc>
+Message-ID: <Pine.LNX.4.05.10105151815010.18650-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 15 May 2001, Lorenzo Marcantonio wrote:
+> The differences:
+> ----------------
+> (File offsets in hex, patterns were found without other matches in
+> the file)
 > 
-> The clean way to handle it, and I'll take a look it to have
-> root=/dev/nfs (and the rdev equivalent) to set ip=on if it isn't
+> First test:
+> 64 bytes at D9E0800 (found starting at D9D8800, 32KB before)
+> 
+> Second test:
+> 64 bytes at 2F187C0 (found starting at 2F107C0, 32KB before)
+> 64 bytes at A8643C0 (found starting at A8343C0, 192KB before[!])
+> 
+> Third test:
+> No differences (sheer luck?)
+> 
+> Fourth test:
+> 32 bytes at B937640 (found starting at B8D7640, 384KB before[!!])
+> 
+> Conclusions (IMO):
+> ------------------
+> 
+> It's the first time I see 64 consecutive corrupted bytes. Also, on the
+> fourth test the data were from MUCH earlier in the file... (maybe in some
+> remote cache area... I've got 512MB RAM, 1024MB swap)
 
-Yes.
+I saw them before. However, in my case they were obviously the result of 2
+consecutive 32-byte errors, as the latter occurred many more times.
 
-> already.  The current 2.4.4 behavior of root=/dev/hda3 doing ip
-> autoconfig when the code is compiled into the kernel is just bad.
+I never saw an offset different from the block size, though.
 
-Agreed.
+Assuming you did have 32-byte errors, you had 7 errors for 1.3 GB.
+
+I have approx. 6 errors for 256 MB. But I have only 128 MB RAM.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
 
-H.J.
+

@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266687AbUGVQBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266698AbUGVQHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266687AbUGVQBD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 12:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266697AbUGVQBD
+	id S266698AbUGVQHh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 12:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266701AbUGVQHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 12:01:03 -0400
-Received: from ss1000.ms.mff.cuni.cz ([195.113.20.8]:44419 "EHLO
-	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266687AbUGVQBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 12:01:00 -0400
-Date: Thu, 22 Jul 2004 18:00:55 +0200
-From: Rudo Thomas <rudo@matfyz.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: scheduling while atomic (Re: voluntary-preempt-2.6.8-rc2-H9)
-Message-ID: <20040722160055.GA4837@ss1000.ms.mff.cuni.cz>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	linux-kernel@vger.kernel.org
-References: <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721183010.GA2206@yoda.timesys> <20040721210051.GA2744@yoda.timesys> <20040721211826.GB30871@elte.hu> <20040721223749.GA2863@yoda.timesys> <20040722100657.GA14909@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040722100657.GA14909@elte.hu>
-User-Agent: Mutt/1.5.6i
+	Thu, 22 Jul 2004 12:07:37 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:46232 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266698AbUGVQHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 12:07:35 -0400
+Message-ID: <40FFD64B.8040304@kegel.com>
+Date: Thu, 22 Jul 2004 07:59:23 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en, de-de
+MIME-Version: 1.0
+To: Hollis Blanchard <hollisb@us.ibm.com>
+CC: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>,
+       crossgcc <crossgcc@sources.redhat.com>,
+       "'linuxppc-dev@lists.linuxppc.org'" <linuxppc-dev@lists.linuxppc.org>,
+       "'Andrew Morton'" <akpm@osdl.org>, "'bert hubert'" <ahu@ds9a.nl>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: case-sensitive file names during build
+References: <313680C9A886D511A06000204840E1CF08F43052@whq-msgusr-02.pit.comms.marconi.com> <0C006758-DBEE-11D8-9AB1-000A95A0560C@us.ibm.com>
+In-Reply-To: <0C006758-DBEE-11D8-9AB1-000A95A0560C@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there.
+Hollis Blanchard wrote:
+> On Jul 22, 2004, at 4:25 AM, Povolotsky, Alexander wrote:
+>>> make[3]: *** No rule to make target
+>>>  `net/ipv4/netfilter/ipt_ecn.o', needed by 
+>>> `net/ipv4/netfilter/built-in.o'.
+>>> Stop.
+>>
+>> This is the (somewhat questionable) use of ipt_ECN.c and ipt_ecn.c in the
+>> linux kernel. Windows filesystems are case insensitive, and see this 
+>> as one file.
+> 
+> I had not seen the ECN/ecn problem, but you will also be bitten by .S -> 
+> .s preprocessing. That's right about the point that I gave up  ...
 
-I finally managed to try out the voluntary preemption patch (H9 on 2.6.8-rc2).
+I maintain patches that allow building glibc on Cygwin and MacOSX.
+The main patch deals with exactly this issue (S vs. s)
+http://kegel.com/crosstool/crosstool-0.28-rc26/patches/glibc-2.3.2/glibc-2.3.2-cygwin.patch
+I have to maintain it separately as the glibc maintainer dislikes the
+idea of catering to Cygwin users (though maybe if I present it
+as a MacOSX support patch he'd reconsider... naaah, probably not :-).
 
-The syslog got flooded by these
+With the advent of linux-2.6, I also have a patch
+to get kconfig to not use shared libraries (since I use kconfig
+to help install the kernel headers, and shared libraries are tricky
+to build on those two platforms).
 
-bad: ksoftirqd/0(2) scheduling while atomic (1)!
-[<c0244529>] schedule+0x529/0x560
-[<c0115444>] try_to_wake_up+0xa4/0xc0
-[<c0121190>] process_timeout+0x0/0x10
-[<c0121190>] process_timeout+0x0/0x10
-[<c011677a>] cond_resched_softirq+0x3a/0x60
-[<c0120ed0>] run_timer_softirq+0xd0/0x1b0
-[<c011d1d0>] ksoftirqd+0x0/0xc0
-[<c011ce3d>] ___do_softirq+0x7d/0x90
-[<c011ce96>] _do_softirq+0x6/0x10
-[<c011d238>] ksoftirqd+0x68/0xc0
-[<c012b565>] kthread+0xa5/0xb0
-[<c012b4c0>] kthread+0x0/0xb0
-[<c0103d91>] kernel_thread_helper+0x5/0x14
+It wouldn't be a big leap for me or someone else to also maintain
+a patch to allow compiling the whole kernel on Cygwin or MacOSX.
+If anyone puts it together, I'll carry it in crosstool.
+- Dan
 
-Is this by any means normal?
 
-If it is, can these messages be turned off? (Note that I want to have
-CONFIG_DEBUG_KERNEL on to be able to use the magic SysRq key.)
-
-Bye for now.
-
-Rudo.
+-- 
+My technical stuff: http://kegel.com
+My politics: see http://www.misleader.org for examples of why I'm for regime change

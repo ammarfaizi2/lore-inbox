@@ -1,83 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264358AbTLYUjN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 15:39:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbTLYUjN
+	id S264365AbTLYU7l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 15:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbTLYU7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 15:39:13 -0500
-Received: from mail.actcom.co.il ([192.114.47.15]:58082 "EHLO
-	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S264358AbTLYUjL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 15:39:11 -0500
-Date: Thu, 25 Dec 2003 22:38:54 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Andrea Barisani <lcars@infis.univ.trieste.it>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: kernel 2.6.0, wrong Kconfig directives
-Message-ID: <20031225203853.GV31789@actcom.co.il>
-References: <20031222235622.GA17030@sole.infis.univ.trieste.it> <87smj8bt6y.fsf@devron.myhome.or.jp> <20031225195115.GQ31789@actcom.co.il> <87isk4bptp.fsf@devron.myhome.or.jp>
+	Thu, 25 Dec 2003 15:59:41 -0500
+Received: from [213.94.3.94] ([213.94.3.94]:1409 "EHLO sacarino.pirispons.net")
+	by vger.kernel.org with ESMTP id S264365AbTLYU7X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 15:59:23 -0500
+Date: Thu, 25 Dec 2003 21:59:17 +0100
+From: Kiko Piris <kernel@pirispons.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Make ppp_async callable from hard interrupt
+Message-ID: <20031225205917.GA7238@sacarino.pirispons.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <16356.60597.133074.809551@cargo.ozlabs.ibm.com> <20031225100850.GA6629@penguin.localdomain> <20031225022228.69f78d18.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Rsp728Nwk8twChKq"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87isk4bptp.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031225022228.69f78d18.akpm@osdl.org>
+User-Agent: Mutt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 25/12/2003 at 02:22, Andrew Morton wrote:
 
---Rsp728Nwk8twChKq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> (Marcel Sebek) wrote:
 
-On Fri, Dec 26, 2003 at 05:33:06AM +0900, OGAWA Hirofumi wrote:
+> >  If this is true, skb will be used uninitialized.
+> 
+> True.    Here's an updated patch.
 
-> > +# Yes, this looks a bit odd. Yes, it ends up being turned on in lots
-> > +# of cases. Please don't touch it. It is here to handle the case where
-> > +# a sound driver can be either a module or compiled in if GAMEPORT is
-> > +# not selected, but must be a module if the joystick is selected as a=
-=20
-> > +# module. The sound driver calls GAMEPORT functions. If GAMEPORT is
-> > +# not selected, stubs are provided. If GAMEPORT is built in,
-> > +# everything is fine. If GAMEPORT is a module, however, it would need
-> > +# to be loaded for the sound driver to be able to link
-> > +# properly. Therefore, the sound driver must be a module as well in
-> > +# that case (and the GAMEPORT module must be loaded first).=20
-> >  config SOUND_GAMEPORT
-> >  	tristate
-> >  	default y if GAMEPORT!=3Dm
->=20
-> I see. So why did we need the SOUND_GAMEPORT?
+I applied the first patch to 2.6.0-ben1 (benH's tree) and had a couple
+of hard freezes on my iBook. Not on the first ppp connection since boot,
+but around 4th or 5th).
 
-I thought I explained this above, quite verbosely :-)=20
-Rather than make the sound drivers depend directly on GAMEPORT, which
-is troublesome because Kconfig has no provisions for this type of
-dependancy, we create an artificial dependency, SOUND_GAMEPORT, which
-the sound driver depends on. SOUND_GAMEPORT depends on GAMEPORT, and
-Kconfig ends up doing the right thing. I hope that was clearer.=20
+I _suspect_ (with absolutely no evidence) this was the same problem as
+the ppp oopses pointed by other people with 2.6.0-mm1.
 
-Cheers,=20
-Muli=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+But I was under X and nothing was written to the logs (ie. no info at
+all about the error), so I couldn't tell if the culprit was ppp_async.
 
-"the nucleus of linux oscillates my world" - gccbot@#offtopic
+And this was the very first time I used my modem (rs-232 with usb-serial
+/ ftdi_sio) with 2.6, so I had too little info to post anything here.
 
 
---Rsp728Nwk8twChKq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+But the fact is that with this lastest patch (w/ the correction pointed
+by Marcel Sebek, everything seems to work ok here (about half a dozen
+connections w/o problems).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Just wanted to add some info in case it could be useful to track this
+issue.
 
-iD8DBQE/60rdKRs727/VN8sRAjDBAKC6q/DcJ4/L+706a/WKQjg9N5QbqgCfWChy
-URqpSUfROwy4/IL1doTUvKE=
-=VAn9
------END PGP SIGNATURE-----
+Feel free to ask any additional info, I'll be glad if I can help in any
+way.
 
---Rsp728Nwk8twChKq--
+A big thank you to everyone and season's greetings
+
+-- 
+Kiko

@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268702AbRHUD2M>; Mon, 20 Aug 2001 23:28:12 -0400
+	id <S268901AbRHUDge>; Mon, 20 Aug 2001 23:36:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268901AbRHUD2C>; Mon, 20 Aug 2001 23:28:02 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:28825 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S268702AbRHUD1s>; Mon, 20 Aug 2001 23:27:48 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 20 Aug 2001 20:28:01 -0700
-Message-Id: <200108210328.UAA24776@adam.yggdrasil.com>
-To: kaos@ocs.com.au
-Subject: Re: aic7xxx driver that does not need db library?
-Cc: gibbs@scsiguy.com, linux-kernel@vger.kernel.org
+	id <S269632AbRHUDgQ>; Mon, 20 Aug 2001 23:36:16 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:24069 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S268901AbRHUDgE>;
+	Mon, 20 Aug 2001 23:36:04 -0400
+Date: Tue, 21 Aug 2001 00:36:04 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Mark Hemment <markhe@veritas.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: kswap spinning
+In-Reply-To: <Pine.LNX.4.21.0108202257470.538-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33L.0108210034080.5646-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>  = Adam Richter
->   = Keith Owens
+On Mon, 20 Aug 2001, Marcelo Tosatti wrote:
 
->>	Currently, building Justin Gibbs's otherwise excellent
->>aic7xxx driver requires the Berkeley DB library, because the
->>aic7xxx assembler that is used in the build process uses db
->>basically just to implement associative arrays in memory.
->>
->>	Unfortunately, I'm currently wrestling with db version
->>problems because gnome evolution requires the GPL'ed Sleepycat db 3.x,
->>so I want to keep db-1.85 around also, and this breaks the aicasm
->>build.
+> > Could you please boot with profile=2 and use readprofile to find out where
+> > kswapd is spending its time?
+>
+> Well, I've just noted Linus made kswapd loop as long as there is any
+> kind (inactive or free) shortage.
 
->(A) Do not check "build aic7xxx firmware".
+Well, duh.  Let me explain.
 
-	I want to build everything from source and I believe that is
-important to other people as well.
+>From mm/vmscan.c::kswapd() a short comment I wrote while
+implementing part of the current VM:
 
+                /*
+                 * We go to sleep if either the free page shortage
+                 * or the inactive page shortage is gone. We do this
+                 * because:
+                 * 1) we need no more free pages   or
+                 * 2) the inactive pages need to be flushed to disk,
+                 *    it wouldn't help to eat CPU time now ...
+                 *
+                 * We go to sleep for one second, but if it's needed
+                 * we'll be woken up earlier...
+                 */
+                if (!free_shortage() || !inactive_shortage()) {
+                        interruptible_sleep_on_timeout(&kswapd_wait, HZ);
 
->(B) kbuild 2.5 only selects the db*.h file that matches the current db
->    library, instead of assuming that the first db*.h that it can find
->    should be used.
+I wonder when Linus lost his ability to read comments ;)
 
-	On one hand, I still prefer my solution of not needing db
-at all to build the aic7xxx firmware.  I believe that compatability
-problems in my db configuration is a system administration bug in the
-one of the db packages or both, but I haven't fully disected it yet.
+regards,
 
-	On the other hand, what you describe sounds like an
-improvement over what is in the stock kernel.  So, even though I'm not
-inclined to jump to it right now, I appreciate your telling me about
-it.
+Rik
+--
+IA64: a worthy successor to i860.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

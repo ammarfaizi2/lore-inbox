@@ -1,145 +1,287 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264272AbUATARG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 19:17:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUATAPX
+	id S265238AbUATAYa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 19:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbUATAXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 19:15:23 -0500
-Received: from mail.kroah.org ([65.200.24.183]:26284 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265143AbUATAAK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 19:00:10 -0500
-Date: Mon, 19 Jan 2004 15:57:33 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: [BK PATCH] i2c driver fixes for 2.6.1
-Message-ID: <20040119235733.GA5549@kroah.com>
+	Mon, 19 Jan 2004 19:23:10 -0500
+Received: from mail.kroah.org ([65.200.24.183]:32172 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265161AbUATAAT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 19:00:19 -0500
+Subject: Re: [PATCH] i2c driver fixes for 2.6.1
+In-Reply-To: <10745567673681@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 19 Jan 2004 15:59:27 -0800
+Message-Id: <1074556767824@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.1474.98.27, 2004/01/19 15:07:28-08:00, greg@kroah.com
 
-Here are some i2c driver fixes and updates for 2.6.1.  There are a
-number of bug fixes here, and a few new drivers have been added to the
-tree.
+[PATCH] I2C: add I2C_DEBUG_CHIP config option and convert the i2c chip drivers to use it.
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
+This cleans up the mismatch of ways we could enable debugging messages.
 
-Individual patches will follow, sent to the sensors and linux-kernel
-lists.
 
-thanks,
+ drivers/i2c/Kconfig           |    9 +++++++++
+ drivers/i2c/chips/adm1021.c   |    5 +++++
+ drivers/i2c/chips/asb100.c    |    6 ++++--
+ drivers/i2c/chips/eeprom.c    |    5 ++++-
+ drivers/i2c/chips/it87.c      |   13 +++++++++----
+ drivers/i2c/chips/lm75.c      |    5 ++++-
+ drivers/i2c/chips/lm78.c      |    7 ++++++-
+ drivers/i2c/chips/lm83.c      |    5 +++++
+ drivers/i2c/chips/lm85.c      |    5 +++++
+ drivers/i2c/chips/lm90.c      |    5 +++++
+ drivers/i2c/chips/via686a.c   |    5 +++++
+ drivers/i2c/chips/w83781d.c   |    7 ++++++-
+ drivers/i2c/chips/w83l785ts.c |    5 +++++
+ 13 files changed, 72 insertions(+), 10 deletions(-)
 
-greg k-h
 
- Documentation/i2c/porting-clients      |    5 
- drivers/Kconfig                        |    2 
- drivers/char/Kconfig                   |    2 
- drivers/i2c/Kconfig                    |   32 
- drivers/i2c/algos/Kconfig              |    1 
- drivers/i2c/algos/i2c-algo-pcf.h       |    2 
- drivers/i2c/busses/Kconfig             |  101 ++-
- drivers/i2c/busses/Makefile            |    2 
- drivers/i2c/busses/i2c-ali1535.c       |    5 
- drivers/i2c/busses/i2c-ali15x3.c       |    5 
- drivers/i2c/busses/i2c-amd756.c        |    5 
- drivers/i2c/busses/i2c-amd8111.c       |    5 
- drivers/i2c/busses/i2c-elektor.c       |   19 
- drivers/i2c/busses/i2c-elv.c           |   17 
- drivers/i2c/busses/i2c-frodo.c         |    5 
- drivers/i2c/busses/i2c-i801.c          |    5 
- drivers/i2c/busses/i2c-i810.c          |    5 
- drivers/i2c/busses/i2c-ibm_iic.c       |    8 
- drivers/i2c/busses/i2c-iop3xx.c        |    9 
- drivers/i2c/busses/i2c-isa.c           |    5 
- drivers/i2c/busses/i2c-ite.c           |   24 
- drivers/i2c/busses/i2c-keywest.c       |   36 -
- drivers/i2c/busses/i2c-nforce2.c       |    5 
- drivers/i2c/busses/i2c-parport-light.c |  179 +++++
- drivers/i2c/busses/i2c-parport.c       |  273 ++++++++
- drivers/i2c/busses/i2c-parport.h       |   87 ++
- drivers/i2c/busses/i2c-philips-par.c   |    9 
- drivers/i2c/busses/i2c-piix4.c         |   12 
- drivers/i2c/busses/i2c-prosavage.c     |    5 
- drivers/i2c/busses/i2c-rpx.c           |    9 
- drivers/i2c/busses/i2c-savage4.c       |    5 
- drivers/i2c/busses/i2c-sis5595.c       |   10 
- drivers/i2c/busses/i2c-sis630.c        |    5 
- drivers/i2c/busses/i2c-sis96x.c        |    5 
- drivers/i2c/busses/i2c-velleman.c      |   14 
- drivers/i2c/busses/i2c-via.c           |    7 
- drivers/i2c/busses/i2c-viapro.c        |    5 
- drivers/i2c/busses/i2c-voodoo3.c       |    5 
- drivers/i2c/busses/scx200_acb.c        |   15 
- drivers/i2c/busses/scx200_i2c.c        |   10 
- drivers/i2c/chips/Kconfig              |   36 +
- drivers/i2c/chips/Makefile             |    7 
- drivers/i2c/chips/adm1021.c            |    5 
- drivers/i2c/chips/asb100.c             | 1059 ++++++++++++++++++++++++++++++++-
- drivers/i2c/chips/eeprom.c             |   67 +-
- drivers/i2c/chips/it87.c               |   13 
- drivers/i2c/chips/lm75.c               |    5 
- drivers/i2c/chips/lm78.c               |    7 
- drivers/i2c/chips/lm83.c               |    7 
- drivers/i2c/chips/lm85.c               |    5 
- drivers/i2c/chips/lm90.c               |  529 ++++++++++++++++
- drivers/i2c/chips/via686a.c            |    5 
- drivers/i2c/chips/w83781d.c            |   37 -
- drivers/i2c/chips/w83l785ts.c          |  314 +++++++++
- drivers/i2c/i2c-core.c                 |  114 +--
- drivers/i2c/i2c-dev.c                  |   10 
- drivers/i2c/i2c-sensor.c               |    5 
- drivers/ieee1394/Kconfig               |    9 
- drivers/media/video/Kconfig            |   13 
- drivers/media/video/saa7146.h          |    1 
- drivers/video/Kconfig                  |   21 
- include/linux/i2c-id.h                 |    3 
- 62 files changed, 2966 insertions(+), 266 deletions(-)
------
-
-<ebs:ebshome.net>:
-  o I2C: IBM IIC compile fix
-
-Greg Kroah-Hartman:
-  o I2C: remove unneeded CVS Id: lines
-  o I2C: add I2C_DEBUG_BUS config option and convert the i2c bus drivers to use it
-  o I2C: add I2C_DEBUG_CHIP config option and convert the i2c chip drivers to use it
-  o I2C: add I2C_DEBUG_CORE config option and convert the i2c core code to use it
-  o I2C: only select I2C_ITE if we are a MIPS system
-  o I2C: remove CONFIG_ISA dependancy for I2C_ISA as x86_64 does not have CONFIG_ISA
-  o I2C: move the Kconfig "source..." out of the drivers/char/ location
-
-Jean Delvare:
-  o I2C: Autoselect i2c algos
-  o I2C: New driver: w83l785ts
-  o I2C: Fix i2c busses warnings with DEBUG
-  o I2C: Fix i2c-core.c with DEBUG
-  o I2C: Fix lm90.c with DEBUG
-  o I2C: speed up eeprom driver by a factor of 4
-  o I2C: i2c-i801 help
-  o I2C: clean up ISA dependancies
-  o I2C: restore correct vaio handling in eeprom driver
-  o I2C: Fix debug bug in lm83 driver
-  o I2C: Fix w83781d temp
-  o I2C: New chip driver: lm90
-  o I2C: New parport bus drivers
-  o I2C: i2c-rpx.c doesn't need ioports.h nor parport.h
-  o I2C: Typo in i2c/busses/Kconfig
-  o I2C: saa7146.h doesn't need i2c.h
-  o I2C: documentation update
-
-Mark M. Hoffman:
-  o I2C: link asb100 in the proper order
-  o I2C: Add ported sensor chip driver: asb100
-
-Matthew Wilcox:
-  o I2C: Kconfig cleanups
-
-Tom Rini:
-  o I2C: module_parm fixes for i2c-piix4.c
+diff -Nru a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+--- a/drivers/i2c/Kconfig	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/Kconfig	Mon Jan 19 15:27:56 2004
+@@ -49,5 +49,14 @@
+ 	  messages to the system log.  Select this if you are having a
+ 	  problem with I2C support and want to see more of what is going on.
+ 
++config I2C_DEBUG_CHIP
++	bool "I2C Chip debugging messages"
++	depends on I2C
++	help
++	  Say Y here if you want the I2C chip drivers to produce a bunch of
++	  debug messages to the system log.  Select this if you are having
++	  a problem with I2C support and want to see more of what is going
++	  on.
++
+ endmenu
+ 
+diff -Nru a/drivers/i2c/chips/adm1021.c b/drivers/i2c/chips/adm1021.c
+--- a/drivers/i2c/chips/adm1021.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/adm1021.c	Mon Jan 19 15:27:56 2004
+@@ -19,6 +19,11 @@
+     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+ 
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
++
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+diff -Nru a/drivers/i2c/chips/asb100.c b/drivers/i2c/chips/asb100.c
+--- a/drivers/i2c/chips/asb100.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/asb100.c	Mon Jan 19 15:27:56 2004
+@@ -36,7 +36,10 @@
+     asb100	7	3	1	4	0x31	0x0694	yes	no
+ */
+ 
+-/* #define DEBUG 1 */
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
+ 
+ #include <linux/module.h>
+ #include <linux/slab.h>
+@@ -1035,7 +1038,6 @@
+ 
+ static int __init asb100_init(void)
+ {
+-	printk(KERN_INFO "asb100 version %s\n", ASB100_VERSION);
+ 	return i2c_add_driver(&asb100_driver);
+ }
+ 
+diff -Nru a/drivers/i2c/chips/eeprom.c b/drivers/i2c/chips/eeprom.c
+--- a/drivers/i2c/chips/eeprom.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/eeprom.c	Mon Jan 19 15:27:56 2004
+@@ -26,7 +26,10 @@
+     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+ 
+-/* #define DEBUG */
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
+ 
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+diff -Nru a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
+--- a/drivers/i2c/chips/it87.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/it87.c	Mon Jan 19 15:27:56 2004
+@@ -31,6 +31,11 @@
+     type at module load time.
+ */
+ 
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
++
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+@@ -667,10 +672,10 @@
+ 		}
+ 		else {
+ 			if (kind == 0)
+-				printk
+-				    ("it87.o: Ignoring 'force' parameter for unknown chip at "
+-				     "adapter %d, address 0x%02x\n",
+-				     i2c_adapter_id(adapter), address);
++				dev_info(&adapter->dev, 
++					"Ignoring 'force' parameter for unknown chip at "
++					"adapter %d, address 0x%02x\n",
++					i2c_adapter_id(adapter), address);
+ 			goto ERROR1;
+ 		}
+ 	}
+diff -Nru a/drivers/i2c/chips/lm75.c b/drivers/i2c/chips/lm75.c
+--- a/drivers/i2c/chips/lm75.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/lm75.c	Mon Jan 19 15:27:56 2004
+@@ -18,7 +18,10 @@
+     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+ 
+-/* #define DEBUG 1 */
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
+ 
+ #include <linux/module.h>
+ #include <linux/init.h>
+diff -Nru a/drivers/i2c/chips/lm78.c b/drivers/i2c/chips/lm78.c
+--- a/drivers/i2c/chips/lm78.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/lm78.c	Mon Jan 19 15:27:56 2004
+@@ -18,6 +18,11 @@
+     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+ 
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
++
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+@@ -615,7 +620,7 @@
+ 			kind = lm79;
+ 		else {
+ 			if (kind == 0)
+-				printk(KERN_WARNING "lm78.o: Ignoring 'force' "
++				dev_warn(&adapter->dev, "Ignoring 'force' "
+ 					"parameter for unknown chip at "
+ 					"adapter %d, address 0x%02x\n",
+ 					i2c_adapter_id(adapter), address);
+diff -Nru a/drivers/i2c/chips/lm83.c b/drivers/i2c/chips/lm83.c
+--- a/drivers/i2c/chips/lm83.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/lm83.c	Mon Jan 19 15:27:56 2004
+@@ -27,6 +27,11 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
++
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+diff -Nru a/drivers/i2c/chips/lm85.c b/drivers/i2c/chips/lm85.c
+--- a/drivers/i2c/chips/lm85.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/lm85.c	Mon Jan 19 15:27:56 2004
+@@ -22,6 +22,11 @@
+     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+ 
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
++
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+diff -Nru a/drivers/i2c/chips/lm90.c b/drivers/i2c/chips/lm90.c
+--- a/drivers/i2c/chips/lm90.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/lm90.c	Mon Jan 19 15:27:56 2004
+@@ -35,6 +35,11 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
++
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+diff -Nru a/drivers/i2c/chips/via686a.c b/drivers/i2c/chips/via686a.c
+--- a/drivers/i2c/chips/via686a.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/via686a.c	Mon Jan 19 15:27:56 2004
+@@ -31,6 +31,11 @@
+     Warning - only supports a single device.
+ */
+ 
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
++
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/pci.h>
+diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
+--- a/drivers/i2c/chips/w83781d.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/w83781d.c	Mon Jan 19 15:27:56 2004
+@@ -36,6 +36,11 @@
+ 
+ */
+ 
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
++
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+@@ -1651,7 +1656,7 @@
+ 	if (time_after
+ 	    (jiffies - data->last_updated, (unsigned long) (HZ + HZ / 2))
+ 	    || time_before(jiffies, data->last_updated) || !data->valid) {
+-		pr_debug(KERN_DEBUG "Starting device update\n");
++		pr_debug("Starting device update\n");
+ 
+ 		for (i = 0; i <= 8; i++) {
+ 			if ((data->type == w83783s || data->type == w83697hf)
+diff -Nru a/drivers/i2c/chips/w83l785ts.c b/drivers/i2c/chips/w83l785ts.c
+--- a/drivers/i2c/chips/w83l785ts.c	Mon Jan 19 15:27:56 2004
++++ b/drivers/i2c/chips/w83l785ts.c	Mon Jan 19 15:27:56 2004
+@@ -27,6 +27,11 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
++#include <linux/config.h>
++#ifdef CONFIG_I2C_DEBUG_CHIP
++#define DEBUG	1
++#endif
++
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
 

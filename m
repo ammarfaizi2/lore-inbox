@@ -1,28 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287793AbSAAKaH>; Tue, 1 Jan 2002 05:30:07 -0500
+	id <S287802AbSAAKbR>; Tue, 1 Jan 2002 05:31:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287795AbSAAK35>; Tue, 1 Jan 2002 05:29:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7699 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287793AbSAAK3z>; Tue, 1 Jan 2002 05:29:55 -0500
+	id <S287801AbSAAKbK>; Tue, 1 Jan 2002 05:31:10 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:14287 "EHLO
+	phalynx") by vger.kernel.org with ESMTP id <S287798AbSAAKax>;
+	Tue, 1 Jan 2002 05:30:53 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Why would a valid DVD show zero files on Linux?
-To: mgedmin@centras.lt (Marius Gedminas)
-Date: Tue, 1 Jan 2002 10:40:44 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011231144826.GA1541@gintaras> from "Marius Gedminas" at Dec 31, 2001 04:48:26 PM
-X-Mailer: ELM [version 2.5 PL6]
+Date: Tue, 1 Jan 2002 02:30:38 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <E16LLuC-00089s-00@the-village.bc.nu>
+In-Reply-To: <E16LLuC-00089s-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16LMLc-0008GQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16LMBq-0007Lw-00@phalynx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Of course, that "other operating system" does not require you to
-> manually mount CD-ROMs at all.
+On January 1, 2002 02:12, Alan Cox wrote:
+> Now you've made the behaviour effectively random which is even worse. On
+> a standard DVD the two file systems are the same. Some copy protected CD's
+> have a UDF file system on them that isnt interesting. Some DVD's have an
+> ISO fs that isnt interesting.
 
-Nor does Linux if you set it up right. Its a case of making proper use of
-existing interfaces and a bit of userspace magic. And all done without the
-student fun of leaving "format/u c:" autostart cd-r's around labelled "porn"
+It seems like it should be up to userspace to first try UDF for DVDs, and 
+first try iso9660 for CDs.
+
+-Ryan

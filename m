@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264468AbUEMTYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264432AbUEMTWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264468AbUEMTYA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 15:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbUEMTXY
+	id S264432AbUEMTWB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 15:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264465AbUEMTTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 15:23:24 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:34275 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S264471AbUEMTPY
+	Thu, 13 May 2004 15:19:46 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:17635 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S264432AbUEMTOM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 15:15:24 -0400
-Date: Thu, 13 May 2004 21:15:19 +0200
+	Thu, 13 May 2004 15:14:12 -0400
+Date: Thu, 13 May 2004 21:14:08 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (5/6): zfcp host adapter.
-Message-ID: <20040513191519.GF2916@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (2/6): common i/o layer.
+Message-ID: <20040513191408.GC2916@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,131 +21,237 @@ User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: zfcp host adapter.
+[PATCH] s390: cio changes.
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-zfcp host adapter change:
- - Prevent infinite retry of SCSI commands when FCP adapter is unavailable.
- - Always queue error recovery structure to the error recovery running list.
- - Add help text to zfcp config option.
+Common i/o layer changes:
+ - Delay unregister/register of ccw devices reappering on a different
+   subchannel. Search for the old ccw_device & subchannel for the
+   reattached device and deregister it too to avoid inconsistencies.
+ - Fix path grouping for devices that present command reject for
+   SetPGID but not for SensePGID.
 
 diffstat:
- drivers/s390/scsi/zfcp_ccw.c |    8 +++++++-
- drivers/s390/scsi/zfcp_erp.c |    5 +++--
- drivers/s390/scsi/zfcp_fsf.c |    4 ++--
- drivers/scsi/Kconfig         |   11 ++++++++++-
- 4 files changed, 22 insertions(+), 6 deletions(-)
+ drivers/s390/cio/css.c         |   23 +++++++---
+ drivers/s390/cio/device.c      |   92 ++++++++++++++++++++++++++++++++++++-----
+ drivers/s390/cio/device_fsm.c  |   11 +++-
+ drivers/s390/cio/device_pgid.c |    4 +
+ 4 files changed, 110 insertions(+), 20 deletions(-)
 
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_ccw.c linux-2.6-s390/drivers/s390/scsi/zfcp_ccw.c
---- linux-2.6/drivers/s390/scsi/zfcp_ccw.c	Mon May 10 04:32:26 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_ccw.c	Thu May 13 21:01:04 2004
-@@ -26,7 +26,7 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
--#define ZFCP_CCW_C_REVISION "$Revision: 1.52 $"
-+#define ZFCP_CCW_C_REVISION "$Revision: 1.54 $"
- 
- #include <linux/init.h>
- #include <linux/module.h>
-@@ -232,14 +232,19 @@
- 	case CIO_GONE:
- 		ZFCP_LOG_NORMAL("adapter %s: device gone\n",
- 				zfcp_get_busid_by_adapter(adapter));
-+		debug_text_event(adapter->erp_dbf,1,"dev_gone");
-+		zfcp_erp_adapter_shutdown(adapter, 0);
- 		break;
- 	case CIO_NO_PATH:
- 		ZFCP_LOG_NORMAL("adapter %s: no path\n",
- 				zfcp_get_busid_by_adapter(adapter));
-+		debug_text_event(adapter->erp_dbf,1,"no_path");
-+		zfcp_erp_adapter_shutdown(adapter, 0);
+diff -urN linux-2.6/drivers/s390/cio/css.c linux-2.6-s390/drivers/s390/cio/css.c
+--- linux-2.6/drivers/s390/cio/css.c	Mon May 10 04:32:01 2004
++++ linux-2.6-s390/drivers/s390/cio/css.c	Thu May 13 21:00:59 2004
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/css.c
+  *  driver for channel subsystem
+- *   $Revision: 1.73 $
++ *   $Revision: 1.74 $
+  *
+  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
+  *			 IBM Corporation
+@@ -218,12 +218,21 @@
+ 		 * We don't notify the driver since we have to throw the device
+ 		 * away in any case.
+ 		 */
+-		device_unregister(&sch->dev);
+-		/* Reset intparm to zeroes. */
+-		sch->schib.pmcw.intparm = 0;
+-		cio_modify(sch);
+-		put_device(&sch->dev);
+-		ret = css_probe_device(irq);
++		if (!disc) {
++			device_unregister(&sch->dev);
++			/* Reset intparm to zeroes. */
++			sch->schib.pmcw.intparm = 0;
++			cio_modify(sch);
++			put_device(&sch->dev);
++			ret = css_probe_device(irq);
++		} else {
++			/*
++			 * We can't immediately deregister the disconnected
++			 * device since it might block.
++			 */
++			device_trigger_reprobe(sch);
++			ret = 0;
++		}
  		break;
  	case CIO_OPER:
- 		ZFCP_LOG_NORMAL("adapter %s: operational again\n",
- 				zfcp_get_busid_by_adapter(adapter));
-+		debug_text_event(adapter->erp_dbf,1,"dev_oper");
- 		zfcp_erp_modify_adapter_status(adapter,
- 					       ZFCP_STATUS_COMMON_RUNNING,
- 					       ZFCP_SET);
-@@ -247,6 +252,7 @@
- 					ZFCP_STATUS_COMMON_ERP_FAILED);
- 		break;
- 	}
-+	zfcp_erp_wait(adapter);
- 	up(&zfcp_data.config_sema);
- 	return 1;
+ 		if (disc)
+diff -urN linux-2.6/drivers/s390/cio/device.c linux-2.6-s390/drivers/s390/cio/device.c
+--- linux-2.6/drivers/s390/cio/device.c	Mon May 10 04:32:54 2004
++++ linux-2.6-s390/drivers/s390/cio/device.c	Thu May 13 21:00:59 2004
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/device.c
+  *  bus driver for ccw devices
+- *   $Revision: 1.115 $
++ *   $Revision: 1.117 $
+  *
+  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
+  *			 IBM Corporation
+@@ -26,6 +26,7 @@
+ #include "cio.h"
+ #include "css.h"
+ #include "device.h"
++#include "ioasm.h"
+ 
+ /******************* bus type handling ***********************/
+ 
+@@ -499,20 +500,93 @@
+ 	return ret;
  }
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_erp.c linux-2.6-s390/drivers/s390/scsi/zfcp_erp.c
---- linux-2.6/drivers/s390/scsi/zfcp_erp.c	Mon May 10 04:32:02 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_erp.c	Thu May 13 21:01:04 2004
-@@ -31,7 +31,7 @@
- #define ZFCP_LOG_AREA			ZFCP_LOG_AREA_ERP
  
- /* this drivers version (do not edit !!! generated and updated by cvs) */
--#define ZFCP_ERP_REVISION "$Revision: 1.51 $"
-+#define ZFCP_ERP_REVISION "$Revision: 1.52 $"
+-void
+-ccw_device_do_unreg_rereg(void *data)
++static struct ccw_device *
++get_disc_ccwdev_by_devno(unsigned int devno, struct ccw_device *sibling)
+ {
++	struct ccw_device *cdev;
++	struct list_head *entry;
+ 	struct device *dev;
  
- #include "zfcp_ext.h"
- 
-@@ -2540,6 +2540,7 @@
- 		atomic_clear_mask(ZFCP_STATUS_ADAPTER_HOST_CON_INIT,
- 				  &adapter->status);
- 		ZFCP_LOG_DEBUG("Doing exchange config data\n");
-+		zfcp_erp_action_to_running(erp_action);
- 		zfcp_erp_timeout_init(erp_action);
- 		if (zfcp_fsf_exchange_config_data(erp_action)) {
- 			retval = ZFCP_ERP_FAILED;
-@@ -2566,7 +2567,7 @@
- 		 * _must_ be the one belonging to the 'exchange config
- 		 * data' request.
- 		 */
--		down_interruptible(&adapter->erp_ready_sem);
-+		down(&adapter->erp_ready_sem);
- 		if (erp_action->status & ZFCP_STATUS_ERP_TIMEDOUT) {
- 			ZFCP_LOG_INFO("error: exchange of configuration data "
- 				      "for adapter %s timed out\n",
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_fsf.c linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c
---- linux-2.6/drivers/s390/scsi/zfcp_fsf.c	Mon May 10 04:32:54 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c	Thu May 13 21:01:04 2004
-@@ -29,7 +29,7 @@
-  */
- 
- /* this drivers version (do not edit !!! generated and updated by cvs) */
--#define ZFCP_FSF_C_REVISION "$Revision: 1.45 $"
-+#define ZFCP_FSF_C_REVISION "$Revision: 1.46 $"
- 
- #include "zfcp_ext.h"
- 
-@@ -412,7 +412,7 @@
- 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
- 		atomic_set_mask(ZFCP_STATUS_ADAPTER_HOST_CON_INIT,
- 				&(adapter->status));
--		debug_text_event(adapter->erp_dbf, 4, "prot_con_init");
-+		debug_text_event(adapter->erp_dbf, 3, "prot_con_init");
- 		break;
- 
- 	case FSF_PROT_DUPLICATE_REQUEST_ID:
-diff -urN linux-2.6/drivers/scsi/Kconfig linux-2.6-s390/drivers/scsi/Kconfig
---- linux-2.6/drivers/scsi/Kconfig	Thu May 13 21:00:43 2004
-+++ linux-2.6-s390/drivers/scsi/Kconfig	Thu May 13 21:01:04 2004
-@@ -1736,8 +1736,17 @@
- #      bool 'Cyberstorm Mk III SCSI support (EXPERIMENTAL)' CONFIG_CYBERSTORMIII_SCSI
- 
- config ZFCP
--	tristate "IBM z900 OpenFCP/SCSI support"
-+	tristate "FCP host bus adapter driver for IBM eServer zSeries"
- 	depends on ARCH_S390 && SCSI
-+	help
-+          If you want to access SCSI devices attached to your IBM eServer
-+          zSeries by means of Fibre Channel interfaces say Y.
-+          For details please refer to the documentation provided by IBM at
-+          <http://oss.software.ibm.com/developerworks/opensource/linux390>
+-	dev = (struct device *)data;
+-	device_remove_files(dev);
+-	device_del(dev);
+-	if (device_add(dev)) {
++	if (!get_bus(&ccw_bus_type))
++		return NULL;
++	down_read(&ccw_bus_type.subsys.rwsem);
++	cdev = NULL;
++	list_for_each(entry, &ccw_bus_type.devices.list) {
++		dev = get_device(container_of(entry,
++					      struct device, bus_list));
++		if (!dev)
++			continue;
++		cdev = to_ccwdev(dev);
++		if ((cdev->private->state == DEV_STATE_DISCONNECTED) &&
++		    (cdev->private->devno == devno) &&
++		    (!strncmp(cdev->dev.bus_id, sibling->dev.bus_id, 4))) {
++			cdev->private->state = DEV_STATE_NOT_OPER;
++			break;
++		}
+ 		put_device(dev);
++		cdev = NULL;
++	}
++	up_read(&ccw_bus_type.subsys.rwsem);
++	put_bus(&ccw_bus_type);
 +
-+          This driver is also available as a module. This module will be
-+          called zfcp. If you want to compile it as a module, say M here
-+          and read Documentation/modules.txt.
++	return cdev;
++}
++
++void
++ccw_device_do_unreg_rereg(void *data)
++{
++	struct ccw_device *cdev;
++	struct subchannel *sch;
++	int need_rename;
++
++	cdev = (struct ccw_device *)data;
++	sch = to_subchannel(cdev->dev.parent);
++	if (cdev->private->devno != sch->schib.pmcw.dev) {
++		/*
++		 * The device number has changed. This is usually only when
++		 * a device has been detached under VM and then re-appeared
++		 * on another subchannel because of a different attachment
++		 * order than before. Ideally, we should should just switch
++		 * subchannels, but unfortunately, this is not possible with
++		 * the current implementation.
++		 * Instead, we search for the old subchannel for this device
++		 * number and deregister so there are no collisions with the
++		 * newly registered ccw_device.
++		 * FIXME: Find another solution so the block layer doesn't
++		 *        get possibly sick...
++		 */
++		struct ccw_device *other_cdev;
++
++		need_rename = 1;
++		other_cdev = get_disc_ccwdev_by_devno(sch->schib.pmcw.dev,
++						      cdev);
++		if (other_cdev) {
++			struct subchannel *other_sch;
++
++			other_sch = to_subchannel(other_cdev->dev.parent);
++			if (get_device(&other_sch->dev)) {
++				stsch(other_sch->irq, &other_sch->schib);
++				if (other_sch->schib.pmcw.dnv) {
++					other_sch->schib.pmcw.intparm = 0;
++					cio_modify(other_sch);
++				}
++				device_unregister(&other_sch->dev);
++			}
++		}
++		cdev->private->devno = sch->schib.pmcw.dev;
++	} else
++		need_rename = 0;
++	device_remove_files(&cdev->dev);
++	device_del(&cdev->dev);
++	if (need_rename)
++		snprintf (cdev->dev.bus_id, BUS_ID_SIZE, "0.0.%04x",
++			  sch->schib.pmcw.dev);
++	if (device_add(&cdev->dev)) {
++		put_device(&cdev->dev);
+ 		return;
+ 	}
+-	if (device_add_files(dev))
+-		device_unregister(dev);
++	if (device_add_files(&cdev->dev))
++		device_unregister(&cdev->dev);
+ }
  
- endmenu
- 
+ static void
+diff -urN linux-2.6/drivers/s390/cio/device_fsm.c linux-2.6-s390/drivers/s390/cio/device_fsm.c
+--- linux-2.6/drivers/s390/cio/device_fsm.c	Mon May 10 04:32:37 2004
++++ linux-2.6-s390/drivers/s390/cio/device_fsm.c	Thu May 13 21:00:59 2004
+@@ -152,14 +152,15 @@
+ 	/*
+ 	 * Check if cu type and device type still match. If
+ 	 * not, it is certainly another device and we have to
+-	 * de- and re-register.
++	 * de- and re-register. Also check here for non-matching devno.
+ 	 */
+ 	if (cdev->id.cu_type != cdev->private->senseid.cu_type ||
+ 	    cdev->id.cu_model != cdev->private->senseid.cu_model ||
+ 	    cdev->id.dev_type != cdev->private->senseid.dev_type ||
+-	    cdev->id.dev_model != cdev->private->senseid.dev_model) {
++	    cdev->id.dev_model != cdev->private->senseid.dev_model ||
++	    cdev->private->devno != sch->schib.pmcw.dev) {
+ 		PREPARE_WORK(&cdev->private->kick_work,
+-			     ccw_device_do_unreg_rereg, (void *)&cdev->dev);
++			     ccw_device_do_unreg_rereg, (void *)cdev);
+ 		queue_work(ccw_device_work, &cdev->private->kick_work);
+ 		return;
+ 	}
+@@ -295,7 +296,7 @@
+ 		sch->driver->notify(&sch->dev, CIO_OPER) : 0;
+ 	if (!ret)
+ 		/* Driver doesn't want device back. */
+-		ccw_device_do_unreg_rereg((void *)&cdev->dev);
++		ccw_device_do_unreg_rereg((void *)cdev);
+ 	else
+ 		wake_up(&cdev->private->wait_q);
+ }
+@@ -476,6 +477,8 @@
+ {
+ 	cdev->private->flags.doverify = 0;
+ 	switch (err) {
++	case -EOPNOTSUPP: /* path grouping not supported, just set online. */
++		cdev->private->options.pgroup = 0;
+ 	case 0:
+ 		ccw_device_done(cdev, DEV_STATE_ONLINE);
+ 		break;
+diff -urN linux-2.6/drivers/s390/cio/device_pgid.c linux-2.6-s390/drivers/s390/cio/device_pgid.c
+--- linux-2.6/drivers/s390/cio/device_pgid.c	Mon May 10 04:32:38 2004
++++ linux-2.6-s390/drivers/s390/cio/device_pgid.c	Thu May 13 21:00:59 2004
+@@ -338,6 +338,10 @@
+ 		 * One of those strange devices which claim to be able
+ 		 * to do multipathing but not for Set Path Group ID.
+ 		 */
++		if (cdev->private->flags.pgid_single) {
++			ccw_device_verify_done(cdev, -EOPNOTSUPP);
++			break;
++		}
+ 		cdev->private->flags.pgid_single = 1;
+ 		/* fall through. */
+ 	case -EAGAIN:		/* Try again. */

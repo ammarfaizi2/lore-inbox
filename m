@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132070AbQLLQsF>; Tue, 12 Dec 2000 11:48:05 -0500
+	id <S132125AbQLLQzp>; Tue, 12 Dec 2000 11:55:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132125AbQLLQr4>; Tue, 12 Dec 2000 11:47:56 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:64264 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S132070AbQLLQro> convert rfc822-to-8bit; Tue, 12 Dec 2000 11:47:44 -0500
-Date: Tue, 12 Dec 2000 16:16:52 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-To: Frédéric L . W . Meunier 
-	<0@pervalidus.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ide-pci.c: typo
-In-Reply-To: <20001211225133.D1245@pervalidus>
-Message-ID: <Pine.LNX.4.10.10012121615090.26120-100000@sphinx.mythic-beasts.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S132160AbQLLQz0>; Tue, 12 Dec 2000 11:55:26 -0500
+Received: from finch-post-12.mail.demon.net ([194.217.242.41]:47627 "EHLO
+	finch-post-12.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S132125AbQLLQzT>; Tue, 12 Dec 2000 11:55:19 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Nick.Holloway@pyrites.org.uk (Nick Holloway)
+Newsgroups: list.linux-kernel
+Subject: Re: [PATCH] generic_serial's block_til_ready
+Date: 12 Dec 2000 16:24:48 -0000
+Organization: Alfie's Internet Node
+Message-ID: <915jgg$pbb$1@alfie.demon.co.uk>
+In-Reply-To: <Pine.LNX.4.21.0012121643100.27903-100000@panoramix.bitwizard.nl>
+X-Newsreader: NN version 6.5.0 CURRENT #119
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2000, Frédéric L . W . Meunier wrote:
+patrick@bitwizard.nl (Patrick van de Lageweg) writes:
+> This patch renames the block_til_ready of generic serial to
+> gs_block_til_ready. 
+> 
+> it helps when other modules have a "static block_til_ready" defined when
+> used older modutils.
 
-> > I disagree with the patch. The bug is in printk
->
-> No problem. So, it's a bug report instead. I have no clues, and just
-> thought it'd be a fix :)
->
-> Not sure if 2.2.17 reported the double %% from syslog. I usually look
-> at my dmesg.
+Do you mean older than the version specified as being required in
+Documention/CHANGES?
 
-If it matters, I have vague recollections that the double %%
-was added to prevent klogd from segfaulting.  Since everyone
-has fixed their klogd's because that bug was actually (probably)
-an exploitable security hole, all should be well, right?
+If so, then I'm not surprised the patch has not been applied (how many
+times have you sent it?).
 
-Matthew.
-
+-- 
+ `O O'  | Nick.Holloway@pyrites.org.uk
+// ^ \\ | http://www.pyrites.org.uk/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

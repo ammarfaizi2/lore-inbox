@@ -1,69 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266261AbUA2AcO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 19:32:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266262AbUA2AcO
+	id S266264AbUA2AeX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 19:34:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266268AbUA2AeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 19:32:14 -0500
-Received: from dp.samba.org ([66.70.73.150]:15491 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266261AbUA2AcM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 19:32:12 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, torvalds@osdl.org,
-       stern@rowland.harvard.edu, greg@kroah.com, linux-kernel@vger.kernel.org,
-       mochel@digitalimplant.org
-Subject: Re: PATCH: (as177) Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core 
-In-reply-to: Your message of "Wed, 28 Jan 2004 03:36:03 BST."
-             <Pine.LNX.4.58.0401280304180.7851@serv> 
-Date: Wed, 28 Jan 2004 14:54:21 +1100
-Message-Id: <20040129003227.2522C2C254@lists.samba.org>
+	Wed, 28 Jan 2004 19:34:23 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32244 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266264AbUA2AeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 19:34:17 -0500
+Date: Thu, 29 Jan 2004 01:34:12 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Olaf Hering <olh@suse.de>, B.Zolnierkiewicz@elka.pw.edu.pl
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: 2.6.2-rc2-mm1
+Message-ID: <20040129003412.GQ3004@fs.tum.de>
+References: <20040127233402.6f5d3497.akpm@osdl.org> <20040128200408.GA23896@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040128200408.GA23896@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.58.0401280304180.7851@serv> you write:
-> Hi Rusty,
+On Wed, Jan 28, 2004 at 09:04:08PM +0100, Olaf Hering wrote:
 > 
-> On Wed, 28 Jan 2004, Rusty Russell wrote:
+> Here is a patch to fix compilation on ppc32.
+>...
+> The ide object files can be found in a subdirectory.
 > 
-> > > Fixing this requires changing every single module, but in the end it
-> > > would be worth it, as it avoids the duplicated protection and we had
-> > > decent module unload semantics.
-> >
-> > And I still disagree. <shrug>
 > 
-> And I still don't know why. :(
+> diff -p -purN linux-2.6.2-rc2-mm1.orig/drivers/ide/Makefile linux-2.6.2-rc2-mm1/drivers/ide/Makefile
+> --- linux-2.6.2-rc2-mm1.orig/drivers/ide/Makefile	2004-01-28 19:30:54.000000000 +0000
+> +++ linux-2.6.2-rc2-mm1/drivers/ide/Makefile	2004-01-28 19:55:41.000000000 +0000
+> @@ -34,9 +34,9 @@ ide-core-$(CONFIG_BLK_DEV_MAC_IDE)	+= ma
+>  ide-core-$(CONFIG_BLK_DEV_Q40IDE)	+= q40ide.o
+>  
+>  # built-in only drivers from ppc/
+> -ide-core-$(CONFIG_BLK_DEV_MPC8xx_IDE)	+= mpc8xx.o
+> -ide-core-$(CONFIG_BLK_DEV_IDE_PMAC)	+= pmac.o
+> -ide-core-$(CONFIG_BLK_DEV_IDE_SWARM)	+= swarm.o
+> +ide-core-$(CONFIG_BLK_DEV_MPC8xx_IDE)	+= ppc/mpc8xx.o
+> +ide-core-$(CONFIG_BLK_DEV_IDE_PMAC)	+= ppc/pmac.o
+> +ide-core-$(CONFIG_BLK_DEV_IDE_SWARM)	+= ppc/swarm.o
+>  
+>  obj-$(CONFIG_BLK_DEV_IDE)		+= ide-core.o
+>  obj-$(CONFIG_IDE_GENERIC)		+= ide-generic.o
+>...
 
-Exactly.  So we have this same conversation over and over.  It's the
-single most frustrating experience I've ever had in kernel
-development. 8( I was very disappointed you didn't make it to the
-kernel summit.
 
-> Well, the problem is that this won't be an one man show, it requires that
-> a number of kernel hackers understand the problem and the possible
-> solutions are discussed beforehand. I can understand that a lot here are
-> scared of such big change, but either we either continue complaining about
-> module unloading or we do something about it and this requires exploring
-> the various possibilities.
+This was fixed in ide-legacy-build-fix.patch up to 2.6.2-rc1-mm2, which 
+was dropped as "merged" in 2.6.2-rc1-mm3.
 
-Even if the perfect scheme were achieved, I don't think Linus would
-accept changing every module.  I was originally agitating for a
-"perfect" solution, so few of us cared.
+The same is needed for legacy/, and a complete patch for 
+drivers/ide/Makefile is below.
 
-Linus has said it simply isn't important.  Many kernel developers
-basically agree.
+cu
+Adrian
 
-> Rusty, you are the modules maintainer, you are supposed to understand
-> these issues, if you already block a discussion like that, what am I
-> supposed to expect from others?
-
-I'm sorry.  I tried to stay out of these discussions (hey maybe
-someone will come up with a great solution!), but when Linus posted
-something which was basically incorrect, I felt I had to clear the
-record.
-
-For me, this issue long ago used up its timeslice.
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--- linux-2.6.2-rc2-mm1/drivers/ide/Makefile.old	2004-01-29 01:30:27.000000000 +0100
++++ linux-2.6.2-rc2-mm1/drivers/ide/Makefile	2004-01-29 01:31:09.000000000 +0100
+@@ -26,17 +26,17 @@
+ ide-core-$(CONFIG_BLK_DEV_IDEPNP)	+= ide-pnp.o
+ 
+ # built-in only drivers from legacy/
+-ide-core-$(CONFIG_BLK_DEV_IDE_PC9800)	+= pc9800.o
+-ide-core-$(CONFIG_BLK_DEV_BUDDHA)	+= buddha.o
+-ide-core-$(CONFIG_BLK_DEV_FALCON_IDE)	+= falconide.o
+-ide-core-$(CONFIG_BLK_DEV_GAYLE)	+= gayle.o
+-ide-core-$(CONFIG_BLK_DEV_MAC_IDE)	+= macide.o
+-ide-core-$(CONFIG_BLK_DEV_Q40IDE)	+= q40ide.o
++ide-core-$(CONFIG_BLK_DEV_IDE_PC9800)	+= legacy/pc9800.o
++ide-core-$(CONFIG_BLK_DEV_BUDDHA)	+= legacy/buddha.o
++ide-core-$(CONFIG_BLK_DEV_FALCON_IDE)	+= legacy/falconide.o
++ide-core-$(CONFIG_BLK_DEV_GAYLE)	+= legacy/gayle.o
++ide-core-$(CONFIG_BLK_DEV_MAC_IDE)	+= legacy/macide.o
++ide-core-$(CONFIG_BLK_DEV_Q40IDE)	+= legacy/q40ide.o
+ 
+ # built-in only drivers from ppc/
+-ide-core-$(CONFIG_BLK_DEV_MPC8xx_IDE)	+= mpc8xx.o
+-ide-core-$(CONFIG_BLK_DEV_IDE_PMAC)	+= pmac.o
+-ide-core-$(CONFIG_BLK_DEV_IDE_SWARM)	+= swarm.o
++ide-core-$(CONFIG_BLK_DEV_MPC8xx_IDE)	+= ppc/mpc8xx.o
++ide-core-$(CONFIG_BLK_DEV_IDE_PMAC)	+= ppc/pmac.o
++ide-core-$(CONFIG_BLK_DEV_IDE_SWARM)	+= ppc/swarm.o
+ 
+ obj-$(CONFIG_BLK_DEV_IDE)		+= ide-core.o
+ obj-$(CONFIG_IDE_GENERIC)		+= ide-generic.o

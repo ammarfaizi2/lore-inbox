@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290694AbSARNuR>; Fri, 18 Jan 2002 08:50:17 -0500
+	id <S290701AbSAROJB>; Fri, 18 Jan 2002 09:09:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290695AbSARNuH>; Fri, 18 Jan 2002 08:50:07 -0500
-Received: from ns1.system-techniques.com ([199.33.245.254]:39562 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S290694AbSARNtv>; Fri, 18 Jan 2002 08:49:51 -0500
-Date: Fri, 18 Jan 2002 08:48:55 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Sebastian Heidl <heidl@zib.de>
-cc: Ram Shankar <kramsn@yahoo.com>, <linux-kernel@vger.kernel.org>
+	id <S290702AbSAROIw>; Fri, 18 Jan 2002 09:08:52 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:30936 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S290701AbSAROIf>; Fri, 18 Jan 2002 09:08:35 -0500
+To: Ram Shankar <kramsn@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: LINUX IP Stack
-In-Reply-To: <20020118134031.GH27177@csr-pc1.zib.de>
-Message-ID: <Pine.LNX.4.44.0201180847080.18867-100000@filesrv1.baby-dragons.com>
+In-Reply-To: <20020118131854.44722.qmail@web14604.mail.yahoo.com>
+From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Date: 18 Jan 2002 15:08:17 +0100
+In-Reply-To: <20020118131854.44722.qmail@web14604.mail.yahoo.com>
+Message-ID: <87k7ufrbu6.fsf@tigram.bogus.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ram Shankar <kramsn@yahoo.com> writes:
 
-	Hello Sebastian ,  Yes they sure did & the project is over .
-	http://www.cl.cam.ac.uk/Research/SRG/netos/  Doesn't say
-	when the project finished or if there is any ongoing status .
-		Hth ,  JimL
+> We are interested in moving the IP stack into the
+> application area. i.e. It should link with our
+> application and use the devices (like /dev/eth0) for
+> the layer 2 interface.
+[...]
+> 3. Is there any other free implementation of IP stack,
+> which would be better suited for this purpose?
 
-On Fri, 18 Jan 2002, Sebastian Heidl wrote:
+I don't know, wether these meet your requirements, but Google
+lists several:
 
-> On Fri, Jan 18, 2002 at 05:18:54AM -0800, Ram Shankar wrote:
-> > We are interested in moving the IP stack into the
-> > application area. i.e. It should link with our
-> > application and use the devices (like /dev/eth0) for
-> > the layer 2 interface.
-> Have a look at the arsenic project:
-> http://www.cl.cam.ac.uk/Research/SRG/netos/arsenic/
->
-> They've already done it. ;-)
->
-> regards,
-> _sh_
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+<http://www.cs.nwu.edu/~pdinda/minet/minet.html>
+<http://www.joerch.org/tcpip/>
+<http://freshmeat.net/projects/libutcp/>
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
-
+Regards, Olaf.

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261795AbSJIPBd>; Wed, 9 Oct 2002 11:01:33 -0400
+	id <S261787AbSJIPFM>; Wed, 9 Oct 2002 11:05:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261796AbSJIPBd>; Wed, 9 Oct 2002 11:01:33 -0400
-Received: from quark.didntduck.org ([216.43.55.190]:65292 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S261795AbSJIPBc>; Wed, 9 Oct 2002 11:01:32 -0400
-Message-ID: <3DA44603.2000708@didntduck.org>
-Date: Wed, 09 Oct 2002 11:06:43 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261788AbSJIPFM>; Wed, 9 Oct 2002 11:05:12 -0400
+Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:31367 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S261787AbSJIPFL> convert rfc822-to-8bit;
+	Wed, 9 Oct 2002 11:05:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: softdog doesn't work on 2.4.20-pre10?
+Date: Wed, 9 Oct 2002 17:12:10 +0200
+User-Agent: KMail/1.4.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200210091607.32769.roy@karlsbakk.net> <1034174409.1970.37.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1034174409.1970.37.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: "J.A. Magallon" <jamagallon@able.es>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Writable global section?
-References: <Pine.LNX.3.95.1021009103521.3016B-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210091712.10987.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> I would like to be able to write to that variable and have it seen
-> by other tasks, since shared memory is shared memory. It's a shame
-> to mmap a shared library upon startup and then have to mmap some
-> additional shared memory for some inter-process communication.
+> > hi
+> >
+> > I have the softdog running on some of my machines, and I noticed it
+> > didn't work very well. I've got this little program feeding the dog
+> > (attached), so if it gets killed, the machine should reboot.
+>
+> Make sure you have no way out set
 
-There are only two ways to share memory between processes:
-- SYSV shared memory
-- using clone() to share the VM.
+ok. works with no way out, but still...
 
-Shared libraries != shared memory.  Each mapping of a shared library is 
-copy-on-write.  The purpose of shared libraries is to save memory, not 
-for IPC.
+When I killed 'feedthedog', I sent it a SIGKILL, so it couldn't have shut down 
+the softdog properly.
 
---
-				Brian Gerst
+roy
 
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129754AbRBMD0Y>; Mon, 12 Feb 2001 22:26:24 -0500
+	id <S129356AbRBMDr0>; Mon, 12 Feb 2001 22:47:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129184AbRBMD0O>; Mon, 12 Feb 2001 22:26:14 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:26498 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S129731AbRBMDZ7>;
-	Mon, 12 Feb 2001 22:25:59 -0500
-Date: Tue, 13 Feb 2001 04:25:21 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: xcp <xcp@ogel.aura.li>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/pci and cpuinfo
-Message-ID: <20010213042521.A27301@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.31.0102121844430.7164-100000@ogel.aura.li>
-Mime-Version: 1.0
+	id <S129492AbRBMDrF>; Mon, 12 Feb 2001 22:47:05 -0500
+Received: from smtp-out2.bellatlantic.net ([199.45.40.144]:8166 "EHLO
+	smtp-out2.bellatlantic.net") by vger.kernel.org with ESMTP
+	id <S129356AbRBMDqx>; Mon, 12 Feb 2001 22:46:53 -0500
+Message-ID: <3A88AE26.BA69E57A@cdi.com>
+Date: Mon, 12 Feb 2001 22:46:46 -0500
+From: "Rafael E. Herrera" <raffo@cdi.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
+In-Reply-To: <20010201183231.A373@tuxia.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.31.0102121844430.7164-100000@ogel.aura.li>; from xcp@ogel.aura.li on Mon, Feb 12, 2001 at 06:49:13PM -0800
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 12, 2001 at 06:49:13PM -0800, xcp wrote:
-> I have a machine here with a discrepency on the pci information
-> in /proc/pci:
-> us  0, device  20, function  0:
->     Ethernet controller: 3Com Unknown device (rev 48).
->       Vendor id=10b7. Device id=7646.
->       Medium devsel.  IRQ 12.  Master Capable.  Latency=32.  Min
-> Gnt=10.Max Lat=10.
->       I/O at 0xe400 [0xe401].
->       Non-prefetchable 32 bit memory at 0xdf000000 [0xdf000000].
-> 
-> from lspci:
-> 00:14.0 Ethernet controller: 3Com Corporation 3cSOHO100-TX Hurricane (rev
-> 30)
-> 
-> clearly /proc/pci is wrong!
+I've seen in recently purchased computers that the very initial
+messages, like memory test, are masked by some kind of picture or logo
+(example are the HP kayaks). They display a message saying that pressing
+ESC or some function key displays the messages. Why not having the same
+in this pretty boot option. I wouldn't mind not seeing all those
+messages.
 
-Exactly where? bus 0, device 20, function 0 == hex(00:14.0)
-Revision 48 = hex(30)
-
-And both says that it's an Ethernet controller from 3Com. The fact that
-the PCI-ID database in v2.2.18 isn't quite as extensive as the one in
-lspci isn't something that makes your system malfunction...
-
-> kernel is 2.2.18 on a P3-450 256mb.
-> 
-> Also, where does Linux detect and document the L2 or L1 cache size on a
-> socket7 system?  On the pentium3 its in cpuinfo as cache_size, no such
-> value exists on my P120 system.
-
-That's probably because there is no simple way to query the processor for
-this information. I'll let Peter Anvin answer this one, however.
-
-
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+-- 
+     Rafael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131158AbQKGLLk>; Tue, 7 Nov 2000 06:11:40 -0500
+	id <S131199AbQKGLOL>; Tue, 7 Nov 2000 06:14:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131213AbQKGLLa>; Tue, 7 Nov 2000 06:11:30 -0500
-Received: from vill.ha.smisk.nu ([212.75.83.8]:519 "HELO mail.smisk.nu")
-	by vger.kernel.org with SMTP id <S131158AbQKGLLV>;
-	Tue, 7 Nov 2000 06:11:21 -0500
-Message-ID: <009001c048ab$7d1a7fb0$020a0a0a@totalmef>
-From: "Magnus Naeslund\(b\)" <mag@bahnhof.se>
-To: "Matthew Sanderson" <matthew@DaMOO.csun.edu>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1001106235858.875A-100000@DaMOO.csun.edu>
-Subject: Re: 2.2.17: do_try_to_free_pages fails, no OOM
-Date: Tue, 7 Nov 2000 12:11:34 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S131216AbQKGLOC>; Tue, 7 Nov 2000 06:14:02 -0500
+Received: from madjfppp.jazztel.es ([212.106.228.133]:20096 "EHLO looping.es")
+	by vger.kernel.org with ESMTP id <S131199AbQKGLNn>;
+	Tue, 7 Nov 2000 06:13:43 -0500
+Date: Tue, 7 Nov 2000 11:22:37 +0100
+From: Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>
+To: warp@whitestar.soark.net
+Cc: Ragnar Hojland Espinosa <ragnar@jazzfree.com>,
+        linux-kernel@vger.kernel.org, "M.H.VanLeeuwen" <vanl@megsinet.net>,
+        "CRADOCK, Christopher" <cradockc@oup.co.uk>
+Subject: Re: Linux-2.4.0-test10
+Message-ID: <20001107112237.A876@macula.net>
+In-Reply-To: <A528EB7F25A2D111838100A0C9A6E5EF068A1DBC@exc01.oup.co.uk> <3A00B8E9.D5FD12B0@megsinet.net> <20001102185706.A984@macula.net> <20001102193856.A1204@macula.net> <20001103012510.A22193@whitestar.soark.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <20001103012510.A22193@whitestar.soark.net>; from kernel@whitestar.soark.net on Fri, Nov 03, 2000 at 01:25:10AM -0500
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://maculaisdeadsoimmovingit/lightside
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Matthew Sanderson" <matthew@DaMOO.csun.edu>
-> I'm running 2.2.17 vanilla on a UP x86 box, and getting occasionally a
-> couple of 'VM: do_try_to_free_pages failed' messages.
-> The system appears to be running perfectly. It's almost out of real RAM,
-> but has about 100M swap unused.
->
-> I can't figure out how this happens. Specifically, how come the call to
-> swap_out in do_try_to_free_pages didn't swap something out, return true,
-> and avoid that message being printed?
-> kswapd is not acting up in any way; the system doesn't appear to be OOM.
->
-> If this isn't a bug then can we remove this printk'd message?
-> If it does seem to be a bug and someone'll give me a crash course on this
-> area of the VM I'll investigate further. I notice do_try_to_free_pages can
-> be called either from kswapd, or under what look like memory-pressure
-> conditions elsewhere.
->
-> I'm not on lkml, so please cc me on any replies.
->
-> --matt
->
+On Fri, Nov 03, 2000 at 01:25:10AM -0500, kernel@whitestar.soark.net wrote:
+> > Just happened with test10, same circumstances .. font map got corrupted, and
+> > noise on the screen.  Switching back and forth from X to a vc fixed it, tho. 
+> > 
+> > Sort of amusing that it (apparently) only happens with ppp + wget ..
+> 
+> You have a voodoo3 or voodoo5 with X4, and the DRI X4 module loaded.
+> 
+> Or am I wrong?
 
-I have this problem with one of my servers with kernel 2.2.16, and then
-postgresql freaked out saying something like "AllocSet: memory exhausted".
-I changed to 2.2.17, and the messages stopped turning up in the logs, but
-pgsql still failes sometimes.
-I have to restart the daemon completely to get it working again.
-I dunno if there's something wrong with pgsql's memory/shared mem
-management, or if it's the kernels fault.
-(On 2.0.38 pgsql(different version tho) + box has a 700 day uptime)
+v3.. bingo :)
 
-Example log (2.2.16):
-Oct 24 00:01:34 gimme kernel: VM: do_try_to_free_pages failed for
-postmaster...
-Oct 24 00:01:34 gimme kernel: VM: do_try_to_free_pages failed for klogd...
-Oct 24 00:01:34 gimme kernel: VM: do_try_to_free_pages failed for caspd...
-Oct 24 00:07:39 gimme kernel: VM: do_try_to_free_pages failed for
-postmaster...
+-- 
+____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
+\ o.O|                                                   2F0D27DE025BE2302C
+ =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
+   U     chaos and madness await thee at its end."       hkp://keys.pgp.com
 
-Magnus Naeslund
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
- Programmer/Networker [|] Magnus Naeslund
- PGP Key: http://www.genline.nu/mag_pgp.txt
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-
+Handle via comment channels only.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,81 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275290AbTHGMJk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 08:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275249AbTHGMJk
+	id S275291AbTHGMNp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 08:13:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275294AbTHGMNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 08:09:40 -0400
-Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:13440 "HELO
-	longlandclan.hopto.org") by vger.kernel.org with SMTP
-	id S275290AbTHGMJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 08:09:36 -0400
-Message-ID: <3F32417D.3090000@longlandclan.hopto.org>
-Date: Thu, 07 Aug 2003 22:09:33 +1000
-From: Stuart Longland <stuartl@longlandclan.hopto.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Lernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Problems with Yamaha opl3sa2 under 2.4.20 and ongoing PCMCIA & USB
- problems on 2.6.0-test2
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Aug 2003 08:13:45 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:48258 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S275291AbTHGMNl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 08:13:41 -0400
+Subject: Re: [RFC] new feattures to improve linux interrupt response
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Takeharu KATO <tkato@cs.fujitsu.co.jp>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@lists.linuxppc.org
+In-Reply-To: <3F322919.AFFC7B6F@cs.fujitsu.co.jp>
+References: <3F322919.AFFC7B6F@cs.fujitsu.co.jp>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Organization: 
+Message-Id: <1060258189.3168.34.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Aug 2003 13:09:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Iau, 2003-08-07 at 11:25, Takeharu KATO wrote:
+> 	a)　Quick interruption handling facility for embedded systems
+> 		We are designing and implementing quick interrupt handling facility 
+> 		for embedded systems. This is achieved by accepting some 
+> 		interrupts(these are pre-defined in kernel configuration.) in current 
+> 		Linux kernel's critical sections. 
+> 		
+> 		We will modify local_irq_disable/local_irq_enable macros
+> 		to keep interrupt masks of some interrupts which need to handle quickly
+> 		un-masked in most of kernel critical sections.
 
-Hi,
-	I've recently set up Linux 2.6.0-test2 on my laptop (Toshiba Protege
-7010CT) which is running Slackware 9.0.  I've also set up the default
-Slackware kernel so that I can run both kernels concurrently.
+Thats something you can do in board specific/platform specific code and
+it does seem to work. I had hacks at one point doing this for the serial
+port on the Macintosh II.
 
-	So far, I've had minor problems with 2.4.20, but some even worse
-problems with 2.6.0-test2.
-
-Under 2.4.20:
-	Everything works flawlessly, except the sound card (Yamaha OPL3-SAx)
-refuses to work, the opl3sa2 driver does not recognise the card.
-
-Under 2.6.0-test2:
-	- Most things work nicely, even runs faster.
-	- MySQL refuses to start (already noted on this list)
-	- PCMCIA locks hard when adding and removing PCMCIA cards, even if I
-run 'cardctl eject' first.
-	- My combo network card & modem "Xircom RealPort Ethernet 10/100+Modem
-56" only partially works.  Network works if I load 8250_cs, but
-otherwise, the pcmcia-cs utilities try loading serial_cs.
-	- My USB 2.0 hard drive box (aka IDE-TO-USB) does not function.  It
-detects it, and automatically loads usb_storage, but I get an error
-message saying the device was not found.
-
-At the moment, I'm willing to stick with Linux 2.4.x, eventually I'll
-upgrade to 2.4.21 or 22, depending on which is out, if I can get the
-soundcard to detect.  However, I think getting Linux 2.6 fixed would be
-the better option.
-
-Is there something I might have missed in the kernel setup, or the
-configuration of pcmcia-cs that needs to be changed?
-
-Is it possible to, say, backport the opl3sa2 driver to Linux 2.4.2x?
-
-Thanks,
-- --
-+-------------------------------------------------------------+
-| Stuart Longland           stuartl at longlandclan.hopto.org |
-| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
-| I haven't lost my mind - it's backed up on a tape somewhere |
-| Griffith Student No:           Course: Bachelor/IT (Nathan) |
-+-------------------------------------------------------------+
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/MkF9IGJk7gLSDPcRAis6AJ0UJHHsrPdfISdd7LOpoj7iBN5E1QCdFcI2
-ePJsTVcWFmU8DUg0Fe5Q0n8=
-=CEuf
------END PGP SIGNATURE-----
 

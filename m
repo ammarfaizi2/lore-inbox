@@ -1,79 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272636AbTHEKyv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 06:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272644AbTHEKyv
+	id S272647AbTHEKve (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 06:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272648AbTHEKve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 06:54:51 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:63727 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S272636AbTHEKyt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 06:54:49 -0400
+	Tue, 5 Aug 2003 06:51:34 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:21406
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272647AbTHEKvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 06:51:31 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <piggin@cyberone.com.au>
 Subject: Re: [PATCH] O13int for interactivity
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+Date: Tue, 5 Aug 2003 20:56:38 +1000
+User-Agent: KMail/1.5.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
        Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <200308052045.39476.kernel@kolivas.org>
-References: <200308050207.18096.kernel@kolivas.org>
-	 <200308052022.01377.kernel@kolivas.org> <3F2F87DA.7040103@cyberone.com.au>
-	 <200308052045.39476.kernel@kolivas.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Y9amqA3uaIo6D43aIGmp"
-Organization: Red Hat, Inc.
-Message-Id: <1060080867.5308.2.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 05 Aug 2003 12:54:27 +0200
+References: <200308050207.18096.kernel@kolivas.org> <200308052045.39476.kernel@kolivas.org> <3F2F8B77.4020107@cyberone.com.au>
+In-Reply-To: <3F2F8B77.4020107@cyberone.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308052056.38861.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 5 Aug 2003 20:48, Nick Piggin wrote:
+> Con Kolivas wrote:
+> >On Tue, 5 Aug 2003 20:32, Nick Piggin wrote:
+> >>What you are doing is restricting some range so it can adapt more quickly
+> >>right? So you still have the problem in the cases where you are not
+> >>restricting this range.
+> >
+> >Avoiding it becoming interactive in the first place is the answer.
+> > Anything more rapid and X dies dead as soon as you start moving a window
+> > for example, and new apps are seen as cpu hogs during startup and will
+> > take _forever_ to start under load. It's a tricky juggling act and I keep
+> > throwing more balls at it.
+>
+> Well, what if you give less boost for sleeping?
 
---=-Y9amqA3uaIo6D43aIGmp
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Then it takes longer to become interactive. Take 2.6.0-test2 vanilla - audio 
+apps can take up to a minute to be seen as fully interactive; whether this is 
+a problem for your hardware or not is another matter but clearly they are 
+interactive using <1% cpu time on the whole.
 
-On Tue, 2003-08-05 at 12:45, Con Kolivas wrote:
-> On Tue, 5 Aug 2003 20:32, Nick Piggin wrote:
-> > What you are doing is restricting some range so it can adapt more quick=
-ly
-> > right? So you still have the problem in the cases where you are not
-> > restricting this range.
->=20
-> Avoiding it becoming interactive in the first place is the answer. Anythi=
-ng=20
-> more rapid and X dies dead as soon as you start moving a window for examp=
-le,=20
-> and new apps are seen as cpu hogs during startup and will take _forever_ =
-to=20
-> start under load. It's a tricky juggling act and I keep throwing more bal=
-ls=20
-> at it.
+Con
 
-generally that's a sign that the approach might not be the best one.
-
-Lets face it: we're trying to estimate behavior here. Result: There
-ALWAYS will be mistakes in that estimator. The more complex the
-estimator the fewer such cases you will have, but the more mis-estimated
-such cases will be.
-The only way to really deal with estimators is to *ALSO* make the price
-you pay on mis-estimation acceptable. For the scheduler that most likely
-means that you can't punish as hard as we do now, nor give bonuses as
-much as we do now.
-
-
---=-Y9amqA3uaIo6D43aIGmp
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/L4zjxULwo51rQBIRAnbzAJ9nHWeHAVeR6VKKI8xtLMPx1oteAgCgpjWO
-N+iFz8R8F7gOTSRyC5MNWx8=
-=JUuK
------END PGP SIGNATURE-----
-
---=-Y9amqA3uaIo6D43aIGmp--

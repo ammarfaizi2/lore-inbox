@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266532AbUA3BqN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 20:46:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266525AbUA3BoU
+	id S266513AbUA3Bgv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 20:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUA3Bg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 20:44:20 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:20460 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S266532AbUA3BhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 20:37:01 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Date: Fri, 30 Jan 2004 12:36:16 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16409.46352.877421.233677@notabene.cse.unsw.edu.au>
-Cc: hanasaki <hanasaki@hanaden.com>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [NFS] NFS rpc and stale handles on 2.6.x servers
-In-Reply-To: message from Mike Fedyk on Thursday January 29
-References: <4014675D.2040405@hanaden.com>
-	<16409.43367.545322.356713@notabene.cse.unsw.edu.au>
-	<20040130012534.GE2445@srv-lnx2600.matchmail.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Thu, 29 Jan 2004 20:36:28 -0500
+Received: from mail.kroah.org ([65.200.24.183]:11996 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266513AbUA3BcF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 20:32:05 -0500
+Subject: Re: [PATCH] PCI Update for 2.6.2-rc2
+In-Reply-To: <10754263054147@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 29 Jan 2004 17:31:46 -0800
+Message-Id: <1075426306325@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday January 29, mfedyk@matchmail.com wrote:
-> On Fri, Jan 30, 2004 at 11:46:31AM +1100, Neil Brown wrote:
-> > On Sunday January 25, hanasaki@hanaden.com wrote:
-> > > The below is being reported, on and off, when hitting nfs-kernel-servers
-> > > running on 2.6.0 and 2.6.1  Could someone tell me if this is smoe bug or
-> > > what?  Thanks
-> > > 	RPC request reserved 0 but used 124
-> > > 
-> > > Debian sarge
-> > > nfs-kernel-server
-> > > am-untils
-> > > nfsv3 over tcp
-> > > 
-> > 
-> > stale file handles is a known bug that is fixed in the but BK and will
-> > be in 2.6.3.
-> 
-> do you mean 2.6.2?
+ChangeSet 1.1510, 2004/01/29 14:26:28-08:00, eike-hotplug@sf-tec.de
 
-Yeh, 2.6.2 as well.. But definitely 2.6.3 :-)
+[PATCH] PCI Hotplug: Fixup pcihp_skeleton.c
 
-> 
-> I've merged the nfsd stale file handles into 2.6.1-bk2 and it is working
-> fine on a nfs server here...
+The functions are not named *_skel_*, so it seems useful not to call them with
+this.
 
-good, thanks.
-NeilBrown
+
+ drivers/pci/hotplug/pcihp_skeleton.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/drivers/pci/hotplug/pcihp_skeleton.c b/drivers/pci/hotplug/pcihp_skeleton.c
+--- a/drivers/pci/hotplug/pcihp_skeleton.c	Thu Jan 29 17:24:44 2004
++++ b/drivers/pci/hotplug/pcihp_skeleton.c	Thu Jan 29 17:24:44 2004
+@@ -370,10 +370,10 @@
+ 		 * Initilize the slot info structure with some known
+ 		 * good values.
+ 		 */
+-		info->power_status = get_skel_power_status(slot);
+-		info->attention_status = get_skel_attention_status(slot);
+-		info->latch_status = get_skel_latch_status(slot);
+-		info->adapter_status = get_skel_adapter_status(slot);
++		info->power_status = get_power_status(slot);
++		info->attention_status = get_attention_status(slot);
++		info->latch_status = get_latch_status(slot);
++		info->adapter_status = get_adapter_status(slot);
+ 		
+ 		dbg ("registering slot %d\n", i);
+ 		retval = pci_hp_register (slot->hotplug_slot);
+

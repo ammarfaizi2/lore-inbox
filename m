@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316509AbSEOWb4>; Wed, 15 May 2002 18:31:56 -0400
+	id <S316510AbSEOWjV>; Wed, 15 May 2002 18:39:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316510AbSEOWbz>; Wed, 15 May 2002 18:31:55 -0400
-Received: from waste.org ([209.173.204.2]:51340 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S316509AbSEOWbx>;
-	Wed, 15 May 2002 18:31:53 -0400
-Date: Wed, 15 May 2002 17:31:31 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: "chen, xiangping" <chen_xiangping@emc.com>
-cc: "'Jes Sorensen'" <jes@wildopensource.com>,
-        "'Steve Whitehouse'" <Steve@ChyGwyn.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel deadlock using nbd over acenic driver.
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A52@srgraham.eng.emc.com>
-Message-ID: <Pine.LNX.4.44.0205151723390.24102-100000@waste.org>
+	id <S316511AbSEOWjV>; Wed, 15 May 2002 18:39:21 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:61701 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S316510AbSEOWjU>; Wed, 15 May 2002 18:39:20 -0400
+Date: Wed, 15 May 2002 18:39:03 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andries.Brouwer@cwi.nl
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, hpa@zytor.com,
+        lkml <linux-kernel@vger.kernel.org>,
+        Christoph Hellwig <hch@infradead.org>
+Subject: Re: IO stats in /proc/partitions
+In-Reply-To: <UTC200205041959.g44JxQa20044.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.21.0205151838001.21222-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 May 2002, chen, xiangping wrote:
 
-> But how to avoid system hangs due to running out of memory?
-> Is there a safe guide line? Generally slow is tolerable, but
-> crash is not.
 
-If the system runs out of memory, it may try to flush pages that are
-queued to your NBD device. That will try to allocate more memory for
-sending packets, which will fail, meaning the VM can never make progress
-freeing pages. Now your box is dead.
+On Sat, 4 May 2002 Andries.Brouwer@cwi.nl wrote:
 
-The only way to deal with this is to have a scheme for per-socket memory
-reservations in the network layer and have NBD reserve memory for sending
-and acknowledging packets. NFS and iSCSI also need this, though it's a
-bit harder to tickle for NFS. SCSI has DMA reserved memory for analogous
-reasons.
+> Earlier I noticed that RedHat did put some statistics in
+> /proc/partitions. That was bad, but I assumed that it was
+> their laziness, being too busy to do a proper job.
+> 
+> However, I see that these days the pollution of /proc/partitions
+> is becoming official - it is part of patch-2.4.19-pre7.
+> I strongly object, and hope it is not too late to revert this.
+> 
+> Things must do one thing, and one thing well.
+> The task of /proc/partitions is to list which partitions the
+> kernel knows about. When I implemented it I thought that adding
+> the starting offset would be superfluous, but in fact I now realize
+> that that is required for several applications.
+> So, /proc/partitions must be updated sooner or later with an
+> additional field "starting offset". Possibly more fields to
+> enable identification. Sometimes it is really difficult to
+> determine which Linux name belongs to which hardware device,
+> especially with USB.
+> 
+> On the other hand, disk statistics should not be in
+> /proc/partitions. They should be in /proc/diskstatistics.
+> I see a heading today "rio rmerge rsect ruse wio wmerge"
+> "wsect wuse running use aveq". No doubt next year we'll
+> want different statistics. So /proc/diskstatistics should
+> start with a header line including a version field.
+> 
+> Please keep these disk statistics apart from /proc/partitions.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+The change can possibly break userlevel tools which were working with
+2.4.18.
+
+Christoph, please create a /proc/diskstatistics file or something like
+that and send me a patch.
+
+Thanks.
 

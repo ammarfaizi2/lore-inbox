@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTIHBHR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 21:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTIHBHN
+	id S261861AbTIHBtA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 21:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTIHBtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 21:07:13 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:11157 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261825AbTIHBHL (ORCPT
+	Sun, 7 Sep 2003 21:49:00 -0400
+Received: from ejc.ecomda.com ([212.18.24.150]:37604 "EHLO ejc.ecomda.com")
+	by vger.kernel.org with ESMTP id S261861AbTIHBs7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 21:07:11 -0400
-Date: Mon, 8 Sep 2003 03:06:55 +0200 (MEST)
-Message-Id: <200309080106.h8816tVf024134@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: perfctr-devel@lists.sourceforge.net
-Subject: perfctr-2.6.0 released
-Cc: linux-kernel@vger.kernel.org
+	Sun, 7 Sep 2003 21:48:59 -0400
+Subject: possible GPL violation by Sigma Designs
+From: Torgeir Veimo <torgeir@pobox.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1062985742.3771.16.camel@africa.netenviron.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Mon, 08 Sep 2003 02:49:02 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 2.6.0 of perfctr, the Linux/x86 performance
-monitoring counters driver, is now available at the usual
-place: http://www.csd.uu.se/~mikpe/linux/perfctr/
+DVD players based on Sigma Designs EM8500 mpeg4 decoder seems to be
+running uClinux. See here for some info:
+http://www.avsforum.com/avs-vb/showthread.php?s=&threadid=288489
 
-This is the new stable series of perfctr. The main feature
-changes since the previous stable series, perfctr-2.4, are:
+The Sigma Designs EM8500 is apparently a combined mpeg4 decoder and RISC
+processor. I'd assume that they would be required to release source code
+on request for their kernel, even if the code is executed on the EM8500
+directly, as opposed being controller by a kernel driver running on a
+separate processor?
 
-* Added support for 2.6 kernels and 64-bit AMD64 kernels.
-* Added support for AMD64, Pentium-M, and VIA Nehemiah processors.
-* 64-bit AMD64 kernels work with 32-bit x86 user-space binaries.
-* Much improved support for binary compatibility between different
-  versions of the driver and user-space.
-* Improved layout of counter state objects. Fewer cache lines are
-  touched at counter suspend/resume/sample operations.
-* More robust Pentium 4 support, especially for hyper-threaded P4s.
-* Extended cascading should work on P4 Model 2 CPUs.
-* The library contains data structures with event set and
-  unit mask descriptions. (Complete except for P4.)
-* Support for kernels older than 2.4.16 has been dropped.
-	
-Many people still use perfctr-2.4 because they also use PAPI
-(http://icl.cs.utk.edu/projects/papi/). I've made a separate
-patch available, patch-papi-2.3.4-perfctr-2.6, which applies
-to the current PAPI release and allows it to work also with
-perfctr-2.6.
+The firmware for the Bravo D1 DVD player can be downloaded as an ISO
+image from this page; http://www.vinc.com/support_faq.asp
 
-Changes from 2.6.0-pre5:
+-- 
+Torgeir Veimo <torgeir@pobox.com>
 
-Version 2.6.0, 2003-09-08
-- The driver now kills a process' performance counters if the
-  process migrates to a forbidden CPU. This ensures that unsafe
-  changes to a process' CPU affinity mask don't break the driver,
-  the hardware state, or other processes. (This is an issue on
-  hyper-threaded P4s only.)
-- A bug fix in perfctr-2.6.0-pre3 broke compiling the driver
-  non-modular in modular 2.4 kernels. Corrected that problem.
-
-/ Mikael Pettersson

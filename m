@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290127AbSAQSlc>; Thu, 17 Jan 2002 13:41:32 -0500
+	id <S288925AbSAQSsw>; Thu, 17 Jan 2002 13:48:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290133AbSAQSlV>; Thu, 17 Jan 2002 13:41:21 -0500
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:43022 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S290127AbSAQSlG>; Thu, 17 Jan 2002 13:41:06 -0500
-Subject: Re: safest verion of gcc to use?
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-To: kelley eicher <carde@astro.umn.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020117121923.A7977@astro.umn.edu>
-In-Reply-To: <20020117121923.A7977@astro.umn.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 17 Jan 2002 12:39:20 -0600
-Message-Id: <1011292762.31205.24.camel@zeus>
-Mime-Version: 1.0
+	id <S289139AbSAQSsc>; Thu, 17 Jan 2002 13:48:32 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:16791 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S288925AbSAQSsW>;
+	Thu, 17 Jan 2002 13:48:22 -0500
+Date: Thu, 17 Jan 2002 12:47:45 -0600
+From: David Engebretsen <engebret@vnet.ibm.com>
+Message-Id: <200201171847.g0HIljp01458@skunk.rchland.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] vm_page_prot value
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-01-17 at 12:19, kelley eicher wrote:
-> quick question here. [kernel-src]/Documentation/Changes and
-> [kernel-src]/README say two different things about which version of gcc
-> is recommended for the compiling of the linux kernel. README says egcs
-> 1.1.2 and Documentation/Changes says to use gcc 2.95.3 or greater.
-> is the last egcs release still the preferred or has that changed to the
-> gcc 2.95.x releases?
+Following is a patch against 2.4.18-pre3 which fixes a problem where the 
+protection on user stack pages are not marked executable even though 
+the flags indicate the page is executable.  Some more aggressive cache 
+flush optimizations may rely on the execution marking to indicate if a page 
+needs to be flushed as it might be present in an icache which is not 
+coherent with the dcache.
 
-Yes, Documentation/Changes is more correct. For i386, 2.95.[34] and
-2.96-[>=85] work fine. GCC 3.0.3 should work too, though some drivers
-have had difficulties and earlier 3.x releases generated some ICE's.
-Other architectures may vary.
+Pat Mccarthy, Don Reed, Dave Engebretsen
 
-./README and ./Documentation/Changes need some trimming...
 
-Regards,
-Reid
-
+diff -Naur linux.orig/fs/exec.c linuxppc64_2_4/fs/exec.c
+--- linux.orig/fs/exec.c	Fri Dec 21 11:41:55 2001
++++ linuxppc64_2_4/fs/exec.c	Thu Jan 10 11:32:48 2002
+@@ -313,7 +312,7 @@
+ 		mpnt->vm_mm = current->mm;
+ 		mpnt->vm_start = PAGE_MASK & (unsigned long) bprm->p;
+ 		mpnt->vm_end = STACK_TOP;
+-		mpnt->vm_page_prot = PAGE_COPY;
++		mpnt->vm_page_prot = protection_map[VM_STACK_FLAGS & 0xf];
+ 		mpnt->vm_flags = VM_STACK_FLAGS;
+ 		mpnt->vm_ops = NULL;
+ 		mpnt->vm_pgoff = 0;

@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262525AbTIPXIe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 19:08:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbTIPXIe
+	id S262555AbTIPXS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 19:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbTIPXS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 19:08:34 -0400
-Received: from lidskialf.net ([62.3.233.115]:54145 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S262525AbTIPXIc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 19:08:32 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: [PATCH] 2.4.23-pre3 Don't change BIOS allocated IRQs
-Date: Wed, 17 Sep 2003 00:06:59 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-acpi@intel.com, Chris Wright <chrisw@osdl.org>
+	Tue, 16 Sep 2003 19:18:58 -0400
+Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:6272
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262555AbTIPXS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 19:18:57 -0400
+Date: Tue, 16 Sep 2003 19:18:57 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Petr Vandrovec <vandrove@vc.cvut.cz>, Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Another keyboard woes with 2.6.0...
+In-Reply-To: <Pine.LNX.4.53.0309161911160.23370@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.53.0309161917230.23370@montezuma.fsmlabs.com>
+References: <20030912165044.GA14440@vana.vc.cvut.cz>
+ <Pine.LNX.4.53.0309121341380.6886@montezuma.fsmlabs.com>
+ <20030916232318.A1699@pclin040.win.tue.nl> <Pine.LNX.4.53.0309161844380.23370@montezuma.fsmlabs.com>
+ <Pine.LNX.4.53.0309161911160.23370@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309170006.59980.adq_dvb@lidskialf.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With the help of Chris Wright testing several failed patches, I've tracked 
-down another ACPI IRQ problem. On many systems, the BIOS 
-pre-allocates IRQs for certain PCI devices, providing a list of alternate 
-possibilities as well.
+On Tue, 16 Sep 2003, Zwane Mwaikambo wrote:
 
-On some systems, changing the IRQ to one of those alternate possibilities 
-works fine. On others however, it really isn't a good idea. As theres no 
-way to tell which systems are good and bad in advance, this patch simply 
-ensures that ACPI does not change an IRQ if the BIOS has pre-allocated it.
+> Here is an excerpt from a KVM switch, ls -l, KVM switch;
+> 
+> drivers/input/serio/i8042.c: 26 <- i8042 (interrupt, kbd, 1) [150578]
+> drivers/input/serio/i8042.c: 1f <- i8042 (interrupt, kbd, 1) [150654]
+> drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [150683]
+> drivers/input/serio/i8042.c: 39 <- i8042 (interrupt, kbd, 1) [150713]
+> drivers/input/serio/i8042.c: 9f <- i8042 (interrupt, kbd, 1) [150758]
+> drivers/input/serio/i8042.c: 0c <- i8042 (interrupt, kbd, 1) [150789]
+> drivers/input/serio/i8042.c: b9 <- i8042 (interrupt, kbd, 1) [150853]
+> drivers/input/serio/i8042.c: 26 <- i8042 (interrupt, kbd, 1) [150884]
+> drivers/input/serio/i8042.c: 8c <- i8042 (interrupt, kbd, 1) [150931]
+> drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [150986]
+> drivers/input/serio/i8042.c: 1c <- i8042 (interrupt, kbd, 1) [151090]
+> drivers/input/serio/i8042.c: 9c <- i8042 (interrupt, kbd, 1) [151208]
+> drivers/input/serio/i8042.c: 1d <- i8042 (interrupt, kbd, 1) [152374]
+> drivers/input/serio/i8042.c: 9d <- i8042 (interrupt, kbd, 1) [152439]
+> drivers/input/serio/i8042.c: 1d <- i8042 (interrupt, kbd, 1) [152653]
+> drivers/input/serio/i8042.c: 9d <- i8042 (interrupt, kbd, 1) [152708]
+> 
+> Need something more specific?
 
-
---- linux-2.4.23-pre3.null_crs/drivers/acpi/pci_link.c	2003-09-05 23:57:39.000000000 +0100
-+++ linux-2.4.23-pre3.nochangeirq/drivers/acpi/pci_link.c	2003-09-16 23:59:49.212387016 +0100
-@@ -507,15 +507,15 @@
- 		irq = link->irq.active;
- 	} else {
- 		irq = link->irq.possible[0];
--	}
- 
--	/* 
--	 * Select the best IRQ.  This is done in reverse to promote 
--	 * the use of IRQs 9, 10, 11, and >15.
--	 */
--	for (i=(link->irq.possible_count-1); i>0; i--) {
--		if (acpi_irq_penalty[irq] > acpi_irq_penalty[link->irq.possible[i]])
--			irq = link->irq.possible[i];
-+		/* 
-+		 * Select the best IRQ.  This is done in reverse to promote 
-+		 * the use of IRQs 9, 10, 11, and >15.
-+		 */
-+		for (i=(link->irq.possible_count-1); i>0; i--) {
-+			if (acpi_irq_penalty[irq] > acpi_irq_penalty[link->irq.possible[i]])
-+				irq = link->irq.possible[i];
-+		}
- 	}
- 
- 	/* Attempt to enable the link device at this IRQ. */
-
+Perhaps i should mention that a KVM switch entails two ctrls in close 
+succession.

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267650AbRHHU0i>; Wed, 8 Aug 2001 16:26:38 -0400
+	id <S269176AbRHHUfI>; Wed, 8 Aug 2001 16:35:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269115AbRHHU02>; Wed, 8 Aug 2001 16:26:28 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:33033 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S267650AbRHHU0L>;
-	Wed, 8 Aug 2001 16:26:11 -0400
-Date: Wed, 8 Aug 2001 21:26:17 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Mark Atwood <mra@pobox.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-In-Reply-To: <m3bslrv21e.fsf@flash.localdomain>
-Message-ID: <Pine.LNX.4.33.0108080757060.12565-100000@infradead.org>
+	id <S269246AbRHHUfA>; Wed, 8 Aug 2001 16:35:00 -0400
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:25891 "EHLO
+	mailsorter1.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S269176AbRHHUe4>; Wed, 8 Aug 2001 16:34:56 -0400
+Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6FBF@nocmail.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'sparclinux@vger.kernel.org'" <sparclinux@vger.kernel.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: 2.4.7ac9,10 compile error
+Date: Wed, 8 Aug 2001 16:35:01 -0400 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark.
+Hey guys,
 
- > (apologies for splitting my reply into multiple pieces, but each
- > part covers different territory).
+I am trying to install 2.4.7 on my Ultra 5, and I am running into some
+problems.  Got some errors compiling a sound module to start so I updated to
+2.4.7ac9 and tried again, but got the following error.  I also updated to
+2.4.7ac10 that just came out, and got the same error on compile.  Any ideas
+where I am going wrong?
 
- >>  2. Multiple identical static interfaces.
- >>
- >>     At the moment, you are required to initialise the interfaces in
- >>     ascending order of their name in the modules.conf file.
- >>
- >>     I've dealt with this situation on several occasions, and never
- >>     found this to be a problem in any way.
+Error:
+In file included from sched.c:26:
 
- > Have you ever assembled a distribution that's going to be imaged
- > into several thousands to several tens of thousands of hardware
- > boxes, with evolving-into-the-future changes in hardware version
- > and changes in component suppliers?
+/usr/src/linux-2.4.7/include/linux/irq.h:61: asm/hw_irq.h: No such file or
+directory
 
-I haven't personally, no, but RedHat, Caldera, SUSE, Debian and
-Eridani all have, and (curiously enough) they all use the same basic
-solution, although implemented in different ways. This is also the
-solution implemented by the ifmap script I attached to my previous
-email.
+make[2]: *** [sched.o] Error 1
 
- > If Linux really wants to break into the appliance market, this
- > is going to be a bigger and bigger issue.
+make[1]: *** [first_rule] Error 2
 
-Agreed, but then, it appears to be an issue that has largely been
-solved. The only part that may still need attention (I'm not up to
-date on it, so can't say for sure) is the hotplug stuff.
-
-Best wishes from Riley.
-
+make: *** [_dir_kernel] Error 2    
+                                           
+Bruce Holzrichter 
+Systems Administrator 
+Monster.com 
+Phone:  978-461-8869 
+Cell:      978-375-9558 
+bruce.holzrichter@monster.com 

@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266013AbRGXU7i>; Tue, 24 Jul 2001 16:59:38 -0400
+	id <S266058AbRGXVE6>; Tue, 24 Jul 2001 17:04:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266041AbRGXU72>; Tue, 24 Jul 2001 16:59:28 -0400
-Received: from hypnos.cps.intel.com ([192.198.165.17]:30427 "EHLO
-	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S266013AbRGXU7Q>; Tue, 24 Jul 2001 16:59:16 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDFAD@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Hunt Kent'" <kenthunt@yahoo.com>, lk <linux-kernel@vger.kernel.org>
-Cc: "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: RE: ACPI AC Adap. and Battery dead in presario laptops
-Date: Tue, 24 Jul 2001 13:59:08 -0700
+	id <S268458AbRGXVEs>; Tue, 24 Jul 2001 17:04:48 -0400
+Received: from hilbert.umkc.edu ([134.193.4.60]:61448 "HELO tesla.umkc.edu")
+	by vger.kernel.org with SMTP id <S268456AbRGXVEj>;
+	Tue, 24 Jul 2001 17:04:39 -0400
+Message-ID: <3B5DE0EE.C437EA5E@kasey.umkc.edu>
+Date: Tue, 24 Jul 2001 15:56:14 -0500
+From: "David L. Nicol" <david@kasey.umkc.edu>
+Organization: UMKC Information Services Central Systems
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: When will ETCP be in linux kernels? Is there a patch?
+In-Reply-To: <Pine.LNX.4.10.10107240243420.30900-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-A known BIOS problem.
+Mark Hahn wrote:
+> 
+> > Will ETCP
+> > http://www.chem.ucla.edu/~beichuan/etcp/
+> > be appearing in linux kernels any time soon?  We have ECN...
+> 
+> isn't it just a draft?  I though ECN was considerably further along...
 
-Sorry -- Andy
+No, it works -- if you set up a BSD system and apply their patch,
+the second image loads fully too -- I did it once, and it worked
+just like it is supposed to.
 
-> From: Hunt Kent [mailto:kenthunt@yahoo.com]
-> AC Adaptor and Battery status are not showing in /proc
-> for presario 1700 laptops running 2.4.7 kernels.
-> With 2.4.6 kernels the ac adaptor was there but 
-> battery wasn't.
+
+
+
+-- 
+                                           David Nicol 816.235.1187
+                       "Mary had a little chainsaw" -- Angus Oblong
 

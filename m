@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317998AbSGLVKf>; Fri, 12 Jul 2002 17:10:35 -0400
+	id <S317995AbSGLVJT>; Fri, 12 Jul 2002 17:09:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317999AbSGLVKf>; Fri, 12 Jul 2002 17:10:35 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:63217 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317998AbSGLVKd>; Fri, 12 Jul 2002 17:10:33 -0400
-Subject: Re: MAP_NORESERVE with MAP_SHARED
-From: Robert Love <rml@tech9.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1026512102.9915.22.camel@irongate.swansea.linux.org.uk>
-References: <200207122039.g6CKdnV3004060@napali.hpl.hp.com> 
-	<1026512102.9915.22.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 12 Jul 2002 14:13:05 -0700
-Message-Id: <1026508385.1352.401.camel@sinai>
-Mime-Version: 1.0
+	id <S317998AbSGLVJS>; Fri, 12 Jul 2002 17:09:18 -0400
+Received: from pc132.utati.net ([216.143.22.132]:14725 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S317995AbSGLVJS>; Fri, 12 Jul 2002 17:09:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: linux-kernel@vger.kernel.org
+Subject: No rule to make autoconf.h in 2.4.19-rc1?
+Date: Fri, 12 Jul 2002 11:13:46 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: marcelo@connectiva.com.br
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020712205136.8D3648B5@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-12 at 15:15, Alan Cox wrote:
+I'm trying to put together a linux from scratch system (3.3 with extensive 
+tweaks) using a build script that happily built 2.4.18 but is dying at the 
+start of make bzImage in 19-rc1, complaining there's no rule to make 
+include/linux/autoconf.h (needed by include/config/MARKER).
 
-> In no overcommit mode MAP_NORESERVE is never honoured. In conventional
-> overcommit mode I may have broken something between base and -ac. Which
-> bit of the code are you looking at ?
+I've confirmed I got the right patch and that it applied correctly (or at 
+least reproducibly without rejects and changed the version numbers in the top 
+level makefile)...  I untarred the 2.4.18 tarball into a fresh directory, 
+applied the patch, did "make dep" followed by "make clean" (I tried omitting 
+make clean and it didn't help) followed by make bzImage, at which point the 
+build process went off into the corner to sulk.
 
-As far as I can tell, the code is correct as you say and MAP_NORESERVE
-is only not honored in the strict overcommit modes...
+Maybe I'm doing something small and simple wrong (although 2.4.18 built), but 
+I can't spot it.  I grepped the last couple weeks of my linux-kernel folder 
+and the only mention of autoconf.h was in patches, no descriptive text.
 
-	Robert Love
+I also tried "touch include/linux/autoconf.h", which just makes 
+scripts/split-include die in find...
 
+What does the kernel use autoconf for?  (When did this get added?  I wrote a 
+kernel output parser and didn't see autoconf, and I'd expect it to run in ake 
+dep anyway...)
+
+Er... Help?
+
+Rob

@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265939AbSLTEUP>; Thu, 19 Dec 2002 23:20:15 -0500
+	id <S267692AbSLTEyb>; Thu, 19 Dec 2002 23:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265982AbSLTEUP>; Thu, 19 Dec 2002 23:20:15 -0500
-Received: from fluent2.pyramid.net ([206.100.220.213]:38277 "EHLO
-	fluent2.pyramid.net") by vger.kernel.org with ESMTP
-	id <S265939AbSLTEUO>; Thu, 19 Dec 2002 23:20:14 -0500
-Message-Id: <5.2.0.9.0.20021219202414.01d5dae0@fluent2.pyramid.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Thu, 19 Dec 2002 20:28:13 -0800
-To: "plachninka" <plachninka@wp.pl>, <linux-kernel@vger.kernel.org>
-From: Stephen Satchell <list@fluent2.pyramid.net>
-Subject: Re: Saving logs when system is started
-In-Reply-To: <001601c2a731$84f0b9c0$110011ac@home.sitech.pl>
+	id <S267719AbSLTEyb>; Thu, 19 Dec 2002 23:54:31 -0500
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:49379 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S267692AbSLTEya>; Thu, 19 Dec 2002 23:54:30 -0500
+Subject: [PATCH] 2.4.20 fs/partitions/Config.in
+From: Richard Russon <ldm@flatcap.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1040360516.21624.14.camel@whiskey.something.uk.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.1.90 (Preview Release)
+Date: 20 Dec 2002 05:01:56 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:37 AM 12/19/02 +0100, plachninka wrote:
->Hi
->Simple question: is any possibility to save system logs on floppy or
->anywhere when system is started from ramdisk?
->I still have a problem with scsi_hostadapter module and i would like to see
->startup logs
+Hi Marcelo,
 
-1.  Add to the end of rc the commands to copy the logs to floppy or anywhere.
-2.  Add to the end of inittab a call, using :once:, to a script to copy the 
-logs to floppy or anywhere.
-3.  Write a daemon that mirrors the logs from time to time to floppy or 
-anywhere, lauched from inittab or from whatever launches your daemons.
+You have already accepted the new LDM Driver into 2.4 (thanks :-)
+but a little part of it got lost.
+
+This patch removes the "experimental" tag and dependency.
+(The new LDM Driver is not experimental).
+
+Please can you apply this patch to 2.4.20.
+
+Cheers,
+  FlatCap (Richard Russon)
+  ldm@flatcap.org
 
 
--- 
-The human mind treats a new idea the way the body treats a strange
-protein:  it rejects it.  -- P. Medawar
-This posting is for entertainment purposes only; it is not a legal opinion.
+
+diff -urN linux-2.4.20/fs/partitions/Config.in linux-2.4.20-ldm/fs/partitions/Config.in
+--- linux-2.4.20/fs/partitions/Config.in	2002-11-29 00:13:16.000000000 +0000
++++ linux-2.4.20-ldm/fs/partitions/Config.in	2002-12-20 04:41:32.000000000 +0000
+@@ -25,7 +25,7 @@
+       bool '    Solaris (x86) partition table support' CONFIG_SOLARIS_X86_PARTITION
+       bool '    Unixware slices support' CONFIG_UNIXWARE_DISKLABEL
+    fi
+-   dep_bool '  Windows Logical Disk Manager (Dynamic Disk) support (EXPERIMENTAL)' CONFIG_LDM_PARTITION $CONFIG_EXPERIMENTAL
++   bool '  Windows Logical Disk Manager (Dynamic Disk) support' CONFIG_LDM_PARTITION
+    if [ "$CONFIG_LDM_PARTITION" = "y" ]; then
+       bool '    Windows LDM extra logging' CONFIG_LDM_DEBUG
+    fi
+
+
+
 

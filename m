@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUJHV1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUJHVam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbUJHV1S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 17:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUJHV1S
+	id S265331AbUJHVam (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 17:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUJHVam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 17:27:18 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:19162 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265234AbUJHV1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 17:27:16 -0400
-Subject: Re: [PATCH] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: chrisw@osdl.org, realtime-lsm@modernduck.com,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de,
-       "Jack O'Quin" <joq@io.com>
-In-Reply-To: <20041008142121.328b8d3a.akpm@osdl.org>
-References: <1094967978.1306.401.camel@krustophenia.net>
-	 <20040920202349.GI4273@conscoop.ottawa.on.ca>
-	 <20040930211408.GE4273@conscoop.ottawa.on.ca>
-	 <1096581213.24868.19.camel@krustophenia.net>
-	 <87pt43clzh.fsf@sulphur.joq.us> <20040930182053.B1973@build.pdx.osdl.net>
-	 <87k6ubcccl.fsf@sulphur.joq.us>
-	 <1096663225.27818.12.camel@krustophenia.net>
-	 <20041001142259.I1924@build.pdx.osdl.net>
-	 <1096669179.27818.29.camel@krustophenia.net>
-	 <20041001152746.L1924@build.pdx.osdl.net> <877jq5vhcw.fsf@sulphur.joq.us>
-	 <1097193102.9372.25.camel@krustophenia.net>
-	 <1097269108.1442.53.camel@krustophenia.net>
-	 <20041008142121.328b8d3a.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1097270754.1442.71.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 08 Oct 2004 17:25:54 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Oct 2004 17:30:42 -0400
+Received: from h151_115.u.wavenet.pl ([217.79.151.115]:27592 "EHLO
+	alpha.polcom.net") by vger.kernel.org with ESMTP id S265331AbUJHVak
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 17:30:40 -0400
+Date: Fri, 8 Oct 2004 23:30:34 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make gcc -align options .config-settable
+In-Reply-To: <200410082342.40682.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.60.0410082319170.17797@alpha.polcom.net>
+References: <2KBq9-2S1-15@gated-at.bofh.it> <200410081710.58766.vda@port.imtp.ilyichevsk.odessa.ua>
+ <Pine.LNX.4.60.0410081618530.10253@alpha.polcom.net>
+ <200410082342.40682.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 17:21, Andrew Morton wrote:
-> Lee Revell <rlrevell@joe-job.com> wrote:
-> >
-> > Here's an updated patch, only
-> > difference is line numbers.
-> 
-> Nice patch.  Wanna tell me something about what it's for?
-> 
+On Fri, 8 Oct 2004, Denis Vlasenko wrote:
 
-Also, just to give a frame of reference, MacOS X (which is our real 
-competition in the pro audio area) just lets any user run RT tasks.  So
-this LSM would give us that needed functionality, but better, because
-it's selective.
+> On Friday 08 October 2004 17:30, Grzegorz Kulewski wrote:
+>>> Also bencmarking people may do little research on real usefulness of
+>>> various kinds of alignment.
+>>
+>> I think that removing aligns completly will be very bad. I am Gentoo user
+>> and I set my user space CFLAGS for all system to -falign-loops
+>> -fno-align-<everything else>. I did not tested it in depth, but my simple
+>> tests show that unaligning loops is a very bad idea. Unaligning functions
+>
+> That depends on how often that loop runs. 90% of code runs only
+> 10% of time. I think ultimately we want to mark other 10% of code with:
 
-Lee
+Well, loops should probably always be aligned because aligning them will 
+not make the code significantly larger (I think, I did not mensure it), 
+but it will make the code significantly faster, and more friendly to
+processor's cache.
+
+
+>> is safer since small and fast functions should be always inlined.
+>
+> Concept of alignment does not apply to inlined functions at all.
+
+That is my point. It is safe not to align functions because fast and often 
+called ones will be inlined and will not be slowed down by lack of 
+alignment.
+
+
+Thanks,
+
+Grzegorz Kulewski
 

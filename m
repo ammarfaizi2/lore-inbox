@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbUBXNWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 08:22:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbUBXNWZ
+	id S262250AbUBXNZs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 08:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbUBXNZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 08:22:25 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:49937 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S262244AbUBXNWY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 08:22:24 -0500
-Message-ID: <403B5257.2030305@techsource.com>
-Date: Tue, 24 Feb 2004 08:32:07 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: John Heil <kerndev@sc-software.com>
-CC: Thomas Zehetbauer <thomasz@hostmaster.org>,
+	Tue, 24 Feb 2004 08:25:48 -0500
+Received: from gprs159-197.eurotel.cz ([160.218.159.197]:54656 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262250AbUBXNZr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 08:25:47 -0500
+Date: Tue, 24 Feb 2004 14:25:25 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@fs.tum.de>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Mikael Pettersson <mikpe@csd.uu.se>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Intel vs AMD x86-64
-References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org>  <16435.14044.182718.134404@alkaid.it.uu.se>  <Pine.LNX.4.58.0402180744440.2686@home.osdl.org>  <20040222025957.GA31813@MAIL.13thfloor.at>  <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org> <1077584461.8414.164.camel@hostmaster.org> <Pine.LNX.4.58.0402231707220.13525@scsoftware.sc-software.com>
-In-Reply-To: <Pine.LNX.4.58.0402231707220.13525@scsoftware.sc-software.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040224132524.GB438@elf.ucw.cz>
+References: <7F740D512C7C1046AB53446D37200173EA2461@scsmsx402.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7F740D512C7C1046AB53446D37200173EA2461@scsmsx402.sc.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-
-John Heil wrote:
-
+> Sorry for the miscommunication. The page
+> http://www.intel.com/technology/64bitextensions/faq.htm says at the
+> _bottom_ at least:
 > 
-> 
-> I'll second that.
-> 
-> For whatever it's worth I replaced all my intel business boxes w AMD
-> w the advent of the K7/Athlon's and haven't looked back since,
-> including SMP. Next up for us will be dual Opteron. I cannot see
-> ever returning to Intel.
-> 
+> Q9: Is it possible to write software that will run on Intel's processors
+> with 64-bit extension technology, and AMD's 64-bit capable processors?
+> A9: With both companies designing entirely different architectures, the
+> question is whether the operating system and software ported to each
+> processor will run on the other processor, and the answer is yes in most
+> cases.
 
+Could you publish list of differences between amd64 and ia32e?
 
-This is not a comment in favor of Intel... just a lament...
+I probably could took those two 300+ page documents and try to compare
+them by hand, but I believe you know already. 
+								Pavel
 
-Things may have changed, but when I last built a Linux box (Athlon XP 
-2800+), I was not able to find a motherboard for recent AMD processors 
-with 64bit/66mhz PCI slots.  If I'd needed that, I would have had to go 
-with Intel.
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,71 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265612AbSKTDaI>; Tue, 19 Nov 2002 22:30:08 -0500
+	id <S265628AbSKTDiY>; Tue, 19 Nov 2002 22:38:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265628AbSKTDaI>; Tue, 19 Nov 2002 22:30:08 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:33927 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265612AbSKTDaH>;
-	Tue, 19 Nov 2002 22:30:07 -0500
-Date: Wed, 20 Nov 2002 03:37:47 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Luca Barbieri <ldb@ldb.ods.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] threading enhancements, tid-2.5.47-C0
-Message-ID: <20021120033747.GB9007@bjl1.asuk.net>
-References: <Pine.LNX.4.44.0211181303240.1639-100000@localhost.localdomain> <3DDAE822.1040400@redhat.com>
+	id <S265636AbSKTDiX>; Tue, 19 Nov 2002 22:38:23 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:52364 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265628AbSKTDiV>;
+	Tue, 19 Nov 2002 22:38:21 -0500
+Subject: Re: gettimeofday() cripples notsc system
+From: john stultz <johnstul@us.ibm.com>
+To: Michael Hohnbaum <hohnbaum@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1037754386.3393.255.camel@dyn9-47-17-164.beaverton.ibm.com>
+References: <1037754386.3393.255.camel@dyn9-47-17-164.beaverton.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1037763642.4463.139.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DDAE822.1040400@redhat.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 19 Nov 2002 19:40:42 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> Ingo's last patch has two pointer, one for the parent and one for the
-> child.  The is necessary (despite what Jamie tried to argue) if we want
-> to have a cfork() implementation which works in MT applications.
-> cfork() is IMO really necessary if you want to mix threads and fork().
+On Tue, 2002-11-19 at 17:06, Michael Hohnbaum wrote:
+> Running a large application that issues many gettimeofday()
+> system calls on a kernel running with notsc, results in time
+> slowing way down.  I've seen the system time advance only 
+> three minutes over a 30 minute period.  The following program,
+> executed twice demonstrates the problem.  Three instances running
+> in parallel made a 16 processor machine completely unusable.
+[snip]
+> I've recreated on 2.5.30, 2.5.44, and 2.5.47.  Running a system that
+[snip]
+> I assume there is a lock starvation problem happening here, correct?
 
-Hi Ulrich,
+Most likely xtime_lock starvation. I believe other folks were hitting
+this earlier. What do folks think about the attached (and completely
+untested, probably breaks x86-64) patch? I'm yanking the read_lock for a
+vxtime_sequence lock, as implemented in the x86-64 vsyscall code. This
+should alleviate the writer starvation, although no doubt it still has a
+few gotchas in it. Also I still need to vxtime_lock all the other
+instances of write locking the xtime_lock, but its a start. 
 
-This is "int cfork(pid_t * user_tid_ptr)", yes?  I've searched google for
-cfork and not found anything fruitful - just references to solaris
-patches about a function of the same name.
+comments, flames?
 
-I agree with you, if you need this functionality:
+-john
 
-    1. cfork(ptr) equivalent to { pid_t p = fork(); if (p > 0) *ptr = p; }
-    2. The pid is stored in the parent before any signals can be handled.
-    3. Don't want to block signals temporarily (of course).
 
-Then yes, you need two pointers, one for the parent's cfork() argument
-for SETTID in the parent, and one for the child's thread descriptor
-for CLEARTID in the child.  Strictly speaking, SETTID does not need to
-affect the child (because the child can store the tid itself), but it
-would make a lot of sense to do it.
+diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
+--- a/arch/i386/kernel/time.c	Tue Nov 19 19:30:05 2002
++++ b/arch/i386/kernel/time.c	Tue Nov 19 19:30:05 2002
+@@ -85,19 +85,19 @@
+  */
+ void do_gettimeofday(struct timeval *tv)
+ {
+-	unsigned long flags;
+-	unsigned long usec, sec;
++	unsigned long usec, sec, sequence;
+ 
+-	read_lock_irqsave(&xtime_lock, flags);
+-	usec = timer->get_offset();
+-	{
+-		unsigned long lost = jiffies - wall_jiffies;
+-		if (lost)
+-			usec += lost * (1000000 / HZ);
+-	}
+-	sec = xtime.tv_sec;
+-	usec += (xtime.tv_nsec / 1000);
+-	read_unlock_irqrestore(&xtime_lock, flags);
++	sequence = vxtime_sequence[1];
++	do {
++		usec = timer->get_offset();
++		{
++			unsigned long lost = jiffies - wall_jiffies;
++			if (lost)
++				usec += lost * (1000000 / HZ);
++		}
++		sec = xtime.tv_sec;
++		usec += (xtime.tv_nsec / 1000);
++	} while(sequence != vxtime_sequence[0]);
+ 
+ 	while (usec >= 1000000) {
+ 		usec -= 1000000;
+@@ -111,6 +111,7 @@
+ void do_settimeofday(struct timeval *tv)
+ {
+ 	write_lock_irq(&xtime_lock);
++	vxtime_lock();
+ 	/*
+ 	 * This is revolting. We need to set "xtime" correctly. However, the
+ 	 * value in this location is the value at the most recent update of
+@@ -127,6 +128,8 @@
+ 
+ 	xtime.tv_sec = tv->tv_sec;
+ 	xtime.tv_nsec = (tv->tv_usec * 1000);
++	vxtime_unlock();
++	
+ 	time_adjust = 0;		/* stop active adjtime() */
+ 	time_status |= STA_UNSYNC;
+ 	time_maxerror = NTP_PHASE_LIMIT;
+@@ -278,11 +281,13 @@
+ 	 * locally disabled. -arca
+ 	 */
+ 	write_lock(&xtime_lock);
+-
++	vxtime_lock();
++	
+ 	timer->mark_offset();
+  
+ 	do_timer_interrupt(irq, NULL, regs);
+ 
++	vxtime_unlock();
+ 	write_unlock(&xtime_lock);
+ 
+ }
+diff -Nru a/arch/i386/kernel/timers/timer_pit.c b/arch/i386/kernel/timers/timer_pit.c
+--- a/arch/i386/kernel/timers/timer_pit.c	Tue Nov 19 19:30:05 2002
++++ b/arch/i386/kernel/timers/timer_pit.c	Tue Nov 19 19:30:05 2002
+@@ -61,17 +61,17 @@
+ static unsigned long get_offset_pit(void)
+ {
+ 	int count;
+-
++	unsigned long flags;
+ 	static int count_p = LATCH;    /* for the first call after boot */
+ 	static unsigned long jiffies_p = 0;
+ 
+ 	/*
+-	 * cache volatile jiffies temporarily; we have IRQs turned off. 
++	 * cache volatile jiffies temporarily; 
++	 * IRQs are not turned off, but we'll retry if something changes
+ 	 */
+ 	unsigned long jiffies_t;
+ 
+-	/* gets recalled with irq locally disabled */
+-	spin_lock(&i8253_lock);
++	spin_lock_irqsave(&i8253_lock,flags);
+ 	/* timer count may underflow right here */
+ 	outb_p(0x00, 0x43);	/* latch the count ASAP */
+ 
+@@ -93,7 +93,7 @@
+                 count = LATCH - 1;
+         }
+ 	
+-	spin_unlock(&i8253_lock);
++	spin_unlock_irqrestore(&i8253_lock,flags);
+ 
+ 	/*
+ 	 * avoiding timer inconsistencies (they are rare, but they happen)...
+diff -Nru a/include/linux/time.h b/include/linux/time.h
+--- a/include/linux/time.h	Tue Nov 19 19:30:05 2002
++++ b/include/linux/time.h	Tue Nov 19 19:30:05 2002
+@@ -122,6 +122,11 @@
+ extern struct timespec xtime;
+ extern rwlock_t xtime_lock;
+ 
++/*unstarvable xtime rwlock*/
++extern long vxtime_sequence[2];
++#define vxtime_lock() do { vxtime_sequence[0]++; wmb(); } while(0)
++#define vxtime_unlock() do { wmb(); vxtime_sequence[1]++; } while (0)
++
+ static inline unsigned long get_seconds(void)
+ { 
+ 	return xtime.tv_sec;
+diff -Nru a/kernel/timer.c b/kernel/timer.c
+--- a/kernel/timer.c	Tue Nov 19 19:30:05 2002
++++ b/kernel/timer.c	Tue Nov 19 19:30:05 2002
+@@ -761,6 +761,7 @@
+  */
+ rwlock_t xtime_lock __cacheline_aligned_in_smp = RW_LOCK_UNLOCKED;
+ unsigned long last_time_offset;
++long vxtime_sequence[2]; /*unstarvable xtime rwlock*/
+ 
+ /*
+  * This function runs timers and the timer-tq in bottom half context.
 
-> Assume you have an application which forks children and assosicates
-> certain actions with the termination of a child.  When SIGCHLD is
-> received one of the threads of the app searches, using the PID of the
-> terminated child, which action has to be performed.  It wouldn't find
-> anything if the thread, which created the child, hasn't yet written the
-> PID of the child in the appropriate memory location.  This can very well
-> happen and can only be fixed by the kernel writing the PID values.
 
-If the application is using cfork() and requires the pid stored
-atomically at _its_ address, which is separate from the thread
-libraries current_thread->tid address, then I agree with Ulrich: two
-pointers are best.
 
-It's possible to get by with one pointer, but then you're back to
-blocking signals in the cfork() implementation, or making the thread
-library horrendous in other ways (complicating ->tid reads everywhere).
-
-(That said, I'm not entirely convinced that blocking signals in cfork()
-is so bad, if we assume that cfork() is a relatively expensive
-operation anyway...)
-
--- Jamie

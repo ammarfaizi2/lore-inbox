@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbVDFLbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVDFLc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbVDFLbe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 07:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbVDFLbd
+	id S262167AbVDFLc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 07:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVDFLc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 07:31:33 -0400
-Received: from fire.osdl.org ([65.172.181.4]:63639 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262166AbVDFLb3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 07:31:29 -0400
-Date: Wed, 6 Apr 2005 04:30:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marty Ridgeway <mridge@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
-       ltp-announce@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] April Release of LTP now Available
-Message-Id: <20050406043001.3f3d7c1c.akpm@osdl.org>
-In-Reply-To: <OF98479217.2360E20E-ON85256FDA.00696BC9-86256FDA.00698E70@us.ibm.com>
-References: <OF98479217.2360E20E-ON85256FDA.00696BC9-86256FDA.00698E70@us.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 6 Apr 2005 07:32:58 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:904 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262167AbVDFLcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 07:32:48 -0400
+Date: Wed, 6 Apr 2005 13:32:33 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Renate Meijer <kleuske@xs4all.nl>
+Cc: Blaisorblade <blaisorblade@yahoo.it>, stable@kernel.org,
+       Greg KH <gregkh@suse.de>, jdike@karaya.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [08/08] uml: va_copy fix
+Message-ID: <20050406113233.GD7031@wohnheim.fh-wedel.de>
+References: <20050405164539.GA17299@kroah.com> <20050405164815.GI17299@kroah.com> <c8cb775b8f5507cbac1fb17b1028cffc@xs4all.nl> <200504052053.20078.blaisorblade@yahoo.it> <7aa6252d5a294282396836b1a27783e8@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7aa6252d5a294282396836b1a27783e8@xs4all.nl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marty Ridgeway <mridge@us.ibm.com> wrote:
->
-> The April release of LTP is now on SourceForge.
+On Tue, 5 April 2005 22:18:26 +0200, Renate Meijer wrote:
 > 
->  LTP-20050405
+> If a function is prefixed with a double underscore, this implies the 
+> function is internal to
+> the compiler, and may change at any time, since it's not governed by 
+> some sort of standard.
+> Hence that code may start suffering from bitrot and complaining to the 
+> compiler guys won't help.
 
-It seems to have an x86ism in it which causes the compile to fail on ppc64:
+You did read include/linux/compiler.h, didn't you?
+And you did read this thread as well, right?
+http://kerneltrap.org/node/4126
 
-socketcall01.c: In function `socketcall':
-socketcall01.c:80: error: asm-specifier for variable `__sc_4' conflicts with asm clobber list
+Jörn
 
-
-
-
-#ifndef _syscall2
-#include <linux/unistd.h>
-#endif
-
-#include "test.h"
-#include "usctest.h"
-
-char *TCID = "socketcall01";                             /* Test program identifier.    */
-#ifdef __NR_socketcall
-
-_syscall2(int ,socketcall ,int ,call, unsigned long *, args);
+-- 
+Time? What's that? Time is only worth what you do with it.
+-- Theo de Raadt

@@ -1,149 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbUFGLF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264397AbUFGLYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbUFGLF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 07:05:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbUFGLF1
+	id S264397AbUFGLYL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 07:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbUFGLYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 07:05:27 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:2530 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S261672AbUFGLFI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 07:05:08 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: idebus setup problem (2.6.7-rc1)
-Date: Mon, 7 Jun 2004 19:04:10 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F842DB1F7@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: idebus setup problem (2.6.7-rc1)
-Thread-Index: AcRMI4KHu1vMs73ERmKvDX5+PF6yUAAQsHTQ
-From: "Zhu, Yi" <yi.zhu@intel.com>
-To: "Rusty Russell" <rusty@rustcorp.com.au>
-Cc: "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Herbert Poetzl" <herbert@13thfloor.at>,
-       "Auzanneau Gregory" <mls@reolight.net>,
-       "Jeff Garzik" <jgarzik@pobox.com>,
-       "lkml - Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 07 Jun 2004 11:04:10.0774 (UTC) FILETIME=[29200B60:01C44C7F]
+	Mon, 7 Jun 2004 07:24:11 -0400
+Received: from gepard.lm.pl ([212.244.46.42]:54755 "EHLO gepard.lm.pl")
+	by vger.kernel.org with ESMTP id S264397AbUFGLYG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 07:24:06 -0400
+Subject: 2.6.7-rc2-mm2 Unkillable process [TRACE]
+From: Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: o2.pl Sp z o.o.
+Message-Id: <1086603320.10873.16.camel@rakieeta>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 07 Jun 2004 12:15:20 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> 
-> OK, I've revisited this problem, with my thinking cap ON this time.
-> Sorry for the delay. 
-> 
-> Andrew, please revert kernel-parameter-parsing-fix.patch and
-> kernel-parameter-parsing-fix-fix.patch in favor of this one-liner.
-> 
-> Yi, does this fix your ACPI problem?
-> 
-> Rusty.
-> 
-> Name: Handle __early_param and __setup Collision
-> Status: Trivial
-> Depends: EarlyParam/early_param.patch.gz
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> 
-> Yi Zhu (yi.zhu@intel.com) points out the following problem:
-> 
-> In arch/i386/kernel/setup.c:
-> 	__early_param("acpi", early_acpi);
-> 
-> In drivers/acpi/osl.c:
-> 	__setup("acpi_os_name=", acpi_os_name_setup);
-> 
-> The problem command line looks like:
-> 
-> 	"acpi=force acpi_os_name=my_override_name"
-> 
-> For simplicity, we overload the __setup section to contain
-> both __early_param and __setup, so we can check that all
-> options on the command line are taken by at least one of
-> them.  However, __early_param have different semantics the
-> __setup: in particular, __early_param("acpi"), must not match
-> anything but "acpi" and "acpi=", which mirrors
-> module_param(), whereas __setup("acpi") would match anything
-> which starts with "acpi".
+Hi,
 
-Really? I think currently only ide_setup is an exception for __setup(),
-which will match all params given in command line.
+I came upon this BUG while testing one of the servers. It shows itself
+after about 10 hours of moderate load on both 2.6.7-rc2 and
+2.6.7-rc2-mm2 kernels. The process gets stuck in R state, eating 99% of
+CPU and is unkillable. The machine won't reboot either. Needs hard
+reset. It is usually postfix cleanup/qmgr process. The trace comes from
+the 2.6.7-rc2-mm2 kernel. Hope that someone can resolve this.
 
-> 
-> Fix the obsolete_checksetup code to take this difference into account
-> correctly. 
-> 
-> diff -urpN --exclude TAGS -X
-> /home/rusty/devel/kernel/kernel-patches/current-dontdiff
-> --minimal .22424-linux-2.6.7-rc2-bk7/init/main.c
-> .22424-linux-2.6.7-rc2-bk7.updated/init/main.c
-> --- .22424-linux-2.6.7-rc2-bk7/init/main.c	2004-06-07
-> 09:51:11.000000000 +1000 +++
-> .22424-linux-2.6.7-rc2-bk7.updated/init/main.c 2004-06-07
-> 09:53:06.000000000 +1000 @@ -159,8 +159,9 @@ static int __init
->  		obsolete_checksetup(ch  	do { int n =
-strlen(p->str);
->  		if (!strncmp(line, p->str, n)) {
-> -			/* Already done in parse_early_param? */
-> -			if (p->early)
-> +			/* Already done in parse_early_param?  (Needs
-> +			 * exact match on param part) */
-> +			if (p->early && (line[n] == '\0' ||
-> line[n] == '='))
->  				return 1;
->  			if (!p->setup_func) {
->  				printk(KERN_WARNING "Parameter
-> %s is obsolete, ignored\n", p->str);
+Jun  7 13:00:37 r9 cleanup       R running     0 27478  29621        
+27479 27477 (NOTLB)
+Jun  7 13:00:37 r9 cleanup       D 00000001     0 27479  29621        
+27480 27478 (NOTLB)
+Jun  7 13:00:37 r9 e4307bf8 00000086 f0834ed4 00000001 e103e9ac c018988f
+edb8c800 f5596800
+Jun  7 13:00:37 r9 c902562c c6dede80 e103e9ac 00000000 e103e900 c0189ed8
+c902562c 000012a1
+Jun  7 13:00:37 r9 e9720d10 00007ec0 f3ca8b90 f3ca8d40 00000286 f7fb7a84
+e4306000 f3ca8b90
+Jun  7 13:00:37 r9 Call Trace:
+Jun  7 13:00:37 r9 [<c018988f>] ext3_get_inode_loc+0x53/0x21b
+Jun  7 13:00:37 r9 [<c0189ed8>] ext3_do_update_inode+0x162/0x357
+Jun  7 13:00:37 r9 [<c02da13e>] __down+0x92/0x137
+Jun  7 13:00:37 r9 [<c0116319>] default_wake_function+0x0/0xc
+Jun  7 13:00:37 r9 [<c02da358>] __down_failed+0x8/0xc
+Jun  7 13:00:37 r9 [<c0198af3>] .text.lock.checkpoint+0x5/0x16
+Jun  7 13:00:37 r9 [<c0192e4a>] start_this_handle+0x143/0x46d
+Jun  7 13:00:37 r9 [<c0193a8a>] do_get_write_access+0x2b5/0x6c9
+Jun  7 13:00:37 r9 [<c0113d86>] recalc_task_prio+0x8f/0x183
+Jun  7 13:00:37 r9 [<c0193261>] journal_start+0xa1/0xc3
+Jun  7 13:00:37 r9 [<c018a3ff>] ext3_dirty_inode+0x2c/0x89
+Jun  7 13:00:37 r9 [<c016cf40>] __mark_inode_dirty+0x1d8/0x1dd
+Jun  7 13:00:37 r9 [<c0113f04>] activate_task+0x8a/0x99
+Jun  7 13:00:37 r9 [<c0113f8d>] resched_task+0x4f/0x7b
+Jun  7 13:00:37 r9 [<c0167459>] inode_update_time+0xbb/0xc0
+Jun  7 13:00:37 r9 [<c01308ed>]
+generic_file_aio_write_nolock+0x26a/0xab0
+Jun  7 13:00:37 r9 [<c011635a>] __wake_up_common+0x35/0x55
+Jun  7 13:00:37 r9 [<c02d70fc>] unix_stream_recvmsg+0x11a/0x435
+Jun  7 13:00:37 r9 [<c0131224>] generic_file_aio_write+0x74/0x9e
+Jun  7 13:00:37 r9 [<c0185aaa>] ext3_file_write+0x30/0xae
+Jun  7 13:00:37 r9 [<c014deae>] do_sync_write+0x6f/0xa4
+Jun  7 13:00:37 r9 [<c01601fa>] sys_select+0x236/0x4c0
+Jun  7 13:00:37 r9 [<c014df8c>] vfs_write+0xa9/0xf5
+Jun  7 13:00:37 r9 [<c014e069>] sys_write+0x38/0x59
+Jun  7 13:00:37 r9 [<c0103e7b>] syscall_call+0x7/0xb
 
-This doesn't work. The p->setup_func for "acpi" will still be called on
-behalf of "acpi_os_name".
+ 2.6.7-rc2-mm2 #5 SMP Fri Jun 4 13:58:50 CEST 2004 i686 Intel(R)
+Xeon(TM) CPU 3.06GHz GenuineIntel GNU/Linux
 
-Below change should work.
-
-Thanks,
--yi
-
---- linux-2.6.7-rc2-mm2.orig/init/main.c	2004-06-07
-16:01:25.000000000 +0800
-+++ linux-2.6.7-rc2-mm2/init/main.c	2004-06-07 18:50:22.256204536
-+0800
-@@ -154,18 +154,22 @@ static int __init obsolete_checksetup(ch
- {
- 	struct obs_kernel_param *p;
- 	extern struct obs_kernel_param __setup_start, __setup_end;
--	char *ptr;
--	int len = strlen(line);
- 
--	if ((ptr = strchr(line, '=')))
--		len = ptr - line;
- 	p = &__setup_start;
- 	do {
- 		int n = strlen(p->str);
--		if (n == 0 || (len <= n && !strncmp(line, p->str, n))) {
--			/* Already done in parse_early_param? */
--			if (p->early)
--				return 1;
-+		if (!strncmp(line, p->str, n)) {
-+			if (p->early) {
-+				/* Already done in parse_early_param?
-(Needs
-+				 * exact match on param part) */
-+				if (p->early && (line[n] == '\0' ||
-+				    line[n] == '='))
-+					return 1;
-+				else {
-+					p++;
-+					continue;
-+				}
-+			}
- 			if (!p->setup_func) {
- 				printk(KERN_WARNING "Parameter %s is
-obsolete,"
- 						" ignored\n", p->str);
+TIA,
+Krzysztof Sierota
 

@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129609AbQKMXFJ>; Mon, 13 Nov 2000 18:05:09 -0500
+	id <S129497AbQKMXJk>; Mon, 13 Nov 2000 18:09:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130167AbQKMXE7>; Mon, 13 Nov 2000 18:04:59 -0500
-Received: from [209.249.10.20] ([209.249.10.20]:21121 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S129609AbQKMXEl>; Mon, 13 Nov 2000 18:04:41 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 13 Nov 2000 14:34:35 -0800
-Message-Id: <200011132234.OAA03249@baldur.yggdrasil.com>
-To: james@fishsoupo.dhs.org
-Subject: toshoboe.c typo in linux-2.4.0-test11-pre4
-Cc: linux-kernel@vger.kernel.org
+	id <S129178AbQKMXJa>; Mon, 13 Nov 2000 18:09:30 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:29456 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S129047AbQKMXJR>; Mon, 13 Nov 2000 18:09:17 -0500
+Date: Tue, 14 Nov 2000 00:44:48 +0100 (MET)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: user beancounter (was: Reserve VM for root)
+In-Reply-To: <20001110183823.A23474@saw.sw.com.sg>
+Message-ID: <Pine.LNX.4.30.0011140026030.20626-100000@fs129-190.f-secure.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	linux-2.4.0-test11-pre{3,4}/drivers/net/irda/toshoboe.c contains
-a reference to the undefined symbol toshoboe_change_speed.  I guess
-this should be a reference to toshoboe_setbaud.  Because I am not
-positive, I am not sending this message directly to Linus, but I
-am cc'ing it to linux-kernel.  If I am right or if you have a better
-patch, can you please send it to Linus?  Thank you.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+On Fri, 10 Nov 2000, Andrey Savochkin wrote:
 
---- linux-2.4.0-test11-pre4/drivers/net/irda/toshoboe.c	Mon Nov 13 13:36:50 2000
-+++ linux/drivers/net/irda/toshoboe.c	Mon Nov 13 13:57:32 2000
-@@ -275,7 +275,7 @@
-   if ((speed = irda_get_speed(skb)) != self->io.speed) {
- 	/* Check for empty frame */
- 	if (!skb->len) {
--	    toshoboe_change_speed(self, speed); 
-+	    toshoboe_setbaud(self, speed); 
- 	    return 0;
- 	} else
- 	    self->new_speed = speed;
+> On Thu, Nov 09, 2000 at 06:30:32PM +0100, Szabolcs Szakacsits wrote:
+> > BTW, I wanted to take a look at the frequently mentioned beancounter patch,
+> > here is the current state,
+> > 	http://www.asp-linux.com/en/products/ubpatch.shtml
+> > "Sorry, due to growing expenses for support of public version of ASPcomplete
+> > we do not provide sources till first official release."
+>
+> That's not a place where I keep my code (and has never been :-)
+
+Sorry, I was misguided by your earlier message at
+	http://boudicca.tux.org/hypermail/linux-kernel/2000week30/0114.html
+where you wrote
+"Patch web page is http://www.asplinux.com.sg/install/ubpatch.html"
+
+They are the same sites [mirrors in .us, .sg, .kr and .ru].
+
+> ftp://ftp.sw.com.sg/pub/Linux/people/saw/kernel/user_beancounter/UserBeancounter.html
+> is the right place (but it has some availability problems :-(
+
+I've also tried two other ftp sites, none of them were available, just
+as at present ...
+
+> As for memory management, it provides a simple variant of service level
+> support for
+[...]
+
+Thanks for the info, user beancounter is definitely needed but it's
+a 2.5 issue and people have problems now. Ironically it seems disks
+soon will be as fast as RAM, many thinks max swap space supported is
+still 128 MB and they set up systems according to this, app
+requirements (multimedia, etc) grows eagerly and users run out of
+much easier then earlier. For many the quota isn't a solution because
+of performance or other reasons and Linux doesn't give them any chance
+to survive such a situation.
+
+	Szaka
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

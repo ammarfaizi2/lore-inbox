@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275803AbRI1Ch4>; Thu, 27 Sep 2001 22:37:56 -0400
+	id <S275806AbRI1CuQ>; Thu, 27 Sep 2001 22:50:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275804AbRI1Chr>; Thu, 27 Sep 2001 22:37:47 -0400
-Received: from logic.net ([64.81.146.141]:5367 "HELO logic.net")
-	by vger.kernel.org with SMTP id <S275803AbRI1Che>;
-	Thu, 27 Sep 2001 22:37:34 -0400
-Date: Thu, 27 Sep 2001 21:38:00 -0500
-From: "Edward S. Marshall" <esm@logic.net>
-To: Fabbione <fabbione@fabbione.net>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-Message-ID: <20010927213800.A1864@labyrinth.local>
-In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com> <3BB0B43B.38EF26A3@fabbione.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BB0B43B.38EF26A3@fabbione.net>; from fabbione@fabbione.net on Tue, Sep 25, 2001 at 06:43:39PM +0200
+	id <S275807AbRI1CuH>; Thu, 27 Sep 2001 22:50:07 -0400
+Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:62737 "EHLO
+	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S275806AbRI1Cty>;
+	Thu, 27 Sep 2001 22:49:54 -0400
+To: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
+Message-Id: <E15mnjA-0000sW-00@mail.tv-sign.ru>
+From: Oleg Nesterov <oleg@tv-sign.ru>
+Date: Fri, 28 Sep 2001 06:50:12 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 25, 2001 at 06:43:39PM +0200, Fabbione wrote:
-> You can probably add mvfs ClearCase file system but I don't remember the
-> URL.
+Hello.
 
-http://www.rational.com/ is the corporate website, and the particular product
-is at http://www.rational.com/products/clearcase/ .
+Thanks a lot for Your response.
 
-The actual module is an implementation of the Rational (previously Atria)
-ClearCase mvfs filesystem for Linux; it is composed of a source-available
-translation layer, and a binary-only core.
+On Fri, Sep 28, 2001 at 04:03:39 +0400, Andrea Arcangeli wrote:
+> > @@ -381,26 +380,22 @@
+> >  #endif
+> >  
+> >  	current->nice = 19;
+> > -	schedule();
+> > -	__set_current_state(TASK_INTERRUPTIBLE);
+> 
+> buggy (check cpus_allowed).
 
-One important note to mention: they only support Red Hat-supplied kernels;
-there is a high chance of failure using it with a stock kernel, due to
-changes in internal structures required by mvfs.
+Why? The next three lines is
 
--- 
-Edward S. Marshall <esm@logic.net>                        http://esm.logic.net/
--------------------------------------------------------------------------------
-[                  Felix qui potuit rerum cognoscere causas.                  ]
+	for (;;) {
+		schedule();
+		__set_current_state(TASK_INTERRUPTIBLE);
+
+And if I misunderstand schedule()'s
+
+still_running:
+	if (!(prev->cpus_allowed & (1UL << this_cpu)))
+		goto still_running_back;
+
+Ingo's patch was buggy as well.
+
+> you dropped Ingo's optimization (but you resurrected the strictier /proc
+> statistics).
+
+Again, I can't understand. The new loop
+
+	for (;;) {
+		schedule();
+		__set_current_state(TASK_INTERRUPTIBLE);
+
+		do {
+			do_softirq();
+			if (current->need_resched)
+				goto preempt;
+		} while (softirq_pending(cpu));
+
+		continue;
+preempt:
+		__set_current_state(TASK_RUNNING);
+	}
+
+seems to be _equivalent_ to Ingo's ... 
+
+What i am missed? I apologize in advance, if it is
+something obvious.
+
+Oleg

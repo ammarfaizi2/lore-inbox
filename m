@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265416AbTFSUEv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 16:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbTFSUEu
+	id S265921AbTFSUCG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 16:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265930AbTFSUCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 16:04:50 -0400
-Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:26017 "EHLO
-	dexter.hensema.net") by vger.kernel.org with ESMTP id S265416AbTFSUEn
+	Thu, 19 Jun 2003 16:02:06 -0400
+Received: from slimnet.xs4all.nl ([194.109.194.192]:39386 "EHLO
+	gatekeeper.slim") by vger.kernel.org with ESMTP id S265921AbTFSUCF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 16:04:43 -0400
-From: Erik Hensema <erik@hensema.net>
-Subject: Re: Troll Tech [was RE: Sco vs. IBM]
-Date: Thu, 19 Jun 2003 20:18:40 +0000 (UTC)
-Message-ID: <slrnbf46kv.lbe.erik@bender.home.hensema.net>
-References: <170EBA504C3AD511A3FE00508BB89A920234CD34@exnanycmbx4.ipc.com> <03061913583400.25866@tabby> <200306192108.13032.thorstenkoerner@123tkshop.org> <03061914300200.25966@tabby>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.7.4 (Linux)
+	Thu, 19 Jun 2003 16:02:05 -0400
+Subject: Which driver for the 3C940 / 3C2000?
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
 To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1056053787.2994.10.camel@paragon.slim>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-1) 
+Date: 19 Jun 2003 22:16:28 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard (jesse@cats-chateau.net) wrote:
-> On Thursday 19 June 2003 14:08, Thorsten Körner wrote:
->> Did they ?!? No they didn't
->> They are talking about old Unix-Licenses, not about Linux. And SCO also has
->> not licensed Unix to IBM themselves.
-> 
-> It was my understanding that you could download SCO Linux up until about a 
-> month after they started the lawsuit. By that time, all/most of the contested
-> code had to already be in the kernel. Since SCO was supplying it, it was 
-> released (my opinion).
+Hi,
 
-Not conciously. I'm not familiar with USA laws, but under Dutch laws, you
-have to consiously be aware of your actions. SCO can claim they are tricked
-into distributing (not releasing) propietary code under the GPL.
-> 
-> IMHO IBM AIX doesn't owe anything to SCO. Sure in the early days, IBM did 
-> consider using System V... but it had so many problems being ported that they
-> completely dropped it, and continued with AIX development instead.
+I am a bit confused about which driver a need for my onboard (Asus
+P4C800 mobo) 3Com gigabit Ethernet controller. It should be a 3C940 but
+sometimes it's called 3C2000. I found a driver at the asus site which
+compiles and works with some kernel versions. Is there a proper (open
+source) kernel driver for this chip? It seems that the tg3 driver
+support some type of 3C940 but not mine.
 
-Please remember that this is a *legal* issue, and most of us here are
-coders. We may *think* we understand the issues, but we (at least I am) are
-looking at it as coders, not lawyers.
+lspci -n gives:
 
-> I've used both.. and believe me, AIX doesn't work ANYTHING like System V. no
-> virtualization (disks), no partitioning (systems), no distributed operations, 
-> minimal networking, no Power support... (this was a 202e prototype at the 
-> time I believe...
+02:05.0 Class 0200: 10b7:1700 (rev 12)
 
-Doesn't matter. SCO claims that relatively tiny portions of their unix were
-copied into Linux.
+This chip is also currently not defined in pci_ids.h (2.4 and 2.5)
 
--- 
-Erik Hensema <erik@hensema.net>
+
+Thanks,
+
+Jurgen
+

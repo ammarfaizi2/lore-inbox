@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbUKXVrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262860AbUKXVwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbUKXVrq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 16:47:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbUKXVp2
+	id S262860AbUKXVwN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 16:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUKXVwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 16:45:28 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:55205 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262778AbUKXVpD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 16:45:03 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] cciss: Off-by-one error causing oops in CCISS_GETLUNIFOioctl
-Date: Wed, 24 Nov 2004 14:58:09 -0600
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF107DC005B@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] cciss: Off-by-one error causing oops in CCISS_GETLUNIFOioctl
-Thread-Index: AcTSUzqYWQ4QEVyIRjKBigmnTg/1PgAFAOdg
-From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-To: "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 24 Nov 2004 20:58:10.0405 (UTC) FILETIME=[4E39A950:01C4D268]
+	Wed, 24 Nov 2004 16:52:13 -0500
+Received: from waste.org ([209.173.204.2]:6632 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262860AbUKXVvu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 16:51:50 -0500
+Date: Wed, 24 Nov 2004 13:35:21 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: george anzinger <george@mvista.com>
+Subject: nanosleep interrupted by ignored signals
+Message-ID: <20041124213521.GJ2460@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch fixes an an "off-by-one" error found in the CCISS_GETLUNIFO
-> ioctl in the cciss driver.  It is cycling through the part 
-> table of the
-> gendisk structure which is a zero-based array, not a one-based array.
-> This often causes an oops when referencing the out-of-bounds 
-> element.  
-> 
-> Signed-off by: Andrew Patterson <andrew.patterson@hp.com>
-> ---
-Thanks, Andrew, but I was informed in no uncertain terms that my driver has "no damn business" reading the part table struct. This ioctl will be removed in the next version of the driver. Applications that use this should be changed to use readdir.
+Take the following trivial program:
 
-Thanks,
-mikem
+#include <unistd.h>
 
-> 
-> --- linux-2.6.9/drivers/block/cciss.c.orig	2004-11-24 
-> 10:22:30.000000000 -0700
-> +++ linux-2.6.9/drivers/block/cciss.c	2004-11-24 
-> 10:27:38.000000000 -0700
-> @@ -799,7 +799,7 @@
->   		luninfo.num_opens = drv->usage_count;
->   		luninfo.num_parts = 0;
->   		/* count partitions 1 to 15 with sizes > 0 */
-> - 		for(i=1; i <MAX_PART; i++) {
-> + 		for(i=0; i <MAX_PART-1; i++) {
->  			if (!disk->part[i])
->  				continue;
->  			if (disk->part[i]->nr_sects != 0)
-> 
-> 
-> 
+int main(void)
+{
+	sleep(10);
+	return 0;
+}
+
+Run it in an xterm. Note that resizing the xterm has no effect on the
+process. Now do the same with strace:
+
+brk(0x80495bc)                          = 0x80495bc
+brk(0x804a000)                          = 0x804a000
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+nanosleep({10, 0}, 0xbffff548)          = -1 EINTR (Interrupted system
+call)
+--- SIGWINCH (Window changed) ---
+_exit(0)                                = ?
+
+In short, nanosleep is getting interrupted by signals that are
+supposedly ignored when a process is being praced. This appears to be
+a long-standing bug.
+
+It also appears to be a long-known bug. I found some old discussion of this
+problem here but no sign of any resolution:
+
+http://www.ussg.iu.edu/hypermail/linux/kernel/0108.1/1448.html
+
+What's the current thinking on this?
+
+-- 
+Mathematics is the supreme nostalgia of our time.

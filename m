@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129801AbQLDRYE>; Mon, 4 Dec 2000 12:24:04 -0500
+	id <S129819AbQLDR2z>; Mon, 4 Dec 2000 12:28:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129819AbQLDRXy>; Mon, 4 Dec 2000 12:23:54 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:63505 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129801AbQLDRXm>; Mon, 4 Dec 2000 12:23:42 -0500
-Date: Mon, 4 Dec 2000 10:52:31 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0.12.4: drivers/net/dummy.c fails compile
-In-Reply-To: <200012041633.eB4GXOt26866@pincoya.inf.utfsm.cl>
-Message-ID: <Pine.LNX.3.96.1001204105134.9128D-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130144AbQLDR2q>; Mon, 4 Dec 2000 12:28:46 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:52745 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S129819AbQLDR2d>; Mon, 4 Dec 2000 12:28:33 -0500
+Message-Id: <200012041657.eB4Gvit27949@pincoya.inf.utfsm.cl>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: 2.4.0.12.4: dummy.o problem (again)
+X-Mailer: MH [Version 6.8.4]
+Date: Mon, 04 Dec 2000 13:57:44 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2000, Horst von Brand wrote:
-> SPARC64, Red Hat 6.2 + local updates
+A better (right, IMVHO) patch is:
 
-A better patch has already been posted, and is present in the
-2.4.0-test11-ac series.  module.h needs to be modified to protect the
-argument of SET_MODULE_OWNER.
-
-	Jeff
-
-
-
+--- linux-2.4.0-test/include/linux/module.h~	Mon Dec  4 09:06:47 2000
++++ linux-2.4.0-test/include/linux/module.h	Mon Dec  4 13:55:18 2000
+@@ -345,7 +345,7 @@
+ #endif /* MODULE */
+ 
+ #ifdef CONFIG_MODULES
+-#define SET_MODULE_OWNER(some_struct) do { some_struct->owner = THIS_MODULE; } while (0)
++#define SET_MODULE_OWNER(some_struct) do { (some_struct)->owner = THIS_MODULE; } while (0)
+ #else
+ #define SET_MODULE_OWNER(some_struct) do { } while (0)
+ #endif
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

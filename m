@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261621AbSI0Dv2>; Thu, 26 Sep 2002 23:51:28 -0400
+	id <S261620AbSI0DsJ>; Thu, 26 Sep 2002 23:48:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261622AbSI0Dv2>; Thu, 26 Sep 2002 23:51:28 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:31485 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S261621AbSI0Dv1>; Thu, 26 Sep 2002 23:51:27 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	id <S261621AbSI0DsJ>; Thu, 26 Sep 2002 23:48:09 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:52668 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S261620AbSI0DsI>;
+	Thu, 26 Sep 2002 23:48:08 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200209270353.HAA19674@sex.inr.ac.ru>
+Subject: Re: Problems with tcp_retransmit_skb - Please omit the previous incomplete mail
+To: rpranesh@yahoo.COM (Venkatesh Rao)
+Date: Fri, 27 Sep 2002 07:53:09 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020926184618.35723.qmail@web21401.mail.yahoo.com> from "Venkatesh Rao" at Sep 26, 2 11:15:02 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15763.55020.35426.721691@wombat.chubb.wattle.id.au>
-Date: Fri, 27 Sep 2002 13:56:28 +1000
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux, overly complicated
- v2
-In-Reply-To: <924963807@toto.iv>
-X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Thunder" == Thunder from the hill <thunder@lightweight.ods.org> writes:
+Hello!
 
-Thunder> Hi, On Thu, 26 Sep 2002, Rik van Riel wrote:
->> Have you thought about how to _use_ a list without a list head ?
+> When conditions fails, the value of wmem_alloc is ~ 
+> around 56K-154K,
 
-Thunder> Indeed, that was why I've brought this up at all...
+... which means that you already have 64-154K transmitted
+and all this buffers still not left the host. So, further
+retransmission is pointless.
 
-What is the problem these lists are intended to solve?
 
-There's no point in adding general infrastructure that has no
-immediate uses -- it just ends up mouldering in a corner,
-(like the generic hashing code linux/ghash.h which has been in the
-kernel for 4 or 5 years, and still has *no* uses.)
+> Each time it tries to retransmit this if condition
+> always fail
+...
+> Any hints in  helping me debug this issue will be
+> appreciated.
 
---
-Dr Peter Chubb				    peterc@gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories, all almost the same.
+Most likely, this means that driver leaks memory.
+
+Alexey

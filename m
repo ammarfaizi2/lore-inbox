@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264292AbUAOBjY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 20:39:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUAOBhj
+	id S264144AbUAOBh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 20:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264949AbUAOBh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 20:37:39 -0500
-Received: from dp.samba.org ([66.70.73.150]:20871 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264539AbUAOBh0 (ORCPT
+	Wed, 14 Jan 2004 20:37:27 -0500
+Received: from dp.samba.org ([66.70.73.150]:18823 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264144AbUAOBh0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 14 Jan 2004 20:37:26 -0500
+Date: Thu, 15 Jan 2004 10:20:48 +1100
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Cc: Horacio de Oro <hgdeoro@yahoo.com>, mingo@redhat.com
-Subject: Re: [2.6.1-mm2] Badness in futex_wait at kernel/futex.c:509 
-In-reply-to: Your message of "Tue, 13 Jan 2004 22:36:12 -0800."
-             <20040113223612.4fe709d9.akpm@osdl.org> 
-Date: Thu, 15 Jan 2004 09:46:45 +1100
-Message-Id: <20040115013723.33EF22C21C@lists.samba.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, eike-kernel@sf-tec.de,
+       rth@twiddle.net, torvalds@osdl.org
+Subject: Re: [2.6 patch] if ... BUG() -> BUG_ON()
+Message-Id: <20040115102048.4689664e.rusty@rustcorp.com.au>
+In-Reply-To: <20040113213230.GY9677@fs.tum.de>
+References: <20040113213230.GY9677@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040113223612.4fe709d9.akpm@osdl.org> you write:
-> Horacio de Oro <hgdeoro@yahoo.com> wrote:
-> >
-> > Hi!
-> > 
-> > This happen every time I switch from X to console:
-> > 
-> > Badness in futex_wait at kernel/futex.c:509
-> > Call Trace:
-> >  [futex_wait+434/448] futex_wait+0x1b2/0x1c0
-> >  [default_wake_function+0/32] default_wake_function+0x0/0x20
-> >  [default_wake_function+0/32] default_wake_function+0x0/0x20
-> >  [do_futex+112/128] do_futex+0x70/0x80
-> >  [sys_futex+292/320] sys_futex+0x124/0x140
-> >  [syscall_call+7/11] syscall_call+0x7/0xb
-> > 
+On Tue, 13 Jan 2004 22:32:30 +0100
+Adrian Bunk <bunk@fs.tum.de> wrote:
+
+> Hi Andrew,
 > 
-> 	/* A spurious wakeup should never happen. */
-> 	WARN_ON(!signal_pending(current));
-> 
-> (looks at Rusty)
+> four months ago, Rolf Eike Beer <eike-kernel@sf-tec.de> sent a patch 
+> against 2.6.0-test5-bk1 that converted several if ... BUG() to BUG_ON()
+> (this might in some cases result in slightly faster code).
 
-You were the one who said spurious wakeups shouldn't happen 8)
+You know, I dislike this.
 
-This implies that the console code decided to do wake_up_process() on
-us.  We returned -EINTR to userspace, but there was no signal, which
-is odd.
+The right fix is to hack gcc to allow functions (in this case, BUG()) to have
+an "unlikely" attribute, and therefore know that this branch is unlikely.
 
-Anyone have any ideas *why*?
+Making code slightly less readable for minor (and hopefully temporary)
+optimizations is IMHO not a worthy use of your time.
+
+Quick!  To the GCC sources!  Run!
 Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

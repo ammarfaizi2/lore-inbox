@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262058AbTENRxX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 13:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbTENRxX
+	id S262258AbTENR7S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 13:59:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTENR7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 13:53:23 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:9953 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S262058AbTENRxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 13:53:22 -0400
-Date: Wed, 14 May 2003 13:05:56 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: mika.penttila@kolumbus.fi, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Race between vmtruncate and mapped areas?
-Message-ID: <99000000.1052935556@baldur.austin.ibm.com>
-In-Reply-To: <20030514105706.628fba15.akpm@digeo.com>
-References: <154080000.1052858685@baldur.austin.ibm.com>
- <3EC15C6D.1040403@kolumbus.fi><199610000.1052864784@baldur.austin.ibm.com>
- <20030513181018.4cbff906.akpm@digeo.com>
- <18240000.1052924530@baldur.austin.ibm.com>
- <20030514103421.197f177a.akpm@digeo.com>
- <82240000.1052934152@baldur.austin.ibm.com>
- <20030514105706.628fba15.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 14 May 2003 13:59:18 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:31994 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP id S262258AbTENR7R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 13:59:17 -0400
+Message-ID: <3EC28938.8010402@attbi.com>
+Date: Wed, 14 May 2003 14:21:44 -0400
+From: "George G. Davis" <davis_g@attbi.com>
+Reply-To: davis_g@attbi.com, davis_g@attbi.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021128
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Trivial fix for get_user undefined in linux-2.4.20 wdt977
+ kernel module
+Content-Type: multipart/mixed;
+ boundary="------------060200070208040301060607"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060200070208040301060607
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---On Wednesday, May 14, 2003 10:57:06 -0700 Andrew Morton <akpm@digeo.com>
-wrote:
+Greetings,
 
-> yes.  It's a very complex way of allocating anonymous memory.
+The attached patch fixes get_user undefined in linux-2.4.20 wdt977
+kernel module.
 
-Yep.  And randomly, at that.
+--
+Regards,
+George
 
-> I am told that Stephen, Linus and others discussed this at length at KS a
-> couple of years ago and the upshot was that the application is racy anyway
-> and there's nothing wrong with it.
-> 
-> Hugh calls these "Morton pages" but it wasn't me and nobody saw me do it.
-> 
-> It would be nice to make them go away - they cause problems.
 
-Definitely.  We almost have the pieces necessary to detect it and/or
-prevent it, but the info isn't in quite the right layer at the right time.
-If it weren't for the lock order problem with mmap_sem we could have nailed
-it that way.  Sigh.
+--------------060200070208040301060607
+Content-Type: text/plain;
+ name="patch-2.4.20-drivers_char_wdt977"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="patch-2.4.20-drivers_char_wdt977"
 
-Dave
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+LS0tIGxpbnV4LTIuNC4yMC1vcmlnL2RyaXZlcnMvY2hhci93ZHQ5NzcuYwlUdWUgRGVjIDEw
+IDE2OjAyOjA4IDIwMDIKKysrIGxpbnV4LTIuNC4yMC1uZXcvZHJpdmVycy9jaGFyL3dkdDk3
+Ny5jCVdlZCBNYXkgMTQgMTE6NDA6MDggMjAwMwpAQCAtMjcsNiArMjcsNyBAQAogI2luY2x1
+ZGUgPGFzbS9pby5oPgogI2luY2x1ZGUgPGFzbS9zeXN0ZW0uaD4KICNpbmNsdWRlIDxhc20v
+bWFjaC10eXBlcy5oPgorI2luY2x1ZGUgPGFzbS91YWNjZXNzLmg+CiAKICNkZWZpbmUgV0FU
+Q0hET0dfTUlOT1IJMTMwCiAK
+--------------060200070208040301060607--
 

@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbTKCV0F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 16:26:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263270AbTKCV0F
+	id S263270AbTKCVgX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 16:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTKCVgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 16:26:05 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:37013 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S262796AbTKCV0C (ORCPT
+	Mon, 3 Nov 2003 16:36:22 -0500
+Received: from dp.samba.org ([66.70.73.150]:16829 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263270AbTKCVgW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 16:26:02 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Mon, 3 Nov 2003 16:36:22 -0500
+Date: Tue, 4 Nov 2003 08:32:53 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: 2.6.0-test9-mjb1
+Message-ID: <20031103213253.GB13057@krispykreme>
+References: <14860000.1067544022@flay> <3FA171DD.5060406@pobox.com> <1067548047.1028.19.camel@nighthawk> <3FA17FEC.2080203@pobox.com> <1067549370.2657.38.camel@nighthawk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16294.51171.463585.783228@napali.hpl.hp.com>
-Date: Mon, 3 Nov 2003 13:25:55 -0800
-To: David Brownell <david-b@pacbell.net>
-Cc: davidm@hpl.hp.com, Greg KH <greg@kroah.com>, vojtech@suse.cz,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
-In-Reply-To: <3FA5CF9E.2060507@pacbell.net>
-References: <200310272235.h9RMZ9x1000602@napali.hpl.hp.com>
-	<20031028013013.GA3991@kroah.com>
-	<200310280300.h9S30Hkw003073@napali.hpl.hp.com>
-	<3FA12A2E.4090308@pacbell.net>
-	<16289.29015.81760.774530@napali.hpl.hp.com>
-	<3FA5CF9E.2060507@pacbell.net>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <1067549370.2657.38.camel@nighthawk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sun, 02 Nov 2003 19:46:38 -0800, David Brownell <david-b@pacbell.net> said:
+ 
+> Whoops.  I just went looking in the breakout directory and didn't see it
+> in there.  I wonder where it was hidden.  
+> 
+> Anton, did this come from you?  Did it stop some warnings or something?
 
-  David> I'm not sure that if the HID driver were to pass a null
-  David> buffer pointer, it would be caught anywhere.
-  >>  OK, I'll try to find some time to trace the I/O MMU calls to see
-  >> if something isn't kosher at that level.  Is there a good way of
-  >> getting a relatively high-level of tracing in the USB subsystem
-  >> that would some me what's going on between the HID and the core
-  >> USB level?
+I think it came from Scott. At one stage ppc64 had 64bit IO BARs, we
+have since switched to 32bit BARs but I kept the patch. As Jeff points
+out, the old behaviour is a bug.
 
-  Dave.B> Most of that story is just submitting and completing URBs.
-
-Yeah.  And it appears that it's the very first call to
-hid_submit_ctrl() that's triggering the problem (not always, but about
-9 out of 10 times).  I dumped some of the key fields for the URB being
-submitted and they all looked saned to me.
-
-  Dave.B> I'd either try changing the spots in drivers/usb/core/hcd.c
-  Dave.B> marked as appropriate for generic MONITOR_URB hooks (printk
-  Dave.B> if it's your HID device, maybe), or manually turn on
-  Dave.B> whatever HCD-specific hooks exist (maybe use a VERBOSE
-  Dave.B> message level).
-
-OK, thanks for the suggestion.  I'll keep looking, but will be on
-travel this week, so I may not be able to spend much time on this
-problem.
-
-	--david
+Anton

@@ -1,120 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbUKFQSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbUKFQV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbUKFQSs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 11:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbUKFQSs
+	id S261415AbUKFQV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 11:21:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbUKFQV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 11:18:48 -0500
-Received: from jade.aracnet.com ([216.99.193.136]:64164 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S261413AbUKFQSn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 11:18:43 -0500
-Date: Sat, 06 Nov 2004 08:18:34 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.6.9-mjb1
-Message-ID: <214010000.1099757914@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sat, 6 Nov 2004 11:21:58 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:25051 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261415AbUKFQVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 11:21:51 -0500
+Date: Sat, 6 Nov 2004 16:21:33 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@novell.com>
+cc: Nick Piggin <piggin@cyberone.com.au>, Jesse Barnes <jbarnes@sgi.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages /
+    all_unreclaimable braindamage
+In-Reply-To: <20041106152903.GA3851@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0411061609520.3592-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patchset is meant to be pretty stable, not so much a testing ground.
+On Sat, 6 Nov 2004, Andrea Arcangeli wrote:
+> On Sat, Nov 06, 2004 at 09:47:56AM +0000, Hugh Dickins wrote:
+> > Problematic, yes: don't overlook that GFP_REPEAT and GFP_NOFAIL _can_
+> > fail, returning NULL: when the process is being OOM-killed (PF_MEMDIE).
+> 
+> that looks weird, why that? The oom killer must be robust against a task
+> not going anyway regardless of this (task can be stuck in nfs or
+> similar).
 
-1. Better performance & resource consumption, particularly on larger machines.
-2. Diagnosis tools (kgdb, early_printk, etc).
+Oh, sure, it is, that's not the problem.
 
-I'd be very interested in feedback from anyone willing to test on any 
-platform, however large or small.
+> If a fail path ever existed, __GFP_NOFAIL should not have been
+> used in the first place. I don't see many valid excuses to use
+> __GFP_NOFAIL if we can return NULL without the caller running into an
+> infinite loop.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.9/patch-2.6.9-mjb1.bz2
+I took exception to the misleadingness of the name GFP_NOFAIL, and did
+send Andrew a patch to remove it once upon a time, but he didn't bite.
 
-Pending:
+Your view, that it's better to hang repeating indefinitely than ever
+return a NULL when caller said not to, is probably the better view.
 
-config_page_offset
-per_node_rss
-local_balance_exec
-reluctance in cross-node balance (less_bouncy)
-sched tunables patch
-Child runs first (akpm)
-Netdump
+> btw, PF_MEMDIE has always been racy in the way it's being set, so it can
+> corrupt the p->flags, but the race window is very small to trigger it
+> (and even if it triggers, it probably wouldn't be fatal). That's why I
+> don't use PF_MEMDIE in 2.4-aa.
 
-Present in this patch:
+I expect so, yes, the PF_ flags don't have proper locking.  Those
+places which set or clear PF_MEMALLOC are more likely to hit races,
+but last time I went there I don't think there was a real serious problem.
 
--mjb						Martin J. Bligh
-	Add a tag to the makefile
-
-kgdb						Various
-	Stolen from akpm's 2.6.9-mm1, includes fixes
-
-kgdboe_netpoll					Matt Mackall et al.
-	Kgdb over ethernet support that works with the netpoll infrastructure
-
-kgdb_x86_64_support				Jim Houston
-	Support kgdb on x86_64
-
-kgdb_ia64_support				Robert Picco
-	Support kgdb on ia64
-
-ppc64_reloc_hide				Anton Blanchard / Paul Mackerras
-	PPC 64 fixups
-
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
-
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
-
-disable preempt					Martin J. Bligh
-	I broke preempt somehow, temporarily disable it to stop accidents
-
-aiofix2						Mingming Cao
-	fixed a bug in ioctx_alloc()
-
-percpu_real_loadavg				Dave Hansen / Martin J. Bligh
-	Tell me what the real load average is, and tell me per cpu.
-
-irqbal_fast					Adam Litke
-	Balance IRQs more readily
-
-kcg						Adam Litke
-	Acylic call graphs from the kernel. Wheeeeeeeeeeeee!
-
-kcg_gcc_detect					Adam Litke
-	Detect older gcc versions that don't work with mcount, and crap out
-
-numa_mem_equals 				Dave Hansen
-	mem= command line parameter NUMA awareness.
-
-autoswap					Con Kolivas
-	Auto-tune swapiness
-
-kswapd_divide_by_zero				Hugh Dickins
-	Fix divide_by_zero error
-
-protocol254					Paul Mackerras / Omkhar 
-	Allow protocol 254
-
-slabtune					Dave McCracken
-	Take slab in bigger bites on larger machines
-
-fasync_lock_rcu					Manfred Spraul
-	Use RCU for fasync_lock
-
-vma_statistics					Martin J. Bligh
-	Provide per VMA stats
-
-physnode_map					Martin J. Bligh
-	Hack around problem of missing area in physnode_map
-
-sched_tunables					R. Love / Darren Hart
-	Provide sched tunables to play with on a rainy day.
-
-schedstats-tools				Rick Lindsley
-	Grub around in lotsa scheduler statistics
-
+Hugh
 

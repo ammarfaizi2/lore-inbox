@@ -1,98 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265882AbTIJWeK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 18:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265830AbTIJWdL
+	id S265942AbTIJXCe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 19:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbTIJXCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 18:33:11 -0400
-Received: from port-212-202-40-6.reverse.qsc.de ([212.202.40.6]:1920 "EHLO
-	schillernet.dyndns.org") by vger.kernel.org with ESMTP
-	id S265883AbTIJW02 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 18:26:28 -0400
-Date: Wed, 10 Sep 2003 22:26:20 +0000 (UTC)
-Message-Id: <20030910.222620.730549923.rene.rebe@gmx.net>
-To: benh@kernel.crashing.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dmasound_pmac (2.4.x{,-benh}) does not restore mixer during
- PM-wake
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <1063221565.678.2.camel@gaston>
-References: <20030910.211509.184824199.rene.rebe@gmx.net>
-	<1063221565.678.2.camel@gaston>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.13 (Rational FORTRAN)
+	Wed, 10 Sep 2003 19:02:34 -0400
+Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:25037 "EHLO
+	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S265942AbTIJXCa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 19:02:30 -0400
+Subject: CQual 0.99 Released: user/kernel pointer bug finding tool
+From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       "David S. Miller" <davem@redhat.com>,
+       Jeff Foster <jfoster@cs.berkeley.edu>,
+       David Wagner <daw@eecs.berkeley.edu>
+In-Reply-To: <20030818210513.GB3276@kroah.com>
+References: <20030805103240.02221bed.khali@linux-fr.org>
+	<20030805210704.GA5452@kroah.com>
+	<20030806100702.78298ffe.khali@linux-fr.org>
+	<1060886657.1006.7121.camel@dooby.cs.berkeley.edu>
+	<20030814190954.GA2492@kroah.com>
+	<1060912895.1006.7160.camel@dooby.cs.berkeley.edu>
+	<20030815211329.GB4920@kroah.com>
+	<1060985846.302.17.camel@dooby.cs.berkeley.edu>
+	<20030815235127.GA5697@kroah.com>
+	<1061168082.16691.120.camel@dooby.cs.berkeley.edu> 
+	<20030818210513.GB3276@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 10 Sep 2003 16:02:08 -0700
+Message-Id: <1063234934.19577.92.camel@dooby.cs.berkeley.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Download: http://www.cs.umd.edu/~jfoster/cqual/.
+Support:  cqual@cs.umd.edu.
 
-On: Wed, 10 Sep 2003 21:19:25 +0200,
-    Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> 
-> > The code in tas3004_leave_sleep() looks ok so ... any idea (maybe I
-> > need to add a printk do test if it is really called?)?
-> 
-> Either that or we need some delay after powering the chip back
-> up and before we can write to its mixer ?
+CQual is a program verification tool that uses type-qualifier
+inference to find bugs in C programs.  This release of CQual includes
+support for finding user/kernel pointer bugs in the linux kernel.
+CQual has already found user/kernel pointer bugs in source files that
+passed through Linus' "sparse" tool without generating any warnings.
+Our goals with this release are
 
-Ok, here we go:
+- help kernel developers avoid user/kernel bugs
+- get feedback from kernel developers for future CQual features
 
-...
-PCI: Enabling bus mastering for device 10:18.0
-host/usb-ohci.c: USB continue: usb-10:18.0 from host wakeup
-PCI: Enabling bus mastering for device 10:19.0
-host/usb-ohci.c: USB continue: usb-10:19.0 from host wakeup
-eth0: resuming
-adb: starting probe task...
-adb devices: [2]: 2 c4 [3]: 3 1 [7]: 7 1f
-ADB keyboard at 2, handler 1
-ADB mouse at 3, handler set to 4 (trackpad)
-adb: finished probe task...
-RxR: 1
-RxR: 2
-tas: I2C byte write failed
-udio jack plugged, muting speakers.
-eth0: Link is up at 100 Mbps, half-duplex.
-...
-#
-(I overread the "tas: I2C byte write failed" before ...)
+CQual's current main features are:
 
-Where I instrumented the code with:
+- It requires _very_ few annotations: we currently use only ~200
+- It's sound: CQual verifies the _absence_ of user/kernel bugs
+- It generates fewer false warnings than sparse.
+- It's context-sensitve: CQual doesn't confuse different calls to the 
+  same function.
+- CQual allows different instances of a struct type to hold different 
+  kinds of pointers (i.e. user vs. kernel)
+- It can be easily extended to find new types of bugs by editing a 
+  configuration file
+- It's fast: CQual analyzes most files in 1-2 seconds.
+- It integrates easily into the kernel checking process.
 
-static int
-tas3004_leave_sleep(struct tas3004_data_t *self)
-{
-        unsigned char mcr = (1<<6)+(2<<4)+(2<<2);
+The distribution contains a KERNEL-QUICKSTART to help kernel
+developers start finding user/kernel bugs quickly.  We look forward to
+hearing your feedback.
 
-        printk("RxR: 1\n");
+CQual is currently developed by Jeff Foster, John Kodumal, Tachio
+Terauchi, Rob Johnson, and many others.
 
-        if (!self)
-                return -1;
+Best,
+Rob Johnson
 
-        printk("RxR: 2\n");
-
-        /* Make sure something answers on the i2c bus */
-        if (tas3004_write_register(self, TAS3004_REG_MCR, &mcr,
-            WRITE_NORMAL | FORCE_WRITE) < 0)
-                return -1;
-
-        printk("RxR: 3\n");
-
-so hm?!? - is the wakeup order of the devices incorrect (i2c needs to
-be before damsound_pmac ...)?
-
-> ben.
-
-Sincerely yours,
-  René Rebe
-    - ROCK Linux stable release maintainer
-
---  
-René Rebe - Europe/Germany/Berlin
-  rene@rocklinux.org rene.rebe@gmx.net
-http://www.rocklinux.org http://www.rocklinux.net/people/rene
-http://gsmp.tfh-berlin.de/gsmp http://gsmp.tfh-berlin.de/rene
 

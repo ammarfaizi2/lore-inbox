@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143705AbRAHNi0>; Mon, 8 Jan 2001 08:38:26 -0500
+	id <S143781AbRAHNi1>; Mon, 8 Jan 2001 08:38:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143781AbRAHNiR>; Mon, 8 Jan 2001 08:38:17 -0500
-Received: from [172.16.18.67] ([172.16.18.67]:3458 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S143705AbRAHNiE>; Mon, 8 Jan 2001 08:38:04 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E14FalM-0004MY-00@the-village.bc.nu> 
-In-Reply-To: <E14FalM-0004MY-00@the-village.bc.nu> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: viro@math.psu.edu (Alexander Viro),
-        stefan@hello-penguin.com (Stefan Traby), linux-kernel@vger.kernel.org
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state) 
-Mime-Version: 1.0
+	id <S143734AbRAHNiR>; Mon, 8 Jan 2001 08:38:17 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:10650 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S143721AbRAHNiE>; Mon, 8 Jan 2001 08:38:04 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Adam J. Richter" <adam@yggdrasil.com>, parsley@roanoke.edu,
+        linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Patch (repost): cramfs memory corruption fix
+In-Reply-To: <Pine.LNX.4.10.10101071153470.27944-100000@penguin.transmeta.com>
+From: Christoph Rohland <cr@sap.com>
+Date: 08 Jan 2001 14:37:13 +0100
+In-Reply-To: Linus Torvalds's message of "Sun, 7 Jan 2001 11:56:38 -0800 (PST)"
+Message-ID: <qwwwvc6tbau.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Jan 2001 13:37:15 +0000
-Message-ID: <27841.978961035@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
 
-alan@lxorguk.ukuu.org.uk said:
->  I put it into generic_file_write. That covers most fs's it seems. The
-> jffs  guys are going to switch to generic_file_write soon 
+On Sun, 7 Jan 2001, Linus Torvalds wrote:
+> I wonder what to do about this - the limits are obviously useful, as
+> would the "use swap-space as a backing store" thing be. At the same
+> time I'd really hate to lose the lean-mean-clean ramfs.
 
-It's in CVS already. For 2.4, 'soon' == 'when Linus is ready to start taking
-patches'
+Let me repeat on this issue: shmem.c has everything needed for this
+despite read and write and they should be really easy to add. 
 
-If you want it for 2.4-ac I can provide a patch which fixes both that and 
-the oops on open() unlink() read().
+I did not plan to write them in the near future because I did not
+think that this is a really wanted feature. But I can look into it.
 
---
-dwmw2
-
+Greetings
+		Christoph
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

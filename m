@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289114AbSBLI1w>; Tue, 12 Feb 2002 03:27:52 -0500
+	id <S290828AbSBLIeO>; Tue, 12 Feb 2002 03:34:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290828AbSBLI1n>; Tue, 12 Feb 2002 03:27:43 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:43019 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289114AbSBLI1Y>;
-	Tue, 12 Feb 2002 03:27:24 -0500
-Date: Tue, 12 Feb 2002 09:26:58 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre9-ac1
-Message-ID: <20020212092658.Z729@suse.de>
-In-Reply-To: <20020212001547.GA22586@codepoet.org> <E16aQu1-00008C-00@the-village.bc.nu> <20020212092109.Y729@suse.de>
+	id <S290833AbSBLIeE>; Tue, 12 Feb 2002 03:34:04 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:3339 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S290828AbSBLId5>; Tue, 12 Feb 2002 03:33:57 -0500
+Date: Tue, 12 Feb 2002 09:33:55 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: linux-kernel@vger.kernel.org
+Cc: Theodore Tso <tytso@mit.edu>, SA products <super.aorta@ntlworld.com>
+Subject: Re: faking time
+Message-ID: <20020212093355.A29445@devcon.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Theodore Tso <tytso@mit.edu>,
+	SA products <super.aorta@ntlworld.com>
+In-Reply-To: <3C67AFD3.722C5471@ntlworld.com> <20020211224723.A5514@thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020212092109.Y729@suse.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020211224723.A5514@thunk.org>; from tytso@mit.edu on Mon, Feb 11, 2002 at 10:47:23PM -0500
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 12 2002, Jens Axboe wrote:
-> On Tue, Feb 12 2002, Alan Cox wrote:
-> > > I notice that in linux/drivers/scsi/scsi_merge.c you seem to
-> > > be reverting the MO drive clustering fix from Jens:
-> > >     http://www.uwsg.indiana.edu/hypermail/linux/kernel/0202.0/1321.html
-> > > 
-> > > Was this intentional?  If so, why?
-> > 
-> > I want to find out why it was done first and then test it. Leaving it out
-> > will ensure it bugs me until I test it
+On Mon, Feb 11, 2002 at 10:47:23PM -0500, Theodore Tso wrote:
 > 
-> If you leave it out, you surely want to make sure that the other request
-> init and re-init paths agree on the clustering for MO devices. Because
-> they don't.
-> 
-> As far as I'm concerned, removing the MO conditional wrt clustering is
-> the right fix.
+> Here's an LD_PRELOAD shared library that will do the trick... just
+> export the environment variable FAKETIME with the time that you'd
+> like, and then export the LD_PRELOAD environment variable to point
+> that the faketime.so library, and then execute your program.  All
+> programs that have these two environment variables set will have their
+> time faked out accordingly.
 
-BTW, if you are concerned with the write/read vs seek latencies of MO
-drives, then the disable clustering hack was definitely the wrong way to
-try and limit request sizes. In fact it achieved absolutely _nothing_.
-Clustering at this level is completely device independent, too.
+But note that this doesn't work with programs linked statically. If
+you must fool one of those, ptrace() is the only way to do it without
+some sort of kernel patch or module I think.
 
-In short, the old code made no sense whatsoever.
-
-Now, disabling request merging for MO devices might make a whole lot
-more sense. That might be worth while trying, and I'd be happy to give
-you a patch to try that out instead.
-
+Andreas
 -- 
-Jens Axboe
-
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

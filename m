@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262748AbTCPUdN>; Sun, 16 Mar 2003 15:33:13 -0500
+	id <S262751AbTCPUuw>; Sun, 16 Mar 2003 15:50:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262751AbTCPUdN>; Sun, 16 Mar 2003 15:33:13 -0500
-Received: from 210-54-226-44.dialup.xtra.co.nz ([210.54.226.44]:260 "EHLO
-	valhalla.neverborn.ORG") by vger.kernel.org with ESMTP
-	id <S262748AbTCPUdM>; Sun, 16 Mar 2003 15:33:12 -0500
-Date: Mon, 17 Mar 2003 08:43:46 +1200
-From: "leon j. breedt" <ljb@neverborn.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Broadcom BCM5702 Major Problems
-Message-ID: <20030316204346.GA6593@valhalla.neverborn.ORG>
+	id <S262753AbTCPUuw>; Sun, 16 Mar 2003 15:50:52 -0500
+Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:22184 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id <S262751AbTCPUuv>; Sun, 16 Mar 2003 15:50:51 -0500
+Date: Sun, 16 Mar 2003 22:01:44 +0100
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>, andi@lisas.de
+Subject: Re: [Bug 464] New: 2.5.64: Dell Inspiron 8000 BIOS A04 EMERGENCY SHUTDOWN!
+Message-ID: <20030316210144.GA13472@rhlx01.fht-esslingen.de>
+Reply-To: andi@rhlx01.fht-esslingen.de
+References: <57820000.1047827557@[10.10.2.4]> <20030316203629.GA13006@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: application/pgp; x-action=sign; format=text
-Content-Disposition: inline; filename="msg.pgp"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030316203629.GA13006@elf.ucw.cz>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-hi,
+On Sun, Mar 16, 2003 at 09:36:29PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > Steps to reproduce:
+> > I don't want to describe that here, since I really don't intend to put my
+> > machine through yet another emergency shutdown...
+> > You need to produce some high CPU load, though...
+> 
+> Heh, show us /proc/acpi/thermal/*.
+Heh, gotcha!
+It was in the attachments of bug #464 already... ;-)
+(it's /proc/acpi/thermal_zone/*, BTW)
 
-i am using an ASUS P4PE (intel 845PE chipset) that
-has an onboard Broadcom BCM5702 adapter.
+And don't expect any spectacular values just before shutdown there...
+The thermal management is almost non-existent according to these values.
 
-i also have ACPI, IO-APIC enabled, my driver statically
-compiled into the kernel, and have not experienced any
-problems such as you are describing since having
-gotten this hardware.
+> Also don't fear emergency shutdowns -- they do NOT damage
+> hardware. [This machine survived >20 of them.]
+Yeah, and your 21st shutdown will kill it, for sure ;-)
 
-i'm using 2.4.21-pre5-gss (gss=gentoo gs-sources patches),
-and:
+Thanks for your reply!
 
-[*] Local APIC support on uniprocessors
-[*] IO-APIC support on uniprocessors
-[*] ACPI Support
-<*> Broadcom Tigon3 support
+Andreas Mohr
 
-so i'm not sure if the problem lies with the broadcom
-driver...but i am cluelessly guessing here.
-
-leon.
-
-- -- 
-in the beginning, was the code.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+dOICRWcl5mzp4f4RAmm8AJ9wLXHQ3ja3fQvaZQg1KzTbIKEAnQCfY/nQ
-oeTNG7hyOoKlYNW+zW880wc=
-=of7E
------END PGP SIGNATURE-----
+-- 
+Help prevent Information Technology Fascism! - before it's too late...
+http://www.againsttcpa.com

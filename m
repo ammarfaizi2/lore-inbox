@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262423AbTD3VhT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 17:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbTD3VhT
+	id S262434AbTD3Vkz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 17:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTD3Vkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 17:37:19 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:17340 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262423AbTD3VhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 17:37:18 -0400
-Date: Wed, 30 Apr 2003 22:48:48 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Daniel Taylor <dtaylor@vocalabs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Boot failure, VIA chipset.
-Message-ID: <20030430214848.GB24111@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Daniel Taylor <dtaylor@vocalabs.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0304301108240.7276-100000@dtaylor.vocalabs.com>
+	Wed, 30 Apr 2003 17:40:55 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:47699 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262434AbTD3Vkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 17:40:55 -0400
+Date: Wed, 30 Apr 2003 17:53:13 -0400
+From: Jeff Garzik <jgarzik@redhat.com>
+To: Matt Domsch <Matt_Domsch@Dell.com>
+Cc: greg@kroah.com, alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Dynamic PCI Device IDs
+Message-ID: <20030430175313.A19093@devserv.devel.redhat.com>
+References: <Pine.LNX.4.44.0304301640450.8917-100000@humbolt.us.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304301108240.7276-100000@dtaylor.vocalabs.com>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0304301640450.8917-100000@humbolt.us.dell.com>; from Matt_Domsch@Dell.com on Wed, Apr 30, 2003 at 04:45:14PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 11:11:54AM -0500, Daniel Taylor wrote:
- > I have a KT400-based system that will not boot the 2.5 series kernels.
- > 
- > It fails with a hard lock immediately after the video mode query when
- > VGA=ask is set in /etc/lilo.conf.
- > 
- > If anyone else is working on this contact me, otherwise I'll post
- > my results when I get it working.
+Well, gee.  It's so pretty it's hard to say no.  :)
 
-make sure you enabled
+I've wanted this capability, dynamically adding PCI ids to drivers, for
+a while.  In addition to this feature, it also makes the existing code
+a bit better.  And it certainly seems sysfs-friendly, though getting
+an expert in that area to look over the sysfs parts would be nice, too.
 
-CONFIG_INPUT=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
+	Jeff
 
-		Dave
+
+

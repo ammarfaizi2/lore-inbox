@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVCYGN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVCYGSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVCYGN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 01:13:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVCYGK6
+	id S261445AbVCYGSb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 01:18:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVCYGSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 01:10:58 -0500
-Received: from digitalimplant.org ([64.62.235.95]:6611 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S261419AbVCYFyv
+	Fri, 25 Mar 2005 01:18:16 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:49933 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261445AbVCYGO5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 00:54:51 -0500
-Date: Thu, 24 Mar 2005 21:54:41 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: linux-kernel@vger.kernel.org
-cc: greg@kroah.com
-Subject: [6/12] More Driver Model Locking Changes
-Message-ID: <Pine.LNX.4.50.0503242151380.19795-100000@monsoon.he.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Mar 2005 01:14:57 -0500
+Date: Fri, 25 Mar 2005 17:13:11 +1100
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Jeff Garzik <jgarzik@pobox.com>, David McCullough <davidm@snapgear.com>,
+       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       James Morris <jmorris@redhat.com>
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
+Message-ID: <20050325061311.GA22959@gondor.apana.org.au>
+References: <1111665551.23532.90.camel@uganda> <4242B712.50004@pobox.com> <20050324132342.GD7115@beast> <1111671993.23532.115.camel@uganda> <42432972.5020906@pobox.com> <1111725282.23532.130.camel@uganda> <42439839.7060702@pobox.com> <1111728804.23532.137.camel@uganda> <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111731361.20797.5.camel@uganda>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 25, 2005 at 09:16:01AM +0300, Evgeniy Polyakov wrote:
+> On Fri, 2005-03-25 at 00:58 -0500, Jeff Garzik wrote:
+>
+> > If its disabled by default, then you and 2-3 other people will use this 
+> > feature.  Not enough justification for a kernel API at that point.
+> 
+> It is only because there are only couple of HW crypto devices
+> in the tree, with one crypto framework inclusion there will be
+> at least redouble.
 
-ChangeSet@1.2244, 2005-03-24 13:03:35-08:00, mochel@digitalimplant.org
-  [driver core] Remove struct device::bus_list.
+You missed the point.  This has nothing to do with the crypto API.
+Jeff is saying that if this is disabled by default, then only a few
+users will enable it and therefore use this API.
 
+Since we can't afford to enable it by default as hardware RNG may
+fail which can lead to catastrophic consequences, there is no point
+for this API at all.
 
-  Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-diff -Nru a/drivers/base/core.c b/drivers/base/core.c
---- a/drivers/base/core.c	2005-03-24 20:33:23 -08:00
-+++ b/drivers/base/core.c	2005-03-24 20:33:23 -08:00
-@@ -212,7 +212,6 @@
- 	kobject_init(&dev->kobj);
- 	INIT_LIST_HEAD(&dev->node);
- 	INIT_LIST_HEAD(&dev->children);
--	INIT_LIST_HEAD(&dev->bus_list);
- 	INIT_LIST_HEAD(&dev->driver_list);
- 	INIT_LIST_HEAD(&dev->dma_pools);
- 	init_MUTEX(&dev->sem);
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	2005-03-24 20:33:23 -08:00
-+++ b/include/linux/device.h	2005-03-24 20:33:23 -08:00
-@@ -264,7 +264,6 @@
-
- struct device {
- 	struct list_head node;		/* node in sibling list */
--	struct list_head bus_list;	/* node in bus's list */
- 	struct list_head driver_list;
- 	struct list_head children;
- 	struct klist_node	knode_driver;
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267252AbTBQSrD>; Mon, 17 Feb 2003 13:47:03 -0500
+	id <S267350AbTBQStA>; Mon, 17 Feb 2003 13:49:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267280AbTBQSrD>; Mon, 17 Feb 2003 13:47:03 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:16915 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267252AbTBQSrD>;
-	Mon, 17 Feb 2003 13:47:03 -0500
-Date: Mon, 17 Feb 2003 19:57:00 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, sam@ravnborg.org,
-       kai@tp1.ruhr-uni-bochum.de, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] klibc for 2.5.59 bk
-Message-ID: <20030217185700.GA27610@mars.ravnborg.org>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, sam@ravnborg.org,
-	kai@tp1.ruhr-uni-bochum.de, greg@kroah.com,
-	linux-kernel@vger.kernel.org
-References: <20030209125759.GA14981@kroah.com> <Pine.LNX.4.44.0302162057200.5217-100000@chaos.physics.uiowa.edu> <20030217180246.GA26112@mars.ravnborg.org> <1911.212.181.176.76.1045505249.squirrel@www.zytor.com> <3E512BCB.1010000@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E512BCB.1010000@pobox.com>
-User-Agent: Mutt/1.4i
+	id <S267377AbTBQStA>; Mon, 17 Feb 2003 13:49:00 -0500
+Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.224]:41132 "EHLO
+	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S267350AbTBQSs7>; Mon, 17 Feb 2003 13:48:59 -0500
+Date: Mon, 17 Feb 2003 14:10:56 -0500 (EST)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: fdavis@master
+To: linux-kernel@vger.kernel.org
+cc: fdavis@si.rr.com, <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] 2.5.61-ac1 : fixes 'make mrproper'
+Message-ID: <Pine.LNX.4.44.0302171408430.19276-100000@master>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 17, 2003 at 01:36:59PM -0500, Jeff Garzik wrote:
->  
-> +check_gcc = $(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi)
+Hello all,
+  The following patch fixes a 'make mrproper' compile error. The Makefiles 
+within arch/i386/boot98 include (TOPDIR)/Rules.make , which no longer is 
+there. Please review for inclusion.
 
-Will check_gcc be compatible across architectures?
-If thats the case it should be moved to a common place.
+Regards,
+Frank
 
-Checking.....
-The same type of trick is used for alpha and sparc* - 
-so I will move it to the top-level makefile.
+--- linux/arch/i386/boot98/Makefile.old	2003-02-17 14:05:08.000000000 -0500
++++ linux/arch/i386/boot98/Makefile	2003-02-17 14:05:18.000000000 -0500
+@@ -36,8 +36,6 @@
+ 
+ boot: bzImage
+ 
+-include $(TOPDIR)/Rules.make
+-
+ # ---------------------------------------------------------------------------
+ 
+ $(obj)/zImage:  IMAGE_OFFSET := 0x1000
+--- linux/arch/i386/boot98/compressed/Makefile.old	2003-02-17 14:05:52.000000000 -0500
++++ linux/arch/i386/boot98/compressed/Makefile	2003-02-17 14:05:56.000000000 -0500
+@@ -7,8 +7,6 @@
+ EXTRA_TARGETS	:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o
+ EXTRA_AFLAGS	:= -traditional
+ 
+-include $(TOPDIR)/Rules.make
+-
+ LDFLAGS_vmlinux := -Ttext $(IMAGE_OFFSET) -e startup_32
+ 
+ $(obj)/vmlinux: $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o FORCE
 
-	Sam
+
+

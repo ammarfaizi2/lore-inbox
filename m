@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276280AbRI1UDL>; Fri, 28 Sep 2001 16:03:11 -0400
+	id <S276282AbRI1UGB>; Fri, 28 Sep 2001 16:06:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276281AbRI1UCy>; Fri, 28 Sep 2001 16:02:54 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:3076 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S276280AbRI1UCs>;
-	Fri, 28 Sep 2001 16:02:48 -0400
-Message-ID: <20010927014431.C2164@bug.ucw.cz>
-Date: Thu, 27 Sep 2001 01:44:31 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Rob Fuller <rfuller@nsisoftware.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <20010925005033.A137@bug.ucw.cz> <Pine.LNX.4.21.0109261518520.957-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.21.0109261518520.957-100000@freak.distro.conectiva>; from Marcelo Tosatti on Wed, Sep 26, 2001 at 03:22:01PM -0300
+	id <S276281AbRI1UFw>; Fri, 28 Sep 2001 16:05:52 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:52751 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S276283AbRI1UFn>;
+	Fri, 28 Sep 2001 16:05:43 -0400
+Date: Fri, 28 Sep 2001 22:03:46 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <bcrl@redhat.com>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
+In-Reply-To: <200109281939.XAA05297@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.33.0109282149020.11179-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > > So my suggestion was to look at getting anonymous pages backed by what
-> > > > amounts to a shared memory segment.  In that vein.  By using an extent
-> > > > based data structure we can get the cost down under the current 8 bits
-> > > > per page that we have for the swap counts, and make allocating swap
-> > > > pages faster.  And we want to cluster related swap pages anyway so
-> > > > an extent based system is a natural fit.
-> > >
-> > > Much of this goes away if you get rid of both the swap and anonymous page
-> > > special cases. Back anonymous pages with the "whoops everything I write here
-> > > vanishes mysteriously" file system and swap with a swapfs
-> > 
-> > What exactly is anonymous memory? I thought it is what you do when you
-> > want to malloc(), but you want to back that up by swap, not /dev/null.
-> 
-> Anonymous memory is memory which is not backed by a filesystem or a
-> device. eg: malloc()ed memory, shmem, mmap(MAP_PRIVATE) on a file (which
-> will create anonymous memory as soon as the program which did the mmap
-> writes to the mapped memory (COW)), etc.
+On Fri, 28 Sep 2001 kuznet@ms2.inr.ac.ru wrote:
 
-So... how can alan propose to back anonymous memory with /dev/null?
-[see above] It should be backed by swap, no?
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+> Why skbs?
+
+because i did not mean to queue 'softirq bits'. the current bitmap is
+perfectly okay and equivalent to any queued scheme. (i'd say queueing
+those bits is pretty stupid and only adds overhead. It might make sense
+once there are more softirqs, but that can wait.)
+
+what i really meant to queue is something much more finegrained: to queue
+softirq *events*. The ones that get queued by netif_rx into
+softnet_data[this_cpu]'s input_pkt_queue. We basically have the skb as the
+'event context', and we have a number of queues that are used by hardirqs
+to queue work towards softirq processing.
+
+do you see the whole scope of this approach? It has a number of
+disadvantages (some of which i outlined in the previous mail), but it also
+has a number of (i think important) advantages. It's also in fact simpler,
+once implemented.
+
+but this means that some of the queueing, that is softnet_data & skb
+pointers now, has to be generalized. netif_rx would use this generic
+interface to push work towards softirq processing, and the generic softirq
+engine would use a callback in the event data structure to do actual
+processing of the event.
+
+eg. a fastroute packet could set its event handler to be a function that
+does dev_queue_xmit. Other packets could set their event handlers based on
+their ->dev. The current demultiplexing done in net_rx_action could be
+done in a more natural way, and eg. fastrouting would not add runtime
+overhead.
+
+another effect: i think it might be useful to preserve micro-ordering of
+rx and tx events. It's certainly the best way to get the most out of
+existing cache footprint, but the downside is that it has a higher
+'environment' cache footprint, due to rx and tx functions being called at
+high frequencies and being intermixed randomly.
+
+> Only "skbs" scares me. :-)
+
+well :)
+
+	Ingo
+

@@ -1,58 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318074AbSFTA1b>; Wed, 19 Jun 2002 20:27:31 -0400
+	id <S318076AbSFTAkh>; Wed, 19 Jun 2002 20:40:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318075AbSFTA1b>; Wed, 19 Jun 2002 20:27:31 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:24317 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S318074AbSFTA13>; Wed, 19 Jun 2002 20:27:29 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 19 Jun 2002 18:24:20 -0600
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Christopher Li <chrisl@gnuchina.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       Alexander Viro <viro@math.psu.edu>, DervishD <raul@pleyades.net>,
-       Linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
-Message-ID: <20020620002420.GG22427@clusterfs.com>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	Christopher Li <chrisl@gnuchina.org>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Alexander Viro <viro@math.psu.edu>, DervishD <raul@pleyades.net>,
-	Linux-kernel <linux-kernel@vger.kernel.org>,
-	ext2-devel@lists.sourceforge.net
-References: <Pine.LNX.4.44.0206191256550.20859-100000@localhost.localdomain> <E17KoGz-0000y5-00@starship>
-Mime-Version: 1.0
+	id <S318077AbSFTAkg>; Wed, 19 Jun 2002 20:40:36 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:54516 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S318076AbSFTAkb>;
+	Wed, 19 Jun 2002 20:40:31 -0400
+Message-ID: <3D11245F.DB13A07C@mvista.com>
+Date: Wed, 19 Jun 2002 17:39:59 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kuznet@ms2.inr.ac.ru
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Replace timer_bh with tasklet
+References: <200206181829.WAA13590@sex.inr.ac.ru>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17KoGz-0000y5-00@starship>
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 20, 2002  00:49 +0200, Daniel Phillips wrote:
-> My inclination is to copy the last block of the directory into the
-> vacated block as opposed to leaving a hole in the file.  The slight
-> extra cost doesn't seem to be worth worrying about, and it's guaranteed
-> to leave the directory in a compact state when emptied.
+kuznet@ms2.inr.ac.ru wrote:
+> 
+> Hello!
+> 
+> > > But this is impossible, timers must not race with another BHs,
+> > > all the code using BHs depends on this. That's why they are BHs.
+> >
+> > If indeed they do "race" the old code had the timer_bh being first.
+> > So does this patch.
+> 
+> I do not understand what you mean here.
+> 
+> I feel you misunderstand my comment. I said the patch is one pure big bug,
+> because tasklets are not serialized wrt BHs. Timer MUST. If you are going
+> to get rid of this must, start from editing all the code which makes this
+> assumption.
 
-This also has the benefit of avoiding huge truncates when we are
-deleting lots of files.  At most it will add a single block into
-each transaction.
+At this point I am only aware of one place in the kernel where timers and 
+other BH code interact, that being deliver_to_old_ones() in net/core/dev.c.
+Even there, it appears that the interaction is not with another BH but with
+code that at one time was BH code.  As I understand it, BH and all of its
+support stuff is being removed from the kernel.  That is why I was asked to
+submit this patch.  So far, this is the only area that has come up as a 
+locking or serialization problem.
 
-> I think it's best to err on the side of simplicity this time: the
-> copy-down-last strategy eliminates the need to search for a free
-> block when the directory needs to be expanded again, 
+As to this bit of code, it appears that changing it to do much the same as 
+it did to the timer_bh to the new timer softirq should resolve the issue.
 
-It also keeps compatibility with older code, whereas having holes in
-directories can cause problems on older kernels.
+If you have additional input on this or other problems that need to be addressed,
+I welcome it.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Correct me if I am wrong, but it looks like the network code has already left
+the BH playing field.
+> 
+~snip
+> 
+> > Not really.  One REALLY expects timers to expire in timed order :)  Using
+> > a separate procedure to deliver a timer just because it is of a different
+> > resolution opens one up to a world of pathology.
+> 
+> Are you going to mix use of hires and lores timers for one task?  
 
+Of course.  Why use high-res when you don't need it?  There is additional
+overhead for high-res.  To require all timers to be high-res when only one
+is needed is a waste.
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,85 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290829AbSBFV5Z>; Wed, 6 Feb 2002 16:57:25 -0500
+	id <S290834AbSBFWCZ>; Wed, 6 Feb 2002 17:02:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290828AbSBFV5Q>; Wed, 6 Feb 2002 16:57:16 -0500
-Received: from ip68-3-104-241.ph.ph.cox.net ([68.3.104.241]:35243 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S290829AbSBFV5L>;
-	Wed, 6 Feb 2002 16:57:11 -0500
-Message-ID: <3C61A416.3040703@candelatech.com>
-Date: Wed, 06 Feb 2002 14:45:58 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
-Subject: Re: want opinions on possible glitch in 2.4 network error reporting
-In-Reply-To: <Pine.LNX.3.95.1020206154220.29419A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290839AbSBFWCP>; Wed, 6 Feb 2002 17:02:15 -0500
+Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:55485 "EHLO
+	swan.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S290834AbSBFWCJ>; Wed, 6 Feb 2002 17:02:09 -0500
+Date: Wed, 6 Feb 2002 17:06:34 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+Message-ID: <20020206220634.GB24571@earthlink.net>
+In-Reply-To: <20020206213420.GA24571@earthlink.net> <Pine.LNX.4.33L.0202061936240.17850-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0202061936240.17850-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.27i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-However, if you use non-blocking IO you will get EAGAIN if
-there is no buffer space.  Blocking calls should always
-block untill there is buffer space.
+> They run fastest when you run each of the dbench forks
+> sequentially and have the others stuck in get_request_wait.
 
-Also, just because select says the socket/poll is writable, it
-may not be (immediately) because you can send UDP packets
-that are larger than 2048 bytes, and that is the cutoff that
-tells select the socket is writable...
+One interesting part of tiotest is the latency measurements.
+Latency isn't printed by tiobench.pl though.  I think it's 
+valueable information (and wish I had it).
 
-I've actually sent a patch to Dave Miller to make select/poll
-wait untill there is 64k of buffer space (the maximum size of
-a UDP packet), but he is still reviewing the issue.
+> This, of course, is completely unacceptable for real-world
+> server scenarios, where all users of the server need to be
+> serviced fairly.
 
+Agreed.  I'm glad kernel hackers focus on latency too. :)
 
-Enjoy,
-Ben
-
-Richard B. Johnson wrote:
-
-> On Wed, 6 Feb 2002, Chris Friesen wrote:
-> 
-> [SNIPPED...]
-> 
-> 
-> 
->>I ran into a somewhat related issue on a 2.2.16 system, where I had an app that
->>was calling sendto() on 217000 packets/sec, even though the wire could only
->>handle about 127000 packets/sec.  I got no errors at all in sendto, even though
->>over a third of the packets were not actually being sent.
->>
->>
-> 
-> In principle, sendto() will always succeed unless you provided the
-> wrong parameters in the function call, or the machines crashes, at
-> which time your task won't be there to receive the error code anyway.
-> 
-> Hackers code sendto as:
-> 	sendto(s,...);
-> Professional programmers use:
-> 	(void)sendto(s,...);
-> 
-> checking the return value is useless.
-> 
-> Note that the man-page specifically states that ENOBUFS can't happen.
-> 
-> You cannot assume that any sendto() data actually gets on the wire, much
-> less to its destination. With any user-datagram-protocol, both ends,
-> sender and receiver, have to work out what they will do with missing
-> packets and packets received out-of-order.
-> 
-> 
-> Cheers,
-> Dick Johnson
-
+There are _some_ applications where throughput is critical 
+though.  I would prefer to measure both throughput and 
+latency at the same time, but am not yet clear on how to
+deal with the Heisenberg principle.
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+Randy Hron
 

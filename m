@@ -1,69 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263142AbRFGVCk>; Thu, 7 Jun 2001 17:02:40 -0400
+	id <S263139AbRFGVBK>; Thu, 7 Jun 2001 17:01:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263141AbRFGVCa>; Thu, 7 Jun 2001 17:02:30 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:17934 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263142AbRFGVCZ>; Thu, 7 Jun 2001 17:02:25 -0400
-Date: Thu, 7 Jun 2001 14:01:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Keitaro Yosimura <ramsy@linux.or.jp>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help i18n system
-In-Reply-To: <20010607165007.A299.RAMSY@linux.or.jp>
-Message-ID: <Pine.LNX.4.21.0106071351300.6604-100000@penguin.transmeta.com>
+	id <S263141AbRFGVBA>; Thu, 7 Jun 2001 17:01:00 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:64179 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263139AbRFGVAy>;
+	Thu, 7 Jun 2001 17:00:54 -0400
+Message-ID: <3B1FEB7E.D06B10A2@mandrakesoft.com>
+Date: Thu, 07 Jun 2001 17:00:46 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: VM suggestion...
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+While you guys are in there hacking, perhaps consider adding metrics
+which allows you to tell exactly when certain cases and conditions are
+hit.
+	page_aged_while_sleeping_in_page_lauder++
 
-[ Kernel mailing list added to Cc ]
+Statistics like this are cheap to use in runtime and should provide
+concrete information rather than guesses and estimations...
 
-On Thu, 7 Jun 2001, Keitaro Yosimura wrote:
-> 
-> Configure.help i18n system is the thing which uses MD5 SUM of the text
-> of the text as a key, and calls suitable data to the present language
-> setup (it judges from an environment variable).
-
-Quite frankly, I dislike the current Configure.help setup for a lot of
-reasons, none of which are i18n-related.
-
-One is a "simple" technical detail (the fact that it is all in one big
-file instead of distributed over the places that actually _implement_ the
-different config options), but the other is just that from what I've seen,
-the overlap between people developing the code, and the people trying to
-explain the config options is actually rather small.
-
-So I wonder if the Configure.help text should not possibly be even _more_
-distributed than just splitting it up into different files. It might very
-well be acceptable to actually distribute it over the net (and have just a
-mapping of config options into www-addresses or something).
-
-I suspect that this is actually something that intersects with the i18n
-work: how does the i18n projects distribute the actual help texts? Done
-right, maybe the same distributed environment could be used for
-everything, and getting Configure.help entirely out of the "core kernel"
-tree, and into a separate distribution (where the English version would be
-just one among many distributions).
-
-I like to keep things that belong together in one distribution (especially
-so that when people make changes to infrastructure they can more easily
-change all the users - there's been tons of synchronization problems with
-"external packages"), but on the other hand some things would probably be
-better maintained outside the core package.
-
-Configure.help certainly isn't all that kernel version dependent, and
-could successfully be maintained completely outside the kernel, I suspect.
-
-And I know that I'm bad at maintaining documentation like this, simply
-because I never use it, and I don't care enough. Trying to care about the
-i18n version when I don't even understand what it says would be completely
-impossible for me.
-
-Comments?
-
-		Linus
-
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

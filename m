@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVCCQpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbVCCQqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVCCQpE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 11:45:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbVCCQpD
+	id S262058AbVCCQqN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 11:46:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbVCCQqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 11:45:03 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:38565 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261776AbVCCQo4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 11:44:56 -0500
-Message-Id: <200503031644.j23Gi0Eh011165@laptop11.inf.utfsm.cl>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@davemloft.net>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering 
-In-Reply-To: Message from Linus Torvalds <torvalds@osdl.org> 
-   of "Wed, 02 Mar 2005 19:37:44 -0800." <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 03 Mar 2005 13:44:00 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 03 Mar 2005 13:44:02 -0300 (CLST)
+	Thu, 3 Mar 2005 11:46:12 -0500
+Received: from c7ns3.center7.com ([216.250.142.14]:15522 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S262058AbVCCQpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 11:45:30 -0500
+Message-ID: <42274020.6030308@utah-nac.org>
+Date: Thu, 03 Mar 2005 09:49:36 -0700
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Bernd Petrovitsch <bernd@firmix.at>, gene.heskett@verizon.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: United States Patent: 6,862,609]
+References: <4226781B.7080302@utah-nac.org>	 <200503022227.40614.gene.heskett@verizon.net>	 <4226927A.6010107@utah-nac.org> <1109845583.28561.19.camel@tara.firmix.at> <422731B0.6040007@utah-nac.org> <42273535.9030505@osdl.org>
+In-Reply-To: <42273535.9030505@osdl.org>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> said:
-> On Wed, 2 Mar 2005, Jeff Garzik wrote:
-> > If we want a calming period, we need to do development like 2.4.x is 
-> > done today.  It's sane, understandable and it works.
 
-> No. It's insane, and the only reason it works is that 2.4.x is a totally
-> different animal. Namely it doesn't have the kind of active development AT
-> ALL any more. It _only_ has the "even" number kind of things, and quite 
-> frankly, even those are a lot less than 2.6.x has.
-> 
-> > 2.6.x-pre: bugfixes and features
-> > 2.6.x-rc: bugfixes only
-> 
-> And the reason it does _not_ work is that all the people we want testing 
-> sure as _hell_ won't be testing -rc versions.
-> 
-> That's the whole point here, at least to me. I want to have people test 
-> things out, but it doesn't matter how many -rc kernels I'd do, it just 
-> won't happen. It's not a "real release".
-> 
-> In contrast, making it a real release, and making it clear that it's a 
-> release in its own right, might actually get people to use it. 
-> 
-> Might. Maybe.
+>> You guys keep saying, "stop the patents" but this is insanity.  It's 
+>> like all these big companies
+>> used patents like swords and are hemming linux in, and Linux stands 
+>> naked and defenseless.
+>> You guys need to get your own swords and fight -- start filing 
+>> patents -- go to this new law
+>> center "Southern Poverty Law Center" they setup I read about and get 
+>> these folks to start
+>> filing patents on Linux code (before you disclose it that is) and 
+>> protect yourselves.  Then
+>> you have ammo to negotiate cross patent agreements with MS and these 
+>> other companies to create a balance of power.
+>
+>
+> Morris Dees helps Linux?  That's good news.  I like the SPLC.
+>
+> But I would consider checking with the (new) Software Freedom
+> Law Center too:  http://www.softwarefreedom.org/
+>
+That's what I meant anyway.  :-)
 
-Then do away with -preX -rcY -bkZ altogether... just release 2.6.W. Faster
-release cycle, much higher chance that "the next release" fixes brokenness
-fast. The whole (or most of it) odd/even thinking went out the window with
-the new development model.
-
-[I'm pulling bk daily, and have it mixed with the ipw tree too, so I'm just
- the kind of tester you are looking for... haven't seen any of the
- showstopper bugs everybody is talking about, or I'd have screamed.]
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Jeff

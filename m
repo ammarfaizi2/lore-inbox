@@ -1,62 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbSLFRug>; Fri, 6 Dec 2002 12:50:36 -0500
+	id <S265325AbSLFSAY>; Fri, 6 Dec 2002 13:00:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265169AbSLFRtS>; Fri, 6 Dec 2002 12:49:18 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54793 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264945AbSLFRtH>; Fri, 6 Dec 2002 12:49:07 -0500
-Date: Fri, 6 Dec 2002 09:57:08 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: george anzinger <george@mvista.com>
-cc: Jim Houston <jim.houston@ccur.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
-       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
-       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-In-Reply-To: <3DF06B15.1F6ECD5D@mvista.com>
-Message-ID: <Pine.LNX.4.44.0212060944030.23118-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265402AbSLFSAY>; Fri, 6 Dec 2002 13:00:24 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24335 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265325AbSLFSAW>;
+	Fri, 6 Dec 2002 13:00:22 -0500
+Date: Fri, 6 Dec 2002 18:07:58 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: willy@debian.org, davem@redhat.com, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] generic device DMA implementation
+Message-ID: <20021206180758.C16341@parcelfarce.linux.theplanet.co.uk>
+References: <200212061739.JAA22230@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200212061739.JAA22230@baldur.yggdrasil.com>; from adam@yggdrasil.com on Fri, Dec 06, 2002 at 09:39:24AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 06, 2002 at 09:39:24AM -0800, Adam J. Richter wrote:
+> On Fri, 6 Dec 2002, Matthew Wilcox wrote:
+> >Machines built with PCXS and PCXT processors are guaranteed not to have
+> >PCI.  So this only becomes a problem when supporting non-PCI devices.
+> >The devices you mentioned -- 53c700 & 82596 -- are core IO and really do
+> >need to be supported.  There's also a large userbase for these machines,
+> >dropping support for them is not an option.
+> 
+> Back on 7 Nov 2002, James Bottomley wrote:
+> | The ncr8xxx driver is another one used for the Zalon controller in parisc, so
+> | it will eventually have the same issues.
+> 
+> 	How many other drivers beyond these three do we expect to
+> need similar sync points if the T class remains unsupported?
 
-I just pushed my version of the system call restart code to the BK trees.
-It's losely based on Georges code, but subtly different. Also, I didn't
-actually update any actual system calls to use it, I just did the
-infrastructure.
+Er, well.. machines that can take the Zalon card also have consistent PCI.
+However, there are machines which can take the ncr53c720 chip which have
+no consistent shared memory available.  Rumours abound of an ncr53c770
+driver that already supports non-consistent memory, but nobody's actually
+said whch one it is yet.
 
-Non-x86 architectures need to be updated to work with this: they need to
-update their thread structures, the additional do_signal() support in
-their signal.c, and add the actual system call itself somewhere. For x86,
-this was about 15 lines of changes.
+Leaving aside the T-class, machines that don't support io consistent memory
+generally have:
 
-The basic premise is very simple: if you want to restart a system call,
-you can do
+(drivers that need io consistent memory):
+ - 82596 ethernet
+ - ncr53c700 scsi
+ - ncr53c720 scsi
+ - zero to four EISA slots
 
-	restart = &current_thread()->restart_block;
-	restart->fn = my_continuation_function;
-	restart->arg0 = my_arg0_for_continuation;
-	restart->arg1 = my_arg1_for_continuation;
-	..
-	return -ERESTARTSYS_RESTARTBLOCK;
+(drivers that don't do DMA):
+ - two 16550-compatible serial ports
+ - Mux serial port
+ - Lasi parallel port
+ - Skunk parallel port
+ - HIL keyboard/mouse
+ - Graphics cards
 
-which will cause the system call to either return -EINTR (if a signal
-handler was actually invoced) or for "benign" signals (SIGSTOP etc) it
-will end up restarting the system call at the continuation function (with
-the "restart" block as the argument).
+(custom drivers needed anyway):
+ - Harmony audio
+ - various other SCSI chips
+ - Interphase 100BaseTx
+ - HPPB slots
 
-We could extend this to allow restarting even over signal handlers, but
-that would have some re-entrancy issues (ie what happens if a signal
-handler itself wants to use a system call that may want restarting), so at
-least for now restarting is only done when no handler is invoced (*).
+I think that's about it... cc
 
-			Linus
+> >T class machines don't have PCI slots per se, but they do have GSC
+> >slots into which a card can be plugged that contains a Dino GSC to PCI
+> >bridge and one or more PCI devices.  Examples of cards that are like
+> >this include acenic, single and dual tulip.
+> 
+> 	Regarding the "T class", I would be intersted in knowing how
+> old it is, if it is discontinued at this point, how much of a user
+> base there is, and how many of these PCI-on-GSC cards there are.
 
-(*) The nesting case is by no means impossible to handle gracefully
-(adding a "restart even if handler is called" error number and returning
--EINTR if nesting, for example), but I don't know of any system calls that
-would really want to try to restart anyway, so..
+It's certainly discontinued.  I get the impression it was already out in
+1997 from a quick Google search.  It's not exactly a slow machine even
+by todays standards -- up to 12 180MHz 64-bit processors, but it's just
+too weird to be worth supporting.
 
+There's lots of PCI-on-GSC cards; they were used in the B/C/J workstations
+and the D/K/R servers.
+
+> 	I was previously under the impression that there were some
+> parisc machines that could take some kind of commodity PCI cards and
+> lacked consistent memory.
+
+No, that is not the case.
+
+> If the reality is that only about six
+> drivers would ever have to be ported to use these sync points, then I
+> could see keeping dma_{alloc,free}_consistent, and moving the
+> capability of dealing with inconsistent memory to some wrappers in a
+> separate .h file (dma_alloc_maybe_consistent, dma_alloc_maybe_free).
+> 
+> 	I suppose another consideration would be how likely it is that
+> a machine that we might care about without consistent memory will ship
+> in the future.  In general, the memory hierarchy is getting taller
+> (levels of caching, non-uniform memory access), but perhaps the
+> industry will continue to treat consistent memory capability as a
+> requirement.
+
+I think it will.  The IOMMU in the T600 is the only one I've ever heard
+of that wasn't consistent with host memory.
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

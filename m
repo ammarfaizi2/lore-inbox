@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267091AbSLDVOS>; Wed, 4 Dec 2002 16:14:18 -0500
+	id <S267085AbSLDVJ4>; Wed, 4 Dec 2002 16:09:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267090AbSLDVOS>; Wed, 4 Dec 2002 16:14:18 -0500
-Received: from smtp01.fields.gol.com ([203.216.5.131]:18583 "EHLO
-	smtp01.fields.gol.com") by vger.kernel.org with ESMTP
-	id <S267091AbSLDVOR>; Wed, 4 Dec 2002 16:14:17 -0500
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic device DMA implementation
-In-Reply-To: <200212041747.gB4HlEF03005@localhost.localdomain>
-References: <200212041747.gB4HlEF03005@localhost.localdomain>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-From: Miles Bader <miles@gnu.org>
-Date: 05 Dec 2002 06:21:42 +0900
-Message-ID: <87smxdiiop.fsf@tc-1-100.kawasaki.gol.ne.jp>
+	id <S267086AbSLDVJ4>; Wed, 4 Dec 2002 16:09:56 -0500
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:17093 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S267085AbSLDVJz>; Wed, 4 Dec 2002 16:09:55 -0500
+Message-ID: <3DEE70C4.5D74A8B3@attbi.com>
+Date: Wed, 04 Dec 2002 16:16:52 -0500
+From: "George G. Davis" <davis_g@attbi.com>
+Reply-To: davis_g@attbi.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-17.7.x i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: Jim Van Zandt <jrv@vanzandt.mv.com>, device@lanana.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why does the Comtrol Rocketport card not have a major assigned?
+References: <20021204205525.GE2544@fs.tum.de>
 Content-Type: text/plain; charset=us-ascii
-X-Abuse-Complaints: abuse@gol.com
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley writes:
-> Currently our only DMA API is highly PCI specific (making any non-pci
-> bus with a DMA controller create fake PCI devices to help it
-> function).
->
-> Now that we have the generic device model, it should be equally
-> possible to rephrase the entire API for generic devices instead of
-> pci_devs.
+Adrian Bunk wrote:
+> 
+> Perhaps it's a silly question but I'd like to know why it is the way it
+> is:
+> 
+> The 2.2, 2.4 and 2.5 kernels include a driver for the Comtrol Rocketport
+> card (drivers/char/dtlk.c) which uses a local major (it does a
+>   "register_chrdev(0, "dtlk", &dtlk_fops);
+> ). Is there a reason why it doesn't have a fixed major assigned?
 
-Keep in mind that sometimes the actual _implementation_ is also highly
-PCI-specific -- that is, what works for PCI devices may not work for
-other devices and vice-versa.
+Huh?:
 
-So perhaps instead of just replacing `pci_...' with `dma_...', it would
-be better to add new function pointers to `struct bus_type' for all this
-stuff (or something like that).
+	dtlk.c - DoubleTalk PC driver for Linux
 
-> The PCI api has pci_alloc_consistent which allocates only consistent memory
-> and fails the allocation if none is available thus leading to driver writers
-> who might need to function with inconsistent memory to detect this and employ
-> a fallback strategy.
-> ...
-> The idea is that the memory type can be coded into dma_addr_t which the
-> subsequent memory sync operations can use to determine whether
-> wback/invalidate should be a nop or not.
+That doesn't look like the Comtrol Rocketport (drivers/char/rocket.c)
+driver to me. : )
 
-How is the driver supposed to tell whether a given dma_addr_t value
-represents consistent memory or not?  It seems like an (arch-specific)
-`dma_addr_is_consistent' function is necessary, but I couldn't see one
-in your patch.
+Meanwhile 2.4.19 Documentation/devices.txt shows:
 
-Thanks,
+ 46 char        Comtrol Rocketport serial card
+                  0 = /dev/ttyR0        First Rocketport port
+                  1 = /dev/ttyR1        Second Rocketport port
+                    ...
 
--Miles
--- 
-We are all lying in the gutter, but some of us are looking at the stars.
--Oscar Wilde
+--
+Regards,
+George
+
+> TIA
+> Adrian
+> 
+> --
+> 
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

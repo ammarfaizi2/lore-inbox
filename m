@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310501AbSCCCgl>; Sat, 2 Mar 2002 21:36:41 -0500
+	id <S310502AbSCCDC4>; Sat, 2 Mar 2002 22:02:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310502AbSCCCgb>; Sat, 2 Mar 2002 21:36:31 -0500
-Received: from mtaout.telus.net ([199.185.220.235]:17824 "EHLO
-	priv-edtnes10-hme0.telusplanet.net") by vger.kernel.org with ESMTP
-	id <S310501AbSCCCgU>; Sat, 2 Mar 2002 21:36:20 -0500
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-cc: linux-kernel@vger.kernel.org
-Subject: PATCH 2.4.18-rc2-ac1: hang on spinlock in "expand_stack"
-From: Kevin Buhr <buhr@telus.net>
-Date: 02 Mar 2002 18:36:12 -0800
-Message-ID: <87d6ymfkdf.fsf@saurus.asaurus.invalid>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S310503AbSCCDCr>; Sat, 2 Mar 2002 22:02:47 -0500
+Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:43393 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S310502AbSCCDCm>; Sat, 2 Mar 2002 22:02:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: 2.4.19-pre2-ac2 + preempt + lock-break
+Date: Sun, 3 Mar 2002 04:02:32 +0100
+X-Mailer: KMail [version 1.3.9]
+Cc: Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200203030402.32814.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan:
+Hello Alan,
 
-I've enclosed a patch against 2.4.18-rc2-ac1, but it appears the same
-bug still exists in 2.4.19-pre1-ac1.  The "ac"-branch version of
-"expand_stack" in "mm/mmap.c" has a code path that doesn't unlock the
-spinlock.  I noticed when a "gdb" bug tickled it and locked up my
-machine.
+I am now running quite nicely your latest stuff..;-)
+It feels GREAT.
+But the throughput at least on my system is somewhat lower than with my latest 
+-aa VM (vm_25) kernel 2.4.18-pre8-K3-VM-24-preempt-lock.
 
-Kevin Buhr <buhr@telus.net>
+I am going to compare "your" version against
+2.4.19-pre2
+vm_28
+read-latency2
+O(1)-K3	(the hardest part)
+preempt + lock-break	(got that but not Ingo's stuff then)
+2.4.18.pending ReiserFS stuff
 
-                        *       *       *
+All OOM problems are fixed with vm_28 for me.
+I've checked it with and without swap.
+With former versions some system tasks (smpppd), kdeinit and desktop processes 
+(xperfmon++, kpanel, kmail, kalarm, etc.) were falsely killed.
 
---- linux-2.4.18-rc2-ac1/mm/mmap.c	Tue Feb 19 19:13:57 2002
-+++ linux-2.4.18-rc2-ac1-local/mm/mmap.c	Sat Mar  2 17:58:47 2002
-@@ -762,8 +762,10 @@
- 	grow = (vma->vm_start - address) >> PAGE_SHIFT;
- 
- 	/* Overcommit.. */
--	if(!vm_enough_memory(grow, 1))
-+	if(!vm_enough_memory(grow, 1)) {
-+		spin_unlock(&vma->vm_mm->page_table_lock);
- 		return -ENOMEM;
-+	}
- 	
- 	if (vma->vm_end - address > current->rlim[RLIMIT_STACK].rlim_cur ||
- 	    ((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) > current->rlim[RLIMIT_AS].rlim_cur) {
+With 2.4.19-pre2-ac2 + pre and without swap (I disabled it before running the 
+"test" prog) kswapd (?) goes into 20~25% system time usage and the whole 
+system gets unusable. I had to reboot...
+
+X have to be reniced -10 to get smooth mouse movement under both kernels 
+(Ingo's part) during compilations (bzlilo).
+
+Regards,
+	Dieter
+
+BTW Some numbers will follow when I get O(1) + preempt going with 2.4.19-pre2 
++ vm_28.
+
+

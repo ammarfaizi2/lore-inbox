@@ -1,69 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318164AbSGWSYa>; Tue, 23 Jul 2002 14:24:30 -0400
+	id <S318166AbSGWSfs>; Tue, 23 Jul 2002 14:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318166AbSGWSY3>; Tue, 23 Jul 2002 14:24:29 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:25349 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S318164AbSGWSY3>; Tue, 23 Jul 2002 14:24:29 -0400
-Date: Tue, 23 Jul 2002 19:27:26 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>
-Cc: "Linux-Ha (E-mail)" <linux-ha@muc.de>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Handling NMI in a kernel module
-Message-ID: <20020723182726.GA92574@compsoc.man.ac.uk>
-References: <5009AD9521A8D41198EE00805F85F18F219A7E@sembo111.teknor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5009AD9521A8D41198EE00805F85F18F219A7E@sembo111.teknor.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Boards of Canada - Geogaddi
-X-Scanner: exiscan *17X4Nf-000GWb-00*Ig6oZlleF8Y* (Manchester Computing, University of Manchester)
+	id <S318167AbSGWSfs>; Tue, 23 Jul 2002 14:35:48 -0400
+Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:4964 "EHLO
+	ntserver2.geodepth.com") by vger.kernel.org with ESMTP
+	id <S318166AbSGWSfq>; Tue, 23 Jul 2002 14:35:46 -0400
+Message-ID: <EE83E551E08D1D43AD52D50B9F511092E114A7@ntserver2>
+From: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
+To: "'Andi Kleen'" <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Problem with msync system call
+Date: Tue, 23 Jul 2002 21:36:26 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C23280.3BCAE2F0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 23, 2002 at 01:37:01PM -0400, Isabelle, Francois wrote:
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-> Is it possible to request_nmi() the way you can request_irq() from a kernel
-> driver on the i386 arch?
+------_=_NextPart_000_01C23280.3BCAE2F0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 
-Not currently, no.
+It seems to finally work both between two Linux machines and
+between Linux and other OSes! Thank you all for your help!
 
-> Our hardware watchdog is dual stage and can generate NMI on first stage ,
-> our cPCI handle switch can also be used for Hot swap request via NMI.
-> I'ld like to make use of this, I noticed cpqhealth module already
-> implemented some nmi handling but this driver is close sourced.
+I attach the working source to whoever that cares...
 
-You can do some horrible hack with sidt + _set_gate() to replace the NMI trap handler.
+>I think the problem in your case is that you have the pages mmaped.
+>NFS uses invalidate_inode_pages() to throw away the cache, but that
+>doesn't work when the pages are mapped. It may work to munmap/mmap
+>around the locking.
+Now, I think I understand what the problem is.
 
-> Should we patch in i386/kernel/traps.c to add a callback to our stuff in
-> unkown_nmi_error().
-> 
-> I'ld like my driver to register a callback there, what about maintaining a
-> list of user callback functions which could be registered via:
->  
-> request_nmi(int option, void (*hander)(void *dev_id, struct pt_regs *regs),
-> unsigned long flags, const char *dev_name, void *dev_id);
-> 
-> where option could take meaning such as
->  - prepend   : place at start of nmi callback functions
->  - append    : place at end of nmi callback functions 
->  - truncate : replace callback chain
+Can we make msync call with MS_INVALIDATE flag temporarily unmap the 
+file, invalidate the cache and remap the file again? It sounds like 
+a hell of an overhead, but users don't expect msync call to be a 
+light one.
 
-Why all three ? When would anything other than prepend be useful ? Each
-handler must simply see if the NMI is their responsibility, and pass its
-duty along to the next handler if not.
+Anyway, this would be better than the current behavior, which in fact does 
+nothing for the mapped files. Also, the documentation for msync call is 
+extremely vague, which only adds to the confusion.
 
-What is the purpose of dev_name, dev_id, and flags exactly ?
- 
-Personally, I'd like to see such a patch.
+Best,
+Giga
 
-regards
-john
 
--- 
-"If you cannot convince them, confuse them."
-	- Harry S. Truman
+------_=_NextPart_000_01C23280.3BCAE2F0
+Content-Type: application/octet-stream;
+	name="mmap.cc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="mmap.cc"
+
+#include <stdio.h>=0A=
+#include <unistd.h>=0A=
+#include <sys/mman.h>=0A=
+#include <string.h>=0A=
+#include <sys/types.h>=0A=
+#include <sys/stat.h>=0A=
+#include <fcntl.h>=0A=
+=0A=
+int main (int argc, char* argv []) =0A=
+{=0A=
+    char buffer [BUFSIZ];=0A=
+    char* pMap;=0A=
+=0A=
+    int fd =3D open ("MAPPED.FILE", O_CREAT | O_RDWR | O_SYNC, =
+0666);=0A=
+    if (fd =3D=3D -1) {=0A=
+	perror ("open");=0A=
+	return -1;=0A=
+    }=0A=
+=0A=
+    if (lseek (fd, BUFSIZ - 1, SEEK_SET) =3D=3D -1) {=0A=
+	perror ("lseek");=0A=
+	return -1;=0A=
+    }=0A=
+    write (fd, "\0", 1);=0A=
+    if (lseek (fd, 0, SEEK_SET) =3D=3D -1) {=0A=
+	perror ("lseek");=0A=
+	return -1;=0A=
+    }=0A=
+=0A=
+    pMap =3D (char*) mmap (NULL, BUFSIZ, PROT_READ | PROT_WRITE, =0A=
+			 MAP_SHARED, fd, 0);=0A=
+    if ((size_t) pMap =3D=3D -1) {=0A=
+	perror ("mmap");=0A=
+	return -1;=0A=
+    }=0A=
+    =0A=
+    while (1) {=0A=
+	fprintf (stderr, "<Press ENTER to read> OR <Enter string to write> $ =
+");=0A=
+	fgets (buffer, sizeof (buffer) - 1, stdin);=0A=
+=0A=
+	struct flock lck =3D { =0A=
+	    F_WRLCK,  /* Type of lock: F_RDLCK, F_WRLCK, or F_UNLCK    */=0A=
+	    SEEK_SET, /* Where `l_start' is relative to (like `lseek') */=0A=
+	    0,        /* Offset where the lock begins                  */=0A=
+	    0,        /* Size of the locked area; zero means until EOF */=0A=
+	    getpid () /* Process holding the lock                      */=0A=
+	};=0A=
+=0A=
+	if (munmap (pMap, BUFSIZ)) {=0A=
+	    perror ("munmap");=0A=
+	    return -1;=0A=
+	}=0A=
+=0A=
+	if (fcntl (fd, F_SETLK, &lck)) {=0A=
+	    perror ("fcntl");=0A=
+	    return -1;=0A=
+	}=0A=
+=0A=
+	pMap =3D (char*) mmap (NULL, BUFSIZ, PROT_READ | PROT_WRITE, =0A=
+				   MAP_SHARED, fd, 0);=0A=
+	if ((size_t) pMap =3D=3D -1) {=0A=
+	    perror ("mmap");=0A=
+	    return -1;=0A=
+	}=0A=
+=0A=
+	if (buffer [0] =3D=3D '\n') {=0A=
+	    fprintf (stderr, "Mapped file contents: %s\n", pMap);=0A=
+	} else {=0A=
+	    strncpy (pMap, buffer, strlen (buffer) - 1);=0A=
+	    fprintf (stderr, "Written to mapped file: %s\n", pMap);=0A=
+	}=0A=
+=0A=
+ 	if (msync (pMap, BUFSIZ, MS_SYNC | MS_INVALIDATE)) {=0A=
+ 	    perror ("msync");=0A=
+ 	    return -1;=0A=
+ 	}=0A=
+=0A=
+	lck.l_type =3D F_UNLCK;=0A=
+	if (fcntl (fd, F_SETLK, &lck)) {=0A=
+	    perror ("fcntl");=0A=
+	    return -1;=0A=
+	}=0A=
+    }=0A=
+=0A=
+    return 0;=0A=
+}=0A=
+
+------_=_NextPart_000_01C23280.3BCAE2F0--

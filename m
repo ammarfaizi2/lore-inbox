@@ -1,67 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261403AbTCQOV0>; Mon, 17 Mar 2003 09:21:26 -0500
+	id <S261693AbTCQOXu>; Mon, 17 Mar 2003 09:23:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261662AbTCQOV0>; Mon, 17 Mar 2003 09:21:26 -0500
-Received: from pop.gmx.de ([213.165.64.20]:11078 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261403AbTCQOVZ>;
-	Mon, 17 Mar 2003 09:21:25 -0500
-Date: Mon, 17 Mar 2003 15:29:25 +0100
-From: Marc Giger <gigerstyle@gmx.ch>
-To: Javier Achirica <achirica@telefonica.net>
-Cc: tpepper@vato.org, jdthood0@yahoo.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Cisco Aironet 340 oops with 2.4.20
-Message-Id: <20030317152925.679bb16a.gigerstyle@gmx.ch>
-In-Reply-To: <Pine.SOL.4.30.0303170227020.6371-100000@tudela.mad.ttd.net>
-References: <20030316163358.A25887@jose.vato.org>
-	<Pine.SOL.4.30.0303170227020.6371-100000@tudela.mad.ttd.net>
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S261694AbTCQOXu>; Mon, 17 Mar 2003 09:23:50 -0500
+Received: from valaran.com ([66.153.38.244]:26357 "HELO vader.valaran.com")
+	by vger.kernel.org with SMTP id <S261693AbTCQOXs>;
+	Mon, 17 Mar 2003 09:23:48 -0500
+Date: Mon, 17 Mar 2003 09:34:43 -0500
+From: "Keith R. John Warno" <keith.warno@valaran.com>
+To: Burton Windle <bwindle@fint.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "kernel BUG at page_alloc.c:102!" (kernel 2.4.20)
+Message-ID: <F79AB9D620031047911180.15123.smtp@valaran.com>
+Mail-Followup-To: Burton Windle <bwindle@fint.org>,
+	linux-kernel@vger.kernel.org
+References: <8EE4126620031047901034.13328.smtp@valaran.com> <Pine.LNX.4.43.0303170847020.746-100000@morpheus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.43.0303170847020.746-100000@morpheus>
+Organization: Valaran Corporation
+User-Agent: Mutt 1.4i (2002-05-29)
+X-Mailer: Mutt 1.4i (2002-05-29)
+X-Editor: VIM - Vi IMproved 6.1 (2002 Mar 24, compiled Dec 13 2002 12:46:19)
+X-Operating-System: GNU/Linux (2.4.20)
+X-Location: USA, New Jersey, Trenton
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Javier,
-
-next oops happened today with the latest cvs version
-
-Device: wifi0
-Mar 17 15:15:15 vaio kernel: Short packet 0
-Mar 17 15:15:15 vaio kernel: Warning: kfree_skb passed an skb still on a list (from c0121fca).
-Mar 17 15:15:15 vaio kernel: kernel BUG at skbuff.c:315!
-Mar 17 15:15:15 vaio kernel: invalid operand: 0000
-Mar 17 15:15:15 vaio kernel: CPU:    0
-Mar 17 15:15:15 vaio kernel: EIP:    0010:[__kfree_skb+324/352]    Not tainted
-Mar 17 15:15:15 vaio kernel: EIP:    0010:[<c026cd54>]    Not tainted
-Mar 17 15:15:15 vaio kernel: EFLAGS: 00010286
-Mar 17 15:15:15 vaio kernel: eax: 00000045   ebx: c3bcb9e0   ecx: cb392000   edx: cb393f7c
-Mar 17 15:15:15 vaio kernel: esi: c1339f84   edi: 00000000   ebp: c1338000   esp: c1339f6c
-Mar 17 15:15:15 vaio kernel: ds: 0018   es: 0018   ss: 0018
-Mar 17 15:15:15 vaio kernel: Process keventd (pid: 2, stackpage=c1339000)
-Mar 17 15:15:15 vaio kernel: Stack: c0314840 c0121fca 00000000 c1339f84 c0121fca c3bcb9e0 cd0942f8 cd0942f8
-Mar 17 15:15:15 vaio kernel:        00000000 00000000 c012ac83 c032abd0 c1339fb0 00000000 c1338560 c1338570
-Mar 17 15:15:15 vaio kernel:        c1338000 00000001 00000000 cffe5f90 00010000 00000000 00000700 c012ab50
-Mar 17 15:15:15 vaio kernel: Call Trace:    [__run_task_queue+90/112] [__run_task_queue+90/112] [context_thread+307/448] [c
-ontext_thread+0/448] [rest_init+0/64]
-Mar 17 15:15:15 vaio kernel: Call Trace:    [<c0121fca>] [<c0121fca>] [<c012ac83>] [<c012ab50>] [<c0105000>]
-Mar 17 15:15:15 vaio kernel:   [kernel_thread+46/64] [context_thread+0/448]
-Mar 17 15:15:15 vaio kernel:   [<c010749e>] [<c012ab50>]
-Mar 17 15:15:15 vaio kernel:
-Mar 17 15:15:15 vaio kernel: Code: 0f 0b 3b 01 cf 2d 31 c0 8b 5c 24 14 e9 be fe ff ff 90 8d 76
-Mar 17 15:16:34 vaio kernel:  <3>airo: BAP setup error too many retries
-Mar 17 15:16:59 vaio kernel: mtrr: no MTRR for fd000000,400000 found
-Mar 17 15:17:10 vaio kernel: SysRq : HELP : loglevel0-8 reBoot tErm kIll saK showMem Off showPc unRaw Sync showTasks Unmoun
-t
-
-
-On Mon, 17 Mar 2003 02:28:58 +0100 (MET)
-Javier Achirica <achirica@telefonica.net> wrote:
-
+* Burton Windle <bwindle@fint.org> [17/03/2003 0847EST]:
+> What modules do you have loaded?
 > 
-> I'm aware of this "lock up" problem. I was hoping it was a locking issue
-> and the last changes would solve it. Looks like not. The biggest problem
-> I'm having with that issue is that I'm not able to reproduce it. Any
-> suggestion?
-> 
-> Javier Achirica
+
+Oh yes I forgot to mention those didn't I.  :-/  The kernel is tainted
+because of the !@#^%*#@* NVidia closed-source driver (1.0-3123).  I have
+ALSA 0.9.0rc6 stuff loaded (yes, old; have yet to update it).
+Everything else is stock 2.4.20 kernel stuff. (I am aware there is an
+NVidia 1.0-4191 driver set, but  it didn't play nice so I reverted to
+the previous release.)
+
+Here is the lsmod output:
+Module                  Size  Used by    Tainted: P  
+snd-emu10k1            57636   0 
+snd-hwdep               3680   0  [snd-emu10k1]
+snd-util-mem            1168   0  [snd-emu10k1]
+snd-rawmidi            11936   0  [snd-emu10k1]
+snd-ac97-codec         25776   0  [snd-emu10k1]
+snd-pcm-oss            36964   0 
+snd-pcm                54560   0  [snd-emu10k1 snd-pcm-oss]
+snd-timer              10400   0  [snd-pcm]
+snd-mixer-oss          10752   0  [snd-pcm-oss]
+snd                    24008   0  [snd-emu10k1 snd-hwdep snd-util-mem snd-rawmidi snd-ac97-codec snd-pcm-oss snd-pcm snd-timer snd-mixer-oss]
+soundcore               3364   6  [snd]
+NVdriver             1066528  10 
+agpgart                12800   3 
+loop                    8496   0  (unused)
+autofs4                 8580   1 
+nfs                    44932   0  (unused)
+nfsd                   44928   0  (unused)
+lockd                  37248   0  [nfs nfsd]
+sunrpc                 59924   0  [nfs nfsd lockd]
+tulip                  37664   1 
+mousedev                3904   1 
+hid                    13248   0  (unused)
+input                   3168   0  [mousedev hid]
+usb-uhci               21796   0  (unused)
+usbcore                55232   0  [hid usb-uhci]
+serial                 44128   0  (unused)
+
+krjw.
+-- 
+Keith R. John Warno                         [SA, Valaran Corporation]
+"When you go into  court you are putting your fate  into the hands of
+twelve people who weren't smart enough to get out of jury duty."
+                -- Norm Crosby

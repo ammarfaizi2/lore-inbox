@@ -1,73 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbTJ2Kig (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 05:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTJ2Kig
+	id S261982AbTJ2Lbp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 06:31:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbTJ2Lbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 05:38:36 -0500
-Received: from f85180.upc-f.chello.nl ([80.56.85.180]:531 "HELO yahoo2668.com")
-	by vger.kernel.org with SMTP id S261957AbTJ2Kie (ORCPT
+	Wed, 29 Oct 2003 06:31:45 -0500
+Received: from ltgp.iram.es ([150.214.224.138]:134 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id S261982AbTJ2Lbn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 05:38:34 -0500
-From: corporatefoundations <cpt_foundations@yahoo.co.uk>
-Reply-To: corp-foundations@zwallet.com
-Subject: WINNING NOTICE
-Date: Wed, 29 Oct 2003 11:36:48 +0100
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="97464ae3-a45f-4e34-94da-674c4c55ccdc"
-Message-Id: <S261957AbTJ2Kie/20031029103834Z+23401@vger.kernel.org>
-To: unlisted-recipients:; (no To-header on input)
+	Wed, 29 Oct 2003 06:31:43 -0500
+From: Gabriel Paubert <paubert@iram.es>
+Date: Wed, 29 Oct 2003 12:28:24 +0100
+To: Pavel Machek <pavel@suse.cz>
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Patrick Mochel <mochel@osdl.org>, George Anzinger <george@mvista.com>,
+       John stultz <johnstul@us.ibm.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] fix time after suspend-to-*
+Message-ID: <20031029112824.GA7789@iram.es>
+References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise> <1067329994.861.3.camel@teapot.felipe-alfaro.com> <20031028093233.GA1253@elf.ucw.cz> <1067351431.1358.11.camel@teapot.felipe-alfaro.com> <20031028172818.GB2307@elf.ucw.cz> <1067372182.864.11.camel@teapot.felipe-alfaro.com> <20031029093802.GA757@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031029093802.GA757@elf.ucw.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 29, 2003 at 10:38:03AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > You are not asking userspace whether to reboot or not, and you should
+> > > not ask them about suspend, either.
+> > 
+> > OK, so how should the system behave when a real-time-like process is
+> > running? I talked about the CD burning example. Should the kernel simply
+> > ignore the process and suspend?
+> 
+> Yes.
+> 
+> > > > 1. Network connections must be reestablished. A userspace program can't
+> > > > try to automatically reestablish a broken TCP connection for no apparent
+> > > > reason. A broken TCP connection could be the cause of an overloaded or
+> > > > broken server/service. If we do not inform userspace processes that the
+> > > > system is going to sleep (or that the system has been brought up from
+> > > > standby), they will blindly try to restore TCP connections back, even
+> > > > when the remote server is broken, generating a lot of unnecesary
+> > > > traffic.
+> > > 
+> > > gettimeofday(), if I slept for too long, oops, something strange
+> > > happened (maybe there was heavy io load and I was swapped out? or
+> > > suspend? Did machine sleep for 20 minutes in cli?) try to reconnect.
+> > 
+> > Does "gettimeofday()" have into account the effect of adjusting the time
+> > twice a year, once to make time roll forward one hour and another one to
+> > roll it back?
+> 
+> Not sure how it is supposed to work, but here I just have ntpd
+> step-setting by one hour...
 
-This is a multi-part message in MIME format
---97464ae3-a45f-4e34-94da-674c4c55ccdc
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Well, gettimeofday() is supposed to return UT. It does not care at all
+about local time, which would be a 100% userspace problem if it were
+not for broken filesystems which store timestamps in local time.
 
-  CORPORATE  FOUNDATIONS  LOTTERY  INTERNATIONAL.
-    
-   Ref. Number: 856/002/2001. 
-   Batch Number: 600002367-GD665.
-   
-   Sir,  Madam,
-   We are  pleased to inform you of the result of the lottery winners =
-International programs held on the 27th of october 2003.
-   Your e-mail adress attached to ticket number  680456613245-8352 with =
-serial number 5819-436 drew lucky number 3-46-31-28-62 which consequently won =
-in the first category, you have therefore been approve for a lump sum pay of =
-US$1000,000:00( one million United States Dollars).
-   CONGRATULATIONS.
-   Due to mix up of some number and names we therefore advice that you keep =
-your winning informations confidential until your claims has been processed =
-and your money remited to you.This is part of our security protocol to avoid =
-double claiming and unwarranted abuse of this program by some participants.
-   All participants were selected through a computer ballot system drawn from =
-over 30,000 companies and 40,000,000 individual e-mail adresses and names =
-from all over the world.
-  This lottery was promoted and sponsored by Mr. Bill Gates, president of the =
-world largest software.
-  We hope with your winning, you will take part in our next year USD75million =
-International lottery.
-   To file in for your claim please contact our fiducial agent,
-   MR. BRIGHT MARTINS.of the Corporate Foundations Agency.
-   TEL:  +31625317926.
-    E-MAIL:  corp-foundations@zwallet.com
-    Remember all winning must be claimed not later than 10th of Novenber =
-2003.After which all unclaimed funds will be included in the next year stake.=
+Going off-topic: on a typical distribution the files used for UT to 
+localtime conversion are in/usr/share/zoneinfo. Also ntp exclusively
+transmits UT, and is certainly not responsible for these hour steps.
 
-   Please note, in order to avoid unnecessary delays and complications, =
-remember to quote your reference and batch numbers in all your =
-correspondence.
-    Furthermore, should there be any change of adress do inform our agent as =
-soon as possible.
-   Congratulations once again from our members of staff, and thanks for =
-taking part in our promotional program.
-   Note: Anybody under the age of 18 is automatically disqualified.
-   
-   Sincerely yours,
-   MRS.  MARY  JONES.
-   Lottery Coordinator.   
---97464ae3-a45f-4e34-94da-674c4c55ccdc--
-
+	Gabriel.

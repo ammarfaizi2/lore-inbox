@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129150AbQKVA6L>; Tue, 21 Nov 2000 19:58:11 -0500
+	id <S131992AbQKVA7b>; Tue, 21 Nov 2000 19:59:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131031AbQKVA6C>; Tue, 21 Nov 2000 19:58:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30039 "EHLO
+	id <S131993AbQKVA7V>; Tue, 21 Nov 2000 19:59:21 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10840 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129150AbQKVA5x>; Tue, 21 Nov 2000 19:57:53 -0500
-Subject: Re: e2fs performance as function of block size
-To: jmerkey@timpanogas.org (Jeff V. Merkey)
-Date: Wed, 22 Nov 2000 00:27:47 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), cma@mclink.it (CMA), tytso@mit.edu,
-        card@masi.ibp.fr, linux-kernel@vger.kernel.org
-In-Reply-To: <3A1B0DFC.72E4E9FF@timpanogas.org> from "Jeff V. Merkey" at Nov 21, 2000 05:06:20 PM
+	id <S131992AbQKVA7K>; Tue, 21 Nov 2000 19:59:10 -0500
+Subject: Re: Linux 2.4.0test11-ac1
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Wed, 22 Nov 2000 00:29:09 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8vf2oo$338$1@cesium.transmeta.com> from "H. Peter Anvin" at Nov 21, 2000 04:07:52 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13yNlM-0005Q3-00@the-village.bc.nu>
+Message-Id: <E13yNmg-0005QD-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's as though the disk drivers are optimized for this case (1024).  I
+> > Intel stuff appears to always be happy poking in APIC space. I don't know
+> > if this is related to the chip internals on the non APIC capable chips.
+> 
+> Nononono... the 82489DX is an *external* APIC, which should be usable
+> on any Socket 5/7 CPU...
 
-The disk drivers are not, and they normally see merged runs of blocks so they
-will see big chunks rather than 1K then 1K then 1K etc.
+I know of no socket 7 board with an 82489DX, and no board on the planet which
+has 82489DX and works SMP with a non intel processor. I accept its a heuristic
+but so is the current behaviour, and the current heuristic isnt working for
+as many cases.
 
-> behavior, but there is clearly some optimization relative to this size
-> inherent in the design of Linux -- and it may be a pure accident.  This
-> person may be mixing and matching block sizes in the buffer cache, which
-> would satisfy your explanation.
-
-I see higher performance with 4K block sizes. I should see higher latency too
-but have never been able to measure it. Maybe it depends on the file system.
-It certainly depends on the nature of requests
-
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

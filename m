@@ -1,79 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUJVRLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUJVRLx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbUJVRLx (ORCPT <rfc822;willy@w.ods.org>);
+	id S265800AbUJVRLx (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 22 Oct 2004 13:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269184AbUJVREo
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271451AbUJVRC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 13:04:44 -0400
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:40053 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S271419AbUJVQ6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 12:58:33 -0400
-From: tabris <tabris@tabris.net>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: Re: DVD/ide-cd related Oops 2.6.[89]-mm
-Date: Fri, 22 Oct 2004 12:45:23 -0400
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Jens Axboe <axboe@suse.de>
-References: <20041022090145.GA6408@tabriel.tabris.net> <58cb370e04102207351d79c481@mail.gmail.com>
-In-Reply-To: <58cb370e04102207351d79c481@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_jkTeBc0dpGp5eq3"
-Message-Id: <200410221245.23693.tabris@tabris.net>
+	Fri, 22 Oct 2004 13:02:59 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:64397 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S271450AbUJVQ5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 12:57:07 -0400
+Date: Fri, 22 Oct 2004 18:58:09 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
+Message-ID: <20041022165809.GH14325@dualathlon.random>
+References: <20041021011714.GQ24619@dualathlon.random> <417728B0.3070006@yahoo.com.au> <20041020213622.77afdd4a.akpm@osdl.org> <417837A7.8010908@yahoo.com.au> <20041021224533.GB8756@dualathlon.random> <41785585.6030809@yahoo.com.au> <20041022011057.GC14325@dualathlon.random> <41787840.3060807@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41787840.3060807@yahoo.com.au>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_jkTeBc0dpGp5eq3
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Fri, Oct 22, 2004 at 01:02:24PM +1000, Nick Piggin wrote:
+> I don't agree, there are times when you need to know the bare pages_xxx
+> watermark, and times when you need to know the whole ->protection thing.
 
-On Friday 22 October 2004 10:35 am, Bartlomiej Zolnierkiewicz wrote:
-> On Fri, 22 Oct 2004 05:01:45 -0400, Tabris <tabris@tabris.net> wrote:
-> >         undecoded slave fixup is a oneliner patch in ide-probe to
-> > recognize both of my Maxtor drives that appear to have the same
-> > serial number, D3000000. This fix was discussed a month ago or so,
-> > as I had run into it, but nothing official came of it, and it was
-> > never merged to -mm.
->
-> Did you test it on different controller (as asked by Eric)?
->
-> > Patch attached.
->
-> thanks, I'll apply it
-	Patch attached with a comment. Possibly not necessary, but as it's a 
-fixup, probably should anyway.
->
-> Bartlomiej
+we'll see, I agree current alloc_pages is quite clean but I'm quite
+tempted to have a strightforward alloc_pages as clean as 2.4:
 
---
-tabris
--
-Some people only open up to tell you that they're closed.
+	for (;;) {
+		zone_t *z = *(zone++);
+		if (!z)
+			break;
 
---Boundary-00=_jkTeBc0dpGp5eq3
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="ide-probe+undecoded_slave-Maxtor-fixup.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ide-probe+undecoded_slave-Maxtor-fixup.diff"
+		if (zone_free_pages(z, order) > z->watermarks[class_idx].low) {
+			page = rmqueue(z, order);
+			if (page)
+				return page;
+		}
+	}
 
-Signed-off by tabris@tabris.net
+2.6 is like this:
 
---- ide-probe.c~	2004-10-22 12:40:41.366608575 -0400
-+++ ide-probe.c	2004-10-22 12:41:40.789111900 -0400
-@@ -730,6 +730,8 @@ static void probe_hwif(ide_hwif_t *hwif)
- 			    /* And beware of confused Maxtor drives that go "M0000000000"
- 			      "The SN# is garbage in the ID block..." [Eric] */
- 			    strncmp(drive->id->serial_no, "M0000000000000000000", 20) &&
-+			    /* Same goes for another set of Maxtor drives that say "D3000000" */
-+			    strncmp(drive->id->serial_no, "D3000000", 8) &&
- 			    strncmp(hwif->drives[0].id->serial_no, drive->id->serial_no, 20) == 0) {
- 				printk(KERN_WARNING "ide-probe: ignoring undecoded slave\n");
- 				drive->present = 0;
+	/* Go through the zonelist once, looking for a zone with enough * free */
+	for (i = 0; (z = zones[i]) != NULL; i++) {
+		min = z->pages_low + (1<<order) + z->protection[alloc_type];
 
---Boundary-00=_jkTeBc0dpGp5eq3--
+		if (z->free_pages < min)
+			continue;
+
+		page = buffered_rmqueue(z, order, gfp_mask);
+		if (page)
+			goto got_pg;
+	}
+
+
+I don't see any benefit in limiting the high order, infact it seems a
+bad bug. If something you should limit the _small_ order, so that the
+high order will have a slight chance to succeed. You're basically doing
+the opposite.
+
+The pages_low is completely useless too for example and it could go.
+pages_min has some benefit for some more feature 2.6 provides (that
+could be translated in more watermarks, to separate the "settings of
+the watermarks" from the alloc_page user of the watermarks).
+
+> OK I dont disagree that your setup calculations are much nicer, and
+> the current ones are pretty broken...
+
+ok cool.

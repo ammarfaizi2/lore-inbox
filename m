@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266138AbSKFVwz>; Wed, 6 Nov 2002 16:52:55 -0500
+	id <S266137AbSKFVwp>; Wed, 6 Nov 2002 16:52:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266135AbSKFVwz>; Wed, 6 Nov 2002 16:52:55 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:3346
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S266138AbSKFVwy>; Wed, 6 Nov 2002 16:52:54 -0500
-Subject: Re: Regarding zerocopy implementation ...
-From: Robert Love <rml@tech9.net>
-To: Manish Lachwani <manish@Zambeel.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB183D@xch-a.win.zambeel.com>
-References: <233C89823A37714D95B1A891DE3BCE5202AB183D@xch-a.win.zambeel.com>
-Content-Type: text/plain
+	id <S266138AbSKFVwp>; Wed, 6 Nov 2002 16:52:45 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7684 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266137AbSKFVwp>; Wed, 6 Nov 2002 16:52:45 -0500
+Message-ID: <3DC9909A.6040905@zytor.com>
+Date: Wed, 06 Nov 2002 13:58:50 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Evms-announce] EVMS announcement
+References: <02110516191004.07074@boiler>	<20021106001607.GJ27832@marowsky-bree.de>	<1036590957.9803.24.camel@irongate.swansea.linux.org.uk> 	<aqbv2d$tvd$1@cesium.transmeta.com> <1036617718.9781.73.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Nov 2002 16:46:24 -0500
-Message-Id: <1036619185.3405.1407.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-06 at 10:23, Manish Lachwani wrote:
-> Is there a zerocopy receive implementation in Linux? I know that FreeBSD
-> 5.0-CURRENT has such an implementation named zerocopy sockets and when used
-> with a Alteon Tigon II NIC with header splitting turned on in Firmware,
-> works well. Do we have any such implementation in Linux? Any reponse is
-> greatly appreciated ...
+Alan Cox wrote:
+> On Wed, 2002-11-06 at 20:46, H. Peter Anvin wrote:
+> 
+>>I presume that means device mapper is capable of using checksum
+>>offloading and controller-based block duplication?  If so, that's
+>>pretty damned nice.  Good work :)
+> 
+> ataraid is just driving dumb ide controllers in the way bios raid does
+ >
 
-Yes, we have zero-copy networking if the device supports the requisite
-features and the driver is so coded.
+I guess I meant it as a more general question than those specific devices.
 
-Quick glance over 2.4, it looks like the following drivers support
-zero-copy networking: via-rhine, tg3, sunhme, sungem, starfire, ns83820,
-dl2k, acenic, 8139too, 8139cp, 3c59x family (includes 3c9xx), Intel
-e100, and Intel e1000.
-
-	Robert Love
-
+	-hpa
 

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264327AbSIVQVf>; Sun, 22 Sep 2002 12:21:35 -0400
+	id <S264389AbSIVQbP>; Sun, 22 Sep 2002 12:31:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264380AbSIVQVf>; Sun, 22 Sep 2002 12:21:35 -0400
-Received: from p508E9036.dip.t-dialin.net ([80.142.144.54]:38393 "EHLO
-	minerva.local.lan") by vger.kernel.org with ESMTP
-	id <S264327AbSIVQVe>; Sun, 22 Sep 2002 12:21:34 -0400
-From: Martin Loschwitz <madkiss@madkiss.org>
-Date: Sun, 22 Sep 2002 18:26:38 +0200
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] make check.c compile in 2.5.38 with DevFS
-Message-ID: <20020922162638.GA404@minerva.local.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S264403AbSIVQbO>; Sun, 22 Sep 2002 12:31:14 -0400
+Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:29449 "EHLO
+	racerx.ixiacom.com") by vger.kernel.org with ESMTP
+	id <S264389AbSIVQbO>; Sun, 22 Sep 2002 12:31:14 -0400
+Message-ID: <15FDCE057B48784C80836803AE3598D53B88A6@racerx.ixiacom.com>
+From: Dan Kegel <dkegel@ixiacom.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: Dan Kegel <dkegel@ixiacom.com>
+Subject: Enforcing RLIMIT_RSS?
+Date: Sun, 22 Sep 2002 09:36:09 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch was necessary for me to get fs/partitions/check.c
-compiling with DevFS.
+setrlimit(RLIMIT_AS, ...) can be used to limit the amount
+of virtual memory an application uses, but the corresponding
+call to limit physical memory, setrlimit(RLIMIT_RSS, ...),
+is not implemented in the main tree.
 
-diff -ruN linux-2.5.38/fs/partitions/check.c linux-2.5.38-new/fs/partitions/check.c
---- linux-2.5.38/fs/partitions/check.c  2002-09-22 06:25:06.000000000 +0200
-+++ linux-2.5.38-new/fs/partitions/check.c      2002-09-22 17:43:58.000000000 +0200
-@@ -362,7 +362,7 @@
-                pos = devfs_generate_path(dev->disk_de, rname+3, sizeof(rname)-3);
-                if (pos >= 0) {
-                        strncpy(rname + pos, "../", 3);
--                       devfs_mk_symlink(devfs_handle, vname,
-+                       devfs_mk_symlink(cdroms, vname,
-                                         DEVFS_FL_DEFAULT,
-                                         rname + pos, &slave, NULL);
-                        devfs_auto_unregister(dev->de, slave);
+Rik has implemented this feature several times in the past...
+here's his 2.4.0 patch,
+http://marc.theaimsgroup.com/?l=linux-kernel&m=97811999316400&w=2
+and his 2.5.27 patch
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102719516200414&w=2
 
--- 
-  .''`.   Name: Martin Loschwitz
- : :'  :  E-Mail: madkiss@madkiss.org
- `. `'`   www: http://www.madkiss.org/ 
-   `-     Use Debian GNU/Linux - http://www.debian.org    
+I need this feature on my embedded system, which uses 2.4.17 or so.
+Is the 2.4.0 patch the best place to start, or has anyone
+updated that patch for a more recent 2.4?
+
+Thanks,
+Dan
+

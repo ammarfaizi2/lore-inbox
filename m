@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVCWE36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262662AbVCWElg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbVCWE36 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 23:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbVCWE36
+	id S262662AbVCWElg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 23:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVCWElg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 23:29:58 -0500
-Received: from ns.intellilink.co.jp ([61.115.5.249]:19590 "HELO
-	ns.intellilink.co.jp") by vger.kernel.org with SMTP id S261469AbVCWE3q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 23:29:46 -0500
-Subject: Re: Query: Kdump: Core Image ELF Format
-From: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>
-To: vivek goyal <vgoyal@in.ibm.com>
-Cc: fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-In-Reply-To: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
-References: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
-Content-Type: text/plain
-Organization: =?UTF-8?Q?NTT=E3=83=87=E3=83=BC=E3=82=BF=E5=85=88=E7=AB=AF=E6=8A=80?=
-	=?UTF-8?Q?=E8=A1=93=E6=A0=AA=E5=BC=8F=E4=BC=9A?= =?UTF-8?Q?=E7=A4=BE?=
-Date: Wed, 23 Mar 2005 13:26:57 +0900
-Message-Id: <1111552017.3604.78.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Tue, 22 Mar 2005 23:41:36 -0500
+Received: from downeast.net ([204.176.212.2]:36033 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S262662AbVCWEle (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 23:41:34 -0500
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: dtor_core@ameritech.net
+Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
+Date: Tue, 22 Mar 2005 23:41:22 -0500
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <200503201557.58055.pmcfarland@downeast.net> <d120d50005032205584fd37a94@mail.gmail.com> <200503222119.55270.pmcfarland@downeast.net>
+In-Reply-To: <200503222119.55270.pmcfarland@downeast.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1444049.O8aXQlHzq0";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200503222341.27297.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+--nextPart1444049.O8aXQlHzq0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Tue, 2005-03-08 at 18:20 +0530, vivek goyal wrote:
-> Core image ELF headers are prepared before crash and stored at a safe
-> place in memory. These headers are retrieved over a kexec boot and final
-> elf core image is prepared for analysis. 
+On Tuesday 22 March 2005 09:19 pm, Patrick McFarland wrote:
+> I haven't tested it with 2.6.11 yet... real life showed up, and hasn't go=
+ne
+> away yet. *stab!* I'll be testing it right after I send this email.
 
-Regarding the preparation of the ELF headers, I think we should also
-take into consideration hot-plug memory and create appropriate
-mechanisms to deal with it.
+Nope, 2.6.11 is also broken.
 
-Assuming that both insertion and removal of memory trigger a hotplug
-event that is subsequently handled by the relevant hotplug agent(*), the
-latter could be modified so that, on successful memory onlining,
-additional PT_LOAD headers are created and tucked in a safe place
-together with the others.
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
-Since ELF headers are to be prepared by kexec a new option could be
-added to it, so that we can call kexec from a hotplug script to carry
-out the aforementioned tasks.
+--nextPart1444049.O8aXQlHzq0
+Content-Type: application/pgp-signature
 
-Any thoughts or suggestions on this?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-(*) The last patches posted by Dave Hansen already support memory
-onlining from an /etc/hotplug script.
+iD8DBQBCQPN38Gvouk7G1cURAq4DAKCUI3wbxPs/7PcS3QCOjwS8uYADKwCgrokw
+woLGt5uXbL6QiUanzaK0lro=
+=GT1n
+-----END PGP SIGNATURE-----
 
-Fernando
-
-
+--nextPart1444049.O8aXQlHzq0--

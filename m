@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317715AbSGPAYL>; Mon, 15 Jul 2002 20:24:11 -0400
+	id <S317749AbSGPD6T>; Mon, 15 Jul 2002 23:58:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317716AbSGPAYK>; Mon, 15 Jul 2002 20:24:10 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:21519 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317715AbSGPAYI>;
-	Mon, 15 Jul 2002 20:24:08 -0400
-Date: Mon, 15 Jul 2002 17:26:13 -0700
-From: Greg KH <greg@kroah.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: benh@kernel.crashing.org, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: Removal of pci_find_* in 2.5
-Message-ID: <20020716002613.GB32431@kroah.com>
-References: <20020713.135235.83621938.davem@redhat.com> <20020713134553.4483@192.168.4.1> <20020714.222527.57270686.davem@redhat.com>
+	id <S317750AbSGPD6S>; Mon, 15 Jul 2002 23:58:18 -0400
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:36619 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S317749AbSGPD6S>; Mon, 15 Jul 2002 23:58:18 -0400
+Subject: Re: Linux 2.4.19-rc1-ac5 -- Build error in mpparse.c
+From: Miles Lane <miles@megapathdsl.net>
+To: Alan Cox <alan@redhat.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com>
+References: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 15 Jul 2002 21:01:06 -0700
+Message-Id: <1026792066.1417.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020714.222527.57270686.davem@redhat.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Mon, 17 Jun 2002 23:22:35 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 14, 2002 at 10:25:27PM -0700, David S. Miller wrote:
->    From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->    Date: Sat, 13 Jul 2002 15:45:53 +0200
->    
->    That case shouldn't be a problem, since when your device get discovered,
->    hopefully, the host controller is already there. Though in some cases,
->    host controllers just appear as a sibling device, and in this specific
->    case, it may be not have been "discovered" yet.
-> 
-> THat's not what I'm concerned about, what I care about is that there
-> still will be a pci_find_*() I can call to see if DEV/ID is on
-> the bus.  That is the easiest way to perform that search right
-> now.
+I have not seen this particular error with mpparse.c 
+mentioned on LKML before.
 
-Yes, it will stay.  It is needed for situations just like these, and lots
-of other valid reasons.
+I hit this with gcc version 3.1.1 20020708 (prerelease):
 
-thanks,
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -I /usr/lib/gcc-lib/i686-pc-linux-gnu/3.1.1/include -DKBUILD_BASENAME=mpparse  -c -o mpparse.o mpparse.c
+In file included from mpparse.c:25:
+/usr/src/linux/include/asm/smp.h:45:1: warning: "INT_DELIVERY_MODE" redefined
+/usr/src/linux/include/asm/smp.h:42:1: warning: this is the location of the previous definition
+mpparse.c:72: parse error before numeric constant
+mpparse.c:76: parse error before numeric constant
+mpparse.c:77: parse error before numeric constant
+mpparse.c:78: parse error before numeric constant
+mpparse.c:79: parse error before numeric constant
+mpparse.c: In function `smp_read_mpc':
+mpparse.c:601: invalid lvalue in assignment
 
-greg k-h
+CONFIG_MPENTIUM4=y
+CONFIG_TOSHIBA=y
+CONFIG_MTRR=y
+# CONFIG_SMP is not set
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+
+

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277093AbRJKX7H>; Thu, 11 Oct 2001 19:59:07 -0400
+	id <S277097AbRJLADH>; Thu, 11 Oct 2001 20:03:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277100AbRJKX66>; Thu, 11 Oct 2001 19:58:58 -0400
-Received: from taifun.devconsult.de ([212.15.193.29]:52748 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S277093AbRJKX6m>; Thu, 11 Oct 2001 19:58:42 -0400
-Date: Fri, 12 Oct 2001 01:59:08 +0200
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Dan Hollis <goemon@anime.net>
-Cc: Marcus Meissner <mm@ns.caldera.de>, war <war@starband.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Can only login via ssh 1013 times.
-Message-ID: <20011012015907.A26975@devcon.net>
-Mail-Followup-To: Dan Hollis <goemon@anime.net>,
-	Marcus Meissner <mm@ns.caldera.de>, war <war@starband.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200110112136.f9BLakI04545@ns.caldera.de> <Pine.LNX.4.30.0110111445140.2188-100000@anime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0110111445140.2188-100000@anime.net>; from goemon@anime.net on Thu, Oct 11, 2001 at 02:46:51PM -0700
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+	id <S277104AbRJLAC5>; Thu, 11 Oct 2001 20:02:57 -0400
+Received: from c1765315-a.mckiny1.tx.home.com ([65.10.75.71]:260 "EHLO
+	aruba.maner.org") by vger.kernel.org with ESMTP id <S277097AbRJLACu> convert rfc822-to-8bit;
+	Thu, 11 Oct 2001 20:02:50 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Compile of 2.4.10-ac12 dies on sparc64
+Date: Thu, 11 Oct 2001 19:03:22 -0500
+content-class: urn:content-classes:message
+Message-ID: <C033B4C3E96AF74A89582654DEC664DB5559@aruba.maner.org>
+Thread-Topic: Compile of 2.4.10-ac12 dies on sparc64
+Thread-Index: AcFSsTpMc/5RBZu3Qd2wJi7DW2TTYg==
+From: "Donald Maner" <donjr@maner.org>
+To: "Linux Kernel (E-mail)" <linux-kernel@vger.rutgers.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Trying to compile 2.4.10-ac12 on an Ultra10:
 
-On Thu, Oct 11, 2001 at 02:46:51PM -0700, Dan Hollis wrote:
-> 
-> Maybe kernel could printk a warning when file-max (or other) limit is
-> reached...?
+sparc64-linux-gcc -D__KERNEL__ -I/home/donjr/linux-2.4.10-ac12/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc
+-mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7
+-Wno-sign-compare -Wa,--undeclared-regs    -c -o init_task.o init_task.c
+init_task.c:7: `INIT_MMAP' undeclared here (not in a function)
+make[1]: *** [init_task.o] Error 1
+make[1]: Leaving directory
+`/home/donjr/linux-2.4.10-ac12/arch/sparc64/kernel'
+make: *** [_dir_arch/sparc64/kernel] Error 2
 
-It is already done:
+Thanks
+Donald
 
-,----[ fs/file_table.c ]-
-| [...]
-| } else if (files_stat.max_files > old_max) {
-|         printk(KERN_INFO "VFS: file-max limit %d reached\n", files_stat.max_files);
-|         old_max = files_stat.max_files;
-| }
-| [...]
-`----
-
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net

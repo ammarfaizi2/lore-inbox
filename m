@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262804AbUJ1H22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262809AbUJ1Hqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262804AbUJ1H22 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 03:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbUJ1H21
+	id S262809AbUJ1Hqh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 03:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262816AbUJ1Hqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 03:28:27 -0400
-Received: from hacksaw.org ([66.92.70.107]:41667 "EHLO hacksaw.org")
-	by vger.kernel.org with ESMTP id S262804AbUJ1H2Y (ORCPT
+	Thu, 28 Oct 2004 03:46:33 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:23289 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262809AbUJ1Hph (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 03:28:24 -0400
-Message-Id: <200410280728.i9S7SIYW017628@hacksaw.org>
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.0.4
+	Thu, 28 Oct 2004 03:45:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
+        b=X4iNGmg8ygtLDQestfnMThUxiCy3ro1kiyYVPV0QCb4i2eY9H7vOzRIs6Cjj/GIs3wx1M+5fF8XXJOxSzHGQgdlTlqW23rJn6Kayiv5DKNA0kMpexJGET8rXUob02HX+69zAxNrfaAsuPh63YfDpJwMiNg34BXIwsESjGc7dI/Y=
+Message-ID: <4c847c77041028004533ba6af8@mail.gmail.com>
+Date: Thu, 28 Oct 2004 09:45:33 +0200
+From: Craig Schlenter <craig.schlenter@gmail.com>
+Reply-To: Craig Schlenter <craig.schlenter@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: My thoughts on the "new development model" 
-In-reply-to: Your message of "28 Oct 2004 16:46:58 +1000."
-             <m1sm7znxul.fsf@mo.optusnet.com.au> 
+Subject: status of "union mounts" and "unionfs" ?
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 28 Oct 2004 03:28:18 -0400
-From: Hacksaw <hacksaw@hacksaw.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's NOT the same as bug free software. For a start, there's no such
-> thing.
+Hi
 
-Speaking of which, here's something I have wondered: is anyone out there 
-trying to prove the correctness of core functions in the kernel? I was 
-thinking this would be a fine activity for all those eager college students 
-out there, or perhaps a graduate student project, a la the Stanford Checker 
-project.
+The following link suggests that "union mounts" and "unionfs" are
+"post-2.6.0" work: http://kernelnewbies.org/status/latest.html but
+from some digging through changeset comments on bkbits it would
+seem as if this isn't implemented yet, right?
 
-While I can't imagine the main developers doing such a thing, I think it'd be 
-useful and might uncover some hard to find bugs.
+Are there test patches available for either of these features at all
+or does someone have any other clever suggestions as to how
+to netboot a bunch of machines that share pretty much the same
+filesystem image over NFS except for some "machine specific
+differences"?
 
-I'd also suspect that they might be good candidates for proving, as there's 
-not so much reason to have side effect riddled code, as one might for GUI 
-programs.
+Thank you!
 
--- 
-A psychosis is a psychosis, but a Manwich is a meal
-http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+PS. I have read the whitepaper for "Stateless Linux" but it doesn't
+really seem like an ideal fit for what I want to do ...
 
-
+--Craig

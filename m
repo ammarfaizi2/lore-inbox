@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271205AbRHTLut>; Mon, 20 Aug 2001 07:50:49 -0400
+	id <S271200AbRHTL7u>; Mon, 20 Aug 2001 07:59:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271204AbRHTLuj>; Mon, 20 Aug 2001 07:50:39 -0400
-Received: from mauve.demon.co.uk ([158.152.209.66]:53904 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S271205AbRHTLuY>; Mon, 20 Aug 2001 07:50:24 -0400
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200108201150.MAA08736@mauve.demon.co.uk>
-Subject: Re: Encrypted Swap
-To: linux-kernel@vger.kernel.org (l)
-Date: Mon, 20 Aug 2001 12:50:11 +0100 (BST)
-In-Reply-To: <Pine.LNX.3.95.1010819211427.28054B-100000@chaos.analogic.com> from "Richard B. Johnson" at Aug 19, 2001 09:27:28 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S271204AbRHTL7k>; Mon, 20 Aug 2001 07:59:40 -0400
+Received: from mail.scs.ch ([212.254.229.5]:26117 "EHLO mail.scs.ch")
+	by vger.kernel.org with ESMTP id <S271200AbRHTL7b>;
+	Mon, 20 Aug 2001 07:59:31 -0400
+Message-ID: <3B80FBA9.556B7B2B@scs.ch>
+Date: Mon, 20 Aug 2001 13:59:37 +0200
+From: Thomas Sailer <sailer@scs.ch>
+Reply-To: t.sailer@alumni.ethz.ch
+Organization: SCS
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.3-13jnx i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: johannes@erdfelt.com, linux-kernel@vger.kernel.org
+Subject: Re: Patch for bizzare oops in USB
+In-Reply-To: <20010818013101.A7058@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip>
-> Your idea of removing the RAM from the board and reading it
-> from a RAM-reader may actually show some valid data. However,
-> it is well thown that physical access to a machine or its
-> components while the power is applied and the machine is
-> running eliminates any possibility of security anyway.
-> You just keep the machine on its UPS and carry it away.
+Pete Zaitcev schrieb:
 
-Are there any current CPUs that can treat RAM as very fast swap, 
-and be set up so that before writing a page of RAM from cache, it
-gets encrypted (obviously not designed for this)
-Essentially, the only data on the system that's in clear is initial boot
-code, and on-chip cache.
-Obviously, performance would suffer, going from Gb/s to Mb/s.
+> diff -ur -X dontdiff linux-2.4.8/drivers/usb/usb.c linux-2.4.8-e/drivers/usb/usb.c
+> --- linux-2.4.8/drivers/usb/usb.c       Tue Jul 24 14:20:56 2001
+> +++ linux-2.4.8-e/drivers/usb/usb.c     Fri Aug 17 22:03:27 2001
+> @@ -1066,7 +1066,7 @@
+> 
+>         awd.wakeup = &wqh;
+>         init_waitqueue_head(&wqh);
+> -       current->state = TASK_INTERRUPTIBLE;
+> +       current->state = TASK_UNINTERRUPTIBLE;  /* MUST BE SO. -- zaitcev */
+>         add_wait_queue(&wqh, &wait);
+>         urb->context = &awd;
+>         status = usb_submit_urb(urb);
+
+This is bad for other users of usb_control_msg/usb_bulk_msg that depend on
+the sleep to be interruptible. Instead of bouncing back and forth whether
+those routines shall sleep interruptibly or uninterruptibly, we should either
+provide two routines or a parameter that specifies whether the sleep
+shall be interruptible, or create a local version of usb_control_msg
+if ov511 is the only user requiring uninterruptible sleep.
+
+Tom

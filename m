@@ -1,68 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbVAKJax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVAKJdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbVAKJax (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 04:30:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262643AbVAKJax
+	id S262643AbVAKJdL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 04:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVAKJdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 04:30:53 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:22930
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262638AbVAKJas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 04:30:48 -0500
-Subject: Re: User space out of memory approach
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Edjard Souza Mota <edjard@gmail.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Mauricio Lin <mauriciolin@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <4d6522b905011101202918f361@mail.gmail.com>
-References: <3f250c71050110134337c08ef0@mail.gmail.com>
-	 <20050110192012.GA18531@logos.cnet>
-	 <4d6522b9050110144017d0c075@mail.gmail.com>
-	 <20050110200514.GA18796@logos.cnet>
-	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-	 <4d6522b90501101803523eea79@mail.gmail.com>
-	 <1105433093.17853.78.camel@tglx.tec.linutronix.de>
-	 <4d6522b905011101202918f361@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 11 Jan 2005 10:30:46 +0100
-Message-Id: <1105435846.17853.85.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jan 2005 04:33:11 -0500
+Received: from mail.enyo.de ([212.9.189.167]:28604 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S262643AbVAKJcR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 04:32:17 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Steve Bergman <steve@rueb.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Proper procedure for reporting possible security vulnerabilities?
+References: <41E2B181.3060009@rueb.com>
+	<1105383104.12004.101.camel@localhost.localdomain>
+Date: Tue, 11 Jan 2005 10:32:11 +0100
+In-Reply-To: <1105383104.12004.101.camel@localhost.localdomain> (Alan Cox's
+	message of "Mon, 10 Jan 2005 19:24:00 +0000")
+Message-ID: <87u0pos44k.fsf@deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-11 at 11:20 +0200, Edjard Souza Mota wrote:
-> > You are definitely curing the symptom instead of the cause.
-> > 
-> > > 1) ranking for the most likely culprits only starts when memory consumption
-> > >     gets close to the red zone (for example 98% or something like that).
+* Alan Cox:
 
-We do the ranking only in the oom situation, so what's your point ?
+> vendor-sec@lst.de is a cross vendor security list and a good place for
+> stuff.
 
-> > > 2) killing just gets the first candidate from the list and kills it.
-> > > No need to calculate
-> > >     at kernel level.
-
-So I need a userspace change in order to solve a kernel problem ?
-
-> > What is the default behaviour when no userspace settings are available -
-> > Nothing ? Are you really expecting that we change every root fs in order
-> > to be able to upgrade the kernel for solving this _kernel_ problem ?
-> 
-> No, I certainly don't. But, have seen the application we also posted? It is
-> a test for while, that actually starts a deamon when you boot the kernel
-> and does rate this application, i.e. an application with root rating priority
-> so it will never be killed and never lack space for itself. 
-> So, the answer to your 2nd very good point.
-
-You did not answer my question at all. I do not want to update my rootfs
-to solve a problem which exists in the kernel and must be solved in the
-kernel.
-
-tglx
-
-
+Some people claim that vendor-sec is not trustworthy anymore because
+it leaks information, based on the recent forged e-matters advisory.
+Personally, I think the intent of the forgers was to discredit
+vendor-sec.  There's no hard no evidence that there is a systematic
+leak (apart from the occasional blunders).

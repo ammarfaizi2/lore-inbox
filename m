@@ -1,84 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbTEEKAC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 06:00:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbTEEKAC
+	id S261153AbTEEKND (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 06:13:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbTEEKND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 06:00:02 -0400
-Received: from elin.scali.no ([62.70.89.10]:61571 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id S261190AbTEEKAA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 06:00:00 -0400
-Subject: Re: The disappearing sys_call_table export.
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
+	Mon, 5 May 2003 06:13:03 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:61961 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261153AbTEEKNC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 06:13:02 -0400
+Date: Mon, 5 May 2003 11:25:31 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
        linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su
-In-Reply-To: <20030505093810.A22327@devserv.devel.redhat.com>
-References: <1052122784.2821.4.camel@pc-16.office.scali.no>
-	 <20030505092324.A13336@infradead.org>
-	 <1052127216.2821.51.camel@pc-16.office.scali.no>
-	 <20030505093810.A22327@devserv.devel.redhat.com>
-Content-Type: text/plain
-Organization: Scali AS
-Message-Id: <1052129543.2821.87.camel@pc-16.office.scali.no>
+Subject: Re: The disappearing sys_call_table export.
+Message-ID: <20030505112531.B16914@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Terje Eggestad <terje.eggestad@scali.com>,
+	Arjan van de Ven <arjanv@redhat.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su
+References: <1052122784.2821.4.camel@pc-16.office.scali.no> <20030505092324.A13336@infradead.org> <1052127216.2821.51.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 05 May 2003 12:12:23 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1052127216.2821.51.camel@pc-16.office.scali.no>; from terje.eggestad@scali.com on Mon, May 05, 2003 at 11:33:36AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-05 at 11:38, Arjan van de Ven wrote:
-> On Mon, May 05, 2003 at 11:33:36AM +0200, Terje Eggestad wrote:
-> > 1. performance is everything. 
-> > 2. We're making a MPI library, and as such we don't have any control
-> > with the application. 
-> > 3a. The various hardware for cluster interconnect all work with DMA. 
-> > 3b. the performance loss from copying from a receive area to the
-> > userspace buffer is unacceptable. 
-> > 3c. It's therefore necessary for HW to access user pages. 
-> > 4. In order to to 3, the user pages must be pinned down. 
-> 
-> see how AIO does this, and O_DIRECT, and rawio.
-> 
-> They all have the same requirement and manage to cope.
+On Mon, May 05, 2003 at 11:33:36AM +0200, Terje Eggestad wrote:
+> 1. performance is everything. 
 
-Ok, I havn't actually checked the code , but no, they don't have the
-same requirement. they pin and unpin the user space memory at the
-beginning and and of the operations. 
+then Linux is the wrong OS for you :)
 
-take aio pseudo code:
+> 2. We're making a MPI library, and as such we don't have any control
+> with the application. 
 
-aio_write()
-{
-	pinmem();
-	if (file)
-	add_write_to_disk_queue();  
-	.
-	.
-	.
+I can't remember that the MPI spec tells anything about intercepting
+syscalls..
 
+> 3b. the performance loss from copying from a receive area to the
+> userspace buffer is unacceptable. 
+> 3c. It's therefore necessary for HW to access user pages. 
+> 4. In order to to 3, the user pages must be pinned down. 
+> 5. the way MPI is written, it's not using a special malloc() to allocate
+> the send receive buffers. It can't since it would break language binding
+> to fortran. Thus ANY writeable user page may be used. 
 
-};
+so use get_user_pages.
 
-kernel_aio_completion_handler()
-{
-	unpinmem();
-	send_completion_event_to_task();
-};
+> 6. point 4: pinning is VERY expensive (point 1), so I can't pin the
+> buffers every time they're used. 
 
+Umm, pinning memory all the time means you get a bunch of nice DoS
+attachs due to the huge amount of memory.
 
+> 7. The only way to cache buffers (to see if they're used before and
+> hence pinned) is the user space virtual address. A syscall, thus ioctl
+> to a device file is prohibitive expensive under point 1.  
 
--- 
-_________________________________________________________________________
+That's a horribly b0rked approach..
 
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
-
+Again, where's your driver source so we can help you to find a better
+approach out of that mess?
+ 

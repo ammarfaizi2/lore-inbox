@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289299AbSA2Nco>; Tue, 29 Jan 2002 08:32:44 -0500
+	id <S289298AbSA2NbE>; Tue, 29 Jan 2002 08:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289296AbSA2Nci>; Tue, 29 Jan 2002 08:32:38 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:33741 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289299AbSA2NcW>;
-	Tue, 29 Jan 2002 08:32:22 -0500
-Date: Tue, 29 Jan 2002 16:29:53 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rob Landley <landley@trommello.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <E16VYD8-0003ta-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0201291620230.7176-100000@localhost.localdomain>
+	id <S289296AbSA2Nay>; Tue, 29 Jan 2002 08:30:54 -0500
+Received: from mx5.sac.fedex.com ([199.81.194.37]:15879 "EHLO
+	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S289294AbSA2Nau>; Tue, 29 Jan 2002 08:30:50 -0500
+Date: Tue, 29 Jan 2002 21:01:30 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: Jeff Chua <jchua@fedex.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Thomas Hood <jdthood@mail.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: 2.4.18-pre7 slow ... apm problem
+In-Reply-To: <200201282309.AAA22703@webserver.ithnet.com>
+Message-ID: <Pine.LNX.4.44.0201292057370.600-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/29/2002
+ 09:05:39 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/29/2002
+ 09:05:41 PM,
+	Serialize complete at 01/29/2002 09:05:41 PM
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 Jan 2002, Stephan von Krawczynski wrote:
 
-On Tue, 29 Jan 2002, Alan Cox wrote:
+> Ok, I cannot see this one, I have no APM enabled on my boxes. Sorry.
 
-> The big stuff is not the problem most times. [...]
+If I set apm idle off, vmware guest os "ping localhost" works fine.
 
-oh, i agree, but still the big stuff is that gets quoted in most emails
-that try to invent the next big patch submission method ...
+> As I never saw this with vmware 2 (even not on 2.4.18-pre7) I would
+> say version 3 has a real problem somewhere.
 
-> People collecting up patches _does_ help big time for all the small
-> fixes.
+Never had any problem with vmware3 until pre7.
 
-yes. This started with you and multiple people do it currently.
+Try to test vmware2 on pre7 with apm cpu_idle enabled. I think you'll see
+the same problem. Again, pre6 with apm cpu_idle enabled works fine.
 
-> Especially ones disciplined enough to keep the originals they applied
-> so they can feed stuff on with that tag. If I sent Linus on a patch
-> that said "You've missed this fix by Andrew Morton" then Linus knew it
-> was probably right for example.
-
-yes. This is what maintainers do. You, when collecting patches for the -ac
-tree, are in essence a trusted jolly joker maintainer, very disciplined to
-filter the trivial stuff from the nontrivial stuff.
-
-> Start small and your obvious one line diff, or 3 line typo fix will be
-> ignored for a decade. There were critical fixes that Linus dropped
-> repeatedly between 2.4.2 and 2.4.16 or so which ended up being holes
-> in every non-ac based distro.
-
-(while i still do not claim that things are perfect, i'd like to see
-specific examples nevertheless.)
-
-	Ingo
+Jeff
 

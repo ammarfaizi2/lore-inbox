@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314475AbSD1T6U>; Sun, 28 Apr 2002 15:58:20 -0400
+	id <S314477AbSD1T7D>; Sun, 28 Apr 2002 15:59:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314477AbSD1T6T>; Sun, 28 Apr 2002 15:58:19 -0400
-Received: from mercury.chembio.ntnu.no ([129.241.80.86]:7634 "EHLO
-	mercury.chembio.ntnu.no") by vger.kernel.org with ESMTP
-	id <S314475AbSD1T6T>; Sun, 28 Apr 2002 15:58:19 -0400
-To: rudmer@legolas.dynup.net
-Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.10-dj1
-In-Reply-To: <20020427030823.GA21608@suse.de>
-	<200204271313.g3RDD4024060@smtp1.wanadoo.nl>
-	<20020427155116.I14743@suse.de>
-	<200204281145.g3SBjJJ20178@smtp2.wanadoo.nl>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 28 Apr 2002 21:53:10 +0200
-Message-ID: <m3lmb7zjkp.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S314480AbSD1T7B>; Sun, 28 Apr 2002 15:59:01 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:37382 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314477AbSD1T67>; Sun, 28 Apr 2002 15:58:59 -0400
+Message-ID: <3CCC45D7.2030401@evision-ventures.com>
+Date: Sun, 28 Apr 2002 20:56:23 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: zlatko.calusic@iskon.hr
+CC: Jarno Paananen <jpaana@s2.org>,
+        Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
+        lkml <linux-kernel@vger.kernel.org>, mingo@elte.hu
+Subject: Re: 2.5.9 - HPT366 ide unexpected interrupts
+In-Reply-To: <3CC5BAA3.3080705@wanadoo.fr> <m3u1q0smou.fsf@kalahari.s2.org> <878z77er9m.fsf@atlas.iskon.hr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rudmer van Dijk <rudmer@legolas.dynup.net> writes:
-
-> On Saturday 27 April 2002 15:51, Dave Jones wrote:
-> > On Sat, Apr 27, 2002 at 02:51:21PM +0200, Rudmer van Dijk wrote:
-> >  > compiled fine, but after booting the system does not respond to the
-> >  > keyboard (I can see the message "serio: i8042 KBD port at 0x60,0x64 irq
-> >  > 1" om my screen)
-> >
-> > There are some reports that ACPI is having a bad interaction with the
-> > keyboard controller. For now, disabling it may fix this.
+Uz.ytkownik Zlatko Calusic napisa?:
+> Jarno Paananen <jpaana@s2.org> writes:
 > 
-> I have no ACPI or APM enabled (mobo does not know what it is)
 > 
+>>Pierre Rousselet <pierre.rousselet@wanadoo.fr> writes:
+>>
+>>| PIII 650/Abit BE6 HPT366(ide2, ide3)
+>>| 
+>>| dmesg gives 482 times the same line :
+>>| ide: unexpected interrupt 0 11
+> 
+> 
+> I'm having the same problems on dual PIII (VIA chipset) with addon
+> Promise IDE card:
+> 
+> Apr 24 19:34:51 atlas kernel: ide: unexpected interrupt 1 11
+> 
+> Lots of those...
+> 
+> Looks like it favors additional IDE interfaces. As system appears to
+> behave sanely, modulo flooded logs, I decided to comment the printk
+> for the time being.
 
-I have an Compaq Armada M700, same problem. No ACPI configured,
-symtoms vary a bit from kernel to kernel, but generally either
-keyboard is totally dead, or it starts to get utterly confused about
-caps lock and shift.
+That's fine and it will be gone in 2.5.11. The message is
 
-On 2.5.10-dj1 it works like this: keyboard led is responsive to
-hitting caps lock, but when LED is off I get upper case letter typed,
-and when LED is off I get lower case letters. However, the strange bit
-is that lets say I type in my username and password so that they
-appear in lowercase on the screen, I still don't get in. And just fir
-having tried, typing with the caps lock LED off, thus getting upper
-case text, doesn't help either.
+> Ingo, does it have anything to do with your interrupt balancing code?
+> If you need additional testing, let me know.
 
-Any pointer to where I go off to track this down?
+No no no. It's really harmless. It is affecting add on interfaces becouse
+they are likely to share interrupts with other devices.
 
-ttfn,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+

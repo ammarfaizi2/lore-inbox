@@ -1,51 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311242AbSCQB2D>; Sat, 16 Mar 2002 20:28:03 -0500
+	id <S311234AbSCQBcn>; Sat, 16 Mar 2002 20:32:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311241AbSCQB1x>; Sat, 16 Mar 2002 20:27:53 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:62222 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S311242AbSCQB1m>;
-	Sat, 16 Mar 2002 20:27:42 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S311241AbSCQBce>; Sat, 16 Mar 2002 20:32:34 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:47861 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S311234AbSCQBcT>;
+	Sat, 16 Mar 2002 20:32:19 -0500
+Date: Sun, 17 Mar 2002 02:27:16 +0100
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.6-dj1
+Message-ID: <20020317022716.A32672@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15507.60617.911732.176262@argo.ozlabs.ibm.com>
-Date: Sun, 17 Mar 2002 12:09:29 +1100 (EST)
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-In-Reply-To: <Pine.LNX.4.33.0203161238510.32013-100000@penguin.transmeta.com>
-In-Reply-To: <15507.44228.577059.711997@napali.hpl.hp.com>
-	<Pine.LNX.4.33.0203161238510.32013-100000@penguin.transmeta.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+Mostly just a 'catching up' release after my weeklong haitus.
+Almost up to date with 2.4, and right up to date with 2.5 (for today at least)
+This one hasn't had any testing beyond "it compiles" (testboxes are still in
+packing boxes, and I'm currently a few hundred KM from home), so tread
+carefully. This one is mostly just a resync-point just to start the
+probably imminent 2.5.7 afresh.
 
-> Which brings us back to the whole reason for the discussion: this is not a 
-> theoretical argument. Look at the POWER4 numbers, and _shudder_ at the 
-> expense of cache invalidation.
+Oh, and as in 2.5.7pre2, disable ACPI. It's more borken than usual.
 
-Go a little easy, the ppc64 port is still young and there are still
-lots of places where it can use some serious optimization.  This is
-one of them.
+There's still a mountain of pending bits to dig through, and lots of work
+to be done in the "splitting up bits for Linus" dept.
 
-In principle the expense of invalidating the hash-table entries should
-be able to be reduced to at most one store for every time we write to
-a PTE in the linux page tables.  We currently don't have quite enough
-information made available to the architecture code to achieve that.
-In particular I think it would help if set_pte could be given the
-mm_struct and the virtual address, then set_pte could fairly easily
-invalidate the hash-table entry (if any) corresponding to the PTE
-being changed.  Would you consider a patch along these lines?
 
-Another alternative would be to make flush_tlb_mm doing the
-change-the-VSIDs trick and then get the idle task to flush the stale
-hash table entries.  We would need something like a bitmap showing
-which PTEs had corresponding hash-table entries so that we didn't
-waste time searching for hash-table entries that weren't there.
+As usual,..
+Patch against 2.5.6 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
 
-Paul.
+Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
+
+Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
+known bugs that are also in mainline.
+
+ -- Davej.
+
+2.5.6-dj1
+o   Sync against 2.5.6
+    | Take my last_rx changes for hamradio over mainline.
+o   Merge 2.5.7pre2
+o   Initialise Machine check bank 0 on AMD systems.	(Me)
+o   background checking for non-fatal machine checks.	(Me)
+o   Fix ALSA config.in so xconfig works again.		(William Stinson)
+o   ITE8330G IRQ router support.			(Tobias Diedrich)
+o   Fix reiserfs oops on mount.				(Oleg Drokin)
+o   Only offer various MIPS drivers on !MIPS arches.	(Me)
+o   Remove double REPORT_LUNS from cpqfcTSstructs.h	(Me)
+o   Fix up potential oops in udp short packet logging	(Me)
+    | doesn't affect mainline.
+o   sysrq updates.					(James Simmons)
+o   Replace fbcon-cfb with software accels.		(James Simmons)
+o   Allow ACPI configuration on x86-64			(Me)
+o   Drop the radix pagecache stuff.
+    (Was an ancient version, and a pita to maintain)
+o   nfs3 compile fix.					(Al Viro)
+o   pnpbios updates.					(Thomas Hood)
+
+
+2.5.5-dj3
+o   Merge 2.5.6pre2
+o   Merge 2.4.19pre2
+    | Drop various arch bits. (See above)
+    | Drop LVM bits.
+    | Drop some SIS bits that rejected -- James please take a look.
+    | Fix some obvious sillies as per 2.4.19pre2ac1
+o   Add missing struct initialiser to nls_cp850		(OGAWA Hirofumi)
+o   natsemi rx/tx ring buffer confusion fixup.		(Jeff Garzik)
+o   Backout bogus isofs makefile changes.		(Me)
+o   Fix sys_shmdt return code.				(Andreas Schwab)
+o   Numerous net driver last_rx = jiffies fixes.	(Me, Celso Gonzalez)
+o   msync/mprotect POSIX fixes.				(Thorsten Kukuk)
+o   Small SCSI generic updates.				(Douglas Gilbert)
+o   Allow short commands in SCSI debug driver.		(Douglas Gilbert)
+o   Update helptext for Machine Check.			(Paul Gortmaker)
+o   Updated email address.				(Thomas Molina)
+o   Fix potential oops in swapfile code.		(Andries Brouwer)
+o   Reset/Reservation handling fixes.			(James Bottomley)
+o   Various console fixes.				(James Simmons)
+o   Update numerous fb drivers to new api.		(James Simmons)
+o   Twin inquiry mode for SCSI LUN scanning.		(Patrick Mansfield,
+							 Douglas Gilbert)
+o   Update DMI / local APIC fixes.			(Mikael Pettersson)
+o   Emu10k1 OSS highmem dma fixes.			(Daniel Bertrand)
+o   Export dparent_lock					(Petr Vandrovec)
+o   Clean up struct page shrinkage.		(Rik van Riel, Dave Miller)
+o   More Config.help updates.				(Steven Cole)
+o   Make highmem pte a boolean.				(Steven Cole)
+o   opl3sa2 modular compile fix.			(Zwane Mwaikambo)
+o   es18xx compile fix.					(Zwane Mwaikambo)
+o   nfsd modular compile fix.				(Stelian Pop)
+o   Use list heads for task list.			(Brian Gerst)
+o   Fix up various compilation warnings.		(Roberto Nibali)
+o   Power management for 3c509.				(Zwane Mwaikambo)
+o   Small kbuild cleanup.				(John Levon)
+
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,125 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262284AbTCUBIR>; Thu, 20 Mar 2003 20:08:17 -0500
+	id <S262749AbTCUBNn>; Thu, 20 Mar 2003 20:13:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262642AbTCUBIR>; Thu, 20 Mar 2003 20:08:17 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:39573 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S262284AbTCUBIP>;
-	Thu, 20 Mar 2003 20:08:15 -0500
-Subject: Re: An oops while running 2.5.65-mm2
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Andrew Morton <akpm@digeo.com>
-Cc: jjs <jjs@tmsusa.com>, linux-kernel@vger.kernel.org,
-       Netfilter-devel <netfilter-devel@lists.netfilter.org>
-In-Reply-To: <20030320122931.0d2f208f.akpm@digeo.com>
-References: <3E7A1ABF.7050402@tmsusa.com>
-	 <20030320122931.0d2f208f.akpm@digeo.com>
-Content-Type: multipart/mixed; boundary="=-JUU4Yu8ouguPdwnGBvCa"
-Organization: 
-Message-Id: <1048209554.1103.21.camel@tux.rsn.bth.se>
+	id <S262757AbTCUBNn>; Thu, 20 Mar 2003 20:13:43 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:19718 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262749AbTCUBNl>;
+	Thu, 20 Mar 2003 20:13:41 -0500
+Date: Thu, 20 Mar 2003 17:24:55 -0800
+From: Greg KH <greg@kroah.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: [PATCH] alternative dev patch
+Message-ID: <20030321012455.GB10298@kroah.com>
+References: <UTC200303202150.h2KLoEl09978.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0303202314210.5042-100000@serv>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 21 Mar 2003 02:19:14 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303202314210.5042-100000@serv>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 21, 2003 at 12:03:57AM +0100, Roman Zippel wrote:
+> I'm unsure how your code will scale. It depends on how that code will be 
+> used. If drivers register a lot of devices, your lookup function has to 
+> scan a possibly very long list of minor devices and that function is 
+> difficult to optimize.
 
---=-JUU4Yu8ouguPdwnGBvCa
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+And then we grab the BKL :(
 
-On Thu, 2003-03-20 at 21:29, Andrew Morton wrote:
-> jjs <jjs@tmsusa.com> wrote:
-> >
-> > Greetings -
-> > 
-> > Here is some info about an oops from 2.5.65-mm2
+Hint, optimizing the open() path for char devices is not anything we
+will probably be doing in 2.6, due to the BKL usage there.  It's also
+not anything anyone has seen on any known benchmarks as a point of
+contention, so I would not really worry about this for now.
+
+For 2.7, when we want to drop the BKL, then we can worry about this.
+
+> char devices don't have partitions, so you hardly need regions. The 
+> problem with the tty layer is that the console and the serial devices 
+> should have different majors.
+
+There are a number of char drivers that have "regions".  The tty layer
+support them, and the usb core supports them as two examples.  I'm sure
+there are others.  Personally, I like the symmetry with the block device
+function the way Andries did it.
+
+> Even for block devices blk_register_region() is not the preferred 
+> interface, you should use alloc_disk/add_disk instead. This will make it 
+> easier to assign dynamic device numbers later.
+
+True, but dynamic device numbers can be built on top of the *_region()
+calls as it is today.  Anyway, dynamic numbers are for 2.7 :)
+
+> > I am not sure I understand. Where are these huge tables?
+> > And how did you remove them?
 > 
-> It is not exactly an oops, but it is a warning of a fatal bug.
+> See the misc device example. It doesn't have a table, but the list is now 
+> only needed to generate /proc/misc. As soon as character devices are 
+> better integrated into the driver model, even this list is not needed 
+> anymore. This means for simple character devices, we can easily add a 
+> alloc_chardev/add_chardev interface similiar to block devices.
 
-This might explain the crashes I've seen in my routers but been unable
-to capture so far (and without the extra slab debugging I don't know if
-I would have been able to find it or even get a decent capture...)
+No, I don't see /proc/misc going away due to the driver model, I imagine
+there are too many users of it to disappear.  Also, the driver model
+doesn't care a thing about major/minor numbers so I don't understand how
+you think it can help in this situation.
 
-Patch attached that should fix the problem, not tested or even compiled.
+thanks,
 
-Joe, can you please please test it and report back?
+greg k-h
 
-> Look at this lovely trace:
 
-> Mar 20 11:06:46 jyro kernel: Slab corruption: start=ceaa2234, expend=ceaa2377, problemat=ceaa22ac
-> Mar 20 11:06:46 jyro kernel: Last user: [<e0a12cb0>](destroy_conntrack+0xd0/0x140 [ip_conntrack])
-> Mar 20 11:06:46 jyro kernel: Data: ************************************************************************************************************************AC 22 AA CE AC 22 AA CE ***************************************************************************************************************************************************************************************************A5 
-> Mar 20 11:06:46 jyro kernel: Next: 71 F0 2C .B0 2C A1 E0 71 F0 2C .********************
-> Mar 20 11:06:46 jyro kernel: slab error in check_poison_obj(): cache `ip_conntrack': object was modified after freeing
 
-> Looking at the data pattern, it is probably an INIT_LIST_HEAD() against a
-> list_head field which is 120 bytes into the object.  (problemat - start).  Or
-> a list_del() against a different object which erroneously remains on a list
-> with this object.
 
-You are correct. It was a list_del() that caused it (at least I think
-so, it's 2am right now).
 
-1. conntrack helper adds an expectation and adds that to a list hanging
-of off a connection.
-
-2. the expected connection arrives. the expectation is still on the
-list.
-
-3. the original connection that caused the expectation terminates but
-the expectation still thinks it's added to the list.
-
-4. the expected connection terminates and list_del() is called to remove
-it from the list which doesn't exist anymore. boom!
-
-> Manfred has extra toys in the works which will be able to unmap slab objects
-> from the kernel virtual address space when they are freed.  When this debug
-> code is working (it will run slowly) we will get an oops at the site of the
-> bug.
-
-This will be a nice feature, might make it easier to find the bugs.
-Too bad it can't help work out the relationship between structs... I had
-to use pen and paper to work out the relationship between connections
-and expectations :) That part is almost a little bit hairy.
-
--- 
-/Martin
-
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
-
---=-JUU4Yu8ouguPdwnGBvCa
-Content-Disposition: attachment; filename=ip_conntrack-siblingfix.diff
-Content-Type: text/plain; name=ip_conntrack-siblingfix.diff; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
-
---- linux-2.5.64-bk10/net/ipv4/netfilter/ip_conntrack_core.c.orig	2003-03-2=
-1 01:42:57.000000000 +0100
-+++ linux-2.5.64-bk10/net/ipv4/netfilter/ip_conntrack_core.c	2003-03-21 01:=
-44:11.000000000 +0100
-@@ -274,6 +274,7 @@
- 		 * the un-established ones only */
- 		if (exp->sibling) {
- 			DEBUGP("remove_expectations: skipping established %p of %p\n", exp->sib=
-ling, ct);
-+			exp->sibling =3D NULL;
- 			continue;
- 		}
-=20
-@@ -327,9 +328,11 @@
- 	WRITE_LOCK(&ip_conntrack_lock);
- 	/* Delete our master expectation */
- 	if (ct->master) {
--		/* can't call __unexpect_related here,
--		 * since it would screw up expect_list */
--		list_del(&ct->master->expected_list);
-+		if (ct->master->sibling) {
-+			/* can't call __unexpect_related here,
-+			 * since it would screw up expect_list */
-+			list_del(&ct->master->expected_list);
-+		}
- 		kfree(ct->master);
- 	}
- 	WRITE_UNLOCK(&ip_conntrack_lock);
-
---=-JUU4Yu8ouguPdwnGBvCa--
+> 
+> bye, Roman
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,66 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264797AbRGWXZZ>; Mon, 23 Jul 2001 19:25:25 -0400
+	id <S264669AbRGWXZf>; Mon, 23 Jul 2001 19:25:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264754AbRGWXZQ>; Mon, 23 Jul 2001 19:25:16 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:44299 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264669AbRGWXZG>; Mon, 23 Jul 2001 19:25:06 -0400
-Date: Mon, 23 Jul 2001 20:25:07 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <feedback@linuxda.com>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
-Subject: source code & licensing of LinuxDA
-Message-ID: <Pine.LNX.4.33L.0107232017540.20326-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264754AbRGWXZZ>; Mon, 23 Jul 2001 19:25:25 -0400
+Received: from lorax.neutraldomain.org ([64.81.248.141]:62474 "HELO
+	lorax.neutraldomain.org") by vger.kernel.org with SMTP
+	id <S264669AbRGWXZQ>; Mon, 23 Jul 2001 19:25:16 -0400
+Date: Mon, 23 Jul 2001 16:26:36 -0700
+From: Gabriel Rocha <grocha@neutraldomain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Status of NTFS support was Re: [PATCH] 2.4.7 More tiny NTFS fixes
+Message-ID: <20010723162636.E36051@neutraldomain.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+,----[ On Tue, Jul 24, at 12:14AM, Anton Altaparmakov wrote:
+| Please apply below patch. It is against 2.4.7 and adds three more
+|return checks (it is orthogonal to the one sent on Sunday).
+`----[ End Quote ]---------------------------
 
-I saw on http://www.linuxda.com/download/index.html
-that you are shipping binary images of Linux, but
-without the source code.  This is in violation of
-the GPL, a matter which won't be taken lightly by
-the hundreds of copyright holders involved.
+Not that I understand what this means, I have no idea. But, I know that
+NTFS used to be really poorly supported in the kernel. I have seen a few
+patches to it ove rthe past couple of weeks and makes me wonder what the
+status of it is now. Anyone care to comment? --gabe
 
-
-Also http://www.linuxda.com/licensing/index.html
-and http://www.linuxda.com/legal.html seem to have
-licensing terms which are incompatible with the
-GPL, meaning that you either have to change the
-license or stop shipping Linux ...
-
-In particular the paragraphs "SINGLE COPY LICENSE",
-"OWNERSHIP OF MATERIALS" and "TERMINATION OF THIS
-LICENSE" are a gross violation of the GPL.
-
-
-You acquired Linux from me and hundreds of other
-copyright holders under the conditions of the
-General Public License (GPL).
-
-Since I guess you'll want us to comply with any
-licensing you want to impose on the parts of the
-technology which are yours, I guess it's only fair
-that we expect you to abide by the GPL.
-
-
-Please open up your source code and change your
-licensing to something compatible with the GPL.
-
-thank you,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+-- 
+"It's not brave, if you're not scared."

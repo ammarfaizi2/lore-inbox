@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbUCOSY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 13:24:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbUCOSY0
+	id S262640AbUCOS2n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 13:28:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbUCOS2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 13:24:26 -0500
-Received: from gprs40-162.eurotel.cz ([160.218.40.162]:20181 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262661AbUCOSYV (ORCPT
+	Mon, 15 Mar 2004 13:28:43 -0500
+Received: from ns.suse.de ([195.135.220.2]:19943 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262640AbUCOS2j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 13:24:21 -0500
-Date: Mon, 15 Mar 2004 19:24:06 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Cress, Andrew R" <andrew.r.cress@intel.com>
-Cc: "Yury V. Umanets" <umka@namesys.com>, "Guo, Min" <min.guo@intel.com>,
-       Tvrtko =?utf-8?B?QS4gVXLFoXVsaW4=?= <tvrtko@croadria.com>,
-       linux-kernel@vger.kernel.org, cgl_discussion@lists.osdl.org
-Subject: Re: [cgl_discussion] Re: About Replaceable OOM Killer
-Message-ID: <20040315182406.GA258@elf.ucw.cz>
-References: <E5DA6395B8F9614EB7A784D628184B200E34E8@hdsmsx402.hd.intel.com>
+	Mon, 15 Mar 2004 13:28:39 -0500
+Subject: Re: aio tiobench
+From: Chris Mason <mason@suse.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20040315162954.GF655@holomorphy.com>
+References: <20040315080520.GC655@holomorphy.com>
+	 <1079357322.4186.377.camel@watt.suse.com>
+	 <20040315162954.GF655@holomorphy.com>
+Content-Type: text/plain
+Message-Id: <1079375451.8748.495.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E5DA6395B8F9614EB7A784D628184B200E34E8@hdsmsx402.hd.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 15 Mar 2004 13:30:51 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Right, once it is really OOM, you are SOL :-)  Really the only thing you can do at this point in the kernel is to not allocate any more memory, and functions that require more memory just don't work, and the recovery is to reboot..
+On Mon, 2004-03-15 at 11:29, William Lee Irwin III wrote:
+> On Mon, 2004-03-15 at 03:05, William Lee Irwin III wrote:
+> >> So I farted around for a hour or two seeing if I could get tiobench
+> >> to do aio for the general purpose of exercising codepaths, benchmarking,
+> >> etc. in simple ways. Hopefully this answers the need for regular,
+> >> simple, and easily-available methods of exercising and/or benchmarking
+> >> the aio code in some way.
 > 
-> IMO, the best answer is to detect a nearly-OOM, or trending-toward-OOM condition before it gets so bad.
-> This would allow userland actions, but would require more customization to tune the detection criteria, which would also imply a userland implementation of the monitoring.  We've found that PCP works pretty well for this type of thing.
-> See http://oss.sgi.com/projects/pcp/ and http://pcp4cgl.sourceforge.net/.  We did some work with this for CGL 1.0.
+> On Mon, Mar 15, 2004 at 08:28:43AM -0500, Chris Mason wrote:
+> > You might want to check out the list of benchmarks collected at:
+> > http://lse.sourceforge.net/io/aio.html
+> > I found that adapting existing benchmarks made it hard to test some of
+> > the aio corner cases, so aio-stress is just a big state machine, with
+> > options to tweak how badly you want to abuse the aio subsystem.  
+> > There are a few other good ones on the page though.
+> 
+> Looks encouraging. What's the distro coverage like? deb doesn't have them.
 > 
 
-Well, I see that as orthogonal.
+I doubt anyone ships packages for them.  LTP has integrated some aio
+tests though.
 
-With right daemon you may prevent OOM in most situations. Kernel still
-needs some OOM killer for cases where faileure was just too fast, but
-it can now be simpler (and that's good).
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-chris
+
+

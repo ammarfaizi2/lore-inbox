@@ -1,121 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268122AbUIBXVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269283AbUIBXXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268122AbUIBXVd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 19:21:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269204AbUIBXVM
+	id S269283AbUIBXXo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 19:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269267AbUIBXV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:21:12 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:26332 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269283AbUIBXTt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:19:49 -0400
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-From: john stultz <johnstul@us.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.58.0409021536450.28532@schroedinger.engr.sgi.com>
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
-	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0409021512360.28532@schroedinger.engr.sgi.com>
-	 <1094164096.14662.345.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0409021536450.28532@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1094166858.14662.367.camel@cog.beaverton.ibm.com>
+	Thu, 2 Sep 2004 19:21:56 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:4528 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S269283AbUIBXVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:21:14 -0400
+Message-Id: <200409022319.i82NJlTN025039@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: Frank van Maarseveen <frankvm@xs4all.nl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4) 
+In-Reply-To: Your message of "Thu, 02 Sep 2004 22:38:54 +0200."
+             <20040902203854.GA4801@janus> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain>
+            <20040902203854.GA4801@janus>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 02 Sep 2004 16:14:19 -0700
+Content-Type: multipart/signed; boundary="==_Exmh_1353348402P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 02 Sep 2004 19:19:47 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 15:42, Christoph Lameter wrote:
-> On Thu, 2 Sep 2004, john stultz wrote:
+--==_Exmh_1353348402P
+Content-Type: text/plain; charset=us-ascii
+
+On Thu, 02 Sep 2004 22:38:54 +0200, Frank van Maarseveen said:
+
+> Can it do this:
 > 
-> > What about my idea from yesterday of inverting the fastcall
-> > relationship? Instead of creating a structure that exports values and
-> > pointers the fastcall can use to create a time of day, why not use the
-> > fast call to read the raw time and return it back to the time of day
-> > code (which may be running in user context)? This avoids the duplication
-> > of having to re-implement the timeofday/clock_gettime functions in
-> > fastcall asm code.
-> 
-> "Read raw time"? How can you read the raw time in a fast call if the
-> fast call needs to do additional function calls (as defined in the
-> proposed time structure) in the kernel context in order to retrieve time?
-> 
-> A fast call cannot do any function calls in the kernel context or
-> otherwise.
-> 
-> The overhead of the function calls will reduce the performance of time
-> access significantly.
+> 	cd FC2-i386-disc1.iso
+> 	ls
 
-Forgive me if I mis-understand the fastcall method, but this is the
-concept. Instead of having a fastcall function that implmements the
-gettimofday/clock_gettime + ntp scaling + etc all in asm we do the
-following:
+That one's at least theoretically doable, assuming that it really *IS* the
+Fedora Core disk and an ISO9660 format...
 
-When creating a ia64 timesource (say the cyclone just for a specific
-example) we do something like the following.
+> 	cd /dev/cdrom
+> 	ls
 
-/* trivial delta (nothing new here) */
-static cycle_t cyclone_fastcall_delta(cycle_t now, cycle_t then)
-{
-	return (now - then);
-}
-/* trivial cyc2ns (nothing new here) */
-static nsec_t cyclone_fastcall_cyc2ns(cycle_t cyc, cycle_t* remainder)
-{
-	u64 rem;
-	cyc *= freq_multiplier;
-	if (remainder)
-		*remainder = 0;
-	return (nsec_t)cyc;
-}
+And the CD in the drive at the moment is AC/DC "Back in Black".  What
+should this produce as output?
 
-/* fastcall read, this is where it gets interesting */
-static cycle_t cyclone_fasatcall_read(void)
-{
-	u64 ret;
+--==_Exmh_1353348402P
+Content-Type: application/pgp-signature
 
-	ret = fastcall_readcyclonecounter();
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-	return (cycle_t)ret;
-}
+iD8DBQFBN6qScC3lWbTT17ARApkUAKCcJAifgzFxoZKZ6gRFUT29tgxsmgCfSjhn
+KGzfGdsdlgw4H7i8i2mE570=
+=uwwQ
+-----END PGP SIGNATURE-----
 
-struct timesource_t timesource_cyclone_fastcall = {
-	.name = "cyclone_fastcall",
-	.priority = 100,
-	.read = cyclone_fastcall_read,
-	.delta = cyclone_fastcall_delta,
-	.cyc2ns = cyclone_fastcall_cyc2ns,
-};
-
-Then you implement a fastcall for fastcall_readcyclonecounter(), which
-in crazy ia64 asm would do something like:
-
-ENTRY(fastcall_readcyclonecounter)
-blip	// magic privledge escalation
-blop	// load cyclone counter into memory
-bloop	// copy cyclone counter back into return register
-;;
-END(fastcall_readcyclonecounter)
-
-
-This avoids 150+ lines of asm needed to re-implement the gettimeofday
-math.
-
-However, I could be mistaken. Is something like this possible?
-
-thanks
--john
-
-
-
-
+--==_Exmh_1353348402P--

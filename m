@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268132AbUHQH2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264192AbUHQH3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268132AbUHQH2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 03:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268133AbUHQH2Y
+	id S264192AbUHQH3j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 03:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUHQH3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 03:28:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:662 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268132AbUHQH2W (ORCPT
+	Tue, 17 Aug 2004 03:29:39 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:27009 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264192AbUHQH3b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 03:28:22 -0400
-Subject: Re: [PATCH] Use x86 SSE instructions for clear_page, copy_page
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Jens Maurer <Jens.Maurer@gmx.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4121A211.8080902@gmx.net>
-References: <4121A211.8080902@gmx.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dxOrFj0RXcoKEdIGcQec"
-Organization: Red Hat UK
-Message-Id: <1092727670.2792.4.camel@laptop.fenrus.com>
+	Tue, 17 Aug 2004 03:29:31 -0400
+Date: Tue, 17 Aug 2004 09:30:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
+Message-ID: <20040817073049.GA556@elte.hu>
+References: <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 17 Aug 2004 09:27:51 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092716644.876.1.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-dxOrFj0RXcoKEdIGcQec
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-On Tue, 2004-08-17 at 08:13, Jens Maurer wrote:
-> The attached patch (against kernel 2.6.8.1) enables using SSE
-> instructions for copy_page and clear_page.
->=20
-> A user-space test on my Pentium III 850 MHz shows a 3x speedup for
-> clear_page (compared to the default "rep stosl"), and a 50% speedup
-> for copy_page (compared to the default "rep movsl").  For a Pentium-4,
-> the speedup is about 50% in both the clear_page and copy_page cases.
+> P2 will not boot for me.  It hangs right after detecting my
+> (surprise!) USB mouse.
 
+hm. Could you take -P1's arch/i386/io_apic.c and put it into the P2 tree
+- does that fix your bootup? (and does your USB mouse work after that?)
 
-we used to have code like this in 2.4 but it got removed: the non
-temperal store code is faster in a microbenchmark but has the
-fundamental problem that it evics the data from the cpu cache; the
-actual USE of the data thus is a LOT more expensive, result is that the
-overall system performance goes down ;(
-
---=-dxOrFj0RXcoKEdIGcQec
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBIbN2xULwo51rQBIRAqahAJ923/F/630U7c+c/RSfiJma2A8YBwCdG8d5
-oOcgTcgaRhP2zqtX/SCYxN0=
-=hSl7
------END PGP SIGNATURE-----
-
---=-dxOrFj0RXcoKEdIGcQec--
-
+	Ingo

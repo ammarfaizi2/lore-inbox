@@ -1,88 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265303AbUAEV0h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 16:26:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265849AbUAEV0h
+	id S265923AbUAEVVr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 16:21:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265924AbUAEVVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 16:26:37 -0500
-Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:41345 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265303AbUAEV0c
+	Mon, 5 Jan 2004 16:21:46 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:10892 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265923AbUAEVVk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 16:26:32 -0500
-Subject: Re: File system cache corruption in 2.6?
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Jens Axboe <axboe@suse.de>
-Cc: "Nathaniel W. Filardo" <nwf@andrew.cmu.edu>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040105121905.GB3124@suse.de>
-References: <Pine.LNX.4.58-035.0401050014450.5565@unix49.andrew.cmu.edu>
-	 <20040105121905.GB3124@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9G3u5wUWO6KKVdNWHssd"
-Message-Id: <1073338159.6075.339.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 05 Jan 2004 23:29:19 +0200
+	Mon, 5 Jan 2004 16:21:40 -0500
+Date: Mon, 5 Jan 2004 19:00:23 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Nicklas Bondesson <nicke@nicke.nu>
+Cc: "'Walt H'" <waltabbyh@comcast.net>, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+Subject: RE: PATCH:  Alternate pdcraid superblock finder
+In-Reply-To: <20040105193054.BA95080003A@intra.cyclades.com>
+Message-ID: <Pine.LNX.4.58L.0401051859230.5618@logos.cnet>
+References: <20040105193054.BA95080003A@intra.cyclades.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-9G3u5wUWO6KKVdNWHssd
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Nicklas,
 
-On Mon, 2004-01-05 at 14:19, Jens Axboe wrote:
-> On Mon, Jan 05 2004, Nathaniel W. Filardo wrote:
-> > Hi all,
-> > 	I'm trying to work out the cause of a series of issues I've seen
-> > on my 2.6 machine.  It appears as though files (specifically libraries)=
- in
-> > memory can get corrupted, resulting in strangeness like segfaults and
-> > things like "relocation error: can't find symbol ...-VOMD-POINTER" inst=
-ead
-> > of "...-VOID-POINTER".
->=20
-> That's a single bit error.
->=20
-> > I don't believe it's actual hardware failure for a few reasons: memtest=
-86
-> > passes all tests, GCC doesn't crash (it's a Gentoo system, so gcc and I
-> > are well acquainted - and before I get jumped on, I've installed udev ;=
-)
-> > ), and most importantly, sometimes thrashing the file system or engagin=
-g a
-> > kernel compile will rectify the situation, as just happened with emacs.
-> > It crashed, I killed it, it wouldn't load - I started a kernel compile,
-> > waited a bit, and lo', it works again.  No messages of relevance appear=
- in
-> > dmesg.
->=20
-> It looks _extremely_ much like bad memory, or bad hardware. Sometimes
-> memtest just doesn't catch all errors (how long did you run it? needs
-> several days often).
+I only merged a few very small patches to fix critical problems.
 
-Also, go to the options, and turn on caching, as well as all memory
-addresses and tests ... (keys pressed if I can remember, is:
+Walt's patch is in 2.4.24-pre3. Have you tried that?
 
-  c->1->2->2->3->3->3
+On Mon, 5 Jan 2004, Nicklas Bondesson wrote:
 
-should turn on above options for memtest).
-
-
---=20
-Martin Schlemmer
-
---=-9G3u5wUWO6KKVdNWHssd
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQA/+dcvqburzKaJYLYRAqvHAJ47UzBn0uEL7laarh1guRv8BmgR2QCfQ6r2
-EP8l11Sw+3xoU8S3d7xWyFI=
-=dBfO
------END PGP SIGNATURE-----
-
---=-9G3u5wUWO6KKVdNWHssd--
-
+> Hi!
+>
+> I've just checked out the new 2.4.24 and your pdcraid patch is *not*
+> included. Did Marcelo accidently forget to merge it?
+>
+> /Nicke
+>
+> -----Original Message-----
+> From: Walt H [mailto:waltabbyh@comcast.net]
+> Sent: den 30 december 2003 17:09
+> To: Nicklas Bondesson
+> Subject: Re: PATCH: Alternate pdcraid superblock finder
+>
+> Nicklas Bondesson wrote:
+> > Yeah, I know! I have WD's in all my other boxes they are real nice.
+> > Could you please give me a hollow if you hear anything about the patch
+> > you sent in today?
+> >
+> > /Nicke
+>
+> You probably already know, but my patch has been merged. It should show up
+> in 2.4.24, so should make upgrades a little less painful hopefully :)
+>
+> -Walt
+>
+>
+>
+>

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265479AbTGCWvq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 18:51:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265483AbTGCWvg
+	id S265521AbTGCWz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 18:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265483AbTGCWy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 18:51:36 -0400
-Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:5248 "EHLO server")
-	by vger.kernel.org with ESMTP id S265479AbTGCWug (ORCPT
+	Thu, 3 Jul 2003 18:54:58 -0400
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:18316 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S265521AbTGCWxu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 18:50:36 -0400
-Message-ID: <14a301c341b7$7ff0bd50$3400a8c0@W2RZ8L4S02>
-From: "Jim Gifford" <maillist@jg555.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       "Roberto Slepetys Ferreira" <slepetys@homeworks.com.br>,
-       linux-kernel@vger.kernel.org
-References: <00d901c340a8$810556c0$3300a8c0@Slepetys> <1083830000.1057158848@aslan.scsiguy.com> <01b101c340dc$ede386c0$3300a8c0@Slepetys> <016901c34191$14c4a1c0$3300a8c0@Slepetys> <13e101c3419d$f62f9410$3400a8c0@W2RZ8L4S02> <01f101c3419f$e6d30360$3300a8c0@Slepetys> <913060000.1057267206@aslan.btc.adaptec.com>
-Subject: Re: Probably 2.4 kernel or AIC7xxx module trouble
-Date: Thu, 3 Jul 2003 16:04:46 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Thu, 3 Jul 2003 18:53:50 -0400
+Date: Thu, 3 Jul 2003 18:42:24 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PnP Fixes for 2.5.74
+Message-ID: <20030703184224.GD31086@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	linux-kernel@vger.kernel.org
+References: <20030703184109.GB31086@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030703184109.GB31086@neo.rr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin, I just tried to enable the nmi watch dog. It doesn't seem to work on
-my system I tried both
-
-append="nmi_watchdog=1"
-and
-append="nmi_watchdog=2"
-
------ Original Message ----- 
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: "Roberto Slepetys Ferreira" <slepetys@homeworks.com.br>; "Jim Gifford"
-<jim@jg555.com>; <linux-kernel@vger.kernel.org>
-Sent: Thursday, July 03, 2003 2:20 PM
-Subject: Re: Probably 2.4 kernel or AIC7xxx module trouble
-
-
-> > I have no clue for what kind of tests I can do to generate the trouble,
-or
-> > for what logs, or files to look for.
->
-> Have you tried running with the NMI watchdog enabled?
->
-> --
-> Justin
->
->
-
+--- a/drivers/pnp/manager.c	2003-07-03 15:28:06.000000000 +0000
++++ b/drivers/pnp/manager.c	2003-07-03 15:03:08.000000000 +0000
+@@ -400,25 +400,24 @@
+ 	dev->res = *res;
+ 	if (!(mode & PNP_CONFIG_FORCE)) {
+ 		for (i = 0; i < PNP_MAX_PORT; i++) {
+-			if(pnp_check_port(dev,i))
++			if(!pnp_check_port(dev,i))
+ 				goto fail;
+ 		}
+ 		for (i = 0; i < PNP_MAX_MEM; i++) {
+-			if(pnp_check_mem(dev,i))
++			if(!pnp_check_mem(dev,i))
+ 				goto fail;
+ 		}
+ 		for (i = 0; i < PNP_MAX_IRQ; i++) {
+-			if(pnp_check_irq(dev,i))
++			if(!pnp_check_irq(dev,i))
+ 				goto fail;
+ 		}
+ 		for (i = 0; i < PNP_MAX_DMA; i++) {
+-			if(pnp_check_dma(dev,i))
++			if(!pnp_check_dma(dev,i))
+ 				goto fail;
+ 		}
+ 	}
+ 	up(&pnp_res_mutex);
+ 
+-	pnp_auto_config_dev(dev);
+ 	kfree(bak);
+ 	return 0;
+ 

@@ -1,296 +1,211 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129136AbQKPAUP>; Wed, 15 Nov 2000 19:20:15 -0500
+	id <S129366AbQKPAas>; Wed, 15 Nov 2000 19:30:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129407AbQKPAUG>; Wed, 15 Nov 2000 19:20:06 -0500
-Received: from 129-ZARA-X22.libre.retevision.es ([62.82.245.129]:41989 "EHLO
-	head.redvip.net") by vger.kernel.org with ESMTP id <S129136AbQKPATz>;
-	Wed, 15 Nov 2000 19:19:55 -0500
-Message-ID: <3A12A030.774F6492@zaralinux.com>
-Date: Wed, 15 Nov 2000 15:39:44 +0100
-From: Jorge Nerin <comandante@zaralinux.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: es-ES, es, en
+	id <S129279AbQKPAa2>; Wed, 15 Nov 2000 19:30:28 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:32781 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129177AbQKPAaY>; Wed, 15 Nov 2000 19:30:24 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Ivan Kanis <ivank@wrq.com>
+Date: Thu, 16 Nov 2000 11:00:02 +1100 (EST)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Documentation/proc.txt update
-In-Reply-To: <3A0F28AB.1E2A28E8@zaralinux.com> <3A0F4069.527D0327@zaralinux.com> <3A11C6A7.AA15A2A4@zaralinux.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14867.9090.689736.462761@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, nfs-devel@linux.kernel.org
+Subject: Re: [BUG] knfsd causes file system corruption when files are locked. 
+In-Reply-To: message from Ivan Kanis on Wednesday November 15
+In-Reply-To: <14867.6967.292440.394045@jedi.wrq.com>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jorge Nerin wrote:
+On Wednesday November 15, ivank@wrq.com wrote:
+> [1.] knfsd causes file system corruption when files are locked.
 > 
-> Jorge Nerin wrote:
-> >
-> > Jorge Nerin wrote:
-> > >
-> > > Hello, this is a patch with some updates to the Documetation/proc.txt
-> > > file, basically it contains updates to the new files in /proc/<PID>, new
-> > > files in /proc, and a paragraph about /proc/sys/net/ipv4/tcp_ecn. It's
-> > > far from complete, but it's a start point.
-> > >
-> >
-> > Well, netscape seems to wrap long lines, as Peter Samuelson noticed me,
-> > so I send it again as an attachment.
-> >
-> > --
-> > Jorge Nerin
-> > <comandante@zaralinux.com>
+> [2.] Lock down a file using the NLM_SHARE sharing mechanism. Remove
+> the file. Unlock the file using NLM_UNSHARE. The filesystem does not
+> recover the file space. I am running this on ext2fs. Fsck-ing the
+> filesystem does not help. The only way to recover the space is to
+> reformat the partition.
 > 
-> Another little update to the patch, this time with bits from Philipp
-> Matthias Hahn, and a little formating change to break a very long line
-> in the middle of a paragraph.
+> [3.] knfsd, lock, NLM_SHARE, NLM_UNSHARE
 > 
-> --
-> Jorge Nerin
-> <comandante@zaralinux.com>
+> [4.] Linux version 2.2.16 (root@jedi) (gcc version 2.7.2.3)
+
+Lots of changes have gone into knfsd since 2.2.16.  Could you please
+try again with either a later 2.2.18pre kernel, or 2.2.16 with patches
+from 
+   http://nfs.sourceforge.net/
+applied?  Thanks.
+
+Quick guide is:
+    2.2.16
+  plus
+    http://www.fys.uio.no/~trondmy/src/nfsv3-old/linux-2.2.16-nfsv3-0.22.0.dif.bz2
+  plus
+    http://download.sourceforge.net/nfs/kernel-nfs-dhiggen_merge-2.0.gz
+
+NeilBrown
+
+> 
+> [5.] N/A
+> 
+> [6.] This test.c program will reproduce the problem. You need to compile it
+> on a Solaris machine because Linux fcntl does not support NLM_SHARE.
+> 
+> -----start here
+> #include <fcntl.h> 
+> #include <errno.h> 
+> #include <stdio.h> 
+>   
+> int main (int argc, char *argv[])  
+> { 
+>   struct fshare lck; 
+>   int fd, ret; 
+>   if (argc != 2) { 
+>     printf ("Usage: %s file to lock\n", argv[0]); 
+>     return 1; 
+>   } 
+>   fd = open (argv[1], O_WRONLY); 
+>   memset (&lck, 0, sizeof (struct flock)); 
+>   lck.f_access = F_WRACC; 
+>   lck.f_deny = F_NODNY; 
+>   ret = fcntl (fd, F_SHARE, &lck); 
+>   unlink (argv[1]); 
+>   ret = fcntl (fd, F_UNSHARE, &lck); 
+>  
+>   return 0; 
+> } 
+> -----end here
+> 
+> Step to reproduce the problem
+> 
+> - Compile the program:
+> gcc test.c -o test
+> 
+> - Mount a Linux nfs partition on Solaris: (Remember the partition will
+> get corrupted, use a partition that you don't care about.)
+> mount -o vers=2 jedi:/sandbox /mnt
+> 
+> - Create a chunk of data on /mnt
+> dd if=/dev/zero of=/mnt/chunk count=10000
+> 
+> - Do a df before running the program
+> 
+> - Run the test program
+> ./test /mnt/chunk
+> 
+> - Run df again. The free space reamains the same. The space is gone
+> till you reformat the partition.
+> 
+> 
+> [7.] This bug was seen on a Debian 2.2 machine. We have seen the same
+> thing happens on systems running Red Hat 6.2 and TurboLinux 6.0 distributions.
+> 
+> [7.1] Environment:
+> Kernel modules         found
+> Gnu C                  2.95.2
+> Binutils               2.9.5.0.37
+> Linux C Library        ..
+> Dynamic Linker (ld.so) 1.9.11
+> ls: /usr/lib/libg++.so: No such file or directory
+> Procps                 2.0.6
+> Mount                  2.10f
+> Net-tools              (1999-04-20)
+> Kbd                    0.99
+> Sh-utils               2.0
+> Sh-utils               Parker.
+> Sh-utils               
+> Sh-utils               Inc.
+> Sh-utils               NO
+> Sh-utils               PURPOSE.
+> 
+> [7.2] Processor information 
+> 
+> processor	: 0
+> vendor_id	: GenuineIntel
+> cpu family	: 6
+> model		: 5
+> model name	: Pentium II (Deschutes)
+> stepping	: 2
+> cpu MHz		: 447.700
+> cache size	: 512 KB
+> fdiv_bug	: no
+> hlt_bug		: no
+> sep_bug		: no
+> f00f_bug	: no
+> coma_bug	: no
+> fpu		: yes
+> fpu_exception	: yes
+> cpuid level	: 2
+> wp		: yes
+> flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
+> bogomips	: 891.29
+> 
+> [7.3] Module information
+> 
+> aic7xxx               124328   1
+> nfsd                  140436   8 (autoclean)
+> snd-pcm-oss            16840   1 (autoclean)
+> snd-pcm-plugin         13000   0 (autoclean) [snd-pcm-oss]
+> snd-mixer-oss           4308   1 (autoclean) [snd-pcm-oss]
+> snd-card-cs4236         5224   2
+> snd-mpu401-uart         2356   0 [snd-card-cs4236]
+> snd-rawmidi             9752   0 [snd-mpu401-uart]
+> snd-seq-device          3476   0 [snd-rawmidi]
+> isapnp                 27572   0 [snd-card-cs4236]
+> snd-cs4236             20580   0 [snd-card-cs4236]
+> snd-cs4231             19008   0 [snd-card-cs4236 snd-cs4236]
+> snd-mixer              23536   0 [snd-mixer-oss snd-cs4236 snd-cs4231]
+> snd-pcm                29784   0 [snd-pcm-oss snd-pcm-plugin snd-cs4231]
+> snd-opl3                4328   0 [snd-card-cs4236]
+> snd-timer               8224   0 [snd-cs4231 snd-pcm snd-opl3]
+> snd-hwdep               3052   0 [snd-opl3]
+> snd                    36300   1 [snd-pcm-oss snd-pcm-plugin snd-mixer-oss snd-card-cs4236 snd-mpu401-uart snd-rawmidi snd-seq-device snd-cs4236 snd-cs4231 snd-mixer snd-pcm snd-opl3 snd-timer snd-hwdep]
+> soundcore               2448   3 [snd]
+> 3c59x                  18212   1
+> 
+> [7.4] SCSI Information
+> 
+> Attached devices: 
+> Host: scsi0 Channel: 00 Id: 05 Lun: 00
+>   Vendor: NEC      Model: CD-ROM DRIVE:465 Rev: 1.03
+>   Type:   CD-ROM                           ANSI SCSI revision: 02
+> 
+> [7.5] N/A
+> 
+> [8.] Here is a trace from the Solaris snoop program while the test
+> program mentioned above is running:
+> 
+>          sun -> jedi.wrq.com NFS C LOOKUP2 FH=2344 chunk 
+> jedi.wrq.com -> sun          NFS R LOOKUP2 OK FH=D308 
+>          sun -> jedi.wrq.com NLM C SHARE3 OH=0009 FH=D308 Mode=0 Access=2 
+> jedi.wrq.com -> sun          NLM R SHARE3 OH=0009 granted 0 
+>          sun -> jedi.wrq.com NLM C UNSHARE3 OH=000A FH=D308 Mode=0 Access=2 
+> jedi.wrq.com -> sun          NLM R UNSHARE3 OH=000A granted 0 
+>          sun -> jedi.wrq.com NFS C GETATTR2 FH=2344 
+> jedi.wrq.com -> sun          NFS R GETATTR2 OK 
+>          sun -> jedi.wrq.com NFS C LOOKUP2 FH=2344 chunk 
+> jedi.wrq.com -> sun          NFS R LOOKUP2 OK FH=D308 
+>          sun -> jedi.wrq.com NFS C LOOKUP2 FH=2344 .nfs5FC7 
+> jedi.wrq.com -> sun          NFS R LOOKUP2 No such file or directory 
+>          sun -> jedi.wrq.com NFS C RENAME2 FH=2344 chunk to FH=2344 .nfs5FC7 
+> jedi.wrq.com -> sun          NFS R RENAME2 OK 
+>          sun -> jedi.wrq.com NLM C UNSHARE3 OH=000B FH=D308 Mode=0 Access=1 
+> jedi.wrq.com -> sun          NLM R UNSHARE3 OH=000B granted 0 
+>          sun -> jedi.wrq.com NFS C REMOVE2 FH=2344 .nfs5FC7 
+> jedi.wrq.com -> sun          NFS R REMOVE2 OK 
+> 
+> /
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > Please read the FAQ at http://www.tux.org/lkml/
-
-I have to be more careful, I don't know if I forgot to attach the file or
-if the majordomo has dropped it?, probably the first one.
-
-So again, the update:
-
-(let's hope it doesn't wrap)
-
---- old/proc.txt	Mon Oct 23 15:20:00 2000
-+++ new/proc.txt	Wed Nov 15 00:04:48 2000
-@@ -3,8 +3,11 @@
- ------------------------------------------------------------------------------
- /proc/sys         Terrehon Bowden <terrehon@pacbell.net>        October 7 1999
-                   Bodo Bauer <bb@ricochet.net>
-+
-+2.4.x update	  Jorge Nerin <comandante@zaralinux.com>      November 14 2000
- ------------------------------------------------------------------------------
--Version 1.2                                              Kernel version 2.2.12
-+Version 1.3                                              Kernel version 2.2.12
-+					      Kernel version 2.4.0-test11-pre4
- ------------------------------------------------------------------------------
- 
- Table of Contents
-@@ -42,17 +45,18 @@
- 0.1 Introduction/Credits
- ------------------------
- 
--This documentation  is  part  of a soon (or so we hope) to be released book on
--the SuSE  Linux  distribution.  As  there is no complete documentation for the
--/proc file  system and we've used many freely available sources to write these
--chapters, it  seems  only  fair  to give the work back to the Linux community.
--This work is based on the 2.2.* kernel version. I'm afraid it's still far from
--complete, but  we  hope  it will be useful. As far as we know, it is the first
--'all-in-one' document  about the /proc file system. It is focused on the Intel
--x86 hardware,  so if you are looking for PPC, ARM, SPARC, APX, etc., features,
--you probably  won't  find  what  you are looking for. It also only covers IPv4
--networking, not  IPv6  nor  other protocols - sorry. But additions and patches
--are welcome and will be added to this document if you mail them to Bodo.
-+This documentation is  part of a soon (or  so we hope) to be  released book on
-+the SuSE  Linux distribution. As  there is  no complete documentation  for the
-+/proc file system and we've used  many freely available sources to write these
-+chapters, it  seems only fair  to give the work  back to the  Linux community.
-+This work is  based on the 2.2.*  kernel version and the  upcomming 2.4.*. I'm
-+afraid it's still far from complete, but we  hope it will be useful. As far as
-+we know, it is the first 'all-in-one' document about the /proc file system. It
-+is focused  on the Intel  x86 hardware,  so if you  are looking for  PPC, ARM,
-+SPARC, APX, etc., features, you probably  won't find what you are looking for.
-+It also only covers IPv4 networking, not IPv6 nor other protocols - sorry. But
-+additions and patches  are welcome and will  be added to this  document if you
-+mail them to Bodo.
- 
- We'd like  to  thank Alan Cox, Rik van Riel, and Alexey Kuznetsov and a lot of
- other people for help compiling this documentation. We'd also like to extend a
-@@ -65,9 +69,13 @@
- contact Bodo  Bauer  at  bb@ricochet.net.  We'll  be happy to add them to this
- document.
- 
--The latest  version  of  this  document  is  available  online  at
-+The   latest   version    of   this   document   is    available   online   at
- http://skaro.nightcrawler.com/~bb/Docs/Proc as HTML version.
- 
-+If  the above  direction does  not works  for you,  ypu could  try the  kernel
-+mailing  list  at  linux-kernel@vger.kernel.org  and/or try  to  reach  me  at
-+comandante@zaralinux.com.
-+
- 0.2 Legal Stuff
- ---------------
- 
-@@ -92,7 +100,7 @@
- 
- The proc  file  system acts as an interface to internal data structures in the
- kernel. It  can  be  used to obtain information about the system and to change
--certain kernel parameters at runtime.
-+certain kernel parameters at runtime (sysctl).
- 
- First, we'll  take  a  look  at the read-only parts of /proc. In Chapter 2, we
- show you how you can use /proc/sys to change settings.
-@@ -111,16 +119,17 @@
- ..............................................................................
-  File    Content                                        
-  cmdline Command line arguments                         
-- environ Values of environment variables                
-+ cpu	 Current and last cpu in wich it was executed		(2.4)(smp)
-+ cwd	 Link to the current working directory
-+ environ Values of environment variables      
-+ exe	 Link to the executable of this process
-  fd      Directory, which contains all file descriptors 
-+ maps	 Memory maps to executables and library files		(2.4)
-  mem     Memory held by this process                    
-+ root	 Link to the root directory of this process
-  stat    Process status                                 
-- status  Process status in human readable form          
-- cwd     Link to the current working directory          
-- exe     Link to the executable of this process         
-- maps    Memory maps                                    
-- root    Link to the root directory of this process     
-  statm   Process memory status information              
-+ status  Process status in human readable form          
- ..............................................................................
- 
- For example, to get the status information of a process, all you have to do is
-@@ -131,6 +140,7 @@
-   State:  R (running) 
-   Pid:    5452 
-   PPid:   743 
-+  TracerPid:      0						(2.4)
-   Uid:    501     501     501     501 
-   Gid:    100     100     100     100 
-   Groups: 100 14 16 
-@@ -187,13 +197,20 @@
-  devices     Available devices (block and character)           
-  dma         Used DMS channels                                 
-  filesystems Supported filesystems                             
-+ driver	     Various drivers grouped here, currently rtc	(2.4)
-+ execdomains Execdomains, related to security			(2.4)
-+ fb	     Frame Buffer devices				(2.4)
-+ fs	     File system parameters, currently nfs/exports	(2.4)
-  ide         Directory containing info about the IDE subsystem 
-  interrupts  Interrupt usage                                   
-+ iomem	     Memory map						(2.4)
-  ioports     I/O port usage                                    
-- kcore       Kernel core image (can be ELF or A.OUT)           
-+ irq	     Masks for irq to cpu affinity			(2.4)(smp?)
-+ isapnp	     ISA PnP (Plug&Play) Info				(2.4)
-+ kcore       Kernel core image (can be ELF or A.OUT(deprecated in 2.4))   
-  kmsg        Kernel messages                                   
-  ksyms       Kernel symbol table                               
-- loadavg     Load average                                      
-+ loadavg     Load average of last 1, 5 & 15 minutes                
-  locks       Kernel locks                                      
-  meminfo     Memory info                                       
-  misc        Miscellaneous                                     
-@@ -201,14 +218,19 @@
-  mounts      Mounted filesystems                               
-  net         Networking info (see text)                        
-  partitions  Table of partitions known to the system           
-+ pci	     Depreciated info of PCI bus (new way -> /proc/bus/pci/, 
-+             decoupled by lspci					(2.4)
-  rtc         Real time clock                                   
-  scsi        SCSI info (see text)                              
-  slabinfo    Slab pool info                                    
-  stat        Overall statistics                                
-  swaps       Swap space utilization                            
-  sys         See chapter 2                                     
-+ sysvipc     Info of SysVIPC Resources (msg, sem, shm)		(2.4)
-+ tty	     Info of tty drivers
-  uptime      System uptime                                     
-  version     Kernel version                                    
-+ video	     bttv info of video resources			(2.4)
- ..............................................................................
- 
- You can,  for  example,  check  which interrupts are currently in use and what
-@@ -230,6 +252,68 @@
-    15:          7          XT-PIC  ide1 
-   NMI:          0 
- 
-+In 2.4.* a couple of lines where added to this file LOC & ERR (this time is the
-+output of a SMP machine):
-+
-+  > cat /proc/interrupts 
-+
-+             CPU0       CPU1       
-+    0:    1243498    1214548    IO-APIC-edge  timer
-+    1:       8949       8958    IO-APIC-edge  keyboard
-+    2:          0          0          XT-PIC  cascade
-+    5:      11286      10161    IO-APIC-edge  soundblaster
-+    8:          1          0    IO-APIC-edge  rtc
-+    9:      27422      27407    IO-APIC-edge  3c503
-+   12:     113645     113873    IO-APIC-edge  PS/2 Mouse
-+   13:          0          0          XT-PIC  fpu
-+   14:      22491      24012    IO-APIC-edge  ide0
-+   15:       2183       2415    IO-APIC-edge  ide1
-+   17:      30564      30414   IO-APIC-level  eth0
-+   18:        177        164   IO-APIC-level  bttv
-+  NMI:    2457961    2457959 
-+  LOC:    2457882    2457881 
-+  ERR:       2155
-+
-+NMI is incremented in this case because every timer interrupt generates a NMI
-+(Non Maskable Interrupt) which is used by the NMI Watchdog to detect lookups.
-+
-+LOC is the local interrupt counter of the internal APIC of every CPU.
-+
-+ERR is incremented in the case of errors in the IO-APIC bus (the bus that
-+connects the CPUs in a SMP system. This means that an error has been detected,
-+the IO-APIC automatically retry the transmision, so it should not be a big
-+problem, but you should read the SMP-FAQ.
-+
-+In this context it could be interesting to note the new irq directory in 2.4.
-+It could be used to set IRQ to CPU affinity, this means that you can "hook" an
-+IRQ to only one CPU, or to exclude a CPU of handling IRQs. The contents of the
-+irq subdir is one subdir for each IRQ, and one file; prof_cpu_mask
-+
-+For example 
-+  > ls /proc/irq/
-+  0  10  12  14  16  18  2  4  6  8  prof_cpu_mask
-+  1  11  13  15  17  19  3  5  7  9
-+  > ls /proc/irq/0/
-+  smp_affinity
-+
-+The contents of the prof_cpu_mask file and each smp_affinity file for each IRQ
-+is the same by default:
-+
-+  > cat /proc/irq/0/smp_affinity 
-+  ffffffff
-+
-+It's a bitmask, in wich you can specify wich CPUs can handle the IRQ, you can
-+set it by doing:
-+
-+  > echo 1 > /proc/irq/prof_cpu_mask
-+
-+This means that only the first CPU will handle the IRQ, but you can also echo 5
-+wich means that only the first and fourth CPU can handle the IRQ.
-+
-+The way IRQs are routed is handled by the IO-APIC, and it's Round Robin
-+between all the CPUs which are allowed to handle it. As usual the kernel has
-+more info than you and does a better job than you, so the defaults are the
-+best choice for almost everyone.
- 
- There are  three  more  important subdirectories in /proc: net, scsi, and sys.
- The general  rule  is  that  the  contents,  or  even  the  existence of these
-@@ -1306,6 +1390,15 @@
- 
- TCP settings
- ------------
-+
-+tcp_ecn
-+-------
-+
-+This file controls the use of the ECN bit in the IPv4 headers, this is a new
-+feature about Explicit Congestion Notification, but some routers and firewalls
-+block trafic that has this bit set, so it could be necessary to echo 0 to
-+/proc/sys/net/ipv4/tcp_ecn, if you want to talk to this sites. For more info
-+you could read RFC2481.
- 
- tcp_retrans_collapse
- --------------------
-
--- 
-Jorge Nerin
-<comandante@zaralinux.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263441AbTEVXv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 19:51:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263444AbTEVXv2
+	id S263444AbTEWAAv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 20:00:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTEWAAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 19:51:28 -0400
-Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:7608 "HELO
-	mail.keyresearch.com") by vger.kernel.org with SMTP id S263441AbTEVXv1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 19:51:27 -0400
-Subject: [CFT] Move ipconfig and nfsroot support from kernel to userspace
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053648269.1237.96.camel@serpentine.internal.keyresearch.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 22 May 2003 17:04:29 -0700
+	Thu, 22 May 2003 20:00:51 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:37004 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S263444AbTEWAAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 20:00:49 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: "David S. Miller" <davem@redhat.com>
+Subject: Re: Error during compile of 2.5.69-mm8
+Date: Fri, 23 May 2003 02:13:34 +0200
+User-Agent: KMail/1.5.9
+Cc: akpm@digeo.com, mfc@krycek.org, linux-kernel@vger.kernel.org
+References: <200305230128.06412.schlicht@uni-mannheim.de> <200305230147.00730.schlicht@uni-mannheim.de> <20030522.164845.48515977.davem@redhat.com>
+In-Reply-To: <20030522.164845.48515977.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_zeWz+gjdFmySjp9";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200305230213.39460.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've put together a new klibc snapshot, along with a set of kernel
-patches, to move ipconfig and nfsroot support into userspace.  These can
-all be found at http://www.speakeasy.org/~bos
 
-The klibc snapshot includes kinit, a statically linked binary that
-replaces the 2.5 kernel's support for IP autoconfiguration
-(CONFIG_IP_PNP, aka "ipconfig") and use of NFS as the root filesystem
-(CONFIG_ROOT_NFS, aka "nfsroot"). 
+--Boundary-02=_zeWz+gjdFmySjp9
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-The patches remove support for ipconfig and nfsroot, and get the kernel
-into an intermediate state where it can at least boot into a kinit built
-in a klibc tree. 
+On May 23, David S. Miller wrote:
+>    From: Thomas Schlichter <schlicht@uni-mannheim.de>
+>    Date: Fri, 23 May 2003 01:47:00 +0200
+>
+>    There was a discussion about SET_MODULE_OWNER here on the list, once.
+>    You can find it here:
+>
+> I know about it and in fact Rusty is the one that told me
+> to do what I did with SET_MODULE_OWNER.
+>
+> FACT: SET_MODULE_OWNER() tracks how to set the module reference
+>       for a struct netdevice.
+>
+> It always lived in netdevice.h and always served exactly this purpose.
 
-      * ipconfig-2.5.69 removes support for ipconfig, and disables the
-        building of nfsroot. 
-      * nfsroot-2.5.69 removes support for nfsroot. 
-      * initramfs-2.5.69 stops the kernel from doing the usual mount
-        procedure if it sees "root=initramfs" or "root=/dev/nfs" on the
-        kernel command line. Instead, it hands control over to whatever
-        it finds in initramfs. 
+As far as I can see it lived in modules.h... (Even in 2.4.10 if the sources=
+=20
+here on my disk don't lie)
 
-To test, you'll need to build klibc, copy kinit into the kernel's usr
-directory, blow away the .cpio file in there, and rebuild your kernel.
-You can then reboot with a kernel command line such as "ip=eth0
-root=/dev/nfs", and your kernel should use DHCP to configure eth0 and
-mount its root filesystem from whatever NFS server the DHCP server told
-it. 
+So nothing (not even the name) indicated its membership to netdevice for a=
+=20
+very long time!
 
-If you're feeling impatient and don't want to build klibc, there's a
-kinit binary precompiled that you can use for testing. 
+> So when I deleted ->owner from struct netdevice, SET_MODULE_OWNER
+> became a nop.
 
-Note: the kinit binary currently only supports nfsroot and ipconfig used
-together. It doesn't make any sense to use them separately right now,
-anyway. 
+=46or netdevice you are right!
 
-	<b
+> Therefore, it was a complete error for anyone else to start using this
+> macro for other structures.
 
+So nobody should better use THIS_MODULE?! Well it currently is defined in=20
+module.h, but perhaps it was first defined in isdn.h and may be removed by=
+=20
+its maintainer when he thinks he does not need it anymore...
+
+=46or ME and many other driver developers SET_MODULE_OWNER does not belong =
+to=20
+netdevice, it belongs to the module infrastructure!
+
+Best regards
+   Thomas Schlichter
+
+--Boundary-02=_zeWz+gjdFmySjp9
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+zWezYAiN+WRIZzQRAl9CAKDf8LroLCSPSfgSV+CkGeQfT4y/3wCfY5HC
+P3hM0/ldmZlaSrv9sd3dsto=
+=xA32
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_zeWz+gjdFmySjp9--

@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262353AbREXVgL>; Thu, 24 May 2001 17:36:11 -0400
+	id <S262392AbREXWDx>; Thu, 24 May 2001 18:03:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262361AbREXVgB>; Thu, 24 May 2001 17:36:01 -0400
-Received: from juicer14.bigpond.com ([139.134.6.23]:43767 "EHLO
-	mailin2.email.bigpond.com") by vger.kernel.org with ESMTP
-	id <S262353AbREXVfp>; Thu, 24 May 2001 17:35:45 -0400
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andi Kleen <ak@suse.de>, Andreas Dilger <adilger@turbolinux.com>,
-        monkeyiq <monkeyiq@users.sourceforge.net>,
-        linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
-Subject: Re: Dying disk and filesystem choice.
-In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au>
-	<200105240658.f4O6wEWq031945@webber.adilger.int>
-	<20010524103145.A9521@gruyere.muc.suse.de>
-	<3B0D3C99.255B5A24@namesys.com>
-From: monkeyiq <monkeyiq@users.sourceforge.net>
-X-Home-Page: http://witme.sourceforge.net
-Date: 25 May 2001 07:35:39 +1000
-In-Reply-To: Hans Reiser's message of "Thu, 24 May 2001 09:53:45 -0700"
-Message-ID: <m3n182xwes.fsf@kloof.cr.au>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+	id <S262390AbREXWDo>; Thu, 24 May 2001 18:03:44 -0400
+Received: from idiom.com ([216.240.32.1]:27142 "EHLO idiom.com")
+	by vger.kernel.org with ESMTP id <S262382AbREXWDb>;
+	Thu, 24 May 2001 18:03:31 -0400
+Message-ID: <3B0D8465.B1A13674@namesys.com>
+Date: Thu, 24 May 2001 15:00:05 -0700
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Andreas Dilger <adilger@turbolinux.com>,
+        "Peter J. Braam" <braam@mountainviewdata.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>, Edgar Toernig <froese@gmx.de>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
+ w/info-PATCH]device arguments from lookup)
+In-Reply-To: <200105222010.f4MKAWZk011755@webber.adilger.int> <0105242307570P.06233@starship>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> writes:
-
+Daniel Phillips wrote:
 > 
+> On Tuesday 22 May 2001 22:10, Andreas Dilger wrote:
+> > Peter Braam writes:
+> > > File system journal recovery can corrupt a snapshot, because it
+> > > copies data that needs to be preserved in a snapshot. During
+> > > journal replay such data may be copied again, but the source can
+> > > have new data already.
+> >
+> > The way it is implemented in reiserfs is to wait for existing
+> > transactions to complete, entirely flush the journal and block all
+> > new transactions from starting.  Stephen implemented a journal flush
+> > API to do this for ext3, but the hooks to call it from LVM are not in
+> > place yet.  This way the journal is totally empty at the time the
+> > snapshot is done, so the read-only copy does not need to do journal
+> > recovery, so no problems can arise.
 > 
-> No, reiserfs does have badblock support!!!!
+> I suppose I'm just reiterating the obvious, but we should eventually
+> have a generic filesystem transaction API at the VFS level, once we
+> have enough data points to know what the One True API should be.
 > 
-> You just have to get it as a separate patch from us because it was written after
-> code freeze.
-> 
-> Hans
-> 
-
-It might be nice to have a link to that patch from the "download" page.
-I didn't see that patch the first time from
-ftp://ftp.namesys.com/pub/misc-patches/
-
-because I assumed that the interesting patches were linked from the 
-downloads page. Atleast a hint that there is a badblocks patch available
-on the ftp site on the downloads page, so that the reader can go grab 
-this patch. 
-
-Hopefully this will extend my mileage until drive replacement :)
-Though I think I'll back a few more things up before attempting 
-a kernel compile.
+> --
+> Daniel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 
--- 
----------------------------------------------------
-It's the question, http://witme.sourceforge.net
-If you think education is expensive, try ignorance.
-		-- Derek Bok, president of Harvard
+Daniel, implementing transactions is not a trivial thing as you probably know. 
+It requires that you resolve such issues as, what happens if the user forgets to
+close the transaction, issues of lock/transaction duration, of transaction
+batching, of levels of isolation, of concurrent transactions modifying global fs
+metadata and some but not all of those concurrent transactions receiving a
+rollback, and of permissions relating to keeping transactions open.  I would
+encourage you to participate in the reiser4 design discussion we will be having
+over the next 6 months, and give us your opinions.  Josh will be leading that
+design effort for the ReiserFS team.
 
+Hans

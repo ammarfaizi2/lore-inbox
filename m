@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265037AbSJWOza>; Wed, 23 Oct 2002 10:55:30 -0400
+	id <S265032AbSJWOvM>; Wed, 23 Oct 2002 10:51:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265036AbSJWOz3>; Wed, 23 Oct 2002 10:55:29 -0400
-Received: from trappist.elis.rug.ac.be ([157.193.67.1]:28642 "EHLO
-	trappist.elis.rug.ac.be") by vger.kernel.org with ESMTP
-	id <S265034AbSJWOz2>; Wed, 23 Oct 2002 10:55:28 -0400
-Date: Wed, 23 Oct 2002 17:01:32 +0200 (CEST)
-From: Frank Cornelis <fcorneli@elis.rug.ac.be>
-To: linux-kernel@vger.kernel.org
-cc: Frank Cornelis <fcorneli@trappist.elis.rug.ac.be>
-Subject: [PATCH] extended ptrace
-Message-ID: <Pine.LNX.4.44.0210231656080.19811-100000@trappist.elis.rug.ac.be>
+	id <S265033AbSJWOvM>; Wed, 23 Oct 2002 10:51:12 -0400
+Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:45006 "EHLO
+	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S265032AbSJWOvL>; Wed, 23 Oct 2002 10:51:11 -0400
+Date: Wed, 23 Oct 2002 12:56:49 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: bert hubert <ahu@ds9a.nl>
+cc: akpm@digeo.com, <linux-kernel@vger.kernel.org>, <albert@users.sf.net>
+Subject: Re: 2.5.44 io accounting weirdness, bi & bo swapped?
+In-Reply-To: <20021023124819.GA32421@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.44L.0210231256090.28073-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 23 Oct 2002, bert hubert wrote:
 
-A new extended ptrace patch is available at:
-	http://www.elis.rug.ac.be/~fcorneli/downloads/devel/exptrace-0.3.1.patch.gz
+> Is not. Touching a page entails reading it. In Albert's procps with 2.5.44,
+> bi and bo are reversed. Rik's vmstat does report things correctly.
 
-This one has the PTRACE_READDATA, PTRACE_WRITEDATA and PTRACE_DUMPCORE 
-ptrace requests from SunOS along with faster ptrace_readdata and 
-ptrace_writedata functions and some other extended ptrace functionality 
-I need. It's patched against 2.4.19.
-Since some people often talked about it, I thought some will like this.
+> Perhaps Albert's procps isn't ready for 2.5.44?
 
-Feedback is very welcome. Please CC me.
+I suspect it's just a simple typo somewhere. Maybe Albert can't
+run 2.5 on his computer so he didn't get around to testing ?
 
-Frank.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

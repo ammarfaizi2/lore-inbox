@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266955AbUBRApo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:45:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266968AbUBRAmX
+	id S266962AbUBRApq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 19:45:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266902AbUBRAmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:42:23 -0500
-Received: from fed1mtao05.cox.net ([68.6.19.126]:17607 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S266152AbUBRAjY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:39:24 -0500
-Date: Tue, 17 Feb 2004 17:39:17 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/6] A different KGDB stub
-Message-ID: <20040218003917.GO16881@smtp.west.cox.net>
-References: <20040217220249.GB16881@smtp.west.cox.net> <20040217155036.33e37c67.akpm@osdl.org> <20040218000315.GN16881@smtp.west.cox.net> <20040217163312.729c951f.akpm@osdl.org>
+	Tue, 17 Feb 2004 19:42:06 -0500
+Received: from gate.crashing.org ([63.228.1.57]:6052 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266962AbUBRAka (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 19:40:30 -0500
+Subject: Re: Linux 2.6.3-rc4 Massive strange corruption with new radeonfb
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Charles Johnston <cjohnston@networld.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <4032B084.5020405@networld.com>
+References: <403274D2.4020407@networld.com>
+	 <1077055997.1076.23.camel@gaston>  <40329B57.9060901@networld.com>
+	 <1077060699.1078.38.camel@gaston>  <4032B084.5020405@networld.com>
+Content-Type: text/plain
+Message-Id: <1077064587.1081.78.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040217163312.729c951f.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 18 Feb 2004 11:36:27 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 17, 2004 at 04:33:12PM -0800, Andrew Morton wrote:
-> Tom Rini <trini@kernel.crashing.org> wrote:
-> >
-> > By my read of Andi's email, the kern_do_schedule() gunk is "I really
-> > don't like this change. It is completely useless because you can get the
-> > pt_regs as well from the stack.  Please don't add it. George's stub also
-> > didn't need it."
-> > 
-> > But I don't see how it does.  But I'll look again tomorrow.
+
 > 
-> OK, thanks.  That would be appreciated, if only because the sched.c and
-> entry.S changes have caused significant patch-conflict hassles in the past,
-> and they're pretty ugly.
-> 
-> Plus the little fact that the patch which you sent broke all other
-> architectures: they call schedule() from assembly code, and schedule()
-> ain't there any more.
+> Yes, the blanking issue is still present without XFree.
 
-Oh yeah, that, damnit.
+Ok, that would be the fillrect() operation not working properly.
 
-> I'll have a play with the patches which you sent, and if they don't break
-> I'll add them to -mm and I'll kludgily fix ppc64 and ia64 (if needed).  Be
-> aware that I removed the (large amount of) trailing whitespace which they
-> added.
+I'll look at it.
 
-I guess I forgot to Lindent everything.  I'll probably have new drop-in
-patches a few more times (as opposed to incremental to the previous) a
-few more times, so I'll make sure to fix that for next time.
+Ben.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+

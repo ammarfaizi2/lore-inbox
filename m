@@ -1,36 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290185AbSALAdo>; Fri, 11 Jan 2002 19:33:44 -0500
+	id <S290192AbSALAfE>; Fri, 11 Jan 2002 19:35:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290188AbSALAdf>; Fri, 11 Jan 2002 19:33:35 -0500
-Received: from ns.suse.de ([213.95.15.193]:63503 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290185AbSALAd3>;
-	Fri, 11 Jan 2002 19:33:29 -0500
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q: behaviour of mlockall(MCL_FUTURE) and VM_GROWSDOWN segments
-In-Reply-To: <3C3F3C7F.76CCAF76@colorfullife.com.suse.lists.linux.kernel> <3C3F4FC6.97A6A66D@zip.com.au.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 12 Jan 2002 01:33:24 +0100
-In-Reply-To: Andrew Morton's message of "11 Jan 2002 21:59:44 +0100"
-Message-ID: <p73r8ow4dd7.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S290191AbSALAes>; Fri, 11 Jan 2002 19:34:48 -0500
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:4409 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S290188AbSALAeQ>; Fri, 11 Jan 2002 19:34:16 -0500
+Date: Sat, 12 Jan 2002 01:34:14 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, Dan Kegel <dank@kegel.com>,
+        "Timothy D. Witham" <wookie@osdl.org>,
+        Luigi Genoni <kernel@Expansa.sns.it>,
+        Mike Galbraith <mikeg@wen-online.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stp@osdl.org
+Subject: [OT] Re: Regression testing of 2.4.x before release?
+Message-ID: <20020112013414.B23020@garloff.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	"M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Dan Kegel <dank@kegel.com>, "Timothy D. Witham" <wookie@osdl.org>,
+	Luigi Genoni <kernel@Expansa.sns.it>,
+	Mike Galbraith <mikeg@wen-online.de>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	stp@osdl.org
+In-Reply-To: <E16PAuX-0002Ob-00@starship.berlin> <Pine.LNX.4.33.0201111600560.19843-100000@shell1.aracnet.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201111600560.19843-100000@shell1.aracnet.com>
+User-Agent: Mutt/1.3.22.1i
+X-Operating-System: Linux 2.4.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> writes:
 
-> So in this case, the behaviour I would prefer is MCL_FUTURE for
-> all vma's *except* the stack.   Stack pages should be locked
-> only when they are faulted in.   Hard call.
+--cvVnyQ+4j833TQvp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There is just one problem: linuxthread stacks are just ordinary mappings
-and they are in no way special to the kernel; they aren't VM_GROWSDOWN. 
-You would need to add a way to the kernel first to tag the linux thread 
-stacks in a way that is recognizable to mlockall and then do that 
-from linuxthreads. 
+Hi,
 
-I think for the normal stack - real VM_GROWSDOWN segments - mlockall
-already does the right thing.
+On Fri, Jan 11, 2002 at 04:04:59PM -0800, M. Edward (Ed) Borasky wrote:
+> One particular application for which gcc 3.x *and* gcc 2.96.x are
+> seriously deficient, at least on Intel/AMD 32-bit systems, is the
+> high-performance linear algebra library Atlas. As a result, *my* default
+> for compiling numerical applications is the Atlas-recommended one,
+> 2.95.3. For the kernel, I use whatever the Red Hat 7.2 default is.
 
--Andi
+One of the problems of gcc-3 is taking decisions when to inline and when
+not. This can hurt numerical code a lot, especially C++.
+You may want to use -finline-limit-XXX to tune.
+http://www.garloff.de/kurt/freesoft/gcc/
+v1 of my patch went into 3.0.3, some version (don't know which) into
+mainline, so 3.0.3 should do better.
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, DE                                SCSI, Security
+
+--cvVnyQ+4j833TQvp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8P4SFxmLh6hyYd04RAhQNAKC7hx+KhNzK8WdcxiIjU6CdJO+cFACfXeAX
+ThGsprHpWHu3tkQ0rDiVnBk=
+=5d6K
+-----END PGP SIGNATURE-----
+
+--cvVnyQ+4j833TQvp--

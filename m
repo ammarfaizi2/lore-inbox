@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284836AbRLPVXi>; Sun, 16 Dec 2001 16:23:38 -0500
+	id <S284833AbRLPVeu>; Sun, 16 Dec 2001 16:34:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284833AbRLPVXS>; Sun, 16 Dec 2001 16:23:18 -0500
-Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:61387 "EHLO
-	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S284820AbRLPVXO>; Sun, 16 Dec 2001 16:23:14 -0500
-Message-ID: <3C1D1032.6090405@wanadoo.fr>
-Date: Sun, 16 Dec 2001 22:20:50 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
-X-Accept-Language: fr, en
+	id <S284820AbRLPVea>; Sun, 16 Dec 2001 16:34:30 -0500
+Received: from ns.suse.de ([213.95.15.193]:17681 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S283759AbRLPVeW>;
+	Sun, 16 Dec 2001 16:34:22 -0500
+Date: Sun, 16 Dec 2001 22:34:21 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: More fun with fsx.
+In-Reply-To: <15389.4070.855955.296791@charged.uio.no>
+Message-ID: <Pine.LNX.4.33.0112162226460.16845-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.5.1-pre11 boot/root
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.1-pre11+devfs-patch-v203
+On Sun, 16 Dec 2001, Trond Myklebust wrote:
 
-2.5.1-pre11 fails mounting the root fs during boot when
-the short name of the root device is given to the loader,
-for instance :
+> In that case, I'll need a tcpdump of the point at which the error
+> occurs.
 
-root=/dev/discs/disc0/part2
+Sure no problem... any particular preferred options ?
+Want client and server, or just client ?
 
-it succeeds only with the long name :
+> I'm unable to produce any problem whatsoever with the new patch
+> applied. Certainly not an EIO: that can normally only occur if you are
+> using soft mounts (which I assume is not the case?) or if the server
+> is screwed up...
 
-root=/dev/ide/host2/bus0/target0/lun0/part2
+This is 'defaults' so, I would guess that is the case looking at the
+man page. but, I just tested and its repeatable with hard and soft.
 
-2.5.1-pre10 was happy with the short name.
+regards,
+Dave.
 
-It's not a big issue, one just have to know it.
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

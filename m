@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132273AbRCWARL>; Thu, 22 Mar 2001 19:17:11 -0500
+	id <S132281AbRCWANk>; Thu, 22 Mar 2001 19:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132260AbRCWANm>; Thu, 22 Mar 2001 19:13:42 -0500
-Received: from feeder.cyberbills.com ([64.41.210.81]:44040 "EHLO
-	sjc-smtp1.cyberbills.com") by vger.kernel.org with ESMTP
-	id <S132276AbRCWAMg>; Thu, 22 Mar 2001 19:12:36 -0500
-Date: Thu, 22 Mar 2001 16:11:48 -0800 (PST)
-From: "Sergey Kubushin" <ksi@cyberbills.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2-ac21
-In-Reply-To: <E14gEd7-0003Yk-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.31ksi3.0103221611340.22847-100000@nomad.cyberbills.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132245AbRCWAMn>; Thu, 22 Mar 2001 19:12:43 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:24705 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S132277AbRCWAKp>;
+	Thu, 22 Mar 2001 19:10:45 -0500
+Date: Fri, 23 Mar 2001 01:09:32 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200103230009.BAA22702@harpo.it.uu.se>
+To: alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Prevent OOM from killing init
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Mar 2001, Alan Cox wrote:
+On Thu, 22 Mar 2001 23:43:57 +0000 (GMT), Alan Cox wrote:
 
-OK.
+> > >How do you return an out of memory error to a C program that is out of memory
+> > >due to a stack growth fault. There is actually not a language construct for it
+> > SIGSEGV.
+> > Stack overflow for a language like C using standard implementation techniques
+> > is the same as a page fault while accessing a page for which there is no backing
+> > store. SIGSEGV is the logical choice, and the one I'd expect on other Unices.
+> 
+> Guess again. You are expanding the stack because you have no room left on it.
+> You take a fault. You want to report a SIGSEGV. Now where are you
+> going to put the stack frame ?
+> 
+> SIGSEGV in combination with a preallocated alternate stack maybe
 
-> > On Thu, 22 Mar 2001, Alan Cox wrote:
-> >
-> > Does not build for PPro/P-II. i586 is OK.
->
-> You need to avoid enabling 64G support. The PAE stuff (as Linus said
-> with
-> 2.4.3pre6) is currently broken. Once Linus and co fix it I'll merge the
-> fixed
-> one
+Oh I know 99% of the processes getting this will die. The behaviour I'd
+expect from vanilla code in this particular case (stack overflow) is:
+- page fault in stack "segment"
+- no backing store available
+- post SIGSEGV to current
+  * push sighandler frame on current stack (or altstack, if registered) [+]
+  * no room? SIG_DFL, i.e kill
 
----
-Sergey Kubushin				Sr. Unix Administrator
-CyberBills, Inc.			Phone:	702-567-8857
-874 American Pacific Dr,		Fax:	702-567-8808
-Henderson, NV, 89014
+My point is that with overcommit removed, there's no question as to
+which process is actually out of memory. No need for the kernel to guess;
+since it doesn't guess, it cannot guess wrong.
 
+Concerning the stack: sure, oom makes it problematic to report the
+error in a useful way. So use sigaltstack() and SA_ONSTACK. [+]
+Processes that don't do this get killed, but not because oom_kill
+did some fancy guesswork.
+
+[+] Speaking as a hacker on a runtime system for a concurrent
+programming language (Erlang), I consider the current Unix/POSIX/Linux
+default of having the kernel throw up[*] at the user's current stack
+pointer to be unbelievably broken. sigaltstack() and SA_ONSTACK should
+not be options but required behaviour.
+
+[*] Signal & trap frames used to be called "stack puke" in old 68k days.
+
+/Mikael

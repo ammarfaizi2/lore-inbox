@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbVCVJDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVCVJEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbVCVJDE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 04:03:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbVCVJDE
+	id S262576AbVCVJEU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 04:04:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbVCVJET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 04:03:04 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:43701 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262577AbVCVJCv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 04:02:51 -0500
-To: Sean Russell <ser@ser1.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1[01] freeze on x86_64
-References: <423F5152.2010303@ser1.net>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 22 Mar 2005 10:02:47 +0100
-In-Reply-To: <423F5152.2010303@ser1.net> (Sean Russell's message of "Mon, 21
- Mar 2005 17:57:22 -0500")
-Message-ID: <m13buo3vew.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Mar 2005 04:04:19 -0500
+Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:15239
+	"HELO fargo") by vger.kernel.org with SMTP id S262576AbVCVJEF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 04:04:05 -0500
+Date: Tue, 22 Mar 2005 10:04:08 +0100
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Voodoo 3 2000 framebuffer problem
+Message-ID: <20050322090407.GA9084@fargo>
+Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050322075116.GC55@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050322075116.GC55@DervishD>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Russell <ser@ser1.net> writes:
+Hi ;),
 
+On Mar 22 at 08:51:16, DervishD wrote:
+>     Linux Kernel 2.4.29, in a do-it-yourself linux box, equipped with
+> an AGP Voodoo 3 2000 card, tdfx framebuffer support. I boot in vga
+> mode 0x0f05, with parameter 'video=tdfx:800x600-32@100' and I get
+> (correctly) 100x37 character grid. All of that is correct. What is
+> not correct is the characters attributes, namely the 'blink'
+> attribute.
 
-> appear to be related to the lockup.  In my logs, the last message
-> before the crash is always (that I've noticed) an ACPI error:
->
->     acpi_thermal-0400 [23] acpi_thermal_get_trip_: Invalid active
-> threshold [0]
+It happens too using the voodoo3 framebuffer driver in 2.6 kernels.
+Specifically i'm using 2.6.10
 
-You mean you got this in /var/log/messages?
+regards,
 
-Can you connect a serial console or netconsole and see if that 
-catches anything?  Also boot with oops=panic
-
--Andi
+-- 
+David Gómez                                      Jabber ID: davidge@jabber.org

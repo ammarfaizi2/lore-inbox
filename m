@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266760AbSKHGaX>; Fri, 8 Nov 2002 01:30:23 -0500
+	id <S266761AbSKHGhp>; Fri, 8 Nov 2002 01:37:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266761AbSKHGaX>; Fri, 8 Nov 2002 01:30:23 -0500
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:43503 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S266760AbSKHGaW> convert rfc822-to-8bit; Fri, 8 Nov 2002 01:30:22 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: David Grothe <dave@gcom.com>
-Subject: Re: [PATCH] Linux-streams registration 2.5.46
-Date: Fri, 8 Nov 2002 06:37:06 +0000
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <5.1.0.14.2.20021107145447.027905c8@localhost>
-In-Reply-To: <5.1.0.14.2.20021107145447.027905c8@localhost>
+	id <S266763AbSKHGhp>; Fri, 8 Nov 2002 01:37:45 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:31887 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S266761AbSKHGhp>; Fri, 8 Nov 2002 01:37:45 -0500
+Message-ID: <3DCB5D22.3070701@nortelnetworks.com>
+Date: Fri, 08 Nov 2002 01:43:46 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211080637.06511.landley@trommello.org>
+To: Colin Burnett <cburnett@fractal.candysporks.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: pure raw eth sockets
+References: <1036735964.3dcb55dc6f784@www.candysporks.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 November 2002 21:00, David Grothe wrote:
-> All:
->
-> I finally have LiS running on a 2.5 kernel.  Attached is the 2.5.46 version
-> of the syscall registration patch that was submitted for inclusion in the
-> 2.4 kernel about a month ago.  It has been tested on an Intel platform.
->
-> The patch follows inline for easy perusal and is attached as a file for
-> tab-preservation.
->
-> Comments welcome.  If it looks good will someone tell me to whom to direct
-> it for inclusion in the kernel source?
+Colin Burnett wrote:
 
-Just a random comment, but the feature freeze was October 31st.  Is this a 
-repost of something we saw before then?
+> socket(PF_INET, SOCK_PACKET, ETH_P_RARP)
 
-Rob
+I believe you want something more like:
+
+socket(PF_PACKET, SOCK_RAW, htons(ETH_P_RARP));
+
+Try doing a man on "packet".
+
+Chris
+
+
 
 -- 
-http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
-CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

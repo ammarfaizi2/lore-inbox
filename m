@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbTEQTfD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 15:35:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbTEQTfD
+	id S261788AbTEQTe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 15:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbTEQTeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 15:35:03 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:50731 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S261789AbTEQTfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 15:35:02 -0400
-Date: Sat, 17 May 2003 12:49:48 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: paulmck@us.ibm.com, hch@infradead.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] vm_operation to avoid pagefault/inval race
-Message-Id: <20030517124948.6394ded6.akpm@digeo.com>
-In-Reply-To: <200305172021.56773.phillips@arcor.de>
-References: <200305172021.56773.phillips@arcor.de>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 17 May 2003 15:34:25 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:18832 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261788AbTEQTeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 15:34:25 -0400
+Subject: Re: 2.5.69-mm5: reverting i8259-shutdown.patch
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.50.0305171107090.2356-100000@montezuma.mastecende.com>
+References: <20030514193300.58645206.akpm@digeo.com>
+	 <Pine.LNX.4.44.0305141935440.9816-100000@cherise>
+	 <20030514231414.42398dda.akpm@digeo.com>
+	 <1053000426.605.4.camel@teapot.felipe-alfaro.com>
+	 <Pine.LNX.4.50.0305171107090.2356-100000@montezuma.mastecende.com>
+Content-Type: text/plain
+Message-Id: <1053200826.586.3.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
+Date: 17 May 2003 21:47:07 +0200
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 May 2003 19:47:51.0599 (UTC) FILETIME=[338833F0:01C31CAD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@arcor.de> wrote:
->
-> and the only problem is, we have to change pretty well every 
->  filesystem in and out of tree.
+On Sat, 2003-05-17 at 21:25, Zwane Mwaikambo wrote:
+> On Thu, 15 May 2003, Felipe Alfaro Solana wrote:
+> 
+> > > In this case we need to understand why the lockup is happening - what
+> > > code is requiring 8259 services after the thing has been turned off?
+> > > Could be that the bug lies there.
+> > > 
+> > > Felipe, please send your .config.   (again - in fact you may as well do
+> > > cp .config ~/.signature)
+> > 
+> > Config attached...
+> > Don't understand what do you mean with "cp .config ~/.signature" :-?
+> > 
+> Unable to reproduce, appears to be machine specific, 1 laptop and 2 test 
+> systems both managed to power off with APM or ACPI. Also tried with 
+> Felipe's config
 
-But it's only a one-liner per fs.
-
+The machine is a NEC (Packard Bell) Chrom@. Could an lspci be of
+interest?
 

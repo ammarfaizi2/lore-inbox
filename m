@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318472AbSHPXzS>; Fri, 16 Aug 2002 19:55:18 -0400
+	id <S318778AbSHPX5N>; Fri, 16 Aug 2002 19:57:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318778AbSHPXzS>; Fri, 16 Aug 2002 19:55:18 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45575 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318472AbSHPXzR>; Fri, 16 Aug 2002 19:55:17 -0400
-Date: Fri, 16 Aug 2002 17:02:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       <linux-kernel@vger.kernel.org>
+	id <S318802AbSHPX5N>; Fri, 16 Aug 2002 19:57:13 -0400
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:38036 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S318778AbSHPX5M>; Fri, 16 Aug 2002 19:57:12 -0400
+Date: Sat, 17 Aug 2002 01:01:06 +0100 (BST)
+From: Anton Altaparmakov <aia21@cantab.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: alan@lxorguk.ukuu.org, andre@linux-ide.org, axboe@suse.de,
+       bkz@linux-ide.org, linux-kernel@vger.kernel.org
 Subject: Re: IDE?
-In-Reply-To: <20020816163642.D31052@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0208161657240.1674-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0208161622240.1674-100000@home.transmeta.com>
+Message-ID: <Pine.SOL.3.96.1020817004411.25629B-100000@draco.cus.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 16 Aug 2002, Larry McVoy wrote:
-> On Fri, Aug 16, 2002 at 04:34:14PM -0700, Linus Torvalds wrote:
-> > I'm dreaming of an IDE maintainer that people (including, very much, me)
-> > can work with. I don't know why, but IDE has pretty much since day one
-> > been a fairly problematic area, and has caused a lot more maintainer
-> > headache than the rest of the kernel put together..
+On Fri, 16 Aug 2002, Linus Torvalds wrote:
+> I'm dreaming of an IDE maintainer that people (including, very much, me)
+> can work with. I don't know why, but IDE has pretty much since day one
+> been a fairly problematic area, and has caused a lot more maintainer
+> headache than the rest of the kernel put together..
 > 
-> This may be politically incorrect, but could you (or anyone) provide a 
-> history of the IDE maintainers to date and why they didn't work out 
-> and what would need to change to make them work out?
+> There's been one fairly smooth IDE transition (the original transition
+> from hd.c to ide.c), and calling even that "smooth" is pretty much all
+> hindsight - at the time people thought it was horribly stupid to not allow
+> big controversial changes to hd.c, and the resulting code duplication was
+> considered a disaster.
+> 
+> Right now it looks like Alan is at least for the moment willing to work on
+> the IDE code, which is obviously great. I just wonder how long he'll stand
+> it (he's maintained various IDE buglists etc issues for years, so we can
+> hope).
 
-I actually don't think it's the people as much as it is the ridiculous 
-linkages inside ide.c and the hugely complicated rules. The code is messy.
+Linus,
 
-The network drivers have various setups that share the same chipset, but 
-there they tend to be individual drivers that just share helper routines. 
-Each driver still does their own PCI driver registration etc. In contrast, 
-when it comes to IDE, you're supposed to be an IDE driver first, and a PCI 
-chipset driver second, and that putting o fthe cart before the horse 
-results in problems.
+Out of curiosity, who is going to be IDE 2.5 kernel maintainer now?
 
-Even something as simple as a PIIX driver (which _should_ just register 
-itself as a driver for the piix chipsets) doesn't do that. Instead, we 
-have ide-pci.c, which has a list of all the chipsets it knows about, and 
-then does initialization and calls the init routines that it knows about. 
-That's just incestuous.
+I am assuming you still maintain that working with Andre is difficult for
+you...
 
-And we all know where incest leads. Hereditary insanity.
+Further, I am assuming that Alan is not going to be wanting to be IDE 2.5
+maintainer. (I may be completely wrong of course... Alan?)
 
-		Linus
+Jens perhaps? Again I assume he doesn't want the job. (Again, I may be
+completely wrong... Jens?)
+
+How about Bartlomiej Zolnierkiewicz as IDE 2.5 maintainer? He seems to be
+happy to talk to Andre. And you are perhaps able to work with him well?
+He has been submitting bug fixes to Martin and seems to generally know
+what he is doing with IDE, certainly a lot better than many of us...
+
+If you can work with him, then it would seem he would be well suited for
+the job... Assuming he wants it... Bartlomiej?
+
+Just my curious 2p...
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

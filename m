@@ -1,78 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVAYTYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVAYTZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbVAYTYl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 14:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbVAYTYl
+	id S262079AbVAYTZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 14:25:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVAYTZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 14:24:41 -0500
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:6084 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S261660AbVAYTYb (ORCPT
+	Tue, 25 Jan 2005 14:25:25 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:49538 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262079AbVAYTZI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 14:24:31 -0500
-Subject: UDF madness
-From: Attila Body <compi@freemail.hu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 21:24:45 +0000
-Message-Id: <1106688285.5297.3.camel@smiley>
+	Tue, 25 Jan 2005 14:25:08 -0500
+Date: Tue, 25 Jan 2005 20:25:20 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Andries Brouwer <aebr@win.tue.nl>, linux-input@atrey.karlin.mff.cuni.cz,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: i8042 access timings
+Message-ID: <20050125192519.GA2370@ucw.cz>
+References: <200501250241.14695.dtor_core@ameritech.net> <20050125105139.GA3494@pclin040.win.tue.nl> <d120d5000501251117120a738a@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000501251117120a738a@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Jan 25, 2005 at 02:17:33PM -0500, Dmitry Torokhov wrote:
+> On Tue, 25 Jan 2005 11:51:39 +0100, Andries Brouwer <aebr@win.tue.nl> wrote:
+> > On Tue, Jan 25, 2005 at 02:41:14AM -0500, Dmitry Torokhov wrote:
+> > 
+> > > Recently there was a patch from Alan regarding access timing violations
+> > > in i8042. It made me curious as we only wait between accesses to status
+> > > register but not data register. I peeked into FreeBSD code and they use
+> > > delays to access both registers and I wonder if that's the piece that
+> > > makes i8042 mysteriously fail on some boards.
+> > 
+> > You are following this much more closely than I do, but isn't the
+> > usual complaint "2.4 works, 2.6 fails"?
+> > 
+> 
+> Quite often it is but too much has changed in input layer to pinpoing
+> exact cause of the failure and I am open to any suggestions. Common
+> problems I see:
+> 
+> 1. ACPI sometimes interferes with i8042, especially battery status
+> polling. I am concerned about embedded controller access as well, it
+> looks like it takes sweet time to read/write data to it and ec.c does
+> it with interrupts disabled.
 
-I've spent some time (2 weekwnds) on this issue, while I was able to
-realize that not the packet-writing but the UDF driver is broken
+Furthermore, the EC and the i8042 are often the same chip, resulting in
+the i8042 not answering when EC is busy. Enabling interrupts won't help.
 
-here is the recipie to reproduve the issue:
+> 2. USB legacy emulation - we used to have PS/2 initialization in
+> GPM/Xfree which means that USB modules (if any) are already loaded and
+> requested handoff so results were very consistent. Now it all depends
+> on who's first. There were couple of PCI quirk patches doing early USB
+> handoff but they have not been applied out of fear breaking some
+> boxes. I wonder if there are concrete examples of such patches
+> breaking boxes, how many and whether DMI decode/workaround will be
+> beneficial for these.
 
-dd if=/dev/zer of=udf.img bs=1024k count=3000
-mkudffs udf.img
-mount -o loop udf.img /mnt/tmp
-cd /mnt/tmp
-tar xjvf /usr/src/linux-2.6.11-rc2
-cd /
-umount /mnt/tmp
+I still hope we could get those in after the handoff code is ironed out.
+It kept (keeps?) crashing some machines and not using USB is an easy way
+out of this if you don't have the handoff in the early init code.
 
-On the end I get a never ending umount process in D state. sysreq-T
-tells the following about the umount process:
+> Also, In 2.4 if BIOS detected PS/2 mouse we trusted it and did not do
+> any additional checks, now that i8042 is not x86 specific we do
+> everything by hand and it looks like some hardware is not expecting
+> it...
+
+We may be able to loosen the checks again now that 98% of machines do
+have the PS/2 mouse port if they have the AT keyboard port.
+
+> Still, I wonder if implementing these delays will give IO controller
+> better chances to react to our queries and will get rid of some
+> failures.
+
+Agreed. I'll check them tomorrow in detail and if I find them OK (I
+expect to), I'll merge the patch to my tree. Unfortunately I don't
+expect the delays themselves will fix much.
 
 
-
-umount        D C03F93E0     0  5848   5655                     (NOTLB)
-c797dd68 00200082 ca674560 c03f93e0 00000040 00000000 c81e327c 0000000c 
-       000ae62d 925f0dc0 000f43e3 ca674560 ca6746b0 c797c000 cebf184c
-00200282 
-       ca674560 c02ea6e0 cebf1854 00000001 ca674560 c01170c0 cebf1854
-cebf1854 
-Call Trace:
- [<c02ea6e0>] __down+0x90/0x110
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c017c511>] __mark_inode_dirty+0xd1/0x1c0
- [<c02ea8ab>] __down_failed+0x7/0xc
- [<e0d1fda0>] .text.lock.balloc+0x8/0x128 [udf]
- [<e0d25767>] udf_write_aext+0xf7/0x170 [udf]
- [<e0d1fbac>] udf_free_blocks+0xcc/0x100 [udf]
- [<e0d2cda4>] extent_trunc+0x124/0x180 [udf]
- [<e0d2d025>] udf_discard_prealloc+0x225/0x2e0 [udf]
- [<e0d21301>] udf_clear_inode+0x41/0x50 [udf]
- [<c017285e>] clear_inode+0xde/0x120
- [<c01728df>] dispose_list+0x3f/0xb0
- [<c0172a92>] invalidate_inodes+0x62/0x90
- [<c015e9ad>] generic_shutdown_super+0x5d/0x140
- [<c015f69d>] kill_block_super+0x2d/0x50
- [<c015e84d>] deactivate_super+0x6d/0x90
- [<c0175e6f>] sys_umount+0x3f/0xa0
- [<c014bc8d>] do_munmap+0x13d/0x180
- [<c014bd14>] sys_munmap+0x44/0x70
- [<c0175ee7>] sys_oldumount+0x17/0x20
- [<c0103263>] syscall_call+0x7/0xb
-
-any ideas (or patches?)
-
-Thanks,
-
-compi
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

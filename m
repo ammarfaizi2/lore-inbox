@@ -1,84 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261722AbREUHI6>; Mon, 21 May 2001 03:08:58 -0400
+	id <S261701AbREUHF7>; Mon, 21 May 2001 03:05:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261705AbREUHIs>; Mon, 21 May 2001 03:08:48 -0400
-Received: from lenka.ph.ipex.cz ([212.71.128.11]:60968 "EHLO lenka.ph.ipex.cz")
-	by vger.kernel.org with ESMTP id <S261722AbREUHIi>;
-	Mon, 21 May 2001 03:08:38 -0400
-Date: Mon, 21 May 2001 09:09:46 +0200
-From: Robert Vojta <vojta@ipex.cz>
-To: linux-kernel@vger.kernel.org
-Subject: 3c905C-TX [Fast Etherlink] problem ...
-Message-ID: <20010521090946.D769@ipex.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="dgjlcl3Tl+kb3YDk"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Telephone: +420 603 167 911
-X-Company: IPEX, s.r.o.
+	id <S261705AbREUHFs>; Mon, 21 May 2001 03:05:48 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:28832 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261701AbREUHFn>;
+	Mon, 21 May 2001 03:05:43 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15112.48708.639090.348990@pizda.ninka.net>
+Date: Mon, 21 May 2001 00:05:40 -0700 (PDT)
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <andrewm@uow.edu.au>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+In-Reply-To: <20010521034726.G30738@athlon.random>
+In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru>
+	<20010519155502.A16482@athlon.random>
+	<20010519231131.A2840@jurassic.park.msu.ru>
+	<20010520044013.A18119@athlon.random>
+	<3B07AF49.5A85205F@uow.edu.au>
+	<20010520154958.E18119@athlon.random>
+	<3B07CF20.2ABB5468@uow.edu.au>
+	<20010520163323.G18119@athlon.random>
+	<15112.26868.5999.368209@pizda.ninka.net>
+	<20010521034726.G30738@athlon.random>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---dgjlcl3Tl+kb3YDk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Andrea Arcangeli writes:
+ > On Sun, May 20, 2001 at 06:01:40PM -0700, David S. Miller wrote:
+ > > No, the interface says that the DMA routines may not return failure.
+ > 
+ > The alpha returns a faliure since day zero of iommu support, the sparc64
+ > has too otherwise it's even more buggy than alpha when the machine runs
+ > out of pci virtual address space.
 
-Hi,
-  I have this card in intranet server and I'm very confused about very often
-message in log like this:
+So what?  I frankly don't care what alpha or any platform happens to
+do.  The Documentation/DMA-mapping.txt document says absolutely
+nothing about these routines ever failing nor what a failure value
+would be.  If you ask David Mosberger and the ia64 people, the PPC
+folks, or even HPPA port team, they will all show no surprise when
+told that these routines may not fail.  I talked to them, along with
+Richard, about this issue at length when the DMA stuff was put
+together.  And it was agreed upon that the routines will not allow
+failure in 2.4.x and we would work on resolving this in 2.5.x and no
+sooner.
 
-eth0: Transmit error, Tx status register 82.
-  Flags; bus-master 1, dirty 20979238(6) current 20979242(10)
-  Transmit list 1f659290 vs. df659260.
-  0: @df659200  length 800005ea status 000105ea
-  1: @df659210  length 80000296 status 00010296
-  2: @df659220  length 800005ea status 000105ea
-  3: @df659230  length 80000296 status 00010296
-  4: @df659240  length 800005ea status 000105ea
-  5: @df659250  length 800005ea status 000105ea
-  6: @df659260  length 800005ea status 000105ea
-  7: @df659270  length 800005ea status 000105ea
-  8: @df659280  length 800005ea status 000105ea
-  9: @df659290  length 800005ea status 800005ea
-  10: @df6592a0  length 80000056 status 00010056
-  11: @df6592b0  length 8000005a status 0001005a
-  12: @df6592c0  length 800005ea status 000105ea
-  13: @df6592d0  length 80000296 status 00010296
-  14: @df6592e0  length 800005ea status 000105ea
-  15: @df6592f0  length 8000029a status 0001029a
+THIS DMA-mapping.txt document is the specification of the behavior of
+these DMA interfaces, and the driver author may only assume the
+behavior described in that document.
 
-  We have diskless machines and this is not a good thing, because when this
-happens all traffic is stopped, all diskless machines are waiting and users
-can't do nothing for several seconds (2-3 seconds). It's not critical, but
-it's not comfortable. I tried another card, tried kernels 2.2.16, 2.2.19,
-2.4.x series, change cable and still this problem. Any idea what may I do?
+If Alpha does something different, that's a feature.
 
-  .R.V.
+ > About the pci_map_single API I'd like if bus address 0 would not be the
+ > indication of faluire, mainly on platforms without an iommu that's not
+ > nice, x86 happens to get it right only because the physical page zero is
+ > reserved for completly other reasons. so we either add a err parameter
+ > to the pci_map_single, or we define a per-arch bus address to indicate
+ > an error, either ways are ok from my part.
 
-Card is 00:12.0 Ethernet controller: 3Com Corporation 3c905C-TX
-	[Fast Etherlink] (rev 74)
+I'm more than happy to add the per-arch define (which would be zero
+on all platforms right now, so this exercise is %100 academic :-)))))
 
---=20
-   _
-  |-|  __      Robert Vojta <vojta-at-ipex.cz>          -=3D Oo.oO =3D-
-  |=3D| [Ll]     IPEX, s.r.o.
-  "^" =3D=3D=3D=3D`o
+But I will NOT add the change that the pci_map_*() interfaces may
+fail in 2.4.x, this is an unacceptable API change.  Reasons are
+starting with the scsi layer issues Gerard mentioned, and I knew
+about this kind of crap when I designed the API.  We can work on a
+failure mode for this stuff, but it is 2.5.x material, no sooner.
 
---dgjlcl3Tl+kb3YDk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjsIvzoACgkQInNB3KDLeVMHCgCaA1gkw5+1KRCXG7vfsphHxoh+
-BBkAnAmfdwdVxOHrFJMoVlOW20cLr2Ev
-=2Ysy
------END PGP SIGNATURE-----
-
---dgjlcl3Tl+kb3YDk--
+Later,
+David S. Miller
+davem@redhat.com

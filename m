@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266841AbSLUI6k>; Sat, 21 Dec 2002 03:58:40 -0500
+	id <S266849AbSLUJBb>; Sat, 21 Dec 2002 04:01:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266842AbSLUI6k>; Sat, 21 Dec 2002 03:58:40 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:32213 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id <S266841AbSLUI6j>; Sat, 21 Dec 2002 03:58:39 -0500
-Date: Sat, 21 Dec 2002 10:06:42 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Reuben Farrelly <reuben-linux@reub.net>
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org, Robert Collins <robertc@squid-cache.org>
-Subject: Re: 2.4.20-aa and LARGE Squid process -> SIGSEGV
-Message-ID: <20021221090642.GD31070@charite.de>
-Mail-Followup-To: Reuben Farrelly <reuben-linux@reub.net>,
-	Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-	linux-kernel@vger.kernel.org,
-	Robert Collins <robertc@squid-cache.org>
-References: <20021221001334.GA7996@werewolf.able.es> <20021220114837.GC13591@charite.de> <20021220223754.GA10139@werewolf.able.es> <20021220225733.GE31070@charite.de> <20021221001334.GA7996@werewolf.able.es> <5.2.0.9.2.20021221191530.02ade850@tornado.reub.net>
+	id <S266852AbSLUJBb>; Sat, 21 Dec 2002 04:01:31 -0500
+Received: from MailBox.iNES.RO ([80.86.96.21]:62120 "EHLO MailBox.iNES.RO")
+	by vger.kernel.org with ESMTP id <S266849AbSLUJBa>;
+	Sat, 21 Dec 2002 04:01:30 -0500
+Subject: Re: [PATCH 2.4] : donauboe IrDA driver (resend)
+From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
+To: jt@hpl.hp.com
+Cc: Christian Gennerat <xgen@free.fr>, James McKenzie <james@fishsoup.dhs.org>,
+       Christian Gennerat <christian.gennerat@polytechnique.org>,
+       Martin Lucina <mato@kotelna.sk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E035BD4.9000304@free.fr>
+References: <20021219024632.GB1746@bougret.hpl.hp.com>
+	 <1040310314.1225.9.camel@localhost.localdomain>
+	 <20021219185630.GC6703@bougret.hpl.hp.com>
+	 <1040381739.1084.43.camel@localhost.localdomain> <3E035BD4.9000304@free.fr>
+Content-Type: text/plain
+Organization: iNES Advertising
+Message-Id: <1040462191.1641.2.camel@UserFriendly.LNX.RO>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.2.0.9.2.20021221191530.02ade850@tornado.reub.net>
-User-Agent: Mutt/1.5.1i
+X-Mailer: Ximian Evolution 1.2.0 (1.2.0-1) 
+Date: 21 Dec 2002 11:16:31 +0200
+Content-Transfer-Encoding: 7bit
+X-RAVMilter-Version: 8.4.1(snapshot 20020919) (MailBox.iNES.RO)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Reuben Farrelly <reuben-linux@reub.net>:
+On Vi, 2002-12-20 at 20:05, Christian Gennerat wrote:
+> The test shows that there is a deep misunderstanding of how works
+> MIR mode, and chaining blocks for optimization at MIR mode.
+> some people say "MIR works" . That is good for them.
+> I would prefer to have "#undef USE_MIR"
+> 
+> So, test is not necessary for every day use. Just put
+> options donauboe do_probe=0
+> in your /etc/modules.conf
 
-> No, squid is not br0ken in this fashion.  If squid cannot be allocated 
-> enough memory by the system, it logs a message and _dies_.  Relevant files 
-> to look at in your squid source are squid/lib/util.c for xcalloc() and 
-> xmalloc().
+Ok, so wouldn't make sense to make this the default for 2.4 ?
 
-Why can't squid allocate more than 1GB on a system with 2GB RAM?
- 
-> Aside from this, if squid ever does get to the point of swapping, it is 
-> misconfigured and your performance has just gone to hell anyway...  (see 
-> the FAQ at www.squid-cache.org)
+//Cioby
 
-It's not swapping. That's the whole point. We have 2GB and can use at
-most 1GB for Squid.
 
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-Microsoft: "Where do you want to go today?"
-Linux:     "Where do you want to be tomorrow?"
-BSD:       "Are you guys coming, or what?"
 

@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267593AbUHPMvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267597AbUHPMwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267593AbUHPMvo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 08:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267597AbUHPMvo
+	id S267597AbUHPMwp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 08:52:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267598AbUHPMwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 08:51:44 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:54212 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267593AbUHPMvm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 08:51:42 -0400
-Message-ID: <d577e56904081605514c3e987f@mail.gmail.com>
-Date: Mon, 16 Aug 2004 08:51:41 -0400
-From: Patrick McFarland <diablod3@gmail.com>
-Reply-To: Patrick McFarland <diablod3@gmail.com>
-To: "Robert M. Stockmann" <stock@stokkie.net>
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0408161444460.22623-100000@hubble.stokkie.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 16 Aug 2004 08:52:45 -0400
+Received: from mailfe04.swip.net ([212.247.154.97]:60159 "EHLO
+	mailfe04.swip.net") by vger.kernel.org with ESMTP id S267597AbUHPMwd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 08:52:33 -0400
+X-T2-Posting-ID: /sknEDxqgNYILdIqM8RWvsxa4S0yaaQlkxq/GXpTp0w=
+From: jjluza <jjluza@yahoo.fr>
+Reply-To: jjluza@yahoo.fr
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
+Date: Mon, 16 Aug 2004 14:52:44 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.44.0408161444460.22623-100000@hubble.stokkie.net>
+Message-Id: <200408161452.44400.jjluza@yahoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004 14:47:00 +0200 (CEST), Robert M. Stockmann
-<stock@stokkie.net> wrote:
-> On Mon, 16 Aug 2004, Patrick McFarland wrote:
-> 
-> > On Fri, 13 Aug 2004 04:39:46 +0200 (CEST), Robert M. Stockmann
-> > <stock@stokkie.net> wrote:
-> > > On Thu, 12 Aug 2004, Jens Axboe wrote:
-> > >
-> > > > On Thu, Aug 12 2004, Robert M. Stockmann wrote:
-> > > > > On Thu, 12 Aug 2004, Jens Axboe wrote:
-> > > > >
-> > > > > > On Thu, Aug 12 2004, Robert M. Stockmann wrote:
-> > > > > > > On Thu, 12 Aug 2004, Jens Axboe wrote:
-> > > > > > >
-> > > > > > > > On Thu, Aug 12 2004, Robert M. Stockmann wrote:
-> > > > > > > > > On Thu, 12 Aug 2004, Frank Steiner wrote:
-> > > > > > > > >
-> > > > > > > > > > Robert M. Stockmann wrote:
-> >
-> > Have you ever heard of trimming replies?
-> >
-> > 
-> Yes i do, in important matters, i explicit do not.
+It fails here at compile time with :
 
-Flaming Mr. Axboe in public is important?
+arch/i386/kernel/built-in.o(.text+0x2fc5): In function `do_nmi':
+: undefined reference to `__trace'
+arch/i386/kernel/built-in.o(.text+0x3723): In function `do_IRQ':
+: undefined reference to `__trace'
+arch/i386/mm/built-in.o(.text+0x7ba): In function `do_page_fault':
+: undefined reference to `__trace'
+make[1]: *** [vmlinux] Erreur 1
+make[1]: Leaving directory `/usr/src/linux-2.6.8'
+make: *** [stamp-build] Erreur 2
 
--- 
-Patrick "Diablo-D3" McFarland || diablod3@gmail.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
-all be running around in darkened rooms, munching magic pills and listening to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1337
+
+I also got offset when applying the patch. (P1 hadn't this problem)
+
+
+Regards.

@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131510AbQKATbT>; Wed, 1 Nov 2000 14:31:19 -0500
+	id <S131551AbQKATgB>; Wed, 1 Nov 2000 14:36:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131551AbQKATbK>; Wed, 1 Nov 2000 14:31:10 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:11771 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131510AbQKATaz>; Wed, 1 Nov 2000 14:30:55 -0500
-Date: Wed, 1 Nov 2000 17:30:31 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Dennis Bjorklund <dennisb@cs.chalmers.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Broadcast
-In-Reply-To: <Pine.SOL.4.21.0011012010340.19399-100000@muppet17.cs.chalmers.se>
-Message-ID: <Pine.LNX.4.21.0011011729500.6740-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131566AbQKATfx>; Wed, 1 Nov 2000 14:35:53 -0500
+Received: from f14.law9.hotmail.com ([64.4.9.14]:34834 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S131551AbQKATfj>;
+	Wed, 1 Nov 2000 14:35:39 -0500
+X-Originating-IP: [208.5.125.50]
+From: "KJ Pickett" <pc_pimp@hotmail.com>
+To: eepro100@scyld.com, linux-kernel@vger.kernel.org
+Subject: 2.2.18p18 eepro100 issues (packets per irq, shared irqs)
+Date: Wed, 01 Nov 2000 19:35:32 GMT
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F14h29cM3oryKFRJrzd00005763@hotmail.com>
+X-OriginalArrivalTime: 01 Nov 2000 19:35:32.0356 (UTC) FILETIME=[E5FA6C40:01C0443A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000, Dennis Bjorklund wrote:
+First of all I would like to say that 2.2.18p18 does not have the 'card 
+reports no resources' messages when I saturate the 100mbit network anymore.
 
-> I'm trying to turn of the broadcast flag for a network card. But
-> I can't, why??
+But I was wondering about two things:
+I have a 815EE board, which has an onboard eepro100 and a pci eepro100.  
+They share an irq, no matter if I'm using intels e100.o driver or the stock 
+linux one.  For performance reasons, can I make them each have a different 
+irq?  Doing it from ifconfig gives me a notsupported error, with either 
+driver.
 
-Because ethernet is a broadcast medium (in contrast
-to P-t-P media)
+Also: VMSTAT output, comparing stock linux driver with intel.  Heres the 
+stock linux:
 
-> eth1      Link encap:Ethernet  HWaddr 00:50:BA:6E:76:63  
->           inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
->           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+1  0  0      0  31836  67632  13240   0   0     0     0 24015 47215  20  15  
+65
+1  0  0      0  31836  67632  13240   0   0     0     1 24016 47016  21  16  
+64
 
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
+The card is recv'ng 24k packets per second, and seeing that many irqs.  The 
+intel driver does 6 per irq, and vmstat from that driver (not posted, but I 
+remember what it was) shows 6 times less irq/sec and cs/sec.  Even though, 
+it appears the stock linux driver is supposed to do 20 things per irq?  I am 
+no kernel hacker...can I get the stock linux driver to do multiple packets 
+per irq with some config settings?
 
-http://www.conectiva.com/		http://www.surriel.com/
+Thanks,
+
+Karl Pickett
+(Posting from hotmail since I cant use my companies email address)
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
+
+Share information about yourself, create your own public profile at 
+http://profiles.msn.com.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

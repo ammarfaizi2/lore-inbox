@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbTIDWfk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 18:35:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbTIDWfj
+	id S265631AbTIDWea (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 18:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265634AbTIDWea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 18:35:39 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:28640 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S261950AbTIDWfd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 18:35:33 -0400
-Date: Thu, 4 Sep 2003 15:35:30 -0700
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: problem with IRDA
-Message-ID: <20030904223530.GA6847@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	Thu, 4 Sep 2003 18:34:30 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:26373 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265631AbTIDWeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 18:34:01 -0400
+Subject: Re: [PATCH] fix remap of shared read only mappings
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030904214810.GG31590@mail.jlokier.co.uk>
+References: <1062686960.1829.11.camel@mulgrave> 
+	<20030904214810.GG31590@mail.jlokier.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 04 Sep 2003 18:33:48 -0400
+Message-Id: <1062714829.2161.384.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juraj wrote :
->
-> Sep  4 22:20:44 nezabudka kernel: irlap_adjust_qos_settings(), Detected buggy peer, adjust mtt to 10us!
->
+On Thu, 2003-09-04 at 17:48, Jamie Lokier wrote:
+> One last thought: this is what PROT_SEM is for.  Linux doesn't use
+> this in any useful way.  But, technically, mmap with MAP_SHARED ad
+> PROT_SEM should enable cache coherence, and that might include
+> aligning the address.  Without PROT_SEM an application should not rely
+> on cache coherence.
 
-	Buggy Ericsson phone -> check my web page.
+I'm not familiar with the PROT_SEM flag.  I don't believe it to be
+defined in POSIX.
 
-	Jean
+However, POSIX does imply levels of cache coherence for both MAP_SHARED
+and MAP_PRIVATE:
+
+With MAP_SHARED, any change to the underlying object after the mapping
+must become visible to the mapper (although the change may be delayed by
+local caching of the changer's implementation until it is explicitly
+flushed).
+
+With MAP_PRIVATE it is undefined what happens if the underlying object
+is changed after mapping.
+
+So regardless of PROT_SEM we have no choice but to worry about cache
+coherence issues on MAP_SHARED mappings.
+
+James
+
+

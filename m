@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282948AbRLDJZO>; Tue, 4 Dec 2001 04:25:14 -0500
+	id <S282970AbRLDJ2E>; Tue, 4 Dec 2001 04:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282958AbRLDJY6>; Tue, 4 Dec 2001 04:24:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42256 "EHLO
+	id <S282983AbRLDJ15>; Tue, 4 Dec 2001 04:27:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45328 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283000AbRLDJYs>; Tue, 4 Dec 2001 04:24:48 -0500
-Subject: Re: [PATCH] 2.4.16: kmalloc tidying
-To: ragnar@ragnar-hojland.com (Ragnar Hojland Espinosa)
-Date: Tue, 4 Dec 2001 09:33:46 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011203193751.A10125@ragnar-hojland.com> from "Ragnar Hojland Espinosa" at Dec 03, 2001 07:37:51 PM
+	id <S282970AbRLDJ1q>; Tue, 4 Dec 2001 04:27:46 -0500
+Subject: Re: [Linux-ia64] patch to no longer use ia64's software mmu
+To: davidm@hpl.hp.com
+Date: Tue, 4 Dec 2001 09:36:33 +0000 (GMT)
+Cc: arjanv@redhat.com (Arjan van de Ven), linux-kernel@vger.kernel.org,
+        linux-ia64@linuxia64.org, marcelo@conectiva.com.br, davem@redhat.com
+In-Reply-To: <15371.62205.231945.798891@napali.hpl.hp.com> from "David Mosberger" at Dec 03, 2001 01:47:41 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16BBxS-0001Pn-00@the-village.bc.nu>
+Message-Id: <E16BC09-0001Ql-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +++ linux-2.4.16/drivers/sbus/char/envctrl.c	Tue Nov 13 05:31:02 2001
-> @@ -897,10 +897,6 @@ static void envctrl_init_i2c_child(struc
->  		}
-> =20
->                  pchild->tables =3D kmalloc(tbls_size, GFP_KERNEL);
-> -		if (!pchild->tables) {
-> -			printk("envctrl: Failed to get table, not enough memory.\n");
+> Another concern I have is that, fundamentally, I dislike the idea of
+> penalizing all IA-64 platforms due to one chipset that is, shall we
+> say, "lacking" (i.e., doesn't have an I/O TLB).
 
-Why are you removing the checks here ?
+Allow me to introduce to you the concept of CONFIG_ options 8) It makes a
+lot of sense to have a generic IA64 kernel, and an IA64 designed by people
+with a brain kernel.
 
->  	current->mm->rss =3D 0;
-> -	setup_arg_pages(bprm); /* XXX: check error */
-> +	retval =3D setup_arg_pages(bprm);
-> +	if (retval)=20
-> +		goto out_free_dentry;
-
-At this point you need to do more drastic things - see the last -ac patch
-for a possible solution
+Alan

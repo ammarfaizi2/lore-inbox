@@ -1,197 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267813AbTAHOf7>; Wed, 8 Jan 2003 09:35:59 -0500
+	id <S267808AbTAHOeq>; Wed, 8 Jan 2003 09:34:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267814AbTAHOf7>; Wed, 8 Jan 2003 09:35:59 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:62478 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id <S267813AbTAHOfz>; Wed, 8 Jan 2003 09:35:55 -0500
-Date: Wed, 8 Jan 2003 09:44:33 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: root@oddball.prodigy.com
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BUG] 2.5.54 sound fails to compile (cmi8330.c)
-Message-ID: <Pine.LNX.4.44.0301080941450.15948-101000@oddball.prodigy.com>
+	id <S267813AbTAHOeq>; Wed, 8 Jan 2003 09:34:46 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:27307 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S267808AbTAHOeq>; Wed, 8 Jan 2003 09:34:46 -0500
+Date: Wed, 8 Jan 2003 15:43:27 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: Wichert Akkerman <wichert@wiggy.net>
+Cc: netdev@oss.sgi.com, <linux-kernel@vger.kernel.org>
+Subject: Re: ipv6 stack seems to forget to send ACKs
+In-Reply-To: <20030108130850.GQ22951@wiggy.net>
+Message-ID: <Pine.LNX.4.44.0301081535460.27551-100000@dns.toxicfilms.tv>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-787695790-1042037073=:15948"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+I had no problems listening to the stream, except a gap after about 3mins.
+tcpdump showed the client closed the connection, and quickly initiated a
+new one. Since then i had 15mins of nonstop playback and it stopped,
+similarily to your dump.
 
---8323328-787695790-1042037073=:15948
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+The tcpdump is similar to yours, except i do not have traffic class info.
+And rarely sack was used.
 
-Log of error message follows, config attached (gzipped). This built for 
-2.5.5[23].
+Is there a ip6 mangling router in your route to the icecast server?
 
-make -f scripts/Makefile.build obj=sound/isa
-  gcc -Wp,-MD,sound/isa/.cmi8330.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    -DKBUILD_BASENAME=cmi8330 -DKBUILD_MODNAME=snd_cmi8330   -c -o sound/isa/cmi8330.o sound/isa/cmi8330.c
-sound/isa/cmi8330.c: In function `snd_cmi8330_isapnp':
-sound/isa/cmi8330.c:226: warning: implicit declaration of function `isapnp_find_dev'
-sound/isa/cmi8330.c:226: warning: assignment makes pointer from integer without a cast
-sound/isa/cmi8330.c:227: structure has no member named `active'
-sound/isa/cmi8330.c:231: warning: assignment makes pointer from integer without a cast
-sound/isa/cmi8330.c:232: structure has no member named `active'
-sound/isa/cmi8330.c:238: structure has no member named `prepare'
-sound/isa/cmi8330.c:242: warning: implicit declaration of function `isapnp_resource_change'
-sound/isa/cmi8330.c:248: structure has no member named `activate'
-sound/isa/cmi8330.c:258: structure has no member named `prepare'
-sound/isa/cmi8330.c:259: structure has no member named `deactivate'
-sound/isa/cmi8330.c:271: structure has no member named `activate'
-sound/isa/cmi8330.c:273: structure has no member named `deactivate'
-sound/isa/cmi8330.c: In function `snd_cmi8330_deactivate':
-sound/isa/cmi8330.c:287: structure has no member named `deactivate'
-sound/isa/cmi8330.c:291: structure has no member named `deactivate'
-sound/isa/cmi8330.c: In function `alsa_card_cmi8330_init':
-sound/isa/cmi8330.c:489: warning: implicit declaration of function `isapnp_probe_cards'
-make[2]: *** [sound/isa/cmi8330.o] Error 1
-make[1]: *** [sound/isa] Error 2
-make: *** [sound] Error 2
+I have been listening on an ip6 enabled host behind my ip6 tunnelling
+router to my MAN.
 
---8323328-787695790-1042037073=:15948
-Content-Type: APPLICATION/x-gzip; name="bug.cfg.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0301080941451.15948@oddball.prodigy.com>
-Content-Description: 
-Content-Disposition: attachment; filename="bug.cfg.gz"
+Client: linux-2.4.21-pre1
+Router: linux-2.4.20-grsec
 
-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
-K8qPqUUVkg2sFouF3XsZ50Qs98d1epKo3l+LnhpCdqXvRAaXGzam99Kp47iQ
-5u6a+JfjpWB5hD3X8Zfbp7flU5Ir/VxpdckQRb66/8/6sOv1Ov2/3P/kxgUE
-+n25fhoft1vmL0goEN19iOiuc5uo12l8hKj5EaIPdfcBwXvdj8jUdT9C9BHB
-u62PELU/QvQRFVhemJSI+reJ+q0PcOp/ZIL7rQ/oqd/+gEy9O7ueYH/Tth/3
-brNxmx8RG6jcm73dpmjepGjdpLg96s5Niu5NirubFP3b+rg9GPf2aFz7cCac
-9uKwHh1Z0ZEa9ip+fLRfvj6vHw/Gi6wDy8GcjsQl8UtfZnD64qTtYQfb9Gp9
-eNWPyrO0qVqumY6QqRTEvAvYdnkg1+z0Tultu8qVtXTp+Yzjr8k2IzjFDYUq
-SVqkFvoSTPVUZPXPcvuYrBx/vX37fWKB9o/P62PyqL/OKNdhkD9kAo6SPET6
-C2QKVckTIhuCaaMHPJdSf8VIkRsk/fqbLPJ31TRYYFYFXno+oQq9Q1KtYKiW
-WA4ITrdMs6rdxEpmvqudfu/V+tGUuaWNysMu9kxDRi3nk6kOlEBTK/ZUs4zc
-bqfTsKiWiajdcC+VO4lsgiLP7bm2BxUnfLtnRWPZbrbcenSzHt21oonsd3s1
-WLfbq0Vbn2bos5pIYh9JaXtplJFAUhASRupIGLJ3kgbj1tJAgSKWamCl0u9o
-+835rck4k92YlJSsNbdYjhz0Sots4HYrK3uAZvZB6RYghLAS6AEPQx4ou9n5
-0nq7QqO/K7Arm/FjRnutVqMstKcabt82bC78lkTNykBHyEfzRTUdwNS6onza
-aXdq10S3xjD15PVci5TgLt3GxC1LOeHhyG269oUWsGbHvs4gX6xZpIDtd+ux
-HXvrsVdjB0p/XUmNFSzY0HoXIDOSdqPGSsAO6pqTQLqtO5sRZdiKqsGt9Fu1
-XqfOZzFE9EXJlpVgyHoNu+lQTNy74jSXfInfm1fsXvKA4ikdWG7QZhsS6pW+
-RSELC3zYOSI5sNk6oGIUmS5L6EaVIAiAeeF0a/PuytaH/2/k+prbBmH4V8lH
-aLfmlj1iTAKL/x3gptlLzku8Njc33iXOQ7/9EDiObcDdQ3NXScgYBEboJ+3L
-qipOZX29aF1WAo9pDPDM4XUA0AOUhBvmS53ULbcJihmGO6+UC2fvaX1p4HjX
-nOuqUkc6K2wOegjFbEdx2L/1A3ra0r0dyB0C3aPbQD2uisvFhURwDvtwBKKc
-yDSVdAw+Gkh5DyH6ATj28tpApytrSXEhNU45VfdIYo/YlUsa6OuYSKIlCrzP
-vcktOSG+aEdfjonQh3wcPDbDn+ui2ULpKj+VE2HIH77/l5jnnqMv9iOPM0FT
-6TbR63txmrEbiOde94uyYd0v0EiZ29iAHtSKeqtd5bM4H4pDW5I3WqpNiWWS
-rL3sDZqaS13aLvaljILEywiN0b0aey9ee5i08QvFIV5MWQdGSeLxH8zqwRDw
-9L8XzdSvMzMTOjcd/tGbFApAcNz4+Xgo6yfjqN3yKUGmLA/KgYMqUk71ve24
-68Ptprk4FH+b2p5yjCT2vh4OMRkXXxsajDokTuzBGVkhkQsvn8to8Tj3z4/6
-S4h7Yegx8ZhxLsS3Lw/OZi1yRW36qmEzcOOHlmGhjO6zOvhyebog2SryL5ac
-cLFBkX+xcZbOJ+w24NHzamJaoonPkiTCHtGgupaN2iHeXOMR2PJqI/l9rGDh
-OeQzni4BPWt/9NeAYq5mb8X+j0ni6EI/UDxjDbkJvbsCQxUS4XWqPHlILhmG
-kjQ78nxMDJulyhN3oRFiBInsYit0Ra6x0owlEJdwtFujKBLbWPgbqS4R4op8
-LDmKoY6nQRDd7nrKvanIfT/+9AAtOOdM2r4JPn+oxfxqLrrsgxPm20z2QInm
-/x01OZS9AKUmJ3nkKtrYcuPwyVIUh3OLJih6dBGVV2KRw37+Z0sLNHRcUIsh
-N6mTDmBKkkhbnuiiQqa6+PHXuTh/zM71tTmehtsv5vir65z9M2KBOmiPUNua
-amG5dWVkloodJ5B0rPryD8gwtYnxXQAA
---8323328-787695790-1042037073=:15948--
+I have to go now, i will look into that later.
+
+Regards,
+Maciej
+
+

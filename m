@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317544AbSHKSVV>; Sun, 11 Aug 2002 14:21:21 -0400
+	id <S317845AbSHKSYv>; Sun, 11 Aug 2002 14:24:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317638AbSHKSVV>; Sun, 11 Aug 2002 14:21:21 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:10484 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317544AbSHKSVV>; Sun, 11 Aug 2002 14:21:21 -0400
-Subject: Re: Linux 2.4.20-pre1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: andersen@codepoet.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020811085717.GA17738@codepoet.org>
-References: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva> 
-	<20020811085717.GA17738@codepoet.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 11 Aug 2002 20:46:19 +0100
-Message-Id: <1029095179.16236.16.camel@irongate.swansea.linux.org.uk>
+	id <S317799AbSHKSYu>; Sun, 11 Aug 2002 14:24:50 -0400
+Received: from cust.88.114.adsl.cistron.nl ([195.64.88.114]:18439 "EHLO
+	gw.wurtel.net") by vger.kernel.org with ESMTP id <S317845AbSHKSYu>;
+	Sun, 11 Aug 2002 14:24:50 -0400
+Date: Sun, 11 Aug 2002 20:28:33 +0200
+From: Paul Slootman <paul@debian.org>
+To: linux-kernel@vger.kernel.org, debian-alpha@lists.debian.org
+Subject: Re: 2.4.19 eat my disc (contents)
+Message-ID: <20020811182832.GA21639@wurtel.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	debian-alpha@lists.debian.org
+References: <20020811175252.GB755@gallifrey>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020811175252.GB755@gallifrey>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-11 at 09:57, Erik Andersen wrote:
-> On Mon Aug 05, 2002 at 07:40:56PM -0300, Marcelo Tosatti wrote:
-> > 
-> > So here goes -pre1, with a big -ac and x86-64 merges, plus other smaller
-> > stuff.
-> [------------snip------------]
-> > <alan@irongate.swansea.linux.org.uk> (02/08/05 1.629)
-> > 	[PATCH] PATCH: Add EFI partition support
-> 
-> Needs this to compile....
-> 
-> --- linux/include/asm-ia64/efi.h.orig	Sun Aug 11 01:41:10 2002
-> +++ linux/include/asm-ia64/efi.h	Sun Aug 11 01:43:38 2002
-> @@ -166,6 +166,9 @@
->   *  EFI Configuration Table and GUID definitions
->   */
->  
-> +#define NULL_GUID    \
-> +    ((efi_guid_t) { 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x0, 0x00, 0x00, 0x00, 0x00, 0x00 }})
-> +
+On Sun 11 Aug 2002, Dr. David Alan Gilbert wrote:
 
-Not a good plan. EFI can be used on non ia64 so NULL_GUID belongs
-somewhere else
+>   I've just lost the contents of my disc on my Alpha to 2.4.19 - be
 
+That's not absolutely sure...
+
+> All tools were from Debian/unstable; updated immediatly prior to the 
+> kernel build.
+
+It could of course be that during the update something trashed some
+part of the disk, which only made itself apparent after the reboot.
+
+Golden rule: only change one thing at a time...
+
+My alpha's been running 2.4.19-rc2 for more than 3 weeks now without any
+problems (the kernel also has my patches against unaligned accesses in
+the kernel, for the packet filter and for netfilter).  I don't think
+anything big would have been changed between rc2 and the final release,
+so unless it's specific to the IDE driver (I use SCSI) I doubt the
+kernel is the culprit.
+
+Of course, this isn't any comfort for you; sorry about your trashed
+system...
+
+
+Paul Slootman

@@ -1,73 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264267AbTLYCtn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 21:49:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbTLYCtn
+	id S264275AbTLYDGp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 22:06:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264277AbTLYDGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 21:49:43 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:7614 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S264267AbTLYCtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 21:49:42 -0500
-Date: Thu, 25 Dec 2003 10:43:52 +0800 (CST)
-From: "Zhu, Yi" <yi.zhu@intel.com>
-X-X-Sender: chuyee@mazda.sh.intel.com
-Reply-To: "Zhu, Yi" <yi.zhu@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix make kernel rpm bug
-In-Reply-To: <Pine.LNX.4.44.0312101340050.19835-100000@mazda.sh.intel.com>
-Message-ID: <Pine.LNX.4.44.0312251035320.16217-100000@mazda.sh.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Dec 2003 22:06:45 -0500
+Received: from [211.167.76.68] ([211.167.76.68]:32200 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S264275AbTLYDGl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 22:06:41 -0500
+Date: Thu, 25 Dec 2003 10:59:16 +0800
+From: Hugang <hugang@soulinfo.com>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: Bart Samwel <bart@samwel.tk>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] laptop-mode for 2.6, version 2
+Message-Id: <20031225105916.67e74599.hugang@soulinfo.com>
+In-Reply-To: <16361.41348.444243.919179@laputa.namesys.com>
+References: <3FE92517.1000306@samwel.tk>
+	<20031224215120.66b74f66.hugang@soulinfo.com>
+	<16361.41348.444243.919179@laputa.namesys.com>
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Thu__25_Dec_2003_10_59_16_+0800_6GObFkTbfJZq7yjo"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+This is a multi-part message in MIME format.
 
-Below two lines patch makes the rpm rule in top Makefile be aware of
-$(ARCH). The old rule will make wrong rpm if ARCH is not the same as
-the build machine.
+--Multipart=_Thu__25_Dec_2003_10_59_16_+0800_6GObFkTbfJZq7yjo
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
+On Wed, 24 Dec 2003 17:24:04 +0300
+Nikita Danilov <Nikita@Namesys.COM> wrote:
 
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	Wed Dec 10 13:47:52 2003
-+++ b/Makefile	Wed Dec 10 13:47:52 2003
-@@ -872,7 +872,7 @@
- 	$(CONFIG_SHELL) $(srctree)/scripts/mkversion > $(objtree)/.tmp_version;\
- 	mv -f $(objtree)/.tmp_version $(objtree)/.version;
- 
--	$(RPM) -ta ../$(KERNELPATH).tar.gz
-+	$(RPM) --target $(ARCH) -ta ../$(KERNELPATH).tar.gz
- 	rm ../$(KERNELPATH).tar.gz
- 
- # Brief documentation of the typical targets used
-diff -Nru a/scripts/mkspec b/scripts/mkspec
---- a/scripts/mkspec	Wed Dec 10 13:47:52 2003
-+++ b/scripts/mkspec	Wed Dec 10 13:47:52 2003
-@@ -9,7 +9,7 @@
- #	Patched for non-x86 by Opencon (L) 2002 <opencon@rio.skydome.net>
- #
- # That's the voodoo to see if it's a x86.
--ISX86=`arch | grep -ie i.86`
-+ISX86=`echo ${ARCH:=\`arch\`} | grep -ie i.86`
- if [ ! -z $ISX86 ]; then
- 	PC=1
- else
+> +int reiserfs_default_max_commit_age = -1;
+> +
+> 
+> I am not sure that global variable is a good idea here. What if several
+> file systems are mounted? You should either pass value as an argument to
+> the journal initialization code, or just initialize
+> SB_JOURNAL_MAX_COMMIT_AGE(sb) when parsing options.
 
+this patch do it, pls check.
 
-Thanks,
-
+thanks.
 
 -- 
------------------------------------------------------------------
-Opinions expressed are those of the author and do not represent
-Intel Corp.
+Hu Gang / Steve
+RLU#          : 204016 [1999] (Registered Linux user)
+GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc
 
-Zhu Yi (Chuyee)
+--Multipart=_Thu__25_Dec_2003_10_59_16_+0800_6GObFkTbfJZq7yjo
+Content-Type: application/octet-stream;
+ name="reiserfs_laptop_mode"
+Content-Disposition: attachment;
+ filename="reiserfs_laptop_mode"
+Content-Transfer-Encoding: base64
 
-GnuPG v1.0.6 (GNU/Linux)
-http://cn.geocities.com/chewie_chuyee/gpg.txt or
-$ gpg --keyserver wwwkeys.pgp.net --recv-keys 71C34820
-1024D/71C34820 C939 2B0B FBCE 1D51 109A  55E5 8650 DB90 71C3 4820
+SW5kZXg6IGxpbnV4LTIuNi4wL2luY2x1ZGUvbGludXgvcmVpc2VyZnNfZnMuaAo9PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+Ci0tLSBsaW51eC0yLjYuMC9pbmNsdWRlL2xpbnV4L3JlaXNlcmZzX2ZzLmgJKHJldmlzaW9uIDk0
+KQorKysgbGludXgtMi42LjAvaW5jbHVkZS9saW51eC9yZWlzZXJmc19mcy5oCSh3b3JraW5nIGNv
+cHkpCkBAIC0xNzE5LDcgKzE3MTksNyBAQAogdm9pZCByZWlzZXJmc19jaGVja19sb2NrX2RlcHRo
+KGNoYXIgKmNhbGxlcikgOwogdm9pZCByZWlzZXJmc19wcmVwYXJlX2Zvcl9qb3VybmFsKHN0cnVj
+dCBzdXBlcl9ibG9jayAqLCBzdHJ1Y3QgYnVmZmVyX2hlYWQgKmJoLCBpbnQgd2FpdCkgOwogdm9p
+ZCByZWlzZXJmc19yZXN0b3JlX3ByZXBhcmVkX2J1ZmZlcihzdHJ1Y3Qgc3VwZXJfYmxvY2sgKiwg
+c3RydWN0IGJ1ZmZlcl9oZWFkICpiaCkgOwotaW50IGpvdXJuYWxfaW5pdChzdHJ1Y3Qgc3VwZXJf
+YmxvY2sgKiwgY29uc3QgY2hhciAqIGpfZGV2X25hbWUsIGludCBvbGRfZm9ybWF0KSA7CitpbnQg
+am91cm5hbF9pbml0KHN0cnVjdCBzdXBlcl9ibG9jayAqLCBjb25zdCBjaGFyICogal9kZXZfbmFt
+ZSwgaW50IG9sZF9mb3JtYXQsIHVuc2lnbmVkIGludCkgOwogaW50IGpvdXJuYWxfcmVsZWFzZShz
+dHJ1Y3QgcmVpc2VyZnNfdHJhbnNhY3Rpb25faGFuZGxlKiwgc3RydWN0IHN1cGVyX2Jsb2NrICop
+IDsKIGludCBqb3VybmFsX3JlbGVhc2VfZXJyb3Ioc3RydWN0IHJlaXNlcmZzX3RyYW5zYWN0aW9u
+X2hhbmRsZSosIHN0cnVjdCBzdXBlcl9ibG9jayAqKSA7CiBpbnQgam91cm5hbF9lbmQoc3RydWN0
+IHJlaXNlcmZzX3RyYW5zYWN0aW9uX2hhbmRsZSAqLCBzdHJ1Y3Qgc3VwZXJfYmxvY2sgKiwgdW5z
+aWduZWQgbG9uZykgOwpJbmRleDogbGludXgtMi42LjAvZnMvcmVpc2VyZnMvc3VwZXIuYwo9PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09Ci0tLSBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9zdXBlci5jCShyZXZpc2lvbiA5NCkK
+KysrIGxpbnV4LTIuNi4wL2ZzL3JlaXNlcmZzL3N1cGVyLmMJKHdvcmtpbmcgY29weSkKQEAgLTY0
+NSw3ICs2NDUsOCBAQAogCQkJCSAgICAgIGNvbGxlY3Rpb24gb2YgYml0ZmxhZ3MgZGVmaW5pbmcg
+d2hhdAogCQkJCSAgICAgIG1vdW50IG9wdGlvbnMgd2VyZSBzZWxlY3RlZC4gKi8KIAkJCQkgICB1
+bnNpZ25lZCBsb25nICogYmxvY2tzLCAvKiBzdHJ0b2wtZWQgZnJvbSBOTk4gb2YgcmVzaXplPU5O
+TiAqLwotCQkJCSAgIGNoYXIgKiogamRldl9uYW1lKQorCQkJCSAgIGNoYXIgKiogamRldl9uYW1l
+LCAKKwkJCQkgICB1bnNpZ25lZCBpbnQgKiBjb21taXRfbWF4X2FnZSkKIHsKICAgICBpbnQgYzsK
+ICAgICBjaGFyICogYXJnID0gTlVMTDsKQEAgLTY2Miw2ICs2NjMsNyBAQAogCXsicmVzaXplIiwg
+J3InLCAwLCAwLCAwfSwKIAl7ImpkZXYiLCAnaicsIDAsIDAsIDB9LAogCXsibm9sYXJnZWlvIiwg
+J3cnLCAwLCAwLCAwfSwKKwl7ImNvbW1pdCIsICdjJywgMCwgMCwgMH0sCiAJe05VTEwsIDAsIDAs
+IDAsIDB9CiAgICAgfTsKIAkKQEAgLTY5MCw2ICs2OTIsMTkgQEAKIAkgICAgfQogCX0KIAorCWlm
+ICggYyA9PSAnYycgKSB7CisJCWNoYXIgKnAgPSAwOworCQlpbnQgdmFsID0gc2ltcGxlX3N0cnRv
+dWwgKGFyZywgJnAsIDApOworCisJCWlmICggKnAgIT0gJ1wwJykgeworCQkJcHJpbnRrICgicmVp
+c2VyZnNfcGFyc2Vfb3B0aW9uczogYmFkIHZhbHVlICVzXG4iLCBhcmcpOworCQkJcmV0dXJuIDA7
+CisJCX0KKwkJaWYgKCB2YWwgKSB7CisJCQkqY29tbWl0X21heF9hZ2UgPSB2YWw7CisJCX0KKwl9
+CisKIAlpZiAoIGMgPT0gJ3cnICkgewogCQljaGFyICpwPTA7CiAJCWludCB2YWwgPSBzaW1wbGVf
+c3RydG91bCAoYXJnLCAmcCwgMCk7CkBAIC03NDMsMTAgKzc1OCwxMSBAQAogICB1bnNpZ25lZCBs
+b25nIGJsb2NrczsKICAgdW5zaWduZWQgbG9uZyBtb3VudF9vcHRpb25zID0gUkVJU0VSRlNfU0Io
+cyktPnNfbW91bnRfb3B0OwogICB1bnNpZ25lZCBsb25nIHNhZmVfbWFzayA9IDA7CisgIHVuc2ln
+bmVkIGludCBjb21taXRfbWF4X2FnZSA9IC0xOwogCiAgIHJzID0gU0JfRElTS19TVVBFUl9CTE9D
+SyAocyk7CiAKLSAgaWYgKCFyZWlzZXJmc19wYXJzZV9vcHRpb25zKHMsIGFyZywgJm1vdW50X29w
+dGlvbnMsICZibG9ja3MsIE5VTEwpKQorICBpZiAoIXJlaXNlcmZzX3BhcnNlX29wdGlvbnMocywg
+YXJnLCAmbW91bnRfb3B0aW9ucywgJmJsb2NrcywgTlVMTCwgJmNvbW1pdF9tYXhfYWdlKSkKICAg
+ICByZXR1cm4gLUVJTlZBTDsKICAgCiAgIGhhbmRsZV9hdHRycyhzKTsKQEAgLTc2NCw2ICs3ODAs
+MTAgQEAKICAgICogdGhlIGJpdHMgd2UncmUgbm90IGFsbG93ZWQgdG8gY2hhbmdlIGhlcmUgKi8K
+ICAgUkVJU0VSRlNfU0IocyktPnNfbW91bnRfb3B0ID0gKFJFSVNFUkZTX1NCKHMpLT5zX21vdW50
+X29wdCAmIH5zYWZlX21hc2spIHwgIChtb3VudF9vcHRpb25zICYgc2FmZV9tYXNrKTsKIAorICBp
+Zihjb21taXRfbWF4X2FnZSAhPSAtMSkgeworCSAgU0JfSk9VUk5BTF9NQVhfQ09NTUlUX0FHRShz
+KSA9IGNvbW1pdF9tYXhfYWdlOworICB9CisKICAgaWYoYmxvY2tzKSB7CiAgICAgaW50IHJjID0g
+cmVpc2VyZnNfcmVzaXplKHMsIGJsb2Nrcyk7CiAgICAgaWYgKHJjICE9IDApCkBAIC0xMjEzLDYg
+KzEyMzMsNyBAQAogICAgIHN0cnVjdCByZWlzZXJmc190cmFuc2FjdGlvbl9oYW5kbGUgdGggOwog
+ICAgIGludCBvbGRfZm9ybWF0ID0gMDsKICAgICB1bnNpZ25lZCBsb25nIGJsb2NrczsKKwl1bnNp
+Z25lZCBpbnQgY29tbWl0X21heF9hZ2UgPSAtMTsKICAgICBpbnQgamluaXRfZG9uZSA9IDAgOwog
+ICAgIHN0cnVjdCByZWlzZXJmc19pZ2V0X2FyZ3MgYXJncyA7CiAgICAgc3RydWN0IHJlaXNlcmZz
+X3N1cGVyX2Jsb2NrICogcnM7CkBAIC0xMjM3LDcgKzEyNTgsNyBAQAogICAgIFJFSVNFUkZTX1NC
+KHMpLT5zX2FsbG9jX29wdGlvbnMucHJlYWxsb2NzaXplID0gOTsKIAogICAgIGpkZXZfbmFtZSA9
+IE5VTEw7Ci0gICAgaWYgKHJlaXNlcmZzX3BhcnNlX29wdGlvbnMgKHMsIChjaGFyICopIGRhdGEs
+ICYoc2JpLT5zX21vdW50X29wdCksICZibG9ja3MsICZqZGV2X25hbWUpID09IDApIHsKKyAgICBp
+ZiAocmVpc2VyZnNfcGFyc2Vfb3B0aW9ucyAocywgKGNoYXIgKikgZGF0YSwgJihzYmktPnNfbW91
+bnRfb3B0KSwgJmJsb2NrcywgJmpkZXZfbmFtZSwgJmNvbW1pdF9tYXhfYWdlKSA9PSAwKSB7CiAJ
+Z290byBlcnJvcjsKICAgICB9CiAKQEAgLTEyNzksNyArMTMwMCw3IEBACiAjZW5kaWYKIAogICAg
+IC8vIHNldF9kZXZpY2Vfcm8ocy0+c19kZXYsIDEpIDsKLSAgICBpZiggam91cm5hbF9pbml0KHMs
+IGpkZXZfbmFtZSwgb2xkX2Zvcm1hdCkgKSB7CisgICAgaWYoIGpvdXJuYWxfaW5pdChzLCBqZGV2
+X25hbWUsIG9sZF9mb3JtYXQsIGNvbW1pdF9tYXhfYWdlKSApIHsKIAlwcmludGsoInNoLTIwMjI6
+IHJlaXNlcmZzX2ZpbGxfc3VwZXI6IHVuYWJsZSB0byBpbml0aWFsaXplIGpvdXJuYWwgc3BhY2Vc
+biIpIDsKIAlnb3RvIGVycm9yIDsKICAgICB9IGVsc2UgewpJbmRleDogbGludXgtMi42LjAvZnMv
+cmVpc2VyZnMvam91cm5hbC5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGxpbnV4LTIuNi4wL2ZzL3JlaXNlcmZz
+L2pvdXJuYWwuYwkocmV2aXNpb24gOTQpCisrKyBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9qb3Vy
+bmFsLmMJKHdvcmtpbmcgY29weSkKQEAgLTE5NjcsNyArMTk2Nyw3IEBACiAvKgogKiogbXVzdCBi
+ZSBjYWxsZWQgb25jZSBvbiBmcyBtb3VudC4gIGNhbGxzIGpvdXJuYWxfcmVhZCBmb3IgeW91CiAq
+LwotaW50IGpvdXJuYWxfaW5pdChzdHJ1Y3Qgc3VwZXJfYmxvY2sgKnBfc19zYiwgY29uc3QgY2hh
+ciAqIGpfZGV2X25hbWUsIGludCBvbGRfZm9ybWF0KSB7CitpbnQgam91cm5hbF9pbml0KHN0cnVj
+dCBzdXBlcl9ibG9jayAqcF9zX3NiLCBjb25zdCBjaGFyICogal9kZXZfbmFtZSwgaW50IG9sZF9m
+b3JtYXQsIHVuc2lnbmVkIGludCBjb21taXRfbWF4X2FnZSkgewogICAgIGludCBudW1fY25vZGVz
+ID0gU0JfT05ESVNLX0pPVVJOQUxfU0laRShwX3Nfc2IpICogMiA7CiAgICAgc3RydWN0IGJ1ZmZl
+cl9oZWFkICpiaGpoOwogICAgIHN0cnVjdCByZWlzZXJmc19zdXBlcl9ibG9jayAqIHJzOwpAQCAt
+MjAzMiw3ICsyMDMyLDExIEBACiAgICAgIAogICBTQl9KT1VSTkFMX1RSQU5TX01BWChwX3Nfc2Ip
+ICAgICAgPSBsZTMyX3RvX2NwdSAoamgtPmpoX2pvdXJuYWwuanBfam91cm5hbF90cmFuc19tYXgp
+OwogICBTQl9KT1VSTkFMX01BWF9CQVRDSChwX3Nfc2IpICAgICAgPSBsZTMyX3RvX2NwdSAoamgt
+PmpoX2pvdXJuYWwuanBfam91cm5hbF9tYXhfYmF0Y2gpOwotICBTQl9KT1VSTkFMX01BWF9DT01N
+SVRfQUdFKHBfc19zYikgPSBsZTMyX3RvX2NwdSAoamgtPmpoX2pvdXJuYWwuanBfam91cm5hbF9t
+YXhfY29tbWl0X2FnZSk7CisgIGlmIChjb21taXRfbWF4X2FnZSAhPSAtMSkgeworCSAgU0JfSk9V
+Uk5BTF9NQVhfQ09NTUlUX0FHRShwX3Nfc2IpID0gY29tbWl0X21heF9hZ2U7CisgIH0gZWxzZSB7
+CisJICBTQl9KT1VSTkFMX01BWF9DT01NSVRfQUdFKHBfc19zYikgPSBsZTMyX3RvX2NwdSAoamgt
+PmpoX2pvdXJuYWwuanBfam91cm5hbF9tYXhfY29tbWl0X2FnZSk7CisgIH0KICAgU0JfSk9VUk5B
+TF9NQVhfVFJBTlNfQUdFKHBfc19zYikgID0gSk9VUk5BTF9NQVhfVFJBTlNfQUdFOwogCiAgIGlm
+IChTQl9KT1VSTkFMX1RSQU5TX01BWChwX3Nfc2IpKSB7CkluZGV4OiBsaW51eC0yLjYuMC9mcy9y
+ZWlzZXJmcy9wcm9jZnMuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9w
+cm9jZnMuYwkocmV2aXNpb24gOTQpCisrKyBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9wcm9jZnMu
+Ywkod29ya2luZyBjb3B5KQpAQCAtNDAxLDcgKzQwMSw3IEBACiAgICAgICAgICAgICAgICAgICAg
+ICAgICBESlAoIGpwX2pvdXJuYWxfdHJhbnNfbWF4ICksCiAgICAgICAgICAgICAgICAgICAgICAg
+ICBESlAoIGpwX2pvdXJuYWxfbWFnaWMgKSwKICAgICAgICAgICAgICAgICAgICAgICAgIERKUCgg
+anBfam91cm5hbF9tYXhfYmF0Y2ggKSwKLSAgICAgICAgICAgICAgICAgICAgICAgIERKUCgganBf
+am91cm5hbF9tYXhfY29tbWl0X2FnZSApLAorICAgICAgICAgICAgICAgICAgICAgICAgU0JfSk9V
+Uk5BTF9NQVhfQ09NTUlUX0FHRShzYiksIAogICAgICAgICAgICAgICAgICAgICAgICAgREpQKCBq
+cF9qb3VybmFsX21heF90cmFuc19hZ2UgKSwKIAogCQkJSkYoIGpfMXN0X3Jlc2VydmVkX2Jsb2Nr
+ICksCQkJCg==
 
+--Multipart=_Thu__25_Dec_2003_10_59_16_+0800_6GObFkTbfJZq7yjo--

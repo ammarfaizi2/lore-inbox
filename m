@@ -1,74 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263595AbTKKRXO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 12:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTKKRXN
+	id S263593AbTKKRSb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 12:18:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbTKKRSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 12:23:13 -0500
-Received: from cpc3-hitc2-5-0-cust116.lutn.cable.ntl.com ([81.99.82.116]:50357
-	"EHLO zog.reactivated.net") by vger.kernel.org with ESMTP
-	id S263639AbTKKRXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 12:23:08 -0500
-Message-ID: <3FB11B93.60701@reactivated.net>
-Date: Tue, 11 Nov 2003 17:25:39 +0000
-From: Daniel Drake <dan@reactivated.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031018 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test9-mm2
-References: <20031104225544.0773904f.akpm@osdl.org>
-In-Reply-To: <20031104225544.0773904f.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Nov 2003 12:18:31 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:33765 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S263593AbTKKRSa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 12:18:30 -0500
+Date: Tue, 11 Nov 2003 09:18:29 -0800
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Andrew Morton <akpm@osdl.org>, Dag Brattli <dag@brattli.net>,
+       Jean Tourrilhes <jt@hpl.hp.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       irda-users@lists.sourceforge.net
+Subject: Re: [PATCH] irda: fix type of struct irda_ias_set.attribute.irda_attrib_string.len
+Message-ID: <20031111171829.GA18882@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20031111020608.GA1208@conectiva.com.br> <Pine.LNX.4.44.0311101856130.2881-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311101856130.2881-100000@home.osdl.org>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been getting a couple of audio skips with 2.6.0-test9-mm2. Haven't heard a 
-skip since test4 or so, so I'm assuming this is a result of the IO scheduler tweaks.
+On Mon, Nov 10, 2003 at 06:59:59PM -0800, Linus Torvalds wrote:
+> 
+> On Tue, 11 Nov 2003, Arnaldo Carvalho de Melo wrote:
+> > 
+> > Ok, ias_opt->attribute.irda_attrib_string.len is __u8, but
+> > IAS_MAX_STRING = 256... so attribute.irda_attrib_string.len has to be at least
+> > __u18, this patch fix this, please see if it is appropriate and if it is so,
+> > apply.
+> 
+> No, please don't. This 
+>  (a) changes ABI structures that are exported to user space
 
-Here's how I can produce a skip:
-Running X, general usage (e.g. couple of xterms, an emacs, maybe a 
-mozilla-thunderbird)
-I switch to the first virtual console with Ctrl+Alt+F1. I then switch back to X 
-with Alt+F7. As X is redrawing the screen, the audio skips once.
-This happens most of the time, but its easier to reproduce when i am compiling 
-something, and also when I cycle through the virtual consoles before switching 
-back to X.
+	Yes ! You are 100% correct, changing this would break all the
+IrDA user space, which I'm not keen on doing.
 
-System:
-AMD XP2600+
-nForce2 motherboard
-512MB RAM
-nvidia GeForce4 Ti4800
+>  (b) is unnecessary - since the problem is the _warning_, not the test.
+> 
+> Just shut the warning up by either removing the test (replacing it with a 
+> comment about why it's unnecessary), or by adding a cast, ie
+> 
+> 	unsigned int len = ias_opt->attribute.irda_attrib_string.len;
+> 
+> 	if (len > IAS_MAX_STRING) {
+> 		...
+> 
+> in case the code ever expects IAS_MAX_STRING to be shorter (or if the type 
+> is ever changed).
 
-Audio being played through the intel8x0 alsa module.
-I use the nvidia binary graphics driver with X.
+	Yes, in this case the test should be removed with a comment.
 
-XMMS 1.2.8
-XFree 4.3.0
+> 		Linus
 
-If theres any other info I can give, please tell me and I'll do my best to help out.
-
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm2/
-> 
-> 
-> - Various random fixes.  Maybe about half of these are 2.6.0-worthy.
-> 
-> - Some improvements to the anticipatory IO scheduler and more readahead
->   tweaks should help some of those database benchmarks.
-> 
->   The anticipatory scheduler is still a bit behind the deadline scheduler
->   in these random seeky loads - it most likely always will be.
-> 
-> - "A new driver for the ethernet interface of the NVIDIA nForce chipset,
->   licensed under GPL."
-> 
->   Testing of this would be appreciated.  Send any reports to linux-kernel
->   or netdev@oss.sgi.com and Manfred will scoop them up, thanks.
-> 
-> 
-> - I shall be offline for a couple of days.
-
+	Jean

@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129397AbRB0BTX>; Mon, 26 Feb 2001 20:19:23 -0500
+	id <S129398AbRB0BYW>; Mon, 26 Feb 2001 20:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129398AbRB0BTD>; Mon, 26 Feb 2001 20:19:03 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:49572 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129397AbRB0BS4>; Mon, 26 Feb 2001 20:18:56 -0500
-Message-ID: <3A9B0075.A46E7755@uow.edu.au>
-Date: Tue, 27 Feb 2001 01:18:45 +0000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Vibol Hou <vhou@khmer.cc>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Sytem slowdown on 2.4.1-ac20 (recurring from 2.4.0)
-In-Reply-To: <NDBBKKONDOBLNCIOPCGHMEPAEPAA.vhou@khmer.cc>
+	id <S129402AbRB0BYM>; Mon, 26 Feb 2001 20:24:12 -0500
+Received: from 2-113.cwb-adsl.telepar.net.br ([200.193.161.113]:57582 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S129398AbRB0BYE>; Mon, 26 Feb 2001 20:24:04 -0500
+Date: Mon, 26 Feb 2001 20:44:58 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mika Kuoppala <miku@iki.fi>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] eth16i.c: don't reference skb after passing it to netif_rx
+Message-ID: <20010226204457.F8692@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Mika Kuoppala <miku@iki.fi>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vibol Hou wrote:
-> 
-> > Are you still getting the "hordes" of Tx timeouts with the
-> > 3c905B which you reported a week ago?
-> 
-> Yes, but they happen a few hours after the system starts up and continue
-> until the server is restarted.  It seems like a separate issue.  I haven't
-> tried taking down the interface and putting it back up since the interface
-> never dies link others have reported with their NICs.  The NIC continues to
-> work fine, though the logs get flooded with those messages.
-> 
-> > If so, do they only start coming out when the slowdown occurs?
-> 
-> That's a negative.
-> 
-> > You are probably a victim of the APIC bug.  A
-> > workaround for this is present in 2.4.2-ac5.  Alternatively,
-> > boot the kernel with the `noapic' LILO option.
-> 
-> I'll compile 2.4.2-ac5 and we'll see in another 5 days if this happens
-> again.  Till then, any suggestions on what to look for/at and/or what to do
-> when it happens will help.
+yet another one. 8)
 
-OK.  The 'Interrupt posted but not delivered' message
-means that the Ethernet controller thinks that it is driving
-the physical interrupt line, but the CPUs aren't being interrupted.
+Em Mon, Feb 26, 2001 at 08:33:59PM -0300, Arnaldo Carvalho de Melo escreveu:
+Hi,
 
-Check /proc/interrupts, see if the NIC's IRQ is shared with
-something else.   If it isn't, or if it is shared with
-something reputable then, given that the machine works OK
-with 2.2 kernels then it's probably the APIC.
+	I've just read davem's post at netdev about the brokeness of
+referencing skbs after passing it to netif_rx, so please consider applying
+this patch. Ah, this was just added to the Janitor's TODO list at
+http://bazar.conectiva.com.br/~acme/TODO and I'm doing a quick audit in the
+net drivers searching for this, maybe some more patches will follow.
 
-But it's unusual that the system "continues to work fine".
-Ususally, a busted APIC slows networking to a crawl.  We
-generate an artificial interrupt once per 400 milliseconds
-via the Tx timeout handler.  This can process 16 outgoing
-packets and 32 incoming packets.  This `polled mode' is
-present in many Linux network drivers - it's there so you
-can still telnet into the machine and whack it when it's
-being silly.
+- Arnaldo
 
--
+--- linux-2.4.2/drivers/net/eth16i.c	Tue Feb 13 19:15:05 2001
++++ linux-2.4.2.acme/drivers/net/eth16i.c	Mon Feb 26 22:16:19 2001
+@@ -1195,10 +1195,6 @@
+ 			}
+ 
+ 			skb->protocol=eth_type_trans(skb, dev);
+-			netif_rx(skb);
+-			dev->last_rx = jiffies;
+-			lp->stats.rx_packets++;
+-			lp->stats.rx_bytes += pkt_len;
+ 
+ 			if( eth16i_debug > 5 ) {
+ 				int i;
+@@ -1208,6 +1204,10 @@
+ 					printk(KERN_DEBUG " %02x", skb->data[i]);
+ 				printk(KERN_DEBUG ".\n");
+ 			}
++			netif_rx(skb);
++			dev->last_rx = jiffies;
++			lp->stats.rx_packets++;
++			lp->stats.rx_bytes += pkt_len;
+ 
+ 		} /* else */
+ 

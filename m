@@ -1,81 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314335AbSDRMfK>; Thu, 18 Apr 2002 08:35:10 -0400
+	id <S314336AbSDRMqq>; Thu, 18 Apr 2002 08:46:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314336AbSDRMfJ>; Thu, 18 Apr 2002 08:35:09 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46415 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S314335AbSDRMfI>; Thu, 18 Apr 2002 08:35:08 -0400
-To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 boot enhancements, Clean up the 32bit entry points 6/11
-In-Reply-To: <20020418094413.77178.qmail@web11808.mail.yahoo.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 18 Apr 2002 06:27:52 -0600
-Message-ID: <m1lmbl5gzb.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S314337AbSDRMqp>; Thu, 18 Apr 2002 08:46:45 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:39433 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S314336AbSDRMqo>; Thu, 18 Apr 2002 08:46:44 -0400
+Message-ID: <3CBEC025.141CAA76@aitel.hist.no>
+Date: Thu, 18 Apr 2002 14:46:29 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.7 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
+To: Tony Clarke <sam@palamon.ie>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VM Related question
+In-Reply-To: <3CBE8FBB.8080108@palamon.ie>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Etienne Lorrain <etienne_lorrain@yahoo.fr> writes:
+Tony Clarke wrote:
+> 
+> I have noticed with my current kernel that after the system is idle for
+> a while, say 10 hours or
+> so, that everything seems to be swapped out to disk. So when I come in
+> the next morning
+> it starts swapping everything like crazy in from disk. Is this a known
+> characteristic of the
+> VM. I seem to remember this with all 2.4 kernels tried to date.
+> 
+> Whats the point of swapping out to disk in circumstances like this?
+> 
+> Currently I am using 2.4.18-rc2-ac2, with apps like mozilla, dozen
+> xterms, xemacs, staroffice etc.
 
-> You want to change completely the protected mode entry point, that does
-> bother me, you know why (gujin). It is a simple (as simple as possible)
-> interface, available from a _very_ long time.
+The kernel makes no decision to swap just because you left the
+machine.  But your distro probably runs "updatedb" at night.
+Updatedb reads all the directories in all your filesystems, so
+it tends to use a lot of cache.  This activity pushes
+lots of other stuff into swap.
 
-*Cough*  
-It is impossibly broken to use, and it has long been said it is
-unsupported.  That means when someone breaks it you get to keep the
-pieces. 
+You may of course change your crontab to runn updatedb less
+often, or configure updatedb to skip directory
+trees where you expect little change. (/usr perhaps...)
 
->   I would say:
-> - Please initialise registers (segment registers) before using them, it
->  is already complex enough. A bug there will be really difficult to find.
->  Moreover that remind me another OS using registers (%bx) without
->  initialising it first.
-
-I do.  See setup.S
-
-I could probably change that code sequence to only rely on %cs having
-a sane value.  But it is much saner to rely on having %cs, %ds, and
-%es having a sane value than to rely on the presence of global
-descriptor table, with the descriptors you need.  Especially since
-after loading a segment register it is safe to throw away the
-descriptor table, and still use the segment.
-
-Also there is only one set of sane protected mode segments values to
-use.  Do you know anyone who doesn't use flat 4G segments with a base
-of 0?  (While in protected mode.)
-
-Arguing against using registers without initialization might
-be credible if you weren't also arguing for, using a global
-descriptor table and %ebx and %esi without initialization.
-
-As for bugs I have run that code with %cs, %ds, and %es having totally
-different descriptor values from an overwritten gdt and it worked just
-fine.
-
-> - Please keep the 'lss SYMBOL_NAME(stack_start),%esp' around, it is the
-> _only_ way to know if a kernel is "loaded low" or "loaded high", just in
-> case you want to write a bootloader which loads _any_ kernel, even 1.x
-
-????  I guess if you skim forward and find that instruction, and then
-read the address of the stack_start symbol, you could figure that out.
-But that instruction hasn't been at a constant offset, and there is a
-much cleaner way of detecting that, examining the bit in the kernel
-header that tells you explicitly.
-
-> - Please stay compatible.
-
-I bumped the kernel boot protocol, so auto detect should be trivial.
-
-I did not break any bootloader using a supported interface.
-
-I added a supportable 32bit entry point.
-
-The interface has not been fixed in time so I don't know what you want
-me to be compatible with.
-
-Eric
+Helge Hafting

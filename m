@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266536AbUAWHna (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 02:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266537AbUAWHna
+	id S266534AbUAWHgt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 02:36:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266535AbUAWHgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 02:43:30 -0500
-Received: from gate.crashing.org ([63.228.1.57]:51418 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266536AbUAWHn3 (ORCPT
+	Fri, 23 Jan 2004 02:36:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:18064 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266534AbUAWHgs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 02:43:29 -0500
-Subject: Re: swsusp vs  pgdir
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       Patrick Mochel <mochel@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040123073426.GA211@elf.ucw.cz>
-References: <1074833921.975.197.camel@gaston>
-	 <20040123073426.GA211@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1074843781.878.1.camel@gaston>
+	Fri, 23 Jan 2004 02:36:48 -0500
+Date: Thu, 22 Jan 2004 23:37:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: davej@redhat.com
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: DMI updates from 2.4
+Message-Id: <20040122233734.3ffe096b.akpm@osdl.org>
+In-Reply-To: <E1Ajuub-0000x4-00@hardwired>
+References: <E1Ajuub-0000x4-00@hardwired>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 23 Jan 2004 18:43:18 +1100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+davej@redhat.com wrote:
+>
+> +static __init int apm_is_horked_d850md(struct dmi_blacklist *d)
 
-> We test that CPU has PSE feature. That means kernel is mapped using
-> 4MB page tables, and I do not have to care about page tables at
-> all.
-
-Just enlighten me please: How do these 4Mb page tables work ? The pgdir
-entries contain special bits ? Then you at least must make sure the
-swapper_pgdir is left intact. This is the case ? (I also suppose you
-mean the entire linear mapping, not just the kernel, is mapped with
-4M pages)
-
-Ben.
-
-
+this new function is unreferenced.

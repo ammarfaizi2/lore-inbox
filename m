@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268496AbTCACBn>; Fri, 28 Feb 2003 21:01:43 -0500
+	id <S268026AbTCACx0>; Fri, 28 Feb 2003 21:53:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268497AbTCACBn>; Fri, 28 Feb 2003 21:01:43 -0500
-Received: from a.smtp-out.sonic.net ([208.201.224.38]:41171 "HELO
-	a.smtp-out.sonic.net") by vger.kernel.org with SMTP
-	id <S268496AbTCACBm>; Fri, 28 Feb 2003 21:01:42 -0500
-X-envelope-info: <dhinds@sonic.net>
-Date: Fri, 28 Feb 2003 18:11:58 -0800
-From: David Hinds <dhinds@sonic.net>
-To: Thomas Molina <tmolina@cox.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hermes@gibson.dropbear.id.au, dahinds@users.sourceforge.net,
+	id <S268097AbTCACx0>; Fri, 28 Feb 2003 21:53:26 -0500
+Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:64897 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S268026AbTCACxZ>; Fri, 28 Feb 2003 21:53:25 -0500
+Date: Fri, 28 Feb 2003 21:03:39 -0600 (CST)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@localhost.localdomain
+To: David Hinds <dhinds@sonic.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <hermes@gibson.dropbear.id.au>, <dahinds@users.sourceforge.net>,
        Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: 2.5.63 wireless loading problem
-Message-ID: <20030228181158.A1745@sonic.net>
-References: <Pine.LNX.4.44.0302281955380.2070-200000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302281955380.2070-200000@localhost.localdomain>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <20030228181158.A1745@sonic.net>
+Message-ID: <Pine.LNX.4.44.0302282101550.2070-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 07:59:47PM -0600, Thomas Molina wrote:
+On Fri, 28 Feb 2003, David Hinds wrote:
 
-> # CONFIG_ISA is not set
+> On Fri, Feb 28, 2003 at 07:59:47PM -0600, Thomas Molina wrote:
+> 
+> > # CONFIG_ISA is not set
+> 
+> The PCMCIA drivers decide whether or not ISA interrupts are available
+> based on CONFIG_ISA so you should turn this on.
+> 
+> Perhaps this is a misuse of this configuration option.  I'm not sure
+> what's the right thing to do.
 
-The PCMCIA drivers decide whether or not ISA interrupts are available
-based on CONFIG_ISA so you should turn this on.
+Your advice worked.  I now get eth0 up and dhcp works.  
 
-Perhaps this is a misuse of this configuration option.  I'm not sure
-what's the right thing to do.
+IMHO it certainly violates the principle of least surprise.  I must have 
+missed the documentation on this configuration advice.
 
--- Dave

@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261289AbSIZAMQ>; Wed, 25 Sep 2002 20:12:16 -0400
+	id <S261422AbSIZAWC>; Wed, 25 Sep 2002 20:22:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261291AbSIZAMQ>; Wed, 25 Sep 2002 20:12:16 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:57848 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S261289AbSIZAMP>; Wed, 25 Sep 2002 20:12:15 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
+	id <S261458AbSIZAWC>; Wed, 25 Sep 2002 20:22:02 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:26121 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261422AbSIZAWB>;
+	Wed, 25 Sep 2002 20:22:01 -0400
+Date: Wed, 25 Sep 2002 17:25:54 -0700
+From: Greg KH <greg@kroah.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: [linux-usb-devel] [RFC] consolidate /sbin/hotplug call for pci and usb
+Message-ID: <20020926002554.GB518@kroah.com>
+References: <20020925212955.GA32487@kroah.com> <3D9250CD.7090409@pacbell.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15762.20827.271317.595537@wombat.chubb.wattle.id.au>
-Date: Thu, 26 Sep 2002 10:14:19 +1000
-To: Lightweight Patch Manager <patch@luckynet.dynu.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tomas Szepe <szepe@pinerecords.com>, Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH][2.5] Single linked lists for Linux
-In-Reply-To: <83015759@toto.iv>
-X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
+Content-Disposition: inline
+In-Reply-To: <3D9250CD.7090409@pacbell.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-+
-+/**
-+ * slist_del -	remove an entry from list
-+ * @head:	head to remove it from
-+ * @entry:	entry to be removed
-+ */
-+#define slist_del(_head, _entry)		\
-+do {						\
-+	(_head)->next = (_entry)->next;		\
-+	(_entry)->next = NULL;			\
-+}
-+
+On Wed, Sep 25, 2002 at 05:11:57PM -0700, David Brownell wrote:
+> 
+> >+	/* stuff we want to pass to /sbin/hotplug */
+> >+	envp[i++] = scratch;
+> >+	scratch += sprintf (scratch, "PCI_CLASS=%04X", pdev->class) + 1;
+> >+
+> >+	envp[i++] = scratch;
+> >+	scratch += sprintf (scratch, "PCI_ID=%04X:%04X",
+> >+			    pdev->vendor, pdev->device) + 1;
+> 
+> And so forth.  Use "snprintf" and prevent overrunning those buffers...
 
-This only works if head->next == entry otherwise you lose half your
-list.  Also, none of this is SMP-safe.
+Doh, will do.
 
-I think you need something like this (but with locking!)
+I also found the unload USB module problem.  The driver core was calling
+hotplug after the device was already removed.  Made it a bit difficult
+to be able to describe the device that way :)
 
-/*
- * remove entry from list starting at head
- * Return 0 if successful, non-zero otherwise.
- */
-static inline int slist_del(struct slist *head, struct slist *entry)
-{
-	struct slist **p;
-	for (p = &head->next; *p; p = &(*p)->next)
-	    if (*p == entry) {
-	       *p = entry->next;
-	       entry->next = NULL;
-	       return 0;
-        }
-        return -1;
-}
+thanks,
 
-Peter C
+greg k-h

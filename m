@@ -1,71 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316887AbSFDWLC>; Tue, 4 Jun 2002 18:11:02 -0400
+	id <S316877AbSFDWKY>; Tue, 4 Jun 2002 18:10:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316882AbSFDWK0>; Tue, 4 Jun 2002 18:10:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9994 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316878AbSFDWKG>;
-	Tue, 4 Jun 2002 18:10:06 -0400
-Message-ID: <3CFD3A6D.6DC93964@zip.com.au>
-Date: Tue, 04 Jun 2002 15:08:45 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 12/16] fix race between writeback and unlink
-In-Reply-To: <3CFD25A2.FCC7F66A@zip.com.au> <Pine.LNX.4.44.0206041428080.983-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316882AbSFDWKW>; Tue, 4 Jun 2002 18:10:22 -0400
+Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:12555 "EHLO
+	server01.nullzone.prv") by vger.kernel.org with ESMTP
+	id <S316877AbSFDWKC>; Tue, 4 Jun 2002 18:10:02 -0400
+Message-Id: <5.1.0.14.2.20020605000918.00cb74f8@192.168.2.131>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 05 Jun 2002 00:10:40 +0200
+To: linux-kernel@vger.kernel.org
+From: system_lists@nullzone.org
+Subject: PROBLEMS to compile ataraid.c in kernel-2.5.20
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Tue, 4 Jun 2002, Andrew Morton wrote:
-> >
-> > There's a patch at
-> > http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.19-pre10/ext3-reloc-page.patch
-> > which provides a simple `relocate page' ioctl for ext3 files.
-> 
-> That's a good start, but before even egtting that far there is some need
-> for a way to get a picture of the FS layout in a reasonably fs-independent
-> way.
-> 
-> Sure, bmap() actually does part of this (the "where are my blocks" part),
-> but right now there is no way to query the FS for the "where can I put
-> blocks" part.
 
-Jeff Garzik was working on that a while back - a separate filesystem
-which provides a "metadata view" of a real filesytem.  So you can
-poke around and find all these things out.  In theory, different
-filesystems should be able to offer the same view.
+i got this error messages trying to get mi ataraid hardware on.
 
-> You can do it with direct disk access and knowledge of the FS internals,
-> but it should not be all that hard to add some simple interface to get a
-> "block usage byte array" kind of thing (more efficient than doing bmap on
-> all files, _and_ can tell about blocks reserved for inodes, superblocks
-> and other special uses), which together with a user-level interface to
-> "preallocate" and your "relocate page" should actually make it possible to
-> make a fairly FS-independent defragmenter.
+can any help me please? i have the system stoped waiting for this.
 
-The e2fsprogs package includes a `libe2fs' library which offers
-APIs for accessing the fs internals.  It's exactly what you
-say - direct disk access and knowledge of internals.  So
-that plus the try_to_relocate_page() ioctl is a shortest-path
-route to a defragmenter for ext3, and only ext3.  I wasn't
-aiming very high here ;)
+Seeya
 
-A totally different way of performing defrag could be to
-copy the entire fs from one partition to a different one,
-with kernel support for providing coherency while the copy
-is in progress.  It's basically a union/translucent mount
-with COW.  Swizzle the backing blockdev, drop the disk
-mappings from all incore pages, renumber the inode without
-breaking stuff...  (OK, I've talked myself out of it ;/) It's
-not super efficient, and it does require the provisioning of a
-bounce disk, but it would use infrastructure which would be
-useful for other stuff and it is fs-agnostic.
 
--
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.20-ct2/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686    -DKBUILD_BASENAME=ataraid -DEXPORT_SYMTAB -c -o ataraid.o 
+ataraid.c
+ataraid.c: In function `ataraid_make_request':
+ataraid.c:101: dereferencing pointer to incomplete type
+ataraid.c:99: warning: `minor' might be used uninitialized in this function
+ataraid.c: In function `ataraid_get_bhead':
+ataraid.c:119: sizeof applied to an incomplete type
+ataraid.c: In function `ataraid_end_request':
+ataraid.c:143: dereferencing pointer to incomplete type
+ataraid.c:149: dereferencing pointer to incomplete type
+ataraid.c: In function `ataraid_split_request':
+ataraid.c:172: dereferencing pointer to incomplete type
+ataraid.c:172: dereferencing pointer to incomplete type
+ataraid.c:172: dereferencing pointer to incomplete type
+ataraid.c:173: dereferencing pointer to incomplete type
+ataraid.c:173: dereferencing pointer to incomplete type
+ataraid.c:173: dereferencing pointer to incomplete type
+ataraid.c:175: dereferencing pointer to incomplete type
+ataraid.c:176: dereferencing pointer to incomplete type
+ataraid.c:178: dereferencing pointer to incomplete type
+ataraid.c:178: dereferencing pointer to incomplete type
+ataraid.c:179: dereferencing pointer to incomplete type
+ataraid.c:180: dereferencing pointer to incomplete type
+ataraid.c:183: dereferencing pointer to incomplete type
+ataraid.c:184: dereferencing pointer to incomplete type
+ataraid.c:187: dereferencing pointer to incomplete type
+ataraid.c:187: dereferencing pointer to incomplete type
+ataraid.c:189: warning: passing arg 1 of `generic_make_request' makes 
+pointer from integer without a cast
+ataraid.c:189: too many arguments to function `generic_make_request'
+ataraid.c:190: warning: passing arg 1 of `generic_make_request' makes 
+pointer from integer without a cast
+ataraid.c:190: too many arguments to function `generic_make_request'
+ataraid.c: In function `ataraid_init':
+ataraid.c:266: warning: passing arg 2 of `blk_queue_make_request' from 
+incompatible pointer type
+make[2]: *** [ataraid.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5.20-ct2/drivers/ide'
+make[1]: *** [_subdir_ide] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.20-ct2/drivers'
+make: *** [drivers] Error 2
+
+
+

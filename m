@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbUL3Hq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbUL3Hse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbUL3Hq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 02:46:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUL3Hq6
+	id S261567AbUL3Hse (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 02:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUL3Hsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 02:46:58 -0500
-Received: from faye.voxel.net ([69.9.164.210]:18626 "EHLO faye.voxel.net")
-	by vger.kernel.org with ESMTP id S261566AbUL3Hqz (ORCPT
+	Thu, 30 Dec 2004 02:48:33 -0500
+Received: from mproxy.gmail.com ([216.239.56.248]:32011 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261567AbUL3Hs0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 02:46:55 -0500
-Subject: Re: [PATCH] kernel_read result fixes
-From: Andres Salomon <dilinger@voxel.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041229232502.0549b408.akpm@osdl.org>
-References: <1103873064.5994.6.camel@localhost>
-	 <20041229232502.0549b408.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PKdFjCG99JHr1NYxWn9+"
-Date: Thu, 30 Dec 2004 02:46:52 -0500
-Message-Id: <1104392812.11411.51.camel@localhost>
+	Thu, 30 Dec 2004 02:48:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=rrPT9kverZ8WX/k8x1UwxYIPACJSJ73p2LVtJZ63/DPJXaAESPjHJXwj0dBAb+PFUH05RiXA2AwyI2gSxNefHVP1+48xx5mRJSC36RiAoUz8Xvff7kJtUMgKRQsYWFkDjDalTdVGYl24l+tO1HtWArmLDhWThFelJ5o+mtohn9c=
+Message-ID: <21d7e997041229234860454564@mail.gmail.com>
+Date: Thu, 30 Dec 2004 18:48:25 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Dave Airlie <airlied@linux.ie>
+Subject: Re: [bk pull] drm core/personality split
+Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0412300733380.25314@skynet>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0412300733380.25314@skynet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> of .h files to .c files and removes all the DRM() macros.
+> 
+> For everyone else the diff is up at:
+>         http://www.skynet.ie/~airlied/public_html/patches/dri/drm_core_split-26bk.diff
+> and it is > 500k.
 
---=-PKdFjCG99JHr1NYxWn9+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+doh.. patch is actually at
 
-On Wed, 2004-12-29 at 23:25 -0800, Andrew Morton wrote:
-> Andres Salomon <dilinger@voxel.net> wrote:
-> >
-> > A few potential vulnerabilities were pointed out by Katrina Tsipenyuk i=
-n
-> >  <http://seclists.org/lists/linux-kernel/2004/Dec/1878.html>.  I haven'=
-t
-> >  seen any discussion or fixes of the issue yet, so here's a patch
-> >  (against 2.6.9).  The fixes are along the same lines as the previous
-> >  binfmt_elf fixes.  There's one additional place (inside fs/binfmt_som.=
-c)
-> >  that a fix could be applied, but since that doesn't compile anyways, I
-> >  didn't see a point in patching it.
->=20
-> This patch is very wrong.
->=20
+http://www.skynet.ie/~airlied/patches/dri/drm_core_split-26bk.diff
 
-Yep, I already followed up saying that.  I assume you're just going
-through your inbox after vacation now; it should be there.  :)
-
-
---=20
-Andres Salomon <dilinger@voxel.net>
-
---=-PKdFjCG99JHr1NYxWn9+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBB07Jr78o9R9NraMQRAuStAKCJX0RH6FLM6nIaEODPbjJFMDk8mgCfUz8c
-iJdWs21orz6CZ4utna5GHLc=
-=a4vo
------END PGP SIGNATURE-----
-
---=-PKdFjCG99JHr1NYxWn9+--
-
+Dave.

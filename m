@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267383AbUIJMVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUIJMWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267383AbUIJMVb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 08:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUIJMVb
+	id S266143AbUIJMWr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 08:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUIJMWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 08:21:31 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:2226 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267387AbUIJMVB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 08:21:01 -0400
-Date: Fri, 10 Sep 2004 14:22:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Anton Blanchard <anton@samba.org>, Linus Torvalds <torvalds@osdl.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
-Message-ID: <20040910122211.GA5925@elte.hu>
-References: <16704.59668.899674.868174@cargo.ozlabs.ibm.com> <20040910000903.GS3106@holomorphy.com> <Pine.LNX.4.58.0409091712270.5912@ppc970.osdl.org> <20040910003505.GG11358@krispykreme> <Pine.LNX.4.58.0409091750300.5912@ppc970.osdl.org> <20040910014228.GH11358@krispykreme> <20040910015040.GI11358@krispykreme> <20040910022204.GA2616@holomorphy.com> <20040910074033.GA27722@elte.hu> <20040910121639.GD2616@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040910121639.GD2616@holomorphy.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 10 Sep 2004 08:22:46 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:57569 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S266143AbUIJMWH (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 08:22:07 -0400
+Date: Fri, 10 Sep 2004 13:21:55 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Nikita Danilov <nikita@clusterfs.com>
+cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: 2.6.9-rc1: page_referenced_one() CPU consumption
+In-Reply-To: <Pine.LNX.4.44.0409101304570.16614-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0409101315520.16623-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* William Lee Irwin III <wli@holomorphy.com> wrote:
-
-> * William Lee Irwin III <wli@holomorphy.com> wrote:
-> >> Well, there are patches that do this along with other more useful
-> >> things in the works (my spin on this is en route shortly, sorry the
-> >> response was delayed due to a power failure).
+On Fri, 10 Sep 2004, Hugh Dickins wrote:
 > 
-> On Fri, Sep 10, 2004 at 09:40:34AM +0200, Ingo Molnar wrote:
-> > i already sent the full solution that primarily solves the SMP &&
-> > PREEMPT latency problems but also solves the section issue, two days
-> > ago:
-> >    http://lkml.org/lkml/2004/9/8/97
-> 
-> When I noticed there was work to do along the lines of creating
-> read_trylock() primitives I dropped the ->break_lock -less variant I
-> had brewed up and directed Linus to your patch.
+> I'm quite content to go back to a trylock in page_referenced_one - and
+> in try_to_unmap_one?  But yours is the first report of an issue there,
+> so I'm inclined to wait for more reports (which should come flooding in
+> now you mention it!), and input from those with a better grasp than I
+> of how vmscan pans out in practice (Andrew, Nick, Con spring to mind).
 
-thanks - i just read that mail. I'd expect the preempt-smp patch to go
-the normal route via touching -mm first.
+Just want to add, that there'd be little point in changing that back
+to a trylock, if vmscan ends up cycling hopelessly around a larger
+loop - though if the larger loop is more preemptible, that's a plus.
 
-	Ingo
+Hugh
+

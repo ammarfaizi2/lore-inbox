@@ -1,71 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265290AbUGMOzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265291AbUGMOzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265290AbUGMOzo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 10:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265291AbUGMOzo
+	id S265291AbUGMOzx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 10:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265292AbUGMOzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 10:55:44 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:41687 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265290AbUGMOzm
+	Tue, 13 Jul 2004 10:55:53 -0400
+Received: from out007pub.verizon.net ([206.46.170.107]:396 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S265291AbUGMOzu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 10:55:42 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Dhruv Matani <dhruvbird@gmx.net>, Evaldo Gardenali <evaldo@gardenali.biz>,
-       justin.piszcz@mitretek.org
-Subject: Re: DriveReady SeekComplete Error...
-Date: Tue, 13 Jul 2004 17:01:41 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <1089721822.4215.3.camel@localhost.localdomain> <40F3D4AC.9050407@gardenali.biz> <1089729992.3594.7.camel@localhost.localdomain>
-In-Reply-To: <1089729992.3594.7.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407131701.41218.bzolnier@elka.pw.edu.pl>
+	Tue, 13 Jul 2004 10:55:50 -0400
+Message-Id: <200407131455.i6DEtmAo006203@localhost.localdomain>
+To: "Martijn Sipkema" <msipkema@sipkema-digital.com>
+cc: "The Linux Audio Developers' Mailing List" 
+	<linux-audio-dev@music.columbia.edu>,
+       florin@sgi.com, linux-kernel@vger.kernel.org,
+       albert@users.sourceforge.net
+Subject: Re: [linux-audio-dev] Re: desktop and multimedia as an afterthought? 
+In-reply-to: Your message of "Tue, 13 Jul 2004 13:09:28 BST."
+             <008501c468d2$405d8c70$161b14ac@boromir> 
+Date: Tue, 13 Jul 2004 10:55:48 -0400
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [141.151.61.237] at Tue, 13 Jul 2004 09:55:49 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Thus, the fact that Linux does not support protocols to prevent priority
+>inversion (please correct me if I am wrong) kind of suggests that supporting
+>realtime applications is not considered very important.
 
-Hi,
+we went through this (you and i in particular) right here on LAD a
+year or so ago. while i might agree with you about the priority given
+to RT-ish apps, my recollection of the end of that discussion is that
+priority inheritance is neither necessary nor sufficient to allow
+adequate RT performance. priority inversion generally can be factored
+out through application redesign, and the protocols i've seen to
+address it are not useful for RT purposes - they just help deadlock.
 
-On Tuesday 13 of July 2004 16:47, Dhruv Matani wrote:
-> One more thing I forgot to mention is that if I use that hard 80-pin
-> cable, then I do not get such errors at boot time, but get them when
-> some service is loading, and if I use the cheaper more flexible
-> cable(with possibly lesser number of cables), then I get these errors
-
-You get "BadCRC" errors.  They usually indicate bad cabling.
-
-> while the kernel is loading as well as when some service is loading.
-> That service is smartd.
-
-Are you sure it is _exactly_ the same error?
-
-If it is "task_no_data_intr" one then it is harmless
-(means that command is not supported by a drive).
-
-You may also want to check http://smartmontools.sf.net
-
-> Again, only in 2.4.20-8, in the previous version(the default that came
-> with RedHat-7.2), there is no such problem. Also, I use a re-compiled
-> version of the 2.4.20-8 kernel, whereas the default RedHat provided one
-> for 7.2, but the errors persist even for the default RedHat-9 kernel
-> 2.4.20-8, so I suspect that it's a kernel thing.
-
-RedHat has its own bugtracking system for their kernels.
-
-Please check if you can reproduce the problem with the current
-vanilla kernel from kernel.org.
-
-> One more thing! In RedHat-9 with 2.4.20-8, sometimes, the number of
-> processes just increases like mad! and the whole system becomes
-> unstable. Then I get errors like I/O error, and hda can not be read
-> from, and a whole list of blocks.
-
-AFAICS the current kernel for RH9 is kernel-2.4.20-31.9 and you should
-be using it instead of > 1 year old 2.4.20-8 version.
-
-Bartlomiej
-
+--p

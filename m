@@ -1,121 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311536AbSC1C0t>; Wed, 27 Mar 2002 21:26:49 -0500
+	id <S287817AbSC1CgM>; Wed, 27 Mar 2002 21:36:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311530AbSC1C0k>; Wed, 27 Mar 2002 21:26:40 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:43951 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S311519AbSC1C02>;
-	Wed, 27 Mar 2002 21:26:28 -0500
-Message-Id: <5.1.0.14.2.20020328022509.020ae800@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 28 Mar 2002 02:27:03 +0000
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: New URL - ANN: New NTFS driver (2.0.0/TNG) now finished.
+	id <S311530AbSC1CgD>; Wed, 27 Mar 2002 21:36:03 -0500
+Received: from think.faceprint.com ([166.90.149.11]:49307 "EHLO
+	think.faceprint.com") by vger.kernel.org with ESMTP
+	id <S287817AbSC1Cfy>; Wed, 27 Mar 2002 21:35:54 -0500
+Date: Wed, 27 Mar 2002 21:35:46 -0500
+From: Nathan Walp <faceprint@faceprint.com>
+To: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.7-dj2
+Message-ID: <20020328023543.GA28445@faceprint.com>
+Reply-To: faceprint@faceprint.com
+In-Reply-To: <20020328015928.A3607@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The URLs I gave initially don't seem to work at present. )-:
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Here are some working ones (I verified they work just now):
+Compile error in 2.5.7-dj2, 2.5.7-dj1 compiled fine, has been running 7
+days now. =20
 
-http://virus-b.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch.bz2 
-(151kiB)
-
-http://virus-b.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch.gz 
-(199kiB)
-
-http://virus-b.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch 
-(796kiB)
-
-Best regards,
-
-Anton
-
------------
-
-Hi,
-
-This is to announce that the new NTFS Linux kernel driver 2.0.0 (formerly 
-NTFS TNG) is now finished (read-only). It is for kernel 2.5.7 only and will 
-be submitted to Linus for inclusion in the 2.5 kernel series when Linus 
-returns from his holiday.
-
-The driver has been tested extensively and has survived all tests so far.
-
-It is fully compatible with kernel preemption and SMP. And it should work 
-on both little endian and big endian architectures, and both on 32 and 64 
-bit architectures. Note, only ia32 has actually been tested and there may 
-be problems with architectures not supporting unaligned accesses. Any 
-volunteers for non-ia32 architectures?
-
-The new driver is significantly faster than the old driver (~20% in my 
-tests), uses less CPU time and generally is superior to the old driver. (-:
-
-The driver can be compiled both with gcc-2.95 and gcc-2.96. gcc-3.x has not 
-been tested. (If anyone experiences compilation problems especially with 
-gcc-2.95 please let me know and they will be fixed ASAP!)
-
-To try the driver either use BitKeeper to obtain a clone from the repository:
-
-         bk clone -q http://linux-ntfs.bkbits.net/ntfs-tng-2.5
-
-Or if you already have a clone derived from an official kernel repository 
-you only need to pull in the changes:
-
-         bk pull http://linux-ntfs.bkbits.net/ntfs-tng-2.5
-
-And then checkout all the files using bk -r co -q from within the 
-repository directory.
-
-For people not using BitKeeper patches for the standard 2.5.7 kernel are 
-available here:
-
-http://www-stu.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch.bz2 
-(151kiB)
-
-http://www-stu.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch.gz 
-(199kiB)
-
-http://www-stu.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch 
-(796kiB)
-
-Finally, for people wanting to browse the source code on-line, point your 
-web browser at:
-
-         http://linux-ntfs.bkbits.net:8080/ntfs-tng-2.5
-
-Please everyone courageous enough to use a bleeding edge kernel and who is 
-also an NTFS user give this a try and let me know if you encounter any 
-problems! - Thanks!
-
-Best regards,
-
-Anton
+make[4]: Entering directory `/usr/src/linux-2.5.7-dj2/drivers/scsi/aic7xxx'
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.7-dj2/include -Wall -Wstrict-prototyp=
+es -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common=
+ -pipe -mpreferred-stack-boundary=3D2 -march=3Di686 -malign-functions=3D4  =
+  -DKBUILD_BASENAME=3Daic7xxx_osm  -c -o aic7xxx_osm.o aic7xxx_osm.c
+aic7xxx_osm.c: In function `ahc_linux_setup_tag_info':
+aic7xxx_osm.c:1036: warning: implicit declaration of function `strtok'
+aic7xxx_osm.c:1036: warning: assignment makes pointer from integer without =
+a cast
+aic7xxx_osm.c: In function `aic7xxx_setup':
+aic7xxx_osm.c:1068: warning: assignment makes pointer from integer without =
+a cast
+aic7xxx_osm.c:1068: warning: assignment makes pointer from integer without =
+a cast
+aic7xxx_osm.c: In function `ahc_platform_alloc':
+aic7xxx_osm.c:1322: `AHC_LINUX_NOIRQ' undeclared (first use in this functio=
+n)
+aic7xxx_osm.c:1322: (Each undeclared identifier is reported only once
+aic7xxx_osm.c:1322: for each function it appears in.)
+aic7xxx_osm.c:1332: structure has no member named `runq_tasklet'
+aic7xxx_osm.c: In function `ahc_platform_free':
+aic7xxx_osm.c:1345: structure has no member named `runq_tasklet'
+aic7xxx_osm.c:1349: `AHC_LINUX_NOIRQ' undeclared (first use in this functio=
+n)
+aic7xxx_osm.c: In function `ahc_linux_isr':
+aic7xxx_osm.c:1849: structure has no member named `runq_tasklet'
+aic7xxx_osm.c: In function `ahc_linux_release_sim_queue':
+aic7xxx_osm.c:2460: structure has no member named `runq_tasklet'
+aic7xxx_osm.c: In function `ahc_linux_queue_recovery_cmd':
+aic7xxx_osm.c:2497: `io_request_lock' undeclared (first use in this functio=
+n)
+aic7xxx_osm.c: In function `ahc_linux_bus_reset':
+aic7xxx_osm.c:2794: `io_request_lock' undeclared (first use in this functio=
+n)
+aic7xxx_osm.c: In function `ahc_linux_biosparam':
+aic7xxx_osm.c:2833: warning: passing arg 1 of `scsi_partsize' from incompat=
+ible pointer type
+aic7xxx_osm.c: At top level:
+aic7xxx_osm.c:2924: unknown field `use_new_eh_code' specified in initializer
+make[4]: *** [aic7xxx_osm.o] Error 1
+make[4]: Leaving directory `/usr/src/linux-2.5.7-dj2/drivers/scsi/aic7xxx'
+make[3]: *** [first_rule] Error 2
+make[3]: Leaving directory `/usr/src/linux-2.5.7-dj2/drivers/scsi/aic7xxx'
+make[2]: *** [_subdir_aic7xxx] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5.7-dj2/drivers/scsi'
+make[1]: *** [_subdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.7-dj2/drivers'
+make: *** [_dir_drivers] Error 2
 
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+--=20
+Nathan Walp             || faceprint@faceprint.com
+GPG Fingerprint:        ||   http://faceprint.com/
+5509 6EF3 928B 2363 9B2B  DA17 3E46 2CDC 492D DB7E
 
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+--vtzGhvizbBRQ85DL
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8ooF/PkYs3Ekt234RAnC+AJ9UF1ElVfi3z7u4bmm2WxMLzccVBwCeLxxw
+DjsmkANFoel8GYa6FykZS+k=
+=5uMF
+-----END PGP SIGNATURE-----
+
+--vtzGhvizbBRQ85DL--

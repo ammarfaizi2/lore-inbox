@@ -1,64 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130834AbRBPSAb>; Fri, 16 Feb 2001 13:00:31 -0500
+	id <S129647AbRBPSEb>; Fri, 16 Feb 2001 13:04:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130835AbRBPSAV>; Fri, 16 Feb 2001 13:00:21 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:24847 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130834AbRBPSAM>; Fri, 16 Feb 2001 13:00:12 -0500
-Date: Fri, 16 Feb 2001 09:59:51 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: x86 ptep_get_and_clear question
-In-Reply-To: <3A8D4045.F8F27782@colorfullife.com>
-Message-ID: <Pine.LNX.4.10.10102160953060.14020-100000@penguin.transmeta.com>
+	id <S130821AbRBPSEV>; Fri, 16 Feb 2001 13:04:21 -0500
+Received: from colorfullife.com ([216.156.138.34]:44815 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129647AbRBPSEO>;
+	Fri, 16 Feb 2001 13:04:14 -0500
+Message-ID: <3A8D6BB1.342E62DB@colorfullife.com>
+Date: Fri, 16 Feb 2001 19:04:33 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-ac15 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        bcrl@redhat.com
+Subject: Re: x86 ptep_get_and_clear question
+In-Reply-To: <3A8C499A.E0370F63@colorfullife.com> <Pine.LNX.4.10.10102151702320.12656-100000@penguin.transmeta.com> <20010216151839.A3989@pcep-jamie.cern.ch> <3A8D4045.F8F27782@colorfullife.com> <20010216162741.A4284@pcep-jamie.cern.ch> <3A8D4D43.CF589FA0@colorfullife.com> <20010216170029.A4450@pcep-jamie.cern.ch> <3A8D540C.92C66398@colorfullife.com> <20010216174316.A4500@pcep-jamie.cern.ch> <3A8D5F6C.D81F2F28@colorfullife.com> <20010216183707.A4821@pcep-jamie.cern.ch>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jamie Lokier wrote:
+> 
+> > > Ben, fancy writing a boot-time test?
+> > >
+> > I'd never rely on such a test - what if the cpu checks in 99% of the
+> > cases, but doesn't handle some cases ('rep movd, everything unaligned,
+> > ...'.
+> 
+> A good point.  The test results are inconclusive.
+> 
+> > And check the Pentium III erratas. There is one with the tlb
+> > that's only triggered if 4 instruction lie in a certain window and all
+> > access memory in the same way of the tlb (EFLAGS incorrect if 'andl
+> > mask,<memory_addr>' causes page fault)).
+> 
+> Nasty, but I don't see what an obscure and impossible to work around
+> processor bug has to do with this thread.  It doesn't actually change
+> page fault handling, does it?
+>
+Page fault handling is unchanged, but perhaps there are other races. And
+note that these races wouldn't be processor bugs - the spec nowhere
+guarantee the behaviour you assume.
 
+Ben tries to prove that the current cpu _never_ sets the dirty bit
+without checking the present bit.
 
-On Fri, 16 Feb 2001, Manfred Spraul wrote:
+A very simple test might be
 
-> Jamie Lokier wrote:
-> > 
-> > Linus Torvalds wrote:
-> > > So the only case that ends up being fairly heavy may be a case that is
-> > > very uncommon in practice (only for unmapping shared mappings in
-> > > threaded programs or the lazy TLB case).
-> >
-> The lazy tlb case is quite fast: lazy tlb thread never write to user
-> space pages, we don't need to protect the dirty bits. And the first ipi
-> clears mm->cpu_vm_mask, only one ipi.
+cpu 1:
+	cli();
+	a = 0; b = 0; m = 0;
+	flush_local_tlb_page(a);
+	flush_local_tlb_page(b);
+	flush_local_tlb_page(a);
+	while(!m);
+	while (!a && !b);
+	a = 1;
 
-This is NOT necessarily true in the generic case.
+cpu 2:
+	<wait>
+	cli();
+	both ptes for a and b as writable, not dirty.
+	m = 1;
+	udelay(100);
+	change the pte of a to not present.
+	wmb();
+	b = 1;
 
-The lazy TLB thread itself may not write to the address space, but I can
-in theory see a hardware implementation that delays writing out the dirty
-bit from the TLB until it is invalidated. I agree that it is unlikely,
-especially on an x86, but I think it's a case we should at least think
-about for the generic kernel architecture.
+Now start with variants:
+change to read only instead of not present
+a and b in the same way of the tlb, in a different way.
+change pte with write, change with lock;
+.
+.
+.
 
-Think of the TLB as a cache, and think of the dirty state as being either
-write-through or write-back. Now, I will bet you that all current x86's
- (a) _do_ actually check the P bit when writing D (ie current Linux code
-     is probably fine as-is, even if incorrect in theory)
-and
-  (b) the D bit is write-through.
+But you'll never prove that you tested every combination.
 
-But even so, I want people to at least consider the case of a write-back
-TLB dirty bit, in which case the real state of the D bit might not be
-known until a TLB flush has been done (even on a UP machine - which is why
-I'm certain that no current x86 actually does this optimization).
-
-(And because of (a), I don't think I'll necessarily fix this during 2.4.x
-anyway unless it gets fixed as a result of the generic TLB shootdown issue
-which has nothing at all to do with the D bit)
-
-Don't get too hung up on implementation details when designing a good
-architecture for this thing.
-
-			Linus
-
+--
+	Manfred

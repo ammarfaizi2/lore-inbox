@@ -1,24 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263454AbTJLLxi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 07:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbTJLLxi
+	id S263468AbTJLL7S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 07:59:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263469AbTJLL7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 07:53:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29910 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263454AbTJLLxf (ORCPT
+	Sun, 12 Oct 2003 07:59:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12249 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263468AbTJLL7O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 07:53:35 -0400
-Date: Sun, 12 Oct 2003 04:56:44 -0700
+	Sun, 12 Oct 2003 07:59:14 -0400
+Date: Sun, 12 Oct 2003 05:02:23 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: William Lee Irwin III <wli@holomorphy.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] invalidate_mmap_range() misses
- remap_file_pages()-affected targets
-Message-Id: <20031012045644.0dce8f6b.akpm@osdl.org>
-In-Reply-To: <20031012103436.GC765@holomorphy.com>
-References: <20031012084842.GB765@holomorphy.com>
-	<20031012103436.GC765@holomorphy.com>
+Subject: Re: current_is_kswapd is a function
+Message-Id: <20031012050223.0d270c8f.akpm@osdl.org>
+In-Reply-To: <20031012021750.GA772@holomorphy.com>
+References: <20031012021750.GA772@holomorphy.com>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,19 +26,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 William Lee Irwin III <wli@holomorphy.com> wrote:
 >
-> It would seem that mincore() shares a similar issue on account of its
->  algorithm
+> -	if (current_is_kswapd)
+>  +	if (current_is_kswapd())
 
-Yes, I think it makes sense to fix mincore().  I don't fully understand the
-reasoning behind the three cases though:
+Well damn, I must have looked at that a hundred times when wondering why
+/proc/vmstat:pginodesteal was always zero.  Thanks.
 
-+	if (pte_file(*pte))
-+		present = mincore_linear_page(vma, pte_to_pgoff(*pte));
-+	else if (!(vma->vm_flags | (VM_READ|VM_WRITE|VM_MAYREAD|VM_MAYWRITE)))
-+		present = pte_present(*pte);
-+	else
-+		present = mincore_linear_page(vma, pgoff);
+It would probably be worthwhile teaching the compiler to generate a warning
+in this case; I doubt if anyone is likely to want to find out at runtime
+whether the linker happened to place a particular function at address zero.
+I shall suggest that.
 
-Could you explain the logic behind each of these?  Perhaps with permanent
-comments?
+
 

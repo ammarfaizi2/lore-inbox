@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVANHGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVANHfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVANHGM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 02:06:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVANHGM
+	id S261415AbVANHfh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 02:35:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVANHfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 02:06:12 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:49544 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261307AbVANHGG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 02:06:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=rn2E9S8LYBs6s0NDO6vMMz9AmKnG4ZQAAtSW4nV7kACZJXKIpuwE87Z+lR3/oIu2HF1GRU1SLswwbgbYRYtjiGMcAL6Z1uAbOuxpru0aV/Jcm+nanEGqJRAoIbF6VkUGdNJAjUvQQixG2VbxokLGyLk2/DpQQjsylYtJsP6/Yq4=
-Message-ID: <a36005b505011323061bd2e4a9@mail.gmail.com>
-Date: Thu, 13 Jan 2005 23:06:05 -0800
-From: Ulrich Drepper <drepper@gmail.com>
-Reply-To: Ulrich Drepper <drepper@gmail.com>
-To: linux-kernel@vger.kernel.org
+	Fri, 14 Jan 2005 02:35:37 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:17930 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261415AbVANHfb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 02:35:31 -0500
 Subject: Re: propolice support for linux
-In-Reply-To: <20050113225244.GH14127@boetes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Arjan van de Ven <arjan@infradead.org>
+To: Han Boetes <han@mijncomputer.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050113193205.GE14127@boetes.org>
 References: <20050113134620.GA14127@boetes.org>
-	 <a36005b5050113131179d932eb@mail.gmail.com>
-	 <20050113225244.GH14127@boetes.org>
+	 <20050113140446.GA22381@infradead.org> <20050113163733.GB14127@boetes.org>
+	 <1105635755.6031.37.camel@laptopd505.fenrus.org>
+	 <20050113193205.GE14127@boetes.org>
+Content-Type: text/plain
+Date: Fri, 14 Jan 2005 08:35:20 +0100
+Message-Id: <1105688121.6080.15.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jan 2005 23:52:22 +0100, Han Boetes <han@mijncomputer.nl> wrote:
-> To avoid that I would like to ask you if you can show me some
-> example-code, something I which can compile and run and see for
-> myself, for the following situations:
 
-The analysis of the patch does not stem from trying programs and
-seeing them failing.  The gcc maintainers looked at it with
-understanding of the compiler and the way the patch interacts with the
-existing code.  It might be possible for them to come up with a
-program which is miscompiled.  More importantly, though, it'll most
-probably be possible to come up with code which should be instrumented
-but isn't.  You must agree that this is a terrible thing to happen. 
-The patch gives a wrong sense of security.
+> Well I suggest it here as well:
+>   http://forums.mozillazine.org/viewtopic.php?t=199891
+> 
+> But got zero replies. Could you be so kind to point out to these
+> people it's a good idea?
 
-Finally, the gcc patch is not going to work as is on architectures
-like IA-64 which do not have the kind of adressing modes which are
-needed for the code to work.
 
-To fully understand the problem, you need to understand compiler
-design, and especially RTL.  The latter by itself is another problem:
-getting the code work in gcc 4 is at least challenging due the SSA.
+there are other alternatives to PP that don't require code changes; for
+example Jakub wrote a patch for gcc4 and 3.4 that has the effect of
+detecting buffer overflows but that
+1) Does not require code changes in userspace (only CFLAGS)
+2) is supposedly better in line with the gcc architecture (but I'm not a
+gcc export to judge that)
 
-Anyway, if you want more information you'll need to ask the gcc people.
+Before people say "NIH NIH NIH" I have to say this: Propolice is a great
+piece of work. But if it's architecture is not suitable for gcc mainline
+(especially with the SSA changes in gcc4) then it's most likely not
+going anywhere (as a way of "proof": PP is around for a long time, but
+it still hasn't made gcc mainline, I don't even know if it has been
+submitted for that even). The functionality of detecting buffer
+overflows is useful, and Jakubs patch addresses that functionality as
+well, but in a way that is more in line with the gcc design. 
+(It's actually quite cool stuff, current rawhide is getting compiled
+with it for example and working quite nicely there)
+
+

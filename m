@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266660AbSLDNPK>; Wed, 4 Dec 2002 08:15:10 -0500
+	id <S266507AbSLDNXT>; Wed, 4 Dec 2002 08:23:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266675AbSLDNPK>; Wed, 4 Dec 2002 08:15:10 -0500
-Received: from 212-170-21-172.uc.nombres.ttd.es ([212.170.21.172]:42646 "EHLO
-	omega.resa.es") by vger.kernel.org with ESMTP id <S266660AbSLDNPJ>;
-	Wed, 4 Dec 2002 08:15:09 -0500
-Date: Wed, 4 Dec 2002 14:22:35 +0100
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: stock 2.4.20: loading amd76x_pm makes time jiggle on A7M266-D
-Message-ID: <20021204132235.GA32090@omega.resa.es>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3DEDF543.51C80677@uni-konstanz.de> <1039009531.15353.13.camel@irongate.swansea.linux.org.uk>
+	id <S266512AbSLDNXT>; Wed, 4 Dec 2002 08:23:19 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:10149 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266507AbSLDNXT>; Wed, 4 Dec 2002 08:23:19 -0500
+Subject: Re: timer glitch (solved?)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Felipe Massia <felmasper@yahoo.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021204045258.590d7732.felmasper@yahoo.com.br>
+References: <20021204045258.590d7732.felmasper@yahoo.com.br>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 04 Dec 2002 14:05:16 +0000
+Message-Id: <1039010716.15353.18.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039009531.15353.13.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-From: Pedro Larroy <piotr@omega.resa.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 01:45:31PM +0000, Alan Cox wrote:
-> On Wed, 2002-12-04 at 12:29, Kay Diederichs wrote:
-> > the subject says it all: 
-> > 
-> > if I use the powersaving module amd76x_pm then the time is not kept. The
-> > hardware is Asus A7M266-D with 2 MP1900 processors, BIOS is 1004 (but I
-> > tried later BIOS versions as well).
+On Wed, 2002-12-04 at 06:52, Felipe Massia wrote:
+> My clock, some times, gives wrong results. When I call the folowing
+> command
 > 
-> Boot with "notsc". Unfortunately I dont think there is a way I can make
-> the module turn off tsc at runtime.
+>   bash$ while : ; do date ; done
 > 
+> the time shown is not correct. When the seconds are changing, for a
 
-Hi
- 
-I've had the same issues and a lot of overruns in eth0 plus bandwith
-decreased to one tenth. Does this happen because disconnecting the athlon
-FSB makes impossible for the ethernet interface to perform dma on memory?
+There are some changes cooking in the 2.5 stream that may help and if so
+should get backported
 
-Regards.
--- 
-O   _____________________________________________________________   O
-|  /-| Pedro Larroy Tovar. PiotR | http://omega.resa.es/piotr  |-\  |
-| /--|            No MS-Office attachments please.             |--\ |
-o-|--|              e-mail: piotr@omega.resa.es                |--|-o 
-   \-|   finger piotr@omega.resa.es for public key and info    |-/  
-    -------------------------------------------------------------

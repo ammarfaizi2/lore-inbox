@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129601AbQLaXFV>; Sun, 31 Dec 2000 18:05:21 -0500
+	id <S129383AbQLaXIB>; Sun, 31 Dec 2000 18:08:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129745AbQLaXFL>; Sun, 31 Dec 2000 18:05:11 -0500
-Received: from mail.sonicity.com ([63.251.235.60]:30728 "HELO
-	mail.sonicity.com") by vger.kernel.org with SMTP id <S129601AbQLaXFA>;
-	Sun, 31 Dec 2000 18:05:00 -0500
-Date: Sun, 31 Dec 2000 14:34:33 -0800 (PST)
-From: Justin <keyser-lk@soze.net>
-To: John Buswell <johnb@linuxcast.org>
-Cc: Harald Welte <laforge@gnumonks.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: netfilter + 2.4.0-test10 causes connect:invalid argument
-In-Reply-To: <20001231192213.C3307@coruscant.gnumonks.org>
-Message-ID: <Pine.LNX.4.30.0012311432260.1633-100000@straylight.int.sonicity.com>
+	id <S129431AbQLaXHw>; Sun, 31 Dec 2000 18:07:52 -0500
+Received: from mercury.nildram.co.uk ([195.112.4.37]:22539 "EHLO
+	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
+	id <S129383AbQLaXHk>; Sun, 31 Dec 2000 18:07:40 -0500
+Message-ID: <3A4FB514.67F0EA39@magenta-netlogic.com>
+Date: Sun, 31 Dec 2000 22:37:08 +0000
+From: Tony Hoyle <tmh@magenta-netlogic.com>
+Organization: Magenta Logic
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, J Sloan <jjs@pobox.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: tdfx.o and -test13
+In-Reply-To: <E14CWw1-0007GV-00@the-village.bc.nu> <3A4F4F33.F0EDEA3A@magenta-netlogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Dec 2000, Harald Welte wrote:
+Tony Hoyle wrote:
+> modversions.h is being included in the 'gcc' line, however something is
+> overriding it
+> in the case of the agpsupport.c file.  If you move the include
+> <linux/modversions.h> to
+> the top of agpsupport.c it also works correctly.
 
-> On Wed, Dec 27, 2000 at 11:12:18PM -0500, John Buswell wrote:
-> > 1. running 2.4.0-test10 with netfilter/iptables 1.1.2 ping/telnet gives
-> > you invalid argument when connecting to ports on local interfaces.
->
-> This is a _very_ strange problem. Nobody has erver reported this behaviour
-> to us (the netfilter developers).
->
-> I've never heared about it and never encountered it by myself. Sounds like
-> it is a configuration issue.
+OK ignore the above.... putting it in agpsupport doesn't fix it.
 
-Are you sure lo is up and configured (and that there's a route to
-127.0.0.1 in your routing table that goes through lo)?  I think this can
-cause such a problem.
+My kernel tree went a bit T-zone after I did that.  Even removing the
+fix totally generated
+a completely working module!  I had to 'make distclean' to restore the
+old (buggy) behaviour.
 
+Possibly something in the auto-dependencies?  Unfortunately I don't have
+the info files for gcc so
+I can't work out why the '-include' directive would be
+overridden/ignored.
 
-justin
+Tony
+
 -- 
-I see dead people.
+Can't think of a decent signature...
 
+tmh@magenta-netlogic.com		http://www.nothing-on.tv
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281795AbRLGPXZ>; Fri, 7 Dec 2001 10:23:25 -0500
+	id <S281818AbRLGPZt>; Fri, 7 Dec 2001 10:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281759AbRLGPXQ>; Fri, 7 Dec 2001 10:23:16 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:61704 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S281795AbRLGPXE>; Fri, 7 Dec 2001 10:23:04 -0500
-Date: Fri, 7 Dec 2001 16:22:47 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Rene Rebe <rene.rebe@gmx.net>, <linux-kernel@vger.kernel.org>,
-        <alsa-devel@lists.sourceforge.net>
-Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] /
- ALSA-0.9.0beta[9,10]
-In-Reply-To: <200112070609.fB769Eo08508@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33.0112071617440.2935-100000@serv>
+	id <S281836AbRLGPZj>; Fri, 7 Dec 2001 10:25:39 -0500
+Received: from dsl-213-023-043-071.arcor-ip.net ([213.23.43.71]:29705 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S281818AbRLGPZ0>;
+	Fri, 7 Dec 2001 10:25:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>, Yusuf Goolamabbas <yusufg@outblaze.com>
+Subject: Re: 2.4.17-pre2+ext3-0.9.16+anton's cache aligned smp
+Date: Fri, 7 Dec 2001 16:27:27 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org, anton@samba.org,
+        axboe@suse.de
+In-Reply-To: <3C0B12C5.F8F05016@zip.com.au> <20011206163056.A15550@outblaze.com> <3C0F301D.3368595@zip.com.au>
+In-Reply-To: <3C0F301D.3368595@zip.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16CMuT-0000tz-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On December 6, 2001 09:45 am, Andrew Morton wrote:
+> Yusuf Goolamabbas wrote:
+> > 
+> > Running 2.4.17-pre2 + ext3-0.9.16 + Anton Blanchards
+> > cacheline_aligned_smp patch available at
+> > 
+> > http://samba.org/~anton/linux/cacheline_aligned/
+> 
+> omigod look at that graph.
+> 
+> Excuse me while I get frustrated.  Will someone *please* send that
+> damn patch to marcelo@conectiva.com.br?
+> 
+> (It can be improved further by putting padding *behind* the lock
+> but hey).
+> 
+> > ...
+> > 
+> > With Anton's patch, the number of ctx-swtch/sec drops by around 3000
+> > from avg of 9000 (for 17-pre2+ext3) to avg of 6000 (with anton) as seen
+> > by vmstat 1
+> 
+> Really?  The spinlock cacheline alignment alone made that
+> difference?  I wonder why.
 
-On Thu, 6 Dec 2001, Richard Gooch wrote:
+Before getting *too* excited, remember, it's dbench, so effects could easily 
+be magnified.  Maybe test with something better behaved?
 
-> Two possibilities:
->
-> - the module is trying to register "unknown" twice. The old devfs core
->   was forgiving about this (although it was always a driver bug to
->   attempt to create a duplicate). The new core won't let you do that.
->   Error 17 is EEXIST. Please fix the driver
->
-> - something in user-space created the "unknown" inode before the
->   driver could create it. This is a configuration bug.
-
-Option 3:
-Turn a user generated entry into a kernel generated one and return 0.
-Prepopulating devfs was a valid option so far, you cannot simply change
-this during a stable kernel release.
-
-bye, Roman
-
+--
+Daniel

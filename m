@@ -1,43 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130902AbRCMFkL>; Tue, 13 Mar 2001 00:40:11 -0500
+	id <S130698AbRCMG32>; Tue, 13 Mar 2001 01:29:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130909AbRCMFkB>; Tue, 13 Mar 2001 00:40:01 -0500
-Received: from smtp3.xs4all.nl ([194.109.127.132]:35344 "EHLO smtp3.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S130902AbRCMFjr>;
-	Tue, 13 Mar 2001 00:39:47 -0500
-From: thunder7@xs4all.nl
-Date: Tue, 13 Mar 2001 06:36:55 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: [lkml]Re: Linux 2.4.2ac19
-Message-ID: <20010313063655.A2702@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <E14cYWp-0002Xu-00@the-village.bc.nu> <20010312211917.A2461@werewolf.able.es>
-Mime-Version: 1.0
+	id <S130920AbRCMG3S>; Tue, 13 Mar 2001 01:29:18 -0500
+Received: from think.faceprint.com ([166.90.149.11]:9221 "EHLO
+	think.faceprint.com") by vger.kernel.org with ESMTP
+	id <S130698AbRCMG3D>; Tue, 13 Mar 2001 01:29:03 -0500
+Message-ID: <3AADBDFA.B65047EB@faceprint.com>
+Date: Tue, 13 Mar 2001 01:28:10 -0500
+From: Nathan Walp <faceprint@faceprint.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac20
+In-Reply-To: <E14cgXm-0003O5-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010312211917.A2461@werewolf.able.es>; from jamagallon@able.es on Mon, Mar 12, 2001 at 09:19:17PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 12, 2001 at 09:19:17PM +0100, J . A . Magallon wrote:
+Alan Cox wrote:
 > 
-> On 03.12 Alan Cox wrote:
-> > 
-> > 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
-> > 
+>         ftp://ftp.kernel.org/pub/linux/kernel/people/alan/3.4/
 > 
-> Silly idea: could you put the full path of the bz2 patch instead of only
-> the dir ?
+>                 Intermediate diffs are available from
 > 
-I have another idea: would it be possible to start a new tree
-alan/2.4.3/ when the 2.4.3 patches begin? Piling everything in 2.4/
-isn't making things clearer.
+>                         http://www.bzimage.org
+> 
+> (Note that the cmsfs port to 2.4 is a work in progress)
+> 
+> Its now 2767631 bytes .gz but a fair amount of stuff has gone to Linus so
+> if you redo the diff versus 2.4.3pre4 it looks a lot nicer 8)
+> 
+> 2.4.2-ac20
+> o       Add support for the GoHubs GO-COM232            (Greg Kroah-Hartman)
+> o       Remove cobalt remnants                          (Ralf Baechle)
+> o       First block of mm documentation                 (Rik van Riel)
+> o       Replace ancient Zoran driver with new one       (Serguei Miridonov,
+>                                 Wolfgang Scherr, Rainer Johanni, Dave Perks)
+> o       Fix Alpha build                                 (Jeff Garzik)
+> o       Fix K7 mtrr breakage                            (Dave Jones)
+> o       Fix pcnet32 touching resources before enable    (Dave Jones)
+> o       Merge with Linus 2.4.3pre4
 
-Jurriaan
--- 
-When you stick your fingers in the mains, its not the imaginary component
-which you will feel.
->From an EIST lecturer
-GNU/Linux 2.4.2-ac19 SMP/ReiserFS 2x1743 bogomips load av: 0.02 0.12 0.08
+
+Debian sid (unstable).  ac18 compiled fine.  ac20, i got this:
+
+gcc -I/usr/include -ldb aicasm_gram.c aicasm_scan.c aicasm.c
+aicasm_symbol.c -o aicasm
+aicasm/aicasm_gram.y:45: ../queue.h: No such file or directory
+aicasm/aicasm_gram.y:50: aicasm.h: No such file or directory
+aicasm/aicasm_gram.y:51: aicasm_symbol.h: No such file or directory
+aicasm/aicasm_gram.y:52: aicasm_insformat.h: No such file or directory
+aicasm/aicasm_scan.l:44: ../queue.h: No such file or directory
+aicasm/aicasm_scan.l:49: aicasm.h: No such file or directory
+aicasm/aicasm_scan.l:50: aicasm_symbol.h: No such file or directory
+aicasm/aicasm_scan.l:51: y.tab.h: No such file or directory
+make[5]: *** [aicasm] Error 1
+make[5]: Leaving directory
+`/usr/src/linux-2.4.2-ac20/drivers/scsi/aic7xxx/aicasm'
+make[4]: *** [aicasm/aicasm] Error 2
+make[4]: Leaving directory
+`/usr/src/linux-2.4.2-ac20/drivers/scsi/aic7xxx'
+make[3]: *** [first_rule] Error 2
+make[3]: Leaving directory
+`/usr/src/linux-2.4.2-ac20/drivers/scsi/aic7xxx'
+make[2]: *** [_subdir_aic7xxx] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.2-ac20/drivers/scsi'
+make[1]: *** [_subdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.2-ac20/drivers'
+make: *** [_dir_drivers] Error 2
+patience:/usr/src/linux# 
+
+
+
+Also, sometime between ac7 and ac18 (spring break kept me from testing
+stuff inbetween), i assume during the new aic7xxx driver merge, the
+order of detection got changed, and now the ide-scsi virtual host is
+host0, and my 29160N is host1.  Is this on purpose?  It messed up a
+bunch of my stuff as far as /dev and such are concerned.  
+
+
+Thanks,
+Nathan

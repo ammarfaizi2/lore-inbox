@@ -1,82 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261958AbUBXByr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 20:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbUBXByr
+	id S262042AbUBXCQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 21:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbUBXCQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 20:54:47 -0500
-Received: from relay.pair.com ([209.68.1.20]:2309 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S261958AbUBXByo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 20:54:44 -0500
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <403AADA9.3040803@kegel.com>
-Date: Mon, 23 Feb 2004 17:49:29 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: Jim Wilson <wilson@specifixinc.com>, linux-kernel@vger.kernel.org,
-       Judith Lebzelter <judith@osdl.org>, cliff white <cliffw@osdl.org>,
-       "Timothy D. Witham" <wookie@osdl.org>
-Subject: Re: Kernel Cross Compiling [update]
-References: <20040222035350.GB31813@MAIL.13thfloor.at> <1077565352.1054.22.camel@leaf.tuliptree.org> <20040223203257.GA9800@MAIL.13thfloor.at>
-In-Reply-To: <20040223203257.GA9800@MAIL.13thfloor.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Feb 2004 21:16:56 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:36546 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S262042AbUBXCQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 21:16:53 -0500
+From: Ian Wienand <ianw@gelato.unsw.edu.au>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 24 Feb 2004 13:16:51 +1100
+Subject: [PATCH] devpts_fs.h fails with "error: parameter name omitted"
+Message-ID: <20040224021651.GF1200@cse.unsw.EDU.AU>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3607uds81ZQvwCD0"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl wrote:
-> my primary goal isn't to get this fixed by the gcc folks,
-> I want to have a simple and working solution, which seems
-> to be at hand for the toolchains, to cross compile the
-> linux kernel for testing purposes. the changes so far are
-> not very intrusive IMHO, and I can live with a few patches.
-> (btw. currently Dan Kegel has a lot more patches to gcc in 
-> his toolchain than I do)
 
-My crosstool package has very, very few patches, and each patch is carefully documented.
-(You can see them at http://kegel.com/crosstool/current/patches/gcc-3.3.2/ )
-The patches that end in -test.patch simply add testcases to the gcc
-regression test.  Several of the other patches simply fix testsuite problems.
-The only patches that actually affect gcc are
+--3607uds81ZQvwCD0
+Content-Type: multipart/mixed; boundary="XStn23h1fwudRqtG"
+Content-Disposition: inline
 
-http://kegel.com/crosstool/current/patches/gcc-3.3.2/gcc-3.3.2-arm-softfloat.patch
-http://kegel.com/crosstool/current/patches/gcc-3.3.2/sh-lib1funcs_sizeAndType.patch
-http://kegel.com/crosstool/current/patches/gcc-3.3.2/sh-libgcc-hidden.patch
-http://kegel.com/crosstool/current/patches/gcc-3.3.2/sh-pic-set_fpscr-gcc-3.3.2.patch
 
-I only add a patch after I have verified that it fixes a problem,
-and I document what that problem is at the top of the patch;
-when possible, the patch starts with a link to gcc's bugzilla for
-the problem it fixes.
-Fairly often, my patches are simply backports from cvs.
+--XStn23h1fwudRqtG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Debian, by comparison, builds gcc with huge collections of patches that are not
-documented at all.  Likewise, Red Hat uses quite a few patches.
-I don't want to say the Debian and Red Hat compilers are bad,
-but I *do* want to say that crosstool builds compilers that are
-extremely close to vanilla, with all departures from vanilla carefully documented.
+Hi,
 
-By the way, I agree with Jim Wilson's remark:
- > As a gcc
- > maintainer, it makes my job harder when people are building the compiler
- > different ways, because I may get bug reports that I can't reproduce or
- > understand.  Also, there is a risk that a kernel-only cross compiler
- > will accidentally be used for some other purpose, resulting in a bug
- > report that wastes the time of the gcc maintainers.
+The change
 
-That's why I suspect crosstool is a good toolchain for anyone who
-wants to report bugs to the gcc folks; it's tightly controlled,
-very close to vanilla, and has support for (gasp) running the gcc
-and glibc testsuites in a cross-development environment.
+http://linux.bkbits.net:8080/linux-2.5/cset@1.1595.1.6
 
-- Dan
+caused my test build [1] to die with=20
 
--- 
-US citizens: if you're considering voting for Bush, look at these first:
-http://www.misleader.org/
-http://www.cbc.ca/news/background/arar/
-http://www.house.gov/reform/min/politicsandscience/
+In file included from drivers/char/tty_io.c:79:
+include/linux/devpts_fs.h: In function `devpts_pty_new':
+include/linux/devpts_fs.h:27: error: parameter name omitted
+include/linux/devpts_fs.h: In function `devpts_get_tty':
+include/linux/devpts_fs.h:28: error: parameter name omitted
+include/linux/devpts_fs.h: In function `devpts_pty_kill':
+include/linux/devpts_fs.h:29: error: parameter name omitted
+make[2]: *** [drivers/char/tty_io.o] Error 1
+
+suggested patch attached.
+
+Thanks,
+
+-i
+ianw@gelato.unsw.edu.au
+http://www.gelato.unsw.edu.au
+
+[1] http://www.gelato.unsw.edu.au/kerncomp/results//2004-02-23-16-00/config=
+-2.6.1-simulator-log.html#build
+--XStn23h1fwudRqtG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="devpts_fs.h.patch"
+Content-Transfer-Encoding: quoted-printable
+
+=3D=3D=3D=3D=3D include/linux/devpts_fs.h 1.3 vs edited =3D=3D=3D=3D=3D
+--- 1.3/include/linux/devpts_fs.h	Mon Feb 23 16:24:03 2004
++++ edited/include/linux/devpts_fs.h	Tue Feb 24 13:04:26 2004
+@@ -17,16 +17,16 @@
+=20
+ #if CONFIG_UNIX98_PTYS
+=20
+-int devpts_pty_new(struct tty_struct *); /* mknod in devpts */
+-struct tty_struct *devpts_get_tty(int);	 /* get tty structure */
+-void devpts_pty_kill(int);		 /* unlink */
++int devpts_pty_new(struct tty_struct *tty);      /* mknod in devpts */
++struct tty_struct *devpts_get_tty(int number);	 /* get tty structure */
++void devpts_pty_kill(int number);		 /* unlink */
+=20
+ #else
+=20
+ /* Dummy stubs in the no-pty case */
+-static inline int devpts_pty_new(struct tty_struct *) { return -EINVAL; }
+-static inline struct tty_struct *devpts_get_tty(int)  { return NULL; }
+-static inline void devpts_pty_kill(int) { }
++static inline int devpts_pty_new(struct tty_struct *tty) { return -EINVAL;=
+ }
++static inline struct tty_struct *devpts_get_tty(int number) { return NULL;=
+ }
++static inline void devpts_pty_kill(int number) { }
+=20
+ #endif
+=20
+
+--XStn23h1fwudRqtG--
+
+--3607uds81ZQvwCD0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAOrQTWDlSU/gp6ecRAvTxAKDppro8QiqaunPeAh3/C8JuZLyeowCePJ/z
+6D9memUtgpdiVM39MKLyMHo=
+=8b80
+-----END PGP SIGNATURE-----
+
+--3607uds81ZQvwCD0--

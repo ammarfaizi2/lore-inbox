@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265589AbTAUGpa>; Tue, 21 Jan 2003 01:45:30 -0500
+	id <S265894AbTAUGqt>; Tue, 21 Jan 2003 01:46:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265633AbTAUGpa>; Tue, 21 Jan 2003 01:45:30 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:10744 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S265589AbTAUGp2>;
-	Tue, 21 Jan 2003 01:45:28 -0500
-Message-ID: <3E2CEE91.7F2DFC83@mvista.com>
-Date: Mon, 20 Jan 2003 22:54:09 -0800
+	id <S265947AbTAUGqt>; Tue, 21 Jan 2003 01:46:49 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:29432 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S265894AbTAUGqr>;
+	Tue, 21 Jan 2003 01:46:47 -0500
+Message-ID: <3E2CEEE1.2E50EF7D@mvista.com>
+Date: Mon, 20 Jan 2003 22:55:29 -0800
 From: george anzinger <george@mvista.com>
 Organization: Monta Vista Software
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-14smp i686)
@@ -24,8 +24,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 This is the platform part of the high-res timers for the
 x86.
 
-The 2.5.59 version of this patch is now available on
-sourceforge (see signature).
+Now available for 2.5.59 on sourceforge (see signature).
 
 Changes since last time:
 Kconfig comment clean up by Randy Dunlap.  

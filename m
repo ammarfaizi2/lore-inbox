@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279311AbRJWHfR>; Tue, 23 Oct 2001 03:35:17 -0400
+	id <S279313AbRJWHl2>; Tue, 23 Oct 2001 03:41:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279310AbRJWHfH>; Tue, 23 Oct 2001 03:35:07 -0400
-Received: from pa92.nowy-targ.sdi.tpnet.pl ([217.97.37.92]:60912 "EHLO
-	nt.kegel.com.pl") by vger.kernel.org with ESMTP id <S279309AbRJWHet>;
-	Tue, 23 Oct 2001 03:34:49 -0400
-Message-ID: <000c01c15ba6$2c850b60$72da4dd5@abi>
-From: "Albert Bartoszko" <abartoszko@nt.kegel.com.pl>
-To: "Alexander Viro" <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0110220242290.2294-100000@weyl.math.psu.edu>
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12
-Date: Tue, 23 Oct 2001 11:28:08 +0200
+	id <S279314AbRJWHlS>; Tue, 23 Oct 2001 03:41:18 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:9480 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S279313AbRJWHlE>; Tue, 23 Oct 2001 03:41:04 -0400
+Message-ID: <3BD51F02.92B9B7F3@idb.hist.no>
+Date: Tue, 23 Oct 2001 09:40:50 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: safemode <safemode@speakeasy.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: time tells all about kernel VM's
+In-Reply-To: <20011023030353Z279218-17408+3723@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ...............
-> Check that your modules.conf contains
->
-> post-install binfmt_misc mount -t binfmt_misc none /proc/sys/binfmt_misc
-> pre-remove binfmt_misc umount /proc/sys/binfmt_misc
->
-Yes, now contains, and mount, umount and binfmt work propely.
-This should be documented in sources
+safemode wrote:
+[...]
+> B.  The VM has this need to redistribute cache and buffer so that an OOM
+> situation doesn't take place until all the ram is basically being used.  The
+> problem is that currently the VM will swap out stuff it isn't using and
+> without buffer it must read from the drive (which is being used to swap)
+> which takes more cpu which isn't there because the app is locking the kernel
+> up trying to allocate memory (see why dbench causes mp3 skips).  So what
+> happens is that the kernel cant swap because the hdd io is being strangled by
+> the process that's going out of control (kghostview) which means that the VM
+> is stuck doing this redistribution at a snails pace and the OOM situation
+> never occurs (or occurs many days later when you've died of starvation).
+> Leaving you deadlocked on a kernel with a VM that is supposed to conquer this
+> situation and make it a thing of the past.
+> 
+Any VM with paging _can_ be forced into a trashing situation where
+a keypress takes hours to process.  A better VM will take more pressure
+before it gets there and performance will degrade more gradually.
+But any VM can get into this situation.
 
-xx:/tmp# egrep -Hr "mount[[:space:]]+-t[[:space:]]+binfmt_misc"
-/usr/src/linux
-xx:/tmp#
+Consider a malicious app that uses lots of RAM but deliberately leaves
+a _single_ page free.  OOM will never happen, but the machine is
+brought to its knees anyway.  (You can also get in trouble by running
+a few hundred infinite loops, with some dummy io so they too get the
+io boost other processes gets.)
 
-But I still  can't unload module (unmounted):
-#rmmod binfmt_misc
-binfmt_misc: Device or resource busy
+Swapping out whole processes can help this, but it will merely
+move the point where you get stuck.  A load control system that
+kills processes when response is too slow is possible, but
+the problem here is that you can't get people to agree
+on how bad is too bad.  It is sometimes ok to leave the machine 
+alone crunching a big problem over the weekend.  And sometimes
+you _need_ response much faster.
 
+And what app to kill in such a situation?
+You had a single memory pig, but it aint necessarily so.
 
-
+Helge Hafting

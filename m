@@ -1,42 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVAXWhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVAXWlB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbVAXWhm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 17:37:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVAXWhX
+	id S261705AbVAXWlB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 17:41:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVAXWhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 17:37:23 -0500
-Received: from mailgate6.usairways.com ([151.193.203.26]:59599 "EHLO
-	mailgate6.usairways.com") by vger.kernel.org with ESMTP
-	id S261606AbVAXWfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 17:35:05 -0500
-Message-Id: <200501242235.j0OMZ2JK011751@mailgate5.usairways.com>
-Date: Mon, 24 Jan 2005 16:33:46 -0500 (CDT)
-From: US Airways Postmaster <postmaster@usairways.com>
-Reply-To: do_not_reply@usairways.com
-To: <linux-kernel@vger.kernel.org>
-Subject: Disallowed attachment in message
+	Mon, 24 Jan 2005 17:37:51 -0500
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:34019 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261587AbVAXWg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 17:36:27 -0500
+Date: Mon, 24 Jan 2005 14:36:10 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: earny@net4u.de,
+       Frank Dekervel|Smartlounge| <frank.dekervel@smartlounge.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2: Badness in local_bh_enable at kernel/softirq.c:140
+Message-ID: <20050124223610.GA10120@taniwha.stupidest.org>
+References: <200501242302.04493.frank.dekervel@smartlounge.be> <200501241919.29987.list-lkml@net4u.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501242302.04493.frank.dekervel@smartlounge.be> <200501241919.29987.list-lkml@net4u.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In order to protect our network from viruses, US Airways prohibits 
-receipt of certain file attachments via email.  The email message  
-described below has been deleted and was not received by the 
-intended recipient.  This is not an indication that the attachment 
-contained a virus.  It is simply a precaution.
-
-
-To successfully deliver the message, you should first rename the 
-file so that the file extension is changed to ".usa" and then resend 
-the file.  Include instructions to the recipient to rename the file 
-back to its original file extension.
-
-
-Email details:
-
-     Date: Thu, 24 Feb 2005 15:13:35 -0500
-     Sender: <linux-kernel@vger.kernel.org>
-     Recipient: <esavers@usairways.com>
-     Subject: Mail Delivery (failure esavers@usairways.com)
-     Attachment Name: message.scr
-     Attachment Type: Screen Saver
-
+Fixed in -bk on Sunday.

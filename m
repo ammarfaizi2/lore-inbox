@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266939AbTB0UTt>; Thu, 27 Feb 2003 15:19:49 -0500
+	id <S266948AbTB0UUB>; Thu, 27 Feb 2003 15:20:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266948AbTB0UTt>; Thu, 27 Feb 2003 15:19:49 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:46735 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266939AbTB0UTs>;
-	Thu, 27 Feb 2003 15:19:48 -0500
-Date: Thu, 27 Feb 2003 12:13:02 -0800 (PST)
-Message-Id: <20030227.121302.86023203.davem@redhat.com>
-To: bcollins@debian.org
-Cc: pavel@suse.cz, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com,
-       ak@suse.de, arnd@bergmann-dalldorf.de
-Subject: Re: ioctl32 consolidation -- call for testing
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030227202739.GO21100@phunnypharm.org>
-References: <20030226222606.GA9144@elf.ucw.cz>
-	<20030227195135.GN21100@phunnypharm.org>
-	<20030227202739.GO21100@phunnypharm.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S266907AbTB0UUA>; Thu, 27 Feb 2003 15:20:00 -0500
+Received: from mail.spylog.com ([194.67.35.220]:37799 "EHLO mail.spylog.com")
+	by vger.kernel.org with ESMTP id <S266948AbTB0UT7>;
+	Thu, 27 Feb 2003 15:19:59 -0500
+Date: Thu, 27 Feb 2003 23:30:13 +0300
+From: Andrey Nekrasov <andy@spylog.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: eepro100: wait_for_cmd_done timeout
+Message-ID: <20030227203013.GA25009@an.spylog.com>
+Mail-Followup-To: Andrey Nekrasov <andy@spylog.ru>,
+	linux-kernel@vger.kernel.org
+References: <01e601c2de81$27527ce0$3f00a8c0@witbe>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <01e601c2de81$27527ce0$3f00a8c0@witbe>
+Organization: SpyLOG ltd.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ben Collins <bcollins@debian.org>
-   Date: Thu, 27 Feb 2003 15:27:39 -0500
-   
-   Here it is. Sparc64's macros for ioctl32's assumed that cmd was u_int
-   instead of u_long. This look ok to you, Dave?
+Hello Paul Rolland,
 
-We would love to see that patch :-)
+> Feb 27 13:50:01 rms-01 Feb 27 13:50:01:30726 kernel: eepro100:
+> wait_for_cmd_done
+>  timeout!
+> 
+> eth0: OEM i82557/i82558 10/100 Ethernet, 00:06:5B:39:69:2B, IRQ 16.
+>   Board assembly 02d484-000, Physical connectors present: RJ45
+>   Primary interface chip i82555 PHY #1.
+>   General self-test: passed.
+>   Serial sub-system self-test: passed.
+>   Internal registers self-test: passed.
+>   ROM checksum self-test: passed (0x04f4518b).
+> Anyone knows why ?
+
+ try update bios on motherboard.
+ i am use INTEL STL2 and after update bios to last version network card work ok
+
+-- 
+Any statement is incorrect.

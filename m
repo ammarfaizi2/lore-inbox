@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319097AbSIKPcR>; Wed, 11 Sep 2002 11:32:17 -0400
+	id <S319113AbSIKPdq>; Wed, 11 Sep 2002 11:33:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319113AbSIKPcR>; Wed, 11 Sep 2002 11:32:17 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56585 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S319097AbSIKPcQ>; Wed, 11 Sep 2002 11:32:16 -0400
-Date: Wed, 11 Sep 2002 11:28:52 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Daniel Phillips <phillips@arcor.de>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Alexander Viro <viro@math.psu.edu>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Question about pseudo filesystems
-In-Reply-To: <E17oUnq-0006tg-00@starship>
-Message-ID: <Pine.LNX.3.96.1020911111334.12605B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319160AbSIKPdq>; Wed, 11 Sep 2002 11:33:46 -0400
+Received: from angband.namesys.com ([212.16.7.85]:1408 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S319113AbSIKPdp>; Wed, 11 Sep 2002 11:33:45 -0400
+Date: Wed, 11 Sep 2002 19:38:29 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
+       Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org
+Subject: Re: 2.5 Problem Status Report
+Message-ID: <20020911193829.A851@namesys.com>
+References: <Pine.LNX.4.44.0209110937190.5764-100000@localhost.localdomain> <20020911120551.A937@namesys.com> <20020911102507.GA1364@suse.de> <20020911102926.GB1364@suse.de> <20020911144740.A911@namesys.com> <20020911105807.GF1089@suse.de> <20020911151602.A830@namesys.com> <20020911111726.GJ1089@suse.de> <20020911114903.GK1089@suse.de> <20020911161021.A962@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20020911161021.A962@namesys.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Sep 2002, Daniel Phillips wrote:
+Hello!
 
-> > The expected behaviour is as it has always been: rmmod fails if anyone
-> > is using the module, and succeeds if nobody is using the module.  The
-> > garbage collection of modules is done using "rmmod -a" periodically, as
-> > it always has been.
+On Wed, Sep 11, 2002 at 04:10:21PM +0400, Oleg Drokin wrote:
+> > > > Ok, with other patch it still fails in the same way.
+> > > > I have not backed out other patch so I tested with both patches perent.
+> > > alright, seems I do have to try it myself... ok will do that.
+> > with both patches I sent applied, the bug does _not_ exist here as
+> > expected. could you please double check that they are applied, and that
+> > you have booted the right kernel? a make clean just to be on the safe
+> > side might be a good idea :-)
+> Well, now it works for me too. Not sure why it was working previous time,
+> because all the patches were in place. I will play more with it later today.
 
-I can't disagree with any of that, but the idea of releasing resources
-when they are not in use and preventing new use of the resource from the
-time of the release request is hardly new to UNIX. It's exactly the way
-filespace is treated when a file is unlinked while open.
+It's me again. And I have bad news.
+I have figured why it works for you and did not worked for me.
+
+Try following patch (inspired by Ingo) to get nice BUG on bootup again.
+
+Without the patch ext2 works with your fixes, but reiserfs is not working,
+so it seems there are constant preempt counter underflows that later gets
+corrected.
+
+Bye,
+    Oleg
+
+===== include/linux/preempt.h 1.6 vs edited =====
+--- 1.6/include/linux/preempt.h	Fri Sep  6 04:18:30 2002
++++ edited/include/linux/preempt.h	Wed Sep 11 19:28:42 2002
+@@ -17,7 +17,8 @@
  
-> Al's analysis is all focussed on the filesystem case, where you can
-> prove assertions about whether the subsystem defined by the module is
-> active or not.  This doesn't cover the whole range of module applications.
-
-Which if true doesn't preclude solving the problems it does address.
-
-> There is a significant class of module types that must rely on sheduling
-> techniques to prove inactivity.  My suggestion covers both, Al has his
-> blinders on.
-
-Clearly there are people who don't agree, and you don't help by insulting
-them. I'd like a single solution, but it looks as if Al's idea will work
-for filesystems, and it's relatively simple.
+ #define dec_preempt_count() \
+ do { \
+-	preempt_count()--; \
++	if ( --preempt_count()) \
++		BUG(); \
+ } while (0)
  
-> Designs are not always correct just because they work.
-
-Solutions which work are most certainly correct, and no degree of elegance
-will make a non-working solution correct for any definition of correct I
-use. I think you mean "optimal" here, and clearly an optimal solution is
-simple, reliable, efficient, general, and easy to code and understand.
-Anything less is subject to improvement, and that certainly applies to
-module removal ;-)
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+ #ifdef CONFIG_PREEMPT

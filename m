@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261517AbSIXBHx>; Mon, 23 Sep 2002 21:07:53 -0400
+	id <S261516AbSIXBH1>; Mon, 23 Sep 2002 21:07:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbSIXBHx>; Mon, 23 Sep 2002 21:07:53 -0400
-Received: from packet.digeo.com ([12.110.80.53]:23446 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261517AbSIXBHv>;
-	Mon, 23 Sep 2002 21:07:51 -0400
-Message-ID: <3D8FBC16.6A4BCDE4@digeo.com>
-Date: Mon, 23 Sep 2002 18:12:54 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.38 semaphore.c calls sleeping function in illegal context
-References: <20020924002052.GS25605@holomorphy.com>
+	id <S261517AbSIXBH1>; Mon, 23 Sep 2002 21:07:27 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:9481 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S261516AbSIXBH0>; Mon, 23 Sep 2002 21:07:26 -0400
+Date: Mon, 23 Sep 2002 18:12:34 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
+Message-ID: <20020924011234.GC15156@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.95.1020923101125.3233A-100000@chaos.analogic.com> <1032791089.3d8f2431231ac@kolivas.net> <20020923163452.GF9726@waste.org> <1032817665.3d8f8c0156b2e@kolivas.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Sep 2002 01:12:54.0396 (UTC) FILETIME=[829DDBC0:01C26367]
+Content-Disposition: inline
+In-Reply-To: <1032817665.3d8f8c0156b2e@kolivas.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+On Tue, Sep 24, 2002 at 07:47:45AM +1000, Con Kolivas wrote:
+> Quoting Oliver Xymoron <oxymoron@waste.org>:
 > 
-> ksymoops 2.4.6 on i686 2.5.38-2.  Options used
->      -v /mnt/b/2.5.38/vmlinux-2.5.38-2 (specified)
->      -K (specified)
->      -L (specified)
->      -O (specified)
->      -m /boot/System.map-2.5.38-2 (specified)
+> > On Tue, Sep 24, 2002 at 12:24:49AM +1000, Con Kolivas wrote:
+> > > 
+> > > That is the system I was considering. I just need to run enough
+> > > benchmarks to make this worthwhile though. That means about 5 for
+> > > each it seems - which may take me a while. A basic mean will suffice
+> > > for a measure of central tendency. I also need to quote some measure
+> > > of variability. Standard deviation?
+> > 
+> > No, standard deviation is inappropriate here. We have no reason to
+> > expect the distribution of problem cases to be normal or even smooth.
+> > What we'd really like is range and mean. Don't throw out the outliers
+> > either, the pathological cases are of critical interest.
 > 
-> Reading Oops report from the terminal
-> c02c9f6c c02c9f84 c01175f7 c0260f80 c0261500 0000007e c02c9f98 c011a4a1
->        c0261500 0000007e 00000000 c02c9fac c011a78a c0312480 c0278213 c0383244
->        c02c9fb8 c02d8316 c02ba640 c02c9fc0 c02d8164 c02c9fd0 c02d8a4b 00000000
-> Call Trace: [<c01175f7>] [<c011a4a1>] [<c011a78a>] [<c0105000>]
-> Warning (Oops_read): Code line not seen, dumping what data is available
-> 
-> Trace; c01175f7 <__might_sleep+27/2b>
-> Trace; c011a4a1 <acquire_console_sem+2d/50>
-> Trace; c011a78a <register_console+122/1cc>
-> Trace; c0105000 <_stext+0/0>
-> 
+> Yes. Definitely the outliers appear to make the difference to the results. The
+> mean and range appear to be the most important on examining this data. The only
+> purpose to quoting other figures would be for inferential statistics to
+> determine if there is a statistically significant difference to the groups. My
+> overnight benchmarking has generated a few results and I will publish something
+> soon.
 
-Don't know.  Who called register_console()?
+Happy am i to be wrong in suggesting you would benefit from
+the help of a statistician.  My apologies.
 
-But I suspect in_atomic() is returning incorrect or misleading
-answers early in boot.
+Sounds like we are getting to relative performance and
+confidence interval (much bettern than +/- x) which would be
+useful for those doing performance improvements and for us
+who must tune or are watching the improvments take place.
+
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

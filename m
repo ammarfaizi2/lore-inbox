@@ -1,190 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbUDLPCg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 11:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbUDLPCf
+	id S261891AbUDLP1L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 11:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUDLP1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 11:02:35 -0400
-Received: from sigma.informatik.hu-berlin.de ([141.20.20.51]:12503 "EHLO
-	sigma.informatik.hu-berlin.de") by vger.kernel.org with ESMTP
-	id S262257AbUDLPBj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 11:01:39 -0400
-From: Axel Weiss <aweiss@informatik.hu-berlin.de>
-Organization: Humboldt-Universitaet zu Berlin
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernelversion distinction
-Date: Mon, 12 Apr 2004 16:51:39 +0200
-User-Agent: KMail/1.5.4
-References: <20040412132009.0D15415C20@post1.dk>
-In-Reply-To: <20040412132009.0D15415C20@post1.dk>
-Cc: sam@ravnborg.org
+	Mon, 12 Apr 2004 11:27:10 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:35555 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261891AbUDLP06
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 11:26:58 -0400
+Message-ID: <407AB4FD.4070905@us.ibm.com>
+Date: Mon, 12 Apr 2004 10:25:49 -0500
+From: Brian King <brking@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200404121651.39075.aweiss@informatik.hu-berlin.de>
+To: Andrew Morton <akpm@osdl.org>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: [PATCH] call_usermodehelper hang
+References: <4072F2B7.2070605@us.ibm.com>	<20040406172903.186dd5f1.akpm@osdl.org>	<20040407061146.GA10413@kroah.com>	<407487A6.8020904@us.ibm.com>	<20040408224713.GD15125@kroah.com>	<40770AD0.4000402@us.ibm.com>	<20040409205344.GA5236@kroah.com>	<20040409141511.4e372554.akpm@osdl.org>	<20040410165322.GG1317@kroah.com> <20040410131137.0eff0ae2.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------050409000605020104040001"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 12. April 2004 15:20 schrieb sam@ravnborg.org:
-> Date: Man, 12 Apr 2004 12:21:44 +0200 skrev Axel Weiss <aweiss@informatik.hu-berlin.de> :
-> Why you cannot use the same Makefile for 2.4 and 2.6?
-On SuSE-9.0 the build simply fails:
+This is a multi-part message in MIME format.
+--------------050409000605020104040001
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-rantanplan:/home/axel/freeSP-1.0.3 # make -C drivers/linux/harmonie/
-make: Entering directory `/home/axel/freeSP-1.0.3/drivers/linux/harmonie'
-make -C driver all
-make[1]: Entering directory `/home/axel/freeSP-1.0.3/drivers/linux/harmonie/driver'
-make -C /lib/modules/2.4.21-199-axel/build SUBDIRS=/home/axel/freeSP-1.0.3/drivers/linux/harmonie/driver modules
-make[2]: Entering directory `/usr/src/linux-2.4.21-199'
-make -C  /home/axel/freeSP-1.0.3/drivers/linux/harmonie/driver CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4.21-199/include  -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -fno-unit-at-a-time -pipe -msoft-float -mpreferred-stack-boundary=2 -march=athlon -DMODULE" MAKING_MODULES=1 modules
-make[3]: Entering directory `/home/axel/freeSP-1.0.3/drivers/linux/harmonie/driver'
-make[3]: *** Keine Regel, um »modules« zu erstellen.  Schluss.
-make[3]: Leaving directory `/home/axel/freeSP-1.0.3/drivers/linux/harmonie/driver'
-make[2]: *** [_mod_/home/axel/freeSP-1.0.3/drivers/linux/harmonie/driver] Fehler 2
-make[2]: Leaving directory `/usr/src/linux-2.4.21-199'
-make[1]: *** [all] Fehler 2
-make[1]: Leaving directory `/home/axel/freeSP-1.0.3/drivers/linux/harmonie/driver'
-make: *** [module] Fehler 2
-make: Leaving directory `/home/axel/freeSP-1.0.3/drivers/linux/harmonie'
+Andrew Morton wrote:
+> Greg KH <greg@kroah.com> wrote:
+> 
+>>>The deadlock opportunity occurs during the call_usermodehelper() handoff to
+>>
+>> > keventd, which is synchronous.
+>> > 
+>> > 2-3 years back I did have a call_usermodehelper() which was fully async. 
+>> > It was pretty unpleasant because of the need to atomically allocate
+>> > arbitrary amounts of memory to hold the argv[] and endp[] arrays, to pass
+>> > them between a couple of threads and to then correctly free it all up
+>> > again.
+>>
+>> Ok, you've convinced me of the mess that would cause.  So what should we
+>> do to help fix this?  Serialize call_usermodehelper()?
+> 
+> 
+> May as well bring back call_usermodehelper_async() I guess.
+> 
+> 
+> There are two patches here, and they are totally untested...
 
->
-> A simple Makefile like you outline:
-> >EXTRA_CFLAGS := -I/usr/include
-> >obj-m	       += <my_module>.o
-> ><my_module>-objs = <my module object files>
->
-> Will work flawlessly with both 2.4 and 2.6.
-> I know people for a long time have hardcoded the gcc commandline
-> to build modules for 2.4 - but thats just wrong.
-> In this way you do not catch differences in gcc options.
-> For 2.4 we have seen only few of these config related flags to gcc,
-> in 2.6 we have a lot.
->
-> Please next time post the full Makefile.
-(see eom)
->
-> Btw, a module that is dependent on /usr/include looks wrong...
-This is because I include the ioctl-definitions, and I put them to /usr/include/dsp, so the kernel module and user-space-lib see the identical file.
-Perhaps it would be better to include the local source (in this case ../system_include), I will think over it.
+I loaded the patches on my ppc64 box and they worked fine after I fixed a compile
+bug. The attached patch fixes the compile bug and changes the call_usermodehelper
+call in kset_hotplug to call_usermodehelper_async.
 
-> >clean:
-> >	 rm -f *.o *.ko .*.cmd <my_module>.mod.c
->
-> For the new external module support implemented in -mc4 you
-> do not have to hardcode the clean: target, and no attempts will
-> be made to update the kernel stuff.
-> Documentation soon to arrive...
-Do you think, it would be better to write
-clean:
-	$(MAKE) -C  $(KDIR) SUBDIRS=$(PWD) clean
-?
-
-There are still some inconsistencies, especially when I try to compile a second module. I will investigate this tonight and post cognitions here.
-
-The next problem arises when I have to ditinguish the kernel version within C source. For now I do it like this:
-// fw-declaration of /proc-read functions:
-#ifdef LINUX_VERSION_CODE
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2, 4, 18)
-int harmonie_read_proc(char *buf, char **start, off_t offset, int len, int unused);
-#else	// 2.4.19 ... < 2.5
-int harmonie_read_proc(char *buf, char **start, off_t offset, int cnt, int *eof, void *data);
-#endif
-#else	// >= 2.5
-int harmonie_read_proc(char *buf, char **start, off_t offset, int cnt, int *eof, void *data);
-#endif
-
-This looks really ugly, so what is the recommended way to get kernel version information? As the interface for ISRs has changed, too, there is a need for getting kernel version at compile time.
-
-For now, I have a running module for 2.2 - 2.6 :)
-
-Now the complete Makefile:
-
-# ***************************************************************************
-#                          makefile  -  description
-#
-#   This is the harmonie device driver makefile.
-#
-#                             -------------------
-#    begin                : Wed May 29 2002
-#    copyright            : (C) 2002 by Axel Weiss
-#    email                : aweiss@informatik.hu-berlin.de
-# ***************************************************************************/
-#
-# ***************************************************************************
-# *                                                                         *
-# *   This program is free software; you can redistribute it and/or modify  *
-# *   it under the terms of the GNU General Public License as published by  *
-# *   the Free Software Foundation; either version 2 of the License, or     *
-# *   (at your option) any later version.                                   *
-# *                                                                         *
-# ***************************************************************************/
+-Brian
 
 
-KERNELVERSION := $(shell uname -r)
-KERNELBASE    := $(basename $(KERNELVERSION))
-KERNELMINOR   := $(suffix $(KERNELBASE))
-KERNELMAJOR   := $(basename $(KERNELBASE))
 
-OLD_MODULES := $(strip $(foreach V, .0 .1 .2 .3 .4, $(shell [ "$(V)" = "$(KERNELMINOR)" ] && echo yes)))
 
-ifeq ($(KERNELMAJOR),2)
-ifeq ($(OLD_MODULES),yes)	# old style make
+-- 
+Brian King
+eServer Storage I/O
+IBM Linux Technology Center
 
-DEBUG := yes
+--------------050409000605020104040001
+Content-Type: text/plain;
+ name="call_usermodehelper_kobject.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="call_usermodehelper_kobject.patch"
 
-CC := gcc
 
-SOURCES := $(wildcard *.c)
-HEADERS := $(wildcard *.h)
-OBJS := $(SOURCES:%.c=%.o)
+Fixes a compile error in call_usermodehelper_async and changes kset_hotplug 
+to use call_usermodehelper_async, since it is called with a semaphore held,
+which can result in a deadlock.
 
-CC_FLAGS := -c -Wall -I/lib/modules/`uname -r`/build/include -DMODULE -D__KERNEL__
-ifeq ($(DEBUG),yes)
-	CC_FLAGS += -DHARMONIE_DEBUG
-endif
 
-all: harmonie.o
+---
 
-harmonie.o: $(OBJS)
-	$(LD) -r -o $@ $(OBJS)
 
-$(OBJS): %.o:%.c
-	$(CC) $(CC_FLAGS) $<
+diff -puN kernel/kmod.c~call_usermodehelper_kobject kernel/kmod.c
+--- linux-2.6.5/kernel/kmod.c~call_usermodehelper_kobject	Mon Apr 12 08:27:20 2004
++++ linux-2.6.5-bjking1/kernel/kmod.c	Mon Apr 12 08:27:44 2004
+@@ -296,7 +296,7 @@ int call_usermodehelper_async(char *path
+ {
+ 	struct subprocess_info *sub_info;
+ 
+-	if (system_state != SYSTEM_RUNNING)
++	if (!system_running)
+ 		return -EBUSY;
+ 	if (path[0] == '\0')
+ 		goto out;
+diff -puN lib/kobject.c~call_usermodehelper_kobject lib/kobject.c
+--- linux-2.6.5/lib/kobject.c~call_usermodehelper_kobject	Mon Apr 12 08:28:07 2004
++++ linux-2.6.5-bjking1/lib/kobject.c	Mon Apr 12 08:28:28 2004
+@@ -187,7 +187,7 @@ static void kset_hotplug(const char *act
+ 
+ 	pr_debug ("%s: %s %s %s %s %s %s %s\n", __FUNCTION__, argv[0], argv[1],
+ 		  envp[0], envp[1], envp[2], envp[3], envp[4]);
+-	retval = call_usermodehelper (argv[0], argv, envp, 0);
++	retval = call_usermodehelper_async (argv[0], argv, envp, GFP_KERNEL);
+ 	if (retval)
+ 		pr_debug ("%s - call_usermodehelper returned %d\n",
+ 			  __FUNCTION__, retval);
 
-$(OBJS): $(HEADERS) $(SYSTEM_HEADERS_INSTALL)
+_
 
-clean:
-	@rm -f $(OBJS) *% *.bak harmonie.o
-
-else #ifeq ($(OLD_MODULES),yes)	new style make
-
-ifneq ($(KERNELRELEASE),)
-
-EXTRA_CFLAGS := -I/usr/include
-obj-m         += harmonie.o
-harmonie-objs = harmonie_buffer.o harmonie_device.o harmonie_module.o harmonie_procio.o harmonie_io.o
-
-else #ifneq ($(KERNELRELEASE),)
-
-KDIR        := /lib/modules/$(shell uname -r)/build
-PWD         := $(shell pwd)
-
-all:
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
-
-clean:
-	rm -f *.o *.ko .*.cmd harmonie.mod.c
-
-endif #ifneq ($(KERNELRELEASE),)
-endif #ifeq ($(OLD_MODULES),yes)
-
-else #ifeq ($(KERNELMAJOR),2)	# kernel 1.x ?
-
-all:
-	@echo kernel $(KERNELVERSION) not supported
-
-endif #ifeq ($(KERNELMAJOR),2)
+--------------050409000605020104040001--
 

@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264051AbSIQLLU>; Tue, 17 Sep 2002 07:11:20 -0400
+	id <S264059AbSIQLQx>; Tue, 17 Sep 2002 07:16:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264055AbSIQLLU>; Tue, 17 Sep 2002 07:11:20 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:33013
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264051AbSIQLLU>; Tue, 17 Sep 2002 07:11:20 -0400
-Subject: Re: Hi is this critical??
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Andre Hedrick <andre@linux-ide.org>, jbradford@dial.pipex.com,
-       Nuitari <nuitari@balthasar.nuitari.net>, venom@sns.it,
-       linux-kernel@vger.kernel.org, xavier.bestel@free.fr, mark@veltzer.org
-In-Reply-To: <20020917120937.B28438@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.10.10209170116280.11597-100000@master.linux-ide.org>
-	<1032259304.13990.5.camel@irongate.swansea.linux.org.uk> 
-	<20020917120937.B28438@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 17 Sep 2002 12:17:53 +0100
-Message-Id: <1032261473.14015.31.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S264060AbSIQLQx>; Tue, 17 Sep 2002 07:16:53 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:39345 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S264059AbSIQLQw>; Tue, 17 Sep 2002 07:16:52 -0400
+Date: Tue, 17 Sep 2002 13:22:15 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: James Cleverdon <jamesclv@us.ibm.com>
+cc: Mark Knecht <mknecht@controlnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: APIC IRQs
+In-Reply-To: <200209161717.02057.jamesclv@us.ibm.com>
+Message-ID: <Pine.GSO.3.96.1020917130620.16296D-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-17 at 12:09, Russell King wrote:
-> Then you find out that its been used in the world cup.  You try to
-> return it to the vendor, but the vendor says its your fault for
-> dropping the drive.  You protest, but the vendor refuses to listen
-> because they've got their technology that says so in their product.
+On Mon, 16 Sep 2002, James Cleverdon wrote:
 
-Then you take them to the small claims court. Its their burden of proof.
-Or in the US I imagine you file a class action lawsuit, but before you
-can file it the features go away because someone else sues them for
-patent infringement instead ;)
+> For APICs, when two interrupts are present when interrupts are enabled, the 
+> one with the highest interrupt vector number will be taken first.  Vectors 
+> are statically assigned to the PCI slots, starting at 0x40 or 0x41.  So, the 
 
-Alan
+ Vectors start from 0x31.  That's what IRQ 0 gets.  The interval is 8, so
+the following vectors are 0x39, 0x41, and so on.
+
+> last PCI interrupt source in the MPS table will be the highest priority.  
+
+ Not necessarily -- after reaching the reserved range, i.e. 0xef, the
+allocation wraps around to the previous base plus one.  So for the second
+pass vectors start from 0x32, for the third -- 0x33, etc.
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

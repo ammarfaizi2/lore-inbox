@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263284AbUDEV54 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 17:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbUDEVyy
+	id S262580AbUDEVvh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 17:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbUDEVtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 17:54:54 -0400
-Received: from prosun.first.gmd.de ([194.95.168.2]:4226 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S263483AbUDEVxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 17:53:12 -0400
-Subject: Re: regression: oops with usb bcm203x bluetooth dongle 2.6.5
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1081201227.2843.27.camel@pegasus>
-References: <1081196482.3591.5.camel@localhost>
-	 <1081199370.2843.20.camel@pegasus>  <1081200442.3591.38.camel@localhost>
-	 <1081201227.2843.27.camel@pegasus>
-Content-Type: text/plain
-Message-Id: <1081201957.3590.49.camel@localhost>
-Mime-Version: 1.0
-Date: Mon, 05 Apr 2004 23:52:38 +0200
+	Mon, 5 Apr 2004 17:49:18 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:47441 "EHLO
+	zircon.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S263322AbUDEVsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 17:48:43 -0400
+From: Hollis Blanchard <hollisb@us.ibm.com>
+To: Christian Kujau <evil@g-house.de>, Tom Rini <trini@kernel.crashing.org>
+Subject: Re: 2.6.5-pre* does not boot on my PReP PPC
+Date: Mon, 5 Apr 2004 16:48:26 -0500
+User-Agent: KMail/1.5.3
+Cc: Sven Hartge <hartge@ds9.gnuu.de>, linux-kernel@vger.kernel.org,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
+References: <20040329151515.GD2895@smtp.west.cox.net> <20040405155022.GL31152@smtp.west.cox.net> <4071CD50.2000402@g-house.de>
+In-Reply-To: <4071CD50.2000402@g-house.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404051648.26220.hollisb@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-04-05 at 23:40, Marcel Holtmann wrote:
-> Hi Soeren,
-> 
-> > Bluetooth: Broadcom Blutonium firmware driver ver 1.0
-> > bcm203x_probe: Mini driver request failed
-> > bcm203x: probe of 1-1:1.0 failed with error -5
-> > usb 1-1: bulk timeout on ep1in
-> > usbfs: USBDEVFS_BULK failed dev 3 ep 0x81 len 10 ret -110
-> 
-> these are two different errors. The first is from bcm203x while the
-> request of the firmware file through request_firmware() fails and the
-> second is form the bluefw program. Maybe hotplug get's into to trouble
-> and tries to load the bcm203x and bluefw at the same time while it also
-> has to handle requesting of the firmware file with firmware.agent. Does
-> it work for you if you uninstall bluefw.
+On Monday 05 April 2004 16:19, Christian Kujau wrote:
+> um, yes. but the target "common_defconfig" was disabled somewhere in
+> 2.5, so my shini script broke. i wanted to do common_defconfig first,
+> then always keep my .config and do "oldconfig" after patching, but
+> somehow my script broke, so i went with "allnoconfig"...but ok, i'll try
+> again.
 
-That is why I removed all the bluefw stuff in /etc/hotplug before
-testing bluetooth again... but it still oopsed.
+FWIW, I use ibmchrp_config and then enable a couple PReP-specific things. It's 
+pretty bare...
 
-Soeren
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 

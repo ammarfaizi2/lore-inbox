@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266736AbTB0T7e>; Thu, 27 Feb 2003 14:59:34 -0500
+	id <S266796AbTB0UKr>; Thu, 27 Feb 2003 15:10:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266622AbTB0T7e>; Thu, 27 Feb 2003 14:59:34 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:41934 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S266540AbTB0T7c>; Thu, 27 Feb 2003 14:59:32 -0500
-Message-ID: <3E5E7081.6020704@nortelnetworks.com>
-Date: Thu, 27 Feb 2003 15:09:37 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S266806AbTB0UKr>; Thu, 27 Feb 2003 15:10:47 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:21262 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S266796AbTB0UKp>; Thu, 27 Feb 2003 15:10:45 -0500
+Date: Thu, 27 Feb 2003 15:04:18 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Bill Huey <billh@gnuppy.monkey.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+In-Reply-To: <20030227005619.GA2756@gnuppy.monkey.org>
+Message-ID: <Pine.LNX.3.96.1030227144704.21890B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org
-Subject: anyone ever done multicast AF_UNIX sockets?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 26 Feb 2003, Bill Huey wrote:
 
-It is fairly common to want to distribute information between a single 
-sender and multiple receivers on a single box.
+> On Wed, Feb 26, 2003 at 02:31:33PM -0500, Bill Davidsen wrote:
+> > On Mon, 24 Feb 2003, Bill Huey wrote:
+> > > You don't need data. It's conceptually obvious. 
+> > 
+> >   The mantra of doomed IPOs ill-fated software projects, and the guy down
+> > the street who has never invested in a company which was still in business
+> > 24 months later. No matter how great the concept it still has to work. 
+> 
+> I'm not disagreeing with that, but if you read the previous exchange you'd see
+> that I was reacting to what seemed to be an obviously rude dismissal of how
+> latency effects both IO performance of a system and trashes the usability of
+> the a priority driven scheduler. It's basic computer science.
 
-Multicast IP sockets are one possibility, but then you have additional 
-overhead in the IP stack.
+No argument from me, but I have seen systems driving up the system time
+and beating the cache with scheduling logic and context switches. There's
+a balance to be had there, and in timeslice size, and other places as
+well, and real data are always useful.
 
-Unix sockets are more efficient and give notification if the listener is 
-not present, but the problem then becomes that you must do one syscall 
-for each listener.
+> >   It's conceptionally obvious that professional programmers working for a
+> > major software house will write a better os than a grad student fighting
+> > off boredom one summer... in the end you always need data.
+> 
+> Had to read your post a couple of times to make sure that the tone of it
+> wasn't charged. :)
 
-So, here's my main point--has anyone ever considered the concept of 
-multicast AF_UNIX sockets?
+It's always more effective if it's subtle and and people take an instant
+to get it.
 
-The main features would be:
---ability to associate/disassociate a socket with a multicast address
---ability to associate/disassociate with all multicast addresses 
-(possibly through some kind of raw socket thing, or maybe a simple 
-wildcard multicast address)
---on process death all sockets owned by that process are disassociated 
-from any multicast addresses that they were associated with
---on sending a packet to a multicast address and there are no sockets 
-associated with it, return -1 with errno=ECONNREFUSED
+> All I can say now is that I'm working on it. We'll see if it's vaporware
+> in the near future.
 
-The association/disassociation could be done using the setsockopt() 
-calls the same as with udp sockets, everything else would be the same 
-from a userspace perspective.
-
-Any thoughts?  How hard would this be to put in?
-
-Chris
-
+Great. I have no doubt that when you have convinced yourself one way or
+the other you won't have any problem convincing me. When the io was slow,
+the VM was primitive, and the scheduler was a doorknob, preempt made a big
+improvement. Now that the rest of the kernel doesn't suck, it's a lot
+hardware to make a big improvement.
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

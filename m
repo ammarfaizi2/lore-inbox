@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbVCJKWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVCJKbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262501AbVCJKWW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 05:22:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbVCJKWW
+	id S262508AbVCJKbE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 05:31:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbVCJKbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 05:22:22 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:39091 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S262501AbVCJKWQ (ORCPT
+	Thu, 10 Mar 2005 05:31:04 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:59881 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S262510AbVCJK2Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 05:22:16 -0500
-Subject: Re: [0/many] Acrypto - asynchronous crypto layer for linux kernel
-	2.6
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Joshua Jackson <lkernel@vortech.net>
-Cc: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
-       cryptoapi@lists.logix.cz
-In-Reply-To: <200503080824.35464.lkernel@vortech.net>
-References: <11102278521318@2ka.mipt.ru> <1110229998.13172.48.camel@ghanima>
-	 <20050308004944.60fedb51@zanzibar.2ka.mipt.ru>
-	 <200503080824.35464.lkernel@vortech.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-p/gzwMLDQkfL1tMLfaDV"
-Organization: MIPT
-Date: Thu, 10 Mar 2005 13:27:30 +0300
-Message-Id: <1110450450.21110.39.camel@uganda>
+	Thu, 10 Mar 2005 05:28:24 -0500
+Date: Thu, 10 Mar 2005 11:27:26 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Alex Aizman <itn780@yahoo.com>
+Cc: Matt Mackall <mpm@selenic.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE 0/6] Open-iSCSI High-Performance Initiator for Linux
+Message-ID: <20050310102726.GT4105@marowsky-bree.de>
+References: <422BFCB2.6080309@yahoo.com> <20050309050434.GT3163@waste.org> <422E8EEB.7090209@yahoo.com> <20050309060544.GW3120@waste.org> <422E96D9.6090202@yahoo.com> <20050309222114.GF4105@marowsky-bree.de> <422FB2B5.3070803@yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Thu, 10 Mar 2005 13:21:04 +0300 (MSK)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <422FB2B5.3070803@yahoo.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2005-03-09T18:36:37, Alex Aizman <itn780@yahoo.com> wrote:
 
---=-p/gzwMLDQkfL1tMLfaDV
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Heartbeat is good for reliability, etc. WRT "getting paged-out" - 
+> non-deterministic (things depend on time), right?
 
-On Tue, 2005-03-08 at 08:24 -0500, Joshua Jackson wrote:
-> On Monday 07 March 2005 4:49 pm, Evgeniy Polyakov wrote:
-> >
-> > Unfortunately acrypto patch is more than 200kb, so neither mail list
-> > will accept it, so I've sent it in such form :)
-> >
->=20
-> As per the FAQ, very large patches are often best submitted as a URL. In =
-case=20
-> you don't have a place to host it, you are welcome to email me the comple=
-te=20
-> patch and I will post a URL link.
+Right, if we didn't get scheduled often enough for us to send our
+heartbeat messages to the other peers, they'll evict us from the cluster
+and fence us, causing a service disruption.
 
-Patch on the web has quite small interest for the majority of the
-people,
-but probably it is better than 50+ e-mails...
+With all these protections in place though, we can run at roughly 50ms
+heartbeat intervals from user-space, reliably, which allows us a node
+dead timer of ~200ms. I think that's pretty damn good.
 
-The latest sources which can be compiled as external module=20
-are available at=20
-http://tservice.net.ru/~s0mbre/archive/acrypto/acrypto_latest.tar.gz
+(Of course, realistically, even for subsecond fail-over, 200ms keep
+alives are sufficient, and 50ms would be quite extreme. But, it works.)
 
-> I am very interested in your async changes and possibly porting some of t=
-he=20
-> Free/OpenBSD HW crypto drivers over to it.
+> >That works well in our current development series, and if you want to
+> >share code, you can either rip it off (Open Source, we love ya ;) or we
+> >can spin off these parts into a sub-package for you to depend on...
+> If it's not a big deal :-) let's do the "sub-package" option.
 
-That would be very good.
-You can find HIFN, VIA, FCRYPT drivers created for acrypto at
-http://tservice.net.ru/~s0mbre/archive/acrypto/drivers
+I've brought this up on the linux-ha-dev list. When do you need this?
 
-P.S. Above site is currently down, it will be turned on asap.
 
---=20
-        Evgeniy Polyakov
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-Crash is better than data corruption -- Arthur Grabowski
-
---=-p/gzwMLDQkfL1tMLfaDV
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCMCESIKTPhE+8wY0RAhpjAJ9r1hYu/jBmCIG7k7ONyLP1rBPucACfYAWH
-xzzPXmY3Ir5k/xvF2U/LrZU=
-=7z/P
------END PGP SIGNATURE-----
-
---=-p/gzwMLDQkfL1tMLfaDV--
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business
 

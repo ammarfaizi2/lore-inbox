@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263062AbSITRHQ>; Fri, 20 Sep 2002 13:07:16 -0400
+	id <S263099AbSITRLw>; Fri, 20 Sep 2002 13:11:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263067AbSITRHQ>; Fri, 20 Sep 2002 13:07:16 -0400
-Received: from packet.digeo.com ([12.110.80.53]:51388 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263062AbSITRHP>;
-	Fri, 20 Sep 2002 13:07:15 -0400
-Message-ID: <3D8B56DB.576B702D@digeo.com>
-Date: Fri, 20 Sep 2002 10:11:55 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Oleg Drokin <green@namesys.com>, Linus Torvalds <torvalds@transmeta.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
+	id <S263137AbSITRLw>; Fri, 20 Sep 2002 13:11:52 -0400
+Received: from are.twiddle.net ([64.81.246.98]:12440 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S263099AbSITRLu>;
+	Fri, 20 Sep 2002 13:11:50 -0400
+Date: Fri, 20 Sep 2002 10:16:36 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>, Brian Gerst <bgerst@didntduck.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, dvorak <dvorak@xs4all.nl>,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch] generic-pidhash-2.5.36-D4, BK-curr
-References: <20020920122716.A2297@namesys.com> <Pine.LNX.4.44.0209201139290.1261-100000@localhost.localdomain>
+Subject: Re: Syscall changes registers beyond %eax, on linux-i386
+Message-ID: <20020920101636.A25490@twiddle.net>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Brian Gerst <bgerst@didntduck.org>,
+	Petr Vandrovec <VANDROVE@vc.cvut.cz>, dvorak <dvorak@xs4all.nl>,
+	linux-kernel@vger.kernel.org
+References: <20020919224613.GA2026@werewolf.able.es> <Pine.LNX.3.95.1020920081925.19137A-100000@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Sep 2002 17:11:55.0538 (UTC) FILETIME=[D2285720:01C260C8]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.95.1020920081925.19137A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Fri, Sep 20, 2002 at 08:27:32AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> 
-> On Fri, 20 Sep 2002, Oleg Drokin wrote:
-> 
-> > > +                   if (cmpxchg(&map->page, NULL, page))
-> > > +                           free_page(page);
-> >
-> > Note that this piece breaks compilation for every arch that does not
-> > have cmpxchg implementation.
-> > This is the case with x86 (with CONFIG_X86_CMPXCHG undefined, e.g. i386),
-> > ARM, CRIS, m68k, MIPS, MIPS64, PARISC, s390, SH, sparc32, UML (for x86).
-> 
-> we need a cmpxchg() function in the generic library, using a spinlock.
-> Then every architecture can enhance the implementation if it wishes to.
-> 
+On Fri, Sep 20, 2002 at 08:27:32AM -0400, Richard B. Johnson wrote:
+> Adding 1 to %eax is plain dumb.
 
-That would be good, but wouldn't we then need a special per-arch
-"cmpxchngable" type, like atomic_t?
+No it isn't.  P4 has a partial register stall on the
+flags register when using incl.  You'll notice that
+we *do* use incl except when optimizing for P4.
 
-Seems that just doing compare-and-exchange on a bare page* might force
-some architectures to use a global lock.
+> Also that 1 is 4 bytes long.
+
+No it isn't.  There is an 8-bit signed immediate form.
+
+As for the rest of the memory operand rant, the problem
+is not that gcc won't try to use memory operands, it's
+that the bit of code that's supposed to put these 
+memory operands back together is like 10 years old and
+hasn't been taught about the memory aliasing subsystem.
+So any time it sees a memory load cross a memory store,
+it gives up.
+
+Perhaps I'll have this fixed for gcc 3.4.
+
+
+
+r~

@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131308AbRC0OQx>; Tue, 27 Mar 2001 09:16:53 -0500
+	id <S131305AbRC0ONx>; Tue, 27 Mar 2001 09:13:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131309AbRC0OQn>; Tue, 27 Mar 2001 09:16:43 -0500
-Received: from [216.29.210.210] ([216.29.210.210]:15876 "HELO
-	mail.acetechnologies.net") by vger.kernel.org with SMTP
-	id <S131308AbRC0OQb>; Tue, 27 Mar 2001 09:16:31 -0500
-Message-ID: <3AC0A0A2.7080706@acetechnologies.net>
-Date: Tue, 27 Mar 2001 09:16:02 -0500
-From: Jeff McWilliams <Jeff.McWilliams@acetechnologies.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16 i686; en-US; 0.8) Gecko/20010215
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Jeff.McWilliams@acetechnologies.net
-Subject: 2.4.3-pre8: unresolved symbols loading net modules
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S131308AbRC0ONn>; Tue, 27 Mar 2001 09:13:43 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:40929 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S131305AbRC0ONj>; Tue, 27 Mar 2001 09:13:39 -0500
+Message-Id: <l03130335b6e64c775376@[192.168.239.101]>
+In-Reply-To: <3AC09480.E8317507@evision-ventures.com>
+In-Reply-To: <l03130332b6e632432b9f@[192.168.239.101]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 27 Mar 2001 14:57:52 +0100
+To: Martin Dalecki <dalecki@evision-ventures.com>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: OOM killer???
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently built a 2.4.3-pre8 Kernel, because 2.4.2 couldn't properly 
-configure the AMI MegaRaid 428 card on the box.  (The MegaRaid card 
-works fine under 2.2.13 and 2.4.3-pre8 on the same system).
+>Plase change to 100 to 500 - this would make it consistant with
+>the useradd command, which starts adding new users at the UID 500
 
-When attempting to 'modprobe -v pcnet32' on 2.4.3-pre8 I get the 
-following results:
+Depends on which distribution you're using.  In my experience, almost all
+the really important stuff happens below 100.  In any case, the
+OOM-kill-selection algorithm in this patch is *not* final.  See my
+accompanying mail.
 
-homer:/home/jjmcwill# modprobe -v pcnet32
-/sbin/insmod /lib/modules/2.4.3-pre8/kernel/drivers/net/pcnet32.o
-/lib/modules/2.4.3-pre8/kernel/drivers/net/pcnet32.o: unresolved symbol 
-init_etherdev
-/lib/modules/2.4.3-pre8/kernel/drivers/net/pcnet32.o: unresolved symbol 
-ether_setup
-/lib/modules/2.4.3-pre8/kernel/drivers/net/pcnet32.o: unresolved symbol 
-unregister_netdev
-/lib/modules/2.4.3-pre8/kernel/drivers/net/pcnet32.o: insmod 
-/lib/modules/2.4.3-pre8/kernel/drivers/net/pcnet32.o failed
-/lib/modules/2.4.3-pre8/kernel/drivers/net/pcnet32.o: insmod pcnet32 failed
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
+The key to knowledge is not to rely on people to teach you it.
 
-The same thing happens with other ethernet drivers compiled as modules.
-Ethernet card drivers compiled into the Kernel work fine.
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
-Other modules such as lp, sg, st, vfat, modprobe without error.
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
 
-The kernel was built on a Debian stable (potato) distribution and 
-installed on this box which also runs Debian stable.  I've built 
-numerous kernels like this before without incident, so I'm assuming it's 
-a Kernel compile/configuration issue. However, Debian stable uses 
-modutils 2.3.11, while linux/Documentation/Changes recommends modutils 
-2.4.2.  Could this be part of the problem?
-
-Any ideas?
-Please cc replies to Jeff.McWilliams@acetechnologies.net if possible.
-I browse the Kernel archives daily but dont' subscribe to the list.
-
-
-Thanks,
-
-Jeff McWilliams
-Jeff.McWilliams@acetechnologies.net
 

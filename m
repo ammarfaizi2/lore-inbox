@@ -1,49 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264425AbRFIRZY>; Sat, 9 Jun 2001 13:25:24 -0400
+	id <S264423AbRFIRdQ>; Sat, 9 Jun 2001 13:33:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264423AbRFIRZO>; Sat, 9 Jun 2001 13:25:14 -0400
-Received: from erasmus.off.net ([64.39.30.25]:17680 "HELO erasmus.off.net")
-	by vger.kernel.org with SMTP id <S264416AbRFIRZB>;
-	Sat, 9 Jun 2001 13:25:01 -0400
-Date: Sat, 9 Jun 2001 13:25:01 -0400
-From: Zach Brown <zab@zabbo.net>
-To: Lukas Schroeder <lukas@edeal.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] ess maestro, support for hardware volume control
-Message-ID: <20010609132501.C20514@erasmus.off.net>
-In-Reply-To: <20010609190917.A10629@kosmo.edeal.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010609190917.A10629@kosmo.edeal.de>; from lukas@edeal.de on Sat, Jun 09, 2001 at 07:09:17PM +0200
+	id <S264427AbRFIRdH>; Sat, 9 Jun 2001 13:33:07 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:2574 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264423AbRFIRc4>; Sat, 9 Jun 2001 13:32:56 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8
+Date: 9 Jun 2001 10:32:48 -0700
+Organization: A poorly-installed InterNetNews site
+Message-ID: <9ftmk0$pdh$1@penguin.transmeta.com>
+In-Reply-To: <200106090759.AAA15771@csl.Stanford.EDU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> this patch applies to (at least) 2.4.3 up to and including 2.4.6-pre2.
-> It enables the hardware volume control feature of the maestro.
+In article <200106090759.AAA15771@csl.Stanford.EDU>,
+Dawson Engler  <engler@csl.Stanford.EDU> wrote:
+>
+>we're starting to develop a checker that finds deadlocks by (1)
+>computing all lock acquisition paths and (2) checking if two paths
+>violate a partial order.
 
-cool.  I had support for this in the mega-patch I posted long ago, but
-I never seperated and submitted those changes 'cause I'm a moron.
+Looks good. 
 
-> By giving hwv=0 to insmod one can explicitly disable it. Setting
+>The checker is pretty primitive.  In particular:
+>	- lots of false negatives come from the fact that it does not 
+>	  track interrupt disabling.  A missed deadlock:
+>		foo acquires A
+>		bar interrupts foo, disables interrupts, tries to acquire A
+>	  (Is this the most common deadlock?)
 
-can we have a better name like 'hwvol_enable'?
+You actually find something like this at all? I would have assumed that
+you would never see this as a path, as interrupts aren't explicit calls.
 
-> +		set_mixer(c, 0, val);
+>	- many potential false positives since it does not realize when
+>	two kernel call traces are mutually exclusive.
 
-careful.  you just used the indirect ac97 registers without holding the
-card's lock..  if another processor does a mixer ioctl while this is
-happening you'll get weird behaviour.
+On the other hand, they should be mutually exclusive only by virtue of
+using some kind of locking, so this should show up in your locking order
+thing.
 
-it looks like you should just be able to spin_{,un}lock(card->lock)
-around that call, but the maestro locking is so friggin' twisty.. this
-gets even more exciting when the driver uses ac97_codec, which the
-mega-patch also had in it.
+The rule is
 
-Fix the locking (and the obscure parameter name? :)) and it looks
-fine.. good work.
+ - A -> B can deadlock with B -> A
 
--- 
- zach
+BUT
+
+ - A -> B -> C	cannot deadlock with A -> C -> B
+
+by wirtue of "A" acting as the master lock.  So you should be able to
+see these things (arguably the "cannot deadlock" case is still a very
+ugly case, and also implies that B and C are irrelevant, as A already
+took care of exclusivity.  So getting a warning for this might be fine). 
+
+>To check it's mechanics I've enclosed what look to me to be two potential
+>deadlocks --- given the limits of the tool and my understanding of what
+>can happen when, these could be (likely be?) false positive, so I'd
+>appreciate any corrective feedback.
+
+They are, but for a very special reason: the big kernel lock is special.
+
+The big kernel lock rules are that it's a "normal spinlock" in many
+regards, BUT you can block while holding it, and the BKL will magically
+be released during the blocking.  This means, for example, that the BKL
+can never deadlock with a semaphore - if a BKL holder blocks on sombody
+elses semaphore (and that somebody else wants the BKL), then the act of
+blocking on the semaphore will release the BKL, and allow the original
+semaphore holder to continue. 
+
+The same is currently true of the global irq lock too (with the caveat
+that we don't even re-aquire it after a schedule()), but that is going
+to change, so I would suggest you _not_ special-case the global irq
+lock.
+
+But the big kernel lock is so special that I suspect it needs some
+special casing to avoid too many false reports.
+
+			Linus

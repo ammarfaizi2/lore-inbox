@@ -1,75 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbULGSVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbULGSZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbULGSVE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 13:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbULGSVD
+	id S261883AbULGSZj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 13:25:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbULGSZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 13:21:03 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:39808 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261875AbULGSU0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 13:20:26 -0500
-X-Envelope-From: kraxel@bytesex.org
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Michael Hunold <hunold@convergence.de>, Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.10-rc3 oops when 'modprobe -r dvb-bt8xx'
-References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org>
-	<41B1BD24.4050603@eyal.emu.id.au>
-From: Gerd Knorr <kraxel@bytesex.org>
-Organization: SUSE Labs, Berlin
-Date: 07 Dec 2004 19:03:57 +0100
-In-Reply-To: <41B1BD24.4050603@eyal.emu.id.au>
-Message-ID: <87653ex9wy.fsf@bytesex.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Dec 2004 13:25:39 -0500
+Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:21197 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261883AbULGSZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 13:25:12 -0500
+Subject: Re: Bug in kmem_cache_create with duplicate names
+From: Steven Rostedt <rostedt@goodmis.org>
+To: morreale@radiantdata.com
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>, "Randy.Dunlap" <rddunlap@osdl.org>
+In-Reply-To: <41B5EF16.30107@radiantdata.com>
+References: <1102434056.25841.260.camel@localhost.localdomain>
+	 <41B5CD41.9050102@osdl.org>  <1102436157.2882.8.camel@laptop.fenrus.org>
+	 <1102436777.25841.271.camel@localhost.localdomain>
+	 <1102437079.25841.275.camel@localhost.localdomain>
+	 <41B5EF16.30107@radiantdata.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Kihon Technologies
+Date: Tue, 07 Dec 2004 13:24:59 -0500
+Message-Id: <1102443899.25841.290.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eyal Lebedinsky <eyal@eyal.emu.id.au> writes:
+On Tue, 2004-12-07 at 10:57 -0700, Peter W. Morreale wrote:
 
-> Linus Torvalds wrote:
-> > Please do test this - and don't send me anything but bug-fixes. Let's aim
-> > for a real 2.6.10 before xmas (or hanukkah, or whatever your favourite
-> > holiday happens to be).
+> >
+> >Now this raises the issue of name space, this will bug if two modules
+> >use the same cache name. If this happens with two different vendors,
+> >than the poor user will have to figure out who to blame.
+> >
 > 
-> In the spirit of festive testing I would like to say that the oops that I
-> enjoyed throughout rc2-bk* is still present in -rc3. -mm series does not
-> have this problem.
+> No different than any other global namespace issue.
 
-Oh joy.  I think thats a different one.  And I suspect there are a few
-more of that kind which simply didn't show up yet because the user
-base is too small.  The current way of doing the initialization of the
-frontend devices (in Linus' tree) is simply a big mess and you may get
-all sorts of strange effects depending on the order you load or unload
-the modules if one of the parties involved doesn't get it right.
+I beg to differ. If I have two modules that export the same name, do I
+get a bug when I load the second module? No. Actually, I just tried it
+and this raises another issue. There is no test to see if there is a
+conflict of name spaces. Here's what I did,  I made two modules that
+have a function named "abc" and exported them. The third module calls
+function "abc".  The result was that both mod1 and mod2 were loaded with
+no problem, and mod3 called mod2's abc.  
 
-> 	modprobe -r dvb-bt8xx
+Below are the simple modules that did this test. Should this be a
+problem, or issue? It has a little bit of a polymorphism effect. If I
+unload mod3 and then mod2, then reload mod3, it calls mod1's abc (as
+expected).  If I unload mod3 again, reload mod2, then reload mod3, it
+calls mod2's abc again. 
 
->   [<f90e2634>] mt352_detach_client+0x52/0x54 [mt352]
+Well, anyway, I don't think that the kernel should crash due to a
+namespace problem with caches. But that's just my opinion. And for all
+of you that were so concerned... Yes I did fix my code ;-)
 
-What happens if you "rmmod mt352" first?  Guess it works without
-oopsing then?
 
-I somehow feel the best way to deal with that is to merge the
-redesigned frontend handing pending in -mm at the moment into Linus
-tree _now_, that should kill that whole class of bugs.
 
-That may result in the dvb subsystem not being that stable in 2.6.10.
-But dvb not being rock solid in 2.6.10 will very likely happen anyway
-as the code currently in Linus' tree isn't very stable as well.  I
-think the chance that it gets even worse is small enougth that we can
-take the risk.
+mod1.c:
+---------------------------------
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/init.h>
 
-Additional bonus would be that we don't get bugreports for the old
-code base which is already obsolete (and nobody wants to work on
-because of that).
+void abc(void)
+{
+	printk("hello from mod1\n");
+}
 
-Michael?
+EXPORT_SYMBOL(abc);
 
-  Gerd
+static int __init mod1_init(void)
+{
+	printk("loaded mod1\n");
+	return 0;
+}
 
--- 
-#define printk(args...) fprintf(stderr, ## args)
+static void __exit mod1_exit(void)
+{
+	printk("unloaded mod1\n");
+}
+
+module_init(mod1_init);
+module_exit(mod1_exit);
+
+MODULE_LICENSE("GPL");
+----------------------------------------
+
+
+mod2.c:
+----------------------------------------
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/init.h>
+
+void abc(void)
+{
+	printk("hello from mod2\n");
+}
+
+EXPORT_SYMBOL(abc);
+
+static int __init mod2_init(void)
+{
+	printk("loaded mod2\n");
+	return 0;
+}
+
+static void __exit mod2_exit(void)
+{
+	printk("unloaded mod2\n");
+}
+
+module_init(mod2_init);
+module_exit(mod2_exit);
+
+MODULE_LICENSE("GPL");
+-------------------------------
+
+mod3.c:
+-------------------------------
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/init.h>
+
+extern void abc(void);
+
+static int __init mod3_init(void)
+{
+	printk("loaded mod3\n");
+
+	printk("running abc\n");
+	abc();
+
+	return 0;
+}
+
+static void __exit mod3_exit(void)
+{
+	printk("unloaded mod3\n");
+}
+
+module_init(mod3_init);
+module_exit(mod3_exit);
+
+MODULE_LICENSE("GPL");
+-------------------------------------
+
+

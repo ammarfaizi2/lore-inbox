@@ -1,90 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274745AbRIUDPT>; Thu, 20 Sep 2001 23:15:19 -0400
+	id <S274747AbRIUDR7>; Thu, 20 Sep 2001 23:17:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274670AbRIUDPK>; Thu, 20 Sep 2001 23:15:10 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22278 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S274669AbRIUDO7>; Thu, 20 Sep 2001 23:14:59 -0400
-Date: Thu, 20 Sep 2001 23:10:54 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <9o2vct$889$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.3.96.1010920225654.26679A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274670AbRIUDRt>; Thu, 20 Sep 2001 23:17:49 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:47153 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S274747AbRIUDRh> convert rfc822-to-8bit; Thu, 20 Sep 2001 23:17:37 -0400
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+From: Robert Love <rml@tech9.net>
+To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Oliver Xymoron <oxymoron@waste.org>, Andrea Arcangeli <andrea@suse.de>,
+        Roger Larsson <roger.larsson@norran.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <200109202252.f8KMqLG17327@zero.tech9.net>
+In-Reply-To: <Pine.LNX.4.30.0109201659210.5622-100000@waste.org> 
+	<200109202252.f8KMqLG17327@zero.tech9.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Evolution-Format: text/plain
+X-Mailer: Evolution/0.13.99+cvs.2001.09.20.15.42 (Preview Release)
+Date: 20 Sep 2001 23:17:28 -0400
+Message-Id: <1001042255.7291.39.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Sep 2001, Linus Torvalds wrote:
-
-> In article <Pine.LNX.4.33L.0109161330000.9536-100000@imladris.rielhome.conectiva>,
-> Rik van Riel  <riel@conectiva.com.br> wrote:
-> >On 16 Sep 2001, Michael Rothwell wrote:
-> >
-> >> Is there a way to tell the VM to prune its cache? Or a way to limit
-> >> the amount of cache it uses?
-> >
-> >Not yet, I'll make a quick hack for this when I get back next
-> >week. It's pretty obvious now that the 2.4 kernel cannot get
-> >enough information to select the right pages to evict from
-> >memory.
+On Thu, 2001-09-20 at 18:51, Dieter Nützel wrote:
+> > Does your audio source depend on any files (eg mp3s) and if so, could they
+> > be moved to a ramfs? Do the skips go away then?
 > 
-> Don't be stupid.
+> Good point.
 > 
-> The desribed behaviour has nothing to do with limiting the cache or
-> anything else "cannot get enough information", except for the fact that
-> the kernel obviously cannot know what will happen in the future.
+> I've copied one video (MP2) and one Ogg-Vorbis file into /dev/shm.
+> Little bit better but hiccup still there :-(
 
-I think that's very harsh, because while the kernel can't predict the
-future, in many cases the sysadmin can, and some of the tools used to act
-on that information are not gone due to "enhancement." Most particularly,
-the free pages are now not settable, leaving the admin to diddle with
-*unrelated* things trying to get correct function, instead of setting the
-free required and letting the kernel do a balance between buffes, cache,
-etc. So if I know I have an application which will need 12MB suddenly to
-maintain good response, I have lost my tool to just tell the system that
-much free is needed. And honestly the fact that the kernel makes good
-overall choices pales when the worst case is to blatently bad.
- 
-> The kernel _correctly_ swapped out tons of pages that weren't touched in
-> a long long time. That's what you want to happen - the fact that they
-> then all became active on logout is sad.
+As I've been saying, the problem really shouldn't be disk I/O.  I would
+think (and really hope) the readahead code can fit a little mp3 in
+memory.  Even if not, its a quick read to load it.  The continued blips
+you see are caused by something, well, continual :)
 
-It reflects poor decisions in the kernel. To balance program and i/o pages
-the kernel should track the i/o rate while increasing the cache used. When
-the i/o rate stops getting better, the kernel should assume that the
-program is not reusing the data pages at this time. Obviously this need
-hysterisis to keep the program vs. data ratio from changing too fast after
-some good initial setting, but having a file copy or CD rip push programs
-out of memory shows that the kernel is not making optimal use of the
-information it has.
- 
-> The fact that the "use-once" logic didn't kick in is the problem. It's
-> hard to tell _why_ it didn't kick in, possibly because the MP3 player
-> read small chunks of the pages (touching them multiple times). 
+> dbench 16
+> Throughput 25.7613 MB/sec (NB=32.2016 MB/sec  257.613 MBit/sec)
+> 7.500u 29.870s 1:22.99 45.0%    0+0k 0+0io 511pf+0w
 > 
-> THAT is worth looking into. But blathering about "reverse mappings will
-> help this" is just incredibly stupid. You seem to think that they are a
-> panacea for all problems, ranging from MP3 playback to world peace and
-> re-building the WTC.
+> Worst 20 latency times of 3298 measured in this period.
+>   usec      cause     mask   start line/file      address   end line/file
+>  11549  spin_lock        1   678/inode.c         c01566d7   704/inode.c
 
-Sorry, I think the problem is that the existing logic is just not working.
-When you trade a small gain in overall performance for a really bad worst
-case you are balancing a gain which is measured rather than felt with a
-loss which is instantly painful.
+A single 11ms latency is not bad.  Again, this looks OK.
 
-Please rethink, the use-once is elegant, but it just doesn't work, and
-until the kernel makes some effort to avoid paging out text for data when
-it doesn't help performance you will have these ugly pauses. I will note
-that we were doing just this type of balance of space in 1968 in GECOS (as
-in the arcane GECOS password field).
+> *******************************************************
+> 
+> dbench 16 + renice artsd -20 works
+> GREAT!
+> 
+> *******************************************************
 
-Hopefully you will find this criticism constructive...
+Great :)
+
+> dbench 32 and above + renice artsd -20 fail
+> 
+> Writing this during dbench 32 ...:-)))
+> 
+> dbench 32 + renice artsd -20
+> Throughput 18.5102 MB/sec (NB=23.1378 MB/sec  185.102 MBit/sec)
+> 15.240u 63.070s 3:49.21 34.1%   0+0k 0+0io 911pf+0w
+> 
+> Worst 20 latency times of 3679 measured in this period.
+>   usec      cause     mask   start line/file      address   end line/file
+>  17625  spin_lock        1   678/inode.c         c01566d7   704/inode.c
+
+What do you mean failed?
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

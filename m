@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130488AbRBOAHv>; Wed, 14 Feb 2001 19:07:51 -0500
+	id <S129681AbRBOAPD>; Wed, 14 Feb 2001 19:15:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130962AbRBOAHm>; Wed, 14 Feb 2001 19:07:42 -0500
-Received: from jalon.able.es ([212.97.163.2]:46054 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S130488AbRBOAHe>;
-	Wed, 14 Feb 2001 19:07:34 -0500
-Date: Thu, 15 Feb 2001 01:07:26 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i2c 2.5.5
-Message-ID: <20010215010726.G21100@werewolf.able.es>
-In-Reply-To: <20010215003802.A21100@werewolf.able.es> <E14TBaF-0006TC-00@the-village.bc.nu>
+	id <S129995AbRBOAOx>; Wed, 14 Feb 2001 19:14:53 -0500
+Received: from bob.rug-rats.org ([212.57.33.76]:52742 "EHLO rug-rats.org")
+	by vger.kernel.org with ESMTP id <S129681AbRBOAOo>;
+	Wed, 14 Feb 2001 19:14:44 -0500
+Date: Thu, 15 Feb 2001 00:20:13 +0000
+From: Bradley Kite <bradley@rug-rats.org>
+To: linux-kernel@vger.kernel.org
+Subject: doing RAID 0 with HPT370
+Message-ID: <20010215002012.A21227@gamersgold.net>
+Reply-To: bradley@rug-rats.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E14TBaF-0006TC-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Feb 15, 2001 at 00:43:36 +0100
-X-Mailer: Balsa 1.1.1
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm new to this list so I'd like to say hi first :-)
 
-On 02.15 Alan Cox wrote:
-> 
-> The rest are revision noise and incorrect reverts of include changes
-> 
-> >  #ifndef MODULE
-> > +#ifdef CONFIG_I2C_CHARDEV
-> >  	extern int i2c_dev_init(void);
-> 
-> Also reverting a cleanup
-> 
+I found this message while searching for a solution to getting
+linux to see a raid array on my HPT370:
 
-And I manually deleted the
-#endif /* X */   (kernel)
-vs
-#endif X         (i2c 2.5.5)
+http://www.mailgate.org/linux/linux.dev.raid/msg00163.html
 
-diffs that I got...
-(do not know why the maintainer did not clone the change...)
+Its got someone from highpoint saying that raid support will
+be offered "in the near future", and that message was dated October 2000.
 
-So I suppose the lm_sensors-2.5.5 package will have the same problems.
-Well, I will leave it for home use...
+I emailed highpoint to ask if they had got any where, but they dont seem to
+reply.
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+Does any one know if highpoint are in fact developing a linux driver
+that supports the RAID functions of this chip? and if so, are we looking
+at weeks/months/years before it might be ready?
 
-Linux werewolf 2.4.1-ac10 #1 SMP Sun Feb 11 23:36:46 CET 2001 i686
+ps: hedricks ide patch doesnt support the RAID functions of the chip,
+    otherwise I would have been happy to use that! :-)
+
+Many thanks
+
+--
+Brad.
 

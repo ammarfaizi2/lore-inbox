@@ -1,162 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbUJWUrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbUJWQoC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbUJWUrq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 16:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUJWUrp
+	id S261233AbUJWQoC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 12:44:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUJWQoC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 16:47:45 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:50829 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id S261308AbUJWUop (ORCPT
+	Sat, 23 Oct 2004 12:44:02 -0400
+Received: from colin2.muc.de ([193.149.48.15]:50948 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261233AbUJWQnx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 16:44:45 -0400
-Date: Sat, 23 Oct 2004 13:39:39 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, dipankar@in.ibm.com, spraul@dbl.q-ag.de, rusty@au1.ibm.com,
-       shemminger@osdl.org
-Subject: [PATCH 2/3] RCU: rcu_assign_pointer() removal of memory barriers
-Message-ID: <20041023203939.GA4738@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
+	Sat, 23 Oct 2004 12:43:53 -0400
+Date: 23 Oct 2004 18:43:52 +0200
+Date: Sat, 23 Oct 2004 18:43:52 +0200
+From: Andi Kleen <ak@muc.de>
+To: Andreas Klein <Andreas.C.Klein@physik.uni-wuerzburg.de>
+Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org,
+       Sergei Haller <Sergei.Haller@math.uni-giessen.de>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, discuss@x86-64.org
+Subject: Re: lost memory on a 4GB amd64
+Message-ID: <20041023164352.GA52982@muc.de>
+References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au> <200409241315.42740.andrew@walrond.org> <Pine.LNX.4.58.0410221053390.17491@fb07-2go.math.uni-giessen.de> <200410221026.22531.andrew@walrond.org> <20041022182446.GA77384@muc.de> <Pine.LNX.4.58.0410231137450.3885@pluto.physik.uni-wuerzburg.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410231137450.3885@pluto.physik.uni-wuerzburg.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch uses the rcu_assign_pointer() API to eliminate a number
-of explicit memory barriers from code using RCU.  This has been
-tested successfully on i386 and ppc64.
+[cc'ed to discuss@x86-64.org for future reference. If you find
+this message in google and you have the same problem, talk
+to your BIOS vendor, not to your Linux vendor]
 
-Signed-off-by: <paulmck@us.ibm.com>
+On Sat, Oct 23, 2004 at 12:02:10PM +0200, Andreas Klein wrote:
+> - Tyan S2885 pre-production model with a 1.01 pre-release bios
+> 6 mb ram (4x512mb, 4x1gb)
+> The machine is running SuSE Linux Enterprise Server 8 (32bit).
+> We use this machine as our primary mail-server without problems for over a 
+> year.
+> 
+> - Now we ordered 45 Tyan S2885 and 4 S2875S board.
+> Both board do not run stable with more than 2GB ram usable.
+> 4GB will only be recognized if the MTRR setting is set to Continuous and 
+> the Adjust Memory setting is set to Auto.
+> If the bios is configured this way and two 1gb ram modules are installed 
+> for each CPU on the 2885, the machine will not even load and unpack a 
+> SLES 9 kernel. Memtest sees 0-2GB mem usable and 4-6GB unusable (complains 
+> about each memory address).
+> If all four modules are installed for CPU0, then memtest seems to work 
+> without problems (0-2GB, 4-6GB), but SLES9 will crash during boot-up.
+> If all four modules are installed for CPU1, then memtest seems to work 
+> without problems too. SLES 9 will run a few minutes before a crash.
+> I will try to install SLES 8 (32bit) on the new boxes to see if it runs 
+> stable. If yes, there is something broken in the 2.6 kernels for amd64, if 
+> not, the pre-production bios is better that the final ones.
 
----
+It all sounds very much like a BIOS problem. I doubt 2.4 will
+run stable on this setup - if memtest86 doesn't like the memory, Linux 
+won't like it neither. All I can recommend is to talk to Tyan or
+live with the lost memory. 
 
- arch/x86_64/kernel/mce.c |    3 +--
- include/linux/list.h     |    2 --
- net/core/netfilter.c     |    3 +--
- net/decnet/dn_route.c    |   13 +++++--------
- net/ipv4/devinet.c       |    3 +--
- net/ipv4/route.c         |    7 +++----
- net/sched/sch_api.c      |    3 +--
- 7 files changed, 12 insertions(+), 22 deletions(-)
+-Andi
 
-diff -urpN -X ../dontdiff linux-2.5/arch/x86_64/kernel/mce.c linux-2.5-rap/arch/x86_64/kernel/mce.c
---- linux-2.5/arch/x86_64/kernel/mce.c	Tue Sep  7 10:02:15 2004
-+++ linux-2.5-rap/arch/x86_64/kernel/mce.c	Tue Sep  7 10:29:18 2004
-@@ -358,8 +358,7 @@ static ssize_t mce_read(struct file *fil
- 
- 	memset(mcelog.entry, 0, next * sizeof(struct mce));
- 	mcelog.next = 0;
--	smp_wmb(); 
--	
-+
- 	synchronize_kernel();	
- 
- 	/* Collect entries that were still getting written before the synchronize. */
-diff -urpN -X ../dontdiff linux-2.5/include/linux/list.h linux-2.5-rap/include/linux/list.h
---- linux-2.5/include/linux/list.h	Tue Sep  7 10:04:28 2004
-+++ linux-2.5-rap/include/linux/list.h	Tue Sep  7 10:42:56 2004
-@@ -553,8 +553,6 @@ static inline void hlist_del_init(struct
- 	}
- }
- 
--#define hlist_del_rcu_init hlist_del_init
--
- static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
- {
- 	struct hlist_node *first = h->first;
-diff -urpN -X ../dontdiff linux-2.5/net/core/netfilter.c linux-2.5-rap/net/core/netfilter.c
---- linux-2.5/net/core/netfilter.c	Tue Sep  7 10:04:41 2004
-+++ linux-2.5-rap/net/core/netfilter.c	Tue Sep  7 10:29:20 2004
-@@ -751,10 +751,9 @@ int nf_log_register(int pf, nf_logfn *lo
- 
- 	/* Any setup of logging members must be done before
- 	 * substituting pointer. */
--	smp_wmb();
- 	spin_lock(&nf_log_lock);
- 	if (!nf_logging[pf]) {
--		nf_logging[pf] = logfn;
-+		rcu_assign_pointer(nf_logging[pf], logfn);
- 		ret = 0;
- 	}
- 	spin_unlock(&nf_log_lock);
-diff -urpN -X ../dontdiff linux-2.5/net/decnet/dn_route.c linux-2.5-rap/net/decnet/dn_route.c
---- linux-2.5/net/decnet/dn_route.c	Tue Sep  7 10:04:41 2004
-+++ linux-2.5-rap/net/decnet/dn_route.c	Tue Sep  7 10:29:24 2004
-@@ -287,10 +287,9 @@ static int dn_insert_route(struct dn_rou
- 		if (compare_keys(&rth->fl, &rt->fl)) {
- 			/* Put it first */
- 			*rthp = rth->u.rt_next;
--			smp_wmb();
--			rth->u.rt_next = dn_rt_hash_table[hash].chain;
--			smp_wmb();
--			dn_rt_hash_table[hash].chain = rth;
-+			rcu_assign_pointer(rth->u.rt_next,
-+					   dn_rt_hash_table[hash].chain);
-+			rcu_assign_pointer(dn_rt_hash_table[hash].chain, rth);
- 
- 			rth->u.dst.__use++;
- 			dst_hold(&rth->u.dst);
-@@ -304,10 +303,8 @@ static int dn_insert_route(struct dn_rou
- 		rthp = &rth->u.rt_next;
- 	}
- 
--	smp_wmb();
--	rt->u.rt_next = dn_rt_hash_table[hash].chain;
--	smp_wmb();
--	dn_rt_hash_table[hash].chain = rt;
-+	rcu_assign_pointer(rt->u.rt_next, dn_rt_hash_table[hash].chain);
-+	rcu_assign_pointer(dn_rt_hash_table[hash].chain, rt);
- 	
- 	dst_hold(&rt->u.dst);
- 	rt->u.dst.__use++;
-diff -urpN -X ../dontdiff linux-2.5/net/ipv4/devinet.c linux-2.5-rap/net/ipv4/devinet.c
---- linux-2.5/net/ipv4/devinet.c	Tue Sep  7 10:04:42 2004
-+++ linux-2.5-rap/net/ipv4/devinet.c	Tue Sep  7 10:29:25 2004
-@@ -158,8 +158,7 @@ struct in_device *inetdev_init(struct ne
- 
- 	/* Account for reference dev->ip_ptr */
- 	in_dev_hold(in_dev);
--	smp_wmb();
--	dev->ip_ptr = in_dev;
-+	rcu_assign_pointer(dev->ip_ptr, in_dev);
- 
- #ifdef CONFIG_SYSCTL
- 	devinet_sysctl_register(in_dev, &in_dev->cnf);
-diff -urpN -X ../dontdiff linux-2.5/net/ipv4/route.c linux-2.5-rap/net/ipv4/route.c
---- linux-2.5/net/ipv4/route.c	Tue Sep  7 10:04:42 2004
-+++ linux-2.5-rap/net/ipv4/route.c	Tue Sep  7 10:29:27 2004
-@@ -793,14 +793,13 @@ restart:
- 			 * must be visible to another weakly ordered CPU before
- 			 * the insertion at the start of the hash chain.
- 			 */
--			smp_wmb();
--			rth->u.rt_next = rt_hash_table[hash].chain;
-+			rcu_assign_pointer(rth->u.rt_next,
-+					   rt_hash_table[hash].chain);
- 			/*
- 			 * Since lookup is lockfree, the update writes
- 			 * must be ordered for consistency on SMP.
- 			 */
--			smp_wmb();
--			rt_hash_table[hash].chain = rth;
-+			rcu_assign_pointer(rt_hash_table[hash].chain, rth);
- 
- 			rth->u.dst.__use++;
- 			dst_hold(&rth->u.dst);
-diff -urpN -X ../dontdiff linux-2.5/net/sched/sch_api.c linux-2.5-rap/net/sched/sch_api.c
---- linux-2.5/net/sched/sch_api.c	Tue Sep  7 10:04:46 2004
-+++ linux-2.5-rap/net/sched/sch_api.c	Tue Sep  7 10:29:28 2004
-@@ -451,10 +451,9 @@ qdisc_create(struct net_device *dev, u32
- 
- 	/* enqueue is accessed locklessly - make sure it's visible
- 	 * before we set a netdevice's qdisc pointer to sch */
--	smp_wmb();
- 	if (!ops->init || (err = ops->init(sch, tca[TCA_OPTIONS-1])) == 0) {
- 		qdisc_lock_tree(dev);
--		list_add_tail(&sch->list, &dev->qdisc_list);
-+		list_add_tail_rcu(&sch->list, &dev->qdisc_list);
- 		qdisc_unlock_tree(dev);
- 
- #ifdef CONFIG_NET_ESTIMATOR

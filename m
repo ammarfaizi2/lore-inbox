@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267525AbTALVLv>; Sun, 12 Jan 2003 16:11:51 -0500
+	id <S267527AbTALVNc>; Sun, 12 Jan 2003 16:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267527AbTALVLv>; Sun, 12 Jan 2003 16:11:51 -0500
-Received: from hell.ascs.muni.cz ([147.251.60.186]:23168 "EHLO
-	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
-	id <S267525AbTALVLu>; Sun, 12 Jan 2003 16:11:50 -0500
-Date: Sun, 12 Jan 2003 22:20:34 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Jan Kara <jack@suse.cz>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.54 - quota support
-Message-ID: <20030112212034.GA993@mail.muni.cz>
-References: <20030106003801.GA522@mail.muni.cz> <3E18E2F0.1F6A47D0@digeo.com> <20030106103656.GA508@mail.muni.cz> <20030106144842.GD24714@atrey.karlin.mff.cuni.cz> <20030106151908.GA640@mail.muni.cz> <20030107164028.GC6719@atrey.karlin.mff.cuni.cz> <20030108012133.GA725@mail.muni.cz> <20030110193206.GA14073@atrey.karlin.mff.cuni.cz>
+	id <S267528AbTALVNc>; Sun, 12 Jan 2003 16:13:32 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:5629 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S267527AbTALVNa>; Sun, 12 Jan 2003 16:13:30 -0500
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <1042404264.16288.28.camel@irongate.swansea.linux.org.uk> 
+References: <1042404264.16288.28.camel@irongate.swansea.linux.org.uk>  <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <1042400219.1208.29.camel@RobsPC.RobertWilkens.com> <20030112195347.GJ3515@louise.pinerecords.com> 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Tomas Szepe <szepe@pinerecords.com>, Rob Wilkens <robw@optonline.net>,
+       Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: any chance of 2.6.0-test*? 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030110193206.GA14073@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.4i
-X-Muni: zakazka, vydelek, firma, komerce, vyplata
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mossad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
-X-policie-CR: Neserte mi nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
+Date: Sun, 12 Jan 2003 21:22:00 +0000
+Message-ID: <1535.1042406520@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 08:32:06PM +0100, Jan Kara wrote:
->   Ok. So I found the bug. Fix was a bit nontrivial (at one path we tried
-> to acquire one lock twice) but know it should work. The patch also
-> contain fix in ext2 - at some time ext2_setattr was written and call of
-> DQUOT_TRANSFER was missing so no quota was being transferred.
->   Please test whether the patch works for you.
 
-Good job. This patch works for me (tested with kernel 2.5.55, successfully
-patched with no errors). Thanks a lot.
+alan@lxorguk.ukuu.org.uk said:
+>  In evolution its
+> Tools->Create filter from message->Filter on sender
+> Add action
+> 	Move to folder  QUAINT
+> and then just read it when drunk 
 
--- 
-Luká¹ Hejtmánek
+That's fine for this particular troll, but some of the more well-known
+trolls here are so good at what they do that you sometimes have to read
+their messages while sober -- the errors can be subtle and well-hidden. So
+much so, sometimes, that I suspect it's done on purpose.
+
+Besides, filtering in the MUA is blatantly the wrong place to do it. The 
+MTA (or MDA) should be doing the filtering.¹
+
+--
+dwmw2
+¹ Yes, I'm bored of the other off-topic flames :)
+

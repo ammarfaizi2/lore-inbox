@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264857AbUFCXsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264882AbUFCXxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264857AbUFCXsb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 19:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264864AbUFCXsb
+	id S264882AbUFCXxM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 19:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUFCXxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 19:48:31 -0400
-Received: from holomorphy.com ([207.189.100.168]:60065 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264857AbUFCXsa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 19:48:30 -0400
-Date: Thu, 3 Jun 2004 16:48:19 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: herbert@gondor.apana.org.au, len.brown@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [APIC] Avoid change apic_id failure panic
-Message-ID: <20040603234819.GO21007@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, herbert@gondor.apana.org.au,
-	len.brown@intel.com, linux-kernel@vger.kernel.org
-References: <20040603101313.GB6578@gondor.apana.org.au> <20040603162045.7a335350.akpm@osdl.org> <20040603233748.GN21007@holomorphy.com> <20040603164415.06a7098c.akpm@osdl.org>
+	Thu, 3 Jun 2004 19:53:12 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:29067 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S264882AbUFCXxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 19:53:10 -0400
+Date: Thu, 3 Jun 2004 16:53:07 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: PATCH: Submission of via "velocity(tm)" series adapter driver
+Message-ID: <20040603165307.A26198@home.com>
+References: <20040602201315.GA10339@devserv.devel.redhat.com> <40BE3F00.4090408@pobox.com> <20040602211646.GA9419@devserv.devel.redhat.com> <40BE4537.5030101@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040603164415.06a7098c.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <40BE4537.5030101@pobox.com>; from jgarzik@pobox.com on Wed, Jun 02, 2004 at 05:23:03PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> They're usually not insane. xAPIC's have 8-bit physical ID's, not 4-bit,
->> but no one's bothered tracking whether the APIC's found were serial APIC
->> or xAPIC, and then dispatching on that in the IO-APIC physid check to
->> avoid unnecessarily renumbering the things or panicking.
+On Wed, Jun 02, 2004 at 05:23:03PM -0400, Jeff Garzik wrote:
+> Alan Cox wrote:
+> > Most of our drivers don't work bigendian. If you want it bigendian you
+> > can find someone to do it because I don't have the hardware to verify
+> > bigendian and currently there probably isnt a single big endian user of this
+> > chip on the planet.
+> 
+> 
+> Well, there probably isn't a single user of this entire driver on the 
+> planet outside of VIA and RH, yet.
+> 
+> I got the gbit part on a PCI card, and AFAIK via 10/100 stuffs have 
+> always appeared on PCI cards as well as on-board ("LOM").
 
-On Thu, Jun 03, 2004 at 04:44:15PM -0700, Andrew Morton wrote:
-> So... what should we do?
+Who makes this PCI card with the via velocity gbit part on it?
 
-In all likelihood, make the thing a variable or return a value based
-on the result of GET_APIC_VERSION(), particularly since guessing wrong
-either way takes out machines before console_init(). Returning values
-based on the result of GET_APIC_VERSION() has a predecent, get_maxlvt().
-
-
--- wli
+-Matt

@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268182AbUJOQoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268157AbUJOQu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268182AbUJOQoe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 12:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268175AbUJOQlz
+	id S268157AbUJOQu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 12:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268175AbUJOQu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 12:41:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31936 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268169AbUJOQkj (ORCPT
+	Fri, 15 Oct 2004 12:50:56 -0400
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:34510 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S268157AbUJOQul (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 12:40:39 -0400
-Subject: Re: [Ext2-devel] Ext3 -mm reservations code: is this fix really
-	correct?
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1097856114.4591.28.camel@localhost.localdomain>
-References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
-	 <1097856114.4591.28.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1097858401.1968.148.camel@sisko.scot.redhat.com>
+	Fri, 15 Oct 2004 12:50:41 -0400
+Date: Fri, 15 Oct 2004 09:45:43 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, Sven Dietrich <sdietrich@mvista.com>,
+       Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, abatyrshin@ru.mvista.com,
+       amakarov@ru.mvista.com, emints@ru.mvista.com, ext-rt-dev@mvista.com,
+       hzhang@ch.mvista.com, yyang@ch.mvista.com,
+       "Witold. Jaworski@Unibw-Muenchen. De" 
+	<witold.jaworski@unibw-muenchen.de>,
+       arnd.heursch@unibw-muenchen.de
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Message-ID: <20041015164543.GA1725@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20041011215420.GA19796@elte.hu> <EOEGJOIIAIGENMKBPIAECEIEDKAA.sdietrich@mvista.com> <20041012055029.GB1479@elte.hu> <20041014050905.GA6927@in.ibm.com> <20041014071810.GB9729@elte.hu> <20041015145915.GA1266@us.ibm.com> <20041015154542.GA8257@elte.hu> <20041015164039.GA1265@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Oct 2004 17:40:02 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041015164039.GA1265@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, 2004-10-15 at 17:01, mingming cao wrote:
-
-> > Have I misunderstood something?
+On Fri, Oct 15, 2004 at 09:40:39AM -0700, Paul E. McKenney wrote:
+> On Fri, Oct 15, 2004 at 05:45:42PM +0200, Ingo Molnar wrote:
 > > 
-> You are correct, again:) We should do a search_reserve_window() from the
-> root.
+> > * Paul E. McKenney <paulmck@us.ibm.com> wrote:
+> > 
+> > > One caution (which you are no doubt already aware of) -- if an RCU
+> > > algorithm that reads (rcu_read_lock()/rcu_read_unlock()) in process
+> > > context and updates in softirq/bh/irq context, you can see deadlocks.
+> > 
+> > yeah - but in the PREEMPT_REALTIME kernel there are simply no irq or
+> > softirq contexts in process contexts - everything is a task. So
+> > everything can (and does) block.
 > 
-> I will post a fix for these two soon.
+> OK, am probably confused, but I thought that the whole point of your
+> PREEMPT_REALTIME implementation of rcu_read_lock_rt() was to enable
+> preemption in the RCU read-side critical section.  If this is indeed
+> the case, then it looks to me like code that would run in softirq/bh/irq
+> context in a kernel compiled non-PREEMPT_REALTIME could now run during
+> the time that a code path running under rcu_read_lock_rt() was preempted.
+> 
+> If so, then the kernel can end up freeing a data item that the preempted
+> RCU read-side critical section is still referencing.
+> 
+> OK, so what am I missing here?
 
-Thanks.  I'll be away for a few days so I probably won't be able to look
-at the fix until Wednesday next week.
+Never mind!!!  You insert the mutex.  Sorry for the noise!
 
-Cheers,
- Stephen
-
+							Thanx, Paul

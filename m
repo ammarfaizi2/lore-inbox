@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317543AbSFED45>; Tue, 4 Jun 2002 23:56:57 -0400
+	id <S317541AbSFEEBo>; Wed, 5 Jun 2002 00:01:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317544AbSFED44>; Tue, 4 Jun 2002 23:56:56 -0400
-Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:31642 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S317543AbSFED4z>;
-	Tue, 4 Jun 2002 23:56:55 -0400
-Message-ID: <3CFD8C07.6030607@tmsusa.com>
-Date: Tue, 04 Jun 2002 20:56:55 -0700
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020604
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: linux kernel <linux-kernel@vger.kernel.org>
+	id <S317542AbSFEEBn>; Wed, 5 Jun 2002 00:01:43 -0400
+Received: from dsl-213-023-043-246.arcor-ip.net ([213.23.43.246]:32439 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317541AbSFEEBn>;
+	Wed, 5 Jun 2002 00:01:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Pavel Machek <pavel@suse.cz>, Karim Yaghmour <karim@opersys.com>
 Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-In-Reply-To: <Pine.LNX.4.44.0206041418460.2614-100000@waste.org> <E17FQPj-0001Rr-00@starship>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Wed, 5 Jun 2002 06:00:46 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CFB2A38.60242CBA@opersys.com> <20020604161001.K36@toy.ucw.cz>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17FRyZ-0001UL-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+On Tuesday 04 June 2002 18:10, Pavel Machek wrote:
+> > 5) Drivers who require absolute priority and dislike other kernel
+> > portions who use cli/sti can now create a domain of their own
+> > and place themselves before Linux in the ipipe. This provides a
+> > mechanism for the implementation of systems that can provide guaranteed
+> > realtime response.
+> 
+> This is same approach rtLinux takes, right?
 
->If I recall correctly, XFS makes an attempt to provide such realtime 
->guarantees, or at least the Solaris version does. 
->
-When did Solaris ever support xfs?
+It accomplishes the same thing in a different way.  Karim's interrupt
+pipline approach also exposes some interesting new capabilities to the
+client operating systems.  The ability to add/remove clients from the
+pipeline seems very powerful.
 
-> However, the operating 
->system must be able to provide true realtime guarantees in order for the 
->filesystem to provide them, and I doubt that the combination of XFS and 
->Solaris can do that.
->
-no, but the combination of xfs and irix has
-made a lot of folks happy -  and xfs/linux
-is coming along nicely as well...
-
-Joe
-
+-- 
+Daniel

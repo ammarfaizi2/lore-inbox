@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265490AbUFOMOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265494AbUFOMxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265490AbUFOMOK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 08:14:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265492AbUFOMOK
+	id S265494AbUFOMxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 08:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265499AbUFOMxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 08:14:10 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:41360 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S265490AbUFOMOH (ORCPT
+	Tue, 15 Jun 2004 08:53:25 -0400
+Received: from hostmaster.org ([212.186.110.32]:54172 "HELO hostmaster.org")
+	by vger.kernel.org with SMTP id S265494AbUFOMxY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 08:14:07 -0400
-Message-Id: <200406151213.i5FCDg8M003141@eeyore.valparaiso.cl>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 5/5] kbuild: external module build doc 
-In-Reply-To: Message from Sam Ravnborg <sam@ravnborg.org> 
-   of "Mon, 14 Jun 2004 22:48:09 +0200." <20040614204809.GF15243@mars.ravnborg.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Tue, 15 Jun 2004 08:13:39 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 15 Jun 2004 08:53:24 -0400
+Subject: Re: NUMA API observations
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20040614153638.GB25389@krispykreme>
+References: <20040614153638.GB25389@krispykreme>
+Content-Type: text/plain
+Message-Id: <1087304002.28142.46.camel@hostmaster.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 15 Jun 2004 14:53:22 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> said:
-> # This is a BitKeeper generated diff -Nru style patch.
-> #
-> # ChangeSet
-> #   2004/06/14 22:21:46+02:00 sam@mars.ravnborg.org 
+Looking at these numastat results and the default policy it seems that
+memory is primarily allocated on the first node which in turn means a
+unnecessarily large amount of page faults on the second node.
 
-[...]
+I wonder if it is possible to better balance processes among the nodes
+by e.g. setting nodeAffinity = pid mod nodeCount
 
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/Documentation/kbuild/extmodules.txt	2004-06-14 22:25:21 +02:00
-> @@ -0,0 +1,168 @@
-> +Building external modules
-> +=========================
-> +kbuild offers functionality to build external modules, with the
-> +prerequisite that there is a pre-built kernel avialable with full source.
+Tom
 
-No. It should be enough to have run "make modules_prepare".
-
-> +A subset of the targets available when building the kernel is available
-> +when building an external module.
-> +
-> +
-> +Building the module
-> +-------------------
-> +The command looks like his:
-> +
-> +	make -C <path to kernel src> M=`pwd`
-
-For me, it works with:
-
-  make -C <path to kernel src> SUBDIRS=<path to module source> modules
-     # Builds
-  make -C <path to kernel src> SUBDIRS=<path to module source> modules_install
-     # Installs
-
-Besides, IMHO this belongs in Documentation/kbuild/modules.txt.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+      finger thomasz@hostmaster.org for key
+
+Attempting to apply the OSI layers model to a real network is just like
+attempting to represent seven dimensions in four dimensional reality.
+      Thomas Zehetbauer
+

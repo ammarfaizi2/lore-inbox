@@ -1,147 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261819AbSJJRmg>; Thu, 10 Oct 2002 13:42:36 -0400
+	id <S261791AbSJJRkU>; Thu, 10 Oct 2002 13:40:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261826AbSJJRmg>; Thu, 10 Oct 2002 13:42:36 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:26107 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261819AbSJJRme>;
-	Thu, 10 Oct 2002 13:42:34 -0400
-Message-ID: <3DA5BD47.FC7CDAC3@mvista.com>
-Date: Thu, 10 Oct 2002 10:47:51 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S261819AbSJJRkU>; Thu, 10 Oct 2002 13:40:20 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:62855 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261791AbSJJRkT> convert rfc822-to-8bit; Thu, 10 Oct 2002 13:40:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andrew Theurer <habanero@us.ibm.com>
+To: Erich Focht <efocht@ess.nec.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [PATCH] pooling NUMA scheduler with initial load balancing
+Date: Thu, 10 Oct 2002 12:34:34 -0500
+X-Mailer: KMail [version 1.4]
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+References: <200210091826.20759.efocht@ess.nec.de> <200210091258.08379.habanero@us.ibm.com> <200210100102.13980.efocht@ess.nec.de>
+In-Reply-To: <200210100102.13980.efocht@ess.nec.de>
 MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
-References: <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com> <3DA4BECB.9C7D6119@mvista.com> <20021010155424.GN21400@waste.org> <3DA5A9D6.D72A8E00@mvista.com> <20021010170416.GP21400@waste.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210101234.34345.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
-> 
-> On Thu, Oct 10, 2002 at 09:24:54AM -0700, george anzinger wrote:
-> > Oliver Xymoron wrote:
-> > >
-> > > On Wed, Oct 09, 2002 at 04:42:03PM -0700, george anzinger wrote:
-> > > > Linus Torvalds wrote:
-> > > > >
-> > > > > On Wed, 9 Oct 2002, george anzinger wrote:
-> > > > > >
-> > > > > > This patch, in conjunction with the "core" high-res-timers
-> > > > > > patch implements high resolution timers on the i386
-> > > > > > platforms.
-> > > > >
-> > > > > I really don't get the notion of partial ticks, and quite frankly, this
-> > > > > isn't going into my tree until some major distribution kicks me in the
-> > > > > head and explains to me why the hell we have partial ticks instead of just
-> > > > > making the ticks shorter.
-> > > > >
-> > > > Well, the notion is to provide timers that have resolution
-> > > > down into the micro seconds.  Since this take a bit more
-> > > > overhead, we just set up an interrupt on an as needed
-> > > > basis.  This is why we define both a high res and a low res
-> > > > clock.  Timers on the low res clock will always use the 1/HZ
-> > > > tick to drive them and thus do not introduce any additional
-> > > > overhead.  If this is all that is needed the configure
-> > > > option can be left off and only these timers will be
-> > > > available.
-> > > >
-> > > > On the other hand, if a user requires better resolution,
-> > > > s/he just turns on the high-res option and incures the
-> > > > overhead only when it is used and then only at timer expire
-> > > > time.  Note that the only way to access a high-res timer is
-> > > > via the POSIX clocks and timers API.  They are not available
-> > > > to select or any other system call.
-> > > >
-> > > > Making ticks shorter causes extra overhead ALL the time,
-> > > > even when it is not needed.  Higher resolution is not free
-> > > > in any case, but it is much closer to free with this patch
-> > > > than by increasing HZ (which, of course, can still be
-> > > > done).  Overhead wise and resolution wise, for timers, we
-> > > > would be better off with a 1/HZ tick and the "on demand"
-> > > > high-res interrupts this patch introduces.
-> > >
-> > > I think what Linus is getting at is: why not make the units of jiffies
-> > > microseconds and give it larger increments on clock ticks? Now you
-> > > don't need any special logic to go to better than HZ resolution.
-> > > Unfortunately, this means identifying all the things that use HZ as a
-> > > measure of how often we check for rescheduling.
+On Wednesday 09 October 2002 6:02 pm, Erich Focht wrote:
+> > > Starting migration thread for cpu 3
+> > > Bringing up 4
+> > > CPU>dividNOWrro!
 > >
-> > Well then you are still dealing with two measures, the HZ
-> > and the tick rate.
-> 
-> Yep, and separating the two breaks a few things. Granted.
-> 
-> > One might also argue that the subjiffie
-> > should be some "normal" thing like nanosecond or micro
-> > second.  I went round and round with this in the beginning.
-> > What it comes down to it the conversion back and forth is
-> > much easier and faster (less overhead) when using the
-> > natural units of the underlying clock.  This way the
-> > interrupt code, for example, does not have to even do a
-> > conversion.
-> 
-> Then the argument becomes move jiffies to the most convenient unit
-> that encompasses what you want to do with subjiffies. Microseconds was
-> just an example. Most code doesn't really care when ticks happen,
-> except to the extent that they currently trigger timers, so
-> jiffies=tick HZ stops being a meaningful measure once timers are
-> untied from ticks, see?
+> > I got the same thing on 2.5.40-mm1.  It looks like it may be a a divide
+> > by zero in calc_pool_load.  I am attempting to boot a band-aid version
+> > right now.  OK, got a little further:
+>
+> This opened my eyes, thanks for all your help and patience!!!
+>
+> The problem is that the load balancer is called before the CPU pools
+> were set up. That's fine, I thought, because I define in sched_init
+> the default pool 0 to include all CPUs. But: in find_busiest_queue()
+> the cpu_to_node(this_cpu) delivers a non-zero pool which is not set up
+> yet, therefore pool_nr_cpus[pool]=0 and we get a zero divide.
+>
+> I'm still wondering why this doesn't happen on our architecture. Maybe
+> the interrupts are disabled longer, I'll check. Anyway, a fix is to
+> force this_pool to be 0 as long as numpools=1. The attached patch is a
+> quick untested hack, maybe one can do it better. Has to be applied on top
+> of the other 2.
 
-Hm?  Not really sure what this leads to.  Right now the
-timers are organized by "tick".  I think this is VERY
-useful.  It makes the timer insert VERY fast and the tick
-processing equally fast.  A regular "tick" also makes the
-accounting overhead flat WRT load, also a GOOD thing.  
+Thanks very much Erich.  I did come across another problem here on numa-q.  In 
+task_to_steal() there is a divide by cache_decay_ticks, which apparantly is 0 
+on my system.  This may have to do with notsc, but I am not sure.  I set 
+cache_decay_ticks to 8, (I cannot boot without using notsc) which is probably 
+not correct, but I can now boot 16 processor numa-q on 2.5.40-mm1 with your 
+patches!  I'll get some benchmark results soon.  
 
-One thought I had was to separate out the sub tick events
-into a different list and come up with a different interrupt
-source for them.  Problem is they MUST stay in sync.  This
-is most easily done when they are in the same list.
-
-What you haven't touched on, is the separation of the "tick"
-from the clock or time.  The patch implements, a separation
-here.  Time is taken from a reliable source (in this patch
-either TSC or the ACPI pm timer, but others are possible)
-and the "tick" is just a reminder to look at the clock and
-update accordingly.  This eliminates the issue of choosing a
-HZ value that is so many PPM close to real time and the NTP
-issues that causes, such as the current early expiration of
-timers.  Try this:
-
-time sleep 60
-
-on a 2.5.40 system.  It will come back with 59.xxx seconds. 
-Clearly the sleep was for less than 60.
-  
-> 
-> > > I don't think he can seriously mean cranking HZ up to match whatever
-> > > timing requirements we might have - that obviously doesn't scale.
-> >
-> > This is at least the third "take" on what he means, each of
-> > which sends me in a very different direction.  Sure would
-> > like to know what he really means.
-> 
-> Perhaps if you pose it as a multiple-choice question? I suppose he's
-> almost sure to answer with "none of the above".
-> 
-> --
->  "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Andrew Theurer

@@ -1,28 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262092AbREQRjy>; Thu, 17 May 2001 13:39:54 -0400
+	id <S262102AbREQRlo>; Thu, 17 May 2001 13:41:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262096AbREQRjo>; Thu, 17 May 2001 13:39:44 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40978 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262092AbREQRj0>; Thu, 17 May 2001 13:39:26 -0400
-Subject: Re: Linux 2.4.4-ac10
-To: hch@caldera.de (Christoph Hellwig)
-Date: Thu, 17 May 2001 18:36:30 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200105171700.f4HH0kj16143@ns.caldera.de> from "Christoph Hellwig" at May 17, 2001 07:00:46 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262096AbREQRle>; Thu, 17 May 2001 13:41:34 -0400
+Received: from mailproxy.de.uu.net ([192.76.144.34]:23714 "EHLO
+	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
+	id <S262106AbREQRlR>; Thu, 17 May 2001 13:41:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+Date: Thu, 17 May 2001 19:41:55 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.10.10105171009180.13202-100000@www.transvirtual.com>
+In-Reply-To: <Pine.LNX.4.10.10105171009180.13202-100000@www.transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E150RhO-0005mU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01051719415507.00784@cookie>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >  	     ftp://ftp.linux.org.uk/pub/linux/alan/2.4-ac/
-> >
-> Can't find it there (neither -ac9), but on the other hand it
-> is on kernel.org...
+On Thursday 17 May 2001 19:18, you wrote:
+> I wouldn't make that assumpation. I have two PS/2 keybaords attached to my
+> system and they don't have serial ids nor do they have vendor or product
+> ids.
 
-Guess who forgot to fix the URL;)
+Yes, PS/2 is a system where you must use the location. That's why a device id 
+must contain the id, the serial number AND the location.
+
+bye...

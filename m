@@ -1,26 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273831AbRJEWCM>; Fri, 5 Oct 2001 18:02:12 -0400
+	id <S274200AbRJEWGW>; Fri, 5 Oct 2001 18:06:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273888AbRJEWCD>; Fri, 5 Oct 2001 18:02:03 -0400
-Received: from relay01.cablecom.net ([62.2.33.101]:4359 "EHLO
-	relay01.cablecom.net") by vger.kernel.org with ESMTP
-	id <S273831AbRJEWBx>; Fri, 5 Oct 2001 18:01:53 -0400
-From: llx@swissonline.ch
-Message-Id: <200110052202.f95M2Ig16051@mail.swissonline.ch>
+	id <S274198AbRJEWGM>; Fri, 5 Oct 2001 18:06:12 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:1990 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S274196AbRJEWF6> convert rfc822-to-8bit; Fri, 5 Oct 2001 18:05:58 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <knuffie@xs4all.nl>, Rik van Riel <riel@conectiva.com.br>
+CC: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, <linux-xfs@oss.sgi.com>,
+        <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.51 (988) - Registered Version
+Date: Fri, 5 Oct 2001 15:06:25 -0700
+In-Reply-To: <Pine.BSI.4.10.10110052208390.303-100000@xs3.xs4all.nl>
+Subject: Re: %u-order allocation failed
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Reply-To: llx@swissonline.ch
-To: linux-kernel@vger.kernel.org
-Subject: proc file system
-Date: Sat, 6 Oct 2001 00:02:18 +0200
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
+Message-ID: <20011005220627.AAA22897@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i've written a prog interface for my logger utility to make it easy
-to transport my logging information from kernel to userspace using
-shell commands. now i want to use tail -f /prog/<mylogfile>. what
-do i have to do for that to work. when using tail my loginfo gets
-read form my ringbuffer, but nothing gets printed in the terminal.
+
+>The system is beafy enough to tolerate something mundane as this. It should
+>definitely not die.
+
+	A fork bomb with no limits attempts to create an infinite number of 
+processes. No system can be that beefy.
+
+	DS
+
+

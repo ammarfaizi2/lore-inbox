@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261782AbREVOdn>; Tue, 22 May 2001 10:33:43 -0400
+	id <S261796AbREVOdn>; Tue, 22 May 2001 10:33:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261803AbREVOde>; Tue, 22 May 2001 10:33:34 -0400
+	id <S261797AbREVOdd>; Tue, 22 May 2001 10:33:33 -0400
 Received: from humbolt.nl.linux.org ([131.211.28.48]:4619 "EHLO
 	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S261793AbREVOdU>; Tue, 22 May 2001 10:33:20 -0400
+	id <S261778AbREVOdR>; Tue, 22 May 2001 10:33:17 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@bonn-fries.net>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code in userspace
-Date: Tue, 22 May 2001 11:07:32 +0200
+To: "Ricardo Galli" <gallir@uib.es>, <linux-kernel@vger.kernel.org>
+Subject: Re: New XFS, ReiserFS and Ext2 benchmarks
+Date: Tue, 22 May 2001 12:29:13 +0200
 X-Mailer: KMail [version 1.2]
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Ben LaHaise <bcrl@redhat.com>,
-        torvalds@transmeta.com, viro@math.psu.edu,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0105190138150.6079-100000@toomuch.toronto.redhat.com> <01051916254708.00491@starship> <20010521101451.F555@marowsky-bree.de>
-In-Reply-To: <20010521101451.F555@marowsky-bree.de>
+Cc: <timothy@monkey.org>, <reiser@namesys.com>,
+        "Guillem Cantallops Ramis" <guillem@cantallops.net>
+In-Reply-To: <LOEGIBFACGNBNCDJMJMOKEADCJAA.gallir@uib.es>
+In-Reply-To: <LOEGIBFACGNBNCDJMJMOKEADCJAA.gallir@uib.es>
 MIME-Version: 1.0
+Message-Id: <01052212291305.06233@starship>
 Content-Transfer-Encoding: 7BIT
-Message-Id: <01052211073203.06233@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 May 2001 10:14, Lars Marowsky-Bree wrote:
-> On 2001-05-19T16:25:47,
+On Tuesday 22 May 2001 04:41, Ricardo Galli wrote:
+> Hi,
+> 	you can find at http://bulma.lug.net/static/ a few new benchmarks
+> among Reiser, XFS and Ext2 (also one with JFS).
 >
->    Daniel Phillips <phillips@bonn-fries.net> said:
-> > How about:
-> >
-> >   # mkpart /dev/sda /dev/mypartition -o size=1024k,type=swap
-> >   # ls /dev/mypartition
-> >   base	size	device	type
-> >   # cat /dev/mypartition/size
-> >   1048576
-> >   # cat /dev/mypartition/device
-> >   /dev/sda
-> >   # mke2fs /dev/mypartition
->
-> Ek. You want to run mke2fs on a _directory_ ?
+> This time there is a comprehensive Hans' Mongo benchmarks
+> (http://bulma.lug.net/static/mongo/ )and a couple of kernel
+> compilations and read/write/fsync operations tests (I was very
+> careful of populating the cache before the measures for the last two
+> cases).
 
-Could you be specific about what is wrong with that?  Assuming that
-this device directory lives on a special purpose filesystem?
+The measured create and rename times for Ext2 look pretty silly, don't they?
+OK, I know that my htree directory index patch isn't part of Ext2 yet, but at 
+least lets mention that this is a solved problem.
 
-> If anything, /dev/mypartition/realdev
-
-Then every fstab in the world has to change, not to mention adding
-verbosity to interactive commands.
+  http://nl.linux.org/~phillips/htree
 
 --
 Daniel
-

@@ -1,51 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130281AbQLUUvB>; Thu, 21 Dec 2000 15:51:01 -0500
+	id <S130521AbQLUUyW>; Thu, 21 Dec 2000 15:54:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130442AbQLUUuw>; Thu, 21 Dec 2000 15:50:52 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:5391
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130281AbQLUUuk>; Thu, 21 Dec 2000 15:50:40 -0500
-Date: Thu, 21 Dec 2000 12:19:37 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: safemode <safemode@voicenet.com>
-cc: Zdenek Kabelac <kabi@fi.muni.cz>, xOr <xor@x-o-r.net>,
-        linux-kernel@vger.kernel.org
-Subject: Blow Torch (Re: lockups from heavy IDE/CD-ROM usage)
-In-Reply-To: <3A426150.1545FC96@voicenet.com>
-Message-ID: <Pine.LNX.4.10.10012211216060.566-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S131228AbQLUUyN>; Thu, 21 Dec 2000 15:54:13 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:8719 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130521AbQLUUyD>; Thu, 21 Dec 2000 15:54:03 -0500
+Date: Thu, 21 Dec 2000 21:23:25 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Linux 2.2.19pre2
+Message-ID: <20001221212325.A30872@athlon.random>
+In-Reply-To: <E147MkJ-00036t-00@the-village.bc.nu> <20001220142858.A7381@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20001220142858.A7381@athlon.random>; from andrea@suse.de on Wed, Dec 20, 2000 at 02:28:58PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Dec 2000, safemode wrote:
+On Wed, Dec 20, 2000 at 02:28:58PM +0100, Andrea Arcangeli wrote:
+> I was in the process of fixing this (I also just backported the thinkpad
+> %edx clobber fix), but if somebody is going to work on this please let
+> me know so we stay in sync.
 
-> I get this on the 440LX with the same DMA timeout message.  Everyone says it's
-> the board's fault as well.  Funny.   Anyways this happens accross just about
-> any Dev kernel but more so in the -test12 and up versions. .   Test10 works
-> fine without locking.  Blaming the hardware reminds me of the help given by
-> some other company I can't seem to remember the name to.
+Ok this should fix the e820 memory detection, against 2.2.19pre2:
 
-29063507.pdf Page 22 sections 9,10
-What is the Intel solution to the is system hang?
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.19pre2/e820-fix-1
 
-29063507.pdf Page 25 section 16
-Is this erratum valid to include all PIIX4-AB/EB, PIIX3, and PIIX a/b.
+While fixing the code I noticed some bug was inerith from 2.4.x so I forward
+ported the fixes to 2.4.0-test13-pre3:
 
-It is the DAMN hardware and quit BITCHING.
-I told everyone once that I was working on this issue.
-If you think you can fix it before me, be my guest.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0-test13-pre3/e820-fix-1
 
-I have given you the INTEL doc numbers and the page and the section.
-Go read.
+I also include them below so they're handy for Linus:
 
-Regards
+diff -urN 2.4.0-test13-pre3/arch/i386/kernel/setup.c 2.4.0-test13-pre3-e820/arch/i386/kernel/setup.c
+--- 2.4.0-test13-pre3/arch/i386/kernel/setup.c	Thu Dec 14 22:33:59 2000
++++ 2.4.0-test13-pre3-e820/arch/i386/kernel/setup.c	Thu Dec 21 21:12:47 2000
+@@ -477,7 +477,7 @@
+ 			if (start < 0x100000ULL && end > 0xA0000ULL) {
+ 				if (start < 0xA0000ULL)
+ 					add_memory_region(start, 0xA0000ULL-start, type);
+-				if (end < 0x100000ULL)
++				if (end <= 0x100000ULL)
+ 					continue;
+ 				start = 0x100000ULL;
+ 				size = end - start;
+@@ -518,7 +518,8 @@
+ 
+ 		e820.nr_map = 0;
+ 		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
+-		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
++		add_memory_region(HIGH_MEMORY, (mem_size << 10)-HIGH_MEMORY,
++				  E820_RAM);
+   	}
+ 	printk("BIOS-provided physical RAM map:\n");
+ 	print_memory_map(who);
 
-Andre Hedrick
-Linux ATA Development
 
+The above patches doesn't include the fix for the thinkpad from Marc Joosen,
+a backport of such bugfix is separately backported here (because it's
+orthogonal with the other bugfixes):
 
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.19pre2/thinkpad-e820-mjoosen-1
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

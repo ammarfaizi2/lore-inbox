@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281887AbRKSECg>; Sun, 18 Nov 2001 23:02:36 -0500
+	id <S280029AbRKSEry>; Sun, 18 Nov 2001 23:47:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281800AbRKSEC1>; Sun, 18 Nov 2001 23:02:27 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:49623 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S281751AbRKSECR>; Sun, 18 Nov 2001 23:02:17 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Alexander Viro <viro@math.psu.edu>
-Date: Mon, 19 Nov 2001 15:02:40 +1100 (EST)
-MIME-Version: 1.0
+	id <S281735AbRKSEro>; Sun, 18 Nov 2001 23:47:44 -0500
+Received: from brimstone.ucr.edu ([138.23.89.35]:43012 "EHLO brimstone.ucr.edu")
+	by vger.kernel.org with ESMTP id <S280029AbRKSErc>;
+	Sun, 18 Nov 2001 23:47:32 -0500
+Date: Sun, 18 Nov 2001 20:47:29 -0800
+To: linux-kernel@vger.kernel.org
+Cc: Keith Humphreys <keith@cs.ucr.edu>, johannes@brimstone.UCR.EDU
+Subject: [OT] Need Very High Speed/Large Storage Space Linux Box
+Message-ID: <20011118204729.A5067@infomine.ucr.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15352.33888.506871.191768@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Devlinks.  Code.  (Dcache abuse?)
-In-Reply-To: message from Alexander Viro on Friday November 16
-In-Reply-To: <15348.58752.207182.488419@notabene.cse.unsw.edu.au>
-	<Pine.GSO.4.21.0111160528020.5234-100000@weyl.math.psu.edu>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+From: Johannes Ruscheinski <ruschein@brimstone.UCR.EDU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday November 16, viro@math.psu.edu wrote:
-> 
-> 
-> On Fri, 16 Nov 2001, Neil Brown wrote:
-> 
-> > +	if (!(nd->mnt->mnt_flags & MNT_NODEV)
-> > +	    && dentry->d_inode
-> > +	    && (dentry->d_inode->i_mode & S_ISVTX)) {
-> > +		dentry = devlink_find(dentry, link);
-> 
-> You are breaking vfsmount refcounting.  Badly.
+Hi,
 
-I looked, and I cannot see it.
-I never change the refcound on any vfsmount, nor to I make
-or destroy any references to any vfsmount.
-In this piece of code we don't even own a reference to "dentry" (the
-caller does) so assigning over it isn't a problem either.
+My research group is looking to implement a Linux 2.4.15pre6+ based system
+with the following requirement:
+2GB RAM, 800GB-1TB raid disk storage (ext3?).  We need good disk throughput and
+have around $10,000 to spend.  Dual Athlons would be great but if there is no
+highly reliable solution with Athlons we might also consider P4's.  We would
+like to be able to upgrade our system in the future and CPU speed is not nearly
+as important to as as disk throughput.  We are working on a publicly funded Web
+search engine project that will be released under the GPL sometime next year
+(we are about 70% into this and have very exciting and promising results, i.e.
+we'll probably get quite a bit more money).  We are also considering spending
+more money and doubling the disk space in order to mirror the custom database 
+that we want to store on this monster.  Unfortunately we have to make a very
+quick decision.  Stability is very important on this project.  I am one of the
+developers on the project and may also do the system administration on it as
+well.
+Please help if you have any experience with a beast of a similar nature.
+-- 
+TIA,
+Johannes
+--
+Dr. Johannes Ruscheinski
+Infomine Lead Programmer                    ***              LINUX,             ***
+EMail:    ruschein@infomine_no_spam.ucr.edu ***                                 ***
+Location: science library, room G40         *** The Choice Of A GNU Generation! ***
 
-About the only thing that might be a bit odd here is that we change
-nd->dentry a few lines later without changing nd->mnt.  But the new
-dentry is always in the same dentry tree (though it is in owned
-by a different filesystem).
-
-Would you care to give a few more details?
-
-NeilBrown
+*************************************************************
+<a href="http://freeskylarov.org/">Free Dimitri Skylarov!</a>
+*************************************************************

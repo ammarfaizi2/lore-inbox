@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262989AbTJBBLe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 21:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbTJBBLe
+	id S263069AbTJBBMo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 21:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbTJBBMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 21:11:34 -0400
-Received: from quechua.inka.de ([193.197.184.2]:58543 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S262989AbTJBBLd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 21:11:33 -0400
-From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: OK, what does this mean: (2.6.0-test6) grubby fatal error: unable to  find a suitable template
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <200310012344.h91Ni2Kn025150@orion.dwf.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.1-20030907 ("Sandray") (UNIX) (Linux/2.4.20-xfs (i686))
-Message-Id: <E1A4rzf-0002ap-00@calista.inka.de>
-Date: Thu, 02 Oct 2003 03:10:59 +0200
-X-Scanner: exiscan *1A4rzf-0002ap-00*MKwD1xEmsG6*
+	Wed, 1 Oct 2003 21:12:44 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:1728 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S263069AbTJBBMF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 21:12:05 -0400
+Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+From: Albert Cahalan <albert@users.sf.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       Mikael Pettersson <mikpe@csd.uu.se>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       perfctr-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.44.0310011717180.6077-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0310011717180.6077-100000@home.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1065056278.735.55.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 01 Oct 2003 20:57:59 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200310012344.h91Ni2Kn025150@orion.dwf.com> you wrote:
-> But the 'make install' generates the error message:
->    grubby fatal error: unable to find a suitable template
+On Wed, 2003-10-01 at 20:38, Linus Torvalds wrote:
+> On 1 Oct 2003, Albert Cahalan wrote:
+> > 
+> > It certainly seems to me that the intent of /proc/self is
+> > to point to a "process", which is a tgid in kernel terms.
+> 
+> My argument against that is that it actually loses information. Now there 
+> is no way to easily look up the current thread stuff.
 
-well, it tries to run grub. You can simply install the kernel image by hand.
+This maybe?
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+/proc/task -> 42/task/84
+
+> If /proc/self points to a thread, it's easy to look up the process with a 
+> "/proc/self/../..".
+
+That wouldn't have worked with /proc/self pointing to
+an invisible directory like it did. It could certainly
+be made to work, like this:
+
+/proc/self -> 42/task/84
+
+Had the /proc/self code not been modified, you'd get
+a nasty link like this:
+
+/proc/self -> 84   (and "84" isn't listed in /proc)
+
+So using "/proc/self/../.." would just go up to "/".
+That's not too useful.
+
+

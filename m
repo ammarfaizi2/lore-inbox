@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265813AbTFXOzu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 10:55:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265810AbTFXOzu
+	id S265538AbTFXPG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 11:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265542AbTFXPGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 10:55:50 -0400
-Received: from smtp4.cern.ch ([137.138.131.165]:60337 "EHLO smtp4.cern.ch")
-	by vger.kernel.org with ESMTP id S266227AbTFXOzr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 10:55:47 -0400
-Date: Tue, 24 Jun 2003 13:47:34 +0200
-From: KELEMEN Peter <Peter.Kelemen@cern.ch>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS performance ...
-Message-ID: <20030624114734.GA577@chihiro.cern.ch>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-kernel@vger.kernel.org
-References: <200211241521.09981.m.c.p@wolk-project.de> <20021128110627.GD26875@chiara.elte.hu> <shs65uh1wch.fsf@charged.uio.no> <20021128213612.GB6321@chiara.elte.hu> <shsznrs98di.fsf@charged.uio.no>
+	Tue, 24 Jun 2003 11:06:55 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:5385 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S265538AbTFXPGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 11:06:55 -0400
+Date: Tue, 24 Jun 2003 19:20:25 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: =?iso-8859-1?Q?Przemyslaw_Stanis=B3aw_Knycz?= <zolw@wombb.edu.pl>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: linux-2.5.73 at alpha compile error
+Message-ID: <20030624192024.A14606@jurassic.park.msu.ru>
+References: <20030624160435.71b24c05.zolw@wombb.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <shsznrs98di.fsf@charged.uio.no>
-Organization: CERN European Laboratory for Particle Physics, Switzerland
-X-GPG-KeyID: 1024D/EE4C26E8 2000-03-20
-X-GPG-Fingerprint: D402 4AF3 7488 165B CC34  4147 7F0C D922 EE4C 26E8
-X-PGP-KeyID: 1024/45F83E45 1998/04/04
-X-PGP-Fingerprint: 26 87 63 4B 07 28 1F AD  6D AA B5 8A D6 03 0F BF
-X-Comment: Personal opinion.  Paragraphs might have been reformatted.
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Accept-Language: hu,en
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030624160435.71b24c05.zolw@wombb.edu.pl>; from zolw@wombb.edu.pl on Tue, Jun 24, 2003 at 04:04:35PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Trond Myklebust (trond.myklebust@fys.uio.no) [20021129 07:51]:
+On Tue, Jun 24, 2003 at 04:04:35PM +0200, Przemyslaw Stanis³aw Knycz wrote:
+> arch/alpha/kernel/built-in.o(.data+0x2260): undefined reference to
+> `sys_socket'
 
-> >>>>> " " == KELEMEN Peter <fuji@elte.hu> writes:
-> > 2.4.20rc2aa1 with my .config, NFS sucked.  make menuconfig,
-> > turned off CONFIG_NFS_DIRECTIO, make -j2 bzImage modules
-> > modules_install (no compiler errors), install kernel, lilo,
-> > reboot, NFS flies.  Confirmed on other machine as well.  gcc
-> > is 3.2.1 (Debian sid).  Wish to seek more input on the case?
+Same problem with CONFIG_NET=n on sparc32/64, mips32/64, parisc and ia64.
+sys_socket should be a cond_syscall.
 
-> I'd rather see if you can reproduce it on stock 2.4.20-pre4 +
-> the NFS_ALL patch. I have a strong feeling that this is
-> something that is particular to the aa kernels...
+Ivan.
 
-I was unable to reproduce it with your patches.
-
-Peter
-
--- 
-    .+'''+.         .+'''+.         .+'''+.         .+'''+.         .+''
- Kelemen Péter     /       \       /       \     Peter.Kelemen@cern.ch
-.+'         `+...+'         `+...+'         `+...+'         `+...+'
+--- 2.5/kernel/sys.c	Tue Jun 17 08:19:40 2003
++++ linux/kernel/sys.c	Tue Jun 24 18:24:58 2003
+@@ -220,6 +220,7 @@ cond_syscall(sys_sendto)
+ cond_syscall(sys_send)
+ cond_syscall(sys_recvfrom)
+ cond_syscall(sys_recv)
++cond_syscall(sys_socket)
+ cond_syscall(sys_setsockopt)
+ cond_syscall(sys_getsockopt)
+ cond_syscall(sys_shutdown)

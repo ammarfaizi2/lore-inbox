@@ -1,56 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312735AbSDBBoN>; Mon, 1 Apr 2002 20:44:13 -0500
+	id <S312600AbSDBCCp>; Mon, 1 Apr 2002 21:02:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312737AbSDBBoD>; Mon, 1 Apr 2002 20:44:03 -0500
-Received: from grumpy.usu.edu ([129.123.1.86]:60430 "EHLO grumpy.usu.edu")
-	by vger.kernel.org with ESMTP id <S312735AbSDBBn5>;
-	Mon, 1 Apr 2002 20:43:57 -0500
-Date: Mon, 01 Apr 2002 18:43:54 -0700
-From: "Napanda. C. Pemmaiah" <pemmaiah@cc.usu.edu>
-Subject: Confirmation!
-To: netdev@oss.sgi.com
-Message-id: <3CABC1F5@webmail.usu.edu>
-MIME-version: 1.0
-X-Mailer: WebMail (Hydra) SMTP v3.62
-Content-type: text/plain; charset="ISO-8859-1"
-Content-transfer-encoding: 7bit
-X-WebMail-UserID: pemmaiah
-X-EXP32-SerialNo: 00002751
+	id <S312737AbSDBCCg>; Mon, 1 Apr 2002 21:02:36 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:62173 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S312600AbSDBCCZ>; Mon, 1 Apr 2002 21:02:25 -0500
+Message-ID: <3CA9110D.8020709@holly.colostate.edu>
+Date: Mon, 01 Apr 2002 19:01:49 -0700
+From: Eric Hokanson <pceric@holly.colostate.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.9+) Gecko/20020311
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: pceric@holly.colostate.edu
+Subject: Oops in ide-scsi caused by VIA82CXXX support
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-       How are you? I am Anup Pemmaiah doing my masters in computer science at 
-Utah State University -USA. I have a linux box running Red Hat 7.2 (kernel 
-version 2.4). My ethernet driver is 3c59x. I had two questions regarding 3c59x 
-module installation.
+I can get a fully reproducable Oops in all 2.4.x series of kernels I 
+have tried so far (2.4.[9,16,17,18,19-pre5]).
+I have a Tekram AMD slot 1 motherboard with the VIA 82c686 ide chipset 
+and a Memorex ide cd-rw drive.
+When ever I compile in VIA82CXXX support and try to mount my cd-rw drive 
+the light on the drive will blink a few times and then will give me an 
+oops message before it hard locks my system.
+If I don't compile in VIA82CXXX support my cd-rw drive works fine (but 
+my ide transfer speed is horribly slow).
 
-1)  When the system is booted the module gets installed. I was curious from 
-where does this installation takes place. As far i learnt from the 
-documentation, this is done because of the entry "alias eth0 3c59x" in the 
-/etc/modules.conf file. But even if I delete this entry and reboot the system 
-still the module gets installed.
+Here is some information and more is available upon request:
 
-2)          I removed the module by "rmmod 3c59x" and again installed it by 
-"insmod /lib/modules/...../net/3c59x.o". The module got installed but in the 
-/proc/modules it shows "3c59x    0(unused)". And from /etc/rc.d/init.d if I 
-start the network by saying "./network start" the eth0 conncetion does not 
-come up. Is it because of some options setting to be done during insmod. I 
-searched and tried a lot but I could not figure out the above two problems.
+/proc/pci:
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: VIA Technologies, Inc. VT8371 [KX133] (rev 2).
+      Prefetchable 32 bit memory at 0xd8000000 [0xdbffffff].
+  Bus  0, device   1, function  0:
+    PCI bridge: VIA Technologies, Inc. VT8371 [KX133 AGP] (rev 0).
+      Master Capable.  No bursts.  Min Gnt=12.
+  Bus  0, device   7, function  0:
+    ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] 
+(rev 27).
+  Bus  0, device   7, function  1:
+    IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 6).
+      Master Capable.  Latency=32. 
+      I/O at 0xd000 [0xd00f].
+  Bus  0, device   7, function  2:
+    USB Controller: VIA Technologies, Inc. UHCI USB (rev 14).
+      IRQ 5.
+      Master Capable.  Latency=32. 
+      I/O at 0xd400 [0xd41f].
+  Bus  0, device   7, function  3:
+    USB Controller: VIA Technologies, Inc. UHCI USB (#2) (rev 14).
+      IRQ 5.
+      Master Capable.  Latency=32. 
+      I/O at 0xd800 [0xd81f].
+  Bus  0, device   7, function  4:
+    Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] 
+(rev 32).
+      IRQ 9.
+...
 
-            It will be really great if you can give the solution for the above 
-problems. I will be eagerly waiting for your reply. I am sorry for disturbing 
-you. Have a nice day.
+/proc/scsi/scsi:
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: Memorex  Model: CRW-1622         Rev: D4.0
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi1 Channel: 00 Id: 06 Lun: 00
+  Vendor: IOMEGA   Model: ZIP 100          Rev: J.03
+  Type:   Direct-Access                    ANSI SCSI revision: 02
 
-Thank you,
-Anup Pemmaiah
+My Opps log (hand written because I have no way of capturing the actual 
+log, may not be 100% accurate):
 
--------------------------------------------------
-N.C.Pemmaiah (Anup)
-620E, 700N, Apt# 2
-Logan, UT-84321,USA.
-email: pemmaiah@cc.usu.edu, anup_pemmaiah@yahoo.com
-Ph: 435-512-0935(mob.), 435-752-5976 (Res.)
--------------------------------------------------
+Oops: 0002
+CPU: 0
+EIP: 0010: [<c01e0995>]     Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: 66202020 ebx: cdafd000 ecx: c0323004 edx: 00000177
+esi: 00000001 edi: cff33c80 ebp: c0323048 esp: c02bff38
+ds: 0018 es: 0018 ss: 0018
+Process swapper (pid:0, stackpage=c026f000)
+Stack: 66202020 c12eb280 c0323048 00000282 c0323004 c01b84b2 c0323048 
+c01e0920 cffeff00 04000001 0000000f c02bffac c0109a89 0000000f c12eb280 
+c02bffac c02bffac 0000000f c02fccc0 cffeff00 c0109bf8 0000000f c02bffac 
+cffeff00
+Call Trace: [<c01b8462>] [<c01e0920>] [<c0109a89>] [<c0109bf8>] 
+[<c0106c20>] [<c0106c20>] [<c0106c20>] [<c0106c20>] [<c0106c43>] 
+[<c0106cc2>] [<c0105000>]
+Code: ff 40 18 86 85 f0 00 00 00 ff 70 04 6a 01 e8 f8 fc ff ff 5f
+
+ >>EIP; c01e0995 <idescsi_pc_intr+75/250>   <=====
+Trace; c01b8462 <ide_intr+62/110>
+Trace; c01e0920 <idescsi_pc_intr+0/250>
+Trace; c0109a89 <handle_IRQ_event+39/60>
+Trace; c0109bf8 <do_IRQ+68/b0>
+Trace; c0106c20 <default_idle+0/30>
+Trace; c0106c20 <default_idle+0/30>
+Trace; c0106c20 <default_idle+0/30>
+Trace; c0106c20 <default_idle+0/30>
+Trace; c0106c43 <default_idle+23/30>
+Trace; c0106cc2 <cpu_idle+52/70>
+Trace; c0105000 <_stext+0/0>
+Code;  c01e0995 <idescsi_pc_intr+75/250>
+00000000 <_EIP>:
+Code;  c01e0995 <idescsi_pc_intr+75/250>   <=====
+   0:   ff 40 18                  incl   0x18(%eax)   <=====
+Code;  c01e0998 <idescsi_pc_intr+78/250>
+   3:   86 85 f0 00 00 00         xchg   %al,0xf0(%ebp)
+Code;  c01e099e <idescsi_pc_intr+7e/250>
+   9:   ff 70 04                  pushl  0x4(%eax)
+Code;  c01e09a1 <idescsi_pc_intr+81/250>
+   c:   6a 01                     push   $0x1
+Code;  c01e09a3 <idescsi_pc_intr+83/250>
+   e:   e8 f8 fc ff ff            call   fffffd0b <_EIP+0xfffffd0b> 
+c01e06a0 <idescsi_end_request+0/280>
+Code;  c01e09a8 <idescsi_pc_intr+88/250>
+  13:   5f                        pop    %edi
+
+
+1 warning issued.  Results may not be reliable.
+
+Eric Hokanson
+
 

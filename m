@@ -1,47 +1,184 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbTIXQJu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 12:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbTIXQJt
+	id S261460AbTIXQN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 12:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbTIXQN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 12:09:49 -0400
-Received: from web12606.mail.yahoo.com ([216.136.173.229]:45489 "HELO
-	web12606.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261442AbTIXQJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 12:09:49 -0400
-Message-ID: <20030924160948.31778.qmail@web12606.mail.yahoo.com>
-Date: Wed, 24 Sep 2003 18:09:48 +0200 (CEST)
-From: =?iso-8859-1?q?emmanuel=20ALLAUD?= <eallaud@yahoo.fr>
-Subject: A proper way to yield for interactive tasks
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 24 Sep 2003 12:13:58 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:6605 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261460AbTIXQNx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 12:13:53 -0400
+Subject: [RFC][PATCH] Pass nameidata to security_inode_permission hook
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       Greg Kroah-Hartman <greg@kroah.com>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       lsm <linux-security-module@wirex.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1064420018.20804.81.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Sep 2003 12:13:38 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all,
-this way was brought on the XFree-devel list : say you
-have a video driver which wants to feed a video card
-using DMA (in general using big chunks ~1MB for
-performance reasons). Once the buffer is filled up,
-you know this will take time to be processed by the
-card, so you want to release the CPU, but you don't
-want to wait too long for getting the CPU back for
-interactivity reason. People are using sched_yield for
-now (not all I guess), is that the good solution?
-I must add that this is all in user-space, and the DMA
-case is not the only case where we need to yield but
-not too long.
-I have seen things related in the archives but I did
-not find something clear on that matter.
-TIA
-Bye
-Manu
+This patch against 2.6.0-test5 changes the security_inode_permission
+hook to also take a nameidata parameter in addition to the existing
+inode and mask parameters.  A nameidata is already passed (although
+sometimes NULL) to fs/namei.c:permission(), and the patch changes
+exec_permission_lite() to also take a nameidata parameter so that it can
+pass it along to the security hook.  The patch includes corresponding
+changes to the SELinux module to use the nameidata information when it
+is available; this allows SELinux to include pathname information in
+audit messages when a nameidata structure was supplied.  If anyone has
+any objections to this change, please let me know.
 
-PS : could you please CC me, I am not subscribed to
-this list (and my mailbox is already crowded ;-)
+ fs/namei.c               |    9 +++++----
+ include/linux/security.h |   11 +++++++----
+ security/dummy.c         |    2 +-
+ security/selinux/hooks.c |    7 ++++++-
+ 4 files changed, 19 insertions(+), 10 deletions(-)
 
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com
+Index: linux-2.6/fs/namei.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/fs/namei.c,v
+retrieving revision 1.13
+diff -u -r1.13 namei.c
+--- linux-2.6/fs/namei.c	25 Aug 2003 15:29:19 -0000	1.13
++++ linux-2.6/fs/namei.c	24 Sep 2003 14:54:40 -0000
+@@ -218,7 +218,7 @@
+ 	if (retval)
+ 		return retval;
+ 
+-	return security_inode_permission(inode, mask);
++	return security_inode_permission(inode, mask, nd);
+ }
+ 
+ /*
+@@ -302,7 +302,8 @@
+  * short-cut DAC fails, then call permission() to do more
+  * complete permission check.
+  */
+-static inline int exec_permission_lite(struct inode *inode)
++static inline int exec_permission_lite(struct inode *inode,
++				       struct nameidata *nd)
+ {
+ 	umode_t	mode = inode->i_mode;
+ 
+@@ -325,7 +326,7 @@
+ 
+ 	return -EACCES;
+ ok:
+-	return security_inode_permission(inode, MAY_EXEC);
++	return security_inode_permission(inode, MAY_EXEC, nd);
+ }
+ 
+ /*
+@@ -584,7 +585,7 @@
+ 		struct qstr this;
+ 		unsigned int c;
+ 
+-		err = exec_permission_lite(inode);
++		err = exec_permission_lite(inode, nd);
+ 		if (err == -EAGAIN) { 
+ 			err = permission(inode, MAY_EXEC, nd);
+ 		}
+Index: linux-2.6/include/linux/security.h
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/include/linux/security.h,v
+retrieving revision 1.25
+diff -u -r1.25 security.h
+--- linux-2.6/include/linux/security.h	24 Jun 2003 14:55:43 -0000	1.25
++++ linux-2.6/include/linux/security.h	24 Sep 2003 14:55:17 -0000
+@@ -334,6 +334,7 @@
+  *	called when the actual read/write operations are performed.
+  *	@inode contains the inode structure to check.
+  *	@mask contains the permission mask.
++ *     @nd contains the nameidata (may be NULL).
+  *	Return 0 if permission is granted.
+  * @inode_setattr:
+  *	Check permission before setting file attributes.  Note that the kernel
+@@ -1055,7 +1056,7 @@
+ 	                           struct dentry *new_dentry);
+ 	int (*inode_readlink) (struct dentry *dentry);
+ 	int (*inode_follow_link) (struct dentry *dentry, struct nameidata *nd);
+-	int (*inode_permission) (struct inode *inode, int mask);
++	int (*inode_permission) (struct inode *inode, int mask, struct nameidata *nd);
+ 	int (*inode_setattr)	(struct dentry *dentry, struct iattr *attr);
+ 	int (*inode_getattr) (struct vfsmount *mnt, struct dentry *dentry);
+         void (*inode_delete) (struct inode *inode);
+@@ -1474,9 +1475,10 @@
+ 	return security_ops->inode_follow_link (dentry, nd);
+ }
+ 
+-static inline int security_inode_permission (struct inode *inode, int mask)
++static inline int security_inode_permission (struct inode *inode, int mask, 
++					     struct nameidata *nd)
+ {
+-	return security_ops->inode_permission (inode, mask);
++	return security_ops->inode_permission (inode, mask, nd);
+ }
+ 
+ static inline int security_inode_setattr (struct dentry *dentry,
+@@ -2110,7 +2112,8 @@
+ 	return 0;
+ }
+ 
+-static inline int security_inode_permission (struct inode *inode, int mask)
++static inline int security_inode_permission (struct inode *inode, int mask,
++					     struct nameidata *nd)
+ {
+ 	return 0;
+ }
+Index: linux-2.6/security/dummy.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/dummy.c,v
+retrieving revision 1.22
+diff -u -r1.22 dummy.c
+--- linux-2.6/security/dummy.c	3 Jul 2003 14:31:12 -0000	1.22
++++ linux-2.6/security/dummy.c	24 Sep 2003 14:54:40 -0000
+@@ -364,7 +364,7 @@
+ 	return 0;
+ }
+ 
+-static int dummy_inode_permission (struct inode *inode, int mask)
++static int dummy_inode_permission (struct inode *inode, int mask, struct nameidata *nd)
+ {
+ 	return 0;
+ }
+Index: linux-2.6/security/selinux/hooks.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
+retrieving revision 1.73
+diff -u -r1.73 hooks.c
+--- linux-2.6/security/selinux/hooks.c	4 Sep 2003 18:23:49 -0000	1.73
++++ linux-2.6/security/selinux/hooks.c	24 Sep 2003 14:54:40 -0000
+@@ -1730,12 +1730,17 @@
+ 	return dentry_has_perm(current, NULL, dentry, FILE__READ);
+ }
+ 
+-static int selinux_inode_permission(struct inode *inode, int mask)
++static int selinux_inode_permission(struct inode *inode, int mask,
++				    struct nameidata *nd)
+ {
+ 	if (!mask) {
+ 		/* No permission to check.  Existence test. */
+ 		return 0;
+ 	}
++
++	if (nd && nd->dentry) 
++		return dentry_has_perm(current, nd->mnt, nd->dentry, 
++				       file_mask_to_av(inode->i_mode, mask));
+ 
+ 	return inode_has_perm(current, inode,
+ 			       file_mask_to_av(inode->i_mode, mask), NULL, NULL);
+
+
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

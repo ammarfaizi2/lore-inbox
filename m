@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVADViT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVADVjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbVADViT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 16:38:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVADVgc
+	id S262130AbVADVjP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 16:39:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVADVii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 16:36:32 -0500
-Received: from fw.osdl.org ([65.172.181.6]:40403 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262119AbVADVbK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 16:31:10 -0500
-Date: Tue, 4 Jan 2005 13:31:08 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] disallow modular capabilities
-Message-ID: <20050104133108.W2357@build.pdx.osdl.net>
-References: <20050102200032.GA8623@lst.de> <1104870292.8346.24.camel@krustophenia.net> <Pine.LNX.4.58.0501041303190.2294@ppc970.osdl.org> <20050104210812.GA16420@lst.de>
+	Tue, 4 Jan 2005 16:38:38 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:60097 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262008AbVADVhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 16:37:20 -0500
+Subject: Re: Real-Time Preemption, comparison to 2.6.10-mm1
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark_H_Johnson@raytheon.com
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Bill Huey <bhuey@lnxw.com>, linux-kernel@vger.kernel.org,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <OF57960072.EA98312D-ON86256F7F.006EF463-86256F7F.006EF501@raytheon.com>
+References: <OF57960072.EA98312D-ON86256F7F.006EF463-86256F7F.006EF501@raytheon.com>
+Content-Type: text/plain
+Date: Tue, 04 Jan 2005 16:37:16 -0500
+Message-Id: <1104874637.8850.3.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050104210812.GA16420@lst.de>; from hch@lst.de on Tue, Jan 04, 2005 at 10:08:12PM +0100
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Christoph Hellwig (hch@lst.de) wrote:
-> On Tue, Jan 04, 2005 at 01:05:29PM -0800, Linus Torvalds wrote:
-> > On Tue, 4 Jan 2005, Lee Revell wrote:
-> > > And I posted this to LKML almost a week ago, and a real fix was posted
-> > > in response.
-> > > 
-> > > http://lkml.org/lkml/2004/12/28/112
-> > 
-> > Well, I realize that it has been on bugtraq, but does that make it a real 
-> > concern? I'll make the tristate a boolean, but has anybody half-way sane 
-> > ever _done_ what is described by the bugtraq posting? IOW, it looks pretty 
-> > much like a made-up example, also known as a "don't do that then" kind of 
-> > buglet ;)
-> 
-> I don't think this particular one is too serious.  But I think we'll see
-> more serious issues with other modular security modules.
+On Tue, 2005-01-04 at 14:11 -0600, Mark_H_Johnson@raytheon.com wrote:
+> The non RT application starvation for mm1 was much less
+> pronounced but still present. I could watch the disk light
+> on the last two tests & see it go out (and stay out) for an
+> extended period. It does not make sense to me that a single RT
+> application (on a two CPU machine) and a nice'd non RT application
+> can cause this starvation behavior. This behavior was not
+> present on the 2.4 kernels and seems to be a regression to me.
 
-It's only a problem when you care about the state of things that have
-run before the module is loaded.  This ranges between no problem and
-major problem on a case by case basis.  For example, really makes sense
-to have SELinux only compiled in.  For this one, we can just track
-capabilities bits in default dummy stub code, it's painless and allows
-keeping capabilities modular for those who use it that way.
+I think I am seeing this problem too.  It doesn't just apply to RT
+tasks, it seems that CPU bound tasks starve each other.  I noticed that
+with the RT kernel, a kernel compile or dpkg will starve evolution, to
+the point where it takes 30 seconds to display a message.  If I go and
+background the CPU hog, the message renders _instantly_.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+It's definitely present with 2.6.10-rc2 + RT (PK config) and absent with
+2.6.10 vanilla.  I need to figure out whether -mm has the problem.
+
+Lee
+

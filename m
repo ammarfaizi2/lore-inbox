@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317023AbSHAUu1>; Thu, 1 Aug 2002 16:50:27 -0400
+	id <S317024AbSHAUvT>; Thu, 1 Aug 2002 16:51:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317066AbSHAUtU>; Thu, 1 Aug 2002 16:49:20 -0400
-Received: from p50887441.dip.t-dialin.net ([80.136.116.65]:47033 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315455AbSHAUtR>; Thu, 1 Aug 2002 16:49:17 -0400
-Date: Thu, 1 Aug 2002 14:52:28 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Miguel A Bolanos <mike@costarica.net>
-cc: Shanti Katta <katta@csee.wvu.edu>, <sparclinux@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: what version of gcc can be used to build kernels on Linux/sparc64?
-In-Reply-To: <Pine.LNX.4.33.0207301613370.20597-100000@mail.costarica.net>
-Message-ID: <Pine.LNX.4.44.0208011448020.5119-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317072AbSHAUvS>; Thu, 1 Aug 2002 16:51:18 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:14993 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S317024AbSHAUum>; Thu, 1 Aug 2002 16:50:42 -0400
+Date: Thu, 1 Aug 2002 14:54:08 -0600
+Message-Id: <200208012054.g71Ks8t12065@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Willy TARREAU <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] solved APM bug with -rc5
+In-Reply-To: <200208012052.g71KqG311998@vindaloo.ras.ucalgary.ca>
+References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva>
+	<20020801121205.GA168@pcw.home.local>
+	<20020801133202.GA200@pcw.home.local>
+	<1028213732.14865.50.camel@irongate.swansea.linux.org.uk>
+	<20020801135623.GA19879@alpha.home.local>
+	<20020801152459.GA19989@alpha.home.local>
+	<1028220826.14865.69.camel@irongate.swansea.linux.org.uk>
+	<20020801203520.GA244@pcw.home.local>
+	<200208012052.g71KqG311998@vindaloo.ras.ucalgary.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Richard Gooch writes:
+> Hm. I bet you didn't try this with CONFIG_PREEMPT=y, right? IIRC, the
+> wonderful world of preemption means that you can get rescheduled on
+> another CPU without warning, unless you take a lock or explicitely
+> disable preemption.
 
-On Tue, 30 Jul 2002, Miguel A Bolanos wrote:
-> Just use egc64 if its only for the kernel, or if you want to for the
-> kernel and some packages  use gcc3
+Apologies. I forgot that CONFIG_PREEMPT is a 2.5.x feature, and
+doesn't exist on 2.4 (thankfully).
 
-Problems:
+				Regards,
 
-egcs64:	fails to compile 2.5 for me, because it doesn't support the 
-	current syntax
-gcc3.1:	1 unexpected failure is not too bad, but 25 unexpected successes 
-	aren't too encouraging...
-
-			Thunder
--- 
-.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVCNSMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVCNSLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbVCNSMO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 13:12:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVCNSMN
+	id S261662AbVCNSLj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 13:11:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVCNSI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 13:12:13 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53522 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261685AbVCNSLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 13:11:18 -0500
-Date: Mon, 14 Mar 2005 18:11:08 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Matthew Wilcox <willy@parisc-linux.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, matthew@wil.cx
-Subject: Re: [PATCH] Releasing resources with children
-Message-ID: <20050314181108.A4705@flint.arm.linux.org.uk>
-Mail-Followup-To: Matthew Wilcox <willy@parisc-linux.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, matthew@wil.cx
-References: <20050314174916.B49754957B9@palinux.hppa>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050314174916.B49754957B9@palinux.hppa>; from willy@parisc-linux.org on Mon, Mar 14, 2005 at 10:49:16AM -0700
+	Mon, 14 Mar 2005 13:08:29 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:55235 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261661AbVCNSEO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 13:04:14 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Subject: Re: [patch 01/14] char/snsc: reorder set_current_state() and add_wait_queue()
+Date: Mon, 14 Mar 2005 10:03:59 -0800
+User-Agent: KMail/1.7.2
+Cc: domen@coderock.org, ghoward@sgi.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <20050306223616.C82751EC90@trashy.coderock.org> <200503140945.44323.jbarnes@engr.sgi.com> <20050314175427.GA2993@us.ibm.com>
+In-Reply-To: <20050314175427.GA2993@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_PIdNCHbDC+6q6LF"
+Message-Id: <200503141003.59618.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 10:49:16AM -0700, Matthew Wilcox wrote:
-> What does it mean to release a resource with children?  Should the
-> children become children of the released resource's parent?  Should they
-> be released too?  Should we fail the release?
+--Boundary-00=_PIdNCHbDC+6q6LF
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I've been running kernels with:
+On Monday, March 14, 2005 9:54 am, Nishanth Aravamudan wrote:
+> On Mon, Mar 14, 2005 at 09:45:44AM -0800, Jesse Barnes wrote:
+> > On Sunday, March 6, 2005 2:36 pm, domen@coderock.org wrote:
+> > > Any comments would be, as always, appreciated.
+> >
+> > I don't have a problem with this change, but the maintainer probably
+> > should have been Cc'd.  Greg, does this change look ok to you?  Note that
+> > it's already been committed to the upstream tree, so if it's a bad change
+> > we'll need to have the cset excluded or something.
+>
+> Thanks for the feedback. I don't see a maintainer entry for Greg
+> anywhere in the snsc.{c,h} files or MAINTAINERS. Could someone throw a
+> patch upstream so that whomever should be contacted for this driver will
+> be in the future?
 
-+       if (old->child) {
-+               printk("Resource %p still has children: %s\n", old, old->name);
-+               return -EINVAL;
-+       }
+Good point :)  I assumed there was a MODULE_AUTHOR entry.  Here's a patch to 
+get Greg more spam^W^W^W^Wadd the relevant info.  Look ok to you Greg?
+
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+
+Jesse
+
+
+--Boundary-00=_PIdNCHbDC+6q6LF
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="snsc-author.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="snsc-author.patch"
+
+===== drivers/char/snsc.c 1.4 vs edited =====
+--- 1.4/drivers/char/snsc.c	2005-03-13 15:30:07 -08:00
++++ edited/drivers/char/snsc.c	2005-03-14 10:01:38 -08:00
+@@ -28,6 +28,10 @@
+ #include <asm/sn/nodepda.h>
+ #include "snsc.h"
+ 
++MODULE_AUTHOR("Greg Howard <ghoward@sgi.com>");
++MODULE_DESCRIPTION("SGI System Controller driver");
++MODULE_LICENSE("GPL");
 +
+ #define SYSCTL_BASENAME	"snsc"
+ 
+ #define SCDRV_BUFSZ	2048
 
-here and it hasn't triggered once.  I suspect the reason it hasn't is
-because no one does release a resource with children, but I suspect
-that's just by mere luck than design.
-
-The only thing I'd question is whether we really need to BUG_ON() here.
-ISTR Linus' policy for BUG()/BUG_ON() was only if the condition lead
-directly to a filesystem-corrupting bug.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+--Boundary-00=_PIdNCHbDC+6q6LF--

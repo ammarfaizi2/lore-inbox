@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269304AbUH0DDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269170AbUH0DD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269304AbUH0DDb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 23:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269378AbUHZSxM
+	id S269170AbUH0DD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 23:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269379AbUHZSxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 14:53:12 -0400
-Received: from smtp10.wanadoo.fr ([193.252.22.21]:25910 "EHLO
-	mwinf1003.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S269317AbUHZSnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 14:43:06 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Thomas Cataldo <tomc@compaqnet.fr>
+	Thu, 26 Aug 2004 14:53:18 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:34788 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269304AbUHZSp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 14:45:57 -0400
+Message-ID: <412E2FE5.1020606@namesys.com>
+Date: Thu, 26 Aug 2004 11:45:57 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Christoph Hellwig <hch@lst.de>
-Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
-In-Reply-To: <20040826093407.GB28854@lst.de>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
-	 <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com>
-	 <20040826093407.GB28854@lst.de>
-Content-Type: text/plain
-Date: Thu, 26 Aug 2004 20:40:27 +0200
-Message-Id: <1093545627.11770.2.camel@buffy>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <20040825201929.GA16855@lst.de> <412DA25E.9090405@namesys.com> <20040826092413.GA28854@lst.de>
+In-Reply-To: <20040826092413.GA28854@lst.de>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-26 at 11:34 +0200, Christoph Hellwig wrote:
-> On Thu, Aug 26, 2004 at 01:31:34AM -0700, Hans Reiser wrote:
-> > Andrew, we need to compete with WinFS and Dominic Giampaolo's filesystem 
-> > for Apple, and that means we need to put search engine and database 
-> 
-> Dou you know a nice thing?  We (as in the Linux Community) don't have to
-> compete with anyone.  Sure, we're usually trying to be better than
-> anyone else, but unlike companies under maret pressure we can wait until
-> something is ready.
+Christoph Hellwig wrote:
 
-By the way, this kind of features can be achieved easily in userspace
-with, for example, ext3, beagle (a userspace fulltext indexing daemon)
-and some (d|i)notify magic.
+>
+>
+>How do you for example suggestion exporting your semantics over the
+>network if they're not done at the VFS level?  How do you want some
+>clusterfilesystem support them or tmpfs?
+>
+>
+>  
+>
+by accesses to filename/metas.....
 
+That's the beauty of simplicity, not much is needed.  xattrs on the 
+other hand would be a lot of work to integrate into a cluster filesystem.
 
+Hans

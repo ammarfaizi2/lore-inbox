@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbTJBSua (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 14:50:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTJBSua
+	id S263461AbTJBSww (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 14:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTJBSww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 14:50:30 -0400
-Received: from 72.dom-sp.ru ([212.57.164.72]:36616 "EHLO mail.ward.six")
-	by vger.kernel.org with ESMTP id S262130AbTJBSu1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 14:50:27 -0400
-Date: Fri, 3 Oct 2003 00:50:16 +0600
-From: Denis Zaitsev <zzz@anda.ru>
-To: linux-scsi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, gibbs@scsiguy.com, dledford@redhat.com,
-       marcelo@conectiva.com.br
-Subject: [PATCH][TRIVIAL] (2.4.22) Allow aic7xxx_osm.c to be compiled without CONFIG_PCI
-Message-ID: <20031003005016.A8496@natasha.ward.six>
+	Thu, 2 Oct 2003 14:52:52 -0400
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:54031
+	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
+	id S263461AbTJBSwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 14:52:50 -0400
+Date: Thu, 2 Oct 2003 11:52:48 -0700
+From: Brad Boyer <flar@allandria.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       linux-hfsplus-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] new HFS(+) driver
+Message-ID: <20031002185248.GA24046@pants.nu>
+References: <Pine.LNX.4.44.0310021029110.17548-100000@serv> <20031002180645.GG7665@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20031002180645.GG7665@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the trivial #ifdef patch for CONFIG_PCI/EISA.  In my case it
-allows the Adaptec SCSI driver (the "new" one) to be compiled for
-non-PCI (EISA) system.  Else there are an <undefined symbol> errors.
-The 2.6 branch needs the same patch, as I understand.
+On Thu, Oct 02, 2003 at 07:06:45PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> What the devil are you doing with get_gendisk() in there?  Neither 2.4
+> nor 2.6 should be messing with it.
 
-Please, apply it.  (I don't know who is the maintainer for now!)
+Since this topic has come up, I'd like to ask about something that
+apparently only affects HFS/HFS+. For some reason, Apple decided
+that a Mac style CD-ROM should be a partitioned device. However,
+the Linux kernel is quite insistent that a CD-ROM is not able to
+be partitioned. Because of this, there's a hack to manually read
+a partition map and find the correct part of the block device.
 
+Would it be possible to have a way to use the gendisk and partitioning
+code that is already in the kernel for regular disks to read these
+CDs? It also might be useful for the loopback device.
 
---- drivers/scsi/aic7xxx/aic7xxx_osm.c.orig	2003-09-15 01:56:14.000000000 +0600
-+++ drivers/scsi/aic7xxx/aic7xxx_osm.c	2003-09-16 22:57:11.000000000 +0600
-@@ -1552,6 +1552,7 @@ ahc_softc_comp(struct ahc_softc *lahc, s
- 
- 	/* Still equal.  Sort by BIOS address, ioport, or bus/slot/func. */
- 	switch (rvalue) {
-+#ifdef CONFIG_PCI
- 	case AHC_PCI:
- 	{
- 		char primary_channel;
-@@ -1584,6 +1585,8 @@ ahc_softc_comp(struct ahc_softc *lahc, s
- 			value = 1;
- 		break;
- 	}
-+#endif
-+#ifdef CONFIG_EISA
- 	case AHC_EISA:
- 		if ((rahc->flags & AHC_BIOS_ENABLED) != 0) {
- 			value = rahc->platform_data->bios_address
-@@ -1593,6 +1596,7 @@ ahc_softc_comp(struct ahc_softc *lahc, s
- 			      - lahc->bsh.ioport; 
- 		}
- 		break;
-+#endif
- 	default:
- 		panic("ahc_softc_sort: invalid bus type");
- 	}
+Just as an example of worst case, the main A/UX install CD had
+not only an HFS partition, but multiple UFS partitions. If you
+really want a view of the extent of Apple hackery, take a look
+at arch/m68k/mac and groan.  :)
+
+	Brad Boyer
+	flar@allandria.com
+

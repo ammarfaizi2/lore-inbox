@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284786AbRLXMK0>; Mon, 24 Dec 2001 07:10:26 -0500
+	id <S284795AbRLXM36>; Mon, 24 Dec 2001 07:29:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284775AbRLXMKG>; Mon, 24 Dec 2001 07:10:06 -0500
-Received: from mustard.heime.net ([194.234.65.222]:43481 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S284766AbRLXMJ5>; Mon, 24 Dec 2001 07:09:57 -0500
-Date: Mon, 24 Dec 2001 13:09:31 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Caching problems while reading multiple large files...
-Message-ID: <Pine.LNX.4.30.0112232018170.11923-100000@mustard.heime.net>
+	id <S284807AbRLXM3s>; Mon, 24 Dec 2001 07:29:48 -0500
+Received: from office.mandrakesoft.com ([195.68.114.34]:46333 "EHLO
+	office.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S284795AbRLXM3j>; Mon, 24 Dec 2001 07:29:39 -0500
+To: harri@synopsys.COM
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch: Support for grub at installation time
+In-Reply-To: <3C25ECBF.AF0E819C@Synopsys.COM>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 24 Dec 2001 13:27:26 +0100
+In-Reply-To: <3C25ECBF.AF0E819C@Synopsys.COM> (Harald Dunkel's message of "Sun, 23 Dec 2001 15:39:59 +0100")
+Message-ID: <m38zbsg5w1.fsf@giants.mandrakesoft.com>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
+Harald Dunkel <harri@synopsys.COM> writes:
 
-Some time ago, I sent a message regarding what I thought had to be the
-RAID subsystem. I'm more convinced that this is the buffer cache messing
-up.
+> It would be nice if you could consider this patch to be included in 
+> one of the future kernels. I am not the kernel patch specialist, so 
+> please excuse if I missed to follow a specific procedure.
 
-scenario:
+Looking at your patch :
 
-read 200 large files from disk concurrently (for instance dd of=file01
-of=/dev/null, dd of=file02 of=/dev/null &c.).
++ 	if [ -x /sbin/update-grub ]; then /sbin/update-grub; fi
 
-As this is a 2x120g IDE RAID-0 config, I get pretty good throughtput,
-eveny though I'm reading multiple files concurrently (40-50 megs per sec).
-
-But...At the time I've read ~800 megs of data (which is the same amount as
-the free memory before I start), it suddenly slows down to a mere 1 meg
-per sec.
-
-But... If I try doing another i/o operation, even to the same block
-device, it works fine.
-
-Can anyone help me out here?
-
-roy
-
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
-
+This is distro specific. We should leave that job to installkernel up
+to the vendors to customing it.

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262488AbSI2OoT>; Sun, 29 Sep 2002 10:44:19 -0400
+	id <S262490AbSI2Oqf>; Sun, 29 Sep 2002 10:46:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262489AbSI2OoT>; Sun, 29 Sep 2002 10:44:19 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:51118 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262488AbSI2OoS>; Sun, 29 Sep 2002 10:44:18 -0400
-To: James Morris <jmorris@intercode.com.au>
-Cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
-       <linux-security-module@wirex.com>
-Subject: Re: [PATCH] accessfs v0.6 ported to 2.5.35-lsm1 - 1/2
-References: <Mutt.LNX.4.44.0209292236200.27145-100000@blackbird.intercode.com.au>
-From: Olaf Dietsche 
-	<olaf.dietsche--list.linux-security-module@exmail.de>
-Date: Sun, 29 Sep 2002 16:49:12 +0200
-Message-ID: <87it0o4zrr.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262491AbSI2Oqf>; Sun, 29 Sep 2002 10:46:35 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:57329 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262490AbSI2Oqe>; Sun, 29 Sep 2002 10:46:34 -0400
+Subject: Re: v2.6 vs v3.0
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: jbradford@dial.pipex.com, Linus Torvalds <torvalds@transmeta.com>,
+       jdickens@ameritech.net, mingo@elte.hu, jgarzik@pobox.com,
+       kessler@us.ibm.com, linux-kernel@vger.kernel.org, saw@saw.sw.com.sg,
+       rusty@rustcorp.com.au, richardj_moore@uk.ibm.com,
+       andre@master.linux-ide.org
+In-Reply-To: <20020929091229.GA1014@suse.de>
+References: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com>
+	<200209290716.g8T7GNwf000562@darkstar.example.net> 
+	<20020929091229.GA1014@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 29 Sep 2002 15:56:40 +0100
+Message-Id: <1033311400.13001.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris <jmorris@intercode.com.au> writes:
+On Sun, 2002-09-29 at 10:12, Jens Axboe wrote:
+> 2.5 is definitely desktop stable, so please test it if you can. Until
+> recently there was a personal show stopper for me, the tasklist
+> deadline. Now 2.5 is happily running on my desktop as well.
 
-> On Fri, 27 Sep 2002, Greg KH wrote:
->
->> As for the ip_prot_sock hook in general, does it look ok to the other
->> developers?
->> 
->
-> This hook is not necessary: any related access control decision can be
-> made via the more generic and flexible socket_bind() hook (like SELinux).
+Its very hard to make that assessment when the audio layer still doesnt
+work, most scsi drivers havent been ported, most other drivers are full
+of 2.4 fixed problems and so on.
 
-AFAICS, it looks like you can make _additional_ checks only. You still
-have to grant CAP_NET_BIND_SERVICE for binding to ports below PROT_SOCK.
-So, this doesn't look like a viable solution for me.
+Most of my boxes won't even run a 2.5 tree yet. I'm sure its hardly
+unique. Middle of November we may begin to find out how solid the core
+code actually is, as drivers get fixed up and also in the other
+direction as we eliminate numerous crashes caused by "fixed in 2.4" bugs
 
-Anyway, thanks for this pointer, I'll look into socket_bind().
-
-Regards, Olaf.

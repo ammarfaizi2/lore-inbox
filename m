@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268619AbTGLWTR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 18:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268626AbTGLWTR
+	id S268567AbTGLWR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 18:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268577AbTGLWR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 18:19:17 -0400
-Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:22795 "HELO
-	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268619AbTGLWTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 18:19:08 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Pavel Machek <pavel@suse.cz>, Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: Thoughts wanted on merging Software Suspend enhancements
-Date: Sat, 12 Jul 2003 17:34:29 -0500
-User-Agent: KMail/1.5.1
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1057963547.3207.22.camel@laptop-linux> <20030712140057.GC284@elf.ucw.cz>
-In-Reply-To: <20030712140057.GC284@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307121734.29941.dtor_core@ameritech.net>
+	Sat, 12 Jul 2003 18:17:26 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:26756 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S268567AbTGLWRY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 18:17:24 -0400
+Message-Id: <200307121840.h6CIeKIj004212@eeyore.valparaiso.cl>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Style question: Should one check for NULL pointers? 
+In-Reply-To: Your message of "Fri, 11 Jul 2003 11:16:02 -0400."
+             <Pine.LNX.4.44L0.0307111108500.21359-100000@netrider.rowland.org> 
+X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
+Date: Sat, 12 Jul 2003 14:40:20 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 July 2003 09:00 am, Pavel Machek wrote:
-> > - user can abort at any time during suspend (oh, I forgot, I wanted
-> > to...) by just pressing Escape
->
-> That seems like missfeature. We don't want joe random user that is at
-> the console to prevent suspend by just pressing Escape. Maybe magic
-> key to do that would be acceptable...
+Alan Stern <stern@rowland.harvard.edu> said:
 
-In case when suspending (and interrupting suspend) matters most - 
-laptops - Joe random user is the only user present. I myself would
-rather have an option to press ESC than remember what SysRq really 
-maps to as by the time I would figure that out the laptop would already
-be suspended.
+[...]
 
-IMHO, an option to use ESC, probably compile time option, is a good 
-thing.
+> But if you look very far through the kernel sources you will see many 
+> occurrences of code similar to this:
+> 
+> 	static void release(struct xxx *ptr)
+> 	{
+> 		if (!ptr)
+> 			return;
+> 	...
+> 
+> I can't see any reason for keeping something like that.
 
-Dmitry
-
+Just like free(3)
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

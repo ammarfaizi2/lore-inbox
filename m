@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264950AbTA1Jfh>; Tue, 28 Jan 2003 04:35:37 -0500
+	id <S264908AbTA1JeP>; Tue, 28 Jan 2003 04:34:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264962AbTA1Jfg>; Tue, 28 Jan 2003 04:35:36 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:25540 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S264950AbTA1Jfe>;
-	Tue, 28 Jan 2003 04:35:34 -0500
-Date: Tue, 28 Jan 2003 10:44:33 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Srihari Vijayaraghavan <harisri@bigpond.com>,
-       Andrea Arcangeli <andrea@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Solved 2.4.21-pre3aa1 and RAID-0 issue (was: Re: 2.4.21-pre3aa1 and RAID0 issue]
-Message-ID: <20030128094433.GX17791@suse.de>
-References: <200212270856.13419.harisri@bigpond.com> <200301271441.11112.harisri@bigpond.com> <20030127113002.GB889@suse.de> <200301282046.58473.harisri@bigpond.com>
+	id <S264915AbTA1JeP>; Tue, 28 Jan 2003 04:34:15 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:14852 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264908AbTA1JeO>;
+	Tue, 28 Jan 2003 04:34:14 -0500
+Date: Fri, 24 Jan 2003 00:01:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: linux-ntfs-dev@lists.sf.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANN] ntfsprogs (formerly Linux-NTFS) 1.7.0beta released
+Message-ID: <20030123230137.GC906@zaurus>
+References: <Pine.SOL.3.96.1030118163630.27974A-100000@libra.cus.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200301282046.58473.harisri@bigpond.com>
+In-Reply-To: <Pine.SOL.3.96.1030118163630.27974A-100000@libra.cus.cam.ac.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28 2003, Srihari Vijayaraghavan wrote:
-> Hello Jens,
-> 
-> On Monday 27 January 2003 22:30, Jens Axboe wrote:
-> > Could you please try this patch on top of 2.4.21-pre3aa1 instead of
-> > backing out blk-atomic? Does that work, too? Thanks!
-> 
-> Yes, the RAID-0 works fine on 2.4.21-pre3aa1 after applying your patch on top 
-> of it.
+Hi!
 
-Great, thanks for confirming that it solves the problem.
+> This is a massive update featuring an almost complete rewrite of the ntfs
+> library (the API should hopefully remain stable from now on) as well as
+> several new utilities: ntfslabel, ntfsresize, and ntfsundelete.
 
+So you can resize ntfs but not (safely) write
+to it?
 -- 
-Jens Axboe
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

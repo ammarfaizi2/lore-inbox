@@ -1,102 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUGHIEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265905AbUGHIJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265900AbUGHIEO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 04:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUGHIEO
+	id S265905AbUGHIJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 04:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265907AbUGHIJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 04:04:14 -0400
-Received: from mail001.syd.optusnet.com.au ([211.29.132.142]:18875 "EHLO
-	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265900AbUGHIEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 04:04:04 -0400
-References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net> <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org> <cone.1089268800.781084.4554.502@pc.kolivas.org> <40ECF278.7070606@yahoo.com.au> <cone.1089270749.964538.4554.502@pc.kolivas.org> <40ECF86D.3060707@yahoo.com.au>
-Message-ID: <cone.1089273829.122131.4554.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, nigelenki@comcast.net,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org
+	Thu, 8 Jul 2004 04:09:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42905 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265905AbUGHIJ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 04:09:56 -0400
+Date: Thu, 8 Jul 2004 01:08:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: nigelenki@comcast.net, linux-kernel@vger.kernel.org
 Subject: Re: Autoregulate swappiness & inactivation
-Date: Thu, 08 Jul 2004 18:03:49 +1000
+Message-Id: <20040708010842.2064a706.akpm@osdl.org>
+In-Reply-To: <cone.1089273505.418287.4554.502@pc.kolivas.org>
+References: <40EC13C5.2000101@kolivas.org>
+	<40EC1930.7010805@comcast.net>
+	<40EC1B0A.8090802@kolivas.org>
+	<20040707213822.2682790b.akpm@osdl.org>
+	<cone.1089268800.781084.4554.502@pc.kolivas.org>
+	<20040708001027.7fed0bc4.akpm@osdl.org>
+	<cone.1089273505.418287.4554.502@pc.kolivas.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-pc.kolivas.org-4554-1089273829-0015";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-
---=_mimegpg-pc.kolivas.org-4554-1089273829-0015
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-Nick Piggin writes:
-
-> Con Kolivas wrote:
->> Nick Piggin writes:
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> Andrew Morton writes:
 > 
->>> A few comments. I think making swappiness depend on the amount of
->>> swap you have used is not a good idea. I might be wrong though, but
->>> generally you should only make something *more* complex if you have
->>> a good rationale and good numbers (you have the later, Andrew might
->>> consider this enough). I especially don't like this sort of temporal
->>> dependancy either, because it makes things much harder to reproduce
->>> and think through.
->> 
->> 
->> Noted. The amount of swap hardly has any effect on the swappiness except 
->> when you're close to OOMing and it is harder to OOM with this in place.
->> 
+> > Con Kolivas <kernel@kolivas.org> wrote:
+> >>
+> >>  Ah what the heck. They can only be knocked back to where they already are.
+> > 
+> > hm.  You get an eGrump for sending two patchs in one email.  Surprisingly
+> > nice numbers though.
+> > 
+> > How come vm_swappiness gets squared?  That's the mysterious "bias
+> > downwards", yes?  What's the theory there?
 > 
-> OK that's easy then. The OOM algorithm can be changed if it is
-> OOMing too easily.
+> No real world feedback mechanism is linear. As the pressure grows the 
+> positive/negative feedback grows exponentially.
 
-I didn't say it was easy, just harder with; but whatever - I can get rid of 
-it.
+That takes me back.  The classic control system is PID:
+Proportional/Integral/Derivative - they refer to the way in which the error
+term (output-desired output) is fed back to the input:
 
->>> Secondly, can you please not mess with the exported sysctl. If you
->>> think your "autoswappiness" calculation is better than the current
->>> swappiness one, just completely replace it. Bonus points if you can
->>> retain the swappiness knob in some capacity.
->> 
->> 
->> I agree and would like them all removed, but people just love to leave 
->> the knobs in place. While I dont think the knobs should still be there 
->> either, I'm not reluctant to leave something that innocuous if the users 
->> want them.
->> 
+Proportional: the bigger the error, the more input drive
+
+Integral: feeding back a bit of the integral of the error prevents
+permanent output skew due to non-infinite forward gain.
+
+Derivative: feeding back -(rate of change) provides damping.
+
+You can live without I and D - the main thing is to feed back the -error.
+
+IOW: linear works just fine :)
+
+Your answer didn't help me understand the design though.
+
+> > Please define this new term "application pages"?
 > 
-> Well, get rid of the auto-tuning thing to start with, and merge
-> it into the swappiness calculation..
+> errm it's fuzzy to say the least. It's the closest I can come to 
+> representing what end users understand as "non-cached" pages.
+
+Isn't that mapped pages?
+
+> > Those si_swapinfo() and si_meminfo() calls need to come out of there.
 > 
-> Regarding all these knobs, the main thing you want to avoid is
-> having loads of them because you can't find acceptable defaults.
-> I think "swappiness" is in the category of a good sysctl: it is
-> simple, meaningful to the admin, works, etc.
-> 
-> It has proven somewhat useful in testing ("set it to blah and see
-> if it still happens"). Or for people who know what they are doing.
+> I'm game. I had the idea but not the skill. Anyone wanna help me with that?
 
-Umm I think we're agreeing, no? I'm trying to leave the swappiness knob in 
-for those who (think?) they know what they're doing. Somehow it needs to be 
-turned to "manual" again.
+Need to work out what cen be removed first.  The freeswap/totalswap can go.
+ That leaves us needing what?  totalram and freeram.  If the algorithm can
+be flipped over to use nr_mapped, we'd be looking good.
 
-Con
-
-
---=_mimegpg-pc.kolivas.org-4554-1089273829-0015
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA7P/lZUg7+tp6mRURAvArAJ4ooemvYR+T+U/1NboQdmKTYBSk0wCeP1ZO
-k5cPYytNwrevmg38McCLedU=
-=Oc/s
------END PGP SIGNATURE-----
-
---=_mimegpg-pc.kolivas.org-4554-1089273829-0015--

@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288979AbSANTRx>; Mon, 14 Jan 2002 14:17:53 -0500
+	id <S288980AbSANTUd>; Mon, 14 Jan 2002 14:20:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288959AbSANTQh>; Mon, 14 Jan 2002 14:16:37 -0500
-Received: from vsdc01.corp.publichost.com ([64.7.196.123]:52749 "EHLO
-	vsdc01.corp.publichost.com") by vger.kernel.org with ESMTP
-	id <S288969AbSANTQI>; Mon, 14 Jan 2002 14:16:08 -0500
-Message-ID: <3C432E72.3020608@vitalstream.com>
-Date: Mon, 14 Jan 2002 11:16:02 -0800
-From: Rick Stevens <rstevens@vitalstream.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <87k7ukyjme.fsf@fadata.bg> <20020114030925.A1363@viejo.fsmlabs.com> <E16QC5P-0000nO-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288990AbSANTTR>; Mon, 14 Jan 2002 14:19:17 -0500
+Received: from chmls18.ne.ipsvc.net ([24.147.1.153]:17800 "EHLO
+	chmls18.ne.ipsvc.net") by vger.kernel.org with ESMTP
+	id <S288985AbSANTSu>; Mon, 14 Jan 2002 14:18:50 -0500
+Date: Mon, 14 Jan 2002 14:03:57 -0500
+To: David Lang <david.lang@digitalinsight.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Hardwired drivers are going away?
+Message-ID: <20020114140357.B4762@pimlott.ne.mediaone.net>
+Mail-Followup-To: David Lang <david.lang@digitalinsight.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E16QCPK-0002Yt-00@the-village.bc.nu> <Pine.LNX.4.40.0201141055410.22904-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.40.0201141055410.22904-100000@dlang.diginsite.com>
+User-Agent: Mutt/1.3.23i
+From: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-
-> On January 14, 2002 10:09 am, yodaiken@fsmlabs.com wrote:
+On Mon, Jan 14, 2002 at 10:57:19AM -0800, David Lang wrote:
+> On Mon, 14 Jan 2002, Alan Cox wrote:
 > 
->>UNIX generally tries to ensure liveness. So you know that
->>	cat lkarchive | grep feel | wc
->>will complete and not just that, it will run pretty reasonably because
->>for UNIX _every_ process is important and gets cpu and IO time.
->>When you start trying to add special low latency tasks, you endanger
->>liveness.  And preempt is especially corrosive because one of the 
->>mechanisms UNIX uses to assure liveness is to make sure that once a 
->>process starts it can do a significant chunk of work.
->>
+> > > 1. security, if you don't need any modules you can disable modules entirly
+> > > and then it's impossible to add a module without patching the kernel first
+> > > (the module load system calls aren't there)
+> >
+> > Urban legend.
 > 
-> You're claiming that preemption by nature is not Unix-like?
+> If this is the case then why do I get systemcall undefined error messages
+> when I make a mistake and attempt to load a module on a kernel without
+> modules enabled?
 
+It's an urban legend that this is a security benefit.  grep the
+hacker zines for injecting code into a non-modular kernel.
 
-Unix started out life as a _time-sharing_ OS.  It never claimed to
-be preemptive or real time.  For those, you waited a while, then
-got to run MACH.
-----------------------------------------------------------------------
-- Rick Stevens, SSE, VitalStream, Inc.      rstevens@vitalstream.com -
-- 949-743-2010 (Voice)                    http://www.vitalstream.com -
--                                                                    -
--        Change is inevitable, except from a vending machine.        -
-----------------------------------------------------------------------
+> > > 2. speed, there was a discussion a few weeks ago pointing out that there
+> > > is some overhead for useing modules (far calls need to be used just in
+> > > case becouse the system can't know where the module will be located IIRC)
+> >
+> > I defy you to measure it on x86
+                  ^^^^^^^^^^
+> during the discussion a few weeks ago there were people pointing out cases
+> where this overhead would be a problem.
 
+Above.
+
+> > > 3. simplicity in building kernels for other machines. with a monolithic
+> > > kernel you have one file to move (and a bootloader to run) with modules
+> > > you have to move quite a few more files.
+> >
+> > tar or nfs mount; make modules_install.
+> >
+> not on my firewalls thank you.
+
+You won't install tar on your firewalls?  Weird :-)
+
+Andrew

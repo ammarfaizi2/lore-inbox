@@ -1,105 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271695AbTHMIcv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 04:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271699AbTHMIcu
+	id S271702AbTHMIrT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 04:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271703AbTHMIrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 04:32:50 -0400
-Received: from mail.hometree.net ([212.34.181.120]:6797 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S271695AbTHMIcs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 04:32:48 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Intel ICH5 APIC, ACPI problems in 2.4
-Date: Wed, 13 Aug 2003 08:32:46 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bhct3e$s29$1@tangens.hometree.net>
-References: <3F37D13D.7080309@pobox.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1060763566 28745 212.34.181.4 (13 Aug 2003 08:32:46 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 13 Aug 2003 08:32:46 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Wed, 13 Aug 2003 04:47:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:175 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271702AbTHMIrR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 04:47:17 -0400
+Date: Wed, 13 Aug 2003 01:47:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: thunder7@xs4all.nl
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
+       Zwane Mwaikambo <zwane@holomorphy.com>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
+Message-Id: <20030813014746.412660ae.akpm@osdl.org>
+In-Reply-To: <20030813045638.GA9713@middle.of.nowhere>
+References: <20030813045638.GA9713@middle.of.nowhere>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+Jurriaan <thunder7@xs4all.nl> wrote:
+>
+> Aug 13 06:47:48 middle -- MARK --
+>  Aug 13 06:53:03 middle kernel:  printing eip:
+>  Aug 13 06:53:03 middle kernel: c016c14a
+>  Aug 13 06:53:03 middle kernel: Oops: 0000 [#1]
+>  Aug 13 06:53:03 middle kernel: PREEMPT 
+>  Aug 13 06:53:03 middle kernel: CPU:    0
+>  Aug 13 06:53:03 middle kernel: EIP:    0060:[<c016c14a>]    Not tainted VLI
+>  Aug 13 06:53:03 middle kernel: EFLAGS: 00010286
+>  Aug 13 06:53:03 middle kernel: EIP is at find_inode_fast+0x1a/0x60
+>  Aug 13 06:53:03 middle kernel: eax: f7b7e000   ebx: 000d5ff4   ecx: e68e9a48   edx: 00000000
+>  Aug 13 06:53:03 middle kernel: esi: f7b7e000   edi: c1a50d80   ebp: f2f41e14   esp: f2f41e04
+>  Aug 13 06:53:03 middle kernel: ds: 007b   es: 007b   ss: 0068
+>  Aug 13 06:53:03 middle kernel: Process make (pid: 9500, threadinfo=f2f40000 task=eb0966a0)
+>  Aug 13 06:53:03 middle kernel: Stack: f0c05cc0 f2f40000 f0271cc0 000d5ff4 f2f41e38 c016c7c0 f7b7e000 c1a50d80 
+>  Aug 13 06:53:03 middle kernel:        000d5ff4 c1a50d80 000d5ff4 f0271cc0 f7b7e000 f2f41e58 c018fc92 f7b7e000 
+>  Aug 13 06:53:03 middle kernel:        000d5ff4 c3600234 fffffff4 dddd2a74 dddd2a08 f2f41e7c c0160b10 dddd2a08 
+>  Aug 13 06:53:03 middle kernel: Call Trace:
+>  Aug 13 06:53:03 middle kernel:  [<c016c7c0>] iget_locked+0x50/0xc0
+>  Aug 13 06:53:03 middle kernel:  [<c018fc92>] ext3_lookup+0x62/0xd0
+>  Aug 13 06:53:03 middle kernel:  [<c0160b10>] real_lookup+0xc0/0xf0
+>  Aug 13 06:53:03 middle kernel:  [<c0160d84>] do_lookup+0x84/0x90
+>  Aug 13 06:53:03 middle kernel:  [<c0161211>] link_path_walk+0x481/0x870
+>  Aug 13 06:53:03 middle kernel:  [<c0161abe>] __user_walk+0x3e/0x60
+>  Aug 13 06:53:03 middle kernel:  [<c015cdce>] vfs_stat+0x1e/0x60
+>  Aug 13 06:53:03 middle kernel:  [<c015d43b>] sys_stat64+0x1b/0x40
+>  Aug 13 06:53:03 middle kernel:  [<c03ca78f>] syscall_call+0x7/0xb
+>  Aug 13 06:53:03 middle kernel: 
+>  Aug 13 06:53:03 middle kernel: Code: 75 ca eb c6 8d b6 00 00 00 00 8d bc 27 00 00 00 00 55 89 e5 57 56 53 83 ec 04 8b 5d 10 8b 7d 0c 8b 75 08 8b 0f 85 c9 74 13 8b 11 <0f> 18 02 90 39 59 18 89 c8 74 10 85 d2 89 d1 75 ed 31 c0 83 c4 
 
->I have a couple uniprocessor ICH5 systems from different vendors, with 
->similar behavior:
+You oopsed here:
 
->2.6:  HyperThreading works, ACPI works, all irqs properly routed
+Code;  c016c144 No symbols available
+  25:   85 c9                     test   %ecx,%ecx
+Code;  c016c146 No symbols available
+  27:   74 13                     je     3c <_EIP+0x3c>
+Code;  c016c148 No symbols available
+  29:   8b 11                     mov    (%ecx),%edx
 
->2.4:  HT works only works with ACPI enabled, but,
->       ACPI kills the irq routing for the external PCI slots.
->       pci=noacpi or whatever doesn't work.  !CONFIG_ACPI + "noapic"
->       fixes irq routing, but then no HT sibling appears.
+This decode from eip onwards should be reliable
 
-To give a datapoint:
-
-ICH5 works like a breeze with RH 2.4.20-19.9 kernel:
-
-% lspci -vt
-
--[00]-+-00.0  Intel Corp. 82865G [Springdale-G] Chipset Host Bridge
-[...]
-      +-1f.1  Intel Corp. 82801EB ICH5 IDE
-[...]
-
-%  cat /proc/cpuinfo | grep -i genuine | wc -l
-      2
-
-% dmesg
-Linux version 2.4.20-19.9smp (bhcompile@stripples.devel.redhat.com) (gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)) #1 SMP Tue Jul 15 17:04:18 EDT 2003
-[...]
-ACPI: Searched entire block, no RSDP was found.
-ACPI: RSDP located at physical address c00f5b40
-RSD PTR  v0 [ACPIAM]
-ACPI table found: RSDT v1 [INTEL  D865PERL 8195.1813]
-ACPI table found: FACP v2 [INTEL  D865PERL 8195.1813]
-ACPI table found: APIC v1 [INTEL  D865PERL 8195.1813]
-LAPIC (acpi_id[0x0001] id[0x0] enabled[1])
-CPU 0 (0x0000) enabledProcessor #0 Pentium 4(tm) XEON(tm) APIC version 16
-LAPIC_NMI (acpi_id[0x0001] polarity[0x0] trigger[0x0] lint[0x1])
-LAPIC (acpi_id[0x0002] id[0x1] enabled[1])
-CPU 1 (0x0100) enabledProcessor #1 Pentium 4(tm) XEON(tm) APIC version 16
-[...]
-
-This is an intel 865 PERLK desktop board with a 2,6 GHz HT CPU. Even
-the ICH5 serial ATA works which really had me impressed:
-
-ICH5-SATA: IDE controller at PCI slot 00:1f.2
-ICH5-SATA: chipset revision 2
-ICH5-SATA: 100% native mode on irq 18
-    ide2: BM-DMA at 0xdc00-0xdc07, BIOS settings: hde:DMA, hdf:pio
-    ide3: BM-DMA at 0xdc08-0xdc0f, BIOS settings: hdg:pio, hdh:pio
-hde: Maxtor 6Y120M0, ATA DISK drive
-hde: attached ide-disk driver.
-hde: host protected area => 1
-hde: 240121728 sectors (122942 MB) w/7936KiB Cache, CHS=238216/16/63, UDMA(33)
-
-(The UDMA(33) seems to be a lie, I can read ~ 57 MBytes/sec from this disk).
-
-So there might be some patches in the RH kernel, that are missing from
-2.4.22-rc2
-
-	Regards
-		Henning
+Code;  c016c14a No symbols available
+00000000 <_EIP>:
+Code;  c016c14a No symbols available   <=====
+   0:   0f 18 02                  prefetchnta (%edx)   <=====
+Code;  c016c14d No symbols available
+   3:   90                        nop    
+Code;  c016c14e No symbols available
+   4:   39 59 18                  cmp    %ebx,0x18(%ecx)
+Code;  c016c151 No symbols available
 
 
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+And indeed, your %edx is zero.
 
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
+But if a prefetch of zero oopses then we should be oopsing in there all the
+time.
 
-"Dominate!! Dominate!! Eat your young and aggregate! I have grotty silicon!" 
-      -- AOL CD when played backwards  (User Friendly - 200-10-15)
+hlist_for_each() is completely assuming that prefetch(0) is safe, and you
+undoubtedly oopsed doing it.
+
+
+Colour me confused, and let me Cc lots of x86 guys ;)
+
+Exactly what sort of CPU are you using?

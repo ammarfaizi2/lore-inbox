@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267299AbSLEMFU>; Thu, 5 Dec 2002 07:05:20 -0500
+	id <S267301AbSLEMIc>; Thu, 5 Dec 2002 07:08:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267301AbSLEMFU>; Thu, 5 Dec 2002 07:05:20 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:18950 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S267299AbSLEMFT>; Thu, 5 Dec 2002 07:05:19 -0500
-Date: Thu, 5 Dec 2002 13:12:50 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Chris Adams <cmadams@hiwaay.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: #! incompatible -- binfmt_script.c broken?
-Message-ID: <20021205121250.GE15405@merlin.emma.line.org>
-Mail-Followup-To: Chris Adams <cmadams@hiwaay.net>,
-	linux-kernel@vger.kernel.org
-References: <20021204205945.A233182@hiwaay.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021204205945.A233182@hiwaay.net>
-User-Agent: Mutt/1.5.1i
+	id <S267302AbSLEMIc>; Thu, 5 Dec 2002 07:08:32 -0500
+Received: from h-64-105-35-8.SNVACAID.covad.net ([64.105.35.8]:13263 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S267301AbSLEMIb>; Thu, 5 Dec 2002 07:08:31 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 5 Dec 2002 04:13:29 -0800
+Message-Id: <200212051213.EAA04698@adam.yggdrasil.com>
+To: benh@kernel.crashing.org
+Subject: Re: [RFC] generic device DMA implementation
+Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org, miles@gnu.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 04 Dec 2002, Chris Adams wrote:
+Benjamin Herrenschmidt wrote:
+>On Wed, 2002-12-04 at 22:46, James Bottomley wrote:
+>> If you have a machine that has both consistent and inconsistent blocks, you 
+>> need to encode that in dma_addr_t (which is a platform definable type).
+>
+>I don't agree here. Encoding things in dma_addr_t, then special casing
+>in consistent_{map,unmap,sync,....) looks really ugly to me ! You want
+>dma_addr_t to contain a bus address for the given bus you are working
+>with and pass that to your device, period.
 
-> Try the following under your shell.  On Solaris and Tru64 sh and ksh, it
-> is handled with no error.  Under bash (on Linux, Solaris, and Tru64), it
-> returns an error:
-> 
-> $ set "-- xyzzy"
-> $ echo $?
-> 
-> According to SUSv3, bash is not compliant, because for set, under the
-> section "CONSEQUENCES OF ERRORS" is listed "None." and the "EXIT STATUS"
-> is "Zero."
+	I don't think that James meant actually defining flag bits
+inside of dma_addr_t, although I suppose you could do it for some
+unused high bits on some architectures.  I think the implication
+was that you could have something like:
 
-> Fix the shell(s).
 
-That's correct. But how do you derive that the sh command line must
-behave the same? The sh command is not the sh special built-in.
+static inline int is_consistent(dma_addr_t addr)
+{
+	return (addr >= CONSISTENT_AREA_START && addr < CONSISTENT_AREA_END);
+}
 
-However, it would be reasonable if a /bin/sh set $1 to be "-- xyzzy" if
-a file "foo" with
+	I also don't recall anyone proposing special casing
+dma_{map,unmap,sync} based on the results of such a check.  I think
+the only function that might use it would be maybe_wmb(addr,len),
+which, on some might machines might be:
 
-#! /bin/sh -- xyzzy
+static inline void maybe_wmb(dma_addr_t addr, size_t len)
+{
+	if (!is_consistent(addr))
+		wmb();
+}
 
-was executed (as path = [/bin/sh] argv = [./foo] [-- xyzzy]);
-and although I didn't check, I wonder how shells without the "--" long
-options parse that line.
+	In practice, I think dma_malloc() would either always return
+consistent memory or never return consistent memory on a given
+machine, so maybe_wmb would probably never do such range checking.
+Instead it would compile to nothing on machines where dma_alloc always
+returned consistent memory, would compile to wmb() on systems where
+dma_alloc would only succeed if it could return non-consistent memory,
+and would compile to a procedure pointer on parisc that would either
+set to point to a no-op or wmb, depending on which kind of machine the
+kernel was booted on.
+
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

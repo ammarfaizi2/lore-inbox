@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270017AbUIDBFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270021AbUIDBFC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270017AbUIDBFD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 21:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270012AbUIDBDI
+	id S270021AbUIDBFC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 21:05:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270020AbUIDBDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 21:03:08 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:57007 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S270038AbUIDA5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 20:57:07 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Christoph Hellwig <hch@lst.de>
-Date: Sat, 4 Sep 2004 10:56:49 +1000
+	Fri, 3 Sep 2004 21:03:13 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:39846 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S269985AbUIDA74 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 20:59:56 -0400
+Date: Sat, 4 Sep 2004 01:59:55 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Alex Deucher <alexdeucher@gmail.com>
+Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
+Subject: Re: New proposed DRM interface design
+In-Reply-To: <a728f9f904090317547ca21c15@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0409040158400.25475@skynet>
+References: <Pine.LNX.4.58.0409040107190.18417@skynet>
+ <a728f9f904090317547ca21c15@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16697.4817.621088.474648@cse.unsw.edu.au>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: bug in md write barrier support?
-In-Reply-To: message from Christoph Hellwig on Friday September 3
-References: <20040903172414.GA6771@lst.de>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday September 3, hch@lst.de wrote:
-> md_flush_mddev just passes on the sector relative to the raid device,
-> shouldn't it be translated somewhere?
+>
+> Will this redesign allow for multiple 3d accelerated cards in the same
+> machine?  could I have say an AGP radeon and a PCI radeon or a AGP
+> matrox and a PCI sis and have HW accel on :0 and :1.  If not, I think
+> it's something we should consider.
 
-Yes.  md_flush_mddev should simply be removed.  
-The functionality should be, and largely is, in the individual
-personalities. 
+should be no problem at all, this is what I consider a DRM requirement so
+any design that doesn't fulfill it isn't acceptable...
 
-Is there documentation somewhere on exactly what an issue_flush_fn
-should do (is it  allowed to sleep? what must happen before it is
-allowed to return, what is the "error_sector" for,  that sort of thing).
+of course implemented code may need a bit of testing :-)
 
-I suspect that at least raid5 will need some fairly special handling.
+Dave.
 
-NeilBrown
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

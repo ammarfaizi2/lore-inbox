@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263609AbTCNUc1>; Fri, 14 Mar 2003 15:32:27 -0500
+	id <S263456AbTCNU1I>; Fri, 14 Mar 2003 15:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263610AbTCNUc0>; Fri, 14 Mar 2003 15:32:26 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1299 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263609AbTCNUcZ>; Fri, 14 Mar 2003 15:32:25 -0500
-Date: Fri, 14 Mar 2003 20:43:11 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: EdV@macrolink.com, driver@jpl.nasa.gov, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: devfs + PCI serial card = no extra serial ports
-Message-ID: <20030314204311.J23686@flint.arm.linux.org.uk>
-Mail-Followup-To: "Adam J. Richter" <adam@yggdrasil.com>, EdV@macrolink.com,
-	driver@jpl.nasa.gov, dwmw2@infradead.org,
-	linux-kernel@vger.kernel.org
-References: <200303142028.MAA02437@adam.yggdrasil.com>
+	id <S263484AbTCNU1I>; Fri, 14 Mar 2003 15:27:08 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:42706 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S263456AbTCNU1G>;
+	Fri, 14 Mar 2003 15:27:06 -0500
+Date: Fri, 14 Mar 2003 22:37:49 +0200
+From: Teodor Iacob <Teodor.Iacob@astral.ro>
+To: Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Larry McVoy <lm@bitmover.com>, Lars Marowsky-Bree <lmb@suse.de>,
+       Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       vojtech@suse.cz
+Subject: Re: Never ever use word BitKeeper if Larry does not like you
+Message-ID: <20030314203749.GB31888@linux.kappa.ro>
+References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314115055.GR1211@marowsky-bree.de> <20030314144347.GA8937@work.bitmover.com> <1047658249.29595.34.camel@irongate.swansea.linux.org.uk> <20030314151455.GB8937@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303142028.MAA02437@adam.yggdrasil.com>; from adam@yggdrasil.com on Fri, Mar 14, 2003 at 12:28:47PM -0800
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030314151455.GB8937@work.bitmover.com>
+User-Agent: Mutt/1.5.3i
+X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 12:28:47PM -0800, Adam J. Richter wrote:
-> There was tangential mention in that thread
-> of a "/proc/serialdev" interface, but nobody really identified any
-> real benefit to it over the existing "uart: unknown" system.
+On Fri, Mar 14, 2003 at 07:14:55AM -0800, Larry McVoy wrote:
+> On Fri, Mar 14, 2003 at 04:10:49PM +0000, Alan Cox wrote:
+> > On Fri, 2003-03-14 at 14:43, Larry McVoy wrote:
+> > > You might want to stop and consider what SuSE would do if someone decided
+> > > they didn't like SuSE and came up with a pathetic shell script and started
+> > > describing it as "a system compatible with SuSE".  I'm pretty sure that
+> > > your lawyers would be all over them in about 30 seconds.  Ditto for Red
+> > > Hat, Alan.  I believe it is your founder who has carefully explained to
+> > > all of us the importance of brand.  In fact, isn't the point that Red Hat
+> > > is nothing *but* brand?  So how fast would I get sued if I came out with
+> > > "Larry's Red Hat Linux"?  Pretty fast, right?
+> > > 
+> > > I stand behind my statements.  If you don't like them, oh, darn.
+> > 
+> > I thought you were above deliberately tangling unrelated questions to
+> > try and make a bogus point. Lets think about this clearly.
+> > 
+> > "XYZ runs on Red Hat Linux"
+> > "XYZ reads Red Hat Linux RPM databases"
+> > "XYZ imports Oracle Databases into Bananavision"
+> > 
+> > versus
+> > 
+> > "Larry's Red Hat Linux"
+> 
+> I thought you were above deliberately tangling unrelated questions to try
+> and distract from my perfectly valid point.  
+> 
+>     "BitBucket: GPL-ed BitKeeper clone"
+>     "The goal of this project is to produce a system compatible with BitKeeper"
+> 
+> Let's try a little simple substitution since you seem to be needing coffee
+> this morning:
+> 
+>     "Red Cap: a proprietary Red Hat clone"
+>     "The goal of this system is to produce a system compatible with Red Hat"
+> 
+> Go run those statements by your lawyers, Alan, and then please report
+> what they said back here.  
 
-There is one benefit, which would be to get rid of some of the yucky
-mess we currently have surrounding the implementation of stuff which
-changes the port base address/irq.
-
-Currently, we have to check that we're the only user, shutdown, tweak
-stuff, hope it all goes to plan, and start stuff back up again.  If
-something fails, we have to pray we can go back to the original setup
-without stuff breaking.  If that fails, we mark the port "unknown".
-
-All of this would be a lot simpler if we didn't have the port actually
-open at the time we change these parameters.  We could just lock the
-port against opens, check no one was using it, tweak the settings,
-and release the port.  If the changes fail, just report the failure.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Lawyer1 starts the process for the first statement: Lawyer1 got segmentation fault.
+Laywer2 starts the process for the second statement: Lawery2 got cpu xceeded.
+> -- 
+> ---
+> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

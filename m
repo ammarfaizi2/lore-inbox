@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262623AbTDMAhg (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 20:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTDMAhg (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 20:37:36 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:10386 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262623AbTDMAhf (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 20:37:35 -0400
-Date: Sun, 13 Apr 2003 02:44:03 +0200 (MEST)
-Message-Id: <200304130044.h3D0i3lQ029020@harpo.it.uu.se>
-From: mikpe@csd.uu.se
-To: pavel@ucw.cz
-Subject: Re: APIC is not properly suspending in 2.5.67 on UP
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       trivial@rustcorp.com.au
+	id S262633AbTDMAoH (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 20:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbTDMAoG (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 20:44:06 -0400
+Received: from postoffice2.mail.cornell.edu ([132.236.56.10]:4028 "EHLO
+	postoffice2.mail.cornell.edu") by vger.kernel.org with ESMTP
+	id S262633AbTDMAoF (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 20:44:05 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+Organization: ( )
+To: Greg KH <greg@kroah.com>
+Subject: Re: USB Keyboard in 2.5 bitkeeper...
+Date: Sat, 12 Apr 2003 20:57:19 -0400
+User-Agent: KMail/1.5
+References: <200304111941.16563.ivg2@cornell.edu> <20030412000357.GJ4539@kroah.com>
+In-Reply-To: <20030412000357.GJ4539@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304122057.19381.ivg2@cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Apr 2003 23:47:01 +0200, Pavel Machek wrote:
->This is needed otherwise APIC thinks it is not active, does not
->suspend properly, and kills machine.
+On Friday 11 April 2003 20:03, you wrote:
+> On Fri, Apr 11, 2003 at 07:41:08PM -0400, Ivan Gyurdiev wrote:
+> > input1: USB HID v1.00 Keyboard [NOVATEK Keyboard NT6881] on usb1:3.0
+> > input2: USB HID v1.00 Mouse [NOVATEK Keyboard NT6881] on usb1:3.1
+> >
+> > That's only a keyboard, but interestingly it shows up as a keyboard AND
+> > mouse. (This kernel is 2.4.21-pre5-ac3)
+>
+> Well, it thinks it is both :)
+>
+> > Anyway: In 2.5 bitkeeper (4/11/03), my keyboard is completely dead - even
+> > sysrq doesn't work. I've had similar problems with recent 2.4 bitkeeper
+> > kernels (but I can't be very specific - I can re-test if you'd like me
+> > to)
+>
+> Does 2.5.67 work for you?
 
-This can only happen with UP if the machine boots with local
-APIC enabled and the BIOS announces an MP table.
+I can't test it - it oopses... 
 
-If this is the case, then yes apic_pm_activate() needs to be done.
+I'll try some more kernels when I have a little bit more time...
+and I'll report back.
 
-> Extra whitespace killed (looks
->ugly). Please apply,
 
-I think some fixes are needed first:
-- You're calling apic_pm_activate() from setup_local_APIC(), which
-  is before its definition. This will cause a compile warning, and
-  a linkage error if CONFIG_PM=n.
-- While calling apic_pm_activate() from setup_local_APIC() sort of
-  works in the UP case, it's wrong since setup_local_APIC() is called
-  for each CPU in SMP, and we must not run the suspend and resume
-  code if there is more than one CPU in the machine.
-  I don't have a good solution for this right now: I don't think
-  cpu_online_map is valid when init_lapi_devicefs() runs, and I
-  don't know how else to check the number of CPUs.
-  Changing the #ifdef CONFIG_PM block to be #if defined(CONFIG_PM)
-  && !defined(CONFIG_SMP) would fix UP kernels, but SMP kernels on
-  UP HW would lose PM. Adding "if (num_online_cpus() > 1) return;"
-  to the suspend & resume procedures is ugly but should work.
-
-/Mikael

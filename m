@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268877AbRG0QG2>; Fri, 27 Jul 2001 12:06:28 -0400
+	id <S268870AbRG0QNi>; Fri, 27 Jul 2001 12:13:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268876AbRG0QGS>; Fri, 27 Jul 2001 12:06:18 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:13217 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S268870AbRG0QF6>; Fri, 27 Jul 2001 12:05:58 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Date: Fri, 27 Jul 2001 16:06:04 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9js3hc$23l$1@forge.intermeta.de>
-In-Reply-To: <Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl> <0107270818120A.06707@widmers.oce.srci.oce.int> <3B6180CD.9D68CC07@namesys.com> <20010728030255.A804@weta.f00f.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 996249964 26085 212.34.181.4 (27 Jul 2001 16:06:04 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Fri, 27 Jul 2001 16:06:04 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S268875AbRG0QNS>; Fri, 27 Jul 2001 12:13:18 -0400
+Received: from pulsar.zoreil.com ([212.43.230.120]:46722 "EHLO
+	pulsar.zoreil.com") by vger.kernel.org with ESMTP
+	id <S268870AbRG0QNP>; Fri, 27 Jul 2001 12:13:15 -0400
+Date: Fri, 27 Jul 2001 18:11:27 +0200
+From: =?iso-8859-1?Q?Fran=E7ois_romieu?= <romieu@zoreil.com>
+To: "Robert J.Dunlop" <rjd@xyzzy.clara.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FarSync T-Series tweak and question
+Message-ID: <20010727181127.A5157@zoreil.com>
+In-Reply-To: <20010703182803.A13853@xyzzy.clara.co.uk> <20010704161845.A27070@zoreil.com> <20010709161947.B15379@xyzzy.clara.co.uk> <20010726155123.A5815@xyzzy.clara.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010726155123.A5815@xyzzy.clara.co.uk>; from rjd@xyzzy.clara.co.uk on Thu, Jul 26, 2001 at 03:51:23PM +0100
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Chris Wedgwood <cw@f00f.org> writes:
+The Thu, Jul 26, 2001 at 03:51:23PM +0100, Robert J.Dunlop wrote :
+[...]
+> > > +        if ( ++port->txpos >= NUM_TX_BUFFER )
+> > > +                port->txpos = 0;
+[...]
+> > I think mine is clearer but then I've always bumped and wrapped pointers and
+> > indexs that way. Another alternative would be:
+> >     port->txpos = ( port->txpos + 1 ) % NUM_TX_BUFFER;
+> 
+> Having taken the time that the % operation wouldn't be detrimental on other
+> processor architectures and having checked with a small test that the
+> alternate form produced tighter code on Intel I applied the change to my 
+> driver.  The code that had shrunk in a small test got bigger (and slower?) 
+> in the driver :-(
 
->FWIW, Debian although it doesn't support reiserfs "out of the box" at
->present, works flawlessly for a large number of people I know.  I also
->hear Mandrake 7.2 and 8.0 work pretty nice if you want a pointy-clicky
->experience :)
+Have you the .o at hand ? I'd be curious to objdump them.
+Btw, I don't believe either expression impacts the perfs. During init,
+it's not time critical and while processing data, it looks like the driver 
+does himself the dma with the adapter.
 
->Since so many people seem to run RedHat, perhaps it's worth someone
->determining exactly what is busted with their init scripts or whatever
->that makes reiserfs barf more often that with other distributions.
-
-There is nothing wrong with RedHat init scripts.
-
-I run RH 6.2 on my self-rolled 2.2.x kernels and they boot ReiserFS
-fine and neither faster nor slower than ext2. Nothing wrong with
-RedHat here.
-
-I consider a vendor that does not always ship "latest and greatest"
-but tries to stress test its software superior to one that crams out
-one new release every three months. And if they enable paranoia mode
-in the experimental sections of the kernel: Fine! Goes well with my
-philosophy of server running. Leads to 500+ days uptime.
-
-I dropped out of ReiserFS again, however, because of unexplained
-problems with various user space applications (PostgreSQL 6.5.3 and
-7.x or Highwind oops bCandid oops Software.Com oops Highwind-again
-Cyclone and Typhoon) that are heavy thread and mmap() users. 
-
-I use ReiserFS for my ftp-data-caroussels and as spool and staging
-disks. Not for system disks that contain binaries or performance
-critical application disks. That works fine. 
-
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+--
+Ueimor

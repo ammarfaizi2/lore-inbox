@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287436AbSAUQzc>; Mon, 21 Jan 2002 11:55:32 -0500
+	id <S287449AbSAURBy>; Mon, 21 Jan 2002 12:01:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287425AbSAUQzW>; Mon, 21 Jan 2002 11:55:22 -0500
-Received: from ms25.windstoneinc.com ([206.222.212.217]:15339 "EHLO
-	unpythonic.dhs.org") by vger.kernel.org with ESMTP
-	id <S287436AbSAUQzC>; Mon, 21 Jan 2002 11:55:02 -0500
-Date: Mon, 21 Jan 2002 10:58:17 -0600
-From: jepler@unpythonic.dhs.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon PSE/AGP Bug
-Message-ID: <20020121105817.B1520@unpythonic.dhs.org>
-Mail-Followup-To: jepler@unpythonic.dhs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1011610422.13864.24.camel@zeus> <20020121.053724.124970557.davem@redhat.com> <3C4C1C96.9330C916@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C4C1C96.9330C916@redhat.com>
-User-Agent: Mutt/1.3.23i
+	id <S287425AbSAURBo>; Mon, 21 Jan 2002 12:01:44 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:55209 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S287464AbSAURBc>; Mon, 21 Jan 2002 12:01:32 -0500
+Date: Mon, 21 Jan 2002 17:57:05 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: James Cleverdon <jamesclv@us.ibm.com>
+cc: Peter Monta <pmonta@pmonta.com>, linux-kernel@vger.kernel.org
+Subject: Re: APIC errors, Asus A7M266-D (760MPX chipset)
+In-Reply-To: <200201211637.g0LGbCq07602@butler1.beaverton.ibm.com>
+Message-ID: <Pine.GSO.3.96.1020121174759.26201A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 21, 2002 at 01:50:14PM +0000, Arjan van de Ven wrote:
-> "David S. Miller" wrote:
-> 
-> > The funny part is, if this published errata is the problem, it cannot
-> > be a problem under Linux since we never invalidate 4MB pages.  We
-> > create them at boot time and they never change after that.
-> 
-> Well we don't know what nvidia's kernel module is doing.....
+On Mon, 21 Jan 2002, James Cleverdon wrote:
 
-.. which makes it not a kernel bug, right?  Just some buggy module that
-bangs hardware in a way documented to not work...
+> BTW, be aware that Intel has changed the way the ESR works.  The P6 manual 
+> says that software must do two back-to-back writes to clear ESR bits.  The 
+> most recent P4s say that a read clears bits and writes are ignored, save for 
+> the requirement of a write before the read to get the ESR up to date.  AFAIK, 
+> Intel's Linux gang hasn't posted any patches to fix smp_error_interrupt() for 
+> P4s.  I've been meaning to do that myself....
 
-Jeff
+ Have you verified this empirically?  AFAIK, the intended way for the ESR
+to work is to update upon write and clear upon read.  Now there are
+various errata within specific implementations, but our code seems immune
+to them (except from the Pentium case we handle explicitly), i.e. the
+ESR's value as fetched by the handler is correct.  The value outside the
+handler may be meaningless, but who cares?
+
+> > Oddly, booting this same kernel with the "noapic" option results in
+> > the same problem, but recompiling with all APIC options disabled
+> > gives a successful boot.
+> 
+> Sounds like the APIC was up to something anyway....
+
+ The "noapic" option only affects I/O APICs.  Local APICs get programmed
+anyway.
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

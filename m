@@ -1,98 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266273AbUHBFme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUHBGAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266273AbUHBFme (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 01:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUHBFmc
+	id S266275AbUHBGAd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 02:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266287AbUHBGAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 01:42:32 -0400
-Received: from digitalimplant.org ([64.62.235.95]:50859 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S266273AbUHBFm2
+	Mon, 2 Aug 2004 02:00:32 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:453 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S266275AbUHBGA2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 01:42:28 -0400
-Date: Sun, 1 Aug 2004 22:42:11 -0700 (PDT)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Pavel Machek <pavel@suse.cz>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [0/25] Merge pmdisk and swsusp
-In-Reply-To: <20040720164640.GH10921@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.50.0408012220160.8159-100000@monsoon.he.net>
-References: <Pine.LNX.4.50.0407171449200.28258-100000@monsoon.he.net>
- <20040720164640.GH10921@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 Aug 2004 02:00:28 -0400
+Subject: Re: [RFC] [PATCH 1/2] export module parameters in sysfs for
+	modules _and_ built-in code
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Dominik Brodowski <linux@dominikbrodowski.de>, Greg KH <greg@kroah.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040801165407.GA8667@dominikbrodowski.de>
+References: <20040801165407.GA8667@dominikbrodowski.de>
+Content-Type: text/plain
+Message-Id: <1091426395.430.13.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 02 Aug 2004 15:59:57 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-08-02 at 02:54, Dominik Brodowski wrote:
+> Create a new /sys top-level directory named "parameters", and make all
+> to-be-sysfs-exported module parameters available as attributes to kobjects.
+> Currently, only module parameters in _modules_ are exported in /sys/modules/,
+> while those of "modules" built into the kernel can be set by the kernel command 
+> line, but not read or set via sysfs.
 
-On Tue, 20 Jul 2004, Pavel Machek wrote:
+Thanks for this Dominik!
 
-> Followup patch:
->
-> * if machine halt fails, it is very dangerous to continue.
->
-> diff -ur linux.middle/kernel/power/disk.c linux/kernel/power/disk.c
-> --- linux.middle/kernel/power/disk.c	2004-07-19 08:58:08.000000000 -0700
-> +++ linux/kernel/power/disk.c	2004-07-19 15:00:16.000000000 -0700
-> @@ -63,6 +63,9 @@
->  		break;
->  	}
->  	machine_halt();
-> +	/* Valid image is on the disk, if we continue we risk serious data corruption
-> +	   after resume. */
-> +	while(1);
->  	device_power_up();
->  	local_irq_restore(flags);
->  	return 0;
-
-This is nasty. We have to fail gracefully, ideally without expecting user
-input.
-
-Adding 'while(1)' will cause the CPU to enter a busy loop, artificially
-increasing the power consumption of the system, which would be counter-
-productive in a system that was configured to suspend when the battery was
-low.
-
-We need to at least print a message specifying what happened and
-instructing them to reboot. It's dorky, but over time, all every system
-should eventually be fixed to either enter a low-power mode or shut down
-properly.
-
-Perhaps we could also fill in machine_halt(), which the patch below also
-does.
-
-> * software_suspend() did not check for smp, this fixes it.
-
-Applied, thanks.
-
-> * copy_page() is dangerous. This is actually my fault.
-
-Why is copy_page() dangerous? Shouldn't it be fixed if that is the case?
-
-Thanks,
+One question from reading the code:
 
 
-	Pat
-===== arch/i386/kernel/reboot.c 1.16 vs edited =====
---- 1.16/arch/i386/kernel/reboot.c	2004-07-05 03:28:50 -07:00
-+++ edited/arch/i386/kernel/reboot.c	2004-08-01 22:40:58 -07:00
-@@ -367,6 +367,8 @@
+> diff -ruN linux-original/kernel/module.c linux/kernel/module.c
+> --- linux-original/kernel/module.c	2004-08-01 18:40:25.939948264 +0200
+> +++ linux/kernel/module.c	2004-08-01 18:39:01.097846224 +0200
+> @@ -1131,6 +1131,12 @@
+>  };
+>  static decl_subsys(module, &module_ktype, NULL);
+>  
+> +extern int module_param_sysfs_setup(struct module *mod, 
+> +				    struct kernel_param *kparam,
+> +				    unsigned int num_params);
+> +
+> +extern void module_param_sysfs_remove(struct module *mod);
 
- void machine_halt(void)
- {
-+	while (1)
-+		asm volatile ("hlt":::"memory");
- }
+Put these in moduleparam.h please, otherwise AKPM will kill us both.
 
- EXPORT_SYMBOL(machine_halt);
-===== kernel/power/disk.c 1.16 vs edited =====
---- 1.16/kernel/power/disk.c	2004-08-01 20:36:39 -07:00
-+++ edited/kernel/power/disk.c	2004-08-01 22:38:19 -07:00
-@@ -59,6 +59,7 @@
- 		machine_restart(NULL);
- 		break;
- 	}
-+	printk(KERN_EMERG "Suspend-to-disk succeeded, but power-down failed. Please reboot.\n");
- 	machine_halt();
- 	device_power_up();
- 	local_irq_restore(flags);
+> +	kbuild_modname = kmalloc(sizeof(char) * (MAX_KBUILD_MODNAME + 1), GFP_KERNEL);
+> +	if (!kbuild_modname)
+> +		return -ENOMEM;
+> +	memset(kbuild_modname, 0, sizeof(char) * (MAX_KBUILD_MODNAME + 1));
+
+...
+
+> +	kfree (kbuild_modname);
+
+I would have thought this a good candidate for a stack variable?
+
+> +/* Needs to be before __initcall(module_init) */
+> +fs_initcall(param_sysfs_init);
+
+That's horrible.  And I think the initcall in module.c should be removed
+in your second patch, no?
+
+Rusty,
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

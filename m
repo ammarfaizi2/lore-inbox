@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265921AbUBKQob (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 11:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265924AbUBKQob
+	id S265953AbUBKQxN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 11:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265954AbUBKQxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 11:44:31 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:17539 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S265921AbUBKQoZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 11:44:25 -0500
-Message-ID: <402A5BE7.583D9D68@namesys.com>
-Date: Wed, 11 Feb 2004 19:44:23 +0300
-From: Edward Shishkin <edward@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: ru, en
-MIME-Version: 1.0
-To: sander@humilis.net, Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+	Wed, 11 Feb 2004 11:53:13 -0500
+Received: from ahriman.bucharest.roedu.net ([141.85.128.71]:29907 "EHLO
+	ahriman.bucharest.roedu.net") by vger.kernel.org with ESMTP
+	id S265953AbUBKQwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 11:52:10 -0500
+Date: Wed, 11 Feb 2004 18:53:48 +0200 (EET)
+From: Mihai RUSU <dizzy@roedu.net>
+X-X-Sender: dizzy@ahriman.bucharest.roedu.net
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: reiserfs for bkbits.net?
-References: <200402111523.i1BFNnOq020225@work.bitmover.com> <20040211161358.GA11564@favonius>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <200402111523.i1BFNnOq020225@work.bitmover.com>
+Message-ID: <Pine.LNX.4.58L0.0402111849240.22898@ahriman.bucharest.roedu.net>
+References: <200402111523.i1BFNnOq020225@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sander wrote:
-> 
-> Larry McVoy wrote (ao):
-> > We're moving openlogging back to our offices and I'm experimenting
-> > with filesystems to see what gives the best performance for BK usage.
-> > Reiserfs looks pretty good and I'm wondering if anyone knows any
-> > reasons that we shouldn't use it for bkbits.net. Also, would it help
-> > if the journal was on a different disk?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Not much if you mean performance: here is results for standard journal vs
-journal relocated to NVRAM, everything in data logging journal mode:
-http://thebsh.namesys.com/benchmarks/journal_relocation_to_NVRAM.html
-Edward.
+Hi Larry
 
- Most of the bkbits traffic is
-> > read so I doubt it.
-> >
-> > Please cc me, I'm not on the list.
-> 
-> I've cc'ed the Reiserfs mailinglist.
-> 
-> IME Reiserfs is a fast and stable fs. If you have the time to benchmark
-> ext3, reiserfs, jfs and xfs (and ..) with bk then you would know first
-> hand which fs is best for you. It might be worth the time.
-> 
-> With kind regards, Sander
-> 
-> --
-> Humilis IT Services and Solutions
-> http://www.humilis.net
+On Wed, 11 Feb 2004, Larry McVoy wrote:
+
+> We're moving openlogging back to our offices and I'm experimenting with 
+> filesystems to see what gives the best performance for BK usage.  Reiserfs
+> looks pretty good and I'm wondering if anyone knows any reasons that we
+> shouldn't use it for bkbits.net.  Also, would it help if the journal was
+> on a different disk?  Most of the bkbits traffic is read so I doubt it.
+
+I dont have much reiserfs experience on production systems so I cannot say
+anything about its stability. However, about the external journal
+question, my bonnie++ tests (which I would recommend you do them yourself)
+showed not much increase in speed than with internal journal, than say,
+xfs with internal or external (but the reiserfs values where much better
+in general, at least in the many small files test).
+
+As you said because its mostly read() that shouldnt matter. Dont forget 
+noatime mount option :).
+
+- -- 
+Mihai RUSU                                    Email: dizzy@roedu.net
+GPG : http://dizzy.roedu.net/dizzy-gpg.txt    WWW: http://dizzy.roedu.net
+                       "Linux is obsolete" -- AST
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAKl4dPZzOzrZY/1QRAiAEAJ9xvPJ6o0F/m+Lxba581dyqGkZh7ACgj65e
+G/ND//hn9QLij39pGdgvkR0=
+=49A6
+-----END PGP SIGNATURE-----

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269862AbRHDVCa>; Sat, 4 Aug 2001 17:02:30 -0400
+	id <S269865AbRHDVWk>; Sat, 4 Aug 2001 17:22:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269866AbRHDVCW>; Sat, 4 Aug 2001 17:02:22 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:63243 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S269862AbRHDVCG>; Sat, 4 Aug 2001 17:02:06 -0400
-Message-ID: <3B6C6423.2BFA3CFA@zip.com.au>
-Date: Sat, 04 Aug 2001 14:07:47 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S269867AbRHDVWa>; Sat, 4 Aug 2001 17:22:30 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:60424 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S269865AbRHDVWU>;
+	Sat, 4 Aug 2001 17:22:20 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200108042122.f74LMR313894@saturn.cs.uml.edu>
+Subject: Re: don't feed the trolls (was: intermediate summary of ext3-2.4-0.9.4 thread)
+To: /dev/null@localhost.emma.line.org
+Date: Sat, 4 Aug 2001 17:22:27 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
+In-Reply-To: <20010804053018.D16516@emma1.emma.line.org> from "Matthias Andree" at Aug 04, 2001 05:30:18 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic 
- change patch)
-In-Reply-To: <01080315090600.01827@starship> <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu> <9keqr6$egl$1@penguin.transmeta.com>, <9keqr6$egl$1@penguin.transmeta.com> <20010804100143.A17774@weta.f00f.org> <3B6B4B21.B68F4F87@zip.com.au>, <3B6B4B21.B68F4F87@zip.com.au> <20010804131904.E18108@weta.f00f.org> <3B6B53A9.A9923E21@zip.com.au>,
-		<3B6B53A9.A9923E21@zip.com.au> <20010804060423.I16516@emma1.emma.line.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
-> 
-> aren't we already at the point that ext3 fsync() flushes
-> the corresponding dirents?
+Matthias Andree writes:
+> On Fri, 03 Aug 2001, Albert D. Cahalan wrote:
 
-_any_ synchronous operation on ext3 has flushed _everything_
-by the time it returns to the caller.  Every last little bit
-is on disk.
+>> This is just completely true. One wonders why we seem to enjoy
+>> getting screwed this way. We shouldn't be patching these MTAs or
+>> hacking Linux to act like BSD. We should be avoiding these MTAs.
+>
+> Oh, you should make a start avoiding any MTAs because that way, this
+> list would get rid of one trouble maker after all.
+>
+> Don't feed the trolls.
 
-This applies to fsync() against any file/dir, write() on an
-O_SYNC file, any metadata operation or write() against a `chattr +S'
-object, any metadata operation or write() against a `mount -o sync'
-filesystem and msync().
+That wasn't intended to be a troll, though I do realize that it
+could cause some noise -- including your post. Plenty of noise is
+already being generated trying to accommodate hostile MTA authors.
 
-The only exception is pageout of mmap'ed files - you'll need to
-run msync() to guarantee that these are crashproofed.
+Seriously, consider:
+
+1. there are MTA authors that actively promote BSD over Linux
+2. Linux users and distributions promote their MTA software
+
+There is no sense in this. It is masochism and suicide.
+It is worse than a waste of time to accommodate these MTAs.
+
+Getting back on topic... while non-inherited ext2 attributes might
+be nice, I'm sure the ext2/VFS authors don't need to be pestered
+about it, and certainly not because of some lame software making
+non-standard assumptions about filesystem behavior.

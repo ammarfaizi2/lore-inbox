@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266534AbUHBO0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266465AbUHBOb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266534AbUHBO0s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 10:26:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266006AbUHBO0s
+	id S266465AbUHBOb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 10:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266546AbUHBOb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 10:26:48 -0400
-Received: from main.gmane.org ([80.91.224.249]:36270 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266539AbUHBO0Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 10:26:25 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 2 Aug 2004 10:31:57 -0400
+Received: from mail.atlanta.glenayre.com ([157.230.176.123]:31249 "EHLO
+	mail.atlanta.glenayre.com") by vger.kernel.org with ESMTP
+	id S266465AbUHBO1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 10:27:08 -0400
+From: Brad Grant <brad@bradandsteph.com>
 To: linux-kernel@vger.kernel.org
-From: Andreas Metzler <lkml-2003-03@downhill.at.eu.org>
-Subject: Re: ide-cd problems
-Date: Mon, 2 Aug 2004 14:26:19 +0000 (UTC)
-Message-ID: <celiub$3bn$1@sea.gmane.org>
-References: <20040730193651.GA25616@bliss> <cehqak$1pq$1@sea.gmane.org> <20040801155753.GA13702@suse.de> <200408020945.05297.tabris@tabris.net> <20040802135615.GX10496@suse.de>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: balrog.logic.univie.ac.at
-X-Archive: encrypt
-User-Agent: tin/1.7.5-20040615 ("Gighay") (UNIX) (Linux/2.4.26-1-k7 (i686))
+Subject: PROBLEM: USB ext3 issues in 2.6
+Date: Mon, 2 Aug 2004 10:26:54 -0400
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408021026.54853.brad@bradandsteph.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
-[...] 
-> just says that open-by-device name is unintentional, it doesn't give you
-> warnings on the transport.
-> 
-> So in short (and repeating): don't use ATAPI (CDROM_SEND_PACKET), it
-> sucks. Use SG_IO (which means using open-by-device, which works at least
-> as well as the stupid faked ATAPI bus/id/lun crap and has the much
-> better transport). Don't compare apples and oranges.
+I was running the 2.6.7 kernel and trying to write large amounts of data to a 
+USB 2.0 hard drive formatted as ext3.  It would get about halfway through 
+then I'd start getting errors about it being a read-only file system.  When I 
+looked at the dmesg output, I noticed there were journaling errors and a 
+message about it remounting read-only.
 
-FWIW cdrecord's author prefers dev=ATA:x,y,z, which uses SG_IO *and* gets
-rid of the open-by-device-warning.
-                cu andreas
-
+Unfortunately, to get it to work under a timelimit, I changed two variables at 
+once, so I cannot pinpoint the exact culprit.  I went back to the 2.4.26 
+kernel and also reformatted the USB disk as an ext2 partition.  With this 
+combination, the drive worked great and all data was moved to it with one 
+copy and no errors.

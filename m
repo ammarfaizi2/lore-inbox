@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274238AbRISWt3>; Wed, 19 Sep 2001 18:49:29 -0400
+	id <S274241AbRISWwJ>; Wed, 19 Sep 2001 18:52:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274257AbRISWtT>; Wed, 19 Sep 2001 18:49:19 -0400
-Received: from otter.mbay.net ([206.40.79.2]:48653 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S274238AbRISWtP> convert rfc822-to-8bit;
-	Wed, 19 Sep 2001 18:49:15 -0400
-From: John Alvord <jalvo@mbay.net>
-To: Dan Hollis <goemon@anime.net>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Arjan van de Ven <arjanv@redhat.com>,
-        Petr Vandrovec <VANDROVE@vc.cvut.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-Date: Wed, 19 Sep 2001 15:49:24 -0700
-Message-ID: <a68iqtovbjt57qqqv1mkrmdsujhu2k3ebu@4ax.com>
-In-Reply-To: <m1adzqg8j6.fsf@frodo.biederman.org> <Pine.LNX.4.30.0109191509480.29421-100000@anime.net>
-In-Reply-To: <Pine.LNX.4.30.0109191509480.29421-100000@anime.net>
-X-Mailer: Forte Agent 1.8/32.553
-MIME-Version: 1.0
+	id <S274242AbRISWv7>; Wed, 19 Sep 2001 18:51:59 -0400
+Received: from pc-62-30-67-185-az.blueyonder.co.uk ([62.30.67.185]:18670 "EHLO
+	kushida.degree2.com") by vger.kernel.org with ESMTP
+	id <S274241AbRISWvo>; Wed, 19 Sep 2001 18:51:44 -0400
+Date: Wed, 19 Sep 2001 23:51:53 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "Andrew V. Samoilov" <kai@cmail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mmap successed but SIGBUS generated on access
+Message-ID: <20010919235153.A22429@kushida.degree2.com>
+In-Reply-To: <200109191657.f8JGvPJ06663@cmail.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200109191657.f8JGvPJ06663@cmail.ru>; from kai@cmail.ru on Wed, Sep 19, 2001 at 08:57:25PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Sep 2001 15:13:55 -0700 (PDT), Dan Hollis
-<goemon@anime.net> wrote:
+Andrew V. Samoilov wrote:
+>> It is possible to do something useful with a signal handler sometimes.
+>> For example, you can mmap() a zero page into the offending page once
+>> you've got the fault address, or read() a zero page if you did
+>> MAP_PRIVATE (this produces fewer VMAs), set a flag, and let the program
+>> continue until it checks the flag and aborts the parsing or whatever
+>> operation it's doing.
+> 
+> So, I must read all of the mapped area and even this
+> does not saves me of faulting next time if somebody
+> change file permission. Does I understand this situation
+> right?
 
->On 19 Sep 2001, Eric W. Biederman wrote:
->> Of course VIA looking at what they have done and what that bit is
->> supposed to be is easiest as they have the schemantics of those
->> chips.  But there is not reason to be limited to just that approach.
->
->Testing it is ok, its rolling the "patch" into production kernels that im
->most concerned about.
->
->What happens if the bit happens to fiddle with motherboard voltages and
->you end up destroying peoples hardware...
->
->Until we have a straight answer what the hell this bit does, its a very
->bad idea to put it into *production kernel*.
+If you use MAP_PRIVATE, then after your process modifies the mapped
+page, you have the data for sure.  This includes calling read() over a
+page that raises a SIGBUS -- the page is "modified" by this operation,
+although the contents should hopefully be the correct file contents if
+read() succeeds.  Any subsequent change to the file, including
+permission changes and data changes, won't affect the data you have in
+memory.
 
-Of course the BIOS versions made exactly that change...
+If you do not modify the pages (and usually, for efficiency, you
+wouldn't), then yes a change in file permissions can mean you can read
+data one second and will get a SIGBUS later.  You're not guaranteed to
+get a SIGBUS, but you might get one -- it depends on whether the OS
+decides to reclaim the page's memory temporarily in between.
 
-john
+If you want to do something like an Editor's "Load File" operation, then
+you need to read the whole file.  Either call read(), or call mmap() and
+then modify every page by reading one byte from each page and writing
+the same value back to the same place.  read() is probably quicker, but
+I've never checked.
+
+-- Jamie

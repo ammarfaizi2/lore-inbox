@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282884AbRK0IeJ>; Tue, 27 Nov 2001 03:34:09 -0500
+	id <S282866AbRK0Iif>; Tue, 27 Nov 2001 03:38:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282873AbRK0Id4>; Tue, 27 Nov 2001 03:33:56 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:7154 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S282876AbRK0Idk>;
-	Tue, 27 Nov 2001 03:33:40 -0500
-Message-ID: <3C034FA2.3040804@debian.org>
-Date: Tue, 27 Nov 2001 09:32:34 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.16: 802.1Q VLAN non-modular 
-In-Reply-To: <fa.ns5og9v.u04srk@ifi.uio.no> <fa.hfatgnv.q50k9n@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Nov 2001 08:33:39.0324 (UTC) FILETIME=[36AEE3C0:01C1771E]
+	id <S282867AbRK0IiZ>; Tue, 27 Nov 2001 03:38:25 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:266 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S282866AbRK0IiT>;
+	Tue, 27 Nov 2001 03:38:19 -0500
+Date: Tue, 27 Nov 2001 09:38:00 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: "Nathan G. Grennan" <ngrennan@okcforum.org>, linux-kernel@vger.kernel.org
+Subject: Re: Unresponiveness of 2.4.16
+Message-ID: <20011127093800.A5129@suse.de>
+In-Reply-To: <1006812135.1420.0.camel@cygnusx-1.okcforum.org> <3C02C06A.E1389092@zip.com.au>, <3C02C06A.E1389092@zip.com.au> <20011127084234.V5129@suse.de> <3C034F7E.96880768@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C034F7E.96880768@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Keith Owens wrote:
-
+On Tue, Nov 27 2001, Andrew Morton wrote:
+> Jens Axboe wrote:
+> > 
+> > I agree that the current i/o scheduler has really bad interactive
+> > performance -- at first sight your changes looks mostly like add-on
+> > hacks though.
 > 
-> .force_default (kbuild 2.4)
+> Good hacks, or bad ones?
 > 
+> It keeps things localised.  It works.  It's tunable.  It's the best
+> IO scheduler presently available.
 
- 
-> Patch against 2.4.16.
+Hacks look ok on cursory glances :-)
+
+> > Arjan's priority based scheme is more promising.
 > 
-> Index: 16.1/scripts/Configure
-> --- 16.1/scripts/Configure Tue, 03 Jul 2001 11:11:12 +1000 kaos (linux-2.4/38_Configure 1.1.2.1 644)
-> +++ 16.1(w)/scripts/Configure Tue, 27 Nov 2001 13:15:40 +1100 kaos (linux-2.4/38_Configure 1.1.2.1 644)
+> If the IO priority becomes an attribute of the calling process
+> then an approach like that has value.  For writes, the priority
+> should be driven by VM pressure and it's probably simpler just
+> to stick the priority into struct buffer_head -> struct request.
+> For reads, the priority could just be scooped out of *current.
+> 
+> If we're not going to push the IO priority all the way down from
+> userspace then you may as well keep the logic inside the elevator
+> and just say reads-go-here and writes-go-there.
 
+Priority will be passed down for reads as you suggest, at least that is
+the intention I had as well. I've only worked on 2.5 with this, but I
+guess we can find some space in the buffer_head to squeeze in some
+priority bits.
 
-Could you upload this two files to
+> But this has potential to turn into a great designfest.  Are
 
-http://sourceforge.net/projects/kbuild/ ?
+Oh yeah
 
-(maybe as docs)
+> we going to leave 2.4 as-is?  Please say no.  
 
-	giacomo
+I'd be happy to review anything you come up with -- or in other works,
+feel free to knock yourself out, I'm busy with other stuff currently :)
+
+-- 
+Jens Axboe
 

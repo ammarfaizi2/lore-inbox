@@ -1,36 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291618AbSBHPpx>; Fri, 8 Feb 2002 10:45:53 -0500
+	id <S291611AbSBHPon>; Fri, 8 Feb 2002 10:44:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291619AbSBHPpi>; Fri, 8 Feb 2002 10:45:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4624 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291618AbSBHPpW>; Fri, 8 Feb 2002 10:45:22 -0500
-Subject: Re: [2.5.4-pre3] link error in drivers/video/video.o
-To: davej@suse.de (Dave Jones)
-Date: Fri, 8 Feb 2002 15:55:35 +0000 (GMT)
-Cc: eike@bilbo.math.uni-mannheim.de (Rolf Eike Beer),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020208155733.F32413@suse.de> from "Dave Jones" at Feb 08, 2002 03:57:33 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291618AbSBHPod>; Fri, 8 Feb 2002 10:44:33 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:18958 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S291611AbSBHPoP>;
+	Fri, 8 Feb 2002 10:44:15 -0500
+Date: Fri, 8 Feb 2002 13:43:44 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: <linux-kernel@vger.kernel.org>, Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch] larger kernel stack (8k->16k) per task
+In-Reply-To: <Pine.LNX.4.33.0202081511400.1359-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.33L.0202081338480.17850-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16ZDNA-00045D-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > drivers/video/video.o(.text.init+0x13f9): undefined reference to 
->  > `bus_to_virt_not_defined_use_pci_map'
->  > make: *** [vmlinux] Error 1
-> 
->  As the variable name suggests, a driver you compiled needs to be
->  updated to use a new API.  If you're not able to tackle this
+On Fri, 8 Feb 2002, Tigran Aivazian wrote:
 
-That is incorrect. The warning occurs because someone made bogus changes to
-the vesa driver without understanding what was going on. The vesa frame
-buffer returned by the BIOS is a physical cpu address not a bus address
-and nothing to do with magic PCI mappings.
+> It also has a nice extra (/proc/stack) implemented by Hugh Dickins
+> which helps to find major offenders.
 
-Alan
+That's really nice because it gives us the opportunity to
+look at the major offenders and see if we can fix those,
+instead of bloating up the kernel further.
+
+> Oh btw, please don't tell me "but now you'd need _four_
+> physically-contiguous pages to create a task instead of two!" because
+> I know it (and think it's not too bad).
+
+On large machines ZONE_NORMAL is in a big squeeze, so
+growing a kernel data structure without any justification
+is a big no-no.
+
+I take it you've used /proc/stack to find out what the
+major offenders are ?
+
+If so, could you share the list of major offenders with us
+so we have an idea which functions to fix ?
+
+(I take it you must have run into some problems, otherwise
+you wouldn't have posted the patch)
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+

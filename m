@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317590AbSHOWeW>; Thu, 15 Aug 2002 18:34:22 -0400
+	id <S317589AbSHOWdk>; Thu, 15 Aug 2002 18:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317598AbSHOWeW>; Thu, 15 Aug 2002 18:34:22 -0400
-Received: from modem80-adsl1.cordoba.sinectis.com.ar ([200.59.86.80]:63617
-	"EHLO mail.vialibre.org.ar") by vger.kernel.org with ESMTP
-	id <S317590AbSHOWeU>; Thu, 15 Aug 2002 18:34:20 -0400
-Date: Thu, 15 Aug 2002 19:38:15 -0300
-From: John Lenton <john@vialibre.org.ar>
-To: linux-kernel@vger.kernel.org
-Subject: bug affecting 2.4.x's /proc/stat's disk_io
-Message-ID: <20020815223815.GC1095@vialibre.org.ar>
-Mail-Followup-To: John Lenton <john@vialibre.org.ar>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S317590AbSHOWdk>; Thu, 15 Aug 2002 18:33:40 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:42678 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S317589AbSHOWdk>;
+	Thu, 15 Aug 2002 18:33:40 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200208152236.CAA27992@sex.inr.ac.ru>
+Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31
+To: jmorris@intercode.com.au (James Morris)
+Date: Fri, 16 Aug 2002 02:36:44 +0400 (MSD)
+Cc: davem@redhat.com, ak@muc.de, linux-kernel@vger.kernel.org,
+       willy@debian.org
+In-Reply-To: <Mutt.LNX.4.44.0208160302100.28909-100000@blackbird.intercode.com.au> from "James Morris" at Aug 16, 2 03:16:57 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a bug in 2.4.x (I've seen it reported in the archives
-against 2.4.7, 2.4.17 and 2.4.18) where ide disks on a second
-controller don't appear in /proc/stat's disk_io.
+Hello!
 
-Trying to find the source of this I find that
-include/linux/kernel_stat.h says
+> Comments welcome.
 
-    #define DK_MAX_MAJOR 16
+I do not know what forced you to use BKL.
 
-that is used by drivers/block/ll_rw_blck.c's drive_stat_acct()
-which returns without doing any accounting if the device's major
-is larger than that. Hold on, you might say, 16 should leave hdc
-and hdd out of /proc/stat too! Well, it does.
+But I daresay this is deadlock:
 
-Simply changind that #define doesn't fix the problem, though.
-include/linux/genhd.h's disk_index() returns 0 for any but the
-first two majors of ide devices. Adding IDE2_MAJOR and IDE3_MAJOR
-to the switch is simple, however.
++       lock_kernel();
++       error = f_setown(filp, current->pid);
++       unlock_kernel();
+        if (error) {
+                write_unlock(&dn_lock);
+                return error;
 
-One last problem, and the reason for this mail, is that
-increasing DK_MAX_MAJOR to 35 so it included these ide devices
-isn't really enough, because looking in devices.txt tells me
-there are block devices with major 202, 199, and almost nonstop
-from  113 on down. Most people have never seen most of these
-devices, but that doesn't mean /proc/stat shouldn't show them
-(right?). However, having kernel_stat hold 5*202*16 ints (just
-under 64k) is IMHO ridiculous when typically at most 3 of those
-202 and 4 of the 16 are used. In fact, spelled out like this I
-feel even 5*16*16 is too much. OTOH moving the information into
-any kind of datastructure increases the complexity of
-drive_stat_acct(). My gut feeling is that something as
-straightforward as a linear search in a linked list should be
-fast enough, and yet I hesitate...
+Use of BKL when another spin lock is grabbed... It will deadlock
+each time when some dcahe op is made under BKL.
 
-Help?
-
--- 
-John Lenton (john@vialibre.org.ar) -- Random fortune:
-If men acted after marriage as they do during courtship, there would
-be fewer divorces -- and more bankruptcies.
-		-- Frances Rodman
+Alexey

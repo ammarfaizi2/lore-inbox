@@ -1,82 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVDELAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVDELEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbVDELAW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 07:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVDELAW
+	id S261679AbVDELEM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 07:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVDELEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 07:00:22 -0400
-Received: from mx04.cybersurf.com ([209.197.145.108]:65432 "EHLO
-	mx04.cybersurf.com") by vger.kernel.org with ESMTP id S261694AbVDELAG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 07:00:06 -0400
-Subject: Re: Netlink Connector / CBUS
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: johnpol@2ka.mipt.ru
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
-       netdev <netdev@oss.sgi.com>, "David S. Miller" <davem@davemloft.net>,
-       James Morris <jmorris@redhat.com>, rml@novell.com,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1112697888.1089.44.camel@jzny.localdomain>
-References: <Xine.LNX.4.44.0504050108260.9383-100000@thoron.boston.redhat.com>
-	 <1112686480.28858.17.camel@uganda>
-	 <1112697888.1089.44.camel@jzny.localdomain>
-Content-Type: text/plain
-Organization: jamalopolous
-Message-Id: <1112698800.1088.50.camel@jzny.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 05 Apr 2005 07:00:00 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Apr 2005 07:04:12 -0400
+Received: from smtp30.sms.ac ([209.126.222.30]:31870 "EHLO smtp30.sms.ac")
+	by vger.kernel.org with ESMTP id S261679AbVDELEG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 07:04:06 -0400
+Message-Id: <3vb083$26ad6p@smtp30.sms.ac>
+Reply-To: <MildredFrisco@invitation.sms.ac>
+From: <MildredFrisco@invitation.sms.ac>
+To: linux-kernel@vger.kernel.org
+Subject: Mildred Frisco (2nd request)
+Date: Tue, 05 Apr 2005 11:04:42 GMT
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mildred Frisco is still waiting to hear from you to join their mobile friends network.
 
-and, oh yeah - wheres the documentation Evgeniy? ;->
+Guess what? You now have 1 friend that have invited you to their mobile network!
 
-cheers,
-jamal
+These friend are waiting for you to accept:
+Mildred Frisco
 
-On Tue, 2005-04-05 at 06:44, jamal wrote:
-> To be fair to Evgeniy I am not against the Konnector idea. I think that
-> it is a useful feature to have an easy to use messaging between
-> kernel-kernel and kernel-userspace. The fact that he leveraged netlink
-> instead of inventing things is a bonus. Having said that i have not
-> seriously scrutinized the code - and i think the idea of this new thing
-> hes tossing around called CBUS maybe pushing it.
-> 
-> cheers,
-> jamal
-> 
-> On Tue, 2005-04-05 at 03:34, Evgeniy Polyakov wrote:
-> > On Tue, 2005-04-05 at 01:10 -0400, Herbert Xu wrote:
-> > >On Tue, Apr 05, 2005 at 11:03:16AM +0400, Evgeniy Polyakov wrote:
-> > >> 
-> > >> I received comments and feature requests from Herbert Xu and Jamal Hadi
-> > >> Salim,
-> > >> almost all were successfully resolved.
-> > >
-> > >Please do not construe my involvement in these threads as endorsement
-> > >for this system.
-> > 
-> > Sure.
-> > I remember you are against it :).
-> > 
-> > >In fact to this day I still don't understand what problems this thing is
-> > >meant to solve.
-> > 
-> > Hmm, what else can I add to my words?
-> > May be checking the size of the code needed to broadcast kobject changes
-> > in kobject_uevent.c for example...
-> > Netlink socket allocation + skb handling against call to cn_netlink_send().
-> > 
-> > >-- 
-> > >Visit Openswan at http://www.openswan.org/
-> > >Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> > >Home Page: http://gondor.apana.org.au/~herbert/
-> > >PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-> > 
-> 
-> 
-> 
 
+Click the link below to see your friend? photos and accept their invitations.
+
+http://www.sms.ac/registration/Intro.aspx?EmailAddress=MildredFrisco@invitation.sms.ac&InvitorNbrs=58784827;r=0&t=4
+
+Don?t recognize the name above? Click the link above to learn more about the friend who invited you or to block future invitations.
+
+SMS.ac,Inc.,7770 Regents Road,Suite 113-405, San Diego, CA 92122 USA
+				

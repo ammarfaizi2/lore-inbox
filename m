@@ -1,48 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263143AbUDAUQH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 15:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUDAUQH
+	id S263147AbUDAUWs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 15:22:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbUDAUWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 15:16:07 -0500
-Received: from opersys.com ([64.40.108.71]:54794 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S263143AbUDAUQF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 15:16:05 -0500
-Message-ID: <406C79E4.1060700@opersys.com>
-Date: Thu, 01 Apr 2004 15:21:56 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Thu, 1 Apr 2004 15:22:48 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:15113 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263147AbUDAUWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 15:22:45 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: disable-cap-mlock
+Date: Thu, 1 Apr 2004 22:23:07 +0200
+User-Agent: KMail/1.6.1
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, Andrea Arcangeli <andrea@suse.de>,
+       Andrew Morton <akpm@osdl.org>, kenneth.w.chen@intel.com,
+       Chris Wright <chrisw@osdl.org>
+References: <20040401135920.GF18585@dualathlon.random> <1080845238.25431.196.camel@moss-spartans.epoch.ncsc.mil> <20040401192612.GL791@holomorphy.com>
+In-Reply-To: <20040401192612.GL791@holomorphy.com>
+X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
 MIME-Version: 1.0
-To: khandelw@cs.fsu.edu
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.4.16
-References: <1080849830.91ac1e3f85274@system.cs.fsu.edu>
-In-Reply-To: <1080849830.91ac1e3f85274@system.cs.fsu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404012223.07871@WOLK>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_roHbACHoxqIht9o"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello Amit,
+--Boundary-00=_roHbACHoxqIht9o
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-khandelw@cs.fsu.edu wrote:
->     I need linux2.4.16 because i want to use LTT and the documentation of LTT
-> says that it can be used with that version. Can somebody gimme sm pointer
-> realted to this.
+On Thursday 01 April 2004 21:26, William Lee Irwin III wrote:
 
-You may want to try fixing this patch for the latest kernel (and I could
-then host the updated patch on the project's site.) Or you may want to try
-LTT 0.9.6pre3 with linux 2.6.3 and relayfs. This is the latest development
-version. It's got rough edges, but it shouldn't be too hard to get working.
+Hi Bill,
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+> Okay, done.
+> Misc fix thrown in: the policies beyond enabled/disabled were wrongly
+> set up in minmax' args, so this throws the real max in the table.
 
+Great. Works :) ... Prolly the attached one ontop.
+
+
+ciao, Marc
+
+
+
+--Boundary-00=_roHbACHoxqIht9o
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="sysctl_capable-Kconfig-update.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="sysctl_capable-Kconfig-update.patch"
+
+--- old/security/Kconfig	2004-04-01 20:31:11.000000000 +0200
++++ new/security/Kconfig	2004-04-01 22:19:14.000000000 +0200
+@@ -109,6 +109,19 @@ config SECURITY_CAPABILITY_SYSCTL
+ 	  It's probably best to firewall the living daylights out
+ 	  of anything using this also.
+ 
++	  Anyway, the values are:
++
++	  - 0 = checks enabled (the default)
++	  - 1 = checks disabled
++	  - 2 = root only
++	  - 3 = no one, even root has no access to capabilities
++
++	  All the sysctl entries are mutable until the "lockdown"
++	  entry is set to a non-zero value. All capabilities are
++	  enabled by default.
++
++	  Say N unless you know what you are doing.
++
+ source security/selinux/Kconfig
+ 
+ endmenu
+
+--Boundary-00=_roHbACHoxqIht9o--

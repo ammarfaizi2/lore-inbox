@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131763AbQKUX4S>; Tue, 21 Nov 2000 18:56:18 -0500
+	id <S131806AbQKUX5i>; Tue, 21 Nov 2000 18:57:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131806AbQKUX4M>; Tue, 21 Nov 2000 18:56:12 -0500
-Received: from 213-120-136-183.btconnect.com ([213.120.136.183]:52484 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S131763AbQKUX4D>;
-	Tue, 21 Nov 2000 18:56:03 -0500
-Date: Tue, 21 Nov 2000 23:26:23 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
-In-Reply-To: <20001122001813.A1356@werewolf.able.es>
-Message-ID: <Pine.LNX.4.21.0011212323450.950-100000@penguin.homenet>
+	id <S131828AbQKUX52>; Tue, 21 Nov 2000 18:57:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64082 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131806AbQKUX5P>; Tue, 21 Nov 2000 18:57:15 -0500
+Subject: Re: Linux 2.4.0test11-ac1
+To: scole@lanl.gov
+Date: Tue, 21 Nov 2000 23:27:45 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <00112112071001.00924@spc.esa.lanl.gov> from "Steven Cole" at Nov 21, 2000 12:07:10 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13yMpH-0005LI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000, J . A . Magallon wrote:
-
+> I tried to compile 2.4.0-test11-ac1, and here is where the compile bombed out:
 > 
-> On Wed, 22 Nov 2000 00:04:53 Tigran Aivazian wrote:
-> > On Tue, 21 Nov 2000, J . A . Magallon wrote:
-> > 
-> > Quite the contrary. The patch seems correct and useful to me. What do you
-> > think is wrong with it? (Linus accepted megabytes worth of the above in
-> > the past...)
-> > 
-> 
-> Sorry, i should look at the rest of the code. Seeing only that, is seems like
-> that variables have to hold an initial value of zero, and the patch relies
-> on the ANSI behaviour of the compiler that auto-initializes them to 0.
-> I have seen many compilers break ANSI rules in optimized mode. Typical
-> runs-fine-in-debug-mode-but-breaks-on-production-release.
-> One other point for info would be gcc specs.
+> /usr/bin/kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
+> -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686    -c -o 
+> sched.o sched.c
+> irq.c:182: conflicting types for `global_irq_lock'
+> /usr/src/linux/include/asm/hardirq.h:45: previous declaration of 
+> `global_irq_lock'
 
-In the case of kernel, we have to do many things manually, can't rely on
-some compiler (sometimes :). So, the code I pointed you at
-arch/i386/kernel/head.S (look for "Clear BSS") is in fact what clears the
-BSS; without it you will end up with uninitialized garbage in what you
-think "ANSI C compiler arranged" for you.
-
-Regards,
-Tigran
-
+I'll check this. I take it you tried an SMP build ?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

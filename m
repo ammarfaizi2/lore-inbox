@@ -1,130 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbUBQARg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 19:17:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbUBQARf
+	id S261872AbUBQAU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 19:20:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbUBQAU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 19:17:35 -0500
-Received: from gate.crashing.org ([63.228.1.57]:57505 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261799AbUBQAR3 (ORCPT
+	Mon, 16 Feb 2004 19:20:28 -0500
+Received: from q.bofh.de ([212.126.220.202]:64007 "EHLO q.bofh.de")
+	by vger.kernel.org with ESMTP id S261872AbUBQAUT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 19:17:29 -0500
-Subject: [PATCH] Fix building both old & new radeonfb's
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1076977005.1056.124.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 17 Feb 2004 11:16:45 +1100
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Feb 2004 19:20:19 -0500
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.4 patch] HiSax I-Talk/I-Surf doesn't configure card properly
+ using kernel isapnp
+Mail-Copies-To: nobody
+From: Hilko Bengen <bengen@hilluzination.de>
+Date: Tue, 17 Feb 2004 01:04:46 +0100
+Message-ID: <87isi6woyp.fsf@hilluzination.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fix build of "allyesconfig", old and new radeonfb's would
-collide on some symbols.
+This patch is still needed as of 2.4.25-rc3. Please apply.
 
-Ben.
+-Hilko
 
+Subject: [patch] 2.4 HiSax I-Talk/I-Surf doesn't work together with kernel
+ isapnp
+From:	Hilko Bengen <bengen@hilluzination.de>
+To:	marcelo.tosatti@cyclades.com
+Cc:	linux-kernel@vger.kernel.org, keil@isdn4linux.de,
+	kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
+	perex@suse.cz
+Date:	Thu, 05 Feb 2004 23:16:39 +0100
+Message-ID: <87isiluq7s.fsf@hilluzination.de>
 
-===== drivers/video/fbmem.c 1.88 vs edited =====
---- 1.88/drivers/video/fbmem.c	Tue Feb 17 04:58:08 2004
-+++ edited/drivers/video/fbmem.c	Tue Feb 17 10:58:14 2004
-@@ -138,6 +138,8 @@
- extern int tx3912fb_setup(char*);
- extern int radeonfb_init(void);
- extern int radeonfb_setup(char*);
-+extern int radeonfb_old_init(void);
-+extern int radeonfb_old_setup(char*);
- extern int e1355fb_init(void);
- extern int e1355fb_setup(char*);
- extern int pvr2fb_init(void);
-@@ -226,7 +228,7 @@
- 	{ "radeonfb", radeonfb_init, radeonfb_setup },
- #endif
- #ifdef CONFIG_FB_RADEON_OLD
--	{ "radeonfb_old", radeonfb_init, radeonfb_setup },
-+	{ "radeonfb_old", radeonfb_old_init, radeonfb_old_setup },
- #endif
- #ifdef CONFIG_FB_CONTROL
- 	{ "controlfb", control_init, control_setup },
-===== drivers/video/radeonfb.c 1.37 vs edited =====
---- 1.37/drivers/video/radeonfb.c	Fri Feb 13 04:14:53 2004
-+++ edited/drivers/video/radeonfb.c	Tue Feb 17 10:57:34 2004
-@@ -234,7 +234,7 @@
- /* these common regs are cleared before mode setting so they do not
-  * interfere with anything
-  */
--reg_val common_regs[] = {
-+static reg_val common_regs[] = {
- 	{ OVR_CLR, 0 },	
- 	{ OVR_WID_LEFT_RIGHT, 0 },
- 	{ OVR_WID_TOP_BOTTOM, 0 },
-@@ -246,7 +246,7 @@
- 	{ CAP0_TRIG_CNTL, 0 },
- };
- 
--reg_val common_regs_m6[] = {
-+static reg_val common_regs_m6[] = {
- 	{ OVR_CLR,      0 },
- 	{ OVR_WID_LEFT_RIGHT,   0 },
- 	{ OVR_WID_TOP_BOTTOM,   0 },
-@@ -3134,19 +3134,19 @@
- };
- 
- 
--int __init radeonfb_init (void)
-+int __init radeonfb_old_init (void)
- {
- 	return pci_module_init (&radeonfb_driver);
- }
- 
- 
--void __exit radeonfb_exit (void)
-+void __exit radeonfb_old_exit (void)
- {
- 	pci_unregister_driver (&radeonfb_driver);
- }
- 
- 
--int __init radeonfb_setup (char *options)
-+int __init radeonfb_old_setup (char *options)
- {
-         char *this_opt;
- 
-@@ -3174,8 +3174,8 @@
- }
- 
- #ifdef MODULE
--module_init(radeonfb_init);
--module_exit(radeonfb_exit);
-+module_init(radeonfb_old_init);
-+module_exit(radeonfb_old_exit);
- #endif
- 
- 
-===== drivers/video/aty/radeon_base.c 1.7 vs edited =====
---- 1.7/drivers/video/aty/radeon_base.c	Mon Feb 16 14:56:24 2004
-+++ edited/drivers/video/aty/radeon_base.c	Tue Feb 17 10:37:53 2004
-@@ -212,7 +212,7 @@
- /* these common regs are cleared before mode setting so they do not
-  * interfere with anything
-  */
--reg_val common_regs[] = {
-+static reg_val common_regs[] = {
- 	{ OVR_CLR, 0 },	
- 	{ OVR_WID_LEFT_RIGHT, 0 },
- 	{ OVR_WID_TOP_BOTTOM, 0 },
-@@ -224,7 +224,7 @@
- 	{ CAP0_TRIG_CNTL, 0 },
- };
- 
--reg_val common_regs_m6[] = {
-+static reg_val common_regs_m6[] = {
- 	{ OVR_CLR,      0 },
- 	{ OVR_WID_LEFT_RIGHT,   0 },
- 	{ OVR_WID_TOP_BOTTOM,   0 },
+In 2.4, the HiSax I-Talk/I-Surf driver can only be initialized
+successfully if the card has been activated using the isapnp userspace
+tools. Automatic configuration using the isa-pnp module in the kernel
+fails with messages such as:
 
+Feb  4 00:28:19 paranoia kernel: ISurfPnP:some resources are missing 5/100/0
+Feb  4 00:28:19 paranoia kernel: HiSax: Card Siemens I-Surf not installed !
+
+There are two reasons for this failure:
+(1) The isapnp code correctly builds the data structures, but the code
+    in isurf.c looks in the wrong place for the mem parameter.
+(2) The IO memory upper limit address is not set by isapnp code. I'm
+    unsure whether this is a bug in isapnp.c or a hardware bug. I
+    assumed the latter and did the fix in the I-Surf initialization
+    routine.
+
+The attached patch fixes the two issues. Please apply it to the 2.4
+tree. I have successfully tested it on the two of my systems that have
+an I-Surf.
+
+Greetings,
+-Hilko
+
+diff -uir orig/linux-2.4.24/drivers/isdn/hisax/isurf.c linux-2.4.24/drivers/isdn/hisax/isurf.c
+--- orig/linux-2.4.24/drivers/isdn/hisax/isurf.c	2002-11-29 00:53:13.000000000 +0100
++++ linux-2.4.24/drivers/isdn/hisax/isurf.c	2004-02-05 15:44:20.000000000 +0100
+@@ -235,8 +235,18 @@
+ 				pd->prepare(pd);
+ 				pd->deactivate(pd);
+ 				pd->activate(pd);
++				/* The ISA-PnP logic apparently
++				 * expects upper limit address to be
++				 * set. Since the isa-pnp module
++				 * doesn't do this, so we have to make
++				 * up for it.
++				 */
++				isapnp_cfg_begin(pd->bus->number, pd->devfn);
++				isapnp_write_word(ISAPNP_CFG_MEM+3, 
++					pd->resource[8].end >> 8);
++				isapnp_cfg_end();
+ 				cs->hw.isurf.reset = pd->resource[0].start;
+-				cs->hw.isurf.phymem = pd->resource[1].start;
++				cs->hw.isurf.phymem = pd->resource[8].start;
+ 				cs->irq = pd->irq_resource[0].start;
+ 				if (!cs->irq || !cs->hw.isurf.reset || !cs->hw.isurf.phymem) {
+ 					printk(KERN_ERR "ISurfPnP:some resources are missing %d/%x/%lx\n",
 

@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbTKTSCV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 13:02:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTKTSCV
+	id S262069AbTKTR5V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 12:57:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTKTR5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 13:02:21 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:29067 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262176AbTKTSCU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 13:02:20 -0500
-Date: Thu, 20 Nov 2003 19:02:19 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: Peter Zaitsev <peter@mysql.com>, linux-kernel@vger.kernel.org
-Subject: Re: Measuring per thread CPU consumption & others statistics for NPTL
-Message-ID: <20031120180219.GA16629@MAIL.13thfloor.at>
-Mail-Followup-To: Peter Chubb <peter@chubb.wattle.id.au>,
-	Peter Zaitsev <peter@mysql.com>, linux-kernel@vger.kernel.org
-References: <1068997909.2276.64.camel@abyss.local> <16312.5605.129233.279407@wombat.chubb.wattle.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16312.5605.129233.279407@wombat.chubb.wattle.id.au>
-User-Agent: Mutt/1.4.1i
+	Thu, 20 Nov 2003 12:57:21 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:13440 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262069AbTKTR5U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 12:57:20 -0500
+Date: Thu, 20 Nov 2003 12:48:23 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: jt@hpl.hp.com
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: ndiswrapper
+In-Reply-To: <20031120172454.GB14608@bougret.hpl.hp.com>
+Message-ID: <Pine.LNX.4.53.0311201246050.1168@chaos>
+References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com>
+ <20031120040034.GF19856@holomorphy.com> <20031120172454.GB14608@bougret.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 17, 2003 at 11:27:17AM +1100, Peter Chubb wrote:
-> >>>>> "Peter" == Peter Zaitsev <peter@mysql.com> writes:
-> 
-> 
-> Peter> Are there any ways to get similar information for thread rather
-> Peter> than process ?
-> 
-> Peter> Second question is about accuracy - Is any way to get
-> Peter> system/user CPU consumption information with more than 1/100
-> Peter> sec accuracy ?
-> 
-> If you apply my microstate accounting patch, you can get nanosecomnd
-> resolution per thread.
+On Thu, 20 Nov 2003, Jean Tourrilhes wrote:
 
-is there a version for 2.4 available?
+> On Wed, Nov 19, 2003 at 08:00:34PM -0800, William Lee Irwin III wrote:
+> > Jean Tourrilhes wrote:
+> > >>	Even better :
+> > >>		1) go to the Wireless LAN Howto
+> > >>		2) find a card are supported under Linux that suit your needs
+> > >>		3) buy this card
+> > >>	I don't see the point of giving our money to vendors that
+> > >> don't care about us when there are vendors making a real effort toward
+> > >> us.
+> >
+> > On Wed, Nov 19, 2003 at 10:26:59PM -0500, Jeff Garzik wrote:
+> > > Unfortunately that leaves users without support for any recent wireless
+> > > hardware.  It gets more and more difficult to even find Linux-supported
+> > > wireless at Fry's and other retail locations...
+> >
+> > And what good would it be to have an entire driver subsystem populated
+> > by binary-only drivers? That's not part of Linux, that's "welcome to
+> > nvidia hell" for that subsystem too, and not just graphics cards.
+>
+> 	What's the point in ruminating academic scenario. There exist
+> fully open source drivers for quite a wide variety of modern wireless
+> LAN cards. It's not like if you don't have the choice.
+>
+> 	Jean
 
-TIA,
-Herbert
+It's kinda interesting that several Wireless LAN boxen even
+use Linux....  I suppose they don't want anybody to know
+that, though....
 
-> Peter C
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

@@ -1,83 +1,165 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266116AbSKVX6O>; Fri, 22 Nov 2002 18:58:14 -0500
+	id <S265543AbSKWAJL>; Fri, 22 Nov 2002 19:09:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266236AbSKVX6O>; Fri, 22 Nov 2002 18:58:14 -0500
-Received: from [66.62.77.7] ([66.62.77.7]:53940 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id <S266116AbSKVX6H>;
-	Fri, 22 Nov 2002 18:58:07 -0500
-Subject: 2.5.49 ACPI and Software Suspend compile failure
-From: Dax Kelson <dax@gurulabs.com>
-To: andrew.grover@intel.com, pavel@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Nov 2002 17:05:30 -0700
-Message-Id: <1038009931.1623.7.camel@mentor>
-Mime-Version: 1.0
+	id <S266100AbSKWAJK>; Fri, 22 Nov 2002 19:09:10 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:3852 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S265543AbSKWAJE>; Fri, 22 Nov 2002 19:09:04 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB199D@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: Manish Lachwani <manish@Zambeel.com>,
+       "'Rod.VanMeter@nokia.com'" <Rod.VanMeter@nokia.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'alan@lxorguk.ukuu.org.uk'" <alan@lxorguk.ukuu.org.uk>
+Subject: RE: Early determinition of bad sectors and correcting them ...
+Date: Fri, 22 Nov 2002 16:16:00 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Btw, I am reffering to IDE drives and IDE controllers (including controllers
+like 3ware) ...
+
+Thanks
+-Manish
+
+-----Original Message-----
+From: Manish Lachwani 
+Sent: Friday, November 22, 2002 4:15 PM
+To: 'Rod.VanMeter@nokia.com'; Manish Lachwani;
+linux-kernel@vger.kernel.org; alan@lxorguk.ukuu.org.uk
+Subject: RE: Early determinition of bad sectors and correcting them ...
 
 
-  Generating include/linux/compile.h (updated)
-  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=pentium4 -Iarch/i386/mach-generic -nostdinc -iwithprefix
-include    -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version   -c -o
-init/version.o init/version.c
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
-init/do_mounts.o init/initramfs.o
-        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o
---start-group  usr/built-in.o  arch/i386/kernel/built-in.o 
-arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o 
-kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o 
-security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a 
-drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o 
-net/built-in.o --end-group  -o .tmp_vmlinux1
-arch/i386/kernel/built-in.o: In function `do_suspend_lowlevel':
-arch/i386/kernel/built-in.o(.data+0x1304): undefined reference to
-`save_processor_state'
-arch/i386/kernel/built-in.o(.data+0x130a): undefined reference to
-`saved_context_esp'
-arch/i386/kernel/built-in.o(.data+0x130f): undefined reference to
-`saved_context_eax'
-arch/i386/kernel/built-in.o(.data+0x1315): undefined reference to
-`saved_context_ebx'
-arch/i386/kernel/built-in.o(.data+0x131b): undefined reference to
-`saved_context_ecx'
-arch/i386/kernel/built-in.o(.data+0x1321): undefined reference to
-`saved_context_edx'
-arch/i386/kernel/built-in.o(.data+0x1327): undefined reference to
-`saved_context_ebp'
-arch/i386/kernel/built-in.o(.data+0x132d): undefined reference to
-`saved_context_esi'
-arch/i386/kernel/built-in.o(.data+0x1333): undefined reference to
-`saved_context_edi'
-arch/i386/kernel/built-in.o(.data+0x133a): undefined reference to
-`saved_context_eflags'
-arch/i386/kernel/built-in.o(.data+0x137a): undefined reference to
-`saved_context_esp'
-arch/i386/kernel/built-in.o(.data+0x1380): undefined reference to
-`saved_context_ebp'
-arch/i386/kernel/built-in.o(.data+0x1385): undefined reference to
-`saved_context_eax'
-arch/i386/kernel/built-in.o(.data+0x138b): undefined reference to
-`saved_context_ebx'
-arch/i386/kernel/built-in.o(.data+0x1391): undefined reference to
-`saved_context_ecx'
-arch/i386/kernel/built-in.o(.data+0x1397): undefined reference to
-`saved_context_edx'
-arch/i386/kernel/built-in.o(.data+0x139d): undefined reference to
-`saved_context_esi'
-arch/i386/kernel/built-in.o(.data+0x13a3): undefined reference to
-`saved_context_edi'
-arch/i386/kernel/built-in.o(.data+0x13a8): undefined reference to
-`restore_processor_state'
-arch/i386/kernel/built-in.o(.data+0x13ae): undefined reference to
-`saved_context_eflags'
+Yes, you are right abt taking different factors into account especially
+queuing before making a decision abt the threshold. However, I was actually
+referring to disks only. 
+
+I have actually written a scrubber that traverses the disk and if it
+encounters a problem with the medium, it tries to get the sector remapped.
+However, the problem with the scrubber is that it will have to traverse all
+the disks in a subsystem. The amount of time it takes to traverse each disk
+is long depending on the size of the disk. We also have to make sure that
+the scrubber process does not take too much CPU when running. 
+
+Hence if the scrubber traverses accross the disk, it is possible that a
+problem occurs on a sector that the scrubber passed. Then we will have to
+wait for the scrubber to restart the read. 
+
+Most of the disks support an operating temperature of 60C. However, if we
+are operating at higher temperatures that result in long reads (due to shaky
+medium at higher temperatures), this facility is good. 
+
+-----Original Message-----
+From: Rod.VanMeter@nokia.com [mailto:Rod.VanMeter@nokia.com]
+Sent: Friday, November 22, 2002 3:54 PM
+To: manish@zambeel.com; linux-kernel@vger.kernel.org;
+alan@lxorguk.ukuu.org.uk
+Subject: RE: Early determinition of bad sectors and correcting them ...
 
 
+I won't comment on the code, but I'll note that there
+are legitimate reasons why a read can take a long time:
+drive spin-up (if it has been spun down), queued commands
+(if the device supports them), slow devices (e.g., some
+removable media), very large commands, the occasional
+thermal recalibration all come to mind immediately.
+
+It would be great if we had this functionality, and even
+better if we had it for all devices.
+
+On at least some SCSI devices, it's possible to set a
+parameter in the device that sets a threshold for how
+severe an error to report (ECC errors are not a one-
+dimensional thing).  Unfortunately, it's pretty device
+dependent.  I would be nice, when you care about your
+data, to set the threshold very sensitive.  Then when
+an error occurs, you get notified, and you can retry
+or rewrite the block.
+
+A slightly different approach is an idle scrubber, that
+reads all of your blocks when the system is idle, looking
+for errors and rewriting as necessary.
+
+Note that in either case, it doesn't come for free and
+doesn't really guarantee your data; a power loss or
+other problem in the middle of the bad-block-rewrite
+can cause problems, and writes fail more often than
+reads.
+
+		--Rod
+
+> -----Original Message-----
+> From: ext Manish Lachwani [mailto:manish@Zambeel.com]
+> Sent: Friday, November 22, 2002 11:33 AM
+> To: linux-kernel@vger.kernel.org; 'Alan Cox'
+> Cc: Manish Lachwani
+> Subject: Early determinition of bad sectors and correcting them ...
+> 
+> 
+> I had thought abt this earlier and tried to implemented it.
+> 
+> Everytime there is an ECC error (0x40), there is a pending 
+> set of sectors
+> that the drive needs to remap. The drive can map the sectors 
+> as part of its
+> house keeping function or the drive can remap it when an 
+> explicit write is
+> made to that sector. Once an ECC error occurs, the remapping 
+> process is
+> manual or we have to wait till an write operation takes place to that
+> sector. 
+> 
+> If a READ gives an ECC error, the amount of time it takes to 
+> read is usually
+> higher as compared to READ operations accross sectors that 
+> are good. Even
+> for a sector or a region of sectors that are degrading over 
+> time, the READ
+> time is a good indication that the sector is deteriorating. A 
+> write to that
+> sector will fix the problem.
+> 
+> Based on the above, I modified the ide driver to implement this simple
+> change. I created a sysctl entry called 
+> ide_disk_delay_threshold which is
+> initially set to 250 ms. In ide-dma.c, I measure the amount 
+> of time it takes
+> to complete a READ request:
+> 
+> 	drive->service_time = jiffies - drive->service_start;
+> 	if (rq->cmd == READ && (ide_disk_delay_threshold > 0) &&
+>             ( (drive->service_time*10) > ide_disk_delay_threshold) ) {
+>         printk("%s: re-write, ", drive->name);
+>         printk("READ took %d ms \n", drive->service_time*10);
+>         /*
+>          * Set the command to write
+>          */
+>         rq->cmd = WRITE;
+>         return ide_stopped;
+>        }
+> 
+> I have tested the above and I have found that everytime I get 
+> accross an ECC
+> error (0x40), the driver immediately writes to that location 
+> remapping that
+> sector. This way, I get away with the bad sectors. The 
+> threshold 250 ms can
+> be changed depending on the application or requirement. But, 
+> it seems to be
+> a good indicator for early prediction of bad sectors ...
+> 
+> Thanks
+> -Manish
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

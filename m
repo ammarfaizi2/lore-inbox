@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262396AbUKVVaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262377AbUKVVnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262396AbUKVVaX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 16:30:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbUKVTFy
+	id S262377AbUKVVnV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 16:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbUKVVnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 14:05:54 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:51417 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262317AbUKVTEm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 14:04:42 -0500
-Date: Mon, 22 Nov 2004 10:40:51 -0800
-From: Greg KH <greg@kroah.com>
-To: "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel thoughts of a Linux user
-Message-ID: <20041122184051.GA6060@kroah.com>
-References: <200411201131.12987.gjwucherpfennig@gmx.net> <20041121182952.GA26874@kroah.com> <200411222233.45709.gjwucherpfennig@gmx.net>
+	Mon, 22 Nov 2004 16:43:00 -0500
+Received: from cantor.suse.de ([195.135.220.2]:59616 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262347AbUKVVfL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 16:35:11 -0500
+Date: Mon, 22 Nov 2004 22:34:48 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Boehm, Hans" <hans.boehm@hp.com>
+Cc: Ray Bryant <raybry@sgi.com>, Andi Kleen <ak@suse.de>,
+       Andreas Schwab <schwab@suse.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, lse-tech <lse-tech@lists.sourceforge.net>,
+       holt@sgi.com, Dean Roe <roe@sgi.com>, Brian Sumner <bls@sgi.com>,
+       John Hawkes <hawkes@tomahawk.engr.sgi.com>
+Subject: Re: [Lse-tech] scalability of signal delivery for Posix Threads
+Message-ID: <20041122213448.GA16153@wotan.suse.de>
+References: <65953E8166311641A685BDF71D865826058B5C@cacexc12.americas.cpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411222233.45709.gjwucherpfennig@gmx.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <65953E8166311641A685BDF71D865826058B5C@cacexc12.americas.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 10:33:45PM +0100, Gerold J. Wucherpfennig wrote:
-> 
-> I'm a stupid idiot, but I'm sure that the sysfs and hal thing still has to
-> mature for a few years.
+> I think this is a more general issue.  Special casing one
 
-"mature for a few years" before what happens?  It becomes a fine
-vintage, and everyone enjoys it?  Or it becomes a stinking pile of
-decaying matter?  I don't understand what you are getting at here.
+It just cannot be done in the general case without slowing
+down sigaction significantly. Or maybe it can, but nobody
+has proposed a way to do it so far. 
 
-> Just imagine such things like listing all available modem devices.
-> Listing /sys/class/tty/*/dev without the virtual consoles just isn't
-> enough.
+It's difficult to design for machines where a simple spinlock
+doesn't work properly anymore.
 
-You can not determine "modem devices" by just listing tty devices.  tty
-devices are tty devices, some of them can be acting like a modem (like a
-ACM device) and others can just be a serial port connected to a modem.
+> piece of it is only going to make performance more surprising,
+> something I think should be avoided if at all possible.
 
-If you have issues with how HAL works, talk to the developers of it.
-It's a relativly new project, and they can use the help.  But please
-realize that sysfs doesn't exist for the sole reason of HAL.  HAL was
-created because sysfs enabled it to be created.
+The special case in particular would be signals directed to a specific TID;
+compared to signals load balanced over the thread group which needs
+shared writable state. To simplify the fast path you could also make
+more simplications: no queueing (otherwise you would need to duplicate
+a lot of state to handle that into the task_struct) and probably
+no SIGCHILD which is also full of special cases.
 
-thanks,
-
-greg k-h
+-And

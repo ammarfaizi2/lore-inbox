@@ -1,60 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVCKQqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVCKQua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVCKQqE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 11:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVCKQqE
+	id S261209AbVCKQua (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 11:50:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVCKQu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 11:46:04 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:48342 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261196AbVCKQpa (ORCPT
+	Fri, 11 Mar 2005 11:50:29 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:55789 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S261209AbVCKQsM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 11:45:30 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for 2.6.11)
-Date: Fri, 11 Mar 2005 08:45:10 -0800
-User-Agent: KMail/1.7.2
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
-References: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU> <16945.22566.593812.759201@wombat.chubb.wattle.id.au> <20050311152106.GA32584@kroah.com>
-In-Reply-To: <20050311152106.GA32584@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 11 Mar 2005 11:48:12 -0500
+Subject: Re: [ACPI] Re: Fw: Anybody? 2.6.11 (stable and -rc) ACPI breaks USB
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: Andrew Morton <akpm@osdl.org>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0503110006260.30687@alpha.polcom.net>
+References: <20050304234622.63e8a335.akpm@osdl.org>
+	 <Pine.LNX.4.62.0503110006260.30687@alpha.polcom.net>
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 09:48:05 -0700
+Message-Id: <1110559685.4822.15.camel@eeyore>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503110845.10694.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, March 11, 2005 7:21 am, Greg KH wrote:
-> > The only call that would go is usr_pci_open() -- you'd still need
-> > usr_pci_map()
->
-> see mmap(2)
->
-> > , usr_pci_unmap()
->
-> see munmap(2)
+On Fri, 2005-03-11 at 00:08 +0100, Grzegorz Kulewski wrote:
+> Anything new about it?
+> 
+> Can I provide more usefull info?
 
-Aren't those different cases though?  E.g. you might have a buffer in userland 
-that you want to DMA to a card, sure you can mmap the registers to program 
-the DMA, but you need a way to pin the memory and get the bus address to send 
-down, right?
+Can you check to see whether there are any BIOS updates available
+for your box?  It looks to me like your USB controllers are wired
+to IRQ9, and that's how the BIOS is leaving them configured.
 
-> In fact, both of the above can be done today from /proc/bus/pci/ right?
->
-> > and usr_pci_get_consistent().
->
-> Hm, this one might be different.  How about just opening and mmap a new
-> file for the pci device for this?
+But ACPI is telling us they're on IRQ10, which seems like a BIOS
+bug.
 
-New syscalls seem like the cleanest solution.  For basic, non-dma programming 
-though, I'd suggest just using sysfs, since all the PCI resources are 
-exported there; you can mmap them and do simple programming that way.
+Can you also post the complete dmesg log without "acpi=off"?  There
+might be an ACPI interrupt link device for the USB controller, and
+maybe there's something wrong there.
 
-As for the idea of userland drivers in general, I'm not sure I like it.  I'm 
-afraid it will just encourage more undebuggable, x86 binary blobs (or big 
-source code blobs with their own bridge drivers like X) that people are 
-forced to run to get their hardware to work...
+> My log (2.6.11 without acpi=off):
+> Mar  2 23:36:56 kangur USB Universal Host Controller Interface driver v2.2
+> Mar  2 23:36:56 kangur ACPI: PCI interrupt 0000:00:07.2[D] -> GSI 10 (level, low) -> IRQ 10
+> Mar  2 23:36:56 kangur uhci_hcd 0000:00:07.2: UHCI Host Controller
+> Mar  2 23:36:56 kangur uhci_hcd 0000:00:07.2: irq 10, io base 0xc800
+> Mar  2 23:36:56 kangur uhci_hcd 0000:00:07.2: new USB bus registered, assigned bus number 1
+> Mar  2 23:36:56 kangur hub 1-0:1.0: USB hub found
+> Mar  2 23:36:56 kangur hub 1-0:1.0: 2 ports detected
+> Mar  2 23:36:56 kangur ACPI: PCI interrupt 0000:00:07.3[D] -> GSI 10 (level, low) -> IRQ 10
+> Mar  2 23:36:56 kangur uhci_hcd 0000:00:07.3: UHCI Host Controller
+> Mar  2 23:36:56 kangur uhci_hcd 0000:00:07.3: irq 10, io base 0xcc00
+> Mar  2 23:36:56 kangur uhci_hcd 0000:00:07.3: new USB bus registered, assigned bus number 2
+> Mar  2 23:36:56 kangur hub 2-0:1.0: USB hub found
+> Mar  2 23:36:56 kangur hub 2-0:1.0: 2 ports detected
 
-Jesse
+> My log (2.6.11 with acpi=off):
+> Mar  3 01:45:48 kangur USB Universal Host Controller Interface driver v2.2
+> Mar  3 01:45:48 kangur PCI: Found IRQ 9 for device 0000:00:07.2
+> Mar  3 01:45:48 kangur PCI: Sharing IRQ 9 with 0000:00:07.3
+> Mar  3 01:45:48 kangur PCI: Sharing IRQ 9 with 0000:00:0b.0
+> Mar  3 01:45:48 kangur uhci_hcd 0000:00:07.2: UHCI Host Controller
+> Mar  3 01:45:48 kangur uhci_hcd 0000:00:07.2: irq 9, io base 0xc800
+> Mar  3 01:45:48 kangur uhci_hcd 0000:00:07.2: new USB bus registered, assigned bus number 1
+> Mar  3 01:45:48 kangur hub 1-0:1.0: USB hub found
+> Mar  3 01:45:48 kangur hub 1-0:1.0: 2 ports detected
+> Mar  3 01:45:48 kangur PCI: Found IRQ 9 for device 0000:00:07.3
+> Mar  3 01:45:48 kangur PCI: Sharing IRQ 9 with 0000:00:07.2
+> Mar  3 01:45:48 kangur PCI: Sharing IRQ 9 with 0000:00:0b.0
+> Mar  3 01:45:48 kangur uhci_hcd 0000:00:07.3: UHCI Host Controller
+> Mar  3 01:45:48 kangur uhci_hcd 0000:00:07.3: irq 9, io base 0xcc00
+> Mar  3 01:45:48 kangur uhci_hcd 0000:00:07.3: new USB bus registered, assigned bus number 2
+> Mar  3 01:45:48 kangur hub 2-0:1.0: USB hub found
+> Mar  3 01:45:48 kangur hub 2-0:1.0: 2 ports detected
+
+

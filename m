@@ -1,111 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268490AbUIQCEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268286AbUIQC3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268490AbUIQCEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 22:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUIQCEP
+	id S268286AbUIQC3j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 22:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268410AbUIQC3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 22:04:15 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:32480 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S268490AbUIQCEH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 22:04:07 -0400
-Date: Fri, 17 Sep 2004 04:04:06 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Michael Scondo <michael.scondo@arcor.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vfat bug
-Message-ID: <20040917020405.GB2573@MAIL.13thfloor.at>
-Mail-Followup-To: Michael Scondo <michael.scondo@arcor.de>,
-	linux-kernel@vger.kernel.org
-References: <200409170013.20712.michael.scondo@arcor.de>
+	Thu, 16 Sep 2004 22:29:39 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:9935 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S268286AbUIQC3h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 22:29:37 -0400
+Subject: Re: [RFC][PATCH] inotify 0.9
+From: Robert Love <rml@novell.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bill Davidsen <davidsen@tmr.com>, Jan Kara <jack@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1095377752.23913.3.camel@localhost.localdomain>
+References: <Pine.LNX.3.96.1040916182127.20906B-100000@gatekeeper.tmr.com>
+	 <1095376979.23385.176.camel@betsy.boston.ximian.com>
+	 <1095377752.23913.3.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 16 Sep 2004 22:29:36 -0400
+Message-Id: <1095388176.20763.29.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409170013.20712.michael.scondo@arcor.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 12:13:20AM +0200, Michael Scondo wrote:
-> Hello..
-> I've just compiled a new kernel ( 2.6.8.1 ), and now I'm not able to mount my 
-> fat32 partitions anymore.
-> 
-> mount /dev/hda7 /mnt
-> mount: wrong fs type, bad option, bad superblock on /dev/hda7,
->        or too many mounted file systems
-> :-(
-> 
-> Every works still fine with 2.6.4, but I'm not sure, whether this occurs due 
-> to a bug in the kernel or because a wrong build process.
-> Therefore I'm posting this to the list.
+On Fri, 2004-09-17 at 00:35 +0100, Alan Cox wrote:
 
-check the kernel ring buffer (dmesg) for codepages which
-are requested but not found (or other strange messages)
-which appear when you 'try' to mount the filesystem
+> How many of the races matter. There seem to be several different
+> problems here and mixing them up might be a mistake. 
+> 
+> 1.	I absolutely need to get the right file at the right moment, please
+> mass me a descriptor to the file as the user closes it so I always get
+> it right (indexer, virus checker)
+> 
+> 2.	If something happens bug me and I'll have a look (eg file manager)
 
-HTH,
-Herbert
+I think we want a solution that works well for both cases.
 
-> I've just googled about this problem and a few other people seem to have 
-> problems with fat32, too, but I'm not sure what this means to me.
-> So could someone tell me please, whether this problem is reproducable or 
-> already known or if it occurs only at my system ?
-> 
-> Thanks, Micha
-> ( Please CC me, I'm not on the list )
-> 
-> 
-> 
-> ------------------------------------------------
-> The system on which the kernel runs is Debian Sid:
-> 
-> Linux betageuze.stars 2.6.8.1 #2 Thu Sep 16 16:24:09 CEST 2004 i686 GNU/Linux
-> 
-> Gnu C                  3.3.3
-> Gnu make               3.79.1
-> binutils               2.14.90.0.7
-> util-linux             2.12
-> mount                  2.12
-> module-init-tools      3.0-pre10
-> e2fsprogs              1.35
-> PPP                    2.4.2
-> isdn4k-utils           3.3
-> nfs-utils              1.0.6
-> Linux C Library        2.3.2
-> Dynamic linker (ldd)   2.3.2
-> Procps                 3.2.1
-> Net-tools              1.60
-> Console-tools          0.2.3
-> Sh-utils               5.0.91
-> Modules Loaded         floppy snd_pcm_oss snd_mixer_oss sr_mod scsi_mod lp 
-> parport binfmt_misc nls_cp850 smbfs dummy ext2 vfat fat psmouse snd_sb_common 
-> snd_es1688 snd_opl3_lib snd_hwdep snd_es1688_lib snd_pcm snd_page_alloc 
-> snd_timer snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore tulip 
-> 8139too mii crc32 nfs nfsd exportfs lockd sunrpc usblp ide_cd cdrom slhc 
-> uhci_hcd usbcore
-> 
-> CPU: Pentium 2, 400 Mhz
-> 
-> However, I've build the kernel at another system ( Debian Woody ):
-> 
-> Gnu C                  2.95.4
-> Gnu make               3.79.1
-> binutils               2.11.92.0.12.3
-> util-linux             2.11n
-> mount                  2.11n
-> module-init-tools      implemented
-> e2fsprogs              1.25
-> nfs-utils              1.0
-> Linux C Library        2.2.4
-> Dynamic linker (ldd)   2.2.4
-> Net-tools              1.60
-> Console-tools          0.2.3
-> Sh-utils               2.0.11
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+E.g., we have a few different needs:
+
+	- Stuff like Spotlight-esque automatic Indexers.
+	- File manager notifications
+	- Other GUI notifications (desktop, menus, etc.)
+	- To prevent polling (e.g. /proc/mtab)
+	- Existing dnotify users
+
+dnotify is pretty lame for any of the above situations.  Even for
+something as trivial as watching the current open directory in Nautilus,
+look at the hoops we have to just through with FAM.
+
+And dnotify utterly falls apart on removable media or for any "large"
+sort of job, e.g. indexing.
+
+	Robert Love
+
+

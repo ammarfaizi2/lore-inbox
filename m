@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263444AbTH0PqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 11:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263474AbTH0PqQ
+	id S263484AbTH0Pkn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 11:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTH0Pkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 11:46:16 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:3489 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263444AbTH0PqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 11:46:15 -0400
-Subject: Re: Promise IDE patches
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan Niehusmann <jan@gondor.com>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030827151227.GA25198@gondor.com>
-References: <20030826223158.GA25047@gondor.com>
-	 <200308270054.27375.bzolnier@elka.pw.edu.pl>
-	 <1061996391.22825.39.camel@dhcp23.swansea.linux.org.uk>
-	 <20030827151227.GA25198@gondor.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1061999127.22739.60.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 27 Aug 2003 16:45:27 +0100
+	Wed, 27 Aug 2003 11:40:43 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:11136 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263484AbTH0Pkg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 11:40:36 -0400
+Date: Wed, 27 Aug 2003 11:40:53 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Jason Baron <jbaron@redhat.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.22
+In-Reply-To: <Pine.LNX.4.44.0308271127150.1491-100000@dhcp64-178.boston.redhat.com>
+Message-ID: <Pine.LNX.4.53.0308271139380.697@chaos>
+References: <Pine.LNX.4.44.0308271127150.1491-100000@dhcp64-178.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-08-27 at 16:12, Jan Niehusmann wrote:
-> On Wed, Aug 27, 2003 at 03:59:52PM +0100, Alan Cox wrote:
-> > If you fail to do this then existing PIO LBA48 setups will just die
-> > on boot.
-> 
-> But 'die on boot' is much better than 'silently currupt data', don't you
-> think? 
-> Still, a proper fix would work in all cases... 
+On Wed, 27 Aug 2003, Jason Baron wrote:
 
-You'd prevent people from using valid working file systems in ways
-that don't corrupt.
+>
+> On Tue, 26 Aug 2003, Richard B. Johnson wrote:
+>
+> >
+> > I configured, built and booted Linux-2.4.22. There are
+> > some problems.
+> >
+> > (1) `dmesg` fails to read the first part of the buffered
+> > kernel log. I have attached two files, dmesg-20 (normal)
+>
+> sounds like the log buffer wrapped around from a lot of printks
+>
 
-I think the logic we need is something like
+Perhaps the buffer size was changed??  I'll look at the printks()
+I think there are the same number as before.
 
-	if drive_is_lba48 && controller_doesnt_do_lba48
-		clip_capacity
+> > (3)  When umounting the root file-system, the machine usually
+> > hangs. The result is a long `fsck` on the next boot. The problem
+> > seems to be that sendmail doesn't get killed during the `init 0`
+> > sequence. It remains with a file open and the root file-system isn't
+> > unmounted. A temporary work-round is to `ifconfig eth0 down` before
+> > starting shutdown. Otherwise, sendmail remains stuck in the 'D' state.
+>
+> this is likely the unshare_files change, which has been mentioned in
+> several threads as causing similar type issues...i posted a patch that
+> solves the issue, and Alan included a patch in his -ac series, which
+> also addresses this issue.
+>
+> -Jason
+>
 
-as a variant of the current change. That covers the "no way" case. For
-the others we need to check capacity requires lba48 && !dma_lba48
-somewhere, probably ide_dma_check. That would make us drop out of DMA
-for unsafe setups in a way that doesnt cause crashes or suprises and
-still let everyone access the data properly.
+Thanks, I'll check into it.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

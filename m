@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266058AbUFPCDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266069AbUFPCFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266058AbUFPCDW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 22:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266065AbUFPCDW
+	id S266069AbUFPCFV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 22:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266067AbUFPCFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 22:03:22 -0400
-Received: from crianza.bmb.uga.edu ([128.192.34.109]:1409 "EHLO crianza")
-	by vger.kernel.org with ESMTP id S266058AbUFPCDT (ORCPT
+	Tue, 15 Jun 2004 22:05:21 -0400
+Received: from zimbo.cs.wm.edu ([128.239.2.64]:32963 "EHLO zimbo.cs.wm.edu")
+	by vger.kernel.org with ESMTP id S266065AbUFPCFE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 22:03:19 -0400
-Date: Tue, 15 Jun 2004 22:03:12 -0400
-To: Andrew Morton <akpm@osdl.org>
+	Tue, 15 Jun 2004 22:05:04 -0400
+Date: Tue, 15 Jun 2004 22:04:41 -0400
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: tom st denis <tomstdenis@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: processes hung in D (raid5/dm/ext3)
-Message-ID: <20040616020312.GA13672@porto.bmb.uga.edu>
-Reply-To: foo@porto.bmb.uga.edu
-References: <20040615062236.GA12818@porto.bmb.uga.edu> <20040615030932.3ff1be80.akpm@osdl.org> <20040615150036.GB12818@porto.bmb.uga.edu> <20040615162607.5805a97e.akpm@osdl.org>
+Subject: Re: RSA
+Message-ID: <20040616020441.GA12610@escher.cs.wm.edu>
+References: <20040615235409.GA12186@escher.cs.wm.edu> <20040616002204.61941.qmail@web41101.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040615162607.5805a97e.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: foo@porto.bmb.uga.edu
+In-Reply-To: <20040616002204.61941.qmail@web41101.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 04:26:07PM -0700, Andrew Morton wrote:
-> > dump          D 000017f4796ce9b2     0  1887   1853                     (NOTLB)
-> > 000001001ae8dbb8 0000000000000006 000001003ffd5948 000001006a6f96f0 
-> >        0000000000009235 ffffffff803e23a0 000001006a6f9a08 ffffffff802fd643 
-> >        0000000000000212 0000000000000001 
-> > Call Trace:<ffffffff802fd643>{raid5_unplug_device+291} <ffffffff80377d0b>{io_schedule+43} 
-> >        <ffffffff80155f6a>{__lock_page+250} <ffffffff80155c40>{page_wake_function+0} 
-> >        <ffffffff80155c40>{page_wake_function+0} <ffffffff801567f6>{do_generic_mapping_read+502} 
-> >        <ffffffff80156a70>{file_read_actor+0} <ffffffff80156d14>{__generic_file_aio_read+372} 
-> >        <ffffffff80156dfb>{generic_file_read+123} <ffffffff80169994>{handle_mm_fault+292} 
-> >        <ffffffff80122ad8>{do_page_fault+440} <ffffffff80130948>{recalc_task_prio+424} 
-> >        <ffffffff8037748c>{thread_return+41} <ffffffff8017bca7>{vfs_read+199} 
-> >        <ffffffff8017bf19>{sys_read+73} <ffffffff80123f81>{ia32_sysret+0} 
-> >        
+> In essence for a digsig module you'll require the ability to 
 > 
-> OK, well I'd be suspecting that either devicemapper or raid5 lost an I/O
-> completion, causing that page to never be unlocked.
-> 
-> Please try the latest -mm kernel, which has a few devicemapper changes,
-> although they are unlikely to fix this.
+> 1.  import a PK key [from a binary packet or a cert, preferably the
+> former].
 
-Yeah, the changes I've seen recently don't look too promising as far as
-this goes, but I'll try to give -mm a whirl tonight, since it seems easy
-to reproduce.
+Parsing a certificate into precisely the format needed by cryptoapi
+will be a task for user-space.  At least that was our plan.  Cryptoapi
+can check for validity and return -EINVAL if there's a problem, but
+shouldn't have to do any complicated parsing.
 
-> If it's possible to remove either raid5 or devicemapper from the picture,
-> that would help us find the problem.
+> 2.  free a PK key from memory (no need to waste dynamic resources like
+> bignums while not being used).
+> 3.  ability to sign/verify/encrypt/decrypt which amounts to a exptmod
+> and PKCS #1 [v2.0 preferably] padding.
 
-I don't see a way to do this, unfortunately...  It's just this one mount
-point that's giving me trouble.
+where
+	sign = private_encrypt (setkey(privkey); encrypt();)
+	verify = public_decrypt (setkey(pubkey); decrypt();)
+	encrypt = public_encrypt (setkey(pubkey); encrypt();)
+	decrypt = private_decrypt (setkey_privkey(); decrypt();)
+so thus far the cipher tfm and algs suffice.
 
-> Other than that, the chances of getting this fixed are proportional to your
-> skill in finding us a way of reproducing it.  A good start would be to tell
-> us exactly which commands were used to set up the LVM and the raid array. 
-> That way a raid/LVM ignoramus like me can take a look ;)
+> An API exactly mirroring the symmetric side won't really work 100%. 
+> For instance, symmetric operations are not likely to fail [I don't know
+> how error handling is performed].  Also decrypt/verify ops may fail
+> hard [due to lack of heap] or soft [invalid packet].
+>
+> It would probably make more sense to design a simple API for PK crypto
+> [say support RSA/ECC/DH/DSA ;-)] then to mash the symmetric crypto API
+> into something compatible.
 
-I can give you the exact commands I used.  For the raid5 array:
+Wow.  Death due to a lack of heap was not something I had considered.
 
-mdadm -C /dev/md0 -c 128 -l 5 -n 5 /dev/sdg1 /dev/sdh1 /dev/sdi1
-/dev/sdj1 /dev/sdk1
+So, since the include/linux/crypto.h:cipher_alg struct's encrypt and decrypt
+functions return void, we may need to create a assymetric_alg struct whose
+functions can return an error.
 
-There were more disks in the box when I created it... Hopefully you
-don't need 5x146GB SCSI disks to reproduce...
+> What I propose is we can port LibTomCrypt's [by stripping out stuff
+> that isn't required like symmetric crypto] PK code to a kernel module
+> to be released under the GPL.  Since the code is already public domain
+> [and I personally wrote all of the relevent code myself == no copyright
+> issues] there shouldn't be any problems with this.
+>
+> As I said I'm not really a kernel-coder.  Actually just recently I've
+> moved from 2.4.26 to 2.6.6.  So mostly I'd like to see someone else
+> head up this task and I'd provide help porting LibTomCrypt.
 
-For LVM:
+Thanks, Tom.  This is precisely what we were hoping.
 
-pvcreate -M2 /dev/md0
-vgcreate vg0 /dev/md0
-
-There's only one PV and one VG involved.  The LVs were created like so:
-
-lvcreate -L 25G -n home vg0
-
-I don't know if it's a coincidence, but the "home" LV that's giving me
-trouble is the first one I created, just as above.  The filesystems were
-created with:
-
-mke2fs -j -b 4096 -R stride=32 /dev/vg0/home
-
-Thanks for your help,
--ryan
+thanks,
+-serge

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135772AbRDYAu0>; Tue, 24 Apr 2001 20:50:26 -0400
+	id <S135777AbRDYAxq>; Tue, 24 Apr 2001 20:53:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135776AbRDYAuQ>; Tue, 24 Apr 2001 20:50:16 -0400
-Received: from h24-76-51-210.vf.shawcable.net ([24.76.51.210]:6909 "EHLO
-	whiskey.enposte.net") by vger.kernel.org with ESMTP
-	id <S135772AbRDYAuD>; Tue, 24 Apr 2001 20:50:03 -0400
-To: linux-kernel@vger.kernel.org
-Path: whiskey.fireplug.net!not-for-mail
-From: sl@whiskey.fireplug.net (Stuart Lynne)
-Newsgroups: list.linux-kernel
-Subject: Re: [PATCH] Single user linux
-Date: 24 Apr 2001 17:48:31 -0700
-Organization: fireplug
-Distribution: local
-Message-ID: <9c56sv$d17$1@whiskey.enposte.net>
-In-Reply-To: <988158045.12859@whiskey.enposte.net>
-Reply-To: sl@fireplug.net
-X-Newsreader: trn 4.0-test67 (15 July 1998)
+	id <S135778AbRDYAxg>; Tue, 24 Apr 2001 20:53:36 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:6236 "EHLO
+	c0mailgw06.prontomail.com") by vger.kernel.org with ESMTP
+	id <S135777AbRDYAxZ>; Tue, 24 Apr 2001 20:53:25 -0400
+Message-ID: <3AE61FF2.DF9849BB@mvista.com>
+Date: Tue, 24 Apr 2001 17:53:06 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Event tools, do they exist
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <988158045.12859@whiskey.enposte.net>,
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->> > Quit being a naysayer. UNIX on a PDA is a wet dream.
->> What real value does it have, apart from the geek "look at me, I'm using
->> bash" value?
->
->It means I can do anything on my ipaq I can do anywhere else. I can run 
->multiple apps at a time. I can run X11. I can run the palm emulator even ;)
->
->Its the same reason Linux is valuable on an S/390 mainframe. Its a common pool
->of apps, environments and tools. Anything your PC can do, my ipaq can do.
+This is an attempt to look in the wheel locker.
 
-Or even if you only ever use the builtin apps on your Linux PDA, it means you 
-didn't subsidize Microsoft.
+I need a simple event sub system for use in the kernel.  I envision at
+least two types of events: the history event and the timing event.
 
--- 
-                                            __O 
-Lineo - For Embedded Linux Solutions      _-\<,_ 
-PGP Fingerprint: 28 E2 A0 15 99 62 9A 00 (_)/ (_) 88 EC A3 EE 2D 1C 15 68
-Stuart Lynne <sl@fireplug.net>       www.fireplug.net        604-461-7532
+The timing event would keep track of start/stop times by class.  If, for
+example, I wanted to know how much time the kernel spends doing the
+recalc in schedule() I would put and event start in front of it and an
+end at the other end.  The sub system would note the first event time
+and the cumulative time between all starts and stops on the same event. 
+When reported by /proc/ it would give the total event time, the elapsed
+time and the % of processor time for each of the possibly several
+classes.
+
+The history event would record each events time, location, data1,
+data2.  It would keep N of these (the last N) and report M (M=<N) via
+/proc/.  This list should also be kept in a format that a simple
+debugger can easily examine.
+
+Somebody must have written these routines and have them in their
+library.  Sure would help if I could have a peek.
+
+George

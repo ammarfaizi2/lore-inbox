@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129215AbRB1UK3>; Wed, 28 Feb 2001 15:10:29 -0500
+	id <S129131AbRB1UIT>; Wed, 28 Feb 2001 15:08:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129216AbRB1UKJ>; Wed, 28 Feb 2001 15:10:09 -0500
-Received: from cr793392-a.pr1.on.wave.home.com ([24.112.97.56]:4612 "EHLO
-	prophit.maincube.net") by vger.kernel.org with ESMTP
-	id <S129215AbRB1UKE>; Wed, 28 Feb 2001 15:10:04 -0500
-From: "David Priban" <david2@maincube.net>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: i2o & Promise SuperTrak100
-Date: Wed, 28 Feb 2001 15:11:30 -0500
-Message-ID: <MPBBILLJAONHMANIJOPDAEGGFMAA.david2@maincube.net>
+	id <S129143AbRB1UIJ>; Wed, 28 Feb 2001 15:08:09 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:53356 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S129131AbRB1UH6>; Wed, 28 Feb 2001 15:07:58 -0500
+Message-ID: <3A9D5A29.762D6E7C@sgi.com>
+Date: Wed, 28 Feb 2001 12:06:01 -0800
+From: Rajagopal Ananthanarayanan <ananth@sgi.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16-4SGI_20smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <E14Xnz8-0003rQ-00@the-village.bc.nu>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+To: linux-kernel@vger.kernel.org
+CC: axboe@suse.de, torvalds@transmeta.com
+Subject: [PATCH] bug in scsi debug code
+Content-Type: multipart/mixed;
+ boundary="------------AFD7585A80D772750A25FDF0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Run it through ksymoops and I might be able to guess what went wrong.
->
-> In theory however i2o is a standard and all i2o works alike. In
-> practice i2o
-> is a pseudo standard and nobody seems to interpret the spec the
-> same way, the
-> implementations all tend to have bugs and the hardware sometimes does too.
->
-If I enable DRIVERDEBUG in i2o_core.c it makes the freeze to go away and
-kernel
-loads just fine. I do get bunch of I/O errors on mounted array but this may
-be due to crappy HD's I'm using for testing.
+This is a multi-part message in MIME format.
+--------------AFD7585A80D772750A25FDF0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-David
+
+A small fix in dump_stats() (scsi_merge.c) invoked when (struct req)
+has inconsistent number of segments. The list formed
+by b_reqnext is null terminated, so the current code is
+simply wrong: it can cause a oops if (req->bh) is NULL,
+or it fails to print the last element in the b_reqnext chain.
+
+
+
+-- 
+--------------------------------------------------------------------------
+Rajagopal Ananthanarayanan ("ananth")
+Member Technical Staff, SGI.
+--------------------------------------------------------------------------
+--------------AFD7585A80D772750A25FDF0
+Content-Type: text/plain; charset=us-ascii;
+ name="scsi-merge-debug.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="scsi-merge-debug.patch"
+
+--- ../../linux-2.4.2/linux/drivers/scsi/scsi_merge.c	Fri Feb  9 11:30:23 2001
++++ drivers/scsi/scsi_merge.c	Wed Feb 28 11:55:48 2001
+@@ -90,7 +90,7 @@
+ 	printk("nr_segments is %x\n", req->nr_segments);
+ 	printk("counted segments is %x\n", segments);
+ 	printk("Flags %d %d\n", use_clustering, dma_host);
+-	for (bh = req->bh; bh->b_reqnext != NULL; bh = bh->b_reqnext) 
++	for (bh = req->bh; bh != NULL; bh = bh->b_reqnext)
+ 	{
+ 		printk("Segment 0x%p, blocks %d, addr 0x%lx\n",
+ 		       bh,
+
+--------------AFD7585A80D772750A25FDF0--
 

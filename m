@@ -1,87 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279979AbRJ3PWc>; Tue, 30 Oct 2001 10:22:32 -0500
+	id <S279980AbRJ3PUb>; Tue, 30 Oct 2001 10:20:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279976AbRJ3PWX>; Tue, 30 Oct 2001 10:22:23 -0500
-Received: from warande3094.warande.uu.nl ([131.211.123.94]:12388 "EHLO
-	xar.sliepen.oi") by vger.kernel.org with ESMTP id <S279982AbRJ3PWF>;
-	Tue, 30 Oct 2001 10:22:05 -0500
-Date: Tue, 30 Oct 2001 16:22:35 +0100
-From: Guus Sliepen <guus@warande3094.warande.uu.nl>
+	id <S279975AbRJ3PUM>; Tue, 30 Oct 2001 10:20:12 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:14066 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S279977AbRJ3PTx>; Tue, 30 Oct 2001 10:19:53 -0500
+From: David Lang <david.lang@digitalinsight.com>
 To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>
-Subject: [PATCH] Fix check if device is ethernet in alloc_divert_blk
-Message-ID: <20011030162235.B5566@sliepen.warande.net>
-Mail-Followup-To: Guus Sliepen <guus@sliepen.warande.net>,
-	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"David S. Miller" <davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0lnxQi9hkpPO77W3"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-oi: oi
+Date: Tue, 30 Oct 2001 06:53:27 -0800 (PST)
+Subject: Re: ipchains redirect failing in 2.4.5 (and 2.4.13)
+In-Reply-To: <Pine.LNX.4.40.0110300608240.1329-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.40.0110300623230.1329-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+not my morning, after fixing the redirect problem now get the same
+failure intermittently when going through the redirect.
 
---0lnxQi9hkpPO77W3
-Content-Type: multipart/mixed; boundary="8GpibOaaTibBMecb"
-Content-Disposition: inline
+I can trigger the problem with as few as two sequential requests. the log
+on the firewall shows that both requests are completed (with the same byte
+counts in each direction) but the requesting machine apparently never sees
+the end of the connection and so it hangs.
 
+I would be suspecting network hardware except for the fact that I can only
+duplicate the problem when hitting the redirect, never when hitting the
+port directly.
 
---8GpibOaaTibBMecb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am in the process of gathering tcpdumps on all the machines to compare
+them and will post them when I have them
 
-Hello,
+David Lang
 
-I was wondering why various devices like 802.11 bridges and tap devices
-weren't recognized by the kernel as ethernet devices, because I got
-messages like this in my syslog:
+On Tue, 30 Oct 2001, David Lang wrote:
 
-Oct 30 15:35:52 haplo kernel: divert: not allocating divert_blk for non-eth=
-ernet device bla
-
-Instead of checking for the actual device type, alloc_divert_blk was
-just checking if the string "eth" occured in the name of the interface.
-Attached patch makes it do the right thing instead (I hope).
-
---=20
-Met vriendelijke groet / with kind regards,
-  Guus Sliepen <guus@sliepen.warande.net>
-
---8GpibOaaTibBMecb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch_dv
-Content-Transfer-Encoding: quoted-printable
-
---- linux-2.4.13.orig/net/core/dv.c	Tue Oct 30 16:09:20 2001
-+++ linux-2.4.13/net/core/dv.c	Tue Oct 30 16:09:26 2001
-@@ -53,7 +53,7 @@
- {
- 	int alloc_size =3D (sizeof(struct divert_blk) + 3) & ~3;
-=20
--	if (!strncmp(dev->name, "eth", 3)) {
-+	if (dev->type =3D=3D ARPHRD_ETHER) {
- 		printk(KERN_DEBUG "divert: allocating divert_blk for %s\n",
- 		       dev->name);
-=20
-
---8GpibOaaTibBMecb--
-
---0lnxQi9hkpPO77W3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE73sW7AxLow12M2nsRArQqAJ4mS6yQtYAa0PJQ4wN2xWgfEFqPkQCgp+04
-dq1ofIkH0xsnfu5WW/2Ey9g=
-=b0MS
------END PGP SIGNATURE-----
-
---0lnxQi9hkpPO77W3--
+> never mind, there was a http redirect comeing back that was causing this
+> test to fail.
+>
+> back to the trying to find out why the machine slowed down so drasticly
+> :-(
+>
+> David Lang
+>
+> On Tue, 30 Oct 2001, David Lang wrote:
+>
+> > Date: Tue, 30 Oct 2001 05:39:33 -0800 (PST)
+> > From: David Lang <david.lang@digitalinsight.com>
+> > To: linux-kernel@vger.kernel.org
+> > Subject: Re: ipchains redirect failing in 2.4.5 (and 2.4.13)
+> >
+> > I just confirmed that the problem still happens on 2.4.13.
+> >
+> > I also confirmed that I can suplicate the problem without multiple
+> > simultanious connections. if I do ab -n 50 (50 connections as fast as an
+> > athlon 1.2GHz can fire them off) I get the same failure. If the
+> > connections arrive at a sufficiantly slow rate the redirect works (no idea
+> > yet what that rate is yet)
+> >
+> > doing the test directly to the proxy port results in ~5
+> > connections/second. I don't see any reason that this should be enough to
+> > cause problems.
+> >
+> > David Lang
+> >
+> >
+> >  On Tue, 30 Oct 2001, David Lang wrote:
+> >
+> > > Date: Tue, 30 Oct 2001 05:04:35 -0800 (PST)
+> > > From: David Lang <david.lang@digitalinsight.com>
+> > > To: linux-kernel@vger.kernel.org
+> > > Subject: ipchains redirect failing in 2.4.5
+> > >
+> > > I am attempting to track down a problem I have run into with 2.4.5
+> > >
+> > > I have a firewall that has proxies listening on ports 1433-1437. If I
+> > > connect to these proxies on these ports I have no problems, however if I
+> > > put in an ipchains rule to redirect port 1433 on a second IP address to
+> > > port 1436 (for example) and then hammer the box with ab -n 500 -s 20 the
+> > > first 20 or so connections get through and then the rest timeout. doing
+> > > repeated netstat -an on the firewall during this process shows an inital
+> > > burst of 15 connections that get established, a pause, and then a handfull
+> > > more get established, followed by those 20 connections being in TIME_WAIT
+> > >
+> > > again, connection to the same IP address on the real port the proxy is
+> > > listening on has no problems, it's only when going through the redirect
+> > > that it fails.
+> > >
+> > > any suggestions, tuning paramaters I missed, or tests I need to run to
+> > > track this down?
+> > >
+> > > David Lang
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

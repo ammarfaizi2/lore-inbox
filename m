@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269097AbUJERXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269099AbUJERZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269097AbUJERXx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 13:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269099AbUJERXw
+	id S269099AbUJERZr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 13:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269104AbUJERZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 13:23:52 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:40735 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S269097AbUJERXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 13:23:48 -0400
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-References: <52u0t9u414.fsf@topspin.com> <200410051032.39531.arnd@arndb.de>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 05 Oct 2004 10:23:45 -0700
-In-Reply-To: <200410051032.39531.arnd@arndb.de> (Arnd Bergmann's message of
- "Tue, 5 Oct 2004 10:32:33 +0200")
-Message-ID: <52vfdprsda.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: proper way to annotate kernel use of sys_xxx?
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 05 Oct 2004 17:23:46.0697 (UTC) FILETIME=[12341790:01C4AB00]
+	Tue, 5 Oct 2004 13:25:47 -0400
+Received: from mailfe07.swip.net ([212.247.154.193]:40173 "EHLO
+	mailfe07.swip.net") by vger.kernel.org with ESMTP id S269099AbUJERZ3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 13:25:29 -0400
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+Date: Tue, 5 Oct 2004 19:25:22 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>, sebastien.hinderer@libertysurf.fr
+Subject: Re: [Patch] new serial flow control
+Message-ID: <20041005172522.GA2264@bouh.is-a-geek.org>
+Mail-Followup-To: Chuck Ebbert <76306.1226@compuserve.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Russell King <rmk@arm.linux.org.uk>,
+	sebastien.hinderer@libertysurf.fr
+References: <200410051249_MC3-1-8B8B-5504@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200410051249_MC3-1-8B8B-5504@compuserve.com>
+User-Agent: Mutt/1.5.6i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Arnd> In this case, you can easily convert the calls to use
-    Arnd> filp_open/vfs_read/filp_close, though I'm not sure if that's
-    Arnd> the correct solution either.
+Le mar 05 oct 2004 à 12:46:34 -0400, Chuck Ebbert a tapoté sur son clavier :
+> Samual Thibault wrote:
+> 
+> >+      } else if (info->flags & ASYNC_TVB_FLOW) {
+> >+              if (status & UART_MSR_CTS) {
+> >+                      if (!(info->MCR & UART_MCR_RTS)) {
+> >+                              /* start of TVB frame, raise RTS to greet data */
+> >+                              info->MCR |= UART_MCR_RTS;
+> >+                              serial_out(info, UART_MCR, info->MCR);
+> >+#if (defined(SERIAL_DEBUG_INTR) || defined(SERIAL_DEBUG_FLOW))
+> >+                              printk("TVB frame start...");
+> >+#endif
+> >+                      }
+> >+              } else {
+> >+                      if (info->MCR & UART_MCR_RTS) {
+> >+                              /* CTS went down, lower RTS as well */
+> >+                              info->MCR &= ~UART_MCR_RTS;
+> >+                              serial_out(info, UART_MCR, info->MCR);
+> >+#if (defined(SERIAL_DEBUG_INTR) || defined(SERIAL_DEBUG_FLOW))
+> >+                              printk("TVB frame started...");
+> >+#endif
+>                                                   ^^^^^^^
+> 
+> Shouldn't this be "ended"? ... or "end" since frame begin msg says "start"
+> i.e. is not past tense?
 
-For the do_mounts.c code, I see how the call to sys_open() could be
-replaced with a call to filp_open().  However, vfs_read() still takes
-a __user pointer for its buffer argument -- in fact, even the
-filesystem .aio_read method takes a __user pointer.  So I'm not sure
-how this code should be fixed.
+No: data actually pass _after_ CTS and RTS are lowered back: the flow control
+only indicate the beginning of one frame.
 
-Thanks,
-  Roland
+Regards,
+Samuel Thibault

@@ -1,108 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312584AbSCTMyA>; Wed, 20 Mar 2002 07:54:00 -0500
+	id <S312369AbSCTLQe>; Wed, 20 Mar 2002 06:16:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312585AbSCTMxv>; Wed, 20 Mar 2002 07:53:51 -0500
-Received: from mail008.syd.optusnet.com.au ([203.2.75.232]:47063 "EHLO
-	mail008.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S312584AbSCTMxk>; Wed, 20 Mar 2002 07:53:40 -0500
-Date: Wed, 20 Mar 2002 23:53:38 +1100
-From: Glenn McGrath <bug1@optushome.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: Erik Andersen <andersen@codepoet.org>
-Message-Id: <20020320235338.0b0239bb.bug1@optushome.com.au>
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Wed__20_Mar_2002_23:53:38_+1100_081d03e0"
+	id <S312370AbSCTLQP>; Wed, 20 Mar 2002 06:16:15 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:43524
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S312369AbSCTLQM>; Wed, 20 Mar 2002 06:16:12 -0500
+Date: Wed, 20 Mar 2002 03:15:42 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Dan Hopper <ku4nf@austin.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Promise 20265 IDE chip gets detected in wrong order 2.4.x
+In-Reply-To: <3C986533.3000008@evision-ventures.com>
+Message-ID: <Pine.LNX.4.10.10203200243010.525-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---Multipart_Wed__20_Mar_2002_23:53:38_+1100_081d03e0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Hi Martin,
 
-This patch moves some defines from within the body of functions that
-handle sub msdos partion types (bsd, solaris, unixware, minix) to outside
-the function, and places defines around their entry in the table that maps
-where they are called from. It will usually save around 100 Bytes, it isnt
-much, but i dont see any reason to define a function that does nothing.
+You kind of missed a few points and issues, so I would like to offer you
+some help.
 
-Im having trouble trying to subscribe to the lkml or get to
-http://vger.kernel.org, (maybe an ECN problem?) so if anyone does get this
-and wants to respond please cc me.
+This is easily address by applying the exclusive rule of the seeking the
+SouthBridge device.  Once this is found, one generally assumes this to be
+the PCI_BASE_CLASS_BRIDGE + PCI_CLASS_BRIDGE_ISA or 601h.  It will
+(should future unknown) have  a function number of 0 "zero".  Once the
+location of the SB has been determined one seeks for function 1 "one".
+Once SB + func 1 is found, tests for device class PCI_BASE_CLASS_STORAGE +
+PCI_CLASS_STORAGE_IDE or 101h.
 
-Thanks
+Unless otherwise specifed this shall always be the INT13 device; however,
+one does not exclude SCSI/RAID or any other device class having rights to
+INT13 hooks.  Since linux does not support these type of BIOS services the
+fore mentioned is the preferred ruleset.
 
-Glenn
+This would have been applied to 2.5 but you are now free to do so
+yourself.  As for all other booting devices under INT19 calls to load
+option roms, which in the past have been considered valid, permit
+ATA-HBA's to gain access to the priviledge hwgroup pair ide0/ide1.
 
+This is all a design of detection ordering to override the nasty tricks
+played by chipset venders attempting to do have their secondary host or
+hba to be the preferred hardware to use.
 
+The history of this problem is a result of HBA's coming to market before
+system chipset.  Also people who have very good and useful systems who
+want to boost their storage performance tend to drift to the HBA world.
+Others who load the system up with every toy in the market place run out
+of interrupts early (past w/ ISA physical slots), they find it useful and
+practical to disable the legacy host to gain back an additional interrupt
+but not loose the total storage device count before the addition of the
+HBA.
 
---Multipart_Wed__20_Mar_2002_23:53:38_+1100_081d03e0
-Content-Type: text/plain;
- name="part.msdos.defines.diff"
-Content-Disposition: attachment;
- filename="part.msdos.defines.diff"
-Content-Transfer-Encoding: base64
+Cheers,
 
-LS0tIGxpbnV4LTIuNS43Lm9yaWcvZnMvcGFydGl0aW9ucy9tc2Rvcy5jCVR1ZSBNYXIgMTkgMDc6
-Mzc6MDQgMjAwMgorKysgbGludXgtMi41LjcvZnMvcGFydGl0aW9ucy9tc2Rvcy5jCVdlZCBNYXIg
-MjAgMjI6MjU6MzEgMjAwMgpAQCAtMjA3LDE1ICsyMDcsMTMgQEAKIAlwdXRfZGV2X3NlY3Rvcihz
-ZWN0KTsKIH0KIAorI2lmZGVmIENPTkZJR19TT0xBUklTX1g4Nl9QQVJUSVRJT04KIC8qIGphbWVz
-QGJwZ2MuY29tOiBTb2xhcmlzIGhhcyBhIG5hc3R5IGluZGljYXRvcjogMHg4MiB3aGljaCBhbHNv
-CiAgICBpbmRpY2F0ZXMgbGludXggc3dhcC4gIEJlIGNhcmVmdWwgYmVmb3JlIGJlbGlldmluZyB0
-aGlzIGlzIFNvbGFyaXMuICovCi0KIHN0YXRpYyB2b2lkCiBzb2xhcmlzX3g4Nl9wYXJ0aXRpb24o
-c3RydWN0IGdlbmRpc2sgKmhkLCBzdHJ1Y3QgYmxvY2tfZGV2aWNlICpiZGV2LAogCQlpbnQgbWlu
-b3IsIGludCAqY3VycmVudF9taW5vcikKIHsKLQotI2lmZGVmIENPTkZJR19TT0xBUklTX1g4Nl9Q
-QVJUSVRJT04KIAlsb25nIG9mZnNldCA9IGhkLT5wYXJ0W21pbm9yXS5zdGFydF9zZWN0OwogCVNl
-Y3RvciBzZWN0OwogCXN0cnVjdCBzb2xhcmlzX3g4Nl92dG9jICp2OwpAQCAtMjU3LDggKzI1NSw4
-IEBACiAJfQogCXB1dF9kZXZfc2VjdG9yKHNlY3QpOwogCXByaW50aygiID5cbiIpOwotI2VuZGlm
-CiB9CisjZW5kaWYKIAogI2lmZGVmIENPTkZJR19CU0RfRElTS0xBQkVMCiAvKiAKQEAgLTMwNCwz
-MyArMzAyLDM0IEBACiB9CiAjZW5kaWYKIAorI2lmZGVmIENPTkZJR19CU0RfRElTS0xBQkVMCiBz
-dGF0aWMgdm9pZCBic2RfcGFydGl0aW9uKHN0cnVjdCBnZW5kaXNrICpoZCwgc3RydWN0IGJsb2Nr
-X2RldmljZSAqYmRldiwKIAlpbnQgbWlub3IsIGludCAqY3VycmVudF9taW5vcikKIHsKLSNpZmRl
-ZiBDT05GSUdfQlNEX0RJU0tMQUJFTAogCWRvX2JzZF9wYXJ0aXRpb24oaGQsIGJkZXYsIG1pbm9y
-LCBjdXJyZW50X21pbm9yLCAiYnNkIiwKIAkJQlNEX01BWFBBUlRJVElPTlMpOwotI2VuZGlmCiB9
-CisjZW5kaWYKIAorI2lmZGVmIENPTkZJR19CU0RfRElTS0xBQkVMCiBzdGF0aWMgdm9pZCBuZXRi
-c2RfcGFydGl0aW9uKHN0cnVjdCBnZW5kaXNrICpoZCwgc3RydWN0IGJsb2NrX2RldmljZSAqYmRl
-diwKIAkJaW50IG1pbm9yLCBpbnQgKmN1cnJlbnRfbWlub3IpCiB7Ci0jaWZkZWYgQ09ORklHX0JT
-RF9ESVNLTEFCRUwKIAlkb19ic2RfcGFydGl0aW9uKGhkLCBiZGV2LCBtaW5vciwgY3VycmVudF9t
-aW5vciwgIm5ldGJzZCIsCiAJCQlCU0RfTUFYUEFSVElUSU9OUyk7Ci0jZW5kaWYKIH0KKyNlbmRp
-ZgogCisjaWZkZWYgQ09ORklHX0JTRF9ESVNLTEFCRUwKIHN0YXRpYyB2b2lkIG9wZW5ic2RfcGFy
-dGl0aW9uKHN0cnVjdCBnZW5kaXNrICpoZCwgc3RydWN0IGJsb2NrX2RldmljZSAqYmRldiwKIAkJ
-aW50IG1pbm9yLCBpbnQgKmN1cnJlbnRfbWlub3IpCiB7Ci0jaWZkZWYgQ09ORklHX0JTRF9ESVNL
-TEFCRUwKIAlkb19ic2RfcGFydGl0aW9uKGhkLCBiZGV2LCBtaW5vciwgY3VycmVudF9taW5vciwK
-IAkJCSJvcGVuYnNkIiwgT1BFTkJTRF9NQVhQQVJUSVRJT05TKTsKLSNlbmRpZgogfQorI2VuZGlm
-CiAKKyNpZmRlZiBDT05GSUdfVU5JWFdBUkVfRElTS0xBQkVMCiAvKgogICogQ3JlYXRlIGRldmlj
-ZXMgZm9yIFVuaXh3YXJlIHBhcnRpdGlvbnMgbGlzdGVkIGluIGEgZGlza2xhYmVsLCB1bmRlciBh
-CiAgKiBkb3MtbGlrZSBwYXJ0aXRpb24uIFNlZSBleHRlbmRlZF9wYXJ0aXRpb24oKSBmb3IgbW9y
-ZSBpbmZvcm1hdGlvbi4KQEAgLTMzOCw3ICszMzcsNiBAQAogc3RhdGljIHZvaWQgdW5peHdhcmVf
-cGFydGl0aW9uKHN0cnVjdCBnZW5kaXNrICpoZCwgc3RydWN0IGJsb2NrX2RldmljZSAqYmRldiwK
-IAkJaW50IG1pbm9yLCBpbnQgKmN1cnJlbnRfbWlub3IpCiB7Ci0jaWZkZWYgQ09ORklHX1VOSVhX
-QVJFX0RJU0tMQUJFTAogCWxvbmcgb2Zmc2V0ID0gaGQtPnBhcnRbbWlub3JdLnN0YXJ0X3NlY3Q7
-CiAJU2VjdG9yIHNlY3Q7CiAJc3RydWN0IHVuaXh3YXJlX2Rpc2tsYWJlbCAqbDsKQEAgLTM3MCw5
-ICszNjgsMTAgQEAKIAl9CiAJcHV0X2Rldl9zZWN0b3Ioc2VjdCk7CiAJcHJpbnRrKCIgPlxuIik7
-Ci0jZW5kaWYKIH0KKyNlbmRpZgogCisjaWZkZWYgQ09ORklHX01JTklYX1NVQlBBUlRJVElPTgog
-LyoKICAqIE1pbml4IDIuMC4wLzIuMC4yIHN1YnBhcnRpdGlvbiBzdXBwb3J0LgogICogQW5hbmQg
-S3Jpc2huYW11cnRoeSA8YW5hbmRrQHdpcHJvZ2UubWVkLmdlLmNvbT4KQEAgLTM4MSw3ICszODAs
-NiBAQAogc3RhdGljIHZvaWQgbWluaXhfcGFydGl0aW9uKHN0cnVjdCBnZW5kaXNrICpoZCwgc3Ry
-dWN0IGJsb2NrX2RldmljZSAqYmRldiwKIAkJaW50IG1pbm9yLCBpbnQgKmN1cnJlbnRfbWlub3Ip
-CiB7Ci0jaWZkZWYgQ09ORklHX01JTklYX1NVQlBBUlRJVElPTgogCWxvbmcgb2Zmc2V0ID0gaGQt
-PnBhcnRbbWlub3JdLnN0YXJ0X3NlY3Q7CiAJU2VjdG9yIHNlY3Q7CiAJdW5zaWduZWQgY2hhciAq
-ZGF0YTsKQEAgLTQxNiwxOSArNDE0LDI3IEBACiAJCXByaW50aygiID5cbiIpOwogCX0KIAlwdXRf
-ZGV2X3NlY3RvcihzZWN0KTsKLSNlbmRpZiAvKiBDT05GSUdfTUlOSVhfU1VCUEFSVElUSU9OICov
-CiB9CisjZW5kaWYgLyogQ09ORklHX01JTklYX1NVQlBBUlRJVElPTiAqLwogCiBzdGF0aWMgc3Ry
-dWN0IHsKIAl1bnNpZ25lZCBjaGFyIGlkOwogCXZvaWQgKCpwYXJzZSkoc3RydWN0IGdlbmRpc2sg
-Kiwgc3RydWN0IGJsb2NrX2RldmljZSAqLCBpbnQsIGludCAqKTsKIH0gc3VidHlwZXNbXSA9IHsK
-KyNpZmRlZiBDT05GSUdfQlNEX0RJU0tMQUJFTAogCXtCU0RfUEFSVElUSU9OLCBic2RfcGFydGl0
-aW9ufSwKIAl7TkVUQlNEX1BBUlRJVElPTiwgbmV0YnNkX3BhcnRpdGlvbn0sCiAJe09QRU5CU0Rf
-UEFSVElUSU9OLCBvcGVuYnNkX3BhcnRpdGlvbn0sCisjZW5kaWYKKyNpZmRlZiBDT05GSUdfTUlO
-SVhfU1VCUEFSVElUSU9OCiAJe01JTklYX1BBUlRJVElPTiwgbWluaXhfcGFydGl0aW9ufSwKKyNl
-bmRpZgorI2lmZGVmIENPTkZJR19VTklYV0FSRV9ESVNLTEFCRUwKIAl7VU5JWFdBUkVfUEFSVElU
-SU9OLCB1bml4d2FyZV9wYXJ0aXRpb259LAorI2VuZGlmCisjaWZkZWYgQ09ORklHX1NPTEFSSVNf
-WDg2X1BBUlRJVElPTgogCXtTT0xBUklTX1g4Nl9QQVJUSVRJT04sIHNvbGFyaXNfeDg2X3BhcnRp
-dGlvbn0sCisjZW5kaWYKIAl7MCwgTlVMTH0sCiB9OwogLyoK
+Andre Hedrick
+LAD Storage Consulting Group
 
---Multipart_Wed__20_Mar_2002_23:53:38_+1100_081d03e0--
+On Wed, 20 Mar 2002, Martin Dalecki wrote:
+
+> Dan Hopper wrote:
+> > Andre Hedrick <andre@linux-ide.org> remarked:
+> > 
+> >>append="ide=reverse"
+> > 
+> > 
+> > You're right, this works, too, and is a lot easier to remember than
+> > the override I used before.  
+> > 
+> > 
+> >>Various Mainboard manufacturers do things to place the FAKE-RAID in front
+> >>of the the legacy south bridge.  This is classic Windows spoofing.
+> >>
+> >>
+> >>>PDC20265: IDE controller on PCI bus 00 dev 68
+> >>>VP_IDE: IDE controller on PCI bus 00 dev 89
+> >>
+> > 
+> > So, the I/O port assignments don't in fact properly determine the
+> > assignment order?  I'm gathering from what you're saying that the
+> > current behavior is related to PCI bus location?
+> 
+> Precisely: The PCI bus detection order matters.
+> 
+

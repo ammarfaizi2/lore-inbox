@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261972AbSJNRbT>; Mon, 14 Oct 2002 13:31:19 -0400
+	id <S262025AbSJNRaG>; Mon, 14 Oct 2002 13:30:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262007AbSJNRbT>; Mon, 14 Oct 2002 13:31:19 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:10951 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261972AbSJNRbS>;
-	Mon, 14 Oct 2002 13:31:18 -0400
-Subject: Re: Linux v2.5.42
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF8EE253F8.C354E34A-ON85256C52.005B9938@pok.ibm.com>
-From: "Ben Rafanello" <benr@us.ibm.com>
-Date: Mon, 14 Oct 2002 12:37:04 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
- 10/14/2002 01:37:05 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S262039AbSJNRaF>; Mon, 14 Oct 2002 13:30:05 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:451 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S262025AbSJNRaE>;
+	Mon, 14 Oct 2002 13:30:04 -0400
+Date: Mon, 14 Oct 2002 10:34:21 -0700
+To: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
+Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
+Subject: Re: 2.5.42: IrDA issues
+Message-ID: <20021014173421.GC10672@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <7034136.1034515639605.JavaMail.nobody@web11.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7034136.1034515639605.JavaMail.nobody@web11.us.oracle.com>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 13, 2002 at 05:27:19AM -0800, ALESSANDRO.SUARDI wrote:
+> I have a PPP over IrDA connection to my Nokia phone; under 2.4.20-preX I have no
+>  problem keeping the link up, while in 2.5.4x it fails in a very short time like this:
+> 
+> Oct 13 01:13:13 dolphin kernel: IrLAP, no activity on link!
+> Oct 13 01:13:11 dolphin kernel: NETDEV WATCHDOG: irda0: transmit timed out
+> Oct 13 01:13:11 dolphin kernel: irda0: transmit timed out
+> Oct 13 01:13:13 dolphin kernel: IrLAP, no activity on link!
+> Oct 13 01:13:13 dolphin kernel: NETDEV WATCHDOG: irda0: transmit timed out
+> Oct 13 01:13:13 dolphin kernel: irda0: transmit timed out
+> Oct 13 01:13:13 dolphin pppd[5378]: Modem hangup
+> Oct 13 01:13:13 dolphin pppd[5378]: Connection terminated.
+> Oct 13 01:13:13 dolphin pppd[5378]: Connect time 1.8 minutes.
+> Oct 13 01:13:13 dolphin pppd[5378]: Sent 19541 bytes, received 35933 bytes.
+> Oct 13 01:13:13 dolphin pppd[5378]: Exit.
+> 
+> I also get the transmit timed out spam (why one with WATCHDOG and one without ?)
+>  in 2.4.20-pre but the IrLAP line isn't there. And the GPRS link stays up...
+> 
+> 
+> Thanks in advance for any insight,
+> 
+> --alessandro
 
-On Sun, 13 Oct 2002, Rik van Riel wrote:
+	Please do yourself a favor and give me a proper bug report,
+including hardware, driver and irdadump.
 
->All you need is:
->
->1) a kernel level driver that can map devices, ie. a device mapper
->
->2) user space tools that can parse the volume metadata and tell the
->   kernel how to map each chunk at initialisation or mount time
-
-This works well for the simple cases where the volume metadata is
-static.  However, it does not handle cases where the volume
-metadata must be updated dynamically, the most obvious cases
-being striping with parity, mirroring (esp. the more advanced
-forms/features such as smart resync, partial mirrors, remote
-mirroring, etc), snapshots, and bad block relocation.
-
-Regards,
-
-Ben Rafanello
-EVMS Team Lead
-IBM Linux Technology Center
-(512) 838-4762
-benr@us.ibm.com
-
+	Jean
 

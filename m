@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261409AbSLOSNb>; Sun, 15 Dec 2002 13:13:31 -0500
+	id <S262289AbSLOSXY>; Sun, 15 Dec 2002 13:23:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbSLOSNb>; Sun, 15 Dec 2002 13:13:31 -0500
-Received: from packet.digeo.com ([12.110.80.53]:6855 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261409AbSLOSNb>;
-	Sun, 15 Dec 2002 13:13:31 -0500
-Message-ID: <3DFCC815.3C0010F2@digeo.com>
-Date: Sun, 15 Dec 2002 10:21:09 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Octave <oles@ovh.net>
-CC: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: problem with Andrew's patch ext3
-References: <20021215144050.GY12395@ovh.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Dec 2002 18:21:18.0598 (UTC) FILETIME=[C30F6260:01C2A466]
+	id <S262317AbSLOSXY>; Sun, 15 Dec 2002 13:23:24 -0500
+Received: from trained-monkey.org ([209.217.122.11]:2321 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S262289AbSLOSXY>; Sun, 15 Dec 2002 13:23:24 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: "David S. Miller" <davem@redhat.com>, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [RFC][PATCH] net drivers and cache alignment
+References: <3DF2844C.F9216283@digeo.com> <20021207.153045.26640406.davem@redhat.com> <3DF28748.186AB31F@digeo.com> <3DF28988.93F268EA@digeo.com>
+From: Jes Sorensen <jes@trained-monkey.org>
+Date: 15 Dec 2002 13:31:15 -0500
+In-Reply-To: Andrew Morton's message of "Sat, 07 Dec 2002 15:51:36 -0800"
+Message-ID: <m3fzszb0cs.fsf@trained-monkey.org>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Octave wrote:
-> 
-> Hello Andrew,
-> 
-> I patched 2.4.20 with your patch found out on http://lwn.net/Articles/17447/
-> and I have a big problem with:
-> once server is booted on 2.4.20 with your patch, when I want to reboot
-> with /sbin/reboot, server makes a Segmentation fault and it crashs.
+>>>>> "Andrew" == Andrew Morton <akpm@digeo.com> writes:
 
-It works OK here.  Could you please check that the kernel was fully
-rebuilt?  Do a `make clean'?  If the kernel was not fully rebuilt
-then things will go wrong because a structure size was changed.
+Andrew> Andrew Morton wrote:
+>> Then I am most confused.  None of these fields will be put under
+>> busmastering or anything like that, so what advantage is there in
+>> spreading them out?
 
-There is a locking error in that patch, and it needs revision.  But
-that wouldn't explain this crash.
+Andrew> Oh I see what you want - to be able to pick up all the
+Andrew> operating fields in a single fetch.
 
-And there is an unrelated use-after-free bug which could cause problems
-if the fs runs out of space or inodes.
+Andrew> That will increase the overall cache footprint though.  I
+Andrew> wonder if it's really a net win, over just keeping it small.
 
-I'll get some fixes out later today.  It hasn't been a good week.
+There's another case where it matters, I guess one could look at it as
+similar to the SMP case, but between CPU and device. Some devices have
+producer indices in host memory which they update whenever it
+receiving a packet. By putting that seperate from TX data structures
+you avoid the CPU and the NIC fighting over cache lines.
+
+Cheers,
+Jes

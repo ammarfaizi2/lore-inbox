@@ -1,90 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUIJHfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUIJHjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267254AbUIJHfB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 03:35:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267313AbUIJHe7
+	id S263664AbUIJHjn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 03:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUIJHjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 03:34:59 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56511 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266845AbUIJHdY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 03:33:24 -0400
-Date: Fri, 10 Sep 2004 08:33:17 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Hans Reiser <reiser@namesys.com>
-Cc: Paul Jakma <paul@clubi.ie>, "Theodore Ts'o" <tytso@mit.edu>,
-       Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
-       William Stearns <wstearns@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea ofwhat reiser4 wants to do with metafiles and why
-Message-ID: <20040910073317.GL23987@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0409071658120.2985@sparrow> <200409080009.52683.robin.rosenberg.lists@dewire.com> <20040909090342.GA30303@thunk.org> <4140ABB6.6050702@namesys.com> <Pine.LNX.4.61.0409092136160.23011@fogarty.jakma.org> <4140FBE7.6020704@namesys.com> <Pine.LNX.4.61.0409100212080.23011@fogarty.jakma.org> <414135E6.8050103@namesys.com> <20040910055308.GJ23987@parcelfarce.linux.theplanet.co.uk> <4141560E.1090000@namesys.com>
+	Fri, 10 Sep 2004 03:39:42 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:5318 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263664AbUIJHjW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 03:39:22 -0400
+Date: Fri, 10 Sep 2004 09:40:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Anton Blanchard <anton@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
+Message-ID: <20040910074033.GA27722@elte.hu>
+References: <16704.52551.846184.630652@cargo.ozlabs.ibm.com> <20040909220040.GM3106@holomorphy.com> <16704.59668.899674.868174@cargo.ozlabs.ibm.com> <20040910000903.GS3106@holomorphy.com> <Pine.LNX.4.58.0409091712270.5912@ppc970.osdl.org> <20040910003505.GG11358@krispykreme> <Pine.LNX.4.58.0409091750300.5912@ppc970.osdl.org> <20040910014228.GH11358@krispykreme> <20040910015040.GI11358@krispykreme> <20040910022204.GA2616@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4141560E.1090000@namesys.com>
+In-Reply-To: <20040910022204.GA2616@holomorphy.com>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 12:21:50AM -0700, Hans Reiser wrote:
-> I don't think that "Liar." is an appropriate response.
 
-To a bold-faced lie?  Yes, it is.
+* William Lee Irwin III <wli@holomorphy.com> wrote:
 
-> If you sent a 
-> response, just quote it.
+> On Fri, Sep 10, 2004 at 11:50:41AM +1000, Anton Blanchard wrote:
+> > Lets just make __preempt_spin_lock inline, then everything should work
+> > as is.
+> 
+> Well, there are patches that do this along with other more useful
+> things in the works (my spin on this is en route shortly, sorry the
+> response was delayed due to a power failure).
 
-I've already posted Message-Id, but if you prefer a quote, fine, here it is:
+i already sent the full solution that primarily solves the SMP &&
+PREEMPT latency problems but also solves the section issue, two days
+ago:
 
-============================================================================
-On Wed, Sep 08, 2004 at 01:21:45PM +0530, Sriram Karra wrote:
-> Perhaps this is one? Message-ID: <413578C9.8020305@namesys.com>
+   http://lkml.org/lkml/2004/9/8/97
 
-OK...
-
-One note before replying: current code deadlocks even if you make ->link()
-*ALWAYS* return an error.  It doesn't get to calling the method.  No amount
-of "disallow hard links to <something>" is going to help here, obviously.
-
-<quote>
-Cycle detection:
-
-We should either 1) make hard links only link to the file aspect of the
-file-directory duality, and persons who want to link to the directory
-aspect must use symlinks (best short term answer), or 2) ask Alexander
-Smith to help us with applying his cycle detection algorithm and gain
-the benefit of being able to hard link to directories (if it works well,
-best long term answer).
-</quote>
-
-... which doesn't address the problem at all.  The question is what to do
-with seeing directory "aspect..." in more than one place when we have many
-links to file in question.  So much for (1).  And (2) is not feasible with
-on-disk fs both due to memory, CPU and IO costs _and_ due to exclusion from
-hell you'll need to make it safe.
-
-Re: ambiguity - lots and lots of handwaving on both sides.  FWIW, I agree
-with Hans in one (and only one) respect here - openat() as a primary API
-(and not a convenient libc function) is an atrocity.  Simply because it
-doesn't address operations beyond open (unlinkat(2), anyone?).
-
-However, I still haven't seen any strong arguments for need of this "metas"
-stuff _or_ the need to export mode/ownership as files, both for regular
-files and for directories.  Aside of "we can do that" [if we solve the
-locking issues] and "xattrs are atrocious" [yes, they are; it doesn't make
-alternative mechanism any better] there was nothing that even pretended to
-be a technical reason.
-
-Note that we also have fun issues with device nodes (Linus' "show partitions"
-vs. "show metadata from hosting filesystem"), which makes it even more dubious.
-We also have symlinks to deal with (do they have attributes?  where should
-that be exported?).
-
-Reserved names have one more problem: to be useful, they'd have to be
-hardcoded into applications.  And that will create hell with use of
-such applications on existing filesystems.  Again, no feasible scheme
-to deal with that in userland code had been proposed so far, AFAICS.
-
-Locking: see above - links to regular files would create directories seen
-in many places.  With all related issues...
+	Ingo

@@ -1,76 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274813AbRJJF0W>; Wed, 10 Oct 2001 01:26:22 -0400
+	id <S274842AbRJJFgM>; Wed, 10 Oct 2001 01:36:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274832AbRJJF0F>; Wed, 10 Oct 2001 01:26:05 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:42793 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S274813AbRJJFZv>; Wed, 10 Oct 2001 01:25:51 -0400
-Date: Wed, 10 Oct 2001 07:26:07 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10-ac10-preempt lmbench output.
-Message-ID: <20011010072607.P726@athlon.random>
-In-Reply-To: <200110100358.NAA17519@isis.its.uow.edu.au> <3BC3D916.B0284E00@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BC3D916.B0284E00@zip.com.au>; from akpm@zip.com.au on Tue, Oct 09, 2001 at 10:13:58PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274851AbRJJFgE>; Wed, 10 Oct 2001 01:36:04 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:3815 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S274842AbRJJFft>; Wed, 10 Oct 2001 01:35:49 -0400
+Message-ID: <3BC3DE5D.8000500@wipro.com>
+Date: Wed, 10 Oct 2001 11:06:29 +0530
+From: "BALBIR SINGH" <balbir.singh@wipro.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Trivial patch for SIOCGIFCOUNT
+In-Reply-To: <3BC2FA63.6070006@wipro.com> <20011009.153746.59466398.davem@redhat.com>
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 10:13:58PM -0700, Andrew Morton wrote:
-> I don't understand why Andrea is pointing at write throttling?  xmms
-> doesn't do any disk writes, does it??
 
-Of course it doesn't. You're right it could be just because of I/O
-bandwith shortage. But it could really be also because of vm write
-throttling.
+This is a multi-part message in MIME format.
 
-xmms can end waiting I/O completion for I/O submitted by other I/O bound
-tasks. This because xmms is reading from disk and in turn it is
-allocating cache and in turn it is allocating memory. While allocating
-memory it may need to write throttle.
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Copying the file to /dev/shm fixed the problem but that would cover both
-the write throttling and the disk bandwith problems at the same time and
-I guess it's a mixed effect of both things.
+David S. Miller wrote:
 
-> Andrea's VM has a rescheduling point in shrink_cache(), which is the
-> analogue of the other VM's page_launder().  This rescheduling point
-> is *absolutely critial*, because it opens up what is probably the
-> longest-held spinlock in the kernel (under common use).  If there
-> were a similar reschedulig point in page_launder(), comparisons
-> would be more valid...
+>   From: "BALBIR SINGH" <balbir.singh@wipro.com>
+>   Date: Tue, 09 Oct 2001 18:53:47 +0530
+>
+>   	To make the API orthogonal, I have included a patch for SIOCGIFCOUNT,
+>   which currently returns -EINVAL. The only reason I am providing this patch
+>   is to make the API complete and make it easier to port applications from
+>   other UNIX like OS'es.
+>
+>There is no need for this change, and _EVEN_ if we put this
+>change in today every APP out there would _STILL_ need to deal with
+>all existing kernels which do not have SIOCGIFCOUNT implemented.
+>
+>Furthermore, SIOCGIFCOUNT also gives no new functionality that does
+>not exist already.  SIOCGIFCONF with a zero size with give the
+>behavior necessary to get the same answer as a SIOCGIFCOUNT would
+>provide.  As far as I am aware, every system providing BSD sockets
+>provides this SIOCGIFCONF "feature".
+>
+>Therefore, it is already quite easy to make applications portable
+>between Linux and other BSD socket based systems.  Simply use the
+>SIOCGIFCONF method throughout.
+>
+I had mentioned even earlier, the same functionality can be obtained otherwise.
+I was talking about porting from SUN, HP-UX, AIX, etc. I have had people coming
+to me and telling me that SIOCGIFNUM (equivalent to SIOCGIFCOUNT) does not exist
+and I have had to ask them to use SIOCGIFCONF, if ifc.ifc_len and ifc.ifc_buf set
+to '0', to obtain the total size. Again, it is not a must it should be around.
+But since the ioctl is there, it might be good to have it work the way some one
+reading a man page would expect it to work, or if somebody wanted to port some
+application from Sun, HP-UX or AIX would just do
 
-Indeed.
+#define SIOCGIFNUM SIOCGIFCOUNT
 
-> I would imagine that for a (very) soft requirement such as audio
-> playback, the below patch, combined with mlockall and renicing
-> should fix the problems.  I would expect that this patch will
-> give effects which are similar to the preempt patch.  This is because
+and get his application to compile without changing the code
 
-I didn't checked the patch in the detail yet but it seems you covered
-read/write some bits in /proc and a lru list during buffer flushing. I
-agree that it should be enough to give the same effects of the preempt
-patch.
+Regards,
+Balbir
 
-> most of the other latency problems are under locks - icache/dcache
-> shrinking and zap_page_range(), etc.
+>
+>Franks a lot,
+>David S. Miller
+>davem@redhat.com
+>
+>
 
-Exactly.
 
-> This patch should go into the stock 2.4 kernel.
-> 
-> Oh.  And always remember to `renice -19' your X server.  
 
-I don't renice my X server (I rather renice all cpu hogs to +19 and I
-left -20 for something that really needs to run as fast as possible
-regardless of the X server).
 
-Andrea
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+----------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+----------------------------------------------------------------------------------------------------------------------
+
+
+--------------InterScan_NT_MIME_Boundary--

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285347AbSALHyV>; Sat, 12 Jan 2002 02:54:21 -0500
+	id <S285099AbSALH7V>; Sat, 12 Jan 2002 02:59:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285338AbSALHyP>; Sat, 12 Jan 2002 02:54:15 -0500
-Received: from vega.digitel2002.hu ([213.163.0.181]:27569 "EHLO
-	vega.digitel2002.hu") by vger.kernel.org with ESMTP
-	id <S285161AbSALHyB>; Sat, 12 Jan 2002 02:54:01 -0500
-Date: Sat, 12 Jan 2002 08:53:57 +0100
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Michael Zhu <mylinuxk@yahoo.ca>
-Subject: Re: LOSETUP COMMAND
-Message-ID: <20020112075357.GG31826@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-In-Reply-To: <20020111210333.46759.qmail@web14912.mail.yahoo.com> <20020111155557.B5764@unpythonic.dhs.org>
+	id <S285369AbSALH7L>; Sat, 12 Jan 2002 02:59:11 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:49792 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285099AbSALH64>;
+	Sat, 12 Jan 2002 02:58:56 -0500
+Date: Fri, 11 Jan 2002 23:58:01 -0800 (PST)
+Message-Id: <20020111.235801.35505714.davem@redhat.com>
+To: "ChristianK."@t-online.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Briging doesn't compile without TCP/IP Networking
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <16P5j6-16m9PEC@fwd03.sul.t-online.com>
+In-Reply-To: <16On3u-1zr9mqC@fwd05.sul.t-online.com>
+	<20020110.191713.48532251.davem@redhat.com>
+	<16P5j6-16m9PEC@fwd03.sul.t-online.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020111155557.B5764@unpythonic.dhs.org>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: vega Linux 2.4.17 i686
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 11, 2002 at 03:55:57PM -0600, jepler@unpythonic.dhs.org wrote:
-> On Fri, Jan 11, 2002 at 04:03:33PM -0500, Michael Zhu wrote:
-> > Hello, everyone, does anyone know where I can find the
-> > source code of "losetup" and "mount"?  Thanks
-> 
-> If you're using an RPM-based distribution, you can use rpm to find this
-> kind of information.
-> 
-> $ rpm -qf /bin/mount
-> mount-2.10f-1
-> 
-> Now, get the mount-2.10f-1.src.rpm from your install media, use rpm -ivh to
-> install it, then rpm -bp on the installed specfile to recover the actual
-> source tree used to build that version of mount.
+   From: "ChristianK."@t-online.de (Christian Koenig)
+   Date: Fri, 11 Jan 2002 18:46:25 +0100
 
+   Check,this one is this better ?
 
-Or use Debian, and simply say:
+Did you try to compile it? :-)  The net/unix/*.c parts
+really do need TCP state definitions, so just changing
+net/tcp.h to linux/tcp.h would be the fix in those parts.
 
-apt-get source mount
-
-- Gábor
+I've done this and added it to my tree.
+Thanks.

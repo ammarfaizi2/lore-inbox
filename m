@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279261AbRJ2MTY>; Mon, 29 Oct 2001 07:19:24 -0500
+	id <S279264AbRJ2MTO>; Mon, 29 Oct 2001 07:19:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279262AbRJ2MTP>; Mon, 29 Oct 2001 07:19:15 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:25049 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S279261AbRJ2MTF>; Mon, 29 Oct 2001 07:19:05 -0500
-Message-Id: <200110291220.f9TCKAt19973@jordan.goethel.local>
-Content-Type: text/plain; charset=US-ASCII
-From: Sven Goethel <sgoethel@jausoft.com>
-Organization: Jausoft - Sven Goethel Software Development
-To: linux-kernel@vger.kernel.org
-Subject: will linux getting an illegal piece of software ? (political)
-Date: Mon, 29 Oct 2001 13:19:28 +0100
-X-Mailer: KMail [version 1.3.1]
+	id <S279262AbRJ2MTE>; Mon, 29 Oct 2001 07:19:04 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52228 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279261AbRJ2MSr>; Mon, 29 Oct 2001 07:18:47 -0500
+Subject: Re: Does VFS cache individual files? Is the linker involved?
+To: Magnus.Sundberg@dican.se (Magnus Sundberg)
+Date: Mon, 29 Oct 2001 12:26:01 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BDD4593.74988F93@dican.se> from "Magnus Sundberg" at Oct 29, 2001 01:03:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15yBUP-0002Zr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> Does VFS cache the content of a file?
 
-regarding the change of policies/rights forced 
-by hollywood & the music industry,
-any OS not supporting (encrypted) DRM for
-harddisks, DVD (free usage allready breaks the "law" in some countries), ..
-will be illegal ??
+It caches arbitary pages of the file.
 
-so - when do "they" shut down multimedia linux projects,
-or the kernel itself ?
+> Does VFS consult memory instead of disk, when accessing a file that is
+> already linked to a process that is running?
 
-when do linux move to a server in an open minded and free country ?
+Depends if the block is already in memory. If it is paged in then it will
+used a shared read only copy when there is one. If not then it will load it
 
-will any piece of software which can copy data without DRM
-being illegal ?
+> One night, when the PHP runtime of apache had crashed, tripwire reported
+> checksum error of
+> /usr/lib/apache/libphp4.so
+> The next night, when apache was restarted, there where no checksum
+> errors of the file.
+> 
+> I have seen checksum errors of /lib/libc-2.2.2.so, rpm also reported md5
+> checksum error when I
+> used rpm to verify the installation of glibc.
 
-???
-
-what does the EFF say about this issue ?
-
-sven
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE73UlRHdOA30NoFAARAuY8AJ9FSuD/Q9oNVEoMShJH+XJTZ56chwCfV2cn
-4WCZjQcHwT/wReZag7tlX3o=
-=2gsj
------END PGP SIGNATURE-----
+That is consistent with in memory file cache corruption yes. Since the error
+never got written back to disk (and its probably in a clean page) it
+vanished when the cached copy did

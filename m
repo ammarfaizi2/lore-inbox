@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271678AbRIHWHP>; Sat, 8 Sep 2001 18:07:15 -0400
+	id <S271708AbRIHWIF>; Sat, 8 Sep 2001 18:08:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271708AbRIHWHG>; Sat, 8 Sep 2001 18:07:06 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:62473 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S271678AbRIHWGy>; Sat, 8 Sep 2001 18:06:54 -0400
-Message-Id: <200109082207.f88M7AY01188@aslan.scsiguy.com>
-To: SPATZ1@t-online.de (Frank Schneider)
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors) 
-In-Reply-To: Your message of "Sat, 08 Sep 2001 22:25:31 +0200."
-             <3B9A7EBB.E73115AC@t-online.de> 
-Date: Sat, 08 Sep 2001 16:07:10 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S271714AbRIHWH4>; Sat, 8 Sep 2001 18:07:56 -0400
+Received: from jupter.networx.com.br ([200.187.100.102]:56534 "EHLO
+	jupter.networx.com.br") by vger.kernel.org with ESMTP
+	id <S271708AbRIHWHn>; Sat, 8 Sep 2001 18:07:43 -0400
+Message-Id: <200109082200.f88M0AU32698@jupter.networx.com.br>
+Content-Type: text/plain; charset=US-ASCII
+From: Thiago Vinhas de Moraes <thiago@vinhas.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.10-pre5
+Date: Sat, 8 Sep 2001 19:01:00 -0300
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.33.0109072117580.1259-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0109072117580.1259-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I run a RAID5-Array on three SCSI-Disks, all IBM, all LVD on the
->AIC7xxx-Controller on the Mobo (ASUS-P2B-DS)...and from time to time
->(usually about once per week) always the same partition of the RAID5
->gets a readerror and falls out of the array:
 
-This is a very different issue.  The drive has even told you what is
-wrong.
+Linus,
 
->-------------------------
->Sep  8 20:49:31 falcon kernel: SCSI disk error : host 0 channel 0 id 0
->lun 0 return code = 8000002
->Sep  8 20:49:31 falcon kernel: [valid=0] Info fld=0x0, Current sd08:04:
->sense key Hardware Error
->Sep  8 20:49:31 falcon kernel: Additional sense indicates Internal
-				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->target failure
- ^^^^^^^^^^^^^^
+What's the current state of merges with Alan? I'm sorry for asking this, but 
+it's being too dificult to choose what tree to use, and IMHO I don't see any 
+reason for not merging all the known stable code from Alan's tree. 
+It probably would make the life of too many people easier. ;-)
 
-Something bad happened inside the disk.  Perhaps IBM can tell you what,
-but it is not the aic7xxx driver, SCSI layer, or md's fault for this
-disk going offline.
+Best Regards,
+Thiago Vinhas
 
->Ok, i also thought: "Bad disk" and to verify this (i have still
->guarantee on the drive) i formated it, let the AIC-BIOS do a "remap of
->bad blocks" and ran "badblocks" about 5 times on it with the
 
-Target failures are not "media errors".  If the drive was experiencing
-a media problem, it would have said so.
 
---
-Justin
+Em Sab, 08 de Set de 2001 01:18, Linus Torvalds escreveu:
+> -----
+> pre5:
+>  - Merge with Alan

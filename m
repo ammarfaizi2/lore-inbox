@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbTIOUyt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 16:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbTIOUyt
+	id S261580AbTIOUzh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 16:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbTIOUzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 16:54:49 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33990 "HELO
+	Mon, 15 Sep 2003 16:55:37 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:17862 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261559AbTIOUys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 16:54:48 -0400
-Date: Mon, 15 Sep 2003 22:51:00 +0200
+	id S261580AbTIOUzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 16:55:31 -0400
+Date: Mon, 15 Sep 2003 22:55:23 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: John Bradford <john@grabjohn.com>, alan@lxorguk.ukuu.org.uk,
-       davidsen@tmr.com, linux-kernel@vger.kernel.org, zwane@linuxpower.ca
+To: John Bradford <john@grabjohn.com>
+Cc: davidsen@tmr.com, zwane@linuxpower.ca, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-ID: <20030915205100.GO126@fs.tum.de>
-References: <200309150831.h8F8Vir6000839@81-2-122-30.bradfords.org.uk> <3F657931.2050209@cyberone.com.au>
+Message-ID: <20030915205522.GP126@fs.tum.de>
+References: <200309150632.h8F6WnHb000589@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F657931.2050209@cyberone.com.au>
+In-Reply-To: <200309150632.h8F6WnHb000589@81-2-122-30.bradfords.org.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 15, 2003 at 06:32:49PM +1000, Nick Piggin wrote:
+On Mon, Sep 15, 2003 at 07:32:49AM +0100, John Bradford wrote:
 >...
-> While I like Adrian's patch a lot from a functionality and user
-> simplicity point of view, the key to getting it merged is not to 
-> increase the complexity of the implementation. The only objections to
-> the concept came from people who didn't understand it AFAIK.
+> It should be possible, and straightforward, to compile a kernel which:
+> 
+> 1. Supports, (I.E. has workarounds for), any combination of CPUs.
+>    E.G. a kernel which supports 386s, and Athlons _only_ would not
+>    need the F00F bug workaround.  Currently '386' kernels include it,
+>    because '386' means 'support 386 and above processors'.
+> 
+> 2. Has compiler optimisations for one particular CPU.
+>    E.G. the 386 and Athlon supporting kernel above could have
+>    alignment optimised for either 386 or Athlon.
 >...
 
-My impresion is that much problem comes from the fact that I didn't 
-split the patch the first time I sent it.
+That's the point where even I consider such a system to be too complex.
 
-Most of the oppositon came against the arch/i386/kernel/cpu/{,mtrr/} 
-optimizations that are more an eample of how to achive further space 
-savings in this scheme but not a required part of this patch.
+If you want maximum performance compile a kernel specific for your 
+system.
 
-The main part wasn't non-controversal but it didn't have such a big 
-number of opponents.
+Compiling a kernel that supports more than one CPU is for people that 
+can even live with let's say a 10% performance penalty.
+
+If you want to run a kernel on both a 386 and an Athlon it's most likely 
+non-optimal for both of them.
+
+> John.
 
 cu
 Adrian

@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbUK0AUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262436AbUK0AUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbUK0AUP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 19:20:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbUKZX6T
+	id S262436AbUK0AUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 19:20:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbUKZX6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 18:58:19 -0500
+	Fri, 26 Nov 2004 18:58:04 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:9413 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263071AbUKZTld (ORCPT
+	by vger.kernel.org with ESMTP id S262454AbUKZTle (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:41:33 -0500
-Subject: Re: dequeue_signal() in signal.c disabilities
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Chow <davidchow@shaolinmicro.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41A14E0B.3030608@shaolinmicro.com>
-References: <41A14E0B.3030608@shaolinmicro.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1101337666.2571.4.camel@localhost.localdomain>
+	Fri, 26 Nov 2004 14:41:34 -0500
+Date: Thu, 25 Nov 2004 17:08:48 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Priority Inheritance Test (Real-Time Preemption)
+In-Reply-To: <20041125165829.GA24121@elte.hu>
+Message-Id: <Pine.OSF.4.05.10411251706290.12827-100000@da410.ifa.au.dk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 24 Nov 2004 23:07:47 +0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-11-22 at 02:25, David Chow wrote:
-> This causes disabilities with modules that are non pure GPL licensed,
-> this causes kernel threads or possibly other interrupts unable to be
-> handled properly. I've tried both BSD and LGPL which doesn't work. The
-> dequeue_signal() is essential to anyone who use sleeps with signals and
 
-If the code is BSD or LGPL licensed then you can stick a GPL license on
-the
-copy for your kernel anyway and follow the rules for the GPL. That
-doesn't in
-any way take away the right for it to be used with some other license
-separately to the kernel.
+On Thu, 25 Nov 2004, Ingo Molnar wrote:
+
+> [...] 
+> there's one thing i noticed, now that the blocker device is in the
+> kernel, you have to be really careful to compile the userspace loop()
+> code via the same gcc flags as the kernel did. Minor differences in
+> compiler options can skew the timing calibration.
+> 
+> but any such bug should at most cause a linear deviation via a constant
+> factor multiplication, while the data shows a systematic nonlinear
+> transformation.
+> 
+-g -Wall -O2 was on in userspace.
+
+> [...] 
+> yeah, i agree that this has to be further investigated. What type of box
+> did you test it on - UP or SMP? (SMP scheduling of RT tasks only got
+> fully correct in the very latest -31-7 kernel.)
+> 
+UP, PIII 697.143 Mhz
+
+> 	Ingo
+> 
+
+Esben
 

@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261860AbTEFUlI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 16:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTEFUlH
+	id S261871AbTEFUmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 16:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTEFUmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 16:41:07 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:18561
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261860AbTEFUkh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 16:40:37 -0400
-Subject: Re: [RFC][Patch] fix for irq_affinity_write_proc v2.5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Keith Mannthey <kmannth@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052247789.16886.261.camel@dyn9-47-17-180.beaverton.ibm.com>
-References: <1052247789.16886.261.camel@dyn9-47-17-180.beaverton.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052250874.1202.162.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 6 May 2003 16:42:22 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:39607 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S261871AbTEFUmI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 16:42:08 -0400
+Date: Tue, 6 May 2003 22:43:05 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
+Message-ID: <20030506204305.GA5546@elf.ucw.cz>
+References: <20030506164252.GA5125@mail.jlokier.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 May 2003 20:54:35 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030506164252.GA5125@mail.jlokier.co.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-05-06 at 20:03, Keith Mannthey wrote:
-> Hello,
->   irq_affinity_write_proc currently directly calls set_ioapic_affinity
-> which writes to the ioapic.  This undermines the work done by kirqd by
-> writing a cpu mask directly to the ioapic. I propose the following patch
-> to tie the /proc affinity writes into the same code path as kirqd. 
-> Kirqd will enforce the affinity requested by the user.   
+Hi!
 
-Why should the kernel be enforcing policy here. You have to be root to 
-do this, and root should have the ability to configure apparently stupid
-things because they may find them useful.
+> I was mulling over a commercial project proposal, and this question
+> came up:
+> 
+> What's the position of kernel developers towards using the GPL'd Linux
+> kernel modules - that is, device drivers, network stack, filesystems
+> etc. - with a binary-only, closed source kernel that is written
+> independently of Linux?
+> 
+> I realise that linking the modules directly with the binary kernel is
+> a big no no, but what if they are dynamically loaded?
+> 
+> There seems to be a broad agreement, and I realise it isn't unanimous,
+> that dynamically loading binary-only modules into the Linux kernel is
+> ok.  Furthermore, there are some funny rules about which interfaces a
+> binary-only module may use and which it may not, before it's
+> considered a derivative work of the kernel.
+> 
+> So, as dynamic loading is ok between parts of Linux and binary-only
+> code, that seems to imply we could build a totally different kind of
+> binary-only kernel which was able to make use of all the Linux kernel
+> modules.  We could even modularise parts of the kernel which aren't
+> modular now, so that we could take advantage of even more parts of Linux.
+> 
+> What do you think?
 
+If you can make those drivers in your userspace, its certainly okay...
 
+								Pavel
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

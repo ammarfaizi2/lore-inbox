@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318155AbSGWQlk>; Tue, 23 Jul 2002 12:41:40 -0400
+	id <S318144AbSGWQir>; Tue, 23 Jul 2002 12:38:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318156AbSGWQlk>; Tue, 23 Jul 2002 12:41:40 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:2433 "EHLO
-	wookie-t23.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S318155AbSGWQlj>; Tue, 23 Jul 2002 12:41:39 -0400
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <1027258811.17234.90.camel@irongate.swansea.linux.org.uk>
-References: <OF918E6F71.637B1CBC-ON85256BFB.004CDDD0@pok.ibm.com.suse.lists.linux.kernel
-	 >
-	<1027199147.16819.39.camel@irongate.swansea.linux.org.uk.suse.lists.linux.ke
-	 rnel>  <p731y9xva8m.fsf@oldwotan.suse.de> 
-	<1027258811.17234.90.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
+	id <S318145AbSGWQiq>; Tue, 23 Jul 2002 12:38:46 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:51117 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318144AbSGWQip>; Tue, 23 Jul 2002 12:38:45 -0400
+Message-ID: <3D3D872F.1040100@us.ibm.com>
+Date: Tue, 23 Jul 2002 09:41:19 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020715
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Love <rml@mvista.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Adam G Litke <aglitke@us.ibm.com>
+Subject: Re: [PATCH] reduce code in generic spinlock.h
+References: <3D3D8414.1040201@us.ibm.com> <1027442320.3581.100.camel@sinai>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 23 Jul 2002 09:41:49 -0700
-Message-Id: <1027442509.1911.16.camel@wookie-t23.pdx.osdl.net>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  It is more like EVMS has safety devices to prevent people from
-getting caught up in the machinery.  In that respect it keeps
-people from hurting themselves. And even if it is only when 
-the are tired or in a hurry it is worth the effort. When you
-have several 100 servers that you need to take care of any
-help is appreciate.
+Robert Love wrote:
+> On Tue, 2002-07-23 at 09:28, Dave Hansen wrote:
+> 
+>>The last time lockmeter was ported to 2.5, it was getting a little
+>>messy.  There were separate declarations for spin_*lock() for each
+>>combination of lockmeter and preemption, which made four, plus the
+>>no-smp definition.  While lockmeter's mess isn't the kernel's fault, 
+>>we noticed some some simplifications which could be made to the 
+>>generic spinlock code.  This patch uses a single definition for each 
+>>of the macros, eliminating some redundant code.
+> 
+> I have no problems with this (assuming it is right and it looks so on
+> first glance).
+> 
+> It will not apply to Linus's current tree, however, because of the IRQ
+> rewrite that is now applied.  If you pull his BK tree and diff against
+> that, you should be OK... most notably, the preemption code has moved to
+> preempt.h.
 
-Since most data loss is human error having a volume manager to 
-enable people to have higher availability and not addressing 
-the number one cause of data loss doesn't seem to make sense to 
-me.
+D'oh.  Bad timing, I guess.  I'll rediff against current BK.
 
- 
-On Sun, 2002-07-21 at 06:40, Alan Cox wrote:
-> On Sun, 2002-07-21 at 07:57, Andi Kleen wrote:
-> > One disadvantage of the LVM2 concept is that it relies a lot on compatible
-> > user space and there is unlikely to be a stable API. While I'm normally
-> > all for putting things in user space where it makes sense I think the
-> > mounting of your root file system is a bit of exception. 
-> 
-> LVM2 relies on people doing things right so we shouldnt use it ? 
-> 
-> Strange
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
 -- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+Dave Hansen
+haveblue@us.ibm.com
 

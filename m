@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272286AbTGYUNB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 16:13:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272287AbTGYUNB
+	id S272287AbTGYUPv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 16:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272288AbTGYUPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 16:13:01 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:30096 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S272286AbTGYUM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 16:12:59 -0400
-Date: Fri, 25 Jul 2003 17:24:27 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Pavel Machek <pavel@suse.cz>
-Cc: jimis@gmx.net, linux-kernel@vger.kernel.org
-Subject: Re: Feature proposal (scheduling related)
-In-Reply-To: <20030723114322.GD729@zaurus.ucw.cz>
-Message-ID: <Pine.LNX.4.55L.0307251723520.16728@freak.distro.conectiva>
-References: <3F1E6A25.5030308@gmx.net> <20030723114322.GD729@zaurus.ucw.cz>
+	Fri, 25 Jul 2003 16:15:51 -0400
+Received: from math.ut.ee ([193.40.5.125]:48884 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S272287AbTGYUPu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 16:15:50 -0400
+Date: Fri, 25 Jul 2003 23:30:49 +0300 (EEST)
+From: Meelis Roos <mroos@math.ut.ee>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>, <neilb@cse.unsw.edu.au>
+Subject: Re: NFS server broken in 2.4.22-pre6?
+In-Reply-To: <Pine.LNX.4.55L.0307251001480.12492@freak.distro.conectiva>
+Message-ID: <Pine.GSO.4.44.0307252330160.23197-100000@math.ut.ee>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 23 Jul 2003, Pavel Machek wrote:
-
-> Hi!
+> > NFS serving seems to be broken in 2.4.22-pre6. I had 2 computers running
+> > 2.4.22-pre6 (x86, debian unstable current). Tried to acces them via NFS
+> > (using am-utils actually) from a 3rd computer, IO error. Tried to
+> > mount directly, mount: RPC: timed out. Rebooted one computer to 2.4.18
+> > and NFS started to work.
+> >
+> > No more details currently but I can test more thoroughly tomorrow.
 >
-> > With the current scheduler we can prioritize the CPU usage for each
-> > process. What I think would be extremely useful (as I have needed it
-> > many times) is the scheduling of disk I/O and net I/O traffic. 2
-> > examples showing the importance (the numbers are estimations just to
-> > explain whati I mean):
+> Meelis,
 >
-> Yes that would be nice, and in 2.5 timeframe
-> there was patch doing that. Port it to 2.6 an test it!
+> Please report more details.
 
-Pavel,
+Seems to be a debian unstable problem with nfs-kernel-server:
+http://bugs.debian.org/201598
 
-Do you remember who wrote those or where one can find it?
+-- 
+Meelis Roos             e-mail: mroos@ut.ee
+                        www:    http://www.cs.ut.ee/~mroos/
+

@@ -1,82 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbUKXQ2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbUKXNHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbUKXQ2B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 11:28:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUKXQZu
+	id S262638AbUKXNHq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 08:07:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbUKXNGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 11:25:50 -0500
-Received: from alog0415.analogic.com ([208.224.222.191]:55936 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262659AbUKXQYQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 11:24:16 -0500
-Date: Wed, 24 Nov 2004 11:23:44 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Ole Laursen <olau@cs.aau.dk>
-cc: linux-kernel@vger.kernel.org, d507a@cs.aau.dk
-Subject: Re: Isolating two network processes on same machine
-In-Reply-To: <tv8r7mj1dwr.fsf@homer.cs.aau.dk>
-Message-ID: <Pine.LNX.4.61.0411241113090.19813@chaos.analogic.com>
-References: <tv8r7mj1dwr.fsf@homer.cs.aau.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 24 Nov 2004 08:06:42 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:31124 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262638AbUKXNAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 08:00:45 -0500
+Subject: Suspend 2 merge: 4/51: Get module list.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+Content-Type: text/plain
+Message-Id: <1101293104.5805.203.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 24 Nov 2004 23:57:05 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Nov 2004, Ole Laursen wrote:
+This provides access to the list of loaded modules for suspend's
+debugging output. When a cycle finishes, suspend outputs something the
+following:
 
-> Hi,
->
-> We need to test a peer-to-peer network application that is supposed to
-> be scalable. To that end, we have a FreeBSD box with dummynet and a
-> small cluster of Linux test machines. The box act as the gateway for
-> the test machines and delay incoming packets for a while before
-> throwing them back to the cluster to simulate latency on the Internet.
->
-> By letting the test machines think they run on separate subnets, we
-> have been able to fool them into forwarding their packets to the
-> FreeBSD gateway even though everyone is connected to the same switch.
-> This is working fine.
->
-> The problem is that we need to run several instances of our network
-> application on the same test machine since we have too few machines.
-> But when we create two IP addresses on the same machine with
->
->  ifconfig eth0:0 10.0.0.2 netmask 255.255.255.0 broadcast 10.0.0.255
->  ifconfig eth0:1 10.0.1.2 netmask 255.255.255.0 broadcast 10.0.1.255
->
-> and start two instances on the same machine with the two IP addresses,
-> then they communicate directly with each other instead of going
-> through the FreeBSD gateway. Can anyone see a way to solve this
-> problem?
->
+> Please include the following information in bug reports:
+> - SUSPEND core   : 2.1.5.7
+> - Kernel Version : 2.6.9
+> - Compiler vers. : 3.3
+> - Modules loaded : tuner bttv videodev snd_seq_oss snd_seq_midi_event
+> snd_seq snd_pcm_oss snd_mixer_oss snd_intel8x0 snd_ac97_codec snd_pcm
+> snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device
+> snd soundcore visor usbserial usblp joydev evdev usbmouse usbhid
+> uhci_hcd usbcore ppp_deflate zlib_deflate zlib_inflate bsd_comp
+> ipt_LOG ipt_state ipt_MASQUERADE iptable_nat ip_conntrack
+> ipt_multiport ipt_REJECT iptable_filter ip_tables ppp_async
+> ppp_generic slhc crc_ccitt video_buf v4l2_common btcx_risc Win4Lin
+> mki_adapter radeon agpgart parport_pc lp parport sg ide_cd sr_mod
+> cdrom floppy af_packet e1000 loop dm_mod tsdev suspend_bootsplash
+> suspend_text suspend_swap suspend_block_io suspend_lzf suspend_core
+> - Attempt number : 9
+> - Parameters     : 0 2304 32768 1 0 4096 5
+> - Limits         : 261680 pages RAM. Initial boot: 252677.
+> - Overall expected compression percentage: 0.
+> - LZF Compressor enabled.
+>   Compressed 922112000 bytes into 437892038 (52 percent compression).
+> - Swapwriter active.
+>   Swap available for image: 294868 pages.
+> - Debugging compiled in.
+> - Preemptive kernel.
+> - SMP kernel.
+> - Highmem Support.
+> - I/O speed: Write 72 MB/s, Read 119 MB/s.
 
-
-I was going to say, set the netmask small enough so that both
-machines are on different networks and set default routes to
-your gateway.... But there is a bug somewhere that doesn't
-allow a netmask of anything but 0 in the last byte.
-
-So, just add a host route....
-
-route add -host 10.0.1.2 gw server
+Including the modules loaded is very helpful for debugging problems.
 
 
->
-> (I've CC'ed the other guys in my group.)
->
-> -- 
-> Ole Laursen
-> http://www.cs.aau.dk/~olau/
-> -
+diff -ruN 209-get-module-list-old/kernel/module.c 209-get-module-list-new/kernel/module.c
+--- 209-get-module-list-old/kernel/module.c	2004-11-24 17:21:28.892423312 +1100
++++ 209-get-module-list-new/kernel/module.c	2004-11-24 17:21:20.619680960 +1100
+@@ -2105,6 +2105,18 @@
+ }
+ EXPORT_SYMBOL(module_remove_driver);
+ 
++int print_module_list_to_buffer(char * buffer, int size)
++{
++	struct module *mod;
++	int pos = 0;
++
++	list_for_each_entry(mod, &modules, list)
++		if (mod->name)
++			pos += snprintf(buffer+pos, size-pos-1, 
++					"%s ", mod->name);
++	return pos;
++}
++
+ #ifdef CONFIG_MODVERSIONS
+ /* Generate the signature for struct module here, too, for modversions. */
+ void struct_module(struct module *mod) { return; }
+@@ -2115,3 +2127,5 @@
+ struct list_head *kdb_modules = &modules;	/* kdb needs the list of modules */
+ #endif	/* CONFIG_KDB */
+ 
++/* For Suspend2 */
++EXPORT_SYMBOL(print_module_list_to_buffer);
 
-FYI, probably nobody will admit to it being a bug, but it's
-another example of policy spreading throughout the kernel.
-If I set the netmask to 0.0.0.0 or 255.255.255.255, and
-anything in-between, it should let me....
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.

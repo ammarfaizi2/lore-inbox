@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131057AbRAGMMd>; Sun, 7 Jan 2001 07:12:33 -0500
+	id <S131204AbRAGMNd>; Sun, 7 Jan 2001 07:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131146AbRAGMMY>; Sun, 7 Jan 2001 07:12:24 -0500
-Received: from james.kalifornia.com ([208.179.0.2]:33643 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S131057AbRAGMMM>; Sun, 7 Jan 2001 07:12:12 -0500
-Date: Sun, 7 Jan 2001 04:11:40 -0800 (PST)
-From: David Ford <david+nospam@killerlabs.com>
-Reply-To: David Ford <david+validemail@killerlabs.com>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Russell King <rmk@arm.linux.org.uk>,
-        Nicolas Noble <Pixel@the-babel-tower.nobis.phear.org>,
-        "Linux-kernel's Mailing list" <linux-kernel@vger.kernel.org>
-Subject: Re: Little question about modules... 
-In-Reply-To: <31837.978868303@ocs3.ocs-net>
-Message-ID: <Pine.LNX.4.10.10101070410310.4173-100000@Huntington-Beach.Blue-Labs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131208AbRAGMNX>; Sun, 7 Jan 2001 07:13:23 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:21765
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S131204AbRAGMNL>; Sun, 7 Jan 2001 07:13:11 -0500
+Date: Mon, 8 Jan 2001 01:13:08 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: David Ford <david@linux.com>
+Cc: Ben Greear <greearb@candelatech.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission policy!)
+Message-ID: <20010108011308.A2575@metastasis.f00f.org>
+In-Reply-To: <20010107162905.B1804@metastasis.f00f.org> <Pine.LNX.4.10.10101070220410.4173-100000@Huntington-Beach.Blue-Labs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10101070220410.4173-100000@Huntington-Beach.Blue-Labs.org>; from david@linux.com on Sun, Jan 07, 2001 at 02:22:31AM -0800
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Keith Owens wrote:
->   If the module controls its own unloading via a can_unload routine
->   then the user count displayed by lsmod is always -1, irrespective of
->   the real use count.
+On Sun, Jan 07, 2001 at 02:22:31AM -0800, David Ford wrote:
 
-Maybe lsmod can show a blank for the field and (auto unload).  That'd
-probably draw a lot less "my module is broken" reports.
+    BIND copes just fine, how would it not?  I haven't heard any
+    problems with routing daemons either.
 
--d
+Bind knows about multiple virtual interfaces; but we can also have
+multiple addresses on a single interface and have no virtual
+interfaces at all.
+
+I doubt bind knows about this nor handles it.
+
+<pause>
+
+OK, I'm a liar -- bind does handle this. Cool.
+
+Jan  8 01:09:12 tapu named[599]: listening on [127.0.0.1].53 (lo)
+Jan  8 01:09:12 tapu named[599]: listening on [10.0.0.1].53 (lo)
+Jan  8 01:09:12 tapu named[599]: listening on [x.x.x.x].53 (x0)
+Jan  8 01:09:12 tapu named[599]: Forwarding source address is [0.0.0.0].1032
+
+This is good news, because it means there is a precedent for multiple
+addresses on a single interface so we can kill the <ifname>:<n>
+syntax in favor of the above which is cleaner of more accurately
+represents what is happening.
 
 
---
----NOTICE--- fwd: fwd: fwd: type emails will be deleted automatically.
-      "There is a natural aristocracy among men. The grounds of this are
-      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
 
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

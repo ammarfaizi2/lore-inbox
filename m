@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbTDVGqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 02:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTDVGqQ
+	id S262197AbTDVG4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 02:56:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTDVG4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 02:46:16 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:36358 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S262953AbTDVGqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 02:46:15 -0400
-Date: Tue, 22 Apr 2003 16:58:08 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: J Sloan <joe@tmsusa.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, <dlstevens@ibm.com>,
-       <netdev@oss.sgi.com>
-Subject: Re: 2.5.68 comments -  [udp broadcast reception broken]
-In-Reply-To: <3EA382F1.205@tmsusa.com>
-Message-ID: <Mutt.LNX.4.44.0304221649550.4809-100000@excalibur.intercode.com.au>
+	Tue, 22 Apr 2003 02:56:24 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:46160 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262197AbTDVG4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 02:56:24 -0400
+Date: Tue, 22 Apr 2003 03:08:27 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] HT scheduler, sched-2.5.68-A9
+In-Reply-To: <20030422040117.GA31324@suse.de>
+Message-ID: <Pine.LNX.4.44.0304220305260.25143-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Apr 2003, J Sloan wrote:
 
-> Looks good for the most part, but the rwhod
-> problem is still with us. (The system is unable
-> to receive udp broadcasts since early in the
-> 2.5.67-bk release series)
+On Tue, 22 Apr 2003, Dave Jones wrote:
 
-This is being caused by the call to ip_mc_sf_allow() during packet
-delivery, which is not needed for broadcasts.
+> Maybe this would be better resolved at runtime ? With the above patch,
+> you'd need three seperate kernel images to run optimally on a system in
+> each of the cases. The 'vendor kernel' scenario here looks ugly to me.
 
-(Broadcast & multicast packets share the same delivery path here).
+it's not a problem - vendors enable it and that's all. But the majority of 
+SMP systems does not need a shared runqueue, so the associated overhead 
+(which, while small, is nonzero) can be avoided.
 
+> Dumping all this into the config system seems to be the wrong direction
+> IMHO. The myriad of runtime knobs in the scheduler already is bad
+> enough, without introducing compile time ones as well.
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+what runtime knobs? I've avoided as many of them as possible.
 
+	Ingo
 

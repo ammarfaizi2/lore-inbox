@@ -1,80 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVANA2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVANA2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbVANA2R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 19:28:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVANAWF
+	id S261708AbVANA2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 19:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVANAVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 19:22:05 -0500
-Received: from fw.osdl.org ([65.172.181.6]:13474 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261743AbVANAS2 (ORCPT
+	Thu, 13 Jan 2005 19:21:38 -0500
+Received: from gprs214-120.eurotel.cz ([160.218.214.120]:11136 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261773AbVANATO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 19:18:28 -0500
-Date: Thu, 13 Jan 2005 16:23:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave <dave.jiang@gmail.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, smaurer@teja.com,
-       linux@arm.linux.org.uk, dsaxena@plexity.net, drew.moseley@intel.com,
-       mporter@kernel.crashing.org
-Subject: Re: [PATCH 1/5] Convert resource to u64 from unsigned long
-Message-Id: <20050113162309.2a125eb1.akpm@osdl.org>
-In-Reply-To: <8746466a050113152636f49d18@mail.gmail.com>
-References: <8746466a050113152636f49d18@mail.gmail.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 13 Jan 2005 19:19:14 -0500
+Date: Fri, 14 Jan 2005 01:11:18 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: george@mvista.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: VST patches ported to 2.6.11-rc1
+Message-ID: <20050114001118.GA1367@elf.ucw.cz>
+References: <20050113132641.GA4380@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050113132641.GA4380@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave <dave.jiang@gmail.com> wrote:
->
-> ere's my first attempt of trying to convert the struct resource
-> start/end to u64 per blessed by Linus =) This is to support >32bit
-> physical address on 32bit archs such as some of the newer ARMv6 and
-> XSC3 based platforms and perhaps IA32 PAE.  I left the PCI stuff alone
-> functionally. Supporting 64bit PCI BAR on 32bit archs is for another
-> day. I fixed most of the core stuff I can think of, fixed ARM and i386
-> hopefully and a few of the device drivers as examples. I have tested
-> on an IQ31244 XScale IOP (ARM) platform and a dual-xeon platform for
-> i386. Matt Porter has graciously sent me PPC fixes that he tested on.
+Hi!
 
-OK, well Greg KH will be the main target of this work..
+> I really hate sf download system... Here are those patches (only
+> common+i386) ported to 2.6.11-rc1.
 
-Can you do something a bit more friendly than application/octet-stream
-encoding, btw?
+Good news is it booted. But I could not measure any powersavings by
+turning it on. (I could measure difference between HZ=100 and
+HZ=1000).
 
-+#if BITS_PER_LONG == 64
-+#define U64FMT "016lx"
-+#else
-+#define U64FMT "016Lx"
-+#endif
+Hmm, it does not want to do anything. threshold used to be 1000, does
+it mean that it would not use vst unless there was one second of quiet
+state? I tried to lower it to 10 ("get me HZ=100 power consumption")
+but it does not seem to be used, anyway:
 
-We've avoided doing this.  We prefer to do
+root@amd:/proc/sys/kernel/vst# cat successful_vst_exit
+0
+root@amd:/proc/sys/kernel/vst# cat external_intr_exit
+0
+root@amd:/proc/sys/kernel/vst#
 
-	printk("%llx", (unsigned long long)foo);
+> +config HIGH_RES_RESOLUTION
+> +	int "High Resolution Timer resolution (nanoseconds)"
+> +	depends on HIGH_RES_TIMERS
+> +	default 1000
+> +	help
+> +	  This sets the resolution in nanoseconds of the CLOCK_REALTIME_HR and
+> +	  CLOCK_MONOTONIC_HR timers.  Too fine a resolution (small a number)
+> +	  will usually not be observable due to normal system latencies.  For an
+> +          800 MHz processor about 10,000 (10 microseconds) is recommended as a
+> +	  finest resolution.  If you don't need that sort of resolution,
+> +	  larger values may generate less overhead.
 
-which is tidier, although a little more runtime-costly.
+Ugh, if minimum recomended value is 10K, why does it have 1K as a
+default?
 
-Your approach assumes that all 64-bit architectures implement u64 as
-unsigned long (as opposed to unsigned long long, which I guess is legal?) I
-don't know if that's a problem or not.
+> +          The system boots with VST enabled and it can be disabled by:
+> +	  "echo 0 > /proc/sys/kernel/vst/enable".
 
-Also, the patches introduce tons of ifdefs such as:
+It definitely booted with vst disabled here... echo 1 did the trick
+through.
 
-+#if BITS_PER_LONG == 64			
-	return (void __iomem *)pci_resource_start(pdev, PCI_ROM_RESOURCE);
-+#else
-+	return (void __iomem *)(u32)pci_resource_start(pdev, PCI_ROM_RESOURCE);
-+#endif
+>short_timer_fns         This is an array of 5 entries of the form
+> ...
+>                        0xc110ea80 when the timer expires.
+>Both of these arrays are kept as circular lists and read back such
+>that
+>the latest entry is presented to the reader first.  The entries are
+>cleared when read.
 
-We really should find a way of avoiding this.  Even if it is
+...it is bad idea to have them world-readable, then.
+								Pavel
 
-#if BITS_PER_LONG == 64
-#define resource_to_ptr(r) ((void *)(r))
-#else
-#define resource_to_ptr(r) ((void *)((u32)r))
-#endif
 
-in a header file somewhere.  Open-coding the decision all over the place is
-unsightly.
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

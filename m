@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261733AbTAXTAK>; Fri, 24 Jan 2003 14:00:10 -0500
+	id <S261934AbTAXTDV>; Fri, 24 Jan 2003 14:03:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261836AbTAXTAK>; Fri, 24 Jan 2003 14:00:10 -0500
-Received: from web80301.mail.yahoo.com ([66.218.79.17]:22458 "HELO
-	web80301.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261733AbTAXTAJ>; Fri, 24 Jan 2003 14:00:09 -0500
-Message-ID: <20030124190917.37534.qmail@web80301.mail.yahoo.com>
-Date: Fri, 24 Jan 2003 11:09:17 -0800 (PST)
-From: Kevin Lawton <kevinlawton2001@yahoo.com>
-Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider) 
-To: Valdis.Kletnieks@vt.edu
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <200301241901.h0OJ1j0V005436@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262373AbTAXTDV>; Fri, 24 Jan 2003 14:03:21 -0500
+Received: from packet.digeo.com ([12.110.80.53]:45781 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261934AbTAXTDU>;
+	Fri, 24 Jan 2003 14:03:20 -0500
+Date: Fri, 24 Jan 2003 11:12:49 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: bzzz@tmi.comex.ru, linux-kernel@alex.org.uk, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.59-mm5
+Message-Id: <20030124111249.227a40d6.akpm@digeo.com>
+In-Reply-To: <m3lm1au51v.fsf@lexa.home.net>
+References: <20030123195044.47c51d39.akpm@digeo.com>
+	<946253340.1043406208@[192.168.100.5]>
+	<20030124031632.7e28055f.akpm@digeo.com>
+	<m3d6mmvlip.fsf@lexa.home.net>
+	<20030124035017.6276002f.akpm@digeo.com>
+	<m3lm1au51v.fsf@lexa.home.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Jan 2003 19:12:25.0218 (UTC) FILETIME=[876E7620:01C2C3DC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Valdis.Kletnieks@vt.edu wrote:
+Alex Tomas <bzzz@tmi.comex.ru> wrote:
+>
+> >>>>> Andrew Morton (AM) writes:
+> 
+>  AM> That's correct.  Reads are usually synchronous and writes are
+>  AM> rarely synchronous.
+> 
+>  AM> The most common place where the kernel forces a user process to
+>  AM> wait on completion of a write is actually in unlink (truncate,
+>  AM> really).  Because truncate must wait for in-progress I/O to
+>  AM> complete before allowing the filesystem to free (and potentially
+>  AM> reuse) the affected blocks.
+> 
+> looks like I miss something here.
+> 
+> why do wait for write completion in truncate? 
 
-> It turns out that the 99% of the work to cover the 1% of the cases is really
-> important.  The usual reason for doing VM is to isolate images from each
-> other
+We cannot free disk blocks until I/O against them has completed.  Otherwise
+the block could be reused for something else, then the old IO will scribble
+on the new data.
 
-Plex86 can 100% isolate guests from each other.  What I'm saying
-is, it takes 99% of the work to do a full x86 VM which doesn't
-need those 2 macros for PUSHF/POPF.  (my oversimplified, but
-yet useful explanation of the state of affairs)
+What we _can_ do is to defer the waiting - only wait on the I/O when someone
+reuses the disk blocks.  So there are actually unused blocks with I/O in
+flight against them.
 
-You have to do a lot of work to "get under the hood" of an
-OS, to fix up a few cases where if you let them run native,
-they'll get the wrong information or make the wrong thing
-happen.  Not to the other guests, but to themselves.  So if
-you don't need to do those things, you can let them run
-without all the black magic.  Let's take such conversation
-out-of-band.  It doesn't belong on the LK list.
-
--Kevin
-
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com
+We do that for metadata (the wait happens in unmap_underlying_metadata()) but
+for file data blocks there is no mechanism in place to look them up.

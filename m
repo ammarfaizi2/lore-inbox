@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286395AbSAMRCL>; Sun, 13 Jan 2002 12:02:11 -0500
+	id <S286403AbSAMROX>; Sun, 13 Jan 2002 12:14:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286403AbSAMRCB>; Sun, 13 Jan 2002 12:02:01 -0500
-Received: from colorfullife.com ([216.156.138.34]:12807 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S286395AbSAMRBt>;
-	Sun, 13 Jan 2002 12:01:49 -0500
-Message-ID: <3C41BD74.28F6707A@colorfullife.com>
-Date: Sun, 13 Jan 2002 18:01:40 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.2-pre11 i686)
-X-Accept-Language: en, de
+	id <S286411AbSAMROO>; Sun, 13 Jan 2002 12:14:14 -0500
+Received: from a178d15hel.dial.kolumbus.fi ([212.54.8.178]:19847 "EHLO
+	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
+	id <S286403AbSAMRN5>; Sun, 13 Jan 2002 12:13:57 -0500
+Message-ID: <3C41BFF1.6FF714A1@kolumbus.fi>
+Date: Sun, 13 Jan 2002 19:12:17 +0200
+From: Jussi Laako <jussi.laako@kolumbus.fi>
+X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: cross-cpu balancing with the new scheduler
+To: Roberto Nibali <ratz@drugphish.ch>
+CC: linux-audio-dev@music.columbia.edu, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x, patches and latencies
+In-Reply-To: <3C41849D.72ECBC05@kolumbus.fi> <3C41AC11.4060806@drugphish.ch>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it possible that the inter-cpu balancing is broken in 2.5.2-pre11?
+Roberto Nibali wrote:
+> 
+> Could you please post this as a unified diff against 2.4.17 on your
+> webpage, so others can test it too?
 
-eatcpu is a simple cpu hog ("for(;;);"). Dual CPU i386.
+OK, it's now available at:
+http://www.pp.song.fi/~visitor/dlbins/2.4.17-jl7-ll.patch.bz2
 
-$nice -19 ./eatcpu&;
- <wait>
-$nice -19 ./eatcpu&;
- <wait>
-$./eatcpu&.
 
-IMHO it should be
-* both niced process run on one cpu.
-* the non-niced process runs with a 100% timeslice.
+	- Jussi Laako
 
-But it's the other way around:
-One niced process runs with 100%. The non-niced process with 50%, and
-the second niced process with 50%.
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers
 
---
-	Manfred

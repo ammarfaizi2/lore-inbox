@@ -1,72 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285094AbRLLI3v>; Wed, 12 Dec 2001 03:29:51 -0500
+	id <S285096AbRLLIkr>; Wed, 12 Dec 2001 03:40:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285095AbRLLI3m>; Wed, 12 Dec 2001 03:29:42 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:63508 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S285094AbRLLI33>; Wed, 12 Dec 2001 03:29:29 -0500
-Date: Wed, 12 Dec 2001 09:29:54 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "H . J . Lu" <hjl@lucon.org>
-Cc: Linux 1394 <linux1394-devel@lists.sourceforge.net>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Slow Disk I/O with QPS M3 80GB HD
-Message-ID: <20011212092954.N4801@athlon.random>
-In-Reply-To: <20011210203452.A3250@lucon.org> <20011210235708.A17743@lucon.org> <20011211154331.A32433@lucon.org>
-Mime-Version: 1.0
+	id <S285097AbRLLIkh>; Wed, 12 Dec 2001 03:40:37 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:24076 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S285096AbRLLIkU>; Wed, 12 Dec 2001 03:40:20 -0500
+Message-ID: <3C1717C3.82CC4A63@zip.com.au>
+Date: Wed, 12 Dec 2001 00:39:31 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 & OOM killer screw up (fwd)
+In-Reply-To: <Pine.LNX.4.21.0112101705281.25362-100000@freak.distro.conectiva> <3C151F7B.44125B1@zip.com.au>, <3C151F7B.44125B1@zip.com.au>; <20011211011158.A4801@athlon.random> <3C15B0B3.1399043B@zip.com.au>,
+		<3C15B0B3.1399043B@zip.com.au>; from akpm@zip.com.au on Mon, Dec 10, 2001 at 11:07:31PM -0800 <20011211144223.E4801@athlon.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011211154331.A32433@lucon.org>; from hjl@lucon.org on Tue, Dec 11, 2001 at 03:43:31PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 11, 2001 at 03:43:31PM -0800, H . J . Lu wrote:
-> On Mon, Dec 10, 2001 at 11:57:08PM -0800, H . J . Lu wrote:
-> > On Mon, Dec 10, 2001 at 08:34:52PM -0800, H . J . Lu wrote:
-> > > I have a very strange problem. The disk I/O of my QPS M3 80GB HD is
-> > > very slow under 2.4.10 and above. I got like 1.77 MB/s from hdparm.
-> > > But under 2.4.9, I got 14 MB/s on the same hardware. A 30GB HD has
-> > > consistent I/O performance under 2.4.9 and above on the same bus. Has
-> > > anyone else seen this? Does anyone have a large (>= 80GB) 1394 HD?
-> > > 
-> > 
-> > I did a binary search. 2.4.10-pre10 is the last good kernel. I got
-> > 
-> > # hdparm -t /dev/sda
-> > 
-> > /dev/sda:
-> >  Timing buffered disk reads:  64 MB in  4.40 seconds = 14.55 MB/sec
-> > 
-> > Even since 2.4.10-pre11 up to 2.4.16, I got about 1.77 MB/sec on the
-> > same hardware. However, I don't have problems with 80GB IDE HD. Has
-> > anyone seen I/O problems on large (>= 80GB) SCSI HD or HD with SCSI
-> > emulation?
+Andrea Arcangeli wrote:
 > 
-> I tracked own the problem to 40_blkdev-pagecache-17 in the 2.4.10
-> pre10aa1 patch. When it is applied, the disk I/O on some drives become
-> very slow. It not only happens to my 80GB 1394 HD, but also the second
-> IDE drive. Before the patch
 > 
-> # hdparm -t /dev/hdd
+> [ big snip.  Addressed in other email ]
 > 
-> /dev/hdd:
->  Timing buffered disk reads:  64 MB in  8.02 seconds =  7.98 MB/sec
+> it should be simple, mainline swapouts more, so it's less likely to
+> trash away some useful cache.
 > 
-> After the patch
+> just try -aa after a:
 > 
-> # hdparm -t /dev/hdd
+>         echo 10 >/proc/sys/vm/vm_mapped_ratio
 > 
-> /dev/hdd:
->  Timing buffered disk reads:  64 MB in 21.09 seconds =  3.03 MB/sec
-> 
-> The slow down is not as bad as 1394. But it is still very significant.
-> I couldn't figure out why it only affects certain drives.
+> it should swapout more and better preserve the cache.
 
-do you have a 4k filesystm mounted on /dev/hdd? if so then you will get
-the same performance with latest 2.4 (precisely after 2.4.1).
+-aa swapout balancing seems very good indeed to me.
 
-Andrea
+> > > > In my swapless testing, I burnt HUGE amounts of CPU in flush_tlb_others().
+> > > > So we're madly trying to swap pages out and finding that there's no swap
+> > > > space.  I beleive that when we find there's no swap left we should move
+> > > > the page onto the active list so we don't keep rescanning it pointlessly.
+> > >
+> > > yes, however I think the swap-flood with no swap isn't a very
+> > > interesting case to optimize.
+> >
+> > Running swapless is a valid configuration, and the kernel is doing
+> 
+> I'm not saying it's not valid or non interesting.
+> 
+> It's the mix "I'm running out of memory and I'm swapless" that is the
+> case not interesting to optimize.
+> 
+> If you're swapless it means you've enough memory and that you're not
+> running out of swap. Otherwise _you_ (not the kernel) are wrong not
+> having swap.
+
+um.  Spose so.
+ 
+> ...
+> 
+> > The VM code lacks comments, and nobody except yourself understands
+> > what it is supposed to be doing.  That's a bug, don't you think?
+> 
+> Lack of documentation is not a bug, period. Also it's not true that I'm
+> the only one who understands it. For istance Linus understand it
+> completly, I am 100% sure.
+> 
+> Anyways I wrote a dozen of slides on the VM with some graph showing the
+> design of the VM if anybody can better learn from a slide than from the
+> code.
+
+That's good.  Your elevator design slides were very helpful.  However
+offline documentation tends to go stale.   A nice big block comment
+maintained by a programmer who cares goes a loooog way.
+
+> I believe the slides are useful to understand the design, but if you
+> want to change one line of code slides or not you've to read the code.
+> Everybody is complaining about documentation. This is a red-herring.
+> There's no documentation that allows you to hack the previous VM code.
+> I'd ask how many of the people happy with the previous documentation
+> were effectively VM developers. Except for some possible misleading
+> comment in the current code that we may have not updated yet, I don't
+> think there's been a regression in documentation.
+> 
+
+Sigh.  Just because the current core kernel looks like it was
+scrawled in crayon by an infant doesn't mean that everyone has
+to eschew literate, mature, competent and maintainable programming
+practices.
+
+-

@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbTIOHs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 03:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTIOHs4
+	id S261219AbTIOHos (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 03:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbTIOHos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 03:48:56 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:27298 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262048AbTIOHsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 03:48:54 -0400
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1030914233016.16842A-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1030914233016.16842A-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063611959.2742.4.camel@dhcp23.swansea.linux.org.uk>
+	Mon, 15 Sep 2003 03:44:48 -0400
+Received: from law11-f36.law11.hotmail.com ([64.4.17.36]:16146 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261219AbTIOHop
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 03:44:45 -0400
+X-Originating-IP: [220.224.1.162]
+X-Originating-Email: [kartik_me@hotmail.com]
+From: "kartikey bhatt" <kartik_me@hotmail.com>
+To: mpm@selenic.com
+Cc: jmorris@intercode.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [CRYPTO] Testing Module Cleanup.
+Date: Mon, 15 Sep 2003 13:14:44 +0530
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Mon, 15 Sep 2003 08:45:59 +0100
+Content-Type: text/plain; format=flowed
+Message-ID: <Law11-F36tRc0JFaTij0002c9ae@hotmail.com>
+X-OriginalArrivalTime: 15 Sep 2003 07:44:44.0981 (UTC) FILETIME=[3B136E50:01C37B5D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-09-15 at 04:55, Bill Davidsen wrote:
-> 1 - the code is not needed for Athlon, prefetch is turned off on broken
->     CPUs now. A generic kernel runs fine on Athlon.
+patch is too long.
+that's why i'm not including it in mail body.
+if it's empty, any way i'm resending it.
+thanks for comment.
+                   -Kartikey Mahendra Bhatt
 
-That disable you talk about is bloat. It also trashes the performance of
-PIV boxes. In fact I checked out of interest - the disable hack
-currently being used is adding *over* 300 bytes to my kernel as its
-inlined repeatedly. So its larger, and it ruins performance for all
-processors.
 
-You also need it for userspace prefetch fault fixup for a kernel without
-CONFIG_MK7 to run stuff perfectly on Athlon.
+>From: Matt Mackall <mpm@selenic.com>
+>To: kartikey bhatt <kartik_me@hotmail.com>
+>CC: jmorris@intercode.com.au, linux-kernel@vger.kernel.org
+>Subject: Re: [CRYPTO] Testing Module Cleanup.
+>Date: Sun, 14 Sep 2003 22:16:43 -0500
+>
+>On Mon, Sep 15, 2003 at 12:30:10AM +0530, kartikey bhatt wrote:
+> > Hi James.
+> >
+> > I have cleaned up the testing module.
+> > A complete rewrite.
+> > Code is reduced by almost 1900+ lines in tcrypt.c.
+> > I have compiled and test it on my machine.
+> > The kernel size is reduced by 5 Kb.
+> > I am including the patch for testing as an attachment.
+> > It provides uniform interface for adding new tests.
+> > Anyway, I think, now you won't call it a dirty module.
+> > I expect changes in the comments at the beginning of source files.
+> > Any suggestions are welcome.
+> >
+> >                    -Kartikey Mahendra Bhatt
+>
+>It's generally preferred to post patches in the body of your messages
+>rather than as an attachment. The attachment you posted also appears
+>to be empty.
+>
+>--
+>Matt Mackall : http://www.selenic.com : of or relating to the moon
 
+_________________________________________________________________
+Talk to Karthikeyan. Watch his stunning feats. 
+http://server1.msn.co.in/sp03/tataracing/index.asp Download images.
 

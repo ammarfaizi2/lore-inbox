@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVAHPOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVAHPhv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVAHPOL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 10:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVAHPOL
+	id S261189AbVAHPhv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 10:37:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVAHPhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 10:14:11 -0500
-Received: from box.punkt.pl ([217.8.180.66]:23303 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S261188AbVAHPOH (ORCPT
+	Sat, 8 Jan 2005 10:37:51 -0500
+Received: from mail.kroah.org ([69.55.234.183]:8335 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261189AbVAHPhl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 10:14:07 -0500
-From: Mariusz Mazur <mmazur@kernel.pl>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] linux-libc-headers 2.6.10.0
-Date: Sat, 8 Jan 2005 16:13:27 +0100
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Sat, 8 Jan 2005 10:37:41 -0500
+Date: Sat, 8 Jan 2005 07:37:37 -0800
+From: Greg KH <greg@kroah.com>
+To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Cc: "Mark M. Hoffman" <mhoffman@lightlink.com>, Jonas Munsin <jmunsin@iki.fi>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] I2C patches for 2.6.10
+Message-ID: <20050108153737.GA1454@kroah.com>
+References: <11051627762989@kroah.com> <11051627762271@kroah.com> <20050108062251.GA5006@jupiter.solarsys.private> <20050108111528.177dc794.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501081613.27460.mmazur@kernel.pl>
+In-Reply-To: <20050108111528.177dc794.khali@linux-fr.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Available at http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
-Changes:
-- updated to 2.6.10
-- switched to using svn and now ChangeLog is back :)
-- some minor changes here and there (made some headers ansi C compatible)
+On Sat, Jan 08, 2005 at 11:15:28AM +0100, Jean Delvare wrote:
+> Hi Mark,
+> 
+> > * Greg KH <greg@kroah.com> [2005-01-07 21:39:36 -0800]:
+> > > ChangeSet 1.1938.445.11, 2004/12/21 11:09:49-08:00, jmunsin@iki.fi
+> > > 
+> > > [PATCH] I2C: it87.c update
+> > > 
+> > >  - adds manual PWM
+> > >  - removes buggy "reset" module parameter
+> > >  - fixes some whitespaces
+> > > 
+> > > Signed-off-by: Jonas Munsin <jmunsin@iki.fi>
+> > > Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+> > 
+> > You might hold off on this one patch... see this:
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=110514540928517&w=3
+> 
+> I second Mark on that. Please do not merge this one until Jonas and I
+> have analyzed the problem and found an acceptable solution. Stopping
+> fans on module load isn't exactly a good driver behavior :(
 
+Ok, I've reverted this in the bk tree.
 
-Two weeks after 2.6.10, but you can blame Linus for releasing 2.6.10 just 
-before Christmas.
+thanks,
 
-Like I've said two months ago - my scripts for testing new versions now do 
-separate asm-i386-ansi and asm-i386-noansi checks, so any ansi degradation in 
-linux or asm-i386 (like the one from 2.6.9) won't go unnoticed.
-
-One more thing - llh is now officially one year old (first commits are from 
-December 2003). That's a long time for any hack to live. Especially a hack 
-this big and one that even has a couple of vendor specific variants. A couple 
-of discussions took place concerning this matter (in the last one Linus even 
-said, that he'll be accepting patches) and still I see no movement. I'd 
-really like to see glibc guys figuring out a way not to duplicate definitions 
-and structures from linux and starting to submit patches. That'd be a really 
-good (and much needed - glibc's and linux' headers conflict in lots of ugly 
-ways) first step.
-Anybody?
-
-Happy New Year.
-
--- 
-In the year eighty five ten
-God is gonna shake his mighty head
-He'll either say,
-"I'm pleased where man has been"
-Or tear it down, and start again
+greg k-h

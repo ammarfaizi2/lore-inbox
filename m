@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131158AbRCRKtm>; Sun, 18 Mar 2001 05:49:42 -0500
+	id <S131193AbRCRK60>; Sun, 18 Mar 2001 05:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131193AbRCRKtc>; Sun, 18 Mar 2001 05:49:32 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:46084 "HELO
+	id <S131194AbRCRK6Q>; Sun, 18 Mar 2001 05:58:16 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:51972 "HELO
 	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131158AbRCRKt0>; Sun, 18 Mar 2001 05:49:26 -0500
-Date: Sun, 18 Mar 2001 07:46:10 -0300 (BRST)
+	id <S131193AbRCRK6C>; Sun, 18 Mar 2001 05:58:02 -0500
+Date: Sun, 18 Mar 2001 07:56:48 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: linux-mm@kvack.org, linux-kernel <linux-kernel@vger.kernel.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>
 Subject: Re: changing mm->mmap_sem  (was: Re: system call for process
  information?)
-In-Reply-To: <Pine.LNX.4.33.0103181050020.878-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0103180742510.13050-100000@imladris.rielhome.conectiva>
+In-Reply-To: <001701c0af8e$bd590ac0$5517fea9@local>
+Message-ID: <Pine.LNX.4.21.0103180740290.13050-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Mar 2001, Mike Galbraith wrote:
+On Sun, 18 Mar 2001, Manfred Spraul wrote:
 
-> I gave this patch a try, and the initial results are extremely encouraging.
-> Not only do I have vmstat (SCHED_RR) info in realtime with zero delays :))
-> I also have a _nice_ throughput improvement.  There are some worrisome
-> warnings below along with the compile changes I made here, but for an
-> initial patch, things look pretty darn wonderful.
+> > The problem is that mmap_sem seems to be protecting the list
+> > of VMAs, so taking _only_ the page_table_lock could let a VMA
+> > change under us while a page fault is underway ...
+> 
+> No, that can't happen.
+> VMA changes only happen if both the mmap_sem and the page table lock is
+> acquired. (check insert_vm() at the end of mm/mmap.c)
+> The page fault path uses the map_sem, kswaps uses page_table_lock.
 
-	[snip compile fixes .. integrated]
+You're right here, I missed this "little detail"...
 
-> VFS: Mounted root (ext2 filesystem) readonly.
-> Freeing unused kernel memory: 196k freed
-> Adding Swap: 265064k swap-space (priority 2)
-> VM: Bad swap entry 00011e00
-> VM: Bad swap entry 00058d00
-> Unused swap offset entry in swap_dup 00058d00
-> Unused swap offset entry in swap_dup 00011e00
-> VM: Bad swap entry 00011e00
-> VM: Bad swap entry 00058d00
+> << from your patch:
+> --- linux-2.4.2-ac20-vm/mm/vmscan.c.orig	Sat Mar 17 11:30:49 2001
+> +++ linux-2.4.2-ac20-vm/mm/vmscan.c	Sat Mar 17 20:53:10 2001
+> @@ -231,6 +231,7 @@
+>  	 * Find the proper vm-area after freezing the vma chain
+>  	 * and ptes.
+>  	 */
+> +	down_read(&mm->mmap_sem);
+>                 spin_lock(&mm->page_table_lock);
+>  >>>>
+> 
+> Why do you acquire the mmap semaphore in swapout_mm()? The old rule was
+> that kswapd should never sleep on the mmap semaphore. Isn't there a
+> deadlock if mmap sem is already acquired? I don't remember the details.
 
-Heh, I guess do_swap_page isn't too happy when multiple threads
-of the same program take a page fault at the same address at the
-same time.
+You're right, kswapd shouldn't do this.  I have this removed from
+my code right now...
 
-I take it you were testing something like mysql, jvm or apache2 ?
+> > The problem is that mmap_sem seems to be protecting the list
+> > of VMAs, so taking _only_ the page_table_lock could let a VMA
+> > change under us while a page fault is underway ...
+> 
+> I remember that the pmd_alloc() and pte_alloc() functions need
+> additional locking.
+
+Isn't this what the page_table_lock is for ?
+(too bad they're not using it...)
 
 regards,
 
@@ -54,4 +69,5 @@ However, without VM there's truly nothing to lose...
 
 		http://www.surriel.com/
 http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 

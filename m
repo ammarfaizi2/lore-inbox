@@ -1,90 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbTI0LuU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 07:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbTI0LuU
+	id S262424AbTI0LrK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 07:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbTI0LrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 07:50:20 -0400
-Received: from [195.249.110.5] ([195.249.110.5]:60279 "EHLO apollo")
-	by vger.kernel.org with ESMTP id S262429AbTI0LuN (ORCPT
+	Sat, 27 Sep 2003 07:47:10 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43697 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262425AbTI0LrJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 07:50:13 -0400
-Subject: Kernel BUG at inode.c:564
-From: Jules Colding <jules@tdcadsl.dk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1064663404.9635.58.camel@apollo>
+	Sat, 27 Sep 2003 07:47:09 -0400
+Date: Sat, 27 Sep 2003 13:47:12 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Derek Foreman <manmower@signalmarketing.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CDROM_SEND_PACKET oddity
+Message-ID: <20030927114712.GJ3416@suse.de>
+References: <Pine.LNX.4.58.0309262131110.15317@uberdeity.signalmarketing.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Sep 2003 13:50:04 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0309262131110.15317@uberdeity.signalmarketing.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Sep 26 2003, Derek Foreman wrote:
+> The example code from
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0202.0/att-0603/01-cd_poll.c
+> 
+> Does not behave as expected on my 2.6.0-test5 system.  While the command 
+> seems to be successfully sent - 2 of my drives report it as an invalid 
+> opcode - for the other 2 drives, the buffer comes back all zeros.
+> (actually, the buffer's contents will remain in whatever state they're in 
+> before the ioctl is called)
+> 
+> Sending the same command to those 2 drives with SG_IO results in the 
+> expected behaviour.
 
-I don't know if this is/was a known issue, but I got a kernel panic when
-I tried to install, rh9 on my new machine (I have send this mail to the
-rh list too). This happened while doing a harddisk install from
-/dev/hda5 (fat - partitioned and formatted by W2K). 
+Can you try current -bk? It has some fixes for CDROM_SEND_PACKET.
 
-My hardware is:
-Asus A7V600 Via KT600 DDR400 AGP x8
-1 AMD Athlon Thoroughbred  XP 2000+ (1667 MHz)
-2 Seagate Barracuda 80GB (ST380011A), 7200RPM, 2MB 
-1 Kingston 512 MB DDR-RAM PC32000 400 MHz KVR400X64C3
-1 Nvidia GeForce4 MX 440-8X, 128MB DDR
-
-Both Seagates are at IDE1. I have installed W2K on hda and was trying to
-install rh9 on hdb as a dual boot. I have a fat partition (hda5) on my
-W2K disk. I also have a cdrom on hdc.
-
-I have replicated the entire error screen below:
-
----------------- CUT ----------------
-        /mnt/runtime umount failed (16)
-        disabling /dev/loop1 LOOP_CLR_FD failed: 16
-------------- [ cut here ] ------------- 
-kernel BUG at inode.c:564!
-invalid operand: 0000
-CPU:    0
-EIP:    0060:[<c014dfaa]>       Not tainted
-EFLAGS: 00010202
-
-EIP is at  (2.4.20-8BOOT)
-eax: 00000001   ebx: dce37420   ecx: dce37440   edx: 00000000
-esi: dfcd1f60   edi: dfcd1f60   ebp: c0271280   esp: dfcd1f44
-ds: 0068        es: 0068        ss: 0068
-Process linuxrc (pid: 17, stackpage=dfcd1000)
-Stack:  dce37420 c014e07a dce37420 defe4c64 00000000 c014e1a5 dfcd1f60
-dce37258
-        d85685d8 defe4c44 defe4c00 dee64ca0 c0140759 defe4c00 c0271348
-00000000
-        dfcd1f98 0000000d bffec894 c01502e4 defe4c00 dee64ca0 c25a2590
-c250a270
-Call Trace:     [<c014e07a>] (0xdfcd1f48)
-[<c014e1a5>] (0xdfcd1f58)
-[<c0140759>] (0xdfcd1f74)
-[<c01502e4>] (0xdfcd1f90)
-[<c0108d73>] (0xdfcd1fc0)
-
-Code: 0f 0b 34 02 39 da 23 c0 8b 83 fc 00 00 00 a9 10 00 00 00 75
- VFS: Cannot open root device "" or 48:05
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on 48:05
----------------- CUT ----------------
-
-This was the first time I got a kernel panic. The install have stalled
-trice before (well into the install). Two times when I tried to install
-from cdrom, and one time when I tried the hard disk install from the
-same partition. I have checked the media and the isos. They all PASS.
-
-So, is there some solution to this problem?
-
-Thanks in advance,
-  jules
-
+However, cd_poll should be rewritten to use SG_IO. Pretty trivial
+exercise.
 
 -- 
-Jules Colding <jules@tdcadsl.dk>
+Jens Axboe
+

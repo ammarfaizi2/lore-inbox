@@ -1,61 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263431AbTIBCrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 22:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbTIBCrQ
+	id S263435AbTIBCtF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 22:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263436AbTIBCtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 22:47:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35264 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263431AbTIBCrP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 22:47:15 -0400
-Message-ID: <3F5404A4.4080700@pobox.com>
-Date: Mon, 01 Sep 2003 22:47:00 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Mon, 1 Sep 2003 22:49:05 -0400
+Received: from crete.csd.uch.gr ([147.52.16.2]:42905 "EHLO crete.csd.uch.gr")
+	by vger.kernel.org with ESMTP id S263435AbTIBCtA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 22:49:00 -0400
+Organization: 
+Date: Tue, 2 Sep 2003 05:45:52 +0300 (EEST)
+From: Panagiotis Papadakos <papadako@csd.uoc.gr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IOMEGA ZIP 100 ATAPI problems with 2.6
+In-Reply-To: <3F532C67.6070904@sbcglobal.net>
+Message-ID: <Pine.GSO.4.53.0309020539380.9075@oneiro.csd.uch.gr>
+References: <Pine.GSO.4.53.0308310037230.27956@oneiro.csd.uch.gr>
+ <3F515301.4040305@sbcglobal.net> <3F532C67.6070904@sbcglobal.net>
 MIME-Version: 1.0
-To: Junio C Hamano <junkio@cox.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: dontdiff for 2.6.0-test4
-References: <3F53F142.5050909@pobox.com> <Pine.GSO.4.44.0309010754480.1106-100000@north.veritas.com> <20030901163958.A24464@infradead.org> <20030901162244.GA1041@mars.ravnborg.org> <3F537CDD.3040809@pobox.com> <20030901171806.GB1041@mars.ravnborg.org> <7vk78rykzb.fsf@assigned-by-dhcp.cox.net>
-In-Reply-To: <7vk78rykzb.fsf@assigned-by-dhcp.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junio C Hamano wrote:
-> I do not think it is a tangent.  While I am not opposed to ship
-> dontdiff under Documentation/* separately from the current
-> mrproper implementation in the Makefile, if these two should
-> name the identical set of paths, coming up with a scheme in
-> which humans have to maintain just a single source and derive
-> these two different usage from that single source would make
-> people's life easier.  Two things that should be identical but
-> have to be kept in sync by hand is simply a maintenance
-> headache.
+Hi
 
-The two are maintained separately now.  This is changing a file location 
-to make things a bit more convenient for dontdiff users; it's not 
-radically changing anything, technically or politically.
+I tried to see if the problem had to do anything with acpi or Preemptible
+kernel. So I disabled both of them but the problem still exists. At least
+I got a better Oops, which I had to write down on paper. So it probably
+has many errors. Here it is if it helps anyone...
 
-If there are persons that consider the presence of dontdiff in the tree 
-a maintenance headache, then those persons should not patch dontdiif. 
-Problem solved :)  It's a file that's not going change often.
+Regards
+	Panagiotis Papadakos
 
 
-> On the other hand, if there are paths that should be in dontdiff
-> that should not be cleaned by mrprper, or vice versa, then
-> keeping two separately and maintaining two independently would
-> absolutely makes sense.  Are there such cases?
-
-People are thinking _way_ too hard about this.  This is just plunking a 
-rarely-changing file into the kernel tree.  Even implying some sort of 
-maintenance hassle is making a mountain out of a molehill.
-
-	Jeff
-
-
-
+kernel BUG at include/linux/list.h 149!
+invalid operand:0000 [#1]
+CPU:    0
+EIP:    0060:[<c013cb60>]       Not tainted VLI
+EFLAGS: 00010003
+EIP is at free_block+0xe0/0x100
+eax: dabf9080  ebx: daa1aac0  ecx: daa1a000  edx: dff54814
+esi: dff54800  edi: 00000000  ebp: dff5480c  esp: c03a3edc
+df: 007b  es: 007b  ss: 0068
+Process swapper (pid: 0, threadinfo=c03a2000 task=c034c9c0)
+Stack: c0416740 dfdaeda0 c023ee69 dff5481c dff5d9c0 00000004 dff5d9d0
+dff54238
+       c013d099 dff54800 dff5d9d0 00000004 dff54800 00000001 dff5486c
+c013d1d3
+       dff54800 dff5d9c0 00000000 00000000 00000000 c013d170 c03a3f3c
+c03a3f4c
+Call Trace:
+[<c023ee69>] atapi_output_bytes+0x39/0x80
+[<c013d099>] drain_array+0x69/0x90
+[<c013d1d3>] reap_timer_fnc+0x63/0x1c0
+[<c013d170>] reap_timer_fnc+0xb9/0x190
+[<c0125aa9>] run_timer_softirq+0x90/0xa0
+[<c0121c10>] do_softirq+0x90/0xa0
+[<c010c805>] do_IRQ+0xc5/0xe0
+[<c0107000>] _stext+0x0/0x30
+[<c02f6b34>] common_interrupt+0x18/0x20
+[<c0107000>] _stext+0x0/0x30
+[<c0108e93>] default_idle+0x23/0x30
+[<c01083fc>] cpu_idle+0x2c/0x40
+[<c03a4704>] start_kernel+0x144/0x150
+[<c03a448?>] unknown_bootoption+0x0/0x100
+Code: 5e 5f 5d c3 8d b4 26 00 00 00 00 2b 46 3c 89 46 24 89 34 24 89 4c 24
+04 e8 1e f2 ff ff eb d2 8b 45 04 89 29 89 4d 04 89 08
+      eb c3 <0f> 0b 95 00 32 1a 30 c0 e9 6c ff ff ff 0f 0b 94 00 32 1a 30
+c0
+<0> Kernel panic: Fatal exception in interrupt
+In interrupt handler - not syncing

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281011AbRKOThj>; Thu, 15 Nov 2001 14:37:39 -0500
+	id <S281016AbRKOTsC>; Thu, 15 Nov 2001 14:48:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281012AbRKOTh3>; Thu, 15 Nov 2001 14:37:29 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:4100 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S281011AbRKOThU>; Thu, 15 Nov 2001 14:37:20 -0500
-Message-ID: <002501c16e0c$d3800550$f5976dcf@nwfs>
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Microsoft IE6 is crashing with Linux 2.4.X
-Date: Thu, 15 Nov 2001 12:35:47 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S281018AbRKOTrx>; Thu, 15 Nov 2001 14:47:53 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:54795 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S281016AbRKOTre>; Thu, 15 Nov 2001 14:47:34 -0500
+Date: Thu, 15 Nov 2001 20:47:31 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Possible Bug: 2.4.14 USB Keyboard
+Message-ID: <20011115204731.A8721@suse.cz>
+In-Reply-To: <3BF2DFBF.6090502@prairiegroup.com> <20011114145312.A6925@kroah.com> <3BF3D029.7070609@prairiegroup.com> <20011115090023.A10511@kroah.com> <3BF40C03.4010509@prairiegroup.com> <mailman.1005850740.5583.linux-kernel2news@redhat.com> <200111151930.fAFJUCq16060@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200111151930.fAFJUCq16060@devserv.devel.redhat.com>; from zaitcev@redhat.com on Thu, Nov 15, 2001 at 02:30:12PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 15, 2001 at 02:30:12PM -0500, Pete Zaitcev wrote:
+> > Do you have the keybdev module loaded? Also, don't load the usbkbd
+> > module, if you load hid ...
+> > 
+> > -- 
+> > Vojtech Pavlik
+> > SuSE Labs
+> 
+> There is a small problem with this approach: users have no clue
+> how to control what modules are loaded, hotplug loads whatever
+> was built (and recorded in modules.usbmap), and some users
+> have keyboards that plainly refuse to work with hid, therefore
+> vendors have to build both modules.
+> 
+> See this little gem, for instance:
+>  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=55878
+> 
+> I suspect some distributions can get away with "load the right
+> module" approach because their userbase is so small and technical
+> that they do not hit these cases often. I think something needs
+> fixing in hid.
 
-I have upgraded several W2K boxes to the latest IE6 packages I downloaded
-from Microsoft's website.  I am seeing a behavior which appears to be a bug.
-It appears to be malicious "malfunctioning" with some sort of deliberate
-breakage designed to create incompatibility between Linux and W2K mail
-systems.  Attempts to relay mail via sendmail/Linux is resulting in the
-following message.  This message shows up 1 out of 3 times or so relaying
-emails from Outlook IE6 through a Linux server:
+Interesting. Could you by any chance try to run the 'evtest' program (i
+can send it to you if you don't have it handy) on the /dev/input/event
+device created for this keyboard? And/or dmesg with DEBUG enabled in
+hid-core.c? Also, latest kernels should make even the extra keys of this
+keyboard work ...
 
-The connection to the server has failed. Account: 'mail.timpanogas.org',
-Server: 'mail.timpanogas.org', Protocol: SMTP, Port: 25, Secure(SSL): No,
-Socket Error: 10061, Error Number: 0x800CCC0E
-
-The IE5 clients and earlier IE6 clients do not exhibit this behavior.  Does
-anyone know if Linux has broken something or can verify this behavior
-independent of what we are seeing?
-It looks like MS up to their old tricks of creating annoyances for customers
-which are designed to look like bugs in our software.  When I was at Novell,
-I saw these types of things regularly in their software (i.e. DRDOS,
-NetWare, etc.) designed to deliberately create incompatibility and breakage
-at customer sites.  I am not certain this is what is happening here, but if
-someone else can verify, then perhaps this is the case, and we should alert
-Linux users.
-
-Thanks
-
-Jeff
-
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,92 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265591AbSJSMm1>; Sat, 19 Oct 2002 08:42:27 -0400
+	id <S265594AbSJSMo6>; Sat, 19 Oct 2002 08:44:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265593AbSJSMm1>; Sat, 19 Oct 2002 08:42:27 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:45767 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265591AbSJSMm0>; Sat, 19 Oct 2002 08:42:26 -0400
-Date: Sat, 19 Oct 2002 14:48:25 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bug tracking in the run up from 2.5 to 2.6
-In-Reply-To: <205680000.1034895125@flay>
-Message-ID: <Pine.NEB.4.44.0210191415390.28761-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265596AbSJSMo6>; Sat, 19 Oct 2002 08:44:58 -0400
+Received: from main.gmane.org ([80.91.224.249]:2456 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S265594AbSJSMo5>;
+	Sat, 19 Oct 2002 08:44:57 -0400
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: Nicholas Wourms <nwourms@netscape.net>
+Subject: Re: Linux v2.5.44 - and offline for a week
+Date: Sat, 19 Oct 2002 08:41:18 -0400
+Message-ID: <aorjq3$3dm$1@main.gmane.org>
+References: <Pine.LNX.4.44.0210182117500.12531-100000@penguin.transmeta.com>
+Reply-To: nwourms@netscape.net
+NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: main.gmane.org 1035031171 3510 130.127.121.177 (19 Oct 2002 12:39:31 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Sat, 19 Oct 2002 12:39:31 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Oct 2002, Martin J. Bligh wrote:
+Linus Torvalds wrote:
 
->...
-> We really need to get some feedback before commiting resources to doing
-> this - if you'd be willing to close out bugs as you find / fix them, please let
-> me know. This is a web interface system, with handy email triggers, and is
-> very easy to use.
->
-> Feedback saying "well, it'll only be useful if you do XYZ" is welcome too.
-> We're very unlikely to change tools to use something other than Bugzilla
-> at this point, so that's not really open for debate.
+> 
+> Ok, I've merged stuff from more people, and 2.5.44 is out there. We're
+> getting closer, folks.
+> 
+> And for the ext 8 days (starting _now_) it is totally unnecessary to try
+> to send me patches or cc me on the discussions about what needs to be
+> merged or not. I won't read it, and when I get back I will likely just
+> flush the whole inbox, since there's no way I can try to catch up _and_
+> try to merge some final pieces before the feature freeze at the same time.
 
+Perhaps this is good reason to delay the freeze for an additional 2 weeks or 
+so?  I fail to see the necessity of rushing into a freeze, especially when 
+it seems obvious that people are trying to merge code which hasn't been 
+adequately tested.  I think Hans Reiser and others have brought up valid 
+points that the freeze is happening too soon.  I tend to agree, especially 
+looking back at the timetable surrounding 2.1.X development.  Since I'm not 
+a contributor, I know my opinion doesn't count for much.  Still, as a user 
+I think it is important not to write of new features just because they 
+didn't make the "arbitrary" freeze date.  Again, I really don't see what 
+the rush is all about.
 
-First of all thanks for this, it sounds like a pretty good idea. :-)
-
-
-Some comments/questions:
-
-
-1. Related projects
-
-1a Some time ago Dave Jones did something similar [1] and currently
-   Thomas Molina maintains a bug tracking page [2]. These were/are both
-   projects where one person did/does collect bug reports from
-   linux-kernel by hand but roughly spoken it's the same thing you want to
-   start (modulo the additional manpower you can provide). You should
-   at least ask them for their experiences and use Thomas' collection
-   as input for your bug tracking system.
-
-1b The Trivial Patch Monkey [3] by Rusty Russell is not very related
-   but it would be good if there was enough communication that it's noted
-   in the bug tracking system whenever a bug is already fixed by a patch
-   submitted to the Trivial Patch Monkey.
-
-
-2. What is the suggested workflow?
-
-   Let's say I want to report a "xyz doesn't compile in 2.5.44" bug.
-
-   Currently I'm sending it to the people that seem to be responsible
-   (looking at MAINTAINERS and the contents of the file that doesn't
-   compile) with a Cc to linux-kernel.
-
-   With a Web-based bug tracking system like Bugzilla it's additional work
-   to add a bug to the bug tracking system, too, and to keep the
-   information that is there updated (e.g. if the maintainer sends a patch
-   a few hours later).
-
-   What is the suggested workflow to avoid additional work?
-
-
-> Martin.
-
-cu
-Adrian
-
-[1] http://www.codemonkey.org.uk/Linux-2.5.html
-[2] http://members.cox.net/tmolina/kernprobs/status.html
-[3] http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
-
--- 
-
-"Is there not promise of rain?" Ling Tan asked suddenly out
-of the darkness. There had been need of rain for many days.
-"Only a promise," Lao Er said.
-                                Pearl S. Buck - Dragon Seed
-
-
-
+Just my .02 (US),
+Nicholas
 
 

@@ -1,96 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbUD2ByN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbUD2B4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262882AbUD2ByN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 21:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbUD2ByN
+	id S262897AbUD2B4T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 21:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUD2B4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 21:54:13 -0400
-Received: from ozlabs.org ([203.10.76.45]:24768 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262882AbUD2Bxp (ORCPT
+	Wed, 28 Apr 2004 21:56:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37266 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262897AbUD2ByU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 21:53:45 -0400
-Date: Thu, 29 Apr 2004 11:49:59 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
-Subject: POWER5 erratum workaround
-Message-ID: <20040429014959.GA18309@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
-	linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+	Wed, 28 Apr 2004 21:54:20 -0400
+Date: Wed, 28 Apr 2004 18:53:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: brettspamacct@fastclick.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-Id: <20040428185342.0f61ed48.akpm@osdl.org>
+In-Reply-To: <16528.23219.17557.608276@cargo.ozlabs.ibm.com>
+References: <409021D3.4060305@fastclick.com>
+	<20040428170106.122fd94e.akpm@osdl.org>
+	<409047E6.5000505@pobox.com>
+	<40905127.3000001@fastclick.com>
+	<20040428180038.73a38683.akpm@osdl.org>
+	<16528.23219.17557.608276@cargo.ozlabs.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply:
+Paul Mackerras <paulus@samba.org> wrote:
+>
+> Andrew Morton writes:
+> 
+> > My point is that decreasing the tendency of the kernel to swap stuff out is
+> > wrong.  You really don't want hundreds of megabytes of BloatyApp's
+> > untouched memory floating about in the machine.  Get it out on the disk,
+> > use the memory for something useful.
+> 
+> What I have noticed with 2.6.6-rc1 on my dual G5 is that if I rsync a
+> gigabyte or so of data over to another machine, it then takes several
+> seconds to change focus from one window to another.  I can see it
+> slowly redraw the window title bars.  It looks like the window manager
+> is getting swapped/paged out.
+> 
+> This machine has 2.5GB of ram, so I really don't see why it would need
+> to swap at all.  There should be plenty of page cache pages that are
+> clean and not in use by any process that could be discarded.  It seems
+> like as soon as there is any memory shortage at all it picks on the
+> window manager and chucks out all its pages. :(
+> 
 
-Early POWER5 revisions (<DD2.1) have a problem requiring slbie
-instructions to be repeated under some circumstances.  The patch below
-adds a workaround (patch made by Anton Blanchard).
+I suspect rsync is taking two passes across the source files for its
+checksumming thing.  If so, this will defeat the pagecache use-once logic. 
+The kernel sees the second touch of the pages and assumes that there will
+be a third touch.
 
-Index: working-2.6/arch/ppc64/kernel/entry.S
-===================================================================
---- working-2.6.orig/arch/ppc64/kernel/entry.S	2004-04-20 11:04:31.000000000 +1000
-+++ working-2.6/arch/ppc64/kernel/entry.S	2004-04-28 14:30:30.069407648 +1000
-@@ -311,6 +311,7 @@
- 	beq	2f		/* if yes, don't slbie it */
- 	oris	r6,r6,0x0800	/* set C (class) bit */
- 	slbie	r6
-+	slbie	r6		/* Workaround POWER5 < DD2.1 issue */
- 2:
- END_FTR_SECTION_IFSET(CPU_FTR_SLB)
- 	clrrdi	r7,r8,THREAD_SHIFT	/* base of new stack */
-Index: working-2.6/arch/ppc64/kernel/stab.c
-===================================================================
---- working-2.6.orig/arch/ppc64/kernel/stab.c	2004-03-12 10:35:23.000000000 +1100
-+++ working-2.6/arch/ppc64/kernel/stab.c	2004-04-28 14:33:48.446331536 +1000
-@@ -474,14 +474,14 @@
- void flush_slb(struct task_struct *tsk, struct mm_struct *mm)
- {
- 	unsigned long offset = __get_cpu_var(stab_cache_ptr);
-+	union {
-+		unsigned long word0;
-+		slb_dword0 data;
-+	} esid_data;
-+
- 
- 	if (offset <= NR_STAB_CACHE_ENTRIES) {
- 		int i;
--		union {
--			unsigned long word0;
--			slb_dword0 data;
--		} esid_data;
--
- 		asm volatile("isync" : : : "memory");
- 		for (i = 0; i < offset; i++) {
- 			esid_data.word0 = 0;
-@@ -493,6 +493,17 @@
- 		asm volatile("isync; slbia; isync" : : : "memory");
- 	}
- 
-+	/* Workaround POWER5 < DD2.1 issue */
-+	if (offset == 1 || offset > NR_STAB_CACHE_ENTRIES) {
-+		/* 
-+		 * flush segment in EEH region, we dont normally access
-+		 * addresses in this region.
-+		 */
-+		esid_data.word0 = 0;
-+		esid_data.data.esid = EEH_REGION_ID;
-+		asm volatile("slbie %0" : : "r" (esid_data));
-+	}
-+
- 	__get_cpu_var(stab_cache_ptr) = 0;
- 
- 	preload_slb(tsk, mm);
-
-
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+I use scp ;)

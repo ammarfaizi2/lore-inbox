@@ -1,50 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261503AbSJAHP5>; Tue, 1 Oct 2002 03:15:57 -0400
+	id <S261501AbSJAHPA>; Tue, 1 Oct 2002 03:15:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261504AbSJAHP5>; Tue, 1 Oct 2002 03:15:57 -0400
-Received: from mail.ccur.com ([208.248.32.212]:60682 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id <S261503AbSJAHP4>;
-	Tue, 1 Oct 2002 03:15:56 -0400
-Message-ID: <3D994CD9.3FDFA09F@ccur.com>
-Date: Tue, 01 Oct 2002 03:20:57 -0400
-From: Jim Houston <jim.houston@ccur.com>
-Reply-To: jim.houston@ccur.com
-Organization: Concurrent Computer Corp.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Jim Houston <jim.houston@attbi.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: O(1) Scheduler (tuning problem/live-lock)
-References: <200209061844.g86IiF701825@linux.local> <20020930161019.GH1235@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261503AbSJAHPA>; Tue, 1 Oct 2002 03:15:00 -0400
+Received: from c66-235-4-135.sea2.cablespeed.com ([66.235.4.135]:30822 "EHLO
+	darklands.zimres.net") by vger.kernel.org with ESMTP
+	id <S261501AbSJAHO6>; Tue, 1 Oct 2002 03:14:58 -0400
+Date: Tue, 1 Oct 2002 00:16:58 -0700
+From: Thomas Zimmerman <thomas@zimres.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.39: Sleeping function/ Oops
+Message-Id: <20021001001658.526be4a3.thomas@zimres.net>
+X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=./uZX.YT+c:2Hy1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea, Ingo,
+--=./uZX.YT+c:2Hy1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Andrea I tried your patch and it does solve the live-lock
-in the LTP waitpid06 test.  The mouse movement gets a bit
-jerky but atleast it doesn't lock up.
+After the request for more testers (after a backup) I d/l'ed and
+compiled 2.5.39. My setup isn't trivial, but should be fine for 2.6; SiS
+chipset, athlon 1gzH, 512Mem, pci promis ide controler, softraid 0 and
+5. This is a gentoo install that loves devfs for some reason (I've
+always found the paths to be overly long.)
 
-I guess the next question is how does it do on normal work loads?
+Anyway, right after partition detection ide-scsi detection of my old
+no-brand cdrw drive and dvd drive triped this (written down):"
+SCSI subsystem driver Revision: 1.0
+request_module[scsi_hostadapter]: not ready
+request_module[scsi_hostadapter]: not ready
+Sleeping function called from illegal context at
+/mnt/src/linux-2.4.39/include/asm/semaphore.h:119
+...
+...
+Call trace:
+driverfs_create_file+0x57
+get_device+0xc1
+device_create_file+0x35
+pci_pool_create+0x11c
+snprintf+0x26
+hcd_buffer_create+0x72
+usbdev_open+0x52
+usb_hcd_pci_probe+0x18a
+allac_inode+0x18a
+pci_device_probe+0x58
+probe+0x22
+found_match+0x2b
+do_driver_attach+0x5a
+bus_for_each_dev+0x79
+driver_attach+0x20
+do_driver_attach+0x0
+driver_register+0x75
+pci_register_driver+0x3d
+init+0x3d
+init+0x0
+kernel_thread_helper+0x5"
 
-I like the idea of making the child processes start with a smaller
-sleep_avg value.  Maybe it should just be a constant rather than a
-fraction of the parents sleep_avg?  Its really the child processes
-inheriting the favorable sleep_avg that caused the problem with
-waitpid06.
+Next problem: after autoraid start fails on md0 (a made of 3 10gig
+partitions on 3 drives; 2 on the SiS ide; 1 on promise ide) it Oops:"
+...
+...
+eip: 0060:[c02479cc]	Not tainted
+eflags: 00010286
+eip is at export_rdev+0xc/0xa0
+...
+Proccess raidstart (pid 2242, threadinfo=df192000 task=df6b930)
+...
+autostart_array+0x6d/0x150
+md_ioctl+0x4ab/0x560
+devfs_open+0x1c1/0x1d0
+get_empty_flip+0x16a/0x160
+dentry_open+0x16a/0x160
+filp_open+0x60/0x70
+blkdev_ioctl+0xbb/0x110
+sys_soctl+0xc1/0x320
+sys_call+0x7/0xb
 
-I liked the idea of giving interactive tasks special treatment. 
-Andrea please don't remove this.  Always putting processes
-(which have used up there time slice) into the rq->expired array
-makes all processes round robin at the same priority.  It makes
-sense to do this to fail gracefully if the system is overloaded
-but not all the time.
+Code: 8b 43 14 85 c0 74 04 0f b7 50 10 89 14 24 e8 21 5f f2 ff c7
+"
 
-I hope this make sense.  I'm falling asleep writing it:-)
+Additional info available on request.
 
-Jim Houston - Concurrent Computer Corp.
+/me back to the safty of 2.4.19-ck7 and a softraid rebuild
+
+
+Thomas
+
+--=./uZX.YT+c:2Hy1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9mUvuOStTnUTb5R8RAsajAJ40H0xIdnv5IBKpp1Z7CPM/aJsPyACfRYM8
+S9pXkT/76DKsXPYBj6TwyIg=
+=H5tT
+-----END PGP SIGNATURE-----
+
+--=./uZX.YT+c:2Hy1--

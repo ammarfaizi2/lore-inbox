@@ -1,442 +1,232 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVCVCbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbVCVCd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbVCVCbn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 21:31:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbVCVCbM
+	id S262349AbVCVCd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 21:33:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVCVCdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:31:12 -0500
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:58507 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262355AbVCVBgi
+	Mon, 21 Mar 2005 21:33:08 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:57995 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262354AbVCVBgi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 21 Mar 2005 20:36:38 -0500
-Message-Id: <20050322013459.231628000@abc>
+Message-Id: <20050322013500.477945000@abc>
 References: <20050322013427.919515000@abc>
-Date: Tue, 22 Mar 2005 02:24:09 +0100
+Date: Tue, 22 Mar 2005 02:24:18 +0100
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Content-Disposition: inline; filename=dvb-frontend-kfree-null.patch
+Content-Disposition: inline; filename=dvb-ttusb-budget-novas22.patch
 X-SA-Exim-Connect-IP: 217.231.55.169
-Subject: [DVB patch 36/48] frontends: kfree() cleanup
+Subject: [DVB patch 45/48] support Nova-S rev 2.2
 X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kfree(NULL) is safe (Kenneth Aafloy)
+Support for Nova-S rev 2.2 (Gregor Kroesen)
 
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
- bt8xx/dst.c               |    2 +-
- dvb-core/dvb_ca_en50221.c |    3 +--
- dvb-core/dvb_frontend.c   |    3 +--
- dvb-core/dvbdev.c         |    4 +---
- frontends/at76c651.c      |    2 +-
- frontends/cx22700.c       |    2 +-
- frontends/cx22702.c       |    2 +-
- frontends/cx24110.c       |    2 +-
- frontends/dib3000mb.c     |    3 +--
- frontends/dib3000mc.c     |    3 +--
- frontends/dvb_dummy_fe.c  |    2 +-
- frontends/l64781.c        |    2 +-
- frontends/mt312.c         |    3 +--
- frontends/mt352.c         |    2 +-
- frontends/nxt2002.c       |    2 +-
- frontends/nxt6000.c       |    2 +-
- frontends/or51211.c       |    2 +-
- frontends/sp8870.c        |    2 +-
- frontends/sp887x.c        |    2 +-
- frontends/stv0297.c       |    3 +--
- frontends/stv0299.c       |    2 +-
- frontends/tda10021.c      |    2 +-
- frontends/tda1004x.c      |    2 +-
- frontends/tda8083.c       |    2 +-
- frontends/tda80xx.c       |    2 +-
- frontends/ves1820.c       |    2 +-
- frontends/ves1x93.c       |    2 +-
- ttusb-dec/ttusbdecfe.c    |    4 ++--
- 28 files changed, 29 insertions(+), 37 deletions(-)
+ dvb-ttusb-budget.c |  107 ++++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 files changed, 94 insertions(+), 13 deletions(-)
 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/bt8xx/dst.c
+Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c
 ===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/bt8xx/dst.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/bt8xx/dst.c	2005-03-22 00:27:13.000000000 +0100
-@@ -998,7 +998,7 @@ struct dvb_frontend* dst_attach(const st
- 	return &state->frontend;
+--- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2005-03-22 00:17:50.000000000 +0100
++++ linux-2.6.12-rc1-mm1/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2005-03-22 00:28:34.000000000 +0100
+@@ -68,6 +68,7 @@ MODULE_PARM_DESC(debug, "Turn on/off deb
+ #define TTUSB_MAXFILTER    16	/* ??? */
+ #endif
  
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
++#define TTUSB_REV_2_2	0x22
+ #define TTUSB_BUDGET_NAME "ttusb_stc_fw"
  
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/dvb-core/dvb_ca_en50221.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/dvb-core/dvb_ca_en50221.c	2005-03-22 00:23:49.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/dvb-core/dvb_ca_en50221.c	2005-03-22 00:27:13.000000000 +0100
-@@ -1733,8 +1733,7 @@ int dvb_ca_en50221_init(struct dvb_adapt
- 	if (ca != NULL) {
- 		if (ca->dvbdev != NULL)
- 			dvb_unregister_device(ca->dvbdev);
--		if (ca->slot_info != NULL)
--			kfree(ca->slot_info);
-+		kfree(ca->slot_info);
- 		kfree(ca);
+ /**
+@@ -120,6 +121,8 @@ struct ttusb {
+ 
+ 	u8 last_result[32];
+ 
++	int revision;
++
+ #if 0
+ 	devfs_handle_t stc_devfs_handle;
+ #endif
+@@ -432,13 +435,17 @@ static int ttusb_init_controller(struct 
+ 
+ 	if (memcmp(get_version + 4, "V 0.0", 5) &&
+ 	    memcmp(get_version + 4, "V 1.1", 5) &&
+-	    memcmp(get_version + 4, "V 2.1", 5)) {
++	    memcmp(get_version + 4, "V 2.1", 5) &&
++	    memcmp(get_version + 4, "V 2.2", 5)) {
+ 		printk
+ 		    ("%s: unknown STC version %c%c%c%c%c, please report!\n",
+ 		     __FUNCTION__, get_version[4], get_version[5],
+ 		     get_version[6], get_version[7], get_version[8]);
  	}
- 	pubca->private = NULL;
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/dvb-core/dvb_frontend.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/dvb-core/dvb_frontend.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/dvb-core/dvb_frontend.c	2005-03-22 00:27:13.000000000 +0100
-@@ -908,8 +908,7 @@ int dvb_unregister_frontend(struct dvb_f
- 	else
- 		printk("dvb_frontend: Demodulator (%s) does not have a release callback!\n", fe->ops->info.name);
- 	/* fe is invalid now */
--	if (fepriv)
--		kfree(fepriv);
-+	kfree(fepriv);
- 	up (&frontend_mutex);
+ 
++	ttusb->revision = ((get_version[6] - '0') << 4) |
++			   (get_version[8] - '0');
++
+ 	err =
+ 	    ttusb_cmd(ttusb, get_dsp_version, sizeof(get_dsp_version), 1);
+ 	if (err)
+@@ -478,6 +485,31 @@ static int ttusb_send_diseqc(struct dvb_
+ }
+ #endif
+ 
++static int lnbp21_set_voltage(struct dvb_frontend* fe, fe_sec_voltage_t voltage)
++{
++        struct  ttusb* ttusb = (struct ttusb*)  fe->dvb->priv;
++        int ret;
++        u8 data[1];
++        struct i2c_msg msg = { .addr = 0x08, .flags = 0, .buf = data, .len = sizeof(data) };
++
++        switch(voltage) {
++        case SEC_VOLTAGE_OFF:
++                data[0] = 0x00;
++                break;
++        case SEC_VOLTAGE_13:
++                data[0] = 0x44;
++                break;
++        case SEC_VOLTAGE_18:
++                data[0] = 0x4c;
++                break;
++        default:
++                return -EINVAL;
++        };
++
++        ret = i2c_transfer(&ttusb->i2c_adap, &msg, 1);
++        return (ret != 1) ? -EIO : 0;
++}
++
+ static int ttusb_update_lnb(struct ttusb *ttusb)
+ {
+ 	u8 b[] = { 0xaa, ++ttusb->c, 0x16, 5, /*power: */ 1,
+@@ -1148,10 +1180,51 @@ static struct tda1004x_config philips_td
+ 	.request_firmware = philips_tdm1316l_request_firmware,
+ };
+ 
++static u8 alps_bsbe1_inittab[] = {
++        0x01, 0x15,
++        0x02, 0x30,
++        0x03, 0x00,
++        0x04, 0x7d,             /* F22FR = 0x7d, F22 = f_VCO / 128 / 0x7d = 22 kHz */
++        0x05, 0x35,             /* I2CT = 0, SCLT = 1, SDAT = 1 */
++        0x06, 0x40,             /* DAC not used, set to high impendance mode */
++        0x07, 0x00,             /* DAC LSB */
++        0x08, 0x40,             /* DiSEqC off, LNB power on OP2/LOCK pin on */
++        0x09, 0x00,             /* FIFO */
++        0x0c, 0x51,             /* OP1 ctl = Normal, OP1 val = 1 (LNB Power ON) */
++        0x0d, 0x82,             /* DC offset compensation = ON, beta_agc1 = 2 */
++        0x0e, 0x23,             /* alpha_tmg = 2, beta_tmg = 3 */
++        0x10, 0x3f,             // AGC2  0x3d
++        0x11, 0x84,
++        0x12, 0xb5,             // Lock detect: -64  Carrier freq detect:on
++        0x15, 0xc9,             // lock detector threshold
++        0x16, 0x00,
++        0x17, 0x00,
++        0x18, 0x00,
++        0x19, 0x00,
++        0x1a, 0x00,
++        0x1f, 0x50,
++        0x20, 0x00,
++        0x21, 0x00,
++        0x22, 0x00,
++        0x23, 0x00,
++        0x28, 0x00,             // out imp: normal  out type: parallel FEC mode:0
++        0x29, 0x1e,             // 1/2 threshold
++        0x2a, 0x14,             // 2/3 threshold
++        0x2b, 0x0f,             // 3/4 threshold
++        0x2c, 0x09,             // 5/6 threshold
++        0x2d, 0x05,             // 7/8 threshold
++        0x2e, 0x01,
++        0x31, 0x1f,             // test all FECs
++        0x32, 0x19,             // viterbi and synchro search
++        0x33, 0xfc,             // rs control
++        0x34, 0x93,             // error control
++        0x0f, 0x92,
++        0xff, 0xff
++};
+ 
+ static u8 alps_bsru6_inittab[] = {
+ 	0x01, 0x15,
+-	0x02, 0x00,
++	0x02, 0x30,
+ 	0x03, 0x00,
+ 	0x04, 0x7d,		/* F22FR = 0x7d, F22 = f_VCO / 128 / 0x7d = 22 kHz */
+ 	0x05, 0x35,		/* I2CT = 0, SCLT = 1, SDAT = 1 */
+@@ -1191,7 +1264,7 @@ static u8 alps_bsru6_inittab[] = {
+ 	0xff, 0xff
+ };
+ 
+-static int alps_bsru6_set_symbol_rate(struct dvb_frontend *fe, u32 srate, u32 ratio)
++static int alps_stv0299_set_symbol_rate(struct dvb_frontend *fe, u32 srate, u32 ratio)
+ {
+ 	u8 aclk = 0;
+ 	u8 bclk = 0;
+@@ -1225,7 +1298,7 @@ static int alps_bsru6_set_symbol_rate(st
  	return 0;
  }
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/dvb-core/dvbdev.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/dvb-core/dvbdev.c	2005-03-22 00:16:28.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/dvb-core/dvbdev.c	2005-03-22 00:27:13.000000000 +0100
-@@ -395,9 +395,7 @@ int dvb_usercopy(struct inode *inode, st
-         }
  
- out:
--        if (mbuf)
--                kfree(mbuf);
+-static int alps_bsru6_pll_set(struct dvb_frontend *fe, struct dvb_frontend_parameters *params)
++static int philips_tsa5059_pll_set(struct dvb_frontend *fe, struct dvb_frontend_parameters *params)
+ {
+ 	struct ttusb* ttusb = (struct ttusb*) fe->dvb->priv;
+ 	u8 buf[4];
+@@ -1242,7 +1315,11 @@ static int alps_bsru6_pll_set(struct dvb
+ 	buf[3] = 0xC4;
+ 
+ 	if (params->frequency > 1530000)
+-		buf[3] = 0xc0;
++		buf[3] = 0xC0;
++
++	/* BSBE1 wants XCE bit set */
++	if (ttusb->revision == TTUSB_REV_2_2)
++		buf[3] |= 0x20;
+ 
+ 	if (i2c_transfer(&ttusb->i2c_adap, &msg, 1) != 1)
+ 		return -EIO;
+@@ -1250,8 +1327,7 @@ static int alps_bsru6_pll_set(struct dvb
+ 	return 0;
+ }
+ 
+-static struct stv0299_config alps_bsru6_config = {
 -
-+        kfree(mbuf);
-         return err;
- }
++static struct stv0299_config alps_stv0299_config = {
+ 	.demod_address = 0x68,
+ 	.inittab = alps_bsru6_inittab,
+ 	.mclk = 88000000UL,
+@@ -1261,8 +1337,8 @@ static struct stv0299_config alps_bsru6_
+ 	.lock_output = STV0229_LOCKOUTPUT_1,
+ 	.volt13_op0_op1 = STV0299_VOLT13_OP1,
+ 	.min_delay_ms = 100,
+-	.set_symbol_rate = alps_bsru6_set_symbol_rate,
+-	.pll_set = alps_bsru6_pll_set,
++	.set_symbol_rate = alps_stv0299_set_symbol_rate,
++	.pll_set = philips_tsa5059_pll_set,
+ };
  
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/at76c651.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/at76c651.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/at76c651.c	2005-03-22 00:27:13.000000000 +0100
-@@ -402,7 +402,7 @@ struct dvb_frontend* at76c651_attach(con
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/cx22700.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/cx22700.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/cx22700.c	2005-03-22 00:27:13.000000000 +0100
-@@ -392,7 +392,7 @@ struct dvb_frontend* cx22700_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/cx22702.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/cx22702.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/cx22702.c	2005-03-22 00:27:13.000000000 +0100
-@@ -476,7 +476,7 @@ struct dvb_frontend* cx22702_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/cx24110.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/cx24110.c	2005-03-22 00:22:33.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/cx24110.c	2005-03-22 00:27:13.000000000 +0100
-@@ -608,7 +608,7 @@ struct dvb_frontend* cx24110_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/dib3000mb.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/dib3000mb.c	2005-03-22 00:16:19.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/dib3000mb.c	2005-03-22 00:27:13.000000000 +0100
-@@ -738,8 +738,7 @@ struct dvb_frontend* dib3000mb_attach(co
- 	return &state->frontend;
- 
- error:
--	if (state)
--		kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/dib3000mc.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/dib3000mc.c	2005-03-22 00:16:19.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/dib3000mc.c	2005-03-22 00:27:13.000000000 +0100
-@@ -885,8 +885,7 @@ struct dvb_frontend* dib3000mc_attach(co
- 	return &state->frontend;
- 
- error:
--	if (state)
--		kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/dvb_dummy_fe.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/dvb_dummy_fe.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/dvb_dummy_fe.c	2005-03-22 00:27:13.000000000 +0100
-@@ -123,7 +123,7 @@ struct dvb_frontend* dvb_dummy_fe_ofdm_a
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/l64781.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/l64781.c	2005-03-22 00:15:55.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/l64781.c	2005-03-22 00:27:13.000000000 +0100
-@@ -559,7 +559,7 @@ struct dvb_frontend* l64781_attach(const
- 
- error:
- 	if (reg0x3e >= 0) l64781_writereg (state, 0x3e, reg0x3e);  /* restore reg 0x3e */
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/mt312.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/mt312.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/mt312.c	2005-03-22 00:27:13.000000000 +0100
-@@ -641,8 +641,7 @@ struct dvb_frontend* vp310_attach(const 
- 	return &state->frontend;
- 
- error:
--	if (state)
--		kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/mt352.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/mt352.c	2005-03-22 00:14:46.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/mt352.c	2005-03-22 00:27:13.000000000 +0100
-@@ -581,7 +581,7 @@ struct dvb_frontend* mt352_attach(const 
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/nxt2002.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/nxt2002.c	2005-03-22 00:17:45.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/nxt2002.c	2005-03-22 00:27:13.000000000 +0100
-@@ -661,7 +661,7 @@ struct dvb_frontend* nxt2002_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/nxt6000.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/nxt6000.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/nxt6000.c	2005-03-22 00:27:13.000000000 +0100
-@@ -511,7 +511,7 @@ struct dvb_frontend* nxt6000_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/or51211.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/or51211.c	2005-03-22 00:18:23.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/or51211.c	2005-03-22 00:27:13.000000000 +0100
-@@ -588,7 +588,7 @@ struct dvb_frontend* or51211_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/sp8870.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/sp8870.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/sp8870.c	2005-03-22 00:27:13.000000000 +0100
-@@ -570,7 +570,7 @@ struct dvb_frontend* sp8870_attach(const
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/sp887x.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/sp887x.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/sp887x.c	2005-03-22 00:27:13.000000000 +0100
-@@ -564,7 +564,7 @@ struct dvb_frontend* sp887x_attach(const
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/stv0297.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/stv0297.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/stv0297.c	2005-03-22 00:27:13.000000000 +0100
-@@ -758,8 +758,7 @@ struct dvb_frontend *stv0297_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state)
--		kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/stv0299.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/stv0299.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/stv0299.c	2005-03-22 00:27:13.000000000 +0100
-@@ -675,7 +675,7 @@ struct dvb_frontend* stv0299_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/tda10021.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/tda10021.c	2005-03-22 00:23:32.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/tda10021.c	2005-03-22 00:27:13.000000000 +0100
-@@ -420,7 +420,7 @@ struct dvb_frontend* tda10021_attach(con
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/tda1004x.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/tda1004x.c	2005-03-22 00:14:18.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/tda1004x.c	2005-03-22 00:27:13.000000000 +0100
-@@ -1097,7 +1097,7 @@ struct dvb_frontend* tda10045_attach(con
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/tda8083.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/tda8083.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/tda8083.c	2005-03-22 00:27:13.000000000 +0100
-@@ -405,7 +405,7 @@ struct dvb_frontend* tda8083_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/tda80xx.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/tda80xx.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/tda80xx.c	2005-03-22 00:27:13.000000000 +0100
-@@ -683,7 +683,7 @@ struct dvb_frontend* tda80xx_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/ves1820.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/ves1820.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/ves1820.c	2005-03-22 00:27:13.000000000 +0100
-@@ -404,7 +404,7 @@ struct dvb_frontend* ves1820_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/ves1x93.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/ves1x93.c	2005-03-22 00:15:00.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/ves1x93.c	2005-03-22 00:27:13.000000000 +0100
-@@ -497,7 +497,7 @@ struct dvb_frontend* ves1x93_attach(cons
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/ttusb-dec/ttusbdecfe.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/ttusb-dec/ttusbdecfe.c	2005-03-21 23:27:56.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/ttusb-dec/ttusbdecfe.c	2005-03-22 00:27:13.000000000 +0100
-@@ -169,7 +169,7 @@ struct dvb_frontend* ttusbdecfe_dvbt_att
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
- 
-@@ -195,7 +195,7 @@ struct dvb_frontend* ttusbdecfe_dvbs_att
- 	return &state->frontend;
- 
- error:
--	if (state) kfree(state);
-+	kfree(state);
- 	return NULL;
- }
+ static int ttusb_novas_grundig_29504_491_pll_set(struct dvb_frontend *fe, struct dvb_frontend_parameters *params)
+@@ -1296,11 +1372,16 @@ static struct tda8083_config ttusb_novas
+ static void frontend_init(struct ttusb* ttusb)
+ {
+ 	switch(le16_to_cpu(ttusb->dev->descriptor.idProduct)) {
+-	case 0x1003: // Hauppauge/TT Nova-USB-S budget (stv0299/ALPS BSRU6(tsa5059)
+-		// try the ALPS BSRU6 first
+-		ttusb->fe = stv0299_attach(&alps_bsru6_config, &ttusb->i2c_adap);
++	case 0x1003: // Hauppauge/TT Nova-USB-S budget (stv0299/ALPS BSRU6|BSBE1(tsa5059))
++		// try the stv0299 based first
++		ttusb->fe = stv0299_attach(&alps_stv0299_config, &ttusb->i2c_adap);
+ 		if (ttusb->fe != NULL) {
+-			ttusb->fe->ops->set_voltage = ttusb_set_voltage;
++			if(ttusb->revision == TTUSB_REV_2_2) { // ALPS BSBE1
++				alps_stv0299_config.inittab = alps_bsbe1_inittab;
++				ttusb->fe->ops->set_voltage = lnbp21_set_voltage;
++			} else { // ALPS BSRU6
++				ttusb->fe->ops->set_voltage = ttusb_set_voltage;
++			}
+ 			break;
+ 		}
  
 
 --

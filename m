@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262623AbTCYMgD>; Tue, 25 Mar 2003 07:36:03 -0500
+	id <S262333AbTCYMsD>; Tue, 25 Mar 2003 07:48:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262631AbTCYMgC>; Tue, 25 Mar 2003 07:36:02 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:29618
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262623AbTCYMgA>; Tue, 25 Mar 2003 07:36:00 -0500
-Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless
-	looping / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Alexander Atanasov <alex@ssi.bg>, linux@brodo.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-In-Reply-To: <Pine.LNX.4.10.10303242014430.8000-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10303242014430.8000-100000@master.linux-ide.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048600799.28496.3.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 25 Mar 2003 13:59:59 +0000
+	id <S262586AbTCYMsD>; Tue, 25 Mar 2003 07:48:03 -0500
+Received: from mail.set-software.de ([193.218.212.121]:1684 "EHLO
+	gateway.local.net") by vger.kernel.org with ESMTP
+	id <S262333AbTCYMsD> convert rfc822-to-8bit; Tue, 25 Mar 2003 07:48:03 -0500
+From: Michael Knigge <Michael.Knigge@set-software.de>
+Date: Tue, 25 Mar 2003 12:58:04 GMT
+Message-ID: <20030325.12580471@knigge.local.net>
+Subject: Intel Gigabit - confused!?!
+To: <linux-kernel@vger.kernel.org>
+X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
+X-Priority: 3 (Normal)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-25 at 04:16, Andre Hedrick wrote:
-> This is one thing all of you don't get about hotplug.
-> 
-> You are not allowed on PATA, only SATA.
-> 
-> The BIOS and setup on the HBA's need a kick to come alive.
-> There are basic hooks that do not permit post boot hotplug in PATA.
+Hi all,
 
-Several vendors support bus tristate handling. We now do error
-handling on that. Its a first step towards being able to rescan
-the bus.
+currently I ask myself what is the difference between the "Intel 
+PRO/1000 MT Desktop Adapter" and the "Intel PRO/1000 T Desktop 
+Adapter". The first (MT) is built with a 82540OEM Chip and the second 
+(T) with a 82544GC Chip.
+
+Is there something "very special" with the chips? Is one of both 
+better (faster and/or more stable and/or less CPU-eating) than the 
+other? I plan to use Linux 2.4.18 (if no other chance a newer one) 
+with these NIC's....
+
+
+Thank you in advance,
+  Michael
+
+
+
 

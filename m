@@ -1,46 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbUC0Vkl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 16:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbUC0Vkl
+	id S261888AbUC0Vm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 16:42:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUC0Vm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 16:40:41 -0500
-Received: from 69-150-147-130.ded.swbell.net ([69.150.147.130]:5790 "HELO
-	arumekun.no-ip.com") by vger.kernel.org with SMTP id S261880AbUC0Vkk
+	Sat, 27 Mar 2004 16:42:56 -0500
+Received: from mail.shareable.org ([81.29.64.88]:31890 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261888AbUC0Vmp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 16:40:40 -0500
-From: Luke-Jr <luke-jr@artcena.com>
-To: swsusp-devel@lists.sourceforge.net
-Subject: Re: Paranoia is fun [Was Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]]]
-Date: Sat, 27 Mar 2004 21:40:33 +0000
-User-Agent: KMail/1.6.1
-Cc: "Michael Frank" <mhf@linuxmail.org>, "Micha Feigin" <michf@post.tau.ac.il>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <20040323233228.GK364@elf.ucw.cz> <200403272003.35410.luke-jr@artcena.com> <opr5jgous34evsfm@smtp.pacific.net.th>
-In-Reply-To: <opr5jgous34evsfm@smtp.pacific.net.th>
-MIME-Version: 1.0
+	Sat, 27 Mar 2004 16:42:45 -0500
+Date: Sat, 27 Mar 2004 21:42:38 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cowlinks v2
+Message-ID: <20040327214238.GA23893@mail.shareable.org>
+References: <20040321125730.GB21844@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com> <20040321181430.GB29440@wohnheim.fh-wedel.de> <m1y8ptu42m.fsf@ebiederm.dsl.xmission.com> <20040325174942.GC11236@mail.shareable.org> <m1ekrgyf5y.fsf@ebiederm.dsl.xmission.com> <20040325194303.GE11236@mail.shareable.org> <m1ptb0zjki.fsf@ebiederm.dsl.xmission.com> <20040327102828.GA21884@mail.shareable.org> <m1vfkq80oy.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403272140.33356.luke-jr@artcena.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <m1vfkq80oy.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 27 March 2004 09:01 pm, Michael Frank wrote:
-> ... so one really would not want to put the key there.
-Right.
->
-> Each and every shortcut is unsafe as it somwhere has to store the
-> full key and could be reverse engineered and broken "easily"
-> relative to breaking the key.
-If the key is based on hardware details that only root can obtain, it would 
-require at least having the time to boot the victim computer into another OS 
-to create the key. If the key is also dependant on details of the running 
-kernel, it could be even harder to crack it.
+Eric W. Biederman wrote:
+> There are two possible implementations strategies for implementing
+> cow files.  You can either start as Jörn did with hardlinks, or you
+> can start with symlinks.
 
-Password-based encryption might be wanted for certain cases, but I think most 
-cases would do fine to prevent the image from being used for anything except 
-restoring on the original system. That way, it would be significantly more 
-difficult for someone to gain access to the memory that could be used for 
-other encrypted things (such as GPG key generation).
+Symlinks have a _big_ problem: move one, or move it's target, and it
+no longer links to the same file.  That's nothing like the
+transparency we need cowlinks to have.
+
+There's a third implementation strategy.  Since we're talking in all
+cases about adding a new feature to the underlying filesystem, why not
+implement separate inodes pointing to an underlying shared inode which
+holds the data.  (I think it was mentioned earlier in this thread).
+
+The implementation is very similar to symbolic links, but instead of
+having symlink inodes, you have cowlink inodes which point directly to
+another inode and count as references to it.
+
+That provides POSIX semantics and has none of the caveats you and I
+have mentioned for hard links and symbolic links.
+
+Implementation: Creating a cowlink to a non-cowlinked file creates a
+new shared inode by cloning the file's inode, converts the original
+inode to a cowlink-pointer inode, and creates a new cowlink-pointer
+inode.
+
+This provides 100% semantic equivalence to copying: all operations
+including hard and symbolic links on the resulting cowlink files act
+as if the cowlink operation was a copy, but faster and using less
+space.
+
+> As my memory has it the proto implementation I saw using a stackable
+> fs and cow symlinks was about a 1000 lines.  And it was that large
+> because it was complete (i.e. it did the copies including copying
+> directories.)
+
+I can see a stackable fs being useful for live CD distributions, where
+tmpfs or disk hold the modifications stacked over the original
+filesystem.
+
+But mounting an fs for each version of a source tree and keeping track
+of all those mounts: that would be incredibly clumsy to use.
+
+You could implement a stackable fs which is mounted once and provides
+cowlink operations within the fs.  That still be a bit clumsy, but not
+so much as to make it unusable for source tree management.
+
+-- Jamie

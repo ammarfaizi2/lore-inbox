@@ -1,106 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268320AbUGXGWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268328AbUGXGdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268320AbUGXGWv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 02:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268321AbUGXGWv
+	id S268328AbUGXGdc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 02:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268329AbUGXGdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 02:22:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57232 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268320AbUGXGWr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 02:22:47 -0400
-Date: Fri, 23 Jul 2004 23:11:58 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] Kconfig.debug: combine Kconfig debug options
-Message-Id: <20040723231158.068d4685.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 24 Jul 2004 02:33:32 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:52125 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268328AbUGXGd3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 02:33:29 -0400
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
+	Preemption Patch
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-audio-dev@music.columbia.edu, arjanv@redhat.com,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1090647952.1006.7.camel@mindpipe>
+References: <1089673014.10777.42.camel@mindpipe>
+	 <20040712163141.31ef1ad6.akpm@osdl.org>
+	 <1089677823.10777.64.camel@mindpipe>
+	 <20040712174639.38c7cf48.akpm@osdl.org>
+	 <1089687168.10777.126.camel@mindpipe>
+	 <20040712205917.47d1d58b.akpm@osdl.org>
+	 <1089705440.20381.14.camel@mindpipe> <20040719104837.GA9459@elte.hu>
+	 <1090301906.22521.16.camel@mindpipe> <20040720061227.GC27118@elte.hu>
+	 <20040720121905.GG1651@suse.de>  <1090642050.2871.6.camel@mindpipe>
+	 <1090647952.1006.7.camel@mindpipe>
+Content-Type: text/plain
+Message-Id: <1090650808.845.3.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 24 Jul 2004 02:33:28 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2004-07-24 at 01:46, Lee Revell wrote:
+> On Sat, 2004-07-24 at 00:07, Lee Revell wrote:
+> > On Tue, 2004-07-20 at 08:19, Jens Axboe wrote:
+> > > On Tue, Jul 20 2004, Ingo Molnar wrote:
+> > > > > How much I/O do you allow to be in flight at once?  It seems like by
+> > > > > decreasing the maximum size of I/O that you handle in one interrupt
+> > > > > you could improve this quite a bit.  Disk throughput is good enough,
+> > > > > anyone in the real world who would feel a 10% hit would just throw
+> > > > > hardware at the problem.
+> > > > 
+> > > it's not tweakable right now, but if you wish to experiment you just
+> > > need to add a line to ide-disk.c:idedisk_setup() - pseudo patch:
+> > > 
+> > > +	blk_queue_max_sectors(drive->queue, 32);
+> > > +
+> > I am currently testing the effect on throughput and will have some
+> > better numbers soon.
+> 
+> OK, here are my bonnie test results.  They are not what I expected -
+> read and write performance is significantly better with 16KB max request
+> size, while seeking is much better with 1024KB.
+> 
 
-Localize Kconfig debug options into one file (lib/Kconfig.debug)
-for easier maintenance and searching.
+I repeated the test with 'bonnie -f' and without jackd running, and with
+32KB vs. 1024KB.  The results are not as drastic, which suggests that
+all the overhead from the XRUN tracing was a factor.
 
+These results show that 32KB is better than 1024KB in some areas, and
+not singificantly worse in any of these metrics.
 
-Summary of changes:
+32KB:
 
-. localizes the following symbols in lib/Kconfig.debug:
-    DEBUG_KERNEL, MAGIC_SYSRQ, DEBUG_SLAB, DEBUG_SPINLOCK,
-    DEBUG_SPINLOCK_SLEEP, DEBUG_HIGHMEM, DEBUG_BUGVERBOSE,
-    DEBUG_INFO
-  and FRAME_POINTER for some instances of it (if it's freely
-  user-selectable) but not for the cases where it's forced or
-  it depends on some other options.
-. adds DEBUG_KERNEL requirement to some DEBUG_vars;
-. remove KALLSYMS from S390-specific kernel hacking menu;
-  use KALLSYMS in the EMBEDDED menu instead;
-. add CRIS and M68KNOMMU symbols for use in lib/Kconfig.debug;
-. eliminate duplicate "General setup" labels in sparc64 config;
-. whitespace cleanup;
-. fixed a few trival typos;
+Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+mindpipe         1G           38499  68 16383  28           35913  34 154.5   1
+                    ------Sequential Create------ --------Random Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
+                 16   257  99 +++++ +++ 24008  98   256  99 +++++ +++  1179  98
+mindpipe,1G,,,38499,68,16383,28,,,35913,34,154.5,1,16,257,99,+++++,+++,24008,98,256,99,+++++,+++,1179,98
 
+1024KB:
 
-Portions of the original patch were also done by
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+mindpipe         1G           38285  60 13961  20           33694  28 155.2   1
+                    ------Sequential Create------ --------Random Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
+                 16   259  99 +++++ +++ 24250  98   256  99 +++++ +++  1184  98
+mindpipe,1G,,,38285,60,13961,20,,,33694,28,155.2,1,16,259,99,+++++,+++,24250,98,256,99,+++++,+++,1184,98
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-
- arch/alpha/Kconfig           |  104 ---------------------------
- arch/alpha/Kconfig.debug     |   59 +++++++++++++++
- arch/arm/Kconfig             |  163 -------------------------------------------
- arch/arm/Kconfig.debug       |  115 ++++++++++++++++++++++++++++++
- arch/arm26/Kconfig           |  117 ------------------------------
- arch/arm26/Kconfig.debug     |   60 +++++++++++++++
- arch/cris/Kconfig            |   56 +-------------
- arch/cris/Kconfig.debug      |   28 +++++++
- arch/h8300/Kconfig           |   75 -------------------
- arch/h8300/Kconfig.debug     |   68 +++++++++++++++++
- arch/i386/Kconfig            |  148 ++-------------------------------------
- arch/i386/Kconfig.debug      |   58 +++++++++++++++
- arch/ia64/Kconfig            |  114 ------------------------------
- arch/ia64/Kconfig.debug      |   64 ++++++++++++++++
- arch/m68k/Kconfig            |   43 -----------
- arch/m68k/Kconfig.debug      |    5 +
- arch/m68knommu/Kconfig       |   66 +----------------
- arch/m68knommu/Kconfig.debug |   42 +++++++++++
- arch/mips/Kconfig            |  146 ++------------------------------------
- arch/mips/Kconfig.debug      |   76 ++++++++++++++++++++
- arch/parisc/Kconfig          |   51 -------------
- arch/parisc/Kconfig.debug    |    5 +
- arch/ppc/Kconfig             |  127 ---------------------------------
- arch/ppc/Kconfig.debug       |   72 ++++++++++++++++++
- arch/ppc64/Kconfig           |   97 -------------------------
- arch/ppc64/Kconfig.debug     |   57 +++++++++++++++
- arch/s390/Kconfig            |   65 +----------------
- arch/s390/Kconfig.debug      |    5 +
- arch/sh/Kconfig              |  162 +-----------------------------------------
- arch/sh/Kconfig.debug        |  124 ++++++++++++++++++++++++++++++++
- arch/sh64/Kconfig            |   50 -------------
- arch/sh64/Kconfig.debug      |   37 +++++++++
- arch/sparc/Kconfig           |   78 --------------------
- arch/sparc/Kconfig.debug     |   14 +++
- arch/sparc64/Kconfig         |  109 ----------------------------
- arch/sparc64/Kconfig.debug   |   44 +++++++++++
- arch/um/Kconfig              |   73 +------------------
- arch/um/Kconfig.debug        |   39 ++++++++++
- arch/v850/Kconfig            |   32 --------
- arch/v850/Kconfig.debug      |   10 ++
- arch/x86_64/Kconfig          |  134 ++++-------------------------------
- arch/x86_64/Kconfig.debug    |   56 ++++++++++++++
- init/Kconfig                 |    3 
- lib/Kconfig.debug            |  100 ++++++++++++++++++++++++++
- 44 files changed, 1230 insertions(+), 1921 deletions(-)
+Lee
 
 
-Approx. 132 KB.  Patch is available at
-http://developer.osdl.org/rddunlap/kconfig/kconfig-debug-268rc2bk2.patch
 
-and I'll mail it to Andrew separately.
---
+

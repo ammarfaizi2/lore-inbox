@@ -1,117 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263185AbUFNOWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUFNOX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbUFNOWF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 10:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUFNOUh
+	id S263024AbUFNOX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 10:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUFNOWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 10:20:37 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:36777 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S263134AbUFNOTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 10:19:24 -0400
-Date: Mon, 14 Jun 2004 23:20:40 +0900
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: Re: [PATCH 0/4]Diskdump Update
-In-reply-to: <A0C44FA7FE6022indou.takao@soft.fujitsu.com>
-To: linux-kernel@vger.kernel.org
-Message-id: <B4C4521AC512CCindou.takao@soft.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: TuruKame 3.55
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <A0C44FA7FE6022indou.takao@soft.fujitsu.com>
+	Mon, 14 Jun 2004 10:22:51 -0400
+Received: from adslemp-b3-117-218.telepac.pt ([213.13.117.218]:6293 "EHLO
+	mail.paradigma.co.pt") by vger.kernel.org with ESMTP
+	id S263024AbUFNOUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 10:20:09 -0400
+Date: Mon, 14 Jun 2004 15:20:01 +0100
+From: Nuno Monteiro <nuno@itsari.org>
+To: Gianni Tedesco <gianni@scaramanga.co.uk>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: Local DoS attack on i386 (was: new kernel bug)
+Message-ID: <20040614142001.GA3032@hobbes.itsari.int>
+References: <200406121159.28406.manuel@todo-linux.com> <1087221517.3375.3.camel@sherbert>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1087221517.3375.3.camel@sherbert> (from gianni@scaramanga.co.uk on Mon, Jun 14, 2004 at 14:58:37 +0100)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jun 2004 20:34:01 +0900, Takao Indoh wrote:
 
->On Thu, 27 May 2004 14:51:34 +0100, Christoph Hellwig wrote:
->
->>> +/******************************** Disk dump ****************************
->>> *******/
->>> +#if defined(CONFIG_DISKDUMP) || defined(CONFIG_DISKDUMP_MODULE)
->>> +#undef  add_timer
->>> +#define add_timer       diskdump_add_timer
->>> +#undef  del_timer_sync
->>> +#define del_timer_sync  diskdump_del_timer
->>> +#undef  del_timer
->>> +#define del_timer       diskdump_del_timer
->>> +#undef  mod_timer
->>> +#define mod_timer       diskdump_mod_timer
->>> +
->>> +#define tasklet_schedule        diskdump_tasklet_schedule
->>> +#endif
->>
->>Yikes.  No way in hell we'll place code like this in drivers. This needs
->>to be handled in common code.
->
->Another approach is insering some codes into the core timer and tasklet
->routines.
->
->For example, 
->
->static inline void add_timer(struct timer_list * timer)
->{
->	if(crashdump_mode())
->		__diskdump_add_timer(timer);
->	else
->		__mod_timer(timer, timer->expires);
->}
->
->But I do not want to make common codes dirty...
->Please let me know more good idea!
+On 2004.06.14 14:58, Gianni Tedesco wrote:
+> On Sat, 2004-06-12 at 11:59 +0200, Manuel Arostegui Ramirez wrote:
+> > Somebody know a patch to solved this new bug?
+> > http://reviewed.homelinux.org/news/2004-06-11_kernel_crash/index.html.en
+> > Affected versions:
+> >     * Linux 2.6.x
+> >           o Linux 2.6.7-rc2
+> >           o Linux 2.6.6 (all versions)
+> >           o Linux 2.6.6 SMP (verified by riven)
+> >           o Linux 2.6.5-gentoo (verified by RatiX)
+> >           o Linux 2.6.5-mm6 - (verified by Mariux) 
+> >     * Linux 2.4.2x
+> >           o Linux 2.4.26 vanilla
+> >           o Linux 2.4.26-rc1 vanilla
+> >           o Linux 2.4.26-gentoo-r1
+> >           o Linux 2.4.22 
+> 
+> Seems to be a scheduler race or something?
+> 
+
+This was already fixed in 2.6, see http://linux.bkbits.net:8080/linux-2.5/diffs/include/asm-i386/i387.h@1.16?nav=index.html|src/.|src/include|src/include/asm-i386|hist/include/asm-i386/i387.h
 
 
-I forgot to explain what is problem. At first, I explain how diskdump
-writes the system memory to the disk.
+The same fix should be applied to 2.4. I'm running locally a very
+hacked version of 2.4.22 with it and it survives that crash.c program.
 
-disk_dump() in drivers/block/diskdump.c is main routine of diskdump.
-It is called from die()/panic().
-
-First, disk_dump() silences system as follows.
-
-	local_save_flags(flags);
-	local_irq_disable();
-	smp_call_function(freeze_cpu, NULL, 1, 0);
-
-Diskdump disables interrupt and stops other cpus.
-Next, after preparing for dump, diskdump starts dumping. Diskdump calls
-driver's handler via scis_dump module. Driver's handler writes data to
-the disk with polling mode.
+Here's the diff. Marcelo, please merge.
 
 
-What is a problem?  Scsi driver uses timer/tasklet to complete I/O.
-But, diskdump disables interrupt, so timer/taslket doesn't work!
-
-The current diskdump uses the following macros to solve this problem.
-
-#define add_timer       diskdump_add_timer
-#define del_timer_sync  diskdump_del_timer
-#define del_timer       diskdump_del_timer
-#define mod_timer       diskdump_mod_timer
-#define tasklet_schedule        diskdump_tasklet_schedule
-
-ex.
-static inline void diskdump_add_timer(struct timer_list *timer)
-{
-	if (crashdump_mode())
-		_diskdump_add_timer(timer);
-	else
-		add_timer(timer);
-}
-
-It's very easy way. If diskdump is working, timer is registered with
-diskdump. Otherwise timer is registered with normal kernel timer. The
-timer registered with diskdump is called by diskdump itself during
-dumping.
-
-This way is easy but ugly. Another way is add new codes into the core
-timer and tasklet routines as I wrote in the previous mail.  I wondered
-whether it is possible to insert general-purpose hooks into the timer/
-taslket routine.
-
-Please let me know if there is another good idea!
-
-
-Best Regards,
-Takao Indoh
+--- linux-2.4.27-pre5/include/asm-i386/i387.h~fix-x86-clear_fpu-macro	2004-06-14 15:12:13.909059344 +0100
++++ linux-2.4.27-pre5/include/asm-i386/i387.h	2004-06-14 15:12:45.970185312 +0100
+@@ -34,7 +34,7 @@ extern void kernel_fpu_begin(void);
+ 
+ #define clear_fpu( tsk ) do { \
+ 	if ( tsk->flags & PF_USEDFPU ) { \
+-		asm volatile("fwait"); \
++		asm volatile("fnclex ; fwait"); \
+ 		tsk->flags &= ~PF_USEDFPU; \
+ 		stts(); \
+ 	} \

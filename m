@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264883AbTBTF3p>; Thu, 20 Feb 2003 00:29:45 -0500
+	id <S264877AbTBTF1u>; Thu, 20 Feb 2003 00:27:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264907AbTBTF3p>; Thu, 20 Feb 2003 00:29:45 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:896 "EHLO bilbo.tmr.com")
-	by vger.kernel.org with ESMTP id <S264883AbTBTF3o>;
-	Thu, 20 Feb 2003 00:29:44 -0500
-Date: Thu, 20 Feb 2003 00:39:43 -0500 (EST)
-From: davidsen <root@tmr.com>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.61-ac1] set_rtc_mss back
-In-Reply-To: <Pine.LNX.4.44.0302191658080.1167-100000@bilbo.tmr.com>
-Message-ID: <Pine.LNX.4.44.0302200039150.1128-100000@bilbo.tmr.com>
+	id <S264886AbTBTF1u>; Thu, 20 Feb 2003 00:27:50 -0500
+Received: from ns.cinet.co.jp ([61.197.228.218]:54546 "EHLO multi.cinet.co.jp")
+	by vger.kernel.org with ESMTP id <S264877AbTBTF1t>;
+	Thu, 20 Feb 2003 00:27:49 -0500
+Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A33E@ns.cinet.co.jp>
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: "''Christoph Hellwig' '" <hch@infradead.org>
+Cc: "'Linux Kernel Mailing List '" <linux-kernel@vger.kernel.org>,
+       "'Alan Cox '" <alan@lxorguk.ukuu.org.uk>
+Subject: RE: [PATCHSET] PC-9800 subarch. support for 2.5.61 (23/26) SCSI
+Date: Thu, 20 Feb 2003 14:37:42 +0900
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Feb 2003, davidsen wrote:
+Thanks for many advices about pc980155 driver.
+I'm trying to cleanup it.
 
-> set_rtc_mmss: can't update from 5 to 55
+>> +int pc98_bios_param(struct block_device *bdev, int *ip)
 > 
-> I used to get this message in early 4.5.5x kernels, and there was some 
-> discussion which I can't easily track right now, then it went away. This 
-> system was up for 25 days on 2.5.59+patches, and the console showed none 
-> of these since boot.
+> This should _not_ be in sd.c but the lowlevel driver.
+There is a specification for PC98 SCSI HA. So we can use this
+function commonly across all HA (except for bad clones). I think, 
+this is better than patching many drivers by same way. Is this a
+bad idea?
+
+>> +static spinlock_t wd_lock = SPIN_LOCK_UNLOCKED;
 > 
-> I just built 2.5.61-ac1 and booted. The good news is that it is up and 
-> looks reasonably stable (rebuilt the kernel). Bad news is that this 
-> message is coming out often enough to make the console hard to use.
-> 
-> No details, I assume that whatever fixed this before will fix it again, 
-> just so someone knows it is happening again.
+> Where is this used?
+I forgot to remove it.
 
-
-
--- 
-bill davidsen, CTO TMR Associates, Inc <davidsen@tmr.com>
-  Having the feature freeze for Linux 2.5 on Hallow'een is appropriate,
-since using 2.5 kernels includes a lot of things jumping out of dark
-corners to scare you.
-
+Thanks,
+Osamu Tomita
 

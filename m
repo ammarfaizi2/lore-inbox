@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270797AbTHAOtr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 10:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270803AbTHAOtr
+	id S270805AbTHAO7a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 10:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275229AbTHAO7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 10:49:47 -0400
-Received: from wing.tritech.co.jp ([202.33.12.153]:17072 "HELO
-	wing.tritech.co.jp") by vger.kernel.org with SMTP id S270797AbTHAOtq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 10:49:46 -0400
-Date: Fri, 01 Aug 2003 23:49:44 +0900 (JST)
-Message-Id: <20030801.234944.27784642.ooyama@tritech.co.jp>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAW or BLK in 2.4.21
-From: ooyama eiichi <ooyama@tritech.co.jp>
-In-Reply-To: <20030801102733.GO7920@suse.de>
-References: <20030801.192419.68158364.ooyama@tritech.co.jp>
-	<20030801102733.GO7920@suse.de>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Fri, 1 Aug 2003 10:59:30 -0400
+Received: from main.gmane.org ([80.91.224.249]:28107 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270805AbTHAO73 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 10:59:29 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Disk speed differences under 2.6.0
+Date: Fri, 01 Aug 2003 16:55:35 +0200
+Message-ID: <yw1x1xw5jul4.fsf@users.sourceforge.net>
+References: <0E3FA95632D6D047BA649F95DAB60E570185F3CF@EXA-ATLANTA.se.lsil.com> <IBEJLCACHGEIBMFJACBEEEJICKAA.glarsen@alpha.homedns.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:OJLAKOnfzSBcCqGkz6TRUbToieg=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Axboe.
-hmm, it is that i have to look at the design again.
+"Gordon Larsen" <glarsen@alpha.homedns.org> writes:
 
-eiichi
+> My apologies if this has already been discussed - but has anyone noticed
+> disk I/O speed differences under 2.6.0 as compared to 2.4.20?  My system has
 
-> On Fri, Aug 01 2003, ooyama eiichi wrote:
-> > Hi.
-> > I am developping a block device kernel module in 2.4 series.
-> > And i want to make a distinction between raw I/O and block I/O,
-> > in the request function i wrote for my module.
-> > But i could not find the way.
-> > 
-> > my_request_fn(request_queue_t *q, int rw, struct buffer_head * bh)
-> > 
-> > Is it possible ?
-> > I would be happy if someone give me a hint about this.
-> 
-> No, it is not possible to tell the difference inside your request_fn.
-> 
-> -- 
-> Jens Axboe
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+It has been discussed.  The solution is "hdparm -a 512 /dev/...".
+
+-- 
+Måns Rullgård
+mru@users.sf.net
+

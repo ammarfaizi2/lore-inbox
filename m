@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288473AbSAQKTK>; Thu, 17 Jan 2002 05:19:10 -0500
+	id <S288460AbSAQKca>; Thu, 17 Jan 2002 05:32:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288466AbSAQKS7>; Thu, 17 Jan 2002 05:18:59 -0500
-Received: from miranda.axis.se ([193.13.178.2]:59030 "EHLO miranda.axis.se")
-	by vger.kernel.org with ESMTP id <S288460AbSAQKSq>;
-	Thu, 17 Jan 2002 05:18:46 -0500
-Message-ID: <18e701c19f40$88d8fdd0$0a070d0a@axis.se>
-From: "Johan Adolfsson" <johan.adolfsson@axis.com>
-To: <quinlan@transmeta.com>,
-        =?iso-8859-1?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-Cc: "Daniel Quinlan" <quinlan@transmeta.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <15430.9334.687743.46115@sodium.transmeta.com><Pine.LNX.4.44.0201170218110.24496-100000@rudy.mif.pg.gda.pl> <15430.14470.999605.380374@sodium.transmeta.com>
-Subject: Re: [PATCH] cramfs updates for 2.4.17
-Date: Thu, 17 Jan 2002 11:20:06 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+	id <S288466AbSAQKcU>; Thu, 17 Jan 2002 05:32:20 -0500
+Received: from [195.163.91.180] ([195.163.91.180]:18954 "EHLO frontpartner.com")
+	by vger.kernel.org with ESMTP id <S288460AbSAQKcL> convert rfc822-to-8bit;
+	Thu, 17 Jan 2002 05:32:11 -0500
+From: Mathias Wiklander <linuxkernel@frontpartner.com>
+Date: Thu, 17 Jan 2002 11:32:04 +0100
+To: linux-kernel@vger.kernel.org
+Cc: eastbay@exadus.com
+Subject: 2.5.3-pre1 emu10k1
+Message-ID: <20020117103204.GA8938@profive.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When I try to compile emu10k1 as a module i get this error.
 
-> =?ISO-8859-2?Q?Tomasz=5FK=B3oczko?= writes:
-> 
-> > On Wed, 16 Jan 2002, Daniel Quinlan wrote:
-> > [..]
-> > > mkcramfs.c
-> > [..]
-> > 
-> > Why not move this tool to util-linux ?
-> 
-> I'm actually ready to move the tools to sourceforge (the cramfs tools
-> CVS tree is there).
-> 
->   http://sourceforge.net/projects/cramfs/
-> 
-> Assuming it's okay with Linus and Marcelo, I'll remove scripts/cramfs
-> in the next version of the patch (which should be fine for 2.5 too).
-> 
-> Dan
+gcc -D__KERNEL__ -I/usr/src/v2.5.2/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-
+strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
+-DMODULE -DEMU10K1_SEQUENCER  -c -o audio.o a
+udio.c
+audio.c: In function mu10k1_audio_open':
+audio.c:1101: invalid operands to binary &
+make[3]: *** [audio.o] Error 1
+make[3]: Leaving directory /usr/src/v2.5.2/linux/drivers/sound/emu10k1'
 
-Why move it?
-Having it in the tree makes it nice and easy to use it, 
-and easy keeping it in sync.
-BTW: I have an improvement wish for cramfs: 
-Add the date of filesystemgeneration to the image header somewhere 
-and use that to update the time info in the inode, that way you could
-get a cheap way of having some valid time stamp for the files without
-it taking a lot of space (helps if you have a webserver and the browser 
-caches stuff)
-/Johan
-
-
+/Eastbay

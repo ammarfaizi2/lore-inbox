@@ -1,54 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269680AbUJWBLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269659AbUJWBHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269680AbUJWBLG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 21:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269759AbUJWBHa
+	id S269659AbUJWBHO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 21:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269610AbUJWBHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 21:07:30 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:16841 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269755AbUJWBGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 21:06:04 -0400
-Subject: Re: Linux v2.6.9 and GPL Buyout
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Cc: jonathan@jonmasters.org, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>
-In-Reply-To: <4179A0DE.3080502@drdos.com>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
-	 <417550FB.8020404@drdos.com>  <35fb2e590410221714205fe526@mail.gmail.com>
-	 <1098491898.1440.67.camel@krustophenia.net>  <4179A0DE.3080502@drdos.com>
-Content-Type: text/plain
-Date: Fri, 22 Oct 2004 21:06:01 -0400
-Message-Id: <1098493562.3298.10.camel@krustophenia.net>
+	Fri, 22 Oct 2004 21:07:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7569 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269759AbUJWBGb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 21:06:31 -0400
+Date: Fri, 22 Oct 2004 18:04:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: markus@trippelsdorf.net, linux-kernel@vger.kernel.org
+Subject: Re: BT848 video support dropped in 2.6.9?
+Message-Id: <20041022180423.5d10719a.akpm@osdl.org>
+In-Reply-To: <4179A763.9040603@kolivas.org>
+References: <1098447230.12289.12.camel@localhost>
+	<4178FAB4.9070208@kolivas.org>
+	<20041022173214.5bc8c316.akpm@osdl.org>
+	<4179A763.9040603@kolivas.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 18:07 -0600, Jeff V. Merkey wrote:
-> Lee Revell wrote:
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> > Or you can do `make menuconfig' then hit "/BT848".  I love that feature!
 > 
-> >Merkey is a troll.  QED.
-> >
-> >Lee
-> >
-> >  
-> >
-> 
-> Not! 
-> 
+>  Now _that_ is cool! I wish I had known about that a long time ago.
 
-In your last message you say "who wants to use this stuff except IBM
-anyway", where "this stuff" includes SMP.  That statement is both absurd
-and inflammatory.  Therefore you are a troll.
-
-If I have to explain why you are also stupider than I thought.
-
-Anyway, thanks for your posts - now I know how to use the kill file in
-Evolution 2.0.
-
-Lee
-
+It was merged only four weeks ago..

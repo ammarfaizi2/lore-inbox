@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265069AbSKFNc0>; Wed, 6 Nov 2002 08:32:26 -0500
+	id <S265062AbSKFN0g>; Wed, 6 Nov 2002 08:26:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265071AbSKFNc0>; Wed, 6 Nov 2002 08:32:26 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:48333 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S265069AbSKFNcZ> convert rfc822-to-8bit; Wed, 6 Nov 2002 08:32:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Filesystem Capabilities in 2.6?
-Date: Wed, 6 Nov 2002 07:36:52 -0600
-User-Agent: KMail/1.4.1
-References: <Pine.LNX.3.96.1021105183722.20035A-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1021105183722.20035A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211060736.52780.pollard@admin.navo.hpc.mil>
+	id <S265058AbSKFN0g>; Wed, 6 Nov 2002 08:26:36 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:21400 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265062AbSKFN0e>; Wed, 6 Nov 2002 08:26:34 -0500
+Subject: Re: [Evms-devel] Re: [Evms-announce] EVMS announcement
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Hendrik Visage <hvisage@envisage.co.za>
+Cc: Mike Diehl <mdiehl@dominion.dyndns.org>, Kevin Corry <corryk@us.ibm.com>,
+       evms-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021106093449.GE465@hvs.envisage.co.za>
+References: <02110516191004.07074@boiler>
+	<20021105214012.C2B4651CF@dominion.dyndns.org>
+	<20021105215100.E927E51CF@dominion.dyndns.org>
+	<1036542080.7386.24.camel@irongate.swansea.linux.org.uk> 
+	<20021106093449.GE465@hvs.envisage.co.za>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Nov 2002 13:55:01 +0000
+Message-Id: <1036590901.9781.22.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 November 2002 05:47 pm, Bill Davidsen wrote:
-> On Sat, 2 Nov 2002, Linus Torvalds wrote:
-> > There are two fairly trivial ways to do it:
-> >
-> >  - put the actual data in the directory entry itself. This is efficient,
-> >    but not very easily extensible, since most directory structures have
-> >    serious size limitations.
->
-> I think the arguments against having different capabilities for the same
-> executable by different names have been made. It does seem that this would
-> mean a symbolic link to the enabled directory entry would work and have
-> capabilities, while a hard link to the inode would not?
->
-> Being hard to understand is one source of security errors of the "I didn't
-> mean to do that" type.
+On Wed, 2002-11-06 at 09:34, Hendrik Visage wrote:
+> On Wed, Nov 06, 2002 at 12:21:20AM +0000, Alan Cox wrote:
+> > On Tue, 2002-11-05 at 21:11, Mike Diehl wrote:
+> > > The biggest thing that EVMS had going for it was it's modular design.  As I 
+> > > understand it, EVMS could even be used to manage the current MD and LVM 
+> > > drivers.  I was looking forward to partition-level encryption, etc.  
+> > 
+> > Thats a seperate issue in the pile. You might want to do things like
+> > 
+> > 			lvm2 volumes
+> 
+> Quick question Alan: Are you saying that EVMS can't do this ??
 
-Not to mention what happens if a file gets lost - fsck puts it in the
-lost+found directory, but without the protection specified by the owner.
+The "one driver" model doesnt scale to it sanely. The EVMS tools
+certainly can
 
-> >  - Make a new file type, and put just that information in the directory
-> >    (so that it shows up in d_type on a readdir()).  Put the real data in
-> >    the file, ie make it largely look like an "extended symlink".
->
-> I thought about symlink-like thngs when I was trying to envision an ACL by
-> group, allowing control of a group other than the non-owner group to have
-> more (or fewer) rights.
->
-> > The latter approach is probably a bit too reminiscent of a Windows
-> > "shortcut" aka LNK file to some people, but hey, maybe it's a good idea.
->
-> The problem with any form of link by name is that there's no easy way to
-> tell from the inode how many pointers there are, and from the link to tell
-> when the link target has changed. I could envision security attacks based
-> on changing the base file and having capabilities apply via the link.
->
-> None of this is beyond implementation, but the idea of having something on
-> a file inode certainly removes all attacks taking advantage of the link
-> relationship. The best way to make something secure is to eliminate the
-> need for it.
-
-absolutely
-
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

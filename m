@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137173AbREKQrl>; Fri, 11 May 2001 12:47:41 -0400
+	id <S137171AbREKQsB>; Fri, 11 May 2001 12:48:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137172AbREKQrc>; Fri, 11 May 2001 12:47:32 -0400
-Received: from betty.magenta-netlogic.com ([193.37.229.181]:10759 "HELO
-	betty.magenta-netlogic.com") by vger.kernel.org with SMTP
-	id <S137171AbREKQrQ>; Fri, 11 May 2001 12:47:16 -0400
-Message-ID: <3AFC178F.3090806@magenta-netlogic.com>
-Date: Fri, 11 May 2001 17:47:11 +0100
-From: Tony Hoyle <tmh@magenta-netlogic.com>
-Organization: Magenta Logic
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9) Gecko/20010505
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: linux-kernel@vger.kernel.org, Hans Reiser <reiser@namesys.com>
-Subject: Re: reiserfs, xfs, ext2, ext3
-In-Reply-To: <01050910381407.26653@bugs> <20010510134453.A6816@emma1.emma.line.org> <3AFA9AD8.7080203@magenta-netlogic.com> <20010511013726.C31966@emma1.emma.line.org> <3AFBFDB0.5080904@magenta-netlogic.com> <20010511175605.G28282@burns.dt.e-technik.uni-dortmund.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S137172AbREKQrw>; Fri, 11 May 2001 12:47:52 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:1030 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S137171AbREKQri>; Fri, 11 May 2001 12:47:38 -0400
+Date: Fri, 11 May 2001 18:47:08 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Collectively Unconscious <swarm@warpcore.provalue.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19 Crash Help, please
+Message-ID: <20010511184707.J27167@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010511135829Z137139-406+427@vger.kernel.org> <Pine.LNX.4.10.10105110726410.15179-100000@warpcore.provalue.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10105110726410.15179-100000@warpcore.provalue.net>; from swarm@warpcore.provalue.net on Fri, May 11, 2001 at 07:32:41AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
+On Fri, May 11, 2001 at 07:32:41AM -0500, Collectively Unconscious wrote:
+> I had an NFS server crash in an unfamiliar way.
+> 
+> 2.2.19 smp 2xPIII 450 
+> 
+> The screen was filled with varitions of [<8010997c>] and at the bottom of
+> the screen was the following:
+> 
+> Code: 8b 4a 04 85 c9 74 22 8b 5a 18 8b 02 89 01 8b 0a 85 c9 74 08
+> 
+> Can anyone clue me in on this?
 
-> It's probably not. vs-13048 can usually be rectified (ugly, slow but
-> usually works on machines even with 256 MB RAM and 1/2 GB swap) by ls
-> -laR / or treescan -stat /.
+You have to decode the Oops to make it useful. See the files
+REPORTING-BUGS and Documentation/oops-tracing.txt in the kernel source
+tree.
 
 
-ls can't access the files either, so I don't see how that could rectify 
-anything.  The entire directory becomes inaccessible.   This happened to 
-/lib once.  Nasty.
+Erik
 
-I'd like to be able to use something like reiserfs, especially when 
-developing (it reduces boot time a lot).  However to call it 'stable' on 
-2.4.4 is simply wrong.  If/when the nfs fix gets merged and tested 
-*then* it stands a chance of being called stable.
-
-
-Tony
-
+PS: Instead of *replying* to an existing thread, you'd better *start* a
+    new thread ("compose" instead of "reply"). If I killed the "write
+    to dvd ram" thread I wouldn't have seen your message at all.
 
 -- 
-Where a calculator on the ENIAC is equpped with 18,000 vaccuum
-tubes and weighs 30 tons, computers in the future may have only
-1,000 vaccuum tubes and perhaps weigh 1 1\2 tons.
--- Popular Mechanics, March 1949
-
-tmh@magenta-netlogic.com
-
-
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

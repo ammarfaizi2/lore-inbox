@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264352AbUD0VFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264223AbUD0VRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264352AbUD0VFP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 17:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264354AbUD0VFP
+	id S264223AbUD0VRK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 17:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264354AbUD0VRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 17:05:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:53893 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264352AbUD0VFI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 17:05:08 -0400
-Date: Tue, 27 Apr 2004 14:05:07 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Erik Jacobson <erikj@subway.americas.sgi.com>
-Cc: Chris Wright <chrisw@osdl.org>, Jesse Barnes <jbarnes@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Process Aggregates (PAGG) support for the 2.6 kernel
-Message-ID: <20040427140507.Z21045@build.pdx.osdl.net>
-References: <Pine.SGI.4.53.0404261656230.591647@subway.americas.sgi.com> <20040426163955.X21045@build.pdx.osdl.net> <200404261736.47522.jbarnes@sgi.com> <20040426174102.S22989@build.pdx.osdl.net> <Pine.SGI.4.53.0404271552040.632984@subway.americas.sgi.com>
-Mime-Version: 1.0
+	Tue, 27 Apr 2004 17:17:10 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:25831 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S264223AbUD0VRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 17:17:08 -0400
+To: Paulo Marques <pmarques@grupopie.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+References: <408DC0E0.7090500@gmx.net> <Pine.LNX.4.58.0404262116510.19703@ppc970.osdl.org>
+ <1083045844.2150.105.camel@bach> <20040427092159.GC29503@lug-owl.de>
+ <408E37D9.7030804@gmx.net> <408E5944.8090807@grupopie.com>
+From: Junio C Hamano <junkio@cox.net>
+Date: Tue, 27 Apr 2004 14:17:06 -0700
+In-Reply-To: <fa.f05evul.1qmg8gd@ifi.uio.no> (Paulo Marques's message of
+ "Tue, 27 Apr 2004 13:03:51 GMT")
+Message-ID: <7v65blp1d9.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SGI.4.53.0404271552040.632984@subway.americas.sgi.com>; from erikj@subway.americas.sgi.com on Tue, Apr 27, 2004 at 04:00:32PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Erik Jacobson (erikj@subway.americas.sgi.com) wrote:
-> I expect the "new" stuff uses the virtual filesystem interface and other
-> things suggested by the API docs they have.
+>>>>> "PM" == Paulo Marques <pmarques@grupopie.com> writes:
 
-*nod*
+PM> The way I see it, they know a C string ends with a '\0'. This is like
+PM> saying that a English sentence ends with a dot. If they wrote "GPL\0"
+PM> they are effectively saying that the license *is* GPL period.
 
-> My first impression is that pagg itself could be used to implement parts of
-> what ckrm is doing if they desired and not necessarily the other way around.
+PM> So, where the source code? :)
 
-Guess the key point is that many folks are interested in some sort of
-aggregate resource container.  QoS on virtual servers, make rlimit type
-of limits acutally useful, your needs, etc.  Be nice to come from
-common infrastructure.
+I do not know if their having "GPL\0" in their object makes it
+under GPL, but even if it did, I do not think they have any
+obligation to give us the source.  GPL says "You may do such and
+such provided if you do so and so" but that is all about the
+Licensee.  It does not talk anything about what the copyright
+holder may, may not, nor must do :).
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

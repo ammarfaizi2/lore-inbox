@@ -1,85 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293504AbSBZDoY>; Mon, 25 Feb 2002 22:44:24 -0500
+	id <S292579AbSBZDyp>; Mon, 25 Feb 2002 22:54:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293499AbSBZDoQ>; Mon, 25 Feb 2002 22:44:16 -0500
-Received: from ns.snowman.net ([63.80.4.34]:27149 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S293503AbSBZDoE>;
-	Mon, 25 Feb 2002 22:44:04 -0500
-Date: Mon, 25 Feb 2002 22:43:53 -0500 (EST)
-From: <nick@snowman.net>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
-        linux-net@vger.kernel.org
-Subject: Re: [BETA] First test release of Tigon3 driver
-In-Reply-To: <20020225.165914.123908101.davem@redhat.com>
-Message-ID: <Pine.LNX.4.21.0202252243360.18586-100000@ns>
+	id <S292605AbSBZDyg>; Mon, 25 Feb 2002 22:54:36 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:22789 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S292579AbSBZDyW>; Mon, 25 Feb 2002 22:54:22 -0500
+Message-ID: <3C7B06ED.8EC55523@delusion.de>
+Date: Tue, 26 Feb 2002 04:54:21 +0100
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+        linux-net <linux-net@vger.kernel.org>
+Subject: mmapped packet socket queueing tcp packets twice?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you list what cards/systems use this driver?  I at least am totally
-unsure.
-	Thanks
-		Nick
 
-On Mon, 25 Feb 2002, David S. Miller wrote:
+Hi,
 
-> 
-> This is to announce the first test release of a new Broadcom Tigon3
-> driver written by Jeff and myself.  Get it at:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/davem/TIGON3/tg3.patch.gz
-> 
-> The patch is against 2.4.18 but there is no reason it should be
-> difficult to apply this patch to any other tree.
-> 
-> It is meant to replace Broadcom's driver because frankly their driver
-> is junk and would never be accepted into the tree.  For an example of
-> why their driver is junk, note that the resulting object file from our
-> driver is less than half the size of Broadcom's.  That kind of bloat
-> is simply unacceptable.  Next, Broadcom's driver is still way
-> non-portable, ioremap() pointers are still dereferenced directly among
-> other things.  Finally, their driver is just plain buggy, they have
-> code which tries to use page_address() on pages which are potentially
-> in highmem and that is guarenteed to oops.
-> 
-> There are other problems with their driver too, just ask as I'm in a
-> good mood to grind my axe about this stuff :-)
-> 
-> We would also like to give Broadcom a big "no thanks" because
-> their lawyers refused to give Jeff the documentation for the Tigon3
-> chipset using an NDA that would allow him to write a GPL'd driver
-> based upon said documentation.  This means that all that we know about
-> the hardware has been reverse engineered from Broadcom's GPL'd driver
-> plus some experimenting.  It is why this driver has taken so long to
-> finish, because it is hard to find incentive for this kind of brack
-> breaking work when the vendor is totally uncooperative.
-> 
-> I personally think Broadcom has some hidden agenda that requires that
-> their driver be "the one".  So instead of just complaining about such
-> stupid policy, we've done something about it by doing our own driver
-> with all the problems fixed.
-> 
-> We'd really appreciate if people would test this thing out as hard
-> as they can.  I can tell you that I've personally only been able to
-> test out the following scenerios so far:
-> 
-> 1) Both big-endian and little-endian platforms.
-> 2) 64-bit on big-endian side, 32-bit on little-endian side.
-> 3) IOMMU based PCI dma platform on 64-bit/big-endian side,
->    non-IOMMU based PCI dma platform on 32-bit little-endian side.
-> 4) 10baseT half duplex, 100baseT full duplex
-> 5) Copper based connectors, as that is all that Jeff and I have.
-> 
-> Gigabit and fibre are the big areas where our testing has been
-> lacking.  We have also not done any tuning of the driver at all,
-> although we do consider the driver feature complete.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+While playing around with packet sockets I stumbled across the following strange
+thing:
 
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 4] Incoming TCP - Len:  136 Sum: 72b7 [1014694916.161277] 
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 5] Incoming TCP - Len:  136 Sum: 72b7 [1014694916.161592] 
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 9] Incoming TCP - Len:  120 Sum: 81b7 [1014694916.168418] 
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 10] Incoming TCP - Len:  120 Sum: 81b7 [1014694916.168687]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 12] Incoming TCP - Len:  120 Sum: 80b7 [1014694916.170024]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 13] Incoming TCP - Len:  120 Sum: 80b7 [1014694916.170283]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 15] Incoming TCP - Len:  120 Sum: 7fb7 [1014694916.171432]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 16] Incoming TCP - Len:  120 Sum: 7fb7 [1014694916.171681]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 18] Incoming TCP - Len:  120 Sum: 7eb7 [1014694916.172807]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 19] Incoming TCP - Len:  120 Sum: 7eb7 [1014694916.173094]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 21] Incoming TCP - Len:  120 Sum: 7db7 [1014694916.174245]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 22] Incoming TCP - Len:  120 Sum: 7db7 [1014694916.174499]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 24] Incoming TCP - Len:  120 Sum: 7cb7 [1014694916.176289]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 25] Incoming TCP - Len:  120 Sum: 7cb7 [1014694916.176562]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 30] Incoming TCP - Len:  136 Sum: 6bb7 [1014694916.182037]
+Feb 26 04:41:56 Kerberos ipacctd: [Slot 31] Incoming TCP - Len:  136 Sum: 6bb7 [1014694916.182308]
+                                      ^                                 ^              ^ 
+                                      |                                 |              |
+                                  Ring Slot                          Checksum      Timestamp
+
+The program runs under Linux-2.4.17 on machine A and looks for packets of type PACKET_OTHERHOST
+coming from and going to machine B. For all incoming tcp traffic of machine B, each packet appears
+in the mmapped packet ring twice. The ring slots are adjacent and the checksum is the same.
+Only the timestamps differ slightly.
+
+Can someone explain this behaviour?
+
+-Udo.

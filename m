@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264640AbUGMKSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264767AbUGMKXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264640AbUGMKSO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 06:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUGMKSN
+	id S264767AbUGMKXp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 06:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUGMKXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 06:18:13 -0400
-Received: from holomorphy.com ([207.189.100.168]:20884 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264640AbUGMKSK (ORCPT
+	Tue, 13 Jul 2004 06:23:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23250 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264767AbUGMKXm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 06:18:10 -0400
-Date: Tue, 13 Jul 2004 03:14:46 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       ck@vds.kolivas.org, devenyga@mcmaster.ca, linux-kernel@vger.kernel.org
-Subject: Re: Preempt Threshold Measurements
-Message-ID: <20040713101446.GV21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-	ck@vds.kolivas.org, devenyga@mcmaster.ca,
-	linux-kernel@vger.kernel.org
-References: <200407121943.25196.devenyga@mcmaster.ca> <20040713024051.GQ21066@holomorphy.com> <200407122248.50377.devenyga@mcmaster.ca> <20040713025502.GR21066@holomorphy.com> <20040712210701.46e2cd40.akpm@osdl.org> <cone.1089696847.507419.12958.502@pc.kolivas.org> <40F377BD.4080201@yahoo.com.au>
+	Tue, 13 Jul 2004 06:23:42 -0400
+Date: Tue, 13 Jul 2004 03:22:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Thomas Charbonnel <thomas@undata.org>
+Cc: paul@linuxaudiosystems.com, albert@users.sourceforge.net,
+       linux-kernel@vger.kernel.org, florin@sgi.com,
+       linux-audio-dev@music.columbia.edu
+Subject: Re: desktop and multimedia as an afterthought?
+Message-Id: <20040713032201.010f3e0f.akpm@osdl.org>
+In-Reply-To: <1089683379.5773.62.camel@localhost>
+References: <1089665153.1231.88.camel@cube>
+	<200407122354.i6CNsNqS003382@localhost.localdomain>
+	<20040712172458.2659db52.akpm@osdl.org>
+	<1089683379.5773.62.camel@localhost>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40F377BD.4080201@yahoo.com.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 13, 2004 at 03:48:45PM +1000, Nick Piggin wrote:
-> cond_resched_lock just below this needs something similar.
+Thomas Charbonnel <thomas@undata.org> wrote:
+>
+> On my system xruns seem related to the keyboard. I get xruns on ~8.079
+>  seconds boundaries when the keyboard is in use, regardless of the load.
+>  My usual test is running jack with 2 periods of 64 samples and no
+>  client, and keep a key pressed. Those latencytest graphs give an idea of
+>  the problem : http://www.undata.org/~thomas/latencytest/index.html
+> 
+>  Here are the xrun_debug reports :
 
-Maybe it does.
+OK, thanks.
 
-Index: mm7-2.6.7/include/linux/sched.h
-===================================================================
---- mm7-2.6.7.orig/include/linux/sched.h	2004-07-13 03:06:12.759495000 -0700
-+++ mm7-2.6.7/include/linux/sched.h	2004-07-13 03:14:00.122445032 -0700
-@@ -1053,7 +1053,8 @@
- 		preempt_enable_no_resched();
- 		__cond_resched();
- 		spin_lock(lock);
--	}
-+	} else
-+		touch_preempt_timing();
- }
- 
- /* Reevaluate whether the task has signals pending delivery.
+Stack tracing seems a bit broken with 4k stacks.  Can you disable
+CONFIG_4KSTACKS for future testing?
+
+>  For the intel8x0 :
+>  XRUN: pcmC1D0p
+>  Stack pointer is garbage, not printing trace
+>  Unexpected hw_pointer value [1] (stream = 1, delta: -16, max jitter =
+>  64): wrong interrupt acknowledge?
+>   [<c0105f3e>] dump_stack+0x1e/0x30
+>   [<c033240d>] snd_pcm_period_elapsed+0x1cd/0x420
+>   [<c03578cc>] snd_intel8x0_interrupt+0x1fc/0x260
+>   [<c010739b>] handle_IRQ_event+0x3b/0x70
+>   [<c0107824>] do_IRQ+0x194/0x1b0
+>   [<c0105ac4>] common_interrupt+0x18/0x20
+>   [<c0107754>] do_IRQ+0xc4/0x1b0
+>   [<c0105ac4>] common_interrupt+0x18/0x20
+>   [<c0108126>] do_softirq+0x46/0x60
+>   [<c01077d9>] do_IRQ+0x149/0x1b0
+>   [<c0105ac4>] common_interrupt+0x18/0x20
+>   [<c01030f4>] cpu_idle+0x34/0x40
+>   [<c053c809>] start_kernel+0x169/0x190
+>   [<c010019f>] 0xc010019f
+>   =======================
+>   [<c0105f3e>] dump_stack+0x1e/0x30
+>   [<c033240d>] snd_pcm_period_elapsed+0x1cd/0x420
+>   [<c03578cc>] snd_intel8x0_interrupt+0x1fc/0x260
+>   [<c010739b>] handle_IRQ_event+0x3b/0x70
+>   [<c0107824>] do_IRQ+0x194/0x1b0
+>   [<c0105ac4>] common_interrupt+0x18/0x20
+>   [<c0107754>] do_IRQ+0xc4/0x1b0
+>   [<c0105ac4>] common_interrupt+0x18/0x20
+>   [<c0108126>] do_softirq+0x46/0x60
+>   [<c01077d9>] do_IRQ+0x149/0x1b0
+>   [<c0105ac4>] common_interrupt+0x18/0x20
+>   [<c01030f4>] cpu_idle+0x34/0x40
+>   [<c053c809>] start_kernel+0x169/0x190

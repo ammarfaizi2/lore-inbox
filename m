@@ -1,244 +1,950 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267657AbUJTAUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270101AbUJTAbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267657AbUJTAUg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 20:20:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269883AbUJSXnv
+	id S270101AbUJTAbM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 20:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269883AbUJTAad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:43:51 -0400
-Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:6030
-	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
-	id S269885AbUJSWsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:48:21 -0400
-Subject: [patch 1/1] dm: fix printk errors about whether %lu/%Lu is right for sector_t - revised
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Wed, 20 Oct 2004 00:46:30 +0200
-Message-Id: <20041019224632.76F7D95AC@zion.localdomain>
+	Tue, 19 Oct 2004 20:30:33 -0400
+Received: from mail.kroah.org ([69.55.234.183]:22964 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268179AbUJTATi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 20:19:38 -0400
+Subject: Re: [PATCH] I2C update for 2.6.9
+In-Reply-To: <10982315062141@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 19 Oct 2004 17:18:27 -0700
+Message-Id: <10982315071393@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.2076, 2004/10/19 15:22:22-07:00, ben-linux@fluff.org
 
-The Device Manager code barfs when sector_t is 64bit wide (i.e. an u64) and
-CONFIG_LBD is off. This happens on printk(), resulting in wrong memory
-accesses, but also on sscanf(), resulting in overflows (because it uses %lu
-for a long long in this case). And region_t, chunk_t are typedefs for
-sector_t, so we have warnings for these, too.
+[PATCH] I2C: S3C2410 I2C Bus driver
 
-Andrew Morton suggested simply using "%llu" and casting sector_t to unsigned
-long long; but he missed the sscanf()'s, which cannot be fixed this way.
+Bus driver for the Samsung S3C2410 SoC onboard I2C controller
 
-I've used %llu instead of %Lu for standards conformance, as suggested by 
+Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-The problem is this code in drivers/md/dm.h:
-/*
- * FIXME: I think this should be with the definition of sector_t
- * in types.h.
- */
-#ifdef CONFIG_LBD
-#define SECTOR_FORMAT "%Lu"
-#else
-#define SECTOR_FORMAT "%lu"
-#endif
 
-So we must fix the FIXME. However, having sector_t defined by the arch is
-wrong in all current cases, and we fix these: we can simply decide this in
-linux/types.h following CONFIG_LBD.
+ drivers/i2c/busses/Kconfig       |    7 
+ drivers/i2c/busses/Makefile      |    1 
+ drivers/i2c/busses/i2c-s3c2410.c |  877 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 885 insertions(+)
 
-So, I have also removed HAVE_SECTOR_T; you can readd it, but it has no users.
 
-All 64-bit arch use a 64-bit wide long for sector_t; almost all 32-bit archs
-use a long long only if CONFIG_LBD is on. The only exception is h8300: for
-that case, we add CONFIG_LBD = y and we are again in the general case.
-And x86_64 does not need to define sector_t on its own.
-
-Sample warnings (from both 2.6.8.1 and 2.6.9-rc2):
-drivers/md/dm-raid1.c: In function `get_mirror':
-drivers/md/dm-raid1.c:930: warning: long unsigned int format, sector_t arg (arg 3)
-drivers/md/dm-raid1.c: In function `mirror_status':
-drivers/md/dm-raid1.c:1200: warning: long unsigned int format, region_t arg (arg 4)
-drivers/md/dm-raid1.c:1200: warning: long unsigned int format, region_t arg (arg 5)
-drivers/md/dm-raid1.c:1206: warning: long unsigned int format, sector_t arg (arg 5)
-drivers/md/dm-raid1.c:1212: warning: long unsigned int format, sector_t arg (arg 5)
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
-
- linux-2.6.9-current-paolo/arch/h8300/Kconfig         |    4 ++++
- linux-2.6.9-current-paolo/drivers/md/dm.h            |   10 ----------
- linux-2.6.9-current-paolo/include/asm-h8300/types.h  |    3 ---
- linux-2.6.9-current-paolo/include/asm-i386/types.h   |    5 -----
- linux-2.6.9-current-paolo/include/asm-mips/types.h   |    5 -----
- linux-2.6.9-current-paolo/include/asm-ppc/types.h    |    5 -----
- linux-2.6.9-current-paolo/include/asm-s390/types.h   |    5 -----
- linux-2.6.9-current-paolo/include/asm-sh/types.h     |    5 -----
- linux-2.6.9-current-paolo/include/asm-x86_64/types.h |    3 ---
- linux-2.6.9-current-paolo/include/linux/types.h      |   17 ++++++++++++++---
- 10 files changed, 18 insertions(+), 44 deletions(-)
-
-diff -puN drivers/md/dm.h~fix-dm-warnings drivers/md/dm.h
---- linux-2.6.9-current/drivers/md/dm.h~fix-dm-warnings	2004-10-16 21:58:29.912802872 +0200
-+++ linux-2.6.9-current-paolo/drivers/md/dm.h	2004-10-16 21:58:29.954796488 +0200
-@@ -22,16 +22,6 @@
- #define DMEMIT(x...) sz += ((sz >= maxlen) ? \
- 			  0 : scnprintf(result + sz, maxlen - sz, x))
+diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+--- a/drivers/i2c/busses/Kconfig	2004-10-19 16:53:38 -07:00
++++ b/drivers/i2c/busses/Kconfig	2004-10-19 16:53:38 -07:00
+@@ -291,6 +291,13 @@
+ 	depends on (RPXLITE || RPXCLASSIC) && I2C
+ 	select I2C_ALGO8XX
  
--/*
-- * FIXME: I think this should be with the definition of sector_t
-- * in types.h.
-- */
--#ifdef CONFIG_LBD
--#define SECTOR_FORMAT "%Lu"
--#else
--#define SECTOR_FORMAT "%lu"
--#endif
--
- #define SECTOR_SHIFT 9
- 
- /*
-diff -puN include/asm-h8300/types.h~fix-dm-warnings include/asm-h8300/types.h
---- linux-2.6.9-current/include/asm-h8300/types.h~fix-dm-warnings	2004-10-16 21:58:29.913802720 +0200
-+++ linux-2.6.9-current-paolo/include/asm-h8300/types.h	2004-10-16 21:58:29.954796488 +0200
-@@ -55,9 +55,6 @@ typedef unsigned long long u64;
- 
- typedef u32 dma_addr_t;
- 
--#define HAVE_SECTOR_T
--typedef u64 sector_t;
--
- typedef unsigned int kmem_bufctl_t;
- 
- #endif /* __KERNEL__ */
-diff -puN include/asm-i386/types.h~fix-dm-warnings include/asm-i386/types.h
---- linux-2.6.9-current/include/asm-i386/types.h~fix-dm-warnings	2004-10-16 21:58:29.914802568 +0200
-+++ linux-2.6.9-current-paolo/include/asm-i386/types.h	2004-10-16 21:58:29.955796336 +0200
-@@ -58,11 +58,6 @@ typedef u32 dma_addr_t;
- #endif
- typedef u64 dma64_addr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
- typedef unsigned short kmem_bufctl_t;
- 
- #endif /* __ASSEMBLY__ */
-diff -puN include/asm-mips/types.h~fix-dm-warnings include/asm-mips/types.h
---- linux-2.6.9-current/include/asm-mips/types.h~fix-dm-warnings	2004-10-16 21:58:29.915802416 +0200
-+++ linux-2.6.9-current-paolo/include/asm-mips/types.h	2004-10-16 21:58:29.955796336 +0200
-@@ -94,11 +94,6 @@ typedef unsigned long long phys_t;
- typedef unsigned long phys_t;
- #endif
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
- typedef unsigned short kmem_bufctl_t;
- 
- #endif /* __ASSEMBLY__ */
-diff -puN include/asm-ppc/types.h~fix-dm-warnings include/asm-ppc/types.h
---- linux-2.6.9-current/include/asm-ppc/types.h~fix-dm-warnings	2004-10-16 21:58:29.916802264 +0200
-+++ linux-2.6.9-current-paolo/include/asm-ppc/types.h	2004-10-16 21:58:29.955796336 +0200
-@@ -57,11 +57,6 @@ typedef __vector128 vector128;
- typedef u32 dma_addr_t;
- typedef u64 dma64_addr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
- typedef unsigned int kmem_bufctl_t;
- 
- #endif /* __ASSEMBLY__ */
-diff -puN include/asm-s390/types.h~fix-dm-warnings include/asm-s390/types.h
---- linux-2.6.9-current/include/asm-s390/types.h~fix-dm-warnings	2004-10-16 21:58:29.917802112 +0200
-+++ linux-2.6.9-current-paolo/include/asm-s390/types.h	2004-10-16 21:58:29.955796336 +0200
-@@ -90,11 +90,6 @@ typedef union {
- 	} subreg;
- } register_pair;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
- #endif /* ! __s390x__   */
- #endif /* __ASSEMBLY__  */
- #endif /* __KERNEL__    */
-diff -puN include/asm-sh/types.h~fix-dm-warnings include/asm-sh/types.h
---- linux-2.6.9-current/include/asm-sh/types.h~fix-dm-warnings	2004-10-16 21:58:29.918801960 +0200
-+++ linux-2.6.9-current-paolo/include/asm-sh/types.h	2004-10-16 21:58:29.956796184 +0200
-@@ -53,11 +53,6 @@ typedef unsigned long long u64;
- 
- typedef u32 dma_addr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
- typedef unsigned int kmem_bufctl_t;
- 
- #endif /* __ASSEMBLY__ */
-diff -puN include/asm-x86_64/types.h~fix-dm-warnings include/asm-x86_64/types.h
---- linux-2.6.9-current/include/asm-x86_64/types.h~fix-dm-warnings	2004-10-16 21:58:29.919801808 +0200
-+++ linux-2.6.9-current-paolo/include/asm-x86_64/types.h	2004-10-16 21:58:29.956796184 +0200
-@@ -48,9 +48,6 @@ typedef unsigned long long u64;
- typedef u64 dma64_addr_t;
- typedef u64 dma_addr_t;
- 
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--
- typedef unsigned short kmem_bufctl_t;
- 
- #endif /* __ASSEMBLY__ */
-diff -puN include/linux/types.h~fix-dm-warnings include/linux/types.h
---- linux-2.6.9-current/include/linux/types.h~fix-dm-warnings	2004-10-16 21:58:29.951796944 +0200
-+++ linux-2.6.9-current-paolo/include/linux/types.h	2004-10-16 21:58:29.956796184 +0200
-@@ -125,12 +125,23 @@ typedef		__s64		int64_t;
- 
- /*
-  * The type used for indexing onto a disc or disc partition.
-- * If required, asm/types.h can override it and define
-- * HAVE_SECTOR_T
-+ * You cannot override it any more in asm- includes; define CONFIG_LBD
-+ * to turn it inside a long long (only on 32-bit archs).
-+ * The DM code must also scanf sector_t's, so here we define SECTOR_FORMAT
-+ * for them.
-  */
--#ifndef HAVE_SECTOR_T
++config I2C_S3C2410
++	tristate "S3C2410 I2C Driver"
++	depends on I2C && ARCH_S3C2410
++	help
++	  Say Y here to include support for I2C controller in the
++	  Samsung S3C2410 based System-on-Chip devices.
 +
-+#ifndef CONFIG_LBD
- typedef unsigned long sector_t;
-+#define SECTOR_FORMAT "%lu"
-+#else /* CONFIG_LBD */
-+#if BITS_PER_LONG == 64
-+#error Cannot define CONFIG_LBD on 64-bit archs.
+ config I2C_SAVAGE4
+ 	tristate "S3 Savage 4"
+ 	depends on I2C && PCI && EXPERIMENTAL
+diff -Nru a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+--- a/drivers/i2c/busses/Makefile	2004-10-19 16:53:38 -07:00
++++ b/drivers/i2c/busses/Makefile	2004-10-19 16:53:38 -07:00
+@@ -26,6 +26,7 @@
+ obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
+ obj-$(CONFIG_I2C_PROSAVAGE)	+= i2c-prosavage.o
+ obj-$(CONFIG_I2C_RPXLITE)	+= i2c-rpx.o
++obj-$(CONFIG_I2C_S3C2410)	+= i2c-s3c2410.o
+ obj-$(CONFIG_I2C_SAVAGE4)	+= i2c-savage4.o
+ obj-$(CONFIG_I2C_SIS5595)	+= i2c-sis5595.o
+ obj-$(CONFIG_I2C_SIS630)	+= i2c-sis630.o
+diff -Nru a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/drivers/i2c/busses/i2c-s3c2410.c	2004-10-19 16:53:38 -07:00
+@@ -0,0 +1,877 @@
++/* linux/drivers/i2c/busses/i2c-s3c2410.c
++ *
++ * Copyright (C) 2004 Simtec Electronics
++ *	Ben Dooks <ben@simtec.co.uk>
++ *
++ * S3C2410 I2C Controller
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++*/
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++
++#include <linux/i2c.h>
++#include <linux/i2c-id.h>
++#include <linux/init.h>
++#include <linux/time.h>
++#include <linux/interrupt.h>
++#include <linux/sched.h>
++#include <linux/delay.h>
++#include <linux/errno.h>
++#include <linux/err.h>
++#include <linux/device.h>
++
++#include <asm/hardware.h>
++#include <asm/irq.h>
++
++#include <asm/hardware/clock.h>
++#include <asm/arch/regs-gpio.h>
++#include <asm/arch/regs-iic.h>
++#include <asm/arch/iic.h>
++
++/* i2c controller state */
++
++enum s3c24xx_i2c_state {
++	STATE_IDLE,
++	STATE_START,
++	STATE_READ,
++	STATE_WRITE,
++	STATE_STOP
++};
++
++struct s3c24xx_i2c {
++	spinlock_t		lock;
++	wait_queue_head_t	wait;
++
++	struct i2c_msg		*msg;
++	unsigned int		msg_num;
++	unsigned int		msg_idx;
++	unsigned int		msg_ptr;
++
++	enum s3c24xx_i2c_state	state;
++
++	void __iomem		*regs;
++	struct clk		*clk;
++	struct device		*dev;
++	struct resource		*irq;
++	struct resource		*ioarea;
++	struct i2c_adapter	adap;
++};
++
++/* default platform data to use if not supplied in the platfrom_device
++*/
++
++static struct s3c2410_platform_i2c s3c24xx_i2c_default_platform = {
++	.flags		= 0,
++	.slave_addr	= 0x10,
++	.bus_freq	= 100*1000,
++	.max_freq	= 400*1000,
++};
++
++
++/* s3c24xx_i2c_get_platformdata
++ *
++ * get the platform data associated with the given device, or return
++ * the default if there is none
++*/
++
++static inline struct s3c2410_platform_i2c *s3c24xx_i2c_get_platformdata(struct device *dev)
++{
++	if (dev->platform_data != NULL)
++		return (struct s3c2410_platform_i2c *)dev->platform_data;
++
++	return &s3c24xx_i2c_default_platform;
++}
++
++/* s3c24xx_i2c_master_complete
++ *
++ * complete the message and wake up the caller, using the given return code,
++ * or zero to mean ok.
++*/
++
++static inline void s3c24xx_i2c_master_complete(struct s3c24xx_i2c *i2c, int ret)
++{
++	dev_dbg(i2c->dev, "master_complete %d\n", ret);
++
++	i2c->msg_ptr = 0;
++	i2c->msg = NULL;
++	i2c->msg_idx ++;
++	i2c->msg_num = 0;
++	if (ret)
++		i2c->msg_idx = ret;
++
++	wake_up(&i2c->wait);
++}
++
++static inline void s3c24xx_i2c_disable_ack(struct s3c24xx_i2c *i2c)
++{
++	unsigned long tmp;
++	
++	tmp = readl(i2c->regs + S3C2410_IICCON);
++	writel(tmp & ~S3C2410_IICCON_ACKEN, i2c->regs + S3C2410_IICCON);
++
++}
++
++static inline void s3c24xx_i2c_enable_ack(struct s3c24xx_i2c *i2c)
++{
++	unsigned long tmp;
++	
++	tmp = readl(i2c->regs + S3C2410_IICCON);
++	writel(tmp | S3C2410_IICCON_ACKEN, i2c->regs + S3C2410_IICCON);
++
++}
++
++/* irq enable/disable functions */
++
++static inline void s3c24xx_i2c_disable_irq(struct s3c24xx_i2c *i2c)
++{
++	unsigned long tmp;
++	
++	tmp = readl(i2c->regs + S3C2410_IICCON);
++	writel(tmp & ~S3C2410_IICCON_IRQEN, i2c->regs + S3C2410_IICCON);
++}
++
++static inline void s3c24xx_i2c_enable_irq(struct s3c24xx_i2c *i2c)
++{
++	unsigned long tmp;
++	
++	tmp = readl(i2c->regs + S3C2410_IICCON);
++	writel(tmp | S3C2410_IICCON_IRQEN, i2c->regs + S3C2410_IICCON);
++}
++
++
++/* s3c24xx_i2c_message_start
++ *
++ * put the start of a message onto the bus 
++*/
++
++static void s3c24xx_i2c_message_start(struct s3c24xx_i2c *i2c, 
++				      struct i2c_msg *msg)
++{
++	unsigned int addr = (msg->addr & 0x7f) << 1;
++	unsigned long stat;
++
++	stat = readl(i2c->regs + S3C2410_IICSTAT);
++	stat &= ~S3C2410_IICSTAT_MODEMASK;
++	stat |=  S3C2410_IICSTAT_START;
++	stat |=  S3C2410_IICSTAT_TXRXEN;
++
++	if (msg->flags & I2C_M_RD) {
++		stat |= S3C2410_IICSTAT_MASTER_RX;
++		addr |= 1;
++	} else
++		stat |= S3C2410_IICSTAT_MASTER_TX;
++
++	// todo - check for wether ack wanted or not
++	s3c24xx_i2c_enable_ack(i2c);
++
++	dev_dbg(i2c->dev, "START: %08lx to IICSTAT, %02x to DS\n", stat, addr);
++	writeb(addr, i2c->regs + S3C2410_IICDS);
++	writel(stat, i2c->regs + S3C2410_IICSTAT);
++}
++
++static inline void s3c24xx_i2c_stop(struct s3c24xx_i2c *i2c, int ret)
++{
++	unsigned long iicstat = readl(i2c->regs + S3C2410_IICSTAT);
++
++	dev_dbg(i2c->dev, "STOP\n");
++
++	/* stop the transfer */
++	iicstat &= ~ S3C2410_IICSTAT_START;
++	writel(iicstat, i2c->regs + S3C2410_IICSTAT);
++	
++	i2c->state = STATE_STOP;
++	
++	s3c24xx_i2c_master_complete(i2c, ret);
++	s3c24xx_i2c_disable_irq(i2c);
++}
++
++/* helper functions to determine the current state in the set of
++ * messages we are sending */
++
++/* is_lastmsg()
++ *
++ * returns TRUE if the current message is the last in the set 
++*/
++
++static inline int is_lastmsg(struct s3c24xx_i2c *i2c)
++{
++	return i2c->msg_idx >= (i2c->msg_num - 1);
++}
++
++/* is_msglast
++ *
++ * returns TRUE if we this is the last byte in the current message
++*/
++
++static inline int is_msglast(struct s3c24xx_i2c *i2c)
++{
++	return i2c->msg_ptr == i2c->msg->len-1;
++}
++
++/* is_msgend
++ *
++ * returns TRUE if we reached the end of the current message
++*/
++
++static inline int is_msgend(struct s3c24xx_i2c *i2c)
++{
++	return i2c->msg_ptr >= i2c->msg->len;
++}
++
++/* i2s_s3c_irq_nextbyte
++ *
++ * process an interrupt and work out what to do
++ */
++
++static int i2s_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
++{
++	unsigned long tmp;
++	unsigned char byte;
++	int ret = 0;
++
++	switch (i2c->state) {
++
++	case STATE_IDLE:
++		dev_err(i2c->dev, "%s: called in STATE_IDLE\n", __FUNCTION__);
++		goto out;
++		break;
++
++	case STATE_STOP:
++		dev_err(i2c->dev, "%s: called in STATE_STOP\n", __FUNCTION__);
++		s3c24xx_i2c_disable_irq(i2c);		
++		goto out_ack;
++
++	case STATE_START:
++		/* last thing we did was send a start condition on the
++		 * bus, or started a new i2c message
++		 */
++		
++		if (iicstat  & S3C2410_IICSTAT_LASTBIT &&
++		    !(i2c->msg->flags & I2C_M_IGNORE_NAK)) {
++			/* ack was not received... */
++
++			s3c24xx_i2c_stop(i2c, -EREMOTEIO);
++			goto out_ack;
++		}
++
++		if (i2c->msg->flags & I2C_M_RD)
++			i2c->state = STATE_READ;
++		else
++			i2c->state = STATE_WRITE;
++
++		/* terminate the transfer if there is nothing to do
++		 * (used by the i2c probe to find devices */
++
++		if (is_lastmsg(i2c) && i2c->msg->len == 0) {
++			s3c24xx_i2c_stop(i2c, 0);
++			goto out_ack;
++		}
++
++		if (i2c->state == STATE_READ)
++			goto prepare_read;
++
++		/* fall through to the write state, as we will need to 
++		 * send a byte as well */
++
++	case STATE_WRITE:
++		/* we are writing data to the device... check for the
++		 * end of the message, and if so, work out what to do
++		 */
++
++	retry_write:
++		if (!is_msgend(i2c)) {
++			byte = i2c->msg->buf[i2c->msg_ptr++];
++			writeb(byte, i2c->regs + S3C2410_IICDS);
++			
++		} else if (!is_lastmsg(i2c)) {
++			/* we need to go to the next i2c message */
++
++			dev_dbg(i2c->dev, "WRITE: Next Message\n");
++
++			i2c->msg_ptr = 0;
++			i2c->msg_idx ++;
++			i2c->msg++;
++			
++			/* check to see if we need to do another message */
++			if (i2c->msg->flags & I2C_M_NOSTART) {
++
++				if (i2c->msg->flags & I2C_M_RD) {
++					/* cannot do this, the controller
++					 * forces us to send a new START
++					 * when we change direction */
++
++					s3c24xx_i2c_stop(i2c, -EINVAL);
++				}
++
++				goto retry_write;
++			} else {
++			
++				/* send the new start */
++				s3c24xx_i2c_message_start(i2c, i2c->msg);
++				i2c->state = STATE_START;
++			}
++
++		} else {
++			/* send stop */
++
++			s3c24xx_i2c_stop(i2c, 0);
++		}
++		break;
++
++	case STATE_READ:
++		/* we have a byte of data in the data register, do 
++		 * something with it, and then work out wether we are
++		 * going to do any more read/write
++		 */
++
++		if (!(i2c->msg->flags & I2C_M_IGNORE_NAK) &&
++		    !(is_msglast(i2c) && is_lastmsg(i2c))) {
++
++			if (iicstat & S3C2410_IICSTAT_LASTBIT) {
++				dev_dbg(i2c->dev, "READ: No Ack\n");
++
++				s3c24xx_i2c_stop(i2c, -ECONNREFUSED);
++				goto out_ack;
++			}
++		}
++
++		byte = readb(i2c->regs + S3C2410_IICDS);
++		i2c->msg->buf[i2c->msg_ptr++] = byte;
++
++	prepare_read:
++		if (is_msglast(i2c)) {
++			/* last byte of buffer */
++
++			if (is_lastmsg(i2c))
++				s3c24xx_i2c_disable_ack(i2c);
++			
++		} else if (is_msgend(i2c)) {
++			/* ok, we've read the entire buffer, see if there
++			 * is anything else we need to do */
++
++			if (is_lastmsg(i2c)) {
++				/* last message, send stop and complete */
++				dev_dbg(i2c->dev, "READ: Send Stop\n");
++
++				s3c24xx_i2c_stop(i2c, 0);
++			} else {
++				/* go to the next transfer */
++				dev_dbg(i2c->dev, "READ: Next Transfer\n");
++
++				i2c->msg_ptr = 0;
++				i2c->msg_idx++;
++				i2c->msg++;
++			}
++		}
++
++		break;
++	}
++
++	/* acknowlegde the IRQ and get back on with the work */
++
++ out_ack:
++	tmp = readl(i2c->regs + S3C2410_IICCON);	
++	tmp &= ~S3C2410_IICCON_IRQPEND;
++	writel(tmp, i2c->regs + S3C2410_IICCON);
++ out:
++	return ret;
++}
++
++/* s3c24xx_i2c_irq
++ *
++ * top level IRQ servicing routine
++*/
++
++static irqreturn_t s3c24xx_i2c_irq(int irqno, void *dev_id,
++				   struct pt_regs *regs)
++{
++	struct s3c24xx_i2c *i2c = dev_id;
++	unsigned long status;
++	unsigned long tmp;
++
++	status = readl(i2c->regs + S3C2410_IICSTAT);
++
++	if (status & S3C2410_IICSTAT_ARBITR) {
++		// deal with arbitration loss
++	}
++
++	if (i2c->state == STATE_IDLE) {
++		dev_dbg(i2c->dev, "IRQ: error i2c->state == IDLE\n");
++
++		tmp = readl(i2c->regs + S3C2410_IICCON);	
++		tmp &= ~S3C2410_IICCON_IRQPEND;
++		writel(tmp, i2c->regs +  S3C2410_IICCON);
++		goto out;
++	}
++	
++	/* pretty much this leaves us with the fact that we've
++	 * transmitted or received whatever byte we last sent */
++
++	i2s_s3c_irq_nextbyte(i2c, status);
++
++ out:
++	return IRQ_HANDLED;
++}
++
++
++/* s3c24xx_i2c_set_master
++ *
++ * get the i2c bus for a master transaction
++*/
++
++static int s3c24xx_i2c_set_master(struct s3c24xx_i2c *i2c)
++{
++	unsigned long iicstat;
++	int timeout = 400;
++
++	while (timeout-- > 0) {
++		iicstat = readl(i2c->regs + S3C2410_IICSTAT);
++		
++		if (!(iicstat & S3C2410_IICSTAT_BUSBUSY))
++			return 0;
++
++		msleep(1);
++	}
++
++	dev_dbg(i2c->dev, "timeout: GPEDAT is %08x\n",
++		__raw_readl(S3C2410_GPEDAT));
++
++	return -ETIMEDOUT;
++}
++
++/* s3c24xx_i2c_doxfer
++ *
++ * this starts an i2c transfer
++*/
++
++static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c, struct i2c_msg msgs[], int num)
++{
++	unsigned long timeout;
++	int ret;
++
++	ret = s3c24xx_i2c_set_master(i2c);
++	if (ret != 0) {
++		dev_err(i2c->dev, "cannot get bus (error %d)\n", ret);
++		ret = -EAGAIN;
++		goto out;
++	}
++
++	spin_lock_irq(&i2c->lock);
++
++	i2c->msg     = msgs;
++	i2c->msg_num = num;
++	i2c->msg_ptr = 0;
++	i2c->msg_idx = 0;
++	i2c->state   = STATE_START;
++
++	s3c24xx_i2c_enable_irq(i2c);
++	s3c24xx_i2c_message_start(i2c, msgs);
++	spin_unlock_irq(&i2c->lock);
++	
++	timeout = wait_event_timeout(i2c->wait, i2c->msg_num == 0, HZ * 5);
++
++	ret = i2c->msg_idx;
++
++	/* having these next two as dev_err() makes life very 
++	 * noisy when doing an i2cdetect */
++
++	if (timeout == 0)
++		dev_dbg(i2c->dev, "timeout\n");
++	else if (ret != num)
++		dev_dbg(i2c->dev, "incomplete xfer (%d)\n", ret);
++
++	/* ensure the stop has been through the bus */
++
++	msleep(1);
++
++ out:
++	return ret;
++}
++
++/* s3c24xx_i2c_xfer
++ *
++ * first port of call from the i2c bus code when an message needs
++ * transfering across the i2c bus.
++*/
++
++static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
++			struct i2c_msg msgs[], int num)
++{
++	struct s3c24xx_i2c *i2c = (struct s3c24xx_i2c *)adap->algo_data;
++	int retry;
++	int ret;
++
++	for (retry = 0; retry < adap->retries; retry++) {
++
++		ret = s3c24xx_i2c_doxfer(i2c, msgs, num);
++
++		if (ret != -EAGAIN)
++			return ret;
++
++		dev_dbg(i2c->dev, "Retrying transmission (%d)\n", retry);
++
++		udelay(100);
++	}
++
++	return -EREMOTEIO;
++}
++
++/* i2c bus registration info */
++
++static struct i2c_algorithm s3c24xx_i2c_algorithm = {
++	.name			= "S3C2410-I2C-Algorithm",
++	.id			= I2C_ALGO_S3C2410,
++	.master_xfer		= s3c24xx_i2c_xfer,
++};
++
++static struct s3c24xx_i2c s3c24xx_i2c = {
++	.lock	= SPIN_LOCK_UNLOCKED,
++	.wait	= __WAIT_QUEUE_HEAD_INITIALIZER(s3c24xx_i2c.wait),
++	.adap	= {
++		.name			= "s3c2410-i2c",
++		.id			= I2C_ALGO_S3C2410,
++		.algo			= &s3c24xx_i2c_algorithm,
++		.retries		= 2,
++	},
++};
++
++/* s3c24xx_i2c_calcdivisor
++ *
++ * return the divisor settings for a given frequency
++*/
++
++static int s3c24xx_i2c_calcdivisor(unsigned long clkin, unsigned int wanted,
++				   unsigned int *div1, unsigned int *divs)
++{
++	unsigned int calc_divs = clkin / wanted;
++	unsigned int calc_div1;
++
++	if (calc_divs > (16*16))
++		calc_div1 = 512;
++	else
++		calc_div1 = 16;
++
++	calc_divs += calc_div1-1;
++	calc_divs /= calc_div1;
++
++	if (calc_divs == 0)
++		calc_divs = 1;
++	if (calc_divs > 17)
++		calc_divs = 17;
++
++	*divs = calc_divs;
++	*div1 = calc_div1;
++
++	return clkin / (calc_divs + calc_div1);
++}
++
++/* freq_acceptable
++ *
++ * test wether a frequency is within the acceptable range of error
++*/
++
++static inline int freq_acceptable(unsigned int freq, unsigned int wanted)
++{
++	int diff = freq - wanted;
++
++	return (diff >= -2 && diff <= 2);
++}
++
++/* s3c24xx_i2c_getdivisor
++ *
++ * work out a divisor for the user requested frequency setting,
++ * either by the requested frequency, or scanning the acceptable
++ * range of frequencies until something is found
++*/
++
++static int s3c24xx_i2c_getdivisor(struct s3c24xx_i2c *i2c,
++				  struct s3c2410_platform_i2c *pdata,
++				  unsigned long *iicon,
++				  unsigned int *got)
++{
++	unsigned long clkin = clk_get_rate(i2c->clk);
++	
++	unsigned int divs, div1;
++	int freq;
++	int start, end;
++
++	clkin /= 1000;		/* clkin now in KHz */
++     
++	dev_dbg(i2c->dev,  "pdata %p, freq %lu %lu..%lu\n",
++		 pdata, pdata->bus_freq, pdata->min_freq, pdata->max_freq);
++
++	if (pdata->bus_freq != 0) {
++		freq = s3c24xx_i2c_calcdivisor(clkin, pdata->bus_freq/1000,
++					       &div1, &divs);
++		if (freq_acceptable(freq, pdata->bus_freq/1000))
++			goto found;
++	}
++
++	/* ok, we may have to search for something suitable... */
++
++	start = (pdata->max_freq == 0) ? pdata->bus_freq : pdata->max_freq;
++	end = pdata->min_freq;
++
++	start /= 1000;
++	end /= 1000;
++
++	/* search loop... */
++
++	for (; start > end; start--) {
++		freq = s3c24xx_i2c_calcdivisor(clkin, start, &div1, &divs);
++		if (freq_acceptable(freq, start))
++			goto found;
++	}
++
++	/* cannot find frequency spec */
++
++	return -EINVAL;
++
++ found:
++	*got = freq;
++	*iicon |= (divs-1);
++	*iicon |= (div1 == 512) ? S3C2410_IICCON_TXDIV_512 : 0;
++	return 0;
++}
++
++/* s3c24xx_i2c_init
++ *
++ * initialise the controller, set the IO lines and frequency 
++*/
++
++static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
++{
++	unsigned long iicon = S3C2410_IICCON_IRQEN | S3C2410_IICCON_ACKEN;
++	struct s3c2410_platform_i2c *pdata;
++	unsigned int freq;
++
++	/* get the plafrom data */
++
++	pdata = s3c24xx_i2c_get_platformdata(i2c->adap.dev.parent);
++
++	/* inititalise the gpio */
++
++	s3c2410_gpio_cfgpin(S3C2410_GPE15, S3C2410_GPE15_IICSDA);
++	s3c2410_gpio_cfgpin(S3C2410_GPE14, S3C2410_GPE14_IICSCL);
++
++	/* write slave address */
++	
++	writeb(pdata->slave_addr, i2c->regs + S3C2410_IICADD);
++
++	dev_info(i2c->dev, "slave address 0x%02x\n", pdata->slave_addr);
++
++	/* we need to work out the divisors for the clock... */
++
++	if (s3c24xx_i2c_getdivisor(i2c, pdata, &iicon, &freq) != 0) {
++		dev_err(i2c->dev, "cannot meet bus frequency required\n");
++		return -EINVAL;
++	}
++
++	/* todo - check that the i2c lines aren't being dragged anywhere */
++
++	dev_info(i2c->dev, "bus frequency set to %d KHz\n", freq);
++
++	return 0;
++}
++
++static void s3c24xx_i2c_free(struct s3c24xx_i2c *i2c)
++{
++	if (i2c->clk != NULL && !IS_ERR(i2c->clk)) {
++		clk_disable(i2c->clk);
++		clk_unuse(i2c->clk);
++		clk_put(i2c->clk);
++		i2c->clk = NULL;
++	}
++
++	if (i2c->regs != NULL) {
++		iounmap(i2c->regs);
++		i2c->regs = NULL;
++	}
++
++	if (i2c->ioarea != NULL) {
++		release_resource(i2c->ioarea);
++		kfree(i2c->ioarea);
++		i2c->ioarea = NULL;
++	}
++}
++
++/* s3c24xx_i2c_probe
++ *
++ * called by the bus driver when a suitable device is found
++*/
++
++static int s3c24xx_i2c_probe(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct s3c24xx_i2c *i2c = &s3c24xx_i2c;
++	struct resource *res;
++	int ret;
++
++	/* find the clock and enable it */
++
++	i2c->dev = dev;
++	i2c->clk = clk_get(dev, "i2c");
++	if (IS_ERR(i2c->clk)) {
++		dev_err(dev, "cannot get clock\n");
++		ret = -ENOENT;
++		goto out;
++	}
++
++	dev_dbg(dev, "clock source %p\n", i2c->clk);
++
++	clk_use(i2c->clk);
++	clk_enable(i2c->clk);
++
++	/* map the registers */
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (res == NULL) {
++		dev_err(dev, "cannot find IO resource\n");
++		ret = -ENOENT;
++		goto out;
++	}
++
++	i2c->ioarea = request_mem_region(res->start, (res->end-res->start)+1,
++					 pdev->name);
++
++	if (i2c->ioarea == NULL) {
++		dev_err(dev, "cannot request IO\n");
++		ret = -ENXIO;
++		goto out;
++	}
++
++	i2c->regs = ioremap(res->start, (res->end-res->start)+1);
++
++	if (i2c->regs == NULL) {
++		dev_err(dev, "cannot map IO\n");
++		ret = -ENXIO;
++		goto out;
++	}
++
++	dev_dbg(dev, "registers %p (%p, %p)\n", i2c->regs, i2c->ioarea, res);
++
++	/* setup info block for the i2c core */
++
++	i2c->adap.algo_data = i2c;
++	i2c->adap.dev.parent = dev;
++
++	/* initialise the i2c controller */
++
++	ret = s3c24xx_i2c_init(i2c);
++	if (ret != 0)
++		goto out;
++
++	/* find the IRQ for this unit (note, this relies on the init call to
++	 * ensure no current IRQs pending 
++	 */
++
++	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	if (res == NULL) {
++		dev_err(dev, "cannot find IRQ\n");
++		ret = -ENOENT;
++		goto out;
++	}
++
++	ret = request_irq(res->start, s3c24xx_i2c_irq, SA_INTERRUPT,
++			  pdev->name, i2c);
++
++	if (ret != 0) {
++		dev_err(dev, "cannot claim IRQ\n");
++		goto out;
++	}
++
++	i2c->irq = res;
++		
++	dev_dbg(dev, "irq resource %p (%ld)\n", res, res->start);
++
++	ret = i2c_add_adapter(&i2c->adap);
++	if (ret < 0) {
++		dev_err(dev, "failed to add bus to i2c core\n");
++		goto out;
++	}
++
++	dev_set_drvdata(dev, i2c);
++
++	dev_info(dev, "%s: S3C I2C adapter\n", i2c->adap.dev.bus_id);
++
++ out:
++	if (ret < 0)
++		s3c24xx_i2c_free(i2c);
++
++	return ret;
++}
++
++/* s3c24xx_i2c_remove
++ *
++ * called when device is removed from the bus
++*/
++
++static int s3c24xx_i2c_remove(struct device *dev)
++{
++	struct s3c24xx_i2c *i2c = dev_get_drvdata(dev);
++	
++	if (i2c != NULL) {
++		s3c24xx_i2c_free(i2c);
++		dev_set_drvdata(dev, NULL);
++	}
++
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int s3c24xx_i2c_resume(struct device *dev, u32 level)
++{
++	struct s3c24xx_i2c *i2c = dev_get_drvdata(dev);
++	
++	if (i2c != NULL && level == RESUME_ENABLE) {
++		dev_dbg(dev, "resume: level %d\n", level);
++		s3c24xx_i2c_init(i2c);
++	}
++
++	return 0;
++}
++
 +#else
-+typedef unsigned long long sector_t;
-+#define SECTOR_FORMAT "%llu"
- #endif
-+#endif /* CONFIG_LBD */
- 
- /*
-  * The type of an index into the pagecache.  Use a #define so asm/types.h
-diff -puN arch/h8300/Kconfig~fix-dm-warnings arch/h8300/Kconfig
---- linux-2.6.9-current/arch/h8300/Kconfig~fix-dm-warnings	2004-10-16 21:58:29.952796792 +0200
-+++ linux-2.6.9-current-paolo/arch/h8300/Kconfig	2004-10-16 21:58:29.956796184 +0200
-@@ -25,6 +25,10 @@ config UID16
- 	bool
- 	default y
- 
-+config LBD
-+	bool
-+	default y
++#define s3c24xx_i2c_resume NULL
++#endif
 +
- config RWSEM_GENERIC_SPINLOCK
- 	bool
- 	default y
-_
++/* device driver for platform bus bits */
++
++static struct device_driver s3c24xx_i2c_driver = {
++	.name		= "s3c2410-i2c",
++	.bus		= &platform_bus_type,
++	.probe		= s3c24xx_i2c_probe,
++	.remove		= s3c24xx_i2c_remove,
++	.resume		= s3c24xx_i2c_resume,
++};
++
++static int __init i2c_adap_s3c_init(void)
++{
++	return driver_register(&s3c24xx_i2c_driver);
++}
++
++static void i2c_adap_s3c_exit(void)
++{
++	return driver_unregister(&s3c24xx_i2c_driver);
++}
++
++module_init(i2c_adap_s3c_init);
++module_exit(i2c_adap_s3c_exit);
++
++MODULE_DESCRIPTION("S3C24XX I2C Bus driver");
++MODULE_AUTHOR("Ben Dooks, <ben@simtec.co.uk>");
++MODULE_LICENSE("GPL");
+

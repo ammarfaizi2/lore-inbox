@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266427AbUHFDhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266334AbUHFDnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266427AbUHFDhf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 23:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUHFDhe
+	id S266334AbUHFDnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 23:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266454AbUHFDnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 23:37:34 -0400
-Received: from [203.178.140.15] ([203.178.140.15]:11018 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S266256AbUHFDf4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 23:35:56 -0400
-Date: Thu, 05 Aug 2004 20:36:23 -0700 (PDT)
-Message-Id: <20040805.203623.60258238.yoshfuji@linux-ipv6.org>
-To: jmorris@redhat.com
-Cc: jlcooke@certainkey.com, mludvig@suse.cz, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org, davem@redhat.com, yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH]
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <Xine.LNX.4.44.0408052245380.20516-100000@dhcp83-76.boston.redhat.com>
-References: <20040805194914.GC23994@certainkey.com>
-	<Xine.LNX.4.44.0408052245380.20516-100000@dhcp83-76.boston.redhat.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Thu, 5 Aug 2004 23:43:08 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:64408 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266334AbUHFDnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 23:43:02 -0400
+Subject: Re: [proc.txt] Fix /proc/pid/statm documentation
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: linux-mm@vger.kernel.org, rl@hellgate.ch, wli@holomorphy.com
+Content-Type: text/plain
+Organization: 
+Message-Id: <1091754711.1231.2388.camel@cube>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 05 Aug 2004 21:11:52 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Xine.LNX.4.44.0408052245380.20516-100000@dhcp83-76.boston.redhat.com> (at Thu, 5 Aug 2004 22:47:12 -0400 (EDT)), James Morris <jmorris@redhat.com> says:
+Roger Luethi writes:
 
-> > Would you be against a patch to cryptoapi to have access to a
-> > non-scatter-list set of calls?
-:
-> level.  Can you demonstrate a compelling need for raw access to the
-> algorithms via the API?
+> I really wanted /proc/pid/statm to die [1] and I still believe the
+> reasoning is valid. As it doesn't look like that is going to happen,
 
-I would use them for
- - Privacy Extensions (RFC3041) support
- - upcoming TCP MD5 signature (RFC2385) support
-since I don't see the advantage(s) of sg for allocated memories there.
+It would be awful to lose statm, especially since WLI has fixes
+for some of the problems. Just why do you want to kill statm?
 
---yoshfuji
+Now quoting from your patch...
+
++ size     total program size (pages)  (same as VmSize in status)
++ resident size of memory portions (pages) (same as VmRSS in status)
+
+There was a distinction here that has been lost. One of these
+included memory-mapped hardware. You could see this with the
+X server video memory.
+
+For "top" running on a 2.2.xx or 2.4.xx kernel, the statm values
+are better. Jim Warner determined this after careful examination,
+and I have no desire to re-analyse the matter. Remember that user
+tools are expected to run on both old and new kernels, while the
+kernel is expected to support old apps. We call this an ABI...
+
++ shared   number of pages that are shared (i.e. backed by a file)
+
+This isn't in the status file. It's shown in top's default output.
+Since top must read this value from statm, it might as well use    
+other parts of statm as well.                                    
+                                       
++ trs      number of pages that are 'code' (not including libs; broken,
++       includes data segment)
+
+Perhaps this works OK with the NX bit or on an Alpha? On a regular
+i386 box, code and read-only data are pretty much the same.
+
+Note: trs means "text RESIDENT set".
+
++ lrs      number of pages of library  (always 0 on 2.6)
+
+This worked for a.out executables. (that 0x60000000 value is an
+a.out constant) Oh well, trs will do.
+
++ drs      number of pages of data/stack  (including libs; broken,
++       includes library text)
+
+Note: trs means "data RESIDENT set".
+
++ dt       number of dirty pages   (always 0 on 2.6)
+
+This one would be useful.
+
+These would be really useful too:
+1. swap space used
+2. swap space that would be used if fully paged out
+
+For the pmap command, it would be nice to have per-mapping
+values in the /proc/*/maps files. (resident, locked,
+dirty, C-O-W, swapped...) 
+
+

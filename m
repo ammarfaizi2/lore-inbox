@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbTLNVP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 16:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbTLNVP5
+	id S262610AbTLNVPu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 16:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbTLNVPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 16:15:57 -0500
-Received: from qlink.QueensU.CA ([130.15.126.18]:12451 "EHLO qlink.queensu.ca")
-	by vger.kernel.org with ESMTP id S262655AbTLNVPv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 16:15:51 -0500
-Subject: Re: HT schedulers' performance on single HT processor
-From: Nathan Fredrickson <8nrf@qlink.queensu.ca>
-To: Adam Kropelin <akropel1@rochester.rr.com>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Nick Piggin <piggin@cyberone.com.au>, Ingo Molnar <mingo@elte.hu>,
-       sam@mars.ravnborg.org
-In-Reply-To: <20031214153504.A6795@mail.kroptech.com>
-References: <200312130157.36843.kernel@kolivas.org>
-	 <1071431363.19011.64.camel@rocky>  <20031214153504.A6795@mail.kroptech.com>
-Content-Type: text/plain
-Message-Id: <1071436539.19124.6.camel@rocky>
+	Sun, 14 Dec 2003 16:15:50 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:24219
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S262610AbTLNVPq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 16:15:46 -0500
+Date: Sun, 14 Dec 2003 16:23:48 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 and IDE "geometry"
+Message-ID: <20031214162348.A8691@animx.eu.org>
+References: <20031212131704.A26577@animx.eu.org> <20031212194439.GB11215@win.tue.nl> <20031212163545.A26866@animx.eu.org> <20031213132208.GA11523@win.tue.nl> <20031213171800.A28547@animx.eu.org> <20031214144046.GA11870@win.tue.nl> <20031214112728.A8201@animx.eu.org> <20031214202741.GA11909@win.tue.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sun, 14 Dec 2003 16:15:40 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <20031214202741.GA11909@win.tue.nl>; from Andries Brouwer on Sun, Dec 14, 2003 at 09:27:41PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-12-14 at 15:35, Adam Kropelin wrote:
-> On Sun, Dec 14, 2003 at 02:49:24PM -0500, Nathan Fredrickson wrote:
-> > Same table as above normalized to the j=1 uniproc case to make
-> > comparisons easier.  Lower is still better.
+> > > Or does it suffice to take */255/63 always?
 > > 
-> >              j =  1     2     3     4     8
-> > 1phys (uniproc)  1.00  1.00  1.00  1.00  1.00
-> > 1phys w/HT       1.02  1.02  0.87  0.87  0.87
-> > 1phys w/HT (w26) 1.02  1.02  0.87  0.87  0.88
-> > 1phys w/HT (C1)  1.03  1.02  0.88  0.88  0.88
-> > 2phys            1.00  1.00  0.53  0.53  0.53
->   ^^^^^                  ^^^^
+> > I would say most cases use the 255/63
 > 
-> Ummm...
+> Good. So you can try constant geometry setting with *fdisk.
 > 
-> This is mighty suspicious. With -j2 did you check to see that there
-> were indeed two parallel gcc's running? Since -test6 I've found that 
-> -j2 only results in a single gcc instance. I've seen this on both an
-> old hacked-up RH 7.3 installation and a brand new RH 9 + updates
-> installation.
-
-I just checked and you're right, the number of compilers that actually
-run is j-1, for all j>1.  I assume this is a problem with the parallel
-build process, but it does not invalidate these results for comparing
-the scheduler performance with different patches.
+> > with drives >4gb.  Is there anyway to query the bios to ask it?
 > 
-> > This suggests that j should be set to at least the number of logical
-> > processors + 1.
-> 
-> Since -test6 I've found this to be the case for kernel builds, yes. But
-> I don't think it has anything to do with the scheduler or HT vs SMP
-> platforms.
+> Yes, and that is what the kernel used to do.
+> In general, however, the answer is unreliable. 
 
-The 1-3% performance loss when HT is enabled for -j1 is still very real.
+anyway to get this unreliable answer back?  =)
 
-Nathan
-
-
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267224AbSLRK44>; Wed, 18 Dec 2002 05:56:56 -0500
+	id <S267226AbSLRLHO>; Wed, 18 Dec 2002 06:07:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267226AbSLRK44>; Wed, 18 Dec 2002 05:56:56 -0500
-Received: from pat.uio.no ([129.240.130.16]:45229 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S267224AbSLRK44>;
-	Wed, 18 Dec 2002 05:56:56 -0500
-To: venom@sns.it
+	id <S267227AbSLRLHO>; Wed, 18 Dec 2002 06:07:14 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:51864 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267226AbSLRLHO> convert rfc822-to-8bit; Wed, 18 Dec 2002 06:07:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: romieu@fr.zoreil.com, Colin Paul Adams <colin@colina.demon.co.uk>
+Subject: Re: Alcatel speedtouch USB driver and SMP.
+Date: Wed, 18 Dec 2002 12:13:33 +0100
+User-Agent: KMail/1.4.3
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with NFSv3 kernel 2.5.52 server, 2.4.20 client. (server x86 linux, clientsparclinux)
-References: <Pine.LNX.4.43.0212181026370.25931-100000@cibs9.sns.it>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 18 Dec 2002 12:04:46 +0100
-In-Reply-To: <Pine.LNX.4.43.0212181026370.25931-100000@cibs9.sns.it>
-Message-ID: <shssmwvoaep.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+References: <m3n0n7hi52.fsf@colina.demon.co.uk> <m3adj6gwus.fsf@colina.demon.co.uk> <20021217232010.A19613@electric-eye.fr.zoreil.com>
+In-Reply-To: <20021217232010.A19613@electric-eye.fr.zoreil.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212181213.33861.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == venom  <venom@sns.it> writes:
+Am Dienstag, 17. Dezember 2002 23:20 schrieb romieu@fr.zoreil.com:
+> Colin Paul Adams <colin@colina.demon.co.uk> :
+> [...]
+>
+> > So, is anyone using it on SMP?
+>
+> drivers/usb/misc/speedtouch.c::udsl_atm_ioctl() calls put_user() and
+> atm ioctls are issued with spinlock held (see
+> net/atm/common.c::atm_ioctl()).
 
-     > On the server I could not find any error message, while on the
-     > sparclink client I found:
+Correct. As far as that is concerned the ATM layer is utter crap.
 
-     > Dec 17 18:08:16 storm kernel: call_verify: server accept
-     > status: 1 Dec 17 18:08:16 storm last message repeated 2 times
-     > Dec 17 18:08:16 storm kernel: RPC: garbage, exit EIO Dec 17
+	Regards
+		Oliver
 
-What mount options are you using? Is it a 'tcp' mount?
 
-Are other clients able to access the server without the above problem?
-
-Cheers,
-  Trond

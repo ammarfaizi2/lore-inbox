@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274200AbRJEWGW>; Fri, 5 Oct 2001 18:06:22 -0400
+	id <S274243AbRJEWNm>; Fri, 5 Oct 2001 18:13:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274198AbRJEWGM>; Fri, 5 Oct 2001 18:06:12 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:1990 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S274196AbRJEWF6> convert rfc822-to-8bit; Fri, 5 Oct 2001 18:05:58 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <knuffie@xs4all.nl>, Rik van Riel <riel@conectiva.com.br>
-CC: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, <linux-xfs@oss.sgi.com>,
-        <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.51 (988) - Registered Version
-Date: Fri, 5 Oct 2001 15:06:25 -0700
-In-Reply-To: <Pine.BSI.4.10.10110052208390.303-100000@xs3.xs4all.nl>
-Subject: Re: %u-order allocation failed
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20011005220627.AAA22897@shell.webmaster.com@whenever>
+	id <S274244AbRJEWNc>; Fri, 5 Oct 2001 18:13:32 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12555 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274243AbRJEWNS>; Fri, 5 Oct 2001 18:13:18 -0400
+Subject: Re: Linux and 760MP
+To: jussi.laako@kolumbus.fi (Jussi Laako)
+Date: Fri, 5 Oct 2001 23:19:06 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BBE2183.2512D176@kolumbus.fi> from "Jussi Laako" at Oct 06, 2001 12:09:23 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15pdJC-0007ow-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Alan Cox wrote:
+> > memory the production ones have a couple of IDE errata (performance and
+> > can't enable prefetching) and an APIC one
+> 
+> Is there workaround for these in recent -ac kernels? So is it safe to buy
+> Tyan Tiger MP for example?
 
->The system is beafy enough to tolerate something mundane as this. It should
->definitely not die.
-
-	A fork bomb with no limits attempts to create an infinite number of 
-processes. No system can be that beefy.
-
-	DS
-
-
+Nothing should be needed. If it is then running "noapic" is going to cure
+it.

@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265542AbUGZTsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266128AbUGZTyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265542AbUGZTsh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 15:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUGZTsR
+	id S266128AbUGZTyL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 15:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUGZTpk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 15:48:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28392 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265542AbUGZSvc (ORCPT
+	Mon, 26 Jul 2004 15:45:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:485 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265931AbUGZSqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 14:51:32 -0400
-To: root@chaos.analogic.com
-Cc: Keith Owens <kaos@ocs.com.au>, Mikael Pettersson <mikpe@csd.uu.se>,
-       jamagallon@able.es, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.27+stdarg+gcc-3.4.1
-References: <18199.1090681162@ocs3.ocs.com.au>
-	<Pine.LNX.4.53.0407241958490.3373@chaos>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: 26 Jul 2004 15:49:16 -0300
-In-Reply-To: <Pine.LNX.4.53.0407241958490.3373@chaos>
-Message-ID: <orhdruzjrn.fsf@free.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 26 Jul 2004 14:46:08 -0400
+Date: Mon, 26 Jul 2004 14:46:03 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Stephen Smalley <sds@epoch.ncsc.mil>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH][SELINUX] Fix compilation problem.
+Message-ID: <Xine.LNX.4.44.0407261440490.3049-100000@dhcp83-76.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 24, 2004, "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+Please apply.
 
-> I have found it necessary to use -I`gcc --print-file-name=include`
+Author:  Pawel Sikora <pluto@pld-linux.org>
 
-Never ever do that.  Use -isystem instead of -I, if you have to, but
-having system headers handled as non-system headers may get you in
-trouble.
 
--- 
-Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+--- linux-2.6.8-rc2/security/selinux/hooks.c.orig	2004-07-18 11:56:07.000000000 +0200
++++ linux-2.6.8-rc2/security/selinux/hooks.c	2004-07-18 14:21:27.429622416 +0200
+@@ -63,6 +63,7 @@
+ #include <net/ipv6.h>
+ #include <linux/hugetlb.h>
+ #include <linux/major.h>
++#include <linux/personality.h>
+ 
+ #include "avc.h"
+ #include "objsec.h"
+

@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290069AbSAWUs2>; Wed, 23 Jan 2002 15:48:28 -0500
+	id <S290070AbSAWUuS>; Wed, 23 Jan 2002 15:50:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290070AbSAWUsI>; Wed, 23 Jan 2002 15:48:08 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:26568 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S290069AbSAWUsF>; Wed, 23 Jan 2002 15:48:05 -0500
-Date: Wed, 23 Jan 2002 14:00:45 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: [PATCH] kdb/mdb hardware breakpoints broken 2.4.17/18
-Message-ID: <20020123140045.A17976@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="SLDf9lqlvOQaIe6s"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S290072AbSAWUuI>; Wed, 23 Jan 2002 15:50:08 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:3807 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S290070AbSAWUtv> convert rfc822-to-8bit; Wed, 23 Jan 2002 15:49:51 -0500
+Date: Wed, 23 Jan 2002 21:49:49 +0100 (CET)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: Hans-Peter Jansen <hpj@urpla.net>
+cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+In-Reply-To: <20020123201626.2EDEF1458@shrek.lisa.de>
+Message-ID: <Pine.LNX.4.40.0201232148210.2478-100000@infcip10.uni-trier.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 23 Jan 2002, Hans-Peter Jansen wrote:
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Hi Daniel & folks,
+>
+> just tried your patch on my (diskless) asus a7v133 (kt133) with 1.2 GHz
+> Athlon. I normally had 14% base load spend in apmd-idled and a CPU temp.
+> of 45°C. After getting it to work, I see a base load of around 1% (mostly
+> spend in artsd), but CPU is only 1°-2° less now :-( I hoped, it it
+> would be more). Nevertheless, it is a very important patch nowadays where
+> temperature is the last technical barrier, and energy saving an economic
+> necessity.
+
+hmmm ... 1°-2° lesser than apm or lesser than "without any powersafing
+function" ?
+do you have entered the amd_disconnect=yes flag at boot-time (LILO ?)
 
 
+>
+> Many thanks and greetings from Berlin to Trier ;)
+>   Hans-Peter
 
-Please find a patch that corrects the problem with hardware 
-breakpoints not working with kdb.  I have noticed that gdb uses 
-inserted int3 (0xCC) breakpoints (as does kdb) for soft breakpoint
-support, so this fix may not affect these programs.  It is not 
-clear why every signal handled is writing a 0 t the DR7 register.
+thanks ... greetings back to you ... :)
 
-Patch submitted to Keith Owens and Linux kernel.
-
-Jeff
+daniel
 
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch-0123.kdb"
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
 
-diff -Naur ./arch/i386/kernel/signal.c ../linux-new/./arch/i386/kernel/signal.c
---- ./arch/i386/kernel/signal.c	Fri Sep 14 15:15:40 2001
-+++ ../linux-new/./arch/i386/kernel/signal.c	Wed Jan 23 13:26:07 2002
-@@ -698,7 +698,9 @@
- 		 * have been cleared if the watchpoint triggered
- 		 * inside the kernel.
- 		 */
--		__asm__("movl %0,%%db7"	: : "r" (current->thread.debugreg[7]));
-+
-+		if (current->thread.debugreg[7])
-+		   __asm__("movl %0,%%db7"	: : "r" (current->thread.debugreg[7]));
- 
- 		/* Whee!  Actually deliver the signal.  */
- 		handle_signal(signr, ka, &info, oldset, regs);
-
---SLDf9lqlvOQaIe6s--

@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318302AbSHKOZz>; Sun, 11 Aug 2002 10:25:55 -0400
+	id <S318304AbSHKOsW>; Sun, 11 Aug 2002 10:48:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318304AbSHKOZz>; Sun, 11 Aug 2002 10:25:55 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:52733 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S318302AbSHKOZz>;
-	Sun, 11 Aug 2002 10:25:55 -0400
-Date: Sun, 11 Aug 2002 10:29:38 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
+	id <S318308AbSHKOsW>; Sun, 11 Aug 2002 10:48:22 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:49866 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S318304AbSHKOsW>; Sun, 11 Aug 2002 10:48:22 -0400
+Date: Sun, 11 Aug 2002 15:51:22 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
 To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/21] random fixes
-Message-ID: <20020811142938.GA681@www.kroptech.com>
-References: <3D56146B.C3CAB5E1@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 15/21] multiple pte pointers per pte_chain
+Message-ID: <20020811155122.B2513@kushida.apsleyroad.org>
+References: <3D5614BC.EB0629B6@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D56146B.C3CAB5E1@zip.com.au>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D5614BC.EB0629B6@zip.com.au>; from akpm@zip.com.au on Sun, Aug 11, 2002 at 12:39:40AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 11, 2002 at 12:38:19AM -0700, Andrew Morton wrote:
-> Sorry, but there's a ton of stuff here.  It ends up as a 4600 line
-> diff.  Some code dating back to 2.5.24.  It's almost all performance
+Andrew Morton wrote:
+> Pages which are mapped by only a single process continue to not have a
+> pte_chain.  The pointer in struct page points directly at the mapping
+> pte (a "PageDirect" pte pointer).  Once the page is shared a pte_chain
+> is allocated and both the new and old pte pointers are moved into it.
 
-Andrew,
+May I suggest that the final pte in the list of ptes for a page is
+_always_ pointed to directly?
 
-Nearly all the patches against mm/vmscan.c are failing when applied
-to the 2.5.31 Linus just released. Are these patches against a
-slightly older BK rev?
+In other words, a pte_chain looks like this:
 
---Adam
+      struct page -> pte_chain -> pte_chain -> pte_chain -> pte
+                          |           |            |
+                          v           v            v
+                          pte         pte          pte
+
+pte_chain vs. pte would be distinguished by the least significant bit of
+the pointer, or something similar.
+
+This adds a special case in the list walker -- on the other hand, it
+also removes two special cases ("PageDirect" is no longer required, and
+there is no 0 to indicate end-of-list).  But the best part is: it saves
+more memory, has no cache line cost, and reduces the amount of work
+needed to share a page :-)
+
+-- Jamie
 

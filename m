@@ -1,150 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVCRIxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVCRIyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261513AbVCRIxh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 03:53:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVCRIxh
+	id S261507AbVCRIyX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 03:54:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVCRIyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 03:53:37 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:19961 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261501AbVCRIv4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 03:51:56 -0500
-Date: Fri, 18 Mar 2005 09:51:49 +0100 (MET)
-Message-Id: <200503180851.j2I8pnte021596@alkaid.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org
-Subject: [PATCH][2.6.11-mm4] perfctr cleanups 3/3: x86
-Cc: linux-kernel@vger.kernel.org
+	Fri, 18 Mar 2005 03:54:23 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:1541 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261507AbVCRIxW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 03:53:22 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: yxie@cs.stanford.edu (Yichen Xie)
+Subject: Re: Potential DOS in load_elf_library?
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Organization: Core
+In-Reply-To: <Pine.LNX.4.60.0503180008140.25717@localhost.localdomain>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1DCDDS-0007K8-00@gondolin.me.apana.org.au>
+Date: Fri, 18 Mar 2005 19:52:22 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-x86-specific cleanups for perfctr:
-- x86.c: use DEFINE_SPINLOCK().
-- <asm-i386/perfctr.h>: remove cpu_type constants and
-  PERFCTR_CPU_VERSION unused in the kernel, use
-  explicitly-sized integers in user-visible types, make
-  perfctr_cpu_control kernel-private.
+Yichen Xie <yxie@cs.stanford.edu> wrote:
+> Hi guys, I was looking at the load_elf_library function (fs/binfmt_elf.c) 
+> in 2.6.10, and noticed the following:
+> 
+>        elf_phdata = (struct elf_phdr *) kmalloc(j, GFP_KERNEL);
+>        ...
+>        while (elf_phdata->p_type != PT_LOAD) elf_phdata++;
+>        ...
+>        kfree(elf_phdata);
+> 
+> Could this be problematic since the pointer being freed might be different 
+> from that returned from kmalloc?
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+Indeed.  This bug has been around since last century.  How does this
+look?
 
- drivers/perfctr/x86.c      |    6 ++---
- include/asm-i386/perfctr.h |   54 +++++++++++++++------------------------------
- 2 files changed, 21 insertions(+), 39 deletions(-)
-
-diff -rupN linux-2.6.11-mm4/drivers/perfctr/x86.c linux-2.6.11-mm4.perfctr-2.7.12/drivers/perfctr/x86.c
---- linux-2.6.11-mm4/drivers/perfctr/x86.c	2005-03-17 19:39:42.000000000 +0100
-+++ linux-2.6.11-mm4.perfctr-2.7.12/drivers/perfctr/x86.c	2005-03-13 14:55:58.000000000 +0100
-@@ -1,7 +1,7 @@
--/* $Id: x86.c,v 1.151 2004/11/24 00:28:23 mikpe Exp $
-+/* $Id: x86.c,v 1.155 2005/03/13 13:55:58 mikpe Exp $
-  * x86/x86_64 performance-monitoring counters driver.
-  *
-- * Copyright (C) 1999-2004  Mikael Pettersson
-+ * Copyright (C) 1999-2005  Mikael Pettersson
-  */
- #include <linux/config.h>
- #include <linux/init.h>
-@@ -135,7 +135,7 @@ static inline void clear_in_cr4_local(un
- 
- static unsigned int new_id(void)
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--
+===== fs/binfmt_elf.c 1.106 vs edited =====
+--- 1.106/fs/binfmt_elf.c	2005-03-14 10:29:43 +11:00
++++ edited/fs/binfmt_elf.c	2005-03-18 19:46:37 +11:00
+@@ -1026,6 +1026,7 @@
+ static int load_elf_library(struct file *file)
  {
--	static spinlock_t lock = SPIN_LOCK_UNLOCKED;
-+	static DEFINE_SPINLOCK(lock);
- 	static unsigned int counter;
- 	int id;
+ 	struct elf_phdr *elf_phdata;
++	struct elf_phdr *eppnt;
+ 	unsigned long elf_bss, bss, len;
+ 	int retval, error, i, j;
+ 	struct elfhdr elf_ex;
+@@ -1063,30 +1064,32 @@
+ 	if (j != 1)
+ 		goto out_free_ph;
  
-diff -rupN linux-2.6.11-mm4/include/asm-i386/perfctr.h linux-2.6.11-mm4.perfctr-2.7.12/include/asm-i386/perfctr.h
---- linux-2.6.11-mm4/include/asm-i386/perfctr.h	2005-03-17 19:39:43.000000000 +0100
-+++ linux-2.6.11-mm4.perfctr-2.7.12/include/asm-i386/perfctr.h	2005-03-18 00:57:10.000000000 +0100
-@@ -1,41 +1,25 @@
--/* $Id: perfctr.h,v 1.57 2004/11/24 00:21:20 mikpe Exp $
-+/* $Id: perfctr.h,v 1.61 2005/03/17 23:57:10 mikpe Exp $
-  * x86/x86_64 Performance-Monitoring Counters driver
-  *
-- * Copyright (C) 1999-2004  Mikael Pettersson
-+ * Copyright (C) 1999-2005  Mikael Pettersson
-  */
- #ifndef _ASM_I386_PERFCTR_H
- #define _ASM_I386_PERFCTR_H
+-	while (elf_phdata->p_type != PT_LOAD) elf_phdata++;
++	eppnt = elf_phdata;
++	while (eppnt->p_type != PT_LOAD)
++		eppnt++;
  
--/* cpu_type values */
--#define PERFCTR_X86_GENERIC	0	/* any x86 with rdtsc */
--#define PERFCTR_X86_INTEL_P5	1	/* no rdpmc */
--#define PERFCTR_X86_INTEL_P5MMX	2
--#define PERFCTR_X86_INTEL_P6	3
--#define PERFCTR_X86_INTEL_PII	4
--#define PERFCTR_X86_INTEL_PIII	5
--#define PERFCTR_X86_CYRIX_MII	6
--#define PERFCTR_X86_WINCHIP_C6	7	/* no rdtsc */
--#define PERFCTR_X86_WINCHIP_2	8	/* no rdtsc */
--#define PERFCTR_X86_AMD_K7	9
--#define PERFCTR_X86_VIA_C3	10	/* no pmc0 */
--#define PERFCTR_X86_INTEL_P4	11	/* model 0 and 1 */
--#define PERFCTR_X86_INTEL_P4M2	12	/* model 2 */
--#define PERFCTR_X86_AMD_K8	13
--#define PERFCTR_X86_INTEL_PENTM	14	/* Pentium M */
--#define PERFCTR_X86_AMD_K8C	15	/* Revision C */
--#define PERFCTR_X86_INTEL_P4M3	16	/* model 3 and above */
-+#include <asm/types.h>
+ 	/* Now use mmap to map the library into memory. */
+ 	down_write(&current->mm->mmap_sem);
+ 	error = do_mmap(file,
+-			ELF_PAGESTART(elf_phdata->p_vaddr),
+-			(elf_phdata->p_filesz +
+-			 ELF_PAGEOFFSET(elf_phdata->p_vaddr)),
++			ELF_PAGESTART(eppnt->p_vaddr),
++			(eppnt->p_filesz +
++			 ELF_PAGEOFFSET(eppnt->p_vaddr)),
+ 			PROT_READ | PROT_WRITE | PROT_EXEC,
+ 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE,
+-			(elf_phdata->p_offset -
+-			 ELF_PAGEOFFSET(elf_phdata->p_vaddr)));
++			(eppnt->p_offset -
++			 ELF_PAGEOFFSET(eppnt->p_vaddr)));
+ 	up_write(&current->mm->mmap_sem);
+-	if (error != ELF_PAGESTART(elf_phdata->p_vaddr))
++	if (error != ELF_PAGESTART(eppnt->p_vaddr))
+ 		goto out_free_ph;
  
- struct perfctr_sum_ctrs {
--	unsigned long long tsc;
--	unsigned long long pmc[18];
-+	__u64 tsc;
-+	__u64 pmc[18];	/* the size is not part of the user ABI */
- };
+-	elf_bss = elf_phdata->p_vaddr + elf_phdata->p_filesz;
++	elf_bss = eppnt->p_vaddr + eppnt->p_filesz;
+ 	if (padzero(elf_bss)) {
+ 		error = -EFAULT;
+ 		goto out_free_ph;
+ 	}
  
- struct perfctr_cpu_control_header {
--	unsigned int tsc_on;
--	unsigned int nractrs;		/* # of a-mode counters */
--	unsigned int nrictrs;		/* # of i-mode counters */
-+	__u32 tsc_on;
-+	__u32 nractrs;	/* number of accumulation-mode counters */
-+	__u32 nrictrs;	/* number of interrupt-mode counters */
- };
- 
-+#ifdef __KERNEL__
- struct perfctr_cpu_control {
- 	struct perfctr_cpu_control_header header;
- 	unsigned int evntsel[18];	/* primary control registers, physical indices */
-@@ -47,21 +31,22 @@ struct perfctr_cpu_control {
- 	} p4;
- 	unsigned int pmc_map[18];	/* virtual to physical (rdpmc) index map */
- };
-+#endif
- 
- struct perfctr_cpu_state {
--	unsigned int cstatus;
-+	__u32 cstatus;
- 	struct {	/* k1 is opaque in the user ABI */
--		unsigned int id;
--		int isuspend_cpu;
-+		__u32 id;
-+		__s32 isuspend_cpu;
- 	} k1;
- 	/* The two tsc fields must be inlined. Placing them in a
- 	   sub-struct causes unwanted internal padding on x86-64. */
--	unsigned int tsc_start;
--	unsigned long long tsc_sum;
-+	__u32 tsc_start;
-+	__u64 tsc_sum;
- 	struct {
--		unsigned int map;
--		unsigned int start;
--		unsigned long long sum;
-+		__u32 map;
-+		__u32 start;
-+		__u64 sum;
- 	} pmc[18];	/* the size is not part of the user ABI */
- #ifdef __KERNEL__
- 	struct perfctr_cpu_control control;
-@@ -132,9 +117,6 @@ static inline unsigned int perfctr_cstat
- #endif
- #define si_pmc_ovf_mask	_sifields._pad[0] /* XXX: use an unsigned field later */
- 
--/* version number for user-visible CPU-specific data */
--#define PERFCTR_CPU_VERSION	0x0500	/* 5.0 */
--
- #ifdef __KERNEL__
- 
- #if defined(CONFIG_PERFCTR)
+-	len = ELF_PAGESTART(elf_phdata->p_filesz + elf_phdata->p_vaddr + ELF_MIN_ALIGN - 1);
+-	bss = elf_phdata->p_memsz + elf_phdata->p_vaddr;
++	len = ELF_PAGESTART(eppnt->p_filesz + eppnt->p_vaddr + ELF_MIN_ALIGN - 1);
++	bss = eppnt->p_memsz + eppnt->p_vaddr;
+ 	if (bss > len) {
+ 		down_write(&current->mm->mmap_sem);
+ 		do_brk(len, bss - len);

@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUHTFDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUHTE5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267565AbUHTFDa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 01:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267555AbUHTFDa
+	id S266333AbUHTE5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 00:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266339AbUHTE5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 01:03:30 -0400
-Received: from web14926.mail.yahoo.com ([216.136.225.84]:21111 "HELO
-	web14926.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267565AbUHTFDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 01:03:08 -0400
-Message-ID: <20040820050301.51038.qmail@web14926.mail.yahoo.com>
-Date: Thu, 19 Aug 2004 22:03:01 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: legacy VGA device requirements (was: Exposing ROM's though sysfs)
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Torrey Hoffman <thoffman@arnor.net>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Alex Romosan <romosan@sycorax.lbl.gov>, Dave Airlie <airlied@linux.ie>
-In-Reply-To: <20040820045356.GA594@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 20 Aug 2004 00:57:16 -0400
+Received: from thunk.org ([140.239.227.29]:13996 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S266333AbUHTE5N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 00:57:13 -0400
+To: linux-kernel@vger.kernel.org
+cc: akpm@osdl.org
+Subject: [PATCH] [1/4] /dev/random: Fix latency in rekeying sequence number
+From: "Theodore Ts'o" <tytso@mit.edu>
+Phone: (781) 391-3464
+Message-Id: <E1By1Sh-0001TJ-1U@thunk.org>
+Date: Fri, 20 Aug 2004 00:57:11 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Vojtech Pavlik <vojtech@suse.cz> wrote:
-> Well, the stealth compatibility mode is even uglier than VesaFB not
-> claiming the PCI device, so I don't think it's really worth it for
-> this reason.
 
-Stealth mode will die the minute DRM and fbdev merge but until then we
-have no choice. DRM has always run in steath mode, the new feature is
-the mode where DRM claims the resources.
+Based on reports from Ingo's Latency Tracer that the TCP sequence number
+rekey code is causing latency problems, I've moved the sequence number
+rekey to be done out of a workqueue.
 
-> 
-> You can just as well enable the stealth mode if you can't get the
-> resources.
+patch-random-1-rekey-workqueue
 
-I'll go look and see if I can modify the DRM probe function to claim
-PCI device and resources before returning instead of just the device.
-Before this it never occured to me that a driver would claim resources
-without also claiming the device. Claiming both should be a simpler
-solution than trying to fix VesaFB.
-
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-		
-_______________________________
-Do you Yahoo!?
-Win 1 of 4,000 free domain names from Yahoo! Enter now.
-http://promotions.yahoo.com/goldrush
+--- random.c	2004/08/19 22:48:42	1.1
++++ random.c	2004/08/19 22:49:20	1.2
+@@ -2246,30 +2246,35 @@
+ static spinlock_t ip_lock = SPIN_LOCK_UNLOCKED;
+ static unsigned int ip_cnt;
+ 
+-static struct keydata *__check_and_rekey(time_t time)
++static void rekey_seq_generator(void *private_)
+ {
+ 	struct keydata *keyptr;
++	struct timeval 	tv;
++
++	do_gettimeofday(&tv);
++
+ 	spin_lock_bh(&ip_lock);
+ 	keyptr = &ip_keydata[ip_cnt&1];
+-	if (!keyptr->rekey_time || (time - keyptr->rekey_time) > REKEY_INTERVAL) {
+-		keyptr = &ip_keydata[1^(ip_cnt&1)];
+-		keyptr->rekey_time = time;
+-		get_random_bytes(keyptr->secret, sizeof(keyptr->secret));
+-		keyptr->count = (ip_cnt&COUNT_MASK)<<HASH_BITS;
+-		mb();
+-		ip_cnt++;
+-	}
++
++	keyptr = &ip_keydata[1^(ip_cnt&1)];
++	keyptr->rekey_time = tv.tv_sec;
++	get_random_bytes(keyptr->secret, sizeof(keyptr->secret));
++	keyptr->count = (ip_cnt&COUNT_MASK)<<HASH_BITS;
++	mb();
++	ip_cnt++;
++
+ 	spin_unlock_bh(&ip_lock);
+-	return keyptr;
+ }
+ 
++static DECLARE_WORK(rekey_work, rekey_seq_generator, NULL);
++
+ static inline struct keydata *check_and_rekey(time_t time)
+ {
+ 	struct keydata *keyptr = &ip_keydata[ip_cnt&1];
+ 
+ 	rmb();
+ 	if (!keyptr->rekey_time || (time - keyptr->rekey_time) > REKEY_INTERVAL) {
+-		keyptr = __check_and_rekey(time);
++		schedule_work(&rekey_work);
+ 	}
+ 
+ 	return keyptr;

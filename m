@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268407AbTGIQWN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 12:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268412AbTGIQWN
+	id S268392AbTGIQZP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 12:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268409AbTGIQZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 12:22:13 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:13063 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S268407AbTGIQVd (ORCPT
+	Wed, 9 Jul 2003 12:25:15 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:65475 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S268392AbTGIQZK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 12:21:33 -0400
-Date: Wed, 9 Jul 2003 18:36:02 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: green@namesys.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22-pre3 and reiserfs boot problem
-Message-Id: <20030709183602.7083dd82.skraw@ithnet.com>
-In-Reply-To: <20030709154015.GJ150921@niksula.cs.hut.fi>
-References: <20030706183453.74fbfaf2.skraw@ithnet.com>
-	<1057515223.20904.1315.camel@tiny.suse.com>
-	<20030709140138.141c3536.skraw@ithnet.com>
-	<1057757764.26768.170.camel@tiny.suse.com>
-	<20030709134837.GJ18307@namesys.com>
-	<20030709154015.GJ150921@niksula.cs.hut.fi>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Jul 2003 12:25:10 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [PATCH] idle using PNI monitor/mwait
+Date: Wed, 9 Jul 2003 09:39:35 -0700
+Message-ID: <DC675A50D067E045B80AAEDCBD2648BD02B02E25@fmsmsx408.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] idle using PNI monitor/mwait
+Thread-Index: AcNGCZaMxxBgA5yUT9Cc84eRkeHbfgALmA/w
+From: "Mallick, Asit K" <asit.k.mallick@intel.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+X-OriginalArrivalTime: 09 Jul 2003 16:39:37.0315 (UTC) FILETIME=[AF81FB30:01C34638]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jul 2003 18:40:15 +0300
-Ville Herva <vherva@niksula.hut.fi> wrote:
+Alan,
+Mwait is not dependent directly on the processor and any bus master
+write will wake up the mwait. So, your example will also work.
+Thanks,
+Asit
 
->> > ok, I did the reiserfsck and it works flawlessly. No errors no problems no
-> > hang.
-> > I tried mount afterwards and it still hangs.
-> > Is there some recent change around the mount procedure itself? maybe it is
-> > really unrelated to reiserfs and 3ware...
+
+> -----Original Message-----
+> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
+> Sent: Wednesday, July 09, 2003 4:00 AM
+> To: Nakajima, Jun
+> Cc: Linus Torvalds; Linux Kernel Mailing List; Saxena, Sunil; 
+> Mallick, Asit K; Pallipadi, Venkatesh
+> Subject: Re: [PATCH] idle using PNI monitor/mwait
 > 
-> Is it just this partition or any reiserfs fs on 3ware?
-
-Hm, unfortunately I can't tell, I have no other partition available on 3ware
-...
-
-> > Oleg Drokin <green@namesys.com> wrote:
-> > > Then next step would be probably to try and mount the partition from
-> > > usermodelinux if you are able to conduct such a test.
 > 
-> It it possible to mount raw partitions with UML?
-
-Hm, I never tried UML. I really wonder if there is nobody else with 3ware and
-reiserfs available for re-checking 2.4.22-pre3. Only to see if this is a
-singular problem or reproducable elsewhere.
-
-Regards,
-Stephan
+> On Maw, 2003-07-08 at 22:23, Nakajima, Jun wrote:
+> > Hi Linus,
+> > 
+> > Attached is a patch that enables PNI (Prescott New Instructions)
+> > monitor/mwait in kernel idle (opcodes are now public). 
+> Basically MWAIT
+> > is similar to hlt, but you can avoid IPI to wake up the processor
+> > waiting. A write (by another processor) to the address 
+> range specified
+> > by MONITOR would wake up the processor waiting on MWAIT.
+> 
+> Is mwait dependant on cached cpu memory and the cache 
+> exclusivity logic
+> or directly on the processor. In other words can I use mwait in future
+> to wait for DMA to hit a given location ? - Im mostly thinking about
+> debugging uses 
+> 
+> 

@@ -1,127 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262678AbVBBWLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262696AbVBBWLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262678AbVBBWLI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 17:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbVBBWLH
+	id S262696AbVBBWLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 17:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVBBVbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 17:11:07 -0500
-Received: from gizmo01bw.bigpond.com ([144.140.70.11]:20689 "HELO
-	gizmo01bw.bigpond.com") by vger.kernel.org with SMTP
-	id S262870AbVBBWIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 17:08:14 -0500
-From: pageexec@freemail.hu
-To: Ingo Molnar <mingo@elte.hu>
-Date: Thu, 03 Feb 2005 08:08:07 +1000
-MIME-Version: 1.0
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Reply-to: pageexec@freemail.hu
-CC: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Message-ID: <4201DBE7.30569.2F5D446@localhost>
-In-reply-to: <20050202165151.GA1804@elte.hu>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	Wed, 2 Feb 2005 16:31:55 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:38606 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262569AbVBBVVW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 16:21:22 -0500
+Date: Wed, 2 Feb 2005 22:21:00 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: "Jack O'Quin" <joq@io.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Message-ID: <20050202212100.GA12808@elte.hu>
+References: <87fz0neshg.fsf@sulphur.joq.us> <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us> <20050127113530.GA30422@elte.hu> <873bwfo8br.fsf@sulphur.joq.us> <20050202111045.GA12155@nietzsche.lynx.com> <87is5ahpy1.fsf@sulphur.joq.us> <20050202211405.GA13941@nietzsche.lynx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050202211405.GA13941@nietzsche.lynx.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> and how do you force a program to call that function and then to execute
-> your shellcode? In other words: i challenge you to show a working
-> (simulated) exploit on Fedora (on the latest fc4 devel version, etc.) 
-> that does that. 
 
-i don't have any Fedora but i think i know roughly what you're doing,
-if some of the stuff below wouldn't work, let me know.
+* Bill Huey <bhuey@lnxw.com> wrote:
 
-> You can simulate the overflow itself so no need to find any real
-> application vulnerability, but show me _working code_ (or a convincing
-> description) that can call glibc's do_make_stack_executable() (or the
-> 'many ways of doing this'), _and_ will end up executing your shell code
-> as well.
+> On Wed, Feb 02, 2005 at 10:44:22AM -0600, Jack O'Quin wrote:
 
-ok, since i get to make it up, here's the exploitable application
-then the exploit method (just the payload, i hope it's obvious
-how it works).
+> > I believe Ingo's RT patches already support this on a per-IRQ basis.
+> > Each IRQ handler can run in a realtime thread with priority assigned
+> > by the sysadmin.  Balancing the interrupt handler priorities with
+> > those of other realtime activities allows excellent control.  
+> 
+> No they don't. That's a physical mapping of these kernel entities, not a
+> logic organization that projects upward to things like individual sockets
+> or file streams. [...]
 
-------------------------------------------------------------------
-int parse_something(char * field, char * user_input) {
-...
-    strcpy(field, user_input+maybe_some_offset);
-...
-}
-------------------------------------------------------------------
-int some_function(char * user_input, ...) {
-    char field1[BUFLEN];
-...
-    parse_something(field1, user_input);
-...
-}
-------------------------------------------------------------------
+yes and no. You are right in that the individual workloads (e.g.
+softirqs) are not separated and identified/credited to the thread that
+requested them. (in part due to the fact that you cannot e.g. credit a
+thread for e.g. unrequested workloads like incoming sockets, or for
+'merged' workloads like writeout of a commonly accessed file.)
 
-the stack just before the overflow looks like this:
-[...]
-[field1]
-[other locals]
-[saved EBP]
-[saved EIP]
-[user_input]
-[...]
+but Jack is right in practical terms: the audio folks achieved pretty
+good results with the current IRQ threading mechanism, partly due to the
+fact that the audio stack doesnt use softirqs, so all the
+latency-critical activities are in the audio IRQ thread and the
+application itself.
 
-the overflow hits field1 and whatever is deemed necessary from
-that point on. i'll do this:
-
-[...]
-[field1 and other locals replaced with shellcode]
-[saved EBP replaced with anything in this case]
-[saved EIP replaced with address of dl_make_stack_executable()]
-[user_input left in place, i.e., overflow ends before this]
-[...]
-
-dl_make_stack_executable() will nicely return into user_input
-(at which time the stack has already become executable).
-
-as you can see in this particular case even a traditional strcpy()
-based overflow can get around ascii-armor and FORTIFY_SOURCE. if the
-overflow was of a different (more real-life, i'd say) nature, then
-it could very well be based on memcpy() which can copy 0 bytes and has
-no problems with ascii armor, or multiple overflows triggered from
-the same function (think parse_something() getting called in a parser
-loop) where you can compose more than one 0 byte on the stack, or
-not be based on any particular C library function and then all bets
-are off as to what one can/cannot do.
-
-if there's an address pointing back into the overflowed buffer
-somewhere deeper in the stack then i could have a payload like:
-
-[...]
-[shellcode]
-[saved EIP replaced with the address of a suitable 'retn' insn]
-[more addresses of 'retn']
-[address of dl_make_stack_executable()]
-[pointer (in)to the overflowed buffer (shellcode)]
-[...]
-
-(this is actually the stack layout that a recent paper analysing
-ASLR used/assumed [1]). note that this particular exploit method
-would be greatly mitigated by a stack layout created by SSP [2]
-(meaning the local variable reordering, not the canary stuff).
-
-i could have also replaced the saved EBP (which becomes ESP
-eventually) with a suitable address (not necessarily on the stack
-even) where i can find (create) the
-
-[address of dl_make_stack_executable()]
-[shellcode address]
-
-pattern (during earlier interactions with the exploited application),
-but it requires whole application memory analysis (which you can bet
-any exploit writer worth his salt would do).
-
-speaking of ASLR/randomization, all that they mean for the above is
-a constant work factor (short of info leaking, of course), in the
-ES case it's something like 12 bits, for PaX it's 15-16 bits (on i386).
-
-[1] http://www.stanford.edu/~blp/papers/asrandom.pdf
-[2] http://www.trl.ibm.com/projects/security/ssp/
-
+	Ingo

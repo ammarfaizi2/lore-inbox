@@ -1,110 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262454AbTCMQdb>; Thu, 13 Mar 2003 11:33:31 -0500
+	id <S262464AbTCMQfH>; Thu, 13 Mar 2003 11:35:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262460AbTCMQdb>; Thu, 13 Mar 2003 11:33:31 -0500
-Received: from jack.stev.org ([217.79.103.51]:12341 "EHLO jack.stev.org")
-	by vger.kernel.org with ESMTP id <S262454AbTCMQd2>;
-	Thu, 13 Mar 2003 11:33:28 -0500
-Message-ID: <016c01c2e980$b2d4ee60$0cfea8c0@ezdsp.com>
-From: "James Stevenson" <james@stev.org>
-To: "Jens Axboe" <axboe@suse.de>
-Cc: "Stephan von Krawczynski" <skraw@ithnet.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Marcelo Tosatti" <marcelo@conectiva.com.br>
-References: <20030227221017.4291c1f6.skraw@ithnet.com> <014b01c2e978$701050e0$0cfea8c0@ezdsp.com> <20030313163707.GH836@suse.de>
-Subject: Re: OOPS in 2.4.21-pre5, ide-scsi
-Date: Thu, 13 Mar 2003 16:50:46 -0000
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4920.2300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+	id <S262465AbTCMQfH>; Thu, 13 Mar 2003 11:35:07 -0500
+Received: from unthought.net ([212.97.129.24]:36284 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S262464AbTCMQfC>;
+	Thu, 13 Mar 2003 11:35:02 -0500
+Date: Thu, 13 Mar 2003 17:45:48 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: linux-kernel@vger.kernel.org
+Cc: Florian Weimer <fw@deneb.enyo.de>
+Subject: Re: NetFlow export
+Message-ID: <20030313164547.GC29730@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	linux-kernel@vger.kernel.org, Florian Weimer <fw@deneb.enyo.de>
+References: <87adfza5kb.fsf@deneb.enyo.de> <20030313114809.GA29730@unthought.net> <87znnz8oob.fsf@deneb.enyo.de> <20030313122932.GB29730@unthought.net> <87llzj8jmr.fsf@deneb.enyo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <87llzj8jmr.fsf@deneb.enyo.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > strange looks alot like the ones i have seen though the whole 2.4.x
-tree.
-> >
-> > this was discussed before somebody said they would send a patch myself
-> > and sombody else were going to test it but the patch never happens.
-> > >From what i can work out an error occurs on the cd drive and the
-request
-> > queue is then empty and the ide-scsi driver then attempts to access the
-> > reuest queue that doesnt exist i never did manage to find out
-> > where the request get removed from the queue though.
->
-> Your explanation doesn't quite make sense, but I can take a look at the
-> problem :-)
->
-> What kernel is the below oops from? What compiler?
+On Thu, Mar 13, 2003 at 02:46:04PM +0100, Florian Weimer wrote:
+> Jakob Oestergaard <jakob@unthought.net> writes:
+> 
+> > You asked for netflow data export. Netramet can give you something
+> > similar to netflow (I never used netflow, but from what I hear, netramet
+> > is similar only more flexible).
+> 
+> I need the NetFlow data format, not something else.
 
-i can trigger this on any 2.4.x series kernel.
--> Insert dmaged / lightly scratched cd into drive
-   dd /dev/scd0 bs=8192k of=file
-   wait for opps.
-   opps also cd tries to re read several times
-   short hang then the following output
+Ok.
 
-gcc versions.
-Whatever shits with redhat 7.1 + 7.2 + 7.3 and the
-updates between them in each of the redhat versions.
-but normally
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
-gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
+I suspect it's easier to patch netramet, than start a new kernel-based
+project.
 
-or
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
-gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-113)
+If Netramet really supports reading netflow data, I guess it would not
+be a huge undertaking to implement write support too.   But I'm not
+familiar with the Netramet source - really, you should look at it
+yourself or ask the developers.
 
-> > *pde = 00000000
-> > Oops: 0000
-> > CPU:    0
-> > EIP:    0010:[<c01e5783>]    Not tainted
-> > Using defaults from ksymoops -t elf32-i386 -a i386
-> > EFLAGS: 00010202
-> > eax: 00000000   ebx: c7a71000   ecx: c0327104   edx: 00000000
-> > esi: 00000001   edi: c13a4fc0   ebp: cb23df58   esp: cb23df44
-> > ds: 0018   es: 0018   ss: 0018
-> > Process klogd (pid: 381, stackpage=cb23d000)
-> > Stack: 00000000 c0327294 c13de260 c0327294 00000202 cb23df78 c01cdd11
-> > c0327294
-> >        c01e5700 c0327104 c121db00 04000001 0000000f cb23df98 c010a0bd
-> > 0000000f
-> >        c13de260 cb23dfc4 cb23dfc4 0000000f c02f8ae0 cb23dfbc c010a24d
-> > 0000000f
-> > Call Trace: [<c01cdd11>] [<c01e5700>] [<c010a0bd>] [<c010a24d>]
-[<c010c358>]
-> > Code: 8b 72 18 46 89 72 18 8b 55 f0 8b 82 f0 00 00 00 8b 58 04 53
-> >
-> > >>EIP; c01e5783 <idescsi_pc_intr+83/290>   <=====
-> > Trace; c01cdd11 <ide_intr+c1/120>
-> > Trace; c01e5700 <idescsi_pc_intr+0/290>
-> > Trace; c010a0bd <handle_IRQ_event+3d/70>
-> > Trace; c010a24d <do_IRQ+7d/c0>
-> > Trace; c010c358 <call_do_IRQ+5/d>
-> > Code;  c01e5783 <idescsi_pc_intr+83/290>
-> > 00000000 <_EIP>:
-> > Code;  c01e5783 <idescsi_pc_intr+83/290>   <=====
-> >    0:   8b 72 18                  mov    0x18(%edx),%esi   <=====
-> > Code;  c01e5786 <idescsi_pc_intr+86/290>
-> >    3:   46                        inc    %esi
-> > Code;  c01e5787 <idescsi_pc_intr+87/290>
-> >    4:   89 72 18                  mov    %esi,0x18(%edx)
-> > Code;  c01e578a <idescsi_pc_intr+8a/290>
-> >    7:   8b 55 f0                  mov    0xfffffff0(%ebp),%edx
-> > Code;  c01e578d <idescsi_pc_intr+8d/290>
-> >    a:   8b 82 f0 00 00 00         mov    0xf0(%edx),%eax
-> > Code;  c01e5793 <idescsi_pc_intr+93/290>
-> >   10:   8b 58 04                  mov    0x4(%eax),%ebx
-> > Code;  c01e5796 <idescsi_pc_intr+96/290>
-> >   13:   53                        push   %ebx
-> >
-> > <0>Kernel panic: Aiee, killing interrupt handler!
-> >
-> > 1 warning issued.  Results may not be reliable.
->
-> --
-> Jens Axboe
+> 
+> > With 10 lines of Perl you could do full ASN-1   ;)
+> 
+> NetFlow is not based on ASN.1.
 
+No you said that  :)
 
+> It's a completely different format (an
+> industry standard which is implemented by quite a few vendors).
+
+Ok
+
+> 
+> > Point being; if what you want is flow information from a Linux router,
+> > excellent user space software (both "meter" and retrieval/filtering
+> > tools) already exist for that.
+> 
+> I fear the performance impact of copying all packet headers to user
+> space.
+
+I understand.
+
+But I don't think you need to worry - how much bandwidth and how many
+flows are we looking at here?
+
+Several million flows a day is no problem for an aging PIII 550 (running
+with full BGP).
+
+Netramet allows you to define what makes a flow - so depending on your
+needs, you can set the detail versus performance pretty much as you
+please.  It has a simple rule language (SRL) to define these filtering
+rules.
+
+> 
+> > If you want something else, then I have completely misread your mails.
+> > Please elaborate, in that case  :)
+> 
+> I'd like to see something which has virtually no impact on forwarding,
+> so that it's a no-brainer to enable it.  I doubt copying all the
+> packet headers to user space falls into this category.
+
+Well, netramet is not going to do the routing.  Whatever netramet does,
+the packets will flow.
+
+Worst case, netramet is going to miss a flow.  If you did it in the
+kernel instead, I guess you could either do it the same way, or make the
+router drop packets when load gets too high.  I think the current
+solution works well.  For the loads that I have seen - maybe you have
+other kinds of loads...
+
+Netramet allocates a buffer it uses for holding the flows. If the
+"meter" is not emptied frequently enough, netramet may decide to drop
+the oldest/smallest flows, to make room for new ones.
+
+This buffer, on a relatively busy router, can easily be 50-100 MB.
+This, too, is a good reason to keep it in user space I think.
+
+The kernel memory footprint is bad enough with the routing tables that
+full BGP causes.
+
+I think that you should measure and experiemnt - verify that there
+really is a problem with a user-space solution, before even thinking
+about doing something relatively complicated (and already existing) in
+kernel space.
+
+Wheels don't necessarily turn faster just because you re-invent them in
+the kernel  ;)
+
+Well that's my 0.02 Euro, at least.
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

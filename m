@@ -1,76 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267222AbSLQVrI>; Tue, 17 Dec 2002 16:47:08 -0500
+	id <S267177AbSLQVpk>; Tue, 17 Dec 2002 16:45:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267223AbSLQVrH>; Tue, 17 Dec 2002 16:47:07 -0500
-Received: from mail.somanetworks.com ([216.126.67.42]:17839 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id <S267222AbSLQVrG>; Tue, 17 Dec 2002 16:47:06 -0500
-Message-Id: <200212172154.gBHLsu5E011391@localhost.localdomain>
-Date: Tue, 17 Dec 2002 16:54:56 -0500
-From: Georg Nikodym <georgn@somanetworks.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.20-rmap15b
-In-Reply-To: <Pine.LNX.4.50L.0212171948400.26879-100000@imladris.surriel.com>
-References: <Pine.LNX.4.50L.0212122349520.17748-100000@imladris.surriel.com>
-	<200212161610.gBGGAuB7028719@localhost.localdomain>
-	<Pine.LNX.4.50L.0212171948400.26879-100000@imladris.surriel.com>
-Organization: SOMA Networks
-X-Mailer: Sylpheed version 0.8.6claws (GTK+ 1.2.10; i386-redhat-linux)
+	id <S267178AbSLQVpj>; Tue, 17 Dec 2002 16:45:39 -0500
+Received: from to-velocet.redhat.com ([216.138.202.10]:38387 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S267177AbSLQVpi>; Tue, 17 Dec 2002 16:45:38 -0500
+Date: Tue, 17 Dec 2002 16:53:37 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance
+Message-ID: <20021217165337.F10781@redhat.com>
+References: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com> <Pine.LNX.4.50.0212162241150.26163-100000@twinlark.arctic.org> <3DFF76D7.2050403@transmeta.com> <20021217163954.D10781@redhat.com> <3DFF9A23.1090607@transmeta.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.eiWXN4nLe8Qzt7"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DFF9A23.1090607@transmeta.com>; from hpa@transmeta.com on Tue, Dec 17, 2002 at 01:41:55PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.eiWXN4nLe8Qzt7
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Tue, Dec 17, 2002 at 01:41:55PM -0800, H. Peter Anvin wrote:
+> > No, just take the number of context switches before and after the attempt 
+> > to read the time of day.
 
-On Tue, 17 Dec 2002 19:50:04 -0200 (BRST)
-Rik van Riel <riel@conectiva.com.br> wrote:
+> How do you do that from userspace, atomically?  A counter in the shared
+> page?
 
-> On Mon, 16 Dec 2002, Georg Nikodym wrote:
-> 
-> > Incidentally, a colleague claimed to have seem this behaviour on a
-> > non-rmap 2.4.20.
-> 
-> > 1. Known behaviour?
-> > 2. Is there any data that I should be collecting that people are
-> >    interested in?
-> > 3. Or should I just go back to 2.4.19-rmap14b (which did not trouble
-> > me
-> >    in this way)?
-> 
-> The suspect is the disk elevator, which isn't scheduling requests
-> in a way to cause lower read latency, but is optimised more for
-> throughput.  This results in some pauses.
-> 
-> I'll need to look into it.
+Yup.  You need some shared data for the TSC offset such anyways, so 
+moving the context switch counter onto such a page won't be much of 
+a problem.  Using the %tr trick to get the CPU number would allow for 
+some of these data structures to be per-cpu without incurring any LOCK 
+overhead, too.
 
-I discovered after sending the above:
-
-Dec 16 15:08:04 keller kernel: ieee1394: sbp2: sbp2util_allocate_request_packet 
-- no packets available!
-Dec 16 15:08:04 keller kernel: ieee1394: sbp2: sbp2util_allocate_write_request_p
-acket failed
-Dec 16 15:08:34 keller kernel: ieee1394: sbp2: aborting sbp2 command
-
-These messages correspond with the pauses...  However, the ieee1394 code
-has not changed in some time (as in many months).
-
--g
-
---=.eiWXN4nLe8Qzt7
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9/50woJNnikTddkMRAlb8AJ9aTWRrNL1EyynTGVa96slt63JsXQCgtqwi
-RfrdQGz/CT1yxb0pXEIw4f4=
-=bm+8
------END PGP SIGNATURE-----
-
---=.eiWXN4nLe8Qzt7--
+		-ben
+-- 
+"Do you seek knowledge in time travel?"

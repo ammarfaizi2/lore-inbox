@@ -1,69 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267458AbSLFAD1>; Thu, 5 Dec 2002 19:03:27 -0500
+	id <S267446AbSLFACF>; Thu, 5 Dec 2002 19:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267450AbSLFACM>; Thu, 5 Dec 2002 19:02:12 -0500
-Received: from dp.samba.org ([66.70.73.150]:45517 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267458AbSLFACB>;
+	id <S267465AbSLFACF>; Thu, 5 Dec 2002 19:02:05 -0500
+Received: from dp.samba.org ([66.70.73.150]:43469 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267446AbSLFACB>;
 	Thu, 5 Dec 2002 19:02:01 -0500
-Date: Fri, 6 Dec 2002 11:06:25 +1100
+Date: Fri, 6 Dec 2002 10:54:41 +1100
 From: David Gibson <david@gibson.dropbear.id.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: davem@redhat.com, James.Bottomley@steeleye.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, miles@gnu.org
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
 Subject: Re: [RFC] generic device DMA implementation
-Message-ID: <20021206000625.GS1500@zax.zax>
+Message-ID: <20021205235441.GP1500@zax.zax>
 Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	"Adam J. Richter" <adam@yggdrasil.com>, davem@redhat.com,
-	James.Bottomley@steeleye.com, jgarzik@pobox.com,
-	linux-kernel@vger.kernel.org, miles@gnu.org
-References: <200212051157.DAA04682@adam.yggdrasil.com>
+	James Bottomley <James.Bottomley@steeleye.com>,
+	"Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+References: <20021205050536.GE1500@zax.zax> <200212051503.gB5F3Q601998@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212051157.DAA04682@adam.yggdrasil.com>
+In-Reply-To: <200212051503.gB5F3Q601998@localhost.localdomain>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 03:57:53AM -0800, Adam J. Richter wrote:
-> David Gibson wrote:
-> >Since, with James's approach you'd need a dma sync function (which
-> >might compile to NOP) in pretty much the same places you'd need
-> >map/sync calls, I don't see that it does make the source noticeably
-> >simpler.
+On Thu, Dec 05, 2002 at 09:03:24AM -0600, James Bottomley wrote:
+> david@gibson.dropbear.id.au said:
+> > But if you have the sync points, you don't need a special allocater
+> > for the memory at all - any old RAM will do.  So why not just use
+> > kmalloc() to get it. 
 > 
->         Because then you don't have to have a branch for
-> case where the platform *does* support consistent memory.
+> Because with kmalloc, you have to be aware of platform
+> implementations.  Most notably that cache flush/invalidate
+> instructions only operate at the level of certain block of memory
+> (called the cache line width).  If kmalloc returns less than a cache
+> line width you have the potential for severe cockups because of the
+> possibility of interfering cache operations on adjacent kmalloc
+> regions that share the same cache line.
 
-Sorry, you're going to have to explain where this extra branch is, I
-don't see it.
+Having debugged a stack corruption problem when attempting to use USB
+on a PPC 4xx machine, which was due to improperly aligned DMA buffers,
+I am well aware of this issue.
 
-> >>       If were to try the approach of using pci_{map,sync}_single
-> >> always (i.e., just writing the code not to use alloc_consistent),
-> >> that would have a performance cost on machines where using
-> >> consistent memory for writing small amounts of data is cheaper than
-> >> the cost of the cache flushes that would otherwise be required.
-> >
-> >Well, I'm only talking about the cases where we actually care about
-> >reducing the use of consistent memory.
-> 
->         Then you're not fully weighing the benefits of this facility.
-> The primary beneficiaries of this facility are device drivers for
-> which we'd like to have the performance advantages of consistent
-> memory when available (at least on machines that always return
-> consistent memory) but which we'd also like to have work as
+> the dma_alloc... function guarantees to avoid this for you by passing the 
+> allocation to the platform layer which knows the cache characteristics and 
+> requirements for the machine (and dma controller) you're using.
 
-What performance advantages of consistent memory?  Can you name any
-non-fully-consistent platform where consistent memory is preferable
-when it is not strictly required?  For, all the non-consistent
-platforms I'm aware of getting consistent memory means disabling the
-cache and therefore is to be avoided wherever it can be.
+Ok - now I begin to see the point of this: I was being misled by the
+emphasis on a preference for consistent allocation and the original
+"alloc_consistent" name you suggested.  When consistent memory isn't
+strictly required it's as likely as not that it won't be preferred
+either.
 
-> efficiently as possible on platforms that lack consistent memory or
-> have so little that we want the device driver to still work even when
-> no consistent memory is available.  That includes all PCI devices that
-> users of the inconsistent parisc machines want to use.
+Given this, and Miles example, I can see the point of a DMA mallocater
+that applies DMA constraints that are not to do with consistency.
+Then consistency could also be specified, but that's a separate issue.
+
+So, to remove the misleading emphasis on the point of the allocated
+being consistent memory (your name change was a start, this goes
+further), I'd prefer to see something like:
+
+void *dma_malloc(struct device *bus, unsigned long size, int flags,
+		 dma_addr_t *dma_addr);
+
+Which returns virtual and DMA pointers for a chunk of memory
+satisfying any DMA conditions for the specified bus.  Then if flags
+includes DMA_CONSISTENT (or some such) the memory will be allocated
+consistent in addition to those constraints.
+
+If DMA_CONSISTENT is not specified, the memory might be consistent,
+and there would be a preference for consistent only on platforms where
+consistent memory is actually preferable (I haven't yet heard of one).
 
 -- 
 David Gibson			| For every complex problem there is a

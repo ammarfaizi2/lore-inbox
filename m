@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbULYOMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbULYONT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbULYOMH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 09:12:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbULYOMG
+	id S261513AbULYONT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 09:13:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbULYONI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 09:12:06 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:63131 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261511AbULYOMD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 09:12:03 -0500
-Message-ID: <41CD74FE.3090202@trash.net>
-Date: Sat, 25 Dec 2004 15:11:10 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Konsar <konsar@brod.pl>
-CC: netfilter-devel@lists.netfilter.org,
-       netfilter-devel-owner@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>,
-       "David S. Miller" <davem@davemloft.net>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: ip_conntrack_tcp problem on kernel 2.4.28 !!! INVALID ?
-References: <opsjkf9pg8or678w@localhost>
-In-Reply-To: <opsjkf9pg8or678w@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Dec 2004 09:13:08 -0500
+Received: from golobica.uni-mb.si ([164.8.100.4]:36568 "EHLO
+	golobica.uni-mb.si") by vger.kernel.org with ESMTP id S261513AbULYONB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 09:13:01 -0500
+Subject: [patch 1/1] floppy: relocate devfs comment
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, james4765@gmail.com
+From: domen@coderock.org
+Date: Sat, 25 Dec 2004 15:13:04 +0100
+Message-Id: <20041225141254.567F94DC08C@golobica.uni-mb.si>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Konsar wrote:
-> Hi !!!
-> 
-> I have patches kernel 2.4.28 + patch-o-matic-ng-20040621 with  
-> iptables-1.2.11 on my router/NAT server.This islog from my server
- >
-> [...]
->
-> Dec 25 14:15:47 gizmo kernel: ip_conntrack_tcp: INVALID: invalid RST  
-> (ignored) SRC=64.230.127.202 DST=22.22.22.22 LEN=40 TOS
-> =0x00 PREC=0x00 TTL=111 ID=25587 PROTO=TCP SPT=46885 DPT=1804 SEQ=0  
-> ACK=881916807 WINDOW=0 RES=0x00 ACK RST URGP=0
-> janek.log lines 17-47/47 (END)
-> 
-> What is this and how close this log ? Where is problem ?
 
-The problem is edonkey, you get all kinds of crap if you run
-it or catch the IP of someone who did. Its about the biggest
-sin for a network I've ever seen. The only funny part about
-it are the crappy implementations, you just have to smile if
-you see people do GUI refreshing in the UDP packet handler :)
+Oops, forgot Signed-off-by: line.
 
-Regards
-Patrick
+Signed-off-by: James Nelson <james4765@gmail.com>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
 
-BTW: No need to CC tons of people for questions like these.
+
+ kj-domen/drivers/block/floppy.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+diff -puN drivers/block/floppy.c~comment-drivers_block_floppy.c drivers/block/floppy.c
+--- kj/drivers/block/floppy.c~comment-drivers_block_floppy.c	2004-12-25 01:35:26.000000000 +0100
++++ kj-domen/drivers/block/floppy.c	2004-12-25 01:35:26.000000000 +0100
+@@ -98,6 +98,10 @@
+  */
+ 
+ /*
++ * 1998/1/21 -- Richard Gooch <rgooch@atnf.csiro.au> -- devfs support
++ */
++
++/*
+  * 1998/05/07 -- Russell King -- More portability cleanups; moved definition of
+  * interrupt and dma channel to asm/floppy.h. Cleaned up some formatting &
+  * use of '0' for NULL.
+@@ -159,10 +163,6 @@ static int print_unex = 1;
+ #define FDPATCHES
+ #include <linux/fdreg.h>
+ 
+-/*
+- * 1998/1/21 -- Richard Gooch <rgooch@atnf.csiro.au> -- devfs support
+- */
+-
+ #include <linux/fd.h>
+ #include <linux/hdreg.h>
+ 
+_

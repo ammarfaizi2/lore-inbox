@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262873AbTJPLxe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 07:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTJPLxd
+	id S262865AbTJPLxU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 07:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbTJPLxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 07:53:33 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:53508
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262873AbTJPLx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 07:53:29 -0400
-Date: Thu, 16 Oct 2003 04:47:25 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: id ol <idol4232003@yahoo.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, vatsa@in.ibm.com,
-       lkcd-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: PRD Table
-In-Reply-To: <20031013174101.52992.qmail@web10003.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.10.10310160446460.15306-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	Thu, 16 Oct 2003 07:53:20 -0400
+Received: from news.cistron.nl ([62.216.30.38]:31759 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S262865AbTJPLxT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 07:53:19 -0400
+From: rintek@wuuk.sulawesi
+Subject: Contradiction ?
+Date: Thu, 16 Oct 2003 13:55:18 +0200
+Organization: Cistron
+Message-ID: <bmm0rc$7c8$1@news.cistron.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: ncc1701.cistron.net 1066305197 7560 62.216.17.166 (16 Oct 2003 11:53:17 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+pdc202xx_old.c :
 
-First question is why, and if you are doing lkcd, the answer is no.
+linux/drivers/ide/pci/pdc202xx_old.c    Version 0.36    Sept 11, 2002
+Copyright (C) 1998-2002         Andre Hedrick <andre@linux-ide.org>
 
-Andre Hedrick
-LAD Storage Consulting Group
+pdc202xx_new.c :
 
-On Mon, 13 Oct 2003, id ol wrote:
+linux/drivers/ide/pdc202xx.c    Version 0.35    Mar. 30, 2002
+Copyright (C) 1998-2002         Andre Hedrick <andre@linux-ide.org>
 
-> Hi all,
-> 
-> I am running into some possible DMA-related problems
-> with my system.  I am wondering, what is the easiest
-> way to make the PRD Table region uncacheable?  I
-> appreciate any tips that will point me in the right
-> direction.
-> 
-> Thanks!
-> 
-> __________________________________
-> Do you Yahoo!?
-> The New Yahoo! Shopping - with improved product search
-> http://shopping.yahoo.com
-> 
+Hi,
+
+I am confused.
+
+Is pdc202xx_old.c version 0.36 Sept 11, 2002 the newest driver ?
+
+or
+
+Is pdc202xx_new.c version 0.35 Mar. 30, 2002 the newest driver ?
+
+I hope someone can explain this.
+
+thx
+
+Age Huisman
+
+
 

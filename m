@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263697AbTLDXDe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 18:03:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263698AbTLDXDe
+	id S263711AbTLDXH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 18:07:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTLDXH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 18:03:34 -0500
-Received: from fw.osdl.org ([65.172.181.6]:15835 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263697AbTLDXDd (ORCPT
+	Thu, 4 Dec 2003 18:07:27 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:45808 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263711AbTLDXHZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 18:03:33 -0500
-Date: Thu, 4 Dec 2003 15:03:32 -0800
-From: Kees Cook <kees@kernel.org>
-To: linux-kernel@vger.kernel.org
-Subject: Upgrading www.kernel.org to Apache 2
-Message-ID: <20031204150332.M13769@osdl.org>
-Reply-To: FTP Admin <ftpadmin@kernel.org>
+	Thu, 4 Dec 2003 18:07:25 -0500
+Subject: Re: 2.6.0-test11 brings out gettimeofday() non-monotonicity
+From: john stultz <johnstul@us.ibm.com>
+To: Pasi Savolainen <psavo@iki.fi>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <slrnbsv7ng.45b.psavo@varg.dyndns.org>
+References: <slrnbsv7ng.45b.psavo@varg.dyndns.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1070579214.1055.94.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Open Source Development Lab
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 04 Dec 2003 15:06:54 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apache will be upgraded on kernel.org around 9pm Pacific time.  Hopefully 
-all should go well and no one will even notice.  :)  The outage shouldn't 
-last any more than about 10 minutes.
+On Thu, 2003-12-04 at 12:54, Pasi Savolainen wrote:
+> I (and several others) have had some problems on dual AMD platform with
+> time going backwards.
 
-If you notice any problems afterwards, please email ftpadmin@kernel.org.
+Hmmm. Just to double check, you're not running w/ the amd76x_pm module,
+correct? That module has known issues regarding time. 
 
-Thanks!
+> The 2.6.0-test11 -kernel seems to bring it forth very well. I can
+> trigger this behaviour _almost_ every time, simply by running 'updatedb'.
 
--- 
-Kees Cook
-kees@kernel.org
+Can you send any more info about the hardware? dmesg and .config as
+well, please. 
+
+
+> On the other hand I recently heard from a developer that monotonic_clock
+> gave in some cases values of about 0xffffffff00000756, which to me looks
+> like a botched 64bit math. This was happening on UP, AMD board.
+
+I'd very much like to hear more details about this one. What was the
+test case, etc?
+
+thanks
+-john
+

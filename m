@@ -1,93 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbUCAU0j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 15:26:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUCAU0i
+	id S261434AbUCAU1h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 15:27:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbUCAU0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 15:26:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:54209 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261423AbUCAU0T (ORCPT
+	Mon, 1 Mar 2004 15:26:53 -0500
+Received: from [196.25.168.8] ([196.25.168.8]:30620 "EHLO lbsd.net")
+	by vger.kernel.org with ESMTP id S261428AbUCAUYw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 15:26:19 -0500
-Date: Mon, 1 Mar 2004 12:26:18 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Rik Faith <faith@redhat.com>
+	Mon, 1 Mar 2004 15:24:52 -0500
+Date: Mon, 1 Mar 2004 22:24:13 +0200
+From: Nigel Kukard <nkukard@lbsd.net>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Light-weight Auditing Framework
-Message-ID: <20040301122618.O22989@build.pdx.osdl.net>
-References: <16451.25789.72815.763592@neuro.alephnull.com>
+Subject: Re: [2.6.3] Sysfs breakage - tun.ko
+Message-ID: <20040301202413.GB21950@lbsd.net>
+References: <4043938C.9090504@lbsd.net> <40439B03.4000505@backtobasicsmgmt.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <16451.25789.72815.763592@neuro.alephnull.com>; from faith@redhat.com on Mon, Mar 01, 2004 at 11:28:45AM -0500
+In-Reply-To: <40439B03.4000505@backtobasicsmgmt.com>
+User-Agent: Mutt/1.4.1i
+X-PHP-Key: http://www.lbsd.net/~nkukard/keys/gpg_public.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Rik Faith (faith@redhat.com) wrote:
-> This note describes a patch against 2.6.4-rc1-bk2 that provides a
-> low-overhead system-call auditing framework for Linux that is usable by
-> LSM components (e.g., SELinux).  Comments will be appreciated.
+Nevermind if its right or wrong, it does not work in sysfs
 
-Do you have an perf numbers for simply enabling the auditint framework?
-Seems to be a lot of use of likely/unlikely.  Are these actually useful
-optimizations?  Doesn't seem like CONFIG_AUDIT=n disables all the code.
-Not sure if the rest of the patch lot is mainlineable or not, but here are
-some simple nits/questions.
+-Nigel
 
-Some basic CodingStyle bits:
-
-+static int         audit_initialized = 0;
-
-no need to zero initialized static data.
-
-+       if (in_irq()) BUG();
-+       if (!context) BUG();
-
-convert to BUG_ON(in_irq());
-           BUG_ON(!context);
-
-+#ifdef CONFIG_AUDIT
-+/***********************************************************************/
-+/** audit.c                                                           **/
-+/***********************************************************************/
-
-Noisy comments.
-
-+                       audit_log_format(ab, " dev=%02x:%02x",
-+                                        MAJOR(context->names[i].rdev),
-+                                        MINOR(context->names[i].rdev));
-
-format_dev_t() ?
-
-+static int __init audit_enable(char *str)
-+{
-+       if (!strncmp(str, "on", 2) || !strncmp(str, "yes", 3))
-+               audit_default = 1;
-+       else if (!strncmp(str, "off", 3) || !strncmp(str, "no", 2))
-+               audit_default = 0;
-+       else
-+               audit_default = simple_strtol(str, NULL, 0);
-
-just pick one method, strings or int (int is so simple), and document the
-method for enable/disable.
-
-+void audit_log_vformat(struct audit_buffer *ab, const char *fmt, va_list args)
-
-as of now, this could be static, and not exported, no?
-
-
-+               ab = kmalloc(sizeof(*ab), GFP_ATOMIC);
-
-need atomic allocations here?  also, i wasn't clear on what makes sure the
-audit_buffers can't be overflown, the bits in vformat talking about 1024 bytes?
-
-
-+               audit_log_format(ab, "<toolong>");
-
-is it useful to at least get the final d_name?
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+On Mon, Mar 01, 2004 at 01:20:19PM -0700, Kevin P. Fleming wrote:
+> Nigel Kukard wrote:
+> 
+> >--- drivers/net/tun.c.old   2004-02-27 18:18:55.000000000 +0200
+> >+++ drivers/net/tun.c       2004-02-27 18:19:02.000000000 +0200
+> >@@ -605,7 +605,7 @@
+> >
+> > static struct miscdevice tun_miscdev = {
+> >        .minor = TUN_MINOR,
+> >-       .name = "net/tun",
+> >+       .name = "tun",
+> >        .fops = &tun_fops
+> > };
+> 
+> This changed back and forth since the tun driver was added to the 
+> kernel; making this change will cause the devfs path to the tun node to 
+> change, and userspace applications expect it to be at /dev/misc/net/tun, 
+> whether that's right or wrong.

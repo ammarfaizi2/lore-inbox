@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268458AbTANBGp>; Mon, 13 Jan 2003 20:06:45 -0500
+	id <S268475AbTANBPd>; Mon, 13 Jan 2003 20:15:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268465AbTANBGp>; Mon, 13 Jan 2003 20:06:45 -0500
-Received: from web13707.mail.yahoo.com ([216.136.175.140]:6824 "HELO
-	web13707.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S268458AbTANBGo>; Mon, 13 Jan 2003 20:06:44 -0500
-Message-ID: <20030114011533.98422.qmail@web13707.mail.yahoo.com>
-Date: Mon, 13 Jan 2003 17:15:33 -0800 (PST)
-From: Mad Hatter <slokus@yahoo.com>
-Subject: Re: bootsect.S: 2 questions
-To: "Randy.Dunlap" <rddunlap@osdl.org>
+	id <S268472AbTANBPd>; Mon, 13 Jan 2003 20:15:33 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:12551 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S268475AbTANBOc>;
+	Mon, 13 Jan 2003 20:14:32 -0500
+Date: Mon, 13 Jan 2003 17:23:20 -0800
+From: Greg KH <greg@kroah.com>
+To: Ed Tomlinson <tomlins@cam.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0301130844050.1675-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
+Subject: Re: usb mouse and 2.5.56bk
+Message-ID: <20030114012319.GD10764@kroah.com>
+References: <200212141215.49449.tomlins@cam.org> <200212172243.52786.tomlins@cam.org> <20021218054802.GF28629@kroah.com> <200301122242.01033.tomlins@cam.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301122242.01033.tomlins@cam.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the pointers to Ralf Brown's interrupt page.
+On Sun, Jan 12, 2003 at 10:42:01PM -0500, Ed Tomlinson wrote:
+> Greg,
+> 
+> Something strange with 2.5.56.  My usb mouse is no longer working
+> after boot.  I can get it to work by repluging it.  Here is my
+> dmesg ang the init.d/local that should make sure the modules needed 
+> are loaded.  Before tring to replug I unloaded and reloaded hid and
+> psmouse to see if this would fix things (it did not).
+> 
+> I suspect the changeset below:
+> 
+> ChangeSet@1.889.19.1, 2003-01-09 10:29:40-08:00, greg@kroah.com
+> 
+> which got added just before .56 - I have been tracking bk fairly
+> closely and all was working up to the version of 55bk built at 8am
+> on the 9th.
 
---- "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+Hm, that single changeset only modified the ehci driver, which should
+not bother your USB mouse at all, unless it's a USB 2.0 mouse :)
 
->FYI, the startup functions are used once-per-boot. Any "improvements"
->other than those necessary to "fix" something are useless in the
->overall scheme of things.
+It looks like from your logs that the usb core saw a bunch of devices.
+What does /proc/bus/usb/devices look like after booting, when your mouse
+is not working?  The log also shows that a usb mouse was found by the
+hid driver and bound to it, so I don't know why it wouldn't be working.
 
-Sure. I'm a novice at both the x86 instruction set and the GNU assembler
-and I'm just trying to understand the reason the code is written the way
-it is.
+thanks,
 
---- "Randy.Dunlap" <rddunlap@osdl.org> wrote:
- 
-> If you change those to bytes to save 3 bytes of space, and then you
-> change all of the instructions that load or store those values to 16-bit
-> registers, do you have a net saving of space?
-> Or you load/store them to 8-bit registers and rewrite the code, what
-> happens?
-
-I looked at one place where these words are used: the read_track routine.
-Part of that code looks like this:
--------------------------------
-	movw	4(%si), %dx		# 4(%si) = track
-	movw	(%si), %cx		# (%si)  = sread
-	incw	%cx
-	movb	%dl, %ch
-	movw	2(%si), %dx		# 2(%si) = head
-	movb	%dl, %dh
-	andw	$0x0100, %dx
-	movb	$2, %ah
----------------------------------
-
-If this code is rewritten to use byte instructions (and sread, head, track
-are changed to .byte instead of .word) like so (the last two instructions
-are unchanged):
------------------------------------------------
-	movb	(%si), %cl		# (%si)  = sread
-	incb	%cl
-	movb	2(%si), %ch		# 2(%si) = track
-	movb	1(%si), %dh		# 1(%si) = head
-	andw	$0x0100, %dx
-	movb	$2, %ah
-------------------------------------------------
-
-there is a net saving of 6 bytes. (I compiled this with "gcc -c", linked
-with "ld --oformat binary -Ttext 0x0" and compared the size of the results).
-
-I'm not proposing this as a fix BTW; just an academic exercise, really.
-
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com
+greg k-h

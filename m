@@ -1,286 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316322AbSGVFrL>; Mon, 22 Jul 2002 01:47:11 -0400
+	id <S315544AbSGVDSr>; Sun, 21 Jul 2002 23:18:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSGVFrL>; Mon, 22 Jul 2002 01:47:11 -0400
-Received: from holomorphy.com ([66.224.33.161]:45185 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316322AbSGVFrI>;
-	Mon, 22 Jul 2002 01:47:08 -0400
-Date: Sun, 21 Jul 2002 22:50:13 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au, riel@surriel.com
-Subject: pte_chain_mempool-2.5.27-2
-Message-ID: <20020722055013.GC919@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, akpm@zip.com.au, riel@surriel.com
+	id <S315593AbSGVDSr>; Sun, 21 Jul 2002 23:18:47 -0400
+Received: from plum.csi.cam.ac.uk ([131.111.8.3]:39351 "EHLO
+	plum.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S315544AbSGVDSq>; Sun, 21 Jul 2002 23:18:46 -0400
+Message-Id: <5.1.0.14.2.20020722040423.042eb710@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 22 Jul 2002 04:22:42 +0100
+To: Andrew Morton <akpm@zip.com.au>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: O_DIRECT read and holes in 2.5.26
+Cc: Stephen Lord <lord@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D3B6D57.BB5C0F38@zip.com.au>
+References: <1026981790.1258.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch uses mempool with the slab cache as a front end for
-pte_chains. This solves 3 problems simultaneously:
+Hi Andrew,
 
-(1) providing a way to reclaim unused pages formerly on the
-	pte_chain_freelist
-(2) robustness of pte_chain allocation is increased by using mempool
-	(though OOM is still not truly handled)
-(3) lock contention on the pte_chain_freelist_lock, observed by Anton
-	Blanchard, is eliminated by means of the slab cache's per-cpu
-	mechanisms.
+At 03:26 22/07/02, Andrew Morton wrote:
+>Stephen Lord wrote:
+> > Did you realize that the new O_DIRECT code in 2.5 cannot read over holes
+> > in a file.
+>
+>Well that was intentional, although I confess to not having
+>put a lot of thought into the decision.  The user wants
+>O_DIRECT and we cannot do that.  The CPU has to clear the
+>memory by hand.  Bad.
+>
+>Obviously it's easy enough to put in the code to clear the
+>memory out.  Do you think that should be done?
 
-Someone reported that the nr_reverse_maps used K() in /proc/meminfo
-unnecessarily, and this release's only update is the reparation of that.
+I would vote for yes because whether a file is sparse or not cannot be 
+trivially controlled by the file creator (unless you actually write the 
+whole file with non-zero content) but is dependent on the underlying file 
+system... And on the grounds that a memset() is going to be a lot faster 
+than a read from device I don't see why it shouldn't be done.
 
-ps.nr_reverse_maps accounts the total number of reverse mappings
-performed, which cannot be accounted by space consumption as Dave
-McCracken's optimization of folding the pte pointer for a singly
-mapped page into the struct page defeats that. The nr_pte_chain_pages
-and nr_used_pte_chains_bytes are now derivable from /proc/slabinfo
-and so are removed.
+> >  The old code filled the user buffer with zeros, the new code
+> > returned EINVAL if the getblock function returns an unmapped buffer.
+> > With this exception, XFS does work with the new code - with more cpu
+> > overhead than before due to the once per page getblock calls.
+>
+>OK, thanks.  Presumably XFS has a fairly heavyweight get_block()?
+>
+>I'd be interested in seeing just how expensive that O_DIRECT
+>I/O is, and whether we need to get down and implement a
+>many-block get_block() interface.
+
+For NTFS get_block() is extremely expensive and grows O(n) with the 
+position / length / fragmentation of the file being accessed. So doing 8 * 
+get_block() for one page cache page versus 1 * get_blocks() would make a 
+factor 8 and higher difference in speed in get_block() CPU time.
+
+To give an idea of how heavy it is, get_block() may easily be linearly 
+searching and array of several hundred kilobytes and several thousand/tens 
+of thousand of entries in it, for _each_ get_block() call. And each time we 
+have to start from scratch due to having dropped the read lock we were 
+holding to give us access to the block mapping details.
+
+Note I actually have ideas how to optimize the search algorithm using a 
+binary search but even then a get_blocks() would remain 8 * faster than a 
+single one.
+
+At present instead of using get_block(), I reimplement all the VFS helpers 
+completely just for this change, so I can optimize away the "having to 
+restart the search for each block" bit. And this seems to improve the speed 
+of accessing highly fragmented files but I haven't actually done 
+measurements, so take this with a pinch of salt... "It feels faster" but it 
+could be wishful thinking...
+
+>Any numbers/profiles available?
+
+Sorry no but since I don't have an SMP machine any numbers I produce would 
+not be terribly exciting, at least for NTFS where the multiple block 
+optimization has massive influence on how locking is done at present. In 
+fact a get_blocks() interface would allow me to optimize the locking quite 
+a bit even further while making NTFS more conformant to the VFS concept of 
+having a get_block() function...
+
+Just my 2p.
+
+Best regards,
+
+         Anton
 
 
-Cheers,
-Bill
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
-
-===== fs/proc/proc_misc.c 1.31 vs edited =====
---- 1.31/fs/proc/proc_misc.c	Tue Jul 16 14:46:30 2002
-+++ edited/fs/proc/proc_misc.c	Sat Jul 20 18:42:07 2002
-@@ -161,8 +161,7 @@
- 		"Dirty:        %8lu kB\n"
- 		"Writeback:    %8lu kB\n"
- 		"PageTables:   %8lu kB\n"
--		"PteChainTot:  %8lu kB\n"
--		"PteChainUsed: %8lu kB\n",
-+		"ReverseMaps:  %8lu\n",
- 		K(i.totalram),
- 		K(i.freeram),
- 		K(i.sharedram),
-@@ -179,8 +178,7 @@
- 		K(ps.nr_dirty),
- 		K(ps.nr_writeback),
- 		K(ps.nr_page_table_pages),
--		K(ps.nr_pte_chain_pages),
--		ps.used_pte_chains_bytes >> 10
-+		ps.nr_reverse_maps
- 		);
- 
- 	return proc_calc_metrics(page, start, off, count, eof, len);
-===== include/linux/page-flags.h 1.12 vs edited =====
---- 1.12/include/linux/page-flags.h	Tue Jul 16 14:46:30 2002
-+++ edited/include/linux/page-flags.h	Sat Jul 20 18:39:12 2002
-@@ -79,8 +79,7 @@
- 	unsigned long nr_active;	/* on active_list LRU */
- 	unsigned long nr_inactive;	/* on inactive_list LRU */
- 	unsigned long nr_page_table_pages;
--	unsigned long nr_pte_chain_pages;
--	unsigned long used_pte_chains_bytes;
-+	unsigned long nr_reverse_maps;
- } ____cacheline_aligned_in_smp page_states[NR_CPUS];
- 
- extern void get_page_state(struct page_state *ret);
-===== init/main.c 1.51 vs edited =====
---- 1.51/init/main.c	Fri Jul 19 16:00:55 2002
-+++ edited/init/main.c	Sat Jul 20 16:03:02 2002
-@@ -70,7 +70,7 @@
- extern void sysctl_init(void);
- extern void signals_init(void);
- extern void buffer_init(void);
--
-+extern void pte_chain_init(void);
- extern void radix_tree_init(void);
- extern void free_initmem(void);
- 
-@@ -386,7 +386,7 @@
- 	mem_init();
- 	kmem_cache_sizes_init();
- 	pgtable_cache_init();
--
-+	pte_chain_init();
- 	mempages = num_physpages;
- 
- 	fork_init(mempages);
-===== mm/page_alloc.c 1.82 vs edited =====
---- 1.82/mm/page_alloc.c	Tue Jul 16 14:46:36 2002
-+++ edited/mm/page_alloc.c	Sat Jul 20 18:39:37 2002
-@@ -566,8 +566,7 @@
- 		ret->nr_active += ps->nr_active;
- 		ret->nr_inactive += ps->nr_inactive;
- 		ret->nr_page_table_pages += ps->nr_page_table_pages;
--		ret->nr_pte_chain_pages += ps->nr_pte_chain_pages;
--		ret->used_pte_chains_bytes += ps->used_pte_chains_bytes;
-+		ret->nr_reverse_maps += ps->nr_reverse_maps;
- 	}
- }
- 
-===== mm/rmap.c 1.3 vs edited =====
---- 1.3/mm/rmap.c	Tue Jul 16 14:46:30 2002
-+++ edited/mm/rmap.c	Sat Jul 20 18:41:35 2002
-@@ -23,6 +23,9 @@
- #include <linux/mm.h>
- #include <linux/pagemap.h>
- #include <linux/swapops.h>
-+#include <linux/mempool.h>
-+#include <linux/slab.h>
-+#include <linux/init.h>
- 
- #include <asm/pgalloc.h>
- #include <asm/rmap.h>
-@@ -50,10 +53,12 @@
- 	pte_t * ptep;
- };
- 
-+
-+static kmem_cache_t	*pte_chain_cache;
-+static mempool_t	*pte_chain_pool;
- static inline struct pte_chain * pte_chain_alloc(void);
- static inline void pte_chain_free(struct pte_chain *, struct pte_chain *,
- 		struct page *);
--static void alloc_new_pte_chains(void);
- 
- /**
-  * page_referenced - test if the page was referenced
-@@ -148,6 +153,7 @@
- 	}
- 
- 	pte_chain_unlock(page);
-+	inc_page_state(nr_reverse_maps);
- }
- 
- /**
-@@ -208,9 +214,9 @@
- #endif
- 
- out:
-+	dec_page_state(nr_reverse_maps);
- 	pte_chain_unlock(page);
- 	return;
--			
- }
- 
- /**
-@@ -355,27 +361,6 @@
-  ** functions.
-  **/
- 
--struct pte_chain * pte_chain_freelist;
--spinlock_t pte_chain_freelist_lock = SPIN_LOCK_UNLOCKED;
--
--/* Maybe we should have standard ops for singly linked lists ... - Rik */
--static inline void pte_chain_push(struct pte_chain * pte_chain)
--{
--	pte_chain->ptep = NULL;
--	pte_chain->next = pte_chain_freelist;
--	pte_chain_freelist = pte_chain;
--}
--
--static inline struct pte_chain * pte_chain_pop(void)
--{
--	struct pte_chain *pte_chain;
--
--	pte_chain = pte_chain_freelist;
--	pte_chain_freelist = pte_chain->next;
--	pte_chain->next = NULL;
--
--	return pte_chain;
--}
- 
- /**
-  * pte_chain_free - free pte_chain structure
-@@ -391,15 +376,12 @@
- static inline void pte_chain_free(struct pte_chain * pte_chain,
- 		struct pte_chain * prev_pte_chain, struct page * page)
- {
--	mod_page_state(used_pte_chains_bytes, -sizeof(struct pte_chain));
- 	if (prev_pte_chain)
- 		prev_pte_chain->next = pte_chain->next;
- 	else if (page)
- 		page->pte.chain = pte_chain->next;
- 
--	spin_lock(&pte_chain_freelist_lock);
--	pte_chain_push(pte_chain);
--	spin_unlock(&pte_chain_freelist_lock);
-+	mempool_free(pte_chain, pte_chain_pool);
- }
- 
- /**
-@@ -411,45 +393,38 @@
-  */
- static inline struct pte_chain * pte_chain_alloc()
- {
--	struct pte_chain * pte_chain;
--
--	spin_lock(&pte_chain_freelist_lock);
--
--	/* Allocate new pte_chain structs as needed. */
--	if (!pte_chain_freelist)
--		alloc_new_pte_chains();
--
--	/* Grab the first pte_chain from the freelist. */
--	pte_chain = pte_chain_pop();
-+	return (struct pte_chain *)mempool_alloc(pte_chain_pool, GFP_ATOMIC);
-+}
- 
--	spin_unlock(&pte_chain_freelist_lock);
-+static void *pte_chain_pool_alloc(int gfp_mask, void *ignored)
-+{
-+	(void)gfp_mask;
-+	(void)ignored;
-+	return kmem_cache_alloc(pte_chain_cache, GFP_ATOMIC);
-+}
- 
--	mod_page_state(used_pte_chains_bytes, sizeof(struct pte_chain));
--	return pte_chain;
-+static void pte_chain_pool_free(void *pte_chain, void *ignored)
-+{
-+	kmem_cache_free(pte_chain_cache, pte_chain);
- }
- 
--/**
-- * alloc_new_pte_chains - convert a free page to pte_chain structures
-- *
-- * Grabs a free page and converts it to pte_chain structures. We really
-- * should pre-allocate these earlier in the pagefault path or come up
-- * with some other trick.
-- *
-- * Note that we cannot use the slab cache because the pte_chain structure
-- * is way smaller than the minimum size of a slab cache allocation.
-- * Caller needs to hold the pte_chain_freelist_lock
-- */
--static void alloc_new_pte_chains()
-+void __init pte_chain_init(void)
- {
--	struct pte_chain * pte_chain = (void *) get_zeroed_page(GFP_ATOMIC);
--	int i = PAGE_SIZE / sizeof(struct pte_chain);
-+	pte_chain_cache = kmem_cache_create(	"pte_chain",
-+						sizeof(struct pte_chain),
-+						0,
-+						0,
-+						NULL,
-+						NULL);
- 
--	if (pte_chain) {
--		inc_page_state(nr_pte_chain_pages);
--		for (; i-- > 0; pte_chain++)
--			pte_chain_push(pte_chain);
--	} else {
--		/* Yeah yeah, I'll fix the pte_chain allocation ... */
--		panic("Fix pte_chain allocation, you lazy bastard!\n");
--	}
-+	if (!pte_chain_cache)
-+		panic("failed to create pte_chain cache!\n");
-+
-+	pte_chain_pool = mempool_create(16*1024,
-+					pte_chain_pool_alloc,
-+					pte_chain_pool_free,
-+					NULL);
-+
-+	if (!pte_chain_pool)
-+		panic("Failed to create pte_chain mempool!\n");
- }

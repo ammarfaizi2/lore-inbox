@@ -1,316 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbTKVFtb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 00:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTKVFtb
+	id S262055AbTKVGvy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 01:51:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbTKVGvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 00:49:31 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:26387 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262041AbTKVFtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 00:49:23 -0500
-Date: Sat, 22 Nov 2003 06:49:04 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test9-mm4 oops
-Message-ID: <20031122054904.GA3656@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 22 Nov 2003 01:51:54 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:29148 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S262055AbTKVGvx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 01:51:53 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: edjard@ufam.edu.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] detailed physical memory info in fs/proc/task_mmu.c      [2.6.0-test9]
+Date: Sat, 22 Nov 2003 01:51:51 -0500
+User-Agent: KMail/1.5.1
+Cc: torvalds@osdl.org
+References: <3028.200.208.224.8.1069467302.squirrel@webmail.ufam.edu.br>
+In-Reply-To: <3028.200.208.224.8.1069467302.squirrel@webmail.ufam.edu.br>
+Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+Message-Id: <200311220151.51069.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.54.127] at Sat, 22 Nov 2003 00:51:51 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nov 21 21:25:40 middle kernel: ------------[ cut here ]------------
-Nov 21 21:25:40 middle kernel: kernel BUG at arch/i386/mm/fault.c:357!
-Nov 21 21:25:40 middle kernel: invalid operand: 0000 [#1]
-Nov 21 21:25:40 middle kernel: PREEMPT
-Nov 21 21:25:40 middle kernel: CPU:    0
-Nov 21 21:25:40 middle kernel: EIP:    0060:[schedule+1185/1456]    Not tainted VLI
-Nov 21 21:25:40 middle kernel: EFLAGS: 00010297
-Nov 21 21:25:40 middle kernel: EIP is at do_page_fault+0x371/0x50b
-Nov 21 21:25:40 middle kernel: eax: f39c0280   ebx: f39c0280   ecx: 00000000   edx: f39c0280
-Nov 21 21:25:40 middle kernel: esi: f39c02a0   edi: cebfa2c0   ebp: cfe9dfb4   esp: cfe9df0c
-Nov 21 21:25:40 middle kernel: ds: 007b   es: 007b   ss: 0068
-Nov 21 21:25:40 middle kernel: Process aplay (pid: 8321, threadinfo=cfe9c000 task=f39d1940)
-Nov 21 21:25:40 middle kernel: Stack: f39c0280 cebfa2c0 40019004 00000001 00000001 40019004 f39d1940 f5ac6340
-Nov 21 21:25:40 middle kernel:        40237000 00030002 cfe9df8c c014b86f f39c0280 f5ac6340 f5ac6640 f5ac6660
-Nov 21 21:25:40 middle kernel:        f5ac6658 000800fb f5ab8ec0 00000000 00000000 00000000 00000000 001000fb
-Nov 21 21:25:40 middle kernel: Call Trace:
-Nov 21 21:25:40 middle kernel:  [shmem_truncate+895/1008] do_mmap_pgoff+0x35f/0x660
-Nov 21 21:25:40 middle kernel:  [set_fpregs+28/80] sys_mmap2+0x9c/0xb0
-Nov 21 21:25:40 middle kernel:  [schedule+304/1456] do_page_fault+0x0/0x50b
-Nov 21 21:25:40 middle kernel:  [__func__.4+176444/376069] error_code+0x2f/0x38
-Nov 21 21:25:40 middle kernel:
-Nov 21 21:25:40 middle kernel: Code: 9e 8b 85 70 ff ff ff c7 04 24 af a3 49 c0 05 02 03 00 00 89 44 24 04 e8 0e 5f 00 00 f6 45 0c 04
-0f 84 ae fd ff ff e9 80 fe ff ff <0f> 0b 65 01 c7 a3 49 c0 8b 55 08 f6 42 32 02 74 27 8b 8d 6c ff
+On Friday 21 November 2003 21:15, edjard@ufam.edu.br wrote:
+>Hi,
+>
+>The piece of code below gives a richer information
+>at /proc/PID/status for a process PID.
+>
+>BR,
+>
+>Edjard
 
-single cpu Athlon XP system, .config:
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_BROKEN=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=16
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_HPET_TIMER=y
-CONFIG_HPET_EMULATE_RTC=y
-CONFIG_PREEMPT=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_HIGHMEM4G=y
-CONFIG_HIGHMEM=y
-CONFIG_HIGHPTE=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_ACPI_RELAXED_AML=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_AMD74XX=y
-CONFIG_BLK_DEV_HPT366=y
-CONFIG_BLK_DEV_PDC202XX_OLD=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_MAX_SD_DISKS=2
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_SYM53C8XX_2=y
-CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
-CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
-CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID5=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_TULIP=y
-CONFIG_TULIP=y
-CONFIG_TULIP_MWI=y
-CONFIG_TULIP_MMIO=y
-CONFIG_NET_PCI=y
-CONFIG_E100=y
-CONFIG_8139CP=y
-CONFIG_8139TOO=y
-CONFIG_VIA_RHINE=y
-CONFIG_VIA_RHINE_MMIO=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_NR_UARTS=4
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=y
-CONFIG_I2C=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_ISA=m
-CONFIG_I2C_VIAPRO=m
-CONFIG_I2C_SENSOR=m
-CONFIG_SENSORS_EEPROM=m
-CONFIG_SENSORS_VIA686A=m
-CONFIG_SENSORS_W83781D=m
-CONFIG_WATCHDOG=y
-CONFIG_SOFT_WATCHDOG=y
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_MGA=y
-CONFIG_RAW_DRIVER=y
-CONFIG_MAX_RAW_DEVS=256
-CONFIG_FB=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_MATROX=y
-CONFIG_FB_MATROX_G450=y
-CONFIG_FB_MATROX_G100=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONTS=y
-CONFIG_FONT_SUN12x22=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_EMU10K1=y
-CONFIG_SND_CMIPCI=y
-CONFIG_SND_INTEL8X0=y
-CONFIG_SND_VIA82XX=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_PRINTER=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_SCANNER=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-CONFIG_XFS_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=y
-CONFIG_FAT_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_NTFS_FS=y
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_SUNRPC=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_FRAME_POINTER=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRC32=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y
+Your editors line wrapping function ate the patch.
 
 -- 
-Pay attention, the wreckage seemed to declare. Some things cannot be
-undone, short of time pivoting in its groove and crawling back on itself.
-	Tad Williams - Otherland
-Debian (Unstable) GNU/Linux 2.6.0-test9-mm4 4276 bogomips 0.71 0.44
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

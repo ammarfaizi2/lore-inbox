@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbUBWKge (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 05:36:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbUBWKgd
+	id S261907AbUBWKff (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 05:35:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbUBWKff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 05:36:33 -0500
-Received: from verein.lst.de ([212.34.189.10]:51915 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261906AbUBWKga (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 05:36:30 -0500
-Date: Mon, 23 Feb 2004 11:36:13 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@osdl.org, marcel@holtmann.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Please back out the bluetooth sysfs support
-Message-ID: <20040223103613.GA5865@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, torvalds@osdl.org,
-	marcel@holtmann.org, linux-kernel@vger.kernel.org
+	Mon, 23 Feb 2004 05:35:35 -0500
+Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:26030 "EHLO
+	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
+	id S261907AbUBWKfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 05:35:32 -0500
+Date: Mon, 23 Feb 2004 11:35:30 +0100
+From: Toon van der Pas <toon@hout.vanvergehaald.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: distinguish two identical network cards
+Message-ID: <20040223103529.GE4363@hout.vanvergehaald.nl>
+References: <OF3A73498C.45F49506-ONC1256E43.002FC840@fiducia.de> <200402231437.17847.krishnakumar@naturesoft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <200402231437.17847.krishnakumar@naturesoft.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch '[Bluetooth] Initial sysfs and device class support', is the
-usual misguided sysfs conversion attempt levaing oopsable races, so
-please back it out until the bluetooth folks have understood and cared
-for the lifetime rule issues of using the driver model.
+On Mon, Feb 23, 2004 at 02:37:17PM +0530, Krishnakumar. R wrote:
+> Hi,
+> 
+> If its physically identifying the cards that you want,  
+> then you can  use 'ethtool' for it.  ' -p ' option of 
+> ethtool will help you physically identify the cards.
 
-Guys, if you do use the driver model you have to adhere to it's life
-time rules.  And that's most importantely you _must_ free the device
-only in it's ->release routine.
+Also, look into the 'nameif' utility.
+It enables you to assign interface names to MAC addresses.
+Great tool!
 
-And no, the code doesn't warn about the lack of a release method only
-that everyone adds an empty one, sigh..
+Regards,
+Toon.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,82 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265634AbSJXTyL>; Thu, 24 Oct 2002 15:54:11 -0400
+	id <S265624AbSJXTv2>; Thu, 24 Oct 2002 15:51:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265635AbSJXTyL>; Thu, 24 Oct 2002 15:54:11 -0400
-Received: from crete.csd.uch.gr ([147.52.16.2]:59357 "EHLO crete.csd.uch.gr")
-	by vger.kernel.org with ESMTP id <S265634AbSJXTyJ>;
-	Thu, 24 Oct 2002 15:54:09 -0400
-Organization: 
-Date: Fri, 25 Oct 2002 03:59:13 +0300 (EEST)
-From: Panagiotis Papadakos <papadako@csd.uoc.gr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [CFT] faster athlon/duron memory copy implementation
-In-Reply-To: <3DB84C3E.1070709@colorfullife.com>
-Message-ID: <Pine.GSO.4.44.0210250355450.4299-100000@oneiro.csd.uch.gr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265626AbSJXTv2>; Thu, 24 Oct 2002 15:51:28 -0400
+Received: from ma-northadams1b-3.bur.adelphia.net ([24.52.166.3]:1664 "EHLO
+	ma-northadams1b-3.bur.adelphia.net") by vger.kernel.org with ESMTP
+	id <S265624AbSJXTv2>; Thu, 24 Oct 2002 15:51:28 -0400
+Date: Thu, 24 Oct 2002 15:53:49 -0400
+From: Eric Buddington <eric@ma-northadams1b-3.bur.adelphia.net>
+To: "David C. Hansen" <haveblue@us.ibm.com>
+Cc: ebuddington@wesleyan.edu, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.44-ac2: stack overflow in acpi_initialize_objects
+Message-ID: <20021024155349.A217@ma-northadams1b-3.bur.adelphia.net>
+Reply-To: ebuddington@wesleyan.edu
+References: <20021024102034.A102@ma-northadams1b-3.bur.adelphia.net> <1035478619.9081.17.camel@nighthawk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1035478619.9081.17.camel@nighthawk>; from haveblue@us.ibm.com on Thu, Oct 24, 2002 at 09:56:59AM -0700
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 24, 2002 at 09:56:59AM -0700, David C. Hansen wrote:
+> On Thu, 2002-10-24 at 07:20, Eric Buddington wrote:
+> > 2.5.44-ac2 compiled for Athlon with gcc-3.2 fails to boot with a
+> > really exciting stack overflow that dumps hordes of stack trace on the
+> > screen. I'm too lazy to write it all down, but the last line before
+> > 'init' refers to acpi_initialize_objects.
+> 
+> Does it panic, or just print out a lot of the traces?  
 
-ASUS K7V 512 Mb PC-133 Athlon Slot-A 600 MhZ
+It panics, and yes, it's a very long list (So I can't tell what's at
+the top of it). I'm trying to get a proper record via serial-console,
+but can't find my adapters. I'll post it as soon as I can get it...
 
-bash-2.05# cat /proc/cpuinfo
-processor	: 0
-vendor_id	: AuthenticAMD
-cpu family	: 6
-model		: 2
-model name	: AMD Athlon(tm) Processor
-stepping	: 1
-cpu MHz		: 618.008
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips	: 1232.07
-
-bash-2.05# ./athlon
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
-
-copy_page() tests
-copy_page function 'warm up run'	 took 10096 cycles per page
-copy_page function '2.4 non MMX'	 took 14856 cycles per page
-copy_page function '2.4 MMX fallback'	 took 14168 cycles per page
-copy_page function '2.4 MMX version'	 took 10754 cycles per page
-copy_page function 'faster_copy'	 took 5752 cycles per page
-copy_page function 'even_faster'	 took 5694 cycles per page
-copy_page function 'no_prefetch'	 took 6560 cycles per page
-
-bash-2.05# ./athlon
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
-
-copy_page() tests
-copy_page function 'warm up run'	 took 10851 cycles per page
-copy_page function '2.4 non MMX'	 took 14726 cycles per page
-copy_page function '2.4 MMX fallback'	 took 14390 cycles per page
-copy_page function '2.4 MMX version'	 took 11390 cycles per page
-copy_page function 'faster_copy'	 took 5490 cycles per page
-copy_page function 'even_faster'	 took 5655 cycles per page
-copy_page function 'no_prefetch'	 took 5906 cycles per page
-
-
-bash-2.05# ./athlon
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
-
-copy_page() tests
-copy_page function 'warm up run'	 took 9819 cycles per page
-copy_page function '2.4 non MMX'	 took 14897 cycles per page
-copy_page function '2.4 MMX fallback'	 took 15609 cycles per page
-copy_page function '2.4 MMX version'	 took 10374 cycles per page
-copy_page function 'faster_copy'	 took 5759 cycles per page
-copy_page function 'even_faster'	 took 5609 cycles per page
-copy_page function 'no_prefetch'	 took 6059 cycles per page
-
-
+-Eric

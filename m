@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266091AbUBQGO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 01:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266037AbUBQGO6
+	id S266070AbUBQGb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 01:31:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266075AbUBQGb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 01:14:58 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:487 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266094AbUBQGOH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 01:14:07 -0500
-Date: Tue, 17 Feb 2004 01:13:59 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Valdis.Kletnieks@vt.edu
-cc: Chris Wright <chrisw@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH} 2.6 and grsecurity 
-In-Reply-To: <200402170237.i1H2bb3r008280@turing-police.cc.vt.edu>
-Message-ID: <Xine.LNX.4.44.0402170110400.19316-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Feb 2004 01:31:58 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:18052 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S266070AbUBQGb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 01:31:56 -0500
+Subject: Re: Linux 2.6.3-rc4 (nforce2)
+From: Len Brown <len.brown@intel.com>
+To: Felix Seeger <felix.seeger@gmx.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F262D@hdsmsx402.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615F262D@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1076999506.2510.36.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 17 Feb 2004 01:31:46 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Feb 2004 Valdis.Kletnieks@vt.edu wrote:
 
-> On Mon, 16 Feb 2004 18:15:46 PST, Chris Wright said:
-> > * Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu) wrote:
-> > > Here's the patch, versioned against 2.6.3-rc3-mm1. Comments?
-> > 
-> > Aside of the dubious security value...the typical no #ifdefs apply here.
-> 
-> Agreed - the only one that seems at all a *big* win is randomizing PID's
-> (and even there it probably should default a higher value for pid_max to
-> increase the search space).  But as long as I was looking at it anyhow.. :)
+> Should NForce2 boards also work without patches and with acpi/apic ?
+> I saw a change in rc3.
 
-How is this a big win?  Looks like cargo cult security to me.
+Some will, some will not.  Note that Maciej's patch didn't address the
+nforce2 timer configuration issue, which I believe requires a
+platform-specific nforce2 patch.
 
+> It just hangs again, so I switched back to my patched kernel.
+> But of course this could be another problem, kernel 2.6.2-rc1 is
+> running very 
+> stable here with the apictack-rd and the ioapic-rd patches.
 
-> > > + * 3. All advertising materials mentioning features or use of this softwar
-> e
-> > > + *    must display the following acknowledgement:
-> > > + *    This product includes software developed by Niels Provos.
-> > 
-> > Advertsing clause...this is not GPL compatible.
-> 
+Dunno what those are, but if you still require ACPI-related patches,
+please let me know.
 
-> Or they OK because they're only doing a separately distributed patch?
-
-No.
-
-
-- james
--- 
-James Morris
-<jmorris@redhat.com>
+thanks,
+-Len
 
 

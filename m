@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261916AbTCaXfl>; Mon, 31 Mar 2003 18:35:41 -0500
+	id <S261951AbTCaXvO>; Mon, 31 Mar 2003 18:51:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261927AbTCaXfl>; Mon, 31 Mar 2003 18:35:41 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:16771 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S261916AbTCaXfj>; Mon, 31 Mar 2003 18:35:39 -0500
-Date: Mon, 31 Mar 2003 15:45:08 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Roman Zippel <zippel@linux-m68k.org>, bert hubert <ahu@ds9a.nl>,
-       Greg KH <greg@kroah.com>, Andries.Brouwer@cwi.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Wim Coekaerts <Wim.Coekaerts@oracle.com>
-Subject: Re: 64-bit kdev_t - just for playing
-Message-ID: <20030331234508.GQ32000@ca-server1.us.oracle.com>
-References: <Pine.LNX.4.44.0303280008530.5042-100000@serv> <20030327234820.GE1687@kroah.com> <Pine.LNX.4.44.0303281031120.5042-100000@serv> <20030328180545.GG32000@ca-server1.us.oracle.com> <Pine.LNX.4.44.0303281924530.5042-100000@serv> <20030331083157.GA29029@outpost.ds9a.nl> <Pine.LNX.4.44.0303311039190.5042-100000@serv> <20030331172403.GM32000@ca-server1.us.oracle.com> <Pine.LNX.4.44.0303312215020.5042-100000@serv> <1049149133.1287.1.camel@dhcp22.swansea.linux.org.uk>
+	id <S261952AbTCaXvN>; Mon, 31 Mar 2003 18:51:13 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:32461 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id <S261951AbTCaXvM>;
+	Mon, 31 Mar 2003 18:51:12 -0500
+Date: Mon, 31 Mar 2003 16:02:12 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: piggin@cyberone.com.au, helgehaf@aitel.hist.no, erik@hensema.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Delaying writes to disk when there's no need
+Message-Id: <20030331160212.57a9646c.akpm@digeo.com>
+In-Reply-To: <20030401013258.G626@nightmaster.csn.tu-chemnitz.de>
+References: <slrnb843gi.2tt.usenet@bender.home.hensema.net>
+	<20030328231248.GH5147@zaurus.ucw.cz>
+	<slrnb8gbfp.1d6.erik@bender.home.hensema.net>
+	<3E8845A8.20107@aitel.hist.no>
+	<3E88BAF9.8040100@cyberone.com.au>
+	<20030331144500.17bf3a2e.akpm@digeo.com>
+	<20030401013258.G626@nightmaster.csn.tu-chemnitz.de>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1049149133.1287.1.camel@dhcp22.swansea.linux.org.uk>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Apr 2003 00:02:29.0748 (UTC) FILETIME=[FC9A7B40:01C2F7E1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31, 2003 at 11:18:54PM +0100, Alan Cox wrote:
-> Glibc already has a bigger dev_t
+Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de> wrote:
+>
+> On Mon, Mar 31, 2003 at 02:45:00PM -0800, Andrew Morton wrote:
+> > It could have pretty bad failure modes.  Short-lived files in /tmp now
+> > perform writeout, which needs to be waited on when those files are removed.
+> 
+> /tmp is not a problem, because this can be fixed by using tmpfs
+> (I use 2GB of it with 1GB of RAM).
 
-	Yes, but they hand-map 8:8 in functions like xmknod().  They
-should really be using macros.
+I don't.   These files get unlinked before they hit disk.
 
-Joel
+> The disk is idle, so this is not about performance, but power
+> consumption. Spinning up a disk costs around 1-2 seconds, so you
+> should come in with at least the amount of data you write in 1-2
+> seconds for a spun down disk.
 
--- 
+The requirements for portable computers are totally different.  You'd turn
+the whole thing off for them.
 
-Life's Little Instruction Book #314
-
-	"Never underestimate the power of forgiveness."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

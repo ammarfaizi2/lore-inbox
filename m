@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314553AbSHDNTC>; Sun, 4 Aug 2002 09:19:02 -0400
+	id <S315265AbSHDNZP>; Sun, 4 Aug 2002 09:25:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314707AbSHDNTC>; Sun, 4 Aug 2002 09:19:02 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:34317 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S314553AbSHDNTB>;
-	Sun, 4 Aug 2002 09:19:01 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 make allmodconfig - undefined symbols 
-In-reply-to: Your message of "Sun, 04 Aug 2002 14:35:13 +0200."
-             <20020804123513.GC13316@alpha.home.local> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 04 Aug 2002 23:22:24 +1000
-Message-ID: <1876.1028467344@ocs3.intra.ocs.com.au>
+	id <S315266AbSHDNZP>; Sun, 4 Aug 2002 09:25:15 -0400
+Received: from mail.hometree.net ([212.34.181.120]:50655 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S315265AbSHDNZO>; Sun, 4 Aug 2002 09:25:14 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: No Subject
+Date: Sun, 4 Aug 2002 13:28:46 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <aija6e$brm$1@forge.intermeta.de>
+References: <1028417880.1760.52.camel@irongate.swansea.linux.org.uk> <Pine.SOL.4.30.0208040049140.696-100000@mion.elka.pw.edu.pl>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1028467726 23134 212.34.181.4 (4 Aug 2002 13:28:46 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sun, 4 Aug 2002 13:28:46 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Aug 2002 14:35:13 +0200, 
-Willy Tarreau <willy@w.ods.org> wrote:
->On Sun, Aug 04, 2002 at 08:13:20PM +1000, Keith Owens wrote:
->> 2.4.19 make allmodconfig.  Besides the perennial drivers/net/wan/comx.o
->> wanting proc_get_inode, there was only one undefined symbol.  In the
->> extremely unlikely event that binfmt_elf is a module (how do you load
->> modules when binfmt_elf is a module?), smp_num_siblings is unresolved.
->
->I also get an unresolved reference to __io_virt_debug in misc.o:puts()
->when building bzImage. If you don't get it, it means that my tree is
->corrupted.
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> writes:
 
-Neither.  It is a problem with CONFIG_DEBUG_IOVIRT which allmod and
-allyesconfig turn on.  My builds stop at vmlinux and do not build
-bzImage so I did not detect this problem.  The outb_p calls in misc.c
-need fixing for CONFIG_DEBUG_IOVIRT=y, or force CONFIG_DEBUG_IOVIRT=n.
+>On 4 Aug 2002, Alan Cox wrote:
 
-Interesting that the comment for CONFIG_DEBUG_IOVIRT says "Temporary
-debugging check to catch old code using unmapped ISA addresses. Will be
-removed in 2.4".
+>> On Sat, 2002-08-03 at 23:16, Bartlomiej Zolnierkiewicz wrote:
+>> > Just rethough it. What if chipset is in compatibility mode?
+>> > Like VIA with base addresses set to 0?
+>>
+>> If we found a register that was marked as unassigned with a size then we
+>> would map it to a PCI address. That would go for BAR0-3 on any PCI IDE
+>> device attached to the south bridge.
+>>
+>> What problems does that cause for the VIA stuff ?
 
+>In compatibility mode IDE chipsets have IO at legacy ISA ports and
+>PCI_BASE_ADDRESS0-3 are set to them or to zero (at least on VIA).
+>And they can't be programmed to any other ports (unless native mode).
+
+Hi,
+
+this sounds like a problem that I have with the ServerWorks OSB5
+chipset. I actually have PCI_BASE_ADDRESS0-3 at 0 and
+PCI_BASE_ADDRESS4 = 0x3a0.
+
+Does this hold true here, too? Or is this VIA specific?
+
+	Regards
+		Henning
+
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,80 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbULGFwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbULGGKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbULGFwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 00:52:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbULGFwQ
+	id S261765AbULGGKa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 01:10:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbULGGK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 00:52:16 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:46831 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261760AbULGFwK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 00:52:10 -0500
-Date: Tue, 7 Dec 2004 11:23:48 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kprobes: dont steal interrupts from vm86
-Message-ID: <20041207055348.GA1305@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-References: <20041109130407.6d7faf10.akpm@osdl.org> <20041110104914.GA3825@in.ibm.com> <4192638C.6040007@aknet.ru> <20041117131552.GA11053@in.ibm.com> <41B1FD4B.9000208@aknet.ru>
+	Tue, 7 Dec 2004 01:10:29 -0500
+Received: from smtp2.eldosales.com ([63.78.12.18]:7443 "EHLO
+	tweeter.eldosales.com") by vger.kernel.org with ESMTP
+	id S261765AbULGGKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 01:10:24 -0500
+Posted-Date: Mon, 6 Dec 2004 23:10:23 -0700
+Subject: qla2xxx fail over bug?
+From: comsatcat <comsatcat@earthlink.net>
+Reply-To: comsatcat@earthlink.net
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Mon, 06 Dec 2004 23:09:59 -0700
+Message-Id: <1102399799.12866.3.camel@solaris.skunkware.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41B1FD4B.9000208@aknet.ru>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stas,
+Hello,
 
-> I've found yet another bug in this
-> very same piece of code. Now I can
-> reproduce the interrupt theft without
-> using either vm86() or modify_ldt().
+I'm doing fail over testing with a Qlogic 2344 (only using ports 1 and
+2).  I've successfully failed over from 1 port to 2, then failed back to
+port 1, however, when I pull both cables, then plug in port 2 or 1, fail
+over will not take affect.  I am required to plug in both cables in
+order to get the devices back online.
 
-The patch below should fix this problem. Please
-let me know if you any issues.
+I got the following messages from the qla2xxx driver when I plugged a
+single cable back in after pulling both:
 
-Regards
-Prasanna
+Dec  6 23:05:26 fe-nntp-07 kernel: qla2x00: no more failovers for
+request - pid= 2210820
 
+This message would scroll continuously.
 
+Any comments or ideas?  Is this a bug or a feature?
 
-Stas repoted that kprobes steals int3 exceptions when not in 
-virtual-8086 mode. This patch fixes the problem by returning 0,
-if the int3 exceptions does not belong to kprobes.
+Thanks,
+Ben
 
-Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-
-
----
-
- linux-2.6.10-rc3-prasanna/arch/i386/kernel/kprobes.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-diff -puN arch/i386/kernel/kprobes.c~kprobes-steals-int3 arch/i386/kernel/kprobes.c
---- linux-2.6.10-rc3/arch/i386/kernel/kprobes.c~kprobes-steals-int3	2004-12-07 11:20:33.000000000 +0530
-+++ linux-2.6.10-rc3-prasanna/arch/i386/kernel/kprobes.c	2004-12-07 11:20:34.000000000 +0530
-@@ -127,10 +127,10 @@ static inline int kprobe_handler(struct 
- 			 * The breakpoint instruction was removed right
- 			 * after we hit it.  Another cpu has removed
- 			 * either a probepoint or a debugger breakpoint
--			 * at this address.  In either case, no further
--			 * handling of this interrupt is appropriate.
-+			 * at this address. In either case, kprobes
-+			 * need not handle it.
- 			 */
--			ret = 1;
-+			ret = 0;
- 		}
- 		/* Not one of ours: let kernel handle it */
- 		goto no_kprobe;
-
-_
--- 
-
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>

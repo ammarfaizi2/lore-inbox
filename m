@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264844AbSLLRWM>; Thu, 12 Dec 2002 12:22:12 -0500
+	id <S264854AbSLLRXY>; Thu, 12 Dec 2002 12:23:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264853AbSLLRWM>; Thu, 12 Dec 2002 12:22:12 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:56484 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264844AbSLLRWL> convert rfc822-to-8bit; Thu, 12 Dec 2002 12:22:11 -0500
+	id <S264857AbSLLRXY>; Thu, 12 Dec 2002 12:23:24 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:39650 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264854AbSLLRXX> convert rfc822-to-8bit; Thu, 12 Dec 2002 12:23:23 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Andreas Schaufler <andreas.schaufler@gmx.de>
-To: Andrew Morton <akpm@digeo.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: NFS mounted rootfs possible via PCMCIA NIC ?
-Date: Thu, 12 Dec 2002 18:29:41 +0100
+Date: Thu, 12 Dec 2002 18:29:46 +0100
 User-Agent: KMail/1.4.3
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200212112253.57325.andreas.schaufler@gmx.de> <3DF7BD7F.85C6FEA0@digeo.com>
-In-Reply-To: <3DF7BD7F.85C6FEA0@digeo.com>
+References: <200212112253.57325.andreas.schaufler@gmx.de> <1039648320.18467.49.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1039648320.18467.49.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200212121829.42237.andreas.schaufler@gmx.de>
+Message-Id: <200212121829.46465.andreas.schaufler@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+...
+> PCMCIA relies in part on user space. You can do this, it involves
+> building a large initrd with a dhcp client on it that sets up pcmcia,
+> then nfs mounts stuff, then pivot_root()'s into it. Its not exactly
+> trivial
 
+Thanks for your reply. I get the basic idea from what you say. But what do you 
+mean by pivot_root()'ing into it ?!?
 
-> > Hello list,
-> >
-> > I am trying to configure a notebook with a PCMCIA NIC to boot over
-> > network. (kernel 2.4.20)
->
-> Nope.  The kernel does the NFS thing before bringing up cardbus.
->
-> This patch worked, back in the 2.4.17 days.  It also fixes some
-> cardbus bugs.  I don't immediately recall what they were.
-
-
-I got the 2.4.17 sources and applied the patch. yenta.c and main.c could not 
-be patched automatically, so I tried to apply it by hand line by line.
-Unfortunately when I boot a kernel compiled witch this modified sources I get 
-an "Unable to handle kernel pagin request at virtual address 0000413d"
-
-Maybe this patch is to be used on some Pre Version of 2.4.17 ?!?!
+I'll try Andrew Morton's suggestion first, because it sounds easier. If I 
+can't get it running I'll try your suggestion.
 
 regards
-- -Andreas
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9+MeFhFLSFNIrGmsRAg0HAJ0RBZ/WKDxvv8YXXTLbT7REnqoVowCcC8tL
-sGgZre0DIZOAdFVW6kn56rg=
-=23D5
------END PGP SIGNATURE-----
-
+-Andreas

@@ -1,51 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266169AbUFUJTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUFUJRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266169AbUFUJTp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 05:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266171AbUFUJTo
+	id S266170AbUFUJRp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 05:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266171AbUFUJRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 05:19:44 -0400
-Received: from 168-226-89-34.speedy.com.ar ([168.226.89.34]:57353 "HELO
-	hotmail.com") by vger.kernel.org with SMTP id S266169AbUFUJTn convert rfc822-to-8bit
+	Mon, 21 Jun 2004 05:17:45 -0400
+Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:50065 "HELO
+	lpbproductions.com") by vger.kernel.org with SMTP id S266170AbUFUJRn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 05:19:43 -0400
-From: "Romia Fersi" <castr@alex4all.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: linux-kernel@vger.kernel.org
-Date: Mon, 21 Jun 2004 06:19:33 -0300
-Reply-To: "Romia Fersi" <ggesstor@hotmail.com>
-Message-ID: <32348739.20040621061933@alex4all.com>
+	Mon, 21 Jun 2004 05:17:43 -0400
+From: "Matt H." <lkml@lpbproductions.com>
+Reply-To: lkml@lpbproduction.scom
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.7-bk way too fast
+Date: Mon, 21 Jun 2004 02:17:26 -0700
+User-Agent: KMail/1.6.52
+Cc: Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <40D64DF7.5040601@pobox.com> <20040621014837.6b52fa2e.akpm@osdl.org>
+In-Reply-To: <20040621014837.6b52fa2e.akpm@osdl.org>
 MIME-Version: 1.0
-X-Priority: 3 (Normal)
-Importance: Normal
-X-Mailer: EM: 4.40.0.600
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200406210217.27389.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux-kernel
-Usted sabe que si su sitio web esta indexado en buscadores
-USTED VENDE MAS
+Andrew,
 
-Pero de nada sirve aparecer en el puesto 24.728 de Google o Yahoo...
+That fixes it perfectly here, 
 
-Si quiere que su web este BIEN INDEXADA en la mayoria de los buscadores...
+Thanks.
 
-ESTE MAIL ES PARA USTED
+Matt H.
 
-1- Revisamos y corregimos los METATAGS de su sitio
-2- Damos una adecuada ALTA EN BUSCADORES
-3- Si es necesario creamos PAGINAS ESPEJO para hacer subir su web hasta el Top del Ranking
-
-Para mas informacion sobre este y otros metodos de promocion en internet
-visite http://www.publicidadglobal.com.ar
-Aclare sus dudas al tel 15-4427-1044 lunes a domingos 10 a 21 hs
->> INGRESE A NUESTRA WEB Y SOLICITE EL ANALISIS GRATUITO DE SU SITIO WEB
-PARA SER DADO DE ALTA EN BUSCADORES << 
-
-Este mail se envia por unica vez a linux-kernel@vger.kernel.org
-No hace falta removerse.
-Gracias Linux-kernel
-
-
+On Monday 21 June 2004 1:48 am, Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> > Something is definitely screwy with the latest -bk.
+>
+> Would you believe that there is a totally separate bug in the latest -mm
+> which has exactly the same symptoms?
+>
+> mark_offset_tsc() does
+>
+> 	if (lost && abs(delay - delay_at_last_interrupt) > (900000/HZ))
+> 		jiffies_64++;
+>
+> which is doing abs(unsigned long).
+>
+> Which works OK if abs() in a function, but I made it a macro.
+>
+> This fixes it up.
+>
+>
+> diff -puN include/linux/kernel.h~abs-fix-fix include/linux/kernel.h
+> --- 25/include/linux/kernel.h~abs-fix-fix	2004-06-21 01:42:24.283873616
+> -0700 +++ 25-akpm/include/linux/kernel.h	2004-06-21 01:43:08.150204920
+> -0700 @@ -55,7 +55,12 @@ void __might_sleep(char *file, int line)
+>  #endif
+>
+>  #define abs(x) ({				\
+> -		typeof(x) __x = (x);		\
+> +		int __x = (x);			\
+> +		(__x < 0) ? -__x : __x;		\
+> +	})
+> +
+> +#define labs(x) ({				\
+> +		long __x = (x);			\
+>  		(__x < 0) ? -__x : __x;		\
+>  	})
+>
+> _
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

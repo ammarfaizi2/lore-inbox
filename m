@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVBRDWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVBRDcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbVBRDWz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 22:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVBRDWz
+	id S261282AbVBRDcj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 22:32:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVBRDci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 22:22:55 -0500
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:20355 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261261AbVBRDWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 22:22:52 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: [PATCH] add umask parameter to procfs
-To: Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Rene Scharfe <rene.scharfe@lsrfire.ath.cx>,
-       viro@parcelfarce.linux.theplanet.co.uk
-Reply-To: 7eggert@gmx.de
-Date: Fri, 18 Feb 2005 04:22:49 +0100
-References: <fa.h7bdq0l.im6ej1@ifi.uio.no> <fa.fep4kfp.gmci2d@ifi.uio.no>
-User-Agent: KNode/0.7.7
+	Thu, 17 Feb 2005 22:32:38 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:11651 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261232AbVBRDch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 22:32:37 -0500
+Message-ID: <421561C1.1050406@nortel.com>
+Date: Thu, 17 Feb 2005 21:32:17 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1D1yjD-00035Y-5u@be1.7eggert.dyndns.org>
+To: parker@citynetwireless.net
+CC: arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: Please open sysfs symbols to proprietary modules
+References: <20050217231304.GA18940@core.citynetwireless.net>
+In-Reply-To: <20050217231304.GA18940@core.citynetwireless.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl <herbert@13thfloor.at> wrote:
-> On Thu, Feb 17, 2005 at 03:41:19PM -0800, Andrew Morton wrote:
->> Rene Scharfe <rene.scharfe@lsrfire.ath.cx> wrote:
+parker@citynetwireless.net wrote:
+> On Thu, 03 Feb 2005 09:41:00 +0100, Arjan van de Ven <arjan@infradead.org> wrote:
 
->> > Add proc.umask kernel parameter.  It can be used to restrict permissions
->> > on the numerical directories in the root of a proc filesystem, i.e. the
->> > directories containing process specific information.
->> > 
->> > E.g. add proc.umask=077 to your kernel command line and all users except
->> > root can only see their own process details (like command line
->> > parameters) with ps or top.  It can be useful to add a bit of privacy to
->> > multi-user servers.
+>>I suggest you talk to a lawyer and review the general comments about
+>>binary modules with him (http://people.redhat.com/arjanv/COPYING.modules
+>>for example). You are writing an addition to linux from scratch, and it
+>>is generally not considered OK to do that in binary form (I certainly do
+>>not consider it OK).
 
->> The feature seems fairly obscure, although very simple.
->> Is anyone actually likely to use this?
+> So what about companies like ImageStream who write proprietary Linux network
+> drivers for their hardware from scratch with no previous ports from another OS?
 
-I'm using a openwall-patched kernel on some of my boxes with a similar
-feature. I did not yet test this patch, but I like it. It's cheap, and
-it fixes a potential security leak.
+Obviously he doesn't consider that to be okay, and those companies are 
+taking a risk that someone will take legal action against them.
 
-> what about parents (and especially the init process)
-> some tools like pstree (or ps in certain cases) depend
-> on their visibility/accessability ...
-
-pstree will break if /proc/1 isn't readable, unless you specify a readable
-starting pid. Since this is not the default case, this is IMO ok. (It should
-be easy to rewrite it to trace the ppid-chains like "ps auxf" already does
-correctly, or rather implement it in ps where it belongs).
-
-None of my other tools seemed to stop working in an unintended way, but I
-don't usurally spend my time watching processes.
-
-Sample output of "ps auxf" on a openwall-patched system:
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-7eggert  22504  5.0  3.5  2800 1608 pts/4    S    04:14   0:00 -bash
-7eggert  22522  0.0  1.7  2856  792 pts/4    R    04:14   0:00  \_ ps auxf
-7eggert  22483  2.3  3.4  2800 1588 pts/2    S    04:14   0:00 -bash
-
-> what if you want to change it afterwards (when tools
-> did break)?
-
-Change the kernel command line back and reboot (or reload the module).
-
+Chris

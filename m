@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281935AbRKURbd>; Wed, 21 Nov 2001 12:31:33 -0500
+	id <S281936AbRKURf0>; Wed, 21 Nov 2001 12:35:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281934AbRKURbX>; Wed, 21 Nov 2001 12:31:23 -0500
-Received: from ns0.dhm-systems.de ([195.126.154.163]:21004 "EHLO
-	ns0.dhm-systems.de") by vger.kernel.org with ESMTP
-	id <S281927AbRKURbQ>; Wed, 21 Nov 2001 12:31:16 -0500
-Message-ID: <3BFBE4DB.44D9ACCF@web-systems.net>
-Date: Wed, 21 Nov 2001 18:31:08 +0100
-From: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>
-Reply-To: Ado.Arnolds@dhm-systems.de
-Organization: DHM GmbH & Co. KG
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: de, en, fr, ru
+	id <S281934AbRKURfQ>; Wed, 21 Nov 2001 12:35:16 -0500
+Received: from maild.telia.com ([194.22.190.101]:16069 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id <S281927AbRKURfD>;
+	Wed, 21 Nov 2001 12:35:03 -0500
+Message-Id: <200111211734.fALHYla18640@d1o849.telia.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Jakob Kemi <jakob.kemi@telia.com>
+To: marcel@mesa.nl, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: New ac patch???
+Date: Wed, 21 Nov 2001 18:34:17 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Dominik Kubla <kubla@sciobyte.de>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org,
+        andre@linux-ide.org
+In-Reply-To: <20011121120033.C21032@duron.intern.kubla.de> <E166VIr-0004ik-00@the-village.bc.nu> <20011121132333.F15851@joshua.mesa.nl>
+In-Reply-To: <20011121132333.F15851@joshua.mesa.nl>
 MIME-Version: 1.0
-To: dalecki@evision.ag
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: fs/exec.c and binfmt-xxx in 2.4.14
-In-Reply-To: <3BFBDD32.434AB47B@web-systems.net> <3BFBDFA5.DDA1CC98@evision-ventures.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
-> 
-> Heinz-Ado Arnolds wrote:
+On Wednesdayen den 21 November 2001 13.23, Marcel J.E. Mol wrote:
+> On Wed, Nov 21, 2001 at 11:12:28AM +0000, Alan Cox wrote:
+> > > > Not exaclty. It is a 48Gig drive in a dell inspiron 8000. I think it
+> > > > is IBM but the logs do not show a brandname. I can try open up the
+> > > > case tonight if you want to know for sure?
+> > >
+> > > It's an IBM IC25T048ATDA05-0 to be precise.
 > >
-> > Hi Linus, Hi Alan, Hi all,
-> >
-> > I have a problem with loading modules for binary formats. The
-> > reason for this problem shows up in fs/exec.c search_binary_handler().
-> >
-> > Starting with linux-2.1.23 (and up to 2.4.14) there was a change
-> > in the format and offset of printing the magic number for requesting
-> > a handler module. Up to 2.1.22 the statement
-> 
-> That is a time span of several years during which nobody realized
-> there was a problem with this. Therefore I would rather
-> request for removal of the whole binfmt-misc stuff (which is ugly
-> anyway)
-> rather then "fixing it" ;-)
+> > Thanks. It seems IBM laptop drives are the ones that specifically need
+> > this fix. That ties in with the windows 98 reports/microsoft fixes.
+>
+> Would that be enough reason to add only the specific flushing code of
+> the taskfile patch (if at all possible) to the kernel? Maybe Andre is
+> willing to extract the relevant code in a seperate patch...
+>
+> -Marcel
 
-Not really. I asked for this problem back in 1999 but didn't get any
-satisfying response. Since that time me and a lot of my friends are
-applying this patch to every new kernel we install. For me and many
-other the binfmt interface is a great tool and by far not ugly stuff.
+This also affects my Desktop PC with two IBM Deskstar 60GXP 40GB drives. I'd 
+like to see it in 2.4.15.
 
--- 
-------------------------------------------------------------------------
-  Heinz-Ado Arnolds                        Ado.Arnolds@web-systems.net
-  Websystems GmbH                              +49 2234 1840-0 (voice)
-  Max-Planck-Strasse 2, 50858 Koeln, Germany   +49 2234 1840-40  (fax)
+/Jakob
+

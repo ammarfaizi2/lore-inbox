@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262194AbSKCQmj>; Sun, 3 Nov 2002 11:42:39 -0500
+	id <S262126AbSKCQdk>; Sun, 3 Nov 2002 11:33:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262196AbSKCQmj>; Sun, 3 Nov 2002 11:42:39 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:35213 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262194AbSKCQmi> convert rfc822-to-8bit; Sun, 3 Nov 2002 11:42:38 -0500
-Subject: Re: Filesystem Capabilities in 2.6?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ragnar =?ISO-8859-1?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-Cc: Bernd Eckenfels <ecki-news2002-09@lina.inka.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021103173016.E30076@vestdata.no>
-References: <1036328263.29642.23.camel@irongate.swansea.linux.org.uk>
-	<E188MXo-00074b-00@sites.inka.de>  <20021103173016.E30076@vestdata.no>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Nov 2002 17:10:24 +0000
-Message-Id: <1036343424.30679.2.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262120AbSKCQdk>; Sun, 3 Nov 2002 11:33:40 -0500
+Received: from modemcable077.18-202-24.mtl.mc.videotron.ca ([24.202.18.77]:58380
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262126AbSKCQdj>; Sun, 3 Nov 2002 11:33:39 -0500
+Date: Sun, 3 Nov 2002 11:43:24 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2.5-AC] cistpl.c pcibios_read_config_dword
+Message-ID: <Pine.LNX.4.44.0211031123520.14075-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-11-03 at 16:30, Ragnar Kjørstad wrote:
-> On Sun, Nov 03, 2002 at 04:20:08PM +0100, Bernd Eckenfels wrote:
-> > In article <1036328263.29642.23.camel@irongate.swansea.linux.org.uk> you wrote:
-> > > Namespaces is a way to inherit revocation of rights on a large scale (or
-> > > a small one true). #! is a way to handle program specific revocation of
-> > > rights which _is_ filesystem persistent.
-> > 
-> > #! would be a nice option to increase capabilities on invocation. But the
-> > final target must be linked to the invocation by an entity/revision binding.
-> > Since we do not have modification versions i could think about checksums:
-> 
-> Unfortenately it will be much harder to find all executables with
-> increased capabilities on your system. 
+Sorry untested :/
 
-You need a way to mark applications which may be run with increased
-capabilities and which ones are permitted yes, and by object not by name
+Index: linux-2.5.44-ac5/drivers/pcmcia/cistpl.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.44-ac5/drivers/pcmcia/cistpl.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 cistpl.c
+--- linux-2.5.44-ac5/drivers/pcmcia/cistpl.c	3 Nov 2002 07:19:08 -0000	1.1.1.1
++++ linux-2.5.44-ac5/drivers/pcmcia/cistpl.c	3 Nov 2002 16:32:36 -0000
+@@ -429,7 +429,7 @@
+ #ifdef CONFIG_CARDBUS
+     if (s->state & SOCKET_CARDBUS) {
+ 	u_int ptr;
+-	pcibios_read_config_dword(s->cap.cb_dev->subordinate->number, 0, 0x28, &ptr);
++	pci_read_config_dword(s->cap.cb_dev, PCI_CARDBUS_CIS, &ptr);
+ 	tuple->CISOffset = ptr & ~7;
+ 	SPACE(tuple->Flags) = (ptr & 7);
+     } else
+
+-- 
+function.linuxpower.ca
+
 

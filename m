@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272549AbRITVJ6>; Thu, 20 Sep 2001 17:09:58 -0400
+	id <S274648AbRITVFt>; Thu, 20 Sep 2001 17:05:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274649AbRITVJt>; Thu, 20 Sep 2001 17:09:49 -0400
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:32555 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S272549AbRITVJb> convert rfc822-to-8bit; Thu, 20 Sep 2001 17:09:31 -0400
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-From: Robert Love <rml@tech9.net>
-To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        Roger Larsson <roger.larsson@norran.net>, linux-kernel@vger.kernel.org,
-        ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <200109200758.f8K7wEG13675@zero.tech9.net>
-In-Reply-To: <1000939458.3853.17.camel@phantasy>
-	<20010920063143.424BD1E41A@Cantor.suse.de>
-	<20010920084131.C1629@athlon.random> 
-	<200109200758.f8K7wEG13675@zero.tech9.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Evolution-Format: text/plain
-X-Mailer: Evolution/0.13.99+cvs.2001.09.19.21.54 (Preview Release)
-Date: 20 Sep 2001 17:09:17 -0400
-Message-Id: <1001020162.6050.149.camel@phantasy>
-Mime-Version: 1.0
+	id <S274649AbRITVFi>; Thu, 20 Sep 2001 17:05:38 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:24326 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S274648AbRITVFc>; Thu, 20 Sep 2001 17:05:32 -0400
+Date: Thu, 20 Sep 2001 17:05:41 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: shutdown "anomoly" with kernel 2.4.9
+In-Reply-To: <20010920204319.4E0741F76@havoc.gtf.org>
+Message-ID: <Pine.LNX.4.33.0109201658580.15504-100000@terbidium.openservices.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-09-20 at 03:57, Dieter Nützel wrote:
-> You've forgotten a one liner.
-> 
->   #include <linux/locks.h>
-> +#include <linux/compiler.h>
-> 
-> But this is not enough. Even with reniced artsd (-20).
-> Some shorter hiccups (0.5~1 sec).
+On Thu, 20 Sep 2001, Michael G. Mobley wrote:
 
+> When running kernel 2.4.9, my system cannot reliably reboot/
+> halt/shutdown.  It hangs when killall5 sends out the TERM signal, as if
+> init itself is terminating.  This is VERY repeatable (happens pretty
+> much every time, whether the shutdown is through 'shutdown -r now',
+> 'reboot', 'halt', whatever...)
+>
+> I wouldn't have thought this is a kernel problem, but, an identical build
+> of 2.4.8 does not seem to exhibit this behavior.  And I've played around,
+> making one change at a time, and that really is the ONLY difference.
+>
+> BTW, I'm building both kernels to exactly the same config.  (diff of the
+> .configs show only three commented out sound card options that have been
+> added to 2.4.9 as differences.)
+>
+> Brief system setup is:
+>
+> 1xPIII/800, Asus P3V4X MB, 640MB RAM
+> AHA29160 SCSI controller w/ 3 HDDs, 2 CDROMs
+> No IDE
+> USB, AGP, etc...
+> etc. etc...  (Can provide more details if needed)
+> GCC version is:  2.96
+> Binutils version is: 2.10.91.0.2
+> (Basically it's a stock RH7.1 install right now)
 
-Note (I am repeated myself from an email I just sent) that the
-conditional schedule won't show better results if
-current->need_reschedule is unset, since preemption won't be enabled.  I
-need to add explicit support to the preemption-test patch for this.
+Aha! I'm not alone and I'm not nuts. And it doesn't seem to be an Athlon/VIA
+thing either.
 
-So you may see some better results, but just one time the condition
-schedule does not occur, you will see the worst result in
-/proc/latencytimes -- remembers its the 20 worst (perhaps we need
-average or total latency, too?)
+This is exactly the same thing I'm seeing. And if I put calls to 'ps aux' in
+/etc/init.d/halt around the killall5 and sleep calls then it shuts down
+properly.
 
-Now, with all that said, you should _see_ an improvement with this
-patch.  You say short hiccups.  Some? All? How much better is it?
+Here's my setup for reference:
+
+1xAthlon 1050/100, Asus A7V, 512 MB PC133 RAM
+2xATA/66, hda:CD-ROM, hdc:CDRW
+2xATA/100 (Promise 20265 on-board), hde:HD (ext3/vfat), hdg:HD (vfat)
+Stock RH7.1+Updates+2.4.9-ac12-preempt1
 
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 

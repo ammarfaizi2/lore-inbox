@@ -1,271 +1,162 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135612AbRDSKI5>; Thu, 19 Apr 2001 06:08:57 -0400
+	id <S135201AbRDRPIV>; Wed, 18 Apr 2001 11:08:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135610AbRDSKIr>; Thu, 19 Apr 2001 06:08:47 -0400
-Received: from mailhost.mipsys.com ([62.161.177.33]:5366 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S135611AbRDSKIl>; Thu, 19 Apr 2001 06:08:41 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-pm-devel@lists.sourceforge.net>
-Subject: Re: PCI power management
-Date: Thu, 31 Dec 1903 23:29:08 +0100
-Message-Id: <19031231222908.21882@mailhost.mipsys.com>
-In-Reply-To: <3ADEA108.50BB415D@mandrakesoft.com>
-In-Reply-To: <3ADEA108.50BB415D@mandrakesoft.com>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+	id <S135203AbRDRPIK>; Wed, 18 Apr 2001 11:08:10 -0400
+Received: from [194.8.76.131] ([194.8.76.131]:63493 "HELO imap.camline.com")
+	by vger.kernel.org with SMTP id <S135201AbRDRPIG>;
+	Wed, 18 Apr 2001 11:08:06 -0400
+Date: Wed, 18 Apr 2001 17:09:28 +0200 (CEST)
+From: Matthias Hanisch <matze@camline.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [SCRIPT] Get potential __init functions from the kernel image
+Message-ID: <Pine.LNX.4.10.10104181640380.10072-200000@homer.camline.com>
+Organization: camLine Datensysteme fuer die Mikroelektronik
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463781119-1517877688-987606568=:10072"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ! Glad to see things moving around Power Management ;)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
->This was originally a private reply to Patrick Mochel, but the e-mail
->kept getting longer and longer :)
+---1463781119-1517877688-987606568=:10072
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Note: we have setup a list for PM issues
+Hi!
 
-http://lists.sourceforge.net/lists/listinfo/linux-pm-devel
+I got bored over Easter and wrote this little script to get all users of a
+function using objdump on a vmlinux image.
 
-Not very much used yet, but I, at least, plan to spam it with all
-sort of things we need for PowerBook PM... I'm forwarding your
-message there and I suggest we continue that discussion there as well.
+"users" are functions that do ordinary calls to that function,
+EXPORT_SYMBOL declarations, functions which get called by initcall and
+setup functions.
 
->The current state of PCI PM is this:
->
->pci_enable_device (1) enables IO and mem decoding, (2) assigns/routes
->the PCI IRQ, and (3) brings the device to D0 using pci_set_power_state. 
->Linus believes the power state transition should occur before (1) and
->(2), and I agree.
->
->pci_set_power_state brings a device to a new D state.  If the D state
->transition is D3->D0, then we (1) save key PCI config registers, (2) go
->to D0, and (3) restore saved PCI config registers.  This originally
->comes from Donald Becker's acpi_wake function, which is used only for
->the case of device enabling (where he had no problems), not for the case
->of returning-from-suspend (where we see problems).
+Moreover a special character is prepended to each function - either if it
+is a function in the .text.init segment or a normal .text function.
 
-I beleive the current scheme is not enough. Here are some of my own
-thoughts about this:
+What is the benefit of this script?
 
- - Some devices won't properly give you their config space when
-in D3 state. You shouldn't save the configuration when in D3 to restore
-it after switching to D0, but you must have previously saved it before
-originally putting the device into D3 state.
+I think there are a lot of benefits but I used it to get functions which
+are not in the .text.init segment but should be moved to because the only
+users of this function are initfuncs themselves.
 
- - There need to be some arch "hooks" in this mecanism. Some machines
-have the ability (from the arch specific code, by tweaking ASIC bits)
-to remove clock and/or power from selected devices. That mean power
-management can be done even with devices not supporting PCI PM provided
-that the driver can recover them from a PowerOn reset.
+To get a view of this invoke the script using
 
- - Some devices just can't be brought back to life from D3 state without
-a PCI reset (ATI Rage M3 for example) and that require some arch specific
-support (when it's possible at all).
+$ ./create_user_map <vmlinux image>
 
- - The current scheme provide no way for the kernel to "know" if a
-driver can handle recovering the device from a PowerOn reset. Some
-drivers can, some can't (the video drivers usually can't as they
-require the board's PLL to be properly setup by the BIOS). Some
-advanced PM modes we use on pmacs will cause the motherboard ASIC to
-turn off power to PCI & AGP cards when putting the machine to sleep.
-We need a way to prevent/allow this "deep sleep" mode depending
-on what the card supports.
+It creates a file user_map which contains the results. Additionally the
+list of _potential_ __init functions in this image is displayed.
 
- - Ordering of power management may matter. On PowerBooks, we run
-through all notifiers first with a "sleep request" message. None of
-the drivers will actually put anything to sleep at this point, but
-they will allocate all the memory the might need for doing so (saving
-state, saving a framebuffer in some cases, etc...). Once all devices
-have accepted the request (they can refuse it), I then send a 
-"sleep now" message. This way, I can make sure all memory allocations
-have been performed and disks properly sync'ed before putting the swap
-devices to sleep and such things. 
+Why potential?
 
- - On SMP, we need some way to stop other CPUs in the scheduler
-while running the last round of sleep (putting devices to sleep) at least
-until all IO layers in Linux can properly handle blocking of IO queues
-while the device sleeps.
+The primary reason is, that the information is taken from an image. Maybe
+there are other callers of this function which are not compiled in. But
+this can be verified easily using a find-xargs-grep combo on the kernel
+source tree.
 
- - We need a generic (non-x86 APM or ACPI dependant) way of including
-userland process that request it in the loop. Some userland process
-that bang hardware directly (X, but not only X) need to be properly
-suspended (and the kernel has to wait for ack from them before continuing
-with devices sleep).
+First results of this are already in the ac-tree, namely some aha1542_*
+functions and rand_initialize().
 
->"apm -s" causes the apm driver to map all suspends to the ACPI D3
->state.  An apm suspend triggers a pm_send_all call, which in turns
->triggers pci_pm_suspend.  This code [from Linus iirc] walks the root
->buses, recursively suspending downstream buses and then attached
->devices.  The resume code does the exact opposite.  The PCI core
->suspend/resume code has this comment, and we note the current
->requirement that -all- drivers should export suspend/resume somehow, in
->order for a sane PM system to work here.
+I also sent another bunch of functions to Alan which are not included in
+any tree yet, namely mcheck_init(), init_irq_proc(),
+start_context_thread() and init_timervecs().
 
-Yup. They should also be able to return an error (fail or just limit
-to a higher level like D2). They should also be able to tell the kernel
-if they support recovering from a power down.
+The other reason for _potential_ is, that there are function which use
+exceptions and thus they cannot get into the .init section, namely
+do_test_wp_bit().
 
->It is up to the drivers to implement ::suspend() and ::resume(), and few
->do.  The few that do, even fewer work well in practice.
+I just wanted to provide this script to the community to encourage
+everyone to run this on his latest image. Doing this, we can finally get
+all functions which could be trown away after the initialization phase and
+shrink the size of unswappable kernel memory.
 
-I would have preferred that a PM node be created for each PCI node and
-have the PM nodes organised as a tree structure. That way, arch fixup
-hooks can re-arrange the tree as the PCI bus->child dependency may not
-be true. On some portables, some ASICs located on the PCI bus are not
-dependent on their parent host bridge power plane.
+Comments?
 
->That's the current state of things.  I do not think the system -- at the
->PCI core level -- is poorly designed.  I think it just takes a lot of
->grunt work with drivers at this point, plus maybe a few new pci helper
->functions.
->
->So here's a random list of notes and issues on Linux PCI PM.
->
->1) pci_enable_device needs to power up the device before enabling it.
+Have fun,
 
-Right. And we need a equivalent power down function. For example, some
-drivers may improve power management by powering down the device when
-it's /dev node is not opened (or when the device have been idle for some
-time). However, those power up/down functions have to be arch-dependant,
-you can't rely on the PCI power management to be the only PM scheme.
+	Matze
 
->2) AFAICT, it is safe to turn off a PCI device's bus-mastering bit and
->take the device to D3, if it exports the PCI PM capability.  My
->previously-submitted pci_disable_function function turns off the
->bus-mastering bit, and should probably take the device to D3 too.
+P.S.: Maybe there are other interesting things to look at. E.g. all functions
+      which are only exported using EXPORT_SYMBOL but only used in rare
+      configurations. In this case, we could add a config option which
+      disables this EXPORT_SYMBOL declarations and the linker would throw
+      them away automatically.
 
-No, D3 is not safe on all devices. However, if pci_disable_function() is
-under driver control, then the driver may decide not to call it. In some
-case, D2 is the only acceptable mode. In other cases, the device doesn't
-support PM but the motherboard has ways to shut the clock down or the
-power supply.
+-- 
+Matthias Hanisch    mailto:matze@camline.com    phone: +49 8137 935-219
 
->3) The current pci_set_power_state implementation is non-spec, and even
->though it works for some cases it does not appear like the right thing
->to do.
+---1463781119-1517877688-987606568=:10072
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=create_user_map
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.10.10104181709280.10072@homer.camline.com>
+Content-Description: 
+Content-Disposition: attachment; filename=create_user_map
 
-Definitely.
-
->4) Because of #2, I have create pci_power_on and pci_power_off. 
->pci_power_off saves ALL the PCI config registers, turns off
->busmastering, and goes to D3.  pci_power_on takes the device to D0, then
->blasts the stored PCI config register data back to the hardware.
-
-That's better. I would however separate the config save/backup and
-other housekeeping from the actual D-state change. As I wrote earlier,
-D3 is not always a good solution and some motherboard specific mecanism
-may be used here. I would have liked a bitmask of "options" of what
-the driver allows (D1, D2, D3, static (no clock), power down, ...). 
-Then, the arch-specific implementation of power down can pick the
-best mode supported by the driver.
-
->5) In testing, this works sometimes, but other times it causes the
->upstream bridge of the device being resumed to stop decoding the device.
-
-I beleive the bridge has to be power managed too (save/restore). The
-G4 PowerMacs, when going to sleep, will cut power off the PCI<->PCI
-bridge as well. The host bridge is another matter and is fully arch
-dependant.
-
->6) One solution to #4 is to save and restore the PCI bridge registers
->too.  This comes partially from a Linus suggestion, and partially from
->an end user who solved their eepro100 suspend/resume problems with a
->setpci command to their PCI bridge (not to the eepro100 device).  In my
->own testing this solution works 100%, but (a) it might not be right, and
->thus (b) it might cause problems.  I am -very- interested in feedback on
->this solution, or a better one.
-
-Well, I beleive we should indeed save & restore PCI<->PCI bridges.
-
-I still beleive as well that instead of having PCI-specific
-suspend/resume functions, we should have a real PM node per PCI node.
-That way, we can add additional power notifications.
-
->7) Due to #5 an open issue is to re-read the bridge and PCI PM specs. 
->Some portions of the spec imply that the bridge should never be touched
->during device suspend or resume :)
-
-PCI PM specs should be cached :)
-
->8) Who can predict what a laptop's AML tables want to do with the PCI
->bus, and if Linux will be interfering with ACPI suspend, or if ACPI will
->be interfering with Linux resume, etc.
->
->9) A truly green driver should register itself then disable its
->hardware.  It is wasting power otherwise.  That implies waking up
->hardware on dev->open and sleeping on dev->release.  Some net drivers do
->this already.  This further implies problems down the road with stuff
->like char drivers, where applications often open and close the device
->node very rapidly.  This happens in OSS audio land when some audio apps
->start up, for example.  Maybe an inactivity timer would work here, to
->power down the device after time passes with no open(2) calls.
-
-I beleive it's up to each driver to handle that. Maybe some "framework"
-for this can be provided with the generic PM nodes...
-
->10) We might wind up needing northbridge, southbridge, and/or PCI bridge
->drivers.  They will likely be small, but I think eventually they will
->need to exist in order to provide complete power management coverage.
-
-Indeed, but those are in the arch side. We definitely to have a way
-for the arch to hook deeply into the sleep process. There can be some
-weird dependencies going on on portable motherboards or embedded
-devices, like an ethernet device beeing also used to provide reset
-signals to another PCI device, etc...
-
-That's why I prefer the idea of having the PM nodes in a tree and
-a node for each PCI device. The arch would then "hook" on the
-pci_register_pm_node() or whatever we call it and have the ability
-to move the node elsewhere in the tree depending on motherboard
-details.
-
->11) Hard drives.  Our IDE and SCSI subsystems stink when it comes to
->working with the PCI PM framework.  Andre has spoken of plans to use
->pci_driver in 2.5, and turn the IDE subsystem "inside out" so that PCI
->drivers call out to registration functions, etc., instead of the current
->system.  The same thing needs to happen for SCSI.
-
-Right, along with the problem of properly blocking IO queues. A similar
-issue exist with all "bus" drivers. USB drivers should be properly notified
-of sleep before the host controller gets suspended (I had some weird crashes
-that were due to the OHCI controller getting mad because it was beeing
-"tapped" while suspended by some drivers still feeding it with requests).
-Also, some devices don't handle properly the errors they may get because
-requests were interrupted by sleep. 
-So busses like USB, FireWire, etc... need a similar "tree" architecture. I
-strongly beleive generalizing the PM node is the way to go. Beeing
-a "notifier" like mecanism, it allows to add specific messages if needed
-(for example, USB bus suspend is different than machine sleep, that could
-be an additional PM message sent by the host controller to USB drivers,
-etc...)
-
->12) Continuing #11, there needs to be a general notion of when the
->system should -not- write stuff to disk.  This is mainly a userspace
->issue, ie. low-priority syslog messages should not prevent the system
->from idling the hard drive and spinning it down.  BUT..  the kernel may
->need to be the central arbiter if only to have a single place which says
->"hard drive is idle now"...
-
-Yup. That's what I've more or less worked around on powerbooks with
-the 2-step sleep process described above. When disks and IDE controller
-are acutally put to sleep (powered off in my case), I will have already
-allocated all the memory I need (backup storage from the frambuffer
-etc...), have sync'ed the disks, waited a bit, and will no longer schedule
-explicitely (and I should no longer schedule implicitely neither, but
-that can be difficult to acheive as some of the current PM hooks will
-cause schedules to happen). I also have a priority-based ordering
-mecanism so that I can "fix" some of these issues by putting
-things like display & disk to sleep latest, but that's a workaround.
->
-
-Regards,
-Ben.
-
-
-
+IyEvYmluL3NoDQoNCmlmIFsgJCMgLWx0IDEgXTsgdGhlbg0KCWVjaG8gIlVz
+YWdlOiAkMCA8dm1saW51eC1pbWFnZT4iDQoJZXhpdCAxDQpmaQ0KDQppbWFn
+ZT0kMQ0KDQppZiBbICEgLXIgJGltYWdlIF07IHRoZW4NCgllY2hvICJJbWFn
+ZSAkaW1hZ2Ugbm90IHJlYWRhYmxlIg0KCWV4aXQgMQ0KZmkNCg0Kb2JqZHVt
+cCAtaEQgJGltYWdlIHwgYXdrICcNCkJFR0lOIHsNCglpbml0X3N0YXJ0PSJm
+ZmZmZmZmZiINCglpbml0X2VuZD0iZmZmZmZmZmYiDQp9DQoNCi8gLnRleHQu
+aW5pdC8gew0KCSMNCgkjIEdldCB0aGUgc3RhcnQgYWRkcmVzcyBvZiBpbml0
+IHNlY3Rpb24gb2Ygc2VjdGlvbiBoZWFkZXIgaW5mb3JtYXRpb24NCgkjDQoN
+CglpZiAoaW5pdF9zdGFydCA9PSAiZmZmZmZmZmYiKSB7DQoJCWluaXRfc3Rh
+cnQ9JDQNCgkJcHJpbnRmKCJTdGFydCBvZiBpbml0IHNlY3Rpb246ICVzXG4i
+LCBpbml0X3N0YXJ0KSA+PiAiL2Rldi90dHkiDQoJfQ0KfQ0KDQoNCi8gLmRh
+dGEucGFnZV9hbGlnbmVkLyB7DQoJIw0KCSMgR2V0IHRoZSBlbmQgYWRkcmVz
+cyBvZiBpbml0IHNlY3Rpb24gb2Ygc2VjdGlvbiBoZWFkZXIgaW5mb3JtYXRp
+b24NCgkjDQoNCglpZiAoaW5pdF9lbmQgPT0gImZmZmZmZmZmIikgew0KCQlp
+bml0X2VuZD0kNA0KCQlwcmludGYoIkVuZCBvZiBpbml0IHNlY3Rpb246ICVz
+XG4iLCBpbml0X2VuZCkgPj4gIi9kZXYvdHR5Ig0KCX0NCn0NCg0KLz46JC8g
+ew0KCSMNCgkjIFN0YXJ0IG9mIGEgZnVuY3Rpb24NCgkjDQoNCgljdXJyZW50
+X2Z1bmMgPSAkMg0KCWdzdWIoIls8PjpdIiwgIiIsIGN1cnJlbnRfZnVuYykN
+Cglpbl9hZGRyZXNzID0gJDENCg0KCWlmIChpbl9hZGRyZXNzID49IGluaXRf
+c3RhcnQgJiYgaW5fYWRkcmVzcyA8IGluaXRfZW5kKQ0KCQlmdW5jdGlvbl9w
+cmVmaXggPSAiQCI7DQoJZWxzZQ0KCQlmdW5jdGlvbl9wcmVmaXggPSAiJiI7
+DQoNCglleHBvcnRfZGVmaW5pdGlvbiA9IGluZGV4KGN1cnJlbnRfZnVuYywg
+Il9fa3N0cnRhYl8iKTsNCglpbml0X2NhbGwgPSBpbmRleChjdXJyZW50X2Z1
+bmMsICJfX2luaXRjYWxsXyIpOw0KCXNldHVwX2NhbGwgPSBpbmRleChjdXJy
+ZW50X2Z1bmMsICJfX3NldHVwXyIpOw0KCQ0KCWlmIChleHBvcnRfZGVmaW5p
+dGlvbikgew0KCQljdXJyZW50X2Z1bmMgPSBzdWJzdHIoY3VycmVudF9mdW5j
+LCBleHBvcnRfZGVmaW5pdGlvbiArIDEwKQ0KCQljdXJyZW50X2Z1bmMgPSBm
+dW5jdGlvbl9wcmVmaXggY3VycmVudF9mdW5jDQoJCXVzZXJbY3VycmVudF9m
+dW5jXSA9IHVzZXJbY3VycmVudF9mdW5jXSAiIEVYUE9SVCINCgl9IGVsc2Ug
+aWYgKGluaXRfY2FsbCkgew0KCQljdXJyZW50X2Z1bmMgPSBzdWJzdHIoY3Vy
+cmVudF9mdW5jLCBpbml0X2NhbGwgKyAxMSkNCgkJY3VycmVudF9mdW5jID0g
+ZnVuY3Rpb25fcHJlZml4IGN1cnJlbnRfZnVuYw0KCQl1c2VyW2N1cnJlbnRf
+ZnVuY10gPSB1c2VyW2N1cnJlbnRfZnVuY10gIiBJTklUQ0FMTCINCgl9IGVs
+c2UgaWYgKHNldHVwX2NhbGwpIHsNCgkJY3VycmVudF9mdW5jID0gc3Vic3Ry
+KGN1cnJlbnRfZnVuYywgc2V0dXBfY2FsbCArIDgpDQoJCWN1cnJlbnRfZnVu
+YyA9IGZ1bmN0aW9uX3ByZWZpeCBjdXJyZW50X2Z1bmMNCgkJdXNlcltjdXJy
+ZW50X2Z1bmNdID0gdXNlcltjdXJyZW50X2Z1bmNdICIgU0VUVVBDQUxMIg0K
+CX0gZWxzZSB7DQoJCWN1cnJlbnRfZnVuYyA9IGZ1bmN0aW9uX3ByZWZpeCBj
+dXJyZW50X2Z1bmMNCgkJdXNlcltjdXJyZW50X2Z1bmNdID0gIjogIiB1c2Vy
+W2N1cnJlbnRfZnVuY10NCgl9DQoNCglwcmludGYoIiVzOiAlc1xuIiwgaW5f
+YWRkcmVzcywgY3VycmVudF9mdW5jKSA+PiAiL2Rldi90dHkiDQp9DQoNCi9j
+YWxsIC8gew0KCSMNCgkjIEEgY2FsbCBpbnN0cnVjdGlvbiBvZiBhIGZ1bmN0
+aW9uDQoJIw0KDQoJc3RtdCA9IHN1YnN0cigkMCwgaW5kZXgoJDAsICJjYWxs
+ICIpKQ0KCW51bSA9IHNwbGl0KHN0bXQsIGNvbCk7DQoJaWYgKG51bSA9PSAz
+KSB7DQoJCW5hbWUgPSBjb2xbM10NCgkJYWRkcmVzcyA9IGNvbFsyXQ0KDQoJ
+CWdzdWIoIls8Pl0iLCAiIiwgbmFtZSkNCgkJaWYgKGFkZHJlc3MgPj0gaW5p
+dF9zdGFydCAmJiBhZGRyZXNzIDwgaW5pdF9lbmQpDQoJCQluYW1lID0gIkAi
+IG5hbWUNCgkJZWxzZQ0KCQkJbmFtZSA9ICImIiBuYW1lDQoNCgkJdXNlcltu
+YW1lXSA9IHVzZXJbbmFtZV0gIiAiIGN1cnJlbnRfZnVuYw0KCX0NCn0NCg0K
+RU5EIHsNCglmb3IgKGZuYyBpbiB1c2VyKQ0KCQlwcmludGYoIiVzJXNcbiIs
+IGZuYywgdXNlcltmbmNdKQ0KfQ0KJyA+IHVzZXJfbWFwDQoNCmVjaG8gIiIN
+CmVjaG8gIiINCmVjaG8gIkxpc3Qgb2YgYWxsIGZ1bmN0aW9ucyB3aXRoIHRo
+ZWlyIHVzZXJzIGFyZSBpbiBmaWxlIHVzZXJfbWFwLiINCmVjaG8gIiAgRnVu
+Y3Rpb24gcHJlZml4ICdAJyBtZWFuczogZnVuY3Rpb24gaXMgaW4gLnRleHQu
+aW5pdCBzZWN0aW9uIg0KZWNobyAiICBGdW5jdGlvbiBwcmVmaXggJyYnIG1l
+YW5zOiBmdW5jdGlvbiBpcyBpbiBvcmRpbmFyeSAudGV4dCBzZWN0aW9uIg0K
+ZWNobyAiIg0KZWNobyAiVE9ETyBMaXN0OiINCmVjaG8gIjEuIERlYWwgd2l0
+aCBjb2xsaXNpb25zIGluIGZ1bmN0aW9uIG5hbWUgc3BhY2UiDQplY2hvICIy
+LiBEZWFsIHdpdGggZGF0YSINCmVjaG8gIjMuIERlYWwgd2l0aCBmdW5jdGlv
+biBwb2ludGVycyBpbiBzdHJ1Y3RzIG9yIGZ1bmN0aW9uIHBhcmFtZXRlcnMi
+DQplY2hvICIiDQplY2hvICIiDQoNCmVjaG8gIkxpc3Qgb2YgYWxsIHBvdGVu
+dGlhbCBpbml0IGZ1bmN0aW9uczoiDQplY2hvICItLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tIg0KZ3JlcCAiXiYiIHVzZXJfbWFwIHwg
+Y3V0IC1jMi0gfCBncmVwIC12ICImIiB8IGdyZXAgLXYgIjogJCIgfCBncmVw
+IC12IEVYUE9SVA0KDQo=
+---1463781119-1517877688-987606568=:10072--

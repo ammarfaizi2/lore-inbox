@@ -1,44 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269074AbUHXAMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266851AbUHWTtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269074AbUHXAMX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 20:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268087AbUHXAJT
+	id S266851AbUHWTtH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 15:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUHWTsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 20:09:19 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:58631 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S269046AbUHXAHK
+	Mon, 23 Aug 2004 15:48:38 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50883 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266851AbUHWSgX convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 20:07:10 -0400
-Date: Tue, 24 Aug 2004 01:07:07 +0100
-From: John Levon <levon@movementarian.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       oprofile-list@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       phil.el@wanadoo.fr
-Subject: Re: [PATCH] improve OProfile on many-way systems
-Message-ID: <20040824000707.GA59224@compsoc.man.ac.uk>
-References: <20040821192630.GA9501@compsoc.man.ac.uk> <20040821135833.6b1774a8.akpm@osdl.org> <200408211806.32566.jbarnes@sgi.com> <20040821231437.GB20175@compsoc.man.ac.uk> <20040822043359.GB8702@krispykreme>
+	Mon, 23 Aug 2004 14:36:23 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <10932860832487@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:43 -0700
+Message-Id: <1093286083974@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040822043359.GB8702@krispykreme>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1BzOqC-000DnV-1o*NujyHuspHSQ*
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 22, 2004 at 02:34:00PM +1000, Anton Blanchard wrote:
+ChangeSet 1.1790.2.12, 2004/08/02 15:37:32-07:00, greg@kroah.com
 
-> > That must be profile_rwsem in kernel/profile.c since the rest of the
-> > code won't be doing anything. I imagine it needs RCUing.
-> 
-> Also profile_hook is called in the interrupt handler and has a global
-> spinlock (profile_lock). If the notifier hooks used RCU then we wouldnt
-> need this lock.
+[PATCH] PCI Hotplug: fix build warnings due to msleep() patches.
 
-If that were the problem he'd see it with profile=2 though, since it
-uses the same mechanism... should still be fixed of course.
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-john
+
+ drivers/pci/hotplug/cpci_hotplug_core.c |    1 +
+ drivers/pci/hotplug/ibmphp_hpc.c        |    1 +
+ drivers/pci/hotplug/shpchp_hpc.c        |    1 +
+ 3 files changed, 3 insertions(+)
+
+
+diff -Nru a/drivers/pci/hotplug/cpci_hotplug_core.c b/drivers/pci/hotplug/cpci_hotplug_core.c
+--- a/drivers/pci/hotplug/cpci_hotplug_core.c	2004-08-23 11:07:48 -07:00
++++ b/drivers/pci/hotplug/cpci_hotplug_core.c	2004-08-23 11:07:48 -07:00
+@@ -33,6 +33,7 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/smp_lock.h>
++#include <linux/delay.h>
+ #include "pci_hotplug.h"
+ #include "cpci_hotplug.h"
+ 
+diff -Nru a/drivers/pci/hotplug/ibmphp_hpc.c b/drivers/pci/hotplug/ibmphp_hpc.c
+--- a/drivers/pci/hotplug/ibmphp_hpc.c	2004-08-23 11:07:48 -07:00
++++ b/drivers/pci/hotplug/ibmphp_hpc.c	2004-08-23 11:07:48 -07:00
+@@ -29,6 +29,7 @@
+ 
+ #include <linux/wait.h>
+ #include <linux/time.h>
++#include <linux/delay.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ #include <linux/smp_lock.h>
+diff -Nru a/drivers/pci/hotplug/shpchp_hpc.c b/drivers/pci/hotplug/shpchp_hpc.c
+--- a/drivers/pci/hotplug/shpchp_hpc.c	2004-08-23 11:07:48 -07:00
++++ b/drivers/pci/hotplug/shpchp_hpc.c	2004-08-23 11:07:48 -07:00
+@@ -35,6 +35,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/interrupt.h>
+ #include <linux/spinlock.h>
++#include <linux/delay.h>
+ #include <linux/pci.h>
+ #include <asm/system.h>
+ #include "shpchp.h"
+

@@ -1,258 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUG0TD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266591AbUG0TGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266561AbUG0TD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 15:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266525AbUG0TD1
+	id S266591AbUG0TGk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 15:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266572AbUG0TDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 15:03:27 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:28295 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266582AbUG0TAj (ORCPT
+	Tue, 27 Jul 2004 15:03:51 -0400
+Received: from smtp.golden.net ([199.166.210.31]:35850 "EHLO smtp.golden.net")
+	by vger.kernel.org with ESMTP id S266607AbUG0TCd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 15:00:39 -0400
-Date: Tue, 27 Jul 2004 21:02:00 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Maikon Bueno <maikon@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bytes from mouse
-Message-ID: <20040727190200.GA1599@ucw.cz>
-References: <757c55c6040727084035039172@mail.gmail.com>
+	Tue, 27 Jul 2004 15:02:33 -0400
+Date: Tue, 27 Jul 2004 15:02:11 -0400
+From: Paul Mundt <lethal@linux-sh.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] Kconfig.debug: combine Kconfig debug options
+Message-ID: <20040727190210.GE20740@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20040723231158.068d4685.rddunlap@osdl.org> <Pine.GSO.4.58.0407271451130.19529@waterleaf.sonytel.be> <20040727104737.0de2da5b.rddunlap@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WYTEVAkct0FjGQmd"
 Content-Disposition: inline
-In-Reply-To: <757c55c6040727084035039172@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040727104737.0de2da5b.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 27, 2004 at 12:40:50PM -0300, Maikon Bueno wrote:
 
-> Hi all,
-> In the follow code, I try to get the bytes from the mouse, but the
-> bytes that I got are always either 0 or -128, in any state of mouse
-> (with or without pressed buttons).
-> I'm using COM1 and I read the bytes from the 0x3f8 port. 
-> Am I reading the values from the correct address? Is there other way to do that?
-> 
-> Thanks.
+--WYTEVAkct0FjGQmd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-How about
+On Tue, Jul 27, 2004 at 10:47:37AM -0700, Randy.Dunlap wrote:
+> DEBUG_SLAB is not available in cris, h8300, m68knommu, sh, sh64,
+> or v850 AFAICT.  Yes/no ?
+>=20
+This can be set for sh/sh64 just fine, it is pretty much generic anyways.
+So placing this in a common Kconfig seems reasonable.
 
-modprobe serport
-modprobe sermouse
-inputattach --msc /dev/ttyS0 &
+> | (didn't check the whole list) Perhaps the first instance of DEBUG_INFO
+> | can depend on !SUPERH64 && !USERMODE only?
+>=20
+> It could.  It depends on one's config (or code/patch) philosophy.
+> I was trying to be explicit about which arches support a config option
+> by including each arch in a list ("inclusion").  Or I could exclude
+> certain arches from config options ("exclusion").  The inclusion
+> method seems safer and more readable/maintainable to me, but that's
+> just one opinion.
+>=20
+There's no need for the !SUPERH64 dependancy for DEBUG_INFO either, so
+feel free to drop that if that's the way you end up going.
 
-> --------------------------
-> 
-> 
-> 
-> #define MODULE
-> #define __KERNEL__
-> 
-> #include<linux/ioport.h>
-> #include <linux/config.h>
-> 
-> #include <linux/module.h>
-> 
-> #include<linux/sched.h>
-> #include<linux/poll.h>
-> #include<linux/interrupt.h>
-> #include<linux/miscdevice.h>
-> #include<linux/init.h>
-> 
-> #include <linux/kernel.h>
-> #include<linux/slab.h> 
-> #include <linux/fs.h> 
-> #include <linux/errno.h> 
-> #include <linux/types.h> 
-> #include <linux/proc_fs.h>
-> #include <linux/fcntl.h> 
-> #include <linux/devfs_fs_kernel.h>
-> 
-> #include <linux/string.h>
-> #include <linux/unistd.h>
-> #include <asm/system.h>
-> #include <asm/io.h>
-> #include <asm/irq.h>
-> #define PORT 0x3f8 //COM1
-> #define LCR  3
-> #define MSB 1
-> #define LSB 0
-> #define FCR 2
-> #define SCR 7
-> 
-> #define OURMOUSE_BASE 0x300
-> #define OURMOUSE_MINOR 1
-> #define OURMOUSE_MAJOR 56
-> #define MOUSE_IRQ 4 //COM1
-> 
-> static int mouse_users = 0; 
-> static int mouse_dx = 0; 
-> static int mouse_dy = 0;
-> static int mouse_event = 0; 
-> static int mouse_buttons = 0;
-> static int mouse_intr = MOUSE_IRQ;
-> static int interrupt_count=0;
-> 
-> static struct wait_queue *mouse_wait;
-> static spinlock_t mouse_lock = SPIN_LOCK_UNLOCKED;
-> static devfs_handle_t ourmouse_dir;
-> static devfs_handle_t ourmouse_dev;
-> 
-> static int ourmouse_open(struct inode *inode, struct file *file);
-> static int ourmouse_close(struct inode *inode,struct file *file);
-> static void ourmouse_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-> static unsigned int mouse_poll(struct file *file, poll_table *wait);
-> static int enable_irq_interrupt();
-> 
-> static int bufferin;
-> static int bufferout;
-> static char buffer[1024];
-> static unsigned interrupt_enabled = 0;
-> 
-> MODULE_LICENSE("GPL");
-> MODULE_AUTHOR("OURMOUSE");
-> 
-> char ourmouse_str[] = "Hi Baby!\n ";
-> 
-> ssize_t ourmouse_read(struct file *filp , char *buf,
->                  size_t count, loff_t *offp)
-> {   
->     struct inode *inode = filp->f_dentry->d_inode;
->     int minor = MINOR(inode->i_rdev);
->     char *txt;
-> 
->     if (filp->private_data) {
->         txt = filp->private_data;
->     } else {
->         txt = ourmouse_str;
->     }
->     if (count > strlen(txt)) count = strlen(txt);
->     copy_to_user(buf, txt, count);
->     *offp += count;
->     return count;
-> }
-> 
-> struct file_operations ourmouse_fops = {
-> 	    read:   ourmouse_read,
-> 	    open:   ourmouse_open,
-> 	    release:  ourmouse_close,
-> };
-> 
-> int init_module(void){
-> 	printk("<1> initing\n");
-> 	if(check_region(OURMOUSE_BASE, 3))
-> 		return -ENODEV;
-> 	request_region(OURMOUSE_BASE, 3,"Ourmouse");
-> 	
-> 	devfs_register_chrdev(OURMOUSE_MAJOR,"Ourmouse",&ourmouse_fops);
-> 	ourmouse_dir = devfs_mk_dir(NULL,"Ourmouse", NULL);
-> 	if(ourmouse_dir == NULL){
-> 		printk("<1> Couldn't make the Ourmouse's dir\n");
-> 	}
-> 	ourmouse_dev = devfs_register(ourmouse_dir,
-> "Ourmouse",DEVFS_FL_NONE,OURMOUSE_MAJOR,OURMOUSE_MINOR, S_IFCHR |
-> S_IRUGO,&ourmouse_fops, NULL);
-> 	if (ourmouse_dev == NULL){
-> 		printk("<1> Couldn't register Ourmouse\n");
-> 	}
-> 	
-> 	interrupt_enabled=!enable_irq_interrupt();
-> 	if (!interrupt_enabled)
-> 	  return -EBUSY;
->         	
-> 	return 0;
-> }
-> 
-> void cleanup_module(void){
-> 	release_region(OURMOUSE_BASE, 3);
-> 	devfs_unregister(ourmouse_dev);
-> 	free_irq(mouse_intr, NULL);
-> 	printk("<1> Bye %i\n",interrupt_count);
-> }
-> 
-> static int ourmouse_open(struct inode *inode, struct file *file)
-> { 
->     int err = 0;
->     if(mouse_users++)
->         return 0;
->     if(!interrupt_enabled)
->     {
-> 	mouse_users--;
->         return -EBUSY;
->     }
->     
->     mouse_dx = 0;
->     mouse_dy = 0;
->     mouse_buttons = 0;
->     mouse_event = 0;
->     MOD_INC_USE_COUNT;
->     
->     return 0;
-> }
-> 
-> static int ourmouse_close(struct inode *inode,struct file *file)
-> {    
->     if(--mouse_users)
->             return 0;
->     MOD_DEC_USE_COUNT; 
->     return 0;
-> }
-> 
-> static void ourmouse_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-> {
->     //interrupt_count++;
-> 	
-> 	int i;
-> 	do { 
-> 		i = inb(PORT + 5);
-> 		if (i & 1) {
-> 			buffer[bufferin] = inb(PORT);
-> 			printk("<1> Byte %i: %i\n",bufferin,buffer[bufferin]);
-> 			bufferin++;
-> 			if (bufferin == 1024) bufferin = 0;
-> 		}
-> 	}while (i & 1);
-> 
-> }
-> 
-> static unsigned int mouse_poll(struct file *file, poll_table *wait)
-> {
->     return 0;
-> }
-> 
-> static int enable_irq_interrupt() 
-> {
-> 	unsigned long flags;
-> 	int i;
-> 	bufferin = 0;
-> 	bufferout = 0;
-> 	save_flags(flags); cli();
-> 	i=request_irq(mouse_intr,ourmouse_interrupt,SA_INTERRUPT,"Ourmouse",NULL);
-> 	if(i) {
-> 		restore_flags(flags);
-> 		return i;
-> 	}
-> 	outb(0,PORT + 1);     // Turn off interrupts - Port1 
-> 	outb(0,PORT + 1);     // Disable interrupts - bit 0 ->0 
-> 	outb(0x80,PORT + 3);  // enable DLAB - bit 7 ->1
-> 	outb(0x0C,PORT + 0);  // Set Divisor LSB 
-> 	outb(0x00,PORT + 1);  // Set Divisor MSB 
-> 	outb(0x03,PORT + 3);  // 8 Bits, No Parity, 1 Stop Bit 
-> 	outb(0xC7,PORT + 2);  // Enable FIFO if UART is 16500+ 
-> 	outb(0x0B,PORT + 4);  // Turn on DTR, RTS, and OUT2 
-> 	outb(0x01,PORT + 1);  // Interrupt when data received 
-> 	printk("<1> sioEnable --ok ... irq: %d\n", mouse_intr);
-> 	restore_flags(flags);
-> 	return 0;
-> 
-> }
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+--WYTEVAkct0FjGQmd
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBBqay1K+teJFxZ9wRAvHAAJsHtDmUpNJ08OR5M1ryxvaryrPGmQCeOFin
+l7Qk8SfjuGEQ04Hwmv4f6lQ=
+=rE3l
+-----END PGP SIGNATURE-----
+
+--WYTEVAkct0FjGQmd--

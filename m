@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264586AbRFUGEg>; Thu, 21 Jun 2001 02:04:36 -0400
+	id <S264851AbRFUGLQ>; Thu, 21 Jun 2001 02:11:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264847AbRFUGE1>; Thu, 21 Jun 2001 02:04:27 -0400
-Received: from mail-ffm-p.arcor-ip.de ([145.253.2.10]:43653 "EHLO
-	mail.arcor-ip.de") by vger.kernel.org with ESMTP id <S264586AbRFUGEW>;
-	Thu, 21 Jun 2001 02:04:22 -0400
-Message-ID: <3b318e663bdab56a@mail.arcor-ip.de> (added by mail.arcor-ip.de)
-Content-Type: text/plain; charset=US-ASCII
-From: =?iso-8859-1?q?J=F6rg=20Str=F6ttchen?= 
-	<joerg.stroettchen@arcormail.de>
-To: linux-kernel@vger.kernel.org
-Subject: ide-floppy fails on ApolloPro 133A-based MB
-Date: Thu, 21 Jun 2001 08:04:28 +0200
-X-Mailer: KMail [version 1.2.3]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S264854AbRFUGLG>; Thu, 21 Jun 2001 02:11:06 -0400
+Received: from smtp1.Stanford.EDU ([171.64.14.23]:65157 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S264851AbRFUGKx>; Thu, 21 Jun 2001 02:10:53 -0400
+Date: Wed, 20 Jun 2001 23:10:50 -0700
+From: "Zack Weinberg" <zackw@Stanford.EDU>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: 2.2 PATCH: check return from copy_*_user in fs/pipe.c
+Message-ID: <20010620231050.F12387@stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15153.28055.544280.527063@pizda.ninka.net>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+On Wed, Jun 20, 2001 at 08:44:23PM -0700, David S. Miller wrote:
+> 
+> Zack Weinberg writes:
+>  > Linus Torvalds wrote:
+>  > > And before you say "it has to return EFAULT", check the standards, and
+>  > > think about the case of libraries vs system calls - and how do you tell
+>  > > them apart?
+>  > 
+>  > My reading of the standard is that it has to either return EFAULT or
+>                                       ^^
+>  > raise SIGSEGV.  But I am not expert in XPG4-ese.
+> 
+> Linus is trying to point out: "what is this 'it'?"  Is it glibc or
+> what the kernel gives you?
 
-a few days ago I replaced my old MB by a QDI Advance 10F-board (VT82C694X 
-+ VT82C686B). Since that time I am running into trouble when writing on my 
-IDE-Floppy (/dev/hdb), read-access is ok, all other IDE-devices are working 
-fine.
+POSIX/XPG doesn't make a distinction between kernel and C library as
+far as I see... which is why either a signal or an error return is
+permitted by the standard; it depends on where the thing really is
+implemented.
 
-/var/log/messages reports:
+>  > Whether or not the standard requires anything, I would much rather
+>  > that the kernel not silently discard error conditions.
+> 
+> But only perhaps from a "quality of implementation" perspective not a
+> "correctness" one.
 
-cosanostra kernel: hdb: ATAPI reset complete
-Jun 20 14:45:29 cosanostra kernel: hdb: lost interrupt
-Jun 20 14:45:29 cosanostra kernel: ide-floppy: CoD != 0 in idefloppy_pc_intr
+Okay, I'll accept that.
 
-These problems occurr running 2.4.5-ac15 as well as W98. QDI seems to know 
-about this problem because they recommend to upgrade to the latest 
-VIA-chipset-drivers, which did not help (W98). At this point I am not sure 
-wether the "ide-floppy"-issue is MB-specific or chipset-related. Could anyone 
-familiar with the VIA-chipset-driver comment on that, maybe its a 
-development-aspect for the via-driver ?
-
-
-Thanks in advance
-
-J. Stroettchen 
-
+zw

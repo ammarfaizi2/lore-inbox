@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131176AbRBERa7>; Mon, 5 Feb 2001 12:30:59 -0500
+	id <S135538AbRBERa7>; Mon, 5 Feb 2001 12:30:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135538AbRBERat>; Mon, 5 Feb 2001 12:30:49 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18693 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131176AbRBERak>; Mon, 5 Feb 2001 12:30:40 -0500
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-To: sct@redhat.com (Stephen C. Tweedie)
-Date: Mon, 5 Feb 2001 17:29:47 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), sct@redhat.com (Stephen C. Tweedie),
-        manfred@colorfullife.com (Manfred Spraul),
-        torvalds@transmeta.com (Linus Torvalds),
-        hch@caldera.de (Christoph Hellwig), lord@sgi.com (Steve Lord),
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
-In-Reply-To: <20010205172042.O1167@redhat.com> from "Stephen C. Tweedie" at Feb 05, 2001 05:20:42 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135540AbRBERat>; Mon, 5 Feb 2001 12:30:49 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:9479
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S135538AbRBERac>; Mon, 5 Feb 2001 12:30:32 -0500
+Date: Mon, 5 Feb 2001 09:30:04 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Slowing down CDROM drives (was: Re: ATAPI CDRW which doesn't
+ work)
+In-Reply-To: <20010205144043.H849@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.4.10.10102050928530.30462-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14PpSY-0003lL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 	kiovec_align(kiovec, 512);
-> > and have it do the bounce buffers ?
-> 
-> _All_ drivers would have to do that in the degenerate case, because
-> none of our drivers can deal with a dma boundary in the middle of a
-> sector, and even in those places where the hardware supports it in
-> theory, you are still often limited to word-alignment.
+On Mon, 5 Feb 2001, Ingo Oeser wrote:
 
-Thats true for _block_ disk devices but if we want a generic kiovec then
-if I am going from video capture to network I dont need to force anything more
-than 4 byte align
+> On Mon, Feb 05, 2001 at 01:34:24AM -0200, Rogerio Brito wrote:
+> > 	Well, this has nothing to do with the above, but is there any
+> > 	utility or /proc entry that lets me say to my CD drive that it
+> > 	should not work at full speed?
+> 
+> /proc/ide/hdX/settings ? The (current,init)_speed settings there?
+> 
+> Give it a try at least ;-)
+
+That is the ATA transfer rate between the device and the host only.
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

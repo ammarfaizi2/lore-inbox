@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265179AbRFUUKV>; Thu, 21 Jun 2001 16:10:21 -0400
+	id <S265189AbRFUUNB>; Thu, 21 Jun 2001 16:13:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265188AbRFUUKM>; Thu, 21 Jun 2001 16:10:12 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:12306 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S265179AbRFUUJ5>;
-	Thu, 21 Jun 2001 16:09:57 -0400
-Date: Thu, 21 Jun 2001 16:13:22 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
+	id <S265190AbRFUUMv>; Thu, 21 Jun 2001 16:12:51 -0400
+Received: from Morgoth.esiway.net ([193.194.16.157]:7181 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S265189AbRFUUMh>; Thu, 21 Jun 2001 16:12:37 -0400
+Date: Thu, 21 Jun 2001 22:12:35 +0200 (CEST)
+From: Marco Colombo <marco@esi.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Controversy over dynamic linking -- how to end the panic
-Message-ID: <20010621161322.A6873@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com> <E15D9DP-0001sF-00@the-village.bc.nu> <20010621151716.B5662@thyrsus.com> <20010621155103.B23465@pimlott.ne.mediaone.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010621155103.B23465@pimlott.ne.mediaone.net>; from andrew@pimlott.ne.mediaone.net on Thu, Jun 21, 2001 at 03:51:03PM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+In-Reply-To: <E15D9u7-0001xo-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106212158090.6630-100000@Megathlon.ESI>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Pimlott <andrew@pimlott.ne.mediaone.net>:
-> On Thu, Jun 21, 2001 at 03:17:16PM -0400, Eric S. Raymond wrote:
-> > IANAL, but I believe that Linus's position as anthology copyright holder
-> > makes him privileged in this respect.
-> 
-> Regardless of what you find in the books, recall that Linus has
-> stated that decentralizing the copyright of Linux was a goal, so you
-> may not find him willing to claim an "anthology copyright" (if such
-> a thing even applies to the kernel, which in my NAL opinion, it does
-> not).
+On Thu, 21 Jun 2001, Alan Cox wrote:
 
-Linus *is*, however, implicitly claiming the authority to make license
-policy on behalf of the other copyright holders in cases where the GPL
-is unclear.
+> > 1) Oracle Corp. builds their database for Linux on a Linux system.
+> > 2) Said system comes with standard header files, which happen in this case to
+> >    be GPL'd header files.
+> > 3) Oracle Corp.'s database becomes GPL.
+> >
+> > There's not a court in the civilised world that would uphold the GPL in that
+> > scenario.
+>
+> Yes but the concern is the USA 8)
 
-In COPYING, Linus says that that the version of GPL applying to the
-kernel is v2 unless explicitly otherwise stated.  He has also already
-issued the interpretation that normal system calls from userland do
-not create a derivation relationship.
+Pardon me, but what does "Oracle Corp.'s database becomes GPL" mean in the
+above 3)? (I'm asking to you since you seem to agree).  Even if the
+database is found to be linked with a GPLed piece of SW, this doesn't make
+it (the database) GPLed, it just breaks Oracle's licence on the GPL SW.
+They only have to recompile their program against non-GPLed code (e.g.
+rewrite that part from scratch) and redistribute it.  That's not like
+everyone going to Oracle and say "Your SW is now GPLed, hand me the Source.
+Resistance is Futile." ... GPL has a viral behaviour iff you want to
+keep using the GPLed part that you included, or am I missing something?
 
-I consider Linus to have the moral right to make these decisions, whether
-or not the law gives him a formal legal right to do so.  All I have done
-is propose that he be more explicit about his policy in order to prevent
-needless confusion and nervousness.
+.TM.
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
 
-The possession of arms by the people is the ultimate warrant
-that government governs only with the consent of the governed.
-        -- Jeff Snyder

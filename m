@@ -1,46 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130900AbQKGLUV>; Tue, 7 Nov 2000 06:20:21 -0500
+	id <S129215AbQKGLdx>; Tue, 7 Nov 2000 06:33:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131219AbQKGLUM>; Tue, 7 Nov 2000 06:20:12 -0500
-Received: from ha1.rdc2.nsw.optushome.com.au ([203.164.2.50]:55994 "EHLO
-	mss.rdc2.nsw.optushome.com.au") by vger.kernel.org with ESMTP
-	id <S130900AbQKGLUF>; Tue, 7 Nov 2000 06:20:05 -0500
-Message-ID: <3A07E600.FC1E089B@optushome.com.au>
-Date: Tue, 07 Nov 2000 22:22:40 +1100
-From: Joel Beach <joelbeach@optushome.com.au>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S129505AbQKGLdo>; Tue, 7 Nov 2000 06:33:44 -0500
+Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:8521 "EHLO
+	cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S129215AbQKGLdg>; Tue, 7 Nov 2000 06:33:36 -0500
+Message-ID: <000001c048ae$6132c340$6904883e@default>
+From: "Joe Woodward" <woodey@twasystems.fsnet.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: removable EIDE disks
+Date: Tue, 7 Nov 2000 11:12:00 -0000
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Slow screen redraw in 2.4.x
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0005_01C048AB.8CFEF320"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed noticeably slower screen refresh in 2.4.x than under the
-2.2 kernel series. It's most noticeable when running xscreensaver with
-fast scrolling patterns, or when doing opague moves of large windows.
-I'm using Xfree 4.01 and the XFree driver for the Nvidia card (not the
-Nvidia binary package).
+This is a multi-part message in MIME format.
 
-This has been happening to me since the earliest 2.3.99 kernels, but it
-isn't really a very scientific observation, so I thought I'd wait and
-see if performance improved. It hasn't, so I thought I'd post it here to
-hear other people's thoughts on it.
+------=_NextPart_000_0005_01C048AB.8CFEF320
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Would it have anything to do with shm performance under 2.4. I read that
-Rik said that it wasn't really as good as it could be. Does that mean
-that it should be slower than under 2.2 though?
+I am trying to use removable EIDE hard disks on a Red Hat Linux 6.1 =
+machine, for backup / walknet purposes.
 
-Sorry for my cluelessness. Tell me to get lost if this doesn't belong
-here, or let me know what tests I should run which would give a number
-to these observations.
+Issuing a BLKRRPART ioctl call immediately after changing the disk =
+works, but only if the new disk is no larger than the disk present at =
+boot time (smaller and equal capacity disks work OK).
+
+How do I get Linux to recognise that the media in /dev/hdc has changed?
+
+Bill Nottingham suggested that I ask you, as he is unsure if this is a =
+bug or if there is a technique that I am missing.
+
 
 Thanks
 
-Joel
+Richard Stanton
+
+rich@twasystems.fsnet.co.uk
+
+
+------=_NextPart_000_0005_01C048AB.8CFEF320
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META content=3D"text/html; charset=3Diso-8859-1" =
+http-equiv=3DContent-Type>
+<META content=3D"MSHTML 5.00.2919.6307" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT color=3D#000000 size=3D2>I am trying to use removable EIDE =
+hard disks on=20
+a Red Hat Linux 6.1 machine, for backup / walknet purposes.</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT color=3D#000000 size=3D2>Issuing a BLKRRPART ioctl call =
+immediately after=20
+changing the disk works, but only if the new disk is no larger than the =
+disk=20
+present at boot time (smaller and equal capacity disks work =
+OK).</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT color=3D#000000 size=3D2>How do I get Linux to recognise that =
+the media=20
+in /dev/hdc has changed?</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT color=3D#000000 size=3D2>Bill Nottingham suggested that I ask =
+you, as he=20
+is unsure if this is a bug or if there is a technique that I am=20
+missing.</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT color=3D#000000 size=3D2>Thanks</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT color=3D#000000 size=3D2>Richard Stanton</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT color=3D#000000 size=3D2><A=20
+href=3D"mailto:rich@twasystems.fsnet.co.uk">rich@twasystems.fsnet.co.uk</=
+A></FONT></DIV>
+<DIV>&nbsp;</DIV></BODY></HTML>
+
+------=_NextPart_000_0005_01C048AB.8CFEF320--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131503AbQLHELA>; Thu, 7 Dec 2000 23:11:00 -0500
+	id <S129875AbQLHEow>; Thu, 7 Dec 2000 23:44:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131623AbQLHEKv>; Thu, 7 Dec 2000 23:10:51 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:37636 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131503AbQLHEKo>; Thu, 7 Dec 2000 23:10:44 -0500
-Message-ID: <3A303F7E.1984E8F6@timpanogas.org>
-Date: Thu, 07 Dec 2000 18:55:10 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>, Rainer Mager <rmager@vgkk.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Signal 11
-In-Reply-To: <E144BOL-0003Eg-00@the-village.bc.nu> <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com> <20001208022044.A6417@gruyere.muc.suse.de> <3A303852.790E3CE4@timpanogas.org> <20001208024018.A6673@gruyere.muc.suse.de> <3A303CAD.5600DE5A@timpanogas.org>
+	id <S129745AbQLHEoc>; Thu, 7 Dec 2000 23:44:32 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:38661 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129602AbQLHEoT>; Thu, 7 Dec 2000 23:44:19 -0500
+Date: Thu, 7 Dec 2000 22:13:47 -0600
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: NTFS repair tools]
+Message-ID: <20001207221347.R6567@cadcamlab.org>
+In-Reply-To: <3A30552D.A6BE248C@timpanogas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A30552D.A6BE248C@timpanogas.org>; from jmerkey@timpanogas.org on Thu, Dec 07, 2000 at 08:27:41PM -0700
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+[Jeff Merkey]
+> Do folks not know this NTFS driver will trash hard drives?  We need
+> to alert folks DO NOT USE WRITE NTFS MODE in those versions we know
+> are busted.
 
-"Jeff V. Merkey" wrote:
-> 
-> > So have you enabled core dumps and actually looked at the core dumps
-> > of the programs using gdb to see where they crashed ?
-> 
-> Yes.  I can only get the SSH crash when I am running remotely from the
-> house over the internet, and it only shows then when running a build in
-> jobserver mode (parallel build).  The X problem seems related as well,
-> since it's related to (usually) NetScape spawing off a forked process.
-> I will attempt to recreate tonight, and post the core dump file.
+Here's an idea: let's make r/w support a separate CONFIG option, and
+label it "DANGEROUS".
 
-BTW.  Were I to wager a guess, I would guess it's related to the paging
-problems in 2.4 when a process gets cloned, since everytime I have seen
-it, it happens when a child process gets forked then accesses the cloned
-data from the parent.  In the previous core dumps, it always puked right
-after a call to fork() when the child process attempted to WRITE (not
-read) data in the program.
+Oh wait, we already do that.
 
-Jeff
+Perhaps we should warn users to back up their NTFS partitions before
+trying this option.  Put that warning in the help text for
+CONFIG_NTFS_RW.
+
+Oh wait, we already do that too.
+
+How stupid does one have to be in order to enable an option labeled
+"DANGEROUS" for a non-experimental system?
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

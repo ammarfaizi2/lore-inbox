@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317504AbSHHMTd>; Thu, 8 Aug 2002 08:19:33 -0400
+	id <S317547AbSHHMVx>; Thu, 8 Aug 2002 08:21:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317506AbSHHMTc>; Thu, 8 Aug 2002 08:19:32 -0400
-Received: from mail-in1.inet.tele.dk ([194.182.148.158]:32096 "HELO
-	mail-in1.inet.tele.dk") by vger.kernel.org with SMTP
-	id <S317504AbSHHMTb>; Thu, 8 Aug 2002 08:19:31 -0400
-Subject: forcing the tg3 into full duplex
-From: Frederik Dannemare <tux@sentinel.dk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 08 Aug 2002 14:21:56 +0200
-Message-Id: <1028809316.1770.13.camel@frda-linux.staff.tdk.net>
+	id <S317550AbSHHMVx>; Thu, 8 Aug 2002 08:21:53 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:18872 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S317547AbSHHMVu>; Thu, 8 Aug 2002 08:21:50 -0400
+Date: Thu, 8 Aug 2002 13:25:05 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Alexandre Julliard <julliard@winehq.com>
+Subject: Re: [patch] tls-2.5.30-A1
+Message-ID: <20020808132505.A26548@kushida.apsleyroad.org>
+References: <Pine.LNX.4.44.0208072001490.22133-200000@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0208072001490.22133-200000@localhost.localdomain>; from mingo@elte.hu on Wed, Aug 07, 2002 at 08:10:40PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ingo Molnar wrote:
+> the attached patch (against BK-curr + Luca Barbieri's two TLS patches)  
+> does two things:
+> 
+>  - it implements a second TLS entry for Wine's purposes.
 
-anybody knows how to do this?
+Oh good; I was going to ask for this.  Wine isn't the only program that
+wants to use its own thread-local storage mechanism and link with Glibc
+at the same time.
 
-I was hoping to be able to set an option like "full_duplex=1" or
-something when loading the module, but this doesn't work. Also doing a
-"modinfo tg3" tells me there's only a debug parm (tg3_debug) for the
-module.
+The LDT works, but with limitations and overhead.
 
-Machine: Dell PowerEdge 2650
-OS/kernel: SuSE 8 with standard kernel (2.4.18-64GB-SMP)
-
-/var/log/messages output:
-Aug  8 15:38:08 serv100 kernel: tg3.c:v0.97 (Mar 13, 2002)
-Aug  8 15:38:08 serv100 kernel: eth0: Tigon3 [partno(BCM95701A10) rev
-0105 PHY(5701)] (PCIX:133MHz:64-bit) 10/100/1000BaseT E
-thernet 00:06:5b:3e:46:e2
-Aug  8 15:38:08 serv100 kernel: eth1: Tigon3 [partno(BCM95701A10) rev
-0105 PHY(5701)] (PCIX:133MHz:64-bit) 10/100/1000BaseT E
-thernet 00:06:5b:3e:46:e3
-Aug  8 15:38:08 serv100 kernel: eth0: Link is up at 100 Mbps, half
-duplex.
-Aug  8 15:38:08 serv100 kernel: eth0: Flow control is off for TX and off
-for RX.
-
-I also tried mii-tool on the interface which reports this:
-SIOCGMIIPHY on 'eth0' failed: Operation not supported
-
-
-Please let me know if more info from my part is needed for
-troubleshooting. Many thanks in advance.
-
-Best regards,
-Frederik Dannemare
-
-
+thanks,
+-- Jamie

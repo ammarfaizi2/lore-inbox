@@ -1,246 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264501AbUEJDbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUEJDdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264501AbUEJDbt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 23:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUEJDbt
+	id S264500AbUEJDdo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 23:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbUEJDdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 23:31:49 -0400
-Received: from main.gmane.org ([80.91.224.249]:15240 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264501AbUEJDa7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 23:30:59 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Erik Meitner <usenet@kwax.hn.org>
-Subject: Re: Athlon Mobile XP CPU speed problem
-Date: Sun, 09 May 2004 22:26:39 -0500
-Message-ID: <c7msu2$onb$1@sea.gmane.org>
-References: <200404091723.55628.andre@ironcreek.net> <20040506100512.GA226@elf.ucw.cz>
+	Sun, 9 May 2004 23:33:44 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:60116 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S264500AbUEJDdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 23:33:33 -0400
+Subject: Re: ACPI and broken PCI IRQ sharing on Asus M5N laptop
+From: Len Brown <len.brown@intel.com>
+To: Patrick Reynolds <reynolds@cs.duke.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FAF0D@hdsmsx403.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615FAF0D@hdsmsx403.hd.intel.com>
+Content-Type: multipart/mixed; boundary="=-+0HHEOsZiTNHIoGMmPum"
+Organization: 
+Message-Id: <1084160004.12352.82.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: mdsnwi13-vlan446-68.dsl.tds.net
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-In-Reply-To: <20040506100512.GA226@elf.ucw.cz>
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 09 May 2004 23:33:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+
+--=-+0HHEOsZiTNHIoGMmPum
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Sun, 2004-05-09 at 22:47, Brown, Len wrote:
+> On Sun, 2004-05-09 at 20:44, Patrick Reynolds wrote:
+
+> >    12:      310     XT-PIC  i8042, Intel 82801DB-ICH4, yenta
+
 > 
+> try booting with "acpi_irq_isa=12"
 > 
->>My notebook [1], powered by a AMD Athlon XP2400+ (k7) is slowing down when 
->>running on battery. This happens regardless of whether or not cpu frequency 
->>scaling is enabled or not. /proc/cpuinfo still shows maximum frequency, but 
->>the computer is definitely slowed down considerably.
+> ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 12) *0, disabled.
 > 
-> 
-> That may well be bios feature. Maybe battery is not even able to get
-> you enough juice for full speed....
-> 									Pavel
+> ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 12
 
-I have also noticed the same problem. I have an HP nx9005(model DK993A
-with an AMD XP-M 2400+) installed with Debian/testing and kernel 2.6.4 
-and 2.6.5. ACPI is used for power management.
+On the assumption that cmdline works, please try this patch
+(without any cmdline param).
 
-When powered by AC the system performance is excellent. When powered by
-battery, the system is so sluggish that I prefer to just not use it. It
-is like it was running at 200 MHz.
-This occurs with frequency scaling turned OFF and the CPU running at
-1788MHz.
+It simply tweaks the heuristic and makes IRQ12 less attractive compared
+to the others.
 
-ONLY when I reboot with acpi=off does this behavior not occur - of 
-course all other power management is off too.
-
-Note the differences in the results of the bogomips benchmark below. Let 
-   me know if any other information is needed.
-
-Thanks,
-Erik
+thanks,
+-Len
 
 
+--=-+0HHEOsZiTNHIoGMmPum
+Content-Disposition: attachment; filename=pci_link.patch
+Content-Type: text/plain; name=pci_link.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Relevant lines from kernel messages:
+===== drivers/acpi/pci_link.c 1.28 vs edited =====
+--- 1.28/drivers/acpi/pci_link.c	Thu May  6 16:03:17 2004
++++ edited/drivers/acpi/pci_link.c	Sun May  9 23:16:48 2004
+@@ -478,7 +478,7 @@
+ 	PIRQ_PENALTY_PCI_AVAILABLE,	/* IRQ9  PCI, often acpi */
+ 	PIRQ_PENALTY_PCI_AVAILABLE,	/* IRQ10 PCI */
+ 	PIRQ_PENALTY_PCI_AVAILABLE,	/* IRQ11 PCI */
+-	PIRQ_PENALTY_ISA_TYPICAL,	/* IRQ12 mouse */
++	PIRQ_PENALTY_ISA_USED,	/* IRQ12 mouse */
+ 	PIRQ_PENALTY_ISA_USED,	/* IRQ13 fpe, sometimes */
+ 	PIRQ_PENALTY_ISA_USED,	/* IRQ14 ide0 */
+ 	PIRQ_PENALTY_ISA_USED,	/* IRQ15 ide1 */
+@@ -545,17 +545,23 @@
+ 		if (link->irq.active == link->irq.possible[i])
+ 			break;
+ 	}
++	/*
++	 * forget active IRQ that is not in possible list
++	 */
++	if (i == link->irq.possible_count) {
++		if (acpi_strict)
++			printk(KERN_WARNING PREFIX "_CRS %d not found"
++				" in _PRS\n", link->irq.active);
++		link->irq.active = 0;
++	}
+ 
+ 	/*
+ 	 * if active found, use it; else pick entry from end of possible list.
+ 	 */
+-	if (i != link->irq.possible_count) {
++	if (link->irq.active) {
+ 		irq = link->irq.active;
+ 	} else {
+ 		irq = link->irq.possible[link->irq.possible_count - 1];
+-		if (acpi_strict)
+-			printk(KERN_WARNING PREFIX "_CRS %d not found"
+-				" in _PRS\n", link->irq.active);
+ 	}
+ 
+ 	if (acpi_irq_balance || !link->irq.active) {
 
-
-On AC power with ACPI:
-============
-============
-
-nx9:~# bogomips
-Calibrating delay loop.. ok - 1760.00 BogoMips
-
-/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq:
-1795500
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq:
-532000
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies:
-532000 665000 798000 931000 1330000 1795500:
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors:
-powersave userspace performance
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_driver:
-powernow-k7
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor:
-performance
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq:
-1795500
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq:
-532000
-
-/proc/cpuinfo:
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 10
-model name      : mobile AMD Athlon(tm) XP2400+
-stepping        : 0
-cpu MHz         : 1788.828
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
-cmov pat pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnow
-bogomips        : 3538.94
-
-
-nx9:/proc/acpi/processor/CPU0# more *
-::::::::::::::
-info
-::::::::::::::
-processor id:            0
-acpi id:                 0
-bus mastering control:   yes
-power management:        yes
-throttling control:      no
-limit interface:         no
-::::::::::::::
-limit
-::::::::::::::
-<not supported>
-::::::::::::::
-power
-::::::::::::::
-active state:            C2
-default state:           C1
-bus master activity:     00000000
-states:
-     C1:                  promotion[C2] demotion[--] latency[000]
-usage[00029760]
-    *C2:                  promotion[--] demotion[C1] latency[100]
-usage[00418342]
-     C3:                  <not supported>
-::::::::::::::
-throttling
-::::::::::::::
-<not supported>
-
-
-
-On battery power with ACPI:
-================
-================
-
-nx9:~# bogomips
-Calibrating delay loop.. ok - 612.00 BogoMips
-
-/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq:
-1795500
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq:
-532000
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies:
-532000 665000 798000 931000 1330000 1795500
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors:
-powersave userspace performance
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_driver:
-powernow-k7
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor:
-performance
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq:
-1795500
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq:
-532000
-
-cat /proc/cpuinfo:
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 10
-model name      : mobile AMD Athlon(tm) XP2400+
-stepping        : 0
-cpu MHz         : 1788.828
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
-cmov pat pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnow
-bogomips        : 3538.94
-
-
-nx9:/proc/acpi/processor/CPU0# more *
-::::::::::::::
-info
-::::::::::::::
-processor id:            0
-acpi id:                 0
-bus mastering control:   yes
-power management:        yes
-throttling control:      no
-limit interface:         no
-::::::::::::::
-limit
-::::::::::::::
-<not supported>
-::::::::::::::
-power
-::::::::::::::
-active state:            C2
-default state:           C1
-bus master activity:     00000000
-states:
-     C1:                  promotion[C2] demotion[--] latency[000]
-usage[00028280]
-    *C2:                  promotion[--] demotion[C1] latency[100]
-usage[00379537]
-     C3:                  <not supported>
-::::::::::::::
-throttling
-::::::::::::::
-<not supported>
-
-
-On battery power without ACPI:
-================
-================
-nx9:~# bogomips
-Calibrating delay loop.. ok - 1760.00 BogoMips
-
-
+--=-+0HHEOsZiTNHIoGMmPum--
 

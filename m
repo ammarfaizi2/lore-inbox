@@ -1,89 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130617AbRCPQqz>; Fri, 16 Mar 2001 11:46:55 -0500
+	id <S130661AbRCPQyz>; Fri, 16 Mar 2001 11:54:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130618AbRCPQqq>; Fri, 16 Mar 2001 11:46:46 -0500
-Received: from mnh-1-19.mv.com ([207.22.10.51]:54533 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S130617AbRCPQqn>;
-	Fri, 16 Mar 2001 11:46:43 -0500
-Message-Id: <200103161757.MAA01897@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org, engler@csl.Stanford.EDU, mc@cs.Stanford.EDU
-Subject: Re: [CHECKER] big stack variables 
-In-Reply-To: Your message of "Fri, 16 Mar 2001 19:23:45 +1100."
-             <3AB1CD91.7C70CD49@uow.edu.au> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 16 Mar 2001 12:57:30 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S130681AbRCPQyq>; Fri, 16 Mar 2001 11:54:46 -0500
+Received: from ip165-227.fli-ykh.psinet.ne.jp ([210.129.165.227]:51139 "EHLO
+	standard.erephon") by vger.kernel.org with ESMTP id <S130636AbRCPQy2>;
+	Fri, 16 Mar 2001 11:54:28 -0500
+Message-ID: <3AB24511.EA8BD2A2@yk.rim.or.jp>
+Date: Sat, 17 Mar 2001 01:53:37 +0900
+From: Ishikawa <ishikawa@yk.rim.or.jp>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: ja, en
+MIME-Version: 1.0
+To: Doug Ledford <dledford@redhat.com>
+CC: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: scsi_scan problem.
+In-Reply-To: <3AB028BE.E8940EE6@redhat.com> <20010314213543.A30816@devserv.devel.redhat.com> <3AB030F6.246C6F23@redhat.com>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andrewm@uow.edu.au said:
-> I've got my nose stuck in tty_io.c at present - I'll fix this this
-> one. 
+Hi,
 
-This is the patch I've been carrying around in the UML pool since this bit me:
+I have an "old" Nakamichi CD changer.
+("old" might be important consideration here. )
 
-diff -Naur -X exclude-files orig/drivers/char/tty_io.c um/drivers/char/tty_io.c
---- orig/drivers/char/tty_io.c	Thu Feb 22 11:53:50 2001
-+++ um/drivers/char/tty_io.c	Thu Feb 22 11:54:55 2001
-@@ -1991,12 +1991,11 @@
- {
- #ifdef CONFIG_DEVFS_FS
- 	umode_t mode = S_IFCHR | S_IRUSR | S_IWUSR;
--	struct tty_struct tty;
-+	kdev_t device = MKDEV (driver->major, minor);
-+	int idx = minor - driver->minor_start;
- 	char buf[32];
- 
--	tty.driver = *driver;
--	tty.device = MKDEV (driver->major, minor);
--	switch (tty.device) {
-+	switch (device) {
- 		case TTY_DEV:
- 		case PTMX_DEV:
- 			mode |= S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-@@ -2017,23 +2016,21 @@
- 	     (driver->major < UNIX98_PTY_SLAVE_MAJOR + UNIX98_NR_MAJORS) )
- 		flags |= DEVFS_FL_CURRENT_OWNER;
- #  endif
--	devfs_register (NULL, tty_name (&tty, buf), flags | DEVFS_FL_DEFAULT,
-+	sprintf(buf, driver->name, idx + driver->name_base);
-+	devfs_register (NULL, buf, flags | DEVFS_FL_DEFAULT,
- 			driver->major, minor, mode, &tty_fops, NULL);
- #endif /* CONFIG_DEVFS_FS */
- }
- 
--void tty_unregister_devfs (struct tty_driver *driver, unsigned minor)
-+void tty_unregister_devfs (struct tty_driver *driver, unsigned int minor)
- {
- #ifdef CONFIG_DEVFS_FS
- 	void * handle;
--	struct tty_struct tty;
-+	int idx = minor - driver->minor_start;
- 	char buf[32];
- 
--	tty.driver = *driver;
--	tty.device = MKDEV(driver->major, minor);
--	
--	handle = devfs_find_handle (NULL, tty_name (&tty, buf),
--				    driver->major, minor,
-+	sprintf(buf, driver->name, idx + driver->name_base);
-+	handle = devfs_find_handle (NULL, buf, driver->major, minor,
- 				    DEVFS_SPECIAL_CHR, 0);
- 	devfs_unregister (handle);
- #endif /* CONFIG_DEVFS_FS */
-@@ -2192,6 +2189,9 @@
- #endif
- #ifdef CONFIG_HWC
-         hwc_console_init();
-+#endif
-+#ifdef CONFIG_STDIO_CONSOLE
-+	stdio_console_init();
- #endif
- #ifdef CONFIG_SERIAL_21285_CONSOLE
- 	rs285_console_init();
+Should I test the patch submitted and report what I found ?
+(Or maybe I don't have to bother at this stage at all
+and  simply wait for the 2.5 development and debugging cycle?)
+
+
 
 

@@ -1,83 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135373AbQLOAk6>; Thu, 14 Dec 2000 19:40:58 -0500
+	id <S133105AbQLOAli>; Thu, 14 Dec 2000 19:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135305AbQLOAkj>; Thu, 14 Dec 2000 19:40:39 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:18864 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S133105AbQLOAkh>; Thu, 14 Dec 2000 19:40:37 -0500
-Date: Thu, 14 Dec 2000 19:09:30 -0500
-From: Bill Nottingham <notting@redhat.com>
+	id <S135305AbQLOAla>; Thu, 14 Dec 2000 19:41:30 -0500
+Received: from enterprise.cistron.net ([195.64.68.33]:7432 "EHLO
+	enterprise.cistron.net") by vger.kernel.org with ESMTP
+	id <S133105AbQLOAku>; Thu, 14 Dec 2000 19:40:50 -0500
+From: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: Signal 11
+Date: 15 Dec 2000 00:10:24 GMT
+Organization: Cistron Internet Services B.V.
+Message-ID: <91bnhg$vij$1@enterprise.cistron.net>
+In-Reply-To: <Pine.LNX.4.10.10012141434320.12451-100000@penguin.transmeta.com> <Pine.LNX.4.30.0012142351520.19104-100000@bochum.redhat.de>
+X-Trace: enterprise.cistron.net 976839024 32339 195.64.65.67 (15 Dec 2000 00:10:24 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
 To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com, chaffee@cs.berkeley.edu
-Subject: PATCH: fix FAT32 filesystems on 64-bit platforms
-Message-ID: <20001214190930.C12088@nostromo.devel.redhat.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-	chaffee@cs.berkeley.edu
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="PEIAKu/WMn1b1Hv9"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.30.0012142351520.19104-100000@bochum.redhat.de>,
+Bernhard Rosenkraenzer  <bero@redhat.de> wrote:
+>The same thing is true of *any* gcc release.
+>For example, C++-ABI wise, 2.95.x is incompatible BOTH with egcs 1.1.x
+>_and_ the upcoming 3.0 release.
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Yes, but 2.96 is also binary incompatible with all non-redhat distro's.
+And since redhat is _the_ distro that commercial entities use to
+release software for, this was very arguably a bad move.
 
-This fixes FAT32 on 64-bit platforms (notably, IA-64 and Alpha);
-without this you can't mount any FAT32 filesystems. A similar patch
-is already in 2.2.18.
+There's simply no excuse. It's too obvious.
 
-Bill
-
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.4.0-test12-vfat.patch"
-
---- linux/fs/fat/cache.c.foo	Sat Nov 25 16:30:47 2000
-+++ linux/fs/fat/cache.c	Sat Nov 25 16:32:29 2000
-@@ -70,7 +70,7 @@
- 	}
- 	if (MSDOS_SB(sb)->fat_bits == 32) {
- 		p_first = p_last = NULL; /* GCC needs that stuff */
--		next = CF_LE_L(((unsigned long *) bh->b_data)[(first &
-+		next = CF_LE_L(((__u32 *) bh->b_data)[(first &
- 		    (SECTOR_SIZE-1)) >> 2]);
- 		/* Fscking Microsoft marketing department. Their "32" is 28. */
- 		next &= 0xfffffff;
-@@ -79,12 +79,12 @@
- 
- 	} else if (MSDOS_SB(sb)->fat_bits == 16) {
- 		p_first = p_last = NULL; /* GCC needs that stuff */
--		next = CF_LE_W(((unsigned short *) bh->b_data)[(first &
-+		next = CF_LE_W(((__u16 *) bh->b_data)[(first &
- 		    (SECTOR_SIZE-1)) >> 1]);
- 		if (next >= 0xfff7) next = -1;
- 	} else {
--		p_first = &((unsigned char *) bh->b_data)[first & (SECTOR_SIZE-1)];
--		p_last = &((unsigned char *) bh2->b_data)[(first+1) &
-+		p_first = &((__u8 *) bh->b_data)[first & (SECTOR_SIZE-1)];
-+		p_last = &((__u8 *) bh2->b_data)[(first+1) &
- 		    (SECTOR_SIZE-1)];
- 		if (nr & 1) next = ((*p_first >> 4) | (*p_last << 4)) & 0xfff;
- 		else next = (*p_first+(*p_last << 8)) & 0xfff;
-@@ -92,10 +92,10 @@
- 	}
- 	if (new_value != -1) {
- 		if (MSDOS_SB(sb)->fat_bits == 32) {
--			((unsigned long *) bh->b_data)[(first & (SECTOR_SIZE-1)) >>
-+			((__u32 *) bh->b_data)[(first & (SECTOR_SIZE-1)) >>
- 			    2] = CT_LE_L(new_value);
- 		} else if (MSDOS_SB(sb)->fat_bits == 16) {
--			((unsigned short *) bh->b_data)[(first & (SECTOR_SIZE-1)) >>
-+			((__u16 *) bh->b_data)[(first & (SECTOR_SIZE-1)) >>
- 			    1] = CT_LE_W(new_value);
- 		} else {
- 			if (nr & 1) {
-
---PEIAKu/WMn1b1Hv9--
+Mike.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

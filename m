@@ -1,40 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292373AbSBBT7n>; Sat, 2 Feb 2002 14:59:43 -0500
+	id <S292374AbSBBUDm>; Sat, 2 Feb 2002 15:03:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292369AbSBBT7a>; Sat, 2 Feb 2002 14:59:30 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47122 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292370AbSBBT7T>; Sat, 2 Feb 2002 14:59:19 -0500
-Subject: Re: [evms-devel] [linux-lvm] [ANNOUNCE] LVM reimplementation ready for beta testing
-To: clausen@gnu.org (Andrew Clausen)
-Date: Sat, 2 Feb 2002 19:42:31 +0000 (GMT)
-Cc: corryk@us.ibm.com (Kevin Corry),
-        thornber@fib011235813.fsnet.co.uk (Joe Thornber),
-        linux-lvm@sistina.com, evms-devel@lists.sourceforge.net,
-        Jim@mcdee.net (Jim McDonald), adilger@turbolabs.com (Andreas Dilger),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020203003937.B874@gnu.org> from "Andrew Clausen" at Feb 03, 2002 12:39:37 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S292372AbSBBUD3>; Sat, 2 Feb 2002 15:03:29 -0500
+Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:1825 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S292370AbSBBUDU>;
+	Sat, 2 Feb 2002 15:03:20 -0500
+Message-ID: <000f01c1ac24$c8105c00$af00a8c0@mshome.net>
+From: "Astinus" <Astinus@netcabo.pt>
+To: <linux-kernel@vger.kernel.org>
+Subject: 
+Date: Sat, 2 Feb 2002 20:04:10 -0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16X63T-0000KH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 02 Feb 2002 20:00:27.0971 (UTC) FILETIME=[42A0A930:01C1AC24]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > this graph (except the volume group). But in reality, we don't want someone 
-> > coming along and mucking with md0 or with LV2 or with any of the disk 
-> > partitions, because they are all in use by the two volumes at the top.
-> 
-> It's the user's fault if they choose to write on such a device.
+auth d7c21c90 subscribe linux-kernel AstinusLists@netcabo.pt
 
-You want access to the raw devices as well as the virtual volumes. You
-try doing SMART diagnostics online on an md volume if you can't get
-at /dev/hd* and /dev/sd*.
 
-You don't want to mount both layers at once I suspect, but even that
-may be questionable for a read only mirror.
 
-Alan

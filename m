@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311050AbSCMTXt>; Wed, 13 Mar 2002 14:23:49 -0500
+	id <S311057AbSCMTWt>; Wed, 13 Mar 2002 14:22:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311059AbSCMTXk>; Wed, 13 Mar 2002 14:23:40 -0500
-Received: from magic.adaptec.com ([208.236.45.80]:4234 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id <S311050AbSCMTXQ>;
-	Wed, 13 Mar 2002 14:23:16 -0500
-Message-ID: <F8D30FF32B23D61198B9009027D61DB32FC217@otcexc01.otc.adaptec.com>
-From: "Bonds, Deanna" <Deanna_Bonds@adaptec.com>
-To: "'Adam J. Richter'" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: RE: linux-2.5.6 scsi DMA mapping and compilation fixes (not yet w
-	orking)
-Date: Wed, 13 Mar 2002 14:23:16 -0500
+	id <S311059AbSCMTWm>; Wed, 13 Mar 2002 14:22:42 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:18451 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S311057AbSCMTWL>; Wed, 13 Mar 2002 14:22:11 -0500
+Message-ID: <3C8FA65E.484B47A7@zip.com.au>
+Date: Wed, 13 Mar 2002 11:19:58 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Andrea Arcangeli <andrea@suse.de>, wli@holomorphy.com,
+        wli@parcelfarce.linux.theplanet.co.uk,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org, hch@infradead.org,
+        phillips@bonn-fries.net
+Subject: Re: 2.4.19pre2aa1
+In-Reply-To: <20020313115713.E1703@dualathlon.random> <Pine.LNX.4.44L.0203131050440.2181-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-> -----Original Message-----
-> From: Adam J. Richter [mailto:adam@yggdrasil.com]
-> 		o dpt_i2o - I need to understand the i2o system a little
-more
-> 		  to determine whether all of the similar looking code in
-> 		  drivers/messages/i2o and dpt_i2o is redundant or
-necessary.
+Rik van Riel wrote:
 > 
+> On Wed, 13 Mar 2002, Andrea Arcangeli wrote:
+> > On Wed, Mar 13, 2002 at 08:30:55AM +0100, Andrea Arcangeli wrote:
+> > >  {
+> > >     clear_bit(BH_Wait_IO, &bh->b_state);
+> > >     clear_bit(BH_Lock, &bh->b_state);
+> > > +   clear_bit(BH_Launder, &bh->b_state);
+> > >     smp_mb__after_clear_bit();
+> > >     if (waitqueue_active(&bh->b_wait))
+> >
+> > actually, while refining the patch and integrating it, I audited it some
+> > more carefully and the above was wrong,
+> 
+> It's complex.
+> 
+> Would there be a way to simplify the thing so the author
+> of the code can at least get it right and there's a chance
+> of other people understanding it too ? ;)
 
-This code is very similar to the i2o subsystem, yet it is not the same.
-When I get free of my current project I will work on updating this module
-(unless someone beats me to it).
+I'll be documenting the BH state bits, and sync_page_buffers(),
+when it settles down.
 
-Deanna
+> ...
+> <insert bitkeeper endorsement here>
+
+You should lubricate it first.
+
+-

@@ -1,105 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266892AbUAXIjx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 03:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266893AbUAXIjx
+	id S266893AbUAXIvU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 03:51:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266894AbUAXIvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 03:39:53 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:4224 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266892AbUAXIju (ORCPT
+	Sat, 24 Jan 2004 03:51:20 -0500
+Received: from aibo.runbox.com ([193.71.199.94]:36487 "EHLO aibo.runbox.com")
+	by vger.kernel.org with ESMTP id S266893AbUAXIvT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 03:39:50 -0500
-Date: Sat, 24 Jan 2004 09:39:58 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "P. Christeas" <p_christ@hol.gr>
-Cc: lkml <linux-kernel@vger.kernel.org>, omnibook@zurich.csail.mit.edu
-Subject: Re: Solved: atkbd w 2.6.2rc1 : HowTo for extra (inet) keys ?
-Message-ID: <20040124083958.GA445@ucw.cz>
-References: <200401232204.27819.p_christ@hol.gr> <20040123210953.GA12647@ucw.cz> <200401240428.30493.p_christ@hol.gr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401240428.30493.p_christ@hol.gr>
-User-Agent: Mutt/1.4.1i
+	Sat, 24 Jan 2004 03:51:19 -0500
+Date: Tue, 6 Jan 1970 04:01:53 +0300
+Mime-Version: 1.0 (Apple Message framework v553)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Subject: 2.6.1 + XFS wierdness
+From: Igor <ivi@runbox.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Message-Id: <8D2C6B0D-21C8-11B2-9DDD-000A958B60EE@runbox.com>
+X-Mailer: Apple Mail (2.553)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 24, 2004 at 04:28:30AM +0200, P. Christeas wrote:
-> After spending my evening on it :-(  I managed to find the correct keys for 
-> the Omnibook XE3: 
-> (I could only reverse-engineer the previous hack I 've had for it)
-> Download and hack the 'console-tools' package (from sourceforge, project 
-> "lct") so that 'setkeycodes' does accept keycodes >127.
-> 
-> Vojtech, is 512 the upper bound for <keycode> at setkeycodes?
-> 
-> Using 2.6.2-rc1, issue:
-> setkeycodes e071 236
-> setkeycodes e072 237
-> setkeycodes e073 238
-> setkeycodes e074 239
-> 
->  so that the upper (near the screen) row of "internet" buttons is assigned to 
-> the keys X expect to receive.
-> e071 etc. can be found using 'showkey -s'
-> I still don't get where 236 came from (so that I could help other kbds, as 
-> well).
+Ok, as advised I'm reporting what happened to my system:
+I run Kernel 2.6.1 with XFS on a laptop, I forgot to send it to "sleep"
+and battery died, so there was unclean unmount (This is, what I believe 
+was the cause),
+at some point after I restarted my system many of the files couldn't be 
+executed:
+"binary file can't be executed reported", However the system was 
+functional and I could boot it.
+So I hexopened some of the problematic files and found that although 
+the size of the file is maintained, there was no data, every byte was 
+replaced by 0, I guess it was lucking reference on a hard drive or 
+maybe something else. The reason I think the root of the problem is 
+filesystem + kernel because the "corrupted" files have nothing in 
+common, e.g:
+/usr/bin/file
+/etc/init.d/cron
+/usr/bin/lynx
+and that only happened when I updated kernel to 2.6.1
+Regards.
 
-The almost right solution here would be to write an xkb keyboard
-description that matches the 2.6 keycode->scancode mappings, so that
-once you get the 'setkeycodes' command right, both the kernel and X will
-understand the keys correctly.
+If you reply, please cc to ivi@runbox.com
 
-With your approach you got the keys correct solely in X, not the kernel.
-
-I'll take a look at this.
-
-The completely right approach would be to teach X to either use the
-event interface or at least the medium raw mode.
-
-> > On Fri, Jan 23, 2004 at 10:04:27PM +0200, P. Christeas wrote:
-> > > Hello again.
-> > > I just reverted my atkbd.c code to your version (Linus's tree) and
-> > > unfortunately have 4 keys 'missing' from my HP Omnibook XE3GC extra
-> > > "internet keys".
-> > > Question 1: Can I fix the table from userland, using some utility? That
-> > > is, can I upload an updated table into the kernel, so that I don't have
-> > > to reboot?
-> >
-> > 'setkeycodes' can do that.
-> >
-> > > Q 2: Do you have any HowTo/QA for that?
-> >
-> > Not yet, but I'll have to write one.
-> >
-> > > Q 3: Will that work under X? (which AFAIK reads the 'raw' codes)
-> >
-> > X needs to be set up as well. In 2.6, X doesn't get real raw codes but
-> > instead simulated raw codes generated by the kernel.
-> >
-> > > Q 4: It has been rather difficult for me to compute the scancodes needed
-> > > for the table. Could you put the "formula" onto the HowTo?
-> > >
-> > > FYI, the codes are:
-> > > "www": Unknown key pressed (translated set 2, code 0xf3 on
-> > > isa0060/serio0). "Mail":  Unknown key pressed (translated set 2, code
-> > > 0xf4 on isa0060/serio0). "Launch": Unknown key pressed (translated set 2,
-> > > code 0xf2 on isa0060/serio0). "Help":  Unknown key pressed (translated
-> > > set 2, code 0xf1 on isa0060/serio0).
-> >
-> > The formula for setkeycodes is:
-> >
-> > if (code > 0x100)
-> > 	you're out of luck, setkeycodes doesn't handle this yet;
-> > else if (code > 0x80)
-> > 	result = code - 0x80 + 0xe000;
-> > else
-> > 	result = code;
-> >
-> > And then you use 'setkeycodes result keycode',
-> >
-> > where keycode you find in include/linux/input.h.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261541AbSJAIlW>; Tue, 1 Oct 2002 04:41:22 -0400
+	id <S261534AbSJAIgq>; Tue, 1 Oct 2002 04:36:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261545AbSJAIlV>; Tue, 1 Oct 2002 04:41:21 -0400
-Received: from [203.122.29.75] ([203.122.29.75]:5907 "EHLO
-	smtp.ggn.aithent.com") by vger.kernel.org with ESMTP
-	id <S261541AbSJAIlU>; Tue, 1 Oct 2002 04:41:20 -0400
-Message-ID: <034f01c26928$00fe2860$af0310ac@abansal>
-From: "Ankit Bansal" <abansal@ggn.aithent.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: kernel installation problem...
-Date: Tue, 1 Oct 2002 14:23:25 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 01 Oct 2002 08:46:35.0703 (UTC) FILETIME=[0CABEC70:01C26927]
+	id <S261535AbSJAIgq>; Tue, 1 Oct 2002 04:36:46 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60688 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261534AbSJAIgq>; Tue, 1 Oct 2002 04:36:46 -0400
+Date: Tue, 1 Oct 2002 09:42:02 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andrew Morton <akpm@digeo.com>, David Miller <davem@redhat.com>,
+       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+       linuxppc-embedded@lists.linuxppc.org
+Subject: Re: [PATCH,RFC] Add gfp_mask to get_vm_area()
+Message-ID: <20021001094202.C29814@flint.arm.linux.org.uk>
+References: <20021001044226.GS10265@zax> <3D992DB0.9A8942D@digeo.com> <20021001053417.GW10265@zax>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021001053417.GW10265@zax>; from david@gibson.dropbear.id.au on Tue, Oct 01, 2002 at 03:34:17PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-auth 5c4e01f2
->
-> > hi...,
-> >
-> >                I have a problem as :
-> >
-> >                         - I have to install kernel 2.4.4 to install
-> rtlinux
-> > 3.1...,
-> >                         - at this moment the version installed on my
-> machine
-> > is 2.2.12
-> >                         - I unzipped the downloaded kernel and got the
-> > directory named as linux
-> >                         - I followed all the steps documented at
-> kernel.org
-> >
-> > problem: After executing make bzImage also I didnot get vmlinuz file to
-be
-> > specified in lilo.conf
-> >
-> >     need your help in this regard...
-> >
-> > thanks in advance,
-> > anket
-> >
->
+On Tue, Oct 01, 2002 at 03:34:17PM +1000, David Gibson wrote:
+> I don't see an easy one: PPC 4xx has non-coherent cache, so we have to
+> mark consistent memory non-cacheable.  We want to make the normal
+> lowmem mapping use large page TLB entries, so we can't frob the
+> attribute bits on the pages in place.  That means we need to create a
+> new, non-cacheable mapping for the physical RAM we allocate, which in
+> turn means allocating a chunk of kernel virtual memory.
+
+Same problem on ARM.  I just haven't got the motivation to rewrite the
+bits of the kernel that need to be rewritten to make it work.
+
+Have you checked that your pte/pmd allocation functions can be called
+from IRQ context as well?
+
+You basically need:
+
+ - irq-safe get_vm_area
+ - irq-safe pmd_alloc_kernel
+ - irq-safe pte_alloc_kernel
+
+Last time I looked, all the above were not irq-safe.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbUK3SnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbUK3SnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262264AbUK3SnT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 13:43:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbUK3SmR
+	id S262251AbUK3SnV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 13:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbUK3Smj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 13:42:17 -0500
-Received: from ottawa-hs-64-26-171-227.s-ip.magma.ca ([64.26.171.227]:6294
-	"HELO edgewater.ca") by vger.kernel.org with SMTP id S262249AbUK3Skw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 13:40:52 -0500
-Message-ID: <000901c4d70c$0ecf1bd0$8500a8c0@WS055>
-From: "Yihan Li" <Yihan.Li@Edgewater.CA>
-To: <linux-kernel@vger.kernel.org>
-Subject: patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora Core 3
-Date: Tue, 30 Nov 2004 13:40:25 -0500
+	Tue, 30 Nov 2004 13:42:39 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:32921 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262254AbUK3SjU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 13:39:20 -0500
+Date: Tue, 30 Nov 2004 19:39:15 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Amit Gud <amitgud1@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: file as a directory
+In-Reply-To: <2c59f00304113010262063d219@mail.gmail.com>
+Message-ID: <Pine.LNX.4.53.0411301935240.9193@yvahk01.tjqt.qr>
+References: <200411292120.iATLKZxE004233@laptop11.inf.utfsm.cl> 
+ <1101832103.2885.4.camel@zathras.emsl.pnl.gov>  <Pine.LNX.4.53.0411301740430.1622@yvahk01.tjqt.qr>
+  <04113011354200.08643@tabby>  <Pine.LNX.4.53.0411301844100.16712@yvahk01.tjqt.qr>
+ <2c59f00304113010262063d219@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Help needed!
-I am trying to patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora Core 3.
-The following steps are what I was following:
+>My suggestion is to add a framework, an infrastructure, in the VFS
+>wherein a simple plugin can be written to poke into the file as if it
+>were a directory. So with that framework in place, I can write a
+>plugin for archive support (treating the .tar files as directories),
+>Peter could write a plugin for poking into /etc/passwd (treating it as
+>a directory), and Jon Doe could write a plugin for sendmail.cf
 
-I download a varnilla version of linux-2.6.9 from www.kernel.org,
-Unpack the kernel source:
-# cd /usr/src
-# tar xvjf linux-2.6.9.tar.bz2
-# ln -s linux-2.6.9 linux
+That's something I could live with, but how do you want to tag a file being
+"tar" so that tar_ops is used instead of the "default file" ops?
 
-Unpack or copy RTAI to  /usr/src/fusion-0.6.4.tar.bz2
-# ln -s fusion-0.6.4  rtai
+You could not do so without an extra function, and once you use that extra
+function to tag a certain file being "tar" -- you know that extensions are
+kinda "worthless", and, especially, unrealiable -- you could also have used tar
+-tvf.
 
-Patch the kernel:
-# cd /usr/src/linux
-# patch -p1 < ../rtai/arch/i386/patches/adeos-linux-2.6.9-i386-r8.patch
-Copy the existing (Fedora) kernel config file to /usr/src/linux
-# cp /boot/config-2.6.xxxx /usr/src/linux/.configConfigure the kernel:
-# make menuconfig
-# make
+Did I mention tar is not the perfect format? It's because it is lacking an
+index and letting the kernel wade through a GB-sized tar file just to perform
+and readdir (yet imagine reading the last file of it) would be a hell of
+skipping. Keeping a non-persistent index in memory may solve the problem, but
+hey, I also do not want to spend too much memory just for a single tar file.
 
-After 8 mins, I get error messages as following:
-drivers/scsi/qla2xxx/qla_os.c: In function `qla2x00_queuecommand':
-drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining failed in
-call to 'qla2x00_callback': function not considered for inlining
-drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from here
-drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining failed in
-call to 'qla2x00_callback': function not considered for inlining
-drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from here
-make[3]: *** [drivers/scsi/qla2xxx/qla_os.o] Error 1
-make[2]: *** [drivers/scsi/qla2xxx] Error 2
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
+>struct file_operations ops = {
+>   .read            = tar_readdir,
+>   .readdir        = tar_readdir,
+>   ......
+>};
+>
+>register_file_type("tar", &ops);
 
-My guess is my configuration is not right, and don't know what to do, really
-need a hand ...
 
-I wish to be personally CC'ed the answers/comments in response to my
-posting.
 
+
+Jan Engelhardt
+-- 
+ENOSPC
 

@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279581AbRKATID>; Thu, 1 Nov 2001 14:08:03 -0500
+	id <S279583AbRKATLD>; Thu, 1 Nov 2001 14:11:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279583AbRKATHy>; Thu, 1 Nov 2001 14:07:54 -0500
-Received: from smtp-rt-3.wanadoo.fr ([193.252.19.155]:25484 "EHLO
-	apicra.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S279581AbRKATHo>; Thu, 1 Nov 2001 14:07:44 -0500
-Message-ID: <3BE19CF4.2000305@wanadoo.fr>
-Date: Thu, 01 Nov 2001 20:05:24 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Organization: Home PC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Ricardo Martins <thecrown@softhome.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: on exit xterm  totally wrecks linux 2.4.11 to 2.4.14-pre6 (unkillable processes)
-In-Reply-To: <3BE1777F.30705@softhome.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S279591AbRKATKx>; Thu, 1 Nov 2001 14:10:53 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:31237 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S279583AbRKATKh>;
+	Thu, 1 Nov 2001 14:10:37 -0500
+Subject: Re: OSDL Scalable Test Platform test for linux_2_4_13
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Dmitry Volkoff <vdb@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011101065107.A23409@localhost>
+In-Reply-To: <20011101065107.A23409@localhost>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16 (Preview Release)
+Date: 01 Nov 2001 11:11:22 -0800
+Message-Id: <1004641889.3339.28.camel@wookie-laptop.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  A couple of items explain these differences. The 1st is that 
+UnixBench is a single stream number and is almost 100% cached even
+with a smaller (128KB) cache. Also the benchmark uses a very small
+amount of memory. This means that for any given version
+of the compiler and OS the best absolute performance number will
+be produced by the machine with the fastest single CPU. And
+you won't see any improvement from adding additional CPUS.
 
+  So what you are seeing is the difference between a single CPU
+running at 866MHz on the 2 way and a single CPU running at
+700 MHz on the 4 way. And of course your 1.4GHz would give better
+numbers as you are looking at 700Mhz, 866MHz and then 1.4 GHz and
+so the numbers should be 
 
-Ricardo Martins wrote:
+  The idea behind this test setup isn't to compare machine x
+verses machine y. (That's what marketing departments do.)
+But to be able to compare the same hardware against its self
+before and after a kernel change. 
 
-
-> Procedure
-> In X windows (version 4.1.0 compiled from the sources) when writing 
-> "exit" in xterm to close the terminal emulator, the window freezes, and 
-> from that moment on, every process becomes "unkillable", including xterm 
-> and X (ps also freezes), and there's no way to shutdown GNU/Linux in a 
-> sane way (must hit reset or poweroff).
-
-
-I can see the problem here with 2.4.13. I don't know if it's kernel 
-related, I'm used using rxvt, never xterm.
-
-It looks like xterm takes the terminal where you started X from.
-
-Are you using devfs ?
-
-
-Pierre
-
-
+wookie
+   
+On Wed, 2001-10-31 at 19:51, Dmitry Volkoff wrote:
+> > These tests were performed against 2, 4, and 8 CPU 
+> > IA-32 (Intel) servers. 
+> 
+> UnixBench results are somewhat funny. 
+> 4-CPU machine is slower than the one with 2 CPU (238.4 vs 260.0)?
+> Well, on UP Athlon 1.4Ghz with only 512 Mb RAM I get 460...
+> 
+> -- 
+> 
+>     DV
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
+
 

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316886AbSIEFRK>; Thu, 5 Sep 2002 01:17:10 -0400
+	id <S316897AbSIEFjg>; Thu, 5 Sep 2002 01:39:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316887AbSIEFRJ>; Thu, 5 Sep 2002 01:17:09 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:5872 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S316886AbSIEFRJ>; Thu, 5 Sep 2002 01:17:09 -0400
-Date: Thu, 5 Sep 2002 01:21:43 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Suparna Bhattacharya <suparna@in.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)]
-Message-ID: <20020905012143.B7979@redhat.com>
-References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com> <20020801140112.G21032@redhat.com> <20020815235459.GG14394@dualathlon.random> <20020815214225.H29874@redhat.com> <20020816150945.A1832@in.ibm.com> <20020816100334.GP14394@dualathlon.random> <20020816165306.A2055@in.ibm.com> <20020902184043.GN1210@dualathlon.random>
+	id <S316898AbSIEFjf>; Thu, 5 Sep 2002 01:39:35 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:21733 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316897AbSIEFjf>;
+	Thu, 5 Sep 2002 01:39:35 -0400
+Date: Wed, 04 Sep 2002 22:36:51 -0700 (PDT)
+Message-Id: <20020904.223651.79770866.davem@redhat.com>
+To: szepe@pinerecords.com
+Cc: mason@suse.com, reiser@namesys.com, shaggy@austin.ibm.com,
+       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+       aurora-sparc-devel@linuxpower.org, reiserfs-dev@namesys.com,
+       linuxjfs@us.ibm.com, green@namesys.com
+Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020905054008.GH24323@louise.pinerecords.com>
+References: <3D76A6FF.509@namesys.com>
+	<1031186951.1684.205.camel@tiny>
+	<20020905054008.GH24323@louise.pinerecords.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020902184043.GN1210@dualathlon.random>; from andrea@suse.de on Mon, Sep 02, 2002 at 08:40:43PM +0200
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 02, 2002 at 08:40:43PM +0200, Andrea Arcangeli wrote:
-> Could somebody explain the semantics of the io_queue_wait call in the
-> libaio? If you pass nr == 0 to getevents, getevents will do nothing. I
-> don't see the point of it so I'm unsure what's the right implementation.
+   From: Tomas Szepe <szepe@pinerecords.com>
+   Date: Thu, 5 Sep 2002 07:40:08 +0200
 
-It was supposed to wait for events to be ready.  In reality what ended up 
-happening is that people don't actually like to use io_queue_run/wait and 
-the function callbacks as Linus originally suggested in the event model, 
-and instead they prefer to use io_getevents directly.  libaio just hasn't 
-been updated to reflect that yet.
+   > Our disk format has link counts > 32k
+   
+   Does the internal reiserfs nlink value translate directly
+   to what stat() puts in st_nlink?
+   
+It really doesn't matter.  Even if you have some huge value that can't
+be represented in st_nlink, you can report to the user that st_nlink
+is NLINK_MAX.
 
-> then about the 2.5 API we have such min_nr that allows the "at least
-> min_nr", instead of the previous default of "at least 1", so that it
-> allows implementing the aio_nwait of aix.
-
-It was also required to break source compilation for the timeout update.
-
-> BTW, the libaio I'm adapting to test on my tree will not have the
-> libredhat thing anymore, and it will use the mainline 2.5 API since the
-> API is registered now and in the very worst case a non backwards
-> compatible API change would happen in late 2.5, replacing libaio.so is
-> not more complex than replacing libredhat.so anyways ;).
-
-That was already the intent for libaio-0.4.0.
-
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+This is one possible solution to this whole problem.

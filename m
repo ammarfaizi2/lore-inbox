@@ -1,71 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbUKKQrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262286AbUKKQvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbUKKQrw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 11:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbUKKQrw
+	id S262286AbUKKQvN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 11:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbUKKQvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 11:47:52 -0500
-Received: from dfw-gate4.raytheon.com ([199.46.199.233]:34911 "EHLO
-	dfw-gate4.raytheon.com") by vger.kernel.org with ESMTP
-	id S262285AbUKKQro (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 11:47:44 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-From: Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-0
-Date: Thu, 11 Nov 2004 10:46:31 -0600
-Message-ID: <OF3F836225.78DCFCB0-ON86256F49.005C260B-86256F49.005C2643@raytheon.com>
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 11/11/2004 10:46:32 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Thu, 11 Nov 2004 11:51:13 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:32128
+	"EHLO x30.random") by vger.kernel.org with ESMTP id S262286AbUKKQuy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 11:50:54 -0500
+Date: Thu, 11 Nov 2004 17:50:51 +0100
+From: Andrea Arcangeli <andrea@novell.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Nick Piggin <piggin@cyberone.com.au>, Rik van Riel <riel@redhat.com>,
+       Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>, tglx@linutronix.de
+Subject: Re: [PATCH] fix spurious OOM kills
+Message-ID: <20041111165050.GA5822@x30.random>
+References: <20041111112922.GA15948@logos.cnet> <20041111154238.GD18365@x30.random> <20041111123850.GA16349@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041111123850.GA16349@logos.cnet>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->i have released the -V0.7.25-0 Real-Time Preemption patch, which can be
->downloaded from the usual place:
->
->    http://redhat.com/~mingo/realtime-preempt/
->
->this release includes fixes, new features and latency improvements.
+On Thu, Nov 11, 2004 at 10:38:50AM -0200, Marcelo Tosatti wrote:
+> 
+> Hi!
+> 
+> On Thu, Nov 11, 2004 at 04:42:38PM +0100, Andrea Arcangeli wrote:
+> > On Thu, Nov 11, 2004 at 09:29:22AM -0200, Marcelo Tosatti wrote:
+> > > Hi,
+> > > 
+> > > This is an improved version of OOM-kill-from-kswapd patch.
+> > > 
+> > > I believe triggering the OOM killer from task reclaim context 
+> > > is broken because the chances that it happens increases as the amount
+> > > of tasks inside reclaim increases - and that approach ignores efforts 
+> > > being done by kswapd, who is the main entity responsible for
+> > > freeing pages.
+> > > 
+> > > There have been a few problems pointed out by others (Andrea, Nick) on the 
+> > > last patch - this one solves them.
+> > 
+> > I disagree about the design of killing anything from kswapd. kswapd is
+> > an async helper like pdflush and it has no knowledge on the caller (it
+> > cannot know if the caller is ok with the memory currently available in
+> > the freelists, before triggering the oom). 
+> 
+> If zone_dma / zone_normal are below pages_min no caller is "OK with
+> memory currently available" except GFP_ATOMIC/realtime callers.
 
-It may be coincidence, but when I did
-  chrt -p -f 99 2
-(to set IRQ 0 to max RT priority, like the other IRQ's)
+If the GFP_DMA zone is filled, and nobody allocates with GFP_DMA,
+nothing should be killed and everything should run fine, how can you
+get this right from kswapd?
 
-I got the following deadlock.
+> > I'm just about to move the
+> > oom killing away from vmscan.c to page_alloc.c which is basically the
+> > opposite of moving the oom invocation from the task context to kswapd.
+> > page_alloc.c in the task context is the only one who can know if
+> > something has to be killed, vmscan.c cannot know. vmscan.c can only know
+> > if something is still freeable, but if something isn't freeable it
+> > doesn't mean that we've to kill anything 
+> 
+> Well Andrea, its not about "if something isnt freeable", its about
+> "the VM is unable to make progress reclaiming pages". 
 
-==========================================
-[ BUG: lock recursion deadlock detected! |
-------------------------------------------
-already locked:  [c140c2e0] {&base->lock}
-.. held by:       ksoftirqd/0:    4 [c17953f0, 105]
-... acquired at:  run_timer_softirq+0x108/0x470
+"VM is unable to reclaim pages" == "nothing is freeable"
 
-------------------------------
-| showing all locks held by: |  (ksoftirqd/0/4 [c17953f0, 105]):
-------------------------------
+> > (for example if a task exited
+> > or some dma or normal-zone or highmem memory was released by another
+> > task while we were paging waiting for I/O). 
+> 
+> My last patch checks for pages_min before OOM killing, have you read it?
 
-#001:             [c140c2e0] {&base->lock}
-... acquired at:  run_timer_softirq+0x108/0x470
+checking pages_min isn't correct anyways, the lowmem_reserve must taken
+into account or you may not kill tasks when you should really kill
+tasks.
 
-#002:             [c0576b6c] {&timer->lock}
-... acquired at:  __mod_timer+0x47/0x1d0
+Plus you're checking for all zones, but kswapd cannot know that it
+doesn't matter if the zone dma is under pages_min, as far as there's no
+GFP_DMA.
 
-There are a LOT of messages that stream out after this problem.
-I will be sending the full serial console log separately.
 
-Will reboot shortly and see if this is a repeatable problem or not.
+> > Every allocation is different and page_alloc.c is the only one who 
+> > knows what has to be done for every single allocation.
+> 
+> OK, what do you propose? Its the third time I ask you this and got no 
+> concrete answer yet. 
 
-  --Mark
+I want to move it to page_alloc.c (and up to the caller) and not in
+kswapd, I mention this a few times.
 
+> Sure, allocators should receive -ENOMEM whenever possible, but this 
+> is not the issue here.
+
+it is the issue, because only the context of the task can choose if to
+return -ENOMEM or to invoke the oom killer and try again.
+
+> Triggering OOM killer on __alloc_pages() failure ? 
+
+yes, ideally I'd put the oom killer _outside_ alloc_pages, but just
+moving it into alloc_pages should make things better than they are right
+now in vmscan.c.
+
+> Show us the code, please :) 
+
+I'm supposedly listening to a meeting right now, then I've a bad kernel
+crash to debug with random mem corruption that I just managed to
+reproduce deterministcally inside uml by emulating numa inside uml and
+I'll be busy until next week at the very least. So I doubt I'll be able
+to write any oom-related code until next week, sorry.

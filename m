@@ -1,168 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274875AbRIYLUL>; Tue, 25 Sep 2001 07:20:11 -0400
+	id <S274968AbRIYLh5>; Tue, 25 Sep 2001 07:37:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274651AbRIYLUC>; Tue, 25 Sep 2001 07:20:02 -0400
-Received: from gate.perex.cz ([194.212.165.105]:9224 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S274646AbRIYLTu>;
-	Tue, 25 Sep 2001 07:19:50 -0400
-Date: Tue, 25 Sep 2001 13:18:36 +0200 (CEST)
-From: Jaroslav Kysela <perex@perex.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dag Brattli <dagb@cs.uit.no>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: IRDA support for NSC8739x LPC Super I/O chipsets 
-Message-ID: <Pine.LNX.4.31.0109251311070.3643-200000@pnote.perex-int.cz>
+	id <S274976AbRIYLhh>; Tue, 25 Sep 2001 07:37:37 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:36103 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S274972AbRIYLhc>; Tue, 25 Sep 2001 07:37:32 -0400
+Date: Tue, 25 Sep 2001 16:16:49 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Problem compiling 2.4.9 kernel (fwd)
+Message-ID: <Pine.LNX.4.10.10109251616130.3864-100000@blrmail>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323584-673814861-1001416716=:3643"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi,
+I compiled the linux 2.4.9 kernel with the kdb patch "kdb-v1.8-2.4.9" got
+from the "oss.sgi.com" site. I did "make menuconfig" and "make dep" after
+which I ran "make bzImage" which stopped with the error message:
 
---8323584-673814861-1001416716=:3643
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+/bin/sh: /sbin/kallsyms: No such file or directory
+make[1]: *** [kallsyms] Error 126
+make[1]: Leaving directory `/home/satishj/source/linux-2.4.9'
+make: *** [vmlinux] Error 2
 
-Hello,
+Please tell me what I should change so that i can compile 2.4.9 kernel
+with kdb patch.
 
-	I've attached a patch for NSC8739x LPC Super I/O chipsets to
-enable and configure the IRDA port. It works perfectly with my notebook
-over a half of year but the FIR transfers has not been tested yet. It
-would be nice to include this code to the official linux kernel tree.
-Thank you.
+Thanks in advance,
+Warm regards,
+sathish.j
 
-						Jaroslav
 
------
-Jaroslav Kysela <perex@suse.cz>
-SuSE Linux    http://www.suse.com
-ALSA project  http://www.alsa-project.org
 
---8323584-673814861-1001416716=:3643
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="nsc-ircc-2.4.10.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.31.0109251318360.3643@pnote.perex-int.cz>
-Content-Description: 
-Content-Disposition: attachment; filename="nsc-ircc-2.4.10.patch"
-
-LS0tIGxpbnV4LTIuNC4xMC9kcml2ZXJzL25ldC9pcmRhL25zYy1pcmNjLmMJ
-VHVlIFNlcCAyNSAxMzowMTo0OSAyMDAxDQorKysgbGludXgvZHJpdmVycy9u
-ZXQvaXJkYS9uc2MtaXJjYy5jCU1vbiBTZXAgMjQgMTA6NDM6NTUgMjAwMQ0K
-QEAgLTIsNyArMiw3IEBADQogICogICAgICAgICAgICAgICAgDQogICogRmls
-ZW5hbWU6ICAgICAgbnNjLWlyY2MuYw0KICAqIFZlcnNpb246ICAgICAgIDEu
-MA0KLSAqIERlc2NyaXB0aW9uOiAgIERyaXZlciBmb3IgdGhlIE5TQyBQQycx
-MDggYW5kIFBDJzMzOCBJckRBIGNoaXBzZXRzDQorICogRGVzY3JpcHRpb246
-ICAgRHJpdmVyIGZvciB0aGUgTlNDIFBDJzEwOCwgUEMnMzM4IGFuZCBQQycz
-OXggSXJEQSBjaGlwc2V0cw0KICAqIFN0YXR1czogICAgICAgIFN0YWJsZS4N
-CiAgKiBBdXRob3I6ICAgICAgICBEYWcgQnJhdHRsaSA8ZGFnYkBjcy51aXQu
-bm8+DQogICogQ3JlYXRlZCBhdDogICAgU2F0IE5vdiAgNyAyMTo0MzoxNSAx
-OTk4DQpAQCAtMTMsNiArMTMsOSBAQA0KICAqICAgICBDb3B5cmlnaHQgKGMp
-IDE5OTggTGljaGVuIFdhbmcsIDxsd2FuZ0BhY3Rpc3lzLmNvbT4NCiAgKiAg
-ICAgQ29weXJpZ2h0IChjKSAxOTk4IEFjdGlzeXMgQ29ycC4sIHd3dy5hY3Rp
-c3lzLmNvbQ0KICAqICAgICBBbGwgUmlnaHRzIFJlc2VydmVkDQorICoNCisg
-KiAgICAgMDMvMDMvMjAwMSBKYXJvc2xhdiBLeXNlbGEgPHBlcmV4QHN1c2Uu
-Y3o+DQorICogICAgICAgICAgICAgICAgQWRkZWQgUEM4NzM5eCBpbml0aWFs
-aXphdGlvbiBjb2RlLg0KICAqICAgICAgDQogICogICAgIFRoaXMgcHJvZ3Jh
-bSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBh
-bmQvb3IgDQogICogICAgIG1vZGlmeSBpdCB1bmRlciB0aGUgdGVybXMgb2Yg
-dGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzIA0KQEAgLTgzLDgg
-Kzg2LDEwIEBADQogDQogc3RhdGljIGludCBuc2NfaXJjY19wcm9iZV8xMDgo
-bnNjX2NoaXBfdCAqY2hpcCwgY2hpcGlvX3QgKmluZm8pOw0KIHN0YXRpYyBp
-bnQgbnNjX2lyY2NfcHJvYmVfMzM4KG5zY19jaGlwX3QgKmNoaXAsIGNoaXBp
-b190ICppbmZvKTsNCitzdGF0aWMgaW50IG5zY19pcmNjX3Byb2JlXzM5eChu
-c2NfY2hpcF90ICpjaGlwLCBjaGlwaW9fdCAqaW5mbyk7DQogc3RhdGljIGlu
-dCBuc2NfaXJjY19pbml0XzEwOChuc2NfY2hpcF90ICpjaGlwLCBjaGlwaW9f
-dCAqaW5mbyk7DQogc3RhdGljIGludCBuc2NfaXJjY19pbml0XzMzOChuc2Nf
-Y2hpcF90ICpjaGlwLCBjaGlwaW9fdCAqaW5mbyk7DQorc3RhdGljIGludCBu
-c2NfaXJjY19pbml0XzM5eChuc2NfY2hpcF90ICpjaGlwLCBjaGlwaW9fdCAq
-aW5mbyk7DQogDQogLyogVGhlc2UgYXJlIHRoZSBrbm93biBOU0MgY2hpcHMg
-Ki8NCiBzdGF0aWMgbnNjX2NoaXBfdCBjaGlwc1tdID0gew0KQEAgLTkyLDYg
-Kzk3LDggQEANCiAJICBuc2NfaXJjY19wcm9iZV8xMDgsIG5zY19pcmNjX2lu
-aXRfMTA4IH0sDQogCXsgIlBDODczMzgiLCB7IDB4Mzk4LCAweDE1YywgMHgy
-ZSB9LCAweDA4LCAweGIwLCAweGY4LCANCiAJICBuc2NfaXJjY19wcm9iZV8z
-MzgsIG5zY19pcmNjX2luaXRfMzM4IH0sDQorCXsgIlBDODczOXgiLCB7IDB4
-MmUsIDB4NGUgfSwgMHgyMCwgMHhlYSwgMHhmZiwgDQorCSAgbnNjX2lyY2Nf
-cHJvYmVfMzl4LCBuc2NfaXJjY19pbml0XzM5eCB9LA0KIAl7IE5VTEwgfQ0K
-IH07DQogDQpAQCAtMTU2LDcgKzE2Myw3IEBADQogCWludCByZXQgPSAtRU5P
-REVWOw0KIAlpbnQgY2ZnX2Jhc2U7DQogCWludCBjZmcsIGlkOw0KLQlpbnQg
-cmVnOw0KKwlpbnQgcmVnLCByZXM7DQogCWludCBpID0gMDsNCiANCiAJLyog
-UHJvYmUgZm9yIGFsbCB0aGUgTlNDIGNoaXBzZXRzIHdlIGtub3cgYWJvdXQg
-Ki8NCkBAIC0xOTcsMTEgKzIwNCwxMSBAQA0KIAkJCQkgKiBzZXQgYnkgdGhl
-IEJJT1MNCiAJCQkJICovCQkJCQ0KIAkJCQlpZiAoaW9baV0gPCAweDIwMDAp
-IHsNCi0JCQkJCWNoaXAtPmluaXQoY2hpcCwgJmluZm8pOw0KKwkJCQkJcmVz
-ID0gY2hpcC0+aW5pdChjaGlwLCAmaW5mbyk7DQogCQkJCX0gZWxzZQ0KLQkJ
-CQkJY2hpcC0+cHJvYmUoY2hpcCwgJmluZm8pOw0KKwkJCQkJcmVzID0gY2hp
-cC0+cHJvYmUoY2hpcCwgJmluZm8pOw0KIA0KLQkJCQlpZiAobnNjX2lyY2Nf
-b3BlbihpLCAmaW5mbykgPT0gMCkNCisJCQkJaWYgKHJlcyA9PSAwICYmIG5z
-Y19pcmNjX29wZW4oaSwgJmluZm8pID09IDApDQogCQkJCQlyZXQgPSAwOw0K
-IAkJCQlpKys7DQogCQkJfSBlbHNlIHsNCkBAIC02ODAsNiArNjg3LDY3IEBA
-DQogCXJlZyA9IGluYihjZmdfYmFzZSsxKTsNCiANCiAJaW5mby0+c3VzcGVu
-ZGVkID0gcmVnICYgMHgwMTsNCisNCisJcmV0dXJuIDA7DQorfQ0KKw0KKy8q
-DQorICogRnVuY3Rpb24gbnNjX2lyY2NfaW5pdF8zOXggKGNoaXAsIGluZm8p
-DQorICoNCisgKiAgICBJbml0aWFsaXplIHRoZSBOU0MgJzM5eCBjaGlwLg0K
-KyAqLw0KK3N0YXRpYyBpbnQgbnNjX2lyY2NfaW5pdF8zOXgobnNjX2NoaXBf
-dCAqY2hpcCwgY2hpcGlvX3QgKmluZm8pIA0KK3sNCisJLyogTm8gaW5pdCB5
-ZXQgKi8NCisJDQorCXJldHVybiAwOw0KK30NCisNCisvKg0KKyAqIEZ1bmN0
-aW9uIG5zY19pcmNjX3Byb2JlXzM5eCAoY2hpcCwgaW5mbykNCisgKg0KKyAq
-ICAgIA0KKyAqDQorICovDQorc3RhdGljIGludCBuc2NfaXJjY19wcm9iZV8z
-OXgobnNjX2NoaXBfdCAqY2hpcCwgY2hpcGlvX3QgKmluZm8pIA0KK3sNCisJ
-aW50IGNmZ19iYXNlID0gaW5mby0+Y2ZnX2Jhc2U7DQorCWludCByZWc7DQor
-DQorCS8qIFNlbGVjdCB0aGUgU1AyIGxvZ2ljYWwgZGV2aWNlICovDQorCW91
-dGIoQ0ZHX0xPR0RFViwgY2ZnX2Jhc2UpOw0KKwlvdXRiKDIsIGNmZ19iYXNl
-ICsgMSk7DQorDQorCS8qIFJlYWQgbG9naWNhbCBkZXZpY2UgYWN0aXZhdGUg
-Yml0ICovDQorCW91dGIoQ0ZHX0FDVElWQVRFLCBjZmdfYmFzZSk7DQorCWlm
-ICgoKHJlZyA9IGluYihjZmdfYmFzZSsxKSkgJiAxKSA9PSAwKSB7DQorCQlN
-RVNTQUdFKCIlcywgdGhlIDJuZCBzZXJpYWwgSVIgcG9ydCBpcyBkaXNhYmxl
-ZCBpbiBCSU9TIFsweCV4XVxuIiwgZHJpdmVyX25hbWUsIHJlZyk7DQorCQly
-ZXR1cm4gLUVJTzsNCisJfQ0KKw0KKwlpbmZvLT5lbmFibGVkID0gcmVnICYg
-MHgwMTsNCisNCisJb3V0YihDRkdfQkFTRV9MU0IsIGNmZ19iYXNlKTsNCisJ
-cmVnID0gaW5iKGNmZ19iYXNlICsgMSk7DQorCW91dGIoQ0ZHX0JBU0VfTVNC
-LCBjZmdfYmFzZSk7DQorCXJlZyB8PSBpbmIoY2ZnX2Jhc2UgKyAxKSA8PCA4
-Ow0KKwlpbmZvLT5maXJfYmFzZSA9IHJlZzsNCisNCisJb3V0YihDRkdfSVJR
-LCBjZmdfYmFzZSk7DQorCWluZm8tPmlycSA9IGluYihjZmdfYmFzZSArIDEp
-ICYgMTU7DQorDQorCW91dGIoQ0ZHX0RNQV9SWCwgY2ZnX2Jhc2UpOw0KKwlp
-bmZvLT5kbWEgPSBpbmIoY2ZnX2Jhc2UgKyAxKSAmIDc7DQorDQorCW91dGIo
-Q0ZHX0RNQV9UWCwgY2ZnX2Jhc2UpOw0KKw0KKwkvKiBSZWFkIHBvd2VyIGFu
-ZCBiYW5rIGVuYWJsZSByZWdpc3RlciAqLw0KKwlvdXRiKENGR19TUDJfQ0ZH
-LCBjZmdfYmFzZSk7DQorCXJlZyA9IGluYihjZmdfYmFzZSsxKTsNCisJcmVn
-IHw9IFNQMl9FTkJOS1NFTDsNCisJb3V0YihyZWcsIGNmZ19iYXNlKzEpOw0K
-Kw0KKwlpbmZvLT5zdXNwZW5kZWQgPSAhKChyZWcgJiAweDAyKSA+PiAxKTsN
-CiANCiAJcmV0dXJuIDA7DQogfQ0KLS0tIGxpbnV4LTIuNC4xMC9pbmNsdWRl
-L25ldC9pcmRhL25zYy1pcmNjLmgJTW9uIERlYyAxMSAyMTo1OTozOSAyMDAw
-DQorKysgbGludXgvaW5jbHVkZS9uZXQvaXJkYS9uc2MtaXJjYy5oCU1vbiBT
-ZXAgMjQgMTI6MjA6NTAgMjAwMQ0KQEAgLTUxLDkgKzUxLDI2IEBADQogI2Rl
-ZmluZSBDRkdfUE5QMSAweDFjDQogI2RlZmluZSBDRkdfUE5QMyAweDRmDQog
-DQorLyogQ29uZmlnIHJlZ2lzdGVyIGZvciB0aGUgJzM5eCAqLw0KKyNkZWZp
-bmUgQ0ZHX0xPR0RFVgkweDA3CS8qIHNlbGVjdCBsb2dpY2FsIGRldmljZSwg
-MiA9IElSIDJuZCBTZXJpYWwgUG9ydCAqLw0KKyNkZWZpbmUgQ0ZHX0FDVElW
-QVRFCTB4MzANCisjZGVmaW5lIENGR19CQVNFX01TQgkweDYwDQorI2RlZmlu
-ZSBDRkdfQkFTRV9MU0IJMHg2MQ0KKyNkZWZpbmUgQ0ZHX0lSUQkJMHg3MA0K
-KyNkZWZpbmUgQ0ZHX0lSUV9UWVBFCTB4NzENCisjZGVmaW5lIENGR19ETUFf
-UlgJMHg3NA0KKyNkZWZpbmUgQ0ZHX0RNQV9UWAkweDc1DQorI2RlZmluZSBD
-RkdfU1AyX0NGRwkweGYwCS8qIDJuZCBTZXJpYWwgcG9ydCBjb25maWd1cmF0
-aW9uICovDQorDQogLyogRmxhZ3MgZm9yIGNvbmZpZ3VyYXRpb24gcmVnaXN0
-ZXIgQ1JGMCAqLw0KICNkZWZpbmUgQVBFRENSQwkJMHgwMg0KICNkZWZpbmUg
-RU5CTktTRUwJMHgwMQ0KKw0KKy8qIEZsYWdzIGZvciBjb25maWd1cmF0aW9u
-IHJlZ2lzdGVyIFNQMl9DRkcgKi8NCisjZGVmaW5lIFNQMl9FTkJOS1NFTAkw
-eDgwDQorI2RlZmluZSBTUDJfQlVTWUlORElDCTB4MDQNCisjZGVmaW5lIFNQ
-Ml9QTUMJCTB4MDINCisjZGVmaW5lIFNQMl9UUklTVEFURQkweDAxDQogDQog
-LyogU2V0IDAgKi8NCiAjZGVmaW5lIFRYRCAgICAgICAgICAgICAweDAwIC8q
-IFRyYW5zbWl0IGRhdGEgcG9ydCAqLw0KLS0tIGxpbnV4LTIuNC4xMC9kcml2
-ZXJzL25ldC9pcmRhL0NvbmZpZy5pbglTdW4gQXVnIDEyIDE5OjUxOjQyIDIw
-MDENCisrKyBsaW51eC9kcml2ZXJzL25ldC9pcmRhL0NvbmZpZy5pbglNb24g
-U2VwIDI0IDEyOjIzOjE4IDIwMDENCkBAIC0xOCw3ICsxOCw3IEBADQogDQog
-Y29tbWVudCAnRklSIGRldmljZSBkcml2ZXJzJw0KIGRlcF90cmlzdGF0ZSAn
-SXJEQSBVU0IgZG9uZ2xlcyAoRXhwZXJpbWVudGFsKScgQ09ORklHX1VTQl9J
-UkRBICRDT05GSUdfSVJEQSAkQ09ORklHX1VTQiAkQ09ORklHX0VYUEVSSU1F
-TlRBTA0KLWRlcF90cmlzdGF0ZSAnTlNDIFBDODcxMDgvUEM4NzMzOCcgQ09O
-RklHX05TQ19GSVIgICRDT05GSUdfSVJEQQ0KK2RlcF90cmlzdGF0ZSAnTlND
-IFBDODcxMDgvUEM4NzMzOC9QQzg3Mzl4JyBDT05GSUdfTlNDX0ZJUiAgJENP
-TkZJR19JUkRBDQogZGVwX3RyaXN0YXRlICdXaW5ib25kIFc4Mzk3N0FGIChJ
-UiknIENPTkZJR19XSU5CT05EX0ZJUiAkQ09ORklHX0lSREENCiBkZXBfdHJp
-c3RhdGUgJ1Rvc2hpYmEgVHlwZS1PIElSIFBvcnQnIENPTkZJR19UT1NISUJB
-X0ZJUiAkQ09ORklHX0lSREENCiBpZiBbICIkQ09ORklHX0VYUEVSSU1FTlRB
-TCIgIT0gIm4iIF07IHRoZW4NCg==
---8323584-673814861-1001416716=:3643--

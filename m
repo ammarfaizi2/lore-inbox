@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbUL3JyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbUL3Jy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbUL3JyG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 04:54:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbUL3JyG
+	id S261601AbUL3Jy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 04:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUL3Jy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 04:54:06 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:15544 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261600AbUL3JyC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 04:54:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
-        b=jFRKOv4CuRPPJAcfh5N3pou3ko5vXtGgmMZxgYTyEI9CTi2p9AvsXzDqlQXO9b7UJC/52Qk+SBzOcd9AnhXR1mzIKyKKeA/34KOsWilXX2d/GXg+vxtyPuNqyCc/QIYOOdUw7RLEXHjhB1sakhOut1JKSAXT2LIz7oU0o63qnms=
-Message-ID: <2cd57c9004123001542a4192bb@mail.gmail.com>
-Date: Thu, 30 Dec 2004 17:54:01 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] removes redundant sys_delete_module()
-Cc: peterc@gelato.unsw.edu.au, akpm@osdl.org, torvalds@osdl.org
+	Thu, 30 Dec 2004 04:54:57 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23558 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261601AbUL3Jyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 04:54:52 -0500
+Date: Thu, 30 Dec 2004 09:54:48 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] MMC block removable flag
+Message-ID: <20041230095448.A9500@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <41D3646F.5050408@drzeus.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <41D3646F.5050408@drzeus.cx>; from drzeus-list@drzeus.cx on Thu, Dec 30, 2004 at 03:14:07AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Chubb recently splitted out a standalone sys_ni.c file for the
-not implemented syscalls.
-This patch removes the redundant sys_delete_module() in module.c.
+On Thu, Dec 30, 2004 at 03:14:07AM +0100, Pierre Ossman wrote:
+> A MMC card is a highly removable device. This patch makes the block 
+> layer part of the MMC layer set the removable flag.
 
-Signed-off-by: Coywolf Qi Hunt <coywolf@gmail.com>
+I have this patch also floating around, but I've decided it isn't needed.
+I believe this flag is to indicate that we have removable media for a
+block device rather than to indicate that the block device can be removed.
 
- module.c |    7 -------
- 1 files changed, 7 deletions(-)
+However, when we insert and remove a MMC card, we create and destroy the
+block device itself.  Therefore, as far as the block layer is concerned,
+the device itself is being inserted and removed, so telling the block
+layer that the media is removable is just silly - you can't separate the
+flash media from the on-board MMC controller.
 
-diff -Nurp 2.6.10/kernel/module.c 2.6.10-cy/kernel/module.c
---- 2.6.10/kernel/module.c	2004-12-29 01:29:40.000000000 +0800
-+++ 2.6.10-cy/kernel/module.c	2004-12-30 17:17:41.000000000 +0800
-@@ -681,13 +681,6 @@ static inline int use_module(struct modu
- static inline void module_unload_init(struct module *mod)
- {
- }
--
--asmlinkage long
--sys_delete_module(const char __user *name_user, unsigned int flags)
--{
--	return -ENOSYS;
--}
--
- #endif /* CONFIG_MODULE_UNLOAD */
- 
- #ifdef CONFIG_OBSOLETE_MODPARM
+(Note: any block device can be removed - you just rmmod the module
+supplying the block device driver, but this doesn't mean we mark all
+block devices with GENHD_FL_REMOVABLE.)
 
 -- 
-Coywolf Qi Hunt
-Homepage http://sosdg.org/~coywolf/
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269696AbUICN4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269702AbUICN7C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269696AbUICN4A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 09:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269697AbUICNz7
+	id S269702AbUICN7C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 09:59:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269698AbUICN6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 09:55:59 -0400
-Received: from mail.renesas.com ([202.234.163.13]:26324 "EHLO
-	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S269696AbUICNzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 09:55:49 -0400
-Date: Fri, 03 Sep 2004 22:55:35 +0900 (JST)
-Message-Id: <20040903.225535.291442875.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2.6.9-rc1-mm3] [m32r] Add m32r ELF machine code
-From: Hirokazu Takata <takata.hirokazu@renesas.com>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 3 Sep 2004 09:58:04 -0400
+Received: from ihemail2.lucent.com ([192.11.222.163]:765 "EHLO
+	ihemail2.lucent.com") by vger.kernel.org with ESMTP id S269702AbUICN5c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 09:57:32 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16696.30683.207905.803165@gargle.gargle.HOWL>
+Date: Fri, 3 Sep 2004 09:55:39 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: David Masover <ninja@slaphack.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk,
+       Frank van Maarseveen <frankvm@xs4all.nl>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+In-Reply-To: <4137B5F5.8000402@slaphack.com>
+References: <20040826150202.GE5733@mail.shareable.org>
+	<200408282314.i7SNErYv003270@localhost.localdomain>
+	<20040901200806.GC31934@mail.shareable.org>
+	<Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
+	<1094118362.4847.23.camel@localhost.localdomain>
+	<20040902203854.GA4801@janus>
+	<1094160994.31499.19.camel@shaggy.austin.ibm.com>
+	<20040902214806.GA5272@janus>
+	<20040902220027.GD23987@parcelfarce.linux.theplanet.co.uk>
+	<4137B5F5.8000402@slaphack.com>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+>>>>> "David" == David Masover <ninja@slaphack.com> writes:
 
-Here is a patch for m32r's ELF machine code.
-And also change from "Hitachi H8/300" to "Renesas H8/300"(*).
-Please apply this.
+David> File-as-a-dir has numerous advantages, but enough have been
+David> discussed.  Short list is image mounts, tarballs, streams,
+David> metas, and namespace unification.  Longer list and explanations
+David> can be found if you RTFA.
 
-  (*) The SuperH, M32R and H8* - now these are all Renesas's products.
+And it has numerous dis-advantages as well, since it doesn't have a
+good set of semantics and syntax defined yet, nor does it explain
+except by vigorous handwaving the performance and security impacts it
+can have.
 
-Thank you.
+My personal feeling is that the mount(8) command should be the tool
+used to extract and expose the internal namespace of files like this
+and to then graft it onto the standard Unix namespace with gross Unix
+semantics, but it's own wacky internal semantics.  This way, standard
+tools don't care, but special tools which know how to handle it can do
+what they want.
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
 
+> mount -t tarfs /some/place/on/disk/foo.tar.gz /mnt/tar
+> cp /var/tmp/img.gif .
+> umount /mnt/tar
 
---- linux-2.6.9-rc1-mm3.orig/include/linux/elf.h	2004-08-14 14:36:17.000000000 +0900
-+++ linux-2.6.9-rc1-mm3/include/linux/elf.h	2004-09-03 22:33:18.000000000 +0900
-@@ -88,7 +88,9 @@ typedef __s64	Elf64_Sxword;
- 
- #define EM_V850		87	/* NEC v850 */
- 
--#define EM_H8_300       46      /* Hitachi H8/300,300H,H8S */
-+#define EM_M32R		88	/* Renesas M32R */
-+
-+#define EM_H8_300       46      /* Renesas H8/300,300H,H8S */
- 
- /*
-  * This is an interim value that we will use until the committee comes
-@@ -99,6 +101,9 @@ typedef __s64	Elf64_Sxword;
- /* Bogus old v850 magic number, used by old tools.  */
- #define EM_CYGNUS_V850	0x9080
- 
-+/* Bogus old m32r magic number, used by old tools.  */
-+#define EM_CYGNUS_M32R	0x9041
-+
- /*
-  * This is the old interim value for S/390 architecture
-  */
+Oops!  Someone did a rm /some/place/on/disk/foo.tar.gz between steps
+one and two.  Now what happens?  Please define those semantics...
+
+John

@@ -1,39 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275334AbTHMSlz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 14:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275325AbTHMSkz
+	id S275347AbTHMSuK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 14:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275348AbTHMSuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 14:40:55 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:23289 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S275336AbTHMSjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 14:39:22 -0400
-Subject: Re: IDE bug - was: Re: uncorrectable ext2 errors
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan Niehusmann <jan@gondor.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, rossb@google.com
-In-Reply-To: <20030813163106.GA2664@gondor.com>
-References: <20030806150335.GA5430@gondor.com>
-	 <1060702567.21160.30.camel@dhcp22.swansea.linux.org.uk>
-	 <20030813005057.A1863@pclin040.win.tue.nl>
-	 <200308130221.26305.bzolnier@elka.pw.edu.pl>
-	 <20030813080309.GB2006@gondor.com>
-	 <1060773360.8009.11.camel@localhost.localdomain>
-	 <20030813163106.GA2664@gondor.com>
-Content-Type: text/plain
+	Wed, 13 Aug 2003 14:50:10 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:60429 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S275347AbTHMStE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 14:49:04 -0400
+Message-ID: <3F3A8B8D.9080701@techsource.com>
+Date: Wed, 13 Aug 2003 15:03:41 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: Albert Cahalan <albert@users.sf.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       bernd@firmix.at, Anthony.Truong@mascorp.com, alan@lxorguk.ukuu.org.uk,
+       schwab@suse.de, ysato@users.sourceforge.jp, willy@w.ods.org,
+       Valdis.Kletnieks@vt.edu, william.gallafent@virgin.net
+Subject: Re: generic strncpy - off-by-one error
+References: <1060741101.948.245.camel@cube> <20030813024752.GA20369@codepoet.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1060799934.9130.25.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 13 Aug 2003 19:38:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-08-13 at 17:31, Jan Niehusmann wrote:
-> But I also have some good news: The patch by Ross Biro, available from
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=104250818527780&w=2
-> actually fixed the hdparm -I crash.
 
-Thanks I'd missed that bug fix somehow
+
+Erik Andersen wrote:
+
+> char *strncpy(char * s1, const char * s2, size_t n)
+> {
+>     register char *s = s1;
+>     while (n) {
+> 	if ((*s = *s2) != 0) s2++;
+> 	++s;
+> 	--n;
+>     }
+>     return s1;
+> }
+
+
+
+Nice!
+
+
+
+How about this:
+
+
+char *strncpy(char * s1, const char * s2, size_t n)
+{
+	register char *s = s1;
+
+	while (n && *s2) {
+		n--;
+		*s++ = *s2++;
+	}
+	while (n--) {
+		*s++ = 0;
+	}
+	return s1;
+}
+
+
+
+This reminds me a lot of the ORIGINAL, although I didn't pay much 
+attention to it at the time, so I don't remember.  It may be that the 
+original had "n--" in the while () condition of the first loop, rather 
+than inside the loop.
+
+I THINK the original complaint was that n would be off by 1 upon exiting 
+the first loop.  The fix is to only decrement n when n is nonzero.
+
+If s2 is short enough, then we'll exit the first loop on the nul byte 
+and fill in the rest in the second loop.  Since n is only decremented 
+with we actually write to s, we will only ever write n bytes.  No 
+off-by-one.
+
+If s2 is too long, the first loop will exit on n being zero, and since 
+it doesn't get decremented in that case, it'll be zero upon entering the 
+second loop, thus bypassing it properly.
+
+Erik's code is actually quite elegant, and its efficiency is probably 
+essentially the same as my first loop.  But my second loop would 
+probably be faster at doing the zero fill.
+
+
+Now, consider this for the second loop!
+
+	while (n&3) {
+		*s++ = 0;
+		n--;
+	}
+	l = n>>2;
+	while (l--) {
+		*((int *)s)++ = 0;
+	}
+	n &= 3;
+	while (n--) {
+		*s++ = 0;
+	}
+
+
+This is only a win for relatively long nul padding.  How often is the 
+padding long enough?
 

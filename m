@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316915AbSFLU1u>; Wed, 12 Jun 2002 16:27:50 -0400
+	id <S317170AbSFLUff>; Wed, 12 Jun 2002 16:35:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317170AbSFLU1t>; Wed, 12 Jun 2002 16:27:49 -0400
-Received: from [80.116.158.38] ([80.116.158.38]:38204 "HELO xmerlin.org")
-	by vger.kernel.org with SMTP id <S316915AbSFLU1n>;
-	Wed, 12 Jun 2002 16:27:43 -0400
-Message-ID: <3D07B086.2030708@studiobz.it>
-Date: Wed, 12 Jun 2002 22:35:18 +0200
-From: Christian Zoffoli <czoffoli@studiobz.it>
-Organization: Studio B.Z. s.a.s.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; it-IT; rv:1.0.0) Gecko/00200205
-X-Accept-Language: it, en-us, en
+	id <S317299AbSFLUfe>; Wed, 12 Jun 2002 16:35:34 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29446 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317170AbSFLUfd>; Wed, 12 Jun 2002 16:35:33 -0400
+Date: Wed, 12 Jun 2002 16:30:10 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nick Evgeniev <nick@octet.spb.ru>,
+        linux-kernel@vger.kernel.org
+Subject: Re: linux 2.4.19-preX IDE bugs
+In-Reply-To: <Pine.LNX.4.10.10206121130160.15604-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.3.96.1020612160915.337C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, osb4-bug@ide.cabal.tm,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: OSB4 PATCH (was: Re: Serverworks OSB4 in impossible state)
-In-Reply-To: <E17I4DK-0007Lt-00@the-village.bc.nu> <1023877839.23630.502.camel@biker.pdb.fsc.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Wilck wrote:
-> Am Mit, 2002-06-12 um 11.14 schrieb Alan Cox:
->  > Entirely agreed
-> 
-> I propose this patch to remedy the problem.
-> 
-> I don't know how to test if the drive is a seagate drive, and
-> I think we don't want to do that, because it would end up in yet another
-> blacklist.
-> 
-> I cannot test if this behaves correctly on machines that do expose the
-> 4-byte shift bug - it would be great if somebody could test that.
-> 
-> Martin
-> 
-> --- drivers/ide/serverworks.c.orig	Tue Jun 11 11:24:59 2002
-> +++ drivers/ide/serverworks.c	Wed Jun 12 12:00:36 2002
-> @@ -547,7 +547,13 @@
->  			ide_hwif_t *hwif		= HWIF(drive);
->  			unsigned long dma_base		= hwif->dma_base;
->  	
-> -			if(inb(dma_base+0x02)&1)
-> +			/* If it's a disk on the OSB4, the DMA engine is still on,
-> +			   and the device reports no error status, we are probably
-> +			   facing the "4 byte shift" problem */
-> +			if(drive->media == ide_disk && 
-> +			   hwif->pci_dev->device == PCI_DEVICE_ID_SERVERWORKS_OSB4IDE && 
-> +			   inb(dma_base+0x02)&1 &&
-> +			   OK_STAT (GET_STAT(), DRIVE_READY, BAD_STAT))
->  			{
->  #if 0		
->  				int i;
-> 
-> 
+On Wed, 12 Jun 2002, Andre Hedrick wrote:
 
+> The hardware changed and the interrupt parser feature that stablized the
+> old chipsets under SMP is gone.  The new chipsets (20268 and above) do not
+> have a location with sticky bits.  So in some cases I expect things to go
+> south, but in general they should not.  Otherwise promise would be all
+> over the issue.
 
-It works for me ...I have a supermicro 370DE6 (serverworks HE-SL) and a 
-maxtor HD (5T030H3).
+  Okay, thanks, that clarifies it, and if I read it right this may be a
+permanent restriction. If the system is running noapic so the ints all go
+to CPU0 does that help the situation? In a sane system I agree with Alan
+that this is not a performance hit, or at least not significant.
+ 
+> > On Wed, 12 Jun 2002, Alan Cox wrote:
 
+> > > Then I suggest you give up computing, because PC hardware doesnt make
+> > > your grade. BTW the general open promise bugs *dont* include data
+> > > corruption so I suspect it may be your h/w thats hosed.
 
-Christian
+> Andre Hedrick
+> LAD Storage Consulting Group
+
+Guys, I wasn't questioning anyone's competence, just agreeing with the
+original poster that if this is going to be an ongoing issue of stability
+it might be held back for a version until there is time to either program
+around it or characterize the conditions under which it causes problems. 
+And if that means that I can't trust it SMP, I don't think I'm a bad guy
+to suggest the config drop the driver if SMP support is selected.
+
+I don't mind moving a card to another system, and even if I didn't have
+another system I would rather not take that particular risk. And if it
+won't work reliably SMP then perhaps Promise should be taking some action.
+There are SMP W2k machines out there, too. 
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

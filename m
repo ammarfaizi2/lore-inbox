@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269093AbUJFInQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269127AbUJFIon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269093AbUJFInQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 04:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269121AbUJFInQ
+	id S269127AbUJFIon (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 04:44:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269121AbUJFIom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 04:43:16 -0400
-Received: from colino.net ([213.41.131.56]:55288 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S269093AbUJFInO (ORCPT
+	Wed, 6 Oct 2004 04:44:42 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:10626 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S269127AbUJFIoc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 04:43:14 -0400
-Date: Wed, 6 Oct 2004 10:42:51 +0200
-From: Colin Leroy <colin@colino.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "David S.Miller" <davem@davemloft.net>
-Subject: Re: Netconsole & sungem: hang when link down
-Message-ID: <20041006104251.29dcd38c@pirandello>
-In-Reply-To: <1097050605.21132.17.camel@gaston>
-References: <20041006083954.0abefe57@pirandello>
-	<1097050605.21132.17.camel@gaston>
-X-Mailer: Sylpheed-Claws 0.9.12cvs122.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Oct 2004 04:44:32 -0400
+Date: Wed, 6 Oct 2004 10:43:52 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Willy Tarreau <willy@w.ods.org>,
+       =?ISO-8859-15?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is
+ availlable
+In-Reply-To: <20041006043458.GB19761@alpha.home.local>
+Message-ID: <Pine.GSO.4.61.0410061038590.20160@waterleaf.sonytel.be>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de>
+ <200410060058.57244.vda@port.imtp.ilyichevsk.odessa.ua>
+ <20041006043458.GB19761@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06 Oct 2004 at 18h10, Benjamin Herrenschmidt wrote:
-
-Hi, 
-
-> On Wed, 2004-10-06 at 16:39, Colin Leroy wrote:
-> > Hi,
+On Wed, 6 Oct 2004, Willy Tarreau wrote:
+> On Wed, Oct 06, 2004 at 12:58:57AM +0300, Denis Vlasenko wrote:
+> > > +		if (open("/dev/null", O_RDWR, 0) == 0)
+> > > +			printk("         Falling back to /dev/null.\n");
+> > > +	}
 > > 
-> > I noticed that, if you have netconsole set up and using a sungem
-> > card, and if the network cable is not plugged in, that the whole
-> > kernel hangs shortly after the "device not up yet, forcing it"
-> > netconsole message. I suspect this is due to the autoneg in sungem,
-> > but didn't have time to look further. 
-> > 
-> > Would you have any hints on the cause of this problem?
+> > What will happen if /dev is totally empty?
 > 
-> Not sure, I suppose the driver is doing printk's with spinlocks held
-> from the autoneg stuff and there is a spinlock deadlock happening ...
+> ... Which is the most probable reason causing this trouble.
 
-Thanks. I'll look into this. If I'm not mistaken, I've got no way of
-catching it easily, do I ? CONFIG_DEBUG_SPINLOCK's help seems to say
-that I need NMI watchdog in order to catch deadlocks, which is only
-available on x86(_64).
+Indeed, but there are other known cases.
 
--- 
-Colin
+Some debug methods use register_console() to get their print routines
+registered. If people forget to say e.g. `console=tty0' afterwards, the debug
+console without the real device cannot be opened through /dev/console, and they
+get a mysterious error. Usually /dev/console _is_ present in the root fs.
+
+Perhaps a better fix is to modify the /dev/console demux code to fall back to
+`/dev/null' (quotes to indicate this has nothing to do with a present /dev/null
+on your root fs or ramdisk, but that it's the virtual null device) if the
+struct console corresponding to /dev/console is not an existing tty device.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

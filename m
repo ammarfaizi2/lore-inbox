@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263876AbUDFQOL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 12:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUDFQOL
+	id S263886AbUDFQS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 12:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbUDFQS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 12:14:11 -0400
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:6793 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263876AbUDFQOH
+	Tue, 6 Apr 2004 12:18:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25319 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263886AbUDFQSY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 12:14:07 -0400
-Subject: Re: -mmX 4G patches feedback [numbers: how much performance impact]
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Eric Whiting <ewhiting@amis.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Pete Zaitcev <zaitcev@redhat.com>
-In-Reply-To: <20040406155925.GW2234@dualathlon.random>
-References: <40718B2A.967D9467@amis.com>
-	 <20040405174616.GH2234@dualathlon.random> <4071D11B.1FEFD20A@amis.com>
-	 <20040405221641.GN2234@dualathlon.random> <20040406115539.GA31465@elte.hu>
-	 <20040406155925.GW2234@dualathlon.random>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1081268018.4680.6.camel@laptop.fenrus.com>
+	Tue, 6 Apr 2004 12:18:24 -0400
+Date: Tue, 6 Apr 2004 17:18:23 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] [RFC] filling in ACPI files in sysfs
+Message-ID: <20040406161823.GF23258@parcelfarce.linux.theplanet.co.uk>
+References: <1081266989.2375.35.camel@patsy.fc.hp.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 06 Apr 2004 18:13:39 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1081266989.2375.35.camel@patsy.fc.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-06 at 17:59, Andrea Arcangeli wrote:
+On Tue, Apr 06, 2004 at 09:56:30AM -0600, Alex Williamson wrote:
+>    Seems like it's about time the ACPI sysfs namespace started doing
+> more than looking pretty.  Here's a stab at adding in some basic
+> functionality.  I'd like to get some feedback before I start filling in
+> the more complicated features.  This has been lightly tested on a
+> sampling of HP ia64 boxes.  Does this seem like a reasonable start? 
+> Comments and reports from other platforms welcome.  Thanks,
 
-> You should also use a bleeding edge cpu for you measurements with large
-> tlb caches, which cpu did you use for your measurements?
+This is something I've wanted for a long time!  Thanks for doing the
+work, Alex.  I'll give it a try on my x86 crash-n-bash box.
 
-afaics all Intel and AMD cpus with more than say 32 or 64 TLB's are
-actually 64 bit capable.... so obviously you run a 64 bit kernel there. 
-(and amd64 even has that sweet CAM filter on the tlbs to mitigate the
-effect even if you run a 32 bit kernel)
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbTG1LVz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 07:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTG1LVq
+	id S263861AbTG1Lte (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 07:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbTG1Lte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 07:21:46 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:56586 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S262290AbTG1LVN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 07:21:13 -0400
-Date: Mon, 28 Jul 2003 13:36:26 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Claas Langbehn <claas@rootdir.de>
-Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2 has i8042 mux problems
-Message-ID: <20030728113626.GA1706@win.tue.nl>
-References: <Pine.LNX.4.53.0307271906020.18444@twinlark.arctic.org> <20030728052614.GA5022@rootdir.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030728052614.GA5022@rootdir.de>
-User-Agent: Mutt/1.3.25i
+	Mon, 28 Jul 2003 07:49:34 -0400
+Received: from vtens.prov-liege.be ([193.190.122.60]:49755 "EHLO
+	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
+	id S263861AbTG1Ltd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 07:49:33 -0400
+To: <akpm@osdl.org>
+Subject: [PATCH]2.6 test1 mm2 user.c race (?)
+From: <ffrederick@prov-liege.be>
+Cc: <linux-kernel@vger.kernel.org>
+Date: Mon, 28 Jul 2003 14:31:23 CEST
+Reply-To: <ffrederick@prov-liege.be>
+X-Priority: 3 (Normal)
+X-Originating-Ip: [10.10.0.30]
+X-Mailer: NOCC v0.9.5
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <S263861AbTG1Ltd/20030728114933Z+399@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 28, 2003 at 07:26:14AM +0200, Claas Langbehn wrote:
+Andrew,
 
-> I am not sure, if i understand it, but here I could not use my old
-> keyboard with kernel 2.6.0-test1. The kernel switched off the keyboard
-> controller while booting.
-> My keyboard is about 10-12 years old, but it always worked.
-> There should be a switch for lilo/grub to override the testing.
-> 
-> I have got a via KT400a chipset. The keyboard is an AT/XT-switchable
-> keyboard. With a newer PS2-Keyboard it works.
+        Trivial patch against possible smp race (?) in user.c
+or do we have bkl above ?
 
-Interesting. Yes, the new keyboard driver knows far too much about
-keyboards, and that knowledge is right only in 98% of the cases.
-No doubt we'll be forced to back out a lot of probing done now.
+Regards,
+Fabian
 
-Nevertheless it would be interesting to see precisely what happens.
-Could you try to change the #undef DEBUG in drivers/input/serio/i8042.c
-into #define DEBUG and report what output you get at boot time?
+diff -Naur orig/kernel/user.c edited/kernel/user.c
+--- orig/kernel/user.c	2003-07-14 05:32:42.000000000 +0200
++++ edited/kernel/user.c	2003-07-28 13:44:55.000000000 +0200
+@@ -146,8 +146,11 @@
+ 	for(n = 0; n < UIDHASH_SZ; ++n)
+ 		INIT_LIST_HEAD(uidhash_table + n);
+ 
+-	/* Insert the root user immediately - init already runs with this */
++	/* Insert the root user immediately (init already runs as root) */
++	spin_lock(&uidhash_lock);
+ 	uid_hash_insert(&root_user, uidhashentry(0));
++	spin_unlock(&uidhash_lock);	
++
+ 	return 0;
+ }
+ 
+
+
+___________________________________
+
+
 

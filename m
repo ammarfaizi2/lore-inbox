@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314680AbSGIQas>; Tue, 9 Jul 2002 12:30:48 -0400
+	id <S315388AbSGIQbX>; Tue, 9 Jul 2002 12:31:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315388AbSGIQar>; Tue, 9 Jul 2002 12:30:47 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64018 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314680AbSGIQaq>; Tue, 9 Jul 2002 12:30:46 -0400
-Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
-To: root@chaos.analogic.com
-Date: Tue, 9 Jul 2002 17:56:11 +0100 (BST)
-Cc: trond.myklebust@fys.uio.no (Trond Myklebust), nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1020709104427.27442B-100000@chaos.analogic.com> from "Richard B. Johnson" at Jul 09, 2002 11:06:27 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317359AbSGIQbW>; Tue, 9 Jul 2002 12:31:22 -0400
+Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:47840 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315388AbSGIQbU>; Tue, 9 Jul 2002 12:31:20 -0400
+Date: Tue, 9 Jul 2002 10:34:00 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: rwh@memalpha.cx
+Subject: WARNING in arch/i386/kernel/init_task.c
+Message-ID: <Pine.LNX.4.44.0207091017540.10105-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17RyHb-0005Fa-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > not adhere to this convention.
-> 
-> Well, no. It's not supported. You can't get a valid file-descriptor...
+Hi,
 
-Wrong (as usual)
+Compiling 2.5 with the stack patch enabled, I get the following warning 
+about the union thread_union init_thread_union:
 
-> If an application insists, it is up to the application to determine,
-> probably once upon startup, just what kind of file synchronization
-> is supported.
+/home/thunder/tmp/thunder-2.5/arch/i386/kernel/init_task.c:39: warning:
+initialization from incompatible pointer type
 
-Linux defines fsync for directories
+union thread_union init_thread_union
+        __attribute__((__section__(".data.init_task"))) =
+               { {
+                       task:           &init_task,
+                       exec_domain:    &default_exec_domain,
+                       flags:          0,
+                       cpu:            0,
+                       addr_limit:     KERNEL_DS,
+                       irq_stack:      &init_irq_union,
+               } };
+
+Would it be OK to replace irq_stack: &init_irq_union with 
+&init_irq_union.init_task?
+
+.config used was configallmod
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+
+

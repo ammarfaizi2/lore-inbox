@@ -1,67 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbQLMXpC>; Wed, 13 Dec 2000 18:45:02 -0500
+	id <S131520AbQLMXsN>; Wed, 13 Dec 2000 18:48:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131520AbQLMXox>; Wed, 13 Dec 2000 18:44:53 -0500
-Received: from saltlake.cheek.com ([207.202.196.152]:64774 "EHLO
-	saltlake.cheek.com") by vger.kernel.org with ESMTP
-	id <S129525AbQLMXoj>; Wed, 13 Dec 2000 18:44:39 -0500
-Message-ID: <3A3802AA.1FD36245@cheek.com>
-Date: Wed, 13 Dec 2000 15:13:47 -0800
-From: Joseph Cheek <joseph@cheek.com>
-X-Mailer: Mozilla 4.73C-CCK-MCD Caldera Systems OpenLinux [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
+	id <S131554AbQLMXsC>; Wed, 13 Dec 2000 18:48:02 -0500
+Received: from fe4.rdc-kc.rr.com ([24.94.163.51]:26130 "EHLO mail4.kc.rr.com")
+	by vger.kernel.org with ESMTP id <S131520AbQLMXrp>;
+	Wed, 13 Dec 2000 18:47:45 -0500
+To: Mark Kettenis <kettenis@wins.uva.nl>
+Cc: Peter Berger <peterb@telerama.com>, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: Pthreads, linux, gdb, oh my! (and ptrace must die!)
+In-Reply-To: <Pine.BSI.4.02.10012081445290.26743-100000@frogger.telerama.com>
+	<s3ilmtka14t.fsf@debye.wins.uva.nl>
+From: Mike Coleman <mcoleman2@kc.rr.com>
+Date: 13 Dec 2000 17:16:52 -0600
+In-Reply-To: Mark Kettenis's message of "13 Dec 2000 14:42:26 +0100"
+Message-ID: <87zohzoqsb.fsf_-_@subterfugue.org>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-To: "Mohammad A. Haque" <mhaque@haque.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: test12: eth0 trasmit timed out after one hour uptime
-In-Reply-To: <3A37FFC9.19F05305@cheek.com> <3A380238.CA7BB0B2@haque.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-00:0e.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
-(rev 30)
+Mark Kettenis <kettenis@wins.uva.nl> writes:
+> However, the "zombie problem" is caused by the way ptrace() interacts
+> with clone()/exit()/wait(), which I consider to be a kernel bug.
+[insightful analysis omitted]
 
-i've been doing a ton of compiling which has thrashed the [IDE] HD,
-perhaps it is related.  other than that, just normal web surfing...
+I think you've hit the nail on the head, and I'm a bit frustrated that I never
+noticed this problem even though I've spent quite a bit of time poring over
+the code that makes ptrace work.
 
-"Mohammad A. Haque" wrote:
+My limited mental abilities notwithstanding, I think this is one more reason
+to ditch ptrace for a better method of process tracing/control.  It's served
+up to this point, but ptrace has a fundamental flaw, which is that it tries to
+do a lot of interprocess signalling and interlocking in an in-band way, doing
+process reparenting to try to take advantage of existing code.  In the end
+this seems to be resulting in an inscrutable, flaky mess.
 
-> I just crossed the 1 day mark. What ethernet card do you have?
->
-> Joseph Cheek wrote:
-> >
-> > hi all,
-> >
-> > after about an hour of uptime [and heavy HD usage] my ethernet just
-> > died.  couldn't ping a thing.  syslog showed:
->
-> --
->
-> =====================================================================
-> Mohammad A. Haque                             http://www.haque.net/
->                                                mhaque@haque.net
->
->   "Alcohol and calculus don't mix.             Project Lead
->    Don't drink and derive." --Unknown         http://wm.themes.org/
->                                                batmanppc@themes.org
-> =====================================================================
+What would a better process tracing facility be like?  One key feature is
+utter transparency.  That is, it should be impossible for traced processes or
+other processes that interact with them to be aware of whether or not tracing
+is going on.  This means that there should be no difference between the way a
+process behaves under tracing versus how it would behave if it weren't being
+traced, which is a key to faithful tracing/debugging and avoiding the
+Heisenbug effect.  (There does need to be some interface via which information
+about tracing itself can be observed, but it should be hidden from the target
+processes.)
 
---
-thanks!
+It would also be nice to have something accessible via devices in the proc
+filesystem.  Maybe something like Solaris' "proc" debugging interface would be
+a starting point:
 
-joe
+   http://docs.sun.com:80/ab2/coll.40.6/REFMAN4/@Ab2PageView/42351?DwebQuery=proc&Ab2Lang=C&Ab2Enc=iso-8859-1
 
---
-Joseph Cheek, Sr Linux Consultant, Linuxcare | http://www.linuxcare.com/
-Linuxcare.  Support for the Revolution.      | joseph@linuxcare.com
-CTO / Acting PM, Redmond Linux Project       | joseph@redmondlinux.org
-425 990-1072 vox [1074 fax] 206 679-6838 pcs | joseph@cheek.com
+--Mike
 
-
-
+-- 
+[O]ne of the features of the Internet [...] is that small groups of people can
+greatly disturb large organizations.  --Charles C. Mann
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

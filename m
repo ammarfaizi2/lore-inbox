@@ -1,136 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280972AbRKCPd6>; Sat, 3 Nov 2001 10:33:58 -0500
+	id <S280968AbRKCPhS>; Sat, 3 Nov 2001 10:37:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280971AbRKCPds>; Sat, 3 Nov 2001 10:33:48 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:53407 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S280968AbRKCPda>;
-	Sat, 3 Nov 2001 10:33:30 -0500
-Date: Sat, 03 Nov 2001 15:33:26 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: sfr@canb.auug.org.au, linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: [PATCH] IBM T23; quirks force enable interrupts in APM set power state, causes crash on suspend
-Message-ID: <520483122.1004801606@[195.224.237.69]>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S280971AbRKCPhI>; Sat, 3 Nov 2001 10:37:08 -0500
+Received: from mail12.speakeasy.net ([216.254.0.212]:10500 "EHLO
+	mail12.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S280968AbRKCPgv>; Sat, 3 Nov 2001 10:36:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: safemode <safemode@speakeasy.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: graphical swap comparison of aa and rik vm
+Date: Sat, 3 Nov 2001 10:36:49 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0111021110000.2963-100000@imladris.surriel.com> <20011102234857Z280889-17409+7968@vger.kernel.org>
+In-Reply-To: <20011102234857Z280889-17409+7968@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; FORMAT=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011103153658Z280968-17408+9781@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven et al,
-
-Summary: dmi_scan.c forces interrupt enable on during PCI BIOS call for
-         all IBM machines, which breaks T23, which needs it off it seems.
-
-(Steven: hope you don't mind lkml copy)
-
->>> My only worry is I have some people saying (admittedly on laptops
->>> pre the T23) that disabling this opption whilst udma is still enabled
->>> is a sure way to kill your entire filing system. Well, guess I've
->>> got most of it backed up ...
->>
->> You could try this in single user mode with all your file systems mounted
->> read only (or not mounted if possible).
->
-> I will try it this evening - I think with UDMA off (somehow), single
-> user mode, no other apps, immediate reboot afterwards,
-> it should be worth the risk :-)
->
-> I have 2 x T23 here which are not (yet) doing vital stuff, so if you
-> want any information on them, I'm happy to do testing.
-
-Well, lo and behold, if I /do/ disable interrupts (i.e. change
-APM_DO_CLI to just cli() ), it seems to suspend and restore
-correctly. So it looks like the BIOS in the T23 has the opposite
-bug from other boxes - i.e. it doesn't work if you have interrupts
-/enabled/ (grrrr...).
-
-So now 'all' I have to worry is all the dire warnings about
-enabling this.
-
->>> I shall try it - is this any different (I think no) from turning OFF
->>> the config option which says enable IRQs in interrupts?
->>
->> It is different, because we automatically detect all IBM thinkpads and
->> turn that option on at runtime.  We currently do not distinguish between
->> different Thinkpad models because up until (at least) the T22, they all
->> had the problem and I do not have access to a T23.
->
-> OK - obviously hadn't read the code sufficiently closely.
-
-Found it :-)
-
-Looks like the test for IBM laptops in dmiscan.c is too specific,
-and needs to be made less so. I changed dmi_printk
-to just do a printk() and have included what I think is all
-the relevant information below, so you can exclude matching the T23.
-
-I have attached a patch which fixes this (against 2.4.12-ac5),
-and the dmi dump.
-
---
-Alex Bligh
-
-DMI dump on standard build:
-
-All processors have done init_idle
-DMI 0.0 present.
-48 structures occupying 1720 bytes.
-DMI table at 0x27F7C000.
-BIOS Vendor: IBM
-BIOS Version: 1AET38WW (1.01b)
-BIOS Release: 07/27/2001
-System Vendor: IBM.
-Product Name: 26479LU.
-Version Not Available.
-Serial Number 787PR4K.
-Board Vendor: IBM.
-Board Name: 26479LU.
-Board Version: Not Available.
-Asset Tag: No Asset Information.
-IBM machine detected. Enabling interrupts during APM calls.
+Since i'm now in Linus' kernel, i did the test again on it with the added 
+swap.  It took about 7 minutes to finish.  Since rik's vm locked up so 
+completly after only about a minute, i really have no data on what it was 
+doing during those 8 hours i had it running it's course.  Andrea's was more 
+fruitful and vmstat ran quite nicely the entire time, probably only missing a 
+couple here and there.  
+The only thing i could tell from the two tests is that Rik's vm allocates all 
+of my memory and swap almost immediately and for extended periods of time.  
+Andrea's alocates memory gradually and more conservatively and only reaches 
+all of my swap for an instant.  Other than that the only thing i can tell is 
+that my computer is usable when using andrea's vm after the test.  I have to 
+reboot it after starting the test with Rik's vm. 
 
 
---- kernel-source-2.4.12ac5clean/arch/i386/kernel/dmi_scan.c  Tue Oct 23 10:00:14 2001
-+++ kernel-source-2.4.12ac5dev/arch/i386/kernel/dmi_scan.c  Wed Oct 31 22:09:14 2001
-@@ -277,6 +277,23 @@
-        return 0;
- }
 
-+/*
-+ * ... but some other (more specific) variants of the above laptops
-+ * do not like interrupts being enabled during APM calls
-+ * For instance though IBM laptops apparently crash if interrupts
-+ * are not enabled during APM calls, the IBM T23 appears to crash
-+ * if interrupts /are/ enabled during APM calls - sigh - alex@alex.org.uk
-+ */
-+static __init int set_no_apm_ints(struct dmi_blacklist *d)
-+{
-+       if (apm_info.allow_ints)
-+       {
-+               apm_info.allow_ints = 0;
-+               printk(KERN_INFO "%s machine detected. Re-disabling interrupts during APM calls.\n", d->ident);
-+       }
-+       return 0;
-+}
-+
- /*
-  * Some APM bioses corrupt memory or just plain do not work
-  */
-@@ -458,6 +475,11 @@
-                        MATCH(DMI_SYS_VENDOR, "IBM"),
-                        NO_MATCH, NO_MATCH, NO_MATCH
-                        } },
-+       { set_no_apm_ints, "IBM T23", { /* Disable interrupts during suspend on IBM T23 laptops */
-+                       MATCH(DMI_SYS_VENDOR, "IBM"),
-+                       MATCH(DMI_PRODUCT_NAME, "26479"),
-+                       NO_MATCH, NO_MATCH
-+                       } },
-        { set_apm_ints, "Dell Inspiron", {      /* Allow interrupts during suspend on Dell Inspiron laptops*/
-                        MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
-                        MATCH(DMI_PRODUCT_NAME, "Inspiron 4000"),
 
+On Friday 02 November 2001 18:48, safemode wrote:
+> So I added more swap, for 461549568 bytes total, and guess what happens? 
+> No, Rik's vm did not beat AA's.  You might say, "well then it must have
+> came close to tying it now since it has enough swap and wont fall victim to
+> the 'speed/size tradeoff'".  No, you would be wrong.  Rik's VM completely
+> locked up in some kind of infinite swap loop like it did before in earlier
+> kernels. My server was swapping ( i saw disk activity) for over 8 hours
+> before i finally rebooted it.  Needless to say that it angers me to
+> unintentionally lock the computer up.  So what's going on here? rik,
+> anyone?  I've used this test before to lock up Rik's VM and it is
+> reproduceable on my machine.  With less swap, it seems to be gone in the
+> latest kernels but when i added more like Rik said to do, it locked up. 
+> For now i'll be running AA kernels until this is figured out.
+> What i found insane from the little info provided by the vmstat i had
+> running at the time was that even with 450+MB of swap, Rik's VM still used
+> it all up. Why would it work better without that much ram but when i add
+> more, it still uses it all up and locks up.  There's something seriously
+> wrong here. I'm going to test's andrea's with the new mem config too later.
+>   My bet is that it doesn't lock up for over 8 hours trying to swap.

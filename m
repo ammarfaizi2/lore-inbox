@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261978AbSKRKTx>; Mon, 18 Nov 2002 05:19:53 -0500
+	id <S261963AbSKRKQ4>; Mon, 18 Nov 2002 05:16:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbSKRKTx>; Mon, 18 Nov 2002 05:19:53 -0500
-Received: from pc311.opanet.cz ([62.77.115.11]:13453 "HELO pc11.op.pod.cz")
-	by vger.kernel.org with SMTP id <S261978AbSKRKTx>;
-	Mon, 18 Nov 2002 05:19:53 -0500
+	id <S261973AbSKRKQ4>; Mon, 18 Nov 2002 05:16:56 -0500
+Received: from pc311.opanet.cz ([62.77.115.11]:11917 "HELO pc11.op.pod.cz")
+	by vger.kernel.org with SMTP id <S261963AbSKRKQ4>;
+	Mon, 18 Nov 2002 05:16:56 -0500
 From: "Vitezslav Samel" <samel@mail.cz>
-Date: Mon, 18 Nov 2002 11:26:53 +0100
+Date: Mon, 18 Nov 2002 11:23:55 +0100
 To: linux-kernel@vger.kernel.org
-Subject: Re: Status of the CMD680 IDE driver
-Message-ID: <20021118102653.GB425@pc11.op.pod.cz>
+Subject: Re: Linux 2.4.20-rc2
+Message-ID: <20021118102355.GA425@pc11.op.pod.cz>
 Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <73fe.3dd52324.188a7@gzp1.gzp.hu> <1037383237.19971.49.camel@irongate.swansea.linux.org.uk>
+References: <79A0E6042C8@vcnet.vc.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1037383237.19971.49.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <79A0E6042C8@vcnet.vc.cvut.cz>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 06:00:37PM +0000, Alan Cox wrote:
-> On Fri, 2002-11-15 at 16:39, Gabor Z. Papp wrote:
-> > Seems like it is in the later 2.4, but removed from the -ac
-> > line, and missing from the 2.5 tree.
+> > Petr Vandrovec <VANDROVE@vc.cvut.cz>:
+> >   o Fix ncpfs file creation issue
+> > 
+> > Petr Vandrovec <vandrove@vc.cvut.cz>:
+> >   o Fix lcall DoS
 > 
-> siimage driver drives the CMD680 and the SATA SII3112 version of the
-> chip.
+> Summary generation script needs some tweaking in case sensitivity
+> area ;-) (and if someone knows how to persuade MSDOS Pegasus Mail 
 
-  I tried it, but performance drops from 44 MB/s to cca. 20 MB/s 
-when using new seagate drive in udma5 between 2.4 and 2.5 version.
+  Fixed in version 0.50 of lk-changelog.pl
+
+  (see: http://mandree.home.pages.de/linux/kernel/)
+
 
 	Cheers,
 		Vita

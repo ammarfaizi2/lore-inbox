@@ -1,60 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266174AbUALOHm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 09:07:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUALOHm
+	id S265527AbUALODP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 09:03:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265560AbUALOCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 09:07:42 -0500
-Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:30593
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S266174AbUALOHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 09:07:40 -0500
-Date: Mon, 12 Jan 2004 09:06:52 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: 2.6.1 and irq balancing
-In-Reply-To: <btt7pt$3m8$1@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.58.0401120905140.7344@montezuma.fsmlabs.com>
-References: <7F740D512C7C1046AB53446D37200173618820@scsmsx402.sc.intel.com>
- <btt7pt$3m8$1@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 Jan 2004 09:02:50 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:8393 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265527AbUALOCr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 09:02:47 -0500
+Date: Mon, 12 Jan 2004 15:02:38 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jan De Luyck <lkml@kcore.org>
+Cc: Kiko Piris <kernel@pirispons.net>, Bart Samwel <bart@samwel.tk>,
+       linux-kernel@vger.kernel.org, Dax Kelson <dax@gurulabs.com>,
+       Bartek Kania <mrbk@gnarf.org>, Simon Mackinlay <smackinlay@mail.com>
+Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
+Message-ID: <20040112140238.GG24638@suse.de>
+References: <3FFFD61C.7070706@samwel.tk> <200401121212.44902.lkml@kcore.org> <20040112121956.GA8226@portsdebalears.com> <200401121409.44187.lkml@kcore.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401121409.44187.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Jan 2004, Bill Davidsen wrote:
+On Mon, Jan 12 2004, Jan De Luyck wrote:
+> On Monday 12 January 2004 13:19, Kiko Piris wrote:
+> > On 12/01/2004 at 12:12, Jan De Luyck wrote:
+> > > Patch applied, kernel built, laptop_mode activated, but my disk just
+> > > doesn't want to spin down...
+> >
+> > [...]
+> >
+> > > But the disk never spins down. Not that I can tell, hdparm -C /dev/hda
+> > > always tells me active/idle, and the sdsl tool also reports 100% disk
+> > > spinning...
+> > >
+> > > anything else I have to activate/check?
+> >
+> > As you don't say if you have checked it, here goes my suggestion:
+> >
+> > First of all, you should assure there's no process doing reads [*] that
+> > cause a cache miss (eg. daemons like postfix that check the queue every
+> > few seconds). You can tell this running vmstat 1 and see that bi and bo
+> > [**] stay at 0.
+> 
+> vmstat 1:
+> 
+>  0  0      0  88748  37628 216216    0    0     0     0 1514  1130  7  4 89  0
+>  0  0      0  88756  37628 216216    0    0     0     0 1495  1123  6  1 93  0
+>  0  0      0  88748  37628 216216    0    0     0     0 1504  1114  8  4 88  0
+>  1  0      0  88748  37628 216216    0    0     0     0 1499  1058  6  2 92  0
+>  0  0      0  88748  37628 216216    0    0     0     0 1488  1062  7  4 89  0
+>  0  0      0  88748  37628 216216    0    0     0     0 1480  1007  7  6 87  0
+>  0  0      0  88876  37628 216216    0    0     0     0 1524  1122  7  6 87  0
+>  0  0      0  88748  37628 216216    0    0     0     0 1506  1078 11  6 83  0
+>  0  0      0  88748  37628 216216    0    0     0     0 1500  1057 11  5 84  0
+>  0  0      0  88748  37628 216216    0    0     0     0 1514  1040 16  3 81  0
+>  0  1      0  88748  37660 216216    0    0     0    28 1523  1041 19  4 64 13
+>  0  1      0  88748  37660 216216    0    0     0     0 1500   994 23  2  0 75
+>  0  0      0  88748  37660 216216    0    0     0    32 1540  1064 25  1 53 21
+>  0  0      0  88748  37660 216216    0    0     0     0 1501  1064 24  0 76  0
+>  0  0      0  88748  37660 216216    0    0     0     0 1514  1071 24  1 75  0
+>  2  0      0  88812  37660 216216    0    0     0     0 1518  1086 24  1 75  0
+>  0  0      0  88804  37660 216216    0    0     0     0 1504  1066 24  2 74  0
+>  0  0      0  88740  37660 216216    0    0     0     0 1482  1015 25  1 74  0
+> 
+> At the presence of bo it spins up the disk.
 
-> I'm not sure this is a problem in any way, but some serious load is
-> needed to trigger sharing, if indeed the NIC was the source of the ints
-> on CPU2.
->
-> 2x Xeon-2.4GHz, HT enabled. "CPU2" from memory, it was the other
-> physical CPU, not another sibling. Worked fine, didn't break, don't
-> regard it as a problem.
+bo is accounted when io is actually put on the pending queue for the
+disk, so they really do go hand in hand. So you should use block_dump to
+find out why.
 
-Seems to be ok here, 2x Xeon 2.0GHz w/ HT
-
-           CPU0       CPU1       CPU2       CPU3
-  0:  322303400          0          0          0    IO-APIC-edge  timer
-  1:     255712          0          0          0    IO-APIC-edge  i8042
-  2:          0          0          0          0          XT-PIC  cascade
-  3:        828          0          0          0    IO-APIC-edge  serial
-  4:      70682          0          0          0    IO-APIC-edge  serial
-  8:          1          0          0          0    IO-APIC-edge  rtc
-  9:          0          0          0          0   IO-APIC-level  acpi
- 12:    1244334          0          0          0    IO-APIC-edge  i8042
- 14:   21708437        129   18313205       1492    IO-APIC-edge  ide0
- 15:   10859481         78    9907876         64    IO-APIC-edge  ide1
- 16:        655          0          0          0   IO-APIC-level  uhci_hcd
- 19:      34458          0          0          0   IO-APIC-level  uhci_hcd, serial
- 20:    5762897          0    1009019          0   IO-APIC-level  eth0
- 22:    4985838         60    4908642         42   IO-APIC-level  ide2, ide3
- 23:    3667147          0          0          0   IO-APIC-level  eth1
- 48:    8459639          0          0          0   IO-APIC-level  EMU10K1
-NMI:          0          0          0          0
-LOC:  322346360  322346360  322346359  322346358
-ERR:          0
-MIS:          0
+-- 
+Jens Axboe
 

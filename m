@@ -1,35 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263970AbRFHLZG>; Fri, 8 Jun 2001 07:25:06 -0400
+	id <S263975AbRFHLsb>; Fri, 8 Jun 2001 07:48:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263964AbRFHLY4>; Fri, 8 Jun 2001 07:24:56 -0400
-Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:14853 "EHLO
-	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S263965AbRFHLYq>; Fri, 8 Jun 2001 07:24:46 -0400
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: Re: [CHECKER] security rules?  (and 2.4.5-ac4 security bug)
-In-Reply-To: <E156VyD-0004D9-00@the-village.bc.nu>
-From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 08 Jun 2001 13:24:18 +0200
-In-Reply-To: <E156VyD-0004D9-00@the-village.bc.nu> (Alan Cox's message of "Sun, 3 Jun 2001 12:22:57 +0100 (BST)")
-Message-ID: <tgwv6n43kt.fsf@mercury.rus.uni-stuttgart.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
-MIME-Version: 1.0
+	id <S263987AbRFHLsW>; Fri, 8 Jun 2001 07:48:22 -0400
+Received: from penguin.eunet.cz ([193.86.255.66]:36616 "HELO
+	charybda.fi.muni.cz") by vger.kernel.org with SMTP
+	id <S263978AbRFHLsO>; Fri, 8 Jun 2001 07:48:14 -0400
+From: Jan Kasprzak <kas@informatics.muni.cz>
+Date: Fri, 8 Jun 2001 13:48:02 +0200
+To: linux-kernel@vger.kernel.org, xgajda@fi.muni.cz, kron@fi.muni.cz
+Subject: Re: CacheFS
+Message-ID: <20010608134802.H1100@informatics.muni.cz>
+In-Reply-To: <20010607133750.I1193@informatics.muni.cz> <20010607114419.A23962@cs.cmu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010607114419.A23962@cs.cmu.edu>; from jaharkes@cs.cmu.edu on Thu, Jun 07, 2001 at 11:44:19AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Jan Harkes wrote:
+: > 	Every file on the front filesystem (NFS or so) volume will be cached
+: > in two local files by cachefsd: The first one would contain the (parts of)
+: > real file content, and the second one would contain file's metadata and the
+: > bitmap of valid blocks (or pages) of the first file. All files in cachefsd's
+: > backing store would be in a per-volume directory, and will be numbered by the
+: > inode number from the front filesystem.
+: 
+: - Intermezzo uses 'holes' in files to indicate that content isn't
+:   available.
 
-> n /u2/engler/mc/oses/linux/2.4.5-ac4/drivers/char/random.c:1813:uuid_strategy: ERROR:RANGE:1809:1813: Using user length "len" as argument to "copy_to_user" [type=LOCAL] set by 'get_user':1813
-> 
-> Sigh I thought I had all of the sysctl ones
+	Well, but can you see the hole from the user-space daemon?
 
-BTW uuid_strategy() is broken in the RANDOM_UUID case.  It calls
-copy_to_user() on table->data, which is always NULL.
+: - You might want to have a more hierarchical backing store, directory
+:   operations in large directories are not very efficient.
+
+	Yes, of course. But this is an implementation detail of cachefsd.
+
+: - I believe you are switching the meaning of front and backend
+:   filesystems around a lot in your description. Who exactly assigns the
+:   inode numbers?
+
+	Well, let's speak about NFS, locally cached on ext2. The present
+implemetation takes inode number from NFS, and creates and ext2 file
+named - for example - /cache/%d (for file contents) and  /cache/%d.attr for
+stat(2) data and valid blocks bitmap. The %d is an inode number from the
+NFS volume.
+
+: Some references,
+: 
+: UserFS, PodFuk, AVFS,
+
+	Thanks,
+
+-Yenya
 
 -- 
-Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-University of Stuttgart           http://cert.uni-stuttgart.de/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+\ Jan "Yenya" Kasprzak <kas at fi.muni.cz>       http://www.fi.muni.cz/~kas/
+\\ PGP: finger kas at aisa.fi.muni.cz   0D99A7FB206605D7 8B35FCDE05B18A5E //
+\\\             Czech Linux Homepage:  http://www.linux.cz/              ///
+It is a very bad idea to feed negative numbers to memcpy.         --Alan Cox

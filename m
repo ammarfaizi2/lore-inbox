@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbTE2T0y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 15:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbTE2T0x
+	id S262530AbTE2TZk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 15:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbTE2TZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 15:26:53 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:61902 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262547AbTE2T0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 15:26:52 -0400
-Date: Thu, 29 May 2003 21:40:03 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, llinux-scsi@vger.kernel.org
-Subject: [patch] 2.5.70-mm2: aha1740.c doesn't compile.
-Message-ID: <20030529194003.GH5643@fs.tum.de>
-References: <20030529012914.2c315dad.akpm@digeo.com>
+	Thu, 29 May 2003 15:25:40 -0400
+Received: from holomorphy.com ([66.224.33.161]:51081 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262530AbTE2TZj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 15:25:39 -0400
+Date: Thu, 29 May 2003 12:38:49 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Morten Helgesen <morten.helgesen@nextframe.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: list_head debugging patch
+Message-ID: <20030529193849.GB8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Morten Helgesen <morten.helgesen@nextframe.net>,
+	linux-kernel@vger.kernel.org
+References: <20030529130807.GH19818@holomorphy.com> <200305292122.44041.morten.helgesen@nextframe.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030529012914.2c315dad.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200305292122.44041.morten.helgesen@nextframe.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems the following compile error comes from Linus' tree:
+On Thursday 29 May 2003 15:08, William Lee Irwin III wrote:
+>> This appears to get the kernel to crap its pants in very, very
+>> short order. Given the number of things going wrong, I almost
+>> wonder if I did something wrong. Things get real ugly, really,
+>> really fast.
 
-<--  snip  -->
+On Thu, May 29, 2003 at 09:22:43PM +0200, Morten Helgesen wrote:
+> [snip]
+> I gave this a go - booted without problems. I did some 
+> untaring/copying/deleting and didn`t see anything unusual, but a 
+> 'dbench 8' died right away. 
+[...]
+> EIP is at clear_queue_congested+0x78/0xb0
 
-...
-  CC      drivers/scsi/aha1740.o
-...
-drivers/scsi/aha1740.c:613: syntax error at end of input
-...
-make[2]: *** [drivers/scsi/aha1740.o] Error 1
+clear_queue_congested() is doing an opportunistic check for list_empty()
+without taking a lock. The patch basically changes list_empty() to look
+at elements of the list instead of just pieces of the head. As opposed
+to auditing for this, could you remove the __list_head_check() from
+list_empty() and try again?
 
-<--  snip  -->
+Thanks.
 
-
-The culprit is the following bogus part of a patch (please _revert_ it):
-
-
---- linux-2.5.70/drivers/scsi/aha1740.c	2003-05-26 19:16:33.000000000 -0700
-+++ 25/drivers/scsi/aha1740.c	2003-05-28 23:52:00.000000000 -0700
-@@ -108,7 +102,6 @@ static int aha1740_proc_info(char *buffe
-     if (len > length)
- 	len = length;
-     return len;
--}
- 
- 
- static int aha1740_makecode(unchar *sense, unchar *status)
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-- wli

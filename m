@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280895AbRKKMHr>; Sun, 11 Nov 2001 07:07:47 -0500
+	id <S280751AbRKKMF1>; Sun, 11 Nov 2001 07:05:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281042AbRKKMHh>; Sun, 11 Nov 2001 07:07:37 -0500
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:6092 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S281032AbRKKMH1>; Sun, 11 Nov 2001 07:07:27 -0500
-Date: Sun, 11 Nov 2001 12:07:20 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: "Michael H. Warfield" <mhw@wittsend.com>
-cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, lobo@polbox.com,
-        linux-kernel@vger.kernel.org
-Subject: [Very-OT] Re: Nazi kernels
-In-Reply-To: <20011111005849.A26855@alcove.wittsend.com>
-Message-ID: <Pine.SOL.3.96.1011111120107.21134C-100000@libra.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280895AbRKKMFS>; Sun, 11 Nov 2001 07:05:18 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:32731 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S280751AbRKKMFM>; Sun, 11 Nov 2001 07:05:12 -0500
+Date: Sun, 11 Nov 2001 13:05:11 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org,
+        ReiserFS Mailingliste <reiserfs-list@namesys.com>
+Subject: Re: NFS dropouts with <=2.4.15pre1 + ReiserFS
+Message-ID: <20011111130511.A26768@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org,
+	ReiserFS Mailingliste <reiserfs-list@namesys.com>
+In-Reply-To: <20011111124134.E6421@jensbenecke.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011111124134.E6421@jensbenecke.de>; from jens@jensbenecke.de on Sun, Nov 11, 2001 at 12:41:34PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Nov 2001, Michael H. Warfield wrote:
-> 	Oh, but you missed the mark!  Think Windows XP.  Now there's
-> the ticket.  If you aren't a Windows XP certified driver, they can
-> just wipe your driver right off the face of the system...  All in the
-> name of "stability" (as they define it).  None of this nonsense of
-> merely flagging if their OS has a non-sanctified driver like Linux.
-> Linux lets the driver load and run, it merely lets people KNOW that
-> it's an un-sanctified driver when shit catches fire and burns.  You
-> know MS.  MS thinks Linux is just a bunch of whimps.  Screw just letting
-> the user know AFTER something burps and burns.  That's TOO complicated
-> for a user to figure out and MS has to be "user friendly".  MS is for
-> men with balls (and no brains)...  Just burn the driver BEFORE it has
-> a chance to run.  Yeah!  That's the ticket!
+On Sun, Nov 11, 2001 at 12:41:34PM +0100, Jens Benecke wrote:
 
-Let's not get carried away. Windows XP does allow you to install anything
-you like. You just have to click several times on the Yes button when it
-asks things like "This driver is not XP certified. Do you really want to
-use it?" and "Installing a non-certified driver can cause system
-instability. Are you sure you want to do this?" (text is probably not
-quite right but you get the idea).
+> I have two machines, ds9 (workstation) and server (well..), running
+> 2.4.15pre1. The server was patched with grsecurity (www.grsecurity.net),
+> the workstation was patched with Win4lin (commercial, www.netraverse.com).
+(...)
+> This seems reproducable with a little effort - so I'd be happy to help
+> debugging this (and the bad performance ;) if anybody tells me where to
+> start. As I said, with 'echo 9 > nfsd_debug' I got megabytes of logs filled
+> with nfsd_dispatch, fh_verify, fh_compose, last message repeated 295 times,
+> etc. but nothing that (for me) pointed to an error situation.
 
-I think we ought to do the same with closed source drivers. It's true
-after all... The whole point of tainting the kernel is so we can just yell
-at users to go and bug the vendor. So the modprobe executable could warn
-the user "hey, you are loading a binary only module, it can break the
-system, are you sure?". If the module is autoloaded we don't do jumping
-through hoops asking questions so the systen runs smoothly.
+First advice is to reproduce this without external patches. 
 
-Best regards,
+Regards,
 
-	Anton
+bert
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+http://www.PowerDNS.com          Versatile DNS Software & Services
+Trilab                                 The Technology People
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

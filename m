@@ -1,234 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbUAXUX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 15:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbUAXUX3
+	id S261522AbUAXUdr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 15:33:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUAXUdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 15:23:29 -0500
-Received: from fep21-0.kolumbus.fi ([193.229.0.48]:41895 "EHLO
-	fep21-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S261298AbUAXUXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 15:23:18 -0500
-Date: Sat, 24 Jan 2004 22:23:12 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Darren Dupre <darren@dmdtech.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1 Oops when attempting to access /dev/st0 without st module
- loaded
-In-Reply-To: <002e01c3e2b1$6414f650$1e01a8c0@dmdtech2>
-Message-ID: <Pine.LNX.4.58.0401242210210.9128@kai.makisara.local>
-References: <002e01c3e2b1$6414f650$1e01a8c0@dmdtech2>
+	Sat, 24 Jan 2004 15:33:47 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:70 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S261522AbUAXUdp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 15:33:45 -0500
+From: Marco Rebsamen <mrebsamen@swissonline.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Troubles Compiling 2.6.1 on SuSE 9
+Date: Sat, 24 Jan 2004 21:37:34 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401242137.34881.mrebsamen@swissonline.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Jan 2004, Darren Dupre wrote:
 
-> I was about to do a tape backup, so I did the following:
-> 
-> modprobe advansys (automaticaly loads scsi_mod first)
-> 
-> tar --exclude=/sys --exclude=/proc --exclude=/mnt -cvf /dev/st0 /
-> which results in a segmentation fault as soon as tar is executed.
-> 
-> If I load the st module and try to backup, it says no such device
-> 
-> I believe it did this because I forgot to modprobe st (shouldn't it be done
-> automatically?) which I normally do but forgot to do this time around. I
-> keep all this stuff as modules becuase I like to be able to unhook the tape
-> drive and use it on other machines without having to reboot.
-> 
-Have you loaded and unloaded the module after booting the kernel but 
-before this has happened? If you have, the patch at the end of this 
-message should help. (This is the same patch posted to linux-scsi earlier 
-today).
 
-The problem is that st_remove() did not call cdev_umap() before 
-cdev_del(). The device was deleted but it was left in a list where chrdev_open()
-finds this non-existing device.
+Hi there...
 
-If you have not loaded and unloaded the st module after reboot, then you 
-have another problem.
+I try to compile my own kernel with 2.6.1 on suse 9. But i always get the same 
+error. i applied the patch 2.6.2-rc1 but wasn't helping.
 
-(The patch is against 2.6.2-rc1 but it should apply also to 2.6.1. It also 
-solves the "sleeping function called from invalid context" bug.)
+The error:
 
--- 
-Kai
----------------------------------------8<--------------------------------------
---- linux-2.6.2-rc1/drivers/scsi/st.c	2004-01-20 20:16:20.000000000 +0200
-+++ linux-2.6.2-rc1-k1/drivers/scsi/st.c	2004-01-22 23:16:04.000000000 +0200
-@@ -9,7 +9,7 @@
-    Steve Hirsch, Andreas Koppenh"ofer, Michael Leodolter, Eyal Lebedinsky,
-    Michael Schaefer, J"org Weule, and Eric Youngdale.
- 
--   Copyright 1992 - 2003 Kai Makisara
-+   Copyright 1992 - 2004 Kai Makisara
-    email Kai.Makisara@kolumbus.fi
- 
-    Some small formal changes - aeb, 950809
-@@ -17,7 +17,7 @@
-    Last modified: 18-JAN-1998 Richard Gooch <rgooch@atnf.csiro.au> Devfs support
-  */
- 
--static char *verstr = "20031228";
-+static char *verstr = "20040122";
- 
- #include <linux/module.h>
- 
-@@ -3846,27 +3846,53 @@
- 		STm->default_compression = ST_DONT_TOUCH;
- 		STm->default_blksize = (-1);	/* No forced size */
- 		STm->default_density = (-1);	/* No forced density */
-+	}
-+
-+	for (i = 0; i < ST_NBR_PARTITIONS; i++) {
-+		STps = &(tpnt->ps[i]);
-+		STps->rw = ST_IDLE;
-+		STps->eof = ST_NOEOF;
-+		STps->at_sm = 0;
-+		STps->last_block_valid = FALSE;
-+		STps->drv_block = (-1);
-+		STps->drv_file = (-1);
-+	}
-+
-+	tpnt->current_mode = 0;
-+	tpnt->modes[0].defined = TRUE;
- 
-+	tpnt->density_changed = tpnt->compression_changed =
-+	    tpnt->blksize_changed = FALSE;
-+	init_MUTEX(&tpnt->lock);
-+
-+	st_nr_dev++;
-+	write_unlock(&st_dev_arr_lock);
-+
-+	for (mode = 0; mode < ST_NBR_MODES; ++mode) {
-+		STm = &(tpnt->modes[mode]);
- 		for (j=0; j < 2; j++) {
- 			cdev = cdev_alloc();
- 			if (!cdev) {
- 				printk(KERN_ERR
--				       "st: out of memory. Device not attached.\n");
--				goto out_put_disk;
-+				       "st%d: out of memory. Device not attached.\n",
-+				       dev_num);
-+				goto out_free_tape;
- 			}
- 			snprintf(cdev->kobj.name, KOBJ_NAME_LEN, "%sm%d%s", disk->disk_name,
--				 i, j ? "n" : "");
-+				 mode, j ? "n" : "");
- 			cdev->owner = THIS_MODULE;
- 			cdev->ops = &st_fops;
--			STm->cdevs[j] = cdev;
- 
--			error = cdev_add(STm->cdevs[j],
--					 MKDEV(SCSI_TAPE_MAJOR, TAPE_MINOR(dev_num, i, j)),
-+			error = cdev_add(cdev,
-+					 MKDEV(SCSI_TAPE_MAJOR, TAPE_MINOR(dev_num, mode, j)),
- 					 1);
- 			if (error) {
- 				printk(KERN_ERR "st%d: Can't add %s-rewind mode %d\n",
--				       dev_num, j ? "non" : "auto", i);
-+				       dev_num, j ? "non" : "auto", mode);
-+				printk(KERN_ERR "st%d: Device not attached.\n", dev_num);
-+				goto out_free_tape;
- 			}
-+			STm->cdevs[j] = cdev;
- 
- 			error = sysfs_create_link(&STm->cdevs[j]->kobj, &SDp->sdev_gendev.kobj,
- 						  "device");
-@@ -3884,35 +3910,15 @@
- 		       dev_num);
- 	}
- 
--	for (i = 0; i < ST_NBR_PARTITIONS; i++) {
--		STps = &(tpnt->ps[i]);
--		STps->rw = ST_IDLE;
--		STps->eof = ST_NOEOF;
--		STps->at_sm = 0;
--		STps->last_block_valid = FALSE;
--		STps->drv_block = (-1);
--		STps->drv_file = (-1);
--	}
--
--	tpnt->current_mode = 0;
--	tpnt->modes[0].defined = TRUE;
--
--	tpnt->density_changed = tpnt->compression_changed =
--	    tpnt->blksize_changed = FALSE;
--	init_MUTEX(&tpnt->lock);
--
--	st_nr_dev++;
--	write_unlock(&st_dev_arr_lock);
--
- 	for (mode = 0; mode < ST_NBR_MODES; ++mode) {
--	    /*  Rewind entry  */
--	    devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5)),
--				S_IFCHR | S_IRUGO | S_IWUGO,
--				"%s/mt%s", SDp->devfs_name, st_formats[mode]);
--	    /*  No-rewind entry  */
--	    devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5) + 128),
--				S_IFCHR | S_IRUGO | S_IWUGO,
--				"%s/mt%sn", SDp->devfs_name, st_formats[mode]);
-+		/*  Rewind entry  */
-+		devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5)),
-+			      S_IFCHR | S_IRUGO | S_IWUGO,
-+			      "%s/mt%s", SDp->devfs_name, st_formats[mode]);
-+		/*  No-rewind entry  */
-+		devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5) + 128),
-+			      S_IFCHR | S_IRUGO | S_IWUGO,
-+			      "%s/mt%sn", SDp->devfs_name, st_formats[mode]);
- 	}
- 	disk->number = devfs_register_tape(SDp->devfs_name);
- 
-@@ -3924,18 +3930,30 @@
- 
- 	return 0;
- 
-+out_free_tape:
-+	for (mode=0; mode < ST_NBR_MODES; mode++) {
-+		STm = &(tpnt->modes[mode]);
-+		for (j=0; j < 2; j++) {
-+			if (STm->cdevs[j]) {
-+				if (cdev == STm->cdevs[j])
-+					cdev = NULL;
-+				sysfs_remove_link(&STm->cdevs[j]->kobj, "device");
-+				cdev_unmap(MKDEV(SCSI_TAPE_MAJOR,
-+						 TAPE_MINOR(dev_num, mode, j)), 1);
-+				cdev_del(STm->cdevs[j]);
-+			}
-+		}
-+	}
-+	if (cdev)
-+		kobject_put(&cdev->kobj);
-+	write_lock(&st_dev_arr_lock);
-+	scsi_tapes[dev_num] = NULL;
-+	st_nr_dev--;
-+	write_unlock(&st_dev_arr_lock);
- out_put_disk:
- 	put_disk(disk);
--	if (tpnt) {
--		for (i=0; i < ST_NBR_MODES; i++) {
--			STm = &(tpnt->modes[i]);
--			if (STm->cdevs[0])
--				kobject_put(&STm->cdevs[0]->kobj);
--			if (STm->cdevs[1])
--				kobject_put(&STm->cdevs[1]->kobj);
--		}
-+	if (tpnt)
- 		kfree(tpnt);
--	}
- out_buffer_free:
- 	kfree(buffer);
- out:
-@@ -3964,6 +3982,8 @@
- 				for (j=0; j < 2; j++) {
- 					sysfs_remove_link(&tpnt->modes[mode].cdevs[j]->kobj,
- 							  "device");
-+					cdev_unmap(MKDEV(SCSI_TAPE_MAJOR,
-+							 TAPE_MINOR(i, mode, j)), 1);
- 					cdev_del(tpnt->modes[mode].cdevs[j]);
- 					tpnt->modes[mode].cdevs[j] = NULL;
- 				}
+ld -m elf_i386  -T arch/i386/kernel/vmlinux.lds.s arch/i386/kernel/head.o 
+arch/i386/kernel/init_task.o   init/built-in.o --start-group  usr/built-in.o  
+arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-default/
+built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  
+security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  lib/
+built-in.o  arch/i386/lib/built-in.o  drivers/built-in.o  sound/built-in.o  
+arch/i386/pci/built-in.o  arch/i386/power/built-in.o  net/built-in.o 
+--end-group .tmp_kallsyms2.o -o vmlinux
+make -f scripts/Makefile.build obj=arch/i386/boot arch/i386/boot/bzImage
+  gcc -Wp,-MD,arch/i386/boot/.bootsect.o.d -nostdinc -iwithprefix include 
+-D__KERNEL__ -Iinclude  -D__KERNEL__ -Iinclude  -D__ASSEMBLY__ -Iinclude/
+asm-i386/mach-default -traditional -DSVGA_MODE=NORMAL_VGA  -D__BIG_KERNEL__   
+-c -o arch/i386/boot/bootsect.o arch/i386/boot/bootsect.S
+  ld -m elf_i386  -Ttext 0x0 -s --oformat binary arch/i386/boot/bootsect.o -o 
+arch/i386/boot/bootsect
+  gcc -Wp,-MD,arch/i386/boot/.setup.o.d -nostdinc -iwithprefix include 
+-D__KERNEL__ -Iinclude  -D__KERNEL__ -Iinclude  -D__ASSEMBLY__ -Iinclude/
+asm-i386/mach-default -traditional -DSVGA_MODE=NORMAL_VGA  -D__BIG_KERNEL__   
+-c -o arch/i386/boot/setup.o arch/i386/boot/setup.S
+arch/i386/boot/setup.S: Assembler messages:
+arch/i386/boot/setup.S:165: Warning: value 0x37ffffff truncated to 0x37ffffff
+  ld -m elf_i386  -Ttext 0x0 -s --oformat binary -e begtext arch/i386/boot/
+setup.o -o arch/i386/boot/setup
+make -f scripts/Makefile.build obj=arch/i386/boot/compressed 
+IMAGE_OFFSET=0x100000 arch/i386/boot/compressed/vmlinux
+  gcc -Wp,-MD,arch/i386/boot/compressed/.head.o.d -nostdinc -iwithprefix 
+include -D__KERNEL__ -Iinclude  -D__KERNEL__ -Iinclude  -D__ASSEMBLY__ 
+-Iinclude/asm-i386/mach-default -traditional   -c -o arch/i386/boot/
+compressed/head.o arch/i386/boot/compressed/head.S
+  gcc -Wp,-MD,arch/i386/boot/compressed/.misc.o.d -nostdinc -iwithprefix 
+include -D__KERNEL__ -Iinclude  -D__KERNEL__ -Iinclude  -Wall 
+-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=athlon -Iinclude/asm-i386/mach-default 
+-O2 -fomit-frame-pointer     -DKBUILD_BASENAME=misc -DKBUILD_MODNAME=misc -c 
+-o arch/i386/boot/compressed/misc.o arch/i386/boot/compressed/misc.c
+  objcopy -O binary -R .note -R .comment -S  vmlinux arch/i386/boot/
+compressed/vmlinux.bin
+make[2]: *** [arch/i386/boot/compressed/vmlinux.bin] Fehler 132
+make[1]: *** [arch/i386/boot/compressed/vmlinux] Fehler 2
+make: *** [bzImage] Fehler 2
+
+
+thanks and i hope i'm not completle wrong here :-D
+Marco
+

@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265545AbUGDMRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265548AbUGDMSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265545AbUGDMRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 08:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbUGDMRQ
+	id S265548AbUGDMSX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 08:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265649AbUGDMSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 08:17:16 -0400
-Received: from mid-1.inet.it ([213.92.5.18]:41900 "EHLO mid-1.inet.it")
-	by vger.kernel.org with ESMTP id S265545AbUGDMRN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 08:17:13 -0400
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH,RFT] SATA interrupt handling
-Date: Sun, 4 Jul 2004 14:14:49 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Erik Andersen <andersen@codepoet.org>
-References: <40E77352.5090703@pobox.com>
-In-Reply-To: <40E77352.5090703@pobox.com>
-MIME-Version: 1.0
+	Sun, 4 Jul 2004 08:18:22 -0400
+Received: from pra68-d183.gd.dial-up.cz ([193.85.68.183]:12928 "EHLO
+	penguin.localdomain") by vger.kernel.org with ESMTP id S265548AbUGDMSH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 08:18:07 -0400
+Date: Sun, 4 Jul 2004 14:17:40 +0200
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: register dump when press scroll lock
+Message-ID: <20040704121740.GA3637@penguin.localdomain>
+Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+References: <20040703102516.GA11284@penguin.localdomain> <200407040219.32581.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407041414.49953.cova@ferrara.linux.it>
+In-Reply-To: <200407040219.32581.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.5.6+20040523i
+From: sebek64@post.cz (Marcel Sebek)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle 05:02, domenica 4 luglio 2004, Jeff Garzik ha scritto:
+On Sun, Jul 04, 2004 at 02:19:32AM +0300, Denis Vlasenko wrote:
+> On Saturday 03 July 2004 13:25, Marcel Sebek wrote:
+> > I run 2.6.7 kernel.
+> >
+> > Steps to reproduce:
+> > Switch keyboard by "Pause/Break" key from English to Czech map (or another
+> > second keymap, I also tried Slovak). Then press scrolllock. The following
+> > is printed out and scrlock led state is untouched:
+> 
+> A bug in keyboard utils? (most probably Czech map isn't correct)
+> Which keyboard utils do you use?
+> 
 
-> Attached is the latest SATA patch (and BK info).
->
-> When I turned on the PATA support in libata to do some ATAPI development
-> on my ICH5, I reproduced the behavior that Fabio Coatti was seeing on
-> his box.  This patch fixed my PATA interface, here's hoping it fixes
-> Fabio's problem as well.
+I'm using Debian testing.
 
-Yes, I can confirm that this patch fixes my problem as well. (tested against 
-2.6.7-mm5).
-Now my box boots just fine, good work!
+I looked at keymap definition. For ScrLock there is this:
 
+keycode 70 = Scroll_Lock Show_Memory Show_Registers
+control keycode 70 = Show_State
+alt keycode 70 = Scroll_Lock
+
+If I want the same behavior as with english keymap, I should either
+use Alt-ScrLock or rewrite the keymap.
+
+Thanks for your time.
 
 -- 
-Fabio Coatti       http://members.ferrara.linux.it/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+Marcel Sebek
+jabber: sebek@jabber.cz                     ICQ: 279852819
+linux user number: 307850                 GPG ID: 5F88735E
+GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
+

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270122AbRHGHd4>; Tue, 7 Aug 2001 03:33:56 -0400
+	id <S270120AbRHGHbq>; Tue, 7 Aug 2001 03:31:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270123AbRHGHdq>; Tue, 7 Aug 2001 03:33:46 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:45060 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S270122AbRHGHdh>;
-	Tue, 7 Aug 2001 03:33:37 -0400
-Date: Tue, 7 Aug 2001 09:33:20 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Brent Baccala <baccala@freesoft.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: Problem with usb-storage using HP 8200 external CD-ROM burner
-Message-ID: <20010807093320.I6192@suse.de>
-In-Reply-To: <3B68FB0C.5BC83115@freesoft.org> <20010806014626.K24225@one-eyed-alien.net> <3B6EF4DA.8899E1D3@freesoft.org> <20010806201746.C6080@one-eyed-alien.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010806201746.C6080@one-eyed-alien.net>
+	id <S270122AbRHGHbg>; Tue, 7 Aug 2001 03:31:36 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:14741 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S270120AbRHGHbY>;
+	Tue, 7 Aug 2001 03:31:24 -0400
+Date: Tue, 7 Aug 2001 03:31:34 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] one of $BIGNUM devfs races
+In-Reply-To: <200108070647.f776lB831865@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.GSO.4.21.0108070255010.16817-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 06 2001, Matthew Dharm wrote:
-> >       774         spin_lock_irqsave(&io_request_lock, flags);
-> >       775         rtn = SCpnt->host->hostt->eh_abort_handler(SCpnt);
-> >       776         spin_unlock_irqrestore(&io_request_lock, flags);
-> > 
-> > seems like a real shotgun approach.  Get rid of the spinlock stuff, and
-> > make sure that the abort handlers lock io_request_lock themselves if
-> > they need it.  Of course, this would require changes to all the scsi
-> > drivers.
+
+
+On Tue, 7 Aug 2001, Richard Gooch wrote:
+
+> > They call ->setattr() (devfs_notify_change(), in your case) and that
+> > has nothing to icache (you already have the inode). Or had I
+> > completely misparsed you?
 > 
-> Hrm... perhaps I could just unlock that spinlock and then re-lock it before
-> returning.  Anyone have a clue if this would work?
+> You parsed correctly. I know ->setattr() is called. I just wanted to
+> make sure that the icache didn't have some subtle interaction I was
+> missing. Such as ->write_inode() not being called.
 
-That would work -- stuff like the above is already scheduled for removal
-for 2.5. Locking will be moved from the mid layer to the drivers
-themselves.
+Oh... That actually begs for another question - why the heck do you
+need ->write_inode()?
 
--- 
-Jens Axboe
+Sorry - I had missed the presense of that animal. Hmm... OK.
+Variant 1:
+	insert_inode_hash(inode). Silly, but will work
+Variant 2:
+	kill devfs_write_inode() - do its equivalent in notify_change()
+_and_ set the de->atime in ->readlink() and ->follow_link(). The latter
+is due to update_atime() logics. And no, I don't like it.
+
+Actually, it stinks - we have UPDATE_ATIME implemented by direct assignment to
+->i_atime instead of the proper way (->setattr()). Linus, would you mind if
+I change that? That would be the Right Thing(tm), but it might be too heavy.
 

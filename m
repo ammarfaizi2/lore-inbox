@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316790AbSFAQ4k>; Sat, 1 Jun 2002 12:56:40 -0400
+	id <S315415AbSFOOLC>; Sat, 15 Jun 2002 10:11:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316830AbSFAQ4j>; Sat, 1 Jun 2002 12:56:39 -0400
-Received: from pop.gmx.net ([213.165.64.20]:47629 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S316790AbSFAQ4i>;
-	Sat, 1 Jun 2002 12:56:38 -0400
-Date: Sat, 1 Jun 2002 10:34:03 +0200
-From: Nikolaus Filus <NFilus@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: de4x5 driver: driver freezes system
-Message-ID: <20020601103403.A750@nfilus.dyndns.org>
-In-Reply-To: <20020531233651.B595@nfilus.dyndns.org> <3CF7F60F.40802@mandrakesoft.com>
+	id <S315413AbSFOOLB>; Sat, 15 Jun 2002 10:11:01 -0400
+Received: from c0s14.ami.com.au ([203.55.31.79]:11021 "EHLO
+	dugite.summer.ami.com.au") by vger.kernel.org with ESMTP
+	id <S315412AbSFOOLA>; Sat, 15 Jun 2002 10:11:00 -0400
+Message-Id: <200206151408.g5FE8s731047@numbat.Os2.Ami.Com.Au>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Linux kernel list <linux-kernel@vger.kernel.org>,
+        Linux SCSI list <linux-scsi@vger.kernel.org>
+Subject: Re: /proc/scsi/map 
+In-Reply-To: Message from Kurt Garloff <garloff@suse.de> 
+   of "Sat, 15 Jun 2002 15:36:06 +0200." <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Sat, 15 Jun 2002 22:08:54 +0800
+From: John Summerfield <summer@os2.ami.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 31, 2002 at 06:15:43PM -0400, Jeff Garzik wrote:
->Nikolaus Filus wrote:
->
->>Hi,
->>
->>I'm a maintainer (one of several :) of a little linux distribution called
->>rocklinux (www.rocklinux.org) and tried to make a fits-for-everyone kernel,
->>but got some booting problems with the de4x5 driver.
->>When compiling the driver into the kernel and no appropriate card is
->>installed in the system the booting stops and the computer freezes. I tested
->>this with kernel 2.4.16 and .18 on my Toshiba laptop and reported by other
->>users. I would like to provide more information, when needed - just say what
->
->Does the tulip driver not work for you?
 
-It's not a problem of working or not working, but this driver freezes a
-system when compiled into the kernel and no such card is present. That
-shouldn't happen. There isn't even any hint during booting, that would point
-to the driver, when something goes wrong.
+> 
+> Life would be easier if the scsi subsystem would just report which SCSI
+> device (uniquely identified by the controller,bus,target,unit tuple) belongs
+> to which high-level device. The information is available in the kernel.
 
-Nikolaus
+
+Does this not fail if I pull a device off, change its ID (perhaps to fit into another system), then plug it in again? Or if I move it from one adaptor to another?
+
+
+
+
+
+-- 
+Cheers
+John Summerfield
+
+Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
+
+Note: mail delivered to me is deemed to be intended for me, for my disposition.
+
+==============================
+If you don't like being told you're wrong,
+	be right!
+
+
+

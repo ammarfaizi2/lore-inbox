@@ -1,105 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbTESRDw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 13:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTESRDw
+	id S262567AbTESRGc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 13:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbTESRGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 13:03:52 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:58505 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262493AbTESRDt
+	Mon, 19 May 2003 13:06:31 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:20127 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262567AbTESRGa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 13:03:49 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 19 May 2003 10:15:54 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: recursive spinlocks. Shoot.
-In-Reply-To: <200305191248.h4JCmti06492@oboe.it.uc3m.es>
-Message-ID: <Pine.LNX.4.55.0305190957520.4379@bigblue.dev.mcafeelabs.com>
-References: <200305191248.h4JCmti06492@oboe.it.uc3m.es>
+	Mon, 19 May 2003 13:06:30 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: CIFS oops in 2.5.69-mm5
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OF9814E442.D895C05F-ON87256D2B.00571760@us.ibm.com>
+From: Steven French <sfrench@us.ibm.com>
+Date: Mon, 19 May 2003 11:10:09 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 6.0.1 [IBM]|April 28, 2003) at
+ 05/19/2003 11:19:17
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 May 2003, Peter T. Breuer wrote:
 
-> "A month of sundays ago Davide Libenzi wrote:"
-> > On Mon, 19 May 2003, Peter T. Breuer wrote:
-> >
-> > > No. This is not true. Imagine two threads, timed as follows ...
-> > >
-> > >     .
-> > >     .
-> > >     .
-> > >     .
-> > > if ((snl)->uniq == current) {
-> > > atomic_inc(&(snl)->count); 		.
-> > > } else { 				.
-> > > spin_lock(&(snl)->lock);		.
-> > > atomic_inc(&(snl)->count);		.
-> > > (snl)->uniq = current; 	  <->	if ((snl)->uniq == current) {
-> > > 				atomic_inc(&(snl)->count);
-> > > 				} else {
-> > > 				spin_lock(&(snl)->lock);
-> > > 				atomic_inc(&(snl)->count);
-> > > 				(snl)->uniq = current;
-> > >
-> > >
-> > > There you are. One hits the read exactly at the time the other does a
-> > > write. Bang.
-> >
-> > So, what's bang for you ? The second task (the one that reads "uniq")
-> > will either see "uniq" as NULL or as (task1)->current. And it'll go
-> > acquiring the lock, as expected. Check it again ...
+
+
+
+Looks like this oops occurred right next to a list_for_each in which I
+demultiplex the received network response from the server and try to match
+it against one of the pending requests in the list.  No obvious reason was
+this should oops and access to the list is spinlock protected.   The
+location reminds me of the problems with prefetch that Jon Grimm and Andi
+were mentioning.
+
+>I just tried mouting a cifs share in 2.5.69-mm5 and got this during the
+>attempt.
 >
-> Perhaps I should expand on my earlier answer ...
->
-> (1) while, with some luck, writing may be atomic on ia32 (and I'm not
-> sure it is, I'm only prepared to guarantee it for the lower bits, and I
-> really don't know about zeroing the carry and so on), I actually doubt
-> that reading is atomic, or we wouldn't need the atomic_read
-> construction!
+>Unable to handle kernel paging request at virtual address 4fb899ce
+>printing eip:
+>.eeac8eed
+>*pde = 00000000
+>Oops: 0002 [#1]
+>CPU:    0
+>EIP:    0060:[<eeac8eed>]    Not tainted VLI
+>EFLAGS: 00010246
+>EIP is at cifs_demultiplex_thread+0x329/0x4c8 [cifs]
+>eax: eaf21664   ebx: dbe42450   ecx: eaf21600   edx: 00000000
+>esi: 0000005b   edi: 0000005b   ebp: c1efffec   esp: c1efffa8
+>ds: 007b   es: 007b   ss: 0068
+>Process cifsd (pid: 21104, threadinfo=c1efe000 task=eafeae00)
 
-Look at atomic read :
+Although one of the three newer cifs changesets at
+bk://cifs.bkbits.net/linux-2.5cifs (changeset 1.1115) adds missing spinlock
+protection for modifications to the one list that was missing spinlocks
+(the cifs open file list) and changes a list_for_each to list_for_each_safe
+in one case where releasing the spinlock temporarily was necessary, which
+does fix a different oops, none of the three pending cifs vfs changesets
+are likely to affect this problem.   This one looks unrelated and plausibly
+similar to the other two reports of general prefetch problems mentioned in
+earlier posts.
 
-$ emacs `find /usr/src/linux/include -name atomic.h | xargs`
-
-
-> (3) even if one gets either one or the other answer, one of them would
-> be the wrong answer, and you clearly intend the atomic_inc of the
-> counter to be done in the same atomic region as the setting to current,
-> which would be a programming hypothesis that is broken when the wrong
-> answer comes up.
-
-Atomic inc/dec/add/sub are different to read/write an aligned sizeof(int)
-memory location. An aligned sizeof(int) read/write must be atomic for the
-bare bone CPU memory coherency. While add/sub/add/inc are (or at least can
-be) split in MEMOP(load)->ALUOP(?)->MEMOP(store) whose full cycle is not
-guaranteed to be atomic, load/store of sizeof(int) aligned memory location
-are not split is every CPU whose designer was not drunk during the
-architectural phase. Or better, if they are split due some sort of HW
-limitation, the HW itself has to guarentee the atomicity of the operation.
-Intel tries also to guarantee the atomicity of non aligned load/store by
-doing split locks on the memory bus. If you have :
-
-int a;
-
-thread1:
-	for (;;)
-		a = 1;
-
-thread2:
-	for (;;)
-		a = -1;
-
-being "a" an aligned memory location, a third thread reading "a" reads
-either 1 or -1. Going back to the (doubtfully useful) code, you still have
-to point out were it does bang ...
-
-
-
-- Davide
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench at-sign us dot ibm dot com
 

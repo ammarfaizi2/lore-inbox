@@ -1,65 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316994AbSGXLyF>; Wed, 24 Jul 2002 07:54:05 -0400
+	id <S317005AbSGXLzu>; Wed, 24 Jul 2002 07:55:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316997AbSGXLyF>; Wed, 24 Jul 2002 07:54:05 -0400
-Received: from [213.69.232.58] ([213.69.232.58]:17674 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id <S316994AbSGXLyE>;
-	Wed, 24 Jul 2002 07:54:04 -0400
-Date: Wed, 24 Jul 2002 15:57:11 +0200
-From: Nico Schottelius <nicos-mutt@pcsystems.de>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.27 floppy driver
-Message-ID: <20020724135711.GB1226@schottelius.org>
-References: <20020724134026.GB479@schottelius.org> <Pine.LNX.4.44.0207240549140.3366-100000@hawkeye.luckynet.adm>
+	id <S317012AbSGXLzu>; Wed, 24 Jul 2002 07:55:50 -0400
+Received: from unthought.net ([212.97.129.24]:21911 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S317005AbSGXLzk>;
+	Wed, 24 Jul 2002 07:55:40 -0400
+Date: Wed, 24 Jul 2002 13:58:50 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Martin Brulisauer <martin@uceb.org>
+Cc: Joshua MacDonald <jmacd@namesys.com>, neilb@cse.unsw.edu.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: type safe lists (was Re: PATCH: type safe(r) list_entry repacement: generic_out_cast)
+Message-ID: <20020724115850.GS11081@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Martin Brulisauer <martin@uceb.org>,
+	Joshua MacDonald <jmacd@namesys.com>, neilb@cse.unsw.edu.au,
+	linux-kernel@vger.kernel.org
+References: <3D3E75E9.28151.2A7FBB2@localhost> <3D3EA294.30758.3567B82@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207240549140.3366-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.4i
-X-MSMail-Priority: Is not really needed
-X-Mailer: Yam on Linux ?
-X-Operating-System: Linux flapp 2.5.27
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3D3EA294.30758.3567B82@localhost>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 24, 2002 at 12:50:28PM +0200, Martin Brulisauer wrote:
+...
+> So it is.
+> 
+> At kernel level nothing will stop me to halt() the cpu, if I realy want 
+> to. It is important to understand that tools (and all compilers are
+> just tools) will not enable me to write correct code. 
 
---O5XBE6gyVG5Rl6Rj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+That is a lame argument.
 
-Thunder from the hill [Wed, Jul 24, 2002 at 05:49:56AM -0600]:
-> On Wed, 24 Jul 2002, Nico Schottelius wrote:
-> > The floppy driver is broken in this kernel, too.
->=20
-> Yes, and it will stay broken unless somebody nice comes along and fixes=
-=20
-> it. I don't have a floppy, so...
+We've just seen that very competent people can make really silly
+mistakes because of generic code without type safety.
 
-is it impossible to use the one from .25 ?
+*IF* the code had type safety, such silly mistakes would be caught at
+compile time.
 
-Nico
+Now there are arguments for and against implementations such as the type
+safe list implementation.  But an argument against type-safety is
+rediculous.  If the language does not allow for type safety in any
+convenient manner, so be it, but type-safety really is useful for
+avoiding silly mistakes, and this should be exploited whenever the
+language (and clever *use* of the language) allows for it.
 
---=20
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+> > 
+> > I can say a lot of good and bad things about C++, but at least it lets you do
+> > this kind of thing with type safety and without ugly macros.
+> > 
+> Yes. That's absolutely true for C++. But the kernel is implemented 
+> in C and C is "only" kind of a high-level-assembler language. It is
 
---O5XBE6gyVG5Rl6Rj
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+No, C has types.  It is not just portable assembly.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Why do you think it allows for typed pointers and not just void* or
+even long?
 
-iD8DBQE9PrI3tnlUggLJsX0RAo/RAKCeBIisrdtH+TI6UUW8MLldqYntJwCgi/OT
-cVtanpzqp73/Th0aOddUVBA=
-=QrMy
------END PGP SIGNATURE-----
+> ment to be open - on purpose. There exist other languages that 
+> have these kinds of concepts you bring in (I would not use C++ as 
+> the best example - take OBERON/MODULA or EIFFEL). But these 
+> languages are not made to implement an operating system 
+> (remember the reason K&R have specified and implemented C?).
 
---O5XBE6gyVG5Rl6Rj--
+Wrong.  Look at Atheos for an example.  There is *nothing* you can do in
+C that you cannot do in C++ with equal or better performance (there is C
+code that is not valid C++, but it's small semantic details and scope
+rules, re-writing is simple).
+
+But this is of course irrelevant, as there are other good reasons for
+not rewriting the kernel in any other language.
+
+> 
+> What I realy dislike is the approach to bring in any OO concepts 
+> into the C language the linux kernel bases on. Keep the code as 
+> simple and homogenous as possible (or try to rewrite it in OO).
+
+Who is talking about OO ???
+
+What Joshua presented is a C implementation of a list using
+parameterized types using macros (instead of templates as could have
+been used in C++).  Parameterized types has nothing what so ever in any
+way to do with OO  (it goes well with some OO concepts, but that's an
+entirely different story).
+
+> 
+> The way I see this discussion is: Every software problem has it's 
+> proper language to be solved in. And for this, Linus decided it to be 
+> C.
+
+Yes. And I think that was a very clever decision - even if there had
+been proper C++ compilers at the time (which there wan't, because the
+language wasn't even standardized until 1998).
+
+But did Linus decide to use "crappy C" or "error-prone C", or is there
+some chance that the most generic code could perhaps be implemented in
+"robust C" ?
+
+Macros are not a pretty solution, but it is as I see it the only way to
+achieve type safety in generic code.  If someone else out there has
+other suggestions, please let me know - I actually like to be proven
+wrong (because that means I learn something new).
+
+I'd take macro-hell in generic code over void* hell in every single
+list-using part of the kernel any day.
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

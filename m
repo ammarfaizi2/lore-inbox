@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267184AbRGKBz7>; Tue, 10 Jul 2001 21:55:59 -0400
+	id <S267182AbRGKCCu>; Tue, 10 Jul 2001 22:02:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267183AbRGKBzt>; Tue, 10 Jul 2001 21:55:49 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:22289 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S267182AbRGKBzq>; Tue, 10 Jul 2001 21:55:46 -0400
-Date: Tue, 10 Jul 2001 19:59:30 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: vokamura@oracle.com, Brian Strand <bstrand@switchmanagement.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
-Message-ID: <20010710195930.A5756@vger.timpanogas.org>
-In-Reply-To: <3B4BA19C.3050706@switchmanagement.com>
-Mime-Version: 1.0
+	id <S267183AbRGKCCk>; Tue, 10 Jul 2001 22:02:40 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:30594 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S267182AbRGKCCZ>;
+	Tue, 10 Jul 2001 22:02:25 -0400
+Message-ID: <3B4BB3B0.F6FB3443@mandrakesoft.com>
+Date: Tue, 10 Jul 2001 22:02:24 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: daniel sheltraw <l5gibson@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: CardBus and PCI
+In-Reply-To: <F34guA8M6XQQez1enAq000153a1@hotmail.com> <3B4B6DB8.F26663A1@mandrakesoft.com> <20010710213830.A13597@animx.eu.org>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3B4BA19C.3050706@switchmanagement.com>; from bstrand@switchmanagement.com on Tue, Jul 10, 2001 at 05:45:16PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 10, 2001 at 05:45:16PM -0700, Brian Strand wrote:
-
-Van,
-
-Can you help this person?
-
-Jeff
-
-
-> We are running 3 Oracle servers, each dual CPU, 1 1GB and 2 2GB memory, 
->  between 36-180GB of RAID.  On June 26, I upgraded all boxes from Suse 
-> 7.0 to Suse 7.2 (going from kernel version 2.2.16-40 to 2.4.4-14). 
->  Reviewing Oracle job times (jobs range from a few minutes to 10 hours) 
-> before and after, performance is almost exactly twice as poor after the 
-> upgrade versus before the upgrade.  Nothing in the hardware or Oracle 
-> configuration has changed on any server.  Does anyone have any ideas as 
-> to what might cause this?
+Wakko Warner wrote:
+> > > If a CardBus card is in a slot at boot time is it treated as PCI device
+> > > would be? Is it just another device on another PCI bus?
+> >
+> > In kernel 2.4 and using kernel cardbus support, yes.
 > 
-> Thanks,
-> Brian Strand
-> CTO Switch Management
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> But is it possible for it to be configured at boot time (like to use it for
+> nfsroot)
+
+In kernel 2.4 and using kernel cardbus support, yes.
+
+-- 
+Jeff Garzik      | A recent study has shown that too much soup
+Building 1024    | can cause malaise in laboratory mice.
+MandrakeSoft     |

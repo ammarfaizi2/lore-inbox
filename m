@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264158AbRFSLZ4>; Tue, 19 Jun 2001 07:25:56 -0400
+	id <S261771AbRFSL1g>; Tue, 19 Jun 2001 07:27:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264168AbRFSLZq>; Tue, 19 Jun 2001 07:25:46 -0400
-Received: from isolaweb.it ([213.82.132.2]:54024 "EHLO web.isolaweb.it")
-	by vger.kernel.org with ESMTP id <S264158AbRFSLZh>;
-	Tue, 19 Jun 2001 07:25:37 -0400
-Message-Id: <5.1.0.14.2.20010619131703.02adabb0@mail.tekno-soft.it>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 19 Jun 2001 13:22:42 +0200
-To: Andrzej Dereszowski <deresz@polsl.gliwice.pl>,
-        linux-kernel@vger.kernel.org
-From: Roberto Fichera <kernel@tekno-soft.it>
-Subject: Re: HTFS (SCO OpenServer 5) filesystem support
-In-Reply-To: <20010618204109.A7413@deresz.dabrowskiego>
+	id <S264172AbRFSL10>; Tue, 19 Jun 2001 07:27:26 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:63753 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S261771AbRFSL1P>; Tue, 19 Jun 2001 07:27:15 -0400
+Date: Tue, 19 Jun 2001 23:27:10 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: serial console -- busted under 2.4.6 and thereabouts?
+Message-ID: <20010619232710.A17549@metastasis.f00f.org>
+In-Reply-To: <20010619221915.A17447@metastasis.f00f.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010619221915.A17447@metastasis.f00f.org>; from cw@f00f.org on Tue, Jun 19, 2001 at 10:19:16PM +1200
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 20.41 18/06/01 +0200, Andrzej Dereszowski wrote:
+On Tue, Jun 19, 2001 at 10:19:16PM +1200, Chris Wedgwood wrote:
 
->Hello
->
->If someone wants to mount HTFS (SCO Open Server 5) filesystem
->(read-only), here is a module to allow this:
->
->http://deresz.dhs.org/~deresz/filesystems/htfs_fs/htfs_fs-0.01alpha.tar.bz2
+    I'm trying to get serial console working under 2.4.6-pre3; I see
+    previous messages about the CREAD 'bug' but I'm pretty sure I am
+    seeing something else.
+    
+[...]
 
-Good :-)! I'll try it very soon! Do you have some patches for Xenix and/or
-SCO Unix 4.x ?
+Someone please pass the brown paper bag.
 
->deresz
->--
->deresz@polsl.gliwice.pl
+Finger trouble, my bad :(
 
 
-Roberto Fichera.
 
+   --cw

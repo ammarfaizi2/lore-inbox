@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267231AbSLKRKO>; Wed, 11 Dec 2002 12:10:14 -0500
+	id <S267237AbSLKROQ>; Wed, 11 Dec 2002 12:14:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267232AbSLKRKO>; Wed, 11 Dec 2002 12:10:14 -0500
-Received: from ermelo.utad.pt ([193.136.40.6]:63380 "EHLO marao.utad.pt")
-	by vger.kernel.org with ESMTP id <S267231AbSLKRKM>;
-	Wed, 11 Dec 2002 12:10:12 -0500
-Message-ID: <3DF772B5.5000905@alvie.com>
-Date: Wed, 11 Dec 2002 17:15:33 +0000
-From: Alvaro Lopes <alvieboy@alvie.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-X-Accept-Language: en
+	id <S267238AbSLKROP>; Wed, 11 Dec 2002 12:14:15 -0500
+Received: from epithumia.math.uh.edu ([129.7.128.2]:65245 "EHLO
+	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
+	id <S267237AbSLKRNb>; Wed, 11 Dec 2002 12:13:31 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Reliable hardware
+References: <3DF6291C.3090100@cora.nwra.com>
+	<1039554145.14175.70.camel@irongate.swansea.linux.org.uk>
+	<200212102000.54287.scott@thomasons.org>
+	<3DF76302.7040503@cora.nwra.com>
+	<1039626108.17702.64.camel@irongate.swansea.linux.org.uk>
+From: Jason L Tibbitts III <tibbs@math.uh.edu>
+Date: 11 Dec 2002 11:21:17 -0600
+In-Reply-To: Alan Cox's message of "11 Dec 2002 17:01:48 +0000"
+Message-ID: <ufa3cp4bhf6.fsf@epithumia.math.uh.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-To: Brendon Higgins <bh_doc@users.sourceforge.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: dvd-drive no longer works (2.4.20)
-References: <200212051151.59330.bh_doc@users.sourceforge.net> <3DEF7EEC.9040906@alvie.com> <200212061154.20386.bh_doc@users.sourceforge.net> <200212111204.59505.bh_doc@users.sourceforge.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brendon Higgins wrote:
+>>>>> "AC" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
->hdc: status error: status=0x7f { DriveReady DeviceFault SeekComplete 
->DataRequest CorrectedError Index Error }
->  
->
-This looks weird. It's signalling a device fault *and * corrected error. 
-Jens ?
+AC> The AMD duals have been a disaster in my experience.
 
+I do have a bunch of these running reliably (RH 7.3 plus the latest
+OpenMosix kernel).  I had to go through a few combinations of
+motherboard and RAM (four different manufacturers of RAM) before I got
+something that works.  Processors are MP 1900+ or 2000+, boards are
+Tyan S2466, memory is in PC2100 ECC registered 512MB sticks from
+Corsair.  Case and power supply are PC Power and Cooling, mid tower,
+450W PS, every fan bay filled.  These machines have been rock
+stable for months except for a failed IBM deathstar drive and an
+over-temp shutdown when the room AC failed.
 
+I still have a couple of the 760MP boards (as opposed to the MPX
+boards) which I just can't get to run properly with two processors.
+
+ - J<

@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262207AbTCPBEQ>; Sat, 15 Mar 2003 20:04:16 -0500
+	id <S261908AbTCPBUS>; Sat, 15 Mar 2003 20:20:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262208AbTCPBEQ>; Sat, 15 Mar 2003 20:04:16 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:32128 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S262207AbTCPBEG>; Sat, 15 Mar 2003 20:04:06 -0500
-Date: Sun, 16 Mar 2003 10:14:11 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Complete support PC-9800 for 2.5.64-ac4 (10/11) PCMCIA
-Message-ID: <20030316011411.GJ1592@yuzuki.cinet.co.jp>
-References: <20030316001622.GA1061@yuzuki.cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030316001622.GA1061@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
+	id <S261975AbTCPBUS>; Sat, 15 Mar 2003 20:20:18 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:9670 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261908AbTCPBUP>; Sat, 15 Mar 2003 20:20:15 -0500
+Date: Sat, 15 Mar 2003 20:31:03 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200303160131.h2G1V3B10636@devserv.devel.redhat.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: bitmaps/bitops
+In-Reply-To: <mailman.1047762781.3457.linux-kernel2news@redhat.com>
+References: <mailman.1047762781.3457.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.64-ac4. (10/11)
+> but the prototype for test_and_set_bit() depends on $(ARCH), and it's
+> not consistent, with the second arg (bitmap address) being one of:
+>   volatile void *
+>   void *
+>   volatile unsigned long *
 
-Small change for PCMCIA (16bits) support.
-For fix usable IRQ number.
+It should be unsigned long pointer. I have no idea why
+volatile is still alive. Perhaps Linus can remember why he
+left it in on is386. Other arch maintainers midnlessly ape him
+in this area. I think I even kept his e-mail where he explains
+why volatile has to go.
 
-diff -Nru linux-2.5.62-ac1/drivers/pcmcia/i82365.c linux98-2.5.62-ac1/drivers/pcmcia/i82365.c
---- linux-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-18 07:56:55.000000000 +0900
-+++ linux98-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-21 11:14:30.000000000 +0900
-@@ -188,7 +188,11 @@
- };
- 
- /* Default ISA interrupt mask */
-+#ifndef CONFIG_X86_PC9800
- #define I365_MASK	0xdeb8	/* irq 15,14,12,11,10,9,7,5,4,3 */
-+#else
-+#define I365_MASK	0xd668	/* irq 15,14,12,10,9,6,5,3 */
-+#endif
- 
- #ifdef CONFIG_ISA
- static int grab_irq;
+-- Pete

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbTHTCWy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 22:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbTHTCWy
+	id S261512AbTHTCXG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 22:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbTHTCXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 22:22:54 -0400
-Received: from smtp6.wanadoo.fr ([193.252.22.28]:44796 "EHLO
-	mwinf0301.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S261167AbTHTCWx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 22:22:53 -0400
-From: jjluza <jjluza@yahoo.fr>
-To: John Levon <levon@movementarian.org>
-Subject: Re: Problem with 2.6-testXX and alcatel speedtouch usb modem
-Date: Wed, 20 Aug 2003 04:23:06 +0200
-User-Agent: KMail/1.5.3
-References: <200308200206.20798.jjluza@yahoo.fr> <200308200323.42884.jjluza@yahoo.fr> <20030820013829.GA81946@compsoc.man.ac.uk>
-In-Reply-To: <20030820013829.GA81946@compsoc.man.ac.uk>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 19 Aug 2003 22:23:06 -0400
+Received: from cmu-24-35-14-252.mivlmd.cablespeed.com ([24.35.14.252]:3712
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261512AbTHTCXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 22:23:03 -0400
+Date: Tue, 19 Aug 2003 22:20:51 -0500 (CDT)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: greg@kroah.com, Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Console on USB
+Message-ID: <Pine.LNX.4.44.0308192200510.886-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200308200423.06681.jjluza@yahoo.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Mercredi 20 Août 2003 03:38, vous avez écrit :
-> On Wed, Aug 20, 2003 at 03:23:42AM +0200, jjluza wrote:
-> > ok, I find the mailing list you said
-> > I find the thread too, but it seems that the problem they pointed has
-> > nothing to do with mine.
->
-> Why do you think that ? From your description, it's exactly the same:
-> the user-space speedtouch driver does not work after 2.6.0-test2
->
-> regards
-> john
+I have just spent a very frustrating evening trying to get console on USB 
+working.  My laptop does not have regular DB-9 serial connectors, only 
+USB.  So I ordered a USB to serial converter, configured a 2.6.0-test3 
+kernel, added a console=/dev/ttyUSB0 to the kernel command line and 
+connected this to my desktop with a null modem adapter.  However, I am 
+unable to get output from this setup on the desktop.  On another setup I 
+can get a normal serial console output, so I am fairly confident I can set 
+things up correctly.
 
+Googling around and doing a search on lkml archives gave some minimal 
+help, but I can find very little info past early to mid 2.5 kernels.  The 
+configuration doesn't quite seem to work the way I read documentation.  
+For instance, the web pages I can find indicate I should be able to build 
+this modular; however the configuration makes the setting of console on 
+usb depend on USB being y and EXPERIMENTAL being defined.  
 
-hmm, it seems that my english is worse than I thought : I didn't understood 
-what they said, the first time I read it.
-Sorry, really
+In /var/log/messages I can see the USB-to-serial converter being recogized 
+and the driver being loaded, just before the synaptics touchpad is probed.
 
-In fact, I haven't recognize the message error I got, but you're right, it 
-seems to be the same problem.
-So I hope my contribution will help the devels  ;)
+It looks like things are correct, but, as I said, I am unable to get 
+output.  Am I headed for frustration, or is there some advice to get good 
+results?  
 
-
-regards
+Is there any advice I might be able to use to get this going?  I really 
+want to be able to catch some oops output.
 

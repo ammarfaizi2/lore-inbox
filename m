@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270266AbRHMPy6>; Mon, 13 Aug 2001 11:54:58 -0400
+	id <S270264AbRHMP6s>; Mon, 13 Aug 2001 11:58:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270264AbRHMPys>; Mon, 13 Aug 2001 11:54:48 -0400
-Received: from [65.100.125.89] ([65.100.125.89]:54515 "EHLO golux.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S270266AbRHMPyg>;
-	Mon, 13 Aug 2001 11:54:36 -0400
-Date: Mon, 13 Aug 2001 11:52:14 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S270268AbRHMP6j>; Mon, 13 Aug 2001 11:58:39 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36358 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270264AbRHMP6W>; Mon, 13 Aug 2001 11:58:22 -0400
 Subject: Re: S2464 (K7 Thunder) hangs -- some lessons learned
-Message-ID: <20010813115214.A23591@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010813111850.D21008@thyrsus.com> <E15WJv2-0007eS-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: esr@thyrsus.com
+Date: Mon, 13 Aug 2001 17:00:54 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <20010813115214.A23591@thyrsus.com> from "Eric S. Raymond" at Aug 13, 2001 11:52:14 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15WJv2-0007eS-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 13, 2001 at 04:46:20PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15WK98-0007gd-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> You need to look at the lspci hex data. There's an errata document for the
-> MP chipset on www.amd.com if you realyl want to scare yourself 8)
+> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > You need to look at the lspci hex data. There's an errata document for the
+> > MP chipset on www.amd.com if you realyl want to scare yourself 8)
+> 
+> Is there a more formal name for the chipset than just "760"?
 
-Is there a more formal name for the chipset than just "760"?
- 
->   "Have you noticed the way people's intelligence capabilities decline
->    sharply the minute they start waving guns around?"
->  		-- Dr. Who
+http://www.amd.com/products/cpg/athlon/techdocs/index.html#chipset
 
-People who wave guns around to coerce others don't think they *have* to
-be intelligent, so they stop thinking.  Unfortunately, they're right in the
-short term often enough to make it almost useless that they're always wrong
-in the long term.  Sigh...
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Everything you know is wrong.  But some of it is a useful first approximation.
+Its the AMD760tm MP - really

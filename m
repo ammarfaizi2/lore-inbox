@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315281AbSEABIg>; Tue, 30 Apr 2002 21:08:36 -0400
+	id <S315280AbSEABXn>; Tue, 30 Apr 2002 21:23:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315282AbSEABIf>; Tue, 30 Apr 2002 21:08:35 -0400
-Received: from jalon.able.es ([212.97.163.2]:27106 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315281AbSEABIf>;
-	Tue, 30 Apr 2002 21:08:35 -0400
-Date: Wed, 1 May 2002 03:08:28 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Plan for e100-e1000 in mainline
-Message-ID: <20020501010828.GA1753@werewolf.able.es>
+	id <S315282AbSEABXm>; Tue, 30 Apr 2002 21:23:42 -0400
+Received: from holomorphy.com ([66.224.33.161]:20432 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315280AbSEABXl>;
+	Tue, 30 Apr 2002 21:23:41 -0400
+Date: Tue, 30 Apr 2002 18:22:13 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Hellwig <hch@infradead.org>, Patricia Gaughen <gone@us.ibm.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] discontigmem support for ia32 NUMA box against 2.4.19pre7
+Message-ID: <20020501012213.GA32767@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Patricia Gaughen <gone@us.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200204300115.g3U1FQc16634@w-gaughen.des.beaverton.ibm.com> <20020430072654.B2262@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 1.3.5
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, Apr 29, 2002 at 06:15:26PM -0700, Patricia Gaughen wrote:
+>> +#ifdef CONFIG_SMP
+>> +	/*
+>> +	 * But first pinch a few for the stack/trampoline stuff
+>> +	 * FIXME: Don't need the extra page at 4K, but need to fix
+>> +	 * trampoline before removing it. (see the GDT stuff)
+>> +	 */
+>> +	reserve_bootmem_node(NODE_DATA(0), PAGE_SIZE, PAGE_SIZE);
+>> +#endif
 
-Well, subject says it all. Which is the status/plans for inclussion
-of those drivers in mainline kernel ? AFAIR, e1000 had been licensed,
-but e100 was not clear yet.
+On Tue, Apr 30, 2002 at 07:26:54AM +0100, Christoph Hellwig wrote:
+> Umm, NUMA without SMP looks rather strange to me..
 
-Any ideas ?
+It's still fully possible, though I'm not clear on whether NUMA-Q
+supports it. A number of the usual techniques would degenerate to
+a sort of priority ordering on memory regions. I could imagine it
+being put to some use to accommodate caches that only cache some
+regions of physical memory and not others, though it is perhaps a
+bit far-fetched because few systems like that are still used.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre7-jam8 #2 SMP mié may 1 02:29:38 CEST 2002 i686
+
+Cheers,
+Bill

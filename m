@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130253AbRCGUQn>; Wed, 7 Mar 2001 15:16:43 -0500
+	id <S131172AbRCGUYN>; Wed, 7 Mar 2001 15:24:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131172AbRCGUQd>; Wed, 7 Mar 2001 15:16:33 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:42253 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130253AbRCGUQP>;
-	Wed, 7 Mar 2001 15:16:15 -0500
-Date: Wed, 7 Mar 2001 21:15:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: David Balazic <david.balazic@uni-mb.si>, torvalds@transmeta.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: scsi vs ide performance on fsync's
-Message-ID: <20010307211536.G4653@suse.de>
-In-Reply-To: <3AA53DC0.C6E2F308@uni-mb.si> <20010306213720.U2803@suse.de> <20010307135135.B3715@redhat.com> <20010307151241.E526@suse.de> <20010307150556.L7453@redhat.com> <20010307195152.C4653@suse.de> <20010307191044.M7453@redhat.com>
+	id <S131177AbRCGUYD>; Wed, 7 Mar 2001 15:24:03 -0500
+Received: from [209.102.105.34] ([209.102.105.34]:20235 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S131172AbRCGUXs>;
+	Wed, 7 Mar 2001 15:23:48 -0500
+Date: Wed, 7 Mar 2001 12:22:22 -0800
+From: Tim Wright <timw@splhi.com>
+To: Ettore Perazzoli <ettore@ximian.com>
+Cc: timw@splhi.com, linux-kernel@vger.kernel.org
+Subject: Re: Interesting fs corruption story
+Message-ID: <20010307122222.A1254@kochanski.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Ettore Perazzoli <ettore@ximian.com>, timw@splhi.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0103042043320.27829-100000@trna.ximian.com> <20010306170102.B1095@kochanski.internal.splhi.com> <983927410.11517.0.camel@milkplus.unknown.domain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010307191044.M7453@redhat.com>; from sct@redhat.com on Wed, Mar 07, 2001 at 07:10:44PM +0000
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <983927410.11517.0.camel@milkplus.unknown.domain>; from ettore@ximian.com on Tue, Mar 06, 2001 at 08:10:10PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
-> On Wed, Mar 07, 2001 at 07:51:52PM +0100, Jens Axboe wrote:
-> > On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
-> > 
-> > My bigger concern is when the journalled fs has a log on a different
-> > queue.
+On Tue, Mar 06, 2001 at 08:10:10PM -0500, Ettore Perazzoli wrote:
+> On 06 Mar 2001 17:01:02 -0800, Tim Wright wrote:
+[...]
+> > The fix for me was to rebuild the kernel and make sure CONFIG_APM_ALLOW_INTS
+> > was enabled. So, do you ever use power management and is this similar, or do
+> > you have a completely different problem ?
 > 
-> For most fs'es, that's not an issue.  The fs won't start writeback on
-> the primary disk at all until the journal commit has been acknowledged
-> as firm on disk.
+>   Wow, this sounds like this might be the problem.  I just checked my
+> `.config' and indeed `CONFIG_APM_ALLOW_INTS' is not enabled.  And indeed
+> I have been suspending/resuming the machine a few times before the
+> partition got corrupted.
+> 
+>   So, does DMA work correctly on your system after setting this option?
 
-But do you then force wait on that journal commit?
+Yes, it does. I have the drive running in UDMA mode 2, and get ~16MB/s from
+'hdparm -t -T'. I have the "use DMA automatically" option turned on in the
+kernel, so I inherit the BIOS settings which are correct.
 
-> Certainly for ext3, synchronisation between the log and the primary
-> disk is no big thing.  What really hurts is writing to the log, where
-> we have to wait for the log writes to complete before submitting the
-> commit write (which is sequentially allocated just after the rest of
-> the log blocks).  Specifying a barrier on the commit block would allow
-> us to keep the log device streaming, and the fs can deal with
-> synchronising the primary disk quite happily by itself.
+I've used standby and hibernation with complete success since.
 
-A barrier operation is sufficient then. So you're saying don't
-over design, a simple barrier is all you need?
+Regards,
+
+Tim
 
 -- 
-Jens Axboe
-
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

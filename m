@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbULVCZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbULVCYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbULVCZa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 21:25:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbULVCZa
+	id S261578AbULVCYy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 21:24:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbULVCYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 21:25:30 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:27265 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261944AbULVCZW (ORCPT
+	Tue, 21 Dec 2004 21:24:54 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:49944 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261578AbULVCYx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 21:25:22 -0500
-Date: Tue, 21 Dec 2004 18:25:14 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       <laforge@gnumonks.org>, greg@kroah.com
-Subject: Re: My vision of usbmon
-Message-ID: <20041221182514.5ed935e2@lembas.zaitcev.lan>
-In-Reply-To: <200412201525.52149.oliver@neukum.org>
-References: <20041219230454.5b7f83e3@lembas.zaitcev.lan>
-	<200412201525.52149.oliver@neukum.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+	Tue, 21 Dec 2004 21:24:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=YbtP8mEF1MBsCqvlEqRzj24VroSeCKq+FR8M9RIqcp80OfKkjkobfSbJgeApI+v/JIsuTB+c9MdvHWT/fTI/wr3dUzhzGgPx1Lks2bsXkYen4/2p6RTil/gb5a7Ld4elXPeKta4chYCQmFNVzW2GIgVy4Wiql8PYoH04N9N3r0U=
+Message-ID: <cce9e37e041221182413ed12aa@mail.gmail.com>
+Date: Wed, 22 Dec 2004 02:24:52 +0000
+From: Phil Lougher <phil.lougher@gmail.com>
+Reply-To: Phil Lougher <phil.lougher@gmail.com>
+To: Brad Fitzpatrick <brad@danga.com>
+Subject: Re: Make changes to read-only file system using RAM
+Cc: Chris Swanson <chrisjswanson@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0412211015030.17405@danga.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1bdcbebf04122110087de9d976@mail.gmail.com>
+	 <Pine.LNX.4.58.0412211015030.17405@danga.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Dec 2004 15:25:52 +0100, Oliver Neukum <oliver@neukum.org> wrote:
-
-> Am Montag, 20. Dezember 2004 08:04 schrieb Pete Zaitcev:
-> > +               memcpy(&mbus->shim_ops, ubus->op, sizeof(struct usb_operations));
-> > +               mbus->shim_ops.submit_urb = mon_submit;
-> > +               mbus->saved_op = ubus->op;
-> > +               ubus->op = &mbus->shim_ops;
-> > +               ubus->monitored = 1;
+On Tue, 21 Dec 2004 10:15:41 -0800 (PST), Brad Fitzpatrick
+<brad@danga.com> wrote:
+> Chris,
 > 
-> I think you need smp_wmb() here to make sure that an irq taken
-> on another CPU sees the manipulations in the correct order.
+> Check out unionfs.
 
-Hmm, it seems you are right. I forgot about reordering issues. I relied on
-op being atomic, but if it points at an uninitialized shim, this will end
-badly. How about this?
+You could try 'mini_fo'.  This is similar to unionfs and it is already
+used on a number of liveCDs.  Documentation
+http://www.denx.de/PDF/Diplomabeit-MK-1.0-net.pdf, software
+ftp://ftp.denx.de/pub/mini_fo.
 
-                memcpy(&mbus->shim_ops, ubus->op, sizeof(struct usb_operations));
-                mbus->shim_ops.submit_urb = mon_submit;
-                mbus->saved_op = ubus->op;
-                smp_mb();       /* ubus->op is not protected by spinlocks */
-                ubus->op = &mbus->shim_ops;
-                ubus->monitored = 1;
+Unfortunately it also only works on 2.4.
 
-Generally, the type of coding which requires a use of memory barriers in drivers
-is a bug or a latent bug, so I am sorry for the above. It was a sacrifice to
-make usbmon invisible if it's not actively monitoring. Sorry about that.
-
--- Pete
+Phillip

@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261397AbSJUPYN>; Mon, 21 Oct 2002 11:24:13 -0400
+	id <S261406AbSJUPZC>; Mon, 21 Oct 2002 11:25:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261399AbSJUPYN>; Mon, 21 Oct 2002 11:24:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:21731 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261397AbSJUPX0>;
-	Mon, 21 Oct 2002 11:23:26 -0400
-Date: Mon, 21 Oct 2002 08:21:07 -0700 (PDT)
-Message-Id: <20021021.082107.56539790.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: rmk@arm.linux.org.uk, hugh@veritas.com, willy@debian.org, akpm@zip.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shmem missing cache flush
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1035212657.27259.154.camel@irongate.swansea.linux.org.uk>
-References: <20021017011957.A9589@flint.arm.linux.org.uk>
-	<20021016.171626.112600105.davem@redhat.com>
-	<1035212657.27259.154.camel@irongate.swansea.linux.org.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261405AbSJUPZC>; Mon, 21 Oct 2002 11:25:02 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:40628 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261404AbSJUPY7>; Mon, 21 Oct 2002 11:24:59 -0400
+Subject: Re: [PATCH] compile fix for dmi_scan.c in 2.4.bk-current
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L.0210151702500.11036-100000@freak.distro.conectiva>
+References: <Pine.LNX.4.44L.0210151702500.11036-100000@freak.distro.conectiva>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Oct 2002 16:46:43 +0100
+Message-Id: <1035215203.28189.167.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 21 Oct 2002 16:04:17 +0100
-   
-   I disagree here. Its a measurable performance item, and its actually
-   going to break less code than for example the last minute scsi and bio
-   changes have done
-   
-That's a good point.
+On Tue, 2002-10-15 at 20:03, Marcelo Tosatti wrote:
+> I'll remove the dmi update from Alan for 2.4.20-pre.
+> 
+> Thats a 2.4.21-pre thing.
 
-So, if you want to merge the deprecation to Linus when he returns
-I'd fully support it :-)
+Its very much a 2.4.20 thing. Its just that it accidentally acquired the
+HP entry as well which we dont want.
+
+Lose the problem function and the HP specific quirk and you'll get the
+bits that actually do matter
+

@@ -1,109 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbULKN4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbULKOXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261935AbULKN4k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 08:56:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbULKN4j
+	id S261936AbULKOXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 09:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbULKOXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 08:56:39 -0500
-Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:33255 "EHLO
-	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261935AbULKN4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 08:56:35 -0500
-Message-ID: <41BAFC43.1040708@kolivas.org>
-Date: Sun, 12 Dec 2004 00:55:15 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Jens Axboe <axboe@suse.de>, linux <linux-kernel@vger.kernel.org>
-Subject: Re: time slice cfq comments
-References: <41BA2131.4040608@kolivas.org> <20041211091617.GA22901@elte.hu>
-In-Reply-To: <20041211091617.GA22901@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Dec 2004 09:23:16 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:54689 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S261936AbULKOXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 09:23:13 -0500
+Date: Sat, 11 Dec 2004 15:23:17 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: dynamic-hz
+Message-ID: <20041211142317.GF16322@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Con Kolivas <kernel@kolivas.org> wrote:
-> 
-> 
->>Hi Jens
->>
->>Just thought I'd make a few comments about some of the code in your
->>time sliced cfq.
-> 
-> 
-> (this code was actually a quick hack from me.)
+The below patch allows to set the HZ dynamically at boot time with
+command line parameter. HZ=1000 HZ=100 HZ=333 any other value just works
+(though certain value may cause more or less drift to the system time
+advance/decrease).
 
-Heh I wondered why Jens was diddling with cpu scheduler code ;)
+Is there any interest from the mainline developers to merge this into
+2.6? I'm getting requests for this feature being forward ported to
+2.6 (both for batch jobs and for the powersaved that can trim the hz
+down to 80mhz). It should be up to the user to choose the HZ like it was
+in 2.4-aa.
 
->>+	if (p->array)
->>+		return min(cpu_curr(task_cpu(p))->time_slice,
->>+					(unsigned int)MAX_SLEEP_AVG);
->>
->>MAX_SLEEP_AVG is basically 10 * the average time_slice so this will
->>always return task_cpu(p)->time_slice as the min value (except for the
->>race you described in your comments). What you probably want is
-> 
-> 
-> the min() is there to not get ridiculous results due to the runqueue
-> race, nothing else. Basically i didnt want to lock the runqueue to do
-> something that is an estimation anyway, and rq->curr might be invalid. 
-> This was a proof-of-concept thing i wrote for Jens, if it works out then
-> i think we want to lock the runqueue nevertheless, to not dereference
-> possibly deallocated tasks (and to not trip up things like
-> DEBUG_PAGEALLOC).
+This patch is quite intrusive since many HZ visible to userspace have to
+be converted to USER_HZ, and most important because HZ isn't available
+at compile time anymore and every variable in function of HZ must be
+either changed to be in function of USER_HZ or it must be initialized at
+runtime. The code has debugging code (optional at compile time) so that
+I can guarantee that there cannot be any regression.
 
-I understood that. I just thought that DEF_TIMESLICE would be a better 
-upper bound.
+Technically this makes a lot of sense to me (well, you can guess why I
+implemented it in the first place), at least in archs where one cannot
+reprogram the timer chip in a performant way (to stop timer ticks
+completely until the next posted timer). This is in production for years
+in SLES8 btw.
 
->>Further down you do:
->>+	/*
->>+	 * for blocked tasks, return half of the average sleep time.
->>+	 * (because this is the average sleep-time we'll see if we
->>+	 * sample the period randomly.)
->>+	 */
->>+	return NS_TO_JIFFIES(p->sleep_avg) / 2;
->>
->>unfortunately p->sleep_avg is a non-linear value (weighted upwards 
->>towards MAX_SLEEP_AVG). I suspect here you want
->>
->>+	return NS_TO_JIFFIES(p->sleep_avg) / MAX_BONUS;
-> 
-> 
-> sleep_avg might be nonlinear, but nevertheless it's an estimation of the
-> sleep time of a task. It's different if the task is interactive. We
-> cannot know how much the task really will sleep, what we want is a good
-> guess. I didnt want to complicate things too much, as long as the
-> ballpark figure is right. (i.e. as long as the function returns '0' for
-> on-runqueue tasks, returns a large value for long sleepers and returns
-> something inbetween for short/medium sleepers.) We can later on
-> complicate it with things like looking at p->timestamp to figure out how 
-> long it has been sleeping (and thus the ->sleep_avg is perhaps not 
-> authorative anymore), but i kept it simple & stupid for now.
-> 
-> 
->>I don't see any need for / 2.
-> 
-> 
-> the need for /2 is this: ->sleep_avg tells us the average _full_ sleep
-> period time (roughly). The CFQ IO-scheduler is sampling the task
-> _sometime_ during that period, randomly. So on average the task will
-> sleep another /2 of the sleep-average. Ok?
+http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.23aa3/9999_zzz-dynamic-hz-5.gz
 
-sleep_avg accumulates over time or can be gathered all within one sleep 
-period so as well as being non-linear we have the situation of not 
-knowing if it gradually accumulated or sleeps for > 1 second at a time. 
-I still think it needs to be divided by the number of timeslices that 
-fit into MAX_SLEEP_AVG, which by design is MAX_BONUS as the likely thing 
-is it accumulates over time. Either way I think we'll be way out so it 
-probably wont matter since this ends up being a weighting rather than an 
-accurate measure.
-
-I don't feel strongly about these values, I just originally thought it 
-was Jens' interpretation of the values.
-
-Cheers,
-Con
+Comments welcome thanks.

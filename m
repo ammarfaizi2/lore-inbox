@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271214AbTHMWSF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 18:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271235AbTHMWSF
+	id S272001AbTHMWZR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 18:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272000AbTHMWZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 18:18:05 -0400
-Received: from mail.kroah.org ([65.200.24.183]:56035 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S271214AbTHMWSA (ORCPT
+	Wed, 13 Aug 2003 18:25:17 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:24850 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S272001AbTHMWZM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 18:18:00 -0400
-Date: Wed, 13 Aug 2003 15:18:13 -0700
-From: Greg KH <greg@kroah.com>
-To: junkio@cox.net
-Cc: linux-kernel@vger.kernel.org
+	Wed, 13 Aug 2003 18:25:12 -0400
+Date: Thu, 14 Aug 2003 00:24:28 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <willy@debian.org>,
+       Russell King <rmk@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
+       "David S. Miller" <davem@redhat.com>, <rddunlap@osdl.org>,
+       <davej@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <kernel-janitor-discuss@lists.sourceforge.net>
 Subject: Re: C99 Initialisers
-Message-ID: <20030813221813.GA7418@kroah.com>
-References: <jRnj.2dx.11@gated-at.bofh.it> <jRwZ.2kJ.15@gated-at.bofh.it> <jRQi.2zQ.5@gated-at.bofh.it> <jRZY.2Hw.5@gated-at.bofh.it> <jS9J.2Np.5@gated-at.bofh.it> <jUbt.57S.7@gated-at.bofh.it> <jUuT.5kZ.13@gated-at.bofh.it> <k13k.22O.3@gated-at.bofh.it> <k7Lq.7Gr.7@gated-at.bofh.it> <7v7k5hw907.fsf@assigned-by-dhcp.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7v7k5hw907.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030813210531.GA15148@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.44.0308140018170.24676-100000@serv>
+References: <3F39AFDF.1020905@pobox.com> <20030813031432.22b6a0d6.davem@redhat.com>
+ <20030813173150.GA3317@kroah.com> <3F3A79CA.6010102@pobox.com>
+ <20030813180245.GC3317@kroah.com> <3F3A82C3.5060006@pobox.com>
+ <20030813193855.E20676@flint.arm.linux.org.uk> <3F3A952C.4050708@pobox.com>
+ <20030813195412.GE10015@parcelfarce.linux.theplanet.co.uk> <3F3A9FA1.8000708@pobox.com>
+ <20030813210531.GA15148@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 02:19:36PM -0700, junkio@cox.net wrote:
->  (1) If .subvendor and .subdevice are always PCI_ANY_ID, are
->      there any reason to keep them in the structure in the first
->      place?  I imagine there are some devices but not in the
->      tg3_pci_tbl list that need to have different values there,
->      but if that is the case we may want to generalize the macro
->      PCI_DEVICE like this:
-> 
->         #define PCI_DEVICE(vend, dev) \
->             PCI_DEVICE_WITH_SUB(vend, dev, PCI_ANY_ID, PCI_ANY_ID)
->         #define PCI_DEVICE_WITH_SUB(vend, dev, subv, subd) \
->          .vendor = (vend), \
->          .device = (dev), \
->          .subvendor = (subv), \
->          .subdevice = (subd)
+Hi,
 
-Patches always are gladly accepted :)
+On Wed, 13 Aug 2003, Sam Ravnborg wrote:
 
->  (2) PCI_VENDOR_ID_ and PCI_DEVICE_ID_ seem to be common prefix,
->      so how about doing something like this?
-> 
->      #define PCI_DEVICE(vend,dev) \
->          .vendor = (PCI_VENDOR_ID_ ## vend), \
->          .device = (PCI_DEVICE_ID_ ## dev), \
->          .subvendor = PCI_ANY_ID, \
->          .subdevice = PCI_ANY_ID
-> 
->      Then the table becomes much shorter:
-> 
->      static struct pci_device_id tg3_pci_tbl[] = {
->      ...
->        { PCI_DEVICE(BROADCOM, TIGON3_5700) },
->        { PCI_DEVICE(BROADCOM, TIGON3_5701) },
->      ...
+> driver MAXTOR_SATA "SATA for Maxtor IDE"
+> 	depends on LIB_SATA
+> 	kbuild
+> 	  obj-$(MAXTOR_SATA)  := maxtorsata.o
+> 	  maxtorsata-y := libsata.o smaxtor.o
+> 	  maxtorsata-$(VERBOSE_LOGGING) += maxtorlog.o
+> 	data
+> 	  PCIDEVICE(X,Y)
 
-As has been responded before, this isn't a good idea right now.
+Something I really want to avoid is Makefile specific syntax in Kconfig.
+IMO it should somehow like this:
 
-thanks,
+module maxtorsata MAXTOR_SATA
+	{tristate|prompt} "SATA for Maxtor IDE"
+	depends on LIB_SATA
+	source smaxtor.c
+	source maxtorlog.c if MAXTOR_VERBOSE
+	...
 
-greg k-h
+bye, Roman
+

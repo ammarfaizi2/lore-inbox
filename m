@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266888AbUITR6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUITSAD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266888AbUITR6y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 13:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUITR6y
+	id S266891AbUITSAD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 14:00:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUITSAD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 13:58:54 -0400
-Received: from mail1.smlink.com ([212.143.64.225]:36692 "EHLO
-	smmail.server.smlink.com") by vger.kernel.org with ESMTP
-	id S266888AbUITR6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 13:58:52 -0400
-Date: Mon, 20 Sep 2004 21:01:34 +0300
-From: Sasha Khapyorsky <sashak@smlink.com>
-To: Stelian Pop <stelian@popies.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Message-ID: <20040920210134.0b4af72c@sashak.lan>
-In-Reply-To: <20040920151425.GA3020@crusoe.alcove-fr>
-References: <20040917154834.GA3180@crusoe.alcove-fr>
-	<Pine.LNX.4.44.0409171708210.3162-100000@localhost.localdomain>
-	<20040917205011.GA3049@crusoe.dsnet>
-	<20040917212847.GC15426@dualathlon.random>
-	<20040920151425.GA3020@crusoe.alcove-fr>
-X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 20 Sep 2004 14:00:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4580 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266891AbUITR7y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 13:59:54 -0400
+Message-ID: <414F1A8C.10803@pobox.com>
+Date: Mon, 20 Sep 2004 13:59:40 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Francois Romieu <romieu@fr.zoreil.com>
+CC: Andy Lutomirski <luto@myrealbox.com>, Hans-Frieder Vogt <hfvogt@arcor.de>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6.9-rc1-bk11+ and 2.6.9-rc1-mm3,4 r8169: freeze during boot
+ (FIX included)
+References: <200409130035.50823.hfvogt@arcor.de> <20040916070211.GA32592@electric-eye.fr.zoreil.com> <200409161320.16526.jdmason@us.ltcfwd.linux.ibm.com> <200409171043.21772.jdmason@us.ltcfwd.linux.ibm.com> <20040917160151.GA29337@electric-eye.fr.zoreil.com> <414DF773.7060402@myrealbox.com> <20040919213952.GA32570@electric-eye.fr.zoreil.com> <414E46F1.9050309@pobox.com> <20040920071743.GA7115@electric-eye.fr.zoreil.com>
+In-Reply-To: <20040920071743.GA7115@electric-eye.fr.zoreil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Sep 2004 18:58:43.0829 (UTC) FILETIME=[D9C33250:01C49F43]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Sep 2004 17:14:26 +0200
-Stelian Pop <stelian@popies.net> wrote:
+Francois Romieu wrote:
+> Jeff Garzik <jgarzik@pobox.com> :
+> [...]
+> 
+>>That sounds like a bug right there...  need all the addresses set up 
+>>before we turn on stuff.
+> 
+> 
+> The description of the CPlusCmd in the 8169 datasheet includes a small note
+> which suggests that this register should be set up early.
+> 
+> It does not cost much to try and see if it makes a difference for DAC though.
 
-> +unsigned int __kfifo_get(struct kfifo *fifo, 
-> +			 unsigned char *buffer, unsigned int len)
-> +{
-> +	unsigned int l;
-> +
-> +	len = min(len, fifo->in - fifo->out);
-> +
-> +	/* first get the data from fifo->out until the end of the buffer */
-> +	l = min(len, fifo->size - (fifo->out & (fifo->size - 1)));
-> +	memcpy(buffer, fifo->buffer + (fifo->out & (fifo->size - 1)), l);
-> +
-> +	/* then get the rest (if any) from the beginning of the buffer */
-> +	memcpy(buffer, fifo->buffer + l, len - l);
+Let me know what happens :)
 
-I guess last line should be:
+	Jeff
 
-  memcpy(buffer + l, fifo->buffer, len - i)
 
-Sasha.
+

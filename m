@@ -1,33 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267451AbSLSApr>; Wed, 18 Dec 2002 19:45:47 -0500
+	id <S267470AbSLSAqf>; Wed, 18 Dec 2002 19:46:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267453AbSLSApq>; Wed, 18 Dec 2002 19:45:46 -0500
-Received: from mail.internetwork-ag.de ([217.6.75.131]:15265 "EHLO
-	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
-	id <S267451AbSLSApq>; Wed, 18 Dec 2002 19:45:46 -0500
-Message-ID: <3E011899.A3FBDAF1@inw.de>
-Date: Wed, 18 Dec 2002 16:53:45 -0800
-From: Till Immanuel Patzschke <tip@inw.de>
-Organization: interNetwork AG
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lse-tech <lse-tech@lists.sourceforge.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 15000+ processes -- poor performance ?!
+	id <S267473AbSLSAqf>; Wed, 18 Dec 2002 19:46:35 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:7857 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267470AbSLSAqc>;
+	Wed, 18 Dec 2002 19:46:32 -0500
+Date: Wed, 18 Dec 2002 16:47:35 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Till Immanuel Patzschke <tip@inw.de>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] 15000+ processes -- poor performance ?!
+Message-ID: <25840000.1040258855@flay>
+In-Reply-To: <3E0116D6.35CA202A@inw.de>
 References: <3E0116D6.35CA202A@inw.de>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-forgot the kernel version (2.4.20aa1)...
-
-Till Immanuel Patzschke wrote:
-
-> Dear List(s),
->
 > as part of my project I need to run a very high number of processes/threads on a
 > linux machine.  Right now I have a Dual-PIII 1.4G w/ 8GB RAM -- I am running
 > 4000 processes w/ 2-3 threads each totaling in a process count of 15000+
@@ -41,16 +36,12 @@ Till Immanuel Patzschke wrote:
 > Is there anything I can do to reduce that system load/time?  (I haven't been
 > able to exactly define the "line" but it definitly gets worse the more processes
 > need to be handled.)
+
+You don't even specify what kernel you're using ...
+
 > Does any of the patchsets address this particular problem?
-> BTW: The processes are all alike...
->
-> Thanks for you help!
->
-> Immanuel
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+Read the linux-kernel archives.
+
+M.
 

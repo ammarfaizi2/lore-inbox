@@ -1,190 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVCPOiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262607AbVCPOjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbVCPOiH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 09:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbVCPOiG
+	id S262607AbVCPOjt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 09:39:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVCPOi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 09:38:06 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:6334 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261234AbVCPOf7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 09:35:59 -0500
-Message-ID: <4238444B.2020600@drzeus.cx>
-Date: Wed, 16 Mar 2005 15:35:55 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hades.drzeus.cx-7166-1110983844-0001-2"
-To: LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [PATCH][MMC] Bulk transfers (round 2)
-References: <423841EE.9050202@drzeus.cx>
-In-Reply-To: <423841EE.9050202@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Wed, 16 Mar 2005 09:38:56 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:12956 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262609AbVCPOhH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 09:37:07 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: CPU hotplug on i386
+Date: Wed, 16 Mar 2005 15:40:03 +0100
+User-Agent: KMail/1.7.1
+Cc: kernel list <linux-kernel@vger.kernel.org>, rusty@rustcorp.com.au
+References: <20050316132151.GA2227@elf.ucw.cz>
+In-Reply-To: <20050316132151.GA2227@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503161540.04480.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+Hi,
 
---=_hades.drzeus.cx-7166-1110983844-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+On Wednesday, 16 of March 2005 14:21, Pavel Machek wrote:
+> Hi!
+> 
+> I tried to solve long-standing uglyness in swsusp cmp code by calling
+> cpu hotplug... only to find out that CONFIG_CPU_HOTPLUG is not
+> available on i386. Is there way to enable CPU_HOTPLUG on i386?
 
-it might help if I include the actual patch...
+Heh, that's exactly what I was thinking about.  ;-)
 
---=_hades.drzeus.cx-7166-1110983844-0001-2
-Content-Type: text/x-patch; name="mmc-bulk.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mmc-bulk.patch"
+AFAICS we don't need the full CPU hotplug to do this.  For suspend, we need to
+enable the CPU hotplug-related code in sched.c and cpu.c, and we need to
+implement the functions __cpu_disable() and __cpu_die() (called from within
+cpu.c) on each architecture for which we want swsusp to work on SMP.
 
-Index: linux-wbsd/drivers/mmc/mmc_block.c
-===================================================================
---- linux-wbsd/drivers/mmc/mmc_block.c	(revision 77)
-+++ linux-wbsd/drivers/mmc/mmc_block.c	(working copy)
-@@ -166,9 +166,25 @@
- 	struct mmc_blk_data *md = mq->data;
- 	struct mmc_card *card = md->queue.card;
- 	int ret;
-+	
-+#ifdef CONFIG_MMC_BULKTRANSFER
-+	int failsafe;
-+#endif
- 
- 	if (mmc_card_claim_host(card))
- 		goto cmd_err;
-+	
-+#ifdef CONFIG_MMC_BULKTRANSFER
-+	/*
-+	 * We first try transfering multiple blocks. If this fails
-+	 * we fall back to single block transfers.
-+	 *
-+	 * This gives us good performance when all is well and the
-+	 * possibility to determine which sector fails when all
-+	 * is not well.
-+	 */
-+	failsafe = 0;
-+#endif
- 
- 	do {
- 		struct mmc_blk_request brq;
-@@ -189,14 +205,32 @@
- 		brq.stop.arg = 0;
- 		brq.stop.flags = MMC_RSP_R1B;
- 
-+#ifdef CONFIG_MMC_BULKTRANSFER		
-+		/*
-+		 * A multi-block transfer failed. Falling back to single
-+		 * blocks.
-+		 */
-+		if (failsafe)
-+			brq.data.blocks = 1;
-+		
-+#else
-+		/*
-+		 * Writes are done one sector at a time.
-+		 */
-+		if (rq_data_dir(req) != READ)
-+			brq.data.blocks = 1;
-+#endif
-+		
-+		ret = 1;
-+
- 		if (rq_data_dir(req) == READ) {
- 			brq.cmd.opcode = brq.data.blocks > 1 ? MMC_READ_MULTIPLE_BLOCK : MMC_READ_SINGLE_BLOCK;
- 			brq.data.flags |= MMC_DATA_READ;
- 		} else {
--			brq.cmd.opcode = MMC_WRITE_BLOCK;
-+			brq.cmd.opcode = brq.data.blocks > 1 ? MMC_WRITE_MULTIPLE_BLOCK :
-+				MMC_WRITE_BLOCK;
- 			brq.cmd.flags = MMC_RSP_R1B;
- 			brq.data.flags |= MMC_DATA_WRITE;
--			brq.data.blocks = 1;
- 		}
- 		brq.mrq.stop = brq.data.blocks > 1 ? &brq.stop : NULL;
- 
-@@ -204,19 +238,19 @@
- 		if (brq.cmd.error) {
- 			printk(KERN_ERR "%s: error %d sending read/write command\n",
- 			       req->rq_disk->disk_name, brq.cmd.error);
--			goto cmd_err;
-+			goto cmd_fail;
- 		}
- 
- 		if (brq.data.error) {
- 			printk(KERN_ERR "%s: error %d transferring data\n",
- 			       req->rq_disk->disk_name, brq.data.error);
--			goto cmd_err;
-+			goto cmd_fail;
- 		}
- 
- 		if (brq.stop.error) {
- 			printk(KERN_ERR "%s: error %d sending stop command\n",
- 			       req->rq_disk->disk_name, brq.stop.error);
--			goto cmd_err;
-+			goto cmd_fail;
- 		}
- 
- 		do {
-@@ -229,7 +263,7 @@
- 			if (err) {
- 				printk(KERN_ERR "%s: error %d requesting status\n",
- 				       req->rq_disk->disk_name, err);
--				goto cmd_err;
-+				goto cmd_fail;
- 			}
- 		} while (!(cmd.resp[0] & R1_READY_FOR_DATA));
- 
-@@ -255,6 +289,27 @@
- 			end_that_request_last(req);
- 		}
- 		spin_unlock_irq(&md->lock);
-+		
-+#ifdef CONFIG_MMC_BULKTRANSFER
-+		/*
-+		 * Go back to bulk mode if in failsafe mode.
-+		 */
-+		failsafe = 0;
-+#endif
-+
-+		continue;
-+
-+ cmd_fail:
-+
-+#ifdef CONFIG_MMC_BULKTRANSFER
-+		if (failsafe)
-+	 		goto cmd_err;
-+	 	else
-+	 		failsafe = 1;
-+#else
-+ 		goto cmd_err;
-+#endif
-+
- 	} while (ret);
- 
- 	mmc_card_release_host(card);
-Index: linux-wbsd/drivers/mmc/Kconfig
-===================================================================
---- linux-wbsd/drivers/mmc/Kconfig	(revision 96)
-+++ linux-wbsd/drivers/mmc/Kconfig	(working copy)
-@@ -41,6 +41,15 @@
- 	  mount the filesystem. Almost everyone wishing MMC support
- 	  should say Y or M here.
- 
-+config MMC_BULKTRANSFER
-+	bool "Multi-block writes (EXPERIMENTAL)"
-+	depends on MMC_BLOCK != n && EXPERIMENTAL
-+	default n
-+	help
-+	  By default all writes are done one sector at a time. Enable
-+	  this option to transfer as large blocks as the host supports.
-+	  The transfer speed is in most cases doubled.
-+
- config MMC_ARMMMCI
- 	tristate "ARM AMBA Multimedia Card Interface support"
- 	depends on ARM_AMBA && MMC
+If that's acceptable, the CPU hotplug code in sched.c and cpu.c may be
+enabled by changing some #ifdefs there.  For example, we could replace the
 
---=_hades.drzeus.cx-7166-1110983844-0001-2--
+#idef CONFIG_CPU_HOTPLUG
+
+with
+
+#if defined(CONFIG_CPU_HOTPLUG) || (defined(CONFIG_SOFTWARE_SUSPEND)
+	&& defined(CONFIG_SMP))
+
+wherever necessary.
+
+The implementation of __cpu_disable() and __cpu_die() may be a bit more
+tricky, however.  In __cpu_disable() we need to save the settings of the local
+APIC of each CPU (on x86-64, at least) etc.  In __cpu_die() we should give the
+"frozen" CPU some "neutral" code to execute, it seems (or "hlt" it?).
+
+I've looked at the ia64 implementation of these functions, but I haven't fully
+understood it yet.
+
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266427AbUHTDtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUHTBvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266427AbUHTDtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 23:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266545AbUHTDtJ
+	id S265212AbUHTBvw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 21:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUHTBvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 23:49:09 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:18608 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S266427AbUHTDtD
+	Thu, 19 Aug 2004 21:51:49 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6546 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265148AbUHTBvp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 23:49:03 -0400
-Subject: Re: module.viomap support for ppc64
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Olaf Hering <olh@suse.de>
-Cc: Hollis Blanchard <hollisb@us.ibm.com>, Dave Boutcher <boutcher@us.ibm.com>,
-       linuxppc64-dev@lists.linuxppc.org,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040819212824.GA13204@suse.de>
-References: <20040812173751.GA30564@suse.de>
-	 <1092339278.19137.8.camel@localhost> <1092354195.25196.11.camel@bach>
-	 <20040813094040.GA1769@suse.de> <1092404570.29604.5.camel@bach>
-	 <20040819212824.GA13204@suse.de>
-Content-Type: text/plain
-Message-Id: <1092973671.28849.243.camel@bach>
+	Thu, 19 Aug 2004 21:51:45 -0400
+Date: Thu, 19 Aug 2004 21:50:19 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm2
+Message-ID: <20040820005019.GB6374@logos.cnet>
+References: <20040819014204.2d412e9b.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 13:47:52 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040819014204.2d412e9b.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-20 at 07:28, Olaf Hering wrote:
->  On Fri, Aug 13, Rusty Russell wrote:
+On Thu, Aug 19, 2004 at 01:42:04AM -0700, Andrew Morton wrote:
 > 
-> > On Fri, 2004-08-13 at 19:40, Olaf Hering wrote:
-> > >  On Fri, Aug 13, Rusty Russell wrote:
-> > > 
-> > > > 2) Please modify scripts/mod/file2alias.c in the kernel source, not the
-> > > > module tools.  The modules.XXXmap files are deprecated: device tables
-> > > > are supposed to be converted to aliases in the build process, and that
-> > > > is how userspace tools like hotplug are to find them.
-> > > 
-> > > I found no user of the modules.alias file. Hotplug still uses the map
-> > > files. Parsing one big file will not improve performance, but thats a
-> > > different story.
-> > 
-> > You don't use the modules.alias file.  You simply "modprobe vio:xyz^abc"
-> > and modprobe reads modules.alias if necessary (the user can also insert
-> > aliases in the modprobe.conf file, for example).  Note that fnmatch is
-> > used, so you can actually use ? and * in your generated aliases.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8.1/2.6.8.1-mm2/
 > 
-> But that complicates the parser. Current the hotplug agent script reads
-> the simple modules.foomap and generates a list of possible drivers. Then
-> it looks into the blacklist file to see if one of the possible modules
-> should not be loaded, and skips this module.
+> - Added Tony Luck's ia64 devel tree to the -mm "external trees" lineup.
+> 
+> - The monster memory leak which some people were seeing with audio CD
 
-Complicates?   Leave it to modprobe.  Don't read any files.  Really.
+Hi Andrew,
 
-Current implementation of aliases is to load one at random: multiple
-alias resolution is undefined because noone knew what we should do (load
-them all?  Load until one succeeds?).  But note that that the base
-config file overrides anything extracted from the modules themselves, so
-users/distributions can always specify an exact match.
+Just annoying your arse, I get this:
 
-> Is there such functionality for the modules.alias file in
-> module-init-tools? I played around with modprobe -n, but could not
-> figure it out. Unfortunately, some hardware has more than one driver.
-> bcm5700/tg3, eepro100/e100 and maybe more.
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0xa1bde): In function `radeon_match_mode':
+: undefined reference to `vesa_modes'
+drivers/built-in.o(.text+0xa1cbd): In function `radeon_match_mode':
+: undefined reference to `vesa_modes'
+make: ** [.tmp_vmlinux1] Erro 1
 
-OK, I think the difference here is that I feel modprobe should resolve
-it.  What's the right answer?  Do we need a new "unalias" config cmd
-which does the blacklist, or is the current positive method better?  How
-do you currently decide?
-
-Thanks!
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+Known already?

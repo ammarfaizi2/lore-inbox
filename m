@@ -1,71 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273385AbRINNNb>; Fri, 14 Sep 2001 09:13:31 -0400
+	id <S273382AbRINNMl>; Fri, 14 Sep 2001 09:12:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273380AbRINNNW>; Fri, 14 Sep 2001 09:13:22 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:55302 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S273385AbRINNNB>; Fri, 14 Sep 2001 09:13:01 -0400
-Message-ID: <3BA2021F.488F65F8@t-online.de>
-Date: Fri, 14 Sep 2001 15:11:59 +0200
-From: SPATZ1@t-online.de (Frank Schneider)
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
-X-Accept-Language: en
+	id <S273380AbRINNMb>; Fri, 14 Sep 2001 09:12:31 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:11255 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S273382AbRINNMW>; Fri, 14 Sep 2001 09:12:22 -0400
+Date: Fri, 14 Sep 2001 14:14:09 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
+In-Reply-To: <Pine.LNX.4.21.0109131925200.4183-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0109141343570.1542-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Holger Kiehl <Holger.Kiehl@dwd.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: AIC7xxx errors in 2.2.19 but not in 2.2.18
-In-Reply-To: <Pine.LNX.4.30.0109141121010.27057-100000@talentix.dwd.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holger Kiehl schrieb:
+On Thu, 13 Sep 2001, Marcelo Tosatti wrote:
 > 
-> Hello
-> 
-> I am getting SCSI errors with an onboard Adaptec AIC-7890/1 Ultra2, but
-> only under very heavy disk load and only under kernel 2.2.19. These errors
-> do not appear under 2.2.18.
-> 
-> The system I have is a dual PIII-450 with 6 disks attached to the controller.
-> All disks are put together in SW-Raid5 array with one configured as hot
-> spare.
-> 
+> Here it goes a (untested) patch to reintroduce swap map bumping when doing
+> readahead.
 
-(..log snipped..)
+Your patch was not quite correct: when swapin_readahead breaks because
+nr_async_pages too high, it must remember to swap_free remaining bumps.
+And no need to touch swap_state.c: comment on swap_duplicate still valid.
+
+Patch below reverts 2.4.10-pre9 swapin_readahead and valid_swaphandles
+to precisely what they were in 2.4.9.  But lacks your comment above the
+latter: add it back if you wish, though I'd prefer something more like
+"quick hack to fix most obvious cases until we fix them all properly"!
+I'm agnostic as to whether this should go in for now or not: up to Linus.
+
+> Note: It does fix the race I described, however I'm not sure how it
+> affects the interaction between swapin readahead and swapoff.
+
+It fixes the particular race you described (which we guess
+would be the most common kind); but not all the races between
+read_swap_cache_async's and try_to_swap_out's add_to_swap_cache.
+
+> Hugh, is there any problem you remember with swapoff and the swap map
+> bumping ?
+
+Bumping the counts can add to swapoff's inefficiency: try_to_unuse
+has to go on looping until the hidden references have disappeared;
+but it does not affect its correctness.
+
+Hugh
+
+--- 2.4.10-pre9/mm/memory.c	Fri Sep 14 10:36:03 2001
++++ linux/mm/memory.c	Fri Sep 14 13:35:05 2001
+@@ -1069,19 +1069,23 @@
+ 	unsigned long offset;
  
-> >From Alan's changelog I see that there where changes in the AIC7xxx code.
-> Any idea what is wrong here?
+ 	/*
+-	 * Get the number of handles we should do readahead io to.
++	 * Get the number of handles we should do readahead io to. Also,
++	 * grab temporary references on them, releasing them as io completes.
+ 	 */
+ 	num = valid_swaphandles(entry, &offset);
+ 	for (i = 0; i < num; offset++, i++) {
+ 		/* Don't block on I/O for read-ahead */
+-		if (atomic_read(&nr_async_pages) >=
+-		    pager_daemon.swap_cluster << page_cluster)
++		if (atomic_read(&nr_async_pages) >= pager_daemon.swap_cluster
++				* (1 << page_cluster)) {
++			while (i++ < num)
++				swap_free(SWP_ENTRY(SWP_TYPE(entry), offset++));
+ 			break;
++		}
+ 		/* Ok, do the async read-ahead now */
+ 		new_page = read_swap_cache_async(SWP_ENTRY(SWP_TYPE(entry), offset));
+-		if (!new_page)
+-			break;
+-		page_cache_release(new_page);
++		if (new_page != NULL)
++			page_cache_release(new_page);
++		swap_free(SWP_ENTRY(SWP_TYPE(entry), offset));
+ 	}
+ 	return;
+ }
+--- 2.4.10-pre9/mm/swapfile.c	Fri Sep 14 10:36:03 2001
++++ linux/mm/swapfile.c	Fri Sep 14 13:35:05 2001
+@@ -1111,8 +1111,8 @@
+ }
+ 
+ /*
+- * Kernel_lock protects against swap device deletion. Don't grab an extra
+- * reference on the swaphandle, it doesn't matter if it becomes unused.
++ * Kernel_lock protects against swap device deletion. Grab an extra
++ * reference on the swaphandle so that it dos not become unused.
+  */
+ int valid_swaphandles(swp_entry_t entry, unsigned long *offset)
+ {
+@@ -1123,6 +1123,7 @@
+ 	*offset = SWP_OFFSET(entry);
+ 	toff = *offset = (*offset >> page_cluster) << page_cluster;
+ 
++	swap_device_lock(swapdev);
+ 	do {
+ 		/* Don't read-ahead past the end of the swap area */
+ 		if (toff >= swapdev->max)
+@@ -1132,8 +1133,10 @@
+ 			break;
+ 		if (swapdev->swap_map[toff] == SWAP_MAP_BAD)
+ 			break;
++		swapdev->swap_map[toff]++;
+ 		toff++;
+ 		ret++;
+ 	} while (--i);
++	swap_device_unlock(swapdev);
+ 	return ret;
+ }
 
-Hello...
-
-I (and someone else) had also mysterious problems with AIC7xxx and
-RAID1/5, but we use Kernel 2.4.x.
-
-In Kernel 2.4.x you can choose between two versions of the
-aix7xxx-driver, one "old" one (Version 5.2.x) and a "new" one (Version
-6.x.x). Do a "cat /proc/scsi/aic7xxx/0" to find your version.
-
-We both found out that our problems dissapear when we use the "old"
-driver (my tests are still in progress because my error (always the same
-scsi-disk falling out of an raid5-array with an "internal error", but
-the disk seems to be good) only appeared randomly about once a week, so
-i still have to wait if it is really gone.
-
-So perhaps you can try to use the older driver or determine the version
-of your aic7xxx-driver. Perhaps you can use the aic7xxx-driver from
-kernel 2.2.18 in Kernel 2.2.19 ?
-
-You should also boot your system with the parameter "aic7xxx=verbose",
-that will provide more infos in the syslog.
-
-Solong..
-Frank.
-
---
-Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
-Microsoft isn't the answer.
-Microsoft is the question, and the answer is NO.
-... -.-

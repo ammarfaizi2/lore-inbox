@@ -1,63 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265037AbTAYXcK>; Sat, 25 Jan 2003 18:32:10 -0500
+	id <S264936AbTAYXaQ>; Sat, 25 Jan 2003 18:30:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265385AbTAYXcK>; Sat, 25 Jan 2003 18:32:10 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:37641
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S265037AbTAYXcJ>; Sat, 25 Jan 2003 18:32:09 -0500
-Date: Sat, 25 Jan 2003 15:36:17 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-cc: stesmi@stesmi.com, aebr@win.tue.nl,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: BIOS setup needed for LBA48?
-In-Reply-To: <200301252120.h0PLKMnA001974@green.mif.pg.gda.pl>
-Message-ID: <Pine.LNX.4.10.10301251501430.1744-100000@master.linux-ide.org>
+	id <S265037AbTAYXaP>; Sat, 25 Jan 2003 18:30:15 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:57231 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264936AbTAYXaJ>; Sat, 25 Jan 2003 18:30:09 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 25 Jan 2003 15:44:54 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Janet Morgan <janetmor@us.ibm.com>
+Subject: Re: [patch] epoll for 2.4.20 updated ...
+In-Reply-To: <20030125215844.GA3750@werewolf.able.es>
+Message-ID: <Pine.LNX.4.50.0301251541040.1855-100000@blue1.dev.mcafeelabs.com>
+References: <Pine.LNX.4.50.0301242004010.2858-100000@blue1.dev.mcafeelabs.com>
+ <20030125215844.GA3750@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 25 Jan 2003, J.A. Magallon wrote:
 
-Well doors may know this but the door-stop does not.  The driver has no
-clue currently and so we are back to a pig in a poke.  I have never run
-48-bit on AMD, and iirc NFORCE is a step-child of AMD.
+>
+> On 2003.01.25 Davide Libenzi wrote:
+> >
+> > I updated the 2.4.20 patch with the changes posted today and I fixed a
+> > little error about the wait queue function prototype :
+> >
+> > http://www.xmailserver.org/linux-patches/sys_epoll-2.4.20-0.61.diff
+> >
+>
+> Mixing epoll ontop of current aa, I found this:
+>
+> #define add_wait_queue_cond(q, wait, cond) \
+>     ({                          \
+>         unsigned long flags;                \
+>         int _raced = 0;                 \
+>         wq_write_lock_irqsave(&(q)->lock, flags);   \
+>         (wait)->flags = 0;              \
+>         __add_wait_queue((q), (wait));          \
+>         mb();                       \
+>         if (!(cond)) {                  \
+>             _raced = 1;             \
+>             __remove_wait_queue((q), (wait));   \
+>         }                       \
+>         wq_write_unlock_irqrestore(&(q)->lock, flags);  \
+>         _raced;                     \
+>     })
+>
+> this is the -aa version. Version from epoll uses just a rmb() barrier
+> (afaik, just a _read_ barrier). In -aa they are just the same, but I also
+> use a patch that does this:
+>
+>
+> +#ifdef CONFIG_X86_MFENCE
+> +#define mb()   __asm__ __volatile__ ("mfence": : :"memory")
+> +#else
+>  #define mb()   __asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
+> +#endif
+> +
+> +#ifdef CONFIG_X86_LFENCE
+> +#define rmb()  __asm__ __volatile__ ("lfence": : :"memory")
+> +#else
+>  #define rmb()  mb()
+> +#endif
+>
+> so for modern processors they are different, and can affect performance and
+> correctness. So  which one it the correct one for the above code snipet ?
 
-It has everything to do with the DMA engine in the ASIC going south.
-
-Cheers,
+It depends on what "cond" does. Being it a macro I'd feel safer with an mb().
 
 
-On Sat, 25 Jan 2003, Andrzej Krzysztofowicz wrote:
 
-> 
-> > Yes, if the host controller can not handle the double pump for dma
-> > operations.  Disable DMA int it has to work.  If it does not, you have a
-> > nice pile of junk, and it should be come a door.
-> 
-> Shouldn't the driver disable DMA automatically (not allow to enable it) ?
-> Driver knows the controller type, knows the disk size ...
-> 
-> Or is it not so simple ?
-> 
-> 
-> > On Sat, 25 Jan 2003, Stefan Smietanowski wrote:
-> > 
-> > > >>Can the Linux Kernel use the full drive (160GB/250GB/whatever)
-> > > >>even though the BIOS doesn't? (LBA48)
-> > > > 
-> > > > Usually, yes.
-> > > 
-> > > Is there anything that could make "usually, yes" become a "no"?
-> 
-> -- 
-> =======================================================================
->   Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
->   phone (48)(58) 347 14 61
-> Faculty of Applied Phys. & Math.,   Gdansk University of Technology
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
+- Davide
 

@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267023AbTBXTz1>; Mon, 24 Feb 2003 14:55:27 -0500
+	id <S267038AbTBXUAV>; Mon, 24 Feb 2003 15:00:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267038AbTBXTz1>; Mon, 24 Feb 2003 14:55:27 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:30106 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S267023AbTBXTz0>; Mon, 24 Feb 2003 14:55:26 -0500
-Message-Id: <200302242005.VAA04400@post.webmailer.de>
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
-To: root@chaos.analogic.com, schwidefsky@de.ibm.com,
-       linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-Date: Mon, 24 Feb 2003 21:03:13 +0100
-References: <20030224195008$59ef@gated-at.bofh.it> <20030224195008$40bd@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
+	id <S267132AbTBXUAV>; Mon, 24 Feb 2003 15:00:21 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:2061 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267038AbTBXUAU>; Mon, 24 Feb 2003 15:00:20 -0500
+Date: Mon, 24 Feb 2003 20:10:30 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>, pam.delaney@lsil.com
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.63
+Message-ID: <20030224201030.A13503@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@transmeta.com>, pam.delaney@lsil.com,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0302241127050.13335-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0302241127050.13335-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Feb 24, 2003 at 11:32:07AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
+> <pam.delaney@lsil.com>:
+>   o Fusion Driver 2.05.00.03 against 2.5.62bk3
 
-> I think you must keep these warnings in! There are many bugs
-> that these uncover uncluding loops that don't terminate correctly
-> but seem to work for "most all" cases. These are the hard-to-find
-> bugs that hit you six months after release.
+This update is broken and strange in many ways, it would have been
+nice if you actually sent this to some list for review before submitting..
 
-This was my change. Obviously the warning is a good idea in general,
-but I don't see the point of scrolling through hundreds of lines
-with the same warning in someone else's code. I actually plan to fix
-these warnings in arch/s390 and drivers/s390 as well as include/
-and make the s390 kernel compile with -Werror, but the rest looks 
-more like a task for the Janitors. Note that before gcc-3.3, 
--Wsign-compare has not been part of -Wall.
+(1) there's stuff like:
 
-        Arnd <><
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,58)
+#define mpt_inc_use_count()
+#define mpt_dec_use_count()
+#else
+#define mpt_inc_use_count() MOD_INC_USE_COUNT
+#define mpt_dec_use_count() MOD_DEC_USE_COUNT
+#endif
+
+but even if the old-style refcounting is deprecated now you can't
+just simply remove it!  you need to rearchitecture your code to
+work with try_module_get/module_put
+
+(2) and like this:
+
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,59)
+ MODULE_PARM(PortIo, "0-1i");
+ MODULE_PARM_DESC(PortIo, "[0]=Use mmap, 1=Use port io");
++#endif
+
+Again. just because old-style module paramters are deprecated you can't
+just remove them without replacement, use module_param() instead.
+
+(3) you remove backward copatiblity code in one place but add lots more
+    in other places.  this doesn't make sense - either you have a nice or
+    all releases driver, but not one that doesn't work everywhere _and_ looks
+    horrible.
+
+

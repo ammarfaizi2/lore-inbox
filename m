@@ -1,38 +1,183 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131440AbRCKO5F>; Sun, 11 Mar 2001 09:57:05 -0500
+	id <S131446AbRCKPGP>; Sun, 11 Mar 2001 10:06:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131441AbRCKO44>; Sun, 11 Mar 2001 09:56:56 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:37126 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131440AbRCKO4t>;
-	Sun, 11 Mar 2001 09:56:49 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: elenstev@mesatop.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: List of recent (2.4.0 to 2.4.2-ac18) CONFIG options needing Configure.help text. 
-In-Reply-To: Your message of "Sun, 11 Mar 2001 06:37:10 PDT."
-             <01031106371001.29664@localhost.localdomain> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 12 Mar 2001 01:56:03 +1100
-Message-ID: <17646.984322563@ocs3.ocs-net>
+	id <S131447AbRCKPGG>; Sun, 11 Mar 2001 10:06:06 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:24589 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S131446AbRCKPFw>;
+	Sun, 11 Mar 2001 10:05:52 -0500
+Date: Sun, 11 Mar 2001 16:04:12 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Keith Owens <kaos@ocs.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] nmi-watchdog-2.4.2-A2
+In-Reply-To: <3AAB4EB4.4569908A@uow.edu.au>
+Message-ID: <Pine.LNX.4.30.0103111554260.803-200000@elte.hu>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="655616-980161917-984323052=:803"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Mar 2001 06:37:10 -0700, 
-Steven Cole <elenstev@mesatop.com> wrote:
->On Sunday 11 March 2001 00:08, Jeff Garzik wrote:
->> Keith Owens wrote:
->> > If any of these CONFIG_ options are always derived (i.e. the user never
->> > sees them on a config menu) then please add the suffix _DERIVED to such
->> > options.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+--655616-980161917-984323052=:803
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+
+On Sun, 11 Mar 2001, Andrew Morton wrote:
+
+> Sorry, this doesn't look right. Are you sure you booted with
+> `nmi_watchdog=1'? It was turned off by default in -ac18.
+
+of course i did ...
+
+> Two things:
 >
->BTW, the script I used (originally written by Paul Gortmaker), does pass the
->lines in [C,c]onfig.in through grep -v define_ to catch items which are defined
->with define_bool or define_int.
+> - CPU A could be doing the SYSRQ printing, while
+>   CPU B is spinning on a lock which CPU A holds. The
+>   NMI watchdog will then whack CPU B.  So touch_nmi_watchdog()
+>   needs to touch *all* CPUs.  (kbd_controller_lock, for example).
 
-Several options are define_bool in one config.in but are options in
-another.  I am working on a global patch to rename all derived options.
-It will be big.
+yep, agreed.
 
+> - We need to touch the NMI more than once during the
+>   SYSRQ-T output - five seconds isn't enough.
+>
+>   The correctest way is, I think, to touch_nmi() in
+>   rs285_console_write(), lp_console_write() and
+>   serial_console_write().
+
+nope:
+
+>   We _could_ just touch it in show_state(), but that means
+>   we still get whacked if we do a lot of printk()s with interrupts
+>   disabled from some random place in the kernel.
+
+exactly, and that is a feature. We want to find all those places, because
+disabling IRQs for too long can cause problems in unrelated kernel code.
+SysRq-T is a special case so touch_nmi() is justified in that and only
+that case. The NMI watchdog is something that gives security, and we want
+to be very conservative disabling its effect.
+
+[i've attached nmi-watchdog-2.4.2-A2 (against -ac18) which adds your fix
+to clear all alert counters in touch_nmi_watchdog().]
+
+	Ingo
+
+--655616-980161917-984323052=:803
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="nmi-watchdog-2.4.2-A2"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0103111604120.803@elte.hu>
+Content-Description: 
+Content-Disposition: attachment; filename="nmi-watchdog-2.4.2-A2"
+
+LS0tIGxpbnV4L2tlcm5lbC9zY2hlZC5jLm9yaWcJU3VuIE1hciAxMSAxMTo0
+OTowMCAyMDAxDQorKysgbGludXgva2VybmVsL3NjaGVkLmMJU3VuIE1hciAx
+MSAxMTo1MTozNyAyMDAxDQpAQCAtMTE4Myw4ICsxMTgzLDE0IEBADQogCXBy
+aW50aygiICB0YXNrICAgICAgICAgICAgICAgICBQQyAgICAgICAgc3RhY2sg
+ICBwaWQgZmF0aGVyIGNoaWxkIHlvdW5nZXIgb2xkZXJcbiIpOw0KICNlbmRp
+Zg0KIAlyZWFkX2xvY2soJnRhc2tsaXN0X2xvY2spOw0KLQlmb3JfZWFjaF90
+YXNrKHApDQorCWZvcl9lYWNoX3Rhc2socCkgew0KKwkJLyoNCisJCSAqIHJl
+c2V0IHRoZSBOTUktdGltZW91dCwgbGlzdGluZyBhbGwgZmlsZXMgb24gYSBz
+bG93DQorCQkgKiBjb25zb2xlIG1pZ2h0IHRha2UgYWxvdCBvZiB0aW1lOg0K
+KwkJICovDQorCQl0b3VjaF9ubWlfd2F0Y2hkb2coKTsNCiAJCXNob3dfdGFz
+ayhwKTsNCisJfQ0KIAlyZWFkX3VubG9jaygmdGFza2xpc3RfbG9jayk7DQog
+fQ0KIA0KLS0tIGxpbnV4L2luY2x1ZGUvbGludXgvaXJxLmgub3JpZwlTdW4g
+TWFyIDExIDExOjIwOjIxIDIwMDENCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4
+L2lycS5oCVN1biBNYXIgMTEgMTI6MDI6MjMgMjAwMQ0KQEAgLTU3LDE4ICs1
+NywxNiBAQA0KICNpbmNsdWRlIDxhc20vaHdfaXJxLmg+IC8qIHRoZSBhcmNo
+IGRlcGVuZGVudCBzdHVmZiAqLw0KIA0KIC8qKg0KLSAqIG5taV93YXRjaGRv
+Z19kaXNhYmxlIC0gZGlzYWJsZSBOTUkgd2F0Y2hkb2cgY2hlY2tpbmcuDQor
+ICogdG91Y2hfbm1pX3dhdGNoZG9nIC0gcmVzdGFydCBOTUkgd2F0Y2hkb2cg
+dGltZW91dC4NCiAgKiANCi0gKiBJZiB0aGUgYXJjaGl0ZWN0dXJlIHN1cHBv
+cnRzIHRoZSBOTUkgd2F0Y2hkb2csIG5taV93YXRjaGRvZ19kaXNhYmxlKCkg
+bWF5IGJlIHVzZWQNCi0gKiB0byB0ZW1wb3JhcmlseSBkaXNhYmxlIGl0LiAg
+VXNlIG5taV93YXRjaGRvZ19lbmFibGUoKSBsYXRlciBvbi4gIEl0IGlzIGlt
+cGxlbWVudGVkDQotICogdmlhIGFuIHVwL2Rvd24gY291bnRlciwgc28geW91
+IG11c3Qga2VlcCB0aGUgY2FsbHMgYmFsYW5jZWQuDQorICogSWYgdGhlIGFy
+Y2hpdGVjdHVyZSBzdXBwb3J0cyB0aGUgTk1JIHdhdGNoZG9nLCB0b3VjaF9u
+bWlfd2F0Y2hkb2coKQ0KKyAqIG1heSBiZSB1c2VkIHRvIHJlc2V0IHRoZSB0
+aW1lb3V0IC0gZm9yIGNvZGUgd2hpY2ggaW50ZW50aW9uYWxseQ0KKyAqIGRp
+c2FibGVzIGludGVycnVwdHMgZm9yIGEgbG9uZyB0aW1lLiBUaGlzIGNhbGwg
+aXMgc3RhdGVsZXNzLg0KICAqLw0KICNpZmRlZiBBUkNIX0hBU19OTUlfV0FU
+Q0hET0cNCi1leHRlcm4gdm9pZCBubWlfd2F0Y2hkb2dfZGlzYWJsZSh2b2lk
+KTsNCi1leHRlcm4gdm9pZCBubWlfd2F0Y2hkb2dfZW5hYmxlKHZvaWQpOw0K
+K2V4dGVybiB2b2lkIHRvdWNoX25taV93YXRjaGRvZyh2b2lkKTsNCiAjZWxz
+ZQ0KLSNkZWZpbmUgbm1pX3dhdGNoZG9nX2Rpc2FibGUoKSBkb3t9IHdoaWxl
+KDApDQotI2RlZmluZSBubWlfd2F0Y2hkb2dfZW5hYmxlKCkgZG97fSB3aGls
+ZSgwKQ0KKyMgZGVmaW5lIHRvdWNoX25taV93YXRjaGRvZygpIGRvIHsgfSB3
+aGlsZSgwKQ0KICNlbmRpZg0KIA0KIGV4dGVybiBpbnQgaGFuZGxlX0lSUV9l
+dmVudCh1bnNpZ25lZCBpbnQsIHN0cnVjdCBwdF9yZWdzICosIHN0cnVjdCBp
+cnFhY3Rpb24gKik7DQotLS0gbGludXgvZHJpdmVycy9jaGFyL3N5c3JxLmMu
+b3JpZwlTdW4gTWFyIDExIDExOjMwOjQ2IDIwMDENCisrKyBsaW51eC9kcml2
+ZXJzL2NoYXIvc3lzcnEuYwlTdW4gTWFyIDExIDExOjQ5OjE5IDIwMDENCkBA
+IC03MCwxMSArNzAsNiBAQA0KIAlpZiAoIWtleSkNCiAJCXJldHVybjsNCiAN
+Ci0JLyoNCi0JICogSW50ZXJydXB0cyBhcmUgZGlzYWJsZWQsIGFuZCBzZXJp
+YWwgY29uc29sZXMgYXJlIHNsb3cuIFNvDQotCSAqIExldCdzIHN1c3BlbmQg
+dGhlIE5NSSB3YXRjaGRvZy4NCi0JICovDQotCW5taV93YXRjaGRvZ19kaXNh
+YmxlKCk7DQogCWNvbnNvbGVfbG9nbGV2ZWwgPSA3Ow0KIAlwcmludGsoS0VS
+Tl9JTkZPICJTeXNScTogIik7DQogCXN3aXRjaCAoa2V5KSB7DQpAQCAtMTU4
+LDcgKzE1Myw2IEBADQogCQkvKiBEb24ndCB1c2UgJ0EnIGFzIGl0J3MgaGFu
+ZGxlZCBzcGVjaWFsbHkgb24gdGhlIFNwYXJjICovDQogCX0NCiANCi0Jbm1p
+X3dhdGNoZG9nX2VuYWJsZSgpOw0KIAljb25zb2xlX2xvZ2xldmVsID0gb3Jp
+Z19sb2dfbGV2ZWw7DQogfQ0KIA0KLS0tIGxpbnV4L2FyY2gvaTM4Ni9rZXJu
+ZWwvbm1pLmMub3JpZwlTdW4gTWFyIDExIDExOjI0OjM0IDIwMDENCisrKyBs
+aW51eC9hcmNoL2kzODYva2VybmVsL25taS5jCVN1biBNYXIgMTEgMTc6NTc6
+NDEgMjAwMQ0KQEAgLTIyNiwzNyArMjI2LDQwIEBADQogfQ0KIA0KIHN0YXRp
+YyBzcGlubG9ja190IG5taV9wcmludF9sb2NrID0gU1BJTl9MT0NLX1VOTE9D
+S0VEOw0KLXN0YXRpYyBhdG9taWNfdCBubWlfd2F0Y2hkb2dfZGlzYWJsZWQg
+PSBBVE9NSUNfSU5JVCgwKTsNCiANCi12b2lkIG5taV93YXRjaGRvZ19kaXNh
+YmxlKHZvaWQpDQotew0KLQlhdG9taWNfaW5jKCZubWlfd2F0Y2hkb2dfZGlz
+YWJsZWQpOw0KLX0NCisvKg0KKyAqIHRoZSBiZXN0IHdheSB0byBkZXRlY3Qg
+d2V0aGVyIGEgQ1BVIGhhcyBhICdoYXJkIGxvY2t1cCcgcHJvYmxlbQ0KKyAq
+IGlzIHRvIGNoZWNrIGl0J3MgbG9jYWwgQVBJQyB0aW1lciBJUlEgY291bnRz
+LiBJZiB0aGV5IGFyZSBub3QNCisgKiBjaGFuZ2luZyB0aGVuIHRoYXQgQ1BV
+IGhhcyBzb21lIHByb2JsZW0uDQorICoNCisgKiBhcyB0aGVzZSB3YXRjaGRv
+ZyBOTUkgSVJRcyBhcmUgZ2VuZXJhdGVkIG9uIGV2ZXJ5IENQVSwgd2Ugb25s
+eQ0KKyAqIGhhdmUgdG8gY2hlY2sgdGhlIGN1cnJlbnQgcHJvY2Vzc29yLg0K
+KyAqDQorICogc2luY2UgTk1JcyBkb250IGxpc3RlbiB0byBfYW55XyBsb2Nr
+cywgd2UgaGF2ZSB0byBiZSBleHRyZW1lbHkNCisgKiBjYXJlZnVsIG5vdCB0
+byByZWx5IG9uIHVuc2FmZSB2YXJpYWJsZXMuIFRoZSBwcmludGsgbWlnaHQg
+bG9jaw0KKyAqIHVwIHRob3VnaCwgc28gd2UgaGF2ZSB0byBicmVhayB1cCBh
+bnkgY29uc29sZSBsb2NrcyBmaXJzdCAuLi4NCisgKiBbd2hlbiB0aGVyZSB3
+aWxsIGJlIG1vcmUgdHR5LXJlbGF0ZWQgbG9ja3MsIGJyZWFrIHRoZW0gdXAN
+CisgKiAgaGVyZSB0b28hXQ0KKyAqLw0KKw0KK3N0YXRpYyB1bnNpZ25lZCBp
+bnQNCisJbGFzdF9pcnFfc3VtcyBbTlJfQ1BVU10sDQorCWFsZXJ0X2NvdW50
+ZXIgW05SX0NQVVNdOw0KIA0KLXZvaWQgbm1pX3dhdGNoZG9nX2VuYWJsZSh2
+b2lkKQ0KK3ZvaWQgdG91Y2hfbm1pX3dhdGNoZG9nICh2b2lkKQ0KIHsNCi0J
+YXRvbWljX2RlYygmbm1pX3dhdGNoZG9nX2Rpc2FibGVkKTsNCi19DQorCWlu
+dCBpOw0KIA0KLXZvaWQgbm1pX3dhdGNoZG9nX3RpY2sgKHN0cnVjdCBwdF9y
+ZWdzICogcmVncykNCi17DQogCS8qDQotCSAqIHRoZSBiZXN0IHdheSB0byBk
+ZXRlY3Qgd2V0aGVyIGEgQ1BVIGhhcyBhICdoYXJkIGxvY2t1cCcgcHJvYmxl
+bQ0KLQkgKiBpcyB0byBjaGVjayBpdCdzIGxvY2FsIEFQSUMgdGltZXIgSVJR
+IGNvdW50cy4gSWYgdGhleSBhcmUgbm90DQotCSAqIGNoYW5naW5nIHRoZW4g
+dGhhdCBDUFUgaGFzIHNvbWUgcHJvYmxlbS4NCi0JICoNCi0JICogYXMgdGhl
+c2Ugd2F0Y2hkb2cgTk1JIElSUXMgYXJlIGJyb2FkY2FzdGVkIHRvIGV2ZXJ5
+IENQVSwgaGVyZQ0KLQkgKiB3ZSBvbmx5IGhhdmUgdG8gY2hlY2sgdGhlIGN1
+cnJlbnQgcHJvY2Vzc29yLg0KLQkgKg0KLQkgKiBzaW5jZSBOTUlzIGRvbnQg
+bGlzdGVuIHRvIF9hbnlfIGxvY2tzLCB3ZSBoYXZlIHRvIGJlIGV4dHJlbWVs
+eQ0KLQkgKiBjYXJlZnVsIG5vdCB0byByZWx5IG9uIHVuc2FmZSB2YXJpYWJs
+ZXMuIFRoZSBwcmludGsgbWlnaHQgbG9jaw0KLQkgKiB1cCB0aG91Z2gsIHNv
+IHdlIGhhdmUgdG8gYnJlYWsgdXAgYW55IGNvbnNvbGUgbG9ja3MgZmlyc3Qg
+Li4uDQotCSAqIFt3aGVuIHRoZXJlIHdpbGwgYmUgbW9yZSB0dHktcmVsYXRl
+ZCBsb2NrcywgYnJlYWsgdGhlbSB1cA0KLQkgKiAgaGVyZSB0b28hXQ0KKwkg
+KiBKdXN0IHJlc2V0IHRoZSBhbGVydCBjb3VudGVycywgKG90aGVyIENQVXMg
+bWlnaHQgYmUNCisJICogc3Bpbm5pbmcgb24gbG9ja3Mgd2UgaG9sZCk6DQog
+CSAqLw0KKwlmb3IgKGkgPSAwOyBpIDwgc21wX251bV9jcHVzOyBpKyspDQor
+CQlhbGVydF9jb3VudGVyW2ldID0gMDsNCit9DQogDQotCXN0YXRpYyB1bnNp
+Z25lZCBpbnQgbGFzdF9pcnFfc3VtcyBbTlJfQ1BVU10sDQotCQkJCWFsZXJ0
+X2NvdW50ZXIgW05SX0NQVVNdOw0KK3ZvaWQgbm1pX3dhdGNoZG9nX3RpY2sg
+KHN0cnVjdCBwdF9yZWdzICogcmVncykNCit7DQogDQogCS8qDQogCSAqIFNp
+bmNlIGN1cnJlbnQtPiBpcyBhbHdheXMgb24gdGhlIHN0YWNrLCBhbmQgd2Ug
+YWx3YXlzIHN3aXRjaA0KQEAgLTI2Niw3ICsyNjksNyBAQA0KIA0KIAlzdW0g
+PSBhcGljX3RpbWVyX2lycXNbY3B1XTsNCiANCi0JaWYgKGxhc3RfaXJxX3N1
+bXNbY3B1XSA9PSBzdW0gJiYgYXRvbWljX3JlYWQoJm5taV93YXRjaGRvZ19k
+aXNhYmxlZCkgPT0gMCkgew0KKwlpZiAobGFzdF9pcnFfc3Vtc1tjcHVdID09
+IHN1bSkgew0KIAkJLyoNCiAJCSAqIEF5aWVlLCBsb29rcyBsaWtlIHRoaXMg
+Q1BVIGlzIHN0dWNrIC4uLg0KIAkJICogd2FpdCBhIGZldyBJUlFzICg1IHNl
+Y29uZHMpIGJlZm9yZSBkb2luZyB0aGUgb29wcyAuLi4NCg==
+--655616-980161917-984323052=:803--

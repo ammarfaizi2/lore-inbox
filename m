@@ -1,101 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130916AbQLaU4C>; Sun, 31 Dec 2000 15:56:02 -0500
+	id <S130882AbQLaU4c>; Sun, 31 Dec 2000 15:56:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130895AbQLaUzm>; Sun, 31 Dec 2000 15:55:42 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2058 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130882AbQLaUzf>; Sun, 31 Dec 2000 15:55:35 -0500
-Date: Sun, 31 Dec 2000 12:24:44 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Happy new year^H^H^H^Hkernel..
-Message-ID: <Pine.LNX.4.10.10012311205020.1210-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130895AbQLaU4X>; Sun, 31 Dec 2000 15:56:23 -0500
+Received: from rmx325-mta.mail.com ([165.251.48.53]:53443 "EHLO
+	rmx325-mta.mail.com") by vger.kernel.org with ESMTP
+	id <S130882AbQLaUzy>; Sun, 31 Dec 2000 15:55:54 -0500
+Message-ID: <379744379.978294325610.JavaMail.root@web582-mc>
+Date: Sun, 31 Dec 2000 15:25:25 -0500 (EST)
+From: Alastair Foster <alasta@mail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Camera as a USB mass storage / SCSI device
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Mailer: mail.com
+X-Originating-IP: 203.96.111.202
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+USB support appears to be coming along nicely. I have just aquired an Agfa
+ePhoto digital camera. I have heard several success stories of people who
+have compiled kernels with SCSI and USB mass storage support and been able
+to emulate their camera's flash memory as a SCSI disk on bootup. Accessing
+the camera was then simply a matter of mounting the SCSI device.
 
-Ok. I didn't make 2.4.0 in 2000. Tough. I tried, but we had some
-last-minute stuff that needed fixing (ie the dirty page lists etc), and
-the best I can do is make a prerelease.
-
-There's a 2.4.0-prerelease out there, and this is basically it. I want
-people to test it for a while, and I want to give other architectures the
-chance to catch up with some of the changes, but read my lips: no more
-recounts. There is no "prerelease1", to become "prerelease2" and so on.
-
-One thing other architectures will want to catch up with is the changes to
-handle 2GHz+ machines, which due to overflow issues caused "loops_per_sec"
-to become "loops_per_jiffy". And some architectures have not had much
-chance to synchronize with me due to other fires to put out.
-
-Give it your worst. After you recover from being hung-over, of course.
-
-			Linus
-
------
-prerelease:
-   - Alan Cox: more synchronizations
-   - Manfred Spraul: ptrace/suid-exec race fix
-
- - pre7:
-   - x86 LDT handling fixes: revert some cleanups (the LDT really
-     doesn't act like a TLB context)
-   - Richard Henderson: alpha update (working memmove() from Ivan
-     Kokshaysky etc)
-   - Manfred: winbond-840.c net driver update (fix oops on module unload etc)
-   - Alan Cox: more synchronizations (with some fixes from Andrew Morton)
-
- - pre6:
-   - Marc Joosen: BIOS int15/e820 memory query: don't assume %edx
-     unchanged by the BIOS. Fixes at least some IBM ThinkPads.
-   - Alan Cox: synchronize
-   - Marcelo Tosatti & me: properly sync dirty pages
-   - Andreas Dilger: proper ext2 compat flag checking
-
- - pre5:
-   - NIIBE Yutaka: SuperH update
-   - Geert Uytterhoeven: m68k update
-   - David Miller: TCP RTO calc fix, UDP multicast fix etc
-   - Duncan Laurie: ServerWorks PIRQ routing definition.
-   - mm PageDirty cleanups, added sanity checks, and don't lose the bit. 
-
- - pre4:
-   - Christoph Rohland: shmfs cleanup
-   - Nicolas Pitre: don't forget loop.c flags
-   - Geert Uytterhoeven: new-style m68k Makefiles
-   - Neil Brown: knfsd cleanups, raid5 re-org
-   - Andrea Arkangeli: update to LVM-0.9
-   - LC Chang: sis900 driver doc update
-   - David Miller: netfilter oops fix
-   - Andrew Grover: acpi update
-
- - pre3:
-   - Christian Jullien: smc9194: proper dev_kfree_skb_irq
-   - Cort Dougan: new-style PowerPC Makefiles
-   - Andrew Morton, Petr Vandrovec: fix run_task_queue
-   - Christoph Rohland: shmfs for shared memory handling
-
- - pre2:
-   - Kai Germaschewski: ISDN update (including Makefiles)
-   - Jens Axboe: cdrom updates
-   - Petr Vandrovec; Matrox G450 support
-   - Bill Nottingham: fix FAT32 filesystems on 64-bit platforms
-   - David Miller: sparc (and other) Makefile fixup
-   - Andrea Arkangeli: alpha SMP TLB context fix (and cleanups)
-   - Niels Kristian Bech Jensen: checkconfig, USB warnings
-   - Andrew Grover: large ACPI update
-
- - pre1:
-   - me: drop support for old-style Makefiles entirely. Big.
-   - me: check b_end_io at the IO submission path
-   - me: fix "ptep_mkdirty()" (so that swapoff() works correctly)
-   - fix fault case in copy_from_user() with a constant size, where
-     ((size & 3) == 3)
+Unfortunately, my camera does not get recognised on bootup. This is hardly
+surprising, given that the kernel has no way of determining the camera as a
+USB mass storage device. However, I'm curious as to how others have managed
+to get away with this by doing nothing more than compiling their kernel with
+the above options. Is there some sort of database which tells the kernel to
+associate a particular USB product ID and vendor with a particular driver?
+If so, is there any way to edit this database?
 
 
+______________________________________________
+FREE Personalized Email at Mail.com
+Sign up at http://www.mail.com/?sr=signup
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

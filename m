@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262241AbSJFW0q>; Sun, 6 Oct 2002 18:26:46 -0400
+	id <S262237AbSJFWVZ>; Sun, 6 Oct 2002 18:21:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262242AbSJFW0q>; Sun, 6 Oct 2002 18:26:46 -0400
-Received: from mail.zedat.fu-berlin.de ([130.133.1.48]:28457 "EHLO
-	Mail.ZEDAT.FU-Berlin.DE") by vger.kernel.org with ESMTP
-	id <S262241AbSJFW0p>; Sun, 6 Oct 2002 18:26:45 -0400
-Message-Id: <m17yJwh-006imUC@Mail.ZEDAT.FU-Berlin.DE>
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: "John Tyner" <jtyner@cs.ucr.edu>, "Greg KH" <greg@kroah.com>
-Subject: Re: Vicam/3com homeconnect usb camera driver
-Date: Mon, 7 Oct 2002 00:01:55 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-References: <001c01c26ce4$39b67f80$0a00a8c0@refresco> <m17yAhF-006i5XC@Mail.ZEDAT.FU-Berlin.DE> <001601c26d5e$b7a20fc0$0a00a8c0@refresco>
-In-Reply-To: <001601c26d5e$b7a20fc0$0a00a8c0@refresco>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S262239AbSJFWVZ>; Sun, 6 Oct 2002 18:21:25 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:35276 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S262237AbSJFWVK>;
+	Sun, 6 Oct 2002 18:21:10 -0400
+Date: Mon, 7 Oct 2002 00:26:47 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200210062226.AAA10733@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org, tmolina@cox.net
+Subject: Re: 2.5.40:  problem with configuration system
+Cc: mec@shout.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 October 2002 19:35, John Tyner wrote:
-> > In vicam_v4l_open:
-> >
-> > Why is only the first control message checked for errors?
+On Sun, 6 Oct 2002 16:28:09 -0500 (CDT), Thomas Molina wrote:
+>I was configuring a kernel for a rescue disk, so lots of things were not 
+>configured that normally would be.  At the end of the compile I get:
 >
-> The second one turns on the LED. I didn't check it because I figured the
-> LED actually turning on was not a big deal. Though, I suppose that if an
-> error occurred, that could be indicative of some other problem.
+>arch/i386/kernel/built-in.o: In function `MP_processor_info':
+>arch/i386/kernel/built-in.o(.text.init+0x31ab): undefined reference to 
+>`Dprintk'
+...
+># CONFIG_DEBUG_KERNEL is not set
+>CONFIG_X86_EXTRA_IRQS=y
+>CONFIG_X86_FIND_SMP_CONFIG=y
+>CONFIG_X86_MPPARSE=y
 >
+>The thing I don't understand is why they should be set to y.  My 
+>understanding from reading the source is that they should only be y if 
+>CONFIG_X86_LOCAL_APIC is y.  That should only happen if CONFIG_SMP is not 
+>y and CONFIG_X86_UP_APIC is y.  The enclosed .config file shows this isn't 
+>the case.  What am I missing?
 
-Exactly.
+This happened to me recently when I copied a .config which had
+UP_APIC=y and used make config to disable UP_APIC. The problem in
+my case was that the good ole' Configure script doesn't always
+reach a fixpoint in one iteration: the fact that LOCAL_APIC=y at the
+start is sufficient for it to emit MPPARSE=y at the end, even though
+LOCAL_APIC got disabled. A 'make oldconfig' should fix the situation.
 
-> > vicam_usb_probe:
-> >
-> > __devinit ???
-> >
-> > vicam_usb_disconnect:
-> >
-> > __devexit ???
->
-> I'm not sure I see the problem here. __devinit is only defined when HOTPLUG
-> is not defined, which seems right to me. If there is no HOTPLUG then we can
-> throw away the code as soon as init is completed. ...similar argument for
-> __devexit. Correct me if I'm wrong.
+This is not the only case where Configure gets it wrong. There is
+a bug involving dep_tristate, forward dependencies, and toggling
+module support which I reported to LKML ages ago (with a fix), but
+nobody cared so... FWIW, the fix to that bug is included below.
 
-But usbcore will happily call probe if  HOTPLUG is not defined and AFAICT
-usb will compile without HOTPLUG.
+/Mikael
 
-	Regards
-		Oliver
+--- linux-2.5.40/scripts/Configure.~1~	Thu Oct  3 00:00:00 2002
++++ linux-2.5.40/scripts/Configure	Thu Oct  3 18:32:20 2002
+@@ -316,7 +316,13 @@
+ 	      return
+ 	      ;;
+ 	    m)
+-	      need_module=1
++	      # Note: "m" means "module" only when CONFIG_MODULES=y,
++	      # otherwise it really means "y". This matters when
++	      # a dep_tristate dependency is a forward reference
++	      # which we haven't yet "corrected" from "m" to "y".
++	      if [ "$CONFIG_MODULES" = "y" ]; then
++		need_module=1
++	      fi
+ 	      ;;
+ 	  esac
+ 	  shift

@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315413AbSGGKh0>; Sun, 7 Jul 2002 06:37:26 -0400
+	id <S315375AbSGGKzC>; Sun, 7 Jul 2002 06:55:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315419AbSGGKhZ>; Sun, 7 Jul 2002 06:37:25 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:16754 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S315413AbSGGKhZ>; Sun, 7 Jul 2002 06:37:25 -0400
-Date: Sun, 7 Jul 2002 04:39:47 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Martin Dalecki <dalecki@evision-ventures.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ata_special_intr, ide_do_drive_cmd deadlock
-In-Reply-To: <Pine.LNX.4.44.0207071251530.1441-100000@linux-box.realnet.co.sz>
-Message-ID: <Pine.LNX.4.44.0207070438330.10105-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315419AbSGGKzC>; Sun, 7 Jul 2002 06:55:02 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:64992 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S315375AbSGGKzB>;
+	Sun, 7 Jul 2002 06:55:01 -0400
+Date: Sun, 7 Jul 2002 12:57:37 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200207071057.MAA17209@harpo.it.uu.se>
+To: fbujanic@fikus.com
+Subject: Re: PROBLEM: floppy oops in 2.5.25
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 6 Jul 2002 22:27:23 -0400 (EDT), Filip J. Bujanic wrote:
+>[1.] One line summary of the problem:
+>	accessing floppy drive oopses 2.5.25 kernel
 
-On Sun, 7 Jul 2002, Zwane Mwaikambo wrote:
-> The trace is quite nice on this one.
-> 
-> [trace followed immediately]
+If you had searched the LKML archives you would soon have found out
+that the floppy driver is known to be broken since 2.5.13.
 
-Have you tried IDE 96+97 yet? They changed ata_special_intr and 
-ide_do_drive_cmd heavily.
+A partial fix exists which eliminates the oopses and allows raw
+/dev/fd0 accesses to work; VFS accesses to mounted floppies are
+still broken however. You can get it from the -dj patch or from
+http://www.csd.uu.se/~mikpe/linux/patches/2.5/patch-fix-floppy-2.5.25
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+/Mikael

@@ -1,68 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264423AbRFSQxK>; Tue, 19 Jun 2001 12:53:10 -0400
+	id <S264424AbRFSQ7N>; Tue, 19 Jun 2001 12:59:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264422AbRFSQxA>; Tue, 19 Jun 2001 12:53:00 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:5923
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S264423AbRFSQwo>; Tue, 19 Jun 2001 12:52:44 -0400
-Date: Tue, 19 Jun 2001 09:52:39 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Matthew Kirkwood <matthew@hairy.beasts.org>
-Cc: Larry McVoy <lm@bitmover.com>, Dan Kegel <dank@kegel.com>,
-        ognen@gene.pbi.nrc.ca,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        laughing@shared-source.org
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010619095239.T3089@work.bitmover.com>
-Mail-Followup-To: Matthew Kirkwood <matthew@hairy.beasts.org>,
-	Larry McVoy <lm@bitmover.com>, Dan Kegel <dank@kegel.com>,
-	ognen@gene.pbi.nrc.ca,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	laughing@shared-source.org
-In-Reply-To: <20010619090956.R3089@work.bitmover.com> <Pine.LNX.4.30.0106191714320.11271-100000@sphinx.mythic-beasts.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.30.0106191714320.11271-100000@sphinx.mythic-beasts.com>; from matthew@hairy.beasts.org on Tue, Jun 19, 2001 at 05:26:09PM +0100
+	id <S264426AbRFSQ7D>; Tue, 19 Jun 2001 12:59:03 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:54028 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S264424AbRFSQ6p>; Tue, 19 Jun 2001 12:58:45 -0400
+Message-Id: <200106191658.f5JGwMU29894@aslan.scsiguy.com>
+To: "Bulent Abali" <abali@us.ibm.com>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFQ] aic7xxx driver panics under heavy swap. 
+In-Reply-To: Your message of "Tue, 19 Jun 2001 11:46:02 EDT."
+             <OFFC1B2C1B.7F406B4A-ON85256A70.00564265@pok.ibm.com> 
+Date: Tue, 19 Jun 2001 10:58:22 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 05:26:09PM +0100, Matthew Kirkwood wrote:
-> On Tue, 19 Jun 2001, Larry McVoy wrote:
-> 
-> >     ``Think of it this way: threads are like salt, not like pasta. You
-> >     like salt, I like salt, we all like salt. But we eat more pasta.''
-> 
-> This is oft-quoted but has, IMO, the property of not actually
-> making any sense.
+>
+>Justin,
+>When free memory is low, I get a series of aic7xxx messages followed by
+>panic.  It appears to be a race condition in the code.
 
-Hmm.  Makes sense to me.  All it is saying is that you can't make a good
-dinner out of a pile of salt.  It was originally said to some GUI people
-who wanted to use a thread per object, every button, scrollbar, canvas,
-text widget, menu, etc., are all threads.  What they didn't figure out is
-that a thread needs a stack, the stack is the dominating space term, and
-they were looking at a typical desktop with around 9,000 objects.  Times,
-at that point, an 8K stack.  That was 73MB in stacks.  Pretty darned stupid
-when you look at it that way, huh?
+Its actually a logic error, not a race condition.  You should never
+enter ahc_linux_run_device_queue() while the device is still on the
+run queue.  The real issue is that ahc_linux_queue bypasses the
+round-robin device scheduler by calling ahc_linux_run_device_queue()
+directly.  The code should look like this (the LIST macro calls
+where switched to TAILQ calls a bit ago to ensure round-robin, but
+that change came just after 6.1.13).  I haven't tested this yet...
 
-Nobody is arguing that having more than one thread of execution in an
-application is a bad idea.  On an SMP machine, having the same number of
-processes/threads as there are CPUs is a requirement to get the scaling
-if that app is all you are running.  That's fine.  But on a uniprocessor,
-threads are basically stupid.  The only place that I know of where it is
-necessary is for I/O which blocks.  And even there you only need enough
-to overlap the I/O such that it streams.  And processes will, and do,
-work fine for that.
+Thanks for the bug report.  If you can verify that this works under
+memeory pressure, the printf can go away.
 
-I think the general thrust of us ``anti-thread'' people is that a few
-are fine, a lot is stupid, and the model encourages a lot.  It's just
-like perl5, C++, pick-your-favorite-feature-rich-language in that
-exceptional programmers will do a good job with the problem but average
-programmers will do a horrible job.  Given that there are only a few
-exceptional programmers and a never ending wave of average programmers,
-the argument is that one should tailor the paradigm for the common case,
-not for the exceptional case.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+--
+Justin
+
+==== //depot/src/linux/drivers/scsi/aic7xxx/aic7xxx_linux.c#67 - /usr/src/linux/drivers/scsi/aic7xxx/aic7xxx_linux.c ====
+--- /tmp/tmp.3288.0	Tue Jun 19 11:07:32 2001
++++ /usr/src/linux/drivers/scsi/aic7xxx/aic7xxx_linux.c	Tue Jun 19 11:02:54 2001
+@@ -1514,7 +1514,11 @@
+ 	}
+ 	cmd->result = CAM_REQ_INPROG << 16;
+ 	TAILQ_INSERT_TAIL(&dev->busyq, (struct ahc_cmd *)cmd, acmd_links.tqe);
+-	ahc_linux_run_device_queue(ahc, dev);
++	if ((dev->flags & AHC_DEV_ON_RUN_LIST) == 0) {
++		TAILQ_INSERT_TAIL(&ahc->platform_data->device_runq, dev, links);
++		dev->flags |= AHC_DEV_ON_RUN_LIST;
++		ahc_linux_run_device_queues(ahc);
++	}
+ 	ahc_unlock(ahc, &flags);
+ 	return (0);
+ }
+@@ -1530,6 +1534,9 @@
+ 	struct	 ahc_tmode_tstate *tstate;
+ 	uint16_t mask;
+ 
++	if ((dev->flags & AHC_DEV_ON_RUN_LIST) != 0)
++		panic("running device on run list");
++
+ 	while ((acmd = TAILQ_FIRST(&dev->busyq)) != NULL
+ 	    && dev->openings > 0 && dev->qfrozen == 0) {
+ 
+@@ -1538,8 +1545,6 @@
+ 		 * running is because the whole controller Q is frozen.
+ 		 */
+ 		if (ahc->platform_data->qfrozen != 0) {
+-			if ((dev->flags & AHC_DEV_ON_RUN_LIST) != 0)
+-				return;
+ 
+ 			TAILQ_INSERT_TAIL(&ahc->platform_data->device_runq,
+ 					  dev, links);
+@@ -1550,8 +1555,6 @@
+ 		 * Get an scb to use.
+ 		 */
+ 		if ((scb = ahc_get_scb(ahc)) == NULL) {
+-			if ((dev->flags & AHC_DEV_ON_RUN_LIST) != 0)
+-				panic("running device on run list");
+ 			TAILQ_INSERT_TAIL(&ahc->platform_data->device_runq,
+ 					 dev, links);
+ 			dev->flags |= AHC_DEV_ON_RUN_LIST;

@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317648AbSIEPgy>; Thu, 5 Sep 2002 11:36:54 -0400
+	id <S317673AbSIEPlZ>; Thu, 5 Sep 2002 11:41:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317673AbSIEPgy>; Thu, 5 Sep 2002 11:36:54 -0400
-Received: from dsl-213-023-039-222.arcor-ip.net ([213.23.39.222]:42150 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317648AbSIEPgy>;
-	Thu, 5 Sep 2002 11:36:54 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Subject: Re: [RFC] Alternative raceless page free
-Date: Thu, 5 Sep 2002 17:21:31 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org, Christian Ehrhardt <ulcae@in-ulm.de>
-References: <3D644C70.6D100EA5@zip.com.au> <E17moT6-00064X-00@starship> <20020905123413.21580.qmail@thales.mathematik.uni-ulm.de>
-In-Reply-To: <20020905123413.21580.qmail@thales.mathematik.uni-ulm.de>
+	id <S317701AbSIEPlZ>; Thu, 5 Sep 2002 11:41:25 -0400
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:1203 "EHLO
+	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S317673AbSIEPlY>; Thu, 5 Sep 2002 11:41:24 -0400
+Message-ID: <3D777BC0.9030004@linux.org>
+Date: Thu, 05 Sep 2002 11:44:00 -0400
+From: John Weber <john.weber@linux.org>
+Organization: Linux Online
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17myRo-00068H-00@starship>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux on Toshiba Libretto 70CT
+References: <3D7563B2.2090707@linux.org> <1031138132.2796.24.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 September 2002 14:34, Christian Ehrhardt wrote:
-> @@ -455,7 +458,7 @@
->                         } else {
->                                 /* failed to drop the buffers so stop here */
->                                 UnlockPage(page);
-> -                               page_cache_release(page);
-> +                               put_page(page);
+Alan Cox wrote:
+> On Wed, 2002-09-04 at 02:36, John Weber wrote:
 > 
->                                 spin_lock(&pagemap_lru_lock);
->                                 continue;
+>>The kernel locks up completely whenever I launch any particularly large 
+>>application under X (xterm is fine, netscape locks up the box).
+>>I've confirmed that this isn't just X locking up, as the machine is 
+>>completely frozen (doesn't respond to pings, doesn't respond to three 
+>>finger salute, etc).
 > 
-> looks a bit suspicious. put_page is not allowed if the page is still
-> on the lru and there is no other reference to it. As we don't hold any
-> locks between UnlockPage and put_page there is no formal guarantee that
-> the above condition is met. I don't have another path that could race
-> with this one though and chances are that there actually is none.
+> 
+> Can you duplicate this with the vesa and/or vga16 drivers ?
+> 
 
-The corresponding get_page is just above, you must have overlooked it.
+The kernel locks up regardless of what drivers I use (and I have tried 
+the vga16 drivers already).
 
-Besides that, we have a promise that the page still has buffers, worth
-another count, and the page will never be freed here.  That's fragile
-though, and this particular piece of code can no doubt be considerably
-simplified, while improving robustness and efficiency at the same time.
-But that goes beyond the scope of this patch.
+Disabling the accelerated functions also "fixes" the machine, for some 
+definitions of "fix" :).
 
-The whole try_to_free_buffers path is hairy, scary and disgusting.  It
-could use some critical analysis, if anybody has time.
+My question is really why this problem would lock up the kernel...
+I can't really tell whether the problem is in the implementation of the 
+XFree86 functions or the kernel functions it is calling, but the fact 
+that the entire kernel locks up suggests that both are to blame.  Can 
+you suggest where I should start reading code (if not the file atleast 
+the directory :).
 
--- 
-Daniel
+(o- j o h n  e  w e b e r
+//\ aspiring computer scientist
+v_/_ http://www-cs.ccny.cuny.edu/acm/weber/
+

@@ -1,113 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUG3Bt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUG3Bwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267515AbUG3Bt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 21:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUG3Bt6
+	id S264917AbUG3Bwi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 21:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUG3Bwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 21:49:58 -0400
-Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:35560 "EHLO
-	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S267515AbUG3Btv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 21:49:51 -0400
-Message-ID: <4109A933.60203@kolivas.org>
-Date: Fri, 30 Jul 2004 11:49:39 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ck kernel mailing list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.7-ck6
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig80BA160AE4F2259E3E577B4F"
+	Thu, 29 Jul 2004 21:52:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39078 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264917AbUG3Bw0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 21:52:26 -0400
+Date: Thu, 29 Jul 2004 18:52:15 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org, riel@redhat.com, akpm@osdl.org,
+       andrea@suse.de
+Subject: Re: [patch] mlock-as-nonroot revisted
+Message-ID: <20040729185215.Q1973@build.pdx.osdl.net>
+References: <20040729100307.GA23571@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040729100307.GA23571@devserv.devel.redhat.com>; from arjanv@redhat.com on Thu, Jul 29, 2004 at 12:03:08PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig80BA160AE4F2259E3E577B4F
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+* Arjan van de Ven (arjanv@redhat.com) wrote:
+> Compared to the previous revision of this patch; shm accounting has been
+> changed to be per user struct, while keeping track of which user struct
+> allocated the shm segment in the first place. This is done in order to avoid
+> the security bug where one process/user could mlock and another munlock
+> which would screw up the accounting.
 
-Patchset update:
+I think this one still needs a bit of work.  Unless I'm mistaken, I see three
+problems:
 
-http://kernel.kolivas.org
+1) hugetlb accounting is not done. so it's only simple change to checking
+permission, but the acutal usage is not tracked (gets back to problem
+andrea pointed out).  with this patch, wouldn't !capable(CAP_IPC_LOCK)
+&& rlim[RLIMIT_MEMLOCK].rlim_cur == 1 be enough to get all the hugepages
+a user would want (i.e. security hole)?
 
-These are patches designed to improve system responsiveness with 
-specific emphasis on the desktop, but suitable/configurable to any 
-workload. Read details and FAQ on my web page or feel free to email my 
-mailing list with queries.
+2) mlock_user isn't ever set, so SHM_LOCK accounting looks broken
+(trivial to fix).
 
-This version is a recommended performance and bugfix update for those 
-already running ck5. It does not include any of the newer latency hacks 
-etc in 2.6.8-rc* as this version (2.6.7-ck6) is to retain the stability 
-already present in -ck5.
+3) now the RLIMIT_MEMLOCK value represents at best half of what a user
+can acutally lock.  because half of the accounting (mlock) is done against
+locked_vm, and the other half against locked_shm.  and as i mentioned
+above, seems that hugetlb is unaccounted for.
 
-Added:
--cfq1.fix
--cfq2.fix
--cfq3.fix
--crq-fixes.diff
-cfq io scheduler bugfixes
--hard_swappiness.diff
-Make swappiness simpler and a hard limit
+I do agree, however, that storing in user struct allows for quota like
+accounting that matches the shm_lock and hugetlb use cases.
 
-Updated:
--from_2.6.7_to_staircase7.E
-Cpu scheduler policy rewrite updated with micro-optimisations and one 
-bugfix which ensures new tasks wake up in the "foreground".
--schedbatch2.4.diff
-Idle scheduling now supports cpu distribution between batch tasks 
-according to nice and is safe with I/O and held semaphores.
--schediso2.4.diff
-resync
+> diff -purN linux-2.6.7/fs/hugetlbfs/inode.c linux/fs/hugetlbfs/inode.c
+> --- linux-2.6.7/fs/hugetlbfs/inode.c	2004-07-29 11:36:55.744448953 +0200
+> +++ linux/fs/hugetlbfs/inode.c	2004-07-29 11:38:04.292595263 +0200
+> @@ -722,7 +722,7 @@ struct file *hugetlb_zero_setup(size_t s
+>  	struct qstr quick_string;
+>  	char buf[16];
+>  
+> -	if (!capable(CAP_IPC_LOCK))
+> +	if (!can_do_mlock())
+>  		return ERR_PTR(-EPERM);
 
-Deleted:
--autoswap.diff
--vm_autoregulate2.diff
-not necessary with hard swappiness
+Hrm, this looks stale, does it actually apply?
 
+> +++ linux/include/linux/shm.h	2004-07-29 11:38:04.313592835 +0200
+> @@ -84,6 +84,7 @@ struct shmid_kernel /* private to the ke
+>  	time_t			shm_ctim;
+>  	pid_t			shm_cprid;
+>  	pid_t			shm_lprid;
+> +	struct user_struct *	mlock_user;
 
-Complete list:
--from_2.6.7_to_staircase7.E
--schedrange.diff
--schedbatch2.4.diff
--schediso2.4.diff
--hard_swappiness.diff
--supermount-ng204.diff
--defaultcfq.diff
--config_hz.diff
--cfq1.fix
--cfq2.fix
--cfq3.fix
--cfq-bad-allocation2.fix
--crq-fixes.diff
--1100_ip_tables.patch
--1105_CAN-2004-0497.patch
--1110_proc.patch
--bootsplash-3.1.4-sp3-2.6.7.diff
--ck6version.diff
+This is never set to anything other than NULL.
 
+> diff -purN linux-2.6.7/ipc/shm.c linux/ipc/shm.c
+> --- linux-2.6.7/ipc/shm.c	2004-07-29 11:36:55.137517777 +0200
+> +++ linux/ipc/shm.c	2004-07-29 11:38:04.313592835 +0200
+> @@ -114,7 +114,7 @@ static void shm_destroy (struct shmid_ke
+>  	shm_rmid (shp->id);
+>  	shm_unlock(shp);
+>  	if (!is_file_hugepages(shp->shm_file))
+> -		shmem_lock(shp->shm_file, 0);
+> +		shmem_lock(shp->shm_file, 0, shp->mlock_user);
 
-As always, please feel free to send comments, queries, suggestions, patches.
+So this is NULL.
 
-Cheers,
-Con
+>  	fput (shp->shm_file);
+>  	security_shm_free(shp);
+>  	ipc_rcu_free(shp, sizeof(struct shmid_kernel));
+> @@ -221,6 +221,7 @@ static int newseg (key_t key, int shmflg
+>  	shp->shm_nattch = 0;
+>  	shp->id = shm_buildid(id,shp->shm_perm.seq);
+>  	shp->shm_file = file;
+> +	shp->mlock_user = NULL;
+>  	file->f_dentry->d_inode->i_ino = shp->id;
+>  	if (shmflg & SHM_HUGETLB)
+>  		set_file_hugepages(file);
+> @@ -504,14 +505,11 @@ asmlinkage long sys_shmctl (int shmid, i
+>  	case SHM_LOCK:
+>  	case SHM_UNLOCK:
+>  	{
+> -/* Allow superuser to lock segment in memory */
+> -/* Should the pages be faulted in here or leave it to user? */
+> -/* need to determine interaction with current->swappable */
+> -		if (!capable(CAP_IPC_LOCK)) {
+> +		/* Allow superuser to lock segment in memory */
+> +		if (!can_do_mlock()) {
+>  			err = -EPERM;
+>  			goto out;
+>  		}
+> -
+>  		shp = shm_lock(shmid);
+>  		if(shp==NULL) {
+>  			err = -EINVAL;
+> @@ -526,12 +524,14 @@ asmlinkage long sys_shmctl (int shmid, i
+>  			goto out_unlock;
+>  		
+>  		if(cmd==SHM_LOCK) {
+> -			if (!is_file_hugepages(shp->shm_file))
+> -				shmem_lock(shp->shm_file, 1);
+> -			shp->shm_flags |= SHM_LOCKED;
+> +			if (!is_file_hugepages(shp->shm_file)) {
+> +				err = shmem_lock(shp->shm_file, 1, current->user);
+> +				if (!err)
+> +					shp->shm_flags |= SHM_LOCKED;
+> +			}
+>  		} else {
+>  			if (!is_file_hugepages(shp->shm_file))
+> -				shmem_lock(shp->shm_file, 0);
+> +				shmem_lock(shp->shm_file, 0, shp->mlock_user);
 
---------------enig80BA160AE4F2259E3E577B4F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+And this would be NULL.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+>  			shp->shm_flags &= ~SHM_LOCKED;
+>  		}
+>  		shm_unlock(shp);
+> diff -purN linux-2.6.7/ipc/util.c linux/ipc/util.c
+> --- linux-2.6.7/ipc/util.c	2004-07-29 11:36:55.137517777 +0200
+> +++ linux/ipc/util.c	2004-07-29 11:38:04.306593644 +0200
+> @@ -392,8 +392,11 @@ int ipcperms (struct kern_ipc_perm *ipcp
+>  		granted_mode >>= 3;
+>  	/* is there some bit set in requested_mode but not in granted_mode? */
+>  	if ((requested_mode & ~granted_mode & 0007) && 
+> -	    !capable(CAP_IPC_OWNER))
+> -		return -1;
+> +	    !capable(CAP_IPC_OWNER)) {
+> +		if (!can_do_mlock())  {
 
-iD8DBQFBCak1ZUg7+tp6mRURAmOEAJ41rfv6MLouvOLclsr9N1BfxNbxHACfZaiP
-ncbY27H/sRe6EsdAzuwEoRo=
-=1LvL
------END PGP SIGNATURE-----
+I don't quite see the need for this check for every ipc type.  Isn't the
+SHM_LOCK case sufficient?
 
---------------enig80BA160AE4F2259E3E577B4F--
+> +			return -1;
+> +		}
+> +	}	
+>  
+>  	return security_ipc_permission(ipcp, flag);
+>  }
+
+> diff -purN linux-2.6.7/mm/shmem.c linux/mm/shmem.c
+> --- linux-2.6.7/mm/shmem.c	2004-07-29 11:36:55.640460745 +0200
+> +++ linux/mm/shmem.c	2004-07-29 11:38:04.315592604 +0200
+> @@ -1151,17 +1151,43 @@ shmem_get_policy(struct vm_area_struct *
+>  }
+>  #endif
+>  
+> -void shmem_lock(struct file *file, int lock)
+> +/* Protects current->user->locked_shm from concurrent access */
+> +static spinlock_t shmem_lock_user = SPIN_LOCK_UNLOCKED;
+> +
+> +int shmem_lock(struct file *file, int lock, struct user_struct * user)
+>  {
+>  	struct inode *inode = file->f_dentry->d_inode;
+>  	struct shmem_inode_info *info = SHMEM_I(inode);
+> +	unsigned long lock_limit, locked;
+> +	int retval = -ENOMEM;
+>  
+>  	spin_lock(&info->lock);
+> +	spin_lock(&shmem_lock_user);
+> +	if (lock && !(info->flags & VM_LOCKED)) {
+> +		locked = inode->i_size >> PAGE_SHIFT;
+> +		locked += user->locked_shm;
+> +		lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
+> +		lock_limit >>= PAGE_SHIFT;
+> +		if ((locked > lock_limit) && !capable(CAP_IPC_LOCK))
+> +			goto out_nomem;
+> +		/* for this branch user == current->user so it won't go away under us */
+> +		atomic_inc(&user->__count);
+> +		user->locked_shm = locked;
+> +	}
+> +	if (!lock && (info->flags & VM_LOCKED) && user) {
+
+So, I think this branch is never excercised because user will be NULL.
+
+> +		locked = inode->i_size >> PAGE_SHIFT;
+> +		user->locked_shm -= locked;
+> +		free_uid(user);
+> +	}
+>  	if (lock)
+>  		info->flags |= VM_LOCKED;
+>  	else
+>  		info->flags &= ~VM_LOCKED;
+> +	retval = 0;
+> +out_nomem:
+> +	spin_unlock(&shmem_lock_user);
+>  	spin_unlock(&info->lock);
+> +	return retval;
+>  }
+>  
+>  static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267847AbTB1MqA>; Fri, 28 Feb 2003 07:46:00 -0500
+	id <S267853AbTB1Mz3>; Fri, 28 Feb 2003 07:55:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267853AbTB1MqA>; Fri, 28 Feb 2003 07:46:00 -0500
-Received: from fed1mtao02.cox.net ([68.6.19.243]:43245 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP
-	id <S267847AbTB1Mp7>; Fri, 28 Feb 2003 07:45:59 -0500
-Date: Fri, 28 Feb 2003 05:56:11 -0700
-From: Matt Porter <porter@cox.net>
-To: Nico Schottelius <schottelius@wdt.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ppc cross compiling...
-Message-ID: <20030228055611.A18247@home.com>
-References: <20030228112429.GD328@schottelius.org>
+	id <S267854AbTB1Mz3>; Fri, 28 Feb 2003 07:55:29 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40201 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S267853AbTB1Mz2>; Fri, 28 Feb 2003 07:55:28 -0500
+Date: Fri, 28 Feb 2003 14:05:48 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Nigel Cunningham <ncunningham@clear.net.nz>,
+       Linus Torvalds <torvalds@transmeta.com>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Software Suspend Functionality in 2.5
+Message-ID: <20030228130548.GA8498@atrey.karlin.mff.cuni.cz>
+References: <1046238339.1699.65.camel@laptop-linux.cunninghams> <20030227181220.A3082@in.ibm.com> <1046369790.2190.9.camel@laptop-linux.cunninghams> <20030228121725.B2241@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030228112429.GD328@schottelius.org>; from schottelius@wdt.de on Fri, Feb 28, 2003 at 12:24:29PM +0100
+In-Reply-To: <20030228121725.B2241@in.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 12:24:29PM +0100, Nico Schottelius wrote:
-> Hello!
-> 
-> I am trying to cross compile 2.5.64 and get the following
-> compile errors: 
-> 
-> make -f scripts/Makefile.build obj=arch/ppc/mm
->   powerpc-linux-gcc -Wp,-MD,arch/ppc/mm/.4xx_mmu.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I/usr/src/linux-2.5.50/arch/ppc -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -Wa,-m405 -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=4xx_mmu -DKBUILD_MODNAME=4xx_mmu -c -o arch/ppc/mm/4xx_mmu.o arch/ppc/mm/4xx_mmu.c
-> arch/ppc/mm/4xx_mmu.c: In function `mmu_mapin_ram':
-> arch/ppc/mm/4xx_mmu.c:99: `phys_addr_t' undeclared (first use in this function)
+Hi!
 
-Whoa, wait a minute.  Don't expect to have PPC (especially 4xx stuff) to
-even build (much less run) in Linus' tree.  A number of things that are
-under heavy development have not been submitted.  You need to grab
-the PPC development tree, see http://penguinppc.org/dev/kernel.shtml
-for instructions on pulling the linuxppc-2.5 tree.  In this case
-the phys_addr_t declaration in mmu.h hasn't found its way up.
+> Since we've had to work on a solution that can be used 
+> for accurate non-disruptive dumps as well as crash dumps
+> (the latter using kexec), I was wondering whether it 
+> was worth exploring possibilities of commonality with 
+> swsusp down the line ... I know its not probably not 
+> something very immediate, but just an indication on 
+> whether we should keep applicability for swsusp (probably 
+> reuse and share ideas/code back and forth between the 
+> two efforts) in mind as we move forward. Because we 
+> have to support a more restrictive situation when it 
+> comes to dumping, it just may be usable by swsusp too 
+> if we can get it right.
 
-Also, these questions are more appropriate for the linuxppc-dev or
-linuxppc-embedded lists (http://lists.linuxppc.org/) where all the
-PPC developers can be found. 
-
-Regards,
+Well, less code duplication is always welcome. But notice we need
+*atomic* snapshots in swsusp, else we might corrupt data.
 -- 
-Matt Porter
-porter@cox.net
-This is Linux Country. On a quiet night, you can hear Windows reboot.
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263110AbVAFXet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263070AbVAFXeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263110AbVAFXet (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 18:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263080AbVAFXeW
+	id S263070AbVAFXeu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 18:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbVAFXeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 18:34:22 -0500
-Received: from relay03.pair.com ([209.68.5.17]:8967 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S263061AbVAFXdu (ORCPT
+	Thu, 6 Jan 2005 18:34:05 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:51093 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263070AbVAFXco (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 18:33:50 -0500
-X-pair-Authenticated: 66.134.112.218
-Subject: Re: starting with 2.7
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: David Lang <dlang@digitalinsight.com>,
-       Arjan van de Ven <arjan@infradead.org>, Rik van Riel <riel@redhat.com>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050106193510.GL3096@stusta.de>
-References: <1697129508.20050102210332@dns.toxicfilms.tv>
-	 <20050102203615.GL29332@holomorphy.com>
-	 <20050102212427.GG2818@pclin040.win.tue.nl>
-	 <Pine.LNX.4.61.0501031011410.25392@chimarrao.boston.redhat.com>
-	 <20050103153438.GF2980@stusta.de>
-	 <1104767943.4192.17.camel@laptopd505.fenrus.org>
-	 <20050104174712.GI3097@stusta.de>
-	 <Pine.LNX.4.60.0501041215500.9517@dlang.diginsite.com>
-	 <20050106193510.GL3096@stusta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 06 Jan 2005 18:33:45 -0500
-Message-Id: <1105054425.17473.30.camel@athena.fprintf.net>
+	Thu, 6 Jan 2005 18:32:44 -0500
+Date: Thu, 6 Jan 2005 15:12:44 -0800
+From: Greg KH <greg@kroah.com>
+To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] I2C: Remove the i2c_client id field
+Message-ID: <20050106231244.GA22174@kroah.com>
+References: <20041227230402.272fafd0.khali@linux-fr.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.1.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041227230402.272fafd0.khali@linux-fr.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-06 at 20:35 +0100, Adrian Bunk wrote:
-> On Tue, Jan 04, 2005 at 12:18:26PM -0800, David Lang wrote:
-> But the question is if you compile and test a kernel, is it every 
-> unlikely or relatively common to observe new problems?
+On Mon, Dec 27, 2004 at 11:04:02PM +0100, Jean Delvare wrote:
+> Hi Greg, hi all,
+> 
+> While porting various hardware monitoring drivers to Linux 2.6 and
+> otherwise working on i2c drivers in 2.6, I found that the i2c_client
+> structure has an "id" field (of type int) which is mostly unused. I am
+> not exactly sure why it was introduced in the first place, and since the
+> i2c subsystem code was significantly reworked since, it might not
+> actually matter.
 
-In my case, for -linus, never.  For -mm, relatively common.  This
-indicates to me that the process is working.
+It's fine with me if it's dropped.
 
-(Every case I thought I'd hit of a regression was a result of some patch
-on top of -linus, usually -ck or -mm.)
+thanks,
 
-Daniel
+greg k-h

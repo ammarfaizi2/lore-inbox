@@ -1,40 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbRFYWul>; Mon, 25 Jun 2001 18:50:41 -0400
+	id <S264569AbRFYW4L>; Mon, 25 Jun 2001 18:56:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264569AbRFYWub>; Mon, 25 Jun 2001 18:50:31 -0400
-Received: from tyranny.egregious.net ([206.159.99.12]:61704 "HELO
-	tyranny.egregious.net") by vger.kernel.org with SMTP
-	id <S263246AbRFYWuX>; Mon, 25 Jun 2001 18:50:23 -0400
-Date: Mon, 25 Jun 2001 15:50:16 -0700
-From: Will <will@egregious.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] skb destructor enhancement idea
-Message-ID: <20010625155016.B17735@egregious.net>
-In-Reply-To: <20010618134644.A5938@egregious.net> <20010618145331.A32166@wacko.asicdesigners.com> <20010621161349.A27654@egregious.net> <20010625140613.A17207@egregious.net> <15159.48229.326223.682824@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S264581AbRFYW4C>; Mon, 25 Jun 2001 18:56:02 -0400
+Received: from [216.102.46.130] ([216.102.46.130]:63512 "EHLO
+	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
+	id <S264569AbRFYWzy>; Mon, 25 Jun 2001 18:55:54 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Linux and system area networks
+In-Reply-To: <mailman.993492125.21454.linux-kernel2news@redhat.com> <200106252230.f5PMUDE26001@devserv.devel.redhat.com>
+From: Roland Dreier <roland@topspincom.com>
+Date: 25 Jun 2001 15:55:20 -0700
+In-Reply-To: Pete Zaitcev's message of "Mon, 25 Jun 2001 18:30:13 -0400"
+Message-ID: <52pubs5fvr.fsf@love-boat.topspincom.com>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15159.48229.326223.682824@pizda.ninka.net>; from davem@redhat.com on Mon, Jun 25, 2001 at 03:34:13PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> I think the idea totally stinks.
+>>>>> "Pete" == Pete Zaitcev <zaitcev@redhat.com> writes:
 
-The idea, or just the performance implications of my particular implementation? If
-this could be done without a global spinlock would you still object to the
-construction of the small linked list in each skb?
+    Roland> The rough idea is that WSD is a new user space library
+    Roland> that looks at sockets calls and decides if they have to go
+    Roland> through the usual kernel network stack, or if they can be
+    Roland> handed off to a "SAN service provider" which bypasses the
+    Roland> network stack and uses hardware reliable transport and
+    Roland> possibly RDMA.
 
-> Add an ifdef and the knobs you need to the skb struct directly just
-> like netfilter does.
+    Pete> That can be done in Linux just as easily, using same DLLs
+    Pete> (they are called .so for "shared object"). If you look at
+    Pete> Ashok Raj's Infi presentation, you may discern "user-level
+    Pete> sockets", if you look hard enough. I invite you to try, if
+    Pete> errors of others did not teach you anything.
 
-So I should #ifdef throughout the tcp and socket code wherever skb's 'destructor' is
-called to call mine as well? And multiply that by N driver writers who'd like to do
-the same thing? Sounds messy...
+I think you misunderstood the point.  Microsoft is providing this WSD
+DLL as a standard part of W2K now.  This means that hardware vendors
+just have to write a SAN service provider, and all Winsock-using
+applications benefit transparently.  No matter how good your TCP/IP
+implementation is, you still lose (especially in latency) compared to
+using reliable hardware transport.  Oracle-with-VI and DAFS-vs-NFS
+benchmarks show this quite clearly.
 
--- 
--Will  :: AD6XL :: http://tyranny.egregious.net/~will/
- Orton :: finger will@tyranny.egregious.net for GPG public key
+Linux has nothing to compare to Winsock Direct.  I agree, one could
+put an equivalent in glibc, or one could take advantage of Linux's
+relatively low system call latency and put something in the kernel.
+The unfortunate consequence of this is that SAN (system area network)
+hardware vendors are not going to support Linux very well.
+
+BTW, do you have a pointer to Ashok Raj's presentation?
+
+    Roland> This means that all applications that use Winsock benefit
+    Roland> from the advanced network hardware.  Also, it means that
+    Roland> Windows is much easier for hardware vendors to support
+    Roland> than other OSes.  For example, Alacritech's TCP/IP offload
+    Roland> NIC only works under Windows.  Microsoft is also including
+    Roland> Infiniband support in Windows XP and Windows 2002.
+
+    Pete> IMHO, Alacritech is about to join scores and scores of
+    Pete> vendors who tried that before. Customers understand very
+    Pete> soon that a properly written host based stack works much
+    Pete> better in the face of a changing environment: Faster CPUs,
+    Pete> new CPUs (IA-64), new network protocols (ECN). Besides, it
+    Pete> is easy to "accelerate" a bad network stack, but try to
+    Pete> outdo a well done stack.
+
+OK, how about an Infiniband network with a TCP/IP gateway at the edge?
+Have we thought about how Linux servers should use the gateway to talk
+to internet hosts?  Surely there's no point in running TCP/IP inside
+the Infiniband network, so there needs to be some concept of "socket
+over Infiniband."
+
+Thanks,
+  Roland

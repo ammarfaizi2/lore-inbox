@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUDEGzi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 02:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbUDEGzi
+	id S262136AbUDEHDe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 03:03:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbUDEHDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 02:55:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60351 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262085AbUDEGzg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 02:55:36 -0400
-Date: Sun, 4 Apr 2004 23:55:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ray Lee <ray-lk@madrabbit.org>
-Cc: mpm@selenic.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-mm1 [PATCH]
-Message-Id: <20040404235526.09ff3c39.akpm@osdl.org>
-In-Reply-To: <1081147276.1374.13.camel@orca.madrabbit.org>
-References: <1081147276.1374.13.camel@orca.madrabbit.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Apr 2004 03:03:34 -0400
+Received: from mta10.srv.hcvlny.cv.net ([167.206.5.85]:63093 "EHLO
+	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S262136AbUDEHDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 03:03:32 -0400
+Date: Mon, 05 Apr 2004 03:03:18 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: 2.6.5-aa1
+In-reply-to: <4070F11B.6020602@web.de>
+To: Marcus Hartig <m.f.h@web.de>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Message-id: <200404050303.30657.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.6.1
+References: <40707888.80006@web.de> <20040405002028.GB21069@dualathlon.random>
+ <4070F11B.6020602@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ray Lee <ray-lk@madrabbit.org> wrote:
->
-> Could I suggest an alternate version, below? It limits the knowledge of
->  the CONFIG_QUOTA option to the quota header file, and still shrinks the
->  inode by two pointers. The only functional difference between this and
->  Matt Mackall's version is the below will still leave in a call to
->  memset, but with a zero length. On the plus side, it keeps fs/inode.c
->  free of preprocessor noise, which seems worth the trade-off.
-> 
->   quota.h |    4 ++++
->   1 files changed, 4 insertions(+)
-> 
->  diff -NurX ../dontdiff linus-2.6/include/linux/quota.h linus-2.6-inode-shrinkage/include/linux/quota.h
->  --- linus-2.6/include/linux/quota.h	2004-04-03 08:46:35.000000000 -0800
->  +++ linus-2.6-inode-shrinkage/include/linux/quota.h	2004-04-03 08:45:19.000000000 -0800
->  @@ -57,7 +57,11 @@
->   #define kb2qb(x) ((x) >> (QUOTABLOCK_BITS-10))
->   #define toqb(x) (((x) + QUOTABLOCK_SIZE - 1) >> QUOTABLOCK_BITS)
->   
->  +#ifdef CONFIG_QUOTA
->   #define MAXQUOTAS 2
->  +#else
->  +#define MAXQUOTAS 0
->  +#endif
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The advantage of the ifdeffy one is that if someone accesses i_dquot
-outside CONFIG_QUOTA, they get a compile failure rather than runtime inode
-corruption.
+On Monday 05 April 2004 01:39, Marcus Hartig wrote:
+<snip>
+> echo "et.x86 0 0 direct" > /proc/asound/card0/pcm0p/oss
+> echo "et.x86 0 0 disable" > /proc/asound/card0/pcm0c/oss
+
+I used only the first one of the two commands, and had to use artsdsp to get 
+sound. With both of those commands, I just got et running without arts and it 
+didn't sigsegv. 
+
+> The related part (i hope) of strace:
+<snip>
+>
+> Thanks, i will test it later with prempt off and an other driver.
+
+Jeff.
+
+- -- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAcQS8wFP0+seVj/4RAhL6AJ90rSQMKtx9pSAvmDtmkgBtJgwXVwCglLbz
+SepNHo5CLDfhFZV3Ic3YF3A=
+=1NYt
+-----END PGP SIGNATURE-----

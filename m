@@ -1,77 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262563AbTDQDCb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 23:02:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbTDQDC2
+	id S262569AbTDQDUM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 23:20:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbTDQDUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 23:02:28 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:40918 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S262563AbTDQDCS
+	Wed, 16 Apr 2003 23:20:12 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:46728 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S262569AbTDQDUL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 23:02:18 -0400
-From: "Mathur, Shobhit" <Shobhit_mathur@adaptec.com>
-To: linux-c-programming@vger.kernel.org, linux-serial@vger.kernel.org,
-       linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-doc@vger.kernel.org
-Message-ID: <3E9EC548.117005DD@adaptec.com>
-Date: Thu, 17 Apr 2003 20:46:24 +0530
-Organization: Adaptec
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-Subject: linux-source debugging with kgdb-patch
-X-Priority: 1 (Highest)
+	Wed, 16 Apr 2003 23:20:11 -0400
+Date: Thu, 17 Apr 2003 05:31:54 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'David Gibson'" <david@gibson.dropbear.id.au>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: firmware separation filesystem (fwfs)
+Message-ID: <20030417033154.GD31473@ranty.ddts.net>
+Reply-To: ranty@debian.org
+References: <A46BBDB345A7D5118EC90002A5072C780C262E38@orsmsx116.jf.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780C262E38@orsmsx116.jf.intel.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 16, 2003 at 07:00:00PM -0700, Perez-Gonzalez, Inaky wrote:
+> 
+> > From: David Gibson [mailto:david@gibson.dropbear.id.au]
+> > 
+> > Incidentally another approach that also avoids nasty ioctl()s would be
+> > to invoke the userland helper with specially set up FD 1, which lets
+> > the kernel capture the program's stdout. 
+> 
+> I think this makes too many assumptions specially taking into
+> account that most hotplug stuff are shell scripts - they are
+> probably going to be writing all kinds of stuff to stdout.
 
+ Well, FD 3 could be used instead and "cat firmware_image >&3". shell
+ scripts should not be writing to FD 3.
+ 
+> With the risk of repeating myself (again) and being a PITA,
+> I really think it'd be easier to copy the firmware file to a 
+> /sysfs binary file registered by the device driver during 
+> initialization; then the driver can wait for the file to be
+> written with a valid firmware before finishing the init
+> sequence. The infrastructure is already there (or isn't ... 
+> is it?).
 
-Hello,
+ I don't know that much about sysfs, after a little investigation, it
+ seams like sysfs entries are restricted in size to PAGE_SIZE, which on
+ i386 is 4K, and ezusb firmware is already 6.9K in size.
 
-BACKGROUND:
+ I would really appreciate someone more knowledgeable than myself
+ commenting on the possibility of extending sysfs to fill this gap.
 
-I was keen to see kgdb running  for  purely academic reasons. Thus,
-I made a setup of 2 machines for source-level debugging of the
-linux-kernel. The procedure mentioned on the web-site
-[ kgdb.sourceforge.net] has  been adhered to.  I was able to
-successfully configure the setup. Also, I decided to use "ddd" front-end
-on gdb [local m/c]  for debugging  the kgdb-patched kernel on the remote
-machine, which is the usual setup for such debugging-efforts.
-    The m/c to be debugged stops with the message "Waiting for
-connection from remote gdb..." until the "target remote" command is run
-from the "gdb" prompt of "ddd", upon which the m/c to be debugged
-continues it's bootup till it shows the command-prompt.
+ Have a nice day
 
-PROBLEM:
+ 	ranty
 
-I was interested in setting a break-point in start_kernel thru' "ddd"
-such that the boot-up  of the m/c to be debugged could be analysed
-step-by-step remotely. Though, I am able to set the breakpoint in
-start_kernel(),
-the commands "run" or "continue" on the "gdb" prompt, only throw up the
-following errors :
-
-(gdb) info break
-Num Type           Disp Enb Address    What
-7   breakpoint      keep  y   0xc027e7f0 in start_kernel at
-init/main.c:614
-(gdb) run
-warning: shared library handler failed to enable breakpoint
-warning: Cannot insert breakpoint 7:
-Cannot access memory at address 0xc027e7f0
-
-QUESTION:
-
-I very strongly suspect that this exercise follows a particular sequence
-of steps to get it right. Either I am missing some step or I am not
-following the "order".  In either case, I would be glad to receive some
-help/comments on my academic endeavour to be able to remotely debug the
-kernel.
-
-- Kindly let me know a solution
-
-- TIA
-
-- Shobhit Mathur
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.

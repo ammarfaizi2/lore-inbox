@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130887AbQLHBkH>; Thu, 7 Dec 2000 20:40:07 -0500
+	id <S131517AbQLHBkz>; Thu, 7 Dec 2000 20:40:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130695AbQLHBj5>; Thu, 7 Dec 2000 20:39:57 -0500
-Received: from unknown-51-46.wrs.com ([147.11.51.46]:60945 "HELO
-	Whinham.wrs.com") by vger.kernel.org with SMTP id <S129831AbQLHBjs>;
-	Thu, 7 Dec 2000 20:39:48 -0500
-Date: Thu, 7 Dec 2000 17:09:19 -0800
-From: Michel LESPINASSE <walken@zoy.org>
+	id <S131499AbQLHBkp>; Thu, 7 Dec 2000 20:40:45 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:3076 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130695AbQLHBki>; Thu, 7 Dec 2000 20:40:38 -0500
+Message-ID: <3A3033DD.FA33D0F9@timpanogas.org>
+Date: Thu, 07 Dec 2000 18:05:33 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Rainer Mager <rmager@vgkk.com>
-Cc: linux-kernel@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Signal 11
-Message-ID: <20001207170919.B9121@windriver.com>
-In-Reply-To: <E144BOL-0003Eg-00@the-village.bc.nu> <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com>
-Mime-Version: 1.0
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com>; from rmager@vgkk.com on Fri, Dec 08, 2000 at 09:44:29AM +0900
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2000 at 09:44:29AM +0900, Rainer Mager wrote:
 
-> 	I've heard that signal 11 can be related to bad hardware, most
-> often memory, but I've done a good bit of testing on this and the
-> system seems ok.  What I did was to run the VA Linux Cerberos(sp?)
-> test for 15 hours+ with no errors. Actually this only worked when
-> running from the console. When running from X the machine locked up
-> (although no signal 11).
+I have previously reported this error (about three months ago) on 2.4
+with XFree 3.3.6.  If you are running RedHat 6.2, then you are running
+this X Server.  It also shows up on Calders'a 2.4 eDesktop.  It appears
+to be something with glib 2.1 < versions on 2.4.  I also see it with
+secure shell 1.2.27 on 2.4.  I've also seen it on RH 7.0 on 2.4 kernels
+as well, but only with SSH.
 
-Don't be so quick to dismiss the "bad hardware" possibility. It is
-really quite common these days. And, some cases of bad hardware are
-not detected using simple tests like memtest86. (I'm not sure exactly
-what cerberos does, do you have a link for it ?).
+Jeff
 
-My recommandation would be to take a big source tree (say, a bit
-bigger than the amount of RAM you have), and run repetitive
-tar+detar+diff -ru runs on it for 48 hours or so. If your hardware
-runs OK, diff should not report any inconsistencies. I found this test
-to be quite reliable to detect hardware problems. If you have several
-disk controllers, run one instance of the test on each of
-them. Additionally you could run a background task to keep the CPU at
-100% - a simple while 1 loop would do.
-
--- 
-Michel "Walken" LESPINASSE
-Of course I think I'm right. If I thought I was wrong, I'd change my mind.
+Rainer Mager wrote:
+> 
+> Hi all,
+> 
+>         I've searched around for a answer to this with no real luck yet. If anyone
+> has some ideas I'd be very grateful.
+> 
+>         I recently upgraded to a new machine. It is running RedHat 6.2 Linux (with
+> a SMP 2.4.0test[8-11] kernel) and has a Matrox G400 in it. X is 4.0.1.
+> Anyway, about once every 2-3 days X will spontaneously die and the only info
+> I get back is that it was because of signal 11.
+>         I've heard that signal 11 can be related to bad hardware, most often
+> memory, but I've done a good bit of testing on this and the system seems ok.
+> What I did was to run the VA Linux Cerberos(sp?) test for 15 hours+ with no
+> errors. Actually this only worked when running from the console. When
+> running from X the machine locked up (although no signal 11).
+>         The only info I've gotten back from the XFree86 mailing lists so far is
+> that there are known and wide spread problems with SMP and these types of
+> problems. Can anyone comment on this? Are there known SMP problems? What is
+> the current resolution plan?
+> 
+> Thanks,
+> 
+> --Rainer
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272234AbRIKBIG>; Mon, 10 Sep 2001 21:08:06 -0400
+	id <S272241AbRIKBKg>; Mon, 10 Sep 2001 21:10:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272241AbRIKBH4>; Mon, 10 Sep 2001 21:07:56 -0400
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:40716 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id <S272234AbRIKBHt>; Mon, 10 Sep 2001 21:07:49 -0400
-Date: Tue, 11 Sep 2001 02:08:08 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
+	id <S272242AbRIKBKR>; Mon, 10 Sep 2001 21:10:17 -0400
+Received: from puma.inf.ufrgs.br ([143.54.11.5]:21261 "EHLO inf.ufrgs.br")
+	by vger.kernel.org with ESMTP id <S272241AbRIKBKJ>;
+	Mon, 10 Sep 2001 21:10:09 -0400
+Date: Mon, 10 Sep 2001 22:11:07 -0300 (EST)
+From: Roberto Jung Drebes <drebes@inf.ufrgs.br>
 To: linux-kernel@vger.kernel.org
-Subject: serial overruns
-Message-ID: <20010911020808.B88440@compsoc.man.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
+Subject: Duron kernel crash (i686 works)
+Message-ID: <Pine.GSO.4.21.0109102207010.24461-100000@jacui>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm getting input overruns on a serial console with rates from 9600-38400
+Hi,
 
-The serial HOWTO suggests irqtune might be able to help with this problem (which
-I really need to solve). Is there a 2.4 version available ? If not, would updating
-irqtune and using it be likely to help ?
+Today I updated the BIOS of my motherboard, a ABIT KT7A (VIA Apollo KT133A
+chipset). The kernel I had (2.4.9) started crashing on boot with an
+invalid page fault, usually right after starting init. I tryed a i686
+kernel and noticed it works OK, so I recompiled my crashy kernel only
+switching the processor type and it also worked. changed it back to
+Athlon/K7/Duron and it starts crashing.
 
-thanks
-john
+Anyone else experiencing this?
 
--- 
-"Since when would the sizeof any kind of pointer be zero ? 
- Have you built a zero-bit CPU ?"
-	- Jeffrey Turner
+TIA,
+
+--
+Roberto Jung Drebes <drebes@inf.ufrgs.br>
+Porto Alegre, RS - Brasil
+http://www.inf.ufrgs.br/~drebes/
+

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbSIZPeA>; Thu, 26 Sep 2002 11:34:00 -0400
+	id <S261384AbSIZPTa>; Thu, 26 Sep 2002 11:19:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261400AbSIZPeA>; Thu, 26 Sep 2002 11:34:00 -0400
-Received: from pD9E23892.dip.t-dialin.net ([217.226.56.146]:65254 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S261398AbSIZPd7>; Thu, 26 Sep 2002 11:33:59 -0400
-Date: Thu, 26 Sep 2002 09:39:33 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tomas Szepe <szepe@pinerecords.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux,v2
-In-Reply-To: <Pine.LNX.4.44L.0209261157291.15154-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.44.0209260934170.7827-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
+	id <S261383AbSIZPTa>; Thu, 26 Sep 2002 11:19:30 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:3477 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261381AbSIZPTa>;
+	Thu, 26 Sep 2002 11:19:30 -0400
+Message-ID: <3D9326AF.4050803@colorfullife.com>
+Date: Thu, 26 Sep 2002 17:24:31 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Andrew Morton <akpm@digeo.com>, Ed Tomlinson <tomlins@cam.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/4] slab reclaim balancing
+References: <3D931608.3040702@colorfullife.com> <20020926142054.GR3530@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+William Lee Irwin III wrote:
+> 
+> This might need testing on large-memory 64-bit boxen for that, since
+> ZONE_NORMAL pressure outweighs many other considerations on my boxen.
+> 
 
-On Thu, 26 Sep 2002, Rik van Riel wrote:
-> If I were you, I'd take a large piece of paper and make
-> a drawing of what the data structure looks like and what
-> the various macros/functions are supposed to do.
+Most of them will be SMP, correct? For SMP, 95% of the memory operations 
+occur in the per-cpu arrays. I'm not sure if a slab is really the right 
+backend behind the per-cpu arrays - perhaps a algorithms that's more 
+aggressive toward finding freeable pages would be a better choice, even 
+if it needs more cpu time for sorting/searching through the partially 
+allocated pages.
 
-Well, I know what they _should_ do. But I don't know what I should 
-initialize an empty list entry to. That's not got much spam in it...
-
-			Thunder
--- 
-assert(typeof((fool)->next) == typeof(fool));	/* wrong */
+--
+	Manfred
 

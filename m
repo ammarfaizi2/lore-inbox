@@ -1,101 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUHPGrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267468AbUHPGsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267464AbUHPGrq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 02:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267468AbUHPGrq
+	id S267468AbUHPGsh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 02:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267469AbUHPGsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 02:47:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:64461 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267464AbUHPGrj (ORCPT
+	Mon, 16 Aug 2004 02:48:37 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:46496
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S267468AbUHPGsT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 02:47:39 -0400
-Date: Sun, 15 Aug 2004 23:45:28 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Daniel Fraga <fraga@abusar.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS: 2.6.8.1 QoS and routing conflict (bug)
-Message-Id: <20040815234528.66eba1c4.davem@redhat.com>
-In-Reply-To: <XFMail.20040816033530.fraga@abusar.org>
-References: <XFMail.20040816033530.fraga@abusar.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 16 Aug 2004 02:48:19 -0400
+Message-ID: <412058AF.3090102@bio.ifi.lmu.de>
+Date: Mon, 16 Aug 2004 08:48:15 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Robert M. Stockmann" <stock@stokkie.net>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <Pine.LNX.4.44.0408140123350.5637-100000@hubble.stokkie.net>
+In-Reply-To: <Pine.LNX.4.44.0408140123350.5637-100000@hubble.stokkie.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert M. Stockmann wrote:
 
-Fix already posted, included below for your convenience:
+> Maybe you didn't fully understand my problem. What i did was the 
+> following. I downloaded cdrtools-2.01a27.tar.bz2 from 
+> 
+> ftp://ftp.berlios.de/pub/cdrecord/alpha/
+> 
+> and only applied this patch cdrtools-2.01a27-ossdvd.patch.bz2 from
+> 
+> ftp://ftp.crashrecovery.org/pub/linux/cdrtools/
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/08/15 19:33:16-07:00 kaber@trash.net 
-#   [PKT_SCHED]: cacheline-align qdisc data in qdisc_create()
-#   
-#   Signed-off-by: Patrick McHardy <kaber@trash.net>
-#   Signed-off-by: David S. Miller <davem@redhat.com>
-# 
-# net/sched/sch_api.c
-#   2004/08/15 19:32:59-07:00 kaber@trash.net +13 -8
-#   [PKT_SCHED]: cacheline-align qdisc data in qdisc_create()
-#   
-#   Signed-off-by: Patrick McHardy <kaber@trash.net>
-#   Signed-off-by: David S. Miller <davem@redhat.com>
-# 
-diff -Nru a/net/sched/sch_api.c b/net/sched/sch_api.c
---- a/net/sched/sch_api.c	2004-08-15 23:32:37 -07:00
-+++ b/net/sched/sch_api.c	2004-08-15 23:32:37 -07:00
-@@ -389,7 +389,8 @@
- {
- 	int err;
- 	struct rtattr *kind = tca[TCA_KIND-1];
--	struct Qdisc *sch = NULL;
-+	void *p = NULL;
-+	struct Qdisc *sch;
- 	struct Qdisc_ops *ops;
- 	int size;
- 
-@@ -407,12 +408,18 @@
- 	if (ops == NULL)
- 		goto err_out;
- 
--	size = sizeof(*sch) + ops->priv_size;
-+	/* ensure that the Qdisc and the private data are 32-byte aligned */
-+	size = ((sizeof(*sch) + QDISC_ALIGN_CONST) & ~QDISC_ALIGN_CONST);
-+	size += ops->priv_size + QDISC_ALIGN_CONST;
- 
--	sch = kmalloc(size, GFP_KERNEL);
-+	p = kmalloc(size, GFP_KERNEL);
- 	err = -ENOBUFS;
--	if (!sch)
-+	if (!p)
- 		goto err_out;
-+	memset(p, 0, size);
-+	sch = (struct Qdisc *)(((unsigned long)p + QDISC_ALIGN_CONST)
-+	                       & ~QDISC_ALIGN_CONST);
-+	sch->padded = (char *)sch - (char *)p;
- 
- 	/* Grrr... Resolve race condition with module unload */
- 
-@@ -420,8 +427,6 @@
- 	if (ops != qdisc_lookup_ops(kind))
- 		goto err_out;
- 
--	memset(sch, 0, size);
--
- 	INIT_LIST_HEAD(&sch->list);
- 	skb_queue_head_init(&sch->q);
- 
-@@ -470,8 +475,8 @@
- 
- err_out:
- 	*errp = err;
--	if (sch)
--		kfree(sch);
-+	if (p)
-+		kfree(p);
- 	return NULL;
- }
- 
+And the question is: why??? SuSE comes with a cdrtools version that runs
+fine. No need to download anything from an external source. Just installing
+the cdrtools package from SuSE and calling "cdrecord dev=/dev/hdc ..."
+works without any problems here.
+
+You are complaining here that using some external package as replacement
+for the SuSE version and additionally forcing a setting other than the
+default does not work, even after a SuSE developer told you not to do
+that because there are known problems with the setting you are forcing.
+
+So what are you asking for? I guess I can find a bunch of programs that
+I download from anywhere and that are not working with some distributions.
+The idea of a distribution is that the packagers take care that the packages
+they deliver work together. Replacing some piece with your own version
+and then complaining that it does not work doesn't make any sense.
+This is like replacing the "eject" on SuSE 9.1 which has been patched
+to work with subfs and then complaining that your own "eject" does not
+work with subfs on SuSE 9.1.
+
+Frank
+
+
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+

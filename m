@@ -1,68 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262961AbTDFNrG (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:47:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbTDFNrG (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:47:06 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:59586 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S262961AbTDFNrF (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 09:47:05 -0400
-Date: Sun, 6 Apr 2003 15:58:14 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: poweroff problem
-Message-Id: <20030406155814.68c5c908.us15@os.inf.tu-dresden.de>
-In-Reply-To: <20030406233319.042878d3.sfr@canb.auug.org.au>
-References: <20030405060804.31946.qmail@webmail5.rediffmail.com>
-	<20030406233319.042878d3.sfr@canb.auug.org.au>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.11claws3 (GTK+ 1.2.10; Linux 2.4.21-pre6)
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="9KJpoStd=.pnJUG,"
+	id S262974AbTDFOIp (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 10:08:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262970AbTDFOIo (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 10:08:44 -0400
+Received: from node181b.a2000.nl ([62.108.24.27]:57489 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id S262967AbTDFOIl (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 10:08:41 -0400
+Date: Sun, 6 Apr 2003 16:20:33 +0200 (CEST)
+From: Stephan van Hienen <raid@a2000.nu>
+To: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+cc: bernard@biesterbos.nl
+Subject: tuning disk on 3ware /performance problem
+Message-ID: <Pine.LNX.4.53.0304061251190.8636@ddx.a2000.nu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---9KJpoStd=.pnJUG,
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+same disk (WD1800BB) on different controllers
 
-On Sun, 6 Apr 2003 23:33:19 +1000 Stephen Rothwell (SR) wrote:
+----------
+on intel u100/promise U100 :
 
-Hello,
+/dev/hde:
+ Timing buffer-cache reads:   128 MB in  0.28 seconds =457.14 MB/sec
+ Timing buffered disk reads:  64 MB in  1.37 seconds = 46.72 MB/sec
 
-SR> On 5 Apr 2003 06:08:04 -0000 "Anant Aneja" <anantaneja@rediffmail.com> wrote:
-SR> >
-SR> > I've got a problem with my 2.4.2-2 kernel.
-SR> > after reaching the power down stage i get a :
-SR> > 1. complete listing of the cpu registers
-SR> > 2. a message saying sementaion fault with halt -i -p -d
-SR> 
-SR> Has it always done this?
+Version 1.02c       ------Sequential Output------ --Sequential Input-
+--Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block--
+--Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP
+/sec %CP
+storage.a2000.nu 1G 22364  96 42206  13 15897   6 22634  91 44019  10
+252.1   0
+                    ------Sequential Create------ --------Random
+Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read---
+-Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
+/sec %CP
+                 16  3658  99 +++++ +++ +++++ +++  3757  99 +++++ +++
+9681 100
+storage.a2000.nu,1G,22364,96,42206,13,15897,6,22634,91,44019,10,252.1,0,16,3658,99,+++++,+++,+++++,+++,3757,99,+++++,+++,9681,100
+----------
+# hdparm -v /dev/hde
 
-I have the same problem with Linux-2.4.21-pre6. I don't know when this started
-to happen because I pretty much never halt my machine.
+/dev/hde:
+ multcount    = 16 (on)
+ IO_support   =  3 (32-bit w/sync)
+ unmaskirq    =  0 (off)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 21889/255/63, sectors = 351651888, start = 0
 
-SR> More likely a BIOS problem that is weel known.
 
-It's not a BIOS problem here. halt works pretty well with Linux-2.5.66 here.
-It's most likely an ACPI problem. What happens here is that the code to power
-down actually does not manage to turn the machine off, instead after a while
-the NMI watchdog kicks in and the kernel oopses.
+----------
+on 3ware (7850) :
+
+/dev/sdb:
+ Timing buffer-cache reads:   128 MB in  0.28 seconds =457.14 MB/sec
+ Timing buffered disk reads:  64 MB in  1.70 seconds = 37.65 MB/sec
 
 
--Udo.
+Version 1.02c       ------Sequential Output------ --Sequential Input-
+--Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block--
+--Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP
+/sec %CP
+storage.a2000.nu 1G 22151  94 67312  18 20152   8 22315  90 38488   9
+260.4   0
+                    ------Sequential Create------ --------Random
+Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read---
+-Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
+/sec %CP
+                 16  3706  99 +++++ +++ +++++ +++  3895  99 +++++ +++
+9686  99
+storage.a2000.nu,1G,22151,94,67312,18,20152,8,22315,90,38488,9,260.4,0,16,3706,99,+++++,+++,+++++,+++,3895,99,+++++,+++,9686,99
+----------
+]# hdparm -v /dev/sdb
 
---9KJpoStd=.pnJUG,
-Content-Type: application/pgp-signature
+/dev/sdb:
+ readonly     =  0 (off)
+ geometry     = 21889/255/63, sectors = 351651888, start = 0
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.1 (GNU/Linux)
 
-iD8DBQE+kDJ4nhRzXSM7nSkRAgBcAJ44kU4Rbe1d7Kc2P/3umZ8kBzebnQCfWO7Y
-XAQP98CyGlRt+gWPbLpkEhc=
-=5tKn
------END PGP SIGNATURE-----
+Is there anything i can do to tune the drives connected to he 3ware
+controller ? (37MB/sec vs 43MB/sec)
+(and why is the seq. output block 65MB/sec on the 3ware vs 41MB/sec on
+'ide controllers')
 
---9KJpoStd=.pnJUG,--

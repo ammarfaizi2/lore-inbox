@@ -1,51 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRCPCfq>; Thu, 15 Mar 2001 21:35:46 -0500
+	id <S129618AbRCPCmq>; Thu, 15 Mar 2001 21:42:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbRCPCfh>; Thu, 15 Mar 2001 21:35:37 -0500
-Received: from csl.Stanford.EDU ([171.64.66.149]:62647 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S129509AbRCPCfZ>;
-	Thu, 15 Mar 2001 21:35:25 -0500
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200103160234.SAA03961@csl.Stanford.EDU>
-Subject: [CHECKER] big stack variables
-To: linux-kernel@vger.kernel.org
-Date: Thu, 15 Mar 2001 18:34:33 -0800 (PST)
-Cc: mc@cs.Stanford.EDU
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129583AbRCPCmh>; Thu, 15 Mar 2001 21:42:37 -0500
+Received: from netsonic.fi ([194.29.192.20]:15364 "EHLO nalle.netsonic.fi")
+	by vger.kernel.org with ESMTP id <S129569AbRCPCmU>;
+	Thu, 15 Mar 2001 21:42:20 -0500
+Date: Fri, 16 Mar 2001 04:41:30 +0200 (EET)
+From: Sampsa Ranta <sampsa@netsonic.fi>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: <Werner.Almesberger@epfl.ch>, <linux-net@vger.kernel.org>,
+        <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>
+Subject: Re: Performance is weird (fwd) -> results
+In-Reply-To: <3AB11EDB.CCA47F45@colorfullife.com>
+Message-ID: <Pine.LNX.4.33.0103160421260.13953-100000@nalle.netsonic.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 15 Mar 2001, Manfred Spraul wrote:
 
-enclosed are 22 functions in 2.4.1 that appear to allocate stack
-variables >= 1024 bytes.  As usual, please report any false positives
-so we can fix our checkers.
+> I've attached a patch.
+> I tried to trigger the problem with my 10 MBit ne2k-pci connection, but
+> without success.
+>
+> Could you try it?
+> I've tested it with -ac17, and it applies to 2.4.2 cleanly.
 
-Dawson
------------------------------------------------------------------------
-/u2/engler/mc/2.4.1/drivers/isdn/sc/message.c:52:dump_messages: ERROR:VAR: suspicious sized variable: 'dpm' = 4112 bytes
-/u2/engler/mc/2.4.1/drivers/sound/emu10k1/audio.c:906:emu10k1_audio_ioctl: ERROR:VAR: suspicious sized variable: 'buf' = 4016 bytes
-/u2/engler/mc/2.4.1/drivers/i2o/i2o_proc.c:955:i2o_proc_read_drivers_stored: ERROR:VAR: suspicious sized variable: 'result' = 3596 bytes
-/u2/engler/mc/2.4.1/drivers/scsi/qlogicfc.c:861:isp2x00_make_portdb: ERROR:VAR: suspicious sized variable: 'temp' = 3072 bytes
-/u2/engler/mc/2.4.1/drivers/i2o/i2o_proc.c:840:i2o_proc_read_ddm_table: ERROR:VAR: suspicious sized variable: 'result' = 2828 bytes
-/u2/engler/mc/2.4.1/drivers/cdrom/optcd.c:1625:cdromread: ERROR:VAR: suspicious sized variable: 'buf' = 2646 bytes
-/u2/engler/mc/2.4.1/drivers/i2o/i2o_proc.c:2261:i2o_proc_read_lan_mcast_addr: ERROR:VAR: suspicious sized variable: 'result' = 2060 bytes
-/u2/engler/mc/2.4.1/drivers/i2o/i2o_proc.c:2492:i2o_proc_read_lan_alt_addr: ERROR:VAR: suspicious sized variable: 'result' = 2060 bytes
-/u2/engler/mc/2.4.1/drivers/i2o/i2o_proc.c:1044:i2o_proc_read_groups: ERROR:VAR: suspicious sized variable: 'result' = 2060 bytes
-/u2/engler/mc/2.4.1/fs/ntfs/super.c:335:ntfs_get_free_cluster_count: ERROR:VAR: suspicious sized variable: 'bits' = 2048 bytes
-/u2/engler/mc/2.4.1/drivers/atm/iphase.c:2760:ia_ioctl: ERROR:VAR: suspicious sized variable: 'regs_local' = 2048 bytes
-/u2/engler/mc/2.4.1/drivers/block/cpqarray.c:1156:ida_ioctl: ERROR:VAR: suspicious sized variable: 'my_io' = 1296 bytes
-/u2/engler/mc/2.4.1/net/wanrouter/wanmain.c:578:device_new_if: ERROR:VAR: suspicious sized variable: 'conf' = 1220 bytes
-/u2/engler/mc/2.4.1/drivers/net/zlib.c:4216:huft_build: ERROR:VAR: suspicious sized variable: 'v' = 1152 bytes
-/u2/engler/mc/2.4.1/drivers/net/zlib.c:4501:inflate_trees_fixed: ERROR:VAR: suspicious sized variable: 'c' = 1152 bytes
-/u2/engler/mc/2.4.1/drivers/cdrom/cdrom.c:734:cdrom_slot_status: ERROR:VAR: suspicious sized variable: 'info' = 1032 bytes
-/u2/engler/mc/2.4.1/drivers/cdrom/cdrom.c:800:cdrom_select_disc: ERROR:VAR: suspicious sized variable: 'info' = 1032 bytes
-/u2/engler/mc/2.4.1/drivers/cdrom/cdrom.c:758:cdrom_number_of_slots: ERROR:VAR: suspicious sized variable: 'info' = 1032 bytes
-/u2/engler/mc/2.4.1/drivers/cdrom/cdrom.c:1538:cdrom_ioctl: ERROR:VAR: suspicious sized variable: 'info' = 1032 bytes
-/u2/engler/mc/2.4.1/fs/nfs/nfsroot.c:238:root_nfs_name: ERROR:VAR: suspicious sized variable: 'buf' = 1024 bytes
-/u2/engler/mc/2.4.1/net/bridge/br_ioctl.c:86:br_ioctl_device: ERROR:VAR: suspicious sized variable: 'indices' = 1024 bytes
-/u2/engler/mc/2.4.1/drivers/isdn/pcbit/drv.c:444:pcbit_writecmd: ERROR:VAR: suspicious sized variable: 'cbuf' = 1024 bytes
+On 2.4.2:
+
+Before:
+ttcp-t: buflen=8192, nbuf=2048, align=16384/0, port=5013  atm  -> 0.90
+ttcp-t: socket
+ttcp-t: 16777216 bytes in 3.829257 real seconds = 4278.636822 KB/sec
+(35.050593 Mb/sec)
+
+After either of your patches, the result was the same, sorry.
+
+I tried to apply the patch to 2.4.3 and still got the better result with
+it, altought compiling kernel still improved the performance.
+
+First:
+
+[root@ropogw test]# ./ttcp_atm -t -a -s 0.90
+ttcp-t: buflen=8192, nbuf=2048, align=16384/0, port=5013  atm  -> 0.90
+ttcp-t: socket
+ttcp-t: 16777216 bytes in 1.994121 real seconds = 8216.151377 KB/sec
+(67.306712 Mb/sec)
+[root@ropogw test]# ./ttcp_atm -t -a -s 0.90
+ttcp-t: buflen=8192, nbuf=2048, align=16384/0, port=5013  atm  -> 0.90
+ttcp-t: socket
+ttcp-t: 16777216 bytes in 1.995773 real seconds = 8209.350462 KB/sec
+(67.250999 Mb/sec)
+[root@ropogw test]# ./ttcp_atm -t -a -s 0.90
+ttcp-t: buflen=8192, nbuf=2048, align=16384/0, port=5013  atm  -> 0.90
+ttcp-t: socket
+ttcp-t: 16777216 bytes in 1.989680 real seconds = 8234.489968 KB/sec
+(67.456942 Mb/sec)
+
+(start to compile kernel on other console)
+
+[root@ropogw test]# ./ttcp_atm -t -a -s 0.90
+ttcp-t: buflen=8192, nbuf=2048, align=16384/0, port=5013  atm  -> 0.90
+ttcp-t: socket
+ttcp-t: 16777216 bytes in 1.072744 real seconds = 15272.982184 KB/sec
+(125.116270 Mb/sec)
+[root@ropogw test]# ./ttcp_atm -t -a -s 0.90
+ttcp-t: buflen=8192, nbuf=2048, align=16384/0, port=5013  atm  -> 0.90
+ttcp-t: socket
+ttcp-t: 16777216 bytes in 1.140261 real seconds = 14368.640162 KB/sec
+(117.70790
+
+I also applied it the test to the 3com card:
+
+Before kernel compiling, patch applied or not:
+
+ttcp-t: buflen=8192, nbuf=2048, align=16384/0, port=5013  udp  ->
+not.for.your.eyes
+ttcp-t: socket
+ttcp-t: 16777216 bytes in 2.218013 real seconds = 7386.791691 KB/sec
+(60.512598 Mb/sec)
+
+ttcp-t: buflen=8192, nbuf=2048, align=16384/0, port=5013  udp  ->
+not.for.your.eyes
+ttcp-t: socket
+ttcp-t: 16777216 bytes in 1.428264 real seconds = 11471.268617 KB/sec
+(93.972633 Mb/sec)
+
+Thanks,
+
+  Sampsa Ranta
+  sampsa@netsonic.fi
+

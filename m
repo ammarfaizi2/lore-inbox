@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266166AbRF2Tx6>; Fri, 29 Jun 2001 15:53:58 -0400
+	id <S266168AbRF2UMT>; Fri, 29 Jun 2001 16:12:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266167AbRF2Txs>; Fri, 29 Jun 2001 15:53:48 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62462 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S266166AbRF2Txb>;
-	Fri, 29 Jun 2001 15:53:31 -0400
-Date: Fri, 29 Jun 2001 15:53:29 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS locking & HFS problems (2.4.6pre6)
-In-Reply-To: <20010629150942.1359@smtp.adsl.oleane.com>
-Message-ID: <Pine.GSO.4.21.0106291547080.27530-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266171AbRF2UMJ>; Fri, 29 Jun 2001 16:12:09 -0400
+Received: from [63.140.126.166] ([63.140.126.166]:34308 "EHLO helium.inexs.com")
+	by vger.kernel.org with ESMTP id <S266168AbRF2ULv>;
+	Fri, 29 Jun 2001 16:11:51 -0400
+Date: Fri, 29 Jun 2001 15:11:51 -0500
+From: Chuck Campbell <campbell@neosoft.com>
+To: linux-kernel@vger.kernel.org
+Cc: campbell@neosoft.com
+Subject: motherboard/chipset confusion
+Message-ID: <20010629151151.A27538@helium.inexs.com>
+Reply-To: campbell@neosoft.com
+Mail-Followup-To: Chuck Campbell <campbell@neosoft.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've been lurking lkml for a number of years, I follow most of what goes 
+on here, and I don't pipe up often, but I'm trying to id a new system, and
+I'm confused about all of the via chipset problems/issues talked about here
+recently.
 
+Simply put, what chipset(s) should I consider for purchase, or if the 
+converse subset is smaller, what should I avoid?
 
-On Fri, 29 Jun 2001, Benjamin Herrenschmidt wrote:
+I've searched and found nothing about the VIA VT8633 chipset, but a lot
+about problematic VIA chipsets, so I'm wary.  Any feed back on this chipset
+or, specifically the ASUS CUV266 motherboard?
 
-> The deadlock happen in the HFS filesystem in hfs_cat_put(), apparently
-> (quickly looking at addresses) in spin_lock().
+thanks,
+-chuck
 
-<looks>
-Uh-oh. Looks like hfs_cat_put() grabs some internal spinlock and calls
-write_entry(). If it really is what its name implies, you are calling
-a blocking function under the spinlock.
+-- 
+ACCEL Services, Inc.| Specialists in Gravity, Magnetics |  1(713)993-0671 ph.
+1980 Post Oak Blvd. |   and Integrated Interpretation   |  1(713)960-1157 fax
+    Suite 2050      |                                   |
+ Houston, TX, 77056 |          Chuck Campbell           | campbell@neosoft.com
+                    |  President & Senior Geoscientist  |
 
-> So my question: Is there any document explaining the various locking
-> requirements & re-entrency possibilities in a filesystem.
-
-There is, but this bug has nothing fs-specific in it. You should never
-block while holding a spinlock.
-
-BTW, looks like 2.2 has the same bug.
-
+     "Integration means more than having all the maps at the same scale!"

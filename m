@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266678AbUBFID2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 03:03:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266690AbUBFID2
+	id S263571AbUBFIiR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 03:38:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264473AbUBFIiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 03:03:28 -0500
-Received: from pop3.telefonica.net ([213.4.129.150]:44755 "EHLO
-	telesmtp4.mail.isp") by vger.kernel.org with ESMTP id S266678AbUBFICr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 03:02:47 -0500
-From: Rafael Rodriguez <apt-drink@telefonica.net>
-Reply-To: apt-drink@telefonica.net
+	Fri, 6 Feb 2004 03:38:17 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:38022 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S263571AbUBFIiQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 03:38:16 -0500
+Date: Fri, 6 Feb 2004 09:38:15 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-ck1
-Date: Fri, 6 Feb 2004 08:02:43 +0000
-User-Agent: KMail/1.6
-Cc: ryanr@uchicago.edu, Con Kolivas <kernel@kolivas.org>
-MIME-Version: 1.0
+Subject: Re: [BUG] 2.6.2 crazy mouse under heavy load
+Message-ID: <20040206083815.GS30541@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200402051417.21428.murilo_pontes@yahoo.com.br> <200402051518.42609.nbensa@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200402060802.43328.apt-drink@telefonica.net>
+In-Reply-To: <200402051518.42609.nbensa@gmx.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Feb 2004, Ryan Reich wrote:
-> On Fri, 6 Feb 2004, Con Kolivas wrote:
+Previously Norberto Bensa wrote:
+> 2.6.2-rc3-mm1. Compiling same packages on Gentoo. When the box starts 
+> swapping, it is almost totally unresponsive.
 
->> Ok good. A different framebuffer driver or something could be enough to 
-account
->> for it working on one config and not another. Sorry but i'm unable to debug 
-the
->> bootsplash bug for you though.
->>
->> Con
+I had the same happen to me with vanilla 2.6.2 yesterday, but I was
+messing around with ndiswrappers at the time so it might be unrelated.
 
-I'm just using the vesa fb driver.
-
-> Should I send this on to someone else, then?
-
-bootsplash-discussion@lists.sourceforge.net should be the place for you.
-
-Rafael Rodríguez
+Wichert.
 
 -- 
-"Linux is user-friendly. It's just more selective on who its friends are"
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.
 
-Escrito en Debian GNU/Linux por el Usuario Registrado nº 327106

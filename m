@@ -1,66 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267840AbTBEH1G>; Wed, 5 Feb 2003 02:27:06 -0500
+	id <S267841AbTBEH1V>; Wed, 5 Feb 2003 02:27:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267841AbTBEH1G>; Wed, 5 Feb 2003 02:27:06 -0500
-Received: from [66.111.45.40] ([66.111.45.40]:50842 "EHLO saltbox.argot.org")
-	by vger.kernel.org with ESMTP id <S267840AbTBEH1F>;
-	Wed, 5 Feb 2003 02:27:05 -0500
-Date: Tue, 4 Feb 2003 23:36:37 -0800
-From: Joshua Kwan <joshk@saltbox.argot.org>
-To: jkmaline@cc.hut.fi
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5 kernel + hostap_cs + X11 = scheduling while atomic
-Message-ID: <20030205073637.GA10725@saltbox.argot.org>
-Reply-To: joshk@triplehelix.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+	id <S267842AbTBEH1U>; Wed, 5 Feb 2003 02:27:20 -0500
+Received: from durendal.skynet.be ([195.238.3.91]:29693 "EHLO
+	durendal.skynet.be") by vger.kernel.org with ESMTP
+	id <S267841AbTBEH1Q>; Wed, 5 Feb 2003 02:27:16 -0500
+Message-ID: <010101c2cce9$4023ced0$15c809c6@PCJOERI01>
+From: "Joeri Belis" <joeri.belis@nollekens.be>
+To: <linux-kernel@vger.kernel.org>
+Subject: mount scsi cdroms gives kernel oops
+Date: Wed, 5 Feb 2003 08:36:09 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jouni and LKML folks,
+ENV: xandros 1.0 ( 2.4.19 ).
+When i try to mount any of my 2 scsi cdroms on a aha152x controller, i get a
+segmentation fault and i can only reset.
+First i thought that is was the aha152x driver but the kernel oops gives not
+about that .
+But the insmod is giving errors .
 
-In kernel 2.5.59 I built the hostap modules as stated in the Makefile.
-(make -C /usr/src/linux SUBDIRS=$PWD/driver/modules modules, etc.)
+Can anybody help to debug the problem. What can i try next? Do you need more
+info?
 
-However, a combination of running said kernel, hostap_cs, and X11 produces
-this nasty infinite string of errors:
+Joeri
 
-bad: scheduling while atomic!
-Call Trace:
- [<c011bafd>] do_schedule+0x33a/0x33f
- [<c01264a1>] schedule_timeout+0x5f/0xb3
- [<c0175a7f>] proc_alloc_inode+0x4c/0x75
- [<c0126439>] process_timeout+0x0/0x9
- [<d294853d>] hfa384x_cmd+0x3eb/0x2d6b7eae [hostap_cs]
- [<c016474d>] get_new_inode_fast+0x48/0xf0
- [<c011bb52>] default_wake_function+0x0/0x3e
- [<c011bb52>] default_wake_function+0x0/0x3e
- [<c0137b46>] get_page_cache_size+0x12/0x1d
- [<d2948a30>] hfa384x_get_rid+0x36/0x2d6b7606 [hostap_cs]
- [<d29388b5>] hostap_get_wireless_stats+0xa6/0x2d6c77f1 [hostap]
- [<c0168f45>] seq_printf+0x45/0x56
- [<c02bd9b6>] wireless_seq_show+0xd6/0xf7
- [<c0141dd5>] do_mmap_pgoff+0x40e/0x6dc
- [<c0168a56>] seq_read+0x1c9/0x2ee
- [<c014d20f>] vfs_read+0xbc/0x127
- [<c014d496>] sys_read+0x3e/0x55
- [<c01093cb>] syscall_call+0x7/0xb
+ksymoops 2.4.5 on i686 2.4.19-x1. Options used
+-V (default)
+-k /proc/ksyms (default)
+-l /proc/modules (default)
+-o /lib/modules/2.4.19-x1/ (default)
+-m /boot/System.map-2.4.19-x1 (default)
 
-This will repeat itself over and over again in the same order, same everything.
-The second I kill X the messages stop completely. I use the radeon accelerated X
-server using an Intel AGP bridge (kernel supported.)
+Warning: You did not tell me where to find symbol information. I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc. ksymoops -h explains the options.
 
-Any ideas? It seems like it would be a problem in hostap_cs's main loop. Or it
-could be a kernel problem, which is why I'm forwarding it to LKML :) Why would
-it only happen when X11 is active though?
+Error (expand_objects): cannot stat(/modules/reiserfs.o) for reiserfs
+Error (expand_objects): cannot stat(/modules/splashFXmod.o) for splashFXmod
+Error (pclose_local): find_objects pclose failed 0x100
+Warning (compare_ksyms_lsmod): module bsd_comp is in lsmod but not in ksyms,
+probably no symbols exported
+Warning (compare_ksyms_lsmod): module ppp_async is in lsmod but not in
+ksyms, probably no symbols exported
+Warning (compare_ksyms_lsmod): module ppp_deflate is in lsmod but not in
+ksyms, probably no symbols exported
+Warning (compare_ksyms_lsmod): module ppp_generic is in lsmod but not in
+ksyms, probably no symbols exported
+Warning (compare_ksyms_lsmod): module slhc is in lsmod but not in ksyms,
+probably no symbols exported
+Warning (map_ksym_to_module): cannot match loaded module reiserfs to a
+unique module object. Trace may not be reliable.
+Feb 3 20:28:47 XANHORT6I43 kernel: c8989211
+Feb 3 20:28:47 XANHORT6I43 kernel: Oops: 0000
+Feb 3 20:28:47 XANHORT6I43 kernel: CPU: 0
+Feb 3 20:28:47 XANHORT6I43 kernel: EIP:
+1010:[serial:__insmod_serial_O/lib/modules/2.4.19-x1/kernel/drivers/char+-28
+6191/96] Not tainted
+Feb 3 20:28:47 XANHORT6I43 kernel: EFLAGS: 00010002
+Feb 3 20:28:47 XANHORT6I43 kernel: eax: c0280000 ebx: c5993600 ecx: 00000000
+edx: 00000000
+Feb 3 20:28:47 XANHORT6I43 kernel: esi: c5b06000 edi: c5993600 ebp: c5b06000
+esp: c3c63e78
+Feb 3 20:28:47 XANHORT6I43 kernel: ds: 1018 es: 1018 ss: 1018
+Feb 3 20:28:47 XANHORT6I43 kernel: Process mount (pid: 1123,
+stackpage=c3c63000)
+Feb 3 20:28:47 XANHORT6I43 kernel: Stack: 00000293 c5a8ab94 c5993600
+c89892f1 c5993600 00000000 00000000 00000000
+Feb 3 20:28:47 XANHORT6I43 kernel: c8967a94 c896754a c5993600 c8967a94
+c5993600 c5a8ab94 c599370c c5a8ab40
+Feb 3 20:28:47 XANHORT6I43 kernel: 00000000 c896dbcf c5993600 c5993600
+00000282 c3c63f04 c3c62000 c1180848
+Feb 3 20:28:47 XANHORT6I43 kernel: Call Trace:
+[serial:__insmod_serial_O/lib/modules/2.4.19-x1/kernel/drivers/char+-285967/
+96]
+[serial:__insmod_serial_O/lib/modules/2.4.19-x1/kernel/drivers/char+-423276/
+96]
+[serial:__insmod_serial_O/lib/modules/2.4.19-x1/kernel/drivers/char+-424630/
+96]
+[serial:__insmod_serial_O/lib/modules/2.4.19-x1/kernel/drivers/char+-423276/
+96]
+[serial:__insmod_serial_O/lib/modules/2.4.19-x1/kernel/drivers/char+-398385/
+96]
+Feb 3 20:28:47 XANHORT6I43 kernel: Code: 03 51 2c 89 93 58 01 00 00 8b 40 10
+89 83 5c 01 00 00 31 c0
+Using defaults from ksymoops -t elf32-i386 -a i386
 
-Thanks for any insight anyone might have on this issue. Lately, I left my machine
-on and went to go eat lunch. When i came back, /var/log/syslog was overflowing with
-these errors and had filled up /var completely. Had to purge them all manually :)
 
-Regards
+>>eax; c0280000
+>>ebx; c5993600 <_end+56e0bb4/855c5b4>
+>>esi; c5b06000 <_end+58535b4/855c5b4>
+>>edi; c5993600 <_end+56e0bb4/855c5b4>
+>>ebp; c5b06000 <_end+58535b4/855c5b4>
+>>esp; c3c63e78 <_end+39b142c/855c5b4>
 
-Josh
+Code; 00000000 Before first symbol
+00000000 <_EIP>:
+Code; 00000000 Before first symbol
+0: 03 51 2c add 0x2c(%ecx),%edx
+Code; 00000003 Before first symbol
+3: 89 93 58 01 00 00 mov %edx,0x158(%ebx)
+Code; 00000009 Before first symbol
+9: 8b 40 10 mov 0x10(%eax),%eax
+Code; 0000000c Before first symbol
+c: 89 83 5c 01 00 00 mov %eax,0x15c(%ebx)
+Code; 00000012 Before first symbol
+12: 31 c0 xor %eax,%eax
+
+7 warnings and 3 errors issued. Results may not be reliable.
+
+

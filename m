@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287516AbSAEFR2>; Sat, 5 Jan 2002 00:17:28 -0500
+	id <S287518AbSAEFUi>; Sat, 5 Jan 2002 00:20:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287518AbSAEFRR>; Sat, 5 Jan 2002 00:17:17 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:50377 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S287516AbSAEFRN>; Sat, 5 Jan 2002 00:17:13 -0500
-Date: Fri, 4 Jan 2002 21:16:58 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-kernel@vger.kernel.org, hennus@cybercom.nl, torvalds@transmeta.com
-Subject: Patch: linux-2.5.2-pre8/include/linux/tpqic02.h kdev_t fix
-Message-ID: <20020104211658.A21837@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="G4iJoqBmSsgzjUCe"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S287519AbSAEFU2>; Sat, 5 Jan 2002 00:20:28 -0500
+Received: from PHNX1-UBR2-4-hfc-0251-d1dae065.rdc1.az.coxatwork.com ([209.218.224.101]:48264
+	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S287518AbSAEFUM>; Sat, 5 Jan 2002 00:20:12 -0500
+Message-ID: <00c601c195a8$bb5c7e90$6caaa8c0@kevin>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: "bert hubert" <ahu@ds9a.nl>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <005001c194d9$b5793c40$6caaa8c0@kevin> <20020105000001.A26152@outpost.ds9a.nl>
+Subject: Re: How to debug very strange packet delivery problem?
+Date: Fri, 4 Jan 2002 22:20:47 -0700
+Organization: LSG, Inc.
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I haven't tried an _older_ kernel yet, but did have the same problem on
+2.4.17 and 2.4.17-rc1. I'll try something older tomorrow and see what
+happens.
 
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+----- Original Message -----
+From: "bert hubert" <ahu@ds9a.nl>
+To: "Kevin P. Fleming" <kevin@labsysgrp.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Friday, January 04, 2002 4:00 PM
+Subject: Re: How to debug very strange packet delivery problem?
 
-	I forgot to include this header file in my kdev_t
-compilation fixes for drivers/char.  This change is needed so
-that drivers/char/tpqic02.c will compile correctly.
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+> On Thu, Jan 03, 2002 at 09:38:50PM -0700, Kevin P. Fleming wrote:
+> > I've got a machine that is just driving me nuts here... it's a RedHat
+7.2
+> > machine, upgraded to a 2.4.17 kernel (no kernel patches, just standard
+> > kernel). The machine has an ethernet interface for it's local network,
+and a
+> > ppp interface (using RedHat's pppd-2.4.1 RPM) to connect it to the
+corporate
+> > WAN.
+>
+> Does your problem depend on kernel version?
+>
+> Regards,
+>
+> bert
+>
+> --
+> http://www.PowerDNS.com          Versatile DNS Software & Services
+> http://www.tk                              the dot in .tk
+> Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+> Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc
+>
+>
+>
 
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="tpqic02.diff"
-
---- linux-2.5.2-pre8/include/linux/tpqic02.h	Sun Dec 16 15:44:43 2001
-+++ linux/include/linux/tpqic02.h	Fri Jan  4 21:12:42 2002
-@@ -587,10 +587,10 @@
-  *  |___________________ Reserved for diagnostics during debugging.
-  */
- 
--#define	TP_REWCLOSE(d)	((MINOR(d)&0x01) == 1)	   		/* rewind bit */
-+#define	TP_REWCLOSE(d)	((minor(d)&0x01) == 1)	   		/* rewind bit */
- 			   /* rewind is only done if data has been transferred */
--#define	TP_DENS(dev)	((MINOR(dev) >> 1) & 0x07) 	      /* tape density */
--#define TP_UNIT(dev)	((MINOR(dev) >> 4) & 0x07)	       /* unit number */
-+#define	TP_DENS(dev)	((minor(dev) >> 1) & 0x07) 	      /* tape density */
-+#define TP_UNIT(dev)	((minor(dev) >> 4) & 0x07)	       /* unit number */
- 
- /* print excessive diagnostics */
- #define TP_DIAGS(dev)	(QIC02_TAPE_DEBUG & TPQD_DIAGS)
-
---G4iJoqBmSsgzjUCe--

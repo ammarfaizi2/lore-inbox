@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbTDZQMD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 12:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbTDZQMD
+	id S261876AbTDZQUd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 12:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTDZQUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 12:12:03 -0400
-Received: from [81.80.245.157] ([81.80.245.157]:45189 "EHLO smtp.alcove-fr")
-	by vger.kernel.org with ESMTP id S261814AbTDZQMC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 12:12:02 -0400
-Date: Sat, 26 Apr 2003 18:23:23 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Ben Collins <bcollins@debian.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The IEEE-1394 saga continued... [ was: IEEE-1394 problem on init ]
-Message-ID: <20030426162323.GD18917@vitel.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Ben Collins <bcollins@debian.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030423142353.GL354@phunnypharm.org> <20030423145122.GL820@hottah.alcove-fr> <20030423144857.GN354@phunnypharm.org> <20030423152914.GM820@hottah.alcove-fr> <Pine.LNX.4.53L.0304231609230.5536@freak.distro.conectiva> <20030423202002.GA10567@vitel.alcove-fr> <20030423202453.GA354@phunnypharm.org> <20030423204258.GB10567@vitel.alcove-fr> <20030426082956.GB18917@vitel.alcove-fr> <20030426144017.GD2774@phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030426144017.GD2774@phunnypharm.org>
-User-Agent: Mutt/1.3.25i
+	Sat, 26 Apr 2003 12:20:33 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:24080 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id S261876AbTDZQUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 12:20:32 -0400
+Date: Sat, 26 Apr 2003 18:32:43 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: Tom Dietz <tom@glis.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 3ware 7500 RAID problems....
+In-Reply-To: <000001c30c03$38963870$6501a8c0@typhoon>
+Message-ID: <Pine.LNX.4.44.0304261823330.18264-100000@pc40.e18.physik.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 26, 2003 at 10:40:18AM -0400, Ben Collins wrote:
+Hi Tom!
 
-> > Since I reported issues about this 3 days ago, I would have appreciated
-> > being CC:'ed on the patch mail, so I could have reported issues 
-> > like this _before_ such a patch being applied. 
+On Sat, 26 Apr 2003, Tom Dietz wrote:
+
+> I recently upgraded to RedHat 9.0 only to find that my 600GB RAID system no
+> longer works.  It worked fine with RH 8.0, however once I upgraded, it no
+> longer came up cleanly and I got lots of error messages during boot.
 > 
-> BTW, there are atleast 2 dozen people looking for this patch. I tested
-> it and several others on the linux1394 mailing list tested it. If you
-> want to be more closely involved with linux1394 specifically, then don't
-> expect me to search you out...
+When updating the 3ware driver (as part of the kernel update), 3ware's website 
+recommends updating the firmware, too. See e.g.
 
-So if I report a bug I must be subscribed to your list to get the answer,
-that's it ? 
+http://www.3ware.com/download/Escalade7000Series/7.6/7.6_Release_Notes_Web.pdf
 
-You don't have to 'come search me out'. *I* sent you a bug report, the least
-you could do is to CC: me on the answers. (Or gently tell me that this is
-a known bug being discussed on your list and inviting me to go there to
-find the answers).
+for matching versions of the firmware, driver and 3dmd.
 
-> come to us where our development happens.
-> We have a commit list to the repo and a developers list.
+Ciao,
+					Roland
 
-As I said in the previous mail, I did check the archives and saw nothing
-trivially relevant. But of course, I could have missed something.
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
 
-> I've never sent my patches to the list prior to inclusion in the kernel,
-> and a lot of folks don't, depending on neccessity. I don't see the need
-> to start now, not when interested parties have a place to go to see the
-> patches before hand anyway.
+"If you think NT is the answer, you didn't understand the question."
+						- Paul Stephens
 
-Keeping the development discussions on your own list is of course ok,
-but I believe posting an announce on lkml each time you send something
-for inclusion in the main kernel would be a good idea. Especially when
-you're not sending patches every day and when your patches tend to be
-considerably big.
-
-This is what (a lot of) other subsystem maintainers do.
-
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com

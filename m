@@ -1,98 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263781AbUC3R4D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 12:56:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263785AbUC3Rzu
+	id S263424AbUC3SAm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 13:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263785AbUC3SAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 12:55:50 -0500
-Received: from mail.scsiguy.com ([63.229.232.106]:41744 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S263781AbUC3Rz0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 12:55:26 -0500
-Date: Tue, 30 Mar 2004 10:54:46 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Lincoln Dale <ltd@cisco.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, Kevin Corry <kevcorry@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
-       linux-raid@vger.kernel.org
-Subject: Re: "Enhanced" MD code avaible for review
-Message-ID: <862110000.1080669286@aslan.btc.adaptec.com>
-In-Reply-To: <5.1.0.14.2.20040328094233.0546fec8@mira-sjcm-3.cisco.com>
-References: <406375B0.5040406@pobox.com> <760890000.1079727553@aslan.btc.adaptec.com> <16480.61927.863086.637055@notabene.cse.unsw.edu.au> <40624235.30108@pobox.com> <200403251200.35199.kevcorry@us.ibm.com> <40632804.1020101@pobox.com> <1030470000.1080257746@aslan.btc.adaptec.com> <406375B0.5040406@pobox.com> <5.1.0.14.2.20040328094233.0546fec8@mira-sjcm-3.cisco.com>
-X-Mailer: Mulberry/3.1.1 (Linux/x86)
+	Tue, 30 Mar 2004 13:00:41 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:51973 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S263424AbUC3SAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 13:00:39 -0500
+Message-ID: <4069BA3B.5050004@techsource.com>
+Date: Tue, 30 Mar 2004 13:19:39 -0500
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Jens Axboe <axboe@suse.de>, Andrea Arcangeli <andrea@suse.de>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+References: <4066021A.20308@pobox.com> <200403282030.11743.bzolnier@elka.pw.edu.pl> <20040328183010.GQ24370@suse.de> <200403282045.07246.bzolnier@elka.pw.edu.pl> <406720A7.1050501@pobox.com> <20040329005502.GG3039@dualathlon.random> <40679FE3.3080007@pobox.com> <20040329130410.GH3039@dualathlon.random> <40687CF0.3040206@pobox.com> <20040330110928.GR24370@suse.de> <4069B6F8.1020506@techsource.com> <4069B376.9010104@pobox.com>
+In-Reply-To: <4069B376.9010104@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At 03:43 AM 27/03/2004, Justin T. Gibbs wrote:
->> I posted a rather detailed, technical, analysis of what I believe would
->> be required to make this work correctly using a userland approach.  The
->> only response I've received is from Neil Brown.  Please, point out, in
->> a technical fashion, how you would address the feature set being proposed:
+
+
+Jeff Garzik wrote:
 > 
-> i'll have a go.
+>
 > 
-> your position is one of "put it all in the kernel".
-> Jeff, Neil, Kevin et al is one of "it can live in userspace".
-
-Please don't misrepresent or over simplify my statements.  What
-I have said is that meta-data reading and writing should occur in
-only one place.  Since, as has already been acknowledged by many,
-meta-data updates are required in the kernel, that means this support
-should be handled in the kernel.  Any other solution adds complexity
-and size to the solution.
-
-> to that end, i agree with the userspace approach.
-> the way i personally believe that it SHOULD happen is that you tie
-> your metadata format (and RAID format, if its different to others) into DM.
-
-Saying how you think something should happen without any technical
-argument for it, doesn't help me to understand the benefits of your
-approach.
-
-...
-
-> perhaps that means that you guys could provide enhancements to grub/lilo
-> if they are insufficient for things like finding a secondary copy of
-> initrd/vmlinuz. (if such issues exist, wouldn't it be better to do things
-> the "open source way" and help improve the overall tools, if the end goal
-> ends up being the same: enabling YOUR system to work better?)
-
-I don't understand your argument.  We have improved an already existing
-opensource driver to provide this functionality.  This is not the
-OpenSource way?
-
-> then answering your other points:
-
-Again, you have presented strategies that may or may not work, but
-no technical arguments for their superiority over placing meta-data
-in the kernel.
-
-> there may be less lines of code involved in "entirely in kernel" for YOUR
-> hardware -- but what about when 4 other storage vendors come out with such
-> a card?
-
-There will be less lines of code total for any vendor that decides to
-add a new meta-data type.  All the vendor has to do is provide a meta-data
-module.  There are no changes to the userland utilities (they know nothing
-about specific meta-data formats), to the RAID transform modules, or to
-the core of EMD.  If this were not the case, there would be little point
-to the EMD work.
-
-> what if someone wants to use your card in conjunction with the storage
-> being multipathed or replicated automatically?
-> what about when someone wants to create snapshots for backups?
+> If you are taking your samples over time, that shouldn't matter...  if 
+> the system workload is such that you are hitting the drive cache the 
+> majority of the time, you're not being "fooled" by cache hits, the patch 
+> would be taking those cache hits into account.
 > 
-> all that functionality has to then go into your EMD driver.
+> If the system isn't hitting the drive cache the majority of the time, 
+> statistical sampling will automatically notice that too...
+> 
 
-No.  DM already works on any block device exported to the kernel.
-EMD exports its devices as block devices.  Thus, all of the DM
-functionality you are talking about is also available for EMD.
 
---
-Justin
+I completely agree, although Jens' patch seems to try to learn the 
+drive's maximum speed and go based on that.  Maybe I misread the code. 
+Anyhow, it's certainly excellent for a starting point... it's this sort 
+of proof-of-concept that gets the ball rolling.  Plus, it's already 
+better than Jens says it is.  :)
+
 

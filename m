@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265647AbUA2MGM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 07:06:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUA2MGM
+	id S265808AbUA2MNF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 07:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265895AbUA2MNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 07:06:12 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:64159 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265647AbUA2MGL (ORCPT
+	Thu, 29 Jan 2004 07:13:05 -0500
+Received: from gate.crashing.org ([63.228.1.57]:2535 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265808AbUA2MND (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 07:06:11 -0500
-Date: Thu, 29 Jan 2004 13:06:00 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Xan <DXpublica@telefonica.net>
-cc: Kiko Piris <kernel@pirispons.net>,
-       Zack Winkles <winkie@linuxfromscratch.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.1] fbdev console: can't load vga=791 and yes vga=ask!
-In-Reply-To: <200401280139.51712.DXpublica@telefonica.net>
-Message-ID: <Pine.GSO.4.58.0401291305410.8124@waterleaf.sonytel.be>
-References: <200401270153.12568.DXpublica@telefonica.net>
- <200401271859.03309.DXpublica@telefonica.net> <20040127225909.GA5271@sacarino.pirispons.net>
- <200401280139.51712.DXpublica@telefonica.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Jan 2004 07:13:03 -0500
+Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Hugang <hugang@soulinfo.com>
+Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
+In-Reply-To: <20040129165119.553403f1@localhost>
+References: <20040119105237.62a43f65@localhost>
+	 <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux>
+	 <1074490463.10595.16.camel@gaston> <1074534964.2505.6.camel@laptop-linux>
+	 <1074549790.10595.55.camel@gaston> <20040122211746.3ec1018c@localhost>
+	 <1074841973.974.217.camel@gaston> <20040123183030.02fd16d6@localhost>
+	 <1074912854.834.61.camel@gaston> <20040126181004.GB315@elf.ucw.cz>
+	 <1075154452.6191.91.camel@gaston> <1075156310.2072.1.camel@laptop-linux>
+	 <20040128202217.0a1f8222@localhost> <1075336478.30623.317.camel@gaston>
+	 <20040129100554.6453e6c8@localhost> <1075350214.1231.18.camel@gaston>
+	 <20040129165119.553403f1@localhost>
+Content-Type: text/plain
+Message-Id: <1075378330.1241.37.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 29 Jan 2004 23:12:11 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jan 2004, Xan wrote:
-> It works finally. I don't know if with vesafb or with radeon, but it works.
 
-Check /proc/fb
+> The ppc part I has lost something, They are has a step to show bug.
+> switch to vt console, login as normal use, run "screen", do suspend.
+> after resume, screen will say unknown error 514.
+> 
+> attached file should fix it. but look very very ulgy.
 
-Gr{oetje,eeting}s,
+I'll have a look tomorrow, that code was a quick hack indeed.
 
-						Geert
+Ben.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

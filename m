@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132794AbRC2Qqn>; Thu, 29 Mar 2001 11:46:43 -0500
+	id <S132769AbRC2QwX>; Thu, 29 Mar 2001 11:52:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132791AbRC2Qqe>; Thu, 29 Mar 2001 11:46:34 -0500
-Received: from m341-mp1-cvx1a.col.ntl.com ([213.104.69.85]:36358 "EHLO
-	[213.104.69.85]") by vger.kernel.org with ESMTP id <S132787AbRC2QqU>;
-	Thu, 29 Mar 2001 11:46:20 -0500
-To: David Balazic <david.balazic@uni-mb.si>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-   <linux-laptop@vger.kernel.org>, <apm@linuxcare.com.au>,
-   <apenwarr@worldvisions.ca>, <sfr@linuxcare.com.au>
-Subject: Re: kernel apm code
-In-Reply-To: <3AC0A679.DFA9F74B@uni-mb.si> <"m28zlr58w9.fsf"@boreas.yi.org>
-	<3AC1C406.652D0207@uni-mb.si> <"m2bsqmlyrh.fsf"@boreas.yi.org>
-	<3AC2FF70.CA2317B6@uni-mb.si>
-From: John Fremlin <chief@bandits.org>
-Date: 29 Mar 2001 17:44:25 +0100
-In-Reply-To: David Balazic's message of "Thu, 29 Mar 2001 11:25:04 +0200"
-Message-ID: <m24rwcjziu.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+	id <S132795AbRC2QwO>; Thu, 29 Mar 2001 11:52:14 -0500
+Received: from mx2out.umbc.edu ([130.85.253.52]:9143 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S132769AbRC2QwI>;
+	Thu, 29 Mar 2001 11:52:08 -0500
+Date: Thu, 29 Mar 2001 11:51:26 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: "Richard B. Johnson" <root@quark.analogic.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux connectivity trashed.
+In-Reply-To: <000701c0b854$f2cf4f10$1428b2cc@DJLAPTOP>
+Message-ID: <Pine.SGI.4.31L.02.0103291144580.1722949-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- David Balazic <david.balazic@uni-mb.si> writes:
+On Thu, 29 Mar 2001, Richard B. Johnson wrote:
 
-> John Fremlin wrote:
+>snipped<
 
-[...]
+First mistake:
+	your security administrator relied on the firewall for protection.
+It is an _aid_ to security; not the 'be all and end all'. IOW, the hosts
+weren't hardened to resist penetration in case the firewall didn't cover
+it.
 
-> > > To implement off-button you only need the APM_IOC_REJECT ioctl and
-> > 
-> > The problem on my computer with my (re)implementation of
-> > APM_IOC_REJECT is that the screen goes into powersaving when the user
-> > suspend is received, then turns it back on when APM_IOC_REJECT is sent
-> > by apmd.
-> 
-> What is wrong with that ?
+Second mistake:
+	your security administrator didn't make known the changes taking
+place, so that clueful users could have taken some preventative steps on
+their UNIX boxes.
 
-> Suspend is requested -> suspend is executed
+Third mistake:
+	your security administrator either didn't know about; didn't care
+about; or didn't act on security problems for linux and solaris -- which
+have been posted, discussed, and addressed on many general or OS-specific
+security lists.
 
-> Suspend is canceled (rejected) -> suspend is canceled
-> 
-> Seems perfectly OK to me.
+Fourth mistake:
+	your security administrator, rather than address the problems, is
+sticking his head in the sand and mumbling 'Windows' -- which, as an OS,
+is a christmas tree where every bauble says 'please hack me!'.
 
-The sequence is in fact: suspend requested by BIOS -> suspend accepted
-by kernel -> SUSPEND -> suspend rejected by apmd which is passed on by
-kernel to BIOS -> REJECT=RESUME (if I understand correctly, this is
-what seems to happen).
+In short, your security administrator needs to be dragged out, shot, and
+left hanging by the front door as a warning to his replacement.
 
-Sequence should be as in pmpolicy patch: suspend requested by BIOS ->
-/sbin/powermanger decides to reject -> REJECT
-
-[...]
-
-> > Anyway it is fixed in my pmpolicy patch, and I don't need no
-> > daemon so the code is a lot cleaner and simpler (no binary magic
-> > number interfaces).
-> 
-> But there should be no policy in the kernel ! ;-)
-
-Read the patch. Read the webpage:
-
-        http://john.snoop.dk/programs/linux/offbutton
-
-There is no policy in kernel.
+Or, at least fired.
 
 -- 
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 
-	http://www.penguinpowered.com/~vii

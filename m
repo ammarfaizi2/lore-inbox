@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262136AbSJAREM>; Tue, 1 Oct 2002 13:04:12 -0400
+	id <S262199AbSJARV2>; Tue, 1 Oct 2002 13:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262140AbSJARDS>; Tue, 1 Oct 2002 13:03:18 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:65423 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262136AbSJAQ4y>;
-	Tue, 1 Oct 2002 12:56:54 -0400
-Date: Tue, 1 Oct 2002 19:02:17 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: jlnance@intrex.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.40 - and a feature freeze reminder
-Message-ID: <20021001190217.B13811@ucw.cz>
-References: <Pine.LNX.4.33.0210010021400.25527-100000@penguin.transmeta.com> <20021001122504.GC3234@tricia.dyndns.org>
+	id <S262216AbSJARIf>; Tue, 1 Oct 2002 13:08:35 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:47349 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262241AbSJARGf>; Tue, 1 Oct 2002 13:06:35 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 1 Oct 2002 11:09:34 -0600
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Robert Read <rread@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: Status of InterMezzo in 2.5
+Message-ID: <20021001170934.GK3000@clusterfs.com>
+Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
+	Robert Read <rread@clusterfs.com>, linux-kernel@vger.kernel.org
+References: <20021001140639.GA25624@fib011235813.fsnet.co.uk> <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021001122504.GC3234@tricia.dyndns.org>; from jlnance@intrex.net on Tue, Oct 01, 2002 at 08:25:04AM -0400
+In-Reply-To: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 08:25:04AM -0400, jlnance@intrex.net wrote:
-> On Tue, Oct 01, 2002 at 12:32:47AM -0700, Linus Torvalds wrote:
-> 
-> > And if it wasn't clear to the non-2.5-development people out there, yes
-> > you _should_ also test this code out even before the freeze. The IDE layer
-> > shouldn't be all that scary any more, and while there are still silly
-> > things like trivially non-compiling setups etc, it's generally a good idea
-> > to try things out as widely as possible before it's getting too late to
-> > complain about things..
-> 
-> Do the ps/2 mouse and the keyboard work like they did in 2.4 (same /dev
-> major/minor)?  I tried 2.5 early on but quit because I couldnt see my
-> input devices.  At the time I posted a note and got some responses, but
-> it appeared that I would have to change things around such that they
-> wouldnt work with 2.4 anymore, which I was not willing to do.
+On Oct 01, 2002  10:15 -0400, Alexander Viro wrote:
+> Speaking of which, would Intermezzo maintainers care to port the thing
+> to 2.5?  If it's abandoned - at least say so ;-/
 
-If you enable enough options they work interchangeably with 2.4, yes.
+One of the Clusterfs developers is now working on updating InterMezzo
+again...
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
+

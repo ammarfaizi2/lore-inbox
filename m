@@ -1,84 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRAVSRI>; Mon, 22 Jan 2001 13:17:08 -0500
+	id <S129985AbRAVSS6>; Mon, 22 Jan 2001 13:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129985AbRAVSQs>; Mon, 22 Jan 2001 13:16:48 -0500
-Received: from dweeb.lbl.gov ([128.3.1.28]:32775 "EHLO beeble.lbl.gov")
-	by vger.kernel.org with ESMTP id <S129444AbRAVSQm>;
-	Mon, 22 Jan 2001 13:16:42 -0500
-Message-ID: <3A6C78A9.1EB43322@lbl.gov>
-Date: Mon, 22 Jan 2001 10:15:05 -0800
-From: Thomas Davis <tadavis@lbl.gov>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-RAID i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Chabot <chabotc@reviewboard.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Interface statistics for Bonding bug in 2.4
-In-Reply-To: <3A6CF2EB.7EB23951@reviewboard.com>
+	id <S133001AbRAVSSj>; Mon, 22 Jan 2001 13:18:39 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:15584 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S129985AbRAVSSb>; Mon, 22 Jan 2001 13:18:31 -0500
+Date: Mon, 22 Jan 2001 10:17:38 -0800
+From: Mike Kravetz <mkravetz@sequent.com>
+To: lse-tech@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: more on scheduler benchmarks
+Message-ID: <20010122101738.B7427@w-mikek.des.sequent.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The answer is in the source; in v2.4, stats are only collected on sent
-packets; in v2.2, stats are not collected at all; they are simply summed
-from the interfaces stats.
+Last week while discussing scheduler benchmarks, Bill Hartner
+made a comment something like the following "the benchmark may
+not even be invoking the scheduler as you expect".  This comment
+did not fully sink in until this weekend when I started thinking
+about changes made to sched_yield() in 2.4.0.  (I'm cc'ing Ingo
+Molnar because I think he was involved in the changes).  If you
+haven't taken a look at sys_sched_yield() in 2.4.0, I suggest
+that you do that now.
 
-It's not a bug; it's simply a design decision.
+A result of new optimizations made to sys_sched_yield() is that
+calling sched_yield() does not result in a 'reschedule' if there
+are no tasks waiting for CPU resources.  Therefore, I would claim
+that running 'scheduler benchmarks' which loop doing sched_yield()
+seem to have little meaning/value for runs where the number of
+looping tasks is less than then number of CPUs in the system.  Is
+that an accurate statement?
 
-Chris Chabot wrote:
-> 
-> I recently upgraded my main server to a 2.4 kernel (2.4.1pre9). This
-> machine uses 2 3Com 3C905B networkcards, bonded together (using the
-> bonding module).
-> 
-> When doing a 'ifconfig' the bond0 device shows 0 RX packets, and a valid
-> # of TX packets. However looking at eth0 / eth1 (the 2 network cards)
-> they have the just about the same amount of RX packets, so recieving
-> does apear to be balanced over the two interfaces.
-> 
-> When running this machine on 2.2.16 the interface it does show the
-> interface statistics accuratly. I also tested this on a clean 2.4.0
-> kernel, and it had the same bug.
-> 
-> The ifconfig output (note the 0 packets in bond0's RX)
-> 
-> bond0     Link encap:Ethernet  HWaddr 00:50:DA:B8:33:0F
->           inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
-> 
->           UP BROADCAST RUNNING MASTER MULTICAST  MTU:1500  Metric:1
->           RX packets:0 errors:0 dropped:0 overruns:0 frame:0
->           TX packets:3655 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:0
-> 
-> eth0      Link encap:Ethernet  HWaddr 00:50:DA:B8:33:0F
->           inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
-> 
->           UP BROADCAST RUNNING SLAVE MULTICAST  MTU:1500  Metric:1
->           RX packets:1992 errors:0 dropped:0 overruns:0 frame:0
->           TX packets:1828 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:100
->           Interrupt:11 Base address:0x9800
-> 
-> eth1      Link encap:Ethernet  HWaddr 00:50:DA:B8:33:0F
->           inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
-> 
->           UP BROADCAST RUNNING SLAVE MULTICAST  MTU:1500  Metric:1
->           RX packets:1878 errors:0 dropped:0 overruns:0 frame:0
->           TX packets:1827 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:100
->           Interrupt:10 Base address:0x9400
-> 
-> Please CC me in any replies since im not subscribed to the kernel list.
-> 
->     -- Chris
+If the above is accurate, then I am wondering what would be a
+good scheduler benchmark for these low task count situations.
+I could undo the optimizations in sys_sched_yield() (for testing
+purposes only!), and run the existing benchmarks.  Can anyone
+suggest a better solution?
 
+Thanks,
 -- 
-------------------------+--------------------------------------------------
-Thomas Davis		| PDSF Project Leader
-tadavis@lbl.gov		| 
-(510) 486-4524		| "Only a petabyte of data this year?"
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center
+15450 SW Koll Parkway
+Beaverton, OR 97006-6063                     (503)578-3494
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131641AbRCMVh6>; Tue, 13 Mar 2001 16:37:58 -0500
+	id <S131625AbRCMVhr>; Tue, 13 Mar 2001 16:37:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131461AbRCMVgA>; Tue, 13 Mar 2001 16:36:00 -0500
+	id <S131463AbRCMVgC>; Tue, 13 Mar 2001 16:36:02 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:7373 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131211AbRCMVeT>;
-	Tue, 13 Mar 2001 16:34:19 -0500
-Date: Tue, 13 Mar 2001 19:43:08 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Mark Shewmaker <mark@primefactor.com>
-Cc: Brian Dushaw <dushaw@munk.apl.washington.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel - and regular sync'ing?
-Message-ID: <20010313194308.A2536@flint.arm.linux.org.uk>
-In-Reply-To: <20010308223319.A25679@flint.arm.linux.org.uk> <Pine.LNX.4.30.0103081439400.18253-100000@munk.apl.washington.edu> <20010312142702.A28863@primefactor.com>
+	by vger.kernel.org with ESMTP id <S131227AbRCMVeN>;
+	Tue, 13 Mar 2001 16:34:13 -0500
+Date: Tue, 13 Mar 2001 21:59:21 +0200
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cdfs
+Message-ID: <20010313215921.I3478@niksula.cs.hut.fi>
+In-Reply-To: <20010313162341.C1311@werewolf.able.es> <20010313174015.C5316@niksula.cs.hut.fi> <20010313204507.A1488@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010312142702.A28863@primefactor.com>; from mark@primefactor.com on Mon, Mar 12, 2001 at 02:27:02PM -0500
+In-Reply-To: <20010313204507.A1488@werewolf.able.es>; from jamagallon@able.es on Tue, Mar 13, 2001 at 08:45:07PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 12, 2001 at 02:27:02PM -0500, Mark Shewmaker wrote:
-> It's probably very much worth it for you to keep your /etc/fstab as you've
-> edited it, but I did want to warn you that the noatime option can
-> still unexpectedly break programs that make quite reasonable assumptions.
+On Tue, Mar 13, 2001 at 08:45:07PM +0100, you [J . A . Magallon] claimed:
+> 
+> On 03.13 Ville Herva wrote:
+> > 
+> > Below is one response to a similar question from the l-k archive:
+> > 
+> > From: David Balazic <david.balazic@uni-mb.si>
+> > Date: Thu, 13 Jan 2000 12:08:39 -0800 
+> > Subject: Re: CD-ROM Driver Design
+> > 
+> > There are already two file-systems for CD-audio on Linux :
+> > - cdfs at
+> > http://www.elis.rug.ac.be/~ronsse/cdfs/
+> > - audiofs at
+> > http://fly.cc.fer.hr/~ptolomei/audiofs/
+> > 
+> > Are you sure there is a need for a third one ? The audiofs uses the
+> 
+> Oh, NO. All my searchs give no result, thanks to all the people who
+> answered.
 
-Easy workaround - place your /home and /var trees on separate filesystems
-and mount /home normally.  Make /var "nodiratime" so accessing directories
-doesn't update their atime.  Make / "noatime".
+Just to clarify: also the "Are you sure there..." part was from the David
+Balazic's mail. I should have quoted more clearly.
 
-This is basically what I've been running here for the past couple of years
-and it seems fine for me.  Your milage may vary though (depending on what
-software you run).
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+-- v --
 
+v@iki.fi

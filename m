@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274874AbTHKW2t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 18:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274871AbTHKW2t
+	id S274857AbTHKWUc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 18:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274859AbTHKWUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 18:28:49 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:19720 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S274870AbTHKW2q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 18:28:46 -0400
-Date: Tue, 12 Aug 2003 00:28:44 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: linux-scsi@vger.kernel.org
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] oops in sd_shutdown
-Message-ID: <20030812002844.B1353@pclin040.win.tue.nl>
-References: <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher>
+	Mon, 11 Aug 2003 18:20:32 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37125 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S274857AbTHKWUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 18:20:24 -0400
+Date: Mon, 11 Aug 2003 23:20:19 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] add an -Os config option
+Message-ID: <20030811232019.A28700@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	linux-kernel@vger.kernel.org
+References: <20030811211145.GA569@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher>; from number6@cox.net on Mon, Aug 11, 2003 at 02:38:11PM -0700
+In-Reply-To: <20030811211145.GA569@fs.tum.de>; from bunk@fs.tum.de on Mon, Aug 11, 2003 at 11:11:45PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see an Oops in the SCSI code, caused by the fact that sdkp is NULL
-in sd_shutdown. "How can that be?", you will ask - dev->driver_data was set
-in sd_probe. But in my case sd_probe never finished. An insmod usb-storage
-hangs forever, or at least for more than six hours, giving ample opportunity
-to observe this race between sd_probe and sd_shutdown.
-(Of course sd_probe hangs in sd_revalidate disk.)
+On Mon, Aug 11, 2003 at 11:11:45PM +0200, Adrian Bunk wrote:
+> The patch below adds an option OPTIMIZE_FOR_SIZE (depending on EMBEDDED) 
+> that changes the optimization from -O2 to -Os.
 
-Perhaps the obvious test is a good idea.
-Locking seems meaningless - sd_probe will never finish.
+What about those of us who already build the kernel with -Os (eg, ARM) ?
 
-Andries
+This option will be confusing in that situation.
 
-[Probably the init of usb_storage should start probing the devices in separate
-threads, in parallel, and return immediately.]
-
-The obvious patch (with whitespace damage)
-
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/sd.c b/drivers/scsi/sd.c
---- a/drivers/scsi/sd.c Mon Jul 28 05:39:31 2003
-+++ b/drivers/scsi/sd.c Tue Aug 12 01:24:51 2003
-@@ -1351,10 +1351,14 @@
- static void sd_shutdown(struct device *dev)
- {
-        struct scsi_device *sdp = to_scsi_device(dev);
--       struct scsi_disk *sdkp = dev_get_drvdata(dev);
-+       struct scsi_disk *sdkp;
-        struct scsi_request *sreq;
-        int retries, res;
- 
-+       sdkp = dev_get_drvdata(dev);
-+       if (!sdkp)
-+               return;         /* this can happen */
-+
-        if (!sdp->online || !sdkp->WCE)
-                return;
- 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

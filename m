@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318786AbSG0QWA>; Sat, 27 Jul 2002 12:22:00 -0400
+	id <S318783AbSG0Qjq>; Sat, 27 Jul 2002 12:39:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318788AbSG0QWA>; Sat, 27 Jul 2002 12:22:00 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:8446 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S318786AbSG0QV7>; Sat, 27 Jul 2002 12:21:59 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <1027712005.14773.12.camel@irongate.swansea.linux.org.uk> 
-References: <1027712005.14773.12.camel@irongate.swansea.linux.org.uk>  <3D418DFD.8000007@deming-os.org> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Russell Lewis <spamhole-2001-07-16@deming-os.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory? 
+	id <S318784AbSG0Qjq>; Sat, 27 Jul 2002 12:39:46 -0400
+Received: from ns.purdue.org ([206.230.5.18]:41933 "EHLO ns")
+	by vger.kernel.org with ESMTP id <S318783AbSG0Qjq>;
+	Sat, 27 Jul 2002 12:39:46 -0400
+Date: Sat, 27 Jul 2002 11:31:35 -0500
+From: Kyler Laird <Kyler@Lairds.com>
+To: linux-kernel@vger.kernel.org
+Subject: Aironet driver still needs tqueue.h
+Message-ID: <20020727163135.GL7753@jowls.lairds.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 27 Jul 2002 17:24:58 +0100
-Message-ID: <16918.1027787098@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+drivers/net/aironet4500.h still needs
+	#include <linux/tqueue.h>
+in order to compile.
 
-alan@lxorguk.ukuu.org.uk said:
->  Memory is relatively cheap, and the complexity of such a paging
-> kernel is huge (you have to pin down disk driver and I/O paths for
-> example). Linux prefers to try to keep simple debuggable approaches to
-> things. 
+I've reported this multiple times.  Is there someone
+else I need to tell?
 
-You could do it. Start with kmalloc_pageable (probably actually 
-vmalloc_pageable) and introduce new sections for pageable data and text, 
-which can be marked just as init sections are currently. Introduce it 
-slowly, adding it a little at a time like we did SMP, and like we _should_ 
-have done preemption.
+Thank you.
 
-It's debatable what kind of benefit it would give you over and above just 
-fixing specific cases like page tables, though. Most of the systems where 
-I've _really_ cared about RAM to that extent have been systems without any 
-local storage which could sanely be used for swap.
-
---
-dwmw2
-
+--kyler
 

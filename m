@@ -1,44 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131669AbRAGTiB>; Sun, 7 Jan 2001 14:38:01 -0500
+	id <S131953AbRAGTjV>; Sun, 7 Jan 2001 14:39:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131953AbRAGThv>; Sun, 7 Jan 2001 14:37:51 -0500
-Received: from nnj-dialup-61-227.nni.com ([216.107.61.227]:6080 "EHLO
-	nnj-dialup-61-227.nni.com") by vger.kernel.org with ESMTP
-	id <S131669AbRAGThh>; Sun, 7 Jan 2001 14:37:37 -0500
-Date: Sun, 7 Jan 2001 14:35:59 -0500 (EST)
-From: TenThumbs <tenthumbs@cybernex.net>
-Reply-To: TenThumbs <tenthumbs@cybernex.net>
-To: Thiago Rondon <maluco@mileniumnet.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19pre6 change in /proc behavior
-In-Reply-To: <Pine.LNX.4.21.0101061423460.13574-100000@freak.mileniumnet.com.br>
-Message-ID: <Pine.LNX.4.21.0101071433490.171-100000@perfect.master>
+	id <S132842AbRAGTjB>; Sun, 7 Jan 2001 14:39:01 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:20750 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S131953AbRAGTiu>;
+	Sun, 7 Jan 2001 14:38:50 -0500
+Message-ID: <3A58D49D.C4152BD5@candelatech.com>
+Date: Sun, 07 Jan 2001 13:42:05 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Sandy Harris <sandy@storm.ca>
+CC: jamal <hadi@cyberus.ca>, linux-kernel <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: routable interfaces  WAS( Re: [PATCH] hashed device lookup(DoesNOT  
+ meet Linus' sumission policy!)
+In-Reply-To: <Pine.GSO.4.30.0101071321330.18916-100000@shell.cyberus.ca> <3A58C137.63907CDC@storm.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Jan 2001, Thiago Rondon wrote:
-
+Sandy Harris wrote:
 > 
-> At 2.4 too, but the status of file is o+r. Do see any
-> problem about this?
+> jamal wrote:
 > 
-> -Thiago Rondon
+> > > What problem does this fix?
+> > >
+> > > If you are mucking with the ifindex, you may be affecting many places
+> > > in the rest of the kernel, as well as user-space programs which use
+> > > ifindex to bind to raw devices.
+> >
+> > I am talking about 2.5 possibilities now that 2.4 is out. I think
+> > "parasitic/virtual" interfaces is not a issue specific to VLANs.
+> > VLANs happen to use devices today to solve the problem.
+> > As pointed by that example no routing daemons are doing aliased
+> > interfaces (which are also virtual interfaces).
+> > We need some more general solution.
+> >
+> Something like this also becomes an issue when you want routing
+> daemons to interact sensibly with IPSEC tunnels. A paper on these
+> issues is at:
 > 
+> http://www.quintillion.com/fdis/moat/ipsec+routing/
+> 
+> It is not (AFAIK) clear that the FreeS/WAN team will adopt the solutions
+> suggested there, but it is very clear we need to deal with those issues.
 
-Yes. /proc/<pid>/environ is now unreadable by the owner; similarly for
-/proc/<pid>/fd/ . It makes debugging harder.
+Hrm, what if they just made each IP-SEC interface a net_device?  If they
+are a routable entity, with it's own IP address, it starts to look a lot
+like an interface/net_device.
 
-It is also a major change in a supposedly stable series.
+This has seeming worked well for VLANs:  Maybe net_device is already
+general enough??
+
+So, what would be the down-side of having VLANs and other virtual interfaces
+be net_devices?  The only thing I ever thought of was the linear lookups,
+which is why I wrote the hash code.  The beauty of working with existing
+user-space tools should not be over-looked!
+
+It may be easier to fix other problems with many interface/net_devices
+than cram a whole other virtual net_device structure (with many duplicate
+functionalities found in the current net_device).
+
+Ben
 
 -- 
-Uranus
-    2001-01-07 19:33:49.989 UTC (JD 2451917.315162)
-    X  =  15.385597320, Y  = -11.563171292, Z  =  -5.281988673
-    X' =   0.002476083, Y' =   0.002622687, Z' =   0.001113647
-
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

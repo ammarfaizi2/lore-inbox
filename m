@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313615AbSDPGNa>; Tue, 16 Apr 2002 02:13:30 -0400
+	id <S313605AbSDPFxW>; Tue, 16 Apr 2002 01:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313617AbSDPGN3>; Tue, 16 Apr 2002 02:13:29 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:60421 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313615AbSDPGN2>; Tue, 16 Apr 2002 02:13:28 -0400
-Message-ID: <3CBBB270.2090006@evision-ventures.com>
-Date: Tue, 16 Apr 2002 07:11:12 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ #4
-In-Reply-To: <274A9BD5C76@vcnet.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313606AbSDPFxV>; Tue, 16 Apr 2002 01:53:21 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:30212 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S313605AbSDPFxV>;
+	Tue, 16 Apr 2002 01:53:21 -0400
+Date: Tue, 16 Apr 2002 07:53:13 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH]
+Message-ID: <20020416055313.GD12608@suse.de>
+In-Reply-To: <Pine.LNX.4.10.10204151119350.1699-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> On 15 Apr 02 at 18:44, Jens Axboe wrote:
+On Mon, Apr 15 2002, Andre Hedrick wrote:
 > 
-> 
->>>You can run a IDENTIFY_DEVICE from user space with the task ioctls and
->>>look at word 83 -- bit 1 and 14 must be set for TCQ to be supported. If
->>>you give me the model identifier from the IBM drive, I can tell you if
->>>it has tcq or not...
->>>
->>>I'll write a small util to detect this tomorrow and send it to you + the
->>>list.
->>
->>Duh, you can of course just look at /proc/ide/ideX/hdY/identify and
->>parse that. The info above is still valid for that, of course :-)
-> 
-> 
-> If I parsed file correctly (it is 83 decimal word, yes?), WD's
-> WDC WD1200JB-00CRA0 supports TCQ too. I'm still deciding which of
-> TCQ #X and IDE #YY patches should be aplied to 2.5.8 to get optimal
-> results (and I have to disconnect slaves...).
+> http://www.linuxdiskcert.org/ide-2.4.19-p6.all.convert.3.patch.bz2
 
-IDE 35 ist the latest from Jens with a fix for a wrong memset.
-So you should go for IDE 34, 35, since they apply on top of each other.
+seems that you haven't fixed the case where you cannot enable dma on an
+atapi drive if CONFIG_IDEDMA_ONLYDISK has been selected? to me this is a
+bug -- I don't want auto-enable of dma on my atapi drives, but I surely
+want to be able to hdparm -d1 them at will later on.
+
+-- 
+Jens Axboe
 

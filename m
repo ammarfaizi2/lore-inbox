@@ -1,65 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265062AbTLWItF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 03:49:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbTLWItF
+	id S265053AbTLWIvb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 03:51:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbTLWIvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 03:49:05 -0500
-Received: from linux-bt.org ([217.160.111.169]:22707 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S265062AbTLWItD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 03:49:03 -0500
-Subject: Re: [2.6 PATCH/RFC] Firmware loader - fix races and resource
-	dealloocation problems
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Manuel Estrada Sainz <ranty@debian.org>,
-       Patrick Mochel <mochel@osdl.org>
-In-Reply-To: <200312222229.17991.dtor_core@ameritech.net>
-References: <200312210137.41343.dtor_core@ameritech.net>
-	 <20031222093759.GB30235@kroah.com>
-	 <200312222229.17991.dtor_core@ameritech.net>
-Content-Type: text/plain
-Message-Id: <1072169289.2876.57.camel@pegasus>
+	Tue, 23 Dec 2003 03:51:31 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:7227 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S265053AbTLWIv3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 03:51:29 -0500
+Date: Tue, 23 Dec 2003 10:51:13 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: lot of VM problem with 2.4.23
+Message-ID: <20031223085113.GN1524@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Gene Heskett <gene.heskett@verizon.net>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org, andrea@suse.de
+References: <20031221150312.GJ25043@ovh.net> <20031222183554.GN6438@matchmail.com> <20031222211247.GL1455@niksula.cs.hut.fi> <200312221752.01730.gene.heskett@verizon.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 23 Dec 2003 09:48:09 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312221752.01730.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dmitry,
-
-> > > It seems that implementation of the firmware loader is racy as it
-> > > relies on kobject hotplug handler. Unfortunately that handler runs
-> > > too early, before firmware class attributes controlling the loading
-> > > process, are created. This causes firmware loading fail at least half
-> > > of the times on my laptop.
+On Mon, Dec 22, 2003 at 05:52:01PM -0500, you [Gene Heskett] wrote:
 > >
-> > Um, why not have your script wait until the files are present?  That
-> > will remove any race conditions you will have.
+> >(It's a 7.0 Red Hat).
+> >
+> >It does
+> >   runcmd "Sending all processes the KILL signal..."  /sbin/killall5
+> > -9 before
+> >   [ -n "$SWAPS" ] && runcmd "Turning off swap: " swapoff $SWAPS
+> >in /etc/rc6.d/S01reboot and I've seen the "Sending all processes the
+> > KILL signal..." message appear before the memory freeing loop
+> > starts rolling.
 > 
-> How long should the userspace wait? One second as Manuel suggested?
-> Indefinitely? Or should the firmware agent have some timeout? If userspace
-> uses a timeout how should it correlate with the timeout on the kernel side?
+> If its a pristine rh7.0 install, that version of bind has a notorious 
+> rootkit hole.  
 
-the timeout of the kernel (which can be set from userspace) is for the
-whole firmware loading process. What we talk about is waiting a little
-bit before the files become visible for the firmware.agent.
+Pristine - hell no. None of my install are pristine :).
 
-> I am sorry but I have to disagree with you. Kernel should not call user
-> space until it has all infrastructure in place and is ready. Anything
-> else is just a sloppy practice.
+Bind - hell no. I may be^W^Wam stupid, but does *anyone* put boxes in
+production without disabling services first?
 
-The firmware.agent script has 3 extra lines to check for the visibility
-of the "loading" file and if it is not present it will sleep one second.
-This is a actual good practice compared to adding much more code to the
-kernel and have an own way of running hotplug.
+> So I wonder if the machine has been kitted by some 
+> script kiddie whose good at covering his tracks but not the rest of 
+> the housekeeping.
 
-Regards
+Uh, it may be rooted allright, but I seriously doubt that is cause of this
+symptom.
 
-Marcel
+> An OS upgrade does seem to be in order, lots has happened since 7.0.  
+
+I know that, but I'm not exactly lacking interesting admin things to do so
+that I would run around upgrading all the boxes there are lying around on
+the corners each time a distro upgrade comes up. The box works for what it
+is supposed to do (a miracle, that, considering it's a 200MHz/64MB
+screamer), it's behind a fw, most services are disabled. And it's actually
+being phased out of production anyway.
+
+Sure, if I had endlessly time on my hands, I'd upgrade the distro, but right
+now, I'll have to settle with just keeping the crucial services up-to-date.
+
+> 7.3 with an updated kernel is my firewall, uptime is about 95 days 
+> now. 
+
+No problem with getting good uptimes with this kernel (2.4.21-jam1). I only
+had to boot it to install the do_brk patch.
+
+> It was shut down while I was out of state for a couple of 
+> months last fall.
+
+Longest uptimes I've got are with 2.0 and 2.2 so far. And I have a number of
+RH 6.2 distros running still. I see no fundamental problem with an old
+distro (as long as you know the down sides (keep the services up-to-date, no
+>2GB file support with all applications etc etc).
 
 
+-- v --
+
+v@iki.fi

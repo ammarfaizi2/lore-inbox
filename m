@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbULCWcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbULCWeD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbULCWcT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 17:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbULCWcT
+	id S262441AbULCWeD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 17:34:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbULCWeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 17:32:19 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:53425 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262432AbULCWcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 17:32:14 -0500
-Date: Fri, 3 Dec 2004 23:31:58 +0100
-From: franz_pletz@t-online.de (Franz Pletz)
-To: Phil Oester <kernel@linuxace.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] loopback device can't act as its backing store
-Message-ID: <20041203233158.41595f46@sgx.home>
-In-Reply-To: <20041203214238.GA23245@linuxace.com>
-References: <Pine.LNX.4.61.0412032028220.10184@sgx.home>
-	<20041203214238.GA23245@linuxace.com>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-ID: S81GhUZBZeOAJQoRnjmfCRhHvlbQgJ+VzxPOInVZEjY-qFjNjKSBrx
-X-TOI-MSGID: fff89704-803e-46a1-bcc7-eb69557f8e3e
+	Fri, 3 Dec 2004 17:34:03 -0500
+Received: from dfw-gate1.raytheon.com ([199.46.199.230]:47087 "EHLO
+	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
+	id S262441AbULCWdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 17:33:47 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.32-0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFAD4DDF01.33613E58-ON86256F5F.007AE759@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Fri, 3 Dec 2004 16:33:20 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 12/03/2004 04:33:23 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Dec 2004 13:42:38 -0800, Phil Oester <kernel@linuxace.com> wrote:
-> Your mailer mangled the patch.
-
-Thanks for your feedback.
-I apologize for any inconvenience at applying or evaluating the patch.
-
-I think I got it now. Let's give it another try.
+Comparison of .32-0 and .31-15 results
 
 
-Signed-off-by: Franz Pletz <franz_pletz@t-online.de>
+      within 100 usec
+       CPU loop (%)   Elapsed Time (sec)    2.4
+Test   32-0  31-15     32-0   31-15  |   CPU  Elapsed
+X     94.58  99.22      67      68   |  97.20   70
+top   95.29  97.96      39      34   |  97.48   29
+neto  94.24  99.98     360     360   |  96.23   36
+neti  94.83  98.31     360     350   |  95.86   41
+diskw 90.77  99.57     360     360 * |  77.64   29
+diskc 93.47  97.49     360     360   |  84.12   77
+diskr 93.49  98.35     320     180   |  90.66   86
+total                 1866    1712   |         368
+* wide variation in audio duration
 
- linux/drivers/block/loop.c |    7 +++++++
-  1 files changed, 7 insertions(+)
+Grr. This appears that .32-0 is MUCH WORSE than 31.15 at
+keeping the relatively small (100 usec) latencies down.
+Probably due to the CPU task switch that prevents the
+longer ones from occurring. The MAX CPU latencies are down
+in most cases (over 4 msec down to about 3 msec) which
+is a good result.
 
---- linux-2.6.10-rc2/drivers/block/loop.c	2004-11-25 19:56:32.000000000 +0100
-+++ linux/drivers/block/loop.c	2004-12-02 23:39:43.516913144 +0100
-@@ -596,6 +596,9 @@
- 	old_file = lo->lo_backing_file;
- 
- 	error = -EINVAL;
-+	/* new backing store mustn't be the loop device it's being mapped to */
-+	if(inode->i_rdev == bdev->bd_dev)
-+		goto out_putf;
- 
- 	if (!S_ISREG(inode->i_mode) && !S_ISBLK(inode->i_mode))
- 		goto out_putf;
-@@ -652,6 +655,10 @@
- 		lo_flags |= LO_FLAGS_READ_ONLY;
- 
- 	error = -EINVAL;
-+	/* new backing store mustn't be the loop device it's being mapped to */
-+	if(inode->i_rdev == bdev->bd_dev)
-+		goto out_putf;
-+
- 	if (S_ISREG(inode->i_mode) || S_ISBLK(inode->i_mode)) {
- 		struct address_space_operations *aops = mapping->a_ops;
- 		/*
+The long elapsed times appear to indicate that we are
+starving the "stress test" application (and likely
+running the niced, non RT cpu_burn instead).
+
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
+

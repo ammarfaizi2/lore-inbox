@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263647AbTJOQ6P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 12:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTJOQ6P
+	id S263723AbTJORY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 13:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263724AbTJORY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 12:58:15 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:24048 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S263647AbTJOQ6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 12:58:13 -0400
-Date: Wed, 15 Oct 2003 10:56:55 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: josh@temp123.org, linux-kernel@vger.kernel.org
+	Wed, 15 Oct 2003 13:24:28 -0400
+Received: from [64.238.111.222] ([64.238.111.222]:16000 "EHLO Borogove")
+	by vger.kernel.org with ESMTP id S263723AbTJORY1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 13:24:27 -0400
 Subject: Re: Transparent compression in the FS
-Message-ID: <20031015105655.C1593@schatzie.adilger.int>
-Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>, josh@temp123.org,
-	linux-kernel@vger.kernel.org
-References: <1066163449.4286.4.camel@Borogove> <1066235105.14783.1602.camel@hades.cambridge.redhat.com>
+From: Josh Litherland <josh@temp123.org>
+Reply-To: josh@temp123.org
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031015160430.GH24799@bitwizard.nl>
+References: <1066163449.4286.4.camel@Borogove>
+	 <20031015133305.GF24799@bitwizard.nl>
+	 <16269.20654.201680.390284@laputa.namesys.com>
+	 <20031015142738.GG24799@bitwizard.nl>
+	 <16269.23199.833564.163986@laputa.namesys.com>
+	 <20031015160430.GH24799@bitwizard.nl>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GSMc6w5sBqaNDjp9HFAl"
+Message-Id: <1066238667.836.4.camel@Borogove>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1066235105.14783.1602.camel@hades.cambridge.redhat.com>; from dwmw2@infradead.org on Wed, Oct 15, 2003 at 05:25:06PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 15 Oct 2003 13:24:27 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 15, 2003  17:25 +0100, David Woodhouse wrote:
-> On Tue, 2003-10-14 at 16:30 -0400, Josh Litherland wrote:
-> > Are there any filesystems which implement the transparent compression
-> > attribute ?  (chattr +c)
-> 
-> JFFS2 doesn't implement 'chattr +c', which is in fact an EXT2-private
-> ioctl. But it does do transparent compression.
 
-Actually, reiserfs also supports ext2-compatible SETFLAGS/GETFLAGS ioctls.
-This allows us to use the same tools for lsattr and chattr instead of using
-lsattr.reiserfs, etc.  Our Lustre distributed filesystem does the same.
+--=-GSMc6w5sBqaNDjp9HFAl
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+On Wed, 2003-10-15 at 12:04, Erik Mouw wrote:
 
+> FYI: you hardly see compressed files on NTFS. If you do, it's either
+> because the user thought it was a fun feature
+
+-shrug-  The windows disk cleanup tool does this by default now if you
+let it.  It compresses files that have an old access time.  Not a bad
+idea imo, if perhaps one of limited usefulness.
+
+--=20
+Josh Litherland (josh@temp123.org)
+
+--=-GSMc6w5sBqaNDjp9HFAl
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/jYLLBrTD/Ik9kigRAt7xAKCckR6u0w2ZGX6+MhhiVSF/CTM0UACeM6WF
+HtcZwvAPqtaP8WnsRJkEkpI=
+=D21i
+-----END PGP SIGNATURE-----
+
+--=-GSMc6w5sBqaNDjp9HFAl--

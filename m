@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUHRMgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUHRM3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266181AbUHRMgW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 08:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbUHRMdv
+	id S266193AbUHRM3q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 08:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUHRM3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 08:33:51 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:54711 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266200AbUHRMaG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 08:30:06 -0400
-Date: Wed, 18 Aug 2004 17:59:49 +0530
-From: Hariprasad Nellitheertha <hari@in.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org, akpm@osdl.org,
-       Suparna Bhattacharya <suparna@in.ibm.com>, litke@us.ibm.com,
-       ebiederm@xmission.com
-Subject: Re: [PATCH][6/6]Device abstraction for linear/raw view of the dump
-Message-ID: <20040818122949.GB3597@in.ibm.com>
-Reply-To: hari@in.ibm.com
-References: <20040817120239.GA3916@in.ibm.com> <20040817120531.GB3916@in.ibm.com> <20040817120717.GC3916@in.ibm.com> <20040817120809.GD3916@in.ibm.com> <20040817120911.GE3916@in.ibm.com> <20040817121017.GF3916@in.ibm.com> <20040817121332.GG3916@in.ibm.com> <175200000.1092783201@flay>
+	Wed, 18 Aug 2004 08:29:39 -0400
+Received: from [144.51.25.10] ([144.51.25.10]:30339 "EHLO epoch.ncsc.mil")
+	by vger.kernel.org with ESMTP id S266181AbUHRM0O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 08:26:14 -0400
+Subject: Re: 2.6.8.1-mm1 Tty problems?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: ismail =?ISO-8859-1?Q?d=F6nmez?= <ismail.donmez@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <412271EF.6040201@microgate.com>
+References: <2a4f155d040817070854931025@mail.gmail.com>
+	 <412271EF.6040201@microgate.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1092831738.26566.68.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <175200000.1092783201@flay>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 18 Aug 2004 08:22:18 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin,
+On Tue, 2004-08-17 at 17:00, Paul Fulghum wrote:
+> Stephen, James, Andrew:
+> 
+> the selinux-revalidate-access-to-controlling-tty patch
+> seems to be causing the problem with less program as
+> shown above. See the rest of this thread for more details.
 
-On Tue, Aug 17, 2004 at 03:53:21PM -0700, Martin J. Bligh wrote:
-> > This patch contains the code that enables us to access the 
-> > previous kernel's memory as /dev/hmem.
-> 
-> One of the bits of feedback we got at kernel summit was that nobody
-> liked the /dev/hmem name ... could we change it to /dev/oldmem, perhaps?
+I find that puzzling, given that flush_unauthorized_files is only called
+if the process is changing SIDs on exec, and running less certainly
+doesn't involve a SID transition (at least for any policy that I have
+seen).  I tried the sequence shown with 2.6.8.1-mm1 with SELinux enabled
+and disabled, and did not see the behavior he describes.  Is the bug
+reproducible?  Was he running with SELinux enabled or disabled?  What
+policy did he have loaded?
 
-I'll change it to /dev/oldmem in the next iteration of the patches.
-
-> 
-> Thanks,
-> 
-> M.
-> 
-Regards, Hari
 -- 
-Hariprasad Nellitheertha
-Linux Technology Center
-India Software Labs
-IBM India, Bangalore
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

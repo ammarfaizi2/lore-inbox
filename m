@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265403AbUAAUVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 15:21:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbUAAURV
+	id S264870AbUAAUZX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 15:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264987AbUAAUV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 15:17:21 -0500
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:41557 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264964AbUAAUKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:10:02 -0500
-Date: Thu, 1 Jan 2004 21:01:52 +0100
-Message-Id: <200401012001.i01K1q1n031733@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 348] Amiga sound C99
+	Thu, 1 Jan 2004 15:21:27 -0500
+Received: from havoc.gtf.org ([63.247.75.124]:7358 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S265401AbUAAUUP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:20:15 -0500
+Date: Thu, 1 Jan 2004 15:20:14 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: Re: [PATCH 358] Mac Sonic Ethernet
+Message-ID: <20040101202014.GA12605@gtf.org>
+References: <200401012001.i01K1wYm031787@callisto.of.borg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401012001.i01K1wYm031787@callisto.of.borg>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amiga sound: Use C99 struct initializers
+On Thu, Jan 01, 2004 at 09:01:58PM +0100, Geert Uytterhoeven wrote:
+> Mac Sonic Ethernet: Minor updates (from Matthias Urlichs)
 
---- linux-2.6.0/arch/m68k/amiga/amisound.c	Tue Mar 25 10:06:07 2003
-+++ linux-m68k-2.6.0/arch/m68k/amiga/amisound.c	Sun Oct  5 11:55:44 2003
-@@ -44,7 +44,7 @@
- 
- void __init amiga_init_sound(void)
- {
--	static struct resource beep_res = { "Beep" };
-+	static struct resource beep_res = { .name = "Beep" };
- 
- 	snd_data = amiga_chip_alloc_res(sizeof(sine_data), &beep_res);
- 	if (!snd_data) {
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+ACK

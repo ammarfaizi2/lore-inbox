@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263000AbUDYQJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263166AbUDYQvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263000AbUDYQJB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 12:09:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbUDYQJB
+	id S263166AbUDYQvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 12:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUDYQvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 12:09:01 -0400
-Received: from tench.street-vision.com ([212.18.235.100]:45513 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id S263000AbUDYQI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 12:08:59 -0400
-Subject: sata_sil bug
-From: Justin Cormack <justin@street-vision.com>
-To: Jeff Garzik <jgarzik@pobox.com>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1082909255.21233.22.camel@lotte.street-vision.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 25 Apr 2004 17:07:36 +0100
-Content-Transfer-Encoding: 7bit
+	Sun, 25 Apr 2004 12:51:09 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:60594 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S263166AbUDYQvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Apr 2004 12:51:06 -0400
+Date: Sun, 25 Apr 2004 17:50:58 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: CaT <cat@zip.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc3-mm4 tmpfs, free and free memory reporting
+In-Reply-To: <20040425130338.GB2011@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0404251737200.13626-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 25 Apr 2004, CaT wrote:
+> I noticed that the OoM killer was being rather brutal to my tasks
+> even though free was reporting that I had 150meg of ram left. It wasn't
+> until much later that I realise that I have tmpfs being used as /tmp
+> and I checked that. Once I cleaned that up a big all was well. The
+> hassle was, the memory used by tmpfs was being reported as being used
+> by the cache. That may be so internally but shouldn't it be reported
+> as actually used ram as it cannot be dumped for processes like a normal
+> disk cache can and therefore cannot be considered to be 'free' ram.
 
-Using sata_sil on sii3112A on 2.6.5-rc2 (sorry a bit old, will update
-but I dont think there are any changes to the driver) I got an error:
+If you have swap enabled (do you?) then tmpfs pages get written out
+to swap under memory pressure, and so it is like normal disk cache.  
 
-ata1: DMA timeout, stat 0x0
-ATA: abnormal status 0xD8 on port 0xF8807087
-scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x2a 00 17 9b d9 80 00 00
-20 00
-Current sda: sense = 70  3
-ASC= c ASCQ= 2
-Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-0x00 0x0c
-end_request: I/O error, dev sda, sector 396089728
-ATA: abnormal status 0xD8 on port 0xF8807087
-ATA: abnormal status 0xD8 on port 0xF8807087
-ATA: abnormal status 0xD8 on port 0xF8807087
+If you don't have swap enabled, yes, there's nowhere else for it to
+go; but I'd say perhaps you were then unwise to allow so much of your
+memory to be used for tmpfs mounts - not been bumping up that nice
+size=50% have you ;-?
 
-Then all accesses to the drive got stuck in D state.
-I think the disk has bad sectors or other faults - had read errors
-earlier, but this is the first bad disk I have had that has had problems
-recovering. Could I have hit the state that requires the watchdog?
+But there's certainly scope for suspicion, as to whether the vmscan
+algorithms deal effectively with sending tmpfs to swap.  Should
+page_mapping_inuse be so reluctant to write out tmpfs swap?  Should
+shmem_writepage call swap_writepage directly instead of giving tmpfs
+pages another go around the lists?  (Andrea recently found 2.4 cases
+which convinced him it should call swap_writepage directly.)
 
-Justin
+We've made no change in the face of those doubts because nobody was
+complaining of current behaviour; and it makes some sense to be a
+little reluctant to swap out tmpfs pages - it is supposed to be a
+ram-based filesystem, after all.  But if complaints do accumulate,
+let's look into changing some decisions there.
 
+Hugh
 

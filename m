@@ -1,47 +1,149 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273256AbRIRJWu>; Tue, 18 Sep 2001 05:22:50 -0400
+	id <S273242AbRIRJUA>; Tue, 18 Sep 2001 05:20:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273254AbRIRJWk>; Tue, 18 Sep 2001 05:22:40 -0400
-Received: from edu.joroinen.fi ([195.156.135.125]:26635 "HELO edu.joroinen.fi")
-	by vger.kernel.org with SMTP id <S273258AbRIRJWc> convert rfc822-to-8bit;
-	Tue, 18 Sep 2001 05:22:32 -0400
-Date: Tue, 18 Sep 2001 12:22:48 +0300 (EEST)
-From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
-X-X-Sender: <pk@edu.joroinen.fi>
-To: <linux-kernel@vger.kernel.org>
-Subject: Module-loading problem with 4MB of ram
-Message-ID: <Pine.LNX.4.33.0109181217330.4235-100000@edu.joroinen.fi>
+	id <S273240AbRIRJTv>; Tue, 18 Sep 2001 05:19:51 -0400
+Received: from [213.82.86.194] ([213.82.86.194]:45071 "EHLO fatamorgana.net")
+	by vger.kernel.org with ESMTP id <S273242AbRIRJTj>;
+	Tue, 18 Sep 2001 05:19:39 -0400
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_V2QUP956MKP2FZYJMV16"
+From: Roberto Arcomano <berto@fatamorgana.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] proxy arp bug on shaper device
+Date: Tue, 18 Sep 2001 11:23:19 +0200
+X-Mailer: KMail [version 1.2]
+Cc: torvalds@transmeta.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Message-Id: <01091811231900.01134@berto.casa.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello!
+--------------Boundary-00=_V2QUP956MKP2FZYJMV16
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-I have a machine with only 4MB of RAM. I'm using kernel 2.2.19.
+Hi all,
+This patch should correct proxy arp feature in shaper devices forcing kernel 
+checking (before sending ARP REPLY) for "physical" device (i.e. eth0) instead 
+of "shaper" device (i.e. shaper0): in this way we avoid useless ARP REPLY and 
+"IP CONFLICT" messages on client hosts.
 
-System starts up just fine, and I can load pcmcia-cs. Now, when I insert
-pcmcia-card, the card is detected, and the loading of driver is started.
+I tested it for many days and it has been worked well.
+See July messages for discussion about it.
 
-This is where the problems start. Driver says it cannot allocate memory
-for the firmware of the card. When I look at the code, it is like this:
+Thank you for your great support.
+Best Regards
+Roberto arcomano
 
-ptr = dmalloc(size, GFP_ATOMIC);
+--------------Boundary-00=_V2QUP956MKP2FZYJMV16
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="patch-proxyarp-2.4.9"
+Content-Transfer-Encoding: base64
+Content-Description: PATCH
+Content-Disposition: attachment; filename="patch-proxyarp-2.4.9"
 
-is there any way to reserve some memory for the driver-module?
+ZGlmZiAtdXIgbGludXgtMi40Ljkub3JpZy9kcml2ZXJzL25ldC9zaGFwZXIuYyBsaW51eC0yLjQu
+OS9kcml2ZXJzL25ldC9zaGFwZXIuYwotLS0gbGludXgtMi40Ljkub3JpZy9kcml2ZXJzL25ldC9z
+aGFwZXIuYwlUaHUgSnVuIDI4IDAyOjEwOjU1IDIwMDEKKysrIGxpbnV4LTIuNC45L2RyaXZlcnMv
+bmV0L3NoYXBlci5jCVR1ZSBTZXAgMTEgMTM6MjA6MDkgMjAwMQpAQCAtNjcwLDYgKzY3MCw3IEBA
+CiAJZGV2LT5hZGRyX2xlbgkJPSAwOwogCWRldi0+dHhfcXVldWVfbGVuCT0gMTA7CiAJZGV2LT5m
+bGFncwkJPSAwOworCWRldi0+ZmVhdHVyZXMJCXw9IE5FVElGX0ZfU0hBUEVSOwogCQkKIAkvKgog
+CSAqCVNoYXBlciBpcyBvawpkaWZmIC11ciBsaW51eC0yLjQuOS5vcmlnL2luY2x1ZGUvbGludXgv
+aWZfc2hhcGVyLmggbGludXgtMi40LjkvaW5jbHVkZS9saW51eC9pZl9zaGFwZXIuaAotLS0gbGlu
+dXgtMi40Ljkub3JpZy9pbmNsdWRlL2xpbnV4L2lmX3NoYXBlci5oCVdlZCBBdWcgMTggMjA6Mzg6
+NDcgMTk5OQorKysgbGludXgtMi40LjkvaW5jbHVkZS9saW51eC9pZl9zaGFwZXIuaAlUdWUgU2Vw
+IDExIDEzOjIwOjAwIDIwMDEKQEAgLTE0LDYgKzE0LDggQEAKICNkZWZpbmUgU0hBUEVSX01BWFNM
+SVAJMgogI2RlZmluZSBTSEFQRVJfQlVSU1QJKEhaLzUwKQkJLyogR29vZCBmb3IgPjEyOEsgdGhl
+biAqLwogCisjZGVmaW5lIElTX1NIQVBFUkRFVklDRShkZXYpICgoZGV2KS0+ZmVhdHVyZXMgJiBO
+RVRJRl9GX1NIQVBFUikKKwogc3RydWN0IHNoYXBlcgogewogCXN0cnVjdCBza19idWZmX2hlYWQg
+c2VuZHE7CmRpZmYgLXVyIGxpbnV4LTIuNC45Lm9yaWcvaW5jbHVkZS9saW51eC9uZXRkZXZpY2Uu
+aCBsaW51eC0yLjQuOS9pbmNsdWRlL2xpbnV4L25ldGRldmljZS5oCi0tLSBsaW51eC0yLjQuOS5v
+cmlnL2luY2x1ZGUvbGludXgvbmV0ZGV2aWNlLmgJU3VuIFNlcCAgOSAxNjoxNTo0MCAyMDAxCisr
+KyBsaW51eC0yLjQuOS9pbmNsdWRlL2xpbnV4L25ldGRldmljZS5oCVR1ZSBTZXAgMTEgMTM6MjA6
+MDQgMjAwMQpAQCAtMzQ1LDYgKzM0NSw3IEBACiAjZGVmaW5lIE5FVElGX0ZfRFlOQUxMT0MJMTYJ
+LyogU2VsZi1kZWN0cnVjdGFibGUgZGV2aWNlLiAqLwogI2RlZmluZSBORVRJRl9GX0hJR0hETUEJ
+CTMyCS8qIENhbiBETUEgdG8gaGlnaCBtZW1vcnkuICovCiAjZGVmaW5lIE5FVElGX0ZfRlJBR0xJ
+U1QJNjQJLyogU2NhdHRlci9nYXRoZXIgSU8uICovCisjZGVmaW5lIE5FVElGX0ZfU0hBUEVSICAJ
+MTI4CS8qIFNoYXBlciBkZXZpY2UuICovCiAKIAkvKiBDYWxsZWQgYWZ0ZXIgZGV2aWNlIGlzIGRl
+dGFjaGVkIGZyb20gbmV0d29yay4gKi8KIAl2b2lkCQkJKCp1bmluaXQpKHN0cnVjdCBuZXRfZGV2
+aWNlICpkZXYpOwpkaWZmIC11ciBsaW51eC0yLjQuOS5vcmlnL25ldC9pcHY0L2FycC5jIGxpbnV4
+LTIuNC45L25ldC9pcHY0L2FycC5jCi0tLSBsaW51eC0yLjQuOS5vcmlnL25ldC9pcHY0L2FycC5j
+CVdlZCBNYXkgMTYgMTk6MjE6NDUgMjAwMQorKysgbGludXgtMi40LjkvbmV0L2lwdjQvYXJwLmMJ
+VHVlIFNlcCAxMSAxMzoxOTo1MSAyMDAxCkBAIC0xMTEsOCArMTExLDcgQEAKIAogI2luY2x1ZGUg
+PGFzbS9zeXN0ZW0uaD4KICNpbmNsdWRlIDxhc20vdWFjY2Vzcy5oPgotCi0KKyNpbmNsdWRlIDxs
+aW51eC9pZl9zaGFwZXIuaD4KIAogLyoKICAqCUludGVyZmFjZSB0byBnZW5lcmljIG5laWdoYm91
+ciBjYWNoZS4KQEAgLTc2Nyw4ICs3NjYsMTUgQEAKIAkJCX0KIAkJCWdvdG8gb3V0OwogCQl9IGVs
+c2UgaWYgKElOX0RFVl9GT1JXQVJEKGluX2RldikpIHsKKyAgICAgICAgICAgICAgICAgICAgICAg
+IGNoYXIgc2hmbGFnPTA7CisgICAgICAgICAgICAgICAgICAgICAgICBpZiAoIChydC0+dS5kc3Qu
+ZGV2KSAmJgorCQkJICAgICAocnQtPnUuZHN0LmRldi0+cHJpdikgJiYKKwkJCSAgICAgKCgoc3Ry
+dWN0IHNoYXBlciAqKSBydC0+dS5kc3QuZGV2LT5wcml2KS0+ZGV2KSAmJgorCQkJICAgICAoSVNf
+U0hBUEVSREVWSUNFKHJ0LT51LmRzdC5kZXYpKSApCisJCQkgIHNoZmxhZz0xOwogCQkJaWYgKChy
+dC0+cnRfZmxhZ3MmUlRDRl9ETkFUKSB8fAotCQkJICAgIChhZGRyX3R5cGUgPT0gUlROX1VOSUNB
+U1QgICYmIHJ0LT51LmRzdC5kZXYgIT0gZGV2ICYmCisJCQkgICAgKGFkZHJfdHlwZSA9PSBSVE5f
+VU5JQ0FTVCAgJiYgCisJCQkgICAgKCAoKHNoZmxhZykgJiYgKCAoKHN0cnVjdCBzaGFwZXIgKikg
+cnQtPnUuZHN0LmRldi0+cHJpdiktPmRldiAhPSBkZXYpKSB8fCAoKCFzaGZsYWcpICYmIChydC0+
+dS5kc3QuZGV2ICE9IGRldikpICkgJiYKIAkJCSAgICAgKElOX0RFVl9QUk9YWV9BUlAoaW5fZGV2
+KSB8fCBwbmVpZ2hfbG9va3VwKCZhcnBfdGJsLCAmdGlwLCBkZXYsIDApKSkpIHsKIAkJCQluID0g
+bmVpZ2hfZXZlbnRfbnMoJmFycF90YmwsIHNoYSwgJnNpcCwgZGV2KTsKIAkJCQlpZiAobikK
 
+--------------Boundary-00=_V2QUP956MKP2FZYJMV16
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="readme.txt"
+Content-Transfer-Encoding: base64
+Content-Description: README file
+Content-Disposition: attachment; filename="readme.txt"
 
-Thank you for your help.
+U3ViamVjdDogUEFUQ0ggdG8gdXBkYXRlIHByb3h5IGFycCBmZWF0dXJlIG9uIHNoYXBlciBkZXZp
+Y2UKCkF1dGhvcjogUm9iZXJ0byBBcmNvbWFubywgYmVydG9AZmF0YW1vcmdhbmEuY29tLAogICAg
+ICAgIGh0dHA6Ly93d3cuZmF0YW1vcmdhbmEuY29tL2JlcnRvbGludXgKCkRhdGU6IDkvOS8yMDAx
+CgpEZXNjcmlwdGlvbjogU2hhcGVyIGRldmljZSBpcyBzZWVuIGJ5IHRoZSBrZXJuZWwgbGlrZSBh
+IAogICAgICAgICAgICAgZGlmZmVyZW50IGRldmljZSAoaS5lLiBzaGFwZXIwKSB0aGFuIHRoZSAK
+CSAgICAgcGh5c2ljYWwgb25lIChpLmUuIGV0aDApICB0byB3aGljaCBpcyBhdHRhY2hlZDoKCSAg
+ICAgc28ga2VybmVsIGFsd2F5cyBpc3N1ZXMgYW4gIkFSUCBSRVBMWSIgCgkgICAgIChpZiBwcm94
+eSBhcnAgaXMgYWN0aXZlIG9uIHNoYXBlciBwaHlzaWNhbCAKCSAgICAgaW50ZXJmYWNlKTogdGhp
+cyBwcmV2ZW50IHVzIGZyb20gdXNlIHByb3h5IGFycCBvbiAKCSAgICAgYSBzaGFwZXIgZGV2aWNl
+IGNhdXNlLCBkdXJpbmcgdHVybmluZyBvbiBjbGllbnQKCSAgICAgbWFjaGluZSwgd2Ugd291bGQg
+cmVjZWl2ZSBhbiAiSVAgY29uZmxpdCIgbWVzc2FnZS4KCSAgICAgClNvbHV0aW9uOiBQYXRjaCBj
+b25zaXN0cyBpbiA0IGZpbGVzOgoJICBhLSkgImluY2x1ZGUvbGludXgvbmV0ZGV2aWNlLmgiLCB3
+aGVyZSB3ZSBhZGQgYSBuZXcKCSAgICAgIG5ldCBmZWF0dXJlLCBORVRJRl9GX1NIQVBFUiB3aGlj
+aCB3aWxsIGhlbHAKCSAgICAgIHVzIHRvIHVuZGVyc3RhbmQgaWYgYSBkZXZpY2UgaXMgYSBzaGFw
+ZXIgb25lLgoJICAgICAgCgkgIGItKSAiZHJpdmVycy9uZXQvc2hhcGVyLmMiLCBpbiAic2hhcGVy
+X3Byb2JlIiBmdW5jdGlvbgoJICAgICAgd2Ugc2V0IE5FVElGX0ZfU0hBUEVSIGZsYWcgZm9yIGEg
+bmV3IHNoYXBlcgoJICAgICAgZGV2aWNlLgoJICAKCSAgYy0pICJpbmNsdWRlL2xpbnV4L2lmX3No
+YXBlci5oIiB3aGVyZSB3ZSBhZGQgdGhlIG1hY3JvCgkgICAgICBJU19TSEFQRVJERVZJQ0UsIHVz
+ZWQgdG8ga25vdyBpZiB0aGUgZGV2aWNlIGlzIGEgCgkgICAgICBzaGFwZXIgb25lIChpdCBjaGVj
+a3MgTkVUSUZfRl9TSEFQRVIgZmxhZyBpbiAKCSAgICAgIGZlYXR1cmVzIGZpZWxkLCB1bmRlciAi
+bmV0ZGV2aWNlIiBzdHJ1Y3QpLgoJCgkgIGQtKSAibmV0L2lwdjQvYXJwLmMiIHdoZXJlIGZpbmFs
+bHkgd2UgbW9kaWZ5IHByb3h5IGFycDsKCSAgICAgIFdlIHVzZSBzaGZsYWcgdG8gZGV0ZXJtaW5l
+IGlmIHdlIGFyZSBtYW5hZ2luZyBhCgkgICAgICBzaGFwZXIgZGV2aWNlICh3aXRoIElTX1NIQVBF
+UkRFVklDRSBtYWNybyk6IGluIAoJICAgICAgdGhpcyBjYXNlIHdlIGNoZWNrIAoJICAgICAgInJ0
+LT51LmRzdC5kZXYtPnByaXYtPmRldiIgKHBoeXNpY2FsIGRldmljZSkgCgkgICAgICBpbnN0ZWFk
+IG9mIAoJICAgICAgInJ0LT51LmRzdC5kZXYiIChzaGFwZXIgZGV2aWNlKQoJICAgICAgd2hpbGUg
+aWYgdGhlIGRldmljZSBpcyBhIG5vbiBzaGFwZXIgb25lLCB3ZSBjaGVjayAKCSAgICAgIHJ0LT51
+LmRzdC5kZXYgKGFuZGVkIHdpdGggIXNoZmxhZykKCSAgICAgIApUT0RPOglJIHVzZWQgImZlYXR1
+cmVzIiBmaWVsZCBpbiBuZXRkZXZpY2Ugc3RydWN0OiBtYXliZSBpdCBjb3VsZAogICAgICAgIGJl
+IGNob29zZW4gYW5vdGhlciBwbGFjZSB3aGVyZSB0byBwdXQgdGhlIHNoYXBlciBmbGFnLgkgICAg
+ICAKCSAgICAgIApUZXN0czogSSB0ZXN0ZWQgbmV3IGZlYXR1cmUgdXNpbmcgMyBQQ3MgbGlrZSB0
+aGF0OgoKICAgICAgICAgICBDTElFTlQxICAtLS0tLS0tLS0tLS0tIExJTlVYIC0tLS0tLS0tLS0t
+LS0gQ0xJRU5UMiAKICAgICAJICAgICAgICAgICAgICAgICAgIHNoYXBlcjAgICAgICBwcHAwCgkg
+ICAgICAgICAgICAgICAgICAgIFtldGgwXQoJICAgCiAgICAgICBMSU5VWCBob3N0IGhhcyBwcm94
+eSBhcnAgYW5kIHNoYXBlciBlbmFibGVkLCB3aXRoIENMSUVOVDEKICAgICAgIHJlYWNoYWJsZSB2
+aWEgc2hhcGVyMC4KICAgICAgIFdpdGggY2xhc3NpYyBwcm94eSBhcnAsIHdoZW4gSSB0dXJuIG9u
+IENMSUVOVCBtYWNoaW5lIEkgCiAgICAgICByZWNlaXZlIGFuICJJUCBjb25mbGl0IiBmcm9tIE9T
+LCB3aGlsZSB1c2luZyBwYXRjaGVkIHZlcnNpb24gCiAgICAgICB0aGVyZSBhcmUgbm8gcHJvYmxl
+bXMuCiAgICAgICBQcm94eSBhcnAgc3RpbGwgZG9lcyBpdHMgd29yayBjYXVzZSwgaWYgSSBnaXZl
+IENMSUVOVDIgSVAKICAgICAgIGFkZHJlc3MgdG8gQ0xJRU5UMSBtYWNoaW5lLCBJIHJlY2VpdmUg
+KGZyb20gQ0xJRU5UMSBPUykgYQogICAgICAgSVAgYnVzeSBtZXNzYWdlLgoKICAgICAgIEFsc28g
+dGVzdHMgb24gY29tbWVyY2lhbCBzZXJ2ZXIgaGF2ZSBiZWVuIGRvbmUgd2l0aCBnb29kCiAgICAg
+ICByZXN1bHRzLgoKICAgICAgIEtlcm5lbCB2ZXJzaW9uIHRlc3RlZCBpcyAyLjQuOQogICAgICAg
+CgpGaW5hbCBub3RlczogSXQgc2hvdWxkIGJlIHZlcnkgc2ltcGxlIHRvIHBvcnQgcGF0Y2ggdG8g
+b2xkZXIKICAgICAgICAgICAgIGtlcm5lbCB2ZXJzaW9uICgyLjAueHgsIDIuMS54eCwgMi4yLnh4
+LCAyLjMueHgpCgkgICAgCgkgICAgICAgICAgICAgCgkgICAgIAoJICAgICAK
 
-
-- Pasi Kärkkäinen
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
-
+--------------Boundary-00=_V2QUP956MKP2FZYJMV16--

@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVCVQxS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVCVRGC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbVCVQxS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 11:53:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVCVQxS
+	id S261450AbVCVRGC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 12:06:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVCVRGC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 11:53:18 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:35295 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261429AbVCVQxN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 11:53:13 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.12-rc1-mm1
-Date: Tue, 22 Mar 2005 08:50:35 -0800
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>, arjanv@infradead.org,
-       linux-kernel@vger.kernel.org
-References: <20050321025159.1cabd62e.akpm@osdl.org> <200503211642.00796.jbarnes@engr.sgi.com> <20050322091814.GC3982@stusta.de>
-In-Reply-To: <20050322091814.GC3982@stusta.de>
+	Tue, 22 Mar 2005 12:06:02 -0500
+Received: from ngate.noida.hcltech.com ([202.54.110.230]:61087 "EHLO
+	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
+	id S261443AbVCVRFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 12:05:54 -0500
+Message-ID: <267988DEACEC5A4D86D5FCD780313FBB05FA9B2E@exch-03.noida.hcltech.com>
+From: "Rajat  Jain, Noida" <rajatj@noida.hcltech.com>
+To: linux-kernel@vger.kernel.org, kernel-newbies@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: When & how is the SCSI strategy routine called?
+Date: Tue, 22 Mar 2005 22:35:58 +0530
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503220850.35948.jbarnes@engr.sgi.com>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, March 22, 2005 1:18 am, Adrian Bunk wrote:
-> On Mon, Mar 21, 2005 at 04:42:00PM -0800, Jesse Barnes wrote:
-> > On Monday, March 21, 2005 12:25 pm, Adrian Bunk wrote:
-> > > On Mon, Mar 21, 2005 at 09:15:53AM -0800, Jesse Barnes wrote:
-> > > > On Monday, March 21, 2005 2:51 am, Andrew Morton wrote:
-> > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1
-> > > > >2-rc 1/2. 6.12-rc1-mm1/
-> > > >
-> > > > Andrew, please drop
-> > > >
-> > > > revert-allow-oem-written-modules-to-make-calls-to-ia64-oem-sal-functi
-> > > >ons. patch
-> > > >
-> > > > The tiocx.c driver is now in the tree, and it uses those functions.
-> > >
-> > > IOW:
-> > > The EXPORT_SYMBOL's should still be removed, but the functions
-> > > themselves should stay.
-> >
-> > Actually, no, since tiocx can be built modular.  The patch should just be
-> > dropped.
->
-> ???
->
-> config SGI_TIOCX
->  bool "SGI TIO CX driver support"
 
-Hm, ok.  I just looked at the Makefile and iirc some old versions of the patch 
-allowed it modular...
 
-Jesse
+Hi list,
+
+Tracing the kernel 2.6.8 code I found that scsi_mod maintains separate
+request queues for each SCSI device. It uses the block layer queuing
+facility to do this. What I could not find out was that once a request is
+queued into a queue (for a particular device), WHEN and HOW is the strategy
+routine "scsi_request_fn()" called ?
+
+All I could find on the net was that "The kernel calls the strategy routine
+when ever it believes that it is appropriate to invoke it."
+
+Please help ... Any pointers will be highly appreciated.
+
+TIA,
+
+Rajat
+
+
+Disclaimer: 
+
+This message and any attachment(s) contained here are information that is
+confidential,proprietary to HCL Technologies and its customers, privileged
+or otherwise protected by law.The information is solely intended for the
+individual or the entity it is addressed to. If you are not the intended
+recipient of this message, you are not authorized to read, forward,
+print,retain, copy or disseminate this message or any part of it. If you
+have received this e-mail in error, please notify the sender immediately by
+return e-mail and delete it from your computer.
+
+

@@ -1,72 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261406AbSJCWh3>; Thu, 3 Oct 2002 18:37:29 -0400
+	id <S261402AbSJCWdx>; Thu, 3 Oct 2002 18:33:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261407AbSJCWh3>; Thu, 3 Oct 2002 18:37:29 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:26637 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261406AbSJCWh2>;
-	Thu, 3 Oct 2002 18:37:28 -0400
-Date: Thu, 3 Oct 2002 15:40:11 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] pcibios_* removals for 2.5.40
-Message-ID: <20021003224011.GA2289@kroah.com>
+	id <S261403AbSJCWdx>; Thu, 3 Oct 2002 18:33:53 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:49418 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S261402AbSJCWdx>; Thu, 3 Oct 2002 18:33:53 -0400
+Date: Fri, 04 Oct 2002 07:39:25 +0900 (JST)
+Message-Id: <20021004.073925.101556969.yoshfuji@linux-ipv6.org>
+To: davem@redhat.com
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       netfilter-devel@lists.netfilter.org, usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Miscellaneous clean-ups
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20021004.073642.125593159.yoshfuji@linux-ipv6.org>
+References: <20021004.011315.05129566.yoshfuji@linux-ipv6.org>
+	<20021003.103617.04446177.davem@redhat.com>
+	<20021004.073642.125593159.yoshfuji@linux-ipv6.org>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <20021004.073642.125593159.yoshfuji@linux-ipv6.org> (at Fri, 04 Oct 2002 07:36:42 +0900 (JST)), YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> says:
 
-Here's some changesets that remove the pcibios_find_class(),
-pci_find_device(), and pcibios_present() functions.  These functions
-have been marked as obsolete since the 2.2 kernel, so it's about time
-that we removed them.
+> I saw many __constant_{hton,ntoh}{s,l}()s, so fixed.
+> 
+>       1. use s6_addrXX instead of in6_u.s6_addrXX.
+>       2. avoid using magic number.
+>       3. use 32bit constants.
+>  -->  4. avoid __constant_{hton,ntoh}{l,s}() in runtime code.
 
-Please pull from:  http://linuxusb.bkbits.net/pci-2.5
+oops, sorry, not fixed in my fix... :-p
+just a moment, please...
 
-thanks,
-
-greg k-h
-
-p.s. I'll send these as patches in response to this email to lkml for
-those who want to see them.
-
- drivers/net/hp100.c       |    4 ++--
- drivers/net/tulip/de4x5.c |    4 ++--
- drivers/pci/compat.c      |   42 ------------------------------------------
- drivers/pci/syscall.c     |    2 +-
- include/linux/pci.h       |   27 ++++++++++-----------------
- 5 files changed, 15 insertions(+), 64 deletions(-)
------
-
-ChangeSet@1.685, 2002-10-03 14:06:24-07:00, greg@kroah.com
-  PCI: removed pcibios_present()
-
- drivers/net/hp100.c       |    4 ++--
- drivers/net/tulip/de4x5.c |    4 ++--
- drivers/pci/compat.c      |    8 --------
- drivers/pci/syscall.c     |    2 +-
- include/linux/pci.h       |   21 ++++++++++-----------
- 5 files changed, 15 insertions(+), 24 deletions(-)
-------
-
-ChangeSet@1.684, 2002-10-03 13:45:53-07:00, greg@kroah.com
-  PCI: remove pci_find_device()
-
- drivers/pci/compat.c |   17 -----------------
- include/linux/pci.h  |    3 ---
- 2 files changed, 20 deletions(-)
-------
-
-ChangeSet@1.683, 2002-10-03 13:36:51-07:00, greg@kroah.com
-  PCI: remove pcibios_find_class()
-
- drivers/pci/compat.c |   17 -----------------
- include/linux/pci.h  |    3 ---
- 2 files changed, 20 deletions(-)
-------
-
+--yoshfuji

@@ -1,53 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267367AbUHXKFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267365AbUHXKEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267367AbUHXKFV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 06:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267373AbUHXKFV
+	id S267365AbUHXKEj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 06:04:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUHXKEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 06:05:21 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:44955 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267367AbUHXKFN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 06:05:13 -0400
-Date: Tue, 24 Aug 2004 12:03:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Karl Vogel <karl.vogel@seagha.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Kernel 2.6.8.1: swap storm of death - CFQ scheduler=culprit
-Message-ID: <20040824100342.GI2355@suse.de>
-References: <6DED3619289CD311BCEB00508B8E133601A68B13@nt-server2.antwerp.seagha.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6DED3619289CD311BCEB00508B8E133601A68B13@nt-server2.antwerp.seagha.com>
+	Tue, 24 Aug 2004 06:04:38 -0400
+Received: from roc-24-169-201-237.rochester.rr.com ([24.169.201.237]:15878
+	"HELO abc.com") by vger.kernel.org with SMTP id S267365AbUHXKEh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 06:04:37 -0400
+Date: Tue, 24 Aug 2004 10:04:31 +0000
+From: ID Theft Comm <hfranz@oreilly.com>
+Subject: Linux-kernel, Your ID was stolen
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <JLIK6EBGFB55L83E@vger.kernel.org>
+In-Reply-To: <JLIK6EBGFB55L83E@vger.kernel.org>
+Message-ID: <7E830IH138HIJ9BG@oreilly.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 23 2004, Karl Vogel wrote:
-> > > Jens, is this huge amount of bio/biovec's allocations 
-> > expected with CFQ? Its really really bad.
-> > 
-> > Nope, it's not by design :-)
-> > 
-> > A test case would be nice, then I'll fix it as soon as possible. But
-> > please retest with 2.6.8.1 marcelo, 2.6.8-rc4 is missing an important
-> > fix to ll_rw_blk that can easily cause this. The first report is for
-> > 2.6.8.1, so I'm more puzzled on that.
-> 
-> I tried with 2.6.8.1 and 2.6.8.1-mm4, both had the problem. If there 
-> is anything extra I need to try/record, just shoot!
-> 
-> Original post with testcase + stats:
->   http://article.gmane.org/gmane.linux.kernel/228156
+Hello,
 
-2.6.8.1-mm4 clean does not reproduce the problem. Marcelo, your
-2.6.8-rc4 report is not valid due to the fixed problem related to that
-in CFQ already. I'd still like for you to retest with 2.6.8.1.
+Do you know that you identity was stolen? Lots of people suffer from identity theft. But they don’t care of their credit history until it becomes too late.
 
-So I'm trying 2.6.8.1 with voluntary preempt applied now, the bug could
-be related to that.
+It is evident that your identity had already been stolen and fraudulently used. We strongly encourage you to take all of the appropriate steps in order to safely recover from this unfortunate situation. Please never let your identity be stolen again!
 
--- 
-Jens Axboe
+It is strongly recommended that you visit http://www.d-reports.org and learn the steps that will help you recover from this stressful matter.
+
+Our organization is founded in 2002. Our aim is to track and fight identity theft. It is obvious that your identity was stolen. Not only can mother maiden names be read from stolen identities, but even e-mail addresses are sometimes read there. Be careful in future!
+
+D-Reports & Associates
+http://www.d-reports.org
+
 

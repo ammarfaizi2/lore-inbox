@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130142AbQK0Vc1>; Mon, 27 Nov 2000 16:32:27 -0500
+        id <S129532AbQK0Vhr>; Mon, 27 Nov 2000 16:37:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129639AbQK0VcR>; Mon, 27 Nov 2000 16:32:17 -0500
-Received: from mail1.rdc3.on.home.com ([24.2.9.40]:8680 "EHLO
-        mail1.rdc3.on.home.com") by vger.kernel.org with ESMTP
-        id <S129927AbQK0Vb6>; Mon, 27 Nov 2000 16:31:58 -0500
-Message-ID: <001001c058b5$405f82e0$6400a8c0@wlfdle1.on.wave.home.com>
-From: "John Zielinski" <grimr@home.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0011271530120.7352-100000@weyl.math.psu.edu>
-Subject: Re: Anyone else kernel mounting a filesystem that has a block device?
-Date: Mon, 27 Nov 2000 16:01:44 -0500
+        id <S129563AbQK0Vh2>; Mon, 27 Nov 2000 16:37:28 -0500
+Received: from innerfire.net ([208.181.73.33]:13576 "HELO innerfire.net")
+        by vger.kernel.org with SMTP id <S129532AbQK0VhS>;
+        Mon, 27 Nov 2000 16:37:18 -0500
+Date: Mon, 27 Nov 2000 13:09:37 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Chmouel Boudjnah <chmouel@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        Mandrake Install <install@linux-mandrake.com>
+Subject: Re: Universal debug macros.
+In-Reply-To: <3A22A0C9.6888B08@transmeta.com>
+Message-ID: <Pine.LNX.4.10.10011271305300.18667-100000@innerfire.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 27 Nov 2000, John Zielinski wrote:
->
-> > I'm going to be mounting a filesystem that uses a block device from
-inside
-> > the kernel.  This mount will not be visible from userland nor can it be
-> > unmounted from userland.  Is anyone else doing something like this so we
-can
-> > coordinate on the changes needed to fs/super.c?
->
-> No changes needed. Check kern_mount().
+On Mon, 27 Nov 2000, H. Peter Anvin wrote:
 
-Oops.  Should have said 'physical' block device.  The kern_mount() function
-calls get_unnamed_dev().  I want to modify it so that it also takes an 'char
-* dev_name' and does the same thing as the code in do_mount() which picks
-which get_sb_???() functions to call.
+> Chmouel Boudjnah wrote:
+> > 
+> > "H. Peter Anvin" <hpa@transmeta.com> writes:
+> > 
+> > > > > Something RedHat & co may want to consider doing is providing a basic
+> > > > > kernel and have, as part of the install procedure or later, an
+> > > > > automatic recompile and install kernel procedure.  It could be
+> > > > > automated very easily, and on all but the very slowest of machines, it
+> > > > > really doesn't take that long.
+> > > >
+> > > > this completely not possible to do in regard of the end-users eyes.
+> > > >
+> > >
+> > > Why not?
+> > 
+> > slow !! end-user want to install a distribution fast !!!
+> > 
+> > it need a lot to be friendly the compilation (ie: we cannot do only
+> > launch of make xconfig, not everyone now which options to select),
+> > what we can do is a detection of the module and recompile a kernel
+> > with the detected module for recompilation but there is too much error
+> > case that could not be handle.
+> > 
+> 
+> It's not that slow compared to a whole distro install, although you would
+> of course want to do it *optionally*.  You wouldn't want to get into
+> every single option, of course, but I thought that was obvious
+> (apparently not.)  The drivers and stuff is the least of the problem --
+> there, you can use modules anyway.
+> 
+> 	-hpa
+> 
 
-I'll just make a kern_mount2() until all the other code that calls
-kern_mount is changed so that it passes a "none" or something as the second
-parameter.
+End users have bee known to try a kernel compile.. 
 
-John
+--
+Gerhard Mack
 
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272164AbRH3KgW>; Thu, 30 Aug 2001 06:36:22 -0400
+	id <S272158AbRH3KuE>; Thu, 30 Aug 2001 06:50:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272167AbRH3KgN>; Thu, 30 Aug 2001 06:36:13 -0400
-Received: from web14701.mail.yahoo.com ([216.136.224.118]:39180 "HELO
-	web14701.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S272165AbRH3Kfw>; Thu, 30 Aug 2001 06:35:52 -0400
-Message-ID: <20010830103609.96135.qmail@web14701.mail.yahoo.com>
-Date: Thu, 30 Aug 2001 11:36:09 +0100 (BST)
-From: "=?iso-8859-1?q?Mark=20A.=20Tagliaferro?=" <be_lak@yahoo.co.uk>
-Subject: Problems with compiling kernel.
+	id <S272163AbRH3Kty>; Thu, 30 Aug 2001 06:49:54 -0400
+Received: from gnu.in-berlin.de ([192.109.42.4]:63249 "EHLO gnu.in-berlin.de")
+	by vger.kernel.org with ESMTP id <S272158AbRH3Ktp>;
+	Thu, 30 Aug 2001 06:49:45 -0400
+X-Envelope-From: news@bytesex.org
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Path: kraxel
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: HW ethernet address problems with 8139too and 2.4.9
+Date: 30 Aug 2001 10:17:19 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrn9os4lf.469.kraxel@bytesex.org>
+In-Reply-To: <15820.999163539@www56.gmx.net>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 999166639 4298 127.0.0.1 (30 Aug 2001 10:17:19 GMT)
+User-Agent: slrn/0.9.7.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using SuSE 7.1 and I had to compile the kernel to include SCSI support. 
-That part is all well and good.  The problems started when I tried to set up
-masquerading.  Modprobe is returning the following error:
+Hans-Christian Armingeon wrote:
+>  Hi gurus,
+>  I've got a problem with an Elitegroup K7AMA onboard rtl8139C LAN.
+>  ifconfig shows me the hardware address ff:ff:ff:ff:ff:ff. So I'm not 
+>  able to get an tcp/ip connection. Under w2k professional everything works
+>  fine.
+>  Any suggestions?
 
-modprobe: Can't open dependencies file /lib/modules/2.4.2/modules.dep (No such
-file or directory)
+The f*** rtl windows driver does that.  You can do:
 
-I looked in /lib/modules/ and there the directory is called 2.4.2-4GB and not
-2.4.2 
+(1) stop booting windows
+(2) ifconfig eth0 hw ether ...  at a reasonable place in the boot
+    scripts
 
-I tried to fool it by creating a virtual link to the directory with the name
-2.4.2 but then the modprobe returns a large number of kernal mismatch errors 
-that the particular modules (iptable_nat) I am trying to run were written for
-kernel version 2.4.2-4GB and not 2.4.2
+  Gerd
 
-It looks like modprobe is looking for kernel version 2.4.2 but the modules are
-for kernel 2.4.2-4GB.
-
-Incidentally I have another machine with the standard kernel that YaST installs
-on which modprobe works well and the directory in /lib/modules/ is calle
-2.4.2-4GB.
-
-Any idea as to what I'm doing wrong?
-Did I have to recompile the kernel to load the aic7xxx or could I have added a
-command in some initialisation file to load it as a module (insmod)?
-
-Regards
-Mark
-
-
-____________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.co.uk address at http://mail.yahoo.co.uk
-or your free @yahoo.ie address at http://mail.yahoo.ie
+-- 
+Damn lot people confuse usability and eye-candy.

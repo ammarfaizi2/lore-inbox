@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbTEDWHV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 18:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbTEDWHV
+	id S261808AbTEDWRc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 18:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbTEDWRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 18:07:21 -0400
-Received: from dnvrdslgw14poolC198.dnvr.uswest.net ([63.228.86.198]:37974 "EHLO
-	q.dyndns.org") by vger.kernel.org with ESMTP id S261678AbTEDWHU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 18:07:20 -0400
-Date: Sun, 4 May 2003 16:19:34 -0600 (MDT)
-From: Benson Chow <blc@q.dyndns.org>
-To: "David J. M. Karlsen" <david@davidkarlsen.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: v4l bttv bt878 PCI on VIA KT133 chipset crashes?
-In-Reply-To: <3EB58465.1070902@davidkarlsen.com>
-Message-ID: <Pine.LNX.4.44.0305041615230.24101-100000@q.dyndns.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 4 May 2003 18:17:32 -0400
+Received: from ee.oulu.fi ([130.231.61.23]:52872 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S261808AbTEDWRb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 18:17:31 -0400
+Date: Mon, 5 May 2003 01:29:58 +0300 (EEST)
+From: Ville Voutilainen <vjv@ee.oulu.fi>
+Message-Id: <200305042229.h44MTwTf012142@stekt2.oulu.fi>
+To: meshko@cs.brandeis.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fcntl file locking and pthreads
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
+> actually what I have is:
+> thread 0:
+> pthread_create() (1)
+> pthread_create() (2)
+> thread 1:
+> open()
+> fcntl()
+> thread 2:
+> open()
+> fcntl()
+> and they all succeed. Even though the file descriptors are different. 
 
-I've subsequently found out that the via KT133 sucks, and there's not much
-that can be done.
+Which shows us that fcntl cannot detect a file lock held by
+the current process, no matter how many times we open the same
+file in order to get different file descriptors. Bloody POSIX,
+might I say. :) I wonder if POSIX even says anything non-vague
+wrt. to this. As in, if Linux would enable detecting
+two locks on two different fds (pointing to the same file)
+within one process, would Linux violate POSIX? Moreover, is
+this simply so that kernel detects the situation just fine,
+but the info is not carried to user space because good ole
+fcntl behaviour doesn't really take threads into account?
+In the marvellous scheme of things (user app -> glibc -> kernel
+and back), at what point (if any) is it possible to detect
+multiple locks within one process? And can it be done so that
+fcntl can still be claimed to be even remotely compatible
+with anything on the planet?
 
-I replaced it with a (somewhat newer Via) P4X333 chipset motherboard
-(difference CPU of course) and the driver works perfectly fine.
+> You digress, but I feel like I have to justify myself now :)
+> Those threads used to be processes and now want be threads with minimal 
+> modifications. The files that are locked are still used by other processes 
+> too.
 
-I've heard that the KT133 and a lot of via's older chipsets cannot handle
-multiple busmasters on PCI transactions properly.  I suspect disabling DMA
-on the harddrive may fix the problem, but I have not looked into this
-possibility as I got the new machine.
+Then, logically (I suppose you already know this, but..) you
+need both the file locks and mutexes to sync with both other
+threads and other processes. There, one more example of how
+going multi-threaded sometimes adds (mostly locking) code.
 
-Hope this enlightens...
+I'll shut up now, we are only at the borderline of kernel-land
+and if we aim for portability, we are probably solely and
+firmly on the user-land side of the big picture.
 
--bc
-
-On Sun, 4 May 2003, David J. M. Karlsen wrote:
-
-> Date: Sun, 04 May 2003 23:21:41 +0200
-> From: David J. M. Karlsen <david@davidkarlsen.com>
-> To: Benson Chow <blc@q.dyndns.org>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: v4l bttv bt878 PCI on VIA KT133 chipset crashes?
->
-> Benson Chow wrote:
-> > Just wonderring.
-> >
-> > I'm getting weird crashes with running the bttv driver that comes with
-> > 2.4.20 (0.7.96?) with a bt878 card.  I can record fine from it, can change
-> > channels, etc. - Great.  Except if I keep on starting and stopping
-> > mencoder (opening and closing /dev/video), it usually works for a few
-> > times from a fresh reboot just fine, but after 5 times (and it's random,
-> > it may not start till after 20 times) it *seems* other parts of kernel
-> > space gets badly corrupted.  My kswapd oopses and dies.  Processes
-> > cause oopses for no reason.  The oopses tend to occur in disk i/o
-> > routines, not in the bttv driver for some reason, and after the corruption
-> > (?) occurs, all processes can and will die.  The machine eventually goes
-> > down hard needing a jab at the case  Not exactly a graceful shutdown!  The
-> > machine seems to work fine if I never use the video capture card, even
-> > thrashing disk and flooding the PCI network card seems to work fine.
-> I had problems with 2.4.20 with the same hardware and using the program
-> zapping for viewing. My box just froze. I thought maybe it was caused by
-> sharing interrupts - but the machine hasn't frozen yet when I switched
-> over to using xawtv instead.
-
-[ system information deleted ]
-
-WARNING: All HTML emails get deleted.  DO NOT SEND HTML MAIL.
-
+-VJV-

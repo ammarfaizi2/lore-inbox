@@ -1,89 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVBGVmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVBGVpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVBGVmo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 16:42:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVBGVmn
+	id S261338AbVBGVpa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 16:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVBGVpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 16:42:43 -0500
-Received: from ulysses.news.tiscali.de ([195.185.185.36]:782 "EHLO
-	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
-	id S261335AbVBGVmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 16:42:40 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: =?ISO-8859-15?Q?Heinz=2DJ=FCrgen?= Oertel <hj.oertel@surfeu.de>
-Newsgroups: linux.kernel
-Subject: Re: ioremap() and port of linux to MPC7400 based SBC (VME board)
-Date: Mon, 07 Feb 2005 22:39:38 +0100
-Organization: port GmbH
-Message-ID: <cu8ncd$u6u$1@ulysses.news.tiscali.de>
-References: <420767A1.2050300@here.com>
-Reply-To: hj.oertel@surfeu.de
-NNTP-Posting-Host: p213.54.133.149.tisdip.tiscali.de
+	Mon, 7 Feb 2005 16:45:30 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:34820 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261338AbVBGVpV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 16:45:21 -0500
+Message-Id: <200502072145.j17LjFDr025558@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: [PATCH] Filesystem linking protections 
+In-Reply-To: Your message of "Mon, 07 Feb 2005 20:34:33 +0100."
+             <1107804873.3754.232.camel@localhost.localdomain> 
+From: Valdis.Kletnieks@vt.edu
+References: <1107802626.3754.224.camel@localhost.localdomain> <200502071914.j17JEbjQ018534@turing-police.cc.vt.edu>
+            <1107804873.3754.232.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8Bit
-X-Trace: ulysses.news.tiscali.de 1107812557 30942 213.54.133.149 (7 Feb 2005 21:42:37 GMT)
-X-Complaints-To: abuse@tiscali.de
-NNTP-Posting-Date: Mon, 7 Feb 2005 21:42:37 +0000 (UTC)
-User-Agent: KNode/0.8.2
+Content-Type: multipart/signed; boundary="==_Exmh_1107812715_22594P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 07 Feb 2005 16:45:15 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-him wrote:
+--==_Exmh_1107812715_22594P
+Content-Type: text/plain; charset=us-ascii
 
-> I have run into a problem I am having a hard time figuring out.
-> 
-> I have an MPC7400 SBC (PCI bus based) that has a device X residing
-> at the following locations in memory:
-> 
-> 0x1860 0000 - 0x186f ffff     device control register space
-> 0xb000 0000 - 0xbfff ffff     device memory space
-> 
-> Now assume for a moment that NOTHING special needs to be done to
-> access either space once the system has booted and bus enumerator
-> have set things up.
-> 
-> ioremap() of the first physical address returns a VALID virtual
-> address  ... that I can read and write to. It works as expected
-> because there are signature values at various offsets in the control
-> register space.
-> The virtual address returned is EQUAL to the physical address
-> 
-> ioremap() of the second physical address also returns what appears to
-> be a VALID virtual address although WRITES go nowhere and READS return
-> all ff's.
-> The virtual address returned is 0xc100 0000
-> 
-> 
-> 
-> Now my question ... I have the source for the port. Where should I focus
-> my efforts in trying to figure this out?
-> 
-> I have read the device drivers book and certain that I am following
-> the rules.
-> 
-> I should also mention that there is an IO controller seperate from the
-> MPC7400 that I use to verify that the device X control and memory exist
-> in THAT physical range.
-> 
-> If Only I can access them through ioremap()
-> 
-> Thanks
+On Mon, 07 Feb 2005 20:34:33 +0100, Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= said:
 
-No idea up to now, but what kernel, what linux? is it VM linux or uClinux?
+> But It's better to give users a "secure-by-default" status, at least on
+> those parts that don't affect negatively the stability or the
+> performance itself.
 
-Heinz
--- 
+It's still policy, and should be put someplace where users can manage it.
+You're changing the behavior from what POSIX specifies, and that's in general
+a no-no for mainline kernel code.
 
-with best regards / mit freundlichen Grüßen
+Like an LSM, which happens to be there so users can impose policy without
+making any code changes to the kernel.  Implementing a policy that results in
+non-POSIXy behavior in an LSM is perfectly OK.. ;)
 
-   Heinz-Jürgen Oertel
-+===================================================================
-| Heinz-Jürgen Oertel  port GmbH  http://www.port.de
-| mailto:oe@port.de
-| phone +49 345 77755-0     fax   +49 345 77755-20
-| Regensburger Str. 7b,     D-06132 Halle/Saale,  Germany 
-| CAN Wiki    http://www.CAN-Wiki.info
-| Newsletter: http://www.port.de/engl/company/content/abo_form.html
-+===================================================================
+> The LSM hook call is before the check, so, LSM framework still has the
+> control over it, until it releases the operation giving control back to
+> the standard function.
+
+Right.. Which means LSM can stop that particular attack even faster than
+your patch.. ;)
+
+> If users must rely on LSM or other external solutions for applying basic
+> security checks (as the framework itself only provides the way to apply
+> them, the checks need to be implemented in a module), then we are making
+> them unable to be protected using the "default" configuration.
+
+You're making the very rash assumption that a hard-coded one-size-fits all
+"default" that behaves differently than POSIX is suitable for all sites,
+including sites that run software that gets broken by this change, and
+things like embedded systems where it's not a concern at all, and sites that
+already implement some *other* system to ensure that it's not an issue (for
+instance, by using an SELinux policy...)
+
+--==_Exmh_1107812715_22594P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCB+FrcC3lWbTT17ARAlb7AKDmaExL9/TbdkdE01qdM4p67vRG/ACg3xmB
+q0GIpx0Ixc1pti2immLJTX4=
+=DInf
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1107812715_22594P--

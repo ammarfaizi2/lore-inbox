@@ -1,137 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263985AbTKSKe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 05:34:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTKSKe1
+	id S263983AbTKSK3W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 05:29:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbTKSK3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 05:34:27 -0500
-Received: from holomorphy.com ([199.26.172.102]:61096 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263985AbTKSKeY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 05:34:24 -0500
-Date: Wed, 19 Nov 2003 02:34:19 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test9-mm4
-Message-ID: <20031119103419.GR22764@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20031118225120.1d213db2.akpm@osdl.org> <20031119090223.GO22764@holomorphy.com> <20031119011951.66300f0d.akpm@osdl.org> <20031119093340.GP22764@holomorphy.com> <20031119101322.GQ22764@holomorphy.com>
-Mime-Version: 1.0
+	Wed, 19 Nov 2003 05:29:22 -0500
+Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:9125 "EHLO
+	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263977AbTKSK3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 05:29:17 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031119101322.GQ22764@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16315.17913.982049.700867@wombat.chubb.wattle.id.au>
+Date: Wed, 19 Nov 2003 21:29:13 +1100
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: PIIX ide driver can't disable DMA
+X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 19, 2003 at 01:33:40AM -0800, William Lee Irwin III wrote:
->> This was a micro-optimization for UP; the SMP case needs to protect
->> against reentry via interrupts due to smp_call_function(). UP can
->> just disable preemption. In principle, the two cases could be made
->> uniform at the cost of disabling interrupts unnecessarily on UP.
 
-On Wed, Nov 19, 2003 at 02:13:22AM -0800, William Lee Irwin III wrote:
-> The following, incremental atop the first, removes the smp_local_irq_*()
-> macros.
+Hi Folks,
+   On an I2000 there's a PIIX5 IDE controller and a pci bridge that
+identifies as a 450NX rev 5.  This causes the ide driver to attempt to
+disable DMA, to work around a limitation in the old 450NX chipset.
 
-The following, incremental atop the smp_local_irq_*() removal, turns
-shrink_pagetable_cache() into a set_shrinker()-registered shrinker_t.
+Unfortunately, this doesn't work, and on boot I see these messages:
 
-I'm not entirely sure how good an idea this is given my prior remarks
-about the vmscan.c code skipping shrink_slab() under highmem pressure.
-Maybe the proper solution is teaching true slab shrinkers to honor
-the gfp_mask argument?
+piix: 450NX errata present, disabling IDE DMA.
+piix: A BIOS update may resolve this.
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller at PCI slot 0000:00:03.1
+PCI: Found IRQ 0 for device 0000:00:03.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x1070-0x1077, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0x1078-0x107f, BIOS settings: hdc:pio, hdd:pio
+hda: HITACHI DVD-ROM GD-7500, ATAPI CD/DVD-ROM drive
+hdb: LS-120/240 00 UHD Floppy, ATAPI FLOPPY drive
+Using anticipatory io scheduler
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 34
+hdc: Maxtor 6Y080L0, ATA DISK drive
+ide1 at 0x170-0x177,0x376 on irq 33
+hdc: max request size: 128KiB
+hdc: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=65535/16/63, (U)DMA
+hdc:<4>hdc: dma_timer_expiry: dma status == 0x21
+hdc: DMA timeout error
 
-This is also untested (apart from compiletesting).
+If I boot with ide1=nodma things work.
+
+It's currently broken to try to unconfigure IDE DMA with kconfig.
+
+Note that:
+     1. The PIIX5 at is not on the same PCI bus as the 450NX PXB.
+     From lspci:
+
+     00:03.1 IDE interface: Intel Corp. 82372FB PIIX5 IDE (rev 01)
+     04:10.1 Host bridge: Intel Corp. 450NX - 82454NX/84460GX PCI Expander
+     Bridge (rev 05)
+
+     2.  As far as I can tell from Intel's website, the device that
+     identifies as a 450NX is actually part of the 460GX chipset; and it's
+     only rev 0 through 3 that have the problem (the `real' 450NX
+chips) (although I could easily be wrong there; it's hard to work out
+what the PCI revision field corresponds to in Intel's stepping chart.
+The bug is in steppings A0, B0 and C0.)
 
 
--- wli
-
-
-diff -prauN mm4-2.6.0-test9-3/arch/i386/mm/pgtable.c mm4-2.6.0-test9-4/arch/i386/mm/pgtable.c
---- mm4-2.6.0-test9-3/arch/i386/mm/pgtable.c	2003-11-19 02:07:13.000000000 -0800
-+++ mm4-2.6.0-test9-4/arch/i386/mm/pgtable.c	2003-11-19 02:26:04.000000000 -0800
-@@ -13,6 +13,7 @@
- #include <linux/slab.h>
- #include <linux/pagemap.h>
- #include <linux/spinlock.h>
-+#include <linux/init.h>
- 
- #include <asm/system.h>
- #include <asm/pgtable.h>
-@@ -421,7 +422,7 @@ static void shrink_cpu_pagetable_cache(v
- 	put_cpu();
- }
- 
--void shrink_pagetable_cache(int gfp_mask)
-+static int shrink_pagetable_cache(int nr_to_scan, unsigned int gfp_mask)
- {
- 	BUG_ON(irqs_disabled());
- 
-@@ -432,4 +433,13 @@ void shrink_pagetable_cache(int gfp_mask
- 
- 	smp_call_function(shrink_cpu_pagetable_cache, (void *)gfp_mask, 1, 1);
- 	preempt_enable();
-+	return 1;
- }
-+
-+static __init int init_pagetable_cache_shrinker(void)
-+{
-+	set_shrinker(1, shrink_pagetable_cache);
-+	return 0;
-+}
-+
-+__initcall(init_pagetable_cache_shrinker);
-diff -prauN mm4-2.6.0-test9-3/include/asm-i386/pgtable.h mm4-2.6.0-test9-4/include/asm-i386/pgtable.h
---- mm4-2.6.0-test9-3/include/asm-i386/pgtable.h	2003-11-19 00:09:43.000000000 -0800
-+++ mm4-2.6.0-test9-4/include/asm-i386/pgtable.h	2003-11-19 02:24:14.000000000 -0800
-@@ -44,9 +44,6 @@ void pgtable_cache_init(void);
- void paging_init(void);
- void setup_identity_mappings(pgd_t *pgd_base, unsigned long start, unsigned long end);
- 
--#define HAVE_ARCH_PAGETABLE_CACHE
--void shrink_pagetable_cache(int gfp_mask);
--
- #endif /* !__ASSEMBLY__ */
- 
- /*
-diff -prauN mm4-2.6.0-test9-3/mm/vmscan.c mm4-2.6.0-test9-4/mm/vmscan.c
---- mm4-2.6.0-test9-3/mm/vmscan.c	2003-11-19 00:09:43.000000000 -0800
-+++ mm4-2.6.0-test9-4/mm/vmscan.c	2003-11-19 02:15:43.000000000 -0800
-@@ -838,10 +838,6 @@ shrink_caches(struct zone *classzone, in
- 	return ret;
- }
- 
--#ifndef HAVE_ARCH_PAGETABLE_CACHE
--#define shrink_pagetable_cache(gfp_mask)		do { } while (0)
--#endif
-- 
- /*
-  * This is the main entry point to direct page reclaim.
-  *
-@@ -894,9 +890,6 @@ int try_to_free_pages(struct zone *cz,
- 		 */
- 		wakeup_bdflush(total_scanned);
- 
--		/* shoot down some pagetable caches before napping */
--		shrink_pagetable_cache(gfp_mask);
--
- 		/* Take a nap, wait for some writeback to complete */
- 		blk_congestion_wait(WRITE, HZ/10);
- 		if (cz - cz->zone_pgdat->node_zones < ZONE_HIGHMEM) {
-@@ -988,10 +981,8 @@ static int balance_pgdat(pg_data_t *pgda
- 		}
- 		if (all_zones_ok)
- 			break;
--		if (to_free > 0) {
--			shrink_pagetable_cache(GFP_HIGHUSER);
-+		if (to_free > 0)
- 			blk_congestion_wait(WRITE, HZ/10);
--		}
- 	}
- 
- 	for (i = 0; i < pgdat->nr_zones; i++) {
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

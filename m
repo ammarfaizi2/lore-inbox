@@ -1,104 +1,183 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbUA1Bas (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 20:30:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbUA1Bas
+	id S265778AbUA1BTf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 20:19:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265797AbUA1BTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 20:30:48 -0500
-Received: from [218.80.81.143] ([218.80.81.143]:48646 "HELO compuserve.com")
-	by vger.kernel.org with SMTP id S261464AbUA1Bap (ORCPT
+	Tue, 27 Jan 2004 20:19:35 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19085 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265778AbUA1BT3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 20:30:45 -0500
-Date: Wed, 28 Jan 2004 01:29:54 +0000
-From: XkXmXLXFXcX@debianplanet.org
-Subject: I still love you  LUbza
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <2EH264D9H9K0FL55@vger.kernel.org>
-In-Reply-To: <2EH264D9H9K0FL55@vger.kernel.org>
-Message-ID: <ECF7EF98H42LECBG@debianplanet.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_NextPart_6_L4F1DCFK4IKEF90A498JL28"
+	Tue, 27 Jan 2004 20:19:29 -0500
+Date: Tue, 27 Jan 2004 17:14:27 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: kjo <kernel-janitors@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [announce] 2.6.2-rc2-kj1 patchset
+Message-Id: <20040127171427.24f62515.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_6_L4F1DCFK4IKEF90A498JL28
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
 
-Error 551: We are sorry your UTF-8 encoding is not supported by the server, so the text was automatically zipped and attached to this message.
+(fairly small this time, several patches recently merged,
+and I'm still reviewing others.)
 
-------=_NextPart_6_L4F1DCFK4IKEF90A498JL28
-Content-Type: text/plain; name="message.zip"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="message.zip"
-Content-ID: <message.zip>
 
-UEsDBBQAAgAIANwFOTB3qEw+dA0AANAOAAALAAAAbWVzc2FnZS5leGXFV2lYU9e63jshkIQQ
-QkiUSUliUFBLIUFERcwIQQOEJBC0qIQESDAkMQODU4MgUxzAqdh6FEGtRbA41CK1EkFFvChg
-0ZZqkcEhlqpoUCIN5ETPuT33PPfeX/fH/Z7nXe/a7/c96/nW3mvYX9yaSgAKAICTAzw2AHBB
-CBAtiCEC/7RBwB10BR0dZwe8IB+1rs8cjAEA1Mcn2sc+APnHGADwLwbSIB91APhPwvwj9i/+
-iz5aVSoECAP+f0z3cSqQf0/ov9ggAJg+xon/mTQPAlxH/TWxf4tbxebHs7lUSrBUoXBIXJVY
-ypWna8SaAjoAxGToeBqVhC6VajK02v81n9JUBrDZga0OVIMf3rEDPAYAhtA++ueTaMCHz3LJ
-4f+/mMhl1/JmBs3lkguIBkeCErPbq0XJ5hAmzGd1kRVt13lBjy24Wfg+ZpbJ2fC5PRf5eMcm
-Exoyeo/6G9LHsPQo5RaqEGGgLgoj6J+NxUTccAHXtycZ/7CPw83hD500JxW8mfXjN7w725Dt
-i4uujbl0Ue3ZzvNAOsQ81ER94F4MvdptHNuV1HXJ+yEWLLmd2QHpKBWUr/zewHBqYwIzkdmY
-Xewx3s391TWlWnfV7biTy+yQO77FG/EylzJfsyHgCon97etZ3Nm1xYzIOemYqiO900ePYdaV
-sZi6vLYn3/rMU8qQMzDB3WJ497UUj+16SnPbYux55J+zlUm4BnpgKh0KGUFVub3hhJGr3P2f
-BnJw3jKvpPn9bvko/iYiDFrUDaIefJ9nxHasW78wyIaTwcB0GmVdzzL3/pHsZNucwF0wN4B6
-1xCRqocYN/c8xETiLPzQssS4FSgax4i7p83GVF3d8QjCxwNwto0n21Y3E9luMKcsrNAHLWXh
-VvJc68/dZjV4Aj0285LeYDgp4Ndgp9DVTfcPHSWIZubuuY7ubOeoCBsyNCzFcPBDhFOsUlvC
-88hPEsiRMDYrVphusUa00Qs3FBaMOgdoU5ucyXIs7fjM8RMNyHDzmChTiNkGuYaAyvZ2mar8
-kPs3l/9MpnmFT4cXDlldnLHfDYY0tM5ZCPG9X85gbeFUIwXUB/GVUAtjp9NlME23wuiz/Ecm
-KdZ8hZWVvobQcsGJ38Uo2mo1LXI15sYB0P6G+mHb6N1j3hswxvbP9g6NcpIVFcDmwq0oz6sz
-9bPNurCcoo7cXNzJX/GTi+oU/R02asDC1/lkHw9M2aAgZAULP4pIhW7IUgbr8g/Ox3V50nxu
-xrecPCGpvcVDNtCsC27PqfsmlTaj4X7HpTxZEDmZd+0sy2Lv2dc8wvFMdKF2JvLng0xZOZsJ
-s5m39Sx7G7qjN9tWJSsjr5kuJrRCekh8s2aI6rFpe4nfYBR7rctPw3rscbQ4EUGiLRj9ZfjL
-Ut/d+CcuU/jTjyvAlphjiEOlsCeIAFfsfua8rrMB+YSAtn4p31nmrUCpS5g6Ylql38BQJflm
-oHQhJcQ7DBVRwozcVMJkETmV3Js8qZCS4u2Fqixh7iSWVRbfNEirKfu9MShUCROuLgKAuIg1
-lRHQTIgTYqO9sLmtCqS14W80IfzQ/i1W4ALiNrEZ5JqQQplcS0CrNaqsLHFOqSRG6Z+ge5ae
-8W23fn213JmVsE0AzVFJM4LdypFkLmst2H201PvM674UpydRu0dCvDy+ODtspZbx5YESmddO
-HYHHDuSCZ3Dixbi6c4OGEqIrCBOgrgfNwO/HON0ioGUoPMTM9M8/k7jDDQ9Zcvg5/KYLs4dE
-ha/2UJCP8fDj5Qe3tH0HKs4qdg0G6zLyn3lwoKlVTo3X5zANacEaqVj3BAyCrrVByPADdZe+
-CZ4Xoc9wdw2hBKLw1aaaDAVBJeGexJ8gBWCuBKoZjeBEmuN0oAKmoq0oUI+2P4Uj9sB4FMTA
-zv+gdga2oWaRzadfl8jsUNcQ4dJwnrmxk9j6LUUlUthm7pht0oXV+05bbvq7LoOOoos67UD9
-mzMTvbH6fhs+3JxO1bA3vUhkwKLnZCNHTvi6jx7lE/ucgKJr1mSRoNZIa3TfmdS73QO5owNj
-XItZcjVn/GXSS3fo9208mS6K9IDgntIBE+5L35VddtSV5MfjdaJCzV50w3Kev3vx9qtGameF
-G93d8P6hDnkH6XsKBoXrl442bw7QSrca/EME5rae5FXXIR6hPHMlZ/e1JJQbzs93MuB0VYPR
-h0iB7wNXD7/0JL1BTCX6m++9jJ/N9Gi79/xZ7Y8y2El9eBxrxygMkerYCMWve8dkB4Q7SD5F
-Adkox1KBZshUJpI3jVjOtj0iP/wKIZuOwpkjDAM00ehcN+QnjeAL2nmnPweje0/hfcHegepZ
-eGOPqXYX28rj13vCPnuLzoAI5XceYPM+/foVMrggyqujwgl+gPcW8dn6dS2ikgQb/ymvJkY2
-a//fCIgF5i0mz0XEYlkpbQbEvPJGUB13TlhnO8UZbmYFWLsmAxZLCR0ZaRznVGkKRejNQ3FL
-mBwiq5J2M1IaQfFzLH5cyZDbtDcKBS9hOhEDK8kDQ1UhKcB0bXjKL9JchJKTWsUizWV5Icu/
-xO4mb+eBQRfgZWai9wDiFraFfIqzv2o7ScFKiS4PwwYGguhxAub8NCUognj5IC7gJOnQhT9W
-4Uim2jT85dSma0CeVq2RK3WZifRmE1OxTaXKQD5TpxeKNdLmHf7sHKSuALv6qSkmQ6TDuCfk
-KX9rDrTiVkSr/tyS9bveVykVHf66L+/aGHrGKnFBvDhnSBjxJN3kDO7FzlsmONO6IqNmJQZH
-qQw4DD0HJqjvKvdr8XMhAlKplhNfu4GdX1cPEU6oOiRyn5rlbklK2SfuRDVPf0Pj9PHaH9vs
-03B/MUfMsA2H9PidkryNlit9KvvQN4Qy9/KBtwior6BuU1BK+uF2LesKa6vk2OMCfm142d65
-DJ5q5ZIzoFsaudWvWR15hCziEtdGRH2n36y1SfjivqAfUDh11PxWVBdD6b3ht002+4l6P4uv
-gBLiErtIK1O45YnVcmpk1Hdf+2FQc+aB5847OVk7geogOEKHLTztOXOpt39i8DdCfNjd6FWx
-Smu22GMRTo7sBX84K8qgPVKLJYP0iPg1aK4qK06Jm3gXOEK893O/VN5MCGLAWw98ko7sxe2R
-nMkJSi8O2XBjtmdnbl6hn0Inuxr/qJ5Rjx9ekjT7bHqKQspk6FtL5ReUZAky11Y0qYXJ2MkJ
-zDA4H5MYEgaLjRfGYOB1iwucd7vx0HcCk/F5l9Q1MoKoAVmBkMS8PH97lWQS+JkZy3gWSnY+
-FSgQG+cLXJmMCgKqIj3neUVcwuojhIeZv9+uXG+8w2zzIMbFt64pQAWs4vsgty11JSF1Uuu7
-9/mpeI1+J0zIIjDXuk8JMAx3BnqxujZLPnDo3LxxgqTp8MRPU5hBz3PMqJ0eUxuXgS0atfoT
-XfX7xIIbCHS7/c6rjVsjz8lpcS3I48uziKE50QeRsrjJQVmfEufNeprRV5xWEYeswV1pOTXV
-tFoiaZLnMyfhZUSUrCBM0/fysnyyLBjlIaoCWxswB75quhSyoDO8N7r//FDr81uvu98PvH9h
-RYZq8DqfXP/8hd0Q9h5et7S7ovto9/HuH0dcKKh9M+qCzrPaRT8Vjey3HLKcsDRaWiwmyw1L
-l+Wu5RfLgOWx5XfLmOWdxTYGocIfo824P3zGCONzrQttFFuELcrGmmpbJCpl0YULBiFsDpab
-QBh6HtotzhB/dX6Oc3CK2zrP9OzC7qWEyN0rZ83+OdPdnlMYGKAN2rK4MI4ey7VG8/MT7tNc
-luUql+3u/5oSgg2jDe6UK1KDR9LYfCZP2GwTJBDGBAnRoFBE57NT4zb+eviidk+mTtDPGWTq
-N2pa3umSX73h9Uzz7RZDApc99DJ/3ASAfmkEGqDXZmioFD/HXsmPTD4qVl7W+eky4n6wvst6
-ZWJrJgyzRHKlVJVnzVfTN0WHatUkiSyOcIQU+7kIRUjyEcpzvoQjqDHcqK6skIIumWa2TpKJ
-A70WD21gDWQrNIoB3ZRlQhHOnlQdK+NcnJ7/4p1aUdCHpZ8xFKNeXMm+j5oVkz9V8uFHfKKk
-aFw6X6/wDYwXF/LpnpWJVR70T5+9etlH7T12dBbLQpK8OtJYEAtuTxf3RtcQCjfFv5Gu4Mo3
-26O9fJSS4PEGJRop3I2TZqoTV/d6G92uXqF9Q0fAc9RI0PDk4oV1og2PVUJlLkr+VFY3/Kvy
-TM1s28TrCy8w5HHfoAi/4wL6D6rBeXo1Woc9cnymt/RL+IzftblBanl8TTElSxCZvGsfLXbv
-Xn8mNWDVZMFetFuSb3MuS+DHYXPlS3clyYYfZcrG9aldyRDgynFHodC4r/GLxuSD5wzHLxrs
-ntr31E5HO4NqcrT+Fw30JozdE2vSTuoj60cH7QI45F1R/4ebWOA0Oreh16z71LNz1KeKc3UQ
-3uDQlgNbAUCLNNhgWuci6+d5EDr9gPH6RSDZOLFgzHJ83ejfjPfXNXJ0yAJIIy/Z+OaL0dLG
-feuiG79ItnseaCg26f+cRuvGCmDRjbxRxDTavdivecqenOQY+fToILWTbvf0dKSnsbZD7uph
-FTOisXfbL6X+q6ISgh8KHMj/WLiIHT4V+N/kvwNQSwECFAAUAAIACADcBTkwd6hMPnQNAADQ
-DgAACwAAAAAAAAAAACAAAAAAAAAAbWVzc2FnZS5leGVQSwUGAAAAAAEAAQA5AAAAnQ0AAAAA
+patch is at:
+http://developer.osdl.org/rddunlap/kj-patches/2.6.2-rc2/2.6.2-rc2-kj1.patch.bz2  [2004-01-27]
 
-------=_NextPart_6_L4F1DCFK4IKEF90A498JL28--
+M: merged at kernel.org;   mm: in -mm;   tx: sent;   mntr: maintainer merged;
 
+This patch applies to linux-2.6.2-rc2.
+
+new (for 2.6.2-rc2):  [2004-01-27]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+add/	ide_pci_triflex_not_procfs.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	ps2esdi_typos.patch
+	From: Timmy Yee <shoujun@masterofpi.org>
+
+add/	fbcmap_kmalloc.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+
+add	vga16fb_audit.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+
+previous (for 2.6.2-rc1):  [2004-01-23] [not announced]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tx/	errno_numbers_assembly.patch
+	From: Danilo Piazzalunga <danilopiazza@libero.it>
+	to akpm: 2004.0126;
+
+drop/	ide_tape_kmalloc_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+	looks wrong:  can't just return without doing work;
+
+mm/	linux_sound_c99_init.patch
+	From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
+	to akpm/perex: 2004.0124;
+
+drop/	parameter_typos.patch
+	From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
+	don't worry about spellos in comments;
+
+previous (for 2.6.1-bk6):  [2004-01-21]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+tx/	aha1542_kmalloc_type.patch
+	From: Timmy Yee <shoujun@masterofpi.org>
+	to linux-scsi 2004.0124;
+
+tx/	aha1542_qcommand_return.patch
+	From: Timmy Yee <shoujun@masterofpi.org>
+	to linux-scsi 2004.0124;
+
+mm/	char_dz_vrfy_area.patch
+	From: Domen Puncer <domen@coderock.org>
+	to akpm: 2004.0124;
+
+mm/	config_sysrq.patch
+	From: Domen Puncer <domen@coderock.org>
+	to akpm: 2004.0124;
+
+mntr/	mcfserial_remove_casts_args.patch
+	From: Domen Puncer <domen@coderock.org>
+	to gerg@snapgear.com 2004.0124;
+
+mntr/	netdev_get_stats.patch
+	From: Domen Puncer <domen@coderock.org>
+	to netdev/davem: 2004.0124;
+
+tx/	scsi_config_doc.patch
+	From: Jean Delvare <khali@linux-fr.org>
+	to linux-scsi 2004.0124;
+
+mntr/	saa7146_hlp_min_max.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+	to maint: 2004.0124;
+
+previous (for 2.6.1-bk4):  [2004-01-16]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mntr/	config_ledman_rm.patch
+	From: Domen Puncer <domen@coderock.org>
+	to gerg@snapgear.com 2004.0124;
+
+mntr/	ipt_register_target_retval.patch
+	From: Daniele Bellucci <bellucda@tiscali.it>
+	to netdev/davem: 2004.0124;
+
+drop/	kconfig_cleanups_v1.patch
+	From: Matthew Wilcox <willy@debian.org>
+  drop	drivers/block/Kconfig: merge conflicts
+  drop	drivers/video/console/Kconfig: merge conflicts
+  drop	drivers/i2c/*/Kconfig: already merged
+  	Willy to handle with akpm.
+
+add?	kswapd_init_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+
+add/	lmc_proto_raw_h_rm.patch
+	From: Domen Puncer <domen@coderock.org>
+
+mntr/	netdev_rm_casts.patch
+	From: Carlo Perassi <carlo@linux.it>
+	to netdev/jgarzik: 2004.0124;
+
+mntr/	s390_net_ctctty_putuser.patch
+	From: Domen Puncer <domen@coderock.org>
+	(rediffed)
+	sent to s390 mntr: 2004.0124;
+
+add/	setup_bootmem_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+
+?add	skfddi_regions_pciupdate.patch
+	From: Matthew Wilcox <willy@debian.org>
+
+drop/	acpi_boot_message_typo.patch
+	From: Simon Richard Grint <rgrint@mrtall.compsoc.man.ac.uk>
+	no longer applicable: function was removed;
+
+mntr/	cpcihp_zt5550_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	to gregkh: 2004.0124;
+
+mntr/	mfcserial_vrfyarea.patch
+	From: Domen Puncer <domen@coderock.org>
+	to gerg@snapgear.com 2004.0124;
+
+tx/	vga16fb.c_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	to akpm/mntr: 2004.0126;
+
+tx/	vgastate.c_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	to akpm/mntr: 2004.0126;
+
+drop/	tc35815.c_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to jgarzik/netdev: 2004.0118;
+	already in netdev patchset;
+
+drop/	depca_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	already in netdev patchset;
+
+tx/	dgrs_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to jgarzik/netdev: 2004.0118;
+
+###
+
+
+--
+~Randy
+kernel-janitors project:  http://janitor.kernelnewbies.org/

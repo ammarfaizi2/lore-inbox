@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbUCWBOb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 20:14:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUCWBOb
+	id S261803AbUCWBRq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 20:17:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUCWBRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 20:14:31 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:7460 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261793AbUCWBO3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 20:14:29 -0500
-Date: Mon, 22 Mar 2004 17:12:43 -0800
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
-       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org
-Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
-Message-Id: <20040322171243.070774e5.pj@sgi.com>
-In-Reply-To: <20040320111340.GA2045@holomorphy.com>
-References: <1079651064.8149.158.camel@arrakis>
-	<20040318165957.592e49d3.pj@sgi.com>
-	<1079659184.8149.355.camel@arrakis>
-	<20040318175654.435b1639.pj@sgi.com>
-	<1079737351.17841.51.camel@arrakis>
-	<20040319165928.45107621.pj@sgi.com>
-	<20040320031843.GY2045@holomorphy.com>
-	<20040320000235.5e72040a.pj@sgi.com>
-	<20040320111340.GA2045@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 22 Mar 2004 20:17:46 -0500
+Received: from painless.aaisp.net.uk ([217.169.20.17]:25529 "EHLO
+	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S261803AbUCWBRo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 20:17:44 -0500
+Message-ID: <405F920C.9090809@rgadsdon2.giointernet.co.uk>
+Date: Tue, 23 Mar 2004 01:25:32 +0000
+From: Robert Gadsdon <robert@rgadsdon2.giointernet.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7b) Gecko/20040320
+X-Accept-Language: en-gb, en, en-us
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.5-rc2 - panic when slocate.cron job accesses firewire disk
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The current nested and ifdef'd complexity of the cpumask macro
-> > headers works against such efficient coding - it's non-trivial to see
-> > just what macros are available. The youngins reading this may not
-> > appreciate the value of reducing brain load; but the oldins might.
-> 
-> It was painful enough just to preserve semantics across such a far-
-> ranging set of changes. Ideally, yes, I would have done this in the
-> first place.
+I get the following when the slocate.cron job accesses the first of 3 
+120GB firewire disks:
+-------------------------------------------------------------
+EIP:   0060:[<f89e3a27>]   Tainted:  P
+EFLAGS: 00010047  (2.6.5-rc2)
+EIP is at hpsb_packet_sent +0x27/0x90 [ieee1394]
+eax : 00100100  ebx: f1b34000  ecx:  d37a4da0  edx: 00200200
+esi:  00000001  edi: d37a4da0  ebp:  f1b36060  esp: f7f4fefc
+ds:  007b  es: 007b ss: 0068
+Process swapper  (pid: 0, threadinfo=f7f4e000 task=f7e5f150)
+Stack: f1b361a4 f890a9e8 f1b34000 d37a4da0 00000001 dcc54b40 f1b361d0 
+00000282
+        f1b361a4 00000000 f7f4e000 c04c35c0 c0124a83 f1b361a4 00000001 
+c0493fa8
+        0000000a 00000046 c01247b7 c0493fa8 f7f4e000 f7f4e000 00000009 
+00000020
+Call Trace:
+[<f890a9e8>] dma_trm_tasklet+0xa8/0x1b0 [ohci1394]
+[<c0124a83>] tasklet_action+Bx73/0xe0
+[<c01247b7>] do_softirq+0xc7/0xd0
+[<c010b77b>] do_IRQ+0x13b/0x1a0
+[<c01998a8>] common_interrupt+0x18/0x20
+[<c0186970>] default_idle+0x0/0x40
+[<c016699c>] default_idle+0x2c/0x40
+[<c0106a2b>] cpu_idle+0x3b/0x50
+[<c0120a38>] printk+0xl78/0x1f0
 
-I'm not trying to get on your case, Bill, for not creating and applying
-more various cpumask functions.  Rather I am looking for ways to make
-that API easier for others to use and use well.  If the situations that
-passed about temporary cpumasks can be collapsed into single calls that
-are more efficient, then that is one way to make progress on this.
+Code: 89 50 04 89 02 c7 41 04 00 02 20 00 c7 01 00 01 10 00 c6 41
+<0>Kernel panic: Fatal exception in interrupt
+In interrupt handler - not syncing
+-------------------------------------------------------------
+(copied/OCRed from screen photo)
 
-Taking masks to be a struct of an array of unsigned longs seems to come
-pretty close.  The sparc64 arch would want to pass a pointer to this
-apparently, rather than the struct itself - faster for them. Some other
-smaller archs would _not_ want to pass a pointer, but rather the (one
-word, for them) value - avoids a dereference for them.  In arch specific
-code, each arch can choose which way works best for them.  I need to
-identify any generic code where these preferences collide.
+When booting and mounting the disks, the console shows the following 
+'errors/warnings':
+ohci1394: fw-host0: Unexpected PCI resource length of 1000!
+........
+ieee1394: unsolicited response packet received - no tlabel match
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Similar problem occurs with 2.6.4, but 2.6.3 and earlier are OK.
+
+System is a 2-cpu PIII (Via) running Fedora 1 with 2.6.x kernel..
+
+..................................
+Robert Gadsdon
+..................................

@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265138AbUENKAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264307AbUENKKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265138AbUENKAi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 06:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265130AbUENKAh
+	id S264307AbUENKKj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 06:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265167AbUENKKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 06:00:37 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:57257 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265138AbUENKAg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 06:00:36 -0400
-Date: Fri, 14 May 2004 12:00:17 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Kronos <kronos@kronoz.cjb.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
-Message-ID: <20040514100017.GA23863@wohnheim.fh-wedel.de>
-References: <20040513134847.GA2024@dreamland.darkstar.lan> <20040513145640.GA3430@dreamland.darkstar.lan> <20040513151549.GB31123@wohnheim.fh-wedel.de> <1084488980.1935.119.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1084488980.1935.119.camel@gaston>
-User-Agent: Mutt/1.3.28i
+	Fri, 14 May 2004 06:10:38 -0400
+Received: from mailhost2.tudelft.nl ([130.161.180.2]:54717 "EHLO
+	mailhost2.tudelft.nl") by vger.kernel.org with ESMTP
+	id S264307AbUENKKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 06:10:37 -0400
+Message-ID: <000601c439a3$f793af40$161b14ac@boromir>
+From: "Martijn Sipkema" <m.j.w.sipkema@student.tudelft.nl>
+To: "Jakub Jelinek" <jakub@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <000701c4399e$88a3aae0$161b14ac@boromir> <20040514095145.GC30909@devserv.devel.redhat.com>
+Subject: Re: POSIX message queues should not allocate memory on send
+Date: Fri, 14 May 2004 12:09:46 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 May 2004 08:56:21 +1000, Benjamin Herrenschmidt wrote:
-> > 
-> > I'm not sure what the point behind the radeon_write_mode() is at all.
-> > The best solution could be to just merge radeon_write_mode() and
-> > radeonfb_set_par() into a single function and do the tons of OUTREG()
-> > directly.  In that case, don't bother to fix any typos
-> 
-> No, they should stay separate functions. I may use write_mode in a
-> different way in the future (like restoring previous mode on module
-> unload for example) and I'm very much against merging 2 already too big
-> function into one huge horror.
+> On Fri, May 14, 2004 at 11:30:53AM +0100, Martijn Sipkema wrote:
+> > The default mq_msgsize also seems a little large to me, but
+> > I don't see why defaults are needed; if I understand the standard
+> > correctly then creating a new message queue without mq_attr
+> > should create an empty queue, which thus cannot be used to
+> > pass messages.
+>
+> No idea where you found this.
+>
+> "If attr is NULL, the message queue shall be created with
+> implementation-defined default message queue attributes."
+>
+> Empty queue means a message queue which has no messages in it, not
+> that mq_msgsize and/or mq_maxmsg is 0.
+> And mq_open with mq_msgsize 0 and/or mq_maxmsg 0 must fail (with EINVAL),
+> so the implementation-defined defaults IMHO must be > 0 for both
+> limits.
+>
+> "     The mq_open() function shall fail if:"
+> ...
+> "     [EINVAL]
+>              O_CREAT was specified in oflag, the value of attr is not
+NULL,
+>      and either mq_maxmsg or mq_msgsize was less than or equal to zero."
 
-Not sure if the combined function would really be bigger than either
-one alone.  Basically, set_par writes to a temp struct and write_mode
-writes from the temp struct to hardware.  Sounds like quite a bit of
-redundant code could be removed.
+You are correct; defaults are indeed needed. The current default value
+for mq_msgsize seems rather large considering that mq_msgsize*mq_maxmsg
+bytes will have to be allocated on queue creation. If variable sized large
+payload messages are needed one might consider using shared memory in
+combination with a message queue.
 
-With more users for write_mode the seperate function makes sense
-again, so you should keep it.  Just the second argument isn't valid
-imo.
+My main point was that mq_send()/mq_timedsend() may not return ENOMEM
+and I am positive I did not misread the standard on that.
 
-Jörn
+--ms
 
--- 
-Correctness comes second.
-Features come third.
-Performance comes last.
-Maintainability is needed for all of them.
+
+
+

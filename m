@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312169AbSERKQm>; Sat, 18 May 2002 06:16:42 -0400
+	id <S312279AbSERK0f>; Sat, 18 May 2002 06:26:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312279AbSERKQl>; Sat, 18 May 2002 06:16:41 -0400
-Received: from ns.suse.de ([213.95.15.193]:10252 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312169AbSERKQl>;
-	Sat, 18 May 2002 06:16:41 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: AUDIT: copy_from_user is a deathtrap.
-In-Reply-To: <E178eMm-0000NO-00@wagner.rustcorp.com.au.suse.lists.linux.kernel> <Pine.LNX.4.44.0205171936220.1524-100000@home.transmeta.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 18 May 2002 12:16:40 +0200
-Message-ID: <p733cwpzrp3.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S312296AbSERK0e>; Sat, 18 May 2002 06:26:34 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:58512 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S312279AbSERK0e> convert rfc822-to-8bit; Sat, 18 May 2002 06:26:34 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <mcp@linux-systeme.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fixing supermount for > 2.4.19pre4
+Date: Sat, 18 May 2002 12:26:03 +0200
+X-Mailer: KMail [version 1.4]
+Organization: Linux-Systeme GmbH
+Cc: =?iso-8859-1?q?J=F6rg=20Prante?= <joergprante@gmx.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200205181226.03997.mcp@linux-systeme.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+Hi Joerg,
 
-> On Fri, 17 May 2002, Rusty Russell wrote:
-> >
-> > Sorry I wasn't clear: I'm saying *replace*, not add,
-> 
-> Ok, let _me_ be clear: replacing them with an inferior product that cannot
-> tell you partial copies is not going to happen. Not now, not ever. You
-> would break all the users who _require_ knowing about a read() that only
-> gave you 5 out of 50 bytes.
+your patch for supermount does not work. Now it's even not possible to list 
+the content via ls -lsa /mnt ... Mount hangs, no access is made, nothing.
 
-Are you sure they even exist ? As far as I can see near everybody relies
-on zeroing of target on exception instead.
+Tested with your jp12 patchset and with my patchset wolk.
 
-At least for the SSE optimized copy_*_user always would be much better,
-because optimizing the miss count is painful from an unrolled loop
-and cannot be even done accurately (8 bytes accuracy is best with 8 byte
-loads/stored).  With that in mind I think the byte count is broken by 
-design because it cannot be correctly implemented unless you do byte copies.
+-- 
+Kind regards
+        Marc-Christian Petersen
 
-I remember TCP was given as the prime user when this interface was 
-introduced in 2.1, but TCP does not use the byte count currently and never has
-(in fact the primary memory copy interface of TCP - csum_copy_* - does not 
-even support it)
-
--Andi 

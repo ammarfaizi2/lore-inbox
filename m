@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262001AbSJDPMO>; Fri, 4 Oct 2002 11:12:14 -0400
+	id <S262293AbSJDQMW>; Fri, 4 Oct 2002 12:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262000AbSJDPLT>; Fri, 4 Oct 2002 11:11:19 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:21472 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261988AbSJDPKi>; Fri, 4 Oct 2002 11:10:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: "Mark Peloquin" <peloquin@us.ibm.com>, Robert Varga <nite@hq.alert.sk>
-Subject: Re: [PATCH] EVMS core 2/4: evms.h
-Date: Fri, 4 Oct 2002 09:43:16 -0500
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-References: <OFFB872C80.2A0F42E5-ON85256C48.004BEF31@pok.ibm.com> <02100409034403.02266@boiler>
-In-Reply-To: <02100409034403.02266@boiler>
-MIME-Version: 1.0
-Message-Id: <02100409431604.02266@boiler>
-Content-Transfer-Encoding: 7BIT
+	id <S262294AbSJDQMW>; Fri, 4 Oct 2002 12:12:22 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:9365 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262293AbSJDQMU>; Fri, 4 Oct 2002 12:12:20 -0400
+Date: Fri, 4 Oct 2002 10:17:34 -0600
+Message-Id: <200210041617.g94GHY008334@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Greg KH <greg@kroah.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, hch@infradead.org
+Subject: Re: [BK PATCH] minor devfs cleanup for 2.5.40
+In-Reply-To: <20021003213908.GB1388@kroah.com>
+References: <20021003213908.GB1388@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 October 2002 09:03, Kevin Corry wrote:
-> On Friday 04 October 2002 08:59, Mark Peloquin wrote:
-> > On 10/04/2002 at 7:28 AM, Robert Varga wrote:
-> > <snip...>
-> >
-> > > Possibly shortened to:
-> > >
-> > > static inline int list_member(struct list_head *member)
-> > > {
-> > >     return member->next && member->prev;
-> > > }
-> > >
-> > > Faster, and (at least to me) it looks more obvious.
-> >
-> > Yes, this may be shorter. However with this change
-> > the return type would also need to be changed to
-> > portable across archs.
->
-> What would the return type have to be?
+Greg KH writes:
+> Here's a changeset from Christoph Hellwig that removes some unneeded
+> code from the kernel core.  This was leftover from before devfs became
+> part of the main kernel tree, and was trying to do some naming fixups in
+> kernelspace.  If anyone still has machines using these names, their
+> startup scripts should be modified to use the "standard" devfs names.
+> 
+> Please pull from:  http://linuxusb.bkbits.net/devfs-2.5
 
-Hmm...seemed to be a misunderstanding. The "&&" operator causes the 
-expression to evaluate to an int, and not to a list_head*. The above should 
-work fine.
+NO! Dammit, you'll break everyone who is using these compact names to
+mount the root FS. Look more closely at the code you're trying to
+remove, and you'll see it's *not* used to avoid work in startup
+scripts. It's only used to create the devfs entry for the root FS.
 
--- 
-Kevin Corry
-corryk@us.ibm.com
-http://evms.sourceforge.net/
+This change is gratuitous. The code is __init code anyway, so doesn't
+contribute to bloat. And forcing people to migrate to the longer names
+isn't reasonable, as it chews up precious space on the kernel command
+line. I've had times where I ran out of space when I had too many
+options.
+
+Linus, please don't apply.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

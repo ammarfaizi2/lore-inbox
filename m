@@ -1,174 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbUC0JTX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 04:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUC0JTX
+	id S261671AbUC0Ja0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 04:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUC0Ja0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 04:19:23 -0500
-Received: from mail3.efi.com ([192.68.228.90]:49927 "EHLO
-	fcexgw03.efi.internal") by vger.kernel.org with ESMTP
-	id S261684AbUC0JTJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 04:19:09 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [ACPI] [BKPATCH] ACPI for 2.6
-Date: Sat, 27 Mar 2004 01:18:47 -0800
-Message-ID: <EB6B0A91B0F6AC44842492A8F6852CDE11AAB9@fcexmb01.efi.internal>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] [BKPATCH] ACPI for 2.6
-Thread-Index: AcQTl3RbZqR8l+K3QOeT2j6BHf3BxQAQxHsg
-From: "Manpreet Singh" <Manpreet.Singh@efi.com>
-To: "Len Brown" <len.brown@intel.com>, "Linus Torvalds" <torvalds@osdl.org>
-Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "ACPI Developers" <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 27 Mar 2004 09:18:48.0039 (UTC) FILETIME=[82BD3F70:01C413DC]
+	Sat, 27 Mar 2004 04:30:26 -0500
+Received: from mailout3.samsung.com ([203.254.224.33]:46273 "EHLO
+	mailout3.samsung.com") by vger.kernel.org with ESMTP
+	id S261706AbUC0JaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 04:30:22 -0500
+Date: Sat, 27 Mar 2004 18:29:19 +0900
+From: "Hyok S. Choi" <hyok.choi@samsung.com>
+Subject: [ANNOUNCE] 2.6.4-hsc1 patch for MMU-less ARM is available.
+To: uClinux development list <uclinux-dev@uclinux.org>,
+       Linux-Kernel List <linux-kernel@vger.kernel.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk
+Message-id: <000401c413dd$fb0649d0$7dc2dba8@dmsst.net>
+Organization: Samsung Electronics Co.,Ltd.
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Importance: Normal
+X-Priority: 3 (Normal)
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Len,
+Hello ARM users!
 
-This patch on 2.6.5-rc2 certainly helps with a "spurious" interrupt problem
-that I was seeing on a 2.6.4 kernel. It seems that we don't initialize GPEs
-unless they are needed for a resume.
+MMU-less ARM patch against linux-2.6.4 kernel, linux-2.6.4-hsc1 patch is
+available at:
+http://adam.kaist.ac.kr/~hschoe
 
-But, in the function call "acpi_hw_prepare_gpes_for_sleep", it seems that
-currently *all* GPEs get disabled, some of which I would consider wake up
-events, like the PME enable bit that enables an S3 resume using a magic
-packet. That doesn't allow wake on LAN to work properly. Is there way to
-pick/specify the wake up events or does it come from the BIOS tables?
+The ATMEL AT91xx(ARM7TDMI) platform support is added, which means
+GDB/ARMulator is supported also. And proc-arm940.S is included. (contributed
+by Hee-Chul Yun)
 
-Also, if I have the console on a serial port, I don't get the console back
-after an S3 resume.
+You can download it directly at :
+http://adam.kaist.ac.kr/~hschoe/download/linux-2.6.4-hsc1.patch.gz
 
-Actually, I am new to the ACPI list. If this is not the right place for these
-queries, please let me know.
+This patch pending to be merged to 2.6.4-uc0 patch.
 
-Thanks,
-Manpreet.
+Happy Hacking!
 
+Regards,
+Hyok S. Choi
 
------Original Message-----
-From: acpi-devel-admin@lists.sourceforge.net
-[mailto:acpi-devel-admin@lists.sourceforge.net]On Behalf Of Len Brown
-Sent: Friday, March 26, 2004 4:59 PM
-To: Linus Torvalds
-Cc: Kernel Mailing List; ACPI Developers
-Subject: [ACPI] [BKPATCH] ACPI for 2.6
+<EOT>
 
+CHOI, HYOK-SUNG
+Engineer (Linux System Software)
+S/W Platform Lab, Digital Media R&D Center
+Samsung Electronics Co.,Ltd.
+tel: +82-31-200-8594  fax: +82-31-200-3427
+e-mail: hyok.choi@samsung.com
 
-Hi Linus, please do a 
+[compile&run]
+main(a){printf(a,34,a="main(a){printf(a,34,a=%c%s%c,34);}",34);}
 
-	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.5
+ 
+ 
 
-	Three significant interrupt fixes.
-
-thanks,
--Len
-
-ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.5/
-acpi-20040326-2.6.5.diff.gz
-
-This will update the following files:
-
- arch/i386/kernel/acpi/boot.c      |   18 +
- drivers/acpi/ec.c                 |    4 
- drivers/acpi/events/evgpe.c       |   11 -
- drivers/acpi/events/evgpeblk.c    |  242 ++++++++++++++++++++++----
- drivers/acpi/events/evmisc.c      |   43 ++--
- drivers/acpi/events/evxfevnt.c    |   25 ++
- drivers/acpi/executer/excreate.c  |   16 +
- drivers/acpi/executer/exdump.c    |    1 
- drivers/acpi/executer/exresnte.c  |    5 
- drivers/acpi/executer/exstoren.c  |    1 
- drivers/acpi/hardware/hwgpe.c     |   98 ++++++----
- drivers/acpi/hardware/hwsleep.c   |   22 +-
- drivers/acpi/namespace/nsaccess.c |    9 
- drivers/acpi/namespace/nsdump.c   |    1 
- drivers/acpi/namespace/nseval.c   |    9 
- drivers/acpi/namespace/nssearch.c |    6 
- drivers/acpi/namespace/nsutils.c  |    2 
- drivers/acpi/namespace/nsxfeval.c |   26 +-
- drivers/acpi/osl.c                |   21 ++
- drivers/acpi/pci_link.c           |   18 +
- drivers/acpi/resources/rsaddr.c   |   13 -
- drivers/acpi/utilities/utglobal.c |   42 ++--
- drivers/acpi/utilities/utmisc.c   |    5 
- include/acpi/acconfig.h           |    2 
- include/acpi/acglobal.h           |    2 
- include/acpi/achware.h            |    4 
- include/acpi/aclocal.h            |    7 
- include/acpi/actypes.h            |   84 +++++----
- include/acpi/acutils.h            |    1 
- 29 files changed, 537 insertions(+), 201 deletions(-)
-
-through these ChangeSets:
-
-<len.brown@intel.com> (04/03/26 1.1608.1.56)
-   [ACPI] Linux specific updates from ACPICA 20040326
-   "acpi_wake_gpes_always_on" boot flag for old GPE behaviour
-
-<len.brown@intel.com> (04/03/26 1.1608.1.55)
-   [ACPI] ACPICA 20040326 from Bob Moore
-   
-   Implemented support for "wake" GPEs via interaction between
-   GPEs and the _PRW methods.  Every GPE that is pointed to by
-   one or more _PRWs is identified as a WAKE GPE and by default
-   will no longer be enabled at runtime.  Previously, we were
-   blindly enabling all GPEs with a corresponding _Lxx or _Exx
-   method - but most of these turn out to be WAKE GPEs anyway.
-   We believe this has been the cause of thousands of
-   "spurious" GPEs on some systems.
-   
-   This new GPE behavior is can be reverted to the original
-   behavior (enable ALL GPEs at runtime) via a runtime flag.
-   
-   Fixed a problem where aliased control methods could not
-   access objects properly.  The proper scope within the
-   namespace was not initialized (transferred to the target of
-   the aliased method) before executing the target method.
-   
-   Fixed a potential race condition on internal object
-   deletion on the return object in AcpiEvaluateObject. 
-   
-   Integrated a fix for resource descriptors where both
-   _MEM and _MTP were being extracted instead of just _MEM.
-   (i.e. bitmask was incorrectly too wide, 0x0F instead of 0x03.)
-   
-   Added a special case for ACPI_ROOT_OBJECT in AcpiUtGetNodeName,
-   preventing a fault in some cases.
-   
-   Updated Notify() values for debug statements in evmisc.c
-   
-   Return proper status from AcpiUtMutexInitialize,
-   not just simply AE_OK.
-
-<len.brown@intel.com> (04/03/26 1.1608.1.54)
-   [ACPI] proposed fix for non-identity-mapped SCI override
-   http://bugme.osdl.org/show_bug.cgi?id=2366
-
-<len.brown@intel.com> (04/03/25 1.1608.1.53)
-   [ACPI] PCI interrupt link routing (Luming Yu)
-   use _PRS to determine resource type for _SRS
-   fixes HP Proliant servers
-   http://bugzilla.kernel.org/show_bug.cgi?id=1590
-
-
-
-
-
-
--------------------------------------------------------
-This SF.Net email is sponsored by: IBM Linux Tutorials
-Free Linux tutorial presented by Daniel Robbins, President and CEO of
-GenToo technologies. Learn everything from fundamentals to system
-administration.http://ads.osdn.com/?ad_id=1470&alloc_id=3638&op=click
-_______________________________________________
-Acpi-devel mailing list
-Acpi-devel@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/acpi-devel

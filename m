@@ -1,92 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262835AbVCDN7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262879AbVCDOLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262835AbVCDN7x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 08:59:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbVCDN7x
+	id S262879AbVCDOLN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 09:11:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbVCDOLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 08:59:53 -0500
-Received: from harmonie.imag.fr ([147.171.130.40]:34731 "EHLO harmonie.imag.fr")
-	by vger.kernel.org with ESMTP id S262835AbVCDN7t (ORCPT
+	Fri, 4 Mar 2005 09:11:06 -0500
+Received: from mail.upce.cz ([195.113.124.33]:13482 "EHLO mail.upce.cz")
+	by vger.kernel.org with ESMTP id S262892AbVCDOKp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 08:59:49 -0500
-Message-ID: <422869BA.3030802@naurel.org>
-Date: Fri, 04 Mar 2005 14:59:22 +0100
-From: =?ISO-8859-1?Q?Aur=E9lien_Francillon?= <aurel@naurel.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050117)
-X-Accept-Language: en-us, en
+	Fri, 4 Mar 2005 09:10:45 -0500
+Message-ID: <42286C5E.2020106@seznam.cz>
+Date: Fri, 04 Mar 2005 15:10:38 +0100
+From: "kern.petr@seznam.cz" <kern.petr@seznam.cz>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm1
-References: <20050304033215.1ffa8fec.akpm@osdl.org>
-In-Reply-To: <20050304033215.1ffa8fec.akpm@osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigD1A688F776F39104237273B2"
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (harmonie.imag.fr [147.171.130.40]); Fri, 04 Mar 2005 14:59:24 +0100 (CET)
-X-IMAG-MailScanner-Information: Please contact IMAG DMI for more information
-X-IMAG-MailScanner: Found to be clean
-X-MailScanner-From: aurel@naurel.org
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+CC: jgarzik@pobox.com, B.Zolnierkiewicz@elka.pw.edu.pl, vojtech@suse.cz,
+       giovanni@sudfr.com, andre@linux-ide.org, dake@staszic.waw.pl
+Subject: Re: via 6420 pata/sata controller
+References: <42213771.5060809@seznam.cz> <42255E5D.1030908@pobox.com>
+In-Reply-To: <42255E5D.1030908@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigD1A688F776F39104237273B2
-Content-Type: multipart/mixed;
- boundary="------------030900040609070205040409"
+I downloaded new kernel 2.6.11, applied your's via82cxxx.c patch and 
+compiled it (.config was derived "make oldconfig" from 2.6.8 kernel from 
+Debian Sarge 3.1).
 
-This is a multi-part message in MIME format.
---------------030900040609070205040409
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+I created initrd.img with this settings:
+/etc/mkinitrd/mkinitrd.conf
+--- cut here ---
+MODULES=dep
+--- cut here ---
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.=
-6.11-mm1/
->=20
->=20
+/etc/mkinitrd/modules
+###
+jbd
+ext3
+ide-core
+via82cxxx
 
-trivial patch for fscache menuconfig help documentation path
+I boot PC with this settings:
+/etc/modules
+###
+ide-cd
+via82cxxx
 
-Signed-off-by: Aur=E9lien Francillon <aurel@naurel.org>
+Results:
+Everything is the same, dmesg, lspci, lspci -n, cat /proc/ioports, lsmod 
+as the last email.
+
+Controller still don't working :'(.
+
+PS: I don't add anything into pci_ids.h, I only applied your's 
+via82cxxx.c patch:
+#define PCI_DEVICE_ID_VIA_6420 0x4149
+
+Your's Sincerely
+Petr Novák
+kern.petr@seznam.cz
+
+Jeff Garzik napsal(a):
+
+> If I had to guess, I would try the attached patch.  The via82cxxx.c 
+> driver is a bit annoying in that, here we do not talk to the ISA 
+> bridge but to the PCI device 0x4149 itself.
+>
+> If this doesn't work, I could probably whip together a quick PATA 
+> driver for libata that works on this hardware.
+>
+>     Jeff  
+>
+>------------------------------------------------------------------------
+>
+>===== drivers/ide/pci/via82cxxx.c 1.27 vs edited =====
+>--- 1.27/drivers/ide/pci/via82cxxx.c	2005-02-03 02:24:29 -05:00
+>+++ edited/drivers/ide/pci/via82cxxx.c	2005-03-02 01:28:26 -05:00
+>@@ -79,6 +79,7 @@
+> 	u8 rev_max;
+> 	u16 flags;
+> } via_isa_bridges[] = {
+>+	{ "vt6420",	0x4149,			    0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+> 	{ "vt8237",	PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+> 	{ "vt8235",	PCI_DEVICE_ID_VIA_8235,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+> 	{ "vt8233a",	PCI_DEVICE_ID_VIA_8233A,    0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+>@@ -635,9 +636,10 @@
+> }
+> 
+> static struct pci_device_id via_pci_tbl[] = {
+>-	{ PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C576_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+>-	{ PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+>-	{ 0, },
+>+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C576_1) },
+>+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1) },
+>+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, 0x4149) },
+>+	{ },	/* terminate list */
+> };
+> MODULE_DEVICE_TABLE(pci, via_pci_tbl);
+>
 
 
-
---------------030900040609070205040409
-Content-Type: text/plain;
- name="fscache-menuconfig-help-fix-documentation-path.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fscache-menuconfig-help-fix-documentation-path.patch"
-
---- 2.6.11-mm1/fs/Kconfig~	2005-03-04 14:32:34.000000000 +0100
-+++ 2.6.11-mm1/fs/Kconfig	2005-03-04 14:33:36.000000000 +0100
-@@ -445,7 +445,7 @@
- 	  locally. Diffent sorts of caches can be plugged in, depending on the
- 	  resources available.
- 
--	  See Documentation/filesystems/fscache.txt for more information.
-+	  See Documentation/filesystems/caching/fscache.txt for more information.
- 
- config CACHEFS
- 	tristate "Filesystem caching filesystem"
-
---------------030900040609070205040409--
-
---------------enigD1A688F776F39104237273B2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCKGm6tsnPPsovZP0RApv3AJ9umZr8WhA5aX6xje06OXqzaUltBACaAvFg
-6GIedmsXFyJjel5IxI29dMQ=
-=PxXj
------END PGP SIGNATURE-----
-
---------------enigD1A688F776F39104237273B2--

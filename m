@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264748AbUEJPjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264765AbUEJPoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264748AbUEJPjq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 11:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264750AbUEJPjq
+	id S264765AbUEJPoT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 11:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUEJPoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 11:39:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17584 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264748AbUEJPjp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 11:39:45 -0400
-Date: Mon, 10 May 2004 11:39:36 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andi Kleen <ak@muc.de>
-cc: Stephen Hemminger <shemminger@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Distributions vs kernel development
-In-Reply-To: <m38yg4hyf1.fsf@averell.firstfloor.org>
-Message-ID: <Xine.LNX.4.44.0405101137310.1943-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 May 2004 11:44:19 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:2918 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264765AbUEJPoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 11:44:18 -0400
+Subject: ptrace in 2.6.5
+From: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1084203979.1421.1.camel@slack.domain.invalid>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 10 May 2004 12:46:19 -0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 May 2004, Andi Kleen wrote:
+Hi All.
 
-> The reiserfs attribute patch has been submitted many times,
-> but rejected for totally bogus reasons. You know who to complain to.
+     Is ptrace(), in singlestep mode, required to stop after a int 0x80?
+    When tracing a sequence like
 
-I'd really like to see the xattr + SELinux stuff go in, so that SELinux 
-users can have filesystem labeling under Reiserfs.  I'll volunteer to help 
-maintain this part of the code in mainline.
+	mov ...
+	int 0x80
+	mov ....
 
+    ptrace would notify the tracer after the two movs, but not after the
+int 0x80. I want to know if it is a bug or the expected behaviour.
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
+TIA,
+Fabiano
 

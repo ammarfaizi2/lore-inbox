@@ -1,77 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbUA0BwG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 20:52:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUA0BwG
+	id S261681AbUA0Byn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 20:54:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUA0Byn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 20:52:06 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30127 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261406AbUA0BwC
+	Mon, 26 Jan 2004 20:54:43 -0500
+Received: from [203.152.107.170] ([203.152.107.170]:12672 "HELO
+	skieu.myftp.org") by vger.kernel.org with SMTP id S261681AbUA0Byl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 20:52:02 -0500
-Message-ID: <4015C434.5070108@pobox.com>
-Date: Mon, 26 Jan 2004 20:51:48 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Mon, 26 Jan 2004 20:54:41 -0500
+Date: Tue, 27 Jan 2004 14:56:06 +0000 (UTC)
+From: haiquy@yahoo.com
+X-X-Sender: sk@darkstar.example.net
+Reply-To: s_kieu@hotmail.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-rc1-mm1 pppd: page allocation failure (fwd)
+Message-ID: <Pine.LNX.4.53.0401271442590.919@darkstar.example.net>
 MIME-Version: 1.0
-To: "Wiran, Francis" <francis.wiran@hp.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cpqarray update
-References: <CBD6B29E2DA6954FABAC137771769D6504E15965@cceexc19.americas.cpqcorp.net>
-In-Reply-To: <CBD6B29E2DA6954FABAC137771769D6504E15965@cceexc19.americas.cpqcorp.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wiran, Francis wrote:
->>You need to check the return value of pci_module_init() for errors.
-> 
-> No, because the return value is determined from number of ctrls found,
-> and not from function return.
-> 
-> int __init cpqarray_init(void)
-> {
-> ...
-> 	pci_module_init(&cpqarray_pci_driver);
-> 	cpqarray_eisa_detect();
-> 
-> 	for(i=0;i<MAX_CTLR;i++) {
-> 		if(hba[i] != NULL)
-> 			num_ctlrs_reg++
-> 	}
-> 
-> 	return (num_ctlrs_reg);
-> }
-> 
-> int __init cpqarray_init_module(void)
-> {
-> 	if (cpqarray_init() == 0)
-> 		return -ENODEV;
-> 	return 0;
-> }
+
+Hi,
+
+Sorry for the delay but I have still unable to reproduce the bug when
+when compiling use standard CFLAGS in the kernel Makefile.
+
+Best regard,
 
 
-Nope, this needs to be turned inside out.  The proper PCI driver looks like
+Steve Kieu
 
-static int __init cp_init (void)
-{
-         return pci_module_init (&cp_driver);
-}
-
-static void __exit cp_exit (void)
-{
-         pci_unregister_driver (&cp_driver);
-}
-
-We already handle the cases you describe.  The cpqarray code -breaks- 
-the API design by doing it this way.
-
-cpqarray does not fully support the pci_ids features and hotplug without 
-this.
-
-	Jeff
+---------- Forwarded message ----------
+Date: Sat, 24 Jan 2004 12:38:41 +0000 (UTC)
+From: haiquy@yahoo.com
+Reply-To: s_kieu@hotmail.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.2-rc1-mm1 pppd: page allocation failure
 
 
+Hi,
 
+This did not happen with 2.6.1-mm4 . The system is still running fine
+at the moment but I find several message in the dmesg output
+
+pppd: page allocation failure. order:4, mode:0xd0
+Call Trace: [<c01388f0>]  [<c013895f>]  [<c013b48c>]  [<c013b79e>]  [<c013bae4>]  [<c01fc177>]  [<c01f87b4>]  [<c01f6bd1>]  [<c014e742>]  [<c015f299>]  [<c02b2f67>]
+pppd: page allocation failure. order:4, mode:0xd0
+Call Trace: [<c01388f0>]  [<c013895f>]  [<c013b48c>]  [<c013b79e>]  [<c013bae4>]  [<c01fc177>]  [<c01f87b4>]  [<c01f6bd1>]  [<c014e742>]  [<c015f299>]  [<c02b2f67>]
+pppd: page allocation failure. order:4, mode:0xd0
+Call Trace: [<c01388f0>]  [<c013895f>]  [<c013b48c>]  [<c013b79e>]  [<c013bae4>]  [<c01fc177>]  [<c01f87b4>]  [<c01f6bd1>]  [<c014e742>]  [<c015f299>]  [<c02b2f67>]
+
+If some one need further testing or information pls cc me.
+
+Steve Kieu

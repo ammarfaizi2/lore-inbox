@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265691AbUBBQIy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 11:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265695AbUBBQIy
+	id S265678AbUBBQEj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 11:04:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbUBBQEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 11:08:54 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:30130 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265691AbUBBQIv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 11:08:51 -0500
-Date: Mon, 2 Feb 2004 17:08:46 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       R.E.Wolff@BitWizard.nl
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Specialix compile fix
-Message-ID: <Pine.GSO.4.58.0402021707570.19699@waterleaf.sonytel.be>
+	Mon, 2 Feb 2004 11:04:39 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:52098 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265678AbUBBQEi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 11:04:38 -0500
+Date: Mon, 2 Feb 2004 11:06:50 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Flashing keyboard LEDS upon boot.
+In-Reply-To: <Pine.LNX.4.53.0402021043450.24519@chaos>
+Message-ID: <Pine.LNX.4.53.0402021105560.24632@chaos>
+References: <Pine.LNX.4.53.0402021043450.24519@chaos>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2 Feb 2004, Richard B. Johnson wrote:
 
-Compile fix: add missing #include <linux/init.h>
+>
+> Sometimes, when booting Linux-2.3.24 from bzImage, machines
+                                  ^
+Typo                      Linux-2.4.24
 
---- linux-2.6.2-rc3/drivers/char/specialix.c	2003-09-28 09:35:59.000000000 +0200
-+++ linux-m68k-2.6.2-rc3/drivers/char/specialix.c	2004-01-10 04:21:35.000000000 +0100
-@@ -92,6 +92,7 @@
- #include <linux/delay.h>
- #include <linux/version.h>
- #include <linux/pci.h>
-+#include <linux/init.h>
- #include <asm/uaccess.h>
+> display "Uncompressing Linux ..., Ok. Booting the kernel."
+> Then the machine just sits there with the keyboard LEDS
+> (Num-Lock, Caps-lock, and Scroll-lock) flashing at about
+> a 1-second interval. It will do this "forever".
+>
+> Can anybody tell me what it has found "wrong" that prevents
+> it from continuing the boot? A whole bunch of new Dell Computers
+> display this problem. The second boot will always work, but
+> the first cold-start boot will often result in this problem.
+>
 
- #include "specialix_io8.h"
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Gr{oetje,eeting}s,
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

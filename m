@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266578AbUAWPRM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 10:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266579AbUAWPRM
+	id S266572AbUAWPJE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 10:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUAWPJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 10:17:12 -0500
-Received: from mail.aei.ca ([206.123.6.14]:23247 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S266578AbUAWPRI (ORCPT
+	Fri, 23 Jan 2004 10:09:03 -0500
+Received: from mail.netbeat.de ([193.254.185.26]:28347 "HELO mail.netbeat.de")
+	by vger.kernel.org with SMTP id S266572AbUAWPJB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 10:17:08 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: Evaldo Gardenali <evaldo@gardenali.biz>
-Subject: Re: buggy raid checksumming selection?
-Date: Fri, 23 Jan 2004 10:16:45 -0500
-User-Agent: KMail/1.5.93
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-References: <40112465.8040801@gardenali.biz> <20040123141352.GA19002@redhat.com>
-In-Reply-To: <20040123141352.GA19002@redhat.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 23 Jan 2004 10:09:01 -0500
+Subject: Re: 2.6.2-rc1-mm2
+From: Jan Ischebeck <mail@jan-ischebeck.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1074870538.5122.9.camel@JHome.uni-bonn.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 23 Jan 2004 16:08:58 +0100
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401231016.45225.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 23, 2004 09:13 am, Dave Jones wrote:
-> On Fri, Jan 23, 2004 at 11:40:53AM -0200, Evaldo Gardenali wrote:
->  > Uhh. correct me if I am wrong, but shouldnt it select the fastest
->  > algorithm?
->
-> No, if it can choose a function which avoids polluting the cache over
-> one that doesn't, it will.  Even if that means slightly less raw throughput
+Hi Andrew,
 
-In this case it is half the throughput.  When is it reasonable to use the 
-fast method?  If never, why even test it?
+With the latest pmtmr fixes, synaptics mouse driver is in sync again and
+my bogomips are correct too. (synaptics had been loosing packages in -mm
+releases the last weeks)
 
-Ed
+Only the radeon dri driver cannot be inserted because of an missing
+symbol: 
+radeon: Unknown symbol cmpxchg
+
+Thx for the frequent releases,
+Jan
+

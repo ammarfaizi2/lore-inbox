@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262985AbTFGKrV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 06:47:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbTFGKrV
+	id S263011AbTFGKvi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 06:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbTFGKvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 06:47:21 -0400
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:19031 "EHLO
-	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP id S262985AbTFGKrU
+	Sat, 7 Jun 2003 06:51:38 -0400
+Received: from mrw.demon.co.uk ([194.222.96.226]:8576 "EHLO rebecca")
+	by vger.kernel.org with ESMTP id S263011AbTFGKvh convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 06:47:20 -0400
-Date: Sat, 7 Jun 2003 13:00:23 +0200
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: AEC SCSIDE bridge/2.4.18 crash
-Message-ID: <20030607110023.GA1750@grobbebol.xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+	Sat, 7 Jun 2003 06:51:37 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Watts <m.watts@mrw.demon.co.uk>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PERC4-DI?
+Date: Sat, 7 Jun 2003 12:05:11 +0100
+User-Agent: KMail/1.4.3
+References: <20030606163717.GK8594@rdlg.net>
+In-Reply-To: <20030606163717.GK8594@rdlg.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306071205.11550.m.watts@mrw.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
+On Friday 06 Jun 2003 5:37 pm, Robert L. Harris wrote:
+> My company is looking at buying some machines with "PERC4-DI" SCSI RAID
+> controllers.  Poking around the .config file I'm not finding anything
+> related to this.  Anyone know off the top of their heads what driver
+> would be used for this controller, any known catastrophic bugs, etc?
 
+If its anything like the PERC 3 cards, it could be anything from an LSI 
+through to an Adaptec card. (PERC = PowerEdge Raid Controler).
 
-I recently decided to do some testing on an www.acard.com scside bridge.
-type : AEC7720U.
+I haven't found any major issues with any of them yet, but we don't tend to 
+push them as hard as others here - we mainly use them in webservers.
 
-this thing essentially connects to my BT930 scsi controller and at the
-other side a standard IDE drive, WD1200JB.
-
-as long as I don't use the drive the systems stays stable. if I format
-the drive, it crashes half of the time. if copying lots of data, it
-crashes as well.
-
-there is no error in any log. the system crashes hard. numlock can be
-used one time and then it fails as well. magic sysrq doesn't work
-either.
-
-I will add scsi verbose logging to the kernel and restart but am afraid
-there will be nothing in the logs.
-
-any ideas ?
+Mark.
 

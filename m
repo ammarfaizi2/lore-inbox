@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262703AbUDDTqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 15:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbUDDTqZ
+	id S262709AbUDDTvA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 15:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbUDDTu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 15:46:25 -0400
-Received: from stogtw01.enlight.net ([212.209.183.10]:33051 "EHLO
-	stodns01.enlightnet.local") by vger.kernel.org with ESMTP
-	id S262703AbUDDTqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 15:46:24 -0400
-Date: Sun, 4 Apr 2004 21:46:15 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: puw@cola.local
-To: Kyle Davenport <kdd@tvmax.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.25 crashes windows
-In-Reply-To: <1081098190.14744.90.camel@quickest.kyledavenport.com>
-Message-ID: <Pine.LNX.4.44.0404042132201.28197-100000@cola.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 Apr 2004 19:46:20.0799 (UTC) FILETIME=[80D678F0:01C41A7D]
+	Sun, 4 Apr 2004 15:50:59 -0400
+Received: from linux-bt.org ([217.160.111.169]:48811 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S262709AbUDDTu5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 15:50:57 -0400
+Subject: No interrupts for PCMCIA cards
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1081108265.5533.17.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 04 Apr 2004 21:51:05 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Apr 2004, Kyle Davenport wrote:
+Hi guys,
 
-> No joke.  64-bit Windows Advanced Server 2003 blue-screens on file share
-> access.  I was using Samba 3.0 on RH8 to routinely access windows
-> shares.  When I upgraded from 2.4.22 to 2.4.25, any attempt to access a
-> sub-directory of a share mounted from 64-bit Win2003, immediately
-> crashes windows.  I rolled back to 2.4.22 and no crash.  I tried 2.4.25
-> against a 32-bit 2003 Win2003, and no crash.  I didn't test different
-> versions of Samba.  But on 2.4.25, trying to ls a sub-directory of the
-> mounted share or cd to that sub-directory, instantly and repeatedly
-> blue-screens windows.  
+while trying to fix a problem with a Bluetooth PCMCIA card I faced the
+problem that my Cardbus controller don't give out any interrupts. I
+tried it with 2.6.5 and this is my PCMCIA bridge:
 
-When you say mount, does that mean smbfs?
+0000:02:0e.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 01)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 168, Cache Line Size: 0x20 (128 bytes)
+        Interrupt: pin A routed to IRQ 18
+        Region 0: Memory at 20000000 (32-bit, non-prefetchable)
+        Bus: primary=02, secondary=04, subordinate=07, sec-latency=176
+        Memory window 0: 20400000-207ff000 (prefetchable)
+        Memory window 1: 20800000-20bff000
+        I/O window 0: 00004000-000040ff
+        I/O window 1: 00004400-000044ff
+        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
+        16-bit legacy interface ports at 0001
 
-2.4.25 allows you to enable the cifs unix extensions in smbfs. Perhaps
-turning those off makes a difference?
+And this is how /proc/interrupts look like:
 
-The other change is that smbfs in 2.4.25 has large file support. smbfs in 
-2.4.24 should behave like 2.4.22.
+           CPU0       
+  0:    7241752    IO-APIC-edge  timer
+  1:      10923    IO-APIC-edge  i8042
+  2:          0          XT-PIC  cascade
+  8:          4    IO-APIC-edge  rtc
+ 12:         94    IO-APIC-edge  i8042
+ 14:     134100    IO-APIC-edge  ide0
+ 15:          1    IO-APIC-edge  ide1
+ 18:          0   IO-APIC-level  yenta
+ 19:     120010   IO-APIC-level  uhci_hcd
+ 20:          0   IO-APIC-level  ohci_hcd
+ 21:     231886   IO-APIC-level  ohci1394, ohci_hcd, eth0
+ 22:        297   IO-APIC-level  acpi, ehci_hcd
+ 23:         57   IO-APIC-level  aic7xxx, uhci_hcd
+NMI:          0 
+LOC:    7241898 
+ERR:          0
+MIS:          0
 
+The count for interrupt 18 is still zero every time, but on my Sony C1VE
+laptop the PCMCIA cards get their interrupts.
 
-> I have no idea how the kernel change could be causing this.  Seems to me
-> like it should depend entirely on Samba.  I did attempt to reproduce the
+Regards
 
-smbmount is only a mount tool, it does not transfer any other data.
+Marcel
 
-/Urban
 

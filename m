@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293627AbSCSDgh>; Mon, 18 Mar 2002 22:36:37 -0500
+	id <S293619AbSCSDhR>; Mon, 18 Mar 2002 22:37:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293626AbSCSDg3>; Mon, 18 Mar 2002 22:36:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60168 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293619AbSCSDgR>;
-	Mon, 18 Mar 2002 22:36:17 -0500
-Message-ID: <3C96B207.8060006@mandrakesoft.com>
-Date: Mon, 18 Mar 2002 22:35:35 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S293626AbSCSDhI>; Mon, 18 Mar 2002 22:37:08 -0500
+Received: from unknown.Level3.net ([64.156.114.22]:40675 "EHLO bish.net")
+	by vger.kernel.org with ESMTP id <S293619AbSCSDgz>;
+	Mon, 18 Mar 2002 22:36:55 -0500
+Date: Mon, 18 Mar 2002 22:23:32 -0500 (EST)
+From: Mark <mark@bish.net>
+To: linux-kernel@vger.kernel.org
+Subject: C-Media 8738 sound driver + A7M266-D problems.
+Message-ID: <Pine.LNX.4.43.0203182216260.32113-100000@bish.net>
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
-Subject: Re: 7.52 second kernel compile
-In-Reply-To: <20020318153637.J4783@host110.fsmlabs.com> <Pine.LNX.4.33.0203181446200.10517-100000@penguin.transmeta.com> <15510.32200.595707.145452@argo.ozlabs.ibm.com> <20020319015722.N17410@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
 
->On Tue, Mar 19, 2002 at 10:52:40AM +1100, Paul Mackerras wrote:
-> > The G4 has 4 performance monitor counters that you can set up to
-> > measure things like ITLB misses, DTLB misses, cycles spent doing
-> > tablewalks for ITLB misses and DTLB misses, etc.
-> > What I need to do now is
-> > to put some better infrastructure for using those counters in place
-> > and try your program using those counters instead of the timebase.
->
-> Sounds like a good candidate for the first non-x86 port of oprofile[1].
-> Write the kernel part, and all the nice userspace tools come for free.
-> There are also a few other perfctr abstraction projects, which are
-> linked off the oprofile pages somewhere iirc.
->
-
-Maybe this is why drepper doesn't like threaded profiling... he wants us 
-all to use oprofile.
-
-/me ducks and runs....
+I have a dual AMD board that has the 8738 onboard.  I compile 2.4.18 and
+pass it the '6 speaker' selection which should push the Rear speaker
+signal out the Line In connector and the Center Speaker Out/ Sub-woofer
+signal out the Mic In connector.  This does not happen.  I've tried this
+as a module and passing the params on the command line as well as
+compiling it directly into the kernel.  Am I missing something (very
+likely) or is this a known situation that I just have to deal with?
 
 
+Please Cc: me.  I am not subscribed to the list.
 
+
+------------------------------------------------------------------------
+| Mark Bishop  (mark@bish.net)         |             Computer Engineer |
+| 813-253-XXXX                         |             Network Engineer  |
+| http://bish.net                      |          Embedded Programmer  |
 

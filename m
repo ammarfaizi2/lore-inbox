@@ -1,17 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266304AbRGBAjl>; Sun, 1 Jul 2001 20:39:41 -0400
+	id <S266312AbRGBApL>; Sun, 1 Jul 2001 20:45:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266305AbRGBAjc>; Sun, 1 Jul 2001 20:39:32 -0400
-Received: from 35.roland.net ([65.112.177.35]:34828 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S266304AbRGBAjW>;
-	Sun, 1 Jul 2001 20:39:22 -0400
-Message-ID: <007501c1028f$7a60fd00$bb1cfa18@JimWS>
+	id <S266311AbRGBApC>; Sun, 1 Jul 2001 20:45:02 -0400
+Received: from 35.roland.net ([65.112.177.35]:36876 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S266316AbRGBAoq>;
+	Sun, 1 Jul 2001 20:44:46 -0400
+Message-ID: <007e01c10290$3f0da6d0$bb1cfa18@JimWS>
 From: "Jim Roland" <jroland@roland.net>
-To: "Marius Nita" <marius@pdx.edu>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B3F5F5C.40907@lycosmail.com> <20010701130151.A10989@ChaoticDreams.ORG> <20010701153250.A7939@pdx.edu>
+To: "Paul Mundt" <lethal@ChaoticDreams.ORG>, "Ben Ford" <ben@kalifornia.com>
+Cc: "Adam Schrotenboer" <ajschrotenboer@lycosmail.com>,
+        "LKML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B3F5F5C.40907@lycosmail.com> <20010701130151.A10989@ChaoticDreams.ORG> <3B3FB754.8040305@kalifornia.com> <20010701171101.A13223@ChaoticDreams.ORG>
 Subject: Re: Uncle Sam Wants YOU!
-Date: Sun, 1 Jul 2001 19:39:39 -0500
+Date: Sun, 1 Jul 2001 19:45:09 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -25,61 +27,38 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 ----- Original Message -----
-From: "Marius Nita" <marius@pdx.edu>
-To: <linux-kernel@vger.kernel.org>
-Sent: Sunday, July 01, 2001 5:32 PM
+From: "Paul Mundt" <lethal@ChaoticDreams.ORG>
+To: "Ben Ford" <ben@kalifornia.com>
+Cc: "Adam Schrotenboer" <ajschrotenboer@lycosmail.com>; "LKML"
+<linux-kernel@vger.kernel.org>
+Sent: Sunday, July 01, 2001 7:11 PM
 Subject: Re: Uncle Sam Wants YOU!
 
 
-> On Sun, Jul 01, 2001 at 01:01:51PM -0700, Paul Mundt wrote:
+> On Sun, Jul 01, 2001 at 04:50:44PM -0700, Ben Ford wrote:
+> > Name a single tech company anywhere in the world that doesn't have to
+> > deal with microsoftisms.
 >
-> > You always have a choice, work elsewhere. If you're in a position where
-you're
-> > working with MS products, you were the one who made the decision to do
-so.
-> > MS is not at fault, claiming so is childish.
+> This depends on your definition of dealing with MSisms. If you mean having
+a
+> copy of an MS product physically present at a business location, that's
+> pretty much unavoidable.
 >
-> _I_ think it's childish to claim the above. You _may_ have a choice, yes,
-but
-> is that choice equal or fair? Microsoft has infected both the user area as
+> If you mean working at a place where you yourself don't have to deal with
+it,
+> it all depends what line of work you're in. If you're some form of
+management
+> person, you might choose to work with Word because everyone else does, but
+> that goes back to it being your decision.
+>
+> I can think of a lot of companies, such as WindRiver, QSSL, etc. where
+there
+> may be some level of involvement, but not everyone working in the company
+is
+> forced into things.
 
-Look at it from the other side.  If you were in an all AIX or HPUX
-environment and you wanted to support Microsoft products, it could be said
-that it's not fair that you have to change jobs.  Oh please.
+What some people don't realize is that Microsoft *DID* do Unix a long time
+ago, they were even into OS/2 Development.  :-)
 
-> much as the business/work area. If you want to purchase a PC because your
-> computer just fried and you want to finish a paper or something, but you
-> _want_ to use KOffice on Linux, and you don't care for Windows/Word
-> whatsoever, what are the chances that if you run down to the computer
-store
-> your "choices" will be Windows/Word, _period_! You'll then have to make
-sure
-
-What a load of crap.  You *CAN* order a system with Linux on it, just go to
-some computer manufacturer and ask for it.  If it's not available, install
-it yourself or buy a workstation from Penguin Computing, or any other Linux
-hardware mfg.  Retail choices are where the sales are.  That's not someone
-after you, it's business.  The way to beat someone at business is either
-break up a monopoly or beat them at their own game.
-
-Stop blaming and do what they do better.  Period.
-
-> that none of the hardware in it is Software driven-like winmodems-and that
-> it's supported by Linux (or whatever OS you prefer). Almost all computers
-out
-> there (from well-known compianies) ship with winmodems. How is that a
-choice?
-> You have a choice to waste $70 on a harware modem, when someone who uses
-> Windows doesn't?
-
-Choice is with you, not with the manufacturer.  Winmodems are software
-driven, so instead of down-talking the manufacturer, get a driver from a
-Winmodem supplier.  I have a Lucent Winmodem in my system right now, it came
-with a Compaq PC and it works just fine in Linux.  PCTel makes a large chunk
-of winmodems and are willing to work to get a linux driver out there if we
-just work with them.
-
-Fact remains--be open minded, and you will find that there are lots of
-people who want to have their products on Linux (means more money for them
-in sales) if we just work with them instead of blaming them as M$ clones.
+[snip]
 

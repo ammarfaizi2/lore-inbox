@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284635AbRLEUEq>; Wed, 5 Dec 2001 15:04:46 -0500
+	id <S284639AbRLEUE4>; Wed, 5 Dec 2001 15:04:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284639AbRLEUEh>; Wed, 5 Dec 2001 15:04:37 -0500
-Received: from trillium-hollow.org ([209.180.166.89]:40200 "EHLO
-	trillium-hollow.org") by vger.kernel.org with ESMTP
-	id <S284635AbRLEUE2>; Wed, 5 Dec 2001 15:04:28 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org, lm@bitmover.com (Larry McVoy),
-        "Jeff Merkey" <jmerkey@timpanogas.org>
-Subject: Re: Loadable drivers [was SMP/cc Cluster description ] 
-In-Reply-To: Your message of "Wed, 05 Dec 2001 11:40:07 PST."
-             <E16Bhtn-0004xf-00@trillium-hollow.org> 
-Date: Wed, 05 Dec 2001 12:04:18 -0800
-From: erich@uruk.org
-Message-Id: <E16BiHC-00052T-00@trillium-hollow.org>
+	id <S284636AbRLEUEr>; Wed, 5 Dec 2001 15:04:47 -0500
+Received: from odin.allegientsystems.com ([208.251.178.227]:42114 "EHLO
+	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
+	id <S284638AbRLEUEg>; Wed, 5 Dec 2001 15:04:36 -0500
+Message-ID: <3C0E7DCB.6050600@optonline.net>
+Date: Wed, 05 Dec 2001 15:04:27 -0500
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Doug Ledford <dledford@redhat.com>
+CC: Mario Mikocevic <mozgy@hinet.hr>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio patch
+In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com> <3C0D9456.6090106@optonline.net> <3C0DA1CC.1070408@redhat.com> <3C0DAD26.1020906@optonline.net> <3C0DAF35.50008@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Doug Ledford wrote:
 
-I wrote:
+> The attached patch should get me the debugging output I need to solve 
+> the problem.  If you'll get me the output, then I can likely have a 
+> working version in short order.
 
-> This really goes into a side-topic, but plainly:
-> 
-> The general driver/random module framework in Linux really needs to get
-> separated from the core kernel, and made so that it doesn't need to be
-> recompiled between minor kernel versions.  Perhaps even pulling the
-> drivers in general apart from each other, just aggregating releases for
-> convenience.
+Here is a fix. It is diffed against your original 0.08 version, Doug.
 
-...and licensing issues aside (probably only GPL for the moment), this
-kind of thing could form the basis for an open-source kernel/OS-independent
-set of drivers.
+It makes GETOPTR set the LVI to the hardware fragment preceding the one 
+that's currently playing. In the case of Quake, that means Quake must 
+call GETOPTR at least every 3/4ths of a DMA buffer. Hopefully that 
+requirement should be relaxed enough. The alternate fix is to modify the 
+completion handlers.
 
-I know that I have been intending on doing a Linux driver compatibility
-layer of sorts for my OS project (going to be GPL'd) I'm working on.
+I don't see anything obvious in the databook about how to make the 
+hardware loop infinitely without taking any additional input from us.
 
-Maybe there are some others interested in this kind of project?
+Comments, please.
 
---
-    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
-"Reality is truly stranger than fiction; Probably why fiction is so popular"

@@ -1,61 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbTDUKNU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 06:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbTDUKNU
+	id S263807AbTDUKOP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 06:14:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263808AbTDUKOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 06:13:20 -0400
-Received: from gta.loris.tv ([217.89.68.44]:29327 "EHLO gta.loris.tv")
-	by vger.kernel.org with ESMTP id S263806AbTDUKNT (ORCPT
+	Mon, 21 Apr 2003 06:14:15 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:39695 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S263807AbTDUKOM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 06:13:19 -0400
-Date: Mon, 21 Apr 2003 12:25:09 +0200
-From: Adrian Knoth <adi@drcomp.erfurt.thur.de>
-To: linux-kernel@vger.kernel.org
-Subject: I4L-error in 2.5
-Message-ID: <20030421102509.GA25113@drcomp.erfurt.thur.de>
+	Mon, 21 Apr 2003 06:14:12 -0400
+Date: Mon, 21 Apr 2003 12:25:44 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: John Bradford <john@grabjohn.com>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, adilger@clusterfs.com,
+       john@grabjohn.com, linux-kernel@vger.kernel.org
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+Message-Id: <20030421122544.5ae6bd6f.skraw@ithnet.com>
+In-Reply-To: <200304210942.h3L9gZ1W000282@81-2-122-30.bradfords.org.uk>
+References: <200304210917.h3L9HIu07472@Port.imtp.ilyichevsk.odessa.ua>
+	<200304210942.h3L9gZ1W000282@81-2-122-30.bradfords.org.uk>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 21 Apr 2003 10:42:35 +0100 (BST)
+John Bradford <john@grabjohn.com> wrote:
 
-is it normal that isdn_common.o has such a problem? Failing command is:
+> > > > > > > I wonder whether it would be a good idea to give the linux-fs
+> > > > > > > (namely my preferred reiser and ext2 :-) some
+> > > > > > > fault-tolerance.
+> > >
+> > > I'm not against this in principle, but in practise it is almost
+> > > useless. Modern disk drives do bad sector remapping at write time, so
+> > > unless something is terribly wrong you will never see a write error
+> > > (which is exactly the time that the filesystem could do such
+> > > remapping).  Normally, you will only see an error like this at read
+> > > time, at which point it is too late to fix.
+> > 
+> > It is *not* useless.
+> > 
+> > I have at least 4 disks with some bad sectors. Know what?
+> > They are still in use in a school lab and as 'big diskettes'
+> > (transferring movies etc). I refuse to dump them just because
+> > 'todays disks are cheap'. I don't want my fs to die just because
+> > these disks develop (ohhhh) a single new bad sector.
+> 
+> Read my previous posts.
+> 
+> A layer between device and filesystem can solve this.  It doesn't
+> belong in the filesystem.
 
-gcc -Wp,-MD,drivers/isdn/i4l/.isdn_common.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=isdn_common -DKBUILD_MODNAME=isdn -c -o drivers/isdn/i4l/.tmp_isdn_common.o drivers/isdn/i4l/isdn_common.c
+Yes it _can_, but is it _intelligent_ to do it there?
 
-Compile-error is:
 
-drivers/isdn/i4l/isdn_common.c: In function `drv_register':
-drivers/isdn/i4l/isdn_common.c:605: warning: control reaches end of non-void function
-drivers/isdn/i4l/isdn_common.c: In function `drv_stat_run':
-drivers/isdn/i4l/isdn_common.c:616: warning: control reaches end of non-void function
-drivers/isdn/i4l/isdn_common.c: In function `drv_stat_stop':
-drivers/isdn/i4l/isdn_common.c:623: warning: control reaches end of non-void function
-drivers/isdn/i4l/isdn_common.c: In function `drv_stat_stavail':
-drivers/isdn/i4l/isdn_common.c:653: warning: control reaches end of non-void function
-drivers/isdn/i4l/isdn_common.c: In function `isdn_status_read':
-drivers/isdn/i4l/isdn_common.c:1341: warning: comparison between signed and unsigned
-drivers/isdn/i4l/isdn_common.c: In function `isdn_ctrl_read':
-drivers/isdn/i4l/isdn_common.c:1503: warning: comparison between signed and unsigned
-drivers/isdn/i4l/isdn_common.c: In function `map_drvname':
-drivers/isdn/i4l/isdn_common.c:1984: error: structure has no member named `drvid'
-drivers/isdn/i4l/isdn_common.c: In function `map_namedrv':
-drivers/isdn/i4l/isdn_common.c:1991: error: structure has no member named `drvid'
-drivers/isdn/i4l/isdn_common.c: In function `isdn_register_divert':
-drivers/isdn/i4l/isdn_common.c:2007: warning: `MOD_DEC_USE_COUNT' is deprecated (declared at include/linux/module.h:439)
-drivers/isdn/i4l/isdn_common.c:2013: error: `isdn_command' undeclared (first use in this function)
-drivers/isdn/i4l/isdn_common.c:2013: error: (Each undeclared identifier is reported only once
-drivers/isdn/i4l/isdn_common.c:2013: error: for each function it appears in.)
-drivers/isdn/i4l/isdn_common.c:2016: warning: `MOD_INC_USE_COUNT' is deprecated (declared at include/linux/module.h:427)
-drivers/isdn/i4l/isdn_common.c: At top level:
-drivers/isdn/i4l/isdn_common.c:2223: warning: `isdn_register_devfs' defined but not used
-drivers/isdn/i4l/isdn_common.c:2227: warning: `isdn_unregister_devfs' defined but not used
+Ok, lets do it vice versa:
 
--- 
-mail: adi@thur.de  	http://adi.thur.de	PGP: v2-key via keyserver
+What do you need to do it?
+- a free/allocated block list (for knowing where to put the mapped block)
+- a bad block list for monitoring purposes
+- spare blocks for really putting the data in
 
-[X] <-- nail here for new monitor
+You say:
+we re-invent/re-install the above information in a new layer. In this case you
+have the problem to find known-to-be-free blocks. In other words, you have to
+pre-alloc blocks (a fixed number) on the device, because else you interfer with
+fs. fs must not see your mapped-blocks-in-spe, or else will use them sooner or
+later. In other words you _waste_ them in case they are never needed.
+
+I say:
+we already have the needed information inside every fs, why not use it?
+No space wasted, no double information.
+
+If you say "it does not belong to fs" then please tell me: where in what bible
+do you read that? Your argument sounds like "god-given" to me. Do you see
+simple argueable technical issues?
+
+I do not say it is _easy_ to do, I say it is an intelligent option. Note the
+difference.
+
+Regards,
+Stephan
+

@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265901AbUACDIU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 22:08:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUACDIU
+	id S262328AbUACCvX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 21:51:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265886AbUACCvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 22:08:20 -0500
-Received: from waste.org ([209.173.204.2]:17030 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S265901AbUACDIQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 22:08:16 -0500
-Date: Fri, 2 Jan 2004 21:08:14 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.1-rc1-tiny1 tree for small systems
-Message-ID: <20040103030814.GG18208@waste.org>
+	Fri, 2 Jan 2004 21:51:23 -0500
+Received: from pD9E56DF6.dip.t-dialin.net ([217.229.109.246]:2713 "EHLO
+	fred.muc.de") by vger.kernel.org with ESMTP id S262328AbUACCvV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 21:51:21 -0500
+Date: Sat, 3 Jan 2004 03:51:19 +0100
+From: Andi Kleen <ak@muc.de>
+To: Srihari Vijayaraghavan <harisri@bigpond.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-rc1 compile error
+Message-ID: <20040103025119.GA19647@averell>
+References: <18PmG-40b-9@gated-at.bofh.it> <m3znd7ib1b.fsf@averell.firstfloor.org> <200401031309.10816.harisri@bigpond.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200401031309.10816.harisri@bigpond.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the third release of the -tiny kernel tree. The aim of this
-tree is to collect patches that reduce kernel disk and memory
-footprint as well as tools for working on small systems. Target users
-are things like embedded systems, small or legacy desktop folks, and
-handhelds.
+On Sat, Jan 03, 2004 at 01:09:10PM +1100, Srihari Vijayaraghavan wrote:
+> Hello Andi,
+> 
+> On Friday 02 January 2004 09:01, Andi Kleen wrote:
+> > Srihari Vijayaraghavan <harisri@bigpond.com> writes:
+> > > While "make bzImage", it showed these error messages:
+> > >   CC      arch/x86_64/kernel/io_apic.o
+> >
+> > I already submitted a patch to fix that and Linus merged it.
+> > Use current -bk*
+> 
+> Unfortunately the current -bk* would not apply cleanly. For eg, 
+> patch-2.6.1-rc1-bk3 does not apply to 2.6.1-rc1. Maybe when 2.6.1-rc2 is out 
+> I shall try it out at that time.
 
-Latest release includes:
- - sync against 2.6.1-rc1
- - latest netdrvr patchkit 
- - SLOB allocator
- - Andi Kleen's bloat-o-meter
- - configurable tcpdiag, inetpeer, dnotify, ptrace, sysenter/vsyscall
- - configurable X86 CPU feature detection
- - ability to override arch CFLAGS from Kconfig
- - optional uninlining of current and thread_info
- - other minor tweaks
+It applied fine for me. Maybe your trees are corrupted. 
 
-The big bit here is SLOB, which optionally replaces the SLAB allocator
-and kmalloc wrappers with a traditional malloc arena and a SLAB
-emulation layer. SLOB is less than a tenth the size of the SLAB code
-and is considerably more space efficient with its allocations, but is
-not as fast and may prove less resistant to long-term fragmentation.
+> (BTW I have tried 2.6.1-rc1-x8664-1, and all is fine with that.)
 
-Thanks to Andi Kleen, Magnus Naeslund, and various others for their
-contributions and suggestions.
+There's one bug in there that breaks it on some boxes.
 
-The patch can be found at:
-
- http://selenic.com/tiny/2.6.1-rc1-tiny1.patch.bz2
- http://selenic.com/tiny/2.6.1-rc1-tiny1-broken-out.tar.bz2
-
-Contributions and suggestions are encouraged. In particular, it would
-be helpful if people with non-x86 hardware could take a stab at
-extending some of the stuff that's currently only been done for X86 to
-other architectures.
-
-
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+-Andi

@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbUKAL4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbUKAMCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbUKAL4p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 06:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbUKAL4o
+	id S261720AbUKAMCb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 07:02:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbUKAMCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 06:56:44 -0500
-Received: from main.gmane.org ([80.91.229.2]:44677 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261757AbUKAL4c (ORCPT
+	Mon, 1 Nov 2004 07:02:30 -0500
+Received: from cantor.suse.de ([195.135.220.2]:13727 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261720AbUKAMC2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 06:56:32 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: Raid1 DM vs MD
-Date: Mon, 01 Nov 2004 12:56:04 +0100
-Message-ID: <yw1xekjdg4vf.fsf@inprovide.com>
-References: <Pine.LNX.4.61.0410311902300.1819@merlin.sk-tech.net> <16773.35825.194304.830001@cse.unsw.edu.au>
+	Mon, 1 Nov 2004 07:02:28 -0500
+Date: Mon, 1 Nov 2004 13:02:27 +0100
+From: Olaf Hering <olh@suse.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Disambiguation for panic_timeout's sysctl
+Message-ID: <20041101120227.GA24626@suse.de>
+References: <Pine.LNX.4.53.0410311721470.20529@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 154.80-202-166.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:AKGeynkv9OgtxpqyZ8b5PfHrQnE=
+In-Reply-To: <Pine.LNX.4.53.0410311721470.20529@yvahk01.tjqt.qr>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown <neilb@cse.unsw.edu.au> writes:
+ On Sun, Oct 31, Jan Engelhardt wrote:
 
->> Sooner or later I'l migrate from SW-Raid to a HW-Raid-Controller ...
->
-> Many believe that that would not be a win.  Personally I share that
-> view.  HW-Raid-Controllers are not "open".  md (and dm) SW-Raid is.
+> 
+> 
+> The /proc/sys/kernel/panic file looked to me like it was something like
+> /proc/sysrq-trigger -- until I looked into the kernel sources which reveal that
+> it sets the variable "panic_timeout" in kernel/sched.c.
 
-What happened to the proposed standard for on-disk format?  Didn't
-Adaptec also publish their format?
+This will probably break applications that expect the filename 'panic'.
 
 -- 
-Måns Rullgård
-mru@inprovide.com
+USB is for mice, FireWire is for men!
 
+sUse lINUX ag, nÃœRNBERG

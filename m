@@ -1,60 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVBUXLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVBUXNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262168AbVBUXLj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 18:11:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVBUXLj
+	id S262173AbVBUXNd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 18:13:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbVBUXNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 18:11:39 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:19877 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262168AbVBUXLh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 18:11:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=hIQ6QB2j1rD3xIChMACQyKjTNerXu0KVZfhxJo5e3GTdP0vnoILztEp4x1vEObfixjLXTYLcXNPNtLwL24poEKjYd6fk+8lYyFzGTxNfZJylT0nDWKOuA6vwtYCGyZLqqzq7k8kNEVXp+T0gwkPtbscC5Uyx831+WVoDON1wsYc=
-Message-ID: <29495f1d050221151168548698@mail.gmail.com>
-Date: Mon, 21 Feb 2005 15:11:36 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Anthony DiSante <theant@nodivisions.com>
-Subject: Re: uninterruptible sleep lockups
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <421A6450.8070404@nodivisions.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Feb 2005 18:13:33 -0500
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:16900 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S262173AbVBUXNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 18:13:09 -0500
+Message-ID: <421A6B00.5060501@superbug.co.uk>
+Date: Mon, 21 Feb 2005 23:13:04 +0000
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Andrew Morton <akpm@osdl.org>, mhf@berlios.de,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.6.11-rc[234] setfont fails on i810 after resume from
+ ACPI-S3
+References: <20050215122233.22605728.akpm@osdl.org> <20050215202212.GK7338@elf.ucw.cz>
+In-Reply-To: <20050215202212.GK7338@elf.ucw.cz>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <421A3414.2020508@nodivisions.com>
-	 <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu>
-	 <421A4375.9040108@nodivisions.com>
-	 <200502212054.j1LKs3xi032658@turing-police.cc.vt.edu>
-	 <421A6450.8070404@nodivisions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Feb 2005 17:44:32 -0500, Anthony DiSante
-<theant@nodivisions.com> wrote:
-> Valdis.Kletnieks@vt.edu wrote:
-> > See the thread rooted here:
-> >
-> > Date: Wed, 03 Nov 2004 07:51:39 -0500
-> > From: Gene Heskett <gene.heskett@verizon.net>
-> > Subject: is killing zombies possible w/o a reboot?
-> > Sender: linux-kernel-owner@vger.kernel.org
-> > To: linux-kernel@vger.kernel.org
-> > Reply-to: gene.heskett@verizon.net
-> > Message-id: <200411030751.39578.gene.heskett@verizon.net>
+Pavel Machek wrote:
+> Hi!
 > 
-> Also, one of the things mentioned in that thread is that whenever a driver
-> is waiting on I/O from a piece of hardware, there should always be some
-> timeout code.  Is that the root of the permanent D state?  Is it always a
-> process waiting on a piece of hardware that should be eventually timing out,
-> except the timeout code isn't there?
+> 
+>>Any thoughts on this one?  We should come back from resume in 30-row mode,
+>>shouldn't we?
+> 
+> 
+> Well, current state of video resume is "we are happy to see anything
+> at all". 
+> 
+> 
+>>HW info
+>>
+>>Using vga=0xf07, default8x16 font, display has 30 lines
+>>
+>>On powerup from S3 console has only 25 lines but still scrolls 
+>>at 30 lines. Setfont historically fixes it. 
+>>
+>>Tested with 2.6.10, 2.6.11-rc1: OK
+>>
+>>Tested with 2.6.11-rc2-Vanilla and 2.6.11-rc[234]+swsusp2.
+>>When using setfont, screen goes blank. Power up after S3
+>>returns console in 25 lines mode with 30 lines scroll. 
+>>Several attempts - same result.
+> 
+> 
+> So... screen goes blank even when suspend is not involved, right?
+> Sounds like a bug to me ;-).
+> 
+> 
+>>Another bug I see only on this HW and only with 2.6 is that
+>>when - and only when - using gentoo emerge --usepackage in
+>>text console, scroll area resets to _25_ when portage 
+>>"dumps" the (binary) package contents which scrolls pretty
+>>fast. I was unable to reproduce this in any other way. 
+>>Tried also echo loop in bash but perhaps it is too slow
+>>or not random enough. Note that 2.4.2[789] no problem.
+> 
+> 
+> Well, dumping random stuff to console can produce funny results. I'd
+> call that normal. Try cat /dev/urandom, that should be "enough
+> random".
+> 
+> 								Pavel
 
-If you would like to file a bugzilla bug (or reference one if you
-already have) -- http://bugzilla.kernel.org -- it would be easier to
-track the problems. It would be good to get some idea of what hardware
-is running (and thus what drivers) to debug further.
-
-Thanks,
-Nish
+I am also getting strange effects. I boot into  2.6.11-rc4 and the 
+console fonts looks fine. Come back a day later and the console font has 
+  corrupt characters. E.g. Displays a "D" instead of an "L" and stuff 
+like that. It is mostly readable, except for a few characters.
+It is only the local console that is corrupted. ssh into the box 
+displays correct characters, so all I can assume is that the VGA console 
+is being programmed with different characters. The bad characters also 
+survive a soft reboot( During BIOS boot up), until the linux kernel 
+starts booting, and then it switches to a good font.

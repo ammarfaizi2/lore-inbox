@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317232AbSHYLCi>; Sun, 25 Aug 2002 07:02:38 -0400
+	id <S317215AbSHYK6M>; Sun, 25 Aug 2002 06:58:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317253AbSHYLCi>; Sun, 25 Aug 2002 07:02:38 -0400
-Received: from pD9E236A6.dip.t-dialin.net ([217.226.54.166]:49064 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317232AbSHYLCh>; Sun, 25 Aug 2002 07:02:37 -0400
-Date: Sun, 25 Aug 2002 05:06:34 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-cc: Thunder from the hill <thunder@lightweight.ods.org>,
-       Toon van der Pas <toon@vanvergehaald.nl>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] make localconfig
-In-Reply-To: <Pine.LNX.4.44.0208251256130.28574-100000@linux-box.realnet.co.sz>
-Message-ID: <Pine.LNX.4.44.0208250503540.3234-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam-Babelsberg; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317194AbSHYK6L>; Sun, 25 Aug 2002 06:58:11 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:15364 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S317215AbSHYK6L>; Sun, 25 Aug 2002 06:58:11 -0400
+Date: Sun, 25 Aug 2002 13:01:56 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Erik Andersen <andersen@codepoet.org>, Alan Cox <alan@redhat.com>,
+       Allan Duncan <allan.d@bigpond.com>, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org
+Subject: Re: Linux 2.4.20-pre4-ac1
+Message-ID: <20020825110156.GB1107@louise.pinerecords.com>
+References: <3D6789CF.B812272F@bigpond.com> <200208241355.g7ODt3c26753@devserv.devel.redhat.com> <20020824140706.GA17957@codepoet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020824140706.GA17957@codepoet.org>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
+X-Uptime: 3:20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > > The message "Warning: Primary channel requires an 80-pin cable for operation"
+> > > is (apart from being wrongly asserted as we know) incorrect is detail:
+> > > the plugs ARE 40-pin, the cable however is 80 conductor.
+> > 
+> > True, but I'm not sure a longer less obvious message will help users
+> 
+> "Warning: Limiting speed since you did not use an 80-conductor cable"
 
-On Sun, 25 Aug 2002, Zwane Mwaikambo wrote:
-> For this kind of thing, code talks. Otherwise no one will take heed.
+Pronouns should generally be avoided in formulations such as this one,
+simply because there's no way to tell who it really was who didn't use
+an 80-conductor cable. Go with a passive sentence instead.
 
-I can't currently supply code, but the thing I'm doing is:
-
- - parse the dmesg for the vital stuff (the things that were loaded up to 
-   the moment may be used very often...)
- - Find out what code it's belonging to
- - Configure that code in
- - The rest is CONFIG_MODULE
-
-So what?
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
-
+T.

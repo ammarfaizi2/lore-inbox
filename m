@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267576AbUIXBqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267205AbUIXBmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267576AbUIXBqN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 21:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267551AbUIXBjY
+	id S267205AbUIXBmc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 21:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267209AbUIXBmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 21:39:24 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:37784 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267325AbUIWUoR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 16:44:17 -0400
-Subject: [patch 3/9]  block/cciss: replace 	schedule_timeout() with msleep_interruptible()
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
-From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 22:44:18 +0200
-Message-ID: <E1CAaRu-0002Kt-C7@sputnik>
+	Thu, 23 Sep 2004 21:42:17 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:16265 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267205AbUIXBlb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 21:41:31 -0400
+Message-ID: <311601c90409231841774f5168@mail.gmail.com>
+Date: Thu, 23 Sep 2004 19:41:30 -0600
+From: Eric Mudama <edmudama@gmail.com>
+Reply-To: Eric Mudama <edmudama@gmail.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+Subject: Re: undecoded slave?
+Cc: tabris <tabris@tabris.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <200409240209.13884.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200409222357.39492.tabris@tabris.net>
+	 <200409231314.55547.bzolnier@elka.pw.edu.pl>
+	 <200409231630.49153.tabris@tabris.net>
+	 <200409240209.13884.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 24 Sep 2004 02:09:13 +0200, Bartlomiej Zolnierkiewicz
+<bzolnier@elka.pw.edu.pl> wrote:
+> On Thursday 23 September 2004 22:30, tabris wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > On Thursday 23 September 2004 7:14 am, Bartlomiej Zolnierkiewicz wrote:
+> > > [ use linux-ide@vger.kernel.org for ATA stuff ]
+> > >
+> > > On Thursday 23 September 2004 05:57, tabris wrote:
+> > > > Probing IDE interface ide3...
+> > > > hdg: Maxtor 4D060H3, ATA DISK drive
+> > > > hdh: Maxtor 4D060H3, ATA DISK drive
+> > > > ide-probe: ignoring undecoded slave
+> > > >
+> > > > Booted 2.6.9-rc2-mm2, and I no longer have an hdh. the error above
+> > > > seems to be the only [stated] reason why.
+> > >
+> > > Please send hdparm -I output for both drives.
+> >
+> > As you can see, both drives are the same brand/size/model.
+> > Both are connected to the PDC20265 on my ASUS A7V266-E motherboard.
+> >
+> > /dev/hdg:
+> >
+> > ATA device, with non-removable media
+> >         Model Number:       Maxtor 4D060H3
+> >         Serial Number:      D3000000
+> >         Firmware Revision:  DAK019K0
+> 
+> Thanks.
+> It seems we will need to add this Serial Number to "undecoded slave" fixup.
+> 
+> Please also send /proc/ide/hd?/identify to exclude kernel/hdparm parsing bug.
 
+I'm confused, and I think something else must be going on... to have 2
+different drives, with two completely different ASICs in them (and
+therefore significantly different object code), have identical
+corruption of the same 6 bytes of their configuration block is just
+not likely.  I'm pretty sure they don't even have the same utility
+zone layout.
 
+Is that how the drive IDs when connected via other controllers, in
+another system, etc?
 
-Any comments would be appreciated. This is a re-push of a patch I
-submitted 19 July which hasn't been merged as of
-2.6.9-rc1-mm5/2.6.9-rc2. 
+hrm...
 
-Description: msleep_interruptible() is used instead of schedule_timeout()
-to guarantee the task delays as expected.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
----
-
- linux-2.6.9-rc2-bk7-max/drivers/block/cciss.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
-
-diff -puN drivers/block/cciss.c~msleep_interruptible-drivers_block_cciss drivers/block/cciss.c
---- linux-2.6.9-rc2-bk7/drivers/block/cciss.c~msleep_interruptible-drivers_block_cciss	2004-09-21 21:07:51.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/block/cciss.c	2004-09-21 21:07:51.000000000 +0200
-@@ -2381,8 +2381,7 @@ static int cciss_pci_init(ctlr_info_t *c
- 		scratchpad = readl(c->vaddr + SA5_SCRATCHPAD_OFFSET);
- 		if (scratchpad == CCISS_FIRMWARE_READY)
- 			break;
--		set_current_state(TASK_INTERRUPTIBLE);
--		schedule_timeout(HZ / 10); /* wait 100ms */
-+		msleep_interruptible(100);
- 	}
- 	if (scratchpad != CCISS_FIRMWARE_READY) {
- 		printk(KERN_WARNING "cciss: Board not ready.  Timed out.\n");
-_
+eric

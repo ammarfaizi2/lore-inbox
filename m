@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130235AbQLGQmo>; Thu, 7 Dec 2000 11:42:44 -0500
+	id <S131203AbQLGQoe>; Thu, 7 Dec 2000 11:44:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130876AbQLGQme>; Thu, 7 Dec 2000 11:42:34 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:13027 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S130235AbQLGQm0>; Thu, 7 Dec 2000 11:42:26 -0500
-Date: Thu, 7 Dec 2000 17:07:07 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Microsecond accuracy
-In-Reply-To: <90oak3$326$1@cesium.transmeta.com>
-Message-ID: <Pine.GSO.3.96.1001207165626.21086F-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131058AbQLGQoY>; Thu, 7 Dec 2000 11:44:24 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:34568 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131187AbQLGQoV>;
+	Thu, 7 Dec 2000 11:44:21 -0500
+Date: Thu, 7 Dec 2000 17:13:53 +0100
+From: Andi Kleen <ak@suse.de>
+To: richardj_moore@uk.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why is double_fault serviced by a trap gate?
+Message-ID: <20001207171353.A28798@gruyere.muc.suse.de>
+In-Reply-To: <802569AE.00588787.00@d06mta06.portsmouth.uk.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <802569AE.00588787.00@d06mta06.portsmouth.uk.ibm.com>; from richardj_moore@uk.ibm.com on Thu, Dec 07, 2000 at 04:04:21PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Dec 2000, H. Peter Anvin wrote:
+On Thu, Dec 07, 2000 at 04:04:21PM +0000, richardj_moore@uk.ibm.com wrote:
+> 
+> 
+> Why is double_fault serviced by a trap gate? The problem with this is that
+> any double-fault caused by a stack-fault, which is the usual reason,
+> becomes a triple-fault. And a triple-fault results in a processor reset or
+> shutdown making the fault damn near impossible to get any information on.
+> 
+> Oughtn't the double-fault exception handler be serviced by a task gate? And
+> similarly the NMI handler in case the NMI is on the current stack page
+> frame?
 
-> Unfortunately the most important instance of the in-kernel flag -- the
-> global one in the somewhat misnamed boot_cpu_data.x86_features --
-> isn't actually readable in the /proc/cpuinfo file.  It is perfectly
-> possible (e.g. the "notsc" option) for ALL the CPUs to report this
-> capability, but the global capability to still be off.
+Sounds like a good idea, when you can afford a few K for a special
+NMI/double fault stack. On x86-64 it is planned to do that.
 
- Hmm, I recall I implemented and explicitly verified switching the
-/proc/cpuinfo "tsc" flag (as well as the userland access to the TSC) off
-when I wrote the code to handle the "notsc" option.  Has it changed since
-then?  I recall you modified the code a bit -- I looked at the changes
-then but I was pretty confident the semantics was preserved.
 
- There is no possibility to have TSC and non-TSC chips mixed in a single
-SMP system (due to existing hardware, even though it's possible in
-theory), so there is no problem with such an assymetry.  Either all chips
-have the "tsc" flag in /proc/cpuinfo on or off.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,36 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131764AbQLVPwy>; Fri, 22 Dec 2000 10:52:54 -0500
+	id <S132010AbQLVPzn>; Fri, 22 Dec 2000 10:55:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132010AbQLVPwn>; Fri, 22 Dec 2000 10:52:43 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:15440 "EHLO
+	id <S132093AbQLVPzd>; Fri, 22 Dec 2000 10:55:33 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:37968 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131764AbQLVPwe>; Fri, 22 Dec 2000 10:52:34 -0500
-Date: Fri, 22 Dec 2000 16:21:59 +0100
+	id <S132010AbQLVPzU>; Fri, 22 Dec 2000 10:55:20 -0500
+Date: Fri, 22 Dec 2000 16:24:41 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: "Theodore Ts'o" <tytso@valinux.com>,
-        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: FAIL: 2.2.18 + AA-VM-global-7 + serial 5.05
-Message-ID: <20001222162159.A29397@athlon.random>
-In-Reply-To: <20001222154757.A1167@emma1.emma.line.org>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: test13-pre4
+Message-ID: <20001222162441.B29397@athlon.random>
+In-Reply-To: <Pine.LNX.4.10.10012211726060.968-100000@penguin.transmeta.com> <3A43506B.6CEF84BB@eyal.emu.id.au> <20001222153145.A15733@athlon.random> <20001222160150.A28385@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20001222154757.A1167@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Fri, Dec 22, 2000 at 03:47:57PM +0100
+In-Reply-To: <20001222160150.A28385@athlon.random>; from andrea@suse.de on Fri, Dec 22, 2000 at 04:01:50PM +0100
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 03:47:57PM +0100, Matthias Andree wrote:
-> I suspect that these patches are mutually incompatible.
+On Fri, Dec 22, 2000 at 04:01:50PM +0100, Andrea Arcangeli wrote:
+> On Fri, Dec 22, 2000 at 03:31:45PM +0100, Andrea Arcangeli wrote:
+> > On Sat, Dec 23, 2000 at 12:00:27AM +1100, Eyal Lebedinsky wrote:
+> > > Linus Torvalds wrote:
+> > > >  - pre4:
+> > > >    - Andrea Arkangeli: update to LVM-0.9
+> > > 
+> > > gcc -D__KERNEL__ -I/usr/local/src/linux/include -Wall
+> > > -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+> > > -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE
+> > > -DMODVERSIONS -include
+> > > /usr/local/src/linux/include/linux/modversions.h   -c -o lvm.o lvm.c
+> > > lvm.c: In function `lvm_do_vg_extend':
+> > > lvm.c:2024: warning: implicit declaration of function
+> > > `lvm_do_create_proc_entry_of_pv'
+> > > lvm.c: In function `lvm_do_create_proc_entry_of_lv':
+> > > lvm.c:3016: `pde' undeclared (first use in this function)
+> > > lvm.c:3016: (Each undeclared identifier is reported only once
+> > > lvm.c:3016: for each function it appears in.)
+> > > lvm.c: At top level:
+> > > lvm.c:3044: warning: type mismatch with previous implicit declaration
+> > > lvm.c:2024: warning: previous implicit declaration of
+> > > `lvm_do_create_proc_entry_of_pv'
+> > > lvm.c:3044: warning: `lvm_do_create_proc_entry_of_pv' was previously
+> > > implicitly declared to return `int'
+> > > lvm.c: In function `lvm_do_create_proc_entry_of_pv':
+> > > lvm.c:3050: `pde' undeclared (first use in this function)
+> > > lvm.c: At top level:
+> > > lvm.c:147: warning: `lvm_short_version' defined but not used
+> > > make[2]: *** [lvm.o] Error 1
+> > > make[2]: Leaving directory `/data2/usr/local/src/linux-2.4/drivers/md'
+> > 
+> > Strange, test13-pre3 plus the 0.9 lvm patch compiled and worked fine
+> > for me. I'll try to compile test13-pre4 now and I'll let you know.
+> 
+> Ok, found it, you can workaround it with:
+> 
+> CONFIG_LVM_PROC_FS=y
+> 
+> (I never tried to compile LVM without procfs support, you really
+> want /proc support too, anyways of course it should compile also
+> without /proc support so it's a minor bug...)
 
-did you checked that there are no rejects after patching :)
+Ok this should fix the problem and it cleanups a little bit the code:
 
-> Could somebody please have a look at this? I will test or provide more
-> information as requested.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0-test13-pre4/lvm-proc-fixes-1
 
-Where's serial 5.05 so I can have a look?
+Please confirm and then I'll sumbit it to Linus.
 
 Andrea
 -

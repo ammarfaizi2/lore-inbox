@@ -1,146 +1,289 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263806AbRFIEic>; Sat, 9 Jun 2001 00:38:32 -0400
+	id <S263786AbRFIElm>; Sat, 9 Jun 2001 00:41:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263797AbRFIEiW>; Sat, 9 Jun 2001 00:38:22 -0400
-Received: from www.wen-online.de ([212.223.88.39]:59140 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S263786AbRFIEiN>;
-	Sat, 9 Jun 2001 00:38:13 -0400
-Date: Sat, 9 Jun 2001 06:36:57 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Tobias Ringstrom <tori@unhappy.mine.nu>
-cc: Jonathan Morton <chromi@cyberspace.org>, Shane Nay <shane@minirl.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.LNX.4.33.0106082030200.2425-100000@boris.prodako.se>
-Message-ID: <Pine.LNX.4.33.0106090553180.480-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263797AbRFIElc>; Sat, 9 Jun 2001 00:41:32 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:6540 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S263786AbRFIElV>; Sat, 9 Jun 2001 00:41:21 -0400
+Date: Sat, 9 Jun 2001 06:41:23 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: linux-usb-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: usb.c: USB device not accepting new address=4 (error=-110)
+Message-ID: <20010609064123.V11815@nightmaster.csn.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Nq2Wo0NMKNjxTN9z"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Jun 2001, Tobias Ringstrom wrote:
 
-> On Fri, 8 Jun 2001, Mike Galbraith wrote:
-> > On Fri, 8 Jun 2001, Tobias Ringstrom wrote:
-> > > On Fri, 8 Jun 2001, Mike Galbraith wrote:
-> > > > I gave this a shot at my favorite vm beater test (make -j30 bzImage)
-> > > > while testing some other stuff today.
-> > >
-> > > Could you please explain what is good about this test?  I understand that
-> > > it will stress the VM, but will it do so in a realistic and relevant way?
-> >
-> > Can you explain what is bad about this test? ;)  It spins the same VM wheels
->
-> I think a load of ~30 is quit uncommon, and therefor it is unclear to me
-> that it would be a test that would be repesentative of most normal loads.
+--Nq2Wo0NMKNjxTN9z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-It's not supposed to be repesentative.  It's supposed to take the box
-rapidly (but not instantly) from idle through lo->medium->high and
-maintain solid throughput.
+Hi there,
 
-> > as any other load does.  What's the difference if I have a bunch of httpd
-> > allocating or a bunch of cc1/as/ld?  This load has a modest cachable data
-> > set and is compute bound.. and above all gives very repeatable results.
->
-> Not a big difference.  The difference I was thinking abount is the
-> difference between spawning lots of processes allocating, using and
-> freeing lots of memory, compared to a case where you have a few processes
-> touching a lot of already allocated pages in some pattern.  I was
-> wondering whether optimizing for your case would be good or bad for the
-> other case.  I know, I know, I should do more testing myself.  And I
-> should probably not ask you, since you really really like your test,
-> and you will probably just say yes... ;-)
+please CC me to replies on linux-usb-devel, since I'm not
+subscribed there.
 
-It's not a matter of optimizing for my case.. that would be horrible.
-It's a matter of is the vm capable of rapid and correct responses.
+I try to use my Handspring Visor USB craddle with Linux. I've
+seen, that this will work, but all the other people use a UHCI
+driver for this, so this could be as well an OHCI issue.
 
-> At home, I'm running a couple of computers.  One of them is a slow
-> computer running Linux, serving mail, NFS, SMB, etc.  I'm usually logged
-> in on a couple of virtual consoles.  On this machine, I do not mind if all
-> shells, daemons and other idle processes are beeing swapped out in favor
-> of disk cache for the NFS and SMB serving.  In fact, that is a very good
-> thing, and I want it that way.
->
-> Another maching is my desktop machine.  When using this maching, I really
-> hate when my emacsen, browsers, xterms, etc are swapped out just to give
-> me some stupid disk cache for my xmms or compilations.  I do not care if a
-> kernel compile is a little slower as long as my applications are snappy.
->
-> How could Linux predict this?  It is a matter of taste, IMHO.
+loaded modules:
+visor                  10256   0  (unused)
+usbserial              18128   0  [visor]
+usb-ohci               22352   0  (unused)
+usbcore                58256   1  [visor usbserial usb-ohci]
 
-I have no idea.  It would be _wonderful_ if it could detect interactive
-tasks and give them preferencial treatment.
+Pressing the hotsync button, I get the message from the subject
+line (with variing values for "address"). Even plugging into
+another USB port doesn't help. Only the usb port adress changes.
 
-> > I use it to watch reaction to surge.  I watch for the vm to build to a
-> > solid maximum throughput without thrashing.  That's the portion of VM
-> > that I'm interested in, so that's what I test.  Besides :) I simply don't
-> > have the hardware to try to simulate hairy chested server loads.  There
-> > are lots of folks with hairy chested boxes.. they should test that stuff.
->
-> Agreed.  More testing is needed.  Now if we would have those knobs and
-> wheels to turn, we could perhaps also tune our systems to behave as we
-> like them, and submit that as well.  Right now you need to be a kernel
-> hacker, and see through all the magic with shm, mmap, a bunch of caches,
-> page lists, etc.  I'd give a lot for a nice picture (or state diagram)
-> showing the lifetime of a page, but I have not found such a picture
-> anywhere.  Besides, the VM seems to change every new release anyway.
->
-> > I've been repeating ~this test since 2.0 times, and have noticed a 1:1
-> > relationship.  When I notice that my box is ~happy doing this load test,
-> > I also notice very few VM gripes hitting the list.
->
-> Ok, but as you say, we need more tests.
->
-> > > Isn't the interesting case when you have a number of processes using lots
-> > > of memory, but only a part of all that memory is beeing actively used, and
-> > > that memory fits in RAM.  In that case, the VM should make sure that the
-> > > not used memory is swapped out.  In RAM you should have the used memory,
-> > > but also disk cache if there is any RAM left.  Does the current VM handle
-> > > this case fine yet?  IMHO, this is the case most people care about.  It is
-> > > definately the case I care about, at least. :-)
-> >
-> > The interesting case is _every_ case.  Try seeing my particular test as
-> > a simulation of a small classroom box with 30 students compiling their
-> > assignments and it'll suddenly become quite realistic.  You'll notice
-> > by the numbers I post that I was very careful to not overload the box in
-> > a rediculous manner when selecting the total size of the job.. it's just
-> > a heavily loaded box.  This test does not overload my IO resources, so
-> > it tests the VM's ability to choose and move the right stuff at the right
-> > time to get the job done with a minimum of additional overhead.
->
-> I did not understand those numbers when I saw them the first time.  Now, I
-> must say that your test does not look as silly as it did before.
+lspci -vvvv (attached)
+.config (attached)
+kernel messages since boot (attached)
 
-[snip.. save a tree]
+Would be nice, if we can solve/debug this ;-)
 
-> Why isn't user+system+idle == real?  SMP?
+Regards
 
-Good question, no smp (sniff) here.
+Ingo Oeser
+-- 
+To the systems programmer,
+users and applications serve only to provide a test load.
 
-> > Tunables aren't really practical in VM (imho).  If there were a dozen
-> > knobs, you'd have to turn a dozen knobs a dozen times a day.  VM has
-> > to be self regulating.
->
-> Yes, that is of course the goal, but I'm suggesting that we would reach
-> the goal of a self-optimizing VM faster, if there were tunables to play
-> with.  The human brain is a very good optimizer.
+--Nq2Wo0NMKNjxTN9z
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="pci.bz2"
+Content-Transfer-Encoding: base64
 
-You bet!  The CPU is a stupid robot.  I've tried to think up good generic
-tunables, and failed.  This is something that more folks should give some
-thought.  Maybe someone will think of knobs that _are_ practical.
+QlpoOTFBWSZTWWTN/XoAAjbfgHAwQG//9z/v/8o/79/wUAYecUhRIBRQAAHGTJkxGJgBMmCZ
+ADRhGAIYDjJkyYjEwAmTBMgBowjAEMAkU0IqeGlP1Tym9U8ptNJkGIZDRkPSNB6gA4yZMmIx
+MAJkwTIAaMIwBDAFShATRPRDQmjQyJoYCR6I8mkeo8U9R6Tci9IvKEKFDU2zT+ptmNFP1rbp
+MIceON1Lx9cIYlL1FrldIa6qKKPpzs3RZp5Gzlu17f0dgNNJ/dEbqGsmB0qsiUInA3PMTnpO
++mMksVmKYkqNG5BNVv6CVAnVKT/JNBu9H4IClUwaFvAwtlICG2lLCgk84Ri+pfUguM4Zwuh9
+19xl3US8uwSXynePf49d35tm/JmxXSyJNBDAkaIQXWE0OCgNYTXn+1SOS/wzaaabM6NCD36A
+9mCTywxm8hpHFCXPyZHeMzhvPhGjw08uXSmWknU+ZqeuSNngel1M9K8N3xboc/2N3mG/cYua
+HKb59de2D/Z1vuUW3BrNIZwqaxdC6FIPzN++ZROB8ZjJRKwyGxKajD+YaxuOHOoUYTfD8l3N
+6evqtEOmGcSoIsfLI+IetNfIJb43UXBsywhWxK+knh3LI7d/XgcK/t8PT/aTTcoq22M6SspE
+2ydGquq+ZcJc5SjL4U3s+eWF6sqUx4pkUi/DClfEpLOTKV0ovQv3rSfCKOlnh58aHH7NuTbL
+8sS6SbXcscYgskgyWoKKTZZbnaUFSIlj0jwzTObIYo1HpQcfm50LKXZj3IK1wm3XG27Q2Krd
+igNTPQYTJQ5JE0M5D+8LIfP5VlqwrT+n0QoLC+mWqH0bUL74fOi5YrD5HqK1hSfhChPPSH1h
+Qmr8eQM5HxhQLQ/c6kMfxpttfCyFj9JHssycaJWSbP+QrH1omR6Z2uxT7dEOPfYwycn1huDZ
+6rzn7YVkS0NVWkPak9+NLvBpD22g/9QT4mBsUkTku0OWRK8ElvFy3HXCj7QpJsPAK0KD1wpD
+OJSFCjfDCF1kO6FEc26HMg4UpoF+1xselcEEnr1Nvpwuw4ejKPsD+INocV22Tw4rz2Fxymfg
+iazVD/CF6OMk9EMdHqidR69+Knt/UveyH5WSd6RMZ9y5xM/c2I5vflJ+hlGmsKSY/tDCNIWK
+tK7p5bozlboNIdqT7d9mxLGlAkbclFWasE2gnpQX9XeCvgh1w8aS6YHZCpSG0pCsMChPt/JW
+RnHC6S16ypYyHPGnkcykm+Fh34vnmnVF1E6Ye5nD/s7JnKFZekqd4NZTnhstxcItK2O2d86z
+oOmSsOGMOJSMlcW+kMSsLJGtjhG2SzhCh5TJJwhylco3ScTzGae5o8sNqRidz+IWL1xWGMRm
+UeGKlYes5D0GEL5MlIbY8eyHjh84zyM2VDRJs6ik87mqk6ejjnEWhWFlKKwyhk7795PIxd6R
+Lo8MNj4tp6jbHLDdCh78uMOg0hmrHGHdDH8J4jZNmCGQpSHYUrFyFBxbjajMXa8svksootfM
+EnIXuxDAVBsKisO+rVXtxjWJ5C4wLQ6NkMzjWTzyTDRwQy7iqMHo5TGXNVaxNhpaTbCqJwME
+OqJfDaWxUMoXwwlkX3xyzDMo2mDwsEmkXxNhjCxzRPlDLgbt5qMRuKxfDibTeb29lDxQ7IcH
+Id0OVI/+LuSKcKEgyZv69A==
 
-> > In case you can't tell (the length of this reply) I like my fovorite
-> > little generic throughput test a LOT :-)
->
-> Point taken.  :-)
+--Nq2Wo0NMKNjxTN9z
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=".config.bz2"
+Content-Transfer-Encoding: base64
 
-	Cheers,
+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
+jPBKw/xdyRThQkE+Ybj8
 
-	-Mike
+--Nq2Wo0NMKNjxTN9z
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="debug.bz2"
+Content-Transfer-Encoding: base64
 
+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
+
+--Nq2Wo0NMKNjxTN9z--

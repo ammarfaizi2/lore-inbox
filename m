@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268502AbUHQXI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUHQXJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268502AbUHQXI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 19:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUHQXI1
+	id S265395AbUHQXJt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 19:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268509AbUHQXJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 19:08:27 -0400
-Received: from web13904.mail.yahoo.com ([216.136.175.67]:8578 "HELO
-	web13904.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268502AbUHQXI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 19:08:26 -0400
-Message-ID: <20040817230825.4509.qmail@web13904.mail.yahoo.com>
-Date: Tue, 17 Aug 2004 16:08:25 -0700 (PDT)
-From: <spaminos-ker@yahoo.com>
-Reply-To: spaminos-ker@yahoo.com
-Subject: Re: Scheduler fairness problem on 2.6 series (Attn: Nick Piggin and others)
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040811093945.GA10667@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Aug 2004 19:09:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37321 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265395AbUHQXJP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 19:09:15 -0400
+Date: Tue, 17 Aug 2004 16:12:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, mochel@digitalimplant.org,
+       benh@kernel.crashing.org, david-b@pacbell.net
+Subject: Re: [patch] enums to clear suspend-state confusion
+Message-Id: <20040817161245.50dd6b96.akpm@osdl.org>
+In-Reply-To: <20040817223700.GA15046@elf.ucw.cz>
+References: <20040812120220.GA30816@elf.ucw.cz>
+	<20040817212510.GA744@elf.ucw.cz>
+	<20040817152742.17d3449d.akpm@osdl.org>
+	<20040817223700.GA15046@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Ingo Molnar <mingo@elte.hu> wrote:
-
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> > If, at some time in the future you change the suspend state to a struct
+> > then you will want to pass that thing around by reference, not by
+> > value. 
 > 
-> could you also try the 2.6.8-rc4-mm1 kernel? It has the array-switch
-> disabled which _could_ lead to smoother timeslice distribution. It still
-> has wakeup bonuses though.
+> Actually I expect it to become struct of two members, system-state and
+> bus-specific state. That seems small enough to pass by value.
+
+hm.  Yes, it's hard to see how this structure can grow much larger.
+
+But we'll be stuck for all time with a weird interface, just because once back
+in August of '04 we didn't want to patch 129 files.
+
+> > Hence your new suspend_state_t will need to be typecast to a pointer to
+> > struct, and not a struct.  And that's not a thing which we do in-kernel
+> > much at all.  (There's nothing wrong with the practice per-se, but in the
+> > kernel it does violate the principle of least surprise).
+> > 
+> > So if you really do intend to add more things to the suspend state I'd
+> > suggest that you set the final framework in place immediately.  Do:
+> > 
+> > struct suspend_state {
+> > 	enum system_state state;
+> > }
 > 
-> 	Ingo
+> I can do that... but it will break compilation of every driver in the
+> tree. I can fix drivers I use and try to fix some more will sed, but
+> it will be painfull (and pretty big diff, and I'll probably miss some).
 
-Sorry I didn't have the chance to try this test before: I didn't try it on
-2.6.8.1-mm1 as I saw that maybe the patch related to the array sawitching was
-dropped.
+That's OK - it's just an hour's work.  I'd be more concerned about
+irritating people who are maintaining and using out-of-tree drivers.
 
-Anyway, I tried the test on 2.6.8-rc4-mm1 and it fails the test with 2 and 20
-threads (delays of about 3 seconds for 2 threads, and 5 seconds with 20).
-
-Nicolas
+Can you remind me why we need _any_ of this?  "enums to clear suspend-state
+confusion" sounds like something which is very optional.  I'd be opting to
+go do something else instead ;)
 

@@ -1,146 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263547AbUJ3BCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbUJ3BCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263547AbUJ3BCe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 21:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbUJ3BAy
+	id S261637AbUJ3BCf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 21:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263730AbUJ3A7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 21:00:54 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:62850 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263745AbUJ3Are (ORCPT
+	Fri, 29 Oct 2004 20:59:06 -0400
+Received: from hostmaster.org ([212.186.110.32]:39606 "EHLO hostmaster.org")
+	by vger.kernel.org with ESMTP id S262045AbUJ3Axp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 20:47:34 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] document mmiowb and readX_relaxed a bit more in deviceiobook.tmpl
-Date: Fri, 29 Oct 2004 17:47:23 -0700
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_cSugBGql76/xr/f"
-Message-Id: <200410291747.24035.jbarnes@engr.sgi.com>
+	Fri, 29 Oct 2004 20:53:45 -0400
+Subject: Re: status of DRM_MGA on x86_64
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: Ian Romanick <idr@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org,
+       "DRI developer's list" <dri-devel@lists.sourceforge.net>
+In-Reply-To: <41829E39.1000909@us.ibm.com>
+References: <1099052450.11282.72.camel@hostmaster.org>
+	 <1099061384.11918.4.camel@hostmaster.org>  <41829E39.1000909@us.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sW/huqUvCHD8Hq45abbF"
+Date: Sat, 30 Oct 2004 02:53:36 +0200
+Message-Id: <1099097616.11918.26.camel@hostmaster.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_cSugBGql76/xr/f
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-This is a small patch to deviceiobook.tmpl to describe the new mmiowb routine 
-a bit more completely.  I've also updated it to provide pointers to drivers 
-that do write flushing, use mmiowb, and use the readX_relaxed routines.
+--=-sW/huqUvCHD8Hq45abbF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Grant Grundler <grundler@parisc-linux.org>
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+On Fre, 2004-10-29 at 12:47 -0700, Ian Romanick wrote:
+> The problem, which exists with most (all?) DRM drivers, is that data=20
+> types are used in the kernel/user interface that have different sizes on=20
+> LP32 and LP64.  If your kernel is 64-bit, you will have problems with=20
+> 32-bit applications.
 
-Thanks,
-Jesse
+Then either all or no DRM drivers should be enabled on x86_64, the
+DRM_TDFX, DRM_R128, DRM_RADEON and DRM_SIS are not currently disabled. I
+vote for enabling all drivers that work with 64-bit applications.
 
---Boundary-00=_cSugBGql76/xr/f
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="deviceiobook-update.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="deviceiobook-update.patch"
+I wonder if this should be the first and only place where different
+kernel/userland bitness causes problems. How has this been solved
+elsewhere?
 
-===== Documentation/DocBook/deviceiobook.tmpl 1.5 vs edited =====
---- 1.5/Documentation/DocBook/deviceiobook.tmpl	2004-10-25 13:06:49 -07:00
-+++ edited/Documentation/DocBook/deviceiobook.tmpl	2004-10-29 15:38:01 -07:00
-@@ -195,7 +195,12 @@
- 	be strongly ordered coming from different CPUs.  Thus it's important
- 	to properly protect parts of your driver that do memory-mapped writes
- 	with locks and use the <function>mmiowb</function> to make sure they
--	arrive in the order intended.
-+	arrive in the order intended.  Issuing a regular <function>readX
-+	</function> will also ensure write ordering, but should only be used
-+	when the driver has to be sure that the write has actually arrived
-+	at the device (not that it's simply ordered with respect to other
-+	writes), since a full <function>readX</function> is a relatively
-+	expensive operation.
-       </para>
- 
-       <para>
-@@ -203,29 +208,50 @@
- 	releasing a spinlock that protects regions using <function>writeb
- 	</function> or similar functions that aren't surrounded by <function>
- 	readb</function> calls, which will ensure ordering and flushing.  The
--	following example (again from qla1280.c) illustrates its use.
-+	following pseudocode illustrates what might occur if write ordering
-+	isn't guaranteed via <function>mmiowb</function> or one of the
-+	<function>readX</function> functions.
-       </para>
- 
- <programlisting>
--       sp->flags |= SRB_SENT;
--       ha->actthreads++;
--       WRT_REG_WORD(&amp;reg->mailbox4, ha->req_ring_index);
--
--       /*
--        * A Memory Mapped I/O Write Barrier is needed to ensure that this write
--        * of the request queue in register is ordered ahead of writes issued
--        * after this one by other CPUs.  Access to the register is protected
--        * by the host_lock.  Without the mmiowb, however, it is possible for
--        * this CPU to release the host lock, another CPU acquire the host lock,
--        * and write to the request queue in, and have the second write make it
--        * to the chip first.
--        */
--       mmiowb(); /* posted write ordering */
-+CPU A:  spin_lock_irqsave(&amp;dev_lock, flags)
-+CPU A:  ...
-+CPU A:  writel(newval, ring_ptr);
-+CPU A:  spin_unlock_irqrestore(&amp;dev_lock, flags)
-+        ...
-+CPU B:  spin_lock_irqsave(&amp;dev_lock, flags)
-+CPU B:  writel(newval2, ring_ptr);
-+CPU B:  ...
-+CPU B:  spin_unlock_irqrestore(&amp;dev_lock, flags)
- </programlisting>
- 
-       <para>
-+	In the case above, newval2 could be written to ring_ptr before
-+	newval.  Fixing it is easy though:
-+      </para>
-+
-+<programlisting>
-+CPU A:  spin_lock_irqsave(&amp;dev_lock, flags)
-+CPU A:  ...
-+CPU A:  writel(newval, ring_ptr);
-+CPU A:  mmiowb(); /* ensure no other writes beat us to the device */
-+CPU A:  spin_unlock_irqrestore(&amp;dev_lock, flags)
-+        ...
-+CPU B:  spin_lock_irqsave(&amp;dev_lock, flags)
-+CPU B:  writel(newval2, ring_ptr);
-+CPU B:  ...
-+CPU B:  mmiowb();
-+CPU B:  spin_unlock_irqrestore(&amp;dev_lock, flags)
-+</programlisting>
-+
-+      <para>
-+	See tg3.c for a real world example of how to use <function>mmiowb
-+	</function>
-+      </para>
-+
-+      <para>
- 	PCI ordering rules also guarantee that PIO read responses arrive
--	after any outstanding DMA writes on that bus, since for some devices
-+	after any outstanding DMA writes from that bus, since for some devices
- 	the result of a <function>readb</function> call may signal to the
- 	driver that a DMA transaction is complete.  In many cases, however,
- 	the driver may want to indicate that the next
-@@ -234,7 +260,11 @@
- 	<function>readb_relaxed</function> for these cases, although only
- 	some platforms will honor the relaxed semantics.  Using the relaxed
- 	read functions will provide significant performance benefits on
--	platforms that support it.
-+	platforms that support it.  The qla2xxx driver provides examples
-+	of how to use <function>readX_relaxed</function>.  In many cases,
-+	a majority of the driver's <function>readX</function> calls can
-+	safely be converted to <function>readX_relaxed</function> calls, since
-+	only a few will indicate or depend on DMA completion.
-       </para>
-     </sect1>
- 
+Tom
 
---Boundary-00=_cSugBGql76/xr/f--
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+      finger thomasz@hostmaster.org for key
+
+Chemists don't die, they just stop to react.
+
+
+
+
+--=-sW/huqUvCHD8Hq45abbF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iQEVAwUAQYLmEGD1OYqW/8uJAQL3pAf+JAjch7OKlqaPUFIh6anGlWsJjXWsCWzw
+5kK4Ukwcn876Myfs80904a+tunqaXnkYLGc2RTzzfKB+Mp0SQbsEiE1htp2285ni
+4HXXZ+uJpWCQTYeuMW1eNNoFJUD626SwJJYC4TAlKPxAHRPTF9oyALxDYFa730f+
+YyBRnTB0ktvBp64/QfhjfNplzg2f9ry4NqYDP6UdyaqJppgPubTtR9ibae6+ZgCt
+mjl5dmxaVO5ESmVbb4BKGCm7eIfPUz0vmZtQbKl+npLUv7tss+nW3rw/kE9VPUeE
+YGOKP8DbgOqpNLijoY/Sphn25XaAXBBeh3Vj59TCjmNOXaKmCEfYEw==
+=qx4S
+-----END PGP SIGNATURE-----
+
+--=-sW/huqUvCHD8Hq45abbF--
+

@@ -1,30 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271005AbRJEUNH>; Fri, 5 Oct 2001 16:13:07 -0400
+	id <S270619AbRJEUMG>; Fri, 5 Oct 2001 16:12:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271800AbRJEUM5>; Fri, 5 Oct 2001 16:12:57 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46088 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S271005AbRJEUMv>; Fri, 5 Oct 2001 16:12:51 -0400
-Date: Fri, 5 Oct 2001 13:12:49 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Hugh Dickins <hugh@veritas.com>, Andrea Arcangeli <andrea@suse.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: pre4 oom too soon
-In-Reply-To: <Pine.LNX.4.21.0110051518110.2744-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0110051312200.2044-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271800AbRJEUL5>; Fri, 5 Oct 2001 16:11:57 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:57849 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S270619AbRJEULk>;
+	Fri, 5 Oct 2001 16:11:40 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 5 Oct 2001 20:12:08 GMT
+Message-Id: <200110052012.UAA21324@vlet.cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: util-linux 2.11l
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A few hours ago I put util-linux 2.11l the usual places.
+It has a patch to support lazy unmount that people may want
+to play with.
+[It does not update mtab; it probably should. Next time.]
 
-Actually, it looks like the easiest solution is to just remove the
-
-	cache_mem -= swapper_space.nrpages;
-
-which should just automatically do the right thing.
-
-		Linus
-
+Andries

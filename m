@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVCCHIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVCBWJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbVCCHIW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 02:08:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVCCGwd
+	id S262494AbVCBWJc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVCBWIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 01:52:33 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:16658 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261549AbVCCGbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 01:31:44 -0500
-Date: Thu, 3 Mar 2005 07:30:01 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Amol <amol@teneoris.com>
+	Wed, 2 Mar 2005 17:08:25 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:49071 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262485AbVCBWEd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 17:04:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=o3C/5XKLIGp70WkBSmO/lS97Szc9yyUeUP7YwTangDtf//IDVJ8kaCXwIl00AkXrzAAn3nELAxQQDpqt+PukBO3J1Mma6eCDtIWmDjKNpcmUkJN944O7fpZ+BBkTSSrJr3F88BBedFH6NtCeYWCVCEg8/RG5+RYD4XP/G6/MW6o=
+Message-ID: <d120d5000503021404187c5629@mail.gmail.com>
+Date: Wed, 2 Mar 2005 17:04:30 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Joshua Hudson <jwhudson@hornet.csc.calpoly.edu>
+Subject: Re: Bug report -- keyboard not working Linux 2.6.11 on Inspiron 1150
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Initrd and Initramfs
-Message-ID: <20050303063001.GF30106@alpha.home.local>
-References: <1109830227.4063.60.camel@amol.teneoris.com>
+In-Reply-To: <Pine.GSO.4.44.0503021324200.25652-100000@hornet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1109830227.4063.60.camel@amol.teneoris.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.GSO.4.44.0503021324200.25652-100000@hornet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 11:40:27AM +0530, Amol wrote:
-> Hi,
->  For an embedded developers perspective, Is there any other advantage of
-> using initramfs over initrd apart from RAMFS benefits over RAMDISK ?
+On Wed, 2 Mar 2005 13:26:18 -0800 (PST), Joshua Hudson
+<jwhudson@hornet.csc.calpoly.edu> wrote:
+> No obvous reason. Works fine with kernel 2.6.10
 
-The fact that both are cumulable is very handy. Basically, you put all
-the common tools and filesystem bits in the initramfs, and only add modules
-or add-ons in each initrd depending on your target system. Even if you work
-on embedded system, as soon as there are chances that you have to deal with
-several hardware models, you may be interested in supporting them with just
-a small initrd difference.
+Does it work with i8042.noacpi kernel boot parameter?
 
-Regards,
-Willy
-
+-- 
+Dmitry

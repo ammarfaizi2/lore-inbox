@@ -1,73 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272818AbRKKPxk>; Sun, 11 Nov 2001 10:53:40 -0500
+	id <S278042AbRKKP7k>; Sun, 11 Nov 2001 10:59:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277176AbRKKPxU>; Sun, 11 Nov 2001 10:53:20 -0500
-Received: from sozanski.balliol.ox.ac.uk ([163.1.209.1]:28800 "EHLO
-	alancaisez.balliol.ox.ac.uk") by vger.kernel.org with ESMTP
-	id <S272818AbRKKPxO>; Sun, 11 Nov 2001 10:53:14 -0500
-Subject: PROBLEM: drivers/block/block.o - undefined referedce to
-	'deactivate_page' when compiling 2.4.14
-From: "Peter Sozanski d'Alancaisez" <peter.sozanski@balliol.ox.ac.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-6IKZz+1Z6cqaJ5G9qNsj"
-X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
-Date: 11 Nov 2001 15:53:19 +0000
-Message-Id: <1005493999.850.4.camel@alancaisez.balliol.ox.ac.uk>
-Mime-Version: 1.0
+	id <S277176AbRKKP7b>; Sun, 11 Nov 2001 10:59:31 -0500
+Received: from [80.72.64.86] ([80.72.64.86]:20097 "HELO
+	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
+	id <S278042AbRKKP7V>; Sun, 11 Nov 2001 10:59:21 -0500
+To: Mathijs Mohlmann <mathijs@knoware.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix loop with disabled tasklets
+From: Momchil Velikov <velco@fadata.bg>
+Date: 11 Nov 2001 17:56:22 +0200
+Message-ID: <87hes1qp21.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-6IKZz+1Z6cqaJ5G9qNsj
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Mathijs,
 
-[1] drivers/block/block.o - undefined referedce to 'deactivate_page' when c=
-ompiling 2.4.14
+You may want to have a look at the following patches (tested by visual
+inspection):
 
-[2] When compiling 2.4.14 with exactly the same config as my (operational) =
-2.4.12, make bxImage gets stuck on
-devices/block/block.o In function 'lo_send'
-devices/block/block.o .text+0x8f06 undefined reference to 'deactivate_page'
-devices/block/block.o .text+0x8f44 undefined reference to 'deactivate_page'
+--- softirq.c.orig	Sun Nov 11 16:42:14 2001
++++ softirq.c	Sun Nov 11 16:59:44 2001
+@@ -188,22 +188,17 @@ static void tasklet_action(struct softir
+ 
+ 		list = list->next;
+ 
++		if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
++			BUG();
++
+ 		if (tasklet_trylock(t)) {
+-			if (!atomic_read(&t->count)) {
+-				if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+-					BUG();
++			if (!atomic_read(&t->count))
+ 				t->func(t->data);
+-				tasklet_unlock(t);
+-				continue;
+-			}
+ 			tasklet_unlock(t);
++			continue;
+ 		}
+ 
+-		local_irq_disable();
+-		t->next = tasklet_vec[cpu].list;
+-		tasklet_vec[cpu].list = t;
+-		__cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
+-		local_irq_enable();
++		tasklet_schedule(t);
+ 	}
+ }
+ 
+@@ -222,22 +217,17 @@ static void tasklet_hi_action(struct sof
+ 
+ 		list = list->next;
+ 
++		if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
++			BUG();
++
+ 		if (tasklet_trylock(t)) {
+-			if (!atomic_read(&t->count)) {
+-				if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+-					BUG();
++			if (!atomic_read(&t->count))
+ 				t->func(t->data);
+-				tasklet_unlock(t);
+-				continue;
+-			}
+ 			tasklet_unlock(t);
++			continue;
+ 		}
+ 
+-		local_irq_disable();
+-		t->next = tasklet_hi_vec[cpu].list;
+-		tasklet_hi_vec[cpu].list = t;
+-		__cpu_raise_softirq(cpu, HI_SOFTIRQ);
+-		local_irq_enable();
++		tasklet_hi_schedule(t);
+ 	}
+ }
+ 
 
-[4] Linux 2.4.12 #1 SMP Sat Oct 13 12:03:40 GMT 2001 i686 unknown
-=20
-[7]
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.10.0.18
-util-linux             2.10m
-mount                  2.10r
-modutils               2.3.21
-e2fsprogs              1.18
-pcmcia-cs              3.1.19
-PPP                    2.4.0
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.7
-Net-tools              1.56
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         au8820
+--- interrupt.h.orig	Sun Nov 11 16:49:05 2001
++++ interrupt.h	Sun Nov 11 17:28:08 2001
+@@ -185,13 +185,15 @@ static inline void tasklet_disable(struc
+ static inline void tasklet_enable(struct tasklet_struct *t)
+ {
+ 	smp_mb__before_atomic_dec();
+-	atomic_dec(&t->count);
++	if (atomic_dec_and_test(&t->count))
++		tasklet_schedule(t);
+ }
+ 
+ static inline void tasklet_hi_enable(struct tasklet_struct *t)
+ {
+ 	smp_mb__before_atomic_dec();
+-	atomic_dec(&t->count);
++	if (atomic_dec_and_test(&t->count))
++		tasklet_hi_schedule(t);
+ }
+ 
+ extern void tasklet_kill(struct tasklet_struct *t);
 
-
-Any ideas? Many thanks,
-
-Peter
-
---=-6IKZz+1Z6cqaJ5G9qNsj
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA77p7vz5QCPsY/t8YRAtcEAJsH9Ftie1Bqmyy4Cp19g+sKeShTIACeM85k
-iOY1LjPKHkxxUTzu9ShMvvw=
-=eY6t
------END PGP SIGNATURE-----
-
---=-6IKZz+1Z6cqaJ5G9qNsj--
+Regards,
+-velco

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293699AbSCFRHC>; Wed, 6 Mar 2002 12:07:02 -0500
+	id <S293681AbSCFRPC>; Wed, 6 Mar 2002 12:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293696AbSCFRG4>; Wed, 6 Mar 2002 12:06:56 -0500
-Received: from mnh-1-27.mv.com ([207.22.10.59]:10759 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S293699AbSCFRGU>;
-	Wed, 6 Mar 2002 12:06:20 -0500
-Message-Id: <200203061708.MAA02691@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages 
-In-Reply-To: Your message of "Wed, 06 Mar 2002 10:03:57 CST."
-             <200203061603.KAA21855@tomcat.admin.navo.hpc.mil> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 06 Mar 2002 12:08:09 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S293689AbSCFROw>; Wed, 6 Mar 2002 12:14:52 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:15626 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S293681AbSCFROh>; Wed, 6 Mar 2002 12:14:37 -0500
+Message-ID: <3C864E44.7030008@evision-ventures.com>
+Date: Wed, 06 Mar 2002 18:13:40 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: marko.kohtala@nokia.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Removable IDE devices problem
+In-Reply-To: <FC5FF66A769AB044AED651C705EAA8EA67A9DA@esebe008.NOE.Nokia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pollard@tomcat.admin.navo.hpc.mil said:
-> Currently the only way to ensure that the memory IS available is to
-> modify every page at startup. Yes it will swap the modified pages.
+marko.kohtala@nokia.com wrote:
+> I have a question about the struct ide_drive_s member removable.
+> 
+> The problem with it is that I have an IDE flash disk that sits on normal IDE bus and this removable flag gets set because the IDE ID info has the bit set for removable. Because this flag is set, idedisk_media_change will return true every time media change check is done. This happens every time when partitions are being mounted.
+> 
+> Now, because idedisk_media_change tells the media is changed, the system invalidates all buffers. This is bad when the dirty buffers on some of the partitions have not been written to the disk. Data is lost and file system is corrupt.
+> 
+> I suppose the device tells it is removable because the controller on the disk is also used with some PCMCIA IDE devices.
+> 
+> I am curious if this idedisk_media_change return value is needed with some removable disks. I do not know any. I think that in case of a PCMCIA, the whole IDE controller is removed and that should invalidate all buffers.
+> 
+> Currently I have just patched the kernel to clear the flag for this particular disk.
+> 
+> But I'd need your help in finding a real fix to the problem.
 
-Currently, yes.
-
-But with Alan says his address space accounting will prevent mmaps from
-succeeding if populating them would OOM the system, which gives you want
-you want and which sounds like the right thing.  The 8 64M UMLs will run
-without needing to touch all their pages at bootup and without fear of being
-killed later.  If the 9th UML would be in danger of random death, then it
-will never get off the ground.
-
-Note that this doesn't help when the UMLs are under a smaller limit than 
-RAM + .5 * swap or whatever as happens when they are mmapping from tmpfs.
-That's the situation that I'm concerned about.
-
-				Jeff
+Your analysis of the problem is entierly right, since the current
+kernel behaviour for removable media is supposed to work for
+floppies (never get this thing out of your computer
+as long as long the diode blinks) or read only media where it doesn't
+really matter. However I still don't see a good way to
+resolve this issue. (Maybe just adding buffer cache flush before
+going into the check_media_change business of "grocking" partitions
+would be sufficient...
 

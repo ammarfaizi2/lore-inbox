@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293224AbSCRXKD>; Mon, 18 Mar 2002 18:10:03 -0500
+	id <S293237AbSCRXOp>; Mon, 18 Mar 2002 18:14:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293236AbSCRXJw>; Mon, 18 Mar 2002 18:09:52 -0500
-Received: from mons.uio.no ([129.240.130.14]:61429 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S293224AbSCRXJk>;
-	Mon, 18 Mar 2002 18:09:40 -0500
-To: Pavel Machek <pavel@suse.cz>
-Cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        Jonathan Barker <jbarker@ebi.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: VFS mediator?
-In-Reply-To: <E16lej0-0002FE-00@the-village.bc.nu>
-	<Pine.GSO.4.21.0203141825070.329-100000@weyl.math.psu.edu>
-	<20020318192502.GD194@elf.ucw.cz> <shs1yeha5b4.fsf@charged.uio.no>
-	<20020318223827.GD1740@atrey.karlin.mff.cuni.cz>
-	<15510.28326.558485.955067@charged.uio.no>
-	<20020318225403.GE1740@atrey.karlin.mff.cuni.cz>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 19 Mar 2002 00:05:36 +0100
-Message-ID: <shs8z8p5ven.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S293236AbSCRXOf>; Mon, 18 Mar 2002 18:14:35 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:65289 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S293229AbSCRXO3>; Mon, 18 Mar 2002 18:14:29 -0500
+Date: Tue, 19 Mar 2002 00:14:28 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Larry McVoy <lm@work.bitmover.com>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper licence issues
+Message-ID: <20020318231427.GF1740@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020318212617.GA498@elf.ucw.cz> <20020318144255.Y10086@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Pavel Machek <pavel@suse.cz> writes:
+Hi!
 
-     > Sorry, this thread was about userland filesystems, and NFS is
-     > just not usefull there (for read/write case).
 
-Nope. The point made in Alan's mail early on in the thread was that of
-platform independence: the latter has nothing to do with userland
-implementation or not. In fact, several of the filesystems Al
-mentioned had no (known) userland implementation.
+> The  only
+> thing we did wrong was to forget the diff/patch man pages which include
+> the GPL in our binary distribution.  We'll fix that.  You are
+				       ~~~~~~~~~~~~~~~
 
-Cheers,
-  Trond
+If you said that 2 mails ago (instead of telling me to go away), I
+would not be wasting your time. [Oh and you should also put that ftp
+pointer in the docs, so it is easy to find. GPL requires that...]
+
+> Pavel, the problem here is your fundamental distrust.  
+
+By giving me binary-only installer you ask me to trust you. You ask me
+to trust you without good reason [it only generates .tar.gz and
+shellscript, why should it be binary? Was not shar designed to handle
+that?], and that's pretty suspect.
+
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

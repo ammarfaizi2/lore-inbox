@@ -1,96 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265477AbUI0Bpt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUI0DkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265477AbUI0Bpt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 21:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbUI0Bpt
+	id S265768AbUI0DkS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 23:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUI0DkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 21:45:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:139 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265477AbUI0Bpm (ORCPT
+	Sun, 26 Sep 2004 23:40:18 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:34692 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S265768AbUI0DkJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 21:45:42 -0400
-Date: Sun, 26 Sep 2004 18:43:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Lukas Hejtmanek <xhejtman@fi.muni.cz>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: 2.6.9-rc2-mm2 pcmcia oops
-Message-Id: <20040926184327.79e05988.akpm@osdl.org>
-In-Reply-To: <20040926221614.GB1466@mail.muni.cz>
-References: <20040926221614.GB1466@mail.muni.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 26 Sep 2004 23:40:09 -0400
+Message-ID: <d91f4d0c040926204019fde277@mail.gmail.com>
+Date: Sun, 26 Sep 2004 23:40:05 -0400
+From: George Georgalis <georgalis@gmail.com>
+Reply-To: George Georgalis <georgalis@gmail.com>
+To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
+       George Georgalis <george@galis.org>
+Subject: Re: [PATCH] fix sata_sil quirk
+Cc: Ricky Beam <jfbeam@bluetronic.net>, linux-ide@vger.kernel.org
+In-Reply-To: <20040628015431.GA31687@trot.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <40D8FE55.3030008@pobox.com>
+	 <Pine.GSO.4.33.0406230230010.25702-100000@sweetums.bluetronic.net>
+	 <20040628015431.GA31687@trot.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukas Hejtmanek <xhejtman@fi.muni.cz> wrote:
->
-> Unable to handle kernel paging request at virtual address 0000ffff
->   printing eip:
->  c0402097
->  *pde = 00000000
->  Oops: 0002 [#1]
->  PREEMPT 
->  Modules linked in: yenta_socket pcmcia_core i830 ehci_hcd uhci_hcd rtc
->  CPU:    0
->  EIP:    0060:[<c0402097>]    Tainted:  P   VLI
->  EFLAGS: 00010246   (2.6.9-rc2-mm2) 
->  EIP is at quirk_usb_early_handoff+0x0/0x3e
->  eax: 0000ffff   ebx: c035d954   ecx: c6866000   edx: 00020000
->  esi: c6866000   edi: c035da4c   ebp: ceede380   esp: c7f4bed8
->  ds: 007b   es: 007b   ss: 0068
->  Process pccardd (pid: 3386, threadinfo=c7f4a000 task=c5ea2d70)
->  Stack: c01d2076 c6866000 c6866000 ceede380 00000000 c01d20ba c6866000 c035d81c 
->         c035da4c c01d01ce 00000000 c6866000 00000000 00000000 c01d0214 ceede380 
->         00000000 c686642c ceede380 ceede394 c7f4a000 cfbdd0de ceede380 00000000 
->  Call Trace:
->   [<c01d2076>] pci_do_fixups+0x49/0x4b
-
-Well quirk_usb_early_handoff() should be __devinit, not __init.
-
-There are a few other things in there which look hotpluggy, and are marked
-__init.  The whole thing needs a review.
+On Sun, 27 Jun 2004 21:54:31 -0400, George Georgalis <george@galis.org> wrote:
+> On Wed, Jun 23, 2004 at 02:34:35AM -0400, Ricky Beam wrote:
+> >
+> >That list needs a:
+> >         { "ST3160023AS",        SIL_QUIRK_MOD15WRITE },
+> >as well.
+> 
+> happens to be my drive, is there any way to tell a drive needs
+> be in the quirk 15 list, other than it's Seagate and big writes
+> block the dev?
 
 
-diff -puN drivers/pci/quirks.c~pci-quirk-section-fixes drivers/pci/quirks.c
---- 25/drivers/pci/quirks.c~pci-quirk-section-fixes	2004-09-26 18:41:35.933120712 -0700
-+++ 25-akpm/drivers/pci/quirks.c	2004-09-26 18:42:05.859571200 -0700
-@@ -869,7 +869,7 @@ static int __init usb_handoff_early(char
- }
- __setup("usb-handoff", usb_handoff_early);
- 
--static void __init quirk_usb_handoff_uhci(struct pci_dev *pdev)
-+static void __devinit quirk_usb_handoff_uhci(struct pci_dev *pdev)
- {
- 	unsigned long base = 0;
- 	int wait_time, delta;
-@@ -922,7 +922,7 @@ static void __init quirk_usb_handoff_uhc
- 		
- }
- 
--static void __init quirk_usb_handoff_ohci(struct pci_dev *pdev)
-+static void __devinit quirk_usb_handoff_ohci(struct pci_dev *pdev)
- {
- 	void __iomem *base;
- 	int wait_time;
-@@ -952,7 +952,7 @@ static void __init quirk_usb_handoff_ohc
- 	iounmap(base);
- }
- 
--static void __init quirk_usb_disable_ehci(struct pci_dev *pdev)
-+static void __devinit quirk_usb_disable_ehci(struct pci_dev *pdev)
- {
- 	int wait_time, delta;
- 	void __iomem *base, *op_reg_base;
-@@ -1042,7 +1042,7 @@ static void __init quirk_usb_disable_ehc
- 
- 
- 
--static void __init quirk_usb_early_handoff(struct pci_dev *pdev)
-+static void __devinit quirk_usb_early_handoff(struct pci_dev *pdev)
- {
- 	if (!usb_early_handoff)
- 		return;
-_
+Actually my problem with big writes was the bk kernel I downloaded was
+a rev too early (2.6.7-bk7 ?).
 
+I tested the sata_sil.c version from June 25 (via bk checkout)
+extensively and had no problem... posted my results then, hdparm
+reported ~42 - 51 MB/sec, and never a write block.
+
+Today I try putting 2.6.8.1 on the box and I'm getting ~14 MB/sec, the
+drive has been added to the sil_blacklist. Why? What did I miss?
+
+I've taken my drive out of the black list, abused it with 5 continuous
+writes and "top id 0" no problem after 58Gb. I'm doing it again this
+time simultaneously with a massive rm -rf of backup directories. I
+really don't anticipate a problem.
+
+So what's up with 
+
+         /*{ "ST3160023AS",      SIL_QUIRK_MOD15WRITE },*/
+
+before it got in there, it was said the black list "would not grow"
+(for unexplained reasons).
+
+// George
+
+-- 
+George Georgalis, systems architect, administrator Linux BSD IXOYE
+http://galis.org/george/ cell:646-331-2027 mailto:george@galis.org

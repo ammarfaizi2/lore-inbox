@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261582AbSLAKDL>; Sun, 1 Dec 2002 05:03:11 -0500
+	id <S261581AbSLAKZ5>; Sun, 1 Dec 2002 05:25:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261593AbSLAKDL>; Sun, 1 Dec 2002 05:03:11 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:61595 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261582AbSLAKDK>;
-	Sun, 1 Dec 2002 05:03:10 -0500
-Date: Sun, 1 Dec 2002 11:08:08 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: vojtech@suse.cz, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4 double PCI unregistration with pcigame
-Message-ID: <20021201110808.B14392@ucw.cz>
-References: <20021201044019.GA965@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021201044019.GA965@gondor.apana.org.au>; from herbert@gondor.apana.org.au on Sun, Dec 01, 2002 at 03:40:19PM +1100
+	id <S261593AbSLAKZ5>; Sun, 1 Dec 2002 05:25:57 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:9398 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261581AbSLAKZ4>;
+	Sun, 1 Dec 2002 05:25:56 -0500
+Message-ID: <3DE9E567.4030103@colorfullife.com>
+Date: Sun, 01 Dec 2002 11:33:11 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] POSIX message queues, 2.5.50
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 01, 2002 at 03:40:19PM +1100, Herbert Xu wrote:
+Some notes:
+- coding style: linux functions usually have only one return at the end 
+of the function, and goto internally. mqueue_parse_options() does that, 
+mqueue_create contains multiple returns.
+- why do you allocate the ext_wait_queue structure dynamically? Put it 
+on the stack, that avoids error handling for failed allocations.
+- reusing kernel functions is not a disadvantage - load_msg() and 
+store_msg() automagically split the kmalloc allocations into page sized 
+chunks.
+- why do you use __add_wait_queue in wq_sleep_on()? It seems you have 
+copied that code from kernel/sched.c - it's not needed. It was needed for
 
-> pcigame.c calls pci_unregister_driver() a second time when it is unloaded
-> without finding any devices.
+    cli()
+    if(condition_var==0)
+        sleep_on(&my_queue);
 
-I think the proper solution would be:
-
-diff -u -r1.1.1.7 pcigame.c
---- drivers/char/joystick/pcigame.c   28 Nov 2002 23:53:12 -0000 1.1.1.7
-+++ drivers/char/joystick/pcigame.c   1 Dec 2002 02:32:08 -0000
-
-@@ -195,7 +195,7 @@
-
- int __init pcigame_init(void)
- {
--     pci_module_init(&pcigame_driver);
--     /* Needed by other modules */
--     return 0;
-+     return pci_module_init(&pcigame_driver);
- }
+--
+    Manfred
 
 
-> -- 
-> Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-> Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
-> Index: drivers/char/joystick/pcigame.c
-> ===================================================================
-> RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/drivers/char/joystick/pcigame.c,v
-> retrieving revision 1.1.1.7
-> diff -u -r1.1.1.7 pcigame.c
-> --- drivers/char/joystick/pcigame.c	28 Nov 2002 23:53:12 -0000	1.1.1.7
-> +++ drivers/char/joystick/pcigame.c	1 Dec 2002 02:32:08 -0000
-> @@ -195,7 +195,7 @@
->  
->  int __init pcigame_init(void)
->  {
-> -	pci_module_init(&pcigame_driver);
-> +	pci_register_driver(&pcigame_driver);
->  	/* Needed by other modules */
->  	return 0;
->  }
-
-
--- 
-Vojtech Pavlik
-SuSE Labs

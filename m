@@ -1,55 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129930AbQL2SDF>; Fri, 29 Dec 2000 13:03:05 -0500
+	id <S130061AbQL2SEz>; Fri, 29 Dec 2000 13:04:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130061AbQL2SCz>; Fri, 29 Dec 2000 13:02:55 -0500
-Received: from mail2.stonesoft.com ([192.89.38.188]:26641 "HELO
-	mail2.stonesoft.com") by vger.kernel.org with SMTP
-	id <S129930AbQL2SCn>; Fri, 29 Dec 2000 13:02:43 -0500
-Subject: Bugs in knfsd -- Problem re-exporting an NFS share
+	id <S130996AbQL2SEp>; Fri, 29 Dec 2000 13:04:45 -0500
+Received: from [4.22.152.149] ([4.22.152.149]:20012 "HELO
+	spanky.comspacecorp.com") by vger.kernel.org with SMTP
+	id <S130061AbQL2SEf>; Fri, 29 Dec 2000 13:04:35 -0500
+Date: Fri, 29 Dec 2000 11:29:00 -0600
+Message-Id: <200012291729.eBTHT0w01182@spanky.comspacecorp.com>
+From: Bill Priest <bpriest@comspacecorp.com>
 To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFC9E1D243.E23DCAED-ONC12569C4.005FB1E8@stonesoft.com>
-From: Frank.Olsen@stonesoft.com
-Date: Fri, 29 Dec 2000 18:33:13 +0100
-X-MIMETrack: Serialize by Router on sharon/Stone(Release 5.0.5 |September 22, 2000) at
- 29.12.2000 19:32:14
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+CC: alan@lxorguk.ukuu.org.uk
+Subject: 2.2.1x unknown kernel messages in syslog
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi -- could you please CC me if you reply to this mail.
+All,
+		Running 2.2.19pre2 (but it happens w/ many previous 2.2.1(7-8) versions)
+built w/ egcs-2.91.66, while connected w/ ppp over analog modem to windows
+nt ras server; I get the following messages using ppp 2.4.0b4 (w/ MSCHAP-80)
 
-My problem is that I get an error when setting up the following
-configuration:
+Dec 29 09:22:59 kodi pppd[905]: pppd 2.4.0b4 started by bpriest, uid 500
+Dec 29 09:23:01 kodi chat[910]: abort on (BUSY)
+Dec 29 09:23:01 kodi chat[910]: abort on (NO ANSWER)
+Dec 29 09:23:01 kodi chat[910]: send (AT^M)
+Dec 29 09:23:01 kodi chat[910]: expect (OK)
+Dec 29 09:23:01 kodi chat[910]: AT^M^M
+Dec 29 09:23:01 kodi chat[910]: OK
+Dec 29 09:23:01 kodi chat[910]:  -- got it 
+Dec 29 09:23:01 kodi chat[910]: send (ATDTxxxxxxxxxx^M)
+Dec 29 09:23:01 kodi chat[910]: expect (CONNECT)
+Dec 29 09:23:01 kodi chat[910]: ^M
+Dec 29 09:23:34 kodi chat[910]: ATDTxxxxxxxxxx^M^M
+Dec 29 09:23:34 kodi chat[910]: CONNECT
+Dec 29 09:23:34 kodi chat[910]:  -- got it 
+Dec 29 09:23:34 kodi pppd[905]: Serial connection established.
+Dec 29 09:23:34 kodi pppd[905]: Using interface ppp0
+Dec 29 09:23:34 kodi pppd[905]: Connect: ppp0 <--> /dev/ttyS3
+Dec 29 09:23:34 kodi kernel: ppp_ioctl: set dbg flags to 1f0000 
+Dec 29 09:23:34 kodi kernel: ppp_ioctl: set flags to 1f0000 
+Dec 29 09:23:34 kodi kernel: ppp_tty_ioctl: set xasyncmap 
+Dec 29 09:23:34 kodi kernel: ppp_tty_ioctl: set xmit asyncmap ffffffff 
+Dec 29 09:23:34 kodi kernel: ppp_ioctl: set flags to 1f0000 
+Dec 29 09:23:34 kodi kernel: ppp_ioctl: set mru to 5dc 
+Dec 29 09:23:34 kodi kernel: ppp_tty_ioctl: set rcv asyncmap ffffffff 
+Dec 29 09:23:36 kodi kernel: ppp_tty_ioctl: set xmit asyncmap 0 
+Dec 29 09:23:36 kodi kernel: ppp_ioctl: set flags to f1f0002 
+Dec 29 09:23:36 kodi kernel: ppp_ioctl: set mru to 5dc 
+Dec 29 09:23:36 kodi kernel: ppp_tty_ioctl: set rcv asyncmap ffffffff 
+Dec 29 09:23:39 kodi kernel: ppp_ioctl: set flags to f1f0042 
+Dec 29 09:23:41 kodi pppd[905]: local  IP address 192.168.220.50
+Dec 29 09:23:41 kodi pppd[905]: remote IP address 192.168.220.46
+Dec 29 09:23:41 kodi kernel: ppp_ioctl: set maxcid to 16 
+Dec 29 09:23:41 kodi kernel: ppp_ioctl: set flags to f1f0046 
+Dec 29 09:23:44 kodi kernel: ppp_ioctl: set flags to f1f0006 
+Dec 29 09:23:53 kodi PAM_pwdb[956]: (su) session opened for user root by bpriest(uid=500)
+Dec 29 09:24:38 kodi kernel: d (AT^M 
+Dec 29 09:24:38 kodi kernel: hat[464 
+Dec 29 09:24:40 kodi kernel:  24 11 
+Dec 29 09:24:41 kodi kernel: i kerne 
+Dec 29 09:24:42 kodi kernel: ).Dec 2 
+Dec 29 09:24:43 kodi kernel: .<.z 
+Dec 29 09:24:44 kodi kernel:  15 36 
+Dec 29 09:24:45 kodi kernel: i k 
+Dec 29 09:24:46 kodi kernel: Dec  
+Dec 29 09:24:47 kodi kernel:  kodi k 
+Dec 29 09:24:48 kodi kernel: NO ANSW 
+Dec 29 09:24:55 kodi kernel: 0 70  kodi pp 
+Dec 29 09:24:56 kodi kernel:  0A 44 hangup.D 
+Dec 29 09:24:57 kodi kernel: ablis 
+Dec 29 09:24:59 kodi kernel: ec 26  
+Dec 29 09:29:15 kodi kernel: odi ker 
 
-A:     /exports/A                                 - Redhat 7.0
-B1/B2: mount /exports/A on /export/A from A       - Redhat 6.2
-C:     mount /exports/A on /mnt/A from B1 or B2   - Redhat 6.2
+I'm not sure if they are causing a problem or not; (I seem to notice them
+more when I'm surfing w/ netscape), however, the above were received while only
+ftp'ing /var/log/messages to the remote machine.
 
-I use knfsd/nfs-utils on each machine.
+Note telephone numbers x'ed out for privacy.
 
-bash# ls /mnt/A
-/mnt/A/A.txt: No such file or directory
+I'm not subscribe'ed to linux-kernel; so please copy me w/ any questions or
+replies.
 
+Note previously my asyncmap was set to 0 and the same thing occurred.
+Note that I transferred the file while I was driving to work and the windows
+ras machine timed out and disconnected (I presume).
 
-I searched for a while on deja.com, and there seemed to be some indications
-that knfsd was bugged and that using the user-mode code would work.
-However, no one replied specifically to my message, so I'm still not sure.
-
-BTW, what I tried to do was to set up a HA configuration of machines B1/B2
-using A as a "shared disk".
-This is just to try out the HA software without buying more hardware.
-
-Thanks in advance for any help!
-
-Best regards,
-Frank Olsen
-
-PS Happy new year!
-
-
+Bill
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

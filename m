@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbULIVrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbULIVxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbULIVrU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 16:47:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbULIVrU
+	id S261632AbULIVxP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 16:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbULIVxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 16:47:20 -0500
-Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:29150 "EHLO
-	cenedra.walrond.org") by vger.kernel.org with ESMTP id S261169AbULIVrR
+	Thu, 9 Dec 2004 16:53:15 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:48300 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261632AbULIVxK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 16:47:17 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 048 release
-Date: Thu, 9 Dec 2004 21:47:14 +0000
-User-Agent: KMail/1.7
-Cc: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net
-References: <20041208185856.GA26734@kroah.com> <20041208192810.GA28374@kroah.com> <20041208194618.GA28810@kroah.com>
-In-Reply-To: <20041208194618.GA28810@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 9 Dec 2004 16:53:10 -0500
+Subject: Re: Question from Russells Spinlocks
+From: Robert Love <rml@novell.com>
+To: kernel-stuff@comcast.net
+Cc: Imanpreet Singh Arora <imanpreet@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <120920042115.25628.41B8C082000394E30000641C220076219400009A9B9CD3040A029D0A05@comcast.net>
+References: <120920042115.25628.41B8C082000394E30000641C220076219400009A9B9CD3040A029D0A05@comcast.net>
+Content-Type: text/plain
+Date: Thu, 09 Dec 2004 16:49:41 -0500
+Message-Id: <1102628981.4622.9.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412092147.14234.andrew@walrond.org>
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 Dec 2004 19:46, Greg KH wrote:
->
-> Ok, version 048 has been released to fix the build errors for the
-> extras/ directory.  It's available at
->  kernel.org/pub/linux/utils/kernel/hotplug/udev-048.tar.gz
->
+On Thu, 2004-12-09 at 21:15 +0000, kernel-stuff@comcast.net wrote:
 
-I've built a boot cd with linux-2.6.10-rc3, udev 048 and latest hotplug.
+This part is incorrect (and horribly wrapped):
 
-When I boot a machine with my CD, udev doesn't create /dev/hda
-I can't fathom why. Any reasons why it wouldn't create it?
-It _has_ created /dev/hdc, (the cdrom drive) and all the other usual devices.
+>  The comment about  atomic_t - It is due to the fact that some ( IA-32 for e.g.) architectures guarantees atomicity of integer operations for only 24 bits. So you could possibly manipulate only 24 out of the 32 bits atomically - that's the hardware guarantee. The comments reflect this fact. (Pointers are 32bits on IA32 so it applies to pointer as well.)
 
-/proc/ide shows hda->ide0/hda
-/proc/ide/ide0/hda/model = MAXTOR 6L040J2
+The reason for the 24-bit limit on atomic_t is because SPARC32's
+implementation of atomic operations was limited to 24-bits per atomic
+integer, because the architecture provides very minimal atomic support,
+we had to embed a byte-sized lock in the word.  This limited SPARC32's
+atomic integer to 24 usable bits.  The other architectures can, of
+course, hold the full 32-bits but to be compatible code must assume the
+24-bit limit.
 
-This is a simple Asus P4PE m/b with intel ICH4 IDE.
+Although this was fixed recently in 2.6 so it actually no longer
+applies.
 
-( I know I can mknod, but since this is supposed to be a general purpose 
-boot/toolkit CD, I'd like to make sure udev is working properly)
+	Robert Love
 
-Any clues? hda currently contains windows server and I'm rather eager to wipe 
-it ;)
 
-Andrew Walrond

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261186AbSJ1OAa>; Mon, 28 Oct 2002 09:00:30 -0500
+	id <S261177AbSJ1N65>; Mon, 28 Oct 2002 08:58:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261187AbSJ1OAa>; Mon, 28 Oct 2002 09:00:30 -0500
-Received: from mg02.austin.ibm.com ([192.35.232.12]:22925 "EHLO
-	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261186AbSJ1OA3>; Mon, 28 Oct 2002 09:00:29 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Rusty's Remarkably Unreliable 2.6 List
-Date: Mon, 28 Oct 2002 07:29:07 -0600
-X-Mailer: KMail [version 1.2]
-References: <20021028084237.CBA282C0A0@lists.samba.org>
-In-Reply-To: <20021028084237.CBA282C0A0@lists.samba.org>
+	id <S261186AbSJ1N65>; Mon, 28 Oct 2002 08:58:57 -0500
+Received: from 62-190-218-55.pdu.pipex.net ([62.190.218.55]:38785 "EHLO
+	nemesis.cube") by vger.kernel.org with ESMTP id <S261177AbSJ1N65>;
+	Mon, 28 Oct 2002 08:58:57 -0500
+Message-ID: <3DBD4417.6010106@walrond.org>
+Date: Mon, 28 Oct 2002 14:05:11 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Message-Id: <02102807290700.12062@boiler>
-Content-Transfer-Encoding: 7BIT
+To: Dave Jones <davej@codemonkey.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge
+ candidate list.
+References: <200210272017.56147.landley@trommello.org> <3DBD1182.1000402@walrond.org> <20021028133134.GA8187@suse.de>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 October 2002 02:42, Rusty Russell wrote:
-> Hi all,
->
-> 	Yet another unofficial list of non-trivial features pending
-> which are "ready to go" and not already in:
->
-> 	http://www.kernel.org/pub/linux/kernel/people/rusty/2.6-not-in-yet/
->
-> Features include Remarkably Unreliable Invasiveness Meter, and
-> "executive summary patch" which shows existing source code which is
-> effected.
->
-> If anyone has a direct URL for EVMS or LVM2 against a recent kernel,
-> please provide.
+On the subject of testing; I use Gentoo with the 2.5.* kernels. In the 
+light of a recent coment by Alan Cox regarding linux from scratch, is 
+there much point in my posting bug reports?
 
-I put some patches up on the EVMS website last week that correspond to the 
-latest CVS code. I've updated them again this morning.
+Dave Jones wrote:
 
-http://evms.sourceforge.net/patches/
+>On Mon, Oct 28, 2002 at 10:29:22AM +0000, Andrew Walrond wrote:
+> > A concise and very useful summary of upcoming/potential features, not 
+> > only for you kernel hackers but also for people using linux and trying 
+> > to keep half an eye on whats brewing...
+>
+>I got bored a few days back, and hacked up a quick list of
+>do's and don'ts for potential 2.5 testers to use.
+>(In a cunning ploy hoping to get more people hammering on 2.5
+> post freeze to get bugs the exposure they deserve).
+>
+>A first draft is at http://www.codemonkey.org.uk/post-halloween-2.5.txt
+>
+>		Dave
+>
+>  
+>
 
--- 
-Kevin Corry
-corryk@us.ibm.com
-http://evms.sourceforge.net/
+

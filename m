@@ -1,150 +1,473 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264900AbUG0Lw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265038AbUG0M1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264900AbUG0Lw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 07:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbUG0Lw0
+	id S265038AbUG0M1z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 08:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265199AbUG0M1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 07:52:26 -0400
-Received: from starnet.skynet.com.pl ([213.25.173.230]:4820 "EHLO
-	skynet.skynet.com.pl") by vger.kernel.org with ESMTP
-	id S264900AbUG0LwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 07:52:11 -0400
-Date: Tue, 27 Jul 2004 02:21:54 +0200
-From: Marcin Owsiany <marcin@owsiany.pl>
-To: linux-kernel@vger.kernel.org
-Subject: "swap_free: Unused swap offset entry 00000100" but no crash?
-Message-ID: <20040727002154.GA21628@melina.ds14.agh.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
-X-Scanner: exiscan *1BpQV1-00057i-00*wj1oZ.fthl.*
+	Tue, 27 Jul 2004 08:27:55 -0400
+Received: from cantor.suse.de ([195.135.220.2]:40329 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265038AbUG0M1h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 08:27:37 -0400
+Message-ID: <410648E9.809@suse.de>
+Date: Tue, 27 Jul 2004 14:22:01 +0200
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Limit number of concurrent hotplug processes
+References: <40FD23A8.6090409@suse.de>	<20040725182006.6c6a36df.akpm@osdl.org>	<4104E421.8080700@suse.de>	<20040726131807.47816576.akpm@osdl.org>	<4105FE68.7040506@suse.de>	<20040727002409.68d49d7c.akpm@osdl.org>	<41060B62.1060806@suse.de>	<20040727013427.52d3e5f5.akpm@osdl.org>	<41061AC0.8000607@suse.de> <20040727022826.2c95d8ff.akpm@osdl.org>
+In-Reply-To: <20040727022826.2c95d8ff.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------060802050407020600010003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------060802050407020600010003
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-The machine is a dual pentium 4, on an Intel motherboard, running kernel
-2.4.26 with SMP.  This is a mail smarthost. Load average is around 3 for
-most of the day, and around 0.2 during night. The box has been running
-for a few months wothout problems.
+Andrew Morton wrote:
+> Hannes Reinecke <hare@suse.de> wrote:
+> 
+>> Problem with your patch is that call_usermodehelper might block on 
+>> down() regardless whether it is called async or sync.
+>> So any write to sysfs which triggers a hotplug event might block until 
+>> enough resources are available.
+> 
+> 
+> This is exactly the behaviour we want.  If we don't block the caller then
+> the only option is to fail the call_usermodehelper() attempt, which would
+> be very bad indeed.
+> 
+But only if call_usermodehelper is called with wait=1. For the async 
+path we should not block.
 
-$ cat /proc/swaps
-Filename                        Type            Size    Used    Priority
-/dev/rd/c0d0p1                  partition       1461872 2556    -1
-$
+> The main reason for calling call_usermodehelper(wait=0) is that the caller
+> holds locks which will prevent the helper application from terminating.  I
+> guess my proto-patch risks the same deadlock, because all the
+> currently-running helpers may be waiting on that lock.
+> 
+And so it does. If an event is to be queued we need to copy the 
+arguments and call 'complete' prior to calling down() to prevent locking 
+of the calling process.
 
-(c0d0 is a Mylex DAC960 array).
+> Maybe this is why you were allocating a copy of the call_usermodehelper()
+> arguments?  I didn't try to reverse-engineer your patch to that extent -
+> I'd prefer to hear the design in your own words.  Am still waiting for
+> this, btw.
+> 
+Ok. As already mentioned we have to copy the args if asynchronous events
+are to be queued and wait for the semaphore to become available. Hence 
+we will block and thus would need a similar mechanism as in 
+wait_for_helper as otherwise either keventd itself or the calling thread 
+would be blocked.
+The only difference to the current wait_for_helper is that complete() 
+should be called prior to calling down() to avoid blocking of the 
+calling thread.
+So part of my patch is just streamlining the calling sequence for 
+usermodehelper to always call wait_for_helper and do all the main action 
+in there.
+In wait_for_helper I first check whether enough resources are available; 
+if not the event is queued, wait=-1 and complete() is called to notify 
+the calling function that this event is finished.
+Here I mis-used the 'wait' entry so that -1 means 'event delayed'.
+As we might have to queue the events I always copy the arguments to a 
+local structure; thus we can have the same calling sequence for the 
+entire function.
 
-Suddenly on the 8th day of its uptime, it started to log the message
-cited in subject after EVERY SINGLE /usr/sbin/cron invocation.
+> Allocating a whole bunch of buffers to hold copies of the
+> call_usermodehelper() args also uses resources, of course.  But it should
+> be acceptable.  We'd allocate the same amount of memory if we were sending
+> messages up a socket/pipe to userspace, which is what we should always have
+> done, instead of the direct-exec - it's caused tons of trouble.
+> 
+Agreed. Would you be willing to accept patches for something like that?
 
-There is an almost perfect correlation: the number of
+> You didn't answer half the questions in my previous email, btw.
+> 
+Sorry. Hope this explains it a bit further.
 
-    /USR/SBIN/CRON[PID]: (USER) CMD (blah blah)
+> Right now, I cannot think of any solution apart from:
+> 
+> - In the sync path, take the semaphore
+> 
+> - In the async path, take a copy of the args, then pass them over to some
+>   kernel thread which takes the args off a list one-at-a-time, takes the
+>   semaphore for each one, execs the helper and drops the semaphore on the
+>   exit path.
+> 
+Please have a look at the attached patch; it should be doing exactly this.
 
-lines in syslog is EXACTLY the same as the number of
+The patch to init/main.c is just for enabling all events with initramfs.
+Without it events will be skipped as the workqueue for usermodehelper 
+will be enabled only after any driver events have been generated.
 
-    kernel: swap_free: Unused swap offset entry 00000100
+Again, thanks very much for you help :-).
 
-lines.
+Cheers,
 
-It does not matter what command, and for what user, is run by cron (even
-a single "true" in crontab provokes the kernel message).
-
-The message is logged by kernel at the moment that the new cron process
-exits (I found that out when some long-running commands were invoked).
-
-This has been happening constantly for 5 days now, there are no other
-messages from kernel in syslog. We also have two more similar machines,
-and only this one recently started showing that.
-
-The only references to this message I could find with google were also
-describing almost immediate crashes, and hardware problems were
-suggested.  But in my case the system works just fine.
-
-I didn't try rebooting it, swapoff/on-ing or restarting cron yet - maybe
-someone has some ideas on what to test to find out what caused this
-before I do that?
-
-Also, I would be grateful if someone could explain what is that number in the
-message supposed to be? An address?
-
-lspci -v:
-00:00.0 Host bridge: Intel Corp.: Unknown device 2570 (rev 02)
-        Subsystem: ABIT Computer Corp.: Unknown device 100a
-        Flags: bus master, fast devsel, latency 0
-        Memory at e0000000 (32-bit, prefetchable) [size=128M]
-        Capabilities: [e4] #09 [2106]
-        Capabilities: [a0] AGP version 3.0
-
-00:01.0 PCI bridge: Intel Corp.: Unknown device 2571 (rev 02) (prog-if 00 [Normal decode])
-        Flags: bus master, 66Mhz, fast devsel, latency 64
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
-        Memory behind bridge: f0000000-f1ffffff
-        Prefetchable memory behind bridge: e8000000-efffffff
-
-00:1e.0 PCI bridge: Intel Corp. 82820 820 (Camino 2) Chipset PCI (rev c2) (prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=00, secondary=02, subordinate=03, sec-latency=32
-        I/O behind bridge: 00009000-00009fff
-        Memory behind bridge: f2000000-f3ffffff
-        Prefetchable memory behind bridge: f4000000-f47fffff
-
-00:1f.0 ISA bridge: Intel Corp.: Unknown device 24d0 (rev 02)
-        Flags: bus master, medium devsel, latency 0
-
-00:1f.1 IDE interface: Intel Corp.: Unknown device 24db (rev 02) (prog-if 8a [Master SecP PriP])
-        Subsystem: ABIT Computer Corp.: Unknown device 100a
-        Flags: bus master, medium devsel, latency 0, IRQ 16
-        I/O ports at <unassigned>
-        I/O ports at <unassigned>
-        I/O ports at <unassigned>
-        I/O ports at <unassigned>
-        I/O ports at f000 [size=16]
-        Memory at 40000000 (32-bit, non-prefetchable) [size=1K]
-
-00:1f.3 SMBus: Intel Corp.: Unknown device 24d3 (rev 02)
-        Subsystem: ABIT Computer Corp.: Unknown device 100a
-        Flags: medium devsel, IRQ 17
-        I/O ports at 0500 [size=32]
-
-01:00.0 VGA compatible controller: nVidia Corporation: Unknown device 0181 (rev c1) (prog-if 00 [VGA])
-        Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 16
-        Memory at f0000000 (32-bit, non-prefetchable) [size=16M]
-        Memory at e8000000 (32-bit, prefetchable) [size=128M]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [60] Power Management version 2
-        Capabilities: [44] AGP version 3.0
-
-02:04.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
-        Subsystem: Intel Corp. EtherExpress PRO/100+ Management Adapter
-        Flags: bus master, medium devsel, latency 32, IRQ 20
-        Memory at f3100000 (32-bit, non-prefetchable) [size=4K]
-        I/O ports at 9000 [size=64]
-        Memory at f3000000 (32-bit, non-prefetchable) [size=1M]
-        Capabilities: [dc] Power Management version 2
-
-02:06.0 PCI bridge: Intel Corp. 80960RP [i960 RP Microprocessor/Bridge] (rev 03) (prog-if 00 [Normal decode])
-        Flags: bus master, medium devsel, latency 32
-        Bus: primary=02, secondary=03, subordinate=03, sec-latency=32
-
-02:06.1 RAID bus controller: Mylex Corporation DAC960PX (rev 03)
-        Subsystem: Mylex Corporation DAC960PX
-        Flags: bus master, medium devsel, latency 32, IRQ 22
-        Memory at f4000000 (32-bit, prefetchable) [size=8M]
-        Expansion ROM at <unassigned> [disabled] [size=32K]
-
-free:
-             total       used       free     shared    buffers     cached
-Mem:        904348     507716     396632          0      34896     254208
--/+ buffers/cache:     218612     685736
-Swap:      2000052      61860    1938192
-
-Marcin
+Hannes
 -- 
-Marcin Owsiany <marcin@owsiany.pl>              http://marcin.owsiany.pl/
-GnuPG: 1024D/60F41216  FE67 DA2D 0ACA FC5E 3F75  D6F6 3A0D 8AA0 60F4 1216
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de
+
+--------------060802050407020600010003
+Content-Type: text/x-patch;
+ name="khelper_restrict_maxnum_sem_take2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="khelper_restrict_maxnum_sem_take2.patch"
+
+diff -u --recursive linux-2.6.8-rc1/init/main.c linux-2.6.8-rc1.hotplug/init/main.c
+--- linux-2.6.8-rc1/init/main.c	2004-07-11 19:33:56.000000000 +0200
++++ linux-2.6.8-rc1.hotplug/init/main.c	2004-07-23 09:43:35.000000000 +0200
+@@ -93,6 +93,7 @@
+ extern void populate_rootfs(void);
+ extern void driver_init(void);
+ extern void prepare_namespace(void);
++extern void usermodehelper_init(void);
  
-"Every program in development at MIT expands until it can read mail."
-                                                              -- Unknown
+ #ifdef CONFIG_TC
+ extern void tc_init(void);
+@@ -598,7 +599,9 @@
+  */
+ static void __init do_basic_setup(void)
+ {
+-	driver_init();
++	/* drivers will send hotplug events */
++	init_workqueues();
++	usermodehelper_init();
+ 
+ #ifdef CONFIG_SYSCTL
+ 	sysctl_init();
+@@ -607,7 +610,8 @@
+ 	/* Networking initialization needs a process context */ 
+ 	sock_init();
+ 
+-	init_workqueues();
++	driver_init();
++
+ 	do_initcalls();
+ }
+ 
+diff -u --recursive linux-2.6.8-rc1/kernel/kmod.c linux-2.6.8-rc1.hotplug/kernel/kmod.c
+--- linux-2.6.8-rc1/kernel/kmod.c	2004-07-11 19:34:19.000000000 +0200
++++ linux-2.6.8-rc1.hotplug/kernel/kmod.c	2004-07-27 14:55:26.000000000 +0200
+@@ -17,6 +17,9 @@
+ 
+ 	call_usermodehelper wait flag, and remove exec_usermodehelper.
+ 	Rusty Russell <rusty@rustcorp.com.au>  Jan 2003
++
++	resource management for call_usermodehelper
++	Hannes Reinecke <hare@suse.de> Jul 2004
+ */
+ #define __KERNEL_SYSCALLS__
+ 
+@@ -41,6 +44,8 @@
+ extern int max_threads;
+ 
+ static struct workqueue_struct *khelper_wq;
++int khelper_max = 50;
++static struct semaphore khelper_sem;
+ 
+ #ifdef CONFIG_KMOD
+ 
+@@ -67,16 +72,12 @@
+ {
+ 	va_list args;
+ 	char module_name[MODULE_NAME_LEN];
+-	unsigned int max_modprobes;
+ 	int ret;
+ 	char *argv[] = { modprobe_path, "-q", "--", module_name, NULL };
+ 	static char *envp[] = { "HOME=/",
+ 				"TERM=linux",
+ 				"PATH=/sbin:/usr/sbin:/bin:/usr/bin",
+ 				NULL };
+-	static atomic_t kmod_concurrent = ATOMIC_INIT(0);
+-#define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
+-	static int kmod_loop_msg;
+ 
+ 	va_start(args, fmt);
+ 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
+@@ -95,21 +96,11 @@
+ 	 *
+ 	 * "trace the ppid" is simple, but will fail if someone's
+ 	 * parent exits.  I think this is as good as it gets. --RR
++	 *
++	 * Resource checking is now implemented in 
++	 * call_usermodehelper --hare
+ 	 */
+-	max_modprobes = min(max_threads/2, MAX_KMOD_CONCURRENT);
+-	atomic_inc(&kmod_concurrent);
+-	if (atomic_read(&kmod_concurrent) > max_modprobes) {
+-		/* We may be blaming an innocent here, but unlikely */
+-		if (kmod_loop_msg++ < 5)
+-			printk(KERN_ERR
+-			       "request_module: runaway loop modprobe %s\n",
+-			       module_name);
+-		atomic_dec(&kmod_concurrent);
+-		return -ENOMEM;
+-	}
+-
+ 	ret = call_usermodehelper(modprobe_path, argv, envp, 1);
+-	atomic_dec(&kmod_concurrent);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(request_module);
+@@ -167,6 +158,7 @@
+ 	set_cpus_allowed(current, CPU_MASK_ALL);
+ 
+ 	retval = -EPERM;
++
+ 	if (current->fs->root)
+ 		retval = execve(sub_info->path, sub_info->argv,sub_info->envp);
+ 
+@@ -175,12 +167,99 @@
+ 	do_exit(0);
+ }
+ 
++/* 
++ * The process args are only valid until call_usermodehelper
++ * returns, so we have to copy them to somewhere safe.
++ */
++void khelper_copy_info(struct subprocess_info *orig, 
++		       struct subprocess_info *new)
++{
++	int i, l;
++	char *p;
++
++	new->path = kmalloc(4096, GFP_KERNEL);
++	if (!new->path)
++	    return;
++	memset(new->path, 0, 4096);
++	p = new->path;
++	strcpy(p, orig->path);
++	p += strlen(p);
++	p++;
++	new->argv = (char **)p;
++	i = 0;
++	l = 0;
++	while (orig->envp[i]) {
++		l += strlen(orig->envp[i]) + 1;
++		i++;
++	}
++	if ( i > 7 )
++		i = 7;
++	p += sizeof(char *) * (i + 1);
++
++	i = 0;
++	while (orig->argv[i] && i < 7) {
++		strcpy(p, orig->argv[i]);
++		new->argv[i] = p;
++		p += strlen(p);
++		*p++ = '\0';
++		i++;
++	}
++	new->argv[i] = NULL;
++
++	i = 0;
++	l = 0;
++	while (orig->envp[i]) {
++		l += strlen(orig->envp[i]) + 1;
++		i++;
++	}
++	if ( i > 31 )
++		i = 31;
++	new->envp = (char **)p;
++	p += sizeof(char *) * (i + 1);
++
++	i = 0;
++	while (orig->envp[i] && i < 31) {
++		strcpy(p, orig->envp[i]);
++		new->envp[i] = p;
++		p += strlen(p);
++		*p++ = '\0';
++		i++;
++	}
++	new->envp[i] = NULL;
++}
++
+ /* Keventd can't block, but this (a child) can. */
+ static int wait_for_helper(void *data)
+ {
+-	struct subprocess_info *sub_info = data;
++	struct subprocess_info *sub_info = data, stored_info;
+ 	pid_t pid;
+ 	struct k_sigaction sa;
++	int flags = SIGCHLD, retval, wait = sub_info->wait;
++
++	/* Copy process info, we might need it later on */
++	khelper_copy_info(sub_info, &stored_info);
++	if (!stored_info.path) {
++		sub_info->retval = -ENOMEM;
++		complete(sub_info->complete);
++		return 0;
++	}
++
++	if (down_trylock(&khelper_sem)) {
++		/* 
++		 * We have exceeded the maximum number of
++		 * concurrent kmod invocations. Delay this process
++		 * until enough resources are available again.
++		 */
++		if (wait == 0) {
++			/* Queueing is for async events only */
++			wait = -1;
++			sub_info->retval = -EAGAIN;
++			complete(sub_info->complete);
++		}
++		/* Wait until the semaphore is available again */
++		down(&khelper_sem);
++	}
++	/* Do the real action */
+ 
+ 	/* Install a handler: if SIGCLD isn't handled sys_wait4 won't
+ 	 * populate the status, but will return -ECHILD. */
+@@ -190,23 +269,62 @@
+ 	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
+ 	allow_signal(SIGCHLD);
+ 
+-	pid = kernel_thread(____call_usermodehelper, sub_info, SIGCHLD);
++	if (wait < 1) {
++		/* CLONE_VFORK: wait until the usermode helper has execve'd
++		 * successfully We need the data structures to stay around
++		 * until that is done.  */
++		flags |= CLONE_VFORK;
++	}
++
++	pid = kernel_thread(____call_usermodehelper, &stored_info, flags);
+ 	if (pid < 0) {
+-		sub_info->retval = pid;
+-	} else {
++		if (wait >= 0) {
++			sub_info->retval = pid;
++			complete(sub_info->complete);
++		}
++		kfree(stored_info.path);
++		/* Bail out */
++		up(&khelper_sem);
++
++		return 0;
++	}
++	/* 
++	 * usermodehelper started successfully
++	 * We always block for the child to exit as we want to
++	 * keep track of the number of currently running processes.
++	 */
++
++	if (wait == 0) {
+ 		/*
+-		 * Normally it is bogus to call wait4() from in-kernel because
+-		 * wait4() wants to write the exit code to a userspace address.
+-		 * But wait_for_helper() always runs as keventd, and put_user()
+-		 * to a kernel address works OK for kernel threads, due to their
+-		 * having an mm_segment_t which spans the entire address space.
+-		 *
+-		 * Thus the __user pointer cast is valid here.
++		 * For asynchronous events notify the caller
++		 * immediately, but wait for the event to finish.
+ 		 */
+-		sys_wait4(pid, (int __user *) &sub_info->retval, 0, NULL);
++		complete(sub_info->complete);
++	}
++
++	/*
++	 * Normally it is bogus to call wait4() from in-kernel because
++	 * wait4() wants to write the exit code to a userspace address.
++	 * But wait_for_helper() always runs as keventd, and put_user()
++	 * to a kernel address works OK for kernel threads, due to their
++	 * having an mm_segment_t which spans the entire address space.
++	 *
++	 * Thus the __user pointer cast is valid here.
++	 */
++	sys_wait4(pid, (int __user *) &retval, 0, NULL);
++	
++	if (wait > 0) {
++		/* 
++		 * For synchronous events we can return the exit
++		 * status of the child.
++		 */
++		sub_info->retval = retval;
++		complete(sub_info->complete);
+ 	}
++	
++	kfree(stored_info.path);
++	up(&khelper_sem);
+ 
+-	complete(sub_info->complete);
+ 	return 0;
+ }
+ 
+@@ -216,21 +334,13 @@
+ 	struct subprocess_info *sub_info = data;
+ 	pid_t pid;
+ 
+-	/* CLONE_VFORK: wait until the usermode helper has execve'd
+-	 * successfully We need the data structures to stay around
+-	 * until that is done.  */
+-	if (sub_info->wait)
+-		pid = kernel_thread(wait_for_helper, sub_info,
+-				    CLONE_FS | CLONE_FILES | SIGCHLD);
+-	else
+-		pid = kernel_thread(____call_usermodehelper, sub_info,
+-				    CLONE_VFORK | SIGCHLD);
++	pid = kernel_thread(wait_for_helper, sub_info,
++			    CLONE_FS | CLONE_FILES | SIGCHLD);
+ 
+ 	if (pid < 0) {
+ 		sub_info->retval = pid;
+ 		complete(sub_info->complete);
+-	} else if (!sub_info->wait)
+-		complete(sub_info->complete);
++	}
+ }
+ 
+ /**
+@@ -272,10 +382,35 @@
+ }
+ EXPORT_SYMBOL(call_usermodehelper);
+ 
+-static __init int usermodehelper_init(void)
++void __init usermodehelper_init(void)
+ {
+ 	khelper_wq = create_singlethread_workqueue("khelper");
+ 	BUG_ON(!khelper_wq);
+-	return 0;
++
++	/*
++	 * Limit the max number of concurrent processes
++	 * to something sane; 10 - max_threads/2 seems ok.
++	 */
++	if (khelper_max > max_threads/2)
++		khelper_max = max_threads/2;
++	if (khelper_max < 10)
++		khelper_max = 10;
++
++	printk(KERN_INFO "khelper: max %d concurrent processes\n",
++	       khelper_max);
++	sema_init(&khelper_sem, khelper_max);
++}
++
++/*
++ * We want to restrict the maximum number of concurrent processes
++ * to max_threads / 2; however, at this time max_threads is not 
++ * yet initialised. So we will do the real check in usermodehelper_init().
++ */
++static int __init khelper_setup(char *s)
++{
++	get_option(&s, &khelper_max);
++
++	return 1;
+ }
+-core_initcall(usermodehelper_init);
++__setup("khelper_max=", khelper_setup);
++
+
+--------------060802050407020600010003--

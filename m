@@ -1,85 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266039AbUA1XKt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 18:10:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266106AbUA1XKt
+	id S265964AbUA1XH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 18:07:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266039AbUA1XH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 18:10:49 -0500
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:1299 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S266039AbUA1XKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 18:10:44 -0500
-x-mimeole: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C3E5F3.EC1125E5"
-Subject: RE: [PATCH] cpqarray update
-Date: Wed, 28 Jan 2004 17:10:29 -0600
-Message-ID: <CBD6B29E2DA6954FABAC137771769D6504E1596D@cceexc19.americas.cpqcorp.net>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] cpqarray update
-Thread-Index: AcPlyULQ4MIveEp0R4mOuZHFEET44QAKaziQ
-From: "Wiran, Francis" <francis.wiran@hp.com>
-To: "Greg KH" <greg@kroah.com>, "Hollis Blanchard" <hollisb@us.ibm.com>,
-       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 28 Jan 2004 23:10:30.0781 (UTC) FILETIME=[ECB822D0:01C3E5F3]
+	Wed, 28 Jan 2004 18:07:59 -0500
+Received: from post.tau.ac.il ([132.66.16.11]:61073 "EHLO post.tau.ac.il")
+	by vger.kernel.org with ESMTP id S265964AbUA1XH4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 18:07:56 -0500
+Date: Thu, 29 Jan 2004 01:06:09 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Is there a way to keep the 2.6 kjournald from writing to idle disks? (to allow spin-downs)
+Message-ID: <20040128230609.GE3975@luna.mooo.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.96.1040127133932.11664B-100000@gatekeeper.tmr.com> <4016B3F0.1060804@samwel.tk> <4017B98C.2040603@isg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4017B98C.2040603@isg.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.23.0.3; VDF: 6.23.0.51; host: localhost)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Wed, Jan 28, 2004 at 02:30:52PM +0100, Lutz Vieweg wrote:
+> Bart Samwel wrote:
+> 
+> >>Well, it's the o.p. system, not mine, but I don't see how noatime will
+> >>help him, the atime shouldn't change unless he's doing disk access, and
+> >>if he's doing disk access the disk will spin up anyway.
+> 
+> That's what I thought, too... and I really killed everything that I could
+> imagine accessing the disk... but...
+> 
+> >If something really is accessing the drive, noatime might still help as 
+> >long as the accesses are from the cache.
+> 
+> ... that really helped! I'm kind of surprised, since I didn't use noatime
+> before the update, and I still don't know of any process that might do
+> the reading, but since mounting / with noatime helped, I'm happy for now.
+> 
+> My curiosity isn't completely gone, though, so maybe one day I'll try to
+> find out who-is-trying-to-read-what, "find -atime ..." didn't reveal the 
+> secret
+> yet.
+> 
 
-------_=_NextPart_001_01C3E5F3.EC1125E5
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+It might help you find the culprit. There is a laptopmode patch
+for 2.6. If you echo a number n larger then 1 into
+/proc/sys/vm/laptopmode it will dump the first n disk accesses to the
+console (The docs that come with the patch have the complete
+description).
 
-
-Ok. Here's the patch for that. At least until vio_module_init comes :)
-
-thanks
--francis-
-
-
-
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]=20
-> Sent: Wednesday, January 28, 2004 11:41 AM
-> To: Hollis Blanchard
-> Cc: Jeff Garzik; Linux Kernel Mailing List; Wiran, Francis
-> Subject: Re: [PATCH] cpqarray update
->=20
->...
-> Well, changing it back to pci_register_driver() and actually checking
-> the return value would be a good idea :)
->=20
-> thanks,
->=20
-> greg k-h
->=20
-
-------_=_NextPart_001_01C3E5F3.EC1125E5
-Content-Type: application/octet-stream;
-	name="cpqarray_pci_unregister.patch"
-Content-Transfer-Encoding: base64
-Content-Description: cpqarray_pci_unregister.patch
-Content-Disposition: attachment;
-	filename="cpqarray_pci_unregister.patch"
-
-CiAgICogQ2hlY2tzIHRoZSByYyBvZiBwY2lfcmVnaXN0ZXJfZHJpdmVyIGFuZCB1bnJlZ2lzdGVy
-IHdoZW4gbmVjZXNzYXJ5CgoKIGRyaXZlcnMvYmxvY2svY3BxYXJyYXkuYyB8ICAgIDMgKystCiAx
-IGZpbGVzIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoKLS0tIGxpbnV4
-LTIuNC4yNC9kcml2ZXJzL2Jsb2NrL2NwcWFycmF5LmN+Y3BxYXJyYXlfcGNpX3VucmVnaXN0ZXIJ
-V2VkIEphbiAyOCAxNjo1NjozOSAyMDA0CisrKyBsaW51eC0yLjQuMjQtcm9vdC9kcml2ZXJzL2Js
-b2NrL2NwcWFycmF5LmMJV2VkIEphbiAyOCAxNzowMToxMCAyMDA0CkBAIC02MjMsNyArNjIzLDgg
-QEAgaW50IF9faW5pdCBjcHFhcnJheV9pbml0KHZvaWQpCiAKIAkvKiBkZXRlY3QgY29udHJvbGxl
-cnMgKi8KIAlwcmludGsoRFJJVkVSX05BTUUgIlxuIik7Ci0JcGNpX3JlZ2lzdGVyX2RyaXZlcigm
-Y3BxYXJyYXlfcGNpX2RyaXZlcik7CisJaWYgKCFwY2lfcmVnaXN0ZXJfZHJpdmVyKCZjcHFhcnJh
-eV9wY2lfZHJpdmVyKSkKKwkJcGNpX3VucmVnaXN0ZXJfZHJpdmVyKCZjcHFhcnJheV9wY2lfZHJp
-dmVyKTsKIAljcHFhcnJheV9laXNhX2RldGVjdCgpOwogCiAJZm9yKGk9MDsgaTwgTUFYX0NUTFI7
-IGkrKykgewoKXwo=
-
-------_=_NextPart_001_01C3E5F3.EC1125E5--
+> Regards,
+> 
+> Lutz Vieweg
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

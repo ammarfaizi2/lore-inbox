@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316047AbSHHHLv>; Thu, 8 Aug 2002 03:11:51 -0400
+	id <S316535AbSHHHf0>; Thu, 8 Aug 2002 03:35:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316161AbSHHHLv>; Thu, 8 Aug 2002 03:11:51 -0400
-Received: from xsmtp.ethz.ch ([129.132.97.6]:44223 "EHLO xsmtp.ethz.ch")
-	by vger.kernel.org with ESMTP id <S316047AbSHHHLu>;
-	Thu, 8 Aug 2002 03:11:50 -0400
-Message-ID: <3D52199C.3030408@debian.org>
-Date: Thu, 08 Aug 2002 09:11:24 +0200
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.0) Gecko/20020530
-X-Accept-Language: en-us, en, it-ch, it, fr
+	id <S316538AbSHHHf0>; Thu, 8 Aug 2002 03:35:26 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:30901 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S316535AbSHHHfZ>;
+	Thu, 8 Aug 2002 03:35:25 -0400
+Date: Thu, 8 Aug 2002 09:37:56 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: martin@dalecki.de
+Cc: Andries.Brouwer@cwi.nl, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [bug, 2.5.29, (not IDE)] partition table (not) corruption?
+In-Reply-To: <3D521E07.8070908@evision.ag>
+Message-ID: <Pine.LNX.4.44.0208080935170.31228-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: trond.myklebust@fys.uio.no
-CC: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: O_SYNC option doesn't work (2.4.18-3)
-References: <fa.jepn5rv.uiqrqe@ifi.uio.no> <fa.gkqj0av.c661ad@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Aug 2002 07:15:30.0747 (UTC) FILETIME=[60FF50B0:01C23EAB]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
->>>>>>" " == Gregory Giguashvili <Gregoryg@ParadigmGeo.com> writes:
->>>>>
+
+On Thu, 8 Aug 2002, Marcin Dalecki wrote:
+
+> >>LILO without "linear" or "lba32" is inherently broken: it will talk CHS
+> >>at boot time to the BIOS and hence needs a geometry and install time,
+> >>and nobody knows the geometry required. So, if LILO doesnt break, this
+> >>is pure coincidence.
+> > 
+> > 
+> > well, lilo without linear worked for like years on this box ...
 > 
->     >> You'll have to ask RedHat. 2.4.18-3 is *not* a stock Linux
->     >> kernel.
->      > What about 2.4.7-10 (Default for RH7.2)? I was referring to the
->      > latest version I have...
-> 
-> Same story. RedHat/Suse/... all patch their kernels with extra stuff
-> that often is not included in any of Marcelo/Linus' "standard"
-> kernels. The latter are found on ftp.kernel.org and mirrors...
+> You have to take in to account that by creating a new kernel image
+> you are storing it sometimes after a long long time at perhaps maybe
+> another block group far away.  This is becouse ext2 suddenly may feel
+> like doing so...And surprisingly you have to teach lilo about the new
+> far away sectors becouse basic C/H/S addressing can't reach them
+> anylonger. Been there seen that frequently enough.
 
-??? You tell us that this list is only made for official kernels?
-In this case it would not flood my mailing box, no -ac, no -arca/-aa,
-no -dj, no..., no ide-2.4, no experimental patches... NO DEVELOPMENT!
+this particular testbox has seen *thousands* of development kernels of all
+sizes, and i often have filled up the complete /boot partition. It is very
+unlikely that this harmless (and not too big) 2.5.29 kernel would have
+been the first one to trigger a 'wrong' CHS combination. Especially since
+2.4 kernels with exactly the *same* bzImage (and same lilo) work just
+fine.
 
-NOO. This list is also for bug report of RH/Debian/SuSE/connectiva... kernels.
-The pourpose of lkml is not only the development but also to find the
-stablest kernel. The errata of RH (and other) will help Marcelo and Alan
-to find the right patches to include in the official kernels.
-
-ciao
-	cate
+	Ingo
 

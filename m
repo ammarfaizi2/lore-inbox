@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131630AbRAGUJt>; Sun, 7 Jan 2001 15:09:49 -0500
+	id <S131998AbRAGUea>; Sun, 7 Jan 2001 15:34:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135211AbRAGUJk>; Sun, 7 Jan 2001 15:09:40 -0500
-Received: from igor.alcpress.com ([206.190.136.130]:10002 "HELO
-	igor.alcpress.com") by vger.kernel.org with SMTP id <S131630AbRAGUJb>;
-	Sun, 7 Jan 2001 15:09:31 -0500
-From: ed@alcpress.com
-To: linux-kernel@vger.kernel.org
-Date: Sun, 7 Jan 2001 12:14:23 -0800
+	id <S135483AbRAGUeU>; Sun, 7 Jan 2001 15:34:20 -0500
+Received: from cmn2.cmn.net ([206.168.145.10]:14968 "EHLO cmn2.cmn.net")
+	by vger.kernel.org with ESMTP id <S131998AbRAGUeI>;
+	Sun, 7 Jan 2001 15:34:08 -0500
+Message-ID: <3A58BF5C.1090505@valinux.com>
+Date: Sun, 07 Jan 2001 12:11:24 -0700
+From: Jeff Hartmann <jhartmann@valinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: ipchains vs netfilter performance
-Reply-To: ed@alcpress.com
-Message-ID: <3A585D9F.21907.1452FA04@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+To: "Michael D. Crawford" <crawford@goingware.com>
+CC: linux-kernel@vger.kernel.org, newbie@xfree86.org
+Subject: Re: DRI doesn't work on 2.4.0 but does on prerelease-ac5
+In-Reply-To: <3A57A83B.702CEC98@goingware.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed that my Linux boxes take quite a hit in terms of
-packets per second rate when I define ipchains rules with
-2.2.X kernels. Does the netfilter replacement found in 2.4
-kernels improve this performance?
 
-11101101 (Ed)
+> Could XFree86 4.0.2 fix this?  I had been waiting until the binary packages were
+> available from ftp.slackware.com because Patrick Volkerding lays out the
+> directories in a slightly different manner that he argues pretty convincingly is
+> preferable, but it would be a drag for me to reproduce by building it myself.
+
+XFree 4.0.2 will fix this.
+
+> (EE) r128(0): R128DRIScreenInit failed (DRM version = 2.1.2, expected 1.0.x). 
+> Disabling DRI.
+
+We made binary incompatible device interface changes with 4.0.2.  These 
+driver changes resulted in a more stable / faster / cleaner Rage 128 driver.
+
+-Jeff
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

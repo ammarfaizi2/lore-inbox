@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262786AbUBZNaS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 08:30:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbUBZNaS
+	id S262791AbUBZNg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 08:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbUBZNg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 08:30:18 -0500
-Received: from 75.80-203-232.nextgentel.com ([80.203.232.75]:48848 "EHLO
-	lincoln.jordet.nu") by vger.kernel.org with ESMTP id S262786AbUBZNaN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 08:30:13 -0500
-Subject: Re: [RFC] ACPI power-off on P4 HT
-From: Stian Jordet <liste@jordet.nu>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <20040226130724.GA3704@alpha.home.local>
-References: <1076145024.8687.32.camel@dhcppc4>
-	 <20040208082059.GD29363@alpha.home.local>
-	 <20040208090854.GE29363@alpha.home.local>
-	 <20040214081726.GH29363@alpha.home.local>
-	 <1076824106.25344.78.camel@dhcppc4>
-	 <20040225070019.GA30971@alpha.home.local>
-	 <1077695701.5911.130.camel@dhcppc4> <20040226075609.GA745@uberboxen>
-	 <20040226105744.GA3406@alpha.home.local>
-	 <1077798440.955.1.camel@chevrolet.hybel>
-	 <20040226130724.GA3704@alpha.home.local>
-Content-Type: text/plain
-Message-Id: <1077802199.1503.5.camel@chevrolet.hybel>
+	Thu, 26 Feb 2004 08:36:29 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:38605 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S262791AbUBZNfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 08:35:52 -0500
+Date: Thu, 26 Feb 2004 08:14:45 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Brian Jackson <brian@brianandsara.net>
+Cc: linux-kernel@vger.kernel.org, kai.engert@gmx.de
+Subject: Re: only ieee1394 from 2.4.20 works for me
+Message-ID: <20040226131445.GF651@phunnypharm.org>
+References: <4038BDC3.9030304@kuix.de> <Pine.LNX.4.58L.0402251153550.21511@logos.cnet> <200402260012.25098.brian@brianandsara.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 26 Feb 2004 14:29:59 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402260012.25098.brian@brianandsara.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor, 26.02.2004 kl. 14.07 skrev Willy Tarreau:
-> On Thu, Feb 26, 2004 at 01:28:49PM +0100, Stian Jordet wrote:
-> > Hi Willy,
-> > 
-> > Do you have a similar patch for 2.6?
-> 
-> No, but since Marcelo recently told me that acpi_power_off() was the same in
-> 2.4 and 2.6, I think it should apply without much difficulties. A dirty gpm
-> cut-n-paste in vi should be enough ;-)
+> I however don't have the same problems you describe. Newer versions just 
+> simply fail to see anything attached to the ieee1394 bus. I'm using a via 
+> epia M10000. I saw a report similar to mine on the 1394 list, but it went 
+> unanswered.
 
-Well, I cut-n-paste it into drivers/acpi/sleep/poweroff.c (which must
-have been the place it fits in 2.6). Get this compile failures:
+Did you cat /proc/bus/ieee1394/devices?
+Did you try using the rescan-scsi-bus.sh script?
 
-drivers/acpi/sleep/poweroff.c: In function `acpi_power_off':
-drivers/acpi/sleep/poweroff.c:30: warning: implicit declaration of
-function `apicid_to_phys_cpu_present'
-drivers/acpi/sleep/poweroff.c:30: error: invalid operands to binary &
-drivers/acpi/sleep/poweroff.c:69: warning: implicit declaration of
-function `disable_IO_APIC'
-make[3]: *** [drivers/acpi/sleep/poweroff.o] Error 1
-make[2]: *** [drivers/acpi/sleep] Error 2
-make[1]: *** [drivers/acpi] Error 2
-make: *** [drivers] Error 2
 
-But I'm sure a patch like yours for 2.6 would have fixed my, since using
-a non-smp kernel works everytime :) Anyway, thanks for your efforts,
-hope someone will get this fixed soon :)
-
-Best regards,
-Stian
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

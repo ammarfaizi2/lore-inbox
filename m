@@ -1,65 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268514AbTCAGLn>; Sat, 1 Mar 2003 01:11:43 -0500
+	id <S268515AbTCAGRh>; Sat, 1 Mar 2003 01:17:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268515AbTCAGLn>; Sat, 1 Mar 2003 01:11:43 -0500
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:11908 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S268514AbTCAGLm>; Sat, 1 Mar 2003 01:11:42 -0500
-Date: Fri, 28 Feb 2003 22:22:00 -0800
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
-Subject: Re: kernel BUG at mm/memory.c:757! (2.5.62-mjb2)
-Message-ID: <20030301062200.GA4523@gnuppy.monkey.org>
-References: <4450000.1045526067@flay> <4610000.1045583440@[10.10.2.4]> <20030223034730.GA3136@gnuppy.monkey.org> <20030223035048.GA3223@gnuppy.monkey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030223035048.GA3223@gnuppy.monkey.org>
-User-Agent: Mutt/1.5.3i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+	id <S268516AbTCAGRh>; Sat, 1 Mar 2003 01:17:37 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:33111
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S268515AbTCAGRe>; Sat, 1 Mar 2003 01:17:34 -0500
+Date: Sat, 1 Mar 2003 01:25:50 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>, Martin Bligh <mbligh@aracnet.com>
+Subject: [PATCH][2.5] why noirqbalance doesn't work
+Message-ID: <Pine.LNX.4.50.0303010109360.1132-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 07:50:48PM -0800, Bill Huey wrote:
-> > Feb 22 04:02:08 gnuppy kernel:  ------------[ cut here ]------------
-> > Feb 22 04:02:08 gnuppy kernel: kernel BUG at mm/memory.c:757!
-> > Feb 22 04:02:08 gnuppy kernel: invalid operand: 0000
-> > Feb 22 04:02:08 gnuppy kernel: CPU:    0
-> > Feb 22 04:02:08 gnuppy kernel: EIP:    0060:[unmap_all_pages+757/832] Tainted: PF 
-> > Feb 22 04:02:08 gnuppy kernel: EFLAGS: 00210202
-> > Feb 22 04:02:08 gnuppy kernel: EIP is at unmap_all_pages+0x2f5/0x340
-> > Feb 22 04:02:08 gnuppy kernel: eax: 00000001   ebx: 0f7a8067   ecx: d612c360   edx: c039f4a0
-> > Feb 22 04:02:08 gnuppy kernel: esi: c0000000   edi: d1152ffc   ebp: d122ff58   esp: d122fed8
-> > Feb 22 04:02:08 gnuppy kernel: ds: 007b   es: 007b   ss: 0068
-> > Feb 22 04:02:08 gnuppy kernel: Process xchat (pid: 743, threadinfo=d122e000 task=d12512a0)
-> > Feb 22 04:02:08 gnuppy kernel: Stack: d122ff0c 00000000 00000010 d12512a0 c126b240 c0000000 c0000000 c0000000 
-> > Feb 22 04:02:08 gnuppy kernel:        0000000c c12ab4d0 d1971c00 d1971c00 00000000 c1289920 c1274318 c12765a0 
-> > Feb 22 04:02:08 gnuppy kernel:        c12b7190 c1267de8 c1269cb0 c126b9e8 c126a098 c128a320 c126acf0 c126af98 
-> > Feb 22 04:02:08 gnuppy kernel: Call Trace:
-> > Feb 22 04:02:08 gnuppy kernel:  [exit_mmap+24/224] exit_mmap+0x18/0xe0
-> > Feb 22 04:02:08 gnuppy kernel:  [mmput+85/176] mmput+0x55/0xb0
-> > Feb 22 04:02:08 gnuppy kernel:  [do_exit+273/768] do_exit+0x111/0x300
-> > Feb 22 04:02:08 gnuppy kernel:  [do_group_exit+123/192] do_group_exit+0x7b/0xc0
-> > Feb 22 04:02:08 gnuppy kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-> > Feb 22 04:02:08 gnuppy kernel: 
-> > Feb 22 04:02:08 gnuppy kernel: Code: 0f 0b f5 02 9f ab 34 c0 b8 00 e0 ff ff 8b 55 08 21 e0 8b 00 
-> > Feb 22 04:02:11 gnuppy kernel:  ------------[ cut here ]------------
-> 
-> I just found out that it could likely be related to the NVidia driver module
-> from Rik van Riel. Ooops.
+This patch fixes what seems to have been a longstanding bug. Ever since we 
+moved cpu bringup later into the boot process, we end up programming the 
+ioapics before we have any of our possible cpus in the cpu_online_map. 
+Therefore leading to the following current situation;
 
-Again, correction, I get a tons of these even without the NVidia driver
-module, so that's not the problem.
+For walmart-smp, bigsmp and summit we set the logical destination for cpu 
+to TARGET_CPUS which can depend on the cpu_online_map, so what you would 
+normally see with noirqbalance would be all interrupts handled on cpu0 
+since at that stage no other cpu apart from the BSP is online.
 
-This problem is still pretty live unfortunately. Fixed in the new patchset ?
+You can check for this by looking at the ioredtbls at boottime for a two 
+way system;
 
-The problem doesn't seems fatal and the machine doesn't crash hard, but it's
-still a bug.
+.... IRQ redirection table:
+ NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
+ 00 000 00  1    0    0   0   0    0    0    00
+ 01 001 01  0    0    0   0   0    1    1    39
+ 02 001 01  0    0    0   0   0    1    1    31
+ 03 001 01  0    0    0   0   0    1    1    41
+ 04 001 01  0    0    0   0   0    1    1    49
+ 05 001 01  0    0    0   0   0    1    1    51
+ 06 001 01  0    0    0   0   0    1    1    59
 
-Thanks
+Notice that 'Log' is set to 1 instead of 3.
 
-bill
+This patch will simply reprogram all the ioredtbls to handle the other 
+online cpus.
 
+Patch tested on my 2way P2-400 and a 16way NUMAQ both with noirqbalance. 
+It will not affect the irqbalance case because we are simply setting 
+TARGET_CPUS which is done anyway.
+
+before:
+  CPU0       CPU1
+  0:    1495632          0    IO-APIC-edge  timer
+  1:       4270          0    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+  8:          1          0    IO-APIC-edge  rtc
+ 12:      83592          0    IO-APIC-edge  i8042
+ 14:      93791          0    IO-APIC-edge  ide0
+ 15:     103167          0    IO-APIC-edge  ide1
+ 17:    1396088          0   IO-APIC-level  EMU10K1, eth0
+ 18:      56125          0   IO-APIC-level  aic7xxx, aic7xxx
+ 19:       2258          0   IO-APIC-level  uhci-hcd, eth1, serial
+NMI:          0          0
+LOC:    1495566    1497133
+
+after:
+           CPU0       CPU1       
+  0:    1046157    1015670    IO-APIC-edge  timer
+  1:       4923       4173    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+  8:          1          0    IO-APIC-edge  rtc
+ 12:      48596      48968    IO-APIC-edge  i8042
+ 14:       4238       3416    IO-APIC-edge  ide0
+ 15:      25362      31525    IO-APIC-edge  ide1
+ 17:       3757       4014   IO-APIC-level  EMU10K1, eth0
+ 18:        335        366   IO-APIC-level  aic7xxx, aic7xxx
+ 19:       1052        908   IO-APIC-level  uhci-hcd, eth1
+NMI:          0          0 
+LOC:    2061856    2061893 
+
+Index: linux-2.5.63-DBE/arch/i386/kernel/io_apic.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.63/arch/i386/kernel/io_apic.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 io_apic.c
+--- linux-2.5.63-DBE/arch/i386/kernel/io_apic.c	27 Feb 2003 22:03:36 -0000	1.1.1.1
++++ linux-2.5.63-DBE/arch/i386/kernel/io_apic.c	1 Mar 2003 06:22:57 -0000
+@@ -194,6 +194,31 @@
+ 			clear_IO_APIC_pin(apic, pin);
+ }
+ 
++/*
++ * This function currently is only a helper for the i386 smp boot process where 
++ * we need to reprogram the ioredtbls to cater for the cpus which have come online
++ * so mask in all cases should simply be TARGET_CPUS
++ */
++void __devinit set_ioapic_logical_dest (unsigned long mask)
++{
++	struct IO_APIC_route_entry entry;
++	unsigned long flags;
++	int apic, pin;
++
++	spin_lock_irqsave(&ioapic_lock, flags);
++	for (apic = 0; apic < nr_ioapics; apic++) {
++		for (pin = 0; pin < nr_ioapic_registers[apic]; pin++) {
++			*(((int *)&entry)+0) = io_apic_read(apic, 0x10+pin*2);
++			*(((int *)&entry)+1) = io_apic_read(apic, 0x11+pin*2);
++			entry.dest.logical.logical_dest = mask;
++			io_apic_write(apic, 0x10 + 2 * pin, *(((int *)&entry) + 0));
++			io_apic_write(apic, 0x11 + 2 * pin, *(((int *)&entry) + 1));
++		}
++
++	}
++	spin_unlock_irqrestore(&ioapic_lock, flags);
++}
++
+ static void set_ioapic_affinity (unsigned int irq, unsigned long mask)
+ {
+ 	unsigned long flags;
+Index: linux-2.5.63-DBE/arch/i386/kernel/smpboot.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.63/arch/i386/kernel/smpboot.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 smpboot.c
+--- linux-2.5.63-DBE/arch/i386/kernel/smpboot.c	27 Feb 2003 22:03:36 -0000	1.1.1.1
++++ linux-2.5.63-DBE/arch/i386/kernel/smpboot.c	1 Mar 2003 05:37:20 -0000
+@@ -1152,8 +1152,10 @@
+ 	return 0;
+ }
+ 
++extern void set_ioapic_logical_dest(unsigned long mask);
+ void __init smp_cpus_done(unsigned int max_cpus)
+ {
++	set_ioapic_logical_dest(TARGET_CPUS);
+ 	zap_low_mappings();
+ }
+ 
+
+-- 
+function.linuxpower.ca

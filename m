@@ -1,101 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280037AbRKDRlS>; Sun, 4 Nov 2001 12:41:18 -0500
+	id <S280969AbRKDRmS>; Sun, 4 Nov 2001 12:42:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280969AbRKDRlI>; Sun, 4 Nov 2001 12:41:08 -0500
-Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:3458 "EHLO
-	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
-	id <S280037AbRKDRlD>; Sun, 4 Nov 2001 12:41:03 -0500
-Date: Sun, 4 Nov 2001 12:44:48 -0500 (EST)
-From: volodya@mindspring.com
-Reply-To: volodya@mindspring.com
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: Mark McClelland <mark@alpha.dyndns.org>, video4linux-list@redhat.com,
-        livid-gatos@linuxvideo.org, linux-kernel@vger.kernel.org
-Subject: Re: [V4L] Re: [RFC] alternative kernel multimedia API
-In-Reply-To: <200111040839.fA48deO123804@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.20.0111041230040.938-100000@node2.localnet.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280970AbRKDRmK>; Sun, 4 Nov 2001 12:42:10 -0500
+Received: from unthought.net ([212.97.129.24]:47832 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S281056AbRKDRmA>;
+	Sun, 4 Nov 2001 12:42:00 -0500
+Date: Sun, 4 Nov 2001 18:41:59 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011104184159.E14001@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <20011104163354.C14001@unthought.net> <160QM5-1HAz5sC@fmrl00.sul.t-online.com> <20011104172742Z16629-26013+37@humbolt.nl.linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <20011104172742Z16629-26013+37@humbolt.nl.linux.org>; from phillips@bonn-fries.net on Sun, Nov 04, 2001 at 06:28:47PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 4 Nov 2001, Albert D. Cahalan wrote:
-
-> Mark McClelland writes:
-> > volodya@mindspring.com wrote:
-> >> On Mon, 29 Oct 2001, Gerd Knorr wrote:
+On Sun, Nov 04, 2001 at 06:28:47PM +0100, Daniel Phillips wrote:
+> On November 4, 2001 05:45 pm, Tim Jansen wrote:
+> > > The dot-proc file is basically a binary encoding of Lisp (or XML), e.g. it
+> > > is a list of elements, wherein an element can itself be a list (or a
+> > 
+> > Why would anybody want a binary encoding? 
 > 
-> >>> You can't.  But I don't see why this is a issue:  The only thing a
-> >>> application can handle easily are controls like contrast/hue where the
-> >>> only thing a application needs to do is to map it to a GUI and let the
-> >>> user understand and adjust stuff.  The other stuff has way to much
-> >>> non-trivial dependences, I doubt a application can blindly use new
-> >>> driver features.
-> >>
-> >> Have you ever thought that the reason we only use these controls is
-> >> because they are the only ones easy to implement now ?
-> >
-> > What I don't understand is how will your driver implement these controls 
-> > in a generic V4L3  GUI control app automatically? No matter how powerful 
+> Because they have a computer?
 
-kmultimedia, not V4L3. The interface is meant to be used with _all_
-multimedia devices, not just video ones.
+Yes - good reason  :)
 
-> > the semantic information you give to the app is, it can still only build 
-> > interfaces from standard GUI components that it already knows about. The 
-> > app cannot build a gamma curve control on its own. If it could, we 
-> > wouldn't need programmers anymore :)
-> 
-> The driver provides this:  /proc/v4l3/vid0/gamma.java
-> 
-> :-)
-> 
-> The very idea of a gamma table is featuritis. Just a single number
-> will do for most anyone. You get from 0.01 to 2.55 and "off" with
-> just 8 bits.
+The "fuzzy parsing" userland has to do today to get useful information
+out of many proc files today is not nice at all.  It eats CPU, it's 
+error-prone, and all in all it's just "wrong".
 
-And the color correction is unnecessary too. In fact I see a big
-opportunity for you to try selling IBM PCs with DOS and generic monitors
-to artistic community. Just imagine the slogan "Be free from the confines
-of color!" ;)
+However - having a human-readable /proc that you can use directly with
+cat, echo,  your scripts,  simple programs using read(), etc.   is absolutely
+a *very* cool feature that I don't want to let go.  It is just too damn
+practical.
 
-But on a more serious note: the hardware already has it. All I want is to
-export the interface to the userspace so that users can decide whether
-they want to or not.
+But building a piece of software that needs to reliably read out status
+information from a system providing something more and more resembling a GUI in
+text-files is becoming unnecessarily time-consuming and error-prone.
 
 > 
-> If you want to get fancy, I guess you need:
+> > It needs special parsers and will be almost impossible to access from shell 
+> > scripts. 
 > 
-> 1 gamma value per primary
-> 3 tri-stimulus values for each primary  ("What color is red?")
-> 3 tri-stimulus values for the whitepoint (maybe)
-> 1 black level for each primary
-> 
-> That is 18 values at most.
-
-See ? You are in the same pit as everyone else. You are trying to
-construct a single model that fits everything. This is the exact 
-problem that makes Windows so awkward: if you are doing what Microsoft
-thought you might do you are ok(more or less), if you are trying something
-new you are screwed.
-
-Leave the choice to the user and application programmer. Make it easy for
-them to support it.
-
-Regardless, I am going to give it a try implementing it. It looks like the
-main argument boiled down to: why bother while we have v4l2 and if you
-really want we can extend it, which is more or less what I expected, I
-don't believe any further discussion will make sense until there is some
-code to look at.
-
-Big thanks to everyone for comments :)
-
-                              Vladimir Dergachev
-
-> 
+> No, look, he's proposing to put the binary encoding in hidden .files.  The 
+> good old /proc files will continue to appear and operate as they do now.
 > 
 
+Exactly.
 
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288059AbSAHOOr>; Tue, 8 Jan 2002 09:14:47 -0500
+	id <S288060AbSAHOTi>; Tue, 8 Jan 2002 09:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288061AbSAHOO1>; Tue, 8 Jan 2002 09:14:27 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1920 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S288060AbSAHOOX>; Tue, 8 Jan 2002 09:14:23 -0500
-Date: Tue, 8 Jan 2002 09:14:22 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Anthony DeRobertis <asd@suespammers.org>
-cc: jtv <jtv@xs4all.nl>, Jacques Gelinas <jack@solucorp.qc.ca>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Whizzy New Feature: Paged segmented memory
-In-Reply-To: <E16NwsH-0005Ud-00@asd.ppp0.com>
-Message-ID: <Pine.LNX.3.95.1020108090853.226A-100000@chaos.analogic.com>
+	id <S288061AbSAHOT2>; Tue, 8 Jan 2002 09:19:28 -0500
+Received: from mail.fenster-world.de ([62.159.82.131]:60349 "EHLO
+	imhotep.aubi.de") by vger.kernel.org with ESMTP id <S288060AbSAHOTV>;
+	Tue, 8 Jan 2002 09:19:21 -0500
+Message-ID: <7B1EED0C5D58D411B73200508BDE77B2C53D51@EXCHANGEB>
+From: =?iso-8859-1?Q?Markus_D=F6hr?= <doehrm@aubi.de>
+To: "'J.A. Magallon'" <jamagallon@able.es>,
+        =?iso-8859-1?Q?=27Dieter_N=FC?= =?iso-8859-1?Q?tzel=27?= 
+	<Dieter.Nuetzel@hamburg.de>
+Cc: "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
+        "'Andrea Arcangeli'" <andrea@suse.de>,
+        "'Rik van Riel'" <riel@conectiva.com.br>,
+        "'Linux Kernel List'" <linux-kernel@vger.kernel.org>,
+        "'Andrew Morton'" <akpm@zip.com.au>, "'Robert Love'" <rml@tech9.net>
+Subject: RE: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Tue, 8 Jan 2002 15:22:41 +0100 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jan 2002, Anthony DeRobertis wrote:
+Just to throw in my EUR 0.02:
 
-> jtv writes: 
-> 
-> > On Tue, Jan 08, 2002 at 02:17:14AM -0500, Anthony DeRobertis wrote:
-> >> 
-> >> A nice thing about two stacks is that it can be a completely 
-> >> userspace thing. No need to involve the kernel at all; just gcc 
-> >> and friends.
-> > 
-> > Doesn't it have ABI implications as well?
-> 
-> On every architecture I'm familiar with. But that's a userland issue. I 
-> don't believe the kernel cares how userland uses its stacks. 
-> 
-> Change gcc. Recompile world. All should work, assuming your gcc changes are 
-> bug-free, no one made assumptions about stack layout, no one wrote assembly 
-> code, etc. [In other words, after 4 months of debugging you might get X 
-> running again...] 
-> 
-> > 
-> > If so, why not go all the way and have stacks grow upwards?  :-)
-> 
-> Some architectures have hardware assistance for downward growing stacks. One 
-> example is 68K. I think x86 does too. OTOH, I don't think PPC does, though I 
-> haven't read the Green Book recently. 
-> 
-> Actually, if I were to be implementing split-stack, I'd probably have one 
-> grow upward. Probably the data stack, because some architectures (68K, at 
-> least) force the address stack to grow downwards. 
-> 
-> Put an unmapped page between the two stacks, and all should be fine. 
+We're using 2.4.17-rc2aa2 on a quite huge database server. This is the most
+stable and performant kernel IMHO since we tested the new 2.4.>10 series. 
 
-At least with Intel ix8*, even though one can create a discriptor for
-a (backwards) stack, you would have a hard time using it. 'Push' op-codes
-decrement the stack-pointer and 'pop' increments it regardless of
-the characteristics of the stack-selector. I don't know if this is
-a bug or a feature.
+The machine has 4 GB main memory, the DB process mallocs about 3 GB memory
+spawning about 150 threads. "Older" kernels had the problem that short after
+logging in the machine starts heavily swapping leaving the system unusable
+for minutes.
+
+2.4.17-rc2aa2 does not have this problem (since now) - even under DB loads >
+15 the system is still responsive.
+
+Good Work!
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+-- 
+Markus Doehr            AUBI Baubschlaege GmbH
+IT Admin/SAP R/3 Basis  Zum Grafenwald
+fon: +49 6503 917 152   54411 Hermeskeil
+fax: +49 6503 917 190   http://www.aubi.de 

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbUA2FkM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 00:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266022AbUA2FkM
+	id S266002AbUA2F5n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 00:57:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266083AbUA2F5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 00:40:12 -0500
-Received: from sputnik.senv.net ([213.157.66.5]:2820 "EHLO sputnik.senv.net")
-	by vger.kernel.org with ESMTP id S261957AbUA2FkK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 00:40:10 -0500
-Date: Thu, 29 Jan 2004 07:40:07 +0200 (EET)
-From: Jussi Hamalainen <count@theblah.fi>
-X-X-Sender: count@mir.senv.net
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
+	Thu, 29 Jan 2004 00:57:43 -0500
+Received: from bay1-f17.bay1.hotmail.com ([65.54.245.17]:30468 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S266002AbUA2F5m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 00:57:42 -0500
+X-Originating-IP: [24.6.252.71]
+X-Originating-Email: [paulsnosp_macct@hotmail.com]
+From: "Paul Zimmerman" <paulsnosp_macct@hotmail.com>
+To: da-x@gmx.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS: giant filename in readdir
-In-Reply-To: <1075331193.1616.69.camel@nidelv.trondhjem.org>
-Message-ID: <Pine.LNX.4.58.0401290736210.12477@mir.senv.net>
-References: <Pine.LNX.4.58.0401272233490.10626@mir.senv.net>
- <1075331193.1616.69.camel@nidelv.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Subject: RE: [ANNOUNCE] Cooperative Linux
+Date: Wed, 28 Jan 2004 21:57:41 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY1-F17SORWNIfuDg10001da54@hotmail.com>
+X-OriginalArrivalTime: 29 Jan 2004 05:57:41.0685 (UTC) FILETIME=[CEAC3E50:01C3E62C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jan 2004, Trond Myklebust wrote:
+For fun, I though I would try building this, so I downloaded the source 
+tarball from sourceforge. But it seems the makefile for building the host OS 
+support code (src/colinux/os/winnt/build/Makefile, mentioned in 
+doc/building) is missing. Is this just an oversight, or do you intend that 
+it not be buildable at this time?
 
-> Any info forthcoming on the filesystem you used and/or a binary tcpdump
-> demonstrating the problem?
+-Paul
+Send off-list replies to zimmerman DOT paul AT comcast DOT net
 
-All filesystems are ext3. I'll try to get you a tcpdump if and when
-the phenomenon happens again.
+_________________________________________________________________
+High-speed users—be more efficient online with the new MSN Premium Internet 
+Software. http://join.msn.com/?pgmarket=en-us&page=byoa/prem&ST=1
 
-> Does the problem still occur when you change "soft" to "hard"?
-
-Both boxes have two NFS-mounts from each other. One is soft, one is
-hard and this happens on both mounts simultaineously.
-
--- 
--=[ Count Zero / TBH - Jussi Hämäläinen - email count@theblah.fi ]=-

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314448AbSFYKYo>; Tue, 25 Jun 2002 06:24:44 -0400
+	id <S314702AbSFYK5M>; Tue, 25 Jun 2002 06:57:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314702AbSFYKYn>; Tue, 25 Jun 2002 06:24:43 -0400
-Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:12211 "EHLO
-	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S314448AbSFYKYn>; Tue, 25 Jun 2002 06:24:43 -0400
-Date: Tue, 25 Jun 2002 06:26:09 -0400
-To: ak@muc.de
+	id <S315198AbSFYK5M>; Tue, 25 Jun 2002 06:57:12 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:49851 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S314702AbSFYK5L>; Tue, 25 Jun 2002 06:57:11 -0400
+Date: Tue, 25 Jun 2002 06:58:37 -0400
+To: davej@suse.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [NEW PATCH, testers needed] was Re: [PATCH] poll/select fast path
-Message-ID: <20020625102609.GA12253@rushmore>
+Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
+Message-ID: <20020625105837.GA12264@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,25 +19,38 @@ From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The patch should apply & works for me on 2.4 too, no need to use 2.5
-> (select/poll are virtually unchanged between 2.4 and 2.5)
+> Maybe Randy Hron (added to Cc) can find some spare time
+> to benchmark these sometime before the summit too[1]. 
 
-Running lmbench on quad xeon with Andi's patch shows a reduction
-in select latency in all cases compared to -pre10.
+dbench isn't scaling as well with the -rmap13b patch.
+With 128 processes, dbench throughput is less than 1/3
+of mainline.
 
-File select - times in microseconds - smaller is better
-Average of 25 runs.  -ak-axboe is select/poll patch +
-blockhighmem.
+dbench ext2 32 processes   Average     High        Low
+2.5.24                      28.24     28.84      27.30 mb/sec
+2.5.24-rmap13b              21.64     23.50      19.71
 
-                      select select select select  select select select select
-kernel                10 fd  100 fd 250 fd 500 fd  10 TCP 100TCP 250TCP 500TCP
---------------------- ------ ------ ------ ------  ------ ------ ------ ------
-2.4.19-pre10            4.73  30.66  74.62 143.77    5.67 40.879 97.914 193.10
-2.4.19-pre10-ak-axboe   3.85  27.83  71.55 142.78    4.86 37.517 94.205 191.54
-2.4.19-pre10-aa4        4.54  29.48  73.96 147.52    5.60 39.485 98.895 194.58
-2.4.19-pre10-ac2        4.63  29.60  73.33 141.86    5.64 39.328 98.898 192.82
+dbench ext2 128 processes  Average     High        Low
+2.5.24                      19.32     21.05      18.05
+2.5.24-rmap13b               5.34      5.38       5.30
+
+tiobench:
+Sequential reads, rmap had about 10% more throughput 
+and lower max latency.  
+For random reads, throughput was lower and max latency 
+was higher with rmap.  
+
+Lmbench:
+Most metrics look better with rmap.  Exceptions
+are fork/exec latency and mmap latency.  mmap
+latency was 18% higher with rmap.
+
+Autoconf build (fork test) was about 5% faster
+without rmap.
+
+Details at:
+http://home.earthlink.net/~rwhron/kernel/latest.html
 
 -- 
 Randy Hron
-http://home.earthlink.net/~rwhron/bigbox.html
 

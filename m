@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVB1NuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVB1Nvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVB1NuF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 08:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVB1Nsr
+	id S261606AbVB1Nvg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 08:51:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVB1Nuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 08:48:47 -0500
-Received: from [194.90.79.130] ([194.90.79.130]:13834 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S261606AbVB1Nqo (ORCPT
+	Mon, 28 Feb 2005 08:50:51 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:51692 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261596AbVB1NsO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 08:46:44 -0500
-Subject: [PATCH][x86-64] fix pit delay accounting in timer_interrupt()
-From: Avi Kivity <avi@argo.co.il>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-+A8YHDQhcjs1HNw3XMbX"
-Message-Id: <1109598397.4081.5.camel@avik.scalemp>
+	Mon, 28 Feb 2005 08:48:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=A50BuOBCSL6pfNa36CtdhZ3jP7tM81BlLZMF8oiBMJinEkwr+tJSQNNkttM1Po/DBZlfdVTeubjxzVYPdTaVkP7fYxbJogHfXnLEcRceEOsefrLplIHeuqxh3vuPIbZILXAwisRl6ZgQI7fXe+mis8ql9TybDhZfcMMDqQORJUE=
+Message-ID: <d120d5000502280548733724a0@mail.gmail.com>
+Date: Mon, 28 Feb 2005 08:48:12 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "colbuse@ensisun.imag.fr" <colbuse@ensisun.imag.fr>
+Subject: Re: [patch 3/2] drivers/char/vt.c: remove unnecessary code
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
+In-Reply-To: <1109596437.422319158044b@webmail.imag.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 28 Feb 2005 15:46:37 +0200
-X-OriginalArrivalTime: 28 Feb 2005 13:46:40.0122 (UTC) FILETIME=[EE11FDA0:01C51D9B]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1109596437.422319158044b@webmail.imag.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 28 Feb 2005 14:13:57 +0100, colbuse@ensisun.imag.fr
+<colbuse@ensisun.imag.fr> wrote:
+> 
+> >On Mon, Feb 28, 2005 at 01:57:59PM +0100, colbuse@xxxxxxxxxxxxxxx wrote:
+> >> Please _don't_ apply this, but tell me what you think about it.
+> 
+> >It's broken. 8)
+> 
+> >> --- old/drivers/char/vt.c 2004-12-24 22:35:25.000000000 +0100
+> >> +++ new/drivers/char/vt.c 2005-02-28 12:53:57.933256631 +0100
+> >> @@ -1655,9 +1655,9 @@
+> >> vc_state = ESnormal;
+> >> return;
+> >> case ESsquare:
+> >> - for(npar = 0 ; npar < NPAR ; npar++)
+> >> + for(npar = NPAR-1; npar < NPAR; npar--)
+> 
+> >How many times do you want this for loop to run?
+> 
+> NPAR times :-). As I stated, npar is unsigned.
+> 
 
---=-+A8YHDQhcjs1HNw3XMbX
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+for (npar = NPAR - 1; npar >= 0; npar--)
 
-timer_interrupt() measures the delay from an interrupt to its handling
-in a variable called 'delay', but accounts every unit of delay as 1/HZ
-seconds, instead of 1/CLOCK_TICK_RATE seconds.
+would be more readable and may be even faster on a dumb compiler than
+your variant. Still, I'd have compiler worry about such
+micro-optimizations.
 
-on ordinary cpus this doesn't matter as delay is usually zero, but on my
-10MHz bochs cpu this causes divide overflows later on.
-
-(patch against 2.6.9 but should apply)
-
-Signed-off-by: Avi Kivity <avi@argo.co.il>
-
-
-
---=-+A8YHDQhcjs1HNw3XMbX
-Content-Disposition: attachment; filename=pit-delay.patch
-Content-Type: text/plain; name=pit-delay.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
---- linux-2.6.9/arch/x86_64/kernel/time.c~time	2005-02-28 14:26:52.000000000 +0200
-+++ linux-2.6.9/arch/x86_64/kernel/time.c	2005-02-28 14:28:46.000000000 +0200
-@@ -409,7 +409,7 @@
- 
- 		monotonic_base += (tsc - vxtime.last_tsc)*1000000/cpu_khz ;
- 
--		vxtime.last_tsc = tsc - vxtime.quot * delay / vxtime.tsc_quot;
-+		vxtime.last_tsc = tsc - vxtime.quot * delay / (LATCH * vxtime.tsc_quot);
- 
- 		if ((((tsc - vxtime.last_tsc) *
- 		      vxtime.tsc_quot) >> 32) < offset)
-
---=-+A8YHDQhcjs1HNw3XMbX--
-
+-- 
+Dmitry

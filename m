@@ -1,106 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270509AbUJUBkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270466AbUJUBmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270509AbUJUBkh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 21:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270482AbUJUBio
+	id S270466AbUJUBmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 21:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270574AbUJUBl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 21:38:44 -0400
-Received: from ozlabs.org ([203.10.76.45]:50382 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S270659AbUJUBgw (ORCPT
+	Wed, 20 Oct 2004 21:41:27 -0400
+Received: from gate.crashing.org ([63.228.1.57]:58790 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S270453AbUJUBia (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 21:36:52 -0400
-Date: Thu, 21 Oct 2004 11:35:49 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Subject: [PPC64] Trivial sparse cleanups
-Message-ID: <20041021013549.GI17760@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-	Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+	Wed, 20 Oct 2004 21:38:30 -0400
+Subject: Re: Versioning of tree
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Len Brown <len.brown@intel.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0410200728040.2317@ppc970.osdl.org>
+References: <1098254970.3223.6.camel@gaston>
+	 <1098256951.26595.4296.camel@d845pe>
+	 <Pine.LNX.4.58.0410200728040.2317@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1098322686.21028.22.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 21 Oct 2004 11:38:06 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply:
+On Thu, 2004-10-21 at 00:33, Linus Torvalds wrote:
 
-This patch squashes a handful of assorted sparse warnings in the ppc64
-code.  Should be pretty much trivial and self explanatory.
+> Personally, I much rather go the way we have gone, because I don't care
+> about module versioning nearly as much as I care about bug-report
+> versioning. And if I hear about a bug with 2.6.10-rc1, I want to know that
+> it really is at _least_ 2.6.10-rc1, if you see what I mean..
 
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+I have the same problem with reports. I'm not talking about -rc*, that
+is fine, I know that a report against rc-* means and most user will usually
+tell me rc*-bk* so that's ok.
 
-Index: working-2.6/arch/ppc64/kernel/nvram.c
-===================================================================
---- working-2.6.orig/arch/ppc64/kernel/nvram.c	2004-09-24 10:14:09.000000000 +1000
-+++ working-2.6/arch/ppc64/kernel/nvram.c	2004-10-21 11:34:39.057902952 +1000
-@@ -77,7 +77,7 @@
- }
- 
- 
--static ssize_t dev_nvram_read(struct file *file, char *buf,
-+static ssize_t dev_nvram_read(struct file *file, char __user *buf,
- 			  size_t count, loff_t *ppos)
- {
- 	ssize_t len;
-@@ -117,7 +117,7 @@
- 
- }
- 
--static ssize_t dev_nvram_write(struct file *file, const char *buf,
-+static ssize_t dev_nvram_write(struct file *file, const char __user *buf,
- 			   size_t count, loff_t *ppos)
- {
- 	ssize_t len;
-Index: working-2.6/arch/ppc64/kernel/setup.c
-===================================================================
---- working-2.6.orig/arch/ppc64/kernel/setup.c	2004-10-05 10:08:10.000000000 +1000
-+++ working-2.6/arch/ppc64/kernel/setup.c	2004-10-21 11:34:39.059902648 +1000
-@@ -1111,7 +1111,7 @@
- {
- 	/* ensure xmon is enabled */
- 	xmon_init();
--	debugger(0);
-+	debugger(NULL);
- 
- 	return 0;
- }
-Index: working-2.6/arch/ppc64/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/ppc64/mm/hugetlbpage.c	2004-10-20 10:52:39.000000000 +1000
-+++ working-2.6/arch/ppc64/mm/hugetlbpage.c	2004-10-21 11:34:39.060902496 +1000
-@@ -249,7 +249,7 @@
- {
- 	if (within_hugepage_high_range(addr, len))
- 		return 0;
--	else if ((addr < 0x100000000) && ((addr+len) < 0x100000000)) {
-+	else if ((addr < 0x100000000UL) && ((addr+len) < 0x100000000UL)) {
- 		int err;
- 		/* Yes, we need both tests, in case addr+len overflows
- 		 * 64-bit arithmetic */
-Index: working-2.6/arch/ppc64/mm/hash_utils.c
-===================================================================
---- working-2.6.orig/arch/ppc64/mm/hash_utils.c	2004-09-28 10:22:13.000000000 +1000
-+++ working-2.6/arch/ppc64/mm/hash_utils.c	2004-10-21 11:34:39.060902496 +1000
-@@ -401,7 +401,7 @@
- 		info.si_signo = SIGBUS;
- 		info.si_errno = 0;
- 		info.si_code = BUS_ADRERR;
--		info.si_addr = (void *)address;
-+		info.si_addr = (void __user *)address;
- 		force_sig_info(SIGBUS, &info, current);
- 		return;
- 	}
+The problem is just with this intermediate state between 2.6.N "final" and
+whatever gets next until we go to -rc. The fact that it has the exact same
+version as 2.6.N final means that I get confusing reports (and, but I know
+you don't care about modules, but it's simply impossible to have both
+the "final" modules and the "current top of tree" modules installed at the
+same time, which _is_ painful).
 
+When I was still doing my "pmac" tree, what I would do was to put -pre0
+in the EXTRAVERSION after a release until I got to -preX or -rcX...
 
+Anyway, it's your call.
 
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+Ben.
+

@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262621AbSJIXkt>; Wed, 9 Oct 2002 19:40:49 -0400
+	id <S262210AbSJIXqg>; Wed, 9 Oct 2002 19:46:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262641AbSJIXkt>; Wed, 9 Oct 2002 19:40:49 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:30362 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262621AbSJIXkr>; Wed, 9 Oct 2002 19:40:47 -0400
-Date: Wed, 9 Oct 2002 20:46:07 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: Robert Love <rml@tech9.net>, Marco Colombo <marco@esi.it>,
-       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-In-Reply-To: <20021009152731.GY3045@clusterfs.com>
-Message-ID: <Pine.LNX.4.44L.0210092045195.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262357AbSJIXqf>; Wed, 9 Oct 2002 19:46:35 -0400
+Received: from ams-msg-core-1.cisco.com ([144.254.74.60]:22400 "EHLO
+	ams-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S262210AbSJIXqe>; Wed, 9 Oct 2002 19:46:34 -0400
+Date: Thu, 10 Oct 2002 00:51:49 +0100
+From: Derek Fawcus <dfawcus@cisco.com>
+To: Yuji Sekiya <sekiya@sfc.wide.ad.jp>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
+Message-ID: <20021010005149.A4699@edi-view1.cisco.com>
+References: <20021009234421.J29133@edinburgh.cisco.com> <20021009.161414.63434223.davem@redhat.com> <20021010002902.A3803@edi-view1.cisco.com> <20021009.162438.82081593.davem@redhat.com> <uu1jv9o3j.wl@sfc.wide.ad.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <uu1jv9o3j.wl@sfc.wide.ad.jp>; from sekiya@sfc.wide.ad.jp on Thu, Oct 10, 2002 at 08:41:52AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Oct 2002, Andreas Dilger wrote:
-> On Oct 09, 2002  10:14 -0400, Robert Love wrote:
-> > On Wed, 2002-10-09 at 10:10, Marco Colombo wrote:
-> >
-> > > >  #define O_NOFOLLOW	0400000 /* don't follow links */
-> > > >  #define O_NOFOLLOW	0x20000	/* don't follow links */
-> >
-> > No need.  See for example O_NOFOLLOW right above.  Each architecture can
-> > do has it pleases (I wish otherwise, but...).
->
-> I would say - if you are picking a new flag that doesn't need to have
-> compatibility with any platform-specific existing flag, simply set them
-> all high enough so that they are the same on all platforms.
+On Thu, Oct 10, 2002 at 08:41:52AM +0900, Yuji Sekiya wrote:
+> 
+> The reason we change the prefix length  from /10 to /64 is
+> following spec and adapting other imprementations.
 
-Doesn't really matter, you can't run x86 binaries on MIPS so
-you need to recompile anyway.
+I said I wouldn't comment futher on the spec issue.
 
-Source level compatibility is enough for flags like this.
+I know of at least one other implementation that allows any set of bits
+within the link local range to be specified.  (Two if you include the
+current/previous Linux behaviour :-)
 
-regards,
+Changing to restrict the allowed link local addresses doesn't _enhance_
+interoperability.  Leaving it as it is/was doesn't harm anything.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
-
+DF

@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263336AbUJ2O3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263348AbUJ2OZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263336AbUJ2O3c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 10:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbUJ2O0N
+	id S263348AbUJ2OZq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 10:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263352AbUJ2OZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 10:26:13 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:26846 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263346AbUJ2OYs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 10:24:48 -0400
-Date: Fri, 29 Oct 2004 16:25:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-Message-ID: <20041029142538.GC25204@elte.hu>
-References: <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu> <33083.192.168.1.5.1098919913.squirrel@192.168.1.5> <20041028063630.GD9781@elte.hu> <20668.195.245.190.93.1098952275.squirrel@195.245.190.93> <20041028085656.GA21535@elte.hu> <26253.195.245.190.93.1098955051.squirrel@195.245.190.93> <20041028093215.GA27694@elte.hu> <43163.195.245.190.94.1098981230.squirrel@195.245.190.94> <20041029163135.1886d67f@mango.fruits.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041029163135.1886d67f@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 29 Oct 2004 10:25:46 -0400
+Received: from mailserv.intranet.GR ([146.124.14.106]:27798 "EHLO
+	mailserv.intranet.gr") by vger.kernel.org with ESMTP
+	id S263348AbUJ2OY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 10:24:59 -0400
+Message-ID: <4182519D.3020205@intracom.gr>
+Date: Fri, 29 Oct 2004 17:20:13 +0300
+From: Pantelis Antoniou <panto@intracom.gr>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.7.3) Gecko/20040920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Tom Rini <trini@kernel.crashing.org>,
+       Linuxppc-Embedded <linuxppc-embedded@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix early request_irq
+References: <41824E15.4090906@intracom.gr> <20041029141648.GB25204@elte.hu>
+In-Reply-To: <20041029141648.GB25204@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+>* Pantelis Antoniou <panto@intracom.gr> wrote:
+>
+>  
+>
+>>Hi there
+>>
+>>The recent consolidation of the IRQ code has caused
+>>a number of PPC embedded cpus to stop working.
+>>
+>>The problem is that on init_IRQ these platforms call
+>>request_irq very early, which in turn calls kmalloc
+>>without the memory subsystem being initialized.
+>>
+>>The following patch fixes it by keeping a small static
+>>array of irqactions just for this purpose.
+>>    
+>>
+>
+>this is quite broken. Those places should use setup_irq(),
+>not request_irq().
+>
+>	Ingo
+>
+>
+>  
+>
+Sorry, didn't know about setup_irq.
 
-> Here's some setup info:
-> 
-> ksoftirqd/0:
-> mango:~# chrt -p 2
-> pid 2's current scheduling policy: SCHED_FIFO
-> pid 2's current scheduling priority: 99
+Will fix.
 
-dont do this ... ksoftirqd can spend alot of time processing various
-stuff and it should not be relevant to the audio path. It should be
-SCHED_OTHER.
+Regards
 
-> Hmm, it seems i haven't disabled all debugging. This is from dmesg:
-> 
-> BUG: atomic counter underflow at:
->  [<c010649e>] dump_stack+0x1e/0x20 (20)
->  [<c025f319>] qdisc_destroy+0xd9/0xe0 (28)
 
-this is automatic and doesnt introduce alot of overhead (unless the
-printout happens while you are testing latencies). You can remove the
-WARN_ON from include/asm-i386/atomic.h.
-
-	Ingo

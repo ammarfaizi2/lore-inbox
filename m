@@ -1,71 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317437AbSGUVGo>; Sun, 21 Jul 2002 17:06:44 -0400
+	id <S314707AbSGUVSg>; Sun, 21 Jul 2002 17:18:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317439AbSGUVGo>; Sun, 21 Jul 2002 17:06:44 -0400
-Received: from moutng.kundenserver.de ([212.227.126.176]:59366 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317437AbSGUVGn>; Sun, 21 Jul 2002 17:06:43 -0400
-Date: Sun, 21 Jul 2002 23:09:47 +0200
-From: Hans-Joachim Baader <hjb@pro-linux.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-rc3 trivial patch
-Message-ID: <20020721210947.GC27075@mandel.hjbaader.home>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BRE3mIcgqKzpedwo"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S314829AbSGUVSf>; Sun, 21 Jul 2002 17:18:35 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:23959 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S314707AbSGUVSc>;
+	Sun, 21 Jul 2002 17:18:32 -0400
+Date: Sun, 21 Jul 2002 23:20:34 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A1
+In-Reply-To: <20020721221815.E26376@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207212317510.28593-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---BRE3mIcgqKzpedwo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sun, 21 Jul 2002, Russell King wrote:
 
-Hi!
+> > (gdb) list *0xc01b1f03
+> > 0xc01b1f03 is in serial_in (serial_8250.c:189).
+> > 184                     return readb(up->port.membase + offset);
+> > 185
+> > 186             default:
+> > 187                     return inb(up->port.iobase + offset);
+> > 188             }
+> > 189     }
+> > 190
+> > 191     static _INLINE_ void
+> > 192     serial_out(struct uart_8250_port *up, int offset, int value)
+> > 193     {
+> > (gdb)
+> 
+> Interesting.  Not had a report of that thus far.  Can you send me any
+> kernel messages relating to serial devices please, and the bad address
+> that caused the oops?  (line 189 is obviously a lie...)
 
-This line seems to be wrong, or is there a reason for it?
+i believe it was the inb's dereference.
 
+i dont have the oops around anymore, since serial logging is not working
+;-) Had to write it down from screen.
 
---- drivers/net/Config.in.orig	Sun Jul 21 14:08:38 2002
-+++ drivers/net/Config.in	Sun Jul 21 23:07:01 2002
-@@ -242,7 +242,7 @@
- fi
- dep_tristate 'D-Link DL2000-based Gigabit Ethernet support' CONFIG_DL2K $C=
-ONFIG_PCI
- dep_tristate 'MyriCOM Gigabit Ethernet support' CONFIG_MYRI_SBUS $CONFIG_S=
-BUS
--dep_tristate 'National Semiconduct DP83820 support' CONFIG_NS83820 $CONFIG=
-_PCI
-+dep_tristate 'National Semiconductor DP83820 support' CONFIG_NS83820 $CONF=
-IG_PCI
- dep_tristate 'Packet Engines Hamachi GNIC-II support' CONFIG_HAMACHI $CONF=
-IG_PCI
- dep_tristate 'Packet Engines Yellowfin Gigabit-NIC support (EXPERIMENTAL)'=
- CONFIG_YELLOWFIN $CONFIG_PCI $CONFIG_EXPERIMENTAL
- dep_tristate 'SysKonnect SK-98xx support' CONFIG_SK98LIN $CONFIG_PCI
+> > when echo-ing into a serial port, which is also set up for kernel serial
+> > console. (the kernel serial console produces no output.)
+> 
+> Weird.  Currently I've no idea what's causing this; I've been booting
+> machines with "console=ttyS0,115200n8" fine here with no noticable
+> problems.
+> 
+> Again, any useful kernel messages?
 
+will reproduce and write down the full oops - it was an illegal
+dereference on 0xfffffff8 (-8 offset of a NULL pointer) or something like
+that.
 
-Regards,
-hjb
---=20
-Pro-Linux - Germany's largest volunteer Linux support site
-http://www.pro-linux.de/          Public Key ID 0x3DDBDDEA
+my serial setup is:
 
---BRE3mIcgqKzpedwo
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+        append="console=ttyS1,115200 console=tty0"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment:  
+old serial driver:
 
-iD8DBQE9OyMZLbySPj3b3eoRAvrFAJ9N+ypEhj0EjtuO12HX90mqovhgZgCfct/b
-vqDrqFVeF7lF3C6ynN9IxKQ=
-=KgKO
------END PGP SIGNATURE-----
+ Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ 
+ SERIAL_PCI enabled
+ ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ ttyS01 at 0x02f8 (irq = 3) is a 16550A
 
---BRE3mIcgqKzpedwo--
+i'm pretty sure it hung when i echoed to ttyS1 - not 100% sure though.
+
+	Ingo
+

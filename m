@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271144AbTGPVyw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 17:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271147AbTGPVyK
+	id S271134AbTGPV5s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 17:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271147AbTGPV5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 17:54:10 -0400
-Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:57874
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S271144AbTGPVxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 17:53:00 -0400
-Date: Wed, 16 Jul 2003 15:08:01 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: joe <joe@tmsusa.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test1-ac2
-Message-ID: <20030716220801.GD1821@matchmail.com>
-Mail-Followup-To: joe <joe@tmsusa.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux kernel <linux-kernel@vger.kernel.org>
-References: <200307161816.h6GIGKH09243@devserv.devel.redhat.com> <20030716201339.GA618@sokrates> <1058392329.7677.1.camel@dhcp22.swansea.linux.org.uk> <3F15CB80.4020306@tmsusa.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F15CB80.4020306@tmsusa.com>
-User-Agent: Mutt/1.5.4i
+	Wed, 16 Jul 2003 17:57:04 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32519 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S271134AbTGPVzu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 17:55:50 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
+Date: 16 Jul 2003 15:10:19 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bf4igb$mip$1@cesium.transmeta.com>
+References: <20030716184609.GA1913@kroah.com> <20030716141320.5bd2a8b3.akpm@osdl.org> <20030716213451.GA1964@win.tue.nl> <20030716143902.4b26be70.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 03:02:40PM -0700, joe wrote:
-> Alan Cox wrote:
-> 
-> >ALSA has a lot more functionality than OSS and the API is better in many
-> >ways. The ALSA drivers dont have so much use and exposure so they will
-> >need time to shake down, but it should be worth it in the end.
+Followup to:  <20030716143902.4b26be70.akpm@osdl.org>
+By author:    Andrew Morton <akpm@osdl.org>
+In newsgroup: linux.dev.kernel
+>
+> Andries Brouwer <aebr@win.tue.nl> wrote:
 > >
-> hmm, it would be really cool if redhat shipped alsa utils......
+> > On Wed, Jul 16, 2003 at 02:13:20PM -0700, Andrew Morton wrote:
+> > 
+> > > The new dev_t encoding is a bit weird because we of course continue to
+> > > support the old 8:8 encoding.  I think the rule is: "if the top 32-bits are
+> > > zero, it is 8:8, otherwise 32:32".  We can express this nicely with
+> > > "%u:%u".
+> > 
+> > 16-bit only: 8:8, otherwise 32-bit only: 16:16, otherwise 32:32.
+> > 
 > 
-> just a thought -
+> Why do we need the 16:16 option?
 > 
 
-I'd be really shocked if it didn't.  Maybe you should search more?
+We needs 32-bit for NFSv2, but I thought it was going to be 12:20.
 
-I'm sure the others do, (debian, suse, mandrake, gentoo, etc)
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+If you send me mail in HTML format I will assume it's spam.
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

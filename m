@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262302AbTCTUmo>; Thu, 20 Mar 2003 15:42:44 -0500
+	id <S262209AbTCTUka>; Thu, 20 Mar 2003 15:40:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262304AbTCTUmo>; Thu, 20 Mar 2003 15:42:44 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:28374 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S262302AbTCTUmn>;
-	Thu, 20 Mar 2003 15:42:43 -0500
-Date: Thu, 20 Mar 2003 15:53:38 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br
-Subject: Re: Release of 2.4.21
-Message-ID: <20030320205338.GG8256@gtf.org>
-References: <20030320195657.GA3270@drcomp.erfurt.thur.de> <874r5xyeky.fsf@sdbk.de> <20030320203407.GF8256@gtf.org> <20030320204218.A18517@infradead.org>
+	id <S262218AbTCTUka>; Thu, 20 Mar 2003 15:40:30 -0500
+Received: from in02-fes1.whowhere.com ([209.202.220.218]:32885 "HELO
+	whowhere.com") by vger.kernel.org with SMTP id <S262209AbTCTUk1>;
+	Thu, 20 Mar 2003 15:40:27 -0500
+To: linux-kernel@vger.kernel.org
+Date: Thu, 20 Mar 2003 20:51:15  0000
+From: "Dean McEwan" <dean.mcewan@eudoramail.com>
+Message-ID: <ONEBIKKLBHBFOBAA@whowhere.com>
 Mime-Version: 1.0
+X-Sent-Mail: off
+Reply-To: dean.mcewan@eudoramail.com
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: Official apology from my company/me to Andre Hedrick.
+X-Sender-Ip: 62.6.125.184
+Organization: Lycos Mail  (http://www.mail.eudoramail.com)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030320204218.A18517@infradead.org>
-User-Agent: Mutt/1.3.28i
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 08:42:18PM +0000, Christoph Hellwig wrote:
-> On Thu, Mar 20, 2003 at 03:34:07PM -0500, Jeff Garzik wrote:
-> > For critical fixes, release a 2.4.20.1, 2.4.20.2, etc.  Don't disrupt
-> > the 2.4.21-pre cycle, that would be less productive than just patching
-> > 2.4.20 and rolling a separate release off of that.
-> 
-> I think the naming is illogical.  If there's a bugfix-only release
+Dear Andre Hedrick, 
+			I wish to apologise for any untoward behaviour that I may have shown towards you, I have have been zealous, sometimes ignorant, in my approach to a situation with you/others and NVidia.  
+ 
+	I have neglected to show respect for you in your efforts towards the Linux community, you have spent money, time and effort in dealing with the Linux community, me and many, many others.  
+	You often have spent money wisely on our cause, but recieved only ridicule and ruin in return. 
+ 
+	After discussion with my Legal representatives, we have decided that use of GPL'd code solely made by a company/person(s) (of a partnership nature, under British law) in their own proprietary modules is acceptable, as long as code of a substantial copyrightable nature, to which the company does not have a right to use, is not used, we define substantial as "device/hardware accessing routines, that are not created by programmers on a day to day basis". 
+ 
+	Further to this, I can guarantee that at this time DM TECH. does not wish to take legal action against you/your company(s). 
+ 
+	My Company's board of directors has unfortunately decided, that at this time, DM TECH. does not have the necessary motive for taking legal action against NVidia, However if you/anyone believes their copyrighted GPL'd code has been stolen/used improperly by NVidia, DM TECH. will provide you with legal representatives free of charge, to prosecute/investigate your charge.   
+ 
+	I hope this ends our feud, I hope you continue your work. 
+ 
+	May I also take my time to congratulate John Bradford on his bug reporting program. 
+ 
+	It is also my decision to reimplace the conexant winmodem chipset "total GPL" development project, which I hope shall finish beta testing in a weeks time, along with Supra SST drivers which will have the worlds first open source and GPL'd V.92 stack. 
+ 
+	Thanks to those BETA testers. 
+ 
+	Happy Birthday, to anyone who's Birthday it is :-). 
+	D. McEwan. Joint Leader, DM TECH. 
+--- 
+	The following Email to you is official memoranda, while on this occasion, the contents of this  
+are Open and Free (However transport fees of this email are your resposibility), we give no 
+warrantee for this information, as it is transfered via a insecure medium. Thankyou, DM. TECH. 
+ 
+	The following is NOT given in this email, 
+NO WARRANTEE for incorrectness. NO LIABILITY in ANY case, unless otherwise stated under  
+British law.  
 
-Many, many companies seem to find it logical.  If you want to squeeze
-a version in between "1" and "2".
-
-Further, other kernel hackers suggested the 2.4.20.N sequence,
-I simply agreed with it.  So it's not only me who thinks this way :)
 
 
-> it whould have normal incremental numbers.  So if marcelo want's
-> it he should clone a tree of at 2.4.20, apply the essential patches
-> and bump the version number in the normal 2.4 tree to 2.4.22-pre1
-
-Human nature says that will drag out the -pre tree ad infinitum.
-Suppose a 2.4.21 is released today, with 2.4.20 + bug fixes.  Now,
-tomorrow, another "critical bug" comes out, and then the -pre tree
-becomes 2.4.23-pre.  Add another critical bug, and I hope you see
-the continual delay of -pre happens here...
-
-The basic logic is "do not disrupt current plans.  Do something
-_in addition to_ current plans."
-
-	Jeff
-
-
-
+Need a new email address that people can remember
+Check out the new EudoraMail at
+http://www.eudoramail.com

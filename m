@@ -1,90 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVCNIYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVCNIcY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVCNIYn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 03:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVCNIYn
+	id S261338AbVCNIcY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 03:32:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVCNIcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 03:24:43 -0500
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:44449 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261337AbVCNIYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 03:24:39 -0500
-Message-ID: <42354A3F.4030904@yahoo.com.au>
-Date: Mon, 14 Mar 2005 19:24:31 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Mon, 14 Mar 2005 03:32:24 -0500
+Received: from warden2-p.diginsite.com ([209.195.52.120]:48603 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S261338AbVCNIcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 03:32:20 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dave Jones <davej@redhat.com>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Date: Mon, 14 Mar 2005 00:27:46 -0800 (PST)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: AGP bogosities
+In-Reply-To: <20050314081721.GA13817@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+ <20050311021248.GA20697@redhat.com> <16944.65532.632559.277927@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.58.0503101839530.2530@ppc970.osdl.org> <87vf7xg72s.fsf@devron.myhome.or.jp>
+ <20050311222614.GH4185@redhat.com> <20050314081721.GA13817@elf.ucw.cz>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] break_lock forever broken
-References: <Pine.LNX.4.61.0503111847450.9320@goblin.wat.veritas.com> <20050311203427.052f2b1b.akpm@osdl.org> <Pine.LNX.4.61.0503122311160.13909@goblin.wat.veritas.com> <20050314070230.GA24860@elte.hu> <42354562.1080900@yahoo.com.au> <20050314081402.GA26589@elte.hu>
-In-Reply-To: <20050314081402.GA26589@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
-> 
->>>while writing the ->break_lock feature i intentionally avoided
->>>overhead in the spinlock fastpath. A better solution for the bug you
->>>noticed is to clear the break_lock flag in places that use
->>>need_lock_break() explicitly.
->>
->>What happens if break_lock gets set by random contention on the lock
->>somewhere (with no need_lock_break or cond_resched_lock)? Next time it
->>goes through a lockbreak will (may) be a false positive.
-> 
-> 
-> yes, and that's harmless. Lock contention is supposed to be a relatively
-> rare thing (compared to the frequency of uncontended locking), so all
-> the overhead is concentrated towards the contention case, not towards
-> the uncontended case. If the flag lingers then it may be a false
-> positive and the lock will be dropped once, the flag will be cleared,
-> and the lock will be reacquired. So we've traded a constant amount of
-> overhead in the fastpath for a somewhat higher, but still constant
-> amount of overhead in the slowpath.
-> 
+On Mon, 14 Mar 2005, Pavel Machek wrote:
 
-Yes that's the tradeoff. I just feel that the former may be better,
-especially because the latter can be timing dependant (so you may get
-things randomly "happening"), and the former is apparently very low
-overhead compared with the cost of taking the lock. Any numbers,
-anyone?
+>> I'm fascinated that not a single person picked up on this problem
+>> whilst the agp code sat in -mm. Even if DRI isn't enabled,
+>> every box out there with AGP that uses the generic routines
+>> (which is a majority), should have barfed loudly when it hit
+>> this check during boot.  Does no-one read dmesg output any more ?
+>
+> Its way too long these days. Like "so long it overflows even enlarged
+> buffer". We should prune these messages down to "one line per hw
+> device or serious problems only".
 
-> 
->>>One robust way for that seems to be to make the need_lock_break() macro
->>>clear the flag if it sees it set, and to make all the other (internal)
->>>users use __need_lock_break() that doesnt clear the flag. I'll cook up a
->>>patch for this.
->>>
->>
->>If you do this exactly as you describe, then you'll break
->>cond_resched_lock (eg. for the copy_page_range path), won't you?
-> 
-> 
-> (cond_resched_lock() is an 'internal' user that will use
-> __need_lock_break().)
-> 
+especially if you turn on encryption options. I can understand that output 
+being useful for debugging, but there should be a way to not deal with it 
+in the normal case.
 
-Off the top of my head, this is what it looks like:
+David Lang
 
-spin_lock(&dst->lock);
-
-spin_lock(&src->lock);
-for (lots of stuff) {
-	if (need_lock_break(src->lock) || need_lock_break(dst->lock))
-		break;
-}
-spin_unlock(&src->lock);
-
-cond_resched_lock(&dst->lock);
-
-Right? Now currently the src->lock is broken, but your change would break
-the cond_resched_lock here, it will not trigger because need_lock_break
-clears dst->lock... oh I see, the spinning CPU will set it again. Yuck :(
-
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

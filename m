@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263104AbTDBRyS>; Wed, 2 Apr 2003 12:54:18 -0500
+	id <S263156AbTDBSDf>; Wed, 2 Apr 2003 13:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263105AbTDBRyQ>; Wed, 2 Apr 2003 12:54:16 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:33686 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S263104AbTDBRyN>; Wed, 2 Apr 2003 12:54:13 -0500
-Date: Wed, 2 Apr 2003 13:08:12 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: nash
-Message-ID: <Pine.LNX.4.53.0304021301580.31073@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263170AbTDBSDf>; Wed, 2 Apr 2003 13:03:35 -0500
+Received: from [81.2.110.254] ([81.2.110.254]:60402 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id <S263156AbTDBSDd>;
+	Wed, 2 Apr 2003 13:03:33 -0500
+Subject: Re: how to interpret ide error messages (2.4)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Kiniger, Karl (MED)" <karl.kiniger@med.ge.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030402174117.GA26195@ki_pc2.kretz.co.at>
+References: <20030402122324.GA23847@ki_pc2.kretz.co.at>
+	 <1049290268.16275.51.camel@dhcp22.swansea.linux.org.uk>
+	 <20030402174117.GA26195@ki_pc2.kretz.co.at>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049303772.14772.13.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Apr 2003 18:16:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RH uses nash in their 8.0 `mkinitrd`. Anybody know
-where to find source code? Really know, I searched
-all the obvious places and mirrors.
+On Mer, 2003-04-02 at 18:41, Kiniger, Karl (MED) wrote:
+> > On errors the next write to a bad sector will typically remap it
+> > transparently to another spare block on the disk. Read obviously cannot
+> > do the same. That would mean that if for example clearcase ignored the
+> > I/O error and wrote back what it thought it saw but did not that it may
+> > have recovered the sector with invalid data. Its also possible of course
+> > clearcase actually handles I/O errors properly (which is hard).
+> Since it is a raid1 I expected user space not being affected.
 
-If it's proprietary, is anybody interested in a simple
-shell that has its built-in commands?
+I didn't realise it was rai1. If it is raid1 you are right, the upper
+layer will supply the data from the other drive
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+> (The other drive did not show any error messages since installation,
+> they are Maxtors 6Y120L0 (120 GB) cooled quite well) So I thought that
+> ClearCase should not have seen any error return code.
+
+Correct
+
 

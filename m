@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261531AbSIZVuP>; Thu, 26 Sep 2002 17:50:15 -0400
+	id <S261564AbSIZVmb>; Thu, 26 Sep 2002 17:42:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261546AbSIZVuP>; Thu, 26 Sep 2002 17:50:15 -0400
-Received: from ext-ch1gw-1.online-age.net ([216.34.191.35]:9438 "EHLO
-	ext-ch1gw-1.online-age.net") by vger.kernel.org with ESMTP
-	id <S261531AbSIZVuO>; Thu, 26 Sep 2002 17:50:14 -0400
-Message-ID: <A9713061F01AD411B0F700D0B746CA6802FC14D8@vacho6misge.cho.ge.com>
-From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
-To: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       "'Arjan van de Ven'" <arjanv@redhat.com>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: Distributing drivers independent of the kernel source tree
-Date: Thu, 26 Sep 2002 17:55:16 -0400
+	id <S261565AbSIZVmb>; Thu, 26 Sep 2002 17:42:31 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:6148 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S261564AbSIZVmb>;
+	Thu, 26 Sep 2002 17:42:31 -0400
+Message-ID: <3D938084.6040105@namesys.com>
+Date: Fri, 27 Sep 2002 01:47:48 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.38 - Config.in: Second extended fs rename / move
+ Ext3 to a wiser place
+References: <200209261944.23447.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>/lib/modules/`uname -r`/build
->>(yes it's a symlink usually, but that doesn't matter)
+Marc-Christian Petersen wrote:
 
-> That's true for installing modules, but I'm wondering about getting a
-> standalone module compiled. I.e., what is a reliable method 
-> for locating the
-> include files for the kernel?
+>
+>I also thought about splitting the "Journal Filesystems" into an extra menu 
+>option just to clear up the whole menu a bit since we have: ReiserFS, Ext3, 
+>XFS, JFS, JFFS and JFFSv2. I cooked up a patch which does it, also attached!
+>
+>  
+>
 
-Doh!! Sorry Arjan, in haste, I misread your response. I get it now.
+I don't think it is very significant that ReiserFS version 3 is a 
+journaling file system in the long term (though it did matter a lot in 
+2.4), and Reiser4 is arguably not a journaling file system, but rather a 
+wandering log filesystem, so I think that such a categorization is not a 
+good one.  
 
-Thanks Arjan,
-Thanks for pointing that out Tommy.
+I think that journaling is only a transitory differentiator, and only a 
+differentiator vs. ext2.  It would make more sense to call ext2 "Ext2 
+(obsolete, requires long waits for fsck after crashes )", and then users 
+can decide for themselves who obsoleted it first.;-)
+
+Hans
+

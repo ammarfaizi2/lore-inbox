@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265750AbUAKEF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 23:05:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265751AbUAKEF7
+	id S265755AbUAKEMm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 23:12:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265762AbUAKEMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 23:05:59 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:2724 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S265750AbUAKEF5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 23:05:57 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 11 Jan 2004 05:05:52 +0100 (MET)
-Message-Id: <UTC200401110405.i0B45q016858.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, sven.kissner@consistencies.net
-Subject: Re: logitech cordless desktop deluxe optical keyboard issues
-Cc: linux-kernel@vger.kernel.org
+	Sat, 10 Jan 2004 23:12:42 -0500
+Received: from h80ad2593.async.vt.edu ([128.173.37.147]:51843 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265755AbUAKEMj (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 23:12:39 -0500
+Message-Id: <200401110412.i0B4CWe8024839@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Robert Love <rml@ximian.com>
+Cc: jlnance@unity.ncsu.edu, linux-kernel@vger.kernel.org
+Subject: Re: Laptops & CPU frequency 
+In-Reply-To: Your message of "Sat, 10 Jan 2004 22:17:41 EST."
+             <1073791061.1663.77.camel@localhost> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040111025623.GA19890@ncsu.edu>
+            <1073791061.1663.77.camel@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_993915776P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 10 Jan 2004 23:12:32 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > Anyway, I released kbd-1.10 last week or so, and it ignores the
-    > kernel NR_KEYS but tries to adapt dynamically to the kernel.
-    > It would not come with this error message, I suppose.
+--==_Exmh_993915776P
+Content-Type: text/plain; charset=us-ascii
 
-    the message doesn't appear anymore, but installing is giving me
-    the following:
+On Sat, 10 Jan 2004 22:17:41 EST, Robert Love said:
 
-    <-- snip -->
-    Setting up kbd (1.10-1) ...
-    Looking for keymap to install:
-    de-latin1-nodeadkeys
-    cannot open file de-latin1-nodeadkeys
-    Loading /etc/console/boottime.kmap.gz
-    <-- snap -->
+> The MHz value in /proc/cpuinfo should be updated as the CPU speed
+> changes - that is, it is not calculated just at boot, but it is updated
+> as the speed actually changes.
 
-I suppose by default you would find these under
+Yes, it should.  However, I remember chasing down a similar bug in the
+SpeedStep code back around 2.5.73-75 timeframe (which managed to manifest as
+the audio chipset latching onto the wrong clocking, no less - it wasn't till
+later that I noticed that the frequency and bogomips numbers in /proc/cpuinfo
+were bogus too).  I admit never checking if either the original code or the
+patch were backported to 2.4.
 
-/usr/share/kbd/keymaps/i386/qwertz/de-latin1-nodeadkeys.map.gz
-/usr/share/kbd/keymaps/mac/all/mac-de-latin1-nodeadkeys.map.gz
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105859009128595&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105691055706753&w=2
 
-    > : atkbd.c: Unknown key pressed (translated set 2, code 0x91 on
-    >
-    > This is something different, a key without associated keycode.
-    > That is normal. If it really has high bit set it is a bit unusual.
-    > (What does showkey -s show?)
+(the final actual fix ended up being slightly different, but that was the bug).
 
-    showkey -s is giving me exactly the same:
-    <-- snip -->
-    atkbd.c: Unknown key pressed
-    <-- snap -->
+Feel free to hit "delete" if this is irrelevant...
 
-That is a kernel message, not showkey output.
-(BTW - which kernel precisely? The message is not the 2.6.0 one.)
-Maybe showkey -s never sees them?
+--==_Exmh_993915776P
+Content-Type: application/pgp-signature
 
-Andries
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAAM0wcC3lWbTT17ARAnUnAKDpaXwmCUbg2++M27V5ZRp8kZnoqwCgkf1A
+jJFf61/Q/fJVg3giNrM/GIo=
+=HKeo
+-----END PGP SIGNATURE-----
+
+--==_Exmh_993915776P--

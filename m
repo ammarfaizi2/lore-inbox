@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267661AbUG3JdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267451AbUG3KEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267661AbUG3JdY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 05:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267665AbUG3JdY
+	id S267451AbUG3KEh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 06:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267666AbUG3KEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 05:33:24 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:39595 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S267661AbUG3JdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 05:33:22 -0400
-Message-ID: <410A15CC.4070607@bull.net>
-Date: Fri, 30 Jul 2004 11:33:00 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
+	Fri, 30 Jul 2004 06:04:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34734 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264419AbUG3KEd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 06:04:33 -0400
+Date: Fri, 30 Jul 2004 11:04:21 +0100
+From: Tim Waugh <twaugh@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [patch] watchdog: fix warning "defined but not used"
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/07/2004 11:36:07,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/07/2004 11:38:02,
-	Serialize complete at 30/07/2004 11:38:02
-Content-Type: multipart/mixed;
- boundary="------------070304000303040907060303"
+Cc: manfred@colorfullife.com
+Subject: Re: [PATCH] Gigabit Ethernet support for forcedeth
+Message-ID: <20040730100421.GB8175@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="E0VqhFbWSXkyZBiT"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070304000303040907060303
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hello,
+--E0VqhFbWSXkyZBiT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-  Function wdtpci_init_one() in file wdt_pci.c generates a warning when 
-compiling the watchdog driver. Here is a trivial patch for 2.6.8-rc2 to 
-remove this warning.
+Hi,
 
-HTH
-Guillaume
+The patch in:
 
---------------070304000303040907060303
-Content-Type: text/plain;
- name="patch-wdt_pci"
-Content-Disposition: inline;
- filename="patch-wdt_pci"
-Content-Transfer-Encoding: 7bit
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0406.3/1399.html
 
---- wdt_pci.c.orig	2004-07-30 09:00:13.435106288 +0200
-+++ wdt_pci.c	2004-07-30 09:00:31.465365272 +0200
-@@ -682,8 +682,8 @@ out:
- out_misc:
- #ifdef CONFIG_WDT_501_PCI
- 	misc_deregister(&temp_miscdev);
--#endif /* CONFIG_WDT_501_PCI */
- out_rbt:
-+#endif /* CONFIG_WDT_501_PCI */
- 	unregister_reboot_notifier(&wdtpci_notifier);
- out_irq:
- 	free_irq(irq, &wdtpci_miscdev);
+causes the forcedeth driver to fail for me.  See:
 
+  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=128292
 
---------------070304000303040907060303--
+for a description of the symptoms.  Basically it says:
+
+  kernel: eth0: no link during initialization.
+
+Works fine if I back out that patch.
+
+Tim.
+*/
+
+--E0VqhFbWSXkyZBiT
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBCh0k9gevn0C09XYRAp80AJ9Ud1KWvlHnJCC8TnUECIBFhVsP/wCfdgqV
+o6xnRbHuzORadqcUjyJUJBI=
+=ZRt8
+-----END PGP SIGNATURE-----
+
+--E0VqhFbWSXkyZBiT--

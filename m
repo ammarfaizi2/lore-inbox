@@ -1,77 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271679AbTGRByi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 21:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271677AbTGRByi
+	id S271677AbTGRByw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 21:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271680AbTGRByw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 21:54:38 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:42715 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S271680AbTGRByc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 21:54:32 -0400
-Message-ID: <A5974D8E5F98D511BB910002A50A66470B981269@hdsmsx103.hd.intel.com>
-From: "Brown, Len" <len.brown@intel.com>
-To: "'Hugh Dickins'" <hugh@veritas.com>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       "'ACPI-Devel mailing list'" <acpi-devel@lists.sourceforge.net>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'Marcelo Tosatti'" <marcelo@conectiva.com.br>
-Subject: "noht" (RE: ACPI patches updated (20030714))
-Date: Thu, 17 Jul 2003 19:14:58 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Thu, 17 Jul 2003 21:54:52 -0400
+Received: from dsl027-161-083.atl1.dsl.speakeasy.net ([216.27.161.83]:32774
+	"EHLO hoist") by vger.kernel.org with ESMTP id S271677AbTGRByt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 21:54:49 -0400
+Date: Thu, 17 Jul 2003 22:09:43 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.0 build alsa without procfs
+Message-ID: <20030718020943.GA23272@suburbanjihad.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: nick black <dank@suburbanjihad.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"noht" turns out to be tricky for ACPI in practice.
+the attached/following fixes a compilation issue with alsa + !procfs.
+applies to 2.6.0-test1-ac2 and 2.6.0-test1.
 
-ACPI really shouldn't tinker with or skip LAPIC enumeration.  It can't rely
-on the table LAPIC ids to get packge numbers, and it can't rely on the BIOS
-to have MPS implemented to enumerate physical processors.
-
-The only reliable way to get the logical/physical mapping is the way
-init_intel() does it today -- run CPUID locally on that logical processor
-after it is up and running.
-
-So if the kernel is to disable HT, the proper way would be to initialize all
-the logical processors, have them identify themselves, and then optionally
-take themselves off-line.  A possiblity for 2.6.
-
-BIOS SETUP remains the preferred way to disable HT.  If the hardware is
-implemented such that duplicated resources could be combined when HT is
-disabled, only the BIOS would be able to do that -- so single threaded
-performance with Linux implemented 'noht' might lag performance with BIOS
-implemented 'noht'...
-
-Given that 'noht' is workaround for a missing BIOS switch, I'm not confident
-it is a win to burden the Linux kernel with it.
-
-Cheers,
--Len
-
-
-> -----Original Message-----
-> From: Brown, Len 
-> Sent: Tuesday, July 15, 2003 10:36 PM
-> To: 'Hugh Dickins'
-> Cc: Grover, Andrew; ACPI-Devel mailing list; 
-> linux-kernel@vger.kernel.org; Marcelo Tosatti
-> Subject: RE: ACPI patches updated (20030714)
-> 
-> 
-> > From: Hugh Dickins [mailto:hugh@veritas.com] 
-> 
-> > > 		ACPI && !ACPI_HT_ONLY
-> > > 			Full ACPI w/o the acpi=cpu option
-> > 
-> > Shouldn't this combination also support "noht", or is that 
-> > too much to ask?
-> 
-> Can do.  It will be called CONFIG_ACPI_HT, and will be 
-> required for ACPI to enable HT -- with or without the full 
-> CONFIG_ACPI.
-> 
-> Cheers,
-> -Len
-> 
+--- linux-2.6.0-test1-pristine/sound/core/memalloc.c	2003-07-17 20:28:36.000000000 -0400
++++ linux-2.6.0-test1/sound/core/memalloc.c	2003-07-17 22:03:41.000000000 -0400
+@@ -886,7 +886,9 @@
+ 
+ static int __init snd_mem_init(void)
+ {
++#ifdef CONFIG_PROC_FS
+ 	create_proc_read_entry("driver/snd-page-alloc", 0, 0, snd_mem_proc_read, NULL);
++#endif
+ #ifdef ENABLE_PREALLOC
+ 	preallocate_cards();
+ #endif
+-- 
+nick black <dank@reflexsecurity.com>
+"np:  nondeterministic polynomial-time
+the class of dashed hopes and idle dreams." - the complexity zoo

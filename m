@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261322AbSJIJ0Y>; Wed, 9 Oct 2002 05:26:24 -0400
+	id <S261432AbSJIJhA>; Wed, 9 Oct 2002 05:37:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261374AbSJIJ0Y>; Wed, 9 Oct 2002 05:26:24 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:1028 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261322AbSJIJ0X>;
-	Wed, 9 Oct 2002 05:26:23 -0400
-Date: Tue, 8 Oct 2002 23:57:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: jbradford@dial.pipex.com
+	id <S261503AbSJIJhA>; Wed, 9 Oct 2002 05:37:00 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:12682 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261432AbSJIJg7>;
+	Wed, 9 Oct 2002 05:36:59 -0400
+Date: Wed, 9 Oct 2002 11:42:38 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Maciej Babinski <maciej@imsa.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] IDE driver model update
-Message-ID: <20021008215728.GA841@elf.ucw.cz>
-References: <Pine.GSO.4.21.0210080813030.2894-100000@weyl.math.psu.edu> <200210081325.g98DP6MY000340@darkstar.example.net>
+Subject: Re: uinput oops in 2.5.41
+Message-ID: <20021009114238.A11161@ucw.cz>
+References: <20021009035041.A6226@imsa.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200210081325.g98DP6MY000340@darkstar.example.net>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021009035041.A6226@imsa.edu>; from maciej@imsa.edu on Wed, Oct 09, 2002 at 03:50:41AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Oct 09, 2002 at 03:50:41AM -0500, Maciej Babinski wrote:
+> I get a NULL pointer dereference by running "cat" on /dev/misc/uinput
+> I'm a newbie, but I think the patch at the bottom fixes it.
 
-> > > > _ALL_ buses that have driverfs support (IDE, SCSI, USB, PCI) have their
-> > > > own rules for lifetimes of their structures.  And that's not likely to
-> > > > change - these objects belong to drivers and in some cases (IDE) are
-> > > > not even allocated dynamically - they are reused if nothing is holding
-> > > > them.
-> > > 
-> > > IDE objects can also outlast the hardware - consider an active mount on
-> > > an ejected pcmcia card. Right now we don't do the right stuff to
-> > > reconnect that on re-insert but one day we may need to. As it is we keep
-> > > the instance around to avoid crashes
-> > 
-> > Ouch.  That (reconnects) may require interesting things from queue-related
-> > code.  What behaviour do you want while card is disconnected?  All requests
-> > getting errors / all requests getting blocked / reads failing, writes blocking?
-> 
-> This raises the interesting possibility of being able to refer to
-> things like removable media directly, instead of the device the media
-> is inserted in.
-> 
-> The Amiga was doing this years ago.  You could access floppy drives
-> as, E.G. df0:, df1:, etc, but if you formatted a volume and called it
-> foobar, you could access foobar: no matter which floppy drive you put
-> it in to.
-> 
-> Also, Plan 9 does similar interesting things - you can do the equivilent of:
-> 
-> ls /internet/websites/kernel.org/
-> 
-> and treat the website as a filesystem.
+> --- linux-2.5.41/drivers/input/misc/uinput.c	Mon Oct  7 13:24:50 2002
+> +++ linux-2.5.41.new/drivers/input/misc/uinput.c	Wed Oct  9 03:47:15 2002
+> @@ -224,15 +224,14 @@
+>  
+>  	udev = (struct uinput_device *)file->private_data;
+>  
+> +	if (!(udev->state & UIST_CREATED))
+> +		return -ENODEV;
+> +
+>  	if (udev->head == udev->tail) {
+>  		add_wait_queue(&udev->waitq, &waitq);
+>  		current->state = TASK_INTERRUPTIBLE;
+>  
+>  		while (udev->head == udev->tail) {
+> -			if (!(udev->state & UIST_CREATED)) {
+> -				retval = -ENODEV;
+> -				break;
+> -			}
+>  			if (file->f_flags & O_NONBLOCK) {
+>  				retval = -EAGAIN;
+>  				break;
 
-uservfs.sf.net, and you can do similar stuff on linux.
-									Pavel
+Your patch is almost correct - you have to keep both the checks. The
+first could happen when the device disappears while being waited for.
+
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Vojtech Pavlik
+SuSE Labs

@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291525AbSBHKND>; Fri, 8 Feb 2002 05:13:03 -0500
+	id <S291531AbSBHKQo>; Fri, 8 Feb 2002 05:16:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291531AbSBHKMy>; Fri, 8 Feb 2002 05:12:54 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:15367 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S291525AbSBHKMs>; Fri, 8 Feb 2002 05:12:48 -0500
-Date: Fri, 8 Feb 2002 11:12:18 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Harald Welte <laforge@gnumonks.org>, "David S. Miller" <davem@redhat.com>,
-        linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org,
-        hpa@zytor.com
-Subject: Re: [SOLUTION] Re: Fw: 2.4.18-pre9: iptables screwed?
-Message-ID: <20020208101218.GD12130@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <20020208.010839.112626203.davem@redhat.com> <20020208105548.P26676@sunbeam.de.gnumonks.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020208105548.P26676@sunbeam.de.gnumonks.org>
-User-Agent: Mutt/1.3.25i
+	id <S291532AbSBHKQe>; Fri, 8 Feb 2002 05:16:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11024 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291531AbSBHKQY>;
+	Fri, 8 Feb 2002 05:16:24 -0500
+Message-ID: <3C63A576.9D3AA89D@mandrakesoft.com>
+Date: Fri, 08 Feb 2002 05:16:22 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stefan Rompf <srompf@isg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Interface operative status detection
+In-Reply-To: <3C498CC9.6FAED2AF@isg.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 10:55:48AM +0100, Harald Welte wrote:
+Stefan Rompf wrote:
+> Note that there is still sourcecode in drivers/net that plays with
+> IFF_RUNNING directly. As I don't own these cards, let me just list the
+> files so that the maintainers can have a look: bmac.c,
+> wan/lmc/lmc_main.c, wan/comx-proto-fr.c, tlan.c, eepro100.c,
+> au1000_eth.c, tokenring/ibmtr.c and bonding.c.
 
-> > > I get the following error with iptables on 2.4.18-pre9:
-> > > 
-> > > sudo iptables-restore < /etc/sysconfig/iptables
-> > > iptables-restore: libiptc/libip4tc.c:384: do_check: Assertion
-> > > `h->info.valid_hooks == (1 << 0 | 1 << 3)' failed.
-> > > Abort (core dumped)
-> 
-> The code you are quoting is only defined if debugging is compiled into 
-> the iptables package. The default distribution of the iptables package
-> does _not_ ship with debugging enabled.
+I recently fixed this in eepro100.c, in 2.4.18-pre9 and later.  Patches
+accepted to clear up the others.
 
-Right, upon further analysis the redhat RPM is overriding COPT_FLAGS
-and removes the -DNDEBUG from the compile line.
 
-> We always want to make sure that nobody needs to update the iptables
-> package during the 2.4.x stable kernel series. Because of this (sane)
-> policy, we are keeping back a whole bunch of changes.  We can't just
-> silently abandon backwards compatibility.
+> diff -urN -X dontdiff linux-2.4.17/drivers/net/tulip/21142.c linux-2.4.17stefan/drivers/net/tulip/21142.c
+> --- linux-2.4.17/drivers/net/tulip/21142.c      Fri Nov  9 22:45:35 2001
+> +++ linux-2.4.17stefan/drivers/net/tulip/21142.c        Sat Jan 19 15:28:57 
 
-Hey, you keeped backwards compatibility _only_ for those compiling 
-the non debug version of the package. I believe this remains however
-a half-bug...
+thanks, patch applied and modified slightly, to 2.4 and 2.5.
 
-Stelian.
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

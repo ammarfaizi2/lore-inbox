@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316009AbSENTel>; Tue, 14 May 2002 15:34:41 -0400
+	id <S316008AbSENTe1>; Tue, 14 May 2002 15:34:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316010AbSENTek>; Tue, 14 May 2002 15:34:40 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:20271 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S316009AbSENTei>; Tue, 14 May 2002 15:34:38 -0400
-Message-Id: <5.1.0.14.2.20020514202811.01fcc1d0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 14 May 2002 20:34:16 +0100
-To: Martin Dalecki <dalecki@evision-ventures.com>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [PATCH] 2.5.15 IDE 61
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Conway <nconway.list@ukaea.org.uk>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <3CE11F90.5070701@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S316009AbSENTe0>; Tue, 14 May 2002 15:34:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32014 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316008AbSENTeZ>;
+	Tue, 14 May 2002 15:34:25 -0400
+Message-ID: <3CE16683.29A888F8@zip.com.au>
+Date: Tue, 14 May 2002 12:33:23 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Bug with shared memory.
+In-Reply-To: <OF6D316E56.12B1A4B0-ONC1256BB9.004B5DB0@de.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 15:30 14/05/02, Martin Dalecki wrote:
->Uz.ytkownik Alan Cox napisa?:
->>I think you are way off base. If you have a single queue for both hda and
->>hdb then requests will get dumped into that in a way that processing that
->>queue implicitly does the ordering you require.
->> From an abstract hardware point of view each ide controller is a queue not
->>each device. Not following that is I think the cause of much of the existing
->>pain and suffering.
->
->Yes thinking about it longer and longer I tend to the same conclusion,
->that we just shouldn't have per device queue but per channel queues instead.
->The only problem here is the fact that some device properties
->are attached to the queue right now. Like for example sector size and friends.
->
->I didn't have a too deep look in to the generic blk layer. But I would
->rather expect that since the lower layers are allowed to pass
->an spin lock up to the queue intialization, sharing a spin lock
->between two request queues should just serialize them with respect to
->each other. And this is precisely what 63 does.
+Martin Schwidefsky wrote:
+> 
+> Hi,
+> we managed to hang the kernel with a db/2 stress test on s/390. The test
+> was done on 2.4.7 but the problem is present on all recent 2.4.x and 2.5.x
+> kernels (all architectures). In short a schedule is done while holding
+> the shm_lock of a shared memory segment. The system call that caused
+> this has been sys_ipc with IPC_RMID and from there the call chain is
+> as follows: sys_shmctl, shm_destroy, fput, dput, iput, truncate_inode_pages,
+> truncate_list_pages, schedule. The scheduler picked a process that called
+> sys_shmat. It tries to get the lock and hangs.
 
-Hi Martin,
+There's no way the kernel can successfully hold a spinlock
+across that call chain.
 
-instead of having per channel queue, you could have per device queue, but 
-use the same lock for both, i.e. don't make the lock part of "struct queue" 
-(or whatever it is called) but instead make the address of the lock be 
-attached to "struct queue".
+> One way to fix this is to remove the schedule call from truncate_list_pages:
+> 
+> --- linux-2.5/mm/filemap.c~   Tue May 14 17:04:14 2002
+> +++ linux-2.5/mm/filemap.c    Tue May 14 17:04:33 2002
+> @@ -237,11 +237,6 @@
+> 
+>                   page_cache_release(page);
+> 
+> -                 if (need_resched()) {
+> -                       __set_current_state(TASK_RUNNING);
+> -                       schedule();
+> -                 }
+> -
+>                   write_lock(&mapping->page_lock);
+>                   goto restart;
+>             }
+> 
+> Another way is to free the lock before calling fput in shm_destroy but the
+> comment says that this functions has to be called with shp and shm_ids.sem
+> locked. Comments?
 
-That allows you on "good" controllers to use individual locks for 
-individual drives and also allows you to share the same lock (multiple 
-"struct queue" point to same lock) among _any_ number of devices on same 
-channel.
+Maybe ipc_ids.ary should become a semaphore?
 
-Further if a controller is truly broken and you need to synchronize 
-multiple channels you could share the lock among those.
-
-I know that means allocating a lock, etc, but heck you can make a slab 
-cache for spinlocks or semaphores or whatever locking primite you use if 
-you consider that important.
-
-I don't know much about the IDE or block layers but it strikes me as the 
-simplest approach to control the level of "lock sharing".
-
-Best regards,
-
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+-

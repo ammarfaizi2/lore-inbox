@@ -1,39 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265642AbRFWFfJ>; Sat, 23 Jun 2001 01:35:09 -0400
+	id <S265641AbRFWFdj>; Sat, 23 Jun 2001 01:33:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265643AbRFWFe7>; Sat, 23 Jun 2001 01:34:59 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:43025 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S265642AbRFWFep>;
-	Sat, 23 Jun 2001 01:34:45 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: stimits@idcomm.com, linux-kernel@vger.kernel.org
-Subject: Re: Cleanup kbuild for aic7xxx 
-In-Reply-To: Your message of "Fri, 22 Jun 2001 23:14:49 CST."
-             <200106230514.f5N5EnU84722@aslan.scsiguy.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 23 Jun 2001 15:34:39 +1000
-Message-ID: <13785.993274479@ocs3.ocs-net>
+	id <S265642AbRFWFd3>; Sat, 23 Jun 2001 01:33:29 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:30983 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S265641AbRFWFdU>; Sat, 23 Jun 2001 01:33:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>, Jens Axboe <axboe@suse.de>
+Subject: Re: [RFC] Early flush (was: spindown)
+Date: Sat, 23 Jun 2001 07:10:45 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Mike Galbraith <mikeg@wen-online.de>, Rik van Riel <riel@conectiva.com.br>,
+        Pavel Machek <pavel@suse.cz>, John Stoffel <stoffel@casc.com>,
+        Roger Larsson <roger.larsson@norran.net>, thunder7@xs4all.nl,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0106171156410.318-100000@mikeg.weiden.de> <200106201612.f5KGCca06372@vindaloo.ras.ucalgary.ca> <20010623012550.B415@pelks01.extern.uni-tuebingen.de>
+In-Reply-To: <20010623012550.B415@pelks01.extern.uni-tuebingen.de>
+MIME-Version: 1.0
+Message-Id: <01062307104500.00430@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Jun 2001 23:14:49 -0600, 
-"Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
->Can you explain why this would be the case?  Are you saying that SGI
->is building the generated file and also keeping it in their revision
->control system?  If so, wouldn't their shipped config also include
->building the firmware?
+On Saturday 23 June 2001 01:25, Daniel Kobras wrote:
+> On Wed, Jun 20, 2001 at 10:12:38AM -0600, Richard Gooch wrote:
+> > Daniel Phillips writes:
+> > > I'd like that too, but what about sync writes?  As things stand now,
+> > > there is no option but to spin the disk back up.  To get around this
+> > > we'd have to change the basic behavior of the block device and
+> > > that's doable, but it's an entirely different proposition than the
+> > > little patch above.
+> >
+> > I don't care as much about sync writes. They don't seem to happen very
+> > often on my boxes.
+>
+> syslog and some editors are the most common users of sync writes. vim,
+> e.g., per default keeps fsync()ing its swapfile. Tweaking the configuration
+> of these apps, this can be prevented fairly easy though. Changing sync
+> semantics for this matter on the other hand seems pretty awkward to me. I'd
+> expect an application calling fsync() to have good reason for having its
+> data flushed to disk _now_, no matter what state the disk happens to be in.
+> If it hasn't, fix the app, not the kernel.
 
-SGI's source control system marks the supplied files as read only to
-prevent accidental updates.  That causes problems when generated files
-are updated in place, see my long memo about why this is bad.  I am
-guessing that SGI had problems with the earlier version of your
-Makefile (it always generated the files) so they excluded the generated
-files from their repository.
+But apps shouldn't have to know about the special requirements of laptops.  
+I've been playing a little with the idea of creating a special block device 
+for laptops that goes between the vfs and the real block device, and adds the 
+behaviour of being able to buffer writes in memory.  In all respects it would 
+seem to the vfs to be a disk.  So far this is just a thought experiment.
 
-Changing aic7xxx kbuild so it does not overwrite supplied files will
-fix this class of problem for all source repositories, not just SGI.
+> > > You know about this project no doubt:
+> > >
+> > >    http://noflushd.sourceforge.net/
+> >
+> > Only vaguely. It's huge. Over 2300 lines of C code and >560 lines in
+> > .h files! As you say, not really lightweight. There must be a better
+> > way.
+>
+> noflushd would benefit a lot from being able to set bdflush parameters per
+> device or per disk. So I'm really eager to see what Daniel comes up with.
+> Currently, we can only turn kupdate either on or off as a whole, which
+> means that noflushd implements a crude replacement for the benefit of
+> multi-disk setups. A lot of the cruft stems from there.
 
+Yes, another person to talk to about this is Jens Axboe who has been doing 
+some serious hacking on the block layer.  I thought I'd get the early flush 
+patch working well for one disk before generalizing to N ;-)
+
+> > Also, I suspect (without having looked at the code) that it
+> > doesn't handle memory pressure well. Things may get nasty when we run
+> > low on free pages.
+>
+> It doesn't handle memory pressure at all. It doesn't have to. noflushd only
+> messes with kupdate{,d} but leaves bdflush (formerly known as kflushd)
+> alone. If memory gets tight, bdflush starts writing out dirty buffers,
+> which makes the disk spin up, and we're back to normal.
+
+Exactly.  And in addition, when bdflush does wake up, I try to get kupdate 
+out of the way as much as possible, though I've been following the 
+traditional recipe and having it submit all buffers past a certain age.  This 
+is quite possibily a bad thing to do because it could starve the swapper.  
+Ouch.
+
+--
+Daniel

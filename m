@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289492AbSBEM6u>; Tue, 5 Feb 2002 07:58:50 -0500
+	id <S289482AbSBEM6u>; Tue, 5 Feb 2002 07:58:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289484AbSBEM6k>; Tue, 5 Feb 2002 07:58:40 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56076 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289482AbSBEM60>; Tue, 5 Feb 2002 07:58:26 -0500
+	id <S289492AbSBEM6j>; Tue, 5 Feb 2002 07:58:39 -0500
+Received: from proxy5-act01backbone.twdx.net ([209.80.162.227]:54283 "EHLO
+	terra.pissah.com") by vger.kernel.org with ESMTP id <S289484AbSBEM61>;
+	Tue, 5 Feb 2002 07:58:27 -0500
+Date: Tue, 5 Feb 2002 08:03:44 -0500 (EST)
+From: Bugtraq Mailing Lists <bugtraq@bugtraq.towardex.com>
+X-X-Sender: <bugtraq@terra.pissah.com>
+To: william fitzgerald <william.fitzgerald2@beer.com>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: windows is more secure than linux!!
-To: william.fitzgerald2@beer.com (william fitzgerald)
-Date: Tue, 5 Feb 2002 13:11:42 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <B0C77D98347F826499A03C1FE22DE33B@william.fitzgerald2.beer.com> from "william fitzgerald" at Feb 06, 2002 11:47:49 AM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <B0C77D98347F826499A03C1FE22DE33B@william.fitzgerald2.beer.com>
+Message-ID: <Pine.LNX.4.33.0202050803150.23972-100000@terra.pissah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Y5Nu-0001ph-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The whole news article regarding this is preposterous, and are hilarious
+claims.
+
+> hi all,
+>
 > some of you might find this interesting others
 > disheartening
-> 
+>
 > www.shortnews.com/shownews.cfm?id=16886&u_id=623
-
-See "Accountancy, Enron"
-
-3+Gb of software accounted as Linux
-multiplied by each per vendor announcement
-
-versus
-
-only the stuff strictly on the base windows CD
-
-
-I would have thought even Arthur Andersen could work that one out
-
+>
+>
+>
+> Beer Mail, brought to you by your friends at beer.com.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

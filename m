@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbVADXqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVADXql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262414AbVADXqk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 18:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbVADXho
+	id S262407AbVADXql (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 18:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVADXhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 18:37:44 -0500
-Received: from fw.osdl.org ([65.172.181.6]:438 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262120AbVADXXV (ORCPT
+	Tue, 4 Jan 2005 18:37:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8886 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262426AbVADXYM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 18:23:21 -0500
-Date: Tue, 4 Jan 2005 15:23:17 -0800
+	Tue, 4 Jan 2005 18:24:12 -0500
+Date: Tue, 4 Jan 2005 15:24:09 -0800
 From: Chris Wright <chrisw@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Chris Wright <chrisw@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       James Morris <jmorris@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] properly split capset_check+capset_set
-Message-ID: <20050104152317.B2357@build.pdx.osdl.net>
-References: <20050104162745.GA400@IBM-BWN8ZTBWA01.austin.ibm.com> <1104857632.17166.35.camel@localhost.localdomain>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, chrisw@osdl.org
+Subject: Re: [PATCH] track capabilities in default dummy security module code
+Message-ID: <20050104152409.C2357@build.pdx.osdl.net>
+References: <20050104133313.D469@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <1104857632.17166.35.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Tue, Jan 04, 2005 at 10:03:59PM +0000
+In-Reply-To: <20050104133313.D469@build.pdx.osdl.net>; from chrisw@osdl.org on Tue, Jan 04, 2005 at 01:33:13PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> On Maw, 2005-01-04 at 16:27, Serge E. Hallyn wrote:
-> > The attached patch removes checks from kernel/capability.c which are
-> > redundant with cap_capset_check() code, and moves the capset_check()
-> > calls to immediately before the capset_set() calls.  This allows
-> > capset_check() to accurately check the setter's permission to set caps
-> > on the target.  Please apply.
-> 
-> Why does this help ?
+* Chris Wright (chrisw@osdl.org) wrote:
+> Switch dummy logic around to set cap_* bits during exec and set*uid based
+> on basic uid check.  Then check cap_* bits during capable() (rather than
+> doing basic uid check).  This ensures that capability bits are properly
+> initialized in case the capability module is later loaded.
 
-Without this change, the check was done without knowing who the target
-really was, so the code that sets it had to check as well.
+OK, somehow I managed to botch this one.  It happens to work fine, but I
+should have been more careful with forward porting this 1+ year old patch.
+The exec-time calc should go in bprm_apply_creds, not bprm_free_security.
+Thanks to Stephen for spotting my mistake.
 
-> A partial failure now returns no error ?
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-It never did.  Now it behaves the same as signal delivery which returns
-success if any signals were delivered, and failure if none were delivered.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+===== security/dummy.c 1.50 vs edited =====
+--- 1.50/security/dummy.c	2005-01-04 13:14:10 -08:00
++++ edited/security/dummy.c	2005-01-04 14:45:31 -08:00
+@@ -180,7 +180,6 @@ static int dummy_bprm_alloc_security (st
+ 
+ static void dummy_bprm_free_security (struct linux_binprm *bprm)
+ {
+-	dummy_capget(current, &current->cap_effective, &current->cap_inheritable, &current->cap_permitted);
+ 	return;
+ }
+ 
+@@ -197,6 +196,8 @@ static void dummy_bprm_apply_creds (stru
+ 
+ 	current->suid = current->euid = current->fsuid = bprm->e_uid;
+ 	current->sgid = current->egid = current->fsgid = bprm->e_gid;
++
++	dummy_capget(current, &current->cap_effective, &current->cap_inheritable, &current->cap_permitted);
+ }
+ 
+ static int dummy_bprm_set_security (struct linux_binprm *bprm)

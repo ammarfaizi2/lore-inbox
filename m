@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281199AbRLDRWG>; Tue, 4 Dec 2001 12:22:06 -0500
+	id <S282706AbRLDR3r>; Tue, 4 Dec 2001 12:29:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282404AbRLDRUv>; Tue, 4 Dec 2001 12:20:51 -0500
-Received: from mail203.mail.bellsouth.net ([205.152.58.143]:50080 "EHLO
-	imf03bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281645AbRLDRUQ>; Tue, 4 Dec 2001 12:20:16 -0500
-Message-ID: <3C0D05C7.6C566FF2@mandrakesoft.com>
-Date: Tue, 04 Dec 2001 12:20:07 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: Linux/Pro  -- clusters
-In-Reply-To: <Pine.LNX.4.10.10112032057070.978-100000@vaio.greennet> <E16BGhe-0000Pq-00@starship.berlin> <3C0CE97F.74AFFDBC@mandrakesoft.com> <E16BJBR-0000RM-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281555AbRLDR2i>; Tue, 4 Dec 2001 12:28:38 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:51214 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S281703AbRLDRUf>; Tue, 4 Dec 2001 12:20:35 -0500
+Date: Tue, 4 Dec 2001 18:20:33 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011204182033.B12538@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011204173309.A10746@emma1.emma.line.org> <E16BJ9v-0002ii-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <E16BJ9v-0002ii-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> On December 4, 2001 04:19 pm, Jeff Garzik wrote:
-> > ug.  what's wrong with a single additional alloc for generic_ip?  [if a
-> > filesystem needs to do multiple allocs post-conversion, somebody's doing
-> > something wrong]
+On Tue, 04 Dec 2001, Alan Cox wrote:
+
+> > Creating a dependency on Python? Is a non-issue. Current systems that
+> > are to run 2.5 or 2.6 are bloated beyond belief by glibc already, Python
+> > is nice and it does not create such unmaintainable mess. Whether
 > 
-> Single additional alloc -> twice as many allocs, two slabs, more cachelines
-> dirty.  This was hashed out on fsdevel, though apparently not to everyone's
-> satisfaction.
-> 
-> > Using generic_ip in its current form has the advantage of being able to
-> > create a nicely-aligned kmem cache for your private inode data.
-> 
-> I don't see why that's hard with the combined struct.
+> Python2 - which means most users dont have it.
 
-The advantage of having two structs means that both struct inode and the
-private info can be aligned nicely.  Yes it potentially wastes a tiny
-bit more memory, but I challenge you to find an architecture where doing
-this isn't a win.  In a couple cases I looked at, additional slabs are
-not even necessary, as kmalloc's standard ones do the job quite well. 
-'cat /proc/slabinfo' for a list of the sizes.
+Every new kernel version required new tools, 2.2 particularly many, 2.4
+also some, so it's just one more tool to add in the end.
 
-Note this only applies to inodes.  There aren't enough superblocks in a
-running system to worry about doing anything but simple kmalloc on the
-superblock private info (before assigning to generic_sbp).
-
-	Jeff
-
+Current distributions already ship with Python2, and probably all will
+when distributors know that Python2 will be needed to configure Linux
+2.5 or 2.6.
 
 -- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+Matthias Andree
 
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

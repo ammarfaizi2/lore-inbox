@@ -1,47 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129373AbRB1XLp>; Wed, 28 Feb 2001 18:11:45 -0500
+	id <S129324AbRB1XOS>; Wed, 28 Feb 2001 18:14:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129381AbRB1XLh>; Wed, 28 Feb 2001 18:11:37 -0500
-Received: from ns1.uklinux.net ([212.1.130.11]:60165 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S129372AbRB1XKi>;
-	Wed, 28 Feb 2001 18:10:38 -0500
-Envelope-To: linux-kernel@vger.kernel.org
-Date: Wed, 28 Feb 2001 23:01:53 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Frank v Waveren <fvw@var.cx>
-Cc: Brian Gerst <bgerst@didntduck.org>,
-        Boris Dragovic <lynx@falcon.etf.bg.ac.yu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: negative mod use count
-Message-ID: <20010228230153.A18738@flint.arm.linux.org.uk>
-In-Reply-To: <200102281958.UAA13226@falcon.etf.bg.ac.yu> <3A9D5AAB.E9AB4673@didntduck.org> <20010228213146.A1120@var.cx>
-Mime-Version: 1.0
+	id <S129381AbRB1XLu>; Wed, 28 Feb 2001 18:11:50 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:44980 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129339AbRB1XLY>; Wed, 28 Feb 2001 18:11:24 -0500
+Message-ID: <3A9D857C.CF9EF272@uow.edu.au>
+Date: Wed, 28 Feb 2001 23:10:52 +0000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Priban <david2@maincube.net>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: i2o & Promise SuperTrak100
+In-Reply-To: <MPBBILLJAONHMANIJOPDOEFNFMAA.david2@maincube.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010228213146.A1120@var.cx>; from fvw@var.cx on Wed, Feb 28, 2001 at 09:31:46PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 28, 2001 at 09:31:46PM +0100, Frank v Waveren wrote:
-> On Wed, Feb 28, 2001 at 03:08:11PM -0500, Brian Gerst wrote:
-> > > what does negative module use count mean?
-> > A bugged module.
+David Priban wrote:
 > 
-> Not at all. A non-zero usage count means the module can't be unloaded.
-> Whatever the module does with the usage count apart from that is
-> completely it's own choice.
+> > > Kernel panic: Aiee, killing interrupt handler !
+> > > In interrupt handler - not syncing
+> >
+> > Run it through ksymoops and I might be able to guess what went wrong.
+> >
+> > In theory however i2o is a standard and all i2o works alike. In
+> > practice i2o
+> > is a pseudo standard and nobody seems to interpret the spec the
+> > same way, the
+> > implementations all tend to have bugs and the hardware sometimes does too.
+> >
+> Alan,
+> This is what ksymoops gave me. One thing I didn't mention before:
+> kernel panics when I hit Ctrl-Alt-Del after it hangs telling me this:
+> 
 
-A negative module use count (specifically "-1") depends on whether a
-module has a "can_unload" routine.  If it does not have a "can_unload"
-routine, then chances are either the module decided "I can never be
-removed" or else the module is buggy.
+This untested patch should fix the scheduling-in-interrupt
+thing.
 
-However, if a "can_unload" routine does exist (as in ipv6) then the
-module use count is unconditionally set to "-1".
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+--- kernel/sys.c.orig	Thu Mar  1 10:06:14 2001
++++ kernel/sys.c	Thu Mar  1 10:07:43 2001
+@@ -330,6 +330,12 @@
+ 	return 0;
+ }
+ 
++static void deferred_cad(void *dummy)
++{
++	notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
++	machine_restart(NULL);
++}
++
+ /*
+  * This function gets called by ctrl-alt-del - ie the keyboard interrupt.
+  * As it's called within an interrupt, it may NOT sync: the only choice
+@@ -337,10 +343,13 @@
+  */
+ void ctrl_alt_del(void)
+ {
+-	if (C_A_D) {
+-		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
+-		machine_restart(NULL);
+-	} else
++	static struct tq_struct cad_tq = {
++		routine: deferred_cad,
++	};
++
++	if (C_A_D)
++		schedule_task(&cad_tq);
++	else
+ 		kill_proc(1, SIGINT, 1);
+ }
+ 	
+-

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318614AbSH1DV7>; Tue, 27 Aug 2002 23:21:59 -0400
+	id <S318607AbSH1D3d>; Tue, 27 Aug 2002 23:29:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318622AbSH1DV7>; Tue, 27 Aug 2002 23:21:59 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:38082 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S318614AbSH1DV6>; Tue, 27 Aug 2002 23:21:58 -0400
-Message-ID: <3D6C431E.4090709@snapgear.com>
-Date: Wed, 28 Aug 2002 13:27:26 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S318622AbSH1D3d>; Tue, 27 Aug 2002 23:29:33 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:41934 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S318607AbSH1D3d>; Tue, 27 Aug 2002 23:29:33 -0400
+Message-ID: <3D6C449A.E2B67658@attbi.com>
+Date: Tue, 27 Aug 2002 23:33:46 -0400
+From: Albert Cranford <ac9410@attbi.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: (resend) tivial mtdblock.c fix
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: [patch]2.5.32 scsi/st.c "parse error before ;" line 112
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hello Linus,
+2.5.32 compile error scsi tape line 112 "parse error before ;"
+Please apply this tested simple fix.
+Albert
+--- linux2.5.32/drivers/scsi/st.c.orig        2002-08-27 23:14:18.000000000 -0400
++++ linux/drivers/scsi/st.c     2002-08-27 23:14:29.000000000 -0400
+@@ -109,6 +109,7 @@
+        },
+        {
+                "try_direct_io", &try_direct_io
++       }
+ };
+ #endif
+ 
 
-Trivial fixup to mtdblock.c. The logical sense of the command check
-is wrong. Against 2.5.32.
-
-Regards
-Greg
-
-
-  ------------------------------------------------------------------------
---- drivers/mtd/mtdblock.c.org	Wed Aug 28 13:09:33 2002
-+++ drivers/mtd/mtdblock.c	Wed Aug 28 13:10:40 2002
-@@ -406,7 +406,7 @@
-  		if (minor(req->rq_dev) >= MAX_MTD_DEVICES)
-  			panic(__FUNCTION__": minor out of bound");
-
--		if (req->flags & REQ_CMD)
-+		if (! (req->flags & REQ_CMD))
-  			goto end_req;
-
-  		if ((req->sector + req->current_nr_sectors) > (mtdblk->mtd->size >> 9))
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
+-- 
+Albert Cranford Deerfield Beach FL USA
+ac9410@bellsouth.net

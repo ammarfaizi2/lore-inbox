@@ -1,43 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262247AbUJZMhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbUJZMl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262247AbUJZMhr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 08:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbUJZMhr
+	id S262241AbUJZMl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 08:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbUJZMl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 08:37:47 -0400
-Received: from gold.pobox.com ([208.210.124.73]:4569 "EHLO gold.pobox.com")
-	by vger.kernel.org with ESMTP id S262247AbUJZMhn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 08:37:43 -0400
-Date: Tue, 26 Oct 2004 05:37:27 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Ed Tomlinson <edt@aei.ca>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Bill Davidsen <davidsen@tmr.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: My thoughts on the "new development model"
-Message-ID: <20041026123727.GA9375@ip68-4-98-123.oc.oc.cox.net>
-References: <200410260142_MC3-1-8D2A-45C2@compuserve.com> <200410260644.47307.edt@aei.ca>
+	Tue, 26 Oct 2004 08:41:29 -0400
+Received: from 66-61-147-78.dialroam.rr.com ([66.61.147.78]:47375 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id S262241AbUJZMlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 08:41:23 -0400
+Date: Tue, 26 Oct 2004 08:36:51 -0400
+From: jfannin1@columbus.rr.com
+To: Christophe Saout <christophe@saout.de>
+Cc: Mathieu Segaud <matt@minas-morgul.org>, linux-kernel@vger.kernel.org,
+       Alasdair G Kergon <agk@redhat.com>
+Subject: Re: 2.6.9-mm1: LVM stopped working
+Message-ID: <20041026123651.GA2987@zion.rivenstone.net>
+Mail-Followup-To: Christophe Saout <christophe@saout.de>,
+	Mathieu Segaud <matt@minas-morgul.org>, linux-kernel@vger.kernel.org,
+	Alasdair G Kergon <agk@redhat.com>
+References: <87oeitdogw.fsf@barad-dur.crans.org> <1098731002.14877.3.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410260644.47307.edt@aei.ca>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <1098731002.14877.3.camel@leto.cs.pocnet.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26, 2004 at 06:44:46AM -0400, Ed Tomlinson wrote:
-> To my mind this just points out the need for a bug fix branch.   e.g. a
-> branch containing just bug/security fixes against the current stable
-> kernel.  It might also be worth keeping the branch active for the n-1
-> stable kernel too.
+On Mon, Oct 25, 2004 at 09:03:22PM +0200, Christophe Saout wrote:
+> Am Sonntag, den 24.10.2004, 01:06 +0200 schrieb Mathieu Segaud:
 > 
-> Ed
-> 
-> PS.  we could call this the Bug/Security or bs kernels.
+>>Well, I gave a try to last -mm tree. The bot seemed good till it got to
+>>LVM stuff. Vgchange does not find any volume groups. I can't say much because
+>>lvm is pretty "early stuff" on this box; so it is pretty unusable.
 
-The current kernel version number scheme already has a provision for
-a security/bug fix branch: 2.6.9.1, 2.6.9.2, etc.
+    LVM doesn't work with 2.6.9-mm1 here either, complaining that it
+can't find all the pv's. I'm not using any sort of encryption. Here,
+pvdisplay reports:
 
--Barry K. Nathan <barryn@pobox.com>
+  --- Physical volume ---
+  PV Name               /dev/hda2
+  VG Name               home
+  PV Size               24.52 GB / not usable 0   
+  Allocatable           yes (but full)
+  PE Size (KByte)       4096
+  Total PE              6277
+  Free PE               0
+  Allocated PE          6277
+  PV UUID               M8tcls-7Tp7-sAYe-ypH3-if50-00JH-hvvXSL
+   
+  --- Physical volume ---
+  PV Name               unknown device
+  VG Name               home
+  PV Size               70.47 GB / not usable 0   
+  Allocatable           yes (but full)
+  PE Size (KByte)       4096
+  Total PE              18040
+  Free PE               0
+  Allocated PE          18040
+  PV UUID               SmreB9-Q3dp-DBBc-q0N9-v762-o6UB-1VUgYw
+   
+  --- Physical volume ---
+  PV Name               unknown device
+  VG Name               home
+  PV Size               25.12 GB / not usable 0   
+  Allocatable           yes (but full)
+  PE Size (KByte)       4096
+  Total PE              6431
+  Free PE               0
+  Allocated PE          6431
+  PV UUID               sbbFSh-0MP8-jtir-Jcyx-VtcE-TxNh-tfNwNe
 
+    I can open the device nodes for the 'missing' pv's in a hexeditor and see the
+uuid magic; if I reboot into 2.6.9-rc4-mm1 they are found without a
+problem, and everything works.
+
+    Whether or not I'll have time to try to narrow down the change
+that causes this depends on things that are out of my control ATM. :-/
+
+-- 
+Joseph Fannin
+jfannin1@columbus.rr.com

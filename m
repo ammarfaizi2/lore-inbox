@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263400AbTJKWOu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 18:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263401AbTJKWOu
+	id S263404AbTJKWSk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 18:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263406AbTJKWSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 18:14:50 -0400
-Received: from viriato1.servicios.retecal.es ([212.89.0.44]:23217 "EHLO
+	Sat, 11 Oct 2003 18:18:39 -0400
+Received: from viriato1.servicios.retecal.es ([212.89.0.44]:9143 "EHLO
 	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S263400AbTJKWOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 18:14:48 -0400
-Subject: [2.6.0-test7-bk][OOPS] Unable to handle kernel paging request at
-	virtual address d0924000
+	id S263404AbTJKWSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 18:18:37 -0400
+Subject: [2.6.0-test7-bk][OOPS] bad: scheduling while atomic!
 From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
 To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gOwu+Ak7PCRXE1Y3WQLp"
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rjTe0cn5CdHYM4G/9CgH"
 Organization: Hispalinux - http://www.hispalinux.es
-Message-Id: <1065908373.1227.4.camel@debian>
+Message-Id: <1065908535.1223.8.camel@debian>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 11 Oct 2003 23:39:34 +0200
+Date: Sat, 11 Oct 2003 23:42:16 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-gOwu+Ak7PCRXE1Y3WQLp
+--=-rjTe0cn5CdHYM4G/9CgH
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: quoted-printable
 
-I obtain this with ALSA:
+I obtain this when I try to suspend and then wake up the system (with
+APM, of course)
 
-Unable to handle kernel paging request at virtual address d0924000
- printing eip:
-d0934964
-*pde =3D 013ea067
-*pte =3D 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<d0934964>]    Not tainted
-EFLAGS: 00210202=20
-EIP is at resample_expand+0x2e4/0x320 [snd_pcm_oss]
-eax: d0934964   ebx: 00000001   ecx: d0940ff0   edx: 00000000
-esi: c98ff2ec   edi: c98ff2d0   ebp: d0923ffe   esp: c568de1c
-ds: 007b   es: 007b   ss: 0068
-Process simutrans (pid: 1453, threadinfo=3Dc568c000 task=3Dc5caa660)
-Stack: 00000000 ffffffff 0000ec24 c568c000 d09348d9 d0934964 00000000
-00000002
-       00000002 00000000 00000000 000002a6 00002ffa 00001000 c98ff260
-c1c15720
-       d0934dff c98ff260 c1c15580 c1c15720 00001000 00002ffa c98ff260
-00001000
+bad: scheduling while atomic!
 Call Trace:
- [<d09348d9>] resample_expand+0x259/0x320 [snd_pcm_oss]
- [<d0934964>] resample_expand+0x2e4/0x320 [snd_pcm_oss]
- [<d0934dff>] rate_transfer+0x3f/0x60 [snd_pcm_oss]
- [<d09324ae>] snd_pcm_plug_write_transfer+0x6e/0xc0 [snd_pcm_oss]
- [<d092e291>] snd_pcm_oss_write2+0xb1/0x120 [snd_pcm_oss]
- [<d092e855>] snd_pcm_oss_sync1+0x55/0x120 [snd_pcm_oss]
- [<c0117680>] default_wake_function+0x0/0x20
- [<d090f9b4>] snd_pcm_format_set_silence+0x74/0x180 [snd_pcm]
- [<d092e9c0>] snd_pcm_oss_sync+0xa0/0x1c0 [snd_pcm_oss]
- [<d092fdbe>] snd_pcm_oss_release+0x1e/0xc0 [snd_pcm_oss]
- [<c014bbce>] __fput+0xee/0x120
- [<c014a403>] filp_close+0x43/0x80
- [<c014a493>] sys_close+0x53/0x80
+ [<c0117601>] schedule+0x561/0x580
+ [<c0121a90>] __mod_timer+0xd0/0x180
+ [<c01225b8>] schedule_timeout+0x58/0xa0
+ [<c0122540>] process_timeout+0x0/0x20
+ [<c019ee86>] pci_set_power_state+0xc6/0x140
+ [<d0861020>] rtl8139_suspend+0x60/0xa0 [8139too]
+ [<c01a0da7>] pci_device_suspend+0x27/0x40
+ [<c01caee7>] suspend_device+0x67/0xc0
+ [<c01caf91>] device_suspend+0x51/0x80
+ [<c0113efb>] suspend+0xbb/0x1c0
+ [<c0114729>] do_ioctl+0x109/0x180
+ [<c015b54f>] sys_ioctl+0xef/0x260
  [<c0109027>] syscall_call+0x7/0xb
-
-Code: 8b 45 00 e9 80 fe ff ff 8a 45 00 83 f0 80 89 c2 c1 e2 08 eb
 
 --=20
 Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
         jabber ID       <rreylinux at jabber dot org>
 GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
 
---=-gOwu+Ak7PCRXE1Y3WQLp
+--=-rjTe0cn5CdHYM4G/9CgH
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
 	digitalmente
@@ -81,10 +59,10 @@ Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQA/iHiURGk68b69cdURAlmnAJ44O/Hrxv41LSpkjCEMbIQSa2sdTwCeO/Ua
-fZJL3d5NIrF1bCSvc4dQ8cI=
-=AwFz
+iD8DBQA/iHk3RGk68b69cdURAloFAJ9nv19stm/p0G/LbHqakBP2GFv/nQCbBxkm
+pth1t+mDHCtuMIwXExn9YCs=
+=pTy7
 -----END PGP SIGNATURE-----
 
---=-gOwu+Ak7PCRXE1Y3WQLp--
+--=-rjTe0cn5CdHYM4G/9CgH--
 

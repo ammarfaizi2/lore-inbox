@@ -1,199 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263258AbUD2EEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263174AbUD2ENJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263258AbUD2EEz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 00:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263188AbUD2EEn
+	id S263174AbUD2ENJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 00:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbUD2ENJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 00:04:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56549 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263258AbUD2EDX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 00:03:23 -0400
-Date: Wed, 28 Apr 2004 21:03:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: busterbcook@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
-Message-Id: <20040428210302.4431c9c3.akpm@osdl.org>
-In-Reply-To: <20040428210214.31efe911.akpm@osdl.org>
-References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
-	<20040427230203.1e4693ac.akpm@osdl.org>
-	<Pine.LNX.4.58.0404280826070.31093@ozma.hauschen>
-	<20040428124809.418e005d.akpm@osdl.org>
-	<Pine.LNX.4.58.0404281534110.3044@ozma.hauschen>
-	<20040428182443.6747e34b.akpm@osdl.org>
-	<Pine.LNX.4.58.0404282244280.13311@ozma.hauschen>
-	<20040428210214.31efe911.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 29 Apr 2004 00:13:09 -0400
+Received: from florence.buici.com ([206.124.142.26]:62342 "HELO
+	florence.buici.com") by vger.kernel.org with SMTP id S263174AbUD2ENE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 00:13:04 -0400
+Date: Wed, 28 Apr 2004 21:13:03 -0700
+From: Marc Singer <elf@buici.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: riel@redhat.com, brettspamacct@fastclick.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-ID: <20040429041302.GA26845@buici.com>
+References: <20040428180038.73a38683.akpm@osdl.org> <Pine.LNX.4.44.0404282143360.19633-100000@chimarrao.boston.redhat.com> <20040428185720.07a3da4d.akpm@osdl.org> <20040429022944.GA24000@buici.com> <20040428193541.1e2cf489.akpm@osdl.org> <20040429031059.GA26060@buici.com> <20040428201924.719dfb68.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040428201924.719dfb68.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
->  Does this fix it?
+On Wed, Apr 28, 2004 at 08:19:24PM -0700, Andrew Morton wrote:
+> Marc Singer <elf@buici.com> wrote:
+> >
+> > > That's what people have been asking for.  What are you suggesting should
+> > > happen instead?
+> > 
+> > I'm thinking that the problem is that the page cache is greedier that
+> > most people expect.  For example, if I could hold the page cache to be
+> > under a specific size, then I could do some performance measurements.
+> > E.g, compile kernel with a 768K page cache, 512K, 256K and 128K.  On a
+> > machine with loads of RAM, where's the optimal page cache size?
+> 
+> Nope, there's no point in leaving free memory floating about when the
+> kernel can and will reclaim clean pagecache on demand.
 
-If not, please try this new debug patch, against -rc3.
+It could work differently from that.  For example, if we had 500M
+total, we map 200M, then we do 400M of IO.  Perhaps we'd like to be
+able to say that a 400M page cache is too big.  The problem isn't
+about reclaiming pagecache it's about the cost of swapping pages back
+in.  The page cache can tend to favor swapping mapped pages over
+reclaiming it's own pages that are less likely to be used.  Of course,
+it doesn't know that...which is the rub.
 
+If I thought I had an method for doing this, I'd write code to try it
+out.
 
-diff -puN include/linux/kernel.h~proc-sys-debug include/linux/kernel.h
---- 25/include/linux/kernel.h~proc-sys-debug	Tue Apr 27 17:11:39 2004
-+++ 25-akpm/include/linux/kernel.h	Tue Apr 27 17:11:39 2004
-@@ -220,6 +220,8 @@ extern void dump_stack(void);
- 	1; \
- })
- 
-+extern int proc_sys_debug[8];
-+
- #endif /* __KERNEL__ */
- 
- #define SI_LOAD_SHIFT	16
-diff -puN kernel/sysctl.c~proc-sys-debug kernel/sysctl.c
---- 25/kernel/sysctl.c~proc-sys-debug	Tue Apr 27 17:11:39 2004
-+++ 25-akpm/kernel/sysctl.c	Tue Apr 27 17:11:39 2004
-@@ -888,7 +888,26 @@ static ctl_table fs_table[] = {
- 	{ .ctl_name = 0 }
- };
- 
-+int proc_sys_debug[8];
-+EXPORT_SYMBOL(proc_sys_debug);
-+
- static ctl_table debug_table[] = {
-+	{1, "0", &proc_sys_debug[0], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{2, "1", &proc_sys_debug[1], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{3, "2", &proc_sys_debug[2], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{4, "3", &proc_sys_debug[3], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{5, "4", &proc_sys_debug[4], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{6, "5", &proc_sys_debug[5], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{7, "6", &proc_sys_debug[6], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{8, "7", &proc_sys_debug[7], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
- 	{ .ctl_name = 0 }
- };
- 
+> What you discuss above is just an implementation detail.  Forget it.  What
+> are the requirements?  Thus far I've seen
 
-_
+The requirement is that we'd like to see pages aged more gracefully.
+A mapped page that is used continuously for ten minutes and then left
+to idle for 10 minutes is more valuable than an IO page that was read
+once and then not used for ten minutes.  As the mapped page ages, it's
+value decays.
 
+> a) updatedb causes cache reclaim
+> 
+> b) updatedb causes swapout
+> 
+> c) prefer that openoffice/mozilla not get paged out when there's heavy
+>    pagecache demand.
+> 
+> For a) we don't really have a solution.  Some have been proposed but they
+> could have serious downsides.
+> 
+> For b) and c) we can tune the pageout-vs-cache reclaim tendency with
+> /proc/sys/vm/swappiness, only nobody seems to know that.
 
-
-
----
-
- 25-akpm/fs/fs-writeback.c |   32 ++++++++++++++++++++++++++++++++
- 25-akpm/fs/mpage.c        |    6 ++++++
- 2 files changed, 38 insertions(+)
-
-diff -puN fs/fs-writeback.c~pdflush-debug fs/fs-writeback.c
---- 25/fs/fs-writeback.c~pdflush-debug	2004-04-28 20:52:05.820437744 -0700
-+++ 25-akpm/fs/fs-writeback.c	2004-04-28 21:01:05.062460496 -0700
-@@ -152,7 +152,23 @@ __sync_single_inode(struct inode *inode,
- 
- 	spin_unlock(&inode_lock);
- 
-+	if (proc_sys_debug[0]) {
-+		printk("%s: writepages in nr_pages:%lu nr_to_write:%ld"
-+				" pages_skipped:%ld en:%d\n",
-+			__FUNCTION__,
-+			mapping->nrpages, wbc->nr_to_write,
-+			wbc->pages_skipped,
-+			wbc->encountered_congestion);
-+	}
- 	ret = do_writepages(mapping, wbc);
-+	if (proc_sys_debug[0]) {
-+		printk("%s: writepages out nr_pages:%lu nr_to_write:%ld"
-+				" pages_skipped:%ld en:%d\n",
-+			__FUNCTION__,
-+			mapping->nrpages, wbc->nr_to_write,
-+			wbc->pages_skipped,
-+			wbc->encountered_congestion);
-+	}
- 
- 	/* Don't write the inode if only I_DIRTY_PAGES was set */
- 	if (dirty & (I_DIRTY_SYNC | I_DIRTY_DATASYNC))
-@@ -180,6 +196,8 @@ __sync_single_inode(struct inode *inode,
- 				 * writeout as soon as the queue becomes
- 				 * uncongested.
- 				 */
-+				if (proc_sys_debug[0])
-+					printk("%s:%d\n", __FILE__, __LINE__);
- 				inode->i_state |= I_DIRTY_PAGES;
- 			} else {
- 				/*
-@@ -192,22 +210,30 @@ __sync_single_inode(struct inode *inode,
- 				inode->i_state |= I_DIRTY_PAGES;
- 				inode->dirtied_when = jiffies;
- 				list_move(&inode->i_list, &sb->s_dirty);
-+				if (proc_sys_debug[0])
-+					printk("%s:%d\n", __FILE__, __LINE__);
- 			}
- 		} else if (inode->i_state & I_DIRTY) {
- 			/*
- 			 * Someone redirtied the inode while were writing back
- 			 * the pages: nothing to do.
- 			 */
-+			if (proc_sys_debug[0])
-+				printk("%s:%d\n", __FILE__, __LINE__);
- 		} else if (atomic_read(&inode->i_count)) {
- 			/*
- 			 * The inode is clean, inuse
- 			 */
- 			list_move(&inode->i_list, &inode_in_use);
-+			if (proc_sys_debug[0])
-+				printk("%s:%d\n", __FILE__, __LINE__);
- 		} else {
- 			/*
- 			 * The inode is clean, unused
- 			 */
- 			list_move(&inode->i_list, &inode_unused);
-+			if (proc_sys_debug[0])
-+				printk("%s:%d\n", __FILE__, __LINE__);
- 		}
- 	}
- 	wake_up_inode(inode);
-@@ -328,6 +354,9 @@ sync_sb_inodes(struct super_block *sb, s
- 		if (current_is_pdflush() && !writeback_acquire(bdi))
- 			break;
- 
-+		if (proc_sys_debug[0]) {
-+			printk("%s: write inode %p\n", __FUNCTION__, inode);
-+		}
- 		BUG_ON(inode->i_state & I_FREEING);
- 		__iget(inode);
- 		pages_skipped = wbc->pages_skipped;
-@@ -384,6 +413,9 @@ writeback_inodes(struct writeback_contro
- 	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.prev)) {
- 		if (!list_empty(&sb->s_dirty) || !list_empty(&sb->s_io)) {
- 			spin_unlock(&sb_lock);
-+			if (proc_sys_debug[0]) {
-+				printk("%s: sync sb %p\n", __FUNCTION__, sb);
-+			}
- 			sync_sb_inodes(sb, wbc);
- 			spin_lock(&sb_lock);
- 		}
-diff -puN fs/mpage.c~pdflush-debug fs/mpage.c
---- 25/fs/mpage.c~pdflush-debug	2004-04-28 20:52:05.821437592 -0700
-+++ 25-akpm/fs/mpage.c	2004-04-28 20:52:05.825436984 -0700
-@@ -658,6 +658,12 @@ retry:
- 			if (writepage) {
- 				ret = (*writepage)(page, wbc);
- 				if (ret) {
-+					if (proc_sys_debug[0]) {
-+						printk("%s: writepage "
-+							"returned %d\n",
-+							__FUNCTION__,
-+							ret);
-+					}
- 					if (ret == -ENOSPC)
- 						set_bit(AS_ENOSPC,
- 							&mapping->flags);
-
-_
-
+I've read the source for where swappiness comes into play.  Yet I
+cannot make a statement about what it means.  Can you?

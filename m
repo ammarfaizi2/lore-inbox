@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUGXCq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264655AbUGXDCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268248AbUGXCq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 22:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbUGXCq7
+	id S264655AbUGXDCi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 23:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268249AbUGXDCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 22:46:59 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:64149 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268248AbUGXCq6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 22:46:58 -0400
-Subject: Re: [patch] kernel events layer
-From: Robert Love <rml@ximian.com>
-To: Dan Aloni <da-x@gmx.net>
+	Fri, 23 Jul 2004 23:02:38 -0400
+Received: from gort.metaparadigm.com ([203.117.131.12]:56812 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S264655AbUGXDCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 23:02:36 -0400
+Message-ID: <4101D14D.6090007@metaparadigm.com>
+Date: Sat, 24 Jul 2004 11:02:37 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040715 Debian/1.7.1-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@ximian.com>
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040723213223.GA637@callisto.yi.org>
+Subject: Re: [patch] kernel events layer
 References: <1090604517.13415.0.camel@lucy>
-	 <20040723213223.GA637@callisto.yi.org>
-Content-Type: text/plain
-Date: Fri, 23 Jul 2004 22:47:06 -0400
-Message-Id: <1090637226.1830.8.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.90 (1.5.90-5) 
+In-Reply-To: <1090604517.13415.0.camel@lucy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-24 at 00:32 +0300, Dan Aloni wrote:
+On 07/24/04 01:41, Robert Love wrote:
 
-> IMHO you either should not assume anything about the length of the object 
-> string, _or_ do the complete safe string assembly e.g:
-> 
->         len += snprintf(buffer, PAGE_SIZE, "From: %s\nSignal: %s\n", 
->                         object, signal);
-> 
+> @@ -59,9 +60,15 @@
+>  	if (l & 0x1) {
+>  		printk(KERN_EMERG "CPU%d: Temperature above threshold\n", cpu);
+>  		printk(KERN_EMERG "CPU%d: Running in modulated clock mode\n",
+> -				cpu);
+> +			cpu);
+> +		send_kmessage(KMSG_POWER,
+> +			"/org/kernel/devices/system/cpu/temperature", "high",
+> +			"Cpu: %d\n", cpu);
 
-Fair enough.  I guess what we want, exactly, is:
+Should there be some sharing with the device naming of sysfs or are
+will we introduce a new one? ie sysfs uses:
 
- len = snprintf(buffer, PAGE_SIZE, "From: %s\n", object);
- len += snprintf(&buffer[len], PAGE_SIZE - len "Signal: %s\n", signal);
+devices/system/cpu/cpu0/<blah>
 
-I will add that to the next revision.
+Would it be a better way to have a version that takes struct kobject
+to enforce consistency in the device naming scheme. This also means
+userspace would automatically know where to look in /sys if futher
+info was needed.
 
-	Robert Love
+Question is does it make sense to use this infrastructure without sysfs
+as hald, etc require it. ie depends CONFIG_SYSFS
 
+Perhaps a send_kmessage_kobject ?
 
+~mc

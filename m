@@ -1,77 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264089AbTEOPec (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 11:34:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbTEOPec
+	id S264086AbTEOPdc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 11:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264089AbTEOPdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 11:34:32 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2176 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264089AbTEOPea
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 11:34:30 -0400
-Date: Thu, 15 May 2003 11:46:49 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Chris Ricker <kaboom@gatech.edu>
-cc: Jesse Pollard <jesse@cats-chateau.net>,
-       Mike Touloumtzis <miket@bluemug.com>, Ahmed Masud <masud@googgun.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Yoav Weiss <ml-lkml@unpatched.org>, linux-kernel@vger.kernel.org
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <Pine.LNX.4.55.0305150931140.6447@verdande.oobleck.net>
-Message-ID: <Pine.LNX.4.53.0305151139220.188@chaos>
-References: <20030514074403.GA18152@bluemug.com> <20030514205847.GA18514@bluemug.com>
- <Pine.LNX.4.53.0305141724220.12328@chaos> <03051508174100.25285@tabby>
- <Pine.LNX.4.55.0305150913471.6447@verdande.oobleck.net>
- <Pine.LNX.4.53.0305151121420.19950@chaos> <Pine.LNX.4.55.0305150931140.6447@verdande.oobleck.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 May 2003 11:33:32 -0400
+Received: from draal.physics.wisc.edu ([128.104.137.82]:10624 "EHLO
+	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
+	id S264086AbTEOPda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 11:33:30 -0400
+Date: Thu, 15 May 2003 10:45:47 -0500
+From: Bob McElrath <bob+debian-alpha@mcelrath.org>
+To: mcompengr@earthlink.net
+Cc: debian-alpha@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: alpha kernel memory leak
+Message-ID: <20030515154546.GA19041@mcelrath.org>
+References: <20030513151300.GB26879@mcelrath.org> <3EC374D0.53602A1@earthlink.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
+Content-Disposition: inline
+In-Reply-To: <3EC374D0.53602A1@earthlink.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 May 2003, Chris Ricker wrote:
 
-> On Thu, 15 May 2003, Richard B. Johnson wrote:
->
-> > > You don't have to do that. Richard is mis-informed. Any of the following
-> > > still work on Red Hat Linux 9:
-> > >
-> > > init=/bin/bash         # drops you straight to a bash shell
-> > > init 1                 # runs runlevel 1 SysV init scripts and rc.sysinit
-> > > init single            # runs rc.sysinit, but not runlevel 1
-> > > init emergency         # runs a shell
-> > >
-> > > all without going to rescue media.
-> > >
-> >
-> > Bullshit. Try it.
->
-> I just did. It works.
->
-> If it's not working for you, it's because *you* did something (like, say,
-> password your boot loader). By default, it's still possible on Red Hat Linux
-> 9 out of the box.
->
-> later,
-> chris
-> -
+--CE+1k2dSO48ffgeK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sill bullshit. I did nothing except to try to help a neighbor
-who got locked out of her machine. I spent most of Saturday
-and all of Sunday trying to break in. The LILO command prompt
-readily took "parameters". However, any parameter passed on
-the command-line resulted in a try-to-kill init error. Her
-machine uses an Adaptec SCSI controller which needs to be
-loaded via initrd to make the root file-system available.
+mcompengr@earthlink.net [mcompengr@earthlink.net] wrote:
+>=20
+> (Please correct me where I'm wrong.)
+>=20
+> Generally, a memory leak is where an often called piece of code
+> dynamically allocates itself some memory for temporary usage, and
+> then fails to release that memory before being called again.
+>=20
+> This situation might be indicated by running out of swap space, at
+> which point the machine should grind to a halt (all processes), but
+> the memory usage reflected by the "top" or "free" commands won't show
+> it.  Swap space should be twice the size of physical memory.
 
-I tried Red-Hat 8.0 here at work. It works as you described.
-There is no problem with it and LILO and initrd. However
-Red Hat 9/Professional does not allow break-in, at least on
-the machine tested...and I have several pissed off witnesses.
+The machine does, in fact grind to a halt.  When I first boot the memory
+usage is ~250MB and I have no problems using or starting any program.
+
+After a few days the memory usage is ~500MB and I cannot start programs
+(they are killed immediatly with OOM).  Note that in both cases the SAME
+programs are running.  Just sitting here and watching 'top' shortly
+after bootup, the memory usage goes up by ~2k/s.  This is with the
+network down, so the machine should be quiescent and hopefully no memory
+allocations taking place.  I just checked again with all services
+stopped and the network down, at the console (no X), only init, tcsh and
+my little perl memory logging script running.  It still leaks by 1.8k/s,
+according to my calculations.
+
+If I turn swap back on, most operations cause a massive amount of
+swapping (switching desktops in X).
+
+Are there any tools to examine how memory is being used, that report
+sensible numbers?  As I mentioned 'ps' no longer reports any memory
+numbers (procps 3.1.8, debian unstable).  And using top, the sum of VIRT
+is never equal to 'used'.  If there is a memory leak, how do I determine
+that definitively?
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Bob McElrath [Univ. of Wisconsin at Madison, Department of Physics]
 
+    "You measure democracy by the freedom it gives its dissidents, not the
+    freedom it gives its assimilated conformists." -- Abbie Hoffman
+
+
+--CE+1k2dSO48ffgeK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+w7YqjwioWRGe9K0RAufZAKCA38mFJjUsKI5egXXYx3xBzxp2EgCcCvbT
+LlTUdZuTXxnkZrIdIuCEDzM=
+=vD0y
+-----END PGP SIGNATURE-----
+
+--CE+1k2dSO48ffgeK--

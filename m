@@ -1,50 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317262AbSF2AdH>; Fri, 28 Jun 2002 20:33:07 -0400
+	id <S317437AbSF2Anf>; Fri, 28 Jun 2002 20:43:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317437AbSF2AdG>; Fri, 28 Jun 2002 20:33:06 -0400
-Received: from smtp-server2.tampabay.rr.com ([65.32.1.39]:9136 "EHLO
-	smtp-server2.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S317262AbSF2AdF> convert rfc822-to-8bit; Fri, 28 Jun 2002 20:33:05 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: David Weeks <dweeks02@tampabay.rr.com>
-To: "Kerl, John" <John.Kerl@Avnet.com>
-Subject: Twister chipset... other stuff...  sheesh...
-Date: Fri, 28 Jun 2002 20:34:53 -0400
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200206282034.53861.dweeks02@tampabay.rr.com>
+	id <S317485AbSF2Ane>; Fri, 28 Jun 2002 20:43:34 -0400
+Received: from mpdr0.chicago.il.ameritech.net ([67.38.100.19]:14313 "EHLO
+	mpdr0.chicago.il.ameritech.net") by vger.kernel.org with ESMTP
+	id <S317437AbSF2And>; Fri, 28 Jun 2002 20:43:33 -0400
+Date: Fri, 28 Jun 2002 19:46:39 -0500
+From: Mark J Roberts <mjr@znex.org>
+To: linux-kernel@vger.kernel.org
+Subject: list.h merge sort implementation.
+Message-ID: <20020629004639.GA2311@znex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Key: 0x025D0C28
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK,
+A few months ago I adapted a merge sort implementation from
+http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
+to work with Linux's list.h. I figure I should get it into the
+archives just in case anyone might want such a thing. So here it is.
 
-I ctags -R the source tree, getting a 28meg tag file, and searched it in 
-emacs.
+void list_sort(struct list_head *head, int (*cmp)(struct list_head *a, struct list_head *b))
+{
+	struct list_head *p, *q, *e, *list, *tail, *oldhead;
+	int insize, nmerges, psize, qsize, i;
 
-Sheeshhsh...  I've got a dotcom network to admin., php/postgres/ssh apps to 
-develop, and all the business crap needed to "run" a business to deal with.  
-(you know, all that gov crap that's got nothing to do with making YOUR OWN 
-living.)
+	list = head->next;
+	list_del(head);
+	insize = 1;
+	for (;;) {
+		p = oldhead = list;
+		list = tail = NULL;
+		nmerges = 0;
 
-Basically I want to use this laptop as a proof of concept demo to all the 
-un-free masses out there who think linux is bad cause (Apple using) Rush 
-Limbaugh sez so.  But a laptop with NO power management and NO sound is the 
-proof of concept the Evil people would like me to show.
+		while (p) {
+			nmerges++;
+			q = p;
+			psize = 0;
+			for (i = 0; i < insize; i++) {
+				psize++;
+				q = q->next == oldhead ? NULL : q->next;
+				if (!q)
+					break;
+			}
 
+			qsize = insize;
+			while (psize > 0 || (qsize > 0 && q)) {
+				if (!psize) {
+					e = q;
+					q = q->next;
+					qsize--;
+					if (q == oldhead)
+						q = NULL;
+				} else if (!qsize || !q) {
+					e = p;
+					p = p->next;
+					psize--;
+					if (p == oldhead)
+						p = NULL;
+				} else if (cmp(p, q) <= 0) {
+					e = p;
+					p = p->next;
+					psize--;
+					if (p == oldhead)
+						p = NULL;
+				} else {
+					e = q;
+					q = q->next;
+					qsize--;
+					if (q == oldhead)
+						q = NULL;
+				}
+				if (tail)
+					tail->next = e;
+				else
+					list = e;
+				e->prev = tail;
+				tail = e;
+			}
+			p = q;
+		}
 
-This sucks.
+		tail->next = list;
+		list->prev = tail;
 
-John, thanks for the ctags tip.  It helped now, and will even more in the 
-future.  
+		if (nmerges <= 1)
+			break;
 
-Dave
+		insize *= 2;
+	}
 
-PS -- I'm damned tired of manufactures NOT supporting us.  Are we a market or 
-not?
--- 
-dweeks02@tampabay.rr.com
-813-236-2009
+	head->next = list;
+	head->prev = list->prev;
+	list->prev->next = head;
+	list->prev = head;
+}

@@ -1,127 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267180AbUHIT6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUHIT6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267180AbUHIT6u (ORCPT <rfc822;willy@w.ods.org>);
+	id S267165AbUHIT6u (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 9 Aug 2004 15:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUHIT6D
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267170AbUHIT6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 15:58:03 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15846 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267170AbUHIT5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 15:57:04 -0400
-Date: Mon, 9 Aug 2004 21:56:56 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] select FW_LOADER -> depends HOTPLUG
-Message-ID: <20040809195656.GX26174@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Mon, 9 Aug 2004 15:58:35 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:8382 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267165AbUHITz1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 15:55:27 -0400
+Message-Id: <200408091951.i79JpbR20316@owlet.beaverton.ibm.com>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Adrian Bunk <bunk@fs.tum.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc3-mm1: SCHEDSTATS compile error 
+In-reply-to: Your message of "Mon, 09 Aug 2004 15:46:19 EDT."
+             <4117D48B.9000500@tmr.com> 
+Date: Mon, 09 Aug 2004 12:51:18 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Solved it for me, although running SMP on a old slow PentiumII feels a 
+    tad odd. Other than that the system is running very well, I have to try 
+    a response test and see how it feels then.
 
-The contract is easy:
-If you select something, you have to ensure the depenencies of the 
-selected option are met.
+Oh I agree, the right patch is not to run SMP, but it *is* a workaround. This
+patch against rc3-mm1 should let you run it UP:
 
-This is simple.
+Signed-off-by: Rick Lindsley <ricklind@us.ibm.com>
 
-And most people get it wrong.
-
-The patch below adds dependencies on HOTPLUG for all options that select 
-FW_LOADER.
-
-
-diffstat output:
- drivers/bluetooth/Kconfig           |    4 ++--
- drivers/media/dvb/ttpci/Kconfig     |    2 +-
- drivers/media/dvb/ttusb-dec/Kconfig |    2 +-
- drivers/net/wireless/Kconfig        |    5 ++---
- drivers/scsi/Kconfig                |    2 +-
- 5 files changed, 7 insertions(+), 8 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.8-rc3-mm2-full-3.4/drivers/bluetooth/Kconfig.old	2004-08-09 21:48:55.000000000 +0200
-+++ linux-2.6.8-rc3-mm2-full-3.4/drivers/bluetooth/Kconfig	2004-08-09 21:49:18.000000000 +0200
-@@ -65,7 +65,7 @@
+diff -rup linux-2.6.8-rc3-mm1/Documentation/sched-stats.txt linux-2.6.8-rc3-mm1-ss/Documentation/sched-stats.txt
+--- linux-2.6.8-rc3-mm1/Documentation/sched-stats.txt	Thu Aug  5 11:05:40 2004
++++ linux-2.6.8-rc3-mm1-ss/Documentation/sched-stats.txt	Thu Aug  5 11:37:53 2004
+@@ -1,6 +1,8 @@
+ Version 9 of schedstats introduces support for sched_domains, which
+ hit the mainline kernel in 2.6.7.  Some counters make more sense to be
+-per-runqueue; other to be per-domain.
++per-runqueue; other to be per-domain.  Note that domains (and their associated
++information) will only be pertinent and available on machines utilizing
++CONFIG_SMP.
  
- config BT_HCIBCM203X
- 	tristate "HCI BCM203x USB driver"
--	depends on USB
-+	depends on USB && HOTPLUG
- 	select FW_LOADER
- 	help
- 	  Bluetooth HCI BCM203x USB driver.
-@@ -77,7 +77,7 @@
+ In version 9 of schedstat, there is at least one level of domain
+ statistics for each cpu listed, and there may well be more than one
+@@ -83,7 +85,9 @@ The last six are statistics dealing with
  
- config BT_HCIBFUSB
- 	tristate "HCI BlueFRITZ! USB driver"
--	depends on USB
-+	depends on USB && HOTPLUG
- 	select FW_LOADER
- 	help
- 	  Bluetooth HCI BlueFRITZ! USB driver.
---- linux-2.6.8-rc3-mm2-full-3.4/drivers/scsi/Kconfig.old	2004-08-09 21:48:20.000000000 +0200
-+++ linux-2.6.8-rc3-mm2-full-3.4/drivers/scsi/Kconfig	2004-08-09 21:48:32.000000000 +0200
-@@ -1019,7 +1019,7 @@
+ Domain statistics
+ -----------------
+-One of these is produced per domain for each cpu described.
++One of these is produced per domain for each cpu described. (Note that if
++CONFIG_SMP is not defined, *no* domains are utilized and these lines
++will not appear in the output.)
  
- config SCSI_IPR
- 	tristate "IBM Power Linux RAID adapter support"
--	depends on PCI && SCSI && PPC
-+	depends on PCI && SCSI && PPC && HOTPLUG
- 	select FW_LOADER
- 	---help---
- 	  This driver supports the IBM Power Linux family RAID adapters.
---- linux-2.6.8-rc3-mm2-full-3.4/drivers/media/dvb/ttusb-dec/Kconfig.old	2004-08-09 21:47:21.000000000 +0200
-+++ linux-2.6.8-rc3-mm2-full-3.4/drivers/media/dvb/ttusb-dec/Kconfig	2004-08-09 21:47:52.000000000 +0200
-@@ -1,6 +1,6 @@
- config DVB_TTUSB_DEC
- 	tristate "Technotrend/Hauppauge USB DEC devices"
--	depends on DVB_CORE && USB
-+	depends on DVB_CORE && USB && HOTPLUG
- 	select FW_LOADER
- 	select CRC32
- 	help
---- linux-2.6.8-rc3-mm2-full-3.4/drivers/media/dvb/ttpci/Kconfig.old	2004-08-09 21:45:32.000000000 +0200
-+++ linux-2.6.8-rc3-mm2-full-3.4/drivers/media/dvb/ttpci/Kconfig	2004-08-09 21:46:15.000000000 +0200
-@@ -1,6 +1,6 @@
- config DVB_AV7110
- 	tristate "AV7110 cards"
--	depends on DVB_CORE
-+	depends on DVB_CORE && HOTPLUG
- 	select FW_LOADER
- 	select VIDEO_DEV
- 	select VIDEO_SAA7146_VV
---- linux-2.6.8-rc3-mm2-full-3.4/drivers/net/wireless/Kconfig.old	2004-08-09 21:43:19.000000000 +0200
-+++ linux-2.6.8-rc3-mm2-full-3.4/drivers/net/wireless/Kconfig	2004-08-09 21:44:10.000000000 +0200
-@@ -223,7 +223,7 @@
+ domain<N> 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
  
- config ATMEL
-       tristate "Atmel at76c50x chipset  802.11b support"
--      depends on NET_RADIO && EXPERIMENTAL
-+      depends on NET_RADIO && HOTPLUG && EXPERIMENTAL
-       select FW_LOADER
-       select CRC32
-        ---help---
-@@ -293,8 +293,6 @@
- config PCMCIA_ATMEL
- 	tristate "Atmel at76c502/at76c504 PCMCIA cards"
- 	depends on NET_RADIO && ATMEL && PCMCIA
--	select FW_LOADER
--	select CRC32
- 	---help---
- 	  Enable support for PCMCIA cards containing the
- 	  Atmel at76c502 and at76c504 chips.
-@@ -309,6 +307,7 @@
+diff -rup linux-2.6.8-rc3-mm1/kernel/sched.c linux-2.6.8-rc3-mm1-ss/kernel/sched.c
+--- linux-2.6.8-rc3-mm1/kernel/sched.c	Thu Aug  5 11:06:23 2004
++++ linux-2.6.8-rc3-mm1-ss/kernel/sched.c	Thu Aug  5 12:13:51 2004
+@@ -342,10 +342,11 @@ static int show_schedstat(struct seq_fil
+ 	seq_printf(seq, "timestamp %lu\n", jiffies);
+ 	for_each_online_cpu (cpu) {
  
- comment "Prism GT/Duette 802.11(a/b/g) PCI/Cardbus support"
- 	depends on NET_RADIO && PCI
-+
- config PRISM54
- 	tristate 'Intersil Prism GT/Duette/Indigo PCI/Cardbus' 
- 	depends on PCI && NET_RADIO && EXPERIMENTAL && HOTPLUG
-
+-		int dcnt = 0;
+-
+ 		runqueue_t *rq = cpu_rq(cpu);
++#ifdef CONFIG_SMP
++		int dcnt = 0;
+ 		struct sched_domain *sd;
++#endif
+ 
+ 		/* runqueue-specific stats */
+ 		seq_printf(seq,
+@@ -368,6 +369,7 @@ static int show_schedstat(struct seq_fil
+ 
+ 		seq_printf(seq, "\n");
+ 
++#ifdef CONFIG_SMP
+ 		/* domain-specific stats */
+ 		for_each_domain(cpu, sd) {
+ 			char mask_str[NR_CPUS];
+@@ -387,6 +389,7 @@ static int show_schedstat(struct seq_fil
+ 			    sd->sbe_pushed, sd->sbe_attempts,
+ 			    sd->ttwu_wake_affine, sd->ttwu_wake_balance);
+ 		}
++#endif
+ 	}
+ 	return 0;
+ }

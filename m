@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUCXJWS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 04:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUCXJWS
+	id S263166AbUCXJcd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 04:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUCXJcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 04:22:18 -0500
-Received: from ltgp.iram.es ([150.214.224.138]:9344 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S263117AbUCXJWR (ORCPT
+	Wed, 24 Mar 2004 04:32:33 -0500
+Received: from hell.org.pl ([212.244.218.42]:17673 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S263166AbUCXJcc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 04:22:17 -0500
-From: Gabriel Paubert <paubert@iram.es>
-Date: Wed, 24 Mar 2004 10:12:36 +0100
-To: "Theodore Ts'o" <tytso@mit.edu>, Joshua Kwan <joshk@triplehelix.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: missing files in bk trees?
-Message-ID: <20040324091236.GA5556@iram.es>
-References: <Pine.LNX.4.58.0403232140160.7713@debian> <pan.2004.03.24.02.50.16.373654@triplehelix.org> <20040324043521.GA28169@thunk.org>
+	Wed, 24 Mar 2004 04:32:32 -0500
+Date: Wed, 24 Mar 2004 10:32:31 +0100
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: ncunningham@users.sourceforge.net,
+       Dmitry Torokhov <dtor_core@ameritech.net>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
+Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
+Message-ID: <20040324093231.GA15061@hell.org.pl>
+Mail-Followup-To: Michael Frank <mhf@linuxmail.org>,
+	ncunningham@users.sourceforge.net,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	Pavel Machek <pavel@suse.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
+References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz> <200403232352.58066.dtor_core@ameritech.net> <1080104698.3014.4.camel@calvin.wpcb.org.au> <opr5cry20s4evsfm@smtp.pacific.net.th>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20040324043521.GA28169@thunk.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <opr5cry20s4evsfm@smtp.pacific.net.th>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 23, 2004 at 11:35:22PM -0500, Theodore Ts'o wrote:
-> On Tue, Mar 23, 2004 at 06:50:16PM -0800, Joshua Kwan wrote:
-> > On Tue, 23 Mar 2004 21:41:46 -0500, ameer armaly wrote:
-> > > Hi all.
-> > > I got the latest kernel tree from linux.bkbits.net, and I try to make
-> > > config, and it complains about a missing zconf.tab.h.  However, it has
-> > > decrypted the other sccs files, but for some oodd reason it can't find
-> > > this particular one.  Suggestions would be appriciated.
-> > > Thanks,
-> > 
-> > you need to do 'bk -r get' in the root of your checkout
-> 
-> Better to do a "bk -r get -S", actually.  That way files that are
-> already checked out won't be created a second time.
+Thus wrote Michael Frank:
+> Which reminds me of the "failed to read a chunk" message, the guys who 
+> reported
+> it got all quiet after telling them to do more badblocks testing without 
+> diskcaching or
+> using dd to write random data and read them back, so  likely was caused by
+> media problems.
 
-Even better is "bk -Ur get -S", which won't check out ChangeSet and the
-files in the BitKeeper/ and its subdirectories. The most visible effect
-is that it avoids checking out the 3000+ files in BitKeeper/deleted
-(3098 as of this morning).
+I'm not so sure, at least in my case. Sure, badblocks /dev/hda1 reports an
+access beyond end, but neither badblocks /dev/hda1 $SIZEOF_HDA1 nor SMART
+do. Anyway, the alleged bad blocks are at the end of a 400 MB partition, so
+unless swsusp allocated swap randomly, there's hardly any chance I could
+hit them with 256 MB RAM and LZF on. But then, this failure was a single
+event in my case, while others reported some regularity.
+Best regards,
 
-	Regards,
-	Gabriel
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292079AbSB0O03>; Wed, 27 Feb 2002 09:26:29 -0500
+	id <S292239AbSB0O13>; Wed, 27 Feb 2002 09:27:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292514AbSB0O0T>; Wed, 27 Feb 2002 09:26:19 -0500
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:33768 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S292511AbSB0O0H>; Wed, 27 Feb 2002 09:26:07 -0500
-Message-ID: <3C7CEB5C.3000506@drugphish.ch>
-Date: Wed, 27 Feb 2002 15:21:16 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020126
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Zhu Ying Jie <zhuyingj@comp.nus.edu.sg>
+	id <S292515AbSB0O1U>; Wed, 27 Feb 2002 09:27:20 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:27304 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S292406AbSB0O1K>; Wed, 27 Feb 2002 09:27:10 -0500
+Date: Wed, 27 Feb 2002 15:27:05 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Bjorn Wesen <bjorn.wesen@axis.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to disable TCP's checksum
-In-Reply-To: <Pine.GSO.4.21.0202272215080.21508-100000@sf3.comp.nus.edu.sg>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: What is TCPRenoRecoveryFail ?
+Message-ID: <20020227152705.A18366@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Bjorn Wesen <bjorn.wesen@axis.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1020227144128.18713E-100000@fafner.axis.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.96.1020227144128.18713E-100000@fafner.axis.se>; from bjorn.wesen@axis.com on Wed, Feb 27, 2002 at 01:46:55PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Feb 27, 2002 at 01:46:55PM +0000, Bjorn Wesen wrote:
+> I have a TCP connection that is sending bulk data from a Linux 2.4.17
+> machine to a client. At some point, one of the packets from the Linux
+> machine is lost, so the client asks for a retransmit by acking the last
+> received correct packet. Then the Linux machine just keeps filling the
+> clients open window, ignoring that and subsequent retransmit requests,
+> never retransmitting any data.
 
-Zhu Ying Jie wrote:
-> Hi,
->   I am currently using kernel version 2.4.2 and trying to disable
-> tcp_input's checksum function. However, even I comment all the csum_error
-> in the file tcp_input.c, the packet (with wrong checksum) seems still will
-> be dropped. Can anyone tell me how to do the work? 
+Please show a tcpdump -v of this happening, including the initial SYN
+packets. I strongly suspect something in your network of mucking with TCP
+options.
 
-You can try to set skb->ip_summed=CHECKSUM_UNNECESSARY. But read the 
-comments in ../include/linux/skbuff.h to see if you really want that.
+> Around the time of the packet loss happened, the counter
+> TCPRenoRecoveryFail increased by one, but I'm not sufficiently into the
+> TCP code to figure out why that happens and if that is the reason why
+> Linux stop retransmitting anything.. any ideas ?
 
-HTH,
-Roberto Nibali, ratz
+See RFC2001. Might well be related.
 
+Regards,
+
+bert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

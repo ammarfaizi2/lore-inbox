@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264701AbSIWB5E>; Sun, 22 Sep 2002 21:57:04 -0400
+	id <S264717AbSIWB7o>; Sun, 22 Sep 2002 21:59:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264703AbSIWB5E>; Sun, 22 Sep 2002 21:57:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46354 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264701AbSIWB5C>;
-	Sun, 22 Sep 2002 21:57:02 -0400
-Message-ID: <3D8E7603.5060106@mandrakesoft.com>
-Date: Sun, 22 Sep 2002 22:01:39 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org, dev@bitmover.com
-Subject: Re: boring BK stats
-References: <200209222356.g8MNu4V10172@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264724AbSIWB7n>; Sun, 22 Sep 2002 21:59:43 -0400
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:48769 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S264717AbSIWB7n>; Sun, 22 Sep 2002 21:59:43 -0400
+Date: Sun, 22 Sep 2002 19:04:51 -0700
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: first NPT vs. NGPT vs. LinuxThreads benchmark results
+Message-ID: <20020923020451.GA3446@gnuppy.monkey.org>
+References: <3D8DB040.7060402@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D8DB040.7060402@redhat.com>
+User-Agent: Mutt/1.4i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> I should be working on getting the bk-3.0 release done but I'm sick of
-> fixing BK-on-windows bugs...
+On Sun, Sep 22, 2002 at 04:57:52AM -0700, Ulrich Drepper wrote:
+> The results of this test series are:
 > 
-> Linus' kernel tree has 13333 revision controlled files in it.  Without
-> repository compression, it eats up 280M in an ext2 fs.  With repository
-> compression, that drops to 129M.  After checking out all the files, the
-> size of the revision history and the checked out files is 317MB when
-> the revision history is compressed.  That means the tree without the
-> history is 188MB, we get the revision history in less space than the
-> checked out tree.  That's pretty cool, by the way, I know of no other
-> SCM system which can say that.
+> - - LinuxThreads indeed had several problems
 > 
-> Checking out the tree takes 16 seconds.  Doing an integrity check takes 10
-> seconds if the repository is uncompressed, 15 seconds if it is compressed.
-> That's on 1.3Ghz Athlon w/ PC133 memory running at the slower CAS rate,
-> but lots of it, around 900MB.
+> - - NGPT indeed run much faster (twice the performance)
+> 
+> - - NPTL runs four times faster than NGPT in a benchmark which by all
+>   means should favor an M-on-N implementation.
 
+Which could mean that they, NGPT, have slower thread allocation algorithms
+for many reason. Some M:N systems will red zone protect a page of the thread
+stack adding overhead to creation and deletion (FreeBSD'c -current does
+this), the memory allocation algorithms might not be able to take advantage
+of short term stack recycling and other things. It's not clear that these
+benchmarks are meaningful without outlining the conditions that surround it.
 
-If you can't fit a whole tree including metadata into RAM, though, BK 
-crawls...   Going from "bk citool" at the command line to actually 
-seeing the citool window approaches five minutes of runtime, on this 
-200MB laptop...  [my dual athlon with 512MB RAM corroborates your 
-numbers, though]  "bk -r co -Sq" takes a similar amount of time...
+Not to take the show away from you folks, but it's definitely something
+that I immediately though about once I saw the graphs.
 
-I also find that BK brings out the worst in the 2.4 kernel 
-elevator/VM...  mouse clicks in Mozilla take upwards of 10 seconds to 
-respond, when "bk -r co -Sq" is running on this laptop [any other 
-read-from-disk process behaves similarly].  And running any two BK jobs 
-at the same time is a huge mistake.  Two "bk -r co -Sq" runs easily take 
-four or more times longer than a single run.  Ditto for consistency 
-checks, or any other disk-intensive activity BK indulges in.
+> We will soon have more benchmarks showing the thread libraries in
+> other real-world situations, such as IO-intensive workloads.
 
-Next time I get super-annoyed at BK on this laptop, I'm gonna look into 
-beating the disk scheduler into submission...  some starvation is 
-clearly occurring.
-
-</rant>
-
-	Jeff
-
-
+bill
 

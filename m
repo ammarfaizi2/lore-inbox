@@ -1,63 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTEERtm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 13:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbTEERtl
+	id S261164AbTEER56 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 13:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbTEER56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 13:49:41 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:19627 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S261159AbTEERtk
+	Mon, 5 May 2003 13:57:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46019 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261164AbTEER54
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 13:49:40 -0400
-Subject: Re: Kernel hot-swap using Kexec, BProc and CC/SMP Clusters.
-From: Steven Cole <elenstev@mesatop.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <m1d6ixb8m7.fsf@frodo.biederman.org>
-References: <1052140733.2163.93.camel@spc9.esa.lanl.gov>
-	 <m1d6ixb8m7.fsf@frodo.biederman.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052157615.2163.113.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 05 May 2003 12:00:15 -0600
+	Mon, 5 May 2003 13:57:56 -0400
+Message-ID: <3EB6A909.9090901@pobox.com>
+Date: Mon, 05 May 2003 14:10:17 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jim Keniston <jkenisto@us.ibm.com>
+CC: Joe Perches <joe@perches.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Feldman, Scott" <scott.feldman@intel.com>, Greg KH <greg@kroah.com>,
+       Janice Girard <girouard@us.ibm.com>, LOS team <losteam@intel.com>,
+       Phil Cayton <phil.cayton@intel.com>, Randy Dunlap <rddunlap@osdl.org>,
+       Larry Kessler <kessler@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] Net device error logging
+References: <3EB15849.D0E1556D@us.ibm.com>		 <1051816594.29929.32.camel@localhost.localdomain>		 <3EB1A718.1084972F@us.ibm.com> <1051894225.2664.62.camel@localhost.localdomain> <3EB3026C.604D6F4C@us.ibm.com>
+In-Reply-To: <3EB3026C.604D6F4C@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-05 at 11:34, Eric W. Biederman wrote:
-> So summarize:
-> 1) Run multiple kernels (minimally kernels A and B)
-> 2) Migrate processes from kernel A to kernel B
-> 3) Use kexec to replace kernel A once all processes have left.
-> 4) Repeat for all other kernels.
-> 
-> On two simple machines working in tandem (The most common variation
-> used for high availability this should be easy to do).  And it is
-> preferable to a reboot because of the additional control and speed.
-> 
-> Thank you for the perspective.  This looks like I line I can
-> sell to get some official time to work on kexec and it's friends
-> more actively.
+Jim Keniston wrote:
+> I'm happy to discuss this.  As I see it, there are at least 4
+> possibilities:
+> 1. Standardize on the netif_msg_xxx (bit map) approach.
+> 2. Standardize on simple reporting levels (if (debug >= 2)...).
+> 3. Make the driver provide a filtering function, which can do #1, #2 or
+> some
+> other driver-specific test.
+> 4. Status quo: make the message-level test before calling netdev_xxx.
 
-Cutting boot time in half is pretty good as it is right now.
+Number one is the desired direction for net drivers.
 
-> 
-> >From what I have seen process migration/process check-pointing is
-> currently the very rough area.
-> 
-> The interesting thing becomes how do you measure system uptime.
-> 
-> Eric
 
-Perhaps two uptimes could be kept. The current concept of uptime would
-remain as is, analogous to the reign of a king (the current kernel), and
-a new integrated uptime would be analogous to the life of a dynasty. The
-dynasty uptime would be one of the many things the new kernel learned
-about on booting. This new dynasty uptime could become quite long if
-everything keeps on ticking.
 
-Steven
+
+> I think message filtering is a good idea.  I also think the following
+> features
+> would be useful:
+> a. Identify which device and driver the message refers to.
+
+this is already done in net drivers
+
+
+> b. Call net_ratelimit() in appropriate contexts.
+
+this is questionable.  The netif_xxx messages are _already_ designed to 
+be used in order of increasing verbosity.  If the user selects the more 
+verbose class of messages, then rate-limiting may not be appropriate.
+
+
+> c. Capture caller info (__FILE__ and/or __FUNCTION__).
+
+No need, in net drivers.  All of them already print out network 
+interface, which is all you need to know.
+
+
+> e. Standardize certain messages so that all drivers log predictable,
+> standard
+> messages (perhaps along with driver-specific info) under certain
+> circumstances.
+
+Yes, standardization of net driver messages is desired.
+
+	Jeff
+
+
+
 

@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316210AbSHORYM>; Thu, 15 Aug 2002 13:24:12 -0400
+	id <S317258AbSHOR3e>; Thu, 15 Aug 2002 13:29:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316213AbSHORYM>; Thu, 15 Aug 2002 13:24:12 -0400
-Received: from [143.166.83.88] ([143.166.83.88]:29445 "HELO
-	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S316210AbSHORYL>; Thu, 15 Aug 2002 13:24:11 -0400
-X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
-Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CB53@AUSXMPC122.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: linux-kernel@vger.kernel.org
-cc: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk, davej@suse.de,
-       torvalds@transmeta.com, andersen@codepoet.org, davidm@hpl.hp.com
-Subject: RE: Linux 2.4.20-pre1
-Date: Thu, 15 Aug 2002 12:28:00 -0500
+	id <S317261AbSHOR3e>; Thu, 15 Aug 2002 13:29:34 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42757 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317258AbSHOR3d>; Thu, 15 Aug 2002 13:29:33 -0400
+Date: Thu, 15 Aug 2002 10:35:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dax Kelson <dax@gurulabs.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Kendrick M. Smith" <kmsmith@umich.edu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "nfs@lists.sourceforge.net" <nfs@lists.sourceforge.net>,
+       <beepy@netapp.com>, <trond.myklebust@fys.uio.no>
+Subject: Re: Will NFSv4 be accepted?
+In-Reply-To: <Pine.LNX.4.44.0208141938350.31203-100000@mooru.gurulabs.com>
+Message-ID: <Pine.LNX.4.44.0208151027510.3130-100000@home.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 11453B287679646-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd be happy to submit a patch moving asm-ia64/efi.h into 
-> include/linux/ if it would be accepted.
 
-I've submitted patches to David Mosberger against 2.4 and 2.5 BK current,
-and the latest 2.4 ia64 port patch, which moves efi.h from include/asm-ia64
-into include/linux.  This is important now that the GUID Partition Table
-(GPT) code is included in the stock 2.4 and 2.5 kernels, and can be used on
-non-IA64 platforms - specifically for handling really large disks.  There is
-no ia64-specific code in efi.h.  David agrees that it's proper to make this
-change.
- 
-I've asked David, as IA64 port maintainer who currently "owns" this file, to
-forward these to Alan, Marcelo, DaveJ, and Linus respectively.
+On Wed, 14 Aug 2002, Dax Kelson wrote:
+> 
+> Q for Linus: What's the prospect of adding crypto to the kernel?
 
-For the curious, the posts to linux-ia64 with patches and explanations:
+For a good enough excuse, and with a good enough argument that it's not 
+likely to be a big export problem, I don't think it's impossible any more.
 
-For 2.5 BK-current:
-https://external-lists.vasoftware.com/archives//linux-ia64/2002-August/00385
-1.html
-https://external-lists.vasoftware.com/archives//linux-ia64/2002-August/00385
-2.html
+However, the "good enough excuse" has to be better than "some technically 
+excellent, but not very widespread" thing. 
 
-For 2.4 BK-current and ia64-current:
-https://external-lists.vasoftware.com/archives//linux-ia64/2002-August/00385
-3.html
+Quite frankly, I personally suspect that crypto is one of those things 
+that will be added by vendor kernels first - if vendors are willing to 
+handle whatever export issues there are, that's good, and if they aren't, 
+then the standard kernel cannot really force it upon them anyway.
 
+I personally doubt that NFS would be the thing driving this. Judging by 
+past performance, NFS security issues don't seem to bother people. I'd 
+personally assume that the thing that would be important enough to people 
+for vendors to add it is VPN or encrypted (local) disks.
 
-Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+		Linus
 

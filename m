@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVBTVta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVBTVxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbVBTVta (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 16:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVBTVt3
+	id S261932AbVBTVxX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 16:53:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVBTVxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 16:49:29 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:54202 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261541AbVBTVtY (ORCPT
+	Sun, 20 Feb 2005 16:53:23 -0500
+Received: from mailfe06.swip.net ([212.247.154.161]:62403 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261932AbVBTVxS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 16:49:24 -0500
-Date: Sun, 20 Feb 2005 22:49:23 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ray Bryant <raybry@sgi.com>
-Cc: Andi Kleen <ak@suse.de>, Andi Kleen <ak@muc.de>,
-       Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview II
-Message-ID: <20050220214922.GA14486@wotan.suse.de>
-References: <m1vf8yf2nu.fsf@muc.de> <42114279.5070202@sgi.com> <20050215121404.GB25815@muc.de> <421241A2.8040407@sgi.com> <20050215214831.GC7345@wotan.suse.de> <4212C1A9.1050903@sgi.com> <20050217235437.GA31591@wotan.suse.de> <4215A992.80400@sgi.com> <20050218130232.GB13953@wotan.suse.de> <42168FF0.30700@sgi.com>
+	Sun, 20 Feb 2005 16:53:18 -0500
+X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
+Subject: Re: 2.6.11-rc3-mm2: lockup in sys_timer_settime
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: roland@redhat.com
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+In-Reply-To: <421704B3.20500@goop.org>
+References: <421704B3.20500@goop.org>
+Content-Type: text/plain
+Date: Sun, 20 Feb 2005 22:53:01 +0100
+Message-Id: <1108936381.2272.20.camel@boxen>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42168FF0.30700@sgi.com>
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Perhaps node masks would be better and teaching the kernel to handle
-> >relative distances inside the masks transparently while migrating?
-> >Not sure how complicated this would be to implement though.
-> >
-> >Supporting interleaving on the new nodes may be also useful, that would
-> >need a policy argument at least too and masks.
-> >
+> When running a Posix conformance test (from posixtestsuite), the kernel
+> locks up with:
 > 
-> The worry I have about using node masks is that it is not as general as
-> old_node,new_node mappings (or preferably, the original proposal I made
-> of old_node_list, new_node_list).  One can't differentiate between the
-
-I agree that the node arrays are better for this case.
-
-> >>and the majority of the memory is shared, then we only need to make
-> >>one system call and one page table scan.  (We just "migrate" the
-> >>shared object once.) So the time to do the page table scans disappears
-> >
-> >
-> >I don't like this because it makes it much more complicated
-> >to use for user space. And you can set separate policies for
-> >shared objects anyways.
+> BUG: soft lockup detected on CPU#0
 > 
-> Yes, but only programs that care have to use the va_start and
-> va_end.  Programs who want to move everything can specify
-> 0 and MAX_INT there and they are done.
-
-I still think it's fundamentally unclean and racy. External processes
-shouldn't mess with virtual addresses of other processes.
-
-> >-Andi
+> Pid:  1873, comm: 10-1.test
+> EIP: 0060:[<c0126fda>] CPU: 0
+> EIP is at sys_timer_settime+0xfa+0x1f0
+>  EFLAGS: 00000282  Not tainted (2.6.11-rc3-mm2)
+> EAX: 00000282 EBX: 00000001 ECX: ffffffff EDX: 00000000
+> ESI: 00000000 EDI: 00000000 EBP: f17eafbc DS: 007b ES: 007b
+> CR0: 8005003b CR2: b7fac1f0 CR3: 311b3000 CR4: 000006d0
 > 
-> But we are least at the level of agreeing that the new system
-> call looks something like the following:
+> in test conformance/interfaces/timer_create/10-1.c (attached).
 > 
-> migrate_pages(pid, count, old_list, new_list);
-> 
-> right?
+> It doesn't lockup with 2.6.11-rc4; I notice the rc3-mm2 has a lot of
+> Posix-timer related changes.
 
-For the external case probably yes. For internal (process does this
-on its own address space) it should be hooked into mbind() too.
+Hi Roland
 
--Andi
+The problem arises from code touching the union in alloc_posix_timer() 
+which makes firing go non-zero. When firing is checked in posix_cpu_timer_set()
+it will be positive causing an infinite loop.
+
+So either the below fix or preferably move the INIT_LIST_HEAD(x) from alloc_posix_timer()
+to somewhere later where it doesn't disturb the other union members.
+
+
+Index: linux-2.6.10/kernel/posix-cpu-timers.c
+===================================================================
+--- linux-2.6.10.orig/kernel/posix-cpu-timers.c	2005-02-20 22:23:30.000000000 +0100
++++ linux-2.6.10/kernel/posix-cpu-timers.c	2005-02-20 22:27:03.000000000 +0100
+@@ -323,6 +323,7 @@
+ 	INIT_LIST_HEAD(&new_timer->it.cpu.entry);
+ 	new_timer->it.cpu.incr.sched = 0;
+ 	new_timer->it.cpu.expires.sched = 0;
++	new_timer->it.cpu.firing = 0;
+ 
+ 	read_lock(&tasklist_lock);
+ 	if (CPUCLOCK_PERTHREAD(new_timer->it_clock)) {
+
+

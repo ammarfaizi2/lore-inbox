@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268105AbTAJCNy>; Thu, 9 Jan 2003 21:13:54 -0500
+	id <S268106AbTAJCQ0>; Thu, 9 Jan 2003 21:16:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268106AbTAJCNy>; Thu, 9 Jan 2003 21:13:54 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:13779 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S268105AbTAJCNx>;
-	Thu, 9 Jan 2003 21:13:53 -0500
-Subject: [RFC][PATCH] linux-2.5.55_x86-tsc-cleanup_A0
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042165079.1052.296.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 09 Jan 2003 18:18:00 -0800
+	id <S268109AbTAJCQ0>; Thu, 9 Jan 2003 21:16:26 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34517 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S268106AbTAJCQZ>; Thu, 9 Jan 2003 21:16:25 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200301100225.h0A2P7N15643@devserv.devel.redhat.com>
+Subject: Re: Linux 2.4.21pre3-ac2
+To: jd@disjunkt.com (Jean-Daniel Pauget)
+Date: Thu, 9 Jan 2003 21:25:07 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.51.0301100021050.5467@mint> from "Jean-Daniel Pauget" at Jan 10, 2003 12:37:36 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-	This patch simply removes one more of the remaining CONFIG_X86_TSC
-#ifdefs from get_cycles(). It is replaced w/ a if(cpu_has_tsc) switch,
-so if you think this will cause a major performance impact, let me know
-and I'll leave it alone. 
+>     I had some strange bug using 2.4.21pre3-ac2 :
+>     at rebooting after a freeze (my machine freezes from time to time
+>     whatever the kernel is, I'm still diging that point)
 
-Otherwise I'll send it in for real on monday. 
+If its freezing with old kernels I'm somewhat less interested
 
-thanks
--john
+>     this triggers two questions :
+> 	o is the new piix-ide faulty ?
 
-diff -Nru a/include/asm-i386/timex.h b/include/asm-i386/timex.h
---- a/include/asm-i386/timex.h	Thu Jan  9 17:17:17 2003
-+++ b/include/asm-i386/timex.h	Thu Jan  9 17:17:17 2003
-@@ -40,14 +40,10 @@
- 
- static inline cycles_t get_cycles (void)
- {
--#ifndef CONFIG_X86_TSC
--	return 0;
--#else
--	unsigned long long ret;
--
--	rdtscll(ret);
-+	unsigned long long ret = 0;
-+	if(cpu_has_tsc)
-+		rdtscll(ret);
- 	return ret;
--#endif
- }
- 
- extern unsigned long cpu_khz;
-
-
+Not from reports I have except for two reports about MWDMA (old non UDMA)
+which appear to be a chipset errata I need to deal with
 

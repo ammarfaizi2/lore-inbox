@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136568AbREGSZ2>; Mon, 7 May 2001 14:25:28 -0400
+	id <S136590AbREGSbI>; Mon, 7 May 2001 14:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136560AbREGSZT>; Mon, 7 May 2001 14:25:19 -0400
-Received: from [24.219.123.216] ([24.219.123.216]:772 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S136522AbREGSZJ>; Mon, 7 May 2001 14:25:09 -0400
-Date: Mon, 7 May 2001 11:25:04 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: David Balazic <david.balazic@uni-mb.si>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Hotswap ATA status ?
-In-Reply-To: <3AF6D15B.7A403EE2@uni-mb.si>
-Message-ID: <Pine.LNX.4.10.10105071112030.378-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S136577AbREGSa6>; Mon, 7 May 2001 14:30:58 -0400
+Received: from mean.netppl.fi ([195.242.208.16]:51728 "EHLO mean.netppl.fi")
+	by vger.kernel.org with ESMTP id <S136581AbREGSau>;
+	Mon, 7 May 2001 14:30:50 -0400
+Date: Mon, 7 May 2001 21:30:48 +0300
+From: Pekka Pietikainen <pp@evil.netppl.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Question] Explanation of zero-copy networking
+Message-ID: <20010507213048.A17014@netppl.fi>
+In-Reply-To: <E14wlUi-0003WQ-00@the-village.bc.nu> <Pine.LNX.3.95.1010507121212.4256A-100000@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <Pine.LNX.3.95.1010507121212.4256A-100000@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 07, 2001 at 12:12:57PM -0400, Richard B. Johnson wrote:
+> you can perform network speed tests using "lo", removing the network
+> board from the speed test. You will note that the network speed, due
+> to software, is over 10 times faster, 30 times on some machines) than
+> when the hardware I/O is used. This shows that the network code, alone,
+> cannot be improved very much to provide an improvement in throughput.
+I'd say more like a factor of 2.
 
+Socket bandwidth using localhost: 141.63 MB/sec
+Socket bandwidth using 192.168.9.3: 74.79 MB/sec
 
-On Mon, 7 May 2001, David Balazic wrote:
+(with the boxes being able to do ~= 100MB/s when the receiver CPU/mem
+bandwidth isn't limiting things). So I have slow pIII/500 class machines
+with fast networking. You could rerun the test with your favourite 
+multi-gigabit network and latest 1.7GHz PC and still have a similar
+ratio. Being on the bleeding edge isn't easy, and waiting for a few years
+for faster hardware isn't a solution for everyone ;)
 
-> 
-> Andre , you promised ATA/IDE hot-swap on "normal" hardware
-> several weeks ( months ? ) ago. What happened ?
-> 
-> -- 
-> David Balazic
-> --------------
-> "Be excellent to each other." - Bill & Ted
-> - - - - - - - - - - - - - - - - - - - - - -
-> 
+Zero-copy mostly helps against CPU use (where it'll make your heavily 
+loaded server be able to serve a lot more connections), not so much against
+bandwidth. The receiver will still run into problems with the copy it has to
+do unless you do some very evil tricks like header-splitting+MMU tricks or
+run protocols designed to be accelerated in hardware.
 
-Well lets see.....
+Not that zero-copy isn't problem-free. If your bus starts corrupting random
+bits there's no way of really noticing it since the NIC happily 
+creates a correct TCP checksum based on the corrupt data.
+It's not like hardware engineers can be expected to design hardware
+that works according to spec :)
 
-I lost my ISP (NorthPoint + PacBell)			4/18/2001
-There was a T13 meeting the following week.		4/23/2001
-Found a flaw in the tests of writecaching.
-Reverified the contents of the CODE base to match SPEC	4/29/2001
+Then there's the interrupt problem, which someone will have to solve 
+before they start shipping 10gigE NICs that use 1500-byte frames, 850000
+interrupts/s without mitigation. Wheeee!!!! 
 
-Reverified that certain hosts are not good.
-(oh two kids that were ill and then the wife)
-Reconfigure the "CAVE" where I do all of my work.
-Write 90% of 48-bit LBA, use/test the hostswap for large/huge drives.  
-Look at the user API and chuckled then cried and roared aloud......
-Figure out License for the "ide-service.o" module.
-	It will not be GPL but a very strict LAD (BSD-ish) License.
-	Reasons will follow, but I will not be liable for stupid usage.
-
-So if you are reallying dying to test code that has not been full shaken
-down and requires a huge page for the glue, I will post one.
-
-The service utility is not ready yet so it is no good without one.
-
-Regards,
-
-Andre Hedrick
-Linux ATA Development
-
-PS I left a dump here and there.........but that was going to be WTMI
-
+-- 
+Pekka Pietikainen

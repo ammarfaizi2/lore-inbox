@@ -1,382 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262510AbVCaG5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbVCaHAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262510AbVCaG5T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 01:57:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVCaG5S
+	id S262529AbVCaHAe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 02:00:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVCaHAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 01:57:18 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:33782 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262510AbVCaG4D (ORCPT
+	Thu, 31 Mar 2005 02:00:33 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:26501 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262530AbVCaHAF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 01:56:03 -0500
-Date: Wed, 30 Mar 2005 22:55:27 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Hugh Dickins <hugh@veritas.com>, "David S. Miller" <davem@davemloft.net>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Avoid spurious page faults by avoiding pte_clear -> set pte
-In-Reply-To: <Pine.LNX.4.61.0503041704510.4954@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.58.0503302021300.24523@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>  
-   <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>    
- <20050302174507.7991af94.akpm@osdl.org>     <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
-     <20050302185508.4cd2f618.akpm@osdl.org>    
- <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>    
- <20050302201425.2b994195.akpm@osdl.org>     <Pine.LNX.4.58.0503022021150.3816@schroedinger.engr.sgi.com>
-     <20050302205612.451d220b.akpm@osdl.org>    
- <Pine.LNX.4.58.0503022206001.4389@schroedinger.engr.sgi.com>    
- <20050302222008.4910eb7b.akpm@osdl.org>     <Pine.LNX.4.58.0503030852490.8941@schroedinger.engr.sgi.com>
-     <20050303132011.7c80033d.akpm@osdl.org>    
- <Pine.LNX.4.58.0503040842200.17556@schroedinger.engr.sgi.com>
- <Pine.LNX.4.61.0503041704510.4954@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 31 Mar 2005 02:00:05 -0500
+Date: Thu, 31 Mar 2005 08:59:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: NFS client latencies
+Message-ID: <20050331065942.GA14952@elte.hu>
+References: <1112137487.5386.33.camel@mindpipe> <1112138283.11346.2.camel@lade.trondhjem.org> <1112192778.17365.2.camel@mindpipe> <1112194256.10634.35.camel@lade.trondhjem.org> <20050330115640.0bc38d01.akpm@osdl.org> <1112217299.10771.3.camel@lade.trondhjem.org> <1112236017.26732.4.camel@mindpipe> <20050330183957.2468dc21.akpm@osdl.org> <1112237239.26732.8.camel@mindpipe> <1112240918.10975.4.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112240918.10975.4.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current way of updating ptes in the Linux vm includes first clearing
-a pte before setting it to another value. The clearing is performed while
-holding the page_table_lock to insure that the entry will not be modified
-by the CPU directly (clearing the pte clears the present bit which
-notifies the MMU that this entry is invalid) by an arch specific interrupt
-handler or another page fault handler running on another CPU. This approach
-is necessary for some architectures that cannot perform atomic updates of
-page table entries.
 
-If a page table entry is cleared then a second CPU may generate a page fault
-for that entry. The fault handler on the second CPU will then attempt to
-acquire the page_table_lock and wait until the first CPU has completed
-updating the page table entry. The fault handler on the second CPU will then
-discover that everything is ok and simply do nothing (apart from incrementing
-the counters for a minor fault and marking the page again as accessed).
+* Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-However, most architectures actually support atomic operations on page
-table entries. The use of atomic operations on page table entries would
-allow the update of a page table entry in a single atomic operation instead
-of writing to the page table entry twice. There would also be no danger of
-generating a spurious page fault on other CPUs.
+> > The 7 ms are spent in this loop:
+>
+> Which is basically confirming what the guys from Bull already told me, 
+> namely that the radix tree tag stuff is much less efficient that what 
+> we've got now. I never saw their patches, though, so I was curious to 
+> try it for myself.
 
-The following patch introduces two new atomic operations ptep_xchg and
-ptep_cmpxchg that may be provided by an architecture. The fallback in
-include/asm-generic/pgtable.h is to simulate both operations through the
-existing ptep_get_and_clear function. So there is essentially no change if
-atomic operations on ptes have not been defined. Architectures that do
-not support atomic operations on ptes may continue to use the clearing of
-a pte for locking type purposes.
+i think the numbers are being misinterpreted. I believe this patch is a 
+big step forward. The big thing is that nfs_list_add_request() is O(1) 
+now - while _a single request addition to the sorted list_ triggered the 
+1+ msec latency in Lee's previous trace. I.e. the previous trace showed 
+a 1+ msec latency for a single page IO submission, while his new trace 
+shows _thousands_ of pages submitted for NFS IO - which is a very 
+different beast!
 
-Atomic operations are enabled for i386, ia64 and x86_64 if a suitable
-CPU is configured in SMP mode. Generic atomic definitions for ptep_xchg
-and ptep_cmpxchg have been provided based on the existing xchg() and
-cmpxchg() functions that already work atomically on many platforms.
+i think all it needs now is a lock-breaker in the main radix-lookup loop 
+in nfs_scan_lock_dirty(), or a latency-oriented reduction in the npages 
+argument, to make the loop bounded. The nfs_list_add_request() code 
+unbreakable from a latency POV. The patch looks really great to me, 
+kudos for pulling it off that fast.
 
-The provided generic atomic functions may be overridden as usual by defining
-the appropriate__HAVE_ARCH_xxx constant and providing a different
-implementation.
+(Also, i'd not declare this variant _slower_ based on latencies, unless 
+proven in real benchmarks. A faster implementation can easily have 
+higher latencies, if some detail changed - and lots of details changed 
+due to your patch. And i'd not even declare latency that much worse, 
+unless it's been measured with the tracer turned off. (Lee, could you 
+try such a comparison, worst-case latency with and without the patch, 
+with LATENCY_TRACE turned off in the .config but latency timing still 
+enabled?) The latency tracer itself can baloon the latency.)
 
-The attempt to reduce the use of the page_table_lock in the page fault handler
-through atomic operations relies on a pte never being clear if the pte is in
-use even when the page_table_lock is not held. Clearing a pte before setting
-it to another value could result in a situation in which a fault generated by
-another cpu could install a pte which is then immediately overwritten by
-the first CPU setting the pte to a valid value again. This patch is
-important for future work on reducing the use of spinlocks in the vm through
-atomic operations on pte's.
-
-AIM7 Benchmark on an 8 processor system:
-
-w/o patch
-Tasks    jobs/min  jti  jobs/min/task      real       cpu
-    1      471.79  100       471.7899     12.34      2.30   Wed Mar 30 21:29:54 2005
-  100    18068.92   89       180.6892     32.21    158.37   Wed Mar 30 21:30:27 2005
-  200    21427.39   84       107.1369     54.32    315.84   Wed Mar 30 21:31:22 2005
-  300    21500.87   82        71.6696     81.21    473.74   Wed Mar 30 21:32:43 2005
-  400    24886.42   83        62.2160     93.55    633.73   Wed Mar 30 21:34:23 2005
-  500    25658.89   81        51.3178    113.41    789.44   Wed Mar 30 21:36:17 2005
-  600    25693.47   81        42.8225    135.91    949.00   Wed Mar 30 21:38:33 2005
-  700    26098.32   80        37.2833    156.10   1108.17   Wed Mar 30 21:41:10 2005
-  800    26334.25   80        32.9178    176.80   1266.73   Wed Mar 30 21:44:07 2005
-  900    26913.85   80        29.9043    194.62   1422.11   Wed Mar 30 21:47:22 2005
- 1000    26749.89   80        26.7499    217.57   1583.95   Wed Mar 30 21:51:01 2005
-
-w/patch:
-Tasks    jobs/min  jti  jobs/min/task      real       cpu
-    1      470.30  100       470.3030     12.38      2.33   Wed Mar 30 21:57:27 2005
-  100    18465.05   89       184.6505     31.52    158.62   Wed Mar 30 21:57:58 2005
-  200    22399.26   86       111.9963     51.97    315.95   Wed Mar 30 21:58:51 2005
-  300    24274.61   84        80.9154     71.93    475.04   Wed Mar 30 22:00:03 2005
-  400    25120.86   82        62.8021     92.67    634.10   Wed Mar 30 22:01:36 2005
-  500    25742.87   81        51.4857    113.04    791.13   Wed Mar 30 22:03:30 2005
-  600    26322.73   82        43.8712    132.66    948.31   Wed Mar 30 22:05:43 2005
-  700    25718.40   80        36.7406    158.41   1112.30   Wed Mar 30 22:08:22 2005
-  800    26361.08   80        32.9514    176.62   1269.94   Wed Mar 30 22:11:19 2005
-  900    26975.67   81        29.9730    194.17   1424.56   Wed Mar 30 22:14:33 2005
- 1000    26765.51   80        26.7655    217.44   1585.27   Wed Mar 30 22:18:12 2005
-
-There are some minor performance improvements and some minimal losses for other
-numbers of tasks. The improvement may be due to the avoidance of one store
-and the avoidance of useless page faults.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.11/mm/rmap.c
-===================================================================
---- linux-2.6.11.orig/mm/rmap.c	2005-03-30 20:32:21.000000000 -0800
-+++ linux-2.6.11/mm/rmap.c	2005-03-30 22:40:47.000000000 -0800
-@@ -574,11 +574,6 @@ static int try_to_unmap_one(struct page
-
- 	/* Nuke the page table entry. */
- 	flush_cache_page(vma, address, page_to_pfn(page));
--	pteval = ptep_clear_flush(vma, address, pte);
--
--	/* Move the dirty bit to the physical page now the pte is gone. */
--	if (pte_dirty(pteval))
--		set_page_dirty(page);
-
- 	if (PageAnon(page)) {
- 		swp_entry_t entry = { .val = page->private };
-@@ -593,10 +588,15 @@ static int try_to_unmap_one(struct page
- 			list_add(&mm->mmlist, &init_mm.mmlist);
- 			spin_unlock(&mmlist_lock);
- 		}
--		set_pte_at(mm, address, pte, swp_entry_to_pte(entry));
-+		pteval = ptep_xchg_flush(vma, address, pte, swp_entry_to_pte(entry));
- 		BUG_ON(pte_file(*pte));
- 		dec_mm_counter(mm, anon_rss);
--	}
-+	} else
-+		pteval = ptep_clear_flush(vma, address, pte);
-+
-+	/* Move the dirty bit to the physical page now the pte is gone. */
-+	if (pte_dirty(pteval))
-+		set_page_dirty(page);
-
- 	inc_mm_counter(mm, rss);
- 	page_remove_rmap(page);
-@@ -689,15 +689,15 @@ static void try_to_unmap_cluster(unsigne
- 		if (ptep_clear_flush_young(vma, address, pte))
- 			continue;
-
--		/* Nuke the page table entry. */
- 		flush_cache_page(vma, address, pfn);
--		pteval = ptep_clear_flush(vma, address, pte);
-
- 		/* If nonlinear, store the file page offset in the pte. */
- 		if (page->index != linear_page_index(vma, address))
--			set_pte_at(mm, address, pte, pgoff_to_pte(page->index));
-+			pteval = ptep_xchg_flush(vma, address, pte, pgoff_to_pte(page->index));
-+		else
-+			pteval = ptep_clear_flush(vma, address, pte);
-
--		/* Move the dirty bit to the physical page now the pte is gone. */
-+		/* Move the dirty bit to the physical page now that the pte is gone. */
- 		if (pte_dirty(pteval))
- 			set_page_dirty(page);
-
-Index: linux-2.6.11/mm/mprotect.c
-===================================================================
---- linux-2.6.11.orig/mm/mprotect.c	2005-03-30 20:32:21.000000000 -0800
-+++ linux-2.6.11/mm/mprotect.c	2005-03-30 22:42:51.000000000 -0800
-@@ -32,17 +32,19 @@ static void change_pte_range(struct mm_s
-
- 	pte = pte_offset_map(pmd, addr);
- 	do {
--		if (pte_present(*pte)) {
--			pte_t ptent;
-+		pte_t ptent;
-+redo:
-+		ptent = *pte;
-+		if (!pte_present(ptent))
-+			continue;
-
--			/* Avoid an SMP race with hardware updated dirty/clean
--			 * bits by wiping the pte and then setting the new pte
--			 * into place.
--			 */
--			ptent = pte_modify(ptep_get_and_clear(mm, addr, pte), newprot);
--			set_pte_at(mm, addr, pte, ptent);
--			lazy_mmu_prot_update(ptent);
--		}
-+		/* Deal with a potential SMP race with hardware/arch
-+		 * interrupt updating dirty/clean bits through the use
-+		 * of ptep_cmpxchg.
-+		 */
-+		if (!ptep_cmpxchg(mm, addr, pte, ptent, pte_modify(ptent, newprot)))
-+				goto redo;
-+		lazy_mmu_prot_update(ptent);
- 	} while (pte++, addr += PAGE_SIZE, addr != end);
- 	pte_unmap(pte - 1);
- }
-Index: linux-2.6.11/include/asm-generic/pgtable.h
-===================================================================
---- linux-2.6.11.orig/include/asm-generic/pgtable.h	2005-03-30 20:32:08.000000000 -0800
-+++ linux-2.6.11/include/asm-generic/pgtable.h	2005-03-30 22:40:47.000000000 -0800
-@@ -111,6 +111,92 @@ do {				  					  \
- })
- #endif
-
-+#ifdef CONFIG_ATOMIC_TABLE_OPS
-+
-+/*
-+ * The architecture does support atomic table operations.
-+ * We may be able to provide atomic ptep_xchg and ptep_cmpxchg using
-+ * cmpxchg and xchg.
-+ */
-+#ifndef __HAVE_ARCH_PTEP_XCHG
-+#define ptep_xchg(__mm, __address, __ptep, __pteval) \
-+	__pte(xchg(&pte_val(*(__ptep)), pte_val(__pteval)))
-+#endif
-+
-+#ifndef __HAVE_ARCH_PTEP_CMPXCHG
-+#define ptep_cmpxchg(__mm, __address, __ptep,__oldval,__newval)		\
-+	(cmpxchg(&pte_val(*(__ptep)),					\
-+			pte_val(__oldval),				\
-+			pte_val(__newval)				\
-+		) == pte_val(__oldval)					\
-+	)
-+#endif
-+
-+#ifndef __HAVE_ARCH_PTEP_XCHG_FLUSH
-+#define ptep_xchg_flush(__vma, __address, __ptep, __pteval)		\
-+({									\
-+	pte_t __pte = ptep_xchg(__vma, __address, __ptep, __pteval);	\
-+	flush_tlb_page(__vma, __address);				\
-+	__pte;								\
-+})
-+#endif
-+
-+#else
-+
-+/*
-+ * No support for atomic operations on the page table.
-+ * Exchanging of pte values is done by first swapping zeros into
-+ * a pte and then putting new content into the pte entry.
-+ * However, these functions will generate an empty pte for a
-+ * short time frame. This means that the page_table_lock must be held
-+ * to avoid a page fault that would install a new entry.
-+ */
-+#ifndef __HAVE_ARCH_PTEP_XCHG
-+#define ptep_xchg(__mm, __address, __ptep, __pteval)			\
-+({									\
-+	pte_t __pte = ptep_get_and_clear(__mm, __address, __ptep);	\
-+	set_pte_at(__mm, __address, __ptep, __pteval);			\
-+	__pte;								\
-+})
-+#endif
-+
-+#ifndef __HAVE_ARCH_PTEP_XCHG_FLUSH
-+#ifndef __HAVE_ARCH_PTEP_XCHG
-+#define ptep_xchg_flush(__vma, __address, __ptep, __pteval)		\
-+({									\
-+	pte_t __pte = ptep_clear_flush(__vma, __address, __ptep);	\
-+	set_pte_at((__vma)->mm, __address, __ptep, __pteval);		\
-+	__pte;								\
-+})
-+#else
-+#define ptep_xchg_flush(__vma, __address, __ptep, __pteval)		\
-+({									\
-+	pte_t __pte = ptep_xchg((__vma)->mm, __address, __ptep, __pteval);\
-+	flush_tlb_page(__vma, __address);				\
-+	__pte;								\
-+})
-+#endif
-+#endif
-+
-+/*
-+ * The fallback function for ptep_cmpxchg avoids any real use of cmpxchg
-+ * since cmpxchg may not be available on certain architectures. Instead
-+ * the clearing of a pte is used as a form of locking mechanism.
-+ * This approach will only work if the page_table_lock is held to insure
-+ * that the pte is not populated by a page fault generated on another
-+ * CPU.
-+ */
-+#ifndef __HAVE_ARCH_PTEP_CMPXCHG
-+#define ptep_cmpxchg(__mm, __address, __ptep, __old, __new)		\
-+({									\
-+	pte_t prev = ptep_get_and_clear(__mm, __address, __ptep);	\
-+	int r = pte_val(prev) == pte_val(__old);			\
-+	set_pte_at(__mm, __address, __ptep, r ? (__new) : prev);	\
-+	r;								\
-+})
-+#endif
-+#endif
-+
- #ifndef __HAVE_ARCH_PTEP_SET_WRPROTECT
- static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long address, pte_t *ptep)
- {
-Index: linux-2.6.11/arch/ia64/Kconfig
-===================================================================
---- linux-2.6.11.orig/arch/ia64/Kconfig	2005-03-01 23:38:26.000000000 -0800
-+++ linux-2.6.11/arch/ia64/Kconfig	2005-03-30 22:40:47.000000000 -0800
-@@ -272,6 +272,11 @@ config PREEMPT
-           Say Y here if you are building a kernel for a desktop, embedded
-           or real-time system.  Say N if you are unsure.
-
-+config ATOMIC_TABLE_OPS
-+	bool
-+	depends on SMP
-+	default y
-+
- config HAVE_DEC_LOCK
- 	bool
- 	depends on (SMP || PREEMPT)
-Index: linux-2.6.11/arch/i386/Kconfig
-===================================================================
---- linux-2.6.11.orig/arch/i386/Kconfig	2005-03-30 20:31:27.000000000 -0800
-+++ linux-2.6.11/arch/i386/Kconfig	2005-03-30 22:40:47.000000000 -0800
-@@ -886,6 +886,11 @@ config HAVE_DEC_LOCK
- 	depends on (SMP || PREEMPT) && X86_CMPXCHG
- 	default y
-
-+config ATOMIC_TABLE_OPS
-+	bool
-+	depends on SMP && X86_CMPXCHG && !X86_PAE
-+	default y
-+
- # turning this on wastes a bunch of space.
- # Summit needs it only when NUMA is on
- config BOOT_IOREMAP
-Index: linux-2.6.11/arch/x86_64/Kconfig
-===================================================================
---- linux-2.6.11.orig/arch/x86_64/Kconfig	2005-03-30 20:31:40.000000000 -0800
-+++ linux-2.6.11/arch/x86_64/Kconfig	2005-03-30 22:40:47.000000000 -0800
-@@ -223,6 +223,11 @@ config PREEMPT
- 	  Say Y here if you are feeling brave and building a kernel for a
- 	  desktop, embedded or real-time system.  Say N if you are unsure.
-
-+config ATOMIC_TABLE_OPS
-+	bool
-+	depends on SMP
-+	default y
-+
- config PREEMPT_BKL
- 	bool "Preempt The Big Kernel Lock"
- 	depends on PREEMPT
-Index: linux-2.6.11/mm/memory.c
-===================================================================
---- linux-2.6.11.orig/mm/memory.c	2005-03-30 20:32:21.000000000 -0800
-+++ linux-2.6.11/mm/memory.c	2005-03-30 22:40:47.000000000 -0800
-@@ -463,15 +463,19 @@ static void zap_pte_range(struct mmu_gat
- 				     page->index > details->last_index))
- 					continue;
- 			}
--			ptent = ptep_get_and_clear(tlb->mm, addr, pte);
--			tlb_remove_tlb_entry(tlb, pte, addr);
--			if (unlikely(!page))
-+			if (unlikely(!page)) {
-+				ptent = ptep_get_and_clear(tlb->mm, addr, pte);
-+				tlb_remove_tlb_entry(tlb, pte, addr);
- 				continue;
-+			}
- 			if (unlikely(details) && details->nonlinear_vma
- 			    && linear_page_index(details->nonlinear_vma,
- 						addr) != page->index)
--				set_pte_at(tlb->mm, addr, pte,
--					   pgoff_to_pte(page->index));
-+				ptent = ptep_xchg(tlb->mm, addr, pte,
-+						  pgoff_to_pte(page->index));
-+			else
-+				ptent = ptep_get_and_clear(tlb->mm, addr, pte);
-+			tlb_remove_tlb_entry(tlb, pte, addr);
- 			if (pte_dirty(ptent))
- 				set_page_dirty(page);
- 			if (PageAnon(page))
+	Ingo

@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbUDXPl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbUDXPpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbUDXPl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 11:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbUDXPl0
+	id S262370AbUDXPpW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 11:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbUDXPpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 11:41:26 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:48879 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262441AbUDXPlZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 11:41:25 -0400
-Date: Sat, 24 Apr 2004 17:41:19 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org,
-       Hans Ulrich Niedermann <linux-kernel@n-dimensional.de>
-Subject: Re: [2.6 patch] Canonically reference files in Documentation/ code comments part
-Message-ID: <20040424154118.GC146@fs.tum.de>
-References: <20040423231057.GF24948@fs.tum.de> <20040424095628.B25661@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040424095628.B25661@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2i
+	Sat, 24 Apr 2004 11:45:22 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:33942 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262370AbUDXPpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 11:45:19 -0400
+Message-ID: <408A8B84.4070506@maine.rr.com>
+Date: Sat, 24 Apr 2004 11:45:08 -0400
+From: "David B. Stevens" <dsteven3@maine.rr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mohamed Aslan <mkernel@linuxmail.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Rewrite Kernel
+References: <20040424132402.7EBB923AB1@ws5-3.us4.outblaze.com>
+In-Reply-To: <20040424132402.7EBB923AB1@ws5-3.us4.outblaze.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 24, 2004 at 09:56:28AM +0100, Russell King wrote:
-> On Sat, Apr 24, 2004 at 01:10:58AM +0200, Adrian Bunk wrote:
-> > Below is an updated version of a patch by 
-> > Hans Ulrich Niedermann <linux-kernel@n-dimensional.de> to 
-> > change all references in comments to files in Documentation/ to start 
-> > with Documentation/ .
-> 
-> I'd prefer to include the 'linux/' part so its obvious that we're
-> referring to the kernel tree.  I've given people pointers to files
-> in the past, and just giving "Documentation/foo/bar" usually results
-> in "I've looked on the web here, there and somewhere else and can't
-> find the file."
+Mohamed Aslan wrote:
+> No I Could Create Assembly Code Faster Than Gcc
+> Gcc 2.95 was good but 3 isn't as 2,it's not my words linus recommended compiling kernel with 2.95
+> don't forget something assemblying requires less time than compiling
 
-Arguments in favor of this patch:
-- it's more common in the kernel to start the reference at the top
-  of the kernel source
-- the name of the directory os not linux but linux-<version>
+Well then do it and show us.
 
-But I don't have a that strong opinion on this issue.
+Cheers,
+   Dave
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+PS:The elitist said that about FORTRAN as well and were _WRONG_

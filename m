@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318139AbSHLP14>; Mon, 12 Aug 2002 11:27:56 -0400
+	id <S318133AbSHLPgn>; Mon, 12 Aug 2002 11:36:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318141AbSHLP14>; Mon, 12 Aug 2002 11:27:56 -0400
-Received: from phxby.engr.usu.edu ([129.123.21.101]:43704 "EHLO
-	phxby.engr.usu.edu") by vger.kernel.org with ESMTP
-	id <S318139AbSHLP1z>; Mon, 12 Aug 2002 11:27:55 -0400
-Date: Mon, 12 Aug 2002 09:31:25 -0600
-From: Irwan Hadi <irwanhadi@phxby.engr.usu.edu>
-To: Kees Bakker <kees.bakker@altium.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.31 hda: lost interrupt
-Message-ID: <20020812153125.GA29884@phxby.com>
-References: <15703.24219.318219.380751@koli.tasking.nl>
+	id <S318134AbSHLPgn>; Mon, 12 Aug 2002 11:36:43 -0400
+Received: from f137.law7.hotmail.com ([216.33.237.137]:63499 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S318133AbSHLPgn>;
+	Mon, 12 Aug 2002 11:36:43 -0400
+X-Originating-IP: [198.252.187.112]
+From: "daniel sheltraw" <l5gibson@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel to user-space communication
+Date: Mon, 12 Aug 2002 10:40:27 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15703.24219.318219.380751@koli.tasking.nl>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; format=flowed
+Message-ID: <F137zkftciAlUNLFAYp000015b2@hotmail.com>
+X-OriginalArrivalTime: 12 Aug 2002 15:40:27.0781 (UTC) FILETIME=[9516D350:01C24216]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 12, 2002 at 09:07:07AM +0200, Kees Bakker wrote:
+Hello Kernel
 
-> With 2.5.31 I am getting
->  hda: lost interrupt
-> 2.5.30 was booting OK (but had some other problems).
-> 
-> My machine has a MSI K7T266 Pro motherboard with Athlon 1.3GHz. It has a
-> VIA chipset, 82C686b+VT8233. Harddisk: IBM Deskstar 60GXP, 40Gb.
+Is there a way to comminicate to a user-space program that an
+interrupt has occurred in a kernel module?
 
-Well on my machine, with Maxtor DiamondMax 40 and Asus A7A255 ->
-AliMagic chipset, and with kernel 2.5.26 I was having the same problem
-too.
-It seems the problem might be because I was using ext3fs, which soon I
-found out corrupt the filesystem because of this lost interrupt thing.
-Or this problem might occur because my system is an AMD Athlon.
+Thanks,
+Daniel Sheltraw
 
-My solution was to move back to ext2fs and kernel 2.4.18, although for
-this I needed to fsck the hard drive a couple times because of the
-occured corruption to the filesystem.
+
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
+

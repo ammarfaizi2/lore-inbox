@@ -1,107 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264461AbUEKMmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264672AbUEKMp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264461AbUEKMmn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 08:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264671AbUEKMmn
+	id S264672AbUEKMp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 08:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264670AbUEKMp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 08:42:43 -0400
-Received: from [212.209.10.220] ([212.209.10.220]:41909 "EHLO
-	miranda.se.axis.com") by vger.kernel.org with ESMTP id S264461AbUEKMmi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 08:42:38 -0400
-Date: Tue, 11 May 2004 14:57:40 +0200 (CEST)
-From: Bjorn Wesen <bjorn.wesen@axis.com>
-X-X-Sender: <bjornw@godzilla.se.axis.com>
-To: <marcelo.tosatti@cyclades.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] bug in 2.4.26 mm/memory.c:map_user_kiobuf
-Message-ID: <Pine.LNX.4.33.0405111431560.3073-200000@godzilla.se.axis.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="218787593-1054744317-1084280260=:3073"
+	Tue, 11 May 2004 08:45:26 -0400
+Received: from ns.suse.de ([195.135.220.2]:51349 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264671AbUEKMpK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 08:45:10 -0400
+Date: Tue, 11 May 2004 14:44:58 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Format Unit can take many hours
+Message-ID: <20040511124458.GO4828@tpkurt.garloff.de>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Jens Axboe <axboe@suse.de>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+References: <20040511114936.GI4828@tpkurt.garloff.de> <20040511122037.GG1906@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gMqNd2jlyJQcupG/"
+Content-Disposition: inline
+In-Reply-To: <20040511122037.GG1906@suse.de>
+X-Operating-System: Linux 2.6.5-9-KG i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: SUSE/Novell
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---218787593-1054744317-1084280260=:3073
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+--gMqNd2jlyJQcupG/
+Content-Type: multipart/mixed; boundary="i/CQJCAqWP/GQJtX"
+Content-Disposition: inline
 
-Hi,
 
-get_user_pages can in some circumstances return less than a complete 
-mapping, without giving an error code. This fools map_user_kiobuf which 
-loops over the assumed number of pages in the mapping, calling 
-flush_dcache_page on all of them, which is not very good if the maplist is 
-not fully populated. It also fools drivers using map_user_kiobuf and which 
-also assume that you get a complete mapping (or an error code). Actually, 
-iobuf->nr_pages is reduced to reflect the incomplete mapping, but 
-iobuf->length is not, so I don't really know what the desired behaviour is
-in the kernel<->driver communication.
+--i/CQJCAqWP/GQJtX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Anyway, the flush loop is incorrect, and it probably doesn't hurt to 
-restrict map_user_kiobuf so it returns -ENOMEM if get_user_pages can't 
-return the full amount of pages, to avoid surprises downstream. 
+Hi Jens,
 
-get_user_pages seem to behave in this way during severe memory-shortage, but 
-also (and more importantly) when a page-limited tmpfs is used as a substrate 
-for an mmap and map_user_kiobuf and the page/size limit is hit.
+On Tue, May 11, 2004 at 02:20:38PM +0200, Jens Axboe wrote:
+> block/scsi_ioctl.c should likely receive similar treatment then.
 
-/Bjorn
+Good point.
+--=20
+Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
+SUSE LINUX AG, Nuernberg, DE                          SUSE Labs (Head)
 
---- linux-2.4.26/mm/memory.c    2003-11-28 19:26:21.000000000 +0100
-+++ linux-2.4.26/mm/memory-2.c  2004-05-11 13:48:10.000000000 +0200
-@@ -563,12 +563,19 @@
-        err = get_user_pages(current, mm, va, pgcount,
-                        (rw==READ), 0, iobuf->maplist, NULL);
-        up_read(&mm->mmap_sem);
--       if (err < 0) {
-+       /* get_user_pages returns the amount of mapped pages,
-+        * which can be less than the amount of requested pages
-+        * in some cases. To avoid surprises downstream, we
-+        * unmap and return an error in those cases.  -bjornw
-+        */
-+       if(err > 0)
-+               iobuf->nr_pages = err;
-+       if (err < pgcount) {
-+               /* unmap depends on nr_pages being set at this point */
-                unmap_kiobuf(iobuf);
-                dprintk ("map_user_kiobuf: end %d\n", err);
--               return err;
-+               return err < 0 ? err : -ENOMEM;
-        }
--       iobuf->nr_pages = err;
-        while (pgcount--) {
-                /* FIXME: flush superflous for rw==READ,
-                 * probably wrong function for rw==WRITE
+--i/CQJCAqWP/GQJtX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="scsi-format-unit-timeout.diff"
+Content-Transfer-Encoding: quoted-printable
 
---218787593-1054744317-1084280260=:3073
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="memoryfix.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0405111457400.3073@godzilla.se.axis.com>
-Content-Description: 
-Content-Disposition: attachment; filename="memoryfix.patch"
+--- linux-2.6.5.orig/drivers/scsi/scsi_ioctl.c	2004-04-04 05:38:20.00000000=
+0 +0200
++++ linux-2.6.5/drivers/scsi/scsi_ioctl.c	2004-05-11 08:59:12.837421215 +02=
+00
+@@ -26,12 +26,12 @@
+ #include "scsi_logging.h"
+=20
+ #define NORMAL_RETRIES			5
+-#define IOCTL_NORMAL_TIMEOUT			(10 * HZ)
+-#define FORMAT_UNIT_TIMEOUT		(2 * 60 * 60 * HZ)
++#define IOCTL_NORMAL_TIMEOUT		(10 * HZ)
++#define FORMAT_UNIT_TIMEOUT		(12 * 60 * 60 * HZ)
+ #define START_STOP_TIMEOUT		(60 * HZ)
+ #define MOVE_MEDIUM_TIMEOUT		(5 * 60 * HZ)
+ #define READ_ELEMENT_STATUS_TIMEOUT	(5 * 60 * HZ)
+-#define READ_DEFECT_DATA_TIMEOUT	(60 * HZ )  /* ZIP-250 on parallel port t=
+akes as long! */
++#define READ_DEFECT_DATA_TIMEOUT	(60 * HZ)  /* ZIP-250 on parallel port ta=
+kes as long! */
+=20
+ #define MAX_BUF PAGE_SIZE
+=20
+--- linux-2.6.5/drivers/block/scsi_ioctl.c.orig	2004-05-11 00:05:57.0000000=
+00 +0200
++++ linux-2.6.5/drivers/block/scsi_ioctl.c	2004-05-11 14:42:30.277083312 +0=
+200
+@@ -209,11 +209,11 @@ static int sg_io(request_queue_t *q, str
+ 	return 0;
+ }
+=20
+-#define FORMAT_UNIT_TIMEOUT		(2 * 60 * 60 * HZ)
++#define FORMAT_UNIT_TIMEOUT		(12 * 60 * 60 * HZ)
+ #define START_STOP_TIMEOUT		(60 * HZ)
+ #define MOVE_MEDIUM_TIMEOUT		(5 * 60 * HZ)
+ #define READ_ELEMENT_STATUS_TIMEOUT	(5 * 60 * HZ)
+-#define READ_DEFECT_DATA_TIMEOUT	(60 * HZ )
++#define READ_DEFECT_DATA_TIMEOUT	(60 * HZ)
+ #define OMAX_SB_LEN 16          /* For backward compatibility */
+=20
+ static int sg_scsi_ioctl(request_queue_t *q, struct gendisk *bd_disk,
 
-LS0tIGxpbnV4LTIuNC4yNi9tbS9tZW1vcnkuYwkyMDAzLTExLTI4IDE5OjI2
-OjIxLjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIuNC4yNi9tbS9tZW1v
-cnktMi5jCTIwMDQtMDUtMTEgMTM6NDg6MTAuMDAwMDAwMDAwICswMjAwDQpA
-QCAtNTYzLDEyICs1NjMsMTkgQEANCiAJZXJyID0gZ2V0X3VzZXJfcGFnZXMo
-Y3VycmVudCwgbW0sIHZhLCBwZ2NvdW50LA0KIAkJCShydz09UkVBRCksIDAs
-IGlvYnVmLT5tYXBsaXN0LCBOVUxMKTsNCiAJdXBfcmVhZCgmbW0tPm1tYXBf
-c2VtKTsNCi0JaWYgKGVyciA8IDApIHsNCisJLyogZ2V0X3VzZXJfcGFnZXMg
-cmV0dXJucyB0aGUgYW1vdW50IG9mIG1hcHBlZCBwYWdlcywNCisJICogd2hp
-Y2ggY2FuIGJlIGxlc3MgdGhhbiB0aGUgYW1vdW50IG9mIHJlcXVlc3RlZCBw
-YWdlcw0KKwkgKiBpbiBzb21lIGNhc2VzLiBUbyBhdm9pZCBzdXJwcmlzZXMg
-ZG93bnN0cmVhbSwgd2UNCisJICogdW5tYXAgYW5kIHJldHVybiBhbiBlcnJv
-ciBpbiB0aG9zZSBjYXNlcy4gIC1iam9ybncNCisJICovDQorCWlmKGVyciA+
-IDApDQorCQlpb2J1Zi0+bnJfcGFnZXMgPSBlcnI7DQorCWlmIChlcnIgPCBw
-Z2NvdW50KSB7DQorCQkvKiB1bm1hcCBkZXBlbmRzIG9uIG5yX3BhZ2VzIGJl
-aW5nIHNldCBhdCB0aGlzIHBvaW50ICovDQogCQl1bm1hcF9raW9idWYoaW9i
-dWYpOw0KIAkJZHByaW50ayAoIm1hcF91c2VyX2tpb2J1ZjogZW5kICVkXG4i
-LCBlcnIpOw0KLQkJcmV0dXJuIGVycjsNCisJCXJldHVybiBlcnIgPCAwID8g
-ZXJyIDogLUVOT01FTTsNCiAJfQ0KLQlpb2J1Zi0+bnJfcGFnZXMgPSBlcnI7
-DQogCXdoaWxlIChwZ2NvdW50LS0pIHsNCiAJCS8qIEZJWE1FOiBmbHVzaCBz
-dXBlcmZsb3VzIGZvciBydz09UkVBRCwNCiAJCSAqIHByb2JhYmx5IHdyb25n
-IGZ1bmN0aW9uIGZvciBydz09V1JJVEUNCg==
---218787593-1054744317-1084280260=:3073--
+--i/CQJCAqWP/GQJtX--
+
+--gMqNd2jlyJQcupG/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAoMrKxmLh6hyYd04RAiN0AJ45GWZLV6VBkNxgh3BdIi9KmmIE1QCfdBbh
+7TRd6AfuubPrs3uqPhZshz4=
+=kS9P
+-----END PGP SIGNATURE-----
+
+--gMqNd2jlyJQcupG/--

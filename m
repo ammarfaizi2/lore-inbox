@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263595AbUAYDP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 22:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbUAYDP2
+	id S263632AbUAYDUM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 22:20:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbUAYDUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 22:15:28 -0500
-Received: from mail-05.iinet.net.au ([203.59.3.37]:6859 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263595AbUAYDP1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 22:15:27 -0500
-Message-ID: <401333BF.3070500@cyberone.com.au>
-Date: Sun, 25 Jan 2004 14:10:55 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6-mm] Fix CONFIG_SMT oops on UP
-References: <Pine.LNX.4.58.0401241303070.26103@montezuma.fsmlabs.com> <20040124153910.2421e35a.akpm@osdl.org> <Pine.LNX.4.58.0401241907120.643@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.58.0401241907120.643@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jan 2004 22:20:11 -0500
+Received: from mail.kroah.org ([65.200.24.183]:8132 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263632AbUAYDUG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 22:20:06 -0500
+Date: Sat, 24 Jan 2004 19:20:03 -0800
+From: Greg KH <greg@kroah.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: Linux 2.6.2-rc1
+Message-ID: <20040125032003.GA8455@kroah.com>
+References: <Pine.LNX.4.58.0401202037530.2123@home.osdl.org> <20040124225612.GC4072@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040124225612.GC4072@werewolf.able.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 24, 2004 at 11:56:12PM +0100, J.A. Magallon wrote:
+> 
+> On 01.21, Linus Torvalds wrote:
+> > 
+> > Ok, this is the next "big merge" with things from Andrew's -mm tree, along
+> > with a number of new drivers and arch updates.
+> > 
+> 
+> drivers/i2c/chips/w83781d.c is flooding my syslog with:
+> 
+> Jan 24 23:50:36 werewolf kernel: Starting device update
+> Jan 24 23:51:09 werewolf last message repeated 11 times
+> Jan 24 23:52:12 werewolf last message repeated 21 times
+> Jan 24 23:53:15 werewolf last message repeated 21 times
+> Jan 24 23:54:18 werewolf last message repeated 21 times
+> 
+> so:
+> 
+> --- linux-2.6.2-rc1/drivers/i2c/chips/w83781d.c.orig	2004-01-24 23:53:02.579206290 +0100
+> +++ linux-2.6.2-rc1/drivers/i2c/chips/w83781d.c	2004-01-24 23:53:13.862321904 +0100
+> @@ -1656,7 +1656,6 @@
+>  	if (time_after
+>  	    (jiffies - data->last_updated, (unsigned long) (HZ + HZ / 2))
+>  	    || time_before(jiffies, data->last_updated) || !data->valid) {
+> -		pr_debug("Starting device update\n");
+>  
+>  		for (i = 0; i <= 8; i++) {
+>  			if ((data->type == w83783s || data->type == w83697hf)
+> 
+> Correct ?
 
+No, just disable the CONFIG_I2C_DEBUG_CHIP option.  That will get rid of
+the messages for you.
 
-Zwane Mwaikambo wrote:
+thanks,
 
->On Sat, 24 Jan 2004, Andrew Morton wrote:
->
->
->>Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
->>
->>>+	cpu_sibling_map[0] = CPU_MASK_NONE;
->>>
->>alas, this will not compile with NR_CPUS > 4*BITS_PER_LONG because this:
->>
->>	#define CPU_MASK_NONE   { {[0 ... CPU_ARRAY_SIZE-1] =  0UL} }
->>
->>is not a suitable rhs - it can only be used for initalisers.  Fixing this
->>would be appreciated.
->>
->>Meanwhile, I'll use cpus_clear() in there.
->>
->
->There was actually other breakage too, so how about;
->
-
-Thanks very much Zwane.
-
-
+greg k-h

@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVBNWjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVBNWnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVBNWjd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 17:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVBNWjd
+	id S261364AbVBNWnx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 17:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVBNWnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 17:39:33 -0500
-Received: from gate.crashing.org ([63.228.1.57]:26093 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261389AbVBNWjN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 17:39:13 -0500
-Subject: Re: Radeon FB troubles with recent kernels
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, adaplas@pol.net
-In-Reply-To: <20050214203902.GH15058@waste.org>
-References: <20050214203902.GH15058@waste.org>
-Content-Type: text/plain
-Date: Tue, 15 Feb 2005 09:38:43 +1100
-Message-Id: <1108420723.12740.17.camel@gaston>
+	Mon, 14 Feb 2005 17:43:52 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:8222 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261364AbVBNWng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 17:43:36 -0500
+Date: Mon, 14 Feb 2005 14:43:19 -0800
+From: Greg KH <gregkh@suse.de>
+To: Ingo Oeser <ioe-lkml@axxeo.de>
+Cc: andersen@codepoet.org, Christian Borntr?ger <christian@borntraeger.net>,
+       Bill Nottingham <notting@redhat.com>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+Message-ID: <20050214224319.GD13110@suse.de>
+References: <20050211004033.GA26624@suse.de> <20050211230657.B1635@banaan.localdomain> <20050211221323.GC23606@suse.de> <200502120148.50073.ioe-lkml@axxeo.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502120148.50073.ioe-lkml@axxeo.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-14 at 12:39 -0800, Matt Mackall wrote:
-> On my Thinkpad T30 with a Radeon Mobility M7 LW, I get interesting
-> console video corruption if I start GDM, switch back to text mode,
-> then stop it again. X is Xfree86 from Debian/unstable or X.org 6.8.2.
+On Sat, Feb 12, 2005 at 01:48:49AM +0100, Ingo Oeser wrote:
+> Hi,
 > 
-> The corruption shows up whenever the console scrolls after X has been
-> shut down and manifests as horizontal lines spaced about 4 pixel rows
-> apart containing contents recognizable as the X display. Switch from
-> vt1 to vt2 and back or visual bell clears things back to normal, but
-> corruption will reappear on the next scroll.
+> Greg KH write:
+> > Very nice stuff.  Ok, that's a good reason not to get rid of these
+> > files, although they can be generated on the fly from the modules
+> > themselves (like depmod does it.)
 > 
-> This has appeared in at least 2.6.11-rc3-mm2 and rc4.
+> Time to resurrect modinfo? ;-)
+> Didn't we plan to get rid of that, too?
 
-Appeared ? hah... that's strange. X is known to fuck up the chip when
-quit, but I wouldn't have expected any change due to the new version of
-radeonfb. From what you describe, it looks like an offset register is
-changed by X, or the surface control.
+Not that I know of, modinfo works great for me here :)
 
-My patch did not change any of radeonfb accel code though...
+> If we like to use information from modules, there should be a scriptable 
+> tool to extract this kind of information, otherwise it will be a bitch to 
+> maintain those tools.
 
-I'll catch up with you on IRC ...
+modinfo works well for me in this manner, it doesn't for you?
 
-Ben.
+thanks,
 
-
+greg k-h

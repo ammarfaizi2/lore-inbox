@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261773AbREPCqL>; Tue, 15 May 2001 22:46:11 -0400
+	id <S261775AbREPDHZ>; Tue, 15 May 2001 23:07:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261775AbREPCpv>; Tue, 15 May 2001 22:45:51 -0400
-Received: from dsl-64-192-96-25.telocity.com ([64.192.96.25]:20860 "EHLO
-	orr.falooley.org") by vger.kernel.org with ESMTP id <S261774AbREPCpr>;
-	Tue, 15 May 2001 22:45:47 -0400
-Date: Tue, 15 May 2001 22:45:25 -0400
-From: Jason Lunz <j@falooley.org>
-To: linux-kernel@vger.kernel.org
-Subject: DVD_AUTH ioctl fails with aic7xxx / 2.4.4
-Message-ID: <20010515224525.A9171@orr.falooley.org>
-Mime-Version: 1.0
+	id <S261776AbREPDHP>; Tue, 15 May 2001 23:07:15 -0400
+Received: from smtp.mountain.net ([198.77.1.35]:47111 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S261775AbREPDG6>;
+	Tue, 15 May 2001 23:06:58 -0400
+Message-ID: <3B01EE71.A4162981@mountain.net>
+Date: Tue, 15 May 2001 23:05:21 -0400
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
+X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
+MIME-Version: 1.0
+To: mirabilos <eccesys@topmail.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: rwsem, gcc3 again
+In-Reply-To: <20010515125759.19134A5ABC2@www.topmail.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mirabilos wrote:
+> 
+> Hi,
+> I have got that patch with "movl %2,%%edx" and removing the tmp
+> and still cannot compile with the same error message I posted yesterday.
+> The problem seems to be that, with or without "inline", it seems to
+> put a reference into main.o of arch/i386/boot/compressed.
+> So I cannot test -ac9 :(
+> 
+> If anyone could find a (final or at least until gcc is fixed temporarily)
+> solution please please could either post or mail me?
+> Please no Cc: as I am on the list.
+> 
+> -mirabilos
+> --
 
-I've set up a Pioneer 305S scsi dvd-rom on an old adaptec card using the
-stock aic7xxx driver included with the 2.4.4 kernel (not the old_aic7xxx
-one). Everything works well, except when trying to access an encrypted
-file on a DVD. This ioctl from libcss fails:
+Hi,
 
-static int _get_title_key(int fd, int agid, int lba, char *key, char *key_title)
-{
-	dvd_authinfo ai;
-	int i;
+Petr Vandrovic's patch works for me.
+$ cat /proc/version
+Linux version 2.4.5-pre1 (tleete@mercury) (gcc version 3.0 20010423
+(prerelease)) #6 Tue May 15 07:13:10 EDT 2001
+You don't mention the constraint changes, did you apply them too?
 
-	ai.type = DVD_LU_SEND_TITLE_KEY;
+I posted a simpler patch which miscompiled on gcc3 and 2.95.3. Still trying
+to understand why, it was Obviously Correct. It was also the cause of my
+boot hangs.
 
-	ai.lstk.agid = agid;
-	ai.lstk.lba = lba;
+Cheers,
+Tom
 
-	if (ioctl (fd, DVD_AUTH, &ai)) {
-		perror ("GetTitleKey failed");
-		return -1;
-	}
-
-All I see from the kernel is:
-
-	sr1: CDROM (ioctl) reports ILLEGAL REQUEST.
-
-This happens with any DVD. Can someone tell me what the problem is? I
-seem to be using the same libcss that everyone else uses with no
-problem, and everything is properly configured, AFAIK.
-
-thanks,
-
-Jason
+-- 
+The Daemons lurk and are dumb. -- Emerson

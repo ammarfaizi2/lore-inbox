@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132854AbRDQVE7>; Tue, 17 Apr 2001 17:04:59 -0400
+	id <S132862AbRDQVSv>; Tue, 17 Apr 2001 17:18:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132859AbRDQVEt>; Tue, 17 Apr 2001 17:04:49 -0400
-Received: from himalia.xerox.com ([208.140.33.21]:11979 "EHLO
-	himalia.eastgw.xerox.com") by vger.kernel.org with ESMTP
-	id <S132854AbRDQVEg>; Tue, 17 Apr 2001 17:04:36 -0400
-Message-Id: <200104172104.RAA08013@mailhost.eng.mc.xerox.com>
-To: linux-kernel@vger.kernel.org
-cc: leisner@rochester.rr.com
-Subject: kernel threads and close method in a device driver
-Date: Tue, 17 Apr 2001 17:04:28 -0400
-From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
+	id <S132861AbRDQVSl>; Tue, 17 Apr 2001 17:18:41 -0400
+Received: from mta03-svc.ntlworld.com ([62.253.162.43]:17037 "EHLO
+	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S132860AbRDQVSf>; Tue, 17 Apr 2001 17:18:35 -0400
+Date: Tue, 17 Apr 2001 22:18:33 +0100
+From: Tim Waugh <tim@cyberelk.demon.co.uk>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Parport fifo stuck when printer out of paper
+Message-ID: <20010417221833.A3404@cyberelk.demon.co.uk>
+In-Reply-To: <3ADC672E.5F97BAA9@delusion.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3ADC672E.5F97BAA9@delusion.de>; from reality@delusion.de on Tue, Apr 17, 2001 at 05:54:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm involved with modifying a device driver for new hardware.
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The architecture is currently:
+On Tue, Apr 17, 2001 at 05:54:22PM +0200, Udo A. Steinberg wrote:
 
-	open device
-	do IOCTL (spinning a kernel thread and doing initialization)
+> To me it's pretty pointless to fill dmesg and the logfiles with
+> this rather harmless but still annoying info.
 
-There is currently an IOCTL which short-circuits to the close method.
-Turns out it seems necessary to do this IOCTL -- close never gets 
-invoked.
+Yes, it's debugging info.  I think that FIFO/DMA printing seems to
+work quite well now, so maybe it's time to turn that off.
 
-What can cause a close not to get invoked?  BTW, the close is returning
-with a 0 status to the application ...(it definitely did NOT 
-get invoked in the driver)
+Tim.
+*/
 
-In ps:
-  F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY        TIME COMMAND
-040 33839   750     1   7   0  1064  348 end    D    pts/2      0:00 ./openinit
-040 33839   630     1   0   0  1064  348 end    D    pts/0      0:00 ./openinit
+--ibTvN161/egqYuK8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-These are the kernel threads which won't go away.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-I'm running 2.2.12 with the bigphysarea patch...
+iD8DBQE63LMpONXnILZ4yVIRAuxpAKCd82A/ygMA+dDXVbtoja4+Cq1lpgCfXXRj
+yqSaXWFSfB8N7YI+668zOR4=
+=913G
+-----END PGP SIGNATURE-----
 
-(leave my work address on the distribution -- I get linux kernel at home...)
-
-marty		mleisner@eng.mc.xerox.com   
-Don't  confuse education with schooling.
-	Milton Friedman to Yogi Berra
+--ibTvN161/egqYuK8--

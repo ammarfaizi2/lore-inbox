@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315427AbSFCTIQ>; Mon, 3 Jun 2002 15:08:16 -0400
+	id <S315437AbSFCTMl>; Mon, 3 Jun 2002 15:12:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315437AbSFCTIO>; Mon, 3 Jun 2002 15:08:14 -0400
-Received: from bitmover.com ([192.132.92.2]:35534 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S317460AbSFCTGx>;
-	Mon, 3 Jun 2002 15:06:53 -0400
-Date: Mon, 3 Jun 2002 12:06:53 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: please kindly get back to me
-Message-ID: <20020603120653.C4940@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Matti Aarnio <matti.aarnio@zmailer.org>,
-	"Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <61DB42B180EAB34E9D28346C11535A783A7801@nocmail101.ma.tmpw.net> <20020603220046.D18899@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317460AbSFCTMj>; Mon, 3 Jun 2002 15:12:39 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:43987 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S315437AbSFCTMc>; Mon, 3 Jun 2002 15:12:32 -0400
+Subject: Re: [Lse-tech] Re: [RFC] Dynamic percpu data allocator
+To: dipankar@beaverton.ibm.com
+Cc: BALBIR SINGH <balbir.singh@wipro.com>, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net, lse-tech-admin@lists.sourceforge.net,
+        Paul McKenney <Paul.McKenney@us.ibm.com>,
+        Rusty Russell <rusty@rustcorp.com.au>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF60D095C7.87A83057-ON85256BCD.0068BA3A@raleigh.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Mon, 3 Jun 2002 14:12:29 -0500
+X-MIMETrack: Serialize by Router on D04NM108/04/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 06/03/2002 03:12:02 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 03, 2002 at 10:00:46PM +0300, Matti Aarnio wrote:
->   Anti-spam technology really needs constant evolution, as those
->   spammers do evolve themselves...
+On Thu, May 30, 2002 at 08:56:36AM -0500, Mala Anand wrote:
+>>
 
-If ever there was something which was screaming for an open source project,
-it's spam filtering.  It seems like every major mailing list has someone
-like Matti, working really hard on a thankless task, but losing out under
-the tide of new spam every day.  Seems to me if there was a public repository
-(sourceforge, bkbits, whatever) with a collection of procmail filters which
-have been shown to work correctly, that would be a win.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+>>                       dipankar@beaverton.ibm.co
+
+>>                       m                                To:       BALBIR
+SINGH <balbir.singh@wipro.com>
+>>
+>>The per-cpu data allocator allocates one copy for *each* CPU.
+>> >It uses the slab allocator underneath. Eventually, when/if we have
+>> >per-cpu/numa-node slab allocation, the per-cpu data allocator
+>> >can allocate every CPU's copy from memory closest to it.
+>>
+>> Does this mean that memory allocation will happen in "each" CPU?
+>> Do slab allocator allocate the memory in each cpu? Your per-cpu
+>> data allocator sounds like the hot list skbs that are in the tcpip stack
+>> in the sense it is one level above the slab allocator and the list is
+>> kept per cpu.  If slab allocator is fixed for per cpu, do you still
+>> need this per-cpu data allocator?
+
+>Actually I don't know for sure what plans are afoot to fix the slab
+allocator
+>for per-cpu. One plan I heard about was allocating from per-cpu pools
+>rather than per-cpu copies. My requirements are similar to
+>the hot list skbs. I want to do this -
+
+I looked at the slab code, per cpu slab is already implemented by Manfred
+Spraul.
+Look at cpu_data[NR_CPUS] in kmem_cache_s structure.
+
+
+Regards,
+    Mala
+
+
+   Mala Anand
+   E-mail:manand@us.ibm.com
+   Linux Technology Center - Performance
+   Phone:838-8088; Tie-line:678-8088
+
+
+

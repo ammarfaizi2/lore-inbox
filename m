@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267500AbTAGUdQ>; Tue, 7 Jan 2003 15:33:16 -0500
+	id <S267489AbTAGUdP>; Tue, 7 Jan 2003 15:33:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267492AbTAGUcR>; Tue, 7 Jan 2003 15:32:17 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:17613 "EHLO
+	id <S267490AbTAGUcu>; Tue, 7 Jan 2003 15:32:50 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:12749 "EHLO
 	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267491AbTAGUbL>; Tue, 7 Jan 2003 15:31:11 -0500
-Date: Tue, 07 Jan 2003 12:20:13 -0800
+	id <S267489AbTAGUbJ>; Tue, 7 Jan 2003 15:31:09 -0500
+Date: Tue, 07 Jan 2003 12:31:24 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] (2/7) make i386 topology caching
-Message-ID: <594450000.1041970813@titus>
+Subject: [PATCH] (6/7) remove clustered_apic_mode from smpboot.c
+Message-ID: <601690000.1041971483@titus>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -20,162 +20,272 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch originally by Matt Dobson. Reworked a little by me.
+This removes clustered_apic_mode from smpboot.c into subarch,
+creating a headerfile "mach_wakecpu" for all the cpu wakeup stuff.
+This is pretty much the last of clustered_apic_mode ... ;-)
 
-Stores the mappings between cpus and nodes in an array, instead of
-working them out every time. Gives about 4% off systime for kernel
-compile (we use these for every page allocation), and removes one
-of the two only usages of apicid->cpu mapping, which is really awkward
-to keep for systems with large apic spaces, and is genererally pretty
-useless anyway (later patch removes).
+diff -urpN -X /home/fletch/.diff.exclude 05-cleanup_cpu_apicid/arch/i386/kernel/smpboot.c 06-smpboot_cam/arch/i386/kernel/smpboot.c
+--- 05-cleanup_cpu_apicid/arch/i386/kernel/smpboot.c	Tue Jan  7 09:27:26 2003
++++ 06-smpboot_cam/arch/i386/kernel/smpboot.c	Tue Jan  7 10:32:41 2003
+@@ -53,6 +53,7 @@
+ #include "smpboot_hooks.h"
 
-diff -urpN -X /home/fletch/.diff.exclude 01-apicid_to_node/arch/i386/kernel/smpboot.c 02-i386_caching_topo/arch/i386/kernel/smpboot.c
---- 01-apicid_to_node/arch/i386/kernel/smpboot.c	Thu Jan  2 22:04:58 2003
-+++ 02-i386_caching_topo/arch/i386/kernel/smpboot.c	Tue Jan  7 09:24:51 2003
-@@ -503,6 +503,39 @@ static struct task_struct * __init fork_
- 	return do_fork(CLONE_VM|CLONE_IDLETASK, 0, &regs, 0, NULL, NULL);
+ #include <mach_apic.h>
++#include <mach_wakecpu.h>
+
+ /* Set if we find a B stepping CPU */
+ static int __initdata smp_b_stepping;
+@@ -348,8 +349,7 @@ void __init smp_callin(void)
+ 	 * our local APIC.  We have to wait for the IPI or we'll
+ 	 * lock up on an APIC access.
+ 	 */
+-	if (!clustered_apic_mode)
+-		while (!atomic_read(&init_deasserted));
++	wait_for_init_deassert(&init_deasserted);
+
+ 	/*
+ 	 * (This works even if the APIC is not enabled.)
+@@ -398,12 +398,7 @@ void __init smp_callin(void)
+ 	 */
+
+ 	Dprintk("CALLIN, before setup_local_APIC().\n");
+-	/*
+-	 * Because we use NMIs rather than the INIT-STARTUP sequence to
+-	 * bootstrap the CPUs, the APIC may be in a weird state. Kick it.
+-	 */
+-	if (clustered_apic_mode)
+-		clear_local_APIC();
++	smp_callin_clear_local_apic();
+ 	setup_local_APIC();
+ 	map_cpu_to_logical_apicid();
+
+@@ -555,7 +550,7 @@ void unmap_cpu_to_logical_apicid(int cpu
  }
 
-+#ifdef CONFIG_NUMA
-+
-+/* which logical CPUs are on which nodes */
-+volatile unsigned long node_2_cpu_mask[MAX_NR_NODES] =
-+						{ [0 ... MAX_NR_NODES-1] = 0 };
-+/* which node each logical CPU is on */
-+volatile int cpu_2_node[NR_CPUS] = { [0 ... NR_CPUS-1] = 0 };
-+
-+/* set up a mapping between cpu and node. */
-+static inline void map_cpu_to_node(int cpu, int node)
-+{
-+	printk("Mapping cpu %d to node %d\n", cpu, node);
-+	node_2_cpu_mask[node] |= (1 << cpu);
-+	cpu_2_node[cpu] = node;
-+}
-+
-+/* undo a mapping between cpu and node. */
-+static inline void unmap_cpu_to_node(int cpu)
-+{
-+	int node;
-+
-+	printk("Unmapping cpu %d from all nodes\n", cpu);
-+	for (node = 0; node < MAX_NR_NODES; node ++)
-+		node_2_cpu_mask[node] &= ~(1 << cpu);
-+	cpu_2_node[cpu] = -1;
-+}
-+#else /* !CONFIG_NUMA */
-+
-+#define map_cpu_to_node(cpu, node)	({})
-+#define unmap_cpu_to_node(cpu)	({})
-+
-+#endif /* CONFIG_NUMA */
-+
- /* which physical APIC ID maps to which logical CPU number */
- volatile int physical_apicid_2_cpu[MAX_APICID];
- /* which logical CPU number maps to which physical APIC ID */
-@@ -537,6 +570,7 @@ static inline void map_cpu_to_boot_apici
- 	if (clustered_apic_mode) {
- 		logical_apicid_2_cpu[apicid] = cpu;	
- 		cpu_2_logical_apicid[cpu] = apicid;
-+		map_cpu_to_node(cpu, apicid_to_node(apicid));
- 	} else {
- 		physical_apicid_2_cpu[apicid] = cpu;	
- 		cpu_2_physical_apicid[cpu] = apicid;
-@@ -552,6 +586,7 @@ static inline void unmap_cpu_to_boot_api
- 	if (clustered_apic_mode) {
- 		logical_apicid_2_cpu[apicid] = -1;	
- 		cpu_2_logical_apicid[cpu] = -1;
-+		unmap_cpu_to_node(cpu);
- 	} else {
- 		physical_apicid_2_cpu[apicid] = -1;	
- 		cpu_2_physical_apicid[cpu] = -1;
-diff -urpN -X /home/fletch/.diff.exclude 01-apicid_to_node/include/asm-i386/topology.h 02-i386_caching_topo/include/asm-i386/topology.h
---- 01-apicid_to_node/include/asm-i386/topology.h	Sun Nov 17 20:29:26 2002
-+++ 02-i386_caching_topo/include/asm-i386/topology.h	Tue Jan  7 09:24:51 2003
-@@ -27,12 +27,17 @@
- #ifndef _ASM_I386_TOPOLOGY_H
- #define _ASM_I386_TOPOLOGY_H
-
--#ifdef CONFIG_X86_NUMAQ
-+#ifdef CONFIG_NUMA
-
--#include <asm/smpboot.h>
-+/* Mappings between logical cpu number and node number */
-+extern volatile unsigned long node_2_cpu_mask[];
-+extern volatile int cpu_2_node[];
-
- /* Returns the number of the node containing CPU 'cpu' */
--#define __cpu_to_node(cpu) (cpu_to_logical_apicid(cpu) >> 4)
-+static inline int __cpu_to_node(int cpu)
-+{
-+	return cpu_2_node[cpu];
-+}
-
- /* Returns the number of the node containing MemBlk 'memblk' */
- #define __memblk_to_node(memblk) (memblk)
-@@ -41,49 +46,22 @@
-    so it is a pretty simple function! */
- #define __parent_node(node) (node)
-
--/* Returns the number of the first CPU on Node 'node'.
-- * This should be changed to a set of cached values
-- * but this will do for now.
-- */
--static inline int __node_to_first_cpu(int node)
--{
--	int i, cpu, logical_apicid = node << 4;
--
--	for(i = 1; i < 16; i <<= 1)
--		/* check to see if the cpu is in the system */
--		if ((cpu = logical_apicid_to_cpu(logical_apicid | i)) >= 0)
--			/* if yes, return it to caller */
--			return cpu;
--
--	BUG(); /* couldn't find a cpu on given node */
--	return -1;
--}
--
--/* Returns a bitmask of CPUs on Node 'node'.
-- * This should be changed to a set of cached bitmasks
-- * but this will do for now.
-- */
-+/* Returns a bitmask of CPUs on Node 'node'. */
- static inline unsigned long __node_to_cpu_mask(int node)
+ #if APIC_DEBUG
+-static inline void inquire_remote_apic(int apicid)
++static inline void __inquire_remote_apic(int apicid)
  {
--	int i, cpu, logical_apicid = node << 4;
--	unsigned long mask = 0UL;
--
--	if (sizeof(unsigned long) * 8 < NR_CPUS)
--		BUG();
--
--	for(i = 1; i < 16; i <<= 1)
--		/* check to see if the cpu is in the system */
--		if ((cpu = logical_apicid_to_cpu(logical_apicid | i)) >= 0)
--			/* if yes, add to bitmask */
--			mask |= 1 << cpu;
-+	return node_2_cpu_mask[node];
-+}
+ 	int i, regs[] = { APIC_ID >> 4, APIC_LVR >> 4, APIC_SPIV >> 4 };
+ 	char *names[] = { "ID", "VERSION", "SPIV" };
+@@ -650,6 +645,15 @@ wakeup_secondary_cpu(int phys_apicid, un
+ 	unsigned long send_status = 0, accept_status = 0;
+ 	int maxlvt, timeout, num_starts, j;
 
--	return mask;
-+/* Returns the number of the first CPU on Node 'node'. */
-+static inline int __node_to_first_cpu(int node)
-+{
-+	return __ffs(__node_to_cpu_mask(node));
++	/*
++	 * Be paranoid about clearing APIC errors.
++	 */
++	if (APIC_INTEGRATED(apic_version[phys_apicid])) {
++		apic_read_around(APIC_SPIV);
++		apic_write(APIC_ESR, 0);
++		apic_read(APIC_ESR);
++	}
++
+ 	Dprintk("Asserting INIT.\n");
+
+ 	/*
+@@ -819,11 +823,7 @@ static int __init do_boot_cpu(int apicid
+
+ 	Dprintk("Setting warm reset code and vector.\n");
+
+-	if (clustered_apic_mode) {
+-		/* stash the current NMI vector, so we can put things back */
+-		nmi_high = *((volatile unsigned short *) TRAMPOLINE_HIGH);
+-		nmi_low = *((volatile unsigned short *) TRAMPOLINE_LOW);
+-	}
++	store_NMI_vector(&nmi_high, &nmi_low);
+
+ 	CMOS_WRITE(0xa, 0xf);
+ 	local_flush_tlb();
+@@ -834,15 +834,6 @@ static int __init do_boot_cpu(int apicid
+ 	Dprintk("3.\n");
+
+ 	/*
+-	 * Be paranoid about clearing APIC errors.
+-	 */
+-	if (!clustered_apic_mode && APIC_INTEGRATED(apic_version[apicid])) {
+-		apic_read_around(APIC_SPIV);
+-		apic_write(APIC_ESR, 0);
+-		apic_read(APIC_ESR);
+-	}
+-
+-	/*
+ 	 * Starting actual IPI sequence...
+ 	 */
+ 	boot_error = wakeup_secondary_cpu(apicid, start_eip);
+@@ -879,10 +870,7 @@ static int __init do_boot_cpu(int apicid
+ 			else
+ 				/* trampoline code not run */
+ 				printk("Not responding.\n");
+-#if APIC_DEBUG
+-			if (!clustered_apic_mode)
+-				inquire_remote_apic(apicid);
+-#endif
++			inquire_remote_apic(apicid);
+ 		}
+ 	}
+ 	if (boot_error) {
+@@ -896,11 +884,6 @@ static int __init do_boot_cpu(int apicid
+ 	/* mark "stuck" area as not stuck */
+ 	*((volatile unsigned long *)phys_to_virt(8192)) = 0;
+
+-	if(clustered_apic_mode) {
+-		printk("Restoring NMI vector\n");
+-		*((volatile unsigned short *) TRAMPOLINE_HIGH) = nmi_high;
+-		*((volatile unsigned short *) TRAMPOLINE_LOW) = nmi_low;
+-	}
+ 	return boot_error;
  }
 
- /* Returns the number of the first MemBlk on Node 'node' */
- #define __node_to_memblk(node) (node)
+diff -urpN -X /home/fletch/.diff.exclude 05-cleanup_cpu_apicid/include/asm-i386/mach-default/mach_apic.h 06-smpboot_cam/include/asm-i386/mach-default/mach_apic.h
+--- 05-cleanup_cpu_apicid/include/asm-i386/mach-default/mach_apic.h	Tue Jan  7 09:26:53 2003
++++ 06-smpboot_cam/include/asm-i386/mach-default/mach_apic.h	Tue Jan  7 09:30:08 2003
+@@ -78,8 +78,6 @@ static inline int mpc_apic_id(struct mpc
+ 	return (m->mpc_apicid);
+ }
 
--#else /* !CONFIG_X86_NUMAQ */
-+#else /* !CONFIG_NUMA */
- /*
-  * Other i386 platforms should define their own version of the
-  * above macros here.
-@@ -91,6 +69,6 @@ static inline unsigned long __node_to_cp
+-#define WAKE_SECONDARY_VIA_INIT
+-
+ static inline void setup_portio_remap(void)
+ {
+ }
+diff -urpN -X /home/fletch/.diff.exclude 05-cleanup_cpu_apicid/include/asm-i386/mach-default/mach_wakecpu.h 06-smpboot_cam/include/asm-i386/mach-default/mach_wakecpu.h
+--- 05-cleanup_cpu_apicid/include/asm-i386/mach-default/mach_wakecpu.h	Wed Dec 31 16:00:00 1969
++++ 06-smpboot_cam/include/asm-i386/mach-default/mach_wakecpu.h	Tue Jan  7 10:32:41 2003
+@@ -0,0 +1,41 @@
++#ifndef __ASM_MACH_WAKECPU_H
++#define __ASM_MACH_WAKECPU_H
++
++/*
++ * This file copes with machines that wakeup secondary CPUs by the
++ * INIT, INIT, STARTUP sequence.
++ */
++
++#define WAKE_SECONDARY_VIA_INIT
++
++#define TRAMPOLINE_LOW phys_to_virt(0x467)
++#define TRAMPOLINE_HIGH phys_to_virt(0x469)
++
++#define boot_cpu_apicid boot_cpu_physical_apicid
++
++static inline void wait_for_init_deassert(atomic_t *deassert)
++{
++	while (!atomic_read(deassert));
++	return;
++}
++
++/* Nothing to do for most platforms, since cleared by the INIT cycle */
++static inline void smp_callin_clear_local_apic(void)
++{
++}
++
++static inline void store_NMI_vector(unsigned short *high, unsigned short *low)
++{
++}
++
++static inline void restore_NMI_vector(unsigned short *high, unsigned short *low)
++{
++}
++
++#if APIC_DEBUG
++ #define inquire_remote_apic(apicid) __inquire_remote_apic(apicid)
++#else
++ #define inquire_remote_apic(apicid) {}
++#endif
++
++#endif /* __ASM_MACH_WAKECPU_H */
+diff -urpN -X /home/fletch/.diff.exclude 05-cleanup_cpu_apicid/include/asm-i386/mach-numaq/mach_apic.h 06-smpboot_cam/include/asm-i386/mach-numaq/mach_apic.h
+--- 05-cleanup_cpu_apicid/include/asm-i386/mach-numaq/mach_apic.h	Tue Jan  7 09:26:53 2003
++++ 06-smpboot_cam/include/asm-i386/mach-numaq/mach_apic.h	Tue Jan  7 09:30:08 2003
+@@ -73,8 +73,6 @@ static inline int mpc_apic_id(struct mpc
+ 	return logical_apicid;
+ }
 
- #include <asm-generic/topology.h>
+-#define WAKE_SECONDARY_VIA_NMI
+-
+ static inline void setup_portio_remap(void)
+ {
+ 	if (numnodes <= 1)
+diff -urpN -X /home/fletch/.diff.exclude 05-cleanup_cpu_apicid/include/asm-i386/mach-numaq/mach_wakecpu.h 06-smpboot_cam/include/asm-i386/mach-numaq/mach_wakecpu.h
+--- 05-cleanup_cpu_apicid/include/asm-i386/mach-numaq/mach_wakecpu.h	Wed Dec 31 16:00:00 1969
++++ 06-smpboot_cam/include/asm-i386/mach-numaq/mach_wakecpu.h	Tue Jan  7 11:10:20 2003
+@@ -0,0 +1,43 @@
++#ifndef __ASM_MACH_WAKECPU_H
++#define __ASM_MACH_WAKECPU_H
++
++/* This file copes with machines that wakeup secondary CPUs by NMIs */
++
++#define WAKE_SECONDARY_VIA_NMI
++
++#define TRAMPOLINE_LOW phys_to_virt(0x8)
++#define TRAMPOLINE_HIGH phys_to_virt(0xa)
++
++#define boot_cpu_apicid boot_cpu_logical_apicid
++
++/* We don't do anything here because we use NMI's to boot instead */
++static inline void wait_for_init_deassert(atomic_t *deassert)
++{
++}
++
++/*
++ * Because we use NMIs rather than the INIT-STARTUP sequence to
++ * bootstrap the CPUs, the APIC may be in a weird state. Kick it.
++ */
++static inline void smp_callin_clear_local_apic(void)
++{
++	clear_local_APIC();
++}
++
++static inline void store_NMI_vector(unsigned short *high, unsigned short *low)
++{
++	printk("Storing NMI vector\n");
++	*high = *((volatile unsigned short *) TRAMPOLINE_HIGH);
++	*low = *((volatile unsigned short *) TRAMPOLINE_LOW);
++}
++
++static inline void restore_NMI_vector(unsigned short *high, unsigned short *low)
++{
++	printk("Restoring NMI vector\n");
++	*((volatile unsigned short *) TRAMPOLINE_HIGH) = *high;
++	*((volatile unsigned short *) TRAMPOLINE_LOW) = *low;
++}
++
++#define inquire_remote_apic(apicid) {}
++
++#endif /* __ASM_MACH_WAKECPU_H */
+diff -urpN -X /home/fletch/.diff.exclude 05-cleanup_cpu_apicid/include/asm-i386/mach-summit/mach_apic.h 06-smpboot_cam/include/asm-i386/mach-summit/mach_apic.h
+--- 05-cleanup_cpu_apicid/include/asm-i386/mach-summit/mach_apic.h	Tue Jan  7 09:26:53 2003
++++ 06-smpboot_cam/include/asm-i386/mach-summit/mach_apic.h	Tue Jan  7 09:30:08 2003
+@@ -59,8 +59,6 @@ static inline unsigned long apicid_to_ph
+ 		return (1ul << apicid);
+ }
 
--#endif /* CONFIG_X86_NUMAQ */
-+#endif /* CONFIG_NUMA */
+-#define WAKE_SECONDARY_VIA_INIT
+-
+ static inline void setup_portio_remap(void)
+ {
+ }
+diff -urpN -X /home/fletch/.diff.exclude 05-cleanup_cpu_apicid/include/asm-i386/smpboot.h 06-smpboot_cam/include/asm-i386/smpboot.h
+--- 05-cleanup_cpu_apicid/include/asm-i386/smpboot.h	Tue Jan  7 09:29:11 2003
++++ 06-smpboot_cam/include/asm-i386/smpboot.h	Tue Jan  7 09:30:49 2003
+@@ -9,19 +9,4 @@
+  #endif /* CONFIG_CLUSTERED_APIC */
+ #endif
 
- #endif /* _ASM_I386_TOPOLOGY_H */
+-#ifdef CONFIG_CLUSTERED_APIC
+- #define TRAMPOLINE_LOW phys_to_virt(0x8)
+- #define TRAMPOLINE_HIGH phys_to_virt(0xa)
+-#else /* !CONFIG_CLUSTERED_APIC */
+- #define TRAMPOLINE_LOW phys_to_virt(0x467)
+- #define TRAMPOLINE_HIGH phys_to_virt(0x469)
+-#endif /* CONFIG_CLUSTERED_APIC */
+-
+-#ifdef CONFIG_CLUSTERED_APIC
+- #define boot_cpu_apicid boot_cpu_logical_apicid
+-#else /* !CONFIG_CLUSTERED_APIC */
+- #define boot_cpu_apicid boot_cpu_physical_apicid
+-#endif /* CONFIG_CLUSTERED_APIC */
+-
+-
+ #endif
 

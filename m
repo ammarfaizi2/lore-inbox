@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVAHN5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVAHN6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbVAHN5I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 08:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVAHN5I
+	id S261176AbVAHN6f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 08:58:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVAHN6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 08:57:08 -0500
-Received: from mail.gmx.de ([213.165.64.20]:46488 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261170AbVAHN5F (ORCPT
+	Sat, 8 Jan 2005 08:58:35 -0500
+Received: from fyrebird.net ([217.70.144.192]:31637 "HELO fyrebird.net")
+	by vger.kernel.org with SMTP id S261176AbVAHN6X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 08:57:05 -0500
-X-Authenticated: #1725425
-Date: Sat, 8 Jan 2005 15:18:16 +0100
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Dave Airlie <airlied@gmail.com>
-Cc: bboissin@gmail.com, akpm@osdl.org, werner@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-mm2
-Message-Id: <20050108151816.2a9c318f.Ballarin.Marc@gmx.de>
-In-Reply-To: <21d7e99705010805424ec16550@mail.gmail.com>
-References: <20050106002240.00ac4611.akpm@osdl.org>
-	<40f323d005010701395a2f8d00@mail.gmail.com>
-	<21d7e99705010718435695f837@mail.gmail.com>
-	<40f323d00501080427f881c68@mail.gmail.com>
-	<21d7e99705010805424ec16550@mail.gmail.com>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 8 Jan 2005 08:58:23 -0500
+X-Qmail-Scanner-Mail-From: lethalman@fyrebird.net via fyrebird
+X-Qmail-Scanner: 1.23 (Clear:RC:0(62.11.82.92):. Processed in 1.603563 secs)
+Message-ID: <41DFE447.9030402@fyrebird.net>
+Date: Sat, 08 Jan 2005 14:46:47 +0100
+From: Lethalman <lethalman@fyrebird.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fix for new elf_loader bug?
+References: <41DEAF8F.3030107@bio.ifi.lmu.de> <41DFD9CC.9080009@fyrebird.net>
+In-Reply-To: <41DFD9CC.9080009@fyrebird.net>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Jan 2005 00:42:03 +1100
-Dave Airlie <airlied@gmail.com> wrote:
+Frank Steiner wrote:
 
-> it looks like agp_backend_acquire is returning NULL in this case, 
-> [drm:drm_ioctl] pid=10587, cmd=0x6430, nr=0x30, dev 0xe200, auth=1
-> [drm:drm_ioctl] ret = ffffffed
-> is the agp acquire ioctl and the return is -ENODEV 
-> 
-> Any ideas Mike why that might happen?
+> Hi,
+>
+> is there already a patch for the new problem with the elf loader, maybe
+> in the bitkeeper tree?
+>
+> http://www.isec.pl/vulnerabilities/isec-0021-uselib.txt
+>
+> Thanks!
+> cu,
+> Frank
 
-Could this be the same issue discussed and fixed in another thread?
+I made this very very very very very simple patch for kernel 2.4.28:
+http://maphia.flowsecurity.org/patch/uselib-2.4.28.patch
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110504486230527&w=2
+The only thing that an attacker can do is to repeat the exploit and
+cause a DoS, but it's hard too.
 
-Regards
+
+-- 
+www.iosn.it * Amministratore Italian Open Source Network
+www.fyrebird.net * Fyrebird Hosting Provider - Technical Department

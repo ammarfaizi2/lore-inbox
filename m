@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131625AbRAOViy>; Mon, 15 Jan 2001 16:38:54 -0500
+	id <S131482AbRAOVkY>; Mon, 15 Jan 2001 16:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131673AbRAOVio>; Mon, 15 Jan 2001 16:38:44 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:42189 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S131625AbRAOVig>; Mon, 15 Jan 2001 16:38:36 -0500
-Date: Mon, 15 Jan 2001 22:38:28 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@transmeta.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386/setup.c cpuinfo notsc
-In-Reply-To: <3A636231.B892D7D2@transmeta.com>
-Message-ID: <Pine.GSO.3.96.1010115223503.16619b-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S131573AbRAOVkO>; Mon, 15 Jan 2001 16:40:14 -0500
+Received: from mailg.telia.com ([194.22.194.26]:25352 "EHLO mailg.telia.com")
+	by vger.kernel.org with ESMTP id <S131482AbRAOVkB>;
+	Mon, 15 Jan 2001 16:40:01 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: Marcel Weber <mmweber@ncpro.com>,
+        Kernel List <linux-kernel@vger.kernel.org>, gibbs@scsiguy.com
+Subject: Re: [Marcel Weber <mmweber@ncpro.com>] re:Adaptec AIC7xxx version 6.08BETA release
+Date: Mon, 15 Jan 2001 22:34:38 +0100
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <200101120932.KAA13634@pingu.hargarten>
+In-Reply-To: <200101120932.KAA13634@pingu.hargarten>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01011522343802.01217@dox>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Jan 2001, H. Peter Anvin wrote:
+On Friday 12 January 2001 10:33, Marcel Weber wrote:
+>     SuSE Linux 7.0, Kernel 2.4.0
+>
+>     Adaptec 3950U2
+>     Adaptec 2940
+>
+>
+>     Although the kernel is complaining about the following things:
+>
+>     kernel: scsi0: PCI error Interrupt at seqaddr= 0x4e
+>     kernel: scsi0: Data Parity Error Detected during address or write
+>     data phase
+>     ...
+>
+>     This is compared to the original drivers already a incredible
+>     change: Those freezed my system after some time (something that did
+>     not happen before I upgraded from a K6-2 to a K6-2+: Apparently the
+>     old driver is working with loops or something)
+>
 
-> I would personally prefer to export the global flags separately from the
-> per-CPU flags.  Not only is it more correct, it would help catch these
-> kinds of bugs!!!
+Hmm.. I start wondering if this is what I see too..
+Both 2.2.18 and 2.4.0 hangs for some reason that I have not been able to 
+trace down - Saturday I tried to remove all PCI cards but my 3dfx and AIC7xxx
 
- That's what I am going to do.  Basically to recode cpu_has_* macros to
-use global flags as that's the intuitive name and use a set of different
-names for the SMP bootstrap code to access boot_cpu_data (possibly
-boot_has_* or boot_cpu_has_*). 
+  00:0f.0 SCSI storage controller: Adaptec AHA-7850 (rev 01) 
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Has some driver been ported between 2.2 and 2.4 series recently ?
+I have not seen this problem before...
 
+I will try the new driver too...
+
+/RogerL
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

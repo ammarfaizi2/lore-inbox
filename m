@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbUK2Xt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbUK3ABD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbUK2Xt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 18:49:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbUK2Xt3
+	id S261869AbUK3ABD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 19:01:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbUK3ABD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 18:49:29 -0500
-Received: from mail.dif.dk ([193.138.115.101]:64962 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261858AbUK2XtM (ORCPT
+	Mon, 29 Nov 2004 19:01:03 -0500
+Received: from mail.dif.dk ([193.138.115.101]:48835 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261869AbUK3AA7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 18:49:12 -0500
-Date: Tue, 30 Nov 2004 00:58:58 +0100 (CET)
+	Mon, 29 Nov 2004 19:00:59 -0500
+Date: Tue, 30 Nov 2004 01:10:46 +0100 (CET)
 From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] net/via-rhine: convert MODULE_PARM to module_param
-Message-ID: <Pine.LNX.4.61.0411300053190.3432@dragon.hygekrogen.localhost>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Domen Puncer <domen@coderock.org>, janitor@sternwelten.at,
+       linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: ds1620: replace schedule_timeout() with 	msleep()
+In-Reply-To: <20041129224240.D5614@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.61.0411300110010.3432@dragon.hygekrogen.localhost>
+References: <E1C2cAP-0007Rx-JK@sputnik> <Pine.LNX.4.61.0411281835430.3389@dragon.hygekrogen.localhost>
+ <20041129140929.GC7889@nd47.coderock.org> <Pine.LNX.4.61.0411292336320.3389@dragon.hygekrogen.localhost>
+ <20041129224240.D5614@flint.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 29 Nov 2004, Russell King wrote:
 
-These warnings told me that it was time to move to module_param() :)
+> On Mon, Nov 29, 2004 at 11:37:48PM +0100, Jesper Juhl wrote:
+> > On Mon, 29 Nov 2004, Domen Puncer wrote:
+> > > It's right:
+> > > schedule_timeout(2*HZ) sleeps for 2 seconds;
+> > > msleep(2000) sleeps for 2000 miliseconds, and does not depend on what
+> > > HZ is.
+> >
+> > It seems I didn't understand schedule_timeout() properly, thank you for 
+> > the clarification.
+> 
+> As part-author of this driver, and actually of this particular bit
+> of code, a 2 second delay is intented here.  The fan needs to be run
+> at full power in order to start running, so the idea here is to give
+> it full power for 2 seconds and then to restore the temperature trip
+> points to the configured values.
+> 
+That makes sense - thanks.
 
-drivers/net/via-rhine.c:229: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-drivers/net/via-rhine.c:230: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-drivers/net/via-rhine.c:231: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-
-So I made this small patch to do so.
-Compile and boot tested on my box, and it seems to work just fine, the 
-module works perfectly with my via-rhine card, and the parameters are 
-exposed through sysfs as expected : 
-
-juhl@dragon:~$ ls -l /sys/module/via_rhine/parameters/*
--rw-r--r--  1 root root    0 2004-11-30 00:51 /sys/module/via_rhine/parameters/debug
--r--r--r--  1 root root    0 2004-11-30 00:50 /sys/module/via_rhine/parameters/max_interrupt_work
--r--r--r--  1 root root 4096 2004-11-30 00:50 /sys/module/via_rhine/parameters/rx_copybreak
-
-juhl@dragon:~$ cat /sys/module/via_rhine/parameters/debug
-1
-juhl@dragon:~$ cat /sys/module/via_rhine/parameters/max_interrupt_work
-20
-juhl@dragon:~$ cat /sys/module/via_rhine/parameters/rx_copybreak
-0
-
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.10-rc2-bk13-orig/drivers/net/via-rhine.c linux-2.6.10-rc2-bk13/drivers/net/via-rhine.c
---- linux-2.6.10-rc2-bk13-orig/drivers/net/via-rhine.c	2004-11-17 01:19:51.000000000 +0100
-+++ linux-2.6.10-rc2-bk13/drivers/net/via-rhine.c	2004-11-30 00:16:36.000000000 +0100
-@@ -226,9 +226,9 @@ MODULE_AUTHOR("Donald Becker <becker@scy
- MODULE_DESCRIPTION("VIA Rhine PCI Fast Ethernet driver");
- MODULE_LICENSE("GPL");
- 
--MODULE_PARM(max_interrupt_work, "i");
--MODULE_PARM(debug, "i");
--MODULE_PARM(rx_copybreak, "i");
-+module_param(max_interrupt_work, int, 0444);
-+module_param(debug, int, 0644);
-+module_param(rx_copybreak, int, 0444);
- MODULE_PARM_DESC(max_interrupt_work, "VIA Rhine maximum events handled per interrupt");
- MODULE_PARM_DESC(debug, "VIA Rhine debug level (0-7)");
- MODULE_PARM_DESC(rx_copybreak, "VIA Rhine copy breakpoint for copy-only-tiny-frames");
-
+-- 
+Jesper
 

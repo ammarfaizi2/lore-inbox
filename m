@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312713AbSCVP0Q>; Fri, 22 Mar 2002 10:26:16 -0500
+	id <S312711AbSCVP00>; Fri, 22 Mar 2002 10:26:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312712AbSCVP0H>; Fri, 22 Mar 2002 10:26:07 -0500
-Received: from mail.loewe-komp.de ([62.156.155.230]:38406 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S312711AbSCVPZy>; Fri, 22 Mar 2002 10:25:54 -0500
-Message-ID: <3C9B4CF5.9040303@loewe-komp.de>
-Date: Fri, 22 Mar 2002 16:25:41 +0100
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
-X-Accept-Language: de, en
+	id <S312712AbSCVP0R>; Fri, 22 Mar 2002 10:26:17 -0500
+Received: from new-coyote.egenera.com ([208.51.147.230]:4834 "HELO
+	coyote.egenera.com") by vger.kernel.org with SMTP
+	id <S312711AbSCVP0M>; Fri, 22 Mar 2002 10:26:12 -0500
+Message-ID: <3C9B4CA7.5BD03CCB@egenera.com>
+Date: Fri, 22 Mar 2002 10:24:23 -0500
+From: "Philip R. Auld" <prauld@egenera.com>
+Organization: Egenera Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
 To: "Little, John" <JOHN.LITTLE@okdhs.org>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
 Subject: Re: fork() DoS?
 In-Reply-To: <E7B0663E34409F45B77EFDB62AE0E4D2022360BD@s99mail02.okdhs.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Little, John wrote:
-
+"Little, John" wrote:
+> 
 > I'm really not a programmer, just learning, but was able to bring the system
 > to it's knees.  This is a redhat 7.2 kernel.  Is there anyway of preventing
 > this?
+
+Use resource limits on users and don't run fork bombs as root :)
+
 > 
 > #include <unistd.h>
 > 
@@ -43,24 +47,13 @@ Little, John wrote:
 >       do_fork();
 > }
 > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-in bash: help ulimit
-ulimit: ulimit [-SHacdflmnpstuv] [limit]
-     Ulimit provides control over the resources available to processes
-     started by the shell, on systems that allow such control.  If an
-     option is given, it is interpreted as follows:
-
-         -S      use the `soft' resource limit
-         -H      use the `hard' resource limit
-         -a      all current limits are reported
-         -c      the maximum size of core files created
-         -d      the maximum size of a process's data segment
-         -f      the maximum size of files created by the shell
-         -l      the maximum size a process may lock into memory
-         -m      the maximum resident set size
-         -n      the maximum number of open file descriptors
-         -p      the pipe buffer size
-         -s      the maximum stack size
-         -t      the maximum amount of cpu time in seconds
-         -u      the maximum number of user processes
-
+-- 
+Philip R. Auld, Ph.D.                  Technical Staff 
+Egenera Corp.                        pauld@egenera.com
+165 Forest St., Marlboro, MA 01752       (508)786-9444

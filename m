@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131645AbRARSvE>; Thu, 18 Jan 2001 13:51:04 -0500
+	id <S129933AbRARTIB>; Thu, 18 Jan 2001 14:08:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131695AbRARSuy>; Thu, 18 Jan 2001 13:50:54 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:1292 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131645AbRARSuk>; Thu, 18 Jan 2001 13:50:40 -0500
-Date: Thu, 18 Jan 2001 10:50:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rick Jones <raj@cup.hp.com>
+	id <S130241AbRARTHv>; Thu, 18 Jan 2001 14:07:51 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:30726 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129933AbRARTHf>; Thu, 18 Jan 2001 14:07:35 -0500
+Date: Thu, 18 Jan 2001 15:17:13 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Jens Axboe <axboe@suse.de>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <3A6735F0.C10759E0@cup.hp.com>
-Message-ID: <Pine.LNX.4.10.10101181044510.18287-100000@penguin.transmeta.com>
+Subject: 2.4.1pre8 slowdown on dbench tests 
+Message-ID: <Pine.LNX.4.21.0101181449240.4124-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi, 
 
-On Thu, 18 Jan 2001, Rick Jones wrote:
+On my dbench runs I've noted a slowdown between pre4 and pre8 with 48
+threads. (128MB, 2 CPU's machine)
 
-> Linus Torvalds wrote:
-> > Remember the UNIX philosophy: everything is a file.
-> 
-> ...and a file is simply a stream of bytes (iirc?)
+pre4: 
+Throughput 7.05841 MB/sec (NB=8.82301 MB/sec 70.5841 MBit/sec)
+70.94user 232.54system 15:17.39elapsed 33%CPU (0avgtext+0avgdata
+0maxresident)k 0inputs+0outputs (1277major+1586minor)pagefaults 0swaps
 
-Indeed.
+pre8: 
+Throughput 6.11383 MB/sec (NB=7.64229 MB/sec 61.1383 MBit/sec)
+70.67user 184.18system 17:38.98elapsed 24%CPU (0avgtext+0avgdata
+0maxresident)k 0inputs+0outputs (1277major+1586minor)pagefaults 0swaps
 
-And normal applications really shouldn't need to worry about things like
-packetization etc.
 
-Of course, many applications still do. stdio does "fstat" on the file
-descriptor to get the st_blksize thing - which despite it's name is really
-only meant to say "this is an efficient blocksize to write to this fd".
-That only really works for regular files, and is just a heuristic even
-there.
+There have been no VM changes between pre4 and pre8. 
 
-But TCP_CORK can be used to kind of "wrap" such applications, if you know
-that they don't have interactive behaviour. 
+Jens, can be the -blk patch the reason for the slowdown I'm seeing?
 
-99% of the time you probably don't care enough. Not very many people use
-TCP_CORK, I suspect. It's too Linux-specific, and you really have to watch
-the packets on the network to see the effect of it (unless you use it
-wrong, and forget to uncork, in which case you can certainly see the
-effect of it the wrong way ;)
-
-Oh, well. The same is obviously largely true of "sendfile()" in general.
-The people who use senfile() under Linux are probably largely the same
-people who know about and use TCP_CORK.
-
-		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

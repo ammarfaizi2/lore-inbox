@@ -1,74 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317345AbSGDGoJ>; Thu, 4 Jul 2002 02:44:09 -0400
+	id <S317344AbSGDG4Z>; Thu, 4 Jul 2002 02:56:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317346AbSGDGoI>; Thu, 4 Jul 2002 02:44:08 -0400
-Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:44267 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S317345AbSGDGoI>;
-	Thu, 4 Jul 2002 02:44:08 -0400
-Date: Thu, 4 Jul 2002 03:50:12 -0300
-From: Werner Almesberger <wa@almesberger.net>
+	id <S317347AbSGDG4Y>; Thu, 4 Jul 2002 02:56:24 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:25021 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S317344AbSGDG4X>;
+	Thu, 4 Jul 2002 02:56:23 -0400
+Date: Thu, 4 Jul 2002 08:56:01 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
 To: Bill Davidsen <davidsen@tmr.com>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal
-Message-ID: <20020704035012.O2295@almesberger.net>
-References: <20020702133658.I2295@almesberger.net> <Pine.LNX.3.96.1020704000434.2248F-100000@gatekeeper.tmr.com> <20020704032929.N2295@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020704032929.N2295@almesberger.net>; from wa@almesberger.net on Thu, Jul 04, 2002 at 03:29:29AM -0300
+Cc: Rob Landley <landley@trommello.org>, Tom Rini <trini@kernel.crashing.org>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] O(1) scheduler in 2.4
+In-Reply-To: <Pine.LNX.3.96.1020703232322.2248C-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0207040846340.3309-100000@e2>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> This is correct if we can be sure that the use count never reaches
-> 0 here, but then the whole inc/dec exercise is probably redundant.
-> ("probably" as in "it doesn't have to be, but I'd be surprised if
-> it isn't"; I'll give an example in a later posting.)
 
-Okay, here's an almost correct example (except for the usual
-return-after-removal, plus an unlikely data race described
-below). foo_1 runs first:
+On Wed, 3 Jul 2002, Bill Davidsen wrote:
 
+> > it might be a candidate for inclusion once it has _proven_ stability and
+> > robustness (in terms of tester and developer exposion), on the same order
+> > of magnitude as the 2.4 kernel - but that needs time and exposure in trees
+> > like the -ac tree and vendor trees. It might not happen at all, during the
+> > lifetime of 2.4.
+> 
+> It has already proven to be stable and robust in the sense that it isn't
+> worse than the stock scheduler on typical loads and is vastly better on
+> some.
 
-foo_1(...)
-{
-    MOD_INC_USE_COUNT;
-    ...
-    initiate_asynchronous_execution_of(foo_2);
-    rendezvous(foo_a);
-        /* wait until foo_2 has incremented the use count */
-    ...
-    MOD_DEC_USE_COUNT;
-    ...
-    rendezvous(foo_b); /* release foo_2 */
-    /* cool return-after-removal race */
-}   
+this is your experience, and i'm happy about that. Whether it's the same
+experience for 90% of Linux users, time will tell.
 
-foo_2(...)
-{
-    MOD_INC_USE_COUNT;
-    rendezvous(foo_a);
-    rendezvous(foo_b);
-    MOD_DEC_USE_COUNT;
-}
+> > Note that the O(1) scheduler isnt a security or stability fix, neither is
+> > it a driver backport. It isnt a feature backport that enables hardware
+> > that couldnt be used in 2.4 before. The VM was a special case because most
+> > people agreed that it truly sucked, and even though people keep
+> > disagreeing about that decision, the VM is in a pretty good shape now -
+> > and we still have good correlation between the VM in 2.5, and the VM in
+> > 2.4. The 2.4 scheduler on the other hand doesnt suck for 99% of the
+> > people, so our hands are not forced in any way - we have the choice of a
+> > 'proven-rock-solid good scheduler' vs. an 'even better, but still young
+> > scheduler'.
+> 
+> Here I disagree. Sure behaves like a stability fix to me. On a system
+> with a mix of interractive and cpu-bound processes, including processes
+> with hundreds of threads, you just can't get reasonable performance
+> balancing with nice() because it is totally impractical to keep tuning a
+> thread which changes from hog to disk io to socket waits with a human in
+> the loop. The new scheduler notices this stuff and makes it work, I
+> don't even know for sure (as in tried it) if you can have different nice
+> on threads of the same process.
 
+(yes, it's possible to nice() individual threads.)
 
-(The pseudo-primitive redezvous(X) stops execution until all
-"threads" have reached that point, then they all continue.)
+> This is not some neat feature to buy a few percent better this or that,
+> this is roughly 50% more users on the server before it falls over, and
+> no total bogs when many threads change to hog mode at once.
 
-I think the easiest solution is to simply declare such constructs
-illegal.
+are these hard numbers? I havent seen much hard data yet from real-life
+servers using the O(1) scheduler. There was lots of feedback from
+desktop-class systems that behave better, but servers used to be pretty
+good with the previous scheduler as well.
 
-Note that I'm using "return" loosely - whatever is used to implement
-rendezvous() may execute instructions after unblocking, which would
-race with removal too. Also note that in this case, we may, at least
-theoretically, data race with removal if accessing foo_b after
-unblocking foo_2.
+> You will not hear me saying this about preempt, or low-latency, and I
+> bet that after I try lock-break this weekend I won't fell that I have to
+> have that either. The O(1) scheduler is self defense against badly
+> behaved processes, and the reason it should go in mainline is so it
+> won't depend on someone finding the time to backport the fun stuff from
+> 2.5 as a patch every time.
 
-- Werner
+well, the O(1) scheduler indeed tries to put up as much defense against
+'badly behaved' processes as possible. In fact you should try to start up
+your admin shells via nice -20, that gives much more priority than it used
+to under the previous scheduler - it's very close to the RT priorities,
+but without the risks. This works in the other direction as well: nice +19
+has a much stronger meaning (in terms of preemption and timeslice
+distribution) than it used to.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://icapeople.epfl.ch/almesber/_____________________________________/
+	Ingo
+

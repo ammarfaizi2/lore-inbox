@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267226AbSK3JEN>; Sat, 30 Nov 2002 04:04:13 -0500
+	id <S267227AbSK3JaH>; Sat, 30 Nov 2002 04:30:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267227AbSK3JEN>; Sat, 30 Nov 2002 04:04:13 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:32522 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267226AbSK3JEM>;
-	Sat, 30 Nov 2002 04:04:12 -0500
-Date: Sat, 30 Nov 2002 01:03:06 -0800
-From: Greg KH <greg@kroah.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Patch/resubmit(2.5.50): Eliminate pci_dev.driver_data
-Message-ID: <20021130090306.GV17065@kroah.com>
-References: <20021129174241.A333@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021129174241.A333@baldur.yggdrasil.com>
-User-Agent: Mutt/1.4i
+	id <S267228AbSK3JaH>; Sat, 30 Nov 2002 04:30:07 -0500
+Received: from server.ehost4u.biz ([209.51.155.18]:16261 "EHLO
+	host.ehost4u.biz") by vger.kernel.org with ESMTP id <S267227AbSK3JaG>;
+	Sat, 30 Nov 2002 04:30:06 -0500
+From: "Billy Rose" <billyrose@billyrose.net>
+To: a_nagarsheth@hotmail.com
+CC: linux-kernel@vger.kernel.org
+Reply-To: billyrose@billyrose.net
+Subject: RE: linux boot c.d
+X-Mailer: NeoMail 1.25
+X-IPAddress: 65.132.64.38
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <E18I442-0002yN-00@host.ehost4u.biz>
+Date: Sat, 30 Nov 2002 04:37:30 -0500
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host.ehost4u.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32076 2072] / [32076 2072]
+X-AntiAbuse: Sender Address Domain - host.ehost4u.biz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 29, 2002 at 05:42:41PM -0800, Adam J. Richter wrote:
-> 	This is the third time I'm posting this patch.  The only
-> comments anyone has made about it were from Greg Kroah-Hartmann, which
-> were in favor of integrating it.  Can we please get this integrated
-> already?  I want to try some more changes to pci.h and I'd rather keep
-> the patches separate.
+quick search on google reveals:
 
-Sorry for the long delay, been working on other things...
+http://www.geocities.com/potato.geo/bootlinuxcd.html
 
-I've finally added this to my trees, and will be sending it on to Linus.
+in the future please use one of the user mailing lists and/or read the 
+faq's rather than message the kernel developer list. this list is for 
+programming linux, not using it.
 
-thanks for your patience.
+thx,
 
-greg k-h
+billy rose

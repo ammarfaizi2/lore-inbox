@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129639AbRBMW4B>; Tue, 13 Feb 2001 17:56:01 -0500
+	id <S129496AbRBMW4l>; Tue, 13 Feb 2001 17:56:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129627AbRBMWzw>; Tue, 13 Feb 2001 17:55:52 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:22523 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S129496AbRBMWzi>; Tue, 13 Feb 2001 17:55:38 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200102132255.f1DMtO027271@webber.adilger.net>
-Subject: Re: Stale super_blocks in 2.2
-In-Reply-To: <3A89B3FD.62313E6C@egenera.com> from Phil Auld at "Feb 13, 2001
- 05:23:57 pm"
-To: Phil Auld <pauld@egenera.com>
-Date: Tue, 13 Feb 2001 15:55:24 -0700 (MST)
+	id <S129772AbRBMW4b>; Tue, 13 Feb 2001 17:56:31 -0500
+Received: from ha1.rdc2.mi.home.com ([24.2.68.68]:55710 "EHLO
+	mail.rdc2.mi.home.com") by vger.kernel.org with ESMTP
+	id <S129496AbRBMWzz>; Tue, 13 Feb 2001 17:55:55 -0500
+Message-ID: <3A89BA64.D85CCB6B@didntduck.org>
+Date: Tue, 13 Feb 2001 17:51:16 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrey Panin <pazke@orbita.don.sitek.net>
 CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+Subject: Re: IRQ conflicts
+In-Reply-To: <E14RfhV-0002A1-00@the-village.bc.nu> <3A85D79C.3DE3A527@didntduck.org> <20010213124400.A1860@debian> <20010213125212.A2135@debian>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philip R. Auld writes:
-> Since deja was gobbled by google it's hard to do a good search of 
-> this list. Can anyone take the time to help me understand the reason
-> for this choice? This seems to me to be backwards. When a device is 
-> unmounted there should be no cached information.
+Andrey Panin wrote:
+> 
+> Hi Brian.
+> 
+> I'm sorry, patch itself was not attached in previous post :(
+> 
 
-Try the following for a searchable mailing list:
-http://marc.theaimsgroup.com/?l=linux-kernel&r=1&w=4
+Yes, this does fix that part of the problem.  There is still the matter
+of the class code being wrong but I have ideas on how to fix that.
 
-Cheers, Andreas
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+
+						Brian Gerst

@@ -1,45 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267759AbUHUURJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267763AbUHUUXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267759AbUHUURJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 16:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267762AbUHUURI
+	id S267763AbUHUUXx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 16:23:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267766AbUHUUXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 16:17:08 -0400
-Received: from kludge.physics.uiowa.edu ([128.255.33.129]:8970 "EHLO
-	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id S267759AbUHUURF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 16:17:05 -0400
-Date: Sat, 21 Aug 2004 15:16:33 -0500
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: "David N. Welton" <davidw@dedasys.com>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 21 Aug 2004 16:23:52 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:8147
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S267763AbUHUUXv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 16:23:51 -0400
+Date: Sat, 21 Aug 2004 16:20:58 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: "David N. Welton" <davidw@dedasys.com>, linux-kernel@vger.kernel.org
 Subject: Re: Linux Incompatibility List
-Message-ID: <20040821201632.GA7622@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: "David N. Welton" <davidw@dedasys.com>,
-	linux-kernel@vger.kernel.org
-References: <87r7q0th2n.fsf@dedasys.com>
+Message-ID: <20040821202058.GA9218@animx.eu.org>
+References: <87r7q0th2n.fsf@dedasys.com> <20040821201632.GA7622@digitasaru.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87r7q0th2n.fsf@dedasys.com>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040821201632.GA7622@digitasaru.net>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From David N. Welton on Saturday, 21 August, 2004:
->Ideas/comments/suggestions are welcome at this stage.
+> >Ideas/comments/suggestions are welcome at this stage.
+> 
+> Sounds interesting; is there a vendor blacklist (i.e. vendors that are
+>   either hostile toward or simply don't care about Linux and their products
+>   just won't ever work with Linux?)
 
-Sounds interesting; is there a vendor blacklist (i.e. vendors that are
-  either hostile toward or simply don't care about Linux and their products
-  just won't ever work with Linux?)
+Broadcom's wireless chips come to mind...
 
 -- 
-Joseph===============================================trelane@digitasaru.net
-      Graduate Student in Physics, Freelance Free Software Developer
+ Lab tests show that use of micro$oft causes cancer in lab animals

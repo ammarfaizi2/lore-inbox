@@ -1,50 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264186AbTI2SMO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 14:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264185AbTI2SIF
+	id S264275AbTI2SW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 14:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTI2SWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 14:08:05 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:46990 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S264161AbTI2SGl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 14:06:41 -0400
-Date: Mon, 29 Sep 2003 20:06:29 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "Michal Semler (volny.cz)" <cijoml@volny.cz>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 3C59x module doesn't work in 2.6.0-test6
-Message-ID: <20030929180629.GA23925@louise.pinerecords.com>
-References: <200309281502.38370.cijoml@volny.cz> <20030929101453.18c804dd.rddunlap@osdl.org> <200309291930.57987.cijoml@volny.cz>
+	Mon, 29 Sep 2003 14:22:25 -0400
+Received: from monty-python.gnu.org ([199.232.76.173]:37028 "EHLO
+	monty-python.gnu.org") by vger.kernel.org with ESMTP
+	id S264275AbTI2SV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 14:21:58 -0400
+Subject: Linksys/Cisco GPL Violations
+From: David Turner <novalis@fsf.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-FtwE+l3OzQFMDkSZIw+p"
+Message-Id: <1064859766.20847.33983.camel@banks>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309291930.57987.cijoml@volny.cz>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 29 Sep 2003 14:22:47 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [cijoml@volny.cz]
-> 
-> Hi,
-> 
-> I call simply "modprobe 3c59x" as always.
-> In all previous kernels before 2.6.0-test6 it worked (2.4,2.2)
-> 
-> /etc/modprobe.conf
-> alias eth0 3c59x
-> options 3c59x 3c509x debug=0 options=4,8
-> 
-> It's generated from /etc/modules.conf in 2.4
-> alias eth0 3c59x
-> options 3c59x 3c509x debug=0 options=4,8
 
-Just make these
-options 3c59x options=4,8
+--=-FtwE+l3OzQFMDkSZIw+p
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-and don't forget to rerun depmod.
 
-AFAIK the 3c59x driver recognizes no such option as '3c509x'.
+To Linux Developers Concerned about the Linksys/Cisco GPL Violations:
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+We are in ongoing negotiating with Linksys/Cisco about this issue.
+Information from Andrew Miklas and others has been very helpful to us in
+our negotiations, and we encourage others to share with us any technical
+information about this or any other GPL violation.
+
+This isn't the first GPL violation we have dealt with; we've been
+actively
+enforcing the GPL for over ten years.  Our usual practice is not to
+publicly announce details of ongoing violation negotiations, because we
+find that private negotiation yields quicker and better cooperation.
+By building a relationship with violators where we are helping them to
+come
+into compliance, we avoid having to fight in court, and are able to
+spend
+less resources per violation.  Our number one goal in any GPL violation
+case is to get proper and full compliance with the license; everything
+else is secondary.
+
+GPL violations sometimes take time to resolve.  We wish that we could
+force resolution quicker, but we haven't found a way to do that.  We
+have,
+however, discovered a variant of Brooks's Law: adding more lawyers to a
+GPL violation usually makes it take longer.  Lawyers are reluctant to
+admit to mistakes, because they fear it could be used against them.
+Engineers and product managers are typically interested in fixing
+mistakes, so we try our best to work with them first before escalating
+to
+legal teams on both sides.  Such escalation has happened on this
+violation, so it will take additional time to resolve the matter.
+
+In addition, we are leading a coalition of many copyright holders in the
+WRT54G, as Linux is only one part of a large body of GPL'ed software in
+the product.  We formed this coalition because, having done enforcement
+cases for a product with a broad range of copyright holders before, we
+have found that separate enforcement actions and/or law suits from
+individual copyright holders make attainment of compliance more
+difficult.
+
+We will continue to do everything necessary to obtain full compliance on
+this and any other products where violations can be confirmed.  On this
+particular violation, we will keep the community informed when issues
+come
+up that impact the rights of everyone whose work is being distributed by
+Cisco or any of its subsidiaries.
+
+If you are a copyright holder on software in the WRT54G, or any other
+Cisco product, you are welcome join this coalition.  Please email
+<license-violation@fsf.org> for details.
+
+Sincerely,
+
+David Turner, GPL Compliance Engineer, FSF
+Bradley M. Kuhn, Executive Director, FSF
+
+
+--=20
+-Dave Turner
+GPL Compliance Engineer
+Support my work: http://svcs.affero.net/rm.php?r=3Dnovalis&p=3DFSF
+
+--=-FtwE+l3OzQFMDkSZIw+p
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/eHh228Pr/DPj/lYRAhkzAKDHw1nJ8ixdjwcoasGCy3ceRdsebACcDyab
+38sgwtc6b343/VqdxbVfWcI=
+=3Q2a
+-----END PGP SIGNATURE-----
+
+--=-FtwE+l3OzQFMDkSZIw+p--
+

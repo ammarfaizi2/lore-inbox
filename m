@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132051AbQLNFjJ>; Thu, 14 Dec 2000 00:39:09 -0500
+	id <S131083AbQLNFqw>; Thu, 14 Dec 2000 00:46:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132490AbQLNFi6>; Thu, 14 Dec 2000 00:38:58 -0500
-Received: from cm698210-a.denton1.tx.home.com ([24.17.129.59]:43524 "HELO
-	cm698210-a.denton1.tx.home.com") by vger.kernel.org with SMTP
-	id <S132051AbQLNFit>; Thu, 14 Dec 2000 00:38:49 -0500
-Message-ID: <3A3855C4.B997ACFC@home.com>
-Date: Wed, 13 Dec 2000 23:08:20 -0600
-From: Matthew Vanecek <linux4us@home.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i586)
-X-Accept-Language: en
+	id <S130471AbQLNFqm>; Thu, 14 Dec 2000 00:46:42 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:50585 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131083AbQLNFqc>;
+	Thu, 14 Dec 2000 00:46:32 -0500
+Date: Thu, 14 Dec 2000 00:15:59 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Chip Salzenberg <chip@valinux.com>
+cc: linux-kernel@vger.kernel.org, korbit-cvs@lists.sourceforge.net
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <20001213205219.M864@valinux.com>
+Message-ID: <Pine.GSO.4.21.0012140000330.6300-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test12 randomly hangs up
-In-Reply-To: <Pine.LNX.4.21.0012132205250.5935-100000@winds.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Byron Stanoszek wrote:
-> 
-> On Wed, 13 Dec 2000, Lukasz Trabinski wrote:
-> 
-> > In article <20001213121349.A6787@sarah.kolej.mff.cuni.cz> you wrote:
-> >
-> > > I can (re)confirm that. I work several hours on console without any
-> > > problem ... then I start X session and after several minutes system
-> > > hangs.
-> >
-> > I can confirm that, too.
-> > Todaye, crashed two difference machines
-> > One: AMD-K6 3D, 300 MHz, RH 7.0 + updates, 64MB RAM
-> > Second one: AMD Athlon 600, 600MHz with, 128MB RAM, RH 7.0+updates
-> >
-> > > Red Hat 7.0, XFree-3.3.6 (SVGA server), S3Virge/G2 (4MB)
-> 
-> I've been running 2.4.0-test12 patched with only the O_SYNC bug fix and I have
-> _not_ experienced any lockups on this machine.
-> 
-> Classic Athlon 825(750) MHz, 128MB Ram,
-> RH 7.0 based w/glibc 2.2, XFree-3.3.6 (S3 Trio 64 accel server), gcc 2.95.2
-> 
-> Not sure what the problem is yet... keep trying folks. :)
-> 
 
-Maybe it's the 3.3.6.  RH 7.0 comes with 4.0.1, and a newer glibc. 
-Perhaps try recompiling XFree86 against the latest RH 7.0 glibc (2.1.94)
-and see what happens, or upgrade your XFree86 to the standard RH 7.0
-XFree86 4.0.1.
 
--- 
-Matthew Vanecek
-perl -e 'print
-$i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
-********************************************************************************
-For 93 million miles, there is nothing between the sun and my shadow
-except me.
-I'm always getting in the way of something...
+On Wed, 13 Dec 2000, Chip Salzenberg wrote:
+
+> As long as names are to be created, or at least understood, by humans,
+> there will be some limit on *usable* length.  In my experience, 255 is
+> above that limit, but 30 is below it.  And I cut my teeth on a system
+> that had exactly that length limitation (UNOS).
+
+Maybe... I definitely agree that 14 is below the limit, but 30... Hell knows,
+from what I see on the box I'm using right now it seems to fall into several
+cathegories:
+	* Very-Long-And-Verbose-Named-HOWTO.html
+	* manpages for X and Tcl functions with obscenely long names
+	* *.deb and corresponding *.diff.gz and *.dsc
+	* var/state/apt/lists/*
+	* ghostscript maps
+Hmm... Cutoff seems to sit somewhere around 45 - above that there are only
+apt-get droppings and they definitely are over the top. Dunno, you may be
+right, but looks like I never had a need to create anything that long.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

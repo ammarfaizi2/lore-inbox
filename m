@@ -1,97 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264586AbUAVQ4t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 11:56:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUAVQ4t
+	id S266226AbUAVLJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 06:09:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266227AbUAVLJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 11:56:49 -0500
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:43151 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S264586AbUAVQ4r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 11:56:47 -0500
-Message-ID: <401000C1.9010901@blue-labs.org>
-Date: Thu, 22 Jan 2004 11:56:33 -0500
-From: David Ford <david+hb@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040121
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jes Sorensen <jes@wildopensource.com>
-CC: Zan Lynx <zlynx@acm.org>, Andreas Jellinghaus <aj@dungeon.inka.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed
- to public posts
-References: <ecartis-01212004203954.14209.1@mail.convergence2.de>	<20040121194315.GE9327@redhat.com>	<Pine.LNX.4.58.0401211155300.2123@home.osdl.org>	<1074717499.18964.9.camel@localhost.localdomain>	<20040121211550.GK9327@redhat.com>	<20040121213027.GN23765@srv-lnx2600.matchmail.com>	<pan.2004.01.21.23.40.00.181984@dungeon.inka.de>	<1074731162.25704.10.camel@localhost.localdomain> <yq0hdyo15gt.fsf@wildopensource.com>
-In-Reply-To: <yq0hdyo15gt.fsf@wildopensource.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jan 2004 06:09:26 -0500
+Received: from albireo.ucw.cz ([81.27.194.19]:20609 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S266226AbUAVLJQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 06:09:16 -0500
+Date: Thu, 22 Jan 2004 12:09:14 +0100
+From: Martin Mares <mj@ucw.cz>
+To: "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, greg@kroah.com,
+       Andi Kleen <ak@colin2.muc.de>,
+       "Kondratiev, Vladimir" <vladimir.kondratiev@intel.com>,
+       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>
+Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
+Message-ID: <20040122110914.GA1376@ucw.cz>
+References: <6B09584CC3D2124DB45C3B592414FA83011A3357@bgsmsx402.gar.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6B09584CC3D2124DB45C3B592414FA83011A3357@bgsmsx402.gar.corp.intel.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Considering that Bayesian filters are useless against the new spam that 
-is proliferating these days, that's laughable.  Spam now comes with a 
-good 5-10K of random dictionary words.
+Hello!
 
-I use challenge-response and the only spam that gets to my inbox now 
-comes from lists.  I pre-listed all my buddies in my whitelist, only new 
-senders that I'm not yet aware of have to go thru the challenge process.
+> I am reposting the updated patch after incorporating the review comments.
 
-If you can't handle clicking on a link to authorize your email, then I'm 
-not interested in your email. If that tiny few seconds  of effort is a 
-waste of your time, then writing your email to me was also a waste of 
-your time.
+Looks good, but there are still some places to polish (in addition to
+Andrew's comments):
 
-Getting well over 900 spams a day on average, almost double on mondays, 
-just isn't my cup of tea.  There is no one solution to spam.  I 
-pre-filter with spamassassin using all it's tools, anything scoring high 
-automatically gets /dev/nulled.  Those include bayesian, pattern 
-matches, DNSBL, etc. Next I attempt to filter viruses and the like.  The 
-remainder goes through TMDA.
+> +	  to access the pci configuration space through enhanced config
+> +	  access mechanism (Will work only on PCI Express based system)
 
-Spamassassin cuts it down to less than 100 typically, and of that, about 
-50 are on the border.  TMDA takes care of the rest.  The majority of 
-spam making it through SA is the dictionary attack spam.  My 
-retro-impact on spam is minimized.
+"pci" should be "PCI".
 
-It's getting really annoying because spammers are taking input emails 
-like LKML and making word lists out of the emails.
+> +	mcfg = (struct acpi_table_mcfg *) __acpi_map_table
+> +						(phys_addr, size);
 
-Hmm, 900 spams in my mailbox, or half a dozen due to lists.  I'll take 
-the second.
+Wrapping long lines is good, but you seem to overdo it.
 
-David
+> +	printk(KERN_INFO PREFIX "Local  mcfg address %p\n",
+> +			mcfg->base_address);
 
-Jes Sorensen wrote:
+Again -- you should be consistent in usign caps: "MCFG", not "mcfg".
 
->>>>>>"Zan" == Zan Lynx <zlynx@acm.org> writes:
->>>>>>            
->>>>>>
->
->Zan> On Wed, 2004-01-21 at 16:40, Andreas Jellinghaus wrote:
->  
->
->>>On Wed, 21 Jan 2004 21:44:37 +0000, Mike Fedyk wrote: > What do you
->>>think about individual email (non-list) using a confirmation >
->>>based spam blocking system.
->>>
->>>for personal email it is plain asocial. it tells me that a person
->>>does not want to receive mail from me.
->>>      
->>>
->
->Zan> For me, that isn't what it says at all.  It tells me that he or
->Zan> she is tired of receiving and sorting all of the spam every day.
->Zan> Since I feel exactly the same way about spam, I cooperate and
->Zan> reply with a confirmation.
->
->I've had people pull the authentication game on me before. I just
->stopped replying to them, waste of my time.
->
->Fixing the spam problem is a lot easier without losing contact with
->all your friends in the proces:, train your Bayesian filters and be
->done with it. Mine were a mess, deleted all the data and fed 10 days
->of spam and some proper mail through sa-learn. Since then I have seen
->1 spam make it through during the last week, it used to be 20-40/day
->(and some 200-300/day caught by the filters).
->
->  
->
+> +#ifdef CONFIG_PCI_EXPRESS
+> +	else if (!strcmp(str, "no_pcie")) {
+
+Why "no_pcie" with an underscore when existing switches ("noacpi", "nobios"
+etc.) don't have one?
+
+> +	if (mmcfg_base_address == 0){
+> +		printk(KERN_INFO 
+> +		      "MCFG table entry is not found in ACPI
+> tables....\n \
+> +		       PCI Express not supported in this platform....\n
+> \
+> +		       Not enabling Enhanced Configuration....\n");
+> +		goto type1;
+> +	}
+
+Why printing such a enormous banner for reporting a trivial error?
+One line is enough.
+
+> +		printk(KERN_INFO "PCI:Using config type PCIExp\n");
+
+"PCI:Using" -> "PCI: Using".
+
+>  obj-$(CONFIG_PCI_DIRECT)	+= direct.o
+> +obj-$(CONFIG_PCI_EXPRES)	+= direct.o
+
+PCI_EXPRES -> PCI_EXPRESS
+
+Also, linking the same object twice doesn't look right.
+
+> +static int pci_cfg_space_size (struct pci_dev *dev)
+> +{
+> +#ifdef CONFIG_PCI_EXPRESS
+> +	/* Find whether the device is PCI Express device */
+> +	int is_pci_express_dev = 
+> +		pci_find_capability(dev, PCI_CAP_ID_EXP);
+> +	if (is_pci_express_dev)
+> +		return PCI_CFG_SPACE_EXP_SIZE;
+> +	else
+> +#endif
+> +	return PCI_CFG_SPACE_SIZE; 
+> +}
+
+We really shouldn't scan the capability list during each access to /proc/bus/pci.
+Better calculate the configuration space size when probing the device
+and put it to struct pci_dev.
+
+> +#ifdef CONFIG_PCI_EXPRESS
+> +/*
+> + *Variable used to store the base address of the last pciexpress device
+> + *accessed.
+> + */
+> +static u32 pcie_last_accessed_device;
+
+Header files should not contain static variables.
+
+> +static __inline__ void pci_express_read(int bus, int devfn, int reg, 
+> +		int len, u32 *value)
+
+Why is this inline?
+
+> +	u64	base_address;
+
+If the base_address is 64-bit and you stuff it in a 32-bit variable, you
+should check the upper 32 bits and in case they are non-zero, print an error
+message.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Entropy isn't what it used to be.

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262480AbSKRM5J>; Mon, 18 Nov 2002 07:57:09 -0500
+	id <S262500AbSKRM5J>; Mon, 18 Nov 2002 07:57:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262486AbSKRMzc>; Mon, 18 Nov 2002 07:55:32 -0500
-Received: from 2-023.ctame701-2.telepar.net.br ([200.181.170.23]:39940 "EHLO
+	id <S262480AbSKRMzl>; Mon, 18 Nov 2002 07:55:41 -0500
+Received: from 2-023.ctame701-2.telepar.net.br ([200.181.170.23]:41476 "EHLO
 	brinquendo.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S262480AbSKRMyc>; Mon, 18 Nov 2002 07:54:32 -0500
-Date: Mon, 18 Nov 2002 11:01:29 -0200
+	id <S262481AbSKRMzU>; Mon, 18 Nov 2002 07:55:20 -0500
+Date: Mon, 18 Nov 2002 11:02:18 -0200
 From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] input: fix up header cleanups: add include <linux/interrupt.h>
-Message-ID: <20021118130129.GG2093@conectiva.com.br>
+Subject: [PATCH] smbfs: fixup header cleanups: forward declare struct sock, add include/uio.h
+Message-ID: <20021118130218.GH2093@conectiva.com.br>
 Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
 	Linus Torvalds <torvalds@transmeta.com>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
@@ -29,7 +29,7 @@ Linus,
 
 master.kernel.org:/home/acme/BK/includes-2.5
 
-	Now there is five outstanding changesets.
+	Now there are six outstanding changesets.
 
 - Arnaldo
 
@@ -39,95 +39,60 @@ You can import this changeset into BK by piping this whole message to:
 ===================================================================
 
 
-ChangeSet@1.894, 2002-11-18 10:42:52-02:00, acme@conectiva.com.br
-  o input: fix up header cleanups: add include <linux/interrupt.h>
+ChangeSet@1.895, 2002-11-18 10:43:55-02:00, acme@conectiva.com.br
+  o smbfs: fixup header cleanups: forward declare struct sock, add include/uio.h
 
 
- mouse/inport.c   |    7 ++++---
- serio/ct82c710.c |   10 +++++-----
- 2 files changed, 9 insertions(+), 8 deletions(-)
+ proto.h   |    1 +
+ request.h |    3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
 
-diff -Nru a/drivers/input/mouse/inport.c b/drivers/input/mouse/inport.c
---- a/drivers/input/mouse/inport.c	Mon Nov 18 10:57:01 2002
-+++ b/drivers/input/mouse/inport.c	Mon Nov 18 10:57:01 2002
-@@ -34,14 +34,15 @@
-  * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
+diff -Nru a/fs/smbfs/proto.h b/fs/smbfs/proto.h
+--- a/fs/smbfs/proto.h	Mon Nov 18 10:57:18 2002
++++ b/fs/smbfs/proto.h	Mon Nov 18 10:57:18 2002
+@@ -3,6 +3,7 @@
   */
  
--#include <asm/io.h>
--#include <asm/irq.h>
--
- #include <linux/module.h>
- #include <linux/config.h>
- #include <linux/ioport.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/input.h>
-+
-+#include <asm/io.h>
-+#include <asm/irq.h>
+ struct smb_request;
++struct sock;
  
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
- MODULE_DESCRIPTION("Inport (ATI XL and Microsoft) busmouse driver");
-diff -Nru a/drivers/input/serio/ct82c710.c b/drivers/input/serio/ct82c710.c
---- a/drivers/input/serio/ct82c710.c	Mon Nov 18 10:57:01 2002
-+++ b/drivers/input/serio/ct82c710.c	Mon Nov 18 10:57:01 2002
-@@ -28,16 +28,16 @@
-  * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
-  */
+ /* proc.c */
+ extern int smb_setcodepage(struct smb_sb_info *server, struct smb_nls_codepage *cp);
+diff -Nru a/fs/smbfs/request.h b/fs/smbfs/request.h
+--- a/fs/smbfs/request.h	Mon Nov 18 10:57:18 2002
++++ b/fs/smbfs/request.h	Mon Nov 18 10:57:18 2002
+@@ -1,6 +1,7 @@
++#include <linux/list.h>
+ #include <linux/types.h>
++#include <linux/uio.h>
+ #include <linux/wait.h>
+-#include <linux/list.h>
  
--#include <asm/io.h>
--
- #include <linux/delay.h>
- #include <linux/module.h>
- #include <linux/ioport.h>
- #include <linux/config.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/serio.h>
- #include <linux/errno.h>
--#include <linux/sched.h>
-+
-+#include <asm/io.h>
- 
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
- MODULE_DESCRIPTION("82C710 C&T mouse port chip driver");
-@@ -61,8 +61,8 @@
- 
- #define CT82C710_IRQ          12
- 
--static int ct82c710_data = 0;
--static int ct82c710_status = 0;
-+static int ct82c710_data;
-+static int ct82c710_status;
- 
- static void ct82c710_interrupt(int cpl, void *dev_id, struct pt_regs * regs);
- 
+ struct smb_request {
+ 	struct list_head rq_queue;	/* recvq or xmitq for the server */
 
 ===================================================================
 
 
 This BitKeeper patch contains the following changesets:
-1.894
+1.895
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch15333
-M'XL(`)WCV#T``\U6VVZ;0!!]]G[%2'FL@)V]<$L=I8FKUDJE1JGR5JG:+)M`
-M:\"%Q4DJ/KZ+TUSDN(Z;ME(`+6AF.,SEG!4[<-J:)ATI71JR`^_KUJ8C75=&
-MVV*A?%V7_EGC'"=U[1Q!7I<F.#@*BDK/NLRT'O,E<>YC974."].TZ0A]?F>Q
-MUW.3CD[>OCO]\.:$D/$8#G-579A/QL)X3&S=+-0L:_>5S6=UY=M&56UI[/+#
-M_5UHSRAE[I08<2K#'D,JHEYCAJ@$FHPR$8>"##7LK^:^@H*(,3+A[CT*SA(R
-M`?3C1`!E`6*`,2!-!4LE\RA+*86UH/"*@4?)`?S;`@Z)AAJ*:M[9%,Z+*^CF
-MD!N5F0;TS*BJF[<IJ"R#7^V'U[.BZJ[<-*QIFFYN_7R/'`$*&3%R?-]JXOWA
-M00A5E.S!HOYJC<[W[64Q*RYRZW?ZTM<_^JPIAED'RU2#LNY:,SS7C?7U3:T1
-MY<AI++"GDC+9FTR=B3`)=1)CF$1R?5^?!KZ=GTAZ-SX>;YVD8WE1!]K&3$=(
-M'Z;)9(AASU@H9*\C8ZA09Y$T:(S8*LNUR`_R9*&,XR7W-U4WR.'_M?L.NG7O
-M;@6)E,;H",MI+ZCDT5(HX:I,1+)9)@(\_E)E<L.?C^`UE\O+T?YXXXB>(:,)
-MCX"3J>"`9&=3.E,A7.#G!T&J+8.B'GPKMN;[8'S,IU4>;L^H9VGC[["=-+B(
-MW"[LH$6\)->C/?@I<DGPY$LEUXWH-Y)KM3//HA<"(U-'LB?H-1'4A4S=RGY#
-MLDDH!JA0NK6URA;:56CA-KTOF;)J=ZUGL'7M[OUO@,Z-_M9VY9B?QUG$SAGY
-)"2"D!2-F"```
+begin 664 bkpatch15365
+M'XL(`*[CV#T``]55T4[;,!1]KK_B2CQN37R=.'&S%3%@VA"3AICX`-=QEX@T
+M[FP'-BD?/R>PCD(W!.*%)/*#3W3NN?><.'MPX;0M)E*M--F#S\;Y8J),JY6O
+MKV2DS"I:V`"<&Q.`N#(K'1^>QG6KFJ[4;LHB3@)\)KVJX$I;5TPP2C8[_M=:
+M%Y/SCY\NOGPX)V0^AZ-*MM_U-^UA/B?>V"O9E.Y`^JHQ;>2M;-U*^[%POWFU
+M9Y2R<'/,$\JS'C.:YKW"$E&FJ$O*4I&E9.CAX+[V>RR(*)"EC+,>4YXS<@P8
+MB1D'RF+$&`4@+=*DX'Q*64$I["2%-PRFE!S"RS9P1!08<*O%TA6PK']V:ZBT
+M++4%U6C9=NMAV]AK:4LHM6JDU>"\[90'9]3E6Y!E";?6Q%UMHHJ<`J9,4'+V
+M=_!D^L2+$"HIV8?U8.GN3I<N'F7':VM\J+MI>%A0],AR/@OKC"9:<IYEBS))
+MU>[A[B:[-2[AV"=($Q;T='8AVP.OG7=>^CJ(VI)B]8\N8'_$Y,@IY1RSGB+R
+MO%\@385(1<E5PGA(P"-BMNGNR`F&"CYF^[[P(>(O/C3R2-M;9#,V8TE(5]:S
+MF6`W:<\?9!W_GW5\-5F_2<97F-KK\0G9/7O@RC/R?\(!R9WJ[[;MWD1C,/QE
+M4_E,NKRG2<:ST6_V5+_#V8:OP^_QR_N7W9O1/,=P&@S?NRT'[YNZ[7[&33VP
+E[9,3W`&.DO;)<1*PS>]/55I=NFXU%SQ9,D8%^0VRXQ^^<`<`````
 `
 end

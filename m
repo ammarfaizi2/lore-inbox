@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318503AbSHPOQ4>; Fri, 16 Aug 2002 10:16:56 -0400
+	id <S318383AbSHPOe4>; Fri, 16 Aug 2002 10:34:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318514AbSHPOQ4>; Fri, 16 Aug 2002 10:16:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53260 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318503AbSHPOQz>;
-	Fri, 16 Aug 2002 10:16:55 -0400
-Message-ID: <3D5D0CC5.768BEAE8@zip.com.au>
-Date: Fri, 16 Aug 2002 07:31:33 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S318389AbSHPOe4>; Fri, 16 Aug 2002 10:34:56 -0400
+Received: from host-65-162-110-4.intense3d.com ([65.162.110.4]:42768 "EHLO
+	exchusa03.intense3d.com") by vger.kernel.org with ESMTP
+	id <S318383AbSHPOez>; Fri, 16 Aug 2002 10:34:55 -0400
+Message-ID: <23B25974812ED411B48200D0B774071701248520@exchusa03.intense3d.com>
+From: Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Alloc and lock down large amounts of memory
+Date: Fri, 16 Aug 2002 09:38:45 -0500
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Subject: Re: [PATCH] add buddyinfo /proc entry
-References: <3D5C6410.1020706@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> 
-> ..
-> +static void frag_stop(struct seq_file *m, void *arg)
-> +{
-> +       (void)m;
-> +       (void)arg;
-> +}
+Hi,
 
-Don't tell me the compiler warns about this now?
+I have a few questions with regards to alloc'ing and locking down memory.
+An example 
+would be very useful.  Please CC me on any responses.
+
+1. Is there a mechanism to lock down large amounts of memory (>128M, upto
+256M).
+    Can 256M be allocated using vmalloc, if so is it swappable?
+2. Is it possible for a user process and kernel to access the same shared
+memory?
+3. Can a shared memory have visibility across processes, i.e. can process A
+access 
+memory that was allocated by process B?
+4. When a process exits will it cause a close to occur on the device?
+
+Thanks,
+Bhavana
+

@@ -1,102 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318884AbSH1Pqe>; Wed, 28 Aug 2002 11:46:34 -0400
+	id <S318888AbSH1PmR>; Wed, 28 Aug 2002 11:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318897AbSH1PqP>; Wed, 28 Aug 2002 11:46:15 -0400
-Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:52786
-	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S318884AbSH1Ppj>; Wed, 28 Aug 2002 11:45:39 -0400
-Message-ID: <3D6CF132.4090205@bonin.ca>
-Date: Wed, 28 Aug 2002 11:50:10 -0400
-From: Andre Bonin <Bonin@bonin.ca>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.0) Gecko/20020530
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: hch@infradead.org, aia21@cantab.net, kernel@bonin.ca,
-       linux-kernel@vger.kernel.org
-Subject: Re: Loop devices under NTFS
-References: <200208280106.SAA05492@adam.yggdrasil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep04-mail.bloor.is.net.cable.rogers.com from [65.39.24.214] using ID <bonin@rogers.com> at Wed, 28 Aug 2002 11:49:48 -0400
+	id <S318882AbSH1PlP>; Wed, 28 Aug 2002 11:41:15 -0400
+Received: from pc-80-195-6-65-ed.blueyonder.co.uk ([80.195.6.65]:3971 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S318883AbSH1PlH>; Wed, 28 Aug 2002 11:41:07 -0400
+Date: Wed, 28 Aug 2002 16:45:19 +0100
+Message-Id: <200208281545.g7SFjJw14322@sisko.scot.redhat.com>
+From: Stephen Tweedie <sct@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Cc: Stephen Tweedie <sct@redhat.com>
+Subject: [Patch 1/8] 2.4.20-pre4/ext3: fsync optimisation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter wrote:
+fsync optimisation: save an extra unnecessary pass over the data if we
+are in an ordered or journaled data mode.
 
->On Wed, 28 Aug 2002 at 00:59:55AM +0100, Christoph Hellwig wrote:
->  
->
->>On Tue, Aug 27, 2002 at 04:42:56PM -0700, Adam J. Richter wrote:
->>    
->>
->>>>On Tue, Aug 27, 2002 at 06:53:19AM -0700, Adam J. Richter wrote:
->>>>        
->>>>
->>>>>	Why?
->>>>>
->>>>>	According to linux-2.5.31/Documentation/Locking,
->>>>>"->prepare_write(), ->commit_write(), ->sync_page() and ->readpage()
->>>>>may be called from the request handler (/dev/loop)."
->>>>>          
->>>>>
->>>>Just because it's present in current code it doesn't mean it's right.
->>>>Calling aops directly from generic code is a layering violation and
->>>>it will not survive 2.5.
->>>>        
->>>>
->>>	Only according your own proclamation.  You are arguing
->>>circular logic, and I am aruging a concrete benefit: we can avoid an
->>>extra copying of all data in the input and output paths going through
->>>an encrypted device.
->>>
-I'me new to kernel development and i've never fooled around with drivers 
-before (I do have a course in it this september though, Wohoo!).
-
-Why are you saying it would copy the data? Couldn't you just make some 
-sort of shared memory system that would let you unencript/uncompress the 
-data without having to do a copy?  The way i see it you can read the 
-block, pass it through the necessary mods using the same data.  You 
-could get a wierd race condition if your uncompress and your unencript 
-work on the same data at the same time but that can easily be avoided 
- The way i see it, the NTFS driver should be able to read the file and 
-uncompress.  The loop driver should have access to that block without 
-having to do a copy to present it to a third party driver. Which then 
-reads the data read by the driver and rpesents it as a filesystem.  
-
-Maby even do away with loop.c, there should really be no loop.c .  A 
-normal mount (/dev/hda1 for example) is a first level mount.  If you let 
-/mnt/foo/myfile.iso be from /dev/hda1, then the chain should be 
-/dev/hda1->ISO9660 module-->presentation.
-
-I think the filesystem drivers should be written in such a way that they 
-are totally pluggable with eachother.  That it doesn't matter where the 
-blocks are comming from and going to.  You could have a mount of 
-/dev/hda1 of an iso containing an ext2 image within it etc etc etc.
-
-But like i said i'me new to kernel development so I think i might have 
-the wrong perspective.  
-
-
------------------------------------
-Andre Bonin
-Student in Software Engineering
-Lakehad University
-Thunder Bay,
-Canada
------------------------------------
-
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-
-
-
-
+--- linux-ext3-2.4merge/fs/ext3/fsync.c.=K0002=.orig	Tue Aug 27 23:16:39 2002
++++ linux-ext3-2.4merge/fs/ext3/fsync.c	Tue Aug 27 23:19:57 2002
+@@ -62,7 +62,12 @@
+ 	 * we'll end up waiting on them in commit.
+ 	 */
+ 	ret = fsync_inode_buffers(inode);
+-	ret |= fsync_inode_data_buffers(inode);
++
++	/* In writeback mode, we need to force out data buffers too.  In
++	 * the other modes, ext3_force_commit takes care of forcing out
++	 * just the right data blocks. */
++	if (test_opt(inode->i_sb, DATA_FLAGS) == EXT3_MOUNT_WRITEBACK_DATA)
++		ret |= fsync_inode_data_buffers(inode);
+ 
+ 	ext3_force_commit(inode->i_sb);
+ 

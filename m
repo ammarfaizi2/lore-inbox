@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbTAIG7p>; Thu, 9 Jan 2003 01:59:45 -0500
+	id <S261721AbTAIHMP>; Thu, 9 Jan 2003 02:12:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261721AbTAIG7o>; Thu, 9 Jan 2003 01:59:44 -0500
-Received: from adsl-66-112-90-25-rb.spt.centurytel.net ([66.112.90.25]:1664
-	"EHLO carthage") by vger.kernel.org with ESMTP id <S261701AbTAIG7o>;
-	Thu, 9 Jan 2003 01:59:44 -0500
-Date: Thu, 9 Jan 2003 00:56:42 -0600
-From: James Curbo <phoenix@sandwich.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: small fix for nforce ide chipset driver in 2.5.54
-Message-ID: <20030109065642.GA6251@carthage>
-Reply-To: James Curbo <phoenix@sandwich.net>
-References: <20030108075539.GA4128@carthage> <1042034033.24099.2.camel@irongate.swansea.linux.org.uk>
+	id <S261723AbTAIHMP>; Thu, 9 Jan 2003 02:12:15 -0500
+Received: from mailhost.NMT.EDU ([129.138.4.52]:61453 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S261721AbTAIHMO>;
+	Thu, 9 Jan 2003 02:12:14 -0500
+Date: Thu, 9 Jan 2003 00:20:43 -0700
+From: Val Henson <val@nmt.edu>
+To: Miles Bader <miles@gnu.org>
+Cc: dpaun@rogers.com, rms@gnu.org, lm@bitmover.com, acahalan@cs.uml.edu,
+       linux-kernel@vger.kernel.org
+Subject: "Mother" == "computer-illiterate"
+Message-ID: <20030109072043.GE26010@boardwalk>
+References: <200301050802.h0582u4214558@saturn.cs.uml.edu> <20030106173705.GP1386@work.bitmover.com> <E18Vtxy-0002c2-00@fencepost.gnu.org> <200301071118.41059.dpaun@rogers.com> <buofzs474ro.fsf@mcspd15.ucom.lsi.nec.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1042034033.24099.2.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <buofzs474ro.fsf@mcspd15.ucom.lsi.nec.co.jp>
 User-Agent: Mutt/1.4i
-X-Operating-System: Debian GNU/Linux
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 08, Alan Cox wrote:
-> On Wed, 2003-01-08 at 07:55, James Curbo wrote:
-> > so I added a #define for PCI_DEVICE_ID_NVIDIA_NFORCE_IDE as 0x0065. It
-> > compiled fine and I am in fact running that kernel now. I would have
-> > just sent a patch but I am new to kernel hacking, this is just a one
-> > liner and I'm sure you know where it goes better than I do.
+On Wed, Jan 08, 2003 at 11:29:47AM +0900, Miles Bader wrote:
 > 
-> Someone deleted it about 2.5.50, and though I sent in the fix twice Linus
-> still hasn't applied it 8(
+> If someone's mom (having heard the gossip) asks their computer-literate
+> child, `What is this XXX thing, anyway?', the answer is likely to be
+> very different when XXX is "GNU" as opposed to when XXX is "Linux".
 
-Well, I thought this deal was over but apparently not. My 2.5.54 kernel
-is still working fine, but when I compiled 2.4.20-ac2, it didn't pick up
-my Nforce2 IDE. On a whim I checked include/linux/pci_ids.h and it has a
-different PCI ID for PCI_DEVICE_ID_NVIDIA_NFORCE_IDE, namely 0x01bc.
-(lspci -v reports 0x0065 here). Perhaps 0x01bc is the nforce1 ide
-chipset and 0x0065 is the nforce2 ide chipset?
-		
--- 
-James Curbo <hannibal@adtrw.org> <phoenix@sandwich.net>
-GPG public key available at http://sandwich.net/~phoenix/keys/
+How come no one ever talks about a Linux distribution so easy that
+your grandfather could install it?  Or a kernel configuration tool so
+simple that even Uncle Timmy can use it?
+
+Can we quit with the "clueless mother" examples already?  My own
+mother has installed more distributions of Linux than I've even logged
+into.  I know quite a few mothers who have PhDs in CS, own several
+CS-related patents, and/or made important fundamental discoveries in
+CS.  Hint: Find out who invented the spanning tree algorithm for
+ethernet bridges, $10 ThinkGeek gift certificate to the first person
+who emails me the correct answer.
+
+-VAL

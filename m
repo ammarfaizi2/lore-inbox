@@ -1,154 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129041AbRBESKn>; Mon, 5 Feb 2001 13:10:43 -0500
+	id <S129042AbRBFKNJ>; Tue, 6 Feb 2001 05:13:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129232AbRBESKe>; Mon, 5 Feb 2001 13:10:34 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:60335 "EHLO
-	VL-MS-MR003.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S129041AbRBESK2>; Mon, 5 Feb 2001 13:10:28 -0500
-Message-ID: <3A7EEAE1.FFE48BDB@videotron.ca>
-Date: Mon, 05 Feb 2001 13:03:13 -0500
-From: Martin Laberge <mlsoft@videotron.ca>
-Organization: MLSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i586)
-X-Accept-Language: en
+	id <S129104AbRBFKNG>; Tue, 6 Feb 2001 05:13:06 -0500
+Received: from hal.astr.lu.lv ([195.13.134.67]:8197 "EHLO hal.astr.lu.lv")
+	by vger.kernel.org with ESMTP id <S129042AbRBFKMx>;
+	Tue, 6 Feb 2001 05:12:53 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andris Pavenis <pavenis@latnet.lv>
+To: alan@lxorguk.ukuu.org.uk, hiren_mehta@agilent.com
+Subject: Re: problem with devfsd compilation
+Date: Thu, 1 Feb 2001 21:26:51 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Kenneth Yeung <kkyeung@expert.cc.purdue.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: digiboard support in linux
-In-Reply-To: <Pine.GSO.3.96.1010205092911.25633A-100000@expert.cc.purdue.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01020121265100.00537@hal>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kenneth Yeung wrote:
-
-> Martin,
+>> I am trying to compile devfsd on my system running RedHat linux 7.0
+>> (kernel 2.2.16-22). I get the error "RTLD_NEXT" undefined. I am not
+>> sure where this symbol is defined. Is there anything that I am missing 
+>> on my system. 
 >
->         From reading the info on Digi's site, they say that for PC/x the
-> driver is already built into the kernel.  Am I still supposed to load the
-> drivers up?  If so, then i'm in trouble because I don't have any drivers
-> for the PC/X on Redhat.  I've been reading the install instructions from:
-> http://support.digi.com/support/techsupport/unix/linux/pcx.html
 >
-> Thanks for your help!
-> -Ken
->
-> On Sat, 3 Feb 2001, Martin Laberge wrote:
->
-> > Kenneth Yeung wrote:
-> >
-> > > Hello Martin
-> > >
-> > >         Thanks for the info, I'm having a little trouble getting the ports
-> > > configured.  On my system, it looks like half the ports are on irq 2 and
-> > > the other half are on irq 5.  and looks like they have been configured the
-> > > right way?  But i can't seem to get them to run getty so that I can test
-> > > the connection.
-> > >
-> > > Thanks!
-> > > -Ken
-> > >
-> > > On Tue, 30 Jan 2001, Martin Laberge wrote:
-> > >
-> > > > Kenneth Yeung wrote:
-> > > >
-> > > > > Hello all
-> > > > >
-> > > > > Can anyone tell me where I can find infomation on digiboard support in
-> > > > > linux specifically the PC/X model?
-> > > > >
-> > > > > THanks
-> > > > > -Ken
-> > > > >
-> > > > > -
-> > > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > > > the body of a message to majordomo@vger.kernel.org
-> > > > > Please read the FAQ at http://www.tux.org/lkml/
-> > > >
-> > > > yes i used it often in my installations and no problem with that
-> > > > since 2.0.x
-> > > >
-> > > > 2.2.x works good too
-> > > >
-> > > > never tried with linux 2.4.x
-> > > >
-> > > >
-> > > > driver is supported by digiboard itself   and by linux
-> > > >
-> > > > you have the choice of 2 drivers for these boards....
-> > > >
-> > > > i used for my part the PC/8e  PC/16e and PC/32e   In ISA versions
-> > > > and never had any problems... (except figuring out how to install for the
-> > > > first time)
-> > > > but it is very simple if you know how to read install instructions
-> > > >
-> > > >
-> > > > Martin Laberge
-> > > > mlsoft@videotron.ca
-> > > >
-> > > >
-> > > >
-> >
-> > could you send me the configuration logs and system boot messages about the
-> > digiboard...
-> >
-> > for my part i used agetty on these ports and the board use only one interrupt
-> > (exept if you have many boards...
-> > in that case one interrupt by board ... )
-> >
-> > did you executed the DigiLoad command in your boot scripts like instructed in
-> > documentations...
-> > did you put the board drivers (?????.bin) in the right places...
-> >
-> > they have to be loaded for the board to work...
-> >
-> > Martin Laberge
-> > mlsoft@videotron.ca
-> >
-> >
-> >
+>Sounds like a missing include in the devfsd code. That comes from 
+>dlfcn.h. 
 
-By the way.. i Forgot...    Did you disabled the corresponding COM1 or COM2 port in
-your BIOS? You should have...
-The standard ports using the same interrupt should be disables by hardware... or if
-on external cards, removed physically for the best...
-I often had been stopped by crazy hardware conflicts... Make your life simpler...
-Never put conflicting hardware in a system
-this will help you a lot... Some hardware share interrupts, some hardware is reputed
-to do it, but in my experience , I never be able
-to sahre interrupts correctly between hardware, without serious side effects... (I
-mean SERIOUS)
+Following small patch fixes this and workarounds devfs related problem
+which appeared in 2.4.0-test12-pre8:
+	when I'm logging out, devfsd tries to state /dev/vcc/[1-6] but sometimes
+	fails perhaps due to some race in kernel. As result devfsd quits with 
+	error message. Retrying to state node suceeds on next attempt.
+	I don't know why it happens, but I guess it's related to 
+	change in drivers/char/tty_io.c between test12-pre7 and pre8
+	(change to use flush_scheduled_tasks())
 
-This is a case where theory is beaten by reality...
+Hint: it seems to be easier to reproduce on slower machine (it happens seldom 
+	on PIII-700, but very often on P200MMX)
 
-This is this way i designed my systems, and was very succesful with this approach...
-Simple hardware, Known to work well, Not mixed with esoteric boards...
-This made me choose Digiboards in my setups in the old times... (I now use
-Networking... A little PC act as a terminal or Xterminal
-on the local network...) this simplifies wiring , configuring, and all the management
-of these little posts)
-
-My job now consist in removing multiboards from existing installations (from 2 years
-+ old) and installing PC where
-we had terminals... Now users have a GUI , 10Mbps speed in place of 9600 bauds, and
-internet access thru masquerading,
-while continuing to use the same old text base administration software with Xterm or
-telnet...
-
-For sure you have a good reason to install digiboard with many serial ports in your
-setup, but check/consider to use a more flexible setup
-could be a PLUS for your applications. In my case, the price, 600$/terminal
-800$/PC, was so slim i choosed to upgrade to a network
-solution in most of my installations.
-
-Hope my experiences with the case could help you...
-
-Martin Laberge
-mlsoft@videotron.ca
+Andris
 
 
+--- devfsd/devfsd.c~1	Mon Jul  3 22:43:07 2000
++++ devfsd/devfsd.c	Fri Jan 12 13:19:33 2001
+@@ -189,6 +189,7 @@
+ #include <signal.h>
+ #include <regex.h>
+ #include <errno.h>
++#define __USE_GNU
+ #include <dlfcn.h>
+ #include <rpcsvc/ypclnt.h>
+ #include <rpcsvc/yp_prot.h>
+@@ -918,15 +919,29 @@
+     [RETURNS] Nothing.
+ */
+ {
++    int tries=0;
+     mode_t new_mode;
+     struct stat statbuf;
+ 
++Retry:   
+     if (lstat (info->devname, &statbuf) != 0)
+     {
+-	SYSLOG (LOG_ERR, "error stat(2)ing: \"%s\"\t%s\n",
+-		info->devname, ERRSTRING);
+-	SYSLOG (LOG_ERR, "exiting\n");
+-	exit (1);
++	if (tries<10)
++	{
++	   tries++;
++           SYSLOG (LOG_ERR, "error stat(2)ing: \"%s\"\t%s\n",
++	   	   info->devname, ERRSTRING);
++           SYSLOG (LOG_ERR, "retrying (attempt %d) ...\n",tries);
++	   usleep (1000);  /* Let's sleep a bit  */
++	   goto Retry;
++	}
++	else
++	{
++	   SYSLOG (LOG_ERR, "error stat(2)ing: \"%s\"\t%s\n",
++	   	   info->devname, ERRSTRING);
++	   SYSLOG (LOG_ERR, "exiting\n");
++	   exit (1);
++	}
+     }
+     new_mode = (statbuf.st_mode & S_IFMT) |
+ 	(entry->u.permissions.mode & ~S_IFMT);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

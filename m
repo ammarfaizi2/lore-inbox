@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129121AbQKINRx>; Thu, 9 Nov 2000 08:17:53 -0500
+	id <S129545AbQKINTx>; Thu, 9 Nov 2000 08:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129171AbQKINRn>; Thu, 9 Nov 2000 08:17:43 -0500
-Received: from mailhost.mipsys.com ([62.161.177.33]:4391 "EHLO [62.161.177.33]")
-	by vger.kernel.org with ESMTP id <S129121AbQKINRb>;
-	Thu, 9 Nov 2000 08:17:31 -0500
-From: Benjamin Herrenschmidt <bh40@calva.net>
-To: Derrik Pates <dpates@andromeda.dsdk12.net>
-Cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: B/W G3 - big IDE problems with 2.4.0-test10
-Date: Thu, 9 Nov 2000 14:17:01 +0100
-Message-Id: <19341004064845.6646@192.168.1.2>
-In-Reply-To: <Pine.LNX.4.30.0011082252370.28457-100000@andromeda.dsdk12.net>
-In-Reply-To: <Pine.LNX.4.30.0011082252370.28457-100000@andromeda.dsdk12.net>
-X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
+	id <S129551AbQKINTn>; Thu, 9 Nov 2000 08:19:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50000 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129545AbQKINTb>; Thu, 9 Nov 2000 08:19:31 -0500
+Subject: Re: Stange NFS messages - 2.2.18pre19
+To: ionut@moisil.cs.columbia.edu (Ion Badulescu)
+Date: Thu, 9 Nov 2000 13:19:56 +0000 (GMT)
+Cc: vaxerdec@frontiernet.net (Scott McDermott), linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <200011090656.eA96u3Y22945@moisil.dev.hydraweb.com> from "Ion Badulescu" at Nov 08, 2000 10:56:03 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13trcV-00018q-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Wed, 8 Nov 2000, Andre Hedrick wrote:
->
->> What is your chipset, CMD646 rev 5 Ultra DMA 33 ???
->
->Yep. I've tried building with the CMD64x driver, and that didn't help
->matters, if you were wondering. Any thoughts?
+> I really really think this should be backed out -- or at the very least
+> disabled. The code wasn't part of the dhiggen merge, it wasn't tested,
+> and it doesn't work well. Heck, it's still experimental and not recommended
+> in 2.4.0-test.
 
-Did you try the bitkeeper PPC kernel ? (or Paul Mackerras rsync tree ?)
-
-Not all PPC patches have been merged in Linus tree yet. There were some
-resource assignement issues that were fixed only recently.
-
-Ben.
+Its now an experimental option in my pre21 build tree. So people can play with
+it and debug it if they wish
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

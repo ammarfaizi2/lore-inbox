@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318502AbSH1Bft>; Tue, 27 Aug 2002 21:35:49 -0400
+	id <S318529AbSH1BiF>; Tue, 27 Aug 2002 21:38:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318516AbSH1Bft>; Tue, 27 Aug 2002 21:35:49 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:57869 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S318502AbSH1Bfs>; Tue, 27 Aug 2002 21:35:48 -0400
-Date: Wed, 28 Aug 2002 05:40:01 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [patch 2.5.31] transparent PCI-to-PCI bridges
-Message-ID: <20020828054001.B31036@jurassic.park.msu.ru>
-References: <20020826175747.A27952@jurassic.park.msu.ru> <20020826201224.528@192.168.4.1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020826201224.528@192.168.4.1>; from benh@kernel.crashing.org on Mon, Aug 26, 2002 at 10:12:24PM +0200
+	id <S318538AbSH1BiF>; Tue, 27 Aug 2002 21:38:05 -0400
+Received: from cms1.etri.re.kr ([129.254.16.11]:51471 "EHLO cms1.etri.re.kr")
+	by vger.kernel.org with ESMTP id <S318529AbSH1BiE>;
+	Tue, 27 Aug 2002 21:38:04 -0400
+Message-ID: <011401c24e34$382797e0$21abfe81@seong>
+From: "Seong Moon" <seong@etri.re.kr>
+To: <linux-kernel@vger.kernel.org>
+Subject: sk_buff for frame fragmentation and reassembly
+Date: Wed, 28 Aug 2002 10:42:50 +0900
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 10:12:24PM +0200, Benjamin Herrenschmidt wrote:
-> While we are at it, I still think the loop copying parent resource
-> pointers in the case of a transparent bridge should copy the 4
-> resource pointers of the parent and not only 3.
+Hi,there.
 
-I agree that hardcoding the resource numbers is bad.
-Instead, I suggest the following:
-s/bus->resource[0]/bus->io/
-s/bus->resource[1]/bus->mem/
-s/bus->resource[2]/bus->pref_mem/
-s/bus->resource[3]//
+I'm writing virtual network device driver.
+I want to write the function of fragmentation and reassembly of a frame
+which is larger than physical MTU.
 
-There are only 3 _bus_ resources - the PCI works this way.
+So, I've looked into the ip_fragment() and ip_defrag() and sk_buff.h .
+But I couldn't understand the process of fragmentation and reassembly of
+datagram.
 
-Please don't propose your arch specific hacks to generic code.
+My questions are as follows :
 
-Ivan.
+<fragmentation>
+- ip_fragment() uses alloc_skb() and skb_copy_bit(),
+Is the original sk_buff shared ? or Is another sk_buff created?
+I want to know the meaning of alloc_skb() and skb_copy_bit().
+
+<reassembly>
+- ip_defrag() uses skb_shinfo(skb)->frag_list.
+When I pass a reassembled frame to network layer, can I
+use skb_shinfo(skb)->frag_list ?
+If not, How can I pass the reassembled frame to upper layer?
+
+<sk_buff>
+what does the usage of pskb_pull() and pskb_trim()?
+
+Thanks in advance.
+
+

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262300AbTEFDpo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 23:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbTEFDpo
+	id S262310AbTEFDrV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 23:47:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTEFDrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 23:45:44 -0400
-Received: from granite.he.net ([216.218.226.66]:55557 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S262300AbTEFDpn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 23:45:43 -0400
-Date: Mon, 5 May 2003 20:56:35 -0700
-From: Greg KH <greg@kroah.com>
-To: Matt_Domsch@Dell.com
-Cc: mochel@osdl.org, alan@redhat.com, linux-kernel@vger.kernel.org,
-       jgarzik@redhat.com
-Subject: Re: [RFC][PATCH] Dynamic PCI Device IDs
-Message-ID: <20030506035635.GA5403@kroah.com>
-References: <1052186678.19726.9.camel@iguana.localdomain>
+	Mon, 5 May 2003 23:47:21 -0400
+Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:46277 "EHLO
+	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S262310AbTEFDrP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 23:47:15 -0400
+Date: Mon, 5 May 2003 23:54:50 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Sumit Narayan <sumit_uconn@lycos.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: inode number
+Message-ID: <20030506035450.GU21898@kurtwerks.com>
+References: <MHCBNPOFCDJPBDAA@mailcity.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1052186678.19726.9.camel@iguana.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <MHCBNPOFCDJPBDAA@mailcity.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.20-xfs
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 09:04:35PM -0500, Matt_Domsch@Dell.com wrote:
-> > Unfortunatly, looking at the driver core real quickly, I don't see a
-> > simple way to kick the probe cycle off again for all pci devices, but
-> > I'm probably just missing something somewhere...
-> 
-> I think drivers/base/bus.c: driver_attach() is what we want, which will
-> walk the list of the bus's devices and run bus_match() which is
-> pci_bus_match() which will scan for us.  Just need to un-static
-> driver_attach() I expect.  Pat, does this sound right?
+An unnamed Administration source, Sumit Narayan, wrote:
+% Hi,
+% 
+% Actually, what I meant with this was, suppose I have a file name, how do I get the inode for that? And also suppose I have the inode number, how do I get the complete object of that inode for use and manipulation?
 
-You can't just call driver_attach(), as the bus semaphore needs to be
-locked before doing so.  In short, you almost need to duplicate
-bus_add_driver(), but not quite :)
+If you have a filename, stat(2); see also lstat(2) and fstat(2).
 
-Good luck,
-
-greg k-h
+Kurt
+-- 
+Error in operator: add beer

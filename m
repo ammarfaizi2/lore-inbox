@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129103AbQKFVQ5>; Mon, 6 Nov 2000 16:16:57 -0500
+	id <S130007AbQKFVSR>; Mon, 6 Nov 2000 16:18:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129454AbQKFVQr>; Mon, 6 Nov 2000 16:16:47 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:260 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129103AbQKFVQk>;
-	Mon, 6 Nov 2000 16:16:40 -0500
-Message-ID: <20001106103539.A343@bug.ucw.cz>
-Date: Mon, 6 Nov 2000 10:35:39 +0100
+	id <S130070AbQKFVSI>; Mon, 6 Nov 2000 16:18:08 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:2052 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129984AbQKFVRv>;
+	Mon, 6 Nov 2000 16:17:51 -0500
+Message-ID: <20001106094553.C128@bug.ucw.cz>
+Date: Mon, 6 Nov 2000 09:45:53 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: mount -tcoda /dev/cfs0 /mnt no longer works in -test9 and newer?
+To: "Amit S. Kale" <akale@veritas.com>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Translation Filesystem
+In-Reply-To: <3A0109D6.4DFA2F62@veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
+In-Reply-To: <3A0109D6.4DFA2F62@veritas.com>; from Amit S. Kale on Thu, Nov 02, 2000 at 11:59:42AM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-It complains
+> I have started a new virtual filesystem project, Translation Filesystem
+> at
+> http://trfs.sourceforge.net/  Description of the project is given below.
+> 
+> It's still at a concept stage. If someone has any ideas about any useful
+> translators that fit in this framework please write to me.
+> Any feedback is most welcome.
 
-coda_read_super: Bad mount data
-coda_read_super: device index: 0
 
-and will not mount. What do I need to mount coda?
+Well - I can certainly not do zero-copy block device access.
+
+What are expected usages of your translation filesystem?
+Hi-performance things like zero-copy block device access, or
+low-performance things like transparently ungzipping? If it is the
+second case, uservfs.sourceforge.net is perfectly applicable, if not,
+you really need to modify kernel..
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

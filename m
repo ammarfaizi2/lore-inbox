@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315856AbSETKrm>; Mon, 20 May 2002 06:47:42 -0400
+	id <S315842AbSETK7Z>; Mon, 20 May 2002 06:59:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315855AbSETKrl>; Mon, 20 May 2002 06:47:41 -0400
-Received: from CPE-203-51-25-114.nsw.bigpond.net.au ([203.51.25.114]:16638
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S315842AbSETKrl>; Mon, 20 May 2002 06:47:41 -0400
-Message-ID: <3CE8D44F.990C3091@eyal.emu.id.au>
-Date: Mon, 20 May 2002 20:47:43 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: SO_REUSEADDR: broke between 2.4.17 and .18
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315858AbSETK7Y>; Mon, 20 May 2002 06:59:24 -0400
+Received: from ns.suse.de ([213.95.15.193]:17927 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S315842AbSETK7Y>;
+	Mon, 20 May 2002 06:59:24 -0400
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AUDIT: copy_from_user is a deathtrap.
+In-Reply-To: <Pine.LNX.4.44.0205191951460.22433-100000@home.transmeta.com.suse.lists.linux.kernel> <E179fAd-0005vs-00@wagner.rustcorp.com.au.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 20 May 2002 12:59:23 +0200
+Message-ID: <p73r8k7xeyc.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a server that uses SO_REUSEADDR. It used to work and nothing
-changed in this area for a long while. A recent test fails with
-"address already in use".
+Rusty Russell <rusty@rustcorp.com.au> writes:
 
-I just rebooted a few kernels and verified that:
-	2.4.17 works OK.
-	2.4.18 fails.
-	2.4.19-pre8 fails.
-	2.4.19-pre8-ac4 fails.
+> In message <Pine.LNX.4.44.0205191951460.22433-100000@home.transmeta.com> you wr
+> ite:
+> > 	ret = copy_from_user(xxx);
+> > 	if (ret)
+> > 		return ret;
+> > 
+> > which is apparently your suggestion.
+> 
+> Not quite:
+> 	copy_from_user(xxx);
+> 
+> Is my suggestion.  No error return.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+I don't think it is a good idea. Consider a driver that does lots 
+of small copy_from_user() from user space for a longer write (e.g. TCP
+to a small MSS) If xxx was faulting it would eat a lot of cycles with 
+faulting again and again.
+
+-Andi
+

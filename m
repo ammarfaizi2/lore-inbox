@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVCYF4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVCYGBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVCYF4s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 00:56:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVCYFy7
+	id S261427AbVCYGBY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 01:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVCYGA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 00:54:59 -0500
-Received: from digitalimplant.org ([64.62.235.95]:3795 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S261413AbVCYFym
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 00:54:42 -0500
-Date: Thu, 24 Mar 2005 21:54:35 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: linux-kernel@vger.kernel.org
-cc: greg@kroah.com
-Subject: [4/12] More Driver Model Locking Changes
-Message-ID: <Pine.LNX.4.50.0503242151130.19795-100000@monsoon.he.net>
+	Fri, 25 Mar 2005 01:00:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64930 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261413AbVCYF6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 00:58:25 -0500
+Message-ID: <4243A86D.6000408@pobox.com>
+Date: Fri, 25 Mar 2005 00:58:05 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: johnpol@2ka.mipt.ru
+CC: David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+ (2.6.11)
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast>	 <1111665551.23532.90.camel@uganda> <4242B712.50004@pobox.com>	 <20050324132342.GD7115@beast> <1111671993.23532.115.camel@uganda>	 <42432972.5020906@pobox.com> <1111725282.23532.130.camel@uganda>	 <42439839.7060702@pobox.com> <1111728804.23532.137.camel@uganda>
+In-Reply-To: <1111728804.23532.137.camel@uganda>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Evgeniy Polyakov wrote:
+> So I still insist on creating ability to contribute entropy directly,
+> without userspace validation.
+> It will be turned off by default.
 
-ChangeSet@1.2242, 2005-03-24 13:00:16-08:00, mochel@digitalimplant.org
-  [usb] Fix up USB to use klist_node_attached() instead of list_empty() on lists that will go away.
+If its disabled by default, then you and 2-3 other people will use this 
+feature.  Not enough justification for a kernel API at that point.
+
+	Jeff
 
 
-  Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-diff -Nru a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
---- a/drivers/usb/core/usb.c	2005-03-24 20:33:38 -08:00
-+++ b/drivers/usb/core/usb.c	2005-03-24 20:33:38 -08:00
-@@ -300,7 +300,7 @@
- 	/* if interface was already added, bind now; else let
- 	 * the future device_add() bind it, bypassing probe()
- 	 */
--	if (!list_empty (&dev->bus_list))
-+	if (!klist_node_attached (&dev->knode_bus))
- 		device_bind_driver(dev);
-
- 	return 0;
-@@ -330,7 +330,7 @@
- 		return;
-
- 	/* don't disconnect from disconnect(), or before dev_add() */
--	if (!list_empty (&dev->driver_list) && !list_empty (&dev->bus_list))
-+	if (!klist_node_attached(&dev->knode_driver) && !klist_node_attached(&dev->knode_bus))
- 		device_release_driver(dev);
-
- 	dev->driver = NULL;

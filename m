@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264985AbTGCQKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 12:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264927AbTGCQFr
+	id S264933AbTGCQGK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 12:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbTGCQF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 12:05:47 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45066 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264899AbTGCQEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 12:04:45 -0400
-Date: Thu, 3 Jul 2003 17:19:08 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Wiktor Wodecki <wodecki@gmx.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.5.74-mm1
-Message-ID: <20030703171908.C20336@flint.arm.linux.org.uk>
-Mail-Followup-To: Patrick Mochel <mochel@osdl.org>,
-	linux-kernel@vger.kernel.org, Wiktor Wodecki <wodecki@gmx.de>,
-	Andrew Morton <akpm@osdl.org>
-References: <20030703151529.B20336@flint.arm.linux.org.uk> <Pine.LNX.4.44.0307030857240.14925-100000@cherise>
+	Thu, 3 Jul 2003 12:05:59 -0400
+Received: from granite.he.net ([216.218.226.66]:32011 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S264776AbTGCQD4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 12:03:56 -0400
+Date: Wed, 2 Jul 2003 16:57:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: inode/dcache overhead of sysfs attribute files?
+Message-ID: <20030702235743.GA10868@kroah.com>
+References: <20030702215847.GA9973@kroah.com> <3F036F3B.7030004@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0307030857240.14925-100000@cherise>; from mochel@osdl.org on Thu, Jul 03, 2003 at 09:05:40AM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <3F036F3B.7030004@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 03, 2003 at 09:05:40AM -0700, Patrick Mochel wrote:
-> Any ideas?
+On Wed, Jul 02, 2003 at 07:48:11PM -0400, Jeff Garzik wrote:
+> Has anybody looked into the inode and dcache overhead of all this stuff, 
+> which I assume is pinned into memory a la ramfs?
 
-Hi Pat,
+Yes, there were some numbers in an old thread about 2000 scsi disks.
 
-Do you know which kernel version first exhibited these problems?  Was
-.73 ok for you?
+> I wonder if sysfs attributes could be accessed via the extended 
+> attribute VFS API?  A file full of EA's can easily be considered a 
+> key-value database, or attribute-value in this case :)  The EA names and 
+> values need not pin a bunch of inodes and dcache entries, either.
+> (though viro may scream at my mention of EAs :))
 
-Thanks.
+Don't know, that could be one way.  I think wli and shaggy were working
+on something along these lines, but haven't heard from them in a long
+time about it.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+thanks,
 
+greg k-h

@@ -1,54 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129541AbRBXSgz>; Sat, 24 Feb 2001 13:36:55 -0500
+	id <S129536AbRBXSqz>; Sat, 24 Feb 2001 13:46:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129544AbRBXSgq>; Sat, 24 Feb 2001 13:36:46 -0500
-Received: from delta.Colorado.EDU ([128.138.139.9]:33551 "EHLO
-	ibg.colorado.edu") by vger.kernel.org with ESMTP id <S129541AbRBXSgk>;
-	Sat, 24 Feb 2001 13:36:40 -0500
-Message-Id: <200102241836.LAA27025@ibg.colorado.edu>
-To: linux-kernel@vger.kernel.org
-cc: Philipp Rumpf <prumpf@mandrakesoft.com>
-Subject: Re: PCI oddities on Dell Inspiron 5000e w/ 2.4.x 
-In-Reply-To: Your message of Sat, 24 Feb 2001 11:55:07 CST.
-In-Reply-To: <200102240941.CAA09708@ibg.colorado.edu> <Pine.LNX.4.10.10102240532030.30331-100000@penguin.transmeta.com> <20010224095447.A28983@mandrakesoft.mandrakesoft.com> <200102241725.KAA19514@ibg.colorado.edu> <20010224115507.B28983@mandrakesoft.mandrakesoft.com> 
-Organization: Institute for Behavioral Genetics
-              University of Colorado
-              Boulder, CO  80309-0447
-X-Phone: +1 303 492 2843
-X-FAX: +1 303 492 8063
-X-URL: http://ibgwww.Colorado.EDU/~lessem/
-X-Copyright: All original content is copyright 2001 Jeff Lessem.
-X-Copyright: Quoted and non-original content may be copyright the
-X-Copyright: original author or others.
-Date: Sat, 24 Feb 2001 11:36:39 -0700
-From: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
+	id <S129545AbRBXSqh>; Sat, 24 Feb 2001 13:46:37 -0500
+Received: from colorfullife.com ([216.156.138.34]:18190 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129536AbRBXSqT>;
+	Sat, 24 Feb 2001 13:46:19 -0500
+Message-ID: <000c01c09e92$25dd2e40$5517fea9@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: <pf-kernel@mirkwood.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.4.2 - kernel BUG at apic.c:220!
+Date: Sat, 24 Feb 2001 19:45:43 +0100
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0005_01C09E9A.5FB4A3C0"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In your message of: Sat, 24 Feb 2001 11:55:07 CST, you write:
->
->Careful, you're overwriting ACPI data now (and using it as normal RAM).
+This is a multi-part message in MIME format.
 
-Hmm, I guess that would be bad.
+------=_NextPart_000_0005_01C09E9A.5FB4A3C0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
->Can you try one of a) LILO b) a fixed version of grub c) this patch ?
+> kernel BUG at apic.c:220!
+>From apic.c:
+<<<<<<<<<<<
 
-I tried LILO and the problem did indeed go away when using that.  I
-guess I'll stick with LILO until Linux or grub (whichever is broken)
-is fixed.  There is just something appealing about a proper boot
-console on a PC...
+        /*
+         * Double-check wether this APIC is really registered.
+         */
+        if (!test_bit(GET_APIC_ID(apic_read(APIC_ID)),
+&phys_cpu_present_map))
+                BUG();
+>>>>>>>>>>>
+Really odd. That's usually a sign of a bad MP table.
 
-BIOS-provided physical RAM map:
- BIOS-e820: 000000000009f800 @ 0000000000000000 (usable)
- BIOS-e820: 0000000000000800 @ 000000000009f800 (reserved)
- BIOS-e820: 0000000000019800 @ 00000000000e6800 (reserved)
- BIOS-e820: 0000000013ef0000 @ 0000000000100000 (usable)
- BIOS-e820: 000000000000fc00 @ 0000000013ff0000 (ACPI data)
- BIOS-e820: 0000000000000400 @ 0000000013fffc00 (ACPI NVS)
- BIOS-e820: 0000000000080000 @ 00000000fff80000 (reserved)
-On node 0 totalpages: 81904
-zone(0): 4096 pages.
-zone(1): 77808 pages.
-zone(2): 0 pages.
-Kernel command line: auto BOOT_IMAGE=Linux ro root=301
+Could you check your BIOS settings for an entry MP, or MPS, or
+Multiprocessor Table?
+Usually the options are 1.1 and 1.4 - just try the other one.
+
+or try the attached patch - it prints 2 additional debug lines.
+
+--
+    Manfred
+
+
+
+------=_NextPart_000_0005_01C09E9A.5FB4A3C0
+Content-Type: application/octet-stream;
+	name="patch.out"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="patch.out"
+
+--- linux/arch/i386/kernel/apic.c.old	Tue Dec 05 21:43:48 2000
++++ linux/arch/i386/kernel/apic.c	Sat Feb 24 19:39:44 2001
+@@ -216,8 +216,13 @@
+ 	/*
+ 	 * Double-check wether this APIC is really registered.
+ 	 */
+-	if (!test_bit(GET_APIC_ID(apic_read(APIC_ID)), &phys_cpu_present_map))
++	if (!test_bit(GET_APIC_ID(apic_read(APIC_ID)), &phys_cpu_present_map)) =
+{
++		printk(KERN_ERR "phys_cpu_present_map is %lxh.\n",
++					phys_cpu_present_map);
++		printk(KERN_ERR "Apic id is %ldh.\n",
++				GET_APIC_ID(apic_read(APIC_ID)));
+ 		BUG();
++	}
+=20
+ 	/*
+ 	 * Intel recommends to set DFR, LDR and TPR before enabling
+
+------=_NextPart_000_0005_01C09E9A.5FB4A3C0--
+

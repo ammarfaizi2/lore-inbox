@@ -1,76 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265872AbUGITxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265812AbUGITxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265872AbUGITxi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 15:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265833AbUGITxh
+	id S265812AbUGITxr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 15:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265930AbUGITxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 15:53:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48284 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265872AbUGITvr (ORCPT
+	Fri, 9 Jul 2004 15:53:47 -0400
+Received: from mx1.magmacom.com ([206.191.0.217]:3800 "EHLO mx1.magmacom.com")
+	by vger.kernel.org with ESMTP id S265812AbUGITw1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 15:51:47 -0400
-Date: Fri, 9 Jul 2004 12:47:04 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: fastboot@lists.osdl.org
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [announce] kexec 2.6.7-v2 and kexec-tools-1.95
-Message-Id: <20040709124704.1874a10b.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 9 Jul 2004 15:52:27 -0400
+Subject: Re: 2.6.7-mm7
+From: Jesse Stockall <stockall@magma.ca>
+To: Andrew Morton <akpm@osdl.org>
+Cc: s.rivoir@gts.it, linux-kernel@vger.kernel.org,
+       Alan Stern <stern@rowland.harvard.edu>
+In-Reply-To: <20040709115411.23d96699.akpm@osdl.org>
+References: <20040708235025.5f8436b7.akpm@osdl.org>
+	 <40EE5418.2040000@gts.it> <20040709024112.7ef44d1d.akpm@osdl.org>
+	 <40EE732C.5020404@gts.it> <1089373506.8067.7.camel@homer.blizzard.org>
+	 <20040709115411.23d96699.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1089402736.8067.12.camel@homer.blizzard.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 09 Jul 2004 15:52:16 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-07-09 at 14:54, Andrew Morton wrote:
+                      down_write_trylock(&usb_all_devices_rwsem));
+> 
+> That's a bit unusual.  Could you (or Alan) please explain the reason for
+> this a little more?
 
-The kexec patch has been updated a bit (but this is still diffed
-against 2.6.7 vanilla).  It WorksForMe (x86-32), using kexec-tools
-(/sbin/kexec) to reboot or using sysvinit reboot (with patch
-below) to reboot.  /sbin/kexec is used to load the new kernel
-image in either case.
+I believe you want this thread
 
-PPC32/GameCube port is now added here.  It's home is
-  http://www.gc-linux.org/down/isobel/kexec/
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108923404032264&w=2
 
-There is ongoing work and/or interest in ports for PPC64,
-IA-64, and x86-64, but I haven't seen code for them (yet).
+Jesse
 
+-- 
+Jesse Stockall <stockall@magma.ca>
 
-
-
-http://developer.osdl.org/rddunlap/kexec/2.6.7-v2/
-
-kexec-267-v2.diff
-. kexec kernel patch for 2.6.7, with patches from Albert, Eric, Randy
-
-gc-linux-2.6.7-isobel.kexec.patch
-. GameCube patch (Albert Herranz)
-
-README
-. what kexec is, how to use it
-
-Changelog
-. actually updated, for a change
-
-
-
-http://developer.osdl.org/rddunlap/kexec/kexec-tools/
-
-sysvinit-2.85-kexec.patch
-. sysvinit halt.c patch for kexec reboot (Eric, Albert)
-
-kexec-tools-1.95.tar.gz
-. kexec-tools-1.95 tarball with
-  PPC64 support (Adam Litke),
-  GameCube/PPC32 support (Albert),
-  use syscall() for kexec_load() and reboot() (Randy),
-  no-ifdown patch (Albert)
-
-News
-. changelog updated
-
---
-~Randy

@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277248AbRJDWCP>; Thu, 4 Oct 2001 18:02:15 -0400
+	id <S277247AbRJDWBP>; Thu, 4 Oct 2001 18:01:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277244AbRJDWCG>; Thu, 4 Oct 2001 18:02:06 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38928 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277248AbRJDWCA>; Thu, 4 Oct 2001 18:02:00 -0400
-Subject: Re: Past CREDITS files
-To: juha.siltala@mail.suomi.net (Juha Siltala)
-Date: Thu, 4 Oct 2001 23:04:32 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011003162217.5eda53e8.juha.siltala@mail.suomi.net> from "Juha Siltala" at Oct 03, 2001 04:22:17 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S277244AbRJDWBF>; Thu, 4 Oct 2001 18:01:05 -0400
+Received: from peace.netnation.com ([204.174.223.2]:43281 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S277248AbRJDWAv>; Thu, 4 Oct 2001 18:00:51 -0400
+Date: Thu, 4 Oct 2001 15:01:19 -0700
+From: Simon Kirby <sim@netnation.com>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+Message-ID: <20011004150119.B2373@netnation.com>
+In-Reply-To: <Pine.LNX.4.33.0110031528370.6272-100000@localhost.localdomain> <302737894.1002234496@[195.224.237.69]>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pGbY-0004PT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0i
+In-Reply-To: <302737894.1002234496@[195.224.237.69]>; from linux-kernel@alex.org.uk on Thu, Oct 04, 2001 at 10:28:17PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I would like to examine the CREDITS files of all/most kernels released over
-> time. How could I get my hands on these? I want to study the accumulation
-> of contributors over the years. This is part of my masters thesis project.
+On Thu, Oct 04, 2001 at 10:28:17PM +0100, Alex Bligh - linux-kernel wrote:
 
-Download all the kernels. Be aware they are
-	-	Wildly inaccurate
-	-	Started becoming accurate later on
-	-	Were subject to significant external effects (the RH IPO
-		caused people to massively update/send in new CREDIT entries)
-	
+> In at least one environment known to me (router), I'd rather it
+> kept accepting packets, and f/w'ing them, and didn't switch VTs etc.
+> By dropping down performance, you've made the DoS attack even
+> more successful than it would otherwise have been (the kiddie
+> looks at effect on the host at the end).
 
-They still represent a tiny subset of contributors. Especially the thousands
-who send in the odd small patch
+No.
 
-> BTW, when was the current twofold stable/devel numbering scheme started?
+Ingo is not limiting interrupts to make it drop packets and forget things
+just so that userspace can proceed.  Instead, he is postponing servicing
+of the interrupts so that the card can batch up more packets and the
+interrupt will retrieve more at once rather than continually leaving and
+entering the interrupt to just pick up a few packets.  Without this, the
+interrupt will starve everything else, and nothing will get done.
 
-See my historical mail archive. 
-http://www.linux.org.uk/Old-LK/Old-linux-kernel
+By postponing servicing of the interrupt (and thus increasing latency
+slightly), throughput will actually increase.
 
-Its in there somewhere 8)
+Obviously, if the card Rx buffers overflow because the interrupts weren't
+serviced quickly enough, then packets will be dropped.  This is still
+better than the machine not being able to actually do anything with the
+received packets (and also not able to do anything else such as allow the
+administrator to figure out what is happening).
+
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

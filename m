@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265149AbUFRNDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265147AbUFRNEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265149AbUFRNDX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 09:03:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUFRNDW
+	id S265147AbUFRNEa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 09:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUFRNEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 09:03:22 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:9171 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265149AbUFRNDS (ORCPT
+	Fri, 18 Jun 2004 09:04:30 -0400
+Received: from cantor.suse.de ([195.135.220.2]:17902 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265147AbUFRNEP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 09:03:18 -0400
-Date: Fri, 18 Jun 2004 15:02:42 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Finn Thain <ft01@webmastery.com.au>, Andreas Schwab <schwab@suse.de>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: make checkstack on m68k
-Message-ID: <20040618130242.GD18258@wohnheim.fh-wedel.de>
-References: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be> <je3c4uqum0.fsf@sykes.suse.de> <Pine.LNX.4.58.0406180048180.13963@bonkers.disegno.com.au> <20040617182658.GB29029@wohnheim.fh-wedel.de> <Pine.GSO.4.58.0406172115050.1495@waterleaf.sonytel.be> <Pine.GSO.4.58.0406172130130.1495@waterleaf.sonytel.be>
+	Fri, 18 Jun 2004 09:04:15 -0400
+Subject: Re: [PATCH RFC] __bd_forget should wait for inodes using the
+	mapping
+From: Chris Mason <mason@suse.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20040618021043.GV12308@parcelfarce.linux.theplanet.co.uk>
+References: <1087523668.8002.103.camel@watt.suse.com>
+	 <20040618021043.GV12308@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Message-Id: <1087563810.8002.116.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.GSO.4.58.0406172130130.1495@waterleaf.sonytel.be>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 18 Jun 2004 09:03:31 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 June 2004 21:36:11 +0200, Geert Uytterhoeven wrote:
+On Thu, 2004-06-17 at 22:10, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
+> On Thu, Jun 17, 2004 at 09:54:28PM -0400, Chris Mason wrote:
+> > __bd_forget will change the mapping for filesystem inodes without 
+> > waiting to make sure no users of the block device address space are 
+> > using that mapping.
 > 
-> *bummer*
-> 
-> why doesn't checkstack.pl complain if I forget to specify `m68k'?!?
+> Filesystem block device inodes have no business even looking at their
+> ->i_mapping.  Where do you need to do that?
 
-It tries to guess the architecture on it's own.  Guessing is not
-working for m68k, aparently.
+sync_sb_inodes, the filesystem block device inode ends up on some dirty
+list, and under memory pressure balance_dirty_pages_ratelimited will
+trigger writeback on it.  
 
-What does "uname -m" tell you?
+There's nothing to write back of course, the real block device address
+space has no dirty pages at all.  But, writeback is looking through the
+mapping and __bd_forget can't drop it until writeback has finished
+checking it.
 
-[ Yes, this breaks for cross compilation.  If anyone really cares,
-please send patches. ]
+I've verified this really is happening ;-) The patch I sent is nasty but
+I'm sure this is a real bug.
 
-Jörn
+-chris
 
--- 
-The strong give up and move away, while the weak give up and stay.
--- unknown
+

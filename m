@@ -1,167 +1,709 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261725AbSIXR1S>; Tue, 24 Sep 2002 13:27:18 -0400
+	id <S261724AbSIXR1T>; Tue, 24 Sep 2002 13:27:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261724AbSIXR1C>; Tue, 24 Sep 2002 13:27:02 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:45518 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S261727AbSIXRWo> convert rfc822-to-8bit; Tue, 24 Sep 2002 13:22:44 -0400
+	id <S261723AbSIXR0x>; Tue, 24 Sep 2002 13:26:53 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:53916 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S261724AbSIXRWn> convert rfc822-to-8bit; Tue, 24 Sep 2002 13:22:43 -0400
 Content-Type: text/plain;
   charset="us-ascii"
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.38 s390 fixes: 18_quiesce.
-Date: Tue, 24 Sep 2002 19:22:41 +0200
+Subject: [PATCH] 2.5.38 s390 fixes: 12_inline.
+Date: Tue, 24 Sep 2002 19:20:47 +0200
 X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200209241922.41163.schwidefsky@de.ibm.com>
+Message-Id: <200209241920.47093.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add 'signal quiesque' feature to s390 hardware console. A signal quiesce
-is sent from VM or the service element every time the system should shut
-down. We receive the quiesce signal and call ctrl_alt_del(). Finally the
-mainframes have ctrl-alt-del as well :-)
+Inline csum_partial for s390, the only reason it was out-of-line previously
+is that some older compilers could not get the inline version right.
 
-diff -urN linux-2.5.38/drivers/s390/char/hwc.h linux-2.5.38-s390/drivers/s390/char/hwc.h
---- linux-2.5.38/drivers/s390/char/hwc.h	Sun Sep 22 06:25:12 2002
-+++ linux-2.5.38-s390/drivers/s390/char/hwc.h	Tue Sep 24 17:43:30 2002
-@@ -22,6 +22,7 @@
- #define ET_PMsgCmd		0x09
- #define ET_CntlProgOpCmd	0x20
- #define ET_CntlProgIdent	0x0B
-+#define ET_SigQuiesce	0x1D
+diff -urN linux-2.5.38/arch/s390/lib/Makefile linux-2.5.38-s390/arch/s390/lib/Makefile
+--- linux-2.5.38/arch/s390/lib/Makefile	Sun Sep 22 06:25:00 2002
++++ linux-2.5.38-s390/arch/s390/lib/Makefile	Tue Sep 24 17:42:48 2002
+@@ -6,8 +6,7 @@
  
- #define ET_OpCmd_Mask	0x80000000
- #define ET_Msg_Mask		0x40000000
-@@ -29,6 +30,7 @@
- #define ET_PMsgCmd_Mask	0x00800000
- #define ET_CtlProgOpCmd_Mask	0x00000001
- #define ET_CtlProgIdent_Mask	0x00200000
-+#define ET_SigQuiesce_Mask	0x00000008
+ EXTRA_AFLAGS := -traditional
  
- #define GMF_DOM		0x8000
- #define GMF_SndAlrm	0x4000
-@@ -218,7 +220,8 @@
- 	0x0000,
- 	0x0000,
- 	sizeof (_hwcb_mask_t),
--	ET_OpCmd_Mask | ET_PMsgCmd_Mask | ET_StateChange_Mask,
-+	ET_OpCmd_Mask | ET_PMsgCmd_Mask |
-+	ET_StateChange_Mask | ET_SigQuiesce_Mask,
- 	ET_Msg_Mask | ET_PMsgCmd_Mask | ET_CtlProgIdent_Mask
- };
+-obj-y = checksum.o delay.o memset.o misaligned.o strcmp.o strncpy.o uaccess.o
+-export-objs += misaligned.o
++obj-y = delay.o memset.o strcmp.o strncpy.o uaccess.o
  
-diff -urN linux-2.5.38/drivers/s390/char/hwc_rw.c linux-2.5.38-s390/drivers/s390/char/hwc_rw.c
---- linux-2.5.38/drivers/s390/char/hwc_rw.c	Tue Sep 24 17:43:15 2002
-+++ linux-2.5.38-s390/drivers/s390/char/hwc_rw.c	Tue Sep 24 17:43:30 2002
-@@ -35,6 +35,8 @@
- #define MIN(a,b) (((a<b) ? a : b))
- #endif
+ include $(TOPDIR)/Rules.make
  
-+extern void ctrl_alt_del (void);
-+
- #define HWC_RW_PRINT_HEADER "hwc low level driver: "
+diff -urN linux-2.5.38/arch/s390/lib/checksum.c linux-2.5.38-s390/arch/s390/lib/checksum.c
+--- linux-2.5.38/arch/s390/lib/checksum.c	Sun Sep 22 06:24:58 2002
++++ linux-2.5.38-s390/arch/s390/lib/checksum.c	Thu Jan  1 01:00:00 1970
+@@ -1,57 +0,0 @@
+-/*
+- *  arch/s390/lib/checksum.c
+- *    S390 fast network checksum routines
+- *
+- *  S390 version
+- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *    Author(s): Ulrich Hild        (first version),
+- *               Martin Schwidefsky (schwidefsky@de.ibm.com),
+- *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
+- *
+- * This file contains network checksum routines
+- */
+- 
+-#include <linux/string.h>
+-#include <linux/types.h>
+-#include <asm/uaccess.h>
+-#include <asm/byteorder.h>
+-#include <asm/checksum.h>
+-
+-/*
+- * computes a partial checksum, e.g. for TCP/UDP fragments
+- */
+-unsigned int
+-csum_partial (const unsigned char *buff, int len, unsigned int sum)
+-{
+-	register_pair rp;
+-	  /*
+-	   * Experiments with ethernet and slip connections show that buff
+-	   * is aligned on either a 2-byte or 4-byte boundary.
+-	   */
+-	rp.subreg.even = (unsigned long) buff;
+-	rp.subreg.odd = (unsigned long) len;
+-        __asm__ __volatile__ (
+-                "0:  cksm %0,%1\n"    /* do checksum on longs */
+-                "    jo   0b\n"
+-                : "+&d" (sum), "+&a" (rp) : : "cc" );
+-        return sum;
+-}
+-
+-/*
+- *	Fold a partial checksum without adding pseudo headers
+- */
+-unsigned short csum_fold(unsigned int sum)
+-{
+-	register_pair rp;
+-
+-	__asm__ __volatile__ (
+-		"    slr  %N1,%N1\n" /* %0 = H L */
+-		"    lr   %1,%0\n"   /* %0 = H L, %1 = H L 0 0 */
+-		"    srdl %1,16\n"   /* %0 = H L, %1 = 0 H L 0 */
+-		"    alr  %1,%N1\n"  /* %0 = H L, %1 = L H L 0 */
+-		"    alr  %0,%1\n"   /* %0 = H+L+C L+H */
+-		"    srl  %0,16\n"   /* %0 = H+L+C */
+-		: "+&d" (sum), "=d" (rp) : : "cc" );
+-	return ((unsigned short) ~sum);
+-}
+-
+diff -urN linux-2.5.38/arch/s390/lib/misaligned.c linux-2.5.38-s390/arch/s390/lib/misaligned.c
+--- linux-2.5.38/arch/s390/lib/misaligned.c	Sun Sep 22 06:25:11 2002
++++ linux-2.5.38-s390/arch/s390/lib/misaligned.c	Thu Jan  1 01:00:00 1970
+@@ -1,29 +0,0 @@
+-/*
+- *  arch/s390/lib/misaligned.c
+- *    S390 misalignment panic stubs
+- *
+- *  S390 version
+- *    Copyright (C) 2001 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com).
+- *
+- * xchg wants to panic if the pointer is not aligned. To avoid multiplying
+- * the panic message over and over again, the panic is done in the helper
+- * functions __misaligned_u32 and __misaligned_u16.
+- */
+-
+-#include <linux/module.h> 
+-#include <linux/kernel.h>
+-
+-void __misaligned_u16(void)
+-{
+-	panic("misaligned (__u16 *) in __xchg\n");
+-}
+-
+-void __misaligned_u32(void)
+-{
+-	panic("misaligned (__u32 *) in __xchg\n");
+-}
+-
+-EXPORT_SYMBOL(__misaligned_u16);
+-EXPORT_SYMBOL(__misaligned_u32);
+-
+diff -urN linux-2.5.38/arch/s390x/lib/Makefile linux-2.5.38-s390/arch/s390x/lib/Makefile
+--- linux-2.5.38/arch/s390x/lib/Makefile	Sun Sep 22 06:25:01 2002
++++ linux-2.5.38-s390/arch/s390x/lib/Makefile	Tue Sep 24 17:42:48 2002
+@@ -6,8 +6,7 @@
  
- #define  USE_VM_DETECTION
-@@ -172,6 +174,7 @@
- 	unsigned char read_nonprio:1;
- 	unsigned char read_prio:1;
- 	unsigned char read_statechange:1;
-+	unsigned char sig_quiesce:1;
+ EXTRA_AFLAGS := -traditional
  
- 	unsigned char flags;
+-obj-y = checksum.o delay.o memset.o misaligned.o strcmp.o strncpy.o uaccess.o
+-export-objs += misaligned.o
++obj-y = delay.o memset.o strcmp.o strncpy.o uaccess.o
  
-@@ -222,6 +225,7 @@
- 	    0,
- 	    0,
- 	    0,
-+	    0,
- 	    NULL,
- 	    NULL
+ include $(TOPDIR)/Rules.make
  
-@@ -1529,6 +1533,19 @@
- 				       HWC_RW_PRINT_HEADER
- 				 "can not read state change notifications\n");
+diff -urN linux-2.5.38/arch/s390x/lib/checksum.c linux-2.5.38-s390/arch/s390x/lib/checksum.c
+--- linux-2.5.38/arch/s390x/lib/checksum.c	Sun Sep 22 06:25:11 2002
++++ linux-2.5.38-s390/arch/s390x/lib/checksum.c	Thu Jan  1 01:00:00 1970
+@@ -1,40 +0,0 @@
+-/*
+- *  arch/s390/lib/checksum.c
+- *    S390 fast network checksum routines
+- *
+- *  S390 version
+- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *    Author(s): Ulrich Hild        (first version),
+- *               Martin Schwidefsky (schwidefsky@de.ibm.com),
+- *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
+- *
+- * This file contains network checksum routines
+- */
+- 
+-#include <linux/string.h>
+-#include <linux/types.h>
+-#include <asm/uaccess.h>
+-#include <asm/byteorder.h>
+-#include <asm/checksum.h>
+-
+-/*
+- * computes a partial checksum, e.g. for TCP/UDP fragments
+- */
+-unsigned int
+-csum_partial (const unsigned char *buff, int len, unsigned int sum)
+-{
+-	  /*
+-	   * Experiments with ethernet and slip connections show that buff
+-	   * is aligned on either a 2-byte or 4-byte boundary.
+-	   */
+-        __asm__ __volatile__ (
+-                "    lgr  2,%1\n"    /* address in gpr 2 */
+-                "    lgfr 3,%2\n"    /* length in gpr 3 */
+-                "0:  cksm %0,2\n"    /* do checksum on longs */
+-                "    jo   0b\n"
+-                : "+&d" (sum)
+-                : "d" (buff), "d" (len)
+-                : "cc", "2", "3" );
+-        return sum;
+-}
+-
+diff -urN linux-2.5.38/arch/s390x/lib/misaligned.c linux-2.5.38-s390/arch/s390x/lib/misaligned.c
+--- linux-2.5.38/arch/s390x/lib/misaligned.c	Sun Sep 22 06:25:16 2002
++++ linux-2.5.38-s390/arch/s390x/lib/misaligned.c	Thu Jan  1 01:00:00 1970
+@@ -1,34 +0,0 @@
+-/*
+- *  arch/s390/lib/misaligned.c
+- *    S390 misalignment panic stubs
+- *
+- *  S390 version
+- *    Copyright (C) 2001 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com).
+- *
+- * xchg wants to panic if the pointer is not aligned. To avoid multiplying
+- * the panic message over and over again, the panic is done in the helper
+- * functions __misaligned_u64, __misaligned_u32 and __misaligned_u16.
+- */
+- 
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-
+-void __misaligned_u16(void)
+-{
+-	panic("misaligned (__u16 *) in __xchg\n");
+-}
+-
+-void __misaligned_u32(void)
+-{
+-	panic("misaligned (__u32 *) in __xchg\n");
+-}
+-
+-void __misaligned_u64(void)
+-{
+-	panic("misaligned (__u64 *) in __xchg\n");
+-}
+-
+-EXPORT_SYMBOL(__misaligned_u16);
+-EXPORT_SYMBOL(__misaligned_u32);
+-EXPORT_SYMBOL(__misaligned_u64);
+diff -urN linux-2.5.38/include/asm-s390/checksum.h linux-2.5.38-s390/include/asm-s390/checksum.h
+--- linux-2.5.38/include/asm-s390/checksum.h	Sun Sep 22 06:24:58 2002
++++ linux-2.5.38-s390/include/asm-s390/checksum.h	Tue Sep 24 17:42:48 2002
+@@ -27,13 +27,27 @@
+  *
+  * it's best to have buff aligned on a 32-bit boundary
+  */
+-unsigned int
+-csum_partial(const unsigned char * buff, int len, unsigned int sum);
++static inline unsigned int
++csum_partial(const unsigned char * buff, int len, unsigned int sum)
++{
++	register_pair rp;
++	/*
++	 * Experiments with ethernet and slip connections show that buf
++	 * is aligned on either a 2-byte or 4-byte boundary.
++	 */
++	rp.subreg.even = (unsigned long) buff;
++	rp.subreg.odd = (unsigned long) len;
++	__asm__ __volatile__ (
++		"0:  cksm %0,%1\n"	/* do checksum on longs */
++		"    jo   0b\n"
++		: "+&d" (sum), "+&a" (rp) : : "cc" );
++	return sum;
++}
  
-+	hwc_data.sig_quiesce
-+	    = ((mask & ET_SigQuiesce_Mask) == ET_SigQuiesce_Mask);
-+	if (hwc_data.sig_quiesce)
-+		internal_print (
-+				       DELAYED_WRITE,
-+				       HWC_RW_PRINT_HEADER
-+				       "can receive signal quiesce\n");
-+	else
-+		internal_print (
-+				       DELAYED_WRITE,
-+				       HWC_RW_PRINT_HEADER
-+				       "can not receive signal quiesce\n");
-+
- 	hwc_data.read_nonprio
- 	    = ((mask & ET_OpCmd_Mask) == ET_OpCmd_Mask);
- 	if (hwc_data.read_nonprio)
-@@ -1609,6 +1626,47 @@
- 	return retval;
+ /*
+  * csum_partial as an inline function
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_inline(const unsigned char * buff, int len, unsigned int sum)
+ {
+ 	register_pair rp;
+@@ -55,7 +69,7 @@
+  * better 64-bit) boundary
+  */
+ 
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_copy(const char *src, char *dst, int len,unsigned int sum)
+ {
+ 	memcpy(dst,src,len);
+@@ -71,7 +85,7 @@
+  * Copy from userspace and compute checksum.  If we catch an exception
+  * then zero the rest of the buffer.
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_copy_from_user (const char *src, char *dst,
+                                           int len, unsigned int sum,
+                                           int *err_ptr)
+@@ -88,7 +102,7 @@
  }
  
-+#ifdef CONFIG_SMP
-+static volatile unsigned long cpu_quiesce_map;
-+
-+static void 
-+do_load_quiesce_psw (void)
-+{
-+	psw_t quiesce_psw;
-+
-+	clear_bit (smp_processor_id (), &cpu_quiesce_map);
-+	if (smp_processor_id () == 0) {
-+
-+		while (cpu_quiesce_map != 0) ;
-+
-+		quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
-+		quiesce_psw.addr = 0xfff;
-+		__load_psw (quiesce_psw);
-+	}
-+	signal_processor (smp_processor_id (), sigp_stop);
-+}
-+
-+static void 
-+do_machine_quiesce (void)
-+{
-+	cpu_quiesce_map = cpu_online_map;
-+	smp_call_function (do_load_quiesce_psw, NULL, 0, 0);
-+	do_load_quiesce_psw ();
-+}
-+
-+#else
-+static void 
-+do_machine_quiesce (void)
-+{
-+	psw_t quiesce_psw;
-+
-+	quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
-+	queisce_psw.addr = 0xfff;
-+	__load_psw (quiesce_psw);
-+}
-+
-+#endif
-+
- static int 
- process_evbufs (void *start, void *end)
+ 
+-extern inline unsigned int
++static inline unsigned int
+ csum_partial_copy_nocheck (const char *src, char *dst, int len, unsigned int sum)
  {
-@@ -1644,6 +1702,13 @@
- 			retval += eval_statechangebuf
- 			    ((statechangebuf_t *) evbuf);
- 			break;
-+		case ET_SigQuiesce:
+         memcpy(dst,src,len);
+@@ -98,10 +112,7 @@
+ /*
+  *      Fold a partial checksum without adding pseudo headers
+  */
+-#if 1
+-unsigned short csum_fold(unsigned int sum);
+-#else
+-extern inline unsigned short
++static inline unsigned short
+ csum_fold(unsigned int sum)
+ {
+ 	register_pair rp;
+@@ -116,14 +127,13 @@
+ 		: "+&d" (sum), "=d" (rp) : : "cc" );
+ 	return ((unsigned short) ~sum);
+ }
+-#endif
+ 
+ /*
+  *	This is a version of ip_compute_csum() optimized for IP headers,
+  *	which always checksum on 4 octet boundaries.
+  *
+  */
+-extern inline unsigned short
++static inline unsigned short
+ ip_fast_csum(unsigned char *iph, unsigned int ihl)
+ {
+ 	register_pair rp;
+@@ -143,7 +153,7 @@
+  * computes the checksum of the TCP/UDP pseudo-header
+  * returns a 32-bit checksum
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_tcpudp_nofold(unsigned long saddr, unsigned long daddr,
+                    unsigned short len, unsigned short proto,
+                    unsigned int sum)
+@@ -176,7 +186,7 @@
+  * returns a 16-bit checksum, already complemented
+  */
+ 
+-extern inline unsigned short int
++static inline unsigned short int
+ csum_tcpudp_magic(unsigned long saddr, unsigned long daddr,
+                   unsigned short len, unsigned short proto,
+                   unsigned int sum)
+@@ -189,7 +199,7 @@
+  * in icmp.c
+  */
+ 
+-extern inline unsigned short
++static inline unsigned short
+ ip_compute_csum(unsigned char * buff, int len)
+ {
+ 	return csum_fold(csum_partial(buff, len, 0));
+diff -urN linux-2.5.38/include/asm-s390/system.h linux-2.5.38-s390/include/asm-s390/system.h
+--- linux-2.5.38/include/asm-s390/system.h	Tue Sep 24 17:41:38 2002
++++ linux-2.5.38-s390/include/asm-s390/system.h	Tue Sep 24 17:42:48 2002
+@@ -30,73 +30,56 @@
+ 
+ #define nop() __asm__ __volatile__ ("nop")
+ 
+-#define xchg(ptr,x) ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
+-
+-extern void __misaligned_u16(void);
+-extern void __misaligned_u32(void);
++#define xchg(ptr,x) \
++  ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
+ 
+ static inline unsigned long __xchg(unsigned long x, void * ptr, int size)
+ {
++	unsigned long addr, old;
++	int shift;
 +
-+			_machine_restart = do_machine_quiesce;
-+			_machine_halt = do_machine_quiesce;
-+			_machine_power_off = do_machine_quiesce;
-+			ctrl_alt_del ();
-+			break;
- 		default:
- 			internal_print (
- 					       DELAYED_WRITE,
+         switch (size) {
+-                case 1:
+-                        asm volatile (
+-                                "   lhi   1,3\n"
+-                                "   nr    1,%0\n"     /* isolate last 2 bits */
+-                                "   xr    %0,1\n"     /* align ptr */
+-                                "   bras  2,0f\n"
+-                                "   icm   1,8,3(%1)\n"   /* for ptr&3 == 0 */
+-                                "   stcm  0,8,3(%1)\n"
+-                                "   icm   1,4,3(%1)\n"   /* for ptr&3 == 1 */
+-                                "   stcm  0,4,3(%1)\n"
+-                                "   icm   1,2,3(%1)\n"   /* for ptr&3 == 2 */
+-                                "   stcm  0,2,3(%1)\n"
+-                                "   icm   1,1,3(%1)\n"   /* for ptr&3 == 3 */
+-                                "   stcm  0,1,3(%1)\n"
+-                                "0: sll   1,3\n"
+-                                "   la    2,0(1,2)\n" /* r2 points to an icm */
+-                                "   l     0,0(%0)\n"  /* get fullword */
+-                                "1: lr    1,0\n"      /* cs loop */
+-                                "   ex    0,0(2)\n"   /* insert x */
+-                                "   cs    0,1,0(%0)\n"
+-                                "   jl    1b\n"
+-                                "   ex    0,4(2)"     /* store *ptr to x */
+-                                : "+a&" (ptr) : "a" (&x)
+-                                : "memory", "cc", "0", "1", "2");
+-			break;
+-                case 2:
+-                        if(((__u32)ptr)&1)
+-				__misaligned_u16();
+-                        asm volatile (
+-                                "   lhi   1,2\n"
+-                                "   nr    1,%0\n"     /* isolate bit 2^1 */
+-                                "   xr    %0,1\n"     /* align ptr */
+-                                "   bras  2,0f\n"
+-                                "   icm   1,12,2(%1)\n"   /* for ptr&2 == 0 */
+-                                "   stcm  0,12,2(%1)\n"
+-                                "   icm   1,3,2(%1)\n"    /* for ptr&2 == 1 */
+-                                "   stcm  0,3,2(%1)\n"
+-                                "0: sll   1,2\n"
+-                                "   la    2,0(1,2)\n" /* r2 points to an icm */
+-                                "   l     0,0(%0)\n"  /* get fullword */
+-                                "1: lr    1,0\n"      /* cs loop */
+-                                "   ex    0,0(2)\n"   /* insert x */
+-                                "   cs    0,1,0(%0)\n"
+-                                "   jl    1b\n"
+-                                "   ex    0,4(2)"     /* store *ptr to x */
+-                                : "+a&" (ptr) : "a" (&x)
+-                                : "memory", "cc", "0", "1", "2");
+-                        break;
+-                case 4:
+-                        if(((__u32)ptr)&3)
+-				__misaligned_u32();
+-                        asm volatile (
+-                                "    l   0,0(%1)\n"
+-                                "0:  cs  0,%0,0(%1)\n"
+-                                "    jl  0b\n"
+-                                "    lr  %0,0\n"
+-                                : "+d&" (x) : "a" (ptr)
+-                                : "memory", "cc", "0" );
+-                        break;
++	case 1:
++		addr = (unsigned long) ptr;
++		shift = (3 ^ (addr & 3)) << 3;
++		addr ^= addr & 3;
++		asm volatile(
++			"    l   %0,0(%3)\n"
++			"0:  lr  0,%0\n"
++			"    nr  0,%2\n"
++			"    or  0,%1\n"
++			"    cs  %0,0,0(%3)\n"
++			"    jl  0b\n"
++			: "=&d" (old)
++			: "d" (x << shift), "d" (~(255 << shift)), "a" (addr)
++			: "memory", "cc", "0" );
++		x = old >> shift;
++		break;
++	case 2:
++		addr = (unsigned long) ptr;
++		shift = (2 ^ (addr & 2)) << 3;
++		addr ^= addr & 2;
++		asm volatile(
++			"    l   %0,0(%3)\n"
++			"0:  lr  0,%0\n"
++			"    nr  0,%2\n"
++			"    or  0,%1\n"
++			"    cs  %0,0,0(%3)\n"
++			"    jl  0b\n"
++			: "=&d" (old) 
++			: "d" (x << shift), "d" (~(65535 << shift)), "a" (addr)
++			: "memory", "cc", "0" );
++		x = old >> shift;
++		break;
++	case 4:
++		asm volatile (
++			"    l   %0,0(%2)\n"
++			"0:  cs  %0,%1,0(%2)\n"
++			"    jl  0b\n"
++			: "=&d" (old) : "d" (x), "a" (ptr)
++			: "memory", "cc", "0" );
++		x = old;
++		break;
+         }
+         return x;
+ }
+diff -urN linux-2.5.38/include/asm-s390x/checksum.h linux-2.5.38-s390/include/asm-s390x/checksum.h
+--- linux-2.5.38/include/asm-s390x/checksum.h	Sun Sep 22 06:25:18 2002
++++ linux-2.5.38-s390/include/asm-s390x/checksum.h	Tue Sep 24 17:42:48 2002
+@@ -27,13 +27,29 @@
+  *
+  * it's best to have buff aligned on a 32-bit boundary
+  */
+-unsigned int
+-csum_partial(const unsigned char * buff, int len, unsigned int sum);
++static inline unsigned int
++csum_partial(const unsigned char * buff, int len, unsigned int sum)
++{
++	/*
++	 * Experiments with ethernet and slip connections show that buff
++	 * is aligned on either a 2-byte or 4-byte boundary.
++	 */
++        __asm__ __volatile__ (
++                "    lgr  2,%1\n"    /* address in gpr 2 */
++                "    lgfr 3,%2\n"    /* length in gpr 3 */
++                "0:  cksm %0,2\n"    /* do checksum on longs */
++                "    jo   0b\n"
++                : "+&d" (sum)
++                : "d" (buff), "d" (len)
++                : "cc", "2", "3" );
++        return sum;
++	
++}
+ 
+ /*
+  * csum_partial as an inline function
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_inline(const unsigned char * buff, int len, unsigned int sum)
+ {
+ 	__asm__ __volatile__ (
+@@ -55,7 +71,7 @@
+  * better 64-bit) boundary
+  */
+ 
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_copy(const char *src, char *dst, int len,unsigned int sum)
+ {
+ 	memcpy(dst,src,len);
+@@ -71,7 +87,7 @@
+  * Copy from userspace and compute checksum.  If we catch an exception
+  * then zero the rest of the buffer.
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_copy_from_user (const char *src, char *dst,
+                                           int len, unsigned int sum,
+                                           int *err_ptr)
+@@ -87,7 +103,7 @@
+ 	return csum_partial(dst, len, sum);
+ }
+ 
+-extern inline unsigned int
++static inline unsigned int
+ csum_partial_copy_nocheck (const char *src, char *dst, int len, unsigned int sum)
+ {
+         memcpy(dst,src,len);
+@@ -97,7 +113,7 @@
+ /*
+  *      Fold a partial checksum without adding pseudo headers
+  */
+-extern inline unsigned short
++static inline unsigned short
+ csum_fold(unsigned int sum)
+ {
+ 	__asm__ __volatile__ (
+@@ -116,7 +132,7 @@
+  *	which always checksum on 4 octet boundaries.
+  *
+  */
+-extern inline unsigned short
++static inline unsigned short
+ ip_fast_csum(unsigned char *iph, unsigned int ihl)
+ {
+ 	unsigned long sum;
+@@ -137,7 +153,7 @@
+  * computes the checksum of the TCP/UDP pseudo-header
+  * returns a 32-bit checksum
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_tcpudp_nofold(unsigned long saddr, unsigned long daddr,
+                    unsigned short len, unsigned short proto,
+                    unsigned int sum)
+@@ -170,7 +186,7 @@
+  * returns a 16-bit checksum, already complemented
+  */
+ 
+-extern inline unsigned short int
++static inline unsigned short int
+ csum_tcpudp_magic(unsigned long saddr, unsigned long daddr,
+                   unsigned short len, unsigned short proto,
+                   unsigned int sum)
+@@ -183,7 +199,7 @@
+  * in icmp.c
+  */
+ 
+-extern inline unsigned short
++static inline unsigned short
+ ip_compute_csum(unsigned char * buff, int len)
+ {
+ 	return csum_fold(csum_partial_inline(buff, len, 0));
+diff -urN linux-2.5.38/include/asm-s390x/system.h linux-2.5.38-s390/include/asm-s390x/system.h
+--- linux-2.5.38/include/asm-s390x/system.h	Tue Sep 24 17:41:38 2002
++++ linux-2.5.38-s390/include/asm-s390x/system.h	Tue Sep 24 17:42:48 2002
+@@ -39,77 +39,60 @@
+ 
+ static inline unsigned long __xchg(unsigned long x, void * ptr, int size)
+ {
++	unsigned long addr, old;
++	int shift;
++
+         switch (size) {
+-                case 1:
+-                        asm volatile (
+-                                "   lghi  1,3\n"
+-                                "   nr    1,%0\n"     /* isolate last 2 bits */
+-                                "   xr    %0,1\n"     /* align ptr */
+-                                "   bras  2,0f\n"
+-                                "   icm   1,8,7(%1)\n"   /* for ptr&3 == 0 */
+-                                "   stcm  0,8,7(%1)\n"
+-                                "   icm   1,4,7(%1)\n"   /* for ptr&3 == 1 */
+-                                "   stcm  0,4,7(%1)\n"
+-                                "   icm   1,2,7(%1)\n"   /* for ptr&3 == 2 */
+-                                "   stcm  0,2,7(%1)\n"
+-                                "   icm   1,1,7(%1)\n"   /* for ptr&3 == 3 */
+-                                "   stcm  0,1,7(%1)\n"
+-                                "0: sll   1,3\n"
+-                                "   la    2,0(1,2)\n" /* r2 points to an icm */
+-                                "   l     0,0(%0)\n"  /* get fullword */
+-                                "1: lr    1,0\n"      /* cs loop */
+-                                "   ex    0,0(2)\n"   /* insert x */
+-                                "   cs    0,1,0(%0)\n"
+-                                "   jl    1b\n"
+-                                "   ex    0,4(2)"     /* store *ptr to x */
+-                                : "+&a" (ptr) : "a" (&x)
+-                                : "memory", "cc", "0", "1", "2");
+-			break;
+-                case 2:
+-                        if(((addr_t)ptr)&1)
+-				__misaligned_u16();
+-                        asm volatile (
+-                                "   lghi  1,2\n"
+-                                "   nr    1,%0\n"     /* isolate bit 2^1 */
+-                                "   xr    %0,1\n"     /* align ptr */
+-                                "   bras  2,0f\n"
+-                                "   icm   1,12,6(%1)\n"   /* for ptr&2 == 0 */
+-                                "   stcm  0,12,6(%1)\n"
+-                                "   icm   1,3,2(%1)\n"    /* for ptr&2 == 1 */
+-                                "   stcm  0,3,2(%1)\n"
+-                                "0: sll   1,2\n"
+-                                "   la    2,0(1,2)\n" /* r2 points to an icm */
+-                                "   l     0,0(%0)\n"  /* get fullword */
+-                                "1: lr    1,0\n"      /* cs loop */
+-                                "   ex    0,0(2)\n"   /* insert x */
+-                                "   cs    0,1,0(%0)\n"
+-                                "   jl    1b\n"
+-                                "   ex    0,4(2)"     /* store *ptr to x */
+-                                : "+&a" (ptr) : "a" (&x)
+-                                : "memory", "cc", "0", "1", "2");
+-                        break;
+-                case 4:
+-                        if(((addr_t)ptr)&3)
+-				__misaligned_u32();
+-                        asm volatile (
+-                                "    l    0,0(%1)\n"
+-                                "0:  cs   0,%0,0(%1)\n"
+-                                "    jl   0b\n"
+-                                "    lgfr %0,0\n"
+-                                : "+d" (x) : "a" (ptr)
+-                                : "memory", "cc", "0" );
+-                        break;
+-                case 8:
+-                        if(((addr_t)ptr)&7)
+-				__misaligned_u64();
+-                        asm volatile (
+-                                "    lg  0,0(%1)\n"
+-                                "0:  csg 0,%0,0(%1)\n"
+-                                "    jl  0b\n"
+-                                "    lgr %0,0\n"
+-                                : "+d" (x) : "a" (ptr)
+-                                : "memory", "cc", "0" );
+-                        break;
++	case 1:
++		addr = (unsigned long) ptr;
++		shift = (3 ^ (addr & 3)) << 3;
++		addr ^= addr & 3;
++		asm volatile(
++			"    l   %0,0(%3)\n"
++			"0:  lr  0,%0\n"
++			"    nr  0,%2\n"
++			"    or  0,%1\n"
++			"    cs  %0,0,0(%3)\n"
++			"    jl  0b\n"
++			: "=&d" (old)
++			: "d" (x << shift), "d" (~(255 << shift)), "a" (addr)
++			: "memory", "cc", "0" );
++		x = old >> shift;
++		break;
++	case 2:
++		addr = (unsigned long) ptr;
++		shift = (2 ^ (addr & 2)) << 3;
++		addr ^= addr & 2;
++		asm volatile(
++			"    l   %0,0(%3)\n"
++			"0:  lr  0,%0\n"
++			"    nr  0,%2\n"
++			"    or  0,%1\n"
++			"    cs  %0,0,0(%3)\n"
++			"    jl  0b\n"
++			: "=&d" (old) 
++			: "d" (x << shift), "d" (~(65535 << shift)), "a" (addr)
++			: "memory", "cc", "0" );
++		x = old >> shift;
++		break;
++	case 4:
++		asm volatile (
++			"    l   %0,0(%2)\n"
++			"0:  cs  %0,%1,0(%2)\n"
++			"    jl  0b\n"
++			: "=&d" (old) : "d" (x), "a" (ptr)
++			: "memory", "cc", "0" );
++		x = old;
++		break;
++	case 8:
++		asm volatile (
++			"    lg  %0,0(%2)\n"
++			"0:  csg %0,%1,0(%2)\n"
++			"    jl  0b\n"
++			: "=&d" (old) : "d" (x), "a" (ptr)
++			: "memory", "cc", "0" );
++		x = old;
++		break;
+         }
+         return x;
+ }
 

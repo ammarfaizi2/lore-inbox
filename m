@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263873AbVBCUYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263078AbVBCU14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263873AbVBCUYO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 15:24:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263713AbVBCUWc
+	id S263078AbVBCU14 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 15:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVBCUZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 15:22:32 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:31934 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263605AbVBCUUv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 15:20:51 -0500
-Date: Thu, 3 Feb 2005 21:20:32 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: pageexec@freemail.hu
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Message-ID: <20050203202032.GA24192@elte.hu>
-References: <4201DBE7.30569.2F5D446@localhost> <4202BFDB.24670.67046BC@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4202BFDB.24670.67046BC@localhost>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 3 Feb 2005 15:25:04 -0500
+Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:10178 "EHLO
+	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263813AbVBCUWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 15:22:51 -0500
+Message-ID: <4202876F.3010302@kolivas.org>
+Date: Fri, 04 Feb 2005 07:19:59 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Ingo Molnar <mingo@elte.hu>,
+       "Jack O'Quin" <joq@io.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+References: <200502031420.j13EKwFx005545@localhost.localdomain>
+In-Reply-To: <200502031420.j13EKwFx005545@localhost.localdomain>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig57F44CD8DAD584BFBD42626B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig57F44CD8DAD584BFBD42626B
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* pageexec@freemail.hu <pageexec@freemail.hu> wrote:
+Paul Davis wrote:
+> 	* real inter-process handoff. i am thinking of something like
+> 	    sched_yield(), but it would take a TID as the target
+> 	    of the yield. this would avoid all the crap we have to 
+> 	    go through to drive the graph of clients with FIFO's and
+> 	    write(2) and poll(2). Futexes might be a usable
+> 	    approximation in 2.6 (we are supporting 2.4, so we can't
+> 	    use them all the time)
 
-> > > dl_make_stack_executable() will nicely return into user_input
-> > > (at which time the stack has already become executable).
-> > 
-> > wrong, _dl_make_stack_executable() will not return into user_input() in
-> > your scenario, and your exploit will be aborted. Check the glibc sources
-> > and the implementation of _dl_make_stack_executable() in particular. 
-> 
-> oh, you mean the invincible __check_caller(). one possibility:
-> 
-> [...]
-> [field1 and other locals replaced with shellcode]
-> [value of __libc_stack_end]
-> [some space for the local variables of dl_make_stack_executable and others]
-> [saved EBP replaced with anything in this case]
-> [saved EIP replaced with address of a 'pop eax'/'retn' sequence]
-> [address of [value of __libc_stack_end], loads into eax]
-> [address of dl_make_stack_executable()]
-> [address of a suitable 'retn' insn in ld.so/libpthread.so]
-> [user_input left in place, i.e., overflows end before this]
-> [...]
+yield_to(tid) should not be too hard to implement. Ingo? What do you think?
 
-still wrong. What you get this way is a nice, complicated NOP.
+Con
 
-	Ingo
+--------------enig57F44CD8DAD584BFBD42626B
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCAodvZUg7+tp6mRURAiE+AJwM9sygfYG2myleIAt4x99ldnormgCfe3qW
+uabXqJ539bxiDUn/rFi40UE=
+=Cfgr
+-----END PGP SIGNATURE-----
+
+--------------enig57F44CD8DAD584BFBD42626B--

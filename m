@@ -1,67 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263707AbUC3PMt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 10:12:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263710AbUC3PMt
+	id S263706AbUC3PLw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 10:11:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263707AbUC3PLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 10:12:49 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:5903 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S263707AbUC3PMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 10:12:45 -0500
-Date: Tue, 30 Mar 2004 17:09:49 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Len Brown <len.brown@intel.com>,
-       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-Message-ID: <20040330150949.GA22073@alpha.home.local>
-References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com> <1080535754.16221.188.camel@dhcppc4> <20040329052238.GD1276@alpha.home.local> <1080598062.983.3.camel@dhcppc4> <1080651370.25228.1.camel@dhcp23.swansea.linux.org.uk> <Pine.LNX.4.53.0403300814350.5311@chaos> <20040330142215.GA21931@alpha.home.local> <Pine.LNX.4.53.0403300943520.6151@chaos>
+	Tue, 30 Mar 2004 10:11:52 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:44960
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263706AbUC3PLu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 10:11:50 -0500
+Date: Tue, 30 Mar 2004 17:11:48 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, Robert Olsson <Robert.Olsson@data.slu.se>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Dave Miller <davem@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@osdl.org>,
+       rusty@au1.ibm.com
+Subject: Re: route cache DoS testing and softirqs
+Message-ID: <20040330151148.GX3808@dualathlon.random>
+References: <20040329184550.GA4540@in.ibm.com> <20040329222926.GF3808@dualathlon.random> <20040330050614.GA4669@in.ibm.com> <20040330053515.GA4815@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0403300943520.6151@chaos>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20040330053515.GA4815@in.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > OK, so why not compile the cmpxchg instruction even on i386 targets
-> > to let generic kernels stay compatible with everything, but disable
-> > ACPI at boot if the processor does not feature cmpxchg ? This could
-> > be helpful for boot/install kernels which try to support a wide
-> > range of platforms, and may need ACPI to correctly enable interrupts
-> > on others.
-> >
-> > Cheers,
-> > Willy
-> >
+On Tue, Mar 30, 2004 at 11:05:15AM +0530, Srivatsa Vaddagiri wrote:
+> On Tue, Mar 30, 2004 at 10:36:14AM +0530, Srivatsa Vaddagiri wrote:
+> > kthread_stop does:
+> > 
+> > 	1. kthread_stop_info.k = k;
+> >         2. wake_up_process(k);
+> > 
+> > and if ksoftirqd were to do :
+> > 
+> > 	a. while (!kthread_should_stop()) {
+> >         b.         __set_current_state(TASK_INTERRUPTIBLE);
+> >         c.         schedule();
+> >            }
+> > 
+> > 
+> > There is a (narrow) possibility here that a) happens _after_ 1) as well as 
+> > b) _after_ 2).
 > 
-> Because it would get used (by the compiler) in other code as well!
-> As soon as the 386 sees it, you get an "invalid instruction trap"
-> and you are dead.
+> hmm .. I meant a) happening _before_ 1) and b) happening _after_ 2) ..
+> 
+> > 
+> >         a. __set_current_state(TASK_INTERRUPTIBLE);
+> > 	b. while (!kthread_should_stop()) {
+> >         c.         schedule();
+> >         d.         __set_current_state(TASK_INTERRUPTIBLE);
+> >            }
+> > 
+> >         e. __set_current_state(TASK_RUNNING);
+> > 
+> > In this case, even if b) happens _after_ 1) and c) _after_ 2), 
+> 
+> Again I meant "even if b) happens _before_ 1) and c) _after_ 2) !!
+> 
+> > schedule simply returns immediately because task's state would have been set 
+> > to TASK_RUNNING by 2). It goes back to the kthread_should_stop() check and 
+> > exits!
 
-That's not what I meant. I only meant to declare the cmpxchg() function.
-Nobody uses it in 386 code right now, otherwise this code would not compile
-on 386 (like ACPI now). So the function would not be used by anything else
-but ACPI (at the moment). Then, drivers (such as ACPI) who know they will
-need cmpxchg() would be responsible for testing the flag upon initialisation
-and refuse to complete initialization if the instruction is not available.
+you're right, I had a private email exchange with Andrew about this
+yesterday, he promptly pointed it out too. But my point is that the
+previous code was broken too, it wasn't me breaking the code, I only
+simplified already broken code instead of fixing it for real. His tree
+should get the proper fixes soon. All those __ in front of the
+set_current_state in that function made the ordering worthless and
+that's why I cleaned them up.
 
-> It might be a good idea to declare that after version xxx,
-> '386 compatibility is no longer provided. There is plenty of
-> usability for '386s in 2.4.nn, for instance.
-
-I don't like the idea of dropping 386 compatibility in the stable
-series. For instance, my home firewall still was a miniature 386sx
-a few months ago, so there may be other people in similar situation.
-Making CONFIG_ACPI depend on CONFIG_CMPXCHG would be less of a hassle
-in this case, because it would imply that people either compile for
-486+ with ACPI or for 386+ without ACPI.
-
-Cheers,
-Willy
-
+The softirq part in the patch however is orthogonal to the above races,
+so I didn't post an update since it didn't impact testing.

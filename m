@@ -1,78 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264959AbUGBWFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264229AbUGBWRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264959AbUGBWFl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 18:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUGBWFl
+	id S264229AbUGBWRL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 18:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264973AbUGBWRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 18:05:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31891 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264959AbUGBWFi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 18:05:38 -0400
-Date: Fri, 2 Jul 2004 15:08:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
-       axboe@suse.de
-Subject: Re: [PATCH] CDRW packet writing support for 2.6.7-bk13
-Message-Id: <20040702150819.646b6103.akpm@osdl.org>
-In-Reply-To: <m2u0wqqdpl.fsf@telia.com>
-References: <m2lli36ec9.fsf@telia.com>
-	<m2u0wqqdpl.fsf@telia.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 2 Jul 2004 18:17:11 -0400
+Received: from ool-44c1e325.dyn.optonline.net ([68.193.227.37]:34225 "HELO
+	dyn.galis.org") by vger.kernel.org with SMTP id S264229AbUGBWRJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 18:17:09 -0400
+Mail-Followup-To: linux-kernel@vger.kernel.org
+MBOX-Line: From george@galis.org  Fri Jul  2 18:17:09 2004
+Date: Fri, 2 Jul 2004 18:17:09 -0400
+From: George Georgalis <george@galis.org>
+To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: radix-tree.c or sata_sil.c 2.6.7-bk oops
+Message-ID: <20040702221709.GA27065@trot.local>
+References: <20040624155919.GA16422@trot.local> <Pine.GSO.4.33.0406241442430.25702-100000@sweetums.bluetronic.net> <20040625213433.GB6502@trot.local> <Pine.LNX.4.58.0406251602140.1844@ppc970.osdl.org> <20040628021253.GA30798@trot.local> <20040629082843.GC18048@trot.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040629082843.GC18048@trot.local>
+X-Time: trot.local; @970; Fri,  2 Jul 2004 18:17:09 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
->
-> This code leaks a module reference. The patch below fixes it. I'm not
-> sure it's correct, but do_open() also does module_put() after
-> put_disk().
-> 
-> Signed-off-by: Peter Osterlund <petero2@telia.com>
-> 
-> ---
-> 
->  linux-petero/fs/partitions/check.c |    1 +
->  1 files changed, 1 insertion(+)
-> 
-> diff -puN fs/partitions/check.c~packet-refcnt fs/partitions/check.c
-> --- linux/fs/partitions/check.c~packet-refcnt	2004-07-02 23:18:22.000000000 +0200
-> +++ linux-petero/fs/partitions/check.c	2004-07-02 23:18:23.000000000 +0200
-> @@ -151,6 +151,7 @@ const char *__bdevname(dev_t dev, char *
->  	if (disk) {
->  		buffer = disk_name(disk, part, buffer);
->  		put_disk(disk);
-> +		module_put(disk->fops->owner);
->  	} else {
->  		snprintf(buffer, BDEVNAME_SIZE, "unknown-block(%u,%u)",
->  				MAJOR(dev), MINOR(dev));
+On Tue, Jun 29, 2004 at 04:28:43AM -0400, George Georgalis wrote:
+>kernel BUG at lib/radix-tree.c:271!
+....
 
-Yes, there's certainly a leak there.  It's surprising that it hasn't been
-noted before.
+That was probably due to failing RAM.
 
-But:
+// George
 
-const char *__bdevname(dev_t dev, char *buffer)
-{
-	struct gendisk *disk;
-	int part;
 
-	disk = get_gendisk(dev, &part);
-	if (disk) {
-		buffer = disk_name(disk, part, buffer);
-		put_disk(disk);
-	} else {
-		snprintf(buffer, BDEVNAME_SIZE, "unknown-block(%u,%u)",
-				MAJOR(dev), MINOR(dev));
-	}
-
-get_gendisk() did an internal module_get() in kobj_lookup().  It would seem
-to be logical that the module_put() should be in kobject_put(), called from
-put_disk().  But surely if we made that change 1000 things would explode.
-
-Greg, Al?
+-- 
+George Georgalis, Architect and administrator, Linux services. IXOYE
+http://galis.org/george/  cell:646-331-2027  mailto:george@galis.org
+Key fingerprint = 5415 2738 61CF 6AE1 E9A7  9EF0 0186 503B 9831 1631
 

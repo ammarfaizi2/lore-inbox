@@ -1,39 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278648AbRJSUVw>; Fri, 19 Oct 2001 16:21:52 -0400
+	id <S278649AbRJSUYM>; Fri, 19 Oct 2001 16:24:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278649AbRJSUVm>; Fri, 19 Oct 2001 16:21:42 -0400
-Received: from [207.8.4.6] ([207.8.4.6]:31714 "EHLO one.interactivesi.com")
-	by vger.kernel.org with ESMTP id <S278648AbRJSUVe>;
-	Fri, 19 Oct 2001 16:21:34 -0400
-Message-ID: <3BD08B57.1070604@interactivesi.com>
-Date: Fri, 19 Oct 2001 15:21:43 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Allocating more than 890MB in the kernel?
-In-Reply-To: <Pine.LNX.4.30.0110191204210.21846-100000@hill.cs.ucr.edu> <3BD08207.7090807@interactivesi.com> <9qq0mo$eun$1@cesium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S278650AbRJSUYC>; Fri, 19 Oct 2001 16:24:02 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:22517
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S278649AbRJSUXu>; Fri, 19 Oct 2001 16:23:50 -0400
+Date: Fri, 19 Oct 2001 13:24:18 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Tim Jansen <tim@tjansen.de>
+Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
+Subject: Re: [RFC] New Driver Model for 2.5
+Message-ID: <20011019132418.I2467@mikef-linux.matchmail.com>
+Mail-Followup-To: Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org,
+	Patrick Mochel <mochel@osdl.org>
+In-Reply-To: <Pine.LNX.4.33.0110191108590.17647-100000@osdlab.pdx.osdl.net> <15uerh-0NbBEeC@fmrl04.sul.t-online.com> <20011019122101.G2467@mikef-linux.matchmail.com> <15uft5-12MXk8C@fmrl04.sul.t-online.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15uft5-12MXk8C@fmrl04.sul.t-online.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-
-> That's because you're running out of address space, not memory.
-> HIGHMEM doesn't do anything for the latter -- it can't.  You start
-> running into a lot of fundamental problems when your memory size gets
-> in the same (or higher) ballpark than your address space.
+On Fri, Oct 19, 2001 at 10:07:39PM +0200, Tim Jansen wrote:
+> On Friday 19 October 2001 21:21, you wrote:
+> > > For example for harddisks. You usually want them to be mounted in the
+> > > same directory.
+> > When is /etc/fstab going to support this?
 > 
-> The best solution is go buy a 64-bit CPU.  There isn't much else you
-> can do about it.
+> You can use the device ids to provide stable symlinks, then /etc/fstab 
+> shouldn't be a problem. 
 
+Sounds good.
 
-That's completely missing the point of my request (which, I admit, I didn't 
-make clear).  I need to allocate about 3/4 of available memory in the kernel. 
-  If I had 2GB of RAM, I'd need to allocate 1.5GB.  If I had 8 GB of RAM, I'd 
-need to allocate 6GB.  I just used 3GB/4GB because it's our current test platform.
+>Or you rewrite mount to support it. Or you do it in
+> the kernel with a user-space helper: when a new device is connected its ID is 
+> sent to some user-space app, and the user-space app then assigns a minor 
+> number and devfs name to the node.
+>
+
+Or, just use autofs, it does pretty much what you're describing.
+
+> IMHO using the path of a file in /dev to identify a device node does not work 
+> in a hotplugging environment. You need this to support existing apps, but the
+> only way to be sure that you always get the same device is to use device IDs. 
+
+Actually, I don't have a hotplug envoronment, but that's not the only place
+it would be useful.  Does ide/scsi have reliably unique device IDs?  If so,
+once devfs gets rid of those races it would be very useful in a large raid
+setup.  Hmm, I guess that could be hot-pluggable with high end hardware.
+
+> You could encode that device id in the node's path or use the path as a 
+> moniker for the device id (the symlink solution does this), but you need to 
+> have more information about the device than it's minor number (the X in 
+> /dev/lpX).
+>
+
+What does devfs do now?
+
+> 
+> > >Or for ethernet adapters:
+> > > because each is connected to a different network, so you need to assign
+> > > different IP addresses to them.
+> > I haven't seen anything assign ethX assign a certain order, except for
+> > ordered module loading, and then if there are multiple devices with the
+> > same driver, the order is chosen by bus scanning order, or module option.
+> 
+> Ok, but I think no one doubts that it is a bad idea to assign ethX 
+> semi-randomly. Basically this is the same problem as with device files, only 
+> in a different namespace.
+>
+
+So is that in favor of changing the current ethX naming convention or not?
+
+> 
+> > Does anyone know if devfs will, or has any plans to support any of the
+> > above features?
+> 
+> The device registry (www.tjansen.de/devreg) patches devfs to allow the things 
+> described above though.
+> 
+
+Everything, with all of the ids?  What about scsi/ide?
 

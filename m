@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318907AbSICSZw>; Tue, 3 Sep 2002 14:25:52 -0400
+	id <S318900AbSICSYJ>; Tue, 3 Sep 2002 14:24:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318908AbSICSZw>; Tue, 3 Sep 2002 14:25:52 -0400
-Received: from iris.mc.com ([192.233.16.119]:29881 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S318907AbSICSZw>;
-	Tue, 3 Sep 2002 14:25:52 -0400
-Message-Id: <200209031829.OAA25845@mc.com>
+	id <S318901AbSICSYJ>; Tue, 3 Sep 2002 14:24:09 -0400
+Received: from dsl-213-023-043-116.arcor-ip.net ([213.23.43.116]:36245 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318900AbSICSYI>;
+	Tue, 3 Sep 2002 14:24:08 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: mbs <mbs@mc.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.20-pre4-ac1 trashed my system
-Date: Tue, 3 Sep 2002 14:33:08 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: Andre Hedrick <andre@linux-ide.org>, Mike Isely <isely@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.10.10208302313040.1033-100000@master.linux-ide.org> <200209031237.IAA27024@mc.com> <1031068765.21439.11.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1031068765.21439.11.camel@irongate.swansea.linux.org.uk>
+From: Daniel Phillips <phillips@arcor.de>
+To: ptb@it.uc3m.es, Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: [RFC] mount flag "direct"
+Date: Tue, 3 Sep 2002 20:31:18 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
+       linux kernel <linux-kernel@vger.kernel.org>
+References: <200209031641.g83GfnD10219@oboe.it.uc3m.es>
+In-Reply-To: <200209031641.g83GfnD10219@oboe.it.uc3m.es>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
+Message-Id: <E17mISM-0005j3-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok, tomorrow, I'll let you know how it goes without preempt.
+On Tuesday 03 September 2002 18:41, Peter T. Breuer wrote:
+> > Distributed filesystems have a lot of subtle pitfalls - locking, cache
+> 
+> Yes, thanks, I know.
+> 
+> > coherency, journal replay to name a few - which you can hardly solve at 
+> > the
+> 
+> My simple suggestion is not to cache. I am of the opinion that in
+> principle that solves all coherency problems, since there would be no
+> stored state that needs to "cohere". The question is how to identify
+> and remove the state that is currently cached.
 
-On Tuesday 03 September 2002 11:59, Alan Cox wrote:
-> On Tue, 2002-09-03 at 13:41, mbs wrote:
-> > 2.4.20-pre4-ac2 + RML preempt patch (applied cleanly)
->
-> I'm not interested in any bug reports with the pre-empt patch involved.
-> It just muddies the waters
+Well, for example, you would not be able to have the same file open in two 
+different kernels because the inode would be cached.  So you'd have to close 
+the root directory on one kernel before the other could access any file.  Not 
+only would that be horribly inefficient, you would *still* need to implement
+a locking protocol between the two kernels to make it work.
+
+There's no magic way of making this easy.
 
 -- 
-/**************************************************
-**   Mark Salisbury       ||      mbs@mc.com     **
-** If you would like to sponsor me for the       **
-** Mass Getaway, a 150 mile bicycle ride to for  **
-** MS, contact me to donate by cash or check or  **
-** click the link below to donate by credit card **
-**************************************************/
-https://www.nationalmssociety.org/pledge/pledge.asp?participantid=86736
+Daniel

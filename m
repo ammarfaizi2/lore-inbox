@@ -1,78 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132608AbRDGIHh>; Sat, 7 Apr 2001 04:07:37 -0400
+	id <S132602AbRDGIDi>; Sat, 7 Apr 2001 04:03:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132611AbRDGIH1>; Sat, 7 Apr 2001 04:07:27 -0400
-Received: from panchito.Austria.EU.net ([193.154.160.103]:44701 "EHLO
-	relay3.austria.eu.net") by vger.kernel.org with ESMTP
-	id <S132608AbRDGIHH>; Sat, 7 Apr 2001 04:07:07 -0400
-Message-ID: <3ACECA8F.FEC9439@eunet.at>
-Date: Sat, 07 Apr 2001 10:06:39 +0200
-From: Michael Reinelt <reinelt@eunet.at>
-Organization: netWorks
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S132604AbRDGID2>; Sat, 7 Apr 2001 04:03:28 -0400
+Received: from [192.38.9.229] ([192.38.9.229]:27636 "EHLO
+	bagpuss.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S132602AbRDGIDW>; Sat, 7 Apr 2001 04:03:22 -0400
+From: Alan Cox <alan@bagpuss.swansea.linux.org.uk>
+Message-Id: <200104060533.f365X2O00959@bagpuss.swansea.linux.org.uk>
+Subject: Re: Proper way to release binary-only driver?
+To: Brendan.Miller@Dialogic.com (Miller, Brendan)
+Date: Fri, 6 Apr 2001 01:33:02 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <EFC879D09684D211B9C20060972035B1D46A39@exchange2ca.sv.dialogic.com> from "Miller, Brendan" at Apr 05, 2001 06:58:34 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Multi-function PCI devices
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.6.0.12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+> I have the need to distribute a binary-only driver (no flames, please), but
+> I am not certain how to build it so that it can be used on multiple kernel
+> versions.  (Or is this impossible?)
 
-I've got a problem with my communication card: It's a PCI card with a
-NetMos chip, and it provides two serial and one parallel port. It's not
-officially supported by the linux kernel, so I wrote my own patch and
-sent it to the parallel, serial and pci maintainer. The patch itself is
-basically an extension of the pci id tables; and I hope it's in the
-queue for the official kernel. 
+You must build with the same compiler, same tree and options as the
+kernel itself.
 
-The patch worked great for me with kernel 2.4.1 and .2, but no longer
-with 2.4.3. The parallel port still works, but the serial port will not
-be detected. I had a quite long debugging session last night (adding
-printk's to the pci code takes some time, for you have to reboot to load
-the new kernel), and I think I found the reason:
+> I didn't find any "HOWTO (or recommendation) for proper binary-only driver
+> release etiquette", so if there are some preferred means, please let me
+> know.
 
-The card shows up on the PCI bus as one device. For the card provides
-both serial and parallel ports, it will be driven by two subsystems, the
-serial and the parallel driver.
+The only recomendation is "dont". 
 
-I found that _either_ the parallel or the serial port works, depending
-on which module you load first. The reason for this seems to be in
-pci.c, especially in the pci_register_driver() function. It reads:
-
-int pci_register_driver(struct pci_driver *drv)
-{
-	struct pci_dev *dev;
-	int count = 0;
-
-	list_add_tail(&drv->node, &pci_drivers);
-	pci_for_each_dev(dev) {
-		if (!pci_dev_driver(dev))
-			count += pci_announce_device(drv, dev);
-	}
-	return count;
-}
-
-
-pci_announce_device() will be called only if there's no other driver
-claiming the device. This explains why either the parallel or the serial
-port will be detected: The first driver loaded will see the device, the
-next drivers won't.
-
-I'm afraid this is not a bug, but a design issue, and will be hard to
-solve. Maybe we need a flag for such devices which allows it to be
-claimed ba more thean one driver?
-
-In the meantime, what can I do to get both ports working?
-
-TIA, Michael
-
--- 
-netWorks       	                                  Vox: +43 316  692396
-Michael Reinelt                                   Fax: +43 316  692343
-Geisslergasse 4					  GSM: +43 676 3079941
-A-8045 Graz, Austria			      e-mail: reinelt@eunet.at

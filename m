@@ -1,152 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262800AbSJONH0>; Tue, 15 Oct 2002 09:07:26 -0400
+	id <S262650AbSJONKS>; Tue, 15 Oct 2002 09:10:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262823AbSJONH0>; Tue, 15 Oct 2002 09:07:26 -0400
-Received: from mxall.mxgrp.airmail.net ([209.196.77.100]:61193 "EHLO
-	mx3.airmail.net") by vger.kernel.org with ESMTP id <S262800AbSJONHY>;
-	Tue, 15 Oct 2002 09:07:24 -0400
-Date: Mon, 14 Oct 2002 18:18:39 -0500
-From: Art Haas <ahaas@neosoft.com>
+	id <S262692AbSJONKS>; Tue, 15 Oct 2002 09:10:18 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:43783 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S262650AbSJONKQ>; Tue, 15 Oct 2002 09:10:16 -0400
+Date: Tue, 15 Oct 2002 06:16:10 -0700
+From: jw schultz <jw@pegasys.ws>
 To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] C99 designated initializers for arch/sh
-Message-ID: <20021014231839.GA20777@debian>
+Subject: Re: Better fork() (and possbly others) failure diagnostics
+Message-ID: <20021015061610.A986@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20021015115517.GA2514@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ikeVEW9yuYc//A+q"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20021015115517.GA2514@atrey.karlin.mff.cuni.cz>; from lemming@atrey.karlin.mff.cuni.cz on Tue, Oct 15, 2002 at 01:55:17PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 15, 2002 at 01:55:17PM +0200, Michal Kara wrote:
+>   Several times I had real problems with batch jobs failing with EAGAIN,
+> printed as "Resource temporarily unavailable". Not with the failure, but to
+> determine the real cause is really a pain. Usually, the problem is in
+> resource limits (rlimit, set by ulimit), but the returned error code is
+> misleading.
+> 
+>   There are two ways. One is to print something to syslog, when some rlimit
+> is reached. This is already done when limit of open files in system is
+> reached.
+> 
+>   The second is more subtle - define error code for reaching the rlimit
+> (possibly one errorcode for each rlimit) and slightly change the code to
+> return correct error code.
+> 
+>   What do you think about this subject?
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Bad idea at this time.  In 1980 it might have been ok.
 
-Hi.
+Take a look at the manpages.  It is very clear there that
+EAGAIN has two meanings: try again because what you request
+isn't available yet, and request exceeds resource limits (at
+the moment).  Basically POSIX and SUS direct that EAGAIN is
+the correct error code for resource limit exceedance.
 
-I'm mailing this to the list in the hopes that it falls into the hands
-of people working on arch/sh. It's a set of patches for converting
-arch/sh to use C99 designated initializers. The patches are all against
-2.5.42. The uncompressed patch is around 37K.
+I agree it would be nice if rlimit caused its own error code
+but such a change at this time would break far to many things.
 
-Patched files:
-kernel/patches/mach_se.c
-kernel/patches/setup_ec3104.c
-kernel/patches/setup_hd64465.c
-kernel/patches/mach_hp600.c
-kernel/patches/mach_bigsur.c
-kernel/patches/mach_adx.c
-kernel/patches/mach_7751se.c
-kernel/patches/mach_dc.c
-kernel/patches/setup_cqreek.c
-kernel/patches/setup.c
-kernel/patches/mach_dmida.c
-kernel/patches/mach_cat68701.c
-kernel/patches/mach_ec3104.c
-kernel/patches/setup_dc.c
-kernel/patches/mach_unknown.c
-kernel/patches/setup_sh2000.c
-stboards/patches/mach.c
+Your alternative of a klogging an error is not appropriate
+either.  Hitting an rlimit is not a system, but a user
+error.  There is nothing for the admin to do, the message
+really needs to go to the user and when an rlimit is hit you
+would be likely to get a flurry of messages.  It is better
+for the user to be notified by the application.
 
-Art Haas
+Optimally whatever hit the rlimit should have reported a
+more useful message.  That many applications don't have
+special processing for EAGAIN isn't surprising as it doesn't
+occur that often.  I suppose a change to the error message
+to read "Resource temporarily unavailable or user limits
+exceeded" might help newer users but that is a property of
+libc.
+
 -- 
-They that can give up essential liberty to obtain a little temporary safety
-deserve neither liberty nor safety.
- -- Benjamin Franklin, Historical Review of Pennsylvania, 1759
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
---ikeVEW9yuYc//A+q
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="sh.diff.gz"
-Content-Transfer-Encoding: base64
-
-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
-kQAA
-
---ikeVEW9yuYc//A+q--
+		Remember Cernan and Schmitt

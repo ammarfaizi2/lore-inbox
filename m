@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311277AbSCLRTJ>; Tue, 12 Mar 2002 12:19:09 -0500
+	id <S311278AbSCLRXJ>; Tue, 12 Mar 2002 12:23:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311278AbSCLRSu>; Tue, 12 Mar 2002 12:18:50 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31502 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S311277AbSCLRSj>; Tue, 12 Mar 2002 12:18:39 -0500
-Date: Tue, 12 Mar 2002 09:17:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: <frankeh@watson.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores) 
-In-Reply-To: <E16kgaz-0007ry-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.33.0203120905280.19167-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311279AbSCLRW7>; Tue, 12 Mar 2002 12:22:59 -0500
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:61361 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S311278AbSCLRWs>; Tue, 12 Mar 2002 12:22:48 -0500
+Date: Tue, 12 Mar 2002 17:21:01 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Malte Starostik <malte@kde.org>, linux-kernel@vger.kernel.org
+Subject: Re: directory notifications lost after fork?
+Message-ID: <20020312172101.A5075@kushida.apsleyroad.org>
+In-Reply-To: <200203120247.05611.malte@kde.org> <20020312125543.B4281@kushida.apsleyroad.org> <E16kpHc-0002Lx-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16kpHc-0002Lx-00@starship>; from phillips@bonn-fries.net on Tue, Mar 12, 2002 at 05:37:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 12 Mar 2002, Rusty Russell wrote:
-> > 
-> > You've convinced me.
+Daniel Phillips wrote:
+> On March 12, 2002 01:55 pm, Jamie Lokier wrote:
+> >    - dnotify causes files to notify their parent directory (yes it's
+> >      ambiguous with hard links).
 > 
-> Damn.  Because now I've been playing with a different approach.
+> That's a bitch, isn't it?  The only way I can think of to deal with it
+> is via a hardlink reverse map, and there are lots of worms in that
+> can, including where you store it, how much it costs to maintain it,
+> how persistent it should be and how to make it perfectly non-racy.
 
-I don't think your current patch is very useful.
+For dnotify purposes this may be solvable without a full reverse map.
+Suppose that we have per-inode notifiers as I suggested, and as the imon
+patch implements.  Of course, multiple listeners can attach to an
+inode's notifier chain -- this is needed to support multiple processes
+listening.
 
-It's obviously slower, and while it is an interesting approach for not 
-just lock generation but also for synchronization points, it doesn't seem 
-to actually _buy_ you anything. And since the cookie isn't guaranteed to 
-be unique, you can't actually use it as a synchronization point on its 
-own, but must always still have some shared memory location as a 
-confirmation for whatever the synchronization was.
+Then you can implement dnotify by attaching the parent directory as a
+listener to each of its child inodes.  (It's a bit heavy to set up,
+though).
 
-Finally, waitqueue's (to me) always were about two big points:
+Now, when an inode is modifed we don't guarantee to notify all the
+parent directories...  but we do guarantee to notify all the ones which
+are actually listening at the moment.  So it's a partial reverse map.  I
+expect Al Viro would have something to say about dcache races at this
+point.
 
- - natural race condition avoidance through ordering:
+For recursive parent notification, such as monitoring "/usr" to learn
+about changes anywhere underneath "/usr", the above is perhaps
+impractical.  We're right back to having to do "find -print" equivalent
+disk activity.  Or reverse maps in the filesystem.  Ugh.
 
-	current->state = sleeping;
-	add_wait_queue();
-	if (test)
-		schedule();
+In practice I'd just give up trying to cache stat() results of hard
+linked files, unless I knew I'd found all the paths to those files.
+Just don't use hard links ;-)
 
-   which you basically emulate with the "zero cookie" thing.
+cheers,
+-- Jamie
 
- - ability to wait on multiple events concurrently
-
-   which you don't take any advantage of at all.
-
-So you kind of missed the second big point of waitqueues, so the end
-result really isn't any more fundamentally powerful than the (faster)  
-specialized semaphore system call as far as I can tell.
-
-In short, I would argue that this approach, while interesting, doesn't 
-actually _buy_ you anything. 
-
-Now, if you want to wake on any of N events, then a "add_wait_queue*N +
-wait" approach actually makes sense. But quite frankly, once you are there 
-you should really instead do full events, and go away and work together 
-with Ben on the aio stuff instead of this.
-
-So: interesting approach, but in its current form pointless as far as I 
-can see.
-
-		Linus
 

@@ -1,122 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135550AbRDSFJh>; Thu, 19 Apr 2001 01:09:37 -0400
+	id <S135553AbRDSFU3>; Thu, 19 Apr 2001 01:20:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135551AbRDSFJ0>; Thu, 19 Apr 2001 01:09:26 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:18442 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135550AbRDSFJV>; Thu, 19 Apr 2001 01:09:21 -0400
-Date: Wed, 18 Apr 2001 22:08:39 -0700 (PDT)
-From: Patrick Mochel <mochel@transmeta.com>
-To: John Fremlin <chief@bandits.org>
-cc: "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Next gen PM interface
-In-Reply-To: <m2d7a97ddb.fsf_-_@bandits.org>
-Message-ID: <Pine.LNX.4.10.10104182122250.7690-100000@nobelium.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135554AbRDSFUW>; Thu, 19 Apr 2001 01:20:22 -0400
+Received: from tinylinux.tip.CSIRO.AU ([130.155.192.102]:33797 "EHLO
+	mobilix.atnf.CSIRO.AU") by vger.kernel.org with ESMTP
+	id <S135553AbRDSFUK>; Thu, 19 Apr 2001 01:20:10 -0400
+Date: Thu, 19 Apr 2001 15:06:44 +1000
+Message-Id: <200104190506.f3J56ik01292@mobilix.atnf.CSIRO.AU>
+From: Richard Gooch <rgooch@atnf.csiro.au>
+To: "Edward S. Marshall" <esm@logic.net>
+Cc: Rik van Riel <riel@conectiva.com.br>, esr@thyrsus.com,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: Cross-referencing frenzy
+In-Reply-To: <20010418233618.A28546@labyrinth.local>
+In-Reply-To: <200104190400.f3J40Dm00992@mobilix.atnf.CSIRO.AU>
+	<Pine.LNX.4.21.0104190109480.1685-100000@imladris.rielhome.conectiva>
+	<20010418233618.A28546@labyrinth.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Edward S. Marshall writes:
+> On Thu, Apr 19, 2001 at 01:11:07AM -0300, Rik van Riel wrote:
+> > On Thu, 19 Apr 2001, Richard Gooch wrote:
+> > > esr wrote:
+> > > > CONFIG_DEVFS: Documentation/filesystems/devfs/ChangeLog
+> > > 
+> > > These are options that used to be used,
+> >     ....
+> > > These should not be removed
+> > 
+> > This makes no sense at all.  Do you have any particular
+> > reason for keeping this deadwood around ?
+>
+> Look at the filename. ;-) They're not being kept around, they just
+> happen to be mentioned in the devfs ChangeLog, and esr's overzealous
+> crossref tool caught them. *grin*
 
-> > IMHO the pm interface should be split up as following:
-> 
-> Nobody has disagreed: therefore this separation must be perfect ;-)
+Exactly. A ChangeLog should pre preserved for all time. It is an
+incredibly useful tool. Many times I've gone back and checked when
+something was done, and in relation to other changes before, after or
+around the same time.
 
-I once heard that patience is a virtue. :)
+> Perhaps the tool should be modified to exempt comments in code and
+> files in Documentation/*? :-)
 
-> >         (1) Battery status, power status, UPS status polling. It
-> >         should be possible for lots of processes to do this
-> >         simultaneously. [That does not prohibit a single process
-> >         querying the kernel and all the others querying it.]
-> 
-> Solution. Have a bunch of procfs or dev nodes each giving info on a
-> particular power source, like now, but vaguely standardise the output.
+Except the CONFIG_APM_IGNORE_SUSPEND_BOUNCE was in the apm.c source
+file (in a ChangeLog). So just ignoring Documentation/ won't solve the
+problem.
 
-I concur. This is easy, and clean.
+One trick I've used on my own (non-Linux) code is to insert a space
+after the first underscore. That fools the global search, but leaves
+the essence of the ChangeLog entry. It's a bit hackish, though.
 
-> >         (2) Funky events happening to the physical machine, like a
-> >         button being pressed, the case being closed, etc. [Should this
-> >         include battery low warnings, power status changes? I don't
-> >         know.]
+A cleaner solution is to parse the source code, ignoring comment
+blocks. However, that's a bit more work.
 
-I can see at least two types of events - (forgive the lack of colorful
-terminology) passive and active. Passive events are simply providing
-status updates, much like the events described above. These are simply so
-some UI can notify the user of things like a low battery or detection of
-an AC adapter. These can be handled in much the same way as described
-above.
+Either way, the solution adopted has to kill off the false
+positives. It's not good enough to build up a list of CONFIG options
+to ignore, as it will get stale. Furthermore, that list might be
+overlooked by someone on a cleanup crusade, with the result that a
+patch gets sent to Linus which "fixes" the "broken" CONFIG symbols.
+And since too many global patches are not Cc'ed to the maintainers,
+this kind of crap slips by.
 
-Active events require some sort of action by user space, like a shutdown
-request initiated by a button press or a dead battery. See the next
-comment.
+Frankly, I'd rather see stale symbols left around, and have it really
+difficult to detect them. Eric is making a tool that makes it too easy
+for a random person to "detect" "problems" and then "fix" them,
+thinking that "progess" is being made. In reality, it's just regress.
 
-> Solution. Have a special procfs or dev node that any number of people
-> can select(2) or read(2). Protocol text. Syntax:
-> 
->         <event> <WS> <subsystem> <WS> <description> <LF>
-> 
-> Where <event> is one of the strings
-> OFF,SLEEP,WAKE,EMERGENCY,POWERCHANGE, <WS> is a space character,
-> <subsystem> is a word signifying the kernel pm interface responsible
-> for generating th event, <description> is an arbitrary string. <LF> is
-> a newline character \n.
-> 
-> This is flexible and simple. It means a reasonable default behaviour
-> can be suggested by the kernel (OFF,SLEEP,etc.) for events that
-> userspace doesn't know about and yet userspace can choose fine grained
-> policy and provide helpful error messages based on the exact event by
-> checking the description.
+				Regards,
 
-First, Is there any reason why the kernel should do more text processing?
-It is better left for user space. Besides, enumerated values translated by
-userspace seems more efficient than copying and parsing strings.
-
-Having a daemon that sits in user space and waits for system events
-(denoted by enumerated values in some /proc or /dev file) seems simple
-enough. When it gets the request to power down, it handles calling init
-and whatever else it wants to do. When it gets notification that the
-laptop was plugged into the base station, it can look for new devices and
-load the modules for them.
-
-This can also handle the user-dictated policy, which I haven't seen
-discussed yet. For instance, when you close the lid or press the power
-button, the system can enter suspend or it can power off. If the kernel
-simply exported the event, the userspace daemon could simply check its
-config file for the proper thing to do and initiate the transition.
-
-> >         (3) Sending the machine to sleep, turning it off. It should be
-> >         possible to do this from userspace ;-)
-> 
-> I would suggest that all pm capable objects should be able to be
-> controlled individually. E.g. you should be able to send your monitor
-> to sleep alone, leaving other stuff running. Fbdrivers are already
-> capable of this on some archs.
-> 
-> IOW I suggest a nice FS with a dir per PM capable device. In this
-> dir would be
-> 
->         name - descriptive text name of device class
-> 
->         wake - writing to this node wakes device
-> 
->         sleep - writing a number n (text encoded) sends the device to
->         sleep in such a way that it can be back in action in no less
->         than n seconds after a wakeup call on a vague guess
->         basis. Reading from it gets errno.
-> 
->         off - writing to this node puts device in deepest possible
->         sleep, possibly losing state. Reading gets errno.
-
-Sure, but does it really make sense for anything but system sleep states? 
-ACPI defines a mechnanism for runtime power management, where devices will
-go into sleep states if they're not being used. Given proper heuristics
-for controlling this, user-initiated suspension of individual devices
-doesn't seem necessary. And, given a proper abstraction in the PM layer,
-this should be extendable, to some extent, to other low-level PM schemes.
-
-
-	-pat
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

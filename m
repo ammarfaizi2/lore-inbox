@@ -1,363 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbTIREJf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 00:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262959AbTIREJf
+	id S262960AbTIRE3t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 00:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbTIRE3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 00:09:35 -0400
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:23306 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S262955AbTIREJR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 00:09:17 -0400
-Message-ID: <8F12FC8F99F4404BA86AC90CD0BFB04F039F7136@mail-sc-6.nvidia.com>
-From: Allen Martin <AMartin@nvidia.com>
-To: Allen Martin <AMartin@nvidia.com>,
-       "Andre Hedrick (andre@linux-ide.org)" <andre@linux-ide.org>
-Cc: "LKML (linux-kernel@vger.kernel.org)" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] 2.4.23-pre4 add support for udma6 to nForce IDE drive
-	r
-Date: Wed, 17 Sep 2003 21:09:14 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C37D9A.9EE577E0"
+	Thu, 18 Sep 2003 00:29:49 -0400
+Received: from mail.kroah.org ([65.200.24.183]:25735 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262960AbTIRE3s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 00:29:48 -0400
+Date: Wed, 17 Sep 2003 21:09:55 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Re: 2.6.0-test5 usbserial oops
+Message-ID: <20030918040955.GB2849@kroah.com>
+References: <20030911044650.GA10064@kroah.com> <20030911175755.GA13334@kroah.com> <20030911223224.GA1345@glitch.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030911223224.GA1345@glitch.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
-
-------_=_NextPart_000_01C37D9A.9EE577E0
-Content-Type: text/plain
-
-Sorry, my mailer added newlines, resending as attachment.
-
--Allen
-
-> -----Original Message-----
-> From: Allen Martin 
-> Sent: Wednesday, September 17, 2003 9:00 PM
-> To: Andre Hedrick (andre@linux-ide.org)
-> Cc: LKML (linux-kernel@vger.kernel.org)
-> Subject: [PATCH] 2.4.23-pre4 add support for udma6 to nForce 
-> IDE driver
+On Thu, Sep 11, 2003 at 05:32:24PM -0500, Greg Norris wrote:
+> On Thu, Sep 11, 2003 at 10:57:56AM -0700, Greg KH wrote:
+> > Hm, can you try the following patch and let me know if it fixes the
+> > problem for you?
+> > 
+> > thanks,
+> > 
+> > greg k-h
 > 
-> 
-> This adds support for udma6 (Ultra 133) to the combined AMD / 
-> NVIDIA IDE
-> driver.  It depends on linux-2.4.23-pre4-nvide.patch.
-> 
-> It looks like UDMA modes > udma2 were shoehorned into this 
-> driver, so the
-> code to set the UDMA timing registers is pretty ugly.  In particular,
-> computing UDMA cycle times from UDMA mode and then mapping that into a
-> register value is akward and cause for much of the complexity in
-> amd_set_speed().  At least on all the nForce controllers, 
-> this register is
-> always programmed the same, regardless if the PCI bus is 
-> 33MHz or 66MHz, so
-> the UDMA cycle times can be ignored.
-> 
-> 
-> 
-> diff -ru -X dontdiff linux-2.4.23-pre4-nvide/drivers/ide/pci/amd74xx.c
-> linux-2.4.23-pre4-nvata133/drivers/ide/pci/amd74xx.c
-> --- linux-2.4.23-pre4-nvide/drivers/ide/pci/amd74xx.c	2003-09-17
-> 19:58:46.000000000 -0700
-> +++ linux-2.4.23-pre4-nvata133/drivers/ide/pci/amd74xx.c	
-> 2003-09-17
-> 20:11:20.000000000 -0700
-> @@ -40,6 +40,7 @@
->  #define AMD_UDMA_33		0x01
->  #define AMD_UDMA_66		0x02
->  #define AMD_UDMA_100		0x03
-> +#define AMD_UDMA_133		0x04
->  #define AMD_CHECK_SWDMA		0x08
->  #define AMD_BAD_SWDMA		0x10
->  #define AMD_BAD_FIFO		0x20
-> @@ -60,13 +61,13 @@
->  	{ PCI_DEVICE_ID_AMD_OPUS_7441, 0x00, 0x40, AMD_UDMA_100 },
-> /* AMD-768 Opus */
->  	{ PCI_DEVICE_ID_AMD_8111_IDE,  0x00, 0x40, AMD_UDMA_100 },
-> /* AMD-8111 */
->          { PCI_DEVICE_ID_NVIDIA_NFORCE_IDE, 0x00, 0x50, 
-> AMD_UDMA_100 },
-> /* nVidia nForce */
-> -        { PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE, 0x00, 0x50, 
-> AMD_UDMA_100 },
-> /* nVidia nForce2 */
-> -        { PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE, 0x00, 0x50, 
-> AMD_UDMA_100 },
-> /* nVidia nForce2s */
-> -        { PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA, 0x00, 0x50, 
-> AMD_UDMA_100 },
-> /* nVidia nForce2s SATA */
-> -        { PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE, 0x00, 0x50, 
-> AMD_UDMA_100 },
-> /* NVIDIA nForce3 */
-> -        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE, 0x00, 0x50, 
-> AMD_UDMA_100 },
-> /* NVIDIA nForce3s */
-> -        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA, 0x00, 0x50, 
-> AMD_UDMA_100 },
-> /* NVIDIA nForce3s SATA */
-> -        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2, 0x00, 0x50, 
-> AMD_UDMA_100 },
-> /* NVIDIA nForce3s SATA2 */
-> +        { PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE, 0x00, 0x50, 
-> AMD_UDMA_133 },
-> /* nVidia nForce2 */
-> +        { PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE, 0x00, 0x50, 
-> AMD_UDMA_133 },
-> /* nVidia nForce2s */
-> +        { PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA, 0x00, 0x50, 
-> AMD_UDMA_133 },
-> /* nVidia nForce2s SATA */
-> +        { PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE, 0x00, 0x50, 
-> AMD_UDMA_133 },
-> /* NVIDIA nForce3 */
-> +        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE, 0x00, 0x50, 
-> AMD_UDMA_133 },
-> /* NVIDIA nForce3s */
-> +        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA, 0x00, 0x50, 
-> AMD_UDMA_133 },
-> /* NVIDIA nForce3s SATA */
-> +        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2, 0x00, 0x50, 
-> AMD_UDMA_133 },
-> /* NVIDIA nForce3s SATA2 */
->  
->  	{ 0 }
->  };
-> @@ -76,9 +77,9 @@
->  static unsigned int amd_80w;
->  static unsigned int amd_clock;
->  
-> -static unsigned char amd_cyc2udma[] = { 6, 6, 5, 4, 0, 1, 1, 
-> 2, 2, 3, 3 };
-> -static unsigned char amd_udma2cyc[] = { 4, 6, 8, 10, 3, 2, 1, 1 };
-> -static char *amd_dma[] = { "MWDMA16", "UDMA33", "UDMA66", 
-> "UDMA100" };
-> +static unsigned char amd_cyc2udma[] = { 6, 6, 5, 4, 0, 1, 1, 
-> 2, 2, 3, 3, 7
-> };
-> +static unsigned char amd_udma2cyc[] = { 4, 6, 8, 10, 3, 2, 1, 0 };
-> +static char *amd_dma[] = { "MWDMA16", "UDMA33", "UDMA66", "UDMA100",
-> "UDMA133" };
->  
->  /*
->   * AMD /proc entry.
-> @@ -160,6 +161,11 @@
->  			cycle[i] = 666666 / amd_clock;
->  			continue;
->  		}
-> +		if (den[i] && uen[i] && udma[i] == 0) {
-> +			speed[i] = amd_clock * 4;
-> +			cycle[i] = 500000 / amd_clock;
-> +			continue;
-> +		}
->  
->  		speed[i] = 4 * amd_clock / ((den[i] && uen[i]) 
-> ? udma[i] :
-> (active[i] + recover[i]) * 2);
->  		cycle[i] = 1000000 * ((den[i] && uen[i]) ? udma[i] :
-> (active[i] + recover[i]) * 2) / amd_clock / 2;
-> @@ -206,6 +212,7 @@
->  		case AMD_UDMA_33:  t = timing->udma ? (0xc0 |
-> (FIT(timing->udma, 2, 5) - 2)) : 0x03; break;
->  		case AMD_UDMA_66:  t = timing->udma ? (0xc0 |
-> amd_cyc2udma[FIT(timing->udma, 2, 10)]) : 0x03; break;
->  		case AMD_UDMA_100: t = timing->udma ? (0xc0 |
-> amd_cyc2udma[FIT(timing->udma, 1, 10)]) : 0x03; break;
-> +		case AMD_UDMA_133: t = timing->udma ? (0xc0 |
-> amd_cyc2udma[FIT(timing->udma, 1, 11)]) : 0x03; break;
->  		default: return;
->  	}
->  
-> @@ -239,7 +246,12 @@
->  		ide_timing_merge(&p, &t, &t, IDE_TIMING_8BIT);
->  	}
->  
-> +	/*
-> +	 * AMD / nForce UDMA timing register should really be 
-> programmed 
-> +	 * based on UDMA mode not UDMA cycle time...
-> +	 */
->  	if (speed == XFER_UDMA_5 && amd_clock <= 33333) t.udma = 1;
-> +	if (speed == XFER_UDMA_6 && amd_clock <= 33333) t.udma = 11;
->  
->  	amd_set_speed(HWIF(drive)->pci_dev, drive->dn, &t);
->  
-> @@ -282,7 +294,8 @@
->  		XFER_PIO | XFER_EPIO | XFER_MWDMA | XFER_UDMA |
->  		((amd_config->flags & AMD_BAD_SWDMA) ? 0 : XFER_SWDMA) |
->  		(w80 && (amd_config->flags & AMD_UDMA) >= AMD_UDMA_66 ?
-> XFER_UDMA_66 : 0) |
-> -		(w80 && (amd_config->flags & AMD_UDMA) >= AMD_UDMA_100 ?
-> XFER_UDMA_100 : 0));
-> +		(w80 && (amd_config->flags & AMD_UDMA) >= AMD_UDMA_100 ?
-> XFER_UDMA_100 : 0) |
-> +		(w80 && (amd_config->flags & AMD_UDMA) >= AMD_UDMA_133 ?
-> XFER_UDMA_133 : 0));
->  
->  	amd_set_drive(drive, speed);
->  
-> @@ -318,6 +331,7 @@
->  
->  	switch (amd_config->flags & AMD_UDMA) {
->  
-> +		case AMD_UDMA_133:
->  		case AMD_UDMA_100:
->  			pci_read_config_byte(dev, AMD_CABLE_DETECT, &t);
->  			pci_read_config_dword(dev, AMD_UDMA_TIMING, &u);
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> I'm still getting an (apparently) identical oops.  I've attached the
+> ksymoops output (your patch was applied for this one), along with the
+> debugging messages you requested previously.  Let me know if I can
+> provide any additional info.
 
+Does this happen on 2.6.0-test5-bk3?
 
-------_=_NextPart_000_01C37D9A.9EE577E0
-Content-Type: application/octet-stream;
-	name="linux-2.4.23-pre4-nvata133.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="linux-2.4.23-pre4-nvata133.patch"
+thanks,
 
-diff -ru -X dontdiff linux-2.4.23-pre4-nvide/drivers/ide/pci/amd74xx.c =
-linux-2.4.23-pre4-nvata133/drivers/ide/pci/amd74xx.c=0A=
---- linux-2.4.23-pre4-nvide/drivers/ide/pci/amd74xx.c	2003-09-17 =
-19:58:46.000000000 -0700=0A=
-+++ linux-2.4.23-pre4-nvata133/drivers/ide/pci/amd74xx.c	2003-09-17 =
-20:11:20.000000000 -0700=0A=
-@@ -40,6 +40,7 @@=0A=
- #define AMD_UDMA_33		0x01=0A=
- #define AMD_UDMA_66		0x02=0A=
- #define AMD_UDMA_100		0x03=0A=
-+#define AMD_UDMA_133		0x04=0A=
- #define AMD_CHECK_SWDMA		0x08=0A=
- #define AMD_BAD_SWDMA		0x10=0A=
- #define AMD_BAD_FIFO		0x20=0A=
-@@ -60,13 +61,13 @@=0A=
- 	{ PCI_DEVICE_ID_AMD_OPUS_7441, 0x00, 0x40, AMD_UDMA_100 },			/* =
-AMD-768 Opus */=0A=
- 	{ PCI_DEVICE_ID_AMD_8111_IDE,  0x00, 0x40, AMD_UDMA_100 },			/* =
-AMD-8111 */=0A=
-         { PCI_DEVICE_ID_NVIDIA_NFORCE_IDE, 0x00, 0x50, AMD_UDMA_100 }, =
-                 /* nVidia nForce */=0A=
--        { PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE, 0x00, 0x50, AMD_UDMA_100 =
-},                 /* nVidia nForce2 */=0A=
--        { PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE, 0x00, 0x50, AMD_UDMA_100 =
-},                /* nVidia nForce2s */=0A=
--        { PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA, 0x00, 0x50, AMD_UDMA_100 =
-},               /* nVidia nForce2s SATA */=0A=
--        { PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE, 0x00, 0x50, AMD_UDMA_100 =
-},                 /* NVIDIA nForce3 */=0A=
--        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE, 0x00, 0x50, AMD_UDMA_100 =
-},                /* NVIDIA nForce3s */=0A=
--        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA, 0x00, 0x50, AMD_UDMA_100 =
-},               /* NVIDIA nForce3s SATA */=0A=
--        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2, 0x00, 0x50, =
-AMD_UDMA_100 },              /* NVIDIA nForce3s SATA2 */=0A=
-+        { PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE, 0x00, 0x50, AMD_UDMA_133 =
-},                 /* nVidia nForce2 */=0A=
-+        { PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE, 0x00, 0x50, AMD_UDMA_133 =
-},                /* nVidia nForce2s */=0A=
-+        { PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA, 0x00, 0x50, AMD_UDMA_133 =
-},               /* nVidia nForce2s SATA */=0A=
-+        { PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE, 0x00, 0x50, AMD_UDMA_133 =
-},                 /* NVIDIA nForce3 */=0A=
-+        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE, 0x00, 0x50, AMD_UDMA_133 =
-},                /* NVIDIA nForce3s */=0A=
-+        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA, 0x00, 0x50, AMD_UDMA_133 =
-},               /* NVIDIA nForce3s SATA */=0A=
-+        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2, 0x00, 0x50, =
-AMD_UDMA_133 },              /* NVIDIA nForce3s SATA2 */=0A=
- =0A=
- 	{ 0 }=0A=
- };=0A=
-@@ -76,9 +77,9 @@=0A=
- static unsigned int amd_80w;=0A=
- static unsigned int amd_clock;=0A=
- =0A=
--static unsigned char amd_cyc2udma[] =3D { 6, 6, 5, 4, 0, 1, 1, 2, 2, =
-3, 3 };=0A=
--static unsigned char amd_udma2cyc[] =3D { 4, 6, 8, 10, 3, 2, 1, 1 =
-};=0A=
--static char *amd_dma[] =3D { "MWDMA16", "UDMA33", "UDMA66", "UDMA100" =
-};=0A=
-+static unsigned char amd_cyc2udma[] =3D { 6, 6, 5, 4, 0, 1, 1, 2, 2, =
-3, 3, 7 };=0A=
-+static unsigned char amd_udma2cyc[] =3D { 4, 6, 8, 10, 3, 2, 1, 0 =
-};=0A=
-+static char *amd_dma[] =3D { "MWDMA16", "UDMA33", "UDMA66", "UDMA100", =
-"UDMA133" };=0A=
- =0A=
- /*=0A=
-  * AMD /proc entry.=0A=
-@@ -160,6 +161,11 @@=0A=
- 			cycle[i] =3D 666666 / amd_clock;=0A=
- 			continue;=0A=
- 		}=0A=
-+		if (den[i] && uen[i] && udma[i] =3D=3D 0) {=0A=
-+			speed[i] =3D amd_clock * 4;=0A=
-+			cycle[i] =3D 500000 / amd_clock;=0A=
-+			continue;=0A=
-+		}=0A=
- =0A=
- 		speed[i] =3D 4 * amd_clock / ((den[i] && uen[i]) ? udma[i] : =
-(active[i] + recover[i]) * 2);=0A=
- 		cycle[i] =3D 1000000 * ((den[i] && uen[i]) ? udma[i] : (active[i] + =
-recover[i]) * 2) / amd_clock / 2;=0A=
-@@ -206,6 +212,7 @@=0A=
- 		case AMD_UDMA_33:  t =3D timing->udma ? (0xc0 | (FIT(timing->udma, =
-2, 5) - 2)) : 0x03; break;=0A=
- 		case AMD_UDMA_66:  t =3D timing->udma ? (0xc0 | =
-amd_cyc2udma[FIT(timing->udma, 2, 10)]) : 0x03; break;=0A=
- 		case AMD_UDMA_100: t =3D timing->udma ? (0xc0 | =
-amd_cyc2udma[FIT(timing->udma, 1, 10)]) : 0x03; break;=0A=
-+		case AMD_UDMA_133: t =3D timing->udma ? (0xc0 | =
-amd_cyc2udma[FIT(timing->udma, 1, 11)]) : 0x03; break;=0A=
- 		default: return;=0A=
- 	}=0A=
- =0A=
-@@ -239,7 +246,12 @@=0A=
- 		ide_timing_merge(&p, &t, &t, IDE_TIMING_8BIT);=0A=
- 	}=0A=
- =0A=
-+	/*=0A=
-+	 * AMD / nForce UDMA timing register should really be programmed =0A=
-+	 * based on UDMA mode not UDMA cycle time...=0A=
-+	 */=0A=
- 	if (speed =3D=3D XFER_UDMA_5 && amd_clock <=3D 33333) t.udma =3D =
-1;=0A=
-+	if (speed =3D=3D XFER_UDMA_6 && amd_clock <=3D 33333) t.udma =3D =
-11;=0A=
- =0A=
- 	amd_set_speed(HWIF(drive)->pci_dev, drive->dn, &t);=0A=
- =0A=
-@@ -282,7 +294,8 @@=0A=
- 		XFER_PIO | XFER_EPIO | XFER_MWDMA | XFER_UDMA |=0A=
- 		((amd_config->flags & AMD_BAD_SWDMA) ? 0 : XFER_SWDMA) |=0A=
- 		(w80 && (amd_config->flags & AMD_UDMA) >=3D AMD_UDMA_66 ? =
-XFER_UDMA_66 : 0) |=0A=
--		(w80 && (amd_config->flags & AMD_UDMA) >=3D AMD_UDMA_100 ? =
-XFER_UDMA_100 : 0));=0A=
-+		(w80 && (amd_config->flags & AMD_UDMA) >=3D AMD_UDMA_100 ? =
-XFER_UDMA_100 : 0) |=0A=
-+		(w80 && (amd_config->flags & AMD_UDMA) >=3D AMD_UDMA_133 ? =
-XFER_UDMA_133 : 0));=0A=
- =0A=
- 	amd_set_drive(drive, speed);=0A=
- =0A=
-@@ -318,6 +331,7 @@=0A=
- =0A=
- 	switch (amd_config->flags & AMD_UDMA) {=0A=
- =0A=
-+		case AMD_UDMA_133:=0A=
- 		case AMD_UDMA_100:=0A=
- 			pci_read_config_byte(dev, AMD_CABLE_DETECT, &t);=0A=
- 			pci_read_config_dword(dev, AMD_UDMA_TIMING, &u);=0A=
-
-------_=_NextPart_000_01C37D9A.9EE577E0--
+greg k-h

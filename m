@@ -1,43 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264308AbRFSPX3>; Tue, 19 Jun 2001 11:23:29 -0400
+	id <S264307AbRFSPXJ>; Tue, 19 Jun 2001 11:23:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264303AbRFSPXJ>; Tue, 19 Jun 2001 11:23:09 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:5124 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S264300AbRFSPXF> convert rfc822-to-8bit; Tue, 19 Jun 2001 11:23:05 -0400
-X-Apparently-From: <xioborg@yahoo.com>
-From: Steve Brueggeman <xioborg@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Cc: tori@unhappy.mine.nu
-Subject: Re: Snowhite and the Seven Dwarfs - The REAL story!
-Date: Tue, 19 Jun 2001 10:23:03 -0500
-Message-ID: <3druit8stgh0jdm7q4qg75bm0rl33vjnp5@4ax.com>
-In-Reply-To: <0GEZ00E36SUCK1@iris.services.ou.edu> <Pine.LNX.4.33.0106160127050.10814-100000@boris.prodako.se>
-In-Reply-To: <Pine.LNX.4.33.0106160127050.10814-100000@boris.prodako.se>
-MIME-Version: 1.0
+	id <S264303AbRFSPW7>; Tue, 19 Jun 2001 11:22:59 -0400
+Received: from pD9E16C60.dip.t-dialin.net ([217.225.108.96]:6895 "EHLO
+	tolot.escape.de") by vger.kernel.org with ESMTP id <S264300AbRFSPWv>;
+	Tue, 19 Jun 2001 11:22:51 -0400
+Date: Tue, 19 Jun 2001 17:22:19 +0200
+From: Jochen Striepe <jochen@tolot.escape.de>
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20-pre4
+Message-ID: <20010619172219.A18744@tolot.escape.de>
+In-Reply-To: <20010619152912.A23175@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+In-Reply-To: <20010619152912.A23175@lightning.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.19i
+X-Editor: vim/5.8.3
+X-Signature-Color: blue
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Jun 2001 01:34:59 +0200 (CEST), you wrote:
+        Hi,
 
->Ah... the joy of reading mail using non-MS software, on a non-MS OS...
->
->Hahaha, indeed!
->
->/Tobias
+On 19 Jun 2001, Alan Cox <laughing@shared-source.org> wrote:
+> 
+> 2.2.20pre4
 
-The real funny part is, McAfee virus scan said it contains the
-W32/Hybris.gen@mm virus when my newsreader, agent, saved the file.
+Just to keep you informed... (I think there was a saying that there was
+interest in experiences with compiling the kernel with non-recommended
+gcc's ...)
 
-Ha Ha Ha Ho Ho Ho He He He.
+I tried the newly released gcc-3.0 compiling 2.2.20pre4 (yes, I _know_ it
+is not recommended): 
+
+/usr/src/linux/include/linux/signal.h: In function `siginitset':
+/usr/src/linux/include/linux/signal.h:193: warning: deprecated use of label at end of compound statement
+/usr/src/linux/include/linux/signal.h: In function `siginitsetinv':
+/usr/src/linux/include/linux/signal.h:205: warning: deprecated use of label at end of compound statement
+sched.c: At top level:
+sched.c:52: conflicting types for `xtime'
+/usr/src/linux/include/linux/sched.h:509: previous declaration of `xtime'
+sched.c: In function `schedule':
+sched.c:739: warning: deprecated use of label at end of compound statement
+make[2]: *** [sched.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.2.20pre4/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.2.20pre4/kernel'
+make: *** [_dir_kernel] Error 2
 
 
+$ sh /usr/src/linux/scripts/ver_linux 
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+ 
+Linux tolot 2.4.6-pre3 #1 Wed Jun 13 09:55:57 CEST 2001 i586 unknown
+ 
+Gnu C                  3.0
+Gnu make               3.79.1
+binutils               2.11.1
+util-linux             2.11f
+mount                  2.11f
+modutils               2.4.6
+e2fsprogs              1.21
+PPP                    2.4.1
+Linux C Library        2.2.3
+Dynamic linker (ldd)   2.2.3
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0.11
+Modules Loaded         nls_utf8 nls_iso8859-15 nls_iso8859-2
+nls_iso8859-1 nls_cp852 nls_cp850 nls_cp437 floppy sr_mod sg isofs
+ne2k-pci 8390 ide-cd cdrom adlib_card opl3 sb sb_lib uart401 sound
+soundcore ppp_generic slhc lp parport serial
 
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+So long,
 
+Jochen.
+
+-- 
+Cahn's Axiom:
+        When all else fails, read the instructions.

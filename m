@@ -1,87 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129807AbQLXVO4>; Sun, 24 Dec 2000 16:14:56 -0500
+	id <S129965AbQLXVTi>; Sun, 24 Dec 2000 16:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129965AbQLXVOr>; Sun, 24 Dec 2000 16:14:47 -0500
-Received: from 216-80-74-178.dsl.enteract.com ([216.80.74.178]:4100 "EHLO
-	kre8tive.org") by vger.kernel.org with ESMTP id <S129807AbQLXVOe>;
-	Sun, 24 Dec 2000 16:14:34 -0500
-Date: Sun, 24 Dec 2000 14:43:29 -0600
-From: Mike Elmore <mike@kre8tive.org>
-To: linux-kernel@vger.kernel.org
-Subject: [mwelmor@kre8tive.org: Masquerade hangups]
-Message-ID: <20001224144329.A15680@lingas.basement.bogus>
-Reply-To: mike@kre8tive.org
-Mime-Version: 1.0
+	id <S130255AbQLXVT1>; Sun, 24 Dec 2000 16:19:27 -0500
+Received: from web1002.mail.yahoo.com ([128.11.23.92]:14088 "HELO
+	web1002.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129965AbQLXVTL>; Sun, 24 Dec 2000 16:19:11 -0500
+Message-ID: <20001224204844.3587.qmail@web1002.mail.yahoo.com>
+Date: Sun, 24 Dec 2000 12:48:44 -0800 (PST)
+From: Ron Calderon <ronnnyc@yahoo.com>
+Subject: Re: sparc 10 w/512 megs hangs during boot
+To: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-OK.  I went back to 2.2.18 (released) and things
-work better.
-
-Since it appears the debug flags don't work in the
-8139too module, how can I turn on some debug flags
-in the 2.4.0-test13-pre4 driver so I can see where
-this thing is hanging?
+I just finished compiling 2.4.0-test5 and that worked
+fine with 512M ram. I'll start going thru the other
+kernels. It'll take me sometime since compileing takes
+a long time.
 
 
--mwe
+ron
+--- Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
+> On Sat, Dec 23, 2000 at 11:57:21PM -0800, Ron
+> Calderon wrote:
+> > My sparc 10 seems to hang with any 2.4.0-test12+
+> > kernel
+> 
+> ...but 2.4.0-test11-X kernels are fine? Well, good
+> info;)
+> 
+> > if I add mem=128M it boots fine, but anything
+> above
+> > 128M wont boot it just hangs. Is there something
+> I've
+> > missed? here is screen output.
+> 
+> I see this as well (SS10 dual with 128MB RAM).
+> However, if
+> slightly older kernel are okay, then it's quite easy
+> to look
+> through the patches. Which is your
+> last-known-to-be-good kernel?
+> 
+> > Uncompressing image...
+> > PROMLIB: obio_ranges 5
+> > bootmem_init: Scan sp_banks, 
+> > init_bootmem(spfn[1c9],bpfn[1c9],mlpfn[c000])
+> > free_bootmem: base[0] size[c000000]
+> > reserve_bootmem: base[0] size[1c9000]
+> > reserve_bootmem: base[1c9000] size[1800]
+> > 
+> > then it just hangs here....
+> 
+> I additionally get "Unexpected Level 15 Interrupt"
+> und "Program
+> terminated" ;-)
+> 
+> MfG, JBG
+> 
+> -- 
+> Fehler eingestehen, Größe zeigen: Nehmt die
+> Rechtschreibreform zurück!!!
+> /* Jan-Benedict Glaw <jbglaw@lug-owl.de> --
+> +49-177-5601720 */
+> keyID=0x8399E1BB fingerprint=250D 3BCF 7127 0D8C
+> A444 A961 1DBD 5E75 8399 E1BB
+>      "insmod vi.o and there we go..." (Alexander
+> Viro on linux-kernel)
+> 
+
+> ATTACHMENT part 2 application/pgp-signature 
 
 
 
-
------ Forwarded message from Mike Elmore <mwelmor@kre8tive.org> -----
-
-Date: 	Sun, 24 Dec 2000 09:02:12 -0600
-From: Mike Elmore <mwelmor@kre8tive.org>
-To: linux-kernel@vger.kernel.org
-Subject: Masquerade hangups
-User-Agent: Mutt/1.2.5i
-Precedence: bulk
-X-Mailing-List: 	linux-kernel@vger.kernel.org
-
-Hello,
-
-I have a Tyan S1854 Trinity 400 mb machine with a
-PCI rtl8139 card connected to my local net and a
-ISA 3c509 card connected to my dsl link.  Masquerade
-is set up.
-
-I seem to get pretty good performance from 
-internet->masq box and from masq box->internal
-lan, but when a internal box tries to get to the
-net through the masquerade, connection seem to time
-out.  I'll get a pretty good initial burst, then
-connections stall.
-
-I'm using test13-pre4.  I saw some iptables stuff on
-the list a week or so ago, was this fixed in pre4 or
-is this my problem?
-
-I can provide any information needed.
-
--mwe
-mike@kre8tive.org
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
-
------ End forwarded message -----
-
--- 
-
-
-Mike Elmore
-mike@kre8tive.org
-
-"Never confuse activity with accomplishment."
-				-unknown
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

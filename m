@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292410AbSBZR3b>; Tue, 26 Feb 2002 12:29:31 -0500
+	id <S292418AbSBZRcN>; Tue, 26 Feb 2002 12:32:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292418AbSBZR3W>; Tue, 26 Feb 2002 12:29:22 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:15626 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288967AbSBZR3N>;
-	Tue, 26 Feb 2002 12:29:13 -0500
-Date: Tue, 26 Feb 2002 09:22:51 -0800
-From: Greg KH <greg@kroah.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
-        linux-net@vger.kernel.org
-Subject: Re: [BETA] First test release of Tigon3 driver
-Message-ID: <20020226172251.GA32073@kroah.com>
-In-Reply-To: <20020225.165914.123908101.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020225.165914.123908101.davem@redhat.com>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 29 Jan 2002 14:26:54 -0800
+	id <S292421AbSBZRbW>; Tue, 26 Feb 2002 12:31:22 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:22970 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S292418AbSBZRbM>;
+	Tue, 26 Feb 2002 12:31:12 -0500
+Date: Tue, 26 Feb 2002 18:30:22 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre1 
+In-Reply-To: <Pine.LNX.4.21.0202251725110.31604-100000@freak.distro.conectiva>
+Message-ID: <Pine.GSO.4.21.0202261829030.8085-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just wanted to say thanks for doing this work, the driver works great
-for me for this device:
+On Mon, 25 Feb 2002, Marcelo Tosatti wrote:
+> pre1:
+> - "do { ... } while(0)" cleanups on some fb drivers	(Geert Uytterhoeven)
 
-01:04.0 Ethernet controller: BROADCOM Corporation NetXtreme BCM5700 Gigabit Ethernet (rev 12)
-        Subsystem: BROADCOM Corporation NetXtreme BCM5700 1000BaseTX
-        Flags: bus master, 66Mhz, medium devsel, latency 240, IRQ 42
-        Memory at f0e00000 (64-bit, non-prefetchable) [size=64K]
-        Capabilities: [40] PCI-X non-bridge device.
-        Capabilities: [48] Power Management version 2
-        Capabilities: [50] Vital Product Data
-        Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
+Actually this one came from Timothy Ball <timball@tux.org>. All I did was
+blessing it.
 
-But I'm only able to run it at 10Mbit :)
+Gr{oetje,eeting}s,
 
-thanks,
+						Geert
 
-greg k-h
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

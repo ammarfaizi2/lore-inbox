@@ -1,47 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUGHM4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUGHM7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262837AbUGHM4v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 08:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUGHM4u
+	id S262380AbUGHM7M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 08:59:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUGHM7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 08:56:50 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:30276 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S262837AbUGHM4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 08:56:49 -0400
-X-Ironport-AV: i="3.81R,157,1083560400"; 
-   d="scan'208"; a="43013543:sNHT222633520"
-Date: Thu, 8 Jul 2004 07:56:49 -0500 (CDT)
-From: Matt Domsch <Matt_Domsch@dell.com>
-X-X-Sender: mdomsch@humbolt.us.dell.com
-To: Frediano Ziglio <freddyz77@tin.it>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Subject: Re: EDD enhanchement patch
-In-Reply-To: <1089194759.4522.3.camel@freddy>
-Message-ID: <Pine.LNX.4.44.0407080755270.14717-100000@humbolt.us.dell.com>
+	Thu, 8 Jul 2004 08:59:12 -0400
+Received: from smtp2gate.fmi.fi ([193.166.223.32]:50921 "EHLO smtp2gate.fmi.fi")
+	by vger.kernel.org with ESMTP id S263733AbUGHM6S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 08:58:18 -0400
+Message-Id: <200407081257.i68Cvm0U020579@leija.fmi.fi>
+Subject: Re: [OT] NULL versus 0 (Re: [PATCH] Use NULL instead of integer 0 in
+ security/selinux/)
+In-Reply-To: <200407081442.25752.mbuesch@freenet.de>
+To: Michael Buesch <mbuesch@freenet.de>
+Date: Thu, 8 Jul 2004 15:57:48 +0300 (EEST)
+From: Kari Hurtta <hurtta+zz1@leija.mh.fmi.fi>
+CC: Kari Hurtta <hurtta+zz1@leija.mh.fmi.fi>,
+       Martin Zwickel <martin.zwickel@technotrend.de>, root@chaos.analogic.com,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Chris Wright <chrisw@osdl.org>, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com,
+       mika@osdl.org
+X-Mailer: ELM [version 2.4ME+ PL117a (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1
+X-Spam-Flag: NO
+X-Spam-Flag: NO
+X-Filter: smtp2gate: 3 received headers rewritten with id 20040708/20307/01
+X-Filter: smtp2gate: ID 20306/01, 1 parts scanned for known viruses
+X-Filter: torvi: ID 22103/01, 1 parts scanned for known viruses
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jul 2004, Frediano Ziglio wrote:
+-- Start of PGP signed section.
+> That's all OK, fine and correct, but
+> #define NULL 0
+> would work for both, C and C++ as far as I can see.
+> Am I missing some special case?
 
-> Here you are, inlined (with your change it's quite smaller)
-> Fixed a stupid bug too (I'm used to code in Intel asm, not GNU asm...)
-> It seems that some BIOS (like mine) fill with an invalid pointer using
-> USB disks, add code to test DPTE data (using checksum).
+As far I know it does not work on C when it is
+used as  argument of function and function
+have not prototype or function's prototype have ...
 
-At a glance this looks good, but I won't be able to test it myself for a 
-few weeks.  If others can do so, I encourage it.
+In that case compiler do not know that pointer
+is required instead of integer. 
 
-Thanks,
-Matt
+However this is just "as far I know", now I have not
+in hand reference (or I did not found good quotation.)
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+/ Kari Hurtta
 
+> 
+> Quoting Kari Hurtta <hurtta+zz1@leija.mh.fmi.fi>:
+> > -- Start of PGP signed section.
+> > > Quoting Martin Zwickel <martin.zwickel@technotrend.de>:
+> > > > include/linux/stddef.h:
+> > > >
+> > > > #undef NULL
+> > > > #if defined(__cplusplus)
+> > > > #define NULL 0
+> > > > #else
+> > > > #define NULL ((void *)0)
+> > > > #endif
+> > >
+> > > Yes, I never understood the reason for this ugly
+> > > #if defined(__cplusplus) here.
+> > > It works, but is IMHO unneccessary.
+> > >
+> >
+> > (This is is off topic, because kernel is not C++, but C).
+> >
+> > Some quotations from  Bjarne Stroustrup: The C++ Programming Language
+> > (Third Edition),
+> >
+> >    p. 843:    Note that a pointer to function or a pointer to member
+> >               cannot be implicity converted to a void *.
+> >
+> >    p. 844:    A constant expression (§C.5) that evaluates to 0 can
+> >               be implicitly converted to any pointer or pointer
+> >               to member type (§5.1.1.).
+> >
+> >
+> >    p. 88:     In C, it has been popular to define a macro NULL to
+> >               represent the zero pointer. Because of C++'s tighter
+> >               type checking, the use of plain 0, rather than any
+> >               suggested NULL macro, leads to fewer problems. If you
+> >               feel you must define NULL, use
+> >
+> >                   const int NULL = 0;
+> >
+> > (typos mine.)
+> >
+> > / Kari Hurtta
+> >
+> >
+> 
+> --
+> Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+> 
+> 
+-- End of PGP signed section, PGP failed!

@@ -1,31 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292217AbSBTTPH>; Wed, 20 Feb 2002 14:15:07 -0500
+	id <S292230AbSBTTVH>; Wed, 20 Feb 2002 14:21:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292223AbSBTTOs>; Wed, 20 Feb 2002 14:14:48 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:44302 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S292217AbSBTTO3>;
-	Wed, 20 Feb 2002 14:14:29 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200202201913.WAA10379@ms2.inr.ac.ru>
-Subject: Re: Moving fasync_struct into struct file?
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Wed, 20 Feb 2002 22:13:28 +0300 (MSK)
-Cc: alan@lxorguk.ukuu.org.uk, rusty@rustcorp.com.au, davem@redhat.com,
-        sfr@canb.auug.org.au, linux-kernel@vger.kernel.org
-In-Reply-To: <E16dM74-0002Do-00@the-village.bc.nu> from "Alan Cox" at Feb 20, 2 02:04:06 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S292229AbSBTTU6>; Wed, 20 Feb 2002 14:20:58 -0500
+Received: from zero.tech9.net ([209.61.188.187]:7187 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292228AbSBTTUl>;
+	Wed, 20 Feb 2002 14:20:41 -0500
+Subject: [PATCH] proper lseek locking in ALSA, take 3
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com, davej@suse.de
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 20 Feb 2002 14:20:40 -0500
+Message-Id: <1014232841.18361.37.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+The attached patch implements proper locking in ALSA lseek methods. 
+Note ALSA has 3 lseek implementations, but only:
 
-> Then fix your driver. All the drivers I looked at do stuff like this...
-> which seems to do the job nicely
+	sound/core/info.c :: snd_info_entry_llseek()
 
-But this code is even not reached in the case which Paul tells about.
+requires locking.  I wrapped the function in the BKL.  According to
+Jaroslav Kysela the gus_mem_proc method is only called from above.  The
+third lseek, in hwdep.c, clearly doesn't need locking.  Without this
+patch, the above lseek is not safe.
 
-It should be executed earlier, as you noticed.
+Patch is against 2.5.5, please apply.
 
-Alexey
+	Robert Love	
+
+diff -urN linux-2.5.5/sound/core/info.c linux/sound/core/info.c
+--- linux-2.5.5/sound/core/info.c	Tue Feb 19 21:11:01 2002
++++ linux/sound/core/info.c	Tue Feb 19 21:50:18 2002
+@@ -29,6 +29,7 @@
+ #include <sound/info.h>
+ #include <sound/version.h>
+ #include <linux/proc_fs.h>
++#include <linux/smp_lock.h>
+ #ifdef CONFIG_DEVFS_FS
+ #include <linux/devfs_fs_kernel.h>
+ #endif
+@@ -162,31 +163,40 @@
+ {
+ 	snd_info_private_data_t *data;
+ 	struct snd_info_entry *entry;
++	int ret = -EINVAL;
+ 
+ 	data = snd_magic_cast(snd_info_private_data_t, file->private_data, return -ENXIO);
+ 	entry = data->entry;
++	lock_kernel();
+ 	switch (entry->content) {
+ 	case SNDRV_INFO_CONTENT_TEXT:
+ 		switch (orig) {
+ 		case 0:	/* SEEK_SET */
+ 			file->f_pos = offset;
+-			return file->f_pos;
++			ret = file->f_pos;
++			goto out;
+ 		case 1:	/* SEEK_CUR */
+ 			file->f_pos += offset;
+-			return file->f_pos;
++			ret = file->f_pos;
++			goto out;
+ 		case 2:	/* SEEK_END */
+ 		default:
+-			return -EINVAL;
++			goto out;
+ 		}
+ 		break;
+ 	case SNDRV_INFO_CONTENT_DATA:
+-		if (entry->c.ops->llseek)
+-			return entry->c.ops->llseek(entry,
++		if (entry->c.ops->llseek) {
++			ret = entry->c.ops->llseek(entry,
+ 						    data->file_private_data,
+ 						    file, offset, orig);
++			goto out;
++		}
+ 		break;
+ 	}
+-	return -ENXIO;
++	ret = -ENXIO;
++out:
++	unlock_kernel();
++	return ret;
+ }
+ 
+ static ssize_t snd_info_entry_read(struct file *file, char *buffer,
+
+
+
+

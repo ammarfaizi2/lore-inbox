@@ -1,72 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266666AbUBSHzX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 02:55:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUBSHzX
+	id S266647AbUBSHxv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 02:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266666AbUBSHxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 02:55:23 -0500
-Received: from av1-1-sn4.m-sp.skanova.net ([81.228.10.116]:54957 "EHLO
-	av1-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S266666AbUBSHzN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 02:55:13 -0500
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: Christoph Stueckjuergen <christoph.stueckjuergen@siemens.com>,
-       Robert Love <rml@tech9.net>
-Subject: Re: 2.6.1 Scheduler Latency Measurements (Preemption diabled/enabled)
-Date: Wed, 18 Feb 2004 22:00:04 +0100
-User-Agent: KMail/1.6.51
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 19 Feb 2004 02:53:51 -0500
+Received: from mail.shareable.org ([81.29.64.88]:65413 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266647AbUBSHxt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 02:53:49 -0500
+Date: Thu, 19 Feb 2004 07:53:43 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Paul Jakma <paul@clubi.ie>
+Cc: David Schwartz <davids@webmaster.com>, hasso@estpak.ee,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: raw sockets and blocking
+Message-ID: <20040219075343.GA4113@mail.shareable.org>
+References: <MDEHLPKNGKAHNMBLJOLKMENGKHAA.davids@webmaster.com> <Pine.LNX.4.58.0402190622010.25392@fogarty.jakma.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200402182200.04754.roger.larsson@skelleftea.mail.telia.com>
+In-Reply-To: <Pine.LNX.4.58.0402190622010.25392@fogarty.jakma.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Stueckjuergen wrote:
-
->Hi,
->
->I performed a series of measurements comparing scheduler latency of a 2.6.1 
->kernel with preemption enabled and disabled on an AMD Elan (i486 compatible) 
->with 133 Mhz clock frequency.
-
-OK, then you have worse hardware than I had when I started to measure
-latency :-)
-
-> - - - interesting way of trigger and measure deleted - - -
-
-> The results are:
-> "loaded" system, 10.000 samples
-> average scheduler latency (preemption enabled / disabled): 170 us / 232 us
-> minimum scheduler latency (preemption enabled / disabled): 49 us / 43 us
-> maximum scheduler latency (preemption enabled / disabled): 840 us / 1063 us
+Paul Jakma wrote:
+> > 	It is, however, perfectly legal to say an operation can
+> > complete without blocking (say, through 'select' or 'poll') and
+> > later return EWOULDBLOCK. (So long as some operation could have
+> > completed, not necessarily the one you tried.)
 > 
-> "unloaded" system, 10.000 samples
-> average scheduler latency (preemption enabled / disabled): 50 us / 44 us
-> minimum scheduler latency (preemption enabled / disabled): 46 us / 41 us
-> maximum scheduler latency (preemption enabled / disabled): 233 us / 215 us
+> Right. But that's fine, we can deal with that, if the error is
+> posted.
 > 
+> Problem is no error is posted when we sendmsg[1], yet the socket
+> thereafter stays write-blocked, with (sane) way for us to recover.  
 
-Robert Love said:
-> That said, I would of expected slightly better numbers.
+I hate to check the obvious, but did you try setting the O_NONBLOCK
+flag for the socket?  Did you try setting the MSG_DONTWAIT flag for
+the sendmsg operation?
 
-I would say that the numbers are quite good :-)
-For comparation check
-  http://www.gardena.net/benno/linux/audio/
-
-There are some load tests there that you can use
-to generate load: disk access, memory pressure, X11, ...
-
-Note that more memory can result in worse latency, longer linked lists
-to walk...
-
-/RogerL
-
--- 
-Roger Larsson
-Skellefteå
-Sweden
+-- Jamie

@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129256AbRBCEBO>; Fri, 2 Feb 2001 23:01:14 -0500
+	id <S129518AbRBCEVx>; Fri, 2 Feb 2001 23:21:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129550AbRBCEBF>; Fri, 2 Feb 2001 23:01:05 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:4089 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S129256AbRBCEAx>; Fri, 2 Feb 2001 23:00:53 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200102030359.f133xrM02216@webber.adilger.net>
-Subject: Re: Reasons to honor readonly mount requests
-In-Reply-To: <3A7B7F8C.67C2B603@commerceflow.com> from Jeffrey Keller at "Feb
- 2, 2001 07:48:28 pm"
-To: Jeffrey Keller <jeff@commerceflow.com>
-Date: Fri, 2 Feb 2001 20:59:53 -0700 (MST)
-CC: sct@redhat.com, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S129550AbRBCEVn>; Fri, 2 Feb 2001 23:21:43 -0500
+Received: from snoopy.apana.org.au ([202.12.87.129]:40970 "HELO
+	snoopy.apana.org.au") by vger.kernel.org with SMTP
+	id <S129518AbRBCEVj>; Fri, 2 Feb 2001 23:21:39 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fix for include/linux/fs.h in 2.4.0 kernels
+In-Reply-To: <20010203004926.M160@pervalidus.dyndns.org>
+	<12656.981169803@ocs3.ocs-net>
+From: Brian May <bam@snoopy.apana.org.au>
+X-Home-Page: http://snoopy.apana.org.au/~bam/
+Date: 03 Feb 2001 15:21:31 +1100
+In-Reply-To: kaos@ocs.com.au's message of "3 Feb 01 03:10:03 GMT"
+Message-ID: <848znojt10.fsf@snoopy.apana.org.au>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff writes:
-> I understand that both ext3fs and
-> reiserfs will try to fix corrupt filesystems (or at least filesystems
-> with unprocessed log entries) in-place even if they're mounted
-> read-only.  Clearly, virtual replay means more work, but -- just for
-> fun -- here are some cases in which it might matter:
-> 
-> 1. You want the disk image untouched for forensic analysis or data
->    recovery.
-> 2. You don't trust the disk to do writes properly.
-> 3. You don't trust the driver to do writes properly.
-> 4. You want to test a newer or unstable FS implementation w/ option to
->    go back to the older one.
+>>>>> "Keith" == Keith Owens <kaos@ocs.com.au> writes:
 
-Excluding the root fs (which probably isn't involved in these sorts of
-things anyways), you can always turn off the "RECOVERY" flag on the
-filesystem and mount ext3 as ext2, which will not do any recovery.
+    >> {PB} This was necessary for libc5, but is not correct when
+    >> using glibc. Including the kernel header files directly in user
+    >> programs usually does not work (see question 3.5). glibc
+    >> provides its own <net/*> and <scsi/*> header files to replace
+    >> them, and you may have to remove any symlink that you have in
+    >> place before you install glibc. However, /usr/include/asm and
+    >> /usr/include/linux should remain as they were.
+    >> 
+    >> Keith, are you saying that glibc is wrong?
 
-> 5. You're sharing the disk via:
->         VMWare (multiple OS instances on 1 computer)
->         passive backplane (multiple computers on 1 bus)
->         PCI bridge (multiple computers w/ connected buses)
->         SCSI/FC/FireWire (multiple computers sharing device)
-> 
-> The merit of #5 is reduced but not quite obviated by the fact that
-> it's generally unsafe to share a disk if even one party is writing to it.
+    Keith> Not me, Linus says that glibc is wrong.
 
-Very true.  Any changes made by the writer will not be noticed by the
-reader if it has already cached those pages.  Best to use a cluster
-filesystem in all of these cases.
+    Keith>   "I've asked glibc maintainers to stop the symlink
+    Keith> insanity for the last few years now, but it doesn't seem to
+    Keith> happen.
 
-Cheers, Andreas
+    Keith>   Basically, that symlink should not be a symlink.  It's a
+    Keith> symlink for historical reasons, none of them very good any
+    Keith> more (and haven't been for a long time), and it's a
+    Keith> disaster unless you want to be a C library developer.
+    Keith> Which not very many people want to be.
+
+    Keith>   The fact is, that the header files should match the
+    Keith> library you link against, not the kernel you run on."
+
+
+I read Keith's response as: the symlink is wrong.
+I read the glib FAQ as:     the symlink is wrong.
+I read Linus' response as:  the symlink is wrong.
+
+Who is contradicting who here?
+
+(perhaps that last sentence in the glibc FAQ is confusing, however the
+rest of it clearly says that glibc contains its own version of those
+files, and a symlink should *not* be used. I think the part "[...] you
+may have to remove any symlink [...]" is clear enough).
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Brian May <bam@snoopy.apana.org.au>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,87 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278701AbRKSNSN>; Mon, 19 Nov 2001 08:18:13 -0500
+	id <S278714AbRKSNay>; Mon, 19 Nov 2001 08:30:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278714AbRKSNSD>; Mon, 19 Nov 2001 08:18:03 -0500
-Received: from ns.suse.de ([213.95.15.193]:41999 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S278701AbRKSNRt>;
-	Mon, 19 Nov 2001 08:17:49 -0500
-Date: Mon, 19 Nov 2001 14:17:48 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] K6-2 Write allocate bug.
-Message-ID: <Pine.LNX.4.30.0111191349370.22614-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278800AbRKSNao>; Mon, 19 Nov 2001 08:30:44 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:49045 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S278714AbRKSNai>; Mon, 19 Nov 2001 08:30:38 -0500
+Date: Mon, 19 Nov 2001 14:30:26 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Olivier Sessink <lists@olivier.pk.wau.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCMCIA kernel freezes (yenta_socket) - more info
+Message-ID: <20011119143026.A4467@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Olivier Sessink <lists@olivier.pk.wau.nl>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011119132905.6c0591f8.lists@olivier.pk.wau.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011119132905.6c0591f8.lists@olivier.pk.wau.nl>; from lists@olivier.pk.wau.nl on Mon, Nov 19, 2001 at 01:29:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 19, 2001 at 01:29:05PM +0100, Olivier Sessink wrote:
+> Hi all,
+> 
+> when I insert a PCMCIA card (3 cards tested) in my Sony Vaio R600HEK the
+> system freezes. When I remove the card it runs again. logs show nothing,
+> dmesg shows nothing.. 
+> 
+> When I boot the system with a PCMCIA card in the slot, it works AND I can
+> remove it and add it again without a problem!!??!!
+> 
+> So the workaround it to boot it with a card always, but that is not really
+> convenient..
+> 
+> it is a Debian testing (Woody) system with kernel 2.4.14, the following
+> modules are loaded: cb_enabler, ds, yenta_socket and pcmcia_core
 
-Linus,
- Patch below reformats some ugly compound ifs, and in the process
-fixes up a bug where we end up poking the WHCR in old-style and new-style
-on some K6-2's (Due to a missing (c->x86_mask>7) (See 2nd hunk of patch).
+I can corroborate this, have exactly the same problem with a no-name 'MyNote'
+notebook, yenta_socket too. 
 
-regards,
+Regards,
 
-Dave.
-
-diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/arch/i386/kernel/setup.c linux-2.4.15-pre5-dj/arch/i386/kernel/setup.c
---- linux-2.4.15-pre5/arch/i386/kernel/setup.c	Mon Nov 19 12:08:00 2001
-+++ linux-2.4.15-pre5-dj/arch/i386/kernel/setup.c	Mon Nov 19 12:22:26 2001
-@@ -1233,13 +1233,12 @@
- 			}
-
- 			/* K6 with old style WHCR */
--			if( c->x86_model < 8 ||
--				(c->x86_model== 8 && c->x86_mask < 8))
--			{
-+			if (c->x86_model < 8 ||
-+			   (c->x86_model== 8 && c->x86_mask < 8)) {
- 				/* We can only write allocate on the low 508Mb */
- 				if(mbytes>508)
- 					mbytes=508;
--
-+
- 				rdmsr(MSR_K6_WHCR, l, h);
- 				if ((l&0x0000FFFF)==0) {
- 					unsigned long flags;
-@@ -1250,14 +1249,14 @@
- 					local_irq_restore(flags);
- 					printk(KERN_INFO "Enabling old style K6 write allocation for %d Mb\n",
- 						mbytes);
--
- 				}
- 				break;
- 			}
--			if (c->x86_model == 8 || c->x86_model == 9 || c->x86_model == 13)
--			{
-+
-+			if ((c->x86_model == 8 && c->x86_mask >7) ||
-+			     c->x86_model == 9 || c->x86_model == 13) {
- 				/* The more serious chips .. */
--
-+
- 				if(mbytes>4092)
- 					mbytes=4092;
-
-@@ -1274,10 +1273,8 @@
- 				}
-
- 				/*  Set MTRR capability flag if appropriate */
--				if ( (c->x86_model == 13) ||
--				     (c->x86_model == 9) ||
--				     ((c->x86_model == 8) &&
--				     (c->x86_mask >= 8)) )
-+				if (c->x86_model == 13 || c->x86_model == 9 ||
-+				   (c->x86_model == 8 && c->x86_mask >= 8))
- 					set_bit(X86_FEATURE_K6_MTRR, &c->x86_capability);
- 				break;
- 			}
-
+bert
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+http://www.PowerDNS.com          Versatile DNS Software & Services
+Trilab                                 The Technology People
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

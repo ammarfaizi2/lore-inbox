@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271708AbRHQRcJ>; Fri, 17 Aug 2001 13:32:09 -0400
+	id <S271696AbRHQRal>; Fri, 17 Aug 2001 13:30:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271705AbRHQRbz>; Fri, 17 Aug 2001 13:31:55 -0400
-Received: from pD951C5CA.dip.t-dialin.net ([217.81.197.202]:53776 "EHLO
-	main.home") by vger.kernel.org with ESMTP id <S271710AbRHQRbk>;
-	Fri, 17 Aug 2001 13:31:40 -0400
-Message-ID: <3B7D54FC.C9864DEC@gmx.de>
-Date: Fri, 17 Aug 2001 19:31:40 +0200
-From: thobi <th55@gmx.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S271705AbRHQRa3>; Fri, 17 Aug 2001 13:30:29 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:25098 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S271696AbRHQRaO>; Fri, 17 Aug 2001 13:30:14 -0400
+Date: Fri, 17 Aug 2001 14:30:21 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <tpepper@vato.org>, <f5ibh@db0bm.ampr.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.9 does not compile [PATCH]
+In-Reply-To: <20010816.153151.74749641.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33L.0108171430000.2277-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: leroyljr@ccsi.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Failure to Compile AIC7xxx Driver
-In-Reply-To: <200108170013.f7H0DoO21290@ccsi.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-leroyljr wrote:
-> 
-> If nobody has brought this up yet, I want to report this issue.
-> 
-> Here is what happened when I tried to build the aic7xxx driver for 2.4.9:
-> 
-> aicasm/aicasm_scan.l: In function `yylex':
-> aicasm/aicasm_scan.l:115: `T_VERSION' undeclared (first use in this function)
-> aicasm/aicasm_scan.l:115: (Each undeclared identifier is reported only once
-> aicasm/aicasm_scan.l:115: for each function it appears in.)
-> aicasm/aicasm_scan.l:132: `T_STRING' undeclared (first use in this function)
+On Thu, 16 Aug 2001, David S. Miller wrote:
+>    From: tpepper@vato.org
+>    Date: Thu, 16 Aug 2001 14:41:09 -0700
+>
+>    Confirmed here.  Looks like a pretty obvious goof to me.  Does the following
+>    fix it for you?
+>
+> The args and semantics of min/max changed to take
+> a type first argument, the problem with this ntfs file is that it
+> fails to include linux/kernel.h
 
-If I remember correctly I got this one when I used bison -y instead of
-yacc -
-although they are supposed to do the same. 
+You should have checked this before deciding to rudely
+bypass the maintainer of the file ;)
 
-It's just a guess - correct me if I'm telling crap
+Rik
+--
+IA64: a worthy successor to the i860.
 
- Tobias
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

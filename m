@@ -1,76 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132111AbRCYQla>; Sun, 25 Mar 2001 11:41:30 -0500
+	id <S132109AbRCYQmA>; Sun, 25 Mar 2001 11:42:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132110AbRCYQlU>; Sun, 25 Mar 2001 11:41:20 -0500
-Received: from smtp-rt-8.wanadoo.fr ([193.252.19.51]:36224 "EHLO
-	lantana.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S132109AbRCYQlK>; Sun, 25 Mar 2001 11:41:10 -0500
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: console.c unblank_screen problem
-Date: Sun, 25 Mar 2001 18:40:03 +0200
-Message-Id: <20010325164003.6131@smtp.wanadoo.fr>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S132110AbRCYQlv>; Sun, 25 Mar 2001 11:41:51 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:9345 "EHLO zooty.lancs.ac.uk")
+	by vger.kernel.org with ESMTP id <S132109AbRCYQlm>;
+	Sun, 25 Mar 2001 11:41:42 -0500
+Message-Id: <l03130323b6e3cf66c12d@[192.168.239.101]>
+In-Reply-To: <Pine.LNX.4.30.0103251754300.13864-100000@fs131-224.f-secure.com>
+In-Reply-To: <01032411110700.03927@tabby>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Sun, 25 Mar 2001 17:39:30 +0100
+To: Szabolcs Szakacsits <szaka@f-secure.com>,
+        Jesse Pollard <jesse@cats-chateau.net>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <Andries.Brouwer@cwi.nl>,
+        <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a problem with the power management code for console.c
+>[ .... about non-overcommit .... ]
+>> > Nobody feels its very important because nobody has implemented it.
+>
+>Enterprises use other systems because they have much better resource
+>management than Linux -- adding non-overcommit wouldn't help them much.
+>Desktop users, Linux newbies don't understand what's
+>eager/early/non-overcommit vs lazy/late/overcommit memory management
+>[just see these threads here if you aren't bored already enough ;)] and
+>even if they do at last they don't have the ability to implement it. And
+>between them, people are mostly fine with ulimit.
+>
+>> Small correction - It was implemented, just not included in the standard
+>> kernel.
+>
+>Please note, adding optional non-overcommit also wouldn't help much
+>without guaranteed/reserved resources [e.g. you are OOM -> appps, users
+>complain, admin login in and BANG OOM killer just killed one of the
+>jobs]. This was one of the reasons I made the reserved root memory
+>patch [this is also the way other OS'es do]. Now just the different
+>patches should be merged and write an OOM FAQ for users how to avoid,
+>control, etc it].
 
-The current code calls do_blank_screen(0); on PM_SUSPEND, and
-unblank_screen() on PM_RESUME.
+I'm currently trying to apply the 2.3.99.whatever non-overcommit patch to
+2.4.1 - decidedly nontrivial, lots of failed hunks, parts of the kernel
+have changed significantly even in this (fairly short) time.
 
-The problem happens when X is the current display while putting the
-machine to sleep. The do_blank_screen(0) code will do nothing as
-the console is not in KD_TEXT mode.
-However, unblank_screen has no such protection. That means that
-on wakeup, the cursor timer & console blank timers will be re-enabled
-while X is frontmost, causing the blinking cursor to be displayed on
-top of X, and other possible issues.
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-I hacked the following pacth to work around this. It appear to work
-fine, but since the console code is pretty complex, I'm not sure about
-possible side effects and I'd like some comments before submiting it
-to Linus:
+The key to knowledge is not to rely on people to teach you it.
 
-(Don't worry about the {} I added, I just noticed them and will remove
-them before submitting ;)
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
---- 1.2/drivers/char/console.c	Sat Feb 10 18:54:15 2001
-+++ edited/drivers/char/console.c	Sun Mar 25 17:57:46 2001
-@@ -2595,8 +2595,9 @@
- 	int currcons = fg_console;
- 	int i;
- 
--	if (console_blanked)
-+	if (console_blanked) {
- 		return;
-+	}
- 
- 	/* entering graphics mode? */
- 	if (entering_gfx) {
-@@ -2660,12 +2661,16 @@
- 		printk("unblank_screen: tty %d not allocated ??\n", fg_console+1);
- 		return;
- 	}
-+	currcons = fg_console;
-+	if (vcmode != KD_TEXT) {
-+		console_blanked = 0;
-+		return;
-+	}
- 	console_timer.function = blank_screen;
- 	if (blankinterval) {
- 		mod_timer(&console_timer, jiffies + blankinterval);
- 	}
- 
--	currcons = fg_console;
- 	console_blanked = 0;
- 	if (console_blank_hook)
- 		console_blank_hook(0);
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
 
 

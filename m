@@ -1,83 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270229AbRIAKED>; Sat, 1 Sep 2001 06:04:03 -0400
+	id <S270271AbRIAKXj>; Sat, 1 Sep 2001 06:23:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270240AbRIAKDx>; Sat, 1 Sep 2001 06:03:53 -0400
-Received: from ns.roland.net ([65.112.177.35]:6416 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S270229AbRIAKDo>;
-	Sat, 1 Sep 2001 06:03:44 -0400
-Message-ID: <001101c132cd$cbbf7050$bb1cfa18@JimWS>
-From: "Jim Roland" <jroland@roland.net>
-To: "David Hollister" <david@digitalaudioresources.org>,
-        "Jan Niehusmann" <jan@gondor.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010831044247.B811@gondor.com> <3B8EFF67.9010409@digitalaudioresources.org>
-Subject: Re: Athlon doesn't like Athlon optimisation?
-Date: Sat, 1 Sep 2001 05:06:40 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S270266AbRIAKXU>; Sat, 1 Sep 2001 06:23:20 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:45573 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S270264AbRIAKXK>; Sat, 1 Sep 2001 06:23:10 -0400
+Date: Sat, 1 Sep 2001 12:21:35 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Floydsmith@aol.com
+Cc: mrsam@courier-mta.com, linux-kernel@vger.kernel.org
+Subject: Re: what is the US mirror site URL for getting ac4  patch (2.4.9 ide-floppy fix)
+Message-ID: <20010901122135.Q11997@arthur.ubicom.tudelft.nl>
+In-Reply-To: <7b.1a620584.28c20279@aol.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <7b.1a620584.28c20279@aol.com>; from Floydsmith@aol.com on Sat, Sep 01, 2001 at 05:20:57AM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Which kernel are you gentlemen using?  I have a Athlon 1.2GHz (not
-overclocked), 512MB PC133, and also an EPoX 8KTA3+, and have had no problems
-whatsoever (using kernel 2.4.2-2).
+On Sat, Sep 01, 2001 at 05:20:57AM -0400, Floydsmith@aol.com wrote:
+> if -ac4 fixes the "can't mount ls-120 diskette (with diskette in drive)" 
+> problem (2.4.9) error:
+> ide-floppy: hdc: I/O error, pc = 5a, key  5, asc = 24, ascq =  0
+> then I need to get this patch. I would prepare to have a ftp URL site 
+> (preferably in the US) that has all of the ac patches (not just the ones for 
+> "ide") if such a site exists.
 
------ Original Message -----
-From: "David Hollister" <david@digitalaudioresources.org>
-To: "Jan Niehusmann" <jan@gondor.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, August 30, 2001 10:07 PM
-Subject: Re: Athlon doesn't like Athlon optimisation?
+ftp://ftp.us.kernel.org/pub/linux/kernel/people/alan/linux-2.4/
 
 
-> Jan Niehusmann wrote:
-> > I have a computer with a duron 600 which doesn't like current athlon
-> > optimised kernels: It runs fairly well with an old 2.4.0-test7 kernel
-> > (but I had some unexplained crashes during the last months),
-> > but crashes after a few minutes after booting 2.4.9-ac3 or 2.4.7.
-> >
-> > If I don't build the kernels for athlon, but for i386 only, the
-> > system seems to be stable. (Not tested for more than 20 minutes,
-> > but definitely longer than the athlon optimised kernel was able to run)
-> >
-> > Does anybody know these symptoms and has an idea what may be wrong?
-> > Is it likely to be a broken CPU?
-> > The board is an A7V with the infamous via chipset, but I don't think
-> > this looks like the typical via problems, does it?
-> >
-> > Jan
->
-> This has apparently been a source of frustration for many an Athlon user,
-myself
-> included.  I can't even get my system to finish the init process before it
-> oopses and locks up on me.
->
-> It seems to work somewhat better for some if you set your BIOS to the
-> conservative settings, but that didn't help me.  I have an Epox 8KTA3+
-(Via
-> KT133A) w/ a 1.4GHz Athlon and 512MB memory.  If you can't get it to work
-that
-> way, just stick with the K6 setting.  The point is, your hardware is
-likely fine
-> (fine being relative, I suppose)
-> If there are other tricks, I'm all ears.
->
-> --
-> David Hollister
-> Driversoft Engineering:  http://devicedrivers.com
-> Digital Audio Resources: http://digitalaudioresources.org
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Erik
 
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

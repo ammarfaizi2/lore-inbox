@@ -1,53 +1,201 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317170AbSILTyB>; Thu, 12 Sep 2002 15:54:01 -0400
+	id <S317169AbSILUB6>; Thu, 12 Sep 2002 16:01:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317181AbSILTyB>; Thu, 12 Sep 2002 15:54:01 -0400
-Received: from [208.34.239.138] ([208.34.239.138]:19590 "EHLO
-	babylon5.babcom.com") by vger.kernel.org with ESMTP
-	id <S317170AbSILTyA>; Thu, 12 Sep 2002 15:54:00 -0400
-Date: Thu, 12 Sep 2002 15:58:39 -0400
-From: Phil Stracchino <alaric@babcom.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: CDROM driver does not support Linux partition tables
-Message-ID: <20020912195839.GA13150@babylon5.babcom.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-References: <20020904181952.GA1158@babylon5.babcom.com> <1031182512.3017.139.camel@irongate.swansea.linux.org.uk> <20020911211959.GA31724@babylon5.babcom.com> <1031779715.2838.4.camel@irongate.swansea.linux.org.uk> <20020912050620.GG30234@suse.de> <1031817597.2994.35.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1031817597.2994.35.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-ICBM: 35.6880N 77.4375W
-X-PGP-Fingerprint: 2105 C6FC 945D 2A7A 0738  9BB8 D037 CE8E EFA1 3249
-X-PGP-Key-FTP-URL: ftp://ftp.babcom.com/pub/pgpkeys/alaric.asc
-X-PGP-Key-HTTP-URL: http://www.babcom.com/alaric/pgp.html
-X-UCE-Policy: No unsolicited commercial email is accepted at this site.  All senders of UCE will be immediately and permanently blocked.
+	id <S317181AbSILUB5>; Thu, 12 Sep 2002 16:01:57 -0400
+Received: from mail.ncsa.uiuc.edu ([141.142.2.28]:46243 "EHLO
+	mail.ncsa.uiuc.edu") by vger.kernel.org with ESMTP
+	id <S317169AbSILUBy>; Thu, 12 Sep 2002 16:01:54 -0400
+X-Envelope-From: arnoldg@ncsa.uiuc.edu
+Date: Thu, 12 Sep 2002 15:06:45 -0500 (CDT)
+From: Galen Arnold <arnoldg@ncsa.uiuc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: ia64 kernel hangs
+Message-ID: <Pine.LNX.4.44.0209121438390.10127-100000@osage.ncsa.uiuc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 12, 2002 at 08:59:57AM +0100, Alan Cox wrote:
-> On Thu, 2002-09-12 at 06:06, Jens Axboe wrote:
-> > > It ought to be supportable on scsi cd or with ide-scsi. ide-cd has no
-> > > minor space for partitioning, ide-scsi/sr do support partitions.
-> > 
-> > The opposite, surely? sr uses one minor per cd-rom, ide-cd has 64.
-> 
-> Brain on stun. Yes ide-scsi is a problem ide-cd gets it right. This is
-> something that really ought to get fixe durin 2.5
+[1.] ia64 linux 2.4.16 , 2.4.19 kernels hang with user code calling 
+setrlimit() and system()
 
+[2.] A short user code can hang ia64 systems, but not ia32 linux.
 
-Hrm.  Then how does one access the other minors?  I tried creating the
-presumed-appropriate device nodes directly via mknod (cdrom0 was 22,0; I
-created 22,1 22,2 22,3) without success.  I didn't have ide-scsi loaded
-at the time.
+[3.] setrlimit() system() hang
 
+[4.] 2.4.16 ia64  & 2.4.19 ia64
 
--- 
- *********  Fight Back!  It may not be just YOUR life at risk.  *********
- :phil stracchino : unix ronin : renaissance man : mystic zen biker geek:
- : alaric@babcom.com   :::   alaric@geeksnet.com   :::    phil@latt.net :
- :  2000 CBR929RR, 1991 VFR750F3 (foully murdered), 1986 VF500F (sold)  :
- :    Linux Now! ...because friends don't let friends use Microsoft.    :
+[5.] kernel hangs, no output, system goes unresponsive for about an hour
+
+[6.]
+
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <unistd.h>
+
+#define MAX_MEM 1000
+int main(void)
+{
+        struct rlimit my_rlimit;
+
+        my_rlimit.rlim_cur= 1024 * MAX_MEM;
+        my_rlimit.rlim_max= my_rlimit.rlim_cur;
+
+        setrlimit(RLIMIT_AS, &my_rlimit);
+        system("/bin/sh -c 'ulimit -a'");
+}
+
+[7.]
+
+LANG=en_US
+ARCH=ia64
+SHELL=/bin/bash
+HOSTTYPE=ia64
+OSTYPE=linux-gnu
+PATH=/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin
+
+[7.1]
+Linux user01 2.4.16 #1 SMP Mon Dec 10 11:03:09 CST 2001 ia64 unknown
+
+Gnu C                  2.96
+Gnu make               3.79.1
+binutils               2.10.91.0.2
+util-linux             2.11f
+mount                  2.11b
+modutils               2.4.6
+e2fsprogs              1.26
+reiserfsprogs          3.x.0f
+PPP                    2.4.0
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         sk98lin e100
+
+Linux mantis 2.4.19 #2 SMP Wed Sep 11 16:53:31 CDT 2002 ia64 unknown
+
+Gnu C                  2.96
+Gnu make               3.79.1
+binutils               2.11.90.0.8
+util-linux             2.11f
+mount                  2.11g
+modutils               2.4.13
+e2fsprogs              1.23
+reiserfsprogs          3.x.0j
+PPP                    2.4.1
+isdn4k-utils           3.1pre1
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.3.3
+Sh-utils               2.0.11
+Modules Loaded         e1000 nls_iso8859-1 nls_cp437 vfat fat keybdev hid 
+usbkbd input usb-uhci usbcore mptscsih mptbase
+
+[7.2]
+processor  : 0
+vendor     : GenuineIntel
+arch       : IA-64
+family     : Itanium 2
+model      : 0
+revision   : 5
+archrev    : 0
+features   : branchlong
+cpu number : 41600
+cpu regs   : 4
+cpu MHz    : 995.901000
+itc MHz    : 995.901000
+BogoMIPS   : 1488.97
+
+[7.2]
+e1000                 133632   1
+nls_iso8859-1           4624   1 (autoclean)
+nls_cp437               6128   1 (autoclean)
+vfat                   26440   1 (autoclean)
+fat                    77752   0 (autoclean) [vfat]
+keybdev                 4496   0 (unused)
+hid                    48200   0 (unused)
+usbkbd                  7360   0 (unused)
+input                   9832   0 [keybdev hid usbkbd]
+usb-uhci               64184   0 (unused)
+usbcore               163544   1 [hid usbkbd usb-uhci]
+mptscsih               79568   3
+mptbase                78152   3 [mptscsih]
+
+[7.4]
+000001f0-000001f7 : ide0
+000002f8-000002ff : serial(auto)
+000003c0-000003df : vga+
+000003f6-000003f6 : ide0
+000003f8-000003ff : serial(auto)
+00005cc0-00005cdf : usb-uhci
+00005ce0-00005cff : usb-uhci
+
+fbfe0000-fbffffff : e1000
+
+[7.5]
+00:1d.0 USB Controller: Intel Corporation: Unknown device 24c2 (rev 01)
+00:1d.1 USB Controller: Intel Corporation: Unknown device 24c4 (rev 01)
+00:1e.0 PCI bridge: Intel Corporation 82820 820 (Camino 2) Chipset PCI 
+(rev 81) 00:1f.0 ISA bridge: Intel Corporation: Unknown device 24c0 (rev 
+01)
+00:1f.1 IDE interface: Intel Corporation: Unknown device 24cb (rev 01)
+01:00.0 Ethernet controller: Intel Corporation: Unknown device 100e (rev 
+02)
+01:01.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+02:1c.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
+02:1d.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
+02:1e.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
+02:1f.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
+03:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 1462 
+(rev 03)06:01.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 
+100] (rev 0c)06:02.0 SCSI storage controller: LSI Logic / Symbios Logic 
+(formerly NCR) 53c1030 (rev 03)
+06:02.1 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR) 
+53c1030 (rev 03)
+06:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 1462 
+(rev 03)08:1c.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
+08:1d.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
+08:1e.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
+08:1f.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
+09:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 1462 
+(rev 03)0b:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 
+1462 (rev 03)0e:1c.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
+0e:1d.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
+0e:1e.0 PIC: Intel Corporation: Unknown device 1461 (rev 03)
+0e:1f.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 03)
+0f:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 1462 
+(rev 03)
+11:1f.0 PCI Hot-plug controller: Intel Corporation: Unknown device 1462 
+(rev 03)
+
+[7.6]
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: MAXTOR   Model: ATLAS10K3_18_SCA Rev: B000
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi0 Channel: 00 Id: 06 Lun: 00
+  Vendor: QLogic   Model: GEM359           Rev: 0200
+  Type:   Processor                        ANSI SCSI revision: 02
+
+[7.7]
+
+[X.]
+2.4.18 and 2.4.9 on ia32 do not produce the hang from the c program above.  
+Changing the values handed to setrlimit() will workaround the hang on ia64 
+(a small limit will cause the system() call to silently fail, and a larger 
+[10M] limit will run the system() call successfully).
+
+Please cc:  me on responses as I'm not on the list.
+
+-Galen
+-- +
+Galen Arnold, consulting group--system engineer      
+National Center for Supercomputing Applications     
+605 E. Springfield Avenue                             (217) 244-3473
+Champaign, IL 61820                                   arnoldg@ncsa.uiuc.edu
+

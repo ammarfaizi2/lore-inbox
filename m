@@ -1,46 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUHOUJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266871AbUHOULb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266867AbUHOUJu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 16:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266870AbUHOUJu
+	id S266871AbUHOULb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 16:11:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266876AbUHOUL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 16:09:50 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:25195 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266867AbUHOUJt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 16:09:49 -0400
-Date: Sun, 15 Aug 2004 22:12:24 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Subject: kbuild + kconfig: Updates
-Message-ID: <20040815201224.GI7682@mars.ravnborg.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
+	Sun, 15 Aug 2004 16:11:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18127 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266871AbUHOULV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 16:11:21 -0400
+Date: Sun, 15 Aug 2004 13:09:19 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
+ pte locks?
+Message-Id: <20040815130919.44769735.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A number of kbuild updates and Randy's Kconfig.debug
 
-Most important stuff is:
-o Get rid og bogus "has no CRC" when building external modules
-o Rename *.lds.s to *.lds (*)
-o Allow external modules to use host-progs
-
-(*) The renaming of the *.lds file has been doen to allow the kernel to
-be build with for example Cygwin.
-The major outstanding issue with Cygwin/Solaris are availability of
-certain .h files for the tools in scripts/* and spread in the tree.
-Tested patches that allows the tools to be build under Cygwin/Solaris
-are appreciated.
-
-Patches follows this mail.
-
-Everything pushed to:
-bk://linux-sam.bkbits.net/kbuild
-
-	Sam
+Is the read lock in the VMA semaphore enough to let you do
+the pgd/pmd walking without the page_table_lock?
+I think it is, but just checking.

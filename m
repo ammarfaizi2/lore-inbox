@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274848AbRJAKRl>; Mon, 1 Oct 2001 06:17:41 -0400
+	id <S274850AbRJAKRl>; Mon, 1 Oct 2001 06:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274850AbRJAKRc>; Mon, 1 Oct 2001 06:17:32 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:18447 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S274848AbRJAKRR>;
-	Mon, 1 Oct 2001 06:17:17 -0400
-Date: Mon, 1 Oct 2001 12:04:33 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Thomas Hood <jdthood@home.dhs.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PnPBIOS 2.4.9-ac1[56] Vaio fix
-Message-ID: <20011001120432.A5531@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <20010930174627.52817587@thanatos.toad.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010930174627.52817587@thanatos.toad.net>
-User-Agent: Mutt/1.3.20i
+	id <S274851AbRJAKRb>; Mon, 1 Oct 2001 06:17:31 -0400
+Received: from mail.siemens.pl ([217.153.88.106]:26128 "EHLO mail.siemens.pl")
+	by vger.kernel.org with ESMTP id <S274850AbRJAKRW>;
+	Mon, 1 Oct 2001 06:17:22 -0400
+Message-ID: <F954B4B85128D4119FC000104BB868D502627C5C@wawzz11e.siemens.pl>
+From: Piotr.Wadas@siemens.pl
+To: linux-kernel@vger.kernel.org
+Subject: out-of orig modules question
+Date: Mon, 1 Oct 2001 12:17:57 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 30, 2001 at 01:46:26PM -0400, Thomas Hood wrote:
+Hello again ;)
+I have some modules which are not from official kernel site
+Those are working when I set them up and do modprobe, but I'd be
+very glad if I could put them somewhere into to /usr/src/linux tree
+and compile them  inside the kernel forever ;) - not like a module,but
+right into the binary. Should I copy sources / binaries somehere inside
+mentioned tree and modify some Makefile scripts or sth?
+???
 
-> Here's the patch to the PnP BIOS driver for Vaio laptops again,
-> this time against 2.4.9-ac18.  It's unchanged, but as per the
-> "SubmittingPatches" file, I append rather than attach it.   
-> // Thomas
+I have sources and binaries of this modules, the sources must
+be recompiled each time I change kernel against
+/usr/src/linux/include/modversions.h
+and related.
 
-Ok, here I am again, sorry for not being able to react on 
-your patches this weekend...
+The modules are especially VMWARE modules for virtual machine support
+(www.vmware.com) - vmmon.o and vmnet.o
 
-I tested your latest patches with a 2.4.9-ac18 kernels, and,
-surprise, the kernel now boots correctly, _without_ any
-pnpbios* boot option.
+and 
 
-Since the DMI / PNP order was not modified as of ac18, I
-suppose the patches change something else which makes it
-work...
+nvidia driver for accelerated (DRI) Xserver developed as OpenSource
+originally
+by nvidia. 
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+I think I should highlight here, that no matter which version of 2.2.x or
+2.4.x
+the modules are working perfectly via insmod (modprobe)
+I'd be very glad if I could have it working the way I want.. :)
+Thanx for your help, and sorry for bother ;)
+Piotr 
+<Piotr.Wadas@siemens.pl>

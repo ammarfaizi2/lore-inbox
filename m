@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264767AbSK0UkH>; Wed, 27 Nov 2002 15:40:07 -0500
+	id <S264795AbSK0UsR>; Wed, 27 Nov 2002 15:48:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264779AbSK0UkH>; Wed, 27 Nov 2002 15:40:07 -0500
-Received: from thunk.org ([140.239.227.29]:17620 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S264767AbSK0UkH>;
-	Wed, 27 Nov 2002 15:40:07 -0500
-Date: Wed, 27 Nov 2002 15:47:19 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Margit Schubert-While <margitsw@t-online.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-rc3 ext3 fsck corruption -- tool update warning needed?
-Message-ID: <20021127204718.GA10163@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Margit Schubert-While <margitsw@t-online.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <4.3.2.7.2.20021127143633.00b5fae0@pop.t-online.de> <1038410337.6394.44.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1038410337.6394.44.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+	id <S264797AbSK0UsR>; Wed, 27 Nov 2002 15:48:17 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:45455 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264795AbSK0UsP>; Wed, 27 Nov 2002 15:48:15 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 27 Nov 2002 12:56:38 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Dan Kegel <dkegel@ixiacom.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: re: epoll patches queue status and glibc submission ...
+In-Reply-To: <3DE52FC7.1050405@ixiacom.com>
+Message-ID: <Pine.LNX.4.50.0211271255580.1827-100000@blue1.dev.mcafeelabs.com>
+References: <3DE52FC7.1050405@ixiacom.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 27, 2002 at 03:18:57PM +0000, Alan Cox wrote:
-> On Wed, 2002-11-27 at 13:39, Margit Schubert-While wrote:
-> >  >Fortunately, 1.28 didn't get adopted by any distro's as far as I know,
-> > It got into Suse 8.1
-> 
-> I guess thats a bit of showstopper for this change 8(
+On Wed, 27 Nov 2002, Dan Kegel wrote:
 
-I forgot about SuSE; yeah, they are using 1.28, but they did take the
-patch.  (It's needed regardless of whether or not you're using HTREE
-in the kernel; it can cause corrupted directories even if you're not
-using ext3 htree's).
+> Hi Davide,
+> I just realized that 'edge triggered I/O readiness notification facility'
+> is too jargony.  A plain English wording of the man page title might be
+>
+> epoll \- I/O readiness change notification facility
+>
+> This is shorter and much clearer.  Apologies for having suggested
+> the earlier jargony text.
 
-That being said, from what I can tell, SuSE does *not* support the
-Htree changes, and you would be strongly advised to update to update
-to the latest version of e2fsprogs before you enabled HTREE.  The
-version of e2fsck that SuSE is missing some checks that detect some
-incosistencies in the htree structure (not a bug deal, but it might
-miss some corrupted filesystems) and is also missing some endian
-bugfixes in the htree code (only a problem if you're using a
-big-endian machine).
+Ok, done. Any other crappyness at your sight ?
 
-						- Ted
+
+
+
+- Davide
+

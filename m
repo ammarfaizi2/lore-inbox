@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315259AbSFOK4S>; Sat, 15 Jun 2002 06:56:18 -0400
+	id <S315266AbSFOK5V>; Sat, 15 Jun 2002 06:57:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSFOK4R>; Sat, 15 Jun 2002 06:56:17 -0400
-Received: from skunk.directfb.org ([212.84.236.169]:1722 "EHLO
-	skunk.directfb.org") by vger.kernel.org with ESMTP
-	id <S315259AbSFOK4Q>; Sat, 15 Jun 2002 06:56:16 -0400
-Date: Sat, 15 Jun 2002 12:55:47 +0200
-From: Denis Oliver Kropp <dok@directfb.org>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Denis Oliver Kropp <dok@directfb.org>, Russell King <rmk@arm.linux.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.5.21] CyberPro 32bit support and other fixes
-Message-ID: <20020615105547.GA22186@skunk.convergence.de>
-Reply-To: Denis Oliver Kropp <dok@directfb.org>
-In-Reply-To: <20020613092323.GA2384@skunk.convergence.de> <Pine.LNX.4.44.0206141550000.21575-100000@www.transvirtual.com>
+	id <S315267AbSFOK5U>; Sat, 15 Jun 2002 06:57:20 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:29960 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S315266AbSFOK5R>; Sat, 15 Jun 2002 06:57:17 -0400
+Date: Sat, 15 Jun 2002 12:30:16 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Roberto Fichera <kernel@tekno-soft.it>
+Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+Subject: Re: Developing multi-threading applications
+Message-ID: <20020615123016.M22429@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <5.1.1.6.0.20020613171707.03f09720@mail.tekno-soft.it> <20020614205601.AAA9369@shell.webmaster.com@whenever> <5.1.1.6.0.20020615104206.05291720@mail.tekno-soft.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting James Simmons (jsimmons@transvirtual.com):
+On Sat, Jun 15, 2002 at 11:01:44AM +0200, Roberto Fichera wrote:
+> >         Even if that's true, and it's often not, how many different types 
+> > of data
+> >acquisition can you have? Ten? Twenty? That's a far cry from 300.
 > 
-> > Why is the pseudo palette used anyway?
-> 
-> Its a fast way for the console to grab the proper console index color to
-> draw to the framebuffer. Otherwise we have to regenerate the color all the
-> time. Plus it is always endian code for us :-)
+> Currently are 190! Always active are ~110! So thinking by separating I/O from
+> the computation we double the threads.
 
-I didn't mean the array of colors for the console, but the usage of
-the hardware palette for modes != 8 bit.
+So basically you are just traversing your data depedency graph
+wrongly. Do a level order traversion if it is a dependency forest
+or an breadth first traversion if not.
 
-> > There's no speed benefit and
-> > applications running in true/direct color would look wrong.
-> 
-> For userland no but for the kernel we do have a benifiet.
+If this node require IO -> schedule the IO and return back to the upper
+level noticing it, that you like to be woken, if the IO is
+finished.
 
-There's no speed benefit if you write "index|index|index" into the
-framebuffer instead of "red|green|blue".
+If this node require Computation -> do it, if this CPU is the one with
+lowest load, else schedule it for the CPU with lowest load.
 
+Continue with next node.
+
+(load is meant "number of compuations with same metric scheduled
+on this thread")
+
+Use only one thread per CPU. Try to make the IO-Waiting as unique
+as possible (poll would be perfect).
+
+
+So this is all doable, once you analyze your data dependency
+graph properly and make the simulation data driven (which it
+usally is).
+
+Regards
+
+Ingo Oeser
 -- 
-Best regards,
-  Denis Oliver Kropp
-
-.------------------------------------------.
-| DirectFB - Hardware accelerated graphics |
-| http://www.directfb.org/                 |
-"------------------------------------------"
-
-                            Convergence GmbH
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

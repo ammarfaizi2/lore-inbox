@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130552AbRC0GdW>; Tue, 27 Mar 2001 01:33:22 -0500
+	id <S130577AbRC0GiM>; Tue, 27 Mar 2001 01:38:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130577AbRC0GdN>; Tue, 27 Mar 2001 01:33:13 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:34780 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S130552AbRC0Gc6>; Tue, 27 Mar 2001 01:32:58 -0500
-Date: Tue, 27 Mar 2001 01:32:24 -0500 (EST)
-From: Scott Murray <scott@spiteful.org>
-To: <sl@fireplug.net>
-cc: <amit@muppetlabs.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: question \ information request on init \ boot sequence when
- using initrd
-In-Reply-To: <99p487$18m$1@whiskey.enposte.net>
-Message-ID: <Pine.LNX.4.30.0103270108190.14734-100000@godzilla.spiteful.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130565AbRC0GiC>; Tue, 27 Mar 2001 01:38:02 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:13843 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S130577AbRC0Ghp>;
+	Tue, 27 Mar 2001 01:37:45 -0500
+Date: Tue, 27 Mar 2001 08:36:54 +0200
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Amit D Chaudhary <amit@muppetlabs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: question \ information request on init \ boot sequence when using initrd
+Message-ID: <20010327083654.E18314@almesberger.net>
+In-Reply-To: <3ABFFDCD.3000803@muppetlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ABFFDCD.3000803@muppetlabs.com>; from amit@muppetlabs.com on Mon, Mar 26, 2001 at 06:41:17PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Mar 2001, Stuart Lynne wrote:
+Amit D Chaudhary wrote:
+> To put it in brief, since running sbin/init from /linuxrc as resulting 
+> in init not having PID 1 and thereby not doing some initialization as 
+> expected.
 
-> In article <985660830.32357@whiskey.enposte.net>,
-> Amit D Chaudhary <amit@muppetlabs.com> wrote:
-[snip]
-> You can run your linuxrc with:
->
-> 	init=/linuxrc
+Easy solution: don't run linuxrc, run something else instead. E.g.
+putting the following into the kernel's command line should do th
+trick:
+init=/your_script root=/dev/ram
 
-Yes.
+(With your_script being the original version, without real-root-dev)
 
-> and then end your /linuxrc with:
->
-> 	exec /sbin/init
+> Thereby instead of loading running /sbin/init, we just set 
+> /proc/sys/kernel/real-root-dev to /dev/ram0's value which then does the 
 
-No.  He's doing a pivot_root to a new root filesystem.  You have
-to do the 'exec chroot . /sbin/init ...' command given in the file
-Documentation/initrd.txt in order for init to start up correctly.
+Anything involving real-root-dev is likely to be an anachronism.
+Combining it with pivot_root just makes it more weird.
 
-Having played with pivoting to a ramfs out of an initrd for the
-last several days, I can think of a couple of possible problems.
-The first is that Amit's final linuxrc command:
+> Is this ok or should be modify /sbin/init to run properly inspite of PID 
+> <> 1 or is there a 3rd way of doing this?
 
->exec sbin/chroot . sbin/init.new 3 <dev/console >dev/console 2>&1
+I'd consider the "PID of init must be 1" a bit of an anachronism too.
+After all, a modern Unix system has quite a few demons that you don't
+want to kill either, so why make init special ? But anyway, you don't
+need to change init.
 
-is different from what's described in initrd.txt.  I'm using the
-exact line that's in there in my linuxrc, and it works fine.
-Amit, try changing that line to:
+- Werner
 
-exec chroot . /sbin/init.new 3 <dev/console >dev/console 2>&1
-
-and see if that works.  This does require having chroot in your
-initrd, but that is mentioned in initrd.txt as a requirement
-anyways.  If init.new is the wrapper that I think was mentioned
-here previously, I'd suggest just trying a regular init and doing
-the umount and free of the ramdisk later somewhere in your
-rc.sysinit or equivalent.
-
-The second potential problem I can think of would be a missing
-dev/console node in the new root filesystem.  I think I experienced
-a similar failure mode once last Friday; it may have been the time
-I forgot to mount devfs on /dev in my new root filesystem.
-
-Scott
-
-
---
-=============================================================================
-Scott Murray                                        email: scott@spiteful.org
-http://www.spiteful.org (coming soon)                 ICQ: 10602428
------------------------------------------------------------------------------
-     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/

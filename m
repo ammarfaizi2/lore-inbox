@@ -1,80 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUGISlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265229AbUGISoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265212AbUGISlA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 14:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265219AbUGISlA
+	id S265229AbUGISoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 14:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbUGISoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 14:41:00 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12224 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265212AbUGISk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 14:40:57 -0400
-Date: Fri, 9 Jul 2004 20:40:50 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andi Kleen <ak@muc.de>
-Cc: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
-Subject: Re: GCC 3.4 and broken inlining.
-Message-ID: <20040709184050.GR28324@fs.tum.de>
-References: <2fFzK-3Zz-23@gated-at.bofh.it> <2fG2F-4qK-3@gated-at.bofh.it> <2fG2G-4qK-9@gated-at.bofh.it> <2fPfF-2Dv-21@gated-at.bofh.it> <2fPfF-2Dv-19@gated-at.bofh.it> <m34qohrdel.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m34qohrdel.fsf@averell.firstfloor.org>
-User-Agent: Mutt/1.5.6i
+	Fri, 9 Jul 2004 14:44:16 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:21482 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265229AbUGISoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 14:44:05 -0400
+Message-ID: <40EEE778.5000506@namesys.com>
+Date: Fri, 09 Jul 2004 11:44:08 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jmerkey@comcast.net
+CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: Ext3 File System "Too many files" with snort
+References: <070920041830.21850.40EEE455000BE22E0000555A2200735446970A059D0A0306@comcast.net>
+In-Reply-To: <070920041830.21850.40EEE455000BE22E0000555A2200735446970A059D0A0306@comcast.net>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 09, 2004 at 06:51:46AM +0200, Andi Kleen wrote:
-> Nigel Cunningham <ncunningham@linuxmail.org> writes:
-> 
-> I think a better solution would be to apply the appended patch 
-> 
-> And then just mark the function you know needs to be inlined
-> as __always_inline__. I did this on x86-64 for some functions
-> too that need to be always inlined (although using the attribute
-> directly because all x86-64 compilers support it)
-> 
-> The rationale is that the inlining algorithm in gcc 3.4+ is quite
-> a lot better and actually eliminates some not-so-great inlining
-> we had in the past and makes the kernel a bit smaller.
+jmerkey@comcast.net wrote:
 
-Making the kernel a bit smaller is a small improvement.
+>>jmerkey@comcast.net writes:
+>>
+>>    
+>>
+>>>I may alter the on disk structures to increase this to something larger, say 
+>>>      
+>>>
+>>16,000,000,
+>>    
+>>
+>>>which would break ext3 on other systems.  I will look at the code for this 
+>>>      
+>>>
+>to 
+>  
+>
+>>see if this is 
+>>    
+>>
+>>>even possible without the FS meta data growing so huge, it renders 
+>>>      
+>>>
+>performance 
+>  
+>
+>>poor.
+>>    
+>>
+>>>These types of limits should probably be done away with with an 
+>>>      
+>>>
+>architectural 
+>  
+>
+>>change, 
+>>
+>>It's not only ext3 - one reason this limit is there because
+>>in the old stat st_nlink was 16bit only. Now that stat64 is there
+>>and glibc uses it by default it could be increased to 32bit, 
+>>but you would need to think what to do with old applications that 
+>>stat the directory. For files >2GB old stat returns an errno, 
+>>maybe this would need to be done for such directories too.
+>>
+>>    
+>>
+>
+>Andi,  
+>
+>Sounds like this is correct.    I will look at statfs().  I am very familiar 
+>with this section of linux 
+>with the VFS.  We should make this value 32 bit.  One solution would be to 
+>instrument a 
+>versioning field in the superblock so we can write the smarts into ext3/2/reiser  
+>to handle
+>different on-disk structures.  when a supoerblock gets read, it could detect 
+>waht type of 
+>on disk structures are instrumented.  
+>  
+>
+Just use reiser4 which has disk format plugins.  reiserfs v3 should stay 
+stable and undisturbed.
 
-Runtime errors caused with gcc 3.4 are IMHO much worse than such a small 
-improvement or three dozen compile errors with gcc 3.4 .
-
-The effect of your patch with gcc 3.4 would be nearly:
-  Ignore all old inlines and add something new that does what inline
-  did before.
-
-Wouldn't it be a better solution if you would audit the existing inlines 
-in the kernel for abuse of inline and fix those instead?
-
-> -Andi
-> 
-> P.S.: compiler.h seems to be not "gcc 4.0 safe". Probably that needs
-> to be fixed too.
->...
-
-My copy of compiler.h says:
-
-<--  snip  -->
-
-#if __GNUC__ > 3
-# include <linux/compiler-gcc+.h>       /* catch-all for GCC 4, 5, etc. */
-
-<--  snip  -->
-
-What exactly is wrong with this?
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+>Jeff  
+>  
+>
+>>-Andi
+>>
+>>    
+>>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
 

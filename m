@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261651AbSI0J0R>; Fri, 27 Sep 2002 05:26:17 -0400
+	id <S261660AbSI0J0T>; Fri, 27 Sep 2002 05:26:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261660AbSI0J0R>; Fri, 27 Sep 2002 05:26:17 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:57008 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S261651AbSI0J0Q>;
-	Fri, 27 Sep 2002 05:26:16 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261670AbSI0J0T>; Fri, 27 Sep 2002 05:26:19 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:144 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261660AbSI0J0S>;
+	Fri, 27 Sep 2002 05:26:18 -0400
+Date: Fri, 27 Sep 2002 02:25:15 -0700 (PDT)
+Message-Id: <20020927.022515.78074730.davem@redhat.com>
+To: yoshfuji@linux-ipv6.org
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org,
+       kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] IPv6: Refine IPv6 Address Validation Timer
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020927.181256.112824147.yoshfuji@linux-ipv6.org>
+References: <20020927.181256.112824147.yoshfuji@linux-ipv6.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
-Message-ID: <15764.9570.474736.695183@kim.it.uu.se>
-Date: Fri, 27 Sep 2002 11:31:14 +0200
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Does kernel use system stdarg.h?
-In-Reply-To: <200209270826.g8R8Q1p08145@Port.imtp.ilyichevsk.odessa.ua>
-References: <200209270804.g8R84cp08026@Port.imtp.ilyichevsk.odessa.ua>
-	<20020927092647.A7485@flint.arm.linux.org.uk>
-	<200209270826.g8R8Q1p08145@Port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko writes:
- > On 27 September 2002 06:26, Russell King wrote:
- > > > There is no stdarg.h in kernel tree, should it be there?
- > > > For now I just copied GCC one into linux/include...
- > >
- > > It must be the GCC one.  If your GCC isn't finding it, then you've got a
- > > broken GCC installation; "-iwithprefix include" tells GCC to look in its
- > > private include directory for such things.
- > >
- > > You could try adding -v to CFLAGS to see where it is searching for
- > > includes.
- > 
- > Oh, I thought we don't depend on any system/GCC headers. :-(
+   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
+   Date: Fri, 27 Sep 2002 18:12:56 +0900 (JST)
 
-GCC headers != glibc headers
-GCC's headers are needed for stdarg and other stuff requiring compiler magic.
+This patch has problems.
+    
+   @@ -1626,24 +1635,32 @@
+    		for (ifp=inet6_addr_lst[i]; ifp; ifp=ifp->lst_next) {
+    			unsigned long age;
+    
+   -			if (ifp->flags & IFA_F_PERMANENT)
+   +			spin_lock(&ifp->lock);
+   +			if (ifp->flags & IFA_F_PERMANENT) {
+   +				spin_unlock(&ifp->lock);
+    				continue;
+   +			}
+
+This is completely unnecessary.  Nobody modifies the
+IFA_F_PERMANENT flag after the addr entry has been added
+to the hash table and this runs under the addrconf hash
+lock already.
+
+Alexey will have to comment on the rest.

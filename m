@@ -1,109 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269664AbUICMtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269676AbUICMwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269664AbUICMtX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 08:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269663AbUICMtX
+	id S269676AbUICMwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 08:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269666AbUICMwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 08:49:23 -0400
-Received: from pop.gmx.net ([213.165.64.20]:33721 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269664AbUICMtA (ORCPT
+	Fri, 3 Sep 2004 08:52:25 -0400
+Received: from wasp.net.au ([203.190.192.17]:59799 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S269665AbUICMun (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 08:49:00 -0400
-X-Authenticated: #4399952
-Date: Fri, 3 Sep 2004 15:01:19 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, rlrevell@joe-job.com,
-       felipe_alfaro@linuxmail.org
-Subject: Re: lockup with voluntary preempt R0 and VP, KP, etc, disabled
-Message-ID: <20040903150119.71e19576@mango.fruits.de>
-In-Reply-To: <20040903115505.GB29493@elte.hu>
-References: <20040903120957.00665413@mango.fruits.de>
-	<20040903100946.GA22819@elte.hu>
-	<20040903123139.565c806b@mango.fruits.de>
-	<20040903103244.GB23726@elte.hu>
-	<20040903135919.719db41d@mango.fruits.de>
-	<20040903115505.GB29493@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 3 Sep 2004 08:50:43 -0400
+Message-ID: <413868CE.7070303@wasp.net.au>
+Date: Fri, 03 Sep 2004 16:51:26 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg Stark <gsstark@mit.edu>
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Crashed Drive, libata wedges when trying to recover data
+References: <87oekpvzot.fsf@stark.xeocode.com> <4136E277.6000408@wasp.net.au> <87u0ugt0ml.fsf@stark.xeocode.com>
+In-Reply-To: <87u0ugt0ml.fsf@stark.xeocode.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004 13:55:05 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
-
+Greg Stark wrote:
+> Brad Campbell <brad@wasp.net.au> writes:
 > 
-> * Florian Schmidt <mista.tapas@gmx.net> wrote:
 > 
-> > [<c0105e29>] do_signal+0x79/0x110
-> > [<c01162a0>] default_wake_function+0x0/0x20
-> >   c012fgd7   do_futex+0x47/0xa0
-> >   c012fb20   sys_futex
-> >   c0103f07   do_notify
-> >   c01060e6   work_notifysig
-> >
-> > Code: 96 54 01 00 00 8e e0 8e e8 85 d2 74 11 c7 86 54 01 00 00 00 00
-> > 00 00 89 d0 e8 bb e4 ff 8b 9e 5c 01 00 00 85 db 74 09 8b 45 0c <8b>
-> > 40 20 48 78 08 8b 5d f8 8b 75 fc c9 c3 c7 86 56 01 00 00 00 
-> > <6> note: scsynth exited with preempt count 1
+>>Greg Stark wrote:
+>>
+>>
+>>>Any clue what I need to do to achieve this? Is this a bug because this isn't a
+>>>well-travelled code-path? (Dead drives not being something you can conjure up
+>>>on demand)? Or is this indicative of more problems than just a crashed drive?
+>>>This is on a stock 2.6.6 kernel tree, btw.
+>>>
+>>
+>>Known issue, fixed in 2.6.9-rc1. Apply this to 2.6.6 and your good to go.
 > 
-> it seems the first crash scrolled off and we dont really know what
-> happened ... Could you apply the attached patch - it will shut the
-> console off and freeze the box after printing the first oops.
+> 
+> Hm. I'm running 2.6.0-rc1 now. I'm not sure this really fixed the problem.
+> 
+> I get the same message and the same basic symptom -- any process touching the
+> bad disk goes into disk-wait for a long time. But whereas before as far as I
+> know they never came out, now they seem to come out of disk-wait after a good
+> long time. But then maybe I just never waited long enough with 2.6.6.
+> 
+> I do still get the "ATA: abnormal status 0x59 on port 0xEFE7" so if that's a
+> sign something's wrong then something's still wrong. I also now get additional
+> messages that I don't recall seeing before. They're included below.
+> 
+> And as I said, every other process touching the drive, even in good areas,
+> enters disk-wait. If I kill -9 the process generating the errors and wait a
+> few minutes they seem to eventually exit disk-wait though.
+> 
+> This means I would be able to do the recovery in theory, but in practice it'll
+> just take an infeasible length of time. I have gigs of data to go through and
+> at the amount of time it takes to time out after each error it'll take me many
+> days (years I think) to just to figure out which blocks to avoid.
 
-Ok, i booted with a bigger vga console. btw: it seems with APIC and
-nmi_watchdog, i actually need to quit my scsynth app to trigger the bug.
-so maybe this is a different one than the one i saw befure _during_
-scsynth running [and jackd of course].
+Yep.. About 30 seconds per sector is the timeout whereas with 2.6.6 it would never do anything after 
+the first timeout. Yes it's slow, yes it could probably be sped up but it is certainly indicative of 
+a dodgy disk.
 
-Since this is lots of text i have again become lazy. It would be much
-better if someone could reproduce this behaviour on a machine with
-serial console. Or a digital camera would work, too, to make a
-screenshot of the Ooops.
+Use something like http://www.kalysto.org/utilities/dd_rhelp/index.en.html and you might have better 
+results.
 
-Anyways: the screen was divided by a -----cut here: --- line. Above
-which i saw this trace:
+Jeff, do we really have to wait 30 seconds for a timeout? If the drive hits an unreadble spot I 
+would have thought it would come back to us with a read error rather than timing out the command.
 
-Badness in __put_task_struct at kernel/fork.c:89
-__put_task_struct
-schedule
-do_syslog
-sub_preempt_couint
-dnotify_parent
-autoreceive_wake_function
-kmsg_read
-autoreceive_wake_funtion
-kmsg_read
-vfs_read
-sys_read
-syscall_call
------cut here:----
+I do have a dodgy drive here that I have kept around for testing, so I'll have a look at it when I 
+get a tic.
 
-then this:
-Kernel Bug sat kernel/exit.c838
-invalid operand 0000[#1]
-PREEMPT
-CPU:0
-EIP: 0060:[<c011cb34>] not tainted VLI
-eax: 0 ebx: 0 ecx: ef6d11b0 edx: 0 esi: 0 edi: e558f2f0  ebp: e55e3ea8
-esp: e55e3e8c  ds:007b es:007b ss:0068
-process scsynth (pid 2624), threadinfo=e55e2000 tak=e55f2f0
-
-Stack [skipped]
-Trace:
-do_group_exit
-get_singal_to_deliver
-do_signal
-default_wake_function
-do_futex
-sys_futex
-do_notify_resume
-work_notify_sig[nal??]
-
-Hope i have got some useful info this time around.  It seems there was
-another bug which scrolled off the screen. I used the patched kernel
-though.. [i'm pretty sure at least]..
-
-flo
+Regards,
+Brad

@@ -1,43 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316364AbSFUG3B>; Fri, 21 Jun 2002 02:29:01 -0400
+	id <S316372AbSFUGfQ>; Fri, 21 Jun 2002 02:35:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316355AbSFUG3B>; Fri, 21 Jun 2002 02:29:01 -0400
-Received: from barbados.bluemug.com ([63.195.182.101]:8973 "EHLO
-	barbados.bluemug.com") by vger.kernel.org with ESMTP
-	id <S316342AbSFUG27>; Fri, 21 Jun 2002 02:28:59 -0400
-Date: Thu, 20 Jun 2002 23:28:43 -0700
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Martin Schwenke <martin@meltin.net>, Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [PATCH] /proc/scsi/map
-Message-ID: <20020621062842.GA13664@bluemug.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Martin Schwenke <martin@meltin.net>, Kurt Garloff <garloff@suse.de>,
-	Linux kernel list <linux-kernel@vger.kernel.org>,
-	Linux SCSI list <linux-scsi@vger.kernel.org>,
-	Patrick Mochel <mochel@osdl.org>
-References: <200206200711.RAA10165@thucydides.inspired.net.au> <Pine.LNX.4.44.0206200800260.8012-100000@home.transmeta.com>
+	id <S316390AbSFUGfP>; Fri, 21 Jun 2002 02:35:15 -0400
+Received: from BSN-250-62-68.dsl.siol.net ([213.250.62.68]:53725 "EHLO
+	gekko.velenje.cx") by vger.kernel.org with ESMTP id <S316372AbSFUGfO>;
+	Fri, 21 Jun 2002 02:35:14 -0400
+Subject: Re: High mem support, oops on 2.4.18
+From: Samo Gabrovec <root@velenje.cx>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 21 Jun 2002 08:34:59 +0200
+Message-Id: <1024641299.12272.23.camel@gekko>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0206200800260.8012-100000@home.transmeta.com>
-X-PGP-ID: 5C09BB33
-X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
-From: Mike Touloumtzis <miket@bluemug.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 20, 2002 at 08:13:22AM -0700, Linus Torvalds wrote:
->
-> Try it out yourself. Just do
-> 
-> 	mount -t driverfs /devices /devices
+I ran the memtest86 for over 24h and did not show any errors in the ram.
+The computer works with the same ram but without the Hi mem support. If
+i use the same kernel but with hi mem enabled i get kernel oopses, load
+rises ...etc.
 
-Doesn't "/drv" mesh better with the traditional Unix naming aesthetic?
+The computer is :one Pentium III , 700mhz with 1G ram, running 2.4.18
+kernel [RH 6.2]
 
-:-)
 
-miket
+one of the oops .. 
+ -----------------When i ran lilo--------------------
+ Jun 18 11:25:38 ena kernel:  <1>Unable to handle kernel NULL pointer
+ dereference at virtual address 00000000
+ Jun 18 11:25:38 ena kernel: f88b920f
+ Jun 18 11:25:38 ena kernel: *pde = 00000000
+ Jun 18 11:25:38 ena kernel: Oops: 0000
+ Jun 18 11:25:38 ena kernel: CPU:    0
+ Jun 18 11:25:38 ena kernel: EIP:    0010:[<f88b920f>]    Not tainted
+ Jun 18 11:25:38 ena kernel: EFLAGS: 00010206
+ Jun 18 11:25:38 ena kernel: eax: 00000000   ebx: 00000400   ecx:
+ 00000100   edx: f1bae000
+ Jun 18 11:25:38 ena kernel: esi: 00000000   edi: f1bae000   ebp:
+ c1c6eb80   esp: d6a35e64
+ Jun 18 11:25:38 ena kernel: ds: 0018   es: 0018   ss: 0018
+ Jun 18 11:25:38 ena kernel: Process lilo (pid: 12754,
+ stackpage=d6a35000)
+ Jun 18 11:25:38 ena kernel: Stack: 00000001 f2e788c0 c02e4d64 000044f8
+ 00000000 00000000 00000000 000008a0
+ Jun 18 11:25:38 ena kernel:        f72cc690 f88b9295 00000001 f2e788c0
+ 00000001 00000101 f2e788c0 c01a69ac
+ Jun 18 11:25:38 ena kernel:        c02e4d64 00000001 f2e788c0 00000002
+ 00000001 f3756c80 000030a9 c01a6a6f
+ Jun 18 11:25:38 ena kernel: Call Trace: [<f88b9295>]
+ [disk_change+364/604] [disk_change+559/604]
+ [invalidate_inode_buffers+0/92] [getblk+41
+ /60]
+ Jun 18 11:25:38 ena kernel: Code: f3 a5 f6 c3 02 74 02 66 a5 f6 c3 01
+74
+ 01 a4 83 7c 24 28 00
+ 
+ 
+ >>EIP; f88b920f <[rd]rd_blkdev_pagecache_IO+ff/148>   <=====
+ 
+ >>edx; f1bae000 <_end+318af4e0/385a64e0>
+ >>edi; f1bae000 <_end+318af4e0/385a64e0>
+ >>ebp; c1c6eb80 <_end+1970060/385a64e0>
+ >>esp; d6a35e64 <_end+16737344/385a64e0>
+ 
+ Trace; f88b9295 <[rd]rd_make_request+3d/68>
+ 
+ Code;  f88b920f <[rd]rd_blkdev_pagecache_IO+ff/148>
+ 00000000 <_EIP>:
+ Code;  f88b920f <[rd]rd_blkdev_pagecache_IO+ff/148>   <=====
+    0:   f3 a5                     repz movsl %ds:(%esi),%es:(%edi)  
+ <=====
+ Code;  f88b9211 <[rd]rd_blkdev_pagecache_IO+101/148>
+    2:   f6 c3 02                  test   $0x2,%bl
+ Code;  f88b9214 <[rd]rd_blkdev_pagecache_IO+104/148>
+    5:   74 02                     je     9 <_EIP+0x9> f88b9218
+ <[rd]rd_blkdev_pagecache_IO+108/148>
+ Code;  f88b9216 <[rd]rd_blkdev_pagecache_IO+106/148>
+    7:   66 a5                     movsw  %ds:(%esi),%es:(%edi)
+ Code;  f88b9218 <[rd]rd_blkdev_pagecache_IO+108/148>
+    9:   f6 c3 01                  test   $0x1,%bl
+ Code;  f88b921b <[rd]rd_blkdev_pagecache_IO+10b/148>
+    c:   74 01                     je     f <_EIP+0xf> f88b921e
+ <[rd]rd_blkdev_pagecache_IO+10e/148>
+ Code;  f88b921d <[rd]rd_blkdev_pagecache_IO+10d/148>
+    e:   a4                        movsb  %ds:(%esi),%es:(%edi)
+ Code;  f88b921e <[rd]rd_blkdev_pagecache_IO+10e/148>
+    f:   83 7c 24 28 00            cmpl   $0x0,0x28(%esp,1)
+ 
+ -----------------end lilo exec---------------------------

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270384AbRHHH0a>; Wed, 8 Aug 2001 03:26:30 -0400
+	id <S270387AbRHHH2a>; Wed, 8 Aug 2001 03:28:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270386AbRHHH0U>; Wed, 8 Aug 2001 03:26:20 -0400
-Received: from mail.teraport.de ([195.143.8.72]:38785 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S270384AbRHHH0J>;
-	Wed, 8 Aug 2001 03:26:09 -0400
-Message-ID: <3B70E995.BE570736@TeraPort.de>
-Date: Wed, 08 Aug 2001 09:26:13 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac7 i686)
-X-Accept-Language: en, de
+	id <S270388AbRHHH2W>; Wed, 8 Aug 2001 03:28:22 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:45572 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S270387AbRHHH2E>; Wed, 8 Aug 2001 03:28:04 -0400
+Date: Wed, 8 Aug 2001 00:24:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [PATCH] total_free_shortage() using zone_free_shortage()
+In-Reply-To: <Pine.LNX.4.21.0108080240250.13133-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0108080020120.923-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Admin Mailing Lists <mlist@intergrafix.net>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] eepro100.c - Add option to disable power saving in2.4.7-ac7
-In-Reply-To: <Pine.LNX.4.10.10108071655190.4770-100000@athena.intergrafix.net>
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 08/08/2001 09:26:13 AM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 08/08/2001 09:26:20 AM,
-	Serialize complete at 08/08/2001 09:26:20 AM
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Admin Mailing Lists wrote:
-> 
-> On Mon, 6 Aug 2001, Martin Knoblauch wrote:
-> 
-> > Hi,
-> >
-> >  after realizing that my first attempt for this patch was to
-> > enthusiastic, I have no a somewhat stripped down version. Compiles
-> > against 2.4.7-ac7.
-> >
-> >  The patch adds the option "power_save" to eepro100. If "1" (default),
-> > power save handling is done as normal. If "0", no power saving is done.
-> > This is to workaround some flaky eepro100 adapters that do not survive
-> > D0->D2-D0 transitions.
-> >
-> 
-> i'm assuming if APM isn't configured in the kernel, these options dont
-> matter?
-> 
 
- hmm. I would assume that your assumption is correct.
+On Wed, 8 Aug 2001, Marcelo Tosatti wrote:
+>
+> Having "zone->pages_low" as the low water mark to when start kswapd does
+> _not_ mean we want "zone->pages_low" as the freetarget (or the "free
+> shortage" indicator).
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+Right. We want the free target to obviously be larger than the low target,
+to avoid hysteresis around it.  And at the same time the free target
+obviously has to be smaller than the more-than-enough "plenty" case.
+
+So we actually have _three_ numbers, not two.
+
+> Could you be more verbose ?
+
+I already was, our mails crossed. I think the main thing I have decided to
+be a "Good Feature (tm)" is to consider the free target to be more of a
+global thing, and not a per-zone thing. While the low water mark and
+"plenty" mark obviously have to be per-zone decisions.
+
+And we've actually done exactly this - this is how "inactive_target" works
+already, and how "global_free_shortage()" ends up working too. We just
+didn't write it down explicitly.
+
+		Linus
+

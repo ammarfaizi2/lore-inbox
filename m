@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262903AbUDANij (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 08:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbUDANij
+	id S262901AbUDANf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 08:35:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUDANf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 08:38:39 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:44251
+	Thu, 1 Apr 2004 08:35:58 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:40667
 	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262903AbUDANii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 08:38:38 -0500
-Date: Thu, 1 Apr 2004 15:38:37 +0200
+	id S262901AbUDANf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 08:35:56 -0500
+Date: Thu, 1 Apr 2004 15:35:55 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, Bongani Hlope <bonganilinux@mweb.co.za>
-Subject: Re: 2.6.5-rc3-aa1
-Message-ID: <20040401133837.GD18585@dualathlon.random>
-References: <20040331030921.GA2143@dualathlon.random> <20040331211620.19a8f725@bongani> <200404011157.33051@WOLK>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, vrajesh@umich.edu,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040401133555.GC18585@dualathlon.random>
+References: <20040401020126.GW2143@dualathlon.random> <Pine.LNX.4.44.0404010549540.28566-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200404011157.33051@WOLK>
+In-Reply-To: <Pine.LNX.4.44.0404010549540.28566-100000@localhost.localdomain>
 User-Agent: Mutt/1.4.1i
 X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
 X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 11:57:33AM +0200, Marc-Christian Petersen wrote:
-> On Wednesday 31 March 2004 21:16, Bongani Hlope wrote:
-> 
-> Hi Bongani,
-> 
-> > I'm running 2.6.5-rc2-aa4, when I woke-up in the morning almost all of my
-> > memory was gone, but my swap was never touched. I managed to get only the
-> > output of SysRq-M before it hard-locked. For some reason it doesn't swap.
-> > I'll try to reproduce.
-> 
-> hmm, I am running 2.6.5-rc3-aa1 stuff ontop of 2.6.5-rc3-mm3. It works very 
-> well. What is the value of /proc/sys/vm/swappiness?
+Let's forget the "should we allow people to use rw_swap_page_sync to
+swapout/swapin anonymous pages" discussion, there's a major issue that
+my latest patch still doesn't work:
 
-my script is swapping well for him too, so maybe this was more a
-genuine deadlock somewhere than something else, it would been
-interesting to see SYSRQ+P. It's not necessairly related to my changes.
+Writing data to swap (5354 pages): .<1>Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+c01d9b34
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c01d9b34>]    Not tainted
+EFLAGS: 00010082   (2.6.4-41.8-default)
+EIP is at radix_tree_delete+0x14/0x160
+eax: 00000004   ebx: c10361c0   ecx: 00000016   edx: 000023ee
+esi: 000023ee   edi: 00000000   ebp: 000000d0   esp: cdee5e1c
+ds: 007b   es: 007b   ss: 0068
+Process bash (pid: 1, threadinfo=cdee4000 task=cdf9d7b0)
+Stack: 00000000 f7b0d200 00000004 00000016 c041d440 c03ffe2e c0108d48 c041d440
+       00000000 000003fd 000026b6 c041d440 c03ffe2e 00000320 0000007b ffff007b
+       ffffff00 c021a39e 00000060 c10361c0 c0341d20 00000056 00000056 00000056
+Call Trace:
+ [<c0108d48>] common_interrupt+0x18/0x20
+ [<c021a39e>] serial_in+0x1e/0x40
+ [<c014fc3c>] swap_free+0x1c/0x30
+ [<c0151597>] remove_exclusive_swap_page+0x97/0x155
+ [<c013bc1f>] __remove_from_page_cache+0x3f/0xa0
+ [<c013bc9b>] remove_from_page_cache+0x1b/0x27
+ [<c014eb59>] rw_swap_page_sync+0xa9/0x1d0
+ [<c013588d>] do_magic_suspend_2+0x27d/0x7d0
+ [<c0275c2d>] do_magic+0x4d/0x130
+ [<c0135310>] software_suspend+0xd0/0xe0
+ [<c01fad86>] acpi_system_write_sleep+0xb5/0xd2
+ [<c01facd1>] acpi_system_write_sleep+0x0/0xd2
+ [<c0153e4e>] vfs_write+0xae/0xf0
+ [<c0153f2c>] sys_write+0x2c/0x50
+ [<c0107dc9>] sysenter_past_esp+0x52/0x79
+
+Code: 8b 28 8d 7c 24 10 3b 14 ad 00 99 41 c0 0f 87 18 01 00 00 8d
+ <0>Kernel panic: Attempted to kill init!
+
+
+Pavel told me a SMP kernel cannot suspend, that's probably why I
+couldn't reproduce, I'll recompile UP and hopefully I will be able to
+reproduce, so I can debug it, and I can try latest Andrew's patch too
+(the one allowing anonymous memory swapin/swapouts too).

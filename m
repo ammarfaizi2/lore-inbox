@@ -1,87 +1,263 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313716AbSDZIwq>; Fri, 26 Apr 2002 04:52:46 -0400
+	id <S313727AbSDZIzp>; Fri, 26 Apr 2002 04:55:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313727AbSDZIwp>; Fri, 26 Apr 2002 04:52:45 -0400
-Received: from c2ce9fba.adsl.oleane.fr ([194.206.159.186]:30582 "EHLO
-	avalon.france.sdesigns.com") by vger.kernel.org with ESMTP
-	id <S313716AbSDZIwo>; Fri, 26 Apr 2002 04:52:44 -0400
-To: linux-kernel@vger.kernel.org
-Subject: spinlocking between user context / tasklet / tophalf question
-From: Emmanuel Michon <emmanuel_michon@realmagic.fr>
-Date: 26 Apr 2002 10:52:33 +0200
-Message-ID: <7wwuuu4zam.fsf@avalon.france.sdesigns.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S313730AbSDZIzp>; Fri, 26 Apr 2002 04:55:45 -0400
+Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:61704 "HELO
+	osinvestor.com") by vger.kernel.org with SMTP id <S313727AbSDZIzm>;
+	Fri, 26 Apr 2002 04:55:42 -0400
+Date: Fri, 26 Apr 2002 04:55:40 -0400 (EDT)
+From: Rob Radez <rob@osinvestor.com>
+X-X-Sender: <rob@pita.lan>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] drivers/char/eurotechwdt.c
+Message-ID: <Pine.LNX.4.33.0204260452400.17511-100000@pita.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Marcelo,
+The attached patch against 2.4.19-pre7 updates drivers/char/eurotechwdt.c in
+the following ways:
+	-clean up #includes
+	-clean up locking
+	-make __setup param unique
+	-proper options in watchdog_info
+	-add expect close support
+	-add ioctls
 
-I read various documents about spinlocks, including Linux device
-drivers by A.Rubini 2nd edition, Unreliable guide to locking by P.R.Russel,
-and the source code of mainly network device drivers.
+This patch has been approved by the maintainer, Rodolfo Giometti.
 
-I'm trying to achieve correct SMP synchronization on the Sigma Designs
-EM84xx; this one involves an extra small hardware interrupt (let's call it tophalf),
-only one tasklet scheduled at end of tophalf, and usual kernel side code of
-ioctl() I call usercontext.
+Regards,
+Rob Radez
 
-tophalf and tasklet are potentially writing the same data X
+--- linux-2.4.19-pre7/drivers/char/eurotechwdt.c	Tue Apr 16 13:18:17 2002
++++ watchdog-tree/drivers/char/eurotechwdt.c	Thu Apr 25 02:07:08 2002
+@@ -3,6 +3,7 @@
+  *
+  *	(c) Copyright 2001 Ascensit <support@ascensit.com>
+  *	(c) Copyright 2001 Rodolfo Giometti <giometti@ascensit.com>
++ *	(c) Copyright 2002 Rob Radez <rob@osinvestor.com>
+  *
+  *	Based on wdt.c.
+  *	Original copyright messages:
+@@ -22,17 +23,27 @@
+  *      (c) Copyright 1995    Alan Cox <alan@lxorguk.ukuu.org.uk>*
+  */
 
-tasklet and usercontext are potentially writing the same data Y
++/* Changelog:
++ *
++ * 2002/04/25 - Rob Radez
++ *	clean up #includes
++ *	clean up locking
++ *	make __setup param unique
++ *	proper options in watchdog_info
++ *	add WDIOC_GETSTATUS and WDIOC_SETOPTIONS ioctls
++ *	add expect_close support
++ *
++ * 2001 - Rodolfo Giometti
++ *	Initial release
++ */
++
+ #include <linux/config.h>
+ #include <linux/module.h>
+-#include <linux/version.h>
+ #include <linux/types.h>
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+-#include <linux/sched.h>
+-#include <linux/smp_lock.h>
+ #include <linux/miscdevice.h>
+ #include <linux/watchdog.h>
+-#include <linux/slab.h>
+ #include <linux/ioport.h>
+ #include <linux/fcntl.h>
+ #include <asm/io.h>
+@@ -41,12 +52,10 @@
+ #include <linux/notifier.h>
+ #include <linux/reboot.h>
+ #include <linux/init.h>
+-#include <linux/spinlock.h>
+-#include <linux/smp_lock.h>
 
-So, my first guess was to use two spinlocks, X_lock and Y_lock, 
+-static int eurwdt_is_open;
++static unsigned long eurwdt_is_open;
+ static int eurwdt_timeout;
+-static spinlock_t eurwdt_lock;
++static char eur_expect_close;
 
-with
+ /*
+  *      You must set these - there is no sane way to probe for this board.
+@@ -100,7 +109,7 @@
+    return 1;
+ }
 
-tophalf()
-{
-        spin_lock(&X_lock);
-        write X
-        spin_unlock(&X_lock);
-}
+-__setup("wdt=", eurwdt_setup);
++__setup("eurwdt=", eurwdt_setup);
 
-tasklet()
-{
-        unsigned long flags;
-        spin_lock_irqsave(&X_lock,flags);
-        write X
-        spin_lock(&Y_lock);
-        write X, write Y
-        spin_unlock(&Y_lock);
-        write X
-        spin_unlock_irqrestore(&X_lock,flags);
-}
+ #endif /* !MODULE */
 
-ioctl()
-{
-        spin_lock_bh(&Y_lock);
-        write Y ... maybe copy_from_user/copy_to_user
-        spin_unlock_bh(&Y_lock);
-}
+@@ -109,7 +118,7 @@
+ MODULE_PARM(irq, "i");
+ MODULE_PARM_DESC(irq, "Eurotech WDT irq (default=10)");
+ MODULE_PARM(ev, "s");
+-MODULE_PARM_DESC(ev, "Eurotech WDT event type (default is `reboot')");
++MODULE_PARM_DESC(ev, "Eurotech WDT event type (default is `int')");
 
-So far I get really hardcore freezes and I'm trying to handle this with kgdb
 
-1. Should I use spin_lock(&Y_lock); or spin_lock_bh(&Y_lock); in the tasklet body?
+ /*
+@@ -211,11 +220,20 @@
+       return -ESPIPE;
 
-2. What is the reality behind: ``things which sleep'', is it really a problem
-to use copy_from_user/copy_to_user holding a spinlock?
+    if (count) {
++#ifndef CONFIG_WATCHDOG_NOWAYOUT
++      size_t i;
++
++      eur_expect_close = 0;
++
++      for (i = 0; i != count; i++) {
++         if (buf[i] == 'V')
++            eur_expect_close = 42;
++      }
++#endif
+       eurwdt_ping();   /* the default timeout */
+-      return 1;
+    }
 
-3. Previous version used one semaphore to serialize usercontext access 
-down_interruptible(&sem)/up(&sem)
-and handle tasklet concurrency with:
-down_trylock(&sem)/up(&sem)
+-   return 0;
++   return count;
+ }
 
-That allowed to catch signals (^C) with the usual -ERESTARTSYS stuff. As
-far as I understand, spinlocks allow the serialization but no way to interrupt
-a dead system call --- should I keep the semaphore only for this purpose?
+ /**
+@@ -233,8 +251,8 @@
+         unsigned int cmd, unsigned long arg)
+ {
+    static struct watchdog_info ident = {
+-      options		: WDIOF_CARDRESET | WDIOF_SETTIMEOUT,
+-      firmware_version	: 1,
++      options		: WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++      firmware_version	: 0,
+       identity		: "WDT Eurotech CPU-1220/1410"
+    };
 
-Sincerely yours,
+@@ -248,6 +266,7 @@
+          return copy_to_user((struct watchdog_info *)arg, &ident,
+                sizeof(ident)) ? -EFAULT : 0;
 
--- 
-Emmanuel Michon
-Chef de projet
-REALmagic France SAS
-Mobile: 0614372733 GPGkeyID: D2997E42  
++      case WDIOC_GETSTATUS:
+       case WDIOC_GETBOOTSTATUS:
+          return put_user(0, (int *) arg);
+
+@@ -269,6 +288,27 @@
+
+       case WDIOC_GETTIMEOUT:
+ 	 return put_user(eurwdt_timeout, (int *)arg);
++
++      case WDIOC_SETOPTIONS:
++      {
++	 int options, retval = -EINVAL;
++
++	 if (get_user(options, (int *)arg))
++	    return -EFAULT;
++
++	 if (options & WDIOS_DISABLECARD) {
++	    eurwdt_disable_timer();
++	    retval = 0;
++	 }
++
++	 if (options & WDIOS_ENABLECARD) {
++	    eurwdt_activate_timer();
++	    eurwdt_ping();
++	    retval = 0;
++	 }
++
++	 return retval;
++      }
+    }
+ }
+
+@@ -283,32 +323,15 @@
+
+ static int eurwdt_open(struct inode *inode, struct file *file)
+ {
+-   switch (MINOR(inode->i_rdev)) {
+-      case WATCHDOG_MINOR:
+-         spin_lock(&eurwdt_lock);
+-         if (eurwdt_is_open) {
+-            spin_unlock(&eurwdt_lock);
+-            return -EBUSY;
+-         }
+-
+-         eurwdt_is_open = 1;
+-         eurwdt_timeout = WDT_TIMEOUT;   /* initial timeout */
+-
+-         /* Activate the WDT */
+-         eurwdt_activate_timer();
+-
+-         spin_unlock(&eurwdt_lock);
+-
+-         MOD_INC_USE_COUNT;
++   if (test_and_set_bit(0, &eurwdt_is_open))
++      return -EBUSY;
+
+-         return 0;
++   eurwdt_timeout = WDT_TIMEOUT;   /* initial timeout */
+
+-         case TEMP_MINOR:
+-            return 0;
++   /* Activate the WDT */
++   eurwdt_activate_timer();
+
+-         default:
+-            return -ENODEV;
+-   }
++   return 0;
+ }
+
+ /**
+@@ -325,14 +348,14 @@
+
+ static int eurwdt_release(struct inode *inode, struct file *file)
+ {
+-   if (MINOR(inode->i_rdev) == WATCHDOG_MINOR) {
+-#ifndef CONFIG_WATCHDOG_NOWAYOUT
++   if (eur_expect_close == 42) {
+       eurwdt_disable_timer();
+-#endif
+-      eurwdt_is_open = 0;
+-
+-      MOD_DEC_USE_COUNT;
++   } else {
++      printk(KERN_CRIT "eurwdt: Unexpected close, not stopping watchdog!\n");
++      eurwdt_ping();
+    }
++   clear_bit(0, &eurwdt_is_open);
++   eur_expect_close = 0;
+
+    return 0;
+ }
+@@ -376,9 +399,9 @@
+
+ static struct miscdevice eurwdt_miscdev =
+ {
+-        WATCHDOG_MINOR,
+-        "watchdog",
+-        &eurwdt_fops
++        minor:		WATCHDOG_MINOR,
++        name:		"watchdog",
++        fops:		&eurwdt_fops,
+ };
+
+ /*
+@@ -457,8 +480,6 @@
+    printk(KERN_INFO "Eurotech WDT driver 0.01 at %X (Interrupt %d)"
+                     " - timeout event: %s\n",
+          io, irq, (!strcmp("int", ev) ? "int" : "reboot"));
+-
+-   spin_lock_init(&eurwdt_lock);
+
+    out:
+       return ret;
+

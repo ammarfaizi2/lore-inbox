@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbTANLj5>; Tue, 14 Jan 2003 06:39:57 -0500
+	id <S262469AbTANLrR>; Tue, 14 Jan 2003 06:47:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262425AbTANLj4>; Tue, 14 Jan 2003 06:39:56 -0500
-Received: from ealliance.ro ([213.233.121.14]:38361 "HELO ealliance.ro")
-	by vger.kernel.org with SMTP id <S262418AbTANLjy> convert rfc822-to-8bit;
-	Tue, 14 Jan 2003 06:39:54 -0500
+	id <S262472AbTANLrQ>; Tue, 14 Jan 2003 06:47:16 -0500
+Received: from pl1310.nas921.ichikawa.nttpc.ne.jp ([219.102.249.30]:43065 "EHLO
+	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S262469AbTANLrM>;
+	Tue, 14 Jan 2003 06:47:12 -0500
+Date: Tue, 14 Jan 2003 20:55:56 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: Paul Mackerras <paulus@samba.org>
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: IPMI
+Message-Id: <20030114205556.53695b7d.bruce@ask.ne.jp>
+In-Reply-To: <15907.55035.787654.77224@argo.ozlabs.ibm.com>
+References: <20030114084011.6AB412C466@lists.samba.org>
+	<15907.55035.787654.77224@argo.ozlabs.ibm.com>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14
+ _qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq
+ *)M'3Jp<M,l~'4F{qWpM$%"%p'
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Mihnea Balta <dark_lkml@mymail.ro>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel hooks just to get rid of copy_[to/from]_user() and syscall overhead?
-Date: Tue, 14 Jan 2003 13:47:16 +0200
-X-Mailer: KMail [version 1.4]
-References: <200301101645.39535.dark_lkml@mymail.ro>
-In-Reply-To: <200301101645.39535.dark_lkml@mymail.ro>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301141347.16990.dark_lkml@mymail.ro>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 January 2003 16:45, Mihnea Balta wrote:
-> Hi,
->
-> I have to implement a system which grabs udp packets off a gigabit
-> connection, take some basic action based on what they contain, repack their
-> data with a custom protocol header and send them through a gigabit ethernet
-> interface on broadcast.
+On Tue, 14 Jan 2003 20:23:07 +1100
+Paul Mackerras <paulus@samba.org> wrote:
 
-Following the indications I got here, I did the packet recieving stuff using a 
-mmaped packet socket. From what I understand, that is a recieve-only 
-interface, so it seems that I'm stuck with old sendto() for putting the 
-packets back on the wire. I'd like to know if sendto() can do 20000 (small) 
-packets/second on a fast x86 MP machine (dual or maybe quad) which doesn't do 
-much besides this routing process. If it can't, please tell me if there's any 
-feasible way of implementing a kind of buffer, i.e. keeping recieved packets 
-in a local buffer and sending them alltoghether when the buffer fills or 
-after a timer expires (I'm thinking DMA to the NIC or something simmilar, as 
-the buffer will contain the complete packets, with all the required packets).
+> > This document describes how to use the IPMI driver for Linux.  If you
+> > are not familiar with IPMI itself, see the web site at
+> > http://www.intel.com/design/servers/ipmi/index.htm.  IPMI is a big
+> > subject and I can't cover it all here!
 
-Thanks,
-Mihnea
+I don't want to start a license flamewar, by any means, but while looking
+through that page I noticed this:
 
-PS: feasible == not spending 1 month development time for a 1 
-microsecond/packet improvement.
+"Adopters Agreement:
+
+Before implementing the IPMI, IPMB or ICMB specifications, a royalty-free
+reciprocal patent license must be signed."
+
+The agreement itself (at http://www.intel.com/design/servers/ipmi/adopterslicense.pdf)
+seems benign (where 'seems' means 'I am not a lawyer and I don't even play one on TV'),
+ but this bit looks a little iffy:
+
+| Adopter hereby grants to the Promoters and to Fellow Adopters, and the
+| Promoters hereby grant to Adopter, a nonexclusive, royalty-free,
+| nontransferable, nonsublicenseable, worldwide
+| license under its Necessary Claims to make, have made, use, import,
+| offer to sell and sell products which comply with the Specification
+
+How does the "nontransferable, nonsublicensable" bit affect Linux? I presume
+somebody signed this thing and sent it to Intel, but wouldn't it only apply to
+the individual who signed it, as Linux developers aren't exactly a legal
+entity? The way I read it, it would mean that everybody who wants to
+distribute a kernel containing IPMI would each need to sign the agreement...
+
+Much as I hate to say it, have you had a GPL-aware lawyer look at this?
+
+Sorry for the noise,
+
+Bruce
 

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbTKNSRo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 13:17:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264549AbTKNSRn
+	id S264542AbTKNSU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 13:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264560AbTKNSU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 13:17:43 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:38813 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S264531AbTKNSRm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 13:17:42 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: Larry McVoy <lm@bitmover.com>
-Subject: Re: kernel.bkbits.net off the air
-Date: Fri, 14 Nov 2003 18:17:41 +0000
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <fa.eto0cvm.1v20528@ifi.uio.no> <200311141734.57122.andrew@walrond.org> <20031114174303.GC32466@work.bitmover.com>
-In-Reply-To: <20031114174303.GC32466@work.bitmover.com>
+	Fri, 14 Nov 2003 13:20:57 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:9363 "EHLO terminus.zytor.com")
+	by vger.kernel.org with ESMTP id S264542AbTKNSU4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 13:20:56 -0500
+Message-ID: <3FB51CFC.8040505@zytor.com>
+Date: Fri, 14 Nov 2003 10:20:44 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en, sv, es, fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Davide Libenzi <davidel@xmailserver.org>, Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+References: <3FAFD1E5.5070309@zytor.com> <Pine.LNX.4.44.0311101004150.2097-100000@bigblue.dev.mdolabs.com> <20031110183722.GE6834@x30.random> <3FAFE22B.3030108@zytor.com> <20031110193101.GF6834@x30.random> <20031114051300.GA3466@pimlott.net> <20031114140124.GQ1649@x30.random>
+In-Reply-To: <20031114140124.GQ1649@x30.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311141817.41434.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The points are
->     a) I'm not at all convinced this is going to make anyone other than you
->        happy.  They all want a BK replacement, not a tarball+patch
-> replacement
+Andrea Arcangeli wrote:
+> 
+> I doubt Peter can provide the coherency guarantee with the md5sum on his
+> side, unless it's Peter fetching the update of the scm data, and not the
+> other way around.
+ >
 
-No. The fundamental point is:
-	There are a small group of people who cannot legally extract sources from o/s 
-projects hosted with bk. However small the group, this is unacceptible for an 
-o/s project.
+It is, actually... Larry runs the bkcvs site, but I have a login on that 
+machine and do everything from there.
 
-So Bk is unsuitable for general hosting of o/s, 'free and available to all' 
-projects. They will use cvs or arch.
-
-Thats why you should provide this facility. Not because I want it, but because 
-you should want as many o/s projects as possible to use bk, for sound 
-business reasons.
-
-I think I can see granny looking hungrily at a basket of eggs, so I'm 
-finished.
-
-Andrew Walrond
+	-hpa
 

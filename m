@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280718AbRKSVSH>; Mon, 19 Nov 2001 16:18:07 -0500
+	id <S280714AbRKSVSh>; Mon, 19 Nov 2001 16:18:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280717AbRKSVRr>; Mon, 19 Nov 2001 16:17:47 -0500
-Received: from pat.uio.no ([129.240.130.16]:53477 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S280714AbRKSVRk>;
-	Mon, 19 Nov 2001 16:17:40 -0500
-To: kuznet@ms2.inr.ac.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: more tcpdumpinfo for nfs3 problem: aix-server --- linux 2.4.15pre5 client
-In-Reply-To: <15353.23941.858943.218040@charged.uio.no>
-	<200111191952.WAA21731@ms2.inr.ac.ru>
-	<15353.28112.350734.11894@charged.uio.no>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 19 Nov 2001 22:17:33 +0100
-In-Reply-To: <15353.28112.350734.11894@charged.uio.no>
-Message-ID: <shsn11i31g2.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S280717AbRKSVS2>; Mon, 19 Nov 2001 16:18:28 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:49426 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S280714AbRKSVSI>; Mon, 19 Nov 2001 16:18:08 -0500
+Date: Mon, 19 Nov 2001 19:17:51 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: Remco Post <r.post@sara.nl>, James A Sutherland <jas88@cam.ac.uk>,
+        <linux-kernel@vger.kernel.org>, <remco@zhadum.sara.nl>
+Subject: Re: Swap 
+In-Reply-To: <1922542962.1006204382@[195.224.237.69]>
+Message-ID: <Pine.LNX.4.33L.0111191917000.1491-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+On Mon, 19 Nov 2001, Alex Bligh - linux-kernel wrote:
+> --On Monday, 19 November, 2001 2:58 PM -0200 Rik van Riel
+> <riel@conectiva.com.br> wrote:
+>
+> > Guess again.  Linux doesn't have load control implemented ...
+>
+> Out of interest, is received wisdom that this is a good/bad
+> thing?
 
-     > I haven't done anything about this because IMHO it makes more
-     > sense to have the QDIO driver drop their special spinlock when
-     > calling external functions such as dev_kfree_skb_any() rather
-     > than to force the RPC layer to use the spin_lock_irqsave().
+Load control is a good thing since it means the box
+gets slower in a controlled way instead of running
+fine one minute and horribly falling over the next
+minute.
 
-I forgot to add: The socket fasync lists use spinlocking in the same
-was as RPC does, with sock_fasync() setting
-write_lock_bh(&sk->callback_lock), and sock_def_write_space()
-doing read_lock(&sk->callback_lock).
+I'm certainly planning to implement some load control
+measures for 2.5.
 
-So that would deadlock with the QDIO driver in the exact same manner
-as the RPC stuff (albeit probably a lot less frequently).
+regards,
 
-Cheers,
-   Trond
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

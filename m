@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314546AbSGYNlv>; Thu, 25 Jul 2002 09:41:51 -0400
+	id <S314514AbSGYNjA>; Thu, 25 Jul 2002 09:39:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314596AbSGYNlG>; Thu, 25 Jul 2002 09:41:06 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:8701 "EHLO
+	id <S314083AbSGYNhz>; Thu, 25 Jul 2002 09:37:55 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:7165 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314546AbSGYNjK>; Thu, 25 Jul 2002 09:39:10 -0400
+	id <S313687AbSGYNhf>; Thu, 25 Jul 2002 09:37:35 -0400
 From: Alan Cox <alan@irongate.swansea.linux.org.uk>
-Message-Id: <200207251456.g6PEuMuV010555@irongate.swansea.linux.org.uk>
-Subject: PATCH: 2.5.28 (resend #1) SuS/LSB compliance in readv/writev from 2.4
+Message-Id: <200207251454.g6PEslAc010520@irongate.swansea.linux.org.uk>
+Subject: PATCH: 2.5.28 Make the tulip compile again
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Thu, 25 Jul 2002 15:56:22 +0100 (BST)
+Date: Thu, 25 Jul 2002 15:54:47 +0100 (BST)
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -18,37 +18,48 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/fs/read_write.c linux-2.5.28-ac1/fs/read_write.c
---- linux-2.5.28/fs/read_write.c	Thu Jul 25 10:51:25 2002
-+++ linux-2.5.28-ac1/fs/read_write.c	Mon Jul 22 15:43:46 2002
-@@ -301,17 +301,23 @@
- 	if (copy_from_user(iov, vector, count*sizeof(*vector)))
- 		goto out;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/drivers/net/tulip/de2104x.c linux-2.5.28-ac1/drivers/net/tulip/de2104x.c
+--- linux-2.5.28/drivers/net/tulip/de2104x.c	Thu Jul 25 11:09:41 2002
++++ linux-2.5.28-ac1/drivers/net/tulip/de2104x.c	Thu Jul 25 12:15:28 2002
+@@ -2178,7 +2178,7 @@
+ 		/* Update the error counts. */
+ 		__de_get_stats(de);
  
--	/* BSD readv/writev returns EINVAL if one of the iov_len
--	   values < 0 or tot_len overflowed a 32-bit integer. -ink */
-+	/*
-+	 * Single unix specification:
-+	 * We should -EINVAL if an element length is not >= 0 and fitting an ssize_t
-+	 * The total length is fitting an ssize_t
-+	 *
-+	 * Be careful here because iov_len is a size_t not an ssize_t
-+	 */
-+	 
- 	tot_len = 0;
- 	ret = -EINVAL;
- 	for (i = 0 ; i < count ; i++) {
--		size_t tmp = tot_len;
--		int len = iov[i].iov_len;
--		if (len < 0)
-+		ssize_t tmp = tot_len;
-+		ssize_t len = (ssize_t)iov[i].iov_len;
-+		if (len < 0)	/* size_t not fitting an ssize_t .. */
- 			goto out;
--		(u32)tot_len += len;
--		if (tot_len < tmp || tot_len < (u32)len)
-+		tot_len += len;
-+		if (tot_len < tmp) /* maths overflow on the ssize_t */
- 			goto out;
- 	}
+-		synchronize_irq();
++		synchronize_irq(dev->irq);
+ 		de_clean_rings(de);
+ 
+ 		de_adapter_sleep(de);
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/drivers/net/tulip/de4x5.c linux-2.5.28-ac1/drivers/net/tulip/de4x5.c
+--- linux-2.5.28/drivers/net/tulip/de4x5.c	Thu Jul 25 10:48:25 2002
++++ linux-2.5.28-ac1/drivers/net/tulip/de4x5.c	Thu Jul 25 12:19:02 2002
+@@ -1522,7 +1522,7 @@
+     outl(omr|OMR_ST, DE4X5_OMR);
+ 
+     /* Poll for setup frame completion (adapter interrupts are disabled now) */
+-    sti();                                       /* Ensure timer interrupts */
++
+     for (j=0, i=0;(i<500) && (j==0);i++) {       /* Upto 500ms delay */
+ 	mdelay(1);
+ 	if ((s32)le32_to_cpu(lp->tx_ring[lp->tx_new].status) >= 0) j=1;
+@@ -1644,7 +1644,7 @@
+     if (test_and_set_bit(MASK_INTERRUPTS, (void*) &lp->interrupt))
+ 	printk("%s: Re-entering the interrupt handler.\n", dev->name);
+ 
+-    synchronize_irq();
++    synchronize_irq(dev->irq);
+ 	
+     for (limit=0; limit<8; limit++) {
+ 	sts = inl(DE4X5_STS);            /* Read IRQ status */
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/drivers/net/tulip/winbond-840.c linux-2.5.28-ac1/drivers/net/tulip/winbond-840.c
+--- linux-2.5.28/drivers/net/tulip/winbond-840.c	Thu Jul 25 10:48:25 2002
++++ linux-2.5.28-ac1/drivers/net/tulip/winbond-840.c	Thu Jul 25 12:19:16 2002
+@@ -1674,7 +1674,7 @@
+ 		spin_unlock_irq(&np->lock);
+ 
+ 		spin_unlock_wait(&dev->xmit_lock);
+-		synchronize_irq();
++		synchronize_irq(dev->irq);
+ 	
+ 		np->stats.rx_missed_errors += readl(ioaddr + RxMissed) & 0xffff;
  

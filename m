@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261870AbUCaJP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 04:15:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUCaJP6
+	id S261874AbUCaJWA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 04:22:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbUCaJWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 04:15:58 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:51154 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261870AbUCaJP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 04:15:56 -0500
-Date: Tue, 30 Mar 2004 21:50:45 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: who is merlin.fit.vutbr.cz?
-Message-ID: <20040330195045.GD3084@openzaurus.ucw.cz>
-References: <200403290108.i2T18T8d024595@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 31 Mar 2004 04:22:00 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:24071 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261874AbUCaJV7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 04:21:59 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: wolk-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] speedtouch and/or USB problem (2.6.4-WOLK2.3)
+Date: Wed, 31 Mar 2004 11:21:27 +0200
+User-Agent: KMail/1.6.1
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Grzegorz Kulewski <kangur@polcom.net>,
+       lkml <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>, <speedtouch@ml.free.fr>
+References: <Pine.LNX.4.44L0.0403271851040.2209-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0403271851040.2209-100000@ida.rowland.org>
+X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200403290108.i2T18T8d024595@work.bitmover.com>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403311121.27731@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sunday 28 March 2004 00:51, Alan Stern wrote:
 
-> I can't tell if this is a DOS attack or someone with a REALLY slow net
-> connection.  Whoever this is has been cloning the linux 2.6 (aka 2.5)
-> tree on bkbits so slowly that the tree is locked for days and can't
-> be updated.  About once a day I go kill the clone because stracing it
-> shows it doing nothing.
+Hi Grzegorz,
 
-Never explain with malice what can be explained by incompetence
-as well :-).
+> > When running modem_run on 2.6.4-WOLK2.3 it locks in D state on one of USB
+> > ioctls. It works at least on 2.6.2-rc2. I have no idea what causes this
+> > bug so I sent it to all lists.
+> > Please help if you can.
+> > Grzegorz Kulewski
 
-> Anyway, we've suffered more than enough bad press so before I
-> assume that this host is a rogue and filter them, does anyone know who
-> merlin.fit.vutbr.cz is?  If they really have that slow of a connection
-> we'll burn a CD and Fedex it to them, nobody should suffer that much.
-> But if this is just a DOS, we'll nuke 'em.
+> Try applying this patch:
+> http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108016447231291&q=raw
 
+Did this help Grzegorz?
 
-vutbr.cz is university in czech republic; duno what merlin.fit means,
-perhaps its room at dormatory or something like that.
-
-What kind of bandwidth do they use? You could also try to ping it and maybe finger/
-telnet there to see what it is.
-
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+ciao, Marc

@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271293AbUJVMrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271306AbUJVMxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271293AbUJVMrP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 08:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271260AbUJVMqG
+	id S271306AbUJVMxb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 08:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271299AbUJVMut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 08:46:06 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:19073 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S271300AbUJVMpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 08:45:17 -0400
-Message-ID: <417900D6.4030902@yahoo.com.au>
-Date: Fri, 22 Oct 2004 22:45:10 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-CC: Andrew Morton <akpm@osdl.org>, Francois Romieu <romieu@fr.zoreil.com>,
+	Fri, 22 Oct 2004 08:50:49 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:30882 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S271307AbUJVMpu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 08:45:50 -0400
+Date: Fri, 22 Oct 2004 14:42:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: Gunther Persoons <gunther_persoons@spymac.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 - e1000 - page allocation failed
-References: <20041021221622.GA11607@mail.muni.cz> <20041021225825.GA10844@electric-eye.fr.zoreil.com> <20041022025158.7737182c.akpm@osdl.org> <20041022120821.GA12619@mail.muni.cz>
-In-Reply-To: <20041022120821.GA12619@mail.muni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9
+Message-ID: <20041022124208.GA4489@elte.hu>
+References: <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <4177FAB0.6090406@spymac.com> <20041021164018.GA11560@elte.hu> <16759.63466.507400.649099@thebsh.namesys.com> <20041022102210.GA21734@elte.hu> <16760.62448.307737.588876@gargle.gargle.HOWL> <20041022115734.GA1790@elte.hu> <16760.64712.751231.4772@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16760.64712.751231.4772@gargle.gargle.HOWL>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukas Hejtmanek wrote:
-> On Fri, Oct 22, 2004 at 02:51:58AM -0700, Andrew Morton wrote:
-> 
->>I'd be interested in knowing if this fixes it - I don't expect it will,
->>because that's a zero-order allocation failure.  He's really out of memory.
->>
->>The e1000 driver has a default rx ring size of 256 which seems a bit nutty:
->>a back-to-back GFP_ATOMIC allocation of 256 skbs could easily exhaust the
->>page allocator pools.
->>
->>Probably this machine needs to increase /proc/sys/vm/min_free_kbytes.
-> 
-> 
-> It did not help.
-> 
 
-What did you increase it to? What was the allocation failure message?
+* Nikita Danilov <nikita@clusterfs.com> wrote:
+
+>  > > A kernel daemon that waits for some work to do is an example.
+>  > 
+>  > what type of work - could you be a bit more specific?
+> 
+> Take a loop in fs/cifs/cifsfs.c:cifs_oplock_thread() (I won't copy it
+> here to avoid you all going blind). It can be recoded as
+> 
+>     while(1) {
+>         spin_lock(&GlobalMid_Lock);
+>         while (list_empty(&GlobalOplock_Q)) {
+>              if (kcond_timedwait(&SomeCIFSCVAR, &GlobalMid_Lock, HZ) == -EINTR) {
+>                      spin_unlock(&GlobalMid_Lock);
+>                      complete_and_exit(&cifs_oplock_exited, 0);
+>              }
+>         }
+>         oplock_item = list_entry(GlobalOplock_Q.next, struct oplock_q_entry, qhead);
+>         /* do stuff with oplock_item ... */
+>         spin_unlock(&GlobalMid_Lock);
+>         ....
+>     }
+
+in this particular case i'd use a workqueue, which would simplify this
+down to something like:
+
+	workqueue_handler()
+	{	
+		spin_lock(&GlobalMid_Lock);
+		oplock_item = list_entry(GlobalOplock_Q.next, ...);
+		/* do stuff with oplock_item */
+		spin_unlock(&GlobalMid_Lock);
+	}
+
+and instead of playing games with signals to exit the worker thread, i'd
+use destroy_workqueue().
+
+	Ingo

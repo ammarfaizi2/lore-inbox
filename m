@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314211AbSDZVZZ>; Fri, 26 Apr 2002 17:25:25 -0400
+	id <S314204AbSDZV2n>; Fri, 26 Apr 2002 17:28:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314213AbSDZVZY>; Fri, 26 Apr 2002 17:25:24 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:47974 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S314211AbSDZVZX>; Fri, 26 Apr 2002 17:25:23 -0400
-Date: Fri, 26 Apr 2002 23:25:41 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Marc-Christian Petersen <mcp@linux-systeme.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.18 and strange OOM Killer behaveness
-Message-ID: <20020426232541.K19278@dualathlon.random>
-In-Reply-To: <200204261946.14955.Dieter.Nuetzel@hamburg.de>
+	id <S314210AbSDZV2m>; Fri, 26 Apr 2002 17:28:42 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:20236 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S314204AbSDZV2l>; Fri, 26 Apr 2002 17:28:41 -0400
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
+From: Paul Menage <pmenage@ensim.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+cc: pmenage@ensim.com, linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: [RFC] link_path_walk cleanup
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 26 Apr 2002 14:28:26 -0700
+Message-Id: <E171DGU-0003m7-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 26, 2002 at 07:46:14PM +0200, Dieter Nützel wrote:
-> Marc-Christian Petersen wrote:
-> 
-> > Apr 26 16:10:56 codeman kernel: Out of Memory: Killed process 26038
-> > (mysqld).
-> > Apr 26 16:11:01 codeman kernel: Out of Memory: Killed process 3914 (pico).
-> > Apr 26 16:11:01 codeman kernel: VM: killing process pico
-> > Apr 26 16:11:04 codeman kernel: Out of Memory: Killed process 20471 (squid).
-> >
-> > So, you guess, apache, mysqld, squid and the causer pico are killed, but NO, 
-> > ONLY, and i mean ONLY pico was killed, all the other Processes listed above 
-> > are running fine, accepting connections, short: works fine!!
-> > And yes, its reproduceable !!
-> >
-> > The above is a kernel without rmap!
-> 
-> Try with -AA (splitted vm33), latest ist 2.4.19pre7aa2.
-> It works for "ages".
 
-I second the suggestion :)
+Hi Maneesh,
 
-Andrea
+The handling of '/' in path_walk() and vfs_follow_link() is broken - if
+the pathname consists entirely of  '/' characters, then lookup_parent
+returns the base immediately without setting nd->last. If there's more
+than one '/', then the check for looking up '/' won't be triggered, and
+walk_one() will be called with an undefined nd->last.
+
+So e.g. running
+
+ls '//'
+
+produces
+
+ls: //: File name too long
+
+(but I suspect that it could Oops, depending on what was on the stack 
+when the nameidata was allocated.)
+
+Ideally the tests in vfs_follow_link() and path_walk() ought to be
+testing for (nd->last_type == LAST_ROOT), rather than checking
+explicitly for '/' followed by NUL. But that doesn't work, as last_type
+is only set if you include LOOKUP_PARENT in the flags. Setting last_type
+on every path element resolution would probably be unecessary overhead
+given the relative infrequency of looking up "/".
+
+So the alternative that I suggest is to change lookup_parent() as 
+follows:
+
+	while (*name=='/')
+		name++;
+	if (!*name) {
+		nd->last = (struct qstr) { name : ".", len : 1, hash : 0 };
+		goto return_base;
+	}
+
+and remove the tests for "/" in vfs_follow_link() and path_walk().
+Setting nd->last to refer to "." will cause walk_one() to return
+immediately, so the zero hash value is OK.
+
+Paul
+

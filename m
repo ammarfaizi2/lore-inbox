@@ -1,74 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbUL3XBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbUL3XIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbUL3XBY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 18:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbUL3XBY
+	id S261742AbUL3XIR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 18:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbUL3XIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 18:01:24 -0500
-Received: from nevyn.them.org ([66.93.172.17]:47805 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S261741AbUL3XBU (ORCPT
+	Thu, 30 Dec 2004 18:08:17 -0500
+Received: from mail.tyan.com ([66.122.195.4]:15379 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S261742AbUL3XIN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 18:01:20 -0500
-Date: Thu, 30 Dec 2004 18:00:46 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jesse Allen <the3dfxdude@gmail.com>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       Mike Hearn <mh@codeweavers.com>, Thomas Sailer <sailer@scs.ch>,
-       Eric Pouech <pouech-eric@wanadoo.fr>,
-       Roland McGrath <roland@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-Message-ID: <20041230230046.GA14843@nevyn.them.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Jesse Allen <the3dfxdude@gmail.com>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	Mike Hearn <mh@codeweavers.com>, Thomas Sailer <sailer@scs.ch>,
-	Eric Pouech <pouech-eric@wanadoo.fr>,
-	Roland McGrath <roland@redhat.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-References: <Pine.LNX.4.58.0412291703400.30636@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0412291745470.2353@ppc970.osdl.org> <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com> <53046857041230112742acccbe@mail.gmail.com> <Pine.LNX.4.58.0412301130540.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412301436330.22893@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0412301436330.22893@ppc970.osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 30 Dec 2004 18:08:13 -0500
+Message-ID: <3174569B9743D511922F00A0C943142307290FE0@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, Matt_Domsch@dell.com,
+       "'Stefan Reinauer'" <stepan@openbios.org>
+Subject: RE: 256 apic id for amd64
+Date: Thu, 30 Dec 2004 15:16:39 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i386 architecture details are really not my thing, so I'm going to
-trust you on most of this, but this bit:
+For the 8 way dual core Opteron system.
+The CPUs will use 16 APIC ID, so BIOS or LinuxBIOS will enable APIC_EXT_ID
+to use 256 apic id. So the ioapic will begin from 16.....
 
-On Thu, Dec 30, 2004 at 02:46:17PM -0800, Linus Torvalds wrote:
->  	/* the 0x80 provides a way for the tracing parent to distinguish
->  	   between a syscall stop and SIGTRAP delivery */
-> -	ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD) &&
-> -				 !test_thread_flag(TIF_SINGLESTEP) ? 0x80 : 0));
-> +	info.si_code = SIGTRAP;
-> +	if ((current->ptrace & PT_TRACESYSGOOD) && !test_thread_flag(TIF_SINGLESTEP))
-> +		info.si_code = SIGTRAP | 0x80;
-> +	info.si_pid = current->tgid;
-> +	info.si_uid = current->uid;
->  
-> -	/*
-> -	 * this isn't the same as continuing with a signal, but it will do
-> -	 * for normal use.  strace only continues with a signal if the
-> -	 * stopping signal is not SIGTRAP.  -brl
-> -	 */
-> -	if (current->exit_code) {
-> -		send_sig(current->exit_code, current, 1);
-> -		current->exit_code = 0;
-> -	}
-> +	/* Send us the fakey SIGTRAP */
-> +	send_sig_info(SIGTRAP, &info, current);
->  }
+Another case : one system has two much 8131 will need to enable it.
+For example four way system with single core Opteron, will have 7 8131s and
+1 8111. So apic num will be 4+7*2+1=19.
 
-does not look right to me.  Before, we'd get an 0x80|SIGTRAP result
-from wait.  Now, you've moved the 0x80 to live only inside the siginfo.
-This is accessible to the debugger via ptrace, but only very recently
-(late 2.5.x).  So this will probably break users of PT_TRACESYSGOOD.
+Thanks.
 
--- 
-Daniel Jacobowitz
+YH
+
+-----Original Message-----
+From: Andi Kleen [mailto:ak@muc.de] 
+Sent: Thursday, December 30, 2004 10:45 AM
+To: YhLu
+Cc: linux-kernel@vger.kernel.org; discuss@x86-64.org; Matt_Domsch@dell.com
+Subject: Re: 256 apic id for amd64
+
+YhLu <YhLu@tyan.com> writes:
+
+> Can someone who maintains the x86-64 io_apic.c look at my patch about 256
+> apic id for amd64?
+
+First in general if you want patches submitted look up the maintainer
+in the MAINTAINERS file in the source tree and send it directly
+to the appropiate person and mailing list.
+
+Just curious - how many IO-APICs does your system have?
+
+Then I don't like your patch very much, since it doesnt handle 
+Intel systems. The best fix is probably to 
+
+i386 also has a different (but Intel specific fix) - uses either
+0xf or 0xff based on the APIC version. Just dropping it seems
+better to me though. I suppose Matt (cc'ed) who apparently
+wrote this code originally used it to work around some BIOS
+bug, and at least we can hope for now that there are no 
+EM64T boxes with that particular BIOS bug.
+
+I will add this patch.
+
+-Andi
+
+Remove check that limited max number of IO-APIC to 8.
+
+The original check was apparently to work around some old BIOS
+bugs and we just assume x86-64 machines don't have this class of
+problems.
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+diff -u linux-2.6.10/arch/x86_64/kernel/io_apic.c-o
+linux-2.6.10/arch/x86_64/kernel/io_apic.c
+--- linux-2.6.10/arch/x86_64/kernel/io_apic.c-o	2004-12-24
+22:34:45.000000000 +0100
++++ linux-2.6.10/arch/x86_64/kernel/io_apic.c	2004-12-30
+19:41:08.000000000 +0100
+@@ -1160,13 +1160,6 @@
+ 		
+ 		old_id = mp_ioapics[apic].mpc_apicid;
+ 
+-		if (mp_ioapics[apic].mpc_apicid >= 0xf) {
+-			apic_printk(APIC_QUIET,KERN_ERR "BIOS bug,
+IO-APIC#%d ID is %d in the MPC table!...\n",
+-				apic, mp_ioapics[apic].mpc_apicid);
+-			apic_printk(APIC_QUIET,KERN_ERR "... fixing up to
+%d. (tell your hw vendor)\n",
+-				reg_00.bits.ID);
+-			mp_ioapics[apic].mpc_apicid = reg_00.bits.ID;
+-		}
+ 
+ 		printk(KERN_INFO "Using IO-APIC %d\n",
+mp_ioapics[apic].mpc_apicid);
+ 

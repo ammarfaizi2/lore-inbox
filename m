@@ -1,68 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267107AbUBFAdO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 19:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267105AbUBFAcp
+	id S262827AbUBFA4W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 19:56:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267000AbUBFA4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 19:32:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:5064 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267045AbUBFAck (ORCPT
+	Thu, 5 Feb 2004 19:56:22 -0500
+Received: from legolas.restena.lu ([158.64.1.34]:59111 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S262827AbUBFA4S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 19:32:40 -0500
-Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat" DIO read race still fails
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, "linux-aio@kvack.org" <linux-aio@kvack.org>
-In-Reply-To: <20040205160755.25583627.akpm@osdl.org>
-References: <20040205014405.5a2cf529.akpm@osdl.org>
-	 <1076023899.7182.97.camel@ibm-c.pdx.osdl.net>
-	 <20040205160755.25583627.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076027555.7182.122.camel@ibm-c.pdx.osdl.net>
+	Thu, 5 Feb 2004 19:56:18 -0500
+Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
+From: Craig Bradney <cbradney@zip.com.au>
+To: Luis Miguel =?ISO-8859-1?Q?Garc=EDa?= <ktech@wanadoo.es>
+Cc: Andrew Morton <akpm@osdl.org>, david+challenge-response@blue-labs.org,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       a.verweij@student.tudelft.nl
+In-Reply-To: <4022DE3C.1080905@wanadoo.es>
+References: <402298C7.5050405@wanadoo.es> <40229D2C.20701@blue-labs.org>
+	 <4022B55B.1090309@wanadoo.es>  <20040205154059.6649dd74.akpm@osdl.org>
+	 <1076026496.16107.23.camel@athlonxp.bradney.info>
+	 <4022DE3C.1080905@wanadoo.es>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-62D+nPpzhAqQpy1pR+6D"
+Message-Id: <1076028975.23667.30.camel@athlonxp.bradney.info>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Feb 2004 16:32:35 -0800
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 06 Feb 2004 01:56:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-02-05 at 16:07, Andrew Morton wrote:
-> Daniel McNeil <daniel@osdl.org> wrote:
+
+--=-62D+nPpzhAqQpy1pR+6D
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, 2004-02-06 at 01:22, Luis Miguel Garc=EDa wrote:
+> Craig Bradney wrote:
+>=20
+> >On Fri, 2004-02-06 at 00:40, Andrew Morton wrote:
+> > =20
 > >
-> > Andrew,
-> > 
-> > I tested 2.6.2-mm1 on an 8-proc running 6 copies of the read_under
-> > test and all 6 read_under tests saw uninitialized data in less than 5
-> > minutes. :(
-> 
-> The performance implications of synchronising behind kjournald writes for
-> normal non-blocking writeback are bad.  Can you detail what you now think
-> is the failure mechanism?
-> 
+> >>Luis Miguel Garc=EDa <ktech@wanadoo.es> wrote:
+> >>   =20
+> >>
+> >>>David Ford wrote:
+> >>>
+> >>>     =20
+> >>>
+> >>>>I have the same problem.  I "solved" it a while ago by mucking with=20
+> >>>>the AGP stuff.  IIRC, it was turning off AGP fast writes or 8x or=20
+> >>>>something similar in cmos.  Went from incredibly broken to stable=20
+> >>>>instantly.  I'll check my cmos settings in a bit and refresh my memor=
+y.
+> >>>>
+> >>>>What patches are you using?
+> >>>>       =20
+> >>>>
+> >>>I'm using nforce2-apic.patch and nforce2-disconnect-quirk.patch that=20
+> >>>Andrew Morton have sent to me. I think they have been included in=20
+> >>>previous mm kernels but now are droped because they caused some=20
+> >>>temperature problems for some people with no nforce motherboards.
+> >>>     =20
+> >>>
+> >>Yes, the patch which disables "Halt Disconnect and Stop Grant Disconnec=
+t"
+> >>apparently causes the CPU to run hot.
+> >>
+> >>   =20
+> >>
+> >>>By the way, is anyone involved in solving the IO-APIC thing in nforce=20
+> >>>motherboards? Anyone trying a different approach? Anyone contacting=20
+> >>>nvidia about this problem?
+> >>>     =20
+> >>>
+> >>As far as I know, we're dead in the water on these problems.
+> >>   =20
+> >>
+> >
+> >
+> >One day hopefully this will be sorted in the BIOSes and in mainline. I
+> >keep having to patch for every release (although as thats the only patch
+> >I have to do I'm sure there are many worse off than me). I use the 3com
+> >n/w on my A7N8X Deluxe v2 BIOS 1007 so no need for nforcedeth.
+> >
+> >Best patches are at:
+> >http://lkml.org/lkml/2003/12/21/7
+> >
+> >Ive applied them to 2.6.0 and 2.6.1 and give no crashes and no heat
+> >issues.
+> >
+> > (XP2600+ runs at 31/32C normal use and 38C compiling with Zalman cooler
+> >+exhaust fans in box)
+> >
+> >Craig
+> > =20
+> >
+> you mean 31 - 38 C readed from /proc/acpi/temp[........]????
+>=20
+> I'm having readings of 53 in idle and even 64 while compiling!! I have=20
+> no case fan, but I don't think it's so important for this bug difference.
+>=20
+> by the way, has anyone tried to contact nvidia with detailed information=20
+> of this bug? Perhaps they can tell us something, not to?
 
-I think the problem is that any block_write_full_page(WB_SYNC_NONE)
-that hits a page that has a buffer in process of being written will
-get PageWriteback cleared even though the i/o has not completed.
-(The buffer will be locked, but buffer_dirty() is cleared, so
- __block_write_full_page() will SetPageWriteback(); unlock_page();
- see no buffer were submitted and call end_page_writeback())
 
-Any subsequent filemap_write_and_wait() or filemap_fdatawrite() /
-filemap_fdatawait will never wait for that i/o.  So this could
-potentially be a problem for more than just DIO.
+no.. /sys/bus/i2c
 
-BTW: 2.4 __block_write_full_page() always did a lock_buffer(), so
-it waits for i/o in flight.
+I was highly sceptical that these values were wrong.. but if I was to
+shut down and immediately look at the BIOS values.. they are close
+enough to make the values I'm quoting to be on the mark. Of course, the
+BIOS values could be wrong.
 
-I agree though, it would be best if non-sync __block_write_full_page()
-would not block on buffers in flight.  Somehow we need to move the
-clearing of PageWriteback() until after the buffer has been written
-even for the case where ll_rw_block() is called.
+I had the normal Athlon cooler and one rear case fan and it was maxing
+out at around 50C. Putting on the Zalman cooler dropped it by 10C.
+Adding in the rear fans means it never goes above 39C while compiling.
+If the windows open and theres a draft through the room and cold
+outside.. :) ..it will idle at 29ish.
 
-Thoughts?
+Craig
 
-Daniel
 
+
+--=-62D+nPpzhAqQpy1pR+6D
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAIuYvi+pIEYrr7mQRAggJAJ0XuyxjVE8J1FwRth5OykvryNTLeACfUpwT
+PSy8fBZ8G4gvpAPxvnwjmsE=
+=VTMC
+-----END PGP SIGNATURE-----
+
+--=-62D+nPpzhAqQpy1pR+6D--
 

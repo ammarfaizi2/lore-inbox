@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267535AbRGSLQw>; Thu, 19 Jul 2001 07:16:52 -0400
+	id <S267533AbRGSLMd>; Thu, 19 Jul 2001 07:12:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267536AbRGSLQn>; Thu, 19 Jul 2001 07:16:43 -0400
-Received: from smtp2.ihug.co.nz ([203.109.252.8]:63756 "EHLO smtp2.ihug.co.nz")
-	by vger.kernel.org with ESMTP id <S267535AbRGSLQ2>;
-	Thu, 19 Jul 2001 07:16:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Matthew Gardiner <kiwiunix@ihug.co.nz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Errors on compiling kernel with iomega buz support
-Date: Thu, 19 Jul 2001 23:14:55 +1200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01071919592800.16303@rieacs1.gecpalau.com>
-In-Reply-To: <01071919592800.16303@rieacs1.gecpalau.com>
-MIME-Version: 1.0
-Message-Id: <01071923145500.00990@kiwiunix.ihug.co.nz>
-Content-Transfer-Encoding: 7BIT
+	id <S267536AbRGSLMW>; Thu, 19 Jul 2001 07:12:22 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:46098 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S267533AbRGSLMT>;
+	Thu, 19 Jul 2001 07:12:19 -0400
+Date: Thu, 19 Jul 2001 14:17:07 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Marcelo W. Tosatti" <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org, Dave McCracken <dmc@austin.ibm.com>,
+        Dirk Wetter <dirkw@rentec.com>
+Subject: Re: [PATCH] swap usage of high memory (fwd)
+Message-ID: <20010719141707.M5559@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.33L.0107181529100.28730-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0107181529100.28730-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Wed, Jul 18, 2001 at 03:36:17PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I have the latest kernel (2.4.6) with the patch (2.4.6-ac5) from 
-www.bzimage.com, which corrects the problem, however, the ACPI module is 
-still buggered. I have informed the ACPI maintainer, however, I have not 
-received an email of confirmation yet.
+....
+> Rik, could you please forward this to the kernel mailing list?
+> I am temporarily unable to reach it directly due to ECN problems.
+....
 
-Hopefully (fingers crossed), the problem will be sorted out before the next 
-release.
+  Dave (and others),
 
-Matthew Gardiner
+  The "ECN problem" is unidirectional.
+
+  VGER can't reach you when VGER calls your email servers,
+  but your email servers can reach VGER!  (Or vger's MX backup.)
+
+  That is, you CAN send to VGER even if VGER can't send to you!
+
+  This is due to the way how the ECN handshake is done.
+
+> Thanks,
+> Dave McCracken
+
+/Matti Aarnio

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317917AbSHHTx0>; Thu, 8 Aug 2002 15:53:26 -0400
+	id <S317918AbSHHT7f>; Thu, 8 Aug 2002 15:59:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317918AbSHHTx0>; Thu, 8 Aug 2002 15:53:26 -0400
-Received: from ns1.weccusa.org ([207.1.28.170]:9201 "EHLO trabajo")
-	by vger.kernel.org with ESMTP id <S317917AbSHHTxZ>;
-	Thu, 8 Aug 2002 15:53:25 -0400
-Date: Thu, 8 Aug 2002 14:56:58 -0500
-From: "Bryan K. Walton" <thisisnotmyid@tds.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with 1gb ddr memory sticks on linux
-Message-ID: <20020808195658.GO16225@weccusa.org>
-References: <20020808160456.GI16225@weccusa.org> <1028828840.28883.43.camel@irongate.swansea.linux.org.uk> <20020808163952.GJ16225@weccusa.org> <1028836012.28883.61.camel@irongate.swansea.linux.org.uk>
+	id <S317960AbSHHT7f>; Thu, 8 Aug 2002 15:59:35 -0400
+Received: from ns.suse.de ([213.95.15.193]:9222 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317918AbSHHT7f>;
+	Thu, 8 Aug 2002 15:59:35 -0400
+Date: Thu, 8 Aug 2002 22:03:17 +0200
+From: Andi Kleen <ak@suse.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Peter Samuelson <peter@cadcamlab.org>, Andi Kleen <ak@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       linux-kbuild@lists.sourceforge.net
+Subject: Re: 64bit clean drivers was Re: Linux 2.4.20-pre1
+Message-ID: <20020808220317.A14531@wotan.suse.de>
+References: <20020808151432.GD380@cadcamlab.org> <Pine.LNX.4.44.0208082119520.8911-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1028836012.28883.61.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.44.0208082119520.8911-100000@serv>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Many thanks to Alan, Mark, and everyone else who offered advice on fixing my
-problem with my bios and large memory sticks.  I rewrote the /proc/mtrr
-and everything is speedy now!
-
-Thank you!
-Bryan
-
-On Thu, 2002-08-08 at 19:40, Mark Hahn wrote:
-> > echo "base=0x00000000 size=0x60000000 type=write-back" >/proc/mtrr
- 
-> > 
-> > should override the BIOS setting and make your machine speed up.
+On Thu, Aug 08, 2002 at 09:23:30PM +0200, Roman Zippel wrote:
+> Hi,
 > 
-> don't mtrrs still have to be a power of two in size?
-> ie, he'd need two for 1024+256...
+> On Thu, 8 Aug 2002, Peter Samuelson wrote:
+> 
+> > The real solution (imo) is to add !$CONFIG_FOO support to the config
+> > language.  Fortunately this is quite easy.  What do you people think?
+> > I didn't do xconfig or config-language.txt but I can if desired.
+> 
+> I think it would help a lot if you first update the latter and somehow
+> describe what the negation in this context is supposed to mean.
 
-You are correct he should add one starting at 0 for 1Gb and one at 1Gb
-for 256Mb - my error.
+dependency is met when the symbol is not defined.
+
+What's the problem with the definition ?
+
+-Andi

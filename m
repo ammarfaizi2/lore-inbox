@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbUCAK6R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 05:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbUCAK6R
+	id S261204AbUCALKb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 06:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbUCALKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 05:58:17 -0500
-Received: from ns.suse.de ([195.135.220.2]:24003 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261199AbUCAK6P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 05:58:15 -0500
-Date: Mon, 1 Mar 2004 11:58:13 +0100
-From: Andi Kleen <ak@suse.de>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH] 2.6.4-rc1 fix x86 early_printk and make it early
-Message-Id: <20040301115813.6194f2fe.ak@suse.de>
-In-Reply-To: <m165dp9m2r.fsf@ebiederm.dsl.xmission.com>
-References: <m165dp9m2r.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 1 Mar 2004 06:10:31 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:11750 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261204AbUCALK2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 06:10:28 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16451.6690.614292.510000@laputa.namesys.com>
+Date: Mon, 1 Mar 2004 14:10:26 +0300
+To: Rik van Riel <riel@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
+ end)
+In-Reply-To: <Pine.LNX.4.44.0402271544520.1747-100000@chimarrao.boston.redhat.com>
+References: <20040227122936.4c1be1fd.akpm@osdl.org>
+	<Pine.LNX.4.44.0402271544520.1747-100000@chimarrao.boston.redhat.com>
+X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Feb 2004 22:24:12 -0700
-ebiederm@xmission.com (Eric W. Biederman) wrote:
+Rik van Riel writes:
 
->   o That is problematic with PAE support, because there is a moment
->     during paging_init() when the physical identity mappings do not
->     work. 
+[...]
 
-Just don't printk in that moment then.
+ > 
+ > Duh, I forgot all about the rotate_reclaimable_page() stuff.
+ > That may well fix all problems 2.6 would have otherwise had
+ > in this area.
+ > 
+ > I really hope we won't need anything like the O(1) VM stuff
+ > in 2.6, since that would leave me more time to work on other
+ > cool stuff (like resource management ;)).
 
->   o Using raw physical addresses is in bad form, and doesn't always work.
+Page-out from end of the inactive list is not efficient, because pages
+are submitted for IO in more or less random order and this results in
+a lot of seeks. Test-case: replace ->writepage() with
 
-On x86-64 it's that __pa() doesn't always work very early.
+int foofs_writepage(struct page *page)
+{
+        SetPageDirty(page);
+        unlock_page(page);
+        return 0;
+}
 
->   o I can't possibly see how Andrew's Changelog that using __pa
->     is more friendly to the 4G/4G split is correct.  Unless someone
->     was hard coding a virtual address previously.
+and run
 
-Yes, it shouldn't make any difference for 4/4.
+$ time cp /tmpfs/huge-data-set /foofs
 
-> The second hunk in early_printk.c redefines VGABASE as __va(0xb8000).
-> This is correct on both x86 and x86-64 so we don't need any more
-> special cases.  
+File systems (and anonymous memory) want clustered write-out and VM
+designs with separate write-out queue (like O(1) VM) are better suited
+for this.
 
-Please don't do that on x86-64. On x86-64 there are two ways to reach this
-address and the previous one is available earlier.  Keep the current
-address for x86-64 please.
-
--Andi
+Nikita.

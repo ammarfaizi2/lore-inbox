@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130259AbRBBWgB>; Fri, 2 Feb 2001 17:36:01 -0500
+	id <S130416AbRBBWgv>; Fri, 2 Feb 2001 17:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130416AbRBBWfy>; Fri, 2 Feb 2001 17:35:54 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:14208 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S130259AbRBBWf3>; Fri, 2 Feb 2001 17:35:29 -0500
-Date: Fri, 2 Feb 2001 17:35:03 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "David S. Miller" <davem@redhat.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Your message to Meltingpot awaits moderator approval
-In-Reply-To: <14971.13563.370306.226137@pizda.ninka.net>
-Message-ID: <Pine.LNX.3.95.1010202173430.1733A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130378AbRBBWgl>; Fri, 2 Feb 2001 17:36:41 -0500
+Received: from mail002.syd.optusnet.com.au ([203.2.75.245]:35283 "EHLO
+	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S130416AbRBBWgY>; Fri, 2 Feb 2001 17:36:24 -0500
+Date: Sat, 3 Feb 2001 08:35:39 +1000
+Message-Id: <200102022235.f12MZdi21961@borogoves.yi.org>
+From: Derek Benson <derek@borogoves.yi.org>
+Subject: Ethernet dies after one hour
+Reply-to: derek@borogoves.yi.org
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Feb 2001, David S. Miller wrote:
+I have a box with: 
+  a couple of analog ISA modem cards in it which have 8 modems a piece 
+  the modems use devices ttyS4-19 
+  a realtek 8039 pci ethernet card (100 mbit)
+  486 dx
 
-> 
-> Richard B. Johnson writes:
->  > WARNING!! Messages to linux-kernel are now being intercepted
->  > (and answered) by this company:
->  > On Fri, 2 Feb 2001 meltingpot-admin@Postal.Miralink.Com wrote:
->  > 
->  > My message was sent directly to linux-kernel, with no cc address.
->  > It should not have gone anywhere else.
-> 
-> I've removed the meltingpot address from linux-kernel.
-> 
-> Later,
-> David S. Miller
-> davem@redhat.com
-> 
+Its running redhat 6.2 and a 2.2.17 kernel with ppp ip-forwarding
+ip aliasing and ip masq support. 
+The kernel is patched with a rastel driver (serial.c and dummy.h from
+memory)  Although this is 2.2 kernel it has support for proxy arp after
+the patch. 
 
-Thanks.
+I am running portslave terminal server.  And I use proxy arp on dialin
+connections to add an entry in the arp table (I don't like this but ppp
+won't work otherwise with this particular kernel after the patch)
+I am using iputils-20001010-1.6x.i386.rpm ppp-2.3.11-4.i386.rpm
 
-Cheers,
-Dick Johnson
+When I ping I get a warning saying that time goes back and taking precautions.
+I have tried changing the time on the hwclock and clock but doesn't seem to 
+make any difference.  These warnings occur even when I ping the loopback 
+interface.
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+After the box is up for an hour (in which times it functions perfectly)
+it ceases to be on the network.  Its almost as if the cable has been 
+unplugged.  
+If I go down into single user mode and come back up it reappears
+on the network for about 5 seconds and then disappears again.  
+After a 'shutdown -r now' it comes up and is on the network for another hour.
+The log files only contain messages like: radius server not responding etc
+which you would expect if the ethernet was down.  
+ifconfig shows nothing unusual, that is it is still up.
+I can ping the loopback and the ip address from the box itself to itself after
+it's ethernet has ceased to function.
+The ethernet hub shows a slow blink for the box (corresponding to the volume
+of traffic) after it has ceased to function.
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+Is this a kernel problem? 
+A portslave problem?
+An iputils-20001010-1.6x problem?
+Buggey ethernet card?
+
+thanks 
+derek
+
 
 
 -

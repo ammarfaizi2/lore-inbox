@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVCPKIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262313AbVCPKKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbVCPKIR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 05:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbVCPKIQ
+	id S262313AbVCPKKI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 05:10:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbVCPKKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 05:08:16 -0500
-Received: from smtp11.wanadoo.fr ([193.252.22.31]:29349 "EHLO
-	smtp11.wanadoo.fr") by vger.kernel.org with ESMTP id S262313AbVCPKHp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 05:07:45 -0500
-X-ME-UUID: 20050316100738180.2C0641C00083@mwinf1102.wanadoo.fr
-Subject: Documentation/i386/IO-APIC.txt (Re: 2.6.11 USB broken on VIA
-	computer (not just ACPI))
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050315215447.7975a0ff.akpm@osdl.org>
-References: <4237A5C1.5030709@sbcglobal.net>
-	 <20050315203914.223771b2.akpm@osdl.org> <4237C40C.6090903@sbcglobal.net>
-	 <20050315213110.75ad9fd5.akpm@osdl.org> <4237C61A.6040501@sbcglobal.net>
-	 <20050315215447.7975a0ff.akpm@osdl.org>
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 16 Mar 2005 11:00:01 +0100
-Message-Id: <1110967201.20838.221.camel@gonzales>
+	Wed, 16 Mar 2005 05:10:08 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:40876 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262313AbVCPKJ6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 05:09:58 -0500
+Date: Wed, 16 Mar 2005 11:09:14 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Frank Rowand <frowand@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] ppc RT: Realtime preempt support for PPC
+Message-ID: <20050316100914.GA16012@elte.hu>
+References: <422CCC1D.1050902@mvista.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <422CCC1D.1050902@mvista.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mardi 15 mars 2005 à 21:54 -0800, Andrew Morton a écrit :
-> You may be able to set the thing up by hand with the help of
-> Documentation/i386/IO-APIC.txt.
 
-There's something I don't get in this document's ascii-art:
+hi Frank - sorry about the late reply, was busy with other things. Your
+ppc patches look mostly mergeable, with some small details still open:
 
-8<------------------------------------------------------------------
-               ,-.        ,-.        ,-.        ,-.        ,-.
-     PIRQ4 ----| |-.    ,-| |-.    ,-| |-.    ,-| |--------| |
-               |S|  \  /  |S|  \  /  |S|  \  /  |S|        |S|
-     PIRQ3 ----|l|-. `/---|l|-. `/---|l|-. `/---|l|--------|l|
-               |o|  \/    |o|  \/    |o|  \/    |o|        |o|
-     PIRQ2 ----|t|-./`----|t|-./`----|t|-./`----|t|--------|t|
-               |1| /\     |2| /\     |3| /\     |4|        |5|
-     PIRQ1 ----| |-  `----| |-  `----| |-  `----| |--------| |
-               `-'        `-'        `-'        `-'        `-'
+* Frank Rowand <frowand@mvista.com> wrote:
 
-every PCI card emits a PCI IRQ, which can be INTA,INTB,INTC,INTD:
+> The patches are:
+> 
+>  1/5 ppc_rt.patch          - the core realtime functionality for PPC
 
-                               ,-.
-                         INTD--| |
-                               |S|
-                         INTC--|l|
-                               |o|
-                         INTB--|t|
-                               |x|
-                         INTA--| |
-                               `-'
+what is the rationale behind the rt_lock.h changes? The #ifdef
+CONFIG_PPC32 changes in generic code are not really acceptable, the -RT
+tree tries to keep a single spinlock definition and debugging
+primitives, across all architectures.
 
-These INTA-D PCI IRQs are always 'local to the card', their real meaning
-depends on which slot they are in. If you look at the daisy chaining diagram,
-a card in slot4, issuing INTA IRQ, it will end up as a signal on PIRQ2 of
-the PCI chipset. [...]
-8<------------------------------------------------------------------
+to drive things forward, i've applied the first 3 patches (except the
+rt_lock.h chunk from the first patch), and released it as part of the
+40-03 patch:
 
-If I follow the wire from Slot4's INTA, I'm ending on PIRQ4 whereas the
-doc says IRQ2. Do I need glasses, or a new fixed-font ?
+  http://redhat.com/~mingo/realtime-preempt/
 
-	Xav
+so that you can send followup patches based on this. Patches #4 and #5
+are routed via the upstream PPC tree, so -RT should not carry them,
+right?
 
-
+	Ingo

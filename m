@@ -1,169 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUGMVQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265932AbUGMVWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265943AbUGMVQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 17:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUGMVQQ
+	id S265932AbUGMVWR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 17:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUGMVWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 17:16:16 -0400
-Received: from mail.gmx.de ([213.165.64.20]:51355 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265943AbUGMVPe (ORCPT
+	Tue, 13 Jul 2004 17:22:17 -0400
+Received: from gprs214-20.eurotel.cz ([160.218.214.20]:12416 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265932AbUGMVWM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 17:15:34 -0400
-X-Authenticated: #23026389
-From: "Alexander \"ghostrile\" Bierbrauer" <abierbrauer@gmx.org>
-To: linux-kernel@vger.kernel.org
-Subject: reading the kernel configuration using libkconfig.so
-Date: Tue, 13 Jul 2004 23:10:07 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Tue, 13 Jul 2004 17:22:12 -0400
+Date: Tue, 13 Jul 2004 23:21:56 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       irda-users@lists.sourceforge.net
+Subject: Trivial cleanups & 64-bit fixes for donauboe.c
+Message-ID: <20040713212156.GA2971@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407132310.07170.abierbrauer@gmx.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey there,
+Hi!
 
-I've started to code a tool for exporting the kernel configuration to a HTML 
-file (inkl trees and so on.. could be used for HowTos). I've read qconf.cc 
-gconf.c from /usr/src/linux/sripts/kconfig.
-
-So far, so good.. the code compiles without any hassles... but I'm getting the 
-following messages when I want to run my program (e.g. 
-in /home/nomore/dev/lktexporter):
-
-Code:
-
-bash-2.05b$ ./lktexporter
-/usr/src/linux/.config:4: syntax error, unexpected T_WORD
-/usr/src/linux/.config:9: syntax error
-/usr/src/linux/.config:12: syntax error, unexpected T_WORD
-/usr/src/linux/.config:17: syntax error
-/usr/src/linux/.config:20: syntax error, unexpected T_WORD
-/usr/src/linux/.config:40: syntax error
-/usr/src/linux/.config:43: syntax error, unexpected T_WORD
-/usr/src/linux/.config:50: syntax error
-/usr/src/linux/.config:53: syntax error, unexpected T_WORD
-/usr/src/linux/.config:111: syntax error
-/usr/src/linux/.config:115: syntax error, unexpected T_WORD
-/usr/src/linux/.config:124: syntax error
-/usr/src/linux/.config:127: syntax error, unexpected T_WORD
-/usr/src/linux/.config:131: syntax error
-/usr/src/linux/.config:134: syntax error, unexpected T_WORD
-/usr/src/linux/.config:155: syntax error
-/usr/src/linux/.config:163: syntax error, unexpected T_WORD
+donauboe uses __u32; this is kernel code, you are allowed to use u32
+which is less ugly. ASSERT() is pretty ugly. I made it 64-bit clean,
+and if it is outside 32-bit range, it BUG()s. Not ideal, but better
+than not compiling.
 
 
-the first lines of the example config
-Code:
-
-#
-# Automatically generated make config: don't edit
-#
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_STANDALONE=y
-CONFIG_BROKEN_ON_SMP=y
-
-#
-# General setup
-#
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-# CONFIG_POSIX_MQUEUE is not set
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
-
-
-I don't know what I'm doing wrong.. and can't see the differnece between my 
-code and the ones from the kernel config tools. 'make menuconfig' is working 
-with the above config file.
-
-Here's my code so far:
-Code:
-
-#define LKC_DIRECT_LINK
-
-#include <stdlib.h>
-#include "lkc.h"
-
-
-void fixup_rootmenu(struct menu *menu)
-{
-   struct menu *child;
-   static int menu_cnt = 0;
-
-   menu->flags |= MENU_ROOT;
-   for (child = menu->list; child; child = child->next) {
-      if (child->prompt && child->prompt->type == P_MENU) {
-         menu_cnt++;
-         fixup_rootmenu(child);
-         menu_cnt--;
-      } else if (!menu_cnt)
-         fixup_rootmenu(child);
-   }
-}
-
-void exportConfig(struct menu *menu)
-{
-   struct symbol *sym;
-   struct property *prop;
-   struct menu *child,*current;
-   enum prop_type ptype;
-
-   if (menu == &rootmenu) {
-      current = &rootmenu;
-   }
-
-   //going through the complete list
-   for (child = menu->list; child; child = child->next)
+Index: drivers/net/irda/donauboe.c
+===================================================================
+RCS file: /home/pavel/sf/bitbucket/bkcvs/linux-2.5/drivers/net/irda/donauboe.c,v
+retrieving revision 1.19
+diff -u -r1.19 donauboe.c
+--- drivers/net/irda/donauboe.c	2 Jul 2004 21:07:38 -0000	1.19
++++ drivers/net/irda/donauboe.c	13 Jul 2004 21:09:03 -0000
+@@ -28,6 +28,7 @@
+  * Modified: 2.17 jeu sep 12 08:50:20 2002 (save_flags();cli(); replaced by spinlocks)
+  * Modified: 2.18 Christian Gennerat <christian.gennerat@polytechnique.org>
+  * Modified: 2.18 ven jan 10 03:14:16 2003 Change probe default options
++ * Modified: 2.19 Pavel Machek <pavel@suse.cz>
+  *
+  *     Copyright (c) 1999 James McKenzie, All Rights Reserved.
+  *
+@@ -247,7 +248,7 @@
+ static void
+ toshoboe_dumpregs (struct toshoboe_cb *self)
+ {
+-  __u32 ringbase;
++  u32 ringbase;
+ 
+   IRDA_DEBUG (4, "%s()\n", __FUNCTION__);
+ 
+@@ -552,7 +553,7 @@
+ static void
+ toshoboe_startchip (struct toshoboe_cb *self)
+ {
+-  __u32 physaddr;
++  unsigned long physaddr;
+ 
+   IRDA_DEBUG (4, "%s()\n", __FUNCTION__);
+ 
+@@ -587,9 +588,7 @@
+   /*Find out where the rings live */
+   physaddr = virt_to_bus (self->ring);
+ 
+-  ASSERT ((physaddr & 0x3ff) == 0,
+-          printk (KERN_ERR DRIVER_NAME "ring not correctly aligned\n");
+-          return;);
++  BUG_ON(physaddr & 0xffffffff000003ff);
+ 
+   OUTB ((physaddr >> 10) & 0xff, OBOE_RING_BASE0);
+   OUTB ((physaddr >> 18) & 0xff, OBOE_RING_BASE1);
+@@ -601,7 +600,7 @@
+   /* Start up the clocks */
+   OUTB (OBOE_ENABLEH_PHYANDCLOCK, OBOE_ENABLEH);
+ 
+-  /*set to sensible speed */
++  /* Set to sensible speed */
+   self->speed = 9600;
+   toshoboe_setbaud (self);
+   toshoboe_initptrs (self);
+@@ -1622,22 +1621,18 @@
+       goto freeregion;
+     }
+ 
+-#if (BITS_PER_LONG == 64)
+-#error broken on 64-bit:  casts pointer to 32-bit, and then back to pointer.
+-#endif
+-
+-  /*We need to align the taskfile on a taskfile size boundary */
++  /* We need to align the taskfile on a taskfile size boundary */
    {
-      prop = child->prompt;
-      sym = child->sym;
-      ptype = prop ? prop->type : P_UNKNOWN;
-
-      printf("prompt: %s\n",menu_get_prompt(child));      
+     unsigned long addr;
+ 
+-    addr = (__u32) self->ringbuf;
++    addr = (unsigned long) self->ringbuf;
+     addr &= ~(OBOE_RING_LEN - 1);
+     addr += OBOE_RING_LEN;
+     self->ring = (struct OboeRing *) addr;
    }
-}
+ 
+   memset (self->ring, 0, OBOE_RING_LEN);
+-  self->io.mem_base = (__u32) self->ring;
++  self->io.mem_base = (unsigned long) self->ring;
+ 
+   ok = 1;
+   for (i = 0; i < TX_SLOTS; ++i)
+Index: drivers/net/irda/donauboe.h
+===================================================================
+RCS file: /home/pavel/sf/bitbucket/bkcvs/linux-2.5/drivers/net/irda/donauboe.h,v
+retrieving revision 1.2
+diff -u -r1.2 donauboe.h
+--- drivers/net/irda/donauboe.h	11 Oct 2002 20:53:05 -0000	1.2
++++ drivers/net/irda/donauboe.h	13 Jul 2004 21:07:18 -0000
+@@ -268,12 +268,11 @@
+ 
+ struct OboeSlot
+ {
+-  __u16 len;                    /*Tweleve bits of packet length */
+-  __u8 unused;
+-  __u8 control;                 /*Slot control/status see below */
+-  __u32 address;                /*Slot buffer address */
+-}
+-__attribute__ ((packed));
++  u16 len;                    /*Tweleve bits of packet length */
++  u8 unused;
++  u8 control;                 /*Slot control/status see below */
++  u32 address;                /*Slot buffer address */
++} __attribute__ ((packed));
+ 
+ #define OBOE_NTASKS OBOE_TXRING_OFFSET_IN_SLOTS
+ 
+@@ -316,7 +315,7 @@
+   chipio_t io;                  /* IrDA controller information */
+   struct qos_info qos;          /* QoS capabilities for this device */
+ 
+-  __u32 flags;                  /* Interface flags */
++  u32 flags;                  /* Interface flags */
+ 
+   struct pci_dev *pdev;         /*PCI device */
+   int base;                     /*IO base */
 
-int main(int argc,char **argv)
-{
-   #ifndef LKC_DIRECT_LINK
-   kconfig_load();
-   #endif
-
-   //reading the kernel configuration
-   conf_parse("/usr/src/linux/.config");
-   fixup_rootmenu(&rootmenu);
-   
-   if(conf_read(NULL))
-   {
-      printf("unable to load linux kernel configuration\n");
-      return 1;
-   }
-
-   exportConfig(&rootmenu);
-
-   return 0;
-}
-
-
-I've searched the web and the archives but didn't find any answers. If this 
-isn't the right place for my questions, then would you please tell me where I 
-can ask ?? 
-Is there any place to get some neat documentation ?? And why isn't the code of 
-the config tools documentated ? *argh* :]
-
-any help is great !
-
-Alexander
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

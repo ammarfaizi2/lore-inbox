@@ -1,49 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUFFOtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263714AbUFFPJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbUFFOtM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 10:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUFFOtM
+	id S263714AbUFFPJX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 11:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUFFPJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 10:49:12 -0400
-Received: from mail.codeweavers.com ([216.251.189.131]:56492 "EHLO
-	mail.codeweavers.com") by vger.kernel.org with ESMTP
-	id S263713AbUFFOtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 10:49:09 -0400
-Message-ID: <40C33F2D.3050408@codeweavers.com>
-Date: Mon, 07 Jun 2004 00:58:37 +0900
-From: Mike McCormack <mike@codeweavers.com>
-Organization: Codeweavers
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040514
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Christoph Hellwig <hch@infradead.org>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, dhowells@redhat.com
-Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-References: <40C2B51C.9030203@codeweavers.com>	 <20040606073241.GA6214@infradead.org>  <40C2E045.8090708@codeweavers.com> <1086521938.4862.25.camel@localhost.localdomain>
-In-Reply-To: <1086521938.4862.25.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Jun 2004 11:09:23 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:11756 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S263714AbUFFPJU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 11:09:20 -0400
+Date: Sun, 6 Jun 2004 17:07:59 +0200 (MEST)
+Message-Id: <200406061507.i56F7xdS029391@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: pj@sgi.com, wli@holomorphy.com
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
+Cc: Simon.Derr@bull.net, ak@muc.de, akpm@osdl.org, ashok.raj@intel.com,
+       colpatch@us.ibm.com, hch@infradead.org, jbarnes@sgi.com,
+       joe.korty@ccur.com, linux-kernel@vger.kernel.org,
+       manfred@colorfullife.com, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
+       rusty@rustcorp.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 4 Jun 2004 12:01:46 -0700, Paul Jackson wrote:
+>William Lee Irwin III wrote:
+>> +void bitmap_to_u32_array(u32 *dst, unsigned long *src, int nwords)
+...
+>Mikael - does William's routine look like the makings of something
+>that fits your needs?
 
-David Woodhouse wrote:
+It could, except I think it gets the word order wrong:
 
-> Actually doesn't a kernel space loader let you discard text pages and
-> fix them up again on demand as Windows does, rather than doing the
-> relocations at load time and then having the pages considered dirty so
-> they have to be swapped instead of just discarded? 
++#if defined(__BIG_ENDIAN) && BITS_PER_LONG == 64
++void bitmap_to_u32_array(u32 *dst, unsigned long *src, int nwords)
++{
++	int i;
++
++	for (i = 0; i < nwords; ++i) {
++		u64 word = src[i];
++		dst[2*i] = word >> 32;
++		dst[2*i+1] = word;
++	}
++}
++#else
++void bitmap_to_u32_array(u32 *dst, unsigned long *src, int nwords)
++{
++	memcpy(dst, src, nwords*sizeof(unsigned long));
++}
++#endif
 
-Yes, that would be one advantage of having a PE loader in the kernel. 
-David Howells of Redhat was working on a kernel module that implemented 
-all of the wineserver functionality, including a PE loader a while back. 
-  Unfortunately that effort did not get anywhere. The code is still at:
+Notice how it emits the high int before the low int.
+(Which btw also is the native big-endian storage order,
+so the memcpy() would have done the same.)
 
-http://cvs.winehq.com/cvsweb/kernel-win32
+Now consider the location of bit 0, with mask value 1(*),
+on a 64-bit big-endian machine. The code above puts this
+in the second int, as bit 0 in *((char*)dst + 7).
+But a 32-bit user-space, or a 64-bit user-space that sees
+an array of ints not longs, wants it in the first int,
+as bit 0 in *((char*)dst + 3).
 
-If there were a PE/COFF binary format handler in the kernel, it would 
-still be able to load ELF executables, as Wine requires glibc, X11, etc.
+Perfctr's marshalling procedure for cpumask_t values
+(drivers/perfctr/init.c:cpus_copy_to_user() in recent -mm)
+is endian-neutral and converts each long by emitting the
+ints from least significant to most significant.
 
-Mike
+Considering the API for retrieving an array of unknown size,
+perfctr's marshalling procedure does the following:
 
+>	const unsigned int k_nrwords = PERFCTR_CPUMASK_NRLONGS*(sizeof(long)/sizeof(int));
+>	unsigned int u_nrwords;
+>	if (get_user(u_nrwords, &argp->nrwords))
+>		return -EFAULT;
+>	if (put_user(k_nrwords, &argp->nrwords))
+>		return -EFAULT;
+>	if (u_nrwords < k_nrwords)
+>		return -EOVERFLOW;
+
+That is, it always tells user-space how much space is needed,
+and if user-space provided too little, it gets EOVERFLOW.
+Knowing the number of words in the encoded cpumask_t also
+avoids having to know the exact value of NR_CPUS in user-space.
+
+/Mikael
+
+(*) Normal bit order, not IBM POWER's reversed bit order.

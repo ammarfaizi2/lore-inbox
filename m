@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317767AbSHGKZ3>; Wed, 7 Aug 2002 06:25:29 -0400
+	id <S317752AbSHGKYe>; Wed, 7 Aug 2002 06:24:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317770AbSHGKZ3>; Wed, 7 Aug 2002 06:25:29 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:4089 "EHLO
+	id <S317767AbSHGKYe>; Wed, 7 Aug 2002 06:24:34 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:2809 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317767AbSHGKZ3>; Wed, 7 Aug 2002 06:25:29 -0400
+	id <S317752AbSHGKYd>; Wed, 7 Aug 2002 06:24:33 -0400
 Subject: Re: ethtool documentation
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: root@chaos.analogic.com
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
-       abraham@2d3d.co.za
-In-Reply-To: <Pine.LNX.3.95.1020806215309.26428A-100000@chaos.analogic.com>
-References: <Pine.LNX.3.95.1020806215309.26428A-100000@chaos.analogic.com>
+To: Jonathan Lundell <linux@lundell-bros.com>
+Cc: Dax Kelson <dax@gurulabs.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <p05111a08b9766ed1d753@[207.213.214.37]>
+References: <Pine.LNX.4.44.0208062318350.4696-100000@mooru.gurulabs.com> 
+	<p05111a08b9766ed1d753@[207.213.214.37]>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 12:47:43 +0100
-Message-Id: <1028720863.18130.262.camel@irongate.swansea.linux.org.uk>
+Date: 07 Aug 2002 12:47:00 +0100
+Message-Id: <1028720820.18130.260.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-07 at 02:57, Richard B. Johnson wrote:
-> > DECnet used dynamically assigned MAC addresses from the beginning and
-> > Digital (now Compaq (now HP)) were one of the creators of the original
-> > DIX ethernet standard
-> > 
-> > Thats why several boards allow you to have a pair of receiving MAC
-> > addresses.
-> > 
+On Wed, 2002-08-07 at 07:30, Jonathan Lundell wrote:
+> At 11:32 PM -0600 8/6/02, Dax Kelson wrote:
+> >The sky is not falling, you protest too much.
 > 
-> That's not the MAC address. That's the multicast hash. They are
-> different. The MAC address says who you are. The multicast hash
+> Ha! Just wait until the jack-booted IEEE enforcers kick down *your* 
+> door in the middle of the night to nab you for MAC-address trespass. 
+> THEN we'll see who' protesting too much.
 
-No thats a unicast address not a multicast hash entry. Go read the
-Decnet protocol specifications
-
+Just don't use it to go around proprietary software license managers,
+because if so the fbi might just do that...

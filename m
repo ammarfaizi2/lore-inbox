@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbSIZVLC>; Thu, 26 Sep 2002 17:11:02 -0400
+	id <S261528AbSIZVN1>; Thu, 26 Sep 2002 17:13:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261526AbSIZVLB>; Thu, 26 Sep 2002 17:11:01 -0400
-Received: from ext-nj2gw-2.online-age.net ([216.35.73.164]:41923 "EHLO
-	ext-nj2gw-2.online-age.net") by vger.kernel.org with ESMTP
-	id <S261525AbSIZVLA>; Thu, 26 Sep 2002 17:11:00 -0400
-Message-ID: <A9713061F01AD411B0F700D0B746CA6802FC14D7@vacho6misge.cho.ge.com>
-From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
-To: "'Arjan van de Ven'" <arjanv@redhat.com>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: Distributing drivers independent of the kernel source tree
-Date: Thu, 26 Sep 2002 17:16:03 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261529AbSIZVN1>; Thu, 26 Sep 2002 17:13:27 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:33930 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261528AbSIZVN0>;
+	Thu, 26 Sep 2002 17:13:26 -0400
+Date: Thu, 26 Sep 2002 14:12:23 -0700 (PDT)
+Message-Id: <20020926.141223.128110378.davem@redhat.com>
+To: jgarzik@pobox.com
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [RFC] {read,write}s{b,w,l} or iobarrier_*()
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D93348D.3060304@pobox.com>
+References: <20020926155941.3602@192.168.4.1>
+	<3D93348D.3060304@pobox.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Jeff Garzik <jgarzik@pobox.com>
+   Date: Thu, 26 Sep 2002 12:23:41 -0400
 
-That's true for installing modules, but I'm wondering about getting a
-standalone module compiled. I.e., what is a reliable method for locating the
-include files for the kernel?
+   Benjamin Herrenschmidt wrote:
+   >  - Have all archs provide {read,write}s{b,w,l} functions.
+   > Those will hide all of the details of bytewapping & barriers
+   > from the drivers and can be used as-is for things like IDE
+   > MMIO iops.
+   
+   I prefer this solution...
 
-I can find references on the web where this has been discussed in the past,
-but I have not found a resolution.
-
-
-> -----Original Message-----
-> From: Arjan van de Ven [mailto:arjanv@redhat.com]
-> Sent: Thursday, September 26, 2002 4:09 PM
-> To: Heater, Daniel (IndSys, ""GEFanuc, VMIC)
-> Cc: 'Linux Kernel Mailing List'
-> Subject: Re: Distributing drivers independent of the kernel 
-> source tree
-> 
-> 
-> On Thu, 2002-09-26 at 22:55, Heater, Daniel (IndSys, GEFanuc, VMIC) 
-> > 2. Assuming the kernel source is in /usr/src/linux is not 
-> always valid.
-> > 
-> > 3. I currently use /usr/src/linux-`uname -r` to locate the 
-> kernel source
-> > which is just as broken as method #2.
-> 
-> you have to use
-> 
-> /lib/modules/`uname -r`/build
-> (yes it's a symlink usually, but that doesn't matter)
-> 
-> 
-> that's what Linus decreed and that's what all distributions honor, and
-> that's that make install does for manual builds.
-> 
-> Greetings,
->    Arjan van de Ven
-> 
+I'm starting to think about taking back all the previous
+arguments I had against this idea.  It's starting to sound
+like the preferred way to go.

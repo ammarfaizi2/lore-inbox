@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268397AbUIHIuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268950AbUIHIv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268397AbUIHIuG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 04:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268464AbUIHIuG
+	id S268950AbUIHIv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 04:51:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268968AbUIHIv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 04:50:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51948 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268397AbUIHIt7 (ORCPT
+	Wed, 8 Sep 2004 04:51:58 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:41857 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268950AbUIHIvH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 04:49:59 -0400
-Date: Wed, 8 Sep 2004 01:47:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Simon Derr <simon.derr@bull.net>
-Cc: linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: Re: 2.6.9-rc1-mm4
-Message-Id: <20040908014735.7a2058dc.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0409071415380.10577@daphne.frec.bull.fr>
-References: <20040907020831.62390588.akpm@osdl.org>
-	<Pine.LNX.4.58.0409071415380.10577@daphne.frec.bull.fr>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 8 Sep 2004 04:51:07 -0400
+Date: Wed, 8 Sep 2004 10:52:37 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
+Message-ID: <20040908085237.GA4375@elte.hu>
+References: <20040903120957.00665413@mango.fruits.de> <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu> <1094597710.16954.207.camel@krustophenia.net> <1094598822.16954.219.camel@krustophenia.net> <32930.192.168.1.5.1094601493.squirrel@192.168.1.5> <20040908082358.GB680@elte.hu> <13164.195.245.190.93.1094633206.squirrel@195.245.190.93>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <13164.195.245.190.93.1094633206.squirrel@195.245.190.93>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Derr <simon.derr@bull.net> wrote:
->
-> Build fails without CONFIG_KEYS:
-> 
-> kernel/sys.c:283:29: macro "sys_request_key" requires 5 arguments, but only 1 given
-> kernel/sys.c:283: error: `sys_request_key' defined both normally and as an alias
-> kernel/sys.c:283: warning: `syscall_linkage' attribute only applies to function types
-> kernel/sys.c:284:24: macro "sys_keyctl" requires 5 arguments, but only 1 given
-> kernel/sys.c:284: error: `sys_keyctl' defined both normally and as an alias
-> kernel/sys.c:284: warning: `syscall_linkage' attribute only applies to function types
-> 
-> In include/linux/key.h, sys_request_key and sys_keyctl are defined as
-> macros :
-> 
-> #define sys_request_key(a,b,c,d,e)      (-ENOSYS)
-> #define sys_keyctl(a,b,c,d,e)           (-ENOSYS)
-> 
-> But in kernel/sys.c, we find:
-> 
-> cond_syscall(sys_request_key)
-> cond_syscall(sys_keyctl)
-> 
-> Which expects these symbols to be real functions, it seems.
 
-Works OK here.  What compiler version are you using?  And what architecture?
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
+> Few moments ago, Tim Savannah was kind enough to send me it's working
+> .config for 2.6.9-rc1-bk13 with ck patch and voluntary preempt R6. At
+> first glance it seems that he takes the monolithic approach while I
+> prefer all-modular. The other main difference is that he has HIGHMEM
+> disabled, while I'm on HIGHMEM(4GB) 'coz my machine has 1GB of RAM
+> :)
 
+mine is HIGHMEM4G too.
 
-With these #defines in scope:
-
-#define sys_request_key(a,b,c,d,e)      (-ENOSYS)
-#define sys_keyctl(a,b,c,d,e)           (-ENOSYS)
-
-the preprocessor should allow
-
-cond_syscall(sys_request_key)
-cond_syscall(sys_keyctl)
-
-to pass through unscathed.  It's a bit unpleasant though.  I guess we can
-just remove those defines from key.h.
-
+	Ingo

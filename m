@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129664AbRAaPXc>; Wed, 31 Jan 2001 10:23:32 -0500
+	id <S129610AbRAaPXM>; Wed, 31 Jan 2001 10:23:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129921AbRAaPXM>; Wed, 31 Jan 2001 10:23:12 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:65031 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129655AbRAaPXC>; Wed, 31 Jan 2001 10:23:02 -0500
-Subject: Re: CPU error codes
-To: jas88@cam.ac.uk (James Sutherland)
-Date: Wed, 31 Jan 2001 15:23:16 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jsimmons@suse.com (James Simmons),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.SOL.4.21.0101250913590.15936-100000@orange.csi.cam.ac.uk> from "James Sutherland" at Jan 25, 2001 09:14:22 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Nz6N-0002Vj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129664AbRAaPXB>; Wed, 31 Jan 2001 10:23:01 -0500
+Received: from shomer.lee.k12.nc.us ([207.4.71.118]:53005 "EHLO lee.k12.nc.us")
+	by vger.kernel.org with ESMTP id <S129610AbRAaPWv>;
+	Wed, 31 Jan 2001 10:22:51 -0500
+From: "Ryan Hairyes" <rhairyes@lee.k12.nc.us>
+To: <linux-kernel@vger.kernel.org>
+Date: Wed, 31 Jan 2001 16:21:08 +0000 (GMT)
+Organization: Lee County Schools
+X-Mailer: ObsidianSystems-OcsEmail1-0-30 brewed at www.obsidian.co.za
+Reply-to: rhairyes@lee.k12.nc.us
+Message-ID: <9809580685088-3110215088rhairyes@lee.k12.nc.us>
+Subject: ds: socket Drivers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > In the intel databook. Generally an MCE indicates hardware/power/cooling
-> > issues
-> 
-> Doesn't an MCE also cover some hardware memory problems - parity/ECC
-> issues etc?
+Hello again,
 
-Parity/ECC on main memory is reported by the chipset and needs seperate
-drivers or apps to handle this
+I was watching the bootup of the 2.4.1 kernel
+on my machine and noticed that the message
+ds: no socket drivers loaded showed up during
+bootup.  The machine seems to boot fine, and 
+everything works.  Is this a problem?  Whats 
+the deal?
+
+Thanks,
+
+Ryan
+                                   
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

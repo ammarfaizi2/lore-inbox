@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319041AbSIDEOW>; Wed, 4 Sep 2002 00:14:22 -0400
+	id <S319045AbSIDEWq>; Wed, 4 Sep 2002 00:22:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319044AbSIDEOW>; Wed, 4 Sep 2002 00:14:22 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:27661 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S319041AbSIDEOW>;
-	Wed, 4 Sep 2002 00:14:22 -0400
-Date: Tue, 3 Sep 2002 21:17:05 -0700
-From: Greg KH <greg@kroah.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Matt_Domsch@Dell.com, linux-kernel@vger.kernel.org,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [RFC][PATCH] x86 BIOS Enhanced Disk Device (EDD) polling
-Message-ID: <20020904041705.GC3739@kroah.com>
-References: <20BF5713E14D5B48AA289F72BD372D6821CC2C@AUSXMPC122.aus.amer.dell.com> <E17mOfS-0005nm-00@starship>
+	id <S319046AbSIDEWq>; Wed, 4 Sep 2002 00:22:46 -0400
+Received: from pool-129-44-54-23.ny325.east.verizon.net ([129.44.54.23]:28944
+	"EHLO arizona.localdomain") by vger.kernel.org with ESMTP
+	id <S319045AbSIDEWq>; Wed, 4 Sep 2002 00:22:46 -0400
+Date: Wed, 4 Sep 2002 00:27:09 -0400
+From: "Kevin O'Connor" <kevin@koconnor.net>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>, linux-kernel@vger.kernel.org
+Subject: Re: (fwd) Re: [RFC] mount flag "direct"
+Message-ID: <20020904002709.A32318@arizona.localdomain>
+References: <200209032148.g83LmWU14950@oboe.it.uc3m.es> <5.1.0.14.2.20020903230434.00ac6c50@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E17mOfS-0005nm-00@starship>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <5.1.0.14.2.20020903230434.00ac6c50@pop.cus.cam.ac.uk>; from aia21@cantab.net on Tue, Sep 03, 2002 at 11:19:21PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 04, 2002 at 03:09:12AM +0200, Daniel Phillips wrote:
-> On Wednesday 04 September 2002 02:54, Matt_Domsch@Dell.com wrote:
-> > > How about providing an example of how you'd export the root 
-> > > via driverfs,
-> > > with a view to educating those of us who are still don't have 
-> > > much of a clue how driverfs fits in with big picture?
-> > 
-> > Right now that includes me which is why I used proc for now. :-)
+On Tue, Sep 03, 2002 at 11:19:21PM +0100, Anton Altaparmakov wrote:
+> At 22:48 03/09/02, Peter T. Breuer wrote:
+> >What one has to get rid of is cached metadata state. I'm open to suggestions.
 > 
-> Maybe we should prevail upon the driverfs axis to provide some guidance.
+> This is crazy. I don't think you understand what that actually implies. I 
+> will give you a real world example below.
 
-Sweet, we're an axis now!  That's much better than the other terms Pat
-and I have been called in the past...  And everyone knows what's the
-next size jump up from axis :)
+It is crazy, but probably achievable.  One could wrap all VFS ops (read,
+write, rename, unlink, etc) to do:
 
-So here's how driverfs fits into the big picture in one sentance:
+distributed_lock()
+mount()
+op()
+umount()
+distributed_unlock()
 
-	Anything that does not have to do with processes 
-	will go into driverfs.
+[...]
+> I am completely serious, we are talking at least hundreds of milliseconds 
+> possibly even several seconds to read that single byte.
+> 
+> What was that about 50GiB/sec performance again...?
 
-So in this example, we are exporting a number of boot devices as the
-bios told us, so apply the rule stated above, and determine if it should
-go into /proc or not[1].
+Well, you'll probably get 50B/sec from it..
 
-thanks,
+-Kevin
 
-greg k-h
-
-[1]  Yes, it's still a bit difficult to figure how to add files to
-driverfs, if you aren't starting with a "struct device" or "struct
-device_driver", but I have seen some very nice documentation on how to
-do it properly written by Pat involving a wonderful example of beer, and
-I'm sure that once he gets back into internet connectivity range, he'll
-be updating it and adding it to the Documentation directory.  That
-should be by the end of the week or so.
+-- 
+ ------------------------------------------------------------------------
+ | Kevin O'Connor                     "BTW, IMHO we need a FAQ for      |
+ | kevin@koconnor.net                  'IMHO', 'FAQ', 'BTW', etc. !"    |
+ ------------------------------------------------------------------------

@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130228AbRB1Pmw>; Wed, 28 Feb 2001 10:42:52 -0500
+	id <S130239AbRB1P5T>; Wed, 28 Feb 2001 10:57:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130243AbRB1Pmm>; Wed, 28 Feb 2001 10:42:42 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:17936 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130242AbRB1Pmb>;
-	Wed, 28 Feb 2001 10:42:31 -0500
-Date: Wed, 28 Feb 2001 16:41:51 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Holluby István <holluby@interware.hu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: mke2fs /dev/loop0
-Message-ID: <20010228164151.H21518@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0102281545120.1836-100000@cica.khb.hu> <Pine.LNX.3.95.1010228102221.4469A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1010228102221.4469A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Wed, Feb 28, 2001 at 10:31:35AM -0500
+	id <S130240AbRB1P5K>; Wed, 28 Feb 2001 10:57:10 -0500
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:21518 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S130239AbRB1P4u>; Wed, 28 Feb 2001 10:56:50 -0500
+Date: Wed, 28 Feb 2001 07:56:41 -0800 (PST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: "James A. Sutherland" <jas88@cam.ac.uk>
+cc: Per Erik Stendahl <PerErik@onedial.se>,
+        "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: Unmounting and ejecting the root fs on shutdown.
+In-Reply-To: <Pine.LNX.4.30.0102281529110.6716-100000@dax.joh.cam.ac.uk>
+Message-ID: <Pine.LNX.4.32.0102280750320.24482-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 28 2001, Richard B. Johnson wrote:
-> `mke2fs /dev/loop0`  requires an additional parameter (file size to
-> create). Otherwise, it will try to use all the RAM in your system, plus...
-> 
-> If it worked before, it was because of luck. FYI, this is not the
-> way to create a ramdisk. Normally you use the loop device to mount
-> a file as a file-system, i.e., `mount -o loop filename /mnt`.
-> So, I don't know what you are trying to do except crash your system.
 
-This could not be more wrong. mke2fs will query the size of the
-loop device, and make the correct size file system regardless
-of whether it's file or block device backed. And it will not
-try to use all RAM in the system?! This is loop, not a ramdisk.
-Dirty buffers will be flushed to loop like any other block
-device in the system, if that doesn't work then we have a mm
-bug.
+	Hello James ,  Yup that works alright .  But the difficulty
+	Per & I were talking about is after the system (such as
+	slackware's live-fs) is -shutdown- the CD drive bay is still
+	locked ,  One has to hard-reset (or even power off for some)
+	before the bay will open .  I am well aware why the bay does
+	not open while the live-fs has it mounted .  But am quite
+	baffled as to why the darn thing remains locked after system
+	shutdown .  Again I am quite sure I know why that is happening
+	as well .  The live-fs is hard read-only and the umount of the
+	live-fs can not complete , so the CD drive never receives an
+	unlock .  Sound about right ?  Twyl ,  JimL
 
-The previous answer was right -- loop has been broken for quite
-some time, but use -ac latest on top of 2.4.2 and it should work
-flawlessly for you.
+On Wed, 28 Feb 2001, James A. Sutherland wrote:
 
--- 
-Jens Axboe
+> On Wed, 28 Feb 2001, Mr. James W. Laferriere wrote:
+>
+> >
+> > 	Hello Per ,  Has anyone gotten back to you on this subject ?
+> > 	I as well am very interested in any information about releiving
+> > 	this difficulty .  Tia ,  JimL
+>
+> Such a CD would be very nice; one or two people do have this already,
+> though. Have you tried using a ramdisk for root, and mounting the CD as
+> /usr?
+>
+>
+> James.
+>
+
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
 

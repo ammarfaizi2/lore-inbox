@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285308AbRLNBgy>; Thu, 13 Dec 2001 20:36:54 -0500
+	id <S285310AbRLNBid>; Thu, 13 Dec 2001 20:38:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285305AbRLNBgn>; Thu, 13 Dec 2001 20:36:43 -0500
-Received: from ns.suse.de ([213.95.15.193]:62990 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S285309AbRLNBga>;
-	Thu, 13 Dec 2001 20:36:30 -0500
-Date: Fri, 14 Dec 2001 02:36:29 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
-Cc: Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>,
-        <large-discuss@lists.sourceforge.net>,
-        Heiko Carstens <Heiko.Carstens@de.ibm.com>,
-        Jason McMullan <jmcmullan@linuxcare.com>,
-        Anton Blanchard <antonb@au1.ibm.com>,
-        Greg Kroah-Hartman <ghartman@us.ibm.com>, <rusty@rustcorp.com.au>
-Subject: Re: [ANNOUNCE] HotPlug CPU patch against 2.5.0
-In-Reply-To: <20011213161734.5B4F.K-SUGANUMA@mvj.biglobe.ne.jp>
-Message-ID: <Pine.LNX.4.33.0112140218440.27641-100000@Appserv.suse.de>
+	id <S285309AbRLNBiY>; Thu, 13 Dec 2001 20:38:24 -0500
+Received: from mailb.telia.com ([194.22.194.6]:28685 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S285305AbRLNBiN>;
+	Thu, 13 Dec 2001 20:38:13 -0500
+Message-Id: <200112140138.fBE1c4529186@mailb.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17-rc1
+Date: Fri, 14 Dec 2001 02:35:47 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.21.0112131841080.28446-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0112131841080.28446-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Dec 2001, Kimio Suganuma wrote:
+On Thursday den 13 December 2001 21.44, Marcelo Tosatti wrote:
+> Hi,
+>
+> I've just copied 2.4.17-rc1 to ftp.kernel.org... Its mirroring yet,
+> probably.
+>
+> Well, I want people with the "unfreeable" buffer/cache problem to confirm
+> with me that 2.4.17-rc1 is working ok.
+>
+> The same change which should fix that problem also should make 2.4 a bit
+> less "swap happy".
+>
+>
 
-> There is no /proc/sys/cpu directory on the latest kernel, and
-> I guess someone is thinking the structure under the directory,
-> right?
+Hi,
 
-The current /proc/sys/cpu/ sysctls have been added as part of
-Russell's cpu frequency scaling work. Currently, only the ARM
-specific bits are merged. There are generic bits and x86 bits
-waiting to be merged at some point..
+I have run some "files bigger than memory" (streaming) tests.
+Some significant differences with earlier kernel:
 
-The x86 part of this work uses the same framework, and was
-done by myself and Arjan van de Ven. It's almost in a state
-ready for merging also.
+* write - lowered throughput (26 MB/s => 22 MB/s)
 
-If you're interested in looking at this, it's in cvs..
-cvs -d:pserver:cvs@pubcvs.arm.linux.org.uk:/mnt/src/cvsroot login
-cvs -d:pserver:cvs@pubcvs.arm.linux.org.uk:/mnt/src/cvsroot checkout
-cpufreq
+* copy - throughput better by 2/3 (16 MB/s => 25 MB/s) !
 
-> echo 1 > /proc/sys/cpu/<cpu-id>/online
->   or
-> Which is the right way?
+* dbench 32 - back down to lower than 2.4.12 (due to increased fairness?)
+	2.4.11				18.9 MB/s
+	2.4.12				23.3 MB/s
+	2.4.16				34.9 MB/s
+	2.4.17-rc1			20.3 MB/s
+	2.4.17-rc1 (file-readahead:1000)	24.5 MB/s
+	[lets forget about them now...]
 
-This one looks most sensible to me, and fits in with the
-current scheme nicely.
+* diff - usage of "file-readahead" more than doubles efficency
+	(most-kernels: 11 MB/s => 2.4.17-rc1 with readahead: 25 MB/s)
 
-regards,
-Dave.
+The nicest thing is that it is the first kernel where readahead tuning is not 
+necessary for the copy operation.
+Now it is only multiple-big-concurrent-reads that _needs_ "file-readahead"
+
+/RogerL
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+Roger Larsson
+Skellefteå
+Sweden

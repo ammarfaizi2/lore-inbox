@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVCZDw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVCZDzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVCZDw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 22:52:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVCZDwZ
+	id S261947AbVCZDzb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 22:55:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVCZDza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 22:52:25 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:9117 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261934AbVCZDwX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 22:52:23 -0500
-Message-ID: <4244DC6A.3020304@zytor.com>
-Date: Fri, 25 Mar 2005 19:52:10 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Phil Lougher <phil.lougher@gmail.com>
-CC: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org,
-       phillip@lougher.demon.co.uk
-Subject: Re: Squashfs without ./..
-References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr>	 <20050323174925.GA3272@zero>	 <Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>	 <20050324133628.196a4c41.Tommy.Reynolds@MegaCoder.com>	 <d1v67l$4dv$1@terminus.zytor.com>	 <3e74c9409b6e383b7b398fe919418d54@mac.com> <cce9e37e0503251948527d322b@mail.gmail.com>
-In-Reply-To: <cce9e37e0503251948527d322b@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Mar 2005 22:55:30 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:10648 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261951AbVCZDzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 22:55:17 -0500
+Date: Fri, 25 Mar 2005 19:54:58 -0800
+From: Greg KH <gregkh@suse.de>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [0/12] More Driver Model Locking Changes
+Message-ID: <20050326035458.GA18403@suse.de>
+References: <Pine.LNX.4.50.0503242145200.29800-100000@monsoon.he.net> <20050325192024.GA14290@kroah.com> <20050325233952.GA16355@kroah.com> <20050326000309.GB16602@kroah.com> <Pine.LNX.4.50.0503251823280.30834-100000@monsoon.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0503251823280.30834-100000@monsoon.he.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phil Lougher wrote:
+On Fri, Mar 25, 2005 at 06:24:58PM -0800, Patrick Mochel wrote:
+> On Fri, 25 Mar 2005, Greg KH wrote:
+> > Oh, looks like pci express now has problems too, I'll go hit that one
+> > next...
 > 
-> Making readdir return '.' and '..' is trivially easy, as all the
-> required information to fake '.' and '..' entries are present.
-> 
-> The lack of '.' and '..' entries hasn't caused any problems despite
-> cramfs/squashfs being used for a large number of years.  I'm inclined
-> to believe any application that _relies_ on seeing '.' and '..'
-> returned by readdir is broken.  This situation is easily fixed within
-> the application rather than forcing the filesystem to unnecessarily
-> fake '.' and '..' entries which are never used.
-> 
+> Bah, sorry about that. What config are you using to test, 'allmodconfig'?
 
-<sarcasm>
+Yup.  Looks like pci express is doing some odd stuff, I'll go fix that
+up now.
 
-Yeah, let's fix every broken application on the planet instead of fixing 
-it in one place...
+thanks,
 
-</sarcasm>
-
-	-hpa
+greg k-h

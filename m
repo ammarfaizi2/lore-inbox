@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132116AbRADCmL>; Wed, 3 Jan 2001 21:42:11 -0500
+	id <S129324AbRADDWG>; Wed, 3 Jan 2001 22:22:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132564AbRADCmB>; Wed, 3 Jan 2001 21:42:01 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39429 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S132116AbRADCls>; Wed, 3 Jan 2001 21:41:48 -0500
-Date: Wed, 3 Jan 2001 22:50:00 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: bdflush synchronous IO on prerelease-diff 
-Message-ID: <Pine.LNX.4.21.0101032241500.839-100000@freak.distro.conectiva>
+	id <S132116AbRADDVz>; Wed, 3 Jan 2001 22:21:55 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:25099 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129324AbRADDVl>;
+	Wed, 3 Jan 2001 22:21:41 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Dan Aloni <karrde@callisto.yi.org>
+Subject: Re: [RFC] prevention of syscalls from writable segments, breaking bug exploits
+In-Reply-To: <Pine.LNX.4.21.0101032259550.20246-100000@callisto.yi.org>
+From: David Huggins-Daines <dhd@eradicator.org>
+Organization: None worth mentioning
+Date: 03 Jan 2001 22:20:37 -0500
+In-Reply-To: Dan Aloni's message of "Wed, 03 Jan 2001 21:14:59 GMT"
+Message-ID: <87hf3gj94q.fsf@monolith.cepstral.com>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dan Aloni <karrde@callisto.yi.org> writes:
 
-Hi Linus, 
+> This preliminary, small patch prevents execution of system calls which
+> were executed from a writable segment.
 
-I've noticed you changed bdflush to do synchronous IO on page_launder().
+How does signal return work, then?
 
-That seems to be a performance problem, since kflushd will have to wait
-for dirty buffers to get synced instead looping on the inactive dirty
-list more often. 
-
-Here is a patch to change this. 
-
---- linux.orig/fs/buffer.c      Wed Jan  3 22:43:24 2001
-+++ linux/fs/buffer.c   Thu Jan  4 00:28:50 2001
-@@ -2710,7 +2710,7 @@
- 
-                flushed = flush_dirty_buffers(0);
-                if (free_shortage())
--                       flushed += page_launder(GFP_KERNEL, 1);
-+                       flushed += page_launder(GFP_KERNEL, 0);
- 
-                /*
-                 * If there are still a lot of dirty buffers around,
-
-
+-- 
+David Huggins-Daines		-		dhd@eradicator.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

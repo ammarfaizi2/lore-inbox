@@ -1,82 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267777AbUIBHos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267776AbUIBHvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267777AbUIBHos (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 03:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267786AbUIBHos
+	id S267776AbUIBHvM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 03:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267786AbUIBHuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 03:44:48 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:3745 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267777AbUIBHoq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 03:44:46 -0400
-Date: Thu, 2 Sep 2004 09:46:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       netfilter-devel@lists.netfilter.org
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q8
-Message-ID: <20040902074604.GA21144@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <1094108653.11364.26.camel@krustophenia.net> <20040902071525.GA19925@elte.hu> <1094110289.11364.32.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094110289.11364.32.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 2 Sep 2004 03:50:54 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:3483 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S267776AbUIBHup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 03:50:45 -0400
+Date: Thu, 02 Sep 2004 16:55:55 +0900
+From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: [RFC] buddy allocator without bitmap(3) [0/3]
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Cc: linux-mm <linux-mm@kvack.org>, LHMS <lhms-devel@lists.sourceforge.net>
+Message-id: <4136D20B.1020108@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
+ Gecko/20040113
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+Hi, this is new patch for removing bitmaps from the buddy allocator.
 
-> > these all seem to be single-packet processing latencies - it would be
-> > quite hard to make those codepaths preemptible.
-> 
-> I suspected as much, these are not a problem.  The large latencies
-> from reading the /proc filesystem are a bit worrisome (trace1.txt), I
-> will report these again if they still happen with Q8.
+In previous version, I used new additional PG_xxx flag. But in this, I don't
+use any additional new flag.
 
-conntrack's ct_seq ops indeed seems to have latency problems - the quick
-workaround is to disable conntrack.
+For dealing with a special case of unaligned discontiguous mem_map,
+I removed some troublesome pages from the system instead of using PG_xxx flag.
+Note:: If memmap is aligned, no pages are removed.
 
-The reason for the latency is that ct_seq_start() does a read_lock() on
-ip_conntrack_lock and only ct_seq_stop() releases it - possibly
-milliseconds later. But the whole conntrack /proc code is quite flawed:
+"What pages are removed ?" is explained in patch[1/3].
+Please draw a picture of the buddy system when you read calculate_aligned_end(),
+which finds pages to be removed.
 
-        READ_LOCK(&ip_conntrack_lock);
+(Special Case Example)
+Results of calculate_aligned_end() on Tiger4
+(Itanium2, 8GB Memory, discontiguous, virtual mem_map)
+is here. There are 5 mem_maps for 2 zones and 19 pages are removed.
 
-        if (*pos >= ip_conntrack_htable_size)
-                return NULL;
+mem_map(1) from  36e    length 1fb6d  --- ZONE_DMA
+mem_map(2) from  1fedc  length   124  --- ZONE_DMA
+mem_map(3) from  40000  length 40000  --- ZONE_NORMAL (this mem_map is aligned)
+mem_map(4) from  a0000  length 20000  --- ZONE_NORMAL
+mem_map(5) from  bfedc  length   124  --- ZONE_NORMAL
 
-        bucket = kmalloc(sizeof(unsigned int), GFP_KERNEL);
-        if (!bucket) {
-                return ERR_PTR(-ENOMEM);
-        }
-        *bucket = *pos;
-        return bucket;
+ZONE_NORMAL has a memory hole of 2 Gbytes.
 
-#1: we kmalloc(GFP_KERNEL) with a spinlock held and softirqs off - ouch!
+==================
+Sep  2 15:23:35 casares kernel: calculate_aligned_end() 36e 1fb6d
+Sep  2 15:23:35 casares kernel: victim top page 36e
+Sep  2 15:23:35 casares kernel: victim top page 370
+Sep  2 15:23:35 casares kernel: victim top page 380
+Sep  2 15:23:35 casares kernel: victim top page 400
+Sep  2 15:23:35 casares kernel: victim top page 800
+Sep  2 15:23:35 casares kernel: victim top page 1000
+Sep  2 15:23:35 casares kernel: victim top page 2000
+Sep  2 15:23:35 casares kernel: victim top page 4000
+Sep  2 15:23:35 casares kernel: victim top page 8000
+Sep  2 15:23:36 casares kernel: victim top page 10000
+Sep  2 15:23:36 casares kernel: victim end page 1feda
 
-#2: why does it do the kmalloc() anyway? It could store the position in
-    the seq pointer just fine. No need to alloc an integer pointer to
-    store the value in ...
+Sep  2 15:23:36 casares kernel: calculate_aligned_end() 1fedc 124
+Sep  2 15:23:36 casares kernel: victim top page 1fedc
+Sep  2 15:23:36 casares kernel: victim top page 1fee0
+Sep  2 15:23:36 casares kernel: victim top page 1ff00
+Sep  2 15:23:36 casares kernel: victim end page 1ffff
 
-#3: to fix the latency, ct_seq_show() could take the ip_conntrack_lock 
-    and could check the current index against ip_conntrack_htable_size. 
-    There's not much point in making this non-preemptible, there's 
-    a 4K granularity anyway.
+Sep  2 15:23:36 casares kernel: calculate_aligned_end() 40000 40000
 
-Rusty, what's going on in this code?
+Sep  2 15:23:36 casares kernel: calculate_aligned_end() a0000 20000
+Sep  2 15:23:36 casares kernel: victim top page a0000
 
-	Ingo
+Sep  2 15:23:36 casares kernel: calculate_aligned_end() bfedc 124
+Sep  2 15:23:36 casares kernel: victim top page bfedc
+Sep  2 15:23:36 casares kernel: victim top page bfee0
+Sep  2 15:23:36 casares kernel: victim top page bff00
+Sep  2 15:23:36 casares kernel: Built 1 zonelists
+==========================================================
+
+
+This is the 1st.
+
+page's order means size of contiguous free pages.
+if a free page[x] 's order is Y, there are contiguous free pages
+from page[X] to page[X + 2^(Y) - 1]
+
+In this patch, when A page is a head of contiguous free pages of order X,
+it is marked with PG_private and set page->private to X.
+A page's buddy in order X is simply calculated by
+
+buddy_idx = page_idx ^ (1 << X).
+
+We can coalece 2 contiguous pages if
+(page_is_free(buddy) && PagePrivate(buddy) && page_order(buddy) == 'X')
+
+-- Kame
+
+
+---
+
+ test-kernel-kamezawa/include/linux/gfp.h    |    2 ++
+ test-kernel-kamezawa/include/linux/mm.h     |   26 ++++++++++++++++++++++++++
+ test-kernel-kamezawa/include/linux/mmzone.h |    1 -
+ 3 files changed, 28 insertions(+), 1 deletion(-)
+
+diff -puN include/linux/mm.h~eliminate-bitmap-includes include/linux/mm.h
+--- test-kernel/include/linux/mm.h~eliminate-bitmap-includes	2004-09-02 13:36:08.439416296 +0900
++++ test-kernel-kamezawa/include/linux/mm.h	2004-09-02 15:18:37.887558080 +0900
+@@ -209,6 +209,9 @@ struct page {
+ 					 * usually used for buffer_heads
+ 					 * if PagePrivate set; used for
+ 					 * swp_entry_t if PageSwapCache
++					 * When page is free:
++					 * this indicates order of page
++					 * in buddy allocator.
+ 					 */
+ 	struct address_space *mapping;	/* If low bit clear, points to
+ 					 * inode address_space, or NULL.
+@@ -322,6 +325,29 @@ static inline void put_page(struct page
+ #endif		/* CONFIG_HUGETLB_PAGE */
+
+ /*
++ * These functions are used in alloc_pages()/free_pages(), buddy allocator.
++ * page_order(page) returns an order of a free page in buddy allocator.
++ *
++ * this is used with PG_private flag
++ *
++ * Note : all PG_private operations used in buddy system is done while
++ * zone->lock is acquired. So set and clear PG_private bit operation
++ * does not need to be atomic.
++ */
++
++#define PAGE_INVALID_ORDER (~0UL)
++
++static inline unsigned long page_order(struct page *page)
++{
++	return page->private;
++}
++
++static inline void set_page_order(struct page *page,unsigned long order)
++{
++	page->private = order;
++}
++
++/*
+  * Multiple processes may "see" the same page. E.g. for untouched
+  * mappings of /dev/null, all processes see the same page full of
+  * zeroes, and text pages of executables and shared libraries have
+diff -puN include/linux/mmzone.h~eliminate-bitmap-includes include/linux/mmzone.h
+--- test-kernel/include/linux/mmzone.h~eliminate-bitmap-includes	2004-09-02 13:36:08.441415992 +0900
++++ test-kernel-kamezawa/include/linux/mmzone.h	2004-09-02 13:36:08.446415232 +0900
+@@ -22,7 +22,6 @@
+
+ struct free_area {
+ 	struct list_head	free_list;
+-	unsigned long		*map;
+ };
+
+ struct pglist_data;
+diff -puN include/linux/gfp.h~eliminate-bitmap-includes include/linux/gfp.h
+--- test-kernel/include/linux/gfp.h~eliminate-bitmap-includes	2004-09-02 13:41:14.054955672 +0900
++++ test-kernel-kamezawa/include/linux/gfp.h	2004-09-02 15:18:00.821193024 +0900
+@@ -5,6 +5,7 @@
+ #include <linux/stddef.h>
+ #include <linux/linkage.h>
+ #include <linux/config.h>
++#include <linux/init.h>
+
+ struct vm_area_struct;
+
+@@ -124,6 +125,7 @@ extern void FASTCALL(__free_pages(struct
+ extern void FASTCALL(free_pages(unsigned long addr, unsigned int order));
+ extern void FASTCALL(free_hot_page(struct page *page));
+ extern void FASTCALL(free_cold_page(struct page *page));
++extern int __init free_pages_at_init(struct page *base, unsigned int order);
+
+ #define __free_page(page) __free_pages((page), 0)
+ #define free_page(addr) free_pages((addr),0)
+
+_
+
+
+
+
+
+

@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268510AbTGISMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 14:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268515AbTGISMY
+	id S268513AbTGISOs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 14:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268512AbTGISOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 14:12:24 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:14279 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S268510AbTGISMT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 14:12:19 -0400
-Message-ID: <3F0C5D55.4030304@rackable.com>
-Date: Wed, 09 Jul 2003 11:22:13 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Milan Roubal <roubm9am@barbora.ms.mff.cuni.cz>
-CC: linux-kernel@vger.kernel.org, mru@users.sourceforge.net
-Subject: Re: Promise SATA 150 TX2 plus
-References: <Pine.LNX.4.53.0307091413030.683@mx.homelinux.com> <027901c3461e$e023c670$401a71c3@izidor> <yw1xadbnx017.fsf@users.sourceforge.net> <02ff01c34642$5512d7f0$401a71c3@izidor>
-In-Reply-To: <02ff01c34642$5512d7f0$401a71c3@izidor>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 9 Jul 2003 14:14:48 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:937 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268517AbTGISNL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 14:13:11 -0400
+Date: Wed, 9 Jul 2003 11:25:59 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: marcelo@conectiva.com.br
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] make profile= doc. clearer
+Message-Id: <20030709112559.3c450894.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Jul 2003 18:26:57.0760 (UTC) FILETIME=[AE4FE600:01C34647]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Milan Roubal wrote:
 
->So other question - is there SATA controler that
->is working in linux multiple controlers (4 cards)
->and is for better bus than standart PCI? Like PCI-X or
->PCI 66 MHz like promise is?
->  
->
-
-  Most current SATA cards aren't faster than 64/66.  Heck many are 
-32/66, or 64/33.  The problem is most everyone other than 3ware's linux 
-drivers suck.  I can't find a non raid SATA controller than works for me 
-under linux.
-
-  3ware cards tend to max out a 64/33 solt around 6 drives for 
-sequential IO.  (This will change in their next gen cards)  You get much 
-better performance with two 8 port cards running 6 drives each than a 
-single 12 port card.  Personally I recommend either 3ware raid10, or 
-linux software raid 5 if you're a performance junky.
-
-  Adaptec does have a new 4 port card sata raid card.  It seems to work 
-well, and the driver on their cdrom includes around 30 precompiled 
-binaries for various RH, MDK, and Suse kernels.  Source for the updated 
-aacraid driver is included.   An interesting side note their cdrom seem 
-to run linux.  (Yes they seem to provide source/patches for the various 
-gpl programs it uses.)
-
--- 
-Once you have their hardware. Never give it back.
-(The First Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+Please apply to 2.4.22-pre.
 
 
+patch_name:	kernproftext_24.patch
+patch_version:	2003-07-09.11:14:56
+author:		Randy.Dunlap <rddunlap@osdl.org>
+description:	make profile=<number> clearer
+product:	Linux
+product_versions: 2.4.22-pre
+diffstat:	=
+ Documentation/kernel-parameters.txt |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Naur ./Documentation/kernel-parameters.txt~prof ./Documentation/kernel-parameters.txt
+--- ./Documentation/kernel-parameters.txt~prof	2003-06-24 14:07:22.000000000 -0700
++++ ./Documentation/kernel-parameters.txt	2003-07-09 10:14:14.000000000 -0700
+@@ -503,7 +503,7 @@
+ 	plip=		[PPT,NET] Parallel port network link.
+ 
+ 	profile=	[KNL] enable kernel profiling via /proc/profile
+-			(param:log level).
++			(param: profile step/bucket size as a power of 2)
+ 
+ 	prompt_ramdisk=	[RAM] List of RAM disks to prompt for floppy disk
+ 			before loading.
+
+Thanks.
+--
+~Randy

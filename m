@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286524AbRL0ThV>; Thu, 27 Dec 2001 14:37:21 -0500
+	id <S286529AbRL0Thl>; Thu, 27 Dec 2001 14:37:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286532AbRL0ThL>; Thu, 27 Dec 2001 14:37:11 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:63243 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S286530AbRL0ThD>; Thu, 27 Dec 2001 14:37:03 -0500
-Message-ID: <3C2B77B9.6143EE1E@zip.com.au>
-Date: Thu, 27 Dec 2001 11:34:17 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Igor Briski <igor.briski@iskon.hr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ext3fs corruption problem?
-In-Reply-To: <20011227120659.O3081@tsunami.iskon.hr>
+	id <S286528AbRL0Thc>; Thu, 27 Dec 2001 14:37:32 -0500
+Received: from h55p103-3.delphi.afb.lu.se ([130.235.187.176]:5284 "EHLO gin")
+	by vger.kernel.org with ESMTP id <S286530AbRL0ThQ>;
+	Thu, 27 Dec 2001 14:37:16 -0500
+Date: Thu, 27 Dec 2001 20:37:11 +0100
+To: Andrew Morton <akpm@zip.com.au>
+Cc: andersg@0x63.nu, linux-kernel@vger.kernel.org, lvm-devel@sistina.com
+Subject: Re: lvm in 2.5.1
+Message-ID: <20011227193711.GB20501@h55p111.delphi.afb.lu.se>
+In-Reply-To: <20011227084304.GA26255@h55p111.delphi.afb.lu.se> <3C2AEADB.24BEFE94@zip.com.au> <20011227122520.GA2194@h55p111.delphi.afb.lu.se> <3C2B75B3.4DEF90D3@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3C2B75B3.4DEF90D3@zip.com.au>
+User-Agent: Mutt/1.3.24i
+From: andersg@0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Igor Briski wrote:
+On Thu, Dec 27, 2001 at 11:25:39AM -0800, Andrew Morton wrote:
+> 0xc02546c7 <lvm_do_vg_create+3>:        sub    $0x1d4,%esp
 > 
-> I've noticed several files missing in last few days and this
-> also started happening:
-> 
-> webmail1 [/space/cwmail/mail/n_z1/f6/jejka74_Pmail_Ixxx_Ixx/2] # ls -la
-> total 32
-> drwx--S---    2 www-data www-data     4096 Nov 25 22:47 .
-> drwx--S---    5 www-data www-data     4096 Dec 26 14:48 ..
-> -rw-r--r--    1 www-data www-data     1011 Nov 25 22:47 index.dat
-> -rw-r--r--    1 www-data www-data 18446744069414584903 Nov 23 22:25 m_0.dat
+> So perhaps we have a compiler problem.  Which version of the
+> compiler are you using?   Have you verified that sizeof(lv_t)
+> is really around 420 bytes in your setup?
 
-There was a truncate problem which could allow this.  It was fixed
-in 2.4.17.  Deleting the file and running fsck will clean it up.
+gcc version 2.95.4 20011223 (Debian prerelease)
 
-Could you please fsck the filesystems, see what it says?
+i didn't check the exact amount. i dont know where the 420 bytes comes from?
+but (as Mike Galbraith pointed out) a lv_t contains:
 
-Also, please check the logs for any errors or warnings from the
-filesystem and from RAID.
+        sector_t blocks[LVM_MAX_SECTORS];
+	
+with:
 
-Thanks.
+#define LVM_MAX_ATOMIC_IO       512
+#define LVM_MAX_SECTORS         (LVM_MAX_ATOMIC_IO * 2)
 
--
+and 
+typedef unsigned long sector_t;
+
+unsigned long beeing 4bytes => the blocks-member of lv_t should then be 4096
+by it self...
+
+-- 
+
+//anders/g
+

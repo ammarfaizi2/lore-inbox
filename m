@@ -1,60 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262874AbREVWfa>; Tue, 22 May 2001 18:35:30 -0400
+	id <S262875AbREVWik>; Tue, 22 May 2001 18:38:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262875AbREVWfU>; Tue, 22 May 2001 18:35:20 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:55812 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S262874AbREVWfM>; Tue, 22 May 2001 18:35:12 -0400
-Message-ID: <3B0AE964.C9346FD2@evision-ventures.com>
-Date: Wed, 23 May 2001 00:34:12 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
+	id <S262877AbREVWiU>; Tue, 22 May 2001 18:38:20 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:21263 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262875AbREVWiT>; Tue, 22 May 2001 18:38:19 -0400
+Date: Tue, 22 May 2001 15:37:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: Andries.Brouwer@cwi.nl
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com, viro@math.psu.edu
+cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] struct char_device
-In-Reply-To: <UTC200105222217.AAA79157.aeb@vlet.cwi.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <UTC200105222054.WAA79836.aeb@vlet.cwi.nl>
+Message-ID: <Pine.LNX.4.21.0105221521330.4332-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
-> 
-> Martin Dalecki writes:
-> 
-> > Erm... I wasn't talking about the DESIRED state of affairs!
-> > I was talking about the CURRENT state of affairs. OK?
-> 
-> Oh, but in 1995 it was quite possible to compile the kernel
-> with kdev_t a pointer type, and I have done it several times since.
 
-Yes I remember but unfortunately some big L* did ignore
-your *fine* efforts entierly in favour of developing 
-/proc and /dev/random and other crap maybe?
-
-> The kernel keeps growing, so each time it is more work than
-> the previous time.
+On Tue, 22 May 2001 Andries.Brouwer@cwi.nl wrote:
 > 
-> > At least you have admitted that you where the one responsible
-> > for the design of this MESS.
+> The operations are different, but all bdev/cdev code is identical.
 > 
-> Thank you! However, you give me too much honour.
+> So the choice is between two uglies:
+> (i) have some not entirely trivial amount of code twice in the kernel
+> (ii) have a union at the point where the struct operations
+> is assigned.
+> 
+> I preferred the union.
 
-Well ... you ask for it in the corresponding header ;-).
-But it isn't yours fault indeed I admit...
-I know the discussions from memmory since I'm returning REGULARLY to
-this
-topic in intervals of about between 6 and 24 months since about
-maybe already 6 years!!! Currently they have just started to hurt
-seriously. And please remember the change I have mentioned above
-wasn't intended as developement but just only as an experiment...
+I would much prefer a union of pointers over a pointer to a union.
 
-Well let's us stop throw flames at each other.
-Please have a tight look at the following *EXPERIMENT* I have
-already done. It's really really only intended to mark the
-places where the full mess shows it's ugly head:
+So I'd much rather have the inode have a
 
-http://www.dalecki.de/big-002.diff
+	union {
+		struct block_device *block;
+		struct char_device *char;
+	} dev;
+
+and then have people do
+
+	cdev = inode->dev.char;
+
+to get the right information, than to have 
+
+	union block_char_union {
+		struct block_device block;
+		struct char_device char;
+	};
+
+	.. with struct inode containing ..
+	union block_char_union *dev;
+
+Why? Because if you have a "struct inode", you also have enough
+information to decide _which_ of the two types of pointers you have, so
+you can do the proper dis-ambiguation of the union and properly select
+either 'inode->dev.char' or 'inode->dev.block' depending on other
+information in the inode.
+
+In contrast, if you have a pointer to a union, you don't have information
+of which sub-type it is, and you'd have to carry that along some other way
+(for example, by having common fields at the beginning). Which I think is
+broken.
+
+So my suggestion for eventual interfaces:
+
+ - have functions like
+
+	struct block_dev *bdget(struct inode *);
+	struct char_dev *cdget(struct inode *);
+
+   which populate the "inode->dev" union pointer, which in turn is _only_
+   a cache of the lookup. Right now we do this purely based on "dev_t",
+   and I think that is bogus. We should never pass a "dev_t" around
+   without an inode, I think.
+
+   And we should not depend on the "inode->dev.xxxx" pointer being valid all
+   the time, as there is absolutely zero point in initializing the pointer
+   every time the inode is read just because somebody does a "ls -l /dev".
+   Thus the "cache" part above.
+
+ - NO reason to try to make "struct block_dev" and "struct char_dev" look
+   similar. They will have some commonality for lookup purposes (that
+   issue is similar, as Andries points out), and maybe that commonality
+   can be separated out into a sub-structure or something. But apart from
+   that, they have absolutely nothing to do with each other, and I'd
+   rather not have them have even a _superficial_ connection.
+
+   Block devices will have the "request queue" pointer, and the size and
+   partitioning information. Character devices currently would not have
+   much more than the operations pointer and name, but who knows..
+
+But the most important thing is to be able to do this in steps. One of the
+reasons Andries has had patches for a long time is that it was never very
+gradual. Al's patch is gradual, and I like that.
+
+		Linus
+

@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318376AbSGYIjs>; Thu, 25 Jul 2002 04:39:48 -0400
+	id <S318385AbSGYIwt>; Thu, 25 Jul 2002 04:52:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318377AbSGYIjs>; Thu, 25 Jul 2002 04:39:48 -0400
-Received: from maroon.csi.cam.ac.uk ([131.111.8.2]:35280 "EHLO
-	maroon.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S318376AbSGYIjr>; Thu, 25 Jul 2002 04:39:47 -0400
-Message-Id: <5.1.0.14.2.20020725092538.00b0bd30@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 25 Jul 2002 09:43:08 +0100
-To: Linus Torvalds <torvalds@transmeta.com>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: 2.5.28 and partitions
-Cc: Alexander Viro <viro@math.psu.edu>, <Andries.Brouwer@cwi.nl>,
-       <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0207242213540.1231-100000@home.transmeta.com
- >
-References: <5.1.0.14.2.20020725030051.02114cb0@pop.cus.cam.ac.uk>
+	id <S318389AbSGYIwt>; Thu, 25 Jul 2002 04:52:49 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:56510 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318385AbSGYIws>;
+	Thu, 25 Jul 2002 04:52:48 -0400
+Date: Thu, 25 Jul 2002 10:55:38 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: martin@dalecki.de
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/CFT] cmd640 irqlocking fixes
+Message-ID: <20020725105538.B21927@ucw.cz>
+References: <20020724225826.GF25038@holomorphy.com> <1027559111.6456.34.camel@irongate.swansea.linux.org.uk> <20020725095448.B21541@ucw.cz> <3D3FB6C8.1070409@evision.ag>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D3FB6C8.1070409@evision.ag>; from dalecki@evision.ag on Thu, Jul 25, 2002 at 10:28:56AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:15 25/07/02, Linus Torvalds wrote:
->On Thu, 25 Jul 2002, Anton Altaparmakov wrote:
-> >
-> > >u64 for sector_t doesn't change anything for 64bit boxen that might be
-> > >interested in really large disks and screws 32bit ones that shouldn't
-> > >have to pay for that...
-> >
-> > True. That's why sector_t should be a compile time option in the kernel
-> > "Enable large device support > 2TiB:  Y/N". Then I am happy and loads of
-> > other people because we can use large raid arrays without having to buy the
-> > latest expensive system and other people are happy for having faster 32-bit
-> > code... Surely we can write robust enough code which will work with either
-> > sector_t size...
->
->Careful. One issue is user-level interfaces to the kernel. I would suggest
->any user level interface should use u64, not "sector_t". So that there is
->zero confusion. Clearly 64-bit sector numbers will be/are really close to
->being an issue for some people.
+On Thu, Jul 25, 2002 at 10:28:56AM +0200, Marcin Dalecki wrote:
+> Vojtech Pavlik wrote:
+> 
+> > 
+> > The kernel functions are OK. The problem is that the kernel can use
+> > PCIBIOS calls to set the registers. And certain old buggy BIOSes which
+> > violate the PCI spec can use wrong size data transfers to set the
+> > registers, which the CMD640 doesn't like.
+> > 
+> > IMHO the best workaround here would be either to disable PCIBIOS calls
+> > and revert to conf1 or conf2 in the PCI code if a CMD640 is present, or
+> > just panic() in the CMD640 code and suggest to the user to use
+> > "pci=nobios" on the kernel command line. I'd actually prefer the later.
+> > 
+> 
+>  From a long long time ago during the first days of this driver I 
+> remember that those chips could be wired to both PCI and VLB(ISA) bus.
+> And this is the main reaons why the functions is question exist in first 
+> place -> "emulating" PCI configuration space access on VLB.
 
-Of course. We do need a consistent ABI... But I don't see that as a big 
-problem. There aren't that many places that take sectors as arguments that 
-we need to fix AFAICS.
-
-Both there and for user supplied byte offsets/sizes, we just need to check 
-that user supplied values are not being overflowed on 32-bit sector_t 
-compiled kernels... something like
-
-         if (sizeof(sector_t) == 4) {
-                 if (value & ~(((u64)1 << 32) - 1))
-                         return -E2BIG;
-         }
-
-should compile out nicely for 64-bit sector_t and provide a simple, highly 
-optimized check for 32-bit sector_t... (If gcc optimizes it well I should 
-hope it will just do a simple 32-bit compare of the high 32-bits with zero...)
-
-I have to admit that if it was just up to me, I would make sector_t 
-unconditionally u64, so there don't need to be checks like the above all 
-over the place... But that's just me... (-;
-
-Best regards,
-
-         Anton
-
+No. For VLB the CMD640 has a somewhat different configuration method.
+See the source. ;) We really should be using pci_write_config_* and
+create vlb_write_config_* in CMD640 for the VLB accesses, panic() in
+case we have a PCI system that uses BIOS and we found a CMD640, and
+remove the duplicate PCI conf1 and PCI conf2 code from cmd640.c
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+Vojtech Pavlik
+SuSE Labs

@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130676AbRAIAiA>; Mon, 8 Jan 2001 19:38:00 -0500
+	id <S135442AbRAIAiq>; Mon, 8 Jan 2001 19:38:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132422AbRAIAhv>; Mon, 8 Jan 2001 19:37:51 -0500
-Received: from raven.toyota.com ([63.87.74.200]:57098 "EHLO raven.toyota.com")
-	by vger.kernel.org with ESMTP id <S130070AbRAIAhm>;
-	Mon, 8 Jan 2001 19:37:42 -0500
-Message-ID: <3A5A5D4B.7E9D5183@toyota.com>
-Date: Mon, 08 Jan 2001 16:37:32 -0800
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ll i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ragnar Hojland Espinosa <ragnar@fuckmpaa.com>
-CC: "Michael D. Crawford" <crawford@goingware.com>,
-        linux-kernel@vger.kernel.org, newbie@xfree86.org
-Subject: Re: [OT]: DRI doesn't work on 2.4.0 but does on prerelease-ac5
-In-Reply-To: <3A5A087F.F1C45380@goingware.com> <3A5A4585.5036A11C@toyota.com> <20010109005707.A1347@lightside.2y.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132422AbRAIAi1>; Mon, 8 Jan 2001 19:38:27 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:7172 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135442AbRAIAiK>; Mon, 8 Jan 2001 19:38:10 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Subtle MM bug
+Date: 8 Jan 2001 16:37:45 -0800
+Organization: Transmeta Corporation
+Message-ID: <93dmgp$6bu$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.30.0101081352400.954-100000@mf2.private> <Pine.LNX.4.30.0101081515090.18737-100000@mf1.private> <20010109003002.L27646@athlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ragnar Hojland Espinosa wrote:
-
-> On Mon, Jan 08, 2001 at 02:56:05PM -0800, J Sloan wrote:
+In article <20010109003002.L27646@athlon.random>,
+Andrea Arcangeli  <andrea@suse.de> wrote:
+>On Mon, Jan 08, 2001 at 03:22:44PM -0800, Wayne Whitney wrote:
+>> I guess I conclude that either (1) MAGMA does not use libc's malloc
+>> (checking on this, I doubt it) or (2) glibc-2.1.92 knows of these
+>> variables but has not yet implemented the tuning (I'll try glibc-2.2) or
+>> (3) this is not the problem.
 >
-> > In my case, that meant nuking mesa from my system and
-> > letting Linux use what was left, which got me back the good
-> > accelerated performance - you may choose a less drastic
-> > option. I don't see any breakage from the absence of mesa.
->
-> Well, the real problem is that (at least Voodoo3) DRI didn't work _before_
-> with the "latest" test and pre kernels, and X < 4.0.2 (unless there was some
-> combination I didn't manage to find) even if it was using the correct
-> library.
+>You should monitor the program with strace while it fails (last few syscalls).
+>You can breakpoint at exit() and run `cat /proc/pid/maps` to show us the vma
+>layout of the task. Then we'll see why it's failing.  With CONFIG_1G in 2.2.x
+>or 2.4.x (confinguration option doesn't matter) you should at least reach
+>something like 1.5G.
 
-That's odd, perhaps we should compare notes -
+It might be doing its own memory management with brk() directly - some
+older UNIX programs will do that (for various reasons - it can be faster
+than malloc() etc if you know your access patterns, for example).
 
-I have been getting good accelerated 3D from my voodoo3
-since around 2.3.36, except for one brief period around
-2.3.99-something where some critical kernel code changed.
+If you do that, and you have shared libraries, you'll get a failure
+around the point Wayne sees it. 
 
-I have been using the kernel drm all along.
+But your suggestion to check with strace is a good one.
 
-BTW I am using the X server from 3dfx.com -
-
-jjs
-
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

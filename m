@@ -1,83 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbVAQSbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbVAQSXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262560AbVAQSbW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 13:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbVAQS1x
+	id S262837AbVAQSXk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 13:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbVAQSTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 13:27:53 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:22269 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262841AbVAQSYx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 13:24:53 -0500
-Date: Mon, 17 Jan 2005 23:57:35 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com,
-       rusty@rustcorp.com.au, dipankar@in.ibm.com
-Subject: Re: [patch] mm: Reimplementation of dynamic percpu memory allocator
-Message-ID: <20050117182735.GA2322@impedimenta.in.ibm.com>
-References: <20050113083412.GA7567@impedimenta.in.ibm.com> <20050113005730.0e10b2d9.akpm@osdl.org> <20050114150519.GA3189@impedimenta.in.ibm.com> <20050114013425.77ad7c3f.akpm@osdl.org>
+	Mon, 17 Jan 2005 13:19:47 -0500
+Received: from thunk.org ([69.25.196.29]:22705 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S262832AbVAQSRA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 13:17:00 -0500
+Date: Mon, 17 Jan 2005 13:16:52 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: John Richard Moser <nigelenki@comcast.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Kernel Audit Project?
+Message-ID: <20050117181652.GB25974@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	John Richard Moser <nigelenki@comcast.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <41EB6691.10905@comcast.net> <41EB6BD6.5070702@comcast.net> <1105962233.12709.68.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050114013425.77ad7c3f.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1105962233.12709.68.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 01:34:25AM -0800, Andrew Morton wrote:
-> Ravikiran G Thirumalai <kiran@in.ibm.com> wrote:
+On Mon, Jan 17, 2005 at 12:23:35PM +0000, Alan Cox wrote:
 > 
-> >  > 
-> >  > Why cannot the code simply call vmalloc rather than copying its internals?
-> > 
-> >  Node local allocation. vmalloc cannot ensure pages for correspomding
-> >  cpus are node local.  Also, design goal was to allocate pages for 
-> >  cpu_possible cpus only.  With plain vmalloc, we will end up allocating 
-> >  pages for NR_CPUS.
-> 
-> So...  is it not possible to enhance vmalloc() for node-awareness, then
-> just use it?
+> - Tools like coverity and sparse are significantly increasing the number
+> of flaws found. In particular they are turning up long time flaws in
+> code, but they also mean new flaws of that type are being found. People
+> aren't really turning these tools onto user space - yet -
 > 
 
-Memory for block management (free lists, bufctl lists) is also resident 
-in one block.  A typical block in this allocator looks like this:
+Also, most of the kernel vulernabilities that have been found are not
+remote execution vulernabilities, but privilege escalation bugs, or
+data leakage bugs (technically a security vulnerability but most of
+the time what gets leaked is truly boring) or denial of service bugs
+(yawn; there are enough ways of carrying out DOS attacks that don't
+represent kernel bugs).  The percentage of vulnerabilities which are
+actually of the "browse a certain web page with Internet Exploder and
+you are 0wned" are far fewer with kernel bugs, by their very nature.
+That's not to say that such bugs shouldn't be fixed, but that unless
+you're some hack from the Yankee Group getting paid by Microsoft,
+there's no point to ring the alarm bells.
 
+Finally, it's important to take statistical analysis with a huge grain
+of salt sometimes; but an increase it bugs found doesn't mean that the
+product is getting buggier; just that more bugs are happenning to get
+fixed.  You need to do a lot more analysis to discover if this is due
+to code analysis tools finding bugs in old code, or bugs being turned
+up in newly modified code, etc.
 
-VMALLOC_ADDR 	PAGE_ADDR	BLOCK			
-============ 	=========	========
-
-0xa0000		0x10100		-----------------	^	^
-  .				|		|	|	|
-  .				|   cpu 0	| PCPU_BLKSIZE	|
-				|		|	|	|
-0xa0100		0x30100		-----------------	v	|
-				|		|		|
-				|   cpu 1	|		|
-				|		|		|
-0xa0200		   -		-----------------	     NR_CPUS		
-				|		|		|
-				| !cpu_possible	|		|
-				|		|		|
-0xa0300		   -		-----------------		|
-				|		|		|
-				| !cpu_possible	|		|
-				|		|		|
-0xa0400		0x10300		-----------------	  ^	v
-				|		|	  |
-				|  Block mgmt	|BLOCK_MANAGEMENT_SIZE	
-				|		|	  |
-0xa05ff				-----------------	  v
-
-
-
-This block is setup by valloc_percpu in the allocator code.  There is lot 
-of allocator specific stuff like the PCPU_BLKSIZE, BLOCK_MANAGEMENT_SIZE 
-used here.  I thought it was not appropriate to put them in vmalloc.c.  
-A common vmalloc_percpu which can take arguments for PCPU_BLKSIZE and 
-BLOCK_MANAGEMENT_SIZE is not useful anywhere else. 
-
-Changed patchset with other modifications suggested will follow.
-
-Thanks,
-Kiran
+							- Ted

@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135871AbRECR60>; Thu, 3 May 2001 13:58:26 -0400
+	id <S135875AbRECSBr>; Thu, 3 May 2001 14:01:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135879AbRECR52>; Thu, 3 May 2001 13:57:28 -0400
-Received: from smtp.alacritech.com ([209.10.208.82]:32786 "EHLO
-	smtp.alacritech.com") by vger.kernel.org with ESMTP
-	id <S135871AbRECRzn>; Thu, 3 May 2001 13:55:43 -0400
-Message-ID: <3AF19A17.19C2741F@alacritech.com>
-Date: Thu, 03 May 2001 10:49:11 -0700
-From: "Matt D. Robinson" <yakker@alacritech.com>
-Organization: Alacritech, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
-X-Accept-Language: en
+	id <S135879AbRECSAs>; Thu, 3 May 2001 14:00:48 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12808 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135855AbRECR70>; Thu, 3 May 2001 13:59:26 -0400
+Subject: Re: 2.4.4 Kernel - ASUS CUV4X-DLS Question
+To: dneal@cnls.lanl.gov (David A. Neal)
+Date: Thu, 3 May 2001 19:03:23 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
+In-Reply-To: <200105031751.LAA24795@iiwi.lanl.gov> from "David A. Neal" at May 03, 2001 11:51:29 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: smp_send_stop() and disable_local_APIC()
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14vNRm-0005vc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like around 2.3.30 or so, someone added the call
-disable_local_APIC() to smp_send_stop().  I'm not sure what the
-intention was, but I'm getting some strange behavior as a result
-based on some code I'm writing.
+> trying to solve. I have a system with a ASUS CUV4X-DLS system
+> 
+> The problem is that the system will boot everytime if and only
+> if I use "noapic". If I do not use "noapic", the system will
 
-Basically, I'm doing the following ...
+Known problem with the CUV4X boards. 
 
-    panic()
-    {
-        /* do whatever you want, notifier list, etc. */
-        smp_send_stop();
-        write_system_memory();
-        /* then do whatever */
-    }
+> What is the impact on performance by disabling APIC? Is there
+> something wrong with the .config file that might fix this.
 
-write_system_memory() does a write of all system memory pages to some
-block device.  It uses kiobufs as the way to get the pages to disk,
-doing brw_kiovec() on those pages (using either the IDE or SCSI
-driver to write the data).
+Disabling the apic stops irq sharing from occuring. The impact is normally
+pretty minimal
 
-The wierd behavior I see is that sometimes, smp_send_stop()
-being called causes the system to hang up (not every time).  If
-we don't call smp_send_stop() on those systems, everything works fine.
-This looks to be directly caused by the disabling of the APIC, which
-we may need to dump pages to local disk.  This only applies to some
-people's systems -- not everyone displays the same behavior.
-
-I'm sure it's good to disable the APIC, but there's no clean way to
-wait on disabling the APIC until after I'm done writing pages out.
-
-My questions are:
-
-1) Why was disable_local_APIC() added to stop_this_cpu()
-   and smp_send_stop()?  Completeness?
-
-2) Is there a better way around this to disable all the
-   other CPUs without disabling the APIC?
-
-Thanks for any feedback.
-
---Matt

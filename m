@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316799AbSE3Sh2>; Thu, 30 May 2002 14:37:28 -0400
+	id <S316821AbSE3Ska>; Thu, 30 May 2002 14:40:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316820AbSE3Sh1>; Thu, 30 May 2002 14:37:27 -0400
-Received: from pool-151-196-236-146.balt.east.verizon.net ([151.196.236.146]:61863
-	"EHLO starbug.reddwarf") by vger.kernel.org with ESMTP
-	id <S316799AbSE3Sh1>; Thu, 30 May 2002 14:37:27 -0400
-Message-ID: <3CF6723E.3020502@dlister.net>
-Date: Thu, 30 May 2002 14:41:02 -0400
-From: Brian Davids <dlister@dlister.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020513 Netscape/7.0b1
-X-Accept-Language: en-us, en
+	id <S316822AbSE3Ska>; Thu, 30 May 2002 14:40:30 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:4365 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S316821AbSE3Sk3>; Thu, 30 May 2002 14:40:29 -0400
+Date: Thu, 30 May 2002 11:40:14 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Andrew Pam <xanni@glasswings.com.au>
+cc: Hannu Mallat <hmallat@cc.hut.fi>,
+        James Simmons <jsimmons@users.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: 3dfx framebuffer driver borked in 2.5.19 kernel
+In-Reply-To: <20020530165031.GA18544@kira.glasswings.com.au>
+Message-ID: <Pine.LNX.4.10.10205301139260.9282-100000@www.transvirtual.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Michail Rusinov <one@da.ru>
-Subject: Re: PROBLEM: NVidia drivers with 2.5 kernel
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  > Is there any method to compile NVidia drivers with linux kernel
-  > 2.5.18?
-  > When I begin to compile them, they write
-  > "error This driver does not support 2.5.x development kernels!"
-  > Is there any solution to make it work?
 
+> With the port to the new fbdev interface in kernel
+> 2.5.19 the system now only displays a few unchanging coloured pixels
+> on the first line of the screen.  The rest of the screen remains black
+> until X11 starts.  I am using append="video=tdfx:1024x768" in LILO.
 
-There was a patch to nVidia's v.2880 drivers tested on kernel 2.5.15
-posted on May 13 which you can find here:
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0205.1/1034.html
-
-
-
-Brian Davids
+I'm tracking down the bug you are experiencing. Almost done. 
 

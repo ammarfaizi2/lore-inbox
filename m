@@ -1,61 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262759AbUBZKGP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 05:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbUBZKGP
+	id S262752AbUBZKY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 05:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbUBZKY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 05:06:15 -0500
-Received: from moutng.kundenserver.de ([212.227.126.185]:17359 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262759AbUBZKGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 05:06:10 -0500
-Message-ID: <403DC50D.2050307@helmutauer.de>
-Date: Thu, 26 Feb 2004 11:06:05 +0100
-From: Helmut Auer <vdr@helmutauer.de>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
+	Thu, 26 Feb 2004 05:24:26 -0500
+Received: from warden3-p.diginsite.com ([208.147.64.186]:45776 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id S262752AbUBZKYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 05:24:24 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       Jaco Kroon <jkroon@cs.up.ac.za>
+Cc: Adrian Bunk <bunk@fs.tum.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Thu, 26 Feb 2004 02:24:14 -0800 (PST)
+Subject: Re: 2.6.3 adaptec I2O will not compile
+In-Reply-To: <403DBC2E.3040307@cs.up.ac.za>
+Message-ID: <Pine.LNX.4.58.0402260223190.994@dlang.diginsite.com>
+References: <403DBC2E.3040307@cs.up.ac.za>
 MIME-Version: 1.0
-To: Andries Brouwer <aebr@win.tue.nl>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: HELP Re: Keyboard not working under 2.6.2
-References: <403911AD.1030005@helmutauer.de> <403B101D.3070601@helmutauer.de> <20040225100707.GA3832@pclin040.win.tue.nl>
-In-Reply-To: <20040225100707.GA3832@pclin040.win.tue.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:dc795559fd1207bef82c0d6ee61125c0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-ID: <Pine.LNX.4.58.0402260223192.994@dlang.diginsite.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
+Mark, do you have any comments on this?
 
->On Tue, Feb 24, 2004 at 09:49:33AM +0100, Helmut Auer wrote:
->
->  
->
->>>I am using an Intel810 MoBo with an infrared module/keyboard connected to
->>>an onboard PS/2 connector.
->>>With a 2.4.x kernel I get the message:
->>>No AT keyboard found
->>>but the keyboard works fine.
->>>With a 2.6.2 kernel, I don't get this message, but the keyboard does not
->>>work !!!
->>>Any hints what I can try ? If I connect an USB keyboard, this will 
->>>work, and also if I connect a "normal" PS/2 keyboard to that PS/2 pins.
->>>      
->>>
->>Sorry for being impatient, but isn't here anyone who can give me a hint, 
->>or is this the wrong place for this problem ?
->>    
->>
->
->Did you get precisely this message: "No AT keyboard found" ?
->Who prints this message? (BIOS, bootloader, kernel? Which bootloader? Which kernel?)
->
-Looks like I cannot investigate any longer in this problem. The onboard 
-PS/2 connector doesn't seem to work anymore on this machine :-(
-I will give it some more tries next weekend.
+On Thu, 26 Feb 2004, Jaco Kroon wrote:
 
+> Date: Thu, 26 Feb 2004 01:28:14 -0800
+> From: Jaco Kroon <jkroon@cs.up.ac.za>
+> To: David Lang <david.lang@digitalinsight.com>
+> Cc: Adrian Bunk <bunk@fs.tum.de>,
+>      Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Subject: Re: 2.6.3 adaptec I2O will not compile
+>
+> David Lang wrote:
+>
+> >I received a post from Mark Salyzyn with a new driver that does
+> compile,
+> >he said that he has submitted the patches (I didn't get a chance to try
+> >the new kernel yet, I expect to do that shortly and will report any
+> >problems)
+> >
+> >D
+> >
+> Somebody just mailed me a patch too, but I found the following
+> discrepancy:
+>
+> /*
+>  * scsi_unregister will be called AFTER we return.
+>  */
+> static int adpt_release(struct Scsi_Host *host)
+> {
+>     adpt_hba* pHba = (adpt_hba*) host->hostdata[0];
+> //  adpt_i2o_quiesce_hba(pHba);
+>     adpt_i2o_delete_hba(pHba);
+>     scsi_unregister(host);
+>     return 0;
+> }
+>
+> This is used to release the host, now read the comment, and then the
+> line just before the return.  This line was added by the patch, which
+> also commented out the quiesce line.  Is it possible to get any
+> confirmation on how this is supposed to function?
+>
+> Jaco
+>
+> ===========================================
+> This message and attachments are subject to a disclaimer. Please refer
+> to www.it.up.ac.za/documentation/governance/disclaimer/ for full
+> details.
+> Hierdie boodskap en aanhangsels is aan 'n vrywaringsklousule onderhewig.
+> Volledige besonderhede is by
+> www.it.up.ac.za/documentation/governance/disclaimer/ beskikbaar.
+> ===========================================
+>
+>
 
 -- 
-Helmut Auer, helmut@helmutauer.de 
-
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,39 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283254AbRLDSqV>; Tue, 4 Dec 2001 13:46:21 -0500
+	id <S283309AbRLDStm>; Tue, 4 Dec 2001 13:49:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283282AbRLDSo5>; Tue, 4 Dec 2001 13:44:57 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10757 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283269AbRLDSnr>;
-	Tue, 4 Dec 2001 13:43:47 -0500
-Date: Tue, 4 Dec 2001 19:43:19 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "David C. Hansen" <dave@sr71.net>
-Cc: "Udo A. Steinberg" <reality@delusion.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS]: Linux-2.5.1-pre5
-Message-ID: <20011204194319.C15152@suse.de>
-In-Reply-To: <3C0BA978.A26EF6C0@delusion.de> <20011204104928.E13391@suse.de> <3C0D0DE8.9000902@sr71.net>
+	id <S283266AbRLDSsC>; Tue, 4 Dec 2001 13:48:02 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:55473 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S283273AbRLDSq5>;
+	Tue, 4 Dec 2001 13:46:57 -0500
+Date: Tue, 4 Dec 2001 19:46:52 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: =?iso-8859-1?Q?Ra=FAlN=FA=F1ez_de_Arenas_Coronado?= 
+	<raul@viadomus.com>
+Cc: linux-kernel@vger.kernel.org, matthias.andree@stud.uni-dortmund.de,
+        esr@thyrsus.com, hch@caldera.de, kaos@ocs.com.au,
+        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011204194652.F360@khan.acc.umu.se>
+In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <3C0D0DE8.9000902@sr71.net>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com>; from raul@viadomus.com on Tue, Dec 04, 2001 at 06:08:57PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04 2001, David C. Hansen wrote:
-> Jens Axboe wrote:
+On Tue, Dec 04, 2001 at 06:08:57PM +0100, RaúlNúñez de Arenas Coronado wrote:
+>     Hi Matthias :)
 > 
-> >This should fix it.
+> >Creating a dependency on Python? Is a non-issue.
 > 
-> So, what was the actual problem?
+>     Maybe for you. For me it *is* an issue. I don't like more and
+> more dependencies for the kernel. I mean, if I can drop kbuild and
+> keep on building the kernel with the old good 'make config' I won't
+> worry, but otherwise I don't think that kernel building depends on
+> something like Python.
+> 
+>     Why must I install Python in order to compile the kernel? I don't
+> understand this. I think there are better alternatives, but kbuild
+> seems to be imposed any way.
+> 
+> >You don't make the pen yourself when writing a letter either.
+> 
+>     I don't like to be forced in a particular pen, that's the reason
+> why I use and develop for linux.
+> 
+> >What are the precise issues with Python? Just claiming it is an
+> >issue is not useful for discussing this. Archive pointers are
+> >welcome.
+> 
+>     Well, let's start writing kernel drivers with Python, Perl, PHP,
+> awk, etc... And, why not, C++, Ada, Modula, etc...
 
-bio_alloc() not waiting on the reserved pool for free entries, even
-though __GFP_WAIT was set. No need for __GFP_IO in that case too.
+Noone's suggested writing kernel-drivers in anything but a combination
+of C and assembler (with as little asm as possible), apart from some
+heretics that suggested usage of C++ in the kernel...
 
-There were two hunks with actual code changes in there, did you read the
-patch at all? :-)
+This only involves usage of Python2 for configuring your kernel.
 
--- 
-Jens Axboe
+>     The kernel should depend just on the compiler and assembler, IMHO.
 
+Yeah, let's lose the dependencies on perl, make, awk, sed, ld, ar,
+nm, strip, objcopy, objdump, depmod, grep, xargs, find, gzip,
+wish, tcl/tk and possibly others. That'd surely shave a lot of diskspace
+off my buildsystem. It's not like I use any of them for anything else...
+
+Hey, lets lose C and ASM too, and create all your binaries by
+writing hexvalues into a file.
+
+
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

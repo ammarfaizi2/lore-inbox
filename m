@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVDFNAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVDFNK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbVDFNAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 09:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVDFNAJ
+	id S262197AbVDFNK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 09:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVDFNK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 09:00:09 -0400
-Received: from orb.pobox.com ([207.8.226.5]:40382 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262194AbVDFNAC (ORCPT
+	Wed, 6 Apr 2005 09:10:29 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:19345 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262197AbVDFNKT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 09:00:02 -0400
-Date: Wed, 6 Apr 2005 05:59:58 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm1
-Message-ID: <20050406125958.GA8150@ip68-4-98-123.oc.oc.cox.net>
-References: <20050405000524.592fc125.akpm@osdl.org> <20050405134408.GB10733@ip68-4-98-123.oc.oc.cox.net> <20050405141445.GA5170@ip68-4-98-123.oc.oc.cox.net> <20050405175600.644e2453.akpm@osdl.org>
+	Wed, 6 Apr 2005 09:10:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=iFOX9IPASe40Q13BkwBWQO0w4Ls7MIDsnfSLm77+Q9qV5KuNdBw6B7KgAp+pNbtxuHIAwDqN61+AUJqLwTpdaLhm5nOHrmDI2guaNOu7Y/O1BGI3i1GYIelpQwbykOATUsJ3HffD6JvKVpiydEDQ5EBjAX+AMdYozjxDY/fF99o=
+Message-ID: <aec7e5c305040606104c86712c@mail.gmail.com>
+Date: Wed, 6 Apr 2005 15:10:15 +0200
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: Malcolm Rowe <malcolm-linux@farside.org.uk>
+Subject: Re: [PATCH][RFC] disable built-in modules V2
+Cc: Magnus Damm <damm@opensource.se>, linux-kernel@vger.kernel.org
+In-Reply-To: <courier.4253BAD7.000018D2@mail.farside.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050405175600.644e2453.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050405225747.15125.8087.59570@clementine.local>
+	 <courier.4253BAD7.000018D2@mail.farside.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 05:56:00PM -0700, Andrew Morton wrote:
-> > I'll see if I can isolate it any further.
+On Apr 6, 2005 12:32 PM, Malcolm Rowe <malcolm-linux@farside.org.uk> wrote:
+> Magnus Damm writes:
+> > Here comes version 2 of the disable built-in patch.
 > 
-> Please, that would help.
+> > +void __init disable_initcall(void *fn)
+> > +{
+> > +     initcall_t *call;
+> > +
+> > +     for (call = __initcall_start; call < __initcall_end; call++) {
+> > +
+> > +             if (*call == fn)
+> > +                     *call = NULL;
+> > +     }
+> > +}
+> 
+> Regardless of anything else, won't this break booting with initcall_debug on
+> PPC64/IA64 machines? (see the definition of print_fn_descriptor_symbol() in
+> kallsyms.h)
 
-[Right now I'm in a race against my lack of sleep. I'm trying to send
-this e-mail before I involuntarily fall asleep, so the contents
-and/or recipient list may be incomplete...]
+Correct, thanks for pointing that out. The code below is probably better:
 
-Ok, I've narrowed the problem down to one patch. In 2.6.11-mm3, the
-problem goes away if I remove this patch:
-swsusp-enable-resume-from-initrd.patch
+ static void __init do_initcalls(void)
+ {
+        initcall_t *call;
+@@ -547,6 +558,9 @@ static void __init do_initcalls(void)
+        for (call = __initcall_start; call < __initcall_end; call++) {
+                char *msg;
 
-(Recap of the problem in case this gets forwarded: Resume is almost
-instant without the apparently-guilty patch. With the patch, resume
-takes almost half an hour.)
++               if (!*call)
++                       continue;
++
+                if (initcall_debug) {
+                        printk(KERN_DEBUG "Calling initcall 0x%p", *call);
+                        print_fn_descriptor_symbol(": %s()", (unsigned
+long) *call);
 
-BTW, there's another strange thing that's introduced by 2.6.11-rc2-mm1:
-With that kernel, suspend is also ridiculously slow (speed is comparable
-to the slow resume with the aforementioned patch). 2.6.11-rc2 does not
-have that problem.
+And I guess the idea of replacing the initcall pointer with NULL will
+work both with and without function descriptors, right? So we should
+be safe on IA64 and PPC64.
 
-Also, with 2.6.12-rc2-mm1, this computer happens to hit the bug where
-all the printk timestamps are 0000000.0000000 (don't take the # of
-digits too literally). Probably unrelated, but I may as well mention it.
-(System is an Athlon XP 2200+ with SiS chipset. I can't remember which
-model of SiS chipset.)
+Regards,
 
--Barry K. Nathan <barryn@pobox.com>
+/ magnus

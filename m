@@ -1,107 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263407AbVBDRjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266348AbVBDRwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263407AbVBDRjb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 12:39:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263835AbVBDRY4
+	id S266348AbVBDRwG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 12:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263899AbVBDRj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 12:24:56 -0500
-Received: from mail.joq.us ([67.65.12.105]:16009 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S265863AbVBDRUO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 12:20:14 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Paul Davis <paul@linuxaudiosystems.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-References: <42014C10.60407@bigpond.net.au>
-	<200502022303.j12N3nZa002055@localhost.localdomain>
-	<20050203213645.GB27255@elte.hu>
-From: "Jack O'Quin" <joq@io.com>
-Date: Fri, 04 Feb 2005 11:21:37 -0600
-Message-ID: <87wtto5jha.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Fri, 4 Feb 2005 12:39:58 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:1438 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S266041AbVBDRhe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 12:37:34 -0500
+Message-ID: <4203B2D9.7080904@free.fr>
+Date: Fri, 04 Feb 2005 18:37:29 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>,
+       bjorn.helgaas@hp.com, Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH] PNP support for i8042 driver
+References: <41960AE9.8090409@free.fr> <20041117100745.GA1387@ucw.cz>
+In-Reply-To: <20041117100745.GA1387@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+Hi,
 
-> i believe RT-LSM provides a way to solve this cleanly: you can make your
-> audio app setguid-audio (note: NOT setuid), and make the audio group
-> have CAP_SYS_NICE-equivalent privilege via the RT-LSM, and then you
-> could have a finegrained per-app way of enabling SCHED_FIFO scheduling,
-> without giving _users_ the blanket permission to SCHED_FIFO. Ok?
+Vojtech Pavlik wrote:
+> On Sat, Nov 13, 2004 at 02:23:53PM +0100, matthieu castet wrote:
+> 
+>>Hi,
+>>this patch add PNP support for the i8042 driver in 2.6.10-rc1-mm5. Acpi 
+>>is try before the pnp driver so if you don't disable ACPI or apply 
+>>others pnpacpi patches, it won't change anything.
+>>
+>>Please review it and apply if possible
+> 
+> 
+> Ok, my thoughts on this:
+> 
+> 	It's OK to keep the device allocated to this driver via the PnP
+>         subsystem, and not bother with releasing the code via
+> 	__initcall.
+> 
+> 	I agree that if there is a way to enumerate the device, (like
+> 	PnP, ACPI or OpenFirmware), we should use that instead of
+> 	probing and using a platform device for the controller.
+> 
+> 	I think that we should drop the ACPI support from i8042, in
+> 	favor of pnpacpi, because PnP is more generic and if the
+>  	keyboard device was listed in PnPBIOS instead of ACPI, it'll
+> 	still work.
+> 
+Any news about this ?
 
-Yes, we designed the module with this scenario specifically in mind.
 
-> this way if jackd (or a client) gets run by _any_ user, all jackd
-> processes will be part of the audio group and can do SCHED_FIFO - but
-> users are not automatically trusted with SCHED_FIFO.
->
-> you are currently using RT-LSM to enable a user to do SCHED_FIFO, right? 
-> I think the above mechanism is more secure and more finegrained than
-> that.
-
-We *are* doing that (based on group membership).  We designed it just
-as you say.  And it works fine for Qt and command line clients.
-
-Unfortunately, GTK+ refuses to cooperate.  It has a special check at
-startup (in gtkmain)...
-
-  if (ruid != euid || ruid != suid ||
-      rgid != egid || rgid != sgid)
-    {
-      g_warning ("This process is currently running setuid or setgid.\n"
-		 "This is not a supported use of GTK+. You must create a helper\n"
-		 "program instead. For further details, see:\n\n"
-		 "    http://www.gtk.org/setuid.html\n\n"
-		 "Refusing to initialize GTK+.");
-      exit (1);
-    }
-
-Note that this calls *exit(1)*, not just returning an error code.
-Following the suggested URL, <http://www.gtk.org/setuid.html>, reveals
-their understandable, but basically wrong-headed, rationale...
-
-  GTK+ supports the environment variable GTK_MODULES which specifies
-  arbitrary dynamic modules to be loaded and executed when GTK+ is
-  initialized. It is somewhat similar to the LD_PRELOAD environment
-  variable. However, this (and similar functionality such as
-  specifying theme engines) is not disabled when running setuid or
-  setgid. Is this a security hole? No. Writing setuid and setgid
-  programs using GTK+ is bad idea and will never be supported by the
-  GTK+ team.
-
-They are wrong (IMHO), because these kinds of security tests *cannot*
-reliably be done in userspace.  They are not testing for possession of
-privileges, but merely disallowing two of a half-dozen ways of
-granting those privileges.  Why should it be OK to run GTK as `root',
-but not as setgid `audio'?  Ironically, people don't run GTK threads
-with SCHED_FIFO.  Those are precisely the threads over which the
-signal processing threads need to have priority.
-
-This "feature" has forced us to fall back on supplementary groups for
-our main authorization mechanism.  That is unfortunate because, as you
-say, the setgid() approach has finer granularity, which is better.
-So, that GTK test has the unintended consequence of making our
-security exposure larger, not smaller.
-
-We can live with this, mainly because our users often need
-supplementary membership in group `audio' anyway, to gain access to
-the sound card.
-
-If we can ever convince the GTK developers to remove this "feature",
-the RT-LSM handles setgid() correctly.  So, we could immediately start
-using it (at least on systems with a new enough GTK library to permit
-that).
--- 
-  joq
+Matthieu CASTET

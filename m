@@ -1,47 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264428AbUEJAlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264429AbUEJAoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264428AbUEJAlc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 20:41:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbUEJAlc
+	id S264429AbUEJAoT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 20:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbUEJAoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 20:41:32 -0400
-Received: from waste.org ([209.173.204.2]:45293 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264428AbUEJAla (ORCPT
+	Sun, 9 May 2004 20:44:19 -0400
+Received: from duke.cs.duke.edu ([152.3.140.1]:8441 "EHLO duke.cs.duke.edu")
+	by vger.kernel.org with ESMTP id S264429AbUEJAoQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 20:41:30 -0400
-Date: Sun, 9 May 2004 19:41:22 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Zwane Mwaikambo <zwane@fsmlabs.com>
-Cc: Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Un-inline spinlocks on ppc64
-Message-ID: <20040510004121.GM5414@waste.org>
-References: <16542.51381.215308.485006@cargo.ozlabs.ibm.com> <20040509172038.55319fbd.akpm@osdl.org> <Pine.LNX.4.58.0405092025070.1896@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405092025070.1896@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.3.28i
+	Sun, 9 May 2004 20:44:16 -0400
+Date: Sun, 9 May 2004 20:44:15 -0400 (EDT)
+From: Patrick Reynolds <reynolds@cs.duke.edu>
+To: linux-kernel@vger.kernel.org
+Subject: ACPI and broken PCI IRQ sharing on Asus M5N laptop
+Message-ID: <Pine.GSO.4.58.0405092015260.19837@shekel.cs.duke.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 09, 2004 at 08:31:44PM -0400, Zwane Mwaikambo wrote:
-> yOn Sun, 9 May 2004, Andrew Morton wrote:
-> 
-> > Paul Mackerras <paulus@samba.org> wrote:
-> > >
-> > > The patch below moves the ppc64 spinlocks and rwlocks out of line and
-> > >  into arch/ppc64/lib/locks.c, and implements _raw_spin_lock_flags for
-> > >  ppc64.
-> > >
-> >
-> > It included a hunk against include/asm-ppc64/offsets.h, which I dropped.
-> 
-> Regarding CONFIG_INLINE_SPINLOCKS, could we call it CONFIG_SPINLINE as is
-> the current option supported on i386?
+I posted yesterday about how the built-in psmouse in my Asus M5N (M5200N)
+laptop is broken under recent 2.6 kernels.  I believe I have tracked the
+problem down to broken IRQ sharing.  It's broken under 2.6.2 through
+2.6.6-rc3-bk11, but it works fine under 2.6.1.
 
-Ugh, I've never liked that config name. Let's change it to be the
-less clever version, please.
+Booting with default parameters puts the i8042 psmouse channel, the Intel
+8x0 sound card, and the Cardbus controller all on IRQ 12.  The mouse is
+almost unusable, sampling 3-4 times per second.  The sound works fine.  In
+/proc/interrupts I get
+   12:      310     XT-PIC  i8042, Intel 82801DB-ICH4, yenta
+The interrupt count goes up when I play MP3s, but not when I move the
+mouse.
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Booting with acpi=noirq (or acpi=off or pci=noacpi under 2.6.5) makes the
+mouse work, but breaks several other devices, including sound.  From
+dmesg:
+  PCI: Probing PCI hardware
+  PCI: Using IRQ router default [8086/24cc] at 0000:00:1f.0
+  PCI: IRQ 0 for device 0000:00:1f.1 doesn't match PIRQ mask - try pci=usepirqmask
+  PCI: IRQ 0 for device 0000:00:1f.5 doesn't match PIRQ mask - try pci=usepirqmask
+  PCI: IRQ 0 for device 0000:00:1f.6 doesn't match PIRQ mask - try pci=usepirqmask
+  PCI: IRQ 0 for device 0000:01:03.0 doesn't match PIRQ mask - try pci=usepirqmask
+  PCI: IRQ 0 for device 0000:01:03.1 doesn't match PIRQ mask - try pci=usepirqmask
+[snip]
+  PCI: Enabling device 0000:00:1f.5 (0005 -> 0007)
+  PCI: IRQ 0 for device 0000:00:1f.5 doesn't match PIRQ mask - try pci=usepirqmask
+  PCI: No IRQ known for interrupt pin B of device 0000:00:1f.5. Please try using pci=biosirq.
+  unable to grab IRQ 0
+  Intel ICH: probe of 0000:00:1f.5 failed with error -16
+In this case, /proc/interrupts shows only the i8042 on IRQ 12, and the
+interrupt count increments as expected (about 75/sec) when I move the
+mouse.
+
+Enabling pci=biosirq didn't help.  Sound still didn't work:
+  PCI: Enabling device 0000:00:1f.5 (0005 -> 0007)
+  PCI: IRQ 0 for device 0000:00:1f.5 doesn't match PIRQ mask - try pci=usepirqmask
+  PCI: No IRQ known for interrupt pin B of device 0000:00:1f.5.
+  unable to grab IRQ 0
+  Intel ICH: probe of 0000:00:1f.5 failed with error -16
+
+Finally, enabling pci=biosirq and pci=usepirqmask together didn't help
+either.  It got rid of a few warnings (basically anything telling me to
+try biosirq or usepirqmask!), but the sound still couldn't get an
+IRQ:
+  PCI: Enabling device 0000:00:1f.5 (0005 -> 0007)
+  PCI: No IRQ known for interrupt pin B of device 0000:00:1f.5.
+  unable to grab IRQ 0
+  Intel ICH: probe of 0000:00:1f.5 failed with error -16
+
+So I'm stuck with either sound or mouse, but not both at once unless I
+roll back to 2.6.1.  Any ideas?
+
+I've put my dmesg from my last 5 reboots here:
+  http://www.cs.duke.edu/~reynolds/dmesg2.txt
+
+Here's the output of lspci -v:
+  http://www.cs.duke.edu/~reynolds/pci.txt
+
+In case it's an ACPI issue, here's my DSDT:
+  http://www.cs.duke.edu/~reynolds/dsdt.bin
+
+--Patrick

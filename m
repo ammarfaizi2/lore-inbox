@@ -1,179 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265493AbUFXPIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265399AbUFXPKC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265493AbUFXPIr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 11:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265483AbUFXPG4
+	id S265399AbUFXPKC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 11:10:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265515AbUFXPKC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 11:06:56 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:7154 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265398AbUFXPDR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 11:03:17 -0400
-Date: Thu, 24 Jun 2004 08:02:50 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.7-mm2 oopses and badness
-Message-ID: <1968860000.1088089370@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Thu, 24 Jun 2004 11:10:02 -0400
+Received: from outmx015.isp.belgacom.be ([195.238.2.87]:10904 "EHLO
+	outmx015.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S265426AbUFXPGC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 11:06:02 -0400
+Subject: Re: [PATCH 2.6.7-mm1] MBR centralization
+From: FabF <fabian.frederick@skynet.be>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.60.0406240829550.29245@hermes-1.csi.cam.ac.uk>
+References: <1088025348.2213.32.camel@localhost.localdomain>
+	 <20040623213629.GC3072@pclin040.win.tue.nl>
+	 <1088057276.1901.4.camel@localhost.localdomain>
+	 <Pine.LNX.4.60.0406240809280.29245@hermes-1.csi.cam.ac.uk>
+	 <Pine.LNX.4.60.0406240829550.29245@hermes-1.csi.cam.ac.uk>
+Content-Type: multipart/mixed; boundary="=-UXi68rJpaBNEigFD7kcA"
+Message-Id: <1088089813.2211.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 24 Jun 2004 17:10:14 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During bootup, shortly after CPU init (mm1 was fine):
 
-Only candidate I can see is 
-+reduce-tlb-flushing-during-process-migration-2.patch
-Will try backing that out unless you want something else ...
+--=-UXi68rJpaBNEigFD7kcA
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Jun 24 06:54:24 larry kernel: PCI->APIC IRQ transform: (B5,I10,P0) -> 119
-Jun 24 06:54:24 larry kernel: PCI->APIC IRQ transform: (B5,I11,P0) -> 115
-Jun 24 06:54:24 larry kernel: PCI->APIC IRQ transform: (B8,I12,P0) -> 184
-Jun 24 06:54:24 larry kernel: PCI->APIC IRQ transform: (B8,I13,P0) -> 180
-Jun 24 06:54:24 larry kernel: PCI->APIC IRQ transform: (B7,I11,P0) -> 163
-Jun 24 06:54:24 larry kernel: highmem bounce pool size: 64 pages
+On Thu, 2004-06-24 at 09:38, Anton Altaparmakov wrote:
+> On Thu, 24 Jun 2004, Anton Altaparmakov wrote:
+> > On Thu, 24 Jun 2004, FabF wrote:
+> >> Here's a new version:
+> >> 	-macro simplification (We're calling from struct & buffer so static 
+> >> fx
+> >> conversion seems troublesome)
+> >> 	-(p)
+> >> 	-MBR patch only
+> >
+> > Your patch is wrong:
+> >
+> > diff -Naur orig/include/linux/genhd.h edited/include/linux/genhd.h
+> > --- orig/include/linux/genhd.h  2004-06-16 07:18:59.000000000 +0200
+> > +++ edited/include/linux/genhd.h        2004-06-24 08:02:45.151489490 +0200
+> > @@ -17,6 +17,9 @@
+> > #include <linux/string.h>
+> > #include <linux/fs.h>
+> >
+> > +/*Master boot record magic numbers*/
+> > +#define MSDOS_MBR(p) le16_to_cpu((u16)*(p)) == 0xaa55
+> >
+> > This macro is completely broken for all p with a type size other than 16 
+> > bits.  E.g. if you have "char *p" then *(p) gives you a single byte which you 
+> > then cast to u16 so you will never see the 0xaa55.
+> >
+> > If you want to do it this way you need to cast p to (u16*) first like so:
+> >
+> > #define MSDOS_MBR(p)	(le16_to_cpup((u16*)(p)) == 0xaa55)
+> >
+> > Note using _cpup() means you don't have to do the dereferencing yourself 
+> > which looks much cleaner IMO.  You do still need the cast as it is missing 
+> > from various macros in the kernel (I consider this a bug but this is 
+> > orthogonal to this patch).
+> 
+> While I am at it, the above macro is even further optimized by moving the 
+> endianness conversion to the constant so it is applied at compile time 
+> rather than run time like so:
+> 
+> #define MSDOS_MBR(p)	((*(u16*)(p)) == __constant_cpu_to_le16(0xaa55)
+Thanks Anton :) Applied.It worked before but in semi-evaluation.
 
-Jun 24 06:54:24 larry kernel: c010e98b
-Jun 24 06:54:24 larry kernel: SMP 
-Jun 24 06:54:24 larry kernel: c010e98b
-Jun 24 06:54:24 larry kernel: Modules linked in:
-Jun 24 06:54:24 larry kernel: CPU:    12
-Jun 24 06:54:24 larry kernel: EIP:    0060:[flush_tlb_mm+7/120]    Not tainted VLI
-Jun 24 06:54:24 larry kernel: EFLAGS: 00010292   (2.6.7-mm2) 
-Jun 24 06:54:24 larry kernel: EIP is at flush_tlb_mm+0x7/0x78
-Jun 24 06:54:24 larry kernel: eax: 00000000   ebx: f124bfa8   ecx: 00000000   ed
-x: f124bf94
-Jun 24 06:54:24 larry kernel: esi: c30d3be0   edi: 00000000   ebp: f124bf9c   esp: f124bf4c
-Jun 24 06:54:24 larry kernel: ds: 007b   es: 007b   ss: 0068
-Jun 24 06:54:24 larry kernel: Process kswapd3 (pid: 72, threadinfo=f124a000 task=f1247390)
-Jun 24 06:54:24 larry kernel: Stack: 00200200 c01159e1 00000000 f1247390 f124bfdc f124bff0 f124bfa8 c02bcc40 
-Jun 24 06:54:24 larry kernel:        00000000 00000282 f124bf74 f124bf74 00000000 f1247390 0000000c f124a000 
-Jun 24 06:54:24 larry kernel:        00000000 00000001 f124bf94 f124bf94 f1a00000 c0138bca f1247390 0000f000 
-Jun 24 06:54:24 larry kernel: Call Trace:
-Jun 24 06:54:24 larry kernel:  [set_cpus_allowed+225/252] set_cpus_allowed+0xe1/0xfc
-Jun 24 06:54:24 larry kernel:  [kswapd+142/224] kswapd+0x8e/0xe0
-Jun 24 06:54:24 larry kernel:  [kswapd+0/224] kswapd+0x0/0xe0
-Jun 24 06:54:24 larry kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
-Jun 24 06:54:24 larry kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
-Jun 24 06:54:24 larry kernel:  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
-Jun 24 06:54:24 larry kernel: Code: 0f 20 d8 0f 22 d8 8b 04 24 85 c0 74 13 6a ff 51 50 e8 0a ff ff ff 83 c4 0c 8d b4 26 00 00 00 00 59 c3 89 f6 83 ec
- 04 8b 4c 24 08 <8b> 81 24 01 00 00 ba 00 e0 ff ff 21 e2 89 04 24 8b 42 10 f0 0f 
-Jun 24 06:54:24 larry kernel:  <1>Oops: 0000 [#2]
-Jun 24 06:54:24 larry kernel: SMP 
-Jun 24 06:54:24 larry kernel: Modules linked in:
-Jun 24 06:54:24 larry kernel: CPU:    4
-Jun 24 06:54:24 larry kernel: EIP:    0060:[flush_tlb_mm+7/120]    Not tainted VLI
-Jun 24 06:54:24 larry kernel: EFLAGS: 00010292   (2.6.7-mm2) 
-Jun 24 06:54:24 larry kernel: EIP is at flush_tlb_mm+0x7/0x78
-Jun 24 06:54:24 larry kernel: eax: 00000000   ebx: f1245fa8   ecx: 00000000   edx: f1245f94
-Jun 24 06:54:24 larry kernel: esi: c30c3be0   edi: 00000000   ebp: f1245f9c   esp: f1245f4c
-Jun 24 06:54:24 larry kernel: ds: 007b   es: 007b   ss: 0068
-Jun 24 06:54:24 larry kernel: Process kswapd1 (pid: 70, threadinfo=f1244000 task=f1104230)
-Jun 24 06:54:24 larry kernel: Stack: 00200200 c01159e1 00000000 f1104230 f1245fdc f1245ff0 f1245fa8 c02bcc40 
-Jun 24 06:54:24 larry kernel:        00000000 00000282 f1245f74 f1245f74 00000000 f1104230 00000004 f1244000 
-Jun 24 06:54:24 larry kernel:        00000000 00000001 f1245f94 f1245f94 f5e00000 c0138bca f1104230 000000f0 
-Jun 24 06:54:24 larry kernel: Call Trace:
-Jun 24 06:54:24 larry kernel:  [set_cpus_allowed+225/252] set_cpus_allowed+0xe1/0xfc
-Jun 24 06:54:24 larry kernel:  [kswapd+142/224] kswapd+0x8e/0xe0
-Jun 24 06:54:24 larry kernel:  [kswapd+0/224] kswapd+0x0/0xe0
-Jun 24 06:54:24 larry kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
-Jun 24 06:54:24 larry kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
-Jun 24 06:54:24 larry kernel:  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
-Jun 24 06:54:24 larry kernel: Code: 0f 20 d8 0f 22 d8 8b 04 24 85 c0 74 13 6a ff 51 50 e8 0a ff ff ff 83 c4 0c 8d b4 26 00 00 00 00 59 c3 89 f6 83 ec
- 04 8b 4c 24 08 <8b> 81 24 01 00 00 ba 00 e0 ff ff 21 e2 89 04 24 8b 42 10 f0 0f 
-Jun 24 06:54:24 larry kernel:   at virtual address 00000124
-Jun 24 06:54:24 larry kernel: c010e98b
-Jun 24 06:54:24 larry kernel: SMP 
-Jun 24 06:54:24 larry kernel: Modules linked in:
-Jun 24 06:54:24 larry kernel: CPU:    8
-Jun 24 06:54:24 larry kernel: EIP:    0060:[flush_tlb_mm+7/120]    Not tainted VLI
-Jun 24 06:54:24 larry kernel: EFLAGS: 00010292   (2.6.7-mm2) 
-Jun 24 06:54:24 larry kernel: EIP is at flush_tlb_mm+0x7/0x78
-Jun 24 06:54:24 larry kernel: eax: 00000000   ebx: f1249fa8   ecx: 00000000   edx: f1249f94
-Jun 24 06:54:24 larry kernel: esi: c30cbbe0   edi: 00000000   ebp: f1249f9c   esp: f1249f4c
-Jun 24 06:54:24 larry kernel: ds: 007b   es: 007b   ss: 0068
-Jun 24 06:54:24 larry kernel: Process kswapd2 (pid: 71, threadinfo=f1248000 task=f1247950)
-Jun 24 06:54:24 larry kernel: Stack: 00200200 c01159e1 00000000 f1247950 f1249fdc f1249ff0 f1249fa8 c02bcc40 
-Jun 24 06:54:24 larry kernel:        00000000 00000282 f1249f74 f1249f74 00000000 f1247950 00000008 f1248000 
-Jun 24 06:54:24 larry kernel:        00000000 00000001 f1249f94 f1249f94 f3c00000 c0138bca f1247950 00000f00 
-Jun 24 06:54:24 larry kernel: Call Trace:
-Jun 24 06:54:24 larry kernel:  [set_cpus_allowed+225/252] set_cpus_allowed+0xe1/0xfc
-Jun 24 06:54:24 larry kernel:  [kswapd+142/224] kswapd+0x8e/0xe0
-Jun 24 06:54:24 larry kernel:  [kswapd+0/224] kswapd+0x0/0xe0
-Jun 24 06:54:24 larry kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
-Jun 24 06:54:24 larry kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
-Jun 24 06:54:24 larry kernel:  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
-Jun 24 06:54:24 larry kernel: Code: 0f 20 d8 0f 22 d8 8b 04 24 85 c0 74 13 6a ff 51 50 e8 0a ff ff ff 83 c4 0c 8d b4 26 00 00 00 00 59 c3 89 f6 83 ec
- 04 8b 4c 24 08 <8b> 81 24 01 00 00 ba 00 e0 ff ff 21 e2 89 04 24 8b 42 10 f0 0f 
+Regards,
+FabF
 
+> 
+> Best regards,
+> 
+>  	Anton
 
-After mounting fs's also get this:
+--=-UXi68rJpaBNEigFD7kcA
+Content-Disposition: attachment; filename=partitions5.diff
+Content-Type: text/x-patch; name=partitions5.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Badness in complement_pos at drivers/char/vt.c:458
- [<c01c621c>] complement_pos+0x3c/0x13c
- [<c01c3ebd>] clear_selection+0xd/0x48
- [<c01c6666>] hide_cursor+0x12/0x30
- [<c01c9962>] vt_console_print+0xa6/0x2d4
- [<c0118674>] __call_console_drivers+0x3c/0x4c
- [<c01186dc>] _call_console_drivers+0x58/0x60
- [<c011879e>] call_console_drivers+0xba/0xe8
- [<c0118a52>] release_console_sem+0x42/0xb4
- [<c01189b1>] printk+0x11d/0x134
- [<c018632a>] ext3_setup_super+0x14e/0x15c
- [<c015fcf8>] d_alloc_root+0x34/0x3c
- [<c018703a>] ext3_fill_super+0x952/0xac4
- [<c0151433>] get_sb_bdev+0xe3/0x12c
- [<c0187c63>] ext3_get_sb+0x1f/0x24
- [<c01866e8>] ext3_fill_super+0x0/0xac4
- [<c01515f2>] do_kern_mount+0x4a/0xb8
- [<c01643d9>] do_add_mount+0x69/0x154
- [<c01646c2>] do_mount+0x15e/0x178
- [<c0164514>] copy_mount_options+0x50/0xa0
- [<c0164a4f>] sys_mount+0xb3/0x118
- [<c0103baf>] syscall_call+0x7/0xb
-Badness in complement_pos at drivers/char/vt.c:458
- [<c01c621c>] complement_pos+0x3c/0x13c
- [<c01c3ebd>] clear_selection+0xd/0x48
- [<c01c66cd>] set_cursor+0x49/0x80
- [<c01c9b6b>] vt_console_print+0x2af/0x2d4
- [<c0118674>] __call_console_drivers+0x3c/0x4c
- [<c01186dc>] _call_console_drivers+0x58/0x60
- [<c011879e>] call_console_drivers+0xba/0xe8
- [<c0118a52>] release_console_sem+0x42/0xb4
- [<c01189b1>] printk+0x11d/0x134
- [<c018632a>] ext3_setup_super+0x14e/0x15c
- [<c015fcf8>] d_alloc_root+0x34/0x3c
- [<c018703a>] ext3_fill_super+0x952/0xac4
- [<c0151433>] get_sb_bdev+0xe3/0x12c
- [<c0187c63>] ext3_get_sb+0x1f/0x24
- [<c01866e8>] ext3_fill_super+0x0/0xac4
- [<c01515f2>] do_kern_mount+0x4a/0xb8
- [<c01643d9>] do_add_mount+0x69/0x154
- [<c01646c2>] do_mount+0x15e/0x178
- [<c0164514>] copy_mount_options+0x50/0xa0
- [<c0164a4f>] sys_mount+0xb3/0x118
- [<c0103baf>] syscall_call+0x7/0xb
-Badness in poke_blanked_console at drivers/char/vt.c:2910
- [<c01ca76c>] poke_blanked_console+0x30/0xa8
- [<c01c9b7c>] vt_console_print+0x2c0/0x2d4
- [<c0118674>] __call_console_drivers+0x3c/0x4c
- [<c01186dc>] _call_console_drivers+0x58/0x60
- [<c011879e>] call_console_drivers+0xba/0xe8
- [<c0118a52>] release_console_sem+0x42/0xb4
- [<c01189b1>] printk+0x11d/0x134
- [<c018632a>] ext3_setup_super+0x14e/0x15c
- [<c015fcf8>] d_alloc_root+0x34/0x3c
- [<c018703a>] ext3_fill_super+0x952/0xac4
- [<c0151433>] get_sb_bdev+0xe3/0x12c
- [<c0187c63>] ext3_get_sb+0x1f/0x24
- [<c01866e8>] ext3_fill_super+0x0/0xac4
- [<c01515f2>] do_kern_mount+0x4a/0xb8
- [<c01643d9>] do_add_mount+0x69/0x154
- [<c01646c2>] do_mount+0x15e/0x178
- [<c0164514>] copy_mount_options+0x50/0xa0
- [<c0164a4f>] sys_mount+0xb3/0x118
- [<c0103baf>] syscall_call+0x7/0xb
+diff -Naur orig/fs/partitions/efi.c edited/fs/partitions/efi.c
+--- orig/fs/partitions/efi.c	2004-06-16 07:19:23.000000000 +0200
++++ edited/fs/partitions/efi.c	2004-06-24 01:43:45.000000000 +0200
+@@ -145,7 +145,7 @@
+ 	int i, found = 0, signature = 0;
+ 	if (!mbr)
+ 		return 0;
+-	signature = (le16_to_cpu(mbr->signature) == MSDOS_MBR_SIGNATURE);
++	signature = MSDOS_MBR(&mbr->signature);
+ 	for (i = 0; signature && i < 4; i++) {
+ 		if (mbr->partition_record[i].sys_ind ==
+                     EFI_PMBR_OSTYPE_EFI_GPT) {
+diff -Naur orig/fs/partitions/efi.h edited/fs/partitions/efi.h
+--- orig/fs/partitions/efi.h	2004-06-16 07:19:43.000000000 +0200
++++ edited/fs/partitions/efi.h	2004-06-24 01:20:46.000000000 +0200
+@@ -34,7 +34,6 @@
+ #include <linux/string.h>
+ #include <linux/efi.h>
+ 
+-#define MSDOS_MBR_SIGNATURE 0xaa55
+ #define EFI_PMBR_OSTYPE_EFI 0xEF
+ #define EFI_PMBR_OSTYPE_EFI_GPT 0xEE
+ 
+diff -Naur orig/fs/partitions/msdos.c edited/fs/partitions/msdos.c
+--- orig/fs/partitions/msdos.c	2004-06-16 07:19:37.000000000 +0200
++++ edited/fs/partitions/msdos.c	2004-06-24 08:00:05.000000000 +0200
+@@ -50,15 +50,6 @@
+ 		SYS_IND(p) == LINUX_EXTENDED_PARTITION);
+ }
+ 
+-#define MSDOS_LABEL_MAGIC1	0x55
+-#define MSDOS_LABEL_MAGIC2	0xAA
+-
+-static inline int
+-msdos_magic_present(unsigned char *p)
+-{
+-	return (p[0] == MSDOS_LABEL_MAGIC1 && p[1] == MSDOS_LABEL_MAGIC2);
+-}
+-
+ /*
+  * Create devices for each logical partition in an extended partition.
+  * The logical partitions form a linked list, with each entry being
+@@ -87,6 +78,7 @@
+ 	this_size = first_size;
+ 
+ 	while (1) {
++		/*FIXME : Some definition for 100*/
+ 		if (++loopct > 100)
+ 			return;
+ 		if (state->next == state->limit)
+@@ -95,7 +87,7 @@
+ 		if (!data)
+ 			return;
+ 
+-		if (!msdos_magic_present(data + 510))
++		if (!MSDOS_MBR (data+510))
+ 			goto done; 
+ 
+ 		p = (struct partition *) (data + 0x1be);
+@@ -112,7 +104,7 @@
+ 		/* 
+ 		 * First process the data partition(s)
+ 		 */
+-		for (i=0; i<4; i++, p++) {
++		for (i = 0; i < 4; i++, p++) {
+ 			u32 offs, size, next;
+ 			if (!NR_SECTS(p) || is_extended_partition(p))
+ 				continue;
+@@ -146,7 +138,7 @@
+ 		 * It should be a link to the next logical partition.
+ 		 */
+ 		p -= 4;
+-		for (i=0; i<4; i++, p++)
++		for (i = 0; i < 4; i++, p++)
+ 			if (NR_SECTS(p) && is_extended_partition(p))
+ 				break;
+ 		if (i == 4)
+@@ -342,7 +334,7 @@
+ 	/* The first sector of a Minix partition can have either
+ 	 * a secondary MBR describing its subpartitions, or
+ 	 * the normal boot sector. */
+-	if (msdos_magic_present (data + 510) &&
++	if (MSDOS_MBR(data + 510) &&
+ 	    SYS_IND(p) == MINIX_PARTITION) { /* subpartition table present */
+ 
+ 		printk(" %s%d: <minix:", state->name, origin);
+@@ -385,7 +377,7 @@
+ 	data = read_dev_sector(bdev, 0, &sect);
+ 	if (!data)
+ 		return -1;
+-	if (!msdos_magic_present(data + 510)) {
++	if (!MSDOS_MBR(data + 510)) {
+ 		put_dev_sector(sect);
+ 		return 0;
+ 	}
+@@ -403,7 +395,7 @@
+ 			return 0;
+ 		}
+ 	}
+-
++	/*EFI : Extensible Firmware Initiative partitions ?*/
+ #ifdef CONFIG_EFI_PARTITION
+ 	p = (struct partition *) (data + 0x1be);
+ 	for (slot = 1 ; slot <= 4 ; slot++, p++) {
+@@ -433,6 +425,7 @@
+ 			   extended partition, but leave room for LILO */
+ 			put_partition(state, slot, start, size == 1 ? 1 : 2);
+ 			printk(" <");
++			/*parsing extended for logical partitions*/
+ 			parse_extended(state, bdev, start, size);
+ 			printk(" >");
+ 			continue;
+diff -Naur orig/include/linux/genhd.h edited/include/linux/genhd.h
+--- orig/include/linux/genhd.h	2004-06-16 07:18:59.000000000 +0200
++++ edited/include/linux/genhd.h	2004-06-24 17:11:58.447759035 +0200
+@@ -17,6 +17,9 @@
+ #include <linux/string.h>
+ #include <linux/fs.h>
+ 
++/*Master boot record magic numbers*/
++#define MSDOS_MBR(p)    ((*(u16*)(p)) == __constant_cpu_to_le16(0xaa55))
++
+ enum {
+ /* These three have identical behaviour; use the second one if DOS FDISK gets
+    confused about extended/logical partitions starting past cylinder 1023. */
+
+--=-UXi68rJpaBNEigFD7kcA--
 

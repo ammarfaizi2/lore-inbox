@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269170AbUH0DD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269306AbUH0DDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269170AbUH0DD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 23:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269379AbUHZSxS
+	id S269306AbUH0DDa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 23:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269377AbUHZSxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 14:53:18 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:34788 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S269304AbUHZSp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 14:45:57 -0400
-Message-ID: <412E2FE5.1020606@namesys.com>
-Date: Thu, 26 Aug 2004 11:45:57 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@lst.de>
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
+	Thu, 26 Aug 2004 14:53:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:64211 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269364AbUHZSnk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 14:43:40 -0400
+Date: Thu, 26 Aug 2004 14:41:34 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Diego Calleja <diegocg@teleline.es>, <jamie@shareable.org>,
+       <christophe@saout.de>, <vda@port.imtp.ilyichevsk.odessa.ua>,
+       <christer@weinigel.se>, <spam@tnonline.net>, <akpm@osdl.org>,
+       <wichert@wiggy.net>, <jra@samba.org>, <reiser@namesys.com>,
+       <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <flx@namesys.com>,
+       <reiserfs-list@namesys.com>
 Subject: Re: silent semantic changes with reiser4
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <20040825201929.GA16855@lst.de> <412DA25E.9090405@namesys.com> <20040826092413.GA28854@lst.de>
-In-Reply-To: <20040826092413.GA28854@lst.de>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.58.0408261101110.2304@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.44.0408261440550.27909-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+On Thu, 26 Aug 2004, Linus Torvalds wrote:
 
->
->
->How do you for example suggestion exporting your semantics over the
->network if they're not done at the VFS level?  How do you want some
->clusterfilesystem support them or tmpfs?
->
->
->  
->
-by accesses to filename/metas.....
+> For example, you _could_ probably (but hey, maybe "tar" tries to strip
+> slashes off the end of filenames, so this might not work due to silly
+> reasons like that) back up a compound file with
+> 
+> 	tar cvf file.tar file file/
 
-That's the beauty of simplicity, not much is needed.  xattrs on the 
-other hand would be a lot of work to integrate into a cluster filesystem.
+So you'd have both a file and a directory that just happen
+to have the same name ?  How would this work in the dcache?
 
-Hans
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

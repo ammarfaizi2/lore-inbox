@@ -1,119 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbSK0MsG>; Wed, 27 Nov 2002 07:48:06 -0500
+	id <S262450AbSK0Mt1>; Wed, 27 Nov 2002 07:49:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262450AbSK0MsG>; Wed, 27 Nov 2002 07:48:06 -0500
-Received: from zcamail03.zca.compaq.com ([161.114.32.103]:38663 "EHLO
-	zcamail03.zca.compaq.com") by vger.kernel.org with ESMTP
-	id <S262425AbSK0MsE>; Wed, 27 Nov 2002 07:48:04 -0500
-Date: Wed, 27 Nov 2002 13:55:20 +0100
-From: Torben Mathiasen <torben.mathiasen@hp.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Torben Mathiasen <torben.mathiasen@hp.com>, alan@xorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [PATCH-2.5.47-ac6] More IDE updates (BIOS, simplex, etc)
-Message-ID: <20021127125520.GF1356@tmathiasen>
-References: <20021125134157.GA1187@tmathiasen> <Pine.LNX.4.10.10211252144200.13936-100000@master.linux-ide.org>
+	id <S262457AbSK0Mt1>; Wed, 27 Nov 2002 07:49:27 -0500
+Received: from thunk.org ([140.239.227.29]:34771 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S262450AbSK0MtZ>;
+	Wed, 27 Nov 2002 07:49:25 -0500
+Date: Wed, 27 Nov 2002 07:55:48 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Clemmitt Sigler <siglercm@jrt.me.vt.edu>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Alan Cox <Alan.Cox@linux.org>
+Subject: Re: 2.4.20-rc3 ext3 fsck corruption -- tool update warning needed?
+Message-ID: <20021127125547.GA7903@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Clemmitt Sigler <siglercm@jrt.me.vt.edu>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>, Alan Cox <Alan.Cox@linux.org>
+References: <20021126024739.GA11903@think.thunk.org> <Pine.LNX.4.33L2.0211261042290.2368-100000@jrt.me.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10211252144200.13936-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.33L2.0211261042290.2368-100000@jrt.me.vt.edu>
 User-Agent: Mutt/1.4i
-X-OS: Linux 2.4.20-pre11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan mentioned some missing locking in the IDE code, I assume thats what this
-is about, or does it only affect the taskfile stuff?
+On Tue, Nov 26, 2002 at 10:55:10AM -0500, Clemmitt Sigler wrote:
+> The e2fsck run seemed to me to go normally.  It reported that it
+> optimized some directories, but this has happened on other auto-fscks
+> of my ext3 filesystems without corruption under earlier kernels.  (This
+> is the first corruption I've seen in many, many years.)  But I didn't
+> capture the messages :^( and they don't get written into
+> /var/log/messages (that I could find).
 
-I started to write a driver for the Compaq triflex stuff that Alan requested,
-hopefully something should come out next week.
+Ah, ha.  I think I know what happened.
 
-Also, with regards to our recent talk on how windows was doing DMA handling,
-the link below was brought to my attention. Disabling DMA on cd-rom driver per
-default seems somewhat overkill to me.
+What version of e2fsprogs were you using?  If it was 1.28, that would
+explain what you saw.  There was a fencepost error that could corrupt
+directories when it was optimizing/rehashing them.  This bug was fixed
+in in the next version, which was rushed out the door as a result of
+this bug.  Fortunately, 1.28 didn't get adopted by any distro's as far
+as I know, and not that many people downloaded and compiled e2fsprogs
+1.28.
 
-http://www.microsoft.com/hwdev/tech/storage/IDE-DMA.asp
+If you're not using the latest version of e2fsprogs, which is
+e2fsprogs 1.32, I'd strongly suggest updating to it.  Version 1.28 is
+just *so* three months ago.  :-)
 
-Cheers,
-Torben
+						- Ted
 
-On Mon, Nov 25 2002, Andre Hedrick wrote:
-> 
-> I love it!  I finally got the inital model correct and with the aid and
-> trust of Alan to bring me back in the loop, everyone is doing great stuff.
-> 
-> Is there an interest in closing out the taskfile io model to complete the
-> transformation?  If so the following has to be added, and effects PIO
-> only.
-> 
-> Given the new BIO has the ablitity to force and match BIO atomic segments
-> with Disk Data Block (atomic segment) it make it much nicer!
-> 
-> The interrupt race or lost interrupts happens for the following reason and
-> only this reason:
-> 
-> interrupt_servicing:
-> check_status:
-> map_hi_bios:
-> output_ata_data_register:
-> 	competiton (here begins the race!)
-> 		interrupt: (this can happen almost instantly)
-> unmap_hi_bios:
-> update_partial_completion_of_original_larger:
-> 	return_if_last_data_block_was_transfered_request_complete:
-> arm_isr:
-> 	jump_to_interrupt:
-> 
-> 
-> The completion of the local atomic segement of data can cause the device
-> to pop an interrupt instant, and there is no handler armed to catch it.
-> 
-> interrupt_servicing:
-> check_status:
-> arm_isr:
-> 	boost_wait_time_worst_case_to_prevent_early_timer_popping:
-> map_hi_bios:
-> output_ata_data_register:
-> 	competiton (here begins the race!)
-> 		interrupt: (this can happen almost instantly)
-> 			who_cares_but_needs_a_sem_to_block:
-> unmap_hi_bios:
-> update_partial_completion_of_original_larger:
-> 	if_last_data_block_dissarm_handler:
-> 		return_if_last_data_block_was_transfered_request_complete:
-> 
-> 
-> Comments?
-> 
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> On Mon, 25 Nov 2002, Torben Mathiasen wrote:
-> 
-> > Hi Alan,
-> > 
-> > Please apply the attached patch. Its an update on my previos patch with a
-> > rewrite of the simplex code. The patch now does the following:
-> > 
-> > 	# Make simplex detection on a per drive basis and dynamic for use 
-> > 	  with hotplug.
-> > 	# Make sure we also enforce simplex rules when using hdparm.
-> > 	# Make sure we also enforce simplex rules when using BIOS timings.
-> > 	# Moves BIOS timings IDE detection into chipset drivers (by providing a
-> > 	  library function).
-> > 	# Provide the above library function that sets default values for tune
-> > 	  parameters. It also handles the special case where user has requested
-> > 	  to use BIOS IDE timings. Caller is assumed to support DMA
-> > 	  on/off probe using the dma_status register unless a dma_check funtion
-> > 	  is provided (note, the tekram driver is somewhat different from all
-> > 	  the others, and haven't been updated yet).
-> > 	# Makes BIOS IDE timings work for both IDE0 and IDE1 at the same time.
-> > 
-> > I'm not sure whether you already applied my previous patch, so let me know if
-> > you want this on top of that one.
-> > 
-> > Cheers,
-> > Torben
-> > 
+P.S.  If you do have a directory which is corrupted by e2fsck 1.28, no
+data is lost; it just created a directory entry which is too small, so
+it triggers the sanity checks in the kernel.  Running e2fsck version
+1.29 or later will unbork the directory.

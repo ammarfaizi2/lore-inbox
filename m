@@ -1,100 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262895AbUJ1VCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbUJ1VGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262895AbUJ1VCM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 17:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263013AbUJ1VCM
+	id S263040AbUJ1VGr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 17:06:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263022AbUJ1VDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 17:02:12 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32008 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262895AbUJ1VA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 17:00:29 -0400
-Date: Thu, 28 Oct 2004 22:00:24 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: kbuild/all archs: Sanitize creating offsets.h
-Message-ID: <20041028220024.D11436@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
-References: <20041028185917.GA9004@mars.ravnborg.org> <20041028204430.C11436@flint.arm.linux.org.uk> <20041028215959.GA17314@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Oct 2004 17:03:34 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:60010 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262964AbUJ1VBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 17:01:55 -0400
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Why UML often does not build (was: Re: [PATCH] UML: Build fix for TT w/o SKAS)
+Date: Thu, 28 Oct 2004 22:54:21 +0200
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>
+References: <20041027053602.GB30735@taniwha.stupidest.org> <200410282104.30482.blaisorblade_spam@yahoo.it> <20041028193329.GF851@taniwha.stupidest.org>
+In-Reply-To: <20041028193329.GF851@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041028215959.GA17314@mars.ravnborg.org>; from sam@ravnborg.org on Thu, Oct 28, 2004 at 11:59:59PM +0200
+Message-Id: <200410282254.21944.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 28, 2004 at 11:59:59PM +0200, Sam Ravnborg wrote:
-> >   SPLIT   include/linux/autoconf.h -> include/config/*
-> > /home/rmk/bk/linux-2.6-rmk/scripts/Makefile.build:13: /home/rmk/bk/linux-2.6-rmk/include/asm/Makefile: No such file or directory
-> > make[2]: *** No rule to make target `/home/rmk/bk/linux-2.6-rmk/include/asm/Makefile'.  Stop.
-> > make[1]: *** [prepare0] Error 2
-> > make: *** [_all] Error 2
-> > 
-> > ../build/rpc only contained .version and .config
-> 
-> Did you apply the patch that enabled kbuild files to be named Kbuild?
-> It looks like this patch is missing.
+On Thursday 28 October 2004 21:33, Chris Wedgwood wrote:
+> On Thu, Oct 28, 2004 at 09:04:30PM +0200, Blaisorblade wrote:
+> > Hmm, this is true for some of them, not for other ones (mostly
+> > fixups, but some wrong).
 
-I applied three patches.  The first was "kbuild: Prefer Kbuild as name of
-the kbuild files"
+> ive been sending patches out for ages and they are getting nowhere.
+"Not getting an answer" does not mean "getting nowhere". I'm not absolutely 
+able, for instance, to understand the update for generic IRQs. I've seen the 
+"compile only" fixes from Jeff. And they were "compile-only". But 
+understanding the other changes from you is too difficult for me.
 
-> If you did apply the patch could you please check if the asm->asm-arm
-> symlink exists when the error happens and that a file named Kbuild is
-> located in the directory: include/asm-arm/
+About Jeff, I still keep CC'ing him every time, but as he has admitted 
+privately, he does not have the time to answer detailedly to each patch. 
+Since I'm here from some time, I'm now using my own judgement on some little 
+things (i.e. little compile-only fixes, or when a patch is being rejected for 
+questionable reasons, or when it is reportedly safe).
 
-In the source tree, I have:
+I don't try to touch the real UML core without getting a review from Jeff, and 
+anyone having a clue on what I'm doing is welcome.
 
-drwxrwxr-x   2 rmk rmk  4096 Oct 28 20:38 include/asm
--rw-rw-r--   1 rmk rmk  1026 Oct 28 20:37 include/asm-arm/Kbuild
+> if people have better fixes, these have been weeks (in some cases
+> months) to get them in
 
-Note that kbuild created an extra directory called asm in the source
-tree.  In the output tree:
+For instance, Jeff rejected the mconsole-proc rewrite. So, I tried harder, 
+then updated the patch to just #ifdef out his version, and was going to send 
+it in.
 
-rmk@dyn-67:[linux-2.6-rmk]:<1047> vdir ../build/rpc/include/
-drwxr-xr-x  120 rmk rmk 4096 Oct 28 20:42 config
-drwxrwxr-x    2 rmk rmk 4096 Oct 28 20:42 linux
-rmk@dyn-67:[linux-2.6-rmk]:<1048> vdir ../build/rpc/include2/
-total 0
-lrwxrwxrwx  1 rmk rmk 42 Oct 28 20:42 asm -> /home/rmk/bk/linux-2.6-rmk/include/asm-arm
+However, you are not entirely wrong. Jeff does not scale enough to the rate of 
+kernel changes, and not even I can (I'm only a 1st year university student; 
+luckily they have not yet started teaching anything new).
 
-After removing ../build/rpc/include* and include/asm:
+> > However, always CC both the -devel list (my request) and the LKML
+> > (Andrew's request to me some time ago) when sending UML patches.
 
-rmk@dyn-67:[linux-2.6-rmk]:<1050> amake O=../build/rpc
-  Using /home/rmk/bk/linux-2.6-rmk as source for kernel
-  GEN    /home/rmk/bk/build/rpc/Makefile
-  CHK     include/linux/version.h
-  UPD     include/linux/version.h
-  SYMLINK include/asm -> include/asm-arm
-  GEN    /home/rmk/bk/build/rpc/Makefile
-scripts/kconfig/conf -s arch/arm/Kconfig
-#
-# using defaults found in .config
-#
-  SPLIT   include/linux/autoconf.h -> include/config/*
-/home/rmk/bk/linux-2.6-rmk/scripts/Makefile.build:13: /home/rmk/bk/linux-2.6-rmk/include/asm/Makefile: No such file or directory
-make[2]: *** No rule to make target `/home/rmk/bk/linux-2.6-rmk/include/asm/Makefile'.  Stop.
-make[1]: *** [prepare0] Error 2
-make: *** [_all] Error 2
-rmk@dyn-67:[linux-2.6-rmk]:<1051> vdir ../build/rpc/include*
-../build/rpc/include:
-total 8
-lrwxrwxrwx    1 rmk rmk    7 Oct 28 21:59 asm -> asm-arm
-drwxr-xr-x  120 rmk rmk 4096 Oct 28 21:59 config
-drwxrwxr-x    2 rmk rmk 4096 Oct 28 21:59 linux
- 
-../build/rpc/include2:
-total 0
-lrwxrwxrwx  1 rmk rmk 42 Oct 28 21:59 asm -> /home/rmk/bk/linux-2.6-rmk/include/asm-arm
-rmk@dyn-67:[linux-2.6-rmk]:<1052> vdir include/
-...
-drwxrwxr-x   2 rmk rmk  4096 Oct 28 21:59 asm
-drwxrwxr-x  25 rmk rmk  4096 Oct 28 20:37 asm-arm
+> i admit i've missed -devel most of the time,  i said ill do that from
+> now on
 
+> the fact remains, people have fixes that are weeks old or more and if
+> you dont submit them to get them merged, then please let another
+> potential suitable fix go in for now
+
+> UML often doesn't build and less often runs correctly --- it probably
+> one of the worst architectures for this in a sense (i don't know about
+> the obscure stuff, i bet those break too --- but nobody uses them
+> which isn't the case for UML)
+
+Well, this is true. There are mainly these reasons:
+
+1) the Linux Kernel often breaks when using certain GCC versions or certain 
+binutils, and has to be fixed.
+
+But UML is a binary doing the most unusual things on the world around, so it 
+must cope also with different versions of libc / binutils / host kernel.
+
+2) Uml is often not cared by mainline developers. It was merged in 2.6.9 and 
+remained unworking for ages just because Linus ignored UML patches for ages. 
+And right now, if UML does not compile it's for the Ingo Molnar's hardirq 
+patch and for a missed silly prototype change for a TTY api change (they 
+fixed the UML user, ended up changing one UML function prototype, forgot to 
+do a trivial update to one user. One missed "grep" invocation, in fact).
+
+3) Uml *is* strange. The kernel has his own linking script? Uml must have a 
+merged version of the userspace one from binutils and of the kernel one.
+
+Since it must remap its .text section away under his back, it has to copy the 
+kernel image and remap the data with one one-shot function, which is 
+statically linked - so you end up with symbol clashes on some glibc using 
+NPTL, for trivial reasons - and so on.
+
+4) We are too few. The currently active developers (and I mean only the one 
+which this month have being working on it) are:
+
+- Bodo Stroesser - he came in just now, but he's doing a tremendous work on 
+getting SYSEMU working well.
+
+- you, Chris
+
+- Gerd Knorr, the Suse UML packager and maintainer.
+
+- I and Jeff, for various other stuff.
+
+The number nearly doubles if you just include work done before this summer, 
+with Henrik Normstrod, M.A. Young and Ingo Molnar coming here. But that's the 
+fact.
+
+I.e., if after 2.6.9-rc4 for any reason I did not send the fixes (like being 
+overloaded or away from the net), Jeff probably would have sent them (he was 
+just about doing it). But let's say he was a bit away from the net, or he 
+forgot some build fixes, even 2.6.9 wouldn't have worked for UML.
+
+That said, with mainline inclusion UML is getting more work on from mainline. 
+At least, most API changes are handled by the ones who submit them.
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729

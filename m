@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262276AbSJOCbe>; Mon, 14 Oct 2002 22:31:34 -0400
+	id <S262298AbSJOCnq>; Mon, 14 Oct 2002 22:43:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262283AbSJOCbe>; Mon, 14 Oct 2002 22:31:34 -0400
-Received: from ns.suse.de ([213.95.15.193]:17421 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262276AbSJOCbd>;
-	Mon, 14 Oct 2002 22:31:33 -0400
-Date: Tue, 15 Oct 2002 04:37:23 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Feldman, Scott" <scott.feldman@intel.com>
-Cc: "'Ben Greear'" <greearb@candelatech.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
-Subject: Re: Update on e1000 troubles (over-heating!)
-Message-ID: <20021015043722.A9562@wotan.suse.de>
-References: <288F9BF66CD9D5118DF400508B68C44604758B78@orsmsx113.jf.intel.com>
+	id <S262301AbSJOCnq>; Mon, 14 Oct 2002 22:43:46 -0400
+Received: from x101-201-88-dhcp.reshalls.umn.edu ([128.101.201.88]:8576 "EHLO
+	arashi.yi.org") by vger.kernel.org with ESMTP id <S262298AbSJOCnq>;
+	Mon, 14 Oct 2002 22:43:46 -0400
+Date: Mon, 14 Oct 2002 21:49:34 -0500
+From: Matt Reppert <arashi@arashi.yi.org>
+To: linux-kernel@vger.kernel.org
+Subject: "sleeping function called ... " on modprobe uhci-hcd
+Message-Id: <20021014214934.35069015.arashi@arashi.yi.org>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <288F9BF66CD9D5118DF400508B68C44604758B78@orsmsx113.jf.intel.com>
-User-Agent: Mutt/1.3.22.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 07:20:04PM -0700, Feldman, Scott wrote:
-> > Here is the lspci information, both -x and -vv.  This is with 
-> > two of the e1000 single-port NICS side-by-side.  I have also 
-> > strapped a P-IV CPU fan on top of the two cards to blow some 
-> > air over them....running tests now to see if that actually 
-> > helps anything.  If it does, I'll be sure to send you a picture :)
-> 
-> Ben, I checked the datasheet for the part shown in the lspci dump, and it
-> shows an operating temperature of 0-55 degrees C.  You said you measured 50
-> degrees C, so you're within the safe range.  Did the fans help?
+Got this when I modprobed uhci-hcd ...
 
-The thermometer he used likely showed a much lower temperature than what was 
-actually on the die. 5-10 C more are not unlikely. It's hard to measure chip
-temperatures accurately without an on die thermal diode or special kit.
-So I would expect that when an external normal thermometer showed 50C 
-it was already operating out of spec.
+drivers/usb/core/hub.c: USB hub found at 0
+drivers/usb/core/hub.c: 2 ports detected
+PCI: Found IRQ 10 for device 00:1f.4
+PCI: Sharing IRQ 10 with 01:0b.0
+PCI: Setting latency timer of device 00:1f.4 to 64
+drivers/usb/core/hcd-pci.c: uhci-hcd @ 00:1f.4, Intel Corp. 82801BA/BAM USB (Hub #2)
+drivers/usb/core/hcd-pci.c: irq 10, io base 0000ef80
+drivers/usb/core/hcd.c: new USB bus registered, assigned bus number 2
+drivers/usb/core/hub.c: USB hub found at 0
+drivers/usb/core/hub.c: 2 ports detected
+Debug: sleeping function called from illegal context at include/asm/semaphore.h:126
+Call Trace:
+ [<c0114054>] __might_sleep+0x54/0x60
+ [<c01f46ad>] usb_hub_events+0x65/0x2b8
+ [<c01f4935>] usb_hub_thread+0x35/0xe4
+ [<c01f4900>] usb_hub_thread+0x0/0xe4
+ [<c0112f50>] default_wake_function+0x0/0x34
+ [<c01054a9>] kernel_thread_helper+0x5/0xc
 
--Andi
+drivers/usb/core/hub.c: new USB device 00:1f.2-1, assigned address 2
+input: USB HID v1.10 Mouse [Logitech USB-PS/2 Optical Mouse] on usb-00:1f.2-1
+
+(This? :)
+                /* Grab the next entry from the beginning of the list */
+                tmp = hub_event_list.next;
+
+                hub = list_entry(tmp, struct usb_hub, event_list);
+                dev = interface_to_usbdev(hub->intf);
+
+                list_del_init(tmp);
+
+                down(&hub->khubd_sem); /* never blocks, we were on list */
+                spin_unlock_irqrestore(&hub_event_lock, flags);
+
+
+Linux-2.5.42-mm2 on i686.
+
+Matt

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265197AbTBBLH2>; Sun, 2 Feb 2003 06:07:28 -0500
+	id <S265198AbTBBLjK>; Sun, 2 Feb 2003 06:39:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265198AbTBBLH2>; Sun, 2 Feb 2003 06:07:28 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:37775 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S265197AbTBBLH2>;
-	Sun, 2 Feb 2003 06:07:28 -0500
-Date: Sun, 2 Feb 2003 12:16:57 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: is usb working under 2.5.59?
-Message-ID: <20030202111657.GA31683@ulima.unil.ch>
+	id <S265201AbTBBLjK>; Sun, 2 Feb 2003 06:39:10 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:47818 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S265198AbTBBLjJ>;
+	Sun, 2 Feb 2003 06:39:09 -0500
+Date: Sun, 2 Feb 2003 12:48:38 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: problems achieving decent throughput with latency.
+Message-ID: <20030202114838.GA16831@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Ben Greear <greearb@candelatech.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3E3CCADA.6080308@candelatech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
+In-Reply-To: <3E3CCADA.6080308@candelatech.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, Feb 01, 2003 at 11:38:02PM -0800, Ben Greear wrote:
+> I am testing my latency-insertion tool, and I notice that tcp will not use
+> all of the available bandwidth if there is any significant amount of latency
+> on the wire.
+> 
+> For example, with 25ms latency in both directions, I see about 8Mbps
+> bi-directional throughput.
 
-I used to use usb under 2.4 with my Digital Ixus V with s10sh.
-It worked just perfectly, now under 2.5.59, I don't even see the output
-of a recongnize in the syslogd.
+Check if large windows are being used, if window scaling is enabled.
 
-I have also tried gphoto2, which doesn't find any camera...
+Regards,
 
-I have a MSI Max2-BLR motherboard with USB 2.0 on it:
+bert
 
-lspci -v, the kernel config I use, /proc/bus/usb/devices, lsmod and dmesg
-could be found under http://ulima.unil.ch/greg/linux/MAX2/
 
-Should I provide some other info?
-
-I could attach them if you prefer :-)
-
-Should I change anything in my config?
-
-Thank you very much,
-
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+http://netherlabs.nl                         Consulting

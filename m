@@ -1,58 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262290AbSJ0Fgq>; Sun, 27 Oct 2002 01:36:46 -0400
+	id <S262295AbSJ0GzJ>; Sun, 27 Oct 2002 01:55:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262291AbSJ0Fgp>; Sun, 27 Oct 2002 01:36:45 -0400
-Received: from whitsun.whitsunday.net.au ([203.25.188.10]:29967 "EHLO
-	mail1.whitsunday.net.au") by vger.kernel.org with ESMTP
-	id <S262290AbSJ0Fgp> convert rfc822-to-8bit; Sun, 27 Oct 2002 01:36:45 -0400
-From: John W Fort <johnf@whitsunday.net.au>
-To: linux-kernel@vger.kernel.org
-Subject: IBM's  SCSI proposed canges from Patrick Mansfield
-Date: Sun, 27 Oct 2002 15:44:09 +1000
-Message-ID: <t5vmrug7q4t33c8rl3f7h2jaqv97evt950@4ax.com>
-X-Mailer: Forte Agent 1.92/32.572
-MIME-Version: 1.0
+	id <S262296AbSJ0GzJ>; Sun, 27 Oct 2002 01:55:09 -0500
+Received: from ns.suse.de ([213.95.15.193]:17419 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262295AbSJ0GzI>;
+	Sun, 27 Oct 2002 01:55:08 -0500
+Date: Sun, 27 Oct 2002 08:01:25 +0100
+From: Andi Kleen <ak@suse.de>
+To: Andrew Pimlott <andrew@pimlott.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The return of the return of crunch time (2.5 merge candidate list 1.6)
+Message-ID: <20021027080125.A14145@wotan.suse.de>
+References: <200210251557.55202.landley@trommello.org.suse.lists.linux.kernel> <p7365vptz49.fsf@oldwotan.suse.de> <20021026190906.GA20571@pimlott.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+In-Reply-To: <20021026190906.GA20571@pimlott.net>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HEY! andmike and patmans of @us.ibm.com YOU FUCKED UP.
+[cc'ed back to linux-kernel in case other people are interested in
+the rationale again]
 
-For two weeks in a row you have submitted code that deliberately 
-breaks scsi drivers.
+On Sat, Oct 26, 2002 at 03:09:06PM -0400, Andrew Pimlott wrote:
+> On Sat, Oct 26, 2002 at 09:53:26AM +0200, Andi Kleen wrote:
+> > I have some patches to offer better than second resolution for stat.
+> > That is needed for parallel make on MP systems, because otherwise it
+> > cannot detect changes that need less than a second to execute.
+> 
+> Would you mind spelling out the problem case?  It's ususally not a
+> big deal, because when a target and dependency have the same
+> timestamp, make considers the target to be newer.  Is there a
+> subtlety with parallel make that I am not seeing?  (And does it
+> really depend on MP?)
 
-Could you spell out your master plan for everyone who isn't using
-IBfuckingM sanctioned hardware.
+I assume you mean 'older', not 'newer'?
 
->From Patrick's proposed patches for lower level changes crap.
-	
-drivers/scsi/inia100.c: In function `inia100_biosparam':
-drivers/scsi/inia100.c:661: structure has no member named `host'
-drivers/scsi/inia100.c:662: structure has no member named `id'
-drivers/scsi/inia100.c:659: warning: `pTcb' might be used uninitialized in
-this function
+Any default action is wrong in some case when an rule can take less
+than a second, there is no replacement for an accurate time stamp.
+Either the rule gets rebuilt too often (=annoying for the user because
+it's slow) or not often enough (= broken result).
 
-There are more than 3 SCSI drivers in the linux kernel and you need to fix
-all of them instead of fucking N-3 of them.
+Parallel make makes it worse because parallel make processes need 
+the timestamp to comunicate - make cannot know from internal data
+if it has already run a rule or not. On MP systems the parallelism
+is higher, making the problem show more often.
 
-Given that 99% of Linux users will never know WTF multi-pathed SCSI hosts
-are, shouldn't you adjust your code to reflect this.
 
-I am starting to remember all the reasons I hated IBM people, but then
-along came the Oracle people.
+> > There are some minor compatbility issues with fs that only support 
+> > second timestamps like ext2/ext3, see nsec.notes in the ftp directory
+> > or past threads on that on the list.
+> 
+> I really feel strongly that you should not export resolution finer
+> that what the filesystem can store.  There is too much risk of
+> breakage (especially given the late date of submission), and if (as
+> you said) all common filesystems will be able to store sub-second
+> timestamps soon, this shouldn't be a significant drawback.  If this
+> requires a new hook into the filesystem, so be it.
 
-mumble, mumble, it will be fixed in the next release,
-mumble, mumble, it will be fixed in the next release,
-mumble, mumble, it will be fixed in the next release,
-mumble, mumble, it will be fixed in the next release,
-mumble, mumble, it will be fixed in the next release,
+You have to export in some unit and it is convenient to use the most
+finegrained available (ns). This matches what other Unixes like
+Solaris do too. The program can always chose to ignore the ns 
+(which will most do at least initially) part or even round more.
 
-Patrick, should I mention that the ('-1\t' * 9) could be
-('-1\t' * 5) in sg.c, but 'suck my cock' would work as well.
+What happens currently in my patch is that the inode in memory stores jiffies
+resolution. As long as you don't run out of inode cache and need to
+flush/reload an inode you always have the best resolution.
 
-enough bile for today,
-cu  johnf
+When an inode is flushed on an old fs with only second resolution the 
+subsecond part is truncated. This has the drawback that an inode
+timestamp can jump backwards on reload as seen by user space.
+Another way would be to round on flush, but that also has some problems :-
+for example you can get timestamps which are ahead of the current
+wall clock. Neither of them is ideal. Rounding properly requires
+hooks.
 
+In my current patchkit I just chose to truncate because that was the 
+easiest and the other more complicated solutions didn't offer any 
+compeling advantage. One can hope that nanosecond aware applications
+know how to deal with these problems. One possibility would be to
+do the same as Solaris here so that ns aware apps stay portable,
+but I don't have access to a Solaris 8 system and cannot test what
+they do. It's a kind of arbitary choice. Also I don't see it as a big
+problem.
+
+Long term of course all the file systems should support fine grained properly
+so that these issues do not occur anymore.  I hope no new file systems will 
+make the same mistake as to limiting the timestamp to a second resolution.
+
+-Andi
 

@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUKSANo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262899AbUKRTIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUKSANo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 19:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUKSALk
+	id S262899AbUKRTIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 14:08:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbUKRTGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 19:11:40 -0500
-Received: from [213.188.213.77] ([213.188.213.77]:53165 "EHLO
-	server1.navynet.it") by vger.kernel.org with ESMTP id S261210AbUKSAKj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 19:10:39 -0500
-From: "Massimo Cetra" <mcetra@navynet.it>
-To: "'Barry K. Nathan'" <barryn@pobox.com>, "'O.Sezer'" <sezeroz@ttnet.net.tr>
-Cc: <linux-kernel@vger.kernel.org>, <marcelo.tosatti@cyclades.com>
-Subject: RE: Linux 2.4.28-rc4
-Date: Fri, 19 Nov 2004 01:10:32 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <20041118204841.GA11682@ip68-4-98-123.oc.oc.cox.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Thread-Index: AcTNyelVzgCAOurJSiCJtYYW2pTlMAAAYxfw
-Message-Id: <20041119001033.B25D48400A@server1.navynet.it>
+	Thu, 18 Nov 2004 14:06:16 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:55169 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262886AbUKRTCX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 14:02:23 -0500
+Date: Thu, 18 Nov 2004 19:50:32 +0100
+From: Andi Kleen <ak@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: kernel-stuff@comcast.net, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: X86_64: Many Lost ticks
+Message-ID: <20041118185032.GO17532@wotan.suse.de>
+References: <111820041702.27846.419CD5AD000313A800006CC6220588448400009A9B9CD3040A029D0A05@comcast.net> <1100797816.6019.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1100797816.6019.24.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Marcelo and I discussed this via private e-mail; it's in the 
-> queue for 2.4.29-pre. I think in the end we both agreed that 
-> it's too late in the
-> 2.4.28 cycle to include these patches.
+On Thu, Nov 18, 2004 at 05:10:17PM +0000, Alan Cox wrote:
+> On Iau, 2004-11-18 at 17:02, kernel-stuff@comcast.net wrote:
+> > I tried all the newer kernels including -ac. All have the same problem.
+> > 
+> > Andi -  On a side note, your change  "NVidia ACPI timer override" present in 2.6.9-ac8 breaks on my laptop - I get some NMI errors ("Do you have a unusual power management setup?") and DMA timeouts - happens regularly.
 > 
-> -Barry K. Nathan <barryn@pobox.com>
+> Ok ACPI timer override probably goes back into the broken bucket and out
+> of -ac in -ac11 then.
 
-Why such a decision ?
+The timer override should be fine (I have confirmation from Nvidia
+about this). The only thing that you can take out if you're conservative
+is the change to not disable the IOAPIC by default when Nvidia 
+is detected (in check_ioapic()) 
 
-Do you think that it is not exploitable or at least not in a short time ?
-
-I don't think 2.4.29 will see the light in a short time so, unless there are
-serious problems arising from these patches (and 2.6 should be affected
-too), I think that for the sake of security it may be worthy and clever
-includind these patches (and delay 2.4.28 for some days...)
-
-M$ is waiting for a gold occasion to shot on linux. 
-A known buffer overflow, not patched soon, may be used against linux and,
-what interest me more, we could avoid updating kernels on tons pf production
-servers for something which could be patched before.
-
-Massimo Cetra
+-Andi
 

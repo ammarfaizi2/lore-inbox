@@ -1,75 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270254AbRHHBGh>; Tue, 7 Aug 2001 21:06:37 -0400
+	id <S270318AbRHHEu5>; Wed, 8 Aug 2001 00:50:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270255AbRHHBG1>; Tue, 7 Aug 2001 21:06:27 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:62727 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S270254AbRHHBGV>;
-	Tue, 7 Aug 2001 21:06:21 -0400
-Date: Wed, 8 Aug 2001 03:06:27 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x VM problems thread
-In-Reply-To: <Pine.LNX.4.33.0108080246460.17520-100000@Expansa.sns.it>
-Message-ID: <Pine.LNX.4.33.0108080304270.17706-100000@Expansa.sns.it>
+	id <S270317AbRHHEur>; Wed, 8 Aug 2001 00:50:47 -0400
+Received: from prv-tm19.provo.novell.com ([192.108.102.149]:43912 "EHLO
+	MyRealbox.com") by vger.kernel.org with ESMTP id <S270316AbRHHEuf>;
+	Wed, 8 Aug 2001 00:50:35 -0400
+Subject: USB Wacom PenPartner and HID + mousedev
+Reply-To: spinor<REMOVE_SPAM_BLOCK@zip.com.au>@myrealbox.com
+From: Spin <spinor@MyRealBox.com>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 08 Aug 2001 04:50:45 +0000
+X-Mailer: NIMS ModWeb Module
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <997246245.3abb5ff9spinor@MyRealBox.com>
+Content-Type: multipart/mixed;
+	boundary="------=_ModWebBOUNDARY_3abb5ff9_997246245"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+
+--------=_ModWebBOUNDARY_3abb5ff9_997246245
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+I'm using a USB PenPartner and having some trouble with the pointer freezin=
+g before it reaches the edge of the screen.  If I use my regular mouse to=
+ continue moving the pointer, I can "teach" the stylus the boundaries of =
+my screen, but unfortunately it soon forgets them, forcing me to start us=
+ing my mouse again  :)
+
+My set up is 2.4.5 kernel + XFree 4.0.3.  I'm using the HID driver since ke=
+rnel documentation claims the PenPartner is a true HID device and hence s=
+hould use the HID (unlike Intuos and Graphire, which need the wacom kerne=
+l module).  I then use the mousedev module to create a PS/2 interface to =
+talk to the standard mouse driver under XFree.  I compiled the mousedev d=
+river with the screen resolution option set to match the size of my 1600x=
+1200 display.
+
+Has anyone else had this problem too?  Any suggestions for how to fix this =
+problem or where to look in the source code for possible trouble are welc=
+ome, since I've exasperated myself at this point trying to get this table=
+t working well enough to do a little drawing ... and the wacom mailing li=
+st for the linux driver has not been of much help since most of the peopl=
+e there are trying to configure the (newer) Graphire and Intuos models.
+
+Many thanks in advance.  If you want to CC: me on any replies, please bewar=
+e the <REMOVE_SPAM_BLOCK> in my reply email address.
 
 
-On Wed, 8 Aug 2001, Luigi Genoni wrote:
 
->
->
-> On Tue, 7 Aug 2001, Mike Fedyk wrote:
->
-> > On Wed, Aug 08, 2001 at 02:24:37AM +0200, Luigi Genoni wrote:
-> > > This kind of code would kill any Unix system, i think, not just linux 2.4
-> > > boxes.
-> > >
-> >
-> > I tried it on 2.2.19-ppc and could kill it with ^C at the prompt, or from
-> > root if I was already logged in.  Trying to iniate connections to ssh didn't
-> > produce any results after about 30 seconds.
-> with linux 2.2 if you run this program and then try to run another process
-> you will get a "cannot fork" message.
-> no cresh if you can make a ^C or a killall, (you should not be able to run
-> a ps). This is the same behaviour of Solaris. With Linux 2.4 you will
-> start to fill your swap. kswapd will really stress your system. then you
-> should not be able to run any process. If X11 is running, it will be
-> freezed.
-excuse me, i was starting to write something about X11, then i changed my
-mind.
-Just read "It will be freezed"
-> Same thing if you run AIX and Irix. Note that AIX and Irix are
-> quite different on any point of view if you go to process management :).
->
-> mmm, HP-UX 10.20 should get frozen too, while HP-UX 11 should act like
-> Linux 2.2 (not sure about this, I should check). I do not know about
-> FreeBSD.
->
-> What changes is the way the system acts when it has to execute a code like
-> for (;;)
-> 	fork();
->
-> That is not related to vm. It is just how fork() is managed.
->
-> Note also that libc matters.
->
-> >
-> > Once it was killed the system was fine.
-> >
-> > Haven't tried 2.4 yet...
-> >
->
-> you will see a different behaviour.
->
-> bests
-> Luigi
->
->
-Luigi
+--------=_ModWebBOUNDARY_3abb5ff9_997246245
+Content-Type: application/octet-stream;
+	name="Unknown_File_Name"
+Content-Transfer-Encoding: BASE64
+Content-Disposition: attachment;
+	filename="Unknown_File_Name"
 
+DQo=
+
+--------=_ModWebBOUNDARY_3abb5ff9_997246245--

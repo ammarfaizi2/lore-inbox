@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136507AbREDVKU>; Fri, 4 May 2001 17:10:20 -0400
+	id <S136508AbREDVLV>; Fri, 4 May 2001 17:11:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136508AbREDVKK>; Fri, 4 May 2001 17:10:10 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49423 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136507AbREDVJ5>; Fri, 4 May 2001 17:09:57 -0400
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Fri, 4 May 2001 22:11:21 +0100 (BST)
-Cc: R.E.Wolff@BitWizard.nl (Rogier Wolff), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        volodya@mindspring.com, viro@math.psu.edu (Alexander Viro),
-        andrea@suse.de (Andrea Arcangeli), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0105041015520.521-100000@penguin.transmeta.com> from "Linus Torvalds" at May 04, 2001 10:28:10 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136510AbREDVLL>; Fri, 4 May 2001 17:11:11 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:24071 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S136508AbREDVK5>; Fri, 4 May 2001 17:10:57 -0400
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200105042110.XAA20705@green.mif.pg.gda.pl>
+Subject: Re: 2.4.4-ac4 - oops on unload "cdrom" module
+To: proski@gnu.org
+Date: Fri, 4 May 2001 23:10:22 +0200 (CEST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (kernel list), axboe@suse.de
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14vmrD-00082F-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now, if you want to speed up accesses, there are things you can do. You
-> can lay out the filesystem in the access order - trace the IO accesses at
-> bootup ("which file, which offset, which metadata block?") and lay out the
-> blocks of the files in exactly the right order. Then you will get linear
-> reads _without_ doing any "dd" at all.
 
-iso9660 alas doesn't allow you to do that. You can speed it up by reading
-the entire file into memory rather than paging it in (or reading it in and
-then executing it). iso9660 layout is pretty constrained and designed for
-linear file reads
+> This oops happens when I run "rmmod cdrom" on a 2.4.4-ac4 kernel with
+> CONFIG_SYSCTL enabled. It doesn't happen if CONFIG_SYSCTL is disabled.
+> 
+> sr_mod isn't loaded at this point. Reference to sd_mod looks weird. After
+> this oops the "cdrom" module remains in memory in the "deleted" state.
 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000008
+[...]
+> >>EIP; c0118051 <unregister_sysctl_table+5/2c>   <=====
+
+The following patch fixes unloading of cdrom module when no cdrom driver
+loaded (2.4.5-pre, 2.4.4-ac):
+
+--- drivers/cdrom/cdrom.c.old	Fri May  4 22:44:31 2001
++++ drivers/cdrom/cdrom.c	Fri May  4 22:54:36 2001
+@@ -2698,7 +2698,8 @@
+ 
+ static void cdrom_sysctl_unregister(void)
+ {
+-	unregister_sysctl_table(cdrom_sysctl_header);
++	if (cdrom_sysctl_header)
++		unregister_sysctl_table(cdrom_sysctl_header);
+ }
+ 
+ #endif /* CONFIG_SYSCTL */
+
+
+Andrzej
+
+
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  tel.  (0-58) 347 14 61
+Wydz.Fizyki Technicznej i Matematyki Stosowanej Politechniki Gdanskiej

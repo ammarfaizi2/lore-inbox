@@ -1,130 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135647AbRALXTm>; Fri, 12 Jan 2001 18:19:42 -0500
+	id <S135663AbRALXYm>; Fri, 12 Jan 2001 18:24:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135663AbRALXTd>; Fri, 12 Jan 2001 18:19:33 -0500
-Received: from sc-66-27-47-84.socal.rr.com ([66.27.47.84]:7175 "EHLO
-	falcon.bellfamily.org") by vger.kernel.org with ESMTP
-	id <S135647AbRALXTW>; Fri, 12 Jan 2001 18:19:22 -0500
-Message-ID: <3A5F9108.4030706@bellfamily.org>
-Date: Fri, 12 Jan 2001 15:19:36 -0800
-From: "Robert J. Bell" <rob@bellfamily.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-CC: kernel-list <linux-kernel@vger.kernel.org>
+	id <S135717AbRALXYd>; Fri, 12 Jan 2001 18:24:33 -0500
+Received: from ziggy.one-eyed-alien.net ([216.120.107.189]:2566 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S135663AbRALXYV>; Fri, 12 Jan 2001 18:24:21 -0500
+Date: Fri, 12 Jan 2001 15:24:15 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: "Robert J. Bell" <rob@bellfamily.org>
+Cc: kernel-list <linux-kernel@vger.kernel.org>
 Subject: Re: USB Mass Storage in 2.4.0
-In-Reply-To: <3A5F8956.9040305@bellfamily.org> <20010112151008.A5798@one-eyed-alien.net>
-Content-Type: multipart/mixed;
- boundary="------------060301070304080904060308"
+Message-ID: <20010112152415.B5798@one-eyed-alien.net>
+Mail-Followup-To: "Robert J. Bell" <rob@bellfamily.org>,
+	kernel-list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3A5F8956.9040305@bellfamily.org> <20010112151008.A5798@one-eyed-alien.net> <3A5F9108.4030706@bellfamily.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3A5F9108.4030706@bellfamily.org>; from rob@bellfamily.org on Fri, Jan 12, 2001 at 03:19:36PM -0800
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060301070304080904060308
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Matthew here is the info you requested, thanks for your help.
+--TakKZr9L6Hm6aLOc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hrm... from these logs, everything looks okay, except for the fact that the
+device refuses to return any INQUIRY data.
+
+Can you reproduce the conditions under which it was working and send logs
+from that?  Or at least remember what the /proc/scsi/scsi info looked like?
+
+Matt
+
+On Fri, Jan 12, 2001 at 03:19:36PM -0800, Robert J. Bell wrote:
+> Matthew here is the info you requested, thanks for your help.
+>=20
+>=20
 
 
 
---------------060301070304080904060308
-Content-Type: application/octet-stream;
- name="dmsg.out"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="dmsg.out"
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-aHViLmM6IHBvcnQgMSwgcG9ydHN0YXR1cyAxMDEsIGNoYW5nZSAxLCAxMiBNYi9zCmh1Yi5j
-OiBwb3J0IDEsIHBvcnRzdGF0dXMgMTAzLCBjaGFuZ2UgMCwgMTIgTWIvcwpodWIuYzogVVNC
-IG5ldyBkZXZpY2UgY29ubmVjdCBvbiBidXMxLzEsIGFzc2lnbmVkIGRldmljZSBudW1iZXIg
-Mwp1c2IuYzoga21hbGxvYyBJRiBjY2M1YzY4MCwgbnVtaWYgMQp1c2IuYzogbmV3IGRldmlj
-ZSBzdHJpbmdzOiBNZnI9MCwgUHJvZHVjdD0yLCBTZXJpYWxOdW1iZXI9Mwp1c2IuYzogVVNC
-IGRldmljZSBudW1iZXIgMyBkZWZhdWx0IGxhbmd1YWdlIElEIDB4NDA5ClByb2R1Y3Q6IFVT
-QiBNYXNzIFN0b3JhZ2UKU2VyaWFsTnVtYmVyOiBZLTE3MF5eXl5eMDAwODEwWDAwMDAwMDMw
-MDUyMzcKdXNiLXN0b3JhZ2U6IFNlYXJjaGluZyB1bnVzdWFsIGRldmljZSBsaXN0IGZvciAo
-MHg0Y2IsIDB4MTAwLCAweDEwMDApLi4uCnVzYi1zdG9yYWdlOiAtLSBkaWQgbm90IGZpbmQg
-YSBtYXRjaGluZyBkZXZpY2UKdXNiLXN0b3JhZ2U6IFVTQiBNYXNzIFN0b3JhZ2UgZGV2aWNl
-IGRldGVjdGVkCnVzYi1zdG9yYWdlOiBFbmRwb2ludHM6IEluOiAweGMxNDRkZjIwIE91dDog
-MHhjMTQ0ZGYzNCBJbnQ6IDB4YzE0NGRmNDggKFBlcmlvZCAxKQp1c2Itc3RvcmFnZTogTmV3
-IEdVSUQgMDRjYjAxMDAxMjEwMDAwMDAzMDA1MjM3CnVzYi1zdG9yYWdlOiBUcmFuc3BvcnQ6
-IENvbnRyb2wvQnVsay9JbnRlcnJ1cHQKdXNiLXN0b3JhZ2U6IFByb3RvY29sOiA4MDcwaQp1
-c2Itc3RvcmFnZTogQWxsb2NhdGluZyBJUlEgZm9yIENCSSB0cmFuc3BvcnQKdXNiLXN0b3Jh
-Z2U6IHVzYl9zdWJtaXRfdXJiKCkgcmV0dXJucyAwCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFk
-IHNsZWVwaW5nLgpzY3NpMCA6IFNDU0kgZW11bGF0aW9uIGZvciBVU0IgTWFzcyBTdG9yYWdl
-IGRldmljZXMKdXNiLXN0b3JhZ2U6IHF1ZXVlY29tbWFuZCgpIGNhbGxlZAp1c2Itc3RvcmFn
-ZTogKioqIHRocmVhZCBhd2FrZW5lZC4KdXNiLXN0b3JhZ2U6IENvbW1hbmQgSU5RVUlSWSAo
-NiBieXRlcykKdXNiLXN0b3JhZ2U6IDEyIDAwIDAwIDAwIGZmIDAwIDAwIDAwIDE4IDgzIDQ1
-IGMxCnVzYi1zdG9yYWdlOiBDYWxsIHRvIHVzYl9zdG9yX2NvbnRyb2xfbXNnKCkgcmV0dXJu
-ZWQgMTIKdXNiLXN0b3JhZ2U6IHVzYl9zdG9yX3RyYW5zZmVyX3BhcnRpYWwoKTogeGZlciAy
-NTUgYnl0ZXMKdXNiLXN0b3JhZ2U6IFVTQiBJUlEgcmVjaWV2ZWQgZm9yIGRldmljZSBvbiBo
-b3N0IDAKdXNiLXN0b3JhZ2U6IC0tIElSUSBkYXRhIGxlbmd0aCBpcyAyCnVzYi1zdG9yYWdl
-OiAtLSBJUlEgc3RhdGUgaXMgMAp1c2Itc3RvcmFnZTogLS0gSW50ZXJydXB0IFN0YXR1cyAo
-MHgwLCAweDApCnVzYi1zdG9yYWdlOiAtLSBDdXJyZW50IHZhbHVlIG9mIGlwX3dhaXRxIGlz
-OiAwCnVzYi1zdG9yYWdlOiB1c2Jfc3Rvcl9idWxrX21zZygpIHJldHVybmVkIDAgeGZlcnJl
-ZCAwLzI1NQp1c2Itc3RvcmFnZTogQ0JJIGRhdGEgc3RhZ2UgcmVzdWx0IGlzIDB4MQp1c2It
-c3RvcmFnZTogQ3VycmVudCB2YWx1ZSBvZiBpcF93YWl0cSBpczogMQp1c2Itc3RvcmFnZTog
-R290IGludGVycnVwdCBkYXRhICgweDAsIDB4MCkKdXNiLXN0b3JhZ2U6IEZpeGluZyBJTlFV
-SVJZIGRhdGEgdG8gc2hvdyBTQ1NJIHJldiAyCnVzYi1zdG9yYWdlOiBzY3NpIGNtZCBkb25l
-LCByZXN1bHQ9MHgwCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFkIHNsZWVwaW5nLgogIFZlbmRv
-cjogIOAtwCDA8s8gIE1vZGVsOiCGICAg2P8twKEjIMAg3fLPICBSZXY6IP////8KICBUeXBl
-OiAgIFNjYW5uZXIgICAgICAgICAgICAgICAgICAgICAgICAgICAgQU5TSSBTQ1NJIHJldmlz
-aW9uOiAwMgp1c2Itc3RvcmFnZTogcXVldWVjb21tYW5kKCkgY2FsbGVkCnVzYi1zdG9yYWdl
-OiAqKiogdGhyZWFkIGF3YWtlbmVkLgp1c2Itc3RvcmFnZTogQmFkIHRhcmdldCBudW1iZXIg
-KDEvMCkKdXNiLXN0b3JhZ2U6ICoqKiB0aHJlYWQgc2xlZXBpbmcuCnVzYi1zdG9yYWdlOiBx
-dWV1ZWNvbW1hbmQoKSBjYWxsZWQKdXNiLXN0b3JhZ2U6ICoqKiB0aHJlYWQgYXdha2VuZWQu
-CnVzYi1zdG9yYWdlOiBCYWQgdGFyZ2V0IG51bWJlciAoMi8wKQp1c2Itc3RvcmFnZTogKioq
-IHRocmVhZCBzbGVlcGluZy4KdXNiLXN0b3JhZ2U6IHF1ZXVlY29tbWFuZCgpIGNhbGxlZAp1
-c2Itc3RvcmFnZTogKioqIHRocmVhZCBhd2FrZW5lZC4KdXNiLXN0b3JhZ2U6IEJhZCB0YXJn
-ZXQgbnVtYmVyICgzLzApCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFkIHNsZWVwaW5nLgp1c2It
-c3RvcmFnZTogcXVldWVjb21tYW5kKCkgY2FsbGVkCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFk
-IGF3YWtlbmVkLgp1c2Itc3RvcmFnZTogQmFkIHRhcmdldCBudW1iZXIgKDQvMCkKdXNiLXN0
-b3JhZ2U6ICoqKiB0aHJlYWQgc2xlZXBpbmcuCnVzYi1zdG9yYWdlOiBxdWV1ZWNvbW1hbmQo
-KSBjYWxsZWQKdXNiLXN0b3JhZ2U6ICoqKiB0aHJlYWQgYXdha2VuZWQuCnVzYi1zdG9yYWdl
-OiBCYWQgdGFyZ2V0IG51bWJlciAoNS8wKQp1c2Itc3RvcmFnZTogKioqIHRocmVhZCBzbGVl
-cGluZy4KdXNiLXN0b3JhZ2U6IHF1ZXVlY29tbWFuZCgpIGNhbGxlZAp1c2Itc3RvcmFnZTog
-KioqIHRocmVhZCBhd2FrZW5lZC4KdXNiLXN0b3JhZ2U6IEJhZCB0YXJnZXQgbnVtYmVyICg2
-LzApCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFkIHNsZWVwaW5nLgp1c2Itc3RvcmFnZTogcXVl
-dWVjb21tYW5kKCkgY2FsbGVkCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFkIGF3YWtlbmVkLgp1
-c2Itc3RvcmFnZTogQmFkIHRhcmdldCBudW1iZXIgKDcvMCkKdXNiLXN0b3JhZ2U6ICoqKiB0
-aHJlYWQgc2xlZXBpbmcuCldBUk5JTkc6IFVTQiBNYXNzIFN0b3JhZ2UgZGF0YSBpbnRlZ3Jp
-dHkgbm90IGFzc3VyZWQKVVNCIE1hc3MgU3RvcmFnZSBkZXZpY2UgZm91bmQgYXQgMwp1c2Iu
-YzogdXNiLXN0b3JhZ2UgZHJpdmVyIGNsYWltZWQgaW50ZXJmYWNlIGNjYzVjNjgwCnVzYi5j
-OiBrdXNiZDogL3NiaW4vaG90cGx1ZyBhZGQgMwp1c2IuYzoga3VzYmQgcG9saWN5IHJldHVy
-bmVkIDB4ZmZmZmZmZmUKdWhjaS5jOiByb290LWh1YiBJTlQgY29tcGxldGU6IHBvcnQxOiA4
-YSBwb3J0MjogODAgZGF0YTogMgpodWIuYzogcG9ydCAxIGNvbm5lY3Rpb24gY2hhbmdlCmh1
-Yi5jOiBwb3J0IDEsIHBvcnRzdGF0dXMgMTAwLCBjaGFuZ2UgMywgMTIgTWIvcwp1c2IuYzog
-VVNCIGRpc2Nvbm5lY3Qgb24gZGV2aWNlIDMKdXNiLXN0b3JhZ2U6IHN0b3JhZ2VfZGlzY29u
-bmVjdCgpIGNhbGxlZAp1c2Itc3RvcmFnZTogLS0gcmVsZWFzaW5nIGlycSBVUkIKdXNiLXN0
-b3JhZ2U6IFVTQiBJUlEgcmVjaWV2ZWQgZm9yIGRldmljZSBvbiBob3N0IDAKdXNiLXN0b3Jh
-Z2U6IC0tIElSUSBkYXRhIGxlbmd0aCBpcyAwCnVzYi1zdG9yYWdlOiAtLSBJUlEgc3RhdGUg
-aXMgLTIKdXNiLXN0b3JhZ2U6IC0tIEludGVycnVwdCBTdGF0dXMgKDB4MCwgMHgwKQp1c2It
-c3RvcmFnZTogLS0gSVJRIHRvbyBzaG9ydAp1c2Itc3RvcmFnZTogLS0gdXNiX3VubGlua191
-cmIoKSByZXR1cm5lZCAwCnVzYi1zdG9yYWdlOiAtLSByZWxlYXNpbmcgbWFpbiBVUkIKdXNi
-LXN0b3JhZ2U6IC0tIHVzYl91bmxpbmtfdXJiKCkgcmV0dXJuZWQgLTE5CnVzYi5jOiBrdXNi
-ZDogL3NiaW4vaG90cGx1ZyByZW1vdmUgMwp1c2IuYzoga3VzYmQgcG9saWN5IHJldHVybmVk
-IDB4ZmZmZmZmZmUKdWhjaS5jOiByb290LWh1YiBJTlQgY29tcGxldGU6IHBvcnQxOiA4OCBw
-b3J0MjogODAgZGF0YTogMgpodWIuYzogcG9ydCAxIGVuYWJsZSBjaGFuZ2UsIHN0YXR1cyAx
-MDAKdWhjaS5jOiByb290LWh1YiBJTlQgY29tcGxldGU6IHBvcnQxOiAxYTMgcG9ydDI6IDgw
-IGRhdGE6IDIKaHViLmM6IHBvcnQgMSBjb25uZWN0aW9uIGNoYW5nZQpodWIuYzogcG9ydCAx
-LCBwb3J0c3RhdHVzIDMwMSwgY2hhbmdlIDEsIDEuNSBNYi9zCmh1Yi5jOiBwb3J0IDEsIHBv
-cnRzdGF0dXMgMzAzLCBjaGFuZ2UgMCwgMS41IE1iL3MKaHViLmM6IFVTQiBuZXcgZGV2aWNl
-IGNvbm5lY3Qgb24gYnVzMS8xLCBhc3NpZ25lZCBkZXZpY2UgbnVtYmVyIDQKdXNiLmM6IGtt
-YWxsb2MgSUYgY2NjNWM4MDAsIG51bWlmIDEKdXNiLmM6IHNraXBwZWQgMSBjbGFzcy92ZW5k
-b3Igc3BlY2lmaWMgaW50ZXJmYWNlIGRlc2NyaXB0b3JzCnVzYi5jOiBuZXcgZGV2aWNlIHN0
-cmluZ3M6IE1mcj0xLCBQcm9kdWN0PTIsIFNlcmlhbE51bWJlcj0wCnVzYi5jOiBVU0IgZGV2
-aWNlIG51bWJlciA0IGRlZmF1bHQgbGFuZ3VhZ2UgSUQgMHg0MDkKTWFudWZhY3R1cmVyOiBN
-aWNyb3NvZnQKUHJvZHVjdDogTWljcm9zb2Z0IEludGVsbGlNb3VzZa4gRXhwbG9yZXIKZXZl
-bnQwOiBFdmVudCBkZXZpY2UgZm9yIGlucHV0MAptb3VzZTA6IFBTLzIgbW91c2UgZGV2aWNl
-IGZvciBpbnB1dDAKaW5wdXQwOiBVU0IgSElEIHYxLjAwIE1vdXNlIFtNaWNyb3NvZnQgTWlj
-cm9zb2Z0IEludGVsbGlNb3VzZa4gRXhwbG9yZXJdIG9uIHVzYjE6NC4wCnVzYi5jOiBoaWQg
-ZHJpdmVyIGNsYWltZWQgaW50ZXJmYWNlIGNjYzVjODAwCnVzYi5jOiBrdXNiZDogL3NiaW4v
-aG90cGx1ZyBhZGQgNAp1c2IuYzoga3VzYmQgcG9saWN5IHJldHVybmVkIDB4ZmZmZmZmZmUK
+What the hell are you?
+					-- Pitr to Dust Puppy=20
+User Friendly, 12/3/1997
 
---------------060301070304080904060308--
+--TakKZr9L6Hm6aLOc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6X5Ifz64nssGU+ykRAmkmAKDIMbA6AQbnlL2+jTmf4796O4XarwCg41OS
+NhSXRiEjAS9kohT39exDgU4=
+=EMLH
+-----END PGP SIGNATURE-----
+
+--TakKZr9L6Hm6aLOc--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,70 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271405AbTHDPFO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 11:05:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271807AbTHDPFN
+	id S271807AbTHDPFd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 11:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271808AbTHDPFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 11:05:13 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:60094 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271405AbTHDPFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 11:05:08 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Mon, 4 Aug 2003 17:05:06 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Jesse Pollard <jesse@cats-chateau.net>
-Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-Id: <20030804170506.11426617.skraw@ithnet.com>
-In-Reply-To: <03080409334500.03650@tabby>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<20030804134415.GA4454@win.tue.nl>
-	<20030804155604.2cdb96e7.skraw@ithnet.com>
-	<03080409334500.03650@tabby>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Aug 2003 11:05:33 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:5107 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S271807AbTHDPF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 11:05:26 -0400
+Date: Mon, 4 Aug 2003 17:04:49 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200308041504.h74F4n5o013600@burner.fokus.fraunhofer.de>
+To: autobot@bol.com.br, linux-kernel@vger.kernel.org
+Cc: schilling@fokus.fraunhofer.de
+Subject: Re: CDrecord -> Kernel panic
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003 09:33:44 -0500
-Jesse Pollard <jesse@cats-chateau.net> wrote:
+>From ricardo@rio.terra.com.br Mon Aug  4 16:57:45 2003
 
-> Find for one. Any application that must scan the tree in a search. Any 
-> application that must backup every file for another (I know, dump bypasses
-> the filesystem to make backups, tar doesn't).
+>	I've been getting several kernel panics due to CD burning.
 
-All that can handle symlinks already have the same problem nowadays. Where is
-the difference? And yet again: it is no _must_ for the feature to use it for
-creating complete loops inside your fs. 
-You _can_ as well dd if=/dev/zero of=/dev/hda, but of course you shouldn't.
-Have you therefore deleted dd from your bin ?
+>        When tried to burn old CD-RWs (4x), sometimes I've got a kernel
+>panic. The system told me a bug in the IDE stack (it had been told that
+>the problem is in the ide-iops.c file). Fortunately I was using only
+>CD-RWs... =3D)
+>=09
+>	Let me send 2 U my info:
+>=09
+>cat /proc/version
+>Linux version 2.4.21 (root@aragorn.rjp.org.br) (gcc version 3.2.2
+>20030222 (Red Hat Linux 3.2.2-5)) #4 Seg Ago 4 10:49:02 BRT 2003
 
-> It introduces too many unique problems to be easily handled. That is why
-> symbolic links actually work. Symbolic links are not hard links, therefore
-> they are not processed as part of the tree. and do not cause loops.
+>cdrecord -version
+>Cdrecord 2.0 (i686-pc-linux-gnu) Copyright (C) 1995-2002 J=F6rg Schilling
 
-tar --dereference loops on symlinks _today_, to name an example.
-All you have to do is to provide a way to find out if a directory is a
-hardlink, nothing more. And that should be easy.
+Outdated..... 
+http://www.fokus.fhg.de/research/cc/glone/employees/joerg.schilling/private/problems.html
+... but not the reason for the problem.
 
-> It was also done in one of the "popular" code management systems under
-> unix. (it allowed a "mount" of the system root to be under the CVS
-> repository to detect unauthorized modifications...). Unfortunately,
-> the system could not be backed up anymore. 1. A dump of the CVS filesystem
-> turned into a dump of the entire system... 2. You could not restore the
-> backups... The dumps failed (bru at the time) because the pathnames got
-> too long, the restore failed since it ran out of disk space due to the
-> multiple copies of the tree being created.
 
-And they never heard of "--exclude" in tar, did they?
+Recent 2.4 (>= 2.4.18) Kernels seem to be a nightmare with IDE drivers.
+Maybe one of the kernel hackers has an idea. 
 
-> The KIS principle is the key. A graph is NOT simple to maintain.
+As I am just trying to fix a IDE driver too, I know that the change in the IDE 
+subsystem caused some functions to be called with a wrong number of args. This 
+is most likely the reason for your kernel because the missing ars is a pointer 
+;-)
 
-This is true. But I am very willing to believe reiserfs is not simple either,
-still it is there ;-)
+Jörg
 
-Regards,
-Stephan
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

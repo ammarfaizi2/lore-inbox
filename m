@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbVCVB1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbVCVB1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbVCVB1m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 20:27:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbVCVBZe
+	id S262258AbVCVB1l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 20:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVCVBZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 20:25:34 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:6674 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262284AbVCVBUw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 20:20:52 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: akpm@osdl.org (Andrew Morton)
-Subject: Re: 2.6.11 oops in skb_drop_fraglist
-Cc: cel@citi.umich.edu, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <20050321162444.31c6c68d.akpm@osdl.org>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1DDY3j-00047A-00@gondolin.me.apana.org.au>
-Date: Tue, 22 Mar 2005 12:19:51 +1100
+	Mon, 21 Mar 2005 20:25:52 -0500
+Received: from fire.osdl.org ([65.172.181.4]:14998 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262282AbVCVBYY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 20:24:24 -0500
+Date: Mon, 21 Mar 2005 17:24:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: mjt@tls.msk.ru, linux-kernel@vger.kernel.org
+Subject: Re: mouse&keyboard with 2.6.10+
+Message-Id: <20050321172411.247e32b6.akpm@osdl.org>
+In-Reply-To: <20050314164342.GA1735@ucw.cz>
+References: <4235683E.1020403@tls.msk.ru>
+	<42357AE0.4050805@tls.msk.ru>
+	<20050314142847.GA4001@ucw.cz>
+	<4235B367.3000506@tls.msk.ru>
+	<20050314162537.GA2716@ucw.cz>
+	<4235BDFD.1070505@tls.msk.ru>
+	<20050314164342.GA1735@ucw.cz>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
-> Chuck Lever <cel@citi.umich.edu> wrote:
->>
->> testing NFS client workloads on a dual Pentium-III system running 2.6.11 
->> with some NFS patches.  i hit this oops while doing simple-minded ftps 
->> and tars.
->> 
->> the system locks up once or twice a day under this workload.  this is 
->> the first time i had the console and captured the oops output.
+Vojtech Pavlik <vojtech@suse.cz> wrote:
+>
+> On Mon, Mar 14, 2005 at 07:38:21PM +0300, Michael Tokarev wrote:
 > 
-> Chuck, I didn't see any followup to this.  Is it still happening in current
-> kernels?
+> > >>>Can you try 'usb-handoff' on the kernel command line?
+> > >>
+> > >>The problem has nothing to do with USB per se, as far as I can see.
+> > >>PS2 keyboard and mouse does not work when the USB subsystem (incl.
+> > >>usbcore) is not loaded.  And the problem is with PS2 keyboard/mouse,
+> > >>not with USB one which works just fine.
+> > > 
+> > >Of course. Nevertheless 'usb-handoff' tells the BIOS not to meddle
+> > >with the PS/2 interfaces, too. 
+> > 
+> > Oh me bad, I should listen to whatever is being said, instead of doing
+> > my stupid guesses...  Just rebooted into 2.6.11.3 with usb-handoff and
+> > both the keyboard and mouse are Just Works, and psmouse driver loads
+> > almost immediately too.
+> > 
+> > Also, it works just fine after turning off USB Keyboard and Mouse
+> > support in BIOS and without usb-handoff kernel parameter.
+> > 
+> > In 2.6.9 (it works just fine too, problem happens with 2.6.10 and up
+> > only), there's no such parameter in drivers/pci/quirks.c.  Hmm.
+> 
+> Any chance the order of module loading changed between the two versions?
+> I see you have 'psmouse' as a module. If i8042 (and psmouse) are loaded
+> after uhci-hcd (or ohci-hcd), the problem will disappear, too.
+> 
+> > So is this a bios/mobo problem,
+> 
+> Yes.
+> 
+> > or can it be solved in kernel somehow?
+> 
+> We could have usb-handoff by default.
 
-In the past the same Oops have been caused by memory problems...
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Did we decide to do that?  If so, will it be in 2.6.12?

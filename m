@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVAaPKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVAaPOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbVAaPKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 10:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVAaPKQ
+	id S261230AbVAaPOW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 10:14:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVAaPOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 10:10:16 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1553 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261229AbVAaPKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 10:10:10 -0500
-Date: Mon, 31 Jan 2005 16:10:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Paul Blazejowski <diffie@gmail.com>, linux-kernel@vger.kernel.org,
-       Nathan Scott <nathans@sgi.com>
-Subject: Re: 2.6.11-rc2-mm2
-Message-ID: <20050131151008.GM18316@stusta.de>
-References: <9dda349205012923347bc6a456@mail.gmail.com> <20050129235653.1d9ba5a9.akpm@osdl.org> <20050130105429.GA28300@infradead.org> <20050130105738.GA28387@infradead.org> <20050130120009.GG3185@stusta.de> <20050130121241.GH3185@stusta.de> <Pine.LNX.4.61.0501302358270.6118@scrub.home> <20050130231055.GA7103@stusta.de> <Pine.LNX.4.61.0501310025360.6118@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 Jan 2005 10:14:22 -0500
+Received: from 80.178.38.121.forward.012.net.il ([80.178.38.121]:48617 "EHLO
+	linux15") by vger.kernel.org with ESMTP id S261230AbVAaPOT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 10:14:19 -0500
+From: Oded Shimon <ods15@ods15.dyndns.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Subject: Re: Pipes and fd question. Large amounts of data.
+Date: Mon, 31 Jan 2005 17:14:08 +0200
+User-Agent: KMail/1.7.1
+Cc: Miles Sabin <miles@milessabin.com>, linux-kernel@vger.kernel.org
+References: <200501301115.59532.ods15@ods15.dyndns.org> <200501301248.45538.ods15@ods15.dyndns.org> <41FE4876.8020507@nortelnetworks.com>
+In-Reply-To: <41FE4876.8020507@nortelnetworks.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-8-i"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501310025360.6118@scrub.home>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501311714.08672.ods15@ods15.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 12:36:02AM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 31 Jan 2005, Adrian Bunk wrote:
-> 
-> > WANT_EXPORTFS gets selected by NFSD.
-> > 
-> > EXPORTFS is usually WANT_EXPORTFS, but if WANT_EXPORTFS=m and 
-> > XFS_WANT_EXPORT=y, then EXPORTFS=y.
-> > 
-> > Since XFS_WANT_EXPORT itself depends on WANT_EXPORTFS this was my 
-> > workaround to avoid a circular dependency.
-> 
-> Why not just let XFS_FS select EXPORTFS directly:
-> 
-> config XFS_FS
-> 	select EXPORTFS if NFSD
+On Monday 31 January 2005 17:02, Chris Friesen wrote:
+> Your other option would be to use processes with shared memory (either
+> sysV or memory-mapped files).  This gets you the speed of shared memory
+> maps, but also lets you get the reliability of not sharing your entire
+> memory space.
+>
+> If you use NPTL, your locking should be quick as well.  If not, you can
+> always roll your own futex-based locking.
 
-This has the wrong semantics:
-With NFSD=m and XFS_FS=y it only sets EXPORTFS=m.
+To be honest, most of that was gibrish to me (NTPL, futex, sysV..).. Most of 
+my experience with system calls is with pipes and files, I know very little 
+about these other things...
+Either way, you are a bit late, just half an hour ago, I have completed my 
+program, and it works. :) I finished the pthread instead of select() 
+implementation pretty quickly (now I understand why lazy programmers use 
+threads.. heh), what took me so long was troubles with the 2 other programs, 
+had to refine their command line params carefully...
+(btw, the 2 other programs - MPlayer and MEncoder, and my job was transferring 
+video AND audio between them.)
 
-> bye, Roman
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Thankyou for the reply,
+- ods15

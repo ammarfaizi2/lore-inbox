@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbUAVPv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 10:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264566AbUAVPv1
+	id S266317AbUAVRLn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 12:11:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUAVRLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 10:51:27 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:11424 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S264505AbUAVPv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 10:51:26 -0500
-Date: Thu, 22 Jan 2004 15:50:16 +0000
-From: Dave Jones <davej@redhat.com>
-To: Julien Oster <lkml-3141@mc.frodoid.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: parhelia doesn't work anymore with 2.6.1
-Message-ID: <20040122155016.GA18361@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Julien Oster <lkml-3141@mc.frodoid.org>,
-	linux-kernel@vger.kernel.org
-References: <20040122152137.GA1138@frodo.midearth.frodoid.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040122152137.GA1138@frodo.midearth.frodoid.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 22 Jan 2004 12:11:43 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:3478 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S266317AbUAVRLk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 12:11:40 -0500
+Message-ID: <4010040C.6020505@blue-labs.org>
+Date: Thu, 22 Jan 2004 12:10:36 -0500
+From: David Ford <david+hb@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040121
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Jes Sorensen <jes@wildopensource.com>, Zan Lynx <zlynx@acm.org>,
+       Andreas Jellinghaus <aj@dungeon.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed
+ to public posts
+References: <ecartis-01212004203954.14209.1@mail.convergence2.de>	 <20040121194315.GE9327@redhat.com>	 <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>	 <1074717499.18964.9.camel@localhost.localdomain>	 <20040121211550.GK9327@redhat.com>	 <20040121213027.GN23765@srv-lnx2600.matchmail.com>	 <pan.2004.01.21.23.40.00.181984@dungeon.inka.de>	 <1074731162.25704.10.camel@localhost.localdomain>	 <yq0hdyo15gt.fsf@wildopensource.com>  <401000C1.9010901@blue-labs.org> <1074790901.2055.109.camel@nidelv.trondhjem.org>
+In-Reply-To: <1074790901.2055.109.camel@nidelv.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 22, 2004 at 04:21:37PM +0100, Julien Oster wrote:
+Unfortunately, 99% of emails that I have received in a foreign language 
+are spam.  Spam has no language boundaries.
 
- > I know the Matrox Parhelia kernel driver ist partly a binary only
- > driver, but I am not explicitly asking for support on that driver.
+Trond Myklebust wrote:
 
-actually, you are. agpgart works fine with free drivers.
-
- > My question is: what has changed in AGP code or similar between 2.4.24
- > and 2.6.1 that can make my Parhelia unusable?
-
-'lots'. seriously, they're worlds apart. they're not the same driver any more.
-in fact in 2.6, agpgart is multiple drivers.
-
-Trying to use a 2.4 module on 2.6 is going to cause you pain. lots of pain.
-
-		Dave
-
+>På to , 22/01/2004 klokka 11:56, skreiv David Ford:
+>  
+>
+>>Considering that Bayesian filters are useless against the new spam that 
+>>is proliferating these days, that's laughable.  Spam now comes with a 
+>>good 5-10K of random dictionary words.
+>>    
+>>
+>
+>The solution is obvious: learn a foreign language...
+>
+>Cheers,
+>  Trond
+>  
+>

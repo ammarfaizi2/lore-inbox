@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279922AbRJ3Ldm>; Tue, 30 Oct 2001 06:33:42 -0500
+	id <S279915AbRJ3Lkw>; Tue, 30 Oct 2001 06:40:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279924AbRJ3Ldc>; Tue, 30 Oct 2001 06:33:32 -0500
-Received: from smtprt15.wanadoo.fr ([193.252.19.210]:2723 "EHLO
-	smtprt15.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S279922AbRJ3LdQ>; Tue, 30 Oct 2001 06:33:16 -0500
-Date: Tue, 30 Oct 2001 11:55:34 +0100 (CET)
-From: Pascal Lengard <pascal.lengard@wanadoo.fr>
-To: <linux-kernel@vger.kernel.org>
-Subject: apm suspend broken ?
-Message-ID: <Pine.LNX.4.33.0110301145500.22376-100000@h2o.chezmoi.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279930AbRJ3Lkn>; Tue, 30 Oct 2001 06:40:43 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:27375
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S279925AbRJ3Lk1>; Tue, 30 Oct 2001 06:40:27 -0500
+Date: Tue, 30 Oct 2001 03:40:58 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Proposal For A More Scalable Scheduler ...
+Message-ID: <20011030034058.B21884@mikef-linux.matchmail.com>
+Mail-Followup-To: Davide Libenzi <davidel@xmailserver.org>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0110292113490.1338-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.40.0110292113490.1338-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Oct 29, 2001 at 09:38:07PM -0800, Davide Libenzi wrote:
+> 2) My Linux Scheduler Stuff Page:
+> 	http://www.xmailserver.org/linux-patches/lnxsched.html
+> 
 
-I read a thread on the mailing list archive about the exact same
-problem I am facing now (thread started on Tue Sep 25 2001:
-"apm suspend broken in 2.4.10).
+Anyone know if this is preempt safe?  It's using processor specific lists,
+and might not be.
 
-I use a Dell latitude C600 and it used to work fine with kernel up
-to 2.4.9 (regular kernel from kernel.org).
-I upgraded to redhat 7.2 and to kernel 2.4.13+ext3 patches (again
-from regular sources), and apm refuses to suspend the beast.
+I tried integrating it into my latest kernel, and had some troubles with:
 
-Did someone find a solution for this problem since last thread ?
-If no light shined from last thread, I would be happy to help out
-on this. I am not a kernel hacker so I guess my help will be limited,
-but I do have the hardware ready for testing purposes
+2.4.13freeswan-1.91+ac5+preempt+netdev_random+vm_freeswap
 
-Pascal
+I'll admit, it was pretty ambitious trying to get it to work with -ac and
+preempt at the same time....
 
-(please cc me in replies since I am not subscribed to the list)
+When I get some time over the next few days, I'll give it a try with fewer
+patches to reduce the interactions...
 
+Oh, btw, the above kernel patch sets have compiled together, now it's just a
+matter of rebooting and see if anything breaks. :)
+
+Night guys,
+
+Mike

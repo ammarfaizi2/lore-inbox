@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129930AbQK0Ku3>; Mon, 27 Nov 2000 05:50:29 -0500
+        id <S130070AbQK0LWL>; Mon, 27 Nov 2000 06:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130573AbQK0KuT>; Mon, 27 Nov 2000 05:50:19 -0500
-Received: from 62-6-229-77.btconnect.com ([62.6.229.77]:44804 "EHLO
-        penguin.homenet") by vger.kernel.org with ESMTP id <S129930AbQK0KuB>;
-        Mon, 27 Nov 2000 05:50:01 -0500
-Date: Mon, 27 Nov 2000 10:21:58 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: number of open fds?
-In-Reply-To: <Pine.LNX.4.21.0011261929200.1533-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0011271021060.1202-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S129963AbQK0LWB>; Mon, 27 Nov 2000 06:22:01 -0500
+Received: from ns.caldera.de ([212.34.180.1]:52240 "EHLO ns.caldera.de")
+        by vger.kernel.org with ESMTP id <S129768AbQK0LVs>;
+        Mon, 27 Nov 2000 06:21:48 -0500
+Date: Mon, 27 Nov 2000 11:49:50 +0100
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Friedrich Lobenstock <fl@fl.priv.at>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kbuild@torque.net, linux-kernel@vger.kernel.org,
+        linux-raid@vger.kernel.org
+Subject: Re: [KBUILD] Re: [BUG] 2.4.0-test11-ac3 breaks raid autodetect (was Re: [BUG] raid5 link error? (was [PATCH] raid5 fix after xor.c cleanup))
+Message-ID: <20001127114950.A12206@caldera.de>
+Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
+        Friedrich Lobenstock <fl@fl.priv.at>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kbuild@torque.net,
+        linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+In-Reply-To: <20001117234144.A14461@spaans.ds9a.nl> <20001118123536.A5674@spaans.ds9a.nl> <20001118235352.D2226@spaans.ds9a.nl> <14872.29479.901021.472890@notabene.cse.unsw.edu.au> <3A2074CC.8219AB99@fl.priv.at> <14881.50316.705469.752219@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <14881.50316.705469.752219@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Mon, Nov 27, 2000 at 01:18:52PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-never mind this question:
-
-a) I found count_open_files()
-
-b) for what I needed it for, close_files() is easily enhanceable to return
-   this number as well, without having to walk the sets twice
-
-Regards,
-Tigran
-
-On Sun, 26 Nov 2000, Tigran Aivazian wrote:
-
-> Hi,
+On Mon, Nov 27, 2000 at 01:18:52PM +1100, Neil Brown wrote:
+> Thanks for this....
 > 
-> The kernel/exit.c:put_files_struct() and close_files() are very nice as
-> they show how to walk open fds (and close them) and how to free the fd
-> array/sets in one go. But is there a _very fast_ way of getting the number
-> of fds currently open (without having to walk the sets and test the bits)?
-> 
-> Regards,
-> Tigran
-> 
-> 
+> I have looked more deeply, and discovered the error of my ways.
+> As the Makefiles now stand, all export-objs (OX_OBJS) get linked
+> before non-export-objs (O_OBJS) in the same directory, independantly
+> of any ordering imposed within the Makefile.
 
+Yes.
+
+> This caused md.o to get linked before raid?.o.
+> Due to carelessness on my part I didn't notice this happening when I
+> was testing.
+> 
+> The following patch fixes it.  I hope the change to Rules.make is
+> acceptable - I have CCed to linux-kbuild incase anyone there has an
+> issue with it.
+
+I don't think so.  Look at drivers/usb/Makefile for an other (cleaner)
+solution to solve this.  I don't think it is a good idea to solve the
+same problem with two different hacks...
+
+	Christoph
+
+-- 
+Always remember that you are unique.  Just like everyone else.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

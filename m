@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289047AbSAGALA>; Sun, 6 Jan 2002 19:11:00 -0500
+	id <S289053AbSAGAWA>; Sun, 6 Jan 2002 19:22:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289051AbSAGAKu>; Sun, 6 Jan 2002 19:10:50 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:64139
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S289047AbSAGAKm>; Sun, 6 Jan 2002 19:10:42 -0500
-Date: Sun, 6 Jan 2002 17:09:54 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Paul Mackerras <paulus@samba.org>, Gabriel Dos Reis <gdr@codesourcery.com>,
-        mike stump <mrs@windriver.com>, dewar@gnat.com, gcc@gcc.gnu.org,
-        linux-kernel@vger.kernel.org, velco@fadata.bg
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020107000954.GO756@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <200201061824.KAA19536@kankakee.wrs.com> <flg05jb4go.fsf@riz.cmla.ens-cachan.fr> <15416.51411.874019.838220@argo.ozlabs.ibm.com> <20020106231940.F531@sunsite.ms.mff.cuni.cz>
+	id <S289054AbSAGAVv>; Sun, 6 Jan 2002 19:21:51 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:37535
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289053AbSAGAVp>; Sun, 6 Jan 2002 19:21:45 -0500
+Date: Sun, 6 Jan 2002 19:07:43 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: CML@-2.0.3
+Message-ID: <20020106190743.A27598@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020106231940.F531@sunsite.ms.mff.cuni.cz>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 06, 2002 at 11:19:40PM +0100, Jakub Jelinek wrote:
-> On Mon, Jan 07, 2002 at 08:59:47AM +1100, Paul Mackerras wrote:
-> > Gabriel Dos Reis writes:
-> > 
-> > > Personnally, I don't have any sentiment against the assembler
-> > > solution.  Dewar said it was unnecessarily un-portable, but that the
-> > > construct by itself *is* already unportable. 
-> > 
-> > I assume that what we're talking about is using an asm statement like:
-> > 
-> > 	asm("" : "=r" (x) : "0" (y));
-> > 
-> > to make the compiler treat x as a pointer that it knows nothing about,
-> > given a pointer y that the compiler does know something about.  For
-> > example, y might be (char *)((unsigned long)"foo" + offset).
-> > 
-> > My main problem with this is that it doesn't actually solve the
-> > problem AFAICS.  Dereferencing x is still undefined according to the
-> > rules in the gcc manual.
-> > 
-> > Thus, although this would make the problems go away at the moment,
-> > they will come back at some time in the future, e.g. when gcc learns
-> > to analyse asm statements and realises that the asm is just doing
-> > x = y.  I would prefer a solution that will last, rather than one
-> > which relies on details of the current gcc implementation.
-> 
-> Even if gcc learned to analyze asm statements (and use it in something other
-> than scheduling), I'm sure this wouldn't be optimized away exactly because
-> this construct is used by various projects exactly for this purpose (make
-> gcc think it can have any value allowed for the type in question).
 
-Yes, but there's no gaurentee of that.  It'd probably break a few things
-if they did, but there's nothing stopping them from doing it.
+Release 2.0.3: Sun Jan  6 19:04:28 EST 2002
+	* Massive autoprobe rules update by Giacomo.
+	* Vital symbols (those that are critical, like disk drivers for 
+	  potential root devices) are now forced to Y when the autoconfigurator
+	  finds their hardware.
 
+The autoconfigurator is much snmarter now, but running a manual
+configure afterwards is recommended.
+
+This release also fixes a bug in field entry of hexadecimal symbol values.
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+"Since there is no such entity as 'the public,' since the public is merely a
+number of individuals, the idea that 'the public interest' supersedes private
+interests and rights can have but one meaning: that the interests and rights of
+some individuals take precedence over the interests and rights of others."
+	-- Ayn Rand

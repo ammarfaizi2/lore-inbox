@@ -1,48 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130866AbQLaUUt>; Sun, 31 Dec 2000 15:20:49 -0500
+	id <S130916AbQLaU4C>; Sun, 31 Dec 2000 15:56:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130895AbQLaUU3>; Sun, 31 Dec 2000 15:20:29 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:6155 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130866AbQLaUUV>;
-	Sun, 31 Dec 2000 15:20:21 -0500
-Date: Sun, 31 Dec 2000 20:49:53 +0100
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: test13-pre5
-Message-ID: <20001231204953.A25617@gruyere.muc.suse.de>
-In-Reply-To: <20001231182127.A24348@gruyere.muc.suse.de> <Pine.LNX.4.10.10012310924500.4029-100000@penguin.transmeta.com> <20001231200741.F28963@mea-ext.zmailer.org> <92o0l7$h5v$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <92o0l7$h5v$1@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Dec 31, 2000 at 11:15:51AM -0800
+	id <S130895AbQLaUzm>; Sun, 31 Dec 2000 15:55:42 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:2058 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130882AbQLaUzf>; Sun, 31 Dec 2000 15:55:35 -0500
+Date: Sun, 31 Dec 2000 12:24:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Happy new year^H^H^H^Hkernel..
+Message-ID: <Pine.LNX.4.10.10012311205020.1210-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 31, 2000 at 11:15:51AM -0800, Linus Torvalds wrote:
-> In article <20001231200741.F28963@mea-ext.zmailer.org>,
-> Matti Aarnio  <matti.aarnio@zmailer.org> wrote:
-> >
-> >	Actually nothing SMP specific in that problem sphere.
-> >	Alpha has  load-locked/store-conditional  pair for
-> >	this type of memory accesses to automatically detect,
-> >	and (conditionally) restart the operation - to form
-> >	classical  ``locked-read-modify-write'' operations.
-> 
-> Sure, we could make the older alphas use ldl_l stl_c for byte accesses,
-> but if you thought byte accesses on those machines were kind-of slow
-> before, just WAIT until that happens.
 
-The older Alphas would just typedef x8/x16 (or granular_u8, granular_u16
-or whatever it is called) to u32 and be the same as today. Just most
-other boxes would benefit.
+Ok. I didn't make 2.4.0 in 2000. Tough. I tried, but we had some
+last-minute stuff that needed fixing (ie the dirty page lists etc), and
+the best I can do is make a prerelease.
 
-This actually all assumes that gcc really uses the byte instructions
-for byte stores in structures, which is to be determined.
+There's a 2.4.0-prerelease out there, and this is basically it. I want
+people to test it for a while, and I want to give other architectures the
+chance to catch up with some of the changes, but read my lips: no more
+recounts. There is no "prerelease1", to become "prerelease2" and so on.
 
--Andi
+One thing other architectures will want to catch up with is the changes to
+handle 2GHz+ machines, which due to overflow issues caused "loops_per_sec"
+to become "loops_per_jiffy". And some architectures have not had much
+chance to synchronize with me due to other fires to put out.
+
+Give it your worst. After you recover from being hung-over, of course.
+
+			Linus
+
+-----
+prerelease:
+   - Alan Cox: more synchronizations
+   - Manfred Spraul: ptrace/suid-exec race fix
+
+ - pre7:
+   - x86 LDT handling fixes: revert some cleanups (the LDT really
+     doesn't act like a TLB context)
+   - Richard Henderson: alpha update (working memmove() from Ivan
+     Kokshaysky etc)
+   - Manfred: winbond-840.c net driver update (fix oops on module unload etc)
+   - Alan Cox: more synchronizations (with some fixes from Andrew Morton)
+
+ - pre6:
+   - Marc Joosen: BIOS int15/e820 memory query: don't assume %edx
+     unchanged by the BIOS. Fixes at least some IBM ThinkPads.
+   - Alan Cox: synchronize
+   - Marcelo Tosatti & me: properly sync dirty pages
+   - Andreas Dilger: proper ext2 compat flag checking
+
+ - pre5:
+   - NIIBE Yutaka: SuperH update
+   - Geert Uytterhoeven: m68k update
+   - David Miller: TCP RTO calc fix, UDP multicast fix etc
+   - Duncan Laurie: ServerWorks PIRQ routing definition.
+   - mm PageDirty cleanups, added sanity checks, and don't lose the bit. 
+
+ - pre4:
+   - Christoph Rohland: shmfs cleanup
+   - Nicolas Pitre: don't forget loop.c flags
+   - Geert Uytterhoeven: new-style m68k Makefiles
+   - Neil Brown: knfsd cleanups, raid5 re-org
+   - Andrea Arkangeli: update to LVM-0.9
+   - LC Chang: sis900 driver doc update
+   - David Miller: netfilter oops fix
+   - Andrew Grover: acpi update
+
+ - pre3:
+   - Christian Jullien: smc9194: proper dev_kfree_skb_irq
+   - Cort Dougan: new-style PowerPC Makefiles
+   - Andrew Morton, Petr Vandrovec: fix run_task_queue
+   - Christoph Rohland: shmfs for shared memory handling
+
+ - pre2:
+   - Kai Germaschewski: ISDN update (including Makefiles)
+   - Jens Axboe: cdrom updates
+   - Petr Vandrovec; Matrox G450 support
+   - Bill Nottingham: fix FAT32 filesystems on 64-bit platforms
+   - David Miller: sparc (and other) Makefile fixup
+   - Andrea Arkangeli: alpha SMP TLB context fix (and cleanups)
+   - Niels Kristian Bech Jensen: checkconfig, USB warnings
+   - Andrew Grover: large ACPI update
+
+ - pre1:
+   - me: drop support for old-style Makefiles entirely. Big.
+   - me: check b_end_io at the IO submission path
+   - me: fix "ptep_mkdirty()" (so that swapoff() works correctly)
+   - fix fault case in copy_from_user() with a constant size, where
+     ((size & 3) == 3)
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,34 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277654AbRJRJ4d>; Thu, 18 Oct 2001 05:56:33 -0400
+	id <S277653AbRJRKAe>; Thu, 18 Oct 2001 06:00:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277655AbRJRJ4X>; Thu, 18 Oct 2001 05:56:23 -0400
-Received: from gecius-0.dsl.speakeasy.net ([216.254.67.146]:63990 "EHLO
-	maniac.gecius.de") by vger.kernel.org with ESMTP id <S277654AbRJRJ4N>;
-	Thu, 18 Oct 2001 05:56:13 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: /proc/interrupts on 2.4.13-1
-In-Reply-To: <Pine.LNX.4.10.10110180004040.31416-100000@coffee.psychology.mcmaster.ca>
-From: Jens Gecius <jens@gecius.de>
-Date: 18 Oct 2001 05:56:47 -0400
-In-Reply-To: <Pine.LNX.4.10.10110180004040.31416-100000@coffee.psychology.mcmaster.ca> (Mark Hahn's message of "Thu, 18 Oct 2001 00:06:22 -0400 (EDT)")
-Message-ID: <87hesxb7a8.fsf@maniac.gecius.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Artificial Intelligence)
+	id <S277649AbRJRKAZ>; Thu, 18 Oct 2001 06:00:25 -0400
+Received: from celebris.bdk.pl ([212.182.99.100]:39694 "EHLO celebris.bdk.pl")
+	by vger.kernel.org with ESMTP id <S277636AbRJRKAO>;
+	Thu, 18 Oct 2001 06:00:14 -0400
+Date: Thu, 18 Oct 2001 11:55:41 +0200 (CEST)
+From: Wojtek Pilorz <wpilorz@bdk.pl>
+To: Nick Craig-Wood <ncw@axis.demon.co.uk>
+cc: linux-kernel@vger.kernel.org, Paul Gortmaker <p_gortmaker@yahoo.com>,
+        vonbrand@sleipnir.valparaiso.cl, willy tarreau <wtarreau@yahoo.fr>
+Subject: Re: Making diff(1) of linux kernels faster 
+In-Reply-To: <200110180802.f9I82Mm21621@irishsea.craig-wood.com>
+Message-ID: <Pine.LNX.4.21.0110181141040.9091-100000@celebris.bdk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Mark Hahn <hahn@physics.mcmaster.ca> writes:
+On Thu, 18 Oct 2001, Nick Craig-Wood wrote:
 
-> > MIS:       3690
-> > 
-> > Especially the last makes me curious: does MIS mean "missed"? And:
+> Date: Thu, 18 Oct 2001 09:02:22 +0100
+> From: Nick Craig-Wood <ncw@axis.demon.co.uk>
+> To: linux-kernel@vger.kernel.org
+> Cc: Paul Gortmaker <p_gortmaker@yahoo.com>, vonbrand@sleipnir.valparaiso.cl,
+>      willy tarreau <wtarreau@yahoo.fr>
+> Subject: Re: Making diff(1) of linux kernels faster 
 > 
-> no.  see the excellent comment in arch/i386/kernel/io_apic.c near irq_mis_count
+> Horst von Brand wrote:
+> > =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr> said:
+> > > Be very careful not to modify a multi-linked file, or
+> > > it will be damaged in all trees and won't be seen by
+To be sure it is not possible to modify original tree files, I do
+chown -R root.root original_tree
 
-That IS an excellent comment. Thanks for pointing it out.
+before copying it (via cp -lR) to new one, which will be modified with
+whatever tools by me, logged in as a regular user. For those having root
+access to a box this might be a useful way of preventing accidents ...
+(this of course also assumes sane file permissions)
+[...]
+> > > diff. your editor must unlink before saving.
+> > 
+> > Most don't. ed(1), vi(1) and emacs(1) are careful tro write to the very
+> > same file. jed(1) is the only outlier I'm aware of...
+> 
+> emacs does mv file file~ before saving file so the edited file will
+> not be linked byt the backup file will be.  You can stop it doing this
+> by setting backup-by-copying-when-linked.
+> 
+Best regards,
 
--- 
-Tschoe,                http://gecius.de/gpg-key.txt - Fingerprint:
- Jens                  1AAB 67A2 1068 77CA 6B0A  41A4 18D4 A89B 28D0 F097
+Wojtek
+
+--------------------
+Wojtek Pilorz
+Wojtek.Pilorz@bdk.pl
+
+

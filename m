@@ -1,65 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVALUCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVALUBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbVALUCM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 15:02:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVALUCL
+	id S261337AbVALUBn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 15:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVALUAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 15:02:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36994 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261349AbVALUA5 (ORCPT
+	Wed, 12 Jan 2005 15:00:04 -0500
+Received: from lucidpixels.com ([66.45.37.187]:46210 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S261342AbVALTwP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 15:00:57 -0500
-Date: Wed, 12 Jan 2005 12:00:52 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-In-Reply-To: <20050112161227.GF32024@logos.cnet>
-Message-ID: <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
-References: <20050112094807.K24171@build.pdx.osdl.net>
- <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com>
- <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet>
+	Wed, 12 Jan 2005 14:52:15 -0500
+Date: Wed, 12 Jan 2005 14:52:14 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: Question regarding ERR in /proc/interrupts.
+In-Reply-To: <41E57B0C.30905@osdl.org>
+Message-ID: <Pine.LNX.4.61.0501121447040.11524@p500>
+References: <Pine.LNX.4.61.0501121410360.11524@p500> <41E57B0C.30905@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The kernel is 2.6.10.
+
+The patch would effectively increment the ERR counter for each ERR 
+correct?
+
+Is there anyway to trace the path or cause of an ERR?
+
+For instance, I know I can make one occur like this:
+
+I have 3 promise boards in a box, when I am doing multiple transfers 
+across 2-3 drives and doing an NFS transfer, I may hear the IBM or Hitachi 
+disk click and the ERR will incremement or just a long pause.  Also, I 
+have used the IBM drive for 4-5+ yrs, never had any data corruption.  The 
+disks themselves are not bad.  It would just be nice to understand why 
+such spurious interrupts occur.
+
+Dell Setup:
+
+  PCI SLOT 1 = PCI1
+
+  The PCI slots are on a riser board (Dell GX1p)
+
+  PCI1 = Closest to motherboard.
+
+  PCI1 = Intel GigE Nic
+  PCI2 = Promise ATA/100
+  PCI3 = Maxtor Promise ATA/133
+  PCI4 = Maxtor Promise ATA/133
+  PCI5 = 4 Port 10/100 NIC
+  ISA1 = Empty
+  ISA2 = Empty
+  ISA3 = Empty
+
+  Note: Nothing is attached to the system's IDE ports, they are disabled.
+        I also turned off ACPI/stuff I do not use.
 
 
-On Wed, 12 Jan 2005, Marcelo Tosatti wrote:
-> 
-> How you feel about having short fixed time embargo's (lets say, 3 or 4 days) ? 
 
-Please realize that I don't have any problem with a short-term embargo per
-se, what I have problems with is the _politics_ that it causes.  For
-example, I do _not_ want this to become a
+  On Wed, 12 Jan 2005, Randy.Dunlap 
+wrote:
 
- "vendor-sec got the information five weeks ago, and decided to embargo
-  until day X, and then because they knew of the 4-day policy of the
-  kernel security list, they released it to the kernel security list on 
-  day X-4"
-
-See? That is playing politics with a security list. That's the part I 
-don't want to have anything to do with. If somebody did that to me, I'd 
-feel pissed off like hell, and I'd say "screw them".
-
-But in the absense of politics, I'd _happily_ have a self-imposed embargo
-that is limited to some reasonable timeframe (and "reasonable" is
-definitely counted in days, not weeks. And absolutely _not_ in months,
-like apparently sometimes happens on vendor-sec).
-
-So if the embargo time starts ticking from _first_ report, I'd personally
-be perfectly happy with a policy of, say "5 working days" (aka one week), 
-or until it was made public somewhere else.
-
-IOW, if it was released on vendor-sec first, vendor-sec could _not_ then
-try to time the technical list (unless they do so in a very timely manner
-indeed).
-
-I'm not saying that we'd _have_ to go public after five days. I'm saying
-that after that, there would be nothing holding it back (but maybe the
-technical discussion on how to _fix_ it is still on-going, and that might
-make people just not announce it until they're ready).
-
-		Linus
+> Justin Piszcz wrote:
+>> Is there anyway to log each ERR to a file or way to find out what caused 
+>> each ERR?
+>> 
+>> For example, I know this is the cause of a few of them:
+>> spurious 8259A interrupt: IRQ7.
+>> 
+>> But not all 20, is there any available option to do this?
+>
+> Are you sure about that?
+>
+> MOTD:  what kernel version?
+>
+> 2.6.10 (and probably all) prints such message one time for each
+> "spurious" IRQ, sets a flag for that IRQ, and then doesn't
+> print such message for that IRQ any more (i.e., so that
+> log isn't spammed).  Each distinct spurious IRQ should be
+> logged (one time).  If you want more, you'll need to patch
+> a source file and rebuild the kernel (attached, for i8259
+> PIC, not for APIC, since that's what you seem to have).
+>
+>> $ cat /proc/interrupts
+>>            CPU0
+>>   0:  887759057          XT-PIC  timer
+>>   1:       3138          XT-PIC  i8042
+>>   2:          0          XT-PIC  cascade
+>>   5:       5811          XT-PIC  Crystal audio controller
+>>   9:  265081861          XT-PIC  ide4, eth1, eth2
+>>  10:    9087912          XT-PIC  ide6, ide7
+>>  11:     837707          XT-PIC  ide2, ide3
+>>  12:      13854          XT-PIC  i8042
+>>  14:   63373075          XT-PIC  eth0
+>> NMI:          0
+>> ERR:         20
+>
+> -- 
+> ~Randy
+>

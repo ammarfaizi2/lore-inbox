@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272224AbTHIBDg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 21:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272167AbTHIBDX
+	id S272161AbTHIA6o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 20:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272153AbTHIA51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 21:03:23 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:24080
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S272163AbTHIBDS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 21:03:18 -0400
-Date: Fri, 8 Aug 2003 18:03:15 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2-mm1
-Message-ID: <20030809010315.GB1027@matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20030727233716.56fb68d2.akpm@osdl.org> <20030809002817.GA1027@matchmail.com>
+	Fri, 8 Aug 2003 20:57:27 -0400
+Received: from mail.kroah.org ([65.200.24.183]:52415 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272152AbTHIAcI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 20:32:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10603869391598@kroah.com>
+Subject: Re: [PATCH] More i2c driver changes 2.6.0-test2
+In-Reply-To: <106038693850@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 8 Aug 2003 16:55:39 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030809002817.GA1027@matchmail.com>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[killing linux-mm in CC]
+ChangeSet 1.1126, 2003/08/08 16:33:00-07:00, wodecki@gmx.de
 
-On Fri, Aug 08, 2003 at 05:28:17PM -0700, Mike Fedyk wrote:
-> Though it was interesting that there weren't any errors reported from the
-> 2.6 nfs server.
+[PATCH] I2C: i2c sysfs rant
 
-Ok, the 2.6 client is having trouble with the 2.6 server also, so that
-wasn't anything special then.
+On Wed, Aug 06, 2003 at 04:22:44PM -0700, Greg KH wrote:
+> On Wed, Aug 06, 2003 at 09:11:45PM +0200, Wiktor Wodecki wrote:
+> > Hello folks,
+> >
+> > I just saw that I2C provides "/sys/bus/i2c/drivers/dev\ driver" in
+> > 2.6.0-test2. It would be nice if you'd consider renaming this to
+> > dev_driver, to avoid un-neccessary quoting in scripts.
+> >
+> > Thank You :-)
+>
+> Patches are always gladly accepted :)
 
-I have some tcpdump traces from one of the nfs servers that shows the pauses
-that are happening in the transmission if anyone would like to take a look.
+here you go
 
-I'm not sure what else I can do to find out why it is pausing.
 
-Any ideas?
+ drivers/i2c/i2c-dev.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+--- a/drivers/i2c/i2c-dev.c	Fri Aug  8 16:47:15 2003
++++ b/drivers/i2c/i2c-dev.c	Fri Aug  8 16:47:15 2003
+@@ -474,7 +474,7 @@
+ 
+ static struct i2c_driver i2cdev_driver = {
+ 	.owner		= THIS_MODULE,
+-	.name		= "dev driver",
++	.name		= "dev_driver",
+ 	.id		= I2C_DRIVERID_I2CDEV,
+ 	.flags		= I2C_DF_NOTIFY,
+ 	.attach_adapter	= i2cdev_attach_adapter,
+

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267278AbUI0TNO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267251AbUI0TPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267278AbUI0TNO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 15:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUI0TMz
+	id S267251AbUI0TPa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 15:15:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267283AbUI0TNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 15:12:55 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38325 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267251AbUI0TLf (ORCPT
+	Mon, 27 Sep 2004 15:13:46 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:55477 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267251AbUI0TNE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 15:11:35 -0400
-Date: Mon, 27 Sep 2004 12:10:58 -0700 (PDT)
+	Mon, 27 Sep 2004 15:13:04 -0400
+Date: Mon, 27 Sep 2004 12:12:23 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 X-X-Sender: clameter@schroedinger.engr.sgi.com
 To: akpm@osdl.org
 cc: Andy Lutomirski <luto@myrealbox.com>, ak@suse.de, nickpiggin@yahoo.com.au,
        linux-kernel@vger.kernel.org
-Subject: page fault scalability patch V9: [4/7] generally available cmpxchg
- on i386
+Subject: page fault scalability patch V9: [6/7] atomic pte operations for
+ x86_64
 In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA312902CD3282@mtv-atc-605e--n.corp.sgi.com>
-Message-ID: <Pine.LNX.4.58.0409271210160.31769@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0409271211490.31769@schroedinger.engr.sgi.com>
 References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
  <Pine.LNX.4.58.0409201348070.4628@schroedinger.engr.sgi.com>
  <20040920205752.GH4242@wotan.suse.de> <200409211841.25507.vda@port.imtp.ilyichevsk.odessa.ua>
@@ -30,164 +30,56 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Changelog
-	* Make cmpxchg and cmpxchg8b generally available on i386.
-	* Provide emulation of cmpxchg suitable for UP if build and
-	  run on 386.
-	* Provide emulation of cmpxchg8b suitable for UP if build
-	  and run on 386 or 486.
+	* Provide atomic pte operations for x86_64
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.9-rc2/include/asm-i386/system.h
+Index: linus/include/asm-x86_64/pgalloc.h
 ===================================================================
---- linux-2.6.9-rc2.orig/include/asm-i386/system.h	2004-09-12 22:31:26.000000000 -0700
-+++ linux-2.6.9-rc2/include/asm-i386/system.h	2004-09-21 13:37:06.000000000 -0700
-@@ -240,7 +240,24 @@
-  */
+--- linus.orig/include/asm-x86_64/pgalloc.h	2004-09-18 14:25:23.000000000 -0700
++++ linus/include/asm-x86_64/pgalloc.h	2004-09-18 14:25:23.000000000 -0700
+@@ -7,16 +7,26 @@
+ #include <linux/threads.h>
+ #include <linux/mm.h>
 
- #ifdef CONFIG_X86_CMPXCHG
++#define PMD_NONE 0
++#define PGD_NONE 0
 +
- #define __HAVE_ARCH_CMPXCHG 1
-+#define cmpxchg(ptr,o,n)\
-+	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
-+					(unsigned long)(n),sizeof(*(ptr))))
-+
-+#else
-+
-+/*
-+ * Building a kernel capable running on 80386. It may be necessary to
-+ * simulate the cmpxchg on the 80386 CPU.
-+ */
-+
-+extern unsigned long cmpxchg_386(void *, unsigned long, unsigned long);
-+
-+#define cmpxchg(ptr,o,n)\
-+	((__typeof__(*(ptr)))cmpxchg_386((ptr),(unsigned long)(o),\
-+					(unsigned long)(n),sizeof(*(ptr))))
- #endif
+ #define pmd_populate_kernel(mm, pmd, pte) \
+ 		set_pmd(pmd, __pmd(_PAGE_TABLE | __pa(pte)))
+ #define pgd_populate(mm, pgd, pmd) \
+ 		set_pgd(pgd, __pgd(_PAGE_TABLE | __pa(pmd)))
++#define pgd_test_and_populate(mm, pgd, pmd) \
++		(cmpxchg(pgd, PGD_NONE, _PAGE_TABLE | __pa(pmd)) == PGD_NONE)
 
- static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
-@@ -270,10 +287,32 @@
- 	return old;
+ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
+ {
+ 	set_pmd(pmd, __pmd(_PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)));
  }
 
--#define cmpxchg(ptr,o,n)\
--	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
--					(unsigned long)(n),sizeof(*(ptr))))
--
-+static inline unsigned long long __cmpxchg8b(volatile unsigned long long *ptr,
-+	       unsigned long long old, unsigned long long newv)
++static inline int pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
 +{
-+	unsigned long long prev;
-+	 __asm__ __volatile__(
-+	LOCK_PREFIX "cmpxchg8b %4\n"
-+	: "=A" (prev)
-+	: "0" (old), "c" ((unsigned long)(newv >> 32)),
-+       		"b" ((unsigned long)(newv & 0xffffffffLL)), "m" (ptr)
-+	: "memory");
-+	return prev ;
++	return cmpxchg(pmd, PMD_NONE, _PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)) == PMD_NONE;
 +}
 +
-+#ifdef CONFIG_X86_CMPXCHG8B
-+#define cmpxchg8b __cmpxchg8b
-+#else
-+/*
-+ * Building a kernel capable of running on 80486 and 80386. Both
-+ * do not support cmpxchg8b. Call a function that emulates the
-+ * instruction if necessary.
-+ */
-+extern unsigned long long cmpxchg_486(unsigned long long *,
-+				unsigned long long, unsigned long long);
-+#define cmpxchg8b cmpxchg8b_486
-+#endif
-+
- #ifdef __KERNEL__
- struct alt_instr {
- 	__u8 *instr; 		/* original instruction */
-Index: linux-2.6.9-rc2/arch/i386/Kconfig
+ extern __inline__ pmd_t *get_pmd(void)
+ {
+ 	return (pmd_t *)get_zeroed_page(GFP_KERNEL);
+Index: linus/include/asm-x86_64/pgtable.h
 ===================================================================
---- linux-2.6.9-rc2.orig/arch/i386/Kconfig	2004-09-21 13:12:25.000000000 -0700
-+++ linux-2.6.9-rc2/arch/i386/Kconfig	2004-09-21 13:32:25.000000000 -0700
-@@ -345,6 +345,11 @@
- 	depends on !M386
- 	default y
+--- linus.orig/include/asm-x86_64/pgtable.h	2004-09-18 14:25:23.000000000 -0700
++++ linus/include/asm-x86_64/pgtable.h	2004-09-18 14:25:23.000000000 -0700
+@@ -436,6 +436,11 @@
+ #define	kc_offset_to_vaddr(o) \
+    (((o) & (1UL << (__VIRTUAL_MASK_SHIFT-1))) ? ((o) | (~__VIRTUAL_MASK)) : (o))
 
-+config X86_CMPXCHG8B
-+	bool
-+	depends on !M386 && !M486
-+	default y
 +
- config X86_XADD
- 	bool
- 	depends on !M386
-Index: linux-2.6.9-rc2/arch/i386/kernel/cpu/intel.c
-===================================================================
---- linux-2.6.9-rc2.orig/arch/i386/kernel/cpu/intel.c	2004-09-12 22:31:59.000000000 -0700
-+++ linux-2.6.9-rc2/arch/i386/kernel/cpu/intel.c	2004-09-21 13:32:25.000000000 -0700
-@@ -415,5 +415,65 @@
- 	return 0;
- }
-
-+#ifndef CONFIG_X86_CMPXCHG
-+unsigned long cmpxchg_386(volatile void *ptr, unsigned long old,
-+				      unsigned long new, int size)
-+{
-+	unsigned long prev;
-+	unsigned long flags;
-+	/*
-+	 * Check if the kernel was compiled for an old cpu but the
-+	 * currently running cpu can do cmpxchg after all
-+	 * All CPUs except 386 support CMPXCHG
-+	 */
-+	if (cpu_data->x86 > 3) return __cmpxchg(ptr, old, new, size);
++#define ptep_xchg(mm,addr,xp,newval)	__pte(xchg(&(xp)->pte, pte_val(newval))
++#define ptep_cmpxchg(mm,addr,xp,newval,oldval) (cmpxchg(&(xp)->pte, pte_val(newval), pte_val(oldval) == pte_val(oldval))
++#define __HAVE_ARCH_ATOMIC_TABLE_OPS
 +
-+	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
-+	local_irq_save(flags);
-+	switch (size) {
-+	case 1:
-+		prev = * (u8 *)ptr;
-+		if (prev == old) *(u8 *)ptr = new;
-+		break;
-+	case 2:
-+		prev = * (u16 *)ptr;
-+		if (prev == old) *(u16 *)ptr = new;
-+	case 4:
-+		prev = *(u32 *)ptr;
-+		if (prev == old) *(u32 *)ptr = new;
-+		break;
-+	}
-+	local_irq_restore(flags);
-+	return prev;
-+}
-+
-+EXPORT_SYMBOL(cmpxchg_386);
-+#endif
-+
-+#ifndef CONFIG_X86_CMPXCHG8B
-+unsigned long long cmpxchg8b_486(unsigned long long *ptr,
-+	       unsigned long long old, unsigned long long newv)
-+{
-+	unsigned long long prev;
-+	unsigned long flags;
-+
-+	/*
-+	 * Check if the kernel was compiled for an old cpu but
-+	 * we are running really on a cpu capable of cmpxchg8b
-+	 */
-+
-+	if (cpu_has(cpu_data, X86_FEATURE_CX8)) return __cmpxchg8b(ptr, old newv);
-+
-+	/* Poor mans cmpxchg8b for 386 and 486. Not suitable for SMP */
-+	local_irq_save(flags);
-+	prev = *ptr;
-+	if (prev == old) *ptr = newv;
-+	local_irq_restore(flags);
-+	return prev;
-+}
-+
-+EXPORT_SYMBOL(cmpxchg8b_486);
-+#endif
-+
- // arch_initcall(intel_cpu_init);
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
+ #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
 
 

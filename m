@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272644AbTHKOqh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 10:46:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272692AbTHKOqh
+	id S272587AbTHKOsm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 10:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272628AbTHKOrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 10:46:37 -0400
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:49141 "EHLO
-	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S272644AbTHKOma
+	Mon, 11 Aug 2003 10:47:42 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:1735
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S272587AbTHKOre
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 10:42:30 -0400
-Date: Mon, 11 Aug 2003 16:42:28 +0200
-From: Damian Kolkowski <deimos@deimos.one.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] - APCI lacks DRI performance.
-Message-ID: <20030811144228.GA1202@deimos.one.pl>
+	Mon, 11 Aug 2003 10:47:34 -0400
+Date: Mon, 11 Aug 2003 10:47:32 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: davej@redhat.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CCISS 64bit fixup.
+Message-ID: <20030811144732.GB32180@gtf.org>
+References: <E19mCuO-0003dU-00@tetrachloride>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
-X-Age: 23 (1980.09.27 - libra)
-X-Girl: one will be enough!
-X-IM: JID:dEiMoS_DK@jid.deimos.one.pl ICQ:59367544 GG:88988
-X-Operating-System: Slackware GNU/Linux, kernel 2.4.22-rc2, up 3 min
+In-Reply-To: <E19mCuO-0003dU-00@tetrachloride>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Aug 11, 2003 at 02:40:24PM +0100, davej@redhat.com wrote:
+> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/block/cciss.c linux-2.5/drivers/block/cciss.c
+> --- bk-linus/drivers/block/cciss.c	2003-08-07 13:51:31.000000000 +0100
+> +++ linux-2.5/drivers/block/cciss.c	2003-08-07 14:13:28.000000000 +0100
+> @@ -2457,7 +2457,7 @@ static int __init cciss_init_one(struct 
+>  	hba[i]->pdev = pdev;
+>  
+>  	/* configure PCI DMA stuff */
+> -	if (!pci_set_dma_mask(pdev, (u64) 0xffffffffffffffff))
+> +	if (!pci_set_dma_mask(pdev, (u64) 0xffffffffffffffffULL))
 
-Using drivers from dri.sf.net for my rv250if (radeon-9000) is good idea, but
-when I use APIC, the glxgears shows me _200 fps_ instead _1265 fps_ without
-APIC in kernel.
+Remove the cast :)
 
-Some ideas..?
+	Jeff
 
-Take care.
 
--- 
-# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+

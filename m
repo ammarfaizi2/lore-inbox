@@ -1,81 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262736AbTIHQnw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 12:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbTIHQnw
+	id S262635AbTIHQqe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 12:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262734AbTIHQqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 12:43:52 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:20362 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S262736AbTIHQnu
+	Mon, 8 Sep 2003 12:46:33 -0400
+Received: from oasis.frogfoot.net ([168.210.54.51]:37061 "HELO
+	oasis.frogfoot.net") by vger.kernel.org with SMTP id S262635AbTIHQqb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 12:43:50 -0400
-Message-ID: <3F5CB218.5030203@softhome.net>
-Date: Mon, 08 Sep 2003 18:45:12 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: nasm over gas?
-References: <rZQN.83u.21@gated-at.bofh.it> <saVL.7lR.1@gated-at.bofh.it> <soFo.16a.1@gated-at.bofh.it> <ssJa.6M6.25@gated-at.bofh.it> <tcVB.rs.3@gated-at.bofh.it> <3F5C7009.4030004@softhome.net> <20030908161729.GB26829@mail.jlokier.co.uk>
-In-Reply-To: <20030908161729.GB26829@mail.jlokier.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Sep 2003 12:46:31 -0400
+Date: Mon, 8 Sep 2003 18:46:08 +0200
+From: Abraham van der Merwe <abz@frogfoot.net>
+To: Fedor Karpelevitch <fedor@karpelevitch.net>
+Cc: Linux Kernel Discussions <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: possibly bug in 8139cp? (WAS Re: BUG: 2.4.23-pre3 + ifconfig)
+Message-ID: <20030908164608.GA1936@oasis.frogfoot.net>
+Mail-Followup-To: Fedor Karpelevitch <fedor@karpelevitch.net>,
+	Linux Kernel Discussions <linux-kernel@vger.kernel.org>,
+	Jeff Garzik <jgarzik@pobox.com>
+References: <20030904180554.GA21536@oasis.frogfoot.net> <200309071217.03470.fedor@karpelevitch.net> <20030907191552.GA26123@oasis.frogfoot.net> <200309080943.26254.fedor@karpelevitch.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309080943.26254.fedor@karpelevitch.net>
+User-Agent: Mutt/1.3.28i
+Organization: Frogfoot Networks CC
+X-Operating-System: Debian GNU/Linux oasis 2.4.21 (i686)
+X-GPG-Public-Key: http://oasis.frogfoot.net/keys/
+X-Uptime: 18:41:20 up 19 days, 23:56, 15 users, load average: 0.00, 0.01, 0.00
+X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> Ihar 'Philips' Filipau wrote:
-> 
->>  It will depend on arch CPU only in case if you have unlimited i$ size.
->>  Servers with 8MB of cache - yes it is faster.
->>  Celeron with 128k of cache - +4bytes == higher probability of i$ miss 
->>== lower performance.
-> 
-> Higher probability != optimal performance.
-> 
-> It depends on your execution context.  If it's part of a tight loop
-> which is executed often, then saving a cycle in the loop gains more
-> performance than saving icache, even on a 128k Celeron.
-> 
+Hi Fedor                                         >@2003.09.08_18:43:25_+0200
 
-   You think as system-programmer.
-   Every bit of i$ waste - hit user space applications too.
-   128k of $ - is for every app.
+Not sure if you've stumbled onto the same bug as me.
 
-   If you gained one cycle by polluting one more cache line - do not 
-forget that this cache line probably contained some info, which was able 
-to avoid cache miss for another application. So you gained cycle here - 
-and lost it immediately in another app. Not good.
+My server have 2 Netgear cards and I'm using the National Semiconductor
+dp8381x driver included with 2.4.23-pre3.
 
-   If you can improve performance by NOT polluting cache - it would be 
-another story :-)))
+Also, my system doesn't lock up after `ifconfig lo down', ifconfig just
+hangs and becomes unkillable and I can't reboot the machine, use ifconfig
+anymore, etc.
 
-> The execution context can depend on the input to the program, in which
-> case the faster of the two code sequences can depend on the program's
-> input too.  Then, for optimal performance, you need to profile the
-> "expected" inputs.
+> Actually for me this happens when I do "pump -i eth0"
+> The system is frozen dead (even SysRq-B does not work)
+> That's when I am using 8139cp driver (no problem in 2.4.22)
+> I tried using 8139too (I believe it is supposed to work, right?) - I 
+> do not get this lockup, but instead it starts printing "too much work 
+> at interrupt " messages all the time. It could be connected to the 
+> latest changes in 8139 drivers...
 > 
+> Fedor
 > 
-> You obviously have not read the GAS documentation.
+> On ?????????????????????? 07 ???????????????? 2003 12:15 pm, Abraham van der Merwe wrote:
+> > Hi Fedor                                        
+> > >@2003.09.07_21:17:02_+0200
+> >
+> > > > I just installed 2.4.23-pre3 on one of our servers. If I
+> > > > up/down the loopback device multiple times ifconfig hangs on
+> > > > the second down (as in unkillable) and afterwards ifconfig
+> > > > stops functioning and I can't reboot the machine, etc.
+> > > >
+> > > > No oopses, kernel panics, messages or anything. The system is
+> > > > still alive, it is just as if some system call is hung.
+> > > >
+> > > > If anyone is interested, I can send my .config or any other
+> > > > relevant details.
+> > >
+> > > I have the same problem. Did you find any solution?
+> >
+> > No :P Not even sure if anyone on lkml noticed my bug report.
 > 
-> It has quite a good macro facility built in.
-> 
-
-   Indeed. RTFM quickly shown some good examples.
-
-   But still I never saw this kind of thing being used in kernel. 
-Instead of writing normal asm we have something like i386/mmx.c. And 
-i386/checksum.S not the best sample of asm in kernel too. Sad.
 
 -- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
-   -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-   * Please avoid sending me Word/PowerPoint/Excel attachments.
-   * See http://www.fsf.org/philosophy/no-word-attachments.html
-   -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-    There should be some SCO's source code in Linux -
-       my servers sometimes are crashing.      -- People
+
+Regards
+ Abraham
+
+Moderation in all things.
+		-- Publius Terentius Afer [Terence]
+
+___________________________________________________
+ Abraham vd Merwe - Frogfoot Networks CC
+ 9 Kinnaird Court, 33 Main Street, Newlands, 7700
+ Phone: +27 21 686 1665 Cell: +27 82 565 4451
+ Http: http://www.frogfoot.net/ Email: abz@frogfoot.net
 

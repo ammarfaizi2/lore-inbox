@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbUBNL33 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 06:29:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbUBNL33
+	id S261827AbUBNLv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 06:51:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUBNLv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 06:29:29 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:2067 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261779AbUBNL32
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 06:29:28 -0500
-Date: Sat, 14 Feb 2004 12:42:25 +0100
-To: Christian Borntraeger <kernel@borntraeger.net>
-Cc: Mike Bell <kernel@mikebell.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Message-ID: <20040214114225.GA19349@hh.idb.hist.no>
-References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040213211920.GH14048@kroah.com> <20040214085110.GG5649@tinyvaio.nome.ca> <200402141013.50633.kernel@borntraeger.net>
+	Sat, 14 Feb 2004 06:51:29 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35523 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261827AbUBNLv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 06:51:28 -0500
+Date: Sat, 14 Feb 2004 12:51:23 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Elikster <elik@webspires.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6.2 Kernel Problem
+Message-ID: <20040214115123.GG1308@fs.tum.de>
+References: <20040211061753.GA22167@plexity.net> <Pine.LNX.4.44.0402110729510.2349-100000@notebook.home.mdiehl.de> <20040211111800.A5618@home.com> <882539071.20040211114351@webspires.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200402141013.50633.kernel@borntraeger.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+In-Reply-To: <882539071.20040211114351@webspires.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 14, 2004 at 10:13:50AM +0100, Christian Borntraeger wrote:
-> Mike Bell wrote:
-> > On Fri, Feb 13, 2004 at 01:19:20PM -0800, Greg KH wrote:
-> > > > That's a pretty minor difference, from the kernel's point of view.
-> > > > It's basically putting the same numbers in different fields.
-> > >
-> > > Heh, that's a HUGE difference!
-> >
-> > Only from userspace's point of view. To the kernel, it's basically the
-> > same thing.
-> 
-> No. Giving a major and minor number is simple. 
-> Creating a device node means: you have to define a policy. Now the kernel 
-> has to think about:
-> - user id
-> - group id
-> - access rights
-> - naming
-> 
-> These are the reasons why devfsd was/is necessary for devfs.
-> A Kernel should only enforce a policy, it should not define it.
-> 
-There is one more security-related point:
-We may decide to not make the device node at all, in order
-to prevent use of some dangerous/experimental device or driver.
-We can't do that if the device is auto-created.
+On Wed, Feb 11, 2004 at 11:43:51AM -0700, Elikster wrote:
 
-Root is usually capable of running mknod of course,
-but it can be prevented. For example with a fs that
-starts out rw but is remounted ro with no option for going back.
-Or /dev on cdrom . . .
+> Greetings,
+> 
+>    I noticed two problems that seems to come up after using the 2.6.2 kernel on the production servers.  One is the RPM system. It seems to barf badly due to the db3 vs db4 errors when updating the packages on Redhat 9.0 system.
+>...
 
-Helge Hafting
+This problem and a workaround are listed at
+
+  http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
+
+
+> Best regards,
+>  Elikster                            mailto:elik@webspires.com
+
+cu
+Adrian
+
+BTW: Please tell your mail client about line breaks.
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

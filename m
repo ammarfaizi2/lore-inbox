@@ -1,51 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131244AbRC3Jht>; Fri, 30 Mar 2001 04:37:49 -0500
+	id <S131246AbRC3Jrl>; Fri, 30 Mar 2001 04:47:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131246AbRC3Jhk>; Fri, 30 Mar 2001 04:37:40 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:36418 "EHLO
+	id <S131296AbRC3Jqe>; Fri, 30 Mar 2001 04:46:34 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:35146 "EHLO
 	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S131244AbRC3Jhc>; Fri, 30 Mar 2001 04:37:32 -0500
-Date: Fri, 30 Mar 2001 03:36:40 -0600 (CST)
+	id <S131304AbRC3JqM>; Fri, 30 Mar 2001 04:46:12 -0500
+Date: Fri, 30 Mar 2001 03:45:28 -0600 (CST)
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Tom Leete <tleete@mountain.net>
-cc: Ulrich Drepper <drepper@cygnus.com>, dank@trellisinc.com,
-   linux-kernel@vger.kernel.org, Eli Carter <eli.carter@inet.com>
-Subject: Re: [PATCH] pcnet32 compilation fix for 2.4.3pre6
-In-Reply-To: <3AC3BD64.7702CD7B@mountain.net>
-Message-ID: <Pine.LNX.3.96.1010330033440.8826B-100000@mandrakesoft.mandrakesoft.com>
+To: Amit D Chaudhary <amit@muppetlabs.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory leak in the ramfs file system
+In-Reply-To: <3AC3F91B.4020804@muppetlabs.com>
+Message-ID: <Pine.LNX.3.96.1010330034506.8826F-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Mar 2001, Tom Leete wrote:
-> Ulrich Drepper wrote:
-> > 
-> > dank@trellisinc.com writes:
-> > 
-> > > with the new ansi standard, this use of __inline__ is no longer
-> > > necessary,
-> > 
-> > This is not correct.  Since the semantics of inline in C99 and gcc
-> > differ all code which depends on the gcc semantics should continue to
-> > use __inline__ since this keyword will hopefully forever signal the
-> > gcc semantics.
+On Thu, 29 Mar 2001, Amit D Chaudhary wrote:
+>  >(none):/mnt/ramfs/root# df -h /mnt/ramfs/
+>  >Filesystem            Size  Used Avail Use% Mounted on
+>  >ramfs                    0     0     0   -  /mnt/ramfs
+> I am not sure, how related this is, but we have / on ramfs and using rpm 
+> to install(-iUvh) fails with the mesages, need 12K on /
 
-> Unfortunately, it seems that gcc will define __inline__ as a synonym for
-> inline, whatever inline is currently in use. I asked this on the gcc list a
-> while ago. The archive there should have the replies.
-
-None of this matters :)
-
-The kernel standard is 'static inline', so that is the preferred
-usage in standard kernel code, without overriding reasons.
-
-(also note that it is an outstanding cleanup item to replace
- 'extern [__]inline[__]' with 'static inline', unless there are
- overriding reasons not to do so.)
-
-	Jeff
-
-
+This is normal -- ramfs doesn't do filesystem accounting needed for 'df'.
 

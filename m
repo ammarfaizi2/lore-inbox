@@ -1,36 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269132AbUJFNhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269039AbUJFNjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269132AbUJFNhm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 09:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269157AbUJFNhm
+	id S269039AbUJFNjn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 09:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269153AbUJFNjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 09:37:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32482 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269132AbUJFNhf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 09:37:35 -0400
-Date: Wed, 6 Oct 2004 15:37:13 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 'C' calling convention change.
-Message-ID: <20041006133713.GA4434@devserv.devel.redhat.com>
-References: <Pine.LNX.4.61.0410060816430.3420@chaos.analogic.com> <1097068610.2812.19.camel@laptop.fenrus.com> <Pine.LNX.4.61.0410060932200.13111@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410060932200.13111@chaos.analogic.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 6 Oct 2004 09:39:43 -0400
+Received: from mta10.srv.hcvlny.cv.net ([167.206.5.85]:64820 "EHLO
+	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S269039AbUJFNjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 09:39:37 -0400
+Date: Wed, 06 Oct 2004 09:38:20 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive (SCSI-libsata,
+ VIA SATA))
+In-reply-to: <20041005231642.55308f99.akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, andrea@novell.com,
+       nickpiggin@yahoo.com.au, rml@novell.com, roland@topspin.com,
+       linux-kernel@vger.kernel.org
+Message-id: <200410060938.30152.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.6.2
+References: <52is9or78f.fsf_-_@topspin.com> <41638AEB.5080703@pobox.com>
+ <20041005231642.55308f99.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 09:34:43AM -0400, Richard B. Johnson wrote:
-> 
-> Well I'm trying to port some drivers. I thought those were
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-url?
+On Wednesday 06 October 2004 02:16, Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> > If your implied answer is true, then we wouldn't need
+> > preempt_{en,dis}able() sprinkled throughout the code so much.
+>
+> Where?
+>
+> It's less than I expected, actually.
 
-> kernel thingies. Also, the kernel is so connected  with gcc-isms
-> that it's kinda important.
+Same here. Did you take into account things like rcu_read_lock()?
 
-just mark them asmlinkage and the usual clobber rules apply.
+Jeff Sipek.
+
+- -- 
+Don't drink and derive. Alcohol and algebra don't mix.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBY/VQwFP0+seVj/4RAnCzAKCovAcfr8TFLzQ0xkjPnNtXm7UlygCggWtO
+76FhTdx4AvYlBy1qNmR9G3I=
+=JKNi
+-----END PGP SIGNATURE-----

@@ -1,93 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135443AbRDZOJH>; Thu, 26 Apr 2001 10:09:07 -0400
+	id <S135489AbRDZORr>; Thu, 26 Apr 2001 10:17:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135456AbRDZOI6>; Thu, 26 Apr 2001 10:08:58 -0400
-Received: from mailproxy.de.uu.net ([192.76.144.34]:6584 "EHLO
-	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
-	id <S135443AbRDZOIq>; Thu, 26 Apr 2001 10:08:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-Subject: Re: /proc format (was Device Registry (DevReg) Patch 0.2.0)
-Date: Thu, 26 Apr 2001 16:06:53 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.10.10104251804180.3127-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.10.10104251804180.3127-100000@coffee.psychology.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
+	id <S135491AbRDZORi>; Thu, 26 Apr 2001 10:17:38 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:31981 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S135489AbRDZORZ>; Thu, 26 Apr 2001 10:17:25 -0400
+Date: Thu, 26 Apr 2001 15:17:38 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Mike Galbraith <mikeg@wen-online.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
+In-Reply-To: <Pine.LNX.4.21.0104260526020.2416-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0104261446470.1730-100000@localhost.localdomain>
 MIME-Version: 1.0
-Message-Id: <01042616065300.00884@cookie>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 April 2001 00:24, Mark Hahn wrote:
-> I have a sense that all of these could be collapsed into a single
-> api where kernel systems would register hierarchies of tuples of
-> <type,tag,callback>, where callback would be passed the tag,
+On Thu, 26 Apr 2001, Linus Torvalds wrote:
+> 
+> On the other hand, to offset some of these, we actually count the page
+> accessed _twice_ sometimes: we count it on lookup, and we count it when we
+> see the accessed bit in vmscan.c. Which results in some pages getting aged
+> up twice for just one access if we go through the vmscan logic, while if
+> we just map and unmap them they get counted just once.
 
-You also need to know the parent of the tuple to build a hierarchy. And it 
-should be possible to create lists. 
+And sometimes three times, if you count the PAGE_AGE_START bonus
+points you get whenever your age is found to be 0 (or less than
+PAGE_AGE_START).  I think I see the idea, but seems more voodoo.
 
-The callback prototypes for values could look like this:
+If you're looking to _simplify_ in this area, there's a confusing
+host (9) of intercoupled age-up-and-down de/activate functions.
+Aren't those better decoupled? i.e. the ageing ones ageonly,
+the de/activate ones not messing with age at all.
 
-int proc_value_cb_string(char *buf, void *context); // writes string to buf, 
-// returns len of string or negative value for error
-int proc_value_cb_int(int *value, void *context); 
+Then I think you're left with just age_page_up() and age_page_down()
+(maybe inlines as below, assuming the PAGE_AGE_START voodoo), plus
+activate_page(), deactivate_page() and deactivate_page_nolock().
 
+static inline void age_page_up(struct page *page)
+{
+	page->age += PAGE_AGE_ADV;
+	if (page->age > PAGE_AGE_MAX)
+		page->age = PAGE_AGE_MAX;
+	else if (page->age < PAGE_AGE_START + PAGE_AGE_ADV)
+		page->age = PAGE_AGE_START + PAGE_AGE_ADV;
+}
 
-For parent/directory tuples you would provide two additional callbacks that 
-set the context for their children and maybe take care of other things like 
-locking (so they dont need to be done in every single value callback):
+static inline void age_page_down(struct page *page)
+{
+	page->age >>= 1;
+}
 
-void *proc_value_cb_level_enter(void *old_context); // returns new context
-void proc_value_cb_level_leave(void *old_context, void *new_context);
+But this is no more than tidying, don't let me distract you.
 
+Hugh
 
-For tuples with a list there would be two callbacks to get the list elements:
-
-int proc_value_cb_list_num(void *context); // returns number of elements
-void *proc_value_cb_list_context(int index, void *context); // returns context
-// of the element at the given index or NULL
-
-
-To register such a tuple you would have the following functions:
-void proc_value_register_string(parent_handle_t parent, 
-                                             const char *name,
-		                     proc_value_cb_string cb);
-void proc_value_register_int(parent_handle_t parent, 
-                                         const char *name,
-			     proc_value_cb_int cb);
-parent_handle_t proc_value_register_parent(parent_handle_t parent, 
-                                  const char *name,
- 		          proc_value_cb_level_enter cb1,
-		          proc_value_cb_level_leave cb2);
-parent_handle_t proc_value_register_list(parent_handle_t h, 
-	     	          proc_value_cb_list_num cbnum,
-	                      proc_value_cb_list_context cbcon);
-
-This is the simplest API that I can imagine for this. The only problem is 
-that you need to write a callback for each value (file). Just printing XML 
-still looks easier to me...
-
-
-> and proc code would take care of "rendering" the data into
-> human readable text (default), binary, or even xml.  the latter
-> would require some signalling mechanism like O_PROC_XML or the like.
-
-Then you can argue that once you have a single format implemented in the 
-kernel you can convert it to whatever you like in user-space. And it seems 
-like the decision for "one-value-per-file" in /proc has already been made 
-(please correct me if not and we start all over again), so I will try to make 
-a generic API like the one above for it.
-
-
-> further, programs could perform a meta-query, where they ask for
-> the types and tags of a datum (or hierarchy), so that on subsequent
-> queries, they'd now how to handle binary data.
-
-That would undermine the only advantage of binary data: it's easy (and 
-fast) to dump or read a C struct. Not that I would really care for binary 
-data...
-
-bye...

@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbTLNJk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 04:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbTLNJk6
+	id S263298AbTLNJcG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 04:32:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263541AbTLNJcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 04:40:58 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:38569 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263573AbTLNJk4
+	Sun, 14 Dec 2003 04:32:06 -0500
+Received: from fiberbit.xs4all.nl ([213.84.224.214]:1669 "EHLO
+	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S263298AbTLNJcD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 04:40:56 -0500
-Message-ID: <3FDC3023.9030708@cyberone.com.au>
-Date: Sun, 14 Dec 2003 20:40:51 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: [CFT][RFC] HT scheduler
-References: <20031213022038.300B22C2C1@lists.samba.org> <3FDAB517.4000309@cyberone.com.au> <brgeo7$huv$1@gatekeeper.tmr.com> <3FDBC876.3020603@cyberone.com.au> <20031214043245.GC21241@mail.shareable.org>
-In-Reply-To: <20031214043245.GC21241@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Dec 2003 04:32:03 -0500
+Date: Sun, 14 Dec 2003 10:28:02 +0100
+From: Marco Roeland <marco.roeland@xs4all.nl>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: In fs/proc/array.c error in function proc_pid_stat
+Message-ID: <20031214092802.GA1481@localhost>
+References: <20031213192516.4897.qmail@linuxmail.org> <20031213193040.GD11665@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20031213193040.GD11665@holomorphy.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday December 13th 2003 William Lee Irwin III wrote:
 
+> A quick reading of the patch (BTW, your MUA is mangling whitespace)
+> reveals it's merely creating a local variable, which should have no
+> bearing on code generation.
 
-Jamie Lokier wrote:
+It shouldn't indeed, but it does anyway. The main fault here is some
+bug that RedHat's gcc 2.96 has with dealing with 'unsigned long long'
+variables. It seems to be partly triggered by the relative complexity
+of the very long printf statement it's part of in this file. An earlier
+patch that *only* broke up the printf (so without the local variable)
+also fixed compilation for some people, though not for all. Changing
+some random local variable to 'volatile' also fixed compilation.
 
->Nick Piggin wrote:
->
->>>Shared runqueues sound like a simplification to describe execution units
->>>which have shared resourses and null cost of changing units. You can do
->>>that by having a domain which behaved like that, but a shared runqueue
->>>sounds better because it would eliminate the cost of even considering
->>>moving a process from one sibling to another.
->>>
->>You are correct, however it would be a miniscule cost advantage,
->>possibly outweighed by the shared lock, and overhead of more
->>changing of CPUs (I'm sure there would be some cost).
->>
->
->Regarding the overhead of the shared runqueue lock:
->
->Is the "lock" prefix actually required for locking between x86
->siblings which share the same L1 cache?
->
+> i.e. the compiler is broken.
 
-That lock is still taken by other CPUs as well for eg. wakeups, balancing,
-and so forth. I guess it could be a very specific optimisation for
-spinlocks in general if there was only one HT core. Don't know if it
-would be worthwhile though.
+It's a known *bug*, and seems to be triggered in the current 2.6.0-test
+series for gcc 2.96 only in this particular function. Perhaps 'broken'
+is a bit too harsh!
 
+> Bad code generation can cause runtime problems too; upgrading to a
+> bugfixed compiler is the only sound course of action.
 
+Perhaps. But older (server) platforms with this compiler are still in
+wide use, if a simple patch can make use of an otherwise reasonable
+compiler again, what's the big deal. And on these platforms dual
+installing two versions of gcc (and especially g++ for userspace) can
+lead to other mistakes and very hard to debug artifacts from mixed
+object code.
+-- 
+Marco Roeland, who strangely enough only uses Debian unstable himself!

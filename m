@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131690AbQLRKec>; Mon, 18 Dec 2000 05:34:32 -0500
+	id <S131807AbQLRKfC>; Mon, 18 Dec 2000 05:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130490AbQLRKeW>; Mon, 18 Dec 2000 05:34:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61710 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131753AbQLRKeG>;
-	Mon, 18 Dec 2000 05:34:06 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200012180846.eBI8kNY20521@flint.arm.linux.org.uk>
-Subject: Re: set_rtc_mmss: can't update from 0 to 59
-To: mdharm-kernel@one-eyed-alien.net (Matthew Dharm)
-Date: Mon, 18 Dec 2000 08:46:23 +0000 (GMT)
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <20001217194737.C11947@one-eyed-alien.net> from "Matthew Dharm" at Dec 17, 2000 07:47:37 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S131796AbQLRKez>; Mon, 18 Dec 2000 05:34:55 -0500
+Received: from ns1.megapath.net ([216.200.176.4]:32521 "EHLO megapathdsl.net")
+	by vger.kernel.org with ESMTP id <S130490AbQLRKeg>;
+	Mon, 18 Dec 2000 05:34:36 -0500
+Message-ID: <3A3DE1E6.3070005@megapathdsl.net>
+Date: Mon, 18 Dec 2000 02:07:34 -0800
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001217
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test13-pre3:  unresolved symbols in dsbr100.o, ibmcam.o and ov511.o
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dharm writes:
-> Ahh... I think I see.  While the math says "if the diference between the
-> real time and the cmos time is less than 30 min", it doesn't recognize that
-> the time difference between 2:59 and 3:00 is only 1 min.
+depmod -ae -F System.map 2.4.0-test13-pre3
+depmod: *** Unresolved symbols in /lib/modules/2.4.0-test13-pre3/kernel/drivers/usb/dsbr100.o
+depmod: 	video_register_device
+depmod: 	video_unregister_device
+depmod: *** Unresolved symbols in /lib/modules/2.4.0-test13-pre3/kernel/drivers/usb/ibmcam.o
+depmod: 	video_register_device
+depmod: 	video_unregister_device
+depmod: *** Unresolved symbols in /lib/modules/2.4.0-test13-pre3/kernel/drivers/usb/ov511.o
+depmod: 	video_proc_entry
+depmod: 	video_register_device
+depmod: 	video_unregister_device
 
-Which is intentional.
-
-> True enough...  but, the question is, how do we fix this?
-
-Why do you think it needs fixing?
-
-Think about what happens when the current time according to the CMOS is
-2:59:00 and Linux thinks its 3:01:20.  We only write the minutes and
-seconds, so if we did write, the CMOS clock then becomes 2:01:20.
-Oops, we just lost an hour.  Next time you reboot, you'll find the
-time out by an hour or more depending on how many corrections of this
-type have been done.
-
-So, why don't we update the hours and be done with it?  We would have to
-play the same game with the days of the month vs hours.  Also, we don't
-know if the CMOS clock is programmed for UTC time or not (the kernel's
-idea of time is UTC.  Your CMOS may be programmed for EST for instance).
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

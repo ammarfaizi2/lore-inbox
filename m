@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbTJUQwP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 12:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbTJUQwP
+	id S263077AbTJURJY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 13:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTJURJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 12:52:15 -0400
-Received: from [65.172.181.6] ([65.172.181.6]:4575 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263173AbTJUQwP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 12:52:15 -0400
-Date: Tue, 21 Oct 2003 09:52:09 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Frank Cusack <fcusack@fcusack.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: cset #'s stable?
-Message-ID: <20031021095209.A32703@osdlab.pdx.osdl.net>
-References: <20031021091347.A7526@google.com>
+	Tue, 21 Oct 2003 13:09:24 -0400
+Received: from ns2.anankeit.com.br ([200.189.180.110]:51674 "HELO
+	mail.m2b.com.br") by vger.kernel.org with SMTP id S263077AbTJURJX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 13:09:23 -0400
+X-Qmail-Scanner-Mail-From: thiago@ananke.com.br via mail
+X-Qmail-Scanner-Rcpt-To: davej@codemonkey.org.uk,linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 1.16 (Clear:. Processed in 0.07252 secs)
+Date: Tue, 21 Oct 2003 15:06:37 -0200
+From: Thiago Rondon <thiago@nl.linux.org>
+To: davej@codemonkey.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: post-halloween-2.6.txt in pt_BR
+Message-ID: <20031021170637.GA829@ananke.com.br>
+References: <20031019064618.GD695@ananke.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20031021091347.A7526@google.com>; from fcusack@fcusack.com on Tue, Oct 21, 2003 at 09:13:47AM -0700
+In-Reply-To: <20031019064618.GD695@ananke.com.br>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Frank Cusack (fcusack@fcusack.com) wrote:
-> Are changeset #'s stable?
+I put this .txt in another place, because some thing wrong
+with routing in nl.linux.org from Brasil.
+
+New URL is www.maluco.com.br/thiago/docs/post-halloween-2.6-pt_BR.txt
+
+-Thiago Rondon
+MAKETRADEFAIR.org
+
+On Sun, Oct 19, 2003 at 04:46:18AM -0200, Thiago Rondon wrote:
+> Dave,
 > 
-> I'm specifically looking at linux-2.5/net/sunrpc/clnt.c,
-> "rev 1.1153.63.[123]" which I recorded earlier as 1.1153.48.[123].
+> i18n for pt_BR of post-halloween-2.6.txt in
+> http://nl.linux.org/~thiago/docs/post-halloween-2.6-pt_BR.txt
+> 
+> -Thiago Rondon,
+> MAKETRADEFAIR.ORG
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-No, they are not.  The key, however, is stable (bk changes -k -r<rev>,
-for example).
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

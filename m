@@ -1,73 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVAMU6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVAMUXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbVAMU6h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 15:58:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVAMUzH
+	id S261613AbVAMUXD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 15:23:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVAMUUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 15:55:07 -0500
-Received: from ns1.coraid.com ([65.14.39.133]:45484 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S261519AbVAMUxG (ORCPT
+	Thu, 13 Jan 2005 15:20:37 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:62607 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261403AbVAMUQQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 15:53:06 -0500
-To: Andi Kleen <ak@muc.de>
-Cc: Jens Axboe <axboe@suse.de>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-Subject: Re: [BUG] ATA over Ethernet __init calling __exit
-References: <20050113000949.A7449@flint.arm.linux.org.uk>
-	<20050113085035.GC2815@suse.de> <m1wtuh2kah.fsf@muc.de>
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Thu, 13 Jan 2005 15:52:05 -0500
-Message-ID: <87is616oi2.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Jan 2005 15:16:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=TO3Y7orC5zvICMxJQsU6rN6IWVod/eT7bqx09vNWX0jNAOlEP6HXQlcVLT4hJXuIQB0zIRdhnUsFH2AiWfycs1YExM120a4K/85GgOYRRfaStA0/qK9SncU/qry7ZZRsQy5jVh05zPJGeb7XdStm1DhKj4xTTXfHtRXw956ITHE=
+Message-ID: <d120d50005011312166fd03c56@mail.gmail.com>
+Date: Thu, 13 Jan 2005 15:16:11 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 0/16] New set of input patches
+Cc: linux-input@atrey.karlin.mff.cuni.cz, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050113192525.GA4680@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200412290217.36282.dtor_core@ameritech.net>
+	 <20050113153644.GA18939@ucw.cz>
+	 <d120d50005011309526326afef@mail.gmail.com>
+	 <20050113192525.GA4680@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> writes:
-
-...
-> In general I think it was a bad idea to merge this driver at all.
-> The protocol is obviously broken by design - they use a 16 bit sequence
-> number space which has been proven for many years (in ip fragmentation)
-> to be far too small for modern network performance.
-
-While that experience may apply well to IP, this is a non-IP protocol
-for a single LAN.  For any given AoE device, there are only a few
-outstanding packets at any given time.
-
-For existing AoE devices that number of outstanding packets is only
-three!  So, with only three packets on the wire at any time for a
-given device, 16 bits is overkill.  In fact, the AoE protocol allows
-the AoE device to specify how many outstanding packets it supports.
-That number is only 16 bits wide.  
-
-If it ever did become desirable, we could use a couple more bits for
-the sequence number by borrowing from the low bits of jiffies that we
-use to estimate the RTT, but it doesn't seem likely to ever be
-desirable.
-
-> Also the memory allocation without preallocation in the block write
-> out path looks quite broken too and will most likely will lead to deadlocks
-> under high load.
+On Thu, 13 Jan 2005 20:25:25 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Thu, Jan 13, 2005 at 12:52:14PM -0500, Dmitry Torokhov wrote:
+> 
+> > The problem is not with binding devices, it is with mostly with
+> > sharing the same IRQ between different ports.
+> >
+> > Look at the MUX case, you have 4 ports all sharing the same IRQ. At
+> > startup i8042 enables all on-chip ports and registers them with
+> > serio_register_port(). When first serio driver class i8042_open it
+> > installs IRQ handler. All 4 ports are enabled now (because we want to
+> > do hot-plug) but, especially with async. serio registration, only the
+> > first is fully registered with serio subsystem. If data was to come
+> > from any other port the shared IRQ handler will call serio_reconnect
+> > on half-alive port. The similar issues happen when you try to
+> > unregister port.
+> >
+> > With start/stop methods allow serop core signal driver that the port
+> > is fully registered and now is safe to use. If IRQ is not shared
+> > between ports one can safely register/unregister handler in open/close
+> > methods (at the expense of hotplug device support) but with shared IRQ
+> > you need additional callbacks.
+> 
+> Yes, this can result in calling serio_reconnect on a port that's not
+> registered yet. But I believe we don't need a callback for this, just a
+> flag in the serio struct that will say "live", be set during
+> registration, and until that time all serio_interrupt() calls would be
+> ignored?
 >
-> (I wrote a detailed review when it was posted but apparently it 
-> disappeared or I never got any answer at least) 
 
-I think you're talking about your suggestion that the skb allocation
-could lead to a deadlock.  If I'm correct, this issue is similar to
-the one that led us to create a mempool for the buf structs we use.
+You can't have this flag in serio struct because unless this flag is
+set you should not access serio struct in question, this is chicken
+and egg problem. While you can somewhat control creation the deletion
+is especially tricky. You need to service interrupts up until the
+close is called but not a moment later as serio structure will be
+freed by serio core. Therefore flag should be in the driver and having
+code poking in the driver guts is not a giood idea.
 
-> IMHO this thing should have never been merged in this form. Can it 
-> still be backed out?
+start/stop are not mandatory methods so only problem drivers needs to
+be adjusted.
+ 
+> 
+> > > > 04-serio-suppress-dup-events.patch
+> > > >       Do not submit serio event into event queue if there is already one
+> > > >       of the same type for the same port in front of it. Also look for
+> > > >       duplicat events once event is processed. This should help with
+> > > >       disconnected ports generating alot of data and consuming memory for
+> > > >       events when kseriod gets behind and prevents constant rescans.
+> > > >       This also allows to remove special check for 0xaa in reconnect path
+> > > >       of interrupt handler known to cause problems with Toshibas keyboards.
+> > >
+> > > Ok. Since we'll be usually scanning an empty list, this shouldn't add
+> > > any overhead.
+> >
+> > Plus serio events are rare so unless there are "runaway" serio interrupt this
+> > patch tries to procet from there shoudl not be pretty much any overhead.
+> 
+> Indeed.
+> 
+> > > Btw, why do we need _both_ to scan for duplicate events on event
+> > > completion and check at event insert time? One should be enough - if we
+> > > always check, then we cannot have duplicate events and if we always are
+> > > able to deal with them, we don't have to care ...
+> >
+> > A duplicate event can be queued while kseriod was processing current event,
+> > checking for a dupe is cheaper then doing duplicate work we'd just done and
+> > the list is most likely empty anyway.
+> 
+> Yes. So I'd probably drop the check when we're inserting the event?
+>
 
-The sequence number is a non-issue, and for the deadlock danger you
-originally suggested that we add a warning against using aoe storage
-for swap.  We could add such a warning to the driver's documentation
-and start working on a patch that avoids deadlocking on the skb
-allocation.  There's no need to panic and force users go get a third
-party driver.
+No because (potentially) while kseriod is busy waiting on semaphore or
+doing something else psmouse with synaptics touchpad can generate
+rescan events at rate of 480 events/sec consuming memory for no good
+reason.
+ 
+> 
+> I think it could be done by marking the port dead, but still leaving it
+> there when the module exits, but it's probably not worth it.
+> 
+
+Then you would have to have 2 separate paths for hardware cleanup on
+unload and for cleanup on driver disconnect...
 
 -- 
-  Ed L Cashin <ecashin@coraid.com>
-
+Dmitry

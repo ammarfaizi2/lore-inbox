@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268915AbRHGWCd>; Tue, 7 Aug 2001 18:02:33 -0400
+	id <S269489AbRHGWEW>; Tue, 7 Aug 2001 18:04:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269473AbRHGWCW>; Tue, 7 Aug 2001 18:02:22 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:1298 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269380AbRHGWCD>; Tue, 7 Aug 2001 18:02:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Ben LaHaise <bcrl@redhat.com>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-Date: Tue, 7 Aug 2001 23:33:21 +0200
-X-Mailer: KMail [version 1.2]
-Cc: "Linus Torvalds <torvalds@transmeta.com> Rik van Riel" <riel@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-In-Reply-To: <Pine.LNX.4.33.0108071426380.30280-100000@touchme.toronto.redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0108071426380.30280-100000@touchme.toronto.redhat.com>
+	id <S269478AbRHGWED>; Tue, 7 Aug 2001 18:04:03 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:19184 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S269477AbRHGWDw>; Tue, 7 Aug 2001 18:03:52 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200108072202.f77M2ikt017668@webber.adilger.int>
+Subject: Re: [RFC][PATCH] parser for mount options
+In-Reply-To: <200108072151.VAA25091@vlet.cwi.nl> "from Andries.Brouwer@cwi.nl
+ at Aug 7, 2001 09:51:06 pm"
+To: Andries.Brouwer@cwi.nl
+Date: Tue, 7 Aug 2001 16:02:44 -0600 (MDT)
+CC: torvalds@transmeta.com, viro@math.psu.edu, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Message-Id: <0108072333210J.02365@starship>
-Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 August 2001 20:40, Ben LaHaise wrote:
-> On Tue, 7 Aug 2001, Andrew Morton wrote:
-> > Ben, are you using software RAID?
-> >
-> > The throughput problems which Mike Black has been seeing with
-> > ext3 seem to be specific to an interaction with software RAID5
-> > and possibly highmem.  I've never been able to reproduce them.
->
-> Yes, but I'm using raid 0.  The ratio of highmem to normal memory is
-> ~3.25:1, and it would seem that this is breaking write throttling
-> somehow. The interaction between vm and io throttling is not at all
-> predictable. Certainly, pulling highmem out of the equation results in
-> writes proceeding at the speed of the disk, which makes me wonder if
-> the bounce buffer allocation is triggering the vm code to attempt to
-> free more memory.... Ah, and that would explain why shorter io queues
-> makes things smoother: less memory pressure is occuring on the normal
-> memory zone from bounce buffers.  The original state of things was
-> allowing several hundred MB of ram to be allocated for bounce buffers,
-> which lead to a continuous shortage, causing kswapd et al to spin in a
-> loop making no progress.
+Andreis writes:
+> I did the same for 1.3.61 long ago. A fragment:
+> with call for each filesystem
+> 
+> 	parse_mount_options((char *) data, SIZE(opts), opts);
+> 
+> I am not sure which of the two versions I prefer.
+> For example, the above setup shows very clearly what the defaults are.
 
-I thought Marcelo and Linus fixed that in pre1.
+What else is nice about this variant is that you don't need to change
+the prototype for parse_options() each time you add a new parameter,
+you only pass the "opts" struct around.
 
-But even with the inactive_plent/skip_page strategy there's a problem.  
-Suppose 2 gig of memory is active, that's 2 million pages.  Suppose you 
-touch it all once, now everything is active, age=2.  It takes 4 million 
-scan steps to age that down to zero so we can start deactivating the 
-kind of pages we want.  In the meantime the page cache user is stalled, 
-the pages just aren't there.  After two times around the active list, 
-inactive pages come flooding out, some time later they make it through 
-the inactive queue, the user snaps them up and create another flood of 
-activations.
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-Please, tell me this scenario can't happen.
-
-> Hmmm, how to make kswapd/bdflush/kreclaimd all back off until progress
-> is made in cleaning the io queue?
-
-I'd suggest putting memory users on a wait queue instead of letting them 
-transform themselves into vm scanners...
-
---
-Daniel

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262513AbTDAN1M>; Tue, 1 Apr 2003 08:27:12 -0500
+	id <S262526AbTDANya>; Tue, 1 Apr 2003 08:54:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262526AbTDAN1M>; Tue, 1 Apr 2003 08:27:12 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:60097 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S262513AbTDAN1L>; Tue, 1 Apr 2003 08:27:11 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
-To: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org
-Reply-To: tomlins@cam.org
-Date: Tue, 01 Apr 2003 08:38:32 -0500
-References: <fa.eagpkml.m3elbd@ifi.uio.no>
-Organization: me
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20030401133833.6C71DF3D@oscar.casa.dyndns.org>
+	id <S262536AbTDANya>; Tue, 1 Apr 2003 08:54:30 -0500
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:57615 "EHLO
+	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
+	id <S262526AbTDANy3>; Tue, 1 Apr 2003 08:54:29 -0500
+Message-Id: <200304011405.h31E5RAx049853@sirius.nix.badanka.com>
+Date: Tue, 1 Apr 2003 16:05:23 +0200
+From: Henrik Persson <nix@socialism.nu>
+To: linux-kernel@vger.kernel.org
+Cc: brad@seme.com.au
+Subject: Re: via-rhine problem on EPIAV-1Ghz 2.4.21-pre6
+In-Reply-To: <20030401063841.GA2894@cy599856-a>
+References: <3E88FA24.7040406@seme.com.au>
+	<20030401042734.GA21273@gtf.org>
+	<3E89171A.8010506@seme.com.au>
+	<20030401063841.GA2894@cy599856-a>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CaT wrote:
+On Tue, 1 Apr 2003 01:38:41 -0500
+Josh McKinney <forming@charter.net> wrote:
 
-> I believe the patch below will apply to both the above (I know it does
-> to 2.5.66 and 2.4.20-pre2 mm/shmem.c does not look any different so it
-> should be fine. :)
-> 
-> Anyways, what this patch does is allow you to specify the max amount of
-> memory tmpfs can use as a percentage of available real ram. This (in my
-> eyes) is useful so that you do not have to remember to change the
-> setting if you want something other then 50% and some of your ram does
-> (and you can't replacew it immediately).
-> 
-> Usage of this option is as follows:
-> 
-> tmpfs      /dev/shm tmpfs  rw,size=63%,noauto            0 0
-> 
-> This is taken from my working system and sets the tmpfs size to 63% of
-> my real RAM (256MB). The end result is:
-> 
-> Filesystem           1k-blocks      Used Available Use% Mounted on
-> /dev/shm/tmp            160868      6776    154092   5% /tmp
-> 
-> I've also tested remounting to silly values (and sane ones) and it all
-> works fine with no oopses or freezes and the correct values appearing
-> in df.
-> 
-> All up I feel safer using this then a hard value.
+> There have been a lot of work done on the 2.5 tree for this driver so if
+> possible you could try that.  I seem to remember that there was some
+> patches posted here to so maybe you could dig them out of the archives.
 
-What does tmpfs have to do with ram size?  Its swappable.  This _might_ be
-useful for ramfs but for tmpfs, IMHO, its not a good idea.
+When the patches sent to Marcello is applied to 2.4 the 2.5 and the 2.4
+drivers should not differ at all, so you could just copy via-rhine.c from
+the 2.5 source tree into your tree if you don't want to browse alot of
+archives and find all the patches that are needed.
 
-Ed Tomlinson
-
+-- 
+Henrik Persson  nix@socialism.nu  http://nix.badanka.com
+PGP-key: http://nix.badanka.com/pgp  PGP-KeyID: 0x43B68116  

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318130AbSIAWH0>; Sun, 1 Sep 2002 18:07:26 -0400
+	id <S318144AbSIAWLg>; Sun, 1 Sep 2002 18:11:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318133AbSIAWH0>; Sun, 1 Sep 2002 18:07:26 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:63240
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318130AbSIAWHZ>; Sun, 1 Sep 2002 18:07:25 -0400
+	id <S318151AbSIAWLf>; Sun, 1 Sep 2002 18:11:35 -0400
+Received: from p50887EBD.dip.t-dialin.net ([80.136.126.189]:51938 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318144AbSIAWLf>; Sun, 1 Sep 2002 18:11:35 -0400
+Date: Sun, 1 Sep 2002 16:16:00 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Robert Love <rml@tech9.net>
+cc: Ralf Baechle <ralf@uni-koblenz.de>, Oliver Neukum <oliver@neukum.name>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: question on spinlocks
-From: Robert Love <rml@tech9.net>
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: Oliver Neukum <oliver@neukum.name>, Ralf Baechle <ralf@uni-koblenz.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209011607380.3234-100000@hawkeye.luckynet.adm>
-References: <Pine.LNX.4.44.0209011607380.3234-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 01 Sep 2002 18:11:55 -0400
-Message-Id: <1030918315.11553.3128.camel@phantasy>
-Mime-Version: 1.0
+In-Reply-To: <1030918094.11553.3121.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0209011615060.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-01 at 18:09, Thunder from the hill wrote:
+Hi,
 
-> IMHO you might even ask "How do I start a car when I don't have the keys?"
-> 
-> You might find a way, but it's not desired. Are you sure you want to 
-> reschedule in an interrupt handler? If it's none, are you sure you want to 
-> disable interrupts?
+On 1 Sep 2002, Robert Love wrote:
+> 	spin_lock_irq(&lck);
+> 	...
+> 	spin_unlock(&lck);
+> 	schedule();
+> 	spin_lock_irq(&lck);
+> 	...
+> 	spin_unlock_irq(&lck);
 
-I do not think he is in an interrupt handler.
+That makes me understand his intention a lot more. I must have got beaten 
+up by the "irqsave".
 
-If he were, the system would die when he called schedule().
-
-	Robert Love
+			Thunder
 

@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263617AbUCYUjI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 15:39:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbUCYUjH
+	id S263612AbUCYUqd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 15:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbUCYUqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 15:39:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:40623 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263617AbUCYUjE (ORCPT
+	Thu, 25 Mar 2004 15:46:32 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:39816 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263612AbUCYUqb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 15:39:04 -0500
-Date: Thu, 25 Mar 2004 12:38:50 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cowlinks v2
-In-Reply-To: <20040325194303.GE11236@mail.shareable.org>
-Message-ID: <Pine.LNX.4.58.0403251237200.1106@ppc970.osdl.org>
-References: <20040321125730.GB21844@wohnheim.fh-wedel.de>
- <Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com>
- <20040321181430.GB29440@wohnheim.fh-wedel.de> <m1y8ptu42m.fsf@ebiederm.dsl.xmission.com>
- <20040325174942.GC11236@mail.shareable.org> <m1ekrgyf5y.fsf@ebiederm.dsl.xmission.com>
- <20040325194303.GE11236@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 25 Mar 2004 15:46:31 -0500
+Date: Thu, 25 Mar 2004 21:30:32 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: jun.nakajima@intel.com, ricklind@us.ibm.com, piggin@cyberone.com.au,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
+       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
+       mbligh@aracnet.com
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Message-ID: <20040325203032.GA15663@elte.hu>
+References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <20040325154011.GB30175@wotan.suse.de> <20040325190944.GB12383@elte.hu> <20040325162121.5942df4f.ak@suse.de> <20040325193913.GA14024@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040325193913.GA14024@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Andi Kleen <ak@suse.de> wrote:
 
-On Thu, 25 Mar 2004, Jamie Lokier wrote:
-> 
-> That is not useful for me or the other people who want to use this to
-> duplicate large source trees and run "diff" between trees.
-> 
-> "diff" depends on being able to check if files in the two trees are
-> identical -- by checking whether the inode number and device (and
-> maybe other stat data) are identical.  This allows "diff -ur" between
-> two cloned trees the size of linux to be quite fast.  Without that
-> optimisation, it's very slow indeed.
+> That won't help for threaded programs that use clone(). OpenMP is such
+> a case.
 
-I think the correct thing to do is to just admit that cowlinks aren't
-POSIX, and instead see the inode number as a way to see whether the link
-has been broken or not. Ie just accept the inode number potentially
-changing.
+this patch:
 
-That would make "diff" (adn most other uses) ok with this, and anythign 
-that isn't, just couldn't be used with cowlinked files.
+        redhat.com/~mingo/scheduler-patches/sched-2.6.5-rc2-mm3-A4
 
-		Linus
+does balancing at wake_up_forked_process()-time.
+
+but it's a hard issue. Especially after fork() we do have a fair amount
+of cache context, and migrating at this point can be bad for
+performance.
+
+	Ingo

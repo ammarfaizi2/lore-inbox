@@ -1,42 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129635AbRCAPN2>; Thu, 1 Mar 2001 10:13:28 -0500
+	id <S129631AbRCAPKR>; Thu, 1 Mar 2001 10:10:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129636AbRCAPNI>; Thu, 1 Mar 2001 10:13:08 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:9221 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S129635AbRCAPM7>; Thu, 1 Mar 2001 10:12:59 -0500
-Message-ID: <3A9E66BB.70FB0C75@eikon.tum.de>
-Date: Thu, 01 Mar 2001 16:11:55 +0100
-From: Mario Hermann <ario@eikon.tum.de>
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S129632AbRCAPKI>; Thu, 1 Mar 2001 10:10:08 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:34992 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129631AbRCAPJ4>;
+	Thu, 1 Mar 2001 10:09:56 -0500
+Date: Thu, 1 Mar 2001 10:09:53 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Peter Daum <gator@cs.tu-berlin.de>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: fat problem in 2.4.2
+In-Reply-To: <Pine.LNX.4.30.0103011502050.23650-100000@swamp.bayern.net>
+Message-ID: <Pine.GSO.4.21.0103010944001.11577-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: report bug: System reboots when accessing a loop-device over a second 
- loop-device with 2.4.2-ac7
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-I tried the following commands with 2.4.2-ac7:
-
-losetup /dev/loop0 test.dat
-losetup /dev/loop1 /dev/loop0
-mke2fs /dev/loop1
-
-My System reboots immediatly. I tried it with 2.4.2-ac4,ac5 too -> same
-effect.
-
-With 2.4.2 it hangs immediatly.
-
-Hope that helps.
 
 
-Thanks
+On Thu, 1 Mar 2001, Peter Daum wrote:
 
+> In that case, why was it changed for FAT only? Ext2 will still
+> happily enlarge a file by truncating it.
 
-Mario
+Basically, the program depends on behaviour that was never guaranteed to
+be there.
+
+> Staroffice (the binary-only version; the new "open source"
+> version is not yet ready for real-world use) for example
+> currently doesn't write to FAT filesystems anymore - which is
+> pretty annoying for people who need it.
+
+Staroffice is non-portable and badly written, film at 11...
+
+BTW, _some_ subset is doable on FAT. You can't always do it (bloody
+thing doesn't support holes), but you can try the following (warning -
+untested patch):
+
+diff -urN S2/fs/fat/inode.c S2-fat/fs/fat/inode.c
+--- S2/fs/fat/inode.c	Fri Feb 16 22:52:07 2001
++++ S2-fat/fs/fat/inode.c	Thu Mar  1 10:02:45 2001
+@@ -897,6 +897,36 @@
+ 	unlock_kernel();
+ }
+ 
++int generic_cont_expand(struct inode *inode, loff_t size)
++{
++	struct address_space *mapping = inode->i_mapping;
++	struct page *page;
++	unsigned long index, offset, limit;
++	int err;
++
++	limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
++	if (limit != RLIM_INFINITY) {
++		if (size > limit) {
++			send_sig(SIGXFSZ, current, 0);
++			size = limit;
++		}
++	}
++	offset = (size & (PAGE_CACHE_SIZE-1)); /* Within page */
++	index = size >> PAGE_CACHE_SHIFT;
++	err = -ENOMEM;
++	page = grab_cache_page(mapping, index);
++	if (!page)
++		goto out;
++	err = mapping->a_ops->prepare_write(NULL, page, offset, offset);
++	if (!err)
++		err = mapping->a_ops->commit_write(NULL, page, offset, offset);
++	UnlockPage(page);
++	page_cache_release(page);
++	if (err > 0)
++		err = 0;
++out:
++	return err;
++}
+ 
+ int fat_notify_change(struct dentry * dentry, struct iattr * attr)
+ {
+@@ -904,11 +934,17 @@
+ 	struct inode *inode = dentry->d_inode;
+-	int error;
++	int error = 0;
+ 
+-	/* FAT cannot truncate to a longer file */
++	/*
++	 * On FAT truncate to a longer file may fail with -ENOSPC. No
++	 * way to report it from fat_truncate(), so...
++	 */
+ 	if (attr->ia_valid & ATTR_SIZE) {
+ 		if (attr->ia_size > inode->i_size)
+-			return -EPERM;
++			error = generic_cont_expand(inode, attr->ia_size);
+ 	}
++
++	if (error)
++		return error;
+ 
+ 	error = inode_change_ok(inode, attr);
+ 	if (error)
+
+That said, if your only problem is Staroffice... <shrug> I would rather
+rm the crapware and forget about it, but YMMV.
+							Cheers,
+								Al
+

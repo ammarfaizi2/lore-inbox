@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261375AbSLQAAi>; Mon, 16 Dec 2002 19:00:38 -0500
+	id <S261427AbSLQAHI>; Mon, 16 Dec 2002 19:07:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbSLQAAi>; Mon, 16 Dec 2002 19:00:38 -0500
-Received: from garm.csv.cmich.edu ([141.209.15.48]:54276 "HELO
-	garm.central.cmich.local") by vger.kernel.org with SMTP
-	id <S261375AbSLQAAi>; Mon, 16 Dec 2002 19:00:38 -0500
-Message-Id: <200212170008.AEF50045@student-b.csv.cmich.edu>
-Date: Mon, 16 Dec 2002 19:08:31 -0500
-From: Matthew J Fanto <fanto1mj@cmich.edu>
-Subject: Linksys WPC11 PCMCIA Wireless
-To: linux-kernel@vger.kernel.org
-X-Mailer: Webmail Mirapoint Direct 3.2.0-GA
+	id <S261644AbSLQAHI>; Mon, 16 Dec 2002 19:07:08 -0500
+Received: from h002.c011.snv.cp.net ([209.228.34.215]:17858 "HELO
+	c011.snv.cp.net") by vger.kernel.org with SMTP id <S261427AbSLQAHH> convert rfc822-to-8bit;
+	Mon, 16 Dec 2002 19:07:07 -0500
+X-Sent: 17 Dec 2002 00:15:03 GMT
+Content-Type: text/plain; charset=US-ASCII
+From: Steve Isaacs <steve@trevithick.net>
+To: James Morris <jmorris@intercode.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [CryptoAPI-devel] [RFC] Hardware support notes for the kernel crypto API (2.5+)
+Date: Mon, 16 Dec 2002 16:15:15 -0800
+X-Mailer: KMail [version 1.4]
+Cc: "David S. Miller" <davem@redhat.com>,
+       cryptoapi-devel <cryptoapi-devel@kerneli.org>
+References: <Mutt.LNX.4.44.0212150025190.24712-100000@blackbird.intercode.com.au>
+In-Reply-To: <Mutt.LNX.4.44.0212150025190.24712-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212161615.15172.steve@trevithick.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to install a linksys WPC11 pcmcia card on my sony
-vaio. I have enabled the Hermes driver in the kernel (using
-2.4.20). I have also built the linux-wlan package. When I
-insert the card, I get the following:
+On Saturday 14 December 2002 05:51, James Morris wrote:
+>   Motorola
+>     Unknown (Steve is working on some Linux drivers though).
+>    
+The User's Manuals can be downloaded at:
+  MPC190
+  http://e-www.motorola.com/brdata/PDFDB/docs/MPC190UM.pdf
 
-prism2_cs.o: 0.1.16-pre7 loaded
-init_module: dev_info is prism2_cs
-prism2_cs: RequestIRQ: Resource in use
-prism2sta_config: NextTuple failure? It's probably a Vcc mismatch
-prism2sta_event: prism2_cs: initalization failed!
+  MPC184
+  http://e-www.motorola.com/brdata/PDFDB/docs/MPC184UM.pdf
 
-Any help would be appreciated.
-
-I had to unsubscribe from the list while I'm on vacation, so
-please reply back to me.
-
--Matthew J. Fanto
+Steve

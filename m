@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133076AbRDRKk6>; Wed, 18 Apr 2001 06:40:58 -0400
+	id <S133075AbRDRKkT>; Wed, 18 Apr 2001 06:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133077AbRDRKkj>; Wed, 18 Apr 2001 06:40:39 -0400
-Received: from upsn13.u-psud.fr ([193.55.10.113]:48588 "EHLO upsn13.u-psud.fr")
-	by vger.kernel.org with ESMTP id <S133076AbRDRKka>;
-	Wed, 18 Apr 2001 06:40:30 -0400
-Message-ID: <3ADD6EE6.5EB89FCF@fleming.u-psud.fr>
-Date: Wed, 18 Apr 2001 12:39:34 +0200
-From: Jaquemet Loic <jal@fleming.u-psud.fr>
-X-Mailer: Mozilla 4.75 [fr] (X11; U; Linux 2.4.3-ac7 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: VFS problem 
+	id <S133076AbRDRKkL>; Wed, 18 Apr 2001 06:40:11 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:35851 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S133075AbRDRKjz>;
+	Wed, 18 Apr 2001 06:39:55 -0400
+Date: Wed, 18 Apr 2001 12:39:41 +0200
+From: Jens Axboe <axboe@suse.de>
+To: stefan@jaschke-net.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with Toshiba SD-W2002 DVD-RAM drive (IDE)
+Message-ID: <20010418123941.H492@suse.de>
+In-Reply-To: <01041714250400.01376@antares>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <01041714250400.01376@antares>; from s-jaschke@t-online.de on Tue, Apr 17, 2001 at 02:25:04PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry if this problem has already been disscussed.
+On Tue, Apr 17 2001, Stefan Jaschke wrote:
+> Judging from the thread started Jan 1, 2001, by Andre Hedrick, 
+> I thought IDE DVD-RAM just works out of the box and got a
+> Toshiba SD-W2002. 
+> 
+> Problem: /dev/hdc cannot be read or written to when the drive contains
+>   DVD-RAM media. The behavior is the same for the stock 2.4.3 kernel
+>   and the SuSE-2.4.0 kernel.  Strangely enough, the disk can be read,
+>   but not written to, with the 2.2.18 kernel.
 
-I run an linux box with a HD 30Go/reiserfs .
-I tried several 2.4 kernel ( 2.4.2 , 2.4.3 , 2.4.4-pre3 , 2.4.3-ac7)
-After a random time I've got a fs problem which lead to :
--first a segfault of a process which reads/writes on the partition
-ex:
-[jal@skippy prog]$ ./configure
-....
-ln -s dialects/linux/machine.h machine.h
-Erreur de segmentation ( SEGFAULT )
+It should work, note that I recently spotted some quite severe bugs in
+the pio write handling for ATAPI which I've almost fixed here now. It
+seems you drive is in DMA mode though, so it shouldn't be affecting you.
 
--and then the partition freeze .Any attempt to read/write on it leads to
+Please send me strace info when reading/writing to the drive (or at
+least attempting to), this looks very queer indeed.
 
-put the process in a D state and makes it unkillable.
-[/var/log/kernel]
-Apr 18 11:35:06 skippy kernel: VFS: Disk change detected on device
-ide0(3,64)
-...[Random time after]
-Apr 18 11:55:26 skippy kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000000
-Apr 18 11:55:26 skippy kernel:  printing eip:
-Apr 18 11:55:26 skippy kernel: c019671a
-Apr 18 11:55:26 skippy kernel: pgd entry c3f46000: 0000000000000000
-Apr 18 11:55:26 skippy kernel: pmd entry c3f46000: 0000000000000000
-Apr 18 11:55:26 skippy kernel: ... pmd not present!
-Apr 18 11:55:26 skippy kernel: Oops: 0000
-Apr 18 11:55:26 skippy kernel: CPU:    0
-
-
-I will try with ac9 but I'm not really sure of the result..
+-- 
+Jens Axboe
 

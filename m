@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbUBWFwf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 00:52:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbUBWFwe
+	id S261823AbUBWFvP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 00:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbUBWFvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 00:52:34 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:8324 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S261826AbUBWFwb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 00:52:31 -0500
-Date: Sun, 22 Feb 2004 21:49:06 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Hansjoerg Lipp <hjlipp@web.de>
+	Mon, 23 Feb 2004 00:51:15 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:13843 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261823AbUBWFvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 00:51:11 -0500
+Date: Mon, 23 Feb 2004 06:44:35 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Michael <leahcim@ntlworld.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
-Message-Id: <20040222214906.5cbc544e.pj@sgi.com>
-In-Reply-To: <20040222155410.GA3051@hobbes>
-References: <20040216133418.GA4399@hobbes>
-	<20040222020911.2c8ea5c6.pj@sgi.com>
-	<20040222155410.GA3051@hobbes>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: [ALSA] emu10k1 driver oops loading large soundfont 2.6.3
+Message-ID: <20040223054435.GA7785@alpha.home.local>
+References: <40398E3C.7020900@ntlworld.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40398E3C.7020900@ntlworld.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BTW, which shell expects the name of the script in argv[2]?
+On Mon, Feb 23, 2004 at 05:23:08AM +0000, Michael wrote:
+> please CC: me on replies
+> 
+> In struct snd_emu10k1_memblk in include/sound/emu10k1.h first_page and 
+> last_page are defined as short.
 
-I don't know.  Someone needs to actually examine the shell code,
-and see what it does, for various shells.  My jaw boning neither
-proves nor disproves anything.
+Thanks a lot !
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+I've had this problem for about a year, making it impossible to load a
+full fluidr3 sound font at once. I've searched for the cause of the problem,
+but didn't find anything and concluded that it should have been a hardware
+limitation, which in fact was not !
+
+Great catch !
+
+Cheers,
+Willy
+

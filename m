@@ -1,77 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267433AbTBUNdZ>; Fri, 21 Feb 2003 08:33:25 -0500
+	id <S267435AbTBUNeb>; Fri, 21 Feb 2003 08:34:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267434AbTBUNdZ>; Fri, 21 Feb 2003 08:33:25 -0500
-Received: from anor.ics.muni.cz ([147.251.4.35]:53436 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S267433AbTBUNdY>;
-	Fri, 21 Feb 2003 08:33:24 -0500
-Date: Fri, 21 Feb 2003 14:43:29 +0100 (MET)
-From: News Admin <news@nimloth.ics.muni.cz>
-Message-Id: <200302211343.h1LDhTM13523@nimloth.ics.muni.cz>
-To: linux-kernel@vger.kernel.org
-X-Muni-Virus-Test: Clean
+	id <S267437AbTBUNeb>; Fri, 21 Feb 2003 08:34:31 -0500
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:15301 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S267435AbTBUNe3>; Fri, 21 Feb 2003 08:34:29 -0500
+Message-ID: <3E562D31.10906@quark.didntduck.org>
+Date: Fri, 21 Feb 2003 08:44:17 -0500
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Trival patch to i386 enter_lazy_tlb()
+Content-Type: multipart/mixed;
+ boundary="------------000309030006060005080203"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From news Fri Feb 21 14:43:28 2003
-Received: (from news@localhost)
-	by nimloth.ics.muni.cz (8.11.6+Sun/8.10.0.Beta12) id h1LDhSm13508
-	for newsmaster; Fri, 21 Feb 2003 14:43:28 +0100 (MET)
-Newsgroups: cz.muni.redir.linux-kernel
-Path: news
-From: Zdenek Kabelac <kabi@i.am>
-Subject: SMP kernel 2.4 and gcc-3.2
-Message-ID: <3E562CFC.774860C7@i.am>
-Sender: UNKNOWN@decibel.fi.muni.cz
-Date: Fri, 21 Feb 2003 13:43:24 GMT
-X-Nntp-Posting-Host: decibel.fi.muni.cz
+This is a multi-part message in MIME format.
+--------------000309030006060005080203
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Accept-Language: cs, en
-Content-Type: text/plain; charset=us-ascii
-Mime-Version: 1.0
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
-Organization: unknown
 
-Hello
+Moves the #ifdef into the function to improve readability.
 
-As I've so far not noticed any such post - maybe it's just me.
+--
+				Brian Gerst
 
-But I simply can not build usable SMP 2.4.2x kernel
-with gcc-3.2
+--------------000309030006060005080203
+Content-Type: text/plain;
+ name="lazytlb-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="lazytlb-1"
 
-Whenever I use gcc-3.2 - the compiled kernel just immediately
-reboots machine - Exactly the same kernel with same configuration
-compiled with gcc-2.95 works normaly.
-The box is Abit BP6/256MB Ram/Matrox G400 with 2xCelerons
+diff -urN linux-2.5.62-bk6/include/asm-i386/mmu_context.h linux/include/asm-i386/mmu_context.h
+--- linux-2.5.62-bk6/include/asm-i386/mmu_context.h	2003-01-13 16:20:56.000000000 -0500
++++ linux/include/asm-i386/mmu_context.h	2003-02-21 08:32:36.000000000 -0500
+@@ -13,18 +13,14 @@
+ int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
+ void destroy_context(struct mm_struct *mm);
+ 
+-#ifdef CONFIG_SMP
+ 
+ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk, unsigned cpu)
+ {
++#ifdef CONFIG_SMP
+ 	if (cpu_tlbstate[cpu].state == TLBSTATE_OK)
+ 		cpu_tlbstate[cpu].state = TLBSTATE_LAZY;	
+-}
+-#else
+-static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk, unsigned cpu)
+-{
+-}
+ #endif
++}
+ 
+ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next, struct task_struct *tsk, unsigned cpu)
+ {
 
-I've just seen slightly different behavior with various
-versions - sometime it just locked the box (i.e. GRUB screen
-has stayed on the screen and I had to press 'reset' button
-myself)
-
-Ok - what should I do to help fix this problem - as I've said
-I've tried various configuration - I don't think there
-is something special in there (http://www.fi.muni.cz/~kabi/.config)
-
-$ gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-linux/3.2.3/specs
-Configured with: ../src/configure -v
---enable-languages=c,c++,java,f77,proto,pascal,objc,ada --prefix=/usr
---mandir=/usr/share/man --infodir=/usr/share/info
---with-gxx-include-dir=/usr/include/c++/3.2 --enable-shared
---with-system-zlib --enable-nls --without-included-gettext
---enable-__cxa_atexit --enable-clocale=gnu --enable-java-gc=boehm
---enable-objc-gc i386-linux
-Thread model: posix
-gcc version 3.2.3 20030210 (Debian prerelease)
-
-
-please Cc: me
-
--- 
-  .''`.
- : :' :    Zdenek Kabelac  kabi@{debian.org, users.sf.net, fi.muni.cz}
- `. `'           Debian GNU/Linux maintainer - www.debian.{org,cz}
-   `-
+--------------000309030006060005080203--
 

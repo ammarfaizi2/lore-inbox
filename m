@@ -1,53 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbTLPTkw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 14:40:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTLPTkw
+	id S262128AbTLPTej (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 14:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTLPTej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 14:40:52 -0500
-Received: from cv48.neoplus.adsl.tpnet.pl ([80.54.218.48]:18445 "EHLO
-	satan.blackhosts") by vger.kernel.org with ESMTP id S262161AbTLPTkt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 14:40:49 -0500
-Date: Tue, 16 Dec 2003 20:45:47 +0100
-From: Jakub Bogusz <qboosh@pld-linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] More MODULE_ALIASes
-Message-ID: <20031216194546.GA2250@satan.blackhosts>
+	Tue, 16 Dec 2003 14:34:39 -0500
+Received: from linux-bt.org ([217.160.111.169]:25229 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S262128AbTLPTeg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 14:34:36 -0500
+Subject: Problem with keyboard LED's and 2.4.x
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1071603216.27574.25.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031215060838.A08CD2C18C@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 16 Dec 2003 20:33:36 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Three more MODULE_ALIASes. Trivial, but useful if people want things
-> to "just work" in 2.6.0.
->
-> If you drop this I'll just keep collecting them.
+Hi Marcelo,
 
-BTW, I'm reminding about aliases mentioned by me few weeks ago
-(here: http://www.ussg.iu.edu/hypermail/linux/kernel/0312.0/1263.html),
-which could be built into appropriate modules (here in modprobe.conf
-format):
+I already sent a patch for this, but forgot to include a detailed
+description what is going wrong here.
 
-alias ppp-compress-21 bsd_comp
-alias ppp-compress-24 ppp_deflate
-alias ppp-compress-26 ppp_deflate
-alias iso9660 isofs
-alias block-major-11 sr_mod
-alias char-major-21-* sg
+The initial keyboard LED state is not send to a new attached keyboard if
+this keyboard is connected through the input subsystem and driven by the
+keybdev.o kernel driver. This is problematic for USB keyboards through
+the USB HID driver and Bluetooth keyboard that send their events through
+the uinput.o driver from a userspace daemon.
 
-Also note that MODULE_ALIAS_BLOCKDEV_MAJOR doesn't work up to test11,
-because for e.g. /dev/fd0 kernel calls modprobe with block-major-2 (in
-drivers/block/genhd.c?), but MODULE_ALIAS_BLOCKDEV_MAJOR(FLOPPY_MAJOR)
-adds "block-major-2-*" alias.
-(similar problem with MODULE_ALIAS_CHARDEV_MAJOR was fixes few releases
- ago by changing requet_module call in fs/chsr_dev.c - in 1.1414.1.23)
+This is the problematic code from drivers/input/keybdev.c (I stripped
+some unimportant things):
+
+	static struct input_handler keybdev_handler;
+	
+	void keybdev_ledfunc(unsigned int led)
+	{
+	        struct input_handle *handle;
+	
+	        for (handle = keybdev_handler.handle; handle; handle = handle->hnext) {
+	                input_event(handle->dev, EV_LED, LED_SCROLLL, !!(led & 0x01));
+	                input_event(handle->dev, EV_LED, LED_NUML,    !!(led & 0x02));
+	                input_event(handle->dev, EV_LED, LED_CAPSL,   !!(led & 0x04));
+	        }
+	}
+	
+	static struct input_handle *keybdev_connect(struct input_handler *handler, struct input_dev *dev)
+	{
+	        struct input_handle *handle;
+	        int i;
+		
+	        if (!(handle = kmalloc(sizeof(struct input_handle), GFP_KERNEL)))
+        	        return NULL;
+	        memset(handle, 0, sizeof(struct input_handle));
+	
+	        handle->dev = dev;
+	        handle->handler = handler;
+	
+	        input_open_device(handle);
+	
+	        kbd_refresh_leds();
+	
+        	return handle;
+	}
+
+The problematic part is the call of kbd_refresh_leds() which triggers
+the sending of the LED events to every keyboard by keybdev_ledfunc().
+But at this point keybdev_ledfunc() don't know anything about this new
+keyboard, because the list of handles from keybdev_handler are not
+updated by now. This first happens when keybdev_connect() returns this
+new handle.
+
+To solve this problem we have to know the current LED state when we
+connect a new keyboard and send out the LED events before returning the
+new handle. My patch is tested with an USB keyboard and the Bluetooth
+mediapad from Logitech.
+
+Regards
+
+Marcel
 
 
--- 
-Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
-PLD Linux       http://www.pld-linux.org/
+Please do a
+
+        bk pull http://linux-mh.bkbits.net/input-2.4
+
+This will update the following files:
+
+ drivers/input/keybdev.c |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
+
+through these ChangeSets:
+
+<marcel@holtmann.org> (03/12/16 1.1304)
+   [PATCH] Fix LED's for input subsystem keyboards
+   
+   This patch propagates the current LED's to every new keyboard device
+   that is attached through the input subsystem.
+
+
+

@@ -1,99 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266615AbSKUNPA>; Thu, 21 Nov 2002 08:15:00 -0500
+	id <S266649AbSKUNPo>; Thu, 21 Nov 2002 08:15:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266649AbSKUNPA>; Thu, 21 Nov 2002 08:15:00 -0500
-Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:37030
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S266615AbSKUNO7>; Thu, 21 Nov 2002 08:14:59 -0500
-Date: Thu, 21 Nov 2002 08:15:35 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH][2.5] Add TAINT_UNKNOWN_STATE
-In-Reply-To: <20021121130052.GB9883@suse.de>
-Message-ID: <Pine.LNX.4.44.0211210811120.1628-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266650AbSKUNPo>; Thu, 21 Nov 2002 08:15:44 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:9618 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266649AbSKUNPm>;
+	Thu, 21 Nov 2002 08:15:42 -0500
+Date: Thu, 21 Nov 2002 13:20:14 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andrew Morton <akpm@digeo.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Bill Davidsen <davidsen@tmr.com>, Aaron Lehmann <aaronl@vitelus.com>,
+       Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.47{-mm1} with contest
+Message-ID: <20021121132014.GC9883@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andrew Morton <akpm@digeo.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Aaron Lehmann <aaronl@vitelus.com>,
+	Con Kolivas <conman@kolivas.net>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <3DD0E037.1FC50147@digeo.com> <Pine.LNX.3.96.1021112150713.25274B-100000@gatekeeper.tmr.com> <3DDC1480.402A0E5B@digeo.com> <20021121000811.GQ23425@holomorphy.com> <3DDC8330.FE066815@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DDC8330.FE066815@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Nov 2002, Dave Jones wrote:
+On Wed, Nov 20, 2002 at 10:54:40PM -0800, Andrew Morton wrote:
+ > > I think this merits some investigation. I, for one, am a big user of
+ > > SIGIO in userspace C programs...
+ > OK, got it back to 119000.  Each signal was calling copy_*_user 24 times.
+ > This gets it down to six.
 
->  While you're in panic.c, want to add the missing flag for 
->  TAINT_FORCED_RMMOD that Rusty missed ? Maybe 'R' ?
+Good eyes. But.. this also applies to 2.4 (which should also then
+get faster). So the gap between 2.4 & 2.5 must be somewhere else ?
 
-Sure...
+Also maybe we can do something about that multiple memcpy in copy_fpu_fxsave()
+In fact, that looks a bit fishy. We copy 10 bytes each memcpy, but
+advance the to ptr 5 bytes each iteration. What gives here ?
 
-Index: linux-2.5.48/include/linux/kernel.h
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.48/include/linux/kernel.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 kernel.h
---- linux-2.5.48/include/linux/kernel.h	18 Nov 2002 05:11:13 -0000	1.1.1.1
-+++ linux-2.5.48/include/linux/kernel.h	20 Nov 2002 06:29:39 -0000
-@@ -103,6 +103,7 @@
- #define TAINT_FORCED_MODULE		(1<<1)
- #define TAINT_UNSAFE_SMP		(1<<2)
- #define TAINT_FORCED_RMMOD		(1<<3)
-+#define TAINT_UNKNOWN_STATE		(1<<4)
- 
- extern void dump_stack(void);
- 
-Index: linux-2.5.48/kernel/panic.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.48/kernel/panic.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 panic.c
---- linux-2.5.48/kernel/panic.c	18 Nov 2002 05:13:12 -0000	1.1.1.1
-+++ linux-2.5.48/kernel/panic.c	21 Nov 2002 13:10:35 -0000
-@@ -114,10 +114,12 @@
- {
- 	static char buf[20];
- 	if (tainted) {
--		snprintf(buf, sizeof(buf), "Tainted: %c%c%c",
-+		snprintf(buf, sizeof(buf), "Tainted: %c%c%c%c%c",
- 			tainted & TAINT_PROPRIETORY_MODULE ? 'P' : 'G',
- 			tainted & TAINT_FORCED_MODULE ? 'F' : ' ',
--			tainted & TAINT_UNSAFE_SMP ? 'S' : ' ');
-+			tainted & TAINT_UNSAFE_SMP ? 'S' : ' ',
-+			tainted & TAINT_FORCED_RMMOD ? 'R' : ' ',
-+			tainted & TAINT_UNKNOWN_STATE ? 'U' : ' ');
- 	}
- 	else
- 		snprintf(buf, sizeof(buf), "Not tainted");
-Index: linux-2.5.48/arch/i386/mm/fault.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.48/arch/i386/mm/fault.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 fault.c
---- linux-2.5.48/arch/i386/mm/fault.c	18 Nov 2002 05:11:52 -0000	1.1.1.1
-+++ linux-2.5.48/arch/i386/mm/fault.c	21 Nov 2002 06:46:43 -0000
-@@ -135,6 +135,7 @@
- 	console_loglevel = 15;		/* NMI oopser may have shut the console up */
- 	printk(" ");
- 	console_loglevel = loglevel_save;
-+	tainted |= TAINT_UNKNOWN_STATE;	/* flag that we've gone through one oops 'U' */
- }
- 
- asmlinkage void do_invalid_op(struct pt_regs *, unsigned long);
-Index: linux-2.5.48/lib/bust_spinlocks.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.48/lib/bust_spinlocks.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 bust_spinlocks.c
---- linux-2.5.48/lib/bust_spinlocks.c	18 Nov 2002 05:12:57 -0000	1.1.1.1
-+++ linux-2.5.48/lib/bust_spinlocks.c	21 Nov 2002 06:46:12 -0000
-@@ -34,6 +34,7 @@
- 		printk(" ");
- 		console_loglevel = loglevel_save;
- 	}
-+	tainted |= TAINT_UNKNOWN_STATE;	/* flag that we've gone through one oops 'U' */
- }
- 
- 
+		Dave
+
 -- 
-function.linuxpower.ca
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

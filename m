@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261368AbSJQLjg>; Thu, 17 Oct 2002 07:39:36 -0400
+	id <S261372AbSJQLlK>; Thu, 17 Oct 2002 07:41:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbSJQLjf>; Thu, 17 Oct 2002 07:39:35 -0400
-Received: from precia.cinet.co.jp ([210.166.75.133]:2688 "EHLO
+	id <S261364AbSJQLlJ>; Thu, 17 Oct 2002 07:41:09 -0400
+Received: from precia.cinet.co.jp ([210.166.75.133]:3200 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261368AbSJQLem>; Thu, 17 Oct 2002 07:34:42 -0400
-Date: Thu, 17 Oct 2002 20:39:52 +0900
+	id <S261372AbSJQLeo>; Thu, 17 Oct 2002 07:34:44 -0400
+Date: Thu, 17 Oct 2002 20:39:57 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][RFC] add support for PC-9800 architecture (4/26) core #1
-Message-ID: <20021017203952.A1164@precia.cinet.co.jp>
+Subject: [PATCH][RFC] add support for PC-9800 architecture (6/26) FB console
+Message-ID: <20021017203957.A1176@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,2148 +19,2221 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part 4/26 of patchset for add support NEC PC-9800 architecture,
+This is part 6/26 of patchset for add support NEC PC-9800 architecture,
 against 2.5.43.
 
 Summary:
- i386 core modules
-  - IO port address change
-  - IRQ number change
-  - adapted to hardware memory mapping.
-  - CLOCK_TICK_RATE constat to variable.
-     some PC-9800 can change base clock by hardware switch!
+ FB driver modules
+  - add support for PC-9800 standard video card
+  - add support multi-byte charactors. (2bytes japanese kanji only, now)
 
 diffstat:
- arch/i386/Makefile                      |   17 +
- arch/i386/config.in                     |   19 +
- arch/i386/kernel/Makefile               |    4 
- arch/i386/kernel/cpu/proc.c             |    2 
- arch/i386/kernel/i8259.c                |  100 ++++----
- arch/i386/kernel/pc9800_debug.c         |  362 ++++++++++++++++++++++++++++++++
- arch/i386/kernel/reboot.c               |   11 
- arch/i386/kernel/setup.c                |   93 ++++++++
- arch/i386/kernel/time.c                 |  128 +++++++++++
- arch/i386/kernel/timers/timer_pit.c     |   23 +-
- arch/i386/kernel/timers/timer_tsc.c     |   42 +++
- arch/i386/kernel/traps.c                |   22 +
- arch/i386/kernel/vm86.c                 |   21 +
- arch/i386/mach-generic/io_ports.h       |   20 +
- arch/i386/mach-pc9800/Makefile          |   15 +
- arch/i386/mach-pc9800/do_timer.h        |   80 +++++++
- arch/i386/mach-pc9800/entry_arch.h      |   34 +++
- arch/i386/mach-pc9800/io_ports.h        |   20 +
- arch/i386/mach-pc9800/irq_vectors.h     |   85 +++++++
- arch/i386/mach-pc9800/mach_apic.h       |   46 ++++
- arch/i386/mach-pc9800/setup.c           |  113 +++++++++
- arch/i386/mach-pc9800/setup_arch_post.h |   29 ++
- arch/i386/mach-pc9800/setup_arch_pre.h  |   36 +++
- arch/i386/mach-pc9800/smpboot_hooks.h   |   33 ++
- arch/i386/mach-summit/io_ports.h        |   20 +
- arch/i386/mach-visws/io_ports.h         |   20 +
- 26 files changed, 1325 insertions(+), 70 deletions(-)
+ drivers/video/Config.in   |    4 
+ drivers/video/Makefile    |    4 
+ drivers/video/egcfb.c     |  654 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/video/fbcon-egc.c |  681 ++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/video/fbcon.c     |  461 ++++++++++++++++++++++++++++++-
+ drivers/video/fbmem.c     |   60 ++++
+ include/video/fbcon-egc.h |   32 ++
+ 7 files changed, 1887 insertions(+), 9 deletions(-)
 
 patch:
-diff -urN linux/arch/i386/Makefile linux98/arch/i386/Makefile
---- linux/arch/i386/Makefile	Wed Oct 16 13:20:28 2002
-+++ linux98/arch/i386/Makefile	Wed Oct 16 14:20:21 2002
-@@ -46,8 +46,14 @@
- ifdef CONFIG_VISWS
- MACHINE	:= mach-visws
- else
-+ifdef CONFIG_PC9800
-+MACHINE	:= mach-pc9800
-+else
-+ifndef MACHINE
- MACHINE	:= mach-generic
- endif
-+endif
-+endif
- 
- HEAD := arch/i386/kernel/head.o arch/i386/kernel/init_task.o
- 
-@@ -63,15 +69,25 @@
- CFLAGS += -Iarch/i386/$(MACHINE)
- AFLAGS += -Iarch/i386/$(MACHINE)
- 
-+makeboot98 = $(call descend,arch/i386/boot98,$(1))
-+ifndef CONFIG_PC9800
- makeboot = $(call descend,arch/i386/boot,$(1))
-+else
-+makeboot = $(makeboot98)
-+endif
- 
- .PHONY: zImage bzImage compressed zlilo bzlilo zdisk bzdisk install \
- 		clean archclean archmrproper
- 
- all: bzImage
- 
-+ifndef CONFIG_PC9800
- BOOTIMAGE=arch/i386/boot/bzImage
- zImage zlilo zdisk: BOOTIMAGE=arch/i386/boot/zImage
-+else
-+BOOTIMAGE=arch/i386/boot98/bzImage
-+zImage zlilo zdisk: BOOTIMAGE=arch/i386/boot98/zImage
-+endif
- 
- zImage bzImage: vmlinux
- 	+@$(call makeboot,$(BOOTIMAGE))
-@@ -89,5 +105,6 @@
- 
- archclean:
- 	+@$(call makeboot,clean)
-+	+@$(call makeboot98,clean)
- 
- archmrproper:
-diff -urN linux/arch/i386/config.in linux98/arch/i386/config.in
---- linux/arch/i386/config.in	Wed Oct 16 13:20:28 2002
-+++ linux98/arch/i386/config.in	Wed Oct 16 14:20:21 2002
-@@ -267,6 +267,7 @@
- mainmenu_option next_comment
- comment 'Bus options (PCI, PCMCIA, EISA, MCA, ISA)'
- 
-+bool 'NEC PC-9801/PC-9821 support' CONFIG_PC9800
- # Visual Workstation support is utterly broken.
- # If you want to see it working mail an VW540 to hch@infradead.org 8)
- #bool 'SGI Visual Workstation support' CONFIG_VISWS
-@@ -299,9 +300,13 @@
- source drivers/pci/Config.in
- 
- bool 'ISA support' CONFIG_ISA
-+if [ "$CONFIG_PC9800" != "y" ]; then
- dep_bool 'EISA support' CONFIG_EISA $CONFIG_ISA
-+else
-+   define_bool CONFIG_EISA n
-+fi
- 
--if [ "$CONFIG_VISWS" != "y" ]; then
-+if [ "$CONFIG_VISWS" != "y" -a  "$CONFIG_PC9800" != "y" ]; then
-    bool 'MCA support' CONFIG_MCA
- else
-    define_bool CONFIG_MCA n
-@@ -421,11 +426,20 @@
- if [ "$CONFIG_VT" = "y" ]; then
-    mainmenu_option next_comment
-    comment 'Console drivers'
-+ if [ "$CONFIG_PC9800" = "y" ]; then
-+   bool 'PC-9800 GDC text console' CONFIG_GDC_CONSOLE
-+   dep_bool '   Enable 32-bit access to text video RAM' CONFIG_GDC_32BITACCESS $CONFIG_GDC_CONSOLE
-+ else
-    bool 'VGA text console' CONFIG_VGA_CONSOLE
-    bool 'Video mode selection support' CONFIG_VIDEO_SELECT
-    if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-       tristate 'MDA text console (dual-headed) (EXPERIMENTAL)' CONFIG_MDA_CONSOLE
-+   fi
-+ fi
-+   if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-+     if [ "$CONFIG_PC9800" != "y" -o "$CONFIG_GDC_CONSOLE" = "y" ]; then
-       source drivers/video/Config.in
+diff -urN linux/drivers/video/Config.in linux98/drivers/video/Config.in
+--- linux/drivers/video/Config.in	Wed Jul 17 08:49:34 2002
++++ linux98/drivers/video/Config.in	Fri Jul 19 16:09:49 2002
+@@ -95,10 +95,14 @@
+       tristate '  TGA framebuffer support' CONFIG_FB_TGA
+    fi
+    if [ "$CONFIG_X86" = "y" ]; then
++     if [ "$CONFIG_PC9800" != "y" ]; then
+       bool '  VESA VGA graphics console' CONFIG_FB_VESA
+       tristate '  VGA 16-color graphics console' CONFIG_FB_VGA16
+       tristate '  Hercules mono graphics console (EXPERIMENTAL)' CONFIG_FB_HGA
+       define_bool CONFIG_VIDEO_SELECT y
++     else
++      tristate '  EGC 16-color graphics console' CONFIG_FB_EGC
 +     fi
     fi
-    endmenu
- fi
-@@ -461,6 +475,9 @@
-       bool '  Highmem debugging' CONFIG_DEBUG_HIGHMEM
-    fi
-    bool '  Load all symbols for debugging/kksymoops' CONFIG_KALLSYMS
-+   if [ "$CONFIG_PC9800" = "y" ]; then
-+      bool '  Save kernel messages into UCG-RAM' CONFIG_PC9800_UCGLOG
-+   fi
- fi
+    if [ "$CONFIG_VISWS" = "y" ]; then
+       tristate '  SGI Visual Workstation framebuffer support' CONFIG_FB_SGIVW
+diff -urN linux/drivers/video/Makefile linux98/drivers/video/Makefile
+--- linux/drivers/video/Makefile	Tue Oct  8 10:56:16 2002
++++ linux98/drivers/video/Makefile	Tue Oct  8 11:01:41 2002
+@@ -10,7 +10,7 @@
+ 		   fbcon-iplan2p2.o fbcon-iplan2p4.o fbgen.o \
+ 		   fbcon-iplan2p8.o fbcon-vga-planes.o fbcon-cfb16.o \
+ 		   fbcon-cfb2.o fbcon-cfb24.o fbcon-cfb32.o fbcon-cfb4.o \
+-		   fbcon-cfb8.o fbcon-mfb.o fbcon-hga.o
++		   fbcon-cfb8.o fbcon-mfb.o fbcon-egc.o fbcon-hga.o
  
- if [ "$CONFIG_X86_LOCAL_APIC" = "y" ]; then
-diff -urN linux/arch/i386/kernel/Makefile linux98/arch/i386/kernel/Makefile
---- linux/arch/i386/kernel/Makefile	Wed Oct 16 13:20:28 2002
-+++ linux98/arch/i386/kernel/Makefile	Wed Oct 16 14:27:17 2002
-@@ -10,6 +10,10 @@
- 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
- 		pci-dma.o i386_ksyms.o i387.o bluesmoke.o dmi_scan.o \
- 		bootflag.o
-+ifeq ($(CONFIG_PC9800),y)
-+export-objs			+= pc9800_debug.o
-+obj-$(CONFIG_PC9800)		+= pc9800_debug.o
-+endif
+ # Each configuration option enables a list of files.
  
- obj-y				+= cpu/
- obj-y				+= timers/
-diff -urN linux/arch/i386/kernel/cpu/proc.c linux98/arch/i386/kernel/cpu/proc.c
---- linux/arch/i386/kernel/cpu/proc.c	Mon Jun 17 11:31:35 2002
-+++ linux98/arch/i386/kernel/cpu/proc.c	Mon Jun 17 23:49:02 2002
-@@ -76,7 +76,7 @@
- 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
- 	
- 	/* We use exception 16 if we have hardware math and we've either seen it or the CPU claims it is internal */
--	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
-+	fpu_exception = c->hard_math && (ignore_fpu_irq || cpu_has_fpu);
- 	seq_printf(m, "fdiv_bug\t: %s\n"
- 			"hlt_bug\t\t: %s\n"
- 			"f00f_bug\t: %s\n"
-diff -urN linux/arch/i386/kernel/i8259.c linux98/arch/i386/kernel/i8259.c
---- linux/arch/i386/kernel/i8259.c	Tue Oct  8 03:25:15 2002
-+++ linux98/arch/i386/kernel/i8259.c	Thu Oct 10 21:46:44 2002
-@@ -25,6 +25,8 @@
+@@ -19,6 +19,7 @@
+ obj-$(CONFIG_PROM_CONSOLE)        += promcon.o promcon_tbl.o
+ obj-$(CONFIG_STI_CONSOLE)         += sticon.o sticon-bmode.o sticore.o
+ obj-$(CONFIG_VGA_CONSOLE)         += vgacon.o
++obj-$(CONFIG_GDC_CONSOLE)         += gdccon.o
+ obj-$(CONFIG_MDA_CONSOLE)         += mdacon.o
  
- #include <linux/irq.h>
- 
-+#include "io_ports.h"
-+
- /*
-  * This is the 'legacy' 8259A Programmable Interrupt Controller,
-  * present in the majority of PC/AT boxes.
-@@ -74,8 +76,8 @@
- static unsigned int cached_irq_mask = 0xffff;
- 
- #define __byte(x,y) 	(((unsigned char *)&(y))[x])
--#define cached_21	(__byte(0,cached_irq_mask))
--#define cached_A1	(__byte(1,cached_irq_mask))
-+#define cached_master_mask	(__byte(0,cached_irq_mask))
-+#define cached_slave_mask	(__byte(1,cached_irq_mask))
- 
- /*
-  * Not all IRQs can be routed through the IO-APIC, eg. on certain (older)
-@@ -96,9 +98,9 @@
- 	spin_lock_irqsave(&i8259A_lock, flags);
- 	cached_irq_mask |= mask;
- 	if (irq & 8)
--		outb(cached_A1,0xA1);
-+		outb(cached_slave_mask, PIC_SLAVE_IMR);
- 	else
--		outb(cached_21,0x21);
-+		outb(cached_master_mask, PIC_MASTER_IMR);
- 	spin_unlock_irqrestore(&i8259A_lock, flags);
- }
- 
-@@ -110,9 +112,9 @@
- 	spin_lock_irqsave(&i8259A_lock, flags);
- 	cached_irq_mask &= mask;
- 	if (irq & 8)
--		outb(cached_A1,0xA1);
-+		outb(cached_slave_mask, PIC_SLAVE_IMR);
- 	else
--		outb(cached_21,0x21);
-+		outb(cached_master_mask, PIC_MASTER_IMR);
- 	spin_unlock_irqrestore(&i8259A_lock, flags);
- }
- 
-@@ -124,9 +126,9 @@
- 
- 	spin_lock_irqsave(&i8259A_lock, flags);
- 	if (irq < 8)
--		ret = inb(0x20) & mask;
-+		ret = inb(PIC_MASTER_CMD) & mask;
- 	else
--		ret = inb(0xA0) & (mask >> 8);
-+		ret = inb(PIC_SLAVE_CMD) & (mask >> 8);
- 	spin_unlock_irqrestore(&i8259A_lock, flags);
- 
- 	return ret;
-@@ -152,14 +154,14 @@
- 	int irqmask = 1<<irq;
- 
- 	if (irq < 8) {
--		outb(0x0B,0x20);		/* ISR register */
--		value = inb(0x20) & irqmask;
--		outb(0x0A,0x20);		/* back to the IRR register */
-+		outb(0x0B,PIC_MASTER_CMD);	/* ISR register */
-+		value = inb(PIC_MASTER_CMD) & irqmask;
-+		outb(0x0A,PIC_MASTER_CMD);	/* back to the IRR register */
- 		return value;
- 	}
--	outb(0x0B,0xA0);		/* ISR register */
--	value = inb(0xA0) & (irqmask >> 8);
--	outb(0x0A,0xA0);		/* back to the IRR register */
-+	outb(0x0B,PIC_SLAVE_CMD);	/* ISR register */
-+	value = inb(PIC_SLAVE_CMD) & (irqmask >> 8);
-+	outb(0x0A,PIC_SLAVE_CMD);	/* back to the IRR register */
- 	return value;
- }
- 
-@@ -196,14 +198,14 @@
- 
- handle_real_irq:
- 	if (irq & 8) {
--		inb(0xA1);		/* DUMMY - (do we need this?) */
--		outb(cached_A1,0xA1);
--		outb(0x60+(irq&7),0xA0);/* 'Specific EOI' to slave */
--		outb(0x62,0x20);	/* 'Specific EOI' to master-IRQ2 */
-+		inb(PIC_SLAVE_IMR);	/* DUMMY - (do we need this?) */
-+		outb(cached_slave_mask, PIC_SLAVE_IMR);
-+		outb(0x60+(irq&7),PIC_SLAVE_CMD);/* 'Specific EOI' to slave */
-+		outb(0x60+PIC_CASCADE_IR,PIC_MASTER_CMD); /* 'Specific EOI' to master-IRQ2 */
- 	} else {
--		inb(0x21);		/* DUMMY - (do we need this?) */
--		outb(cached_21,0x21);
--		outb(0x60+irq,0x20);	/* 'Specific EOI' to master */
-+		inb(PIC_MASTER_IMR);	/* DUMMY - (do we need this?) */
-+		outb(cached_master_mask, PIC_MASTER_IMR);
-+		outb(0x60+irq,PIC_MASTER_CMD);	/* 'Specific EOI to master */
- 	}
- 	spin_unlock_irqrestore(&i8259A_lock, flags);
- 	return;
-@@ -275,26 +277,24 @@
- 
- 	spin_lock_irqsave(&i8259A_lock, flags);
- 
--	outb(0xff, 0x21);	/* mask all of 8259A-1 */
--	outb(0xff, 0xA1);	/* mask all of 8259A-2 */
-+	outb(0xff, PIC_MASTER_IMR);	/* mask all of 8259A-1 */
-+	outb(0xff, PIC_SLAVE_IMR);	/* mask all of 8259A-2 */
- 
- 	/*
- 	 * outb_p - this has to work on a wide range of PC hardware.
- 	 */
--	outb_p(0x11, 0x20);	/* ICW1: select 8259A-1 init */
--	outb_p(0x20 + 0, 0x21);	/* ICW2: 8259A-1 IR0-7 mapped to 0x20-0x27 */
--	outb_p(0x04, 0x21);	/* 8259A-1 (the master) has a slave on IR2 */
--	if (auto_eoi)
--		outb_p(0x03, 0x21);	/* master does Auto EOI */
--	else
--		outb_p(0x01, 0x21);	/* master expects normal EOI */
--
--	outb_p(0x11, 0xA0);	/* ICW1: select 8259A-2 init */
--	outb_p(0x20 + 8, 0xA1);	/* ICW2: 8259A-2 IR0-7 mapped to 0x28-0x2f */
--	outb_p(0x02, 0xA1);	/* 8259A-2 is a slave on master's IR2 */
--	outb_p(0x01, 0xA1);	/* (slave's support for AEOI in flat mode
--				    is to be investigated) */
--
-+	outb_p(0x11, PIC_MASTER_CMD);	/* ICW1: select 8259A-1 init */
-+	outb_p(0x20 + 0, PIC_MASTER_IMR);	/* ICW2: 8259A-1 IR0-7 mapped to 0x20-0x27 */
-+	outb_p(1U << PIC_CASCADE_IR, PIC_MASTER_IMR);	/* 8259A-1 (the master) has a slave on IR2 */
-+	if (auto_eoi)	/* master does Auto EOI */
-+		outb_p(MASTER_ICW4_DEFAULT | PIC_ICW4_AEOI, PIC_MASTER_IMR);
-+	else		/* master expects normal EOI */
-+		outb_p(MASTER_ICW4_DEFAULT, PIC_MASTER_IMR);
-+
-+	outb_p(0x11, PIC_SLAVE_CMD);	/* ICW1: select 8259A-2 init */
-+	outb_p(0x20 + 8, PIC_SLAVE_IMR);	/* ICW2: 8259A-2 IR0-7 mapped to 0x28-0x2f */
-+	outb_p(PIC_CASCADE_IR, PIC_SLAVE_IMR);	/* 8259A-2 is a slave on master's IR2 */
-+	outb_p(SLAVE_ICW4_DEFAULT, PIC_SLAVE_IMR); /* (slave's support for AEOI in flat mode is to be investigated) */
- 	if (auto_eoi)
- 		/*
- 		 * in AEOI mode we just have to mask the interrupt
-@@ -306,8 +306,8 @@
- 
- 	udelay(100);		/* wait for 8259A to initialize */
- 
--	outb(cached_21, 0x21);	/* restore master IRQ mask */
--	outb(cached_A1, 0xA1);	/* restore slave IRQ mask */
-+	outb(cached_master_mask, PIC_MASTER_IMR); /* restore master IRQ mask */
-+	outb(cached_slave_mask, PIC_SLAVE_IMR);	  /* restore slave IRQ mask */
- 
- 	spin_unlock_irqrestore(&i8259A_lock, flags);
- }
-@@ -324,11 +324,17 @@
-  * be shot.
-  */
-  
+ obj-$(CONFIG_FONT_SUN8x16)        += font_sun8x16.o
+@@ -69,6 +70,7 @@
+ obj-$(CONFIG_FB_TGA)              += tgafb.o
+ obj-$(CONFIG_FB_VESA)             += vesafb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o 
+ obj-$(CONFIG_FB_VGA16)            += vga16fb.o fbcon-vga-planes.o
++obj-$(CONFIG_FB_EGC)              += egcfb.o fbcon-egc.o
+ obj-$(CONFIG_FB_VIRGE)            += virgefb.o
+ obj-$(CONFIG_FB_G364)             += g364fb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
+ obj-$(CONFIG_FB_FM2)              += fm2fb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
+diff -urN linux/drivers/video/egcfb.c linux98/drivers/video/egcfb.c
+--- linux/drivers/video/egcfb.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/video/egcfb.c	Tue Sep  3 16:27:04 2002
+@@ -0,0 +1,654 @@
 +/*
-+ * =PC9800NOTE= In NEC PC-9800, we use irq8 instead of irq13!
++ * linux/drivers/video/egcfb.c -- EGC/GRCG framebuffer
++ *
++ * Copyright 1999 Satoshi YAMADA <slakichi@kmc.kyoto-u.ac.jp>
++ *
++ * Based on VGA framebuffer (C) 1999 Ben Pfaff <pfaffben@debian.org> ,
++ *				     Petr Vandrovec <VANDROVE@vc.cvut.cz>
++ *
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License.  See the file COPYING in the main directory of this
++ * archive for more details. 
 + */
 +
- static void math_error_irq(int cpl, void *dev_id, struct pt_regs *regs)
- {
- 	extern void math_error(void *);
-+#ifndef CONFIG_PC9800
- 	outb(0,0xF0);
--	if (ignore_irq13 || !boot_cpu_data.hard_math)
-+#endif
-+	if (ignore_fpu_irq || !boot_cpu_data.hard_math)
- 		return;
- 	math_error((void *)regs->eip);
- }
-@@ -337,7 +343,7 @@
-  * New motherboards sometimes make IRQ 13 be a PCI interrupt,
-  * so allow interrupt sharing.
-  */
--static struct irqaction irq13 = { math_error_irq, 0, 0, "fpu", NULL, NULL };
-+static struct irqaction fpu_irq = { math_error_irq, 0, 0, "fpu", NULL, NULL };
- 
- void __init init_ISA_irqs (void)
- {
-@@ -393,14 +399,18 @@
- 	 * Set the clock to HZ Hz, we already have a valid
- 	 * vector now:
- 	 */
--	outb_p(0x34,0x43);		/* binary, mode 2, LSB/MSB, ch 0 */
--	outb_p(LATCH & 0xff , 0x40);	/* LSB */
--	outb(LATCH >> 8 , 0x40);	/* MSB */
-+	outb_p(0x34, PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
-+	outb_p(LATCH & 0xff, PIT_CH0);	/* LSB */
-+	outb(LATCH >> 8 , PIT_CH0);	/* MSB */
- 
- 	/*
- 	 * External FPU? Set up irq13 if so, for
- 	 * original braindamaged IBM FERR coupling.
- 	 */
- 	if (boot_cpu_data.hard_math && !cpu_has_fpu)
--		setup_irq(13, &irq13);
-+#ifndef CONFIG_PC9800
-+		setup_irq(13, &fpu_irq);
-+#else
-+		setup_irq(8, &fpu_irq);
-+#endif
- }
-diff -urN linux/arch/i386/kernel/pc9800_debug.c linux98/arch/i386/kernel/pc9800_debug.c
---- linux/arch/i386/kernel/pc9800_debug.c	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/kernel/pc9800_debug.c	Wed May  1 16:47:15 2002
-@@ -0,0 +1,362 @@
-+/*
-+ *  linux/arch/i386/kernel/pc9800_debug.c
-+ *
-+ *  Copyright (C) 1998 Linux/98 Project
-+ *
-+ * Revised by TAKAI Kousuke, Nov 1999.
-+ */
-+
-+#include <linux/config.h>
 +#include <linux/module.h>
-+#include <linux/types.h>
-+#include <linux/kdev_t.h>
++#include <linux/kernel.h>
++#include <linux/errno.h>
++#include <linux/string.h>
++#include <linux/mm.h>
++#include <linux/tty.h>
++#include <linux/slab.h>
++#include <linux/delay.h>
++#include <linux/fb.h>
 +#include <linux/console.h>
++#include <linux/selection.h>
++#include <linux/ioport.h>
 +#include <linux/init.h>
++#include <linux/spinlock.h>
 +
 +#include <asm/io.h>
-+#include <asm/pc9800_debug.h>
-+#include <asm/pc9800.h>
 +
-+unsigned char __pc9800_beep_flag = 0x7;
++#include <video/fbcon.h>
++#include <video/fbcon-egc.h>
 +
-+/* pc9800_beep_{on|off|toggle} are moved to <asm/pc9800_debug.h>. */
++/* plane 0,1,2 */
++#define EGC_RGB_FB_PHYS 0xA8000
++#define EGC_RGB_FB_PHYS_LEN 0x18000
++/* plane 3 */
++#define EGC_E_FB_PHYS 0xE0000
++#define EGC_E_FB_PHYS_LEN 0x8000
++/* total (fix-info returns these value, but these are INVALID value!) */
++#define EGC_FB_PHYS 0xA8000
++#define EGC_FB_PHYS_LEN 0x20000
 +
-+/* Normal CG window begins at physical address 0xA4000,
-+   but user-definable characters are on odd address only... */
-+#define UCG_WINDOW	(phys_to_virt (0xA4001))
++#define EGCIO_GDC_CMD		0xa2
++#define EGCIO_GDC_PARAM		0xa0
++#define EGCIO_PL_NUM		0xa8
++#define EGCIO_PL_GREEN		0xaa
++#define EGCIO_PL_RED		0xac
++#define EGCIO_PL_BLUE		0xae
++#define EGCIO_SYNCCTRL		0x9a2
 +
-+#define	UCG_MAX_SIZE	(UCG_LOG_END - UCG_LOG_START + 1)
++#define EGCMEM_ISEGC		0x54d
 +
-+#define UCG_CHAR_NR(x)	((x) / 32)
-+#define UCG_2ND_BYTE(x)	((UCG_CHAR_NR (x) & 0x1f) + 0x80)
-+#define UCG_1ST_BYTE(x)	((UCG_CHAR_NR (x) >> 5) + 0x76 - 0x20 + 0x80)
-+#define UCG_LR(x)	(((x) & 16) << 1)
-+#define UCG_LR_MASK	(1U << 5)
-+#define UCG_OFFSET(x)	((x) % 16)
++/* --------------------------------------------------------------------- */
 +
-+#ifdef CONFIG_PC9800_UCGLOG
 +/*
-+ * Notes for PC-9800 UCG-log facility:
-+ *
-+ *  Official specification of PC-9800 says they can have user-definable
-+ *  character-generator (UCG) RAM for 188 characters, but actual
-+ *  implementations appear to have 256 characters (`188' seems to come
-+ *  from adapting it to 94x94 character set).  Thus there is 2KB-odd of
-+ *  unused area in UCG-RAM (one character consists of 16*16 dots, or
-+ *  32 bytes).  This area is not touched and its content will be preserved
-+ *  around system reset.  This facility uses this area for saving
-+ *  kernel messages.
-+ *
-+ * UCG-RAM layout:
-+ *
-+ *  Page  Char	Description
-+ *  ----  ----	----------------------------------------------------
-+ *   76    00	Magic string and character count in first 16 bytes
-+ *	   00					(remaining 16 bytes)
-+ *	    :	Log messages 1/2
-+ *	   1f
-+ *	   20	(unused)
-+ *	   21
-+ *	    :	Officially used for user-definable characters
-+ *	   7e
-+ *	   7f	(unused)
-+ *   77	   00
-+ *	    :	Log messages 2/2
-+ *	   1f
-+ *	   20	(unused)
-+ *	   21
-+ *	    :	Officially used for user-definable characters
-+ *	   7e
-+ *	   7f	(unused)
-+ *
-+ *    + Characters 20--7f on each page seem to be initialized by
-+ *	system firmware. 
++ * card parameters
 + */
 +
++static struct fb_info	fb_info;	/* framebuffer info */
++static char *video_vbase[2];		/* VRAM base address in virtual */
++static int hasEGC;			/* This matchine has EGC?(1/0) */
++static int palette_blanked;		/* Blanked by Palette control */
++static int sync_blanked;		/* Blanked by APM control */
 +
-+/* UCG-RAM offsets. */
-+#define UCG_LOG_MAGIC	0
-+#define UCG_LOG_HEAD	12
-+#define UCG_LOG_SIZE	14
-+#define UCG_LOG_START	16
-+#define UCG_LOG_END	(32 * 32 * 2 - 1)
 +
-+#define UCG_MAGIC_STRING	"Linux/98"
++/* --------------------------------------------------------------------- */
 +
-+static unsigned int ucg_log_head = UCG_LOG_START;
-+static unsigned int ucg_log_size = 0;
++/* default GDC parameters */
++#define EGC_FB_PIXCLOCK	 39708	/* 1/((margins+hsync_len+xres[pix])*(hsync[Hz])) */
++#define EGC_FB_MARGIN_LE 32	/* SYNC HBP 512>= ([P5(b5-b0)]+1)*8 >= 24 */
++#define EGC_FB_MARGIN_R	 32	/* SYNC HFP 512>= ([P4(b7-b2)]+1)*8 >= 16 */
++#define EGC_FB_MARGIN_U	 37	/* SYNC VBP 63 >= P8(b7-b2) >= 1 */
++#define EGC_FB_MARGIN_LO 2	/* SYNC VFP 63 >= P6(b5-b0) >= 1 */
++#define EGC_FB_HSYNC	 96	/* SYNC HS  512>= ([P3(b5-b0)]+1)*8 ,>=32 */
++#define EGC_FB_VSYNC	 2	/* SYNC VS  31 >= [P4(b1-b0)P3(b7-b5)] , >=1 */
 +
-+static void
-+ucglog_write(struct console *console, const char *buf, unsigned int length)
-+{
-+	unsigned char *const cg_window = UCG_WINDOW;
++/*
 +
-+	/*
-+	 * Note that we are called with interrupt disabled
-+	 * (spin_lock_irqsave in kernel/printk.c).
-+	 */
++4+80+4+12+2=98*8=784pixels,70Hz
 +
-+	if ((ucg_log_size += length) > UCG_MAX_SIZE)
-+		ucg_log_size = UCG_MAX_SIZE;
++37+400+2+2=441lines,31.48Hz
 +
-+	outb(0x0b, 0x68);	/* bitmap access mode */
++*/
 +
-+	while (length) {
-+		unsigned char *p;
-+		unsigned int count;
-+		u8 lr;
-+
-+		outb(UCG_2ND_BYTE (ucg_log_head), 0xa1);
-+		outb(UCG_1ST_BYTE (ucg_log_head), 0xa3);
-+		lr = UCG_LR(ucg_log_head);
-+		do {
-+			outb(lr, 0xa5);
-+			p = cg_window + UCG_OFFSET(ucg_log_head) * 2;
-+			count = 16 - UCG_OFFSET(ucg_log_head);
-+			if (count > length)
-+				count = length;
-+			length -= count;
-+			ucg_log_head += count;
-+			do {
-+				*p = *buf++;
-+				p += 2;
-+			} while (--count);
-+		} while (length && (lr ^= UCG_LR_MASK));
-+	}
-+
-+	if (ucg_log_head > UCG_LOG_END)
-+		ucg_log_head = UCG_LOG_START;
-+	outb(UCG_2ND_BYTE(UCG_LOG_HEAD), 0xa1);
-+	outb(UCG_1ST_BYTE(UCG_LOG_HEAD), 0xa3);
-+	outb(UCG_LR(UCG_LOG_HEAD), 0xa5);
-+	cg_window[(UCG_OFFSET(UCG_LOG_HEAD)) * 2] = ucg_log_head;
-+	cg_window[(UCG_OFFSET(UCG_LOG_HEAD) + 1) * 2] = ucg_log_head >> 8;
-+#if UCG_CHAR_NR(UCG_LOG_HEAD) != UCG_CHAR_NR(UCG_LOG_SIZE)
-+	outb(UCG_2ND_BYTE(UCG_LOG_SIZE), 0xa1);
-+	outb(UCG_1ST_BYTE(UCG_LOG_SIZE), 0xa3);
-+#endif
-+#if UCG_LR(UCG_LOG_HEAD) != UCG_LR(UCG_LOG_SIZE)
-+	outb(UCG_LR(UCG_LOG_SIZE), 0xa5);
-+#endif
-+	cg_window[(UCG_OFFSET(UCG_LOG_SIZE)) * 2] = ucg_log_size;
-+	cg_window[(UCG_OFFSET(UCG_LOG_SIZE) + 1) * 2] = ucg_log_size >> 8;
-+
-+	outb(0x0a, 0x68);
-+}
-+
-+static struct console ucglog_console = {
-+	name:	"ucg",
-+	write:	ucglog_write,
-+	setup:	NULL,
-+	flags:	CON_PRINTBUFFER,
-+	index:	-1,
++static struct fb_var_screeninfo egcfb_defined = {
++	.xres		= 640,
++	.yres		= 400,
++	.xres_virtual	= 640,
++	.yres_virtual	= 400,
++	.xoffset	= 0,		/* virtual -> visible no offset */
++	.yoffset	= 0,
++	.bits_per_pixel	= 4,
++	.grayscale	= 0,		/* not greyscale but color */
++	.red		= {0, 0, 0},
++	.green		= {0, 0, 0},
++	.blue		= {0, 0, 0},
++	.transp		= {0, 0, 0},	/* transparency */
++	.nonstd		= 0,		/* standard pixel format */
++	.activate	= FB_ACTIVATE_NOW,
++	.height		= -1,
++	.width		= -1,
++	.accel_flags	= 0,
++	.pixclock	= EGC_FB_PIXCLOCK,
++	.left_margin	= EGC_FB_MARGIN_LE,
++	.right_margin	= EGC_FB_MARGIN_R,
++	.upper_margin	= EGC_FB_MARGIN_U,
++	.lower_margin	= EGC_FB_MARGIN_LO,
++	.hsync_len	= EGC_FB_HSYNC,
++	.vsync_len	= EGC_FB_VSYNC,
++	.sync		= 0,		/* No sync info */
++	.vmode = FB_VMODE_NONINTERLACED,
 +};
 +
-+static int __init
-+ucglog_init(void)
++static struct fb_fix_screeninfo egcfb_fix __initdata = {
++	.id		= "egc",
++	.smem_start	= EGC_FB_PHYS,
++	.smem_len	= EGC_FB_PHYS_LEN,
++	.type		= FB_TYPE_VGA_PLANES,
++	.visual		= FB_VISUAL_PSEUDOCOLOR,
++	.xpanstep	= 8,
++	.ypanstep	= 1,
++	.ywrapstep	= 0,
++	.line_length	= 80,
++	.accel		= FB_ACCEL_NONE,
++};
++
++static struct display default_display;
++static struct {
++	u_short blue, green, red, transp;
++} palette[16];
++
++static spinlock_t egcfb_lock = SPIN_LOCK_UNLOCKED;
++
++/* --------------------------------------------------------------------- */
++
++static void egcfb_set_display(int con_num, struct fb_info *info)
 +{
-+	unsigned long flags;
-+	const u8 *p;
-+	u8 *cg_window;
-+	static const union {
-+		struct {
-+			char magic[12];
-+			u16 start;
-+			u16 size;
-+		} s;
-+		u8 bytes[16];
-+	} ucg_init_data __initdata = { { UCG_MAGIC_STRING, 0, 0 } };
++	struct display *display;
 +
-+	if (PC9800_HIGHRESO_P()) {
-+		/* Not implemented (yet)... */
-+		return 0;
-+	}
++	if (con_num < 0)
++		display = &default_display;
++	else
++		display = fb_display + con_num;
 +
-+	save_flags(flags);
-+	cli();
-+	outb(0x0b, 0x68);	/* bitmap access mode */
-+	outb(UCG_2ND_BYTE(UCG_LOG_MAGIC), 0xa1);
-+	outb(UCG_1ST_BYTE(UCG_LOG_MAGIC), 0xa3);
-+	outb(UCG_LR(UCG_LOG_MAGIC), 0xa5);
-+	for (cg_window = UCG_WINDOW, p = ucg_init_data.bytes;
-+	     p < (&ucg_init_data + 1)->bytes; cg_window += 2)
-+		*cg_window = *p++;
-+	outb(0x0a, 0x68);
-+	restore_flags(flags);
++	display->can_soft_blank = 1;
++	display->inverse = 0;
++	display->dispsw = &fbcon_egc;
++	display->fb_info = info;
++	display->next_line = info->fix.line_length;
++	display->scrollmode = SCROLL_YREDRAW;
++}
 +
-+	register_console(&ucglog_console);
-+	printk(KERN_INFO "UCG-RAM console driver installed\n");
++static int egcfb_check_var(const struct fb_var_screeninfo *var,
++			   const struct fb_info *info)
++{
++	if(var->xres != 640 || var->xres_virtual != 640)
++		return -EINVAL;
++	if(var->yres != 400 || var->yres_virtual != 400)
++		return -EINVAL;
++	if(var->xoffset != 0 || var->yoffset != 0)
++		return -EINVAL;
++	if(var->bits_per_pixel != 4)
++		return -EINVAL;
 +	return 0;
 +}
 +
-+__initcall (ucglog_init);
-+
-+#endif /* CONFIG_PC9800_UCGLOG */
-+
-+/*
-+#define CONFIG_PC9800_UCGSAVEARGS
-+*/
-+
-+#ifdef CONFIG_PC9800_UCGSAVEARGS
-+
-+#define UCG_SAVEARGS_START	(1 * 32)
-+
-+void
-+ucg_saveargs(unsigned int n, ...)
++static void egcfb_set_defaultvar(struct fb_var_screeninfo *var)
 +{
-+	u8 *cg;
-+	unsigned int count;
-+	unsigned int addr;
 +	unsigned long flags;
-+	const u8 *p = (const u8 *) (&n - 1);
 +
-+	save_flags(flags);
-+	cli();
-+	outb(0x0b, 0x68);	/* bitmap access mode */
-+	outb(UCG_2ND_BYTE(UCG_SAVEARGS_START), 0xa1);
-+	outb(UCG_1ST_BYTE(UCG_SAVEARGS_START), 0xa3);
-+	outb(UCG_LR(UCG_SAVEARGS_START), 0xa5);
-+	for (cg = UCG_WINDOW, count = 0; count < 4; count++)
-+		cg[count * 2] = p[count];
++	var->xres=var->xres_virtual=640;
++	var->yres=var->yres_virtual=400;
++	var->xoffset=var->yoffset=0;
++	var->bits_per_pixel=4;
++	var->grayscale=0;
++	var->red.length=var->green.length=var->blue.length=4;
++	var->red.offset=var->green.offset=var->blue.offset=0;
++	var->transp.length=var->transp.offset=0;
++	var->nonstd=0;
++	var->height=var->width=-1;
++	var->accel_flags=0;
++	var->left_margin=EGC_FB_MARGIN_LE;
++	var->right_margin=EGC_FB_MARGIN_R;
++	var->upper_margin=EGC_FB_MARGIN_U;
++	var->lower_margin=EGC_FB_MARGIN_LO;
++	var->hsync_len=EGC_FB_HSYNC;
++	var->vsync_len=EGC_FB_VSYNC;
++	var->sync=0;
++	var->vmode=FB_VMODE_NONINTERLACED;
 +
-+	addr = UCG_SAVEARGS_START + 4;
-+	for (p += 8; n--; p += 4) {
-+		if (UCG_OFFSET(addr) == 0) {
-+			outb(UCG_2ND_BYTE(addr), 0xa1);
-+			outb(UCG_1ST_BYTE(addr), 0xa3);
-+			outb(UCG_LR(addr), 0xa5);
-+		}
-+		cg[(UCG_OFFSET(addr) + 0) * 2] = p[0];
-+		cg[(UCG_OFFSET(addr) + 1) * 2] = p[1];
-+		cg[(UCG_OFFSET(addr) + 2) * 2] = p[2];
-+		cg[(UCG_OFFSET(addr) + 3) * 2] = p[3];
-+		addr += 4;
-+	}
-+
-+	outb(UCG_2ND_BYTE(0), 0xa1);
-+	outb(UCG_1ST_BYTE(0), 0xa3);
-+	outb(UCG_LR(0), 0xa5);
-+
-+	outb(0x0a, 0x68);
-+	restore_flags(flags);
++	spin_lock_irqsave(&egcfb_lock, flags);
++	outb_p(0x47,0xa2);
++	outb_p(80,0xa0);	/* pitch command */
++	outb_p(0x01,0x6a);
++	outb_p(0x00,0xa4);	/* show bank:0 */
++	outb_p(0x00,0xa6);	/* write bank:0 */
++	outb_p(0x0d,0xa2); /* Show Graphics */
++	outb_p(0x0c,0x62); /* Hide Text */
++	spin_unlock_irqrestore(&egcfb_lock, flags);
 +}
-+#endif
 +
-+#ifdef CONFIG_PC9800_ASSERT
-+void
-+__assert_fail(const char *base_file, const char *file, unsigned int line,
-+	       const char *function, void *return_address, const char *expr)
++static int egcfb_set_varinfo(struct fb_var_screeninfo *var, int con_num,
++			       struct fb_info *info)
 +{
-+  panic("In function `%s' (called from [<%p>])\n" KERN_EMERG
-+	 "%s%s%s%s:%u: Assertion `%s' failed.",
-+	 function, return_address, file,
-+	 base_file == file ? "" : " (",
-+	 base_file == file ? "" : base_file,
-+	 base_file == file ? "" : ")",
-+	 line, expr);
-+}
-+
-+void
-+__invalid_kernel_pointer(const char *base_file, const char *file,
-+			  unsigned int line, const char *function,
-+			  void *return_address,
-+			  const char *expr, void *val)
-+{
-+  panic("In function `%s' (called from [<%p>])\n" KERN_EMERG
-+	 "%s%s%s%s:%u: Invalid kernel pointer `%s' (%p).",
-+	 function, return_address, file,
-+	 base_file == file ? "" : " (",
-+	 base_file == file ? "" : base_file,
-+	 base_file == file ? "" : ")",
-+	 line, expr, val);
-+}
-+
-+#endif /* CONFIG_PC9800_ASSERT */
-+
-+unsigned char pc9800_saveregs_enabled;
-+
-+__asm__ (".text\n"
-+	 "	.global	__pc9800_saveregs\n"
-+	 "__pc9800_saveregs:\n"
-+#if 1
-+	 "	pushfl\n"
-+	 "	cmpb	$0,pc9800_saveregs_enabled\n"
-+	 "	je	1f\n"
-+	 "	pushl	%edi\n"			/* reverse order of PUSHA */
-+	 "	pushl	%esi\n"
-+	 "	pushl	%ebp\n"
-+	 "	leal	20(%esp),%esi\n"	/* original ESP */
-+	 "	pushl	%esi\n"
-+	 "	pushl	%ebx\n"
-+	 "	pushl	%edx\n"
-+	 "	pushl	%ecx\n"
-+	 "	pushl	%eax\n"
-+	 "	movl	$0xc0000780,%edi\n"	/* save few words on stack */
-+	 "	movl	$20, %ecx\n"
-+	 "	cld; rep; ss; movsl\n"		/* EDI becomes 0xC00007D0 */
-+	 "	subl	$(20+1+1+8)*4,%esi\n"	/* ESI points EAX on stack */
-+	 "	movl	$8,%ecx\n"
-+	 "	rep; ss; movsl\n"		/* save GP registers */
-+	 "	ss; lodsl\n"			/* EFLAGS */
-+	 "	ss; movsl\n"			/* save EIP */
-+	 "	stosl\n"			/* save EFLAGS */
-+	 "	movl	%cr3,%eax\n"		/* save control registers */
-+	 "	stosl\n"
-+	 "	movl	%cr0,%eax\n"
-+	 "	stosl\n"
-+	 "	popl	%eax\n"
-+	 "	popl	%ecx\n"
-+	 "	addl	$4*4,%esp\n"		/* discard EDX/EBX/ESP/EBP */
-+	 "	popl	%esi\n"
-+	 "	popl	%edi\n"
-+	 "1:	popfl\n"
-+#else
-+	 "	cmpb	$0,pc9800_saveregs_enabled\n"
-+	 "	je	1f\n"
-+	 "	pushl	%eax\n"
-+	 "	movl	%eax,0xc00007d0\n"
-+	 "	movl	%ecx,0xc00007d4\n"
-+	 "	movl	%edx,0xc00007d8\n"
-+	 "	movl	%ebx,0xc00007dc\n"
-+	 "	leal	8(%esp),%eax\n"		/* original ESP */
-+	 "	movl	%eax,0xc00007e0\n"
-+	 "	movl	%ebp,0xc00007e4\n"
-+	 "	movl	%esi,0xc00007e8\n"
-+	 "	movl	%edi,0xc00007ec\n"
-+	 "	movl	4(%esp),%eax\n"		/* EIP as return address */
-+	 "	movl	%eax,0xc00007f0\n"
-+	 "	pushfl\n"
-+	 "	popl	%eax\n"
-+	 "	movl	%eax,0xc00007f4\n"
-+	 "	movl	%cr3,%eax\n"
-+	 "	movl	%eax,0xc00007f8\n"
-+	 "	movl	%cr0,%eax\n"
-+	 "	movl	%eax,0xc00007fc\n"
-+	 "	pushl	%ecx\n"
-+	 "	pushl	%esi\n"
-+	 "	pushl	%edi\n"
-+	 "	leal	20(%esp),%esi\n"
-+	 "	movl	$0xc0000780,%edi\n"
-+	 "	movl	$16,%ecx\n"
-+	 "	cld; rep; ss; movsl\n"
-+	 "	popl	%edi\n"
-+	 "	popl	%esi\n"
-+	 "	popl	%ecx\n"
-+	 "	popl	%eax\n"
-+	 "1:\n"
++#if 0
++	struct display *display;
 +#endif
-+	 "	ret");
-+
-+__asm__ (".weak mcount; mcount = __pc9800_saveregs");
++	int retval;
 +
 +#if 0
-+int
-+test_mcount(void)
-+{
-+	printk("Calling mcount...\n");
-+	pc9800_saveregs_enabled = 1;
-+	mcount();
++	if (con < 0)
++		display = info->disp;
++	else
++		display = fb_display + con;
++#endif
++	retval = egcfb_check_var(var, info);
++	if (retval != 0)
++		return retval;
++	egcfb_set_defaultvar(var);
++	
++	if ((var->activate & FB_ACTIVATE_MASK) == FB_ACTIVATE_TEST)
++		return 0;
++
++#if 0
++	if ((var->activate & FB_ACTIVATE_MASK) == FB_ACTIVATE_NOW) {
++	/* Nothing to do. */
++	}
++#endif
++
++	return 0;
 +}
 +
-+__initcall (test_mcount);
-+#endif
-diff -urN linux/arch/i386/kernel/reboot.c linux98/arch/i386/kernel/reboot.c
---- linux/arch/i386/kernel/reboot.c	Sat Oct 12 13:21:36 2002
-+++ linux98/arch/i386/kernel/reboot.c	Sat Oct 12 14:18:52 2002
-@@ -125,6 +125,7 @@
- 	0xea, 0x00, 0x00, 0xff, 0xff		/*    ljmp  $0xffff,$0x0000  */
- };
- 
-+#ifndef CONFIG_PC9800
- static inline void kb_wait(void)
- {
- 	int i;
-@@ -133,6 +134,7 @@
- 		if ((inb_p(0x64) & 0x02) == 0)
- 			break;
- }
-+#endif /* !CONFIG_PC9800 */
- 
- /*
-  * Switch to real mode and then execute the code
-@@ -141,7 +143,9 @@
-  */
- void machine_real_restart(unsigned char *code, int length)
- {
-+#ifndef CONFIG_PC9800
- 	unsigned long flags;
-+#endif
- 
- 	local_irq_disable();
- 
-@@ -155,9 +159,11 @@
- 	   safe side.  (Yes, CMOS_WRITE does outb_p's. -  Paul G.)
- 	 */
- 
-+#ifndef CONFIG_PC9800
- 	spin_lock_irqsave(&rtc_lock, flags);
- 	CMOS_WRITE(0x00, 0x8f);
- 	spin_unlock_irqrestore(&rtc_lock, flags);
-+#endif
- 
- 	/* Remap the kernel at virtual address zero, as well as offset zero
- 	   from the kernel segment.  This assumes the kernel segment starts at
-@@ -264,6 +270,7 @@
- 		/* rebooting needs to touch the page at absolute addr 0 */
- 		*((unsigned short *)__va(0x472)) = reboot_mode;
- 		for (;;) {
-+#ifndef CONFIG_PC9800
- 			int i;
- 			for (i=0; i<100; i++) {
- 				kb_wait();
-@@ -271,6 +278,10 @@
- 				outb(0xfe,0x64);         /* pulse reset low */
- 				udelay(50);
- 			}
-+#else /* CONFIG_PC9800 */
-+			outb(0, 0xf0);		/* signal CPU reset */
-+			mdelay(1);
-+#endif /* !CONFIG_PC9800 */
- 			/* That didn't work - force a triple fault.. */
- 			__asm__ __volatile__("lidt %0": :"m" (no_idt));
- 			__asm__ __volatile__("int3");
-diff -urN linux/arch/i386/kernel/setup.c linux98/arch/i386/kernel/setup.c
---- linux/arch/i386/kernel/setup.c	Sat Sep 21 00:20:26 2002
-+++ linux98/arch/i386/kernel/setup.c	Sun Sep 22 10:24:43 2002
-@@ -20,6 +20,7 @@
-  * This file handles the architecture-dependent parts of initialization
-  */
- 
-+#include <linux/config.h>
- #include <linux/sched.h>
- #include <linux/mm.h>
- #include <linux/tty.h>
-@@ -46,7 +47,7 @@
-  * Machine setup..
-  */
- 
--char ignore_irq13;		/* set if exception 16 works */
-+char ignore_fpu_irq;		/* set if exception 16 works */
- struct cpuinfo_x86 boot_cpu_data = { 0, 0, 0, 0, -1, 1, 0, 0, -1 };
- 
- unsigned long mmu_cr4_features;
-@@ -98,6 +99,7 @@
-        char saved_command_line[COMMAND_LINE_SIZE];
- 
- struct resource standard_io_resources[] = {
-+#ifndef CONFIG_PC9800
- 	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
- 	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
- 	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
-@@ -106,6 +108,31 @@
- 	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
- 	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
- 	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
-+#else
-+	{ "pic1", 0x00, 0x02, IORESOURCE_BUSY | IORESOURCE98_SPARSE},
-+	{ "dma", 0x01, 0x2d, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-+	{ "pic2", 0x08, 0x0a, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-+	{ "calender clock", 0x20, 0x22, IORESOURCE98_SPARSE },
-+/*	{ "32bit dma", 0x2b, 0x2d, IORESOURCE_BUSY | IORESOURCE98_SPARSE },*/
-+	{ "system", 0x31, 0x37, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-+	{ "nmi control", 0x50, 0x52, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-+	{ "time stamp", 0x5c, 0x5f, IORESOURCE_BUSY },
-+	{ "kanji rom", 0xa1, 0xa9, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-+	{ "keyboard", 0x41, 0x43, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-+	{ "text gdc", 0x60, 0x6e, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-+	{ "crtc", 0x70, 0x7a, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-+	{ "timer", 0x71, 0x77, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-+	{ "graphic gdc", 0xa0, 0xa6, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-+	{ "cpu", 0xf0, 0xf7, IORESOURCE_BUSY },
-+	{ "fpu", 0xf8, 0xff, IORESOURCE_BUSY },
-+	{ "dma ex. bank", 0x0e05, 0x0e0b, IORESOURCE98_SPARSE },
-+	{ "beep freq.", 0x3fd9, 0x3fdf, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-+	/* All PC-9800 have (exactly) one mouse interface.  */
-+	{ "mouse pio", 0x7fd9, 0x7fdf, IORESOURCE98_SPARSE },
-+	{ "mouse timer", 0xbfdb, 0xbfdb, 0 },
-+	/* Some PC-9800 (mainly PC-9801) does not have this.
-+	   { "mouse irq", 0x98d7, 0x98d7, 0 }, */
-+#endif
- };
- #ifdef CONFIG_MELAN
- standard_io_resources[1] = { "pic1", 0x20, 0x21, IORESOURCE_BUSY };
-@@ -116,13 +143,23 @@
- 
- static struct resource code_resource = { "Kernel code", 0x100000, 0 };
- static struct resource data_resource = { "Kernel data", 0, 0 };
-+#ifndef CONFIG_PC9800
- static struct resource vram_resource = { "Video RAM area", 0xa0000, 0xbffff, IORESOURCE_BUSY };
-+#else
-+static struct resource tvram_resource = { "Text VRAM/CG window", 0xa0000, 0xa4fff, IORESOURCE_BUSY };
-+static struct resource gvram_brg_resource = { "Graphic VRAM (B/R/G)", 0xa8000, 0xbffff, IORESOURCE_BUSY };
-+static struct resource gvram_e_resource = { "Graphic VRAM (E)", 0xe0000, 0xe7fff, IORESOURCE_BUSY };
-+#endif
- 
- /* System ROM resources */
- #define MAXROMS 6
- static struct resource rom_resources[MAXROMS] = {
-+#ifndef CONFIG_PC9800
- 	{ "System ROM", 0xF0000, 0xFFFFF, IORESOURCE_BUSY },
- 	{ "Video ROM", 0xc0000, 0xc7fff, IORESOURCE_BUSY }
-+#else
-+	{ "System ROM", 0xe8000, 0xfffff, IORESOURCE_BUSY }
-+#endif
- };
- 
- #define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
-@@ -130,11 +167,17 @@
- static void __init probe_roms(void)
- {
- 	int roms = 1;
-+#ifndef CONFIG_PC9800
- 	unsigned long base;
- 	unsigned char *romstart;
-+#else
++static int egcfb_get_palette(unsigned regno, unsigned *red, unsigned *green,
++			   unsigned *blue, unsigned *transp,
++			   struct fb_info *info)
++{
++	/*
++	 *  Read a single color register and split it into colors/transparent.
++	 *  Return != 0 for invalid regno.
++	 */
++
++	if (regno >= 16)
++		return 1;
++
++	*red   = palette[regno].red;
++	*green = palette[regno].green;
++	*blue  = palette[regno].blue;
++	*transp = 0;
++	return 0;
++}
++
++static __inline__ void egcfb_do_set_palette(int regno, unsigned red,
++						unsigned green, unsigned blue)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&egcfb_lock, flags);
++	outb_p(regno, EGCIO_PL_NUM);
++	outb_p(green >> 12, EGCIO_PL_GREEN);
++	outb_p(red   >> 12, EGCIO_PL_RED);
++	outb_p(blue  >> 12, EGCIO_PL_BLUE);
++	spin_unlock_irqrestore(&egcfb_lock, flags);
++}
++
++
++
++static int egcfb_set_palette(unsigned regno, unsigned red, unsigned green,
++			  unsigned blue, unsigned transp,
++			  struct fb_info *info)
++{
++	int gray;
++
++	if (regno >= 16)
++		return 1;
++
++	palette[regno].red   = red;
++	palette[regno].green = green;
++	palette[regno].blue  = blue;
++	
++	if (fb_info.currcon < 0)
++		gray = default_display.var.grayscale;
++	else
++		gray = fb_display[fb_info.currcon].var.grayscale;
++
++	if (gray)
++		red = green = blue = (red * 77 + green * 151 + blue * 28) >> 8;
++
++	egcfb_do_set_palette(regno, red, green, blue);
++	
++	return 0;
++}
++
++static void egcfb_set_palette_all(int con_num, struct fb_info *info)
++{
++	if (con_num != fb_info.currcon)
++		return;
++
++	if (fb_display[con_num].cmap.len)
++		fb_set_cmap(&fb_display[con_num].cmap, 1, info);
++	else
++		fb_set_cmap(fb_default_cmap(16), 1, info);
++}
++
++
++static int egcfb_get_colormap(struct fb_cmap *cmap, int kspc, int con_num,
++			    struct fb_info *info)
++{
++	if (con_num != fb_info.currcon)
++		return fb_get_cmap(cmap, kspc, egcfb_get_palette, info);
++	else if (fb_display[con_num].cmap.len)
++		fb_copy_cmap(&fb_display[con_num].cmap, cmap, kspc ? 0 : 2);
++	else
++		fb_copy_cmap(fb_default_cmap(16), cmap, kspc ? 0 : 2);
++
++	return 0;
++}
++
++static int egcfb_set_colormap(struct fb_cmap *cmap, int kspc, int con_num,
++			   struct fb_info *info)
++{
++	int err;
++
++	if (!fb_display[con_num].cmap.len) {	/* no colormap allocated? */
++		err = fb_alloc_cmap(&fb_display[con_num].cmap, 16, 0);
++		if (err)
++			return err;
++	}
++
++	if (con_num == fb_info.currcon) {
++		int retval = fb_set_cmap(cmap, kspc, info);
++		//if( retval == 0 )
++		//	fb_copy_cmap(cmap, &fb_display[fb_info.currcon].cmap, kspc ? 0 : 1);
++		return retval;
++	} else
++		fb_copy_cmap(cmap, &fb_display[con_num].cmap, kspc ? 0 : 1);
++
++	return 0;
++}
++
++static int egcfb_pan_display(struct fb_var_screeninfo *var, int con_num,
++			       struct fb_info *info) 
++{
++	if (var->xoffset + fb_display[con_num].var.xres
++			> fb_display[con_num].var.xres_virtual
++	    || var->yoffset + fb_display[con_num].var.yres
++			> fb_display[con_num].var.yres_virtual)
++		return -EINVAL;
++
++	/* must be xoffset=yoffset=0, so nothing to do. */
++	fb_display[con_num].var.xoffset = var->xoffset;
++	fb_display[con_num].var.yoffset = var->yoffset;
++	fb_display[con_num].var.vmode &= ~FB_VMODE_YWRAP;
++	return 0;
++}
++
++static int egcfb_mmap(struct fb_info *info, struct file *file,
++		      struct vm_area_struct * vma)
++{
++	/* based on fbmem.c - Copyright (C) 1994 Martin Schaller */
++	unsigned long start, len, off;
++	unsigned long vm_end, vm_start;
++	pgprot_t vm_prot;
++
++	off	 = vma->vm_pgoff << PAGE_SHIFT;
++	vm_start = vma->vm_start;
++	vm_end	 = vma->vm_end;
++
++	start = EGC_FB_PHYS;
++	len   = (start & ~PAGE_MASK) + EGC_FB_PHYS_LEN;
++	start &= PAGE_MASK;
++	len = (len + ~PAGE_MASK) & PAGE_MASK;
++
++	if (vm_end - vm_start + off > len)
++		return -EINVAL;
++
++	if (boot_cpu_data.x86 > 3)
++		pgprot_val(vma->vm_page_prot) |= _PAGE_PCD;
++
++	vm_prot = vma->vm_page_prot;
++
++	/* This is fake ;-) */
++	vma->vm_pgoff = ( off + start ) >> PAGE_SHIFT;
++
++	/* Plane 0,1,2 */
++	
++	start = EGC_RGB_FB_PHYS;
++	len   = (start & ~PAGE_MASK) + EGC_RGB_FB_PHYS_LEN;
++	start &= PAGE_MASK;
++	len = (len + ~PAGE_MASK) & PAGE_MASK;
++
++	if(off < len) {
++		if ((vm_end - vm_start + off) > len)
++			vm_end = (len - off) + vm_start;
++
++		if (io_remap_page_range(vma, vm_start, start + off,
++				     vm_end - vm_start, vma->vm_page_prot))
++			return -EAGAIN;
++
++		/* restore */
++		vm_end = vma->vm_end;
++	}
++	
++	/* Plane 3 (Extended) */
++	
++	start = EGC_E_FB_PHYS;
++	len   = (start & ~PAGE_MASK) + EGC_E_FB_PHYS_LEN;
++	start &= PAGE_MASK;
++	len = (len + ~PAGE_MASK) & PAGE_MASK;
++	
++	if (vm_end - vm_start + off > EGC_RGB_FB_PHYS_LEN) {
++		if (off < EGC_RGB_FB_PHYS_LEN) {
++			vm_start += (EGC_RGB_FB_PHYS_LEN - off);
++			off = 0;
++		} else
++			off -= EGC_RGB_FB_PHYS_LEN;
++
++		if ((vm_end - vm_start + off) > len)
++			/* mustn't be occured ... */
++			return -EINVAL;
++
++		if (io_remap_page_range(vma, vm_start, start + off,
++				     vm_end - vm_start, vma->vm_page_prot))
++			/* FIXME: don't re-remapped planes even if failed. */
++			return -EAGAIN;
++	}
++
++	return 0;
++
++}
++
++static void egcfb_sync_blank(struct fb_info *info, int mode)
++{
++	int sendcmd = 0;
++	unsigned long flags;
++
++	if ((mode & VESA_VSYNC_SUSPEND)
++			|| (sync_blanked & VESA_VSYNC_SUSPEND)) {
++		sync_blanked |= VESA_VSYNC_SUSPEND;
++		sendcmd |= 0x80;
++	}
++
++	if ((mode & VESA_HSYNC_SUSPEND)
++			|| (sync_blanked & VESA_HSYNC_SUSPEND)) {
++		sync_blanked |= VESA_HSYNC_SUSPEND;
++		sendcmd |= 0x40;
++	}
++
++	spin_lock_irqsave(&egcfb_lock, flags);
++	outb_p(sendcmd, EGCIO_SYNCCTRL);
++	spin_unlock_irqrestore(&egcfb_lock, flags);
++}
++
++static void egcfb_sync_unblank(struct fb_info *info)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&egcfb_lock, flags);
++	outb_p(0, EGCIO_SYNCCTRL);
++	spin_unlock_irqrestore(&egcfb_lock, flags);
++	sync_blanked = 0;
++}
++
++static void egcfb_pallete_blank(void)
++{
 +	int i;
-+	__u8 *xrom_id;
-+#endif
- 
- 	request_resource(&iomem_resource, rom_resources+0);
- 
-+#ifndef CONFIG_PC9800
- 	/* Video ROM is standard at C000:0000 - C7FF:0000, check signature */
- 	for (base = 0xC0000; base < 0xE0000; base += 2048) {
- 		romstart = isa_bus_to_virt(base);
-@@ -188,6 +231,27 @@
- 
- 		request_resource(&iomem_resource, rom_resources + roms);
- 	}
-+#else /* CONFIG_PC9800 */
-+	xrom_id = (__u8 *) isa_bus_to_virt(PC9800SCA_XROM_ID + 0x10);
++	unsigned long flags;
 +
 +	for (i = 0; i < 16; i++) {
-+		if (xrom_id[i] & 0x80) {
-+			int j;
++		spin_lock_irqsave(&egcfb_lock, flags);
++		outb_p(i, EGCIO_PL_NUM);
++		outb_p(0, EGCIO_PL_GREEN);
++		outb_p(0, EGCIO_PL_RED);
++		outb_p(0, EGCIO_PL_BLUE);
++		spin_unlock_irqrestore(&egcfb_lock, flags);
++	}
++}
 +
-+			for (j = i + 1; j < 16 && (xrom_id[j] & 0x80); j++)
-+				;
-+			rom_resources[roms].start = 0x0d0000 + i * 0x001000;
-+			rom_resources[roms].end = 0x0d0000 + j * 0x001000 - 1;
-+			rom_resources[roms].name = "Extension ROM";
-+			rom_resources[roms].flags = IORESOURCE_BUSY;
-+
-+			request_resource(&iomem_resource,
-+					  rom_resources + roms);
-+			if (++roms >= MAXROMS)
-+				return;
++/* 0 unblank, 1 blank, 2 no vsync, 3 no hsync, 4 off */
++static int egcfb_blank(int blank, struct fb_info *info)
++{
++	switch (blank) {
++	case 0:				/* Unblank */
++		if (sync_blanked) {
++			egcfb_sync_unblank(info);
 +		}
-+	}
-+#endif /* !CONFIG_PC9800 */
- }
- 
- static void __init limit_regions (unsigned long long size)
-@@ -250,6 +314,7 @@
- 	}
- }
- 
-+#ifndef CONFIG_PC9800
- /*
-  * Sanitize the BIOS e820 map.
-  *
-@@ -465,6 +530,7 @@
- 	} while (biosmap++,--nr_map);
- 	return 0;
- }
-+#endif /* !CONFIG_PC9800 */
- 
- /*
-  * Do NOT EVER look at the BIOS memory size location.
-@@ -803,12 +869,35 @@
- 			request_resource(res, &data_resource);
- 		}
- 	}
-+#ifndef CONFIG_PC9800
- 	request_resource(&iomem_resource, &vram_resource);
-+#else
-+	if (PC9800_HIGHRESO_P()) {
-+		tvram_resource.start = 0xe0000;
-+		tvram_resource.end   = 0xe4fff;
-+		gvram_brg_resource.name  = "Graphic VRAM";
-+		gvram_brg_resource.start = 0xc0000;
-+		gvram_brg_resource.end   = 0xdffff;
-+	}
 +
-+	request_resource(&iomem_resource, &tvram_resource);
-+	request_resource(&iomem_resource, &gvram_brg_resource);
-+	if (!PC9800_HIGHRESO_P())
-+		request_resource(&iomem_resource, &gvram_e_resource);
-+#endif
- 
- 	/* request I/O space for devices used on all i[345]86 PCs */
- 	for (i = 0; i < STANDARD_IO_RESOURCES; i++)
- 		request_resource(&ioport_resource, standard_io_resources+i);
- 
-+#ifdef CONFIG_PC9800
-+	if (PC9800_HIGHRESO_P() || PC9800_9821_P()) {
-+		static struct resource graphics_resource
-+			= { "graphics", 0x9a0, 0x9ae, IORESOURCE98_SPARSE };
-+
-+		request_resource(&ioport_resource, &graphics_resource);
-+	}
-+#endif
- 	/* Tell the PCI layer not to allocate too close to the RAM area.. */
- 	low_mem_size = ((max_low_pfn << PAGE_SHIFT) + 0xfffff) & ~0xfffff;
- 	if (low_mem_size > pci_mem_start)
-@@ -886,6 +975,8 @@
- #ifdef CONFIG_VT
- #if defined(CONFIG_VGA_CONSOLE)
- 	conswitchp = &vga_con;
-+#elif defined(CONFIG_GDC_CONSOLE)
-+	conswitchp = &gdc_con;
- #elif defined(CONFIG_DUMMY_CONSOLE)
- 	conswitchp = &dummy_con;
- #endif
-diff -urN linux/arch/i386/kernel/time.c linux98/arch/i386/kernel/time.c
---- linux/arch/i386/kernel/time.c	Wed Oct 16 13:20:29 2002
-+++ linux98/arch/i386/kernel/time.c	Wed Oct 16 14:20:22 2002
-@@ -30,6 +30,7 @@
-  *	serialize accesses to xtime/lost_ticks).
-  */
- 
-+#include <linux/config.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
-@@ -54,12 +55,17 @@
- #include <asm/processor.h>
- #include <asm/timer.h>
- 
-+#ifndef CONFIG_PC9800
- #include <linux/mc146818rtc.h>
-+#else
-+#include <linux/upd4990a.h>
-+#endif
- #include <linux/timex.h>
--#include <linux/config.h>
- 
- #include <asm/arch_hooks.h>
- 
-+#include "io_ports.h"
-+
- extern spinlock_t i8259A_lock;
- 
- #include "do_timer.h"
-@@ -147,10 +153,15 @@
- {
- 	int retval = 0;
- 	int real_seconds, real_minutes, cmos_minutes;
-+#ifndef CONFIG_PC9800
- 	unsigned char save_control, save_freq_select;
-+#else
-+	struct upd4990a_raw_data data;
-+#endif
- 
- 	/* gets recalled with irq locally disabled */
- 	spin_lock(&rtc_lock);
-+#ifndef CONFIG_PC9800
- 	save_control = CMOS_READ(RTC_CONTROL); /* tell the clock it's being set */
- 	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
- 
-@@ -160,6 +171,10 @@
- 	cmos_minutes = CMOS_READ(RTC_MINUTES);
- 	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
- 		BCD_TO_BIN(cmos_minutes);
-+#else
-+	upd4990a_get_time(&data, 1);
-+	cmos_minutes = (data.min >> 4) * 10 + (data.min & 0xf);
-+#endif
- 
- 	/*
- 	 * since we're only adjusting minutes and seconds,
-@@ -174,12 +189,23 @@
- 	real_minutes %= 60;
- 
- 	if (abs(real_minutes - cmos_minutes) < 30) {
-+#ifndef CONFIG_PC9800
- 		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
- 			BIN_TO_BCD(real_seconds);
- 			BIN_TO_BCD(real_minutes);
- 		}
- 		CMOS_WRITE(real_seconds,RTC_SECONDS);
- 		CMOS_WRITE(real_minutes,RTC_MINUTES);
-+#else
-+		u8 temp_seconds = (real_seconds / 10) * 16 + real_seconds % 10;
-+		u8 temp_minutes = (real_minutes / 10) * 16 + real_minutes % 10;
-+
-+		if (data.sec != temp_seconds || data.min != temp_minutes) {
-+			data.sec = temp_seconds;
-+			data.min = temp_minutes;
-+			upd4990a_set_time(&data, 1);
++		if (palette_blanked) {
++			egcfb_set_palette_all(fb_info.currcon, info);
++			palette_blanked = 0;
 +		}
-+#endif
- 	} else {
- 		printk(KERN_WARNING
- 		       "set_rtc_mmss: can't update from %d to %d\n",
-@@ -187,6 +213,7 @@
- 		retval = -1;
- 	}
- 
-+#ifndef CONFIG_PC9800
- 	/* The following flags have to be released exactly in this order,
- 	 * otherwise the DS12887 (popular MC146818A clone with integrated
- 	 * battery and quartz) will not reset the oscillator and will not
-@@ -196,6 +223,14 @@
- 	 */
- 	CMOS_WRITE(save_control, RTC_CONTROL);
- 	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
-+#else
-+	/* uPD4990A users' manual says we should issue Register Hold
-+	 * command after reading time, or future Time Read command
-+	 * may not work.  When we have set the time, this also starts
-+	 * the clock.
-+	 */
-+	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
-+#endif
- 	spin_unlock(&rtc_lock);
- 
- 	return retval;
-@@ -221,9 +256,9 @@
- 		 * on an 82489DX-based system.
- 		 */
- 		spin_lock(&i8259A_lock);
--		outb(0x0c, 0x20);
-+		outb(0x0c, PIC_MASTER_OCW3);
- 		/* Ack the IRQ; AEOI will end it automatically. */
--		inb(0x20);
-+		inb(PIC_MASTER_POLL);
- 		spin_unlock(&i8259A_lock);
- 	}
- #endif
-@@ -235,6 +270,7 @@
- 	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
- 	 * called as close as possible to 500 ms before the new second starts.
- 	 */
-+#ifndef CONFIG_PC9800
- 	if ((time_status & STA_UNSYNC) == 0 &&
- 	    xtime.tv_sec > last_rtc_update + 660 &&
- 	    (xtime.tv_nsec / 1000) >= 500000 - ((unsigned) TICK_SIZE) / 2 &&
-@@ -244,6 +280,25 @@
- 		else
- 			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
- 	}
-+#else  /* CONFIG_PC9800 */
-+	/*
-+	 * Because PC-9800's RTC (NEC uPD4990A) does not allow setting
-+	 * time partially, we always have to read-modify-write the
-+	 * entire time (including year) so that set_rtc_mmss() will
-+	 * take quite much time to execute.  You may want to relax
-+	 * RTC resetting interval (currently ~11 minuts)...
-+	 */
-+	if ((time_status & STA_UNSYNC) == 0 &&
-+	    xtime.tv_sec > last_rtc_update + 660 &&
-+	    (xtime.tv_nsec / 1000) >= 1000000 - ((unsigned) TICK_SIZE) / 2 &&
-+	    (xtime.tv_nsec / 1000) <= ((unsigned) TICK_SIZE) / 2) {
-+		if (set_rtc_mmss(xtime.tv_sec) == 0)
-+			last_rtc_update = xtime.tv_sec;
-+		else
-+			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
-+	}
-+#endif /* CONFIG_PC9800 */
 +
- 	    
- #ifdef CONFIG_MCA
- 	if( MCA_bus ) {
-@@ -289,6 +344,8 @@
- /* not static: needed by APM */
- unsigned long get_cmos_time(void)
- {
-+#ifndef CONFIG_PC9800
++		break;
 +
- 	unsigned int year, mon, day, hour, min, sec;
- 	int i;
- 
-@@ -326,6 +383,71 @@
- 	if ((year += 1900) < 1970)
- 		year += 100;
- 	return mktime(year, mon, day, hour, min, sec);
++	case 1:				/* blank */
++		egcfb_pallete_blank();
++		palette_blanked = 1;
++		break;
 +
-+#else /* CONFIG_PC9800 */
-+
-+#define RTC_SANITY_CHECK
-+
-+	int i;
-+	u8 prev, cur;
-+	unsigned int year;
-+#ifdef RTC_SANITY_CHECK
-+	int retry_count;
-+#endif
-+
-+	struct upd4990a_raw_data data;
-+
-+#ifdef RTC_SANITY_CHECK
-+	retry_count = 0;
-+ retry:
-+#endif
-+	/* Connect uPD4990A's DATA OUT pin to its 1Hz reference clock. */
-+	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
-+
-+	/* Catch rising edge of reference clock.  */
-+	prev = ~UPD4990A_READ_DATA();
-+	for (i = 0; i < 1800000; i++) { /* may take up to 1 second... */
-+		__asm__ ("outb %%al,%0" : : "N" (0x5F)); /* 0.6usec delay */
-+		cur = UPD4990A_READ_DATA();
-+		if (!(prev & cur & 1))
-+			break;
-+		prev = ~cur;
++	default:			/* VESA blanking */
++		egcfb_sync_blank(info, blank - 1);
++		break;
 +	}
 +
-+	upd4990a_get_time(&data, 0);
-+
-+#ifdef RTC_SANITY_CHECK
-+# define BCD_VALID_P(x, hi)	(((x) & 0x0F) <= 9 && (x) <= 0x ## hi)
-+# define DATA			((const unsigned char *) &data)
-+
-+	if (!BCD_VALID_P(data.sec, 59) ||
-+	    !BCD_VALID_P(data.min, 59) ||
-+	    !BCD_VALID_P(data.hour, 23) ||
-+	    data.mday == 0 || !BCD_VALID_P(data.mday, 31) ||
-+	    data.wday > 6 ||
-+	    data.mon < 1 || 12 < data.mon ||
-+	    !BCD_VALID_P(data.year, 99)) {
-+		printk(KERN_ERR "RTC clock data is invalid! "
-+			"(%02X %02X %02X %02X %02X %02X) - ",
-+			DATA[0], DATA[1], DATA[2], DATA[3], DATA[4], DATA[5]);
-+		if (++retry_count < 3) {
-+			printk("retrying (%d)\n", retry_count);
-+			goto retry;
-+		}
-+		printk("giving up, continuing\n");
-+	}
-+
-+# undef BCD_VALID_P
-+# undef DATA
-+#endif /* RTC_SANITY_CHECK */
-+
-+#define CVT(x)	(((x) & 0xF) + ((x) >> 4) * 10)
-+	if ((year = CVT(data.year) + 1900) < 1995)
-+		year += 100;
-+	return mktime(year, data.mon, CVT(data.mday),
-+		       CVT(data.hour), CVT(data.min), CVT(data.sec));
-+#undef CVT
-+#endif /* !CONFIG_PC9800 */
- }
- 
- /* XXX this driverfs stuff should probably go elsewhere later -john */
-diff -urN linux/arch/i386/kernel/timers/timer_pit.c linux98/arch/i386/kernel/timers/timer_pit.c
---- linux/arch/i386/kernel/timers/timer_pit.c	Sat Oct 12 13:22:18 2002
-+++ linux98/arch/i386/kernel/timers/timer_pit.c	Wed Oct 16 16:51:29 2002
-@@ -3,6 +3,7 @@
-  * See comments there for proper credits.
-  */
- 
-+#include <linux/config.h>
- #include <linux/spinlock.h>
- #include <linux/module.h>
- #include <linux/device.h>
-@@ -13,6 +14,7 @@
- extern spinlock_t i8259A_lock;
- extern spinlock_t i8253_lock;
- #include "do_timer.h"
-+#include "io_ports.h"
- 
- static int init_pit(void)
- {
-@@ -61,7 +63,8 @@
- {
- 	int count;
- 
--	static int count_p = LATCH;    /* for the first call after boot */
-+	static int count_p;
-+	static int is_1st_boot = 1;    /* for the first call after boot */
- 	static unsigned long jiffies_p = 0;
- 
- 	/*
-@@ -69,12 +72,18 @@
- 	 */
- 	unsigned long jiffies_t;
- 
-+	/* on NEC PC-9801, LATCH in not constant */
-+	if (is_1st_boot) {
-+		is_1st_boot = 0;
-+		count_p = LATCH;
-+	}
-+
- 	/* gets recalled with irq locally disabled */
- 	spin_lock(&i8253_lock);
- 	/* timer count may underflow right here */
--	outb_p(0x00, 0x43);	/* latch the count ASAP */
-+	outb_p(0x00, PIT_MODE);	/* latch the count ASAP */
- 
--	count = inb_p(0x40);	/* read the latched count */
-+	count = inb_p(PIT_CH0);	/* read the latched count */
- 
- 	/*
- 	 * We do this guaranteed double memory access instead of a _p 
-@@ -82,13 +91,13 @@
- 	 */
-  	jiffies_t = jiffies;
- 
--	count |= inb_p(0x40) << 8;
-+	count |= inb_p(PIT_CH0) << 8;
- 	
-         /* VIA686a test code... reset the latch if count > max + 1 */
-         if (count > LATCH) {
--                outb_p(0x34, 0x43);
--                outb_p(LATCH & 0xff, 0x40);
--                outb(LATCH >> 8, 0x40);
-+                outb_p(0x34, PIT_MODE);
-+                outb_p(LATCH & 0xff, PIT_CH0);
-+                outb(LATCH >> 8, PIT_CH0);
-                 count = LATCH - 1;
-         }
- 	
-diff -urN linux/arch/i386/kernel/timers/timer_tsc.c linux98/arch/i386/kernel/timers/timer_tsc.c
---- linux/arch/i386/kernel/timers/timer_tsc.c	Wed Oct 16 13:20:29 2002
-+++ linux98/arch/i386/kernel/timers/timer_tsc.c	Wed Oct 16 14:20:22 2002
-@@ -3,6 +3,7 @@
-  * See comments there for proper credits.
-  */
- 
-+#include <linux/config.h>
- #include <linux/spinlock.h>
- #include <linux/init.h>
- #include <linux/timex.h>
-@@ -12,6 +13,8 @@
- #include <asm/timer.h>
- #include <asm/io.h>
- 
-+#include "io_ports.h"
-+
- extern int x86_udelay_tsc;
- extern spinlock_t i8253_lock;
- 
-@@ -77,10 +80,10 @@
- 	rdtscl(last_tsc_low);
- 
- 	spin_lock(&i8253_lock);
--	outb_p(0x00, 0x43);     /* latch the count ASAP */
-+	outb_p(0x00, PIT_MODE);     /* latch the count ASAP */
- 
--	count = inb_p(0x40);    /* read the latched count */
--	count |= inb(0x40) << 8;
-+	count = inb_p(PIT_CH0);    /* read the latched count */
-+	count |= inb(PIT_CH0) << 8;
- 	spin_unlock(&i8253_lock);
- 
- 	count = ((LATCH-1) - count) * TICK_SIZE;
-@@ -97,11 +100,16 @@
-  * device.
-  */
- 
-+#ifndef CONFIG_PC9800
- #define CALIBRATE_LATCH	(5 * LATCH)
-+#else
-+#define CALIBRATE_LATCH	(5 * 307200/HZ) /* 0.050sec * 307200Hz = 15360 */
-+#endif
- #define CALIBRATE_TIME	(5 * 1000020/HZ)
- 
- static unsigned long __init calibrate_tsc(void)
- {
-+#ifndef CONFIG_PC9800
-        /* Set the Gate high, disable speaker */
- 	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
- 
-@@ -112,27 +120,49 @@
- 	 * (interrupt on terminal count mode), binary count,
- 	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
- 	 */
--	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
--	outb(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
--	outb(CALIBRATE_LATCH >> 8, 0x42);	/* MSB of count */
-+	outb(0xb0, PIT_MODE);			/* binary, mode 0, LSB/MSB, Ch 2 */
-+	outb(CALIBRATE_LATCH & 0xff, PIT_CH2);	/* LSB of count */
-+	outb(CALIBRATE_LATCH >> 8, PIT_CH2);	/* MSB of count */
-+#endif
- 
- 	{
- 		unsigned long startlow, starthigh;
- 		unsigned long endlow, endhigh;
-+#ifndef CONFIG_PC9800
- 		unsigned long count;
- 
-+#else
-+		/*
-+		 * PC-9800:
-+		 *  CTC cannot be used because some models (especially
-+		 *  note-machines) may disable clock to speaker channel (#1)
-+		 *  unless speaker is enabled.  We use ARTIC instead.
-+		 */
-+		unsigned short count;
-+
-+		for (count = inw(0x5c); inw(0x5c) == count; )
-+			;
-+#endif
- 		rdtsc(startlow,starthigh);
-+#ifndef CONFIG_PC9800
- 		count = 0;
- 		do {
- 			count++;
- 		} while ((inb(0x61) & 0x20) == 0);
-+#else
-+		count = inw(0x5c);
-+		while ((unsigned short)(inw(0x5c) - count) < CALIBRATE_LATCH)
-+			;
-+#endif
- 		rdtsc(endlow,endhigh);
- 
- 		last_tsc_low = endlow;
- 
-+#ifndef CONFIG_PC9800
- 		/* Error: ECTCNEVERSET */
- 		if (count <= 1)
- 			goto bad_ctc;
-+#endif
- 
- 		/* 64-bit subtract - gcc just messes up with long longs */
- 		__asm__("subl %2,%0\n\t"
-diff -urN linux/arch/i386/kernel/traps.c linux98/arch/i386/kernel/traps.c
---- linux/arch/i386/kernel/traps.c	Wed Oct 16 13:20:29 2002
-+++ linux98/arch/i386/kernel/traps.c	Wed Oct 16 14:37:37 2002
-@@ -448,11 +448,14 @@
- 	printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
- 	printk("You probably have a hardware problem with your RAM chips\n");
- 
-+#ifndef CONFIG_PC9800
- 	/* Clear and disable the memory parity error line. */
- 	reason = (reason & 0xf) | 4;
- 	outb(reason, 0x61);
-+#endif
- }
- 
-+#ifndef CONFIG_PC9800
- static void io_check_error(unsigned char reason, struct pt_regs * regs)
- {
- 	unsigned long i;
-@@ -468,6 +471,7 @@
- 	reason &= ~8;
- 	outb(reason, 0x61);
- }
-+#endif	/* CONFIG_PC9800 */
- 
- static void unknown_nmi_error(unsigned char reason, struct pt_regs * regs)
- {
-@@ -487,7 +491,11 @@
- 
- static void default_do_nmi(struct pt_regs * regs)
- {
-+#ifndef CONFIG_PC9800
- 	unsigned char reason = inb(0x61);
-+#else
-+	unsigned char reason = inb(0x33) << 5;
-+#endif
-  
- 	if (!(reason & 0xc0)) {
- #if CONFIG_X86_LOCAL_APIC
-@@ -506,6 +514,7 @@
- 	if (reason & 0x80)
- 		mem_parity_error(reason, regs);
- 	if (reason & 0x40)
-+#ifndef CONFIG_PC9800
- 		io_check_error(reason, regs);
- 	/*
- 	 * Reassert NMI in case it became active meanwhile
-@@ -515,6 +524,15 @@
- 	inb(0x71);		/* dummy */
- 	outb(0x0f, 0x70);
- 	inb(0x71);		/* dummy */
-+#else
-+		mem_parity_error(reason, regs);
-+
-+	/* clear memory error flags */
-+	outb(0x08, 0x37);
-+	outb(0x09, 0x37);
-+	outb(0x09, 0x50);	/* disable NMI once */
-+	outb(0x09, 0x52);	/* re-enable it */
-+#endif
- }
- 
- static int dummy_nmi_callback(struct pt_regs * regs, int cpu)
-@@ -697,7 +715,7 @@
- 
- asmlinkage void do_coprocessor_error(struct pt_regs * regs, long error_code)
- {
--	ignore_irq13 = 1;
-+	ignore_fpu_irq = 1;
- 	math_error((void *)regs->eip);
- }
- 
-@@ -754,7 +772,7 @@
- {
- 	if (cpu_has_xmm) {
- 		/* Handle SIMD FPU exceptions on PIII+ processors. */
--		ignore_irq13 = 1;
-+		ignore_fpu_irq = 1;
- 		simd_math_error((void *)regs->eip);
- 	} else {
- 		/*
-diff -urN linux/arch/i386/kernel/vm86.c linux98/arch/i386/kernel/vm86.c
---- linux/arch/i386/kernel/vm86.c	Sat Oct 12 13:21:31 2002
-+++ linux98/arch/i386/kernel/vm86.c	Sat Oct 12 16:09:20 2002
-@@ -30,6 +30,7 @@
-  *
-  */
- 
-+#include <linux/config.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
-@@ -732,10 +733,22 @@
- 		free_vm86_irq(i);
- }
- 
-+#ifndef CONFIG_PC9800
-+# define ILLEGAL_IRQ(irq) ((irq) < 3 || (irq) > 15)
-+# define FIRST_VM86_IRQ	3
-+#else
-+/*
-+ * On PC-9800, slave PIC is wired master PIC's IR7,
-+ * so that we don't allow vm86 to grab IRQ7.
-+ */
-+# define ILLEGAL_IRQ(irq) ((irq) < 2 || (irq) == 7 || (irq) > 15)
-+# define FIRST_VM86_IRQ	2
-+#endif
-+
- static inline void handle_irq_zombies(void)
- {
- 	int i;
--	for (i=3; i<16; i++) {
-+	for (i=FIRST_VM86_IRQ; i<16; i++) {
- 		if (vm86_irqs[i].tsk) {
- 			if (task_valid(vm86_irqs[i].tsk)) continue;
- 			free_vm86_irq(i);
-@@ -748,7 +761,7 @@
- 	int bit;
- 	unsigned long flags;
- 	
--	if ( (irqnumber<3) || (irqnumber>15) ) return 0;
-+	if (ILLEGAL_IRQ(irqnumber)) return 0;
- 	if (vm86_irqs[irqnumber].tsk != current) return 0;
- 	spin_lock_irqsave(&irqbits_lock, flags);	
- 	bit = irqbits & (1 << irqnumber);
-@@ -774,7 +787,7 @@
- 			handle_irq_zombies();
- 			if (!capable(CAP_SYS_ADMIN)) return -EPERM;
- 			if (!((1 << sig) & ALLOWED_SIGS)) return -EPERM;
--			if ( (irq<3) || (irq>15) ) return -EPERM;
-+			if (ILLEGAL_IRQ(irq)) return -EPERM;
- 			if (vm86_irqs[irq].tsk) return -EPERM;
- 			ret = request_irq(irq, &irq_handler, 0, VM86_IRQNAME, 0);
- 			if (ret) return ret;
-@@ -784,7 +797,7 @@
- 		}
- 		case  VM86_FREE_IRQ: {
- 			handle_irq_zombies();
--			if ( (irqnumber<3) || (irqnumber>15) ) return -EPERM;
-+			if (ILLEGAL_IRQ(irqnumber)) return -EPERM;
- 			if (!vm86_irqs[irqnumber].tsk) return 0;
- 			if (vm86_irqs[irqnumber].tsk != current) return -EPERM;
- 			free_vm86_irq(irqnumber);
-diff -urN linux/arch/i386/mach-generic/io_ports.h linux98/arch/i386/mach-generic/io_ports.h
---- linux/arch/i386/mach-generic/io_ports.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-generic/io_ports.h	Thu Oct 10 17:11:01 2002
-@@ -0,0 +1,20 @@
-+/* i8253A PIT registers */
-+#define PIT_MODE		0x43
-+#define PIT_CH0			0x40
-+#define PIT_CH2			0x42
-+
-+/* i8259A PIC registers */
-+#define PIC_MASTER_CMD		0x20
-+#define PIC_MASTER_IMR		0x21
-+#define PIC_MASTER_ISR		PIC_MASTER_CMD
-+#define PIC_MASTER_POLL		PIC_MASTER_ISR
-+#define PIC_MASTER_OCW3		PIC_MASTER_ISR
-+#define PIC_SLAVE_CMD		0xa0
-+#define PIC_SLAVE_IMR		0xa1
-+
-+/* i8259A PIC related value */
-+#define PIC_CASCADE_IR		2
-+#define MASTER_ICW4_DEFAULT	0x01
-+#define SLAVE_ICW4_DEFAULT	0x01
-+#define PIC_ICW4_AEOI		2
-+
-diff -urN linux/arch/i386/mach-pc9800/Makefile linux98/arch/i386/mach-pc9800/Makefile
---- linux/arch/i386/mach-pc9800/Makefile	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/Makefile	Sat Sep 21 00:20:21 2002
-@@ -0,0 +1,15 @@
-+#
-+# Makefile for the linux kernel.
-+#
-+# Note! Dependencies are done automagically by 'make dep', which also
-+# removes any old dependencies. DON'T put your own dependencies here
-+# unless it's something special (ie not a .c file).
-+#
-+# Note 2! The CFLAGS definitions are now in the main makefile...
-+
-+EXTRA_CFLAGS	+= -I../kernel
-+export-objs     := 
-+
-+obj-y				:= setup.o
-+
-+include $(TOPDIR)/Rules.make
-diff -urN linux/arch/i386/mach-pc9800/do_timer.h linux98/arch/i386/mach-pc9800/do_timer.h
---- linux/arch/i386/mach-pc9800/do_timer.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/do_timer.h	Wed Oct 16 13:20:29 2002
-@@ -0,0 +1,80 @@
-+/* defines for inline arch setup functions */
-+
-+/**
-+ * do_timer_interrupt_hook - hook into timer tick
-+ * @regs:	standard registers from interrupt
-+ *
-+ * Description:
-+ *	This hook is called immediately after the timer interrupt is ack'd.
-+ *	It's primary purpose is to allow architectures that don't possess
-+ *	individual per CPU clocks (like the CPU APICs supply) to broadcast the
-+ *	timer interrupt as a means of triggering reschedules etc.
-+ **/
-+
-+static inline void do_timer_interrupt_hook(struct pt_regs *regs)
-+{
-+	do_timer(regs);
-+/*
-+ * In the SMP case we use the local APIC timer interrupt to do the
-+ * profiling, except when we simulate SMP mode on a uniprocessor
-+ * system, in that case we have to call the local interrupt handler.
-+ */
-+#ifndef CONFIG_X86_LOCAL_APIC
-+	x86_do_profile(regs);
-+#else
-+	if (!using_apic_timer)
-+		smp_local_timer_interrupt(regs);
-+#endif
++	return 0;
 +}
 +
-+
-+/* you can safely undefine this if you don't have the Neptune chipset */
-+
-+#define BUGGY_NEPTUN_TIMER
-+
-+/**
-+ * do_timer_overflow - process a detected timer overflow condition
-+ * @count:	hardware timer interrupt count on overflow
-+ *
-+ * Description:
-+ *	This call is invoked when the jiffies count has not incremented but
-+ *	the hardware timer interrupt has.  It means that a timer tick interrupt
-+ *	came along while the previous one was pending, thus a tick was missed
-+ **/
-+static inline int do_timer_overflow(int count)
-+{
-+	int i;
-+
-+	spin_lock(&i8259A_lock);
-+	/*
-+	 * This is tricky when I/O APICs are used;
-+	 * see do_timer_interrupt().
-+	 */
-+	i = inb(0x00);
-+	spin_unlock(&i8259A_lock);
-+	
-+	/* assumption about timer being IRQ0 */
-+	if (i & 0x01) {
-+		/*
-+		 * We cannot detect lost timer interrupts ... 
-+		 * well, that's why we call them lost, don't we? :)
-+		 * [hmm, on the Pentium and Alpha we can ... sort of]
-+		 */
-+		count -= LATCH;
-+	} else {
-+#ifdef BUGGY_NEPTUN_TIMER
-+		/*
-+		 * for the Neptun bug we know that the 'latch'
-+		 * command doesnt latch the high and low value
-+		 * of the counter atomically. Thus we have to 
-+		 * substract 256 from the counter 
-+		 * ... funny, isnt it? :)
-+		 */
-+		
-+		count -= 256;
-+#else
-+		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
-+#endif
-+	}
-+	return count;
-+}
-diff -urN linux/arch/i386/mach-pc9800/entry_arch.h linux98/arch/i386/mach-pc9800/entry_arch.h
---- linux/arch/i386/mach-pc9800/entry_arch.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/entry_arch.h	Sat Sep 21 00:20:13 2002
-@@ -0,0 +1,34 @@
-+/*
-+ * This file is designed to contain the BUILD_INTERRUPT specifications for
-+ * all of the extra named interrupt vectors used by the architecture.
-+ * Usually this is the Inter Process Interrupts (IPIs)
-+ */
-+
-+/*
-+ * The following vectors are part of the Linux architecture, there
-+ * is no hardware IRQ pin equivalent for them, they are triggered
-+ * through the ICC by us (IPIs)
-+ */
-+#ifdef CONFIG_X86_SMP
-+BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
-+BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
-+BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
-+#endif
-+
-+/*
-+ * every pentium local APIC has two 'local interrupts', with a
-+ * soft-definable vector attached to both interrupts, one of
-+ * which is a timer interrupt, the other one is error counter
-+ * overflow. Linux uses the local APIC timer interrupt to get
-+ * a much simpler SMP time architecture:
-+ */
-+#ifdef CONFIG_X86_LOCAL_APIC
-+BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
-+BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
-+BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
-+
-+#ifdef CONFIG_X86_MCE_P4THERMAL
-+BUILD_INTERRUPT(thermal_interrupt,THERMAL_APIC_VECTOR)
-+#endif
-+
-+#endif
-diff -urN linux/arch/i386/mach-pc9800/io_ports.h linux98/arch/i386/mach-pc9800/io_ports.h
---- linux/arch/i386/mach-pc9800/io_ports.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/io_ports.h	Thu Oct 10 17:16:18 2002
-@@ -0,0 +1,20 @@
-+/* i8253A PIT registers */
-+#define PIT_MODE		0x77
-+#define PIT_CH0			0x71
-+#define PIT_CH2			0x75
-+
-+/* i8259A PIC registers */
-+#define PIC_MASTER_CMD		0x00
-+#define PIC_MASTER_IMR		0x02
-+#define PIC_MASTER_ISR		PIC_MASTER_CMD
-+#define PIC_MASTER_POLL		PIC_MASTER_ISR
-+#define PIC_MASTER_OCW3		PIC_MASTER_ISR
-+#define PIC_SLAVE_CMD		0x08
-+#define PIC_SLAVE_IMR		0x0a
-+
-+/* i8259A PIC related values */
-+#define PIC_CASCADE_IR		7
-+#define MASTER_ICW4_DEFAULT	0x1d
-+#define SLAVE_ICW4_DEFAULT	0x09
-+#define PIC_ICW4_AEOI		0x02
-+
-diff -urN linux/arch/i386/mach-pc9800/irq_vectors.h linux98/arch/i386/mach-pc9800/irq_vectors.h
---- linux/arch/i386/mach-pc9800/irq_vectors.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/irq_vectors.h	Sat Sep 21 00:20:20 2002
-@@ -0,0 +1,85 @@
-+/*
-+ * This file should contain #defines for all of the interrupt vector
-+ * numbers used by this architecture.
-+ *
-+ * In addition, there are some standard defines:
-+ *
-+ *	FIRST_EXTERNAL_VECTOR:
-+ *		The first free place for external interrupts
-+ *
-+ *	SYSCALL_VECTOR:
-+ *		The IRQ vector a syscall makes the user to kernel transition
-+ *		under.
-+ *
-+ *	TIMER_IRQ:
-+ *		The IRQ number the timer interrupt comes in at.
-+ *
-+ *	NR_IRQS:
-+ *		The total number of interrupt vectors (including all the
-+ *		architecture specific interrupts) needed.
-+ *
-+ */			
-+#ifndef _ASM_IRQ_VECTORS_H
-+#define _ASM_IRQ_VECTORS_H
-+
-+/*
-+ * IDT vectors usable for external interrupt sources start
-+ * at 0x20:
-+ */
-+#define FIRST_EXTERNAL_VECTOR	0x20
-+
-+#define SYSCALL_VECTOR		0x80
-+
-+/*
-+ * Vectors 0x20-0x2f are used for ISA interrupts.
-+ */
-+
-+/*
-+ * Special IRQ vectors used by the SMP architecture, 0xf0-0xff
-+ *
-+ *  some of the following vectors are 'rare', they are merged
-+ *  into a single vector (CALL_FUNCTION_VECTOR) to save vector space.
-+ *  TLB, reschedule and local APIC vectors are performance-critical.
-+ *
-+ *  Vectors 0xf0-0xfa are free (reserved for future Linux use).
-+ */
-+#define SPURIOUS_APIC_VECTOR	0xff
-+#define ERROR_APIC_VECTOR	0xfe
-+#define INVALIDATE_TLB_VECTOR	0xfd
-+#define RESCHEDULE_VECTOR	0xfc
-+#define CALL_FUNCTION_VECTOR	0xfb
-+
-+#define THERMAL_APIC_VECTOR	0xf0
-+/*
-+ * Local APIC timer IRQ vector is on a different priority level,
-+ * to work around the 'lost local interrupt if more than 2 IRQ
-+ * sources per level' errata.
-+ */
-+#define LOCAL_TIMER_VECTOR	0xef
-+
-+/*
-+ * First APIC vector available to drivers: (vectors 0x30-0xee)
-+ * we start at 0x31 to spread out vectors evenly between priority
-+ * levels. (0x80 is the syscall vector)
-+ */
-+#define FIRST_DEVICE_VECTOR	0x31
-+#define FIRST_SYSTEM_VECTOR	0xef
-+
-+#define TIMER_IRQ 0
-+
-+/*
-+ * 16 8259A IRQ's, 208 potential APIC interrupt sources.
-+ * Right now the APIC is mostly only used for SMP.
-+ * 256 vectors is an architectural limit. (we can have
-+ * more than 256 devices theoretically, but they will
-+ * have to use shared interrupts)
-+ * Since vectors 0x00-0x1f are used/reserved for the CPU,
-+ * the usable vector space is 0x20-0xff (224 vectors)
-+ */
-+#ifdef CONFIG_X86_IO_APIC
-+#define NR_IRQS 224
-+#else
-+#define NR_IRQS 16
-+#endif
-+
-+#endif /* _ASM_IRQ_VECTORS_H */
-diff -urN linux/arch/i386/mach-pc9800/mach_apic.h linux98/arch/i386/mach-pc9800/mach_apic.h
---- linux/arch/i386/mach-pc9800/mach_apic.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/mach_apic.h	Wed Oct 16 13:20:29 2002
-@@ -0,0 +1,46 @@
-+#ifndef __ASM_MACH_APIC_H
-+#define __ASM_MACH_APIC_H
-+
-+static inline unsigned long calculate_ldr(unsigned long old)
-+{
-+	unsigned long id;
-+
-+	id = 1UL << smp_processor_id();
-+	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
-+}
-+
-+#define APIC_DFR_VALUE	(APIC_DFR_FLAT)
-+
-+#ifdef CONFIG_SMP
-+ #define TARGET_CPUS (clustered_apic_mode ? 0xf : cpu_online_map)
-+#else
-+ #define TARGET_CPUS 0x01
-+#endif
-+
-+#define APIC_BROADCAST_ID      0x0F
-+#define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
-+
-+static inline void summit_check(char *oem, char *productid) 
-+{
-+}
-+
-+static inline void clustered_apic_check(void)
-+{
-+	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
-+		(clustered_apic_mode ? "NUMA-Q" : "Flat"), nr_ioapics);
-+}
-+
-+static inline int cpu_present_to_apicid(int mps_cpu)
-+{
-+	if (clustered_apic_mode)
-+		return ( ((mps_cpu/4)*16) + (1<<(mps_cpu%4)) );
-+	else
-+		return mps_cpu;
-+}
-+
-+static inline unsigned long apicid_to_cpu_present(int apicid)
-+{
-+	return (1ul << apicid);
-+}
-+
-+#endif /* __ASM_MACH_APIC_H */
-diff -urN linux/arch/i386/mach-pc9800/setup.c linux98/arch/i386/mach-pc9800/setup.c
---- linux/arch/i386/mach-pc9800/setup.c	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/setup.c	Sun Sep 22 10:40:39 2002
-@@ -0,0 +1,113 @@
-+/*
-+ *	Machine specific setup for generic
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/mm.h>
-+#include <linux/smp.h>
-+#include <linux/init.h>
-+#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+#include <asm/setup.h>
-+#include <asm/arch_hooks.h>
-+
-+struct sys_desc_table_struct {
-+	unsigned short length;
-+	unsigned char table[0];
++static struct fb_ops egcfb_ops = {
++	.owner		= THIS_MODULE,
++	.fb_set_var	= egcfb_set_varinfo,
++	.fb_get_cmap	= egcfb_get_colormap,
++	.fb_set_cmap	= egcfb_set_colormap,
++	.fb_setcolreg	= egcfb_set_palette,
++	.fb_blank	= egcfb_blank,
++	.fb_pan_display	= egcfb_pan_display,
++	.fb_mmap	= egcfb_mmap,
 +};
 +
-+/**
-+ * pre_intr_init_hook - initialisation prior to setting up interrupt vectors
-+ *
-+ * Description:
-+ *	Perform any necessary interrupt initialisation prior to setting up
-+ *	the "ordinary" interrupt call gates.  For legacy reasons, the ISA
-+ *	interrupts should be initialised here if the machine emulates a PC
-+ *	in any way.
-+ **/
-+void __init pre_intr_init_hook(void)
++int egcfb_setup(char *options)
 +{
-+	init_ISA_irqs();
++	char *this_opt;
++	
++	fb_info.fontname[0] = '\0';
++	
++	if (!options || !*options)
++		return 0;
++	
++	while ((this_opt = strsep(&options, ",")) != NULL) {
++		if (!*this_opt)
++			continue;
++
++		if (!strncmp(this_opt, "font:", 5))
++			strcpy(fb_info.fontname, this_opt + 5);
++	}
++
++	return 0;
 +}
++
++/* on switching console ... */
++static int egcfb_switch(int con_num, struct fb_info *info)
++{
++	/* Do we have to save the colormap? */
++	if (fb_display[fb_info.currcon].cmap.len) {
++		fb_get_cmap(&fb_display[fb_info.currcon].cmap, 1,
++			    egcfb_get_palette, info);
++	}
++	
++	fb_info.currcon = con_num;
++	egcfb_set_defaultvar(&fb_display[con_num].var);
++	egcfb_set_display(con_num, info);
++	egcfb_set_palette_all(con_num, info);
++	return 1;
++}
++
++int __init egc_init(void)
++{
++	int i,j;
++
++	printk(KERN_DEBUG "egcfb: initializing\n");
++
++	if(!(isa_readb(0x054c) & (1 << 1))) {
++		printk(KERN_ERR "egcfb: this machine does not have GRCG, exiting\n");
++		return -EINVAL;
++	}
++
++	if(!(isa_readb(0x054c) & (1 << 2))) {
++		printk(KERN_ERR "egcfb: not 16-colors mode, exiting\n");
++		return -EINVAL;
++	}
++
++	if(!(isa_readb(0x054d) & (1 << 6))) {
++		printk(KERN_ERR "egcfb: this machine does not have EGC, exiting\n");
++		return -EINVAL;
++	}
++
++	video_vbase[0] = ioremap_nocache(EGC_RGB_FB_PHYS, EGC_RGB_FB_PHYS_LEN);
++	video_vbase[1] = ioremap_nocache(EGC_E_FB_PHYS, EGC_E_FB_PHYS_LEN);
++	printk(KERN_INFO "egcfb: mapped to 0x%p and 0x%p\n",
++	       video_vbase[0], video_vbase[1]);
++
++	hasEGC = (isa_readb(EGCMEM_ISEGC) & 0x40) ? 1 : 0;
++	palette_blanked = 0;
++	sync_blanked = 0;
++
++	egcfb_defined.red.length   = 4;
++	egcfb_defined.green.length = 4;
++	egcfb_defined.blue.length  = 4;
++	for (i = 0; i < 16; i++) {
++		j = color_table[i];
++		palette[i].red	 = default_red[j];
++		palette[i].green = default_grn[j];
++		palette[i].blue	 = default_blu[j];
++	}
++
++	default_display.var = egcfb_defined;
++
++	strcpy(fb_info.modename, egcfb_fix.id);
++	fb_info.changevar = NULL;
++	fb_info.node = NODEV;
++	fb_info.fbops = &egcfb_ops;
++	fb_info.var = egcfb_defined;
++	fb_info.fix = egcfb_fix;
++	fb_info.currcon = -1;
++	fb_info.screen_base = video_vbase[0];
++	fb_info.disp = &default_display;
++	fb_info.switch_con = egcfb_switch;
++	fb_info.updatevar = gen_update_var;
++	fb_info.flags = FBINFO_FLAG_DEFAULT;
++
++	fb_alloc_cmap(&fb_info.cmap, 16, 0);
++	egcfb_set_display(-1, &fb_info);
++
++	isa_writeb(isa_readb(0x054C) | 0x80, 0x054C);
++
++	if (register_framebuffer(&fb_info) < 0)
++		return -EINVAL;
++
++	printk(KERN_INFO "fb%d: %s frame buffer device\n",
++	       GET_FB_IDX(fb_info.node), fb_info.fix.id);
++
++	return 0;
++}
++
++#ifndef MODULE
++int __init egcfb_init(void)
++{
++    return egc_init();
++}
++
++#else /* MODULE */
++
++int init_module(void)
++{
++	return egc_init();
++}
++
++void cleanup_module(void)
++{
++	unregister_framebuffer(&fb_info);
++	iounmap(video_vbase[0]);
++	iounmap(video_vbase[1]);
++	__release_region(&ioport_resource, 0xa2, 1);
++}
++
++#endif
 +
 +/*
-+ * IRQ7 is cascade interrupt to second interrupt controller
++ * Overrides for Emacs so that we follow Linus's tabbing style.
++ * ---------------------------------------------------------------------------
++ * Local variables:
++ * c-basic-offset: 8
++ * End:
 + */
-+static struct irqaction irq7 = { no_action, 0, 0, "cascade", NULL, NULL};
 +
-+/**
-+ * intr_init_hook - post gate setup interrupt initialisation
+diff -urN linux/drivers/video/fbcon-egc.c linux98/drivers/video/fbcon-egc.c
+--- linux/drivers/video/fbcon-egc.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/video/fbcon-egc.c	Mon Sep  2 17:03:11 2002
+@@ -0,0 +1,681 @@
++/*
++ *  linux/drivers/video/fbcon-egc.c -- Low level frame buffer operations
++ *					      for EGC 
 + *
-+ * Description:
-+ *	Fill in any interrupts that may have been left out by the general
-+ *	init_IRQ() routine.  interrupts having to do with the machine rather
-+ *	than the devices on the I/O bus (like APIC interrupts in intel MP
-+ *	systems) are started here.
-+ **/
-+void __init intr_init_hook(void)
-+{
-+#ifdef CONFIG_X86_LOCAL_APIC
-+	apic_intr_init();
-+#endif
-+
-+	setup_irq(7, &irq7);
-+}
-+
-+/**
-+ * pre_setup_arch_hook - hook called prior to any setup_arch() execution
++ * Copyright (C) 1999,2000 Satoshi YAMADA <slakichi@kmc.kyoto-u.ac.jp>
 + *
-+ * Description:
-+ *	generally used to activate any machine specific identification
-+ *	routines that may be needed before setup_arch() runs.  On VISWS
-+ *	this is used to get the board revision and type.
-+ **/
-+void __init pre_setup_arch_hook(void)
-+{
-+	SYS_DESC_TABLE.length = 0;
-+	MCA_bus = 0;
-+}
-+
-+/**
-+ * trap_init_hook - initialise system specific traps
++ * Based on fbcon-vga-planes.c (C) 1999 Ben Pfaff <pfaffben@debian.org>
++ *				    and Petr Vandrovec <VANDROVE@vc.cvut.cz>
 + *
-+ * Description:
-+ *	Called as the final act of trap_init().  Used in VISWS to initialise
-+ *	the various board specific APIC traps.
-+ **/
-+void __init trap_init_hook(void)
-+{
-+}
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License.  See the file COPYING in the main directory of this
++ * archive for more details.	
++ */
 +
-+static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, 0, "timer", NULL, NULL};
++#include <linux/module.h>
++#include <linux/tty.h>
++#include <linux/console.h>
++#include <linux/string.h>
++#include <linux/fb.h>
++#include <linux/vt_buffer.h>
++#include <linux/spinlock.h>
++#include <linux/sched.h>
++#include <linux/wait.h>
++#include <linux/interrupt.h>
 +
-+/**
-+ * time_init_hook - do any specific initialisations for the system timer.
-+ *
-+ * Description:
-+ *	Must plug the system timer interrupt source at HZ into the IRQ listed
-+ *	in irq_vectors.h:TIMER_IRQ
-+ **/
-+void __init time_init_hook(void)
-+{
-+	setup_irq(0, &irq0);
-+}
-+
-+#ifdef CONFIG_MCA
-+/**
-+ * mca_nmi_hook - hook into MCA specific NMI chain
-+ *
-+ * Description:
-+ *	The MCA (Microchannel Arcitecture) has an NMI chain for NMI sources
-+ *	along the MCA bus.  Use this to hook into that chain if you will need
-+ *	it.
-+ **/
-+void __init mca_nmi_hook(void)
-+{
-+	/* If I recall correctly, there's a whole bunch of other things that
-+	 * we can do to check for NMI problems, but that's all I know about
-+	 * at the moment.
-+	 */
-+
-+	printk("NMI generated from unknown source!\n");
-+}
-+#endif
-diff -urN linux/arch/i386/mach-pc9800/setup_arch_post.h linux98/arch/i386/mach-pc9800/setup_arch_post.h
---- linux/arch/i386/mach-pc9800/setup_arch_post.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/setup_arch_post.h	Sat Sep 21 23:00:26 2002
-@@ -0,0 +1,29 @@
-+/**
-+ * machine_specific_memory_setup - Hook for machine specific memory setup.
-+ *
-+ * Description:
-+ *	This is included late in kernel/setup.c so that it can make
-+ *	use of all of the static functions.
-+ **/
-+
-+static inline char * __init machine_specific_memory_setup(void)
-+{
-+	char *who;
-+	unsigned long low_mem_size, lower_high, higher_high;
-+
-+
-+	who = "BIOS (common area)";
-+
-+	low_mem_size = ((*(unsigned char *)__va(PC9800SCA_BIOS_FLAG) & 7) + 1) << 17;
-+	add_memory_region(0, low_mem_size, 1);
-+	lower_high = (__u32) *(__u8 *) bus_to_virt(PC9800SCA_EXPMMSZ) << 17;
-+	higher_high = (__u32) *(__u16 *) bus_to_virt(PC9800SCA_MMSZ16M) << 20;
-+	if (lower_high != 0x00f00000UL) {
-+		add_memory_region(HIGH_MEMORY, lower_high, 1);
-+		add_memory_region(0x01000000UL, higher_high, 1);
-+	}
-+	else
-+		add_memory_region(HIGH_MEMORY, lower_high + higher_high, 1);
-+
-+	return who;
-+}
-diff -urN linux/arch/i386/mach-pc9800/setup_arch_pre.h linux98/arch/i386/mach-pc9800/setup_arch_pre.h
---- linux/arch/i386/mach-pc9800/setup_arch_pre.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/setup_arch_pre.h	Sun Sep 22 07:58:29 2002
-@@ -0,0 +1,36 @@
-+/* Hook to call BIOS initialisation function */
-+
-+/* no action for generic */
-+
-+#define ARCH_SETUP arch_setup_pc9800();
-+
-+#include <linux/timex.h>
 +#include <asm/io.h>
-+#include <asm/pc9800.h>
-+#include <asm/pc9800_sca.h>
 +
-+int CLOCK_TICK_RATE;
-+unsigned long tick_usec;	/* ACTHZ          period (usec) */
-+unsigned long tick_nsec;	/* USER_HZ period (nsec) */
-+unsigned char pc9800_misc_flags;
-+/* (bit 0) 1:High Address Video ram exists 0:otherwise */
++#include <video/fbcon.h>
++#include <video/fbcon-egc.h>
 +
-+#ifdef CONFIG_SMP
-+#define MPC_TABLE_SIZE 512
-+#define MPC_TABLE ((char *) (PARAM+0x400))
-+char mpc_table[MPC_TABLE_SIZE];
++#define EGCIO_EGC_R0 0x4a0
++#define EGCIO_EGC_R1 0x4a2
++#define EGCIO_EGC_R2 0x4a4
++#define EGCIO_EGC_R3 0x4a6
++#define EGCIO_EGC_R4 0x4a8
++#define EGCIO_EGC_R5 0x4aa
++#define EGCIO_EGC_R6 0x4ac
++#define EGCIO_EGC_R7 0x4ae
++
++#define EGCIO_KANJI_SETMODE	0x68
++#define EGCIO_KANJI_CG_LOW	0xa1
++#define EGCIO_KANJI_CG_HI	0xa3
++#define EGCIO_KANJI_CG_LR	0xa5
++
++#define EGCRAM_KANJI_CG		0xa4000
++
++#define KANJI_ACCESS		0x0b
++#define KANJI_NORMAL		0x0a
++
++#define NUM_CACHE		16 /* must be 2,4,8,16... */
++
++typedef struct facecache_t
++{
++	u8  isenable;
++	u16 chardata;
++	u8  left[16];
++	u8  right[16];
++} facecache;
++
++facecache fcache_kanji[NUM_CACHE];
++int       fcache_kanji_lastuse = -1;
++facecache fcache_ank[256];
++u8	  fcache_num;
++
++static spinlock_t fbcon_egc_lock = SPIN_LOCK_UNLOCKED;
++DECLARE_WAIT_QUEUE_HEAD(fbcon_egc_irq_wait);
++static int vsync_irq = 0;
++
++static u8 *egc_load_facedata(struct display *p, u16 data)
++{
++	int i;
++	int t;
++	u8 kanji_high = (u8)(data & 0x007f);
++	u16 rdata[32];
++//	unsigned long flags;
++
++	if (!(data & 0xff00)) {
++/* debug		return p->fontdata + (data & 0xff) * (fontheight(p)); */
++		if (fcache_ank[(unsigned int)(data & 0xff)].isenable) {
++			return fcache_ank[(unsigned int)(data & 0xff)].left;
++		}
++
++		/* wait for vsync */
++//		spin_lock_irqsave(&fbcon_egc_lock, flags);
++		if (vsync_irq && !in_interrupt()) {
++			outb(0x00, 0x64);
++			interruptible_sleep_on(&fbcon_egc_irq_wait);
++//			spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++		} else {
++//			spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++			while (inb(0xa0) & 0x20);
++			while (!(inb(0xa0) & 0x20));
++		}
++
++//		spin_lock_irqsave(&fbcon_egc_lock, flags);
++		outb_p(KANJI_ACCESS, EGCIO_KANJI_SETMODE);
++		outb_p(0, EGCIO_KANJI_CG_LOW);
++		outb_p(data & 0xff, EGCIO_KANJI_CG_HI);
++		memcpy(rdata, phys_to_virt(EGCRAM_KANJI_CG), 32);
++//		spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++		for (i = 0; i < 16; i++) {
++			fcache_ank[(unsigned int)(data & 0xff)].left[i]
++				 = (u8)(rdata[i] >> 8);
++		}
++
++		fcache_ank[(unsigned int)(data & 0xff)].isenable = 1;
++		return fcache_ank[(unsigned int)(data & 0xff)].left;
++	}
++
++	for (i = 0; i < NUM_CACHE; i++) {
++		if (fcache_kanji[i].isenable
++		 && fcache_kanji[i].chardata == (data & 0xff7f)) {
++			fcache_kanji_lastuse = i;
++			return ((data & 0x80) ? fcache_kanji[i].right
++					      : fcache_kanji[i].left);
++		}
++	}
++
++	do {
++		t = fcache_num;
++		fcache_num = (fcache_num + 1) & (NUM_CACHE - 1);
++	} while (t == fcache_kanji_lastuse);
++
++	fcache_kanji[t].isenable = 0;
++	fcache_kanji[t].chardata = ( data & 0xff7f );
++
++	if( (kanji_high >=0x0c && kanji_high <= 0x0f) 
++	 || kanji_high == 0x56
++	 || (kanji_high >=0x59 && kanji_high <= 0x5c)) {
++//		spin_lock_irqsave(&fbcon_egc_lock, flags);
++		outb_p(KANJI_ACCESS, EGCIO_KANJI_SETMODE);
++		outb_p(( data >> 8 ) & 0x7f, EGCIO_KANJI_CG_LOW);
++		outb_p(kanji_high , EGCIO_KANJI_CG_HI);
++		/* read left */
++		outb_p(0x20, EGCIO_KANJI_CG_LR);
++		memcpy(rdata, phys_to_virt(EGCRAM_KANJI_CG), 32);
++		/* read right */
++		outb_p(KANJI_ACCESS, EGCIO_KANJI_SETMODE);
++		outb_p(( data >> 8 ) & 0x7f, EGCIO_KANJI_CG_LOW);
++		outb_p(0x00, EGCIO_KANJI_CG_LR);
++		memcpy(&rdata[16], phys_to_virt(EGCRAM_KANJI_CG), 32);
++		outb_p(KANJI_NORMAL, EGCIO_KANJI_SETMODE);
++//		spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++		for (i = 0; i < 16; i++) {
++			fcache_kanji[t].left[i] = (u8)(rdata[i] >> 8);
++			fcache_kanji[t].right[i] = (u8)(rdata[i+16] >> 8);
++		}
++
++	} else {
++		/* read L/R pattern */
++//		spin_lock_irqsave(&fbcon_egc_lock, flags);
++		outb_p(KANJI_ACCESS, EGCIO_KANJI_SETMODE);
++		outb_p((data >> 8) & 0x7f, EGCIO_KANJI_CG_LOW);
++		outb_p(kanji_high , EGCIO_KANJI_CG_HI);
++		memcpy(rdata, phys_to_virt(EGCRAM_KANJI_CG), 32);
++		outb_p(KANJI_NORMAL, EGCIO_KANJI_SETMODE);
++//		spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++		for (i = 0; i < 16; i++) {
++			fcache_kanji[t].left[i] = (u8)(rdata[i] & 0x00ff);
++			fcache_kanji[t].right[i] = (u8)(rdata[i] >> 8);
++		}
++
++	}
++
++	fcache_kanji[t].isenable = 1;
++	return ((data & 0x80) ? fcache_kanji[t].right : fcache_kanji[t].left);
++}
++
++/* ------------------------------ */
++//#define PC98_USE_VSYNC
++#ifdef PC98_USE_VSYNC
++static void fbcon_egc_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++{
++	if (waitqueue_active(&fbcon_egc_irq_wait)) {
++		wake_up(&fbcon_egc_irq_wait);
++	}
++}
 +#endif
 +
-+static  inline void arch_setup_pc9800(void)
++void fbcon_egc_setup(struct display *p)
 +{
-+	CLOCK_TICK_RATE = PC9800_8MHz_P() ? 1996800 : 2457600;
-+	printk(KERN_DEBUG "CLOCK_TICK_RATE = %d\n", CLOCK_TICK_RATE);
-+	tick_usec = TICK_USEC; 		/* ACTHZ          period (usec) */
-+	tick_nsec = TICK_NSEC(TICK_USEC);	/* USER_HZ period (nsec) */
-+
-+	pc9800_misc_flags = PC9800_MISC_FLAGS;
-+#ifdef CONFIG_SMP
-+	if ((*(u32 *)(MPC_TABLE)) == 0x504d4350)
-+		memcpy(mpc_table, MPC_TABLE, *(u16 *)(MPC_TABLE + 4));
-+#endif /* CONFIG_SMP */
-+}
-diff -urN linux/arch/i386/mach-pc9800/smpboot_hooks.h linux98/arch/i386/mach-pc9800/smpboot_hooks.h
---- linux/arch/i386/mach-pc9800/smpboot_hooks.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/smpboot_hooks.h	Sun Sep 22 06:56:46 2002
-@@ -0,0 +1,33 @@
-+/* two abstractions specific to kernel/smpboot.c, mainly to cater to visws
-+ * which needs to alter them. */
-+
-+static inline void smpboot_clear_io_apic_irqs(void)
-+{
-+	io_apic_irqs = 0;
++#ifdef PC98_USE_VSYNC
++	if (vsync_irq)
++		return;
++	if (request_irq(2, fbcon_egc_interrupt, SA_INTERRUPT,
++		"CRT vsync", NULL))
++	{
++		printk("fbcon-egc: Unable to grab CRT-VSYNC interrupt IRQ2\n");
++	}
++	else {
++		vsync_irq = 2;
++		printk("fbcon-egc: grab CRT-VSYNC interrupt IRQ2\n");
++	}
++#endif
 +}
 +
-+static inline void smpboot_setup_warm_reset_vector(void)
++void fbcon_egc_bmove(struct display *p, int sy, int sx, int dy, int dx,
++		   int height, int width)
 +{
-+	/*
-+	 * Install writable page 0 entry to set BIOS data area.
-+	 */
-+	local_flush_tlb();
++	u16 *src;
++	u16 *dest;
++	
++	int x;
++	int word_cnt;
++	unsigned long flags;
 +
-+	/*
-+	 * Paranoid:  Set warm reset code and vector here back
-+	 * to default values.
-+	 */
-+	outb(0x0f, 0x37);	/* SHUT0 = 1 */
++	sy *= fontheight(p);
++	dy *= fontheight(p);
++	sx *= 8;
++	dx *= 8;
++	width *= 8;
++	height *= fontheight(p);
 +
-+	*((volatile long *) phys_to_virt(0x404)) = 0;
++	spin_lock_irqsave(&fbcon_egc_lock, flags);
++	outb(0xcf,0x7c);
++	isa_writeb(isa_readb(0x495)|0x80,0x0495);
++	outb(0x07,0x6a);	/* unprotected */
++	outb(0x05,0x6a);	/* EGC mode */
++	outb(0x06,0x6a);	/* protected */
++	outw(0xfff0,EGCIO_EGC_R0);
++	outw(0x00ff,EGCIO_EGC_R1);
++	outw(0xffff,EGCIO_EGC_R4);
++	outw(0x0000,EGCIO_EGC_R6);
++	outw(0x000f,EGCIO_EGC_R7);
++
++	outw(0x29F0,EGCIO_EGC_R2);
++//	spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++
++	if (dy < sy || (dy == sy && dx < sx)) {
++		/* forward */
++		int y;
++		u16 *save1;
++		u16 *save2;
++		src = (u16 *)(((unsigned long)p->fb_info->screen_base+(sx>>3)+
++			       sy * p->fb_info->fix.line_length) & (~1)) ;
++		dest = (u16 *)(((unsigned long)p->fb_info->screen_base+(dx>>3)+
++				dy * p->fb_info->fix.line_length) & (~1));
++		
++//		spin_lock_irqsave(&fbcon_egc_lock, flags);
++		outw((sx&0xf)|((dx&0xf)<<4),EGCIO_EGC_R6);
++//		spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++		word_cnt=((dx&0xf)+width+15)>>4;
++		if((sx&0xf) != (dx&0xf) && ((sx&0xf) > (dx&0xf) || 
++		(((sx&0xf)+width+15)>>4) > (((dx&0xf)+width+15)>>4))) {
++			word_cnt++;
++			dest=(u16 *)((unsigned long)dest-2);
++		}
++//		spin_lock_irqsave(&fbcon_egc_lock, flags);
++		outw(width-1,EGCIO_EGC_R7);
++//		spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++		for(y=0;y<height;y++) {
++			save1=src;
++			save2=dest;
++			for(x=0;x<word_cnt;x++) {
++				*dest=*src;
++				src=(u16 *)((unsigned long)src+2);
++				dest=(u16 *)((unsigned long)dest+2);
++			}
++			src=(u16 *)((unsigned long)save1+80);
++			dest=(u16 *)((unsigned long)save2+80);
++		}
++	} else {
++		/* backward */
++		int y;
++		int sb,db;
++		u16 *save1;
++		u16 *save2;
++		src  = (u16 *)(((unsigned long)p->fb_info->screen_base +
++				((sy+height-1) * p->fb_info->fix.line_length +
++				 ((sx+width-1)>>3))) & (~1));
++		dest = (u16 *)(((unsigned long)p->fb_info->screen_base +
++				((dy+height-1) * p->fb_info->fix.line_length +
++				 ((dx+width-1)>>3))) & (~1));
++//		spin_lock_irqsave(&fbcon_egc_lock, flags);
++		outw(width-1,EGCIO_EGC_R7);
++//		spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++
++		sb=((((sx+width)&0xf)-16)*(-1))&0xf;
++		db=((((dx+width)&0xf)-16)*(-1))&0xf;
++
++//		spin_lock_irqsave(&fbcon_egc_lock, flags);
++		outw(0x1000|(db<<4)|sb,EGCIO_EGC_R6);
++//		spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++		word_cnt=(db+width+15)>>4;
++
++		if (sb>db || (sb<db &&
++		   (sb+width+15)>>4 > (db+width+15)>>4)) {
++			word_cnt++;
++			dest=(u16 *)((unsigned long)dest+2);
++		}
++
++		for(y=0;y<height;y++) {
++			save1=src;
++			save2=dest;
++			for(x=0;x<word_cnt;x++) {
++				*dest=*src;
++				src=(u16 *)((unsigned long)src-2);
++				dest=(u16 *)((unsigned long)dest-2);
++			}
++			src=(u16 *)((unsigned long)save1-80);
++			dest=(u16 *)((unsigned long)save2-80);
++		}
++	}
++
++//	spin_lock_irqsave(&fbcon_egc_lock, flags);
++	outb(0x07,0x6a);	/* unprotected */
++	outb(0x04,0x6a);	/* GRCG mode */
++	outb(0x06,0x6a);	/* protected */
++	outb(0x00,0x7c);
++	isa_writeb(isa_readb(0x495)&0x7F,0x0495);
++	spin_unlock_irqrestore(&fbcon_egc_lock, flags);
 +}
 +
-+static inline void smpboot_setup_io_apic(void)
++void fbcon_egc_clear(struct vc_data *conp, struct display *p,
++			    int sy, int sx, int height, int width)
 +{
-+	/*
-+	 * Here we can be sure that there is an IO-APIC in the system. Let's
-+	 * go and set it up:
-+	 */
-+	if (!skip_ioapic_setup && nr_ioapics)
-+		setup_IO_APIC();
++	u16 *data;
++	int x;
++//	unsigned long flags;
++
++	sy *= fontheight(p);
++	height *= fontheight(p);
++	data = (u16 *)((unsigned long)p->fb_info->screen_base + 0x8000 + sx +
++		       sy * p->fb_info->fix.line_length);
++	data = (u16 *)((unsigned long)data & (~1));
++
++//	spin_lock_irqsave(&fbcon_egc_lock, flags);
++	outb(0xcf,0x7c);
++	isa_writeb(isa_readb(0x495)|0x80,0x0495);
++	outb(0x07,0x6a);	/* unprotected */
++	outb(0x05,0x6a);	/* EGC mode */
++	outb(0x06,0x6a);	/* protected */
++	outw(0xfff0,EGCIO_EGC_R0);
++	outw(0x00ff,EGCIO_EGC_R1);
++	outw(0xffff,EGCIO_EGC_R4);
++	outw(0x0000,EGCIO_EGC_R6);
++	outw(0x000f,EGCIO_EGC_R7);
++
++	/* egc_set_fgcolor */
++	outw(0x40ff, EGCIO_EGC_R1);
++	outw(conp ? (conp->vc_video_erase_attr>>4) & 0x0f : 0, EGCIO_EGC_R3);
++
++	outw(0x2cac,EGCIO_EGC_R2);
++//	spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++	while (height--) {
++		u16 *save=data;
++		/* first 8pixels */
++		if(sx&1) {
++			*data=0xff00;
++			data++;
++		}
++		for (x = 0; x < (width&(~1)) -1; x+=2) {
++			*data=0xffff;
++			data++;
++		}
++		/* last 8pixels */
++		if((sx+width)&1) {
++			*data=0x00ff;
++			data++;
++		}
++		/* to next line */
++		data = (u16 *)((unsigned long)save + p->fb_info->fix.line_length);
++	}
++
++//	spin_lock_irqsave(&fbcon_egc_lock, flags);
++	outb(0x07,0x6a);	/* unprotected */
++	outb(0x04,0x6a);	/* GRCG mode */
++	outb(0x06,0x6a);	/* protected */
++	outb(0x00,0x7c);
++	isa_writeb(isa_readb(0x495)&0x7F,0x0495);
++//	spin_unlock_irqrestore(&fbcon_egc_lock, flags);
 +}
-diff -urN linux/arch/i386/mach-summit/io_ports.h linux98/arch/i386/mach-summit/io_ports.h
---- linux/arch/i386/mach-summit/io_ports.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-summit/io_ports.h	Thu Oct 10 17:11:01 2002
-@@ -0,0 +1,20 @@
-+/* i8253A PIT registers */
-+#define PIT_MODE		0x43
-+#define PIT_CH0			0x40
-+#define PIT_CH2			0x42
 +
-+/* i8259A PIC registers */
-+#define PIC_MASTER_CMD		0x20
-+#define PIC_MASTER_IMR		0x21
-+#define PIC_MASTER_ISR		PIC_MASTER_CMD
-+#define PIC_MASTER_POLL		PIC_MASTER_ISR
-+#define PIC_MASTER_OCW3		PIC_MASTER_ISR
-+#define PIC_SLAVE_CMD		0xa0
-+#define PIC_SLAVE_IMR		0xa1
 +
-+/* i8259A PIC related value */
-+#define PIC_CASCADE_IR		2
-+#define MASTER_ICW4_DEFAULT	0x01
-+#define SLAVE_ICW4_DEFAULT	0x01
-+#define PIC_ICW4_AEOI		2
++void fbcon_egc_putc(struct vc_data *conp, struct display *p, int ch, int yy, int xx)
++{
++	u16 *data;
++	u8 *fdata_s;
++	int fg;
++	int bg;
++	int isbold;
++	int isuline;
++	int y;
++	unsigned long flags;
 +
-diff -urN linux/arch/i386/mach-visws/io_ports.h linux98/arch/i386/mach-visws/io_ports.h
---- linux/arch/i386/mach-visws/io_ports.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-visws/io_ports.h	Thu Oct 10 17:11:01 2002
-@@ -0,0 +1,20 @@
-+/* i8253A PIT registers */
-+#define PIT_MODE		0x43
-+#define PIT_CH0			0x40
-+#define PIT_CH2			0x42
++	data = (u16 *)((unsigned long)p->fb_info->screen_base + xx +
++			    yy * p->fb_info->fix.line_length * fontheight(p));
++	
++	fg = conp->vc_pc98_addbuf & 0x0f;
++	bg = (conp->vc_pc98_addbuf >> 4) & 0x0f;
++	isbold = conp->vc_pc98_addbuf & 0x100;
++	isuline = conp->vc_pc98_addbuf & 0x200;
++	data = (u16 *)((unsigned long)data & (~1));
 +
-+/* i8259A PIC registers */
-+#define PIC_MASTER_CMD		0x20
-+#define PIC_MASTER_IMR		0x21
-+#define PIC_MASTER_ISR		PIC_MASTER_CMD
-+#define PIC_MASTER_POLL		PIC_MASTER_ISR
-+#define PIC_MASTER_OCW3		PIC_MASTER_ISR
-+#define PIC_SLAVE_CMD		0xa0
-+#define PIC_SLAVE_IMR		0xa1
++	spin_lock_irqsave(&fbcon_egc_lock, flags);
++	fdata_s = egc_load_facedata(p, ch);
++	outb(0xcf,0x7c);
++	isa_writeb(isa_readb(0x495)|0x80,0x0495);
++	outb(0x07,0x6a);	/* unprotected */
++	outb(0x05,0x6a);	/* EGC mode */
++	outb(0x06,0x6a);	/* protected */
++	outw(0xfff0,EGCIO_EGC_R0);
++	outw(0x00ff,EGCIO_EGC_R1);
++	outw(0xffff,EGCIO_EGC_R4);
++	outw(0x0000,EGCIO_EGC_R6);
++	outw(0x000f,EGCIO_EGC_R7);
 +
-+/* i8259A PIC related value */
-+#define PIC_CASCADE_IR		2
-+#define MASTER_ICW4_DEFAULT	0x01
-+#define SLAVE_ICW4_DEFAULT	0x01
-+#define PIC_ICW4_AEOI		2
++	outw(0x2cac,EGCIO_EGC_R2);
++//	spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++	/* write one character */
++	for (y = 0; y < fontheight(p); y++) {
++		u16 mask=(*(fdata_s+y))<<((xx&1)<<3);
++		if (isbold)
++			mask |= (mask << 1);
++		if ( y == fontheight(p) - 1 && isuline)
++			mask = (0xff) << ((xx&1)<<3) ;
++		/* egc_set_fgcolor */
++//		spin_lock_irqsave(&fbcon_egc_lock, flags);
++		outw(0x40ff, EGCIO_EGC_R1);
++		outw(fg, EGCIO_EGC_R3);
++//		spin_unlock_irqrestore(&fbcon_egc_lock, flags);
 +
++		*data = mask;
++		if(isbold && !(xx&2) && xx!=0 && *(fdata_s+y)&0x80) {
++			*(data-1) = 0x0100;
++		}
++		/* egc_set_fgcolor */
++//		spin_lock_irqsave(&fbcon_egc_lock, flags);
++		outw(0x40ff, EGCIO_EGC_R1);
++		outw(bg, EGCIO_EGC_R3);
++//		spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++
++		mask ^= 0xff<<((xx&1)<<3);
++		*data = mask;
++		data = (u16 *)((unsigned long)data + p->fb_info->fix.line_length);
++	}
++
++//	spin_lock_irqsave(&fbcon_egc_lock, flags);
++	outb(0x07,0x6a);	/* unprotected */
++	outb(0x04,0x6a);	/* GRCG mode */
++	outb(0x06,0x6a);	/* protected */
++	outb(0x00,0x7c);
++	isa_writeb(isa_readb(0x495)&0x7F,0x0495);
++	spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++}
++
++void fbcon_egc_putcs(struct vc_data *conp, struct display *p,
++			    const unsigned short *s,
++			    int count, int yy, int xx)
++{
++	u16 *data;
++	extern int	fbcon_softback_size;
++	int attr;
++	int fg;
++	int bg;
++	int isbold;
++	int isuline;
++	int n,y;
++	unsigned long flags;
++
++	data = (u16 *)((unsigned long)p->fb_info->screen_base +
++			    xx + yy * p->fb_info->fix.line_length * fontheight(p));
++	
++	attr = scr_readw((u16 *)((unsigned long)s +
++			((s >= conp->vc_screenbuf
++				&& (unsigned long)s <
++				(unsigned long)(conp->vc_screenbuf)
++				+ conp->vc_screenbuf_size) ?
++			conp->vc_screenbuf_size : fbcon_softback_size)));
++	fg = attr & 0x0f;
++	bg = ( attr >> 4) & 0x0f;
++	isbold = attr & 0x100;
++	isuline = attr & 0x200;
++	data = (u16 *)((unsigned long)data & ~1);
++
++	spin_lock_irqsave(&fbcon_egc_lock, flags);
++	outb(0xcf,0x7c);
++	isa_writeb(isa_readb(0x495)|0x80,0x0495);
++	outb(0x07,0x6a);	/* unprotected */
++	outb(0x05,0x6a);	/* EGC mode */
++	outb(0x06,0x6a);	/* protected */
++	outw(0xfff0,EGCIO_EGC_R0);
++	outw(0x00ff,EGCIO_EGC_R1);
++	outw(0xffff,EGCIO_EGC_R4);
++	outw(0x0000,EGCIO_EGC_R6);
++	outw(0x000f,EGCIO_EGC_R7);
++
++	outw(0x2cac,EGCIO_EGC_R2);
++//	spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++	if(xx & 1) {
++		/* write one character */
++		int c = scr_readw(s++);
++		u8 *fdata_s = egc_load_facedata(p, c);
++		for (y = 0; y < fontheight(p); y++) {
++			u16 mask=(*(fdata_s+y))<<8;
++			if (isbold)
++				mask |= (mask << 1);
++			if ( y == fontheight(p) - 1 && isuline)
++				mask = 0xff00 ;
++			/* egc_set_fgcolor */
++//			spin_lock_irqsave(&fbcon_egc_lock, flags);
++			outw(0x40ff, EGCIO_EGC_R1);
++			outw(fg, EGCIO_EGC_R3);
++//			spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++
++			*data = mask;
++			/* egc_set_fgcolor */
++//			spin_lock_irqsave(&fbcon_egc_lock, flags);
++			outw(0x40ff, EGCIO_EGC_R1);
++			outw(bg, EGCIO_EGC_R3);
++//			spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++
++			mask ^= 0xff00;
++			*data = mask;
++			data = (u16 *)((unsigned long)data + p->fb_info->fix.line_length);
++		}
++		data = (u16 *)((unsigned long)data + 2 -
++			       p->fb_info->fix.line_length * fontheight(p));
++		xx++;
++		count--;
++	}
++
++	for (n = 0; n < (count&(~1)) - 1 ; n += 2 ) {
++		int c,i;
++		u8 *fdata_s[2];
++		for(i=0;i<2;i++) {
++			c = scr_readw(s++);
++			fdata_s[i] = egc_load_facedata(p, c);
++		}
++		for (y = 0; y < fontheight(p); y++) {
++			u16 mask=((*(fdata_s[1]+y))<<8)|(*(fdata_s[0]+y));
++			if (isbold)
++				mask |= (((mask << 1) & 0xfeff)|(mask >> 15));
++			if ( y == fontheight(p) - 1 && isuline)
++				mask = 0xffff ;
++			/* egc_set_fgcolor */
++//			spin_lock_irqsave(&fbcon_egc_lock, flags);
++			outw(0x40ff, EGCIO_EGC_R1);
++			outw(fg, EGCIO_EGC_R3);
++//			spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++
++			*data = mask;
++			if (isbold && !(xx&2) && xx!=0
++			&&  *(fdata_s[0]+y)&0x80) {
++				*(data-1) = 0x0100;
++			}
++			/* egc_set_fgcolor */
++//			spin_lock_irqsave(&fbcon_egc_lock, flags);
++			outw(0x40ff, EGCIO_EGC_R1);
++			outw(bg, EGCIO_EGC_R3);
++//			spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++
++			mask ^= 0xffff;
++			*data = mask;
++			data = (u16 *)((unsigned long)data + p->fb_info->fix.line_length);
++		}
++		data = (u16 *)((unsigned long)data + 2 -
++			       p->fb_info->fix.line_length * fontheight(p));
++	}
++
++	if (count &1) {
++		/* write one character */
++		int c = scr_readw(s++);
++		u8 *fdata_s = egc_load_facedata(p, c);
++		for (y = 0; y < fontheight(p); y++) {
++			u16 mask=(*(fdata_s+y));
++			if (isbold)
++				mask |= (mask << 1);
++			if ( y == fontheight(p) - 1 && isuline)
++				mask = 0x00ff ;
++			mask &= 0x00ff;
++			/* egc_set_fgcolor */
++//			spin_lock_irqsave(&fbcon_egc_lock, flags);
++			outw(0x40ff, EGCIO_EGC_R1);
++			outw(fg, EGCIO_EGC_R3);
++//			spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++
++			if(isbold && !(xx&2) && xx!=0 && *(fdata_s+y)&0x80) {
++				*(data-1) = 0x0100;
++			}
++			*data = mask;
++			/* egc_set_fgcolor */
++//			spin_lock_irqsave(&fbcon_egc_lock, flags);
++			outw(0x40ff, EGCIO_EGC_R1);
++			outw(bg, EGCIO_EGC_R3);
++//			spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++
++			mask ^= 0xff;
++			*data = mask;
++			data = (u16 *)((unsigned long)data + p->fb_info->fix.line_length);
++		}
++	}
++
++//	spin_lock_irqsave(&fbcon_egc_lock, flags);
++	outb(0x07,0x6a);	/* unprotected */
++	outb(0x04,0x6a);	/* GRCG mode */
++	outb(0x06,0x6a);	/* protected */
++	outb(0x00,0x7c);
++	isa_writeb(isa_readb(0x495)&0x7F,0x0495);
++	spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++}
++
++void fbcon_egc_revc(struct display *p, int xx, int yy)
++{
++	u16 *data;
++	int y;
++//	unsigned long flags;
++
++	data = (u16 *)((unsigned long)p->fb_info->screen_base + xx + 0x8000 +
++			    yy * p->fb_info->fix.line_length * fontheight(p));
++	data = (u16 *)((unsigned long)data & (~1));
++
++//	spin_lock_irqsave(&fbcon_egc_lock, flags);
++	outb(0xcf,0x7c);
++	isa_writeb(isa_readb(0x495)|0x80,0x0495);
++	outb(0x07,0x6a);	/* unprotected */
++	outb(0x05,0x6a);	/* EGC mode */
++	outb(0x06,0x6a);	/* protected */
++	outw(0xfff0,EGCIO_EGC_R0);
++	outw(0x00ff,EGCIO_EGC_R1);
++	outw(0xffff,EGCIO_EGC_R4);
++	outw(0x0000,EGCIO_EGC_R6);
++	outw(0x000f,EGCIO_EGC_R7);
++
++	outw(0x2833, EGCIO_EGC_R2);
++	outw(0xff << ((xx & 1) << 3), EGCIO_EGC_R4);
++//	spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++	
++	for (y = 0; y < fontheight(p); y++) {
++		*data = 0xAAAA;
++		data = (u16 *)((unsigned long)data +p->fb_info->fix.line_length);
++	}
++
++//	spin_lock_irqsave(&fbcon_egc_lock, flags);
++	outb(0x07,0x6a);	/* unprotected */
++	outb(0x04,0x6a);	/* GRCG mode */
++	outb(0x06,0x6a);	/* protected */
++	outb(0x00,0x7c);
++	isa_writeb(isa_readb(0x495)&0x7F,0x0495);
++//	spin_unlock_irqrestore(&fbcon_egc_lock, flags);
++}
++
++struct display_switch fbcon_egc = {
++    fbcon_egc_setup, fbcon_egc_bmove, fbcon_egc_clear,
++    fbcon_egc_putc, fbcon_egc_putcs, fbcon_egc_revc,
++    NULL, NULL, NULL, FONTWIDTH(8)
++};
++
++#ifdef MODULE
++int init_module(void)
++{
++    return 0;
++}
++
++void cleanup_module(void)
++{
++	/* Nothing to do. */
++}
++#endif /* MODULE */
++
++
++    /*
++     *	Visible symbols for modules
++     */
++
++EXPORT_SYMBOL(fbcon_egc);
++EXPORT_SYMBOL(fbcon_egc_setup);
++EXPORT_SYMBOL(fbcon_egc_bmove);
++EXPORT_SYMBOL(fbcon_egc_clear);
++EXPORT_SYMBOL(fbcon_egc_putc);
++EXPORT_SYMBOL(fbcon_egc_putcs);
++EXPORT_SYMBOL(fbcon_egc_revc);
++
++/*
++ * Overrides for Emacs so that we follow Linus's tabbing style.
++ * ---------------------------------------------------------------------------
++ * Local variables:
++ * c-basic-offset: 8
++ * End:
++ */
++
+diff -urN linux/drivers/video/fbcon.c linux98/drivers/video/fbcon.c
+--- linux/drivers/video/fbcon.c	Sun Sep  1 07:04:50 2002
++++ linux98/drivers/video/fbcon.c	Mon Sep  2 15:23:26 2002
+@@ -572,7 +572,11 @@
+     if (con == fg_console && info->fix.type != FB_TYPE_TEXT) {   
+ 	if (fbcon_softback_size) {
+ 	    if (!softback_buf) {
++#ifndef CONFIG_PC9800
+ 		softback_buf = (unsigned long)kmalloc(fbcon_softback_size, GFP_KERNEL);
++#else
++		softback_buf = (unsigned long)kmalloc(fbcon_softback_size * 2, GFP_KERNEL);
++#endif
+ 		if (!softback_buf) {
+     	            fbcon_softback_size = 0;
+     	            softback_top = 0;
+@@ -658,16 +662,35 @@
+     	q = (unsigned short *)(conp->vc_origin + conp->vc_size_row * old_rows);
+     	step = logo_lines * old_cols;
+     	for (r = q - logo_lines * old_cols; r < q; r++)
++#ifndef CONFIG_PC9800
+     	    if (scr_readw(r) != conp->vc_video_erase_char)
++#else
++	    if (scr_readw((unsigned short *)((unsigned long)r+conp->vc_screenbuf_size)) !=
++		conp->vc_video_erase_attr &&
++		scr_readw(r) != conp->vc_video_erase_char)
++#endif
+     	    	break;
+ 	if (r != q && nr_rows >= old_rows + logo_lines) {
++#ifndef CONFIG_PC9800
+     	    save = kmalloc(logo_lines * nr_cols * 2, GFP_KERNEL);
++#else
++	    save = kmalloc(logo_lines * nr_cols * 2 * 2, GFP_KERNEL);
++#endif
+     	    if (save) {
+     	        int i = old_cols < nr_cols ? old_cols : nr_cols;
+     	    	scr_memsetw(save, conp->vc_video_erase_char, logo_lines * nr_cols * 2);
++#ifdef CONFIG_PC9800
++		scr_memsetw((u16 *)((unsigned long)save + logo_lines * nr_cols * 2),
++			     conp->vc_video_erase_attr, logo_lines * nr_cols * 2);
++#endif
+     	    	r = q - step;
+-    	    	for (cnt = 0; cnt < logo_lines; cnt++, r += i)
++    	    	for (cnt = 0; cnt < logo_lines; cnt++, r += i) {
+     	    		scr_memcpyw(save + cnt * nr_cols, r, 2 * i);
++#ifdef CONFIG_PC9800
++			scr_memcpyw((unsigned short *)((unsigned long)(save + logo_lines * nr_cols * 2)) + cnt * nr_cols,
++					 (unsigned short *)((unsigned long)r + conp->vc_screenbuf_size), 2 * i);
++#endif
++		}
+     	    	r = q;
+     	    }
+     	}
+@@ -676,6 +699,14 @@
+ 	    r = q - step - old_cols;
+     	    for (cnt = old_rows - logo_lines; cnt > 0; cnt--) {
+     	    	scr_memcpyw(r + step, r, conp->vc_size_row);
++#ifdef CONFIG_PC9800
++		scr_memcpyw((unsigned short *)((unsigned long)r
++					       + conp->vc_screenbuf_size)
++			    + step,
++			    (unsigned short *)((unsigned long)r
++					       + conp->vc_screenbuf_size),
++			    conp->vc_size_row);
++#endif
+     	    	r -= old_cols;
+     	    }
+     	    if (!save) {
+@@ -686,6 +717,12 @@
+     	scr_memsetw((unsigned short *)conp->vc_origin,
+ 		    conp->vc_video_erase_char, 
+ 		    conp->vc_size_row * logo_lines);
++#ifdef CONFIG_PC9800
++	scr_memsetw((unsigned short *)((unsigned long)conp->vc_origin
++				       + conp->vc_screenbuf_size),
++		    conp->vc_video_erase_attr, 
++		    conp->vc_size_row * logo_lines);
++#endif
+     }
+     
+     /*
+@@ -734,10 +771,25 @@
+ 	    if (p->dispsw->clear_margins)
+ 		p->dispsw->clear_margins(conp, p, 0);
+ 	    update_screen(con);
++#ifdef CONFIG_PC9800
++	    /* reset attributes because of incompatibility */
++	    scr_memsetw((unsigned short *)((unsigned long)conp->vc_origin
++					   + conp->vc_screenbuf_size),
++			0x07, conp->vc_size_row * logo_lines);
++	    /* and redraw once more */
++	    update_screen(con);
++#endif
+ 	}
+ 	if (save) {
+     	    q = (unsigned short *)(conp->vc_origin + conp->vc_size_row * old_rows);
+ 	    scr_memcpyw(q, save, logo_lines * nr_cols * 2);
++#ifdef CONFIG_PC9800
++	    scr_memcpyw((unsigned short *)((unsigned long)q
++					   + conp->vc_screenbuf_size),
++			(unsigned short *)((unsigned long)save
++					   + logo_lines * nr_cols * 2),
++			logo_lines * nr_cols * 2);
++#endif
+ 	    conp->vc_y += logo_lines;
+     	    conp->vc_pos += logo_lines * conp->vc_size_row;
+     	    kfree(save);
+@@ -1034,10 +1086,18 @@
+     unsigned long n;
+     int line = 0;
+     int count = conp->vc_rows;
++#ifdef CONFIG_PC9800
++    int save_bufsiz = conp->vc_screenbuf_size;
++    int d_sb = 1;
++#endif
+     
+     d = (u16 *)softback_curr;
+-    if (d == (u16 *)softback_in)
++    if (d == (u16 *)softback_in) {
+ 	d = (u16 *)conp->vc_origin;
++#ifdef CONFIG_PC9800
++	d_sb=0;
++#endif
++	}
+     n = softback_curr + delta * conp->vc_size_row;
+     softback_lines -= delta;
+     if (delta < 0) {
+@@ -1063,25 +1123,47 @@
+ 	    softback_lines = 0;
+ 	}
+     }
+-    if (n == softback_curr)
++    if (n == softback_curr) {
++#ifdef CONFIG_PC9800
++	conp->vc_screenbuf_size = save_bufsiz;
++#endif
+     	return;
++	}
+     softback_curr = n;
+     s = (u16 *)softback_curr;
+-    if (s == (u16 *)softback_in)
++#ifdef CONFIG_PC9800
++    conp->vc_screenbuf_size = fbcon_softback_size;
++#endif
++    if (s == (u16 *)softback_in) {
+ 	s = (u16 *)conp->vc_origin;
++#ifdef CONFIG_PC9800
++	conp->vc_screenbuf_size = save_bufsiz;
++#endif
++	}
+     while (count--) {
+ 	unsigned short *start;
+ 	unsigned short *le;
+ 	unsigned short c;
+ 	int x = 0;
+ 	unsigned short attr = 1;
++#ifdef CONFIG_PC9800
++	unsigned short ca;
++#endif
+ 
+ 	start = s;
+ 	le = advance_row(s, 1);
+ 	do {
+ 	    c = scr_readw(s);
++#ifdef CONFIG_PC9800
++	    ca= scr_readw((unsigned short *)((unsigned long)s+conp->vc_screenbuf_size));
++#endif
++#ifndef CONFIG_PC9800
+ 	    if (attr != (c & 0xff00)) {
+ 		attr = c & 0xff00;
++#else
++	    if (attr != ca) {
++		attr = ca;
++#endif
+ 		if (s > start) {
+ 		    p->dispsw->putcs(conp, p, start, s - start,
+ 				     real_y(p, line), x);
+@@ -1089,7 +1171,15 @@
+ 		    start = s;
+ 		}
+ 	    }
++#ifndef CONFIG_PC9800
+ 	    if (c == scr_readw(d)) {
++#else
++	    if (c == scr_readw(d)
++		&& ca == scr_readw((unsigned short *)
++				   ((unsigned long)d
++				    + (d_sb ? fbcon_softback_size
++				       : conp->vc_screenbuf_size)))) {
++#endif
+ 	    	if (s > start) {
+ 	    	    p->dispsw->putcs(conp, p, start, s - start,
+ 				     real_y(p, line), x);
+@@ -1106,15 +1196,34 @@
+ 	if (s > start)
+ 	    p->dispsw->putcs(conp, p, start, s - start, real_y(p, line), x);
+ 	line++;
+-	if (d == (u16 *)softback_end)
++	if (d == (u16 *)softback_end) {
+ 	    d = (u16 *)softback_buf;
+-	if (d == (u16 *)softback_in)
++#ifdef CONFIG_PC9800
++	    d_sb = 1;
++#endif
++	}
++	if (d == (u16 *)softback_in) {
+ 	    d = (u16 *)conp->vc_origin;
+-	if (s == (u16 *)softback_end)
++#ifdef CONFIG_PC9800
++	    d_sb = 0;
++#endif
++	}
++	if (s == (u16 *)softback_end) {
+ 	    s = (u16 *)softback_buf;
+-	if (s == (u16 *)softback_in)
++#ifdef CONFIG_PC9800
++	    conp->vc_screenbuf_size = fbcon_softback_size;
++#endif
++	}
++	if (s == (u16 *)softback_in) {
+ 	    s = (u16 *)conp->vc_origin;
++#ifdef CONFIG_PC9800
++	    conp->vc_screenbuf_size = save_bufsiz;
++#endif
+     }
++    }
++#ifdef CONFIG_PC9800
++    conp->vc_screenbuf_size = save_bufsiz;
++#endif
+ }
+ 
+ static void fbcon_redraw(struct vc_data *conp, struct display *p, 
+@@ -1130,11 +1239,23 @@
+ 	unsigned short c;
+ 	int x = 0;
+ 	unsigned short attr = 1;
++#ifdef CONFIG_PC9800
++	unsigned short ca;
++#endif
+ 
+ 	do {
+ 	    c = scr_readw(s);
++#ifdef CONFIG_PC9800
++	    ca = scr_readw((unsigned short *)((unsigned long)s
++					      + conp->vc_screenbuf_size));
++#endif
++#ifndef CONFIG_PC9800
+ 	    if (attr != (c & 0xff00)) {
+ 		attr = c & 0xff00;
++#else
++	    if (attr != ca) {
++		attr = ca;
++#endif
+ 		if (s > start) {
+ 		    p->dispsw->putcs(conp, p, start, s - start,
+ 				     real_y(p, line), x);
+@@ -1142,7 +1263,14 @@
+ 		    start = s;
+ 		}
+ 	    }
++#ifndef CONFIG_PC9800
+ 	    if (c == scr_readw(d)) {
++#else
++	    if (c == scr_readw(d)
++		&& ca == scr_readw((unsigned short *)
++				   ((unsigned long)d
++				    + conp->vc_screenbuf_size))) {
++#endif
+ 	    	if (s > start) {
+ 	    	    p->dispsw->putcs(conp, p, start, s - start,
+ 				     real_y(p, line), x);
+@@ -1154,6 +1282,10 @@
+ 	    	}
+ 	    }
+ 	    scr_writew(c, d);
++#ifdef CONFIG_PC9800
++	    scr_writew(ca, (unsigned short *)((unsigned long)d
++					      + conp->vc_screenbuf_size));
++#endif
+ 	    console_conditional_schedule();
+ 	    s++;
+ 	    d++;
+@@ -1231,18 +1363,37 @@
+ 	unsigned short c;
+ 	int x = dx;
+ 	unsigned short attr = 1;
++#ifdef CONFIG_PC9800
++	unsigned short ca;
++#endif
+ 
+ 	do {
+ 	    c = scr_readw(d);
++#ifdef CONFIG_PC9800
++	    ca = scr_readw((unsigned short *)((unsigned long)s
++					      + conp->vc_screenbuf_size));
++#endif
++#ifndef CONFIG_PC9800
+ 	    if (attr != (c & 0xff00)) {
+ 		attr = c & 0xff00;
++#else
++	    if (attr != ca) {
++		attr = ca;
++#endif
+ 		if (d > start) {
+ 		    p->dispsw->putcs(conp, p, start, d - start, dy, x);
+ 		    x += d - start;
+ 		    start = d;
+ 		}
+ 	    }
++#ifndef CONFIG_PC9800
+ 	    if (s >= ls && s < le && c == scr_readw(s)) {
++#else
++	    if (s >= ls && s < le && c == scr_readw(s)
++		&& ca == scr_readw((unsigned short *)
++				   ((unsigned long)d
++				    + conp->vc_screenbuf_size))) {
++#endif
+ 		if (d > start) {
+ 		    p->dispsw->putcs(conp, p, start, d - start, dy, x);
+ 		    x += d - start + 1;
+@@ -1272,6 +1423,11 @@
+ 
+     while (count) {
+     	scr_memcpyw((u16 *)softback_in, p, conp->vc_size_row);
++#ifdef CONFIG_PC9800
++	scr_memcpyw((u16 *)((unsigned long)softback_in+fbcon_softback_size),
++		    (u16 *)((unsigned long)p+ conp->vc_screenbuf_size),
++		    conp->vc_size_row);
++#endif
+     	count--;
+     	p = advance_row(p, 1);
+     	softback_in += conp->vc_size_row;
+@@ -1367,6 +1523,14 @@
+ 		    	    conp->vc_size_row * (b-count)), 
+ 		    	    conp->vc_video_erase_char,
+ 		    	    conp->vc_size_row * count);
++#ifdef CONFIG_PC9800
++		scr_memsetw((unsigned short *)((unsigned long)conp->vc_origin
++					       + conp->vc_screenbuf_size
++					       + (conp->vc_size_row
++						  * (b - count))),
++			    conp->vc_video_erase_attr,
++			    conp->vc_size_row * count);
++#endif
+ 		return 1;
+ 	    }
+ 	    break;
+@@ -1427,6 +1591,13 @@
+ 	    		    conp->vc_size_row * t), 
+ 	    		    conp->vc_video_erase_char,
+ 	    		    conp->vc_size_row * count);
++#ifdef CONFIG_PC9800
++		scr_memsetw((unsigned short *)((unsigned long)conp->vc_origin
++					       + conp->vc_screenbuf_size
++					       + conp->vc_size_row * t),
++			    conp->vc_video_erase_attr,
++			    conp->vc_size_row * count);
++#endif
+ 	    	return 1;
+ 	    }
+     }
+@@ -2015,6 +2186,7 @@
+ static void fbcon_invert_region(struct vc_data *conp, u16 *p, int cnt)
+ {
+     while (cnt--) {
++#ifndef CONFIG_PC9800
+ 	u16 a = scr_readw(p);
+ 	if (!conp->vc_can_do_color)
+ 	    a ^= 0x0800;
+@@ -2023,6 +2195,19 @@
+ 	else
+ 	    a = ((a) & 0x88ff) | (((a) & 0x7000) >> 4) | (((a) & 0x0700) << 4);
+ 	scr_writew(a, p++);
++#else
++	    u16 *attr;
++	    if (p >= conp->vc_screenbuf
++			&& (unsigned long)p <
++				(unsigned long)(conp->vc_screenbuf)
++					+ conp->vc_screenbuf_size)
++		attr = (u16 *)((unsigned long)p + conp->vc_screenbuf_size);
++	    else
++		attr = (u16 *)((unsigned long)p + fbcon_softback_size);
++
++	scr_writew(((*attr) & 0xff00) | (((*attr) & 0x00f0) >> 4) | (((*attr) & 0x000f) << 4), attr);
++	p++;
++#endif
+ 	if (p == (u16 *)softback_end)
+ 	    p = (u16 *)softback_buf;
+ 	if (p == (u16 *)softback_in)
+@@ -2059,6 +2244,13 @@
+     		    	p -= conp->vc_size_row;
+     		    	q -= conp->vc_size_row;
+     		    	scr_memcpyw((u16 *)q, (u16 *)p, conp->vc_size_row);
++#ifdef CONFIG_PC9800
++			scr_memcpyw((u16 *)((unsigned long)q
++					    + conp->vc_screenbuf_size),
++				    (u16 *)((unsigned long)p
++					    + fbcon_softback_size),
++				    conp->vc_size_row);
++#endif
+     		    }
+     		    softback_in = p;
+     		    update_region(unit, conp->vc_origin, logo_lines * conp->vc_cols);
+@@ -2411,6 +2603,7 @@
+ 	}
+ #endif
+ #if defined(CONFIG_FBCON_VGA_PLANES)
++#ifndef CONFIG_PC9800
+ 	if (depth == 4 && info->fix.type == FB_TYPE_VGA_PLANES) {
+ 		outb_p(1,0x3ce); outb_p(0xf,0x3cf);
+ 		outb_p(3,0x3ce); outb_p(0,0x3cf);
+@@ -2441,6 +2634,220 @@
+ 		done = 1;
+ 	}
+ #endif			
++#endif
++#if defined(CONFIG_PC9800)
++	if (depth == 4 && info->fix.type == FB_TYPE_VGA_PLANES) {
++		/*
++		 * for GRCG framebuffers (EGC not required)
++		 */
++		u8 pldata[4], cpudata, data;
++		int hi_lo = 0, ti;
++#if 1
++#if 0
++		/* mono-bmp */
++		static u16 egcfblogo[144] = {
++		0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++		0x0000, 0x0000, 0x0000, 0x0000,
++		0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++		0x0000, 0x0000, 0x0000, 0x0000,
++		0xF003, 0x0000, 0x0000, 0x0000, 0x0000,
++		0x0000, 0x0000, 0x0000, 0x0000,
++		0x0C0C, 0x0000, 0x0000, 0x0000, 0x0000,
++		0x0000, 0x0000, 0x0000, 0x0000,
++		0x2211, 0xF101, 0xC1C1, 0xC3F7, 0x0080,
++		0x0000, 0x0041, 0x0500, 0x00C7,
++		0x2121, 0x0201, 0x2122, 0x2404, 0x0040,
++		0x0000, 0x0040, 0x0600, 0x8028,
++		0x2041, 0x0481, 0x0114, 0x2804, 0x780E,
++		0xF01C, 0x7941, 0x4A14, 0x8028,
++		0x2041, 0xF481, 0x0104, 0xE8E7, 0x4411,
++		0x8822, 0x4541, 0x8A12, 0x0027,
++		0x0040, 0x0481, 0x0174, 0x2804, 0x4411,
++		0x8822, 0x4541, 0x0911, 0x80E8,
++		0x0040, 0x0481, 0x0114, 0x2804, 0x4411,
++		0x8822, 0x4541, 0x0811, 0x8028,
++		0x0120, 0x0201, 0x2122, 0x2404, 0x4451,
++		0x8822, 0x4541, 0x9232, 0x8028,
++		0x0210, 0xF101, 0xC1C1, 0xC307, 0x448E,
++		0x881C, 0x447D, 0x51D4, 0x00C7,
++		0x0C0C, 0x0000, 0x0000, 0x0000, 0x0000,
++		0x0000, 0x0000, 0x0000, 0x0000,
++		0xF003, 0x0000, 0x0000, 0x0000, 0x0000,
++		0x0000, 0x0000, 0x0000, 0x0000,
++		0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++		0x0000, 0x0000, 0x0000, 0x0000,
++		0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++		0x0000, 0x0000, 0x0000, 0x0000,};
++#endif
++		static unsigned short kmc_logo_data[] /* __initlocaldata */ = {
++			0x0000, 0x0000, 0x8007, 0x0000, 0x0000, 0x0000,
++			0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++			0x0000, 0x0000, 0x800F, 0x0000, 0x0000, 0x0000,
++			0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++			0x0000, 0x0000, 0x800F, 0x0000, 0x0000, 0x0000,
++			0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++			0x0000, 0x3800, 0x801F, 0x0000, 0x0000, 0xC000,
++			0x0000, 0x0000, 0x0200, 0x0000, 0x0000,
++			0x0000, 0x7800, 0x803F, 0x0000, 0xF00F, 0xC000,
++			0x0000, 0x0000, 0x0400, 0x000F, 0x003E,
++			0x0000, 0xF800, 0x803F, 0x0000, 0x8001, 0x0000,
++			0x0000, 0x0000, 0x0400, 0xC031, 0x00C3,
++			0x0000, 0xF800, 0x807F, 0x0000, 0x8001, 0x0000,
++			0x0000, 0x0000, 0x0400, 0x4160, 0x8081,
++			0x0000, 0xF801, 0x80FF, 0x0000, 0x8001, 0x0000,
++			0x0000, 0x0000, 0x0800, 0x6140, 0x8081,
++			0x0000, 0xF903, 0x80FF, 0x0000, 0x8001, 0x0000,
++			0x0000, 0x0000, 0x0800, 0x31C0, 0x8081,
++			0x0000, 0xF903, 0x80FF, 0x0000, 0x8001, 0x0000,
++			0x0000, 0x0000, 0x0800, 0x31C0, 0x00C1,
++			0x0000, 0xFB07, 0x80F7, 0x0000, 0x8001, 0xC100,
++			0x1E8E, 0x7C1E, 0x107C, 0x30C0, 0x00E3,
++			0x0000, 0xFF0F, 0xC0F7, 0x0000, 0x8001, 0xC703,
++			0x06BF, 0x1806, 0x1030, 0x30C0, 0x0074,
++			0x1EFE, 0xBF0F, 0xF0E7, 0xFE03, 0x8001, 0xC100,
++			0x86E3, 0x0C06, 0x1020, 0x30E0, 0x0038,
++			0x1CFE, 0x3F1F, 0xE0C7, 0xFE01, 0x8001, 0xC100,
++			0x8681, 0x0E06, 0x2040, 0x3060, 0x003C,
++			0x1CFE, 0x3F3E, 0xE087, 0xFE00, 0x8001, 0xC100,
++			0x8681, 0x0606, 0x2080, 0x7030, 0x004E,
++			0x18FE, 0x3F3E, 0xC187, 0xFEE3, 0x8001, 0xC100,
++			0x8681, 0x0306, 0x2080, 0xA01F, 0x00C7,
++			0x10FE, 0x3F7C, 0xC307, 0xFEFF, 0x8001, 0xC100,
++			0x8681, 0x0106, 0x4080, 0x6100, 0x8083,
++			0x10FE, 0x00F8, 0xC307, 0xFEFF, 0x8001, 0xC100,
++			0x8681, 0x0206, 0x40C0, 0xC100, 0x8081,
++			0x00FE, 0x00F8, 0x8307, 0xFEFF, 0x8001, 0xC110,
++			0x8681, 0x0406, 0x4060, 0x8100, 0x8081,
++			0x00FE, 0x00F0, 0x8307, 0xFEFF, 0x8001, 0xC120,
++			0x8681, 0x0806, 0x8070, 0x8101, 0x8081,
++			0x10FE, 0x0060, 0xC307, 0xFEFF, 0x8001, 0xC120,
++			0x8781, 0x101E, 0x8038, 0x0006, 0x00C1,
++			0x18FE, 0x0040, 0xC107, 0xFEF3, 0x8001, 0xC1E0,
++			0x8381, 0xB0F7, 0x801C, 0x001C, 0x00C3,
++			0x18FE, 0x0000, 0xC007, 0xFE01, 0xFF0F, 0xF7C3,
++			0xE1E7, 0x78C6, 0x007F, 0x00F0, 0x003C,
++			0x1CFE, 0x0000, 0xE007, 0xFE01, 0x0000, 0x0000,
++			0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++			0x1EFE, 0x0000, 0xF007, 0xFE01, 0x0000, 0x0000,
++			0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++			0x1EFE, 0x0000, 0xFC07, 0xFE07, 0x0000, 0x0000,
++			0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++			0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++			0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
++			0x1CE0, 0x8001, 0x0F08, 0xE000, 0x0038, 0x1C00,
++			0x8007, 0x0CE0, 0x8003, 0x0848, 0x8008,
++			0x1290, 0x4002, 0x0808, 0x0001, 0x0010, 0x2000,
++			0x0004, 0x1290, 0x4002, 0x0848, 0x800D,
++			0x1CE0, 0x4002, 0x0E08, 0x0001, 0x0010, 0x1800,
++			0x0007, 0x1EE0, 0x8003, 0x0878, 0x800A,
++			0x1280, 0x4002, 0x0848, 0x0001, 0x0010, 0x0400,
++			0x0004, 0x1290, 0x0002, 0x0848, 0x8008,
++			0x1280, 0x8001, 0x0F30, 0xE000, 0x0010, 0x3800,
++			0x8007, 0x1290, 0x0002, 0x0848, 0x8008
++		};
++
++#endif
++		/* setup ; GRCG ON */
++		outb(0xc0, 0x7c);
++#if 1
++		/* Logo test :-) */
++		if (x == 0) {
++			int lg_start_x;
++			int lg_wd_x;
++			/* clearing by pal no.0 */
++			outb(0x00, 0x7e);
++			outb(0x00, 0x7e);
++			outb(0x00, 0x7e);
++			outb(0x00, 0x7e);
++			for (y1 = 0; y1 < LOGO_H; y1++) {
++				for (x1 = 0; x1 < 40; x1 ++) {
++				dst = fb + y1 * line + x1 * 2;
++				*((u16 *)dst) = 0xffff;
++				}
++			}
++			/* draw Linux/98 */
++			lg_start_x = num_online_cpus() * (LOGO_W + 8) - 8;
++			lg_wd_x = (lg_start_x + 15) >> 4;
++			if (lg_wd_x + 11 <= 40 && LOGO_H >= 32) {
++				int ptr = ((40 - lg_wd_x) + lg_wd_x * 2 - 11) / 2;
++				outb(0xff, 0x7e);
++				outb(0xff, 0x7e);
++				outb(0xff, 0x7e);
++				outb(0xff, 0x7e);
++				for (y1 = 0; y1 < 32; y1++) {
++					for (x1 = 0; x1 < 11; x1 ++) {
++					dst = fb + (y1 + (LOGO_H >> 1) - 16) * 
++					      line + ((x1 + ptr) * 2);
++					*((u16 *)dst) = kmc_logo_data[y1 * 11 + x1];
++					}
++				}
++			}
++#if 0
++			/* draw egc logo */
++			if (LOGO_H >= 16 && lg_wd_x + 9 <= 40) {
++				outb(0xff, 0x7e);
++				outb(0xff, 0x7e);
++				outb(0x00, 0x7e);
++				outb(0x00, 0x7e);
++				for (y1 = 0; y1 < 16; y1++) {
++					for (x1 = 0; x1 < 9; x1 ++) {
++					dst = fb + (y1) * 
++					      line + (line - 18 + x1 * 2) ;
++					*((u16 *)dst) = egcfblogo[y1 * 9 + x1];
++					}
++				}
++			}
++#endif
++		}
++#endif
++		/* Drawing Penguins... */
++		src = logo;
++		for (y1 = 0; y1 < LOGO_H; y1++) {
++			/* data stack */
++			cpudata = 0;
++			for (ti = 0; ti < 4; ti ++)
++				pldata[ti] = 0;
++			for (x1 = 0; x1 < LOGO_W; x1++) {
++				/* read data */
++				if (!hi_lo) {
++					data = *src >> 4;
++					hi_lo = 1;
++				} else {
++					data = *src & 0xf;
++					src ++;
++					hi_lo = 0;
++				}
++				cpudata |= 1 << (7 - ((x1 + x) & 7));
++				for (ti = 0; ti < 4; ti ++)
++					pldata[ti] |=
++					((data & (1 << ti)) ? (1):(0))
++						<< (7 - ((x1 + x) & 7));
++				if (((x1 + x) & 7) == 7 && cpudata) {
++					for (ti = 0; ti < 4; ti ++)
++						{
++						outb(pldata[ti], 0x7e);
++						pldata[ti] = 0;
++						}
++					dst = fb + y1 * line + ((x1 + x) >> 3);
++					*((char *)dst) = cpudata;
++					cpudata = 0;
++				}
++				/* end */
++			}
++		/* send last data */
++		       if (cpudata) {
++				for (ti = 0; ti < 4; ti ++)
++					outb(pldata[ti], 0x7e);
++				dst = fb + y1 * line + ((x1 + x) >> 3);
++				*dst = cpudata;
++				cpudata = 0;
++			}
++		}
++	/* GRCG OFF */
++	outb(0x00, 0x7c);
++	done = 1;
++	}
++#endif
+     }
+     
+     if (p->fb_info->fbops->fb_rasterimg)
+@@ -2452,6 +2859,41 @@
+     return done ? (LOGO_H + fontheight(p) - 1) / fontheight(p) : 0 ;
+ }
+ 
++#ifdef CONFIG_PC9800
++static u8 fbcon_attr_at(struct vc_data *con,u8 _color, u8 _intensity,
++			u8 _blink, u8 _underline, u8 _reverse)
++{
++#if 0
++	u8 a = _color;
++	if (_underline)
++		a = (a & 0xf0) | 0x0f;
++	else if (_intensity == 0)
++		a = (a & 0xf0) | 0x08;
++	if (_reverse)
++		a = ((a) & 0x88) | ((((a) >> 4) | ((a) << 4)) & 0x77);
++	if (_blink)
++		a ^= 0x80;
++	if (_intensity == 2)
++		a ^= 0x08;
++	return a;
++#else
++	u8 clr = _color;
++	con->vc_pc98_addbuf = 0;
++	if (_intensity > 0)
++		clr |= 0x08;
++	if (_intensity > 1)
++		con->vc_pc98_addbuf |= 0x01; /* bold */
++	if (_underline)
++		con->vc_pc98_addbuf |= 0x02; /* underline */
++	if (_blink)
++		clr |= 0x80;
++	if (_reverse)
++		clr = ((clr << 4) & 0xf0) | ((clr >> 4) & 0x0f);
++	return clr;
++#endif
++}
++#endif
++
+ /*
+  *  The console `switch' structure for the frame buffer based console
+  */
+@@ -2472,6 +2914,9 @@
+     .con_set_palette = 	fbcon_set_palette,
+     .con_scrolldelta = 	fbcon_scrolldelta,
+     .con_set_origin = 	fbcon_set_origin,
++#ifdef CONFIG_PC9800
++    .con_build_attr =	fbcon_attr_at,
++#endif
+     .con_invert_region = fbcon_invert_region,
+     .con_screen_pos =	fbcon_screen_pos,
+     .con_getxy =	fbcon_getxy,
+diff -urN linux/drivers/video/fbmem.c linux98/drivers/video/fbmem.c
+--- linux/drivers/video/fbmem.c	Sun Sep  1 07:04:45 2002
++++ linux98/drivers/video/fbmem.c	Mon Sep  2 15:19:37 2002
+@@ -135,6 +135,8 @@
+ extern void tx3912fb_setup(char*);
+ extern int radeonfb_init(void);
+ extern int radeonfb_setup(char*);
++extern int egcfb_init(void);
++extern int egcfb_setup(char*);
+ extern int e1355fb_init(void);
+ extern int e1355fb_setup(char*);
+ extern int pvr2fb_init(void);
+@@ -294,6 +296,9 @@
+ #ifdef CONFIG_FB_SA1100
+ 	{ "sa1100", sa1100fb_init, NULL },
+ #endif
++#ifdef CONFIG_FB_EGC
++	{ "egc", egcfb_init, egcfb_setup },
++#endif
+ #ifdef CONFIG_FB_SUN3
+ 	{ "sun3", sun3fb_init, sun3fb_setup },
+ #endif
+@@ -397,6 +402,34 @@
+ 	if (!info || ! info->screen_base)
+ 		return -ENODEV;
+ 
++#ifdef CONFIG_PC9800
++	if (!strcmp(info->fix.id, "egc")) {
++		/* for PC-98x1 VRAM */
++		unsigned long total_copy_size = 0;
++		/* R,G,B plane */
++		if (p < 96*1024) {
++			unsigned long copy_size
++			    = count + p <= 96 * 1024 ? count : 96 * 1024 - p;
++			if (copy_to_user (buf, phys_to_virt(0xA8000+p),
++					  copy_size))
++				return -EFAULT;
++			count -= copy_size;
++			p += copy_size;
++			buf += copy_size;
++			total_copy_size += copy_size;
++		}
++		if(p >= 96*1024 && count > 0) {
++			unsigned long copy_size
++			    = count + p <= 128*1024 ? count : 128*1024 - p;
++			if (copy_to_user(buf,
++					  phys_to_virt(0xE0000 + p - 96*1024),
++					  copy_size))
++				return -EFAULT;
++			total_copy_size += copy_size;
++		}
++		return total_copy_size;
++	}
++#endif
+ 	if (p >= info->fix.smem_len)
+ 	    return 0;
+ 	if (count >= info->fix.smem_len)
+@@ -436,6 +469,33 @@
+ 	    count = info->fix.smem_len - p;
+ 	    err = -ENOSPC;
+ 	}
++#ifdef CONFIG_PC9800
++	if (!strcmp(info->fix.id, "egc")) {
++		/* for PC-98x1 VRAM */
++		unsigned long total_copy_size = 0;
++		/* R,G,B plane */
++		if(p < 96*1024) {
++			unsigned long copy_size
++			    = count + p <= 96*1024 ? count : 96*1024 - p;
++			if (copy_from_user(phys_to_virt(0xA8000+p), buf,
++					    copy_size))
++				return -EFAULT;
++			count -= copy_size;
++			p += copy_size;
++			buf += copy_size;
++			total_copy_size += copy_size;
++		}
++		if(p >= 96*1024 && count > 0) {
++			unsigned long copy_size
++			    = count + p <= 128*1024 ? count : 128*1024 - p;
++			if (copy_from_user(phys_to_virt(0xE0000+p-96*1024),
++					    buf, copy_size))
++				return -EFAULT;
++			total_copy_size += copy_size;
++		}
++		return total_copy_size;
++	}
++#endif
+ 	if (count) {
+ 	    char *base_addr;
+ 
+diff -urN linux/include/video/fbcon-egc.h linux98/include/video/fbcon-egc.h
+--- linux/include/video/fbcon-egc.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/video/fbcon-egc.h	Fri Aug 17 21:50:18 2001
+@@ -0,0 +1,32 @@
++/*
++ *	FBcon low-level driver for EGC
++ */
++
++#ifndef _VIDEO_FBCON_EGC_H
++#define _VIDEO_FBCON_EGC_H
++
++#include <linux/config.h>
++
++#ifdef MODULE
++#if defined(CONFIG_FBCON_EGC) || defined(CONFIG_FBCON_EGC_MODULE)
++#define FBCON_HAS_EGC
++#endif
++#else
++#if defined(CONFIG_FBCON_EGC)
++#define FBCON_HAS_EGC
++#endif
++#endif
++
++extern struct display_switch fbcon_egc;
++extern void fbcon_egc_setup(struct display *p);
++extern void fbcon_egc_bmove(struct display *p, int sy, int sx, int dy, int dx,
++				   int height, int width);
++extern void fbcon_egc_clear(struct vc_data *conp, struct display *p, int sy,
++				   int sx, int height, int width);
++extern void fbcon_egc_putc(struct vc_data *conp, struct display *p, int c,
++				  int yy, int xx);
++extern void fbcon_egc_putcs(struct vc_data *conp, struct display *p,
++				   const unsigned short *s, int count, int yy, int xx);
++extern void fbcon_egc_revc(struct display *p, int xx, int yy);
++
++#endif /* _VIDEO_FBCON_EGC_H */

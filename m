@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267082AbSLKJMn>; Wed, 11 Dec 2002 04:12:43 -0500
+	id <S267083AbSLKJTO>; Wed, 11 Dec 2002 04:19:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267081AbSLKJMn>; Wed, 11 Dec 2002 04:12:43 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:27092 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267082AbSLKJMm> convert rfc822-to-8bit; Wed, 11 Dec 2002 04:12:42 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-pre1
-Date: Wed, 11 Dec 2002 10:20:16 +0100
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>, Matthias Andree <matthias.andree@gmx.de>
-References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva> <20021211085553.GB8740@merlin.emma.line.org>
-In-Reply-To: <20021211085553.GB8740@merlin.emma.line.org>
-Organization: WOLK - Working Overloaded Linux Kernel
+	id <S267084AbSLKJTN>; Wed, 11 Dec 2002 04:19:13 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:375 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S267083AbSLKJTN>; Wed, 11 Dec 2002 04:19:13 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: James Simmons <jsimmons@infradead.org>, Stian Jordet <liste@jordet.nu>,
+       Allan Duncan <allan.d@bigpond.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.51
+References: <Pine.LNX.4.33.0212101016280.2617-100000@maxwell.earthlink.net>
+	<1039547936.538.5.camel@zion>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 Dec 2002 02:25:21 -0700
+In-Reply-To: <1039547936.538.5.camel@zion>
+Message-ID: <m1smx4vrem.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212111020.16057.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 December 2002 09:55, Matthias Andree wrote:
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-Hi Matthias,
+> On Tue, 2002-12-10 at 19:16, James Simmons wrote:
+> > 
+> > > > I can take care of radeon's. Did you already used my updated version
+> > > > from the PPC tree ?
+> > >
+> > > Will the Radeon fbdev driver work with all Radeons (for instance a
+> > > Radeon 9700 Pro)?
+> > 
+> > Yes I saw support for this card :-)
+> 
+> Well, I'm not sure it quite works yet. Maybe unaccelerated, but anyway,
+> my version of radeonfb for 2.5 isn't accelerated yet anyway. I'll work
+> on that (or Ani will) now that the API is stable enough.
 
-> Oh, speaking of "carefully", could Andrew Morton's mount -o dirsync
-> feature patch for 2.4.21 please be merged early in v2.4.21-pre? User
-> space (util-linux, e2fsprogs' lsattr/chattr) has been supporting it for
-> a while, just the kernel lacked it.
-> I can elaborate a bit more, but this has been discussed multiple times
-> and after all, the code is there.
-sorry, where can we find it?
+How well does this driver work if you don't have a firmware
+driver initialize the card? aka a pci option ROM.
 
-ciao, Marc
--- 
-Kind regards
-        Marc-Christian Petersen
+I am interested because with LinuxBIOS it is still a pain to run
+PCI option roms, and I don't necessarily even have then if it a
+motherboard with video.  There are some embedded/non-x86 platforms
+with similar issues.  
 
-http://sourceforge.net/projects/wolk
+My primary interest is in the cheap ATI Rage XL chip that is on many
+server board. PCI Vendor/device  id 1002:4752 (rev 27) from lspci.
 
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+If nothing else if some one could point me to some resources on
+how to get the appropriate documentation from the video chipset
+manufacturers I would be happy.
+
+But I did want to at least point that running a system with out bios
+initialized video was certainly among the cases that are used.
+
+Eric

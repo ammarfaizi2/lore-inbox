@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVAHQvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVAHQ47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261213AbVAHQvO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 11:51:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVAHQvO
+	id S261216AbVAHQ47 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 11:56:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVAHQ47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 11:51:14 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:13764 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261213AbVAHQuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 11:50:08 -0500
-Subject: Re: [PATCH] 2.6.9 Use skb_padto() in drivers/net/8390.c]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Gortmaker <penguin@muskoka.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <41DF9AC1.2010609@muskoka.com>
-References: <41DED9FA.7080106@pobox.com>  <41DF9AC1.2010609@muskoka.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105197689.10505.22.camel@localhost.localdomain>
+	Sat, 8 Jan 2005 11:56:59 -0500
+Received: from jose.lug.udel.edu ([128.175.60.112]:7558 "HELO
+	mail.lug.udel.edu") by vger.kernel.org with SMTP id S261216AbVAHQ45
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 11:56:57 -0500
+From: ross@lug.udel.edu
+Date: Sat, 8 Jan 2005 11:56:57 -0500
+To: "Jack O'Quin" <joq@io.com>
+Cc: Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       paul@linuxaudiosystems.com, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050108165657.GA21760@jose.lug.udel.edu>
+References: <200501071620.j07GKrIa018718@localhost.localdomain> <1105132348.20278.88.camel@krustophenia.net> <20050107134941.11cecbfc.akpm@osdl.org> <20050107221059.GA17392@infradead.org> <20050107142920.K2357@build.pdx.osdl.net> <87mzvkxxck.fsf@sulphur.joq.us>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 08 Jan 2005 15:45:51 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87mzvkxxck.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-01-08 at 08:33, Paul Gortmaker wrote:
-> Is it possible that skb_padto has since got its act together?   Reason I
-> ask is that I just dusted off a crusty 386dx40 (doesn't get much older
+On Sat, Jan 08, 2005 at 12:12:59AM -0600, Jack O'Quin wrote:
+> I find it hard to understand why some of you think PAM is an adequate
+> solution.  As currently deployed, it is poorly documented and nearly
+> impossible for non-experts to administer securely.  On my Debian woody
+> system, when I login from the console I get one fairly sensible set of
+> ulimit values, but from gdm I get a much more permissive set (with
+> ulimited mlocking, BTW).  Apparently, this is because the `gdm' PAM
+> config includes `session required pam_limits.so' but the system comes
+> with an empty /etc/security/limits.conf.  I'm just guessing about that
+> because I can't find any decent documentation for any of this crap.
+> 
+> Remember, if something is difficult to administer, it's *not* secure.
 
-Could be - kmalloc has probably improved but the skbuffs have got far
-more complex
+Not to mention that not everyone chooses to use PAM for precisely this
+reason.  Slackware has never included PAM and probably never will.
+My audio workstation has worked swell with the 2.4+caps solution and
+the 2.6+LSM solution.  PAM would break me ::-(
 
-> than that) with a wd8013.  As a basic test, I did ttcp Tx tests with small
-> packets and they came out to all intents and purposes, identical.   Kernel 
-> was 2.6.10, with stack vs skb_padto, each size test ran 3 times, even tested
-> packets bigger than ETH_ZLEN as a (hopefully) invariant.  I've attached the
-> edited down results below.
+-- 
+Ross Vandegrift
+ross@lug.udel.edu
 
-What are you testing ? I don't see the relationship between network
-throughput and efficiency on this device.
-
-Drop it on a pentium or late 486 and use the tsc to compare the two code
-paths. One is much much more efficienct.
-
+"The good Christian should beware of mathematicians, and all those who
+make empty prophecies. The danger already exists that the mathematicians
+have made a covenant with the devil to darken the spirit and to confine
+man in the bonds of Hell."
+	--St. Augustine, De Genesi ad Litteram, Book II, xviii, 37

@@ -1,133 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263137AbTJVSZq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 14:25:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbTJVSZq
+	id S263366AbTJVS0d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 14:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263420AbTJVS0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 14:25:46 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:44426 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263137AbTJVSZn
+	Wed, 22 Oct 2003 14:26:33 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:28892 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263366AbTJVS03
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 14:25:43 -0400
-Subject: [RFC][PATCH] linux-2.4.23-pre7_cpu-map-fix_A0
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: James <jamesclv@us.ibm.com>, keith maanthey <kmannth@us.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1066847057.1119.63.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 22 Oct 2003 11:24:17 -0700
+	Wed, 22 Oct 2003 14:26:29 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jeremy Higdon <jeremy@sgi.com>
+Subject: Re: Patch to add support for SGI's IOC4 chipset
+Date: Wed, 22 Oct 2003 20:31:02 +0200
+User-Agent: KMail/1.5.4
+Cc: gwh@sgi.com, jbarnes@sgi.com, aniket_m@hotmail.com,
+       linux-kernel@vger.kernel.org
+References: <3F7CB4A9.3C1F1237@sgi.com> <200310211639.28346.bzolnier@elka.pw.edu.pl> <20031022043058.GC80096@sgi.com>
+In-Reply-To: <20031022043058.GC80096@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310222031.02243.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-	I noticed on x440s that when HT is disabled in the BIOS I was having
-problems properly booting 2.4 in ACPI mode. Further investigation found
-a subtle problem w/ smp_boot_cpus() when clustered_acpi_mode is set. 
+On Wednesday 22 of October 2003 06:30, Jeremy Higdon wrote:
+> On Tue, Oct 21, 2003 at 04:39:28PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > On Tuesday 21 of October 2003 08:35, Jeremy Higdon wrote:
+> > > > - defining IDE_ARCH_ACK_INTR and ide_ack_intr() in sgiioc4.c is a
+> > > > no-op, it should be done <asm/ide.h> to make it work
+> > > >   (I think the same problem is present in 2.4.x)
+> > >
+> > > The definition in <include/linux/ide.h> is only used if
+> > > IDE_ARCH_ACK_INTR is not defined.  sgiioc4.c defines IDE_ARCH_ACK_INTR
+> > > before including that file, so I believe we get the definition we want
+> > > without touching ide.h, don't we?
+> >
+> > ide_ack_intr() is used by ide-io.c.  If IDE_ARCH_ACK_INTR is not defined
+> > in ide.h (and it won't be cause you are doing this only in sgiioc4.c
+> > /sgiioc4.h in 2.4.x case/ about which ide-io.c has abolutely no idea)
+> > ide_ack_intr() will turn into no-op and hwif->ack_intr() won't be called.
+>
+> I see what you mean.  Thanks for spotting and fixing this.
 
-During bootup, phys_cpu_present_map is initialized by ORing
-apicid_to_phys_cpu_present() for each cpu apicid(see MP_processor_info).
-On flat mode boxes this translates to "phys_cpu_present_map |=
-(1<<apicid)". 
+I think there is another bug:
 
-On clustered_apic_mode boxes, since we're using phyiscal apic addresses,
-the apicids are not sequential so it is possible the
-phys_cpu_present_map can have holes in it (see
-apicid_to_phys_cpu_present()). 
+...
+	hwif->hw.ack_intr = &sgiioc4_checkirq;	/* MultiFunction Chip */
+...
 
-The problem arises in smp_boot_cpus() because when we are booting the
-cpus, we iterate through each apicid, however we bit-AND
-phys_cpu_present_map w/ (1<<apicid)  rather then using
-apicid_to_phys_cpu_present(apicid). This may cause us to try to boot
-apicids that do not exist. 
+sgiioc4_clearirq() should be used instead of sgiioc4_checkirq() here,
+because otherwise IRQ won't be cleared.
 
-The following patch corrects the problem by always bit-ANDing
-phys_cpu_present_map with apicid_to_phys_cpu_present(). This is safe for
-flat mode boxes, as apicid_to_phys_cpu_present(apicid) translates to
-(1<<apicid). 
+In order to do this you must modify sgiioc4_clearirq() slightly,
+just change "return intr_reg;" to "return intr_reg & 0x03;".
 
-Additionally, the patch insures we do not try to boot BAD_APICIDs and
-removes a hack that was added to mpparse.c which worked around this
-problem in the non-ACPI boot path.
+If you wonder why, please look at ide_ack_intr() use in ide-io.c:ide_intr().
 
-In 2.5 we do not have this problem as we use logical rather then
-physical apic addressing. 
+> I've run into a problem in testing.  For some reason, I've started to get
+> ide timeouts, and the error recovery is not working correctly, due to a
+> problem in the driver.
+>
+> In sgiioc4_ide_dma_stop(), sgiioc4_ide_dma_end(), and sgiioc4_clearirq(),
+> there are calls to xide_delay(), which uses schedule_timeout() to sleep.
+> Since all of these sgiioc4_ functions can be called from interrupt context,
+> that's an obvious problem.
+>
+> In sgiioc4_clearirq(), the delay function is while we're waiting for the
+> interrupt to clear.
+>
+> In sgiioc4_ide_dma_stop(), we're waiting for the DMA bit to clear.
+>
+> In sgiioc4_ide_dma_end(), we're waiting for another DMA to finish.
+>
+> I believe that the right answer is to use udelay() and give up after
+> a short period of time.  My question is what does the ide layer
 
-Any Comments or feedback would be greatly appreciated.
+Yes, just use udelay().
 
-thanks
--john
+> expect?  That is, if you call the dma_end function and the hardware
+> driver can't succeed, what would you like us to do?  Is there a way
+> to return error, or should we just fail and the ide infrastructure
+> will pick it up later and reset things?
 
+The latter, sgiioc4_ide_dma_end() already returns error value to higher layer.
+dma_intr() checks it and handle errors (at least in theory).
 
-diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
---- a/arch/i386/kernel/mpparse.c	Tue Oct 21 19:13:36 2003
-+++ b/arch/i386/kernel/mpparse.c	Tue Oct 21 19:13:36 2003
-@@ -587,10 +587,6 @@
- 		++mpc_record;
- 	}
- 
--	if (clustered_apic_mode){
--		phys_cpu_present_map = logical_cpu_present_map;
--	}
--
- 
- 	printk("Enabling APIC mode: ");
- 	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
-diff -Nru a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
---- a/arch/i386/kernel/process.c	Tue Oct 21 19:13:36 2003
-+++ b/arch/i386/kernel/process.c	Tue Oct 21 19:13:36 2003
-@@ -44,6 +44,7 @@
- #include <asm/irq.h>
- #include <asm/desc.h>
- #include <asm/mmu_context.h>
-+#include <asm/smpboot.h>
- #ifdef CONFIG_MATH_EMULATION
- #include <asm/math_emu.h>
- #endif
-@@ -377,7 +378,7 @@
- 		   if its not, default to the BSP */
- 		if ((reboot_cpu == -1) ||  
- 		      (reboot_cpu > (NR_CPUS -1))  || 
--		      !(phys_cpu_present_map & (1<<cpuid))) 
-+		      !(phys_cpu_present_map & apicid_to_phys_cpu_present(cpuid)))
- 			reboot_cpu = boot_cpu_physical_apicid;
- 
- 		reboot_smp = 0;  /* use this as a flag to only go through this once*/
-diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
---- a/arch/i386/kernel/smpboot.c	Tue Oct 21 19:13:36 2003
-+++ b/arch/i386/kernel/smpboot.c	Tue Oct 21 19:13:36 2003
-@@ -1108,13 +1108,17 @@
- 
- 	for (bit = 0; bit < NR_CPUS; bit++) {
- 		apicid = cpu_present_to_apicid(bit);
-+		
-+		/* don't try to boot BAD_APICID */
-+		if (apicid == BAD_APICID)
-+			continue; 
- 		/*
- 		 * Don't even attempt to start the boot CPU!
- 		 */
- 		if (apicid == boot_cpu_apicid)
- 			continue;
- 
--		if (!(phys_cpu_present_map & (1ul << bit)))
-+		if (!(phys_cpu_present_map & apicid_to_phys_cpu_present(apicid)))
- 			continue;
- 		if (max_cpus <= cpucount+1)
- 			continue;
-@@ -1125,7 +1129,8 @@
- 		 * Make sure we unmap all failed CPUs
- 		 */
- 		if ((boot_apicid_to_cpu(apicid) == -1) &&
--				(phys_cpu_present_map & (1ul << bit)))
-+			(phys_cpu_present_map & 
-+				apicid_to_phys_cpu_present(apicid)))
- 			printk("CPU #%d/0x%02x not responding - cannot use it.\n",
- 								bit, apicid);
- 	}
+> I am new to Linux IDE, so forgive these questions if the answers should
+> be obvious.
 
+No problem.
 
+thanks,
+--bartlomiej
 

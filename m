@@ -1,56 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266795AbTBQESa>; Sun, 16 Feb 2003 23:18:30 -0500
+	id <S266733AbTBQERF>; Sun, 16 Feb 2003 23:17:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266796AbTBQESa>; Sun, 16 Feb 2003 23:18:30 -0500
-Received: from bjl1.jlokier.co.uk ([81.29.64.88]:21632 "EHLO
-	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S266795AbTBQES2>; Sun, 16 Feb 2003 23:18:28 -0500
-Date: Mon, 17 Feb 2003 04:31:08 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Nicolas Pitre <nico@cam.org>
-Cc: David Lang <david.lang@digitalinsight.com>, Larry McVoy <lm@bitmover.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: openbkweb-0.0
-Message-ID: <20030217043108.GA16137@bjl1.jlokier.co.uk>
-References: <Pine.LNX.4.44.0302152104500.6594-100000@dlang.diginsite.com> <Pine.LNX.4.44.0302160027390.17241-100000@xanadu.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302160027390.17241-100000@xanadu.home>
-User-Agent: Mutt/1.4i
+	id <S266718AbTBQERF>; Sun, 16 Feb 2003 23:17:05 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:9658 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S266772AbTBQERB>; Sun, 16 Feb 2003 23:17:01 -0500
+Date: Sun, 16 Feb 2003 22:26:48 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Brian Gerst <bgerst@didntduck.org>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Move __this_module to xxx.mod.c 
+In-Reply-To: <20030217042330.D50DE2C04D@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0302162225420.5217-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Pitre wrote:
-> > CVS
-> > rsync
-> > FTP
-> > HTTP
-> > 
-> > is there anything else people want?
-> 
-> If you can manage to have a CVS repository that is always updated to the 
-> minute with full history info etc. then this should be suficient to satisfy 
-> all needs.  Public CVS repositories are common enough so people should know 
-> how to use them already.
+On Mon, 17 Feb 2003, Rusty Russell wrote:
 
-I expect most people would prefer read-only CVS for keeping up to date.
+> I don't think so: the symbol will be in the module by the time
+> module-init-tools gets to it, or am I missing something?
 
-However, rsync from the repository is generally _much_ faster than CVS
-if you are tracking changes, so I (an impatient modem user) prefer rsync.
+Yes, but modprobe will look for .gnu.linkonce.__this_module if it wants to 
+change the name (but that's now in ___this_module).
 
-Also the SCCS repository is more fun for analysis and browsing
-programs than a CVS equivalent because some of the metadata would be
-lost converting to CVS.
+--Kai
 
-So I vote for rsync read-only access to the actual SCCS-ish repository
-files that BK manages.
-
-Ideally you'd ensure the tree offered through rsync was a consistent
-snapshot, offer a method of atomically updating the tree seen by rsync
-is a consistent snapshot.  (Although this isn't crucial; BK's
-changeset files let you detect that at the client I believe).
-
--- Jamie

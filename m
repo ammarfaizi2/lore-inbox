@@ -1,63 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265525AbTFZKVW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 06:21:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265530AbTFZKVW
+	id S265530AbTFZKbh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 06:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbTFZKbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 06:21:22 -0400
-Received: from mail.gmx.net ([213.165.64.20]:63665 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265525AbTFZKVV (ORCPT
+	Thu, 26 Jun 2003 06:31:37 -0400
+Received: from arm.t19.ds.pwr.wroc.pl ([156.17.236.105]:52234 "EHLO misie.k.pl")
+	by vger.kernel.org with ESMTP id S265530AbTFZKbf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 06:21:21 -0400
-Message-Id: <5.2.0.9.2.20030626122539.00cea738@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Thu, 26 Jun 2003 12:39:54 +0200
-To: Helge Hafting <helgehaf@aitel.hist.no>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: O(1) scheduler & interactivity improvements
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3EFAC408.4020106@aitel.hist.no>
-References: <20030623164743.GB1184@hh.idb.hist.no>
- <5.2.0.9.2.20030624215008.00ce73b8@pop.gmx.net>
+	Thu, 26 Jun 2003 06:31:35 -0400
+Date: Thu, 26 Jun 2003 12:45:46 +0200
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Synaptics support kills my mouse
+Message-ID: <20030626104546.GA12096@arm.t19.ds.pwr.wroc.pl>
+References: <Pine.LNX.4.44.0306251857390.921-100000@lap.molina>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0306251857390.921-100000@lap.molina>
+User-Agent: Mutt/1.4.1i
+X-URL: http://www.t17.ds.pwr.wroc.pl/~misiek/
+X-Operating-System: Linux dark 4.0.20 #119 czw cze 26 12:34:29 CEST 2003 i986 pld
+Organization: Self Organizing
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:59 AM 6/26/2003 +0200, Helge Hafting wrote:
->Mike Galbraith wrote:
->
->>ponders obnoxious ($&#!...;) irman process_load...
->>Too many random sleeper tasks steadily becoming runnable can DoS lower 
->>priority tasks accidentally, but the irman process_load kind of DoS seems 
->>to indicate a very heavy favoritism toward cooperating threads.
->>It seems to me that any thread group who's members sleep longer than they 
->>run, and always has one member runnable is absolutely guaranteed to cause 
->>terminal DoS.  Even if there isn't _always_ a member runnable, waking a 
->>friend and waiting for him to do something seems like a very likely thing 
->>for threaded process to do, which gives the threaded process a huge 
->>advantage because the cumulative sleep_avg pool will become large simply 
->>because it's members spend a lot of time jabbering back and forth.
->
->How about _removing_ the io-wait bonus for waiting on pipes then?
+On/Dnia Wed, Jun 25, 2003 at 07:06:40PM -0600, Thomas Molina wrote/napisa³(a)
+> I realized I forgot to include some useful information.  Following are the 
+> relevant boot messages.  It appears to correctly detect my touchpad but 
+> doesn't give me a mouse cursor, even in text consoles.
+> 
+> Jun 25 18:41:26 lap kernel: mice: PS/2 mouse device common for all mice
+> Jun 25 18:41:26 lap kernel: Synaptics Touchpad, model: 1
+> Jun 25 18:41:26 lap kernel:  Firware: 4.6
+> Jun 25 18:41:26 lap kernel:  Sensor: 15
+> Jun 25 18:41:26 lap kernel:  new absolute packet format
+> Jun 25 18:41:26 lap kernel:  Touchpad has extended capability bits
+> Jun 25 18:41:26 lap kernel:  -> four buttons
+> Jun 25 18:41:26 lap kernel:  -> multifinger detection
+> Jun 25 18:41:26 lap kernel:  -> palm detection
+> Jun 25 18:41:26 lap kernel: input: Synaptics Synaptics TouchPad on 
+> isa0060/serio1
 
-That's been done.
+I have the same problem. I'm using MaxData Mbook 1000T which has
+synaptics touchpad too and it stopped working in .72 and still doesn't
+work in .73 :-(
 
->If you wait for disk io, someone else gets to use
->the cpu for their work.  So you get a boost for
->giving up your share of time, waiting
->for that slow device.
->
->But if you wait for a pipe, you wait for some other
->cpu hog to do the first part of _your_ work.
->I.e. nobody else benefitted from your waiting,
->so you don't get any boost either.
->
->This solves the problem of someone artifically
->dividing up a job, using token passing
->to get unfair priority.
+Synaptics Touchpad, model: 1
+ Firware: 4.1
+ Sensor: 8
+ new absolute packet format
+input: Synaptics Synaptics TouchPad on isa0060/serio2
+mice: PS/2 mouse device common for all mice
 
-For pipes.
+I tried to use XFree86 4.3.99.6 with
+http://w1.894.telia.com/~u89404340/touchpad/ driver but that doesn't
+work either:
+(**) Option "Device" "/dev/input/mice"
+(**) Option "LeftEdge" "1900"
+(**) Option "RightEdge" "5400"
+(**) Option "TopEdge" "3900"
+(**) Option "BottomEdge" "1800"
+(**) Option "MaxTapTime" "15"
+(**) Option "MaxTapMove" "220"
+(**) Option "VertScrollDelta" "100"
+(II) xfree driver for the synaptics touchpad 0.11.3p2
+(**) Option "CorePointer"
+(**) Mouse0: Core Pointer
+(II) Keyboard "Keyboard0" handled by legacy driver
+(II) XINPUT: Adding extended input device "Mouse0" (type: MOUSE)
+Synaptics DeviceInit called
+SynapticsCtrl called.
+Synaptics DeviceOn called
+(II) xfree driver for the synaptics touchpad 0.11.3p2
+Synaptics DeviceOff called
+SynapticsCtrl called.
+(--) SAVAGE(0): Chose mode 117 at 85Hz.
+Synaptics DeviceOn called
+(II) xfree driver for the synaptics touchpad 0.11.3p2
+Synaptics DeviceOff called
 
-         -Mike 
+Doesn't work means that button presses nor touchpad moves are not detected.
 
+btw. which driver provides /dev/input/inputX (as in xfree synaptics
+driver documentation) ? I found only /dev/input/eventX driver.
+
+-- 
+Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
+arekmatssedotpl AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux

@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317854AbSGKQcw>; Thu, 11 Jul 2002 12:32:52 -0400
+	id <S317857AbSGKQhY>; Thu, 11 Jul 2002 12:37:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317857AbSGKQcv>; Thu, 11 Jul 2002 12:32:51 -0400
-Received: from waste.org ([209.173.204.2]:63212 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S317854AbSGKQcv>;
-	Thu, 11 Jul 2002 12:32:51 -0400
-Date: Thu, 11 Jul 2002 11:35:24 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Daniel Phillips <phillips@arcor.de>
-cc: Jesse Barnes <jbarnes@sgi.com>, Andreas Dilger <adilger@clusterfs.com>,
-       kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: spinlock assertion macros
-In-Reply-To: <E17SWXm-0002BL-00@starship>
-Message-ID: <Pine.LNX.4.44.0207111131550.15441-100000@waste.org>
+	id <S317858AbSGKQhY>; Thu, 11 Jul 2002 12:37:24 -0400
+Received: from relay1.pair.com ([209.68.1.20]:29711 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S317857AbSGKQhX>;
+	Thu, 11 Jul 2002 12:37:23 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <3D2DB5F3.3C0EF4A2@kegel.com>
+Date: Thu, 11 Jul 2002 09:44:35 -0700
+From: dank@kegel.com
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Periodic clock tick considered harmful (was: Re: HZ, preferably as small 
+ as possible)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jul 2002, Daniel Phillips wrote:
+Mark Mielke <mark@mark.mielke.cc> wrote:
+> 
+> On Wed, Jul 10, 2002 at 04:09:21PM -0600, Cort Dougan wrote:
+> > Yes, please do make it a config option.  10x interrupt overhead makes me
+> > worry.  It lets users tailor the kernel to their expected load.
+> 
+> All this talk is getting to me.
+> 
+> I thought we recently (1 month ago? 2 months ago?) concluded that
+> increases in interrupt frequency only affects performance by a very
+> small amount, but generates an increase in responsiveness. The only
+> real argument against that I have seen, is the 'power conservation'
+> argument. The idea was, that the scheduler itself did not execute
+> on most interrupts. The clock is updated, and that is about all.
 
-> I was thinking of something as simple as:
->
->    #define spin_assert_locked(LOCK) BUG_ON(!spin_is_locked(LOCK))
->
-> but in truth I'd be happy regardless of the internal implementation.  A note
-> on names: Linus likes to shout the names of his BUG macros.  I've never been
-> one for shouting, but it's not my kernel, and anyway, I'm happy he now likes
-> asserts.  I bet he'd like it more spelled like this though:
->
->    MUST_HOLD(&lock);
+On UML and mainframe Linux, *any* periodic clock tick 
+is heavy overhead when you have a large number of 
+(mostly idle) instances of Linux running, isn't it?   
+I think I once heard those architectures went to great lengths 
+to avoid periodic clock ticks.  (My memory is rusty, though.)
 
-I prefer that form too.
+How about this: let's apply the high-resolution timer patch,
+which adds explicit timer events inbetween the normal 100 Hz
+events when needed to satisfy precise sleep requests.  Then
+let's increase the interval between the normal periodic clock
+events from 10ms to infinity.  Everything will keep working,
+as the high-resolution timer patch code will schedule timer
+events as needed -- but suddenly we'll have power consumption 
+as low as possible, snappier performance, and the thousands-of-instances
+case will no longer have this huge drain on performance from
+periodic timer events that do nothing but update jiffiers.
 
-> And, dare I say it, what I'd *really* like to happen when the thing triggers
-> is to get dropped into kdb.  Ah well, perhaps in a parallel universe...
+OK, so I'm just an ignorant member of the peanut gallery, but
+I'd like to hear a real kernel hacker explain why this isn't
+the way to go.
 
-It ought to.
-
-As long as we're talking about spinlock debugging, I've found it extremely
-useful to add an entry to the spinlock to record where the spinlock was
-taken.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+- Dan

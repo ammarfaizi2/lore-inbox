@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317576AbSHHJiT>; Thu, 8 Aug 2002 05:38:19 -0400
+	id <S317546AbSHHJgZ>; Thu, 8 Aug 2002 05:36:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317578AbSHHJiT>; Thu, 8 Aug 2002 05:38:19 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:53693 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317576AbSHHJiB>;
-	Thu, 8 Aug 2002 05:38:01 -0400
-Date: Thu, 8 Aug 2002 15:09:57 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@zip.com.au>, Rik van Riel <riel@conectiva.com.br>,
-       lse <lse-tech@lists.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] [patch] Scalable statistics counters with /proc reporting
-Message-ID: <20020808150957.A21873@in.ibm.com>
-References: <20020807142227.B12301@in.ibm.com> <20020807100216.A27321@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020807100216.A27321@infradead.org>; from hch@infradead.org on Wed, Aug 07, 2002 at 10:02:16AM +0100
+	id <S317561AbSHHJgZ>; Thu, 8 Aug 2002 05:36:25 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:33803 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317546AbSHHJgY>; Thu, 8 Aug 2002 05:36:24 -0400
+Message-ID: <3D523B25.5080105@evision.ag>
+Date: Thu, 08 Aug 2002 11:34:29 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: martin@dalecki.de, "Adam J. Richter" <adam@yggdrasil.com>,
+       alan@lxorguk.ukuu.org.uk, Andries.Brouwer@cwi.nl, johninsd@san.rr.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
+References: <Pine.LNX.4.44.0208081129420.3210-100000@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 10:02:16AM +0100, Christoph Hellwig wrote:
->...
-> What about a general s/_proc//g for the API?
-
-Sure ...I was initially thinking of something like statctr_pentry,
-but then thought statctr_proc_entry would be explicit although lengthy.
-
+Uz.ytkownik Ingo Molnar napisa?:
+> On Thu, 8 Aug 2002, Marcin Dalecki wrote:
 > 
-> For statctr_init the flags argument would much better be named gfp_mask,
-
-I'll do that. I was just following the same conventions as kmalloc and
-kmem_cache_alloc; but gfp_mask is much better; thanx.
-
-> the val argument should be removed and the counter initialized to zero
-> by default - that's 90% of the uses..
-
-Yup, I'll do this too.
-
 > 
-> Also the /proc-based implementation is really ugly.  It should be moved
-> over to the seq_file interface at least, a simple ramfs-style own
-> filesystem ("stats" filesystem type) would be the cleanest solution.
+>>>| the boot loader (read.S).  Currently, the kernel value is given precedence;
+>>>| I am seriously reviewing this issue.
+>>>
+>>>	I just wonder if this is the problem that you are experiencing
+>>>rather than anything that was new in 2.5.29.
+>>
+>>Yes.
+> 
+> 
+> folks, please keep in mind that this is a system that i just dont
+> reconfigure at whim. It's a proven, known system i use for testing and
+> nothing else. Suddenly it stopped working somewhere between 2.5.20 and
+> 2.5.30. No lilo upgrade, no nothing, 2 years old binaries:
+> 
+>   [mingo@a mingo]$ ls -l /sbin/lilo
+>   -rwxr-xr-x    1 root     root        59324 Aug 23  2000 /sbin/lilo
 
-If I want to create difft proc files for difft groups of statctrs like 
-say /proc/statistics/vmstats, /proc/statistics/netstats etc., dynamically,
-using seq_file implementation might be not very neat...I have to 
-confess I don't know much about seq_file interfaces....so pls correct
-me if I am missing something......I just looked at them after your pointer. 
+Yes sure. It is simply a very old bug in lilo, which the kernel worked
+around and did fight against in a diallectic way.
 
-We wanted to keep things simple right now ... IMHO a custom file system 
-right now might be complicating the patch.....maybe later when there are many 
-users of statctrs 8-) ...
-
-Thanks,
-Kiran

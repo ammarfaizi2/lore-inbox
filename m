@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268440AbUIWNTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268446AbUIWNT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268440AbUIWNTR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 09:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268446AbUIWNTR
+	id S268446AbUIWNT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 09:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268447AbUIWNT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 09:19:17 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:8109 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S268440AbUIWNTI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 09:19:08 -0400
-Date: Thu, 23 Sep 2004 09:19:06 -0400
-To: Mark Goodman <mgoodman@CSUA.Berkeley.EDU>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Let NFS3 krb5 mounts survive a krb5 ticket expiration
-Message-ID: <20040923131906.GB15809@fieldses.org>
-References: <415278CF.6010505@csua.berkeley.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <415278CF.6010505@csua.berkeley.edu>
-User-Agent: Mutt/1.5.6+20040818i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Thu, 23 Sep 2004 09:19:58 -0400
+Received: from web8501.mail.in.yahoo.com ([202.43.219.163]:56423 "HELO
+	web8501.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S268446AbUIWNTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 09:19:55 -0400
+Message-ID: <20040923130446.48494.qmail@web8501.mail.in.yahoo.com>
+Date: Thu, 23 Sep 2004 14:04:46 +0100 (BST)
+From: manomugdha biswas <manomugdhab@yahoo.co.in>
+Subject: function installation at shutdown (reboot)
+To: linux-kernel@vger.kernel.org
+Cc: rddunlap@osdl.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 12:18:39AM -0700, Mark Goodman wrote:
-> In my environment, this patch lets NFS3 krb5 mounts survive a krb5 
-> ticket expiration. It applies to 2.6.9-rc2. Please consider applying.
+Hi 
+Thanks for your comments.
+I tried to install a function using the fruntion
+register_reboot_notifier(). Installation was
+successfull but the installed function was not called
+at reboot time. I used kernel version 2.4.20-8. Could
+you please give me some light why this function is
+does not get installed?
 
-See patches 2, 3, and 4 at
-http://www.citi.umich.edu/projects/nfsv4/linux/kernel-patches/2.6.9-rc2-1/
-which should make it to mainline soon.
+Thanks,
+Manomugdha
 
---Bruce Fields
+=====
+Manomugdha Biswas
 
-> Signed-off-by: Mark Goodman <mgoodman@csua.berkeley.edu>
-> 
-> --- linux-2.6.9-rc2/net/sunrpc/auth_gss/auth_gss.c.orig    2004-09-23 
-> 00:07:28.891626224 -0700
-> +++ linux-2.6.9-rc2/net/sunrpc/auth_gss/auth_gss.c    2004-09-23 
-> 00:06:56.159602248 -0700
-> @@ -742,6 +742,9 @@ gss_marshal(struct rpc_task *task, u32 *
->                    &verf_buf, &mic);
->     if(maj_stat != 0){
->         printk("gss_marshal: gss_get_mic FAILED (%d)\n", maj_stat);
-> +        if (maj_stat == GSS_S_CONTEXT_EXPIRED) {
-> +            cred->cr_flags |= RPCAUTH_CRED_DEAD;
-> +        }
->         goto out_put_ctx;
->     }
->     p = xdr_encode_opaque(p, NULL, mic.len);
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+________________________________________________________________________
+Yahoo! India Matrimony: Find your life partner online
+Go to: http://yahoo.shaadi.com/india-matrimony

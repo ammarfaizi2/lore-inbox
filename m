@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263015AbRFGTgp>; Thu, 7 Jun 2001 15:36:45 -0400
+	id <S263020AbRFGTgz>; Thu, 7 Jun 2001 15:36:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263022AbRFGTgf>; Thu, 7 Jun 2001 15:36:35 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:28132 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S263015AbRFGTgP>; Thu, 7 Jun 2001 15:36:15 -0400
-Message-ID: <3B1FD7D3.62093F2B@idcomm.com>
-Date: Thu, 07 Jun 2001 13:36:51 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2smp i686)
+	id <S263022AbRFGTgp>; Thu, 7 Jun 2001 15:36:45 -0400
+Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:15123 "EHLO
+	mail.compro.net") by vger.kernel.org with ESMTP id <S263020AbRFGTgf>;
+	Thu, 7 Jun 2001 15:36:35 -0400
+Message-ID: <3B1FD845.DBA54814@compro.net>
+Date: Thu, 07 Jun 2001 15:38:45 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.6 pre1 and 2.4.5 CONFIG_IP_NF_COMPAT_IPCHAINS missing?
-In-Reply-To: <3B1FD356.5EB55F1D@idcomm.com>
+To: Tim Hockin <thockin@sun.com>
+CC: Khalid Aziz <khalid@fc.hp.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: pset patch??
+In-Reply-To: <3B1F7130.94357A3C@compro.net> <3B1FB07D.C6C03EF0@fc.hp.com> <3B1FB7AA.E50C9C53@sun.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"D. Stimits" wrote:
+Tim Hockin wrote:
 > 
-> I know somewhere there is a menuconfig item corresponding to
-> CONFIG_IP_NF_COMPAT_IPCHAINS, and that selecting various other iptables
-> options can make this item disappear and no longer be selectable. But I
-> have fished all over, have set config to give devel and incomplete
-> items, tried turning on or off anything possibly related to iptables,
-> and cannot find this item in the make menuconfig. It still exists in
-> Documentation/Configure.help, so I assume this has not yet been removed
-> from available kernel compile options. I've been searching for the means
-> to interactively select this item, with no luck. Can anyone tell me if
-> ipchains compatibility has been removed from current config options? If
-> not, how it can be selected, or if it is broken?
+> Khalid Aziz wrote:
+> >
+> > Try
+> > <http://resourcemanagement.unixsolutions.hp.com/WaRM/schedpolicy.html>.
+> > It may do what you want.
 > 
-> D. Stimits, stimits@idcomm.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > > I see references to this site http://isunix.it.ilstu.edu/~thockin/pset/.
+> 
+> try http://www.hockin.org/~thockin/pset
+> 
+> unfortunately, not ported to 2.4.x yet - should be easy, and is a more
+> complete implementation of sysmp() than the others..
+> 
+> --
+Thank you Tim. I beleive that was what I was looking for.
 
-
-Nevermind, I found the item in question. Turns out that the option is
-added to the config menu, but not under the item that activated the
-option...most of the way down the menu instead, so I didn't see it.
-
-D. Stimits, stimits@idcomm.com
+Regards
+mark

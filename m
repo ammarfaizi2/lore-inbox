@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136111AbRECGYm>; Thu, 3 May 2001 02:24:42 -0400
+	id <S136132AbRECG4y>; Thu, 3 May 2001 02:56:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136124AbRECGYc>; Thu, 3 May 2001 02:24:32 -0400
-Received: from mail0.bna.bellsouth.net ([205.152.150.12]:37286 "EHLO
-	mail0.bna.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S136111AbRECGYU>; Thu, 3 May 2001 02:24:20 -0400
-From: volodya@mindspring.com
-Date: Thu, 3 May 2001 02:23:35 -0400 (EDT)
-Reply-To: volodya@mindspring.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alexander Viro <viro@math.psu.edu>, Andrea Arcangeli <andrea@suse.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <Pine.LNX.4.31.0104261303030.1118-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.20.0105030221050.5590-100000@node2.localnet.net>
+	id <S136134AbRECG4o>; Thu, 3 May 2001 02:56:44 -0400
+Received: from hood.tvd.be ([195.162.196.21]:7516 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S136132AbRECG4g>;
+	Thu, 3 May 2001 02:56:36 -0400
+Date: Thu, 3 May 2001 08:55:20 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: unsigned long ioremap()?
+Message-ID: <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hi,
 
+Since you're not allowed to use direct memory dereferencing on ioremapped
+areas, wouldn't it be more logical to let ioremap() return an unsigned long
+instead of a void *?
 
-On Thu, 26 Apr 2001, Linus Torvalds wrote:
+Of course we then have to change readb() and friends to take a long as well,
+but at least we'd get compiler warnings when someone tries to do a direct
+dereference.
 
-> 
-> 
-> On Thu, 26 Apr 2001, Alexander Viro wrote:
-> > On Thu, 26 Apr 2001, Andrea Arcangeli wrote:
-> > >
-> > > how can the read in progress see a branch that we didn't spliced yet? We
-> >
-> > fd = open("/dev/hda1", O_RDONLY);
-> > read(fd, buf, sizeof(buf));
-> 
-> Note that I think all these arguments are fairly bogus.  Doing things like
-> "dump" on a live filesystem is stupid and dangerous (in my opinion it is
-> stupid and dangerous to use "dump" at _all_, but that's a whole 'nother
-> discussion in itself), and there really are no valid uses for opening a
-> block device that is already mounted. More importantly, I don't think
-> anybody actually does.
+Gr{oetje,eeting}s,
 
-Actually I did. I might do it again :) The point was to get the kernel to
-cache certain blocks in the RAM. 
+						Geert
 
-                                     Vladimir Dergachev
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-> 
-> The fact that you _can_ do so makes the patch valid, and I do agree with
-> Al on the "least surprise" issue. I've already applied the patch, in fact.
-> But the fact is that nobody should ever do the thing that could cause
-> problems.
-> 
-> 		Linus
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

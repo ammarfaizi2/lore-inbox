@@ -1,65 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316739AbSEWOZp>; Thu, 23 May 2002 10:25:45 -0400
+	id <S316751AbSEWOox>; Thu, 23 May 2002 10:44:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316740AbSEWOZo>; Thu, 23 May 2002 10:25:44 -0400
-Received: from collaboration.manfred-dahlhoff.de ([194.245.124.6]:58591 "HELO
-	ip-194-245-124-6.manfred-dahlhoff.de") by vger.kernel.org with SMTP
-	id <S316739AbSEWOZo>; Thu, 23 May 2002 10:25:44 -0400
-Date: Thu, 23 May 2002 16:25:41 +0200
-From: Wiktor Wodecki <w.wodecki@manfred-dahlhoff.de>
-To: linux-kernel@vger.kernel.org
-Cc: "Mohammad A. Haque" <mhaque@haque.net>
-Subject: Re: ip alias and default outgoing interface
-Message-ID: <20020523142541.GB23684@equilibrium.manfred-dahlhoff.de>
-In-Reply-To: <Pine.LNX.4.44.0205220003060.3979-100000@viper.haque.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oLBj+sq0vYjzfsbl"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-message-flag: Linux - choice of the GNU generation
-X-Operating-System: Linux 2.4.19-pre6 i686
-X-PGP-KeyID: A1559FE7
-X-Info: I preffer encrypted e-mail over plaintext - please use my public key as mentioned in X-PGP-KeyID or retrieve my public key by sending an email with the subject 'public key request' to wodecki@gmx.de.
+	id <S316753AbSEWOow>; Thu, 23 May 2002 10:44:52 -0400
+Received: from mail3.cadvision.com ([207.228.64.48]:59915 "EHLO
+	mail3.cadvision.com") by vger.kernel.org with ESMTP
+	id <S316751AbSEWOov>; Thu, 23 May 2002 10:44:51 -0400
+Message-ID: <001701c20269$67d48dc0$0100007f@localdomain.wni.com.wirelessnetworksinc.com>
+From: "Herman Oosthuysen" <Herman@WirelessNetworksInc.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CEA7866.23557.390B7FFC@localhost> <20020523011144.GA4006@matchmail.com> <20020523094948.A2462@redhat.com>
+Subject: Re: 2.2 kernel - Ext3 & Raid patches
+Date: Thu, 23 May 2002 08:52:04 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephen,
 
---oLBj+sq0vYjzfsbl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Does this mean that Ext3 is still not recommended for use with RAID1?
 
-On Wed, May 22, 2002 at 12:05:24AM -0400, Mohammad A. Haque wrote:
-> I've got a setup where I have one ethernet card and multiple ips=20
-> assigned using ip alias.
-> Is this supposed to happen? How do I make it so that the default gw=20
-> interface is used?
+Thanks,
+--
+Herman Oosthuysen
+Herman@WirelessNetworksInc.com
+Suite 300, #3016, 5th Ave NE,
+Calgary, Alberta, T2A 6K4, Canada
+Phone: (403) 569-5687, Fax: (403) 235-3965
+----- Original Message -----
+From: Stephen C. Tweedie <sct@redhat.com>
+To: Jon Hedlund <JH_ML@invtools.com>; <sct@redhat.com>; <akpm@zip.com.au>;
+<linux-kernel@vger.kernel.org>
+Sent: Thursday, May 23, 2002 2:49 AM
+Subject: Re: 2.2 kernel - Ext3 & Raid patches
 
-I've seen similar behaviour with current 2.4 kernels with several nics
-with different ip's in one subnet. The solution was to create an own
-routing table for each ip (networkcard therefore) and to hammer static
-ip-nic arp entries at the router before. Look at the advanced routing
-howto for more information or write me a private email.
 
---=20
+> Hi,
+>
+> On Wed, May 22, 2002 at 06:11:44PM -0700, Mike Fedyk wrote:
+> > On Tue, May 21, 2002 at 04:40:06PM -0500, Jon Hedlund wrote:
+> > > 2. What is the "proper" fix for the patch collision between the raid
+> > > patch and the ext3 patch in /include/linux/fs.h?
+> >
+> > Use 2.4.
+>
+> Actually, you just need to renumber one of the conflicting #defines to
+> something unused, and it will work fine.  Soft raid0 or linear mode
+> will work quite happily with ext3 on 2.2 after you do that, it's only
+> the resync after a crash that you get with raid1 or raid5 that is
+> dangerous.
+>
+> Cheers,
+>  Stephen
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Regards,
-
-Wiktor Wodecki <w.wodecki@manfred-dahlhoff.de>
-
---oLBj+sq0vYjzfsbl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Weitere Infos: siehe http://www.gnupg.org
-
-iD8DBQE87PvlquOEd6FVn+cRAg/nAJ4g1c+nALgwh84D1Z2IJrkrIcnBMACeJvEm
-4wkKLIc69ubM/4oNrBJyeuM=
-=4VR2
------END PGP SIGNATURE-----
-
---oLBj+sq0vYjzfsbl--

@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310143AbSCPHw1>; Sat, 16 Mar 2002 02:52:27 -0500
+	id <S310155AbSCPIHS>; Sat, 16 Mar 2002 03:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310145AbSCPHwQ>; Sat, 16 Mar 2002 02:52:16 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:59151 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S310143AbSCPHwD>;
-	Sat, 16 Mar 2002 02:52:03 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [PATCH] devexit fixes in i82092.c 
-In-Reply-To: Your message of "Fri, 15 Mar 2002 23:40:30 -0800."
-             <Pine.LNX.4.33.0203152339200.31551-100000@penguin.transmeta.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 16 Mar 2002 18:51:51 +1100
-Message-ID: <15271.1016265111@ocs3.intra.ocs.com.au>
+	id <S310158AbSCPIHJ>; Sat, 16 Mar 2002 03:07:09 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18187 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S310155AbSCPIG6>; Sat, 16 Mar 2002 03:06:58 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: 7.52 second kernel compile
+Date: Sat, 16 Mar 2002 08:05:14 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a6uubq$uqr$1@penguin.transmeta.com>
+In-Reply-To: <20020313085217.GA11658@krispykreme> <20020316061535.GA16653@krispykreme>
+X-Trace: palladium.transmeta.com 1016266000 1506 127.0.0.1 (16 Mar 2002 08:06:40 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 16 Mar 2002 08:06:40 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Mar 2002 23:40:30 -0800 (PST), 
-Linus Torvalds <torvalds@transmeta.com> wrote:
->On Fri, 15 Mar 2002, Jeff Garzik wrote:
->> Further, I wonder if the reboot/shutdown notifiers can be replaced with 
->> device tree control over those events...
+In article <20020316061535.GA16653@krispykreme>,
+Anton Blanchard  <anton@samba.org> wrote:
 >
->This is what I want. Those reboot/shutdown notifiers are completely and 
->utterly buggy, and cannot sanely handle any kind of device hierarchy.
+>hardware: 32 way logical partition, 1.1GHz POWER4, 60G RAM
 
-Does that mean that we also get rid of the initcall methods?  If
-shutdown follows a device tree then startup should also use that tree.
-OTOH module load and unload require well defined startup and shutdown
-functions, modules cannot rely on device trees.
+It's interesting to see that scalability doesn't seem to be the #1
+problem by a long shot. 
 
+>7.52 seconds is not a bad result for something running under a hypervisor.
+>The profile looks much better now. We still spend a lot of time flushing tlb
+>entries but we can look into batching them.
+
+I wonder if you wouldn't be better off just getting rid of the TLB range
+flush altogether, and instead making it select a new VSID in the segment
+register, and just forgetting about the old TLB contents entirely.
+
+Then, when you do a TLB miss, you just re-use any hash table entries
+that have a stale VSID.
+
+It seems that you spend _way_ too much time actually trying to
+physically invalidate the hashtables, which sounds like a total waste to
+me. Especially as going through them to see whether they need to be
+invalidated has to be a horribe thing for the dcache.
+
+It would also be interesting to hear if you can just make the hash table
+smaller (I forget the details of 64-bit ppc VM horrors, thank God!) or
+just bypass it altogether (at least the 604e used to be able to just
+disable the stupid hashing altogether and make the whole thing much
+saner). 
+
+Note that the official IBM "minimum recommended page table sizes" stuff
+looks like total and utter crap.  Those tables have nothing to do with
+sanity, and everything to do with a crappy OS called AIX that takes
+forever to fill the hashes.  You should probably make them the minimum
+size (which, if I remember correctly, is still quite a large amount of
+memory thrown away on a TLB) if you can't just disable them altogether. 
+
+			Linus

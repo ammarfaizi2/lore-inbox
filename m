@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314049AbSD0DhQ>; Fri, 26 Apr 2002 23:37:16 -0400
+	id <S314587AbSD0Evl>; Sat, 27 Apr 2002 00:51:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314565AbSD0DhP>; Fri, 26 Apr 2002 23:37:15 -0400
-Received: from enchanter.real-time.com ([208.20.202.11]:40204 "EHLO
-	enchanter.real-time.com") by vger.kernel.org with ESMTP
-	id <S314049AbSD0DhP>; Fri, 26 Apr 2002 23:37:15 -0400
-Date: Fri, 26 Apr 2002 22:37:09 -0500
-From: Bob Tanner <tanner@real-time.com>
-To: linux-kernel@vger.kernel.org
-Subject: BIOS says MP, kernel says XP was PROBLEM: Dual (2) AMD ATHLON MP 1900+ CPUs gives APIC error on CPU[0]: 00(02)
-Message-ID: <20020426223709.A3301@real-time.com>
-Reply-To: tanner@real-time.com
-In-Reply-To: <20020426213315.K25965@real-time.com>
+	id <S314589AbSD0Evk>; Sat, 27 Apr 2002 00:51:40 -0400
+Received: from pimout4-ext.prodigy.net ([207.115.63.103]:26086 "EHLO
+	pimout4-int.prodigy.net") by vger.kernel.org with ESMTP
+	id <S314587AbSD0Evj>; Sat, 27 Apr 2002 00:51:39 -0400
+Subject: The tainted message
+From: Richard Thrapp <rthrapp@sbcglobal.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>, alan@lxorguk.ukuu.org.uk
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 26 Apr 2002 23:51:41 -0500
+Message-Id: <1019883102.8819.48.camel@wizard>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-message-flag: Outlook has several security flaws. Please see http://cws.internet.com/mail.html for alternatives
-X-MSMail-Priority: High
-X-Priority: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Bob Tanner (tanner@real-time.com):
-> [1.] One line summary of the problem:    
-> Dual (2) AMD ATHLON MP 1900+ CPUs gives APIC error on CPU[0]: 00(02)
+I originally took this up with Keith Owens, but he said I should bring
+the discussion here since the message was chosen here (although I  could
+not find where in the archives), and that he might change it if I get
+the approval of Alan Cox.
 
-<snip>
+I just discovered semi-recently (a couple of months ago) that newer
+versions of modutils have an insmod that prints out the tainted warnings
+for non-GPL licenses.  While I agree that printing a warning when
+installing a non-GPLed module is important to inform the user that their
+kernel is no longer supported by the kernel maintainers, I have issues
+with the exact message printed.
 
-> CPU0 AMD ATHLONG (TM) MP 1900+
-> CPU1 *AMD ATHLONG (TM) MP 1900+
+First of all, the current tainted message is not really useful. 
+"Warning: Loading %s will taint the kernel..." isn't very informative at
+all.  Most people don't know what it means to "taint the  kernel".  It's
+a vague phrase in English, and only if you know the current kernel
+source (or at least some of the semi-recent discussions on kernel
+tainting) is its meaning clear.  As a matter of fact, it makes it sound
+like the module has a virus in it that has just infected your kernel. 
+As Linux becomes more common for non-experts, it becomes even more
+important for error and informational messages to be clear.
 
-<snip>
+Secondly, loading the module doesn't actually 'taint' the kernel, but
+instead it mostly invalidates your chances for support from the core
+kernel maintainers.
 
-> CPU0 AMD ATHLON (TM) XP 1900+ stepping 02
-> CPU1: AMD ATHLON (TM) XP 1900+ stepping 02
+Thirdly, the warning that loading the module "will" taint the kernel is
+an inaccurate use of tense.  It implies that the module wasn't loaded
+(which might be true at that time from the point of view of the code,
+but is not true from the point of view of the user, which is who the
+message is written for).  I have actually had bug reports where users
+complain that a module won't load because of the tense of this message.
 
-Thanks to Jerry McBride, I think the problem is this. 
+I would like to propose that a clearer, more direct message be used. 
+Something like "Warning: kernel maintainers may not support your kernel
+since you have loaded %s: %s%s\n" would be much more informative and
+correct.
 
-The BIOS reports the CPUs as MP, but the kernel detects them as XP. As Jerry
-pointed out you can't run dual XP processors.
+Opinions?  Comments?
 
-I just grabbed the box the CPUs came in. It states the CPUs are MP.
+Thanks!
 
-How can I tell if the problem is with the BIOS, CPUs or kernel?
+-- Richard Thrapp
 
--- 
-Bob Tanner <tanner@real-time.com>         | Phone : (952)943-8700
-http://www.mn-linux.org, Minnesota, Linux | Fax   : (952)943-8500
-Key fingerprint =  6C E9 51 4F D5 3E 4C 66 62 A9 10 E5 35 85 39 D9 
 

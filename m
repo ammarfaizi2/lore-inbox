@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278489AbRJVKhY>; Mon, 22 Oct 2001 06:37:24 -0400
+	id <S278476AbRJVKee>; Mon, 22 Oct 2001 06:34:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278490AbRJVKhP>; Mon, 22 Oct 2001 06:37:15 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:21646 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S278489AbRJVKg7>; Mon, 22 Oct 2001 06:36:59 -0400
-Date: Mon, 22 Oct 2001 12:37:33 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-Message-ID: <20011022123733.A14457@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011022112149.A5625@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011022112149.A5625@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Mon, Oct 22, 2001 at 11:21:49AM +0100
+	id <S278489AbRJVKeZ>; Mon, 22 Oct 2001 06:34:25 -0400
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:4579 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S278476AbRJVKeN>; Mon, 22 Oct 2001 06:34:13 -0400
+Date: Mon, 22 Oct 2001 11:34:47 +0100 (BST)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: oops (BUG() in slab.c:1419) in 2.4.9-ac18
+Message-ID: <Pine.LNX.4.33.0110221129270.9856-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 11:21:49AM +0100, Alan Cox wrote:
-> Things took a bit longer than intended with various security fixes needing to
-> be done. If this tree tests out ok it will be 2.2.20
-> 
-> 2.2.20pre11
-> o	Security fixes
-> 	| Details censored in accordance with the US DMCA
+This on our twin Pentium II server (built with egcs-1.1.2). The machine
+was partly responding, but ssh and the console were both pretty dead.
+Alt-SysRq-S tried to work but never finished. All ext2 filesystems,
+hanging off an ICP Vortex (gdth.o) card. The fsck was not pretty.
 
-Care to elaborate?
+We still haven't ruled out hardware problems, but could this be a Linux
+bug? Any more information on request..
 
-Regards,
+Matt
 
-bert
+kernel BUG at slab.c:1419!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[kmem_cache_reap+541/1492]    Not tainted
+EFLAGS: 00010086
+eax: 0000001b   ebx: ead1d000   ecx: c022e3a4   edx: 001e564b
+esi: ead1de0c   edi: 00002108   ebp: c221b0c0   esp: f7ee1f80
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 5, stackpage=f7ee1000)
+Stack: c0201ca9 0000058b 00000080 000000c0 f7ee0335 0008e000 00020400 00020400
+       000000c0 0002ad1d c221b0e4 00000001 f7eec00c f7eec000 00000008 00000000
+       00000000 00000000 c0138eb8 000000c0 f7ee0000 c02026d1 c0138f27 000000c0
+Call Trace: [do_try_to_free_pages+72/80] [kswapd+103/204] [kernel_thread+35/48]
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-Trilab                                 The Technology People
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+Code: 0f 0b 83 c4 08 89 74 24 10 8b 4d 18 01 4c 24 10 b8 71 f0 2c
+
+

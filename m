@@ -1,95 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282127AbRKWMfh>; Fri, 23 Nov 2001 07:35:37 -0500
+	id <S282129AbRKWMbh>; Fri, 23 Nov 2001 07:31:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282128AbRKWMfS>; Fri, 23 Nov 2001 07:35:18 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:15688 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S282127AbRKWMfK>; Fri, 23 Nov 2001 07:35:10 -0500
-Date: Fri, 23 Nov 2001 14:35:02 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: linux-kernel@vger.kernel.org
-Cc: thockin@sun.com, jfr@viasys.com, andre@linux-ide.org
-Subject: HPT370 on 2.2.20+ide-patch
-Message-ID: <20011123143502.D4809@niksula.cs.hut.fi>
-In-Reply-To: <2173081930.1006455144@[195.224.237.69]> <20011122210503.B4809@niksula.cs.hut.fi> <20011122215424.C4809@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011122215424.C4809@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Thu, Nov 22, 2001 at 09:54:24PM +0200
+	id <S282133AbRKWMb2>; Fri, 23 Nov 2001 07:31:28 -0500
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:48305 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S282129AbRKWMbW>;
+	Fri, 23 Nov 2001 07:31:22 -0500
+Message-ID: <3BFE41D2.2040708@stesmi.com>
+Date: Fri, 23 Nov 2001 13:32:18 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: rpjday <rpjday@mindspring.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: is 2.4.15 really available at www.kernel.org?
+In-Reply-To: <Pine.LNX.4.33.0111230523340.8063-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 22, 2001 at 09:54:24PM +0200, you [Ville Herva] claimed:
+Hi.
+
+
+> then i'm just plain baffled.  using mozilla, i've tried downloading both 
+> 2.4.15 and 2.5.0, from the main www.kernel.org page, and from the kernel
+> subpage.  in *every* case, the download window starts off fine with
+> "0K of 28716K", so it knows the right size at the beginning.
 > 
-> Ummh. I'm doing successive runs for /dev/md0 GB at a time, and it seems to
-> get corrupted in the middle:
+> the download progresses until it reads 115K of ...K, there is a several
+> second pause, a brief flurry of activity, and the download terminates.
+> in *every* case, the final downloaded file is 155312 bytes long.
 > 
-> #!/usr/bin/perl
-> for ($i = 0; $i < 75; $i++)
-> {
->    $block = 1024**2;
->    $count = 1024;
->    $| = 1;
->    print "At $i GB\n";
->    
->    system "(dd if=/dev/md0 bs=$block count=$count skip=".($i*$count).
->           "| md5sum) 2>&1";
-> }
+> as i said, i can ftp just fine, but it sure is puzzling me why mozilla
+> is doing this.
 > 
-> diff -c on (modified) output:
-> 
-> *** 5,11 ****
->   At 4 GB 131e2916f3155f7c6df63fe2257e0350  -
->   At 5 GB 502be9c039744eb761f89ada152a1745  -
->   At 6 GB 07012ffe77ad7d6565f2e9576f1cf91e  -
-> ! At 7 GB ffa5545ee518d3a7724831012d3e4c44  -
->   At 8 GB eec233bf66d33fc81bfa895b022c4b04  -
->   At 9 GB c62e78b9401f91199ce558242faf5da5  -
->   At 10 GB f41d004b63c2481245320c28b9366b08  -
-> --- 5,11 ----
->   At 4 GB 131e2916f3155f7c6df63fe2257e0350  -
->   At 5 GB 502be9c039744eb761f89ada152a1745  -
->   At 6 GB 07012ffe77ad7d6565f2e9576f1cf91e  -
-> ! At 7 GB 4bbbaeefe786c760e342342f6a85ad4e  -
->   At 8 GB eec233bf66d33fc81bfa895b022c4b04  -
->   At 9 GB c62e78b9401f91199ce558242faf5da5  -
->   At 10 GB f41d004b63c2481245320c28b9366b08  -
-> (... still running)
+> ok, i'll shut up now.
 
-Ok, after 5 runs, it turned out that the error is always at 7GB or 47GB. hde
-or hdg never fail when run separately (in parallel or not). This is propably
-an IDE problem anyhow, since:
+Just to be on the safe side,m you're not out of disk space are you ? :))
 
-Nov 22 16:50:31 linux kernel: hde: dma_intr: status=0x51 { DriveReady SeekComplete Error } 
-Nov 22 16:50:31 linux kernel: hde: dma_intr: error=0x84 { DriveStatusError BadCRC } 
-Nov 22 22:47:11 linux kernel: hde: dma_intr: status=0x51 { DriveReady SeekComplete Error } 
-Nov 22 22:47:11 linux kernel: hde: dma_intr: error=0x84 { DriveStatusError BadCRC } 
-Nov 23 02:48:30 linux kernel: hdg: 24 bytes in FIFO 
-Nov 23 02:48:30 linux kernel: hdg: ide_dma_timeout: Lets do it again!stat = 0x58 , dma_stat = 0x20 
-Nov 23 02:48:30 linux kernel: hdg: DMA disabled 
-Nov 23 02:48:30 linux kernel: hdg: timeout waiting for DMA 
-Nov 23 02:48:30 linux kernel: hdg: 0 bytes in FIFO 
-Nov 23 02:48:30 linux kernel: hdg: ide_dma_timeout: Lets do it again!stat = 0x80, dma_stat = 0x20 
-Nov 23 02:48:30 linux kernel: hdg: DMA disabled 
-Nov 23 02:48:30 linux kernel: hdg: irq timeout: status=0x80 { Busy } 
-Nov 23 02:48:30 linux kernel: hdg: DMA disabled 
-Nov 23 02:48:30 linux kernel: hdg: ide_set_handler: handler not null; old=c017fd
-
-(This was with 2.2.20+IDE 05042001 + Tim Hockin's hpt366.c patch). 
-
-It went back to 2.2.18pre19 and the md5sum of md0 are consistent. I saw a
-couple of BadCRC errors, however.
-
-I'm trying again with 2.2.20/IDE 05042001/no hpt patch/slightly older
-bios/UDMA33 instead of UDMA66. (Just _too_ many variables... Phew.)
-
-The controller is HPT370A (KT7A-RAID) and drives(hde,hdg) are IBM-DPTA-373420
-(32.5GB).
+// Stefan
 
 
-
--- v --
-
-v@iki.fi

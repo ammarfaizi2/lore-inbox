@@ -1,134 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313142AbSC1L7w>; Thu, 28 Mar 2002 06:59:52 -0500
+	id <S292857AbSC1M2S>; Thu, 28 Mar 2002 07:28:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313140AbSC1L7o>; Thu, 28 Mar 2002 06:59:44 -0500
-Received: from pcp01384392pcs.walngs01.pa.comcast.net ([68.80.48.29]:46212
-	"EHLO dysonwi") by vger.kernel.org with ESMTP id <S313139AbSC1L7a>;
-	Thu, 28 Mar 2002 06:59:30 -0500
-Subject: ANN: BeFS 0.92 released
-From: Will Dyson <will_dyson@pobox.com>
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 28 Mar 2002 06:59:24 -0500
-Message-Id: <1017316764.3619.58.camel@dysonwi>
-Mime-Version: 1.0
+	id <S292957AbSC1M2I>; Thu, 28 Mar 2002 07:28:08 -0500
+Received: from pc132.utati.net ([216.143.22.132]:31377 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S292857AbSC1M2E>; Thu, 28 Mar 2002 07:28:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: linux-kernel@vger.kernel.org
+Subject: ssh won't work from initial ram disk in 2.4.18
+Date: Thu, 28 Mar 2002 07:28:05 -0500
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020328124257.99FD54FF@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+I'm using a 2.4.18 kernel and ssh 3.0.2, and I'm trying to run ssh from the 
+initrd, and it's refusing to work.  The exact same setup works booted from a 
+small partition, but if I take a tarball of that filesystem and dump it into 
+a ramdisk, ssh always fails to authenticate.  (Public key or password, it 
+doesn't matter.  When I run it from sh in initrd, it doesn't even prompt me 
+for a password, just prints out three failure messages and exits.  The same 
+setup from /dev/hda1 works just fine...)
 
-I have just released version 0.92 of the read only Be Filesystem driver.
-As before, the project website is http://befs-driver.sf.net/ and the
-downloads can be found at
-http://sourceforge.net/project/showfiles.php?group_id=39575 .
+Both filesystems (/dev/hda1 and the initrd.img) are formatted ext3.  (Because 
+ext2 support is a seperate driver I'd have to compile in, the journal size is 
+1 meg.  The initrd is 16 megs, and yes I upped the default ramdisk size to 16 
+megs.  The box itself has 128 megs of ram.)  Modules are disabled.
 
-Since the last time I announced a version of this project on the mailing
-lists, several significant performance improvements have been made, and
-serious bugs have been fixed. If you have a BeOS partition still kicking
-around (or if you are just a filesystems junkie and want to test it
-using the filesystem images on the download page), I urge you to give it
-a try.
+(In case you're wondering, I'm running dhcpcd, which is happy, followed by a 
+variant of "ssh 10.0.0.1 cat yourbrain.sh | /bin/bash".  The reason I need to 
+make it run from a ramdisk is that the script I'm trying to suck accross will 
+repartion the box, format the partitions, and untar a big tarball into it.  
+It's quick and dirty a system manufacturing thing.  sfdisk won't reread the 
+partition table if you have any partitions from the drive, and a reboot 
+between "partition" and "format" stages is, um, problematic.)
 
-It still isn't quite ready for inclusion in the mainline kernel (it
-doesn't yet conform to the kernel coding style, for one thing), but I
-use it all the time on my system and have yet to have any kind of
-stability issue with it. Third party kernel trees are most welcome to
-include this driver! 
+As I said, it works fine when it's NOT running from an initial ramdisk.  ssh 
+connects and has no problem transferring data.  But from a ramdisk, instant 
+failure, either password or public key pair.  I don't even get to ENTER my 
+password.  (Run /bin/bash and try to ssh as root.  It WILL prompt me about 
+the box's fingerprint not being recognized, but it immediately goes 
+"Permission denied, please try again." three times for the password without 
+lettiing me type anything.)
 
-Here is the recent part of the project's changelog:
+If this is an ssh problem I'll be happy to go bug those guys, but why would 
+it be different from initrd than from an actual mounted partition?  
+(Permissions are the same, I checked.)
 
+If somebody wants a tarball of this test case, drop me an email.  It's only a 
+couple megabytes...
 
-Version 0.92 (2002-03-27)
-==========
-* Fixed module makefile problem. It was not compiling all the correct 
-source files!
-
-* Removed duplicated function definition
-
-* Fixed potential null pointer dereference when reporting an error
-
-Version 0.91 (2002-03-26)
-==========
-* Oy! Fixed stupid bug that would cause an unresolved symbol error.
-Thanks to Laszlo Boszormenyi for pointing this out to me.
-
-Version 0.9 (2002-03-14)
-==========
-* Added Sergey S. Kostyliov's patch to eliminate memcpy() overhead
-from b+tree operations. Changes the befs_read_datastream() interface.
-
-* Segregated the functions that interface directly with the linux  vfs 
-interface into their own file called linuxvfs.c. [WD]
-
-Version 0.64 (2002-02-07)
-==========
-* Did the string comparision really right this time (btree.c) [WD]
-
-* Fixed up some places where I assumed that a long int could hold
-a pointer value. (btree.c) [WD]
-
-* Andrew Farnham <andrewfarnham@uq.net.au> pointed out that the module
-wouldn't work on older (<2.4.10) kernels due to an unresolved symbol.
-This is bad, since 2.4.9 is still the current RedHat kernel. I added
-a workaround for this problem (compatability.h) [WD]
-
-* Sergey S. Kostyliov made befs_find_key() use a binary search to find 
-keys within btree nodes, rather than the linear search we were using 
-before. (btree.c) [Sergey S. Kostyliov]
-
-* Made a debian package of the source for use with kernel-package. [WD]
-
-
-Version 0.63 (2002-01-31)
-==========
-* Fixed bug in befs_find_brun_indirect() that would result in the wrong
-block being read. It was introduced when adding byteswapping in 
-0.61. (datastream.c) [WD]
-
-* Fixed a longstanding bug in befs_find_key() that would result in it 
-finding the first key that is a substring of the string it is searching
-for. For example, this would cause files in the same directory with 
-names like file1 and file2 to mysteriously be duplicates of each other 
-(because they have the same inode number). Many thanks to Pavel Roskin 
-for reporting this serious bug!!!
-(btree.c) [WD]
-
-* Added support for long symlinks, after Axel Dorfler explained up how 
-they work. I had forgotten all about them. (inode.c, symlink.c) [WD]
-
-* Documentation improvements in source. [WD]
-
-* Makefile fix for independant module when CONFIG_MODVERSION is set in 
-kernel config [Pavel Roskin]
-
-* Compile warning fix for namei.c. [Sergey S. Kostyliov]
-
-
-Version 0.62
-==========
-* Fixed makefile for module install [WD]
-
-
-Version 0.61 (2002-01-20)
-==========
-* Made functions in endian.h to do the correct byteswapping, no matter
-the arch. [WD]
-
-* Abbandoned silly checks for a NULL superblock pointer in debug.c. [WD]
-
-* Misc code cleanups. Also cleanup of this changelog file. [WD]
-
-* Added byteswapping to all metadata reads from disk.
-Uses the functions from endian.h [WD]
-
-* Remove the typedef of struct super_block to vfs_sb, as it offended
-certain peoples' aesthetic sense. [WD]
-
-* Ditto with the befs_read_block() interface. [WD]
-
--- 
-Will Dyson
-
+Rob

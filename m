@@ -1,94 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273406AbRIRTOZ>; Tue, 18 Sep 2001 15:14:25 -0400
+	id <S273414AbRIRTTZ>; Tue, 18 Sep 2001 15:19:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273413AbRIRTOQ>; Tue, 18 Sep 2001 15:14:16 -0400
-Received: from line167.adsl.actcom.co.il ([192.117.101.167]:26885 "HELO
-	alhambra.merseine.nu") by vger.kernel.org with SMTP
-	id <S273406AbRIRTOF>; Tue, 18 Sep 2001 15:14:05 -0400
-Date: Tue, 18 Sep 2001 22:11:02 +0300 (IDT)
-From: mulix <mulix@actcom.co.il>
-X-X-Sender: <mulix@alhambra.merseine.nu>
-To: <linux-kernel@vger.kernel.org>
-Cc: <choo@actcom.co.il>
-Subject: ANN: syscalltrack version 0.60 released
-Message-ID: <Pine.LNX.4.33.0109182157020.18755-100000@alhambra.merseine.nu>
+	id <S273415AbRIRTTP>; Tue, 18 Sep 2001 15:19:15 -0400
+Received: from ezri.xs4all.nl ([194.109.253.9]:1217 "HELO ezri.xs4all.nl")
+	by vger.kernel.org with SMTP id <S273414AbRIRTTI>;
+	Tue, 18 Sep 2001 15:19:08 -0400
+Date: Tue, 18 Sep 2001 21:19:30 +0200 (CEST)
+From: Eric Lammerts <eric@lammerts.org>
+To: David Acklam <dackl@post.com>
+cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>, <greg@kroah.com>
+Subject: Re: compiled-in (non-modular) USB initialization bug
+In-Reply-To: <Pine.LNX.4.33.0109180025320.8401-100000@ally.lammerts.org>
+Message-ID: <Pine.LNX.4.33.0109182108001.10503-100000@ally.lammerts.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Haifux, the Haifa Linux Club (http://linuxclub.il.eu.org) is proud to
-present 'syscalltrack-0.60', the first _alpha_ release of the
-system-call-tracking linux kernel module and user space utilities.
-'syscalltrack' supports both versions 2.2.x and 2.4.x of the linux
-kernel.
 
-* What is syscalltrack?
+On Tue, 18 Sep 2001, Eric Lammerts wrote:
+>
+> The following patch adds the "ip=wait" option. It makes ipconfig.c
+> retry forever until is has found a suitable device to do
+> dhcp/bootp/rarp.
 
-Imagine you have a file being deleted every day at midnight. How will
-you know which process does it?
+This was a dumb patch. It didn't schedule so the USB kernel thread
+could not do anything. This is fixed in the patch below. The ip=wait
+parameter is gone now: it'll always wait for a net device if you're
+doing nfsroot.
 
-Imagine you wish to know when any non root process tries to open a file
-for writing, but you dont care if it tries to open it for reading. How
-will you do that?
+I've tested it with a Pegasus USB ethernet adapter and it works ok.
 
-Imagine you wish to know when _any_ process tries to temper with
-/var/log/messages. How will you do it?
+You can even boot the kernel without any adapter plugged in. It will
+patiently wait for you to plug one in. Then it'll start the
+dhcp/bootp/rarp stuff.
 
-'syscalltrack' is a linux kernel module which allows you to hijack and
-track any system call invocation on your linux box. Using a
-configuration utility you can specify 'filters' based on both system
-call parameters and process state parameters. You also specify 'actions'
-to take if the the filter matches - for example, you can log the
-invocation to a log file. More actions are planned but not yet
-implemented.
-
-For example, you might say "log all processes which try to 'unlink'
-'/etc/passwd" or "log all processes which try to 'open' '/dev/dsp' with
-a mode of O_CREAT, where the UID is less than 100 and the GID is more
-than 1000".
-
-We are aware of the existence of related projects, such as the 'medusa
-DS9 security system'. We believe our approach is sufficiently different
-to merit the apparent duplication of effort. In any event, the
-'syscalltrack' has already proven to be both useful and educational.
-
-* Where can i get it?
-
-Information on 'syscalltrack' is available on the project's homepage:
-http://syscalltrack.sf.net, and in the project's file release.
-
-Files and development information are available from
-http://www.sf.net/projects/syscalltrack/.
-
-You can download the source directly from:
-http://prdownloads.sourceforge.net/syscalltrack/syscalltrack-0.60.tar.gz
-
-* Call for developers:
-
-The syscalltrack project is looking for developers, both for kernel
-space and user space. If you want to join in on the fun, get in touch
-with us on the 'syscalltrack-hackers' mailing list
-(http://lists.sourceforge.net/lists/listinfo/syscalltrack-hackers).
-
-* License and NO Warrany
-
-'syscalltrack' is Free Software, licensed under the GNU General Public
-License (GPL) version 2. The 'sct_ctrl_lib' library is licensed under
-the GNU Lesser General Public License (LGPL).
-
-'syscalltrack' is in early _alpha_ stages and comes with NO warranty. If
-it breaks something, you get to keep all of the pieces. You have been
-warned (TM).
-
-Happy hacking and tracking!
-
--- 
-mulix
-
-http://www.advogato.com/person/mulix
-http://www.sf.net/projects/syscalltrack
+Eric
 
 
+--- linux-2.4.9-ac7/net/ipv4/ipconfig.c.orig	Wed May  2 05:59:24 2001
++++ linux-2.4.9-ac7/net/ipv4/ipconfig.c	Tue Sep 18 17:16:07 2001
+@@ -80,6 +80,8 @@
+ #define CONF_PRE_OPEN		(HZ/2)	/* Before opening: 1/2 second */
+ #define CONF_POST_OPEN		(1*HZ)	/* After opening: 1 second */
+
++#define CONF_DEV_WAIT		(1*HZ)
++
+ /* Define the timeout for waiting for a DHCP/BOOTP/RARP reply */
+ #define CONF_OPEN_RETRIES 	2	/* (Re)open devices twice */
+ #define CONF_SEND_RETRIES 	6	/* Send six requests per open */
+@@ -1105,8 +1107,20 @@
+ 		;
+
+ 	/* Setup all network devices */
+-	if (ic_open_devs() < 0)
++	while (ic_open_devs() < 0) {
++#ifdef CONFIG_ROOT_NFS
++		if (ROOT_DEV == MKDEV(UNNAMED_MAJOR, 255)) {
++			printk(KERN_ERR
++				"IP-Config: Retrying forever (NFS root)...\n");
++
++			// wait a while and try again
++		        current->state = TASK_INTERRUPTIBLE;
++                	schedule_timeout(CONF_DEV_WAIT);
++                	continue;
++		}
++#endif
+ 		return -1;
++        }
+
+ 	/* Give drivers a chance to settle */
+ 	jiff = jiffies + CONF_POST_OPEN;
 

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264266AbTFPUhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 16:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbTFPUhZ
+	id S264271AbTFPUjw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 16:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbTFPUjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 16:37:25 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:3594 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264266AbTFPUhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 16:37:24 -0400
-Date: Mon, 16 Jun 2003 21:51:16 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Zoup <Zoup@zoup.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.71 Frame Buffer Problem
-In-Reply-To: <200306162349.57606.Zoup@zoup.org>
-Message-ID: <Pine.LNX.4.44.0306162149480.26878-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Jun 2003 16:39:52 -0400
+Received: from ns.suse.de ([213.95.15.193]:26884 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264271AbTFPUjv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 16:39:51 -0400
+Date: Mon, 16 Jun 2003 22:53:42 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: janiceg@us.ibm.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       stekloff@us.ibm.com, girouard@us.ibm.com, lkessler@us.ibm.com,
+       kenistonj@us.ibm.com, jgarzik@pobox.com
+Subject: Re: patch for common networking error messages
+Message-ID: <20030616205342.GH30400@wotan.suse.de>
+References: <3EEE28DE.6040808@us.ibm.com> <20030616.133841.35533284.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030616.133841.35533284.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 16, 2003 at 01:38:41PM -0700, David S. Miller wrote:
+>    From: Janice M Girouard <janiceg@us.ibm.com>
+>    Date: Mon, 16 Jun 2003 15:30:22 -0500
+> 
+>    EMSG_NET_LINK_UP     "%s: state change: link up, %d Mbps, %s-duplex\n"
+> 
+> Should indicate flow control state too.
 
-> Hi :)
-> I'm using Albatron Ti4200 graphic card and i can't get 
-> frame buffer working on VGA 788 or 790 , 2.5.71 config file 
-> attached . 
+It would be actually useful  to wrap these in real functions.
 
-Ugh. You have the vga16, vesa, and NVIDIA framebuffer drivers enabled. 
-The NVIDIA driver might not work with your card. The VESA will so you 
-should only enable that. Also you enabled both VGA console and frmaebuffer 
-console. Please only enable framebuffer console.
+Why? It will make supporting netconsole easier which has to be careful
+to never recurse in the network driver.
 
+-Andi
 

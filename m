@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUHWNaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUHWNcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUHWNaT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 09:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUHWNaT
+	id S264297AbUHWNcO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 09:32:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUHWNcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 09:30:19 -0400
-Received: from uni02du.unity.ncsu.edu ([152.1.13.102]:43392 "EHLO
-	uni02du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S264261AbUHWNaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 09:30:12 -0400
-From: jlnance@unity.ncsu.edu
-Date: Mon, 23 Aug 2004 09:30:00 -0400
-To: Shriram R <shriram1976@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Effect of deleting executables of running programs
-Message-ID: <20040823133000.GA4395@ncsu.edu>
-References: <20040818181646.28610.qmail@web11412.mail.yahoo.com>
+	Mon, 23 Aug 2004 09:32:13 -0400
+Received: from serwer.tvgawex.pl ([212.122.214.2]:3065 "HELO
+	mother.ds.pg.gda.pl") by vger.kernel.org with SMTP id S264265AbUHWNcK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 09:32:10 -0400
+Date: Mon, 23 Aug 2004 15:32:08 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: v2.6.8.1 breaks tspc
+Message-ID: <20040823133208.GA26915@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200408212303.05143.mail@earthworm.de> <200408221506.07883.mail@earthworm.de> <200408221743.22561.vda@port.imtp.ilyichevsk.odessa.ua> <200408221826.41842.mail@earthworm.de> <4129E782.3040409@fugmann.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040818181646.28610.qmail@web11412.mail.yahoo.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <4129E782.3040409@fugmann.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 18, 2004 at 11:16:46AM -0700, Shriram R wrote:
-> a) I always thought that once a job is running, the
-> executable is entirely loaded into memory and the
-> abcd.out file is no longer needed.
-> If so, then why does the a running job crash on
-> deleting abcd.out ?  
+On Mon, Aug 23, 2004 at 12:48:02PM +0000, Anders Fugmann wrote:
+> Christian Hesse wrote:
+> >On Sunday 22 August 2004 16:43, Denis Vlasenko wrote:
+> >
+> >>Please try whether it works whan you do
+> >>"echo 0 > /proc/sys/net/ipv4/tcp_window_scaling"
+> >That helps. Thanks so far.
+> Any explanation of why this solution works?
+> 
+> I hate to blindly just disable window_scaling, just to make tspc work on 
+> 2.6.8.1.
 
-No, programs sections are paged in as needed, so the
-parts that are not running may not be in memory.
+ http://lwn.net/Articles/92727/
+ 
+-- 
+Tomasz Torcz               "Never underestimate the bandwidth of a station 
+zdzichu@irc.-nie.spam-.pl    wagon filled with backup tapes." -- Jim Gray 
 
-That said, the Unix way of dealing with files is by
-reference counting.  This means that you can open a
-file and delete it, and it is still kept around on
-the disk until you close it (running a program counts
-as having its file open).  So you are susposed to be
-able to delete a program and running instances will not
-be affected.
-
-Unfortunatly, as you have discovered, NFS is kinda
-sorta almost like a Unix file system, but not really.
-You can NOT reliably access deleted files over NFS.
-This is the root of what is causing your bus errors.
-
-> b) To what extent can I trust that the rest of the 6-7
-> jobs that are running have not been affected by this
-> deletion of "abcd.out" ?
-
-They are probably OK.
-
-Thanks,
-
-Jim

@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263342AbSLaQJm>; Tue, 31 Dec 2002 11:09:42 -0500
+	id <S264653AbSLaQOv>; Tue, 31 Dec 2002 11:14:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263362AbSLaQJm>; Tue, 31 Dec 2002 11:09:42 -0500
-Received: from cs.huji.ac.il ([132.65.16.30]:53767 "EHLO cs.huji.ac.il")
-	by vger.kernel.org with ESMTP id <S263342AbSLaQJj>;
-	Tue, 31 Dec 2002 11:09:39 -0500
-Date: Tue, 31 Dec 2002 18:18:01 +0200 (IST)
-From: Amar Lior <lior@cs.huji.ac.il>
-To: linux-kernel@vger.kernel.org
-cc: Amar Lior <lior@cs.huji.ac.il>
-Subject: PROBLEM
-Message-ID: <Pine.LNX.4.20_heb2.08.0212311805480.29415-100000@mos214.cs.huji.ac.il>
+	id <S264649AbSLaQOu>; Tue, 31 Dec 2002 11:14:50 -0500
+Received: from s142-179-222-244.ab.hsia.telus.net ([142.179.222.244]:18423
+	"EHLO bluetooth.WNI.AD") by vger.kernel.org with ESMTP
+	id <S264646AbSLaQOp>; Tue, 31 Dec 2002 11:14:45 -0500
+Message-ID: <3E11C4E2.2050306@WirelessNetworksInc.com>
+Date: Tue, 31 Dec 2002 09:25:06 -0700
+From: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux <linux-kernel@vger.kernel.org>
+Subject: [Fwd: Re: Indention - why spaces?]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Dec 2002 16:23:11.0220 (UTC) FILETIME=[E9435340:01C2B0E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Larry McVoy wrote:
+> 
+> By the way, this sort of thing is a big deal around here, I spend a 
+> lot of time getting people to do it all the same way.  It's worth it.
+> 
 
-I found a bug that cause the kernel to lockup.
+Larry, you can save yourself a lot of trouble, time and money: Create an
+indent configuration file and tell your people to use it.  That is
+exactly why indent was written many years ago.
 
-The problem is in mm/shmem.c do_shmem_file_read() (the tmpfs)
+Better still, change your commit scripts to automatically run indent
+when checking files in.  This works on private projects - it is not
+recommended for a public project like GNU/Linux, unless, Linus would
+call a halt - indent all files and then carry on, which I'm sure he
+won't do, since it is waaaay too much trouble.
 
-at line 959 there is a call to file_read_actor(desc, page, offset, nr);
+With indent, everybody can be happy: You don't like the curly braces
+here but rather want them there?  ==> Run indent on your private copy.
 
-The problem is that inside the function file_read_actor() desc->error is
-set to -EFAULT (this happens when the buffer supplied by the user for the 
-read is wrong)
-but there is no check right after the return from file_read_actor() to
-test this situation.
+BTW, occational windoze users can get the GUIfied 'windent.exe' off my
+web site at www.aerospacesoftware.com.  This presents a simple way to
+play around with indent; to figure out exactly what schtooopidttt
+switches you need to make the code look the way your SQA dork wants...
 
-The result is that the desc->count field always stay the same and the
-while loop in do_shmem_file_read never end and the kernel locksup.
+Also, if you want the whole kernel to be commented and clickable in
+html, 'doxygen' does an amazing job with that, even though the kernel
+code is not written with doxygen tags.
 
-The fix is very simple just add the following line after the call to 
-file_read_actor():
+Since I discovered these two tools, I totally relaxed about code
+formatting, since it is simply not an issue anymore.
 
--------------------
-if(desc->error)
-	break
--------------------
+Cheers,
+-- 
+Herman
 
-
-If you need any other info please mail me
-
-Regards
-
---lior
-
-
-________________________________________________________________   
-Lior Amar                       Distributed Computing Lab MOSIX
-E-mail  : lior@cs.huji.ac.il                           
-________________________________________________________________   
 

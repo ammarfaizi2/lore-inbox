@@ -1,86 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265352AbUBKPLv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 10:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265354AbUBKPLv
+	id S265203AbUBKPIc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 10:08:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265354AbUBKPIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 10:11:51 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:2982 "EHLO
-	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S265352AbUBKPLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 10:11:48 -0500
-Date: Wed, 11 Feb 2004 10:11:28 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: util-linux@math.uio.no
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Greg KH <greg@kroah.com>,
+	Wed, 11 Feb 2004 10:08:32 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:57833 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S265203AbUBKPIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 10:08:30 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>, Michael Hayes <mike@aiinc.ca>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix /etc/mtab updating with mount --move [was Re: devfs vs udev, thoughts from a devfs user]
-Message-ID: <20040211151128.GB32657@ti19.telemetry-investments.com>
-Reply-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	util-linux@math.uio.no, viro@parcelfarce.linux.theplanet.co.uk,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20040210170157.GA27421@kroah.com> <20040210171337.GK4421@tinyvaio.nome.ca> <40291A73.7050503@nortelnetworks.com> <20040210192456.GB4814@tinyvaio.nome.ca> <40293508.1040803@nortelnetworks.com> <40293AF8.1080603@backtobasicsmgmt.com> <20040210203900.GA18263@ti19.telemetry-investments.com> <20040211011559.GA2153@kroah.com> <20040211075049.GJ21151@parcelfarce.linux.theplanet.co.uk> <20040211123352.GA32657@ti19.telemetry-investments.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
+Subject: Printk message and numbers formating - was Spelling in 2.6.2
+Date: Wed, 11 Feb 2004 20:43:43 +0800
+User-Agent: KMail/1.5.4
+References: <200402102009.i1AK91T20554@aiinc.aiinc.ca> <200402111136.03712.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200402111136.03712.vda@port.imtp.ilyichevsk.odessa.ua>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040211123352.GA32657@ti19.telemetry-investments.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200402111904.50598.mhf@linuxmail.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Feb 11, 2004 at 07:33:52AM -0500, Bill Rugolsky Jr. wrote:
-> Anyway, with traditional /etc/mtab, mount --move produces:
+On Wednesday 11 February 2004 17:36, vda wrote:
+> On Tuesday 10 February 2004 22:09, Michael Hayes wrote:
+> > Relax, this is not a spelling patch.
+> >
+> > I was curious how fast spelling errors flow into the kernel, so I
+> > looked at the + lines in the 2.6.2 patch.  A few of the errors
+> > already existed, but most of them are new.  It turns out that there
+> > are around 200 new spelling errors in 2.6.2.
+> >
+> > A "wether" (castrated goat) has appeared, along with a "Rusell" that
+> > should be stamped out before it spreads.  Someone had a dreadful time
+> > with "technology" and its variants, spelling it wrong 9 different ways.
+> >
+> > Here's what I found:
+> >
+> > File                                      Error            Should be       #
 > 
->    none on /tmp/a type ramfs (rw)
->    /tmp/a on /tmp/b type none (rw)
+> :))
+> 
+> Before all the bizzare mispels are dealed with, let me
+> beg for "dont" and "cant" be pardoned. We dont enforce
+> "double space after period" and "always terminate log messages
+> with a period" rules, because those do no good and
 
-Andries, 
+Concur, pleae lets allow dont and cant.
 
-The attached patch against util-linux-2.12pre fixes /etc/mtab updating
-when using mount --move.
+Can we have a rule that periods terminating kernel messages 
+are depreciated?
 
-Regards,
+> cant lead to misinterpretations anyway.
+> Dunno why, but /me thinks the same applies to donts and cants.
 
-	Bill Rugolsky
+Just wastes space on the line, should this be depreciated?
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="util-linux-2.12pre-mountmove.patch"
+> 
+> And I just feel that ' is a string delimiter and "don't" hurts
+> my eye.
 
---- util-linux-2.12pre/mount/fstab.c.move	2003-07-05 16:16:05.000000000 -0400
-+++ util-linux-2.12pre/mount/fstab.c	2004-02-11 09:56:12.644436000 -0500
-@@ -541,8 +541,12 @@
- 				mc->nxt->prev = mc->prev;
- 			}
- 		} else {
--			/* A remount */
-+			/* A remount or move */
- 			mc->m.mnt_opts = instead->mnt_opts;
-+			if (!streq(mc->m.mnt_dir, instead->mnt_dir)) {
-+				free(mc->m.mnt_dir);
-+				mc->m.mnt_dir = xstrdup(instead->mnt_dir);
-+			}
- 		}
- 	} else if (instead) {
- 		/* not found, add a new entry */
---- util-linux-2.12pre/mount/mount.c.move	2003-07-13 17:26:13.000000000 -0400
-+++ util-linux-2.12pre/mount/mount.c	2004-02-11 10:03:25.754436000 -0500
-@@ -635,7 +635,9 @@
- 	    print_one (&mnt);
- 
-     if (!nomtab && mtab_is_writable()) {
--	if (flags & MS_REMOUNT)
-+	if (flags & MS_MOVE)
-+	    update_mtab (mnt.mnt_fsname, &mnt);
-+	else if (flags & MS_REMOUNT)
- 	    update_mtab (mnt.mnt_dir, &mnt);
- 	else {
- 	    mntFILE *mfp;
+Concur,
 
---lrZ03NoBR/3+SXJZ--
+As to printing numbers, which form to use?
+
+Should numbers in parenthesis be depreciated?
+
+printk("Count is (%d)\n");
+
+What about colons?
+
+printk"Count is: %d\n");
+
+Or just straight and simple:
+
+printk("Count is %d\n");
+
+Numbers in a sentence:
+
+printk("Size %d is too big, adjusted to %d\n");
+printk("Size %d is too big, adjusted to: %d\n");
+
+Regards
+Michael
+
+

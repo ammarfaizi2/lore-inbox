@@ -1,79 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbUKQX5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbUKQX5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbUKQX5l (ORCPT <rfc822;willy@w.ods.org>);
+	id S262567AbUKQX5l (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 17 Nov 2004 18:57:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbUKQXzr
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbUKQXz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 18:55:47 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:4260 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S262581AbUKQXqw (ORCPT
+	Wed, 17 Nov 2004 18:55:57 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:49089 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262619AbUKQWEf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 18:46:52 -0500
-To: linux-kernel@vger.kernel.org
-cc: Ian.Pratt@cl.cam.ac.uk, akpm@osdl.org, Keir.Fraser@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk
-Subject: [patch 1] Xen core patch : ptep_establish_new
-Date: Wed, 17 Nov 2004 23:46:50 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CUZVj-00052O-00@mta1.cl.cam.ac.uk>
+	Wed, 17 Nov 2004 17:04:35 -0500
+Date: Wed, 17 Nov 2004 14:04:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PPC] Missing pci_dev_put in arch/ppc/platforms/chrp_pci.c ?
+Message-ID: <20041117220423.GC1291@kroah.com>
+References: <200411171329.51687@bilbo.math.uni-mannheim.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411171329.51687@bilbo.math.uni-mannheim.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 17, 2004 at 01:29:51PM +0100, Rolf Eike Beer wrote:
+> This is how it is:
+> 
+> chrp_pcibios_fixup(void)
+> {
+>         struct pci_dev *dev = NULL;
+>         struct device_node *np;
+> 
+>         /* PCI interrupts are controlled by the OpenPIC */
+>         for_each_pci_dev(dev) {
+>                 np = pci_device_to_OF_node(dev);
+>                 if ((np != 0) && (np->n_intrs > 0) && (np->intrs[0].line != 0))
+>                         dev->irq = np->intrs[0].line;
+>                 pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
+>         }
+> }
+> 
+> for_each_pci_dev is defined to use pci_get_device in include/linux/pci.h,
+> which uses pci_dev_get. So every PCI devices use count will be incremented
+> if chrp_pcibios_fixup is called. Do I miss something or should we add a
+> pci_dev_put(dev) at the end of the loop?
 
-This patch adds 'ptep_establish_new', in keeping with the
-existing 'ptep_establish', but for use where a mapping is being
-established where there was previously none present. This
-function is useful (rather than just using set_pte) because
-having the virtual address available enables a very important
-optimisation for arch-xen. We introduce
-HAVE_ARCH_PTEP_ESTABLISH_NEW and define a generic implementation
-in asm-generic/pgtable.h, following the pattern of the existing
-ptep_establish.
+You missed something :)
 
-Signed-off-by: ian.pratt@cl.cam.ac.uk
+Read the docs for pci_get_device(), it will explain how the above code
+is just fine.
 
----
+BTW, this isn't the first time this very question has come up on lkml,
+how come people never think to do a archive search...
 
-diff -Nurp pristine-linux-2.6.9/include/asm-generic/pgtable.h tmp-linux-2.6.9-xen.patch/include/asm-generic/pgtable.h
---- pristine-linux-2.6.9/include/asm-generic/pgtable.h	2004-10-18 22:53:46.000000000 +0100
-+++ tmp-linux-2.6.9-xen.patch/include/asm-generic/pgtable.h	2004-11-04 23:27:24.000000000 +0000
-@@ -42,6 +42,13 @@ do {				  					  \
- } while (0)
- #endif
- 
-+#ifndef __HAVE_ARCH_PTEP_ESTABLISH_NEW
-+/*
-+ * Establish a mapping where none previously existed
-+ */
-+#define ptep_establish_new(__vma, __address, __ptep, __entry)		\
-+do {									\
-+	set_pte(__ptep, __entry);					\
-+} while (0)
-+#endif
-+
- #ifndef __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
- static inline int ptep_test_and_clear_young(pte_t *ptep)
- {
-diff -Nurp pristine-linux-2.6.9/mm/memory.c tmp-linux-2.6.9-xen.patch/mm/memory.c
---- pristine-linux-2.6.9/mm/memory.c	2004-10-18 22:54:07.000000000 +0100
-+++ tmp-linux-2.6.9-xen.patch/mm/memory.c	2004-11-04 23:27:25.000000000 +0000
-@@ -1452,7 +1452,7 @@ do_anonymous_page(struct mm_struct *mm, 
- 		page_add_anon_rmap(page, vma, addr);
- 	}
- 
--	set_pte(page_table, entry);
-+	ptep_establish_new(vma, addr, page_table, entry);
- 	pte_unmap(page_table);
- 
- 	/* No need to invalidate - it was non-present before */
-@@ -1557,7 +1557,7 @@ retry:
- 		entry = mk_pte(new_page, vma->vm_page_prot);
- 		if (write_access)
- 			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
--		set_pte(page_table, entry);
-+		ptep_establish_new(vma, address, page_table, entry);
- 		if (anon) {
- 			lru_cache_add_active(new_page);
- 			page_add_anon_rmap(new_page, vma, address);
+thanks,
 
-
+greg k-h

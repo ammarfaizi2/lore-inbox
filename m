@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262786AbVCDCJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbVCDCJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262786AbVCDCJd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 21:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVCDCGR
+	id S262730AbVCDCJc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 21:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262786AbVCDCGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 21:06:17 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:7584 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262799AbVCDCBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 21:01:51 -0500
-Message-ID: <4227C1F1.6040508@jp.fujitsu.com>
-Date: Fri, 04 Mar 2005 11:03:29 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Thu, 3 Mar 2005 21:06:37 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:61481 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S262730AbVCDBob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 20:44:31 -0500
+Message-ID: <4227BE1E.7070601@suse.com>
+Date: Thu, 03 Mar 2005 20:47:10 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Matthew Wilcox <matthew@wil.cx>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-References: <422428EC.3090905@jp.fujitsu.com> <20050301144211.GI28741@parcelfarce.linux.theplanet.co.uk> <20050301192711.GE1220@austin.ibm.com> <42255971.4070608@jp.fujitsu.com> <20050302192043.GJ1220@austin.ibm.com>
-In-Reply-To: <20050302192043.GJ1220@austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jeffrey Mahoney <jeffm@suse.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, Chris Wright <chrisw@osdl.org>
+Subject: Re: [PATCH 1/4] vfs: adds the S_PRIVATE flag and adds use to security
+References: <20050301153717.GB18215@locomotive.unixthugs.org>
+In-Reply-To: <20050301153717.GB18215@locomotive.unixthugs.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.92.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas Vepstas wrote:
->>If their defaults are no-ops, device
->>maintainers who develops their driver on not-implemented arch should be
->>more careful. 
-> 
-> Why? People who write device drivers already know if/when they need to
-> disable interrupts, and so they already disable if they need it.  
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-OK, I'll remake them as no-ops.
-Nothing will start unless trust in driver folks.
+Jeffrey Mahoney wrote:
+> This patch adds an S_PRIVATE flag to inode->i_flags to mark an inode as
+> filesystem-internal. As such, it should be excepted from the security
+> infrastructure to allow the filesystem to perform its own access control.
 
-> p.s. I would like to have iochk_read() take struct pci_dev * as an
-> argument.  (I could store a pointer to pci_dev in the "cookie" but
-> that seems odd).
+> @@ -1459,12 +1469,16 @@ static inline void security_inode_post_l
+>  					     struct inode *dir,
+>  					     struct dentry *new_dentry)
+>  {
+> +	if (unlikely (IS_PRIVATE (new_dentry->d_inode)))
+> +		return;
+>  	security_ops->inode_post_link (old_dentry, dir, new_dentry);
+>  }
+>  
 
-I'd like to store the pointer and handle all only with the cookie...
-Or is it needed to pass different device to iochk_clear() and iochk_read()?
+Internal testing has shown that this operation will cause an Oops on
+NFS. The assumption that a link operation will return an instantiated
+dentry is invalid, and thus new_dentry->d_inode will be NULL on NFS
+filesystems. I'll send out a revised version later this evening.
 
+- -Jeff
 
-Thanks,
-H.Seto
+- --
+Jeff Mahoney
+SuSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
+iD8DBQFCJ74eLPWxlyuTD7IRAg3zAJ4w5ThhGVHoTNKf+4TyqwU/NtRUvACfWnje
+EIiFuTZPWZq245g/9xrkZLA=
+=hTpo
+-----END PGP SIGNATURE-----

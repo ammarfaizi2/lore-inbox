@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbTHaPz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 11:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbTHaPz2
+	id S261801AbTHaPrM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 11:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbTHaPqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 11:55:28 -0400
-Received: from luli.rootdir.de ([213.133.108.222]:46982 "HELO luli.rootdir.de")
-	by vger.kernel.org with SMTP id S262208AbTHaPzZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 11:55:25 -0400
-Date: Sun, 31 Aug 2003 17:55:22 +0200
-From: Claas Langbehn <claas@rootdir.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.22: APM Power-Off does not work
-Message-ID: <20030831155522.GA1277@rootdir.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Reply-By: Wed Sep  3 17:50:47 CEST 2003
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.0-test4-mm4 i686
-X-No-archive: yes
-X-Uptime: 17:50:47 up  1:17,  4 users,  load average: 0.07, 0.12, 0.07
-User-Agent: Mutt/1.5.4i
+	Sun, 31 Aug 2003 11:46:18 -0400
+Received: from modemcable009.53-202-24.mtl.mc.videotron.ca ([24.202.53.9]:24962
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262342AbTHaPo6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 11:44:58 -0400
+Date: Sun, 31 Aug 2003 11:44:32 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Thomas Molina <tmolina@cablespeed.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test4-mm4
+In-Reply-To: <Pine.LNX.4.44.0308310926120.26483-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.53.0308311142550.16584@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.44.0308310926120.26483-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sun, 31 Aug 2003, Thomas Molina wrote:
 
+> Thank you Adrew.  I have been following a panic in store_stackinfo since 
+> it was introduced with CONFIG_DEBUG_PAGEALLOC (see bugzilla #973).  
+> 2.6.0-test4-mm4 was the first kernel version I have tested which didn't 
+> exhibit this failure mode.  
+> 
+> I do get a hang on boot in RedHat 8 if all the other "kernel hacking" 
+> options are enabled.  This hang comes at the point in the boot sequence 
+> where the next message I would expect is the mounting of /proc.  I've not 
+> looked into it too deeply since it sounded similar to what others have 
+> seen, and it wasn't my main focus.  I'll go back later and look into it if 
+> the condition persists.
 
-Kernel 2.4.22 does not power of my HP omnibook 4150B (APM Bios 3.13)
-(http://h20004.www2.hp.com/soar_rnotes/bsdmatrix/matrix31635en_US.html#BIOS).
-With Kernel 2.6.0-test4-mm4 it works, but there suspend to disk does not
-work any more.
-
-I tried with CONFIG_APM_REAL_MODE_POWER_OFF and without. The machine
-does not power off. It just stops after saying "Power off". When I press
-ctrl-alt-del afterwards, the kernel crashes in both cases.
-
-Is there a patch for 2.4.22 around?
-
-
-Regards, claas
-
+Well you appeared to have serio problems and there have been a number of 
+changes in the input department. Do you know which kernel hacking option 
+causes the new hang?

@@ -1,390 +1,372 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUDUMlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUDUMkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbUDUMlk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 08:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUDUMlP
+	id S261563AbUDUMkK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 08:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUDUMkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 08:41:15 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:25991 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S261210AbUDUMkJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 08:40:09 -0400
-Date: Wed, 21 Apr 2004 14:40:08 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: [New-PATCH] lkkbd: Current version
-Message-ID: <20040421124008.GC12700@lug-owl.de>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-References: <200404210049.17139.dtor_core@ameritech.net> <200404210052.28755.dtor_core@ameritech.net> <20040421113947.GA12700@lug-owl.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mWEPrn9k3Wj8m9KK"
-Content-Disposition: inline
-In-Reply-To: <20040421113947.GA12700@lug-owl.de>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 21 Apr 2004 08:40:10 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:47322 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261563AbUDUMj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 08:39:29 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Date: Wed, 21 Apr 2004 22:38:40 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16518.27472.760406.691633@cse.unsw.edu.au>
+Cc: arjanv@redhat.com, Andrew Morton <akpm@osdl.org>,
+       Tuukka Toivonen <tuukkat@ee.oulu.fi>, b-gruber@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: /dev/psaux-Interface
+In-Reply-To: message from Sau Dan Lee on  April 21
+References: <Pine.GSO.4.58.0402271451420.11281@stekt37>
+	<Pine.GSO.4.58.0404191124220.21825@stekt37>
+	<20040419015221.07a214b8.akpm@osdl.org>
+	<xb77jwci86o.fsf@savona.informatik.uni-freiburg.de>
+	<1082372020.4691.9.camel@laptop.fenrus.com>
+	<16518.20890.380763.581386@cse.unsw.edu.au>
+	<xb71xmhfu9j.fsf@savona.informatik.uni-freiburg.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On  April 21, danlee@informatik.uni-freiburg.de wrote:
+> >>>>> "Neil" == Neil Brown <neilb@cse.unsw.edu.au> writes:
+> 
+>     Neil> I agree that it is good for the kernel to provide hardware
+>     Neil> abstractions, and that "mouse" is an appropriate device to
+>     Neil> provide an abstract interface for.
+> 
+> So, the next  step is to port efax or Hylafax  into kernel space.  Why
+> leave the /dev/ttyS? hanging out there?  Why not encapsulated them and
+> provide a /dev/fax that does what efax or Hylafax do?
 
---mWEPrn9k3Wj8m9KK
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Simple debating technique:  start of by agreeing with someone and they
+are more likely to listen to your argument. The key issue is where the
+driver should be, not where the interface should be, so focus on that.
 
-On Wed, 2004-04-21 13:39:47 +0200, Jan-Benedict Glaw <jbglaw@lug-owl.de>
-wrote in message <20040421113947.GA12700@lug-owl.de>:
-> On Wed, 2004-04-21 00:52:25 -0500, Dmitry Torokhov <dtor_core@ameritech.n=
-et>
-> wrote in message <200404210052.28755.dtor_core@ameritech.net>:
-> > diff -Nru a/drivers/input/keyboard/lkkbd.c b/drivers/input/keyboard/lkk=
-bd.c
-> > --- a/drivers/input/keyboard/lkkbd.c	Tue Apr 20 23:00:57 2004
-> > +++ b/drivers/input/keyboard/lkkbd.c	Tue Apr 20 23:00:57 2004
-> > @@ -12,7 +12,7 @@
-> >   * adaptor).
-> >   *
-> >   * DISCLAUNER: This works for _me_. If you break anything by using the
->             ^--- If you had only caught this one :)
->=20
-> I'll take this patch into my tree, too.
+> 
+> 
+> BTW, how did you hack the /dev/psaux?
+> 
 
-Here we are. Linus, please apply this patch. It incorporated Dmitry's
-changes and also updates the lkkbd driver to it's current version (which
-I use on my Athlon).
+It's not suitable for inclusion, but with this patch, I get two
+modules, psdev and psmouse.
+I load psdev and /dev/psaux is raw.  I load psmouse  and /dev/psaux is
+normal 2.6 behaviour.
+
+NeilBrown
 
 
-#
-# This patch updates the lkkbd driver to it's current version.
-# It also incorporates two patches suggested on LKML (fixing
-# some leading whitespace and an unneccessary check).
-#
+ ----------- Diffstat output ------------
+ ./drivers/input/Kconfig        |    2 
+ ./drivers/input/mouse/Kconfig  |    7 +
+ ./drivers/input/mouse/Makefile |    1 
+ ./drivers/input/mouse/psdev.c  |  256 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 265 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.6-rc2/drivers/input/keyboard/lkkbd.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-2.6.6-rc2.orig/drivers/input/keyboard/lkkbd.c	2004-04-04 05:36:25=
-=2E000000000 +0200
-+++ linux-2.6.6-rc2/drivers/input/keyboard/lkkbd.c	2004-04-21 14:33:59.0000=
-00000 +0200
-@@ -11,8 +11,8 @@
-  * and VAXstations, but can also be used on any standard RS232 with an
-  * adaptor).
-  *
-- * DISCLAUNER: This works for _me_. If you break anything by using the
-- * information given below, I will _not_ be lieable!
-+ * DISCLAIMER: This works for _me_. If you break anything by using the
-+ * information given below, I will _not_ be liable!
-  *
-  * RJ11 pinout:		To DB9:		Or DB25:
-  * 	1 - RxD <---->	Pin 3 (TxD) <->	Pin 2 (TxD)
-@@ -34,23 +34,32 @@
-  *		Additionally, you have to get +12V from somewhere.
-  * Most easily, you'll get that from a floppy or HDD power connector.
-  * It's the yellow cable there (black is ground and red is +5V).
-+ *
-+ * The keyboard and all the commands it understands are documented in
-+ * "VCB02 Video Subsystem - Technical Manual", EK-104AA-TM-001. This
-+ * document is LK201 specific, but LK401 is mostly compatible. It comes
-+ * up in LK201 mode and doesn't report any of the additional keys it
-+ * has. These need to be switched on with the LK_CMD_ENABLE_LK401
-+ * command. You'll find this document (scanned .pdf file) on MANX,
-+ * a search engine specific to DEC documentation. Try
-+ * http://www.vt100.net/manx/details?pn=3DEK-104AA-TM-001;id=3D21;cp=3D1
-  */
-=20
- /*
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or=20
-+ * the Free Software Foundation; either version 2 of the License, or
-  * (at your option) any later version.
-- *=20
-+ *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-- *=20
-+ *
-  * You should have received a copy of the GNU General Public License
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-- *=20
-+ *
-  * Should you need to contact me, the author, you can do so either by
-  * email or by paper mail:
-  * Jan-Benedict Glaw, Lilienstra=DFe 16, 33790 H=F6rste (near Halle/Westf.=
-),
-@@ -67,8 +76,7 @@
- #include <linux/serio.h>
- #include <linux/workqueue.h>
-=20
--
--MODULE_AUTHOR ("Jan-Benedict Glaw <jblaw@lug-owl.de>");
-+MODULE_AUTHOR ("Jan-Benedict Glaw <jbglaw@lug-owl.de>");
- MODULE_DESCRIPTION ("LK keyboard driver");
- MODULE_LICENSE ("GPL");
-=20
-@@ -92,6 +100,11 @@
- module_param (ctrlclick_volume, int, 0);
- MODULE_PARM_DESC (ctrlclick_volume, "Ctrlclick volume (in %), default is 1=
-00%");
-=20
-+static int lk201_compose_is_alt =3D 0;
-+module_param (lk201_compose_is_alt, int, 0);
-+MODULE_PARM_DESC (lk201_compose_is_alt, "If set non-zero, LK201' Compose k=
-ey "
-+		"will act as an Alt key");
+diff ./drivers/input/Kconfig~current~ ./drivers/input/Kconfig
+--- ./drivers/input/Kconfig~current~	2004-04-05 14:18:30.000000000 +1000
++++ ./drivers/input/Kconfig	2004-04-05 14:18:30.000000000 +1000
+@@ -42,7 +42,7 @@ config INPUT_MOUSEDEV
+ 
+ config INPUT_MOUSEDEV_PSAUX
+ 	bool "Provide legacy /dev/psaux device" if EMBEDDED
+-	default y
++	default n
+ 	depends on INPUT_MOUSEDEV
+ 
+ config INPUT_MOUSEDEV_SCREEN_X
+
+diff ./drivers/input/mouse/Kconfig~current~ ./drivers/input/mouse/Kconfig
+--- ./drivers/input/mouse/Kconfig~current~	2004-04-05 14:18:30.000000000 +1000
++++ ./drivers/input/mouse/Kconfig	2004-04-05 14:18:30.000000000 +1000
+@@ -141,3 +141,10 @@ config MOUSE_PC9800
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called 98busmouse.
+ 
++config MOUSE_PSDEV
++	tristate "Raw PS/AUX driver for mouse"
++	default y
++	depends on INPUT && INPUT_MOUSE && SERIO
++	---help---
++	  Say Y if you want /dev/psaux to really be /dev/psaux
 +
-=20
-=20
- #undef LKKBD_DEBUG
-@@ -126,8 +139,11 @@
- #define LK_CMD_SET_DEFAULTS	0xd3
- #define LK_CMD_POWERCYCLE_RESET	0xfd
- #define LK_CMD_ENABLE_LK401	0xe9
-+#define LK_CMD_REQUEST_ID	0xab
-=20
- /* Misc responses from keyboard */
-+#define LK_STUCK_KEY		0x3d
-+#define LK_SELFTEST_FAILED	0x3e
- #define LK_ALL_KEYS_UP		0xb3
- #define LK_METRONOME		0xb4
- #define LK_OUTPUT_ERROR		0xb5
-@@ -139,6 +155,7 @@
- #define LK_RESPONSE_RESERVED	0xbb
-=20
- #define LK_NUM_KEYCODES		256
-+#define LK_NUM_IGNORE_BYTES	6
- typedef u_int16_t lk_keycode_t;
-=20
-=20
-@@ -267,6 +284,7 @@
- struct lkkbd {
- 	lk_keycode_t keycode[LK_NUM_KEYCODES];
- 	int ignore_bytes;
-+	unsigned char id[LK_NUM_IGNORE_BYTES];
- 	struct input_dev dev;
- 	struct serio *serio;
- 	struct work_struct tq;
-@@ -313,6 +331,82 @@
- 	return ret;
- }
-=20
-+static void
-+lkkbd_detection_done (struct lkkbd *lk)
+
+diff ./drivers/input/mouse/Makefile~current~ ./drivers/input/mouse/Makefile
+--- ./drivers/input/mouse/Makefile~current~	2004-04-05 14:18:30.000000000 +1000
++++ ./drivers/input/mouse/Makefile	2004-04-05 14:18:30.000000000 +1000
+@@ -4,6 +4,7 @@
+ 
+ # Each configuration option enables a list of files.
+ 
++obj-$(CONFIG_MOUSE_PSDEV)	+= psdev.o
+ obj-$(CONFIG_MOUSE_AMIGA)	+= amimouse.o
+ obj-$(CONFIG_MOUSE_RISCPC)	+= rpcmouse.o
+ obj-$(CONFIG_MOUSE_INPORT)	+= inport.o
+
+diff ./drivers/input/mouse/psdev.c~current~ ./drivers/input/mouse/psdev.c
+--- ./drivers/input/mouse/psdev.c~current~	2004-04-05 14:18:30.000000000 +1000
++++ ./drivers/input/mouse/psdev.c	2004-04-05 14:18:30.000000000 +1000
+@@ -0,0 +1,256 @@
++/*
++ * PS/2 mouse driver
++ *
++ * Copyright (c) 2003 Neil Brown
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#include <linux/poll.h>
++#include <linux/delay.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/serio.h>
++#include <linux/init.h>
++#include <linux/miscdevice.h>
++#include <linux/device.h>
++
++
++MODULE_AUTHOR("Neil Brown <neilb@cse.unsw.edu.au>");
++MODULE_DESCRIPTION("PS/2 Aux port driver");
++MODULE_LICENSE("GPL");
++
++#define	BUFSIZE	128
++struct psreader {
++	struct list_head	list;
++	struct psdev		*dev;
++	char			buf[BUFSIZE];
++	int			head, tail; /* (head==tail) => empty */
++};
++static LIST_HEAD(psreaders);
++
++struct psdev {
++	struct list_head 	list;
++	struct serio		*serio;
++	struct psreader		*reader;
++};
++static LIST_HEAD(psdevs);
++static DECLARE_WAIT_QUEUE_HEAD(waitq);
++static spinlock_t lock = SPIN_LOCK_UNLOCKED;
++
++static ssize_t psaux_read(struct file * file, char * buffer, size_t count, loff_t *ppos)
 +{
-+	int i;
++	struct psreader *pr = file->private_data;
++	int copied = 0;
++	int err = 0;
++	DEFINE_WAIT(wait);
 +
-+	/*
-+	 * Reset setting for Compose key. Let Compose be KEY_COMPOSE.
-+	 */
-+	lk->keycode[0xb1] =3D KEY_COMPOSE;
-+
-+	/*
-+	 * Print keyboard name and modify Compose=3DAlt on user's request.
-+	 */
-+	switch (lk->id[4]) {
-+		case 1:
-+			sprintf (lk->name, "DEC LK201 keyboard");
-+
-+			if (lk201_compose_is_alt)
-+				lk->keycode[0xb1] =3D KEY_LEFTALT;
-+			break;
-+
-+		case 2:
-+			sprintf (lk->name, "DEC LK401 keyboard");
-+			break;
-+
-+		default:
-+			sprintf (lk->name, "Unknown DEC keyboard");
-+			printk (KERN_ERR "lkkbd: keyboard on %s is unknown, "
-+					"please report to Jan-Benedict Glaw "
-+					"<jbglaw@lug-owl.de>\n", lk->phys);
-+			printk (KERN_ERR "lkkbd: keyboard ID'ed as:");
-+			for (i =3D 0; i < LK_NUM_IGNORE_BYTES; i++)
-+				printk (" 0x%02x", lk->id[i]);
-+			printk ("\n");
-+			break;
++	if (!count) return 0;
++	while(!copied && !err) {
++		prepare_to_wait(&waitq, &wait, TASK_INTERRUPTIBLE);
++		while (count && pr->head != pr->tail) {
++			int h = pr->head;
++			int t = pr->tail;
++			if (t < h)
++				t = BUFSIZE;
++			if (t - h > count)
++				t = h + count;
++			if (copy_to_user(buffer+copied, pr->buf+h, t-h)) {
++				err = -EFAULT;
++				break;
++			}
++			copied += t-h;
++			count -= t-h;
++			if (t == BUFSIZE) t = 0;
++			pr->head = t;
++		}
++		if (err || copied) break;
++		if ((file->f_flags & O_NONBLOCK))
++			err = -EAGAIN;
++		else 
++			schedule();
++		if (signal_pending(current))
++			err = -EINTR;
 +	}
-+	printk (KERN_INFO "lkkbd: keyboard on %s identified as: %s\n",
-+			lk->phys, lk->name);
-+
-+	/*
-+	 * Report errors during keyboard boot-up.
-+	 */
-+	switch (lk->id[2]) {
-+		case 0x00:
-+			/* All okay */
-+			break;
-+
-+		case LK_STUCK_KEY:
-+			printk (KERN_ERR "lkkbd: Stuck key on keyboard at "
-+					"%s\n", lk->phys);
-+			break;
-+
-+		case LK_SELFTEST_FAILED:
-+			printk (KERN_ERR "lkkbd: Selftest failed on keyboard "
-+					"at %s, keyboard may not work "
-+					"properly\n", lk->phys);
-+			break;
-+
-+		default:
-+			printk (KERN_ERR "lkkbd: Unknown error %02x on "
-+					"keyboard at %s\n", lk->id[2],
-+					lk->phys);
-+			break;
-+	}
-+
-+	/*
-+	 * Try to hint user if there's a stuck key.
-+	 */
-+	if (lk->id[2] =3D=3D LK_STUCK_KEY && lk->id[3] !=3D 0)
-+		printk (KERN_ERR "Scancode of stuck key is 0x%02x, keycode "
-+				"is 0x%04x\n", lk->id[3],
-+				lk->keycode[lk->id[3]]);
-+
-+	return;
++	finish_wait(&waitq, &wait);
++	if (copied)
++		return copied;
++	else
++		return err;
 +}
 +
- /*
-  * lkkbd_interrupt() is called by the low level driver when a character
-  * is received.
-@@ -329,7 +423,11 @@
- 	if (lk->ignore_bytes > 0) {
- 		DBG (KERN_INFO "Ignoring a byte on %s\n",
- 				lk->name);
--		lk->ignore_bytes--;
-+		lk->id[LK_NUM_IGNORE_BYTES - lk->ignore_bytes--] =3D data;
++static ssize_t psaux_write(struct file * file, const char * buffer, size_t count, loff_t *ppos)
++{
++	unsigned char c;
++	int i;
++	struct psreader *pr = file->private_data;
++	struct psdev *ps = pr->dev;
 +
-+		if (lk->ignore_bytes =3D=3D 0)
-+			lkkbd_detection_done (lk);
++	if (count == 0 ) return 0;
++	for (i = 0; i < count ; i++) {
 +
- 		return IRQ_HANDLED;
- 	}
-=20
-@@ -375,7 +473,8 @@
- 			break;
- 		case 0x01:
- 			DBG (KERN_INFO "Got 0x01, scheduling re-initialization\n");
--			lk->ignore_bytes =3D 3;
-+			lk->ignore_bytes =3D LK_NUM_IGNORE_BYTES;
-+			lk->id[LK_NUM_IGNORE_BYTES - lk->ignore_bytes--] =3D data;
- 			schedule_work (&lk->tq);
- 			break;
-=20
-@@ -389,7 +488,7 @@
- 				input_sync (&lk->dev);
-                         } else
-                                 printk (KERN_WARNING "%s: Unknown key with=
- "
--						"scancode %02x on %s.\n",
-+						"scancode 0x%02x on %s.\n",
- 						__FILE__, data, lk->name);
- 	}
-=20
-@@ -467,6 +566,9 @@
- 	unsigned char leds_on =3D 0;
- 	unsigned char leds_off =3D 0;
-=20
-+	/* Ask for ID */
-+	lk->serio->write (lk->serio, LK_CMD_REQUEST_ID);
++		if (get_user(c, buffer + i))
++			return -EFAULT;
 +
- 	/* Reset parameters */
- 	lk->serio->write (lk->serio, LK_CMD_SET_DEFAULTS);
-=20
-@@ -527,9 +629,7 @@
-=20
- 	if ((serio->type & SERIO_TYPE) !=3D SERIO_RS232)
- 		return;
--	if (!(serio->type & SERIO_PROTO))
--		return;
--	if ((serio->type & SERIO_PROTO) && (serio->type & SERIO_PROTO) !=3D SERIO=
-_LKKBD)
-+	if ((serio->type & SERIO_PROTO) !=3D SERIO_LKKBD)
- 		return;
-=20
- 	if (!(lk =3D kmalloc (sizeof (struct lkkbd), GFP_KERNEL)))
-@@ -537,10 +637,16 @@
- 	memset (lk, 0, sizeof (struct lkkbd));
-=20
- 	init_input_dev (&lk->dev);
--
--	lk->dev.evbit[0] =3D BIT (EV_KEY) | BIT (EV_LED) | BIT (EV_SND) | BIT (EV=
-_REP);
--	lk->dev.ledbit[0] =3D BIT (LED_CAPSL) | BIT (LED_COMPOSE) | BIT (LED_SCRO=
-LLL) | BIT (LED_SLEEP);
--	lk->dev.sndbit[0] =3D BIT (SND_CLICK) | BIT (SND_BELL);
-+	set_bit (EV_KEY, lk->dev.evbit);
-+	set_bit (EV_LED, lk->dev.evbit);
-+	set_bit (EV_SND, lk->dev.evbit);
-+	set_bit (EV_REP, lk->dev.evbit);
-+	set_bit (LED_CAPSL, lk->dev.ledbit);
-+	set_bit (LED_SLEEP, lk->dev.ledbit);
-+	set_bit (LED_COMPOSE, lk->dev.ledbit);
-+	set_bit (LED_SCROLLL, lk->dev.ledbit);
-+	set_bit (SND_BELL, lk->dev.sndbit);
-+	set_bit (SND_CLICK, lk->dev.sndbit);
-=20
- 	lk->serio =3D serio;
-=20
-@@ -564,14 +670,13 @@
- 		return;
- 	}
-=20
--	sprintf (lk->name, "LK keyboard");
-+	sprintf (lk->name, "DEC LK keyboard");
-+	sprintf (lk->phys, "%s/input0", serio->phys);
-=20
- 	memcpy (lk->keycode, lkkbd_keycode, sizeof (lk_keycode_t) * LK_NUM_KEYCOD=
-ES);
- 	for (i =3D 0; i < LK_NUM_KEYCODES; i++)
- 		set_bit (lk->keycode[i], lk->dev.keybit);
-=20
--	sprintf (lk->name, "%s/input0", serio->phys);
--
- 	lk->dev.name =3D lk->name;
- 	lk->dev.phys =3D lk->phys;
- 	lk->dev.id.bustype =3D BUS_RS232;
-@@ -599,9 +704,9 @@
- }
-=20
- static struct serio_dev lkkbd_dev =3D {
--	.interrupt =3D lkkbd_interrupt,
- 	.connect =3D lkkbd_connect,
- 	.disconnect =3D lkkbd_disconnect,
-+	.interrupt =3D lkkbd_interrupt,
- };
-=20
- /*
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---mWEPrn9k3Wj8m9KK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAhmuoHb1edYOZ4bsRAvllAJ9pBHNkOS4USDMe7NAEUXU9jH9vTQCfef1Q
-lVNqdUX2URLl3B0rauRLd6U=
-=YtF3
------END PGP SIGNATURE-----
-
---mWEPrn9k3Wj8m9KK--
++		if (ps == NULL && !list_empty(&psdevs))
++			ps = list_entry(psdevs.next, struct psdev, list);
++		if (ps)
++			if (serio_write(ps->serio, c))
++				break;
++	}
++	if (i == 0) return -EIO;
++	return i;
++}
++
++static unsigned int psaux_poll(struct file *file, poll_table *wait)
++{
++	struct psreader *pr = file->private_data;
++	poll_wait(file, &waitq, wait);
++
++	if (pr->head != pr->tail) 
++		return POLLIN | POLLRDNORM;
++	return 0;
++}
++
++static int psaux_open(struct inode * inode, struct file * file)
++{
++	struct psreader *pr = kmalloc(sizeof(*pr), GFP_KERNEL);
++	if (pr == NULL)
++		return -ENOMEM;
++	memset(pr, 0, sizeof(*pr));
++	spin_lock_irq(&lock);
++	list_add(&pr->list, &psreaders);
++	file->private_data = pr;
++	spin_unlock_irq(&lock);
++	return 0;
++}
++
++static int psaux_release(struct inode * inode, struct file * file)
++{
++	struct psreader *pr = file->private_data;
++	spin_lock_irq(&lock);
++	list_del(&pr->list);
++	if (pr->dev)
++		pr->dev->reader = NULL;
++	spin_unlock_irq(&lock);
++	kfree(pr);
++	return 0;
++}
++
++
++struct file_operations psaux_fops = {
++	.owner =	THIS_MODULE,
++	.read =		psaux_read,
++	.write =	psaux_write,
++	.poll =		psaux_poll,
++	.open =		psaux_open,
++	.release =	psaux_release,
++/*	.fasync =	psaux_fasync, */
++};
++
++static struct miscdevice psaux = {
++	PSMOUSE_MINOR, "psaux", &psaux_fops
++};
++
++
++static irqreturn_t psaux_interrupt(struct serio *serio,
++				   unsigned char data, unsigned int flags,
++				   struct pt_regs *regs)
++{
++	struct psdev *ps = serio->private;
++	struct psreader *pr = ps->reader;
++	unsigned long iflags;
++
++/*	printk("got %x\n", data); */
++	spin_lock_irqsave(lock, iflags);
++	if (pr) {
++		if ((pr->tail+1) % BUFSIZE != pr->head) {
++			/* there is room */
++			pr->buf[pr->tail] = data;
++			pr->tail = (pr->tail+1) % BUFSIZE;
++		}
++	} else
++	list_for_each_entry(pr, &psreaders, list) {
++		if (pr->dev == NULL) {
++			if ((pr->tail+1) % BUFSIZE != pr->head) {
++				/* there is room */
++				pr->buf[pr->tail] = data;
++				pr->tail = (pr->tail+1) % BUFSIZE;
++			}
++		}
++	}
++	spin_unlock_irqrestore(lock, iflags);
++	wake_up(&waitq);
++	return IRQ_HANDLED;
++}
++
++static void psaux_connect(struct serio *serio, struct serio_dev *dev)
++{
++	struct psdev *ps;
++	printk("psaux connect\n");
++	if ((serio->type & SERIO_TYPE) != SERIO_8042)
++		return;
++	ps = kmalloc(sizeof(*ps), GFP_KERNEL);
++	if (!ps)
++		return;
++
++	if (serio_open(serio, dev)) {
++		kfree(ps);
++		return; 
++	}
++	printk("Connect succeeded\n");
++	ps->serio = serio;
++	ps->reader = NULL;
++	serio->private = ps;
++	spin_lock_irq(&lock);
++	list_add(&ps->list, &psdevs);
++	spin_unlock_irq(&lock);
++}
++
++static void psaux_disconnect(struct serio *serio)
++{
++	struct psdev *ps = serio->private;
++
++	if (ps->reader)
++		ps->reader->dev = NULL;
++	spin_lock_irq(&lock);
++	list_del(&ps->list);
++	spin_unlock_irq(&lock);
++	serio_close(serio);
++	kfree(ps);
++}
++
++static void psaux_cleanup(struct serio *serio)
++{
++}
++
++
++static struct serio_dev psaux_dev = {
++	.interrupt =	psaux_interrupt,
++	.connect =	psaux_connect,
++	.disconnect =	psaux_disconnect,
++	.cleanup =	psaux_cleanup,
++};
++
++
++int __init psaux_init(void)
++{
++	serio_register_device(&psaux_dev);
++	misc_register(&psaux);
++	return 0;
++}
++
++void __exit psaux_exit(void)
++{
++	misc_deregister(&psaux);
++	serio_unregister_device(&psaux_dev);
++}
++
++module_init(psaux_init);
++module_exit(psaux_exit);

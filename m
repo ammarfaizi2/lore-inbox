@@ -1,39 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272383AbRH3SEL>; Thu, 30 Aug 2001 14:04:11 -0400
+	id <S272385AbRH3SKU>; Thu, 30 Aug 2001 14:10:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272384AbRH3SEA>; Thu, 30 Aug 2001 14:04:00 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:57103 "EHLO
-	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S272383AbRH3SDs>; Thu, 30 Aug 2001 14:03:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Christian Armingeon <johnny@allesklar.de>
-To: Gerd Knorr <kraxel@bytesex.org>, linux-kernel@vger.kernel.org
-Subject: Re: HW ethernet address problems with 8139too and 2.4.9
-Date: Thu, 30 Aug 2001 20:10:40 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <15820.999163539@www56.gmx.net> <slrn9os4lf.469.kraxel@bytesex.org>
-In-Reply-To: <slrn9os4lf.469.kraxel@bytesex.org>
-MIME-Version: 1.0
-Message-Id: <01083020104000.00903@gundi>
-Content-Transfer-Encoding: 7BIT
+	id <S272387AbRH3SKL>; Thu, 30 Aug 2001 14:10:11 -0400
+Received: from mailhost.nmt.edu ([129.138.4.52]:43533 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S272385AbRH3SKI>;
+	Thu, 30 Aug 2001 14:10:08 -0400
+Date: Thu, 30 Aug 2001 12:10:25 -0600
+From: Val Henson <val@nmt.edu>
+To: kuznet@ms2.inr.ac.ru
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Lost TCP retransmission timer (was Re: tcp connection hangs on connect)
+Message-ID: <20010830121025.A15880@boardwalk>
+In-Reply-To: <20010829195259.B11544@boardwalk> <200108301621.UAA05134@ms2.inr.ac.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200108301621.UAA05134@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Thu, Aug 30, 2001 at 08:21:16PM +0400
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 30. August 2001 12:17, Gerd Knorr wrote:
-> Hans-Christian Armingeon wrote:
-> >  Hi gurus,
-> >  I've got a problem with an Elitegroup K7AMA onboard rtl8139C LAN.
-> >  ifconfig shows me the hardware address ff:ff:ff:ff:ff:ff. So I'm not
-> >  able to get an tcp/ip connection. Under w2k professional everything
-> > works fine.
-> >  Any suggestions?
->
-> The f*** rtl windows driver does that.  You can do:
-I didn't run windows before that on the system, the processor was a "virgin"
->
-> (1) stop booting windows
-> (2) ifconfig eth0 hw ether ...  at a reasonable place in the boot
->     scripts
->
->   Gerd
+On Thu, Aug 30, 2001 at 08:21:16PM +0400, kuznet@ms2.inr.ac.ru wrote:
+> 
+> Your hopes were groundless.
+> Actually, you could change subject, this apparently has nothing
+> to do with your problem and this is misleading.
+
+You're right.  I thought the subject was "tcp connection hangs." :)
+
+> I have no idea what happens in your case, apparently, retransmission
+> timer is lost on sender, which is absolutely impossible. :-)
+> Well, send me cat of /proc/tcp after the stall happened.
+
+At least one of the tcpdumps I took showed at least one successful
+retransmission before the failure.  Here's /proc/tcp at 1 second
+intervals, starting just before the connection starts and ending after
+I kill it.  It looks to me like the timer is going off but the segment
+isn't getting transmitted.
+
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 00000000:00000000 02:000AFC42 00000000     0        0 1502 3 c05c0040 21 4 5 2 -1                               
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 00000000:00000000 02:000AFBDD 00000000     0        0 1502 2 c05c0040 21 4 5 2 -1                               
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 00003890:00000000 01:00000011 00000000     0        0 1502 9 c05c0040 21 4 1 2 2                                
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:00000007 00000001     0        0 1502 15 c05c0040 46 4 1 1 2                               
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:000000B5 00000003     0        0 1502 15 c05c0040 184 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:0000004F 00000003     0        0 1502 15 c05c0040 184 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:00000159 00000004     0        0 1502 15 c05c0040 368 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:000000F3 00000004     0        0 1502 15 c05c0040 368 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:0000008D 00000004     0        0 1502 15 c05c0040 368 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:00000027 00000004     0        0 1502 15 c05c0040 368 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:000002A1 00000005     0        0 1502 15 c05c0040 736 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:0000023B 00000005     0        0 1502 15 c05c0040 736 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:000001D5 00000005     0        0 1502 15 c05c0040 736 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:0000016F 00000005     0        0 1502 15 c05c0040 736 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:00000109 00000005     0        0 1502 15 c05c0040 736 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:000000A3 00000005     0        0 1502 15 c05c0040 736 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 773 1 c05c0360 300 0 0 2 -1                               
+   1: C6116429:0016 C611642A:046B 01 000032E8:00000000 01:0000003D 00000005     0        0 1502 15 c05c0040 736 4 1 1 2                              
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 7

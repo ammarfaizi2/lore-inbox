@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264691AbSJUCDo>; Sun, 20 Oct 2002 22:03:44 -0400
+	id <S264692AbSJUCX4>; Sun, 20 Oct 2002 22:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264692AbSJUCDo>; Sun, 20 Oct 2002 22:03:44 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:7559 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S264691AbSJUCDn>; Sun, 20 Oct 2002 22:03:43 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 20 Oct 2002 19:18:27 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Andrew Morton <akpm@digeo.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sys_epoll ...
-In-Reply-To: <3DB35FF0.1E967894@digeo.com>
-Message-ID: <Pine.LNX.4.44.0210201915490.959-100000@blue1.dev.mcafeelabs.com>
+	id <S264693AbSJUCX4>; Sun, 20 Oct 2002 22:23:56 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:3503 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S264692AbSJUCXz>; Sun, 20 Oct 2002 22:23:55 -0400
+Date: Sun, 20 Oct 2002 21:29:58 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Gregoire Favre <greg@ulima.unil.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.44 Oops (ISDN)
+In-Reply-To: <20021020171306.GA15607@ulima.unil.ch>
+Message-ID: <Pine.LNX.4.44.0210202127380.25262-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Oct 2002, Andrew Morton wrote:
+On Sun, 20 Oct 2002, Gregoire Favre wrote:
 
-> Well I'm assuming that you don't want to sleep if, say,
-> ep->eventcnt is non-zero.  The code is currently (simplified):
->
-> 	add_wait_queue(...);
-> 	if (ep->eventcnt)
-> 		break;
-> 	/* window here */
-> 	set_current_state(TASK_INTERRUPTIBLE);
-> 	schedule();
->
-> If another CPU increments eventcnt and sends this task a wakeup in that
-> window, it is missed and we still sleep.  The conventional fix for that
-> is:
->
-> 	add_wait_queue(...);
-> 	set_current_state(TASK_INTERRUPTIBLE);
-> 	if (ep->eventcnt)
-> 		break;
-> 	/* harmless window here */
-> 	schedule();
->
-> So if someone delivers a wakeup in the "harmless window" then this task
-> still calls schedule(), but the wakeup has turned the state from
-> TASK_INTERRUPTIBLE into TASK_RUNNING, so the schedule() doesn't actually
-> take this task off the runqueue.  This task will zoom straight through the
-> schedule() and will then loop back and notice the incremented ep->eventcnt.
->
-> So it is important that the waker increment eventcnt _before_ delivering
-> the wake_up, too.
+> (syncppp don't compil already reported)
 
-It's true ... but the window is pretty small there :) Anyway it makes the
-code more correct and I changed it. I have the new patch with your
-suggestions ready and I will post as sonn as it'll pass a few tests.
+Yup, that's known, I'm working on it.
 
+> as 2.5.44 with syncppp doesn't compil, I tried to compil without, but it
+> Oops at boot:
 
+Someone converted HiSax to struct workqueue, which is not really the right 
+fix, BTW, and messed up.
 
-- Davide
+ISDN has been badly broken by removing various old-fashioned APIs, it'll 
+take a bit to stabilize again.
 
+--Kai
 

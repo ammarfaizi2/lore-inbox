@@ -1,83 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbUBVTVh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 14:21:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbUBVTVh
+	id S261730AbUBVTWG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 14:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbUBVTWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 14:21:37 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:56715 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261729AbUBVTVf
+	Sun, 22 Feb 2004 14:22:06 -0500
+Received: from h24-82-88-106.vf.shawcable.net ([24.82.88.106]:25475 "HELO
+	tinyvaio.nome.ca") by vger.kernel.org with SMTP id S261730AbUBVTWE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 14:21:35 -0500
-Date: Sun, 22 Feb 2004 21:22:11 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       "Amit S. Kale" <akale@users.sourceforge.net>
-Subject: Re: [1/3] kgdb-lite for 2.6.3
-Message-ID: <20040222202211.GA2063@mars.ravnborg.org>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Andrew Morton <akpm@zip.com.au>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	"Amit S. Kale" <akale@users.sourceforge.net>
-References: <20040222160417.GA9535@elf.ucw.cz>
+	Sun, 22 Feb 2004 14:22:04 -0500
+Date: Sun, 22 Feb 2004 11:22:39 -0800
+From: kernel@mikebell.org
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: JFS default behavior / UTF-8 filenames
+Message-ID: <20040222192237.GC540@tinyvaio.nome.ca>
+References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr> <20040219105913.GE432@tinyvaio.nome.ca> <1077199506.2275.12.camel@shaggy.austin.ibm.com> <20040219234746.GG432@tinyvaio.nome.ca> <1077289257.2533.23.camel@shaggy.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040222160417.GA9535@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1077289257.2533.23.camel@shaggy.austin.ibm.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just some random comments after browsing the code.
+On Fri, Feb 20, 2004 at 09:00:58AM -0600, Dave Kleikamp wrote:
+> With no iocharset specified, a filename with such a character will be
+> inaccessible.  Probably the best thing for readdir to do is to
+> substitute a '?' and print a message to the syslog to mount the volume
+> with iocharset=utf8 to be able to access the file.  Of course I would
+> limit the number of printk's to something small.  I'll submit a patch to
+> do this.
 
-	Sam
+And that's why I was saying I think UTF-8 mode is the "least broken" for
+any filesystem that stores filenames in a specific encoding rather than
+"as the client submitted it". And most especially for UCS-2/UTF-16
+filesystems.
 
-> +
-> +int kgdb_hexToLong(char **ptr, long *longValue);
-A patch has been posted by Tom Rini to convert this to the
-linux naming: kgdb_hex2long(...).
-
-+static const char hexchars[] = "0123456789abcdef";
-Grepping after 0123456789 in the src tree gives a lot of hits.
-Maybe we should pull in some functionality from klibc, and place it in lib/
-at some point in time.
-
-+
-+static char remcomInBuffer[BUFMAX];
-+static char remcomOutBuffer[BUFMAX];
-This does not follow usual Linux naming convention.
-Something like: remcom_in_buf, remcom_out_buf?
-
-> +static void getpacket(char *buffer)
-> +{
-> +	unsigned char checksum;
-> +	unsigned char xmitcsum;
-> +	int i;
-> +	int count;
-> +	char ch;
-> +
-> +	do {
-> +	/* wait around for the start character, ignore all other characters */
-> +		while ((ch = (kgdb_serial->read_char() & 0x7f)) != '$');
-
-Placing ';' on a seperate line would be good for the readability.
-
-
-> +int kgdb_handle_exception(int exVector, int signo, int err_code, 
-> +                     struct pt_regs *linux_regs)
-> +{
-> +	unsigned long length, addr;
-> +	char *ptr;
-> +	unsigned long flags;
-> +	unsigned long gdb_regs[NUMREGBYTES / sizeof (unsigned long)];
-> +	int i;
-> +	long threadid;
-> +	threadref thref;
-> +	struct task_struct *thread = NULL;
-> +	unsigned procid;
-> +	static char tmpstr[256];
-
-Too? large varriable on the stack.
-
+I think the default for a filesystem should be something that absolutely
+will not disappear your files. So for NTFS/JFS, it should be UTF-8. And
+if a traditional UNIX filesystem wants to do a UTF-8 only mode, I think
+ideally it should be done at mkfs time rather than mount time.

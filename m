@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284711AbRLRTJy>; Tue, 18 Dec 2001 14:09:54 -0500
+	id <S284694AbRLRTJx>; Tue, 18 Dec 2001 14:09:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284775AbRLRTGs>; Tue, 18 Dec 2001 14:06:48 -0500
-Received: from pc3-stoc4-0-cust138.mid.cable.ntl.com ([213.107.175.138]:45316
-	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
-	id <S284759AbRLRTG1>; Tue, 18 Dec 2001 14:06:27 -0500
-Date: Tue, 18 Dec 2001 19:06:21 +0000
-From: Ian Chilton <ian@ichilton.co.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: 2.4.17-rc1 wont do nfs root on Javastation
-Message-ID: <20011218190621.A28147@buzz.ichilton.local>
-Reply-To: Ian Chilton <ian@ichilton.co.uk>
-In-Reply-To: <20011214181816.B28794@woody.ichilton.co.uk> <20011215.220646.69411478.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011215.220646.69411478.davem@redhat.com>
-User-Agent: Mutt/1.3.23i
+	id <S284795AbRLRTIT>; Tue, 18 Dec 2001 14:08:19 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1029 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284744AbRLRTHh>; Tue, 18 Dec 2001 14:07:37 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: How to use >3G memory per process
+Date: 18 Dec 2001 11:07:27 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9vo45f$idr$1@cesium.transmeta.com>
+In-Reply-To: <OHEPLPGMMIEGHANJIEBAIEPKCEAA.wydeng@platodesign.com> <200112181837.fBIIbUF02685@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Followup to:  <200112181837.fBIIbUF02685@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+By author:    Wayne Whitney <whitney@math.berkeley.edu>
+In newsgroup: linux.dev.kernel
+>
+> In mailing-lists.linux-kernel, you wrote:
+> 
+> > [1] What need to be done for the kernel to support 3.5G or more user
+> > address space per process?
+> 
+> On ia32, change the value of __PAGE_OFFSET (where kernel space starts)
+> in include/asm-i386/page.h.  The size of kernel space must be a power
+> of 2, so you can change __PAGE_OFFSET from its default of 0xC0000000
+> to either 0xE0000000 (reasonable) or 0xF0000000 (overboard ?).
+> You must also change the unlabeled value near the top of
+> arch/i386/vmlinux.lds to match the value of __PAGE_OFFSET.
+> 
 
-> Add "root=nfs" to your kernel command line.
+Note that this does break the (old) initrd protocol.  Compile your
+kernel monolithic.
 
-I checked with Pete and as I suspected, putting kernel parameters on the
-command line doesn't work as proll just drops them.
-
-So, I made a bit of a hack:
-
-[ian@slinky:~/tmp/js/linux/arch/sparc/kernel]$ diff -u setup.c.orig
-setup.c
---- setup.c.orig        Sat Nov 17 00:30:25 2001
-+++ setup.c     Tue Dec 18 19:44:16 2001
-@@ -306,6 +306,10 @@
- 
-        /* Initialize PROM console and command line. */
-        *cmdline_p = prom_getbootargs();
-+
-+       /* Hack to hard code root=nfs. */
-+       strcat(*cmdline_p,"root=nfs");
-+
-        strcpy(saved_command_line, *cmdline_p);
- 
-        /* Set sparc_cpu_model */
-
-
-Now when it boots, it says "Kernel command line: root=nfs" but still,
-the kernel does not try and do the IP-Config/bootp stuff so it fails
-saying it can't find the NFS server which is obvious as it doesn't have
-an ip etc...
-
-
-Any other ideas?
-
-
-Thanks!
-
-Ian
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

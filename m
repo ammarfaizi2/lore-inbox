@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266903AbSKOWjD>; Fri, 15 Nov 2002 17:39:03 -0500
+	id <S266795AbSKOWgc>; Fri, 15 Nov 2002 17:36:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266888AbSKOWjC>; Fri, 15 Nov 2002 17:39:02 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57605 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266886AbSKOWjB>;
-	Fri, 15 Nov 2002 17:39:01 -0500
-Message-ID: <3DD57906.3060404@pobox.com>
-Date: Fri, 15 Nov 2002 17:45:26 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
+	id <S266839AbSKOWgc>; Fri, 15 Nov 2002 17:36:32 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:46862
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S266795AbSKOWgb>; Fri, 15 Nov 2002 17:36:31 -0500
+Date: Fri, 15 Nov 2002 17:46:33 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: John Levon <levon@movementarian.org>
+cc: Dipankar Sarma <dipankar@in.ibm.com>, Corey Minyard <cminyard@mvista.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NMI handling rework for x86
+In-Reply-To: <20021115174122.GA83229@compsoc.man.ac.uk>
+Message-ID: <Pine.LNX.4.44.0211151743250.1810-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PARAM 1/4: strcspn
-References: <20021115222725.1A56F2C0FA@lists.samba.org>
-In-Reply-To: <20021115222725.1A56F2C0FA@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Should we assume from $subject that namespace abuse is still occurring?
+On Fri, 15 Nov 2002, John Levon wrote:
 
-PARAM is way too generic, and while you may not like MODULE_PARAM or 
-KPARAM or similar, I should hope it's self-evident that "param" i.e. 
-"parameters" can apply to a great many things inside the kernel.
+> Zwane you're going to have describe a race if you think you can see one
+> - neither I nor Dipankar follow your point
 
-"PARAM" definitely does not suggest to the casual reader "kernel boot 
-command line arguments, or, module arguments"
+My apologies gentlemen, i stand corrected, my statements were based on my 
+misunderstanding of the RCU code.
 
-	Jeff
+Dipankar thanks for taking the time to drill it in.
 
-
+Regards,
+	Zwane
+-- 
+function.linuxpower.ca
 

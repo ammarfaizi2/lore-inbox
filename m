@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264608AbTFELKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 07:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264610AbTFELKQ
+	id S264611AbTFELO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 07:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264612AbTFELO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 07:10:16 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22663
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264608AbTFELKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 07:10:15 -0400
+	Thu, 5 Jun 2003 07:14:28 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:23009 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264611AbTFELO2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 07:14:28 -0400
+Date: Thu, 05 Jun 2003 04:25:37 -0700 (PDT)
+Message-Id: <20030605.042536.41633837.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: jgarzik@pobox.com, margitsw@t-online.de, linux-kernel@vger.kernel.org
 Subject: Re: PCI cache line messages 2.4/2.5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Margit Schubert-While <margitsw@t-online.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1054811157.19407.3.camel@rth.ninka.net>
-References: <5.1.0.14.2.20030602084908.00aed558@pop.t-online.de>
-	 <3EDE7522.8040206@pobox.com>
-	 <1054809554.15276.8.camel@dhcp22.swansea.linux.org.uk>
-	 <1054811157.19407.3.camel@rth.ninka.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054812011.15276.37.camel@dhcp22.swansea.linux.org.uk>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1054812011.15276.37.camel@dhcp22.swansea.linux.org.uk>
+References: <1054809554.15276.8.camel@dhcp22.swansea.linux.org.uk>
+	<1054811157.19407.3.camel@rth.ninka.net>
+	<1054812011.15276.37.camel@dhcp22.swansea.linux.org.uk>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Jun 2003 12:20:12 +0100
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-06-05 at 12:05, David S. Miller wrote:
-> I don't know how PnP OS plays into it, but the last time I dug into this
-> deep dark area, the BIOS was expected to setup the cache line size for
-> all PCI devices in the system.
-
-With a non PnP OS the BIOS is supposed to have done a lot of the setup
-for things like IRQ routing. With a PnP OS (and nowdays thats often not
-even a selectable but a wired in property) the OS has to do a lot of
-the work.
-
-And then there is hotplug
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 05 Jun 2003 12:20:12 +0100
+   
+   And then there is hotplug
+   
+My understanding is that the bioses do the cacheline, irq,
+etc. assignment via BIOS callbacks done by the PCI controller hotplug
+driver.
 

@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318357AbSHEJei>; Mon, 5 Aug 2002 05:34:38 -0400
+	id <S318351AbSHEJlQ>; Mon, 5 Aug 2002 05:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318358AbSHEJeh>; Mon, 5 Aug 2002 05:34:37 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:60426 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S318357AbSHEJeh>; Mon, 5 Aug 2002 05:34:37 -0400
-Message-ID: <3D4E464F.3000306@evision.ag>
-Date: Mon, 05 Aug 2002 11:33:03 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-CC: martin@dalecki.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE udma_status = 0x76 and 2.5.30...
-References: <20020804222542.GH13053@ppc.vc.cvut.cz>
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+	id <S318355AbSHEJlQ>; Mon, 5 Aug 2002 05:41:16 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:22012 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318351AbSHEJlP>; Mon, 5 Aug 2002 05:41:15 -0400
+Subject: Re: HFS-Bug in 2.4.19
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: pil@mailnet.de
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D4E435B.1EE20956@mailnet.de>
+References: <3D4E435B.1EE20956@mailnet.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Aug 2002 12:03:28 +0100
+Message-Id: <1028545408.17775.26.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Petr Vandrovec napisa?:
-> Hi,
->    patch below fixes troubles with PDC20265 reporting udma_status = 0x76
-> with kernels since pcidma cleanup (it was already reported here, but
-> I did not found patch for it). Code before change (IDE110) set highest
-> bit of last dword to 1 on all devices except TRM290. New code
-> set it only on TRM290 devices, which breaks at least mine PDC20265.
-> Please send it to Linus in your next update.
+On Mon, 2002-08-05 at 10:20, pil@mailnet.de wrote:
+> here is my 4th report since about 2.4.8:
+> 
+> You can reproduce the bug in a few steps if you have a kernel with
+> modules support for hfs.
 
-Yes it is obviously correct.
-
->    BTW, are there any TRM290 owners using 2.5.30? Old code set length to
-> ((length >> 2) - 1) << 16, while new code does not have special handling
-> for TRM290. Or do I miss something?
-
-The new code is overwriting those values in the host controller driver
-itself.
-
->    And BTW#2, mine problematic Toshiba disk works fine with PDC20265 with
-> 512B request size... It breaks with i845 and i440BX, under any UDMA.
-
-Hmm... It is very well possible that the Toshiba doesn't like the
-fact that the intel chipsets cheat and do something like UDMA88 instead 
-of UDMA100. Could you verify this by checking whatever forcing them to 
-UDMA66 helps please? Vojtech?
+HFS is not maintained. It will probably go away for 2.6 unless someone
+becomes its maintainer and fixes it
 

@@ -1,102 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbUKXJIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbUKXJOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbUKXJIW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 04:08:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262554AbUKXJIW
+	id S262547AbUKXJOc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 04:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbUKXJOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 04:08:22 -0500
-Received: from [81.23.229.73] ([81.23.229.73]:56779 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S261837AbUKXJIH (ORCPT
+	Wed, 24 Nov 2004 04:14:14 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:36551 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262547AbUKXJOF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 04:08:07 -0500
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-Organization: EduSupport
-To: papercrane@reversefold.com
-Subject: Re: Compact Flash - simulating a card
-Date: Wed, 24 Nov 2004 10:08:05 +0100
-User-Agent: KMail/1.6.2
-References: <432beae04112313344fb4a5f9@mail.gmail.com> <200411240642.14660.Norbert@edusupport.nl> <432beae0411240012519e976d@mail.gmail.com>
-In-Reply-To: <432beae0411240012519e976d@mail.gmail.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Wed, 24 Nov 2004 04:14:05 -0500
+Date: Wed, 24 Nov 2004 11:16:26 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-10
+Message-ID: <20041124101626.GA31788@elte.hu>
+References: <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411241008.05045.Norbert@edusupport.nl>
+In-Reply-To: <20041123175823.GA8803@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 November 2004 09:12, Justin Patrin wrote:
-> On Wed, 24 Nov 2004 06:42:14 +0100, Norbert van Nobelen
->
-> <norbert@edusupport.nl> wrote:
-> > This is actually not really of topic, so so much for getting shunted.
-> >
-> > Anyway:
-> > If you edit the modules part (manuals enough on the internet, watch your
-> > kernel version, because modules changed a bit between 2.4 and 2.6
-> > kernels), you can force the identifier of your card to be matched with a
-> > CF device. Take the best matching device.
-> > If you don't have any match at all, you have a problem, i.e. it will not
-> > work.
->
-> Well, it should be a storage device...
->
-> > I don't know the Zaurus (except from a nice picture), so I don't know
-> > what kind of port is used for the CF card (IDE? PCMCIA? other?). If it is
-> > an IDE port, it should work at once. It does not need any other
-> > information.
->
-> It's got a normal CF slot with (I think) a PCMCIA bridge. You can plug
-> in CF memory crad and microdrives as well as CF Wifi cards.
 
-Look in the logs for pcmcia messages, and the Zaurus manual for info over the 
-slot. It will help you a bit further. I would assume pcmcia too given the 
-information.
+i have released the -V0.7.30-10 Real-Time Preemption patch, which can be
+downloaded from the usual place:
 
->
-> Basically I would want to connect the CF card as an IDE device (I have
-> no idea how to expose one device as another, although I think the
-> current CF storage device driver does this).
+    http://redhat.com/~mingo/realtime-preempt/
 
-Just insert it in the slot? If that does not work. In the cs-ide module can be 
-a mistake in some 2.4 versions of the kernel: there is a dash somewhere in 
-the nameing which should be an underscore. 
+this is a fixes-only release.
 
->
-> > For the rest it sounds to me like you are doing a hardware hack.
->
-> So you think that I could force the kernel to assume that a device is
-> present? Meaning that there's no hardware-level stuff that has to
-> happen?
+the most important fixes are the ones to the priority inheritance logic
+(affecting the latency of RT tasks), discovered and reported by Esben
+Nielsen. I also found two more PI bugs running the new pi_test2 code
+from Esben.
 
-You could do that, inserting the card and just getting it to work is probably 
-easier. I have no clue yet of what the kernel will do when you convince it 
-that the card is there, and it will try to address it.
-What you could do is create a dummy device based on the ide device in which 
-you print debug information. Maybe a skeleton of such a dummy device is 
-around somewhere (google?). 
+Changes since -V0.7.30-9:
 
->
-> Of course the hard part is *where* I would edit the kernel for
-> this...probably in the PCMCIA stuff. I know that that's where the
-> timout message I was seeing was coming from.
->
-> > Regards,
-> >
-> > Norbert
-> >
-> > On Tuesday 23 November 2004 22:34, Justin Patrin wrote:
-> > > I am not currently subscribed to this list as I figure I'll be shunted
-> > > to another anyway. Please CC me on replies to this thread. If I should
-> > > be asking "someone else" whether it be another list or group, let me
-> > > know.
-> > >
-> > > I currently have a Sharp Zaurus with OpenZaurus on it. I'm trying to
-> > > connect a device to the CF slot. Would is be possible to fake the CF
-> > > "startup"? I.e. connect a dumb device (which does not understand the
-> > > CF spec itself) but have the kernel able to pass certain requests on
-> > > to it? I have tried connecting the device and it sees it (as I've
-> > > hooked up the detection pins) but something times out. Sorry, I don't
-> > > have the exact message at the moment.
+ - PI fixes:
+
+   - the waiter->prio field caused wrong priority settings upon unlock, 
+     resulting in PI bugs in the nested-locking case.
+
+   - use rt_task() when determining PI tasks, not p->policy.
+
+   - in the blocking-on-blocked-task nesting case both promote now-RT
+     tasks to the pi_waiters list and queue them to the head of the wait
+     list, and demote now-non-RT tasks from the pi_waiters list and 
+     queue them to the tail of the wait list.
+
+ - PI-debugging blocker device update from Esben Nielsen
+
+ - module build fix: export user_trace_stop symbol, this fixes the error 
+   reported by Florian Schmidt
+
+ - tracer fix: in the default !freerunning tracing mode, if the trace
+   buffer overflows (this is relatively rare, but can happen) then the
+   tracer overwrote kernel memory that leads to lockups/kernel crashes. 
+   Maybe this bug was also the source of the truncated trace bug
+   reported by Mark H. Johnson?
+
+ - reduce tracing overhead within schedule() when !tracing_enabled.
+
+to create a -V0.7.30-10 tree from scratch, the patching order is:
+
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc2.bz2
+  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm2/2.6.10-rc2-mm2.bz2
+  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc2-mm2-V0.7.30-10
+
+	Ingo

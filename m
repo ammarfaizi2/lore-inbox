@@ -1,74 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267189AbTBTWY1>; Thu, 20 Feb 2003 17:24:27 -0500
+	id <S267118AbTBTWXH>; Thu, 20 Feb 2003 17:23:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267190AbTBTWY0>; Thu, 20 Feb 2003 17:24:26 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:1665 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id <S267189AbTBTWYI>;
-	Thu, 20 Feb 2003 17:24:08 -0500
-Subject: Re: 2.5.60 cheerleading...
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Paul Larson <plars@linuxtestproject.org>,
-       John Bradford <john@grabjohn.com>, davej@codemonkey.org.uk,
-       edesio@ieee.org, lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>, edesio@task.com.br
-In-Reply-To: <20030213213850.GA22037@gtf.org>
-References: <200302131823.h1DINeZh016257@darkstar.example.net>
-	 <1045170999.28493.57.camel@plars>  <20030213213850.GA22037@gtf.org>
-Content-Type: text/plain
+	id <S267175AbTBTWXH>; Thu, 20 Feb 2003 17:23:07 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:14252 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267118AbTBTWXC>; Thu, 20 Feb 2003 17:23:02 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200302202233.h1KMX8408821@devserv.devel.redhat.com>
+Subject: Linux 2.5.62-ac1
+To: linux-kernel@vger.kernel.org
+Date: Thu, 20 Feb 2003 17:33:08 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: Open Source Development Lab, Inc.
-Message-Id: <1045780188.1429.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 20 Feb 2003 14:29:49 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry about getting back on the thread late was off doing boring
-management stuff.
+This has more IDE and PCI toys. Handle with care. This brings most of the
+quirk handling from 2.4 into 2.5. The ALi Magick one requires the video4linux
+stuff is fixed in 2.5 as well. I've not yet merged the 450NX patch to mtrr
+(450NX mtrr write combining has errata)
 
-But this is what PLM/STP does but right now it doesn't bother
-to send the results to any list.
+Linux 2.5.62-ac1
+	Merge Linus 2.5.62
+o	UNEXPECTED_IO_APIC can be static		(Pavel Machek)
+o	Update IPMI driver to version 18		(Corey Minyard)
+o	Tons of spelling fixes				(Steven Cole)
+o	FBdev updates					(James Simmons)
+o	PC-9800 update					(Osamu Tomita)
+o	Remove dead scripts				(Brian Gerst)
+o	v850 updates					(Miles Bader)
+o	Update 3c523 to new MCA api (untested)		(James Bottomley)
+o	Toshiba keyboard workaround			(Pavel Machek)
+o	Fix mremap file name in comments		(Paul Larson)
+o	Firestream typo fixes				(Maciej Soltysiak)
+o	Backport trident reset fix from 2.4		(Muli Ben-Yehuda)
+o	Morse code panics are back!			(Tomas Szepe)
+o	Fix aicasm build				(Bob Tracy)
+o	Fixes for 700/710 drivers			(Rolf Eike Beer)
+o	Spelling fixes					(Rolf Eike Beer)
+o	Optimise CRC32					(Joakim Tjernlund)
+o	Next batch of v850 updates			(Miles Bader)
+o	Takayoshi Kochi has moved email			(Takayoshi Kochi)
+o	SunRPC race fix					(Trond Myklebust)
+o	Refix addr/port naming confusion in IDE iops	(me)
+o	Forward port VIA APIC handling quirks		(me)
+o	Forward port ALi magick quirk flag handler	(me)
+	| Needs bt848 etc to acquire the fix too
+o	Forward port IDE bases fix			(me)
+o	Forward port pci irq search for legacy IDE	(me)
 
-http://www.osdl.org/projects/26lnxstblztn/results/
+Linux 2.5.61-ac1
+	Merge Linus 2.5.61
+o	Fix aic7xxx makefile				(Sam Ravnborg)
+o	Fix ieee1394 build on Alpha			(Ben Collins)
+o	Fix isdn_net build with X.25			(Adriank Bunk)
+o	Typo fix					(Steven Bosscher)
+o	A pile of other typo fixes			(Steven Cole)
+o	C99 initializers				(Art Haas)
+o	dasd typo fix					(Maciej Soltysiak)
+o	Remove an unused variable in sunrpc		(Robert Love)
+o	Remove duplicate different BSD partition names	(Andries Brouwer)
+o	PPC plural fix					(Steven Cole)
+o	EISA driver class patches			(Marc Zyngier)
+o	VIA Rhine updates				(Roger Luethi)
+o	Further ppa scsi fix				(John Kim)
+o	Kill unused __beep				(Hugh Dickins)
+o	Merge visws support 				(Andrey Panin)
+	| Some collisions with pc9800 but should be ok
+o	Limits for upward growing stacks		(Matthew Wilcox)
+o	ucLinux updates					(Greg Ungerer)
+o	68328 frame buffer updates			(Greg Ungerer)
+o	Merge ucLinux H8300 support			(Yoshinori Sato)
+o	Fix aironet compile				(Ookhoi)
+o	Fix DMA mask on OSS trident driver		(Ivan Kokshaysky)
+o	Kill some old 2.4 glue code in DRM		(John Kim)
+o	Fix compile of old "hd.c" driver		(Paul Gortmaker)
+o	Add experimental BOCHS virtualisation		(Kevin Lawton)
+o	Clean up intermezzo driver			(Adrian Bunk)
+o	Clean up rio use of compatmac			(Adrian Bunk)
+o	Remove 2.0 ifdefs from ipchains code		(Adrian Bunk)
+o	Remove old junk from efs 			(Adrian Bunk)
+o	Remove old 2.0/2.2 junk from media/video	(Adrian Bunk)
+o	Remove unused variable in ali-ircc		(Adrian Bunk)
+o	Remove 2.0 ifdefs from network drivers		(Adrian Bunk)
+o	Clean up uglies in inia100			(Adrian Bunk)
+o	Clean up uglies in i91u scsi 			(Adrian Bunk)
+o	Clean up wan drivers 2.0/2.2 code		(Adrian Bunk)
+o	Restore ontrack remap support			(Jim Houston)
+	| I'd really like to see this get turned into device mapper..
+o	Forward port emu10k1 driver to 2.5		(Rui Souza)
+o	Fix boot on EPOX 4BEA-R and friends		(Alexandar Achenbach)
+o	Switch alpha cia code to static inline		(Matt Reppert)
+o	Fix pcmcia scsi compile breakages		(Mike Anderson)
+o	EHCI workarounds				(David Brownell)
 
-Tim
-
-
-On Thu, 2003-02-13 at 13:38, Jeff Garzik wrote:
-> On Thu, Feb 13, 2003 at 03:16:29PM -0600, Paul Larson wrote:
-> > Ideally, there should be no waiting around for replies.  The message is
-> > sent, he starts whatever build/boot test cycle, checks for replies when
-> > he's done and ready to release.  If nothing looks urgent enough to hold
-> > it up, then he pushes the release.  I still don't see how this adds any
-> > kind of terrible delay.
-> 
-> Outside suggestions to "improve" Linus's workflow usually fall upon deaf
-> ears...
-> 
-> IMO to accomplish your goals, set up a test box with BitKeeper,
-> constantly pulling and testing the latest 2.5.x BK trees.  If they
-> crash, send full info to lkml.
-> 
-> Enough crash messages, and people will know automatically whether or not
-> the kernel is good... and Linus didn't have to be bothered at all.
-> 
-> 	Jeff
-> 
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
-
+Linux 2.5.60-ac1 (not published)
+	Includes Linus BK snapshot
+	Merge relevant pieces from old -ac		(me)
+	| Dropped visws and stuff thats been redone
+	| also dropped out IRQ stacks (port is tricky!)
+o	Fix build of cciss driver			(me)
+o	Fix build of 3036 tv tuner			(me)
+o	Remove i2o_lan					(me)
+o	Fix i2o_scsi					(Randy Dunlap)
+o	Fix iph5526 scsi changes (not fixed DMA)	(me)
+o	Make starfire compile				(me)
+o	Make mca-legacy warn if used			(me)
+o	Make sim710 build with EISA			(me)
+o	Make ultrastor compile				(me)
+o	Make aha152x/aha154x build			(Randy Dunlap)
+o	Fix aha154x/mca bits				(me)
+o	Fix fd_mcs build				(me)
+o	Fix NCR53c406a.c				(me)
+o	Fix sym53c416.c					(me)
+o	Fix ibmmca compile				(me)
+o	Fix ppa compile					(me)
+o	Fix NCR539x compile				(John Kim)
+o	Fix mca_53c9x compile				(me)

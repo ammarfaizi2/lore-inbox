@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262296AbSLMLt4>; Fri, 13 Dec 2002 06:49:56 -0500
+	id <S262067AbSLMLtO>; Fri, 13 Dec 2002 06:49:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262354AbSLMLt4>; Fri, 13 Dec 2002 06:49:56 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:62343 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262296AbSLMLtv>;
-	Fri, 13 Dec 2002 06:49:51 -0500
-Date: Fri, 13 Dec 2002 11:57:26 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Joseph <jospehchan@yahoo.com.tw>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-Message-ID: <20021213115726.GB31187@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Joseph <jospehchan@yahoo.com.tw>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0212111151410.1397-100000@twin.uoregon.edu> <002e01c2a1bf$4bfde0b0$3716a8c0@taipei.via.com.tw> <20021212133339.GE1145@suse.de> <004d01c2a274$915cf690$3716a8c0@taipei.via.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <004d01c2a274$915cf690$3716a8c0@taipei.via.com.tw>
-User-Agent: Mutt/1.4i
+	id <S262296AbSLMLtO>; Fri, 13 Dec 2002 06:49:14 -0500
+Received: from smtp.netcabo.pt ([212.113.174.9]:35965 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id <S262067AbSLMLtN>;
+	Fri, 13 Dec 2002 06:49:13 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: =?iso-8859-1?q?Jo=E3o=20Seabra?= <seabra@aac.uc.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Local APIC(?)+PIII mobile 
+Date: Fri, 13 Dec 2002 11:56:11 +0000
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200212131156.11262.seabra@aac.uc.pt>
+X-OriginalArrivalTime: 13 Dec 2002 11:54:55.0446 (UTC) FILETIME=[73FF9F60:01C2A29E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 13, 2002 at 02:55:04PM +0800, Joseph wrote:
+Hi all
 
- > I've checked the gcc CVS. But it seems to use i486 pluse MMX and 3DNOW
- > instructions.
- > * config.gcc: Treat winchip_c6-*|winchip2-*|c3-* as pentium-mmx.
- > * config/i386/i386.c (processor_alias_table): Add winchip-c6, winchip2 and
- > c3.
- > * doc/invoke.texi: Mention new aliases.
- > **  {"c3", PROCESSOR_I486, PTA_MMX | PTA_3DNOW},   **
- > Is there any plan to optimize for C3 CPU in future gcc released version?
+ I have an Asus S8600. 
+ Mobile PIII 800Mhz + 192M RAM.
+ If i select "Local APIC support on uniprocessors" the kernel while booting 
+says there's no APIC present.Why?
+ I know the same problem with some other laptops.
+ Others detect it.
+ 
 
-Maybe if an optimisation guide appears for the C3.
+ At home my Athlon Tunderbird + Asus A7V133-C with local APIC enabled detects 
+it but doesn seem to use it ... 
 
-		Dave
+ cat /proc/interrupts
+           CPU0
+  0:     375529          XT-PIC  timer
+  1:       7452          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:     113246          XT-PIC  bttv, eth0
+  8:          2          XT-PIC  rtc
+ 10:     144373          XT-PIC  EMU10K1
+ 11:     382444          XT-PIC  nvidia
+ 12:     153864          XT-PIC  PS/2 Mouse
+ 14:      12346          XT-PIC  ide0
+ 15:         12          XT-PIC  ide1
+NMI:          0
+ERR:          0
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+Anyway why do I need local APIC :) ?What are the advantages?Links?
+
+Thank you very much for your kindness
+
+ Best Regards,
+
+ João Seabra

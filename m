@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264242AbTFPU3I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 16:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbTFPU3I
+	id S264252AbTFPUbO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 16:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbTFPUbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 16:29:08 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:13776 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264242AbTFPU3G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 16:29:06 -0400
-Date: Mon, 16 Jun 2003 13:38:41 -0700 (PDT)
-Message-Id: <20030616.133841.35533284.davem@redhat.com>
-To: janiceg@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, stekloff@us.ibm.com,
-       girouard@us.ibm.com, lkessler@us.ibm.com, kenistonj@us.ibm.com,
-       jgarzik@pobox.com
-Subject: Re: patch for common networking error messages
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3EEE28DE.6040808@us.ibm.com>
-References: <3EEE28DE.6040808@us.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Mon, 16 Jun 2003 16:31:14 -0400
+Received: from svr7.m-online.net ([62.245.150.229]:8909 "EHLO
+	svr7.m-online.net") by vger.kernel.org with ESMTP id S264252AbTFPUbM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 16:31:12 -0400
+Date: Mon, 16 Jun 2003 22:45:04 +0200
+From: Florian Huber <florian.huber@mnet-online.de>
+To: linux-kernel@vger.kernel.org
+Subject: Can't unmount NFS - System freezes
+Message-Id: <20030616224504.0132cc1b.florian.huber@mnet-online.de>
+X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Janice M Girouard <janiceg@us.ibm.com>
-   Date: Mon, 16 Jun 2003 15:30:22 -0500
+Hello ML,
+if I try to unmount a NFS-mounted directory my system freezes.
+There is neither a error message nor a log entry.
 
-   EMSG_NET_LINK_UP     "%s: state change: link up, %d Mbps, %s-duplex\n"
+I can't type anymore, but the NUM-Lock LED can still be switched
+on/off. The host is also not ping-able.
 
-Should indicate flow control state too.
+I also tried different mount options (nfsvers=3, nfsvers=2, default or
+even my former 2.4.x settings).
 
-   EMSG_NET_START_QUEUE "%s: performance event: (re)starting netdev queue\n"
-   EMSG_NET_STOP_QUEUE  "%s: performance event: stopping netdev queue\n"
+The NFS server is a 2.4.20 machine exporting with rw,async.
+The client is using 2.5.71 (same with 2.5.70-mm9).
 
-Oh _ABSOLUTELY NOT_, you're not printing a message
-for normal events like this.  Especially those that are
-going to occur on highly loaded systems.
+I'm sorry that I can't give you a more detailed description of the
+problem. Perhaps you can give me some hints how to debug this.
+
+TIA
+	Florian Huber

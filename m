@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVATIIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262072AbVATIgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbVATIIt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 03:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVATIIs
+	id S262072AbVATIgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 03:36:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVATIgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 03:08:48 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:63496 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262075AbVATIHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 03:07:32 -0500
-Subject: Re: patch to fix set_itimer() behaviour in boundary cases
-From: Arjan van de Ven <arjan@infradead.org>
-To: george@mvista.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       matthias@corelatus.se,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41EEF284.2010600@mvista.com>
-References: <16872.55357.771948.196757@antilipe.corelatus.se>
-	 <20050115013013.1b3af366.akpm@osdl.org>
-	 <1105830384.16028.11.camel@localhost.localdomain>
-	 <1105877497.8462.0.camel@laptopd505.fenrus.org>
-	 <41EEF284.2010600@mvista.com>
-Content-Type: text/plain
-Date: Thu, 20 Jan 2005 09:07:12 +0100
-Message-Id: <1106208433.4192.0.camel@laptopd505.fenrus.org>
+	Thu, 20 Jan 2005 03:36:16 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:50567 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262072AbVATIgM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 03:36:12 -0500
+Date: Thu, 20 Jan 2005 09:35:59 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050120083559.GC12665@elte.hu>
+References: <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org> <20050113082320.GB18685@infradead.org> <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org> <1105635662.6031.35.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0501130909270.2310@ppc970.osdl.org> <41E6BE6B.6050400@comcast.net> <20050119103020.GA4417@elte.hu> <41EE96E7.3000004@comcast.net> <20050119174709.GA19520@elte.hu> <41EEA86D.7020108@comcast.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41EEA86D.7020108@comcast.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.8, required 5.9, BAYES_00 -4.90,
+	NORMAL_HTTP_TO_IP 0.10
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-19 at 15:51 -0800, George Anzinger wrote:
-> Arjan van de Ven wrote:
-> > On Sun, 2005-01-16 at 00:58 +0000, Alan Cox wrote:
-> > 
-> >>On Sad, 2005-01-15 at 09:30, Andrew Morton wrote:
-> >>
-> >>>Matthias Lang <matthias@corelatus.se> wrote:
-> >>>These are things we probably cannot change now.  All three are arguably
-> >>>sensible behaviour and do satisfy the principle of least surprise.  So
-> >>>there may be apps out there which will break if we "fix" these things.
-> >>>
-> >>>If the kernel version was 2.7.0 then well maybe...
-> >>
-> >>These are things we should fix. They are bugs. Since there is no 2.7
-> >>plan pick a date to fix it. We should certainly error the overflow case
-> >>*now* because the behaviour is undefined/broken. The other cases I'm not
-> >>clear about. setitimer() is a library interface and it can do the basic
-> >>checking and error if it wants to be strictly posixly compliant.
-> > 
-> > 
-> > why error?
-> > I'm pretty sure we can make a loop in the setitimer code that detects
-> > we're at the end of jiffies but haven't upsurped the entire interval the
-> > user requested yet, so that the code should just do another round of
-> > sleeping...
-> > 
-> That would work for sleep (but glibc uses nanosleep for that) but an itimer 
-> delivers a signal.  Rather hard to trap that in glibc.
-> 
-This one I meant to fix in the kernel fwiw; we can put that loop inside
-the kernel easily I'm sure
 
+* John Richard Moser <nigelenki@comcast.net> wrote:
+
+> On a final note, isn't PaX the only technology trying to apply NX
+> protections to kernel space? [...]
+
+NX protection for kernel-space overflows on x86 has been part of the
+mainline kernel as of June 2004 (released in 2.6.8), on CPUs that
+support the NX bit - i.e. latest AMD and Intel CPUs. Let me quote from
+the commit log:
+
+http://linux.bkbits.net:8080/linux-2.5/cset@1.1757.49.12
+
+  [...]
+  furthermore, the patch also implements 'NX protection' for kernelspace
+  code: only the kernel code and modules are executable - so even
+  kernel-space overflows are harder (in some cases, impossible) to
+  exploit. Here is how kernel code that tries to execute off the stack is
+  stopped:
+
+   kernel tried to access NX-protected page - exploit attempt? (uid: 500)
+   Unable to handle kernel paging request at virtual address f78d0f40
+    printing eip:
+   ...
+
+implemented, split out and brought to you by yours truly, as part
+of the exec-shield project. (You know, the one not developed by that 
+'scheduler developer' ;-)
+
+	Ingo

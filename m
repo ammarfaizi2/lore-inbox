@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267222AbSLKREr>; Wed, 11 Dec 2002 12:04:47 -0500
+	id <S267221AbSLKREF>; Wed, 11 Dec 2002 12:04:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267223AbSLKREm>; Wed, 11 Dec 2002 12:04:42 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:64005 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267222AbSLKREj>;
-	Wed, 11 Dec 2002 12:04:39 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212111723.gBBHNxuE008792@darkstar.example.net>
-Subject: [TRIVIAL] [PATCH] fix spelling mistake
+	id <S267222AbSLKREF>; Wed, 11 Dec 2002 12:04:05 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:64699 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267221AbSLKREE>; Wed, 11 Dec 2002 12:04:04 -0500
+Message-Id: <4.3.2.7.2.20021211175950.00aebf00@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Wed, 11 Dec 2002 18:12:09 +0100
 To: linux-kernel@vger.kernel.org
-Date: Wed, 11 Dec 2002 17:23:58 +0000 (GMT)
-Cc: linux-scsi@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.8785.1039627438--%"
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: RE: [Dri-devel] Re: 2.4.20 AGP for I845 wrong ?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---%--multipart-mixed-boundary-1.8785.1039627438--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Description: ASCII English text
-Content-Disposition: attachment; filename="patch"
+  >                intel_830mp_setup },
+ > Surely this is wrong or ?
+ > Should be "intel_845_setup", I think.
 
---- linux-2.4.20-pre1-orig/drivers/scsi/README.ncr53c8xx	2002-12-11 17:14:48.000000000 +0000
-+++ linux-2.4.20-pre1/drivers/scsi/README.ncr53c8xx	2002-12-11 17:18:24.000000000 +0000
-@@ -1025,7 +1025,7 @@
- then it will for sure win the next SCSI BUS arbitration.
- 
- Since, there is no way to know what devices are trying to arbitrate for the 
--BUS, using this feature can be extremally unfair. So, you are not advised 
-+BUS, using this feature can be extremely unfair. So, you are not advised 
- to enable it, or at most enable this feature for the case the chip lost 
- the previous arbitration (boot option 'iarb:1').
- 
+Well, I don't know. With the 830mp_setup, I get
+  (WW) RADEON(0): Bad V_BIOS checksum
+in the X log (hard) and a few other sporadic effects that I cannot nail down.
+With the intel_845_setup, everything appears to be OK.
+Board is a D845PESVL with Radeon 7500.
+As the D845G have onboard VGA and the PE not, I would suspect
+that maybe a different init sequence is necessary.
 
---%--multipart-mixed-boundary-1.8785.1039627438--%--
+Margit 
+

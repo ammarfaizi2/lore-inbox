@@ -1,162 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269362AbUIYQ4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269363AbUIYRLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269362AbUIYQ4J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 12:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269363AbUIYQ4J
+	id S269363AbUIYRLs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 13:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269365AbUIYRLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 12:56:09 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:28685 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S269362AbUIYQz6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 12:55:58 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Herbert Poetzl <herbert@13thfloor.at>, Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH] [PPC64] [TRIVIAL] Janitor whitespace in pSeries_pci.c
-Date: Sat, 25 Sep 2004 19:55:50 +0300
-User-Agent: KMail/1.5.4
-Cc: Linas Vepstas <linas@austin.ibm.com>, linux-kernel@vger.kernel.org,
-       anton@samba.org, Andrew Morton <akpm@osdl.org>
-References: <20040920221933.GB1872@austin.ibm.com> <16722.60814.732208.93234@cargo.ozlabs.ibm.com> <20040923160857.GB12071@MAIL.13thfloor.at>
-In-Reply-To: <20040923160857.GB12071@MAIL.13thfloor.at>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_WMaVByP7t0xwLQo"
-Message-Id: <200409251955.50834.vda@port.imtp.ilyichevsk.odessa.ua>
+	Sat, 25 Sep 2004 13:11:48 -0400
+Received: from dp.samba.org ([66.70.73.150]:42216 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S269363AbUIYRLp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 13:11:45 -0400
+Date: Sat, 25 Sep 2004 10:11:04 -0700
+From: Jeremy Allison <jra@samba.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+       Jeremy Allison <jra@samba.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6] smbfs & "du" illness
+Message-ID: <20040925171104.GN580@jeremy1>
+Reply-To: Jeremy Allison <jra@samba.org>
+References: <20040917205422.GD2685@bouh.is-a-geek.org> <Pine.LNX.4.58.0409250929030.2317@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409250929030.2317@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-00=_WMaVByP7t0xwLQo
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-On Thursday 23 September 2004 19:08, Herbert Poetzl wrote:
-> On Thu, Sep 23, 2004 at 08:36:46AM -0700, Paul Mackerras wrote:
-> > Herbert Poetzl writes:
-> > 
-> > > well, I'd like to know if full whitespace cleanup
-> > > (trailing and indentation) _is_ something which
-> > > is interesting for linux mainline ...
-> > 
-> > It's like this... you get to clean up the white space in a file (if
-> > you want) IF you are also doing some useful work on the file - but the
-> > whitespace cleanup and the useful work need to be separate patches in
-> > order to ease later tracking of what changed.
+On Sat, Sep 25, 2004 at 09:41:59AM -0700, Linus Torvalds wrote:
 > 
-> ah, okay, so a larger patch cleaning up the
-> whitespace issues in let's say linux/kernel or
-> linux/fs would not be appreciated ...
+> I hate to say so, but Jeremy is a git in this case.
 
-Just in case, this is the script which can be used to generate patches
-to fix whitespace in the tree. Unmodified script fixes only trailing ws
-in printks and therefore ~250 generated patches have some chance of
-acceptance.
+Thanks, I prefer POSIX fascist myself :-).
 
-Script has commented out code to fix all kinds of ws misuse.
-If enabled, it produces nearly 50 MB worth of patches.
---
-vda
+> And yes, that's a _fixed_ blocksize. When you use "stat()", and you look 
+> at "st_blocks", it's ALWAYS in 512-byte entities. It doesn't matter that 
+> "st_blksize" might be something else - when UNIX counts blocks, it counts 
+> them in 512-byte chunks.
 
---Boundary-00=_WMaVByP7t0xwLQo
-Content-Type: application/x-shellscript;
-  name="source_ws_autopatcher.sh"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="source_ws_autopatcher.sh"
+st_blocks and st_blksize are not in the POSIX spec
+(I have one on my desk, and stroke it occasionally :-)
+Besides which, on HPUX (which these extensions were
+first created for) it returns st_blocks in 8192 byte
+units, not 512, so your claim is incorrect.
 
-#!/bin/sh
+That's why I got so pissed with the extensions spec
+as it didn't specify a unit size. Rather an assume
+"all the world is 512" which is plainly wrong, I
+decided to make it a unit of bytes on the wire.
+The client can then return in the correct blocksize
+for it's own system.
 
-tree=linux-2.6.7-bk20.src
-prefix="source_ws"
+> I'm claiming that samba is broken, and we should not try to fix it on the
+> client side.  We should ask the samba people to get their act together.  
+> They've apparently been able to put _two_ bugs in one single integer:  
+> both messing up the block size _and_ then using a totally illogical
+> minimum value for the thing.
 
-dsttree="$prefix.$tree"
+Well the minimum value is for Windows clients. They go a *lot*
+faster with the minimum value as it tweaks some of their internal
+buffers when they allocate. You can parameterize it (admittedly at
+compile time, not runtime). I can make it runtime parameterized
+in a later smbd if you want.
 
-mkdir -p "$dsttree"
-mkdir -p "$dsttree.patch"
+The CIFS client needs to divide the value returned by 512, or
+whatever blocksize is being used on the UNIX clients. When
+we have a 64-bit space it makes sense to return the absolute
+bytes and let the client return it to userspace in whatever blocksize
+it wants.
 
-echo "Note: $dsttree.patch/ directory must be empty, or you'll get duplicate patches"
+> I bet the minimum value comes from the fact that all files end up using 
+> "n" bytes for things like inodes etc. Let's make up some numbers, and 
+> assume that somebody thought that the minimum disk-space used was 2kB. 
+> Instead of dividing that by 512, and coming up with the value "4", they 
+> multiplied it by the block size and came up with the value 1Mb.
 
-{
-# All files
-#find "$tree"
+Nope. We have strange reasons for things, but they're usually
+not *that* strange.
 
-# Files with bad whitespace
-#grep -rl $'[ \t]$' "$tree"		# space or tab at EOL
-#grep -rl  $'^[^ \t]       ' "$tree"	# char 7 spaces
-#grep -rlF $' \t' "$tree"		# space tab
-#grep -rlF $'\t ' "$tree"		# tab space 
-#grep -rlF '        ' "$tree"		# 8 spaces
+> Whatever the reason, the minimum size is clearly a samba bug, even if you 
+> were to (incorrectly, Jeremy) claim that there is no standard blocksize.
 
-# Files with trailing whitespace in printk etc
-# Why -i: DPRINTK and friends
-grep -lri $'print.*[ \t]\\\\n' "$tree"
-# '",' allows to filter out tons of false positives from asm()
-grep -lr $'[ \t]\\\\n.*",' "$tree"
+It's a Samba *feature* :-). But I agree for UNIX/Linux clients
+it doesn't make much sense.
 
-} \
-| sort | uniq \
-\
-| while read -r file; do
-    base=`basename "$file"`
-    file2="$prefix.$file"
-
-    # Names like irq.c.patch wouldn't be unique...
-    patch="$base.patch"
-    while test -e "$dsttree.patch/$patch"; do
-	patch="$base-$RANDOM.patch"
-    done
-
-    echo "* $file"
-
-    mkdir -p `dirname "$file2"`
-
-    # Fix whitespace
-    if false; then
-    # begin 8spaces => begin tab
-    # begin char 7spaces => begin char tab (repeat for 2,3,4...6 chars)
-    # begin 1-7spaces tab => begin tab
-    # tab 8spaces => tab tab (repeat)
-    # tab 1-7spaces tab => tab tab (repeat)
-    # trailing ws =>
-    #| sed $'s/^        /\t/' \
-    #| sed $'s/^\\([^ \t]\\)       /\\1\t/' \
-    #| sed $'s/^ \\{1,7\\}\t/\t/' \
-    #| sed $'s/\t        /\t\t/g' \
-    #| sed $'s/\t \\{1,7\\}\t/\t\t/g' \
-    #| sed $'s/[ \t]*$//' \
-    cat "$file" \
-    | sed $'s/^ \\{1,7\\}\t/\t/' \
-    | sed -e $'s/\t        /\t\t/g' -e $'s/\t        /\t\t/g' \
-          -e $'s/\t        /\t\t/g' -e $'s/\t        /\t\t/g' \
-          -e $'s/\t        /\t\t/g' -e $'s/\t        /\t\t/g' \
-    | sed -e $'s/\t \\{1,7\\}\t/\t\t/g' -e $'s/\t \\{1,7\\}\t/\t\t/g' \
-          -e $'s/\t \\{1,7\\}\t/\t\t/g' -e $'s/\t \\{1,7\\}\t/\t\t/g' \
-          -e $'s/\t \\{1,7\\}\t/\t\t/g' -e $'s/\t \\{1,7\\}\t/\t\t/g' \
-    | sed $'s/[ \t]*$//' \
-    > "$file2"
-    fi
-
-    # Fix whitespace in printks only
-    # Multiple exprs handle stuff like:
-    # printk(KERN_WARNING "ISILoad:Card%d rejected load header: \nAddress:0x%x \nCount:0x%x \nStatus:0x%x \n"
-    # (multiple ' \n' occurences)
-    # s/.../.../g would not help here
-    cat "$file" \
-    | sed -e $'s/[ \t]*\\\\n/\\\\n/' -e $'s/[ \t]*\\\\n/\\\\n/' \
-          -e $'s/[ \t]*\\\\n/\\\\n/' -e $'s/[ \t]*\\\\n/\\\\n/' \
-          -e $'s/[ \t]*\\\\n/\\\\n/' -e $'s/[ \t]*\\\\n/\\\\n/' \
-          -e $'s/[ \t]*\\\\n/\\\\n/' -e $'s/[ \t]*\\\\n/\\\\n/' \
-    > "$file2"
-
-    if ! diff -up "$file" "$file2" >"$dsttree.patch/TEMP"; then
-	mv "$dsttree.patch/TEMP" "$dsttree.patch/$patch"
-    fi
-done
-
-rm "$dsttree.patch/TEMP" 2>/dev/null
-echo "You may delete $dsttree now"
-
---Boundary-00=_WMaVByP7t0xwLQo--
-
+Jeremy.

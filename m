@@ -1,30 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293035AbSDSFxi>; Fri, 19 Apr 2002 01:53:38 -0400
+	id <S311264AbSDSGLb>; Fri, 19 Apr 2002 02:11:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293722AbSDSFxh>; Fri, 19 Apr 2002 01:53:37 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:6154 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S293035AbSDSFxf>;
-	Fri, 19 Apr 2002 01:53:35 -0400
-Date: Fri, 19 Apr 2002 07:52:33 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: "J.A. Magallon" <jamagallon@able.es>, Heinz Diehl <hd@cavy.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
-Message-ID: <20020419055233.GV2492@suse.de>
-In-Reply-To: <20020418192728.GA1891@werewolf.able.es> <Pine.LNX.4.10.10204181232090.17538-100000@master.linux-ide.org>
+	id <S311575AbSDSGLa>; Fri, 19 Apr 2002 02:11:30 -0400
+Received: from smtp2.san.rr.com ([24.25.195.39]:21955 "EHLO smtp2.san.rr.com")
+	by vger.kernel.org with ESMTP id <S311264AbSDSGLa>;
+	Fri, 19 Apr 2002 02:11:30 -0400
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB device support for
+	2.5.8(take 2)
+From: George J Karabin <gkarabin@pobox.com>
+To: Oliver Neukum <oliver@neukum.name>
+Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
+        David Brownell <david-b@pacbell.net>,
+        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <16yRDq-2G4UamC@fmrl04.sul.t-online.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-3) 
+Date: 18 Apr 2002 23:11:22 -0700
+Message-Id: <1019196683.1733.34.camel@pane.chasm.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 18 2002, Andre Hedrick wrote:
-> not support and accellerate IO with true zero-copy. [...]
+On Thu, 2002-04-18 at 22:46, Oliver Neukum wrote:
+> Too short a difference. You easily skip it reading and there's a chance of typos.
+> Furthermore the first latter should differ for tab completion.
+> Target is actually quite good a name. It makes clear that there's only
+> one initiator of transactions on USB.
 
-Care to expand on what you are talking about here?
+Those are good points. The shortcomings you mentioned are solved easily
+enough, although the solutions that come to mind may not sound much
+better either. 
 
--- 
-Jens Axboe
+Easy tab completion could be provided using prefixes instead of
+suffixes, like l and lh for lhusb and husb. Alternately, you could use
+the long forms localusb, local-usb, or local_usb, or hostusb, host-usb,
+or host_usb, taking care of the "too short a difference" concern. I'm
+not sure these solutions are any better.
+
+That said, target or client or anything else distinctive sounds fine
+too. I'm just partial to the spec-derived-naming idea. (Although I
+really wish the USB spec folks could have come up with two names that
+were more descriptively different...)
+
+- George
+
 

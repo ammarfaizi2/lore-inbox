@@ -1,82 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269577AbUHZUNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269506AbUHZUPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269577AbUHZUNs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269560AbUHZUN0
+	id S269506AbUHZUPk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269561AbUHZUPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:13:26 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:57567 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S269496AbUHZUEn (ORCPT
+	Thu, 26 Aug 2004 16:15:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54943 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269496AbUHZUN1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:04:43 -0400
-Date: Thu, 26 Aug 2004 22:04:33 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: "Mauricio R. Perez - Centro de Computos" 
-	<mauricio_perez@pergamino.gov.ar>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel argument list too long
-Message-ID: <20040826200433.GS18334@lug-owl.de>
-Mail-Followup-To: "Mauricio R. Perez - Centro de Computos" <mauricio_perez@pergamino.gov.ar>,
-	linux-kernel@vger.kernel.org
-References: <008601c48b84$d7211530$643caf0a@pergamino.gov.ar>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WulRBKvtygI9tSt8"
-Content-Disposition: inline
-In-Reply-To: <008601c48b84$d7211530$643caf0a@pergamino.gov.ar>
-X-Operating-System: Linux mail 2.6.8-rc4 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+	Thu, 26 Aug 2004 16:13:27 -0400
+Date: Thu, 26 Aug 2004 16:10:48 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Diego Calleja <diegocg@teleline.es>, <jamie@shareable.org>,
+       <christophe@saout.de>, <vda@port.imtp.ilyichevsk.odessa.ua>,
+       <christer@weinigel.se>, <spam@tnonline.net>, <akpm@osdl.org>,
+       <wichert@wiggy.net>, <jra@samba.org>, <reiser@namesys.com>,
+       <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <flx@namesys.com>,
+       <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <Pine.LNX.4.58.0408261217140.2304@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 26 Aug 2004, Linus Torvalds wrote:
 
---WulRBKvtygI9tSt8
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> So "/tmp/bash" is _not_ two different things. It is _one_ entity, that
+> contains both a standard data stream (the "file" part) _and_ pointers to
+> other named streams (the "directory" part).
 
-On Thu, 2004-08-26 12:53:33 -0300, Mauricio R. Perez - Centro de Computos <=
-mauricio_perez@pergamino.gov.ar>
-wrote in message <008601c48b84$d7211530$643caf0a@pergamino.gov.ar>:
-> Kernel limitation of argument list it's a problem, not for things I do, e=
-lse
-> is for things that others do, i "need" to compile aubit4gl, but configure
-> gives me Argument List Too long, and I need to have more memory for
-> arguments, how can y solve this?
-> kernel: 2.6.7
-> gcc: 3.3.2
+Thinking about it some more, how would file managers and
+file chosers handle this situation ?
 
-$ vi .../linux-2.6.x/include/linux/binfmts.h +/MAX_ARG_PAGES
+Currently the user browses the directory tree and when
+the user clicks on something, one of the following 
+happens:
 
-However, another fix would be to limit the size of supplied arguments,
-possibly by placing the source files not into a deep directory (thus
-avoiding long absolute paths) etc.
+1) if it is a directory, the file manager/choser changes
+   into that directory
 
-MfG, JBG
+2) if it is a file, the file is opened
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
-  O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+Now how do we present things to users ?
 
---WulRBKvtygI9tSt8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+How will users know when an object can only be chdired
+into, or only be opened ?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+For objects that do both, how does the user choose ?
 
-iD8DBQFBLkJRHb1edYOZ4bsRAhVvAJ0UatRMjmB5hZikhuXESpQ5iUa8fgCfW929
-Er5G1fV1PDKgK54Kmaa1Xxs=
-=BADV
------END PGP SIGNATURE-----
+Do we really want to have a file paradigm that's different
+from the other OSes out there ?
 
---WulRBKvtygI9tSt8--
+What happens when users want to transfer data from Linux
+to another system ?
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

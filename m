@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318243AbSHDVxD>; Sun, 4 Aug 2002 17:53:03 -0400
+	id <S318248AbSHDWNQ>; Sun, 4 Aug 2002 18:13:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318248AbSHDVxD>; Sun, 4 Aug 2002 17:53:03 -0400
-Received: from mta03bw.bigpond.com ([139.134.6.86]:18371 "EHLO
-	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S318243AbSHDVxB>; Sun, 4 Aug 2002 17:53:01 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Oliver Feiler <kiza@gmxpro.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19, USB_HID only works compiled in, not as module
-Date: Mon, 5 Aug 2002 07:51:34 +1000
-User-Agent: KMail/1.4.5
-References: <fa.egf7e0v.kk5a2@ifi.uio.no> <60bc.3d4d4347.5dd06@trespassersw.daria.co.uk> <200208041746.56274.kiza@gmxpro.net>
-In-Reply-To: <200208041746.56274.kiza@gmxpro.net>
-Cc: vojtech@suse.cz
+	id <S318249AbSHDWNQ>; Sun, 4 Aug 2002 18:13:16 -0400
+Received: from ares.sdinet.de ([193.103.161.26]:65292 "HELO ares.sdinet.de")
+	by vger.kernel.org with SMTP id <S318248AbSHDWNP>;
+	Sun, 4 Aug 2002 18:13:15 -0400
+Date: Mon, 5 Aug 2002 00:17:00 +0200 (CEST)
+From: Sven Koch <haegar@sdinet.de>
+X-X-Sender: haegar@space.comunit.de
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: alien.ant@ntlworld.com, <linux-kernel@vger.kernel.org>
+Subject: Re: Re: 2.4.19 IDE Partition Check issue
+In-Reply-To: <1028488801.15200.4.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0208050012200.29388-100000@space.comunit.de>
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200208050751.40894.bhards@bigpond.net.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 4 Aug 2002, Alan Cox wrote:
 
-On Mon, 5 Aug 2002 01:46, Oliver Feiler wrote:
-> Hm, seems so. The relevant options I used are:
+> On Sun, 2002-08-04 at 10:11, alien.ant@ntlworld.com wrote:
+> > > Can you try 2.4.19-ac1 once I upload it.
+> > > That has slightly further updated IDE code and it would
+> > > useful to know if the same problem occurs
+> >
+> > Yes, it has exactly the same problem as stock 2.4.19
+> >
+> > Sorry!
 >
-> CONFIG_INPUT=y
-> # CONFIG_INPUT_KEYBDEV is not set
-> CONFIG_INPUT_MOUSEDEV=m
-> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-> CONFIG_INPUT_JOYDEV=y
-> CONFIG_INPUT_EVDEV=m
->
-> CONFIG_USB=y
-> CONFIG_USB_DEVICEFS=y
-> CONFIG_USB_UHCI=y
-> CONFIG_USB_HID=m
-> CONFIG_USB_HIDINPUT=y
-What other USB options do you have turned on?
+> I'm out of ideas on the promise one then.
 
-What modules do you have loaded?
+Perhaps one funny thing which got me with 2.4.19-rc3-ac3 bites you here
+too:
 
-Vojtech: We need that /proc support for input
-to help with problems like this. Any chance of merging
-it in 2.4.20-pre?
+With a "VIA vt82c596b (rev 23) IDE UDMA66 controller on pci00:07.1" a am
+not able to boot or read the partition-table, UNLESS I select
+CONFIG_IDEDMA_AUTO=y
 
-Brad
+If want to play safe and "use the slow pio modes" its broken, with
+dma from the start it works without further problems.
 
-- -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+c'ya
+sven
 
-iD8DBQE9TaHrW6pHgIdAuOMRAkkCAJ0TzvchKInmffKrFU38KUk9k9wD/ACbBKN6
-MLPKbd8Gj5ld/XFFrdfEkZU=
-=i/LO
------END PGP SIGNATURE-----
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)
 

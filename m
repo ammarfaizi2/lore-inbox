@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312499AbSCUVR4>; Thu, 21 Mar 2002 16:17:56 -0500
+	id <S312503AbSCUVZq>; Thu, 21 Mar 2002 16:25:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312500AbSCUVRq>; Thu, 21 Mar 2002 16:17:46 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:43147 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S312499AbSCUVRd>;
-	Thu, 21 Mar 2002 16:17:33 -0500
-Date: Thu, 21 Mar 2002 22:17:24 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200203212117.WAA22504@harpo.it.uu.se>
-To: macro@ds2.pg.gda.pl
-Subject: Re: [PATCH] boot_cpu_data corruption on SMP x86
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br, torvalds@transmeta.com
+	id <S312504AbSCUVZh>; Thu, 21 Mar 2002 16:25:37 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:58000
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S312503AbSCUVZ2>; Thu, 21 Mar 2002 16:25:28 -0500
+Date: Thu, 21 Mar 2002 14:21:10 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zlib double-free bug
+Message-ID: <20020321212110.GJ25237@opus.bloom.county>
+In-Reply-To: <3C985A46.D3C73301@aitel.hist.no> <Pine.LNX.4.44.0203200943230.3615-100000@xanadu.home> <a7dev9$n51$1@cesium.transmeta.com> <20020321210356.GI25237@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 21, 2002 at 02:03:56PM -0700, Tom Rini wrote:
+> On Thu, Mar 21, 2002 at 12:14:33PM -0800, H. Peter Anvin wrote:
+> > Followup to:  <Pine.LNX.4.44.0203200943230.3615-100000@xanadu.home>
+> > By author:    Nicolas Pitre <nico@cam.org>
+> > In newsgroup: linux.dev.kernel
+> > >
+> > > On Wed, 20 Mar 2002, Helge Hafting wrote:
+> > > 
+> > > > Nicolas Pitre wrote:
+> > > > 
+> > > > > > Removable media?
+> > > > > 
+> > > > > Most if not all removable media are not ment to be used with JFFS2.
+> > > > 
+> > > > Nothing is _meant_ to be exploited either.  Someone could
+> > > > create a cdrom with jffs2 (linux don't demand that cd's use iso9660)
+> > > 
+> > > But JFFS2 demands to be used with AN MTD device, not a block device.  And
+> > > most MTD device, if not all of them, on which JFFS2 is used aren't
+> > > removable.
+> > 
+> > Isn't this whole discussion a bit silly?  If I'm not mistaken, we're
+> > talking about a one-line known fix here...
+> 
+> It's getting there.
 
-On Thu, 21 Mar 2002 21:01:39 +0100 (MET), Maciej W. Rozycki wrote:
->On Thu, 14 Mar 2002, Mikael Pettersson wrote:
->
->> --- linux-2.4.19-pre3/arch/i386/kernel/head.S.~1~	Tue Feb 26 13:26:56 2002
->> +++ linux-2.4.19-pre3/arch/i386/kernel/head.S	Thu Mar 14 16:20:57 2002
->> @@ -178,7 +178,7 @@
->>   * we don't need to preserve eflags.
->>   */
->>  
->> -	movl $3,X86		# at least 386
->> +	movb $3,X86		# at least 386
->...
->
-> This is broken -- these word stores assure a proper initialization on
->pre-CPUID processors.
+Correction, it is there since it's been fixed in 2.4.19-pre4 anyhow.
 
-boot_cpu_data is a static-extent object with an explicit initialiser
-(i.e., ".data") in setup.c in 2.2.21rc2, 2.4.19-pre4, and 2.5.7.
-Any further "initialisation" by APs is called "clobbering".
-
-/Mikael
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284334AbRLRR3K>; Tue, 18 Dec 2001 12:29:10 -0500
+	id <S284360AbRLRRgv>; Tue, 18 Dec 2001 12:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284337AbRLRR3A>; Tue, 18 Dec 2001 12:29:00 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12303 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284334AbRLRR2s>; Tue, 18 Dec 2001 12:28:48 -0500
-Date: Tue, 18 Dec 2001 09:27:29 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Mansfield <david@cobite.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <Pine.LNX.4.33.0112181216341.1237-100000@admin>
-Message-ID: <Pine.LNX.4.33.0112180922500.2867-100000@penguin.transmeta.com>
+	id <S284337AbRLRRgl>; Tue, 18 Dec 2001 12:36:41 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6161 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S284335AbRLRRgc>;
+	Tue, 18 Dec 2001 12:36:32 -0500
+Message-ID: <3C1F7E9D.DED578C7@mandrakesoft.com>
+Date: Tue, 18 Dec 2001 12:36:29 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff <piercejhsd009@earthlink.net>
+CC: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: VIA sound and SNDCTL_DSP_NONBLOCK error.....
+In-Reply-To: <3C1EEDFF.231F36B8@earthlink.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff wrote:
+> 
+> I am a ham radio operator who wishes to use the sound card for digital
+> comunications. However, my system has the VIA 82c686/ac97 sound. While I
+> can ofcourse make the sound work, playing/recording,etc, I cannot use it
+> with ham software.
+> Take twpsk31 for example, it compiles, but when trying to run it stops
+> on:
+> SNDCTL_DSP_NONBLOCK: illegal parameter.
 
-On Tue, 18 Dec 2001, David Mansfield wrote:
-> >
-> > 	audio_devs[devc->dev]->min_fragment = 5;
-> >
->
-> Generally speaking, you want to be able to specify about a 1ms fragment,
-> speaking as a realtime audio programmer (no offense Victor...).  However,
-> 1ms is 128 bytes at 16bit stereo, but only 32 bytes at 8bit mono.  Nobody
-> does 8bit mono, but that's probably why it's there.  A lot of drivers seem
-> to have 128 byte as minimum fragment size.
+update the software to use normal fcntl(2)
 
-Good point.
-
-Somebody should really look at "dma_set_fragment", and see whether we can
-make "min_fragment" be really just a hardware minimum chunk size, but use
-other heuristics like frequency to cut off the minimum size (ie just do
-something like
-
-	/* We want to limit it to 1024 Hz */
-	min_bytes = freq*channel*bytes_per_channel >> 10;
-
-Although I'm not sure we _have_ the frequency at that point: somebody
-might set the fragment size first, and the frequency later.
-
-Maybe the best thing to do is to educate the people who write the sound
-apps for Linux (somebody was complaining about "esd" triggering this, for
-example).
-
-		Linus
-
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno

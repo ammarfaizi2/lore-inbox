@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbTIXOzF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 10:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTIXOzF
+	id S261399AbTIXPLy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 11:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbTIXPLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 10:55:05 -0400
-Received: from mail-03.iinet.net.au ([203.59.3.35]:8578 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261357AbTIXOzC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 10:55:02 -0400
-Date: Wed, 24 Sep 2003 22:46:43 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Maneesh Soni <maneesh@in.ibm.com>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] autofs4 deadlock during expire - kernel 2.6
-In-Reply-To: <20030924155720.C31236@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0309242240500.6956-100000@raven.themaw.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Sep 2003 11:11:54 -0400
+Received: from DSL022.labridge.com ([206.117.136.22]:9479 "EHLO Perches.com")
+	by vger.kernel.org with ESMTP id S261399AbTIXPLx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 11:11:53 -0400
+Subject: [PATCH] 2.6.0-bk6 net/core/dev.c
+From: Joe Perches <joe@perches.com>
+To: torvalds@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Content-Type: text/plain
+Message-Id: <1064416289.1804.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 24 Sep 2003 08:11:30 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Sep 2003, Arjan van de Ven wrote:
+Symmetric to dev_add_pack.
 
-> On Wed, Sep 24, 2003 at 09:38:16PM +0800, Ian Kent wrote:
-> > > interruptible_sleep_on ?
-> > > 
-> > 
-> > OK so maybe I should have suggestions instead of comments.
-> 
-> instead of interruptible_sleep_on(), it looks like you really want
-> to use completions for this code..
-> see kernel/workqueue.c for how those are used
-> 
+diff -urN linux-2.6.0-test5/net/core/dev.c shared_skb/net/core/dev.c
+--- linux-2.6.0-test5/net/core/dev.c	2003-09-22 08:04:06.000000000 -0700
++++ shared_skb/net/core/dev.c	2003-09-22 14:02:08.000000000 -0700
+@@ -281,7 +281,7 @@
+ 	list_for_each_entry(pt1, head, list) {
+ 		if (pt == pt1) {
+ #ifdef CONFIG_NET_FASTROUTE
+-			if (pt->data)
++			if (pt->data && (long)pt->data != 1)
+ 				netdev_fastroute_obstacles--;
+ #endif
+ 			list_del_rcu(&pt->list);
 
-I did try that but thinking again ...
-
-The actual expire really needs to be interrutible.
-I didn't like the idea that the additional waiters would be 
-uninterruptible but perhaps I have no choice.
-
-Given that do you think that using an interruptible_sleep_on for the 
-expire and a completion for the additional waiters could give an 
-acceptable solution?
-
--- 
-
-   ,-._|\    Ian Kent
-  /      \   Perth, Western Australia
-  *_.--._/   E-mail: raven@themaw.net
-        v    Web: http://themaw.net/
 

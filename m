@@ -1,53 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUFXXyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265916AbUFXX7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265887AbUFXXyL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 19:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbUFXXwo
+	id S265916AbUFXX7P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 19:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265939AbUFXX7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 19:52:44 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:3467 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S265887AbUFXXwN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 19:52:13 -0400
-Subject: Re: [RFC] Patch to allow distributed flock
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ken Preslan <kpreslan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040624231057.GA13033@potassium.msp.redhat.com>
-References: <20040624231057.GA13033@potassium.msp.redhat.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1088121132.8906.29.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 24 Jun 2004 19:52:12 -0400
+	Thu, 24 Jun 2004 19:59:15 -0400
+Received: from hellhawk.shadowen.org ([212.13.208.175]:3343 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S265916AbUFXX7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 19:59:09 -0400
+Date: Fri, 25 Jun 2004 00:58:39 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix GFP zone modifier interators
+Message-ID: <06D24C955C2FBF2BB53AFC93@[192.168.0.7]>
+In-Reply-To: <20040624152333.79b36a90.akpm@osdl.org>
+References: <200406242140.i5OLeZV4028038@voidhawk.shadowen.org>
+ <20040624152333.79b36a90.akpm@osdl.org>
+X-Mailer: Mulberry/3.1.5 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På to , 24/06/2004 klokka 19:10, skreiv Ken Preslan:
-> Hi,
-> 
-> I'd like to start a discussion about changing the VFS so it allows
-> flocks to be enforced between machines in a cluster filesystem (such as
-> GFS).  The purpose of GFS it so allow local filesystem semantics
-> to a filesystem shared between the nodes of a cluster of tightly-coupled
-> machines.  As such, flock is probably expected to work across the cluster.
-> 
-> What are everyone's thoughts on a patch such as this?
+--On 24 June 2004 15:23 -0700 Andrew Morton <akpm@osdl.org> wrote:
 
-If you defer updating the VFS until after the ->lock() call returns,
-then it makes it difficult to protect yourself against races (as I
-argued about the POSIX lock interface on the list yesterday).
+> Andy Whitcroft <apw@shadowen.org> wrote:
+>>
+>> For each node there are a defined list of MAX_NR_ZONES zones.
+>> These are selected as a result of the __GFP_DMA and __GFP_HIGHMEM
+>> zone modifier flags being passed to the memory allocator as part of
+>> the GFP mask.  Each node has a set of zone lists, node_zonelists,
+>> which defines the list and order of zones to scan for each flag
+>> combination.  When initialising these lists we iterate over
+>> modifier combinations 0 .. MAX_NR_ZONES.  However, this is only
+>> correct when there are at most ZONES_SHIFT flags.  If another flag
+>> is introduced zonelists for it would not be initialised.
+>
+> I don't get it.  If you were going to add a new zone, identified by
+> __GFP_WHATEVER then you'd need to increase MAX_NR_ZONES
+> anyway, wouldn't you?
+>
+> I'm sure you're right, but I haven't worked on this stuff in months and
+> it's obscure.  Care to explain a little more?
 
-If you have the underlying filesystem call flock_lock_file() itself,
-then that gives it the freedom to implement its own locking scheme
-around that call.
-For instance NFS has a thread that is supposed to reclaim locks if the
-server reboots. We take a non-exclusive lock on an rwsem to ensure that
-we block it while there are outstanding locking RPC calls, however that
-rwsem has to be released before we return from the ->lock() call, and so
-there exists a race after the rwsem was released until the
-inode->i_flock list is updated.
+If you added a new zone you would increase MAX_NR_ZONES from 3 to 4, you 
+would add __GFP_NEWONE as 0x4 as those are bit flags and GFP_ZONEMASK to 
+0x7.  Now to build the zonelists we need to scan from 0-7 in 'Zone 
+Modifier' space to cover all the combinations, but MAX_NR_ZONES is only 4. 
+So we don't build the zonelists for them.
 
-Cheers,
-  Trond
+There is a question of whether we should be scanning 0..MAX_NR_ZONES and 
+assuming the selector is 1<<N.  That would mean that there would be no 
+support for the use of more than one such 'Zone Modifier' at a time. 
+Currently there is no such usage.  My gut feeling is to not rule them out 
+and to build the zonelists for all combinations (even if they are empty).
+
+>> This patch introduces GFP_ZONEMODS (based on GFP_ZONEMASK) as a
+>> bound for the number of modifier combinations.
+>
+> The "ZONEMODS" identifier doesn't really grab me.  ZONETYPES, or
+> something?
+
+Zone types is fine with me.  I took the name from the comments in mmzone.h, 
+I have no attachment to it.
+
+> Either way, please add a big fat comment over it, explaining to the poor
+> reader what its semantic meaning is.
+
+I'll add some more commentary and see how it looks.
+
+-apw
+
+

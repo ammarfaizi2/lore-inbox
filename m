@@ -1,79 +1,182 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbTETAmF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 20:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbTETAmF
+	id S263369AbTETAji (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 20:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbTETAji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 20:42:05 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:48008 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S263397AbTETAmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 20:42:00 -0400
-Subject: Re: Recent changes to sysctl.h breaks glibc
-From: David Woodhouse <dwmw2@infradead.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3EC9660D.2000203@zytor.com>
-References: <20030519165623.GA983@mars.ravnborg.org>
-	 <Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>
-	 <babhik$sbd$1@cesium.transmeta.com>	<m1d6ie37i8.fsf@frodo.biederman.org>
-	 <3EC95B58.7080807@zytor.com> <m18yt235cf.fsf@frodo.biederman.org>
-	 <3EC9660D.2000203@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-15
+	Mon, 19 May 2003 20:39:38 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:919 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263369AbTETAjV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 20:39:21 -0400
+Subject: [PATCH] dentry/inode accounting for vm_enough_mem()
+From: Dave Hansen <haveblue@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-EuF7cnwUzJ+waiHirYe5"
 Organization: 
-Message-Id: <1053392095.21582.48.camel@imladris.demon.co.uk>
+Message-Id: <1053391863.12309.2.camel@nighthawk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Tue, 20 May 2003 01:54:55 +0100
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Rcpt-To: hpa@zytor.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 19 May 2003 17:51:03 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-20 at 00:17, H. Peter Anvin wrote:
-> Your message assumes that the ABI remains fixed.  This is totally and
-> utterly and undeniably WRONG.  There are rules for how it may evolve,
-> but it very much does evolve.  No amount of handwaving or putting
-> underscores in weird places will change that.
 
-To a large extent, however, it merely grows. And in a lot of cases when
-it grows due to new syscalls, new interfaces, etc., you have to add
-matching code to glibc to use them _anyway_, so it's no problem for
-glibc's version of the headers to lag behind until the appropriate
-support is added.
+--=-EuF7cnwUzJ+waiHirYe5
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-You are, however, correct that the correct fix is to have completely
-separate headers which define the ABI. Then the real kernel headers in
-include/linux and include/asm can include them, and C libraries can also
-use them without contamination.
+One of the things on the current must-fix list is:
+> - Overcommit accounting gets wrong answers
+> 
+>   - underestimates reclaimable slab, gives bogus failures when
+>     dcache&icache are large.
 
-This requires that someone sit down and cut'n'paste large amounts of
-structures and definitions from include/linux/*.h into the new header
-files. I've been tempted to do that on occasion but what's held me up
-has been the fact that there isn't yet a consensus on how it should be
-laid out.
+More comments from Andrew:
+> If the cache slab fragmentation is bad it can be hugely wrong.
+> A factor of ten has been observed (rarely).  Factors of two happen
+> often.
+...
+> > But, if prune_[di]cache() will only touch those which are being
+> >  counted by nr_unused, how can we be more aggressive?
+> 
+> Well, just by assuming all slab is reclaimable is one way.
+> 
+> The problem with that is that to read slab accounting we need to do
+> get_page_state(), which is too expensive to be called for every mmap()
+> on big SMP.
 
-For compatibility with older libc, one approach would be to add a new
-directory to the include path which matches the existing layout
-(linux/usrinclude/linux, linux/usrinclude/asm-*), and use #include_next
-from the actual kernel headers to pull in those files.
+Instead of going through get_page_state(), the following code keeps 
+track of entries as their space is allocated in the slab via 
+{con,de}structors. It _will_ overestimate the amount of reclaimable 
+slab but, previously, using the .nr_unused stat, this number was 
+underestimated and caused too many good allocations to fail.  This 
+assumes that every dentry/inode allocated in the slab is reclaimable,
+which they probably will be if we get deperate enough anyway.
 
-Alternatively, we could go further and take the opportunity to rearrange
-stuff further; I'm not sure what we really gain from that though other
-than extra pain.
+and, as for the counter type being an atomic_t:
+> Andrew Morton wrote:
+> > Dave Hansen wrote:
+> > An atomic_t might be a good idea, but I'm a bit worried that 24 bits
+> > might not be enough.  At 160 bytes/dentry, that's 2.5GB of dentries
+> > before the counter overflows.  I would imagine that we'll run out of
+> > plenty of other things before we get to _that_ many dentries.
+> 
+> The 24-bit thing is only on sparc32.  I don't think 2G of dentries
+> is possible on sparc32 anyway.
 
-If Linus would approve a strategy for rearranging the headers such that
-people can work on it without suspecting that they're just wasting their
-time, I think it could get done for 2.6.
-
-It's not the kind of thing you do in private and present as a fait
-accomplis -- if it isn't quite right, you end up having to do the whole
-thing from scratch, afaict.
- 
+The attached patch is against 2.5.69-mm7.
 -- 
-dwmw2
+Dave Hansen
+haveblue@us.ibm.com
 
-¹ but admittedly not all.
+--=-EuF7cnwUzJ+waiHirYe5
+Content-Disposition: attachment; filename="(d,i)cache-vm_enough_fix-2.5.69-0.patch"
+Content-Type: text/x-patch; NAME="(d,i)cache-vm_enough_fix-2.5.69-0.patch"; CHARSET=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
 
+diff -rup linux-2.5.69-mm8-clean/fs/dcache.c linux-2.5.69-mm8-dcache-count/fs/dcache.c
+--- linux-2.5.69-mm8-clean/fs/dcache.c	Mon May 19 13:25:53 2003
++++ linux-2.5.69-mm8-dcache-count/fs/dcache.c	Mon May 19 13:45:05 2003
+@@ -1529,6 +1529,16 @@ out:
+ 	return ino;
+ }
+ 
++void d_ctor(void * objp, struct kmem_cache_s *cachep, unsigned long dflags)
++{
++	atomic_inc(&dentry_stat.nr_alloced);
++}
++
++void d_dtor(void * objp, struct kmem_cache_s *cachep, unsigned long dflags)
++{
++	atomic_dec(&dentry_stat.nr_alloced);
++}
++
+ static void __init dcache_init(unsigned long mempages)
+ {
+ 	struct hlist_head *d;
+@@ -1548,7 +1558,7 @@ static void __init dcache_init(unsigned 
+ 					 sizeof(struct dentry),
+ 					 0,
+ 					 SLAB_HWCACHE_ALIGN,
+-					 NULL, NULL);
++					 d_ctor, d_dtor);
+ 	if (!dentry_cache)
+ 		panic("Cannot create dentry cache");
+ 	
+diff -rup linux-2.5.69-mm8-clean/fs/inode.c linux-2.5.69-mm8-dcache-count/fs/inode.c
+--- linux-2.5.69-mm8-clean/fs/inode.c	Mon May 19 13:25:54 2003
++++ linux-2.5.69-mm8-dcache-count/fs/inode.c	Mon May 19 16:23:14 2003
+@@ -197,6 +197,13 @@ static void init_once(void * foo, kmem_c
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(inode);
++
++	atomic_inc(&inodes_stat.nr_alloced);
++}
++
++void inode_dtor(void * objp, struct kmem_cache_s *cachep, unsigned long dflags)
++{
++	atomic_dec(&inodes_stat.nr_alloced);
+ }
+ 
+ /*
+diff -rup linux-2.5.69-mm8-clean/include/linux/dcache.h linux-2.5.69-mm8-dcache-count/include/linux/dcache.h
+--- linux-2.5.69-mm8-clean/include/linux/dcache.h	Mon May 19 13:21:34 2003
++++ linux-2.5.69-mm8-dcache-count/include/linux/dcache.h	Mon May 19 14:03:23 2003
+@@ -37,6 +37,7 @@ struct qstr {
+ struct dentry_stat_t {
+ 	int nr_dentry;
+ 	int nr_unused;
++	atomic_t nr_alloced;
+ 	int age_limit;          /* age in seconds */
+ 	int want_pages;         /* pages requested by system */
+ 	int dummy[2];
+diff -rup linux-2.5.69-mm8-clean/include/linux/fs.h linux-2.5.69-mm8-dcache-count/include/linux/fs.h
+--- linux-2.5.69-mm8-clean/include/linux/fs.h	Mon May 19 13:25:54 2003
++++ linux-2.5.69-mm8-dcache-count/include/linux/fs.h	Mon May 19 13:50:33 2003
+@@ -58,6 +58,7 @@ extern struct files_stat_struct files_st
+ struct inodes_stat_t {
+ 	int nr_inodes;
+ 	int nr_unused;
++	atomic_t nr_alloced;
+ 	int dummy[5];
+ };
+ extern struct inodes_stat_t inodes_stat;
+diff -rup linux-2.5.69-mm8-clean/mm/mmap.c linux-2.5.69-mm8-dcache-count/mm/mmap.c
+--- linux-2.5.69-mm8-clean/mm/mmap.c	Mon May 19 13:25:55 2003
++++ linux-2.5.69-mm8-dcache-count/mm/mmap.c	Mon May 19 16:24:33 2003
+@@ -82,16 +82,21 @@ int vm_enough_memory(long pages)
+ 		free += nr_swap_pages;
+ 
+ 		/*
+-		 * The code below doesn't account for free space in the
+-		 * inode and dentry slab cache, slab cache fragmentation,
+-		 * inodes and dentries which will become freeable under
+-		 * VM load, etc. Lets just hope all these (complex)
+-		 * factors balance out...
++		 * The code below will overestimate the amount of 
++		 * reclaimable slab.  Previously, using the .nr_unused
++		 * stat, this number was too low and caused too many
++		 * good allocations to fail.  This assumes that every 
++		 * dentry/inode allocated in the slab is reclaimable,
++		 * which they probably will be if we get deperate
++		 * enough.
++		 * - Dave Hansen <haveblue@us.ibm.com>
+ 		 */
+-		free += (dentry_stat.nr_unused * sizeof(struct dentry)) >>
+-			PAGE_SHIFT;
+-		free += (inodes_stat.nr_unused * sizeof(struct inode)) >>
+-			PAGE_SHIFT;
++		free += (atomic_read(&dentry_stat.nr_alloced) * 
++			 sizeof(struct dentry)) >>
++			 PAGE_SHIFT;
++		free += (atomic_read(&inodes_stat.nr_alloced) * 
++			 sizeof(struct inode)) >>
++			 PAGE_SHIFT;
+ 
+ 		/*
+ 		 * Leave the last 3% for root
+
+--=-EuF7cnwUzJ+waiHirYe5--
 

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129148AbQKOKIh>; Wed, 15 Nov 2000 05:08:37 -0500
+	id <S129958AbQKOKKH>; Wed, 15 Nov 2000 05:10:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129819AbQKOKI2>; Wed, 15 Nov 2000 05:08:28 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:29452 "EHLO
-	wisbech.cl.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129148AbQKOKIT>; Wed, 15 Nov 2000 05:08:19 -0500
-X-Mailer: exmh version 2.0.2+CL 2/24/98
-To: Peter Samuelson <peter@cadcamlab.org>
-cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: RAID modules and CONFIG_AUTODETECT_RAID 
-In-Reply-To: Your message of "Wed, 15 Nov 2000 03:07:52 CST."
-             <20001115030752.K18203@wire.cadcamlab.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 15 Nov 2000 09:38:14 +0000
-From: Ian Grant <Ian.Grant@cl.cam.ac.uk>
-Message-Id: <E13vz1D-0001zr-00@wisbech.cl.cam.ac.uk>
+	id <S129962AbQKOKJ5>; Wed, 15 Nov 2000 05:09:57 -0500
+Received: from deckard.concept-micro.com ([62.161.229.193]:1104 "EHLO
+	deckard.concept-micro.com") by vger.kernel.org with ESMTP
+	id <S129958AbQKOKJv>; Wed, 15 Nov 2000 05:09:51 -0500
+Message-ID: <XFMail.20001115103837.petchema@concept-micro.com>
+X-Mailer: XFMail 1.4.4 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <Pine.GSU.4.21.0011141847460.26147-100000@lennon.cc.gatech.edu>
+Date: Wed, 15 Nov 2000 10:38:37 +0100 (CET)
+X-Face: #eTSL0BRng*(!i1R^[)oey6`SJHR{3Sf4dc;"=af8%%;d"%\#"Hh0#lYfJBcm28zu3r^/H^
+ d6!9/eElH'p0'*,L3jz_UHGw"+[c1~ceJxAr(^+{(}|DTZ"],r[jSnwQz$/K&@MT^?J#p"n[J>^O[\
+ "%*lo](u?0p=T:P9g(ta[hH@uvv
+Organization: Concept Micro
+From: Pierre Etchemaite <petchema@concept-micro.com>
+To: Zhiruo Cao <zhiruo@cc.gatech.edu>
+Subject: RE: Question on bdflush
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> [Ian Grant]
-> > In 2.2.x we were able to build a kernel with RAID modules and have it
-> > autodetect RAID partitions at boot time - so we could use raid root
-> > partitions.
-> 
-> Really?  Funny, because IIRC RAID autodetection does not even exist in
-> 2.2.x kernels.  Perhaps you are referring to vendor-patched kernels --
-> some distributions ship 2.2 kernels with RAID patches applied.
 
-Sorry, I am referring to 2.2.x with Ingo's RAID patches.
+Le 14-Nov-2000, Zhiruo Cao écrivait :
+> Why does bdflush (kupdated and kflushed) writes to disk periodically even
+> though the system is apparently idle.  I think if no more new buffers
+> becomes dirty, kflushed show not write anything to disk.   I'm working
+> on a notebook, and I found the periodic disk access is very annoying and
+> consuming a lot of power.
 
-> > In 2.40 the configuration option CONFIG_AUTODETECT_RAID is explicitly
-> > disabled unless at least one RAID module is built into the kernel.  I
-> > presume there is a good reason for this and that it's not just a
-> > mistake.
-> 
-> What would be the point?  Autodetection is only needed for mounting the
-> root filesystem.  After root is mounted, you can use raidtools.
+Look for noflushd on Freshmeat...
 
-I'll try again: we need autodetection to mount a RAID root filesystems on 
-those machines that have them, but we don't want RAID *built in* to the kernel 
-- we want it as modules, because lots of our machines don't have RAID 
-partitions on their disks at all.  i.e. I want CONFIG_MD_{LINEAR,RAID{0,1,5}}=m
- but then I can't say CONFIG_AUTODETECT_RAID=y We could do this with Ingo's 
-patches for 2.2.x but we can't do it with 2.4.0
-
-Of course we need an initrd with the raid modules on it before we can boot 
-from a RAID root partition.
 
 -- 
-Ian Grant, Computer Lab., New Museums Site, Pembroke Street, Cambridge
-Phone: +44 1223 334420          Personal e-mail: iang at pobox dot com 
-
+Linux blade.workgroup 2.4.0-test11 #1 Tue Nov 14 16:44:49 CET 2000 i686 unknown
+ 10:38am  up 17:34,  2 users,  load average: 1.13, 1.17, 1.17
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

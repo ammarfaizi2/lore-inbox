@@ -1,51 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266852AbTAPL0s>; Thu, 16 Jan 2003 06:26:48 -0500
+	id <S266478AbTAPLhX>; Thu, 16 Jan 2003 06:37:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266995AbTAPL0s>; Thu, 16 Jan 2003 06:26:48 -0500
-Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:11236 "EHLO
-	mailrelay.tugraz.at") by vger.kernel.org with ESMTP
-	id <S266852AbTAPL0r>; Thu, 16 Jan 2003 06:26:47 -0500
-Message-ID: <1042716941.3e26990dc83b1@webmail.tugraz.at>
-X-Priority: 3 (Normal)
-Date: Thu, 16 Jan 2003 12:35:41 +0100
-From: Maier Gerfried <moali@sbox.tugraz.at>
-To: linux-kernel@vger.kernel.org
-Subject: Clock does not keep time
-MIME-Version: 1.0
-Content-Type: text/plain
+	id <S266560AbTAPLhX>; Thu, 16 Jan 2003 06:37:23 -0500
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:22795 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id <S266478AbTAPLhV>; Thu, 16 Jan 2003 06:37:21 -0500
+Date: Thu, 16 Jan 2003 12:47:17 +0100
+From: Torben Mathiasen <torben.mathiasen@hp.com>
+To: Greg KH <greg@kroah.com>
+Cc: Torben Mathiasen <torben.mathiasen@hp.com>, linux-kernel@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, john.cagle@hp.com,
+       dan.zink@hp.com
+Subject: Re: [PATCH-2.4.20] PCI-X hotplug support for Compaq driver
+Message-ID: <20030116114717.GC1222@tmathiasen>
+References: <20030115095513.GA2761@tmathiasen> <20030115230554.GC25816@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 4.0-cvs
-X-Originating-IP: 195.49.27.70
-X-Oragnization: University of Technology Graz / Austria
+In-Reply-To: <20030115230554.GC25816@kroah.com>
+User-Agent: Mutt/1.4i
+X-OS: Linux 2.4.20-pre11 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Kernel-List,
+Sure. I started out doing the patch for 2.5, but hit some hotplug bugs so I
+decided to get it working for 2.4 first and then port it to 2.5. I'll get on
+that.
 
-I'm using Linux (kernel 2.4.20 with acpi-20021212 and swsusp-beta16 patches) on 
-my Acer Travelmate 630 notebook.
+A few comments below.
+ 
+> > +static char *get_speed_string (int speed)
+> > +{
+> > +	switch(speed) {
+> > +		case(PCI_SPEED_33MHz):
+> > +			return "33MHz PCI";
+> > +		case(PCI_SPEED_66MHz):
+> > +			return "66MHz PCI";
+> > +		case(PCI_SPEED_50MHz_PCIX):
+> > +			return "50MHz PCI-X";
+> > +		case(PCI_SPEED_66MHz_PCIX):
+> > +			return "66MHz PCI-X";
+> > +		case(PCI_SPEED_100MHz_PCIX):
+> > +			return "100MHz PCI-X";
+> > +		case(PCI_SPEED_133MHz_PCIX):
+> > +			return "133MHz PCI-X";
+> > +		default:
+> > +			return "UNKNOWN";
+> > +	}
+> > +}
+> 
+> Ick, why?  Just for a debugging message?  That /proc file is on the
+> short list of things to delete :)
+>
 
-Unfortunately I experience the problem, that under some [1] conditions the RTC 
-does not keep time. It runns in advance compared to the real time, up to 
-several hours per 12 hours of time. The machine is quite new, so I don't think, 
-that the RTC-battery is already exhausted.
+I wanted the user to be able to know exactly which bus speed/mode the driver
+switched to in case of a freq/mode change. Besides that it also put the info in
+proc as you mention.
 
-I was able to gain the information that the RTC in this notebook is a BQ3285LF 
-(is manufactured from TI  - Datasheet for instance at 
-http://www.scanti.ru/docs/datasheets/slus183.pdf - and probably others).
+> > --- linux-2.4.20/drivers/hotplug/pci_hotplug.h	Thu Nov 28 17:53:13 2002
+> > +++ linux-2.4.20-pcix/drivers/hotplug/pci_hotplug.h	Mon Jan  6 22:54:47 2003
+> > @@ -33,9 +33,10 @@
+> >  enum pci_bus_speed {
+> >  	PCI_SPEED_33MHz			= 0x00,
+> >  	PCI_SPEED_66MHz			= 0x01,
+> > -	PCI_SPEED_66MHz_PCIX		= 0x02,
+> > -	PCI_SPEED_100MHz_PCIX		= 0x03,
+> > -	PCI_SPEED_133MHz_PCIX		= 0x04,
+> > +	PCI_SPEED_50MHz_PCIX		= 0x02,
+> > +	PCI_SPEED_66MHz_PCIX		= 0x03,
+> > +	PCI_SPEED_100MHz_PCIX		= 0x04,
+> > +	PCI_SPEED_133MHz_PCIX		= 0x05,
+> >  	PCI_SPEED_66MHz_PCIX_266	= 0x09,
+> >  	PCI_SPEED_100MHz_PCIX_266	= 0x0a,
+> >  	PCI_SPEED_133MHz_PCIX_266	= 0x0b,
+> 
+> Where are you getting the PCI_SPEED_50MHz_PCIX value from?  I took these
+> values from the Hotplug PCI draft spec.  Has 02 been reserved for 50MHz
+> PCIX and the other values changed?
+> 
+> If it's not in the spec, I'd recommend adding it to the end of the list,
+> with a big comment about why it's different from the spec values.
+>
 
-Is such a problem known to you?
-Is it possible that it is a kernel issue or do you think it is a hardware-bug?
-How could I debug this issue?
+Sure, we used to ship a system that only supported 50MHz PCI-X, but I'll have
+to get more details on that.
 
-Thanks a lot for any suggestions
-Maier Gerfried
-
-
-[1] I was not able to find out under what conditions. I first thought that it 
-could be temperatore-dependant, or if the power supply is on line or not, if I 
-booted windows before. Unfortunately I was not able to find the reason by now.
--- 
+Torben
 

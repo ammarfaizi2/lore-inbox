@@ -1,28 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280692AbRKFXlu>; Tue, 6 Nov 2001 18:41:50 -0500
+	id <S280694AbRKFXoB>; Tue, 6 Nov 2001 18:44:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280694AbRKFXli>; Tue, 6 Nov 2001 18:41:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23567 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280692AbRKFXl2>; Tue, 6 Nov 2001 18:41:28 -0500
-Subject: Re: PCI like interface for ISAPnP
-To: kai@tp1.ruhr-uni-bochum.de (Kai Germaschewski)
-Date: Tue, 6 Nov 2001 23:48:36 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.33.0111070025470.9978-100000@vaio> from "Kai Germaschewski" at Nov 07, 2001 12:40:05 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S280709AbRKFXnx>; Tue, 6 Nov 2001 18:43:53 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:2177 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S280695AbRKFXl7>;
+	Tue, 6 Nov 2001 18:41:59 -0500
+Date: Tue, 06 Nov 2001 15:40:59 -0800 (PST)
+Message-Id: <20011106.154059.126759204.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: fokkensr@linux06.vertis.nl, linux-kernel@vger.kernel.org,
+        kuznet@ms2.inr.ac.ru
+Subject: Re: iptables and tcpdump
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011031172835.4f0c0ed2.rusty@rustcorp.com.au>
+In-Reply-To: <20011030152812.2e9ba8ee.rusty@rustcorp.com.au>
+	<20011029.213157.39157336.davem@redhat.com>
+	<20011031172835.4f0c0ed2.rusty@rustcorp.com.au>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E161FxM-0002Gb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So the question is: Should I provide a generic isapnp_{,un}register_driver 
-> framework (it's pretty simple anyway), or keep things private to my 
-> driver?
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Wed, 31 Oct 2001 17:28:35 +1100
 
-Please do - I added one for pnpbios and for 2.5 we need a generic layer
-for all cases.
+   On Mon, 29 Oct 2001 21:31:57 -0800 (PST)
+   "David S. Miller" <davem@redhat.com> wrote:
+   
+   >    From: Rusty Russell <rusty@rustcorp.com.au>
+   >    Date: Tue, 30 Oct 2001 15:28:12 +1100
+   >    
+   >    should the NAT layer be doing skb_unshare() before altering the packet?
+   > 
+   > I think it should.
+   
+   Agreed.  The 2.2 masq code didn't do this, and hence the "don't
+   tcpdump on masq host" recommendation.
+   
+   Please try this patch (compiles at least),
+
+Applied to my sources...
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

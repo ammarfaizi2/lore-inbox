@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbTKXWRd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 17:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbTKXWRd
+	id S261270AbTKXWPC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 17:15:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTKXWPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 17:17:33 -0500
-Received: from ss1000.ms.mff.cuni.cz ([195.113.19.221]:65245 "EHLO
-	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261326AbTKXWRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 17:17:32 -0500
-Date: Mon, 24 Nov 2003 23:17:29 +0100
-From: Rudo Thomas <thomr9am@ss1000.ms.mff.cuni.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [OT] Re: hard links create local DoS vulnerability and security problems
-Message-ID: <20031124231729.B2507@ss1000.ms.mff.cuni.cz>
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	linux-kernel@vger.kernel.org
-References: <200311241736.23824.jlell@JakobLell.de> <Pine.LNX.4.53.0311241205500.18425@chaos> <20031124183757.A2507@ss1000.ms.mff.cuni.cz> <Pine.LNX.4.53.0311241307560.18675@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.53.0311241307560.18675@chaos>; from root@chaos.analogic.com on Mon, Nov 24, 2003 at 01:10:46PM -0500
+	Mon, 24 Nov 2003 17:15:02 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:30644 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261270AbTKXWPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 17:15:00 -0500
+Message-ID: <3FC1DA4B.7080102@namesys.com>
+Date: Mon, 24 Nov 2003 02:15:39 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Reiserfs List <reiserfs-list@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Reiser4: latest snapshot is less stable than before
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Really? Has your system been hacked?
+just thought I'd warn any users out there of that.  We are debugging why....
 
-Nope. However, I use vanilla 2.4 kernel series. You seem to run something more
-restrictive, as the example you have posted does the expected thing on my
-system. (Prints root, rjohnson, root.)
+-- 
+Hans
 
-Bye.
 
-Rudo.

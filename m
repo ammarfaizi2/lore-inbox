@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbVCVWzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVCVW6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbVCVWzb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 17:55:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVCVWza
+	id S261758AbVCVW6I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 17:58:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVCVW6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 17:55:30 -0500
-Received: from mail.dif.dk ([193.138.115.101]:63681 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262280AbVCVWx3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 17:53:29 -0500
-Date: Tue, 22 Mar 2005 23:55:17 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Richard Gooch <rgooch@atnf.csiro.au>
-Subject: [PATCH] devfs: remove a redundant NULL pointer check prior to kfree()
-Message-ID: <Pine.LNX.4.62.0503222351350.2683@dragon.hyggekrogen.localhost>
+	Tue, 22 Mar 2005 17:58:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19673 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261758AbVCVW55 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 17:57:57 -0500
+Message-ID: <4240A2E7.50308@pobox.com>
+Date: Tue, 22 Mar 2005 17:57:43 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jt@hpl.hp.com
+CC: Jouni Malinen <jkmaline@cc.hut.fi>, netdev@oss.sgi.com,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.11] WE-18 (aka WPA)
+References: <20050314201932.GA1467@bougret.hpl.hp.com>
+In-Reply-To: <20050314201932.GA1467@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jean Tourrilhes wrote:
+> 	Hi Jeff,
+> 
+> 	This is version 18 of the Wireless Extensions. The main change
+> is that it adds all the necessary APIs for WPA and WPA2 support. This
+> work was entirely done by Jouni Malinen, so let's thank him for both
+> his hard work and deep expertise on the subject ;-)
+> 	This APIs obviously doesn't do much by itself and works in
+> concert with driver support (Jouni already sent you the HostAP
+> changes) and userspace (Jouni is updating wpa_supplicant). This is
+> also orthogonal with the ongoing work on in-kernel IEEE support (but
+> potentially useful).
+> 	The patch is attached, tested with 2.6.11. Normally, I would
+> ask you to push that directly in the kernel (99% of the patch has been
+> on my web page for ages and it does not affect non-WPA stuff), but
+> Jouni convinced me that it should bake a few weeks in wireless-2.6
+> first, so that other driver maintainers can get up to speed with it.
+> 
+> 	So, would you mind pushing that in wireless-2.6 ?
+> 	Thanks in advance...
 
-Remove a redundant NULL pointer check prior to kfree(). kfree() has no 
-problem with NULL pointers.
+Applied to wireless-2.6, and will soon push upstream.
 
+NOTE:  Please include a Signed-off-by line in ALL patches that you submit.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+See http://linux.yyz.us/patch-format.html for more info.
 
---- linux-2.6.12-rc1-mm1-orig/fs/devfs/base.c	2005-03-02 08:37:49.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/fs/devfs/base.c	2005-03-22 23:51:23.000000000 +0100
-@@ -2738,10 +2738,8 @@ static int devfsd_close(struct inode *in
- 	entry = fs_info->devfsd_first_event;
- 	fs_info->devfsd_first_event = NULL;
- 	fs_info->devfsd_last_event = NULL;
--	if (fs_info->devfsd_info) {
--		kfree(fs_info->devfsd_info);
--		fs_info->devfsd_info = NULL;
--	}
-+	kfree(fs_info->devfsd_info);
-+	fs_info->devfsd_info = NULL;
- 	spin_unlock(&fs_info->devfsd_buffer_lock);
- 	fs_info->devfsd_pgrp = 0;
- 	fs_info->devfsd_task = NULL;
+	Jeff
 
 

@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284937AbRLKJGc>; Tue, 11 Dec 2001 04:06:32 -0500
+	id <S284935AbRLKJHd>; Tue, 11 Dec 2001 04:07:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284935AbRLKJGX>; Tue, 11 Dec 2001 04:06:23 -0500
-Received: from zero.tech9.net ([209.61.188.187]:21511 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S284937AbRLKJGP>;
-	Tue, 11 Dec 2001 04:06:15 -0500
-Subject: [PATCH] Re: console close race fix resend
-From: Robert Love <rml@tech9.net>
-To: marcelo@conectiva.com.br
-Cc: gordo@pincoya.com, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <3C15A79A.98EC0ADB@zip.com.au>
-In-Reply-To: <20011210191630.A13679@furble>,
-	<1008035512.4287.1.camel@phantasy>  <20011210191630.A13679@furble>
-	<1008050718.4287.11.camel@phantasy>  <3C15A79A.98EC0ADB@zip.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.10.08.57 (Preview Release)
-Date: 11 Dec 2001 04:05:30 -0500
-Message-Id: <1008061551.815.1.camel@phantasy>
-Mime-Version: 1.0
+	id <S284938AbRLKJHX>; Tue, 11 Dec 2001 04:07:23 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15670 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S284935AbRLKJHM>; Tue, 11 Dec 2001 04:07:12 -0500
+To: volodya@mindspring.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: mm question
+In-Reply-To: <Pine.LNX.4.20.0112102048390.18728-100000@node2.localnet.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 Dec 2001 01:47:06 -0700
+In-Reply-To: <Pine.LNX.4.20.0112102048390.18728-100000@node2.localnet.net>
+Message-ID: <m1snaiuos5.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I talked to Andrew off-list and we agree his fix is more correct. 
-It should be applied.  I tested it (I have a consistent method of
-reproducing the race under preempt-kernel) and it works.
+volodya@mindspring.com writes:
 
-I rediffed it against pre8 because I had trouble applying his, oddly. 
-Ignore previous patch.  Marcelo, please apply.  Seriously, this time.
+> On Mon, 10 Dec 2001, Alan Cox wrote:
+> 
+> > > Right, but instead of trying to balance cache available memory and swap
+> > > my swapper will only be concerned whether the page can be evicted and
+> > > whether it is from the address range I want.
+> > 
+> > You want to rewrite the entire vm to have back pointers ? Right now you
+> > can't find pages in an address range. Its all driven from the virtual side
+> > without reverse lookup tables.
+> > 
+> 
+> You are right I don't want to rewrite vm. But I can go thru virtual side
+> taking note of the physical address. I.e. base the decision to try and
+> free pages not on how old the page is but on what it's physical address
+> is.
+> 
+> You see, I don't want to find a few pages in 16mb range in 512mb system.
+> 
+> I want to find a few pages _outside_ 64mb range in a 512mb system. 
+> So if I free 70mb I _will_ be able to find at least 2mb in my desired
+> range. In fact I won't have to free that much as they it will work is
+> "try to free the page", "if succeed do not return to memory pool but
+> instead give to the 'special region list'"
+> 
+> Does this make sense ?
 
-	Robert Love
+There is actually a cheap trick that will achieve what you want.
+Allocate pages.  If you allocate a page in the 0-64mb range keep
+it allocated until you have allocated your 300KB > 64mb.  After
+you have all of the pages you want free the extra pages in 0-64mb that
+you didn't want...
 
---- linux-2.4.17-pre8/drivers/char/console.c	Mon Dec 10 20:48:50 2001
-+++ linux/drivers/char/console.c	Tue Dec 11 02:52:44 2001
-@@ -100,6 +100,7 @@
- #include <linux/tqueue.h>
- #include <linux/bootmem.h>
- #include <linux/pm.h>
-+#include <linux/smp_lock.h>
- 
- #include <asm/io.h>
- #include <asm/system.h>
-@@ -2348,17 +2349,25 @@
- 	set_leds();
- }
- 
-+/*
-+ * we can race here against con_close, so we grab the bkl
-+ * and check the pointer before calling set_cursor
-+ */
- static void con_flush_chars(struct tty_struct *tty)
- {
--	struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
-+	struct vt_struct *vt;
- 
- 	if (in_interrupt())	/* from flush_to_ldisc */
- 		return;
- 
- 	pm_access(pm_con);
-+	lock_kernel();
- 	acquire_console_sem();
--	set_cursor(vt->vc_num);
-+	vt = (struct vt_struct *)tty->driver_data;
-+	if (vt)
-+		set_cursor(vt->vc_num);
- 	release_console_sem();
-+	unlock_kernel();
- }
- 
- /*
-
+Eric

@@ -1,29 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279064AbRKMMc7>; Tue, 13 Nov 2001 07:32:59 -0500
+	id <S281521AbRKMMfj>; Tue, 13 Nov 2001 07:35:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281521AbRKMMct>; Tue, 13 Nov 2001 07:32:49 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61448 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279064AbRKMMcn>; Tue, 13 Nov 2001 07:32:43 -0500
-Subject: Re: SiS630 and 5591/5592 AGP
-To: gavbaker@ntlworld.com (Gavin Baker)
-Date: Tue, 13 Nov 2001 12:40:22 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, sgy@amc.com.au (Stuart Young)
-In-Reply-To: <20011113122033.A9379@box.penguin.power> from "Gavin Baker" at Nov 13, 2001 12:20:33 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281526AbRKMMf3>; Tue, 13 Nov 2001 07:35:29 -0500
+Received: from mail.loewe-komp.de ([62.156.155.230]:24839 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S281521AbRKMMfR>; Tue, 13 Nov 2001 07:35:17 -0500
+Message-ID: <3BF1138B.82B0FEED@loewe-komp.de>
+Date: Tue, 13 Nov 2001 13:35:23 +0100
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E163crX-000139-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: william fitzgerald <william.fitzgerald3@beer.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: printk performance logging without syslogd for router
+In-Reply-To: <E2D08E27D008FC940A0E24ADA76AD89F@william.fitzgerald3.beer.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Im using your patched sis_drv.o for X now. The performance increase is
-> noticable, but the Xv display still can't keep up with any highbandwidth video
-> (even 352x288 mpeg), so my dream of DVD playback is still far off but a lot
-> closer. ;)
+william fitzgerald wrote:
+> 
+> ---- Begin Original Message ----
+>  From: Peter Wächtler <pwaechtler@loewe-komp.de>
+> Sent: Tue, 13 Nov 2001 13:15:45 +0100
+> To: william fitzgerald
+> <william.fitzgerald3@beer.com>
+> CC: linux-kernel@vger.kernel.org
+> Subject: Re: printk performance logging without
+> syslogd for router
+> 
+> william fitzgerald wrote:
+> >
+> > hi all,
+> >
+> > (perforamnce logging of network stack through a
+> > linux router)
+> >
+> > the main question:
+> >
+> > is there a way i can buffer or record  the
+> printk
+> > statements and print them to disk  after my
+> > packets have gone through the router?
+> >
+> 
+> there is an option in syslogd to prevent
+> immediatly
+> writing to the logfile:
+> 
+> prefix the log with a dash:
+> 
+> kern.*  -/var/log/kernelmessages
+> 
+> ---- End Original Message ----
+> 
+> what does klogd do?
+> 
+> i thought klogd writes to disk if you turn off
+> syslogd.that way you only have one over head.
+> 
 
-For the SiS 6326 you want mtrr's set up to make it write combining and
-ideally the new Xvmc X11 support not just Xv
+OK, normally klogd pushes the messages to syslog.
+Then syslogd decides where and how to write to disk.
+
+If you use "klogd -f /tmp/logfile" I don't know how
+to prevent immediate write()s to disk. The source code
+of klogd will tell you :-)

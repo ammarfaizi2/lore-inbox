@@ -1,81 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284141AbRLAQJy>; Sat, 1 Dec 2001 11:09:54 -0500
+	id <S284136AbRLAQLO>; Sat, 1 Dec 2001 11:11:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284138AbRLAQJf>; Sat, 1 Dec 2001 11:09:35 -0500
-Received: from pc-62-31-66-178-ed.blueyonder.co.uk ([62.31.66.178]:21634 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S284136AbRLAQJ1>; Sat, 1 Dec 2001 11:09:27 -0500
-Date: Sat, 1 Dec 2001 16:08:39 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: sct@redhat.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] JBD code path (kfree cleanup)
-Message-ID: <20011201160839.A2773@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0112011324370.11026-100000@netfinity.realnet.co.sz>
+	id <S284138AbRLAQLL>; Sat, 1 Dec 2001 11:11:11 -0500
+Received: from bitmover.com ([192.132.92.2]:24003 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S284140AbRLAQK0>;
+	Sat, 1 Dec 2001 11:10:26 -0500
+Date: Sat, 1 Dec 2001 08:10:25 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Mark Frazer <mark@somanetworks.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Message-ID: <20011201081025.K19152@work.bitmover.com>
+Mail-Followup-To: Mark Frazer <mark@somanetworks.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <E169scn-0000kt-00@starship.berlin> <20011130110546.V14710@work.bitmover.com> <E169vcF-0000lQ-00@starship.berlin> <E169vcF-0000lQ-00@starship.berlin> <20011130155740.I14710@work.bitmover.com> <20011201022157.38ed90b5.skraw@ithnet.com> <20011201110430.A4737@somanetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0112011324370.11026-100000@netfinity.realnet.co.sz>; from zwane@linux.realnet.co.sz on Sat, Dec 01, 2001 at 01:28:56PM +0200
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20011201110430.A4737@somanetworks.com>; from mark@somanetworks.com on Sat, Dec 01, 2001 at 11:04:30AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Him
+On Sat, Dec 01, 2001 at 11:04:30AM -0500, Mark Frazer wrote:
+> Stephan von Krawczynski <skraw@ithnet.com> [01/11/30 20:27]:
+> > 4) Warning, this is the hard stuff!
+> > Ok, so you are fond of SUN. Well, me too. But I am not completely blind, not
+> > yet :-) So I must tell you, if Solaris were the real big hit, then why its
+> > Intel-Version is virtualy been eaten up on the market (the _buying_ market out
+> > there) by linux?
+> 
+> I can't say for the O/S buying market.  But I do embedded (pretty large
+> embedded systems but embedded nonetheless) development and we walked away
+> from Solaris after comparing the complexity of our first network drivers.
+> 
+> STREAMS:  just say no.
 
-On Sat, Dec 01, 2001 at 01:28:56PM +0200, Zwane Mwaikambo wrote:
-
-> Please comment on the code path change, it seems sane to me.
-
-No, it is broken.  Even a brief read of the comment above
-this code would have revealed that:
-
-		/*
-		 * If there is undo-protected committed data against
-		 * this buffer, then we can remove it now.  If it is a
-		 * buffer needing such protection, the old frozen_data
-		 * field now points to a committed version of the
-		 * buffer, so rotate that field to the new committed
-		 * data.
-
-The old code you replaced was:
-
-> diff -urN linux-2.5.1-pre4.orig/fs/jbd/commit.c linux-2.5.1-pre4.kfree/fs/jbd/commit.c
-> --- linux-2.5.1-pre4.orig/fs/jbd/commit.c	Sat Nov 10 00:25:04 2001
-> +++ linux-2.5.1-pre4.kfree/fs/jbd/commit.c	Fri Nov 30 23:08:58 2001
-> @@ -619,17 +619,15 @@
->  		 *
->  		 * Otherwise, we can just throw away the frozen data now.
->  		 */
-> -		if (jh->b_committed_data) {
-> -			kfree(jh->b_committed_data);
-> -			jh->b_committed_data = NULL;
-> -			if (jh->b_frozen_data) {
-> -				jh->b_committed_data = jh->b_frozen_data;
-> -				jh->b_frozen_data = NULL;
-> -			}
-
-and this version  has the intended effect of replacing any existing
-committed_data field with the current frozen_data field, keeping the
-contents of committed_data valid.  Your new code
-
-> +		kfree(jh->b_committed_data);
-> +		jh->b_committed_data = NULL;
-> +
-> +		if (jh->b_frozen_data)
-> +			jh->b_committed_data = jh->b_frozen_data;
-> +		else
->  			kfree(jh->b_frozen_data);
-> +
-> +		jh->b_frozen_data = NULL;
-
-will discard the state of committed_data entirely, and will assign any
-existing frozen_data to the new committed_data field even if
-committed_data was previously NULL.  That is *definitely* not the
-correct behaviour.  It won't actually corrupt anything but it will
-leak memory, as you'll end up creating committed_data copies of every
-metadata buffer in the system, instead of this being done only for
-those block bitmap buffers which need it.
-
-Cheers,
- Stephen
+Amen to that.  STREAMS would be one of the strongest arguments in favor
+of Linus' theory that evolution takes care of it.  STREAMS were done at
+Sun by some "architects" who thought they would be better than sockets.
+Linus is dead right, on this sort of issue, Linux responds quickly and 
+weeds out the crap.  We still have some room for discussion on the 
+design issues, but yeah, Sun blew it on this one and refused to admit it.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

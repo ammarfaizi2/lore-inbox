@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318510AbSHENnO>; Mon, 5 Aug 2002 09:43:14 -0400
+	id <S318630AbSHENnb>; Mon, 5 Aug 2002 09:43:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318505AbSHENnO>; Mon, 5 Aug 2002 09:43:14 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:52879 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S318502AbSHENnN>; Mon, 5 Aug 2002 09:43:13 -0400
-Date: Mon, 5 Aug 2002 15:46:07 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Jeff Dike <jdike@karaya.com>
-Cc: alan@redhat.com, mingo@elte.hu, rz@linux-m68k.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode
-Message-Id: <20020805154607.7c021c56.us15@os.inf.tu-dresden.de>
-In-Reply-To: <200208031529.KAA01655@ccure.karaya.com>
-References: <200208031233.g73CXUB02612@devserv.devel.redhat.com>
-	<200208031529.KAA01655@ccure.karaya.com>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S318650AbSHENna>; Mon, 5 Aug 2002 09:43:30 -0400
+Received: from dsl-213-023-043-082.arcor-ip.net ([213.23.43.82]:14230 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318630AbSHENn3>;
+	Mon, 5 Aug 2002 09:43:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Rmap speedup
+Date: Mon, 5 Aug 2002 15:48:26 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <E17aiJv-0007cr-00@starship> <3D4DB9E4.E785184E@zip.com.au> <3D4E23C4.F746CF3D@zip.com.au>
+In-Reply-To: <3D4E23C4.F746CF3D@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17biDi-0000w7-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 03 Aug 2002 10:29:42 -0500
-Jeff Dike <jdike@karaya.com> wrote:
+On Monday 05 August 2002 09:05, Andrew Morton wrote:
+> Andrew Morton wrote:
+> It makes basically no difference at all.  Maybe pulled back 10 of the lost
+> 50%.  The kernel is still spending much time in the pte_chain walk in
+> page_remove_rmap().
 
-> alan@redhat.com said:
-> > the alternatives like a seperate process and ptrace are not pretty either
+I wouldn't call that 'no difference', just not as much as hoped for.
 
-I have implemented a usermode version of the Fiasco µ-kernel that uses
-a seperate process for the kernel and one process for each task. The kernel
-process attaches to all tasks via ptrace.
-When the kernel wants to change the MM of a task it puts some trampoline code
-on a page mapped into each task's address space and has the task execute that
-code on behalf of the kernel.
-With that setup we have complete address space protection without all the
-trouble of jail at the expense of a few context switches for each mmap, munmap
-or mprotect operation.
+Well, I'm not quite out of tricks yet.  There's one more to go, and it just 
+might be worth more than all the others.  It's a little subtle though, and 
+I'm still working out some wrinkles, so I'll write it up in detail tomorrow.
 
-I would also very much like an extension that would allow one process to modify
-the MM of another, possibly via an extended ptrace interface or a new syscall.
-Also it would be nice if there was an alternate way to get at the cr2 register,
-trap number and error code other than from a SIGSEGV handler.
+For now, consider that our rmaps tend to form a lot of parallel chains.  That 
+is, if you look at the chains for two pages whose index differs by one, the 
+pte fields of each of the pte_chain nodes differs by 4.  This relationship 
+tends to hold quite consistently over rather large groups of pages, a fact 
+that I took advantage of in the lock batching.  Now, if we put a relative 
+number in the pte field instead of an absolute pointer, the corresponding 
+pte_chain nodes for all those parallel chains become identical.  How nice it 
+would be if we could share those pte chain nodes between pages.
 
-> All I would need to make this work is for one process to be able to change
-> the mm of another.
+I've convinced myself that this is possible.  It's a little tricky though: we 
+have to handle CoW unsharing, and the possibility of the index changing (as 
+with the lock batching, but in this case there's a little more work to do).
+My feeling is that the implementation will not be particularly messy, even 
+though it sounds scary on first blush.
 
-Yes, exactly.
+> Despite the fact that the number of pte_chain references in
+> page_add/remove_rmap now just averages two in that test.
 
-> Then, the current UML tracing thread would handle the kernel side of things
-> and sit in its own address space nicely protected from its processes.
+It's weird that it only averages two.  It's a four way and your running 10 in
+parallel, plus a process to watch for completion, right?
 
-Yes. I already have this part working for our kernel, so it's not just theory.
-I believe things could run yet another bit faster if we didn't have to do the
-trampoline map operations.
-
--Udo.
+-- 
+Daniel

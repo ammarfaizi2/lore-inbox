@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261581AbSK0Eul>; Tue, 26 Nov 2002 23:50:41 -0500
+	id <S261593AbSK0E4h>; Tue, 26 Nov 2002 23:56:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261574AbSK0Eul>; Tue, 26 Nov 2002 23:50:41 -0500
-Received: from ns.suse.de ([213.95.15.193]:30728 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261581AbSK0Euk>;
-	Tue, 26 Nov 2002 23:50:40 -0500
-To: kuznet@ms2.inr.ac.ru
-Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.48
-References: <Pine.LNX.4.33L2.0211261547450.2873-100000@dragon.pdx.osdl.net.suse.lists.linux.kernel> <200211270042.DAA19185@sex.inr.ac.ru.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Nov 2002 05:57:58 +0100
-In-Reply-To: kuznet@ms2.inr.ac.ru's message of "27 Nov 2002 01:49:57 +0100"
-Message-ID: <p73lm3ftxrd.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S261587AbSK0E4h>; Tue, 26 Nov 2002 23:56:37 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:57296 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S261593AbSK0E4g>; Tue, 26 Nov 2002 23:56:36 -0500
+Date: Wed, 27 Nov 2002 00:03:26 -0500
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.49-ac2
+Message-ID: <20021127050326.GB1642@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200211262321.gAQNLPR12191@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211262321.gAQNLPR12191@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru writes:
+On Tue, Nov 26, 2002 at 06:21:25PM -0500, Alan Cox wrote:
+> Linux 2.5.49-ac2
+> o	Switch to maintainrs preferred vlsi_ir fix	(Adrian Bunk)
+> o	Fix SiS APIC building				(me)
 
-> > It would be OK with me not to accept such extensions.  :)
-> 
-> One of a few of extensions which does not cause any reaction
-> but "it's strange that it was not in KR, apparently it was lost
-> due to a buglet in the first parser" :-)
+In the new GUI config tool the only uniprocessor APIC option I see is
+a branch under NCR Voyager. I'm assuming that it's misplaced, unless 
+it breaks something, and selecting it anyway.
 
-IMHO it's a bit dangerous. It even inspired me to my first gcc
-patch, adding a warning for: 
+-- 
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.freenode.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker 
 
-	bla > 0 ? : somethingelse
-
-(boolean expression as first argument) 
-
-returning the boolean value for true which would be always 1. But the real 
-intention was to return bla. I did this mistake at least twice. After that 
-I decided to avoid this extension. Unfortunately the gcc guys ignored the patch
-to warn for it.
-
--Andi

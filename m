@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261512AbSJQPPz>; Thu, 17 Oct 2002 11:15:55 -0400
+	id <S261452AbSJQP1g>; Thu, 17 Oct 2002 11:27:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261531AbSJQPPz>; Thu, 17 Oct 2002 11:15:55 -0400
-Received: from [198.149.18.6] ([198.149.18.6]:57805 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S261512AbSJQPPy>;
-	Thu, 17 Oct 2002 11:15:54 -0400
-Date: Thu, 17 Oct 2002 10:21:47 -0500
-From: John Hesterberg <jh@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: Robin Holt <holt@sgi.com>
-Subject: [PATCH] 2.5.43 CSA, Job, and PAGG
-Message-ID: <20021017102146.A17642@sgi.com>
+	id <S261455AbSJQP1g>; Thu, 17 Oct 2002 11:27:36 -0400
+Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:54109 "EHLO
+	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S261452AbSJQP1f>;
+	Thu, 17 Oct 2002 11:27:35 -0400
+Date: Thu, 17 Oct 2002 17:33:26 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@digeo.com>, Dave Hansen <haveblue@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: (2.5.43mm1) Unable to handle kernel paging request
+Message-ID: <20021017173326.A16400@jaquet.dk>
+References: <3DADCEFC.7C17B1CC@digeo.com> <Pine.LNX.4.44.0210170028360.1466-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210170028360.1466-100000@localhost.localdomain>; from hugh@veritas.com on Thu, Oct 17, 2002 at 12:33:15AM +0100
+X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
+X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.43 versions of CSA, Job, and PAGG patches are available at:
-    ftp://oss.sgi.com/projects/pagg/download/linux-2.5.43-pagg-job.patch
-    ftp://oss.sgi.com/projects/csa/download/linux-2.5.43-csa.patch
-The CSA and job user-level code is in the same directories.
 
-CSA (Comprehensive System Accounting) provides methods for
-collecting per-process resource usage data, monitoring disk usage,
-and charging fees to specific login accounts.  CSA provides features
-which are not available with the other Linux accounting packages.
-For more information, see:
-     http://oss.sgi.com/projects/csa/
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Linux Jobs is an inescapable process container that is typically
-created by point of entry processes like login, and inherited by
-children.  PAGG (Process Aggregates) is a generic framework for
-implementing process containers such as Linux Jobs.
-For more information, see:
-    http://oss.sgi.com/projects/pagg/
-    
-CSA depends on Linux Jobs, and Linux Jobs depends on PAGG.
+On Thu, Oct 17, 2002 at 12:33:15AM +0100, Hugh Dickins wrote:
+> > Does it happen on 2.5.43?
+>=20
+> Isn't this covered by Trond's patch below:
 
-diffstat linux-2.5.43-pagg-job.patch
- Documentation/job.txt     |  436 +++++++++
- Documentation/pagg.txt    |  151 +++
- include/linux/init_task.h |    4 
- include/linux/job.h       |  261 +++++
- include/linux/jobctl.h    |  167 +++
- include/linux/pagg.h      |  242 +++++
- include/linux/sched.h     |    4 
- init/Config.help          |   28 
- init/Config.in            |    4 
- kernel/Makefile           |   10 
- kernel/exit.c             |   15 
- kernel/fork.c             |   11 
- kernel/job.c              | 2023 ++++++++++++++++++++++++++++++++++++++++++++++
- kernel/pagg.c             |  418 +++++++++
- 14 files changed, 3768 insertions(+), 6 deletions(-)
+This fixed it. Thanks.
 
-diffstat linux-2.5.43-csa.patch                            
- drivers/block/ll_rw_blk.c    |    4 
- fs/exec.c                    |    4 
- fs/read_write.c              |   18 
- include/linux/csa.h          |  522 ++++++++++++++
- include/linux/csa_internal.h |   87 ++
- include/linux/sched.h        |   20 
- init/Config.help             |   19 
- init/Config.in               |    1 
- kernel/Makefile              |    1 
- kernel/csa_job_acct.c        | 1586 +++++++++++++++++++++++++++++++++++++++++++
- kernel/exit.c                |    7 
- kernel/fork.c                |    7 
- kernel/ksyms.c               |    4 
- mm/memory.c                  |   18 
- mm/mmap.c                    |    9 
- mm/mremap.c                  |    8 
- mm/rmap.c                    |    3 
- mm/swapfile.c                |    4 
- 18 files changed, 2319 insertions(+), 3 deletions(-)
+Rasmus
 
-John Hesterberg and Robin Holt
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9rthGlZJASZ6eJs4RAusXAJ9PkPpHxnvVR3dSEKAlFefPD1rmdACdF4j9
+DuWojFaHMllYadViqBYQX0Y=
+=3aw3
+-----END PGP SIGNATURE-----
+
+--AhhlLboLdkugWU4S--

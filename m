@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132765AbRDURd6>; Sat, 21 Apr 2001 13:33:58 -0400
+	id <S132776AbRDURtT>; Sat, 21 Apr 2001 13:49:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132769AbRDURdj>; Sat, 21 Apr 2001 13:33:39 -0400
-Received: from diup-184-214.inter.net.il ([213.8.184.214]:52997 "EHLO
-	callisto.yi.org") by vger.kernel.org with ESMTP id <S132765AbRDURd1>;
-	Sat, 21 Apr 2001 13:33:27 -0400
-Date: Sat, 21 Apr 2001 20:33:05 +0300 (IDT)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@image.dk>
-Subject: Re: cdrom driver dependency problem (and a workaround patch)
-In-Reply-To: <20010421134412.O682@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.32.0104212032310.28315-100000@callisto.yi.org>
+	id <S132777AbRDURtJ>; Sat, 21 Apr 2001 13:49:09 -0400
+Received: from www.wen-online.de ([212.223.88.39]:22795 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S132776AbRDURs6>;
+	Sat, 21 Apr 2001 13:48:58 -0400
+Date: Sat, 21 Apr 2001 19:48:25 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: try_to_swap_out() deactivating pages w. count > 2
+In-Reply-To: <Pine.LNX.4.21.0104211336390.1685-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0104211925170.327-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Apr 2001, Ingo Oeser wrote:
+On Sat, 21 Apr 2001, Rik van Riel wrote:
 
-> > In order to get my kernel to boot, I've made the following temporary
-> > workaround patch. I'd be glad to hear about other ways of solving this.
+> On Sat, 21 Apr 2001, Mike Galbraith wrote:
 >
-> The link order is wrong. So why not changing the link order then?
+> > 30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:29 count:164 [164? 1]
+> > 30:04: [pid-4] page:c10599a8 deact:0 cache:0 age:26 count:164
+>
+> > 1.  what kind of page has 164 references?
+>
+> mmap(/lib/libc.so, FLAGS);
 
-I remember doing what the patch below does.
-It didn't help.
+I figured that out too in the meantime.  (14hrs at a stretch makes
+more than eyeballs bleary..)
 
-Did you try this patch?
+> > 2.  why deactivate pages (lots) with count > 2?  PINGpong.
+>
+> They're not deactivated, they're removed from this proces' virtual
+> memory mapping.
 
-> --- Makefile.orig       Sat Apr 21 12:34:34 2001
-> +++ Makefile    Sat Apr 21 12:35:12 2001
-> @@ -149,15 +149,15 @@
->  DRIVERS-$(CONFIG_WAN) += drivers/net/wan/wan.o
->  DRIVERS-$(CONFIG_ARCNET) += drivers/net/arcnet/arcnetdrv.o
->  DRIVERS-$(CONFIG_ATM) += drivers/atm/atm.o
-> -DRIVERS-$(CONFIG_IDE) += drivers/ide/idedriver.o
-> -DRIVERS-$(CONFIG_SCSI) += drivers/scsi/scsidrv.o
-> -DRIVERS-$(CONFIG_FUSION_BOOT) += drivers/message/fusion/fusion.o
-> -DRIVERS-$(CONFIG_IEEE1394) += drivers/ieee1394/ieee1394drv.o
->
->  ifneq ($(CONFIG_CD_NO_IDESCSI)$(CONFIG_BLK_DEV_IDECD)$(CONFIG_BLK_DEV_SR)$(CONFIG_PARIDE_PCD),)
->  DRIVERS-y += drivers/cdrom/driver.o
->  endif
->
-> +DRIVERS-$(CONFIG_IDE) += drivers/ide/idedriver.o
-> +DRIVERS-$(CONFIG_SCSI) += drivers/scsi/scsidrv.o
-> +DRIVERS-$(CONFIG_FUSION_BOOT) += drivers/message/fusion/fusion.o
-> +DRIVERS-$(CONFIG_IEEE1394) += drivers/ieee1394/ieee1394drv.o
->  DRIVERS-$(CONFIG_SOUND) += drivers/sound/sounddrivers.o
->  DRIVERS-$(CONFIG_PCI) += drivers/pci/driver.o
->  DRIVERS-$(CONFIG_MTD) += drivers/mtd/mtdlink.o
->
->
-> Would be my idea of solving this issue.
->
-> Regards
->
-> Ingo Oeser
-> --
-> 10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
->          <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+blush.. yup.
 
---
-Dan Aloni
-dax@karrde.org
+> What I _am_ worried about is the fact that we do this to pages with
+> a really high page age. These things are in active use and cannot
+> be swapped out any time soon, yet we do claim swap space for it ...
+
+I'll see if it makes any noticable difference tomorrow.  Enough
+fruitless effort for one day.
+
+:) Am I likely to learn more about how swapcache works when I try
+to instantly donate these to page_launder() tomorrow morning?
+
+[4] mm:c2ce9f00 page:c1001060 deact:0 cache:1 buf:0 age:5 cnt:1
+[2285] mm:c67ef760 page:c1002b18 deact:0 cache:1 buf:0 age:5 cnt:1
+
+	-Mike
 

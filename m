@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130048AbRB1Clg>; Tue, 27 Feb 2001 21:41:36 -0500
+	id <S130050AbRB1CqG>; Tue, 27 Feb 2001 21:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130050AbRB1Cl1>; Tue, 27 Feb 2001 21:41:27 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:20728 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S130048AbRB1ClL>;
-	Tue, 27 Feb 2001 21:41:11 -0500
-Date: Tue, 27 Feb 2001 18:41:09 -0800
-To: Greg KH <greg@wirex.com>, Dag Brattli <dag@brattli.net>,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] patch-2.4.2-irda1 (irda-usb)
-Message-ID: <20010227184109.B6898@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20010227093329.A10482@wirex.com> <200102272032.UAA74232@tepid.osl.fast.no> <20010227135810.E910@wirex.com>
-Mime-Version: 1.0
+	id <S130051AbRB1Cpr>; Tue, 27 Feb 2001 21:45:47 -0500
+Received: from ns1.dohring.com ([64.210.3.222]:44539 "EHLO
+	mailserver.dohring.com") by vger.kernel.org with ESMTP
+	id <S130050AbRB1Cpn>; Tue, 27 Feb 2001 21:45:43 -0500
+Message-ID: <3A9C6620.F380491@neopets.com>
+Date: Tue, 27 Feb 2001 18:44:48 -0800
+From: Gashaw Teshome <gasht@neopets.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-21mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.2 & eepro100
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010227135810.E910@wirex.com>; from greg@wirex.com on Tue, Feb 27, 2001 at 01:58:11PM -0800
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 27, 2001 at 01:58:11PM -0800, Greg KH wrote:
-> On Tue, Feb 27, 2001 at 08:32:28PM +0000, Dag Brattli wrote:
-> > > I'd recommend that this file be in the /drivers/usb directory, much like
-> > > almost all other USB drivers are.
-> > 
-> > Yes, but do we want to spread the IrDA code around? The same argument
-> > applies to IrDA device drivers!?
-> 
-> I agree, and am not saying that it _has_ to be there.  Just a
-> suggestion, and if you're comfortable with it in the irda directory,
-> that's fine.
-> 
-> thanks,
-> 
-> greg k-h
+I recently compiled a fresh download of a 2.4.2 kernel to test a server
+at work.  The machine is a dual P-III, 512 MB RAM on an Intel L440GX+
+motherboard with a built in eepro100 network interface.  Almost
+immediately after boot up, the kernel started reporting:
 
-	Hi,
+Feb 23 19:40:23 www136 kernel: NET: 486 messages suppressed.
+Feb 23 19:40:29 www136 kernel: NET: 858 messages suppressed.
+Feb 23 19:40:33 www136 kernel: NET: 879 messages suppressed.
+Feb 23 19:40:38 www136 kernel: NET: 983 messages suppressed.
+Feb 23 19:40:43 www136 kernel: NET: 1296 messages suppressed.
+Feb 23 19:40:49 www136 kernel: NET: 1780 messages suppressed.
+Feb 23 19:40:53 www136 kernel: NET: 1378 messages suppressed.
+Feb 23 19:40:58 www136 kernel: NET: 246 messages suppressed.
+Feb 23 19:41:04 www136 kernel: NET: 173 messages suppressed.
+Feb 23 19:41:09 www136 kernel: NET: 32 messages suppressed.
+Feb 23 19:42:32 www136 kernel: NET: 37 messages suppressed.
 
-	First thanks for Dag for bringing me into the conversation. I
-may add my little bit of spice, especially that I was the one pushing
-for having the driver in .../drivers/net/irda.
-	By the way, Greg, sorry if I hurt your feeling, I don't want
-to put down any of the great work that has been done on the USB stack.
+At the same time, our bandwidth graph (rrdtool) showed almost zero
+network traffic.  Also, load on the test machine went to 30!  After the
+errors went away, bandwidth returned to normal and load went down
+considerably.
 
-	My feeling is that devices are mostly defined by their higher
-level interface, because this is what is closer to the user.
-	If I look at a Pcmcia Ethernet card, I will tend to associate
-more with a PCI Ethernet card rather than a Pcmcia SCSI card. Both
-card have the same high level interface (TCP/IP) even if their low
-level interface is different (Pcmcia, PCI).
-	People tend to agree with that, and that's why you have
-directories called drivers/net, drivers/scsi and driver/sound, rather
-that drivers/pci, drivers/isa, drivers/mca and drivers/pcmcia.
+This cycle (error message, extremely high load, zero bandwidth) repeated
+about every half hour and lasted for about 1 1/2 minutes.  I eventually
+took the machine down and rebooted it with its original 2.2 kernel. 
+There were no more error messages or bandwidth drops after that.
 
-	If I get an IrDA-USB dongle, the feature that matter the most
-is that it does IrDA, the fact that it connect to my PC via USB is
-rather secondary.
-	That's it. I hope it explain some of the rationale and why we
-departed from the usual drivers/usb arrangement. Actually, I think
-that stuffing all USB drivers in drivers/usb is not that great, but
-that's not my call...
+I have heard mentioned that there are some issues with the eepro100
+driver in 2.4.x.  Could that be the cause of this strange behaviour? 
+Any help would be appreciated.
 
-	Have fun...
 
-	Jean
+Gash Teshome

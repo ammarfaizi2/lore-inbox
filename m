@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263264AbUCNDbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 22:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbUCNDbJ
+	id S263267AbUCNDfm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 22:35:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263268AbUCNDfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 22:31:09 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:36812 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263264AbUCNDbG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 22:31:06 -0500
-Message-ID: <4053D1EB.1070108@cyberone.com.au>
-Date: Sun, 14 Mar 2004 14:30:51 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [RFC] kref, a tiny, sane, reference count object
-References: <20040313082003.GA13084@kroah.com> <20040313163451.3c841ac2.akpm@osdl.org>
-In-Reply-To: <20040313163451.3c841ac2.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Mar 2004 22:35:42 -0500
+Received: from main.gmane.org ([80.91.224.249]:64182 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263267AbUCNDfl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 22:35:41 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: drivers/usb/class/usblp.c: usblp0: on fire
+Date: Sat, 13 Mar 2004 19:35:53 -0800
+Message-ID: <pan.2004.03.14.03.35.52.138779@triplehelix.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-126-222-152.dsl.pltn13.pacbell.net
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+$SUBJECT pretty much scared the hell out of me...
 
-Andrew Morton wrote:
+I noticed something fishy going on with USB in 2.6.4, maybe before. I am
+having lots of trouble printing using usblp. Once, I got the
+aforementioned message, and sometimes I get 
 
->Greg KH <greg@kroah.com> wrote:
->
->>For all of those people, this patch is for you.
->>
->
->It does rather neatly capture a common idiom.
->
+usb 2-1: control timeout on ep0in
 
-But as Andi said - look at all the crap involved when:
+Many times repeated. The bottom line is that I cannot print and I'm not
+sure whether it's something I forgot to configure after reinstalling this
+box, or something with the kernel. Could I be enlightented?
 
-atomic_inc();
-if (atomic_dec_and_test())
-    release();
-Also neatly captures that idiom.
+-- 
+Joshua Kwan
 
-And you get more flexibility by being able to use atomic_set
-directly too.
-
-
-But if you really like it, I agree it shouldn't allow NULL
-pointers and probably get, put and cleanup should be inline.
 

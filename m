@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267352AbTAGJhT>; Tue, 7 Jan 2003 04:37:19 -0500
+	id <S267354AbTAGJlL>; Tue, 7 Jan 2003 04:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267354AbTAGJhT>; Tue, 7 Jan 2003 04:37:19 -0500
-Received: from [212.71.168.94] ([212.71.168.94]:62949 "EHLO
-	vagabond.cybernet.cz") by vger.kernel.org with ESMTP
-	id <S267352AbTAGJhT>; Tue, 7 Jan 2003 04:37:19 -0500
-Date: Tue, 7 Jan 2003 10:45:47 +0100
-From: Jan Hudec <bulb@ucw.cz>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: John Bradford <john@grabjohn.com>, Max Valdez <maxvaldez@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Undelete files on ext3 ??
-Message-ID: <20030107094547.GG2141@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
-	Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-	John Bradford <john@grabjohn.com>, Max Valdez <maxvaldez@yahoo.com>,
-	linux-kernel@vger.kernel.org
-References: <200301070859.h078xEnI000337@darkstar.example.net> <Pine.LNX.4.44.0301071004550.30728-100000@dns.toxicfilms.tv>
-Mime-Version: 1.0
+	id <S267358AbTAGJlL>; Tue, 7 Jan 2003 04:41:11 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:16900 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S267354AbTAGJlK>; Tue, 7 Jan 2003 04:41:10 -0500
+Message-ID: <3E1AA2DF.E6991506@aitel.hist.no>
+Date: Tue, 07 Jan 2003 10:50:23 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.54 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: Kaleb Pederson <kibab@icehouse.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: windows=stable, linux=reboots 5 times/50 minutes
+References: <LDEEIFJOHNKAPECELHOAAEJICCAA.kibab@icehouse.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301071004550.30728-100000@dns.toxicfilms.tv>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 10:29:06AM +0100, Maciej Soltysiak wrote:
-> > There is no simple way, no.
-> What about IDE Taskfile access, it's help says something like it's the
-> crown jewel of hard drive forensics.
+Kaleb Pederson wrote:
 > 
-> One question, how ext2/3 deletes files? similarily to fat by renaming the
-> first character?
+> Alan Cox Wrote:
+> > Start with the easy bits. Check the CPU fans, run memtest86, reseat all
+> the cards
+> > ... Also if your windows test wasnt SMP its not going to have tested much.
+> 
+> I just reseated everything on my system and it still keeps rebooting.  I
+> have two nice fans for my processors using thermal compound and both are
+> working correctly.  I forgot to mention that I ran through several
+> iterations of memtest86 a few weeks ago and it found no problems.  I also
+> re-ran it two days ago and it again passed several iterations without errors
+> at which point I started looking to other things.  LKML is my last resort.
 
-No. By removing the directory entry completely and marking the inode
-unused.
+Are you running the _same_ version of linux that worked with the drive
+that broke?
+If not, try an older kernel.  The current one could be buggy in some
+way.
 
-By the way, there used to be undelete tool for ext2. It created a list
-of deleted inodes with correct stat, but no names, only their inode
-numbers. You could then pick the corect inode and give it a name, thus
-bringing it back to life. Since ext3 is just ext2 with journal, I guess
-it might work. It existed as a standalone tool and integrated to
-midnight commander.
+Assuming that the new drive is the only difference, try using hdparm
+and deliberately run a slower transfer mode than what you do now.
+Or try turning off DMA.  The new drive could have different
+timing requirements, and fail to work with a linux setup "tweaked"
+for the other drive.  Windows don't necessarily use the same
+transfer speed as linux and could be fine because of that.
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+Also, consider mounting /var synchronous.  This is slow, a 
+debugging-only thing, but you stand a better chance of logging
+the failure in /var/log/syslog.  (You have looked there
+already?)  Any kind of error message will help us
+find out whats wrong.  You may also want to try
+booting without X to see if you get any oops/panic/bug
+messages on the console when it crashes.
+
+
+Helge Hafting

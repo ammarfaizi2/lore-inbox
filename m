@@ -1,104 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265530AbUGGWAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265531AbUGGWDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265530AbUGGWAw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 18:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbUGGWAw
+	id S265531AbUGGWDM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 18:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265534AbUGGWDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 18:00:52 -0400
-Received: from smtp08.auna.com ([62.81.186.18]:7100 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S265530AbUGGWAs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 18:00:48 -0400
-Date: Thu, 8 Jul 2004 00:00:47 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: ALSA oops in 2.6.7-mm6
-Message-ID: <20040707220047.GA4462@werewolf.able.es>
+	Wed, 7 Jul 2004 18:03:12 -0400
+Received: from mail-relay-4.tiscali.it ([212.123.84.94]:61152 "EHLO
+	sparkfist.tiscali.it") by vger.kernel.org with ESMTP
+	id S265531AbUGGWDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 18:03:10 -0400
+Date: Thu, 8 Jul 2004 00:02:58 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mason@suse.com, marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: Unnecessary barrier in sync_page()?
+Message-ID: <20040707220258.GV28479@dualathlon.random>
+References: <20040707175724.GB3106@logos.cnet> <20040707182025.GJ28479@dualathlon.random> <20040707112953.0157383e.akpm@osdl.org> <20040707184202.GN28479@dualathlon.random> <1089233823.3956.80.camel@watt.suse.com> <20040707210608.GS28479@dualathlon.random> <20040707143015.03379d0f.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
-	protocol="application/pgp-signature"; boundary="fUYQa+Pmc3FrFX/N"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Mailer: Balsa 2.0.18
+In-Reply-To: <20040707143015.03379d0f.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 07, 2004 at 02:30:15PM -0700, Andrew Morton wrote:
+> And we cannot lock the page because, err, we need to run sync_page() for
+> that.
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+exactly ;)
 
-Hi all...
+> But I cannot think of any callers of sync_page() who don't have a ref on
+> the inode, so...
 
-I get this as soon as I try to adjust a control on gnome-alsa-mixer:
-
-Jul  7 18:06:58 werewolf kernel: bad: scheduling while atomic!
-Jul  7 18:06:58 werewolf kernel:  [schedule+1743/2172] schedule+0x6cf/0x87c
-Jul  7 18:06:58 werewolf kernel:  [__alloc_pages+145/720] __alloc_pages+0x9=
-1/0x2d0
-Jul  7 18:06:58 werewolf kernel:  [pg0+945635588/1069547520] snd_ctl_read+0=
-x1fa/0x2c4 [snd]
-Jul  7 18:06:58 werewolf kernel:  [schedule_timeout+173/175] schedule_timeo=
-ut+0xad/0xaf
-Jul  7 18:06:58 werewolf kernel:  [pg0+945635900/1069547520] snd_ctl_poll+0=
-x6e/0x88 [snd]
-Jul  7 18:06:58 werewolf kernel:  [<f89d223c>] snd_ctl_poll+0x6e/0x88 [snd]
-Jul  7 18:06:58 werewolf kernel:  [do_pollfd+74/127] do_pollfd+0x4a/0x7f
-Jul  7 18:06:58 werewolf kernel:  [do_poll+152/183] do_poll+0x98/0xb7
-Jul  7 18:06:58 werewolf kernel:  [sys_poll+418/558] sys_poll+0x1a2/0x22e
-Jul  7 18:06:58 werewolf kernel:  [sys_ioctl+245/673] sys_ioctl+0xf5/0x2a1
-Jul  7 18:06:58 werewolf kernel:  [__pollwait+0/193] __pollwait+0x0/0xc1
-Jul  7 18:06:58 werewolf kernel:  [sys_read+56/89] sys_read+0x38/0x59
-Jul  7 18:06:58 werewolf kernel:  [sysenter_past_esp+82/113] sysenter_past_=
-esp+0x52/0x71
-
-one other:
-
-Jul  7 18:20:50 werewolf kernel: bad: scheduling while atomic!
-Jul  7 18:20:50 werewolf kernel:  [schedule+1743/2172] schedule+0x6cf/0x87c
-Jul  7 18:20:50 werewolf kernel:  [write_chan+461/519] write_chan+0x1cd/0x2=
-07
-Jul  7 18:20:50 werewolf kernel:  [pg0+945635588/1069547520] snd_ctl_read+0=
-x1fa/0x2c4 [snd]
-Jul  7 18:20:50 werewolf kernel:  [normal_poll+338/390] normal_poll+0x152/0=
-x186
-Jul  7 18:20:50 werewolf kernel:  [schedule_timeout+173/175] schedule_timeo=
-ut+0xad/0xaf
-Jul  7 18:20:50 werewolf kernel:  [pg0+945635900/1069547520] snd_ctl_poll+0=
-x6e/0x88 [snd]
-Jul  7 18:20:50 werewolf kernel:  [do_pollfd+74/127] do_pollfd+0x4a/0x7f
-Jul  7 18:20:50 werewolf kernel:  [do_poll+152/183] do_poll+0x98/0xb7
-Jul  7 18:20:50 werewolf kernel:  [sys_poll+418/558] sys_poll+0x1a2/0x22e
-Jul  7 18:20:50 werewolf kernel:  [__pollwait+0/193] __pollwait+0x0/0xc1
-Jul  7 18:20:50 werewolf kernel:  [sys_read+56/89] sys_read+0x38/0x59
-Jul  7 18:20:50 werewolf kernel:  [sysenter_past_esp+82/113] sysenter_past_=
-esp+0x52/0x71
-
-Kernel is 2.6.7-mm6 just with aic7xxx update from Justin's site.
-Something is broken between ALSA and preempt, perhaps ?
-
-Any idea ?
-
-BTW, will the aic update ever get to mainline ? Or at least -mm ;)
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandrakelinux release 10.1 (Cooker) for i586
-Linux 2.6.7-jam10 (gcc 3.4.1 (Mandrakelinux (Cooker) 3.4.1-1mdk)) #1
-
---fUYQa+Pmc3FrFX/N
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA7HKPRlIHNEGnKMMRAurbAKCRZRM2c5vqnjwuXt4Cq0wjlo8mugCfe9SI
-Ko2TsoiYfZFFB5UF0KrCxfc=
-=xOLl
------END PGP SIGNATURE-----
-
---fUYQa+Pmc3FrFX/N--
+I'm thinking, does handle_write_error() holds a ref on the inode? that's
+the VM and it finds the page without passing through the inode. I'm
+afraid the VM isn't safe calling lock_page, or am I overlooking
+something here?

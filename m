@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269340AbUICHzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269353AbUICH6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269340AbUICHzW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 03:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269353AbUICHzV
+	id S269353AbUICH6B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 03:58:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269360AbUICH6B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 03:55:21 -0400
-Received: from [139.30.44.16] ([139.30.44.16]:32164 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S269340AbUICHxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 03:53:54 -0400
-Date: Fri, 3 Sep 2004 09:51:25 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: George Anzinger <george@mvista.com>
-cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
-       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
-       voland@dmz.com.pl, nicolas.george@ens.fr, david+powerix@blue-labs.org
-Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
-In-Reply-To: <41381DC6.8050001@mvista.com>
-Message-ID: <Pine.LNX.4.53.0409030949460.20327@gockel.physik3.uni-rostock.de>
-References: <87smcf5zx7.fsf@devron.myhome.or.jp> <412285A5.9080003@mvista.com>
- <1092782243.2429.254.camel@cog.beaverton.ibm.com>
- <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>
- <1092787863.2429.311.camel@cog.beaverton.ibm.com> <1092781172.2301.1654.camel@cube>
- <1092791363.2429.319.camel@cog.beaverton.ibm.com>
- <Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>
- <20040819191537.GA24060@elektroni.ee.tut.fi> <20040826040436.360f05f7.akpm@osdl.org>
- <Pine.LNX.4.53.0408261311040.21236@gockel.physik3.uni-rostock.de>
- <Pine.LNX.4.53.0408310037280.5596@gockel.physik3.uni-rostock.de>
- <1093916047.14662.144.camel@cog.beaverton.ibm.com>
- <Pine.LNX.4.53.0408310757430.6523@gockel.physik3.uni-rostock.de>
- <87fz61yf75.fsf@devron.myhome.or.jp> <4137896E.5080802@mvista.com>
- <87u0uggxme.fsf@devron.myhome.or.jp> <4137C1FA.7070000@mvista.com>
- <87wtzct47h.fsf@ibmpc.myhome.or.jp> <41381DC6.8050001@mvista.com>
+	Fri, 3 Sep 2004 03:58:01 -0400
+Received: from asplinux.ru ([195.133.213.194]:44046 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S269353AbUICH5r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 03:57:47 -0400
+Message-ID: <413826A6.4000503@sw.ru>
+Date: Fri, 03 Sep 2004 12:09:10 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: William Lee Irwin III <wli@holomorphy.com>, torvalds@osdl.org,
+       dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+Subject: Re: INIT hangs with tonight BK pull (2.6.9-rc1+)
+References: <200409030204.11806.dtor_core@ameritech.net> <20040903073230.GM3106@holomorphy.com>
+In-Reply-To: <20040903073230.GM3106@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004, George Anzinger wrote:
-
-> OGAWA Hirofumi wrote:
-> > in time_init(), and hpet_time_init(),
-> >         xtime.tv_nsec = (INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ);
-> > should be
-> >         xtime.tv_nsec = ((long)INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ);
-> > 
-> > because
-> > 	(INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ)		== 296000000
-> > and
-> > 	((long)INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ)	== 0
+>>After doing BK pull last night INIT gets stuck in do_tty_hangup after
+>>executing rc.sysinit. Was booting fine with pull from 2 days ago...
+>>Anyone else seeing this?
+>>I suspect pidhash patch because it touched tty_io.c, but I have not tried
+>>reverting it as it is getting too late here... So I apologize in advance
+>>if I am pointing finger at the innocent ;)
 > 
-> It is possible that I am missing something here, but I just don't see that it 
-> matters.  If the wall clock is set jiffies is not changed so there is no implied 
-> or actual alignment between these two.
 > 
-> Is there a calculation in the system that would differ if this were changed?
+> Well, I was excited about blowing away 100B from each task but am now
+> a bit concerned about the semantic impact of the refcounting part of it.
+> It's unclear what pins an ID while a tty has a reference to it without
+> the reference counting; Kirill, could you answer this?
+stop.
+tty doesn't hold reference to ID neither in my patch nor in the original 
+kernel.
+tty only knows session ID and wants to traverse all tasks with such ID. 
+if task dies it calls detach_pid() and it won't be found in such a loop.
+No reference counting is required.
 
-Yep, I also think it _should_ not matter at all. That's why I suggested 
-setting it to zero, but maybe we just shouldn't touch it..
+The problem was in loop. Or more exactly my 
+do_each_task_pid()/while_each_task_pid() macros were incompatible with 
+continue statement inside. It was really foolish error. Like the most are...
 
-Tim
+Kirill
+

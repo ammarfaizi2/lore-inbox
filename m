@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbUK2WjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbUK2WjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbUK2WjQ (ORCPT <rfc822;willy@w.ods.org>);
+	id S261849AbUK2WjQ (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 29 Nov 2004 17:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbUK2WgL
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbUK2Wft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 17:36:11 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:36804 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261845AbUK2WdV (ORCPT
+	Mon, 29 Nov 2004 17:35:49 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:53386 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261849AbUK2WeH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 17:33:21 -0500
-Date: Mon, 29 Nov 2004 14:33:12 -0800
-From: Greg KH <greg@kroah.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: Gerrit Huizenga <gh@us.ibm.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Rik van Riel <riel@redhat.com>,
-       Chris Mason <mason@suse.com>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [PATCH] CKRM: 3/10 CKRM:  Core ckrm, rcfs
-Message-ID: <20041129223312.GA20667@kroah.com>
-References: <E1CYqYe-00057g-00@w-gerrit.beaverton.ibm.com> <20041129220047.GC19892@kroah.com> <527jo4s31r.fsf@topspin.com>
+	Mon, 29 Nov 2004 17:34:07 -0500
+Date: Mon, 29 Nov 2004 23:32:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Darren Hart <dvhltc@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: scheduler BUGON lifespan
+Message-ID: <20041129223247.GA27705@elte.hu>
+References: <1101762694.29380.23.camel@farah.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <527jo4s31r.fsf@topspin.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1101762694.29380.23.camel@farah.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 29, 2004 at 02:28:32PM -0800, Roland Dreier wrote:
->     Greg> Ick.  Don't put a _t at the end of a typedef.  Wrong OS
->     Greg> style guide.
-> 
-> Just out of curiousity, who wrote the line
-> 
-> 	typedef int __bitwise kobject_action_t;
-> 
-> in <linux/kobject_uevent.h>?  From the changelog it almost looks like
-> you did it ;)
 
-Yeah, at Linus's insistance.  See his email about the whole __bitwise
-stuff for that :(
+* Darren Hart <dvhltc@us.ibm.com> wrote:
 
-But I did it for a simple variable type.  Not a structure.
+> I submitted a patch to active_load_balance() that was accepted into mm
+> and then mainline.  The patch included a fix to prevent the system
+> entering what should have been an impossible state.  The previous code
+> tested for it and then continued, rather than crashing or complaining.
+> My patch added a BUGON(impossible state) just in case by some fluke it
+> still happened.  How long should this BUGON remain in the kernel?  A
+> month, a year?  Is there an accepted duration for such safety nets?
 
-/me justifies it to himself somehow...
+it's pretty random how long it survives. Sometimes i remove one after
+never having seen it for months/years and grepping lkml and googling
+around for the file & line. The BUG_ON()s are pretty cheap, as they
+often check what is being fetched anyway.
 
-greg k-h
+	Ingo

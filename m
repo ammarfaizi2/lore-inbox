@@ -1,55 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316355AbSFUWGp>; Fri, 21 Jun 2002 18:06:45 -0400
+	id <S316635AbSFVBNy>; Fri, 21 Jun 2002 21:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316404AbSFUWGo>; Fri, 21 Jun 2002 18:06:44 -0400
-Received: from webo.vtcif.telstra.com.au ([202.12.144.19]:48805 "EHLO
-	webo.vtcif.telstra.com.au") by vger.kernel.org with ESMTP
-	id <S316355AbSFUWGn>; Fri, 21 Jun 2002 18:06:43 -0400
-Message-ID: <73388857A695D31197EF00508B08F29807216B5F@ntmsg0131.corpmail.telstra.com.au>
-From: "Lu, Yan P" <Yan-Ping.Lu@team.telstra.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: FW:  netgear ga621
-Date: Sat, 22 Jun 2002 08:06:18 +1000
+	id <S316821AbSFVBNx>; Fri, 21 Jun 2002 21:13:53 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21514 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316635AbSFVBNx>; Fri, 21 Jun 2002 21:13:53 -0400
+Subject: Re: Very large font size crashing X Font Server and Grounding Server to a Halt (was: remote DoS in Mozilla 1.0)
+To: jch@pps.jussieu.fr (Juliusz Chroboczek)
+Date: Sat, 22 Jun 2002 02:36:17 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200206141346.g5EDklY65153@helium.pps.jussieu.fr> from "Juliusz Chroboczek" at Jun 14, 2002 03:46:47 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17LZp3-00021c-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> With current Linux kernels, this careful coding brings no benefit
+> whatsover, as malloc never (?) returns NULL.  What is worse, as far as
+> I know the kernel doesn't send advance warning of an OOM situation; it
+> would not be too difficult to stop allocating memory when that happens.
 
-Hello 
-
-> I have got trouble with netgear ga621. I am running redhat 7.3 which the
-> kernel version is 2.4.18-3. I successfully compiled driver provided by
-> netgear, but could not get card works. I used the following command to
-> load the driver[1]:
-> [1]:
->  # insmod gam.o
-> 
-> Then, I have got link LED on the card goes off, and /var/log/message only
-> shows the following message[2]:
-> [2]:
-> Jun 22 07:37:51 AN131 kernel: NETGEAR GA621 Gigabit Fiber Adapter Driver,
-> version 1.02, May 15 2001, linux 2.4.x kernel
-> Jun 22 07:37:51 AN131 kernel: 
-> Jun 22 07:37:51 AN131 kernel: NETGEAR GA621 Gigabit Fiber Adapter : eth1
-> Jun 22 07:37:51 AN131 kernel: 
-> Jun 22 07:37:51 AN131 kernel: NETGEAR GA621 Gigabit Fiber Adapter : eth2
-> 
-> I have also used the command to active the card[3]:
-> [3]:
-> # ifconfig eth1 10.2.2.2
-> 
-> log/message does not do any changes, and link LED is still off.
-> 
-Anyone can tell me how to make this card works. 
-> *	what's the configuration I need to do to make this card works, 
-> *	which configuration points I can check, 
-> *	what's the proper log message I should see if the card works ok. 
-> 
-> Thank you in advance for your help.
-> 
-> Regards,
-> Yan
+With properly configured systems and mode 2/3 overcommit set you an
+get NULL back from malloc Its up to the user

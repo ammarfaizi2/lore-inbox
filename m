@@ -1,41 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265213AbTLFR1W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 12:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbTLFR1V
+	id S265215AbTLFRiu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 12:38:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265216AbTLFRiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 12:27:21 -0500
-Received: from web14909.mail.yahoo.com ([216.136.225.61]:54181 "HELO
-	web14909.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265213AbTLFR1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 12:27:21 -0500
-Message-ID: <20031206172720.52128.qmail@web14909.mail.yahoo.com>
-Date: Sat, 6 Dec 2003 09:27:20 -0800 (PST)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: [PATCH] FIx  'noexec' behavior
-To: lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Sat, 6 Dec 2003 12:38:50 -0500
+Received: from ppp-RAS1-3-87.dialup.eol.ca ([64.56.226.87]:7296 "EHLO
+	node1.opengeometry.net") by vger.kernel.org with ESMTP
+	id S265215AbTLFRis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 12:38:48 -0500
+Date: Sat, 6 Dec 2003 12:38:50 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SMP broken on Dell PowerEdge 4100/200 under 2.6.0-testxx?
+Message-ID: <20031206173850.GB362@node1.opengeometry.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <fa.jiqirm0.13gv2u@ifi.uio.no> <fa.f9f2gij.1kua0f@ifi.uio.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fa.f9f2gij.1kua0f@ifi.uio.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes Mozilla fail to load on my system. If I back it out everything
-is fine again. No error messages, Mozilla just hangs for about thirty seconds
-and exits.
+On Sat, Dec 06, 2003 at 10:59:01AM +0000, William Lee Irwin III wrote:
+> This leads to a similar conclusion to Stian Jordet's case. It's not
+> mistaking you for HT, it's the lack of an internal distinction between
+> the cases that need and don't need irq balancing.
 
-CUPS also hangs at shutdown.
+I have VP6 (Apollo Pro 133A, 82c694X/686B) dual-P3 (800MHz/133MHz).  I'm
+currently using MPS 1.1, because USB doesn't work with MPS 1.4 (or, it
+does but only with 'noapic').  And, I can report the same finding as
+others.
 
-epiphany works both ways.
+Before:
+-------
+           CPU0       CPU1       
+  0:      79365         63    IO-APIC-edge  timer
+  1:        215          1    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+  4:       8654          0    IO-APIC-edge  serial
+  8:          1          1    IO-APIC-edge  rtc
+ 12:         52          1    IO-APIC-edge  i8042
+ 14:       2155          0    IO-APIC-edge  ide0
+ 15:          2          0    IO-APIC-edge  ide1
+ 17:          0          0   IO-APIC-level  eth0
+NMI:          0          0 
+LOC:      79231      79266 
+ERR:          0
+MIS:          0
 
-Running up2date Fedora and current 2.6 kernel.
-P4, 2.8 HT, SMP enabled, ACPI
+After 'noirqbalance':
+---------------------
+           CPU0       CPU1       
+  0:      15039      16025    IO-APIC-edge  timer
+  1:         47         75    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+  4:         21         43    IO-APIC-edge  serial
+  8:          2          0    IO-APIC-edge  rtc
+ 12:         21         32    IO-APIC-edge  i8042
+ 14:        828        410    IO-APIC-edge  ide0
+ 15:          2          0    IO-APIC-edge  ide1
+ 17:          0          0   IO-APIC-level  eth0
+NMI:          0          0 
+LOC:      30865      30900 
+ERR:          0
+MIS:          0
 
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-New Yahoo! Photos - easier uploading and sharing.
-http://photos.yahoo.com/
+-- 
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
+Linux solution for data management and processing. 

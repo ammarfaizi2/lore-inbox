@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264971AbUFUDxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUFUDyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264971AbUFUDxY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 23:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUFUDxX
+	id S264256AbUFUDyf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 23:54:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUFUDyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 23:53:23 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:6874 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S264971AbUFUDxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 23:53:05 -0400
-Date: Sun, 20 Jun 2004 23:55:09 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-bk way too fast
-In-Reply-To: <Pine.LNX.4.58.0406202348040.3273@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58.0406202354540.3273@montezuma.fsmlabs.com>
-References: <40D64DF7.5040601@pobox.com> <40D657B7.8040807@pobox.com>
- <Pine.LNX.4.58.0406202348040.3273@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 20 Jun 2004 23:54:35 -0400
+Received: from holomorphy.com ([207.189.100.168]:10134 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264256AbUFUDyY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 23:54:24 -0400
+Date: Sun, 20 Jun 2004 20:54:17 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Greg Ungerer <gerg@snapgear.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: linux-2.6.7-uc0 (MMU-less fixups)
+Message-ID: <20040621035417.GY1863@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Greg Ungerer <gerg@snapgear.com>, linux-kernel@vger.kernel.org
+References: <40D65A88.8080601@snapgear.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D65A88.8080601@snapgear.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jun 2004, Zwane Mwaikambo wrote:
+On Mon, Jun 21, 2004 at 01:48:24PM +1000, Greg Ungerer wrote:
+> An update of the uClinux (MMU-less) fixups against 2.6.7.
+> A few more things merged in 2.6.7, so only a handful of patches
+> for general uClinux and m68knommu.
+> http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.7-uc0.patch.gz
+> Change log:
+> . merge linux-2.6.7                          me
+> . more Feith hardware support                Werner Feith
+> . stop 5282 pit timer from going backwards   me/Felix Daners
+> . fix PHY race confition in FEC driver       Philippe De Muyter
+> . fix OOM killer for non-MMU configs         Giovanni Casoli
 
-> On Sun, 20 Jun 2004, Jeff Garzik wrote:
->
-> > Jeff Garzik wrote:
-> > >
-> > > Something is definitely screwy with the latest -bk.  I updated from a
-> > > kernel ~1 week ago, and all timer-related stuff is moving at a vastly
-> > > increased rate.  My guess is twice as fast.  Most annoying is the system
-> > > clock advances at twice normal rate, and keyboard repeat is so sensitive
-> > > I am spending quite a bit of time typing this message, what with having
-> > > to delettte (<== example) extra characters.  Double-clicking is also
-> > > broken :(
-> >
-> > Looks like disabling CONFIG_ACPI fixes things.  Narrowing down cset now...
->
-> My suspect is;
->
-> ChangeSet 1.1731 2004/06/18 01:56:40 len.brown@intel.com
->   Merge intel.com:/home/lenb/src/linux-acpi-test-2.6.7
->   into intel.com:/home/lenb/bk/linux-acpi-test-2.6.7
+Could you send the OOM killer fix out to mainline?
 
-Make that;
+Thanks.
 
-ChangeSet 1.1608.11.12 2004/06/18 00:18:19 len.brown@intel.com
-  [ACPI] handle SCI override to nth IOAPIC
-  http://bugzilla.kernel.org/show_bug.cgi?id=2835
-arch/i386/kernel/mpparse.c 1.72.1.1 2004/06/17 20:18:02 len.brown@intel.com
-  handle SCI override to nth IOAPIC
+
+-- wli

@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbUKPC10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbUKPCeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbUKPC10 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 21:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbUKPC10
+	id S261748AbUKPCeR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 21:34:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbUKPCeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 21:27:26 -0500
-Received: from mail-02.iinet.net.au ([203.59.3.34]:54217 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261759AbUKPC1X
+	Mon, 15 Nov 2004 21:34:17 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13465 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261748AbUKPCeF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 21:27:23 -0500
-Message-ID: <41996584.5080306@cyberone.com.au>
-Date: Tue, 16 Nov 2004 13:27:16 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: colpatch@us.ibm.com, Darren Hart <dvhltc@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Rick Lindsley <ricklind@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] scheduler: rebalance_tick interval update
-References: <1100558313.17202.58.camel@localhost.localdomain>	 <4199550E.1030704@cyberone.com.au> <1100569992.30259.20.camel@arrakis> <41996353.1060604@cyberone.com.au>
-In-Reply-To: <41996353.1060604@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Nov 2004 21:34:05 -0500
+Date: Tue, 16 Nov 2004 02:34:04 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] SCSI ncr53c8xx.c: make a variable static
+Message-ID: <20041116023404.GD26623@parcelfarce.linux.theplanet.co.uk>
+References: <20041115021612.GR2249@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041115021612.GR2249@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 15, 2004 at 03:16:12AM +0100, Adrian Bunk wrote:
+> The patch below makes a needlessly global variable static.
 
+This needs to be taken care of as part of a module_param conversion.
+Something similar to the sym2 conversion, I think ...
 
-Nick Piggin wrote:
-
->
-> Another example, in some ticks, a CPU won't see the updated 'jiffies', 
-> other
-> times it will (at least on Altix systems, this can happen).
->
->
-
-Note that if you didn't want to have this rash of balancing attempted after
-a CPU wasn't able to run the rebalance for a long time, the solution would
-be to keep adding the balance interval until it becomes greater than the
-current jiffies.
-
-I actually prefer it to try to make up the lost balances, just from the
-perspective of gathering scheduler statistics. I don't suspect it happens
-enough to justify adding the extra logic - Darren, are you actually seeing
-problems?
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266150AbUFUH11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266138AbUFUHfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266150AbUFUH11 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 03:27:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266148AbUFUH10
+	id S266138AbUFUHfR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 03:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUFUHfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 03:27:26 -0400
-Received: from AGrenoble-152-1-39-8.w82-122.abo.wanadoo.fr ([82.122.133.8]:54696
-	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
-	id S266155AbUFUH1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 03:27:03 -0400
-Subject: Re: Stop the Linux kernel madness
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Hannu Savolainen <hannu@opensound.com>
-Cc: 4Front Technologies <dev@opensound.com>,
-       David Lang <david.lang@digitalinsight.com>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0406210933470.26543@zeus.compusonic.fi>
-References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay>
-	 <40D23701.1030302@opensound.com>
-	 <1087573691.19400.116.camel@winden.suse.de> <40D32C1D.80309@opensound.com>
-	 <20040618190257.GN14915@schnapps.adilger.int>
-	 <40D34CB2.10900@opensound.com>
-	 <200406181940.i5IJeBDh032311@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.60.0406181326210.3688@dlang.diginsite.com>
-	 <Pine.LNX.4.58.0406191148570.30038@zeus.compusonic.fi>
-	 <Pine.LNX.4.60.0406201506360.6470@dlang.diginsite.com>
-	 <40D636EA.7090704@opensound.com>
-	 <Pine.LNX.4.58.0406210933470.26543@zeus.compusonic.fi>
-Content-Type: text/plain
-Date: Mon, 21 Jun 2004 09:25:37 +0200
-Message-Id: <1087802737.31390.3.camel@speedy.priv.grenoble.com>
+	Mon, 21 Jun 2004 03:35:17 -0400
+Received: from mail.gmx.net ([213.165.64.20]:65237 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266138AbUFUHfK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 03:35:10 -0400
+X-Authenticated: #12437197
+Date: Mon, 21 Jun 2004 10:36:44 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] missing NULL check in drivers/char/n_tty.c
+Message-ID: <20040621073644.GA10781@callisto.yi.org>
+Reply-To: Dan Aloni <da-x@colinux.org>
+References: <20040621063845.GA6379@callisto.yi.org> <20040620235824.5407bc4c.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040620235824.5407bc4c.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-21 at 10:07 +0300, Hannu Savolainen wrote:
+On Sun, Jun 20, 2004 at 11:58:24PM -0700, Andrew Morton wrote:
+> Dan Aloni <da-x@gmx.net> wrote:
+> >
+> > The rest of the kernel treats tty->driver->chars_in_buffer as a possible
+> >  NULL. This patch changes normal_poll() to be consistent with the rest of
+> >  the code.
+> 
+> It would be better to change the rest of the kernel - remove the tests.
+> 
+> If any driver fails to implement ->chars_in_buffer() then we get a nice
+> oops which tells us that driver needs a stub handler.
 
-> What would the modules directory look like if the next generation devices
-> get included there too? Or if all the drivers for currently
-> unsupported defence, telecom, aviation, instrumentation and other special
-> purpose devices get included in the kernel source tree?
+Are you sure that it won't affect the logic in tty_wait_until_sent() 
+drastically? It acts quite differently when ->chars_in_buffer == NULL.
 
-Having more maintained drivers in the kernel can't be a bad thing. For a
-standard desktop or server, having all these drivers installed
-under /lib/modules is also beneficial. Makers of embedded distributions
-will continue to heavily customize their kernel and applications, as
-they always did.
-
-	Xav
-
+-- 
+Dan Aloni
+da-x@colinux.org

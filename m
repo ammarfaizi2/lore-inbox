@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266986AbSL3PHU>; Mon, 30 Dec 2002 10:07:20 -0500
+	id <S266987AbSL3PON>; Mon, 30 Dec 2002 10:14:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266987AbSL3PHU>; Mon, 30 Dec 2002 10:07:20 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:23049 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S266986AbSL3PHT>;
-	Mon, 30 Dec 2002 10:07:19 -0500
-Date: Mon, 30 Dec 2002 16:15:31 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Hannes Reinecke <mail@hannes-reinecke.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: Alpha port still maintained in 2.5
-Message-ID: <20021230151531.GA1863@mars.ravnborg.org>
-Mail-Followup-To: Hannes Reinecke <mail@hannes-reinecke.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Sam Ravnborg <sam@ravnborg.org>
-References: <3E10611D.10108@hannes-reinecke.de>
+	id <S266981AbSL3PON>; Mon, 30 Dec 2002 10:14:13 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40463 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266987AbSL3POM>; Mon, 30 Dec 2002 10:14:12 -0500
+Date: Mon, 30 Dec 2002 15:22:25 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Dhammika Pathirana <dhammikap@millenniumit.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] acorn_request_region fix 2.5.48
+Message-ID: <20021230152225.B28435@flint.arm.linux.org.uk>
+Mail-Followup-To: Dhammika Pathirana <dhammikap@millenniumit.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3DE1B86C.30505@millenniumit.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E10611D.10108@hannes-reinecke.de>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DE1B86C.30505@millenniumit.com>; from dhammikap@millenniumit.com on Mon, Nov 25, 2002 at 11:43:08AM +0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 30, 2002 at 04:07:09PM +0100, Hannes Reinecke wrote:
-> Hi all,
-> 
-> appearently there are some secret channels by which one has to post his 
-> messages for them to actually being _read_ by someone ...
+On Mon, Nov 25, 2002 at 11:43:08AM +0600, Dhammika Pathirana wrote:
+> Following patch is to fix acorn request region failure. Pls apply.
 
-I follow lkml, but has no particular Alpha interest, so foregive me ;-)
-That I do some Alpha patching is from a kbuild persepctive, not
-particulary Alpha. I'm do not have tools to do so, nor any machine.
+In the great spirit of the white space vs tab debate that's been on lkml
+over the past few days, welcome to why white space advocates coding their
+stupid ideas into mailers is bad news.
 
-	Sam
+Your patch doesn't apply for this very reason.  Please try sending it to
+me as a text/plain attachment.
+
+Thanks.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

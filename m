@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264629AbSLVPYz>; Sun, 22 Dec 2002 10:24:55 -0500
+	id <S264733AbSLVPhO>; Sun, 22 Dec 2002 10:37:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264683AbSLVPYz>; Sun, 22 Dec 2002 10:24:55 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:33922 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S264629AbSLVPYy>;
-	Sun, 22 Dec 2002 10:24:54 -0500
-Date: Sun, 22 Dec 2002 15:32:29 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Ulrich Drepper <drepper@redhat.com>, bart@etpmod.phys.tue.nl,
-       davej@codemonkey.org.uk, hpa@transmeta.com, terje.eggestad@scali.com,
-       matti.aarnio@zmailer.org, hugh@veritas.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021222153229.GA30269@bjl1.asuk.net>
-References: <Pine.LNX.4.44.0212211858240.8783-100000@home.transmeta.com> <Pine.LNX.4.44.0212221111080.31068-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212221111080.31068-100000@localhost.localdomain>
-User-Agent: Mutt/1.4i
+	id <S264771AbSLVPhO>; Sun, 22 Dec 2002 10:37:14 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:21222 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S264733AbSLVPhN> convert rfc822-to-8bit;
+	Sun, 22 Dec 2002 10:37:13 -0500
+content-class: urn:content-classes:message
+Subject: RE: Intel P6 vs P7 system call performance
+Date: Sun, 22 Dec 2002 07:45:18 -0800
+Message-ID: <3014AAAC8E0930438FD38EBF6DCEB564419F01@fmsmsx407.fm.intel.com>
+MIME-Version: 1.0
+X-MS-Has-Attach: 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MS-TNEF-Correlator: 
+Thread-Topic: Intel P6 vs P7 system call performance
+Thread-Index: AcKptl2gVKvd/hWnEdeo8gBQi2jWzAAGPPSQ
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Mikael Pettersson" <mikpe@csd.uu.se>, <mingo@elte.hu>,
+       <torvalds@transmeta.com>
+Cc: <drepper@redhat.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Dec 2002 15:45:18.0970 (UTC) FILETIME=[212DBDA0:01C2A9D1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> and i'm 100% sure the more robust eflags saving will also avoid security
-> holes. The amount of security-relevant complexity that comes from all the
-> x86 features [and their combinations] is amazing.
+Correct. Please look at Table B-1. Most of MSRs are shared, but some MSRs are unique in each logical processor, to provide the x86 architectural state. Those SYSENTER MSRs, and Machine Check register save state (IA32_MCG_XXX), for example, are unique.
 
-Userspace can skip the "popfl" with a well-timed signal.  If the
-"sysexit" path leaves the kernel with an unsafe eflags, that will
-propagate into the signal handler.
+Jun
 
-AFAICT, one of these is required:
-
-	1. eflags must be safe before leaving kernel space, or
-	2. setup_sigcontext() must clean it up (it already does clear TF).
-
--- Jamie
+> -----Original Message-----
+> From: Mikael Pettersson [mailto:mikpe@csd.uu.se]
+> Sent: Sunday, December 22, 2002 4:34 AM
+> To: mingo@elte.hu; torvalds@transmeta.com
+> Cc: drepper@redhat.com; Nakajima, Jun; linux-kernel@vger.kernel.org
+> Subject: Re: Intel P6 vs P7 system call performance
+> 
+> On Sun, 22 Dec 2002 11:23:08 +0100 (CET), Ingo Molnar wrote:
+> >while reviewing the sysenter trampoline code i started wondering about
+> the
+> >HT case. Dont HT boxes share the MSRs between logical CPUs? This pretty
+> >much breaks the concept of per-logical-CPU sysenter trampolines. It also
+> >makes context-switch time sysenter MSR writing impossible, so i really
+> >hope this is not the case.
+> 
+> Some MSRs are shared, some aren't. One must always check this in
+> the IA32 Volume 3 manual. The three SYSENTER MSRs are not shared.
+> 
+> However, no-one has yet proven that writing to these in the context
+> switch path has acceptable performance -- remember, there is _no_
+> a priori reason to assume _anything_ about performance on P4s,
+> you really do need to measure things before taking design decisions.
+> 
+> Manfred had a version with fixed MSR values and the varying data
+> in memory. Maybe that's actually faster.

@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVCUXqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVCUXi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbVCUXqa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 18:46:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVCUXnX
+	id S262181AbVCUXi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 18:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVCUXhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 18:43:23 -0500
-Received: from mail.gmx.net ([213.165.64.20]:38079 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262169AbVCUXl1 (ORCPT
+	Mon, 21 Mar 2005 18:37:46 -0500
+Received: from gate.crashing.org ([63.228.1.57]:51843 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262181AbVCUX3T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 18:41:27 -0500
-X-Authenticated: #20450766
-Date: Tue, 22 Mar 2005 00:40:34 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, jim.hague@acm.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [2.6.11 Permedia-2 Framebuffer] driver broken (?).
-In-Reply-To: <20050321145936.6f742d89.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.60.0503220030230.12537@poirot.grange>
-References: <Pine.LNX.4.60.0503052355320.12643@poirot.grange>
- <20050321145936.6f742d89.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Mon, 21 Mar 2005 18:29:19 -0500
+Subject: Re: [PATCH] alpha build fixes
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+       chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>,
+       Leendert van Doorn <leendert@watson.ibm.com>,
+       Reiner Sailer <sailer@watson.ibm.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050321165310.A10078@jurassic.park.msu.ru>
+References: <423BABBF.6030103@pobox.com> <20050319231116.GA4114@twiddle.net>
+	 <20050319231641.GA28070@havoc.gtf.org>
+	 <58cb370e0503210005358cf200@mail.gmail.com>
+	 <20050321121616.A24129@jurassic.park.msu.ru>
+	 <58cb370e0503210145375f5092@mail.gmail.com>
+	 <1111408059.25180.277.camel@gaston>
+	 <20050321165310.A10078@jurassic.park.msu.ru>
+Content-Type: text/plain
+Date: Tue, 22 Mar 2005 10:27:27 +1100
+Message-Id: <1111447647.3835.299.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005, Andrew Morton wrote:
 
-> Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
-> >
-> > Hi
-> > 
-> > Worked on 2.6.10-rc2. With 2.6.11 during boot upon switching to fb, text 
-> > becomes orange, penguins look sick (not sharp). X starts and runs normal 
-> > (doesn't use fb), switching to vt not possible any more. Disabling 
-> > fb-console in kernel config fixes VTs. Reverting pm2fb.c fixes the 
-> > problem.
 > 
-> Guennadi, could you please confirm that
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm1/broken-out/pm2fb-x-and-vt-switching-crash-fix.patch
-> 
-> fixes this one?
+> Ok, but asm-generic/pci.h is not a good place for default IRQ 14/15 case -
+> this header cannot be included on non-x86 without additional #ifdef's.
+> Perhaps we can move it to linux/pci.h or linux/ata.h (as Bart noted)?
 
-As discussed with Jim on linux-fbdev-devel this patch fixes the vt / X 
-switching problem. We still don't know why starting with 2.4.11 I have to 
-switch CONFIG_FB_PM2_FIFO_DISCONNECT off to restore colours / images. Jim 
-says it is doubtful that this option brings any optimisations at all, 
-still, it is a bit worrying, that something that worked with earlier 
-kernels stopped working now. I traced this breakage down to the patch to 
-pm2fb.c after 2.6.10-rc2. Jim wanted to try to reproduce this problem with 
-my fb-geometry / colour settings, but I haven't heard from him since then, 
-Jim?
+Well, I would have expected other archs to just make their own, but I
+have no special preference here ... linux/pci.h is as good as anything.
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+Ben.
 

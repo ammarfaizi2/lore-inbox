@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267494AbUBSTe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 14:34:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267497AbUBSTe1
+	id S267504AbUBSTgX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 14:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267505AbUBSTgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 14:34:27 -0500
-Received: from edu.joroinen.fi ([194.89.68.130]:55738 "EHLO edu.joroinen.fi")
-	by vger.kernel.org with ESMTP id S267494AbUBSTeZ (ORCPT
+	Thu, 19 Feb 2004 14:36:22 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17281 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267504AbUBSTgR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 14:34:25 -0500
-Date: Thu, 19 Feb 2004 21:34:24 +0200
-From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Torvalds <torvalds@osdl.org>, Tim Hockin <thockin@sun.com>,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-       akpm@osld.org.sun.com
-Subject: Re: PATCH - NGROUPS 2.6.2rc2 + fixups
-Message-ID: <20040219193424.GA6735@edu.joroinen.fi>
-References: <Pine.LNX.4.58.0401291138390.689@home.osdl.org> <20040130021802.AA5BC2C0BF@lists.samba.org>
+	Thu, 19 Feb 2004 14:36:17 -0500
+Date: Thu, 19 Feb 2004 14:36:10 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org
+Subject: Re: Intel x86-64 support patch breaks amd64
+Message-ID: <20040219193606.GC31589@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20040219183448.GB8960@atomide.com> <20040220171337.10cd1ae8.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040130021802.AA5BC2C0BF@lists.samba.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040220171337.10cd1ae8.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 30, 2004 at 01:09:28PM +1100, Rusty Russell wrote:
-> In message <Pine.LNX.4.58.0401291138390.689@home.osdl.org> you write:
-> > 
-> > 
-> > On Thu, 29 Jan 2004, Tim Hockin wrote:
-> > > 
-> > > What think?
-> > 
-> > I still don't understand the complexity.
-> > 
-> > Why the list of pages? Is there really any valid use for this that could 
-> > overflow a simple "kmalloc()"? How many groups do people really really 
-> > need? 
-> 
-> I was happy with kmalloc, and no sorting.  Simple patch.  Tim
-> complained that he had some wierd-ass users who hit kmalloc limits w/
-> fragmentation.  I added about 10 lines of code to fall back to vmalloc
-> for that very rare case, and you scotched that.
-> 
-> ie. Don't blame Tim: you led us here 8(
-> 
-> Rusty.
+On Fri, Feb 20, 2004 at 05:13:37PM +0100, Andi Kleen wrote:
+> --- linux-2.6.3/arch/x86_64/kernel/x8664_ksyms.c-o	2004-02-19 09:01:09.000000000 +0100
+> +++ linux-2.6.3/arch/x86_64/kernel/x8664_ksyms.c	2004-02-19 09:08:04.000000000 +0100
+> @@ -194,7 +194,9 @@
+>  
+>  EXPORT_SYMBOL(die_chain);
+>  
+> +#ifdef CONFIG_SMP_
 
-So what was the conclusion? It would be nice to get this resolved and merged
-in finally.. 
+		    ^ Isn't this a typo?
 
--- Pasi Kärkkäinen
-       
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+>  EXPORT_SYMBOL(cpu_sibling_map);
+> +#endif
+>  
+>  extern void do_softirq_thunk(void);
+>  EXPORT_SYMBOL_NOVERS(do_softirq_thunk);
+
+	Jakub

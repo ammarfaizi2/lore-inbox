@@ -1,143 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbVDAXqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVDAXrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbVDAXqT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 18:46:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbVDAXqT
+	id S262803AbVDAXrE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 18:47:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVDAXrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 18:46:19 -0500
-Received: from mail.kroah.org ([69.55.234.183]:36315 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262802AbVDAXqG (ORCPT
+	Fri, 1 Apr 2005 18:47:04 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:52827 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S262803AbVDAXq6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 18:46:06 -0500
-Date: Fri, 1 Apr 2005 15:45:51 -0800
-From: Greg KH <gregkh@suse.de>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] PCI update for 2.6.12-rc1
-Message-ID: <20050401234550.GA15046@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Fri, 1 Apr 2005 18:46:58 -0500
+Message-ID: <424DDD6D.3010204@tls.msk.ru>
+Date: Sat, 02 Apr 2005 03:46:53 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] quiet ide-cd warning
+References: <20050401201111.GH15453@waste.org>
+In-Reply-To: <20050401201111.GH15453@waste.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Matt Mackall wrote:
+> This shuts up a potential uninitialized variable warning.
 
-Here are some PCI and PCI Hotplug patches for 2.6.11.  All of these have
-been in the past few -mm releases.
+Potential warning or potential uninitialized use?
+The code was right before the change, and if the compiler
+generates such a warning on it, it's the compiler who
+should be fixed, not the code: it's obvious the variable
+can't be used uninitialized here, and moving the things
+around like that makes the code misleading and hard to
+understand...
 
-This includes an even bigger pci.ids update, as now we should be
-completly synced up with the main sf.net database.  I've also marked
-this feature as "will be deleted soon" as it's a waste of time and
-space.
+/mjt
 
-Please pull from:
-	bk://kernel.bkbits.net/gregkh/linux/pci-2.6
-
-thanks,
-
-greg k-h
-
-p.s. I'll send these as patches in response to this email to lkml for
-those who want to see them.
-
-
- Documentation/feature-removal-schedule.txt |   48 -
- arch/frv/mb93090-mb00/pci-frv.c            |    6 
- arch/i386/pci/fixup.c                      |   20 
- arch/i386/pci/i386.c                       |    8 
- arch/mips/pmc-sierra/yosemite/ht.c         |    2 
- arch/ppc/kernel/pci.c                      |    8 
- arch/sh/drivers/pci/pci.c                  |    2 
- arch/sh64/kernel/pcibios.c                 |    2 
- arch/sparc64/kernel/pci_psycho.c           |    2 
- arch/sparc64/kernel/pci_sabre.c            |    2 
- arch/sparc64/kernel/pci_schizo.c           |    2 
- arch/x86_64/kernel/pci-gart.c              |    4 
- drivers/ide/pci/serverworks.c              |    8 
- drivers/mtd/maps/pci.c                     |    6 
- drivers/pci/Kconfig                        |   10 
- drivers/pci/Makefile                       |    4 
- drivers/pci/gen-devlist.c                  |    2 
- drivers/pci/hotplug.c                      |   25 
- drivers/pci/hotplug/cpqphp_core.c          |    4 
- drivers/pci/hotplug/ibmphp_pci.c           |   56 -
- drivers/pci/hotplug/pci_hotplug.h          |    2 
- drivers/pci/hotplug/pci_hotplug_core.c     |    5 
- drivers/pci/hotplug/rpaphp.h               |    2 
- drivers/pci/hotplug/rpaphp_pci.c           |  105 --
- drivers/pci/hotplug/rpaphp_slot.c          |   11 
- drivers/pci/msi.c                          |    8 
- drivers/pci/pci-driver.c                   |   11 
- drivers/pci/pci-sysfs.c                    |    4 
- drivers/pci/pci.c                          |   24 
- drivers/pci/pci.ids                        | 1310 +++++++++++++++++++++--------
- drivers/pci/probe.c                        |   40 
- drivers/pci/proc.c                         |    9 
- drivers/pci/quirks.c                       |   43 
- drivers/pci/remove.c                       |   10 
- drivers/pci/setup-bus.c                    |   25 
- drivers/pci/setup-irq.c                    |   18 
- drivers/pci/setup-res.c                    |   30 
- include/asm-i386/topology.h                |    7 
- include/asm-x86_64/topology.h              |    3 
- include/linux/pci.h                        |    2 
- include/linux/pci_ids.h                    |    8 
- kernel/resource.c                          |    1 
- 42 files changed, 1231 insertions(+), 668 deletions(-)
------
-
-
-Adrian Bunk:
-  o drivers/pci/msi.c: fix a check after use
-  o drivers/pci/hotplug/cpqphp_core.c: fix a check after use
-
-Bjorn Helgaas:
-  o PCI: trivial DBG tidy-up
-
-Domen Puncer:
-  o arch/i386/pci/i386.c: Use new for_each_pci_dev macro
-
-Greg Kroah-Hartman:
-  o PCI: create PCI_DEBUG config option to make it easier for users to enable pci debugging
-  o PCI: clean up the dynamic id logic a little bit
-  o PCI Hotplug: enforce the rule that a hotplug slot needs a release function
-  o PCI: fix an oops in some pci devices on hotplug remove when their resources are being freed
-  o PCI: sync up with the latest pci.ids file from sf.net
-  o PCI: add CONFIG_PCI_NAMES to the feature-removal-schedule.txt file
-  o Remove item from feature-removal-schedule.txt that was already removed from the kernel
-  o PCI: increase the size of the pci.ids strings
-
-Jason Gaston:
-  o pci_ids.h correction for Intel ICH7M
-
-Jean Delvare:
-  o PCI: Quirk for Asus M5N
-
-John Rose:
-  o [PATCH] remove redundant devices list
-
-Jon Smirl:
-  o PCI: handle multiple video cards on the same bus
-  o sort-out-pci_rom_address_enable-vs-ioresource_rom_enable.patch
-
-Kimball Murray:
-  o PCI: Patch for Serverworks chips in hotplug environment
-
-Matthew Wilcox:
-  o PCI busses are structs, not integers
-  o PCI: 80 column lines
-
-Prarit Bhargava:
-  o PCI Hotplug: add documentation about release pointer
-
-Roland Dreier:
-  o PCI: Add PCI device ID for new Mellanox HCA
-
-Rolf Eike Beer:
-  o PCI: remove pci_find_device usage from pci sysfs code
-  o PCI: shrink drivers/pci/proc.c::pci_seq_start()
-  o PCI Hotplug: only call ibmphp_remove_resource() if argument is not NULL
-  o PCI Hotplug: remove code duplication in drivers/pci/hotplug/ibmphp_pci.c
+> Signed-off-by: Matt Mackall <mpm@selenic.com>
+> 
+> Index: af/drivers/ide/ide-cd.c
+> ===================================================================
+> --- af.orig/drivers/ide/ide-cd.c	2005-04-01 11:17:37.000000000 -0800
+> +++ af/drivers/ide/ide-cd.c	2005-04-01 11:55:09.000000000 -0800
+> @@ -430,7 +430,7 @@ void cdrom_analyze_sense_data(ide_drive_
+>  #if VERBOSE_IDE_CD_ERRORS
+>  	{
+>  		int i;
+> -		const char *s;
+> +		const char *s = "bad sense key!";
+>  		char buf[80];
+>  
+>  		printk ("ATAPI device %s:\n", drive->name);
+> @@ -445,8 +445,6 @@ void cdrom_analyze_sense_data(ide_drive_
+>  
+>  		if (sense->sense_key < ARY_LEN(sense_key_texts))
+>  			s = sense_key_texts[sense->sense_key];
+> -		else
+> -			s = "bad sense key!";
+>  
+>  		printk("%s -- (Sense key=0x%02x)\n", s, sense->sense_key);
+>  
+> 
 

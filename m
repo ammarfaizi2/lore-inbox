@@ -1,75 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbVCWJIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVCWJMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262890AbVCWJIm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 04:08:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbVCWJIl
+	id S261300AbVCWJMR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 04:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbVCWJJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 04:08:41 -0500
-Received: from smtp17.wxs.nl ([195.121.6.13]:32194 "EHLO smtp17.wxs.nl")
-	by vger.kernel.org with ESMTP id S262895AbVCWJHt (ORCPT
+	Wed, 23 Mar 2005 04:09:35 -0500
+Received: from alt.aurema.com ([203.217.18.57]:34494 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S262889AbVCWJHa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 04:07:49 -0500
-Date: Wed, 23 Mar 2005 10:07:38 +0100
-From: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
-Subject: [PATCH] Re: drivers/media/video/bt819.c: bt819_init: wrong array
-	indexing
-In-reply-to: <20050323003808.GX1948@stusta.de>
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-id: <1111568857.547.37.camel@tux.lan>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2)
-Content-type: multipart/mixed; boundary="Boundary_(ID_qtIhZXNvNAuq7di3Z6QsOQ)"
-References: <20050323003808.GX1948@stusta.de>
+	Wed, 23 Mar 2005 04:07:30 -0500
+Date: Wed, 23 Mar 2005 20:02:54 +1100
+From: kingsley@aurema.com
+To: Tom Zanussi <zanussi@us.ibm.com>, Karim Yaghmour <karim@opersys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: read() on relayfs channel returns premature 0
+Message-ID: <20050323090254.GA10630@aurema.com>
+Mail-Followup-To: Tom Zanussi <zanussi@us.ibm.com>,
+	Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="qMm9M+Fa2AknHoGS"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary_(ID_qtIhZXNvNAuq7di3Z6QsOQ)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, 2005-03-23 at 01:38, Adrian Bunk wrote:
-> The Coverity checker found the following bug in array indexing in the 
-> function bt819_init in drivers/media/video/bt819.c:
-> 
->         init[0x19*2-1] = decoder->norm == 0 ? 115 : 93;
-> 
-> I don't know whether the other array indexes in this function are 
-> correct, but this is definitely wrong:
-> It indexes element 49 wile only the elements 0-43 are available.
+Hi 
 
-Auch, that is kinda embarrassing... Attached patch fixes it. Andrew, can
-you please put this patch in the kernel?
+I'm using relayfs to relay data from a kernel module to user space on
+a SuSE 2.6.5 kernel.  I'm not absolutely sure what version of relayfs
+has been back ported to it.
 
-Signed-off-by: Ronald S. Bultje <rbultje@ronald.bitfreak.net>
+While reading data from the channel I've been seeing read() return 0
+prematurely.  However, the 0 does not signify that the file is being
+closed for there is still data available afterwards.  
 
-Ronald
+I've noticed that zeros occur when roughly one page of data has been
+read.  I suspect that they occur whenever there is a read across the
+relayfs sub-buffers.
 
+Now I understand that this is not the latest release of relayfs (there
+are the redux patches, which I have yet to try).  Nonetheless I'd like
+to know whether this behaviour is deliberate.  Is it? 
+
+Thanks,
 -- 
-Ronald S. Bultje <rbultje@ronald.bitfreak.net>
+		Kingsley
 
---Boundary_(ID_qtIhZXNvNAuq7di3Z6QsOQ)
-Content-type: text/x-patch; name=d; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=d
+P.S. I've been able to get around this by deliberately modifying
+do_read() with the attached patch.  I'm not absolutely sure its
+correct but it seems to work.
 
-Index: bt819.c
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="relayfs-premature-zero.patch"
+
+Index: fs/relayfs/relay.c
 ===================================================================
-RCS file: /cvsroot/mjpeg/driver-zoran/bt819.c,v
-retrieving revision 1.6
-diff -u -r1.6 bt819.c
---- bt819.c	16 Sep 2004 22:53:26 -0000	1.6
-+++ bt819.c	23 Mar 2005 09:04:52 -0000
-@@ -239,7 +239,8 @@
- 	init[0x07 * 2 - 1] = timing->hactive & 0xff;
- 	init[0x08 * 2 - 1] = timing->hscale >> 8;
- 	init[0x09 * 2 - 1] = timing->hscale & 0xff;
--	init[0x19*2-1] = decoder->norm == 0 ? 115 : 93;	/* Chroma burst delay */
-+	/* 0x15 in array is address 0x19 */
-+	init[0x15 * 2 - 1] = (decoder->norm == 0) ? 115 : 93;	/* Chroma burst delay */
- 	/* reset */
- 	bt819_write(client, 0x1f, 0x00);
- 	mdelay(1);
+RCS file: /export/cvsroot/SuSE-Kernel-2.4.21/fs/relayfs/Attic/relay.c,v
+retrieving revision 1.1.2.1
+diff -u -r1.1.2.1 relay.c
+--- fs/relayfs/relay.c	18 Feb 2005 00:00:51 -0000	1.1.2.1
++++ fs/relayfs/relay.c	23 Mar 2005 09:00:42 -0000
+@@ -1445,26 +1445,22 @@
+ 
+ 	avail_offset = cur_idx = relay_get_offset(rchan, &max_offset);
+ 
++	last_buf_byte_offset = (read_bufno + 1) * buf_size - 1;
+ 	if (cur_idx == read_offset) {
+ 		if (atomic_read(&rchan->suspended) == 1) {
+-			read_offset += 1;
++			read_offset = last_buf_byte_offset + 1;
+ 			if (read_offset >= max_offset)
+ 				read_offset = 0;
+ 			*actual_read_offset = read_offset;
+ 		} else {
+-			*new_offset = read_offset;
++			*new_offset = read_offset; 
+ 			return 0;
+ 		}
+-	} else {
+-		last_buf_byte_offset = (read_bufno + 1) * buf_size - 1;
+-		if (read_offset == last_buf_byte_offset) {
+-			if (unused_bytes != 1) {
+-				read_offset += 1;
+-				if (read_offset >= max_offset)
+-					read_offset = 0;
+-				*actual_read_offset = read_offset;
+-			}
+-		}
++	} else if ((read_offset + unused_bytes) > last_buf_byte_offset) {
++		read_offset = last_buf_byte_offset + 1;
++		if (read_offset >= max_offset)
++			read_offset = 0;
++		*actual_read_offset = read_offset;
+ 	}
+ 
+ 	read_bufno = read_offset / buf_size;
 
---Boundary_(ID_qtIhZXNvNAuq7di3Z6QsOQ)--
+--qMm9M+Fa2AknHoGS--

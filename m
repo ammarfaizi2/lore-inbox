@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261610AbTDBEnb>; Tue, 1 Apr 2003 23:43:31 -0500
+	id <S262945AbTDBFGm>; Wed, 2 Apr 2003 00:06:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261646AbTDBEnb>; Tue, 1 Apr 2003 23:43:31 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:32153 "EHLO
-	zachery.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S261610AbTDBEna>; Tue, 1 Apr 2003 23:43:30 -0500
-Date: Tue, 1 Apr 2003 23:54:39 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Miek Gieben <miekg@atoom.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre6 and usb-uhci
-Message-ID: <20030402045439.GW28258@phunnypharm.org>
-References: <20030401093646.GA11420@atoom.net>
+	id <S262947AbTDBFGm>; Wed, 2 Apr 2003 00:06:42 -0500
+Received: from 210-86-35-88.dialup.xtra.co.nz ([210.86.35.88]:260 "EHLO
+	riven.neverborn.ORG") by vger.kernel.org with ESMTP
+	id <S262945AbTDBFGk>; Wed, 2 Apr 2003 00:06:40 -0500
+Date: Wed, 2 Apr 2003 17:17:55 +1200
+From: "leon j. breedt" <ljb@neverborn.org>
+To: linux-kernel@vger.kernel.org
+Subject: ASUS P4PE spurious hdparm -tT results...UPDATE
+Message-ID: <20030402051755.GA3281@riven.neverborn.ORG>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030401093646.GA11420@atoom.net>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 11:36:46AM +0200, Miek Gieben wrote:
-> Hello,
-> 
-> [ i'm not subscribed, so please cc me on any follow ups]
-> 
-> with kernel 2.4.21-pre6 my usb mouse stopped working (actually all usb stuff
-> stopped working). It's a logitech optical mouse which worked perfectly under
-> -pre5. I'm using the usb-uhci module.  I get no failures are anything of that
+hi,
 
-I get the same problem. This includes a Logitech keyboard, two joysticks
-and a Linksys WUSB11 wlan adapter. None of them show up.
+i'm still getting the same weird negative test
+results for the WDC WD800JB-00CRA1 drive on 2.4.21-pre6:
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+/dev/hda:
+ Timing buffer-cache reads:   -3008 MB in  0.00 seconds =  -inf kB/sec
+ Timing buffered disk reads:  -1504 MB in  0.00 seconds =  -inf kB/sec
+Hmm.. suspicious results: probably not enough free memory for a proper test.
+
+however...i noticed that when i booted up with kernel 2.4.20-xfs_pre6 
+(the Gentoo 1.4rc3 LiveCD kernel), i didn't get strange test results.
+
+the difference between the two seemed to be that the 2.4.20-xfs_pre6 kernel
+initialized the drive in mdma2 mode, and didn't support udma5 for the
+IDE layer in that version of the kernel. so maybe this is a bug that's
+crept in since 2.4.21 and better ICH4 support days?
+
+the IDE layer in that version of the kernel is based on a version from
+www.linuxdiskcert.org, i'm not sure how different that is from the
+version Alan & c have been working on.
+
+any ideas what may cause this, for just the WDC drive and not the IBM?
+both are on the same channel..
+
+thanks,
+leon.

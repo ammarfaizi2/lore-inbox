@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265405AbUFXPC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265462AbUFXPFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265405AbUFXPC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 11:02:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbUFXPC5
+	id S265462AbUFXPFP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 11:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbUFXPDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 11:02:57 -0400
-Received: from cantor.suse.de ([195.135.220.2]:62093 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265405AbUFXPBc (ORCPT
+	Thu, 24 Jun 2004 11:03:15 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:44207 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S265398AbUFXPCw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 11:01:32 -0400
-Date: Thu, 24 Jun 2004 17:01:31 +0200
-From: Andi Kleen <ak@suse.de>
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, arjanv@redhat.com,
-       Andi Kleen <ak@muc.de>, discuss@x86-64.org, tiwai@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: 32-bit dma allocations on 64-bit platforms
-Message-ID: <20040624150131.GA8085@wotan.suse.de>
-References: <200406240948.07234.jbarnes@engr.sgi.com> <20040624143927.GH983@hygelac>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040624143927.GH983@hygelac>
+	Thu, 24 Jun 2004 11:02:52 -0400
+Message-ID: <40DAE44D.2000305@greatcn.org>
+Date: Thu, 24 Jun 2004 22:25:17 +0800
+From: Coywolf Qi Hunt <coywolf@greatcn.org>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+References: <20040624014655.5d2a4bfb.akpm@osdl.org>
+In-Reply-To: <20040624014655.5d2a4bfb.akpm@osdl.org>
+X-Scan-Signature: f15040c440cb8a680f7a81001bce12bd
+X-SA-Exim-Connect-IP: 218.24.166.134
+X-SA-Exim-Mail-From: coywolf@greatcn.org
+Subject: Re: 2.6.7-mm2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
+	*      [218.24.166.134 listed in cnkrbl.ahbl.org]
+X-SA-Exim-Version: 4.0 (built Wed, 05 May 2004 12:02:20 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 09:39:27AM -0500, Terence Ripperda wrote:
-> but even if all PCI-X and PCI-E devices properly addressed the full
-> 64-bits, legacy 32-bit PCI devices can be plugged into the motherboards as
-> well. my Intel em64t boards have mostly PCI-X, but 1 PCI slot and my amd
-> x86_64 have all PCI slots (aside from the main PCI-E slot).
+Andrew Morton wrote:
 
-For the older AGP devices you can always map the data through the AGP
-aperture, no ? (It also has a size limit, but that can be usually
-increased in the BIOS setup) 
+>Changes since 2.6.7-mm1:
+>
+>+kbuild-distclean-srctree-fix.patch
+>
+> kbuild fix
+>
 
-This won't work for graphic cards put into PCI slots, but these
-can probably tolerate some performance degradation.
+Hi, Andrew,
 
-For AMD all PCI IO can be done through the aperture anyways, only
-Intel is more crippled in this regard.
+I'm afraid you didn't apply my patch properly.  You changed a wrong line.
+See the differences b/w 
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm2/broken-out/kbuild-distclean-srctree-fix.patch 
+and
 
-> also, at least one motherboard manufacturer claims PCI-E + AGP, but the AGP
-> is really just an AGP form-factor slot on the PCI bus.
+--- linux-2.6.7/Makefile	Wed Jun  9 01:07:00 2004
++++ linux-2.6.7-cy/Makefile	Wed Jun 16 21:33:57 2004
+@@ -841,7 +841,7 @@ mrproper: clean archmrproper $(mrproper-
+ .PHONY: distclean
+ 
+ distclean: mrproper
+-	@find . $(RCS_FIND_IGNORE) \
++	@find $(srctree) $(RCS_FIND_IGNORE) \
+ 	 	\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
+ 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
+ 	 	-o -name '.*.rej' -o -size 0 \
 
-With no aperture I guess? 
 
--Andi
+-- 
+Coywolf Qi Hunt
+Admin of http://GreatCN.org and http://LoveCN.org
 
